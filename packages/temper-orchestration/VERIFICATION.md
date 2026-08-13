@@ -3922,3 +3922,148 @@ files. They stay `Py<PyAny>`-shaped until their owner crate migrates them.
 - `make regen-check`: unchanged — the two `need attention` items (drifted
   `_pipeline_core_py_oracle.py` pin from #1113, unmanifested
   `measure_uncapped_drc.py` from #1111) are pre-existing on origin/main.
+
+## U1 used_slots port — the first owned BoardState field + the d1_bridge rewire pattern (O-C3/U1)
+
+U1 ports the FIRST `Option<Py<PyAny>>` `BoardState` field to an owned Rust
+type: `used_slots` (`frozenset` of `(x, y)` slot-id tuples) →
+`Option<HashSet<SlotId>>`. It is the pattern unit U2+ fan out across the
+remaining 22 fields, so the rewire is recorded here as the copy-paste
+template.
+
+### What migrated
+
+- **`board_state.rs`** — `used_slots: Option<HashSet<SlotId>>`; the new
+  `SlotId(f64, f64)` type (Hash/Eq normalize `-0.0` to `0.0` and all NaNs to
+  one form, mirroring Python-set membership; the stored bit patterns stay
+  ORIGINAL so a `-0.0` leaf round-trips as `-0.0`). Exported as
+  `temper_orchestration::SlotId` (append-only re-export; the runner tests
+  construct the owned value directly).
+- **`marshal.rs`** — two new `Marshal` impls: `SlotId` ↔ a `(x, y)` 2-tuple
+  (leaves validated through the `f64` impl's strictness — an int-shaped
+  `(0, 1)` tuple is REJECTED, never widened; the real pipeline data is
+  float-only, the D4/D5 oracles annotate `set[tuple[float, float]]`) and
+  `HashSet<SlotId>` ↔ `frozenset`/`set` (read) → always `frozenset` (write).
+- **`d1_bridge.rs`** — the read and the write-back for `used_slots`.
+- **`phased_assignment_stage.rs`** — the WRITE: the oracle's
+  `frozenset(used_slots)` construction is kept verbatim, then marshalled
+  INTO the owned field (`to_owned::<HashSet<SlotId>>(&used_slots_fs)`).
+- **`phased_component_assignment_validator_stage.rs`** — the READ: the
+  recorded owned set is rebuilt into the real Python `set` the scans use via
+  `to_python::<HashSet<SlotId>>` (a `frozenset`) driven through the same
+  `set(...)` call the oracle makes.
+- **Python side is UNCHANGED** — `deterministic/state.py` and the stage
+  shims still hold/thread the Python `frozenset`; the marshalling happens
+  entirely in the Rust bridge.
+
+### The established rewire pattern (U2+ copy template)
+
+READ (`d1_bridge::from_python`): replace `attr_opt(state, "used_slots")?`
+with a boundary-marshalled read. `Option<T>`'s `Marshal` impl maps Python
+`None` → Rust `None`, so one call covers both:
+
+```rust
+bs.used_slots =
+    crate::marshal::to_owned::<Option<HashSet<SlotId>>>(&state.getattr("used_slots")?)?;
+```
+
+WRITE-BACK (`d1_bridge::to_python`): the `dataclasses.replace` semantics
+(a changed field writes the new value; an unchanged field keeps the original
+Python object — identity preserved) are preserved WITHOUT holding a `Py`
+copy of the field:
+
+1. The `changed` arm calls a typed helper that marshals the ORIGINAL Python
+   attribute to the same owned type and compares with Rust equality:
+   ```rust
+   fn used_slots_changed(orig: &Bound<'_, PyAny>, out: &BoardState) -> PyResult<bool> {
+       let orig_owned = crate::marshal::to_owned::<Option<HashSet<SlotId>>>(
+           &orig.getattr("used_slots")?,
+       )?;
+       Ok(orig_owned != out.used_slots)
+   }
+   ```
+2. The value arm writes through the marshaller (always a `frozenset` — the
+   dataclass field contract):
+   ```rust
+   "used_slots" => crate::marshal::to_python::<Option<HashSet<SlotId>>>(py, &out.used_slots)?,
+   ```
+3. The field's `py_opt_changed` arm is DELETED (it returned `Option<&Py>`;
+   typed fields must never appear there).
+
+STAGE WRITE: keep the Python-side construction sequence the oracle uses
+(`frozenset(...)` through CPython) and marshal its result into the owned
+field — do NOT rebuild the value from scratch in Rust (bit-exactness by
+construction).
+
+STAGE READ: rebuild the Python object the stage's downstream Python calls
+expect from the owned value via `to_python::<OwnedType>` and drive it
+through the same Python call sequence the oracle makes.
+
+### The owned type + why (the U1 decision record)
+
+- **`HashSet<SlotId>`** (not `HashSet<(i64, i64)>` — the brief's suggestion):
+  the real slot ids are FLOAT grid coordinates; `(i64, i64)` would reject
+  every real board. `f64` has no `Hash`/`Eq` in std, so `SlotId` is the
+  wrapper, with Python-set semantics (`(0.0, 5.0) == (-0.0, 5.0)`) baked
+  into its `Hash`/`Eq`.
+- **Leaf policy is strict** (`int` rejected): mirrors `Marshal for f64`'s
+  "an int is not a float" — an int-shaped tuple must fail loudly, not widen
+  silently (the U0 concrete-Python-type hazard). The dataclass default
+  `frozenset()` (empty) has no leaves and marshals unconditionally.
+- **`to_python` inserts in SORTED order** (by the same normalized bits the
+  `Hash` impl uses), deliberately: `std::collections::HashSet` hashes with a
+  process-random seed, so raw iteration order is nondeterministic across
+  runs — unacceptable for a deterministic engine's write-back. The sorted
+  order makes the rebuilt frozenset's table layout a deterministic function
+  of the values.
+
+### Recorded bound — set iteration order (R1-style, read before copying)
+
+The U0 `Plain` type round-trips colliding sets bit-identically because its
+`Vec` RECORDS the original iteration order. An owned `HashSet` cannot: for a
+COLLISION-FREE slot set, CPython's set iteration order is a pure function of
+the values (each element owns its bucket), so the rebuilt `frozenset`
+round-trips bit-identically (type, repr, ==). With hash collisions — and the
+U0 3-element example `{(0, 1), (2, 3), (1, 0)}` actually collides (buckets
+2/2 mod 8) — the original frozenset's order is a table-layout artifact of
+its original insertion sequence, not derivable from the values; the rebuilt
+set iterates in a deterministic-but-different order. Type, membership
+content and `==` are preserved in every case. The D4 over-claim scan's
+`used_slots` set-iteration order is therefore bit-exact only for
+collision-free over-claim sets; every exercised differential/PBT over-claim
+set has a single phantom slot (order unobservable), and the D5 canon is
+order-free (`set(...)` equality). A future test pinning multi-element
+over-claim ORDER would need the `Plain`-style order-recording type instead —
+recorded here as the known bound, not papered over. The round-trip gate
+pins full bit-identity on the guaranteed shapes (empty/1-element/`None`) and
+type+content+element-repr-multiset on multi-element sets, plus an explicit
+determinism assertion (two `to_python` calls produce repr-identical
+frozensets).
+
+### Gates (U1)
+
+- `cargo test -p temper-orchestration` (PYO3_PYTHON=<main venv python>):
+  1125 lib passed (1122 base + 2 new `marshal::tests` + the multi-element
+  content gate); d1/d2/d3/d5/d6/d7/e3/e4/e6/stages/ue/uf/ug runner binaries
+  all green — including the d5 runner's `phased_hv_rings_reserved` /
+  `phased_single_stage_end_to_end`, which exercise the owned WRITE and the
+  rebuilt-set READ. Two runner failures are PRE-EXISTING on origin/main
+  (verified identical on a pristine base worktree): d4
+  `phased_validator_hv_kernel` (the validator's `py.import("temper_drc_rs")`
+  has no fake registered — the fake list predates the 946cefa61 flatten
+  delegate) and uh_marshal_runner (2 tests needing venv modules the
+  embedded interpreter cannot see).
+- `cargo clippy -p temper-orchestration --all-targets`: clean.
+- `cargo check -p temper-orchestration --no-default-features`: clean.
+- Python differentials (D4 25/25 incl. the 5 validator used_slots tests, D5
+  24/24, D2 PBT 14/14, D4 PBT + D5 PBT 30/30) — all green against the
+  pinned oracles through the rewire, run with the worktree-built
+  `temper_orchestration` extension shadowing the venv's.
+- `make regen-check`: all derived artifacts consistent (unchanged);
+  temper-orchestration wasm census 1019 up to date (`marshal::tests` stays
+  `python-gated`).
+- Environment note: the main venv's `temper-design-bundle`/`temper-geometry`/
+  `temper-io-types`/`temper-orchestration` extensions were STALE (2026-08-11
+  builds vs 08-12/13 sources; `check_stale_extensions.py` flagged 4) —
+  `make extensions` rebuilt all 10 fresh before the differentials. This was
+  a pre-existing environment gap, not a U1 artifact.

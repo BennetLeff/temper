@@ -358,7 +358,7 @@ pub(crate) mod metrics;
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use apply_placements_stage::ApplyPlacementsStage;
 #[cfg(feature = "python")]
-pub use board_state::BoardState;
+pub use board_state::{BoardState, SlotId};
 #[cfg(feature = "python")]
 pub use channel_mapping::{ChannelMappingStage, ChannelWidthsStage};
 #[cfg(feature = "python")]

@@ -12,8 +12,10 @@
 // `dataclasses.replace`.
 //
 // The conversion is a pure Py<PyAny> pass-through (D2: fields are NOT
-// tightened speculatively); the only owned field is `net_order`
-// (tuple[str, ...] <-> Vec<String>).
+// tightened speculatively); the owned fields are `net_order`
+// (tuple[str, ...] <-> Vec<String>) and, since unit O-C3/U1, `used_slots`
+// (frozenset of (x, y) tuples <-> HashSet<SlotId>) read/written through
+// `crate::marshal`.
 //
 // Write-back semantics: `to_python` writes a candidate field back only when
 // the stage actually changed it (compared against the ORIGINAL Python
@@ -29,7 +31,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyTuple};
 
 #[cfg(feature = "python")]
-use crate::board_state::BoardState;
+use std::collections::HashSet;
+
+#[cfg(feature = "python")]
+use crate::board_state::{BoardState, SlotId};
 
 #[cfg(feature = "python")]
 /// Read the Python BoardState attributes the D1 stages consume into a Rust
@@ -48,7 +53,14 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.connectivity_violations = attr_opt(state, "connectivity_violations")?;
     bs.placement_violations = attr_opt(state, "placement_violations")?;
     bs.placements = attr_opt(state, "placements")?;
-    bs.used_slots = attr_opt(state, "used_slots")?;
+    // U1 (O-C3): the first field read through the boundary marshaller
+    // instead of `attr_opt`. `Option<T>`'s `Marshal` impl maps Python `None`
+    // to Rust `None` and a `frozenset` of `(x, y)` tuples to
+    // `Some(HashSet<SlotId>)`; the concrete `frozenset` type and every float
+    // leaf are validated here at the boundary (a shape change is a LOUD
+    // `PyTypeError`, not a downstream silent mismatch).
+    bs.used_slots =
+        crate::marshal::to_owned::<Option<HashSet<SlotId>>>(&state.getattr("used_slots")?)?;
     bs.config = attr_opt(state, "config")?;
     bs.component_domain_map = attr_opt(state, "component_domain_map")?;
     bs.routing_corridors = attr_opt(state, "routing_corridors")?;
@@ -89,7 +101,12 @@ pub(crate) fn to_python(
             "component_zone_map" => py_opt_changed(orig, out, "component_zone_map")?,
             "zone_slots" => py_opt_changed(orig, out, "zone_slots")?,
             "placements" => py_opt_changed(orig, out, "placements")?,
-            "used_slots" => py_opt_changed(orig, out, "used_slots")?,
+            // U1 (O-C3): the first typed candidate — the change test
+            // marshals the ORIGINAL Python value to the same owned type and
+            // compares (see `used_slots_changed`); the write-back value goes
+            // through `marshal::to_python`, which always produces a
+            // `frozenset` (the dataclass field contract).
+            "used_slots" => used_slots_changed(orig, out)?,
             "design_rules" => py_opt_changed(orig, out, "design_rules")?,
             "reclaim_by_pin_pair" => py_opt_changed(orig, out, "reclaim_by_pin_pair")?,
             // D6 (validation stages): the validation-result and geometry
@@ -128,7 +145,7 @@ pub(crate) fn to_python(
             "component_zone_map" => opt_value(py, &out.component_zone_map),
             "zone_slots" => opt_value(py, &out.zone_slots),
             "placements" => opt_value(py, &out.placements),
-            "used_slots" => opt_value(py, &out.used_slots),
+            "used_slots" => crate::marshal::to_python::<Option<HashSet<SlotId>>>(py, &out.used_slots)?,
             "design_rules" => opt_value(py, &out.design_rules),
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
             "routes" => opt_value(py, &out.routes),
@@ -197,7 +214,6 @@ fn py_opt_changed(
         "component_zone_map" => out.component_zone_map.as_ref(),
         "zone_slots" => out.zone_slots.as_ref(),
         "placements" => out.placements.as_ref(),
-        "used_slots" => out.used_slots.as_ref(),
         "design_rules" => out.design_rules.as_ref(),
         "reclaim_by_pin_pair" => out.reclaim_by_pin_pair.as_ref(),
         "routes" => out.routes.as_ref(),
@@ -221,6 +237,21 @@ fn py_opt_changed(
         }
         (true, None) => Ok(false),
     }
+}
+
+#[cfg(feature = "python")]
+/// The `used_slots` write-back test for an OWNED field (the U1 rewire
+/// pattern): marshal the ORIGINAL Python attribute to the same owned type
+/// the Rust field holds and compare with Rust equality. This preserves the
+/// `dataclasses.replace` semantics — a changed field writes the new value,
+/// an unchanged field keeps the original Python object (identity preserved,
+/// matching the Python stages' `return state` paths) — without ever holding
+/// a `Py<PyAny>` copy of the field.
+fn used_slots_changed(orig: &Bound<'_, PyAny>, out: &BoardState) -> PyResult<bool> {
+    let orig_owned = crate::marshal::to_owned::<Option<HashSet<SlotId>>>(
+        &orig.getattr("used_slots")?,
+    )?;
+    Ok(orig_owned != out.used_slots)
 }
 
 #[cfg(feature = "python")]

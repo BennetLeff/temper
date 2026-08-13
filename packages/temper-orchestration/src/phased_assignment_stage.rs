@@ -47,6 +47,8 @@
 
 #[cfg(feature = "python")]
 use std::borrow::Cow;
+#[cfg(feature = "python")]
+use std::collections::HashSet;
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -54,7 +56,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyFloat, PyList, PySet, PyString, PyTuple};
 
 #[cfg(feature = "python")]
-use crate::board_state::BoardState;
+use crate::board_state::{BoardState, SlotId};
 #[cfg(feature = "python")]
 use crate::config_attach_stage::to_pyerr;
 #[cfg(feature = "python")]
@@ -164,7 +166,11 @@ impl PhasedAssignmentStage {
         let used_slots_fs = builtins.getattr("frozenset")?.call1((&used_slots,))?;
         let mut new_state = state;
         new_state.placements = Some(placements_fs.into_any().unbind());
-        new_state.used_slots = Some(used_slots_fs.into_any().unbind());
+        // U1 (O-C3): `frozenset(used_slots)` is still built through CPython
+        // (the oracle's exact construction), then marshalled INTO the owned
+        // field — the Python placer's slot set is unchanged, only the field's
+        // Rust representation is owned now.
+        new_state.used_slots = Some(crate::marshal::to_owned::<HashSet<SlotId>>(&used_slots_fs)?);
         Ok(new_state)
     }
 }

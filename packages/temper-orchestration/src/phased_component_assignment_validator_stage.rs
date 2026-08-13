@@ -56,7 +56,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyFloat, PyList, PySet, PyString, PyTuple};
 
 #[cfg(feature = "python")]
-use crate::board_state::BoardState;
+use std::collections::HashSet;
+
+#[cfg(feature = "python")]
+use crate::board_state::{BoardState, SlotId};
 #[cfg(feature = "python")]
 use crate::grid_hv::{getattr_default, str_of};
 
@@ -185,16 +188,25 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
     }
 
     // `used_slots`: the placer's recorded set when non-empty, else the
-    // fallback recompute from placements.
+    // fallback recompute from placements. U1 (O-C3): the recorded value is
+    // now an OWNED `HashSet<SlotId>`. The real Python `set` the scans use is
+    // rebuilt through the marshaller — `to_python::<HashSet<SlotId>>`
+    // produces the `frozenset` the dataclass field contract requires — and
+    // driven through the SAME `set(...)` call the oracle makes
+    // (`used_slots = set(used_slots_attr)`), so CPython's set-from-frozenset
+    // build is reproduced by construction. For a collision-free slot set the
+    // resulting iteration order is a pure function of the VALUES (each
+    // element owns its bucket, so the rebuild's insertion order is
+    // unobservable), which the D4 differential pins empirically.
     let used_slots = PySet::empty(py)?;
     let recorded = match &state.used_slots {
-        Some(u) if u.bind(py).len()? > 0 => Some(u.clone_ref(py)),
+        Some(u) if !u.is_empty() => Some(u),
         _ => None,
     };
     match recorded {
         Some(rec) => {
-            // `used_slots = set(used_slots_attr)`
-            let s = builtins.getattr("set")?.call1((rec,))?;
+            let fs = crate::marshal::to_python::<HashSet<SlotId>>(py, rec)?;
+            let s = builtins.getattr("set")?.call1((fs,))?;
             for slot in s.try_iter()? {
                 used_slots.add(slot?)?;
             }

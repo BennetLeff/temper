@@ -58,12 +58,16 @@
 #![allow(dead_code)] // U0 scaffolding: consumed by the U1+ stage ports; until
 // then only the round-trip gate tests exercise this file.
 
+use std::collections::HashSet;
+
 use pyo3::IntoPyObjectExt;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::{
     PyBool, PyBytes, PyDict, PyFloat, PyFrozenSet, PyInt, PyList, PySet, PyString, PyTuple,
 };
+
+use crate::board_state::SlotId;
 
 // ---------------------------------------------------------------------------
 // The marshalling contract
@@ -236,6 +240,106 @@ impl<T: Marshal> Marshal for Vec<T> {
             list.append(item.to_python(py)?.bind(py))?;
         }
         Ok(list.into_any().unbind())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The U1 used_slots port — `SlotId` + `HashSet<SlotId>`
+// ---------------------------------------------------------------------------
+//
+// `BoardState.used_slots` is a Python `frozenset` of `(x, y)` grid-slot
+// tuples. This is the first `Option<Py<PyAny>>` field ported to an owned
+// Rust type (unit O-C3/U1); the impls here are the boundary the stage
+// rewires plug into (the established `d1_bridge` rewire pattern is recorded
+// in VERIFICATION.md so U2+ agents can copy it).
+//
+// Leaf policy: the slot coordinates are FLOATS in the real pipeline (zone
+// slots are `(float, float)` grid positions — the D4/D5 oracles annotate
+// `used_slots: set[tuple[float, float]]`). `from_python` reuses the `f64`
+// impl's strictness, so an int-shaped `(0, 1)` tuple is REJECTED rather
+// than silently widened (the U0 concrete-Python-type hazard: a widened leaf
+// would change `repr`, `==` and downstream numpy dtype promotion). An empty
+// `frozenset()` has no leaves to check and marshals unconditionally — the
+// dataclass default.
+
+impl Marshal for SlotId {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let t = obj
+            .cast::<PyTuple>()
+            .map_err(|_| type_err(obj, "SlotId", "expected a (x, y) tuple"))?;
+        if t.len() != 2 {
+            return Err(type_err(
+                obj,
+                "SlotId",
+                &format!("expected a 2-tuple, got {} elements", t.len()),
+            ));
+        }
+        let x = <f64 as Marshal>::from_python(py, &t.get_item(0)?)
+            .map_err(|e| type_err(obj, "SlotId", &format!("x coordinate: {e}")))?;
+        let y = <f64 as Marshal>::from_python(py, &t.get_item(1)?)
+            .map_err(|e| type_err(obj, "SlotId", &format!("y coordinate: {e}")))?;
+        Ok(SlotId(x, y))
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        Ok(PyTuple::new(py, [self.0, self.1])?
+            .into_any()
+            .unbind())
+    }
+}
+
+impl Marshal for HashSet<SlotId> {
+    fn from_python(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let is_frozen = obj.is_instance_of::<PyFrozenSet>();
+        let is_mutable = obj.is_instance_of::<PySet>();
+        if !is_frozen && !is_mutable {
+            return Err(type_err(
+                obj,
+                "HashSet<SlotId>",
+                "expected frozenset or set",
+            ));
+        }
+        let mut out = HashSet::with_capacity(obj.len()?);
+        for item in obj.try_iter()? {
+            out.insert(SlotId::from_python(py, &item?)?);
+        }
+        Ok(out)
+    }
+
+    fn to_python(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        // The field contract is a FROZENSET (the dataclass default is
+        // `frozenset()`); a read `set` is accepted but the write-back always
+        // produces a frozenset.
+        //
+        // Insertion order is SORTED (by the same normalized float bits the
+        // `Hash` impl uses), deliberately: `std::collections::HashSet` hashes
+        // with a process-random seed, so its raw iteration order is
+        // nondeterministic across runs — an unacceptable property for a
+        // deterministic engine's write-back. The sorted order makes the
+        // rebuilt frozenset's table layout — and therefore its Python-side
+        // iteration order — a deterministic function of the VALUES.
+        //
+        // Bit-identity bound (recorded in VERIFICATION.md, R1-style): for a
+        // COLLISION-FREE slot set, CPython's set iteration order is a pure
+        // function of the values (each element owns its bucket), so the
+        // rebuilt frozenset round-trips bit-identically (type, repr, ==)
+        // regardless of insertion order. With hash collisions, the ORIGINAL
+        // frozenset's order is a table-layout artifact of its original
+        // insertion sequence — not derivable from the values — so the rebuilt
+        // set may iterate in a different (but now deterministic) order.
+        // Type, membership content and `==` are preserved in every case. The
+        // U0 `Plain` type, by contrast, records the original order in its
+        // `Vec` and therefore round-trips colliding sets bit-identically too;
+        // an owned set cannot, by construction.
+        let mut slots: Vec<SlotId> = self.iter().copied().collect();
+        slots.sort_by_key(|s| (crate::board_state::slot_bits(s.0), crate::board_state::slot_bits(s.1)));
+        let mut items = Vec::with_capacity(slots.len());
+        for slot in &slots {
+            items.push(slot.to_python(py)?);
+        }
+        Ok(PyFrozenSet::new(py, items.iter().map(|o| o.bind(py)))?
+            .into_any()
+            .unbind())
     }
 }
 
@@ -659,6 +763,139 @@ mod tests {
             assert_roundtrip::<Plain>(py, "frozenset({(0.0, 1.0), (2.0, 3.0)})");
             let owned: Plain = to_owned(&slots).unwrap();
             assert!(matches!(owned, Plain::FrozenSet(_)));
+        });
+    }
+
+    // -- U1 (O-C3): the used_slots port -- owned HashSet<SlotId> ------------
+
+    #[test]
+    fn used_slots_hashset_roundtrip_losslessly() {
+        // The REAL pipeline shape (the U0 docstring's "integer slot ids" is a
+        // simplification — the D4/D5 oracles annotate
+        // `used_slots: set[tuple[float, float]]`: zone slots are float grid
+        // positions).
+        //
+        // Bit-identity (type + repr + ==) is pinned here only for the shapes
+        // where it is GUARANTEED: the empty frozenset, single-element sets,
+        // and `None`. A multi-element set's rebuilt iteration order is
+        // deterministic (the sorted-insertion `to_python`) but matches the
+        // original's only when the set is collision-free — which is a
+        // property of CPython's float-tuple hash buckets, NOT of the values
+        // in a way the gate can assume (the U0 3-element int-tuple example
+        // `{(0, 1), (2, 3), (1, 0)}` actually collides: buckets 2 and 2 mod
+        // 8). Multi-element sets are pinned by the content gate below.
+        Python::initialize();
+        Python::attach(|py| {
+            assert_roundtrip::<HashSet<SlotId>>(py, "frozenset()");
+            assert_roundtrip::<HashSet<SlotId>>(py, "frozenset({(0.0, 5.0)})");
+            assert_roundtrip::<Option<HashSet<SlotId>>>(py, "None");
+            assert_roundtrip::<Option<HashSet<SlotId>>>(py, "frozenset({(1.5, 2.5)})");
+            // -0.0 leaves round-trip as -0.0 (repr bit-identity), while the
+            // Hash/Eq normalization makes (0.0, 5.0) and (-0.0, 5.0) the SAME
+            // Rust value — exactly Python's `(0.0, 5.0) == (-0.0, 5.0)`.
+            assert_roundtrip::<HashSet<SlotId>>(py, "frozenset({(-0.0, 5.0)})");
+            let a: HashSet<SlotId> = to_owned(&eval(py, "frozenset({(0.0, 5.0)})")).unwrap();
+            let b: HashSet<SlotId> = to_owned(&eval(py, "frozenset({(-0.0, 5.0)})")).unwrap();
+            assert_eq!(a, b, "-0.0 must normalize to 0.0 in Rust equality");
+        });
+    }
+
+    #[test]
+    fn used_slots_multi_element_sets_roundtrip_content_and_type() {
+        // Multi-element sets: type + membership content + `==` are preserved
+        // ALWAYS (both arms hold the same VALUES); the rebuilt frozenset's
+        // iteration order (what repr shows) matches the original's only for
+        // collision-free sets and is otherwise a deterministic-but-different
+        // order (see the `to_python` comment — this is the recorded bound of
+        // owning a hash set instead of `Plain`'s order-recording `Vec`). The
+        // element reprs are therefore compared as a sorted multiset.
+        Python::initialize();
+        Python::attach(|py| {
+            let cases = [
+                // The U0 int-tuple example, float-shaped: (0.0,1.0) and
+                // (2.0,3.0) collide mod the size-8 small-table bucket.
+                "frozenset({(0.0, 1.0), (2.0, 3.0), (1.0, 0.0)})",
+                // A 5-slot grid ring; (10.0, 0.0) and (0.0, 10.0) collide.
+                "frozenset({(0.0, 5.0), (5.0, 0.0), (5.0, 5.0), (10.0, 0.0), (0.0, 10.0)})",
+                // Non-integer-valued slots (spread hashes; the real D4 ring
+                // shapes from `slots_within_radius_py`).
+                "frozenset({(1.5, 2.5), (-3.25, 4.0), (7.75, -0.5)})",
+            ];
+            for expr in cases {
+                let orig = eval(py, expr);
+                let owned: HashSet<SlotId> = to_owned(&orig).unwrap();
+                let rebuilt = to_python::<HashSet<SlotId>>(py, &owned).unwrap();
+                let back = rebuilt.bind(py);
+                assert!(
+                    orig.get_type().is(back.get_type()),
+                    "type mismatch for {expr}"
+                );
+                assert!(
+                    gate_equal(&orig, back).unwrap(),
+                    "content mismatch for {expr}: orig {orig:?}, back {back:?}"
+                );
+                let sorted_repr = |o: &Bound<'_, PyAny>| -> Vec<String> {
+                    let mut items: Vec<String> = o
+                        .try_iter()
+                        .unwrap()
+                        .map(|s| s.unwrap().repr().unwrap().extract::<String>().unwrap())
+                        .collect();
+                    items.sort();
+                    items
+                };
+                assert_eq!(
+                    sorted_repr(&orig),
+                    sorted_repr(back),
+                    "element reprs must be preserved for {expr}"
+                );
+            }
+            // The rebuild is DETERMINISTIC: two `to_python` calls from the
+            // same owned value produce repr-identical frozensets (the sorted
+            // insertion order — never the process-random HashSet order).
+            let owned: HashSet<SlotId> = to_owned(&eval(
+                py,
+                "frozenset({(0.0, 5.0), (5.0, 0.0), (5.0, 5.0), (10.0, 0.0), (0.0, 10.0)})",
+            ))
+            .unwrap();
+            let r1 = to_python::<HashSet<SlotId>>(py, &owned).unwrap().bind(py).repr().unwrap().extract::<String>().unwrap();
+            let r2 = to_python::<HashSet<SlotId>>(py, &owned).unwrap().bind(py).repr().unwrap().extract::<String>().unwrap();
+            assert_eq!(r1, r2, "rebuild must be deterministic across calls");
+        });
+    }
+
+    #[test]
+    fn used_slots_rejects_int_and_bool_leaves() {
+        // Strict leaf policy (mirrors `Marshal for f64`'s "an int is not a
+        // float"): an int-shaped slot tuple must not silently widen to
+        // floats — that would change repr / == / numpy dtype promotion
+        // downstream. Real pipeline data is float-only; an int-shaped input
+        // is a LOUD marshalling error instead of a silent type change.
+        Python::initialize();
+        Python::attach(|py| {
+            assert!(
+                to_owned::<HashSet<SlotId>>(&eval(py, "frozenset({(0, 1)})")).is_err(),
+                "int tuple must be rejected, not widened"
+            );
+            assert!(
+                to_owned::<HashSet<SlotId>>(&eval(py, "frozenset({(0.0, 1)})")).is_err(),
+                "mixed int/float tuple must be rejected"
+            );
+            assert!(
+                to_owned::<SlotId>(&eval(py, "(True, 1.0)")).is_err(),
+                "bool leaf must be rejected (bool is an int subclass)"
+            );
+            assert!(
+                to_owned::<SlotId>(&eval(py, "(0.0,)")).is_err(),
+                "1-tuple must be rejected"
+            );
+            assert!(
+                to_owned::<SlotId>(&eval(py, "(0.0, 1.0, 2.0)")).is_err(),
+                "3-tuple must be rejected"
+            );
+            assert!(
+                to_owned::<HashSet<SlotId>>(&eval(py, "[(0.0, 1.0)]")).is_err(),
+                "a list is not a frozenset/set"
+            );
         });
     }
 }
