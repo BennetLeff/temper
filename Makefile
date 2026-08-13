@@ -509,6 +509,7 @@ worktree:
 	git worktree add -b $(NAME) "$(WT_PATH)" $(BASE)
 	@echo "worktree created: $(WT_PATH) on branch $(NAME) from $(BASE)"
 	@echo "  cd $(WT_PATH)"
+	@python3 scripts/install_git_stash_guard.py || echo "warning: git-stash-guard install failed -- run 'python3 scripts/install_git_stash_guard.py' manually before using git stash in any worktree"
 	@if [ "$(VENV)" = "1" ]; then echo "provisioning isolated .venv..."; $(MAKE) -C "$(WT_PATH)" venv-isolate; fi
 
 gerbers: build
