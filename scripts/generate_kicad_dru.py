@@ -5,6 +5,10 @@ Usage (from repo root):
     uv run python scripts/generate_kicad_dru.py
 """
 
+import itertools
+import re
+from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path
 
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
@@ -243,8 +247,377 @@ def fmt_mm(value: float) -> str:
     return f"{s}mm"
 
 
+# ---------------------------------------------------------------------------
+# RULE PRECEDENCE (added 2026-08-12 -- see
+# docs/evidence/2026-08-12-dru-rule-precedence.md).
+#
+# KiCad does NOT pick the most specific matching rule. Its own documentation
+# (kicad-doc src/pcbnew/pcbnew_advanced.adoc, "Custom Design Rules") states:
+#
+#   "Rules are evaluated in reverse order, meaning the last rule in the file
+#    is checked first. Once a matching rule is found for a given set objects
+#    being tested, no further rules will be checked."
+#   "The order of the two objects is not important because the design rule
+#    checker will test both possible orderings."
+#
+# Confirmed empirically against this repo's own board on kicad-cli 10.0.5: a
+# 0.001mm catch-all clearance rule appended LAST drops the measured clearance
+# violation count 402 -> 71; the identical rule placed FIRST leaves it at 402.
+#
+# Consequence: a broad rule emitted after a narrow one silently REPLACES it.
+# This file used to emit "Default routing" (0.2mm, condition
+# "A.Type == 'Track' || B.Type == 'Track'") last, so 0.2mm superseded every
+# cited 0.5-6.0mm HV/ACMains/HighVoltageIsolated safety bar on any pair
+# involving a track. Three further instances existed (Ground clearance,
+# GateDriveSELV near HV, HighVoltageIsolated same side).
+#
+# THE INVARIANT THIS FILE NOW ENFORCES: for every constraint type and every
+# pair of items, the STRICTEST matching rule must be the one KiCad selects.
+# That is achieved by emitting rules in increasing order of their `min` value
+# per constraint type, which makes last-matching-wins numerically equivalent
+# to strictest-wins. `order_rules_by_strictness()` does the reordering (the
+# authored narrative order in the source below is left untouched -- only the
+# emitted file is reordered), and `find_shadowing()` is a fail-closed guard
+# that re-derives the winner for every rule pair over a finite world model
+# and raises if any rule can still be overridden by a weaker one. Adding a
+# new rule anywhere in this function is therefore safe: it is placed by
+# value, and if it cannot be placed safely the generator fails loudly rather
+# than emitting a file that silently disables a safety bar.
+# ---------------------------------------------------------------------------
+
+# Constraint types whose rules KiCad evaluates against a PAIR of items (and
+# therefore tries in both A/B orderings). `track_width` is deliberately
+# absent: it constrains a single track, KiCad binds only A, and there is no
+# swapped evaluation -- verified on the real board, where 'HighVoltage trace
+# width' (3.0mm) fires 127 times despite 'Power trace width' (1.0mm) being
+# emitted after it, which could not happen if the two were paired.
+PAIR_CONSTRAINT_TYPES = ("clearance", "creepage", "hole_clearance", "hole_to_hole")
+
+_RULE_BLOCK_RE = re.compile(r'^\(rule "(?P<name>[^"]+)"$')
+_CONDITION_RE = re.compile(r'^\s*\(condition "(?P<expr>.*)"\)\s*$')
+_CONSTRAINT_RE = re.compile(r"^\s*\(constraint (?P<type>\w+) \(min (?P<value>[0-9.]+)mm\)\)\s*$")
+
+# Item properties the condition analyser understands. A condition naming
+# anything else cannot be reasoned about, so the guard refuses to certify the
+# file rather than assuming the rule is harmless.
+_SUPPORTED_PROPERTIES = ("NetClass", "Type", "Reference", "Pad_Type")
+
+# Finite world model. `__unlisted__` stands for any net class not named by any
+# rule and not declared in TEMPER_NET_CLASSES, so catch-alls are modelled
+# honestly rather than only over the classes that happen to exist today.
+_UNLISTED_NETCLASS = "__unlisted__"
+_ITEM_TYPES = ("Track", "Pad", "Via", "Zone")
+_PAD_TYPES = {
+    "Pad": ("SMD", "Through-hole"),
+    "Track": ("",),
+    "Via": ("",),
+    "Zone": ("",),
+}
+
+
+class UnsupportedConditionError(ValueError):
+    """A rule condition uses syntax the precedence analyser cannot model.
+
+    Raised rather than skipped: an unanalysable condition means the shadowing
+    guard cannot certify the file, and a guard that quietly ignores the rules
+    it does not understand is exactly the kind of vacuous check this repo
+    treats as a defect.
+    """
+
+
+class RuleShadowingError(RuntimeError):
+    """A rule in the emitted file can be overridden by a weaker later rule."""
+
+
+class RulePrecedenceCycleError(RuntimeError):
+    """No emission order can satisfy strictest-wins for every constraint type.
+
+    Reached only when two rules that overlap disagree about their relative
+    order across two different constraint types (rule X must precede Y for
+    clearance but follow it for creepage). There is no automatic answer; a
+    human has to split or re-scope one of the rules.
+    """
+
+
+@dataclass(frozen=True)
+class DruRule:
+    """One ``(rule ...)`` block parsed out of an emitted .kicad_dru."""
+
+    name: str
+    condition: str | None
+    constraints: dict[str, float]
+    text: str
+    index: int
+
+
+def _parse_rules(content: str) -> list[DruRule]:
+    """Parse every ``(rule ...)`` block out of *content*, in file order."""
+    rules: list[DruRule] = []
+    lines = content.splitlines()
+    i = 0
+    while i < len(lines):
+        match = _RULE_BLOCK_RE.match(lines[i])
+        if match is None:
+            i += 1
+            continue
+        start = i
+        condition: str | None = None
+        constraints: dict[str, float] = {}
+        i += 1
+        while i < len(lines) and lines[i] != ")":
+            cond = _CONDITION_RE.match(lines[i])
+            if cond is not None:
+                condition = cond.group("expr")
+            constraint = _CONSTRAINT_RE.match(lines[i])
+            if constraint is not None:
+                constraints[constraint.group("type")] = float(constraint.group("value"))
+            i += 1
+        block = "\n".join(lines[start : i + 1])
+        rules.append(
+            DruRule(
+                name=match.group("name"),
+                condition=condition,
+                constraints=constraints,
+                text=block,
+                index=len(rules),
+            )
+        )
+        i += 1
+    return rules
+
+
+def _compile_condition(condition: str | None):
+    """Translate a KiCad rule condition into a Python predicate.
+
+    Only the small expression language this file actually emits is accepted
+    (property equality/inequality against string literals, combined with
+    ``&&``/``||`` and parentheses). Anything else raises
+    :class:`UnsupportedConditionError` -- see its docstring for why.
+    """
+    if condition is None:
+        return compile("True", "<dru-condition>", "eval")
+
+    remainder = condition
+    for side in ("A", "B"):
+        for prop in _SUPPORTED_PROPERTIES:
+            remainder = remainder.replace(f"{side}.{prop}", f"{side.lower()}_{prop}")
+    # Whatever is left must be operators, literals, parens and whitespace.
+    residue = re.sub(r"'[^']*'", "", remainder)
+    props = "|".join(_SUPPORTED_PROPERTIES)
+    residue = re.sub(rf"\b[ab]_(?:{props})\b", "", residue)
+    residue = re.sub(r"(&&|\|\||==|!=|\(|\)|\s)", "", residue)
+    if residue:
+        raise UnsupportedConditionError(
+            f"condition {condition!r} contains constructs the rule-precedence "
+            f"analyser cannot model (unparsed residue: {residue!r}). Extend "
+            f"_SUPPORTED_PROPERTIES / _compile_condition, or the shadowing "
+            f"guard cannot certify this file."
+        )
+    expr = remainder.replace("&&", " and ").replace("||", " or ")
+    return compile(expr, "<dru-condition>", "eval")
+
+
+def _netclass_universe(rules: Iterable[DruRule]) -> list[str]:
+    """Every net-class name that could distinguish two rules, plus a sentinel."""
+    names = set(TEMPER_NET_CLASSES)
+    names.update(kicad_class_name(key) for key in TEMPER_NET_CLASSES)
+    for rule in rules:
+        if rule.condition:
+            names.update(re.findall(r"'([^']*)'", rule.condition))
+    # Item-type / pad-type literals also appear in single quotes; harmless as
+    # extra net-class names (they simply add worlds), but drop the obvious ones
+    # to keep the enumeration small.
+    names -= set(_ITEM_TYPES) | {"SMD", "Through-hole", "NPTH", "Connector"}
+    names.add(_UNLISTED_NETCLASS)
+    return sorted(names)
+
+
+def _worlds(netclasses: Iterable[str]):
+    """Enumerate every (A, B) item pairing the analyser considers."""
+    netclasses = list(netclasses)
+    for a_nc, b_nc in itertools.product(netclasses, repeat=2):
+        for a_type, b_type in itertools.product(_ITEM_TYPES, repeat=2):
+            for a_pad, b_pad in itertools.product(_PAD_TYPES[a_type], _PAD_TYPES[b_type]):
+                for same_reference in (True, False):
+                    yield {
+                        "a_NetClass": a_nc,
+                        "b_NetClass": b_nc,
+                        "a_Type": a_type,
+                        "b_Type": b_type,
+                        "a_Pad_Type": a_pad,
+                        "b_Pad_Type": b_pad,
+                        "a_Reference": "REF_A",
+                        "b_Reference": "REF_A" if same_reference else "REF_B",
+                    }
+
+
+def _swapped(world: dict[str, str]) -> dict[str, str]:
+    """The same world with A and B exchanged -- KiCad tests both orderings."""
+    out = {}
+    for key, value in world.items():
+        side, prop = key.split("_", 1)
+        out[("b" if side == "a" else "a") + "_" + prop] = value
+    return out
+
+
+def _matching_rules(rules: list[DruRule], predicates, world) -> list[DruRule]:
+    swapped = _swapped(world)
+    return [
+        rule
+        for rule, predicate in zip(rules, predicates, strict=True)
+        if eval(predicate, {"__builtins__": {}}, world)  # noqa: S307
+        or eval(predicate, {"__builtins__": {}}, swapped)  # noqa: S307
+    ]
+
+
+def find_shadowing(content: str) -> list[tuple[str, str, str, float, float]]:
+    """Return every case where a weaker rule wins over a stricter one.
+
+    Each entry is ``(constraint_type, winner_name, shadowed_name, winner_min,
+    shadowed_min)``. An empty list means: for every constraint type and every
+    modelled pair of items, the rule KiCad selects (the last matching one) is
+    also the strictest matching one.
+    """
+    rules = [r for r in _parse_rules(content) if r.constraints]
+    pair_rules = [r for r in rules if any(t in r.constraints for t in PAIR_CONSTRAINT_TYPES)]
+    predicates = [_compile_condition(r.condition) for r in pair_rules]
+    universe = _netclass_universe(pair_rules)
+
+    found: dict[tuple[str, str, str], tuple[float, float]] = {}
+    for world in _worlds(universe):
+        matched = _matching_rules(pair_rules, predicates, world)
+        if len(matched) < 2:
+            continue
+        for ctype in PAIR_CONSTRAINT_TYPES:
+            applicable = [r for r in matched if ctype in r.constraints]
+            if len(applicable) < 2:
+                continue
+            winner = applicable[-1]
+            strictest = max(applicable, key=lambda r: r.constraints[ctype])
+            if winner.constraints[ctype] < strictest.constraints[ctype]:
+                found[(ctype, winner.name, strictest.name)] = (
+                    winner.constraints[ctype],
+                    strictest.constraints[ctype],
+                )
+    return sorted((c, w, s, wv, sv) for (c, w, s), (wv, sv) in found.items())
+
+
+def order_rules_by_strictness(content: str) -> str:
+    """Reorder the emitted rule blocks so the strictest matching rule wins.
+
+    Rules that can apply to the same pair of items and disagree about a
+    constraint value are ordered weakest-first, so KiCad's last-matching-wins
+    selection lands on the strictest one. Rules that cannot overlap keep their
+    authored order. Only the blocks that carry a pair constraint move; the
+    surrounding comment banners travel with the block they document, and
+    ``track_width``/hole rules are left exactly where the source puts them.
+    """
+    rules = _parse_rules(content)
+    movable = [r for r in rules if any(t in r.constraints for t in PAIR_CONSTRAINT_TYPES)]
+    if len(movable) < 2:
+        return content
+
+    predicates = [_compile_condition(r.condition) for r in movable]
+    universe = _netclass_universe(movable)
+
+    # `must_precede[i]` = indices (into `movable`) that rule i must come before.
+    must_precede: dict[int, set[int]] = {i: set() for i in range(len(movable))}
+    position = {r.name: i for i, r in enumerate(movable)}
+    for world in _worlds(universe):
+        matched = _matching_rules(movable, predicates, world)
+        if len(matched) < 2:
+            continue
+        for ctype in PAIR_CONSTRAINT_TYPES:
+            applicable = [r for r in matched if ctype in r.constraints]
+            for weak, strong in itertools.combinations(applicable, 2):
+                if weak.constraints[ctype] == strong.constraints[ctype]:
+                    continue
+                if weak.constraints[ctype] > strong.constraints[ctype]:
+                    weak, strong = strong, weak
+                must_precede[position[weak.name]].add(position[strong.name])
+
+    order = _topological_order(must_precede)
+    return _reflow_blocks(content, movable, order)
+
+
+def _topological_order(must_precede: dict[int, set[int]]) -> list[int]:
+    """Kahn's algorithm, breaking ties by authored order for determinism."""
+    indegree = dict.fromkeys(must_precede, 0)
+    for successors in must_precede.values():
+        for j in successors:
+            indegree[j] += 1
+    ready = sorted(i for i, d in indegree.items() if d == 0)
+    order: list[int] = []
+    while ready:
+        i = ready.pop(0)
+        order.append(i)
+        for j in sorted(must_precede[i]):
+            indegree[j] -= 1
+            if indegree[j] == 0:
+                ready.append(j)
+                ready.sort()
+    if len(order) != len(must_precede):
+        raise RulePrecedenceCycleError(
+            "no emission order satisfies strictest-wins for every constraint "
+            "type: two overlapping rules require opposite orderings under two "
+            "different constraints. Split or re-scope one of them."
+        )
+    return order
+
+
+def _reflow_blocks(content: str, movable: list[DruRule], order: list[int]) -> str:
+    """Rewrite *content* with the movable rule blocks placed in *order*.
+
+    A "block" is the rule text plus every comment/banner line that precedes it
+    since the previous rule, so a rule's own documentation moves with it.
+    """
+    lines = content.splitlines()
+    starts = []
+    for rule in movable:
+        first = rule.text.splitlines()[0]
+        idx = next(i for i, line in enumerate(lines) if line == first and i not in starts)
+        starts.append(idx)
+    ends = [
+        start + len(rule.text.splitlines()) for start, rule in zip(starts, movable, strict=True)
+    ]
+
+    # Block i owns everything from just after block i-1 through its own end
+    # (plus one trailing blank line, which the emitter always writes).
+    blocks: list[list[str]] = []
+    cursor = starts[0]
+    head = lines[:cursor]
+    for i, end in enumerate(ends):
+        block_start = cursor
+        block_end = end
+        while block_end < len(lines) and lines[block_end] == "":
+            block_end += 1
+        if i + 1 < len(starts):
+            # Comment lines after this rule belong to the NEXT block.
+            block_end = min(block_end, starts[i + 1])
+        blocks.append(lines[block_start:block_end])
+        cursor = block_end
+    tail = lines[cursor:]
+
+    out = list(head)
+    for i in order:
+        out.extend(blocks[i])
+    out.extend(tail)
+    reflowed = "\n".join(out)
+    # splitlines() drops a trailing newline; put it back so the reordering is
+    # byte-neutral apart from block order.
+    if content.endswith("\n") and not reflowed.endswith("\n"):
+        reflowed += "\n"
+    return reflowed
+
+
 def generate_dru() -> str:
-    """Return the full contents of the KiCad DRU file as a string."""
+    """Return the full contents of the KiCad DRU file as a string.
+
+    The rule blocks are emitted below in their authored, narrative order, then
+    reordered by :func:`order_rules_by_strictness` and certified by
+    :func:`find_shadowing` before the text is returned -- see the RULE
+    PRECEDENCE comment above.
+    """
     lines: list[str] = []
 
     # KiCad custom design rules format header
@@ -252,101 +625,40 @@ def generate_dru() -> str:
     lines.append("# IEC 60335-1 / IEC 60664-1 compliant")
     lines.append("#")
     lines.append("# NOTE: This board carries NO qualified conformal coating.")
-    lines.append(
-        "# No coating process exists in the BOM or assembly, and IEC 60664-3"
-        " cl. 4.3"
-    )
-    lines.append(
-        "# requires full-path coverage for any Pollution Degree 1 credit --"
-        " measured,"
-    )
-    lines.append(
-        "# 100.0% of every declared isolator's shortest HV<->PELV path lies"
-        " under its"
-    )
-    lines.append(
-        "# own component body and cannot be shown to be coated. This file"
-        " therefore"
-    )
-    lines.append(
-        "# enforces FAIL-CLOSED, uncoated clearance figures throughout. See"
-    )
+    lines.append("# No coating process exists in the BOM or assembly, and IEC 60664-3 cl. 4.3")
+    lines.append("# requires full-path coverage for any Pollution Degree 1 credit -- measured,")
+    lines.append("# 100.0% of every declared isolator's shortest HV<->PELV path lies under its")
+    lines.append("# own component body and cannot be shown to be coated. This file therefore")
+    lines.append("# enforces FAIL-CLOSED, uncoated clearance figures throughout. See")
     lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md.")
     lines.append("#")
+    lines.append("# CREEPAGE IS ENFORCED HERE (2026-07-28): kicad-cli 10.0.4 supports a real")
+    lines.append("# `creepage` constraint (confirmed against kicad-source-mirror @ 10.0.4 and")
+    lines.append("# empirically -- see docs/evidence/2026-07-28-drc-creepage-constraint.md). RULES")
     lines.append(
-        "# CREEPAGE IS ENFORCED HERE (2026-07-28): kicad-cli 10.0.4 supports a"
-        " real"
+        f"# 2 and 4 below enforce {fmt_mm(HV_CREEPAGE_ENFORCED_MM)} reinforced creepage across the"
     )
-    lines.append(
-        "# `creepage` constraint (confirmed against kicad-source-mirror @"
-        " 10.0.4 and"
-    )
-    lines.append(
-        "# empirically -- see docs/evidence/2026-07-28-drc-creepage-"
-        "constraint.md). RULES"
-    )
-    lines.append(
-        f"# 2 and 4 below enforce {fmt_mm(HV_CREEPAGE_ENFORCED_MM)} reinforced"
-        " creepage across the"
-    )
-    lines.append(
-        "# AC-Mains/HighVoltage <-> everything-else boundary, in addition to"
-        " their"
-    )
-    lines.append(
-        "# existing clearance figures. The selected production architecture"
-        " uses PD2"
-    )
-    lines.append(
-        "# (8.0mm). PD3 (12.6mm) remains the fallback if the documented"
-        " enclosure"
-    )
+    lines.append("# AC-Mains/HighVoltage <-> everything-else boundary, in addition to their")
+    lines.append("# existing clearance figures. The selected production architecture uses PD2")
+    lines.append("# (8.0mm). PD3 (12.6mm) remains the fallback if the documented enclosure")
     lines.append(
         "# prerequisite is not implemented; see the source comment on"
         " HV_CREEPAGE_ENFORCED_MM for the"
     )
-    lines.append(
-        "# selection rule and"
-    )
-    lines.append(
-        "# `scripts/check_isolation_keepout.py` remains the"
-    )
-    lines.append(
-        "# other, independent creepage enforcement point on this board (a"
-        " conservative"
-    )
-    lines.append(
-        "# straight-line-corridor sufficient bound, not a surface-path"
-        " measure); this"
-    )
-    lines.append(
-        "# generator's new rules are the fab-authoritative KiCad DRC path,"
-        " and they now"
-    )
-    lines.append(
-        "# agree on the same pinned figure. See"
-        " docs/evidence/2026-07-28-creepage-"
-    )
+    lines.append("# selection rule and")
+    lines.append("# `scripts/check_isolation_keepout.py` remains the")
+    lines.append("# other, independent creepage enforcement point on this board (a conservative")
+    lines.append("# straight-line-corridor sufficient bound, not a surface-path measure); this")
+    lines.append("# generator's new rules are the fab-authoritative KiCad DRC path, and they now")
+    lines.append("# agree on the same pinned figure. See docs/evidence/2026-07-28-creepage-")
     lines.append("# determination-brainstorm.md for the full clause-cited derivation.")
     lines.append("#")
-    lines.append(
-        "# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap"
-        " (see RULE"
-    )
-    lines.append(
-        "# 5 below); this is a package-geometry fact, not something this"
-        " script or a"
-    )
-    lines.append(
-        "# coating can fix. Expect this rule to now flag those packages --"
-        " that is"
-    )
+    lines.append("# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap (see RULE")
+    lines.append("# 5 below); this is a package-geometry fact, not something this script or a")
+    lines.append("# coating can fix. Expect this rule to now flag those packages -- that is")
     lines.append("# the correct, honest result of removing the prior relaxation.")
     lines.append("#")
-    lines.append(
-        "# Generated by scripts/generate_kicad_dru.py"
-        " -- do not edit by hand."
-    )
+    lines.append("# Generated by scripts/generate_kicad_dru.py -- do not edit by hand.")
     lines.append("")
     lines.append("(version 1)")
     lines.append("")
@@ -357,13 +669,12 @@ def generate_dru() -> str:
     lines.append(_SEP)
     lines.append("# RULE 1: Allow reduced clearance within same footprint")
     lines.append(
-        "# This handles TO-247, SOT-23, QFN packages"
-        " where pad pitch < net class clearance"
+        "# This handles TO-247, SOT-23, QFN packages where pad pitch < net class clearance"
     )
     lines.append("#")
     lines.append(
         "# CONDITION FIX (2026-07-28, redo): A.Footprint == B.Footprint never"
-        " binds -- \"Footprint\" is not a property KiCad's PROPERTY_MANAGER"
+        ' binds -- "Footprint" is not a property KiCad\'s PROPERTY_MANAGER'
     )
     lines.append(
         "# registers on Pad or Footprint (confirmed against pcbnew/pad.cpp"
@@ -400,7 +711,7 @@ def generate_dru() -> str:
     )
     lines.append(
         "# own tight pin pitch. KiCad's rule language has no direct notion"
-        " of \"safety domain\" -- domain membership lives in"
+        ' of "safety domain" -- domain membership lives in'
     )
     lines.append(
         "# elec/domain_manifest.yaml, which a static per-pad kicad-cli rule"
@@ -438,15 +749,10 @@ def generate_dru() -> str:
         "# hardcoded literal-net-name exclusion (which reproduces the exact"
         " failure mode -- an unnoticed net rename orphaning the rule -- that"
     )
-    lines.append(
-        "# produced the +340V_BUS defect this task is named after)."
-    )
+    lines.append("# produced the +340V_BUS defect this task is named after).")
     lines.append(_SEP)
     lines.append('(rule "Same footprint pads"')
-    lines.append(
-        "   (condition \"A.Reference == B.Reference"
-        " && A.NetClass == B.NetClass\")"
-    )
+    lines.append('   (condition "A.Reference == B.Reference && A.NetClass == B.NetClass")')
     lines.append("   (constraint clearance (min 0.1mm))")
     lines.append(")")
     lines.append("")
@@ -463,10 +769,10 @@ def generate_dru() -> str:
     )
     lines.append(
         "# kicad-cli 10.0.4/10.0.5, which registers this pad field under the"
-        " display name \"Pad Type\" (PROPERTY_ENUM<PAD, PAD_ATTRIB>), not"
+        ' display name "Pad Type" (PROPERTY_ENUM<PAD, PAD_ATTRIB>), not'
     )
     lines.append(
-        "# \"Attribute\". KiCad's rule compiler looks up properties by exact"
+        '# "Attribute". KiCad\'s rule compiler looks up properties by exact'
         " display name (underscores in the rule field become spaces before"
     )
     lines.append(
@@ -481,16 +787,14 @@ def generate_dru() -> str:
         "# with A.Pad_Type == 'SMD' (measured to bind: 483 matches as a lone"
         " condition at a 999mm threshold on the real board, vs. 0 for"
     )
-    lines.append(
-        "# A.Attribute == 'SMD')."
-    )
+    lines.append("# A.Attribute == 'SMD').")
     lines.append(_SEP)
     lines.append('(rule "Fine pitch IC pads"')
     lines.append(
         "   (condition \"A.Type == 'Pad' && A.Pad_Type == 'SMD'"
         " && B.Type == 'Pad' && B.Pad_Type == 'SMD'"
         " && A.Reference == B.Reference"
-        " && A.NetClass == B.NetClass\")"
+        ' && A.NetClass == B.NetClass")'
     )
     lines.append("   (constraint clearance (min 0.1mm))")
     lines.append(")")
@@ -504,26 +808,11 @@ def generate_dru() -> str:
     lines.append("# RULE 2: AC Mains isolation - 6mm to everything except itself")
     lines.append("# IEC 60335-1 basic insulation for 240V AC")
     lines.append("#")
-    lines.append(
-        "# CREEPAGE ADDED (2026-07-28): kicad-cli 10.0.4 supports a real"
-        " `creepage`"
-    )
-    lines.append(
-        "# constraint (see the HV_CREEPAGE_ENFORCED_MM comment near the top"
-        " of this"
-    )
-    lines.append(
-        "# script for the full derivation, the PD2/PD3 pin, and the"
-        " kicad-cli support"
-    )
-    lines.append(
-        "# evidence). This is the fab-authoritative DRC check for the"
-        " reinforced"
-    )
-    lines.append(
-        "# mains<->LV creepage requirement this net-class pair represents;"
-        " it did not"
-    )
+    lines.append("# CREEPAGE ADDED (2026-07-28): kicad-cli 10.0.4 supports a real `creepage`")
+    lines.append("# constraint (see the HV_CREEPAGE_ENFORCED_MM comment near the top of this")
+    lines.append("# script for the full derivation, the PD2/PD3 pin, and the kicad-cli support")
+    lines.append("# evidence). This is the fab-authoritative DRC check for the reinforced")
+    lines.append("# mains<->LV creepage requirement this net-class pair represents; it did not")
     lines.append("# exist in the generated file before this change.")
     lines.append("#")
     lines.append(
@@ -581,13 +870,8 @@ def generate_dru() -> str:
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
-    lines.append(
-        "# RULE 3: AC Mains to High Voltage - 3mm"
-        " (both isolated from earth)"
-    )
-    lines.append(
-        "# Reduced clearance since both are on same side of isolation barrier"
-    )
+    lines.append("# RULE 3: AC Mains to High Voltage - 3mm (both isolated from earth)")
+    lines.append("# Reduced clearance since both are on same side of isolation barrier")
     lines.append(_SEP)
     lines.append('(rule "AC Mains to HV"')
     lines.append(
@@ -606,22 +890,12 @@ def generate_dru() -> str:
         " 3.0mm+ clearance -- verify before HV bring-up"
     )
     lines.append("#")
+    lines.append("# CREEPAGE ADDED (2026-07-28): same rationale as RULE 2 above -- see")
+    lines.append("# HV_CREEPAGE_ENFORCED_MM's comment near the top of this script. This is the")
     lines.append(
-        "# CREEPAGE ADDED (2026-07-28): same rationale as RULE 2 above --"
-        " see"
+        "# other half of the mains<->LV / HV<->LV boundary scripts/check_isolation_keepout.py"
     )
-    lines.append(
-        "# HV_CREEPAGE_ENFORCED_MM's comment near the top of this script."
-        " This is the"
-    )
-    lines.append(
-        "# other half of the mains<->LV / HV<->LV boundary"
-        " scripts/check_isolation_keepout.py"
-    )
-    lines.append(
-        "# already enforces at the board-construction level; this rule"
-        " now enforces the"
-    )
+    lines.append("# already enforces at the board-construction level; this rule now enforces the")
     lines.append("# same figure at the fab-authoritative KiCad DRC level.")
     lines.append("#")
     lines.append(
@@ -734,161 +1008,53 @@ def generate_dru() -> str:
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
-    lines.append(
-        "# RULE 4a/4b: HighVoltageIsolated -- the gate-drive floating"
-        " bootstrap supply"
-    )
+    lines.append("# RULE 4a/4b: HighVoltageIsolated -- the gate-drive floating bootstrap supply")
     lines.append("#")
-    lines.append(
-        "# GAP CLOSED (2026-07-28): this netclass carried ZERO clearance or"
-        " creepage"
-    )
-    lines.append(
-        "# rules anywhere in this generator until now (grep -c"
-        " HighVoltageIsolated"
-    )
-    lines.append(
-        "# scripts/generate_kicad_dru.py returned 0) -- the exact class RULE"
-        " 1's own"
-    )
-    lines.append(
-        "# cross-domain guard fix used to re-home U7's secondary bias nets"
-        " (VSSA/VDDA,"
-    )
-    lines.append(
-        "# hb.gate_hs.driver-p2/-p1-1) into, per"
-        " docs/evidence/2026-07-28-drc-rule1-"
-    )
-    lines.append(
-        "# netclass-redo.md sec 5. Moving those nets into a netclass that"
-        " itself"
-    )
-    lines.append(
-        "# enforced nothing left them with only KiCad's per-netclass"
-        " baseline (6.0mm"
-    )
-    lines.append(
-        "# clearance, from pcb/temper.kicad_pro's own"
-        " net_settings.classes/packages/"
-    )
-    lines.append(
-        "# temper-placer/configs/netclass_rules.yaml) and NO creepage"
-        " protection at all."
-    )
+    lines.append("# GAP CLOSED (2026-07-28): this netclass carried ZERO clearance or creepage")
+    lines.append("# rules anywhere in this generator until now (grep -c HighVoltageIsolated")
+    lines.append("# scripts/generate_kicad_dru.py returned 0) -- the exact class RULE 1's own")
+    lines.append("# cross-domain guard fix used to re-home U7's secondary bias nets (VSSA/VDDA,")
+    lines.append("# hb.gate_hs.driver-p2/-p1-1) into, per docs/evidence/2026-07-28-drc-rule1-")
+    lines.append("# netclass-redo.md sec 5. Moving those nets into a netclass that itself")
+    lines.append("# enforced nothing left them with only KiCad's per-netclass baseline (6.0mm")
+    lines.append("# clearance, from pcb/temper.kicad_pro's own net_settings.classes/packages/")
+    lines.append("# temper-placer/configs/netclass_rules.yaml) and NO creepage protection at all.")
     lines.append("#")
+    lines.append("# WHAT THE CLASS ACTUALLY IS: elec/domain_manifest.yaml declares +5V_ISO,")
+    lines.append("# VBOOT_H, VBOOT_L, hb.gate_hs.driver-p1-1 (VDDA) and hb.gate_hs.driver-p2")
+    lines.append("# (VSSA) -- every net this project assigns to the HighVoltageIsolated")
+    lines.append("# netclass -- as members of the SAME `HV` domain as ac_l/+170V_BUS/SW_NODE,")
+    lines.append('# not a third, separate domain. "Isolated" here names a gate-driver-internal')
+    lines.append("# galvanic barrier (the UCC21550's own primary/secondary split), not a")
+    lines.append("# barrier this netclass's nets sit on the far side of relative to the rest of")
+    lines.append("# HV -- they float WITH the switch node, one gate-drive-current resistor")
+    lines.append("# downstream of GATE_HS/SW_NODE (see the redo doc's own tracing). That means")
+    lines.append("# this class needs exactly the asymmetric treatment docs/evidence/2026-07-28-")
+    lines.append("# hv-isolated-rules-and-creepage-triage.md sets out: REINFORCED separation from")
+    lines.append("# the LV/SELV side (the real barrier), but only FUNCTIONAL separation from its")
     lines.append(
-        "# WHAT THE CLASS ACTUALLY IS: elec/domain_manifest.yaml declares"
-        " +5V_ISO,"
+        "# own HV/ACMains neighbours (same side of that barrier -- exactly the relationship"
     )
-    lines.append(
-        "# VBOOT_H, VBOOT_L, hb.gate_hs.driver-p1-1 (VDDA) and"
-        " hb.gate_hs.driver-p2"
-    )
-    lines.append(
-        "# (VSSA) -- every net this project assigns to the"
-        " HighVoltageIsolated"
-    )
-    lines.append(
-        "# netclass -- as members of the SAME `HV` domain as ac_l/+170V_BUS/"
-        "SW_NODE,"
-    )
-    lines.append(
-        "# not a third, separate domain. \"Isolated\" here names a"
-        " gate-driver-internal"
-    )
-    lines.append(
-        "# galvanic barrier (the UCC21550's own primary/secondary split),"
-        " not a"
-    )
-    lines.append(
-        "# barrier this netclass's nets sit on the far side of relative to"
-        " the rest of"
-    )
-    lines.append(
-        "# HV -- they float WITH the switch node, one gate-drive-current"
-        " resistor"
-    )
-    lines.append(
-        "# downstream of GATE_HS/SW_NODE (see the redo doc's own tracing)."
-        " That means"
-    )
-    lines.append(
-        "# this class needs exactly the asymmetric treatment"
-        " docs/evidence/2026-07-28-"
-    )
-    lines.append(
-        "# hv-isolated-rules-and-creepage-triage.md sets out: REINFORCED"
-        " separation from"
-    )
-    lines.append(
-        "# the LV/SELV side (the real barrier), but only FUNCTIONAL"
-        " separation from its"
-    )
-    lines.append(
-        "# own HV/ACMains neighbours (same side of that barrier -- exactly"
-        " the relationship"
-    )
-    lines.append(
-        "# RULE 3 (\"AC Mains to HV\") already models for ACMains vs."
-        " HighVoltage)."
-    )
+    lines.append('# RULE 3 ("AC Mains to HV") already models for ACMains vs. HighVoltage).')
     lines.append("#")
+    lines.append('# 4a relaxes the pair to the same 2.0mm figure RULE 4 ("HV to LV") already')
     lines.append(
-        "# 4a relaxes the pair to the same 2.0mm figure RULE 4 (\"HV to"
-        " LV\") already"
+        "# uses for intra-HV-domain separation -- a documented, deliberate reduction below"
     )
+    lines.append("# the 6.0mm per-netclass baseline that would otherwise apply, justified because")
+    lines.append("# both sides sit on the same side of the reinforced barrier (same category of")
     lines.append(
-        "# uses for intra-HV-domain separation -- a documented, deliberate"
-        " reduction below"
+        "# reduction RULE 3 already makes, not a safety loosening -- see the evidence doc)."
     )
-    lines.append(
-        "# the 6.0mm per-netclass baseline that would otherwise apply,"
-        " justified because"
-    )
-    lines.append(
-        "# both sides sit on the same side of the reinforced barrier (same"
-        " category of"
-    )
-    lines.append(
-        "# reduction RULE 3 already makes, not a safety loosening -- see the"
-        " evidence doc)."
-    )
-    lines.append(
-        "# 4b is the real, new protection: reinforced clearance against"
-        " every other"
-    )
-    lines.append(
-        "# (LV/SELV) netclass, at the same 2.0mm figure RULE 4 uses for"
-        " HighVoltage."
-    )
-    lines.append(
-        "# CREEPAGE CLOSED (2026-07-28): the generator-wide creepage"
-        " constraint (see"
-    )
-    lines.append(
-        "# HV_CREEPAGE_ENFORCED_MM's own comment near the top of this"
-        " script) now"
-    )
-    lines.append(
-        "# applies here too. 4a stays clearance-only, matching RULE 3"
-        " (\"AC Mains to"
-    )
-    lines.append(
-        "# HV\") -- both are same-side-of-the-barrier reductions between"
-        " two HV-domain"
-    )
-    lines.append(
-        "# classes, not a creepage boundary. 4b, the real HV<->LV"
-        " protection, now gets"
-    )
-    lines.append(
-        "# the same reinforced creepage figure RULE 2 (\"AC Mains to LV\")"
-        " and RULE 4"
-    )
-    lines.append(
-        "# (\"HV to LV\") already enforce -- it is exactly that class of"
-        " rule, just keyed"
-    )
+    lines.append("# 4b is the real, new protection: reinforced clearance against every other")
+    lines.append("# (LV/SELV) netclass, at the same 2.0mm figure RULE 4 uses for HighVoltage.")
+    lines.append("# CREEPAGE CLOSED (2026-07-28): the generator-wide creepage constraint (see")
+    lines.append("# HV_CREEPAGE_ENFORCED_MM's own comment near the top of this script) now")
+    lines.append('# applies here too. 4a stays clearance-only, matching RULE 3 ("AC Mains to')
+    lines.append('# HV") -- both are same-side-of-the-barrier reductions between two HV-domain')
+    lines.append("# classes, not a creepage boundary. 4b, the real HV<->LV protection, now gets")
+    lines.append('# the same reinforced creepage figure RULE 2 ("AC Mains to LV") and RULE 4')
+    lines.append('# ("HV to LV") already enforce -- it is exactly that class of rule, just keyed')
     lines.append("# on HighVoltageIsolated instead of ACMains/HighVoltage.")
     lines.append("#")
     lines.append(
@@ -907,9 +1073,7 @@ def generate_dru() -> str:
         "# ACMains}, so it was never matching GateDriveHV in the first"
         " place; it simply never supplied this pair a same-side figure"
     )
-    lines.append(
-        "# either, which is what the new RULE 6a below now does."
-    )
+    lines.append("# either, which is what the new RULE 6a below now does.")
     lines.append(_SEP)
     # Matches RULE 4's existing "HV to LV" clearance figure (this file,
     # unchanged) -- not a new number, just this class's share of it.
@@ -941,49 +1105,19 @@ def generate_dru() -> str:
     lines.append("# RULE 5: High Voltage internal - same footprint")
     lines.append("# TO-247 IGBTs have 5.45mm pin pitch (1.95mm edge-to-edge)")
     lines.append("#")
-    lines.append(
-        "# FAIL-CLOSED: no conformal coating is qualified on this board, so"
-        " no"
-    )
-    lines.append(
-        "# coating-based relaxation is granted here. This constraint is the"
-    )
-    lines.append(
-        "# uncoated reinforced clearance requirement -- IEC 60335-1 cl. 29.1:"
-        " 1500V"
-    )
-    lines.append(
-        "# rated impulse voltage (120V nominal, OVC II) -> Table 16 basic"
-        " 0.5mm ->"
-    )
-    lines.append(
-        "# cl. 29.1.3 next-higher-step reinforced 1.5mm, + cl. 29.1's +0.5mm"
-    )
-    lines.append(
-        "# soldered-construction adder (this is a soldered PCB) = 2.0mm. See"
-    )
+    lines.append("# FAIL-CLOSED: no conformal coating is qualified on this board, so no")
+    lines.append("# coating-based relaxation is granted here. This constraint is the")
+    lines.append("# uncoated reinforced clearance requirement -- IEC 60335-1 cl. 29.1: 1500V")
+    lines.append("# rated impulse voltage (120V nominal, OVC II) -> Table 16 basic 0.5mm ->")
+    lines.append("# cl. 29.1.3 next-higher-step reinforced 1.5mm, + cl. 29.1's +0.5mm")
+    lines.append("# soldered-construction adder (this is a soldered PCB) = 2.0mm. See")
     lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3.")
     lines.append("#")
-    lines.append(
-        "# TO-247's 1.95mm edge-to-edge gap is BELOW this requirement. That"
-        " is a real"
-    )
-    lines.append(
-        "# violation this rule is now expected to report, not a bug in this"
-        " rule --"
-    )
-    lines.append(
-        "# a coating was never a valid fix for it (see"
-        " docs/evidence/2026-07-28-"
-    )
-    lines.append(
-        "# conformal-coating-pd1.md sec 4, TO-247/SOIC-16W case). Resolving"
-        " it needs"
-    )
-    lines.append(
-        "# a BOM/footprint/placement change, none of which this script"
-        " performs."
-    )
+    lines.append("# TO-247's 1.95mm edge-to-edge gap is BELOW this requirement. That is a real")
+    lines.append("# violation this rule is now expected to report, not a bug in this rule --")
+    lines.append("# a coating was never a valid fix for it (see docs/evidence/2026-07-28-")
+    lines.append("# conformal-coating-pd1.md sec 4, TO-247/SOIC-16W case). Resolving it needs")
+    lines.append("# a BOM/footprint/placement change, none of which this script performs.")
     lines.append("#")
     lines.append(
         "# CONDITION FIX (2026-07-28): the same-footprint test used to be"
@@ -1001,9 +1135,7 @@ def generate_dru() -> str:
         "# with A.Reference == B.Reference, a direct property-equality test"
         " confirmed (kicad-cli 10.0.4, isolated fixture) to fire correctly:"
     )
-    lines.append(
-        "# see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md."
-    )
+    lines.append("# see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md.")
     lines.append(_SEP)
     lines.append(
         "# HighVoltageTank INCLUDED on both sides (2026-08-12): the three tank"
@@ -1026,8 +1158,7 @@ def generate_dru() -> str:
         " pads sit 40mm apart, and the pair-max netclass clearance would have"
     )
     lines.append(
-        "# been the same 2.0mm anyway. It is widened for intent parity, not"
-        " to move a number."
+        "# been the same 2.0mm anyway. It is widened for intent parity, not to move a number."
     )
     lines.append(_SEP)
     lines.append('(rule "HV internal same footprint"')
@@ -1036,7 +1167,7 @@ def generate_dru() -> str:
         f" || A.NetClass == '{HV_TANK_CLASS}')"
         " && (B.NetClass == 'HighVoltage'"
         f" || B.NetClass == '{HV_TANK_CLASS}')"
-        " && A.Reference == B.Reference\")"
+        ' && A.Reference == B.Reference")'
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
     lines.append(")")
@@ -1057,9 +1188,7 @@ def generate_dru() -> str:
         "# a-rule-that-matches-nothing-reads-as-coverage-2026-07-28.md)."
         " Both halves keep the original 0.5mm figure -- this unit changes"
     )
-    lines.append(
-        "# the class model, not the clearance value."
-    )
+    lines.append("# the class model, not the clearance value.")
     lines.append(_SEP)
     lines.append('(rule "GateDriveHV near HV"')
     lines.append(
@@ -1118,10 +1247,7 @@ def generate_dru() -> str:
         "# working voltage was MEASURED against (+170V_BUS, DC_BUS_RTN,"
         " SW_NODE). The pairs to LV/Default, including the unclassed PWR_RTN,"
     )
-    lines.append(
-        "# are covered by RULE 4c at the stricter 8.0mm and are not repeated"
-        " here."
-    )
+    lines.append("# are covered by RULE 4c at the stricter 8.0mm and are not repeated here.")
     lines.append("#")
     lines.append(
         "# ONE PAIR IS OVER-CONSTRAINED BY ONE TABLE ROW, DELIBERATELY."
@@ -1147,15 +1273,11 @@ def generate_dru() -> str:
         " && (B.NetClass == 'HighVoltage'"
         f" || B.NetClass == '{HV_TANK_CLASS}')\")"
     )
-    lines.append(
-        f"   (constraint creepage (min {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}))"
-    )
+    lines.append(f"   (constraint creepage (min {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
-    lines.append(
-        "# RULE 6a/6b: GateDriveHV same side (ACMains, HighVoltageIsolated)"
-    )
+    lines.append("# RULE 6a/6b: GateDriveHV same side (ACMains, HighVoltageIsolated)")
     lines.append("#")
     lines.append(
         "# GAP CLOSED (2026-08-11): GATE_HS/GATE_LS (netclass GateDriveHV,"
@@ -1199,8 +1321,8 @@ def generate_dru() -> str:
     )
     lines.append("#")
     lines.append(
-        "# This closes the gap the same way RULE 3 (\"AC Mains to HV\")"
-        " and RULE 4a (\"HighVoltageIsolated same side\") already closed"
+        '# This closes the gap the same way RULE 3 ("AC Mains to HV")'
+        ' and RULE 4a ("HighVoltageIsolated same side") already closed'
     )
     lines.append(
         "# it for their own same-side pairs: GateDriveHV vs. ACMains and"
@@ -1225,17 +1347,13 @@ def generate_dru() -> str:
     lines.append("# it unchanged, correctly.")
     lines.append(_SEP)
     lines.append('(rule "GateDriveHV to ACMains"')
-    lines.append(
-        "   (condition \"A.NetClass == 'GateDriveHV'"
-        " && B.NetClass == 'ACMains'\")"
-    )
+    lines.append("   (condition \"A.NetClass == 'GateDriveHV' && B.NetClass == 'ACMains'\")")
     lines.append("   (constraint clearance (min 0.5mm))")
     lines.append(")")
     lines.append("")
     lines.append('(rule "GateDriveHV to HighVoltageIsolated"')
     lines.append(
-        "   (condition \"A.NetClass == 'GateDriveHV'"
-        " && B.NetClass == 'HighVoltageIsolated'\")"
+        "   (condition \"A.NetClass == 'GateDriveHV' && B.NetClass == 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
     lines.append(")")
@@ -1256,7 +1374,7 @@ def generate_dru() -> str:
     lines.append(
         "   (condition \"A.NetClass == 'Power'"
         " && B.NetClass == 'Power'"
-        " && A.Reference == B.Reference\")"
+        ' && A.Reference == B.Reference")'
     )
     lines.append("   (constraint clearance (min 0.2mm))")
     lines.append(")")
@@ -1266,9 +1384,7 @@ def generate_dru() -> str:
     lines.append("# GND is a reference, not a hazard")
     lines.append(_SEP)
     lines.append('(rule "Ground clearance"')
-    lines.append(
-        "   (condition \"A.NetClass == 'Ground' || B.NetClass == 'Ground'\")"
-    )
+    lines.append("   (condition \"A.NetClass == 'Ground' || B.NetClass == 'Ground'\")")
     lines.append("   (constraint clearance (min 0.15mm))")
     lines.append(")")
     lines.append("")
@@ -1276,10 +1392,7 @@ def generate_dru() -> str:
     lines.append("# RULE 9: USB differential pair - tight coupling")
     lines.append(_SEP)
     lines.append('(rule "USB differential"')
-    lines.append(
-        "   (condition \"A.NetClass == 'HighSpeed'"
-        " && B.NetClass == 'HighSpeed'\")"
-    )
+    lines.append("   (condition \"A.NetClass == 'HighSpeed' && B.NetClass == 'HighSpeed'\")")
     lines.append("   (constraint clearance (min 0.1mm))")
     lines.append(")")
     lines.append("")
@@ -1297,10 +1410,7 @@ def generate_dru() -> str:
     # Per-class trace-width rules generated from TEMPER_NET_CLASSES
     # -------------------------------------------------------------------------
     lines.append(_SEP)
-    lines.append(
-        "# TRACE WIDTH RULES"
-        " (generated from TEMPER_NET_CLASSES in design_rules.py)"
-    )
+    lines.append("# TRACE WIDTH RULES (generated from TEMPER_NET_CLASSES in design_rules.py)")
     lines.append(_SEP)
     lines.append("")
 
@@ -1359,7 +1469,27 @@ def generate_dru() -> str:
     lines.append(")")
     lines.append("")
 
-    return "\n".join(lines)
+    content = order_rules_by_strictness("\n".join(lines))
+
+    # Fail closed. If the reordering could not put every rule where the
+    # strictest matching one wins, this file must not be written: KiCad would
+    # silently enforce the weaker figure and the DRC would report a clean
+    # safety bar that is not being checked.
+    shadowing = find_shadowing(content)
+    if shadowing:
+        detail = "\n".join(
+            f"  [{ctype}] '{winner}' ({winner_min}mm) would override "
+            f"'{shadowed}' ({shadowed_min}mm)"
+            for ctype, winner, shadowed, winner_min, shadowed_min in shadowing
+        )
+        raise RuleShadowingError(
+            "the generated .kicad_dru would let a weaker rule override a "
+            "stricter one under KiCad's last-matching-rule-wins precedence:\n"
+            f"{detail}\n"
+            "See the RULE PRECEDENCE comment in this file and "
+            "docs/evidence/2026-08-12-dru-rule-precedence.md."
+        )
+    return content
 
 
 def main() -> None:

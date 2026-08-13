@@ -890,3 +890,166 @@ class TestCreepageDrcFalsifier:
             f"{gen.HV_CREEPAGE_ENFORCED_MM}mm enforced figure) to PASS; got "
             f"{creepage!r}"
         )
+
+
+# ---------------------------------------------------------------------------
+# TestRulePrecedence -- KiCad resolves a constraint to the LAST matching rule
+# in the file, so a broad rule emitted after a narrow one silently REPLACES
+# it. See docs/evidence/2026-08-12-dru-rule-precedence.md.
+# ---------------------------------------------------------------------------
+
+# Every rule in the emitted file whose clearance figure is cited to a safety
+# standard. The catch-all "Default routing" rule matches any pair involving a
+# track, so before the precedence fix its 0.2mm superseded all of these.
+_SAFETY_CLEARANCE_RULES = (
+    "AC Mains to LV",
+    "AC Mains to HV",
+    "HV to LV",
+    "HighVoltageTank to LV",
+    "HighVoltageIsolated same side",
+    "HighVoltageIsolated to LV",
+    "HV internal same footprint",
+    "GateDriveHV near HV",
+    "GateDriveHV to ACMains",
+    "GateDriveHV to HighVoltageIsolated",
+)
+
+_CATCH_ALL_RULE = "Default routing"
+
+
+def _emitted_rule_order(content: str) -> list[str]:
+    return [r.name for r in gen._parse_rules(content)]
+
+
+class TestRulePrecedence:
+    def test_no_emitted_rule_can_be_overridden_by_a_weaker_one(self) -> None:
+        """The invariant the whole fix exists to hold: for every constraint
+        type and every modelled pair of items, the rule KiCad selects (the
+        last matching one) is also the STRICTEST matching one."""
+        shadowing = gen.find_shadowing(gen.generate_dru())
+        assert shadowing == [], (
+            "a weaker rule would override a stricter one under KiCad's "
+            f"last-matching-rule-wins precedence: {shadowing!r}"
+        )
+
+    def test_catch_all_is_emitted_before_every_safety_clearance_rule(self) -> None:
+        """The specific instance that was live on this board: 'Default
+        routing' (0.2mm) must not be able to supersede a cited safety bar."""
+        order = _emitted_rule_order(gen.generate_dru())
+        catch_all_at = order.index(_CATCH_ALL_RULE)
+        for name in _SAFETY_CLEARANCE_RULES:
+            assert order.index(name) > catch_all_at, (
+                f"{name!r} is emitted before the {_CATCH_ALL_RULE!r} catch-all, "
+                f"so KiCad would enforce the catch-all's 0.2mm instead of "
+                f"{name!r}'s cited figure"
+            )
+
+    def test_guard_fires_when_a_catch_all_is_appended_after_the_rules(self) -> None:
+        """The regression this guard exists for: someone appends a new broad
+        rule at the end of generate_dru(). find_shadowing() must name it
+        rather than let the file ship."""
+        content = gen.generate_dru() + (
+            '\n(rule "New broad rule"\n'
+            "   (condition \"A.Type == 'Track' || B.Type == 'Track'\")\n"
+            "   (constraint clearance (min 0.2mm))\n"
+            ")\n"
+        )
+        shadowing = gen.find_shadowing(content)
+        assert shadowing, (
+            "appending a 0.2mm catch-all after every safety rule must be "
+            "reported as shadowing; the guard passed it"
+        )
+        shadowed = {entry[2] for entry in shadowing}
+        assert {"AC Mains to LV", "HV to LV"} <= shadowed, (
+            f"expected the appended catch-all to be reported as shadowing the "
+            f"mains/HV bars; got {shadowed!r}"
+        )
+
+    def test_reordering_is_a_pure_permutation_of_the_emitted_lines(self) -> None:
+        """The fix must move rules, not rewrite them: reordering may not add,
+        drop or alter a single line."""
+        content = gen.generate_dru()
+        reordered = gen.order_rules_by_strictness(content)
+        assert sorted(content.splitlines()) == sorted(reordered.splitlines())
+        assert gen.order_rules_by_strictness(content) == content, (
+            "generate_dru() must already be ordered; reordering it again "
+            "should be a no-op"
+        )
+
+    def test_rule_bodies_are_unchanged_by_ordering(self) -> None:
+        """Every rule's condition and constraints survive the reordering."""
+        rules = {r.name: (r.condition, r.constraints) for r in gen._parse_rules(gen.generate_dru())}
+        assert rules["Default routing"] == (
+            "A.Type == 'Track' || B.Type == 'Track'",
+            {"clearance": 0.2},
+        )
+        assert rules["AC Mains to LV"][1] == {"clearance": 6.0, "creepage": 8.0}
+        assert rules["HV to LV"][1] == {"clearance": 2.0, "creepage": 8.0}
+
+    def test_unanalysable_condition_fails_closed(self) -> None:
+        """A condition the analyser cannot model must raise, not be skipped:
+        a guard that silently ignores what it does not understand is not a
+        guard."""
+        content = (
+            "(version 1)\n\n"
+            '(rule "Opaque"\n'
+            "   (condition \"A.insideCourtyard('Q1')\")\n"
+            "   (constraint clearance (min 0.1mm))\n"
+            ")\n\n"
+            '(rule "Broad"\n'
+            "   (condition \"A.Type == 'Track'\")\n"
+            "   (constraint clearance (min 0.2mm))\n"
+            ")\n"
+        )
+        with pytest.raises(gen.UnsupportedConditionError):
+            gen.find_shadowing(content)
+
+    def test_track_width_is_modelled_as_a_single_item_constraint(self) -> None:
+        """track_width binds only A -- KiCad does not pair or swap items for
+        it. Measured on the real board: 'HighVoltage trace width' (3.0mm)
+        fires 127 times despite 'Power trace width' (1.0mm) being emitted
+        after it, which is impossible if the two were treated as a pair."""
+        assert "track_width" not in gen.PAIR_CONSTRAINT_TYPES
+
+
+@pytest.mark.skipif(KICAD_CLI is None, reason="kicad-cli not on PATH")
+class TestRulePrecedenceIsLastMatchingWins:
+    """Falsifier for the precedence semantics the fix rests on, run against
+    real kicad-cli on an isolated two-pad fixture: two rules matching the
+    same pair, identical apart from order, must resolve to the LAST one."""
+
+    _LOOSE = 0.5  # below the fixture gap -> passes if it governs
+    _STRICT = 3.0  # above the fixture gap -> fails if it governs
+
+    def _dru(self, first: float, second: float) -> str:
+        cond = "A.NetClass == 'HighVoltage' && B.NetClass == 'HighVoltage'"
+        return (
+            "(version 1)\n\n"
+            f'(rule "First"\n   (condition "{cond}")\n'
+            f"   (constraint clearance (min {first}mm))\n)\n\n"
+            f'(rule "Second"\n   (condition "{cond}")\n'
+            f"   (constraint clearance (min {second}mm))\n)\n"
+        )
+
+    def test_strict_rule_last_governs(self, tmp_path: Path) -> None:
+        pcb_path = _build_fixture(tmp_path, _TO247_GAP_MM)
+        violations = _run_drc(pcb_path, self._dru(self._LOOSE, self._STRICT))
+        clearance = [v for v in violations if v["type"] == "clearance"]
+        assert clearance, (
+            "the 3.0mm rule emitted LAST should govern the 1.95mm gap and "
+            "fail; got no clearance violation"
+        )
+        assert any("3.0000" in v["description"] for v in clearance)
+
+    def test_strict_rule_first_is_overridden_by_the_loose_rule_after_it(
+        self, tmp_path: Path
+    ) -> None:
+        """The defect in one test: the same 3.0mm safety figure, emitted
+        FIRST, is silently replaced by the 0.5mm rule that follows it."""
+        pcb_path = _build_fixture(tmp_path, _TO247_GAP_MM)
+        violations = _run_drc(pcb_path, self._dru(self._STRICT, self._LOOSE))
+        clearance = [v for v in violations if v["type"] == "clearance"]
+        assert clearance == [], (
+            "expected the trailing 0.5mm rule to override the leading 3.0mm "
+            f"rule (last-matching-rule-wins); got {clearance!r}"
+        )
