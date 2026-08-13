@@ -2261,6 +2261,32 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_netlist_board_reconciliation.py
 
+      - name: Board-sync-stamp gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_board_sync_stamp.py -v --tb=short
+
+      # Complements the reconciliation gate immediately above with a cheap,
+      # git-diff-visible provenance check (2026-08-13 desync postmortem,
+      # plan gap C): the reconciliation gate is authoritative but its
+      # verdict only exists for the duration of the run that computed it --
+      # nothing previously recorded which netlist pcb/temper.kicad_pcb was
+      # last actually verified against, which is how the U6/U7 + 4-missing-
+      # footprint + dozens-of-renumbers desync went five days without
+      # anyone noticing. This gate fails closed whenever the committed
+      # `pcb/temper.kicad_pcb.source-digest` stamp (written by
+      # write_board_sync_stamp.py, which itself refuses to run unless the
+      # reconciliation gate above just passed) does not match the board's
+      # and the netlist's CURRENT content -- catching drift the moment a PR
+      # touches either side without a matching resync+restamp, visible in
+      # the diff, rather than whenever someone next reads the comprehensive
+      # gate's log. Never `continue-on-error`: a gate that cannot run
+      # (missing board/netlist, or a netlist not proven fresh against
+      # elec/src/**) exits non-zero, same fail-closed contract as every
+      # other gate in this job.
+      - name: Board-sync-stamp gate (pcb/temper.kicad_pcb provenance)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_board_sync_stamp.py
+
       - name: Net-classification-by-substring gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_net_classification.py -v --tb=short
