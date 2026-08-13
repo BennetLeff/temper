@@ -39,6 +39,7 @@ use crate::d6_util;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError, StageErrorKind};
+use temper_data_model::ViolationList;
 
 const STAGE_NAME: &str = "drc_validation";
 const LOGGER_NAME: &str = "temper_placer.deterministic.stages.drc_validation";
@@ -101,7 +102,10 @@ impl DRCValidationStage {
 
         let tuple = py.import("builtins")?.getattr("tuple")?.call1((&violations,))?;
         let mut new_state = state;
-        new_state.drc_violations = Some(tuple.into_any().unbind());
+        // U6 (O-C3): the oracle's tuple construction is kept verbatim, then
+        // marshalled INTO the owned `ViolationList` field (the U1 write
+        // pattern — bit-exactness by construction).
+        new_state.drc_violations = Some(crate::marshal::to_owned::<ViolationList>(&tuple)?);
         Ok(new_state)
     }
 

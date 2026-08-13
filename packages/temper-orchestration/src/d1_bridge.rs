@@ -34,6 +34,11 @@ use pyo3::types::{PyDict, PyTuple};
 use std::collections::HashSet;
 
 #[cfg(feature = "python")]
+use temper_data_model::{
+    ConnectivityViolationList, PlacementViolationList, ViolationList,
+};
+
+#[cfg(feature = "python")]
 use crate::board_state::{BoardState, SlotId};
 
 #[cfg(feature = "python")]
@@ -48,10 +53,19 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.loops = attr_opt(state, "loops")?;
     bs.grid = attr_opt(state, "grid")?;
     bs.drc_oracle = attr_opt(state, "drc_oracle")?;
-    bs.drc_violations = attr_opt(state, "drc_violations")?;
+    // U6 (O-C3): the three validation-result fields read through the boundary
+    // marshaller (the U1 used_slots pattern). `Option<T>`'s `Marshal` impl
+    // maps Python `None` → Rust `None` and a non-empty `tuple` to the owned
+    // `*List` `Vec` newtype (a list is REJECTED — the contract is a tuple).
+    bs.drc_violations =
+        crate::marshal::to_owned::<Option<ViolationList>>(&state.getattr("drc_violations")?)?;
     bs.design_rules = attr_opt(state, "design_rules")?;
-    bs.connectivity_violations = attr_opt(state, "connectivity_violations")?;
-    bs.placement_violations = attr_opt(state, "placement_violations")?;
+    bs.connectivity_violations = crate::marshal::to_owned::<Option<ConnectivityViolationList>>(
+        &state.getattr("connectivity_violations")?,
+    )?;
+    bs.placement_violations = crate::marshal::to_owned::<Option<PlacementViolationList>>(
+        &state.getattr("placement_violations")?,
+    )?;
     bs.placements = attr_opt(state, "placements")?;
     // U1 (O-C3): the first field read through the boundary marshaller
     // instead of `attr_opt`. `Option<T>`'s `Marshal` impl maps Python `None`
@@ -113,9 +127,20 @@ pub(crate) fn to_python(
             // fields the D6 stages write back.
             "routes" => py_opt_changed(orig, out, "routes")?,
             "vias" => py_opt_changed(orig, out, "vias")?,
-            "drc_violations" => py_opt_changed(orig, out, "drc_violations")?,
-            "placement_violations" => py_opt_changed(orig, out, "placement_violations")?,
-            "connectivity_violations" => py_opt_changed(orig, out, "connectivity_violations")?,
+            // U6 (O-C3): the violation lists are owned — the change test
+            // marshals the ORIGINAL Python value to the same owned type and
+            // compares (the U1 pattern, via the shared generic helper).
+            "drc_violations" => owned_opt_changed::<ViolationList>(orig, "drc_violations", &out.drc_violations)?,
+            "placement_violations" => owned_opt_changed::<PlacementViolationList>(
+                orig,
+                "placement_violations",
+                &out.placement_violations,
+            )?,
+            "connectivity_violations" => owned_opt_changed::<ConnectivityViolationList>(
+                orig,
+                "connectivity_violations",
+                &out.connectivity_violations,
+            )?,
             // D7 (routing-adjacent stages): the domain/assignment/netlist
             // fields the D7 stages write back.
             "layer_assignments" => py_opt_changed(orig, out, "layer_assignments")?,
@@ -150,9 +175,21 @@ pub(crate) fn to_python(
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
             "routes" => opt_value(py, &out.routes),
             "vias" => opt_value(py, &out.vias),
-            "drc_violations" => opt_value(py, &out.drc_violations),
-            "placement_violations" => opt_value(py, &out.placement_violations),
-            "connectivity_violations" => opt_value(py, &out.connectivity_violations),
+            "drc_violations" => {
+                crate::marshal::to_python::<Option<ViolationList>>(py, &out.drc_violations)?
+            }
+            "placement_violations" => {
+                crate::marshal::to_python::<Option<PlacementViolationList>>(
+                    py,
+                    &out.placement_violations,
+                )?
+            }
+            "connectivity_violations" => {
+                crate::marshal::to_python::<Option<ConnectivityViolationList>>(
+                    py,
+                    &out.connectivity_violations,
+                )?
+            }
             "layer_assignments" => opt_value(py, &out.layer_assignments),
             "netlist" => opt_value(py, &out.netlist),
             "component_domain_map" => opt_value(py, &out.component_domain_map),
@@ -218,9 +255,6 @@ fn py_opt_changed(
         "reclaim_by_pin_pair" => out.reclaim_by_pin_pair.as_ref(),
         "routes" => out.routes.as_ref(),
         "vias" => out.vias.as_ref(),
-        "drc_violations" => out.drc_violations.as_ref(),
-        "placement_violations" => out.placement_violations.as_ref(),
-        "connectivity_violations" => out.connectivity_violations.as_ref(),
         "layer_assignments" => out.layer_assignments.as_ref(),
         "netlist" => out.netlist.as_ref(),
         "component_domain_map" => out.component_domain_map.as_ref(),
@@ -252,6 +286,22 @@ fn used_slots_changed(orig: &Bound<'_, PyAny>, out: &BoardState) -> PyResult<boo
         &orig.getattr("used_slots")?,
     )?;
     Ok(orig_owned != out.used_slots)
+}
+
+#[cfg(feature = "python")]
+/// The generic OWNED write-back test (the U6 extension of the U1
+/// `used_slots_changed` pattern): marshal the ORIGINAL Python attribute to the
+/// same owned type the Rust field holds and compare with Rust equality. This
+/// preserves the `dataclasses.replace` semantics — a changed field writes the
+/// new value, an unchanged field keeps the original Python object (identity
+/// preserved) — without ever holding a `Py<PyAny>` copy of the field.
+fn owned_opt_changed<T: crate::marshal::Marshal + PartialEq>(
+    orig: &Bound<'_, PyAny>,
+    name: &str,
+    out_val: &Option<T>,
+) -> PyResult<bool> {
+    let orig_owned = crate::marshal::to_owned::<Option<T>>(&orig.getattr(name)?)?;
+    Ok(orig_owned != *out_val)
 }
 
 #[cfg(feature = "python")]

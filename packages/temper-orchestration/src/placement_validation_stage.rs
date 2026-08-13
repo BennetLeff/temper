@@ -42,6 +42,7 @@ use crate::d6_util;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError, StageErrorKind};
+use temper_data_model::PlacementViolationList;
 
 const STAGE_NAME: &str = "placement_validation";
 const LOGGER_NAME: &str = "temper_placer.deterministic.stages.placement_validation";
@@ -146,7 +147,11 @@ impl PlacementValidationStage {
 
         let tuple = py.import("builtins")?.getattr("tuple")?.call1((&violations,))?;
         let mut new_state = state;
-        new_state.placement_violations = Some(tuple.into_any().unbind());
+        // U6 (O-C3): the oracle's tuple construction is kept verbatim, then
+        // marshalled INTO the owned `PlacementViolationList` field.
+        new_state.placement_violations = Some(
+            crate::marshal::to_owned::<PlacementViolationList>(&tuple)?,
+        );
         Ok(new_state)
     }
 }
