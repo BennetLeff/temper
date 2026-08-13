@@ -10,7 +10,15 @@
      pcb/temper.kicad_pcb or elec/src/** file was edited -- every solve below wrote only to scratch
      paths under /tmp/claude-*/scratchpad, never the tracked board, and every CP-SAT run used the
      committed board as read-only input. git status --porcelain clean; git grep -l "^<<<<<<< "
-     empty, throughout. -->
+     empty, throughout. CORRECTED post-review, same session: §3 (Option 1) originally cited
+     issue #871 as an open router OOM blocker; #871 is actually CLOSED/COMPLETED 2026-08-08.
+     Re-verified firsthand (`scripts/route_board.py --net-batching`, real `/usr/bin/time -v`
+     measurement against the committed board: 4.0GB peak RSS, exit 0, wall 452.3s) rather than
+     trusting the issue tracker either way; §3 corrected in place with the real, current finding
+     (router runs; this board's real primary-metric pad-connectivity is 38%, a congestion cost,
+     not an OOM/crash blocker) and the ranking's reasoning downgraded accordingly (solver
+     feasibility is "not attempted," not "proven infeasible"). Does not change §8's ranking or
+     the headline recommendation, which rests on the independently-fatal creepage finding. -->
 
 # OCP-02's three unplaced components (T2/C37/R65): options evaluation and recommendation
 
@@ -33,6 +41,14 @@ creepage violation, because that gap is intra-footprint (primary pad to secondar
 function of neighbours. **The placement UNSAT and the creepage non-compliance are two
 independent, both-fatal problems with the same part.** Every option below is evaluated against
 both.
+
+**Second finding, also load-bearing:** the CT is not the only part with this problem. Re-opening
+`OCP02_DECISION_BRIEF.md`'s previously-rejected non-CT alternative (Option 3, an AMC1300 isolated
+amplifier) as the task instructed surfaces a genuinely new result neither prior OCP-02 document
+could have had: **AMC1300's own datasheet creepage (8.5mm) also falls short of the 12.6mm PD3
+bar** (§5) once this repo's own 2026-08-12 pollution-degree determination is applied to it --
+by 4.1mm, the same defect class as the CT. Switching sensing technology away from a CT does not,
+by itself, sidestep the isolation problem on this board today.
 
 **Recommendation, up front (reasoning in §8):** do not populate OCP-02 with the current CT-based
 design now (Option 5); defer it until a mechanism change (Option 4, a bore/donut-primary CT) is
@@ -103,23 +119,69 @@ take. **Not pursued further; do not shrink the courtyard.**
 
 ## 3. Option 1 -- full re-place
 
-**Verdict: not proven feasible under the real constraint set; high cost; does not by itself fix
-the creepage defect.**
+**Verdict: the solver question is genuinely "not attempted" rather than "proven infeasible" --
+weaker grounds for ruling this out than originally stated. High cost either way; does not by
+itself fix the creepage defect.**
+
+> **CORRECTION (added after initial PR review, same session):** the first version of this
+> document cited issue #871 as an open, unresolved router OOM blocker
+> ("`docs/evidence/2026-08-07-router-silent-noop-diagnosis.md`, issue #871 ... the only path
+> that builds a real model OOMs above 13GB RSS"). That was stale: **#871 is CLOSED,
+> COMPLETED, 2026-08-08** -- fixed by the net-batching path (`scripts/route_board.py
+> --net-batching`, `router_v6/net_batching.py`) one day after the diagnosis doc was written.
+> Firsthand re-verification below replaces the stale claim; the router-related bullet is
+> corrected, not deleted, per this repo's own `_march`-log convention of surfacing a checked
+> correction rather than silently dropping it.
 
 - Full-board entry point exists (`temper-placer optimize`, OR-Tools CP-SAT,
   `placer/cp_sat/loop.py:43-44`), but **the production engine does not complete even a bare
   feasibility solve on this board within its own 30s live budget** -- `status=unknown` at
-  25.8-26.7s across 3 seeds (`docs/evidence/2026-08-11-pumpkin-real-budget-spike.md` §4.2).
+  25.8-26.7s across 3 seeds (`docs/evidence/2026-08-11-pumpkin-real-budget-spike.md` §4.2). This
+  claim is unaffected by the router correction below and still stands as cited.
 - The experimental Pumpkin engine solves courtyard-+-bounds-only in 0.9-2.0s, but **has not
   been tested with `domain_clearance` (the 8mm reinforced tier) and `isolation_barrier` together
   in a full free-everything re-solve** -- the combination this task actually needs is unverified,
   not proven feasible or infeasible. Pumpkin is not integrated into `optimize` (spike only, "no
-  line under `placer/cp_sat/**` touched").
-- **The router does not currently work on this board at all**, independent of OCP-02
-  (`docs/evidence/2026-08-07-router-silent-noop-diagnosis.md`, issue #871): the production path
-  silently builds a 0-variable model; the only path that builds a real model OOMs above 13GB
-  RSS. A full re-place's output is **currently unroutable by either code path**, a pre-existing
-  blocker this option would inherit, not introduce.
+  line under `placer/cp_sat/**` touched"). **This is the correct verdict for the solver question
+  on its own: "not attempted," not "proven infeasible."** Nothing in this document establishes
+  that a full free-everything re-solve is actually UNSAT the way Option 0's courtyard question
+  was established (§2) -- no brute-force or CP-SAT proof was run against the real constraint set
+  at full-board scale.
+- **Router status, re-verified firsthand this session** (not from the issue tracker either
+  way): ran `scripts/route_board.py --pcb pcb/temper.kicad_pcb --net-batching --batch-size 10`
+  (the exact flags issue #871's own fix added) against the current, unmodified, committed board,
+  under `/usr/bin/time -v` for a real measurement, not an estimate:
+
+  ```
+  Result: 70/106 nets (66.0%)  segments=3331 vias=26 zones=80  wall=452.3s
+  Result (pad connectivity, PRIMARY metric): 53/139 nets fully pad-connected
+    fake-completion=46 honest-gap=40
+  Maximum resident set size: 4,203,432 KB (~4.0 GB)
+  Elapsed (wall clock) time: 7:32.95 (452.3s, matches the tool's own report)
+  Exit status: 0
+  ```
+
+  **The OOM is genuinely fixed**: 4.0GB peak RSS, nowhere near the >13GB figure the original
+  bug reported, and the run completes and writes a valid output board -- #871 was correctly
+  closed. **But the router's output quality on this exact board, today, is real and poor,
+  for a different, current reason, not a stale one**: by the tool's own labeled PRIMARY
+  metric (pad connectivity, not the more permissive net-batching-stage completion number),
+  only **53 of 139 nets (38%) are fully pad-connected**. 40 nets have a genuine "honest-gap"
+  (`no legal path found`, zero copper), and 46 more are "fake-completion" (copper exists but
+  does not join all of the net's own pads) -- this repo's own established distinction
+  (`STRATEGY.md`: "The router is at roughly 79%, not 3.45%" is the same honest-vs-inflated
+  metric question, resolved the same way there). A run also logged one
+  `[LedgerReport IMBALANCED]` warning (`routing_complete` stage: `net_count: 112 -> 0`,
+  `component_count: 168 -> 0`) whose cause was not investigated here -- noted, not
+  characterized, since it did not stop the run from completing or writing a board.
+  **Revised conclusion: the router runs and completes on this board today (#871 does not
+  block it), but a full re-place's resulting board would still need to clear a real,
+  currently-measured 38%-full-pad-connectivity baseline before being routable in practice --
+  a routing-congestion cost, not an unrunnable-tool blocker.** This is weaker evidence against
+  Option 1 than the original (incorrect) "unroutable by either code path" claim, but it is not
+  zero evidence either: it is real, current, firsthand-measured congestion on the board as it
+  stands, and a full re-place does not obviously make that better (more freedom to move
+  components, but 168 of them instead of 3, all needing simultaneous legal positions).
 - **Re-measurement burden**: `power_pcb_dataset/drc_ceiling.json`'s provenance is content-hash
   pinned to the board file; moving ~168 components (vs. 3) requires the same same-PR,
   ≥120-sample, per-category-attributed re-measurement discipline `AGENTS.md` already mandates,
@@ -132,7 +194,11 @@ the creepage defect.**
   same CST3015 footprint, whose primary-secondary creepage (9.100mm) is a fixed, intra-footprint
   property independent of where it lands.
 
-**Cost: large, only partially bounded, and insufficient alone.**
+**Cost: large, only partially bounded, and insufficient alone. The solver-feasibility question
+is honestly "not attempted" rather than "proven infeasible" -- if that question mattered on its
+own (it does not change the ranking here, since the creepage defect is independently fatal),
+it would be worth actually running a full free-everything Pumpkin solve with the real
+constraint set before concluding anything stronger than "unverified."**
 
 ---
 
@@ -293,7 +359,7 @@ what BOM.md §5.4 already accepts as residual risk for the combined OCP-01+OCP-0
 | **2 (scope separately)** | **4 -- aperture/donut CT mechanism change, for T1+T2 jointly** | Only path found that plausibly fixes both problems; unfinished (no verified reinforced cert; needs `elec/`+mechanical redesign out of this task's scope) | Yes, plausibly (footprint ~16x smaller) | Yes, plausibly (creepage becomes routing-controlled) |
 | 3 (closed) | 0 -- courtyard over-drawn | Empirically closed; not over-drawn, re-verified past the physical floor | No | No (not applicable) |
 | 4 (closed, new finding) | 3 -- AMC1300 isolated amplifier | No longer clears the governing PD3 bar (8.5mm vs. 12.6mm); largest standalone cost of any option | N/A (smaller part, but moot) | **No** |
-| 5 (insufficient alone) | 1 -- full re-place | Not proven feasible under real constraints (production engine timeout, Pumpkin untested on full constraint set); router independently broken (#871); large re-measurement burden | Unproven | No |
+| 5 (insufficient alone) | 1 -- full re-place | Solver feasibility genuinely **not attempted** (production engine timeout, Pumpkin untested on full constraint set) -- not "proven infeasible." Router itself runs today (#871 fixed 2026-08-08, re-confirmed firsthand: 4.0GB RSS, exit 0), but this exact board's real, current pad-connectivity is only 38% (53/139) by the primary metric -- a congestion cost, not a tool blocker. Large re-measurement burden either way | Unproven | No |
 | 6 (insufficient alone, least resolvable) | 2 -- grow the board | No verified enclosure dimension exists; board may already exceed the one cited enclosure figure; contrary to project's own shrink-direction | Unproven | No |
 
 **Why 5 over 4 as the immediate action, not the reverse:** Option 4 is the technically correct
