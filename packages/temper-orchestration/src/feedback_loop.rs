@@ -433,7 +433,7 @@ pub fn run_automated_zero_drc(
         // matching the oracle exactly instead of AttributeError-ing.
         return Ok(match initial_state {
             Some(s) => s,
-            None => py.None().into(),
+            None => py.None(),
         });
     }
 
