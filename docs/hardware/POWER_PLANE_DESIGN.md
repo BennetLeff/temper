@@ -19,30 +19,48 @@ This document specifies the power plane design for the Temper 4-layer PCB, inclu
            │
     0.000  ┼─────────────────────────────────────┐  Solder Mask Top
            │                                     │
-    0.035  │  ████████ L1: TOP (2 oz) ████████  │  Power components, HV pours
+    0.070  │  ████████ L1: TOP (2 oz) ████████  │  Power components, HV pours
            │                                     │
-    0.070  ┼─────────────────────────────────────┤  Prepreg 1 (0.2mm)
+    0.070  ┼─────────────────────────────────────┤  Prepreg 1 (0.195mm)
            │                                     │
-    0.270  ┼─────────────────────────────────────┤
+    0.265  ┼─────────────────────────────────────┤
            │                                     │
-    0.305  │  ████████ L2: GND (1 oz) ████████  │  Ground plane (split)
+    0.300  │  ████████ L2: GND (1 oz) ████████  │  Ground plane (split)
            │                                     │
-    0.340  ┼─────────────────────────────────────┤  Core (1.0mm)
+    0.300  ┼─────────────────────────────────────┤  Core (1.0mm)
            │                                     │
            │                                     │
            │                                     │
-    1.340  ┼─────────────────────────────────────┤
+    1.300  ┼─────────────────────────────────────┤
            │                                     │
-    1.375  │  ████████ L3: PWR (1 oz) ████████  │  Power plane (islands)
+    1.335  │  ████████ L3: PWR (1 oz) ████████  │  Power plane (islands)
            │                                     │
-    1.410  ┼─────────────────────────────────────┤  Prepreg 2 (0.2mm)
+    1.335  ┼─────────────────────────────────────┤  Prepreg 2 (0.195mm)
            │                                     │
-    1.610  ┼─────────────────────────────────────┤
+    1.530  ┼─────────────────────────────────────┤
            │                                     │
-    1.645  │  ████████ L4: BOT (1 oz) ████████  │  Control signals, gate drive
+    1.600  │  ████████ L4: BOT (2 oz) ████████  │  Control signals, gate drive
            │                                     │
-    1.680  ┼─────────────────────────────────────┘  Solder Mask Bottom
+    1.600  ┼─────────────────────────────────────┘  Solder Mask Bottom
 ```
+
+**Correction (2026-08-13):** L4 was previously listed as 1 oz here (and the
+prepreg thicknesses as an even 0.2mm each), disagreeing with
+`docs/hardware/TRACE_WIDTH_CALCULATIONS.md` §1/§3.4/§4 (uniform 2 oz outer
+assumption, applied to the GateDrive class that routes on L4) and with
+`docs/specs/PCB_SPECIFICATION.md` §12.2's "2oz outer" order-form line.
+JLCPCB's outer-copper weight is one stackup-wide setting covering both L1 and
+L4 (`docs/hardware/FAB_CAPABILITY.md` §1) -- there is no standard option to
+order L1 at 2 oz and L4 at 1 oz separately. L4 is corrected to 2 oz to match
+the current-capacity derivations that actually depend on it, and the two
+prepreg layers are trimmed from 0.2mm to 0.195mm each so the stack still sums
+to the board's declared 1.6mm total with L4's extra 0.035mm of copper
+included (dielectric thickness carries no current-capacity dependency in this
+repo, so this adjustment is cosmetic/dimensional only). See
+`pcb/temper.kicad_pcb`'s `(setup (stackup ...))` block (added in the same
+change) for the now-authoritative, machine-checkable declaration, and
+`docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §3 for the full
+disagreement writeup.
 
 ### 2.2 Layer Function Summary
 
@@ -51,7 +69,7 @@ This document specifies the power plane design for the Temper 4-layer PCB, inclu
 | L1 | TOP | 2 oz | HV copper pours (DC bus, switch node) | Power components |
 | L2 | GND | 1 oz | Ground reference plane | EMI shielding |
 | L3 | PWR | 1 oz | Power distribution (+5V, +3.3V, +15V) | Thermal spreading |
-| L4 | BOT | 1 oz | Control signals, digital | Gate drive routing |
+| L4 | BOT | 2 oz | Control signals, digital | Gate drive routing |
 
 ### 2.3 Impedance Characteristics
 

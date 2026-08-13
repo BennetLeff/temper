@@ -590,6 +590,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_pll_range_consistency.py", "firmware/components/control/pll_control.h", "firmware-header scan; probe harness deferred"),
     ("check_rust_drc_presence.py", "packages/temper-drc-rs/src", "extension-symbol scan; probe harness deferred"),
     ("check_script_sunset.py", "scripts/manifest.yaml", "manifest scan (warn-only in CI); probe harness deferred"),
+    ("check_stackup_copper_weight_gate.py", "pcb/temper.kicad_pcb", "stackup <-> trace-width-derivation copper-weight correspondence gate (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md); parses pcb/temper.kicad_pcb's (setup (stackup ...)) block and docs/hardware/TRACE_WIDTH_CALCULATIONS.md §1 directly; probe harness deferred"),
     ("check_stale_extensions.py", "packages/", "extension freshness scan; probe harness deferred"),
     ("check_test_baseline_writes.py", "power_pcb_dataset/baselines/", "protected-artifact write detector; probe harness deferred"),
     ("check_typecheck_gate.py", "", "type-check artifact scan; probe harness deferred"),

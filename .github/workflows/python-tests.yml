@@ -2139,6 +2139,36 @@ jobs:
         # so it does not block this gate).
         run: uv run python scripts/check_netclass_class_param_correspondence.py
 
+      # --- Stackup <-> trace-width-derivation copper-weight gate (docs/evidence/
+      # 2026-08-13-jlcpcb-fab-capability-envelope.md) ---
+      # A seventh gate for the same declaration/reality-drift shape as Gates
+      # 1-6: pcb/temper.kicad_pcb declared NO stackup at all before
+      # 2026-08-13 -- no copper-weight instruction reached the artifact a
+      # fabricator actually receives, even though every IPC-2221B
+      # current-capacity derivation in docs/hardware/TRACE_WIDTH_CALCULATIONS.md
+      # (coil pad sizing, HighVoltage/GateDrive/Power/ACMains net-class
+      # widths, the 5V internal-plane width) assumes 2oz outer / 1oz inner
+      # copper. A (setup (stackup ...)) block was added declaring exactly
+      # that (2oz F.Cu/B.Cu, 1oz In1.Cu/In2.Cu) in the same change that also
+      # corrected a genuine doc-vs-doc (and, in PCB_SPECIFICATION.md's case,
+      # doc-vs-itself) disagreement about whether B.Cu was 1oz or 2oz --
+      # GROUNDING_EMI_STRATEGY.md and POWER_PLANE_DESIGN.md both said 1oz,
+      # contradicting TRACE_WIDTH_CALCULATIONS.md's uniform 2oz-outer
+      # assumption (which the GateDrive class -- routed on B.Cu -- was
+      # already sized against) and JLCPCB's real order form, where "outer
+      # copper weight" is one stackup-wide setting covering both outer
+      # layers, not a per-side choice. BLOCKING from introduction: this gate
+      # is clean against the real repo the moment it lands (both inputs were
+      # corrected in the same PR), so there is no reason to land it advisory.
+
+      - name: Stackup copper-weight gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_stackup_copper_weight_gate.py -v --tb=short
+
+      - name: Stackup copper-weight gate (Gate 7)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_stackup_copper_weight_gate.py
+
       - name: Router clearance floor gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_router_clearance_floor.py -v --tb=short

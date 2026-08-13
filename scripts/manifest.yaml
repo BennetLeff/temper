@@ -1068,6 +1068,27 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: check_stackup_copper_weight_gate.py
+  purpose: 'CI gate: assert pcb/temper.kicad_pcb''s (setup (stackup ...)) block declares the same per-role
+    copper weight (2oz outer / 1oz inner) that docs/hardware/TRACE_WIDTH_CALCULATIONS.md''s §1 design
+    parameters assume, for both F.Cu/B.Cu (outer) and In1.Cu/In2.Cu (inner). Closes the gap where the
+    board declared no stackup at all (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md) --
+    every IPC-2221B current-capacity derivation in that doc was contingent on a fab order-form note
+    nothing in the repo enforced. Blocking from introduction (2026-08-13): both inputs were reconciled
+    in the same change that added the gate.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
