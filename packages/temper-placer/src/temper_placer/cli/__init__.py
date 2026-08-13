@@ -124,6 +124,31 @@ def _print_validator_audit(result: object, indent: str = "  ") -> None:
     )
 
 
+def _print_tank_creepage_report(result: object, indent: str = "  ") -> None:
+    """Surface what the tank-node creepage constraint actually encoded.
+
+    The self-pair line is the load-bearing half: those are intra-footprint
+    pad pairs (R30's two litz terminals, the tank caps' own two pads) that
+    NO placement constraint can separate, because a component's pads move
+    as one rigid body. They are fixed in the footprint library, not by the
+    solver, and printing them here keeps that gap visible on every
+    production solve instead of only in the module's WARNING log.
+    """
+    report = getattr(result, "tank_creepage_report", None)
+    if report is None:
+        return
+    console.print(
+        f"{indent}Tank-node creepage: {report.pairs_encoded} pair(s) encoded at "
+        f"{report.margin_mm}mm ({len(report.tank_refs)} tank x {len(report.other_refs)} "
+        f"other-HV, {report.pairs_skipped_absent} skipped as absent)"
+    )
+    if report.self_pairs:
+        console.print(
+            f"{indent}  [yellow]NOT covered (intra-footprint, fix in the footprint "
+            f"library):[/] {', '.join(report.self_pairs)}"
+        )
+
+
 def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None:
     """Surface UNSAT report if the result carries one.
 
@@ -689,6 +714,9 @@ def optimize(
             from temper_placer.io.config_loader import load_constraints
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             from temper_placer.placer.cp_sat.encoder import solve_placement
+            from temper_placer.placer.cp_sat.tank_creepage import (
+                DEFAULT_TANK_CREEPAGE_MM,
+            )
 
             parse_result = parse_kicad_pcb(input_pcb)
             netlist = parse_result.netlist
@@ -764,9 +792,32 @@ def optimize(
                 # footprint and coverage-gap buckets land on
                 # cp_result.validator_audit and are printed below.
                 validator_input=validator_input,
+                # Tank-node functional creepage (#1089), ENABLED on the
+                # production path 2026-08-12. Until now the constraint
+                # existed but every production solve ran without it, so
+                # nothing in the shipping pipeline held the resonant tank
+                # node away from the other HV nets: the highest-voltage
+                # interface on the board (570.5 Vrms measured,
+                # docs/evidence/2026-08-12-hv-clearance-adequacy.md) was
+                # bounded by nothing but the generic netclass/courtyard
+                # separation. margin_mm is the PD3 figure -- PD3 governs
+                # as-built (IEC 60335-2-6 cl. 29.2 Addition; the PD2
+                # compartment is unbuilt), giving IEC 60335-1 Table 18
+                # band >500-800V, material group IIIa/IIIb = 10.0mm. That
+                # is tank_creepage.DEFAULT_TANK_CREEPAGE_MM, named rather
+                # than re-literalled so the PD switch moves one place.
+                # NOTE, so this is not over-read: this is a COMPONENT-BOX
+                # bound. It guarantees pad-to-pad separation between the
+                # tank components and other HV components' own footprints;
+                # it says nothing about pad-to-routed-track creepage, which
+                # is a routing degree of freedom (see tank_creepage.py's
+                # module docstring and
+                # docs/evidence/2026-08-12-tank-creepage-placement.md sec 2).
+                tank_creepage={"margin_mm": DEFAULT_TANK_CREEPAGE_MM},
             )
 
             console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
+            _print_tank_creepage_report(cp_result)
             _print_validator_audit(cp_result)
 
             if cp_result.status in ("infeasible", "model_invalid"):
