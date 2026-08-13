@@ -1,12 +1,30 @@
 import ThermalViaArray, HighCurrentPad, CreepageSlot from "fac_utils.ato"
 
 module LitzPad_15A:
-    """High-current pad for Litz wire (Resonant Tank)."""
+    """High-current pad for Litz wire (Resonant Tank).
+
+    R30's own termination: bare solder PTH pads for the tank coil's litz
+    leads, not a purchased connector (docs/hardware/TANK_COIL_SPECIFICATION.md
+    req #10; docs/hardware/BOM.md L_TANK line). Name kept for continuity
+    with pcb/libs/lib.pretty/LitzPad_15A.kicad_mod and the R30 designator
+    (both now historical, not descriptive -- see that file's descr and
+    modules.ato:598-616). current_rating corrected 2026-08-13 from 15A
+    (already exceeded 1.38-1.5x by the tank's 20.7-22.5A rms continuous
+    operating current, docs/hardware/PART_STRESS_AUDIT.md Sec 1.3) to 25A,
+    matching inductor_conn.current_rating (modules.ato:620) and
+    TANK_COIL_SPECIFICATION.md req #6's imposed continuous-thermal figure.
+    annular_ring widened to match the geometry the kicad_mod's descr
+    derives via IPC-2221B (docs/hardware/TRACE_WIDTH_CALCULATIONS.md Sec 2)
+    at that current: 3.0mm drill + 2x6.0mm ring = 15.0mm pad OD, pitch
+    25.0mm (= diameter + 10.0mm PD3 creepage). See
+    docs/evidence/2026-08-13-coil-connector-rating.md.
+    """
     pad = new HighCurrentPad
-    pad.drill_size = 2.5mm # Large for Litz bundles
-    pad.annular_ring = 1.5mm
-    pad.current_rating = 15A
-    
+    pad.drill_size = 2.5mm # Large for Litz bundles -- pre-existing drift
+    # against the kicad_mod's actual 3.0mm drill, not touched by this pass
+    pad.annular_ring = 6.0mm
+    pad.current_rating = 25A
+
     signal in ~ pad
 
 module CST1005_Footprint:
