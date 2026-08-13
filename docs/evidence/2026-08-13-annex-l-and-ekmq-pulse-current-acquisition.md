@@ -325,11 +325,14 @@ read in full (22 pages).
   "Special Products" finding from an unrelated manufacturer: pulse/charge-discharge duty is treated
   industry-wide as a **separate product category**, not a rating carried by general-purpose
   electrolytics like the KMQ series.
-- **"Ripple Current Transients and High Inrush Current," page 8, verbatim**: *"Electrolytic
-  capacitors are able to survive some transient ripple current abuse. As a rule of thumb, for brief
-  ripple current excursions such as several seconds of 2 to 4 times the rated load ripple current,
-  the thermal mass of the capacitor winding will absorb a lot of the extra energy dissipation of
-  such an event... For very high inrush or sub-millisecond transient currents such as 10,000 amps
+- **"Ripple Current Transients and High Inrush Current," page 8, verbatim** (re-checked against a
+  fresh independent re-fetch of the PDF; corrects one word this document's prior draft had wrong --
+  the body text reads "transient current abuse," not "transient ripple current abuse"): *"Electrolytic
+  capacitors are able to survive some transient current abuse, typically more than their metallized
+  film counterparts. As a rule of thumb, for brief ripple current excursions such as several seconds
+  of 2 to 4 times the rated load ripple current, the thermal mass of the capacitor winding will
+  absorb a lot of the extra energy dissipation of such an event... For very high inrush or
+  sub-millisecond transient currents such as 10,000 amps
   peak, please contact us. Although electrolytic capacitors do not suffer from the intrinsically low
   dv/dt limits of metallized film capacitors, their tabs or terminal connections may need to be
   fortified to prevent overheating or even I²t fusing... We would encourage you to contact us when
