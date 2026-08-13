@@ -24,7 +24,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
 use pyo3::prelude::*;
-use pyo3::types::{PyAny, PyDict, PyList, PyModule, PySet, PyString, PyTuple};
+use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyString, PyTuple};
 
 use temper_orchestration::{BoardState, PhasedAssignmentStage, PipelineConfig, PipelineRunner, ZoneAwareSlotGenerationStage};
 
@@ -341,7 +341,7 @@ fn phased_single_stage_end_to_end() {
         let placements = out.placements.as_ref().expect("placements attached");
         assert_eq!(placements.bind(py).len()?, 2, "both components placed");
         let used = out.used_slots.as_ref().expect("used_slots attached");
-        assert!(used.bind(py).len()? >= 2, "footprint rings must reserve slots");
+        assert!(used.len() >= 2, "footprint rings must reserve slots");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -364,11 +364,17 @@ fn phased_hv_rings_reserved() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let used = out.used_slots.as_ref().expect("used_slots attached");
-        let used_set: Bound<PySet> = py
-            .import("builtins")?
-            .getattr("set")?
-            .call1((used,))?
-            .cast_into()?;
+        // U1 (O-C3): the field is owned — rebuild the Python set from the
+        // slot coordinates (the marshaller's to_python path is exercised
+        // end-to-end by the Python D4/D5 suites; the runner just needs a
+        // Python set to probe membership in).
+        let used_set = py.import("builtins")?.getattr("set")?.call0()?;
+        for slot in used {
+            used_set.call_method1(
+                "add",
+                (PyTuple::new(py, [slot.0, slot.1])?,),
+            )?;
+        }
         // Q1's HV pin sits at its placed position + (0,0); creepage 6.0 with
         // the 2.5/7.5 grid guarantees at least the placed slot and neighbors.
         let as_dict = py.import("builtins")?.getattr("dict")?.call1((

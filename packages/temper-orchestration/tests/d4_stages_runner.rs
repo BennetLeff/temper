@@ -34,7 +34,9 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyString, PyTuple};
 
-use temper_orchestration::{BoardState, ComponentAssignmentStage, PipelineConfig, PipelineRunner};
+use temper_orchestration::{
+    BoardState, ComponentAssignmentStage, PipelineConfig, PipelineRunner, SlotId,
+};
 
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D4 stage / validator kernel import at runtime
@@ -383,14 +385,19 @@ fn phased_validator_hv_kernel() {
             ],
         )?;
         // used_slots recorded by the placer WITHOUT the (0,5) HV-ring slot.
-        let used_slots = py_frozenset(py, vec![xy(py, 0.0, 0.0)?, xy(py, 5.0, 0.0)?])?;
+        // U1 (O-C3): the field is owned now — construct the `HashSet<SlotId>`
+        // directly (the same shape the marshaller produces from the
+        // frozenset, exercised end-to-end by the Python D4 differential).
+        let mut used_owned = std::collections::HashSet::new();
+        used_owned.insert(SlotId(0.0, 0.0));
+        used_owned.insert(SlotId(5.0, 0.0));
 
         let mut state = BoardState::new();
         state.netlist = Some(netlist.into_any().unbind());
         state.design_rules = Some(rules.into_any().unbind());
         state.zone_slots = Some(zone_slots.into_any().unbind());
         state.placements = Some(placements.into_any().unbind());
-        state.used_slots = Some(used_slots.into_any().unbind());
+        state.used_slots = Some(used_owned);
 
         let failures = temper_orchestration::phased_validator_hv(py, state);
         let failures = failures.unwrap();
