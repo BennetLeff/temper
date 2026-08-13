@@ -476,11 +476,43 @@ failed.** Attributed:
 `check_manifest_gate.py` passes.
 
 **`test_production_board_routing_drc_regression` — NOT MEASURED, outstanding.**
-It is the ratchet that matters most for this change (`shorting_items` and
-`unconnected_items` on the router's output for `pcb/temper.kicad_pcb`), and
-§6.2 shows `shorting_items` rising 137 → 199 on the candidate board, so it is a
-live risk. Four attempts were killed mid-run by the session's process
-management; none reached a verdict. **This must be run before merge.**
+It is the ratchet that matters most for this change (`shorting_items ≤ 178`
+and `unconnected_items ≤ 463` on the router's output for
+`pcb/temper.kicad_pcb`), and §6.2 shows `shorting_items` rising 137 → 199 on
+the candidate board, so it is a live risk. Six attempts did not reach a
+verdict — five killed mid-run by the session's process management, and one run
+standalone under `nohup` so it could not be killed
+(`scratchpad/ratchet_repro.py`: same call path, same two assertions) was
+**still routing after 31 minutes**. That path routes the committed board *on
+top of its existing copper* rather than from stripped, which none of the clean
+re-routes here exercised. **This must be run before merge.**
+
+**Related runtime observation, recorded because it is unresolved, not because
+it is quantified.** `mark_point_rect` stamps a square of `±expansion` cells per
+sampled point, so its cost is O(expansion²), and §5's table raises `expansion`
+for exactly the widest classes — `HighVoltage` 35 → 49 cells, `ACMains`
+75 → 89. On the clean re-route the effect is mild: **431.4s → 491.9s, +14%**,
+which is the only figure actually measured. Whether the 31-minute no-strip run
+is that same +14% on a much slower path, contention from three concurrent
+agents (load average 5.8–8.1 throughout), or a genuine blow-up, **is not
+established here and should not be assumed either way.**
+
+### Recommended split for review
+
+Commits 1–2 (`a86de6f7b`, `06545cf07` — remove the 0.15 clobber, name the DRU
+constant, add the mutation-verified gate) are cheap, self-contained, and carry
+none of the above risk: they change one fallback constant to the value three
+other sources already declare, and add a guard that is green on arrival.
+
+Commit 3 (`c0f6c662e` — the `clearance_floor` derivation plus 0.25 → 0.20) is
+what buys the −90% track-to-track figure, and is also what carries the
+aggregate cost (1143 → 1310), the completion cost, the one red test, and the
+unmeasured ratchet. A reviewer who wants the diagnosis and the guard without
+the risk can revert the `effective_blocking_clearance` wiring in
+`_astar_reconstruct.py` and the `default_trace_width` change in
+`io/_parse_nets.py` (with its pinned oracle) and keep everything else. Neither
+choice changes §6.4's conclusion, which is the finding this document exists
+for.
 
 ## 9. What was NOT done, deliberately
 
