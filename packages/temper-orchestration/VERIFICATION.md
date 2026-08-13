@@ -3851,3 +3851,74 @@ three — identity-vs-value pair_kind, falsy pair_kind TypeError, falsy
 log-rendering only and is reported here rather than fixed in the sweep, per
 the report-don't-fix rule. The fix is a one-character separator change
 (`""` → `", "` in the `str.join` call).
+
+## U0 boundary marshaller + round-trip losslessness gate (O-C3/U0)
+
+The boundary marshaller (`src/marshal.rs`) is the foundation for replacing
+the 23 `Option<Py<PyAny>>` `BoardState` fields with owned Rust structs
+(U1–U4). It proves, once at the boundary, that a Python object marshals
+INTO an owned Rust value and back OUT bit-identically, before any stage is
+rewritten. See `docs/evidence/2026-08-13-u0-boundary-marshaler-roundtrip-gate.md`.
+
+### Design
+
+- **`Marshal` trait** with `from_python`/`to_python`, wrapped by the free
+  functions `to_owned::<T>(obj)` / `to_python::<T>(py, owned)`. Every impl
+  reads scalars via `extract::<f64>()`/`extract::<i64>()`/
+  `extract::<String>()` and iterates collections — **never**
+  `extract::<Py<T>>()`, which is the cross-`.so` pyclass-identity blocker
+  (`docs/evidence/2026-08-12-cross-extension-pyclass-identity.md`). Owned
+  structs dodge that blocker by construction: a Rust field that *names* a
+  foreign pyclass is the bug; an owned `struct`/`enum` of plain fields is
+  not.
+- **`Val` enum** (`Int(i64) | Float(f64)`) is the canonical type for any
+  field that can hold `int` OR `float` (the concrete-Python-type hazard of
+  `netlist_contracts.rs`: `Component("R1", "fp", (1, 2))` keeps `int`
+  bounds). It records which one it was and round-trips it unchanged —
+  `f64` alone would silently widen `1` to `1.0`.
+- **`Plain` enum** is the lossless nested-value tree (`Null`/`Bool`/`Int`/
+  `Float`/`Str`/`Bytes`/`Tuple`/`List`/`Set`/`FrozenSet`/`Dict`/`Opaque`),
+  carrying the int-vs-float distinction at every leaf and the concrete
+  collection kind at every node.
+
+### Lossless-proven types (the round-trip gate)
+
+`assert_roundtrip::<T>(py, "<python literal>")` (reusable — U1+ plug their
+types in) marshals to `T` and back and asserts bit-identity: exact type
+(`get_type().is(...)`), identical `repr`, and NaN-aware `==`. Proven:
+
+| Rust type | Python | Notes |
+|---|---|---|
+| `i64` | `int` | rejects `bool` (an `int` subclass) |
+| `f64` | `float` | rejects `int`/`bool` (no widening); NaN/±inf round-trip |
+| `bool` | `bool` | |
+| `String` | `str` | |
+| `Val` | `int` or `float` | type-preserving, incl. NaN |
+| `Option<T>` | `None` or `T` | |
+| `Vec<T>` | `list` | homogeneous; a `tuple` needs `Plain` |
+| `Plain` | any nested builtin tree | nested dict/list/tuple/set/frozenset/bytes |
+
+End-to-end proof on real field shapes: `BoardState.placements`
+(`frozenset` of `(ref, (x, y))` tuples) and `used_slots` (`frozenset` of
+int-slot-id tuples) are read via `getattr` and round-tripped bit-identically
+— the exact path a U1+ stage will take.
+
+### Keeps (types that cannot round-trip through an owned struct)
+
+`Plain::Opaque` passes the object through by reference (identity preserved,
+nothing reconstructed). This is deliberate for numpy arrays (dtype and
+element bit patterns are numpy's own — no Rust float conversion may widen
+`float32`), shapely/GEOS geometries, and pyclasses owned by other `.so`
+files. They stay `Py<PyAny>`-shaped until their owner crate migrates them.
+
+### Gates
+
+- `cargo test --lib`: 1122 passed (1112 pre-existing + 10 new `marshal::tests`).
+- `cargo clippy --all-targets`: clean (no new warnings).
+- `cargo check --no-default-features`: clean (wasm-tier build unaffected —
+  `marshal` is `#[cfg(feature = "python")]`-gated).
+- `scripts/gen_wasm_test_registry.py --crate temper-orchestration --check`:
+  up to date (1019 tests; `marshal::tests` censused `python-gated`, 10 tests).
+- `make regen-check`: unchanged — the two `need attention` items (drifted
+  `_pipeline_core_py_oracle.py` pin from #1113, unmanifested
+  `measure_uncapped_drc.py` from #1111) are pre-existing on origin/main.
