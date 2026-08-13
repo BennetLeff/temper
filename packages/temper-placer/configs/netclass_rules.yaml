@@ -27,16 +27,27 @@ classes:
   # derivation (scripts/generate_kicad_dru.py:63). See that doc for the open
   # question this fix does NOT close (whether 2.0 is IEC-adequate for the
   # same-domain, no-creepage-backstop HighVoltage-to-HighVoltage case).
+  # WIDTH RE-SCOPED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+  # scoping.md): trace_width 3.0 -> 5.0mm. This class's own current spans
+  # three orders of magnitude (22.5A RMS tank/bus vs ~20mA bleed string);
+  # the mA-scale members were carved out into the new HighVoltageSignal
+  # class below, and the remaining members (bus/tank pour nets at 22.5A RMS
+  # 40C-pour, plus w1_1/w1_2/power_in.ntc-no which measure as real routed
+  # copper at 15A 20C-trace on the real board) share one 5.0mm width, which
+  # clears both required minima (4.77mm pour, 4.16mm trace) with margin.
+  # Feasibility of exactly this 3.0->5.0mm change was measured in PR #1119:
+  # TRUE clearance 1814->1282, TRUE track_width 841->802, PD2 creepage
+  # 164->149, pad connectivity 49/139->48/139 (single-run noise).
   HighVoltage:
     clearance: 2.0
-    trace_width: 3.0
+    trace_width: 5.0
     via_diameter: 1.2
     via_drill: 0.6
     creepage_mm: 6.0
     voltage_v: 400.0
     layer: "F.Cu"
     safety_category: "HV"
-    because: "HV_INTERNAL_CLEARANCE_MM (scripts/generate_kicad_dru.py:63): IEC 60335-1 cl.29.1 rated impulse 1500V (OVC II, Table 15) -> Table 16 basic clearance 0.5mm -> cl.29.1.3 reinforced step 1.5mm + cl.29.1 soldered-construction adder 0.5mm = 2.0mm"
+    because: "HV_INTERNAL_CLEARANCE_MM (scripts/generate_kicad_dru.py:63): IEC 60335-1 cl.29.1 rated impulse 1500V (OVC II, Table 15) -> Table 16 basic clearance 0.5mm -> cl.29.1.3 reinforced step 1.5mm + cl.29.1 soldered-construction adder 0.5mm = 2.0mm. trace_width: IPC-2221B, 22.5A RMS design current (elec/src/modules.ato:585-593), 2oz external, 40C pour rise -> 4.77mm required minimum; 5.0mm chosen (docs/evidence/2026-08-13-netclass-current-scoping.md)."
 
   # ADDED 2026-08-12 (docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md).
   # The resonant tank's cap<->coil junction (tank.c_tank1-p2), carved out of
@@ -59,7 +70,7 @@ classes:
   # the real kicad-cli `creepage` constraint.
   HighVoltageTank:
     clearance: 2.0
-    trace_width: 3.0
+    trace_width: 5.0
     via_diameter: 1.2
     via_drill: 0.6
     creepage_mm: 6.3
@@ -80,6 +91,25 @@ classes:
     # re-running that gate. See docs/evidence/2026-08-12-hv-hv-creepage-
     # enforcement.md.
     because: "IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4) band vi (>500-800V), material group IIIa/IIIb, PD2 = 6.3mm creepage, indexed by a MEASURED 570.5 Vrms (ngspice, simulation/harness/nets/zvs_margin_sweep.cir, worst OCP-01-passing corner); cl. 3.1.3 Note 2 makes the resonant swing, not the 340V bus, the quantity the table is indexed by. Clearance unchanged from HighVoltage's cited 2.0mm."
+
+  # ADDED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-scoping.md):
+  # the mA-scale current tier carved out of HighVoltage above -- same
+  # voltage domain (clearance/creepage_mm/voltage_v/safety_category
+  # IDENTICAL to HighVoltage's own, mirroring how HighVoltageTank changes
+  # only creepage while keeping clearance identical). Members: the
+  # discharge bleed string (~20mA), hb.power_loop.q_high-g (Q_high gate
+  # tap), a/zcd (U3's ZCD divider tap/opto-anode net), +15V_LS (gate-driver
+  # bias rail, <=500mA peak).
+  HighVoltageSignal:
+    clearance: 2.0
+    trace_width: 0.5
+    via_diameter: 0.8
+    via_drill: 0.4
+    creepage_mm: 6.0
+    voltage_v: 400.0
+    layer: "F.Cu"
+    safety_category: "HV"
+    because: "Same voltage domain as HighVoltage (clearance/creepage carried over unchanged); trace_width per TRACE_WIDTH_CALCULATIONS.md S3.8's own manufacturability-floor precedent (0.5mm) for a <=500mA supply/bleed-current net -- IPC-2221B math for this current band computes to a fraction of a mil, below any manufacturable width."
 
   # Gate-drive floating bootstrap supply (+5V_ISO, VBOOT_H, VBOOT_L, and the
   # UCC21550 gate driver's own secondary bias nets hb.gate_hs.driver-p1-1
@@ -236,3 +266,15 @@ class_pairs:
   HighVoltageIsolated-GND: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and ground (same figure as HighVoltage-GND above)"}
   HighVoltageIsolated-Power: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and power (same figure as HighVoltage-Power above)"}
   HighVoltageIsolated-FinePitch: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and fine-pitch (same figure as HighVoltage-FinePitch above)"}
+  # Added 2026-08-13 with the HighVoltageSignal class above (docs/evidence/
+  # 2026-08-13-netclass-current-scoping.md). Mirrors the HighVoltage-* rows
+  # exactly -- HighVoltageSignal is the same voltage domain, current-tier
+  # carve-out only. No HighVoltageSignal-HighVoltage/-HighVoltageTank/
+  # -ACMains/-HighVoltageIsolated pair is listed, deliberately mirroring
+  # this file's existing convention for same-domain neighbours (the
+  # per-class base clearance, identical 2.0mm on all four, already floors
+  # that pair with no explicit rule needed).
+  HighVoltageSignal-Signal: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-Signal, carried over with the current-tier carve-out"}
+  HighVoltageSignal-GND: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-GND, carried over with the current-tier carve-out"}
+  HighVoltageSignal-Power: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-Power, carried over with the current-tier carve-out"}
+  HighVoltageSignal-FinePitch: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-FinePitch, carried over with the current-tier carve-out"}
