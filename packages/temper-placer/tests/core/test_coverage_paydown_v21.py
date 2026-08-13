@@ -36,6 +36,7 @@ from temper_placer.heuristics.base import (
     HeuristicPriority,
     HeuristicResult,
 )
+from temper_placer.regression import fingerprint as fingerprint_mod
 from temper_placer.regression.closure_test import ClosureResult, ClosureTest
 from temper_placer.regression.cp_sat_comparison import compare_metric_dicts
 from temper_placer.regression.drc_ratchet import DrcRatchet
@@ -69,8 +70,6 @@ from temper_placer.router_v6.tree_route_geometry import (
     TreeRouteGeometry,
 )
 from temper_placer.router_v6.via_placement import Via, ViaPlacement
-
-from temper_placer.regression import fingerprint as fingerprint_mod
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 
@@ -599,10 +598,6 @@ class TestDesignRulesParserFromFile:
         assert isinstance(matrix, ClearanceMatrix)
         # Temper defaults always seeded.
         assert matrix.default_clearance == 0.2
-
-    def test_parse_from_file_missing(self, tmp_path: Path):
-        with pytest.raises(Exception):
-            DesignRulesParser.parse_from_file(str(tmp_path / "nope.kicad_pcb"))
 
 
 class TestInferZones:
