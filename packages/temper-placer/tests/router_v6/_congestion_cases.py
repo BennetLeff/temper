@@ -263,7 +263,7 @@ BENCH_NET_BBOXES = [
 # ---------------------------------------------------------------------------
 # analyze_congestion -- a whole design as plain data.
 #   (label, board_wh, cell, capacity, num_layers, components, nets)
-# component: (ref, initial_position, initial_rotation, [(pin_name, (px, py), net)])
+# component: (ref, initial_position, initial_rotation_quadrant, [(pin_name, (px, py), net)])
 # net:       (name, [(comp_ref, pin_name), ...])
 # ---------------------------------------------------------------------------
 _C = "components"

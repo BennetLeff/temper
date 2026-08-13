@@ -33,6 +33,7 @@ def _parsed_pcb_to_drc_input(
     Placement model for DRC checks that operate on geometry beyond
     component footprint overlap.
     """
+    from temper_placer.core.netlist import rotation_quadrant_to_degrees
     from temper_placer.validation.drc_types import ClearanceRule, ConstraintSet
     from temper_placer.validation.drc_types import ComponentPlacement as DRCCompPlacement
     from temper_placer.validation.drc_types import Placement as DRCPlacement
@@ -50,12 +51,23 @@ def _parsed_pcb_to_drc_input(
         side = getattr(comp, "initial_side", 0)
         layer = side_to_layer_name(side)
 
+        # BUG (found 2026-08-13 auditing the initial_rotation_quadrant
+        # rename): this used to pass the raw 0-3 quadrant INDEX straight
+        # through as `rotation`, which `ComponentPlacement.rotation` is
+        # documented and consumed everywhere else as DEGREES (see
+        # validation/drc_oracle.py, regression/drc_ratchet.py,
+        # scripts/calibrate_drc_ceiling.py, scripts/ci_closure_test.py, all
+        # of which correctly do `* 90`). Every non-zero-rotated component
+        # fed into the router_v6 DRC fence (`drc_via_spacing`,
+        # `drc_trace_clearance`) was therefore checked at 1/2/3 degrees of
+        # rotation instead of 90/180/270 -- silently under-rotating the
+        # geometry these safety checks operate on.
         components[comp.ref] = DRCCompPlacement(
             ref=comp.ref,
             footprint=comp.footprint,
             x=float(x),
             y=float(y),
-            rotation=float(getattr(comp, "initial_rotation", 0) or 0),
+            rotation=rotation_quadrant_to_degrees(getattr(comp, "initial_rotation_quadrant", 0)),
             layer=layer,
             width=comp.width,
             height=comp.height,

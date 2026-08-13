@@ -377,7 +377,7 @@ fn register_netlist_pads(
         }
 
         let rot_idx: i64 = {
-            let rot = getattr_default(py, &component, "initial_rotation", py.None())?;
+            let rot = getattr_default(py, &component, "initial_rotation_quadrant", py.None())?;
             if rot.is_none() {
                 0
             } else {

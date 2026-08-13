@@ -50,7 +50,7 @@
 //!   positions go through `pin_world_position` -> `_normalize_rotation`,
 //!   whose dispatch is `None -> 0.0`, `int -> index * PI/2`, `float -> as-is
 //!   (already RADIANS)`.  The dog-bone candidate offsets are rotated by the
-//!   generator's *own* local `angle = float(initial_rotation) * math.pi /
+//!   generator's *own* local `angle = float(initial_rotation_quadrant) * math.pi /
 //!   2.0`, which scales unconditionally.  The two coincide on every integer
 //!   index -- which is why the pinned corpus, all of whose rows carry an
 //!   index, never separated them -- and diverge on every fractional one.
@@ -109,7 +109,7 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 /// `core/pin_geometry._normalize_rotation`'s **integer-index** branch: a
 /// quarter-turn index becomes radians.
 ///
-/// `Component.initial_rotation` is a rotation *index*; the corpus carries
+/// `Component.initial_rotation_quadrant` is a rotation *index*; the corpus carries
 /// out-of-range values (`5`, `-1`) precisely because the module multiplies
 /// without validating.
 ///
@@ -169,8 +169,8 @@ fn rot_to_radians(rot: &Bound<'_, PyAny>) -> PyResult<f64> {
 ///
 /// ```python
 /// angle = 0.0
-/// if component.initial_rotation is not None:
-///     angle = float(component.initial_rotation) * math.pi / 2.0
+/// if component.initial_rotation_quadrant is not None:
+///     angle = float(component.initial_rotation_quadrant) * math.pi / 2.0
 /// ```
 ///
 /// `escape_via_generator` resolves the rotation *twice, differently*, and the
@@ -250,7 +250,7 @@ impl PadRow {
 
 struct CompRow {
     position: Option<(f64, f64)>,
-    /// `_normalize_rotation(initial_rotation)` -- RESOLVED RADIANS, not the
+    /// `_normalize_rotation(initial_rotation_quadrant)` -- RESOLVED RADIANS, not the
     /// raw index, and resolved by [`rot_to_radians`] at parse time because the
     /// int/float dispatch needs the live Python object, which is gone by the
     /// time this struct exists. Read by [`CompRow::pad_world_position`].
@@ -308,7 +308,7 @@ fn parse_pads(pins: &Bound<'_, PyAny>) -> PyResult<Vec<PadRow>> {
     Ok(out)
 }
 
-/// `(initial_position, initial_rotation, initial_side, pitch_mm,
+/// `(initial_position, initial_rotation_quadrant, initial_side, pitch_mm,
 /// package_type, pins)` -- the corpus `PACKAGES` row with its label dropped.
 fn parse_package(pkg: &Bound<'_, PyAny>) -> PyResult<(CompRow, f64)> {
     let position: Option<(f64, f64)> = pkg.get_item(0)?.extract()?;
@@ -564,7 +564,7 @@ fn generate_escape_vias(
 /// `generate_escape_vias(dense_pkg, design_rules, strategy)`.
 ///
 /// `package` is a `PACKAGES` row with its label dropped:
-/// `(initial_position, initial_rotation, initial_side, pitch_mm,
+/// `(initial_position, initial_rotation_quadrant, initial_side, pitch_mm,
 /// package_type, pins)`.  `rules` is a `RULE_SETS` row with its label
 /// dropped: `(net_classes, net_class_assignments, defaults)`.
 #[pyfunction]

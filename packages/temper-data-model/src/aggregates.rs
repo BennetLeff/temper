@@ -114,7 +114,7 @@ mod tests {
                 zone: None,
                 fixed: false,
                 initial_position: None,
-                initial_rotation: None,
+                initial_rotation_quadrant: None,
                 initial_side: None,
                 attributes: Vec::new(),
                 tags: Vec::new(),

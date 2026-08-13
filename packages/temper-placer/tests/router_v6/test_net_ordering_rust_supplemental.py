@@ -191,7 +191,7 @@ def test_production_module_is_untouched_by_this_migration():
 
 
 # ---------------------------------------------------------------------------
-# Migration-narrowing regression: fractional `initial_rotation`
+# Migration-narrowing regression: fractional `initial_rotation_quadrant`
 # ---------------------------------------------------------------------------
 
 
@@ -201,7 +201,7 @@ def test_fractional_rotation_agrees_with_the_oracle(rotation):
 
     Found by ``scripts/check_migration_narrowing.py`` (Check B): the Rust
     kernel bound ``rotation`` as ``Option<i64>`` while the Python path does
-    ``float(comp.initial_rotation) * math.pi / 2.0``. pyo3 REJECTS a
+    ``float(comp.initial_rotation_quadrant) * math.pi / 2.0``. pyo3 REJECTS a
     non-integral float on an ``i64`` extract rather than truncating, so this
     input raised ``TypeError`` on the Rust arm and returned an angle on the
     Python arm -- the exact shape of the already-fixed ``escape_via.rs``

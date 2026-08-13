@@ -138,13 +138,12 @@ def extract_channel_skeleton(
             if not comp.initial_position or not hasattr(comp, "pins"):
                 continue
 
-            rotation_deg = (
-                comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
-            )
-            math.radians(rotation_deg)
-            comp.initial_side if hasattr(
-                comp, "initial_side"
-            ) and comp.initial_side is not None else 0
+            # A rotation-in-degrees expression and an initial_side lookup
+            # used to be computed here and discarded -- dead code, found
+            # 2026-08-13 auditing initial_rotation_quadrant read sites.
+            # Neither fed anything: pad positions below come from
+            # `pin_world_position`, which already applies rotation and side
+            # correctly.
 
             for pin in comp.pins:
                 if pin.net:

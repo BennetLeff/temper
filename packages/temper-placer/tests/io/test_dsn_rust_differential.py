@@ -133,7 +133,7 @@ def _rich_netlist() -> Netlist:
                         layer="all"),
                 ],
                 initial_position=(12.5, 30.0),
-                initial_rotation=2,
+                initial_rotation_quadrant=2,
             ),
             # Natural-sort bait: pin numbers 1, 2, 10, 11 must not sort lexically.
             Component(
@@ -147,7 +147,7 @@ def _rich_netlist() -> Netlist:
                     Pin("D", "11", (1.905, 1.905), width=0.6, height=1.5),
                 ],
                 initial_position=(40.0, 20.0),
-                initial_rotation=1,
+                initial_rotation_quadrant=1,
             ),
             # Back side: `side` must become "back" from the first pin's layer.
             Component(

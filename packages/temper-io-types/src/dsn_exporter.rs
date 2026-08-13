@@ -269,7 +269,7 @@ pub struct ExpComponent {
     pub footprint: String,
     pub pins: Vec<ExpPin>,
     pub initial_position: Option<(f64, f64)>,
-    pub initial_rotation: Option<i64>,
+    pub initial_rotation_quadrant: Option<i64>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -767,9 +767,9 @@ impl DsnExporterCore {
 
             let rot = match &self.inputs.rotation_indices {
                 Some(r) => r[i] * 90,
-                // `(comp.initial_rotation or 0) * 90` — `None` and `0` both
+                // `(comp.initial_rotation_quadrant or 0) * 90` — `None` and `0` both
                 // fall through to 0.
-                None => comp.initial_rotation.unwrap_or(0) * 90,
+                None => comp.initial_rotation_quadrant.unwrap_or(0) * 90,
             };
 
             let side = match comp.pins.first() {
@@ -1239,7 +1239,7 @@ mod py_bridge {
                 footprint: comp.getattr("footprint")?.extract()?,
                 pins,
                 initial_position: comp.getattr("initial_position")?.extract()?,
-                initial_rotation: comp.getattr("initial_rotation")?.extract()?,
+                initial_rotation_quadrant: comp.getattr("initial_rotation_quadrant")?.extract()?,
             });
         }
         let mut nets = Vec::new();

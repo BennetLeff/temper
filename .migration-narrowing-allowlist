@@ -14,10 +14,13 @@
 # Seeded 2026-08-07 from a real `--init` run against origin/main
 # (63ec4e756). At seed time this run additionally surfaced two more, not
 # previously catalogued, live instances of the same defect class
-# (net_ordering.rs `rotation` and terminal_planning.rs `initial_rotation`,
-# both `Option<i64>` mirroring `float(comp.initial_rotation) * math.pi / 2.0`
-# in obstacle_map.py) — those are intentionally NOT listed below; they are
-# real findings, not false positives, and should stay failing until fixed.
+# (net_ordering.rs `rotation` and terminal_planning.rs `initial_rotation` --
+# renamed `initial_rotation_quadrant` 2026-08-13, see
+# `Component.initial_rotation_quadrant` in core/netlist.py -- both
+# `Option<i64>` mirroring `float(comp.initial_rotation_quadrant) * math.pi /
+# 2.0` in obstacle_map.py) — those are intentionally NOT listed below; they
+# are real findings, not false positives, and should stay failing until
+# fixed.
 
 # --- CHECK A: (empty) -------------------------------------------------------
 # The seven net_classification.py pattern-set entries that used to live here

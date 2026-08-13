@@ -47,7 +47,7 @@ def netlist_state(draw: st.DrawFn) -> BoardState:
         bounds=(5.0, 5.0),
         pins=[Pin("1", "1", (0.0, 0.0), net=net_names[0])],
         initial_position=(10.0, 10.0),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
     return BoardState(netlist=Netlist(components=[comp], nets=nets))
 

@@ -45,7 +45,7 @@ def _two_pin_netlist(
             bounds=(1.0, 1.0),
             pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="N1")],
             initial_position=pos,
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
         )
         for ref, pos in (("U1", pos_a), ("U2", pos_b))
     ]
@@ -195,7 +195,7 @@ def test_mixed_layer_assignments_promote_the_grid_to_two_layers():
                     bounds=(1.0, 1.0),
                     pins=[Pin(name="1", number="1", position=(0.0, 0.0), net=net)],
                     initial_position=positions[ref],
-                    initial_rotation=0,
+                    initial_rotation_quadrant=0,
                 )
             )
     netlist = Netlist(

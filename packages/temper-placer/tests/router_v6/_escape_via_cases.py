@@ -22,7 +22,7 @@ Coverage intent per named list
                    whose pins have no net (skipped by ``if not pin.net``),
                    BGA grids at the pitches that straddle the dog-bone
                    feasibility boundary, non-square pad shapes, every
-                   ``initial_rotation`` index 0-3 and ``None``, both
+                   ``initial_rotation_quadrant`` index 0-3 and ``None``, both
                    ``initial_side`` values (the D4 corpus -- since #760 the
                    layer follows the side), ``initial_position = None``, and the
                    ``pitch_mm`` values ``0.0`` / negative / ``inf`` / ``NaN``.
@@ -88,7 +88,7 @@ def _grid_pins(
 
 # ---------------------------------------------------------------------------
 # generate_escape_vias
-#   (label, initial_position, initial_rotation, initial_side, pitch_mm,
+#   (label, initial_position, initial_rotation_quadrant, initial_side, pitch_mm,
 #    package_type, pins)
 # ---------------------------------------------------------------------------
 PACKAGES: list[tuple[str, tuple[float, float] | None, int | None, int | None, float, str, list]] = [

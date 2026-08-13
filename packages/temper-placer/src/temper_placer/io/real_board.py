@@ -306,7 +306,7 @@ def _chain_sibling_exempt_pairs(
 def _rotation_deg_for_component(comp: Any) -> float:
     """The footprint's EXACT board rotation in degrees.
 
-    ``Component.initial_rotation`` is quantized to a 0-3 quadrant index by
+    ``Component.initial_rotation_quadrant`` is quantized to a 0-3 quadrant index by
     ``io/_parse_modules.py``, which silently loses any non-multiple-of-90
     angle. That parser now also records the raw angle in
     ``attributes["_rotation_deg"]``; this reads it and falls back to the
@@ -316,7 +316,7 @@ def _rotation_deg_for_component(comp: Any) -> float:
     raw = comp.attributes.get("_rotation_deg") if comp.attributes else None
     if raw is not None:
         return float(raw)
-    return float((comp.initial_rotation or 0) * 90)
+    return float((comp.initial_rotation_quadrant or 0) * 90)
 
 
 def _pads_for_component(comp: Any) -> list[dict[str, Any]]:

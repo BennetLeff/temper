@@ -25,7 +25,7 @@ Arms
   ``ComponentWire`` / ``StackupLayerWire`` objects built by the
   ``temper-design-bundle`` typed constructors.  The kernel is unchanged; the
   typed pyclasses expose exactly the attributes it reads (``ref``,
-  ``initial_position``, ``initial_rotation``, ``initial_side``, ``pins``,
+  ``initial_position``, ``initial_rotation_quadrant``, ``initial_side``, ``pins``,
   ``name``, ``number``, ``position``, ``is_pth``, ``layer``, ``index``,
   ``layer_type``), so the comparison pins that the typed construction path
   is bit-identical to the pre-migration oracle.
@@ -193,7 +193,7 @@ def _basic_pcb() -> SimpleNamespace:
 
 def _rotated_mirrored_pcb() -> SimpleNamespace:
     u1 = Component(
-        "U1", "fp", (2, 2), initial_position=(5, 5), initial_rotation=1, initial_side=1
+        "U1", "fp", (2, 2), initial_position=(5, 5), initial_rotation_quadrant=1, initial_side=1
     )
     u1.pins = [Pin("A1", "1", (2.0, 3.0), net="NET", layer="F.Cu")]
     return SimpleNamespace(
@@ -332,7 +332,7 @@ def test_wire_path_bit_exact(case):
 @settings(max_examples=200, deadline=30_000)
 def test_wire_path_random_sweep(rotation, side, comp_pos, pin_pos):
     u1 = Component(
-        "U1", "fp", (2, 2), initial_position=comp_pos, initial_rotation=rotation, initial_side=side
+        "U1", "fp", (2, 2), initial_position=comp_pos, initial_rotation_quadrant=rotation, initial_side=side
     )
     u1.pins = [Pin("1", "1", pin_pos, net="NET", layer="F.Cu")]
     pcb = SimpleNamespace(
@@ -384,12 +384,12 @@ def test_pin_wire_none_layer_parity():
 
 def test_component_wire_from_component_parity():
     wires = _tdb()
-    u1 = Component("U1", "fp", (2, 2), initial_position=(10, 20), initial_rotation=1, initial_side=1)
+    u1 = Component("U1", "fp", (2, 2), initial_position=(10, 20), initial_rotation_quadrant=1, initial_side=1)
     u1.pins = [Pin("A", "1", (2.0, 3.0), net="NET", layer="F.Cu")]
     got = wires.ComponentWire.from_component(u1)
     assert got.ref == "U1"
     assert got.initial_position == (10.0, 20.0)
-    assert got.initial_rotation == 1
+    assert got.initial_rotation_quadrant == 1
     assert got.initial_side == 1
     assert [p.name for p in got.pins] == ["A"]
     assert [p.number for p in got.pins] == ["1"]

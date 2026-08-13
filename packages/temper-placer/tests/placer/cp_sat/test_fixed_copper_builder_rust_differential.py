@@ -56,7 +56,7 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io._kicad_types import TraceData
 from temper_placer.placer.cp_sat import fixed_copper as _shim
 
-_ORACLE_BODY_DIGEST = "d2caceafdabb3f7dd698bcaeb111eca2c540788db2485eb5517c05910b74741e"
+_ORACLE_BODY_DIGEST = "310c08805c0e311a2735119e42795f242a86cbf503541c6da42a4b9fe94e3e11"
 
 
 def test_oracle_body_matches_pinned_digest() -> None:
@@ -149,7 +149,7 @@ def _inputs(name: str):
                     _pin("2", "NET_B", layer="B.Cu", pos=(0.0, 1.0), w=0.8, h=0.6, rot=30.0),
                 ],
                 initial_position=(10.0, 10.0),
-                initial_rotation=0,
+                initial_rotation_quadrant=0,
             ),
             Component(
                 ref="U2",
@@ -160,7 +160,7 @@ def _inputs(name: str):
                     _pin("2", "NET_C", layer="In1.Cu", pos=(0.0, 0.0)),
                 ],
                 initial_position=(5.0, 5.0),
-                initial_rotation=1,
+                initial_rotation_quadrant=1,
             ),
             Component(
                 ref="U3",
@@ -170,7 +170,7 @@ def _inputs(name: str):
                     _pin("1", None, layer="F.Cu", pos=(0.0, 0.0)),  # unconnected pad
                 ],
                 initial_position=(20.0, 20.0),
-                initial_rotation=None,
+                initial_rotation_quadrant=None,
             ),
         ]
         traces = [
@@ -474,7 +474,7 @@ def test_real_board_audit_bit_identical():
     for comp in pr.netlist.components:
         if comp.initial_position is not None:
             positions[comp.ref] = tuple(float(v) for v in comp.initial_position)
-    rotations = {ref: int(c.initial_rotation or 0) for c in pr.netlist.components
+    rotations = {ref: int(c.initial_rotation_quadrant or 0) for c in pr.netlist.components
                  for ref in [c.ref] if c.ref in free}
     got = _shim.audit_fixed_copper(pads, items, positions, rotations)
     expected = _orc.audit_fixed_copper(o_pads, o_items, positions, rotations)

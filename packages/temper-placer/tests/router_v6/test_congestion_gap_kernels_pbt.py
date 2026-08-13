@@ -120,7 +120,7 @@ def _netlist_pair(offsets, sides, pos1, pos2):
             bounds=(1.0, 1.0),
             pins=[Pin(name="1", number="1", position=offset, net="N1")],
             initial_position=pos,
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
             initial_side=side,
         )
 

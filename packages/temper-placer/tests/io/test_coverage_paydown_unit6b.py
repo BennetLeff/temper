@@ -42,7 +42,7 @@ class TestNetlistToPlacementState:
                 bounds=(5, 4),
                 pins=[Pin("1", "1", (0, 0), net="VCC")],
                 initial_position=(10.0, 20.0),
-                initial_rotation=0,
+                initial_rotation_quadrant=0,
             ),
             Component(
                 ref="R1",
@@ -50,7 +50,7 @@ class TestNetlistToPlacementState:
                 bounds=(1.6, 0.8),
                 pins=[Pin("1", "1", (0, 0), net="VCC")],
                 initial_position=(30.0, 40.0),
-                initial_rotation=1,
+                initial_rotation_quadrant=1,
             ),
         ]
         netlist = Netlist(components=comps, nets=[])
@@ -74,7 +74,7 @@ class TestNetlistToPlacementState:
                 bounds=(5, 4),
                 pins=[Pin("1", "1", (0, 0), net="VCC")],
                 initial_position=(10.0, 20.0),
-                initial_rotation=2,  # 180 deg
+                initial_rotation_quadrant=2,  # 180 deg
             ),
         ]
         netlist = Netlist(components=comps, nets=[])
@@ -98,7 +98,7 @@ class TestNetlistToPlacementState:
                 bounds=(5, 4),
                 pins=[Pin("1", "1", (0, 0), net="VCC")],
                 initial_position=(10.0, 20.0),
-                initial_rotation=7,  # 7 % 4 = 3
+                initial_rotation_quadrant=7,  # 7 % 4 = 3
             ),
         ]
         netlist = Netlist(components=comps, nets=[])
@@ -153,7 +153,7 @@ class TestNetlistToPlacementState:
                 bounds=(5, 4),
                 pins=[Pin("1", "1", (0, 0), net="VCC")],
                 initial_position=(10.0, 20.0),
-                # No initial_rotation -> defaults to 0
+                # No initial_rotation_quadrant -> defaults to 0
             ),
         ]
         netlist = Netlist(components=comps, nets=[])
@@ -193,7 +193,7 @@ class TestFilterComponents:
                 bounds=(5, 4),
                 pins=[Pin("1", "1", (0, 0), net="VCC"), Pin("2", "2", (0, 1), net="VCC")],
                 initial_position=(10.0, 20.0),
-                initial_rotation=0,
+                initial_rotation_quadrant=0,
             ),
             Component(
                 ref="R1",
@@ -201,7 +201,7 @@ class TestFilterComponents:
                 bounds=(1.6, 0.8),
                 pins=[Pin("1", "1", (0.75, 0), net="SIG"), Pin("2", "2", (-0.75, 0), net="SIG")],
                 initial_position=(30.0, 40.0),
-                initial_rotation=1,
+                initial_rotation_quadrant=1,
             ),
             Component(
                 ref="C1",
@@ -209,7 +209,7 @@ class TestFilterComponents:
                 bounds=(2.0, 1.25),
                 pins=[Pin("1", "1", (0.9, 0), net="GND"), Pin("2", "2", (-0.9, 0), net="GND")],
                 initial_position=(50.0, 60.0),
-                initial_rotation=0,
+                initial_rotation_quadrant=0,
             ),
         ]
         nets = [

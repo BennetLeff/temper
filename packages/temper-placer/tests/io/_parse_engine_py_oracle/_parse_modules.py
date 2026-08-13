@@ -175,12 +175,12 @@ def _extract_components_from_pcb(
                 float(fp.position.Y) - float(board_origin[1]) + float(rotated_cy),
             ),
             fixed=fp.locked,
-            initial_rotation=rot_idx,
+            initial_rotation_quadrant=rot_idx,
             initial_side=side,
             attributes={
                 "_center_offset_x": str(center_offset_x),
                 "_center_offset_y": str(center_offset_y),
-                # The footprint's EXACT board rotation in degrees. `initial_rotation`
+                # The footprint's EXACT board rotation in degrees. `initial_rotation_quadrant`
                 # above is quantized to a 0-3 quadrant index, which silently loses any
                 # non-multiple-of-90 angle -- fine for the placer (it only ever emits
                 # quadrant rotations) but not for consumers that must reconstruct a

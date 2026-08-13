@@ -127,7 +127,7 @@ def _components(draw, min_size=0, max_size=4):
             bounds=(1.0, 1.0),
             pins=draw(_pins()),
             initial_position=draw(st.one_of(st.none(), st.tuples(_COORD, _COORD))),
-            initial_rotation=draw(st.one_of(st.none(), st.integers(min_value=0, max_value=3))),
+            initial_rotation_quadrant=draw(st.one_of(st.none(), st.integers(min_value=0, max_value=3))),
         )
         for i in range(n)
     ]

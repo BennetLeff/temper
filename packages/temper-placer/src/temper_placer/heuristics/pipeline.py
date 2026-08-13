@@ -312,8 +312,8 @@ class HeuristicPipeline:
             # Fixed components ALWAYS use their configured position (highest priority)
             if comp.fixed and comp.initial_position is not None:
                 positions[idx] = np.array(comp.initial_position)
-                if comp.initial_rotation is not None:
-                    rot_idx = comp.initial_rotation
+                if comp.initial_rotation_quadrant is not None:
+                    rot_idx = comp.initial_rotation_quadrant
                     logits = np.array([-10.0, -10.0, -10.0, -10.0])
                     logits[rot_idx] = 10.0
                     rotation_logits[idx] = logits
@@ -332,8 +332,8 @@ class HeuristicPipeline:
                 # Use initial position from netlist (non-fixed components)
                 positions[idx] = np.array(comp.initial_position)
 
-                if comp.initial_rotation is not None:
-                    rot_idx = comp.initial_rotation
+                if comp.initial_rotation_quadrant is not None:
+                    rot_idx = comp.initial_rotation_quadrant
                     logits = np.array([-10.0, -10.0, -10.0, -10.0])
                     logits[rot_idx] = 10.0
                     rotation_logits[idx] = logits

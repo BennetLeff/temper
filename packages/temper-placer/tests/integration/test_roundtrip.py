@@ -153,12 +153,12 @@ class TestPositionRoundtrip:
             # Verify rotations
             for comp in reparsed.netlist.components:
                 if comp.ref in placements:
-                    # initial_rotation is stored as index (0-3)
+                    # initial_rotation_quadrant is stored as index (0-3)
                     expected_index = int(angle / 90) % 4
-                    assert comp.initial_rotation == expected_index, (
+                    assert comp.initial_rotation_quadrant == expected_index, (
                         f"Rotation mismatch for {comp.ref}: "
                         f"expected index {expected_index} ({angle}deg), "
-                        f"got {comp.initial_rotation}"
+                        f"got {comp.initial_rotation_quadrant}"
                     )
         finally:
             if temp_path.exists():
@@ -198,8 +198,8 @@ class TestPositionRoundtrip:
             for comp in reparsed.netlist.components:
                 # KiCad may store as -90 or 270, parser should normalize
                 # Check that rotation is valid (0, 1, 2, or 3)
-                assert comp.initial_rotation in [0, 1, 2, 3], (
-                    f"Invalid rotation index for {comp.ref}: {comp.initial_rotation}"
+                assert comp.initial_rotation_quadrant in [0, 1, 2, 3], (
+                    f"Invalid rotation index for {comp.ref}: {comp.initial_rotation_quadrant}"
                 )
         finally:
             if temp_path.exists():
@@ -221,7 +221,7 @@ class TestDataPreservation:
         placements = {}
         for comp in original_result.netlist.components:
             pos = comp.initial_position or (10.0, 10.0)
-            rot = (comp.initial_rotation or 0) * 90.0
+            rot = (comp.initial_rotation_quadrant or 0) * 90.0
             placements[comp.ref] = PlacementUpdate(
                 ref=comp.ref,
                 x=pos[0] + origin[0],
@@ -407,7 +407,7 @@ class TestIdempotency:
                     assert pos_diff < POSITION_TOLERANCE, (
                         f"Position changed between exports for {c1.ref}"
                     )
-                assert c1.initial_rotation == c2.initial_rotation, (
+                assert c1.initial_rotation_quadrant == c2.initial_rotation_quadrant, (
                     f"Rotation changed between exports for {c1.ref}"
                 )
         finally:
@@ -451,7 +451,7 @@ class TestIdempotency:
                     ref=comp.ref,
                     x=pos[0] + after_first.board.origin[0],
                     y=pos[1] + after_first.board.origin[1],
-                    rotation=float((comp.initial_rotation or 0) * 90),
+                    rotation=float((comp.initial_rotation_quadrant or 0) * 90),
                 )
 
             # Second roundtrip

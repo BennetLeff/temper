@@ -25,7 +25,7 @@ class TestPinWorldGeometry:
             footprint="SOIC-8",
             bounds=(10.0, 10.0),
             initial_position=(10.0, 20.0),
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
             initial_side=0,
         )
         x, y = pin_world_position(pin, comp)
@@ -48,7 +48,7 @@ class TestPinWorldGeometry:
             footprint="SOIC-8",
             bounds=(10.0, 10.0),
             initial_position=(10.0, 20.0),
-            initial_rotation=1,
+            initial_rotation_quadrant=1,
             initial_side=0,
         )
         x, y = pin_world_position(pin, comp)
@@ -63,7 +63,7 @@ class TestPinWorldGeometry:
             footprint="SOIC-8",
             bounds=(10.0, 10.0),
             initial_position=(10.0, 20.0),
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
             initial_side=1,
         )
         x, y = pin_world_position(pin, comp)
@@ -87,7 +87,7 @@ class TestPinWorldGeometry:
             footprint="SOIC-8",
             bounds=(10.0, 10.0),
             initial_position=(10.0, 20.0),
-            initial_rotation=1,
+            initial_rotation_quadrant=1,
             initial_side=1,
         )
         x, y = pin_world_position(pin, comp)
@@ -106,7 +106,7 @@ class TestPinWorldGeometry:
             footprint="SOT-23",
             bounds=(3.0, 3.0),
             initial_position=(10.0, 20.0),
-            initial_rotation=None,
+            initial_rotation_quadrant=None,
             initial_side=0,
         )
         x, y = pin_world_position(pin, comp)
@@ -121,7 +121,7 @@ class TestPinWorldGeometry:
             footprint="SOT-23",
             bounds=(3.0, 3.0),
             initial_position=(10.0, 20.0),
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
             initial_side=None,
         )
         x, y = pin_world_position(pin, comp)
@@ -135,7 +135,7 @@ class TestPinWorldGeometry:
             footprint="SOT-23",
             bounds=(3.0, 3.0),
             initial_position=None,
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
             initial_side=0,
         )
         x, y = pin_world_position(pin, comp)

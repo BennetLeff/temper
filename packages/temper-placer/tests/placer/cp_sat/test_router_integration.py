@@ -25,7 +25,7 @@ class MockComp:
     zone: str | None = None
     fixed: bool = False
     initial_position: tuple[float, float] | None = None
-    initial_rotation: int | None = None
+    initial_rotation_quadrant: int | None = None
     footprint: str = "Resistor_SMD:R_0805_2012Metric"
     pins: list = None
 

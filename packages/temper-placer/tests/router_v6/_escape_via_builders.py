@@ -37,7 +37,7 @@ def build_component(
             for (num, pos, net, w, h, shape) in pins
         ],
         initial_position=position,
-        initial_rotation=rotation,
+        initial_rotation_quadrant=rotation,
         initial_side=side,
     )
 
@@ -105,5 +105,5 @@ def build_pads(pads: list) -> Component:
         bounds=(10.0, 10.0),
         pins=[_pin(i, row) for i, row in enumerate(pads)],
         initial_position=(0.0, 0.0),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )

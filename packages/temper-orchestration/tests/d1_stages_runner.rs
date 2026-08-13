@@ -84,7 +84,7 @@ class FakeNet:
 class FakeComponent:
     def __init__(self, ref):
         self.ref = ref; self.initial_position = (10.0, 10.0)
-        self.initial_rotation = 0; self.initial_side = 0; self.pins = []
+        self.initial_rotation_quadrant = 0; self.initial_side = 0; self.pins = []
 class FakeNetlist:
     def __init__(self):
         self.components = [FakeComponent("U1")]

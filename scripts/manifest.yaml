@@ -1046,6 +1046,22 @@ scripts:
   - urllib.error
   - urllib.parse
   - urllib.request
+- path: check_rotation_quadrant_arithmetic.py
+  purpose: 'CI gate: fail when Component.initial_rotation_quadrant (a 0-3 quarter-turn INDEX, renamed
+    2026-08-13 from initial_rotation) is divided by a number, or passed directly to math.radians()/.to_radians()
+    with no prior "* 90", the exact shapes behind three independent wrong safety-geometry answers in one
+    day plus a fourth live bug this change fixed in router_v6/_pipeline_verify.py. See
+    scripts/tests/test_check_rotation_quadrant_arithmetic.py for the proof it fires on those shapes and
+    not on the many correct call sites.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - pathlib
+  - re
+  - sys
 - path: check_rust_drc_presence.py
   purpose: 'CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare
     import cannot detect a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident:

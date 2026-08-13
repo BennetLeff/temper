@@ -316,7 +316,7 @@ def test_build_board_dict_components_subtract_board_origin():
     fake_component = SimpleNamespace(
         ref="C1",
         initial_position=(30.0, 45.0),
-        initial_rotation=0.0,
+        initial_rotation_quadrant=0.0,
         initial_side=0,
         footprint="0805",
         width=1.0,

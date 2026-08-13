@@ -415,7 +415,7 @@ pub fn normalize_rotation_py(rotation: &Bound<'_, PyAny>) -> PyResult<f64> {
 
 /// Python-exported `pin_world_position_at` replacement.
 ///
-/// Reads `comp.initial_rotation`, `comp.initial_side`, `pin.position`,
+/// Reads `comp.initial_rotation_quadrant`, `comp.initial_side`, `pin.position`,
 /// `comp.initial_position` via Python attribute access, then calls the
 /// existing `pin_world_position_kernel` (mirror + R(-theta) transform).
 /// The `rotation_override` and `pos_override` parameters replicate the
@@ -432,11 +432,11 @@ pub fn pin_world_position_at_py(
     guard(|| {
         // --- rotation ---
         // `rot_source = rotation_override if rotation_override is not None
-        //  else comp.initial_rotation`
+        //  else comp.initial_rotation_quadrant`
         let rotation_rad: f64 = {
             let rot_val: Option<Bound<'_, PyAny>> = match rotation_override {
                 Some(ro) if !ro.is_none() => Some(ro.clone()),
-                _ => comp.getattr("initial_rotation").ok(),
+                _ => comp.getattr("initial_rotation_quadrant").ok(),
             };
             match rot_val {
                 Some(v) => rot_to_radians(&v)?,

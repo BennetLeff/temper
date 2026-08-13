@@ -49,7 +49,7 @@ def test_export_library_and_placement():
         bounds=(5.0, 4.0),
         pins=[Pin("VCC", "8", (2.0, 1.5)), Pin("GND", "4", (-2.0, -1.5))],
         initial_position=(50.0, 50.0),
-        initial_rotation=1,  # 90 deg
+        initial_rotation_quadrant=1,  # 90 deg
     )
     netlist = Netlist(components=[comp])
 

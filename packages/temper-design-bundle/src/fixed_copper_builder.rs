@@ -58,7 +58,7 @@
 //!   `:.2f` (the B3 argument from `constraint_model.rs`, measured over
 //!   250,005 adversarial samples on this host). A `None` net renders as
 //!   the literal `"None"` exactly like an f-string interpolating `None`.
-//! - `int(comp.initial_rotation or 0)` is truncated toward zero (Rust `as
+//! - `int(comp.initial_rotation_quadrant or 0)` is truncated toward zero (Rust `as
 //!   i64`), matching Python's `int()` on the truthy branch.
 //! - `float("nan")` for a missing-position violation's `actual_mm` maps to
 //!   `f64::NAN`.
@@ -617,7 +617,7 @@ impl FixedCopperBuilder {
             Some(c) => c,
             None => return Ok(None),
         };
-        let rot_raw: Option<f64> = comp.getattr("initial_rotation")?.extract()?;
+        let rot_raw: Option<f64> = comp.getattr("initial_rotation_quadrant")?.extract()?;
         let rot_idx = match rot_raw {
             None => 0,
             Some(r) => r as i64,

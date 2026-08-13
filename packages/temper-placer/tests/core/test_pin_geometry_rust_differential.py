@@ -46,7 +46,7 @@ def _oracle_normalize_rotation(rotation):
     """Normalize a rotation value to radians.
 
     int values are treated as rotation indices (0-3 -> 0/90/180/270 deg),
-    matching the convention used by Component.initial_rotation.
+    matching the convention used by Component.initial_rotation_quadrant.
     float values are treated as radians and used as-is.
     None is treated as 0 (no rotation).
     """
@@ -74,12 +74,12 @@ def _oracle_pin_world_position_at(pin, comp, pos_override=None, rotation_overrid
         pos_override: Optional (x, y) tuple overriding the component position.
             When None, uses ``comp.initial_position``.
         rotation_override: Optional rotation index (0-3) overriding
-            ``comp.initial_rotation``. When None, uses ``comp.initial_rotation``.
+            ``comp.initial_rotation_quadrant``. When None, uses ``comp.initial_rotation_quadrant``.
 
     Returns:
         (x, y) tuple in mm, in board coordinates.
     """
-    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation
+    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation_quadrant
     rotation_rad = _oracle_normalize_rotation(rot_source)
     side = comp.initial_side or 0
 
@@ -171,9 +171,9 @@ class _PinStub:
 class _CompStub:
     """Minimal component duck-type for the functions that read comp attributes."""
 
-    def __init__(self, initial_position=None, initial_rotation=None, initial_side=None):
+    def __init__(self, initial_position=None, initial_rotation_quadrant=None, initial_side=None):
         self.initial_position = initial_position
-        self.initial_rotation = initial_rotation
+        self.initial_rotation_quadrant = initial_rotation_quadrant
         self.initial_side = initial_side
 
 
@@ -192,7 +192,7 @@ def _random_pin_geometry(rng):
     cpos = (round(rng.uniform(-50.0, 50.0), 6), round(rng.uniform(-50.0, 50.0), 6))
     comp = _CompStub(
         initial_position=None if rng.random() < 0.2 else cpos,
-        initial_rotation=rng.choice([None, 0, 1, 2, 3]),
+        initial_rotation_quadrant=rng.choice([None, 0, 1, 2, 3]),
         initial_side=rng.choice([None, 0, 1]),
     )
     rot_override = rng.choice([None, 0, 1, 2, 3])
@@ -286,7 +286,7 @@ def test_pin_world_position_all_quadrants_sides():
                 cpos = (round(rng.uniform(-20, 20), 6), round(rng.uniform(-20, 20), 6))
                 comp = _CompStub(
                     initial_position=cpos,
-                    initial_rotation=rot,
+                    initial_rotation_quadrant=rot,
                     initial_side=side,
                 )
                 got = pin_world_position_at(pin, comp)
@@ -309,7 +309,7 @@ def test_pin_world_position_none_overrides():
     pin = _PinStub((1.0, 2.0))
     comp = _CompStub(
         initial_position=(10.0, 20.0),
-        initial_rotation=2,
+        initial_rotation_quadrant=2,
         initial_side=0,
     )
     # None overrides should behave identically to no overrides
@@ -321,14 +321,14 @@ def test_pin_world_position_none_overrides():
 
 
 def test_pin_world_position_comp_none_attrs():
-    """Component with None initial_position / initial_rotation / initial_side."""
+    """Component with None initial_position / initial_rotation_quadrant / initial_side."""
     pin = _PinStub((1.0, 0.0))
     comp = _CompStub(
         initial_position=None,
-        initial_rotation=None,
+        initial_rotation_quadrant=None,
         initial_side=None,
     )
-    # None initial_position -> (0.0, 0.0), None initial_rotation -> 0.0 rad,
+    # None initial_position -> (0.0, 0.0), None initial_rotation_quadrant -> 0.0 rad,
     # None initial_side -> 0 (top)
     got = pin_world_position_at(pin, comp)
     want = _oracle_pin_world_position_at(pin, comp)
@@ -340,7 +340,7 @@ def test_pin_world_position_origin():
     pin = _PinStub((0.0, 0.0))
     comp = _CompStub(
         initial_position=(0.0, 0.0),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
         initial_side=0,
     )
     got = pin_world_position_at(pin, comp)
@@ -466,7 +466,7 @@ def test_pin_world_position_ignores_radius_attrs():
         )
         comp = _CompStub(
             initial_position=(round(rng.uniform(-20, 20), 6), round(rng.uniform(-20, 20), 6)),
-            initial_rotation=rng.choice([0, 1, 2, 3]),
+            initial_rotation_quadrant=rng.choice([0, 1, 2, 3]),
             initial_side=rng.choice([0, 1]),
         )
         got = pin_world_position_at(pin, comp)

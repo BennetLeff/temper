@@ -17,14 +17,14 @@ Arms
 
 Comparison is by type-carrying signature (``tests/router_v6/_signature``).
 **No tolerance anywhere.** Both arms compare at the wire-tuple level: a
-component is ``(ref, initial_position, initial_rotation, initial_side,
+component is ``(ref, initial_position, initial_rotation_quadrant, initial_side,
 pins)`` where each pin is ``(name, number, position, is_pth, layer)``, a
 stackup layer is ``(name, index, layer_type)``, and a returned terminal is
 ``(component_ref, pad, net, x, y, layers, layer_names, is_pth)`` -- see the
 oracle module's own docstring for exactly which fields the kernel is
 required to read (the "wire-format trap" this program's brief names).
 
-Rotation-index-only note: ``Component.initial_rotation`` is typed ``int |
+Rotation-index-only note: ``Component.initial_rotation_quadrant`` is typed ``int |
 None`` (``core/netlist.py``'s installed dataclass contract);
 ``core/pin_geometry._normalize_rotation``'s float-radians branch is
 therefore unreachable through the real object model, so the Rust arm here
@@ -187,10 +187,10 @@ def _basic_pcb() -> SimpleNamespace:
 
 
 def _rotated_mirrored_pcb() -> SimpleNamespace:
-    """initial_rotation=1 (90deg index) and initial_side=1 (bottom mirror)
+    """initial_rotation_quadrant=1 (90deg index) and initial_side=1 (bottom mirror)
     on the same component -- exercises the mirror-before-rotate ordering."""
     u1 = Component(
-        "U1", "fp", (2, 2), initial_position=(5, 5), initial_rotation=1, initial_side=1
+        "U1", "fp", (2, 2), initial_position=(5, 5), initial_rotation_quadrant=1, initial_side=1
     )
     u1.pins = [Pin("A1", "1", (2.0, 3.0), net="NET", layer="F.Cu")]
     return SimpleNamespace(
@@ -200,7 +200,7 @@ def _rotated_mirrored_pcb() -> SimpleNamespace:
 
 
 def _defaults_pcb() -> SimpleNamespace:
-    """initial_rotation/initial_side/initial_position all None (defaults)."""
+    """initial_rotation_quadrant/initial_side/initial_position all None (defaults)."""
     u1 = Component("U1", "fp", (2, 2))
     u1.pins = [Pin("1", "1", (1.5, -2.5), net="NET", layer="F.Cu")]
     return SimpleNamespace(
@@ -342,7 +342,7 @@ def test_extract_net_terminals_bit_exact(case):
 @settings(max_examples=200, deadline=30_000)
 def test_pin_world_position_random_sweep(rotation, side, comp_pos, pin_pos):
     u1 = Component(
-        "U1", "fp", (2, 2), initial_position=comp_pos, initial_rotation=rotation, initial_side=side
+        "U1", "fp", (2, 2), initial_position=comp_pos, initial_rotation_quadrant=rotation, initial_side=side
     )
     u1.pins = [Pin("1", "1", pin_pos, net="NET", layer="F.Cu")]
     pcb = SimpleNamespace(

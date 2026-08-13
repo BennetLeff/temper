@@ -82,7 +82,7 @@ COMPONENT_ARGS = [
             "zone": "HV_ZONE",
             "fixed": True,
             "initial_position": (10.0, 20.0),
-            "initial_rotation": 2,
+            "initial_rotation_quadrant": 2,
             "initial_side": 1,
             "attributes": {"MPN": "X", "value": "10k"},
             "tags": frozenset({"power", "hot"}),

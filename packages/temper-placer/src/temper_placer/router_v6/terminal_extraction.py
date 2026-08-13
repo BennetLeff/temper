@@ -13,7 +13,7 @@ pre-migration oracle by
 ``tests/router_v6/_terminal_extraction_py_oracle.py``), including the
 wire-format field list that oracle documents: ``pin.position``,
 ``pin.number``, ``pin.is_pth``, ``pin.layer``, ``component.ref``,
-``component.initial_rotation``, ``component.initial_side``,
+``component.initial_rotation_quadrant``, ``component.initial_side``,
 ``component.initial_position``, and the stackup's ``name``/``index``/
 ``layer_type`` -- NOT ``roundrect_ratio``/``shape`` (those only feed
 ``pin_world_radius``, which this module never calls).

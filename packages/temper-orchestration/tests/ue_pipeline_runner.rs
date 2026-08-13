@@ -227,7 +227,7 @@ from dataclasses import dataclass, replace
 class FakeComponent:
     ref: str
     initial_position: tuple = (0.0, 0.0)
-    initial_rotation: int = 0
+    initial_rotation_quadrant: int = 0
     initial_side: int = 0
 
 @dataclass

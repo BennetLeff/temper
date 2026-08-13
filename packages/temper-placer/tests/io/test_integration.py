@@ -234,7 +234,7 @@ class TestCoordinateRoundTrip:
         # Use rotation logits that will produce the same discrete rotations
         rotation_logits = np.zeros((len(component_refs), 4))
         for i, ref in enumerate(component_refs):
-            rot_idx = comp_by_ref[ref].initial_rotation or 0
+            rot_idx = comp_by_ref[ref].initial_rotation_quadrant or 0
             rotation_logits[i, rot_idx] = 10.0
 
         state = PlacementState(positions=positions, rotation_logits=rotation_logits)
@@ -263,8 +263,8 @@ class TestCoordinateRoundTrip:
             assert abs(orig.initial_position[1] - parsed.initial_position[1]) < 0.001, (
                 f"{ref}: y mismatch: {orig.initial_position[1]} vs {parsed.initial_position[1]}"
             )
-            assert orig.initial_rotation == parsed.initial_rotation, (
-                f"{ref}: rotation mismatch: {orig.initial_rotation} vs {parsed.initial_rotation}"
+            assert orig.initial_rotation_quadrant == parsed.initial_rotation_quadrant, (
+                f"{ref}: rotation mismatch: {orig.initial_rotation_quadrant} vs {parsed.initial_rotation_quadrant}"
             )
 
 

@@ -61,7 +61,7 @@ class TestFootprintPositionExtraction:
         assert 0 <= y <= 200, f"K25 Y ({y}) should be within reasonable bounds"
 
     def test_component_rotation_available(self):
-        """Component rotation should be available via initial_rotation attribute."""
+        """Component rotation should be available via initial_rotation_quadrant attribute."""
         from temper_placer.io.kicad_parser import parse_kicad_pcb
 
         pcb_path = Path("/tmp/piantor/pcb/right/keyboard_pcb.kicad_pcb")
@@ -74,12 +74,12 @@ class TestFootprintPositionExtraction:
         components_with_rotation = [
             c
             for c in result.netlist.components
-            if hasattr(c, "initial_rotation") and c.initial_rotation is not None
+            if hasattr(c, "initial_rotation_quadrant") and c.initial_rotation_quadrant is not None
         ]
 
         # All components should have rotation (even if 0)
         assert len(components_with_rotation) == 36, (
-            f"Expected all 36 components to have initial_rotation, got {len(components_with_rotation)}"
+            f"Expected all 36 components to have initial_rotation_quadrant, got {len(components_with_rotation)}"
         )
 
 

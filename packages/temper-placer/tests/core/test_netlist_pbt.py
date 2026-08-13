@@ -63,7 +63,7 @@ def component_args(draw):
         {
             "net_class": draw(st.sampled_from(["Signal", "Power", "HighVoltage"])),
             "fixed": draw(st.booleans()),
-            "initial_rotation": draw(st.one_of(st.none(), st.integers(0, 3))),
+            "initial_rotation_quadrant": draw(st.one_of(st.none(), st.integers(0, 3))),
         },
     )
 

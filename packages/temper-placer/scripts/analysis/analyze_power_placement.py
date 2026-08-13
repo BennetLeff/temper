@@ -22,7 +22,7 @@ def get_component_bbox(comp):
     w, h = comp.bounds
 
     # Account for rotation (simplified - assumes 0, 90, 180, 270)
-    rot = comp.initial_rotation or 0
+    rot = comp.initial_rotation_quadrant or 0
     if rot % 2 == 1:  # 90 or 270 degrees
         w, h = h, w
 

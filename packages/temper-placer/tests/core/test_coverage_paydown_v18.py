@@ -659,7 +659,7 @@ class TestReferenceLoader:
     def test_netlist_to_placement_state(self):
         comp = Component(ref="U1", footprint="0603", bounds=(1.0, 1.0))
         comp.initial_position = (5.0, 5.0)
-        comp.initial_rotation = 1
+        comp.initial_rotation_quadrant = 1
         netlist = Netlist(components=[comp], nets=[Net("N1", [("U1", "1")])])
         state = netlist_to_placement_state(netlist, _make_board())
         assert state.positions.shape == (1, 2)

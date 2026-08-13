@@ -93,7 +93,7 @@ _install_dataclass_fields(
         _contract_field("zone", "str | None", None),
         _contract_field("fixed", "bool", False),
         _contract_field("initial_position", "tuple[float, float] | None", None),
-        _contract_field("initial_rotation", "int | None", None),
+        _contract_field("initial_rotation_quadrant", "int | None", None),
         _contract_field("initial_side", "int | None", None),
         _contract_field("attributes", "dict[str, str]", default_factory=dict),
         _contract_field("tags", "frozenset", default_factory=frozenset),
@@ -128,6 +128,40 @@ _install_dataclass_fields(
     ),
     module=__name__,
 )
+
+
+def rotation_quadrant_to_degrees(quadrant: int | None) -> float:
+    """Convert a ``Component.initial_rotation_quadrant`` index to degrees.
+
+    ``initial_rotation_quadrant`` is a quarter-turn INDEX (0-3 -> 0/90/180/
+    270 degrees), not a degree value -- despite the field's pre-2026-08-13
+    name (``initial_rotation``) reading exactly like one. Confusing the two
+    produced three independent wrong safety-geometry answers in a single
+    day, plus a fourth found auditing this field's read sites:
+    ``router_v6/_pipeline_verify.py``'s DRC-fence bridge passed the raw 0-3
+    index straight through as a ``rotation`` in DEGREES with no ``* 90`` at
+    all.
+
+    Use this (or :func:`rotation_quadrant_to_radians`) instead of writing
+    ``quadrant * 90`` or ``quadrant * math.pi / 2`` at the call site --
+    both read identically whether ``quadrant`` really is a 0-3 index
+    (correct) or already degrees (silently wrong), which is exactly the
+    footgun this function exists to remove from the call site's arithmetic.
+
+    ``None`` and ``0`` both mean "no rotation" -> ``0.0`` degrees.
+    """
+    return float((quadrant or 0) * 90)
+
+
+def rotation_quadrant_to_radians(quadrant: int | None) -> float:
+    """Convert a ``Component.initial_rotation_quadrant`` index to radians.
+
+    See :func:`rotation_quadrant_to_degrees` for why this indirection
+    matters. ``None`` and ``0`` both mean "no rotation" -> ``0.0`` radians.
+    """
+    import math
+
+    return float(quadrant or 0) * math.pi / 2.0
 
 
 def compute_eigenvector_centrality(adjacency: Array) -> Array:

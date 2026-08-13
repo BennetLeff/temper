@@ -326,9 +326,9 @@ impl Marshal for Component {
                 py,
                 &obj.getattr("initial_position")?,
             )?,
-            initial_rotation: <Option<i64> as Marshal>::from_python(
+            initial_rotation_quadrant: <Option<i64> as Marshal>::from_python(
                 py,
-                &obj.getattr("initial_rotation")?,
+                &obj.getattr("initial_rotation_quadrant")?,
             )?,
             initial_side: <Option<i64> as Marshal>::from_python(py, &obj.getattr("initial_side")?)?,
             attributes: attrs_from_python(&obj.getattr("attributes")?)?,
@@ -348,7 +348,7 @@ impl Marshal for Component {
         kwargs.set_item("zone", self.zone.to_python(py)?)?;
         kwargs.set_item("fixed", self.fixed)?;
         kwargs.set_item("initial_position", self.initial_position.to_python(py)?)?;
-        kwargs.set_item("initial_rotation", self.initial_rotation.to_python(py)?)?;
+        kwargs.set_item("initial_rotation_quadrant", self.initial_rotation_quadrant.to_python(py)?)?;
         kwargs.set_item("initial_side", self.initial_side.to_python(py)?)?;
         kwargs.set_item("attributes", attrs_to_python(py, &self.attributes)?)?;
         kwargs.set_item("tags", tags_to_python(py, &self.tags)?)?;
@@ -1845,7 +1845,7 @@ class Component:
     zone: object = None
     fixed: bool = False
     initial_position: object = None
-    initial_rotation: object = None
+    initial_rotation_quadrant: object = None
     initial_side: object = None
     attributes: dict = field(default_factory=dict)
     tags: object = field(default_factory=frozenset)
@@ -2361,7 +2361,7 @@ class PlacementViolation:
                 py,
                 "Component('U1', 'QFN-56', (7.5, 7.5), [Pin('1', '1', (-3.5, 0.0), net='VCC'), \
                  Pin('2', '2', (3.5, 0.0))], net_class='HighVoltage', zone='power', fixed=True, \
-                 initial_position=(10.0, 20.0), initial_rotation=1, initial_side=0, \
+                 initial_position=(10.0, 20.0), initial_rotation_quadrant=1, initial_side=0, \
                  attributes={'value': '100nF'}, tags=frozenset({'power'}), sheetpath='hb.power_loop.q_high')",
                 Some(&g),
             );

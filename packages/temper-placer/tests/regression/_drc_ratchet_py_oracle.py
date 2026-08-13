@@ -176,7 +176,7 @@ class DrcRatchet:
         components = []
         for c in parsed.components:
             x, y = c.initial_position or (0.0, 0.0)
-            rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
+            rotation = float(c.initial_rotation_quadrant * 90) if c.initial_rotation_quadrant is not None else 0.0
             side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
             fp_lower = c.footprint.lower() if c.footprint else ""
             if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):

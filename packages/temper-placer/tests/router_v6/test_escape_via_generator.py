@@ -40,7 +40,7 @@ def simple_bga_component():
         bounds=(2.0, 2.0),
         pins=pins,
         initial_position=(10.0, 10.0),  # Placed at 10,10
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
 
     return DensePackage(
@@ -105,7 +105,7 @@ def test_rotation(simple_bga_component, mock_design_rules):
     # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
     # Sec. 2. R(-90): (x, y) -> (y, -x). Pin 1 (-0.5, -0.5) -> (-0.5, 0.5).
     # Abs pos: (10-0.5, 10+0.5) = (9.5, 10.5).
-    simple_bga_component.component.initial_rotation = 1
+    simple_bga_component.component.initial_rotation_quadrant = 1
 
     vias = generate_escape_vias(simple_bga_component, mock_design_rules, strategy="via-in-pad")
     via1 = next(v for v in vias if v.pin_number == "1")

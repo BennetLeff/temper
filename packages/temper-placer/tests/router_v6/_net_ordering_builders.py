@@ -39,7 +39,7 @@ def build_netlist(components: list) -> Netlist:
                 for (num, pos, net) in pins
             ],
             initial_position=position,
-            initial_rotation=rotation,
+            initial_rotation_quadrant=rotation,
             **kw,
         )
 

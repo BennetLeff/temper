@@ -137,8 +137,8 @@ def build_board_dict(
         raw_x, raw_y = c.initial_position or (0.0, 0.0)
         x, y = raw_x - ox, raw_y - oy
         rotation = (
-            float(c.initial_rotation * 90)
-            if c.initial_rotation is not None
+            float(c.initial_rotation_quadrant * 90)
+            if c.initial_rotation_quadrant is not None
             else 0.0
         )
         side = (

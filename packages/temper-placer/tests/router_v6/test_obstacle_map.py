@@ -45,7 +45,7 @@ def test_component_pads(empty_pcb):
         bounds=(2, 2),
         pins=[pad],
         initial_position=(10, 10),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
     empty_pcb.components = [comp]
 
@@ -73,7 +73,7 @@ def test_rotated_pad(empty_pcb):
         bounds=(2, 2),
         pins=[pad],
         initial_position=(10, 10),
-        initial_rotation=1,  # 90 degrees
+        initial_rotation_quadrant=1,  # 90 degrees
     )
     empty_pcb.components = [comp]
 

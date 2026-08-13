@@ -306,6 +306,11 @@ pub mod property_campaigns_3;
 // existing units.py kernels are NOT re-migrated here (they live in
 // temper-io-types) and the recorded Mm/Mil/Inch pyclass decision.
 pub mod units;
+// Typed wrapper for the `initial_rotation_quadrant` quarter-turn index
+// (renamed 2026-08-13 from `initial_rotation`) -- see its module doc for
+// the incident this exists to prevent a recurrence of. Pure Rust, no pyo3
+// dependency, so it is unconditional like `units` above.
+pub mod rotation_quadrant;
 // wasm32 has no OS RNG; getrandom will not compile there without a source.
 // See this module's doc comment for why the source fails instead of quietly
 // substituting a deterministic PRNG.

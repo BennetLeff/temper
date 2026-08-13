@@ -29,10 +29,10 @@ So the fields a faithful Rust port must read are exactly:
 * ``pin.layer`` -- ``getattr(pin, "layer", None) or "F.Cu"``: an empty
   string is ALSO falsy in Python, so ``pin.layer == ""`` defaults to
   ``"F.Cu"`` too, not just ``None``/missing.
-* ``component.initial_rotation`` -- an ``int`` rotation *index* (0-3) per
+* ``component.initial_rotation_quadrant`` -- an ``int`` rotation *index* (0-3) per
   the ``Component`` contract (``core/netlist.py``); ``_normalize_rotation``
   technically also accepts a raw float-radians value, but that branch is
-  unreachable through the typed ``Component.initial_rotation: int | None``
+  unreachable through the typed ``Component.initial_rotation_quadrant: int | None``
   contract, exactly as ``net_ordering.rs``'s sibling ``pin_world_position``
   documents for the same reason -- so the Rust port takes ``Option<i64>``,
   not a tagged int/float union.

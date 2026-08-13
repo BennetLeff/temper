@@ -32,7 +32,7 @@ def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
     stores it pad-centroid-relative and pre-rotation, with rotation applied
     separately) directly to ``comp.initial_position``, silently skipping
     rotation entirely. MEASURED on ``pcb/temper.kicad_pcb`` (2026-08-08):
-    148 of 169 components (87.6%) have a nonzero ``initial_rotation`` --
+    148 of 169 components (87.6%) have a nonzero ``initial_rotation_quadrant`` --
     for any of them, the naive sum was wrong by exactly the pin's rotated-
     vs-unrotated offset delta (e.g. C1, rotated 90 degrees: naive gave
     (43.99, 206.72) for pin 1 where the correct, KiCad-matching world

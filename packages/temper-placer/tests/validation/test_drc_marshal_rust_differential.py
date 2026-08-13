@@ -476,7 +476,7 @@ class _FakeComp:
     width: float
     height: float
     net_class: str
-    initial_rotation: int | None = None
+    initial_rotation_quadrant: int | None = None
     initial_side: int | None = None
 
 
@@ -502,7 +502,7 @@ def test_board_snapshot_from_netlist_matches_validated_kernel():
     rng = np.random.default_rng(7)
     positions = rng.uniform(0.0, 100.0, (3, 2))
     comps = [
-        _FakeComp("C1", "R_0603", 1.0, 0.5, "Signal", initial_rotation=2),
+        _FakeComp("C1", "R_0603", 1.0, 0.5, "Signal", initial_rotation_quadrant=2),
         _FakeComp("C2", "TO-247", 5.0, 4.0, "HV", initial_side=1),
         _FakeComp("MH1", "MountingHole", 3.0, 3.0, "GND"),
     ]
@@ -675,7 +675,7 @@ class _FakeParsedComponent:
     height: float
     net_class: str
     initial_position: tuple | None = (1.0, 2.0)
-    initial_rotation: int | None = None
+    initial_rotation_quadrant: int | None = None
     initial_side: int | None = None
 
 
@@ -697,7 +697,7 @@ def test_board_snapshot_from_parsed_pcb_matches_validated_kernel():
     validated build_board_dict_from_parsed_pcb_py K1 dict bit-exactly."""
     parsed = SimpleNamespace(
         components=[
-            _FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation=1),
+            _FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation_quadrant=1),
             _FakeParsedComponent("R1", "R_0603", 1.0, 0.5, "Signal", initial_position=None),
         ],
         nets=[
@@ -732,7 +732,7 @@ def test_board_snapshot_from_parsed_pcb_populates_real_safety_fields():
     `design_rules.net_classes[class_name]` actually carried. Reads them
     for real when present on the rules object."""
     parsed = SimpleNamespace(
-        components=[_FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation=1)],
+        components=[_FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation_quadrant=1)],
         nets=[_FakeParsedNet("N1", "HV", [("Q1", 1)])],
         design_rules=SimpleNamespace(
             net_classes={

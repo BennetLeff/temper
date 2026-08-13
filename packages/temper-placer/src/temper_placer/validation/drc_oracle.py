@@ -122,7 +122,7 @@ def build_placement_from_netlist(
     Maps each Component to ComponentPlacement:
     - ref, footprint, width, height, net_class from netlist components
     - x, y from positions array
-    - rotation from initial_rotation if available (converted from quantized 0-3 to degrees)
+    - rotation from initial_rotation_quadrant if available (converted from quantized 0-3 to degrees)
     - layer from initial_side (0=F.Cu, 1=B.Cu)
     - voltage_domain set to None (not present on temper-placer Component)
     """
@@ -139,8 +139,8 @@ def build_placement_from_netlist(
         height = c.height
 
         rotation = 0.0
-        if c.initial_rotation is not None:
-            rotation = float(c.initial_rotation * 90)
+        if c.initial_rotation_quadrant is not None:
+            rotation = float(c.initial_rotation_quadrant * 90)
 
         layer = "F.Cu"
         if c.initial_side is not None and c.initial_side == 1:

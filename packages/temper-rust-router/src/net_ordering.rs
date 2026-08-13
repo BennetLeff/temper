@@ -188,7 +188,7 @@ struct PinRow {
 
 struct CompRow {
     position: Option<(f64, f64)>,
-    /// `_normalize_rotation(initial_rotation)` -- RESOLVED RADIANS, not the
+    /// `_normalize_rotation(initial_rotation_quadrant)` -- RESOLVED RADIANS, not the
     /// raw index. Resolution happens at parse time (`rot_to_radians`) because
     /// the int/float dispatch needs the live Python object, which is gone by
     /// the time this struct exists.

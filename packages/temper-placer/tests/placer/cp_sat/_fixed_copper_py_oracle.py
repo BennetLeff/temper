@@ -961,7 +961,7 @@ def _other_component_pad_item(
 ) -> FixedCopperItem | None:
     """One pinned component's pad as a fixed obstacle, in the solver frame.
 
-    Uses the pinned component's ``initial_position``/``initial_rotation``
+    Uses the pinned component's ``initial_position``/``initial_rotation_quadrant``
     (its solver-fixed placement), the same frame ``build_free_component_pads``
     uses for free components' pads.
     """
@@ -971,7 +971,7 @@ def _other_component_pad_item(
     center = comp.initial_position
     if center is None:
         return None
-    rot_idx = int(comp.initial_rotation or 0)
+    rot_idx = int(comp.initial_rotation_quadrant or 0)
     hw, hh = _local_pad_half(pin)
     lx, ly = (float(pin.position[0]), float(pin.position[1]))
     if rot_idx == 0:
