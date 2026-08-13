@@ -364,6 +364,67 @@ domains:
                              # Both ends (`k_dis2.NC`, already HV-declared;
                              # `k_dis2.COM` = `hv_minus` = already-declared
                              # HV `DC_BUS_RTN`) are HV.
+      - hb-gnd               # ADDED 2026-08-13. OCP-02's second CT (T2 /
+                             # safety.ocp2.ct)'s primary P1 pin (bus_in,
+                             # half-bridge/load side) -- the compiled net
+                             # name atopile assigned to `hb.dc_bus.hv_minus`
+                             # (main.ato: `hb.dc_bus.hv_minus ~
+                             # safety.ocp2_bus_in`). Same defect class as
+                             # the safety.ocp2-line finding (PR #1123):
+                             # instantiating OCP-02 (c617e0d08, 2026-08-07)
+                             # declared the CT's *instance_path*
+                             # (safety.ocp2.ct, below) but never this *net*,
+                             # so it fell through undeclared.
+                             #
+                             # Traced directly from the compiled netlist
+                             # (elec/build/default.net, net code 39):
+                             # R23.2 (hb.gate_ls.rgs), U6.9 (hb.gate_hs.
+                             # driver pin 9 = VSSB), C23.2 (hb.c_vddb),
+                             # C24.2 (hb.c_dc_hf, the HF DC-bus cap whose
+                             # p2 is `dc_bus.hv_minus` per modules.ato:355),
+                             # U5.3 (hb.power_loop.q_low, the low-side
+                             # switch's Emitter per modules.ato:379
+                             # `power_loop.q_low.E ~ dc_bus.hv_minus`), and
+                             # T2.1 (safety.ocp2.ct P1) are all on this one
+                             # net. This is the SAME node the
+                             # `hb.gate_hs.driver` isolator entry below
+                             # already documents for its own pin 9
+                             # (pin_labels: "VSSB (low-side secondary
+                             # ground, floats on DC_BUS_RTN)") -- i.e. this
+                             # manifest already understood the node to be
+                             # HV-domain, just never declared its net name.
+                             # Genuinely HV, not merely name-adjacent to
+                             # DC_BUS_RTN: it is the half-bridge low-side
+                             # switch's return conductor, one CT primary
+                             # winding (a few milliohms, not a galvanic
+                             # isolator) away from the already-declared
+                             # `DC_BUS_RTN`, at the same ~-170V potential
+                             # relative to signal ground (see
+                             # SecondaryOCPComparator's docstring). The
+                             # `safety.ocp2.ct` isolator entry below already
+                             # documents this splice: "primary is a
+                             # two-terminal splice IN the DC_BUS_RTN
+                             # conductor (HV domain, both pins)" -- this
+                             # entry is that documentation made real by
+                             # actually declaring the net.
+                             #
+                             # NOT caught by any pattern-based classifier
+                             # either: `hb-gnd`'s hyphen is not a
+                             # recognized word-boundary delimiter for the
+                             # GND pattern used elsewhere in this repo
+                             # (`temper_placer.router_v6.net_classification`
+                             # /`temper_io_types::placer_core::netclass`,
+                             # boundary anchored on `_` or start/end only --
+                             # confirmed live: `is_ground_net("hb-gnd")` ->
+                             # False, `is_ground_net("hb_gnd")` -> True), so
+                             # it silently fell through
+                             # `DesignRules.get_rules_for_net`'s entire
+                             # tiered cascade (no TEMPER_NET_ASSIGNMENTS
+                             # entry, no pattern match) to the `Default`
+                             # class (0.15mm clearance, 0.0mm creepage) --
+                             # confirmed live via
+                             # `create_temper_design_rules().get_class_for_net
+                             # ("hb-gnd")` -> `'Default'`.
 
   # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
   # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is
@@ -524,6 +585,69 @@ domains:
                              # precedent, not silently dropped: flagged
                              # explicitly as a human-judgment item in this
                              # change's PR description.
+      - I_SENSE              # ADDED 2026-08-13. OCP-01's own CT (T1 /
+                             # ct_sense.ct)'s secondary S1 node
+                             # (override_net_name applied at main.ato:835,
+                             # `ct_sense.i_sense.line.override_net_name =
+                             # "I_SENSE"`). The isolator entry below already
+                             # declares ct_sense.ct's pins 3/4 (S1/S2) as its
+                             # own "secondary" group -- correctly modeling
+                             # the component's barrier -- but the compiled
+                             # NET this pin sits on was never added to this
+                             # domain list, the same "declaring the instance
+                             # is not declaring the net" gap PR #1123 fixed
+                             # for safety.ocp2-line.
+                             #
+                             # Genuinely SELV: ct.S1 (CST3015-100ED
+                             # secondary) is magnetically isolated from the
+                             # primary (modules.ato CurrentSensing:
+                             # `ct.S1 ~ r_burden.p1`, `ct.S2 ~
+                             # i_sense.reference`, `r_burden.p2 ~
+                             # i_sense.reference`; main.ato:832
+                             # `ct_sense.i_sense.reference ~ gnd` -- ct.S2
+                             # and the burden's return both sit on the
+                             # already-declared SELV `gnd`, not on any HV
+                             # node). Feeds OCP-01's comparator
+                             # (OCPComparator, `ocp.power ~ power_3v3`) via
+                             # `mcu.adc_i_sense`. No HV node is read, driven,
+                             # or referenced anywhere on this net.
+      - s1                   # ADDED 2026-08-13. OCP-02's second CT (T2 /
+                             # safety.ocp2.ct)'s secondary S1 node -- the
+                             # SELV twin of `hb-gnd` above (T2's HV-side
+                             # primary net) and the direct analogue of
+                             # `I_SENSE` above (T1's secondary). No
+                             # `override_net_name` was applied for this
+                             # signal (SecondaryOCPComparator.i_sense.line),
+                             # so atopile's auto-namer produced the bare
+                             # pin-derived name `s1` -- undeclared for the
+                             # same reason `hb-gnd` was: the manifest gained
+                             # safety.ocp2.ct's instance_path but never this
+                             # net.
+                             #
+                             # Traced directly from the compiled netlist
+                             # (elec/build/default.net, net code 117): T2.3
+                             # (ct.S1), U19.3 (safety.ocp2.comp, the
+                             # TLV3201's INP pin), C37.1 (safety.ocp2.
+                             # c_filter), R65.1 (safety.ocp2.r_burden) are
+                             # all on this net. Genuinely SELV, identical
+                             # isolation construction to `I_SENSE` above:
+                             # modules.ato SecondaryOCPComparator wires
+                             # `ct.S1 ~ r_burden.p1`, `ct.S1 ~
+                             # i_sense.line`, and separately `ct.S2 ~
+                             # power.gnd`, `r_burden.p2 ~ power.gnd`, where
+                             # `power.gnd` chains (main.ato:859,
+                             # `safety.power_3v3.gnd ~ gnd`) to the SAME
+                             # already-declared SELV `gnd` net -- the CT's
+                             # secondary has no galvanic connection to its
+                             # primary (which sits on `hb-gnd`/`DC_BUS_RTN`
+                             # above), so it can be referenced to signal
+                             # ground regardless of the primary's absolute
+                             # potential (SecondaryOCPComparator's own
+                             # docstring). Feeds the TLV3201 comparator
+                             # (safety.ocp2.comp, powered from power_3v3)
+                             # whose output drives `safety.ocp2-line`
+                             # (PR #1123). No HV node is read, driven, or
+                             # referenced anywhere on this net.
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
