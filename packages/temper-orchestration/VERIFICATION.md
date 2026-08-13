@@ -1631,6 +1631,21 @@ iterative nudge loop (libm-`pow` distance, the coincident-center branch, the
 `From<PyErr> for StageError` conversion so stage bodies use `?` on `PyResult`
 values directly.
 
+**U6 (O-C3) group-2 dropped coverage**: with `BoardState.routes` ported to
+the owned `Option<RouteSet>` (a `frozenset` of `Trace`), the pre-port
+`drc_sweep_removes_bad_geometry_and_passes_through_non_trace` test's
+non-Trace pass-through arm is no longer representable — a non-Trace value in
+`routes` is structurally impossible, so the isinstance branch
+(`tests/d6_stages_runner.rs` records the drop) has no input that reaches it.
+The non-Trace pass-through code remains in `DRCSweepStage` (the
+`isinstance(...)` guard at the loop head is still exercised for the
+Trace-only dedup marshalling + remap), but the *proved-input* coverage that
+wedged a `FakeVia` into `routes` was removed with the field type. The
+pre-port test was also the subject of the parallel-run flake in
+temper#1126 (`left: 3, right: 2` — a sys.modules race on the fakes'
+re-registration, 1/10 runs); the port's owned-shape replacement reproduces
+green in 10/10 parallel runs (2026-08-13).
+
 **What stays Python (evidence)**: the temper-drc-rs leaf kernels
 (`validate_proximity_py`, `validate_signal_hv_py`, `count_connected_layers_py`,
 `dedup_via_positions_py`, `deduplicate_traces_py`, `threshold_decision_py`,
