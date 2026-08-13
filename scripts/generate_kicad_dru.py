@@ -105,6 +105,21 @@ HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
 # changes both points together rather than silently carrying the PD2 number.
 HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
 
+# RULE 10's floor: the clearance every track-involving pair must hold when no
+# stricter, more specific rule matches. This is the bar 503 of the heatsink
+# candidate board's 505 `clearance` errors are measured against, so it is also
+# the bar the router's own A* occupancy model has to reserve for. It was
+# previously a bare "0.2mm" literal in the RULE 10 emitter while the router's
+# fallback was separately hardcoded to 0.15mm in
+# `router_v6/_pipeline_core.py` -- a 0.05mm gap between "what we route to" and
+# "what we grade against" that cost +115 clearance errors on the heatsink
+# candidate (docs/evidence/2026-08-12-clearance-congestion-band.md). Naming it
+# lets `scripts/check_router_clearance_floor.py` assert the two agree.
+#
+# Value: `packages/temper-placer/configs/netclass_rules.yaml`'s
+# `default_clearance_mm`, which is also `pcb/temper.kicad_pro`'s `Default`
+# net-class clearance. All three must stay equal; the gate enforces it.
+DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 # ---------------------------------------------------------------------------
 # HV<->HV FUNCTIONAL creepage at the resonant-tank node (ADDED 2026-08-12).
 #
@@ -1285,11 +1300,13 @@ def generate_dru() -> str:
     lines.append("")
     lines.append(_SEP)
     lines.append("# RULE 10: Default routing clearance")
-    lines.append("# Standard 0.2mm for signal traces")
+    lines.append(f"# Standard {DEFAULT_ROUTING_CLEARANCE_MM}mm for signal traces")
     lines.append(_SEP)
     lines.append('(rule "Default routing"')
     lines.append("   (condition \"A.Type == 'Track' || B.Type == 'Track'\")")
-    lines.append("   (constraint clearance (min 0.2mm))")
+    lines.append(
+        f"   (constraint clearance (min {DEFAULT_ROUTING_CLEARANCE_MM}mm))"
+    )
     lines.append(")")
     lines.append("")
 

@@ -668,6 +668,30 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_router_clearance_floor.py
+  purpose: 'CI gate: the clearance the router reserves for an unclassified net must
+    never be below the clearance kicad-cli DRC grades that net against. Between
+    051152e7c (2026-07-12) and 2026-08-12 router_v6/_pipeline_core.py lowered
+    design_rules.default_clearance_mm to 0.15 while generate_kicad_dru.py RULE 10
+    "Default routing" emitted 0.2mm -- Stage 4 A* reserves trace_width + clearance,
+    so two 0.25mm Default tracks landed 0.40mm centre-to-centre, an edge gap of
+    exactly 0.1500mm against a 0.2000mm rule. 285 of the heatsink candidate board''s
+    505 clearance errors were that defect (docs/evidence/
+    2026-08-12-clearance-congestion-band.md). Five properties, P4 checked by AST so a
+    reformatted reintroduction is still caught. Mutation-verified: P4 fails on
+    origin/main''s _pipeline_core.py:335.'
+  owner: bennet
+  last_run: '2026-08-12'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - json
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_netclass_class_param_correspondence.py
   purpose: 'CI gate: assert every netclass declared in BOTH pcb/temper.kicad_pro''s net_settings.classes
     and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance, trace_width/track_width,

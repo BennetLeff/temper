@@ -345,6 +345,199 @@ class RouterV6Pipeline:
                 to reach the A* engine (used by the HV/AC forced-segment
                 fail-closed gate, R6 in 2026-07-23-008).
         """
+<<<<<<< HEAD
+        start_time = time.time()
+
+        # Stage 0: Load PCB
+        if self.verbose:
+            print("Stage 0: Loading PCB...")
+        from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+
+        # use_declared_layer_roles=True (R8): layer_type comes from structural
+        # position in the declared stackup (outer = signal, inner = mixed),
+        # never from "does at least one zone on this layer sit on a
+        # plane-required net". Fixes the quantifier bug in _extract_stackup()
+        # (docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md):
+        # before this, a handful of plane-required zones (4 of 48 on
+        # pcb/temper.kicad_pcb's F.Cu) condemned the *entire* physical layer
+        # to layer_type="plane", which routing_space.py:85 then drops from
+        # the router's routing space wholesale -- collapsing
+        # state.channel_skeletons to {} and route_pcb() to a 0-variable
+        # model that silently degrades to a per-net fallback (see
+        # docs/evidence/2026-08-07-router-silent-noop-diagnosis.md).
+        #
+        # This flag was flagged NOT SAFE alone: obstacle_map.py's zone loop
+        # (build_obstacle_map, section 3) already unions every zone on a
+        # layer into that layer's obstacle polygon unconditionally --
+        # regardless of layer_type -- so opening F.Cu/B.Cu here does not
+        # skip registering their existing pours as obstacles (verified by
+        # reading obstacle_map.py: the zone loop has no layer_type guard,
+        # unlike the pad/via loops next to it). The companion risk named in
+        # the solutions doc (obstacle_map.py unioning ALL pours net-blind,
+        # previously measured to cut F.Cu's available area to ~24.7% and
+        # cause a 12x completion regression when the outer layers were
+        # forced open by a1fe623e/60d441f2) is real but is the documented,
+        # separate, not-yet-landed "pours become derived output" project
+        # (docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md, R7/U3,
+        # status: swept -- not implemented). Flipping this flag here does not
+        # depend on that project to be *safe* in the sense of "never routes
+        # through copper" -- it only affects how much free area remains once
+        # the layer is legitimately open.
+        pcb = parse_kicad_pcb_v6(pcb_path, use_declared_layer_roles=True)
+        if pcb_override is not None:
+            pcb = pcb_override
+
+        # Inject per-net netclass assignments so ``get_rules_for_net`` can
+        # resolve a class for the nets that have one (FinePitch 0.1mm,
+        # GateDrive 0.25mm, HV 2.0/6.0mm, ...).
+        #
+        # This block used to ALSO do ``dr.default_clearance_mm = 0.15``
+        # (051152e7c, 2026-07-12, "the SSOT Signal netclass"). That was
+        # wrong and it is the dominant cause of the board's ``clearance``
+        # count. Three sources agree the unclassified-net floor is
+        # **0.2mm** -- ``netclass_rules.yaml::default_clearance_mm``,
+        # ``pcb/temper.kicad_pro``'s ``Default`` netclass, and the rule the
+        # violations actually fire against, ``generate_kicad_dru.py``'s
+        # RULE 10 ``Default routing`` (``DEFAULT_ROUTING_CLEARANCE_MM``).
+        # ``netclass_rules.yaml``'s ``Signal`` class is a placer-feasibility
+        # entry with no counterpart in ``temper.kicad_pro`` at all, and no
+        # board net resolves to it (measured: 0/684 net occurrences), so
+        # 0.15 was never any net's real requirement -- it was a global
+        # relaxation of the fallback.
+        #
+        # Consequence, measured on the heatsink candidate board
+        # (docs/evidence/2026-08-12-clearance-congestion-band.md): the A*
+        # reserves ``trace_width + clearance`` around routed copper, so a
+        # 0.15 floor let two 0.25mm Default tracks sit 0.40mm centre to
+        # centre -- an edge gap of exactly 0.1500mm against a 0.2000mm
+        # rule. 136 of 505 clearance errors are that single value to four
+        # decimal places, and another 149 are its 45-degree corner case
+        # (0.4472mm centre distance, 0.1972mm gap). Together 56% of the
+        # board's clearance errors, and 80% of the x[40,60) band's.
+        #
+        # Leaving ``default_clearance_mm`` at its parsed value keeps the
+        # router's own bar equal to the bar it is measured against.
+        # ``scripts/check_router_clearance_floor.py`` gates the equality.
+        if net_class_assignments or net_classes:
+            dr = getattr(pcb, "design_rules", None)
+            if dr is not None:
+                if net_class_assignments:
+                    nc = getattr(dr, "net_class_assignments", {})
+                    if isinstance(nc, dict):
+                        nc.update(net_class_assignments)
+                        dr.net_class_assignments = nc
+                if net_classes:
+                    existing = getattr(dr, "net_classes", {})
+                    if isinstance(existing, dict):
+                        existing.update(net_classes)
+                        dr.net_classes = existing
+
+        # Reorder nets: power/HV nets first, signal nets last.
+        # Prevents final-round displacement of SPI/USB/sense nets.
+        _SIG = ("SPI_", "I_SENSE", "USB_", "TEMP_")
+        _PWR = ("GATE_", "PWM_", "DC_BUS", "AC_", "SW_NODE", "VCC_BOOT", "CGND", "PGND", "+", "GND")
+
+        def _prio(net):
+            name = net.name if hasattr(net, "name") else str(net)
+            if any(name.startswith(p) for p in _PWR):
+                return 0
+            return 1
+
+        pcb.nets.sort(key=_prio)
+
+        # Stage 0.5: Legalization
+        if self.enable_legalization:
+            if self.verbose:
+                print("Stage 0.5: Checking and Legalizing Placement...")
+
+            legalizer = Legalizer(pcb)
+            # Check collisions before
+            if self.verbose:
+                collisions = legalizer.auditor.check_collisions()
+                print(f"  Found {len(collisions)} initial collisions")
+
+            if legalizer.legalize():
+                if self.verbose:
+                    print("  Placement collision check passed (0 overlaps)")
+            else:
+                collisions = legalizer.auditor.check_collisions()
+                # Pin-hull collision detection is intentionally advisory. It
+                # is not a substitute for KiCad's footprint-courtyard DRC and
+                # must not move CP-SAT coordinates outside their constraints.
+                if self.verbose:
+                    print(
+                        "  Advisory pin-hull overlaps: "
+                        + ", ".join(
+                            f"{collision.ref1}/{collision.ref2}" for collision in collisions[:8]
+                        )
+                    )
+
+        # Validate placement (Post-Legalization)
+        # ``Legalizer`` above is deliberately non-mutating: CP-SAT owns all
+        # constraint-preserving component movement, and KiCad DRC remains the
+        # authoritative physical-overlap gate.
+        errors = pcb.validate_placement()
+        if errors:
+            raise ValueError(f"PCB validation failed: {errors}")
+
+        # Stage 0.5 Fence: Check component overlap after legalization
+        if self.fence:
+            self._run_fence(
+                stage_name="router_v6.legalization",
+                invariants=_stage_0_5_invariants(),
+                pcb=pcb,
+            )
+        self.ledger.checkin(pcb)
+
+        # Stage 1: Generate escape vias
+        if self.verbose:
+            print(f"Stage 1: Detecting dense packages in {len(pcb.components)} components...")
+        dense_packages = identify_dense_packages(pcb.components)
+        if self.verbose:
+            print(f"  Found {len(dense_packages)} dense packages")
+
+        escape_vias = []
+        for dense_pkg in dense_packages:
+            # Try dog-bone first
+            vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="dog-bone")
+
+            # If that fails (tight pitch), try via-in-pad
+            if not vias:
+                if self.verbose:
+                    print(f"    Falling back to via-in-pad for {dense_pkg.component.ref}")
+                vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="via-in-pad")
+
+            escape_vias.extend(vias)
+        if self.verbose:
+            print(f"  Generated {len(escape_vias)} escape vias")
+
+        # Stage 1 fence: verify escape via placement correctness
+        if self.fence and escape_vias:
+            self._run_fence(
+                stage_name="router_v6.escape_vias",
+                invariants=_stage_1_invariants(),
+                pcb=pcb,
+                escape_vias=escape_vias,
+            )
+        self.ledger.checkout("escape_vias", pcb)
+
+        # Stage 2: Channel analysis
+        if self.verbose:
+            print("Stage 2: Channel analysis...")
+        stage2 = self._run_stage2(pcb, escape_vias)
+
+        # Resource exhaustion bound (after EDT grids are built)
+        self._compute_resource_bound(pcb, stage2)
+
+        # Stage 3: Topological routing.  When skip_stage3 is True,
+        # bypass the SAT solver entirely and feed Stage 4 an empty
+        # topology graph.  After Dijkstra removal (2026-06-28),
+        # skip_stage3 routes nets via direct A* on the occupancy
+        # grid without skeleton guidance (previously used Dijkstra).
+        # The SAT code stays in place; this is a guarded bypass,
+        # not a removal.
+=======
+>>>>>>> origin/main
         if self.skip_stage3:
             if self.verbose:
                 print("Stage 3: Topological routing... SKIPPED")
