@@ -34,6 +34,7 @@ use crate::d6_util;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError, StageErrorKind};
+use temper_data_model::ConnectivityViolationList;
 
 const STAGE_NAME: &str = "connectivity_validation";
 const LOGGER_NAME: &str = "temper_placer.deterministic.stages.connectivity_validation";
@@ -189,7 +190,11 @@ impl ConnectivityValidationStage {
 
         let tuple = py.import("builtins")?.getattr("tuple")?.call1((&violations,))?;
         let mut new_state = state;
-        new_state.connectivity_violations = Some(tuple.into_any().unbind());
+        // U6 (O-C3): the oracle's tuple construction is kept verbatim, then
+        // marshalled INTO the owned `ConnectivityViolationList` field.
+        new_state.connectivity_violations = Some(
+            crate::marshal::to_owned::<ConnectivityViolationList>(&tuple)?,
+        );
         Ok(new_state)
     }
 

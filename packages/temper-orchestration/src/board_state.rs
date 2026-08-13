@@ -32,6 +32,11 @@ use std::hash::{Hash, Hasher};
 use pyo3::PyAny;
 
 #[cfg(feature = "python")]
+use temper_data_model::{
+    ConnectivityViolationList, PlacementViolationList, ViolationList,
+};
+
+#[cfg(feature = "python")]
 /// A grid-slot id: the `(x, y)` coordinate pair of a slot in the placement
 /// grid (Python: a `(float, float)` tuple — zone slots are float grid
 /// positions, see the D4/D5 oracles' `set[tuple[float, float]]`).
@@ -103,10 +108,15 @@ pub struct BoardState {
     pub loops: Option<pyo3::Py<PyAny>>,
     pub grid: Option<pyo3::Py<PyAny>>,
     pub drc_oracle: Option<pyo3::Py<PyAny>>,
-    pub drc_violations: Option<pyo3::Py<PyAny>>,
+    // U6 (O-C3): the three validation-result fields ported off `Py<PyAny>` —
+    // each is the Python `tuple[Violation, ...] | None` ↔ the owned
+    // `*List` `Vec` newtype (U5). Round-trip through `marshal.rs` is lossless
+    // (the U5 round-trip gate); stages write the tuple through the owned type,
+    // the Python side is unchanged.
+    pub drc_violations: Option<ViolationList>, // tuple[Violation, ...] | None
     pub design_rules: Option<pyo3::Py<PyAny>>,
-    pub connectivity_violations: Option<pyo3::Py<PyAny>>,
-    pub placement_violations: Option<pyo3::Py<PyAny>>,
+    pub connectivity_violations: Option<ConnectivityViolationList>, // tuple[ConnectivityViolation, ...] | None
+    pub placement_violations: Option<PlacementViolationList>, // tuple[PlacementViolation, ...] | None
     pub placements: Option<pyo3::Py<PyAny>>, // frozenset of placements
     // U1 (O-C3): the first field ported off `Py<PyAny>` — a `frozenset` of
     // `(x, y)` slot-id tuples (float grid coords) ↔ `HashSet<SlotId>`.

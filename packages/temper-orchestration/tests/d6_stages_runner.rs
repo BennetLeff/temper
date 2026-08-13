@@ -335,7 +335,7 @@ fn drc_validation_writes_violations() {
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let violations = out.drc_violations.as_ref().expect("drc_violations attached");
-        assert_eq!(violations.bind(py).len()?, 2, "both violations stored");
+        assert_eq!(violations.len(), 2, "both violations stored");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -398,7 +398,7 @@ fn connectivity_validation_guard_and_run() {
         let (out2, report) = r2.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let cv = out2.connectivity_violations.as_ref().expect("connectivity_violations attached");
-        assert_eq!(cv.bind(py).len()?, 0, "clean geometry yields no violations");
+        assert_eq!(cv.len(), 0, "clean geometry yields no violations");
         Ok::<(), PyErr>(())
     })
     .unwrap();
