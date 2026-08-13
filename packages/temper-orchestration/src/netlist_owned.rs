@@ -680,6 +680,25 @@ class Board:
         self._zone_map = {z.name: z for z in self.zones}
 "#;
 
+    /// The module's tests are serialized by this lock, taken BEFORE any
+    /// Python (before `Python::initialize()`/`Python::attach`): each `setup()`
+    /// call registers the stand-in classes into the PROCESS-GLOBAL
+    /// `sys.modules`, and the round-trip gate's type check compares an
+    /// eval-vs-import class identity (`orig.get_type().is(back.get_type())`).
+    /// Concurrent test threads can interleave closures (the pyo3 GIL pool's
+    /// already-attached fast path runs a previously-attached thread's closure
+    /// without re-acquiring the GIL), so two concurrent `setup()`s would
+    /// clobber `sys.modules` with DIFFERENT stand-in class objects and a test
+    /// whose eval saw one set and whose `to_python` import saw the other
+    /// would fail with a type mismatch whose reprs are identical. The lock
+    /// makes the registrations sequential AND must be taken before attach:
+    /// a lock taken inside a closure deadlocks when the closure's thread is
+    /// on the GIL-pool fast path (it waits for the real GIL — held by the
+    /// thread blocked on this lock — an ABBA cycle). `setup()` additionally
+    /// REUSES an existing registration so every test's globals and the
+    /// runtime-import path resolve the same class objects.
+    static NETLIST_TESTS_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
     /// Define the stand-in dataclasses in a globals dict and register them in
     /// `sys.modules` under the path the `to_python` runtime import looks up
     /// (`temper_design_bundle_python.netlist_contracts` and
@@ -687,6 +706,20 @@ class Board:
     /// runners use for their call-backs.
     fn setup<'py>(py: Python<'py>) -> Bound<'py, PyDict> {
         let globals = PyDict::new(py);
+        // Reuse a registration a previous test already made: the classes
+        // must be THE SAME objects the runtime-import path will resolve.
+        if let Ok(tdb) = py.import("temper_design_bundle_python")
+            && let Ok(nc) = tdb.getattr("netlist_contracts")
+            && let Ok(bc) = tdb.getattr("board_contracts")
+        {
+            for name in ["Pin", "Component", "Net", "Netlist"] {
+                globals.set_item(name, nc.getattr(name).expect("nc class")).expect("set nc class");
+            }
+            for name in ["Layer", "LayerStackup", "MountingHole", "Zone", "GroundDomain", "Board"] {
+                globals.set_item(name, bc.getattr(name).expect("bc class")).expect("set bc class");
+            }
+            return globals;
+        }
         let standin = std::ffi::CString::new(STANDIN).expect("STANDIN has no NUL");
         py.run(standin.as_c_str(), Some(&globals), None)
             .expect("stand-in classes");
@@ -726,6 +759,7 @@ class Board:
         // The netlist_contracts hazard: `Component("R1", "fp", (1, 2))` keeps
         // `int` bounds; `(1.0, 2.0)` keeps `float` bounds. Both round-trip
         // bit-identically — `1` must NOT widen to `1.0`.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -755,6 +789,7 @@ class Board:
 
     #[test]
     fn component_with_pins_and_all_fields_roundtrips_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -763,9 +798,16 @@ class Board:
                 "Component('U1', 'QFN-56', (7.5, 7.5), [Pin('1', '1', (-3.5, 0.0), net='VCC'), \
                  Pin('2', '2', (3.5, 0.0))], net_class='HighVoltage', zone='power', fixed=True, \
                  initial_position=(10.0, 20.0), initial_rotation=1, initial_side=0, \
-                 attributes={'value': '100nF'}, tags=frozenset({'power', 'top'}), sheetpath='hb.power_loop.q_high')",
+                 attributes={'value': '100nF'}, tags=frozenset({'power'}), sheetpath='hb.power_loop.q_high')",
                 Some(&g),
             );
+            // NOTE (U3 drive-by, R22-aligned): `tags` is a SINGLE-element
+            // frozenset here — the recorded U2 bound ("The gate pins full
+            // bit-identity on empty/single-element tags") guarantees its
+            // iteration order is seed-independent. The previous multi-element
+            // `{'power', 'top'}` could collide under a hash draw and rebuild
+            // in a different order — the exact non-guaranteed case the bound
+            // records — making this gate flaky on origin/main (~13%).
         });
     }
 
@@ -774,6 +816,7 @@ class Board:
         // Only ref/footprint/bounds are given; the rest fall to dataclass
         // defaults and must come back exactly (empty list/dict/frozenset,
         // `None` for the optionals).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -783,6 +826,7 @@ class Board:
 
     #[test]
     fn pin_roundtrips_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -798,6 +842,7 @@ class Board:
 
     #[test]
     fn net_roundtrips_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -818,6 +863,7 @@ class Board:
         // dataclass `__eq__` itself returns False for NaN fields (CPython
         // `nan != nan`), so equality is asserted on the marshalled field
         // rather than through `assert_roundtrip_with`'s `==` arm.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -849,6 +895,7 @@ class Board:
 
     #[test]
     fn leaf_structs_reject_the_wrong_container_and_sibling_types() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -870,6 +917,7 @@ class Board:
 
     #[test]
     fn tuple_impls_roundtrip_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             assert_roundtrip_with::<(f64, f64)>(py, "(1.5, -2.5)", None);
@@ -888,6 +936,7 @@ class Board:
 
     #[test]
     fn netlist_roundtrips_bit_identically() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -926,6 +975,7 @@ class Board:
         // survives with type + repr preserved (manual type/repr arm — the
         // dataclass `__eq__` returns False for NaN fields, the recorded U2
         // bound).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -958,6 +1008,7 @@ class Board:
 
     #[test]
     fn board_roundtrips_bit_identically_with_keeps_by_identity() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -1026,6 +1077,7 @@ class Board:
         // (the pyclass raw-stores constructor args), and `keepouts=[(0, 0, 50,
         // 80)]` keeps int quads. Both round-trip bit-identically — `1` must
         // NOT widen to `1.0` — and the owned `Val` fields record which.
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -1063,6 +1115,7 @@ class Board:
         // A NaN inside a `Val`-shaped Board field round-trips with type + repr
         // preserved and the owned field still NaN (manual type/repr arm — the
         // dataclass `__eq__` is False for NaN fields, the recorded U2 bound).
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -1090,6 +1143,7 @@ class Board:
 
     #[test]
     fn aggregate_guards_reject_the_wrong_container_and_sibling_types() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);
@@ -1125,6 +1179,7 @@ class Board:
 
     #[test]
     fn val_tuple_impls_roundtrip_losslessly() {
+        let _guard = NETLIST_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         Python::initialize();
         Python::attach(|py| {
             let g = setup(py);

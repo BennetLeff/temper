@@ -4293,23 +4293,39 @@ constructor-normalised fields round-trip identically):
   bool quad leaves, 1-tuple/list `origin`, bool `width`, and tuple-shaped
   `Netlist.components` are all REJECTED loudly.
 
-### Pre-existing flake note (R22-style triage — NOT caused by U3)
+### Test-robustness fixes (R22-aligned drive-bys, in `netlist_owned.rs::tests`)
 
-`netlist_owned::tests::component_with_pins_and_all_fields_roundtrips_losslessly`
-(U2's test) FAILS ~50% of runs on origin/main with the mandated venv python
-(`PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python`) when
-`PYTHONHASHSEED` is unset: the expression uses a 2-element string
-`frozenset({'power', 'top'})`, and under a colliding hash draw the rebuilt
-frozenset iterates in a deterministic-but-different order — the EXACT
-behaviour U2's own "Recorded bound — `tags` frozenset iteration order"
-section says is not bit-guaranteed for colliding string sets. The test
-over-asserts against its own recorded bound; it passes with any FIXED
-`PYTHONHASHSEED` (verified 0/1/42) and reproduced identically on a pristine
-origin/main worktree. Triage: a U2-scope follow-up should pin that case with
-the U1-style sorted-multiset comparison (or a collision-free set); U3 does
-not touch U2's tests. All U3 gates below ran with `PYTHONHASHSEED=0` (the
-repo's own determinism convention — `board-regeneration.yml` uses the same
-pin for hash-sensitive runs).
+Two pre-existing flakes in this file's tests were diagnosed and fixed in this
+unit (both reproduced on a pristine origin/main worktree with the mandated
+venv python):
+
+1. **U2 tags-frozenset hash-seed flake.** 
+   `component_with_pins_and_all_fields_roundtrips_losslessly` used a
+   multi-element string `frozenset({'power', 'top'})`; under a colliding
+   `PYTHONHASHSEED` draw the rebuilt frozenset iterates in a
+   deterministic-but-different order — the EXACT non-guaranteed case U2's
+   own "Recorded bound — `tags` frozenset iteration order" section
+   describes — so the gate failed ~13% of runs on origin/main with the
+   seed unset. The test now uses a SINGLE-element `frozenset({'power'})`,
+   the case the recorded bound explicitly guarantees bit-identity for.
+2. **U2/U3 concurrent-registration type-mismatch flake.** Every test's
+   `setup()` registered fresh stand-in classes into the PROCESS-GLOBAL
+   `sys.modules`; concurrent test threads can interleave closures (the pyo3
+   GIL pool's already-attached fast path runs a previously-attached thread's
+   closure without re-acquiring the GIL), so a test whose eval saw one
+   registration and whose `to_python` import saw another failed with a
+   type mismatch whose reprs are identical. Fix: a module-level
+   `NETLIST_TESTS_LOCK` taken BEFORE any Python (a lock taken inside a
+   closure deadlocks — the closure's thread waits for the real GIL held by
+   the thread blocked on the lock — an ABBA cycle), plus `setup()` REUSES
+   an existing registration so every test's globals and the runtime-import
+   path resolve the same class objects. The U2 leaf tests were affected
+   too — the flake was latent in U2 and made ~3x more likely by U3's
+   larger `setup()` and 7 new tests.
+
+Both fixes are in the touch-listed file and were validated by 20/20
+filtered + 3/3 full-lib green runs with RANDOM hash seeds (previously
+~2/15 filtered failed).
 
 ### Gates (U3)
 
@@ -4317,10 +4333,10 @@ pin for hash-sensitive runs).
   aggregate pins: int-vs-float at the `Board` level, `Netlist` holding the
   U2 leaves).
 - `cargo test --lib` on `temper-orchestration`
-  (PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python,
-  PYTHONHASHSEED=0): **1140 passed** (1133 base + 7 new
-  `netlist_owned::tests` U3 tests; the 1140th includes the fixed-seed U2
-  tags test).
+  (PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python): **1140 passed**
+  (1133 base + 7 new `netlist_owned::tests` U3 tests), verified green with
+  RANDOM hash seeds (3/3 full-lib runs, 20/20 filtered) after the
+  test-robustness drive-bys above.
 - `cargo clippy --all-targets` on both crates: clean.
 - `cargo check --target wasm32-unknown-unknown` on `temper-data-model`:
   clean (the aggregate structs are pyo3-free by construction, exactly like
