@@ -19,6 +19,29 @@ file drifted. The edit is faithful -- the added entry is byte-identical to
 the live ``design_rules.py`` table. Re-pinned from the on-disk bytes after
 establishing the cause.
 
+RE-PINNED 2026-08-13 (URGENT safety defect, hyphen-boundary net
+classification): `_hv_word_boundary_match`'s boundary was `_` or
+start/end of string ONLY -- `-` was never a boundary character, in
+either this oracle or the Rust port it pins (`temper-design-bundle`'s
+`design_rules.rs::hv_word_boundary_match`). atopile's compiled net names
+use `-` and `_` interchangeably as within-segment word separators
+(`hb-gnd`, `hb.gate_hs.driver-p1`, `safety.uvlo_logic-line`, ...), so
+every hyphenated net on the real board was invisible to
+`_is_gate_net_hv`/`_is_gate_net_selv`/`_is_high_current_net` whenever the
+matching keyword sat on the hyphen side of a boundary -- the same defect,
+same root cause, as the sibling fix in
+`temper_placer/router_v6/net_classification.py`'s `_matches_any`. `-` is
+now an equivalent boundary to `_` here too. One keyword in this
+cascade -- `"COIL"` -- is a genuine over-match risk once `-` becomes a
+boundary (`discharge.k_dis1-coil1`/`-coil2`, `discharge.k_dis2-coil1`,
+`power_in.bypass_relay-coil1`/`-coil2` are five real, confirmed-SELV
+relay-coil-drive nets that would newly match); mitigated by giving those
+five nets an explicit `TEMPER_NET_ASSIGNMENTS` entry in the live
+`design_rules.py` (Tier 2, wins over this Tier 4+ cascade), not by
+narrowing the boundary back down -- narrowing would silently reintroduce
+the hyphen-boundary defect for the next hyphenated COIL-adjacent net. See
+docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
+
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
@@ -41,8 +64,8 @@ from temper_placer.core.netclass_rules_gen import NetClassRules
 
 
 def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:
-    """Word-boundary keyword match, delimited by ``_`` or start/end of
-    the (uppercased) name.
+    """Word-boundary keyword match, delimited by ``_``, ``-``, or start/end
+    of the (uppercased) name.
 
     A pattern ending in a non-alphanumeric character (e.g. ``"DC_BUS+"``)
     has no trailing boundary to anchor on and is matched with a leading
@@ -50,14 +73,15 @@ def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:
     ``router_v6.net_classification._matches_any`` and
     ``router_v6.clearance_check._is_hv_keyword_match`` -- see those
     modules' docstrings for the shared bug history (plain substring
-    matching of short net-classification keywords).
+    matching of short net-classification keywords), and this file's own
+    2026-08-13 re-pin note above for the hyphen-boundary widening.
     """
     for p in patterns:
         escaped = re.escape(p)
         if p and not p[-1].isalnum():
-            if re.search(rf"(?:^|_){escaped}", upper):
+            if re.search(rf"(?:^|[_-]){escaped}", upper):
                 return True
-        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+        elif re.search(rf"(?:^|[_-]){escaped}(?:$|[\d_-])", upper):
             return True
     return False
 
@@ -651,6 +675,15 @@ TEMPER_NET_ASSIGNMENTS = {
     "PWR_RTN": "GND",
     "CGND": "GND",
     "gnd": "GND",
+    # ADDED 2026-08-13, mirroring the live design_rules.py entry added by
+    # this file's own 2026-08-13 re-pin note above (hyphen-boundary net
+    # classification fix) -- see that note and the live table's matching
+    # comment for the full justification.
+    "discharge.k_dis1-coil1": "Signal",
+    "discharge.k_dis1-coil2": "Signal",
+    "discharge.k_dis2-coil1": "Signal",
+    "power_in.bypass_relay-coil1": "Signal",
+    "power_in.bypass_relay-coil2": "Signal",
 }
 
 

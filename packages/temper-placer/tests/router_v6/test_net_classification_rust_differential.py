@@ -47,14 +47,16 @@ from temper_placer.router_v6 import net_classification as nc
 def _oracle_is_ground_net(name: str, *, single_layer_mode: bool = False) -> bool:
     if single_layer_mode:
         return False
-    return nc._matches_any(name, nc.GROUND_NET_PATTERNS)
+    # boundary="_-": 2026-08-13 hyphen-boundary fix -- see net_classification's
+    # own bug-history note. Net-name patterns treat "-" as a boundary too.
+    return nc._matches_any(name, nc.GROUND_NET_PATTERNS, boundary="_-")
 
 
 def _oracle_is_power_net(name: str, *, single_layer_mode: bool = False) -> bool:
     if single_layer_mode:
         return False
     upper = name.upper()
-    if nc._matches_any(upper, nc.POWER_NET_PATTERNS):
+    if nc._matches_any(upper, nc.POWER_NET_PATTERNS, boundary="_-"):
         return True
     return upper.startswith("+")
 
@@ -62,7 +64,7 @@ def _oracle_is_power_net(name: str, *, single_layer_mode: bool = False) -> bool:
 def _oracle_is_hv_net(name: str, *, single_layer_mode: bool = False) -> bool:
     if single_layer_mode:
         return False
-    return nc._matches_any(name, nc.HV_NET_PATTERNS)
+    return nc._matches_any(name, nc.HV_NET_PATTERNS, boundary="_-")
 
 
 def _oracle_is_signal_net(name: str, *, single_layer_mode: bool = False) -> bool:
