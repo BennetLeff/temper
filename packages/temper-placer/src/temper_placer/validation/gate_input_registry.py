@@ -641,6 +641,10 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # script's own scripts/manifest.yaml entry.
     ("check_router_clearance_floor.py", "packages/temper-placer/configs/netclass_rules.yaml", "router-vs-DRC clearance floor gate: the clearance router_v6 reserves for an unclassified net must never fall below what kicad-cli DRC grades that net against (2026-07-12 -> 2026-08-12 drift, docs/evidence/2026-08-12-clearance-congestion-band.md); probe harness deferred"),
     ("check_wasm_covered.py", "tools/wasm/wasm_test_registry.json", "wasm-covered annotation resolver + pytest plugin (docs/solutions/workflow-issues/wasm-covered-annotation-resolver-2026-08-12.md); resolves `wasm-covered:` workflow annotations against the registry-at-commit; probe is the check itself"),
+    # Added by PR #1131, which wired it into the required Cross-Source
+    # Consistency Gates job but did not register it here -- the same
+    # completeness gap as the two batches above, and caught the same way.
+    ("check_board_sync_stamp.py", "pcb/.board_sync_stamp.json", "board<->netlist provenance stamp gate (PR #1131): re-derives the netlist's own freshness against elec/src/** FIRST, then compares the board's recorded sync stamp, so the check cannot pass by comparing two stale artifacts to each other -- the failure mode that let the 2026-08-07 board/schematic desync survive five days behind a cached netlist; probe harness deferred (scripts/tests/test_check_board_sync_stamp.py covers its 13 failure modes directly)"),
 ]
 
 
