@@ -24,7 +24,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
 use pyo3::prelude::*;
-use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyString, PyTuple};
+use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyTuple};
+
+use temper_data_model::{SlotPos, StrPairSet, Val, Zone, ZoneSlots, ZoneSlotsSet, ZoneSet};
 
 use temper_orchestration::{BoardState, PhasedAssignmentStage, PipelineConfig, PipelineRunner, ZoneAwareSlotGenerationStage};
 
@@ -170,48 +172,40 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let channels = PyModule::new(py, "channels")?;
     channels.add("routability_penalty", ns.getattr("routability_penalty")?)?;
     det.add("channels", &channels)?;
+    // U6 (O-C3) group-2: `temper_placer.deterministic.stages.zone_geometry`
+    // — the owned `ZoneSet` rebuild (`Marshal::to_python` for `Zone`) needs
+    // the class when the with-zones path runs.
+    let stages = PyModule::new(py, "stages")?;
+    let zg = PyModule::new(py, "zone_geometry")?;
+    zg.add("Zone", ns.getattr("FakeZone")?)?;
+    stages.add("zone_geometry", &zg)?;
+    det.add("stages", &stages)?;
     pkg.add("deterministic", &det)?;
     modules.set_item("temper_placer.deterministic", &det)?;
     modules.set_item("temper_placer.deterministic.channels", &channels)?;
+    modules.set_item("temper_placer.deterministic.stages", &stages)?;
+    modules.set_item("temper_placer.deterministic.stages.zone_geometry", &zg)?;
     Ok(ns.into_any())
 }
 
-fn py_tuple<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
-    Ok(PyTuple::new(py, items)?.into_any())
-}
-
-fn py_frozenset<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
-    let builtins = py.import("builtins")?;
-    let list = PyList::empty(py);
-    for item in items {
-        list.append(item)?;
-    }
-    builtins.getattr("frozenset")?.call1((list,))
-}
-
-fn pair<'py>(py: Python<'py>, a: &str, b: Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
-    let a = PyString::new(py, a).into_any();
-    py_tuple(py, vec![a, b])
-}
-
-fn xy<'py>(py: Python<'py>, x: f64, y: f64) -> PyResult<Bound<'py, PyAny>> {
-    Ok((x, y).into_pyobject(py)?.into_any())
-}
-
 fn zone_state<'py>(
-    py: Python<'py>,
+    _py: Python<'py>,
     ns: &Bound<'py, PyAny>,
     with_zones: bool,
 ) -> PyResult<BoardState> {
-    let zones = if with_zones {
-        let z = ns.getattr("FakeZone")?.call1(("Signal", ((0.0, 0.0), (30.0, 30.0))))?;
-        py_frozenset(py, vec![z])?
-    } else {
-        py_frozenset(py, vec![])?
-    };
     let board = ns.getattr("FakeBoard")?.call0()?;
     let mut state = BoardState::new();
-    state.zones = Some(zones.into_any().unbind());
+    // U6 (O-C3) group-2: the owned `ZoneSet` shape of the frozenset the
+    // Python stage received (the marshaller's read, exercised end-to-end by
+    // the Python D5 suite).
+    state.zones = Some(if with_zones {
+        ZoneSet(std::collections::HashSet::from([Zone {
+            name: "Signal".into(),
+            bounds: ((Val::Float(0.0), Val::Float(0.0)), (Val::Float(30.0), Val::Float(30.0))),
+        }]))
+    } else {
+        ZoneSet(Default::default())
+    });
     state.board = Some(board.into_any().unbind());
     Ok(state)
 }
@@ -262,9 +256,14 @@ fn zone_aware_with_zones_writes_zone_slots() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let zone_slots = out.zone_slots.as_ref().expect("zone_slots attached");
-        let as_dict = py.import("builtins")?.getattr("dict")?.call1((zone_slots,))?;
-        let slots = as_dict.get_item("Signal")?;
-        assert!(slots.len()? > 0, "the Signal zone must produce slots");
+        // U6 (O-C3) group-2: the entry is owned -- probe the Signal zone's
+        // produced slots through the owned element (the Python `dict(...)`
+        // rebuild path is exercised by the Python D5 suite).
+        let signal = zone_slots
+            .iter()
+            .find(|z| z.zone == "Signal")
+            .expect("the Signal zone must have an entry");
+        assert!(!signal.slots.is_empty(), "the Signal zone must produce slots");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -280,20 +279,22 @@ fn phased_state<'py>(
     let pin2 = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0, "NET"))?;
     let r2 = ns.getattr("FakeComponent")?.call1(("C1", (2.0, 2.0), vec![&pin2]))?;
     let netlist = ns.getattr("FakeNetlist")?.call1((PyList::new(py, [r1, r2])?,))?;
-    let czm = py_frozenset(
-        py,
-        vec![
-            pair(py, "Q1", PyString::new(py, "Signal").into_any())?,
-            pair(py, "C1", PyString::new(py, "Signal").into_any())?,
-        ],
-    )?;
-    let slots = py_tuple(py, vec![xy(py, 2.5, 2.5)?, xy(py, 7.5, 2.5)?, xy(py, 2.5, 7.5)?, xy(py, 7.5, 7.5)?])?;
-    let zone_slots = py_frozenset(py, vec![pair(py, "Signal", slots)?])?;
-
     let mut state = BoardState::new();
     state.netlist = Some(netlist.into_any().unbind());
-    state.component_zone_map = Some(czm.into_any().unbind());
-    state.zone_slots = Some(zone_slots.into_any().unbind());
+    // U6 (O-C3) group-2: the owned shapes of the Python `frozenset` feeds.
+    state.component_zone_map = Some(StrPairSet(std::collections::HashSet::from([
+        ("Q1".to_string(), "Signal".to_string()),
+        ("C1".to_string(), "Signal".to_string()),
+    ])));
+    state.zone_slots = Some(ZoneSlotsSet(std::collections::HashSet::from([ZoneSlots {
+        zone: "Signal".into(),
+        slots: vec![
+            SlotPos(2.5, 2.5),
+            SlotPos(7.5, 2.5),
+            SlotPos(2.5, 7.5),
+            SlotPos(7.5, 7.5),
+        ],
+    }])));
     if let Some(dr) = design_rules {
         state.design_rules = Some(dr.clone().into_any().unbind());
     }
@@ -308,8 +309,18 @@ fn phased_guard_no_netlist_identity() {
         let ns = py.import("d5_fakes")?;
         let stage_obj = ns.getattr("FakeStage")?.call0()?;
         let mut state = BoardState::new();
-        state.component_zone_map = Some(PyString::new(py, "x").into_any().unbind());
-        state.zone_slots = Some(PyString::new(py, "x").into_any().unbind());
+        // U6 (O-C3) group-2: the fields are owned — the guard is exercised
+        // with populated NON-EMPTY sets (the old test wedged garbage Python
+        // strings in to prove the guard returns before touching them; the
+        // owned `!set.is_empty()` guard is the direct analogue).
+        state.component_zone_map = Some(StrPairSet(std::collections::HashSet::from([(
+            "x".to_string(),
+            "x".to_string(),
+        )])));
+        state.zone_slots = Some(ZoneSlotsSet(std::collections::HashSet::from([ZoneSlots {
+            zone: "x".into(),
+            slots: vec![],
+        }])));
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(PhasedAssignmentStage {
@@ -339,7 +350,7 @@ fn phased_single_stage_end_to_end() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let placements = out.placements.as_ref().expect("placements attached");
-        assert_eq!(placements.bind(py).len()?, 2, "both components placed");
+        assert_eq!(placements.len(), 2, "both components placed");
         let used = out.used_slots.as_ref().expect("used_slots attached");
         assert!(used.len() >= 2, "footprint rings must reserve slots");
         Ok::<(), PyErr>(())
@@ -377,11 +388,18 @@ fn phased_hv_rings_reserved() {
         }
         // Q1's HV pin sits at its placed position + (0,0); creepage 6.0 with
         // the 2.5/7.5 grid guarantees at least the placed slot and neighbors.
-        let as_dict = py.import("builtins")?.getattr("dict")?.call1((
-            out.placements.as_ref().unwrap(),
-        ))?;
-        let q1 = as_dict.get_item("Q1")?;
-        assert!(used_set.contains(q1)?, "the placed slot must be reserved");
+        // U6 (O-C3) group-2: `placements` is owned — resolve Q1's position
+        // through the owned element (the Python `dict(...)` rebuild path is
+        // exercised by the Python D5 suite).
+        let q1 = out
+            .placements
+            .as_ref()
+            .expect("placements attached")
+            .iter()
+            .find(|p| p.ref_ == "Q1")
+            .expect("Q1 placed");
+        let q1_pos = (q1.position.0, q1.position.1).into_pyobject(py)?;
+        assert!(used_set.contains(q1_pos)?, "the placed slot must be reserved");
         Ok::<(), PyErr>(())
     })
     .unwrap();

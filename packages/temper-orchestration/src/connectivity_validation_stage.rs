@@ -129,18 +129,15 @@ impl ConnectivityValidationStage {
             sub.get_item("vias")?.call_method1("append", (&via,))?;
         }
 
-        let plane_nets: Vec<Py<PyAny>> = match &state.layer_assignments {
-            Some(la) if la.bind(py).is_truthy()? => {
-                let mut out = Vec::new();
-                for assignment in la.bind(py).try_iter()? {
-                    let assignment = assignment?;
-                    let is_plane: bool = assignment.getattr("is_plane")?.extract()?;
-                    if is_plane {
-                        out.push(assignment.getattr("net_name")?.unbind());
-                    }
-                }
-                out
-            }
+        // U6 (O-C3) group-2: the owned `LayerAssignmentSet` is iterated
+        // directly (the plane-net names are plain strings — no Python round
+        // trip needed for the membership filter).
+        let plane_nets: Vec<String> = match &state.layer_assignments {
+            Some(la) => la
+                .iter()
+                .filter(|a| a.is_plane)
+                .map(|a| a.net_name.clone())
+                .collect(),
             _ => Vec::new(),
         };
 
@@ -162,11 +159,7 @@ impl ConnectivityValidationStage {
             if net_str.is_empty() || net_str == "NoNet" {
                 continue;
             }
-            let is_plane: bool = plane_nets.iter().any(|pn| {
-                pn.bind(py)
-                    .eq(&net_name)
-                    .unwrap_or(false)
-            });
+            let is_plane: bool = plane_nets.iter().any(|pn| pn == &net_str);
             if is_plane {
                 continue;
             }

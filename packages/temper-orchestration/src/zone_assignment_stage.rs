@@ -26,6 +26,7 @@ use crate::config_attach_stage::to_pyerr;
 use crate::derivation_stage::{pyerr_stage, stage_guard};
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+use temper_data_model::StrPairSet;
 
 /// The zone-assignment stage: netlist -> `component_zone_map` (frozenset of
 /// `(ref, zone)` pairs).
@@ -72,8 +73,12 @@ impl Stage<BoardState> for ZoneAssignmentStage {
                     .call1((items,))
                     .map_err(to_stage)?;
 
-                let mut new_state = state;
-                new_state.component_zone_map = Some(frozenset.into_any().unbind());
+                                let mut new_state = state;
+                // U6 (O-C3) group-2: `frozenset(dict.items())` is kept
+                // verbatim, then marshalled INTO the owned `StrPairSet` field.
+                new_state.component_zone_map = Some(
+                    crate::marshal::to_owned::<StrPairSet>(&frozenset).map_err(to_stage)?,
+                );
                 Ok(new_state)
             })
         })

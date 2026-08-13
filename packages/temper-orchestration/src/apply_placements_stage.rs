@@ -28,6 +28,9 @@ use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
+use temper_data_model::PlacementSet;
+
 /// The apply-placements stage: netlist + placements -> netlist with
 /// `initial_position` synced from the placements frozenset.
 #[derive(Debug, Clone, Default)]
@@ -58,7 +61,7 @@ impl ApplyPlacementsStage {
             _ => return Ok(state),
         };
         let placements = match &state.placements {
-            Some(p) if p.bind(py).is_truthy()? => p.bind(py).clone(),
+            Some(p) if !p.is_empty() => crate::marshal::to_python::<PlacementSet>(py, p)?,
             _ => return Ok(state),
         };
 

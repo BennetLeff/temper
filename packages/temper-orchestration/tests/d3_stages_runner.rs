@@ -609,7 +609,7 @@ fn clearance_grid_zone_pipeline_chain() {
             .collect();
         assert_eq!(names, vec!["zone_geometry", "clearance_grid"]);
         let zones = out.zones.as_ref().expect("zones attached from zone_geometry");
-        assert_eq!(zones.bind(py).len().unwrap(), 4);
+        assert_eq!(zones.len(), 4);
         let grid = out.grid.as_ref().expect("grid attached from clearance_grid");
         assert_eq!(grid.bind(py).getattr("cols")?.extract::<i64>()?, 200);
         Ok::<(), PyErr>(())

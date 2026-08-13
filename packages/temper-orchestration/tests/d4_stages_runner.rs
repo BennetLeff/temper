@@ -34,6 +34,10 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyString, PyTuple};
 
+use temper_data_model::{
+    Placement, PlacementSet, SlotPos, StrPairSet, ZoneSlots, ZoneSlotsSet,
+};
+
 use temper_orchestration::{
     BoardState, ComponentAssignmentStage, PipelineConfig, PipelineRunner, SlotId,
 };
@@ -205,11 +209,6 @@ fn pair<'py>(py: Python<'py>, a: &str, b: Bound<'py, PyAny>) -> PyResult<Bound<'
     py_tuple(py, vec![a, b])
 }
 
-/// A Python `(x, y)` slot tuple.
-fn xy<'py>(py: Python<'py>, x: f64, y: f64) -> PyResult<Bound<'py, PyAny>> {
-    Ok((x, y).into_pyobject(py)?.into_any())
-}
-
 /// A Python string as a `Bound<PyAny>`.
 fn str_any<'py>(py: Python<'py>, s: &str) -> Bound<'py, PyAny> {
     PyString::new(py, s).into_any()
@@ -223,20 +222,27 @@ fn assignment_state<'py>(
     let netlist = ns
         .getattr("FakeNetlist")?
         .call1((py_list(py, components.clone())?,))?;
-    let czm = py_frozenset(
-        py,
-        components
-            .iter()
-            .map(|c| pair(py, &c.getattr("ref")?.extract::<String>()?, str_any(py, "Signal")))
-            .collect::<PyResult<Vec<_>>>()?,
-    )?;
-    let slots = py_tuple(py, vec![xy(py, 0.0, 0.0)?, xy(py, 5.0, 5.0)?])?;
-    let zone_slots = py_frozenset(py, vec![pair(py, "Signal", slots.clone())?])?;
+    let component_zone_map: Vec<(String, String)> = components
+        .iter()
+        .map(|c| {
+            Ok((
+                c.getattr("ref")?.extract::<String>()?,
+                "Signal".to_string(),
+            ))
+        })
+        .collect::<PyResult<Vec<_>>>()?;
 
     let mut state = BoardState::new();
     state.netlist = Some(netlist.into_any().unbind());
-    state.component_zone_map = Some(czm.into_any().unbind());
-    state.zone_slots = Some(zone_slots.into_any().unbind());
+    // U6 (O-C3) group-2: both feeds to the stage are owned now -- the
+    // marshaller's read of the Python `frozenset[(ref, zone)]` /
+    // `frozenset[(zone, tuple[slots])]` shapes produces exactly these
+    // values (exercised end-to-end by the Python D4 differential).
+    state.component_zone_map = Some(StrPairSet(component_zone_map.into_iter().collect()));
+    state.zone_slots = Some(ZoneSlotsSet(std::collections::HashSet::from([ZoneSlots {
+        zone: "Signal".into(),
+        slots: vec![SlotPos(0.0, 0.0), SlotPos(5.0, 5.0)],
+    }])));
     Ok(state)
 }
 
@@ -279,10 +285,14 @@ fn component_assignment_single_stage_end_to_end() {
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         assert_eq!(report.stage_reports.len(), 1);
         let placements = out.placements.as_ref().expect("placements attached");
-        assert_eq!(placements.bind(py).len()?, 2, "both components placed");
-        let as_dict = py.import("builtins")?.getattr("dict")?.call1((placements,))?;
-        assert_eq!(as_dict.get_item("R1")?.extract::<(f64, f64)>()?, (0.0, 0.0));
-        assert_eq!(as_dict.get_item("R2")?.extract::<(f64, f64)>()?, (5.0, 5.0));
+        assert_eq!(placements.len(), 2, "both components placed");
+        // U6 (O-C3) group-2: the field is owned -- probe the placed positions
+        // through the owned elements (the Python `dict(...)` rebuild path is
+        // exercised by the Python D4 differential).
+        let r1 = placements.iter().find(|p| p.ref_ == "R1").expect("R1 placed");
+        assert_eq!(r1.position, (0.0, 0.0));
+        let r2 = placements.iter().find(|p| p.ref_ == "R2").expect("R2 placed");
+        assert_eq!(r2.position, (5.0, 5.0));
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -308,11 +318,12 @@ fn component_assignment_fixed_placements() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let placements = out.placements.as_ref().expect("placements attached");
-        let as_dict = py.import("builtins")?.getattr("dict")?.call1((placements,))?;
         // The fixed placement wins the exact position; R2 gets the first
         // free grid slot (the fake kernel's fallback).
-        assert_eq!(as_dict.get_item("R1")?.extract::<(f64, f64)>()?, (3.0, 3.0));
-        assert_eq!(as_dict.get_item("R2")?.extract::<(f64, f64)>()?, (0.0, 0.0));
+        let r1 = placements.iter().find(|p| p.ref_ == "R1").expect("R1 placed");
+        assert_eq!(r1.position, (3.0, 3.0));
+        let r2 = placements.iter().find(|p| p.ref_ == "R2").expect("R2 placed");
+        assert_eq!(r2.position, (0.0, 0.0));
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -339,10 +350,10 @@ fn component_assignment_domain_filter() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let placements = out.placements.as_ref().expect("placements attached");
-        let as_dict = py.import("builtins")?.getattr("dict")?.call1((placements,))?;
         // The domain filter drops slot (0,0); the only covered slot (5,5)
         // wins.
-        assert_eq!(as_dict.get_item("R1")?.extract::<(f64, f64)>()?, (5.0, 5.0));
+        let r1 = placements.iter().find(|p| p.ref_ == "R1").expect("R1 placed");
+        assert_eq!(r1.position, (5.0, 5.0));
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -367,23 +378,27 @@ fn phased_validator_hv_kernel() {
             .getattr("net_class_assignments")?
             .call_method1("__setitem__", ("HV", "HighVoltage"))?;
 
-        let slots = py_tuple(
-            py,
-            vec![
-                xy(py, 0.0, 0.0)?,
-                xy(py, 0.0, 5.0)?,
-                xy(py, 5.0, 0.0)?,
-                xy(py, 5.0, 5.0)?,
+        // U6 (O-C3) group-2: the owned field shapes of the Python
+        // `frozenset`/`frozenset` pairs the validator used to receive.
+        let zone_slots = ZoneSlotsSet(std::collections::HashSet::from([ZoneSlots {
+            zone: "Signal".into(),
+            slots: vec![
+                SlotPos(0.0, 0.0),
+                SlotPos(0.0, 5.0),
+                SlotPos(5.0, 0.0),
+                SlotPos(5.0, 5.0),
             ],
-        )?;
-        let zone_slots = py_frozenset(py, vec![pair(py, "Signal", slots)?])?;
-        let placements = py_frozenset(
-            py,
-            vec![
-                pair(py, "Q1", xy(py, 0.0, 0.0)?)?,
-                pair(py, "C1", xy(py, 20.0, 20.0)?)?,
-            ],
-        )?;
+        }]));
+        let placements = PlacementSet(std::collections::HashSet::from([
+            Placement {
+                ref_: "Q1".into(),
+                position: (0.0, 0.0),
+            },
+            Placement {
+                ref_: "C1".into(),
+                position: (20.0, 20.0),
+            },
+        ]));
         // used_slots recorded by the placer WITHOUT the (0,5) HV-ring slot.
         // U1 (O-C3): the field is owned now — construct the `HashSet<SlotId>`
         // directly (the same shape the marshaller produces from the
@@ -395,8 +410,8 @@ fn phased_validator_hv_kernel() {
         let mut state = BoardState::new();
         state.netlist = Some(netlist.into_any().unbind());
         state.design_rules = Some(rules.into_any().unbind());
-        state.zone_slots = Some(zone_slots.into_any().unbind());
-        state.placements = Some(placements.into_any().unbind());
+        state.zone_slots = Some(zone_slots);
+        state.placements = Some(placements);
         state.used_slots = Some(used_owned);
 
         let failures = temper_orchestration::phased_validator_hv(py, state);

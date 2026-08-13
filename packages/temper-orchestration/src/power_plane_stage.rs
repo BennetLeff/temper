@@ -28,6 +28,8 @@ use crate::board_state::BoardState;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{LayerAssignmentSet};
 
 const STAGE_NAME: &str = "power_plane";
 
@@ -68,11 +70,13 @@ impl PowerPlaneStage {
 
         // `existing_assignments = list(state.layer_assignments) if
         // state.layer_assignments else []`.
+        // U6 (O-C3) group-2: the owned `LayerAssignmentSet` is rebuilt into
+        // the Python frozenset, then `list(...)`-ed exactly like the oracle.
         let existing = match &state.layer_assignments {
-            Some(la) if la.bind(py).is_truthy()? => py
-                .import("builtins")?
-                .getattr("list")?
-                .call1((la.bind(py),))?,
+            Some(la) if !la.is_empty() => {
+                let fs = crate::marshal::to_python::<LayerAssignmentSet>(py, la)?;
+                py.import("builtins")?.getattr("list")?.call1((fs,))?
+            }
             _ => PyList::empty(py).into_any(),
         };
 
@@ -94,7 +98,7 @@ impl PowerPlaneStage {
         let frozenset_ = py.import("builtins")?.getattr("frozenset")?;
         let fs = frozenset_.call1((new_assignments,))?;
         let mut new_state = state;
-        new_state.layer_assignments = Some(fs.into_any().unbind());
+        new_state.layer_assignments = Some(crate::marshal::to_owned::<LayerAssignmentSet>(&fs)?);
         Ok(new_state)
     }
 }

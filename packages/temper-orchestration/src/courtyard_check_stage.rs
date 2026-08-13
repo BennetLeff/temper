@@ -37,6 +37,8 @@ use crate::derivation_stage::{pyerr_stage, stage_guard};
 use crate::host_math;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet};
 
 const STAGE_NAME: &str = "courtyard_check";
 
@@ -68,7 +70,7 @@ impl Stage<BoardState> for CourtyardCheckStage {
 impl CourtyardCheckStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let placements = match &state.placements {
-            Some(p) if p.bind(py).is_truthy()? => p.bind(py).clone(),
+            Some(p) if !p.is_empty() => crate::marshal::to_python::<PlacementSet>(py, p)?,
             _ => return Ok(state),
         };
         let stage = self.stage.bind(py);
@@ -166,7 +168,7 @@ impl CourtyardCheckStage {
         let frozenset_cls = builtins.getattr("frozenset")?;
         let new_placements = frozenset_cls.call1((placements_dict.call_method0("items")?,))?;
         let mut new_state = state;
-        new_state.placements = Some(new_placements.into_any().unbind());
+        new_state.placements = Some(crate::marshal::to_owned::<PlacementSet>(&new_placements)?);
         Ok(new_state)
     }
 }

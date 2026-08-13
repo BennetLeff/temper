@@ -52,6 +52,9 @@ use crate::derivation_stage::{pyerr_stage, stage_guard};
 use crate::stage::{Stage, StageError};
 
 #[cfg(feature = "python")]
+use temper_data_model::{PlacementSet, StrPairSet, ZoneSlotsSet};
+
+#[cfg(feature = "python")]
 /// The component-assignment stage: netlist + zone maps + slot grid ->
 /// `BoardState.placements` (frozenset of `(ref, (x, y))`).
 #[derive(Debug, Clone)]
@@ -87,12 +90,16 @@ impl ComponentAssignmentStage {
             Some(n) if n.bind(py).is_truthy()? => n.clone_ref(py),
             _ => return Ok(state),
         };
+        // U6 (O-C3) group-2: the guards (`if not state.component_zone_map`)
+        // map to `!set.is_empty()`; each owned set is rebuilt into the Python
+        // frozenset `dict(...)` expects (iteration order is the deterministic
+        // U5 sorted-repr rebuild).
         let component_zone_map = match &state.component_zone_map {
-            Some(c) if c.bind(py).is_truthy()? => c.clone_ref(py),
+            Some(c) if !c.is_empty() => crate::marshal::to_python::<StrPairSet>(py, c)?,
             _ => return Ok(state),
         };
         let zone_slots = match &state.zone_slots {
-            Some(z) if z.bind(py).is_truthy()? => z.clone_ref(py),
+            Some(z) if !z.is_empty() => crate::marshal::to_python::<ZoneSlotsSet>(py, z)?,
             _ => return Ok(state),
         };
 
@@ -121,7 +128,9 @@ impl ComponentAssignmentStage {
             .call1((items,))?;
 
         let mut new_state = state;
-        new_state.placements = Some(placements_fs.into_any().unbind());
+        // U6 (O-C3) group-2: `frozenset(placements.items())` is kept verbatim,
+        // then marshalled INTO the owned `PlacementSet` field.
+        new_state.placements = Some(crate::marshal::to_owned::<PlacementSet>(&placements_fs)?);
         Ok(new_state)
     }
 }

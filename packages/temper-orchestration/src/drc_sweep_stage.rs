@@ -39,6 +39,8 @@ use crate::derivation_stage::{pyerr_stage, stage_guard};
 use crate::grid_hv::getattr_default;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet, RouteSet, ViaSet};
 
 const STAGE_NAME: &str = "drc_sweep";
 const STAGE_NAME_DEDUP: &str = "track_deduplication";
@@ -75,12 +77,16 @@ impl DRCSweepStage {
             Some(o) if o.bind(py).is_truthy()? => o.bind(py).clone(),
             _ => return Ok(state),
         };
+        // U6 (O-C3) group-2: the owned `RouteSet` / `ViaSet` are rebuilt into the
+        // Python frozensets the oracle checks expect; a `None` field maps to
+        // an empty list exactly like the oracle's `state.routes`/`state.vias`
+        // defaulting (the frozensets/empty lists are iterated below).
         let routes = match &state.routes {
-            Some(r) => r.bind(py).clone(),
+            Some(r) => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
             None => PyList::empty(py).into_any(),
         };
         let vias = match &state.vias {
-            Some(v) => v.bind(py).clone(),
+            Some(v) => crate::marshal::to_python::<ViaSet>(py, v)?.into_bound(py),
             None => PyList::empty(py).into_any(),
         };
 
@@ -196,8 +202,12 @@ impl DRCSweepStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.routes = Some(frozenset_cls.call1((&valid_traces,))?.into_any().unbind());
-        new_state.vias = Some(frozenset_cls.call1((&valid_vias,))?.into_any().unbind());
+        new_state.routes = Some(crate::marshal::to_owned::<RouteSet>(
+            &frozenset_cls.call1((&valid_traces,))?,
+        )?);
+        new_state.vias = Some(crate::marshal::to_owned::<ViaSet>(
+            &frozenset_cls.call1((&valid_vias,))?,
+        )?);
         Ok(new_state)
     }
 }
@@ -229,7 +239,7 @@ impl Stage<BoardState> for TrackDeduplicationStage {
 impl TrackDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let routes = match &state.routes {
-            Some(r) if r.bind(py).is_truthy()? => r.bind(py).clone(),
+            Some(r) if !r.is_empty() => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
             _ => return Ok(state),
         };
         let builtins = py.import("builtins")?;
@@ -295,7 +305,9 @@ impl TrackDeduplicationStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.routes = Some(frozenset_cls.call1((&unique_traces,))?.into_any().unbind());
+        new_state.routes = Some(crate::marshal::to_owned::<RouteSet>(
+            &frozenset_cls.call1((&unique_traces,))?,
+        )?);
         Ok(new_state)
     }
 }
@@ -331,7 +343,7 @@ impl ShortCircuitDetectionStage {
             _ => return Ok(state),
         };
         let routes = match &state.routes {
-            Some(r) if r.bind(py).is_truthy()? => r.bind(py).clone(),
+            Some(r) if !r.is_empty() => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
             _ => return Ok(state),
         };
 
@@ -348,7 +360,8 @@ impl ShortCircuitDetectionStage {
         let pin_net_map = PyDict::new(py);
         let comp_positions = PyDict::new(py);
         if let Some(placements) = &state.placements {
-            for item in placements.bind(py).try_iter()? {
+            let fs = crate::marshal::to_python::<PlacementSet>(py, placements)?;
+            for item in fs.bind(py).try_iter()? {
                 let item = item?;
                 comp_positions.set_item(item.get_item(0)?, item.get_item(1)?)?;
             }
@@ -492,7 +505,9 @@ impl ShortCircuitDetectionStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.routes = Some(frozenset_cls.call1((&valid_traces,))?.into_any().unbind());
+        new_state.routes = Some(crate::marshal::to_owned::<RouteSet>(
+            &frozenset_cls.call1((&valid_traces,))?,
+        )?);
         Ok(new_state)
     }
 }

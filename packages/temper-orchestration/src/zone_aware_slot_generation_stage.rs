@@ -58,6 +58,8 @@ use crate::grid_hv::{getattr_default, str_py};
 use crate::host_math;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{ZoneSet, ZoneSlotsSet};
 
 const STAGE_NAME: &str = "zone_aware_slot_generation";
 const LOGGER_NAME: &str = "temper_placer.deterministic.stages.zone_aware_slot_generation";
@@ -107,7 +109,7 @@ impl ZoneAwareSlotGenerationStage {
         let (iso_aabbs, reclaim) = self.isolation_filter(py, &state)?;
 
         let zones = match &state.zones {
-            Some(z) if z.bind(py).is_truthy()? => z.clone_ref(py),
+            Some(z) if !z.is_empty() => crate::marshal::to_python::<ZoneSet>(py, z)?,
             _ => {
                 let mut new_state = state;
                 new_state.reclaim_by_pin_pair = reclaim_or_none(py, reclaim)?;
@@ -124,7 +126,9 @@ impl ZoneAwareSlotGenerationStage {
             log_msg(py, "info", &PyString::new(py, "No copper zones or isolation slots, using standard slot generation").into_any())?;
             let zone_slots = plain_generation(py, zones.bind(py), self.slot_spacing_mm)?;
             let mut new_state = state;
-            new_state.zone_slots = Some(zone_slots);
+            new_state.zone_slots = Some(crate::marshal::to_owned::<ZoneSlotsSet>(
+                zone_slots.bind(py),
+            )?);
             new_state.reclaim_by_pin_pair = None;
             return Ok(new_state);
         }
@@ -207,13 +211,9 @@ impl ZoneAwareSlotGenerationStage {
         }
 
         let mut new_state = state;
-        new_state.zone_slots = Some(
-            builtins
-                .getattr("frozenset")?
-                .call1((zone_slots_list,))?
-                .into_any()
-                .unbind(),
-        );
+        new_state.zone_slots = Some(crate::marshal::to_owned::<ZoneSlotsSet>(&builtins
+            .getattr("frozenset")?
+            .call1((zone_slots_list,))?)?);
         new_state.reclaim_by_pin_pair = reclaim_or_none(py, reclaim)?;
         Ok(new_state)
     }

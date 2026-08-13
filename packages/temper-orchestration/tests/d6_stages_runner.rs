@@ -26,7 +26,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
 use pyo3::prelude::*;
-use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyTuple};
+use pyo3::types::{PyAny, PyDict, PyList, PyModule};
+
+use temper_data_model::{
+    LayerAssignment, LayerAssignmentSet, Placement, PlacementSet, Route, RouteSet, Val, Via,
+    ViaSet,
+};
 
 use temper_orchestration::{
     BoardState, ConnectivityValidationStage, CourtyardCheckStage, DRCSweepStage,
@@ -46,10 +51,10 @@ class FakeTrace:
         self.net = net
 
 class FakeVia:
-    def __init__(self, position, layers=("F.Cu", "B.Cu"), net=None, is_diff_pair=False):
+    def __init__(self, position, drill, width, layers, net, is_diff_pair=False):
         self.position = position
-        self.drill = 0.3
-        self.width = 0.6
+        self.drill = drill
+        self.width = width
         self.layers = layers
         self.net = net
         self.is_diff_pair = is_diff_pair
@@ -105,6 +110,13 @@ class FakeSweepOracle:
 class FakeDrvViolation:
     def __init__(self, vtype):
         self.type = vtype
+        self.geometry_a_id = f"a-{vtype}"
+        self.geometry_b_id = f"b-{vtype}"
+        self.net_a = "N_A"
+        self.net_b = "N_B"
+        self.clearance_actual = 0.1
+        self.clearance_required = 0.3
+        self.location = FakePoint(1.0, 2.0)
 
     def __str__(self):
         return f"<{self.type}>"
@@ -185,6 +197,18 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     modules.set_item("temper_placer.core", &core)?;
     modules.set_item("temper_placer.core.board", &board)?;
 
+    // temper_design_bundle_python.board_contracts — the Trace/Via pyclasses
+    // the U6 (O-C3) group-2 `RouteSet`/`ViaSet` rebuild (`Marshal::to_python`)
+    // constructs the owned routes/vias back into (same FakeTrace/FakeVia
+    // classes, so the sweep stage's isinstance checks still pass).
+    let tdb = PyModule::new(py, "temper_design_bundle_python")?;
+    let bc = PyModule::new(py, "board_contracts")?;
+    bc.add("Trace", ns.getattr("FakeTrace")?)?;
+    bc.add("Via", ns.getattr("FakeVia")?)?;
+    tdb.add("board_contracts", &bc)?;
+    modules.set_item("temper_design_bundle_python", &tdb)?;
+    modules.set_item("temper_design_bundle_python.board_contracts", &bc)?;
+
     // temper_placer.core.net_classification
     let ncls = PyModule::new(py, "net_classification")?;
     ncls.add("is_ground_net", ns.getattr("is_ground_net")?)?;
@@ -237,55 +261,56 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     Ok(ns.into_any())
 }
 
-fn py_tuple<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
-    Ok(PyTuple::new(py, items)?.into_any())
-}
-
-fn py_frozenset<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
-    let builtins = py.import("builtins")?;
-    let list = PyList::empty(py);
-    for item in items {
-        list.append(item)?;
-    }
-    builtins.getattr("frozenset")?.call1((list,))
-}
-
-fn xy<'py>(py: Python<'py>, x: f64, y: f64) -> PyResult<Bound<'py, PyAny>> {
-    Ok((x, y).into_pyobject(py)?.into_any())
-}
-
-fn trace<'py>(py: Python<'py>, ns: &Bound<'py, PyAny>, net: &str) -> PyResult<Bound<'py, PyAny>> {
-    ns.getattr("FakeTrace")?.call1((xy(py, 0.0, 0.0)?, xy(py, 10.0, 0.0)?, 0.25, "F.Cu", net))
-}
-
 #[test]
-fn drc_sweep_removes_bad_geometry_and_passes_through_non_trace() {
+fn drc_sweep_removes_bad_geometry_and_writes_back() {
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d6_fakes")?;
         let oracle = ns.getattr("FakeSweepOracle")?.call0()?;
-        let good = trace(py, &ns, "GOOD")?;
-        let bad = trace(py, &ns, "BAD")?;
-        let non_trace_via = ns.getattr("FakeVia")?.call1((xy(py, 9.0, 9.0)?,))?;
-        let routes = py_frozenset(py, vec![good.clone(), bad, non_trace_via.clone()])?;
-        let badvia = ns.getattr("FakeVia")?.call1((xy(py, 2.0, 2.0)?,))?;
-        badvia.setattr("net", "BADVIA")?;
-        let vias = py_frozenset(py, vec![badvia])?;
+        // U6 (O-C3) group-2: fields are owned — the old test also wedged a
+        // FakeVia into `routes` to exercise the oracle's non-Trace
+        // pass-through; the owned `RouteSet` contract (a frozenset of Trace)
+        // makes that shape unrepresentable (dropped coverage, recorded in
+        // VERIFICATION.md). The BAD-net removal + BADVIA removal still run.
+        let routes = RouteSet(std::collections::HashSet::from([
+            Route {
+                start: (0.0, 0.0),
+                end: (10.0, 0.0),
+                width: 0.25,
+                layer: "F.Cu".into(),
+                net: Some("GOOD".into()),
+            },
+            Route {
+                start: (0.0, 0.0),
+                end: (10.0, 0.0),
+                width: 0.25,
+                layer: "F.Cu".into(),
+                net: Some("BAD".into()),
+            },
+        ]));
+        let badvia = ViaSet(std::collections::HashSet::from([Via {
+            position: (2.0, 2.0),
+            drill: 0.3,
+            width: 0.6,
+            layers: ("F.Cu".into(), "B.Cu".into()),
+            net: Some("BADVIA".into()),
+            is_diff_pair: false,
+        }]));
 
         let mut state = BoardState::new();
         state.drc_oracle = Some(oracle.into_any().unbind());
-        state.routes = Some(routes.into_any().unbind());
-        state.vias = Some(vias.into_any().unbind());
+        state.routes = Some(routes);
+        state.vias = Some(badvia);
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(DRCSweepStage { tolerance: 0.01 }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let out_routes = out.routes.as_ref().expect("routes attached");
-        assert_eq!(out_routes.bind(py).len()?, 2, "GOOD + non-Trace survive, BAD removed");
+        assert_eq!(out_routes.len(), 1, "GOOD survives, BAD removed");
         let out_vias = out.vias.as_ref().expect("vias attached");
-        assert_eq!(out_vias.bind(py).len()?, 0, "BADVIA removed");
+        assert_eq!(out_vias.len(), 0, "BADVIA removed");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -296,10 +321,18 @@ fn via_dedup_guard_and_write() {
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
-        let ns = py.import("d6_fakes")?;
-        let v = ns.getattr("FakeVia")?.call1((xy(py, 3.0, 3.0)?,))?;
         let mut state = BoardState::new();
-        state.vias = Some(py_frozenset(py, vec![v])?.into_any().unbind());
+        // U6 (O-C3) group-2: the owned `ViaSet` shape of the fake's
+        // `FakeVia(position=(3.0, 3.0))` default (drill/width/layers from
+        // the pyclass defaults).
+        state.vias = Some(ViaSet(std::collections::HashSet::from([Via {
+            position: (3.0, 3.0),
+            drill: 0.3,
+            width: 0.6,
+            layers: ("F.Cu".into(), "B.Cu".into()),
+            net: None,
+            is_diff_pair: false,
+        }])));
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(ViaDeduplicationStage { tolerance_mm: 0.05 }));
@@ -350,21 +383,25 @@ fn courtyard_check_nudges_and_writes_placements() {
         let stage_obj = ns.getattr("FakeCourtyardStage")?.call1((PyList::empty(py), 5))?;
 
         let mut state = BoardState::new();
-        state.placements = Some(
-            py_frozenset(py, vec![
-                py_tuple(py, vec!["R1".into_pyobject(py)?.into_any(), xy(py, 10.0, 10.0)?])?,
-                py_tuple(py, vec!["R2".into_pyobject(py)?.into_any(), xy(py, 13.0, 10.0)?])?,
-            ])?
-            .into_any()
-            .unbind(),
-        );
+        // U6 (O-C3) group-2: the owned `PlacementSet` shape of the Python
+        // `frozenset((ref, (x, y)))` the stage used to receive.
+        state.placements = Some(PlacementSet(std::collections::HashSet::from([
+            Placement {
+                ref_: "R1".into(),
+                position: (10.0, 10.0),
+            },
+            Placement {
+                ref_: "R2".into(),
+                position: (13.0, 10.0),
+            },
+        ])));
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(CourtyardCheckStage { stage: stage_obj.unbind() }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let placements = out.placements.as_ref().expect("placements attached");
-        assert_eq!(placements.bind(py).len()?, 2, "both components present");
+        assert_eq!(placements.len(), 2, "both components present");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -387,10 +424,19 @@ fn connectivity_validation_guard_and_run() {
 
         // With an empty-geometry oracle: no violations, field written.
         let oracle = ns.getattr("FakeConnOracle")?.call0()?;
-        let la = ns.getattr("FakeLayerAssignment")?.call1(("GND", true))?;
         let mut state = BoardState::new();
         state.drc_oracle = Some(oracle.into_any().unbind());
-        state.layer_assignments = Some(py_frozenset(py, vec![la])?.into_any().unbind());
+        // U6 (O-C3) group-2: the owned `LayerAssignmentSet` shape of the
+        // fake's `FakeLayerAssignment("GND", is_plane=True)` (the stage only
+        // reads `net_name`/`is_plane`; the layer value is unused here).
+        state.layer_assignments = Some(LayerAssignmentSet(std::collections::HashSet::from([
+            LayerAssignment {
+                net_name: "GND".into(),
+                layer: Val::Int(2),
+                allow_layer_change: false,
+                is_plane: true,
+            },
+        ])));
         let mut r2 = PipelineRunner::new(PipelineConfig::default());
         r2.add_stage(Box::new(ConnectivityValidationStage {
             fail_on_violations: false,

@@ -33,7 +33,8 @@ use pyo3::PyAny;
 
 #[cfg(feature = "python")]
 use temper_data_model::{
-    ConnectivityViolationList, PlacementViolationList, ViolationList,
+    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, RouteSet,
+    StrPairSet, ViaSet, ViolationList, ZoneSet, ZoneSlotsSet,
 };
 
 #[cfg(feature = "python")]
@@ -117,7 +118,15 @@ pub struct BoardState {
     pub design_rules: Option<pyo3::Py<PyAny>>,
     pub connectivity_violations: Option<ConnectivityViolationList>, // tuple[ConnectivityViolation, ...] | None
     pub placement_violations: Option<PlacementViolationList>, // tuple[PlacementViolation, ...] | None
-    pub placements: Option<pyo3::Py<PyAny>>, // frozenset of placements
+    // U6 (O-C3) group-2: the six remaining COLLECTION fields ported off
+    // `Py<PyAny>` — each is the Python `frozenset[T, ...] | None` ↔ the
+    // owned `*Set` `HashSet` newtype (U5). Round-trip through `marshal.rs`
+    // is lossless for the guaranteed shapes (the U5 round-trip gate);
+    // stages write the frozenset through the owned type, the Python side is
+    // unchanged. The rebuilt frozenset's iteration order is a deterministic
+    // function of the VALUES (the U5 sorted-repr rebuild), never the
+    // process-random `HashSet` order.
+    pub placements: Option<PlacementSet>, // frozenset of placements
     // U1 (O-C3): the first field ported off `Py<PyAny>` — a `frozenset` of
     // `(x, y)` slot-id tuples (float grid coords) ↔ `HashSet<SlotId>`.
     // Round-trip through `marshal.rs` is bit-identical (U0 gate shape +
@@ -128,13 +137,13 @@ pub struct BoardState {
     pub component_domain_map: Option<pyo3::Py<PyAny>>,
     pub routing_corridors: Option<pyo3::Py<PyAny>>,
     pub domain_regions: Option<pyo3::Py<PyAny>>,
-    pub routes: Option<pyo3::Py<PyAny>>,
-    pub vias: Option<pyo3::Py<PyAny>>,
+    pub routes: Option<RouteSet>, // frozenset of Trace objects
+    pub vias: Option<ViaSet>,     // frozenset of Via objects
     pub violations: Option<pyo3::Py<PyAny>>,
-    pub zones: Option<pyo3::Py<PyAny>>,
-    pub component_zone_map: Option<pyo3::Py<PyAny>>,
-    pub zone_slots: Option<pyo3::Py<PyAny>>,
-    pub layer_assignments: Option<pyo3::Py<PyAny>>,
+    pub zones: Option<ZoneSet>, // frozenset of zone-geometry Zone objects
+    pub component_zone_map: Option<StrPairSet>, // frozenset of (ref, zone) pairs
+    pub zone_slots: Option<ZoneSlotsSet>, // frozenset of (zone, tuple(slots)) entries
+    pub layer_assignments: Option<LayerAssignmentSet>, // frozenset of LayerAssignment objects
     // D5: the per-(component, lv_pin, hv_pin) clearance reclaim dict emitted
     // by ZoneAwareSlotGenerationStage (Python value may also be None -- a
     // None Python value maps to Rust None, like every other field).
