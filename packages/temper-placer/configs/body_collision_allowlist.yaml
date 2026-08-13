@@ -1,0 +1,101 @@
+# Pinned allowlist of PRE-EXISTING F.Fab body collisions on
+# pcb/temper.kicad_pcb, consumed by
+# temper_placer.placer.cp_sat.body_collision.audit_body_collisions.
+#
+# THIS IS A RATCHET, NOT A PASS. A pair listed here is permitted to remain
+# AT OR BELOW its recorded baseline_overlap_mm2 -- the guard still fails
+# closed if:
+#   (a) any NEW pair (not listed here) shows real F.Fab body overlap, or
+#   (b) a LISTED pair's overlap gets WORSE than its recorded baseline.
+#
+# (b) matters as much as (a): PR #1168 (2026-08-13) demonstrated a re-solve
+# that made an already-bad pair worse (C2xC3-class collision growing to
+# 9.47mm, from the 7.73mm this board already carries) while still reporting
+# `optimal`. A guard that only checked "is this pair new" would have passed
+# that placement. This allowlist's baseline comparison is what catches it.
+#
+# Do NOT add an entry here to silence a NEW collision the placer produces.
+# This file exists ONLY to acknowledge debt already committed to
+# pcb/temper.kicad_pcb before this guard existed; it must not become a
+# general-purpose escape hatch (see the task brief this guard was built
+# against: "a guard that passes today's board unconditionally is the
+# failure mode this repo keeps hitting").
+#
+# Owner of paying this debt down: PR #1158 (docs/evidence/
+# 2026-08-13-courtyard-collision-characterization-and-remediation-plan.md),
+# which has a live-kicad-cli-verified fix for 7 of these 8 tracked
+# courtyards_overlap pairs (6 of them body collisions; see that document's
+# section 4). This file's `remediation_pr` /`review_by` fields exist so a
+# stale allowlist entry (one whose fix has already landed, or whose review
+# date has passed with no progress) is visible, not just implied.
+
+schema_version: 1
+
+# Provenance of the baseline measurement below -- re-derived independently
+# for this guard (temper_geometry.courtyard_global_points_py rotation
+# kernel + kiutils F.Fab extraction + shapely boolean), cross-validated
+# against:
+#   1. PR #1158's independent from-scratch parser (matches to the mm on
+#      world body centers and gap distances for all 8 pairs, including the
+#      two benign courtyard-only touches at 0.19mm/0.39mm clear).
+#   2. Live `kicad-cli pcb drc` on this exact board content (identical
+#      8-pair courtyards_overlap set).
+board_sha256: b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6
+measured_at_commit: a3fbaff37afd739b72f2b109847813b30ceb8e88
+kicad_cli_version: "10.0.5"
+measured_date: "2026-08-13"
+remediation_pr: "#1158"
+review_by: "2026-09-15"
+
+pairs:
+  # -- severe (needs coordinated multi-part re-place; see PR #1158 sec 4.4) --
+  - a: C2
+    b: C3
+    baseline_overlap_mm2: 115.65115987012042
+    note: >-
+      worst pair on the board: 7.73mm F.Fab body interpenetration (two
+      CP_Radial_D35.0mm electrolytics). No single-part or 2-body fix
+      exists (both individually UNSAT anywhere on the board holding
+      everything else fixed); PR #1158 sec 4.4 found an unverified
+      existence proof requiring C2, C3, K3, and PS1 to move together.
+  - a: C5
+    b: C7
+    baseline_overlap_mm2: 106.83407878254104
+    note: >-
+      7.41mm F.Fab body interpenetration; chronic, predates PR #602's
+      re-solve. Verified single-part fix exists (move C7 63.5mm) per
+      PR #1158 sec 4.2 -- not yet applied to pcb/temper.kicad_pcb.
+
+  # -- moderate/minor (verified single- or two-part fixes exist, unapplied) --
+  - a: C5
+    b: L1
+    baseline_overlap_mm2: 10.321906588441546
+    note: >-
+      1.56mm F.Fab body interpenetration. Verified fix (move C5 2.4mm +
+      L1 0.7mm, after C7 relocates) per PR #1158 sec 4.3.
+  - a: C4
+    b: R46
+    baseline_overlap_mm2: 5.119999999999964
+    note: >-
+      1.60mm F.Fab body interpenetration. Verified fix (move R46 7.4mm)
+      per PR #1158 sec 4.2.
+  - a: C4
+    b: C22
+    baseline_overlap_mm2: 1.2800000000000364
+    note: >-
+      0.80mm F.Fab body interpenetration. Verified fix (move C22 7.6mm)
+      per PR #1158 sec 4.2.
+  - a: C4
+    b: R4
+    baseline_overlap_mm2: 0.03061552513783397
+    note: >-
+      0.15mm F.Fab body interpenetration (marginal). Verified fix (move
+      R4 1.6mm) per PR #1158 sec 4.2.
+
+# NOT listed here (deliberately): C3xK3 and C2xPS1. Both are tracked
+# courtyards_overlap pairs (part of the ceiling-8 in
+# power_pcb_dataset/drc_ceiling.json) but their F.Fab BODIES clear each
+# other (0.39mm / 0.19mm real air gap) -- courtyard-only touches, not body
+# collisions (PR #1158 sec 2.2). audit_body_collisions never flags a pair
+# with zero real body-overlap area, allowlisted or not, so no entry is
+# needed or wanted for them here.
