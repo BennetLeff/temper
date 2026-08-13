@@ -165,7 +165,22 @@ def test_mr1_unrelated_placement_independence(placements, bottlenecks, cell_um, 
     )), None)
     if free_x is None:
         return  # every column has a critical bottleneck -- vacuous skip
-    extra = {"EXTRA": (free_x * cell_um / 1000.0 + 0.2, 0.5)}
+    if "EXTRA" in placements:
+        return  # ref collision with an existing placement -- vacuous skip
+    # The nudge into the free_x cell must be a FRACTION of the cell's own
+    # width, not a flat mm constant: `_CELL_UM` samples cell_um=100.0 (a
+    # 0.1mm-wide cell), and a flat `+0.2` mm push overshoots that cell by 2
+    # full cells, landing EXTRA in an arbitrary (possibly CRITICAL) column
+    # instead of the intended free one -- this is what falsified the
+    # property (placements={}, bottlenecks with (0, 0, ..., 'CRITICAL', 0.0)
+    # occupying column 0 and (3, 5, ..., 'CRITICAL', 0.0) occupying column
+    # 3, cell_um=100.0, width=4: free_x resolves to 1, but the flat +0.2mm
+    # nudge put EXTRA's grid cell at (3, 5) -- exactly the second critical
+    # cell). `grid_index`'s `floor(mm * 1000.0 / cell_um)` (deterministic_
+    # phase.rs) matches the P1-P5 properties above, which all still pass;
+    # production was never wrong here, only this fixture's un-scaled offset.
+    cell_mm = cell_um / 1000.0
+    extra = {"EXTRA": (free_x * cell_mm + 0.2 * cell_mm, 0.5)}
     combined = dict(placements)
     combined["EXTRA"] = extra["EXTRA"]
     got = RS(combined, list(bottlenecks), cell_um, width, height)

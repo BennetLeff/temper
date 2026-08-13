@@ -133,23 +133,41 @@ def test_mr3_translation_invariance(base, cx, cy, nx, ny, slots, tx, ty):
     import math
 
     s = _slots(slots)
-    # Domain guard: effective_ghost_pad_radius's reduction uses a strict
-    # ``projection > 0.0`` threshold per slot. A slot whose projection onto
-    # the pin-pin direction is within ~1 ulp of 0 can flip across that
-    # threshold under translation (IEEE (a+t)-(b+t) != a-b), discretely
-    # adding or removing the slot's full projection from the reduction. The
-    # translation invariance holds only away from that boundary, so skip
-    # configs with a near-perpendicular slot.
+    # Domain guard 1: effective_ghost_pad_radius has a strict ``d_len <=
+    # 0.0`` early-out (return base_radius unchanged, no reduction at all --
+    # deterministic_phase.rs's effective_ghost_pad_radius). ``_COORD``'s
+    # range is [-50, 50] but excludes only subnormals, not merely-tiny
+    # NORMAL floats, so cx/cy/nx/ny can differ by ~1e-56: d_len is then a
+    # tiny-but-nonzero float, so the pre-translation call takes the normal
+    # (non-early-out) branch and computes a real reduction. Translating by a
+    # much larger ty/tx (e.g. 1.0) can round-absorb that ~1e-56 difference
+    # entirely -- (cy + ty) and (ny + ty) both collapse to the SAME float,
+    # making the post-translation d_len EXACTLY 0.0 and flipping the call
+    # onto the early-out branch (base_radius, no reduction). That is a
+    # discrete jump across the kernel's own documented boundary, not a bug:
+    # skip configs whose (real, untranslated) pin-pin distance is already
+    # within noise of that boundary -- 1e-6 is many orders of magnitude
+    # above the ~1e-14 (ulp-at-50) rounding a translation can introduce, so
+    # it only excludes genuinely-degenerate near-coincident pins, never a
+    # config where translation invariance is expected to hold.
     dx = nx - cx
     dy = ny - cy
     d_len = math.hypot(dx, dy)
-    if d_len > 0.0:
-        ux = dx / d_len
-        uy = dy / d_len
-        for (sx0, sy0, sx1, sy1) in s:
-            proj = (sx1 - sx0) * ux + (sy1 - sy0) * uy
-            if abs(proj) <= 1e-9 * max(1.0, abs(sx1 - sx0) + abs(sy1 - sy0)):
-                return  # boundary case -- invariant not defined there
+    if d_len <= 1e-6:
+        return  # near-zero (or zero) pin-pin distance -- boundary undefined
+    # Domain guard 2: the reduction uses a strict ``projection > 0.0``
+    # threshold per slot. A slot whose projection onto the pin-pin direction
+    # is within ~1 ulp of 0 can flip across that threshold under translation
+    # (IEEE (a+t)-(b+t) != a-b), discretely adding or removing the slot's
+    # full projection from the reduction. The translation invariance holds
+    # only away from that boundary, so skip configs with a near-perpendicular
+    # slot. (d_len > 1e-6 here, guard 1 already returned otherwise.)
+    ux = dx / d_len
+    uy = dy / d_len
+    for (sx0, sy0, sx1, sy1) in s:
+        proj = (sx1 - sx0) * ux + (sy1 - sy0) * uy
+        if abs(proj) <= 1e-9 * max(1.0, abs(sx1 - sx0) + abs(sy1 - sy0)):
+            return  # boundary case -- invariant not defined there
 
     exp = RS(base, (cx, cy), (nx, ny), s)
     shifted = [(a + tx, b + ty, c + tx, d + ty) for (a, b, c, d) in s]
