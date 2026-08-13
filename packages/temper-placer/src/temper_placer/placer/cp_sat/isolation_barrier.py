@@ -231,7 +231,16 @@ def classify_domain_partition(
     dataclass. Exact-name membership only (never substring — the
     net-classification bug history).
     """
-    marshalled = [(c.ref, [p.net for p in c.pins]) for c in components]
+    # 2026-08-13 (T2/C37/R65 placement tooling): drop pins with no net
+    # (KiCad unconnected/NC pads parse with `net=None`, e.g. K1's 4 spare
+    # relay contacts on the real board) before marshalling -- the Rust
+    # binding's `components` param is `list[(str, list[str])]` and rejects
+    # a `None` element with a bare `TypeError: 'None' is not an instance of
+    # 'str'` that names neither the offending component nor pin. An
+    # unconnected pin touches no net and therefore no domain, so dropping
+    # it cannot change which domain(s) a component is classified into --
+    # this is a marshalling fix, not a classification-semantics change.
+    marshalled = [(c.ref, [p.net for p in c.pins if p.net]) for c in components]
     hv_only, selv_only, isolators, unclassified = _to.classify_domain_partition_py(
         marshalled, sorted(hv_nets), sorted(selv_nets)
     )
