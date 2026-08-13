@@ -27,6 +27,8 @@ use crate::board_state::BoardState;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{LayerAssignmentSet};
 
 const STAGE_NAME: &str = "layer_assignment";
 
@@ -76,7 +78,9 @@ impl LayerAssignmentStage {
         let frozenset_ = py.import("builtins")?.getattr("frozenset")?;
         let fs = frozenset_.call1((assignments,))?;
         let mut new_state = state;
-        new_state.layer_assignments = Some(fs.into_any().unbind());
+        // U6 (O-C3) group-2: the oracle's `frozenset(...)` is kept verbatim,
+        // then marshalled INTO the owned `LayerAssignmentSet` field.
+        new_state.layer_assignments = Some(crate::marshal::to_owned::<LayerAssignmentSet>(&fs)?);
         Ok(new_state)
     }
 }

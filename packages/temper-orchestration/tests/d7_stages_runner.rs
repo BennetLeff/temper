@@ -27,6 +27,8 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyModule, PyTuple};
 
+use temper_data_model::{LayerAssignmentSet, Placement, PlacementSet};
+
 use temper_orchestration::{
     ApplyPlacementsStage, BoardState, FinePitchEscapeStage, HvLvPartitionStage,
     LayerAssignmentStage, PipelineConfig, PipelineRunner, PowerPlaneStage,
@@ -299,11 +301,6 @@ fn netlist<'py>(
     ns.getattr("FakeNetlist")?.call1((comps, net_objs))
 }
 
-fn py_frozenset<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
-    let list = PyTuple::new(py, items)?;
-    py.import("builtins")?.getattr("frozenset")?.call1((list,))
-}
-
 fn py_dict<'py>(
     py: Python<'py>,
     items: Vec<(&str, Py<PyAny>)>,
@@ -332,21 +329,19 @@ fn fine_pitch_escape_appends_escape_vias() {
         let stage_obj = ns.getattr("FakeFinePitchStage")?.call0()?;
         let mut state = BoardState::new();
         state.netlist = Some(nl.into_any().unbind());
-        state.placements = Some(
-            py_frozenset(
-                py,
-                vec![PyTuple::new(py, ["U1".into_pyobject(py)?.into_any(), (10.0, 10.0).into_pyobject(py)?.into_any()])?.into_any()],
-            )?
-            .into_any()
-            .unbind(),
-        );
+        // U6 (O-C3) group-2: the owned `PlacementSet` shape of the Python
+        // `frozenset((ref, (x, y)))` the stage used to receive.
+        state.placements = Some(PlacementSet(std::collections::HashSet::from([Placement {
+            ref_: "U1".into(),
+            position: (10.0, 10.0),
+        }])));
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(FinePitchEscapeStage { stage: stage_obj.unbind() }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let vias = out.vias.as_ref().expect("vias attached");
-        assert_eq!(vias.bind(py).len()?, 2, "one via per netted fine-pitch pin");
+        assert_eq!(vias.len(), 2, "one via per netted fine-pitch pin");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -405,7 +400,9 @@ fn power_plane_marks_plane_nets() {
 
         let mut state = BoardState::new();
         state.netlist = Some(nl.into_any().unbind());
-        state.layer_assignments = Some(py_frozenset(py, vec![])?.into_any().unbind());
+        // U6 (O-C3) group-2: the empty `LayerAssignmentSet` shape of the
+        // empty `frozenset` the stage used to receive.
+        state.layer_assignments = Some(LayerAssignmentSet(Default::default()));
         let stage_obj = ns.getattr("FakePowerPlaneStage")?.call0()?;
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
@@ -413,7 +410,7 @@ fn power_plane_marks_plane_nets() {
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let las = out.layer_assignments.as_ref().expect("layer_assignments attached");
-        assert_eq!(las.bind(py).len()?, 2, "one assignment per netlist net");
+        assert_eq!(las.len(), 2, "one assignment per netlist net");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -437,7 +434,7 @@ fn layer_assignment_writes_assignments() {
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let las = out.layer_assignments.as_ref().expect("layer_assignments attached");
-        assert_eq!(las.bind(py).len()?, 1, "one assignment per net");
+        assert_eq!(las.len(), 1, "one assignment per net");
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -464,14 +461,12 @@ fn apply_placements_syncs_initial_positions_and_guards() {
         let nl = netlist(py, &ns, vec![r1], vec![("A", Some("Signal"))])?;
         let mut state2 = BoardState::new();
         state2.netlist = Some(nl.into_any().unbind());
-        state2.placements = Some(
-            py_frozenset(
-                py,
-                vec![PyTuple::new(py, ["R1".into_pyobject(py)?.into_any(), (9.0, 9.0).into_pyobject(py)?.into_any()])?.into_any()],
-            )?
-            .into_any()
-            .unbind(),
-        );
+        // U6 (O-C3) group-2: the owned `PlacementSet` shape of the Python
+        // `frozenset((ref, (x, y)))` the stage used to receive.
+        state2.placements = Some(PlacementSet(std::collections::HashSet::from([Placement {
+            ref_: "R1".into(),
+            position: (9.0, 9.0),
+        }])));
         let mut r2 = PipelineRunner::new(PipelineConfig::default());
         r2.add_stage(Box::new(ApplyPlacementsStage));
         let (out2, report2) = r2.run(state2);

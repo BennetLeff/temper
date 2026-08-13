@@ -68,6 +68,9 @@ use crate::host_math;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet, StrPairSet, ZoneSlotsSet};
+
 const STAGE_NAME: &str = "phased_component_assignment";
 const CORE_LOGGER_NAME: &str = "temper_placer.deterministic.stages._phase_core";
 
@@ -114,12 +117,16 @@ impl PhasedAssignmentStage {
             Some(n) if n.bind(py).is_truthy()? => n.clone_ref(py),
             _ => return Ok(state),
         };
+        // U6 (O-C3) group-2: the guards (`if not state.component_zone_map`)
+        // map to `!set.is_empty()`; each owned set is rebuilt into the Python
+        // frozenset `dict(...)` expects (the deterministic U5 sorted-repr
+        // rebuild — the recorded iteration-order bound).
         let component_zone_map = match &state.component_zone_map {
-            Some(c) if c.bind(py).is_truthy()? => c.clone_ref(py),
+            Some(c) if !c.is_empty() => crate::marshal::to_python::<StrPairSet>(py, c)?,
             _ => return Ok(state),
         };
         let zone_slots = match &state.zone_slots {
-            Some(z) if z.bind(py).is_truthy()? => z.clone_ref(py),
+            Some(z) if !z.is_empty() => crate::marshal::to_python::<ZoneSlotsSet>(py, z)?,
             _ => return Ok(state),
         };
 
@@ -165,7 +172,7 @@ impl PhasedAssignmentStage {
         let placements_fs = builtins.getattr("frozenset")?.call1((items,))?;
         let used_slots_fs = builtins.getattr("frozenset")?.call1((&used_slots,))?;
         let mut new_state = state;
-        new_state.placements = Some(placements_fs.into_any().unbind());
+        new_state.placements = Some(crate::marshal::to_owned::<PlacementSet>(&placements_fs)?);
         // U1 (O-C3): `frozenset(used_slots)` is still built through CPython
         // (the oracle's exact construction), then marshalled INTO the owned
         // field — the Python placer's slot set is unchanged, only the field's

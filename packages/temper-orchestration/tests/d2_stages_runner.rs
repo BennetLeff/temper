@@ -27,7 +27,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyModule, PyTuple};
+use pyo3::types::{PyDict, PyModule};
+
+use temper_data_model::{ZoneSet, ZoneSlots, ZoneSlotsSet};
 
 use temper_orchestration::{
     BoardState, PipelineConfig, PipelineRunner, SlotGenerationStage, ZoneAssignmentStage,
@@ -143,13 +145,13 @@ fn three_stages_sequence_end_to_end() {
 
         // zones populated from the fake define_zone_layout
         let zones = out.zones.as_ref().expect("zones attached");
-        assert_eq!(zones.bind(py).len().unwrap(), 4);
+        assert_eq!(zones.len(), 4);
         // component_zone_map populated from the fake assign_component_zones
         let czm = out.component_zone_map.as_ref().expect("component_zone_map attached");
-        assert_eq!(czm.bind(py).len().unwrap(), 2);
+        assert_eq!(czm.len(), 2);
         // zone_slots populated: one entry per zone
         let zone_slots = out.zone_slots.as_ref().expect("zone_slots attached");
-        assert_eq!(zone_slots.bind(py).len().unwrap(), 4);
+        assert_eq!(zone_slots.len(), 4);
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -222,22 +224,19 @@ fn slot_generation_empty_zones_noop() {
         // An EMPTY zones frozenset (the Python BoardState default) is
         // falsy -- the truthiness guard skips the stage and does not
         // clobber pre-populated zone_slots.
-        let empty_zones = PyModule::import(py, "builtins")?
-            .getattr("frozenset")?
-            .call0()?;
-        let slots_marker = PyTuple::new(py, ["old"])?;
-
+        //
+        // U6 (O-C3) group-2: the fields are owned now -- the empty set is
+        // the `HashSet` empty (the frozenset this shape came from), and the
+        // pre-populated marker is a one-entry `ZoneSlotsSet` (the marshalled
+        // shape of `frozenset([("old",)])` is not constructible here -- the
+        // contract is a `(zone, tuple)` entry; the ZONE NAME preserves the
+        // marker's content).
         let mut state = BoardState::new();
-        state.zones = Some(empty_zones.into_any().unbind());
-        let zone_slots = PyList::empty(py);
-        zone_slots.append(slots_marker)?;
-        state.zone_slots = Some(
-            PyModule::import(py, "builtins")?
-                .getattr("frozenset")?
-                .call1((zone_slots,))?
-                .into_any()
-                .unbind(),
-        );
+        state.zones = Some(ZoneSet(Default::default()));
+        state.zone_slots = Some(ZoneSlotsSet(std::collections::HashSet::from([ZoneSlots {
+            zone: "old".into(),
+            slots: vec![],
+        }])));
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(SlotGenerationStage {
@@ -246,7 +245,7 @@ fn slot_generation_empty_zones_noop() {
         let (out, report) = runner.run(state);
         assert!(!report.halted_early);
         let slots = out.zone_slots.as_ref().expect("zone_slots preserved");
-        assert_eq!(slots.bind(py).len().unwrap(), 1, "slots must survive the empty-zones pass");
+        assert_eq!(slots.len(), 1, "slots must survive the empty-zones pass");
         let _ = ns;
         Ok::<(), PyErr>(())
     })

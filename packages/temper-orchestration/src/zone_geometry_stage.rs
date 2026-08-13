@@ -42,6 +42,8 @@ use crate::config_attach_stage::to_pyerr;
 use crate::derivation_stage::{pyerr_stage, stage_guard};
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::ZoneSet;
 
 #[cfg(feature = "python")]
 /// The zone-geometry stage: board -> `zones` (frozenset of Zone objects).
@@ -95,7 +97,11 @@ impl Stage<BoardState> for ZoneGeometryStage {
                 };
 
                 let mut new_state = state;
-                new_state.zones = Some(zones_fs);
+                // U6 (O-C3) group-2: the oracle's `frozenset(zones)` is kept
+                // verbatim, then marshalled INTO the owned `ZoneSet` field.
+                new_state.zones = Some(
+                    crate::marshal::to_owned::<ZoneSet>(zones_fs.bind(py)).map_err(to_stage)?,
+                );
                 Ok(new_state)
             })
         })

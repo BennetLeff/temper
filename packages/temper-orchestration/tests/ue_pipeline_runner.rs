@@ -27,7 +27,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyModule, PyTuple};
+use pyo3::types::{PyDict, PyList, PyModule};
+
+use temper_data_model::{Placement, PlacementSet};
 
 use temper_orchestration::{
     ApplyPlacementsStage, BoardState, ConfigAttachStage, DeterministicPipeline, PipelineConfig,
@@ -244,38 +246,25 @@ class FakeNetlist:
         )?;
         let netlist_obj = netlist.getattr("FakeNetlist")?.call0()?;
 
-        // `placements` for ApplyPlacements: frozenset of (ref, pos).
-        let builtins = py.import("builtins")?;
-        let placements = builtins.getattr("frozenset")?.call1((
-            PyList::new(
-                py,
-                [
-                    PyTuple::new(
-                        py,
-                        [
-                            "U1".into_pyobject(py)?.into_any(),
-                            (1.0_f64, 2.0_f64).into_pyobject(py)?.into_any(),
-                        ],
-                    )?
-                    .into_any(),
-                    PyTuple::new(
-                        py,
-                        [
-                            "U2".into_pyobject(py)?.into_any(),
-                            (3.0_f64, 4.0_f64).into_pyobject(py)?.into_any(),
-                        ],
-                    )?
-                    .into_any(),
-                ],
-            )?,
-        ))?;
-
         let config = PyDict::new(py);
         config.set_item("zones", PyList::empty(py))?;
 
         let mut state = BoardState::new();
         state.netlist = Some(netlist_obj.into_any().unbind());
-        state.placements = Some(placements.into_any().unbind());
+        // U6 (O-C3) group-2: the owned `PlacementSet` shape of the Python
+        // `frozenset((ref, (x, y)))` the ApplyPlacementsStage used to
+        // receive (the marshaller's read shape, exercised end-to-end by the
+        // UE pipeline).
+        state.placements = Some(PlacementSet(std::collections::HashSet::from([
+            Placement {
+                ref_: "U1".into(),
+                position: (1.0, 2.0),
+            },
+            Placement {
+                ref_: "U2".into(),
+                position: (3.0, 4.0),
+            },
+        ])));
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
         runner.add_stage(Box::new(ConfigAttachStage {
@@ -305,7 +294,7 @@ class FakeNetlist:
         // netlist components re-positioned by ApplyPlacements.
         assert!(out.config.is_some());
         let czm = out.component_zone_map.as_ref().expect("zone map written");
-        assert_eq!(czm.bind(py).len()?, 2);
+        assert_eq!(czm.len(), 2);
         let netlist_out = out.netlist.as_ref().expect("netlist present").bind(py);
         let comp0 = netlist_out.getattr("components")?.get_item(0)?;
         let pos = comp0.getattr("initial_position")?;

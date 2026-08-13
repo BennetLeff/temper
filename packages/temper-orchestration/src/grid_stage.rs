@@ -47,6 +47,8 @@ use crate::derivation_stage::pyerr_stage;
 use crate::grid_hv::{getattr_default, py_float, str_of};
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet};
 
 #[cfg(feature = "python")]
 /// The clearance-grid stage: board + netlist -> `BoardState.grid`.
@@ -218,12 +220,17 @@ fn empty_or<'py>(
 /// lookup dict (an EMPTY dict, not None, on the falsy branch).
 fn placements_dict(py: Python<'_>, state: &BoardState) -> PyResult<Py<PyAny>> {
     match &state.placements {
-        Some(p) if p.bind(py).is_truthy()? => Ok(py
-            .import("builtins")?
-            .getattr("dict")?
-            .call1((p,))?
-            .into_any()
-            .unbind()),
+        Some(p) if !p.is_empty() => {
+            // U6 (O-C3) group-2: the owned `PlacementSet` is rebuilt into the
+            // Python frozenset, then `dict(...)`-ed exactly like the oracle.
+            let fs = crate::marshal::to_python::<PlacementSet>(py, p)?;
+            Ok(py
+                .import("builtins")?
+                .getattr("dict")?
+                .call1((fs,))?
+                .into_any()
+                .unbind())
+        }
         _ => Ok(PyDict::new(py).into_any().unbind()),
     }
 }

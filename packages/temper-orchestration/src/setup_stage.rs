@@ -36,6 +36,8 @@ use crate::config_attach_stage::to_pyerr;
 use crate::derivation_stage::{pyerr_stage, stage_guard};
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet};
 
 #[cfg(feature = "python")]
 /// The DRC-oracle setup stage: design_rules/board -> populated DRCOracle.
@@ -336,12 +338,13 @@ fn register_netlist_pads(
         .getattr("pin_world_position")?;
 
     // placements_dict = dict(state.placements) if state.placements else {}
-    let placements = state
-        .placements
-        .as_ref()
-        .map(|p| p.clone_ref(py))
-        .unwrap_or_else(|| py.None());
-    let placements_dict: Py<PyAny> = if !placements.is_none(py) && placements.bind(py).is_truthy()? {
+    // U6 (O-C3) group-2: the owned `PlacementSet` is rebuilt into the Python
+    // frozenset, then `dict(...)`-ed exactly like the oracle.
+    let placements: Py<PyAny> = match &state.placements {
+        Some(p) if !p.is_empty() => crate::marshal::to_python::<PlacementSet>(py, p)?,
+        _ => py.None(),
+    };
+    let placements_dict: Py<PyAny> = if !placements.is_none(py) {
         py.import("builtins")?
             .getattr("dict")?
             .call1((placements,))?

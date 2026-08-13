@@ -62,6 +62,8 @@ use std::collections::HashSet;
 use crate::board_state::{BoardState, SlotId};
 #[cfg(feature = "python")]
 use crate::grid_hv::{getattr_default, str_of};
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet, ZoneSlotsSet};
 
 #[cfg(feature = "python")]
 /// The HV/AC safety categories (``_HV_SAFETY_CATEGORIES``).
@@ -116,7 +118,7 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
     // `_flatten_slots` shim).
     let drc = py.import("temper_drc_rs")?;
     let zone_slots = match &state.zone_slots {
-        Some(z) => z.clone_ref(py),
+        Some(z) => crate::marshal::to_python::<ZoneSlotsSet>(py, z)?,
         None => py.None(),
     };
     let all_slots = drc.call_method1("flatten_zone_slots_py", (&zone_slots,))?;
@@ -164,7 +166,10 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
 
     // Pre-compute placement / component metadata once.
     let placements = match &state.placements {
-        Some(p) => builtins.getattr("dict")?.call1((p,))?,
+        Some(p) => {
+            let fs = crate::marshal::to_python::<PlacementSet>(py, p)?;
+            builtins.getattr("dict")?.call1((fs,))?
+        }
         None => PyDict::new(py).into_any(),
     };
     let comp_by_ref = PyDict::new(py);
@@ -384,7 +389,10 @@ fn absolute_hv_pins<'py>(
         empty_dict(py)
     };
     let placements = match &state.placements {
-        Some(p) => py.import("builtins")?.getattr("dict")?.call1((p,))?,
+        Some(p) => {
+            let fs = crate::marshal::to_python::<PlacementSet>(py, p)?;
+            py.import("builtins")?.getattr("dict")?.call1((fs,))?
+        }
         None => PyDict::new(py).into_any(),
     };
 

@@ -41,6 +41,8 @@ use crate::d6_util;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_data_model::{PlacementSet, ViaSet};
 
 const STAGE_NAME: &str = "fine_pitch_escape";
 
@@ -85,22 +87,26 @@ impl FinePitchEscapeStage {
         let secondary_escape_layer: i64 = stage.getattr("secondary_escape_layer")?.extract()?;
 
         // `placements = dict(state.placements) if state.placements else {}`.
+        // U6 (O-C3) group-2: the owned `PlacementSet` is rebuilt into the
+        // Python frozenset, then `dict(...)`-ed exactly like the oracle.
         let placements_dict: Py<PyDict> = match &state.placements {
-            Some(p) if p.bind(py).is_truthy()? => py
-                .import("builtins")?
-                .getattr("dict")?
-                .call1((p.bind(py),))?
-                .extract()?,
+            Some(p) if !p.is_empty() => {
+                let fs = crate::marshal::to_python::<PlacementSet>(py, p)?;
+                py.import("builtins")?
+                    .getattr("dict")?
+                    .call1((fs,))?
+                    .extract()?
+            }
             _ => PyDict::new(py).unbind(),
         };
         let placements_dict = placements_dict.bind(py);
 
         // `vias = list(state.vias) if state.vias else []`.
         let vias = match &state.vias {
-            Some(v) if v.bind(py).is_truthy()? => py
-                .import("builtins")?
-                .getattr("list")?
-                .call1((v.bind(py),))?,
+            Some(v) if !v.is_empty() => {
+                let fs = crate::marshal::to_python::<ViaSet>(py, v)?;
+                py.import("builtins")?.getattr("list")?.call1((fs,))?
+            }
             _ => PyList::empty(py).into_any(),
         };
 
@@ -490,7 +496,7 @@ impl FinePitchEscapeStage {
         let frozenset_ = builtins.getattr("frozenset")?;
         let fs = frozenset_.call1((&vias,))?;
         let mut new_state = state;
-        new_state.vias = Some(fs.into_any().unbind());
+        new_state.vias = Some(crate::marshal::to_owned::<ViaSet>(&fs)?);
         Ok(new_state)
     }
 }

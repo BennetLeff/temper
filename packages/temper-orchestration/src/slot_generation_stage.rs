@@ -35,6 +35,9 @@ use crate::derivation_stage::{pyerr_stage, stage_guard};
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 
+#[cfg(feature = "python")]
+use temper_data_model::{ZoneSet, ZoneSlotsSet};
+
 /// The slot-generation stage: zones -> `zone_slots` (frozenset of
 /// `(zone_name, tuple_of_slots)` entries).
 #[derive(Debug, Clone)]
@@ -52,8 +55,13 @@ impl Stage<BoardState> for SlotGenerationStage {
         stage_guard("slot_generation", || {
             Python::attach(|py| {
                 let to_stage = |e: pyo3::PyErr| pyerr_stage("slot_generation", e);
+                                // U6 (O-C3) group-2: the zones guard (`if not state.zones`)
+                // maps to `!set.is_empty()`; the owned `ZoneSet` is rebuilt
+                // into the Python frozenset the iteration expects.
                 let zones = match &state.zones {
-                    Some(z) if z.bind(py).is_truthy().map_err(to_stage)? => z.clone_ref(py),
+                    Some(z) if !z.is_empty() => {
+                        crate::marshal::to_python::<ZoneSet>(py, z).map_err(to_stage)?
+                    }
                     _ => return Ok(state),
                 };
                 let tdb = py
@@ -73,7 +81,13 @@ impl Stage<BoardState> for SlotGenerationStage {
                 .map_err(to_stage)?;
 
                 let mut new_state = state;
-                new_state.zone_slots = Some(zone_slots_fs);
+                // U6 (O-C3) group-2: the oracle's `frozenset(zone_slots_list)`
+                // is kept verbatim, then marshalled INTO the owned
+                // `ZoneSlotsSet` field.
+                new_state.zone_slots = Some(
+                    crate::marshal::to_owned::<ZoneSlotsSet>(zone_slots_fs.bind(py))
+                        .map_err(to_stage)?,
+                );
                 Ok(new_state)
             })
         })

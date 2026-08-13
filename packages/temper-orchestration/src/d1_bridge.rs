@@ -35,7 +35,8 @@ use std::collections::HashSet;
 
 #[cfg(feature = "python")]
 use temper_data_model::{
-    ConnectivityViolationList, PlacementViolationList, ViolationList,
+    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, RouteSet,
+    StrPairSet, ViaSet, ViolationList, ZoneSet, ZoneSlotsSet,
 };
 
 #[cfg(feature = "python")]
@@ -66,7 +67,13 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.placement_violations = crate::marshal::to_owned::<Option<PlacementViolationList>>(
         &state.getattr("placement_violations")?,
     )?;
-    bs.placements = attr_opt(state, "placements")?;
+    // U6 (O-C3) group-2: the six remaining COLLECTION fields read through the
+    // boundary marshaller (the U1 used_slots pattern). `Option<T>`'s `Marshal`
+    // impl maps Python `None` → Rust `None` and a `frozenset` of the element
+    // type to the owned `*Set` `HashSet` newtype (a list is REJECTED — the
+    // contract is a frozenset).
+    bs.placements =
+        crate::marshal::to_owned::<Option<PlacementSet>>(&state.getattr("placements")?)?;
     // U1 (O-C3): the first field read through the boundary marshaller
     // instead of `attr_opt`. `Option<T>`'s `Marshal` impl maps Python `None`
     // to Rust `None` and a `frozenset` of `(x, y)` tuples to
@@ -79,13 +86,16 @@ pub(crate) fn from_python(_py: Python<'_>, state: &Bound<'_, PyAny>) -> PyResult
     bs.component_domain_map = attr_opt(state, "component_domain_map")?;
     bs.routing_corridors = attr_opt(state, "routing_corridors")?;
     bs.domain_regions = attr_opt(state, "domain_regions")?;
-    bs.routes = attr_opt(state, "routes")?;
-    bs.vias = attr_opt(state, "vias")?;
+    bs.routes = crate::marshal::to_owned::<Option<RouteSet>>(&state.getattr("routes")?)?;
+    bs.vias = crate::marshal::to_owned::<Option<ViaSet>>(&state.getattr("vias")?)?;
     bs.violations = attr_opt(state, "violations")?;
-    bs.zones = attr_opt(state, "zones")?;
-    bs.component_zone_map = attr_opt(state, "component_zone_map")?;
-    bs.zone_slots = attr_opt(state, "zone_slots")?;
-    bs.layer_assignments = attr_opt(state, "layer_assignments")?;
+    bs.zones = crate::marshal::to_owned::<Option<ZoneSet>>(&state.getattr("zones")?)?;
+    bs.component_zone_map =
+        crate::marshal::to_owned::<Option<StrPairSet>>(&state.getattr("component_zone_map")?)?;
+    bs.zone_slots =
+        crate::marshal::to_owned::<Option<ZoneSlotsSet>>(&state.getattr("zone_slots")?)?;
+    bs.layer_assignments =
+        crate::marshal::to_owned::<Option<LayerAssignmentSet>>(&state.getattr("layer_assignments")?)?;
     bs.reclaim_by_pin_pair = attr_opt(state, "reclaim_by_pin_pair")?;
     bs.net_order = state.getattr("net_order")?.extract::<Vec<String>>()?;
     Ok(bs)
@@ -111,10 +121,15 @@ pub(crate) fn to_python(
             "config" => py_opt_changed(orig, out, "config")?,
             "drc_oracle" => py_opt_changed(orig, out, "drc_oracle")?,
             "grid" => grid_changed(orig, out)?,
-            "zones" => py_opt_changed(orig, out, "zones")?,
-            "component_zone_map" => py_opt_changed(orig, out, "component_zone_map")?,
-            "zone_slots" => py_opt_changed(orig, out, "zone_slots")?,
-            "placements" => py_opt_changed(orig, out, "placements")?,
+            // U6 (O-C3) group-2: the six remaining collection fields are
+            // owned — the change test marshals the ORIGINAL Python value to
+            // the same owned type and compares (the shared generic helper).
+            "zones" => owned_opt_changed::<ZoneSet>(orig, "zones", &out.zones)?,
+            "component_zone_map" => {
+                owned_opt_changed::<StrPairSet>(orig, "component_zone_map", &out.component_zone_map)?
+            }
+            "zone_slots" => owned_opt_changed::<ZoneSlotsSet>(orig, "zone_slots", &out.zone_slots)?,
+            "placements" => owned_opt_changed::<PlacementSet>(orig, "placements", &out.placements)?,
             // U1 (O-C3): the first typed candidate — the change test
             // marshals the ORIGINAL Python value to the same owned type and
             // compares (see `used_slots_changed`); the write-back value goes
@@ -125,8 +140,8 @@ pub(crate) fn to_python(
             "reclaim_by_pin_pair" => py_opt_changed(orig, out, "reclaim_by_pin_pair")?,
             // D6 (validation stages): the validation-result and geometry
             // fields the D6 stages write back.
-            "routes" => py_opt_changed(orig, out, "routes")?,
-            "vias" => py_opt_changed(orig, out, "vias")?,
+            "routes" => owned_opt_changed::<RouteSet>(orig, "routes", &out.routes)?,
+            "vias" => owned_opt_changed::<ViaSet>(orig, "vias", &out.vias)?,
             // U6 (O-C3): the violation lists are owned — the change test
             // marshals the ORIGINAL Python value to the same owned type and
             // compares (the U1 pattern, via the shared generic helper).
@@ -143,7 +158,9 @@ pub(crate) fn to_python(
             )?,
             // D7 (routing-adjacent stages): the domain/assignment/netlist
             // fields the D7 stages write back.
-            "layer_assignments" => py_opt_changed(orig, out, "layer_assignments")?,
+            "layer_assignments" => {
+                owned_opt_changed::<LayerAssignmentSet>(orig, "layer_assignments", &out.layer_assignments)?
+            }
             "netlist" => py_opt_changed(orig, out, "netlist")?,
             "component_domain_map" => py_opt_changed(orig, out, "component_domain_map")?,
             "routing_corridors" => py_opt_changed(orig, out, "routing_corridors")?,
@@ -166,15 +183,17 @@ pub(crate) fn to_python(
             "config" => opt_value(py, &out.config),
             "drc_oracle" => opt_value(py, &out.drc_oracle),
             "grid" => opt_value(py, &out.grid),
-            "zones" => opt_value(py, &out.zones),
-            "component_zone_map" => opt_value(py, &out.component_zone_map),
-            "zone_slots" => opt_value(py, &out.zone_slots),
-            "placements" => opt_value(py, &out.placements),
+            "zones" => crate::marshal::to_python::<Option<ZoneSet>>(py, &out.zones)?,
+            "component_zone_map" => {
+                crate::marshal::to_python::<Option<StrPairSet>>(py, &out.component_zone_map)?
+            }
+            "zone_slots" => crate::marshal::to_python::<Option<ZoneSlotsSet>>(py, &out.zone_slots)?,
+            "placements" => crate::marshal::to_python::<Option<PlacementSet>>(py, &out.placements)?,
             "used_slots" => crate::marshal::to_python::<Option<HashSet<SlotId>>>(py, &out.used_slots)?,
             "design_rules" => opt_value(py, &out.design_rules),
             "reclaim_by_pin_pair" => opt_value(py, &out.reclaim_by_pin_pair),
-            "routes" => opt_value(py, &out.routes),
-            "vias" => opt_value(py, &out.vias),
+            "routes" => crate::marshal::to_python::<Option<RouteSet>>(py, &out.routes)?,
+            "vias" => crate::marshal::to_python::<Option<ViaSet>>(py, &out.vias)?,
             "drc_violations" => {
                 crate::marshal::to_python::<Option<ViolationList>>(py, &out.drc_violations)?
             }
@@ -190,7 +209,9 @@ pub(crate) fn to_python(
                     &out.connectivity_violations,
                 )?
             }
-            "layer_assignments" => opt_value(py, &out.layer_assignments),
+            "layer_assignments" => {
+                crate::marshal::to_python::<Option<LayerAssignmentSet>>(py, &out.layer_assignments)?
+            }
             "netlist" => opt_value(py, &out.netlist),
             "component_domain_map" => opt_value(py, &out.component_domain_map),
             "routing_corridors" => opt_value(py, &out.routing_corridors),
@@ -247,15 +268,8 @@ fn py_opt_changed(
     let out_val: Option<&Py<PyAny>> = match name {
         "config" => out.config.as_ref(),
         "drc_oracle" => out.drc_oracle.as_ref(),
-        "zones" => out.zones.as_ref(),
-        "component_zone_map" => out.component_zone_map.as_ref(),
-        "zone_slots" => out.zone_slots.as_ref(),
-        "placements" => out.placements.as_ref(),
         "design_rules" => out.design_rules.as_ref(),
         "reclaim_by_pin_pair" => out.reclaim_by_pin_pair.as_ref(),
-        "routes" => out.routes.as_ref(),
-        "vias" => out.vias.as_ref(),
-        "layer_assignments" => out.layer_assignments.as_ref(),
         "netlist" => out.netlist.as_ref(),
         "component_domain_map" => out.component_domain_map.as_ref(),
         "routing_corridors" => out.routing_corridors.as_ref(),
