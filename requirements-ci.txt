@@ -64,14 +64,11 @@ mypy-extensions==1.1.0
 narwhals==2.14.0
     # via plotly
 networkx==3.6.1
-    # via
-    #   python-louvain
-    #   temper-placer
+    # via temper-placer
 numpy==2.3.5
     # via
     #   ortools
     #   pandas
-    #   python-louvain
     #   scipy
     #   shapely
     #   temper-placer
@@ -124,8 +121,6 @@ pytest-timeout==2.4.0
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
     # via pandas
-python-louvain==0.16
-    # via temper-placer
 python-sat==1.9.dev5
 pyyaml==6.0.3
     # via

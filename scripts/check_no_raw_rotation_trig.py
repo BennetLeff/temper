@@ -111,7 +111,13 @@ KiCad itself would place:
     ``ComponentView.rotation``/``PadView.rotation`` are meant to hold real
     board orientation. Fixed for correctness even though today's discrete
     quadrant-only rotation state (and ``PadView`` having no production
-    constructor yet) makes both currently a no-op.
+    constructor yet) makes both currently a no-op. REMOVED from
+    ``GUARDED_FILES`` 2026-08-13: the entire ``visualization/`` package
+    (5,508 LOC, zero production consumers) was deleted 2026-08-11 (commit
+    ``cb36af61``, "deprecate the dead visualization/ package"). Same
+    reasoning as ``scripts/internal_route.py`` below -- a guarded file must
+    exist (``run()`` fails closed on drift), and a deleted file cannot
+    regress.
   * ``scripts/internal_route.py`` -- read a real ``kiutils`` board and
     registered real pad positions with a routing oracle; its registration
     formula was fixed for correctness by this sweep. The import breakage
@@ -153,8 +159,9 @@ KiCad-derived call sites across 6 files, plus the dead
 candidate areas were investigated and left unchanged: the Rust polygon
 helper, the Rust benchmark helper, and the two dead JAX-era functions in
 ``core/state.py``. That count is the historical record of the sweep and is
-left as measured; ``GUARDED_FILES`` is one shorter than it, because the
-8th site's file has since been deleted (see the bullet above).
+left as measured; ``GUARDED_FILES`` is three shorter than it, because the
+8th site's file (``scripts/internal_route.py``) and the two
+``visualization/`` files have since been deleted (see the bullets above).
 
 Exit codes (mirrors scripts/check_undeclared_imports.py, scripts/
 check_pll_range_consistency.py):
@@ -195,7 +202,10 @@ from _lib.repo import find_repo_root  # noqa: E402
 # and deliberately not guarded (see that section for why: isolated or dead).
 # The sweep's 8th site, scripts/internal_route.py, was also fixed but its
 # file was deleted on 2026-08-04 as import-dead, so it is not guarded here:
-# run() requires every guarded file to exist.
+# run() requires every guarded file to exist. visualization/board_renderer.py
+# and visualization/model.py were fixed too, but the whole visualization/
+# package was deleted 2026-08-11 (commit cb36af61, "deprecate the dead
+# visualization/ package") -- removed here 2026-08-13 for the same reason.
 GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/core/courtyard.py",
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
@@ -210,8 +220,6 @@ GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/router_v6/connectivity.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_geometry.py",
     "packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py",
-    "packages/temper-placer/src/temper_placer/visualization/board_renderer.py",
-    "packages/temper-placer/src/temper_placer/visualization/model.py",
     "scripts/check_isolation_keepout.py",
     "scripts/check_pad_orientation.py",
 )
@@ -243,6 +251,27 @@ EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
         # ``_cos_sin`` still contains only ``math.cos``/``math.sin`` and no
         # rel/abs arithmetic.
         ("packages/temper-placer/src/temper_placer/placer/template.py", "_cos_sin"),
+        # router_v6/connectivity.py::_to_pad_coordinates -- added 2026-08-13
+        # when removing the two deleted visualization/ entries from
+        # GUARDED_FILES let this file's content actually be scanned for the
+        # first time in a while (the gate exits on tool-error before
+        # scanning ANY guarded file's content once one entry is missing).
+        # Verified, not assumed: `git grep _to_pad_coordinates` finds zero
+        # production callers -- only
+        # tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py
+        # and a separate verbatim copy in
+        # tests/router_v6/test_spatial_tier2_rust_differential.py
+        # (`_oracle__to_pad_coordinates`) call it. Commit 96eb1ce09
+        # ("fix(router): restore _to_pad_coordinates as verbatim Python
+        # (test-only helper)", 2026-08-09) is the function's own explanation:
+        # it deliberately keeps the R(-rotation) convention as a pinned
+        # oracle so the differential suite can detect the Rust kernel's
+        # opposite R(+theta) convention -- computing no production rotation
+        # itself, the inverse of the pattern this gate exists to catch.
+        (
+            "packages/temper-placer/src/temper_placer/router_v6/connectivity.py",
+            "_to_pad_coordinates",
+        ),
     }
 )
 
