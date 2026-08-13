@@ -281,12 +281,32 @@ def encode_constraints(
     *,
     netlist=None,
     netclass_rules_data=None,
+    auto_pairwise_touch_refs: set[str] | None = None,
 ) -> list[AssumptionLiteral]:
     """Encode all constraints into the CP-SAT model.
 
     When *netclass_rules_data* is provided together with *netlist*,
     auto-generates cross-class separation constraints and appends them
     to the constraint list before encoding.
+
+    Args:
+        auto_pairwise_touch_refs: forwarded to BOTH
+            ``generate_netclass_separated_constraints``'s and
+            ``_generate_courtyard_separated_constraints``'s ``touch_refs``
+            -- restricts EVERY auto-generated (as opposed to explicitly
+            requested) pairwise SEPARATED constraint family to pairs
+            touching this set. ``None`` (default): unrestricted, identical
+            to every caller's pre-existing behaviour. See
+            ``_generate_courtyard_separated_constraints``'s own docstring
+            for why an unrestricted auto-generator is unsound for a caller
+            that pins most of the board via ``fixed_positions`` -- the
+            same argument applies verbatim to the netclass auto-generator,
+            which was found NOT to have this filter in an initial pass
+            that only filtered the courtyard generator (2026-08-13): a
+            frozen-vs-frozen pair violating the netclass cross-class
+            clearance (typically larger than plain courtyard tau) is an
+            equally spurious source of UNSAT, and did in fact reproduce a
+            reported control-test failure after the courtyard-only fix.
 
     Returns a flat list of assumption literal indices for downstream
     UNSAT-core inspection.
@@ -310,6 +330,7 @@ def encode_constraints(
             netlist.components,
             netclass_rules_data.design_rules,
             existing_constraints=constraints,
+            touch_refs=auto_pairwise_touch_refs,
         )
         constraints = list(constraints) + auto_constraints
 
@@ -318,6 +339,7 @@ def encode_constraints(
             model,
             ctx.courtyard_clearance_mm,
             constraints,
+            touch_refs=auto_pairwise_touch_refs,
         )
         constraints = list(constraints) + courtyard_constraints
 
@@ -342,11 +364,42 @@ def _generate_courtyard_separated_constraints(
     model,
     tau_mm: float,
     existing_constraints: list[BaseConstraint],
+    touch_refs: set[str] | None = None,
 ) -> list[SeparatedConstraint]:
     """Generate per-pair SEPARATED constraints with ``min_distance_mm=tau_mm``.
 
     Skips pairs that already carry a SEPARATED constraint with clearance >= τ
     (e.g. cross-class netclass constraints at 6mm dominate the τ constraint).
+
+    Args:
+        touch_refs: if given, restricts generation to pairs where AT LEAST
+            ONE ref is in this set (same "touches" semantics
+            ``domain_clearance.generate_domain_clearance_constraints``'s
+            callers already filter by, see that module and
+            ``repair_commands.py``'s module docstring). ``None`` (the
+            default) is fully unrestricted -- every existing caller keeps
+            today's exact behaviour.
+
+            **Why this matters for a caller that pins most of the board via
+            ``fixed_positions``.** Absent this filter, a pair where BOTH
+            refs are frozen at their *current, real* board coordinates gets
+            an unconditional courtyard constraint too -- and if that pair
+            already violates courtyard clearance on the real board (a real,
+            separately-tracked defect: 48 such pairs were measured on
+            ``pcb/temper.kicad_pcb`` as of 2026-08-13, none involving the
+            component(s) actually being placed), the model becomes
+            infeasible for a reason that has NOTHING to do with the
+            component(s) a caller is trying to place -- a placement request
+            for ANY single component returns spurious UNSAT purely because
+            of this pre-existing, unrelated defect elsewhere on the board.
+            Restricting to ``touch_refs`` drops exactly the frozen-vs-frozen
+            pairs a minimal-disruption solve cannot change anyway (their
+            ``fixed_positions`` equality pins them to their real, unchanged
+            coordinates regardless of whether this constraint is present),
+            so the constraint's absence cannot cause a false ACCEPT of a
+            genuinely too-close placement -- it only removes a spurious
+            cause of REJECTING an unrelated request. See
+            ``docs/evidence/2026-08-13-courtyard-touch-set-filter.md``.
     """
     constraints: list[SeparatedConstraint] = []
     comp_refs = list(model.component_map.keys())
@@ -362,9 +415,13 @@ def _generate_courtyard_separated_constraints(
                 key = tuple(sorted([a_ref, b_ref]))
                 existing_pairs[key] = max(existing_pairs.get(key, 0.0), c.min_distance_mm)
 
+    skipped_untouched = 0
     for i in range(len(comp_refs)):
         for j in range(i + 1, len(comp_refs)):
             ra, rb = comp_refs[i], comp_refs[j]
+            if touch_refs is not None and ra not in touch_refs and rb not in touch_refs:
+                skipped_untouched += 1
+                continue
             key = tuple(sorted([ra, rb]))
             if key in existing_pairs:
                 continue
@@ -379,9 +436,18 @@ def _generate_courtyard_separated_constraints(
                 )
             )
 
-    logger.info(
-        "Auto-generated %d courtyard SEPARATED constraints (τ=%.2fmm)", len(constraints), tau_mm
-    )
+    if touch_refs is not None:
+        logger.info(
+            "Auto-generated %d courtyard SEPARATED constraints (τ=%.2fmm); "
+            "%d frozen-vs-frozen pair(s) outside touch_refs skipped",
+            len(constraints),
+            tau_mm,
+            skipped_untouched,
+        )
+    else:
+        logger.info(
+            "Auto-generated %d courtyard SEPARATED constraints (τ=%.2fmm)", len(constraints), tau_mm
+        )
     return constraints
 
 

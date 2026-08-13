@@ -491,14 +491,49 @@ class CpSatModel:
         y_min: int,
         x_max: int,
         y_max: int,
+        touch_refs: set[str] | None = None,
     ) -> None:
-        """Constrain all components to lie within board bounds.
+        """Constrain components to lie within board bounds.
 
         Each component's four bounds are guarded by an ``edge_margin_<ref>``
-        assumption literal so that ``SufficientAssumptionsForInfeasibility``
-        can identify which component violates the edge clearance.
+        assumption literal, forced true for the solve (matching every other
+        assumption in this module -- see ``new_assumption``), so that
+        ``SufficientAssumptionsForInfeasibility`` can identify which
+        component violates the edge clearance.
+
+        Args:
+            touch_refs: if given, the edge-margin constraint is only
+                enforced for refs in this set. ``None`` (default):
+                unrestricted, every registered component gets the
+                constraint -- identical to prior behaviour for every
+                existing caller.
+
+                **Why this matters for a caller that pins most of the
+                board via `fixed_positions`.** A frozen ref's position is
+                fixed by an unconditional equality (`Add(x_center ==
+                pin_x)`, not assumption-gated), separately from this
+                per-component margin assumption. If that ref's REAL,
+                committed board position already sits within (or past) the
+                margin of the board edge -- measured: 22 of 168 components
+                on ``pcb/temper.kicad_pcb`` as of 2026-08-13, none
+                necessarily related to what a given caller is placing --
+                forcing `edge_margin_<ref>` true is a direct, immediate
+                contradiction with that ref's own frozen equality,
+                independent of anything else in the model. A caller
+                solving for one small, uninvolved component with almost
+                the whole board frozen would get a proven-instant,
+                completely unrelated INFEASIBLE. Restricting to
+                `touch_refs` is sound for the same reason
+                `_generate_courtyard_separated_constraints`'s `touch_refs`
+                is: a frozen ref's position cannot change in this solve
+                regardless of whether this constraint is present, so
+                dropping it cannot cause a false ACCEPT of something that
+                actually moved outside the board -- it only removes a
+                spurious cause of rejecting an unrelated request.
         """
         for v in self._components.values():
+            if touch_refs is not None and v.ref not in touch_refs:
+                continue
             label = f"edge_margin_{v.ref}"
             assumption = self.new_assumption(label)
             self.add_constraint_enforced(v.x_start >= x_min, assumption)
