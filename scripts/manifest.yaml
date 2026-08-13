@@ -2590,3 +2590,10 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: measure_uncapped_drc.py
+  purpose: "Uncapped DRC violation counting for kicad-cli-saturated categories"
+  owner: bennet
+  last_run: "2026-08-13"
+  category: keep
+  disposition: utility
+  imports: []
