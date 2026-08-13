@@ -3483,3 +3483,170 @@ argued in-source and above):
   commit); the wasm tier (`--no-default-features`) compiles.
 - **R1h** — not physics-gated (recorded explicitly: the loop sequences
   call-backs; no physics quantity is computed, asserted or gated).
+
+## Rust orchestration engine — U-I (the CP-SAT place->route loop port)
+
+Orchestration-port unit U-I of the Rust Orchestration Engine plan
+(2026-08-09-001), Wave-4 CP-SAT placement-loop slice: the RESIDUAL
+non-ortools orchestration of the `placer/cp_sat` place->route loop
+controller moves to `temper-orchestration` as three pyfunctions. Each
+Python module keeps its public API and delegates.
+
+### What migrated
+
+| Python surface | Rust surface | Notes |
+|---|---|---|
+| `_loop_core.py` `run()` (legacy classifier loop) + `_run_with_gates()` (gate-driven loop) + `_solve_with_delta()` + `_solve_phase2()` | `cpsat_loop.rs`: `cpsat_run_legacy_loop` / `cpsat_run_gated_loop` / `cpsat_solve_with_delta` / `cpsat_solve_phase2` | the loop SEQUENCING (round budget, solve-timeout selection, UNSAT early exit, oscillation check, convergence decisions, delta backtracking), the gate checks (PLACEMENT/ROUTING-stage passes, `_check_unmeasured_exit`), the SC1a/SC1b stability counters, the thermal-field preparation and the unsat_core assembly — the CP-SAT solve (`_call_solver`), routing, the classifier, the gate implementations and the other-mixin leaf helpers stay Python call-backs in oracle order; wall-clock stays `_loop_core.time.monotonic` (the mockable clock) |
+| `feedback.py` `FeedbackClassifier.classify()` | `feedback.rs`: `classify_feedback` | the routing-field extraction, the clean early-return, the four-class DISPATCH loops in oracle order, the unclassified-failure collection and the priority sort (`operator.attrgetter("priority")` stable sort); the four `_handle_*` constraint-building handlers and the leaf helpers stay Python call-backs |
+| `validator_audit.py` `audit_domain_clearance_validator()` | `validator_audit.rs`: `audit_domain_clearance_validator` | the R24 post-solve audit SEQUENCING: the two `ValueError` guards (zero components / disjoint solved refs), the `build_validator_placement` call, the `verify_iec60335_compliance` re-run, the `stats` extraction, the geometry-trust computation (`components_without_pads` / `pairs_origin_modelled`) + the degraded-geometry `logger.error`, the `covered_pairs` frozenset build, the per-violation bucket dispatch (`classify_violation`: intra / hard / gap, reasons formatted through CPython) + `DomainClearanceValidatorViolation` construction, and the `DomainClearanceValidatorAuditResult` assembly |
+
+### What stays Python (the U-I boundary, argued in the shim headers and here)
+
+- **`_loop_core`**: `_call_solver` (the CP-SAT solve boundary — the lazy
+  `encoder.solve_placement` import must keep resolving
+  `mock.patch('...encoder.solve_placement')`); `_route_placement` /
+  `_get_placement_pcb_path` / `_build_board_state` (the router_v6 / KiCad
+  subprocess boundary); the classifier instance; the gate
+  implementations (`gate.check` / `gate.to_delta`); the leaf helpers in
+  the OTHER mixins (`_loop_stability` / `_loop_gates` / `_loop_routing`),
+  invoked as call-backs in oracle order; the numpy thermal-field
+  rasterization; the wall clock (`time.monotonic` on `_loop_core` — the
+  field-feedback test mocks that exact target).
+- **`feedback`**: the four `_handle_*` handlers — they CONSTRUCT the real
+  PCL `SeparatedConstraint` / `KeepoutConstraint` / `AnchoredConstraint`
+  objects and do the design-rules marshalling (U-E "Python-object
+  marshalling"); the leaf helpers `_find_critical_components` /
+  `_detect_persistent_ics` / `_compute_heuristic_position`; the
+  `ConstraintDelta` / `UnclassifiedFailure` / `ClassificationResult`
+  dataclasses (constructed by the Rust sequencing via keyword args).
+- **`validator_audit`**: `build_validator_placement` (the deepcopy + dict
+  mutation over the validator wire shape — Python-object marshalling) and
+  the pad-schema serialization (`_pads_for_netlist_component` /
+  `_netlist_component_by_ref`); `verify_iec60335_compliance` (the EXACT
+  REQ-SAFE-01 validator — the R24 boundary; the CI gate's own function,
+  fetched from the clearance module at call time); the
+  `DomainClearanceValidatorViolation` / `DomainClearanceValidatorAuditResult`
+  dataclasses and the `report()` / `clean` / `shortfall_mm` presentation.
+
+### Structural proof
+
+**Claim (bit-identical parity).** For every input, the Rust sequencing
+produces the same observable result — same buckets, same per-record fields,
+same reason strings, same stats, same geometry-trust verdict, same call
+arguments — as the pinned pre-migration Python, with the documented
+boundary choices below.
+
+1. **Every migrated surface is a pure fold over the same Python call-backs
+   in oracle order.** The loop drives `_call_solver` / `_route_placement` /
+   `classifier.classify` / the gate impls / the leaf helpers; the classifier
+   drives the four `_handle_*` handlers; the audit drives
+   `build_validator_placement` / `verify_iec60335_compliance`. Both arms
+   call the identical call-back objects with identical arguments; the
+   differentials drive both arms with identical mocks/inputs and compare
+   the canonicalized results byte-identically. The audit differential
+   additionally pins call-ARGUMENT parity: the fake validator records the
+   `validator_placement` each arm hands it and the two are compared
+   canonicalized.
+2. **The reason strings are formatted through CPython, not re-rendered.**
+   The audit's hard-bucket reason runs `{measured_mm:.3f}` /
+   `{required_mm}` through `str.format` via the Python `format` builtin, so
+   the text is bit-identical by construction (pinned by the mocked edge
+   case with a non-trivial 1.23456 measurement).
+3. **Log parity through the same logger name.** The Rust emits the
+   degraded-geometry `logger.error` and the post-audit summary `logger.info`
+   through `logging.getLogger("temper_placer.placer.cp_sat.validator_audit")`
+   — the oracle's own `__name__` — preserving the observable log sequence
+   (captured by caplog in the differential). The loop/feedback log lines
+   likewise go through the modules' own logger names with the oracle's
+   f-string formats.
+4. **The defensive fallbacks are transcribed exactly** (pinned by the ten
+   mocked edge cases the real validator never emits): `pair_kind` falsy ->
+   `v.pair_kind or ("intra" if v.ref_a == v.ref_b else "inter")` on the
+   ORIGINAL attribute values with VALUE equality (`None == None` is intra;
+   equal-valued distinct strings are intra — identity is not the test);
+   `measured_mm`/`required_mm` None -> `float("nan")` in the record, and a
+   covered pair with None measurements raises `TypeError` in BOTH arms
+   (the reason formats the raw value before the audit's nan mapping);
+   `stats.rows[].pairs_origin_modelled` falsy -> contributes 0 (`or 0`).
+5. **Panic safety (R1g).** The pyfunction bodies run under pyo3's
+   `#[pyfunction]` catch_unwind (the crate sets
+   `profile.release.panic = "unwind"`); every Python call is a `PyResult`;
+   no `unwrap`/`expect` anywhere (crate clippy lint). The `UnsatError`
+   from `_solve_with_delta` is caught as a `PyErr` and re-raised by value.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above):
+- `_call_solver` stays Python: the ortools/pumpkin solve is the KEEP
+  boundary (Phase-1 spike verdict), and the lazy
+  `encoder.solve_placement` import must keep resolving the field-feedback
+  test's `mock.patch`.
+- Wall-clock timing goes through `_loop_core.time.monotonic` (NOT
+  `std::time::Instant`) — the field-feedback test mocks that exact target,
+  so the timing call-back must stay the Python `time.monotonic` reachable
+  via `_loop_core.time` (a load-bearing import kept in the shim).
+- The audit re-runs `verify_iec60335_compliance` exactly as the oracle
+  does; it sequences the validator, it does not reimplement it (R24
+  discipline unchanged: hard failures raise in `_encoder_solve`; the
+  geometry-trust flag is computed identically).
+
+### Differential / PBT / runner suites (U-I)
+
+| Suite | Location | Count |
+|---|---|---|
+| loop-core differential (legacy + gated loop, solve_with_delta/phase2 kernels: solver/route call sequences, time-budget + delta-re-solve sequencing, UNSAT exits, oscillation + stability + convergence decisions, delta backtracking, log parity, deterministic wall-clock via mocked `time.monotonic`) | `packages/temper-placer/tests/placer/cp_sat/test_loop_core_rust_differential.py` | 10 |
+| feedback differential (clean early-return, four-class dispatch, unclassified collection incl. the `loc +/- 5` region math, persistence threshold, priority sort) | `packages/temper-placer/tests/placer/cp_sat/test_feedback_rust_differential.py` | 11 |
+| validator_audit differential + PBT + metamorphic (6 real-validator scenario differentials with per-scenario bucket non-vacuity, 2 ValueError-message parity, 10 mocked-validator fallback edge cases with call-argument parity, PBT P1-P5, metamorphic M1-M4) | `packages/temper-placer/tests/placer/cp_sat/test_validator_audit_rust_differential.py` | 27 |
+| existing feedback PBT through the shim (all `tests/placer/cp_sat/test_feedback.py` now exercises the Rust sequencing) | `packages/temper-placer/tests/placer/cp_sat/test_feedback.py` | 13 |
+| existing R24 audit suite through the shim (falsifier, clean, straddler, coverage-gap, reversed ordering, geometry-trust, solve-integration, production-board FREE={K3}) | `packages/temper-placer/tests/placer/cp_sat/test_validator_audit.py` | 23 passed + 1 env-skip (netlist not built) |
+
+### R1 gate status (U-I)
+
+- **R1a** — behavioural A/B vs the three verbatim oracles
+  (`_loop_core_py_oracle.py` / `_feedback_py_oracle.py` /
+  `_validator_audit_py_oracle.py`, all sha256-registered in
+  `scripts/oracle_hashes.json`): 48 differential tests
+  (10 + 11 + 27) byte-identical, including the audit reason strings, the
+  `stats` capture, the geometry-trust verdict and the validator call
+  arguments.
+- **R1b** — performance: one pyfunction marshalling pass per call plus the
+  shim-call overhead; the per-step compute is untouched (all call-backs),
+  so no regression beyond noise is possible or claimed.
+- **R1c** — 5 non-vacuous PBT properties (P1..P5: random-corpus
+  differential with a corpus-histogram guard that FAILS if <5 hard or <5
+  gap cases land; hard-implies-covered-pair soundness; intra-never-hard
+  bucket discipline; geometry-trusted-iff-all-pads with a pad-less
+  injection that must flip trust; covered_pair_count == distinct constraint
+  pairs under duplicate + reversed injection) plus the 36 pre-existing
+  PBT tests (13 feedback + 23 audit) that now exercise the Rust path.
+- **R1d** — 4 metamorphic relations (M1 constraint-order irrelevance, M2
+  unrelated-constraint additivity, M3 translation invariance, M4
+  domain-role-swap invariance with the base case laid out so no
+  same-domain pair violates — the validator measures LV-LV pairs but not
+  HV-HV, which would otherwise break swap invariance).
+- **R1e** — this section.
+- **R1f** — TDD: the loop-core and feedback differentials + oracles were
+  committed first (RED — the pyfunctions did not exist), then the ports
+  landed GREEN (e2ac81533, 0094480c6). The validator_audit kernel was
+  recovered from an interrupted session as an ORPHAN (d06cb5d44 — never
+  wired, never compiled); it was wired + shimmed (7f04270ba, with three
+  bit-parity fixes found by reading the port against the oracle: the
+  pair_kind fallback compared defaulted refs by object identity where the
+  oracle compares original values by `==`; a falsy pair_kind TypeError'd
+  in classify where `==` returns False; a falsy `pairs_origin_modelled`
+  TypeError'd where `or 0` contributes 0) and its differential/PBT landed
+  last (73b767257). The wasm-tier compile regression the first U-I commit
+  introduced (unconditional `pub use` of python-gated items) was fixed in
+  c363fa5cf.
+- **R1g** — no `unwrap`/`expect` outside tests (crate denies both);
+  `cargo clippy --lib -- -D warnings` and `cargo clippy --all-targets`
+  clean; `cargo test --no-fail-fast` 1129 passed across the lib suite and
+  every runner suite except the pre-existing d4 environment failure
+  (`phased_validator_hv_kernel`: the 3.12 extension cannot load into the
+  machine's 3.9 embedded interpreter — reproduced unchanged on the base
+  commit); the wasm tier (`--no-default-features`) compiles.
+- **R1h** — not physics-gated (recorded explicitly: the migrated surfaces
+  sequence call-backs and make convergence/feedback DECISIONS; no physics
+  quantity is computed, asserted or gated by the Rust code itself — the
+  REQ-SAFE-01 validator re-run stays a Python call-back, and the R24 audit
+  discipline (hard failures raise in `_encoder_solve`, geometry trust
+  gates the proof) is unchanged).
