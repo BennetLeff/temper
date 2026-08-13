@@ -1,0 +1,813 @@
+#!/usr/bin/env python3
+"""Uncapped DRC violation counting for kicad-cli-saturated categories.
+
+Core idea: kicad-cli's DRC JSON caps every category at ERROR_LIMIT (199) or
+EXTENDED_ERROR_LIMIT (499) -- a GUI list-widget constant baked into
+drc_engine.cpp, not a property of the board. To get a TRUE count for a
+category that sits at/near its cap, partition the space of item-pairs (or
+items, for unary checks) into buckets that are PROVABLY exhaustive (every
+violation falls in exactly one bucket) and non-overlapping (no violation is
+double-counted), measure each bucket with a scoped kicad-cli run that keeps
+it comfortably under the cap, and sum.
+
+Two families of partition are implemented, chosen by what governs the
+category:
+
+  * DRU-rule-governed categories (clearance, creepage, track_width): the
+    .kicad_dru file's own rules already partition item-pairs by which rule
+    is the LAST MATCHING one (KiCad: last-matching-rule-wins). Given a
+    *shadow-free* DRU (RuleShadowingError guard passed -- see
+    scripts/generate_kicad_dru.py on fix/dru-rule-precedence), the winner
+    for a pair is simply the matching rule ranked highest by `min` value,
+    ties broken by original authored order -- exactly the tie-break the
+    fixed generator's own topological sort uses. We isolate rule R's own
+    band with a synthetic 2-rule DRU: rule 1 = "everything NOT matching R
+    (after R is AND-NOT'd against every strictly-higher-ranked rule)" with
+    `(severity ignore)` (evaluated, but never reported and -- verified
+    empirically below -- never consumes the category's report budget
+    either); rule 2 = R's own condition, AND-NOT every strictly-higher rule,
+    at R's real value. This is provably exhaustive (every pair matches rule
+    1 or rule 2, never neither) and non-overlapping (rule 2's condition is
+    disjoint from every other rule's isolated condition by construction).
+    A band still at/near the cap is recursively bisected by the REAL net
+    names in its own anchoring net class (not a class abstraction -- the
+    literal net names present on pcb/temper.kicad_pcb today), which is
+    itself exhaustive+disjoint since every copper item has exactly one net.
+
+  * Non-DRU categories (shorting_items: different-net items in electrical
+    contact; silk_overlap: silkscreen-vs-silkscreen graphic overlap): these
+    carry no `rule` attribution in kicad-cli's own JSON (verified: their
+    "description" field never contains "rule '...'"), so there is no DRU
+    condition to isolate them with. Instead we physically partition the
+    BOARD CONTENT via exact byte-preserving S-expression block deletion
+    (NOT a parse/reserialize round trip -- kiutils was tried and rejected:
+    round-tripping pcb/temper.kicad_pcb through kiutils with ZERO edits
+    still changes shorting_items 199->58 and hole_clearance 105->116, i.e.
+    it silently perturbs geometry on save). shorting_items is partitioned
+    by net-name bucket pairs (every copper item has exactly one net);
+    silk_overlap is partitioned by footprint-reference bucket pairs
+    (silkscreen graphics belong to a footprint, not a net).
+
+Never modifies pcb/temper.kicad_pcb. All scratch boards live under a
+caller-supplied directory outside the repo.
+"""
+
+from __future__ import annotations
+
+import contextlib
+import fnmatch
+import json
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+from dataclasses import dataclass, field
+from pathlib import Path
+
+REPO_ROOT = Path(
+    os.environ.get("UNCAPPED_DRC_REPO_ROOT", str(Path(__file__).resolve().parent.parent))
+)
+PCB_DIR = REPO_ROOT / "pcb"
+
+# Cap constants, from pcbnew/drc/drc_engine.cpp (10.0 branch) -- see
+# docs/evidence/2026-08-12-dru-rule-precedence.md sec 4.
+ERROR_LIMIT = 199
+EXTENDED_ERROR_LIMIT = 499
+# --all-track-errors is documented (and observed here) to overshoot its
+# nominal limit by a variable amount (0 up to ~14 measured in this session,
+# 0-6 in the precedence doc) because the limit is checked between whole
+# per-track batches, not per violation. Treat anything within this margin
+# of a known limit as "still saturated, must split further".
+SAFE_MARGIN = 20  # cap-detection threshold. Determinism (see
+# `_verified_count`) is the primary signal; this margin is just a first filter.
+
+# kicad-cli's DRC JSON caps `clearance` and `unconnected_items` at
+# EXTENDED_ERROR_LIMIT; every other category (including track_width,
+# shorting_items, silk_overlap, creepage) at ERROR_LIMIT. Getting this
+# wrong per-category silently under-splits: an isolated band sitting
+# exactly at 199 (track_width's real cap) would sail past a 479 threshold
+# unflagged. See drc_engine.cpp's DRC_ENGINE::RunTests loop quoted in
+# docs/evidence/2026-08-12-dru-rule-precedence.md sec 4.
+_EXTENDED_CATEGORIES = {"clearance", "unconnected_items"}
+
+
+def cap_for(ctype: str) -> int:
+    return EXTENDED_ERROR_LIMIT if ctype in _EXTENDED_CATEGORIES else ERROR_LIMIT
+
+
+def default_safe_ceiling(ctype: str) -> int:
+    return cap_for(ctype) - SAFE_MARGIN
+
+
+# ---------------------------------------------------------------------------
+# Scratch board setup / kicad-cli invocation
+# ---------------------------------------------------------------------------
+
+
+def make_scratch_board(dst: Path, pcb_text: str | None = None) -> Path:
+    """Populate `dst` with a scratch copy of the real board + project
+    context. `pcb_text`, if given, replaces temper.kicad_pcb's content
+    (used by the physical-partition path); otherwise the committed file is
+    copied byte-for-byte. Never touches pcb/temper.kicad_pcb itself."""
+    dst.mkdir(parents=True, exist_ok=True)
+    if pcb_text is None:
+        shutil.copy(PCB_DIR / "temper.kicad_pcb", dst / "temper.kicad_pcb")
+    else:
+        (dst / "temper.kicad_pcb").write_text(pcb_text)
+    shutil.copy(PCB_DIR / "temper.kicad_pro", dst / "temper.kicad_pro")
+    shutil.copy(PCB_DIR / "fp-lib-table", dst / "fp-lib-table")
+    libs_dst = dst / "libs"
+    if not libs_dst.exists():
+        shutil.copytree(PCB_DIR / "libs", libs_dst)
+    return dst
+
+
+def _single_thread_env() -> dict:
+    env = os.environ.copy()
+    env["KICAD_CONFIG_HOME"] = str(Path(tempfile.gettempdir()) / "uncapped_drc_kcfg")
+    Path(env["KICAD_CONFIG_HOME"]).mkdir(parents=True, exist_ok=True)
+    return env
+
+
+def run_kicad_drc(board_dir: Path, dru_text: str | None) -> dict:
+    """Write `dru_text` (or delete any existing .kicad_dru if None) into
+    board_dir, run kicad-cli exactly as
+    temper_placer.validation._drc_api.run_drc does, return the parsed JSON
+    dict (raw, with a 'violations' list)."""
+    dru_path = board_dir / "temper.kicad_dru"
+    if dru_text is None:
+        dru_path.unlink(missing_ok=True)
+    else:
+        dru_path.write_text(dru_text)
+    out_path = board_dir / "_drc_out.json"
+    env = _single_thread_env()
+    result = subprocess.run(
+        [
+            "kicad-cli",
+            "pcb",
+            "drc",
+            "--all-track-errors",
+            "--format",
+            "json",
+            "--output",
+            str(out_path),
+            str(board_dir / "temper.kicad_pcb"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        env=env,
+    )
+    if result.returncode != 0 or not out_path.exists():
+        raise RuntimeError(
+            f"kicad-cli DRC failed (exit {result.returncode}) in {board_dir}\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}"
+        )
+    with open(out_path) as f:
+        data = json.load(f)
+    with contextlib.suppress(OSError):
+        out_path.unlink()
+    return data
+
+
+def category_counts(drc_json: dict) -> dict:
+    from collections import Counter
+
+    return dict(Counter(v["type"] for v in drc_json.get("violations", [])))
+
+
+def category_count(board_dir: Path, dru_text: str | None, category: str) -> int:
+    data = run_kicad_drc(board_dir, dru_text)
+    return sum(1 for v in data.get("violations", []) if v["type"] == category)
+
+
+# ---------------------------------------------------------------------------
+# DRU rule parsing (independent of scripts/generate_kicad_dru.py so this
+# tool works whether or not that generator's fix has landed -- caller
+# supplies the .kicad_dru text to analyse).
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class DruRuleInfo:
+    name: str
+    condition: str
+    constraints: dict  # constraint type -> min value (mm)
+
+
+_RULE_RE = re.compile(r'\(rule\s+"((?:[^"\\]|\\.)*)"', re.MULTILINE)
+
+
+def _find_balanced(text: str, open_idx: int) -> int:
+    """Given the index of an '(' , return the index just past its matching ')'."""
+    depth = 0
+    i = open_idx
+    in_str = False
+    while i < len(text):
+        c = text[i]
+        if in_str:
+            if c == "\\":
+                i += 2
+                continue
+            if c == '"':
+                in_str = False
+        else:
+            if c == '"':
+                in_str = True
+            elif c == "(":
+                depth += 1
+            elif c == ")":
+                depth -= 1
+                if depth == 0:
+                    return i + 1
+        i += 1
+    raise ValueError("unbalanced parens")
+
+
+def parse_dru_rules(dru_text: str) -> list[DruRuleInfo]:
+    """Parse every `(rule "name" ...)` block into name/condition/constraints.
+    Strips `#`-comments first (outside quoted strings)."""
+    lines = []
+    for line in dru_text.splitlines():
+        stripped = line
+        if "#" in line and '"' not in line.split("#", 1)[0]:
+            stripped = line.split("#", 1)[0]
+        lines.append(stripped)
+    text = "\n".join(lines)
+
+    rules = []
+    for m in _RULE_RE.finditer(text):
+        rule_start = m.start()
+        block_end = _find_balanced(text, rule_start)
+        block = text[rule_start:block_end]
+        name = m.group(1)
+        cond_m = re.search(r'\(condition\s+"((?:[^"\\]|\\.)*)"\)', block)
+        condition = cond_m.group(1) if cond_m else None
+        constraints = {}
+        for cm in re.finditer(r"\(constraint\s+(\w+)\s+\(min\s+([0-9.]+)mm\)\)", block):
+            constraints[cm.group(1)] = float(cm.group(2))
+        if condition is not None and constraints:
+            rules.append(DruRuleInfo(name=name, condition=condition, constraints=constraints))
+    return rules
+
+
+NETCLASS_RE = re.compile(r"A\.NetClass\s*==\s*'([^']+)'")
+
+
+def anchor_class(condition: str) -> str | None:
+    """The single `A.NetClass == 'X'` class this condition's A-side
+    anchors on, if there is exactly one occurrence -- used to pick a
+    splitting axis when a band still saturates."""
+    classes = set(NETCLASS_RE.findall(condition))
+    if len(classes) == 1:
+        return next(iter(classes))
+    return None
+
+
+def isolation_dru(band_condition: str, value: float, ctype: str, label: str) -> str:
+    """A 2-rule DRU: rule 1 ignores everything NOT matching
+    band_condition (so it never contributes to ctype's reported count);
+    rule 2 enforces `value` on exactly band_condition, at ctype. Rule 2 is
+    emitted LAST, so KiCad's last-matching-rule-wins gives band_condition
+    pairs the real `value` and gives everyone else `ignore` (never
+    reported)."""
+    safe_label = label.replace('"', "'")
+    return f"""(version 1)
+
+(rule "{safe_label} -- everyone else, ignored"
+   (constraint {ctype} (min 0.001mm))
+   (severity ignore)
+   (condition "!({band_condition})")
+)
+
+(rule "{safe_label}"
+   (constraint {ctype} (min {value}mm))
+   (condition "{band_condition}")
+)
+"""
+
+
+# ---------------------------------------------------------------------------
+# Real net-name -> net-class map, from the committed board's OWN ground
+# truth (pcb/temper.kicad_pro's netclass_assignments + netclass_patterns),
+# not the Python SSOT layer -- this is what kicad-cli itself will use, so
+# it cannot drift from the measurement.
+# ---------------------------------------------------------------------------
+
+
+def real_net_names() -> list[str]:
+    text = (PCB_DIR / "temper.kicad_pcb").read_text()
+    return sorted(set(re.findall(r'\(net \d+ "([^"]*)"\)', text)) - {""})
+
+
+def net_class_map() -> dict[str, str]:
+    pro = json.loads((PCB_DIR / "temper.kicad_pro").read_text())
+    ns = pro["net_settings"]
+    assignments: dict[str, str] = ns.get("netclass_assignments", {})
+    patterns = ns.get("netclass_patterns", [])
+    out = {}
+    for name in real_net_names():
+        if name in assignments:
+            out[name] = assignments[name]
+            continue
+        cls = "Default"
+        for p in patterns:
+            if fnmatch.fnmatchcase(name, p["pattern"]):
+                cls = p["netclass"]
+                break
+        out[name] = cls
+    return out
+
+
+def names_in_class(cls: str, netmap: dict[str, str]) -> list[str]:
+    return sorted(n for n, c in netmap.items() if c == cls)
+
+
+def netname_disjunction(side: str, names: list[str]) -> str:
+    return "(" + " || ".join(f"{side}.NetName == '{n}'" for n in names) + ")"
+
+
+def _verified_count(board_dir: Path, dru_text: str, ctype: str, safe_ceiling: int) -> tuple[int, bool]:
+    """Run the isolation DRU; if the result is anywhere near a plausible
+    saturation zone, rerun once more. Returns (count, nondeterministic).
+    A count that repeats exactly is treated as exact even if the safe
+    margin alone would have flagged it -- determinism, not proximity to a
+    round number, is what distinguishes a true count from a capped one
+    (docs/evidence/2026-08-12-dru-rule-precedence.md sec 5.1: capped
+    categories vary run-to-run at a fixed board; true ones don't)."""
+    n1 = category_count(board_dir, dru_text, ctype)
+    if n1 < safe_ceiling - 40:
+        return n1, False
+    n2 = category_count(board_dir, dru_text, ctype)
+    return max(n1, n2), n1 != n2
+
+
+# ---------------------------------------------------------------------------
+# Recursive, provably-exhaustive measurement of one rule's band
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class BandResult:
+    label: str
+    condition: str
+    value: float
+    count: int
+    leaves: list = field(default_factory=list)  # sub-BandResults if split
+    note: str = ""
+
+
+def _measure_pool(
+    board_dir: Path,
+    ctype: str,
+    label: str,
+    rule_condition: str,
+    negation_suffix: str,
+    value: float,
+    anchor_class_name: str,
+    pool: list[str],
+    safe_ceiling: int,
+    _depth: int = 0,
+) -> BandResult:
+    """Measure the slice of `rule_condition`'s band restricted to A-side
+    net names in `pool` (a subset of the real nets in anchor_class_name).
+    Bisects `pool` and recurses if still saturated. `pool` partitions are
+    disjoint subsets of the SAME real net-name list, so every recursion
+    step is exhaustive+non-overlapping by construction, not merely
+    plausible."""
+    restricted = rule_condition.replace(
+        f"A.NetClass == '{anchor_class_name}'", netname_disjunction("A", pool)
+    )
+    full_condition = restricted + negation_suffix
+    dru = isolation_dru(full_condition, value, ctype, label)
+    n, nondeterministic = _verified_count(board_dir, dru, ctype, safe_ceiling)
+
+    if (n < safe_ceiling and not nondeterministic) or len(pool) == 1:
+        note = ""
+        if n >= safe_ceiling or nondeterministic:
+            det = "non-deterministic across reruns" if nondeterministic else f"n={n} >= safe ceiling {safe_ceiling}"
+            note = (
+                f"SATURATION SUSPECTED ({det}) but net {pool[0]!r} is a single "
+                "real net -- cannot split further. Reporting as a LOWER BOUND, "
+                "not a true count."
+            )
+        return BandResult(label=label, condition=full_condition, value=value, count=n, note=note)
+
+    mid = len(pool) // 2
+    halves = [pool[:mid], pool[mid:]]
+    leaves = []
+    total = 0
+    for half in halves:
+        sub = _measure_pool(
+            board_dir,
+            ctype,
+            f"{label} [{anchor_class_name} {len(half)}/{len(pool)}]",
+            rule_condition,
+            negation_suffix,
+            value,
+            anchor_class_name,
+            half,
+            safe_ceiling,
+            _depth + 1,
+        )
+        leaves.append(sub)
+        total += sub.count
+    return BandResult(
+        label=label,
+        condition=full_condition,
+        value=value,
+        count=total,
+        leaves=leaves,
+        note=f"split on real net names of class {anchor_class_name!r} ({len(pool)} nets); n_before_split={n}",
+    )
+
+
+def measure_rule_band(
+    board_dir: Path,
+    ctype: str,
+    rule: DruRuleInfo,
+    value: float,
+    negation_suffix: str,
+    netmap: dict[str, str],
+    safe_ceiling: int | None = None,
+) -> BandResult:
+    """Measure one ranked rule's true, exhaustive, non-overlapping
+    contribution: pairs matching `rule.condition` AND NOT any
+    strictly-higher-ranked rule (already folded into `negation_suffix`).
+    Splits by real net name on the rule's own A-anchor class if the
+    isolated count is at/near the cap."""
+    if safe_ceiling is None:
+        safe_ceiling = default_safe_ceiling(ctype)
+    full_condition = rule.condition + negation_suffix
+    dru = isolation_dru(full_condition, value, ctype, rule.name)
+    n, nondeterministic = _verified_count(board_dir, dru, ctype, safe_ceiling)
+    if n < safe_ceiling and not nondeterministic:
+        return BandResult(label=rule.name, condition=full_condition, value=value, count=n)
+
+    cls = anchor_class(rule.condition)
+    if cls is None:
+        return BandResult(
+            label=rule.name,
+            condition=full_condition,
+            value=value,
+            count=n,
+            note=(
+                f"SATURATION SUSPECTED (n={n} >= safe ceiling {safe_ceiling}) but "
+                "this rule's own condition has no single A.NetClass anchor to "
+                "split on automatically -- reporting the capped/near-capped "
+                "read as a LOWER BOUND, not a true count."
+            ),
+        )
+    pool = names_in_class(cls, netmap)
+    if len(pool) < 2:
+        return BandResult(
+            label=rule.name,
+            condition=full_condition,
+            value=value,
+            count=n,
+            note=(
+                f"SATURATION SUSPECTED (n={n}) but anchor class {cls!r} has only "
+                f"{len(pool)} real net(s) on the board -- cannot split further. "
+                "Reporting as a LOWER BOUND."
+            ),
+        )
+    return _measure_pool(
+        board_dir, ctype, rule.name, rule.condition, negation_suffix, value, cls, pool, safe_ceiling
+    )
+
+
+def measure_category_exhaustive(
+    board_dir: Path, dru_text: str, ctype: str, netmap: dict[str, str]
+) -> dict:
+    """Full exhaustive/non-overlapping true count for a DRU-rule-governed
+    category: every rule's own band (post AND-NOT of every rule ranked
+    ahead of it) plus, for `clearance` only, the netclass-implicit
+    fallback band (pairs no explicit rule matches -- kicad falls through
+    to the project's own per-netclass clearance). Returns a dict with
+    'total' and 'bands' (each a BandResult tree) for provenance.
+
+    Rules are ranked strictly by descending `min` value; ties are broken
+    by original parse (authored) order -- the SAME tie-break the fixed
+    generator's own Kahn topological sort uses (order_rules_by_strictness
+    in scripts/generate_kicad_dru.py on fix/dru-rule-precedence) -- so this
+    reproduces KiCad's actual last-matching-rule-wins winner for every pair
+    exactly. No two rules are ever merged into one combined band, which is
+    what makes automatic net-name splitting possible per-rule."""
+    rules = parse_dru_rules(dru_text)
+    typed = [r for r in rules if ctype in r.constraints]
+    ranked = sorted(typed, key=lambda r: -r.constraints[ctype])  # stable: ties keep parse order
+
+    bands = []
+    total = 0
+    higher_conditions: list[str] = []
+    for r in ranked:
+        value = r.constraints[ctype]
+        negation_suffix = (
+            "" if not higher_conditions else " && " + " && ".join(f"!({c})" for c in higher_conditions)
+        )
+        result = measure_rule_band(board_dir, ctype, r, value, negation_suffix, netmap)
+        bands.append(result)
+        total += result.count
+        higher_conditions.append(r.condition)
+
+    fallback = None
+    if ctype == "clearance":
+        all_cond = " || ".join(f"({r.condition})" for r in typed)
+        fb_dru = f"""(version 1)
+
+(rule "explicit-rule-governed, ignored for fallback measurement"
+   (constraint clearance (min 0.001mm))
+   (severity ignore)
+   (condition "{all_cond}")
+)
+"""
+        fb_count = category_count(board_dir, fb_dru, ctype)
+        note = ""
+        if fb_count >= default_safe_ceiling("clearance"):
+            note = (
+                f"SATURATION SUSPECTED (n={fb_count}) -- fallback bucket spans "
+                "many netclass pairs at once and has no single rule condition "
+                "to split automatically. Reporting as a LOWER BOUND."
+            )
+        fallback = BandResult(
+            label="netclass-implicit fallback (no explicit DRU rule matches)",
+            condition=f"!({all_cond})",
+            value=float("nan"),
+            count=fb_count,
+            note=note,
+        )
+        total += fallback.count
+        bands.append(fallback)
+
+    return {"ctype": ctype, "total": total, "bands": bands}
+
+
+def band_tree_to_dict(b: BandResult) -> dict:
+    return {
+        "label": b.label,
+        "value": b.value,
+        "count": b.count,
+        "note": b.note,
+        "leaves": [band_tree_to_dict(leaf) for leaf in b.leaves],
+    }
+
+
+# ---------------------------------------------------------------------------
+# Physical board partitioning for non-DRU-governed categories
+# (shorting_items, silk_overlap): exact byte-preserving S-expression block
+# deletion on the RAW committed text -- not a parse/reserialize round trip.
+# ---------------------------------------------------------------------------
+
+
+def _toplevel_block_spans(text: str, keyword: str) -> list[tuple[int, int]]:
+    """Spans of every direct child of `(kicad_pcb ...)` starting with
+    `(keyword `, at the file's own 2-space top-level indent."""
+    spans = []
+    for m in re.finditer(rf"(?m)^  \({keyword} ", text):
+        start = m.start() + 2  # the '('
+        end = _find_balanced(text, start)
+        spans.append((start, end))
+    return spans
+
+
+def _net_of_block(text: str, start: int, end: int) -> int | None:
+    m = re.search(r"\(net (\d+)", text[start:end])
+    return int(m.group(1)) if m else None
+
+
+def _pad_spans_in(text: str, fp_start: int, fp_end: int) -> list[tuple[int, int]]:
+    spans = []
+    for m in re.finditer(r"(?m)^    \(pad ", text[fp_start:fp_end]):
+        s = fp_start + m.start() + 4
+        e = _find_balanced(text, s)
+        spans.append((s, e))
+    return spans
+
+
+def board_text_filtered_by_nets(pcb_text: str, keep_net_names: set[str]) -> str:
+    """Return board text with every copper item (pad, segment, arc, via,
+    zone) whose net is NOT in `keep_net_names` deleted -- footprints and
+    every non-copper attribute untouched byte-for-byte for kept items.
+    Net numbers are resolved via the file's own `(net N "name")` header
+    declarations (left in place; unused net numbers referenced by nothing
+    are harmless)."""
+    net_num_to_name = dict(re.findall(r'\(net (\d+) "([^"]*)"\)', pcb_text))
+    keep_nums = {n for n, name in net_num_to_name.items() if name in keep_net_names}
+
+    deletions: list[tuple[int, int]] = []
+
+    for kind in ("segment", "arc", "via", "zone"):
+        for s, e in _toplevel_block_spans(pcb_text, kind):
+            net = _net_of_block(pcb_text, s, e)
+            # net 0 ("no net") items are never deleted, matching the pad
+            # handling below -- consistency matters here: an earlier version
+            # of this function deleted net-0 segments/vias/zones in every
+            # bucket run (while never deleting net-0 PADS), an asymmetry
+            # that silently and permanently excluded any such item from
+            # every partition run. Left uncorrected this systematically
+            # undercounts whatever real violations involve them.
+            if net is not None and net != 0 and str(net) not in keep_nums:
+                deletions.append((s, e))
+
+    for fp_s, fp_e in _toplevel_block_spans(pcb_text, "footprint"):
+        for pad_s, pad_e in _pad_spans_in(pcb_text, fp_s, fp_e):
+            net = _net_of_block(pcb_text, pad_s, pad_e)
+            if net is not None and str(net) not in keep_nums and net != 0:
+                deletions.append((pad_s, pad_e))
+
+    deletions.sort()
+    out = []
+    cursor = 0
+    for s, e in deletions:
+        if s < cursor:
+            continue  # overlapping/nested, skip (shouldn't happen by construction)
+        out.append(pcb_text[cursor:s])
+        cursor = e
+    out.append(pcb_text[cursor:])
+    return "".join(out)
+
+
+def board_text_filtered_by_refs(pcb_text: str, keep_refs: set[str]) -> str:
+    """Return board text with every footprint whose reference designator
+    is NOT in `keep_refs` deleted entirely, and every track/via/zone
+    dropped outright (irrelevant to silk_overlap, and removing them
+    shrinks/speeds every scratch run). Kept footprints are byte-identical
+    to the original, including their silkscreen graphics."""
+    deletions: list[tuple[int, int]] = []
+    for kind in ("segment", "arc", "via", "zone"):
+        deletions.extend(_toplevel_block_spans(pcb_text, kind))
+
+    for fp_s, fp_e in _toplevel_block_spans(pcb_text, "footprint"):
+        block = pcb_text[fp_s:fp_e]
+        m = re.search(r'\(property "Reference" "([^"]*)"', block)
+        ref = m.group(1) if m else None
+        if ref not in keep_refs:
+            deletions.append((fp_s, fp_e))
+
+    deletions.sort()
+    out = []
+    cursor = 0
+    for s, e in deletions:
+        if s < cursor:
+            continue
+        out.append(pcb_text[cursor:s])
+        cursor = e
+    out.append(pcb_text[cursor:])
+    return "".join(out)
+
+
+def all_footprint_refs(pcb_text: str) -> list[str]:
+    refs = []
+    for fp_s, fp_e in _toplevel_block_spans(pcb_text, "footprint"):
+        block = pcb_text[fp_s:fp_e]
+        m = re.search(r'\(property "Reference" "([^"]*)"', block)
+        if m:
+            refs.append(m.group(1))
+    return sorted(set(refs))
+
+
+def bucket(items: list, k: int) -> list[list]:
+    """Split `items` into k contiguous buckets, as evenly as possible."""
+    n = len(items)
+    base, extra = divmod(n, k)
+    buckets = []
+    i = 0
+    for j in range(k):
+        size = base + (1 if j < extra else 0)
+        buckets.append(items[i : i + size])
+        i += size
+    return [b for b in buckets if b]
+
+
+def measure_by_bucket_pairs(
+    board_dir: Path,
+    ctype: str,
+    pcb_text: str,
+    buckets: list[list[str]],
+    filter_fn,
+    safe_ceiling: int | None = None,
+) -> dict:
+    """Sum `ctype` over every unordered bucket pair (i, j), i<=j, of a
+    physical board partition. Exhaustive because every relevant item
+    belongs to exactly one bucket (by construction of `buckets`);
+    non-overlapping because each unordered item-pair is tested under
+    exactly one (i, j) run. Any single (i, j) run landing at/near the cap
+    is reported as a bucketing-granularity failure (told to the caller,
+    not silently summed) rather than refined automatically -- refining a
+    2-D bucket grid safely needs a finer regrid of BOTH axes at once,
+    which is worth a human decision, not an unattended retry loop.
+    """
+    if safe_ceiling is None:
+        safe_ceiling = default_safe_ceiling(ctype)
+    results = []
+    total = 0
+    any_saturated = False
+    for i in range(len(buckets)):
+        for j in range(i, len(buckets)):
+            keep = set(buckets[i]) | set(buckets[j])
+            filtered = filter_fn(pcb_text, keep)
+            make_scratch_board(board_dir, pcb_text=filtered)
+            n, nondet = _verified_count(board_dir, None, ctype, safe_ceiling)
+            saturated = n >= safe_ceiling or nondet
+            any_saturated = any_saturated or saturated
+            results.append({"i": i, "j": j, "count": n, "saturated": saturated, "nondeterministic": nondet})
+            total += n
+    return {
+        "ctype": ctype,
+        "n_buckets": len(buckets),
+        "total": total,
+        "any_saturated": any_saturated,
+        "pairs": results,
+    }
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def _print_band_tree(b: BandResult, indent: int = 0) -> None:
+    print(" " * indent + f"{b.label} = {b.count}" + (f"  [{b.note}]" if b.note else ""))
+    for leaf in b.leaves:
+        _print_band_tree(leaf, indent + 2)
+
+
+def _cli_dru_category(args) -> None:
+    if args.dru_generator:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("_dru_gen", args.dru_generator)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        dru_text = mod.generate_dru()
+    else:
+        dru_text = Path(args.dru_file).read_text()
+
+    board_dir = Path(args.scratch_dir)
+    make_scratch_board(board_dir)
+    netmap = net_class_map()
+    result = measure_category_exhaustive(board_dir, dru_text, args.category, netmap)
+    print(f"TRUE {args.category}: {result['total']}")
+    for b in result["bands"]:
+        _print_band_tree(b)
+    if args.json:
+        json.dump(
+            {"category": args.category, "total": result["total"], "bands": [band_tree_to_dict(b) for b in result["bands"]]},
+            Path(args.json).open("w"),
+            indent=2,
+        )
+
+
+def _cli_physical_category(args) -> None:
+    pcb_text = (PCB_DIR / "temper.kicad_pcb").read_text()
+    board_dir = Path(args.scratch_dir)
+    if args.category == "shorting_items":
+        items = real_net_names()
+        filter_fn = board_text_filtered_by_nets
+    elif args.category == "silk_overlap":
+        items = all_footprint_refs(pcb_text)
+        filter_fn = board_text_filtered_by_refs
+    else:
+        raise SystemExit(f"no physical partition strategy for {args.category!r}")
+    buckets = bucket(items, args.buckets)
+    result = measure_by_bucket_pairs(board_dir, args.category, pcb_text, buckets, filter_fn)
+    print(f"raw bucket-pair sum {args.category}: {result['total']} (any_saturated={result['any_saturated']})")
+    print(
+        "NOTE: this raw sum double-counts intra-bucket pairs across every "
+        "bucket-pair run that includes that bucket. Apply inclusion-exclusion "
+        "yourself before trusting a total -- see docs/evidence/"
+        "2026-08-12-uncapped-drc-measurement.md sec on shorting_items for why "
+        "this matters and why this session did not ship a validated total."
+    )
+    if args.json:
+        json.dump(result, Path(args.json).open("w"), indent=2)
+
+
+def main() -> None:
+    import argparse
+
+    p = argparse.ArgumentParser(description=__doc__)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    p1 = sub.add_parser("dru-category", help="exhaustive count for clearance/creepage/track_width")
+    p1.add_argument("category", choices=["clearance", "creepage", "track_width", "hole_clearance", "hole_to_hole"])
+    p1.add_argument("--dru-file", help="path to a pre-generated .kicad_dru")
+    p1.add_argument("--dru-generator", help="path to a generate_kicad_dru.py exposing generate_dru()")
+    p1.add_argument("--scratch-dir", required=True)
+    p1.add_argument("--json", help="write full band tree to this path")
+    p1.set_defaults(func=_cli_dru_category)
+
+    p2 = sub.add_parser("physical-category", help="bucket-pair sum for shorting_items/silk_overlap")
+    p2.add_argument("category", choices=["shorting_items", "silk_overlap"])
+    p2.add_argument("--buckets", type=int, default=8)
+    p2.add_argument("--scratch-dir", required=True)
+    p2.add_argument("--json", help="write full pair table to this path")
+    p2.set_defaults(func=_cli_physical_category)
+
+    args = p.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
