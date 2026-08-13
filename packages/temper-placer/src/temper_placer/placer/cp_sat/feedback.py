@@ -5,6 +5,22 @@ Maps router_v6 routing results to CP-SAT constraint deltas. Four
 feedback classes + unclassified fallback. Deltas are injected through
 the normal PCL encoder — the encoder doesn't know the constraint came
 from feedback vs. the PCL spec.
+
+This module is a delegation shim. The ``FeedbackClassifier.classify()``
+feedback-DECISION sequencing (the delta-mapping dispatch and the convergence
+feedback) moved to ``temper-orchestration``'s ``feedback.rs`` (Rust
+Orchestration Engine plan 2026-08-09-001, orchestration-port unit U-I) as
+``classify_feedback``. What stays Python (the U-I boundary): the four
+``_handle_*`` constraint-building handlers (they construct the PCL
+``SeparatedConstraint`` / ``KeepoutConstraint`` / ``AnchoredConstraint``
+objects and do the design-rules marshalling), the leaf helpers
+(``_find_critical_components`` / ``_detect_persistent_ics`` /
+``_compute_heuristic_position``), and the ``ConstraintDelta`` /
+``UnclassifiedFailure`` / ``ClassificationResult`` data carriers. The public
+API is unchanged. The pre-migration module is pinned VERBATIM as
+``tests/placer/cp_sat/_feedback_py_oracle.py`` (content-hash registered in
+``scripts/oracle_hashes.json``); bit-identical parity is pinned by
+``tests/placer/cp_sat/test_feedback_rust_differential.py``.
 """
 
 from __future__ import annotations
@@ -15,6 +31,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
+
+import temper_orchestration as _orch
 
 logger = logging.getLogger(__name__)
 
@@ -101,90 +119,18 @@ class FeedbackClassifier:
             ClassificationResult with sorted deltas and unclassified failures.
         """
 
-        deltas: list[ConstraintDelta] = []
-        unclassified: list[UnclassifiedFailure] = []
-
-        # Extract routing failures from the result object
-        unrouted_nets: list[str] = getattr(routing_result, "unrouted_nets", [])
-        drc_violations: list[object] = getattr(routing_result, "drc_violations", [])
-        congestion_regions: list[object] = getattr(routing_result, "congestion_regions", [])
-        completion_rate = getattr(routing_result, "completion_rate", 0.0)
-        # A fully connected board with DRC violations is not converged.  It
-        # needs the clearance-feedback path below, not an early clean result.
-        if completion_rate >= 1.0 and not drc_violations:
-            return ClassificationResult(deltas=[], unclassified=[], round_number=round_number)
-        placed_refs: list[str] = list(
-            getattr(placement, "placed_refs", []) or getattr(placement, "positions", {}).keys()
-        )
-
-        # Class 2: DRC clearance violations (check first — these are corrective)
-        for violation in drc_violations:
-            delta = self._handle_clearance_violation(violation)
-            if delta:
-                deltas.append(delta)
-            else:
-                comps = getattr(violation, "components", [])
-                loc = getattr(violation, "location", (0.0, 0.0))
-                msg = getattr(violation, "message", "unknown drc violation")
-                unclassified.append(
-                    UnclassifiedFailure(
-                        description=f"DRC: {msg}",
-                        components=list(comps),
-                        region=(loc[0] - 5, loc[1] - 5, loc[0] + 5, loc[1] + 5),
-                    )
-                )
-
-        # Class 1: Congestion in corridor between components
-        for region in congestion_regions:
-            delta = self._handle_congestion(region, placed_refs)
-            if delta:
-                deltas.append(delta)
-            else:
-                unclassified.append(
-                    UnclassifiedFailure(
-                        description="Congestion in region",
-                    )
-                )
-
-        # Class 3: Unrouted critical pins
-        for net_name in unrouted_nets:
-            critical_refs = self._find_critical_components(net_name, placement, placed_refs)
-            if critical_refs:
-                for comp_ref in critical_refs:
-                    delta = self._handle_unrouted_critical_pin(comp_ref, net_name, placement)
-                    if delta:
-                        deltas.append(delta)
-            else:
-                # Track for persistence check across rounds
-                pass
-
-        # Class 4: Persistent high-pin-count IC failure
-        persistent_ics = self._detect_persistent_ics(
-            unrouted_nets, previous_unclassified or [], round_number
-        )
-        for ic_ref in persistent_ics:
-            delta = self._handle_rotation_coordination(ic_ref, placement)
-            if delta:
-                deltas.append(delta)
-
-        # Unclassified: nets that don't match any critical IC
-        for net_name in unrouted_nets:
-            critical_refs = self._find_critical_components(net_name, placement, placed_refs)
-            if not critical_refs:
-                unclassified.append(
-                    UnclassifiedFailure(
-                        description=f"Unrouted net: {net_name}",
-                        nets=[net_name],
-                    )
-                )
-
-        # Sort by priority (lowest first = strongest signal)
-        deltas.sort(key=lambda d: d.priority)
-
-        return ClassificationResult(
-            deltas=deltas,
-            unclassified=unclassified,
-            round_number=round_number,
+        # The classification DECISION sequencing (routing-field extraction,
+        # the clean early-return, the four-class dispatch in oracle order, the
+        # unclassified collection and the priority sort) is delegated to
+        # `classify_feedback` (temper-orchestration, unit U-I). The four
+        # `_handle_*` constraint-building handlers and the leaf helpers stay
+        # Python call-backs.
+        return _orch.classify_feedback(
+            self,
+            routing_result,
+            placement,
+            round_number,
+            previous_unclassified,
         )
 
     # -----------------------------------------------------------------------

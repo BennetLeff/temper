@@ -222,6 +222,13 @@ mod feedback_loop;
 // / `cpsat_solve_phase2` pyfunctions are the delegation targets of the
 // `_loop_core.py` mixin. Append-only per the U-I dispatch.
 mod cpsat_loop;
+// Orchestration-port unit U-I (Rust Orchestration Engine plan 2026-08-09-001,
+// Wave-4 CP-SAT placement-loop slice): the `FeedbackClassifier.classify()`
+// feedback-DECISION sequencing of `temper_placer/placer/cp_sat/feedback.py`.
+// The `classify_feedback` pyfunction is the delegation target of the shim's
+// `classify()`; the four `_handle_*` constraint-building handlers and the
+// leaf helpers stay Python call-backs. Append-only per the U-I dispatch.
+mod feedback;
 mod drc_sweep_stage;
 mod drc_validation_stage;
 pub(crate) mod explainability;
@@ -353,6 +360,7 @@ pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automate
 pub use cpsat_loop::{
     cpsat_run_gated_loop, cpsat_run_legacy_loop, cpsat_solve_phase2, cpsat_solve_with_delta,
 };
+pub use feedback::classify_feedback;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 #[cfg(feature = "python")]
@@ -538,6 +546,11 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_run_gated_loop, m)?)?;
     m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_solve_with_delta, m)?)?;
     m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_solve_phase2, m)?)?;
+    // Orchestration-port unit U-I (append-only per the U-I dispatch): the
+    // feedback-classifier DECISION sequencing. The `feedback.py` shim's
+    // `classify()` delegates here; the constraint-building `_handle_*`
+    // handlers and the leaf helpers stay Python call-backs.
+    m.add_function(wrap_pyfunction!(feedback::classify_feedback, m)?)?;
     Ok(())
 }
 
