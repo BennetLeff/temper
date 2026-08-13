@@ -78,7 +78,11 @@ def decompose(path: Path) -> None:
     pct = 100.0 * len(band) / len(viol)
     print(f"x[{BAND[0]:.0f},{BAND[1]:.0f}) band: {len(band)} ({pct:.1f}%)")
 
-    rules = Counter(v.get("rule") or "?" for v in viol)
+    # kicad-cli embeds the rule in the description string, not a key.
+    rule_re = re.compile(r"rule '([^']+)'")
+    rules = Counter(
+        (rule_re.search(v.get("description") or "") or [None, "?"])[1] for v in viol
+    )
     print("\nrules:")
     for r, n in rules.most_common(6):
         print(f"  {n:>5}  {r}")
@@ -89,8 +93,9 @@ def decompose(path: Path) -> None:
         ks = tuple(sorted(_kind(i) for i in _items(v)))
         kinds["-".join(ks)] += 1
         for i in _items(v):
-            for lay in (i.get("layers") or []):
-                layers[lay] += 1
+            m = re.search(r" on ([A-Za-z0-9.]+Cu)", i.get("description") or "")
+            if m:
+                layers[m.group(1)] += 1
     print("\npair kinds:")
     for k, n in kinds.most_common(8):
         print(f"  {n:>5}  {k}")
