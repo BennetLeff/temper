@@ -84,12 +84,38 @@ re-solve, so no narrower classification survives.
 
 Full derivation, counts, and the falsifier this rewrite tested against:
 docs/evidence/2026-07-27-domain-classification-coverage.md.
+
+**Total, non-silent identity join (2026-08-13 board/netlist desync
+postmortem, gaps A+B).** Board positions are keyed by refdes (a KiCad
+footprint has no other natural key), and the compiled netlist's
+domain-net-membership is keyed by refdes too -- but these are two
+INDEPENDENT ref namespaces, not one. Nothing guarantees board ``U6`` and
+design ``U6`` name the same physical part; a designator renumber or a
+reused ref (board ``C27`` = ``tank.c_tank3`` vs. design ``C27`` =
+``ct_sense.c_filter``) makes matching ref STRINGS actively wrong, not just
+unhelpful. This loader therefore joins the two sides by INSTANCE PATH
+(board Sheetpath <-> design's dotted atopile path) -- the same stable
+identity ``scripts/check_netlist_board_reconciliation.py`` already uses as
+the CI-gated authority for this defect class -- and every board footprint
+with a position, and every design component, lands in one of four explicit
+buckets (``stats["identity_join"]``): matched (same path, may still be
+RENUMBERED if the refs differ), board-only (a board footprint with no
+design counterpart), design-only (a design component with no board
+footprint), or unkeyable (a board footprint with no Sheetpath at all).
+``stats["identity_join_incomplete"]`` is ``True`` whenever any bucket but
+"matched-with-same-ref" is non-empty, and a warning banner is printed
+(stderr) every time this loader runs against such a board -- so a caller
+cannot consume ``placement["components"]`` (the matched set) without the
+unmatched counts being visible right alongside it, without this loader
+itself refusing to run on a real, currently-imperfect board (which would
+make every safety validator that depends on it un-runnable, not safer).
 """
 
 from __future__ import annotations
 
 import copy
 import math
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -494,6 +520,30 @@ def load_real_board_placement(
 
     all_net_to_refs = _net_to_refs(netlist)
     pcb_result = parse_kicad_pcb(pcb_path)
+
+    # --- Identity join: board <-> design netlist, keyed by INSTANCE PATH ---
+    # (KiCad's Sheetpath property on the board side, atopile's dotted
+    # instance path on the design side) -- never by refdes. A ref is a
+    # positional label assigned independently on each side, so board-ref ==
+    # design-ref is neither necessary nor sufficient for "same physical
+    # part": a wholesale renumber changes the ref while the path stays put,
+    # and a reused ref (board C27 = tank.c_tank3 vs design C27 =
+    # ct_sense.c_filter, the 2026-08-13 desync's own shape) makes matching
+    # refs actively WRONG -- silently attributing one component's domain
+    # classification to a different physical part. This mirrors the
+    # identity discipline ``scripts/check_netlist_board_reconciliation.py``
+    # / ``temper_placer.validation.netlist_reconciliation`` already use as
+    # the CI-gated authority for this exact defect class; this loader stays
+    # tolerant of a partially-desynced board (safety validators must still
+    # run on the real board as it currently is) but never lets a
+    # mismatched ref pair masquerade as a match.
+    design_path_to_ref: dict[str, str] = {c.instance_path: c.ref for c in netlist.components}
+    board_ref_to_path: dict[str, str | None] = {
+        c.ref: (c.sheetpath or None)
+        for c in pcb_result.netlist.components
+        if c.initial_position is not None
+    }
+
     ref_to_position = {
         c.ref: c.initial_position
         for c in pcb_result.netlist.components
@@ -516,7 +566,13 @@ def load_real_board_placement(
 
     def _build_placement(
         net_domains: dict[str, VoltageDomain],
-    ) -> tuple[dict[str, Any], dict[str, VoltageDomain], dict[str, list[str]], int]:
+    ) -> tuple[
+        dict[str, Any],
+        dict[str, VoltageDomain],
+        dict[str, list[str]],
+        int,
+        list[tuple[str, str, str]],
+    ]:
         ref_to_domain_nets: dict[str, list[str]] = {}
         classified_nets_present: dict[str, VoltageDomain] = {}
         for net_name, domain in net_domains.items():
@@ -529,11 +585,20 @@ def load_real_board_placement(
 
         components: list[dict[str, Any]] = []
         matched = 0
+        # (instance_path, board_ref, design_ref) for every path present on
+        # BOTH sides whose refs disagree -- a wholesale-renumber-class
+        # finding, surfaced (never silently absorbed) alongside the match.
+        # See "Total, non-silent identity join" in the module docstring.
+        renumbered: list[tuple[str, str, str]] = []
         for ref, position in ref_to_position.items():
-            nets = ref_to_domain_nets.get(ref)
+            board_path = board_ref_to_path.get(ref)
+            design_ref = design_path_to_ref.get(board_path) if board_path else None
+            nets = ref_to_domain_nets.get(design_ref) if design_ref else None
             if not nets:
                 continue
             matched += 1
+            if design_ref != ref:
+                renumbered.append((board_path or "", ref, design_ref or ""))
             components.append(
                 {
                     "ref": ref,
@@ -551,16 +616,24 @@ def load_real_board_placement(
         return (
             {"components": components, "nets": nets_dict, "board": board_geometry},
             dict(classified_nets_present),
-            ref_to_domain_nets,
+            # Board-ref-keyed (not design-ref-keyed): every downstream
+            # consumer of this dict indexes it by the BOARD ref (the ref
+            # ``placement["components"]`` itself carries), so the returned
+            # mapping must live in that same namespace -- see module
+            # docstring "Total, non-silent identity join" for why keeping
+            # this design-ref-keyed was itself part of the same defect
+            # class (a board ref used to index a design-ref-keyed dict).
+            {c["ref"]: c["nets"] for c in components},
             matched,
+            renumbered,
         )
 
     # ``placement``/``voltage_domains`` (the tuple this function returns) use
     # the FULL manifest declaration -- see module docstring for why the
     # pre-promotion legacy subset no longer exists (it became identical to the
     # full set when the board was re-placed against all declared nets).
-    placement, voltage_domains, ref_to_domain_nets, matched_refs = _build_placement(
-        net_domains_full
+    placement, voltage_domains, board_ref_to_domain_nets, matched_refs, renumbered_paths = (
+        _build_placement(net_domains_full)
     )
 
     # --- Coverage + unclassified-component HV-proximity data (FULL set) ---
@@ -568,21 +641,29 @@ def load_real_board_placement(
     classified_refs = {c["ref"] for c in placement["components"]}
     unclassified_refs = sorted(all_refs_with_pos - classified_refs)
 
-    ref_to_instance_path = {
-        comp.ref: comp.instance_path
-        for comp in netlist.components
-    }
-    ref_to_all_nets: dict[str, list[str]] = {}
+    # DESIGN-ref-keyed (from the compiled netlist) -- kept separate from
+    # anything keyed by BOARD ref (``board_ref_to_domain_nets`` above) so the
+    # two namespaces can never again be conflated the way they silently were
+    # before this fix (see module docstring). Used below only after
+    # resolving a board ref to its design counterpart via
+    # ``board_ref_to_path`` + ``design_path_to_ref``.
+    design_ref_to_instance_path = {comp.ref: comp.instance_path for comp in netlist.components}
+    design_ref_to_all_nets: dict[str, list[str]] = {}
     for net_name, refs in all_net_to_refs.items():
         for ref in refs:
-            ref_to_all_nets.setdefault(ref, []).append(net_name)
+            design_ref_to_all_nets.setdefault(ref, []).append(net_name)
+
+    def _design_ref_for_board_ref(board_ref: str) -> str | None:
+        path = board_ref_to_path.get(board_ref)
+        return design_path_to_ref.get(path) if path else None
 
     hv_refs_with_pos = sorted(
         ref
         for ref in classified_refs
         if ref in ref_to_position
         and any(
-            net_domains_full.get(n) in _HV_DOMAINS for n in ref_to_domain_nets.get(ref, [])
+            net_domains_full.get(n) in _HV_DOMAINS
+            for n in board_ref_to_domain_nets.get(ref, [])
         )
     )
 
@@ -635,13 +716,23 @@ def load_real_board_placement(
         if best_dist is None or best_ref is None:
             continue  # no HV-classified component with a position at all
         exempt = frozenset({ref, best_ref}) in exempt_pairs
+        design_ref = _design_ref_for_board_ref(ref)
+        design_ref_best = _design_ref_for_board_ref(best_ref)
         proximity_findings.append(
             {
                 "ref": ref,
-                "instance_path": ref_to_instance_path.get(ref, ""),
-                "nets": sorted(ref_to_all_nets.get(ref, [])),
+                "instance_path": (
+                    design_ref_to_instance_path.get(design_ref, "") if design_ref else ""
+                ),
+                "nets": (
+                    sorted(design_ref_to_all_nets.get(design_ref, [])) if design_ref else []
+                ),
                 "nearest_hv_ref": best_ref,
-                "nearest_hv_instance_path": ref_to_instance_path.get(best_ref, ""),
+                "nearest_hv_instance_path": (
+                    design_ref_to_instance_path.get(design_ref_best, "")
+                    if design_ref_best
+                    else ""
+                ),
                 # EXACT copper-to-copper separation (see comment above). The
                 # origin-to-origin figure this used to report is kept alongside
                 # so the difference is visible rather than silently swapped.
@@ -664,12 +755,69 @@ def load_real_board_placement(
 
     declared_nets_total = sum(len(v) for v in domains.values())
     total_components = len(all_refs_with_pos)
+    design_refs_on_classified_nets = {
+        ref for net_name in voltage_domains for ref in all_net_to_refs.get(net_name, ())
+    }
+
+    # --- Total, non-silent identity join (gap B: the join that used to
+    # silently drop non-matching components) ---
+    # Every board footprint with a position, and every design component,
+    # lands in an explicit bucket below -- never merely absent from a
+    # "matched" set with no record of why. This is deliberately reported
+    # (not raised/hard-failed): this loader must keep working on a
+    # partially-desynced board, since the safety validators that consume it
+    # need to run on the real board as it currently is. What changes is
+    # that a caller can no longer consume ``placement["components"]``
+    # (the matched set) without ``stats["identity_join"]`` sitting right
+    # beside it -- a partial join is reported as a partial join, greppable
+    # by ``identity_join_incomplete``, rather than looking like a complete
+    # and successful one.
+    board_paths_all = {p for p in board_ref_to_path.values() if p}
+    design_paths_all = set(design_path_to_ref)
+    board_only_paths = sorted(board_paths_all - design_paths_all)
+    design_only_paths = sorted(design_paths_all - board_paths_all)
+    board_unkeyable_refs = sorted(ref for ref, p in board_ref_to_path.items() if not p)
+    identity_join = {
+        "matched_paths": len(board_paths_all & design_paths_all),
+        "renumbered_paths": sorted(renumbered_paths),
+        "board_only_paths": board_only_paths,
+        "design_only_paths": design_only_paths,
+        "board_unkeyable_refs": board_unkeyable_refs,
+    }
+    identity_join_incomplete = bool(
+        renumbered_paths or board_only_paths or design_only_paths or board_unkeyable_refs
+    )
+    if identity_join_incomplete:
+        # Printed unconditionally (not merely logged) so it is visible in
+        # every caller's captured output -- pytest, the CLI optimize path,
+        # evidence scripts -- without any of them opting in. Grep this
+        # banner or ``stats["identity_join_incomplete"]`` for the explicit,
+        # greppable acknowledgement this loader's docstring requires of any
+        # caller that wants to treat a partial join as fine.
+        print(
+            "[real_board] IDENTITY JOIN INCOMPLETE: "
+            f"{len(renumbered_paths)} renumbered, {len(board_only_paths)} board-only "
+            f"(EXTRA), {len(design_only_paths)} design-only (MISSING), "
+            f"{len(board_unkeyable_refs)} board component(s) with no Sheetpath -- "
+            "see stats['identity_join']. The matched set below excludes all of "
+            "these; run scripts/check_netlist_board_reconciliation.py for the "
+            "authoritative, complete finding list.",
+            file=sys.stderr,
+        )
 
     stats = {
         "pcb_components": len(ref_to_position),
         "netlist_components": len(netlist.components),
-        "netlist_refs_on_classified_nets": len(ref_to_domain_nets),
+        "netlist_refs_on_classified_nets": len(design_refs_on_classified_nets),
         "matched_components_in_placement": matched_refs,
+        # Gap B: total, explicit accounting of the board<->design identity
+        # join -- see block above. ``identity_join_incomplete`` is the
+        # single boolean a caller can assert on without inspecting the
+        # nested detail; ``identity_join`` carries the full per-bucket
+        # detail (instance paths, board vs. design refs) for anything that
+        # wants to report or act on it.
+        "identity_join_incomplete": identity_join_incomplete,
+        "identity_join": identity_join,
         "classified_nets_present": sorted(voltage_domains),
         "classified_nets_requested_but_absent": sorted(
             set(net_domains_full) - set(voltage_domains)

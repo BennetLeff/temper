@@ -181,6 +181,26 @@ scripts:
   - sys
   - tempfile
   - typing
+- path: check_board_sync_stamp.py
+  purpose: 'Board-sync-stamp freshness CI gate (2026-08-13 board/netlist desync postmortem, gap C):
+    fails closed unless the committed pcb/temper.kicad_pcb.source-digest stamp -- written by write_board_sync_stamp.py,
+    which itself refuses to run unless check_netlist_board_reconciliation.py currently passes -- matches
+    the board''s and netlist''s CURRENT content. Complements the reconciliation gate with a cheap, git-diff-visible
+    provenance claim rather than re-deriving its verdict; also requires the netlist itself be proven fresh
+    against elec/src/** before trusting any digest comparison against it.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_domain_partition
+  - pathlib
+  - sys
 - path: check_bom_source_reconciliation.py
   purpose: 'BOM<->source reconciliation CI gate (R14): parses docs/hardware/BOM.md component tables and
     elec/src/*.ato physical-component instantiations, matches by normalized designator, and reports costed-with-no-circuit,
@@ -2328,6 +2348,23 @@ scripts:
   - rich.table
   - shutil
   - subprocess
+  - sys
+- path: write_board_sync_stamp.py
+  purpose: 'Write-side of the board-sync-stamp mechanism (2026-08-13 board/netlist desync postmortem,
+    gap C): records a content digest of pcb/temper.kicad_pcb + elec/build/default.net beside the board,
+    so check_board_sync_stamp.py can later prove neither side changed since. Refuses to write unless
+    check_netlist_board_reconciliation.py currently passes (0 findings) -- a stamp on a desynced board
+    would be worse than no stamp.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - argparse
+  - check_netlist_board_reconciliation
+  - pathlib
   - sys
 - path: write_build_stamp.py
   purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s inputs
