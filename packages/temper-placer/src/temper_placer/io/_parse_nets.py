@@ -130,7 +130,26 @@ def _extract_design_rules(
     net_class_assignments = {}
 
     default_clearance = 0.2
-    default_trace_width = 0.25
+    # 0.20mm, not the 0.25 this carried until 2026-08-12. Three declared
+    # sources say 0.2 and none said 0.25: `pcb/temper.kicad_pro`'s `Default`
+    # net class (`track_width: 0.2`), the same file's
+    # `design_settings.rules.min_track_width` (0.2), and
+    # `core/design_rules.py`'s `default_trace_width=0.2`. The generated DRU's
+    # `Signal trace width` rule is likewise `min 0.2mm`.
+    #
+    # It is load-bearing for `clearance`, not cosmetic. Stage 4's A* reserves
+    # `trace_width + clearance` around routed copper and the routing lattice
+    # is 0.1mm, so this number sets the achievable inter-net pitch:
+    #   0.25 + 0.20 = 0.45 -> quantises up to a 0.50mm pitch (25% coarser,
+    #                         measured cost: 4497 -> 3410 segments,
+    #                         86/102 -> 73/102 nets)
+    #   0.20 + 0.20 = 0.40 -> lands exactly on the lattice, keeping the
+    #                         original 0.40mm pitch, and the resulting
+    #                         edge gap is 0.40 - 0.20 = 0.20mm, exactly the
+    #                         `Default routing` rule rather than 0.05mm under
+    #                         it.
+    # See docs/evidence/2026-08-12-clearance-congestion-band.md.
+    default_trace_width = 0.2
     default_via_diameter = 0.8
     default_via_drill = 0.4
 

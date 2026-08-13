@@ -62,8 +62,19 @@ from tests.router_v6 import _pipeline_core_py_oracle as _orc
 # Oracle body pinning (G1)
 # ---------------------------------------------------------------------------
 
+# The digest changes ONLY when the oracle body is deliberately re-pinned, and
+# every re-pin belongs in a commit that says why. Log:
+#   8d3221be... -> 3a719cb2...  2026-08-12, clearance-floor re-land: deleted
+#     ``dr.default_clearance_mm = 0.15`` from the Stage-0 injection block in
+#     lockstep with the shim. The oracle pins the MIGRATION contract (shim
+#     output == pre-migration output), not the VALUE, so a deliberate value
+#     correction has to be made on both sides or the differential starts
+#     asserting the defect. Same treatment the io oracle got for
+#     ``default_trace_width`` 0.25 -> 0.20. See
+#     scripts/check_router_clearance_floor.py and
+#     docs/evidence/2026-08-12-clearance-congestion-band.md.
 _PINNED = {
-    "_pipeline_core_py_oracle.py": "8d3221be28e3371499e01b1ae68f09ea3c58e434ac21a08a917f71c1a23d75e7",
+    "_pipeline_core_py_oracle.py": "3a719cb2aae66699c4e7aac5d41fb6fcecfefc1e1d82d08735392c5304e7340d",
 }
 _BODY_MARKER = "# --- BEGIN PINNED BODY ---\n"
 
@@ -825,8 +836,14 @@ def test_verbose_stdout_matches_oracle(monkeypatch, capsys) -> None:
 
 def test_stage0_injection_and_net_sort_match_oracle(monkeypatch) -> None:
     """The Stage-0 setup marshalling (pcb_override swap, netclass/assignment
-    injection with the 0.15 default-clearance, the power-first stable net
-    sort) leaves the pcb byte-identically configured on both arms."""
+    injection, the power-first stable net sort) leaves the pcb
+    byte-identically configured on both arms.
+
+    Since 2026-08-12 the injection no longer clobbers
+    ``default_clearance_mm`` to 0.15 -- that was 0.05mm below the floor the
+    DRC grades the same copper at, see
+    ``scripts/check_router_clearance_floor.py`` -- so the parsed value
+    (0.3 on this fake) must survive the injection unchanged on both arms."""
     nets = [
         _FakeNet("SPI_MOSI", 2),
         _FakeNet("GND", 4),
@@ -878,7 +895,7 @@ def test_stage0_injection_and_net_sort_match_oracle(monkeypatch) -> None:
     assert [n.name for n in result_s.pcb.nets] == [
         "GND", "GATE_H", "SPI_MOSI", "USB_D_P", "TEMP_SENSE",
     ]
-    assert result_s.pcb.design_rules.default_clearance_mm == 0.15
+    assert result_s.pcb.design_rules.default_clearance_mm == 0.3
     assert result_s.pcb.design_rules.net_class_assignments == {"GND": "Power"}
 
 

@@ -2139,6 +2139,20 @@ jobs:
         # so it does not block this gate).
         run: uv run python scripts/check_netclass_class_param_correspondence.py
 
+      - name: Router clearance floor gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_router_clearance_floor.py -v --tb=short
+
+      - name: Router-vs-DRC clearance floor gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # BLOCKING from the start, deliberately: this gate is green on the
+        # tree that introduces it, so it can only ever fail on a
+        # reintroduction. The defect it guards (router reserving 0.15mm
+        # while RULE 10 grades at 0.2mm) cost +115 clearance errors on the
+        # heatsink candidate board and was invisible in either file alone --
+        # see docs/evidence/2026-08-12-clearance-congestion-band.md.
+        run: uv run python scripts/check_router_clearance_floor.py
+
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/gen_domain_models.py --check

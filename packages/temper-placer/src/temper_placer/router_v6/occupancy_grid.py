@@ -18,6 +18,7 @@ accessible bit-exact Rust equivalent, so it stays Python. See
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, replace
 from enum import Enum
 
@@ -33,6 +34,8 @@ from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
     register_validator,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CellState(Enum):
@@ -373,11 +376,51 @@ def build_occupancy_grid(
     # Initialize grid as all blocked (static obstacle)
     grid = np.full((height_cells, width_cells), -1, dtype=np.int8)
 
-    # Use eroded area if inflation requested
+    # Use eroded area if inflation requested.
+    #
+    # This guard used to read ``if inflation_mm > 0.1``, commented "Threshold
+    # to avoid tiny/empty buffers". That is a MAGNITUDE proxy for two distinct
+    # hazards, and it is measurably a bad proxy for both (all figures from the
+    # #1082 placed board's four production routing spaces, see
+    # docs/evidence/2026-08-12-clearance-floor-reland.md):
+    #
+    #   "tiny"  -- does not exist. ``buffer(-1e-9)`` over all four layers costs
+    #              0.042s, returns valid non-empty geometry, and loses
+    #              0.000000% of the area. There is no cost to guard against, so
+    #              the threshold bought nothing on this side.
+    #   "empty" -- is real, but lives two orders of magnitude away: the first
+    #              layer to erode to EMPTY is F.Cu at inflation 10mm, In1/In2
+    #              at 50mm. A 0.1mm threshold is 100x too small to catch it.
+    #
+    # What the threshold DID do is silently switch the C-space off at exactly
+    # the value production passes. ``OccupancyGridStage`` passes
+    # ``default_trace_width_mm / 2``, and once that was corrected 0.25 -> 0.20
+    # (the clearance-floor fix) it became exactly 0.100 -- and ``0.1 > 0.1`` is
+    # False. Measured: the erosion was skipped entirely and 94,991 cells across
+    # the four layers that were reserved before became free, all of them the
+    # ring hugging an obstacle boundary. The DRC consequence was 191 clearance
+    # violations at ``actual 0.0000 mm`` on board C.
+    #
+    # So the predicate is the semantic one -- ANY positive inflation is a real
+    # reservation and gets applied -- and the empty case is handled by looking
+    # at the RESULT instead of guessing from the input. An empty erosion is
+    # kept, not discarded: it means no trace of this width fits on this layer
+    # at all, and blocking the layer is the true answer. Falling back to the
+    # un-eroded area there would emit copper that violates by construction,
+    # which is the whole defect class this fix belongs to. It is logged so the
+    # cause is visible rather than surfacing as mass A* failure.
     check_area = routing_space.available_area
-    if inflation_mm > 0.1:  # Threshold to avoid tiny/empty buffers
+    if inflation_mm > 0:
         # Erode the available area (which is dilation of obstacles)
         check_area = routing_space.available_area.buffer(-inflation_mm, quad_segs=4)
+        if check_area.is_empty:
+            logger.warning(
+                "C-space erosion emptied layer %s at inflation_mm=%r: no trace "
+                "of this width fits anywhere on the layer, so every cell is "
+                "blocked. This is a real geometric result, not a grid bug.",
+                routing_space.layer_name,
+                inflation_mm,
+            )
 
     # Vectorized grid construction
     # 1. Create coordinate grids
