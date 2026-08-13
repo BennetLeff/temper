@@ -146,13 +146,21 @@ def _install_wrapper_layout(
     module_name: str,
     native_mtime: float,
     wrapper_mtime: float | None = None,
-    native_bytes: bytes = b"\x00",
+    native_bytes: bytes | None = None,
 ) -> Path:
     """Build maturin's real on-disk layout: <module>/__init__.py (thin
     re-export) + <module>/<module>.cpython-*.so (the real artifact) --
     confirmed empirically against every pyo3 crate in this repo (see
     module docstring). Returns the __init__.py path (what find_spec
-    resolves to)."""
+    resolves to).
+
+    *native_bytes* defaults to a payload carrying ``PyInit_<module_name>``,
+    i.e. a LOADABLE artifact, because that is what a real successful build
+    produces and it is the precondition every other test here means to
+    assume. Pass explicit bytes without that symbol to exercise the
+    UNLOADABLE state (see ``TestUnloadableArtifact``)."""
+    if native_bytes is None:
+        native_bytes = b"\x00" + f"PyInit_{module_name}".encode() + b"\x00"
     pkg_dir = site_packages / module_name
     pkg_dir.mkdir(parents=True)
     init_py = pkg_dir / "__init__.py"
@@ -594,7 +602,7 @@ class TestContentStamp:
         *,
         source_mtime: float,
         native_mtime: float,
-        native_bytes: bytes = b"\x00",
+        native_bytes: bytes | None = None,
     ) -> tuple[Crate, Path]:
         crate = _crate_with_source(tmp_path, source_mtime)
         init_py = _install_wrapper_layout(
@@ -881,11 +889,112 @@ class TestStampWriter:
         assert write_extension_stamps_main(["--repo-root", str(repo)]) == 0
         first = stamp_file_for(artifact)
 
-        # A rebuild: new .so bytes, still newer than the sources.
-        artifact.write_bytes(b"\x00rebuilt")
+        # A rebuild: new .so bytes, still newer than the sources. The payload
+        # must still carry the init symbol -- this test models a SUCCESSFUL
+        # rebuild, and the stamp writer now (correctly) refuses to stamp an
+        # artifact that exports none. See TestUnloadableArtifact.
+        artifact.write_bytes(b"\x00rebuilt\x00PyInit_fake_crate_ext\x00")
         os.utime(artifact, (now, now))
         assert write_extension_stamps_main(["--repo-root", str(repo)]) == 0
 
         stamps = sorted(artifact.parent.glob(f"{artifact.name}.*.source-digest"))
         assert stamps == [stamp_file_for(artifact)]
         assert not first.is_file()
+
+
+# ---------------------------------------------------------------------------
+# TestUnloadableArtifact
+# ---------------------------------------------------------------------------
+
+
+class TestUnloadableArtifact:
+    """A `.so` can be brand-new AND unimportable at the same time.
+
+    `cargo check`/clippy compile these crates without their `python`
+    feature. maturin will reuse such an artifact, report a successful build
+    in ~0.03s with no `Compiling` line, and install a `.so` exporting no
+    `PyInit_<module>`. Its mtime is new and its content hash matches, so
+    every freshness path reports OK -- while `import <module>` raises
+    "dynamic module does not define module export function".
+
+    Measured 2026-08-13: this gate printed "PASSED -- 10/10 extension
+    module(s) fresh" against exactly such a temper_geometry artifact, and 21
+    of 32 apparent test failures in an unrelated suite were that one broken
+    module. Freshness answers "was it rebuilt?"; these tests pin the
+    separate question "is what got installed loadable?".
+    """
+
+    def _installed(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        *,
+        native_bytes: bytes | None,
+    ) -> Crate:
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now - 100)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages",
+            "fake_crate_ext",
+            native_mtime=now,
+            native_bytes=native_bytes,
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        return crate
+
+    def test_artifact_without_init_symbol_is_unloadable_not_fresh(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The regression itself: newer-than-sources, but no init symbol."""
+        crate = self._installed(tmp_path, monkeypatch, native_bytes=b"\x00" * 4096)
+        status = check_module(crate)
+        assert status.state == "unloadable", (
+            f"an artifact exporting no PyInit_ must never be reported "
+            f"{status.state!r} -- it cannot be imported at all: {status.detail}"
+        )
+        assert "cargo clean -p" in status.detail, (
+            "the finding must name the fix; a bare 'unloadable' sends the "
+            "reader back to the same dead end this gate exists to short-circuit"
+        )
+
+    def test_unloadable_is_fatal_even_when_not_required(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Never gated by TEMPER_REQUIRE_FRESH_EXTENSIONS, unlike MISSING.
+
+        "Not built here" is a legitimate local state. "Built, but cannot be
+        imported" never is -- it yields phantom test failures in every
+        environment, so tolerating it leniently would be tolerating noise.
+        """
+        crate = self._installed(tmp_path, monkeypatch, native_bytes=b"\x00" * 4096)
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert decide_exit_code(report, required=False) == EXIT_VIOLATION
+        assert decide_exit_code(report, required=True) == EXIT_VIOLATION
+
+    def test_pymodexport_symbol_also_counts_as_loadable(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """pyo3's newer multi-phase export must not be flagged unloadable.
+
+        Anchors the gate against a false positive that would fire on every
+        crate the moment pyo3 switches export style -- the failure mode that
+        makes a gate get disabled rather than fixed.
+        """
+        crate = self._installed(
+            tmp_path,
+            monkeypatch,
+            native_bytes=b"\x00" + b"PyModExport_fake_crate_ext" + b"\x00",
+        )
+        assert check_module(crate).state != "unloadable"
+
+    def test_loadable_artifact_is_still_judged_on_freshness(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The symbol check must not short-circuit the freshness verdict."""
+        crate = self._installed(tmp_path, monkeypatch, native_bytes=None)
+        assert check_module(crate).state == "fresh"
