@@ -3592,6 +3592,7 @@ argued in-source and above):
 | feedback-loop differential (oracle: `_orchestrator_py_oracle.py`, sha256-pinned; call sequence + zone_config refresh values, log-message parity through the same logger, real-leaves end-to-end config mutations, cap exhaustion + EXP-5 reset, no-adjustment break, exception parity, anti-vacuity) | `packages/temper-placer/tests/deterministic/test_orchestrator_rust_differential.py` | 10 |
 | feedback-loop PBT (P1..P6: reference-model call order, determinism, iteration cap, clean break, no-adjustment break, EXP-5 reset preserve/clear split — each mutation-guarded) | `packages/temper-placer/tests/deterministic/test_orchestrator_pbt.py` | 12 |
 | U-F runner (the loop through the pyfunction with fake call-backs + the `FeedbackIterationStage` impls through `PipelineRunner<BoardState>` directly: Completed/Completed/Skipped×3 report, zero-cap identity) | `packages/temper-orchestration/tests/uf_feedback_runner.rs` | 3 |
+| U-F native proptests (P1 call-order + final-state provenance vs the reference model, P2 determinism, plus a golden-reachability and a reference-discrimination anti-vacuity check — the Python PBT's P1..P6 mirrored as `proptest` so the same decision surface runs under `PROPTEST_CASES`, not hypothesis's `max_examples=100`) | `packages/temper-orchestration/src/feedback_loop.rs` `proptests` module | 4 |
 | existing shim surface (all `tests/deterministic/*` through the delegation shim) | `packages/temper-placer/tests/deterministic/` | 1551 passed, 1 skipped |
 
 ### R1 gate status (U-F)
@@ -3604,7 +3605,9 @@ argued in-source and above):
   plus the shim call; the per-iteration compute is untouched — no regression
   beyond noise is possible or claimed.
 - **R1c** — 6 non-vacuous properties (P1..P6), each with a degenerate-mutant
-  guard that must trip.
+  guard that must trip; mirrored as 2 native `proptest` properties in
+  `feedback_loop.rs` (call-order + final-state provenance vs the reference
+  model, determinism) verified at `PROPTEST_CASES=10000`.
 - **R1d** — metamorphic relations not claimed: the reference-model call-order
   property (P1) plus the count-based termination properties already pin the
   loop's observable contract.

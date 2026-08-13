@@ -464,3 +464,454 @@ pub fn run_automated_zero_drc(
         .clone();
     Ok(final_py)
 }
+
+// ---------------------------------------------------------------------------
+// Native proptests (R19/U6-style)
+// ---------------------------------------------------------------------------
+//
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// loop-DECISION properties live in their own `#[cfg(test)]` sibling module --
+// the same split `deterministic_pipeline.rs`/`pipeline.rs`/`clearance.rs` use.
+// Two separate `cfg` attributes (rather than one `cfg(all(test, feature =
+// "python"))`) so `scripts/gen_wasm_test_registry.py`'s discovery -- which
+// recognises a module as test-gated only via a literal `#[cfg(test)]`
+// attribute -- still finds and censuses this module (as `python`-gated, so
+// absent from the wasm32 tier) instead of missing it silently.
+//
+// proptest: `run_automated_zero_drc` -- the LOOP's per-iteration call ORDER
+// and termination DECISIONS (clean-parse break, no-adjustment break, iteration
+// cap, the EXP-5 reset's final-state category) over randomized scenarios. This
+// port sequences Python call-backs (the leaf compute is pinned elsewhere), so
+// the observable contract is exactly the call log + the final state -- the
+// decision surface this module migrated. These properties mirror the
+// mutation-guarded Python PBT (tests/deterministic/test_orchestrator_pbt.py,
+// P1..P6) as native proptests so the same surface runs under `PROPTEST_CASES`
+// (the hypothesis suite caps at `max_examples=100`).
+#[cfg(test)]
+#[cfg(feature = "python")]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+    use pyo3::types::{PyList, PyModule};
+    use pyo3::IntoPyObjectExt;
+    use std::sync::{Once, OnceLock};
+
+    /// Interpreter + fake-module install, done once per process (the crate's
+    /// runner tests call `Python::initialize()` per test, so a second init
+    /// here is a no-op). `Py<PyModule>` is `Send + Sync`, so it can live in a
+    /// `OnceLock` static.
+    static PY_INIT: Once = Once::new();
+    static FAKES: OnceLock<Py<PyModule>> = OnceLock::new();
+
+    /// The fake Python surface the loop drives. `build_fakes` returns the
+    /// seven call-backs `run_automated_zero_drc` expects, all recording their
+    /// invocation into the shared `log` list; the pipeline returns a fresh
+    /// `State(tag)` per call (so the final state's provenance is observable),
+    /// the parse returns `n` placeholder violations (an empty list is the
+    /// clean-parse break), and the adjuster pops one bool per call (an empty
+    /// adjustments dict is the no-adjustment break). `FakeBoardState` is
+    /// registered as `temper_placer.deterministic.state.BoardState` so the
+    /// EXP-5 reset reconstruction works without the venv on `sys.path`.
+    const FAKE_SOURCE: &str = r#"
+from dataclasses import dataclass
+
+@dataclass
+class FakeBoardState:
+    board: object = None
+    netlist: object = None
+    loops: object = None
+    grid: object = None
+    drc_oracle: object = None
+    drc_violations: object = None
+    design_rules: object = None
+    connectivity_violations: object = None
+    placement_violations: object = None
+    placements: object = None
+    used_slots: object = None
+    config: object = None
+    component_domain_map: object = None
+    routing_corridors: object = None
+    domain_regions: object = None
+    routes: object = None
+    vias: object = None
+    violations: object = None
+    zones: object = None
+    component_zone_map: object = None
+    zone_slots: object = None
+    layer_assignments: object = None
+    reclaim_by_pin_pair: object = None
+    net_order: object = ()
+    locked_routes: object = ()
+
+class State:
+    # The pipeline's output state: carries the full BoardState field set (the
+    # loop's `from_python` snapshot reads every field) plus a `tag` so the
+    # final-state provenance (pipeline output vs EXP-5 reset) is observable.
+    def __init__(self, tag):
+        self.tag = tag
+        self.board = None
+        self.netlist = None
+        self.loops = None
+        self.grid = None
+        self.drc_oracle = None
+        self.drc_violations = None
+        self.design_rules = None
+        self.connectivity_violations = None
+        self.placement_violations = None
+        self.placements = None
+        self.used_slots = None
+        self.config = None
+        self.component_domain_map = None
+        self.routing_corridors = None
+        self.domain_regions = None
+        self.routes = None
+        self.vias = None
+        self.violations = None
+        self.zones = None
+        self.component_zone_map = None
+        self.zone_slots = None
+        self.layer_assignments = None
+        self.reclaim_by_pin_pair = None
+        self.net_order = ()
+        self.locked_routes = ()
+
+class Pipeline:
+    def __init__(self, log):
+        self.log = log
+        self.calls = 0
+        self.stages = []
+    def run(self, state):
+        self.log.append("pipeline.run")
+        self.calls += 1
+        return State(self.calls)
+
+class DRCRunner:
+    def __init__(self, log):
+        self.log = log
+        self.calls = 0
+    def __call__(self):
+        self.log.append("drc_runner")
+        self.calls += 1
+        return "report.json"
+
+class Parse:
+    def __init__(self, violations, log):
+        self.violations = list(violations)
+        self.log = log
+        self.calls = 0
+    def __call__(self, path):
+        self.log.append("parse")
+        n = self.violations[min(self.calls, len(self.violations) - 1)] if self.violations else 0
+        self.calls += 1
+        return [None] * n
+
+class Mapper:
+    def __init__(self, log):
+        self.log = log
+        self.zone_config = None
+    def map_violation(self, v):
+        self.log.append("map_violation")
+        return v
+
+class AdjustmentResult:
+    def __init__(self, adjustments):
+        self.adjustments = adjustments
+
+class Adjuster:
+    def __init__(self, adjustments, log):
+        self.log = log
+        self.zone_config = None
+        self.script = list(adjustments)
+    def compute_adjustments(self, violations):
+        self.log.append("compute_adjustments")
+        nonempty = self.script.pop(0) if self.script else False
+        if nonempty:
+            return AdjustmentResult({"HV": ("HV", 5.0)})
+        return AdjustmentResult({})
+
+def build_fakes(violations, adjustments, log):
+    def get_zone_config():
+        log.append("get_zone_config")
+        return {}
+    def update_config(adj):
+        log.append("update_config")
+    return (Pipeline(log), DRCRunner(log), Parse(violations, log),
+            Mapper(log), Adjuster(adjustments, log),
+            get_zone_config, update_config)
+"#;
+
+    /// Install the fakes into `sys.modules` (the loop imports
+    /// `temper_placer.deterministic.state` for the EXP-5 reset) and silence
+    /// the loop's logger. Returns the fakes namespace module.
+    fn install_fakes<'py>(py: Python<'py>) -> PyResult<Py<PyModule>> {
+        let sys = py.import("sys")?;
+        let modules: Bound<'py, PyDict> = sys.getattr("modules")?.cast_into()?;
+
+        let ns = PyModule::new(py, "uf_proptest_fakes")?;
+        let code = std::ffi::CString::new(FAKE_SOURCE).expect("fake source has no NUL");
+        py.run(code.as_c_str(), Some(&ns.dict()), Some(&ns.dict()))?;
+
+        let pkg = PyModule::new(py, "temper_placer")?;
+        let deterministic = PyModule::new(py, "deterministic")?;
+        let state = PyModule::new(py, "state")?;
+        state.add("BoardState", ns.getattr("FakeBoardState")?)?;
+        deterministic.add("state", &state)?;
+        pkg.add("deterministic", &deterministic)?;
+        modules.set_item("temper_placer", &pkg)?;
+        modules.set_item("temper_placer.deterministic", &deterministic)?;
+        modules.set_item("temper_placer.deterministic.state", &state)?;
+
+        let logging = py.import("logging")?;
+        let logger = logging
+            .call_method1("getLogger", ("temper_placer.deterministic.feedback.orchestrator",))?;
+        logger.call_method1("setLevel", (logging.getattr("CRITICAL")?,))?;
+
+        Ok(ns.unbind())
+    }
+
+    /// One-time interpreter init + fake install; returns the fakes module.
+    fn fakes_module() -> &'static Py<PyModule> {
+        PY_INIT.call_once(|| {
+            Python::initialize();
+        });
+        FAKES.get_or_init(|| match Python::attach(install_fakes) {
+            Ok(ns) => ns,
+            Err(e) => panic!("fake install failed: {e}"),
+        })
+    }
+
+    /// A `bool` strategy helper (the `proptest!` `in`-position fragment cannot
+    /// parse a turbofish, per `deterministic_pipeline.rs`'s `flag()`).
+    fn flag() -> impl Strategy<Value = bool> {
+        proptest::bool::ANY
+    }
+
+    /// The reference model: the oracle's per-iteration call sequence for a
+    /// scenario, exactly the `_reference_log` transcription of the pinned
+    /// Python loop. Termination is observed through the log's tail (no marker).
+    fn reference_log(max_iterations: usize, violations: &[usize], adjustments: &[bool]) -> Vec<&'static str> {
+        let mut log = Vec::new();
+        for i in 0..max_iterations {
+            log.push("pipeline.run");
+            log.push("drc_runner");
+            log.push("parse");
+            if violations[i] == 0 {
+                break;
+            }
+            log.push("get_zone_config");
+            log.extend(std::iter::repeat_n("map_violation", violations[i]));
+            log.push("get_zone_config");
+            log.push("compute_adjustments");
+            if !adjustments[i] {
+                break;
+            }
+            log.push("update_config");
+        }
+        log
+    }
+
+    /// What one loop run observed: the recorded call log and the final state's
+    /// provenance (None for a zero cap; `Some(tag)` for a pipeline `State`
+    /// output; `None` for a reset `FakeBoardState`).
+    struct Observed {
+        recorded: Vec<String>,
+        final_is_none: bool,
+        final_tag: Option<usize>,
+    }
+
+    /// Drive `run_automated_zero_drc` once over the scenario fakes.
+    fn run_once(
+        ns: &Bound<'_, PyModule>,
+        max_iterations: usize,
+        violations: &[usize],
+        adjustments: &[bool],
+    ) -> PyResult<Observed> {
+        Python::attach(|py| {
+            let log = PyList::empty(py);
+            let mut vlist = Vec::new();
+            for v in violations {
+                vlist.push(v.into_py_any(py)?);
+            }
+            let mut alist = Vec::new();
+            for b in adjustments {
+                alist.push(b.into_py_any(py)?);
+            }
+            let fakes = ns
+                .getattr("build_fakes")?
+                .call1((PyList::new(py, vlist)?, PyList::new(py, alist)?, &log))?;
+
+            let final_state = run_automated_zero_drc(
+                py,
+                fakes.get_item(0)?.unbind(),
+                fakes.get_item(1)?.unbind(),
+                fakes.get_item(2)?.unbind(),
+                fakes.get_item(3)?.unbind(),
+                fakes.get_item(4)?.unbind(),
+                fakes.get_item(5)?.unbind(),
+                fakes.get_item(6)?.unbind(),
+                max_iterations as u64,
+                None,
+            )?;
+
+            let recorded: Vec<String> = log.extract()?;
+            let final_bound = final_state.bind(py);
+            let final_is_none = final_bound.is_none();
+            let final_tag = if final_bound.hasattr("tag")? {
+                Some(final_bound.getattr("tag")?.extract::<usize>()?)
+            } else {
+                None
+            };
+            Ok(Observed {
+                recorded,
+                final_is_none,
+                final_tag,
+            })
+        })
+    }
+
+    /// Run the loop, panicking on a Python error (a raising call-back here is
+    /// a test-harness bug, not a property failure to shrink -- the fakes never
+    /// raise).
+    fn drive_loop(
+        ns: &Bound<'_, PyModule>,
+        max_iterations: usize,
+        violations: &[usize],
+        adjustments: &[bool],
+    ) -> Observed {
+        match run_once(ns, max_iterations, violations, adjustments) {
+            Ok(o) => o,
+            Err(e) => panic!("loop raised unexpectedly: {e}"),
+        }
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::default())]
+
+        /// P1. The loop's per-iteration call order matches the oracle's
+        /// reference model for every randomized scenario (the three
+        /// termination paths -- clean parse, empty adjustments, cap -- are all
+        /// reachable), AND the final state's provenance matches the
+        /// termination: a clean/no-adjustment break returns the pipeline's
+        /// `State` output (tag == the pipeline.run count), a cap exhaustion
+        /// returns the reset `FakeBoardState` (no tag), and a zero cap returns
+        /// the initial `None`.
+        #[test]
+        fn loop_call_order_and_final_state_match_reference(
+            (n, violations, adjustments) in (0usize..=6).prop_flat_map(|n| (
+                Just(n),
+                prop::collection::vec(0usize..=3, n),
+                prop::collection::vec(flag(), n),
+            )),
+        ) {
+            let ns = fakes_module();
+            let observed = Python::attach(|py| {
+                drive_loop(ns.bind(py), n, &violations, &adjustments)
+            });
+
+            let reference = reference_log(n, &violations, &adjustments);
+            let cap_exhausted = reference.last() == Some(&"update_config");
+            prop_assert_eq!(
+                observed.recorded.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
+                reference,
+                "call log diverged from the oracle's reference model"
+            );
+
+            let n_runs = observed
+                .recorded
+                .iter()
+                .filter(|s| s.as_str() == "pipeline.run")
+                .count();
+            if n == 0 {
+                prop_assert!(observed.final_is_none, "a zero cap must return the initial state");
+            } else if cap_exhausted {
+                // The cap was exhausted (no break: the last iteration adjusted
+                // + reset), so the final state is the reset BoardState (no
+                // `tag` attribute).
+                prop_assert!(observed.final_tag.is_none(), "cap exhaustion must return the reset BoardState");
+                prop_assert!(!observed.final_is_none);
+            } else {
+                // The loop broke on a clean parse or an empty adjustments dict
+                // (possibly on the LAST iteration, which still counts as a
+                // break): the final state is the pipeline's output of the last
+                // run, NOT the EXP-5 reset (that path returns before it).
+                prop_assert_eq!(
+                    observed.final_tag,
+                    Some(n_runs),
+                    "a clean/no-adjustment break must return the pipeline output of run {}",
+                    n_runs
+                );
+                prop_assert!(!observed.final_is_none);
+            }
+        }
+
+        /// P2. The loop is deterministic: the same scenario produces the same
+        /// call log and final-state provenance across runs.
+        #[test]
+        fn loop_is_deterministic(
+            (n, violations, adjustments) in (0usize..=6).prop_flat_map(|n| (
+                Just(n),
+                prop::collection::vec(0usize..=3, n),
+                prop::collection::vec(flag(), n),
+            )),
+        ) {
+            let ns = fakes_module();
+            let (a, b) = Python::attach(|py| {
+                let ns = ns.bind(py);
+                (
+                    drive_loop(ns, n, &violations, &adjustments),
+                    drive_loop(ns, n, &violations, &adjustments),
+                )
+            });
+            prop_assert_eq!(a.recorded, b.recorded, "call log diverged between runs");
+            prop_assert_eq!(a.final_tag, b.final_tag, "final-state provenance diverged");
+            prop_assert_eq!(a.final_is_none, b.final_is_none);
+        }
+    }
+
+    /// Anti-vacuity / reachability: a fixed 3-iteration scenario must produce
+    /// the exact golden call log, proving the loop actually runs through the
+    /// fakes and records (a property that passed on an empty log would be a
+    /// vacuous pass, not a proof).
+    #[test]
+    fn golden_scenario_reaches_every_call_back() {
+        let ns = fakes_module();
+        let observed = Python::attach(|py| {
+            drive_loop(ns.bind(py), 3, &[2, 1, 0], &[true, true, true])
+        });
+        let expected: Vec<&str> = vec![
+            "pipeline.run", "drc_runner", "parse",
+            "get_zone_config", "map_violation", "map_violation",
+            "get_zone_config", "compute_adjustments", "update_config",
+            "pipeline.run", "drc_runner", "parse",
+            "get_zone_config", "map_violation",
+            "get_zone_config", "compute_adjustments", "update_config",
+            "pipeline.run", "drc_runner", "parse",
+        ];
+        assert_eq!(
+            observed.recorded.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
+            expected,
+        );
+        // Clean break on the third run: the final state is the pipeline's
+        // State(3), not a reset.
+        assert_eq!(observed.final_tag, Some(3));
+    }
+
+    /// Anti-vacuity / discriminating reference: the reference model itself
+    /// distinguishes the three termination paths -- a property that cannot tell
+    /// them apart would report as coverage without checking the loop's actual
+    /// decisions.
+    #[test]
+    fn reference_model_distinguishes_termination_paths() {
+        let clean = reference_log(2, &[1, 0], &[true, true]);
+        let no_adj = reference_log(2, &[1, 1], &[true, false]);
+        let cap = reference_log(2, &[1, 1], &[true, true]);
+        assert_ne!(clean, no_adj);
+        assert_ne!(clean, cap);
+        assert_ne!(no_adj, cap);
+        assert_eq!(clean.last(), Some(&"parse"));
+        assert_eq!(no_adj.last(), Some(&"compute_adjustments"));
+        assert_eq!(cap.last(), Some(&"update_config"));
+    }
+}
