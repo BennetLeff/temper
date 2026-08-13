@@ -157,6 +157,9 @@ router_v6/test_constraints_drc_oracle_pbt.py
 router_v6/test_constraints_drc_oracle_rust_differential.py
 router_v6/test_corridor_erosion.py
 router_v6/test_net_batching_constraint_audit.py
+router_v6/test_adapter_convert_marshal_metamorphic.py
+router_v6/test_adapter_convert_marshal_pbt.py
+router_v6/test_adapter_convert_marshal_rust_differential.py
 router_v6/test_adapter_convert_rust_differential.py
 router_v6/test_pad_connectivity_audit.py
 router_v6/test_power_islands.py

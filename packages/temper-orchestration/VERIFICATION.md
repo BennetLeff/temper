@@ -2705,6 +2705,145 @@ invocation stay Python (the ortools / temper-rust-router boundary).
   "unwind"`); the `Stage` run() body runs under `stage_guard`; no
   `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
 
+## Rust orchestration engine — Phase E unit U-H (adapter marshalling residual)
+
+Rust Orchestration Engine plan 2026-08-09-001 Phase E E6 follow-on (unit
+U-H): the residual deterministic wire-format construction of
+`router_v6/_adapter_convert.py` — the part of the adapter that builds the
+router's input/output wire formats around the already-ported E6 kernels —
+moves to `src/pipeline_route.rs` (append-only, next to the E6 kernels).
+The shim delegates; the public API is unchanged.
+
+### What migrated
+
+| `_adapter_convert.py` block | Rust kernel (pipeline_route.rs) | Wire format |
+|---|---|---|
+| `_write_routes_to_content`'s pad-positions block | `run_collect_pad_positions` | board → `pad_positions` dict/vector assembly (its per-net length feeds `run_write_route_segments`' pad count, the zone-pour emission and the connectivity preflight) |
+| `_write_routes_to_content`'s per-route payload block | `run_build_route_payload` | route → `RouteEmission` payload tuple fed to `run_write_route_segments` (the E6 emission core) |
+| `_build_routing_result`'s failure-extraction assembly | `run_build_routing_result` | result → plain-data extraction (`unrouted_nets`, `forced_segment_nets`, DRC violations, congestion regions, `topology_solved_nets`) |
+
+**What stays Python (evidence)**: `route_pcb` (pipeline invocation,
+`tempfile`/subprocess boundary, the `RouterV6Pipeline` / `_apply_placements_to_pcb`
+call-backs), `_apply_placements_to_pcb` / `_reorient_pads_in_footprint_block`
+and the net-name→number regex mapping (the `re`-based s-expression handling —
+the crate has no regex engine, the E6 boundary), the tree-route folding
+(`TreeRouteGeometry.iter_segments` call-back), the s-expression injection,
+the zone-pour emission (`_emit_zone_pours` / `strip_existing_zones`) and the
+`connectivity_preflight` call-back (the shim drives the whole
+`_build_routing_result` with `enable_connectivity_verifier=False` in the
+differential; the call-back stays Python single-source, exercised by
+`test_adapter.py`). `_chamfer_path_points` stays Python single-source and is
+CALLED BACK from `run_build_route_payload` through the
+`temper_placer.router_v6._zone_pour_stitch` module at runtime (the D4/D5
+mixin-call-back pattern — parity by construction). No new Python API is
+invented.
+
+### Structural proof (bit-identical parity)
+
+The differential drives both arms with identical inputs and compares every
+observable bit-exact (dicts/lists through the `_canon` walker with
+`float.hex()`, dataclass equality on the wrapped `RoutingResult`, routed
+content byte-for-byte against the E6 oracle). The load-bearing equivalences:
+
+- **The pad-positions walk is a straight transcription.** `comp_by_ref`
+  last-writer-wins (the dict comprehension), the `getattr(net, "pins", [])`
+  default, the `comp.get_pin(pin_name)` conditional call (missing method or
+  `None` pin → `comp.initial_position`, default `(0.0, 0.0)`), the
+  `float(comp_pos[0]) + float(px)` sums and the first-seen net order /
+  empty-positions omission all map 1:1.
+- **The payload guard and branches.** `path_length > 0 and pad_count >= 2`
+  gates the points; the segments branch (`(s[0], s[1], s[2])`) and the
+  coordinates branch (`(c[0], c[1], default_layer)` with
+  `getattr(path, "layer_name", "F.Cu")`) reproduce the oracle's duck-typed
+  reads; the chamfer runs INSIDE the kernel through the Python module
+  (identity of call + arguments ⇒ bit-identical chamfered points); vias are
+  extracted OUTSIDE the guard exactly like the oracle.
+- **The width snap.** `not width or width <= 0.0` is a truthiness check
+  (None/0/0.0 snap to 0.2; NaN is truthy and never `<= 0.0`, so it
+  survives) — the Rust port checks truthiness before extraction and then
+  applies the same `== 0.0 || <= 0.0` snap `run_write_route_segments`'
+  emission core already uses (idempotent).
+- **Dict iteration semantics.** `compiled_routes` is walked via
+  `PyDict.iter()` for the (key, value) pairs the oracle's `.items()` yields
+  (`PyObject_GetIter` would yield keys — a real divergence the differential
+  caught and the port documents); `net_topologies` keys are iterated as keys
+  (`list(dict.keys())`).
+- **CPython `> 0` and `in` membership.** The `drc_count > 0` /
+  `forced_segment_count > 0` guards and the
+  `pair_kind in ("component_edge", "component_keepout")` membership go
+  through CPython comparison/equality (`Bound::gt` / `Bound::eq`), matching
+  the oracle for ints, floats, `None` and duck-typed values alike.
+- **Violation ordering.** Report violations append first (in `net_reports`
+  order), manufacturing-report violations after — the oracle's two-loop
+  order, pinned by the differential's combined case.
+
+**Documented boundary choices** (kept Python / deliberately different,
+argued in-source and above): the `re`-based net-number parsing, the
+s-expression injection, the tree-route branch, the zone pours, the chamfer
+source and the `connectivity_preflight` call-back stay Python; the
+`DrcViolation` / `CongestionRegion` dataclass construction stays Python (the
+kernel returns plain tuples — the D4 `StageDRCFailure` precedent).
+
+### Empirical verification (U-H)
+
+- **Differential suite**: `test_adapter_convert_marshal_rust_differential.py`
+  (28 tests, all green) — the three pre-migration blocks are pinned VERBATIM
+  as inline `_oracle_*` functions (per-body SHA-256, `test_oracle_bodies_match_pinned_digests`
+  fails on any drift); the anti-vacuity tripwire asserts the shims bind to
+  the `temper_orchestration` pyfunctions. Coverage: None/empty pcbs, the
+  get_pin resolution / `None`-pin fallback / missing-attr defaults, the
+  duplicate-ref last-writer-wins, 30 randomized pcbs, zero-length / single-
+  pad / chamfered-corner / coordinates-with-and-without-layer payloads, the
+  width snap (0, negative, missing, NaN-survival), the via extraction order,
+  30 + 10 randomized payloads, the empty/forced-segment/report/mfg/
+  congestion/topology routing-result cases (incl. missing stage3 /
+  topology_graph / net_topologies) and 30 randomized results, plus two
+  full-shim byte-for-byte comparisons of `_write_routes_to_content` against
+  the pre-E6 oracle (the E6 differential's `_adapter_convert_py_oracle.py`).
+- **PBT suite**: `test_adapter_convert_marshal_pbt.py` (12 tests, all
+  green) — six non-vacuous properties (P1 pad-positions totality + order, P2
+  determinism + first-seen order, P3 the payload guard with vias kept, P4
+  the width snap, P5 unrouted/forced-segment extraction, P6 violation /
+  congestion extraction), each with a discriminating vacuity guard.
+- **Metamorphic suite**: `test_adapter_convert_marshal_metamorphic.py`
+  (8 tests, all green) — four relations claimed BIT-EXACT (MR1
+  unresolvable-pin content invariance, MR2 pin-order permutation invariance,
+  MR3 zero-violation-report invariance, MR4 non-collected-bottleneck
+  invariance), each with a discriminating companion.
+- **Runner suite**: `tests/uh_marshal_runner.rs` (2 tests, all green) — the
+  three kernels driven THROUGH the registered pyfunctions (the exact seam
+  the shims use) in the collect → payload → emit → result sequence, with a
+  sys.modules fake for the chamfer call-back seam and the degenerate-input
+  no-panic guards.
+- **Consumer suites**: the full pre-existing adapter + pipeline-route
+  surface stays green with the delegating shims —
+  `test_adapter_convert_rust_differential.py`,
+  `test_pipeline_route_rust_differential.py`,
+  `test_pipeline_route_rust_pbt.py`,
+  `test_pipeline_route_rust_metamorphic.py`, `test_adapter.py` (177 passed,
+  1 skipped across those five), plus
+  `test_stage4_golden_parity.py` / `test_stage4_monolith_parity.py` /
+  `test_wave2_structural_small.py` / `test_tree_grid_layer_mismatch.py` /
+  `test_zero_length_segments.py` / `test_adapter_repair_verification.py`
+  (29 passed, 2 skipped) — identical pass/fail signature to the origin/main
+  baseline.
+- **Rust bar**: `cargo test` 1071 lib green (1069 + the 2 U-H runner tests;
+  all D1-D7 / U4 / E6 runner suites green); `cargo clippy --all-features
+  --all-targets -- -D warnings` clean; the `--no-default-features` lib
+  (host_math dlsym) and the `wasm-test-registry` check build both pass. No
+  `unwrap`/`expect` outside tests (crate denies both); every `#[pyfunction]`
+  body is wrapped in `catch_unwind` by pyo3's expansion
+  (`profile.release.panic = "unwind"`).
+- **Wiring / gates**: `check_unwired_kernels.py` reports the three new
+  kernels wired (the delegating shims reference them); `make regen-check`
+  reports all derived artifacts consistent (no new oracle files, no lib-test
+  registry changes); `import_linter_gate.py` PASSED (no new violations).
+- **G6 induction** — N/A: every migrated block is a bounded loop over
+  components/nets/pins/routes/reports with size-independent per-step
+  operations; no recursive computation. Structural proof above.
+- **G8 physics discipline** — N/A: the marshalling converts/selects/formats
+  already-physics-gated inputs; no new physics quantity is gated.
+
 ## Rust orchestration engine — Phase C residual (pipeline contract tail)
 
 The plan's Phase C "What Python is removed: ~1,550 LOC of pipeline
