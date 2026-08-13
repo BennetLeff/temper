@@ -46,20 +46,39 @@ from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
 # (the ``batch_results`` -> summary-dict reduction) — moved to
 # ``temper-orchestration``'s ``pipeline_route.rs``; this module keeps its
 # public API as a thin FFI delegation. What stays Python (the E6 boundary):
-# ``route_pcb`` / ``_build_routing_result`` / ``_apply_placements_to_pcb`` /
-# ``_reorient_pads_in_footprint_block`` — the pipeline-invocation glue, the
-# failure-extraction assembly and the ``re``-based s-expression text rewriting
+# ``route_pcb`` / ``_apply_placements_to_pcb`` /
+# ``_reorient_pads_in_footprint_block`` — the pipeline-invocation glue and
+# the ``re``-based s-expression text rewriting
 # (no regex engine in the crate; the PAD-AT rewrite is a Perl-5-flavoured
 # regex state machine), argued in VERIFICATION.md. The chamfer
 # (``_chamfer_path_points``), the tree-route folding
 # (``TreeRouteGeometry.iter_segments``), the zone-pour emission
-# (``_emit_zone_pours``) and the s-expression injection stay Python
+# (``_emit_zone_pours``), the net-number regex parsing, the s-expression
+# injection and the ``connectivity_preflight`` call-back stay Python
 # single-source; the Rust core is driven per compiled route so the shared
 # tstamp counter's increment order stays byte-identical. The oracle is pinned
 # verbatim as ``tests/router_v6/_adapter_convert_py_oracle.py`` (content-hash
 # registered in ``scripts/oracle_hashes.json``); ``_summarize_batch_results``'s
 # oracle is pinned inline in
 # ``tests/router_v6/test_adapter_convert_rust_differential.py``.
+#
+# Unit U-H (E6 follow-on): the residual deterministic wire-format
+# construction moved to ``pipeline_route.rs`` next to the E6 kernels —
+# ``_write_routes_to_content``'s pad-positions block
+# (``run_collect_pad_positions``, the board conversion whose per-net length
+# feeds the emission core / zone pours / connectivity preflight), the
+# per-route payload marshalling (``run_build_route_payload`` — the
+# path_length/width reads with the width snap, the segments/coordinates
+# duck-typed extraction, the chamfer CALL-BACK and the via extraction, one
+# payload per compiled route) and ``_build_routing_result``'s
+# failure-extraction assembly (``run_build_routing_result`` — unrouted /
+# forced-segment nets, DRC violations, congestion regions, topology-solved
+# nets returned as plain data; this shim wraps the ``DrcViolation`` /
+# ``CongestionRegion`` dataclasses, which stay Python single-source, and
+# keeps the ``connectivity_preflight`` call-back). The pre-migration bodies
+# are pinned VERBATIM as inline oracles in
+# ``tests/router_v6/test_adapter_convert_marshal_rust_differential.py``
+# (content-addressed by per-body SHA-256).
 #
 # Residual decision record (R3, see docs/wave4-discipline-contract.md §3):
 # - ``_reorient_pads_in_footprint_block``: product-runtime → JUSTIFIED-KEEP —
@@ -76,11 +95,12 @@ from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
 #   duck-typed ``design_rules.net_classes`` read stay Python). (LOC: ~224;
 #   consumers: 1 — ``route_pcb``, plus 5 test files; deps: re, math,
 #   kicad_transform; churn: high — 2026-08-11 board-origin fix)
-# - ``route_pcb`` / ``_build_routing_result`` / ``_write_routes_to_content``
-#   (remaining body): product-runtime → JUSTIFIED-KEEP — pipeline invocation,
+# - ``route_pcb`` / ``_write_routes_to_content`` (remaining body):
+#   product-runtime → JUSTIFIED-KEEP — pipeline invocation,
 #   ``tempfile``/subprocess boundary, duck-typed result walks, and the Python
 #   single-source callbacks (``_chamfer_path_points``, ``_emit_zone_pours``,
-#   ``strip_existing_zones``, ``connectivity_preflight``).
+#   ``strip_existing_zones``, ``connectivity_preflight``) plus the
+#   ``re``-based net-number parsing and the s-expression injection.
 
 logger = logging.getLogger(__name__)
 
@@ -586,24 +606,14 @@ def _write_routes_to_content(
     # Collect pad world positions from the parsed PCB data
     pcb = getattr(result, "pcb", None)
     if pcb is not None:
-        comp_by_ref = {c.ref: c for c in pcb.components}
-        for net in pcb.nets:
-            positions: list[tuple[float, float]] = []
-            for comp_ref, pin_name in getattr(net, "pins", []):
-                comp = comp_by_ref.get(comp_ref)
-                if comp is None:
-                    continue
-                comp_pos = getattr(comp, "initial_position", (0.0, 0.0))
-                pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
-                if pin is None:
-                    positions.append((float(comp_pos[0]), float(comp_pos[1])))
-                else:
-                    px, py = pin.position
-                    positions.append(
-                        (float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py))
-                    )
-            if positions:
-                pad_positions[net.name] = positions
+        # U-H: the board->pad_positions conversion moved to
+        # temper_orchestration.pipeline_route::run_collect_pad_positions (the
+        # comp_by_ref dict comprehension, the getattr(net, "pins", []) walk,
+        # the conditional comp.get_pin call and the float position sums --
+        # duck-typed through CPython exactly like the oracle). The dict wrap
+        # preserves first-seen net order; a net with no resolvable pin
+        # positions stays absent.
+        pad_positions = dict(_to.run_collect_pad_positions(pcb))
 
     segments: list[str] = []
     for net_name, compiled_route in compiled.items():
@@ -642,59 +652,28 @@ def _write_routes_to_content(
                 )
             continue
 
-        path_length = getattr(path, "path_length", 0.0)
-        width = getattr(compiled_route, "width_mm", 0.2)
-        # Defense-in-depth: never emit a zero/negative-width track (KiCad DRC
-        # flags these as track_width violations). getattr's default does not
-        # catch a present-but-zero width, so guard explicitly.
-        if not width or width <= 0.0:
-            width = 0.2
+        # Phase E E6: the chamfer (`_chamfer_path_points`) stays Python
+        # single-source; the collinear-step merge and the (segment ...)/
+        # (via ...) rendering move to
+        # temper_orchestration.run_write_route_segments (one payload per
+        # compiled route so the shared tstamp counter's increment order
+        # relative to the tree branch above stays byte-identical).
+        #
+        # U-H: the per-route payload marshalling itself (the path_length /
+        # width reads with the `not width or width <= 0.0` snap, the
+        # segments/coordinates duck-typed extraction, the chamfer CALL-BACK
+        # and the via extraction) moved to
+        # temper_orchestration.pipeline_route::run_build_route_payload --
+        # the deterministic route->wire-format conversion that feeds the
+        # emission core; the Rust core applies the
+        # `path_length > 0 and len(pads) >= 2` guard itself, exactly like
+        # the oracle.
         net_num = net_name_to_number.get(net_name, 0)
         pads = pad_positions.get(net_name, [])
 
-        # Phase E E6: the path-coordinate extraction and the chamfer stay
-        # Python (duck-typed reads of the pathfinding dataclasses;
-        # `_chamfer_path_points` is single-source in _zone_pour_stitch.py);
-        # the collinear-step merge and the (segment ...)/(via ...) rendering
-        # move to temper_orchestration.run_write_route_segments (one payload
-        # per compiled route so the shared tstamp counter's increment order
-        # relative to the tree branch above stays byte-identical). The Rust
-        # core applies the `path_length > 0 and len(pads) >= 2` guard
-        # itself, exactly like the oracle.
-        if path_length > 0 and len(pads) >= 2:
-            # Real routed net: extract path coordinates with per-step layer
-            path_points: list[tuple[float, float, str]] = []
-            path_segs = getattr(path, "segments", None)
-            if path_segs:
-                for s in path_segs:
-                    path_points.append((s[0], s[1], s[2]))
-            else:
-                coords = getattr(path, "coordinates", None)
-                if coords:
-                    default_layer = getattr(path, "layer_name", "F.Cu")
-                    for c in coords:
-                        path_points.append((c[0], c[1], default_layer))
-
-            # Chamfer 90-degree orthogonal turns to reduce grid-staircasing.
-            # After collapse, remaining turns are still sharp 90-degree
-            # corners from the 0.1 mm A* grid.  Two adjacent traces following
-            # similar grid paths have edge-to-edge clearance violations at
-            # these corners because the staircase stagger pushes segments
-            # closer than the minimum clearance.  Chamfering replaces each
-            # orthogonal turn with a 45-degree diagonal, reducing both
-            # shorting_items and tracks_crossing DRC violations.
-            path_points = _chamfer_path_points(path_points, chamfer_offset=0.1)
-        else:
-            path_points = []
-
-        vias = []
-        for via in getattr(compiled_route, "vias", []):
-            vx, vy = via.position
-            vias.append((vx, vy, via.diameter, via.drill, via.from_layer, via.to_layer))
-
         segments.extend(
             _to.run_write_route_segments(
-                [(net_name, path_length, path_points, width, net_num, vias, len(pads))],
+                [_to.run_build_route_payload(path, compiled_route, net_name, net_num, len(pads))],
                 tstamp_counter,
             )
         )
@@ -734,70 +713,40 @@ def _build_routing_result(
     Pulls failed net names, DRC violations from per-net reports, and
     congestion regions from bottleneck geometry analysis so that the
     FeedbackClassifier can act on real routing failures.
+
+    U-H: the failure-extraction assembly moved to
+    ``temper_orchestration.pipeline_route::run_build_routing_result`` (the
+    duck-typed walk over ``stage4.routing_results`` / ``net_reports`` /
+    ``manufacturing_report`` / ``stage3.topology_graph`` -- unrouted nets,
+    forced-segment nets, DRC violations, congestion regions, topology-solved
+    nets -- returned as plain data). This shim wraps the returned tuples in
+    the ``DrcViolation`` / ``CongestionRegion`` dataclasses (which stay
+    Python single-source, the D4 ``StageDRCFailure`` precedent) and keeps the
+    ``connectivity_preflight`` call-back Python.
     """
-    routing_results = result.stage4.routing_results
-    unrouted_nets = list(routing_results.failed_nets)
+    (
+        completion_rate,
+        unrouted_nets,
+        forced_segment_nets,
+        drc_violations,
+        congestion_regions,
+        topology_solved_nets,
+    ) = _to.run_build_routing_result(result)
 
-    # R5: Extract forced-segment net names from compiled routes.
-    # Each CompiledRoute.path is the original RoutePath/RoutePath3D which
-    # carries forced_segment_count.  (The routed_paths dict lives on
-    # PathfindingResult, replaced by compile_routing_results() in Stage 4.)
-    # Always empty as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
-    # no net class produces forced_segment_count > 0 anymore.
-    forced_segment_nets: list[str] = []
-    compiled = getattr(routing_results, "compiled_routes", None)
-    if compiled:
-        forced_segment_nets = [
-            net_name
-            for net_name, route in compiled.items()
-            if getattr(getattr(route, "path", None), "forced_segment_count", 0) > 0
-        ]
-
-    drc_violations: list[DrcViolation] = []
-    congestion_regions: list[CongestionRegion] = []
-
-    for report in getattr(routing_results, "net_reports", []):
-        # Collect DRC violations from per-net reports
-        drc_count = getattr(report, "drc_violations", 0)
-        if drc_count > 0:
-            drc_violations.append(
-                DrcViolation(
-                    net_name=getattr(report, "net_name", "unknown"),
-                    count=drc_count,
-                    message=getattr(report, "message", ""),
-                )
-            )
-
-        # Collect congestion regions from bottleneck geometry
-        bottleneck = getattr(report, "bottleneck", None)
-        if bottleneck is not None:
-            pair_kind = getattr(bottleneck, "pair_kind", None)
-            if pair_kind in ("component_edge", "component_keepout"):
-                comps = getattr(bottleneck, "component_pair", ("unknown", "unknown"))
-                gap = getattr(bottleneck, "current_gap_mm", 0.0)
-                positions = getattr(bottleneck, "positions_mm", ((0.0, 0.0), (0.0, 0.0)))
-                congestion_regions.append(
-                    CongestionRegion(
-                        net_name=getattr(report, "net_name", "unknown"),
-                        comp_a=comps[0],
-                        comp_b=comps[1],
-                        current_distance_mm=gap,
-                        positions=positions,
-                    )
-                )
-
-    # Pull DRC data from manufacturing report if available
-    mfg = getattr(result, "manufacturing_report", None)
-    if mfg is not None:
-        for v in getattr(mfg, "violations", []):
-            drc_violations.append(
-                DrcViolation(
-                    type=getattr(v, "type", "unknown"),
-                    message=getattr(v, "message", ""),
-                    net_name=getattr(v, "net_name", ""),
-                    location=getattr(v, "location", (0.0, 0.0)),
-                )
-            )
+    drc_violations = [
+        DrcViolation(net_name=n, message=m, location=loc, count=c, type=t)
+        for (n, m, loc, c, t) in drc_violations
+    ]
+    congestion_regions = [
+        CongestionRegion(
+            net_name=n,
+            comp_a=a,
+            comp_b=b,
+            current_distance_mm=d,
+            positions=(pa, pb),
+        )
+        for (n, a, b, d, pa, pb) in congestion_regions
+    ]
 
     # U4: post-write connectivity preflight
     connectivity = None
@@ -808,13 +757,8 @@ def _build_routing_result(
 
         connectivity = connectivity_preflight(routed_content, pad_positions)
 
-    stage3 = getattr(result, "stage3", None)
-    topology_graph = getattr(stage3, "topology_graph", None)
-    net_topologies = getattr(topology_graph, "net_topologies", None) or {}
-    topology_solved_nets = list(net_topologies.keys())
-
     return RoutingResult(
-        completion_rate=result.completion_rate,
+        completion_rate=completion_rate,
         unrouted_nets=unrouted_nets,
         drc_violations=drc_violations,
         congestion_regions=congestion_regions,

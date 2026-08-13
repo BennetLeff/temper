@@ -3,6 +3,15 @@
 // `Stage<BoardState>` impl the `router_v6/_pipeline_route.py` and
 // `router_v6/_adapter_convert.py` shims delegate to.
 //
+// Unit U-H (E6 follow-on): the residual `_adapter_convert.py` adapter
+// marshalling — the deterministic router input/output wire-format
+// construction — `run_collect_pad_positions` (the board -> pad_positions
+// dict/vector assembly), `run_build_route_payload` (the per-route payload
+// feeding `run_write_route_segments`: the segments/coordinates extraction,
+// the chamfer call-back, the via extraction) and `run_build_routing_result`
+// (the `_build_routing_result` failure-extraction assembly, returned as
+// plain data for the shim's dataclass wrap).
+//
 // Migrated orchestration (each module keeps its public API; the ortools /
 // CP-SAT-boundary glue and the `re`-based s-expression text rewriting stay
 // Python — the E6 boundary, argued in the shim headers and VERIFICATION.md):
@@ -27,22 +36,25 @@
 //   comparison, the layer-change / coincident-point skips) and the
 //   `(segment ...)` / `(via ...)` s-expression emission with `:.4f` floats
 //   rendered through CPython `str.format` and the shared deterministic
-//   tstamp counter.
+//   tstamp counter; the U-H marshalling: the pad-positions collection, the
+//   per-route payload construction (with the `_chamfer_path_points`
+//   call-back) and the `_build_routing_result` failure-extraction assembly.
 //
-// What stays Python (the E6 boundary, argued in-source): `_run_stage3` /
+// What stays Python (the E6/U-H boundary, argued in-source): `_run_stage3` /
 // `_run_stage4` / `_run_stage5` / `_augment_with_pcl_constraints` (the
 // net-batching branch — E5's owner, the temper_rust_router solve invocation,
 // the ModelBuilder / BundleAnalyzer / TopologicalSolution / TopologyGraph /
 // Stage4Orchestrator wiring, the ortools-adjacent PCL compile boundary) and
-// `route_pcb` / `_build_routing_result` / `_apply_placements_to_pcb` /
-// `_reorient_pads_in_footprint_block` (the pipeline-invocation glue, the
-// failure-extraction assembly and the `re`-based s-expression text rewriting
+// `route_pcb` / `_apply_placements_to_pcb` /
+// `_reorient_pads_in_footprint_block` (the pipeline-invocation glue and the
+// `re`-based s-expression text rewriting
 // — the crate has no regex engine and the PAD-AT rewrite state machine is a
 // Perl-5-flavoured regex that a hand-rolled parser would risk). The chamfer,
 // the tree-route folding (`TreeRouteGeometry.iter_segments`), the zone-pour
-// emission (`_emit_zone_pours`) and the s-expression injection stay Python
-// single-source; the Rust core is driven per compiled route so the shared
-// tstamp counter's increment order stays byte-identical.
+// emission (`_emit_zone_pours`), the net-number regex parsing, the
+// s-expression injection and the `connectivity_preflight` call-back stay
+// Python single-source; the Rust core is driven per compiled route so the
+// shared tstamp counter's increment order stays byte-identical.
 //
 // Every `#[pyfunction]` body is wrapped in `catch_unwind` by pyo3's macro
 // expansion (the crate sets `profile.release.panic = "unwind"`), and the
@@ -58,7 +70,7 @@ use pyo3::exceptions::{PyAttributeError, PyTypeError, PyValueError};
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
-use pyo3::types::{PyBool, PyDict, PyList, PyString};
+use pyo3::types::{PyBool, PyDict, PyList, PyString, PyTuple};
 
 #[cfg(feature = "python")]
 use crate::board_state::BoardState;
@@ -782,6 +794,415 @@ fn getattr_or<'py>(
         Err(e) if e.is_instance_of::<PyAttributeError>(py) => Ok(default.clone()),
         Err(e) => Err(e),
     }
+}
+
+// ---------------------------------------------------------------------------
+// U-H: _adapter_convert.py residual adapter marshalling -- the router
+// input/output wire-format construction (Phase E E6 follow-on; see the
+// module header's U-H paragraph)
+// ---------------------------------------------------------------------------
+//
+// E6 ported the emission core (`run_write_route_segments`) and the
+// `_next_tstamp` / `_to_stage0_netclass_rules` / `_summarize_batch_results`
+// orchestrations; the deterministic marshalling that builds the router's
+// wire formats around those kernels stayed Python. The U-H unit ports the
+// residual three, keeping the same boundary (ortools / subprocess glue,
+// `re`-based s-expression handling, the tree-route folding, the zone-pour
+// emission and the `connectivity_preflight` call-back stay Python):
+//
+// - `run_collect_pad_positions`: the board -> `pad_positions` conversion
+//   (the dict/vector assembly whose per-net length feeds
+//   `run_write_route_segments`' pad count, the zone-pour emission and the
+//   connectivity preflight). Duck-typed: `pcb.components` / `pcb.nets` /
+//   `comp.initial_position` / the conditional `comp.get_pin` call.
+// - `run_build_route_payload`: the per-route payload marshalling that feeds
+//   `run_write_route_segments` -- the `path_length`/`width` reads with the
+//   `not width or width <= 0.0` snap, the segments/coordinates extraction
+//   branches, the chamfer CALL-BACK (`_chamfer_path_points` stays Python
+//   single-source; the D4/D5 mixin-call-back pattern) and the via
+//   extraction. One payload per compiled route preserves the shared tstamp
+//   counter's increment order (the E6 constraint).
+// - `run_build_routing_result`: the `_build_routing_result` failure-
+//   extraction assembly -- `unrouted_nets`, `forced_segment_nets`, the DRC
+//   violations from `net_reports` + the manufacturing report, the
+//   `component_edge`/`component_keepout` congestion regions and
+//   `topology_solved_nets` -- returned as plain data for the shim to wrap in
+//   the `DrcViolation` / `CongestionRegion` dataclasses (Python
+//   single-source, the D4 `StageDRCFailure` precedent); the
+//   `connectivity_preflight` call-back stays Python in the shim.
+
+#[cfg(feature = "python")]
+/// `router_v6/_adapter_convert._write_routes_to_content`'s pad-positions
+/// block: `comp_by_ref = {c.ref: c for c in pcb.components}` (duplicate refs:
+/// last writer wins), then per net the `getattr(net, "pins", [])` walk with
+/// `comp.initial_position` (default `(0.0, 0.0)`) and the conditional
+/// `comp.get_pin(pin_name)` call (a missing method or a `None` pin falls
+/// back to the component position; a found pin adds `pin.position`).
+/// Returns `(net_name, positions)` pairs in first-seen net order; a net
+/// whose resolvable pin list is empty is omitted, exactly like the oracle.
+#[pyfunction]
+#[allow(clippy::type_complexity)]
+pub fn run_collect_pad_positions(
+    py: Python<'_>,
+    pcb: Option<Py<PyAny>>,
+) -> PyResult<Vec<(String, Vec<(f64, f64)>)>> {
+    let mut out: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
+    let Some(pcb) = pcb else {
+        return Ok(out);
+    };
+    let pcb = pcb.bind(py);
+
+    let default_zero_pos = (0.0_f64, 0.0_f64).into_pyobject(py)?.into_any();
+    let default_empty_list = PyList::empty(py).into_any();
+
+    // comp_by_ref = {c.ref: c for c in pcb.components}
+    let mut comp_by_ref: HashMap<String, Bound<'_, PyAny>> = HashMap::new();
+    for comp in pcb.getattr("components")?.try_iter()? {
+        let comp = comp?;
+        let ref_name: String = comp.getattr("ref")?.extract()?;
+        comp_by_ref.insert(ref_name, comp);
+    }
+
+    for net in pcb.getattr("nets")?.try_iter()? {
+        let net = net?;
+        let mut positions: Vec<(f64, f64)> = Vec::new();
+        let pins = getattr_or(py, &net, "pins", &default_empty_list)?;
+        for entry in pins.try_iter()? {
+            let entry = entry?;
+            // for comp_ref, pin_name in ...pins:  (2-tuple unpack)
+            let comp_ref: String = entry.get_item(0)?.extract()?;
+            let pin_name = entry.get_item(1)?;
+            let Some(comp) = comp_by_ref.get(&comp_ref) else {
+                continue;
+            };
+            // comp_pos = getattr(comp, "initial_position", (0.0, 0.0))
+            let comp_pos = getattr_or(py, comp, "initial_position", &default_zero_pos)?;
+            let cx: f64 = comp_pos.get_item(0)?.extract()?;
+            let cy: f64 = comp_pos.get_item(1)?.extract()?;
+            // pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
+            let pin = if comp.hasattr("get_pin")? {
+                Some(comp.call_method1("get_pin", (pin_name,))?)
+            } else {
+                None
+            };
+            match pin {
+                Some(p) if !p.is_none() => {
+                    let pos = p.getattr("position")?;
+                    let px: f64 = pos.get_item(0)?.extract()?;
+                    let py_: f64 = pos.get_item(1)?.extract()?;
+                    positions.push((cx + px, cy + py_));
+                }
+                _ => positions.push((cx, cy)),
+            }
+        }
+        if !positions.is_empty() {
+            let name: String = net.getattr("name")?.extract()?;
+            out.push((name, positions));
+        }
+    }
+    Ok(out)
+}
+
+#[cfg(feature = "python")]
+/// `router_v6/_adapter_convert._write_routes_to_content`'s per-route payload
+/// block: the `(net_name, path_length, path_points, width, net_num, vias,
+/// pad_count)` tuple the shim feeds to `run_write_route_segments`. Reads the
+/// `path_length`/`width_mm` attributes (defaults `0.0`/`0.2`) with the
+/// `not width or width <= 0.0` snap (NaN survives: truthy and never
+/// `<= 0.0`), applies the `path_length > 0 and pad_count >= 2` guard, then
+/// extracts path points through the segments / coordinates duck-typed
+/// branches and chamfers them by CALLING BACK the Python single-source
+/// `_chamfer_path_points` (the D4/D5 mixin-call-back pattern -- the chamfer
+/// stays Python, driven from Rust, so parity is by construction). Vias are
+/// extracted OUTSIDE the path guard exactly like the oracle.
+#[pyfunction]
+#[allow(clippy::type_complexity)]
+pub fn run_build_route_payload(
+    py: Python<'_>,
+    path: Py<PyAny>,
+    compiled_route: Py<PyAny>,
+    net_name: String,
+    net_num: i64,
+    pads_len: usize,
+) -> PyResult<RouteEmission> {
+    let path = path.bind(py);
+    let compiled_route = compiled_route.bind(py);
+
+    let default_zero = 0.0_f64.into_pyobject(py)?.into_any();
+    let default_02 = 0.2_f64.into_pyobject(py)?.into_any();
+    let default_none = py.None().bind(py).clone().into_any();
+    let default_fcu = PyString::new(py, "F.Cu").into_any();
+
+    let path_length: f64 = getattr_or(py, path, "path_length", &default_zero)?.extract()?;
+
+    // `width = getattr(compiled_route, "width_mm", 0.2); if not width or
+    // width <= 0.0: width = 0.2` -- the `not width` truthiness check snaps
+    // None/0/0.0 (extraction only happens on a truthy value, so a None
+    // width_mm snaps to 0.2 exactly like the oracle); NaN is truthy and
+    // never `<= 0.0`, so it survives.
+    let width_raw = getattr_or(py, compiled_route, "width_mm", &default_02)?;
+    let mut width: f64 = if width_raw.is_truthy()? {
+        width_raw.extract()?
+    } else {
+        0.2
+    };
+    if width == 0.0 || width <= 0.0 {
+        width = 0.2;
+    }
+
+    let mut path_points: Vec<(f64, f64, String)> = Vec::new();
+    if path_length > 0.0 && pads_len >= 2 {
+        // segments branch: `path_segs = getattr(path, "segments", None);
+        // if path_segs: for s in path_segs: (s[0], s[1], s[2])`
+        let path_segs = getattr_or(py, path, "segments", &default_none)?;
+        if path_segs.is_truthy()? {
+            for s in path_segs.try_iter()? {
+                let s = s?;
+                let x: f64 = s.get_item(0)?.extract()?;
+                let y: f64 = s.get_item(1)?.extract()?;
+                let layer: String = s.get_item(2)?.extract()?;
+                path_points.push((x, y, layer));
+            }
+        } else {
+            // coordinates branch: `coords = getattr(path, "coordinates",
+            // None); if coords: default_layer = getattr(path, "layer_name",
+            // "F.Cu"); (c[0], c[1], default_layer)`
+            let coords = getattr_or(py, path, "coordinates", &default_none)?;
+            if coords.is_truthy()? {
+                let default_layer: String =
+                    getattr_or(py, path, "layer_name", &default_fcu)?.extract()?;
+                for c in coords.try_iter()? {
+                    let c = c?;
+                    let x: f64 = c.get_item(0)?.extract()?;
+                    let y: f64 = c.get_item(1)?.extract()?;
+                    path_points.push((x, y, default_layer.clone()));
+                }
+            }
+        }
+        // `path_points = _chamfer_path_points(path_points,
+        // chamfer_offset=0.1)` -- called back through the Python module
+        // (single-source), so the chamfered points are bit-identical to the
+        // oracle's by construction.
+        let zone_pour_stitch = py.import("temper_placer.router_v6._zone_pour_stitch")?;
+        let chamfer = zone_pour_stitch.getattr("_chamfer_path_points")?;
+        let points_list = PyList::empty(py);
+        for (x, y, layer) in &path_points {
+            let t = PyTuple::new(
+                py,
+                [
+                    (*x).into_pyobject(py)?.into_any(),
+                    (*y).into_pyobject(py)?.into_any(),
+                    layer.clone().into_pyobject(py)?.into_any(),
+                ],
+            )?
+            .into_any();
+            points_list.append(t)?;
+        }
+        let chamfered = chamfer.call1((points_list, 0.1_f64))?;
+        let mut out_points: Vec<(f64, f64, String)> = Vec::new();
+        for p in chamfered.try_iter()? {
+            let p = p?;
+            let x: f64 = p.get_item(0)?.extract()?;
+            let y: f64 = p.get_item(1)?.extract()?;
+            let layer: String = p.get_item(2)?.extract()?;
+            out_points.push((x, y, layer));
+        }
+        path_points = out_points;
+    }
+
+    // `for via in getattr(compiled_route, "vias", []): vx, vy = via.position;
+    // (vx, vy, via.diameter, via.drill, via.from_layer, via.to_layer)`
+    let default_empty_list = PyList::empty(py).into_any();
+    let mut vias: Vec<(f64, f64, f64, f64, String, String)> = Vec::new();
+    for via in getattr_or(py, compiled_route, "vias", &default_empty_list)?.try_iter()? {
+        let via = via?;
+        let pos = via.getattr("position")?;
+        let vx: f64 = pos.get_item(0)?.extract()?;
+        let vy: f64 = pos.get_item(1)?.extract()?;
+        let diameter: f64 = via.getattr("diameter")?.extract()?;
+        let drill: f64 = via.getattr("drill")?.extract()?;
+        let from_layer: String = via.getattr("from_layer")?.extract()?;
+        let to_layer: String = via.getattr("to_layer")?.extract()?;
+        vias.push((vx, vy, diameter, drill, from_layer, to_layer));
+    }
+
+    Ok((net_name, path_length, path_points, width, net_num, vias, pads_len))
+}
+
+#[cfg(feature = "python")]
+/// `router_v6/_adapter_convert._build_routing_result`'s failure-extraction
+/// assembly (the router's OUTPUT wire format): the `unrouted_nets` /
+/// `forced_segment_nets` lists, the DRC violations from `net_reports` (a
+/// violation per report with `drc_violations > 0`) plus the manufacturing
+/// report's `violations` (appended AFTER the report violations), the
+/// `component_edge` / `component_keepout` congestion regions (every other
+/// `pair_kind` is skipped, via CPython `==` semantics -- `PairKind` is a
+/// `Literal` but the oracle's `in` membership is duck-typed) and the
+/// `topology_solved_nets` keys. Returns plain data; the shim wraps the
+/// `DrcViolation` / `CongestionRegion` dataclasses (Python single-source,
+/// the D4 `StageDRCFailure` precedent) and runs the `connectivity_preflight`
+/// call-back (which stays Python).
+///
+/// The returned drc_violation tuples are
+/// `(net_name, message, location, count, type)`; the congestion tuples are
+/// `(net_name, comp_a, comp_b, current_distance_mm, pos_a, pos_b)`.
+#[pyfunction]
+#[allow(clippy::type_complexity)]
+pub fn run_build_routing_result(
+    py: Python<'_>,
+    result: Py<PyAny>,
+) -> PyResult<(
+    f64,
+    Vec<String>,
+    Vec<String>,
+    Vec<(String, String, (f64, f64), i64, String)>,
+    Vec<(String, String, String, f64, (f64, f64), (f64, f64))>,
+    Vec<String>,
+)> {
+    let result = result.bind(py);
+
+    let default_none = py.None().bind(py).clone().into_any();
+    let default_zero = 0i64.into_pyobject(py)?.into_any();
+    let default_zero_f = 0.0_f64.into_pyobject(py)?.into_any();
+    let default_unknown = PyString::new(py, "unknown").into_any();
+    let default_empty_str = PyString::new(py, "").into_any();
+    let default_empty_list = PyList::empty(py).into_any();
+    let default_unknown_pair = ("unknown".to_string(), "unknown".to_string())
+        .into_pyobject(py)?
+        .into_any();
+    let default_zero_pos = (0.0_f64, 0.0_f64).into_pyobject(py)?.into_any();
+    let default_positions = (
+        (0.0_f64, 0.0_f64),
+        (0.0_f64, 0.0_f64),
+    )
+        .into_pyobject(py)?
+        .into_any();
+
+    // `routing_results = result.stage4.routing_results` -- hard attribute
+    // access (AttributeError parity with the oracle).
+    let stage4 = result.getattr("stage4")?;
+    let routing_results = stage4.getattr("routing_results")?;
+
+    // unrouted_nets = list(routing_results.failed_nets)
+    let mut unrouted_nets: Vec<String> = Vec::new();
+    for n in routing_results.getattr("failed_nets")?.try_iter()? {
+        unrouted_nets.push(n?.extract()?);
+    }
+
+    // forced_segment_nets: `if compiled: [net_name for net_name, route in
+    // compiled.items() if getattr(getattr(route, "path", None),
+    // "forced_segment_count", 0) > 0]`
+    let mut forced_segment_nets: Vec<String> = Vec::new();
+    let compiled = getattr_or(py, &routing_results, "compiled_routes", &default_none)?;
+    if compiled.is_truthy()? {
+        // `compiled` is a dict: PyObject_GetIter would yield KEYS, so cast to
+        // PyDict and use `.iter()` for the (key, value) pairs the oracle's
+        // `compiled.items()` walk needs.
+        let compiled_dict = compiled.cast::<PyDict>()?;
+        for (net_name, route) in compiled_dict.iter() {
+            let net_name: String = net_name.extract()?;
+            let path = getattr_or(py, &route, "path", &default_none)?;
+            let count = getattr_or(py, &path, "forced_segment_count", &default_zero)?;
+            // CPython `> 0` (works for int and any comparable duck-typed
+            // value; the default is int 0).
+            if count.gt(0)? {
+                forced_segment_nets.push(net_name);
+            }
+        }
+    }
+
+    let mut drc_violations: Vec<(String, String, (f64, f64), i64, String)> = Vec::new();
+    let mut congestion_regions: Vec<(String, String, String, f64, (f64, f64), (f64, f64))> =
+        Vec::new();
+
+    for report in getattr_or(py, &routing_results, "net_reports", &default_empty_list)?
+        .try_iter()?
+    {
+        let report = report?;
+
+        // drc_count = getattr(report, "drc_violations", 0); if drc_count > 0
+        let drc_count = getattr_or(py, &report, "drc_violations", &default_zero)?;
+        if drc_count.gt(0)? {
+            let net_name: String =
+                getattr_or(py, &report, "net_name", &default_unknown)?.extract()?;
+            let message: String =
+                getattr_or(py, &report, "message", &default_empty_str)?.extract()?;
+            let count: i64 = drc_count.extract()?;
+            drc_violations.push((net_name, message, (0.0, 0.0), count, "unknown".to_string()));
+        }
+
+        // bottleneck block: pair_kind membership via CPython `==`
+        let bottleneck = getattr_or(py, &report, "bottleneck", &default_none)?;
+        if !bottleneck.is_none() {
+            let pair_kind = getattr_or(py, &bottleneck, "pair_kind", &default_none)?;
+            let is_edge = pair_kind.eq(PyString::new(py, "component_edge"))?;
+            let is_keepout = pair_kind.eq(PyString::new(py, "component_keepout"))?;
+            if is_edge || is_keepout {
+                let net_name: String =
+                    getattr_or(py, &report, "net_name", &default_unknown)?.extract()?;
+                let comps =
+                    getattr_or(py, &bottleneck, "component_pair", &default_unknown_pair)?;
+                let comp_a: String = comps.get_item(0)?.extract()?;
+                let comp_b: String = comps.get_item(1)?.extract()?;
+                let gap: f64 =
+                    getattr_or(py, &bottleneck, "current_gap_mm", &default_zero_f)?.extract()?;
+                let positions =
+                    getattr_or(py, &bottleneck, "positions_mm", &default_positions)?;
+                let pos_a = positions.get_item(0)?;
+                let pos_b = positions.get_item(1)?;
+                let ax: f64 = pos_a.get_item(0)?.extract()?;
+                let ay: f64 = pos_a.get_item(1)?.extract()?;
+                let bx: f64 = pos_b.get_item(0)?.extract()?;
+                let by: f64 = pos_b.get_item(1)?.extract()?;
+                congestion_regions.push((net_name, comp_a, comp_b, gap, (ax, ay), (bx, by)));
+            }
+        }
+    }
+
+    // manufacturing-report violations (appended AFTER the report violations,
+    // exactly like the oracle's two loops).
+    let mfg = getattr_or(py, result, "manufacturing_report", &default_none)?;
+    if !mfg.is_none() {
+        for v in getattr_or(py, &mfg, "violations", &default_empty_list)?.try_iter()? {
+            let v = v?;
+            let v_type: String = getattr_or(py, &v, "type", &default_unknown)?.extract()?;
+            let message: String =
+                getattr_or(py, &v, "message", &default_empty_str)?.extract()?;
+            let net_name: String =
+                getattr_or(py, &v, "net_name", &default_empty_str)?.extract()?;
+            let location = getattr_or(py, &v, "location", &default_zero_pos)?;
+            let lx: f64 = location.get_item(0)?.extract()?;
+            let ly: f64 = location.get_item(1)?.extract()?;
+            drc_violations.push((net_name, message, (lx, ly), 0, v_type));
+        }
+    }
+
+    // topology_solved_nets = list((getattr(topology_graph,
+    // "net_topologies", None) or {}).keys())
+    let mut topology_solved_nets: Vec<String> = Vec::new();
+    let stage3 = getattr_or(py, result, "stage3", &default_none)?;
+    let topology_graph = getattr_or(py, &stage3, "topology_graph", &default_none)?;
+    let net_topologies = getattr_or(py, &topology_graph, "net_topologies", &default_none)?;
+    if net_topologies.is_truthy()? {
+        // `net_topologies` is a dict; `list(dict.keys())` iterates KEYS --
+        // PyObject_GetIter on a dict yields exactly that, so each item IS the
+        // net name.
+        for item in net_topologies.try_iter()? {
+            let net_name: String = item?.extract()?;
+            topology_solved_nets.push(net_name);
+        }
+    }
+
+    let completion_rate: f64 = result.getattr("completion_rate")?.extract()?;
+
+    Ok((
+        completion_rate,
+        unrouted_nets,
+        forced_segment_nets,
+        drc_violations,
+        congestion_regions,
+        topology_solved_nets,
+    ))
 }
 
 // ---------------------------------------------------------------------------
