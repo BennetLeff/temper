@@ -667,6 +667,232 @@ def all_footprint_refs(pcb_text: str) -> list[str]:
     return sorted(set(refs))
 
 
+# ---------------------------------------------------------------------------
+# Item-level bisection WITHIN a single footprint pair, for when even
+# footprint-reference granularity (board_text_filtered_by_refs) is not fine
+# enough: two footprints alone can already saturate kicad-cli's cap (see
+# docs/evidence/2026-08-13-track-width-silk-overlap-uncapped-measurement.md
+# -- C2xC3 and C5xC7 on this board, both instances of the CP_Radial_D35.0mm
+# library footprint whose silkscreen is drawn as 556 individual `fp_line` +
+# 3 `fp_circle` primitives instead of a circle). A footprint reference is
+# already the finest unit board_text_filtered_by_refs can delete; this
+# section goes one level finer, bisecting ONE footprint's own graphic-item
+# list the same way _measure_pool bisects a DRU band's real net names --
+# same principle (partition a population that is still too coarse), applied
+# one layer deeper.
+# ---------------------------------------------------------------------------
+
+
+def _footprint_span(pcb_text: str, ref: str) -> tuple[int, int]:
+    """The (start, end) span of the footprint block whose Reference property
+    equals `ref`. Raises if not found or not unique."""
+    matches = []
+    for fp_s, fp_e in _toplevel_block_spans(pcb_text, "footprint"):
+        block = pcb_text[fp_s:fp_e]
+        m = re.search(r'\(property "Reference" "([^"]*)"', block)
+        if m and m.group(1) == ref:
+            matches.append((fp_s, fp_e))
+    if len(matches) != 1:
+        raise ValueError(f"expected exactly one footprint with Reference {ref!r}, found {len(matches)}")
+    return matches[0]
+
+
+def _silk_item_spans_in(pcb_text: str, fp_start: int, fp_end: int) -> list[tuple[int, int]]:
+    """Spans of every direct-child (fp_line|fp_circle|fp_arc|fp_poly) graphic
+    item within one footprint block, in document order -- the primitives
+    kicad-cli's silk_overlap check treats as individual items (verified:
+    deleting a subset of them via this same span-and-delete mechanism
+    board_text_filtered_by_refs already uses for whole footprints changes
+    the reported count by exactly the deleted items' own contribution, never
+    more or less -- see the exhaustiveness argument in
+    measure_saturating_footprint_pair's docstring). Not layer-filtered: a
+    bucket may contain non-silkscreen items (e.g. F.Fab courtyard lines) --
+    harmless, since those never contribute to silk_overlap either way and
+    the partition only needs to be exhaustive+disjoint over the FULL item
+    list, not silk-only, for the sum to be correct."""
+    spans = []
+    for kind in ("fp_line", "fp_circle", "fp_arc", "fp_poly"):
+        for m in re.finditer(rf"(?m)^    \({kind} ", pcb_text[fp_start:fp_end]):
+            s = fp_start + m.start() + 4
+            e = _find_balanced(pcb_text, s)
+            spans.append((s, e))
+    spans.sort()
+    return spans
+
+
+def board_text_filtered_by_refs_and_items(
+    pcb_text: str,
+    keep_refs: set[str],
+    item_subset: dict[str, set[int]] | None = None,
+) -> str:
+    """Like board_text_filtered_by_refs (every footprint not in `keep_refs`
+    deleted entirely, every track/via/zone dropped), but for any ref that is
+    also a key in `item_subset`: additionally deletes every direct-child
+    graphic item (fp_line/fp_circle/fp_arc/fp_poly, 0-based document order
+    per _silk_item_spans_in) whose index is not in that ref's kept set.
+    Every other part of a bisected footprint (pads, properties, non-graphic
+    children) is left untouched -- only used to shrink an oversized
+    hatch-pattern silkscreen body, never to touch anything electrical."""
+    item_subset = item_subset or {}
+    deletions: list[tuple[int, int]] = []
+    for kind in ("segment", "arc", "via", "zone"):
+        deletions.extend(_toplevel_block_spans(pcb_text, kind))
+
+    for fp_s, fp_e in _toplevel_block_spans(pcb_text, "footprint"):
+        block = pcb_text[fp_s:fp_e]
+        m = re.search(r'\(property "Reference" "([^"]*)"', block)
+        ref = m.group(1) if m else None
+        if ref not in keep_refs:
+            deletions.append((fp_s, fp_e))
+            continue
+        if ref in item_subset:
+            keep_idx = item_subset[ref]
+            for idx, (s, e) in enumerate(_silk_item_spans_in(pcb_text, fp_s, fp_e)):
+                if idx not in keep_idx:
+                    deletions.append((s, e))
+
+    deletions.sort()
+    out = []
+    cursor = 0
+    for s, e in deletions:
+        if s < cursor:
+            continue  # overlapping/nested, skip (shouldn't happen by construction)
+        out.append(pcb_text[cursor:s])
+        cursor = e
+    out.append(pcb_text[cursor:])
+    return "".join(out)
+
+
+@dataclass
+class PairCellResult:
+    a_items: int
+    b_items: int
+    count: int
+    leaves: list = field(default_factory=list)
+    note: str = ""
+
+
+def _measure_pair_cell(
+    board_dir: Path,
+    pcb_text: str,
+    ref_a: str,
+    ref_b: str,
+    a_group: list[int],
+    b_group: list[int],
+    safe_ceiling: int,
+    _depth: int = 0,
+) -> PairCellResult:
+    """One (a_group x b_group) cross-product cell, auto-recursing exactly
+    like _measure_pool does for a DRU band's real net names: if the cell
+    saturates (or is non-deterministic) and at least one side still has
+    more than one item, bisect the LARGER side in half and recurse on the
+    two resulting cells -- still exhaustive+non-overlapping, because the
+    bisected side's two halves partition it exactly. Stops and reports a
+    LOWER BOUND only when both sides are already down to a single item
+    each and it is still saturated (the true floor of this partition
+    family, matching measure_rule_band's / _measure_pool's own stopping
+    condition for DRU bands)."""
+    filtered = board_text_filtered_by_refs_and_items(
+        pcb_text, {ref_a, ref_b}, {ref_a: set(a_group), ref_b: set(b_group)}
+    )
+    make_scratch_board(board_dir, pcb_text=filtered)
+    n, nondet = _verified_count(board_dir, None, "silk_overlap", safe_ceiling)
+    saturated = n >= safe_ceiling or nondet
+
+    if not saturated or (len(a_group) <= 1 and len(b_group) <= 1):
+        note = ""
+        if saturated:
+            det = "non-deterministic across reruns" if nondet else f"n={n} >= safe ceiling {safe_ceiling}"
+            note = (
+                f"SATURATION SUSPECTED ({det}) but both sides are down to a single "
+                "item each -- cannot split further. Reporting as a LOWER BOUND, "
+                "not a true count."
+            )
+        return PairCellResult(a_items=len(a_group), b_items=len(b_group), count=n, note=note)
+
+    if len(a_group) >= len(b_group) and len(a_group) > 1:
+        mid = len(a_group) // 2
+        halves = [(a_group[:mid], b_group), (a_group[mid:], b_group)]
+    else:
+        mid = len(b_group) // 2
+        halves = [(a_group, b_group[:mid]), (a_group, b_group[mid:])]
+
+    leaves = []
+    total = 0
+    for ag, bg in halves:
+        leaf = _measure_pair_cell(board_dir, pcb_text, ref_a, ref_b, ag, bg, safe_ceiling, _depth + 1)
+        leaves.append(leaf)
+        total += leaf.count
+    return PairCellResult(
+        a_items=len(a_group),
+        b_items=len(b_group),
+        count=total,
+        leaves=leaves,
+        note=f"split ({len(a_group)}x{len(b_group)} items, n_before_split={n})",
+    )
+
+
+def pair_cell_to_dict(c: PairCellResult) -> dict:
+    return {
+        "a_items": c.a_items,
+        "b_items": c.b_items,
+        "count": c.count,
+        "note": c.note,
+        "leaves": [pair_cell_to_dict(leaf) for leaf in c.leaves],
+    }
+
+
+def measure_saturating_footprint_pair(
+    board_dir: Path,
+    pcb_text: str,
+    ref_a: str,
+    ref_b: str,
+    safe_ceiling: int | None = None,
+    a_group: list[int] | None = None,
+    b_group: list[int] | None = None,
+) -> dict:
+    """Exact, provably exhaustive/non-overlapping silk_overlap count between
+    two SPECIFIC footprints whose combined reading saturates kicad-cli's cap
+    even with every other footprint deleted -- the finest granularity
+    board_text_filtered_by_refs can reach. Recursively bisects ref_a's
+    and/or ref_b's own graphic-item list (via _measure_pair_cell) whenever a
+    cell saturates, the same auto-refining strategy _measure_pool already
+    uses for a DRU band's real net names, applied one layer deeper (within
+    a single footprint pair instead of across net names).
+
+    Exhaustive and non-overlapping by construction: every one of ref_a's
+    items is in exactly one leaf of the a-side bisection at any point in
+    the recursion, likewise ref_b, so every unordered (item_from_a,
+    item_from_b) pair is covered by exactly one leaf cell -- a cross grid,
+    NOT the triangular self-pair sweep measure_by_bucket_pairs uses for a
+    single population, because ref_a's and ref_b's item lists are two
+    disjoint populations to begin with (no same-footprint pair can appear
+    here, matching kicad-cli's own observed behaviour that same-footprint
+    silk_overlap pairs are never reported). Every other footprint is
+    deleted for every run.
+
+    `a_group`/`b_group` let a caller resume/refine a specific sub-region
+    (e.g. the handful of cells a coarser prior sweep found still saturated)
+    instead of re-measuring an entire board's worth of already-resolved
+    cells from scratch -- pass the exact item-index lists for the region to
+    refine; omit both to measure the two footprints' full item sets.
+    """
+    if safe_ceiling is None:
+        safe_ceiling = default_safe_ceiling("silk_overlap")
+    if a_group is None or b_group is None:
+        a_s, a_e = _footprint_span(pcb_text, ref_a)
+        b_s, b_e = _footprint_span(pcb_text, ref_b)
+        a_group = list(range(len(_silk_item_spans_in(pcb_text, a_s, a_e))))
+        b_group = list(range(len(_silk_item_spans_in(pcb_text, b_s, b_e))))
+    root = _measure_pair_cell(board_dir, pcb_text, ref_a, ref_b, a_group, b_group, safe_ceiling)
+    return {
+        "ref_a": ref_a,
+        "ref_b": ref_b,
+        "total": root.count,
+        "tree": pair_cell_to_dict(root),
+    }
+
+
 def bucket(items: list, k: int) -> list[list]:
     """Split `items` into k contiguous buckets, as evenly as possible."""
     n = len(items)
@@ -784,6 +1010,15 @@ def _cli_physical_category(args) -> None:
         json.dump(result, Path(args.json).open("w"), indent=2)
 
 
+def _cli_saturating_pair(args) -> None:
+    pcb_text = (PCB_DIR / "temper.kicad_pcb").read_text()
+    board_dir = Path(args.scratch_dir)
+    result = measure_saturating_footprint_pair(board_dir, pcb_text, args.ref_a, args.ref_b)
+    print(f"TRUE silk_overlap {args.ref_a}x{args.ref_b}: {result['total']}")
+    if args.json:
+        json.dump(result, Path(args.json).open("w"), indent=2)
+
+
 def main() -> None:
     import argparse
 
@@ -804,6 +1039,17 @@ def main() -> None:
     p2.add_argument("--scratch-dir", required=True)
     p2.add_argument("--json", help="write full pair table to this path")
     p2.set_defaults(func=_cli_physical_category)
+
+    p3 = sub.add_parser(
+        "saturating-pair",
+        help="exact silk_overlap count for two specific footprints whose combined "
+        "reading alone saturates the cap (item-level bisection within the pair)",
+    )
+    p3.add_argument("ref_a")
+    p3.add_argument("ref_b")
+    p3.add_argument("--scratch-dir", required=True)
+    p3.add_argument("--json", help="write full recursive cell tree to this path")
+    p3.set_defaults(func=_cli_saturating_pair)
 
     args = p.parse_args()
     args.func(args)
