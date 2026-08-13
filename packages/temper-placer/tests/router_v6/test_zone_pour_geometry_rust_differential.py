@@ -103,6 +103,18 @@ def _rust_stitch_isolated_pads(
     """Mirrors the SHIPPED (post-migration) ``_stitch_isolated_pads``: same
     eligibility/formatting glue (unmigrated), Rust for the point-in-polygon
     + nearest-vertex geometry.
+
+    ONE deliberate divergence from the shipped function, added 2026-08-13:
+    the shipped one now derives its segment width from the netclass table
+    (``_stitch_width_for_net``) instead of the hardcoded ``0.2`` kept here.
+    This differential exists to prove ``stitch_targets_py``'s GEOMETRY equals
+    the pinned oracle's, and the oracle -- which is verbatim at its pin
+    commit and must stay that way -- emits ``0.2``.  Changing the literal
+    here would make every comparison below fail on width rather than on
+    geometry, i.e. it would break the proof without testing anything new.
+    The width itself is pinned separately, against the real netclass table,
+    by ``test_trace_width_assignment.py`` and
+    ``test_zone_stitch_netclass_width.py``.
     """
     from temper_placer.router_v6._adapter_convert import _next_tstamp
     from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
