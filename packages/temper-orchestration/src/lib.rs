@@ -41,6 +41,12 @@
 //                     `PipelineObserver<S>`, `PipelineConfig`
 // - `board_state`  — the phased `BoardState` struct (D2: mostly
 //                     `Option<Py<PyAny>>` until Phase A marshalling types land)
+// - `marshal`      — the Phase-A boundary marshaller (unit O-C3/U0): the
+//                     `Marshal` trait + `to_owned`/`to_python`, the `Val`
+//                     int-or-float canonical type, the lossless `Plain` value
+//                     tree, and the reusable round-trip gate. This is the
+//                     foundation the U1+ units use to replace the 23
+//                     `Option<Py<PyAny>>` BoardState fields with owned structs.
 // - `convergence`  — the Phase-1 deliverable: `TerminationReason`,
 //                     `ConvergenceCriteria`, `ConvergenceState`,
 //                     `ConvergenceChecker` pyclasses bit-exact with
@@ -253,6 +259,8 @@ pub(crate) mod grid_stage;
 pub(crate) mod host_math;
 mod hv_lv_partition_stage;
 mod layer_assignment_stage;
+#[cfg(feature = "python")]
+pub(crate) mod marshal;
 mod net_ordering_stage;
 pub(crate) mod phased_assignment_stage;
 pub(crate) mod phased_component_assignment_validator_stage;
