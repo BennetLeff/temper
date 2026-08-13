@@ -167,3 +167,88 @@ def test_grid_numpy_array():
     assert isinstance(grid.grid, np.ndarray)
     assert grid.grid.dtype == np.int8
     assert grid.grid.shape == (grid.height_cells, grid.width_cells)
+
+
+# ---------------------------------------------------------------------------
+# C-space erosion guard (2026-08-12)
+# ---------------------------------------------------------------------------
+#
+# `build_occupancy_grid`'s erosion used to be guarded by `if inflation_mm >
+# 0.1`, a magnitude threshold commented "Threshold to avoid tiny/empty
+# buffers".  `OccupancyGridStage` passes `default_trace_width_mm / 2`, so once
+# that width was corrected 0.25 -> 0.20 the inflation became exactly 0.100 and
+# the STRICT `>` switched the entire C-space off at precisely the production
+# value.  Measured on the #1082 placed board: 94,991 cells across the four
+# layers that were reserved before became free -- the ring hugging every
+# obstacle boundary -- and DRC reported 191 clearance violations at
+# `actual 0.0000 mm`.  See docs/evidence/2026-08-12-clearance-floor-reland.md.
+
+
+def _square_space(side: float = 10.0) -> RoutingSpace:
+    return RoutingSpace(
+        layer_name="F.Cu",
+        available_area=MultiPolygon([box(0, 0, side, side)]),
+        total_area=side * side,
+        obstacle_area=0.0,
+        routing_area=side * side,
+    )
+
+
+def test_erosion_applies_at_exactly_the_production_inflation():
+    """inflation == 0.1 must erode.
+
+    This is the regression: it is the value `OccupancyGridStage` passes for a
+    0.2mm default trace, and the old `> 0.1` predicate excluded it by one ULP
+    of intent.  Asserted against the un-eroded grid so it cannot pass
+    vacuously.
+    """
+    space = _square_space()
+    none_ = build_occupancy_grid(space, cell_size=0.1, inflation_mm=0.0)
+    prod = build_occupancy_grid(space, cell_size=0.1, inflation_mm=0.1)
+
+    assert prod.free_cell_count < none_.free_cell_count, (
+        "inflation_mm=0.1 left the grid identical to inflation_mm=0.0: the "
+        "C-space erosion is being skipped at exactly the inflation the "
+        "production pipeline passes"
+    )
+
+
+def test_erosion_is_monotonic_in_inflation():
+    """More reservation never means more free space, across the boundary.
+
+    Note this one does NOT fail on the old `> 0.1` predicate: discarding the
+    erosion below the threshold makes the sequence FLAT there, not
+    increasing, and flat is still sorted.  It is here to constrain the shape
+    of any future replacement predicate; the test above is the one that pins
+    the defect.  (Verified by mutation -- reinstating `> 0.1` fails
+    `test_erosion_applies_at_exactly_the_production_inflation` and nothing
+    else in this file.)
+    """
+    space = _square_space()
+    counts = [
+        build_occupancy_grid(space, cell_size=0.1, inflation_mm=i).free_cell_count
+        for i in (0.0, 0.001, 0.05, 0.1, 0.100001, 0.125, 0.3)
+    ]
+    assert counts == sorted(counts, reverse=True), counts
+
+
+def test_tiny_inflation_is_applied_and_harmless():
+    """The "tiny buffers" half of the old comment: a sub-micron erosion is
+    valid, non-empty and cheap, so there is nothing for a threshold to
+    protect.  It only ever removes cells, never adds them."""
+    space = _square_space()
+    none_ = build_occupancy_grid(space, cell_size=0.1, inflation_mm=0.0)
+    tiny = build_occupancy_grid(space, cell_size=0.1, inflation_mm=1e-9)
+
+    assert tiny.free_cell_count > 0
+    assert tiny.free_cell_count <= none_.free_cell_count
+
+
+def test_erosion_that_empties_the_layer_blocks_it_rather_than_falling_back():
+    """The "empty buffers" half.  An erosion larger than the layer's inradius
+    means no trace of that width fits anywhere on it.  Blocking every cell is
+    the true answer; silently reverting to the un-eroded area would emit
+    copper that violates by construction."""
+    space = _square_space(side=10.0)
+    grid = build_occupancy_grid(space, cell_size=0.1, inflation_mm=50.0)
+    assert grid.free_cell_count == 0
