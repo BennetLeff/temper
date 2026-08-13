@@ -646,6 +646,17 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # before/after. This script is the mechanical check that catches the
     # next one; it scans this file, so it is self-covering by construction.
     ("check_ci_survey_advisory_drift.py", "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py", "CI-survey status-claim vs. workflow-wiring drift checker (this file's own advisory/BLOCKING reason text vs. each script's real continue-on-error state); source-tree + workflow scan; probe is the check itself. BLOCKING from the start (no continue-on-error on its own CI step)."),
+    # 2026-08-13 via-annular-ring-floor fix (docs/evidence/
+    # 2026-08-13-jlcpcb-fab-capability-envelope.md): a new gate, registered
+    # here in the SAME PR that wires it into CI -- PR #1138 exists
+    # precisely because a prior gate was wired into CI without this step.
+    ("check_fab_capability_floor.py", "docs/hardware/FAB_CAPABILITY.md", "board via annular ring + 'Via hole clearance' DRU rule vs. JLCPCB 2oz-multilayer fab floor; probe harness deferred"),
+    # Two more pre-existing gaps of the SAME shape (invoked in
+    # python-tests.yml, never added here) found by this PR's own U4
+    # completeness test while adding the entry above -- fixed alongside it
+    # rather than left for a third rediscovery.
+    ("check_router_clearance_floor.py", "packages/temper-placer/configs/netclass_rules.yaml", "router-vs-DRC clearance floor gate (2026-08-12); probe harness deferred"),
+    ("check_wasm_covered.py", "tools/wasm/wasm_test_registry.json", "wasm-covered annotation resolver + pytest plugin (2026-08-12); probe harness deferred"),
 ]
 
 

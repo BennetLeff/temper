@@ -2209,6 +2209,24 @@ jobs:
         # see docs/evidence/2026-08-12-clearance-congestion-band.md.
         run: uv run python scripts/check_router_clearance_floor.py
 
+      - name: Fab-capability floor gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_fab_capability_floor.py -v --tb=short
+
+      - name: Fab-capability (JLCPCB 2oz) via/hole-clearance floor gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # BLOCKING from the start, deliberately: this gate is green on the
+        # tree that introduces it (44/44 board vias + every net-class via
+        # template + both router_v6 generator constants raised to a 0.3mm
+        # ring; the "Via hole clearance" DRU rule raised 0.25mm -> 0.28mm),
+        # so it can only ever fail on a reintroduction. Reads its numeric
+        # floor from docs/hardware/FAB_CAPABILITY.md sec.5, never a
+        # hardcoded constant -- see
+        # docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md for
+        # the sourced JLCPCB figures and the pre-fix measurement (44/44
+        # vias below the 0.254mm floor).
+        run: uv run python scripts/check_fab_capability_floor.py
+
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/gen_domain_models.py --check

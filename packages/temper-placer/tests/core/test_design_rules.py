@@ -168,7 +168,12 @@ class TestTemperNetClasses:
         power = TEMPER_NET_CLASSES["Power"]
         assert power.trace_width == 1.0
         assert power.clearance == 0.5
-        assert power.via_diameter == 1.0
+        # via_diameter RAISED 1.0 -> 1.1mm 2026-08-13
+        # (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md,
+        # docs/hardware/FAB_CAPABILITY.md): 1.0/0.5 gave a 0.25mm annular
+        # ring, 0.004mm short of JLCPCB's 2oz PTH annular-ring floor
+        # (0.254mm).
+        assert power.via_diameter == 1.1
         assert power.via_drill == 0.5
 
     def test_high_speed_class_has_impedance(self):
@@ -181,7 +186,10 @@ class TestTemperNetClasses:
         """Test HighCurrent class has wide traces."""
         high_current = TEMPER_NET_CLASSES["HighCurrent"]
         assert high_current.trace_width == 0.5
-        assert high_current.via_diameter == 0.8
+        # via_diameter RAISED 0.8 -> 1.0mm 2026-08-13 (same fab-floor fix as
+        # Power above): 0.8/0.4 gave a 0.2mm annular ring, below the
+        # 0.254mm floor.
+        assert high_current.via_diameter == 1.0
 
 
 class TestCreateTemperDesignRules:

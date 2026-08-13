@@ -429,6 +429,30 @@ scripts:
   - rich.console
   - subprocess
   - sys
+- path: check_fab_capability_floor.py
+  purpose: 'CI gate: board via geometry and the "Via hole clearance" DRU rule must
+    never fall below JLCPCB''s published 2oz-multilayer manufacturability floor
+    (docs/hardware/FAB_CAPABILITY.md sec.5, the sole numeric source -- this script
+    hardcodes no fab figure). docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md
+    measured every via on the board (44/44) below JLCPCB''s 0.254mm PTH annular-ring
+    floor, and the repo''s own "Via hole clearance" DRU rule (0.25mm) below JLCPCB''s
+    0.28mm PTH-to-track absolute minimum independent of copper weight -- the repo''s
+    own rule could never have caught this. Five properties: P1 real board via
+    geometry, P2 TEMPER_NET_CLASSES via templates, P3 router_v6 generator constants
+    (_ground_plane.py/_power_islands.py VIA_SIZE_MM/VIA_DRILL_MM), P4/P5 the DRU
+    rule constant and its emitted text. Mutation-verified against the exact pre-fix
+    shapes (scripts/tests/test_check_fab_capability_floor.py).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_fault_list_consistency.py
   purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
   owner: firmware
