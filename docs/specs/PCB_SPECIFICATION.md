@@ -88,7 +88,22 @@ Notes:
 | L1 | Top | Power components, HV traces | 2 oz (70µm) | High-current paths |
 | L2 | GND | Ground plane (split PGND/CGND) | 1 oz (35µm) | Reference plane |
 | L3 | PWR | Power plane (5V, 3.3V islands) | 1 oz (35µm) | Power distribution |
-| L4 | Bottom | Control signals, gate drive | 1 oz (35µm) | Signal routing |
+| L4 | Bottom | Control signals, gate drive | 2 oz (70µm) | Signal routing |
+
+**Correction (2026-08-13):** L4 was previously listed as 1 oz (35µm) here,
+which directly contradicted §5.3 below ("External traces (L1/L4) at 2oz
+copper") and §12.2's order-form summary ("Copper: 2oz outer, 1oz inner") in
+this *same document* -- an internal self-contradiction, not just a
+cross-document one. `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` §1/§3.4/§4
+sizes the GateDrive net class (which routes on L4) from a uniform 2 oz
+outer-copper assumption, and JLCPCB's outer-copper weight is a single
+stackup-wide order-form setting covering both L1 and L4 together
+(`docs/hardware/FAB_CAPABILITY.md` §1) -- there is no standard option to
+order asymmetric outer copper. L4 is corrected to 2 oz (70µm) to match the
+derivations that actually depend on it. See
+`docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §3 for the full
+writeup, and `pcb/temper.kicad_pcb`'s `(setup (stackup ...))` block (added in
+the same change) for the now-authoritative, machine-checkable declaration.
 
 ### 3.2 Dielectric Stack
 
@@ -96,7 +111,7 @@ Notes:
          ┌─────────────────────────────────────┐
    L1    │  2 oz copper (70µm)                 │  Top - Power
          ├─────────────────────────────────────┤
-         │  Prepreg: 0.2mm (7.8 mil) FR4      │
+         │  Prepreg: 0.195mm (7.7 mil) FR4    │
          ├─────────────────────────────────────┤
    L2    │  1 oz copper (35µm)                 │  Ground Plane
          ├─────────────────────────────────────┤
@@ -104,12 +119,18 @@ Notes:
          ├─────────────────────────────────────┤
    L3    │  1 oz copper (35µm)                 │  Power Plane
          ├─────────────────────────────────────┤
-         │  Prepreg: 0.2mm (7.8 mil) FR4      │
+         │  Prepreg: 0.195mm (7.7 mil) FR4    │
          ├─────────────────────────────────────┤
-   L4    │  1 oz copper (35µm)                 │  Bottom - Control
+   L4    │  2 oz copper (70µm)                 │  Bottom - Control
          └─────────────────────────────────────┘
-         
-Total thickness: ~1.6mm (63 mil)
+
+Total thickness: 1.6mm (63 mil) -- 0.21mm copper (2x 2oz outer + 2x 1oz
+inner) + 1.39mm dielectric (2x 0.195mm prepreg + 1.0mm core). Prepreg
+thickness was trimmed from 0.2mm to 0.195mm each (2026-08-13, alongside the
+L4 correction above) so the total still sums to the board's declared 1.6mm
+with L4's extra 0.035mm of copper included; dielectric thickness carries no
+current-capacity dependency in this repo, so this is a dimensional
+adjustment only, not a derivation change.
 ```
 
 ### 3.3 Impedance Targets (if controlled impedance required)

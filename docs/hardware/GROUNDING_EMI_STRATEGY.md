@@ -130,7 +130,25 @@ This document defines the grounding architecture and EMI strategy for a 2kW indu
 | L1 (Top) | Power components, high-current traces | 2 oz |
 | L2 | Ground plane (split PGND/CGND) | 1 oz |
 | L3 | Power plane (5V, 3.3V islands) | 1 oz |
-| L4 (Bottom) | Control signals, gate drive | 1 oz |
+| L4 (Bottom) | Control signals, gate drive | 2 oz |
+
+**Correction (2026-08-13):** L4 was previously listed here as 1 oz, disagreeing
+with `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` §1/§3.4/§4, which sizes every
+external-layer path (including the GateDrive class, which routes on L4) from a
+uniform 2 oz outer-copper assumption, and with
+`docs/specs/PCB_SPECIFICATION.md` §5.3 and §12.2's order-form line ("Copper:
+2oz outer, 1oz inner"), which is generic across both outer layers. JLCPCB's
+"outer copper weight" is a single stackup-wide order-form setting applied to
+both L1 and L4 together (`docs/hardware/FAB_CAPABILITY.md` §1, row 1b/3) --
+asymmetric per-side outer copper is not a standard option there, so a design
+that wants 2 oz on L1 gets 2 oz on L4 too, whether or not that was the
+original intent. This table was the stale value; `pcb/temper.kicad_pcb`'s
+`(setup (stackup ...))` block (added alongside this correction) now declares
+L4 as 2 oz explicitly, and `scripts/check_stackup_copper_weight_gate.py`
+enforces the board stays consistent with TRACE_WIDTH_CALCULATIONS.md's
+assumption going forward. See
+`docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §3 for the full
+disagreement writeup.
 
 **Ground Plane Split:**
 
