@@ -1141,3 +1141,259 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(slots_within_radius_py, &sub)?)?;
     module.add_submodule(&sub)
 }
+
+// ---------------------------------------------------------------------------
+// Slot-grid kernel edge-case property tests
+// ---------------------------------------------------------------------------
+//
+// The radius<=0 empty case is the kernel's pinned contract (the pre-migration
+// oracle `if radius <= 0.0 or not index: return []`, reproduced verbatim at
+// `slots_within_radius`). The Python PBT property p3 (inclusive radius
+// membership) once over-asserted it for radius==0 and was reconciled to skip
+// radius<=0 (commit 65760eb5e). These tests pin the kernel side of that
+// contract and, separately, prove the positive-radius membership property the
+// corrected p3 still relies on — so a future weakening of the kernel (e.g. a
+// `ceil`->`floor` window mutant, or an `<=`->`<` distance mutant) fails here
+// rather than silently passing both p3 and p4.
+#[cfg(test)]
+mod slot_grid_proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    /// Naive O(N) reference scan — every slot whose CPython-`math.hypot`
+    /// distance from `center` is `<= radius`. Deliberately shares no code with
+    /// the cell-window walk under test (no `build_slot_index`, no raster
+    /// order, no de-dup), so it is an independent oracle for membership.
+    fn naive_within(center: (f64, f64), radius: f64, slots: &[(f64, f64)]) -> Vec<(f64, f64)> {
+        let (cx, cy) = center;
+        slots
+            .iter()
+            .copied()
+            .filter(|&(sx, sy)| crate::host_math::hypot(sx - cx, sy - cy) <= radius)
+            .collect()
+    }
+
+    fn index_map(slots: &[(f64, f64)], spacing: f64) -> HashMap<(i64, i64), Vec<(f64, f64)>> {
+        build_slot_index(slots, spacing).into_iter().collect()
+    }
+
+    /// Bit-pattern key set (`slot_key`) — the same de-dup identity the kernel
+    /// uses, so `-0.0` and `+0.0` stay distinct exactly as in the kernel.
+    fn key_set(slots: impl IntoIterator<Item = (f64, f64)>) -> HashSet<(u64, u64)> {
+        slots.into_iter().map(slot_key).collect()
+    }
+
+    fn coord() -> impl Strategy<Value = f64> {
+        -50.0f64..50.0
+    }
+
+    fn spacing() -> impl Strategy<Value = f64> {
+        1.0f64..10.0
+    }
+
+    fn positive_radius() -> impl Strategy<Value = f64> {
+        1e-6f64..6.0
+    }
+
+    /// P3 (corrected): for positive radius the kernel returns EXACTLY the
+    /// within-radius set — every returned slot is within radius and every
+    /// within-radius slot is returned. Guards the cell-window completeness
+    /// bound (k = ceil(radius/spacing)) and the inclusive `<=` distance check
+    /// at once. The radius<=0 empty case is deliberately excluded: it is the
+    /// kernel's documented empty contract, pinned by
+    /// `nonpositive_radius_is_empty` below.
+    #[test]
+    fn within_radius_matches_naive_reference() {
+        proptest!(|(
+            slots in prop::collection::vec((coord(), coord()), 0..=16),
+            spacing in spacing(),
+            radius in positive_radius(),
+            center in (coord(), coord()),
+        )| {
+            let idx = index_map(&slots, spacing);
+            let got = key_set(slots_within_radius(center, radius, &idx, spacing));
+            let exp = key_set(naive_within(center, radius, &slots));
+            prop_assert_eq!(
+                got,
+                exp,
+                "center={:?} radius={} spacing={} slots={:?}",
+                center,
+                radius,
+                spacing,
+                slots
+            );
+        });
+    }
+
+    /// A slot at distance EXACTLY `radius` must be included — the `<=` not
+    /// `<`. This boundary is measure-zero under continuous random draws (the
+    /// randomized property above can never hit it), so it is pinned
+    /// deterministically with a 3-4-5 triangle (hypot == 5.0 exactly).
+    #[test]
+    fn within_radius_includes_slot_at_exactly_radius() {
+        let slots = [(3.0, 4.0), (10.0, 10.0)];
+        let idx = index_map(&slots, 5.0);
+        assert_eq!(slots_within_radius((0.0, 0.0), 5.0, &idx, 5.0), vec![(3.0, 4.0)]);
+        // And a slot just OUTSIDE is excluded — the radius is a closed ball.
+        let just_out = [(3.0, 4.0), (5.0, 0.0)];
+        let idx = index_map(&just_out, 5.0);
+        let got = key_set(slots_within_radius((0.0, 0.0), 4.9, &idx, 5.0));
+        assert!(!got.contains(&slot_key((5.0, 0.0))));
+    }
+
+    /// The ceil cell-window discriminator (the randomized completeness bound
+    /// may miss it): radius 8.5 / spacing 5.0 -> k = ceil(1.7) = 2, and the
+    /// slot (7.6, 0.0) rounds to cell (2, 0) — reachable only via the ceil
+    /// window, so a `ceil`->`floor` mutant drops it.
+    #[test]
+    fn within_radius_ceil_window_discriminator() {
+        let slots = [(7.6, 0.0), (0.0, 0.0)];
+        let idx = index_map(&slots, 5.0);
+        let got = key_set(slots_within_radius((0.0, 0.0), 8.5, &idx, 5.0));
+        assert!(got.contains(&slot_key((7.6, 0.0))));
+    }
+
+    /// radius <= 0 (negative, and -0.0) is the empty case — the contract the
+    /// p3 reconciliation delegates to. `radius == 0.0` with a center-
+    /// coincident slot is pinned deterministically in
+    /// `zero_radius_returns_empty_even_with_a_center_slot`.
+    #[test]
+    fn nonpositive_radius_is_empty() {
+        proptest!(|(
+            slots in prop::collection::vec((coord(), coord()), 0..=8),
+            spacing in spacing(),
+            radius in -10.0f64..0.0,
+            center in (coord(), coord()),
+        )| {
+            let idx = index_map(&slots, spacing);
+            prop_assert!(slots_within_radius(center, radius, &idx, spacing).is_empty());
+        });
+    }
+
+    /// `radius == 0.0` with a slot EXACTLY at the center is the empty case —
+    /// the exact input the p3 reconciliation (commit 65760eb5e) moved out of
+    /// p3's inclusive-membership claim. Pinned deterministically: distance 0
+    /// is `<= 0`, yet the kernel must still return nothing.
+    #[test]
+    fn zero_radius_returns_empty_even_with_a_center_slot() {
+        let slots = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)];
+        let idx = index_map(&slots, 5.0);
+        assert!(slots_within_radius((0.0, 0.0), 0.0, &idx, 5.0).is_empty());
+        // -0.0 is also <= 0.0 and must be empty.
+        assert!(slots_within_radius((0.0, 0.0), -0.0, &idx, 5.0).is_empty());
+    }
+
+    #[test]
+    fn empty_index_is_empty() {
+        proptest!(|(
+            spacing in spacing(),
+            radius in positive_radius(),
+            center in (coord(), coord()),
+        )| {
+            let idx: HashMap<(i64, i64), Vec<(f64, f64)>> = HashMap::new();
+            prop_assert!(slots_within_radius(center, radius, &idx, spacing).is_empty());
+        });
+    }
+
+    #[test]
+    fn within_radius_is_deterministic() {
+        proptest!(|(
+            slots in prop::collection::vec((coord(), coord()), 0..=16),
+            spacing in spacing(),
+            radius in positive_radius(),
+            center in (coord(), coord()),
+        )| {
+            let idx = index_map(&slots, spacing);
+            let a = slots_within_radius(center, radius, &idx, spacing);
+            let b = slots_within_radius(center, radius, &idx, spacing);
+            prop_assert_eq!(a, b);
+        });
+    }
+
+    /// Every slot within `radius` lands in a cell within Chebyshev
+    /// `k = ceil(radius/spacing)` of the center's cell — the completeness
+    /// bound a `ceil`->`floor` mutant breaks (the (7.6, 0.0) / radius 8.5 /
+    /// spacing 5.0 discriminating case, randomized).
+    #[test]
+    fn cell_window_covers_every_within_radius_slot() {
+        proptest!(|(
+            slots in prop::collection::vec((coord(), coord()), 0..=16),
+            spacing in spacing(),
+            radius in positive_radius(),
+            center in (coord(), coord()),
+        )| {
+            let idx = index_map(&slots, spacing);
+            let got = key_set(slots_within_radius(center, radius, &idx, spacing));
+            let (cx, cy) = center;
+            for &slot in &slots {
+                if crate::host_math::hypot(slot.0 - cx, slot.1 - cy) <= radius {
+                    prop_assert!(
+                        got.contains(&slot_key(slot)),
+                        "within-radius slot {:?} dropped (center={:?} radius={} spacing={})",
+                        slot,
+                        center,
+                        radius,
+                        spacing
+                    );
+                }
+            }
+        });
+    }
+
+    /// `build_slot_index`: every slot appears in exactly one cell, that cell's
+    /// key is `(round(x/spacing), round(y/spacing))`, and the total slot count
+    /// is preserved.
+    #[test]
+    fn build_slot_index_partitions_slots() {
+        proptest!(|(
+            slots in prop::collection::vec((coord(), coord()), 0..=16),
+            spacing in spacing(),
+        )| {
+            let idx = build_slot_index(&slots, spacing);
+            let mut total = 0usize;
+            for (key, cell) in &idx {
+                let (i, j) = *key;
+                for &(x, y) in cell {
+                    prop_assert_eq!((i, j), (cell_index(x, spacing), cell_index(y, spacing)));
+                    total += 1;
+                }
+            }
+            prop_assert_eq!(total, slots.len());
+        });
+    }
+
+    /// `infer_slot_spacing`: the minimum non-zero coordinate difference, or the
+    /// 5.0 fallback for degenerate grids (fewer than 2 slots / no distinct
+    /// coordinate).
+    #[test]
+    fn infer_slot_spacing_is_min_diff_or_fallback() {
+        proptest!(|(slots in prop::collection::vec((coord(), coord()), 0..=12))| {
+            let spacing = infer_slot_spacing(&slots);
+            let mut xs: Vec<f64> = slots.iter().map(|s| s.0).collect();
+            let mut ys: Vec<f64> = slots.iter().map(|s| s.1).collect();
+            xs.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+            ys.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+            let mut diffs: Vec<f64> = Vec::new();
+            for w in xs.windows(2) {
+                if w[1] > w[0] {
+                    diffs.push(w[1] - w[0]);
+                }
+            }
+            for w in ys.windows(2) {
+                if w[1] > w[0] {
+                    diffs.push(w[1] - w[0]);
+                }
+            }
+            if diffs.is_empty() {
+                prop_assert_eq!(spacing, DEFAULT_SLOT_SPACING);
+            } else {
+                // `diffs` is non-empty in this branch, so the index is safe.
+                let mut best = diffs[0];
+                for &c in &diffs[1..] {
+                    best = py_min(best, c);
+                }
+                prop_assert_eq!(spacing, best);
+            }
+        });
+    }
+}
