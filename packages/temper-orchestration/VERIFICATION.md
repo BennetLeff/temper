@@ -4192,3 +4192,139 @@ instead.
 - `make regen-check`: all derived artifacts consistent — including the
   regenerated README package count (17 → 18, `temper-data-model` added) and
   `uv.lock` (the new workspace member).
+
+## U3 aggregates — the owned `Board` + `Netlist` structs (O-C3/U3)
+
+U3 defines the owned AGGREGATE structs the U2 leaves compose into:
+`Board` + `Netlist` in `packages/temper-data-model/` (pyo3-free, wasm32-
+compatible), with their `Marshal` boundary in `netlist_owned.rs` and the
+aggregate round-trip gate. No `BoardState` field changes; the aggregates are
+the building blocks U4+ ports `BoardState.board`/`BoardState.netlist` to.
+
+### The structs (`packages/temper-data-model/src/aggregates.rs`)
+
+`Board` holds the OWNED fields only (`width`/`height`/`origin`/`keepouts`);
+`Netlist` holds `components`/`nets` (the U2 leaves). The full field table,
+classified owned vs keep vs derived:
+
+| Aggregate | Field | Classification | Owned type / handling | Why |
+|---|---|---|---|---|
+| `Netlist` | `components` | OWNED | `Vec<Component>` | the U2 leaf; `list[Component]` |
+| `Netlist` | `nets` | OWNED | `Vec<Net>` | the U2 leaf; `list[Net]` |
+| `Netlist` | `_component_index` | DERIVED | not stored | `__post_init__`/`build_indices` recompute it unconditionally from components (a pure function); `repr=False` so it never appears in `__repr__`; `compare=True` so `==` needs it — recomputed identically on write-back |
+| `Netlist` | `_net_index` | DERIVED | not stored | same, from nets |
+| `Netlist` | `_component_nets` | DERIVED | not stored | same, from components+nets |
+| `Board` | `width` | OWNED | `Val` | the no-coercion hazard: `board_contracts.Board::new` raw-stores constructor args (`v.clone().unbind()`), and `Board.from_polygon` computes width as `x_max - x_min` (type-preserving) — `Board(100, 80)` and int-coordinate polygons produce INT width. `Val` records which; `1` never widens to `1.0` |
+| `Board` | `height` | OWNED | `Val` | same |
+| `Board` | `origin` | OWNED | `(Val, Val)` | `tuple[float, float]` raw-stored; int-shaped `(0, 0)` is a legal contract value |
+| `Board` | `keepouts` | OWNED | `Vec<(Val, Val, Val, Val)>` | `list[tuple[float, float, float, float]]` raw-stored; consumers explicitly float-coerce (`validation/geometric.py:289` `tuple(float(v) for v in k)`) — ints occur |
+| `Board` | `zones` | KEEP | `Plain::Opaque` passthrough | `list[Zone]` — a foreign pyclass not yet ported (a later unit's scope); identity-preserved, never reconstructed |
+| `Board` | `mounting_holes` | KEEP | `Plain::Opaque` passthrough | `list[MountingHole]` — foreign pyclass |
+| `Board` | `ground_domains` | KEEP | `Plain::Opaque` passthrough | `list[GroundDomain]` — foreign pyclass |
+| `Board` | `layer_stackup` | KEEP | `Plain::Opaque` passthrough | `LayerStackup | None` — foreign pyclass |
+| `Board` | `outline_polygon` | KEEP | `Plain::Opaque` passthrough | the outline GEOMETRY — consumed as shapely (`hv_lv_partition.py` wraps it in `Polygon(p)`, `guard_strip.py` demands "outline must be a shapely Polygon"); identity passthrough is lossless for BOTH the current `list[tuple[float, float]]` form and any shapely form, so no owned encoding can be lossier or wrong |
+| `Board` | `_zone_map` | DERIVED | not stored | `dict[str, Zone]` recomputed by `__post_init__` from `zones`; `init=False` (never constructor-passed), `repr=True`+`compare=True` — recomputed identically on write-back because `zones` passes through by identity |
+
+### Why the keeps live in the marshal layer, not the structs
+
+`temper-data-model` is pyo3-free BY CONSTRUCTION (the wasm32 tier compiles
+it), so its structs cannot hold `Py<PyAny>` — and an identity passthrough of
+a Python object is exactly a `Py` reference. The keeps therefore live in the
+pyo3-side aggregate [`OwnedBoard`] (`netlist_owned.rs`): a `Plain::Opaque`
+per keep field, wrapped UNCONDITIONALLY on read (never tree-ified, never
+inspected) and returned by reference on write (`to_python` errors loudly if a
+keep field is ever non-Opaque — an internal invariant, since keeps are
+identity-passthrough ONLY). U4+ ports `BoardState.board` to `OwnedBoard`;
+the wasm tier keeps using `temper_data_model::Board` directly (no keeps —
+there is no Python there).
+
+### The `Marshal` impls (`src/netlist_owned.rs`)
+
+- **`Marshal for Netlist`** — read `components`/`nets` via getattr + the U2
+  leaf impls; write via runtime import
+  (`temper_design_bundle_python.netlist_contracts.Netlist`) called with
+  ONLY `components`/`nets` kwargs. The pyclass constructor (`__post_init__`
+  → `build_indices`) recomputes the three index dicts identically — the
+  round-trip is bit-identical (type, repr, and `==`, whose `compare=True`
+  index fields are equal by recomputation).
+- **`Marshal for OwnedBoard`** — read the owned fields into the data-model
+  `Board` (`Val`-shaped: int stays int), wrap the five keeps as
+  `Plain::Opaque`; write via runtime import
+  (`temper_design_bundle_python.board_contracts.Board`) with the owned
+  fields marshalled and the keeps passed by identity. `_zone_map` is never
+  passed (init=False; the constructor rebuilds it from the same zone
+  objects).
+- **Two new tuple impls** `(Val, Val)` and `(Val, Val, Val, Val)` serve
+  `origin` and `keepouts` quads — element-wise `Val` reads (a list-shaped
+  quad or a wrong arity is rejected loudly), tuple write-backs.
+- **Defaults are reconstructed explicitly** by the constructor (empty
+  lists/dicts, `None`, the `__post_init__` 4-layer stackup fill) exactly as
+  the oracle does, so `Board(100.0, 80.0)` round-trips bit-identically.
+
+### Round-trip gate results
+
+`assert_roundtrip_with` against faithful `@dataclass` stand-ins for BOTH
+pyclass modules (the U2 d3–d7 mock pattern; the `Board` stand-in mirrors the
+oracle's `__post_init__` — default stackup fill + `_zone_map` build — so
+constructor-normalised fields round-trip identically):
+
+- **`Netlist()`** (dataclass default), a **full `Netlist`** with
+  U2-leaf components/nets, and the derived indices (equal by recomputation —
+  asserted through the gate's `==` arm, which includes `compare=True`
+  indices) round-trip bit-identically.
+- **`Board(100.0, 80.0)`** (default stackup fill + empty `_zone_map` on both
+  sides) and a **full `Board`** with zones/mounting_holes/keepouts/
+  ground_domains/explicit stackup/outline round-trip bit-identically.
+- **The keeps round-trip BY IDENTITY**: `back.zones is orig.zones`,
+  `back.mounting_holes is orig.mounting_holes`,
+  `back.ground_domains is orig.ground_domains`,
+  `back.layer_stackup is orig.layer_stackup`,
+  `back.outline_polygon is orig.outline_polygon` — the SAME Python objects,
+  never reconstructed; `_zone_map` is recomputed value-equal.
+- **int-vs-float at the aggregate level**: `Board(100, 80, origin=(0, 0),
+  keepouts=[(0, 0, 50, 80)])` round-trips bit-identically and the owned
+  fields are asserted `Val::Int(100)`/`(Val::Int(0), Val::Int(0))`/
+  `(Val::Int(0), Val::Int(0), Val::Int(50), Val::Int(80))` — the widening
+  hazard is pinned, not merely tolerated.
+- **NaN/±inf in `Val`-shaped Board fields** round-trip with type + repr
+  preserved and the owned field still NaN (manual type/repr arm — the
+  dataclass `__eq__` is False for NaN fields, the recorded U2 bound).
+- **Guards**: tuple-shaped `keepouts`, list-shaped quads, 3-tuple quads,
+  bool quad leaves, 1-tuple/list `origin`, bool `width`, and tuple-shaped
+  `Netlist.components` are all REJECTED loudly.
+
+### Pre-existing flake note (R22-style triage — NOT caused by U3)
+
+`netlist_owned::tests::component_with_pins_and_all_fields_roundtrips_losslessly`
+(U2's test) FAILS ~50% of runs on origin/main with the mandated venv python
+(`PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python`) when
+`PYTHONHASHSEED` is unset: the expression uses a 2-element string
+`frozenset({'power', 'top'})`, and under a colliding hash draw the rebuilt
+frozenset iterates in a deterministic-but-different order — the EXACT
+behaviour U2's own "Recorded bound — `tags` frozenset iteration order"
+section says is not bit-guaranteed for colliding string sets. The test
+over-asserts against its own recorded bound; it passes with any FIXED
+`PYTHONHASHSEED` (verified 0/1/42) and reproduced identically on a pristine
+origin/main worktree. Triage: a U2-scope follow-up should pin that case with
+the U1-style sorted-multiset comparison (or a collision-free set); U3 does
+not touch U2's tests. All U3 gates below ran with `PYTHONHASHSEED=0` (the
+repo's own determinism convention — `board-regeneration.yml` uses the same
+pin for hash-sensitive runs).
+
+### Gates (U3)
+
+- `cargo test` on `temper-data-model`: 3 passed (1 U2 `Val` pin + 2 new
+  aggregate pins: int-vs-float at the `Board` level, `Netlist` holding the
+  U2 leaves).
+- `cargo test --lib` on `temper-orchestration`
+  (PYO3_PYTHON=/home/bennet/Desktop/temper/.venv/bin/python,
+  PYTHONHASHSEED=0): **1140 passed** (1133 base + 7 new
+  `netlist_owned::tests` U3 tests; the 1140th includes the fixed-seed U2
+  tags test).
+- `cargo clippy --all-targets` on both crates: clean.
+- `cargo check --target wasm32-unknown-unknown` on `temper-data-model`:
+  clean (the aggregate structs are pyo3-free by construction, exactly like
+  the U2 leaves); `cargo check --no-default-features` on
+  `temper-orchestration`: clean (`netlist_owned` stays python-gated).
+- `make regen-check`: unchanged (no derived artifact depends on this unit —
+  no new crate, no new script, no README count change).
