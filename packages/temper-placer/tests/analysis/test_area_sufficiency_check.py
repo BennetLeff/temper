@@ -186,6 +186,13 @@ def test_real_board_reports_approximately_52_7_pct():
     change (courtyard area dropped as tank-cap courtyards were split and
     the component count grew to 169). Measured on that commit:
     raw_ratio_pct=52.73, component_count=169.
+
+    RE-DERIVED 2026-08-13 after the board/schematic resync (this same PR):
+    component_count 169 -> 168 (net -1: -7 removed ZCD-circuit footprints,
+    +6 newly-added schematic components -- C37, J1, R65, T2, TP3, U19; see
+    the resync PR for the full accounting). raw_ratio_pct moved to 55.1%,
+    still comfortably inside the existing [50.0, 56.0] tolerance band (not
+    widened), so only the exact component-count pin below needed updating.
     """
     pcb_path = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
     if not pcb_path.exists():
@@ -196,7 +203,7 @@ def test_real_board_reports_approximately_52_7_pct():
         f"Expected ~52.7%, got {result.raw_ratio_pct:.1f}%"
     )
     assert result.raw_ratio_pct < 100.0
-    assert result.component_count == 169
+    assert result.component_count == 168
 
     proc = subprocess.run(
         ["uv", "run", "python", str(_SCRIPT), "--pcb", str(pcb_path)],
