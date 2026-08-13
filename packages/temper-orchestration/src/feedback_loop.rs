@@ -390,7 +390,10 @@ impl Stage<BoardState> for FeedbackIterationStage {
 /// `mapper`/`adjuster` are the Python leaf-helper instances (their kernels
 /// are Rust); `get_zone_config`/`update_config` are the config-marshalling
 /// bound methods (stay Python). `max_iterations=0` runs nothing and
-/// returns the initial state unchanged.
+/// returns the initial state unchanged; a NEGATIVE value is clamped to 0
+/// at the FFI boundary, reproducing the oracle's `for i in range(N)`
+/// (empty for N < 0) rather than failing u64 extraction with an
+/// OverflowError (#1102).
 #[cfg(feature = "python")]
 #[allow(clippy::too_many_arguments)]
 #[pyfunction]
@@ -414,9 +417,26 @@ pub fn run_automated_zero_drc(
     adjuster: Py<PyAny>,
     get_zone_config: Py<PyAny>,
     update_config: Py<PyAny>,
-    max_iterations: u64,
+    max_iterations: i64,
     initial_state: Option<Py<PyAny>>,
 ) -> PyResult<Py<PyAny>> {
+    // Clamp negatives to 0: the oracle's `for i in range(self.max_iterations)`
+    // iterates zero times for a negative budget and returns the initial state
+    // untouched, so the Rust port must do the same rather than fail the u64
+    // extraction (#1102).
+    let max_iterations = max_iterations.max(0) as u64;
+
+    if max_iterations == 0 {
+        // Oracle parity for the zero/negative path: no iterations run and NO
+        // call-backs are invoked. Short-circuit before the BoardState snapshot
+        // so a non-BoardState (or None) initial_state is returned untouched,
+        // matching the oracle exactly instead of AttributeError-ing.
+        return Ok(match initial_state {
+            Some(s) => s,
+            None => py.None().into(),
+        });
+    }
+
     let ctx = FeedbackRunContext::new(
         py,
         pipeline,
@@ -751,7 +771,7 @@ def build_fakes(violations, adjustments, log):
                 fakes.get_item(4)?.unbind(),
                 fakes.get_item(5)?.unbind(),
                 fakes.get_item(6)?.unbind(),
-                max_iterations as u64,
+                max_iterations as i64,
                 None,
             )?;
 

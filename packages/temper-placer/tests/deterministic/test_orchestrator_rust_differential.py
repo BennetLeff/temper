@@ -539,6 +539,78 @@ def test_cap_zero_runs_nothing() -> None:
     assert o == s == ([], None)
 
 
+def test_negative_cap_runs_nothing() -> None:
+    """A NEGATIVE iteration cap behaves exactly like zero (resolves #1102):
+    the oracle's `for i in range(-1)` iterates zero times and returns the
+    initial state (None) untouched. The Rust pyfunction previously diverged
+    (u64 extraction raised OverflowError for a negative Python int); it now
+    clamps negatives to 0 at the FFI boundary. NOTE: a negative budget is
+    truthy in Python, so `-1` passes the constructor's `max_iterations or
+    default` directly (no post-construction forcing needed)."""
+    out = {}
+
+    def arm(module):
+        log = []
+        pipeline = _RecPipeline([_populated_state(), _populated_state()], log)
+        drc_runner = _RecRunner(log)
+        with patch.object(module, "parse_kicad_drc", return_value=[_violation()]):
+            orc = module.AutomatedZeroDRC(
+                pipeline=pipeline,
+                netlist=_mock_netlist(),
+                initial_config=_initial_config(),
+                drc_runner=drc_runner,
+                max_iterations=-1,
+            )
+            final = orc.run()
+        out["log"] = log
+        out["final"] = final
+
+    arm(_orc)
+    o = (out["log"], out["final"])
+    arm(_feedback_pkg.orchestrator)
+    s = (out["log"], out["final"])
+    assert _log_empty_and_none(o) and _log_empty_and_none(s), (o, s)
+
+
+def _log_empty_and_none(res) -> bool:
+    return res == ([], None)
+
+
+def test_zero_cap_non_board_state_returned_untouched() -> None:
+    """At zero iterations with a NON-BoardState initial_state, the oracle
+    returns the object untouched (the loop body never runs). The Rust port
+    now short-circuits the zero path before the BoardState snapshot, so it
+    returns the object untouched too instead of AttributeError-ing (#1102
+    secondary)."""
+    out = {}
+
+    def arm(module):
+        log = []
+        pipeline = _RecPipeline([_populated_state()], log)
+        drc_runner = _RecRunner(log)
+        with patch.object(module, "parse_kicad_drc", return_value=[_violation()]):
+            orc = module.AutomatedZeroDRC(
+                pipeline=pipeline,
+                netlist=_mock_netlist(),
+                initial_config=_initial_config(),
+                drc_runner=drc_runner,
+                max_iterations=5,
+            )
+            orc.max_iterations = 0  # forced
+            marker = {"not": "a BoardState"}
+            final = orc.run(initial_state=marker)
+        out["log"] = log
+        out["final"] = final
+
+    arm(_orc)
+    o_final = out["final"]
+    arm(_feedback_pkg.orchestrator)
+    s_final = out["final"]
+    assert o_final == s_final == {"not": "a BoardState"}
+    assert type(o_final) is dict and type(s_final) is dict
+
+
+
 # ---------------------------------------------------------------------------
 # Scenario D -- the no-adjustment break
 # ---------------------------------------------------------------------------
