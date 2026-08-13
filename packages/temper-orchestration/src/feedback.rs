@@ -273,3 +273,332 @@ pub fn classify_feedback(
         .call((), Some(&kwargs))
         .map(|o| o.unbind())
 }
+
+// ---------------------------------------------------------------------------
+// Native proptests (R19/U6-style)
+// ---------------------------------------------------------------------------
+//
+// `proptest` is a dev-dependency; the feedback-DECISION properties live in
+// their own `#[cfg(test)]` sibling module (the same split
+// `feedback_loop.rs`/`deterministic_pipeline.rs` use) so the wasm32 tier --
+// which cannot run Python-bound tests -- skips it via the `python` gate. Two
+// separate `cfg` attributes so `scripts/gen_wasm_test_registry.py`'s literal
+// `#[cfg(test)]` discovery still censuses the module.
+//
+// proptest: `classify_feedback` -- the dispatch + priority-sort DECISION
+// surface over randomized routing-result shapes, driven through scripted
+// `_handle_*` call-backs. The migrated surface is the sequencing (clean
+// early-return, the Class-2 DRC -> Class-1 congestion -> Class-3 pin ->
+// Class-4 rotation dispatch order, the unclassified collection, and the
+// `sorted(key=attrgetter("priority"))` stable sort); the leaf handlers stay
+// Python. The properties pin the ORDER-INDEPENDENT observables of that
+// sequencing: the returned deltas are priority-sorted (with NON-monotonic
+// scripted priorities so a missing sort fails), and the unclassified count
+// matches the oracle's per-class accounting.
+#[cfg(test)]
+#[cfg(feature = "python")]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod proptests {
+    use super::classify_feedback;
+    use proptest::prelude::*;
+    use pyo3::prelude::*;
+    use pyo3::types::{PyDict, PyList, PyModule};
+    use pyo3::IntoPyObjectExt;
+    use std::sync::{Once, OnceLock};
+
+    static PY_INIT: Once = Once::new();
+    static FAKES: OnceLock<Py<PyModule>> = OnceLock::new();
+
+    /// The scripted fake classifier surface `classify_feedback` drives. Each
+    /// `_handle_*` pops the next scripted `priority` (or `None`) for its class
+    /// and records the call into the shared `log`; a `None` script means "this
+    /// class never returns a delta". `_find_critical_components` /
+    /// `_detect_persistent_ics` return `[]` so the Class-3/Class-4 loops are
+    /// skipped and only the DRC/congestion/unclassified paths are exercised.
+    /// `build(log, script)` returns a fresh classifier wired to the shared log.
+    /// `ClassificationResult` / `UnclassifiedFailure` are the dataclass
+    /// stand-ins the port constructs by keyword args (`feedback_cls` resolves
+    /// them from `temper_placer.placer.cp_sat.feedback`, installed fake below).
+    const FAKE_SOURCE: &str = r#"
+class Delta:
+    def __init__(self, priority, tag):
+        self.priority = priority
+        self.tag = tag
+        self.constraint = None
+        self.reason = "test-delta"
+
+class UnclassifiedFailure:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+class ClassificationResult:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+class Classifier:
+    def __init__(self, log, script):
+        self.log = log
+        self.script = dict(script)
+    def _take(self, key):
+        self.log.append(key)
+        p = self.script.get(key)
+        return Delta(p, key) if p is not None else None
+    def _handle_clearance_violation(self, violation):
+        return self._take("clearance")
+    def _handle_congestion(self, region, placed_refs):
+        return self._take("congestion")
+    def _handle_unrouted_critical_pin(self, comp_ref, net_name, placement):
+        return self._take("pin")
+    def _handle_rotation_coordination(self, ic_ref, placement):
+        return self._take("rotation")
+    def _find_critical_components(self, net_name, placement, placed_refs):
+        self.log.append("critical")
+        return []
+    def _detect_persistent_ics(self, unrouted_nets, previous, round_number):
+        self.log.append("persistent")
+        return []
+
+def build(log, script):
+    return Classifier(log, script)
+"#;
+
+    /// Install the fakes: the classifier namespace module, plus the fake
+    /// `temper_placer.placer.cp_sat.feedback` package the port's `feedback_cls`
+    /// imports (so `classify_feedback` runs without the venv's editable
+    /// `temper_placer` on the embedded interpreter's `sys.path`).
+    fn install_fakes<'py>(py: Python<'py>) -> PyResult<Py<PyModule>> {
+        let ns = PyModule::new(py, "feedback_proptest_fakes")?;
+        let code = std::ffi::CString::new(FAKE_SOURCE).expect("fake source has no NUL");
+        py.run(code.as_c_str(), Some(&ns.dict()), Some(&ns.dict()))?;
+
+        let sys = py.import("sys")?;
+        let modules: Bound<'py, PyDict> = sys.getattr("modules")?.cast_into()?;
+
+        let temper_placer = PyModule::new(py, "temper_placer")?;
+        let placer = PyModule::new(py, "placer")?;
+        let cp_sat = PyModule::new(py, "cp_sat")?;
+        let feedback = PyModule::new(py, "feedback")?;
+        feedback.add("ClassificationResult", ns.getattr("ClassificationResult")?)?;
+        feedback.add("UnclassifiedFailure", ns.getattr("UnclassifiedFailure")?)?;
+        cp_sat.add("feedback", &feedback)?;
+        placer.add("cp_sat", &cp_sat)?;
+        temper_placer.add("placer", &placer)?;
+        modules.set_item("temper_placer", &temper_placer)?;
+        modules.set_item("temper_placer.placer", &placer)?;
+        modules.set_item("temper_placer.placer.cp_sat", &cp_sat)?;
+        modules.set_item("temper_placer.placer.cp_sat.feedback", &feedback)?;
+
+        Ok(ns.unbind())
+    }
+
+    fn fakes_module() -> &'static Py<PyModule> {
+        PY_INIT.call_once(|| {
+            Python::initialize();
+        });
+        FAKES.get_or_init(|| match Python::attach(install_fakes) {
+            Ok(ns) => ns,
+            Err(e) => panic!("fake install failed: {e}"),
+        })
+    }
+
+    /// One generated scenario: the scripted per-class delta priorities, the
+    /// routing-result shape, and the expected observables (computed by a
+    /// reference transcription of the oracle's accounting).
+    struct Scenario {
+        clearance: Option<i64>,
+        congestion: Option<i64>,
+        n_drc: usize,
+        n_congestion: usize,
+        n_unrouted: usize,
+        completion: f64,
+    }
+
+    /// The oracle's accounting for the scripted fakes (`_find_critical_components`
+    /// and `_detect_persistent_ics` both return `[]`, so no pin/rotation deltas
+    /// and every unrouted net is unclassified):
+    ///
+    /// ```python
+    /// if completion_rate >= 1.0 and not drc_violations:
+    ///     return ClassificationResult(deltas=[], unclassified=[])
+    /// deltas  += [clearance] * n_drc   (if clearance is not None)
+    /// deltas  += [congestion] * n_congestion (if congestion is not None)
+    /// unclassified += [DRC record] * n_drc   (when clearance is None)
+    /// unclassified += [congestion record] * n_congestion (when congestion is None)
+    /// unclassified += [unrouted-net record] * n_unrouted
+    /// deltas.sort(key=priority)
+    /// ```
+    fn reference(clearance: Option<i64>, congestion: Option<i64>, n_drc: usize, n_congestion: usize, n_unrouted: usize) -> (Vec<i64>, usize) {
+        let mut deltas = Vec::new();
+        if let Some(p) = clearance {
+            deltas.extend(std::iter::repeat_n(p, n_drc));
+        }
+        if let Some(p) = congestion {
+            deltas.extend(std::iter::repeat_n(p, n_congestion));
+        }
+        deltas.sort_unstable();
+        let mut unclassified = 0;
+        if clearance.is_none() {
+            unclassified += n_drc;
+        }
+        if congestion.is_none() {
+            unclassified += n_congestion;
+        }
+        unclassified += n_unrouted;
+        (deltas, unclassified)
+    }
+
+    /// Drive `classify_feedback` once over the scenario; panics on a Python
+    /// error (the fakes never raise -- a raising call-back is a harness bug).
+    fn drive(scenario: &Scenario) -> (Vec<i64>, usize, Vec<String>) {
+        fakes_module();
+        Python::attach(|py| -> PyResult<(Vec<i64>, usize, Vec<String>)> {
+            let ns = fakes_module().bind(py);
+            let build = ns.getattr("build")?;
+
+            let log = PyList::empty(py);
+            let script = PyDict::new(py);
+            script.set_item("clearance", scenario.clearance.map_or(py.None(), |p| p.into_py_any(py).unwrap()))?;
+            script.set_item("congestion", scenario.congestion.map_or(py.None(), |p| p.into_py_any(py).unwrap()))?;
+            let classifier = build.call1((&log, &script))?;
+
+            // Routing result: n_drc violations + n_congestion regions + n_unrouted nets.
+            let sns = py.import("types")?.getattr("SimpleNamespace")?;
+            let drc_violations = PyList::empty(py);
+            for _ in 0..scenario.n_drc {
+                let vkwargs = PyDict::new(py);
+                vkwargs.set_item("components", PyList::empty(py))?;
+                vkwargs.set_item("location", (0.0f64, 0.0f64).into_py_any(py)?)?;
+                vkwargs.set_item("message", "m")?;
+                drc_violations.append(sns.call((), Some(&vkwargs))?)?;
+            }
+            let congestion_regions = PyList::empty(py);
+            for _ in 0..scenario.n_congestion {
+                congestion_regions.append(sns.call((), Some(&PyDict::new(py)))?)?;
+            }
+            let unrouted_nets = PyList::empty(py);
+            for i in 0..scenario.n_unrouted {
+                unrouted_nets.append(format!("NET_{i}"))?;
+            }
+            let rr_kwargs = PyDict::new(py);
+            rr_kwargs.set_item("completion_rate", scenario.completion)?;
+            rr_kwargs.set_item("drc_violations", &drc_violations)?;
+            rr_kwargs.set_item("congestion_regions", &congestion_regions)?;
+            rr_kwargs.set_item("unrouted_nets", &unrouted_nets)?;
+            let routing_result = sns.call((), Some(&rr_kwargs))?;
+
+            let placement = sns.call((), Some(&PyDict::new(py)))?;
+            placement.setattr("placed_refs", PyList::empty(py))?;
+
+            let result = classify_feedback(
+                py,
+                classifier.unbind(),
+                routing_result.unbind(),
+                placement.unbind(),
+                0,
+                None,
+            )?;
+
+            let deltas_obj = result.bind(py).getattr("deltas")?;
+            let unclassified_obj = result.bind(py).getattr("unclassified")?;
+            let mut priorities = Vec::new();
+            for d in deltas_obj.try_iter()? {
+                priorities.push(d?.getattr("priority")?.extract::<i64>()?);
+            }
+            let log: Vec<String> = log.extract()?;
+            Ok((priorities, unclassified_obj.len()?, log))
+        })
+        .expect("classify_feedback raised unexpectedly")
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::default())]
+
+        /// P1. The returned deltas are priority-sorted (non-decreasing), with
+        /// the scripted priorities chosen NON-monotonic (clearance=7,
+        /// congestion=3) so a missing or reversed sort fails. The unclassified
+        /// count matches the oracle's accounting (a None-scripted class puts
+        /// every one of its records into unclassified; every unrouted net is
+        /// unclassified because `_find_critical_components` returns `[]`).
+        #[test]
+        fn deltas_sorted_and_unclassified_count_matches(
+            (n_drc, n_congestion, n_unrouted, clearance_none, congestion_none) in (
+                0usize..=6,
+                0usize..=6,
+                0usize..=6,
+                proptest::bool::ANY,
+                proptest::bool::ANY,
+            )
+        ) {
+            let clearance = if clearance_none { None } else { Some(7i64) };
+            let congestion = if congestion_none { None } else { Some(3i64) };
+            let scenario = Scenario {
+                clearance,
+                congestion,
+                n_drc,
+                n_congestion,
+                n_unrouted,
+                completion: 0.5,
+            };
+            let (observed_priorities, observed_unclassified, _log) = drive(&scenario);
+            let (expected_priorities, expected_unclassified) =
+                reference(clearance, congestion, n_drc, n_congestion, n_unrouted);
+            prop_assert_eq!(observed_priorities, expected_priorities,
+                "delta priorities diverged from the oracle's accounting");
+            prop_assert_eq!(observed_unclassified, expected_unclassified,
+                "unclassified count diverged from the oracle's accounting");
+        }
+
+        /// P2. The clean early-return: `completion_rate >= 1.0` with no DRC
+        /// violations returns an empty result and never touches a handler (the
+        /// call log is empty) -- regardless of congestion/unrouted content.
+        #[test]
+        fn clean_board_early_returns_without_dispatch(
+            (n_congestion, n_unrouted) in (0usize..=4, 0usize..=4)
+        ) {
+            let scenario = Scenario {
+                clearance: Some(7),
+                congestion: Some(3),
+                n_drc: 0,
+                n_congestion,
+                n_unrouted,
+                completion: 1.0,
+            };
+            let (priorities, unclassified, log) = drive(&scenario);
+            prop_assert!(priorities.is_empty(), "clean board must return no deltas");
+            prop_assert_eq!(unclassified, 0, "clean board must return no unclassified");
+            prop_assert!(log.is_empty(), "clean board must not dispatch any handler, got {log:?}");
+        }
+    }
+
+    /// Anti-vacuity: the reference accounting distinguishes a delta-scripted
+    /// class from a None-scripted one, and the sort is observable (clearance=7
+    /// before congestion=3 in call order, but 3 before 7 in sorted order).
+    #[test]
+    fn reference_distinguishes_scripted_from_none_classes() {
+        let (sorted_deltas, unclassified) = reference(Some(7), Some(3), 2, 1, 0);
+        assert_eq!(sorted_deltas, vec![3, 7, 7]);
+        assert_eq!(unclassified, 0);
+
+        let (none_deltas, none_unclassified) = reference(None, None, 2, 1, 0);
+        assert!(none_deltas.is_empty());
+        assert_eq!(none_unclassified, 3);
+    }
+
+    /// Anti-vacuity: the production kernel records a handler call per class
+    /// dispatch and reaches the DRC and congestion handlers over a live
+    /// scenario (a property that passed on an empty call log would be vacuous).
+    #[test]
+    fn production_dispatches_both_handler_classes() {
+        let scenario = Scenario {
+            clearance: Some(7),
+            congestion: Some(3),
+            n_drc: 2,
+            n_congestion: 1,
+            n_unrouted: 0,
+            completion: 0.5,
+        };
+        let (_priorities, _unclassified, log) = drive(&scenario);
+        assert_eq!(log.iter().filter(|s| s.as_str() == "clearance").count(), 2);
+        assert_eq!(log.iter().filter(|s| s.as_str() == "congestion").count(), 1);
+    }
+}

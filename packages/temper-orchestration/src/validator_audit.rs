@@ -445,3 +445,320 @@ pub fn audit_domain_clearance_validator(
         .call((), Some(&kwargs))
         .map(|o| o.unbind())
 }
+
+// ---------------------------------------------------------------------------
+// Native proptests (R19/U6-style)
+// ---------------------------------------------------------------------------
+//
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// audit-DECISION properties live in their own `#[cfg(test)]` sibling module --
+// the same split `feedback_loop.rs`/`deterministic_pipeline.rs` use. Two
+// separate `cfg` attributes (rather than one `cfg(all(test, feature =
+// "python"))`) so `scripts/gen_wasm_test_registry.py`'s discovery -- which
+// recognises a module as test-gated only via a literal `#[cfg(test)]`
+// attribute -- still finds and censuses this module (as `python`-gated, so
+// absent from the wasm32 tier) instead of missing it silently.
+//
+// proptest: `classify_violation` -- the per-violation BUCKET decision
+// (intra / hard / gap) and the covered-pair REASON rendering, over randomized
+// violation shapes. This module ports the orphaned-audit sequencing (the
+// dead-agent recovery seam -- see `lib.rs`'s wiring note and the merge
+// b33056c95 body); its pure-Rust-testable decision is the bucket dispatch,
+// which is pinned against a direct transcription of the oracle's
+// `_classify_violation` below. The properties must hold under the oracle's
+// exact semantics: falsy `pair_kind` is "not intra" (never a TypeError), and
+// `ref_a == ref_b` is VALUE equality on the "?"-defaulted strings (two falsy
+// refs -> "?" == "?" -> intra).
+#[cfg(test)]
+#[cfg(feature = "python")]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod proptests {
+    use super::classify_violation;
+    use proptest::prelude::*;
+    use pyo3::prelude::*;
+    use pyo3::types::{PyDict, PyFrozenSet, PySet, PySetMethods, PyString};
+    use std::sync::Once;
+
+    static PY_INIT: Once = Once::new();
+
+    fn init_python() {
+        PY_INIT.call_once(|| {
+            Python::initialize();
+        });
+    }
+
+    /// Python truthiness mirror: an empty string is falsy, `None` is falsy --
+    /// exactly what `x or "?"` and `not x` do in the oracle.
+    fn truthy_str(s: Option<&str>) -> bool {
+        s.is_some_and(|v| !v.is_empty())
+    }
+
+    /// `x or "?"` on a `str | None` attribute.
+    fn or_question(s: Option<&str>) -> &str {
+        if truthy_str(s) {
+            s.unwrap()
+        } else {
+            "?"
+        }
+    }
+
+    /// The oracle's `_classify_violation` bucket decision, transcribed from
+    /// `tests/placer/cp_sat/_validator_audit_py_oracle.py` (the reference the
+    /// Rust `classify_violation` must reproduce bit-identically):
+    ///
+    /// ```python
+    /// ref_a = v.ref_a or "?"
+    /// ref_b = v.ref_b or "?"
+    /// if v.pair_kind == "intra" or ref_a == ref_b:
+    ///     return "intra"
+    /// if frozenset((ref_a, ref_b)) in covered_pairs:
+    ///     return "hard"
+    /// return "gap"
+    /// ```
+    ///
+    /// `pair_kind == "intra"` is a RAW-attribute comparison: a falsy
+    /// (`None` / `""`) pair_kind is simply not "intra", never a TypeError.
+    fn reference_bucket(
+        ref_a: Option<&str>,
+        ref_b: Option<&str>,
+        pair_kind: Option<&str>,
+        covered: bool,
+    ) -> &'static str {
+        let a = or_question(ref_a);
+        let b = or_question(ref_b);
+        let pk_intra = truthy_str(pair_kind) && pair_kind == Some("intra");
+        if pk_intra || a == b {
+            "intra"
+        } else if covered {
+            "hard"
+        } else {
+            "gap"
+        }
+    }
+
+    /// A `types.SimpleNamespace` stand-in for one `ClearanceViolation`
+    /// record. The production `classify_violation` reads `ref_a` / `ref_b` /
+    /// `pair_kind` / `measured_mm` / `required_mm` via `getattr`, so a
+    /// namespace is exactly the wire shape it expects (the differential suite
+    /// uses `SimpleNamespace` for the same reason).
+    fn make_violation<'py>(
+        py: Python<'py>,
+        ref_a: Option<&str>,
+        ref_b: Option<&str>,
+        pair_kind: Option<&str>,
+        measured: f64,
+        required: f64,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let ns = py.import("types")?.getattr("SimpleNamespace")?;
+        let kwargs = PyDict::new(py);
+        match ref_a {
+            Some(s) => kwargs.set_item("ref_a", s)?,
+            None => kwargs.set_item("ref_a", py.None())?,
+        }
+        match ref_b {
+            Some(s) => kwargs.set_item("ref_b", s)?,
+            None => kwargs.set_item("ref_b", py.None())?,
+        }
+        match pair_kind {
+            Some(s) => kwargs.set_item("pair_kind", s)?,
+            None => kwargs.set_item("pair_kind", py.None())?,
+        }
+        kwargs.set_item("measured_mm", measured)?;
+        kwargs.set_item("required_mm", required)?;
+        ns.call((), Some(&kwargs))
+    }
+
+    /// Build the `covered_pairs` set exactly as the production does: a Python
+    /// `set` of `frozenset((a, b))` over the "?"-defaulted refs. When
+    /// `covered`, the (defaulted) pair is inserted so the production's
+    /// `__contains__` probe finds it.
+    fn make_covered_pairs<'py>(
+        py: Python<'py>,
+        ref_a: Option<&str>,
+        ref_b: Option<&str>,
+        covered: bool,
+    ) -> PyResult<Bound<'py, PySet>> {
+        let set = PySet::empty(py)?;
+        if covered {
+            let a = PyString::new(py, or_question(ref_a));
+            let b = PyString::new(py, or_question(ref_b));
+            let fs = PyFrozenSet::new(py, [a, b])?;
+            set.add(&fs)?;
+        }
+        Ok(set)
+    }
+
+    /// Drive the production `classify_violation` over one generated case and
+    /// return its bucket. A Python error here is a harness bug (the fakes
+    /// never raise) and must panic, not shrink.
+    fn observed_bucket(
+        ref_a: Option<&str>,
+        ref_b: Option<&str>,
+        pair_kind: Option<&str>,
+        covered: bool,
+    ) -> String {
+        init_python();
+        Python::attach(|py| {
+            let v = make_violation(py, ref_a, ref_b, pair_kind, 1.5, 3.0)
+                .expect("fake violation construction must not fail");
+            let pairs = make_covered_pairs(py, ref_a, ref_b, covered)
+                .expect("fake covered-pairs construction must not fail");
+            classify_violation(py, &v, &pairs)
+                .expect("classify_violation must not raise on valid violations")
+                .0
+        })
+    }
+
+    fn ref_strategy() -> impl Strategy<Value = Option<String>> {
+        prop_oneof![
+            2 => Just(None),
+            2 => Just(Some(String::new())),
+            4 => Just(Some("A".to_string())),
+            4 => Just(Some("B".to_string())),
+            2 => Just(Some("U1".to_string())),
+        ]
+    }
+
+    fn pair_kind_strategy() -> impl Strategy<Value = Option<String>> {
+        prop_oneof![
+            2 => Just(None),
+            2 => Just(Some(String::new())),
+            3 => Just(Some("intra".to_string())),
+            3 => Just(Some("inter".to_string())),
+            1 => Just(Some("INTER".to_string())),
+        ]
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::default())]
+
+        /// P1. The bucket decision matches the oracle's transcription for every
+        /// generated violation shape: falsy pair_kind is "not intra", the
+        /// "?"-default collapses two falsy refs to the same value (intra), and
+        /// a covered pair is hard only when it is not intra. This is the
+        /// property that pins the two bit-parity bugs the finish agent fixed at
+        /// the recovery seam (identity-vs-value equality, and the falsy
+        /// pair_kind extract) -- either regression fails it.
+        #[test]
+        fn bucket_matches_oracle_transcription(
+            (ref_a, ref_b, pk, covered) in (
+                ref_strategy(),
+                ref_strategy(),
+                pair_kind_strategy(),
+                proptest::bool::ANY,
+            )
+        ) {
+            let expected = reference_bucket(ref_a.as_deref(), ref_b.as_deref(), pk.as_deref(), covered);
+            let observed = observed_bucket(ref_a.as_deref(), ref_b.as_deref(), pk.as_deref(), covered);
+            prop_assert_eq!(observed, expected,
+                "bucket diverged for ref_a={:?} ref_b={:?} pair_kind={:?} covered={}",
+                ref_a, ref_b, pk, covered);
+        }
+
+        /// P2. The covered-pair ("hard") reason renders the CPython
+        /// `{measured_mm:.3f}` / `{required_mm}` format path bit-identically:
+        /// the reason must contain the 3-decimal measured value and the
+        /// default-rendered required value, exactly as the oracle's f-string
+        /// does. (The intra/gap reasons carry no numeric formatting.)
+        #[test]
+        fn hard_reason_renders_formatted_values(
+            (ref_a, ref_b, pk, measured, required) in (
+                ref_strategy(),
+                ref_strategy(),
+                pair_kind_strategy(),
+                0.0f64..=10.0,
+                0.0f64..=10.0,
+            )
+        ) {
+            let is_intra = {
+                let a = or_question(ref_a.as_deref());
+                let b = or_question(ref_b.as_deref());
+                (truthy_str(pk.as_deref()) && pk.as_deref() == Some("intra")) || a == b
+            };
+            if is_intra {
+                return Ok(());
+            }
+            init_python();
+            Python::attach(|py| {
+                let v = make_violation(py, ref_a.as_deref(), ref_b.as_deref(), pk.as_deref(), measured, required)
+                    .expect("fake violation construction must not fail");
+                let pairs = make_covered_pairs(py, ref_a.as_deref(), ref_b.as_deref(), true)
+                    .expect("fake covered-pairs construction must not fail");
+                let (bucket, reason) = classify_violation(py, &v, &pairs)
+                    .expect("classify_violation must not raise");
+                prop_assert_eq!(bucket, "hard");
+                let measured_rendered = format!("{measured:.3}");
+                let required_rendered = format!("{required}");
+                prop_assert!(reason.contains(&measured_rendered),
+                    "hard reason {reason:?} must contain {measured_rendered:?}");
+                prop_assert!(reason.contains(&required_rendered),
+                    "hard reason {reason:?} must contain {required_rendered:?}");
+                Ok(())
+            }).expect("attached Python run must not fail");
+        }
+    }
+
+    /// Anti-vacuity: the reference transcription must distinguish all three
+    /// buckets, and each is reachable from a concrete shape -- a property that
+    /// cannot tell them apart would report as coverage without checking the
+    /// decision.
+    #[test]
+    fn reference_distinguishes_all_three_buckets() {
+        let intra_by_kind = reference_bucket(Some("A"), Some("B"), Some("intra"), false);
+        let intra_by_value = reference_bucket(None, None, None, false); // "?" == "?"
+        let hard = reference_bucket(Some("A"), Some("B"), Some("inter"), true);
+        let gap = reference_bucket(Some("A"), Some("B"), Some("inter"), false);
+        assert_eq!(intra_by_kind, "intra");
+        assert_eq!(intra_by_value, "intra");
+        assert_eq!(hard, "hard");
+        assert_eq!(gap, "gap");
+        // The three are pairwise distinct.
+        assert_ne!(intra_by_kind, hard);
+        assert_ne!(hard, gap);
+    }
+
+    /// Anti-vacuity: the production kernel reaches all three buckets over the
+    /// same concrete shapes (a kernel that only ever produced one bucket would
+    /// make P1 vacuous).
+    #[test]
+    fn production_reaches_all_three_buckets() {
+        type Shape = (Option<&'static str>, Option<&'static str>, Option<&'static str>, bool);
+        init_python();
+        let observed = Python::attach(|py| -> Vec<String> {
+            let cases: Vec<Shape> = vec![
+                (Some("A"), Some("B"), Some("intra"), false), // intra by kind
+                (None, None, None, false),                    // intra by value ("?"=="?")
+                (Some("A"), Some("B"), Some("inter"), true),  // hard
+                (Some("A"), Some("B"), Some("inter"), false), // gap
+            ];
+            cases
+                .into_iter()
+                .map(|(a, b, pk, covered)| {
+                    let v = make_violation(py, a, b, pk, 1.5, 3.0).unwrap();
+                    let pairs = make_covered_pairs(py, a, b, covered).unwrap();
+                    classify_violation(py, &v, &pairs).unwrap().0
+                })
+                .collect()
+        });
+        assert_eq!(
+            observed,
+            vec!["intra", "intra", "hard", "gap"],
+            "production kernel must reach all three buckets"
+        );
+    }
+
+    /// P1-vacuity guard: a degenerate `classify_violation` that always answers
+    /// "gap" would fail P1 on the intra/hard shapes -- prove the property is
+    /// actually discriminating by showing the always-gap mutant disagrees with
+    /// the reference on a concrete hard shape.
+    #[test]
+    fn always_gap_mutant_disagrees_with_reference() {
+        let hard = reference_bucket(Some("A"), Some("B"), Some("inter"), true);
+        assert_eq!(hard, "hard");
+        // The mutant's constant answer would be "gap" -- different from the
+        // reference's "hard" and "intra" answers.
+        assert_ne!("gap", hard);
+        assert_ne!("gap", reference_bucket(None, None, None, false));
+    }
+}

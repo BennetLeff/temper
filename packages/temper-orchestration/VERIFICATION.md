@@ -3792,3 +3792,62 @@ argued in-source and above):
   REQ-SAFE-01 validator re-run stays a Python call-back, and the R24 audit
   discipline (hard failures raise in `_encoder_solve`, geometry trust
   gates the proof) is unchanged).
+
+### Native proptests (fanout19 verification sweep, 2026-08-12)
+
+The Python differential suites pin the full-loop sequencing through mocks,
+but the three kernels carried no native (`#[cfg(test)]`) properties, and two
+of their delegation targets ran uncovered by any differential: the
+`cpsat_solve_with_delta` `UnsatError` message (every loop test mocks
+`loop._solve_with_delta` above it) and the `classify_violation` bucket
+decision under arbitrary violation shapes. The following native proptest
+modules were added (each in the source file's own `#[cfg(test)]
+#[cfg(feature = "python")]` sibling, so `gen_wasm_test_registry.py` censuses
+them as `python-gated` and the wasm tier skips them — no registry drift):
+
+- `cpsat_loop.rs::proptests` — P1 pins `cpsat_solve_with_delta`'s
+  `f"UNSAT with delta(s): {[d.reason for d in new_deltas]}"` message
+  byte-exactly (the suffix must be the CPython list repr of the delta
+  reasons) and the raise/return dispatch (infeasible → `UnsatError`,
+  feasible → placement returned untouched), over randomized reason counts;
+  anti-vacuity pins the empty and multi-delta message shapes.
+- `feedback.rs::proptests` — P1 pins the priority sort (scripted
+  NON-monotonic priorities so a missing sort fails) and the unclassified
+  count against a reference transcription of the oracle's accounting; P2
+  pins the clean early-return (completion ≥ 1.0 and no DRC violations →
+  empty result and zero handler calls). Anti-vacuity: the reference
+  distinguishes scripted-vs-None classes and the production kernel
+  demonstrably dispatches both handler classes.
+- `validator_audit.rs::proptests` — P1 pins `classify_violation`'s bucket
+  decision against a reference transcription of the oracle's
+  `_classify_violation` (falsy `pair_kind` is "not intra" — never a
+  TypeError; `ref_a == ref_b` is VALUE equality on the "?"-defaulted
+  strings), so a regression of either of the two recovery-seam bit-parity
+  fixes fails it; P2 pins the covered-pair reason's `:.3f` / default float
+  CPython format path. Anti-vacuity: the reference and the production
+  kernel each reach all three buckets.
+
+All three modules' properties run under `PROPTEST_CASES` (verified at
+10 000 cases, `--test-threads=1` for the shared interpreter): 11 new tests,
+1084 lib tests + 17 runner suites green; `cargo clippy --all-features
+--all-targets -- -D warnings` clean.
+
+### Known unfixed divergence (reported, not fixed — log-only)
+
+The degraded-geometry `logger.error` in `validator_audit.rs` joins the
+`components_without_pads` ref list with an EMPTY separator where the oracle
+writes `", ".join(sorted(...))`:
+
+- delegated (Rust): `... 2 component(s) carry no pads (BX) ...`
+- oracle (Python):   `... 2 component(s) carry no pads (B, X) ...`
+
+Counterexample: two pad-less components `X` and `B` (degraded-geometry
+scenario) — the audit result dataclasses are byte-identical on both arms
+(the differential suite compares the result, not the log bytes, so it does
+not see this), but the log message text diverges. It is the fourth
+bit-parity defect at the recovered-validator_audit seam (the finish agent's
+three — identity-vs-value pair_kind, falsy pair_kind TypeError, falsy
+`pairs_origin_modelled` TypeError — are recorded in R1f above); this one is
+log-rendering only and is reported here rather than fixed in the sweep, per
+the report-don't-fix rule. The fix is a one-character separator change
+(`""` → `", "` in the `str.join` call).
