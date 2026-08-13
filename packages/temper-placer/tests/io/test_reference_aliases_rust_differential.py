@@ -42,9 +42,13 @@ def _manifest_key(m):
 
 
 def test_production_manifest_matches_oracle():
+    # RE-DERIVED 2026-08-13 (board/schematic resync): re-verified by direct
+    # Sheetpath match against the resynced board, same set
+    # test_reference_aliases.py's own production test uses -- see that
+    # file's docstring for the individual before/after designator pairs.
     refs = {
-        "C2", "C3", "C6", "C17", "C24", "C28", "C38", "C39",
-        "R23", "R27", "R31", "R60", "T1", "U4", "U7", "U8", "U9", "U27",
+        "C2", "C3", "C6", "C17", "C24", "C28", "C39", "C40",
+        "R18", "R22", "R25", "R55", "T1", "U3", "U6", "U7", "U8", "U27",
     }
     py_m = _oracle.load_reference_alias_manifest(PRODUCTION_MANIFEST, component_refs=refs, loop_names=set())
     rs_m = LOAD_MANIFEST(str(PRODUCTION_MANIFEST), component_refs=refs, loop_names=set())

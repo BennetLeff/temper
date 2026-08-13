@@ -17,6 +17,14 @@ def test_production_manifest_contains_only_existing_targets() -> None:
     so a manifest edit that points an alias at a non-existent component — or
     at the wrong component, like the pre-re-solve stale targets — fails the
     loader's missing-target check instead of passing vacuously.
+
+    RE-DERIVED 2026-08-13 (board/schematic resync): the ref set and every
+    assertion below were re-verified by direct Sheetpath match against the
+    resynced board (see temper_constraints.references.yaml's own updated
+    provenance/inline notes) -- 8 of the targets below changed designator
+    (D_BOOT/U_RTD/TH_HEATSINK/R_GATE_H(IGH)/R_GATE_L(OW)/U_GATE/U_BUCK --
+    see the manifest file's own inline "-- was X pre-resync" comments for
+    the individual before/after pairs).
     """
     manifest = load_reference_alias_manifest(
         MANIFEST,
@@ -27,40 +35,40 @@ def test_production_manifest_contains_only_existing_targets() -> None:
             "C17",
             "C24",
             "C28",
-            "C38",
             "C39",
-            "R23",
-            "R27",
-            "R31",
-            "R60",
+            "C40",
+            "R18",
+            "R22",
+            "R25",
+            "R55",
             "T1",
-            "U4",
+            "U3",
+            "U6",
             "U7",
             "U8",
-            "U9",
             "U27",
         },
         loop_names=set(),
     )
 
-    # Key mappings re-derived 2026-08-01 from board sheetpaths
-    # (e.g. ...hb.gate_hs.driver -> U7). These are the post-re-solve
-    # designators; the #498 branch's pre-re-solve values were different.
+    # Key mappings re-derived 2026-08-13 from board sheetpaths against the
+    # resynced board (e.g. ...hb.gate_hs.driver -> U6, not the pre-resync
+    # U7 -- refdes is not stable identity across a resync, Sheetpath is).
     assert manifest.component_aliases["U_MCU"] == "U27"
-    assert manifest.component_aliases["D_BOOT"] == "U8"
-    assert manifest.component_aliases["U_GATE"] == "U7"
-    assert manifest.component_aliases["U_BUCK"] == "U4"
-    assert manifest.component_aliases["R_GATE_H"] == "R23"
+    assert manifest.component_aliases["D_BOOT"] == "U7"
+    assert manifest.component_aliases["U_GATE"] == "U6"
+    assert manifest.component_aliases["U_BUCK"] == "U3"
+    assert manifest.component_aliases["R_GATE_H"] == "R18"
     assert manifest.component_aliases["C_CT_FILT"] == "C28"
     assert manifest.loop_aliases == {}
 
     # Added 2026-08-12 (docs/evidence/2026-08-12-thermal-emi-declaration-drift.md):
     # thermal_management.yaml's own spelling of four already-verified concepts,
     # plus TH_HEATSINK (safety.thermal.ntc, THM-01's heatsink-lug-mount NTC).
-    assert manifest.component_aliases["U_RTD"] == "U9"
-    assert manifest.component_aliases["TH_HEATSINK"] == "R60"
-    assert manifest.component_aliases["R_GATE_HIGH"] == "R23"
-    assert manifest.component_aliases["R_GATE_LOW"] == "R27"
+    assert manifest.component_aliases["U_RTD"] == "U8"
+    assert manifest.component_aliases["TH_HEATSINK"] == "R55"
+    assert manifest.component_aliases["R_GATE_HIGH"] == "R18"
+    assert manifest.component_aliases["R_GATE_LOW"] == "R22"
     assert manifest.component_aliases["C_VCC2"] == "C17"
 
 
