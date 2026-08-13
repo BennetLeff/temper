@@ -605,7 +605,6 @@ def build(log, script):
 // ---------------------------------------------------------------------------
 mod proptests_seam {
     use super::*;
-    use proptest::prelude::*;
     use pyo3::types::{PyDict, PyList, PyModule, PyString};
     use pyo3::IntoPyObjectExt;
     use std::sync::Once;
