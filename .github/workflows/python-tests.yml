@@ -781,7 +781,7 @@ jobs:
           # Resolve the wasm-covered annotation against this commit's registry.
           # Fail-closed: on failure WASM_COVERED_TIMING stays unset and the
           # plugin reduces nothing -- all 63 tests run at full strength.
-          if python ../../scripts/check_wasm_covered.py --cluster timing; then
+          if python3 ../../scripts/check_wasm_covered.py --cluster timing; then
             echo "wasm-covered: timing T1-T4 confirmed at this commit; T1-T4 run at token examples"
             export WASM_COVERED_TIMING=1
           else
