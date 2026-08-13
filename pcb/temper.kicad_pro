@@ -356,6 +356,24 @@
         "via_diameter": 0.5,
         "via_drill": 0.25,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.3,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "GND",
+        "pcb_color": "rgba(0, 180, 0, 1.000)",
+        "schematic_color": "rgba(0, 180, 0, 1.000)",
+        "track_width": 1.0,
+        "via_diameter": 1.0,
+        "via_drill": 0.5,
+        "wire_width": 6,
+        "description": "Ground return (gnd, PWR_RTN's sibling class). Mirrors core/design_rules.py's TEMPER_NET_CLASSES['GND'] (trace 1.0mm / clearance 0.3mm / Via3x3 / routing_strategy=plane_preferred) -- declared here 2026-08-12 per docs/evidence/2026-08-12-gnd-class-decision.md so pcb/temper.kicad_pro stops silently disagreeing with the Python SSOT for this net's DRC clearance."
       }
     ],
     "meta": {
@@ -442,7 +460,7 @@
       "PWM_LS": "GateDriveSELV",
       "vcc": "Power",
       "V_BUS_SENSE": "Power",
-      "gnd": "Power",
+      "gnd": "GND",
       "usb_dn": "Differential",
       "usb_dp": "Differential",
       "i2c_scl_ui": "Default",
