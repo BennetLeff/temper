@@ -1404,3 +1404,204 @@ pub fn cpsat_run_gated_loop(
     kwargs.set_item("rounds", &rounds)?;
     make_loop_result(py, &kwargs)
 }
+
+// ---------------------------------------------------------------------------
+// Native proptests (R19/U6-style)
+// ---------------------------------------------------------------------------
+//
+// `proptest` is a dev-dependency; the loop-DECISION properties live in their
+// own `#[cfg(test)]` sibling module (the same split `feedback_loop.rs` /
+// `deterministic_pipeline.rs` use) so the wasm32 tier skips it via the
+// `python` gate. Two separate `cfg` attributes so
+// `scripts/gen_wasm_test_registry.py`'s literal `#[cfg(test)]` discovery still
+// censuses the module.
+//
+// proptest: `cpsat_solve_with_delta` -- the constraint-list assembly, the
+// solver call, the UNSAT check and the `UnsatError` raise. This kernel is the
+// one delegation target the Python differential suite does NOT exercise
+// directly (every loop test mocks `loop._solve_with_delta` above it, so the
+// `UnsatError` message formatting -- `f"UNSAT with delta(s): {[d.reason for d
+// in new_deltas]}"` -- runs only here). The property pins that message to the
+// oracle's exact shape: the suffix must be a Python list-of-strings literal
+// whose `ast.literal_eval` round-trips to the delta reasons, and pins the
+// raise/return dispatch: an infeasible solve raises `UnsatError`, a feasible
+// solve returns the placement untouched.
+#[cfg(test)]
+#[cfg(feature = "python")]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod proptests {
+    use super::cpsat_solve_with_delta;
+    use proptest::prelude::*;
+    use pyo3::prelude::*;
+    use pyo3::types::{PyDict, PyList, PyModule};
+    use std::sync::{Once, OnceLock};
+
+    static PY_INIT: Once = Once::new();
+    static LOOP_TYPES: OnceLock<Py<PyModule>> = OnceLock::new();
+
+    /// Install the fake `temper_placer.placer.cp_sat._loop_types` module with
+    /// the `UnsatError` the port's `loop_types_cls` resolves (so
+    /// `cpsat_solve_with_delta` runs without the venv's editable `temper_placer`
+    /// on the embedded interpreter's `sys.path`).
+    fn install_fakes<'py>(py: Python<'py>) -> PyResult<Py<PyModule>> {
+        let sys = py.import("sys")?;
+        let modules: Bound<'py, PyDict> = sys.getattr("modules")?.cast_into()?;
+
+        let temper_placer = PyModule::new(py, "temper_placer")?;
+        let placer = PyModule::new(py, "placer")?;
+        let cp_sat = PyModule::new(py, "cp_sat")?;
+        let loop_types = PyModule::new(py, "_loop_types")?;
+
+        let code = std::ffi::CString::new(
+            "class UnsatError(Exception):\n    \
+             def __init__(self, deltas=None, message='UNSAT with injected constraints'):\n        \
+             self.deltas = deltas\n        \
+             super().__init__(message)\n",
+        )
+        .expect("fake source has no NUL");
+        py.run(code.as_c_str(), Some(&loop_types.dict()), Some(&loop_types.dict()))?;
+
+        cp_sat.add("_loop_types", &loop_types)?;
+        placer.add("cp_sat", &cp_sat)?;
+        temper_placer.add("placer", &placer)?;
+        modules.set_item("temper_placer", &temper_placer)?;
+        modules.set_item("temper_placer.placer", &placer)?;
+        modules.set_item("temper_placer.placer.cp_sat", &cp_sat)?;
+        modules.set_item("temper_placer.placer.cp_sat._loop_types", &loop_types)?;
+
+        Ok(loop_types.unbind())
+    }
+
+    fn init_python() {
+        PY_INIT.call_once(|| {
+            Python::initialize();
+            LOOP_TYPES.get_or_init(|| match Python::attach(install_fakes) {
+                Ok(m) => m,
+                Err(e) => panic!("fake install failed: {e}"),
+            });
+        });
+    }
+
+    /// Drive `cpsat_solve_with_delta` over one generated case. `unsat` scripts
+    /// the fake solver's status. Returns `Ok("returned:<status>")` for a
+    /// feasible solve, or `Ok("raised:<message>")` for the raised `UnsatError`.
+    fn drive(unsat: bool, reason_strings: &[String]) -> Result<String, String> {
+        init_python();
+        Python::attach(|py| -> PyResult<String> {
+            let sns = py.import("types")?.getattr("SimpleNamespace")?;
+
+            // The fake loop_self: `_call_solver` returns a fake placement with
+            // the scripted status; the timeout/zones/loop-components attrs are
+            // read by `call_solver`.
+            let status = if unsat { "infeasible" } else { "optimal" };
+            let loop_ns = sns.call((), Some(&PyDict::new(py)))?;
+            loop_ns.setattr("RE_SOLVE_TIMEOUT_MS", 250i64)?;
+            loop_ns.setattr("_zones", py.None())?;
+            loop_ns.setattr("_zone_components", py.None())?;
+            loop_ns.setattr("_loop_components", py.None())?;
+
+            // A plain Python function used as an attribute (not a bound
+            // method): `call_method("_call_solver", (), kwargs)` invokes it
+            // with the keyword args. Defined in a scratch module.
+            let fake_module = PyModule::new(py, "cpsat_proptest_fakes")?;
+            let code = std::ffi::CString::new(format!(
+                "def solve(**kwargs):\n    return type('P', (), {{'status': {status:?}}})()\n"
+            ))
+            .expect("no NUL");
+            py.run(code.as_c_str(), Some(&fake_module.dict()), Some(&fake_module.dict()))?;
+            let solve_fn = fake_module.getattr("solve")?;
+            loop_ns.setattr("_call_solver", &solve_fn)?;
+
+            // Deltas: `constraint` + `reason` are the only attrs the kernel
+            // reads.
+            let new_deltas = PyList::empty(py);
+            for r in reason_strings {
+                let dkwargs = PyDict::new(py);
+                dkwargs.set_item("constraint", py.None())?;
+                dkwargs.set_item("reason", r.clone())?;
+                new_deltas.append(sns.call((), Some(&dkwargs))?)?;
+            }
+
+            let netlist = sns.call((), Some(&PyDict::new(py)))?;
+            let board = sns.call((), Some(&PyDict::new(py)))?;
+            let base_constraints = PyList::empty(py);
+
+            let result = cpsat_solve_with_delta(
+                py,
+                loop_ns.unbind(),
+                netlist.unbind(),
+                board.unbind(),
+                base_constraints.into_any().unbind(),
+                new_deltas.into_any().unbind(),
+                42,
+                None,
+            );
+
+            match result {
+                Ok(placement) => {
+                    let status: String = placement.bind(py).getattr("status")?.extract()?;
+                    Ok(format!("returned:{status}"))
+                }
+                Err(e) => {
+                    let msg: String = e.value(py).str()?.extract()?;
+                    Ok(format!("raised:{msg}"))
+                }
+            }
+        })
+        .map_err(|e| format!("python error: {e}"))
+    }
+
+    /// The oracle's message suffix: `repr([d.reason for d in new_deltas])` for
+    /// a list of plain identifier-like strings (single-quoted, comma-space
+    /// separated). The proptest reasons are `reason_<i>` -- no escaping needed.
+    fn expected_suffix(reason_strings: &[String]) -> String {
+        let mut lit = String::from("[");
+        for (i, r) in reason_strings.iter().enumerate() {
+            if i > 0 {
+                lit.push_str(", ");
+            }
+            lit.push('\'');
+            lit.push_str(r);
+            lit.push('\'');
+        }
+        lit.push(']');
+        lit
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::default())]
+
+        /// P1. A feasible solve returns the fake placement untouched; an
+        /// infeasible solve raises `UnsatError` whose message is exactly the
+        /// oracle's `f"UNSAT with delta(s): {[d.reason for d in new_deltas]}"`
+        /// (the suffix is the CPython list repr of the reason strings).
+        #[test]
+        fn unsat_message_and_feasible_return_dispatch(
+            (unsat, n) in (proptest::bool::ANY, 0usize..=5)
+        ) {
+            let reason_strings: Vec<String> = (0..n).map(|i| format!("reason_{i}")).collect();
+            let observed = drive(unsat, &reason_strings).expect("drive must not fail");
+
+            if unsat {
+                let msg = observed.strip_prefix("raised:").unwrap_or(&observed);
+                let expected = format!("UNSAT with delta(s): {}", expected_suffix(&reason_strings));
+                prop_assert_eq!(msg, expected, "UnsatError message diverged from the oracle");
+            } else {
+                prop_assert_eq!(observed, "returned:optimal", "feasible solve must return the placement");
+            }
+        }
+    }
+
+    /// Anti-vacuity: the oracle's message shape is pinned for the empty and
+    /// multi-delta cases -- a message that always dropped the reasons would
+    /// fail P1 on a non-empty delta list.
+    #[test]
+    fn unsat_message_shape_anti_vacuity() {
+        let empty = drive(true, &[]).expect("drive");
+        assert_eq!(empty, "raised:UNSAT with delta(s): []");
+        let two = drive(true, &["a".to_string(), "b".to_string()]).expect("drive");
+        assert_eq!(two, "raised:UNSAT with delta(s): ['a', 'b']");
+        let feasible = drive(false, &["a".to_string()]).expect("drive");
+        assert_eq!(feasible, "returned:optimal");
+    }
+}
