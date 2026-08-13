@@ -237,6 +237,13 @@ def build_scan_targets(repo_root: Path) -> list[ScanTarget]:
     # formula implementation, two checks). Those modules are first-party
     # repo code, not undeclared third-party dependencies.
     fw_tools = repo_root / "firmware" / "tools"
+    # tools/wasm is the same shape of local_roots sibling as fw_tools above:
+    # scripts/tests/test_wasm_test_family_map_registration.py sys.path-inserts
+    # tools/wasm at import time and imports gen_test_family_map from it (a
+    # first-party repo module, not an undeclared third-party dependency) --
+    # added 2026-08-13 when the gate's own scan first surfaced the gap this
+    # test's sys.path setup (landed 2026-08-07/08-10) had left uncovered.
+    wasm_tools = repo_root / "tools" / "wasm"
     return [
         ScanTarget(
             "scripts/*.py (top-level)",
@@ -249,7 +256,7 @@ def build_scan_targets(repo_root: Path) -> list[ScanTarget]:
             "scripts/tests/**/*.py",
             scripts_dir / "tests",
             "**/*.py",
-            (scripts_dir, scripts_dir / "tests", fw_tools),
+            (scripts_dir, scripts_dir / "tests", fw_tools, wasm_tools),
         ),
         ScanTarget(
             "packages/temper-placer/tests/**/*.py",

@@ -501,9 +501,13 @@ class TestRealRepoIntegration:
 
         PROPERTY 2 -- "gnd"/"PWR_RTN" no longer map to the undeclared
         "GND" class (docs/evidence/2026-08-12-nonexistent-gnd-class-mapping.md,
-        this commit); "CGND" still does, but it is the one carve-out
-        _KNOWN_UNRESOLVED_ASSIGNMENTS names and is reported informationally,
-        not blocking.
+        this commit); "CGND" still maps to "GND" in TEMPER_NET_ASSIGNMENTS,
+        but as of 2026-08-12 commit 81ac8432e ("fix(pcb): declare GND
+        netclass in kicad_pro, map gnd -> GND", #1096) "GND" is now
+        declared in BOTH TEMPER_NET_CLASSES and pcb/temper.kicad_pro's
+        net_settings.classes, so CGND's reference resolves cleanly too --
+        it is no longer in _KNOWN_UNRESOLVED_ASSIGNMENTS's output at all,
+        not even informationally.
 
         If temper_placer is not importable in this environment the test is
         skipped rather than xfailed -- a real environment gap is not this
@@ -525,8 +529,9 @@ class TestRealRepoIntegration:
         assert report.classes_checked  # non-empty: a real comparison ran
         assert report.assignments_checked  # non-empty: PROPERTY 2 actually ran
         assert report.unresolved_references == []
-        # CGND is still there, still reported -- just not blocking.
-        assert [u.net_name for u in report.known_unresolved_references] == ["CGND"]
+        # CGND now resolves cleanly too (GND is declared in both tables as
+        # of #1096) -- nothing left in the known-carveout bucket either.
+        assert report.known_unresolved_references == []
 
     def test_exit_codes_match_module_constants(self):
         assert EXIT_OK == 0

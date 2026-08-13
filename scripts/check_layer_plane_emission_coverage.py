@@ -272,10 +272,56 @@ def check_parser_captures_layer_role(parser_source_path: Path) -> tuple[bool, st
 _LAYER_LITERAL_RE = re.compile(r'"([A-Za-z][A-Za-z0-9_]*\.Cu)"')
 
 
+def _strip_docstring(body: str) -> str:
+    """Blanks out the function's own docstring (if any) from ``body``.
+
+    ``load_emittable_layers`` below treats any ``"X.Cu"`` string literal in
+    the function body as evidence the function can *emit* layer ``X.Cu`` --
+    a deliberate over-approximation of real control flow. A docstring is
+    prose, not control flow: it can (and, 2026-08-11 commit ``259758f6a``,
+    does) name a layer literal while explaining why a branch for it was
+    *not* added ("NOT CHANGED 2026-08-11 ... an `\"In2.Cu\"` branch here
+    ... was prototyped and reverted"). Left unstripped, that sentence reads
+    as proof the function emits ``In2.Cu``, which is the opposite of what
+    it says. Only the function's own leading docstring is stripped (not
+    every string literal), so real emitted-layer literals like
+    ``return ["F.Cu", "B.Cu"]`` are untouched.
+    """
+    import ast
+
+    try:
+        tree = ast.parse(body)
+    except SyntaxError:
+        return body
+    if not tree.body or not isinstance(tree.body[0], ast.FunctionDef):
+        return body
+    fn_body = tree.body[0].body
+    if not fn_body:
+        return body
+    first = fn_body[0]
+    if not (isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str)):
+        return body
+    lines = body.splitlines(keepends=True)
+    start_line, start_col = first.lineno - 1, first.col_offset
+    end_line, end_col = first.end_lineno - 1, first.end_col_offset
+    if start_line == end_line:
+        line = lines[start_line]
+        lines[start_line] = line[:start_col] + " " * (end_col - start_col) + line[end_col:]
+    else:
+        lines[start_line] = lines[start_line][:start_col]
+        for i in range(start_line + 1, end_line):
+            lines[i] = "\n" if lines[i].endswith("\n") else ""
+        lines[end_line] = " " * end_col + lines[end_line][end_col:]
+    return "".join(lines)
+
+
 def load_emittable_layers(emitter_source_path: Path) -> set[str]:
     """Returns the set of ``*.Cu`` layer-name string literals appearing
     anywhere in ``_zone_layers_for_net``'s body -- the over-approximation
     of "every layer this function could possibly return for some net".
+    The function's own docstring is excluded first (see
+    ``_strip_docstring``): prose describing a layer literal is not the
+    same claim as code that can return it.
     """
     if not emitter_source_path.is_file():
         raise GateError(f"emitter source not found: {emitter_source_path}")
@@ -287,6 +333,7 @@ def load_emittable_layers(emitter_source_path: Path) -> set[str]:
     next_def = re.search(r"^def \w+\(", source[m.end() :], re.MULTILINE)
     end = m.end() + next_def.start() if next_def else len(source)
     body = source[m.start() : end]
+    body = _strip_docstring(body)
 
     return set(_LAYER_LITERAL_RE.findall(body))
 

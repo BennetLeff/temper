@@ -73,17 +73,19 @@ surfaces:
   - pattern: packages/temper-placer/src/temper_placer/_constraint_types/**
     verdict: JUSTIFIED-KEEP
     phase: 2
-    note: >-
-      RESOLVED 2026-08-11 (R7 axis conflict closed, product authority):
-      justified-keep with evidence -- docs/evidence/2026-08-11-r7-constraint-types-resolution.md.
-      The "generated stubs" framing was factually wrong (hand-written pydantic
-      BaseModel, no generator exists). Not ortools-coupled. The real blocker:
+    blocker: >-
       config_loader.rs (already Rust) calls PlacementConstraints.model_validate
       back into Python as "final authority, never reimplemented in Rust" -- a
       pyclass migration breaks the exception type + validation semantics, and
       the gen_config_reference CI gate reads model_fields. No compute to port
       (34 models / 5 methods / one float expression; value types already
       pyclasses, compute already Rust).
+    note: >-
+      RESOLVED 2026-08-11 (R7 axis conflict closed, product authority):
+      justified-keep with evidence -- docs/evidence/2026-08-11-r7-constraint-types-resolution.md.
+      The "generated stubs" framing was factually wrong (hand-written pydantic
+      BaseModel, no generator exists). Not ortools-coupled. See `blocker:`
+      above for the real, measured blocker.
   # NOTE (2026-08-06, close-out audit -> recommendation recorded, NOT decided):
   # the MIGRATE entry above conflicts with a merged record. Both sides are
   # recorded here so the product authority can decide; the verdict is NOT
@@ -249,6 +251,10 @@ surfaces:
     note: >-
       drc_types and drc_result are Phase 2 contracts and land earlier; the
       geometric checks and the rest of validation/ are Phase 4 compute.
+      validation/spice.py is carved out below (JUSTIFIED-KEEP, ngspice
+      subprocess boundary) -- excluded here so it names exactly one verdict.
+    exclude:
+      - packages/temper-placer/src/temper_placer/validation/spice.py
 
   # ---- Phase 5: orchestration ---------------------------------------------
   - pattern: packages/temper-placer/src/temper_placer/pipeline/**
@@ -708,6 +714,26 @@ surfaces:
       own interpreter, so it can only move if they move, and it inherits their
       bootstrap constraint verbatim: it must import on a bare `python3` with no
       Rust toolchain present. Moves with the surface it serves, not before it.
+  # Added 2026-08-13: scripts/oracle_freeze_specs/ (359 LOC, landed 2026-08-11
+  # by #1021 "FREEZE oracle-retirement tooling (U4) + first retirement (U5)")
+  # was never given a ledger entry -- `scripts/*.py`'s single `*` does not
+  # cross `/`, so it never covered this subdirectory (matches() docstring
+  # above). Newly discovered by the R7 coverage gate, not a drift in an
+  # existing verdict.
+  - pattern: scripts/oracle_freeze_specs/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Declarative, one-module-per-retired-oracle FREEZE specs (each exports a
+      `SPEC` describing an oracle/kernel pair's differential-retirement
+      evidence -- see the package's own docstring and
+      scripts/oracle_freeze_specs/copper_reach.py). Not compute: same
+      instrumentation/tooling category as the "34 utility scripts" bucket
+      already justified under scripts/*.py above (roughly two-thirds
+      verification instrumentation that inherits the benchmarks/ blocker --
+      an instrument recording a Python-vs-Rust freeze decision has no Rust
+      counterpart to migrate to). Consumed by scripts/gen_oracle_freeze.py
+      and scripts/_lib/oracle_freeze.py, both already covered elsewhere in
+      this ledger.
   - pattern: scripts/tests/**
     verdict: JUSTIFIED-KEEP
     blocker: >-
