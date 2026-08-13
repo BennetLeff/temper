@@ -823,3 +823,150 @@ impl DeterministicPipeline {
         )
     }
 }
+
+// ---------------------------------------------------------------------------
+// Native proptests (R19/U6-style)
+// ---------------------------------------------------------------------------
+//
+// `proptest` is a dev-dependency (present under `cargo test`, absent from the
+// ordinary non-test build `wasm_test_registry.rs` compiles into), so these
+// factory-ORDER properties live in their own `#[cfg(test)]` sibling module --
+// the same split `timing.rs`/`copper_length.rs`/`clearance.rs` use. Two
+// separate `cfg` attributes (rather than one `cfg(all(test, feature =
+// "python"))`) so `scripts/gen_wasm_test_registry.py`'s discovery -- which
+// recognises a module as test-gated only via a literal `#[cfg(test)]`
+// attribute -- still finds and censuses this module (as `python`-gated)
+// instead of missing it silently, matching `grid_hv.rs`'s `tests` convention.
+//
+// proptest: `drc_aware_stage_order` -- the factory's D1->D7 stage ORDER, the
+// migrated surface this module pins (stage registration order, never a
+// HashMap order). The ORDER is load-bearing: `pipeline.stages` is iterated in
+// list order by the run loop, and the isolation-slots / phased-integration /
+// instrumentation tests iterate and re-wrap `.stages`.
+#[cfg(test)]
+#[cfg(feature = "python")]
+#[allow(clippy::unwrap_used)]
+mod proptests {
+    use super::*;
+    use proptest::prelude::*;
+
+    /// A `bool` strategy helper: the proptest! macro's `in`-position fragment
+    /// cannot parse a turbofish (`any::<bool>()` -- the `<` is read as a
+    /// comparison operator at the macro boundary), so the strategy is named
+    /// here exactly like `timing.rs`'s `normal_f64()` helper.
+    fn flag() -> impl Strategy<Value = bool> {
+        proptest::bool::ANY
+    }
+
+    /// The differential's `_ORDER_DEFAULT` (23 stages, `zone_aware=true,
+    /// phased=false`), hardcoded so the ORDER property pins the exact
+    /// canonical sequence rather than only its length.
+    const ORDER_DEFAULT: [&str; 23] = [
+        "config_attach",
+        "net_class_setup",
+        "zone_geometry",
+        "zone_assignment",
+        "hv_lv_partition",
+        "zone_aware_slot_generation",
+        "component_assignment",
+        "apply_placements",
+        "courtyard_check",
+        "apply_placements",
+        "placement_validation",
+        "drc_oracle_setup",
+        "clearance_grid",
+        "net_ordering",
+        "layer_assignment",
+        "power_plane",
+        "fine_pitch_escape",
+        "track_deduplication",
+        "short_circuit_detection",
+        "via_deduplication",
+        "via_validation",
+        "drc_validation",
+        "connectivity_validation",
+    ];
+
+    proptest! {
+        /// P1. The order is always 23 stages long for every flag combination.
+        #[test]
+        fn p1_order_is_23_stages(zone_aware in flag(), phased in flag()) {
+            prop_assert_eq!(drc_aware_stage_order(zone_aware, phased).len(), 23);
+        }
+
+        /// P2. The (false, false) order equals the raw declaration table --
+        /// the substitution map must be the ONLY transform between the table
+        /// and the emitted order.
+        #[test]
+        fn p2_base_order_is_declaration_table(_seed in Just(())) {
+            prop_assert_eq!(drc_aware_stage_order(false, false), DRC_AWARE_STAGE_KINDS);
+        }
+
+        /// P3. The order matches the pinned differential `_ORDER_DEFAULT`
+        /// (zone_aware=true, phased=false) with exactly the two documented
+        /// substitutions: `zone_aware=false` downgrades the slot stage,
+        /// `phased=true` upgrades the component stage.
+        #[test]
+        fn p3_order_matches_pinned_default(
+            zone_aware in flag(),
+            phased in flag(),
+        ) {
+            let expected: Vec<&str> = ORDER_DEFAULT
+                .iter()
+                .map(|k| match *k {
+                    "zone_aware_slot_generation" if !zone_aware => "slot_generation",
+                    "component_assignment" if phased => "phased_component_assignment",
+                    other => other,
+                })
+                .collect();
+            prop_assert_eq!(drc_aware_stage_order(zone_aware, phased), expected);
+        }
+
+        /// P4. Only the two substitution slots ever change, and only to the
+        /// documented alternative kind -- every other position is the
+        /// declaration-table kind (no silent reordering anywhere).
+        #[test]
+        fn p4_only_substitution_slots_change(
+            zone_aware in flag(),
+            phased in flag(),
+        ) {
+            let order = drc_aware_stage_order(zone_aware, phased);
+            for (i, k) in order.iter().enumerate() {
+                let base = DRC_AWARE_STAGE_KINDS[i];
+                match (i, base) {
+                    (5, "slot_generation") => prop_assert_eq!(
+                        *k,
+                        if zone_aware { "zone_aware_slot_generation" } else { "slot_generation" }
+                    ),
+                    (6, "component_assignment") => prop_assert_eq!(
+                        *k,
+                        if phased { "phased_component_assignment" } else { "component_assignment" }
+                    ),
+                    _ => prop_assert_eq!(*k, base, "position {} must stay {}", i, base),
+                }
+            }
+        }
+
+        /// P5. The order is deterministic (same flags -> same order), and the
+        /// substitutions are non-interfering: toggling one flag never moves
+        /// the stage the other flag owns.
+        #[test]
+        fn p5_substitutions_are_non_interfering(
+            zone_aware in flag(),
+            phased in flag(),
+        ) {
+            let order = drc_aware_stage_order(zone_aware, phased);
+            prop_assert_eq!(order.clone(), drc_aware_stage_order(zone_aware, phased));
+            // The slot stage's kind depends only on zone_aware.
+            prop_assert_eq!(
+                order[5],
+                if zone_aware { "zone_aware_slot_generation" } else { "slot_generation" }
+            );
+            // The component stage's kind depends only on phased.
+            prop_assert_eq!(
+                order[6],
+                if phased { "phased_component_assignment" } else { "component_assignment" }
+            );
+        }
+    }
+}

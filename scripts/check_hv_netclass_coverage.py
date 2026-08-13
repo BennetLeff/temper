@@ -101,7 +101,108 @@ scoped to ``TEMPER_NET_CLASSES`` alone could never see it, and so could
 never name it as the "declared netclass with no rules" defect it actually
 is. Reading ``pcb/temper.kicad_pro`` is read-only (never written by this
 gate) and is explicitly permitted; only ``pcb/temper.kicad_pcb`` (the
-board file, a different file) is off-limits.
+board file, a different file) is off-limits for WRITES -- it is read-only
+input to PROPERTY 3 below, same as ``pcb/temper.kicad_pro``.
+
+PROPERTY 3 -- kicad_pro netclass_assignments ground truth for HV nets (BLOCKING)
+-----------------------------------------------------------------------------
+PROPERTIES 1/2 above check the Python placer's own model
+(``TEMPER_NET_ASSIGNMENTS`` / ``TEMPER_NET_CLASSES``) and, for coverage,
+whether a declared class enforces anything in the generated ``.kicad_dru``.
+Neither one ever reads ``pcb/temper.kicad_pro``'s
+``net_settings.netclass_assignments`` -- the actual mapping ``kicad-cli``'s
+DRC enforces. A net can sit in ``TEMPER_NET_ASSIGNMENTS`` (so PROPERTY 1
+passes) while being completely absent from ``kicad_pro``'s real
+assignments table, falling through to KiCad's ``Default`` (0.2mm) class for
+every real DRC run -- invisible to both properties above. This is exactly
+what happened to ``PWR_RTN`` (docs/evidence/2026-08-12-unassigned-domain-
+nets.md): present in ``TEMPER_NET_ASSIGNMENTS`` (mapped to ``"GND"``, an
+LV-safe class that is itself a separate, open question) but entirely absent
+from ``pcb/temper.kicad_pro``'s ``netclass_assignments`` -- the file
+``kicad-cli`` actually reads.
+
+Scoped to the ``HV`` domain specifically (mirroring PROPERTIES 1/2's own
+"``elec/domain_manifest.yaml`` is the SSOT for domain membership"
+convention) because that is where an unassigned net silently drops HV<->LV
+creepage/clearance enforcement to zero on BOTH sides of a mains crossing --
+see the evidence doc Sec 6.3. Three sub-checks, all against
+``elec/domain_manifest.yaml``'s ``HV`` domain list:
+
+  3a. Every HV-domain net must exist as a real, literal net name in
+      ``pcb/temper.kicad_pcb`` (structural walk, PROPERTY 3/4's shared
+      ``parse_board_net_names`` -- see its docstring for why this is not a
+      grep). Catches a manifest net whose spelling drifted from the board
+      (the historical ``+340V_BUS`` -> ``+170V_BUS`` rename shape).
+  3b. Every HV-domain net must have an entry in ``pcb/temper.kicad_pro``'s
+      ``net_settings.netclass_assignments``. Catches ``PWR_RTN``.
+  3c. Every HV-domain net that DOES have a ``kicad_pro`` assignment must
+      resolve, via that class's ``safety_category`` in
+      ``packages/temper-placer/configs/netclass_rules.yaml`` (the netclass
+      parameter SSOT), to ``"HV"`` or ``"AC"`` -- never an LV-safe class.
+
+PROPERTY 3 is evaluated (and can fail the gate) only when
+``kicad_pro_path``'s JSON literally declares a
+``net_settings.netclass_assignments`` mapping -- ``report.
+property3_evaluated`` records whether it did. Every real KiCad project file
+has this key structurally; a synthetic test fixture that omits it is
+opting out of PROPERTY 3, not silently passing it (see
+``TestPropertyThreeAndFour`` in the test file for the anti-vacuity check
+that PROPERTY 3 really does evaluate against the live repo).
+
+PROPERTY 4 -- the same shape for SELV (BLOCKING as of docs/evidence/
+2026-08-12-selv-net-assignment.md)
+-------------------------------------------------------------------------------------
+Originally informational (see git history for the rationale as it stood
+before the SELV sweep was actually fixed): an SELV-domain net left
+unassigned still falls to ``Default`` (0.2mm), but KiCad DRC takes the MAX
+of the two nets' netclass figures for any pair -- so an HV<->SELV crossing
+stays protected as long as the HV side carries a real class (evidence doc
+Sec 6.3). The acute hazard is specifically an unassigned or misclassed net
+on the HV side; an unassigned SELV net is the same defect *shape* but not
+the same severity. That severity argument justified reporting-only while
+the 20-net SELV gap was still open and undecided (deferring 20 real net
+classification calls to a human, per this project's own conservative
+convention for ambiguous safety-adjacent nets).
+
+It does not justify staying informational forever: PROPERTY 4's own
+sub-checks (3a/3b/3c's SELV mirror -- off-board, unassigned-in-kicad_pro,
+wrong-safety-category) are the SAME shape as PROPERTY 3's, just scoped to
+``SELV`` instead of ``HV``, and once every SELV-domain net actually has a
+real, correct ``kicad_pro`` assignment (docs/evidence/
+2026-08-12-selv-net-assignment.md) there is nothing left excusing a
+regression here from silently reappearing unnoticed. Promoted to BLOCKING
+by that evidence doc, mirroring PROPERTY 3 exactly:
+
+  4a. Every SELV-domain net must exist as a real, literal net name in
+      ``pcb/temper.kicad_pcb`` (shared ``parse_board_net_names``).
+  4b. Every SELV-domain net must have an entry in ``pcb/temper.kicad_pro``'s
+      ``net_settings.netclass_assignments``. Catches the ``gnd`` shape (the
+      board's own largest net, 86 pads, was unassigned until the evidence
+      doc above).
+  4c. Every SELV-domain net that DOES have a ``kicad_pro`` assignment must
+      resolve, via that class's ``safety_category``, to ``"LV"`` -- never
+      an HV/AC-only class (the inverse of 3c).
+
+PROPERTY 5 -- board-wide ghost assignments (INFORMATIONAL, permanently)
+-------------------------------------------------------------------------------------
+Reported, never gates the exit code, and this one is NOT a candidate for
+promotion (unlike PROPERTY 4 above) because the condition it reports is
+permanent and deliberate, not a bug awaiting a fix: ``pcb/temper.kicad_pro``
+carries ~37 pre-existing "ghost" assignments (dead net names from an
+earlier schematic revision, e.g. ``AC_L``/``SWITCH_NODE``/``RTD_CS``
+alongside the real, differently-spelled ``ac_l``/``SW_NODE``/``RTD_CS_N``)
+that ``scripts/sync_kicad_netclass_assignments.py``'s own docstring
+documents as deliberately, permanently kept ("It never removes an existing
+kicad_pro entry, even one that names a net no longer present on the
+board"). Gating on their presence would make this property permanently red
+for a defect nobody introduced and no task has ever been asked to clean
+up -- promoting it would require first deciding to delete or rename those
+37 entries, a separate, larger, explicitly out-of-scope decision (see
+docs/evidence/2026-08-12-selv-net-assignment.md Sec on PROPERTY 4/5).
+Reported under ``report.ghost_kicad_pro_assignments`` for visibility (this
+is the "every assignment naming a net that does not exist on the board"
+count the evidence docs' sweeps report), computed once across ALL of
+``kicad_pro``'s assignments, not scoped to either domain.
 
 Fail-closed contract (this repo's gate-family convention -- see
 ``check_domain_partition.py``, ``check_net_classification.py``): this
@@ -116,12 +217,23 @@ real, fresh data. It exits non-zero for every one of:
     imported (e.g. the environment is not synced)
   - zero HV nets discovered, or zero declared netclasses discovered --
     an empty check is a broken gate, never a clean pass
+  - when PROPERTY 3 is applicable (see above): ``pcb/temper.kicad_pcb``
+    is missing or a structural walk finds zero top-level net
+    declarations, or ``packages/temper-placer/configs/netclass_rules.yaml``
+    is missing, malformed, or has no class carrying a ``safety_category``
 
 Exit codes:
-  0 - PASSED: every manifest-HV net has a netclass, and every declared
-      netclass has at least one positive rule in the generated DRU output
-  3 - VIOLATION: at least one manifest-HV net has no netclass, or at
-      least one declared netclass has zero positive rules
+  0 - PASSED: every manifest-HV net has a netclass, every declared
+      netclass has at least one positive rule in the generated DRU output,
+      and (when PROPERTY 3/4 are applicable) every HV- and SELV-domain net
+      exists on the real board, has a real ``kicad_pro`` netclass
+      assignment, and that assignment's safety_category matches its domain
+  3 - VIOLATION: at least one manifest-HV net has no netclass, at least
+      one declared netclass has zero positive rules, or (PROPERTY 3) at
+      least one HV-domain net is off-board, unassigned in
+      ``kicad_pro``, or assigned an LV-safe class, or (PROPERTY 4) at
+      least one SELV-domain net is off-board, unassigned in
+      ``kicad_pro``, or assigned an HV/AC-only class
   5 - GATE ERROR: the gate could not run a trustworthy check at all (see
       list above) -- never conflated with "0 violations"
 
@@ -155,6 +267,10 @@ EXIT_GATE_ERROR = 5
 REPO_ROOT = find_repo_root()
 DEFAULT_MANIFEST = REPO_ROOT / "elec" / "domain_manifest.yaml"
 DEFAULT_KICAD_PRO = REPO_ROOT / "pcb" / "temper.kicad_pro"
+DEFAULT_KICAD_PCB = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+DEFAULT_NETCLASS_RULES = (
+    REPO_ROOT / "packages" / "temper-placer" / "configs" / "netclass_rules.yaml"
+)
 
 # KiCad-structural classes deliberately excluded from PROPERTY 2's
 # "declared netclass" registry -- see the module docstring's PROPERTY 2
@@ -162,6 +278,19 @@ DEFAULT_KICAD_PRO = REPO_ROOT / "pcb" / "temper.kicad_pro"
 STRUCTURAL_KICAD_CLASSES: frozenset[str] = frozenset({"Default", "Differential"})
 
 _NETCLASS_EQ_RE = re.compile(r"[AB]\.NetClass\s*==\s*'([^']+)'")
+
+# PROPERTY 3/4: netclass_rules.yaml's own safety_category vocabulary is
+# HV/LV/AC/iso (see GateDriveSELV's "because" comment there). 'Default' and
+# 'Differential' are KiCad-structural classes with no entry in that file
+# (see STRUCTURAL_KICAD_CLASSES above) -- both are LV-safe in practice
+# (Default is the generic 0.2mm fallback; Differential is the USB-pair
+# impedance class), so both resolve to "LV" here rather than "UNKNOWN",
+# which would make an HV-domain net assigned either one report as a
+# mismatch for the wrong reason (unknown category, not wrong category).
+_STRUCTURAL_KICAD_SAFETY_CATEGORY: dict[str, str] = {"Default": "LV", "Differential": "LV"}
+
+_HV_ALLOWED_SAFETY_CATEGORIES: frozenset[str] = frozenset({"HV", "AC"})
+_SELV_ALLOWED_SAFETY_CATEGORIES: frozenset[str] = frozenset({"LV"})
 
 
 class GateError(Exception):
@@ -173,32 +302,47 @@ class GateError(Exception):
 # ---------------------------------------------------------------------------
 
 
-def load_hv_nets(manifest_path: Path) -> list[str]:
+def load_domain_nets(manifest_path: Path, domain_name: str) -> list[str]:
     """Return the exact list of net names declared under
-    ``elec/domain_manifest.yaml``'s ``HV`` domain, via the same parser
-    ``check_domain_partition.py`` trusts (so this gate can never silently
-    diverge from that gate's own idea of what "HV domain" means).
+    ``elec/domain_manifest.yaml``'s ``domain_name`` domain, via the same
+    parser ``check_domain_partition.py`` trusts (so this gate can never
+    silently diverge from that gate's own idea of what a given domain
+    means).
 
     Raises GateError (fail-closed) for every malformed-manifest case
     ``check_domain_partition.load_manifest`` itself already raises on
     (missing file, empty file, not YAML, no domains, fewer than 2
     domains, a domain with no nets, a net claimed by two domains), plus
-    if there is no domain literally named ``HV``.
+    if there is no domain literally named ``domain_name``.
     """
     try:
         manifest = load_manifest(manifest_path)
     except _ManifestGateError as e:
         raise GateError(f"domain manifest could not be loaded: {e}") from e
 
-    hv_nets = manifest.domains.get("HV")
-    if not hv_nets:
+    nets = manifest.domains.get(domain_name)
+    if not nets:
         raise GateError(
-            f"domain manifest {manifest_path} declares no non-empty 'HV' "
-            "domain -- nothing to check (this gate's whole premise is "
-            "that domain_manifest.yaml's HV domain is the authoritative "
-            "HV net set)"
+            f"domain manifest {manifest_path} declares no non-empty "
+            f"{domain_name!r} domain -- nothing to check (this gate's "
+            "whole premise is that domain_manifest.yaml's domain lists "
+            "are the authoritative net sets)"
         )
-    return list(hv_nets)
+    return list(nets)
+
+
+def load_hv_nets(manifest_path: Path) -> list[str]:
+    """Return the exact list of net names declared under
+    ``elec/domain_manifest.yaml``'s ``HV`` domain. See ``load_domain_nets``.
+    """
+    return load_domain_nets(manifest_path, "HV")
+
+
+def load_selv_nets(manifest_path: Path) -> list[str]:
+    """Return the exact list of net names declared under
+    ``elec/domain_manifest.yaml``'s ``SELV`` domain. See
+    ``load_domain_nets``. Used by PROPERTY 4 (BLOCKING)."""
+    return load_domain_nets(manifest_path, "SELV")
 
 
 def check_hv_net_coverage(hv_nets: list[str], net_assignments: dict[str, Any]) -> list[str]:
@@ -287,6 +431,229 @@ def check_netclass_rule_coverage(
 
 
 # ---------------------------------------------------------------------------
+# Properties 3/4: pcb/temper.kicad_pro netclass_assignments ground truth
+# ---------------------------------------------------------------------------
+
+
+def _tokenize_sexpr(text: str) -> list[str]:
+    """Minimal S-expression tokenizer: ``(`` / ``)`` as single-char tokens,
+    double-quoted strings (surrounding quotes kept, backslash escapes
+    preserved) as one token each, and any other run of non-whitespace,
+    non-paren characters as a bare atom. Sufficient for a KiCad
+    ``.kicad_pcb`` file's own consistent pretty-printed formatting; not a
+    general Lisp reader.
+    """
+    tokens: list[str] = []
+    i = 0
+    n = len(text)
+    while i < n:
+        c = text[i]
+        if c in " \t\r\n":
+            i += 1
+            continue
+        if c in "()":
+            tokens.append(c)
+            i += 1
+            continue
+        if c == '"':
+            j = i + 1
+            buf = ['"']
+            while j < n and text[j] != '"':
+                if text[j] == "\\" and j + 1 < n:
+                    buf.append(text[j])
+                    buf.append(text[j + 1])
+                    j += 2
+                    continue
+                buf.append(text[j])
+                j += 1
+            buf.append('"')
+            tokens.append("".join(buf))
+            i = j + 1
+            continue
+        j = i
+        while j < n and text[j] not in " \t\r\n()":
+            j += 1
+        tokens.append(text[i:j])
+        i = j
+    return tokens
+
+
+def _unquote_sexpr_string(token: str) -> str:
+    if len(token) >= 2 and token[0] == '"' and token[-1] == '"':
+        return token[1:-1].replace('\\"', '"').replace("\\\\", "\\")
+    return token
+
+
+def parse_board_net_names(kicad_pcb_path: Path) -> set[str]:
+    """Return every net name declared by a top-level ``(net N "name")``
+    form -- a DIRECT child of the file's outermost ``(kicad_pcb ...)``
+    form -- in *kicad_pcb_path*.
+
+    Walked structurally by paren-depth over a real token stream, NOT by
+    grepping for the literal substring ``(net``: that substring also
+    matches every pad's own per-pad net reference (``(pad ... (net N
+    "name"))``), nested many levels deeper. A grep or a depth-blind regex
+    conflates the two and either double-counts or misattributes nets --
+    the exact failure mode a prior agent's grep-based pad count hit,
+    which is why this gate parses instead (see docs/evidence/
+    2026-08-12-unassigned-domain-nets.md).
+
+    Raises GateError (fail-closed) if the file is missing or the
+    structural walk finds zero top-level net declarations -- an empty
+    result means the parser is broken or the file is not a real
+    ``.kicad_pcb``, never "the board has no nets".
+    """
+    if not kicad_pcb_path.is_file():
+        raise GateError(f"kicad_pcb board file not found: {kicad_pcb_path}")
+
+    tokens = _tokenize_sexpr(kicad_pcb_path.read_text(encoding="utf-8"))
+    names: set[str] = set()
+    depth = 0
+    i = 0
+    n = len(tokens)
+    while i < n:
+        t = tokens[i]
+        if t == "(":
+            depth += 1
+            # A top-level (net N "name") is a DIRECT child of the
+            # outermost (kicad_pcb ...) form -- depth becomes 2 exactly
+            # when we open such a child (1 for kicad_pcb itself, 2 for
+            # this form). A pad's nested (net ...) reference opens at a
+            # much greater depth and is deliberately not matched here.
+            if depth == 2 and i + 3 < n and tokens[i + 1] == "net" and tokens[i + 3].startswith('"'):
+                names.add(_unquote_sexpr_string(tokens[i + 3]))
+            i += 1
+            continue
+        if t == ")":
+            depth -= 1
+            i += 1
+            continue
+        i += 1
+
+    if not names:
+        raise GateError(
+            f"{kicad_pcb_path}: structural walk found zero top-level "
+            "(net ...) declarations -- parser is broken or this is not a "
+            "real .kicad_pcb file, not evidence the board has no nets"
+        )
+    return names
+
+
+def load_kicad_pro_netclass_assignments(kicad_pro_path: Path) -> dict[str, str] | None:
+    """Return ``{net: class}`` from ``pcb/temper.kicad_pro``'s
+    ``net_settings.netclass_assignments`` -- the actual mapping
+    ``kicad-cli``'s DRC reads.
+
+    Returns ``None`` (not a GateError) if the key is structurally absent:
+    every real KiCad project file has this key, so its absence means the
+    input is a synthetic fixture opting out of PROPERTIES 3/4, not a
+    malformed real file. Raises GateError if the file cannot be read, is
+    not valid JSON, or the key is present but not a mapping.
+    """
+    if not kicad_pro_path.is_file():
+        raise GateError(f"KiCad project file not found: {kicad_pro_path}")
+    try:
+        data = json.loads(kicad_pro_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise GateError(f"{kicad_pro_path} is not valid JSON: {e}") from e
+
+    net_settings = data.get("net_settings", {}) if isinstance(data, dict) else {}
+    raw = net_settings.get("netclass_assignments") if isinstance(net_settings, dict) else None
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise GateError(
+            f"{kicad_pro_path}'s net_settings.netclass_assignments is present "
+            "but not a mapping"
+        )
+    return {str(k): str(v) for k, v in raw.items()}
+
+
+def load_netclass_safety_categories(path: Path) -> dict[str, str]:
+    """Return ``{class_name: safety_category}`` from
+    ``packages/temper-placer/configs/netclass_rules.yaml`` -- the netclass
+    parameter SSOT (PR #1061 reconciled its VALUES against
+    ``pcb/temper.kicad_pro``; this reads its ``safety_category`` field,
+    a value this gate never writes) -- plus the two KiCad-structural
+    classes it doesn't model (see ``_STRUCTURAL_KICAD_SAFETY_CATEGORY``).
+
+    Raises GateError (fail-closed) if the file is missing, not valid YAML,
+    has no non-empty ``classes`` mapping, or not a single declared class
+    carries a ``safety_category`` field (a vacuous SSOT is a gate error,
+    not "everything passes").
+    """
+    if not path.is_file():
+        raise GateError(f"netclass rules file not found: {path}")
+    import yaml
+
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as e:
+        raise GateError(f"{path} is not valid YAML: {e}") from e
+
+    classes = data.get("classes") if isinstance(data, dict) else None
+    if not isinstance(classes, dict) or not classes:
+        raise GateError(f"{path} has no non-empty 'classes' mapping")
+
+    result = dict(_STRUCTURAL_KICAD_SAFETY_CATEGORY)
+    for name, body in classes.items():
+        if isinstance(body, dict) and body.get("safety_category"):
+            result[str(name)] = str(body["safety_category"])
+
+    if len(result) <= len(_STRUCTURAL_KICAD_SAFETY_CATEGORY):
+        raise GateError(f"{path}: no declared class carries a 'safety_category' field")
+    return result
+
+
+def check_domain_nets_on_board(domain_nets: list[str], board_nets: set[str]) -> list[str]:
+    """Return the sorted list of domain-declared nets absent from the
+    real board's own net table -- a manifest/board spelling drift (the
+    historical ``+340V_BUS`` -> ``+170V_BUS`` rename shape)."""
+    return sorted(n for n in domain_nets if n not in board_nets)
+
+
+def check_domain_net_kicad_pro_coverage(
+    domain_nets: list[str], kicad_pro_assignments: dict[str, str]
+) -> list[str]:
+    """Return the sorted list of domain-declared nets with no entry in
+    ``pcb/temper.kicad_pro``'s real ``netclass_assignments`` -- the
+    ``PWR_RTN`` shape."""
+    return sorted(n for n in domain_nets if n not in kicad_pro_assignments)
+
+
+def check_domain_class_safety_mismatch(
+    domain_nets: list[str],
+    kicad_pro_assignments: dict[str, str],
+    class_safety_category: dict[str, str],
+    allowed_categories: frozenset[str],
+) -> list[str]:
+    """Return a sorted list of human-readable strings, one per
+    domain-declared net that DOES have a ``kicad_pro`` assignment whose
+    class's ``safety_category`` is not in *allowed_categories*. Nets with
+    no assignment at all are skipped here -- that is
+    ``check_domain_net_kicad_pro_coverage``'s violation, not this one's."""
+    mismatches: list[str] = []
+    for net in domain_nets:
+        cls = kicad_pro_assignments.get(net)
+        if cls is None:
+            continue
+        category = class_safety_category.get(cls, "UNKNOWN")
+        if category not in allowed_categories:
+            mismatches.append(f"{net!r} -> kicad_pro class {cls!r} (safety_category={category!r})")
+    return sorted(mismatches)
+
+
+def check_ghost_kicad_pro_assignments(
+    kicad_pro_assignments: dict[str, str], board_nets: set[str]
+) -> list[str]:
+    """Return the sorted list of EVERY ``kicad_pro`` netclass_assignments
+    key (not scoped to either domain) naming a net absent from the real
+    board -- informational only, see the module docstring's PROPERTY 5
+    section for why this does not gate."""
+    return sorted(n for n in kicad_pro_assignments if n not in board_nets)
+
+
+# ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
 
@@ -298,6 +665,22 @@ class Report:
     declared_netclasses_checked: int = 0
     classes_with_no_rules: list[str] = field(default_factory=list)
     tool_errors: list[str] = field(default_factory=list)
+    # PROPERTY 3 (BLOCKING) -- HV-domain nets against pcb/temper.kicad_pro's
+    # REAL netclass_assignments and the real board net table.
+    property3_evaluated: bool = False
+    hv_domain_nets_off_board: list[str] = field(default_factory=list)
+    hv_domain_nets_unassigned_in_kicad_pro: list[str] = field(default_factory=list)
+    hv_domain_class_safety_mismatches: list[str] = field(default_factory=list)
+    # PROPERTY 4 (BLOCKING as of docs/evidence/2026-08-12-selv-net-assignment.md)
+    # -- same shape as PROPERTY 3, scoped to SELV.
+    selv_domain_nets_off_board: list[str] = field(default_factory=list)
+    selv_domain_nets_unassigned_in_kicad_pro: list[str] = field(default_factory=list)
+    selv_domain_class_safety_mismatches: list[str] = field(default_factory=list)
+    # PROPERTY 5 (INFORMATIONAL, never gates -- permanently, see module
+    # docstring) -- every kicad_pro assignment (either domain) naming an
+    # off-board net; the 37 deliberately-kept dead schematic-revision aliases.
+    ghost_kicad_pro_assignments: list[str] = field(default_factory=list)
+    kicad_pro_assignments_checked: int = 0
 
 
 def _default_live_inputs() -> tuple[dict[str, Any], dict[str, Any], str, Callable[[str], str]]:
@@ -334,6 +717,10 @@ def run(
     net_assignments: dict[str, Any] | None = None,
     dru_content: str | None = None,
     kicad_class_name_fn: Callable[[str], str] | None = None,
+    kicad_pcb_path: Path = DEFAULT_KICAD_PCB,
+    netclass_rules_path: Path = DEFAULT_NETCLASS_RULES,
+    board_nets: set[str] | None = None,
+    class_safety_category: dict[str, str] | None = None,
 ) -> tuple[str, Report]:
     """Returns (state, report), state in 'clean' | 'violation' | 'tool_error'.
 
@@ -341,7 +728,18 @@ def run(
     ``kicad_class_name_fn`` default to the real, live values imported from
     this repo's own packages -- tests override any subset of them to
     construct a mutation (an unclassified net, a class with no rules)
-    without needing a second real copy of the package installed.
+    without needing a second real copy of the package installed. These
+    feed PROPERTIES 1/2.
+
+    ``kicad_pcb_path`` / ``netclass_rules_path`` are real filesystem paths
+    (default: this repo's own files), read live regardless of whether
+    ``board_nets`` / ``class_safety_category`` are overridden --
+    mirroring how ``manifest_path`` / ``kicad_pro_path`` are always read
+    live for PROPERTIES 1/2. ``board_nets`` / ``class_safety_category`` let
+    a test supply the parsed board net set / safety-category table
+    directly instead of writing real fixture files for PROPERTIES 3/4.
+    PROPERTY 3/4 activate only when ``kicad_pro_path``'s JSON declares a
+    ``net_settings.netclass_assignments`` key -- see the module docstring.
     """
     report = Report()
 
@@ -405,7 +803,78 @@ def run(
         declared, kicad_class_name_fn, referenced
     )
 
-    if report.unclassified_hv_nets or report.classes_with_no_rules:
+    # --- PROPERTIES 3/4: pcb/temper.kicad_pro's REAL netclass_assignments,
+    # cross-referenced against the domain manifest and the real board net
+    # table. See module docstring. Applicable only when kicad_pro_path's
+    # JSON declares the netclass_assignments key at all.
+    try:
+        kicad_pro_assignments = load_kicad_pro_netclass_assignments(kicad_pro_path)
+    except GateError as e:
+        report.tool_errors.append(str(e))
+        return "tool_error", report
+
+    report.property3_evaluated = kicad_pro_assignments is not None
+    if report.property3_evaluated:
+        assert kicad_pro_assignments is not None
+        report.kicad_pro_assignments_checked = len(kicad_pro_assignments)
+
+        if board_nets is None:
+            try:
+                board_nets = parse_board_net_names(kicad_pcb_path)
+            except GateError as e:
+                report.tool_errors.append(str(e))
+                return "tool_error", report
+
+        if class_safety_category is None:
+            try:
+                class_safety_category = load_netclass_safety_categories(netclass_rules_path)
+            except GateError as e:
+                report.tool_errors.append(str(e))
+                return "tool_error", report
+
+        try:
+            selv_nets = load_selv_nets(manifest_path)
+        except GateError as e:
+            report.tool_errors.append(str(e))
+            return "tool_error", report
+
+        # PROPERTY 3 -- HV domain, BLOCKING.
+        report.hv_domain_nets_off_board = check_domain_nets_on_board(hv_nets, board_nets)
+        report.hv_domain_nets_unassigned_in_kicad_pro = check_domain_net_kicad_pro_coverage(
+            hv_nets, kicad_pro_assignments
+        )
+        report.hv_domain_class_safety_mismatches = check_domain_class_safety_mismatch(
+            hv_nets, kicad_pro_assignments, class_safety_category, _HV_ALLOWED_SAFETY_CATEGORIES
+        )
+
+        # PROPERTY 4 -- SELV domain, BLOCKING (promoted docs/evidence/
+        # 2026-08-12-selv-net-assignment.md; mirrors PROPERTY 3 exactly).
+        report.selv_domain_nets_off_board = check_domain_nets_on_board(selv_nets, board_nets)
+        report.selv_domain_nets_unassigned_in_kicad_pro = check_domain_net_kicad_pro_coverage(
+            selv_nets, kicad_pro_assignments
+        )
+        report.selv_domain_class_safety_mismatches = check_domain_class_safety_mismatch(
+            selv_nets,
+            kicad_pro_assignments,
+            class_safety_category,
+            _SELV_ALLOWED_SAFETY_CATEGORIES,
+        )
+        # PROPERTY 5 -- board-wide ghosts, INFORMATIONAL (permanently -- see
+        # module docstring; the 37 dead aliases are deliberate and kept).
+        report.ghost_kicad_pro_assignments = check_ghost_kicad_pro_assignments(
+            kicad_pro_assignments, board_nets
+        )
+
+    if (
+        report.unclassified_hv_nets
+        or report.classes_with_no_rules
+        or report.hv_domain_nets_off_board
+        or report.hv_domain_nets_unassigned_in_kicad_pro
+        or report.hv_domain_class_safety_mismatches
+        or report.selv_domain_nets_off_board
+        or report.selv_domain_nets_unassigned_in_kicad_pro
+        or report.selv_domain_class_safety_mismatches
+    ):
         return "violation", report
     return "clean", report
 
@@ -451,12 +920,85 @@ def _print_report(state: str, report: Report) -> None:
             "assigned to it"
         )
 
+    if not report.property3_evaluated:
+        print(
+            "\n=== PROPERTIES 3/4: NOT EVALUATED (kicad_pro has no "
+            "net_settings.netclass_assignments key) ==="
+        )
+    else:
+        print(
+            f"\n=== PROPERTY 3 (BLOCKING): HV-domain nets vs pcb/temper.kicad_pro's "
+            f"REAL netclass_assignments ({report.kicad_pro_assignments_checked} "
+            "assignment(s) on file) ==="
+        )
+        print(f"  off-board HV-domain nets: {len(report.hv_domain_nets_off_board)}")
+        for net in report.hv_domain_nets_off_board:
+            print(
+                f"    VIOLATION net {net!r} is declared under elec/domain_manifest.yaml's "
+                "HV domain but is NOT a real net on pcb/temper.kicad_pcb"
+            )
+        print(
+            f"  unassigned in kicad_pro: {len(report.hv_domain_nets_unassigned_in_kicad_pro)}"
+        )
+        for net in report.hv_domain_nets_unassigned_in_kicad_pro:
+            print(
+                f"    VIOLATION net {net!r} is declared under elec/domain_manifest.yaml's "
+                "HV domain but has NO entry in pcb/temper.kicad_pro's "
+                "net_settings.netclass_assignments -- falls to Default (0.2mm), "
+                "invisible to every HV<->SELV clearance/creepage rule"
+            )
+        print(f"  wrong-safety-category assignments: {len(report.hv_domain_class_safety_mismatches)}")
+        for msg in report.hv_domain_class_safety_mismatches:
+            print(f"    VIOLATION {msg}")
+
+        print(
+            "\n=== PROPERTY 4 (BLOCKING): SELV-domain nets vs pcb/temper.kicad_pro's "
+            "REAL netclass_assignments ==="
+        )
+        print(f"  off-board SELV-domain nets: {len(report.selv_domain_nets_off_board)}")
+        for net in report.selv_domain_nets_off_board:
+            print(f"    VIOLATION net {net!r} (SELV domain) is not a real net on pcb/temper.kicad_pcb")
+        print(
+            f"  SELV-domain nets unassigned in kicad_pro: "
+            f"{len(report.selv_domain_nets_unassigned_in_kicad_pro)}"
+        )
+        for net in report.selv_domain_nets_unassigned_in_kicad_pro:
+            print(
+                f"    VIOLATION net {net!r} (SELV domain) has no kicad_pro netclass "
+                "assignment -- falls to Default (0.2mm)"
+            )
+        print(f"  SELV wrong-safety-category assignments: {len(report.selv_domain_class_safety_mismatches)}")
+        for msg in report.selv_domain_class_safety_mismatches:
+            print(f"    VIOLATION {msg}")
+
+        print(
+            "\n=== PROPERTY 5 (INFORMATIONAL, non-blocking, permanently): board-wide "
+            "ghost kicad_pro assignments ==="
+        )
+        print(f"  ghost kicad_pro assignments (either domain): {len(report.ghost_kicad_pro_assignments)}")
+        for net in report.ghost_kicad_pro_assignments[:10]:
+            print(f"    INFO {net!r} has a kicad_pro netclass assignment but no real board net")
+        if len(report.ghost_kicad_pro_assignments) > 10:
+            print(f"    ... and {len(report.ghost_kicad_pro_assignments) - 10} more")
+
     if state == "clean":
         print("\nHV netclass coverage gate passed")
     elif state == "violation":
         print(
-            f"\nFAILED -- {len(report.unclassified_hv_nets)} unclassified HV net(s), "
-            f"{len(report.classes_with_no_rules)} netclass(es) with no rules"
+            f"\nFAILED -- {len(report.unclassified_hv_nets)} unclassified HV net(s) "
+            "(PROPERTY 1), "
+            f"{len(report.classes_with_no_rules)} netclass(es) with no rules "
+            "(PROPERTY 2), "
+            f"{len(report.hv_domain_nets_off_board)} off-board HV-domain net(s), "
+            f"{len(report.hv_domain_nets_unassigned_in_kicad_pro)} HV-domain net(s) "
+            "unassigned in kicad_pro, "
+            f"{len(report.hv_domain_class_safety_mismatches)} HV-domain class "
+            "safety-category mismatch(es) (PROPERTY 3), "
+            f"{len(report.selv_domain_nets_off_board)} off-board SELV-domain net(s), "
+            f"{len(report.selv_domain_nets_unassigned_in_kicad_pro)} SELV-domain net(s) "
+            "unassigned in kicad_pro, "
+            f"{len(report.selv_domain_class_safety_mismatches)} SELV-domain class "
+            "safety-category mismatch(es) (PROPERTY 4)"
         )
     else:
         print(
@@ -494,6 +1036,31 @@ def main() -> None:
                 f.write("\nNetclasses with no rules:\n")
                 for cls in report.classes_with_no_rules:
                     f.write(f"- `{cls}`\n")
+            f.write(
+                f"\n- PROPERTY 3/4 evaluated: {report.property3_evaluated}\n"
+                f"- HV-domain nets off-board (PROPERTY 3): "
+                f"{len(report.hv_domain_nets_off_board)}\n"
+                f"- HV-domain nets unassigned in kicad_pro (PROPERTY 3): "
+                f"{len(report.hv_domain_nets_unassigned_in_kicad_pro)}\n"
+                f"- HV-domain class safety-category mismatches (PROPERTY 3): "
+                f"{len(report.hv_domain_class_safety_mismatches)}\n"
+                f"- SELV-domain nets off-board (PROPERTY 4): "
+                f"{len(report.selv_domain_nets_off_board)}\n"
+                f"- SELV-domain nets unassigned in kicad_pro (PROPERTY 4): "
+                f"{len(report.selv_domain_nets_unassigned_in_kicad_pro)}\n"
+                f"- SELV-domain class safety-category mismatches (PROPERTY 4): "
+                f"{len(report.selv_domain_class_safety_mismatches)}\n"
+                f"- (informational, PROPERTY 5) ghost kicad_pro assignments: "
+                f"{len(report.ghost_kicad_pro_assignments)}\n"
+            )
+            if report.hv_domain_nets_unassigned_in_kicad_pro:
+                f.write("\nHV-domain nets unassigned in kicad_pro:\n")
+                for net in report.hv_domain_nets_unassigned_in_kicad_pro:
+                    f.write(f"- `{net}`\n")
+            if report.selv_domain_nets_unassigned_in_kicad_pro:
+                f.write("\nSELV-domain nets unassigned in kicad_pro:\n")
+                for net in report.selv_domain_nets_unassigned_in_kicad_pro:
+                    f.write(f"- `{net}`\n")
 
     if state == "tool_error":
         sys.exit(EXIT_GATE_ERROR)

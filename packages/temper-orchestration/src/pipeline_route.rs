@@ -54,11 +54,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 
 #[cfg(feature = "python")]
-use pyo3::exceptions::{PyTypeError, PyValueError};
+use pyo3::exceptions::{PyAttributeError, PyTypeError, PyValueError};
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
-use pyo3::types::{PyDict, PyList, PyString};
+use pyo3::types::{PyBool, PyDict, PyList, PyString};
 
 #[cfg(feature = "python")]
 use crate::board_state::BoardState;
@@ -606,6 +606,182 @@ fn emit_route(
 /// to route every rendered float through CPython).
 fn py_fmt4(py: Python<'_>, f: f64) -> PyResult<String> {
     d6_util::py_format(py, "{:.4f}", &[f.into_pyobject(py)?.into_any()])?.extract()
+}
+
+// ---------------------------------------------------------------------------
+// _adapter_convert._summarize_batch_results
+// ---------------------------------------------------------------------------
+
+#[cfg(feature = "python")]
+/// `router_v6/_adapter_convert._summarize_batch_results`: reduce
+/// `RouterV6Result.batch_results` (one `net_batching.NetBatchResult` per
+/// batch / singleton retry) to the small always-printable summary dict
+/// (`RoutingResult.net_batch_summary`). The shim passes the list itself;
+/// every attribute read goes through CPython `getattr` (with the oracle's
+/// default on a missing attribute) and the `"timed out" in ...` substring
+/// test goes through CPython `str.__contains__`, so the result is
+/// bit-identical to the pre-migration Python by construction. No float
+/// arithmetic anywhere in this summary (ints / strings / lists only), so no
+/// bit-exactness catalog class applies.
+///
+/// `other_crash = [b for b in crashed if b not in timed_out]` is reduced to
+/// "a crashed batch whose crash_reason does not contain `\"timed out\"`".
+/// This is provably equivalent, not a simplifying assumption: `b == x` for
+/// two `NetBatchResult`s requires `b.crash_reason == x.crash_reason`
+/// (dataclass structural `==`; duck-typed fakes fall back to identity, which
+/// is strictly stronger), and a `timed_out` member's reason contains the
+/// substring while a non-member's does not -- so `b not in timed_out` can be
+/// False only for a batch whose own reason also contains the substring,
+/// i.e. exactly the timed-out set. The differential pins the
+/// structural-equality edge case (two distinct-but-`==` batches) directly.
+#[pyfunction]
+pub fn run_summarize_batch_results(
+    py: Python<'_>,
+    batch_results: Option<Py<PyAny>>,
+) -> PyResult<Py<PyAny>> {
+    let out = PyDict::new(py);
+    let Some(batch_results) = batch_results else {
+        return Ok(out.into_any().unbind());
+    };
+    let batch_results = batch_results.bind(py);
+    // `if not batch_results: return {}` -- a falsy (empty list/tuple) or
+    // `None` payload is "net-batching off", distinct from a populated dict
+    // with zero crashes (the caller's "off" vs "on, nothing degraded"
+    // distinction).
+    if !batch_results.is_truthy()? {
+        return Ok(out.into_any().unbind());
+    }
+
+    let n_batches = batch_results.len()?;
+
+    // The three `getattr(b, name, default)` defaults, materialised once.
+    // (`bool` maps to the immortal PyBool singletons via `Borrowed`, so it
+    // needs `.to_owned()` before `.into_any()`; `i64` and `PyNone` do not.)
+    let default_false = PyBool::new(py, false).to_owned().into_any();
+    let default_none = py.None().bind(py).clone().into_any();
+    let default_neg_one = (-1i64).into_pyobject(py)?.into_any();
+
+    let mut crashed: Vec<Bound<'_, PyAny>> = Vec::new();
+    let mut timed_out: Vec<Bound<'_, PyAny>> = Vec::new();
+    let mut other_crash: Vec<Bound<'_, PyAny>> = Vec::new();
+    let mut n_solved_at_batch_level: usize = 0;
+    let mut n_singleton_retried_nets: usize = 0;
+    let mut n_crashed_singleton_nets: usize = 0;
+    let mut all_failed_nets: Vec<String> = Vec::new();
+    let mut seen_failed: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    for item in batch_results.try_iter()? {
+        let b = item?;
+
+        // crashed = [b for b in batch_results if getattr(b, "batch_crashed", False)]
+        // timed_out / other_crash split by `"timed out" in (crash_reason or "")`
+        // (the `b not in timed_out` reduction, proven equivalent above).
+        if getattr_or(py, &b, "batch_crashed", &default_false)?.is_truthy()? {
+            crashed.push(b.clone());
+            let crash_reason = getattr_or(py, &b, "crash_reason", &default_none)?;
+            let reason_eff = if crash_reason.is_truthy()? {
+                crash_reason
+            } else {
+                PyString::new(py, "").into_any()
+            };
+            let is_timed_out = reason_eff
+                .call_method1("__contains__", (PyString::new(py, "timed out"),))?
+                .is_truthy()?;
+            if is_timed_out {
+                timed_out.push(b.clone());
+            } else {
+                other_crash.push(b.clone());
+            }
+        }
+
+        // n_batches_solved_at_batch_level: sum(1 for ... if getattr(..., False))
+        if getattr_or(py, &b, "solved_at_batch_level", &default_false)?.is_truthy()? {
+            n_solved_at_batch_level += 1;
+        }
+
+        // singleton_retried = [b for b in batch_results if getattr(b, "retried_singleton_nets", None)]
+        // n_singleton_retried_nets = sum(len(b.retried_singleton_nets) for b in singleton_retried)
+        let retried = getattr_or(py, &b, "retried_singleton_nets", &default_none)?;
+        if retried.is_truthy()? {
+            n_singleton_retried_nets += retried.len()?;
+        }
+
+        // n_crashed_singleton_nets = sum(len(getattr(b, "crashed_nets", None) or []))
+        let crashed_nets = getattr_or(py, &b, "crashed_nets", &default_none)?;
+        let crashed_nets_eff = if crashed_nets.is_truthy()? {
+            crashed_nets
+        } else {
+            PyList::empty(py).into_any()
+        };
+        n_crashed_singleton_nets += crashed_nets_eff.len()?;
+
+        // all_failed_nets = sorted({n for b in batch_results for n in (getattr(b, "failed_nets", None) or [])})
+        let failed_nets = getattr_or(py, &b, "failed_nets", &default_none)?;
+        let failed_nets_eff = if failed_nets.is_truthy()? {
+            failed_nets
+        } else {
+            PyList::empty(py).into_any()
+        };
+        for net in failed_nets_eff.try_iter()? {
+            let name: String = net?.extract()?;
+            if seen_failed.insert(name.clone()) {
+                all_failed_nets.push(name);
+            }
+        }
+    }
+
+    // `sorted({...})` -- the dedup set then CPython's lexicographic sort.
+    // Rust `String`'s byte-wise `Ord` equals Unicode code-point order for
+    // UTF-8 (net names are ASCII in this repo), so `sort()` matches CPython
+    // `sorted` exactly.
+    all_failed_nets.sort();
+
+    let timed_out_indices = PyList::empty(py);
+    for b in &timed_out {
+        timed_out_indices.append(getattr_or(py, b, "batch_index", &default_neg_one)?)?;
+    }
+    let other_crash_reasons = PyList::empty(py);
+    for b in &other_crash {
+        other_crash_reasons.append(getattr_or(py, b, "crash_reason", &default_none)?)?;
+    }
+    let nets_no_topology = PyList::empty(py);
+    for name in &all_failed_nets {
+        nets_no_topology.append(PyString::new(py, name))?;
+    }
+
+    // Key order mirrors the oracle's dict literal (irrelevant to `==`, but
+    // keeps any repr-based reader byte-identical).
+    out.set_item("n_batches", n_batches)?;
+    out.set_item("n_batches_solved_at_batch_level", n_solved_at_batch_level)?;
+    out.set_item("n_batches_crashed", crashed.len())?;
+    out.set_item("n_batches_timed_out", timed_out.len())?;
+    out.set_item("timed_out_batch_indices", timed_out_indices)?;
+    out.set_item("n_batches_crashed_other_reason", other_crash.len())?;
+    out.set_item("other_crash_reasons", other_crash_reasons)?;
+    out.set_item("n_nets_singleton_retried", n_singleton_retried_nets)?;
+    out.set_item("n_nets_crashed_at_singleton_too", n_crashed_singleton_nets)?;
+    out.set_item("n_nets_no_topology", all_failed_nets.len())?;
+    out.set_item("nets_no_topology", nets_no_topology)?;
+
+    Ok(out.into_any().unbind())
+}
+
+#[cfg(feature = "python")]
+/// CPython `getattr(obj, name, default)` -- the attribute, or `default` when
+/// the attribute is missing (AttributeError). Any other failure propagates
+/// exactly like CPython's `getattr` would (the domain objects here are plain
+/// dataclasses / duck-typed fakes with no raising properties).
+fn getattr_or<'py>(
+    py: Python<'py>,
+    obj: &Bound<'py, PyAny>,
+    name: &str,
+    default: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyAny>> {
+    match obj.getattr(name) {
+        Ok(v) => Ok(v),
+        Err(e) if e.is_instance_of::<PyAttributeError>(py) => Ok(default.clone()),
+        Err(e) => Err(e),
+    }
 }
 
 // ---------------------------------------------------------------------------

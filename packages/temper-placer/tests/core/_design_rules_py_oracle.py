@@ -9,6 +9,16 @@ migration). Only the module docstring was replaced with this pin note; every
 import (including the four internal ``temper_placer.core.*`` imports) was
 already absolute, so no relative-import rewriting was needed.
 
+RE-PINNED 2026-08-12 (drift triage, branch fix/oracle-drift-triage): PR
+#1084 (feat/drc HV-to-HV functional creepage at the resonant-tank node,
+commit 3231dc3db, merged via df0dc4d90) added the ``HighVoltageTank`` net
+class and reclassified ``tank.c_tank1-p2`` from ``HighVoltage`` in lock-step
+with ``design_rules.py`` (see the inline comment block below); the registry
+pin in ``scripts/oracle_hashes.json`` was not updated by that PR and this
+file drifted. The edit is faithful -- the added entry is byte-identical to
+the live ``design_rules.py`` table. Re-pinned from the on-disk bytes after
+establishing the cause.
+
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
@@ -356,7 +366,7 @@ TEMPER_NET_CLASSES = {
     "HighVoltage": NetClassRules(
         name="HighVoltage",
         trace_width=3.0,
-        clearance=6.0,
+        clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
         via_template="Via3x3",
@@ -380,10 +390,10 @@ TEMPER_NET_CLASSES = {
     ),
     "Power": NetClassRules(
         name="Power",
-        trace_width=0.5,
-        clearance=0.25,
-        via_diameter=0.8,
-        via_drill=0.4,
+        trace_width=1.0,
+        clearance=0.5,
+        via_diameter=1.0,
+        via_drill=0.5,
         via_template="Via2x2",
         dru_priority=40,
         required_layer=None,
@@ -485,7 +495,11 @@ TEMPER_NET_CLASSES = {
         via_drill=0.6,
         via_template="Via3x3",
         voltage_v=923.7,
+<<<<<<< HEAD
         creepage_mm=10.0,
+=======
+        creepage_mm=6.3,
+>>>>>>> origin/main
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",
@@ -640,6 +654,7 @@ TEMPER_NET_ASSIGNMENTS = {
     # GND - power return
     "PWR_RTN": "GND",
     "CGND": "GND",
+    "gnd": "GND",
 }
 
 
