@@ -1,0 +1,47 @@
+[package]
+name = "temper-orchestration-core"
+version = "0.1.0"
+edition = "2024"
+description = "Orchestration loop logic — pure-Rust core (SPIKE POC: loop sequencing, termination/gate decisions, factory ordering, CoreBoardState skeleton). No pyo3."
+
+# SPIKE POC (2026-08-12): a minimal extraction of the pyo3-free loop logic
+# from `temper-orchestration` into a wasm32-compatible rlib. This crate is
+# SCAFFOLDING to prove the split is possible; a real extraction MOVES (not
+# copies) the existing `stage`/`pipeline`/`board_state` items out of
+# `temper-orchestration` and leaves thin `#[pyfunction]` wrappers behind.
+#
+# Mirrors `temper-rust-router-core`'s shape: rlib-only, no pyo3 anywhere,
+# `serde` for any wire-format needs, and the `wasm-registry` family feature
+# lattice that lets the shared `temper-wasm-test-runner` wire this crate the
+# same way it wires every other crate on the tier.
+
+[lib]
+name = "temper_orchestration_core"
+crate-type = ["rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+default = []
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index -- `cargo test`'s libtest harness cannot
+# target `wasm32-unknown-unknown`. Mirrors `temper-rust-router-core`'s feature
+# set exactly. One family (`orchestration-core`): the loop-sequencing +
+# decision kernels are a flat set with no rule-family taxonomy to shard along.
+wasm-registry = []
+wasm-registry-orchestration-core = ["wasm-registry"]
+wasm-registry-all = ["wasm-registry-orchestration-core"]
+wasm-test-registry = ["wasm-registry", "wasm-registry-all"]
+
+[profile.release]
+panic = "unwind"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+
+[dev-dependencies]
+proptest = "1"
