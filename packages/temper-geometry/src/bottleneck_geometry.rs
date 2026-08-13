@@ -1122,6 +1122,378 @@ pub(crate) mod tests {
         assert_eq!(a, b);
     }
 
+    // -----------------------------------------------------------------------
+    // Metamorphic relations mirrored from
+    // `tests/router_v6/test_bottleneck_geometry_metamorphic.py` (M1-M4).
+    //
+    // The Python file exercises the shim surface (`_compute_cell_capacity_batch`,
+    // `_build_capacitated_graph_rust`, `_tg.min_cut_py`) over a
+    // `ClearanceGrid`; the relations themselves are language-agnostic
+    // statements over the occupancy arrays, so each is re-expressed here
+    // directly against the pure kernels (`cell_capacity`,
+    // `build_capacitated_graph`, `min_cut_edmonds_karp`). Every relation is
+    // seeded through the same `SplitMix64` the crate's other wasm-campaign
+    // modules use, so each registered seed exercises a distinct occupancy
+    // scenario and a failure is reproducible from the seed alone.
+    //
+    // M1 translation: shifting occupancy by whole cells leaves per-cell
+    //   capacities (and the min-cut value) invariant.
+    // M2 source/sink swap: the min-cut VALUE is unchanged when the two pads
+    //   trade places (min-cut is symmetric in s and t).
+    // M3 obstacle doubling: enlarging an obstacle (more trace occupancy) can
+    //   never increase any cell's capacity, with a strict-decrease witness.
+    // M4 higher-safety reclassification: promoting a neighbouring pad's class
+    //   to a strictly higher safety category can never increase any cell's
+    //   capacity (R4 discount rule), with a strict-decrease witness.
+    // -----------------------------------------------------------------------
+
+    struct MmSplitMix64(u64);
+
+    impl MmSplitMix64 {
+        fn new(seed: u64) -> Self {
+            Self(seed)
+        }
+        fn next_u64(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+        fn index(&mut self, n: usize) -> usize {
+            debug_assert!(n > 0);
+            (self.next_u64() % n as u64) as usize
+        }
+    }
+
+    /// A property-local PRNG stream, independent of the base-case stream
+    /// (same `sub_rng` convention as `units.rs`'s wasm campaign).
+    fn mm_sub_rng(seed: u64, salt: u64) -> MmSplitMix64 {
+        MmSplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(salt))
+    }
+
+    /// The metamorphic grid shape used by all four relations: 8x8, 2 layers
+    /// (mirrors the Python `_free_grid(8, 8, 2)`), with source at (0, 0, 0)
+    /// and sink at (1, 7, 7) as in the Python scenarios.
+    const MM_ROWS: i64 = 8;
+    const MM_COLS: i64 = 8;
+    const MM_LAYERS: i64 = 2;
+
+    fn mm_flat(layer: i64, row: i64, col: i64) -> usize {
+        flat_index(layer, row, col, MM_ROWS, MM_COLS)
+    }
+
+    /// A seeded occupancy scenario: 2-4 trace cells per layer and 0-2 pad
+    /// cells per layer, all strictly interior (rows < 5, cols < 4 -- the
+    /// region that survives M1's (2, 3) shift without clipping, and whose
+    /// assertion-region neighbourhood never reaches a clipped cell), so the
+    /// grid corners -- where M1's source/sink live -- stay free, exactly the
+    /// constraint the Python test's fixed scenario satisfies.
+    fn mm_build_scenario(seed: u64) -> (Vec<i32>, Vec<i32>) {
+        let n = (MM_LAYERS * MM_ROWS * MM_COLS) as usize;
+        let mut trace = vec![0i32; n];
+        let mut pad = vec![0i32; n];
+        let mut rng = mm_sub_rng(seed, 0x51);
+        for layer in 0..MM_LAYERS {
+            for _ in 0..(2 + rng.index(3)) {
+                let (r, c) = (rng.index(5) as i64, rng.index(4) as i64);
+                trace[mm_flat(layer, r, c)] = 1;
+            }
+            for _ in 0..rng.index(3) {
+                let (r, c) = (rng.index(5) as i64, rng.index(4) as i64);
+                pad[mm_flat(layer, r, c)] = 1;
+            }
+        }
+        (trace, pad)
+    }
+
+    /// M1 (capacity half): shifting occupancy by whole cells leaves per-cell
+    /// capacities invariant -- the capacity field travels with the
+    /// occupancy. Occupancy is strictly interior (rows < 5, cols < 4), so
+    /// for the assertion region `r < rows - dr`, `c < cols - dc` every
+    /// shifted cell's 4-neighbourhood is the exact image of the original's
+    /// (clipped neighbours are empty on both sides).
+    fn metamorphic_capacity_translation_invariance_impl(seed: u64) {
+        let (dr, dc) = (2i64, 3i64);
+        let (trace, pad) = mm_build_scenario(seed);
+        let ranks = vec![NO_CLASS_RANK; (MM_LAYERS * MM_ROWS * MM_COLS) as usize];
+
+        let mut trace_t = vec![0i32; trace.len()];
+        let mut pad_t = vec![0i32; pad.len()];
+        for layer in 0..MM_LAYERS {
+            for r in 0..MM_ROWS - dr {
+                for c in 0..MM_COLS - dc {
+                    trace_t[mm_flat(layer, r + dr, c + dc)] = trace[mm_flat(layer, r, c)];
+                    pad_t[mm_flat(layer, r + dr, c + dc)] = pad[mm_flat(layer, r, c)];
+                }
+            }
+        }
+
+        for layer in 0..MM_LAYERS {
+            for r in 0..MM_ROWS - dr {
+                for c in 0..MM_COLS - dc {
+                    let before = cell_capacity(
+                        layer, r, c, &trace, &pad, &ranks, MM_ROWS, MM_COLS, -1,
+                    );
+                    let after = cell_capacity(
+                        layer, r + dr, c + dc, &trace_t, &pad_t, &ranks, MM_ROWS, MM_COLS, -1,
+                    );
+                    assert_eq!(
+                        after, before,
+                        "seed={seed}: capacity not translation-invariant at ({layer},{r},{c})"
+                    );
+                }
+            }
+        }
+    }
+
+    /// M1 (min-cut half): the Python test's own fixed scenario -- trace at
+    /// (3,3)/(3,4) layer 0, trace at (5,2) layer 1, pads at (1,1)/(1,2)
+    /// layer 0 and (6,6) layer 1; source (0,0,0) -> (0,2,3) under the
+    /// shift, sink (1,7,7) unchanged. The min-cut value is invariant under
+    /// this translation. Kept deterministic (no seed): the relation is
+    /// scenario-specific -- translating occupancy changes edge capacities
+    /// mid-grid, so the value can legitimately move when occupancy lands
+    /// near the sink corner; the Python suite pins this exact scenario, and
+    /// so do we.
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_translation_invariance() {
+        let n = (MM_LAYERS * MM_ROWS * MM_COLS) as usize;
+        let mut trace = vec![0i32; n];
+        let mut pad = vec![0i32; n];
+        trace[mm_flat(0, 3, 3)] = 7;
+        trace[mm_flat(0, 3, 4)] = 7;
+        trace[mm_flat(1, 5, 2)] = 11;
+        pad[mm_flat(0, 1, 1)] = 99;
+        pad[mm_flat(0, 1, 2)] = 99;
+        pad[mm_flat(1, 6, 6)] = 42;
+        let ranks = vec![NO_CLASS_RANK; n];
+
+        // Shift occupancy by (2, 3); the layer-1 pad at (6,6) falls out of
+        // the copy range, exactly as in the Python `[dr:, dc:] = [:-dr, :-dc]`.
+        let (dr, dc) = (2i64, 3i64);
+        let mut trace_t = vec![0i32; n];
+        let mut pad_t = vec![0i32; n];
+        for layer in 0..MM_LAYERS {
+            for r in 0..MM_ROWS - dr {
+                for c in 0..MM_COLS - dc {
+                    trace_t[mm_flat(layer, r + dr, c + dc)] = trace[mm_flat(layer, r, c)];
+                    pad_t[mm_flat(layer, r + dr, c + dc)] = pad[mm_flat(layer, r, c)];
+                }
+            }
+        }
+
+        let (nodes, edges) = build_capacitated_graph(
+            &trace, &pad, &ranks, MM_ROWS, MM_COLS, MM_LAYERS,
+            &[(0, 0, 0)], &[(1, 7, 7)], -1, None,
+        )
+        .unwrap();
+        let (nodes_t, edges_t) = build_capacitated_graph(
+            &trace_t, &pad_t, &ranks, MM_ROWS, MM_COLS, MM_LAYERS,
+            &[(0, dr, dc)], &[(1, 7, 7)], -1, None,
+        )
+        .unwrap();
+
+        let src = mm_flat(0, 0, 0) as i64;
+        let src_t = mm_flat(0, dr, dc) as i64;
+        let sink = mm_flat(1, 7, 7) as i64;
+        let cut_orig = min_cut_ok(&nodes, &edges, src, sink);
+        let cut_shifted = min_cut_ok(&nodes_t, &edges_t, src_t, sink);
+        assert_eq!(
+            cut_shifted.0, cut_orig.0,
+            "min-cut value changed under occupancy translation: {} vs {}",
+            cut_orig.0, cut_shifted.0
+        );
+    }
+
+    /// M2: the min-cut VALUE is unchanged when source and sink trade places
+    /// (max-flow / min-cut is symmetric in s and t).
+    fn metamorphic_min_cut_symmetric_impl(seed: u64) {
+        let (trace, pad) = mm_build_scenario(seed);
+        let ranks = vec![NO_CLASS_RANK; (MM_LAYERS * MM_ROWS * MM_COLS) as usize];
+        let (nodes, edges) = build_capacitated_graph(
+            &trace, &pad, &ranks, MM_ROWS, MM_COLS, MM_LAYERS,
+            &[(0, 0, 0)], &[(1, 7, 7)], -1, None,
+        )
+        .unwrap();
+        let src = mm_flat(0, 0, 0) as i64;
+        let sink = mm_flat(1, 7, 7) as i64;
+        let cut_forward = min_cut_ok(&nodes, &edges, src, sink);
+        let cut_reversed = min_cut_ok(&nodes, &edges, sink, src);
+        assert_eq!(
+            cut_reversed.0, cut_forward.0,
+            "seed={seed}: min-cut not symmetric in source/sink: {} vs {}",
+            cut_forward.0, cut_reversed.0
+        );
+    }
+
+    /// M3: enlarging a trace obstacle (adding one cell to a single-cell
+    /// obstacle) never increases any cell's capacity, and the cell to the
+    /// right of the new obstacle cell loses exactly one trace-direction
+    /// (the strict-decrease witness that interior samples participate).
+    fn metamorphic_obstacle_doubling_monotonic_impl(seed: u64) {
+        let n = 20usize; // 4x5, single layer (5 cols keeps the witness col c+2 in bounds)
+        let rows = 4i64;
+        let cols = 5i64;
+        let mut trace = vec![0i32; n];
+        let pad = vec![0i32; n];
+        let ranks = vec![NO_CLASS_RANK; n];
+        let mut rng = mm_sub_rng(seed, 0x53);
+        // obstacle cell strictly interior: rows 1..=2, cols 1..=2, plus the
+        // doubling neighbour (r, c+1) and the witness (r, c+2) in bounds.
+        let r = 1 + rng.index(2) as i64;
+        let c = 1 + rng.index(2) as i64;
+        let idx = |row: i64, col: i64| (row * cols + col) as usize;
+        trace[idx(r, c)] = 5; // single-cell obstacle
+
+        let before: Vec<i64> = (0..n)
+            .map(|i| cell_capacity(0, (i as i64) / cols, (i as i64) % cols, &trace, &pad, &ranks, rows, cols, -1))
+            .collect();
+
+        trace[idx(r, c + 1)] = 5; // double the obstacle: a 2-cell line
+        let after: Vec<i64> = (0..n)
+            .map(|i| cell_capacity(0, (i as i64) / cols, (i as i64) % cols, &trace, &pad, &ranks, rows, cols, -1))
+            .collect();
+
+        for i in 0..n {
+            assert!(
+                after[i] <= before[i],
+                "seed={seed}: capacity increased at cell {i} after obstacle doubling: {} -> {}",
+                before[i], after[i]
+            );
+        }
+        // strict-decrease witness: the cell right of the new obstacle cell
+        // loses exactly one trace-direction (its west neighbour is now traced).
+        assert_eq!(before[idx(r, c + 2)], 4, "seed={seed}: witness must start at 4");
+        assert_eq!(after[idx(r, c + 2)], 3, "seed={seed}: witness must lose exactly 1");
+    }
+
+    /// M4: promoting a neighbouring pad's net class from LV (rank 1) to HV
+    /// (rank 2) -- with the current net LV (rank 1) -- never increases any
+    /// cell's capacity, and the cell adjacent to the pad loses exactly 1
+    /// (the R4 discount fires once).
+    fn metamorphic_safety_reclassification_monotonic_impl(seed: u64) {
+        let n = 16usize; // 4x4, single layer
+        let rows = 4i64;
+        let cols = 4i64;
+        let mut pad = vec![0i32; n];
+        let mut rng = mm_sub_rng(seed, 0x54);
+        // pad strictly interior; the probe (r, c+1) must stay in bounds.
+        let r = 1 + rng.index(2) as i64;
+        let c = 1 + rng.index(2) as i64;
+        let idx = |row: i64, col: i64| (row * cols + col) as usize;
+        pad[idx(r, c)] = 1;
+
+        let mut ranks_low = vec![NO_CLASS_RANK; n];
+        ranks_low[idx(r, c)] = 1; // LV
+        let mut ranks_high = vec![NO_CLASS_RANK; n];
+        ranks_high[idx(r, c)] = 2; // HV
+
+        let trace = vec![0i32; n];
+        let current_lv = 1i64; // the current net's rank (LV)
+
+        let low: Vec<i64> = (0..n)
+            .map(|i| cell_capacity(0, (i / 4) as i64, (i % 4) as i64, &trace, &pad, &ranks_low, rows, cols, current_lv))
+            .collect();
+        let high: Vec<i64> = (0..n)
+            .map(|i| cell_capacity(0, (i / 4) as i64, (i % 4) as i64, &trace, &pad, &ranks_high, rows, cols, current_lv))
+            .collect();
+
+        for i in 0..n {
+            assert!(
+                high[i] <= low[i],
+                "seed={seed}: capacity increased at cell {i} after HV reclassification: {} -> {}",
+                low[i], high[i]
+            );
+        }
+        // strict-decrease witness: the probe cell (right of the pad) loses
+        // exactly 1 -- the R4 discount fires once for the higher category.
+        assert_eq!(low[idx(r, c + 1)], 4, "seed={seed}: LV pad must not discount");
+        assert_eq!(high[idx(r, c + 1)], 3, "seed={seed}: HV pad must discount exactly 1");
+    }
+
+    // --- metamorphic relations: 10 generated seeds each ---
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_000() { metamorphic_capacity_translation_invariance_impl(0); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_001() { metamorphic_capacity_translation_invariance_impl(1); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_002() { metamorphic_capacity_translation_invariance_impl(2); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_003() { metamorphic_capacity_translation_invariance_impl(3); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_004() { metamorphic_capacity_translation_invariance_impl(4); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_005() { metamorphic_capacity_translation_invariance_impl(5); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_006() { metamorphic_capacity_translation_invariance_impl(6); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_007() { metamorphic_capacity_translation_invariance_impl(7); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_008() { metamorphic_capacity_translation_invariance_impl(8); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_capacity_translation_invariance_seed_009() { metamorphic_capacity_translation_invariance_impl(9); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_000() { metamorphic_min_cut_symmetric_impl(0); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_001() { metamorphic_min_cut_symmetric_impl(1); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_002() { metamorphic_min_cut_symmetric_impl(2); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_003() { metamorphic_min_cut_symmetric_impl(3); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_004() { metamorphic_min_cut_symmetric_impl(4); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_005() { metamorphic_min_cut_symmetric_impl(5); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_006() { metamorphic_min_cut_symmetric_impl(6); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_007() { metamorphic_min_cut_symmetric_impl(7); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_008() { metamorphic_min_cut_symmetric_impl(8); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_min_cut_symmetric_seed_009() { metamorphic_min_cut_symmetric_impl(9); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_000() { metamorphic_obstacle_doubling_monotonic_impl(0); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_001() { metamorphic_obstacle_doubling_monotonic_impl(1); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_002() { metamorphic_obstacle_doubling_monotonic_impl(2); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_003() { metamorphic_obstacle_doubling_monotonic_impl(3); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_004() { metamorphic_obstacle_doubling_monotonic_impl(4); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_005() { metamorphic_obstacle_doubling_monotonic_impl(5); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_006() { metamorphic_obstacle_doubling_monotonic_impl(6); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_007() { metamorphic_obstacle_doubling_monotonic_impl(7); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_008() { metamorphic_obstacle_doubling_monotonic_impl(8); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_obstacle_doubling_monotonic_seed_009() { metamorphic_obstacle_doubling_monotonic_impl(9); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_000() { metamorphic_safety_reclassification_monotonic_impl(0); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_001() { metamorphic_safety_reclassification_monotonic_impl(1); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_002() { metamorphic_safety_reclassification_monotonic_impl(2); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_003() { metamorphic_safety_reclassification_monotonic_impl(3); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_004() { metamorphic_safety_reclassification_monotonic_impl(4); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_005() { metamorphic_safety_reclassification_monotonic_impl(5); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_006() { metamorphic_safety_reclassification_monotonic_impl(6); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_007() { metamorphic_safety_reclassification_monotonic_impl(7); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_008() { metamorphic_safety_reclassification_monotonic_impl(8); }
+    #[cfg_attr(test, test)]
+    fn metamorphic_safety_reclassification_monotonic_seed_009() { metamorphic_safety_reclassification_monotonic_impl(9); }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1146,6 +1518,47 @@ pub(crate) mod tests {
         ("bottleneck_geometry::tests::test_min_cut_3x3_free_grid", test_min_cut_3x3_free_grid),
         ("bottleneck_geometry::tests::test_min_cut_disconnected_islands", test_min_cut_disconnected_islands),
         ("bottleneck_geometry::tests::test_min_cut_deterministic_across_runs", test_min_cut_deterministic_across_runs),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_translation_invariance", metamorphic_min_cut_translation_invariance),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_000", metamorphic_capacity_translation_invariance_seed_000),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_001", metamorphic_capacity_translation_invariance_seed_001),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_002", metamorphic_capacity_translation_invariance_seed_002),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_003", metamorphic_capacity_translation_invariance_seed_003),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_004", metamorphic_capacity_translation_invariance_seed_004),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_005", metamorphic_capacity_translation_invariance_seed_005),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_006", metamorphic_capacity_translation_invariance_seed_006),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_007", metamorphic_capacity_translation_invariance_seed_007),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_008", metamorphic_capacity_translation_invariance_seed_008),
+        ("bottleneck_geometry::tests::metamorphic_capacity_translation_invariance_seed_009", metamorphic_capacity_translation_invariance_seed_009),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_000", metamorphic_min_cut_symmetric_seed_000),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_001", metamorphic_min_cut_symmetric_seed_001),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_002", metamorphic_min_cut_symmetric_seed_002),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_003", metamorphic_min_cut_symmetric_seed_003),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_004", metamorphic_min_cut_symmetric_seed_004),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_005", metamorphic_min_cut_symmetric_seed_005),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_006", metamorphic_min_cut_symmetric_seed_006),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_007", metamorphic_min_cut_symmetric_seed_007),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_008", metamorphic_min_cut_symmetric_seed_008),
+        ("bottleneck_geometry::tests::metamorphic_min_cut_symmetric_seed_009", metamorphic_min_cut_symmetric_seed_009),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_000", metamorphic_obstacle_doubling_monotonic_seed_000),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_001", metamorphic_obstacle_doubling_monotonic_seed_001),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_002", metamorphic_obstacle_doubling_monotonic_seed_002),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_003", metamorphic_obstacle_doubling_monotonic_seed_003),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_004", metamorphic_obstacle_doubling_monotonic_seed_004),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_005", metamorphic_obstacle_doubling_monotonic_seed_005),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_006", metamorphic_obstacle_doubling_monotonic_seed_006),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_007", metamorphic_obstacle_doubling_monotonic_seed_007),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_008", metamorphic_obstacle_doubling_monotonic_seed_008),
+        ("bottleneck_geometry::tests::metamorphic_obstacle_doubling_monotonic_seed_009", metamorphic_obstacle_doubling_monotonic_seed_009),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_000", metamorphic_safety_reclassification_monotonic_seed_000),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_001", metamorphic_safety_reclassification_monotonic_seed_001),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_002", metamorphic_safety_reclassification_monotonic_seed_002),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_003", metamorphic_safety_reclassification_monotonic_seed_003),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_004", metamorphic_safety_reclassification_monotonic_seed_004),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_005", metamorphic_safety_reclassification_monotonic_seed_005),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_006", metamorphic_safety_reclassification_monotonic_seed_006),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_007", metamorphic_safety_reclassification_monotonic_seed_007),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_008", metamorphic_safety_reclassification_monotonic_seed_008),
+        ("bottleneck_geometry::tests::metamorphic_safety_reclassification_monotonic_seed_009", metamorphic_safety_reclassification_monotonic_seed_009),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
