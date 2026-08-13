@@ -143,6 +143,20 @@ pub use clearance_grid::ClearanceGrid;
 pub mod drc_oracle;
 pub use drc_oracle::{ClearanceCredit, ClearanceMatrix, DrcOracle};
 
+/// The U5 (O-C3) owned COLLECTION element structs + the owned collection
+/// field types for the remaining `BoardState` fields (`zones`,
+/// `component_zone_map`, `zone_slots`, `layer_assignments`, `routes`,
+/// `vias`, `violations`, `placements`, `component_domain_map`, and the
+/// three violation lists). See the module's own doc for the
+/// element-survey (reused vs new) and the field→owned-type table.
+pub mod collections;
+pub use collections::{
+    ConnectivityViolation, ConnectivityViolationList, LayerAssignment, LayerAssignmentSet,
+    OwnedPlain, Placement, PlacementSet, PlacementViolation, PlacementViolationList,
+    PreflightCheck, PreflightReport, Route, RouteSet, SlotPos, StrPairSet, Via, ViaSet,
+    Violation, ViolationList, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet,
+};
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
