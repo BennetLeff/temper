@@ -443,6 +443,45 @@ violations of which 170 are hard shorts. Do **not** spend another cycle trying
 to move `clearance` from the router; six measurements across two lineages now
 say it is placement.
 
+## 8b. Test status, including what this breaks
+
+`packages/temper-placer/tests/{router_v6,io}`, N=7526: **7492 passed, 34
+failed.** Attributed:
+
+* **6 × `test_extract_design_rules_parity[*]`** — caused by the width change
+  and **fixed here**: `tests/io/_parse_engine_py_oracle/_parse_nets.py` carries
+  a pinned copy of the same constant. The oracle pins the *migration* contract
+  (shim output == pre-migration output), not the *value*, so a deliberate value
+  correction must be made on both sides or the differential starts asserting
+  the defect. Updated in lockstep with a comment saying so; all 6 pass.
+* **1 × `test_topology_copper_audit::test_full_pipeline_run_surfaces_the_same_unexplained_gap`**
+  — **caused by this change and NOT fixed.** On that fixture one net (`PWM_H`)
+  now solves topology and emits no copper, i.e. it no longer fits at the
+  corrected reservation. This is the same cost §6.2 measures at board scale
+  (86/102 → 78/102 topology-solved); the test asserts the *old, looser*
+  packing. Widening the assertion to go green would be the exact antipattern
+  this repo warns about, so it is left **red and named**. It needs a decision:
+  either the fixture is re-cut for the corrected model, or the reservation is
+  scoped to production-class nets only. **Outstanding.**
+* **2 × `gnd` SSOT gap** (`test_gnd_net_is_a_known_ssot_gap_not_a_parser_bug`,
+  `test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets`)
+  — **pre-existing**, verified by running both against unmodified `origin/main`
+  code, where they fail identically.
+* the remainder are environmental (`KICAD7_FOOTPRINT_DIR` unset) or wall-clock
+  scale guards (`test_channel_skeleton_bridging`, `test_routability_check`
+  latency, one hypothesis `DeadlineExceeded` that passes in 1.66s when run
+  alone) — all measured under a 24-core box carrying four concurrent jobs.
+
+`scripts/check_router_clearance_floor.py` exit 0, its 10 tests pass,
+`check_manifest_gate.py` passes.
+
+**`test_production_board_routing_drc_regression` — NOT MEASURED, outstanding.**
+It is the ratchet that matters most for this change (`shorting_items` and
+`unconnected_items` on the router's output for `pcb/temper.kicad_pcb`), and
+§6.2 shows `shorting_items` rising 137 → 199 on the candidate board, so it is a
+live risk. Four attempts were killed mid-run by the session's process
+management; none reached a verdict. **This must be run before merge.**
+
 ## 9. What was NOT done, deliberately
 
 * `power_pcb_dataset/drc_ceiling.json` **not modified**; no `Ceiling-Approval:`
