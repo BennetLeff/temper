@@ -37,6 +37,13 @@
 // covered by a directory sweep in any `.github/workflows/*.yml` job, so
 // unlike D4's Python coverage this is NOT confirmed to run in CI today. That
 // gap is not fixed by this skip; flagging it, not papering over it.
+//
+// `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC` in
+// .github/workflows/python-tests.yml and `TEMPER_REQUIRE_FRESH_EXTENSIONS`
+// in check_stale_extensions.py) converts the skip into a hard failure. Set
+// it in any job/environment that DOES install pyo3 extensions, so this
+// stays a real, re-checked gate instead of a skip nobody revisits; `Rust
+// Checks` leaves it unset on purpose (cargo-only by design).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 #![allow(clippy::type_complexity)] // the payload/result tuple shapes are the FFI contract
@@ -112,10 +119,22 @@ fn kernels<'py>(py: Python<'py>) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyAn
     ))
 }
 
+/// `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC` /
+/// `TEMPER_REQUIRE_FRESH_EXTENSIONS`'s truthy-string convention): set this
+/// in any job/environment that DOES install pyo3 extensions, to turn a
+/// missing-extension skip into a hard failure instead.
+fn rust_extensions_required() -> bool {
+    std::env::var("TEMPER_REQUIRE_RUST_EXTENSIONS")
+        .map(|v| matches!(v.trim().to_lowercase().as_str(), "1" | "true" | "yes"))
+        .unwrap_or(false)
+}
+
 /// Resolves the four kernels, or prints a real, visible skip reason and
 /// returns `None` when -- and ONLY when -- `temper_orchestration` itself is
 /// not importable (see the file header). Any other `PyErr` still panics via
-/// `.unwrap()`, exactly as before this existed: nothing is swallowed.
+/// `.unwrap()`, exactly as before this existed: nothing is swallowed. With
+/// `TEMPER_REQUIRE_RUST_EXTENSIONS=1` set, the missing-module case panics
+/// too instead of skipping.
 fn kernels_or_skip<'py>(
     py: Python<'py>,
     test_name: &str,
@@ -124,6 +143,14 @@ fn kernels_or_skip<'py>(
     if let Err(e) = &result
         && e.is_instance_of::<pyo3::exceptions::PyModuleNotFoundError>(py)
     {
+        if rust_extensions_required() {
+            panic!(
+                "{test_name}: {e} -- TEMPER_REQUIRE_RUST_EXTENSIONS=1 is set, so a \
+                 missing temper_orchestration is a HARD FAILURE here, not a skip: this \
+                 environment declares pyo3 extensions are expected to be installed. \
+                 Build it with `make extensions`."
+            );
+        }
         eprintln!(
             "SKIP {test_name}: {e} -- the `Rust Checks (cargo check + clippy)` CI \
              job is cargo-only and never installs pyo3 extensions (no `maturin \

@@ -47,6 +47,17 @@
 //      packages/temper-placer/tests/deterministic/test_deterministic_d4_rust_differential.py::test_validator_used_slots_attr_precedence
 //      and ::test_validator_coverage_and_overclaim_order -- verified by
 //      reading both tests, not assumed.
+//
+//      `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC`
+//      in .github/workflows/python-tests.yml and
+//      `TEMPER_REQUIRE_FRESH_EXTENSIONS` in check_stale_extensions.py)
+//      converts the skip below into a hard failure. A conditional skip that
+//      nobody re-checks decays: if `Rust Checks` ever starts installing
+//      extensions, or these tests move to a job that already does, an
+//      always-firing skip would hide a real regression forever. Any job
+//      that DOES install pyo3 extensions should set this var to get real
+//      enforcement instead; `Rust Checks` leaves it unset on purpose, since
+//      it is cargo-only by design (see the comment above the job).
 
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
@@ -155,6 +166,16 @@ def slots_within_radius_py(center, radius, index, spacing):
                 out.append(s)
     return out
 "#;
+
+/// `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC` /
+/// `TEMPER_REQUIRE_FRESH_EXTENSIONS`'s truthy-string convention): set this
+/// in any job/environment that DOES install pyo3 extensions, to turn a
+/// missing-extension skip into a hard failure instead.
+fn rust_extensions_required() -> bool {
+    std::env::var("TEMPER_REQUIRE_RUST_EXTENSIONS")
+        .map(|v| matches!(v.trim().to_lowercase().as_str(), "1" | "true" | "yes"))
+        .unwrap_or(false)
+}
 
 fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let sys = py.import("sys")?;
@@ -426,6 +447,15 @@ fn phased_validator_hv_kernel() {
             // bug) still falls through to a normal panic below via the
             // Err(e) => return Err(e) arm.
             Err(e) if e.is_instance_of::<pyo3::exceptions::PyModuleNotFoundError>(py) => {
+                if rust_extensions_required() {
+                    panic!(
+                        "phased_validator_hv_kernel: {e} -- TEMPER_REQUIRE_RUST_EXTENSIONS=1 \
+                         is set, so a missing temper_drc_rs is a HARD FAILURE here, not a \
+                         skip: this environment declares pyo3 extensions are expected to be \
+                         installed. Build it with `maturin develop --release --manifest-path \
+                         packages/temper-drc-rs/Cargo.toml` (or `make extensions`)."
+                    );
+                }
                 eprintln!(
                     "SKIP phased_validator_hv_kernel: {e} -- the `Rust Checks \
                      (cargo check + clippy)` CI job is cargo-only and never \
