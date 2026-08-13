@@ -58,9 +58,21 @@ ViaTemplate = _tdb.ViaTemplate
 DesignRules = _tdb.DesignRules
 
 TEMPER_NET_CLASSES = {
+    # WIDTH RECONCILED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+    # scoping.md): trace_width was 2.5mm here (and in pcb/temper.kicad_pro),
+    # disagreeing with packages/temper-placer/configs/netclass_rules.yaml's
+    # 3.0mm -- a third-SSOT-drift finding from PR #1119's independent
+    # investigation. 2.5mm carries only 14.08A at the IPC-2221B 40C pour
+    # budget ac_l/ac_n actually route under (measured: both reach copper via
+    # zone pours, never A*-routed traces) -- short of the declared 15A
+    # design current by ~6%. 3.0mm carries 16.07A, the smallest standard
+    # step that clears 15A with margin (required minimum: 2.73mm). Bumped to
+    # match netclass_rules.yaml -- the file the router actually consumes --
+    # rather than the other direction, since 3.0mm is the value that is
+    # actually sufficient.
     "ACMains": NetClassRules(
         name="ACMains",
-        trace_width=2.5,
+        trace_width=3.0,
         clearance=6.0,
         via_diameter=1.2,
         via_drill=0.6,
@@ -93,9 +105,33 @@ TEMPER_NET_CLASSES = {
     # 2.0 is itself IEC-adequate for the same-domain, no-creepage-backstop
     # HighVoltage-to-HighVoltage case is NOT resolved by this fix -- see the
     # evidence doc's open-question section.
+    # WIDTH RE-SCOPED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+    # scoping.md, following PR #1119's investigation): this class used to
+    # bundle a 1000x current range under one 3.0mm width -- the tank/DC-bus
+    # nets at 22.5A RMS thermal design current (elec/src/modules.ato:585-593)
+    # down to the discharge bleed string at ~20mA
+    # (discharge.k_dis1-nc/k_dis2-nc, ~170V/(3.9k+4.7k)) and mA-scale
+    # voltage-domain-only taps (a, zcd, hb.power_loop.q_high-g, +15V_LS).
+    # 3.0mm was short of the bus/tank current's own 40C-pour-budget
+    # requirement (4.77mm at 22.5A) by ~37%, while being wildly over-built
+    # for the mA-scale members. RE-SCOPED, not re-valued: the mA-scale
+    # members moved OUT to the new HighVoltageSignal class below (same
+    # clearance/creepage/voltage/safety_category -- same voltage domain --
+    # different current tier), and this class's remaining members (the
+    # 22.5A RMS pour nets AND the 15A w1_1/w1_2/power_in.ntc-no trace nets,
+    # which measure as real routed copper on the real board, not pours --
+    # see PR #1119 S2.2) share ONE width: 5.0mm. 5.0mm clears the pour tier's
+    # own 4.77mm requirement (22.5A RMS, 40C pour) with margin and, with more
+    # margin (~20%), the trace tier's 4.16mm requirement (15A, 20C trace) --
+    # a deliberate reuse of one width across two current sub-bands rather
+    # than a third class, matching this task's "reuse existing classes"
+    # instruction; feasibility of exactly this 3.0->5.0mm HighVoltage/
+    # HighVoltageTank change was already measured in PR #1119 (TRUE
+    # clearance 1814->1282, TRUE track_width 841->802, creepage 164->149,
+    # pad connectivity 49/139->48/139 -- noise, not a regression).
     "HighVoltage": NetClassRules(
         name="HighVoltage",
-        trace_width=3.0,
+        trace_width=5.0,
         clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
@@ -287,9 +323,18 @@ TEMPER_NET_CLASSES = {
     # adequate for every HighVoltage pair on this board including this one, and
     # docs/evidence/2026-08-12-netclass-param-reconciliation.md settled the
     # value. This class changes the CREEPAGE requirement only.
+    # WIDTH RE-SCOPED 2026-08-13, same task/evidence doc as HighVoltage above.
+    # tank.c_tank1-p2 carries the same 22.5A RMS tank current as the
+    # HighVoltage bus nets (it IS the cap<->coil junction the current flows
+    # through) -- only creepage differs from HighVoltage (6.3mm vs 6.0mm,
+    # Table 18 row vi vs row iv, per the class's own header comment). Width
+    # tracks HighVoltage's bump 3.0->5.0mm for the identical current-band
+    # reason; this net is unrouted on the real board today (PR #1119 S2.2),
+    # a pre-existing routability gap this width change does not create or
+    # resolve.
     "HighVoltageTank": NetClassRules(
         name="HighVoltageTank",
-        trace_width=3.0,
+        trace_width=5.0,
         clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
@@ -299,6 +344,43 @@ TEMPER_NET_CLASSES = {
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",
+        safety_category="HV",
+    ),
+    # ADDED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-scoping.md):
+    # the mA-scale current tier carved OUT of HighVoltage above -- same
+    # voltage domain (elec/domain_manifest.yaml's `HV` domain: these nets
+    # float with or tap directly off SW_NODE/the bus, same as HighVoltage's
+    # own members), so clearance/creepage_mm/voltage_v/safety_category are
+    # IDENTICAL to HighVoltage's -- this class changes the CURRENT/WIDTH
+    # requirement only, exactly mirroring how HighVoltageTank (2026-08-12)
+    # changed the CREEPAGE requirement only while keeping clearance
+    # identical. Members: discharge.k_dis1-nc/k_dis2-nc (bleed string,
+    # ~20mA, 170V/(3.9k+4.7k), modules.ato:1171-1173), hb.power_loop.q_high-g
+    # (Q_high gate tap, one resistor from GATE_HS), a/zcd (U3's ZCD divider
+    # tap and primary/LED-anode net), +15V_LS (low-side gate-driver bias
+    # rail, floats on DC_BUS_RTN -- current per TRACE_WIDTH_CALCULATIONS.md
+    # S3.8's own "Gate Driver Supply (15V)" case: 100mA quiescent + gate-
+    # charge bursts, peak 500mA).
+    #
+    # WIDTH 0.5mm: IPC-2221B math for any of these currents (<=500mA, 20C
+    # trace) computes to a fraction of a mil -- "too thin for manufacturing"
+    # in the same shape TRACE_WIDTH_CALCULATIONS.md S3.8 already hits for its
+    # own 0.5A case, whose recommendation ("Minimum: 0.5mm (20 mils) for
+    # manufacturability") this class's width is taken from directly, rather
+    # than an unrelated class's figure (GateDriveHV's 0.4mm is sized for a
+    # fast-transient switching-current signal, different physics, not a
+    # supply-rail/bleed-current manufacturability floor).
+    "HighVoltageSignal": NetClassRules(
+        name="HighVoltageSignal",
+        trace_width=0.5,
+        clearance=2.0,
+        via_diameter=0.8,
+        via_drill=0.4,
+        via_template="Via1x1",
+        voltage_v=400.0,
+        creepage_mm=6.0,
+        dru_priority=22,
+        required_layer=None,
         safety_category="HV",
     ),
     "HighVoltageIsolated": NetClassRules(
@@ -343,7 +425,16 @@ TEMPER_NET_ASSIGNMENTS = {
     # separation rules, and inflated the creepage violation count with 3
     # false positives (HV-to-LV/HighVoltageIsolated-to-LV rules tripping on
     # a same-domain pair). Moved here to match the manifest, not the name.
-    "+15V_LS": "HighVoltage",
+    #
+    # RE-SCOPED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+    # scoping.md): moved on again, from "HighVoltage" to the new
+    # "HighVoltageSignal" class -- same voltage domain (clearance/creepage/
+    # voltage_v/safety_category unchanged), but +15V_LS is a gate-driver
+    # bias-supply rail (<=500mA peak per TRACE_WIDTH_CALCULATIONS.md S3.8),
+    # not a 15-22.5A bus/tank current-carrying net, and HighVoltage's own
+    # width just moved to 5.0mm for the current-carrying tier. This is a
+    # current-band re-scope, not a domain change.
+    "+15V_LS": "HighVoltageSignal",
     # ADDED 2026-07-28, same evidence doc. "a" (U3's own primary/LED-anode
     # net, between the ZCD divider tap and the H11L1 opto's series
     # resistor -- elec/build/default.net net 24, U3 pin 1 <-> R9 pin 2) was
@@ -355,7 +446,16 @@ TEMPER_NET_ASSIGNMENTS = {
     # it does not touch the isolator declaration itself
     # (elec/domain_manifest.yaml's own `power_in.zcd_opto` entry already
     # correctly separates this pin from the SELV-side VO/GND/VCC group).
-    "a": "HighVoltage",
+    #
+    # RE-SCOPED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+    # scoping.md): moved from "HighVoltage" to "HighVoltageSignal" -- U3's
+    # divider-tap/opto-anode current is uA-mA scale, not the bus/tank
+    # current-carrying tier HighVoltage's 5.0mm width now targets. Same
+    # clearance/creepage (this net is one pin of U3, one of the isolators
+    # the PD2/8.0mm barrier is measured against -- see the evidence doc's
+    # DRU-threading section for why HighVoltageSignal carries the identical
+    # HV-to-LV creepage rule HighVoltage did for this exact pair).
+    "a": "HighVoltageSignal",
     # ADDED 2026-07-28, sweep for siblings during the same evidence doc's
     # investigation (docs/evidence/2026-07-28-netclass-defect-reconciliation.md
     # sec "Sweep"). All 9 nets below are declared under
@@ -370,7 +470,14 @@ TEMPER_NET_ASSIGNMENTS = {
     # have their own detailed wire-tracing directly in the manifest.
     "w1_1": "HighVoltage",  # CMC winding 1 taps (line side)
     "w1_2": "HighVoltage",
-    "zcd": "HighVoltage",  # power_in's internal HV-side ZCD divider tap
+    # RE-SCOPED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+    # scoping.md): "zcd" moved "HighVoltage" -> "HighVoltageSignal" (uA-mA
+    # divider tap current, not the bus/tank current tier). Per the task
+    # that re-scoping was done under, "zcd" is dead circuitry from an
+    # unresynced deletion (5842767c2) and is excluded from that task's
+    # feasibility conclusions -- the class move is still correct/harmless
+    # regardless, since it is voltage-domain-preserving.
+    "zcd": "HighVoltageSignal",  # power_in's internal HV-side ZCD divider tap
     "tank-out": "HighVoltage",  # coil far end -> CT primary -> PWR_RTN
     # RECLASSIFIED 2026-08-12 (docs/evidence/2026-08-12-hv-hv-creepage-
     # enforcement.md). The old "400V-rated node" comment traced to
@@ -387,9 +494,18 @@ TEMPER_NET_ASSIGNMENTS = {
     # a CT primary away from PWR_RTN. Neither is the unclamped node.
     "tank.c_tank1-p2": "HighVoltageTank",  # cap<->coil junction, 570.5 Vrms
     "power_in.ntc-no": "HighVoltage",  # bypass relay NO -> rectified mains
-    "discharge.k_dis1-nc": "HighVoltage",  # k_dis1 contacts group (HV bus)
-    "discharge.k_dis2-nc": "HighVoltage",  # k_dis2 contacts group (HV bus)
-    "hb.power_loop.q_high-g": "HighVoltage",  # Q_high gate, 1 resistor from GATE_HS
+    # RE-SCOPED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+    # scoping.md): the discharge bleed string is ~20mA
+    # (170V/(3.9k+4.7k), modules.ato:1171-1173) -- three orders of magnitude
+    # below the bus/tank current HighVoltage's 5.0mm width now targets.
+    # Moved "HighVoltage" -> "HighVoltageSignal" (same voltage domain: these
+    # are HV-bus-referenced contacts, open when the relay is de-energized).
+    "discharge.k_dis1-nc": "HighVoltageSignal",  # k_dis1 contacts group (HV bus)
+    "discharge.k_dis2-nc": "HighVoltageSignal",  # k_dis2 contacts group (HV bus)
+    # RE-SCOPED 2026-08-13, same evidence doc: Q_high's gate current is
+    # mA-scale gate-drive current, not bus/tank current -- moved to
+    # "HighVoltageSignal".
+    "hb.power_loop.q_high-g": "HighVoltageSignal",  # Q_high gate, 1 resistor from GATE_HS
     # ADDED 2026-07-28, same sweep. hb.gate_hs.driver-p1-1 (VDDA) /
     # hb.gate_hs.driver-p2 (VSSA) are the two REAL, currently-compiled nets
     # of the HighVoltageIsolated class defined above (elec/build/default.net

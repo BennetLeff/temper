@@ -367,7 +367,7 @@ class DesignRules:
 TEMPER_NET_CLASSES = {
     "ACMains": NetClassRules(
         name="ACMains",
-        trace_width=2.5,
+        trace_width=3.0,
         clearance=6.0,
         via_diameter=1.2,
         via_drill=0.6,
@@ -381,7 +381,7 @@ TEMPER_NET_CLASSES = {
     ),
     "HighVoltage": NetClassRules(
         name="HighVoltage",
-        trace_width=3.0,
+        trace_width=5.0,
         clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
@@ -505,7 +505,7 @@ TEMPER_NET_CLASSES = {
     # HighVoltage. Only creepage_mm differs from HighVoltage's parameters.
     "HighVoltageTank": NetClassRules(
         name="HighVoltageTank",
-        trace_width=3.0,
+        trace_width=5.0,
         clearance=2.0,
         via_diameter=1.2,
         via_drill=0.6,
@@ -515,6 +515,29 @@ TEMPER_NET_CLASSES = {
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",
+        safety_category="HV",
+    ),
+    # HighVoltageSignal - the mA-scale current-tier carve-out of HighVoltage,
+    # added 2026-08-13 (docs/evidence/2026-08-13-netclass-current-scoping.md)
+    # alongside HighVoltage/HighVoltageTank's trace_width bump 3.0->5.0mm.
+    # HighVoltage used to bundle a 1000x current range (22.5A RMS tank/bus
+    # vs ~20mA bleed string) under one width; the mA-scale members (bleed
+    # string, Q_high gate tap, U3's ZCD divider/opto-anode net, +15V_LS
+    # gate-driver bias rail) moved here. Same clearance/creepage/voltage_v/
+    # safety_category as HighVoltage -- this class changes the current/width
+    # requirement only. Mirrors the live table in
+    # temper_placer/core/design_rules.py exactly.
+    "HighVoltageSignal": NetClassRules(
+        name="HighVoltageSignal",
+        trace_width=0.5,
+        clearance=2.0,
+        via_diameter=0.8,
+        via_drill=0.4,
+        via_template="Via1x1",
+        voltage_v=400.0,
+        creepage_mm=6.0,
+        dru_priority=22,
+        required_layer=None,
         safety_category="HV",
     ),
     # HighVoltageIsolated - gate-drive floating bootstrap supply (+5V_ISO,
@@ -579,7 +602,7 @@ TEMPER_NET_ASSIGNMENTS = {
     # separation rules, and inflated the creepage violation count with 3
     # false positives (HV-to-LV/HighVoltageIsolated-to-LV rules tripping on
     # a same-domain pair). Moved here to match the manifest, not the name.
-    "+15V_LS": "HighVoltage",
+    "+15V_LS": "HighVoltageSignal",  # 2026-08-13: mA-scale bias rail, re-scoped to HighVoltageSignal
     # ADDED 2026-07-28, same evidence doc. "a" (U3's own primary/LED-anode
     # net, between the ZCD divider tap and the H11L1 opto's series
     # resistor -- elec/build/default.net net 24, U3 pin 1 <-> R9 pin 2) was
@@ -591,7 +614,7 @@ TEMPER_NET_ASSIGNMENTS = {
     # it does not touch the isolator declaration itself
     # (elec/domain_manifest.yaml's own `power_in.zcd_opto` entry already
     # correctly separates this pin from the SELV-side VO/GND/VCC group).
-    "a": "HighVoltage",
+    "a": "HighVoltageSignal",  # 2026-08-13: uA-mA ZCD divider tap, re-scoped to HighVoltageSignal
     # ADDED 2026-07-28, sweep for siblings during the same evidence doc's
     # investigation (docs/evidence/2026-07-28-netclass-defect-reconciliation.md
     # sec "Sweep"). All 9 nets below are declared under
@@ -606,7 +629,7 @@ TEMPER_NET_ASSIGNMENTS = {
     # have their own detailed wire-tracing directly in the manifest.
     "w1_1": "HighVoltage",  # CMC winding 1 taps (line side)
     "w1_2": "HighVoltage",
-    "zcd": "HighVoltage",  # power_in's internal HV-side ZCD divider tap
+    "zcd": "HighVoltageSignal",  # power_in's internal HV-side ZCD divider tap (2026-08-13 re-scope)
     "tank-out": "HighVoltage",  # coil far end -> CT primary -> PWR_RTN
     # RECLASSIFIED 2026-08-12: the old "400V-rated node" label came from
     # elec/src/modules.ato:534's v_tank_peak declaration, which holds only at
@@ -614,9 +637,9 @@ TEMPER_NET_ASSIGNMENTS = {
     # worst OCP-01-passing corner. See the HighVoltageTank class above.
     "tank.c_tank1-p2": "HighVoltageTank",  # cap<->coil junction, 570.5 Vrms
     "power_in.ntc-no": "HighVoltage",  # bypass relay NO -> rectified mains
-    "discharge.k_dis1-nc": "HighVoltage",  # k_dis1 contacts group (HV bus)
-    "discharge.k_dis2-nc": "HighVoltage",  # k_dis2 contacts group (HV bus)
-    "hb.power_loop.q_high-g": "HighVoltage",  # Q_high gate, 1 resistor from GATE_HS
+    "discharge.k_dis1-nc": "HighVoltageSignal",  # k_dis1 contacts group (2026-08-13 re-scope, ~20mA)
+    "discharge.k_dis2-nc": "HighVoltageSignal",  # k_dis2 contacts group (2026-08-13 re-scope, ~20mA)
+    "hb.power_loop.q_high-g": "HighVoltageSignal",  # Q_high gate, 1 resistor from GATE_HS (2026-08-13 re-scope)
     # ADDED 2026-07-28, same sweep. hb.gate_hs.driver-p1-1 (VDDA) /
     # hb.gate_hs.driver-p2 (VSSA) are the two REAL, currently-compiled nets
     # of the HighVoltageIsolated class defined above (elec/build/default.net

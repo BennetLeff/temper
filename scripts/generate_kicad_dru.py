@@ -240,6 +240,18 @@ HV_TANK_CREEPAGE_ENFORCED_MM = {
 # cross-barrier figure everywhere else.
 HV_TANK_CLASS = "HighVoltageTank"
 
+# ADDED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-scoping.md):
+# the mA-scale current-tier carve-out of HighVoltage (discharge bleed
+# string, Q_high gate tap, U3's ZCD divider/opto-anode net, +15V_LS). Same
+# voltage domain as HighVoltage -- everywhere this generator gives
+# HighVoltage a same-side reduction or a reinforced-to-LV rule, this class
+# needs the identical treatment, or a net moved into it would silently lose
+# coverage it had while classed HighVoltage (the exact shape RULE 4c/5a's
+# own comments already document and fixed once before, for HighVoltageTank).
+# scripts/check_hv_netclass_coverage.py PROPERTY 2 fails closed if any
+# declared class is added here without a positive NetClass == rule.
+HV_SIGNAL_CLASS = "HighVoltageSignal"
+
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
     "GND": "Ground",
@@ -879,6 +891,7 @@ def generate_dru() -> str:
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'HighVoltage'"
         f" && B.NetClass != '{HV_TANK_CLASS}'"
+        f" && B.NetClass != '{HV_SIGNAL_CLASS}'"
         " && B.NetClass != 'GateDriveHV'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
@@ -889,11 +902,17 @@ def generate_dru() -> str:
     lines.append("# RULE 3: AC Mains to High Voltage - 3mm (both isolated from earth)")
     lines.append("# Reduced clearance since both are on same side of isolation barrier")
     lines.append(_SEP)
+    lines.append(
+        "# HighVoltageSignal INCLUDED (2026-08-13, docs/evidence/2026-08-13-"
+        " netclass-current-scoping.md): same voltage domain as HighVoltage,"
+        " mirroring the HV_TANK_CLASS addition above."
+    )
     lines.append('(rule "AC Mains to HV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && (B.NetClass == 'HighVoltage'"
-        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
+        f" || B.NetClass == '{HV_TANK_CLASS}'"
+        f" || B.NetClass == '{HV_SIGNAL_CLASS}')\")"
     )
     lines.append("   (constraint clearance (min 3.0mm))")
     lines.append(")")
@@ -967,11 +986,22 @@ def generate_dru() -> str:
         " supplies the correct functional figure (Table 18, 6.3mm) instead."
     )
     lines.append(_SEP)
+    lines.append(
+        f"# {HV_SIGNAL_CLASS} EXCLUDED (2026-08-13): same reasoning as the"
+        " HighVoltageTank exclusion above -- without it, a (HighVoltage,"
+        f" {HV_SIGNAL_CLASS}) pair (e.g. SW_NODE vs. hb.power_loop.q_high-g,"
+        " same footprint on U5) would match THIS rule and be charged 8.0mm"
+        " reinforced creepage for a same-domain functional pair, not a"
+        " barrier crossing. See the new"
+        f' "{HV_SIGNAL_CLASS} to LV" rule below for this class\'s real'
+        " protection."
+    )
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
         " && B.NetClass != 'HighVoltage'"
         f" && B.NetClass != '{HV_TANK_CLASS}'"
+        f" && B.NetClass != '{HV_SIGNAL_CLASS}'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'GateDriveHV'"
         " && B.NetClass != 'HighVoltageIsolated'\")"
@@ -1015,6 +1045,43 @@ def generate_dru() -> str:
         f"   (condition \"A.NetClass == '{HV_TANK_CLASS}'"
         f" && B.NetClass != '{HV_TANK_CLASS}'"
         " && B.NetClass != 'HighVoltage'"
+        f" && B.NetClass != '{HV_SIGNAL_CLASS}'"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'\")"
+    )
+    lines.append("   (constraint clearance (min 2.0mm))")
+    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(")")
+    lines.append("")
+    lines.append(_SEP)
+    lines.append(
+        f'# RULE 4d: {HV_SIGNAL_CLASS} to LV -- an exact clone of RULE 4/4c'
+        " above, for the mA-scale current-tier carve-out of HighVoltage"
+        " (docs/evidence/2026-08-13-netclass-current-scoping.md)."
+    )
+    lines.append(
+        "# WITHOUT THIS RULE the carve-out would be a SAFETY REGRESSION,"
+        " the same shape RULE 4c's own comment records: while e.g. 'a' (U3's"
+    )
+    lines.append(
+        "# ZCD divider tap/opto-anode net -- one pin of a real isolator on"
+        " this board) was HighVoltage, it received 2.0mm clearance and"
+    )
+    lines.append(
+        "# 8.0mm reinforced creepage against every LV/SELV net (measured:"
+        " U3 pin 'a' vs. U3 pin 'gnd', same footprint, real board). Moving"
+    )
+    lines.append(
+        "# it to this class must not silently drop that coverage."
+    )
+    lines.append(_SEP)
+    lines.append(f'(rule "{HV_SIGNAL_CLASS} to LV"')
+    lines.append(
+        f"   (condition \"A.NetClass == '{HV_SIGNAL_CLASS}'"
+        f" && B.NetClass != '{HV_SIGNAL_CLASS}'"
+        " && B.NetClass != 'HighVoltage'"
+        f" && B.NetClass != '{HV_TANK_CLASS}'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'GateDriveHV'"
         " && B.NetClass != 'HighVoltageIsolated'\")"
@@ -1094,11 +1161,19 @@ def generate_dru() -> str:
     # Matches RULE 4's existing "HV to LV" clearance figure (this file,
     # unchanged) -- not a new number, just this class's share of it.
     _HV_ISOLATED_CLEARANCE_MM = 2.0
+    lines.append(
+        f"# {HV_SIGNAL_CLASS} INCLUDED on both rules below (2026-08-13,"
+        " docs/evidence/2026-08-13-netclass-current-scoping.md): U7's own"
+        f" +15V_LS (now {HV_SIGNAL_CLASS}) and hb.gate_hs.driver-p1-1/U8's"
+        f" +15V_LS/hb.gate_hs.driver-p1-1 share a footprint -- same"
+        " same-side-of-the-barrier reasoning as HighVoltage/HighVoltageTank."
+    )
     lines.append('(rule "HighVoltageIsolated same side"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
         " && (B.NetClass == 'HighVoltage'"
         f" || B.NetClass == '{HV_TANK_CLASS}'"
+        f" || B.NetClass == '{HV_SIGNAL_CLASS}'"
         " || B.NetClass == 'ACMains')\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
@@ -1110,6 +1185,7 @@ def generate_dru() -> str:
         " && B.NetClass != 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltage'"
         f" && B.NetClass != '{HV_TANK_CLASS}'"
+        f" && B.NetClass != '{HV_SIGNAL_CLASS}'"
         " && B.NetClass != 'ACMains'"
         " && B.NetClass != 'GateDriveHV'\")"
     )
@@ -1206,11 +1282,21 @@ def generate_dru() -> str:
     )
     lines.append("# the class model, not the clearance value.")
     lines.append(_SEP)
+    lines.append(
+        f"# {HV_SIGNAL_CLASS} INCLUDED on both rules below (2026-08-13):"
+        " R23 (GATE_HS <-> hb.power_loop.q_high-g) and R24 (SW_NODE <->"
+        " hb.power_loop.q_high-g) are real same-footprint gate resistors on"
+        f" this board with one pad now classed {HV_SIGNAL_CLASS} -- without"
+        " this inclusion those pairs fall to the 2.0mm default floor instead"
+        " of the intended 0.5mm same-side figure, a needless over-"
+        " constraint next to IGBT gate resistors."
+    )
     lines.append('(rule "GateDriveHV near HV"')
     lines.append(
         "   (condition \"A.NetClass == 'GateDriveHV'"
         " && (B.NetClass == 'HighVoltage'"
-        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
+        f" || B.NetClass == '{HV_TANK_CLASS}'"
+        f" || B.NetClass == '{HV_SIGNAL_CLASS}')\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
     lines.append(")")
@@ -1219,7 +1305,8 @@ def generate_dru() -> str:
     lines.append(
         "   (condition \"A.NetClass == 'GateDriveSELV'"
         " && (B.NetClass == 'HighVoltage'"
-        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
+        f" || B.NetClass == '{HV_TANK_CLASS}'"
+        f" || B.NetClass == '{HV_SIGNAL_CLASS}')\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
     lines.append(")")
@@ -1282,12 +1369,22 @@ def generate_dru() -> str:
         " whose pads sit 40mm apart. Recorded so the conservatism is visible"
     )
     lines.append("# rather than silently baked in.")
+    lines.append(
+        f"# {HV_SIGNAL_CLASS} INCLUDED on B (2026-08-13, docs/evidence/"
+        "2026-08-13-netclass-current-scoping.md): the RULE 4d exclusion"
+        f" above means a ({HV_TANK_CLASS}, {HV_SIGNAL_CLASS}) pair -- e.g."
+        " tank.c_tank1-p2 vs. a same-domain bleed/signal tap -- no longer"
+        ' matches "HighVoltageTank to LV", so without this inclusion it'
+        " would get ZERO creepage protection against the highest-voltage"
+        " node on the board (570.5 Vrms). This rule is what supplies it."
+    )
     lines.append(_SEP)
     lines.append(f'(rule "{HV_TANK_CLASS} functional creepage"')
     lines.append(
         f"   (condition \"A.NetClass == '{HV_TANK_CLASS}'"
         " && (B.NetClass == 'HighVoltage'"
-        f" || B.NetClass == '{HV_TANK_CLASS}')\")"
+        f" || B.NetClass == '{HV_TANK_CLASS}'"
+        f" || B.NetClass == '{HV_SIGNAL_CLASS}')\")"
     )
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_TANK_CREEPAGE_ENFORCED_MM)}))")
     lines.append(")")
@@ -1457,6 +1554,15 @@ def generate_dru() -> str:
         # pre-existing gap, not one this change introduces, and is left
         # alone rather than fixed silently under an unrelated heading.)
         HV_TANK_CLASS,
+        # Added 2026-08-13 (docs/evidence/2026-08-13-netclass-current-
+        # scoping.md) with the HighVoltageSignal carve-out. Without this
+        # entry the mA-scale bleed/signal nets moved into this class would
+        # get NO track_width rule at all (not even the old 3.0mm HighVoltage
+        # figure) -- this is the exact "declared class enforces nothing"
+        # defect scripts/check_hv_netclass_coverage.py PROPERTY 2 exists to
+        # catch, and it did catch this omission during this task's own
+        # first pass.
+        HV_SIGNAL_CLASS,
     ]
 
     for py_key in class_order:
