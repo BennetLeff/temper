@@ -22,7 +22,6 @@ from collections import deque
 logger = logging.getLogger(__name__)
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
-from temper_placer.router_v6.clearance_floor import effective_blocking_clearance
 from temper_placer.router_v6._astar_search import (
     _MAX_REROUTE_ATTEMPTS_PER_NET,
     _SEGMENT_3D_FALLBACK_MAX_ITER,
@@ -245,12 +244,7 @@ def run_astar_pathfinding(
                 max_iter=per_net_max_iter,
                 net_id=net_id,
                 trace_width=tree_net_rule.trace_width_mm,
-                # NOT tree_net_rule.clearance_mm: the grid stamp is a
-                # rasteriser, and its input is not the required gap. See
-                # clearance_floor.py -- passing the declared figure
-                # straight through is what put two 0.25mm Default tracks
-                # 0.40mm apart against a 0.20mm rule.
-                clearance=effective_blocking_clearance(tree_net_rule),
+                clearance=tree_net_rule.clearance_mm,
             )
             completed_geometry = TreeRouteGeometry(
                 net_name=net_name,
@@ -395,7 +389,7 @@ def run_astar_pathfinding(
                             ripped_path,
                             all_grids,
                             ripped_rule.trace_width_mm,
-                            effective_blocking_clearance(ripped_rule),
+                            ripped_rule.clearance_mm,
                             ripped_id,
                         )
                         del routed_paths[ripped_name]
@@ -423,7 +417,7 @@ def run_astar_pathfinding(
                 route_path,
                 all_grids,
                 trace_width=net_rule.trace_width_mm,
-                clearance=effective_blocking_clearance(net_rule),
+                clearance=net_rule.clearance_mm,
                 net_id=net_id,
             )
 
