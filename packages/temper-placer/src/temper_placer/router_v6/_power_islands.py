@@ -146,8 +146,6 @@ from pathlib import Path
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
-from temper_placer.router_v6.clearance_floor import required_clearance_mm
-
 from temper_placer.router_v6._ground_plane import (
     _collect_hv_copper_geometry,
     _dedupe_positions,
@@ -157,6 +155,7 @@ from temper_placer.router_v6._ground_plane import (
     compute_hv_selv_keepout,
     mst_edges,
 )
+from temper_placer.router_v6.clearance_floor import required_clearance_mm
 
 logger = logging.getLogger(__name__)
 

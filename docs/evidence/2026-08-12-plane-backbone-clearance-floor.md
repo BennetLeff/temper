@@ -489,7 +489,32 @@ measured at 499–507 across six materially different copper realisations
 different directions. It is a **placement** property. Nothing in this PR was
 aimed at it and nothing in this PR moved it; that is not a failure of the PR.
 
-## 9. What was NOT done, deliberately
+## 9. Test status
+
+* `tests/router_v6/test_ground_plane.py` + `test_power_islands.py`: **9/9 pass**
+  with the raised clearance (they carry this repo's connectivity floors for both
+  generators, so they are the gate that the fix does not trade correctness for a
+  connectivity collapse — and it does not).
+* `tests/router_v6/test_corridor_{erosion,pbt,rust_differential}.py`,
+  `test_topology_copper_audit.py` (non-slow): **46 pass, 1 fail.**
+  The failure is `test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets`
+  on `_should_route("gnd")` — **pre-existing**, verified by running the same file
+  in a clean worktree at `d60caadd5` (#1095's own tip), where it fails
+  identically. It is one of the two `gnd` SSOT-gap failures #1095 §8b already
+  attributed as pre-existing.
+* `scripts/check_router_clearance_floor.py`: **exit 0**, all six properties.
+  Its suite is **14/14** (10 existing + 4 new for P6).
+  Mutation-verified: run against the pre-fix tree it reports both 0.05 sites
+  and exits 1.
+* `scripts/check_manifest_gate.py`: **PASSED** (153 files, 154 entries).
+* `ruff check` on every file this PR touches: clean, except one **pre-existing**
+  `SIM110` in `_power_islands.py::_blocked` that is present unchanged in the
+  base file.
+* `test_full_pipeline_run_surfaces_the_same_unexplained_gap`: **red on
+  `PWM_H`**, inherited from #1095 and deliberately not repaired — §7.
+* `test_production_board_routing_drc_regression`: **unmeasurable, OOM** — §6.
+
+## 10. What was NOT done, deliberately
 
 * `power_pcb_dataset/drc_ceiling.json` **not modified**; no `Ceiling-Approval:`
   trailer, no `_march` entry.
