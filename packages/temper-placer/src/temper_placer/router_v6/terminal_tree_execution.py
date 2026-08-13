@@ -15,6 +15,7 @@ branches.  ``verify_net_connectivity`` remains the sole authority for
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from temper_placer.router_v6.astar_core import RoutePath
@@ -147,6 +148,7 @@ def execute_terminal_tree(
     net_id: int = -1,
     trace_width: float = 0.0,
     clearance: float = 0.0,
+    mark_sink: Callable[[str, list[tuple[float, float]]], None] | None = None,
 ) -> TerminalTreeExecution:
     """Execute plan edges through A* without direct/forced fallback geometry.
 
@@ -156,6 +158,15 @@ def execute_terminal_tree(
     is skipped (it descended from an earlier failure).  After all edges
     are attempted, ``verify_net_connectivity`` determines the final
     disposition — the executor itself never fabricates a verdict.
+
+    ``mark_sink`` (2026-08-12, per-net-pair clearance): when given, it is
+    called as ``mark_sink(layer, coordinates)`` for each completed branch
+    INSTEAD of this function stamping the branch into ``grids`` itself.  A
+    completed branch is real copper immediately, and under the pair-clearance
+    model it has a different dilation radius in every clearance-profile
+    family (``profile_grids.ProfileGrids.mark_path``); stamping it here would
+    reach only the one family this net happens to be searching.  ``None``
+    keeps the original single-grid behaviour exactly.
     """
     grids: dict[str, OccupancyGrid] = (
         {grid.layer_name: grid} if isinstance(grid, OccupancyGrid) else grid
@@ -212,7 +223,10 @@ def execute_terminal_tree(
         completed.append((edge, path))
         connected.add(edge.target)
         if net_id >= 0:
-            active_grid.mark_path_blocked(path.coordinates, trace_width, clearance, net_id)
+            if mark_sink is None:
+                active_grid.mark_path_blocked(path.coordinates, trace_width, clearance, net_id)
+            else:
+                mark_sink(route_layer, path.coordinates)
 
     disposition = (
         NetDisposition.ROUTED if len(connected) == len(terminals) else NetDisposition.INCOMPLETE
