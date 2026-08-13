@@ -278,7 +278,12 @@ class TestPytestPlugin:
         c.pytest_collection_modifyitems([item])
         assert item.obj._hypothesis_internal_use_settings.max_examples == 120
 
-    def test_env_set_reduces_all_four_annotated_tests(self, capsys):
+    def test_env_set_reduces_only_genuinely_mirrored_tests(self, capsys):
+        # Only T1 (verdict consistency, mirrored by the P10 margin-0 slice) and
+        # T4 (zero-baseline guard) can be reduced -- the wasm tier mirrors their
+        # semantics. T2 (floor monotonicity) and T3 (monotone-in-current) have
+        # NO wasm mirror (relational two-run properties with no timing.rs
+        # assertion, see #1128), so they must keep their full 120 examples.
         _plugin_env("timing")
         from hypothesis import settings
 
@@ -299,9 +304,15 @@ class TestPytestPlugin:
         ]
         c.pytest_collection_modifyitems(items)
         out = capsys.readouterr().out
-        assert "4 hypothesis tests reduced to max_examples=5" in out
+        assert "2 hypothesis tests reduced to max_examples=5" in out
         for item in items:
-            assert item.obj._hypothesis_internal_use_settings.max_examples == 5
+            nodeid = item.nodeid
+            if nodeid.endswith("test_t2_floor_monotonicity") or nodeid.endswith(
+                "test_t3_verdict_monotone_in_current"
+            ):
+                assert item.obj._hypothesis_internal_use_settings.max_examples == 120
+            else:
+                assert item.obj._hypothesis_internal_use_settings.max_examples == 5
 
 
 # ---------------------------------------------------------------------------

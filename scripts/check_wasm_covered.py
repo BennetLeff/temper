@@ -138,13 +138,24 @@ CLUSTERS: tuple[Cluster, ...] = (
     # timing T1-T4 (compare_stage) -- the first wasm-covered cluster, per the
     # spike's recommended first offload. The 81 mirror entries below are a
     # strict subset of the 203 registered `timing::tests` entries
-    # (p1-p10 x 20 seeds + 3 unit tests); the annotation claims exactly the
-    # p7-p10 campaign + the zero-baseline guard because those are the ones
-    # mirroring Python T1-T4 (verdict consistency, floor monotonicity,
-    # monotone-in-current, zero-baseline guard). p95 (T5/T7) is CPython
-    # `decimal` and structurally unmirrorable; the MT/MP relations and
-    # trace_commands have no campaign yet -- none of them are in this
-    # annotation, so they keep their full 120 examples.
+    # (p1-p10 x 20 seeds + 3 unit tests).
+    #
+    # Which Python tests are safe to REDUCE (this is the wasm mirror contract):
+    #   * T4 (zero-baseline guard)  -- mirrored by `compare_stage_guards_zero_baseline`.
+    #   * T1 (verdict consistency)  -- the margin-0 verdict slice is mirrored
+    #     bit-exactly by P10 (`threshold == effective` && `passed == current <= effective`);
+    #     P7/P8 corroborate the surrounding delta semantics.
+    # T2 (floor monotonicity) and T3 (monotone-in-current) are RELATIONAL
+    # (two-run) properties whose semantics are NOT expressed by any wasm
+    # assertion: P8 only checks a single point's `delta_pct > 0`, and P9 only
+    # checks a single point's one-sided `effective >= floor`. Neither encodes
+    # the "higher floor => >= effective/threshold" or "passed is non-increasing
+    # in current" relation. There is therefore no compensating wasm exploration
+    # when they are reduced (a ~24x statistical-power drop for zero wasm gain),
+    # so they are NOT in the reduce set and keep their full 120 hypothesis
+    # examples. See issue #1128. p95 (T5/T7) is CPython `decimal` and
+    # structurally unmirrorable; the MT/MP relations and trace_commands have no
+    # campaign yet -- none of them are in this annotation either.
     Cluster(
         name="timing",
         crate="temper-orchestration",
@@ -154,8 +165,6 @@ CLUSTERS: tuple[Cluster, ...] = (
         python_file="tests/cli/test_timing_pbt.py",
         python_tests=(
             "test_t1_verdict_consistency",
-            "test_t2_floor_monotonicity",
-            "test_t3_verdict_monotone_in_current",
             "test_t4_zero_baseline_guard",
         ),
         mirrors=(
