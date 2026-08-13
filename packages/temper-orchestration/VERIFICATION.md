@@ -4067,3 +4067,128 @@ frozensets).
   builds vs 08-12/13 sources; `check_stale_extensions.py` flagged 4) —
   `make extensions` rebuilt all 10 fresh before the differentials. This was
   a pre-existing environment gap, not a U1 artifact.
+
+## U2 leaf structs — the owned `Component`/`Pin`/`Net` data model (O-C3/U2)
+
+U2 defines the OWNED leaf structs the later units compose: `Component`/`Pin`/
+`Net` (the building blocks for U3's `Board`/`Netlist` aggregates), and
+DECIDES the crate-home for the whole owned data model. No `BoardState` field
+changes; the structs and their `Marshal` boundary are the deliverable.
+
+### Crate-home decision: a new pure-Rust `packages/temper-data-model/` crate
+
+The owned structs live in a NEW crate, `packages/temper-data-model/` — a
+pyo3-free `rlib` (`temper-rust-router-core` template). The alternatives were
+rejected for one shared reason:
+
+- **(b) a `data_model.rs` module in `temper-design-bundle`** — design-bundle
+  is a pyo3 extension (its `python` feature pulls pyo3). Putting the owned
+  structs there would tie the Rust-internal data model to pyo3, and it would
+  conflate the Python-facing surface (the pyclasses) with the Rust-internal
+  surface (the owned structs). The wasm32 tier could not compile it.
+- **(c) extending orchestration's `marshal.rs`** — `marshal.rs` is
+  `#[cfg(feature = "python")]`-gated: the structs would vanish on the wasm32
+  tier build (`--no-default-features`), which is exactly the forcing function
+  the whole port exists for (`docs/evidence/2026-08-12-orchestration-loop-wasm-spike.md`).
+
+The owned structs must be importable by BOTH the orchestration pyo3 surface
+(the `Marshal` impls here, which `use temper_data_model::{...}`) AND
+(eventually) the `wasm32-unknown-unknown` tier. A no-pyo3 rlib is the only
+home that satisfies both; it is also the shape O-C4's physical
+`temper-orchestration-core` split will `git mv` the leaves into. The crate
+carries the full workspace metadata (`Cargo.toml` rlib, a setuptools-stub
+`pyproject.toml` mirroring `temper-rust-router-core`, so `uv lock`/`uv sync`
+stay consistent), and `make regen`'s README package count is regenerated
+(17 → 18 packages). The `Val` enum MOVED from `marshal.rs` into this crate
+(it is pure `Int(i64) | Float(f64)` — no pyo3) and is re-exported as
+`crate::marshal::Val`; `Plain` STAYS in `marshal.rs` (its `Opaque(Py<PyAny>)`
+variant is pyo3-shaped by construction and no leaf field needs it).
+
+### The leaf structs (`packages/temper-data-model/src/lib.rs`)
+
+Field types follow the U0 `Val`/`Plain` convention, applied per field:
+
+| Field | Owned type | Why |
+|---|---|---|
+| `Component.bounds` | `Vec<Val>` | THE int-vs-float hazard: the pipeline demonstrably writes `(1, 2)` ints (`netlist_contracts.rs:11-28`, `dense_package_detection.py:67`) AND `(1.0, 2.0)` floats. `Val` records which, so `1` never widens to `1.0`. |
+| `Pin.position`, `Component.initial_position` | `(f64, f64)` / `Option<(f64, f64)>` | `tuple[float, float]` — always-float in the real pipeline (KiCad parse + synthetic fixtures emit floats); an int coordinate is a LOUD rejection, never a widen. |
+| `Pin.width/height/drill/roundrect_ratio/pad_rotation_deg`, `Net.weight/max_current` | `f64` | concrete `float` fields; same strict int-rejection. |
+| `Component.initial_rotation/initial_side` | `Option<i64>` | the only genuinely `int | None` fields. |
+| `Component.attributes` | `Vec<(String, String)>` | an insertion-ordered `dict[str, str]` (Python 3.7+ dicts are ordered); read/write in iteration order. |
+| `Component.tags` | `Vec<String>` | a `frozenset` of strings read in iteration order (no duplicates by construction); `to_python` always writes back a `frozenset` (the dataclass contract). |
+| `Component.pins`, `Net.pins` | `Vec<Pin>` / `Vec<(String, String)>` | the `list[Pin]` / `list[tuple[str, str]]` shapes, element-wise. |
+
+### The `Marshal` impls (`src/netlist_owned.rs`)
+
+- **Read** via `obj.getattr("...")` + the scalar/container `Marshal` impls —
+  never `extract::<Py<T>>()` (the cross-`.so` blocker).
+- **Write** reconstructs a faithful object of the design-bundle pyclass by
+  RUNTIME IMPORT — `py.import("temper_design_bundle_python")?.getattr(
+  "netlist_contracts")?.getattr("Component")` — then calling it with keyword
+  args. This is approach #1 of the cross-extension evidence doc: the
+  reconstructed type/repr/`==` are bit-identical to the original WITHOUT a
+  `temper-design-bundle` dependency edge (which would re-introduce the
+  duplicated-`LazyTypeObject` hazard). No Rust type names a foreign pyclass.
+- **`bounds` is special**: it round-trips as a TUPLE (the contractual
+  `tuple[float, float]`), not a `Vec`-marshalled list — the element-wise
+  `Val` read/write is done inline rather than through `Vec<Val>`'s
+  list-shaped impl. A list-shaped `bounds` is rejected.
+- **Two new tuple impls** `(f64, f64)` and `(String, String)` serve
+  `position`/`initial_position` and `Net.pins` elements.
+- **Defaults are reconstructed explicitly** (empty `list`/`dict`/`frozenset`,
+  `None` for the optionals), so `Component('R1','fp',(1,2))` comes back with
+  the dataclass defaults intact — the repr/eq match the original exactly.
+
+### Round-trip gate results
+
+`assert_roundtrip_with` (a globals-accepting sibling of `assert_roundtrip`;
+the leaf tests need `Component`/`Pin`/`Net` names in scope) pins bit-identity
+— exact type, identical `repr`, NaN-aware `==` — against a faithful
+`@dataclass` stand-in for the pyclasses (registered in `sys.modules` under
+`temper_design_bundle_python.netlist_contracts`, the d3–d7 mock pattern, so
+`cargo test` stays self-contained without building design-bundle's `.so`):
+
+- **int-vs-float bounds**: `Component('R1','fp',(1,2))` and
+  `Component('R1','fp',(1.0,2.0))` both round-trip bit-identically, and the
+  owned `bounds` are asserted to be `[Val::Int(1), Val::Int(2)]` vs
+  `[Val::Float(1.0), Val::Float(2.0)]` — the widening hazard is pinned, not
+  merely tolerated.
+- **full `Component`** with pins/non-default fields (zone, fixed,
+  initial_position, attributes, tags, sheetpath) round-trips bit-identically.
+- **full `Pin`** (12 fields) and **full `Net`** (6 fields, `(ref, pin)` tuple
+  list) round-trip bit-identically.
+- **NaN/±inf** in a leaf float field round-trip with type + repr preserved and
+  the field still NaN (asserted on the owned field — a dataclass `__eq__`
+  returns False for NaN fields, so the gate's bare-float NaN arm cannot see
+  them).
+- **Guards**: list-shaped bounds, int/str/bool bounds leaves, int `fixed`,
+  int `zone`, and int pin `position` are all REJECTED loudly.
+
+### Recorded bound — `tags` frozenset iteration order
+
+`Component.tags` is owned as a `Vec<String>` (read order), so the rebuilt
+`frozenset` iterates in insertion order. For a COLLISION-FREE tag set this
+matches the original's order bit-for-bit; with hash collisions (a string
+frozenset CAN collide), the original order is a CPython table-layout artifact
+not derivable from the values, and the rebuilt set iterates in a
+deterministic-but-different order. Type, membership and `==` are preserved in
+every case. The gate pins full bit-identity on empty/single-element `tags`; a
+future order-sensitive consumer would need `Plain`'s order-recording `Vec`
+instead.
+
+### Gates (U2)
+
+- `cargo test -p temper-data-model`: 1 passed (the `Val` int/float
+  distinction pin).
+- `cargo test -p temper-orchestration --lib` (PYO3_PYTHON=/usr/bin/python3.12):
+  1133 passed (1125 base + 8 new `netlist_owned::tests`).
+- `cargo clippy --all-targets` on both crates: clean.
+- `cargo check --target wasm32-unknown-unknown` on `temper-data-model`:
+  clean (the crate is pyo3-free by construction); `cargo check
+  --no-default-features` on `temper-orchestration`: clean.
+- `scripts/gen_wasm_test_registry.py --crate temper-orchestration --check`:
+  up to date (1019 tests — `netlist_owned::tests` is `python-gated`, censused
+  not registered).
+- `make regen-check`: all derived artifacts consistent — including the
+  regenerated README package count (17 → 18, `temper-data-model` added) and
+  `uv.lock` (the new workspace member).

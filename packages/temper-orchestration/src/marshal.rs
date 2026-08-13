@@ -103,17 +103,13 @@ pub fn to_python<T: Marshal>(py: Python<'_>, owned: &T) -> PyResult<Py<PyAny>> {
 // The `Val` enum — the int-or-float canonical type
 // ---------------------------------------------------------------------------
 
-/// The concrete-Python-type canonical for a field that can hold `int` OR
-/// `float` (e.g. a component's bounds `(1, 2)` vs `(1.0, 2.0)`).
-///
-/// Round-trips preserving WHICH it was — `extract::<f64>()` alone would
-/// silently widen `int` `1` to `float` `1.0`, changing `repr` (`1` → `1.0`),
-/// `==` against int-sensitive code, and downstream numpy dtype promotion.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Val {
-    Int(i64),
-    Float(f64),
-}
+// The `Val` enum now lives in the pure-Rust `temper-data-model` crate (unit
+// O-C3/U2), where the owned leaf structs' `bounds: Vec<Val>` field can name
+// it without dragging pyo3 into the data model (the wasm-tier forcing
+// function). Re-exported here so the U0 call sites and tests keep the same
+// path; the `Marshal` impl below is unchanged and matches the same
+// `Int`/`Float` variants. See the type's doc in `temper-data-model`.
+pub use temper_data_model::Val;
 
 impl Marshal for Val {
     fn from_python(_py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<Self> {
@@ -482,7 +478,7 @@ fn plain_objs(items: &[Plain], py: Python<'_>) -> PyResult<Vec<Py<PyAny>>> {
 // Error helper
 // ---------------------------------------------------------------------------
 
-fn type_err(obj: &Bound<'_, PyAny>, want: &str, why: &str) -> PyErr {
+pub(crate) fn type_err(obj: &Bound<'_, PyAny>, want: &str, why: &str) -> PyErr {
     let got = obj
         .get_type()
         .getattr("__name__")
@@ -499,8 +495,18 @@ fn type_err(obj: &Bound<'_, PyAny>, want: &str, why: &str) -> PyErr {
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 fn eval<'py>(py: Python<'py>, expr: &str) -> Bound<'py, PyAny> {
+    eval_with(py, expr, None)
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+fn eval_with<'py>(
+    py: Python<'py>,
+    expr: &str,
+    globals: Option<&Bound<'py, PyDict>>,
+) -> Bound<'py, PyAny> {
     let cstr = std::ffi::CString::new(expr).expect("expr has no NUL byte");
-    py.eval(cstr.as_c_str(), None, None).expect("eval failed")
+    py.eval(cstr.as_c_str(), globals, None).expect("eval failed")
 }
 
 #[cfg(test)]
@@ -523,7 +529,21 @@ fn gate_equal(a: &Bound<'_, PyAny>, b: &Bound<'_, PyAny>) -> PyResult<bool> {
 /// back, and assert bit-identity — exact type, identical `repr`, and
 /// (NaN-aware) `==`. Panics with the expression and the mismatch on failure.
 pub(crate) fn assert_roundtrip<T: Marshal>(py: Python<'_>, expr: &str) {
-    let orig = eval(py, expr);
+    assert_roundtrip_with::<T>(py, expr, None);
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+/// [`assert_roundtrip`] with an explicit globals dict — the U2+ leaf-struct
+/// tests need `Component`/`Pin`/`Net` names in scope (the empty-globals
+/// [`assert_roundtrip`] does not provide them, since `eval` runs against
+/// builtins only). `globals = None` is exactly [`assert_roundtrip`].
+pub(crate) fn assert_roundtrip_with<T: Marshal>(
+    py: Python<'_>,
+    expr: &str,
+    globals: Option<&Bound<'_, PyDict>>,
+) {
+    let orig = eval_with(py, expr, globals);
     let owned = to_owned::<T>(&orig).unwrap_or_else(|e| {
         panic!(
             "to_owned::<{}>({expr}) failed: {e}",

@@ -22,6 +22,7 @@ resolution-markers = [
 [manifest]
 members = [
     "temper-constraint-compiler",
+    "temper-data-model",
     "temper-design-bundle",
     "temper-drc-rs",
     "temper-geometry",
@@ -1510,6 +1511,11 @@ wheels = [
 name = "temper-constraint-compiler"
 version = "0.1.0"
 source = { editable = "packages/temper-constraint-compiler" }
+
+[[package]]
+name = "temper-data-model"
+version = "0.1.0"
+source = { editable = "packages/temper-data-model" }
 
 [[package]]
 name = "temper-design-bundle"

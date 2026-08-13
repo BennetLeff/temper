@@ -28,6 +28,12 @@ crate-type = ["cdylib", "rlib"]
 # way on `main`). Without it, the test build links libpython normally and
 # the maturin-produced cdylib still gets `extension-module`.
 pyo3 = { version = "0.29", features = ["py-clone"], optional = true }
+# The pure-Rust owned data model (unit O-C3/U2): `Val` + the `Component`/
+# `Pin`/`Net` leaf structs. Unconditional (not python-gated) on purpose --
+# the crate is pyo3-free and wasm-compatible, so it compiles for the
+# `wasm32-unknown-unknown` tier too; the `Marshal` impls that USE it are
+# the `#[cfg(feature = "python")]`-gated parts (see `netlist_owned.rs`).
+temper-data-model = { path = "../temper-data-model" }
 
 [features]
 default = ["python"]

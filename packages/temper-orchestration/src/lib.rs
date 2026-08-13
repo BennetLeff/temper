@@ -261,6 +261,12 @@ mod hv_lv_partition_stage;
 mod layer_assignment_stage;
 #[cfg(feature = "python")]
 pub(crate) mod marshal;
+// Unit O-C3/U2: the owned leaf-struct boundary — `Marshal` impls for the
+// `temper-data-model` `Component`/`Pin`/`Net` structs (python-gated: they
+// are the pyo3 half of the data-model port; the structs themselves are pure
+// Rust in the sibling crate).
+#[cfg(feature = "python")]
+pub(crate) mod netlist_owned;
 mod net_ordering_stage;
 pub(crate) mod phased_assignment_stage;
 pub(crate) mod phased_component_assignment_validator_stage;
