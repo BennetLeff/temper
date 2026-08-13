@@ -431,6 +431,35 @@ built (this bit a session in practice before this target existed).
 After `make extensions`, `uv run --no-sync python
 scripts/check_stale_extensions.py` should report 0 STALE.
 
+**A stale `.so` does not just fail — it lies.** Believing a measurement
+taken against one is the expensive mistake, not the rebuild. In one
+session `tests/deterministic` reported 76 failures of which 72 were stale
+extensions and only 4 were real; separately, an agent reported
+`temper_orchestration.RouterPipeline` as "missing — a pre-existing repo
+defect" when the symbol was simply absent from an installed `.so` that
+predated the commit adding it. Run the gate *before* you believe a number,
+not after a result surprises you. Absence of a symbol is not evidence of a
+missing feature.
+
+**A poisoned cargo cache defeats the rebuild silently.** `cargo check` and
+clippy compile these crates *without* their `python` feature. maturin will
+reuse such an artifact, report success, and install a `.so` with no
+`PyInit_<crate>` symbol — `import <crate>` then fails with "dynamic module
+does not define module export function", and the freshness gate is happy
+because the file's mtime is new. The tell is maturin printing
+`Finished ... in 0.0Xs` with **no `Compiling <crate>` line**, usually
+alongside a `Couldn't find the symbol PyInit_<crate>` warning. Fix:
+
+```bash
+source scripts/cargo_shared_env.sh   # so -p cleans the SHARED target dir
+cargo clean -p <crate>
+```
+
+then rebuild and confirm a real `Compiling <crate>` line appears. Note this
+is a cargo-cache problem, not a maturin-invocation problem: the
+`--manifest-path` form above reads `[tool.maturin] features` correctly from
+any working directory.
+
 ### Worktree `.venv`: shared vs. isolated
 
 Multiple agent worktrees historically pointed `UV_PROJECT_ENVIRONMENT` at
