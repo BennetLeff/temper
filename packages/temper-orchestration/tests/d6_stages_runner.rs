@@ -51,10 +51,10 @@ class FakeTrace:
         self.net = net
 
 class FakeVia:
-    def __init__(self, position, layers=("F.Cu", "B.Cu"), net=None, is_diff_pair=False):
+    def __init__(self, position, drill, width, layers, net, is_diff_pair=False):
         self.position = position
-        self.drill = 0.3
-        self.width = 0.6
+        self.drill = drill
+        self.width = width
         self.layers = layers
         self.net = net
         self.is_diff_pair = is_diff_pair
@@ -110,6 +110,13 @@ class FakeSweepOracle:
 class FakeDrvViolation:
     def __init__(self, vtype):
         self.type = vtype
+        self.geometry_a_id = f"a-{vtype}"
+        self.geometry_b_id = f"b-{vtype}"
+        self.net_a = "N_A"
+        self.net_b = "N_B"
+        self.clearance_actual = 0.1
+        self.clearance_required = 0.3
+        self.location = FakePoint(1.0, 2.0)
 
     def __str__(self):
         return f"<{self.type}>"
@@ -189,6 +196,18 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     modules.set_item("temper_placer", &pkg)?;
     modules.set_item("temper_placer.core", &core)?;
     modules.set_item("temper_placer.core.board", &board)?;
+
+    // temper_design_bundle_python.board_contracts — the Trace/Via pyclasses
+    // the U6 (O-C3) group-2 `RouteSet`/`ViaSet` rebuild (`Marshal::to_python`)
+    // constructs the owned routes/vias back into (same FakeTrace/FakeVia
+    // classes, so the sweep stage's isinstance checks still pass).
+    let tdb = PyModule::new(py, "temper_design_bundle_python")?;
+    let bc = PyModule::new(py, "board_contracts")?;
+    bc.add("Trace", ns.getattr("FakeTrace")?)?;
+    bc.add("Via", ns.getattr("FakeVia")?)?;
+    tdb.add("board_contracts", &bc)?;
+    modules.set_item("temper_design_bundle_python", &tdb)?;
+    modules.set_item("temper_design_bundle_python.board_contracts", &bc)?;
 
     // temper_placer.core.net_classification
     let ncls = PyModule::new(py, "net_classification")?;
