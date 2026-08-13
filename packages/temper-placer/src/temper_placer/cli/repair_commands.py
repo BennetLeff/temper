@@ -97,11 +97,28 @@ def _find_repo_file(relative_path: str) -> Path | None:
     return None
 
 
-def _rot_idx(rotation_deg: float | None) -> int:
-    """Board rotation degrees -> the solver's 0-3 quadrant index."""
-    if rotation_deg is None:
+def _rot_idx(quadrant_index: float | int | None) -> int:
+    """Normalize a component's rotation to the solver's 0-3 quadrant index.
+
+    ``Component.initial_rotation_quadrant`` (every call site's actual argument) is
+    ALREADY the quantized 0-3 quadrant index -- ``io/_parse_modules.py``
+    quantizes the real board angle at parse time, it is not degrees (an
+    earlier version of this function divided by 90 here, silently treating
+    an already-0-3 value as degrees: ``round(1/90) % 4 == 0`` for every
+    input in {0,1,2,3} except 0 itself, i.e. it force-zeroed the rotation
+    of every non-zero-rotated frozen/displaced component in
+    ``fixed_positions``/``fixed_rotations`` -- pinning `rot_ref` to a
+    DIFFERENT rotation than the one implied by that ref's own real,
+    also-pinned x/y, an internally-contradictory footprint the encoder
+    could only resolve by moving something, or by proving infeasible for a
+    reason entirely unrelated to whatever else was being solved for; see
+    ``docs/evidence/2026-08-13-courtyard-touch-set-filter.md``). This
+    still tolerates a raw float / an out-of-range int by rounding and
+    taking mod 4, so it is a safe no-op on an already-correct 0-3 int.
+    """
+    if quadrant_index is None:
         return 0
-    return round(float(rotation_deg) / 90.0) % 4
+    return round(float(quadrant_index)) % 4
 
 
 @dataclass
@@ -135,7 +152,43 @@ def _build_plan(all_refs: set[str], free_refs: set[str], displace_refs: set[str]
     )
 
 
-def _frozen_positions(comp_by_ref: dict, refs: set[str]) -> dict[str, tuple[float, float, int]]:
+def _rotated_half_extents(bounds: tuple[float, float], rot_idx: int) -> tuple[float, float]:
+    """Courtyard half-width/half-height after the solver's quadrant rotation
+    (rot 1/3 swap the local axes -- same convention as the CP-SAT model's
+    own x_size/y_size rotation table, see fixed_copper.py's ``_rotated``)."""
+    w, h = bounds
+    return (h / 2.0, w / 2.0) if rot_idx % 2 == 1 else (w / 2.0, h / 2.0)
+
+
+def _frozen_positions(
+    comp_by_ref: dict, refs: set[str], *, clamp_warnings: list[str] | None = None
+) -> dict[str, tuple[float, float, int]]:
+    """Build the ``fixed_positions`` pin dict for *refs*.
+
+    Clamps a ref's pinned centre so its courtyard box's start coordinate is
+    never negative, in EITHER axis. This is not cosmetic: the CP-SAT
+    model's own position variables (``CpSatModel.add_component``'s
+    ``x_start``/``y_start``/``x_center``/etc.) are declared with a HARD
+    ``NewIntVar(0, ...)`` domain floor of zero -- not an assumption-gated
+    constraint, an actual variable-domain bound with no relaxation
+    mechanism CP-SAT can report a core for. A ref whose REAL courtyard
+    already extends past the board's own coordinate-frame origin by a
+    fraction of a millimetre (measured: 12 of 168 components on
+    ``pcb/temper.kicad_pcb`` as of 2026-08-13, e.g. C18 at x_start=-0.24mm)
+    cannot be represented by ``fixed_positions`` at all without this --
+    pinning it produces an immediate, silent (empty unsat_core, since no
+    assumption governs a variable-domain violation), and completely
+    unrelated INFEASIBLE for whatever else is being solved.
+
+    Safe because this only affects the SOLVER's internal representation of
+    a FROZEN (non-touch-set) ref for this one solve: the clamped value is
+    never written back (``repair_unplaced`` only writes positions for
+    ``plan.touch_set`` refs, via ``preserve_unmatched=True``), so the
+    output board still carries this ref's true, unmodified position and
+    rotation. The clamp is at most the sub-millimetre amount the real
+    board already overhangs the origin by -- reported via
+    *clamp_warnings* (when given) rather than applied silently.
+    """
     out: dict[str, tuple[float, float, int]] = {}
     for ref in refs:
         comp = comp_by_ref[ref]
@@ -145,7 +198,17 @@ def _frozen_positions(comp_by_ref: dict, refs: set[str]) -> dict[str, tuple[floa
                 "cannot build fixed_positions for it"
             )
         x, y = comp.initial_position
-        out[ref] = (x, y, _rot_idx(getattr(comp, "initial_rotation", 0)))
+        rot = _rot_idx(getattr(comp, "initial_rotation_quadrant", 0))
+        hw, hh = _rotated_half_extents(comp.bounds, rot)
+        clamped_x, clamped_y = max(x, hw), max(y, hh)
+        if (clamped_x, clamped_y) != (x, y) and clamp_warnings is not None:
+            clamp_warnings.append(
+                f"{ref}: courtyard start clamped to the solver's coordinate-frame "
+                f"origin (real position ({x:.3f}, {y:.3f}) implies a start of "
+                f"({x - hw:.3f}, {y - hh:.3f}), below the representable minimum of "
+                "0 on at least one axis -- see _frozen_positions docstring)"
+            )
+        out[ref] = (clamped_x, clamped_y, rot)
     return out
 
 
@@ -328,6 +391,18 @@ def _print_unsat(result) -> None:
     "family. Same caveat as --no-fixed-copper -- diagnostic only.",
 )
 @click.option(
+    "--courtyard-touch-filter/--no-courtyard-touch-filter",
+    default=True,
+    show_default=True,
+    help="Restrict the auto-generated courtyard SEPARATED constraint (the board-wide "
+    "pairwise NoOverlap tau) to pairs touching --refs/--displace, the same way "
+    "domain-clearance is filtered. WITHOUT this, a pair of two frozen, unrelated "
+    "components that already violates courtyard clearance on the real board (measured: "
+    "48 such pairs on pcb/temper.kicad_pcb, none involving the refs being placed) makes "
+    "EVERY solve spuriously infeasible regardless of merit. Disabling this is diagnostic "
+    "only -- to reproduce the unfiltered (bugged) behaviour, never to trust its verdict.",
+)
+@click.option(
     "--run-drc/--no-run-drc",
     default=True,
     show_default=True,
@@ -351,6 +426,7 @@ def repair_unplaced(
     auto_escalate: bool,
     fixed_copper: bool,
     domain_clearance: bool,
+    courtyard_touch_filter: bool,
     run_drc: bool,
     unsat_report: Path | None,
 ) -> None:
@@ -426,6 +502,19 @@ def repair_unplaced(
     else:
         console.print("  [yellow]domain-clearance constraint family DISABLED (diagnostic ablation)[/]")
 
+    if courtyard_touch_filter:
+        console.print(
+            "  courtyard constraint: filtered to the free/displaceable set (default) -- "
+            "pre-existing frozen-vs-frozen courtyard violations elsewhere on the board "
+            "cannot cause a spurious UNSAT here"
+        )
+    else:
+        console.print(
+            "  [yellow]courtyard constraint UNFILTERED (diagnostic ablation) -- pre-existing "
+            "frozen-vs-frozen violations elsewhere on the board CAN cause a spurious UNSAT; "
+            "do not trust an UNSAT verdict produced this way[/]"
+        )
+
     fixed_copper_kwargs = None
     if fixed_copper:
         fixed_copper_kwargs = {
@@ -465,7 +554,15 @@ def repair_unplaced(
     # ------------------------------------------------------------------
     _print_solve_header("Phase 1: solve free refs only, every neighbour frozen")
     phase1_frozen = plan.frozen_refs | plan.displace_refs
-    fixed_positions_1 = _frozen_positions(comp_by_ref, phase1_frozen)
+    clamp_warnings: list[str] = []
+    fixed_positions_1 = _frozen_positions(comp_by_ref, phase1_frozen, clamp_warnings=clamp_warnings)
+    if clamp_warnings:
+        console.print(
+            f"  [dim]{len(clamp_warnings)} frozen ref(s) clamped to the solver's "
+            "representable coordinate frame (sub-mm, solver-internal only -- "
+            "see repair_commands._frozen_positions):[/] "
+            f"{', '.join(w.split(':')[0] for w in clamp_warnings)}"
+        )
     result = solve_placement(
         netlist=pl_netlist,
         board=board,
@@ -475,6 +572,7 @@ def repair_unplaced(
         fixed_positions=fixed_positions_1,
         fixed_copper=fixed_copper_kwargs,
         isolation_barrier=isolation_kwargs if use_barrier else None,
+        auto_pairwise_touch_refs=plan.touch_set if courtyard_touch_filter else None,
     )
     console.print(f"  status={result.status} ({result.solve_time_ms:.0f}ms)")
     phase_used = 1
@@ -487,13 +585,13 @@ def repair_unplaced(
                 f"Phase 2: unfreeze {sorted(plan.displace_refs)} "
                 f"(bounded minimum displacement, max {max_displacement_mm}mm)"
             )
-            fixed_positions_2 = _frozen_positions(comp_by_ref, plan.frozen_refs)
+            fixed_positions_2 = _frozen_positions(comp_by_ref, plan.frozen_refs)  # clamp_warnings already surfaced above
             minimize_to = {
                 ref: (comp_by_ref[ref].initial_position[0], comp_by_ref[ref].initial_position[1])
                 for ref in plan.displace_refs
             }
             fixed_rotations = {
-                ref: _rot_idx(getattr(comp_by_ref[ref], "initial_rotation", 0))
+                ref: _rot_idx(getattr(comp_by_ref[ref], "initial_rotation_quadrant", 0))
                 for ref in plan.displace_refs
             }
             result = solve_placement(
@@ -508,6 +606,7 @@ def repair_unplaced(
                 fixed_rotations=fixed_rotations,
                 fixed_copper=fixed_copper_kwargs,
                 isolation_barrier=isolation_kwargs if use_barrier else None,
+                auto_pairwise_touch_refs=plan.touch_set if courtyard_touch_filter else None,
             )
             console.print(f"  status={result.status} ({result.solve_time_ms:.0f}ms)")
             phase_used = 2

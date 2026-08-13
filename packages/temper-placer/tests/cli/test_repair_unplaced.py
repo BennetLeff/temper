@@ -22,7 +22,16 @@ Three groups:
    displacement" repair this command exists for. This exercises the exact
    constraint composition ``repair_unplaced`` builds, via ``solve_placement``
    directly (no CLI/file-IO layer), so it stays fast and hermetic.
-3. ``TestCliSmoke`` -- CliRunner-level checks that don't need a real
+3. ``TestSpuriousUnsatFromUnrelatedViolationsRegression`` -- pins the
+   PR #1158 control-test finding: a placement request for an entirely
+   uninvolved component must not be affected by unrelated pre-existing
+   violations elsewhere on the board (two frozen components that violate
+   courtyard clearance with EACH OTHER, and a frozen component whose real
+   position sits outside the solver's representable coordinate domain).
+   Proves the unfiltered composition IS spuriously infeasible (falsifier,
+   not vacuous) and that ``auto_pairwise_touch_refs`` fixes it, including
+   via the actual ``repair_unplaced`` plan-building helpers.
+4. ``TestCliSmoke`` -- CliRunner-level checks that don't need a real
    CP-SAT solve: ``--help`` exits 0, and refusing to write to the tracked
    board / unknown refs fail loudly with a non-zero exit before any solve
    is attempted.
@@ -70,13 +79,20 @@ class TestPlanBuilding:
         with pytest.raises(click.ClickException, match="both --refs and --displace"):
             _build_plan({"A", "B"}, {"A"}, {"A"})
 
-    def test_rot_idx_snaps_degrees_to_quadrant(self) -> None:
+    def test_rot_idx_is_a_safe_no_op_on_an_already_quadrant_index(self) -> None:
+        """``Component.initial_rotation_quadrant`` is ALREADY the 0-3 quadrant index
+        (quantized at parse time by ``io/_parse_modules.py``), never
+        degrees -- confirmed on the real board (only values {0,1,2,3}
+        occur across all 168 components). ``_rot_idx`` must be a
+        normalizing no-op on that input, not divide by 90 (a real,
+        previously-shipped bug: ``round(1/90) % 4 == 0`` silently forced
+        the rotation of every non-zero-rotated frozen/displaced ref to 0)."""
         assert _rot_idx(None) == 0
-        assert _rot_idx(0.0) == 0
-        assert _rot_idx(90.0) == 1
-        assert _rot_idx(180.0) == 2
-        assert _rot_idx(270.0) == 3
-        assert _rot_idx(360.0) == 0
+        assert _rot_idx(0) == 0
+        assert _rot_idx(1) == 1
+        assert _rot_idx(2) == 2
+        assert _rot_idx(3) == 3
+        assert _rot_idx(4) == 0  # tolerates an out-of-range value via mod 4
 
     def test_frozen_positions_reads_current_board_position(self) -> None:
         comp = Component(
@@ -85,7 +101,7 @@ class TestPlanBuilding:
             bounds=(2.0, 2.0),
             pins=[],
             initial_position=(12.5, 7.25),
-            initial_rotation=90,
+            initial_rotation_quadrant=1,  # already a quadrant index, not degrees
         )
         out = _frozen_positions({"U1": comp}, {"U1"})
         assert out == {"U1": (12.5, 7.25, 1)}
@@ -93,7 +109,7 @@ class TestPlanBuilding:
     def test_frozen_positions_fails_loud_on_missing_position(self) -> None:
         comp = Component(
             ref="U1", footprint="t", bounds=(2.0, 2.0), pins=[], initial_position=None,
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
         )
         with pytest.raises(click.ClickException, match="no board position"):
             _frozen_positions({"U1": comp}, {"U1"})
@@ -114,7 +130,7 @@ def _comp(ref: str, bounds: tuple[float, float], pos: tuple[float, float], net: 
     ]
     return Component(
         ref=ref, footprint="t", bounds=bounds, pins=pins, initial_position=pos,
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
 
 
@@ -258,7 +274,133 @@ class TestFixedCopperBites:
 
 
 # ---------------------------------------------------------------------------
-# Group 3: CLI smoke tests (no solver invoked)
+# Group 3: spurious-UNSAT-from-unrelated-violations regression (PR #1158
+# control-test finding, 2026-08-13)
+# ---------------------------------------------------------------------------
+#
+# A control test on a completely uninvolved component (an "R75") against the
+# real board returned UNSAT purely because SOME OTHER frozen, unrelated pair
+# of components already violated courtyard clearance with EACH OTHER (48
+# such pairs measured on pcb/temper.kicad_pcb) or because some OTHER frozen
+# component's real position sat outside the solver's representable
+# coordinate domain (22 components measured; 12 of those hit the CP-SAT
+# variable's hard >=0 floor, not just the softer edge-margin assumption).
+# Both are real, separately-tracked, pre-existing board conditions that have
+# nothing to do with what a caller is actually trying to place -- the fix is
+# `auto_pairwise_touch_refs` (restricting every auto-generated pairwise
+# constraint family -- courtyard, netclass, the redundant NoOverlap2D, and
+# per-component edge-margin -- to pairs touching the free/displaceable set)
+# plus `_frozen_positions`'s clamp for the hard variable-domain floor. This
+# group pins the "uninvolved placement request is unaffected by unrelated
+# pre-existing violations elsewhere on the board" property directly.
+
+
+class TestSpuriousUnsatFromUnrelatedViolationsRegression:
+    @pytest.fixture
+    def messy_board(self):
+        """A synthetic board carrying BOTH discovered pre-existing-defect
+        shapes, deliberately unrelated to TARGET:
+
+        - BAD_A / BAD_B: two frozen components whose courtyard boxes
+          genuinely overlap each other (mirrors the real board's 48
+          courtyard-violating pairs).
+        - EDGE: a frozen component whose real position implies a negative
+          courtyard start coordinate (mirrors the real board's 12
+          components that hit the CP-SAT variable's hard >=0 domain floor,
+          e.g. C18 at x_start=-0.24mm).
+
+        TARGET has ample legal room elsewhere on the board, entirely clear
+        of all three.
+        """
+
+        def comp(ref, bounds, pos, net):
+            w, h = bounds
+            pins = [
+                Pin(
+                    name="1", number="1", position=(0.0, 0.0), net=net, width=w, height=h,
+                    shape="rect", layer="all", is_pth=True,
+                )
+            ]
+            return Component(
+                ref=ref, footprint="t", bounds=bounds, pins=pins, initial_position=pos,
+                initial_rotation_quadrant=0,
+            )
+
+        target = comp("TARGET", (4.0, 4.0), (50.0, 10.0), "NET_T")
+        bad_a = comp("BAD_A", (10.0, 10.0), (10.0, 10.0), "NET_A")
+        bad_b = comp("BAD_B", (10.0, 10.0), (12.0, 10.0), "NET_B")  # overlaps BAD_A
+        edge = comp("EDGE", (4.0, 4.0), (1.0, 1.0), "NET_E")  # implies x_start = -1.0
+
+        comps = [target, bad_a, bad_b, edge]
+        netlist = Netlist(
+            components=comps,
+            nets=[Net(name=c.pins[0].net, pins=[(c.ref, "1")]) for c in comps],
+        )
+        board = Board(width=100.0, height=20.0, origin=(0.0, 0.0), zones=[])
+        return SimpleNamespace(
+            netlist=netlist, board=board, comp_by_ref={c.ref: c for c in comps}
+        )
+
+    def test_unrelated_violations_do_cause_spurious_unsat_unfiltered(self, messy_board) -> None:
+        """Precondition: WITHOUT auto_pairwise_touch_refs (the pre-fix
+        default), freezing BAD_A/BAD_B/EDGE at their real positions makes a
+        request for the entirely-uninvolved TARGET infeasible -- proving
+        the scenario is a real falsifier, not a vacuous one."""
+        mb = messy_board
+        frozen = _frozen_positions(mb.comp_by_ref, {"BAD_A", "BAD_B", "EDGE"})
+        result = solve_placement(
+            netlist=mb.netlist, board=mb.board, timeout_ms=5000, fixed_positions=frozen
+        )
+        assert result.status == "infeasible", (
+            "expected the unfiltered composition to reproduce the spurious UNSAT "
+            f"(got {result.status}) -- the regression scenario itself may be stale"
+        )
+
+    def test_uninvolved_placement_request_is_unaffected_when_filtered(self, messy_board) -> None:
+        """The fix: with auto_pairwise_touch_refs={TARGET} (repair_unplaced's
+        actual composition for a free ref), the same frozen neighbourhood no
+        longer blocks TARGET -- an uninvolved component's placement request
+        must not be affected by unrelated pre-existing violations elsewhere
+        on the board."""
+        mb = messy_board
+        frozen = _frozen_positions(mb.comp_by_ref, {"BAD_A", "BAD_B", "EDGE"})
+        result = solve_placement(
+            netlist=mb.netlist,
+            board=mb.board,
+            timeout_ms=5000,
+            fixed_positions=frozen,
+            auto_pairwise_touch_refs={"TARGET"},
+        )
+        assert result.status in ("optimal", "feasible"), (
+            f"uninvolved TARGET placement request returned {result.status}, blocked by "
+            "unrelated pre-existing violations elsewhere on the board"
+        )
+        assert "TARGET" in result.positions
+
+    def test_repair_unplaced_cli_composes_the_filter_by_default(self, messy_board, tmp_path: Path) -> None:
+        """End-to-end: the actual CLI plan-building helpers (not a hand-rolled
+        stand-in) produce a touch_set that, when threaded through
+        solve_placement exactly as repair_unplaced's Phase 1 does, is
+        unaffected by BAD_A/BAD_B/EDGE. Exercises `_build_plan` +
+        `_frozen_positions` + the `auto_pairwise_touch_refs` wiring together,
+        the same call shape `repair_unplaced` itself uses for Phase 1."""
+        mb = messy_board
+        all_refs = set(mb.comp_by_ref)
+        plan = _build_plan(all_refs, {"TARGET"}, set())
+        fixed_positions = _frozen_positions(mb.comp_by_ref, plan.frozen_refs)
+        result = solve_placement(
+            netlist=mb.netlist,
+            board=mb.board,
+            timeout_ms=5000,
+            fixed_positions=fixed_positions,
+            auto_pairwise_touch_refs=plan.touch_set,
+        )
+        assert result.status in ("optimal", "feasible")
+        assert "TARGET" in result.positions
+
+
+# ---------------------------------------------------------------------------
+# Group 4: CLI smoke tests (no solver invoked)
 # ---------------------------------------------------------------------------
 
 

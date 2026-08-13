@@ -92,35 +92,6 @@ domains:
                            # here by its current exact compiled string, not
                            # inferred from either name.
       - DC_BUS_RTN         # dc_bus_minus
-      - hb-gnd              # ADDED 2026-08-13 (T2/C37/R65 placement
-                             # tooling): OCP-02's CT primary pin 1
-                             # (safety.ocp2.ct, P1 "bus_in") is spliced
-                             # in-series with DC_BUS_RTN -- main.ato:
-                             # `hb.dc_bus.hv_minus ~ safety.ocp2_bus_in`,
-                             # `safety.ocp2_bus_out ~ dc_bus_minus`. The
-                             # compiled netlist gives the segment on the
-                             # hb.dc_bus.hv_minus side of the splice its
-                             # own net name, `hb-gnd` (elec/build/
-                             # default.net net code 39, nodes T2.1 /
-                             # U6.9 / C23.2 / C24.2 / U5.3), rather than
-                             # reusing `DC_BUS_RTN` -- but it is the SAME
-                             # electrical HV rail, just named locally
-                             # inside the half-bridge hierarchy. The
-                             # manifest's own `safety.ocp2.ct` isolator
-                             # entry below already documents "primary:
-                             # [1,2] both DC_BUS_RTN (in-series splice)"
-                             # -- declaring the instance's primary group
-                             # is not declaring the net, same defect
-                             # class as the safety.ocp2-line/TP3 gap
-                             # (2026-08-13, PR #1123: "declaring the
-                             # instance is not declaring the net").
-                             # Before this fix, T2's primary pin 1 (and
-                             # every other component on this net: U6, U5,
-                             # C23, C24) went unclassified with respect
-                             # to THIS specific net, silently narrowing
-                             # which IEC60335_REQUIREMENTS rows the
-                             # domain-clearance generator could match on
-                             # pairs through it.
       - PWR_RTN            # power_return, the doubler midpoint
                            # (main.ato override_net_name). Confirmed a
                            # SEPARATE net from `gnd` as of this manifest
@@ -553,27 +524,6 @@ domains:
                              # precedent, not silently dropped: flagged
                              # explicitly as a human-judgment item in this
                              # change's PR description.
-      - s1  # ADDED 2026-08-13 (T2/C37/R65 placement tooling): OCP-02's
-            # CT secondary sense node -- safety.ocp2.ct pin 3 (S1),
-            # C37.1 (c_filter), R65.1 (r_burden), U19.3 (comparator
-            # input) -- elec/build/default.net net code 117. Genuinely
-            # SELV by the same construction already accepted for
-            # `safety.ocp2-line` (PR #1123): the CT secondary "has no
-            # galvanic connection to the primary, so it can be
-            # referenced to signal ground regardless of common-mode
-            # voltage" (modules.ato SecondaryOCPComparator docstring),
-            # and every other pin on T2/C37/R65 (pin 2/2/4 -> `gnd`,
-            # already SELV above) confirms the whole secondary side sits
-            # in the SELV domain. Before this fix, T2/C37/R65 as
-            # components already had a classified `gnd` pin each (so
-            # component-level domain-clearance pairing was not fully
-            # blind), but the `s1` copper itself -- and any OTHER
-            # component sharing only this net -- went unclassified, and
-            # pairs walking specifically through it could not match the
-            # stricter IEC60335_REQUIREMENTS rows keyed on this net's
-            # true domain. Same defect class as `hb-gnd` above and
-            # `safety.ocp2-line`/TP3 (PR #1123): "declaring the instance
-            # is not declaring the net."
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
