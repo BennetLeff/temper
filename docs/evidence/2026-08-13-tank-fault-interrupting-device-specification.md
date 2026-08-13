@@ -30,6 +30,18 @@ for this task where the data permits, and states precisely what remains open whe
   state the *maximum* let-through I²t the coil and capacitors can tolerate — so it recommends the
   fastest-clearing device class available in the required current/voltage range as the only
   currently-defensible position, rather than a specific let-through number.
+- **Correction folded in below (§5)**: an earlier pass of this document reconstructed IEC 60335-1
+  Table 8's numeric values from an OCR text layer that a prior evidence document had already judged
+  unsafe to reassign — inference on data a predecessor deliberately declined to touch, not
+  independent confirmation of it. This session pulled the archive.org page-image scan directly
+  (leaf `0029`, printed page 25) and confirmed the reconstruction was numerically correct — but the
+  methodology gap was real, and §5 records it rather than silently fixing it. **Table 8 was never
+  load-bearing for either blocker's closure and remains so now**; this correction changes how a
+  number was obtained, not what this specification concludes.
+- **The interrupting-rating bracket (619–710 A, §2.1) itself carries a caveat that belongs next to
+  the number, not buried**: it assumes the tank coil's inductance stays linear through the fault, but
+  the coil's own spec only guarantees that up to 40 A — 15–18× below the fault bracket. The true peak
+  current more likely exceeds 710 A than falls short of it.
 
 ---
 
@@ -45,7 +57,7 @@ being relied on:
 | Bus-cap ESR (3600µF, 283 Hz) | 41.1 mΩ/half-bus | Re-derived from the same Chemi-Con KMQ catalog (re-fetched, sha256 `1e6c0c241393f983aca540278536bd6ea5c9ab95d17ab19c6425f53538f7480a` — identical to the cited hash) — no surge/peak-current rating anywhere in that document (grepped fresh, §4.2). |
 | Loop pour resistance | ≤1.8 mΩ | Not independently re-measured (would require re-parsing `pcb/temper.kicad_pcb`, out of scope since this document must not open that file); taken as previously sourced. |
 | R_total, damped peak current, I²t(t) | 143.0 mΩ; 619 A at 694 µs; 147/255 A²·s at t_peak/1ms | **Independently re-derived from scratch** with a fresh numeric RLC integration (§1.1) — matches the prior document to the number. |
-| Table 8 (winding temperature) numeric values | reconstructed | **Recovered in this session** from the same OCR text layer the prior document found unreadable, by a cross-checking reconstruction, not a fresh image read (§5). |
+| Table 8 (winding temperature) numeric values | confirmed | **Read directly off the archive.org page-image scan this session** (leaf `0029`, printed page 25 — §5), after an initial OCR-text reconstruction from the same source the prior document found unreadable was cross-checked against it and matched exactly. **Not load-bearing in this document's conclusions either way** — see §5's closing paragraph. |
 | Tank coil insulation class | ≥180 °C (Class H) | Re-read `docs/hardware/TANK_COIL_SPECIFICATION.md:47` directly: requirement #11, "Insulation and former rated ≥ 180 °C continuous." Class H is defined at 180 °C (IEC 60085) — this is a direct match, not an inference. |
 
 ### 1.1 Independent re-derivation of the fault-current/I²t model
@@ -89,13 +101,18 @@ This argues for specifying interrupting capability with real margin above 710 A,
 
 ### 2.1 Interrupting rating
 
-**≥ 710 A, DC, with margin above that figure held for the reason in §1.2 (unquantified but
-directionally-certain saturation effect).** 619–710 A is the sourced, re-derived bracket for the
-*linear-inductance* model; the true figure is plausibly higher and cannot be bounded tighter with
-data in this repository. A device whose manufacturer-stated DC interrupting rating is comfortably
-into the multi-hundred-to-low-thousand-amp class at the required voltage (§7 shows this is a normal,
-stocked class of part, not a special order) absorbs this uncertainty without needing to quantify it
-precisely.
+**≥ 710 A, DC, with real margin held above that figure — not treated as a firm ceiling.** 619–710 A
+is the sourced, re-derived bracket for a *linear-inductance* model of the coil. **That assumption is
+itself only guaranteed by the coil's own specification up to 40 A** (`docs/hardware/
+TANK_COIL_SPECIFICATION.md` requirement #7: "Peak current, non-repetitive: ≥ 40 A peak without
+saturation or measurable L shift") — **15–18× below the 619–710 A fault bracket.** Ferrite cores lose
+effective inductance as they saturate, which raises the peak current and shortens the time to reach
+it (§1.2); no B-H curve exists in this repository to quantify by how much, so **the true peak fault
+current should be assumed to plausibly exceed 710 A, by an amount this document cannot bound.** A
+device whose manufacturer-stated DC interrupting rating is comfortably into the multi-hundred-to-
+low-thousand-amp class at the required voltage (§7 shows this is a normal, stocked class of part, not
+a special order) absorbs this uncertainty without needing to quantify it precisely — but the
+selection should be made with this caveat in view, not against 710 A as if it were a hard number.
 
 ### 2.2 Voltage rating
 
@@ -363,24 +380,30 @@ currently bound.
 
 ---
 
-## 5. Table 8 (IEC 60335-1, "Maximum Winding Temperature") — recovered this session
+## 5. Table 8 (IEC 60335-1, "Maximum Winding Temperature") — confirmed this session by direct page-image read; not load-bearing
 
-`docs/evidence/2026-08-13-tank-fault-sizing-inputs.md` §4.4 located Table 8 in the same OCR'd primary
-source used throughout this project (`is.302.1.2008_djvu.txt`, archive.org, sha256
-`2695a4bc1b2c87dd24a6126d984d01ad30be53c8d905ff196b73241b73f99251` — re-fetched this session, hash
-confirmed identical) but declined to transcribe its numeric values because the OCR text layer
-separates the eight class columns (A/E/B/F/H/200/220/250) from their five row labels, printing all 40
-numeric cells as a single undifferentiated run of digits after the row list.
+**Correction to this document's own first-draft methodology, recorded here rather than silently
+fixed.** An earlier pass of this document reconstructed Table 8's numeric values from the OCR text
+layer alone (`is.302.1.2008_djvu.txt`), using clause 19.9's inline prose limits to fix the
+column ordering of a run of 40 undifferentiated digits, and a same-source internal-consistency check
+(two independent decompositions of the digit run landing on the same two rows twice) as corroboration.
+That reconstruction was performed on **exactly the data `docs/evidence/2026-08-13-tank-fault-
+sizing-inputs.md` §4.4 had already looked at and explicitly declined to reassign**, on the stated
+grounds that doing so risked "the kind of fabricated-looking-real number the task prohibits." An
+OCR-text reconstruction, however internally cross-checked, is inference from the same ambiguous
+source that prior pass judged unsafe — not independent confirmation of it. That was a real
+methodological gap in this document, flagged externally before being caught here.
 
-**This session recovered the assignment using a cross-check the OCR itself supplies, not a fresh
-image read and not an external reference.** Clause 19.9 (the motor running-overload test,
-immediately preceding Table 8 in the same source) states its own winding-temperature limits inline,
-by class, in prose: *"140 °C for Class A... 155 °C for Class E... 165 °C for Class B... 180 °C for
-Class F... 200 °C for Class H... 220 °C for Class 200... 240 °C for Class 220... 270 °C for Class
-250."* These are a **different** test's limits (19.9, not 19.11/Table 8), but they fix the intra-row
-ordering (values must increase monotonically A→E→B→F→H→200→220→250 in the same class order printed at
-the top of Table 8's own column headers). Applying that known monotonic ordering to decompose the raw
-40-digit run into 5 rows of 8:
+**Resolved this session by pulling the actual page-image scan, not the OCR text layer, from the same
+archive.org item** (`gov.in.is.302.1.2008`, sha256 of the underlying djvu text `2695a4bc1b2c87dd24a6
+126d984d01ad30be53c8d905ff196b73241b73f99251` — unchanged, same source). Used the item's own
+full-text search-inside index (`fulltext/inside.php`) to locate the exact leaf containing "Table 8
+Maximum Winding Temperature," then fetched that leaf directly out of `is.302.1.2008_jp2.zip` via
+`BookReaderImages.php` (no OCR involved — a rendered page image, read visually) — **leaf `0029`,
+printed page 25 of IS 302-1:2008.**
+
+**The image is fully legible and matches the OCR-text reconstruction exactly, digit for digit, across
+all 5 rows × 8 classes:**
 
 | Row (clause 19.11 context) | A | E | B | F | H | 200 | 220 | 250 |
 |---|---|---|---|---|---|---|---|---|
@@ -390,27 +413,30 @@ the top of Table 8's own column headers). Applying that known monotonic ordering
 | ii-b-2) Protective-device protected, after first hour, max | 175 | 190 | 200 | 215 | 235 | 255 | 275 | 305 |
 | ii-b-3) Protective-device protected, after first hour, average | 150 | 165 | 175 | 190 | 210 | 230 | 250 | 280 |
 
-**Internal consistency check, not an appeal to memory:** this table was reconstructed two
-*independent* ways from the same raw digit sequence — reading the first 16 digits as two
-column-major-interleaved rows, and reading the following 24 digits as three row-major rows — and
-**row (i) exactly reproduces row (ii-b-1)'s digits, and row (ii-a) exactly reproduces row
-(ii-b-3)'s digits, both by construction of two different decompositions of the same raw sequence.**
-Two different parses of the same data landing on the same two rows twice is a strong (not
-absolute) internal check that the assignment is right — it is not a claim of certainty equivalent to
-a clean-copy re-fetch.
+**One correction the image surfaces that the OCR-based citation got wrong**: the table's own printed
+caption reads **"(Clauses 17, 19.7 and 19.11)"**, not "(Clauses 11, 19.1, and 19.11)" as the
+OCR-derived citation in the prior sizing document stated — a small numeral-garbling in the OCR text
+layer, caught only by reading the image directly. The table's *content* was right; one clause
+citation attached to it was not. This is itself evidence for the coordinator's underlying point: OCR
+reconstruction, even when it lands on the right numbers, is not a substitute for the image where the
+image is obtainable, and it can be right about the load-bearing content while still wrong about
+adjacent details.
 
-**What this means for the fault here:** clause 19.11's own text ties Table 8 directly to the
-electronic-circuit fault-condition test this document is about ("during and after each test, the
-temperature of the windings shall not exceed the values specified in Table 8"). The relevant row for
-a fault that clears in well under an hour (this fault's entire event, even unimpeded, rings down
-within tens of milliseconds — nowhere near "the first hour") is **row (i)/(ii-b-1): 240 °C for Class
-F, 260 °C for Class H.** This is materially higher than the continuous-operation ceiling
-(TANK_COIL_SPECIFICATION.md's own 180 °C insulation-class figure is a *continuous rating*, not this
-fault-condition allowance) — consistent with Table 8 being an abnormal-condition table, not a
-normal-operation one. **This number is not currently usable to close §4.3's gap for the coil**,
-because converting a temperature ceiling into an I²t withstand still requires the coil's copper mass
-— which is the same missing input named there. Table 8's recovery closes a *different*, real gap
-(the primary-source text was previously unread), but it does not by itself close Blocker B.
+**What this means for the fault here:** clause 19.11 ties Table 8 directly to the electronic-circuit
+fault-condition test this document is about. The relevant row for a fault that clears in well under an
+hour (the event, even fully unimpeded, rings down within tens of milliseconds) is **row (i)/(ii-b-1):
+240 °C for Class F, 260 °C for Class H** — confirmed, not reconstructed, values.
+
+**This is not load-bearing in this document's conclusions, and that remains true regardless of the
+methodology correction above.** Blocker A (§3) closes on CT1's own conservative copper-mass bound
+without reference to Table 8 at all — the comparison there is against the base insulation-class
+temperatures (155 °C / 180 °C), not Table 8's fault-condition allowances, and the margin (≤1.1 K rise)
+is large enough that it would survive either comparison. Blocker B (§4) states plainly that converting
+any winding-temperature ceiling — Table 8's or otherwise — into an I²t withstand still requires the
+coil's copper mass, which is the missing input, not the temperature figure. **Table 8's confirmation
+closes a real, separate gap (this primary-source table is now genuinely read, not guessed at) but it
+does not, and was never going to, close Blocker B.** The two open data requests in §4.4 — coil copper
+mass/turn count, and a Chemi-Con pulse-current withstand curve — stand exactly as before.
 
 ---
 
