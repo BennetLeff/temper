@@ -238,6 +238,10 @@ pub mod resource_bound;
 pub mod power_plane;
 pub mod diff_pair_inference;
 pub mod trace_width_assignment;
+// Current-derived IPC-2221B width floor + the authoritative net->current
+// registry `determine_trace_width_ipc_aware` (trace_width_assignment.rs)
+// consults. Declared after trace_width_assignment (which depends on it).
+pub mod ipc2221b_current_width;
 pub mod dense_package_detection;
 // Wave 4, tier-2 router_v6 cluster (via_placement, clearance_engine,
 // grid_converter, path_simplify) -- see via_clearance.rs's module doc.
@@ -341,6 +345,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::power_plane::register(m)?;
     crate::diff_pair_inference::register(m)?;
     crate::trace_width_assignment::register(m)?;
+    crate::ipc2221b_current_width::register(m)?;
     crate::dense_package_detection::register(m)?;
     crate::core_graph_geometry::register(m)?;
     crate::via_clearance::register(m)?;
