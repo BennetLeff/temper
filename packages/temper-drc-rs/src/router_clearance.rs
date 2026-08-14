@@ -524,8 +524,21 @@ fn get_clearance(class_a: NetClass, class_b: NetClass, voltage: f64, layer_inter
         ipc,
     ];
     let mut result = py_max_slice(&candidates);
+    // Non-monotonicity fix (2026-08-14): identical defect, and identical
+    // fix, to `temper-orchestration/src/clearance.rs::get_clearance_impl`'s
+    // own internal-layer branch -- see that file's inline writeup for the
+    // full diagnosis (the `> 0.5` bound is uncited anywhere, reduction
+    // without a floor lets a larger input produce a smaller output once it
+    // crosses the boundary, and `0.5` collides with this module's general
+    // safe-default sentinel value). Not currently reachable through this
+    // function's only caller (`required_clearance` below never calls
+    // `get_clearance` unless at least one net is HV-gate-matched, which
+    // forces `NetClass::Hv` -> `VoltageClass::HighVoltage`, base 14.0mm,
+    // nowhere near this 0.5mm boundary) -- fixed anyway, defensively, since
+    // it is the same latent shape in the same file and a future change to
+    // the HV-gate keyword list could expose it.
     if layer_internal && result > 0.5 {
-        result *= INTERNAL_LAYER_CREEPAGE_FACTOR;
+        result = (result * INTERNAL_LAYER_CREEPAGE_FACTOR).max(0.5);
     }
     result
 }

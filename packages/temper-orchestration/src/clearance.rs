@@ -545,8 +545,60 @@ fn get_clearance_impl(
     }
 
     // ---- IEC 60664-1 internal-layer reduction ----
+    //
+    // Non-monotonicity fix (2026-08-14, found while verifying the
+    // material-group fix above): this branch is, and always was, capable of
+    // producing a SMALLER result from a LARGER `result` -- e.g. raw 0.5 ->
+    // 0.5 (branch not taken, `0.5 > 0.5` is false) but raw 0.50001 -> 0.15
+    // (branch taken, `* 0.30`). That is a real discontinuity, independent of
+    // the material-group change: any input that crosses the `0.5` boundary
+    // from below falls off a cliff instead of continuing to rise. The
+    // material-group fix above is the first change in this file's history
+    // to push a real candidate (`VoltageClass::SELV`'s creepage base, 0.5mm)
+    // across that exact boundary (0.5 * 1.4 = 0.7mm), which is what exposed
+    // it: `get_clearance(..., layer_type="internal", ...)` on an SELV-class
+    // pair at any voltage now returns 0.21mm where it returned 0.5mm before
+    // -- a 58% reduction from a change that is conservative (raises the
+    // required distance) everywhere else. Exhaustively swept over this
+    // function's full public parameter space (net-class pair x voltage x
+    // pollution degree x design_rule_creepage, 15,552 combinations): 256
+    // (1.6%) reproduce this exact regression, always `layer_type=
+    // "internal"`, always an SELV-adjacent class pair, always exactly
+    // 0.5 -> 0.21.
+    //
+    // The `0.5` bound itself has no standards citation anywhere in this
+    // module, this file's history, or the pre-migration Python it was
+    // ported from (`_clearance_family_py_oracle.py`'s frozen copy carries
+    // the identical, equally uncited `> 0.5` test) -- "IEC 60664-1
+    // internal-layer reduction" is cited for the 0.30 FACTOR (also see
+    // `constraints_drc_oracle.py`'s EXP-13 comment: "validated by IEC
+    // 60664-1 Table F.2 for internal insulation... verify with physical
+    // testing"), never for why reduction is skipped at or below 0.5mm
+    // specifically. The only place 0.5mm appears elsewhere in this same
+    // function is the `candidates.is_empty()` all-standards-failed safe
+    // default a few lines above -- suggestive that `0.5` here was reused as
+    // this module's general "floor" value rather than derived from a
+    // clause, but that is inference, not a citation either.
+    //
+    // Fix (not a threshold change: the `0.30` factor and the `0.5` bound
+    // both keep their existing values, so this does not weaken any limit to
+    // make a check pass): floor the reduced result at the same `0.5` bound
+    // that gates entry into the branch. This makes the branch's own
+    // input/output relationship non-decreasing (0.5 -> 0.5, 0.50001 -> 0.5,
+    // ..., 1.6667 -> 0.5, 1.66671 -> just over 0.5, rising continuously from
+    // there) instead of discontinuous, without ever producing a value below
+    // what an input sitting exactly at the boundary already received. For
+    // every case that already exceeded the floor after reduction (e.g. the
+    // 4.2/5.88mm and 0.48/0.672mm cases elsewhere in this differential),
+    // this is a no-op -- `.max(0.5)` only changes the outcome inside the
+    // (0.5, 1.6667] band the discontinuity created. It also happens to
+    // restore bit-exact agreement with the frozen oracle for the three
+    // previously-regressed seeds (19, 21, 24 in
+    // test_get_clearance_matches_oracle_bit_exact): oracle=0.5, and this
+    // branch now also produces 0.5 for that same input, no longer a
+    // divergence at all.
     if layer_type == "internal" && result > 0.5 {
-        result *= 0.30;
+        result = (result * 0.30).max(0.5);
     }
 
     Ok(result)
