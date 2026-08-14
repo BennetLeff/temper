@@ -562,10 +562,10 @@ class TestZoneLayersForNet:
     """
 
     def test_dc_bus_plus_is_zone_eligible(self):
-        assert _zone_layers_for_net("DC_BUS+") == ["F.Cu", "B.Cu"]
+        assert _zone_layers_for_net("DC_BUS+") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
 
     def test_dc_bus_minus_is_zone_eligible(self):
-        assert _zone_layers_for_net("DC_BUS-") == ["F.Cu", "B.Cu"]
+        assert _zone_layers_for_net("DC_BUS-") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
 
     def test_cgnd_is_zone_eligible(self):
         """UPDATED 2026-08-07 (R3/R4,
@@ -584,13 +584,13 @@ class TestZoneLayersForNet:
         silently pass if this correction ever regressed -- see R7's own
         observability requirement, which this test satisfies for the GND
         class specifically."""
-        assert _zone_layers_for_net("CGND") == ["F.Cu", "B.Cu"]
+        assert _zone_layers_for_net("CGND") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
 
     def test_pwr_rtn_is_zone_eligible(self):
         """PWR_RTN is the one net this correction changes emitted copper for
         in practice (R5) -- GND's return-plane member, previously an
         accidental gap (KD2 of the plan above)."""
-        assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "B.Cu"]
+        assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
 
     def test_power_class_is_not_zone_eligible(self):
         """R1/R7: Power (+3V3, vcc, +15V, +15V_LS*, V_BUS_SENSE) routes as
@@ -874,7 +874,7 @@ class TestCrossClassZoneClearance:
         all, and the cross-class lookup this test exists to exercise was
         never reached. Confirmed empirically via
         _zone_layers_for_net("+340V_BUS") == [] vs
-        _zone_layers_for_net("+170V_BUS") == ["F.Cu", "B.Cu"]. Swapped to
+        _zone_layers_for_net("+170V_BUS") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]. Swapped to
         the net name that is actually assigned to HighVoltage."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 

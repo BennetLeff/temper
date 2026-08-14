@@ -303,6 +303,7 @@ def _emit_zone_pours(
     )
 
     board_polygon = None
+    real_layer_names: set[str] | None = None
     if pcb is not None:
         from temper_placer.router_v6.routing_space import _get_board_polygon
 
@@ -317,6 +318,25 @@ def _emit_zone_pours(
             not hasattr(board_polygon, "is_empty") or board_polygon.is_empty
         ):
             board_polygon = None
+
+        # ``_zone_layers_for_net`` returns
+        # ``ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED`` unconditionally (it
+        # takes no board context -- see its own docstring for why) --
+        # a fixed, board-independent ENGINE fact. That stops being safe the
+        # moment a board's own inner-layer names don't match the production
+        # board's: e.g. ``pcb/benchmarks/temper_fixture_33.kicad_pcb``
+        # declares its two inner signal layers ``In1.Cu``/``In2.Cu``, not
+        # ``In3.Cu``/``In4.Cu``, so emitting a zone for those literal names
+        # on that board would pour copper onto layers it never declares at
+        # all. Filtering the returned layer list to what THIS pcb's own
+        # stackup actually has (when a ``pcb`` is available) is the local,
+        # minimal fix -- no new parameter threaded through
+        # ``_zone_layers_for_net``'s ~9 call sites, which its docstring
+        # already argues is a separately-risky refactor out of scope here.
+        stackup = getattr(pcb, "stackup", None)
+        layers = getattr(stackup, "layers", None) if stackup is not None else None
+        if layers:
+            real_layer_names = {ly.name for ly in layers}
 
     zone_netclasses: set[str] = set()
     for net_name in pad_positions:
@@ -357,6 +377,8 @@ def _emit_zone_pours(
     zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
     for net_name, positions in pad_positions.items():
         zone_layers = _zone_layers_for_net(net_name)
+        if real_layer_names is not None:
+            zone_layers = [layer for layer in zone_layers if layer in real_layer_names]
         if not zone_layers:
             continue
         net_num = net_name_to_number.get(net_name, 0)

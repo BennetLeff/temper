@@ -301,9 +301,11 @@ def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets(
     `docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md`) created
     on purpose: `GND` declares ``plane_preferred`` and `PWR_RTN` is its
     only member with committed zones on the board, so
-    `_zone_layers_for_net("PWR_RTN")` is now ``["F.Cu", "B.Cu"]`` and its
-    A* exclusion is correct (the zone covers it). It is deliberately NOT
-    in the A*-must-route list below.
+    `_zone_layers_for_net("PWR_RTN")` is now
+    ``["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]`` (widened 2026-08-13 alongside
+    `ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED`) and its A* exclusion is
+    correct (the zone covers it). It is deliberately NOT in the
+    A*-must-route list below.
     """
     from temper_placer.router_v6._net_policy import _should_route
     from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
@@ -323,7 +325,7 @@ def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets(
 
     # PWR_RTN: plane_preferred + committed board zones -> zone-covered, so
     # its A* exclusion is correct (the zone produces the copper).
-    assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "B.Cu"], (
+    assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"], (
         "PWR_RTN's plane_preferred zone eligibility must persist (R4); "
         "regressing it back to [] would re-orphan it exactly as this test "
         "guards against"

@@ -126,15 +126,61 @@ class LayerRole(Enum):
 # automatically to every caller of :func:`routable_signal_layers` rather
 # than requiring a hunt through the router for hardcoded layer lists again.
 #
-# Two forms, deliberately: the ordered tuple is authoritative (F.Cu before
-# B.Cu matches every prior hardcoded literal this replaces, several of
-# which index ``[0]`` as a "preferred/default layer" -- see
+# Two forms, deliberately: the ordered tuple is authoritative (F.Cu first
+# matches every prior hardcoded literal this replaces, several of which
+# index ``[0]`` as a "preferred/default layer" -- see
 # ``_zone_pour_stitch.py``'s own call site -- so silently reordering via
 # ``sorted(frozenset(...))`` would be a real behavior change, not a
 # refactor); the frozenset is for plain membership/intersection checks
 # (:func:`routable_signal_layers`) where order doesn't matter and a set is
 # the more honest type.
-ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED: tuple[str, ...] = ("F.Cu", "B.Cu")
+#
+# UNFROZEN 2026-08-13 (docs/evidence/2026-08-13-router-nlayer-routing.md):
+# this constant was pinned at ``("F.Cu", "B.Cu")`` even after PR #1178 (the
+# 2026-08-13 6-layer stackup decision) declared ``In3.Cu``/``In4.Cu``
+# signal -- so the gate this module exists to close (a stackup edit having
+# no mechanism to propagate to the router) reproduced inside the module
+# built to close it. Widened to the real, verified engine capability:
+#
+# - Stage 2 occupancy-grid construction (``routing_space.py``'s
+#   ``compute_routing_space`` / ``occupancy_grid.py``'s
+#   ``build_occupancy_grid``) already builds one grid per
+#   ``pcb.stackup.layers`` entry whose ``layer_type`` is
+#   ``"signal"``/``"mixed"`` -- genuinely N-layer, no per-layer-name
+#   literal anywhere in that path.
+# - The via-aware A* search primitive (``astar_core._route_segment_3d`` /
+#   ``_astar_search_3d``) already accepts an arbitrary-size
+#   ``grids: dict[str, OccupancyGrid]`` and costs a layer transition (via)
+#   generically; ``_astar_nlayer.py``'s ``select_routing_grids_nlayer`` /
+#   ``run_astar_pathfinding_nlayer`` thread this through a real per-net
+#   driver, tested (``test_astar_nlayer.py``,
+#   ``test_astar_route_multilayer_via_fallback.py``).
+# - Via placement (``via_placement.py``'s ``_place_vias_for_path``)
+#   already derives each via's ``from_layer``/``to_layer`` from the
+#   routed path's own actual segment layers (``temper_geometry``'s
+#   ``via_layer_pair_py``), not a hardcoded F.Cu/B.Cu pair.
+#
+# What is NOT included here, deliberately: ``In1.Cu``/``In2.Cu``. Those are
+# declared ``power`` in ``pcb/temper.kicad_pcb``'s own ``(layers ...)``
+# block, not ``signal`` -- :func:`signal_layer_names` already excludes them
+# from the *declared-architecture* half of :func:`routable_signal_layers`'s
+# intersection, so widening this engine-capability set to include them
+# would not change ``routable_signal_layers``'s output for this board. It
+# would, however, silently change the result for any *other* board that
+# happens to declare an inner layer ``signal`` while genuinely meaning it
+# as a plane -- so this constant is kept to the layer names actually
+# verified above, not padded out "just in case."
+#
+# What layer_assignment.py's soft *preferred*-layer heuristic (channel_
+# mapping._assign_layer / the 4-element Layer enum L1_TOP..L4_BOT, 1:1
+# mapped to F.Cu/In1.Cu/In2.Cu/B.Cu) still does NOT cover: a net's SSOT
+# preferred layer can only ever resolve to F.Cu or B.Cu today (see that
+# module's docstring). This is a soft optimization hint, not a hard
+# capability cap -- tiers 2/3 of the N-layer A* try every other available
+# grid regardless of what tier 1's preferred layer was -- so it is left
+# alone here; see the router-nlayer-routing evidence doc for the full
+# argument.
+ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED: tuple[str, ...] = ("F.Cu", "In3.Cu", "In4.Cu", "B.Cu")
 ENGINE_SUPPORTED_SIGNAL_LAYERS: frozenset[str] = frozenset(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
 
 # Matches one `(layers ...)` entry: an ordinal, a quoted KiCad layer name,
