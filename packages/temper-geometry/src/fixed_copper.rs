@@ -41,14 +41,26 @@
 //   2-arg forms; `cpython_min_n`/`cpython_max_n` below for the >2-arg
 //   builtin-`min`/`max` call sites (`_point_rect_distance`'s 4-way min,
 //   `_rect_segment_distance`'s corner min).
-// * `_point_segment_distance` in THIS file has ITS OWN degenerate check
-//   (`dx == 0.0 and dy == 0.0`, exact equality) -- deliberately NOT the same
-//   function as `creepage_check.rs`/`drc_constraints_geometry.rs`'s
-//   point-to-segment distance (those use an epsilon threshold on
-//   `seg_len_sq`). The two references genuinely disagree at the boundary; a
-//   "de-duplication" that reused one for the other would be a silent
-//   behaviour change, exactly the trap `drc_constraints_geometry.rs`'s own
-//   header documents for the same reason.
+// * `_point_segment_distance` in THIS file now DELEGATES to
+//   `creepage_check::point_to_segment_distance` (2026-08-13 epsilon
+//   consolidation, see
+//   `docs/evidence/2026-08-13-point-to-segment-distance-epsilon-consolidation.md`).
+//   Its own degenerate check (`dx == 0.0 and dy == 0.0`, exact equality) was
+//   measured bit-identical to the canonical `denom == 0.0 or
+//   not denom.is_finite()` contract on every finite input covered by this
+//   file's own pinned oracle (`_fixed_copper_py_oracle.py`) and on a
+//   6000+-case board-scale + near-degenerate (1e-15mm..1mm segment length)
+//   corpus swept for this consolidation -- the two contracts differ only
+//   on non-finite/overflowing denom, which this file's oracle never
+//   exercises and real board geometry (mm-scale, 20-254 range) cannot
+//   reach. The canonical contract is additionally correct where this
+//   file's own convention was not: it stays finite instead of
+//   propagating NaN/Inf when a coordinate overflows. This is NOT the same
+//   situation as `drc_constraints_geometry.rs`'s or `geometry_kernels.rs`'s
+//   own epsilon-threshold conventions (`seg_len_sq < 1e-10` /
+//   `len2 < 1e-12`), which genuinely disagree with the canonical contract
+//   on ~20-24% of near-degenerate segments (measured) and remain a
+//   documented, deliberate KEEP -- see the evidence doc above.
 
 use crate::congestion::ceil_to_int;
 use crate::creepage_check::{py_max, py_min};
@@ -241,13 +253,15 @@ pub(crate) fn encoded_pad_world_rect(
 }
 
 // ---------------------------------------------------------------------------
-// Point/segment/rect geometry (this file's OWN degenerate-segment
-// convention -- see module header)
+// Point/segment/rect geometry -- delegates to the crate's canonical kernel
+// (see module header's "epsilon consolidation" note)
 // ---------------------------------------------------------------------------
 
-/// `_point_segment_distance` (fixed_copper.py's own copy: degenerate iff
-/// `dx == 0.0 and dy == 0.0`, exact equality -- NOT the epsilon-threshold
-/// version other files in this crate use).
+/// `_point_segment_distance`: delegates to
+/// `creepage_check::point_to_segment_distance`, the crate's canonical
+/// point-to-segment kernel. Measured bit-identical to this file's own
+/// former `dx == 0.0 and dy == 0.0` exact-equality convention on every
+/// finite input this file's pinned oracle exercises (see module header).
 pub(crate) fn point_segment_distance(
     px: f64,
     py_: f64,
@@ -256,14 +270,7 @@ pub(crate) fn point_segment_distance(
     bx: f64,
     by: f64,
 ) -> f64 {
-    let dx = bx - ax;
-    let dy = by - ay;
-    if dx == 0.0 && dy == 0.0 {
-        return py_hypot(px - ax, py_ - ay);
-    }
-    let raw_t = ((px - ax) * dx + (py_ - ay) * dy) / (dx * dx + dy * dy);
-    let t = py_max(0.0, py_min(1.0, raw_t));
-    py_hypot(px - (ax + t * dx), py_ - (ay + t * dy))
+    crate::creepage_check::point_to_segment_distance(px, py_, ax, ay, bx, by)
 }
 
 /// `_point_rect_distance`: 0 if the point is inside/on the rect, else the

@@ -2625,6 +2625,24 @@ jobs:
       - name: No duplicate pyo3 function/class registration
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_pyo3_duplicate_registration.py
+      # 2026-08-13: `point_to_segment_distance` had 5 independent Rust bodies
+      # across temper-geometry and temper-constraint-compiler, each pinned to
+      # its own Python oracle with its own degenerate-length epsilon (1e-12,
+      # 1e-10, exact-zero, exact-zero-or-non-finite) -- one of them directly
+      # on the HV creepage/clearance safety path. None was caught by any
+      # existing gate: each differential proves internal consistency against
+      # its own oracle, not that the copy should exist, and a name-based
+      # search undercounts (fixed_copper.rs's copy was renamed to
+      # `point_segment_distance`). This gate scans Rust source structurally
+      # (a degenerate-length branch + a [0,1] clamp + a Euclidean close, not
+      # a specific function name) so the next accidental copy -- renamed or
+      # not -- fails a PR before merge instead of quietly acquiring its own
+      # pinned oracle. See docs/evidence/2026-08-13-point-to-segment-distance-
+      # epsilon-consolidation.md. Needs no built extensions -- parses .rs
+      # source text -- so it runs unconditionally like the gate above.
+      - name: No new point-to-segment-distance-shaped Rust copies (geometry-primitive-duplication gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_geometry_primitive_duplication.py
 
       # requirements-ci.txt is baked into the CI image's pre-installed venv
       # (.github/docker/ci.Dockerfile). If it drifts from uv.lock, the image
