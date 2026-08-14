@@ -604,11 +604,17 @@ def test_hv_escalation_both_hv():
         voltage_ratings={"HV_BUS": 100.0, "AC_L": 400.0},
     )
     assert report.total_checks == 1
-    # 400V → most-conservative across all standards (IEC 60950-1, 60335-1,
-    # 60664-1, 62368-1, IPC-2221) = 14.0 mm.  The old IPC-2221-only value
-    # was 8.0; the unified engine is correctly more conservative.
+    # 400V -> most-conservative across all standards (IEC 60950-1, 60335-1,
+    # 60664-1, 62368-1, IPC-2221) = 14.0mm base * this board's declared
+    # Material Group IIIb creepage multiplier (1.4x, docs/specs/
+    # HIGH_VOLTAGE_CLEARANCE_SPEC.md REQ-ELEC-04 Section 3.2) = 19.6mm.
+    # Was 14.0mm before the 2026-08-14 material-group fix (router_clearance.
+    # rs previously hardcoded the "typical FR4" bucket-2 assumption with no
+    # parameter to override it -- see that file's `BOARD_MATERIAL_GROUP`).
+    # The old IPC-2221-only value was 8.0; the unified engine is correctly
+    # more conservative than that baseline too.
     if report.violation_count > 0:
-        assert report.violations[0].required_clearance == pytest.approx(14.0)
+        assert report.violations[0].required_clearance == pytest.approx(19.6)
 
 
 # ============================================================================

@@ -92,7 +92,13 @@ def test_oracle_body_matches_pinned_digest() -> None:
     """
     text = _ORACLE_PATH.read_text(encoding="utf-8")
     digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
-    assert digest == "8bc0e895961fe6d1b9fae726daf2cdb224160bb2739e945b71ab80bc700680c4", (
+    # Re-pinned 2026-08-14 (its own commit): the pre-migration
+    # `get_clearance` body's material_group discard and un-floored
+    # internal-layer reduction were confirmed defects (not intended
+    # reference behavior) and corrected here to match the now-fixed Rust
+    # side -- see the oracle module's own docstring "RE-PIN" section for
+    # the exhaustive-sweep evidence this was gated on.
+    assert digest == "03508551f7a70d58d0fcf8fd59772d1f4643408058d176bbd04bdbfc10abe145", (
         "the pinned oracle file changed; it must stay verbatim "
         "(see scripts/oracle_hashes.json for the registered hash)"
     )
