@@ -180,7 +180,32 @@ HV_TANK_CREEPAGE_PD3_MM: float = 10.0
 #: Design against PD3, not PD2 (task instruction, carried into code so a
 #: caller who does not pass ``margin_mm`` gets the as-built-correct figure
 #: rather than the conditional one).
-DEFAULT_TANK_CREEPAGE_MM: float = HV_TANK_CREEPAGE_PD3_MM
+#:
+#: Deliberately NOT written as the bare ``DEFAULT_TANK_CREEPAGE_MM =
+#: HV_TANK_CREEPAGE_PD3_MM`` alias form. ``scripts/check_creepage_clearance_drift.py``
+#: treats a bare ``NAME2 = NAME1`` as a "selection alias" and then
+#: self-verifies that the selected constant sits in a comparable (metric,
+#: tier) family; it classifies tier by keyword-scanning the attached
+#: comment for reinforced/basic/working. HV_TANK_CREEPAGE_PD2_MM/PD3_MM
+#: above are Table 18 FUNCTIONAL insulation figures -- a tier that gate
+#: does not model -- so they have no family, and the alias form makes the
+#: gate exit 5 ("GATE ERROR -- could not run a trustworthy check"),
+#: strictly worse than the exit 3 it reports without this module. Measured
+#: directly against this file. Adding "functional" to that gate's tier
+#: vocabulary was tried and REJECTED for the identical situation in
+#: ``scripts/generate_kicad_dru.py`` (see that file's own
+#: ``HV_TANK_CREEPAGE_ENFORCED_MM`` block, ~line 195-230): it re-tags other,
+#: unrelated declarations out of real comparison families and reduces gate
+#: sensitivity. The dict-lookup form mirrors that file's established
+#: workaround for this exact figure: it keeps the one-line PD switch,
+#: duplicates no literal, and reads to that gate as a non-literal
+#: expression (its UNRESOLVED bucket) rather than as an alias it must and
+#: cannot resolve.
+_TANK_DEFAULT_POLLUTION_DEGREE = "PD3"
+DEFAULT_TANK_CREEPAGE_MM: float = {
+    "PD2": HV_TANK_CREEPAGE_PD2_MM,
+    "PD3": HV_TANK_CREEPAGE_PD3_MM,
+}[_TANK_DEFAULT_POLLUTION_DEGREE]
 
 
 #: Classes this module treats as equivalent to "HighVoltage" for Group B

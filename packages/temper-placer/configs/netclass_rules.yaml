@@ -130,9 +130,15 @@ classes:
   # full derivation and the caveat that this 6.0mm figure (like its ACMains/
   # HighVoltage siblings above) is a legacy, not primary-cited, number; the
   # fab-authoritative enforcement point is scripts/generate_kicad_dru.py's
-  # HV_CREEPAGE_ENFORCED_MM (12.6mm, PD3-pinned, cited) plus
-  # HV_INTERNAL_CLEARANCE_MM (2.0mm, cited) -- not this placer-feasibility
-  # config.
+  # HV_CREEPAGE_ENFORCED_MM (8.0mm, PD2-pinned, cited -- STALE NOTE FIXED
+  # 2026-08-14: this comment previously read "12.6mm, PD3-pinned", which
+  # was accurate when originally written (2026-07-28) but has not tracked
+  # scripts/generate_kicad_dru.py's PD2/PD3 selection since; see
+  # docs/evidence/2026-07-30-pd2-enclosure-decision.md and
+  # docs/evidence/2026-08-11-pd2-decision-record.md for the decision
+  # history and the still-open compartment-evidence prerequisite that
+  # decision is conditional on) plus HV_INTERNAL_CLEARANCE_MM (2.0mm,
+  # cited) -- not this placer-feasibility config.
   HighVoltageIsolated:
     clearance: 6.0
     trace_width: 2.0
