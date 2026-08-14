@@ -34,7 +34,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 
 #[cfg(feature = "python")]
-use crate::board_state::BoardState;
+use std::collections::HashSet;
+
+#[cfg(feature = "python")]
+use crate::board_state::{BoardState, ViaEntry};
 #[cfg(feature = "python")]
 use crate::d6_util;
 #[cfg(feature = "python")]
@@ -42,7 +45,7 @@ use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_data_model::{PlacementSet, ViaSet};
+use temper_data_model::PlacementSet;
 
 const STAGE_NAME: &str = "fine_pitch_escape";
 
@@ -104,7 +107,7 @@ impl FinePitchEscapeStage {
         // `vias = list(state.vias) if state.vias else []`.
         let vias = match &state.vias {
             Some(v) if !v.is_empty() => {
-                let fs = crate::marshal::to_python::<ViaSet>(py, v)?;
+                let fs = crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?;
                 py.import("builtins")?.getattr("list")?.call1((fs,))?
             }
             _ => PyList::empty(py).into_any(),
@@ -496,7 +499,7 @@ impl FinePitchEscapeStage {
         let frozenset_ = builtins.getattr("frozenset")?;
         let fs = frozenset_.call1((&vias,))?;
         let mut new_state = state;
-        new_state.vias = Some(crate::marshal::to_owned::<ViaSet>(&fs)?);
+        new_state.vias = Some(crate::marshal::to_owned::<HashSet<ViaEntry>>(&fs)?);
         Ok(new_state)
     }
 }

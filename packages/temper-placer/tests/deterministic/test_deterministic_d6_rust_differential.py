@@ -383,12 +383,41 @@ class _SweepOracle:
 
 
 class _DrvViolation:
+    """A DRC violation double. `DRCValidationStage` marshals `drc_oracle.
+    validate_all()`'s output into the owned `Violation` struct
+    (`temper_placer.router_v6.constraints_drc_oracle.Violation`, whose
+    fields are all required -- see that class), then rebuilds a REAL
+    `Violation` instance for the "port" (Rust) arm's `drc_violations`. The
+    pinned oracle ("orc" arm) keeps this double verbatim instead
+    (`_drc_validation_run_py_oracle.py`'s `tuple(violations)`), so
+    `_drc_violations_canon`'s cross-arm `str(v)` comparison needs this
+    double's `__repr__` to render exactly like the real dataclass's
+    auto-generated one would for the same field values -- only `type`
+    varies across this suite's uses, so every other field is a fixed dummy.
+    """
+
     def __init__(self, vtype, message="v"):
         self.type = vtype
         self.message = message
+        self.geometry_a_id = "a"
+        self.geometry_b_id = "b"
+        self.net_a = "net_a"
+        self.net_b = "net_b"
+        self.clearance_actual = 0.1
+        self.clearance_required = 0.2
+        self.location = Point(0.0, 0.0)
 
-    def __str__(self):
-        return f"<{self.type}: {self.message}>"
+    def __repr__(self):
+        return (
+            "Violation("
+            f"type={self.type!r}, geometry_a_id={self.geometry_a_id!r}, "
+            f"geometry_b_id={self.geometry_b_id!r}, net_a={self.net_a!r}, "
+            f"net_b={self.net_b!r}, clearance_actual={self.clearance_actual!r}, "
+            f"clearance_required={self.clearance_required!r}, "
+            f"location={self.location!r})"
+        )
+
+    __str__ = __repr__
 
 
 class _DrvOracle:
@@ -440,9 +469,18 @@ class _Geom:
 
 
 class _LayerAssignment:
-    def __init__(self, net_name, is_plane):
+    """A `layer_assignments` element double, matching the real
+    `LayerAssignment(net_name, layer, allow_layer_change=None, is_plane=None)`
+    pyclass (`temper-design-bundle/src/deterministic_leaves.rs`) -- `layer`
+    is a required constructor arg there (no default), and `allow_layer_change`
+    defaults to `True`. `ConnectivityValidationStage` marshals every field.
+    """
+
+    def __init__(self, net_name, is_plane, layer=1, allow_layer_change=True):
         self.net_name = net_name
         self.is_plane = is_plane
+        self.layer = layer
+        self.allow_layer_change = allow_layer_change
 
 
 # ---------------------------------------------------------------------------

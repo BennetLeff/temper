@@ -30,7 +30,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 
 #[cfg(feature = "python")]
-use crate::board_state::BoardState;
+use std::collections::HashSet;
+
+#[cfg(feature = "python")]
+use crate::board_state::{BoardState, RouteEntry, ViaEntry};
 #[cfg(feature = "python")]
 use crate::d6_util;
 #[cfg(feature = "python")]
@@ -40,7 +43,7 @@ use crate::grid_hv::getattr_default;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_data_model::{PlacementSet, RouteSet, ViaSet};
+use temper_data_model::PlacementSet;
 
 const STAGE_NAME: &str = "drc_sweep";
 const STAGE_NAME_DEDUP: &str = "track_deduplication";
@@ -77,16 +80,16 @@ impl DRCSweepStage {
             Some(o) if o.bind(py).is_truthy()? => o.bind(py).clone(),
             _ => return Ok(state),
         };
-        // U6 (O-C3) group-2: the owned `RouteSet` / `ViaSet` are rebuilt into the
+        // U6 (O-C3) group-2: the owned `HashSet<RouteEntry>` / `HashSet<ViaEntry>` are rebuilt into the
         // Python frozensets the oracle checks expect; a `None` field maps to
         // an empty list exactly like the oracle's `state.routes`/`state.vias`
         // defaulting (the frozensets/empty lists are iterated below).
         let routes = match &state.routes {
-            Some(r) => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
+            Some(r) => crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py),
             None => PyList::empty(py).into_any(),
         };
         let vias = match &state.vias {
-            Some(v) => crate::marshal::to_python::<ViaSet>(py, v)?.into_bound(py),
+            Some(v) => crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py),
             None => PyList::empty(py).into_any(),
         };
 
@@ -202,10 +205,10 @@ impl DRCSweepStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.routes = Some(crate::marshal::to_owned::<RouteSet>(
+        new_state.routes = Some(crate::marshal::to_owned::<HashSet<RouteEntry>>(
             &frozenset_cls.call1((&valid_traces,))?,
         )?);
-        new_state.vias = Some(crate::marshal::to_owned::<ViaSet>(
+        new_state.vias = Some(crate::marshal::to_owned::<HashSet<ViaEntry>>(
             &frozenset_cls.call1((&valid_vias,))?,
         )?);
         Ok(new_state)
@@ -239,7 +242,7 @@ impl Stage<BoardState> for TrackDeduplicationStage {
 impl TrackDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let routes = match &state.routes {
-            Some(r) if !r.is_empty() => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
+            Some(r) if !r.is_empty() => crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py),
             _ => return Ok(state),
         };
         let builtins = py.import("builtins")?;
@@ -305,7 +308,7 @@ impl TrackDeduplicationStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.routes = Some(crate::marshal::to_owned::<RouteSet>(
+        new_state.routes = Some(crate::marshal::to_owned::<HashSet<RouteEntry>>(
             &frozenset_cls.call1((&unique_traces,))?,
         )?);
         Ok(new_state)
@@ -343,7 +346,7 @@ impl ShortCircuitDetectionStage {
             _ => return Ok(state),
         };
         let routes = match &state.routes {
-            Some(r) if !r.is_empty() => crate::marshal::to_python::<RouteSet>(py, r)?.into_bound(py),
+            Some(r) if !r.is_empty() => crate::marshal::to_python::<HashSet<RouteEntry>>(py, r)?.into_bound(py),
             _ => return Ok(state),
         };
 
@@ -505,7 +508,7 @@ impl ShortCircuitDetectionStage {
 
         let frozenset_cls = builtins.getattr("frozenset")?;
         let mut new_state = state;
-        new_state.routes = Some(crate::marshal::to_owned::<RouteSet>(
+        new_state.routes = Some(crate::marshal::to_owned::<HashSet<RouteEntry>>(
             &frozenset_cls.call1((&valid_traces,))?,
         )?);
         Ok(new_state)

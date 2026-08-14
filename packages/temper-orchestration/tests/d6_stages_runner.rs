@@ -29,13 +29,13 @@ use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList, PyModule};
 
 use temper_data_model::{
-    LayerAssignment, LayerAssignmentSet, Placement, PlacementSet, Route, RouteSet, Val, Via,
-    ViaSet,
+    LayerAssignment, LayerAssignmentSet, Placement, PlacementSet, Route, Val, Via,
 };
 
 use temper_orchestration::{
     BoardState, ConnectivityValidationStage, CourtyardCheckStage, DRCSweepStage,
-    DRCValidationStage, PipelineConfig, PipelineRunner, ViaDeduplicationStage,
+    DRCValidationStage, PipelineConfig, PipelineRunner, RouteEntry, ViaDeduplicationStage,
+    ViaEntry,
 };
 
 const FAKE_MODULES: &str = r#"
@@ -268,35 +268,42 @@ fn drc_sweep_removes_bad_geometry_and_writes_back() {
         install_fakes(py).unwrap();
         let ns = py.import("d6_fakes")?;
         let oracle = ns.getattr("FakeSweepOracle")?.call0()?;
-        // U6 (O-C3) group-2: fields are owned — the old test also wedged a
-        // FakeVia into `routes` to exercise the oracle's non-Trace
-        // pass-through; the owned `RouteSet` contract (a frozenset of Trace)
-        // makes that shape unrepresentable (dropped coverage, recorded in
-        // VERIFICATION.md). The BAD-net removal + BADVIA removal still run.
-        let routes = RouteSet(std::collections::HashSet::from([
-            Route {
+        // U6 (O-C3) group-2 wedged a FakeVia into `routes` to exercise the
+        // oracle's non-Trace pass-through; the owned `RouteSet` contract (a
+        // frozenset of Trace) made that shape unrepresentable at the time
+        // (dropped coverage, recorded in VERIFICATION.md). `RouteEntry`
+        // restores it: a non-Trace element keeps as an opaque
+        // identity-preserved reference instead of forcing `Route::from_python`
+        // on it, so the pass-through coverage is back. The BAD-net removal +
+        // BADVIA removal still run.
+        let via_in_routes = ns
+            .getattr("FakeVia")?
+            .call1(((2.0, 2.0), 0.3, 0.6, ("F.Cu", "B.Cu"), "VIAINROUTES"))?;
+        let routes = std::collections::HashSet::from([
+            RouteEntry::Trace(Route {
                 start: (0.0, 0.0),
                 end: (10.0, 0.0),
                 width: 0.25,
                 layer: "F.Cu".into(),
                 net: Some("GOOD".into()),
-            },
-            Route {
+            }),
+            RouteEntry::Trace(Route {
                 start: (0.0, 0.0),
                 end: (10.0, 0.0),
                 width: 0.25,
                 layer: "F.Cu".into(),
                 net: Some("BAD".into()),
-            },
-        ]));
-        let badvia = ViaSet(std::collections::HashSet::from([Via {
+            }),
+            RouteEntry::Opaque(via_in_routes.clone().unbind()),
+        ]);
+        let badvia = std::collections::HashSet::from([ViaEntry::Via(Via {
             position: (2.0, 2.0),
             drill: 0.3,
             width: 0.6,
             layers: ("F.Cu".into(), "B.Cu".into()),
             net: Some("BADVIA".into()),
             is_diff_pair: false,
-        }]));
+        })]);
 
         let mut state = BoardState::new();
         state.drc_oracle = Some(oracle.into_any().unbind());
@@ -308,7 +315,29 @@ fn drc_sweep_removes_bad_geometry_and_writes_back() {
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let out_routes = out.routes.as_ref().expect("routes attached");
-        assert_eq!(out_routes.len(), 1, "GOOD survives, BAD removed");
+        assert_eq!(
+            out_routes.len(),
+            2,
+            "GOOD survives, BAD removed, the non-Trace entry passes through untouched"
+        );
+        let trace_cls = ns.getattr("FakeTrace")?;
+        let mut good_nets: Vec<String> = Vec::new();
+        let mut non_trace_count = 0usize;
+        for entry in out_routes {
+            match entry {
+                RouteEntry::Trace(r) => good_nets.push(r.net.clone().unwrap_or_default()),
+                RouteEntry::Opaque(o) => {
+                    let bound = o.bind(py);
+                    assert!(
+                        !bound.is_instance(&trace_cls)?,
+                        "an Opaque entry must not itself be a Trace"
+                    );
+                    non_trace_count += 1;
+                }
+            }
+        }
+        assert_eq!(good_nets, vec!["GOOD".to_string()]);
+        assert_eq!(non_trace_count, 1, "the non-Trace via_in_routes entry survives");
         let out_vias = out.vias.as_ref().expect("vias attached");
         assert_eq!(out_vias.len(), 0, "BADVIA removed");
         Ok::<(), PyErr>(())
@@ -325,14 +354,14 @@ fn via_dedup_guard_and_write() {
         // U6 (O-C3) group-2: the owned `ViaSet` shape of the fake's
         // `FakeVia(position=(3.0, 3.0))` default (drill/width/layers from
         // the pyclass defaults).
-        state.vias = Some(ViaSet(std::collections::HashSet::from([Via {
+        state.vias = Some(std::collections::HashSet::from([ViaEntry::Via(Via {
             position: (3.0, 3.0),
             drill: 0.3,
             width: 0.6,
             layers: ("F.Cu".into(), "B.Cu".into()),
             net: None,
             is_diff_pair: false,
-        }])));
+        })]));
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(ViaDeduplicationStage { tolerance_mm: 0.05 }));

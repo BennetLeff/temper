@@ -1634,9 +1634,9 @@ values directly.
 **U6 (O-C3) group-2 dropped coverage**: with `BoardState.routes` ported to
 the owned `Option<RouteSet>` (a `frozenset` of `Trace`), the pre-port
 `drc_sweep_removes_bad_geometry_and_passes_through_non_trace` test's
-non-Trace pass-through arm is no longer representable — a non-Trace value in
-`routes` is structurally impossible, so the isinstance branch
-(`tests/d6_stages_runner.rs` records the drop) has no input that reaches it.
+non-Trace pass-through arm was no longer representable — a non-Trace value in
+`routes` was structurally impossible, so the isinstance branch
+(`tests/d6_stages_runner.rs` records the drop) had no input that reached it.
 The non-Trace pass-through code remains in `DRCSweepStage` (the
 `isinstance(...)` guard at the loop head is still exercised for the
 Trace-only dedup marshalling + remap), but the *proved-input* coverage that
@@ -1645,6 +1645,26 @@ pre-port test was also the subject of the parallel-run flake in
 temper#1126 (`left: 3, right: 2` — a sys.modules race on the fakes'
 re-registration, 1/10 runs); the port's owned-shape replacement reproduces
 green in 10/10 parallel runs (2026-08-13).
+
+**Coverage restored (2026-08-13, O-C3 test-suite fixture pass)**: this drop
+was not merely a documentation gap — the same "routes/vias are Trace/Via-only"
+assumption made `BoardState.routes`/`vias` unable to marshal the exact
+non-Trace/non-Via entries `DRCSweepStage`, `TrackDeduplicationStage` and
+`ViaValidationStage` already had `isinstance(...)`-guarded pass-through code
+for, which broke several `tests/deterministic` PBT/differential tests that
+exercise it (`test_ds_non_trace_route_entries_pass_through`,
+`test_td_non_trace_pass_through_and_stdout`,
+`test_dedup_via_before_duplicates_remaps_indices`,
+`test_p8_drc_sweep_removes_bad_geometry`) with a marshalling `AttributeError`
+rather than a stale-fixture error — a genuine production defect, not a test
+double needing completion. The fix: `board_state.rs`'s `routes`/`vias` fields
+are now `Option<HashSet<RouteEntry>>` / `Option<HashSet<ViaEntry>>`, where
+`RouteEntry`/`ViaEntry` are `Trace(Route)`/`Via(Via)` for an `isinstance`
+match and `Opaque(Py<PyAny>)` (identity-preserved, matching `marshal.rs`'s
+`Plain::Opaque` "Keeps" philosophy) otherwise — restoring exactly the
+representability this note said was structurally impossible. This
+`d6_stages_runner.rs` test now wedges a `FakeVia` into `routes` again (the
+non-Trace pass-through arm the pre-port test proved is back).
 
 **What stays Python (evidence)**: the temper-drc-rs leaf kernels
 (`validate_proximity_py`, `validate_signal_hv_py`, `count_connected_layers_py`,
