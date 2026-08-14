@@ -439,7 +439,10 @@ def test_copper_oz_reads_outer_role_for_external_layer():
     import temper_geometry as _tg
 
     gate = StackupGate()
-    current_a = 10.0  # AC_L's real cited current
+    # 15.0A: elec/src/constraints.ato:11 (ACMainsConstraints.i_max) -- AC_L's
+    # real cited current. Must track StackupGate._DEFAULT_NET_CURRENTS["AC_L"]
+    # or this probe's width no longer brackets what the gate actually checks.
+    current_a = 15.0
     # Width whose capacity clears 10A at the REAL 2oz external weight but
     # would not at 1oz -- proves the gate is reading 2oz here, not 1.0.
     width_2oz_min = _tg.ipc2221b_min_trace_width_mm_py(current_a, 2.0, 10.0, False)

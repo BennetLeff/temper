@@ -60,8 +60,16 @@ pub fn net_currents() -> &'static HashMap<String, f64> {
     static CURRENTS: LazyLock<HashMap<String, f64>> = LazyLock::new(|| {
         let mut map = HashMap::new();
         map.insert("DC_BUS+".into(), 16.0);
-        map.insert("AC_L".into(), 10.0);
-        map.insert("AC_N".into(), 10.0);
+        // AC_L/AC_N: 15.0A, not 10.0A. SSOT is `elec/src/constraints.ato:11`
+        // (`ACMainsConstraints.i_max = 15A`), corroborated by
+        // `docs/specs/NET_CLASS_SPECIFICATION.md` SS3.6 ("Current Rating: 15A
+        // (1800W @ 120V)") and `REQUIREMENTS.md` ("120V RMS +/-10%", "1.8kW
+        // maximum at 120VAC/15A"). The prior 10.0A figure here was
+        // uncited/stale and understated the true AC-mains design current by
+        // 1.5x.
+        const AC_MAINS_CURRENT_A: f64 = 15.0;
+        map.insert("AC_L".into(), AC_MAINS_CURRENT_A);
+        map.insert("AC_N".into(), AC_MAINS_CURRENT_A);
         map.insert("SW_NODE".into(), 16.0);
         map.insert("GATE_H".into(), 2.0);
         map.insert("GATE_L".into(), 2.0);
@@ -105,9 +113,11 @@ pub fn net_currents() -> &'static HashMap<String, f64> {
         // d1.A`) -- the same series line-current path as AC_L/AC_N above
         // (no branch to ground or elsewhere between them), not a
         // low-current control net despite the "power_in." classification
-        // this table exists to correct for. Reuses this table's own
-        // already-cited AC_L/AC_N figure (10.0A) rather than a new one.
-        map.insert("NTC-NO".into(), 10.0);
+        // this table exists to correct for. Derived from AC_MAINS_CURRENT_A
+        // (the same constant AC_L/AC_N use above) rather than a duplicated
+        // literal, so this entry cannot silently drift from that SSOT figure
+        // again the way the earlier 10.0A duplicate did.
+        map.insert("NTC-NO".into(), AC_MAINS_CURRENT_A);
         map
     });
     &CURRENTS
@@ -185,14 +195,14 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_get_net_current_exact() {
         assert!((get_net_current("DC_BUS+") - 16.0).abs() < 1e-9);
-        assert!((get_net_current("AC_L") - 10.0).abs() < 1e-9);
+        assert!((get_net_current("AC_L") - 15.0).abs() < 1e-9);
         assert!((get_net_current("+3V3") - 0.5).abs() < 1e-9);
     }
 
     #[cfg_attr(test, test)]
     fn test_get_net_current_case_insensitive() {
         assert!((get_net_current("dc_bus+") - 16.0).abs() < 1e-9);
-        assert!((get_net_current("ac_l") - 10.0).abs() < 1e-9);
+        assert!((get_net_current("ac_l") - 15.0).abs() < 1e-9);
     }
 
     #[cfg_attr(test, test)]
@@ -230,7 +240,7 @@ pub(crate) mod tests {
     /// control net (see this table's own comment on the entry).
     #[cfg_attr(test, test)]
     fn test_get_net_current_ntc_no_matches_ac_mains_current() {
-        assert!((get_net_current("power_in.ntc-no") - 10.0).abs() < 1e-9);
+        assert!((get_net_current("power_in.ntc-no") - 15.0).abs() < 1e-9);
         assert_eq!(get_net_current("power_in.ntc-no"), get_net_current("ac_l"));
     }
 

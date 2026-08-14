@@ -115,7 +115,7 @@ def test_gate_behavior_unchanged_from_pre_wiring():
     same values through the new resolution path."""
     gate = StackupGate()
     assert gate._resolve_net_current("DC_BUS+") == 16.0
-    assert gate._resolve_net_current("AC_N") == 10.0
+    assert gate._resolve_net_current("AC_N") == 15.0
     assert gate._resolve_net_current("+15V") == 0.2
     assert gate._resolve_net_current("GATE_L") == 2.0
 

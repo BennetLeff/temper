@@ -362,8 +362,15 @@ class StackupGate(Gate):
     _DEFAULT_NET_CURRENTS: dict[str, float] = {
         "DC_BUS+": 16.0,
         "SW_NODE": 16.0,
-        "AC_L": 10.0,
-        "AC_N": 10.0,
+        # 15.0A, not 10.0A: SSOT is `elec/src/constraints.ato:11`
+        # (`ACMainsConstraints.i_max = 15A`), corroborated by
+        # `docs/specs/NET_CLASS_SPECIFICATION.md` SS3.6 ("Current Rating: 15A
+        # (1800W @ 120V)"). Kept in lockstep with
+        # `temper_drc_rs::ipc::net_currents()`'s `AC_MAINS_CURRENT_A`, which
+        # this table mirrors -- see
+        # tests/placer/cp_sat/test_net_currents_rust_differential.py.
+        "AC_L": 15.0,
+        "AC_N": 15.0,
         "GATE_H": 2.0,
         "GATE_L": 2.0,
         "+3V3": 0.5,
