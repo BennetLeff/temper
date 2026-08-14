@@ -1695,7 +1695,7 @@ fn extract_components_pure(raw: &RawBoard, board_origin: (f64, f64)) -> Vec<Comp
             pins: raw_pins,
             initial_position,
             fixed: fp.locked,
-            initial_rotation: rot_idx,
+            initial_rotation_quadrant: rot_idx,
             initial_side: side,
             attributes,
             sheetpath,
@@ -1734,7 +1734,7 @@ struct CompOut {
     pins: Vec<RawPinOut>,
     initial_position: (f64, f64),
     fixed: bool,
-    initial_rotation: i64,
+    initial_rotation_quadrant: i64,
     initial_side: i64,
     attributes: Vec<(String, String)>,
     sheetpath: Option<String>,
@@ -2908,7 +2908,7 @@ fn build_netlist(
         let ref_py = c.r#ref.clone().into_py_any(py)?;
         let fp_py = c.footprint.clone().into_py_any(py)?;
         let fixed_py = c.fixed.into_py_any(py)?;
-        let rot_py = c.initial_rotation.into_py_any(py)?;
+        let rot_py = c.initial_rotation_quadrant.into_py_any(py)?;
         let side_py = c.initial_side.into_py_any(py)?;
         let pos_py: Py<PyAny> = PyTuple::new(py, [c.initial_position.0, c.initial_position.1])?.into_any().unbind();
         let bounds_py = bounds.into_any().unbind();

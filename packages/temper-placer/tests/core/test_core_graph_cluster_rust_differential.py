@@ -169,7 +169,7 @@ def _oracle_normalize_rotation(rotation):
     """Normalize a rotation value to radians.
 
     int values are treated as rotation indices (0-3 -> 0/90/180/270 deg),
-    matching the convention used by Component.initial_rotation.
+    matching the convention used by Component.initial_rotation_quadrant.
     float values are treated as radians and used as-is.
     None is treated as 0 (no rotation).
     """
@@ -197,12 +197,12 @@ def _oracle_pin_world_position_at(pin, comp, pos_override=None, rotation_overrid
         pos_override: Optional (x, y) tuple overriding the component position.
             When None, uses ``comp.initial_position``.
         rotation_override: Optional rotation index (0-3) overriding
-            ``comp.initial_rotation``. When None, uses ``comp.initial_rotation``.
+            ``comp.initial_rotation_quadrant``. When None, uses ``comp.initial_rotation_quadrant``.
 
     Returns:
         (x, y) tuple in mm, in board coordinates.
     """
-    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation
+    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation_quadrant
     rotation_rad = _oracle_normalize_rotation(rot_source)
     side = comp.initial_side or 0
 
@@ -359,7 +359,7 @@ def _random_netlist(rng, n_components, n_nets, max_pins_per_net=7):
         c.fixed = rng.random() < 0.3
         c.pins.extend([None] * rng.randint(0, 12))
         c.initial_position = (round(rng.uniform(-50.0, 50.0), 6), round(rng.uniform(-50.0, 50.0), 6))
-        c.initial_rotation = rng.choice([None, 0, 1, 2, 3])
+        c.initial_rotation_quadrant = rng.choice([None, 0, 1, 2, 3])
         c.initial_side = rng.choice([None, 0, 1])
         comps.append(c)
     refs = [c.ref for c in comps]
@@ -386,7 +386,7 @@ def _random_pin_geometry(rng):
     pos = (round(rng.uniform(-10.0, 10.0), 6), round(rng.uniform(-10.0, 10.0), 6))
     comp = Component(ref="T1", footprint="0603", bounds=(1.6, 0.8))
     comp.initial_position = (round(rng.uniform(-50.0, 50.0), 6), round(rng.uniform(-50.0, 50.0), 6))
-    comp.initial_rotation = rng.choice([None, 0, 1, 2, 3])
+    comp.initial_rotation_quadrant = rng.choice([None, 0, 1, 2, 3])
     comp.initial_side = rng.choice([None, 0, 1])
     rot_override = rng.choice([None, 0, 1, 2, 3])
     pos_override = (
@@ -594,7 +594,7 @@ def test_pin_world_position_bit_exact_random():
         # rotation source: override, or the component's, or a float radian
         src = float_rot if float_rot is not None else rot_override
         if src is None:
-            comp.initial_rotation = None
+            comp.initial_rotation_quadrant = None
         kwargs = {}
         if rot_override is not None:
             kwargs["rotation_override"] = rot_override
@@ -615,7 +615,7 @@ def test_pin_world_position_all_quadrants_sides():
                 pin = _PinStub((round(rng.uniform(-5, 5), 6), round(rng.uniform(-5, 5), 6)))
                 comp = Component(ref="T", footprint="0603", bounds=(1, 1))
                 comp.initial_position = (round(rng.uniform(-20, 20), 6), round(rng.uniform(-20, 20), 6))
-                comp.initial_rotation = rot
+                comp.initial_rotation_quadrant = rot
                 comp.initial_side = side
                 got = pin_world_position_at(pin, comp)
                 want = _oracle_pin_world_position_at(pin, comp)

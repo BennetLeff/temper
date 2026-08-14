@@ -100,7 +100,7 @@ class TestCheckAgainstRealBoard:
 
     def _positions_rotations_sizes(self, netlist):
         positions = {c.ref: tuple(c.initial_position) for c in netlist.components}
-        rotations = {c.ref: int(c.initial_rotation or 0) for c in netlist.components}
+        rotations = {c.ref: int(c.initial_rotation_quadrant or 0) for c in netlist.components}
         sizes = {c.ref: tuple(c.bounds) for c in netlist.components}
         return positions, rotations, sizes
 

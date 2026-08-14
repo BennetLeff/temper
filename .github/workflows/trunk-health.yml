@@ -121,6 +121,13 @@ jobs:
           run_gate "Kernel wire formats match the Python they replace" \
             python3 scripts/check_wire_format_fidelity.py
 
+          # initial_rotation_quadrant is a 0-3 quarter-turn INDEX, not
+          # degrees -- three independent wrong safety-geometry answers in
+          # one day (2026-08-11) came from treating it as one. See
+          # scripts/check_rotation_quadrant_arithmetic.py's module doc.
+          run_gate "No raw arithmetic on initial_rotation_quadrant" \
+            python3 scripts/check_rotation_quadrant_arithmetic.py
+
           run_gate "Required-checks manifest (trigger paths + job conditions)" \
             python3 -c "
           import sys

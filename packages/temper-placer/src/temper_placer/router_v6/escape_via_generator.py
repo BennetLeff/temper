@@ -108,13 +108,13 @@ def generate_escape_vias(
     """
     component = dense_pkg.component
 
-    # `(initial_position, initial_rotation, initial_side, pitch_mm,
+    # `(initial_position, initial_rotation_quadrant, initial_side, pitch_mm,
     # package_type, pins)` -- the kernel's `escape_generate_vias_py` package
     # contract. `package_type` is not read by the kernel (it has no bearing
     # on geometry) but the tuple shape requires the slot.
     package = (
         component.initial_position,
-        component.initial_rotation,
+        component.initial_rotation_quadrant,
         component.initial_side,
         dense_pkg.pitch_mm,
         dense_pkg.package_type,

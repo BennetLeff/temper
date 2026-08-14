@@ -54,7 +54,7 @@ def build_board_dict(parsed) -> dict:
     components = []
     for c in parsed.components:
         x, y = c.initial_position or (0.0, 0.0)
-        rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
+        rotation = float(c.initial_rotation_quadrant * 90) if c.initial_rotation_quadrant is not None else 0.0
         side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
         package_type = _infer_package_type(c.footprint)
         is_mechanical = c.ref.startswith("MH") or package_type == "MECHANICAL"

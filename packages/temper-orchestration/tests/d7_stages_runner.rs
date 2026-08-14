@@ -51,7 +51,7 @@ class FakeComponent:
     ref: str
     pins: list
     initial_position: tuple = None
-    initial_rotation: object = None
+    initial_rotation_quadrant: object = None
     initial_side: object = None
     bounds: tuple = (2.0, 2.0)
 

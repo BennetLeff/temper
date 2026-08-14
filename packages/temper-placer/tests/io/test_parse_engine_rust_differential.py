@@ -135,7 +135,7 @@ _FIELD_TABLE = {
         "zone",
         "fixed",
         "initial_position",
-        "initial_rotation",
+        "initial_rotation_quadrant",
         "initial_side",
         "attributes",
         "tags",

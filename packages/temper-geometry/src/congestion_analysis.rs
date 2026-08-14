@@ -77,7 +77,7 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 
 /// `core.pin_geometry._normalize_rotation`'s integer-index branch.
 ///
-/// `Component.initial_rotation` is a rotation *index* (0-3 -> 0/90/180/270
+/// `Component.initial_rotation_quadrant` is a rotation *index* (0-3 -> 0/90/180/270
 /// deg); `None` is "no rotation".
 fn normalize_rotation(rotation: Option<i64>) -> f64 {
     match rotation {
@@ -115,7 +115,7 @@ fn pin_world_position(
     (cpos.0 + rx, cpos.1 + ry)
 }
 
-/// One `components` row: `(ref, initial_position, initial_rotation,
+/// One `components` row: `(ref, initial_position, initial_rotation_quadrant,
 /// [(pin_number, (px, py), net), ...])` -- `_congestion_builders.build_netlist`'s
 /// tuple shape.
 type ComponentRow = (String, Option<(f64, f64)>, Option<i64>, Vec<(String, (f64, f64), String)>);

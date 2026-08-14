@@ -1117,7 +1117,7 @@ fn snapshot_component_from_attrs(
     y: f64,
 ) -> PyResult<DrcComponentSnapshot> {
     let footprint = get_attr_opt_str(comp, "footprint")?;
-    let rot = get_attr_opt_i64(comp, "initial_rotation")?
+    let rot = get_attr_opt_i64(comp, "initial_rotation_quadrant")?
         .map(|r| r as f64 * 90.0)
         .unwrap_or(0.0);
     let side = if get_attr_opt_i64(comp, "initial_side")? == Some(1) {

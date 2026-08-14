@@ -148,7 +148,7 @@ def netlist_context(draw):
         width: float
         height: float
         net_class: str
-        initial_rotation: int | None
+        initial_rotation_quadrant: int | None
         initial_side: int | None
 
     comps = [
@@ -158,7 +158,7 @@ def netlist_context(draw):
             width=1.0,
             height=1.0,
             net_class="Signal",
-            initial_rotation=draw(st.integers(0, 3)),
+            initial_rotation_quadrant=draw(st.integers(0, 3)),
             initial_side=draw(st.integers(0, 1)),
         )
         for i in range(n)
@@ -371,7 +371,7 @@ def _concrete_netlist_ctx():
         width: float
         height: float
         net_class: str
-        initial_rotation: int | None
+        initial_rotation_quadrant: int | None
         initial_side: int | None
 
     netlist = SimpleNamespace(

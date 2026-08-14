@@ -913,7 +913,7 @@ def _dsn_fixture() -> tuple[Any, Any]:
                 bounds=(5.0, 4.0),
                 pins=pins,
                 initial_position=(rng.uniform(0.0, 90.0), rng.uniform(0.0, 60.0)),
-                initial_rotation=rng.randint(0, 3),
+                initial_rotation_quadrant=rng.randint(0, 3),
             )
         )
 

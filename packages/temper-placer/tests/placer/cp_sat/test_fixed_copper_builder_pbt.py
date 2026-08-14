@@ -101,7 +101,7 @@ def netlist_and_free(draw):
                 pins=pins,
                 initial_position=(draw(st.floats(min_value=0, max_value=50, allow_nan=False)),
                                   draw(st.floats(min_value=0, max_value=50, allow_nan=False))),
-                initial_rotation=draw(st.integers(min_value=0, max_value=3)),
+                initial_rotation_quadrant=draw(st.integers(min_value=0, max_value=3)),
             )
         )
     nl = Netlist(components=comps, nets=[Net(name="NET_A", pins=[]), Net(name="NET_B", pins=[])])
@@ -185,7 +185,7 @@ def test_p1_fails_for_dropped_pad_mutant():
         ref="U0", footprint="t", bounds=(2.0, 2.0),
         pins=[_pin("1", "NET_A", "F.Cu", (0.0, 0.0), 1.0, 1.0, False, 0.0),
               _pin("2", "NET_A", "F.Cu", (0.0, 1.0), 1.0, 1.0, False, 0.0)],
-        initial_position=(0.0, 0.0), initial_rotation=0,
+        initial_position=(0.0, 0.0), initial_rotation_quadrant=0,
     )
     nl = Netlist(components=[comp], nets=[])
     pads = fc.build_free_component_pads(nl, {"U0"})
@@ -362,7 +362,7 @@ def _mini_board():
     comp = Component(
         ref="U0", footprint="t", bounds=(2.0, 2.0),
         pins=[_pin("1", "NET_A", "F.Cu", (0.0, 0.0), 1.0, 1.0, False, 0.0)],
-        initial_position=(10.0, 10.0), initial_rotation=0,
+        initial_position=(10.0, 10.0), initial_rotation_quadrant=0,
     )
     nl = Netlist(components=[comp], nets=[])
     return pr, nl, {"U0"}

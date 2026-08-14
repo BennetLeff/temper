@@ -234,12 +234,12 @@ def _design_rules():
 
 class TestEscapeViaGeneratorDogBoneRotationAgainstPcbnewOracle:
     def test_dogbone_candidate_matches_pcbnew_at_non_90_degree_angle(self, _design_rules):
-        """``Component.initial_rotation`` is typed as an int quadrant index
+        """``Component.initial_rotation_quadrant`` is typed as an int quadrant index
         (0-3), so a real board can never drive this call site past a
         90-degree multiple today -- masked, per
         ``check_no_raw_rotation_trig.py``'s "Second sweep" section, not
         live-wrong. This test forces a fractional index (0.5 -> 45 degrees,
-        via this module's own ``angle = float(initial_rotation) * pi/2``
+        via this module's own ``angle = float(initial_rotation_quadrant) * pi/2``
         formula) to exercise the fixed rotation at a genuinely
         discriminating angle, matching this task's brief: "add a test at a
         non-90 angle -- the whole class hid because every fixture used
@@ -249,7 +249,7 @@ class TestEscapeViaGeneratorDogBoneRotationAgainstPcbnewOracle:
         component's own position regardless of rotation-index-vs-radian
         interpretation quirks elsewhere in the pipeline (an unrelated,
         pre-existing wrinkle in how ``pin_world_position`` interprets a
-        non-int ``initial_rotation`` -- irrelevant here because rotating
+        non-int ``initial_rotation_quadrant`` -- irrelevant here because rotating
         (0, 0) is a no-op under any convention). That isolates the
         candidate-offset rotation this task fixed as the only
         rotation-dependent geometry under test.
@@ -261,7 +261,7 @@ class TestEscapeViaGeneratorDogBoneRotationAgainstPcbnewOracle:
             bounds=(2.0, 2.0),
             pins=[pin],
             initial_position=(_ORIGIN_X, _ORIGIN_Y),
-            initial_rotation=0.5,  # forces the escape_via_generator angle to 45 deg
+            initial_rotation_quadrant=0.5,  # forces the escape_via_generator angle to 45 deg
         )
         dense_pkg = DensePackage(
             component=comp, pin_count=1, pitch_mm=1.0, package_type="BGA", requires_escape=True

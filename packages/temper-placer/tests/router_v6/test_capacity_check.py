@@ -180,7 +180,7 @@ def _make_component(ref, x, y, net_pins, footprint="SOIC-8", width=10.0, height=
         bounds=(width, height),
         pins=pins,
         initial_position=(x, y),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
 
 

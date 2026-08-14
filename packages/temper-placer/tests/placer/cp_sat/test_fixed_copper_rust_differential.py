@@ -384,10 +384,10 @@ class _OtherPin:
 
 
 class _OtherComp:
-    def __init__(self, ref, initial_position, initial_rotation):
+    def __init__(self, ref, initial_position, initial_rotation_quadrant):
         self.ref = ref
         self.initial_position = initial_position
-        self.initial_rotation = initial_rotation
+        self.initial_rotation_quadrant = initial_rotation_quadrant
 
 
 def test_other_pad_item_geom_matches_oracle():

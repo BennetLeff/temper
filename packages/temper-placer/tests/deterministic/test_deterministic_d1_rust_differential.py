@@ -60,7 +60,7 @@ import tests.deterministic._setup_py_oracle as _orc_setup
 # ---------------------------------------------------------------------------
 
 _PINNED = {
-    "_setup_py_oracle.py": "ab25bb24fce486ccd1400befd11e8c9c996868c15c5fb7bafa08de0080bc55a4",
+    "_setup_py_oracle.py": "cf5d0fb35213f815c5f15df45cd2aa31d141e96779f00aa315d1bdce0d644985",
     "_net_ordering_py_oracle.py": "2f2b17055fc2701411044de4c0da56d720f58e5c8a78fbc0046b23e4edd53d96",
     "_config_attach_py_oracle.py": "b1f63ba15a8d09b2a12d4a1cbaf03c000a016fec5dc7640fdc36d6c6f5c82506",
 }
@@ -97,7 +97,7 @@ def test_oracle_and_port_are_different_implementations() -> None:
 # Corpus
 # ---------------------------------------------------------------------------
 
-def _netlist(initial_rotation: int | None = None, initial_position=(10.0, 10.0)) -> Netlist:
+def _netlist(initial_rotation_quadrant: int | None = None, initial_position=(10.0, 10.0)) -> Netlist:
     pin = Pin(
         "1",
         "1",
@@ -114,7 +114,7 @@ def _netlist(initial_rotation: int | None = None, initial_position=(10.0, 10.0))
         bounds=(5.0, 5.0),
         pins=[pin],
         initial_position=initial_position,
-        initial_rotation=initial_rotation,
+        initial_rotation_quadrant=initial_rotation_quadrant,
     )
     return Netlist(components=[comp], nets=[])
 
@@ -128,7 +128,7 @@ def _netlist_with_nets() -> Netlist:
         bounds=(5.0, 5.0),
         pins=[p1, p2],
         initial_position=(10.0, 10.0),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
     return Netlist(
         components=[comp],
@@ -281,7 +281,7 @@ def test_drc_oracle_setup_board_parse() -> None:
 
 def test_drc_oracle_setup_netlist_fallback() -> None:
     board = Board(width=100, height=100)
-    state = BoardState(board=board, netlist=_netlist(initial_rotation=1))
+    state = BoardState(board=board, netlist=_netlist(initial_rotation_quadrant=1))
     oracle_out = _orc_setup.DRCOracleSetupStage().run(state)
     shim_out = _shim_setup.DRCOracleSetupStage().run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)

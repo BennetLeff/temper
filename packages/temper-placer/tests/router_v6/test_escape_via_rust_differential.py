@@ -53,6 +53,7 @@ from __future__ import annotations
 import ast
 import math
 import random
+import re
 import subprocess
 from pathlib import Path
 
@@ -167,6 +168,27 @@ def test_oracle_is_verbatim_copy():
     with open(ORACLE.__file__, encoding="utf-8") as fh:
         copied = _segments_from_source(fh.read(), _ORACLE_NAMES)
 
+    # KNOWN, DELIBERATE rename, 2026-08-13: `Component.initial_rotation` (a
+    # 0-3 quarter-turn INDEX that read exactly like a degree value -- the
+    # root cause of three independent wrong safety-geometry answers in one
+    # day) became `initial_rotation_quadrant` everywhere, including in this
+    # oracle -- it must track the live `Component` attribute name or every
+    # other test in this file that actually calls the oracle raises
+    # AttributeError. The pin (`_ORACLE_PIN_SHA`) intentionally stays fixed
+    # at the pre-migration commit -- moving it forward would anchor this
+    # differential to *current* (already Rust-delegating) production instead
+    # of the frozen pre-migration implementation it exists to preserve (see
+    # the D4 precedent above: a pin moves only when it can point at a
+    # commit that is STILL the pre-migration shape, which no commit is,
+    # post-rename). So the rename is applied here, narrowly and only to the
+    # pinned text, exactly once, rather than to the pin target -- the one
+    # exception to "verbatim", and the only edit this test's algorithm
+    # tolerates without weakening it for anything else.
+    original = {
+        name: re.sub(r"\binitial_rotation\b", "initial_rotation_quadrant", body)
+        for name, body in original.items()
+    }
+
     for name in _ORACLE_NAMES:
         assert name in copied, f"{name} missing from the oracle module"
         assert name in original, f"{name} missing from escape_via_generator.py at the pin"
@@ -266,7 +288,7 @@ def test_generate_escape_vias_random_sweep(seed):
 
 
 # ---------------------------------------------------------------------------
-# Migration-narrowing regression: a fractional `initial_rotation`  (#931)
+# Migration-narrowing regression: a fractional `initial_rotation_quadrant`  (#931)
 #
 # Rows live here rather than in `_escape_via_cases.py` because
 # `PACKAGES`/`BENCH_PACKAGES` are shared with the PBT and benchmark arms,
@@ -302,7 +324,7 @@ def _rotated_package(rotation):
 def test_fractional_rotation_agrees_with_the_oracle(rotation, strategy):
     """A non-integral rotation must produce the ORACLE's angle (#931).
 
-    ``escape_via.rs`` bound ``initial_rotation`` as ``Option<i64>`` at first;
+    ``escape_via.rs`` bound ``initial_rotation_quadrant`` as ``Option<i64>`` at first;
     pyo3 REJECTS a non-integral float on an ``i64`` extract rather than
     truncating, so a fractional rotation raised ``TypeError`` on the Rust arm
     while the Python arm returned an angle.  The repair widened the binding to
@@ -335,7 +357,7 @@ def test_fractional_rotation_agrees_with_the_oracle(rotation, strategy):
 
 
 def test_fractional_rotation_is_resolved_twice_under_different_rules():
-    """``generate_escape_vias`` reads ``initial_rotation`` under TWO rules.
+    """``generate_escape_vias`` reads ``initial_rotation_quadrant`` under TWO rules.
 
     This is why a single ``normalize_rotation`` helper cannot serve both call
     sites, and it is the part of #931 that is specific to this kernel:
@@ -344,7 +366,7 @@ def test_fractional_rotation_is_resolved_twice_under_different_rules():
       ``_normalize_rotation``, whose dispatch is ``None -> 0.0``,
       ``int -> index * PI/2``, ``float -> as-is (already radians)``;
     * the dog-bone candidate offsets are rotated by the generator's own local
-      ``angle = float(component.initial_rotation) * math.pi / 2.0``, which
+      ``angle = float(component.initial_rotation_quadrant) * math.pi / 2.0``, which
       calls ``float()`` first and then scales **unconditionally**.
 
     The two coincide on every integer index -- which is exactly why the pinned
@@ -400,9 +422,9 @@ def test_integer_rotation_path_is_unperturbed(rotation, strategy):
 
 
 def test_a_float_rotation_is_reachable_through_the_real_object_model():
-    """``Component(initial_rotation=0.5)`` is CONSTRUCTIBLE, so #931 is live.
+    """``Component(initial_rotation_quadrant=0.5)`` is CONSTRUCTIBLE, so #931 is live.
 
-    ``core/netlist.py`` declares ``initial_rotation`` as ``int | None`` via
+    ``core/netlist.py`` declares ``initial_rotation_quadrant`` as ``int | None`` via
     ``_contract_field``, and #930 records ``terminal_planning.rs`` using that
     contract to justify an ``Option<i64>`` binding.  The contract is an
     **annotation only** -- ``install_dataclass_fields`` installs
@@ -417,9 +439,9 @@ def test_a_float_rotation_is_reachable_through_the_real_object_model():
     comp = build_component(
         (10.0, 20.0), 0.5, 0, [("1", (1.0, 0.5), "N0", 0.4, 0.4, "circle")]
     )
-    assert comp.initial_rotation == 0.5
-    assert isinstance(comp.initial_rotation, float)
-    assert not isinstance(comp.initial_rotation, int)
+    assert comp.initial_rotation_quadrant == 0.5
+    assert isinstance(comp.initial_rotation_quadrant, float)
+    assert not isinstance(comp.initial_rotation_quadrant, int)
 
 
 # ---------------------------------------------------------------------------

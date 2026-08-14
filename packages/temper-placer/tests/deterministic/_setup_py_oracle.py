@@ -191,7 +191,7 @@ class DRCOracleSetupStage(Stage):
                     continue
 
                 # Component rotation: index to degrees (0=0, 1=90, 2=180, 3=270)
-                rot_idx = component.initial_rotation or 0
+                rot_idx = component.initial_rotation_quadrant or 0
                 rotation = rot_idx * 90.0
 
                 for pin in component.pins:

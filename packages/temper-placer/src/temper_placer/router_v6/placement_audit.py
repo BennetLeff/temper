@@ -31,9 +31,14 @@ class PlacementAuditor:
         """Extract courtyards for all components."""
         courtyards = {}
         for comp in self.pcb.components:
-            # Get position and rotation
+            # Get position. (A rotation-in-degrees expression used to be
+            # computed here and discarded -- dead code, found 2026-08-13
+            # auditing initial_rotation_quadrant read sites. It fed nothing:
+            # the hull below is built from `pin_world_position`, which
+            # already applies rotation correctly, and the no-pins fallback
+            # square below is rotation-invariant under any multiple of 90
+            # degrees, so removing the dead expression changes no output.)
             x, y = comp.initial_position or (0.0, 0.0)
-            comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
 
             # Default courtyard: Bounding box of pins + margin
             # Ideally we parse the 'courtyard' layer from footprint, but let's approximate

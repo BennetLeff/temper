@@ -74,9 +74,9 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
             comp_x, comp_y = comp.initial_position
 
         angle = 0.0
-        if comp.initial_rotation is not None:
+        if comp.initial_rotation_quadrant is not None:
             # rotation index 0-3 -> radians
-            angle = float(comp.initial_rotation) * math.pi / 2.0
+            angle = float(comp.initial_rotation_quadrant) * math.pi / 2.0
 
         for pin in comp.pins:
             # Get absolute position

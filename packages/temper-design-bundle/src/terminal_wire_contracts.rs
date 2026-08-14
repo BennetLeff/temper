@@ -19,7 +19,7 @@
 //! # Why the field set is exactly what it is
 //!
 //! The kernel reads, by name: `component.ref`, `component.initial_position`,
-//! `component.initial_rotation`, `component.initial_side`, `component.pins`
+//! `component.initial_rotation_quadrant`, `component.initial_side`, `component.pins`
 //! (each pin: `.name`, `.number`, `.position`, `.is_pth`, `.layer`), and
 //! per stackup layer `.name` / `.index` / `.layer_type`. The wire structs
 //! expose exactly those names with exactly the types the kernel's own
@@ -155,7 +155,7 @@ pub struct ComponentWire {
     #[pyo3(get)]
     pub initial_position: Option<(f64, f64)>,
     #[pyo3(get)]
-    pub initial_rotation: Option<i64>,
+    pub initial_rotation_quadrant: Option<i64>,
     #[pyo3(get)]
     pub initial_side: Option<i64>,
     #[pyo3(get)]
@@ -167,7 +167,7 @@ impl ComponentWire {
         Ok(vec![
             self.ref_.clone().into_bound_py_any(py)?.unbind(),
             self.initial_position.into_bound_py_any(py)?.unbind(),
-            self.initial_rotation.into_bound_py_any(py)?.unbind(),
+            self.initial_rotation_quadrant.into_bound_py_any(py)?.unbind(),
             self.initial_side.into_bound_py_any(py)?.unbind(),
             PyList::new(
                 py,
@@ -189,7 +189,7 @@ impl ComponentWire {
         Ok(Self {
             ref_: comp.getattr("ref")?.extract()?,
             initial_position: comp.getattr("initial_position")?.extract()?,
-            initial_rotation: comp.getattr("initial_rotation")?.extract()?,
+            initial_rotation_quadrant: comp.getattr("initial_rotation_quadrant")?.extract()?,
             initial_side: comp.getattr("initial_side")?.extract()?,
             pins,
         })
@@ -199,15 +199,15 @@ impl ComponentWire {
 #[pymethods]
 impl ComponentWire {
     #[new]
-    #[pyo3(signature = (r#ref, initial_position=None, initial_rotation=None, initial_side=None, pins=None))]
+    #[pyo3(signature = (r#ref, initial_position=None, initial_rotation_quadrant=None, initial_side=None, pins=None))]
     fn new(
         r#ref: String,
         initial_position: Option<(f64, f64)>,
-        initial_rotation: Option<i64>,
+        initial_rotation_quadrant: Option<i64>,
         initial_side: Option<i64>,
         pins: Option<Vec<PinWire>>,
     ) -> Self {
-        Self { ref_: r#ref, initial_position, initial_rotation, initial_side, pins: pins.unwrap_or_default() }
+        Self { ref_: r#ref, initial_position, initial_rotation_quadrant, initial_side, pins: pins.unwrap_or_default() }
     }
 
     /// Extract the wire from any component-shaped object, exactly as the
@@ -224,7 +224,7 @@ impl ComponentWire {
             &[
                 ("ref", repr_of(&f[0], py)?),
                 ("initial_position", repr_of(&f[1], py)?),
-                ("initial_rotation", repr_of(&f[2], py)?),
+                ("initial_rotation_quadrant", repr_of(&f[2], py)?),
                 ("initial_side", repr_of(&f[3], py)?),
                 ("pins", repr_of(&f[4], py)?),
             ],

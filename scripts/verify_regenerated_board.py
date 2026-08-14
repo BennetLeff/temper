@@ -129,7 +129,7 @@ def _extract_component_set(
     for c in components:
         x, y, rot = _position_tuple(
             getattr(c, "initial_position", (0.0, 0.0)),
-            getattr(c, "initial_rotation", 0.0),
+            getattr(c, "initial_rotation_quadrant", 0.0),
         )
         layer = str(getattr(c, "initial_side", ""))
         result.append((c.ref, c.footprint, x, y, rot, layer))

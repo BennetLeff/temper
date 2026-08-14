@@ -92,7 +92,7 @@ class Component:
         zone: Target placement zone name, or None for any zone.
         fixed: If True, component position is fixed (don't optimize).
         initial_position: Optional (x, y) initial/fixed position.
-        initial_rotation: Optional initial rotation index (0-3 for 0°/90°/180°/270°).
+        initial_rotation_quadrant: Optional initial rotation index (0-3 for 0°/90°/180°/270°).
         attributes: Additional component attributes (value, MPN, etc.).
         sheetpath: Stable module-instance identity (e.g. "hb.power_loop.q_high"),
             read from the footprint's "Sheetpath" property when present. Unlike
@@ -110,7 +110,7 @@ class Component:
     zone: str | None = None
     fixed: bool = False
     initial_position: tuple[float, float] | None = None
-    initial_rotation: int | None = None
+    initial_rotation_quadrant: int | None = None
     initial_side: int | None = None
     attributes: dict[str, str] = field(default_factory=dict)
     tags: frozenset = field(default_factory=frozenset)

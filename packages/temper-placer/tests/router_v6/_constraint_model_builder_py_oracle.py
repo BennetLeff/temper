@@ -1036,7 +1036,7 @@ class ModelBuilder:
 
         for comp in self.pcb.components:
             comp_x, comp_y = comp.initial_position or (0.0, 0.0)
-            float(comp.initial_rotation or 0) * math.pi / 2.0
+            float(comp.initial_rotation_quadrant or 0) * math.pi / 2.0
 
             for pin in comp.pins:
                 if not pin.net or pin.net not in self.net_to_idx:

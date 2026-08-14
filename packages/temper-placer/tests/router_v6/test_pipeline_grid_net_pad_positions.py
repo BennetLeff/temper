@@ -1,7 +1,7 @@
 """Regression test for _pipeline_grid._net_pad_positions' rotation handling.
 
 Measured on ``pcb/temper.kicad_pcb``: 148 of 169 components (87.6%) have a
-nonzero ``initial_rotation``. ``_net_pad_positions`` used to compute a pin's
+nonzero ``initial_rotation_quadrant``. ``_net_pad_positions`` used to compute a pin's
 world position as ``comp.initial_position + pin.position`` directly --
 ``pin.position`` is the pad's LOCAL, pre-rotation offset (see
 ``parse_engine.rs``: stored pad-centroid-relative, rotation applied
@@ -54,7 +54,7 @@ def _rotated_two_pin_component(ref: str, position: tuple[float, float], rotation
         bounds=(2.0, 1.25),
         pins=pins,
         initial_position=position,
-        initial_rotation=rotation_index,
+        initial_rotation_quadrant=rotation_index,
     )
 
 
@@ -116,7 +116,7 @@ def test_net_pad_positions_never_lands_on_a_different_nets_true_pad():
             )
         ],
         initial_position=(52.5, 50.0),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
     comp_by_ref = {"RA": comp_a, "RB": comp_b}
 

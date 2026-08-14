@@ -250,7 +250,7 @@ fn build_board_dict_py<'py>(
             let y = positions.call_method1("__getitem__", ((i as i64, 1i64),))?.extract::<f64>()?;
 
             let footprint = get_attr_opt_str(&comp, "footprint")?;
-            let rotation = get_attr_opt_i64(&comp, "initial_rotation")?
+            let rotation = get_attr_opt_i64(&comp, "initial_rotation_quadrant")?
                 .map(|r| r as f64 * 90.0)
                 .unwrap_or(0.0);
             let side = get_attr_opt_i64(&comp, "initial_side")?;
@@ -383,7 +383,7 @@ fn build_board_dict_from_parsed_pcb_py<'py>(
             };
 
             let footprint = get_attr_opt_str(&comp, "footprint")?;
-            let rotation = get_attr_opt_i64(&comp, "initial_rotation")?
+            let rotation = get_attr_opt_i64(&comp, "initial_rotation_quadrant")?
                 .map(|r| r as f64 * 90.0)
                 .unwrap_or(0.0);
             let side = get_attr_opt_i64(&comp, "initial_side")?;

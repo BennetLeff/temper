@@ -51,7 +51,7 @@ def test_rejects_the_committed_board_placement():
         assert ref in by_ref, f"{ref} missing from the real board"
 
     positions = {r: tuple(by_ref[r].initial_position) for r in HS1.refs}
-    rotations = {r: int(by_ref[r].initial_rotation) for r in HS1.refs}
+    rotations = {r: int(by_ref[r].initial_rotation_quadrant) for r in HS1.refs}
     sizes = {r: tuple(by_ref[r].bounds) for r in HS1.refs}
 
     # Guard the premise: if the board is ever fixed, this test must fail

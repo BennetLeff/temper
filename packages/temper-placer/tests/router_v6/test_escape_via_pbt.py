@@ -764,7 +764,7 @@ def test_m3_fails_for_a_rotation_dependent_candidate_count(restore_kernels):
 
     def rotation_sensitive(dense_pkg, design_rules, strategy="dog-bone"):
         vias = original(dense_pkg, design_rules, strategy)
-        if dense_pkg.component.initial_rotation:
+        if dense_pkg.component.initial_rotation_quadrant:
             return vias[:-1]
         return vias
 

@@ -435,7 +435,7 @@ pub struct Component {
     #[pyo3(get, set)]
     pub initial_position: Py<PyAny>,
     #[pyo3(get, set)]
-    pub initial_rotation: Py<PyAny>,
+    pub initial_rotation_quadrant: Py<PyAny>,
     #[pyo3(get, set)]
     pub initial_side: Py<PyAny>,
     #[pyo3(get, set)]
@@ -457,7 +457,7 @@ impl Component {
             same(py, &self.zone),
             same(py, &self.fixed),
             same(py, &self.initial_position),
-            same(py, &self.initial_rotation),
+            same(py, &self.initial_rotation_quadrant),
             same(py, &self.initial_side),
             same(py, &self.attributes),
             same(py, &self.tags),
@@ -478,7 +478,7 @@ impl Component {
         zone=None,
         fixed=None,
         initial_position=None,
-        initial_rotation=None,
+        initial_rotation_quadrant=None,
         initial_side=None,
         attributes=None,
         tags=None,
@@ -495,7 +495,7 @@ impl Component {
         zone: Option<&Bound<'_, PyAny>>,
         fixed: Option<&Bound<'_, PyAny>>,
         initial_position: Option<&Bound<'_, PyAny>>,
-        initial_rotation: Option<&Bound<'_, PyAny>>,
+        initial_rotation_quadrant: Option<&Bound<'_, PyAny>>,
         initial_side: Option<&Bound<'_, PyAny>>,
         attributes: Option<&Bound<'_, PyAny>>,
         tags: Option<&Bound<'_, PyAny>>,
@@ -511,7 +511,7 @@ impl Component {
             zone: zone.map_or_else(none, |v| v.clone().unbind()),
             fixed: opt_or(py, fixed, false)?,
             initial_position: initial_position.map_or_else(none, |v| v.clone().unbind()),
-            initial_rotation: initial_rotation.map_or_else(none, |v| v.clone().unbind()),
+            initial_rotation_quadrant: initial_rotation_quadrant.map_or_else(none, |v| v.clone().unbind()),
             initial_side: initial_side.map_or_else(none, |v| v.clone().unbind()),
             attributes: dict_or_new(py, attributes)?,
             // `field(default_factory=frozenset)` -- a fresh empty frozenset.
@@ -583,7 +583,7 @@ impl Component {
                 ("zone", repr_of(&self.zone, py)?),
                 ("fixed", repr_of(&self.fixed, py)?),
                 ("initial_position", repr_of(&self.initial_position, py)?),
-                ("initial_rotation", repr_of(&self.initial_rotation, py)?),
+                ("initial_rotation_quadrant", repr_of(&self.initial_rotation_quadrant, py)?),
                 ("initial_side", repr_of(&self.initial_side, py)?),
                 ("attributes", repr_of(&self.attributes, py)?),
                 ("tags", repr_of(&self.tags, py)?),

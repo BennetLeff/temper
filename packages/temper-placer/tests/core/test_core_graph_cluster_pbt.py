@@ -314,7 +314,7 @@ def test_p4_quadrant_rotation_law(case):
     px, py, rotation_idx = case
     comp = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
     comp.initial_position = (0.0, 0.0)
-    comp.initial_rotation = rotation_idx
+    comp.initial_rotation_quadrant = rotation_idx
     comp.initial_side = 0
     pin = _PointPin((px, py))
     got = pin_world_position_at(pin, comp)
@@ -342,7 +342,7 @@ def test_p4_fails_for_sign_flip_mutant(_restore_kernels):
     _tg.pin_world_position_kernel_py = r_plus
     comp = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
     comp.initial_position = (0.0, 0.0)
-    comp.initial_rotation = 1
+    comp.initial_rotation_quadrant = 1
     comp.initial_side = 0
     with pytest.raises(AssertionError):
         test_p4_quadrant_rotation_law.hypothesis.inner_test((3.0, -2.0, 1))
@@ -683,7 +683,7 @@ def test_mr7_zero_rotation_is_translation_exact(case):
     px, py, _ = case
     comp = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
     comp.initial_position = (3.0, -2.0)
-    comp.initial_rotation = 0
+    comp.initial_rotation_quadrant = 0
     comp.initial_side = 0
     pin = _PointPin((px, py))
     got = pin_world_position_at(pin, comp)
@@ -698,7 +698,7 @@ def test_mr8_quarter_turn_law(case):
     px, py, _ = case
     comp = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
     comp.initial_position = (0.0, 0.0)
-    comp.initial_rotation = 1
+    comp.initial_rotation_quadrant = 1
     comp.initial_side = 0
     got = pin_world_position_at(_PointPin((px, py)), comp)
     tol = 1e-12 * (1.0 + abs(px) + abs(py))
@@ -717,18 +717,18 @@ def test_mr9_rotation_additivity(case):
         for b in (0, 1, 2, 3):
             comp1 = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
             comp1.initial_position = (0.0, 0.0)
-            comp1.initial_rotation = (a + b) % 4
+            comp1.initial_rotation_quadrant = (a + b) % 4
             comp1.initial_side = 0
             direct = pin_world_position_at(_PointPin((px, py)), comp1)
             # compose: apply rotation a, then rotation b to the resulting point
             comp2 = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
             comp2.initial_position = (0.0, 0.0)
-            comp2.initial_rotation = a
+            comp2.initial_rotation_quadrant = a
             comp2.initial_side = 0
             mid = pin_world_position_at(_PointPin((px, py)), comp2)
             comp3 = Component(ref="T", footprint="0603", bounds=(1.0, 1.0))
             comp3.initial_position = (0.0, 0.0)
-            comp3.initial_rotation = b
+            comp3.initial_rotation_quadrant = b
             comp3.initial_side = 0
             composed = pin_world_position_at(_PointPin(mid), comp3)
             tol = 1e-9 * (1.0 + abs(px) + abs(py))

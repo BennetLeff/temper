@@ -66,7 +66,7 @@ def _simple_layer(name="F.Cu", index=0, layer_type="signal"):
 
 
 def _simple_comp(ref, pos, rotation=None, side=None):
-    c = Component(ref, "fp", (2, 2), initial_position=pos, initial_rotation=rotation, initial_side=side)
+    c = Component(ref, "fp", (2, 2), initial_position=pos, initial_rotation_quadrant=rotation, initial_side=side)
     c.pins = []
     return c
 
@@ -322,7 +322,7 @@ def test_p6_wire_construction_preserves_fields(pcb):
         w = ComponentWire.from_component(comp)
         assert w.ref == comp.ref
         assert w.initial_position == (tuple(comp.initial_position) if comp.initial_position else None)
-        assert w.initial_rotation == comp.initial_rotation
+        assert w.initial_rotation_quadrant == comp.initial_rotation_quadrant
         assert w.initial_side == comp.initial_side
         assert len(w.pins) == len(comp.pins)
         for wp, p in zip(w.pins, comp.pins):
@@ -373,7 +373,7 @@ def test_p7_transparency_bites_on_corrupted_wire():
     corrupted = ComponentWire(
         w.ref,
         w.initial_position,
-        w.initial_rotation,
+        w.initial_rotation_quadrant,
         w.initial_side,
         [type(w.pins[0])(w.pins[0].name, w.pins[0].number, w.pins[0].position, w.pins[0].is_pth, "CORRUPTED")],
     )

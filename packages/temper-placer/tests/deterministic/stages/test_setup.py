@@ -26,7 +26,7 @@ def test_setup_stage():
         bounds=(5.0, 5.0),
         pins=[pin],
         initial_position=(10.0, 10.0),
-        initial_rotation=1,  # 90 degrees
+        initial_rotation_quadrant=1,  # 90 degrees
     )
 
     netlist = Netlist(components=[comp], nets=[])

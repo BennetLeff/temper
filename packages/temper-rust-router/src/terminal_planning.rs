@@ -45,7 +45,7 @@
 //!   (`cos(pi/2)` is `6.123233995736766e-17`, not exactly `0`) --
 //!   preserved exactly as `net_ordering.rs`'s sibling copy of this same
 //!   formula documents.
-//! * `Component.initial_rotation` is typed `int | None` in
+//! * `Component.initial_rotation_quadrant` is typed `int | None` in
 //!   `core/netlist.py`'s installed dataclass contract, but
 //!   [`rot_to_radians`] reproduces `_normalize_rotation`'s full three-way
 //!   dispatch anyway, as does `net_ordering.rs`'s sibling copy: `None` is
@@ -277,7 +277,7 @@ struct PinRow {
 struct ComponentRow {
     component_ref: String,
     initial_position: Option<(f64, f64)>,
-    /// `_normalize_rotation(initial_rotation)` -- RESOLVED RADIANS, not the
+    /// `_normalize_rotation(initial_rotation_quadrant)` -- RESOLVED RADIANS, not the
     /// raw index; the int/float dispatch needs the live Python object.
     initial_rotation_rad: f64,
     initial_side: Option<i64>,
@@ -317,7 +317,7 @@ fn normalize_rotation_index(index: i64) -> f64 {
 /// ```
 ///
 /// This module previously bound the value as `Option<i64>`, arguing the float
-/// branch was "unreachable through `Component.initial_rotation`'s real
+/// branch was "unreachable through `Component.initial_rotation_quadrant`'s real
 /// `int | None` contract". The contract claim is true -- `core/netlist.py`
 /// does declare it -- but the canonical kernel accepts float anyway, so the
 /// declared contract and the canonical implementation disagreed and this
@@ -347,7 +347,7 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 /// `core/pin_geometry.pin_world_position` (via `pin_world_position_at`
 /// with no overrides -- `extract_net_terminals` never passes any).
 ///
-/// Reads exactly: `pin.position`, `comp.initial_rotation`,
+/// Reads exactly: `pin.position`, `comp.initial_rotation_quadrant`,
 /// `comp.initial_side`, `comp.initial_position`. `comp.initial_side or 0`
 /// folds `None` to `0`, mirroring only side `1` (bottom) into an X mirror.
 /// `comp.initial_position or (0.0, 0.0)` only ever fires on `None` -- a
@@ -530,7 +530,7 @@ type TerminalTuple = (String, String, String, f64, f64, Vec<i64>, Vec<Option<Str
 ///
 /// `components` is a list of ``temper_design_bundle_python.Component``
 /// pyclass instances (each with `.ref`, `.initial_position`,
-/// `.initial_rotation`, `.initial_side`, `.pins` attributes).  Each
+/// `.initial_rotation_quadrant`, `.initial_side`, `.pins` attributes).  Each
 /// pin is a ``temper_design_bundle_python.Pin`` pyclass (`.name`,
 /// `.number`, `.position`, `.is_pth`, `.layer`).  `stackup_layers`
 /// is a list of layer objects (each with `.name`, `.index`,
@@ -556,7 +556,7 @@ pub fn extract_net_terminals_py(
         let row = row?;
         let component_ref: String = row.getattr("ref")?.extract()?;
         let initial_position: Option<(f64, f64)> = row.getattr("initial_position")?.extract()?;
-        let initial_rotation_rad = rot_to_radians(&row.getattr("initial_rotation")?)?;
+        let initial_rotation_rad = rot_to_radians(&row.getattr("initial_rotation_quadrant")?)?;
         let initial_side: Option<i64> = row.getattr("initial_side")?.extract()?;
         let mut pins: Vec<PinRow> = Vec::new();
         for prow in row.getattr("pins")?.try_iter()? {

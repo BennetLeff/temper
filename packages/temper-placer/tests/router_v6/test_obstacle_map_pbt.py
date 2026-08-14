@@ -113,7 +113,7 @@ def test_obstacle_map_layer_coverage(num_pads, seed):
         bounds=(2, 2),
         pins=pins,
         initial_position=(rng.uniform(0, 50), rng.uniform(0, 50)),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
 
     pcb = _make_minimal_pcb(components=[comp], stackup_layers=layers)

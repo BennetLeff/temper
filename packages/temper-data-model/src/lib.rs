@@ -85,7 +85,7 @@ pub struct Pin {
 /// elements the pipeline demonstrably writes as `int` OR `float` (the
 /// concrete-Python-type hazard). Every other numeric field is concrete:
 /// `initial_position` is `Option<(f64, f64)>` (the always-float
-/// `tuple[float, float] | None`), `initial_rotation`/`initial_side` are
+/// `tuple[float, float] | None`), `initial_rotation_quadrant`/`initial_side` are
 /// `Option<i64>` (`int | None`). `attributes` is an insertion-ordered
 /// `dict[str, str]`; `tags` is a `frozenset` of strings read in iteration
 /// order (a frozenset has no duplicates, so a `Vec` is faithful).
@@ -99,7 +99,7 @@ pub struct Component {
     pub zone: Option<String>,
     pub fixed: bool,
     pub initial_position: Option<(f64, f64)>,
-    pub initial_rotation: Option<i64>,
+    pub initial_rotation_quadrant: Option<i64>,
     pub initial_side: Option<i64>,
     pub attributes: Vec<(String, String)>,
     pub tags: Vec<String>,

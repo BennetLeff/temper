@@ -31,7 +31,7 @@ A kernel that defines its OWN copy of a geometry helper -- `pin_world_position`,
 must reference every attribute that Python reads for the same computation:
 
     computes a POSITION   (rotate_local_to_world / normalize_rotation)
-                          -> must reference `initial_side`, `initial_rotation`
+                          -> must reference `initial_side`, `initial_rotation_quadrant`
     computes a RADIUS     (bounding_radius / pad_bounding)
                           -> must reference `roundrect_ratio`, `shape`
 
@@ -78,7 +78,7 @@ OWN_COPY = re.compile(r"\bfn\s+(pin_world_position|world_radius|pad_world_positi
 DOES_POSITION = re.compile(r"rotate_local_to_world|normalize_rotation")
 DOES_RADIUS = re.compile(r"bounding_radius|pad_bounding")
 
-POSITION_FIELDS = ("initial_side", "initial_rotation")
+POSITION_FIELDS = ("initial_side", "initial_rotation_quadrant")
 RADIUS_FIELDS = ("roundrect_ratio", "shape")
 
 

@@ -236,8 +236,10 @@ def find_rust_pub_constants(root: Path) -> list[RustConst]:
 # matched the `v` of `[float(v) for v in board_bounds]` in
 # `constraints/_payload.py:59`, an unrelated file in an unrelated crate.
 # The defect class this check exists for is always a NAMED field crossing the
-# boundary (`rotation`, `initial_rotation`), never a one-letter binding, so
-# the guard costs no real detection.
+# boundary (`rotation`, `initial_rotation_quadrant` -- renamed from
+# `initial_rotation` 2026-08-13 to make the quadrant-index unit legible at
+# the call site), never a one-letter binding, so the guard costs no real
+# detection.
 MIN_CHECK_B_NAME_LEN = 3
 
 

@@ -62,16 +62,16 @@ class TestMinimalBoardParsing:
         comps = {c.ref: c for c in result.netlist.components}
 
         # R1: 0° -> rotation index 0
-        assert comps["R1"].initial_rotation == 0
+        assert comps["R1"].initial_rotation_quadrant == 0
 
         # R2: 90° -> rotation index 1
-        assert comps["R2"].initial_rotation == 1
+        assert comps["R2"].initial_rotation_quadrant == 1
 
         # C1: 0° -> rotation index 0
-        assert comps["C1"].initial_rotation == 0
+        assert comps["C1"].initial_rotation_quadrant == 0
 
         # U1: 180° -> rotation index 2
-        assert comps["U1"].initial_rotation == 2
+        assert comps["U1"].initial_rotation_quadrant == 2
 
     def test_net_extraction(self, minimal_pcb_path):
         """Test that nets are extracted correctly."""

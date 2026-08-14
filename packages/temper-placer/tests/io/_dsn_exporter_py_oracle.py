@@ -350,7 +350,7 @@ class DSNExporter:
             if self.rotation_indices is not None:
                 rot = int(self.rotation_indices[i]) * 90
             else:
-                rot = (comp.initial_rotation or 0) * 90
+                rot = (comp.initial_rotation_quadrant or 0) * 90
 
             # Determine side from first pin
             side = "front"

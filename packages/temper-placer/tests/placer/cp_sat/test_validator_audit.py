@@ -121,7 +121,7 @@ class MockComp:
     ref: str
     bounds: tuple[float, float] = (10.0, 10.0)
     initial_position: tuple[float, float] = (0.0, 0.0)
-    initial_rotation: int = 0
+    initial_rotation_quadrant: int = 0
     pins: list = field(default_factory=list)
     zone: str | None = None
     attributes: dict = field(default_factory=dict)
@@ -870,7 +870,7 @@ class TestProductionBoardSolve:
 
         current: dict[str, tuple[float, float, int]] = {}
         for c in netlist.components:
-            current[c.ref] = (c.initial_position[0], c.initial_position[1], c.initial_rotation)
+            current[c.ref] = (c.initial_position[0], c.initial_position[1], c.initial_rotation_quadrant)
 
         # The Run B production recipe the written board came from: fixed
         # copper WITHOUT zone items, free_refs={K3,C27}, margin 0.05;

@@ -244,7 +244,7 @@ class _FakeComponent:
     width: float
     height: float
     net_class: str = "Signal"
-    initial_rotation: int | None = None
+    initial_rotation_quadrant: int | None = None
     initial_side: int | None = None
 
 
@@ -330,7 +330,7 @@ def test_build_board_dict_with_rotation_and_side():
     # rotation=2 means 180°, side=1 means bottom
     comps = [
         _FakeComponent(ref="U1", footprint="TQFP-64", width=10.0, height=10.0,
-                       initial_rotation=2, initial_side=1),
+                       initial_rotation_quadrant=2, initial_side=1),
     ]
     netlist = SimpleNamespace(components=comps, nets=[])
     rules: list[Any] = []
@@ -467,7 +467,7 @@ class _FakeParsedPcbComponent:
     height: float
     net_class: str = "Signal"
     initial_position: tuple[float, float] | None = None
-    initial_rotation: int | None = None
+    initial_rotation_quadrant: int | None = None
     initial_side: int | None = None
 
 

@@ -46,7 +46,7 @@ def pin_world_position_at(
     replaces the corresponding ``comp.initial_*`` attribute.
     When None, falls back to ``comp.initial_*``.
     """
-    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation
+    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation_quadrant
     rotation_rad = _normalize_rotation(rot_source)
     side = comp.initial_side or 0
     px, py = pin.position

@@ -164,10 +164,10 @@ class PlacementState:
 
             # Rotation
             logits = [0.0, 0.0, 0.0, 0.0]
-            if comp.initial_rotation is not None:
+            if comp.initial_rotation_quadrant is not None:
                 # Set high logit for initial rotation (e.g. 10.0 vs 0.0)
                 # This makes it the preferred rotation but allows optimization to change it
-                idx = comp.initial_rotation % 4
+                idx = comp.initial_rotation_quadrant % 4
                 logits[idx] = 10.0
             rotation_logits_list.append(logits)
 

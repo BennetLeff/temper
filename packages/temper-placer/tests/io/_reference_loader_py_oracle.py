@@ -124,7 +124,7 @@ def netlist_to_placement_state(
     """
     Convert a parsed Netlist to PlacementState.
 
-    Uses component initial_position and initial_rotation from parsing.
+    Uses component initial_position and initial_rotation_quadrant from parsing.
     Components without positions are placed at board center.
 
     Args:
@@ -151,7 +151,7 @@ def netlist_to_placement_state(
 
         # Convert rotation index to logits
         # Index 0=0°, 1=90°, 2=180°, 3=270°
-        rot_idx = comp.initial_rotation or 0
+        rot_idx = comp.initial_rotation_quadrant or 0
         rot_idx = rot_idx % 4
         logits = [0.0, 0.0, 0.0, 0.0]
         logits[rot_idx] = 10.0  # High logit for initial rotation

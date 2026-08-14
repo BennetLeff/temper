@@ -64,7 +64,7 @@ The Rust mirror must resolve them with ``dlsym`` (``pad_geometry.rs``'s
 ``x*c + y*s`` / ``-x*s + y*c`` op order and grouping (B7).
 
 **And a quadrant rotation is NOT an exact transform.**  Every caller here
-passes a quadrant angle (``initial_rotation`` is a 0-3 index), which invites
+passes a quadrant angle (``initial_rotation_quadrant`` is a 0-3 index), which invites
 the "optimization" of replacing the trig with an exact axis swap.  Do not:
 ``math.cos(pi/2)`` is ``6.123233995736766e-17``, not ``0.0``, so the
 reference leaves a residue proportional to the *other* coordinate.  Measured:
@@ -83,7 +83,7 @@ of them, and with ``math.sqrt(dx*dx + dy*dy)`` on **0.06%**.  Copy the
 substitute (this is B6's point restated for a non-GEOS oracle).
 
 **B2 -- measured NOT to apply, and that is worth recording.**
-``angle = float(component.initial_rotation) * math.pi / 2.0`` looks like the
+``angle = float(component.initial_rotation_quadrant) * math.pi / 2.0`` looks like the
 ``PI / 2.0``-vs-``FRAC_PI_2`` trap.  It is not: the expression is
 ``(v * PI) / 2.0``, and division by ``2.0`` is exact in binary floating
 point, so it agrees with ``v * (PI / 2.0)`` and with ``v * FRAC_PI_2`` on
@@ -226,10 +226,10 @@ def generate_escape_vias(
         comp_x, comp_y = component.initial_position
 
     # Get component rotation in radians
-    # Component.initial_rotation is index 0-3 (0=0, 1=90, 2=180, 3=270)
+    # Component.initial_rotation_quadrant is index 0-3 (0=0, 1=90, 2=180, 3=270)
     angle = 0.0
-    if component.initial_rotation is not None:
-        angle = float(component.initial_rotation) * math.pi / 2.0
+    if component.initial_rotation_quadrant is not None:
+        angle = float(component.initial_rotation_quadrant) * math.pi / 2.0
 
     for pin in component.pins:
         if not pin.net:
@@ -283,7 +283,7 @@ def generate_escape_vias(
                 # convention, R(-theta) -- see
                 # temper_placer.geometry.kicad_transform's module
                 # docstring. Masked today because `angle` is always an
-                # exact quadrant value (Component.initial_rotation is a
+                # exact quadrant value (Component.initial_rotation_quadrant is a
                 # 0-3 index), at which this symmetric 4-way candidate set
                 # is set-invariant to R(+theta) vs R(-theta); fixed anyway
                 # so a non-quadrant future caller does not inherit a

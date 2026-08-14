@@ -156,7 +156,7 @@ def _components_wire(netlist: Netlist) -> list[tuple]:
         (
             comp.ref,
             comp.initial_position,
-            comp.initial_rotation,
+            comp.initial_rotation_quadrant,
             [(pin.number, pin.position, pin.net) for pin in comp.pins],
             comp.initial_side,
         )

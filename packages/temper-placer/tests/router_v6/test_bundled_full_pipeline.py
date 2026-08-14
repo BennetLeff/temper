@@ -81,7 +81,7 @@ def _build_two_net_bundle_candidate_board() -> tuple[ParsedPCB, Stage2Output]:
     pin_b1 = Pin(name="1", number="1", position=(0.0, 0.0), net="SIG_B", **pin_kwargs)
     pin_b2 = Pin(name="1", number="1", position=(0.0, 0.0), net="SIG_B", **pin_kwargs)
 
-    comp_kwargs = dict(footprint="R_0402", bounds=(1.0, 1.0), initial_rotation=0)
+    comp_kwargs = dict(footprint="R_0402", bounds=(1.0, 1.0), initial_rotation_quadrant=0)
     comp_a1 = Component(ref="A1", pins=[pin_a1], initial_position=(10.0, 10.0), **comp_kwargs)
     comp_a2 = Component(ref="A2", pins=[pin_a2], initial_position=(20.0, 10.0), **comp_kwargs)
     comp_b1 = Component(ref="B1", pins=[pin_b1], initial_position=(10.0, 10.0), **comp_kwargs)

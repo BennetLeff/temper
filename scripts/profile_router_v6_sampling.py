@@ -43,7 +43,7 @@ def pick_easy_nets(pcb, n: int) -> list[str]:
         if comp.initial_position is None:
             continue
         cx, cy = comp.initial_position
-        rot = comp.initial_rotation or 0
+        rot = comp.initial_rotation_quadrant or 0
         rot_rad = deg_to_rad(rot * 90.0) if isinstance(rot, int) else rot
         side = comp.initial_side or 0
         for pin in comp.pins:

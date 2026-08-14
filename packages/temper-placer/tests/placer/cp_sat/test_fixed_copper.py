@@ -196,7 +196,7 @@ class TestItemBuilding:
                     pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="NET_A",
                               width=1.0, height=1.0, shape="rect", layer="F.Cu")],
                     initial_position=(10.0, 10.0),
-                    initial_rotation=0,
+                    initial_rotation_quadrant=0,
                 )
             ],
             nets=[Net(name="NET_A", pins=[("U1", "1")])],
@@ -254,7 +254,7 @@ class TestItemBuilding:
             pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="NET_C",
                       width=1.0, height=1.0, shape="rect", layer="F.Cu")],
             initial_position=(5.0, 5.0),
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
         )
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), zones=[])
         netlist = Netlist(
@@ -262,7 +262,7 @@ class TestItemBuilding:
                 Component(ref="U1", footprint="t", bounds=(2.0, 2.0),
                           pins=[Pin(name="1", number="1", position=(0.0, 0.0), net="NET_A",
                                     width=1.0, height=1.0, shape="rect", layer="F.Cu")],
-                          initial_position=(10.0, 10.0), initial_rotation=0),
+                          initial_position=(10.0, 10.0), initial_rotation_quadrant=0),
                 other,
             ],
             nets=[Net(name="NET_A", pins=[("U1", "1")]), Net(name="NET_C", pins=[("U2", "1")])],
@@ -802,7 +802,7 @@ class TestFailCapableSolve:
                 width=1.0, height=1.0, shape="rect", layer="all", is_pth=True)
         ]
         comp = Component(ref="U1", footprint="t", bounds=(2.0, 2.0), pins=pins,
-                         initial_position=(6.0, 8.0), initial_rotation=0)
+                         initial_position=(6.0, 8.0), initial_rotation_quadrant=0)
         netlist = Netlist(components=[comp], nets=[Net(name="NET_A", pins=[("U1", "1")])])
         board = Board(width=100.0, height=100.0, origin=(0.0, 0.0), zones=[])
         tr = TraceData(start=(5.0, 5.0), end=(7.0, 5.0), width=0.2, layer="F.Cu", net="NET_B")
