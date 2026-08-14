@@ -404,6 +404,57 @@ pub fn get_clearance_py(
     )
 }
 
+/// IEC 60335-1 cl. 29.2 / IEC 60664-1 material-group classification by CTI
+/// (comparative tracking index) band: Group I (CTI>=600), Group II
+/// (400<=CTI<600), Group IIIa (175<=CTI<400), Group IIIb (100<=CTI<175) --
+/// boundaries cited-primary in
+/// `docs/evidence/2026-07-28-creepage-determination-brainstorm.md` (L299-300).
+/// IEC 60335-1 Table 17 (the creepage table `VoltageClass::get_creepage_mm`
+/// implements) merges IIIa and IIIb into a single column -- see
+/// `docs/evidence/2026-08-12-hv-hv-creepage-determination.md` (L288) -- so
+/// both map onto the same (worst) numeric bucket here.
+#[cfg(feature = "python")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum MaterialGroup {
+    I,
+    Ii,
+    IiiaOrB,
+}
+
+#[cfg(feature = "python")]
+impl MaterialGroup {
+    /// Parse the CTI-group label the public API has always declared
+    /// (`"I"`, `"II"`, `"IIIa"`, `"IIIb"`; every call site in this repo uses
+    /// the "IIIa" default). An unrecognized label is a hard error rather
+    /// than a silent fallback -- silent fallback is exactly how
+    /// `_material_group` went unwired for this long (see the `_`-prefixed
+    /// parameter this replaces).
+    fn parse(s: &str) -> Result<Self, String> {
+        match s.trim() {
+            "I" => Ok(MaterialGroup::I),
+            "II" => Ok(MaterialGroup::Ii),
+            "IIIa" | "IIIb" => Ok(MaterialGroup::IiiaOrB),
+            other => Err(format!(
+                "unknown material_group {other:?}; expected one of \"I\", \"II\", \"IIIa\", \
+                 \"IIIb\" (IEC 60335-1 cl. 29.2 CTI bands)"
+            )),
+        }
+    }
+
+    /// The numeric bucket `VoltageClass::get_creepage_mm` already implements
+    /// (`temper-design-bundle/src/net_types.rs`): 1=best, 2=typical FR4
+    /// baseline (no adjustment), 3=worst CTI (`base * 1.4`). This function
+    /// does not change that kernel's coefficients -- it only stops silently
+    /// discarding the caller's declared group before reaching it.
+    fn creepage_bucket(self) -> i64 {
+        match self {
+            MaterialGroup::I => 1,
+            MaterialGroup::Ii => 2,
+            MaterialGroup::IiiaOrB => 3,
+        }
+    }
+}
+
 #[cfg(feature = "python")]
 #[allow(clippy::too_many_arguments)]
 fn get_clearance_impl(
@@ -413,10 +464,11 @@ fn get_clearance_impl(
     voltage: f64,
     layer_type: &str,
     pollution_degree: i64,
-    _material_group: &str,
+    material_group: &str,
     overvoltage_category: i64,
     design_rule_creepage: Option<f64>,
 ) -> PyResult<f64> {
+    let material_group = MaterialGroup::parse(material_group).map_err(PyValueError::new_err)?;
     let mut candidates: Vec<f64> = Vec::new();
 
     // ---- IEC 60950-1 (block-level error swallow) ----
@@ -436,7 +488,14 @@ fn get_clearance_impl(
     if let Ok((vc_a, vc_b)) = vc {
         for member in [&vc_a, &vc_b] {
             let c: f64 = member.call_method1("get_clearance_mm", (pollution_degree,))?.extract()?;
-            let cr: f64 = member.call_method0("get_creepage_mm")?.extract()?;
+            // `get_clearance_mm` (through-air spacing) is pollution-degree-only
+            // per IEC 60335-1 Table 16 -- material group does not enter it.
+            // `get_creepage_mm` (along-surface spacing, Table 17) IS CTI-group
+            // dependent; this is the call `_material_group` used to be dropped
+            // before reaching.
+            let cr: f64 = member
+                .call_method1("get_creepage_mm", (material_group.creepage_bucket(),))?
+                .extract()?;
             candidates.push(c);
             candidates.push(cr);
         }
