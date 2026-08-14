@@ -101,11 +101,46 @@ class MockDiffPair:
         self.n_net = n_net
 
 
+class _NxGraphAdapter:
+    """Adapts a plain ``networkx.Graph`` to the (small) subset of the Rust
+    ``SkeletonGraph`` API ``bundle_analyzer.py`` actually calls.
+
+    ``channel_skeleton.py`` migrated its skeleton graphs from
+    ``networkx.Graph`` to the Rust ``SkeletonGraph`` pyclass
+    (``281aa747b3``, "migrate channel_skeleton.py nx.Graph to Rust
+    SkeletonGraph"). That pyclass exposes ``.edges`` as ``[(u, v), ...]``
+    (no weight) and a separate ``edges_with_data()`` method for the
+    networkx ``Graph.edges(data=True)`` contract -- see
+    ``channel_skeleton_contracts.rs``'s own docstring citing
+    ``bundle_analyzer.py:186`` by name. ``bundle_analyzer.py`` was updated
+    for that contract (``skeleton.graph.edges_with_data()``) but this
+    module's mocks, built directly on ``nx.Graph`` (which has no
+    ``edges_with_data`` method), were not -- this adapter closes that gap
+    without changing what these tests actually exercise (still built and
+    populated via real ``networkx`` calls, just read back out through the
+    same narrower surface a real ``ChannelSkeleton`` provides).
+    """
+
+    def __init__(self, g: nx.Graph):
+        self._g = g
+
+    @property
+    def nodes(self) -> list:
+        return list(self._g.nodes)
+
+    @property
+    def edges(self) -> list[tuple]:
+        return list(self._g.edges)
+
+    def edges_with_data(self) -> list[tuple]:
+        return list(self._g.edges(data=True))
+
+
 class MockSkeleton:
     """Minimal ChannelSkeleton-like object for testing."""
 
     def __init__(self, graph=None):
-        self.graph = graph or nx.Graph()
+        self.graph = _NxGraphAdapter(graph or nx.Graph())
 
 
 def make_line_skeleton(_layer_name: str, points: list[tuple[float, float]]) -> MockSkeleton:
