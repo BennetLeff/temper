@@ -336,6 +336,7 @@ def _stitch_isolated_pads(
             )
 
 
+
 #: A carved fragment smaller than this is not copper anyone can use -- it is a
 #: sliver left where the keepout nearly severed the hull. KiCad's own zone
 #: filler drops islands below `min_thickness` (0.25mm) wide for the same
@@ -381,6 +382,97 @@ def _carve_outline(
         if len(coords) >= 3:
             out.append(tuple(coords))
     return out
+
+
+
+def _stitch_pads_to_each_other(
+    pad_positions: dict[str, list[tuple[float, float]]],
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    zone_layer_by_net: dict[str, str],
+    *,
+    tstamp_counter: list[int] | None = None,
+) -> None:
+    """ADDED 2026-08-14 (docs/evidence/2026-08-14-ntc-no-realization-and-
+    delta-t-reconciliation.md): for ``_CONTINUITY_EXEMPT_NETS`` members
+    only, emit a minimum-spanning-tree of direct pad-to-pad straight
+    segments so the net's own pads form ONE connected component in the
+    segment/via graph -- the thing ``_stitch_isolated_pads`` above does
+    NOT do (it only reconnects pads that fall OUTSIDE every pour of their
+    net; every pad of a single-hull continuity-exempt net is already
+    INSIDE that one hull, so none is ever "isolated" and none gets a
+    stitch from that function).
+
+    Why this is safe without an obstacle-aware router: a
+    continuity-exempt net gets exactly ONE convex-hull pour covering ALL
+    of its pads (``_emit_zone_pours``'s ``cluster=not exempt`` -- see
+    ``_CONTINUITY_EXEMPT_NETS``'s own docstring). By the definition of
+    convexity, a straight line between any two points that are both
+    inside a convex polygon lies entirely inside that polygon -- so a
+    pad-to-pad connector for one of these nets never leaves the area this
+    net's own DRC-clearance-aware pour margin already claimed. This is
+    NOT the "forced segment" pattern ``_allow_forced_segments`` bans
+    (an A* search giving up and a raw waypoint line being substituted for
+    its result): no search is attempted here at all, for exactly the
+    reason documented at this module's own A*-exclusion call site
+    (``_net_policy.py::_should_route`` -- routing `power_in.ntc-no` through
+    A*, even in isolation against the real board, measured exhausting an
+    8GB cap and aborting rather than terminating cleanly). It mirrors
+    ``_stitch_isolated_pads``'s own existing, already-accepted mechanism
+    (same 0.2mm width, same straight-line-with-no-search construction),
+    just pad-to-pad instead of pad-to-zone-boundary-vertex.
+
+    Width: 0.2mm, matching ``_stitch_isolated_pads``'s existing convention
+    -- these connectors exist for TOPOLOGICAL continuity only (so the
+    audit's segment/via graph can see the pads are one component); the
+    pour itself, not these thin connectors, carries the net's actual
+    ampacity requirement.
+    """
+    from temper_placer.router_v6._adapter_convert import _next_tstamp
+
+    if tstamp_counter is None:
+        tstamp_counter = [0]
+
+    for net_name, positions in pad_positions.items():
+        if net_name not in _CONTINUITY_EXEMPT_NETS:
+            continue
+        net_num = net_name_to_number.get(net_name, 0)
+        if net_num <= 0 or len(positions) <= 1:
+            continue
+        layer = zone_layer_by_net.get(net_name, "F.Cu")
+
+        # Minimum spanning tree over the (tiny -- board-scale pad counts,
+        # never more than a handful) pad set, O(n^2) Prim's: simple,
+        # deterministic, no external dependency needed at this size.
+        remaining = list(range(1, len(positions)))
+        in_tree = [0]
+        edges: list[tuple[int, int]] = []
+        while remaining:
+            best = None
+            best_d2 = float("inf")
+            for i in in_tree:
+                xi, yi = positions[i]
+                for j in remaining:
+                    xj, yj = positions[j]
+                    d2 = (xj - xi) ** 2 + (yj - yi) ** 2
+                    if d2 < best_d2:
+                        best_d2 = d2
+                        best = (i, j)
+            assert best is not None
+            edges.append(best)
+            in_tree.append(best[1])
+            remaining.remove(best[1])
+
+        for i, j in edges:
+            xi, yi = positions[i]
+            xj, yj = positions[j]
+            segments.append(
+                f"  (segment (start {xi:.4f} {yi:.4f})"
+                f" (end {xj:.4f} {yj:.4f})"
+                f' (width {0.2:.4f}) (layer "{layer}")'
+                f" (net {net_num})"
+                f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
+            )
 
 
 def _emit_zone_pours(
@@ -516,6 +608,7 @@ def _emit_zone_pours(
         zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
 
     zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
+    zone_layer_by_net: dict[str, str] = {}
     for net_name, positions in pad_positions.items():
         zone_layers = _zone_layers_for_net(net_name)
         if real_layer_names is not None:
@@ -530,6 +623,7 @@ def _emit_zone_pours(
             exempt = nc in _CONTINUITY_EXEMPT_CLASSES or net_name in _CONTINUITY_EXEMPT_NETS
 
             for layer in zone_layers:
+                zone_layer_by_net.setdefault(net_name, layer)
                 try:
                     margin, _clearance = _zone_params_for_net(net_name)
                     zds = compute_zones_for_net(
@@ -570,6 +664,13 @@ def _emit_zone_pours(
         segments,
         net_name_to_number,
         zone_points_by_net,
+        tstamp_counter=tstamp_counter,
+    )
+    _stitch_pads_to_each_other(
+        pad_positions,
+        segments,
+        net_name_to_number,
+        zone_layer_by_net,
         tstamp_counter=tstamp_counter,
     )
 
