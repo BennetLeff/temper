@@ -54,7 +54,7 @@ import pytest
 import temper_orchestration as _to
 import tests.deterministic._orchestrator_py_oracle as _orc
 
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, Trace, Via
 from temper_placer.deterministic import feedback as _feedback_pkg
 from temper_placer.deterministic.feedback import (
     AdjustmentResult,
@@ -160,8 +160,22 @@ def _populated_state() -> BoardState:
         netlist=_mock_netlist(),
         locked_routes=frozenset({"NET1", "NET2"}),
         config={"block": "hv_lv"},
-        routes=frozenset({("NET1", ((0.0, 0.0), (10.0, 10.0)))}),
-        vias=frozenset({("VIA1", (5.0, 5.0))}),
+        routes=frozenset({_trace("NET1", (0.0, 0.0), (10.0, 10.0))}),
+        vias=frozenset({_via("VIA1", (5.0, 5.0))}),
+    )
+
+
+def _trace(net, start, end) -> Trace:
+    """Canonical route element: a ``Trace`` Rust pyclass (object form). Tuple
+    routes ("NET1", ...) are NOT accepted by the shared Rust ``RouteSet``
+    Marshal, which reads ``.start``/``.end`` (see issue #1143)."""
+    return Trace(start=start, end=end, width=0.25, layer="F.Cu", net=net)
+
+
+def _via(net, position) -> Via:
+    """Canonical via element: a ``Via`` Rust pyclass (object form)."""
+    return Via(
+        position=position, drill=0.3, width=0.6, layers=("F.Cu", "B.Cu"), net=net
     )
 
 

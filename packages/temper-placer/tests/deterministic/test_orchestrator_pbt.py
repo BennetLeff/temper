@@ -43,7 +43,7 @@ import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, Trace, Via
 from temper_placer.deterministic.feedback import (
     AdjustmentResult,
     DRCViolation,
@@ -273,8 +273,18 @@ def _out_state() -> BoardState:
         board=Board(width=100.0, height=80.0, zones=[]),
         locked_routes=frozenset({"NET1"}),
         config={"block": "hv_lv"},
-        routes=frozenset({("NET1", ((0.0, 0.0), (10.0, 10.0)))}),
-        vias=frozenset({("VIA1", (5.0, 5.0))}),
+        routes=frozenset({
+            Trace(start=(0.0, 0.0), end=(10.0, 10.0), width=0.25, layer="F.Cu", net="NET1")
+        }),
+        vias=frozenset({
+            Via(
+                position=(5.0, 5.0),
+                drill=0.3,
+                width=0.6,
+                layers=("F.Cu", "B.Cu"),
+                net="VIA1",
+            )
+        }),
     )
 
 
