@@ -193,7 +193,22 @@ class BundleAnalyzer:
         return lengths[mid] if len(lengths) % 2 == 1 else (lengths[mid - 1] + lengths[mid]) / 2.0
 
     def _net_pad_positions(self, net) -> list[tuple[float, float]]:
-        """Resolve a net's pad positions to world coordinates."""
+        """Resolve a net's pad positions to world coordinates.
+
+        Pin resolution goes through
+        :func:`temper_placer.core.pad_identity.resolve_net_pins`
+        (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first
+        match -- an independent, previously-unfixed copy of the same bug
+        ``_pipeline_grid._net_pad_positions`` had (see
+        ``temper_placer.core.pad_identity``'s module docstring): a
+        component with more than one physical pad sharing a pad number
+        (K2/K3's current-sharing contacts) would otherwise have every
+        occurrence resolve to the SAME coordinate, silently shrinking a
+        net's convex-hull footprint used for bundle/EMI-constraint
+        detection.
+        """
+        from temper_placer.core.pad_identity import resolve_net_pins
+
         positions: list[tuple[float, float]] = []
         if not self.pcb:
             return positions
@@ -201,14 +216,13 @@ class BundleAnalyzer:
         # Build comp_by_ref
         comp_by_ref = {comp.ref: comp for comp in self.pcb.components}
 
-        for comp_ref, pin_name in getattr(net, "pins", []):
+        for comp_ref, _pin_name, pin in resolve_net_pins(net, comp_by_ref):
             comp = comp_by_ref.get(comp_ref)
             if comp is None:
                 continue
             comp_pos = getattr(comp, "initial_position", None)
             if comp_pos is None:
                 continue
-            pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
             if pin is None:
                 positions.append((float(comp_pos[0]), float(comp_pos[1])))
                 continue

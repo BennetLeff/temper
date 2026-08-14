@@ -11,57 +11,11 @@ import logging as _logging
 from contextlib import nullcontext
 from typing import Any
 
+from temper_placer.core.pad_identity import net_pad_positions as _pad_identity_net_pad_positions
 from temper_placer.router_v6._pipeline_types import Stage2Output
 from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
-
-
-def _nth_matching_pin(comp: Any, name_or_number: str, occurrence: int) -> Any:
-    """Return the *occurrence*-th (0-indexed) pin on *comp* whose ``name``
-    or ``number`` equals *name_or_number*, in ``comp.pins`` iteration
-    order, or ``None`` if fewer than ``occurrence + 1`` pins match.
-
-    ``Component.get_pin`` (the Rust pyclass method, ``netlist_contracts.rs``)
-    always returns the FIRST name/number match -- correct for the common
-    case of one physical pad per pin name, but silently WRONG whenever a
-    footprint has more than one physical pad sharing a pad number/name.
-    That shape is real and documented on this board, not hypothetical: K2/K3
-    (the discharge relays, ``temper:Relay_SPDT_Schrack-RT314012``) each have
-    a manufacturer-duplicated pad "3"/"4"/"1" -- two physical solder holes
-    7.5mm apart per logical contact, for 16A current sharing (see the
-    footprint's own embedded datasheet comment in ``pcb/temper.kicad_pcb``).
-    A net whose *only* pins are two occurrences of the identical
-    ``(component_ref, pin_name)`` pair (e.g. ``discharge.k_dis1-no``,
-    ``pins == [('K2', '3'), ('K2', '3')]``) is NOT a 1-terminal net --
-    ``pad_connectivity_audit`` confirms 2 genuinely distinct physical pad
-    positions, 7.5mm apart, on the real board. Calling ``comp.get_pin(name)``
-    naively for every occurrence collapses those 2 distinct terminals onto
-    1 coordinate, which turns a real 2-terminal net into what looks like a
-    trivial self-referential one -- A* then "routes" a zero-length path
-    between two identical points, reports success, and never actually joins
-    the real second pad. MEASURED: this is the entire mechanism behind
-    ``discharge.k_dis1-no``/``discharge.k_dis2-no`` silently landing in
-    ``pad_connectivity_audit``'s no-copper bucket while Stage 4 prints
-    "routed successfully" for them.
-
-    ``net.pins`` and ``comp.pins`` are both built by the same encounter-order
-    iteration over a component's raw pad list (``extract_nets_pure`` /
-    ``parse_engine.rs``), so the Nth occurrence of ``(comp_ref, pin_name)``
-    within a given net's ``pins`` corresponds exactly to the Nth
-    name/number-matching pin in that component's own ``pins`` list --
-    this function resolves that correspondence explicitly instead of
-    relying on ``get_pin``'s first-match shortcut.
-    """
-    seen = 0
-    for pin in getattr(comp, "pins", None) or ():
-        if pin is None:
-            continue
-        if getattr(pin, "name", None) == name_or_number or getattr(pin, "number", None) == name_or_number:
-            if seen == occurrence:
-                return pin
-            seen += 1
-    return None
 
 
 def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
@@ -96,34 +50,21 @@ def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
     logic can decide what to do.
 
     Duplicate ``(component_ref, pin_name)`` occurrences within *net*'s own
-    pins are resolved to DISTINCT physical pads via :func:`_nth_matching_pin`
+    pins are resolved to DISTINCT physical pads via
+    :func:`temper_placer.core.pad_identity.net_pad_positions`
     (occurrence-indexed), not the same first match every time -- see that
-    function's docstring for why a naive ``comp.get_pin(pin_name)`` call
+    module's docstring for why a naive ``comp.get_pin(pin_name)`` call
     silently collapses a real multi-terminal net (this board's
     manufacturer-duplicated relay contact pads) into what looks like a
-    trivial single-point one.
+    trivial single-point one. This function used to carry its own copy of
+    that occurrence-indexed lookup (``_nth_matching_pin``, added by the
+    fix this docstring describes) and its own component-lookup/rotation
+    loop; both are now the single, canonical implementation in
+    ``pad_identity``, which this function's contract (fallback to the
+    component's own position for an unresolvable pin, skip entirely when
+    the component or its position is missing) matches exactly.
     """
-    from temper_placer.core.pin_geometry import pin_world_position
-
-    positions: list[tuple[float, float]] = []
-    occurrence_by_key: dict[tuple[str, str], int] = {}
-    for comp_ref, pin_name in getattr(net, "pins", []):
-        comp = comp_by_ref.get(comp_ref)
-        if comp is None:
-            continue
-        comp_pos = getattr(comp, "initial_position", None)
-        if comp_pos is None:
-            continue
-        key = (comp_ref, pin_name)
-        occurrence = occurrence_by_key.get(key, 0)
-        occurrence_by_key[key] = occurrence + 1
-        pin = _nth_matching_pin(comp, pin_name, occurrence) if hasattr(comp, "get_pin") else None
-        if pin is None:
-            positions.append((float(comp_pos[0]), float(comp_pos[1])))
-            continue
-        wx, wy = pin_world_position(pin, comp)
-        positions.append((float(wx), float(wy)))
-    return positions
+    return _pad_identity_net_pad_positions(net, comp_by_ref)
 
 
 def _last_skeleton(skeletons: dict[str, Any]) -> Any:

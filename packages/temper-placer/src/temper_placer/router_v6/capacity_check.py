@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from temper_placer.core.pad_identity import resolve_net_pins
 from temper_placer.router_v6.channel_widths import (
     _build_edt,
 )
@@ -42,16 +43,28 @@ _EDT_CELL_SIZE: float = 0.1  # mm — matches channel_widths.py
 
 
 def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
-    """Resolve a Net's pads to world coordinates via component lookup."""
+    """Resolve a Net's pads to world coordinates via component lookup.
+
+    Pin resolution goes through
+    :func:`temper_placer.core.pad_identity.resolve_net_pins`
+    (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first match --
+    an independent, previously-unfixed copy of the same bug
+    ``_pipeline_grid._net_pad_positions`` had (see
+    ``temper_placer.core.pad_identity``'s module docstring): a component
+    with more than one physical pad sharing a pad number (K2/K3's
+    current-sharing contacts) would otherwise have every occurrence
+    resolve to the SAME coordinate, silently undercounting capacity
+    demand for that net. Note this function still adds ``pin.position``
+    (the pin's LOCAL, pre-rotation offset) directly rather than routing
+    through ``pin_world_position`` -- a separate, pre-existing rotation
+    bug, out of scope here; only pad IDENTITY is fixed by this change.
+    """
     positions: list[tuple[float, float]] = []
-    for comp_ref, pin_name in getattr(net, "pins", []):
+    for comp_ref, _pin_name, pin in resolve_net_pins(net, comp_by_ref):
         comp = comp_by_ref.get(comp_ref)
-        if comp is None:
-            continue
-        comp_pos = getattr(comp, "initial_position", None)
+        comp_pos = getattr(comp, "initial_position", None) if comp is not None else None
         if comp_pos is None:
             continue
-        pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
         if pin is None:
             positions.append((float(comp_pos[0]), float(comp_pos[1])))
             continue

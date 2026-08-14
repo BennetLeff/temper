@@ -865,6 +865,33 @@ scripts:
   - json
   - pathlib
   - sys
+- path: check_pad_identity_ambiguity.py
+  purpose: 'CI gate: structural, component-level complement to check_net_pin_identity_pad_correspondence.py
+    (PR #1177''s net-accounting gate). Fails when a footprint IN USE on the board declares more than one
+    physical pad under the same pad number (K1/K2/K3 today -- K2/K3''s manufacturer-duplicated relay
+    contact pads "1"/"3"/"4", K1''s four duplicate NPTH mechanical mounting holes) AND a production
+    Component.get_pin( call site outside a small, reasoned allowlist (core/loop_extractor.py::get_pin_net,
+    which only needs pin existence/net-membership) resolves a pin as if (ref, pin_name) were a unique key.
+    Closes the net-level gate''s blind spot: a duplicated pad sitting inside an otherwise multi-pin net
+    (K2/K3''s pad "1" -> PWR_RTN/DC_BUS_RTN, pad "4" -> discharge.k_dis1-nc/k_dis2-nc) never collapses the
+    WHOLE net to <=1 distinct tuple, so the net-level gate is silent for it even though a first-match
+    consumer still mis-resolves the duplicated pad. Self-contained: paren-balanced regex board parse (no
+    compiled extension) + ast source scan (no import of the scanned modules).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - collections
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_pad_orientation.py
   purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a
     footprint rotated by a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature

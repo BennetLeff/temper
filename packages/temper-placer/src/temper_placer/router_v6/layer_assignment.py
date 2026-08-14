@@ -489,21 +489,38 @@ def _get_net_dominant_direction(net: "Net", netlist: Netlist, positions: Array) 
 
     Returns:
         "horizontal", "vertical", or "mixed"
+
+    Pin resolution uses
+    :func:`temper_placer.core.pad_identity.nth_matching_pin`
+    (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first match --
+    a component with more than one physical pad sharing a pad number
+    (K2/K3's manufacturer-duplicated current-sharing contacts) would
+    otherwise have every occurrence resolve to the SAME coordinate,
+    silently shrinking the net's apparent extent. See
+    ``temper_placer.core.pad_identity``'s module docstring. (As of
+    2026-08, this function has no production caller that reaches it with
+    a non-``None`` ``component_positions`` -- see
+    ``tests/router_v6/test_layer_assignment_rust_differential.py``'s
+    "Scope" note -- so this is a preemptive fix, not a live-behavior
+    change.)
     """
     if not net.pins:
         return "mixed"
+
+    from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
 
     min_x, max_x = float("inf"), float("-inf")
     min_y, max_y = float("inf"), float("-inf")
 
     count = 0
-    for comp_ref, pin_name in net.pins:
+    occurrence_indices = net_pin_occurrence_indices(net.pins)
+    for (comp_ref, pin_name), occurrence in zip(net.pins, occurrence_indices, strict=True):
         comp_idx = netlist.get_component_index(comp_ref)
         if comp_idx is None:
             continue
 
         comp = netlist.components[comp_idx]
-        pin = comp.get_pin(pin_name)
+        pin = nth_matching_pin(comp, pin_name, occurrence)
         if pin:
             _cx, _cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
             px, py = pin_world_position(pin, comp)
