@@ -173,6 +173,39 @@ class FakeCourtyardStage:
         return (max(5.0, min(95.0, x)), max(5.0, min(95.0, y)))
 "#;
 
+/// Serializes this file's tests against each other (issue #1126).
+///
+/// Every test below calls `install_fakes`, which re-registers fresh
+/// classes/modules into the PROCESS-GLOBAL `sys.modules` (`d6_fakes`,
+/// `temper_placer.core.board`, `temper_design_bundle_python.board_contracts`,
+/// ...). `cargo test`'s default parallel harness runs these `#[test]` fns on
+/// different OS threads within the SAME process, and holding the GIL for a
+/// closure's duration does not prevent CPython from swapping to another
+/// thread mid-closure while executing actual Python bytecode (e.g. inside
+/// `py.run(FAKE_MODULES, ...)` or an `oracle.call_method(...)` callback) --
+/// the eval loop's periodic GIL-switch check can hand the GIL to a different
+/// waiting thread even without an explicit `py.allow_threads`. If that other
+/// thread's `install_fakes` runs in the gap between this thread building a
+/// Python object against ITS classes (e.g. `board_contracts.Trace(...)` in
+/// `Route::to_python`) and this thread later fetching `temper_placer.core
+/// .board.Trace` for an `isinstance` check, the two class objects differ by
+/// identity despite being structurally identical -- `isinstance` then
+/// returns `False` for a genuine `Trace`, which is exactly the "GOOD +
+/// non-Trace survive, BAD removed: left 3, right 2" failure signature: a
+/// `Trace` misclassified as non-Trace skips the oracle's `can_place_track
+/// _segment` filter and survives when it should have been removed.
+///
+/// This is the identical hazard `netlist_owned.rs`'s `NETLIST_TESTS_LOCK`
+/// documents and fixes for its own `sys.modules` stand-in registrations --
+/// same root cause (shared mutable global state racing across parallel
+/// `Python::attach` calls), same fix (a lock isolating the shared state,
+/// taken BEFORE `Python::initialize()`/`Python::attach` so it cannot
+/// deadlock against the GIL). This does not serialize the wider `cargo
+/// test` run: each `tests/*.rs` file is its own binary/process, so only
+/// THIS file's 5 tests -- the ones that actually share the mutated global
+/// state -- are affected.
+static D6_TESTS_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let sys = py.import("sys")?;
     let modules: Bound<PyDict> = sys.getattr("modules")?.cast_into()?;
@@ -263,6 +296,7 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
 
 #[test]
 fn drc_sweep_removes_bad_geometry_and_writes_back() {
+    let _guard = D6_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
@@ -347,6 +381,7 @@ fn drc_sweep_removes_bad_geometry_and_writes_back() {
 
 #[test]
 fn via_dedup_guard_and_write() {
+    let _guard = D6_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
@@ -375,6 +410,7 @@ fn via_dedup_guard_and_write() {
 
 #[test]
 fn drc_validation_writes_violations() {
+    let _guard = D6_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
@@ -405,6 +441,7 @@ fn drc_validation_writes_violations() {
 
 #[test]
 fn courtyard_check_nudges_and_writes_placements() {
+    let _guard = D6_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
@@ -438,6 +475,7 @@ fn courtyard_check_nudges_and_writes_placements() {
 
 #[test]
 fn connectivity_validation_guard_and_run() {
+    let _guard = D6_TESTS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     Python::initialize();
     Python::attach(|py| {
         install_fakes(py).unwrap();
