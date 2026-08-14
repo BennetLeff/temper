@@ -487,6 +487,20 @@ class StackupGate(Gate):
         internal = _is_internal_net(net_name, route)
         copper_oz = _resolve_copper_oz(route, state)
 
+        # Copper weight is read live from the board's own declared stackup
+        # (main's #1223 `_resolve_copper_oz`); when no stackup is present
+        # (synthetic fixtures, pre-stackup callers) it falls back to the
+        # role-aware `_STACKUP_COPPER_OZ` figures -- 2oz outer / 1oz inner,
+        # the same weights check_stackup_copper_weight_gate.py enforces
+        # against `pcb/temper.kicad_pcb`'s own `(setup (stackup ...))`
+        # block (docs/hardware/TRACE_WIDTH_CALCULATIONS.md SS1) -- rather
+        # than the old flat 1.0 that silently assumed every layer was 1oz
+        # (correct for the declared 1oz INNER copper, wrong for the
+        # declared 2oz OUTER copper; over-conservative, so it never let
+        # anything unsafe through, but not the physically real number).
+        # See PR #1195 / docs/evidence/2026-08-13-router-nlayer-routing.md
+        # SS4 and PR #1223.
+
         min_width_mm = _min_width_ipc2152(
             current_a=current_a,
             copper_oz=copper_oz,
@@ -541,18 +555,39 @@ def _extract_trace_width(route: Any) -> float | None:
     return None
 
 
-def _is_internal_net(_net_name: str, route: Any) -> bool:
-    """Heuristic: does the route live on an internal layer?
+# PR #1195 (docs/evidence/2026-08-13-router-nlayer-routing.md): the board's
+# stackup grew from 4 layers (2 signal, In1.Cu/In2.Cu power planes) to 6
+# (4 signal, In1.Cu/In2.Cu unchanged planes, In3.Cu/In4.Cu new inner SIGNAL
+# layers) -- so a set frozen at {"In1.Cu", "In2.Cu"} silently stopped
+# covering every internal layer the router can now actually place a trace
+# on. `_EXTERNAL_LAYER_NAMES` is the one hardcoded fact kept: KiCad's own
+# board-format convention that the outermost two copper layers are always
+# named "F.Cu"/"B.Cu" (true of every board in this repo). Every OTHER
+# layer name is internal by elimination, so a future stackup edit adding
+# more inner layers (In5.Cu, ...) cannot silently fall outside this set the
+# way {"In1.Cu", "In2.Cu"} already did once.
+_EXTERNAL_LAYER_NAMES = frozenset({"F.Cu", "B.Cu"})
 
-    Checks layer attribute; defaults to False (external) when unknown.
+# Cites the SAME outer/inner copper weights
+# `scripts/check_stackup_copper_weight_gate.py` already enforces live
+# against `pcb/temper.kicad_pcb`'s own declared `(setup (stackup ...))`
+# block (docs/hardware/TRACE_WIDTH_CALCULATIONS.md SS1) -- not a fresh
+# assumption. `_check_current_density` reads this instead of a single
+# `copper_oz=1.0` regardless of layer role.
+_STACKUP_COPPER_OZ = {"outer": 2.0, "inner": 1.0}
+
+
+def _is_internal_net(_net_name: str, route: Any) -> bool:
+    """Does the route live on an internal (non-F.Cu/B.Cu) layer?
+
+    Checks layer attribute; defaults to False (external) only when no
+    layer information is available at all.
     """
     layer = getattr(route, "layer", None)
-    if isinstance(layer, str) and layer in ("In1.Cu", "In2.Cu"):
-        return True
     if layer is None and hasattr(route, "path"):
-        path_layer = getattr(route.path, "layer", None)
-        if isinstance(path_layer, str) and path_layer in ("In1.Cu", "In2.Cu"):
-            return True
+        layer = getattr(route.path, "layer", None)
+    if isinstance(layer, str):
+        return layer not in _EXTERNAL_LAYER_NAMES
     return False
 
 
@@ -581,7 +616,14 @@ def _resolve_copper_oz(route: Any, state: BoardState) -> float:
                 weight = getattr(candidate, "copper_weight_oz", None)
                 if isinstance(weight, (int, float)) and weight > 0:
                     return float(weight)
-    return 1.0
+    # No stackup or no matching layer: fall back to the board's declared
+    # role-aware weights (2oz outer / 1oz inner -- the SAME figures
+    # check_stackup_copper_weight_gate.py enforces live against
+    # pcb/temper.kicad_pcb's own stackup), not a flat 1.0. PR #1195's
+    # layer-awareness fix (docs/evidence/2026-08-13-router-nlayer-routing.md
+    # SS4) documented why the flat 1.0 was wrong for the 2oz outer layers.
+    internal = layer not in _EXTERNAL_LAYER_NAMES if isinstance(layer, str) else False
+    return _STACKUP_COPPER_OZ["inner"] if internal else _STACKUP_COPPER_OZ["outer"]
 
 
 # ------------------------------------------------------------------
