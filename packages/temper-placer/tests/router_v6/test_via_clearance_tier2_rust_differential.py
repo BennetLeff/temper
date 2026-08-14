@@ -384,9 +384,23 @@ def _oracle_get_clearance(
 ) -> float:
     """Return the most-conservative clearance (mm) across all applicable standards.
 
-    Verbatim composite oracle (the committed `get_clearance` body, unedited)
-    so the shim's unchanged `get_clearance` can be A/B'd against the
-    pre-migration orchestration composing the pure-Python kernels.
+    Composite oracle (the committed `get_clearance` body) so the shim's
+    `get_clearance` can be A/B'd against the pre-migration orchestration
+    composing the pure-Python kernels. NOT in `_ORACLE_SOURCES` /
+    `test_oracle_is_verbatim_copy`'s character-for-character pin (that check
+    covers `_oracle_calculate_safety_distances`, `_oracle_kw_boundary_match`
+    and `_oracle_net_class_to_voltage_class` only), so unlike those three
+    this function is not a byte-frozen historical snapshot -- it is the hand
+    composed orchestration around them, which is why it is fixable here.
+
+    RE-PIN (2026-08-14, its own commit, separate from the behavioral fix it
+    tracks): the `vc.get_creepage_mm()` no-arg call (material_group discard)
+    and the un-floored `> 0.5` internal-layer reduction below were both
+    confirmed defects, not intended reference behavior -- see
+    `temper-orchestration/src/clearance.rs::get_clearance_impl`'s fix
+    (234ce918d, then the non-monotonicity floor fix) and
+    `_clearance_family_py_oracle.py`'s matching re-pin for the full
+    citation and the exhaustive-sweep evidence this correction was gated on.
     """
     candidates: list[float] = []
 
@@ -407,10 +421,20 @@ def _oracle_get_clearance(
     try:
         vc_a = _net_class_to_voltage_class(net_class_a)
         vc_b = _net_class_to_voltage_class(net_class_b)
+        # Re-pin (2026-08-14): was `vc.get_creepage_mm()` (no-arg,
+        # material_group discard) -- see the docstring above. Bucket mapping
+        # mirrors `MaterialGroup::parse`/`creepage_bucket` in clearance.rs;
+        # this block is inside the `try/except Exception: pass` above (a
+        # pre-existing structural choice, not introduced by this re-pin), so
+        # a hard raise here would just be silently swallowed rather than
+        # propagate like the live code's `PyValueError` does -- no test
+        # exercises an unrecognized label (every call site keeps the
+        # "IIIa" default), so this is documented rather than worked around.
+        bucket = {"I": 1, "II": 2, "IIIa": 3, "IIIb": 3}.get(material_group.strip(), 3)
         # Use the more demanding of the two net classes
         for vc in (vc_a, vc_b):
             candidates.append(vc.get_clearance_mm(pollution_degree))
-            candidates.append(vc.get_creepage_mm())
+            candidates.append(vc.get_creepage_mm(bucket))
     except Exception:
         pass
 
@@ -433,8 +457,12 @@ def _oracle_get_clearance(
     result = max(candidates)
 
     # ---- IEC 60664-1 internal-layer reduction -------------------------
+    # Re-pin (2026-08-14): floored at `.max(0.5)` -- same non-monotonicity
+    # fix as `_clearance_family_py_oracle.py`'s `get_clearance` and
+    # `temper-orchestration/src/clearance.rs::get_clearance_impl`. `0.30`
+    # and `0.5` both keep their pre-existing values; only the floor is new.
     if layer_type == "internal" and result > 0.5:
-        result = result * INTERNAL_LAYER_CREEPAGE_FACTOR
+        result = max(result * INTERNAL_LAYER_CREEPAGE_FACTOR, 0.5)
 
     return result
 

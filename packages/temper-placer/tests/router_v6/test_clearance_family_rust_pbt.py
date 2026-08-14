@@ -14,7 +14,9 @@ Six non-vacuous properties (G4):
       conservative max). Vacuity guard: a kernel that drops the candidate
       violates (companion asserts the value rises with the candidate).
 - P2  get_clearance internal-layer reduction: on every pair whose external
-      result exceeds 0.5 mm the internal result is exactly 0.30 x external;
+      result exceeds 0.5 mm the internal result is exactly max(0.30 x
+      external, 0.5) (floored at 0.5mm since 2026-08-14 -- see the test's
+      own comment for why an un-floored reduction is non-monotone);
       otherwise the layer type does not change the result. Vacuity guard: a
       discriminator case with an HV pair is asserted to satisfy ``> 0.5``.
 - P3  verify_creepage lazy contract: a board with no HV net reports zero
@@ -138,10 +140,20 @@ def test_p1_guard_drc_candidate_is_discriminating():
 @given(_NET_CLASS, _NET_CLASS, _VOLTAGE)
 @_SETTINGS
 def test_p2_internal_layer_reduction_is_exact_factor(a, b, v):
+    # Updated 2026-08-14 alongside the internal-layer-reduction
+    # non-monotonicity fix: the reduction is `max(ext * 0.30, 0.5)`, not a
+    # bare `ext * 0.30`, once `ext` clears the 0.5mm gate -- flooring at 0.5
+    # is what keeps a larger `ext` from ever producing a *smaller* `internal`
+    # than an `ext` sitting at the boundary (see
+    # `temper-orchestration/src/clearance.rs::get_clearance_impl`'s inline
+    # writeup). For `ext` above the `0.5 / 0.30 ≈ 1.667` mm crossover the
+    # floor never binds and this reduces to the original bare-factor
+    # relationship, which is what every previously-passing case here (HV
+    # pairs, `ext` in the multi-mm range) already exercises.
     ext = get_clearance(a, b, v, layer_type="external")
     internal = get_clearance(a, b, v, layer_type="internal")
     if ext > 0.5:
-        assert internal == pytest.approx(ext * 0.30, rel=0, abs=0)
+        assert internal == pytest.approx(max(ext * 0.30, 0.5), rel=0, abs=0)
         assert internal < ext
     else:
         assert internal == ext
