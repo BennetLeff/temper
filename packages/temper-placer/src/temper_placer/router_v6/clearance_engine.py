@@ -46,6 +46,33 @@ the ``ClearanceEngineStage``); the ``SafetyDistances`` dataclass, the
 Bit-identical parity is pinned by
 ``tests/router_v6/test_via_clearance_tier2_rust_differential.py`` and the
 E3 clearance-family differential.
+
+.. note:: **Bug history (2026-08-13), URGENT -- audited, deliberately NOT
+   widened.** ``kw_boundary_match_py``'s word boundary is ``_`` or
+   start/end of string ONLY -- ``-`` is never a boundary character. This is
+   "Family C" of the hyphen-boundary net-classification defect (see PR
+   #1145/#1162's "Family A"/"Family B" fixes elsewhere in this repo), and
+   the sibling modules in this same family
+   (``clearance_check.py``/``creepage_check.py``) WERE widened to treat
+   ``-`` as an equivalent boundary to ``_``. This module was audited and
+   left unwidened on purpose, for two independent reasons: (1) this
+   module's own callers (:func:`_kw_boundary_match`,
+   :func:`_net_class_to_voltage_class`) only ever receive short net-*class*
+   labels (``"HV"``, ``"Signal"``, ...) produced by
+   ``clearance_check._classify_net_class``, never raw hyphenated net names
+   directly -- board-wide simulation of all 162 real net names confirms
+   zero live exposure through this module (the one confirmed over-match in
+   the Family-C fix, the ``"LINE"``-keyword false positive on 14 real
+   ``-line``-suffix SELV nets, is caught and mitigated upstream, in
+   ``_classify_net_class`` itself, before a net class ever reaches this
+   module); (2) widening it would break
+   ``tests/router_v6/test_via_clearance_tier2_rust_differential.py``'s
+   ``test_oracle_is_verbatim_copy``, which pins this module's oracle
+   byte-verbatim against a frozen historical commit
+   (``_ORACLE_PIN_SHA = "f1ffc013"``) -- a migration-fidelity contract this
+   fix does not have a safe way to update in lockstep. See
+   docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md
+   §3 for the full reasoning.
 """
 
 from __future__ import annotations

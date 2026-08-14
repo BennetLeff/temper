@@ -434,7 +434,23 @@ class PlacementConstraints(BaseModel):
         return self.zone_assignments.get(ref)
 
     def get_net_class(self, net_name: str) -> str:
-        """Get net class for a net, with defaults based on name."""
+        """Get net class for a net, with defaults based on name.
+
+        FIXED 2026-08-13 (URGENT hyphen-boundary net-classification defect,
+        "Family C" -- see PR #1145/#1162's "Family A"/"Family B" fixes
+        elsewhere in this repo): the word boundary below was "_" or
+        start/end of string ONLY -- "-" was never a boundary character,
+        even though 85 of the 162 real net names on the production board
+        contain a hyphen. "-" is now an equivalent boundary character to
+        "_". Board-wide simulation of all 162 real net names found zero
+        over-match risk for this function's keyword set (GND/VSS/VCC/VDD,
+        HV/BUS/DC_BUS): the only flips are ``hb-gnd`` (Power) and
+        ``hb.gate_hs-vdd``/``hb.gate_ls-vdd`` (Power, both 0-pad phantom
+        nets) -- all correct/intended, matching PR #1145's and PR #1162's
+        own findings for the identical net names in the sibling matcher
+        families. See
+        docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+        """
         if net_name in self.net_classes:
             return self.net_classes[net_name]
 
@@ -447,18 +463,18 @@ class PlacementConstraints(BaseModel):
         # scripts/check_net_classification.py's 2026-07-28 vocabulary
         # extension prompted -- see
         # docs/evidence/2026-07-28-zone-layer-classification-fix.md.
-        if re.search(r"(?:^|_)(?:GND|VSS|VCC|VDD)(?:$|[\d_])", upper) or re.search(
-            r"^\+(?:3V3|5V|15V)(?:$|_)", upper
+        if re.search(r"(?:^|[_-])(?:GND|VSS|VCC|VDD)(?:$|[\d_-])", upper) or re.search(
+            r"^\+(?:3V3|5V|15V)(?:$|[_-])", upper
         ):
             return "Power"
-        # Word-boundary match (delimited by "_" or start/end of the
+        # Word-boundary match (delimited by "_"/"-" or start/end of the
         # uppercased net name) -- bare "HV"/"BUS" as plain substrings
         # risked matching any net merely containing those letters. Same
         # defect class confirmed three times elsewhere in this repo;
         # found here by scripts/check_net_classification.py auditing
         # every net-name classifier for the same shape. See
         # docs/evidence/2026-07-27-net-classification-gate.md.
-        elif re.search(r"(?:^|_)(?:HV|BUS|DC_BUS)(?:$|[\d_])", upper):
+        elif re.search(r"(?:^|[_-])(?:HV|BUS|DC_BUS)(?:$|[\d_-])", upper):
             return "HighVoltage"
         else:
             return "Signal"

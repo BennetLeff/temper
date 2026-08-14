@@ -24,6 +24,28 @@ required-distance decision and the per-pair min-clearance sweep — to
 (:func:`_extract_segments`) and the report construction stay here.
 
 Part of temper-ytm8 (Stage 5 - Manufacturing DRC)
+
+.. note:: **Bug history (2026-08-13), URGENT.** ``_is_high_voltage_net``'s
+   word boundary was ``_`` or start/end of string ONLY -- ``-`` was never
+   a boundary character. This is "Family C" of the hyphen-boundary
+   net-classification defect (see PR #1145/#1162's "Family A"/"Family B"
+   fixes elsewhere in this repo). FIXED in ``temper-geometry``'s
+   ``creepage_check.rs``: ``-`` is now an equivalent boundary character to
+   ``_``. The fix lives entirely in the Rust kernel (not this Python
+   wrapper) because ``temper-orchestration``'s
+   ``clearance::run_creepage_check`` -- the actual production per-pair
+   creepage decision -- calls ``temper_geometry.is_high_voltage_net_py``
+   directly, bypassing this module's :func:`_is_high_voltage_net` wrapper
+   entirely; a Python-only fix would have been dead code for the real
+   production path, the same "DEAD CODE in production" shape already
+   documented for ``temper-drc-rs``'s independent clearance-side keyword
+   matcher (see ``test_manifest_hv_fix_reaches_rust_and_auto_backends`` in
+   ``tests/router_v6/test_clearance_check.py``). The over-match this
+   widening would otherwise cause (14 real, confirmed-SELV ``-line``-suffix
+   nets newly matching the ``"LINE"`` keyword) is mitigated in the same
+   Rust kernel by ``SELV_LINE_NET_OVERRIDES`` -- see
+   ``creepage_check.rs::is_high_voltage_net``'s doc comment and
+   docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
 """
 
 from __future__ import annotations
@@ -212,6 +234,13 @@ def _is_high_voltage_net(net_name: str) -> bool:
     keyword order of the former regexes (pinned bit-exactly by
     ``tests/router_v6/test_creepage_check_rust_differential.py``,
     including the 14 known false positives).
+
+    FIXED 2026-08-13 (URGENT, see this module's top-of-file bug-history
+    note): ``-`` is now an equivalent word-boundary character to ``_`` in
+    the Rust kernel, with an explicit denylist (``SELV_LINE_NET_OVERRIDES``
+    in ``creepage_check.rs``) guarding the one confirmed over-match this
+    causes on the real board (14 ``-line``-suffix SELV nets that would
+    otherwise newly match the ``"LINE"`` keyword).
 
     Args:
         net_name: Net name from the schematic / layout.

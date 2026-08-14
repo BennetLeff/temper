@@ -251,3 +251,51 @@ def test_is_high_voltage_net_still_matches_true_positives(net_name):
 def test_is_high_voltage_net_does_not_match_unrelated_trace():
     """Pre-existing invariant (docstring example): TRACE is not HV."""
     assert _is_high_voltage_net("TRACE") is False
+
+
+# ---------------------------------------------------------------------------
+# 2026-08-13: hyphen-boundary net-classification defect ("Family C" -- see
+# PR #1145/#1162's "Family A"/"Family B" fixes elsewhere in this repo).
+#
+# `_is_high_voltage_net`'s word boundary was "_" or start/end of string
+# ONLY -- "-" was never a boundary character, even though 85 of the 162
+# real net names on the production board contain a hyphen. See
+# docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "net_name",
+    ["AC-", "-AC", "X-HV", "HV-X", "PHASE-L2", "BUS-L1", "mains-line"],
+)
+def test_is_high_voltage_net_hyphen_is_now_a_word_boundary(net_name):
+    """A hyphenated net that should match an HV keyword now does -- the
+    same discipline "_" already had."""
+    assert _is_high_voltage_net(net_name) is True, net_name
+
+
+@pytest.mark.parametrize(
+    "net_name",
+    [
+        # 4 more "-line" SELV nets not in the 2026-07-27 fixture set above
+        # (found and mitigated by this fix's own board-wide simulation).
+        "safety-line-4",
+        "safety-line-5",
+        "safety-line-6",
+        "safety-line-7",
+        "safety.ocp2-line",
+    ],
+)
+def test_is_high_voltage_net_hyphen_boundary_selv_overrides_stay_false(net_name):
+    """The genuine over-match this fix has to guard against: these 5
+    additional real, confirmed-SELV "-line"-suffix nets (not already
+    covered by the 2026-07-27 fixture list above) must also stay
+    non-HV -- see `SELV_LINE_NET_OVERRIDES` in creepage_check.rs."""
+    assert _is_high_voltage_net(net_name) is False, net_name
+
+
+def test_is_high_voltage_net_hyphen_boundary_does_not_over_match():
+    """A keyword not adjacent to any boundary character must still not
+    match, hyphen present in the name or not."""
+    assert _is_high_voltage_net("TYPE-SPEED") is False
+    assert _is_high_voltage_net("XHVX-Y") is False

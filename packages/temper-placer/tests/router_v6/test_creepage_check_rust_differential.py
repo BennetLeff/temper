@@ -160,17 +160,51 @@ _BROAD_KEYWORDS = [
     "VBUS",
 ]
 
+# RE-PINNED 2026-08-13 (URGENT hyphen-boundary net-classification defect,
+# "Family C" -- see PR #1145/#1162's "Family A"/"Family B" fixes elsewhere
+# in this repo): mirrors `creepage_check.rs::SELV_LINE_NET_OVERRIDES`
+# exactly -- the 14 real, confirmed-SELV "-line"-suffix nets that the
+# hyphen-boundary widening below would otherwise reclassify HV via the
+# "LINE" keyword. See that Rust constant's doc comment for the full
+# per-net justification and
+# docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+_SELV_LINE_NET_OVERRIDES = frozenset(
+    name.upper()
+    for name in (
+        "safety-line",
+        "safety-line-1",
+        "safety-line-2",
+        "safety-line-3",
+        "safety-line-4",
+        "safety-line-5",
+        "safety-line-6",
+        "safety-line-7",
+        "safety.ocp-line",
+        "safety.ocp2-line",
+        "safety.ovp-line",
+        "safety.thermal-line",
+        "safety.coil_thermal-line",
+        "safety.uvlo_logic-line",
+    )
+)
+
 
 def _oracle_is_high_voltage_net(net_name):
     name_upper = net_name.upper()
+    # RE-PINNED 2026-08-13: "-" is now an equivalent word-boundary
+    # character to "_" (mirrors creepage_check.rs::word_bounded exactly),
+    # with the SELV-"-line" override checked first (mirrors
+    # creepage_check.rs::is_high_voltage_net exactly).
+    if name_upper in _SELV_LINE_NET_OVERRIDES:
+        return False
     for kw in _BROAD_KEYWORDS:
-        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", name_upper):
+        if re.search(rf"(?:^|[_-]){re.escape(kw)}(?:$|[\d_-])", name_upper):
             return True
-    if re.search(r"(?:^|_)B\+", name_upper):
+    if re.search(r"(?:^|[_-])B\+", name_upper):
         return True
-    if re.search(r"(?:^|_)AC(?:$|[\d_])", name_upper):
+    if re.search(r"(?:^|[_-])AC(?:$|[\d_-])", name_upper):
         return True
-    return bool(re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper))
+    return bool(re.search(r"(?:^|[_-])HV(?:$|[\d_-])", name_upper))
 
 
 # ---------------------------------------------------------------------------
@@ -516,21 +550,39 @@ def test_is_high_voltage_net_known_positives():
         "MAINS", "mains_return", "LINE", "NEUTRAL", "PRIMARY", "HOT", "L1",
         "L2", "L3", "PHASE", "VBUS", "B+", "b+", "AC", "ac", "AC_", "_AC_",
         "HV", "hv", "HV1", "HV_", "_HV", "PHASE_L1", "BUS_L2", "HV_GATE",
+        # FIXED 2026-08-13: "-" is now an equivalent boundary to "_" --
+        # "AC-"/"-AC"/"HV-BUS" now match the way "AC_"/"_AC"/"HV_BUS"
+        # already did above.
+        "AC-", "-AC", "HV-BUS", "mains-line",
     ]:
         assert _is_high_voltage_net(name) is True, name
         assert _tg.is_high_voltage_net_py(name) is True, name
 
 
 def test_is_high_voltage_net_known_false_positives():
-    """The 2026-07-27 word-boundary regression set must stay negative."""
+    """The 2026-07-27 word-boundary regression set must stay negative.
+
+    CHANGED 2026-08-13: the ``discharge.k_dis1-coil1``/``...-coil2`` and
+    ``safety*-line`` entries stay negative after the hyphen-boundary
+    widening too -- the coil names because "L1"/"L2"/"LINE" simply never
+    sit at a boundary inside "COIL1"/"COIL2" regardless of hyphen, the
+    ``safety*-line`` names because of the new
+    ``_SELV_LINE_NET_OVERRIDES``/``SELV_LINE_NET_OVERRIDES`` denylist (see
+    this file's own re-pin note on :func:`_oracle_is_high_voltage_net`).
+    ``"AC-"`` moved OUT of this list (see
+    ``test_is_high_voltage_net_known_positives``) -- it is now a genuine,
+    intended positive match, not a false positive.
+    """
     for name in [
         "discharge.k_dis1-coil1", "discharge.k_dis1-coil2",
         "discharge.k_dis2-coil1", "power_in.bypass_relay-coil1",
         "power_in.bypass_relay-coil2", "safety-line", "safety-line-1",
-        "safety-line-2", "safety-line-3", "safety.coil_thermal-line",
-        "safety.ocp-line", "safety.ovp-line", "safety.thermal-line",
-        "safety.uvlo_logic-line", "TRACE", "SPACE", "FACTORY", "ACH", "CAC",
-        "HIVE", "BEHAVE", "XHVX", "AC-", "AC.", "AC:", "", "   ",
+        "safety-line-2", "safety-line-3", "safety-line-4", "safety-line-5",
+        "safety-line-6", "safety-line-7", "safety.coil_thermal-line",
+        "safety.ocp-line", "safety.ocp2-line", "safety.ovp-line",
+        "safety.thermal-line", "safety.uvlo_logic-line", "TRACE", "SPACE",
+        "FACTORY", "ACH", "CAC", "HIVE", "BEHAVE", "XHVX", "AC.", "AC:",
+        "", "   ",
     ]:
         assert _is_high_voltage_net(name) is False, name
         assert _tg.is_high_voltage_net_py(name) is False, name

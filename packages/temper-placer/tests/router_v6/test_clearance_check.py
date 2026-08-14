@@ -10,6 +10,8 @@ from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.clearance_check import (
     ClearanceReport,
     ClearanceViolation,
+    _classify_net_class,
+    _is_hv_keyword_match,
     verify_clearance,
 )
 from temper_placer.router_v6.connectivity import PadIdentity
@@ -328,3 +330,64 @@ def test_manifest_hv_fix_reaches_rust_and_auto_backends(backend):
         f"60335 mains clearance, got {required}mm (looks like the "
         f"0.127mm default -- the manifest fix did not reach this backend)"
     )
+
+
+# -----------------------------------------------------------------------------
+# 2026-08-13: hyphen-boundary net-classification defect ("Family C" -- see
+# PR #1145/#1162's "Family A"/"Family B" fixes elsewhere in this repo).
+# `_is_hv_keyword_match`/`_classify_net_class` anchored word boundaries on
+# "_" and start/end-of-string only, never "-", even though 85 of the 162
+# real net names on the production board contain a hyphen. See
+# docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+# -----------------------------------------------------------------------------
+
+
+def test_hyphen_is_now_a_word_boundary_for_hv_keyword_match():
+    """A hyphenated net that should match an HV keyword now does."""
+    assert _is_hv_keyword_match("X-AC")
+    assert _is_hv_keyword_match("HV-BUS")
+    assert _is_hv_keyword_match("MAINS-LIVE")
+    # Underscore boundary is unaffected.
+    assert _is_hv_keyword_match("X_AC")
+
+
+def test_hyphen_boundary_does_not_over_match_hv_keyword():
+    """A keyword not adjacent to any boundary character must still not
+    match, hyphen present in the name or not (mirrors PR #1162's
+    equivalent guard for Family A/B)."""
+    assert not _is_hv_keyword_match("TRACE-1")
+    assert not _is_hv_keyword_match("TYPE-SPEED")  # "PE" substring, no boundary
+    assert not _is_hv_keyword_match("XHVX-Y")
+
+
+def test_selv_line_nets_stay_selv_after_hyphen_widening():
+    """The one confirmed over-match this fix has to guard against: 14
+    real, confirmed-SELV nets ending in a hyphenated "-line" suffix must
+    NOT flip to HV via the widened "LINE" keyword match. See
+    `_SELV_LINE_NET_OVERRIDES` in clearance_check.py."""
+    for name in (
+        "safety-line",
+        "safety-line-1",
+        "safety-line-7",
+        "safety.ocp-line",
+        "safety.ocp2-line",
+        "safety.ovp-line",
+        "safety.thermal-line",
+        "safety.coil_thermal-line",
+        "safety.uvlo_logic-line",
+    ):
+        assert not _is_hv_keyword_match(name.upper()), name
+        assert _classify_net_class(name) != "HV", name
+    # But a genuinely-HV net that merely happens to end in "-line" must
+    # still match -- the override is a literal-name denylist, not a
+    # blanket "-line" exemption.
+    assert _is_hv_keyword_match("MAINS-LINE")
+
+
+def test_hyphenated_hb_gnd_and_vdd_nets_classify_correctly():
+    """The board-confirmed, intended flips from the hyphen-boundary fix
+    (matching PR #1145's and PR #1162's own findings for these exact net
+    names in the sibling matcher families)."""
+    assert _classify_net_class("hb-gnd") == "GND"
+    assert _classify_net_class("hb.gate_hs-vdd") == "POWER"
+    assert _classify_net_class("hb.gate_ls-vdd") == "POWER"
