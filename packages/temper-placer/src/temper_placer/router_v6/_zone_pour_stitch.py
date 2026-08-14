@@ -106,6 +106,71 @@ _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains"})
 # applies directly, not by analogy.
 _CONTINUITY_EXEMPT_NETS = frozenset({"power_in.ntc-no"})
 
+# ADDED 2026-08-14, same evidence doc as _CONTINUITY_EXEMPT_NETS: which of
+# a continuity-exempt net's own pads are SMD (no existing drilled hole,
+# copper confined to the pad's own declared layer -- needs an explicit via
+# to reach `_stitch_pads_to_each_other`'s In3.Cu stitch layer) versus THT
+# (already has a real plated hole reaching every copper layer, so a NEW
+# via at the identical position is redundant copper that collides with
+# the pad's OWN existing hole -- measured directly: `kicad-cli pcb drc`
+# reported `holes_co_located` for every one of `power_in.ntc-no`'s 3 THT
+# pads (RT1.2, U1.2, U2.1 -- all resolve to `layer="all"` via
+# `temper_placer.core.pin_geometry.pin_world_layer`) when a via was placed
+# at each of them uniformly; only K1.13 (`layer="F.Cu"`, a real, deliberate
+# resolution -- see the evidence doc for why its footprint's raw
+# `(layers "F.Fab")` declaration is NOT what the project's own canonical
+# pin-geometry math uses) genuinely needs one.
+#
+# This is a small, explicit, net-scoped allowlist (position, not a
+# pad-type classifier) rather than threading real per-pad layer data
+# through `_emit_zone_pours`'s ~6-argument call chain for the one net this
+# mechanism currently covers -- consistent with `_CONTINUITY_EXEMPT_NETS`
+# itself already being a net-specific, not general, exemption. If this set
+# ever grows, add each new net's real SMD-pad positions here the same way
+# (verified via `pin_world_layer`, not assumed), or thread proper per-pad
+# layer data through at that point instead.
+_CONTINUITY_EXEMPT_NET_SMD_PAD_POSITIONS: frozenset[tuple[str, tuple[float, float]]] = frozenset(
+    {("power_in.ntc-no", (98.405, 211.895))}  # K1.13
+)
+
+# ADDED 2026-08-14, same evidence doc: which pad-to-pad edges
+# `_stitch_pads_to_each_other` should draw for a continuity-exempt net,
+# when they have been EMPIRICALLY verified clean against real
+# `kicad-cli pcb drc` output (not merely assumed safe because they are
+# short or because the nearest-neighbour MST picked them).
+#
+# The nearest-neighbour MST (this module's own default, still used as a
+# fallback below for any net not listed here) picks
+# K1.13<->RT1.2/K1.13<->U1.2/RT1.2<->U2.1 for `power_in.ntc-no` -- the
+# GEOMETRICALLY shortest spanning tree. Measured directly (real DRC
+# against a real spliced board, not assumed): the K1.13<->RT1.2 edge
+# (65.5mm) clips `C6`'s gnd PTH pad (real shorting_items violation,
+# ~0.75mm clearance at the crossing) -- a real obstacle the "any straight
+# line stays inside our own pour hull" reasoning does not protect against
+# (see `_stitch_pads_to_each_other`'s own docstring). Swapping to
+# K1.13<->U2.1 (79.0mm, LONGER, not what the greedy MST would ever pick)
+# + U2.1<->RT1.2 + K1.13<->U1.2 avoids that obstacle entirely --
+# re-measured against real DRC output: zero new shorting/clearance
+# violations attributable to this net's new copper (down from 88
+# pre-existing violations on the STALE 31-segment fake copper this
+# replaces, to 0 new + 1 benign `via_dangling` warning -- see the evidence
+# doc SS3.3/SS3.4 for the exact before/after DRC diff).
+#
+# This is empirical, board-specific knowledge, not a general routing
+# algorithm -- if `_CONTINUITY_EXEMPT_NETS` ever grows, verify a new net's
+# own edges against real DRC output the same way before trusting them;
+# the nearest-neighbour MST fallback below is a reasonable starting guess
+# for that verification, not a substitute for it.
+_CONTINUITY_EXEMPT_NET_VERIFIED_EDGES: dict[
+    str, tuple[tuple[tuple[float, float], tuple[float, float]], ...]
+] = {
+    "power_in.ntc-no": (
+        ((98.405, 211.895), (28.29, 175.44)),  # K1.13 <-> U2.1
+        ((28.29, 175.44), (32.9, 210.1)),  # U2.1 <-> RT1.2
+        ((98.405, 211.895), (162.92, 223.03)),  # K1.13 <-> U1.2
+    ),
+}
+
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
     """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
@@ -389,46 +454,87 @@ def _stitch_pads_to_each_other(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
     net_name_to_number: dict[str, int],
-    zone_layer_by_net: dict[str, str],
     *,
     tstamp_counter: list[int] | None = None,
 ) -> None:
     """ADDED 2026-08-14 (docs/evidence/2026-08-14-ntc-no-realization-and-
     delta-t-reconciliation.md): for ``_CONTINUITY_EXEMPT_NETS`` members
-    only, emit a minimum-spanning-tree of direct pad-to-pad straight
-    segments so the net's own pads form ONE connected component in the
-    segment/via graph -- the thing ``_stitch_isolated_pads`` above does
-    NOT do (it only reconnects pads that fall OUTSIDE every pour of their
-    net; every pad of a single-hull continuity-exempt net is already
-    INSIDE that one hull, so none is ever "isolated" and none gets a
-    stitch from that function).
+    only, emit a minimum-spanning-tree of direct pad-to-pad connectors so
+    the net's own pads form ONE connected component in the segment/via
+    graph -- the thing ``_stitch_isolated_pads`` above does NOT do (it
+    only reconnects pads that fall OUTSIDE every pour of their net; every
+    pad of a single-hull continuity-exempt net is already INSIDE that one
+    hull, so none is ever "isolated" and none gets a stitch from that
+    function).
 
-    Why this is safe without an obstacle-aware router: a
-    continuity-exempt net gets exactly ONE convex-hull pour covering ALL
-    of its pads (``_emit_zone_pours``'s ``cluster=not exempt`` -- see
-    ``_CONTINUITY_EXEMPT_NETS``'s own docstring). By the definition of
-    convexity, a straight line between any two points that are both
-    inside a convex polygon lies entirely inside that polygon -- so a
-    pad-to-pad connector for one of these nets never leaves the area this
-    net's own DRC-clearance-aware pour margin already claimed. This is
-    NOT the "forced segment" pattern ``_allow_forced_segments`` bans
-    (an A* search giving up and a raw waypoint line being substituted for
-    its result): no search is attempted here at all, for exactly the
-    reason documented at this module's own A*-exclusion call site
-    (``_net_policy.py::_should_route`` -- routing `power_in.ntc-no` through
-    A*, even in isolation against the real board, measured exhausting an
-    8GB cap and aborting rather than terminating cleanly). It mirrors
-    ``_stitch_isolated_pads``'s own existing, already-accepted mechanism
-    (same 0.2mm width, same straight-line-with-no-search construction),
-    just pad-to-pad instead of pad-to-zone-boundary-vertex.
+    REVISED 2026-08-14, same day: the first version of this function drew
+    these connectors on the SAME layer as the pour (F.Cu) as plain
+    straight lines, reasoning that "a straight line between two points
+    inside the net's own convex-hull pour never leaves that pour's
+    clearance-aware margin" -- true, but irrelevant to the actual failure
+    mode: F.Cu is dense with OTHER nets' SMD pads and traces that also
+    happen to sit inside that same hull's large (city-block-scale) area.
+    Measured directly (`kicad-cli pcb drc` against a real spliced board,
+    real neighbouring copper): every one of the 3 MST edges for
+    `power_in.ntc-no` produced real shorting/clearance violations against
+    unrelated nets (`inb`, `w1_2`, `gnd`, `safety.fault_or-y2`, `+3V3`,
+    ...) -- this WAS the forced-segment failure mode in effect, just not
+    through the A*-forced-segment code path.
+
+    Fix: route these connectors on `In3.Cu` instead -- one of the two
+    inner SIGNAL layers added by PR #1195, measured to carry ZERO existing
+    track segments anywhere on this board today, and (being an inner
+    layer) never carries SMD pad copper at all (SMD pads only exist on
+    F.Cu/B.Cu) -- only sparse THT-pad copper can obstruct a connector
+    there. A via is dropped at BOTH endpoints of every MST edge
+    (F.Cu<->In3.Cu, `HighVoltage`'s own via template: 1.2mm/0.6mm,
+    ``design_rules.TEMPER_NET_CLASSES``) regardless of whether the
+    specific pad is THT (already reaches every layer, making its own via
+    redundant but harmless -- same-net copper, not a clearance conflict)
+    or SMD (needs the via to reach In3.Cu at all, e.g. `power_in.ntc-no`'s
+    own K1.13). Verified the same way as the F.Cu version was found
+    broken: `kicad-cli pcb drc` against a real spliced board with this
+    fix applied reports ZERO shorting/clearance violations naming
+    `power_in.ntc-no` (see the evidence doc SS3.3).
+
+    Still not the "forced segment" pattern `_allow_forced_segments` bans
+    (an A* search giving up and a raw waypoint line substituted for its
+    result): no search is attempted, and the choice of layer + via-in-pad
+    was arrived at by MEASURING real DRC output against real neighbouring
+    copper, not by asserting immunity from it.
 
     Width: 0.2mm, matching ``_stitch_isolated_pads``'s existing convention
     -- these connectors exist for TOPOLOGICAL continuity only (so the
     audit's segment/via graph can see the pads are one component); the
-    pour itself, not these thin connectors, carries the net's actual
-    ampacity requirement.
+    INTENT was that the pour, not these thin connectors, carries the
+    net's actual ampacity requirement.
+
+    KNOWN GAP, measured and NOT resolved by this change (see the evidence
+    doc SS3.5): for `power_in.ntc-no` specifically, that intent does not
+    hold in practice. Its single-hull pour (`_CONTINUITY_EXEMPT_NETS`)
+    spans ~150mm across a densely populated region of the board; the REAL
+    DRC-aware filled copper (`kicad-cli pcb export svg --check-zones`,
+    same measurement method as `docs/evidence/2026-08-14-ntc-no-
+    ampacity-current-fix-and-pour-neck-measurement.md` SS4) fragments into
+    47+ disconnected islands inside that one hull, none close to a
+    continuous 4.156mm-wide path between the pads. Widening THESE
+    connectors to the required 4.156mm instead (tested directly, same
+    verified topology) introduces 4 new real clearance violations against
+    unrelated nets/parts that a thin line avoids -- this specific
+    corridor is genuinely tight, not merely narrow on paper (matching the
+    originating evidence doc's own SS3.2/SS3.3 finding). Net result: this
+    function's connectors currently deliver AUDIT-VERIFIED TOPOLOGICAL
+    CONNECTIVITY ONLY, not ampacity -- neither they nor the pour they
+    supplement constitute a genuinely current-adequate 15A conductor
+    along the whole path today. Do not read `fully_connected=True` from
+    the pad-connectivity audit as "this net is electrically complete" for
+    `power_in.ntc-no` without also checking the evidence doc's own
+    explicit ampacity caveat.
     """
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
     from temper_placer.router_v6._adapter_convert import _next_tstamp
+
+    _STITCH_LAYER = "In3.Cu"
 
     if tstamp_counter is None:
         tstamp_counter = [0]
@@ -439,37 +545,79 @@ def _stitch_pads_to_each_other(
         net_num = net_name_to_number.get(net_name, 0)
         if net_num <= 0 or len(positions) <= 1:
             continue
-        layer = zone_layer_by_net.get(net_name, "F.Cu")
 
-        # Minimum spanning tree over the (tiny -- board-scale pad counts,
-        # never more than a handful) pad set, O(n^2) Prim's: simple,
-        # deterministic, no external dependency needed at this size.
-        remaining = list(range(1, len(positions)))
-        in_tree = [0]
+        nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+        rules = TEMPER_NET_CLASSES.get(nc)
+        via_size = rules.via_diameter if rules else 0.8
+        via_drill = rules.via_drill if rules else 0.4
+
+        verified = _CONTINUITY_EXEMPT_NET_VERIFIED_EDGES.get(net_name)
         edges: list[tuple[int, int]] = []
-        while remaining:
-            best = None
-            best_d2 = float("inf")
-            for i in in_tree:
-                xi, yi = positions[i]
-                for j in remaining:
-                    xj, yj = positions[j]
-                    d2 = (xj - xi) ** 2 + (yj - yi) ** 2
-                    if d2 < best_d2:
-                        best_d2 = d2
-                        best = (i, j)
-            assert best is not None
-            edges.append(best)
-            in_tree.append(best[1])
-            remaining.remove(best[1])
+        if verified is not None:
+            # Match each verified (pos_a, pos_b) pair back to indices in
+            # *this call's* positions list by nearest point (not list
+            # order/index -- pad_positions' own construction order is not
+            # this function's contract to depend on).
+            def _nearest_idx(target: tuple[float, float]) -> int:
+                return min(
+                    range(len(positions)),
+                    key=lambda k: (positions[k][0] - target[0]) ** 2
+                    + (positions[k][1] - target[1]) ** 2,
+                )
 
+            for pa, pb in verified:
+                ia, ib = _nearest_idx(pa), _nearest_idx(pb)
+                if ia != ib:
+                    edges.append((ia, ib))
+        else:
+            # Minimum spanning tree over the (tiny -- board-scale pad
+            # counts, never more than a handful) pad set, O(n^2) Prim's:
+            # simple, deterministic, no external dependency needed at this
+            # size. A reasonable STARTING GUESS, not a DRC-verified result
+            # -- see this dict's own docstring above.
+            remaining = list(range(1, len(positions)))
+            in_tree = [0]
+            while remaining:
+                best = None
+                best_d2 = float("inf")
+                for i in in_tree:
+                    xi, yi = positions[i]
+                    for j in remaining:
+                        xj, yj = positions[j]
+                        d2 = (xj - xi) ** 2 + (yj - yi) ** 2
+                        if d2 < best_d2:
+                            best_d2 = d2
+                            best = (i, j)
+                assert best is not None
+                edges.append(best)
+                in_tree.append(best[1])
+                remaining.remove(best[1])
+
+        via_dropped: set[int] = set()
         for i, j in edges:
             xi, yi = positions[i]
             xj, yj = positions[j]
+            for idx, (px, py) in ((i, (xi, yi)), (j, (xj, yj))):
+                if idx in via_dropped:
+                    continue
+                via_dropped.add(idx)
+                needs_via = (net_name, (round(px, 4), round(py, 4))) in {
+                    (n, (round(x, 4), round(y, 4)))
+                    for n, (x, y) in _CONTINUITY_EXEMPT_NET_SMD_PAD_POSITIONS
+                }
+                if not needs_via:
+                    continue
+                segments.append(
+                    f"  (via (at {px:.4f} {py:.4f})"
+                    f" (size {via_size:.4f}) (drill {via_drill:.4f})"
+                    f' (layers "F.Cu" "{_STITCH_LAYER}")'
+                    f" (net {net_num})"
+                    f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
+                )
             segments.append(
                 f"  (segment (start {xi:.4f} {yi:.4f})"
                 f" (end {xj:.4f} {yj:.4f})"
-                f' (width {0.2:.4f}) (layer "{layer}")'
+                f' (width {0.2:.4f}) (layer "{_STITCH_LAYER}")'
                 f" (net {net_num})"
                 f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )
@@ -670,7 +818,6 @@ def _emit_zone_pours(
         pad_positions,
         segments,
         net_name_to_number,
-        zone_layer_by_net,
         tstamp_counter=tstamp_counter,
     )
 
