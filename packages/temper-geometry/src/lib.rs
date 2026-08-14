@@ -311,6 +311,15 @@ pub mod units;
 // the incident this exists to prevent a recurrence of. Pure Rust, no pyo3
 // dependency, so it is unconditional like `units` above.
 pub mod rotation_quadrant;
+// Layer identity type (2026-08-14): `Layer`/`Stackup`, constructible only
+// from parsing the board's own declared `(layers ...)` / `(setup (stackup
+// ...))` blocks (or the named `Stackup::test_only` escape hatch), so a
+// hardcoded stale copy of a layer's role/copper-weight/position cannot be
+// written. Replaces the bare-string layer-name pattern behind the PR #1178
+// ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED freeze. Declared after `units`
+// (this file's prior tail) so appends cannot rewrite a parallel agent's
+// lines.
+pub mod layer_identity;
 // wasm32 has no OS RNG; getrandom will not compile there without a source.
 // See this module's doc comment for why the source fails instead of quietly
 // substituting a deterministic PRNG.
@@ -359,5 +368,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::placement_topology::register(m)?;
     crate::kicad_transform::register(m)?;
     crate::units::register(m)?;
+    crate::layer_identity::register(m)?;
     Ok(())
 }
