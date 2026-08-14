@@ -355,15 +355,84 @@ fn voltage_class_clearance_mm(vc: VoltageClass) -> f64 {
     }
 }
 
-/// IEC 60335-1 Table 17, material group 2 (the only value requested here).
+// ---------------------------------------------------------------------------
+// Material group (IEC 60335-1 cl. 29.2 / IEC 60664-1 CTI band). Governs
+// Table 17 creepage only -- NOT Table 16 clearance
+// (`voltage_class_clearance_mm` above is intentionally left
+// pollution-degree-only, mirroring the same split made in
+// `temper-orchestration/src/clearance.rs`'s `MaterialGroup::creepage_bucket`
+// fix, commit 234ce918d).
+//
+// Unlike `get_clearance_impl` in that file, this port has no caller-supplied
+// `material_group` string to (mis)parse in the first place: `get_clearance`
+// below, and the `verify_route_clearance`/`verify_route_clearance_impl_ex`
+// entry points that call it, never had a material-group parameter at all --
+// this table was hardcoded at the Table-17 "material group 2 (typical FR4)"
+// baseline unconditionally, for every board this crate has ever checked.
+// That is the defect: not a discarded argument, but an assumption with no
+// argument to discard, silently substituted for this board's actual,
+// declared design requirement.
+//
+// That requirement is fixed and singular for this board -- Material Group
+// IIIb (FR-4, CTI 175-249V) -- per this repo's own controlling spec,
+// docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md (REQ-ELEC-04) Section 3.2's
+// "Environmental Parameters" table. That is the only legitimate source: the
+// laminate's true CTI is not independently obtainable from this repo
+// (docs/hardware/FAB_CAPABILITY.md flags per-order material certification
+// "Not confirmed"), so the project's own declared requirement governs, not a
+// guess and not the prior silent "typical FR4" assumption. IEC 60335-1
+// Table 17 merges Groups IIIa and IIIb into a single column, so this
+// resolves to the same `IiiaOrB` bucket temper-orchestration's
+// `MaterialGroup::parse` maps both "IIIa" and "IIIb" onto.
+//
+// `BOARD_MATERIAL_GROUP` is a compile-time constant, not a function
+// parameter, because -- unlike `get_clearance_py`, a general-purpose API
+// with multiple real callers -- this is a single board's always-on
+// routed-copper gate with exactly one legitimate value; the constant is
+// named and cited rather than inlined so the source of truth stays visible
+// and grep-able. It is deliberately NOT a bare literal float folded into
+// the table below: a 3-variant enum with no catch-all match arm is what
+// makes an unrecognized/absent group a compile error instead of a silent
+// default, the same discipline `MaterialGroup::parse`'s hard `PyValueError`
+// enforces on the string-typed side of this fix.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum MaterialGroup {
+    #[allow(dead_code)] // Not this board's group, but kept for table fidelity.
+    I,
+    #[allow(dead_code)]
+    Ii,
+    IiiaOrB,
+}
+
+impl MaterialGroup {
+    /// Same coefficients as `temper-design-bundle/src/net_types.rs`'s
+    /// `VoltageClass::get_creepage_mm` (1=0.8x, 2=1.0x/baseline, 3=1.4x
+    /// worst-CTI) -- not a new value invented for this port. 1.4 is that
+    /// kernel's own pre-existing, oracle-pinned coefficient.
+    fn creepage_multiplier(self) -> f64 {
+        match self {
+            MaterialGroup::I => 0.8,
+            MaterialGroup::Ii => 1.0,
+            MaterialGroup::IiiaOrB => 1.4,
+        }
+    }
+}
+
+/// This board's declared material group -- see the module-level doc comment
+/// above for the citation and rationale.
+const BOARD_MATERIAL_GROUP: MaterialGroup = MaterialGroup::IiiaOrB;
+
+/// IEC 60335-1 Table 17, scaled by `BOARD_MATERIAL_GROUP`'s declared CTI
+/// band (Material Group IIIb per REQ-ELEC-04 -- see `MaterialGroup` above).
 fn voltage_class_creepage_mm(vc: VoltageClass) -> f64 {
-    match vc {
+    let base = match vc {
         VoltageClass::Selv => 0.5,
         VoltageClass::LowVoltage => 1.6,
         VoltageClass::Mains120V => 2.5,
         VoltageClass::Mains240V => 5.0,
         VoltageClass::HighVoltage => 14.0,
-    }
+    };
+    base * BOARD_MATERIAL_GROUP.creepage_multiplier()
 }
 
 /// IEC 60950-1 Table 2K/2N, pollution degree 2 / overvoltage category 2
@@ -432,7 +501,13 @@ const INTERNAL_LAYER_CREEPAGE_FACTOR: f64 = 0.30;
 
 /// Port of `get_clearance()`, restricted to the parameters
 /// `_get_required_clearance` actually passes (pollution_degree=2,
-/// overvoltage_category=2, material_group="IIIa"/2, no design_rule_creepage).
+/// overvoltage_category=2, no design_rule_creepage). `material_group` is
+/// not in that list because the Python `get_clearance()` this ports has a
+/// caller-suppliable `material_group` parameter, but `_get_required_clearance`
+/// never passes one through -- and this port's `voltage_class_creepage_mm`
+/// callee below is now fixed at this board's one declared value
+/// (`BOARD_MATERIAL_GROUP` = IIIb) rather than the prior silent "typical
+/// FR4" assumption. See that constant's doc comment for the citation.
 fn get_clearance(class_a: NetClass, class_b: NetClass, voltage: f64, layer_internal: bool) -> f64 {
     let (iec_clr, iec_creep) = iec60950_clearance_creepage(voltage);
     let vc_a = net_class_to_voltage_class(class_a);
@@ -1450,7 +1525,10 @@ mod tests {
     #[test]
     fn hv_escalation_matches_expected_value() {
         // Mirrors test_hv_escalation_both_hv in the Python suite: both HV,
-        // 400V -> required clearance 14.0mm (HIGH_VOLTAGE creepage table).
+        // 400V -> required clearance 19.6mm (HIGH_VOLTAGE creepage table
+        // base 14.0mm x BOARD_MATERIAL_GROUP's 1.4 multiplier, IIIb per
+        // REQ-ELEC-04 -- was 14.0mm before this fix, when the material
+        // group was silently assumed rather than sourced from the spec).
         let routes = vec![
             RouteIn {
                 net_name: "HV_BUS".to_string(),
@@ -1473,7 +1551,7 @@ mod tests {
         let (violations, checks) = verify_route_clearance_impl(&routes, 0.127, &voltage_ratings);
         assert_eq!(checks, 1);
         if !violations.is_empty() {
-            assert!((violations[0].5 - 14.0).abs() < 1e-9, "required={}", violations[0].5);
+            assert!((violations[0].5 - 19.6).abs() < 1e-9, "required={}", violations[0].5);
         }
     }
 
