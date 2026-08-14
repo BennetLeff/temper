@@ -576,6 +576,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_hash_order_determinism.py", ".hash-order-inventory", "salted-hash order gate (PYTHONHASHSEED determinism); probe harness deferred"),
     ("check_hv_netclass_coverage.py", "elec/domain_manifest.yaml", "HV netclass coverage gate (N4); probe harness deferred"),
     ("check_isolation_keepout.py", "pcb/temper.kicad_pcb", "baseline red on main (no keepout zones); probe inconclusive today"),
+    ("check_layer_utilization_gate.py", "pcb/temper.kicad_pcb", "declared signal-layer count <-> live routing-demand utilisation gate (docs/evidence/2026-08-13-layer-architecture-decision.md); reproduces PR #1172's 1.31-utilization measurement against the board's own (layers ...) declaration and the real netlist's live bbox/fill-factor demand; blocking from introduction (2026-08-13): the real board's 6-layer declaration passes at 0.657 the same day this gate lands; probe harness deferred"),
     ("check_manifest_gate.py", "scripts/manifest.yaml", "manifest scan; probe harness deferred"),
     ("check_measurement_provenance.py", "power_pcb_dataset/drc_ceiling.json", "baseline red on main (stale ceiling); probe inconclusive today"),
     ("check_net_classification.py", "elec/domain_manifest.yaml", "source-tree scan; probe harness deferred"),

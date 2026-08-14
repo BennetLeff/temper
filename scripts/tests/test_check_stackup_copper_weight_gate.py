@@ -46,9 +46,31 @@ REAL_DERIVATION_DOC = REPO_ROOT / "docs" / "hardware" / "TRACE_WIDTH_CALCULATION
 # ---------------------------------------------------------------------------
 
 
-def _board_text(f_cu_mm: float, in1_mm: float, in2_mm: float, b_cu_mm: float) -> str:
+def _board_text(
+    f_cu_mm: float,
+    in1_mm: float,
+    in2_mm: float,
+    b_cu_mm: float,
+    *,
+    in3_mm: float | None = None,
+    in4_mm: float | None = None,
+) -> str:
     """A minimal scratch ``.kicad_pcb`` with only a ``(setup (stackup ...))``
-    block -- the gate never reads geometry, so nothing else is needed."""
+    block -- the gate never reads geometry, so nothing else is needed.
+
+    UPDATED 2026-08-13 (layer-architecture SSOT): 6 copper layers, matching
+    the real board's post-decision stackup (F.Cu / In3.Cu / In1.Cu / In2.Cu
+    / In4.Cu / B.Cu) -- ``INNER_LAYERS`` now requires In3.Cu/In4.Cu to be
+    present in any board this gate checks, real or synthetic, so every
+    fixture needs them too. ``in3_mm``/``in4_mm`` default to ``in1_mm`` when
+    omitted (the common case: "both new inner layers match the existing
+    inner assumption"), so single-drift tests that only vary
+    ``in1_mm``/``in2_mm`` don't need every call site updated.
+    """
+    if in3_mm is None:
+        in3_mm = in1_mm
+    if in4_mm is None:
+        in4_mm = in1_mm
     return f"""(kicad_pcb (version 20211014) (generator kiutils)
 
   (setup
@@ -56,11 +78,15 @@ def _board_text(f_cu_mm: float, in1_mm: float, in2_mm: float, b_cu_mm: float) ->
       (layer "F.SilkS" (type "Top Silk Screen"))
       (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
       (layer "F.Cu" (type "copper") (thickness {f_cu_mm}))
-      (layer "dielectric 1" (type "prepreg") (thickness 0.195) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 1" (type "prepreg") (thickness 0.15) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "In3.Cu" (type "copper") (thickness {in3_mm}))
+      (layer "dielectric 2" (type "prepreg") (thickness 0.15) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "In1.Cu" (type "copper") (thickness {in1_mm}))
-      (layer "dielectric 2" (type "core") (thickness 1.0) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 3" (type "core") (thickness 0.72) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "In2.Cu" (type "copper") (thickness {in2_mm}))
-      (layer "dielectric 3" (type "prepreg") (thickness 0.195) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 4" (type "prepreg") (thickness 0.15) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "In4.Cu" (type "copper") (thickness {in4_mm}))
+      (layer "dielectric 5" (type "prepreg") (thickness 0.15) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "B.Cu" (type "copper") (thickness {b_cu_mm}))
       (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
       (layer "B.SilkS" (type "Bottom Silk Screen"))
@@ -98,7 +124,14 @@ class TestLoadDeclaredCopperThickness:
         board = tmp_path / "board.kicad_pcb"
         board.write_text(_board_text(0.07, 0.035, 0.035, 0.07))
         declared = load_declared_copper_thickness_um(board)
-        assert declared == {"F.Cu": 70.0, "In1.Cu": 35.0, "In2.Cu": 35.0, "B.Cu": 70.0}
+        assert declared == {
+            "F.Cu": 70.0,
+            "In3.Cu": 35.0,
+            "In1.Cu": 35.0,
+            "In2.Cu": 35.0,
+            "In4.Cu": 35.0,
+            "B.Cu": 70.0,
+        }
 
     def test_missing_stackup_block_fails_closed(self, tmp_path):
         board = tmp_path / "board.kicad_pcb"
@@ -146,20 +179,50 @@ class TestLoadAssumedCopperWeight:
 
 class TestCompare:
     def test_matching_weights_produce_no_violations(self):
-        declared = {"F.Cu": 70.0, "In1.Cu": 35.0, "In2.Cu": 35.0, "B.Cu": 70.0}
+        declared = {
+            "F.Cu": 70.0,
+            "In3.Cu": 35.0,
+            "In1.Cu": 35.0,
+            "In2.Cu": 35.0,
+            "In4.Cu": 35.0,
+            "B.Cu": 70.0,
+        }
         assumed = {"outer": 70.0, "inner": 35.0}
         assert compare(declared, assumed) == []
 
     def test_within_tolerance_rounding_produces_no_violations(self):
         # 0.5um tolerance absorbs mm-to-um round-trip rounding.
-        declared = {"F.Cu": 70.2, "In1.Cu": 34.8, "In2.Cu": 35.0, "B.Cu": 70.0}
+        declared = {
+            "F.Cu": 70.2,
+            "In3.Cu": 35.1,
+            "In1.Cu": 34.8,
+            "In2.Cu": 35.0,
+            "In4.Cu": 34.9,
+            "B.Cu": 70.0,
+        }
         assumed = {"outer": 70.0, "inner": 35.0}
         assert compare(declared, assumed) == []
 
     def test_missing_layer_fails_closed(self):
-        declared = {"F.Cu": 70.0, "In1.Cu": 35.0, "In2.Cu": 35.0}  # B.Cu absent
+        declared = {
+            "F.Cu": 70.0,
+            "In3.Cu": 35.0,
+            "In1.Cu": 35.0,
+            "In2.Cu": 35.0,
+            "In4.Cu": 35.0,
+        }  # B.Cu absent
         assumed = {"outer": 70.0, "inner": 35.0}
         with pytest.raises(GateError, match="B.Cu"):
+            compare(declared, assumed)
+
+    def test_missing_new_inner_layer_fails_closed(self):
+        """The 2026-08-13 6-layer extension: In3.Cu/In4.Cu are just as
+        mandatory as In1.Cu/In2.Cu now -- a board that hasn't declared them
+        (e.g. a stale 4-layer board) must fail closed, not silently skip
+        the check for layers it doesn't have."""
+        declared = {"F.Cu": 70.0, "In1.Cu": 35.0, "In2.Cu": 35.0, "B.Cu": 70.0}  # 4-layer, pre-decision
+        assumed = {"outer": 70.0, "inner": 35.0}
+        with pytest.raises(GateError, match="In3.Cu"):
             compare(declared, assumed)
 
 
@@ -201,13 +264,19 @@ class TestGateBitesOnDrift:
 
     def test_inner_layer_drift_is_also_caught(self, tmp_path):
         board = tmp_path / "board.kicad_pcb"
-        board.write_text(_board_text(0.07, 0.07, 0.035, 0.07))  # In1.Cu bumped to 2oz
+        # In1.Cu bumped to 2oz; In3.Cu/In4.Cu pinned explicitly to the
+        # correct 1oz so this test isolates exactly one drifted layer
+        # (relying on _board_text's "defaults to in1_mm" convenience here
+        # would silently drift In3.Cu/In4.Cu to 2oz too, producing 3
+        # violations instead of the 1 this test's name promises).
+        board.write_text(_board_text(0.07, 0.07, 0.035, 0.07, in3_mm=0.035, in4_mm=0.035))
         doc = tmp_path / "TRACE_WIDTH_CALCULATIONS.md"
         doc.write_text(_DERIVATION_DOC_TEXT)
 
         state, report = run(board, doc)
 
         assert state == "violation"
+        assert len(report.violations) == 1
         assert report.violations[0].layer == "In1.Cu"
         assert report.violations[0].role == "inner"
 
@@ -274,13 +343,21 @@ class TestRealRepoIntegration:
         TRACE_WIDTH_CALCULATIONS.md §1 assumption agree: 2oz outer, 1oz
         inner. If this test starts failing, either the stackup drifted or
         the derivation doc's assumption changed without the other -- which
-        is exactly the drift this gate exists to catch."""
+        is exactly the drift this gate exists to catch.
+
+        UPDATED 2026-08-13 (layer-architecture SSOT,
+        docs/evidence/2026-08-13-layer-architecture-decision.md): the real
+        board now declares 6 copper layers (In3.Cu/In4.Cu added as new
+        signal layers, both 1oz -- same inner assumption as the pre-existing
+        In1.Cu/In2.Cu planes)."""
         state, report = run(REAL_BOARD, REAL_DERIVATION_DOC)
         assert state == "clean", report.violations
         assert report.assumed_um == {"outer": 70.0, "inner": 35.0}
         assert report.declared_um == {
             "F.Cu": 70.0,
+            "In3.Cu": 35.0,
             "In1.Cu": 35.0,
             "In2.Cu": 35.0,
+            "In4.Cu": 35.0,
             "B.Cu": 70.0,
         }
