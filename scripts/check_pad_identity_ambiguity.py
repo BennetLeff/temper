@@ -57,6 +57,24 @@ the module docstring of ``temper_placer.core.pad_identity`` for the
 full call-site audit and the "Left unenforced" note in
 ``docs/evidence/2026-08-13-pad-identity-ssot.md``.
 
+**Rust sources are entirely out of scope for this gate's scan** (the
+``packages_root.glob("**/src/**/*.py")`` walk below only ever visits
+``.py`` files) -- a second, equally real, stated gap. The two Rust sites
+this repo's own audit found
+(``temper-rust-router/src/terminal_planning.rs::extract_net_terminals``
+and
+``temper-orchestration/src/pipeline_route.rs::run_collect_pad_positions``)
+are both fixed as of the same-day follow-on that added this note (see
+each function's own doc comment for the fix and the cross-arm pinned-
+oracle argument), so there are zero known live violations on the Rust
+side today -- but nothing here would catch a NEW Rust call site
+reintroducing the same first-match shortcut. A Rust-source AST/regex
+scanner mirroring this gate's Python half was considered and deliberately
+not built in that follow-on: it is a real, separate piece of tooling (no
+Python ``ast`` equivalent to reuse), and the two known instances were
+fixed directly instead of adding scanning infrastructure under time
+pressure. Flagged here, plainly, as future work rather than left silent.
+
 **Allowlist.** ``ALLOWED_GET_PIN_CALL_SITES`` names every reviewed
 ``.get_pin(`` call site that is safe DESPITE a duplicate-pad-number
 footprint being in play, with the reasoning inline. Today that is exactly

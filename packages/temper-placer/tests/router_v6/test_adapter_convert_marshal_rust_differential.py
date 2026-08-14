@@ -312,6 +312,26 @@ def _comp(ref, initial_position=(1.0, 2.0), pins=None):
     )
 
 
+def _comp_with_occurrences(ref, initial_position, occurrences):
+    """A duck-typed component exposing ``get_pin_occurrences`` -- the real
+    pyo3 ``Component.get_pin_occurrences`` SSOT predicate
+    (``netlist_contracts.rs``): every pin whose name/number equals the
+    argument, in encounter order. ``occurrences`` maps a pad number to the
+    list of that pad's own (possibly duplicated) physical-pin positions,
+    e.g. ``{"3": [(25.34, -7.5), (25.34, 0.0)]}`` for K2/K3's duplicated
+    pad "3". Unlike ``_comp`` above, this CAN represent a duplicate pad
+    number -- ``_comp``'s ``pins`` dict cannot, by construction (dict keys
+    are unique), which is exactly why the generic randomized/differential
+    tests using ``_comp`` never exercise this defect class."""
+    return SimpleNamespace(
+        ref=ref,
+        initial_position=initial_position,
+        get_pin_occurrences=lambda name: [
+            SimpleNamespace(position=p) for p in occurrences.get(name, [])
+        ],
+    )
+
+
 def _net(name, pins):
     return SimpleNamespace(name=name, pins=pins)
 
@@ -448,6 +468,37 @@ def test_collect_pad_positions_many_randomized():
         [_net("N", [("C1", "1")])],
     )
     _assert_pad_positions_same(dup, "randomized duplicate-ref")
+
+
+def test_collect_pad_positions_resolves_duplicate_pad_number_occurrences():
+    """Pad-identity fix (deferred by PR #1180, landed here): K2/K3
+    (``temper:Relay_SPDT_Schrack-RT314012``) fabricate pad "3" as two
+    physical holes, 7.5mm apart, both carrying the same pad number. A net
+    referencing ``("K2", "3")`` TWICE (once per physical terminal -- the
+    real ``net.pins`` shape for a current-sharing contact) must resolve to
+    the two DISTINCT physical positions, not the same one collapsed twice
+    -- the exact ``discharge.k_dis1-no``/``discharge.k_dis2-no`` defect PR
+    #1177 fixed for one net-level symptom, now closed here for this
+    marshalling site too.
+
+    Deliberately NOT run through ``_assert_pad_positions_same``: the
+    pinned oracle (``_oracle_collect_pad_positions``) shares the identical
+    first-match bug (see ``run_collect_pad_positions``'s own doc comment
+    for why it is not edited to match), and ``_comp``'s dict-keyed ``pins``
+    test-double shape cannot even represent a duplicate pad number -- so a
+    differential comparison here would prove nothing either way. This test
+    asserts the FIXED Rust kernel's behavior directly instead, using
+    ``_comp_with_occurrences`` (a duck type exposing the real
+    ``get_pin_occurrences`` SSOT predicate the fix delegates to).
+    """
+    comp = _comp_with_occurrences("K2", (0.0, 0.0), {"3": [(25.34, -7.5), (25.34, 0.0)]})
+    pcb = _pcb([comp], [_net("NET_DUP", [("K2", "3"), ("K2", "3")])])
+    got = dict(_to.run_collect_pad_positions(pcb))
+    assert got["NET_DUP"] == [(25.34, -7.5), (25.34, 0.0)], (
+        'the two occurrences of pad "3" must resolve to the two DISTINCT '
+        "physical pad positions -- a first-match bug would collapse both "
+        "onto (25.34, -7.5)"
+    )
 
 
 # ---------------------------------------------------------------------------

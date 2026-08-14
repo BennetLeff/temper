@@ -53,16 +53,31 @@ before this module, ``router_v6/bundle_analyzer.py``,
 separate, silent restatement of the same wrong assumption, none aware of
 the others. This module is the single canonical implementation; every one
 of those call sites now delegates here instead of re-deriving its own
-occurrence bookkeeping. Two more call sites were found and are NOT fixed
-here -- see ``docs/evidence/2026-08-13-pad-identity-ssot.md`` for why
-(cross-language pinned-oracle/differential entanglement that PR
-#1136/#1137's lesson says must not be touched on one arm alone):
+occurrence bookkeeping. Two more call sites were found and were
+deliberately NOT fixed in the same change that added this module -- see
+``docs/evidence/2026-08-13-pad-identity-ssot.md`` for why (cross-language
+pinned-oracle/differential entanglement that PR #1136/#1137's lesson says
+must not be touched on one arm alone) --
 ``temper-rust-router/src/terminal_planning.rs::extract_net_terminals``
 (Rust-native reimplementation of the same first-match shortcut, on the
 LIVE terminal-extraction path) and
 ``temper-orchestration/src/pipeline_route.rs::run_collect_pad_positions``
 (a Rust port of a pinned Python oracle that calls ``get_pin`` the same
-way).
+way). **Both are now fixed** (follow-on task, same day): each resolves
+occurrence-aware identity directly against its own component
+representation --
+``extract_net_terminals`` natively (no pyo3 `Component` in scope there,
+so it re-implements the occurrence match against its own typed
+`PinRow`/`ComponentRow` structs rather than round-tripping through
+Python), and ``run_collect_pad_positions`` by delegating to the real
+pyo3 ``Component.get_pin_occurrences`` (the same SSOT predicate this
+module's own ``iter_matching_pins`` delegates to). Their respective
+pinned oracles (a verbatim ``git show`` pin and a SHA-256-content-
+addressed inline pin) were confirmed to carry the identical first-match
+bug and were deliberately left unedited (editing either would break its
+own verbatim/digest self-check); see each function's own doc comment in
+its ``.rs`` file for the full argument and the tests that pin the
+divergence.
 
 **Where the matching predicate itself lives.** "Does this pin's name or
 number equal X" is answered by the Rust ``Component.get_pin_occurrences``

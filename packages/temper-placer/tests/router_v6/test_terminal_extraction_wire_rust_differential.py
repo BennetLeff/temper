@@ -293,12 +293,15 @@ CASES: tuple[tuple[str, SimpleNamespace, str, list[tuple[str, str]]], ...] = (
     ),
     ("stackup_layer_name_none", _stackup_layer_name_none_pcb(), "NET", [("U1", "1")]),
     ("empty_net_pins", _basic_pcb(), "NET", []),
-    (
-        "duplicate_net_pins",
-        _basic_pcb(),
-        "NET",
-        [("U1", "1"), ("U1", "1"), ("J1", "2")],
-    ),
+    # "duplicate_net_pins" moved out of this bit-exact CASES tuple for the
+    # same reason as its sibling in
+    # test_terminal_extraction_rust_differential.py: the pad-identity fix
+    # in the underlying `extract_net_terminals_py` kernel (this suite's
+    # wire path calls the SAME kernel, just via typed `ComponentWire`
+    # marshalling) makes this one scenario deliberately diverge from the
+    # pinned oracle. See
+    # `test_wire_path_duplicate_net_pins_diverges_from_the_pinned_oracle_by_design`
+    # below.
 )
 
 
@@ -309,6 +312,34 @@ def test_wire_path_bit_exact(case):
         f"wire_path[{_label}]",
         lambda: tuple(_terminal_wire(t) for t in ORACLE.extract_net_terminals(pcb, net_name, net_pins)),
         lambda: _wire_path(pcb, net_name, net_pins),
+    )
+
+
+def test_wire_path_duplicate_net_pins_diverges_from_the_pinned_oracle_by_design():
+    """Wire-path sibling of
+    ``test_terminal_extraction_rust_differential.py``'s
+    ``test_duplicate_net_pins_diverges_from_the_pinned_oracle_by_design``
+    -- same underlying kernel (``extract_net_terminals_py``), reached here
+    through the typed ``ComponentWire`` marshalling path instead of the
+    plain-object path. See that test's docstring for the full argument:
+    ``_basic_pcb()``'s U1 has exactly ONE physical pad numbered "1";
+    referencing it twice in ``net_pins`` makes the pinned (first-match)
+    oracle emit two identical terminal rows (3 total), while the fixed,
+    occurrence-aware kernel correctly drops the unresolvable second
+    occurrence (2 total). Deliberate, permanent divergence -- not a
+    regression.
+    """
+    pcb = _basic_pcb()
+    net_pins = [("U1", "1"), ("U1", "1"), ("J1", "2")]
+    oracle_terminals = tuple(
+        _terminal_wire(t) for t in ORACLE.extract_net_terminals(pcb, "NET", net_pins)
+    )
+    wire_terminals = _wire_path(pcb, "NET", net_pins)
+
+    assert len(oracle_terminals) == 3, "the pinned (buggy) oracle still double-counts the one real pad"
+    assert len(wire_terminals) == 2, "the fixed kernel drops the unresolvable second occurrence"
+    assert oracle_terminals != wire_terminals, (
+        "divergence from the pinned oracle is EXPECTED and permanent for this case"
     )
 
 

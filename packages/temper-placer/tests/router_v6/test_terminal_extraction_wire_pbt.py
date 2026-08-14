@@ -24,8 +24,18 @@ Properties:
 Metamorphic relations (exactness stated per relation):
   MR1 component-order permutation leaves the terminal rows bit-identical.
   MR2 net_pins-order permutation leaves the rows bit-identical.
-  MR3 a stable duplicate (ref, pad) pair inserts a second identical row
-      immediately after the first (timsort stability on equal keys).
+  MR3 a duplicate (ref, pad) reference in net_pins is DROPPED, not
+      duplicated, when the component has no second physical pad under
+      that number -- the pad-identity fix (PR #1180 follow-on, landed in
+      `extract_net_terminals`) resolves the second reference to
+      occurrence 1, which does not exist on a footprint with only one
+      physical pad per number (every PCB `simple_pcb_strategy` can draw).
+      See `test_mr3_duplicate_net_pins_entry_without_a_duplicate_pad_is_dropped`'s
+      own docstring; this REPLACES the pre-fix invariant ("always inserts
+      a second identical row"), which held only because the pre-fix
+      kernel could not distinguish this case from a genuinely duplicated
+      physical pad (K2/K3, covered elsewhere -- see that test's
+      docstring).
 """
 
 from __future__ import annotations
@@ -412,19 +422,49 @@ def test_mr2_net_pins_order_permutation_exact(pcb):
 
 
 # ---------------------------------------------------------------------------
-# MR3 — stable duplicate (ref, pad) inserts an identical row after the first
+# MR3 — a duplicate net_pins reference without a duplicate physical pad
+# is dropped, not duplicated (pad-identity fix)
 # ---------------------------------------------------------------------------
 
 
 @given(simple_pcb_strategy())
 @settings(max_examples=30, deadline=60000)
-def test_mr3_stable_duplicate_exact(pcb):
+def test_mr3_duplicate_net_pins_entry_without_a_duplicate_pad_is_dropped(pcb):
+    """Pad-identity fix (PR #1180 follow-on, landed in
+    ``extract_net_terminals``, ``terminal_planning.rs``): appending a
+    SECOND ``(ref, pad)`` reference to ``net_pins`` adds a new terminal
+    row ONLY if the component has a second, DISTINCT physical pad under
+    that number. K2/K3 (``temper:Relay_SPDT_Schrack-RT314012``) genuinely
+    duplicate pad numbers "1"/"3"/"4" -- that case is covered directly,
+    not through this hypothesis strategy, by ``terminal_planning.rs``'s
+    own
+    ``extract_net_terminals_resolves_duplicate_pad_number_occurrences``
+    unit test and
+    ``test_terminal_extraction_rust_differential.py``'s
+    ``test_duplicate_net_pins_diverges_from_the_pinned_oracle_by_design``.
+
+    ``simple_pcb_strategy`` never generates a component with a duplicate
+    pad number (each pin gets a distinct ``str(j)`` number within its own
+    component), so for every PCB this strategy can draw, the appended
+    duplicate reference is occurrence 1 of a pad number that has no
+    second physical pad -- unresolvable, and DROPPED (see
+    ``pad_identity.resolve_net_pins``'s own docstring: "fewer matching
+    pins than this occurrence needs" resolves to ``None``, and callers
+    skip it, exactly like a ``get_pin`` miss).
+
+    This REPLACES the pre-fix invariant this module's own header
+    documented for MR3 ("a duplicate reference always inserts a second,
+    identical row") -- that invariant was only ever true because the
+    pre-fix kernel could not distinguish "a second net_pins reference to
+    one physical pad" from "a reference to a genuinely duplicated
+    physical pad"; the fix makes that distinction, and this strategy only
+    ever exercises the former.
+    """
     pins = _all_pins(pcb)
     baseline = [_row(t) for t in extract_net_terminals(pcb, "NET", pins)]
     target = pins[0]
     dup = [_row(t) for t in extract_net_terminals(pcb, "NET", list(pins) + [target])]
-    # The duplicate row is bit-identical to its twin and lands immediately
-    # after it (stable sort on equal PadIdentity keys).
-    assert len(dup) == len(baseline) + 1
-    first_idx = next(i for i, r in enumerate(dup) if r[:2] == target)
-    assert dup[first_idx] == dup[first_idx + 1]
+    assert dup == baseline, (
+        "a second net_pins reference to a pad number with only ONE physical "
+        "pad must be DROPPED, not duplicated -- see this test's own docstring"
+    )
