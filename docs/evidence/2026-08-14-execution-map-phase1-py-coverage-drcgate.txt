@@ -1,0 +1,165 @@
+Name                                                                                           Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------------------------------------------
+conftest.py                                                                                        8      8      2      0     0%   14-24
+packages/temper-placer/src/temper_placer/__init__.py                                               6      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/__init__.py                             9      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/clearance.py                           46      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/config.py                             137     16     10      0    82%   97-114, 118, 434, 438-464
+packages/temper-placer/src/temper_placer/_constraint_types/groups.py                              53      1      0      0    98%   80
+packages/temper-placer/src/temper_placer/_constraint_types/noise.py                               14      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/routing.py                             41      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/safety.py                              24      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/thermal.py                             24      0      0      0   100%
+packages/temper-placer/src/temper_placer/_constraint_types/topology.py                            29      0      0      0   100%
+packages/temper-placer/src/temper_placer/_version.py                                               1      0      0      0   100%
+packages/temper-placer/src/temper_placer/adapters/__init__.py                                      0      0      0      0   100%
+packages/temper-placer/src/temper_placer/adapters/register_strategies.py                          38     16     10      0    46%   44-47, 50, 70-73, 76-85
+packages/temper-placer/src/temper_placer/constraints/__init__.py                                   4      0      0      0   100%
+packages/temper-placer/src/temper_placer/constraints/_payload.py                                  12      7      2      0    36%   21-24, 28, 38, 58
+packages/temper-placer/src/temper_placer/constraints/builder.py                                   55     39     12      0    24%   52-55, 79-88, 112-133, 155-163, 189-199, 221-229, 253-263, 271, 295-296, 313-314, 331-346
+packages/temper-placer/src/temper_placer/constraints/compiler.py                                  62     33      6      0    43%   60-65, 96-97, 117-128, 145-156, 177-184, 198, 203, 207, 211-212, 216-220, 229, 233, 241
+packages/temper-placer/src/temper_placer/constraints/reporter.py                                  63     20      2      0    66%   54, 58, 63, 87, 92, 97, 102, 107, 111, 120-121, 125, 142-143, 154-170
+packages/temper-placer/src/temper_placer/core/__init__.py                                         22      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/_contract_dataclass_compat.py                       30      1      8      1    95%   129
+packages/temper-placer/src/temper_placer/core/board.py                                            60      7      2      0    85%   237, 270-272, 277, 282, 287
+packages/temper-placer/src/temper_placer/core/bus_cohort.py                                       51     43     26      0    10%   48-49, 57-59, 70-73, 91-176
+packages/temper-placer/src/temper_placer/core/community.py                                         7      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/courtyard.py                                        21     10      2      0    48%   20-23, 48-51, 63-67
+packages/temper-placer/src/temper_placer/core/decision.py                                          5      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/design_rules.py                                     17      1      0      0    94%   640
+packages/temper-placer/src/temper_placer/core/differential_pair.py                                 3      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/geometry_types.py                                   13      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/hypergraph.py                                       33      6      0      0    82%   82, 86, 91-92, 97-98
+packages/temper-placer/src/temper_placer/core/ipc2221.py                                           6      2      0      0    67%   10, 18
+packages/temper-placer/src/temper_placer/core/loop.py                                              9      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/loop_extractor.py                                  202    178    108      0     8%   59-80, 95-192, 201-222, 227-232, 237-242, 256-260, 265-268, 273-281, 291-308, 326-361, 396-419, 446-471, 507-548, 571-584
+packages/temper-placer/src/temper_placer/core/loop_ownership.py                                   40     30     18      0    17%   97-110, 136-172
+packages/temper-placer/src/temper_placer/core/manufacturing.py                                    10      3      0      0    70%   34, 39, 44
+packages/temper-placer/src/temper_placer/core/net_graph.py                                         4      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/net_types.py                                        12      0      0      0   100%
+packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py                               37      4      2      1    87%   99, 103, 107, 111, 117->119
+packages/temper-placer/src/temper_placer/core/netlist.py                                          36     15      6      0    50%   153, 162-164, 186-206
+packages/temper-placer/src/temper_placer/core/pin_geometry.py                                     14      7      0      0    50%   49-54, 80
+packages/temper-placer/src/temper_placer/core/priority.py                                         10      1      0      0    90%   86
+packages/temper-placer/src/temper_placer/core/specification.py                                    23     10      2      0    52%   40-52
+packages/temper-placer/src/temper_placer/core/state.py                                            70     48     22      0    24%   60-63, 107-130, 154-186, 201-202, 207, 220-222, 237-242
+packages/temper-placer/src/temper_placer/core/topology.py                                         65     34     16      0    38%   25-26, 30-32, 36-38, 42-47, 61-64, 98, 101-105, 108-110, 114-120
+packages/temper-placer/src/temper_placer/core/units.py                                            49     18      4      0    58%   51-53, 61-63, 110, 130, 143, 158, 176, 188, 214, 222, 230, 238, 246, 254
+packages/temper-placer/src/temper_placer/deterministic/__init__.py                               165    129     60      0    16%   82-103, 110-177, 182-183, 200, 216-218, 222-223, 266-432, 437-453
+packages/temper-placer/src/temper_placer/deterministic/channels.py                               118     77     34      0    27%   90, 126, 130, 135, 154-167, 171-257, 266, 288-294
+packages/temper-placer/src/temper_placer/deterministic/flags.py                                   13      2      0      0    85%   56-57
+packages/temper-placer/src/temper_placer/deterministic/geometry/__init__.py                        0      0      0      0   100%
+packages/temper-placer/src/temper_placer/deterministic/geometry/courtyard.py                       1      0      0      0   100%
+packages/temper-placer/src/temper_placer/deterministic/stages/__init__.py                         22      0      0      0   100%
+packages/temper-placer/src/temper_placer/deterministic/stages/_grid_core.py                      219    184     68      0    12%   20-36, 50, 54-68, 72-74, 77-79, 83-89, 93-95, 106-113, 134-163, 174-186, 200-245, 268-292, 296-312, 317-322, 326-328, 337-343, 347-350, 367-454, 458-488
+packages/temper-placer/src/temper_placer/deterministic/stages/_grid_fence.py                       8      3      0      0    62%   75-76, 95
+packages/temper-placer/src/temper_placer/deterministic/stages/_grid_hv.py                         16      6      0      0    62%   50, 59-62, 99
+packages/temper-placer/src/temper_placer/deterministic/stages/_grid_stage.py                      21     13      0      0    38%   59-69, 73, 76
+packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py                      68     45     16      0    27%   93-117, 121, 132-136, 153-155, 163-177, 188-193, 208-209, 217
+packages/temper-placer/src/temper_placer/deterministic/stages/_phase_rotation.py                  59     52     32      0     8%   68-92, 120-130, 145-165
+packages/temper-placer/src/temper_placer/deterministic/stages/_phase_validation.py                58     48     18      0    13%   67-131, 151-161, 178-195
+packages/temper-placer/src/temper_placer/deterministic/stages/_phase_zones.py                      9      2      0      0    78%   83, 100
+packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py                  9      2      0      0    78%   25, 30
+packages/temper-placer/src/temper_placer/deterministic/stages/base.py                             27      7      0      0    74%   47, 51, 55, 60, 65, 71, 76
+packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py                    5      0      0      0   100%
+packages/temper-placer/src/temper_placer/deterministic/stages/component_assignment.py             14      5      0      0    64%   39-40, 44, 47, 66
+packages/temper-placer/src/temper_placer/deterministic/stages/connectivity_validation.py          26      6      2      0    71%   55, 59, 65-70
+packages/temper-placer/src/temper_placer/deterministic/stages/courtyard_check.py                  48     29     16      0    30%   47, 58, 65, 73-130
+packages/temper-placer/src/temper_placer/deterministic/stages/drc_sweep.py                        27      9      0      0    67%   51, 55, 60, 71, 75, 80, 91, 95, 100
+packages/temper-placer/src/temper_placer/deterministic/stages/drc_validation.py                   19      7      2      0    57%   46-47, 51, 56-61
+packages/temper-placer/src/temper_placer/deterministic/stages/fine_pitch_escape.py                23      4      0      0    83%   81, 92, 103, 114
+packages/temper-placer/src/temper_placer/deterministic/stages/hv_lv_partition.py                  65     37     18      0    34%   28-30, 43-51, 55-56, 64-65, 71-72, 76-95, 101, 124
+packages/temper-placer/src/temper_placer/deterministic/stages/layer_assignment.py                 16      5      0      0    69%   42-43, 47, 52, 66
+packages/temper-placer/src/temper_placer/deterministic/stages/net_ordering.py                     11      3      0      0    73%   33, 37, 40
+packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py       8      0      0      0   100%
+packages/temper-placer/src/temper_placer/deterministic/stages/placement_validation.py             86     53     28      0    29%   99-101, 105, 111-114, 118-122, 136, 142, 146, 152-174, 198-228, 252, 255-270
+packages/temper-placer/src/temper_placer/deterministic/stages/power_plane.py                      14      4      0      0    71%   106-107, 111, 127
+packages/temper-placer/src/temper_placer/deterministic/stages/setup.py                            21      7      0      0    67%   29-30, 34, 37, 48, 52, 55
+packages/temper-placer/src/temper_placer/deterministic/stages/slot_generation.py                  15      5      0      0    67%   24, 28, 31, 39-40
+packages/temper-placer/src/temper_placer/deterministic/stages/via_validation.py                   21      7      0      0    67%   54-55, 59, 64, 75, 79, 84
+packages/temper-placer/src/temper_placer/deterministic/stages/zone_assignment.py                   9      2      0      0    78%   24, 27
+packages/temper-placer/src/temper_placer/deterministic/stages/zone_aware_slot_generation.py       80     53     30      0    25%   117, 142-152, 156, 168, 184, 206-246, 264-269, 273, 300-319, 328, 343
+packages/temper-placer/src/temper_placer/deterministic/stages/zone_geometry.py                    17      3      0      0    82%   35, 39, 42
+packages/temper-placer/src/temper_placer/deterministic/state.py                                   86     15      4      0    79%   89-98, 165-168, 179-182, 193, 210-212
+packages/temper-placer/src/temper_placer/fields/__init__.py                                        4      0      0      0   100%
+packages/temper-placer/src/temper_placer/fields/field.py                                          23      6      0      0    74%   34, 39, 44, 52-54, 59
+packages/temper-placer/src/temper_placer/fields/interface.py                                      17      4      0      0    76%   69, 78-79, 86
+packages/temper-placer/src/temper_placer/fields/result.py                                         38     19     10      0    40%   54-63, 71-73, 78, 83, 88, 96-108
+packages/temper-placer/src/temper_placer/geometry/__init__.py                                    128      8      2      0    92%   192-199
+packages/temper-placer/src/temper_placer/geometry/constraints.py                                  38     12      0      0    68%   25, 30, 35, 48, 55, 86-95, 124-134, 165, 196, 228
+packages/temper-placer/src/temper_placer/geometry/drc_inflate.py                                  82     67     16      0    15%   53, 76-88, 113-126, 148-161, 181-183, 210-223, 264-282, 309-329
+packages/temper-placer/src/temper_placer/geometry/kicad_transform.py                              15      6      0      0    60%   117, 122, 135, 140, 155, 171
+packages/temper-placer/src/temper_placer/geometry/overlap.py                                      12      0      0      0   100%
+packages/temper-placer/src/temper_placer/geometry/transform.py                                    28     10      6      0    53%   56, 69-71, 84-86, 99-101
+packages/temper-placer/src/temper_placer/io/__init__.py                                           12      0      0      0   100%
+packages/temper-placer/src/temper_placer/io/_kicad_types.py                                        7      0      0      0   100%
+packages/temper-placer/src/temper_placer/io/_parse_board.py                                       95     87     52      0     5%   74-82, 136-318
+packages/temper-placer/src/temper_placer/io/_parse_nets.py                                        67     57     36      0    10%   60-80, 89-98, 127-201
+packages/temper-placer/src/temper_placer/io/_write_board.py                                      185    166     60      0     8%   52-64, 118-215, 249-312, 329-334, 362-363, 376-393, 430-509, 540-567
+packages/temper-placer/src/temper_placer/io/_write_modules.py                                    120    106     32      0     9%   41-57, 84-135, 167-262
+packages/temper-placer/src/temper_placer/io/_write_tracks.py                                     152    136     66      0     7%   48, 58, 70, 80, 120-182, 210-248, 296-390, 408-424
+packages/temper-placer/src/temper_placer/io/_write_types.py                                       53     16     14      0    55%   22, 38, 70, 75-90
+packages/temper-placer/src/temper_placer/io/_write_zones.py                                       48     39      8      0    16%   29, 38-47, 71-118
+packages/temper-placer/src/temper_placer/io/config_loader.py                                      23      3      0      0    87%   77-79
+packages/temper-placer/src/temper_placer/io/dsn.py                                                25      6      2      0    70%   63, 71, 83-86
+packages/temper-placer/src/temper_placer/io/dsn_exporter.py                                       53     30      8      0    38%   59, 73-109, 121, 124, 128, 132, 136, 140, 148, 155, 164-170
+packages/temper-placer/src/temper_placer/io/dsn_normalizer.py                                      8      3      0      0    62%   9, 13, 17
+packages/temper-placer/src/temper_placer/io/dsn_schema.py                                         23     17      6      0    21%   13-31, 35, 39
+packages/temper-placer/src/temper_placer/io/dsn_validator.py                                      22     14      2      0    33%   14-21, 33-37, 41-49
+packages/temper-placer/src/temper_placer/io/export_types.py                                        2      0      0      0   100%
+packages/temper-placer/src/temper_placer/io/kicad_exporter.py                                    261    232    100      0     8%   56-77, 89-124, 139-141, 152-204, 216-262, 290-297, 318-341, 359-382, 436-530, 568-645, 674-726
+packages/temper-placer/src/temper_placer/io/kicad_parser.py                                       33     20      0      0    39%   96-106, 135-155
+packages/temper-placer/src/temper_placer/io/kicad_writer.py                                       11      2      0      0    82%   42, 54
+packages/temper-placer/src/temper_placer/io/placement_exporter.py                                 65     46     16      0    23%   55, 60, 87-122, 159-215, 247-257, 270-277
+packages/temper-placer/src/temper_placer/io/reference_loader.py                                  100     75     36      0    18%   103-122, 150-173, 199-256, 277-315
+packages/temper-placer/src/temper_placer/io/via_dedup.py                                          16      7      4      0    45%   23, 42-49
+packages/temper-placer/src/temper_placer/protocol.py                                              33      6      0      0    82%   110-119
+packages/temper-placer/src/temper_placer/regression/__init__.py                                    8      0      0      0   100%
+packages/temper-placer/src/temper_placer/regression/closure_test.py                              216    179     56      0    14%   40-44, 54-89, 100-170, 211, 224, 250-256, 259-434, 466-483, 487-490
+packages/temper-placer/src/temper_placer/regression/corpus_runner.py                             176    108     48      0    30%   36, 39, 42, 55, 62, 65, 80-88, 113, 122-124, 144-166, 169-172, 184-199, 203-206, 217-242, 245-259, 267-338, 349-371, 374-395
+packages/temper-placer/src/temper_placer/regression/drc_ratchet.py                               337    191    126     11    37%   60->64, 103-118, 148, 166-170, 182-192, 267, 359-360, 390, 393, 403, 424, 479-599, 605, 621, 639->672, 647-654, 675->708, 740-741, 819-878, 917-1096, 1137-1189
+packages/temper-placer/src/temper_placer/regression/manifest.py                                   42     18      8      0    48%   44, 47, 50, 62-81, 84-87, 92-95
+packages/temper-placer/src/temper_placer/regression/metrics_recorder.py                           65     37     14      0    35%   40-52, 55, 63-65, 87, 105, 118-121, 125-157, 161
+packages/temper-placer/src/temper_placer/regression/reporter.py                                    7      0      0      0   100%
+packages/temper-placer/src/temper_placer/regression/runner.py                                     84     73     24      0    10%   34-36, 39-45, 48-225
+packages/temper-placer/src/temper_placer/router_v6/__init__.py                                    10      0      0      0   100%
+packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py                           214    186     86      0     9%   174, 198-211, 331-545, 564-701, 727-760, 797, 826-834, 928-1061
+packages/temper-placer/src/temper_placer/router_v6/_adapter_core.py                              134    112     46      0    12%   30-44, 73-86, 103-109, 122-123, 134-135, 159-255, 258, 262-322
+packages/temper-placer/src/temper_placer/router_v6/_adapter_types.py                              60      0      0      0   100%
+packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py                                7      2      0      0    71%   66, 83
+packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py                          107     96     48      0     7%   133-139, 144-168, 198-235, 270-371, 401
+packages/temper-placer/src/temper_placer/router_v6/adapter.py                                      5      0      0      0   100%
+packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py                        369    320    170      0     9%   108, 134, 195-274, 307-323, 341-351, 375-381, 392-400, 413-433, 449-475, 484-495, 521-548, 563-573, 604-639, 658-670, 705-765, 785-790, 800, 811-822, 833-834, 860-915, 935-1139
+packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py                           206    164     84      0    14%   43, 48, 53, 82-184, 205-224, 269-272, 283-284, 287-292, 295-303, 333-341, 369-376, 529-601, 609, 612-635, 641-666
+packages/temper-placer/src/temper_placer/router_v6/channel_widths.py                             218    162     62      1    21%   125, 151, 155, 187-212, 230-241, 269-278, 282-283, 300-309, 334-351, 363-366, 379-408, 435-547, 595-644, 652, 655-662, 668-700
+packages/temper-placer/src/temper_placer/router_v6/constraint_model.py                           127     74     24      0    35%   113, 142, 184, 196, 206, 227, 255-280, 291-333, 345-376, 383, 386-406, 410-445
+packages/temper-placer/src/temper_placer/router_v6/constraints_geometry.py                        47     16      0      0    66%   65, 70-73, 77, 92, 107, 123-127, 135, 152, 175-176, 186-187, 201, 211
+packages/temper-placer/src/temper_placer/router_v6/dense_package_detection.py                     33     15      4      0    49%   38, 43, 72-99, 116-117, 130
+packages/temper-placer/src/temper_placer/router_v6/diagnostics.py                                105     30     14      0    63%   60-65, 87-89, 161-181, 185, 260, 269, 313-318, 342-350
+packages/temper-placer/src/temper_placer/router_v6/diff_pair_inference.py                         20      6      2      0    64%   31-32, 37, 42, 68-69
+packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py                        24      8      0      0    67%   80-90, 109-138
+packages/temper-placer/src/temper_placer/router_v6/grid_converter.py                              15      4      0      0    73%   50, 74, 92, 116
+packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py                               115     92     60      0    13%   45, 68-270, 278, 281-285, 311-316, 330-368
+packages/temper-placer/src/temper_placer/router_v6/path_simplify.py                               12      6      0      0    50%   25, 46, 77-78, 92-93
+packages/temper-placer/src/temper_placer/router_v6/routing_space.py                              111     81     44      0    19%   67, 84-86, 91-93, 118-162, 176-220, 228, 231-252, 272-318
+packages/temper-placer/src/temper_placer/router_v6/stage0_data.py                                 91     24     16      0    63%   54, 59, 68-74, 108-113, 171-189
+packages/temper-placer/src/temper_placer/router_v6/stage_validators.py                            42     16     12      2    52%   46, 64->66, 66->68, 75-82, 94-98, 107, 112
+packages/temper-placer/src/temper_placer/strategy_registry.py                                     27     14     12      1    36%   32->exit, 42-45, 54-58, 73-74, 83-85
+packages/temper-placer/src/temper_placer/validation/__init__.py                                   12      0      0      0   100%
+packages/temper-placer/src/temper_placer/validation/_drc_api.py                                  166     41     44     16    71%   81, 118-129, 229, 237-238, 240, 291, 293, 295-296, 306, 309, 336-337, 341-342, 352->366, 360-362, 371-372, 381, 421-423, 437-439, 520, 523, 586, 593, 599-602
+packages/temper-placer/src/temper_placer/validation/base.py                                       67     18      4      0    69%   53, 62, 67, 71, 81-82, 97, 117, 125, 132, 136, 145-152, 156
+packages/temper-placer/src/temper_placer/validation/dead_parameter_probe.py                      186    144     50      0    18%   89-90, 106-135, 149-152, 156-159, 167-171, 189-208, 218-231, 236-246, 256-278, 287-289, 304-320, 330-331, 348-380, 391-397, 405-419, 426-430, 440-444, 452-456, 466, 471-482
+packages/temper-placer/src/temper_placer/validation/drc.py                                       194    116     44      0    33%   51-55, 125-139, 170, 175, 179-188, 218-227, 264-285, 289, 293-295, 299-315, 340-363, 390-484, 488-496, 507-536, 556-563, 573-580
+packages/temper-placer/src/temper_placer/validation/drc_oracle.py                                138    107     48      0    17%   39-40, 48-52, 67-76, 96-113, 129-163, 177-190, 247-259, 275, 303-308, 341, 356-357, 389-445, 466-522
+packages/temper-placer/src/temper_placer/validation/drc_types.py                                  29      0      0      0   100%
+packages/temper-placer/src/temper_placer/validation/gate_input_registry.py                       251    185     68      0    21%   96-97, 174-178, 183-186, 191-199, 207, 220-246, 260-332, 349-380, 394-499, 537, 653-678, 689-691, 733-735, 751-781
+packages/temper-placer/src/temper_placer/validation/geometric.py                                 198    157     30      0    18%   72-76, 130-132, 136, 155-214, 240-308, 316-347, 355-380, 388-434, 448-506, 514-561, 582-583
+packages/temper-placer/src/temper_placer/validation/metrics.py                                   175    129     30      0    22%   114-125, 129, 156, 182-229, 238-243, 256-293, 309-318, 328-344, 356-401, 420-467, 486-499
+packages/temper-placer/src/temper_placer/validation/preflight.py                                 118     74     30      0    30%   78, 82, 86, 90, 108-134, 144-170, 180-182, 200, 229-245, 265-318, 325-327, 354-361, 392-444, 477-502
+packages/temper-placer/src/temper_placer/validation/scheduler.py                                 147     82     32      0    36%   40, 63, 84-85, 117, 121, 124, 190-244, 249-254, 258, 270-271, 319-324, 328-330, 336-338, 348-350, 360-362, 375-377, 390, 394, 398-401, 405, 409, 413-434, 447, 457
+packages/temper-placer/src/temper_placer/validation/spice.py                                     280    213     88      0    18%   61, 97-99, 103-117, 159-171, 175, 179, 192-196, 220-244, 267-329, 359-382, 401-410, 414-441, 445-449, 453-457, 466, 491-505, 524-530, 564-568, 572-591, 618-660, 695-738, 773-816, 849-880, 897-905
+packages/temper-placer/src/temper_placer/validation/validation_gates.py                          114     53      6      0    51%   61, 84-90, 93-105, 113, 117, 120, 128, 138, 146-165, 180, 184, 190-205, 220, 227, 240-261, 276, 280, 286-304, 324, 343-354
+scripts/ci_check_drc.py                                                                           58     13     22      9    70%   37, 46, 70, 93->100, 103-105, 113-114, 121, 128-135, 142->exit
+scripts/generate_kicad_dru.py                                                                    645     15     90     10    97%   49, 438, 518, 526, 546, 557, 588, 636->638, 1604-1609, 1620-1624, 1628
+------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                                          10510   5963   2610     52    36%
