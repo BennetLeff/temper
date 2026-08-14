@@ -333,12 +333,33 @@ def _astar_route_nlayer(
                 continue
             alt_layer = alt_grid.layer_name
             alt_tolerance = grid_quantization_tolerance(alt_grid.cell_size)
-            if i == 0:
-                detailed_segments.append((start_world[0], start_world[1], effective_start_layer))
-            # Real via (layer change at identical x, y) -- never merged by
-            # append_grid_path_point/append_exact_terminal_point, which
-            # only ever collapse same-layer near-duplicates.
-            detailed_segments.append((start_world[0], start_world[1], alt_layer))
+            # The route's own start/end anchor (effective_start_layer /
+            # effective_end_layer) is the pad's real layer, which -- unlike
+            # primary_grid.layer_name -- is NOT guaranteed to differ from
+            # this segment's chosen alt_layer (other_grids only excludes
+            # primary_grid.layer_name, not the pad's own layer). A mid-route
+            # anchor (primary_grid.layer_name, the `else` branches below) IS
+            # always guaranteed to differ from alt_layer by that same
+            # construction, so it never needs this guard. Skipping a via
+            # whose two endpoints would be the identical layer avoids
+            # emitting a degenerate zero-span via (KiCad ``(layers "F.Cu"
+            # "F.Cu")``) -- the point is already correctly landed the
+            # moment alt_layer IS the pad's real layer, so there is nothing
+            # left to correct.
+            start_anchor_layer = effective_start_layer if i == 0 else primary_grid.layer_name
+            if start_anchor_layer != alt_layer:
+                if i == 0:
+                    detailed_segments.append((start_world[0], start_world[1], start_anchor_layer))
+                # Real via (layer change at identical x, y) -- never merged
+                # by append_grid_path_point/append_exact_terminal_point,
+                # which only ever collapse same-layer near-duplicates.
+                detailed_segments.append((start_world[0], start_world[1], alt_layer))
+                via_positions.append(start_world)
+            elif i == 0:
+                # First segment, but the pad's own real layer already IS
+                # this segment's alt_layer -- nothing to anchor to, just
+                # begin directly on alt_layer.
+                detailed_segments.append((start_world[0], start_world[1], alt_layer))
             for node in alt_path:
                 wx, wy = alt_grid.grid_to_world(node[0], node[1])
                 append_grid_path_point(detailed_segments, (wx, wy, alt_layer), alt_tolerance)
@@ -349,10 +370,12 @@ def _astar_route_nlayer(
             # except at the route's own last waypoint, which has no "next
             # segment" to stay continuous with and must anchor on the pad's
             # real layer instead (see this function's docstring on
-            # effective_end_layer).
+            # effective_end_layer). Same same-layer guard as the start
+            # anchor above.
             end_anchor_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
-            detailed_segments.append((goal_world[0], goal_world[1], end_anchor_layer))
-            via_positions.extend((start_world, goal_world))
+            if end_anchor_layer != alt_layer:
+                detailed_segments.append((goal_world[0], goal_world[1], end_anchor_layer))
+                via_positions.append(goal_world)
             routed_on_alt = True
             break
         if routed_on_alt:

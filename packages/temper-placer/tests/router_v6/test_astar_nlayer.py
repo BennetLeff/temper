@@ -117,6 +117,43 @@ def test_nlayer_two_grid_bottleneck_uses_tier2_alternate_detour():
     assert any(seg[2] == "B.Cu" for seg in result.segments)
 
 
+def test_nlayer_tier2_skips_degenerate_same_layer_anchor_via():
+    """Measured 2026-08-14 (docs/evidence/
+    2026-08-14-router-primary-grid-selection-fix.md, Task 1 follow-up): when
+    the pad's own real layer (pad_layer_start/pad_layer_end) happens to
+    equal the layer Tier 2's alternate-detour actually lands on, the route's
+    own boundary anchor must NOT still emit a same-(x, y) duplicate point --
+    that would produce a KiCad via record spanning zero real layers
+    (``(layers "F.Cu" "F.Cu")``), a defect the very first production
+    measurement of this fix's ``via_layer_pair``-facing surface caught
+    (net RTD_SDO). B.Cu is entirely blocked so Tier 1 (primary=B.Cu) fails
+    outright and Tier 2 detours onto F.Cu, which is ALSO the pads' own real
+    layer -- so the route must land directly on F.Cu with no via anywhere.
+    """
+    b_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
+    b_grid = OccupancyGrid("B.Cu", b_arr, (0.0, 0.0), _CELL, _SIZE, _SIZE)
+    f_grid = _open_grid("F.Cu")
+    grids = {"F.Cu": f_grid, "B.Cu": b_grid}
+
+    start, goal = (2.0, 2.0), (8.0, 8.0)
+    channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 10.0, preferred_layer="B.Cu")
+
+    result, _fb = _astar_route_nlayer(
+        "NET1", channel_path, grids, net_id=1,
+        pad_layer_start="F.Cu", pad_layer_end="F.Cu",
+    )
+    assert result is not None
+    assert result.forced_segment_count == 0
+    assert result.via_positions == [], (
+        "the pad's real layer already matches the alt-layer Tier 2 landed "
+        "on -- no via is needed or correct here"
+    )
+    assert all(seg[2] == "F.Cu" for seg in result.segments), (
+        "must never emit a B.Cu anchor point (and therefore no degenerate "
+        "same-layer via) when the pad's own layer already equals alt_layer"
+    )
+
+
 # ---------------------------------------------------------------------------
 # 3. N=3: the generalization production code structurally cannot express.
 #    Three layers, each individually insufficient alone, only jointly
