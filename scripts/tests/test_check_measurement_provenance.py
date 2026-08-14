@@ -659,11 +659,25 @@ class TestYamlArtifactSupport:
         temper_constraints.references.yaml finding: a YAML artifact whose
         pinned input hash no longer matches the file on disk must fail
         STALE through the normal evaluate() path -- not a YAML-specific
-        carve-out."""
+        carve-out.
+
+        evaluate() unconditionally batch-verifies every non-'UNKNOWN'
+        measured_at_commit via git (verify_commits_exist ->
+        _is_shallow_repo), so -- like every other evaluate() test in this
+        file that pins a real commit (see TestCommitResolvabilityAntiVacuity
+        above) -- tmp_path must be a real git repo with a real commit, via
+        _init_git_repo/_commit_all, not just a bare directory. A synthetic
+        40-hex-char placeholder here would hit
+        'not a git repository' (no init) or, even fixed to a real repo,
+        'does not resolve to a commit object' (not a real SHA) -- either
+        way masking the STALE assertion this test exists to check.
+        """
+        _init_git_repo(tmp_path)
         board = tmp_path / "pcb" / "temper.kicad_pcb"
         board.parent.mkdir()
         board.write_text("(kicad_pcb (version at-reconciliation-time))")
         old_hash = sha256_file(board)
+        real_commit = _commit_all(tmp_path, "add board")
 
         artifact = tmp_path / "temper_constraints.references.yaml"
         artifact.write_text(
@@ -671,7 +685,7 @@ class TestYamlArtifactSupport:
             "component_aliases:\n"
             "  FOO: BAR\n"
             "provenance:\n"
-            f"  measured_at_commit: {VALID_COMMIT}\n"
+            f"  measured_at_commit: {real_commit}\n"
             "  dirty: UNKNOWN\n"
             "  inputs:\n"
             "    - path: pcb/temper.kicad_pcb\n"
