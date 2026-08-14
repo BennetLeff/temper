@@ -1,5 +1,37 @@
 # Execution Map, Phase 1 (2026-08-14) — checkpoint, in progress
 
+## Headline, stated precisely (read this before the tables below)
+
+**What is measured**: under the CI-required DRC gate (`ci_check_drc.py
+--backend kicad-cli`), `CreepageCheck`, the entire Rust
+`rules::create_default_registry` check registry, and `router_clearance.rs`
+all show 0.00% region coverage. This is **architecturally decisive for that
+one gate** — `kicad-cli` is an external binary, and that gate's code path
+never enters the Rust `run_drc()` backend at all, regardless of what is
+registered inside it.
+
+**What is NOT yet measured**: whether these rules execute during
+*routing* (`route_board.py`), which is where `router_clearance.rs`
+specifically is expected to be live (`router_v6/clearance_check.py` calls
+`temper_drc_rs.verify_route_clearance` directly, a separate call path from
+`run_drc()`/the registry). All three route-coverage attempts died before
+producing data (see "Route status"). **The correct phrase for every
+router_clearance.rs / registry-adjacent finding below is "unreached by the
+CI-required DRC gate; router-pipeline reachability unmeasured" — not "never
+runs."** Two of this session's own earlier conclusions had to be walked
+back for exactly this shape of overclaim; this finding is strong enough on
+its own terms and does not need stretching.
+
+**One exception, stated with equal precision**: the intersection findings
+below (files that are BOTH 0% under the DRC gate AND confirmed — by
+actually compiling and listing tests, not inferred — to have zero tests
+execute under CI's native `cargo test --no-default-features` arm) are safe
+to call **unexercised on both axes** for `router_clearance.rs` and
+`board_py_bridge.rs` specifically: no test suite has ever run their logic
+either, so "unmeasured in production" cannot be read as "presumably
+covered by tests instead." See "Ranked intersection" below — this is the
+deliverable this phase exists for.
+
 Status: **checkpoint commit while a production route run is still in flight**
 (held/monitored by another agent in this session, not by this process — see
 "Route status" below). This document will be updated as that run resolves.
@@ -362,6 +394,82 @@ None of these would explain *why* `coverage.py` alone triggers a 50x memory
 blowup at exactly the SAT-solve boundary — that mechanism is still
 unexplained and, per the coordinator, out of scope to chase further this
 session.
+
+**This is a bug with an address, not a capacity problem — worth stating
+prominently rather than as a footnote.** All three attempts died at the
+*same* point: flat RSS (~1 GB) through t≈260–270s, then exponential growth
+to 55-59 GB within 15-40 seconds, every time, regardless of which crates
+were instrumented or whether `PYTHONHASHSEED` was pinned. That reproducible
+boundary — not random load-dependent failure — is exactly what the
+`route_pcb()` Stage-3/4 SAT-solve transition looks like from the outside.
+Whoever picks up the cheaper-instrumentation follow-up above should start
+by instrumenting *only* that boundary (option 1, single-stage coverage)
+rather than the whole pipeline.
+
+## Ranked intersection: zero production coverage AND never run in CI (temper-drc-rs only — the deliverable this phase exists for)
+
+Cross-referenced by name against
+`investigate/uncited-threshold-test-scope @ 75887c4ed`
+(`/home/bennet/Desktop/temper-uncited-threshold-scope`), which found 66
+Rust test modules / 467 test functions across 7 crates gated behind
+`#[cfg(feature = "python")]` against CI's native
+`cargo test --no-default-features` arm, 462 of which have never executed.
+That branch's own two remediation commits (`75887c4ed`,
+`1e066cc46`) fix the *structural* blocker (Cargo-level `extension-module`
+breaking `--features python` linking) but are explicit that **nothing is
+wired into CI by those changes** — the never-run status is current, not
+historical.
+
+No single enumerated module/function list was found committed on that
+branch to diff against directly, so membership below was **confirmed by
+actually compiling and running `cargo test --no-default-features --lib --
+--list`** in this worktree (ground truth, not inferred from source
+patterns — an earlier pattern-matching pass over source text
+mis-classified several files, e.g. flagged `rules/safety/creepage.rs` as
+never-run because it references pyo3-adjacent types, when its
+`#[cfg(any(test, feature = "wasm-registry"))]` tests in fact compile and
+run fine under `--no-default-features`, 9/9 confirmed present in the
+`--list` output). This is why the compiled-and-listed check, not a text
+grep, is the number to trust.
+
+**Result for temper-drc-rs**: of the 46 zero-production-coverage files that
+carry a `#[cfg(test)]`/`mod tests`/`mod proptests` block, **14 have zero
+tests appear in `cargo test --no-default-features -- --list`** at all
+(compiled out of the native CI arm entirely) — closely matching (within 1)
+the other branch's "13 python-gated modules, 106 tests" figure for this
+crate: `board_py_bridge.rs`, `clearance_matrix.rs`,
+`deterministic_connectivity.rs`, `deterministic_leaf_drc.rs`,
+`deterministic_stage_leaves.rs`, `drc_contracts.rs`, `drc_marshal.rs`,
+`drc_oracle.rs`, `drc_oracle_marshal.rs`, `oracle_marshal.rs`,
+`router_clearance.rs`, `validation_glue.rs`, `violation_contracts.rs`,
+`violation_report.rs`. Of those 14, 12 (everything except the two below)
+show *partial* production coverage under the DRC-gate run — i.e. their
+non-test code runs in production even though their own test suite never
+has; a real finding ("shipped, untested"), but a materially different one
+than the two below.
+
+**The strict intersection — zero production coverage under the measured
+gate AND zero tests ever run in CI — is exactly two files:**
+
+| File | Role | Safety relevance | Why it's dark on both axes |
+|---|---|---|---|
+| **`router_clearance.rs`** (`get_clearance`, `verify_route_clearance_impl`, `verify_route_clearance`) | The always-on routing-time clearance kernel — `router_v6/clearance_check.py` calls `temper_drc_rs.verify_route_clearance` directly during routing, a separate call path from the DRC-registry `run_drc()` this document's coverage run measured. | **Highest in this set.** This is the literal creepage/clearance distance-and-threshold logic for a mains-voltage (IEC 60335-1) board — a defect here is a direct physical-safety defect, not a plumbing one. | 0% under the DRC gate is expected/uninformative on its own (wrong pipeline stage, per the headline guard above) — the load-bearing fact is that **8 `#[test]` functions, including brute-force-reference property tests explicitly written to prove the accelerated clearance path never disagrees with the unaccelerated one, have literally never executed in CI**, confirmed by `cargo test --no-default-features --lib router_clearance:: -- --list` → 0 tests. Its production (routing-time) liveness is separately unmeasured (route runs died). Two independent forms of "unverified," not one. |
+| **`board_py_bridge.rs`** (Python-dict → `BoardState`/`Component`/`NetClassRules` typed extraction) | Marshaling boundary that feeds `run_drc()`'s Rust-backend registry (via `drc_marshal.rs`) — the same `run_drc()` path the DRC-gate headline finding already shows is architecturally unreached by the CI-required kicad-cli gate. | **Moderate, indirect.** A defect here silently corrupts every downstream check's input (wrong net class, wrong voltage rating, wrong geometry) rather than being a physical-safety calculation itself — but it is the single funnel every Rust-backend DRC check depends on. | 0% under the DRC gate for the *same* reason as the whole registry (wrong pipeline — `run_drc()` isn't called by `kicad-cli`-backend). Zero tests ever run in CI (`cargo test --no-default-features --lib board_py_bridge:: -- --list` → 0 tests) — this one is not a "wrong pipeline" excuse, since a unit test of dict-extraction logic does not need a live board at all; there is no equivalent "maybe it's just not on this measured path" defense available for its test gap the way there is for its production-coverage gap. |
+
+**Other crates' intersections: not computable this session.** The other
+branch's per-crate never-run counts (temper-design-bundle 165,
+temper-orchestration 87, temper-geometry 70, temper-io-types 13,
+temper-rust-router-core 19, temper-thermal 7) have no corresponding
+production-coverage side to intersect against here — this document has
+zero completed-route coverage data for `temper-rust-router` and
+`temper-orchestration` (both instrumented, neither got a completed run),
+and never instrumented `temper-design-bundle`, `temper-io-types`,
+`temper-rust-router-core`, or `temper-thermal` at all this session. The
+`temper-geometry` code that happened to get measured here is only the
+subset statically linked into `temper-drc-rs`'s cdylib (via its path
+dependency), not `temper-geometry` built as its own artifact — not
+equivalent to a real measurement of that crate. Flagging as the second
+follow-up, behind resolving the route-coverage gap.
 
 ## Artifacts
 
