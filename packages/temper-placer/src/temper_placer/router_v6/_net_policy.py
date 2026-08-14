@@ -63,7 +63,36 @@ def _should_route(net_name: str) -> bool:
     )
 
     if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
-        from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
+        from temper_placer.router_v6._zone_pour_stitch import (
+            _CONTINUITY_EXEMPT_NETS,
+            _zone_layers_for_net,
+        )
+
+        # ADDED 2026-08-14 (docs/evidence/2026-08-14-ntc-no-realization-and-delta-t-reconciliation.md):
+        # a zone-eligible net in `_CONTINUITY_EXEMPT_NETS` (single-hull
+        # pour, not clustered -- see that set's own docstring in
+        # `_zone_pour_stitch.py`) still needs a real A*-routed path: the
+        # pour proves ampacity/width but a pad geometrically "inside" a
+        # zone's drawn outline is invisible to the pad-connectivity audit's
+        # segment/via graph (deliberately -- thermal reliefs/clearance
+        # cutouts make a naive "inside the polygon" check unsafe to trust,
+        # see `pad_connectivity_audit.py`'s zone-blindness design note).
+        # Without a real routed path there is no segment/via evidence
+        # joining these pads at all, so the net can never be scored
+        # `fully_connected` no matter how correct the pour geometry is.
+        # Falling through here lets A* attempt this net IN ADDITION to its
+        # pour (`_emit_zone_pours` runs unconditionally for any
+        # zone-eligible net, independent of A* outcome -- see
+        # `_adapter_convert.py::_write_routes_to_content`), exactly the
+        # "pour supplements an already-routed trace" pattern the rest of
+        # the HighVoltage class already relies on (R6's own un-clustering
+        # justification). If A* cannot find a clearance-clean path at the
+        # assigned width, `_allow_forced_segments` (this module) still
+        # fails closed -- no fabricated copper -- so this net simply stays
+        # honestly unrouted-by-trace (pour-only) in that case, not
+        # silently "fixed".
+        if net_name in _CONTINUITY_EXEMPT_NETS:
+            return not any(net_name.startswith(p) for p in _SKIP_NET_PREFIXES)
 
         if _zone_layers_for_net(net_name):
             return False
