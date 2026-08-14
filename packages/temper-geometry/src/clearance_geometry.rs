@@ -73,6 +73,14 @@ use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use temper_py_bridge;
 
+// Only reachable from `rotate_local_to_world_py` (feature = "python") and
+// this file's own unit test -- gated to match exactly the `mod tests`
+// gate below (`any(test, feature = "wasm-registry")`) plus "python", the
+// same reachability shape the pre-consolidation private copy had, which
+// is why gating the import (rather than the old inherent fn) is what's
+// needed to keep a feature-less, non-test build warning-free.
+#[cfg(any(feature = "python", test, feature = "wasm-registry"))]
+use crate::kicad_transform::rotate_local_to_world;
 use crate::pad_geometry::{bounding_radius, core_half_extents, corner_radius, math_cos_sin, py_hypot};
 
 /// A pad as consumed by this module:
@@ -447,14 +455,12 @@ fn copper_scan(
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
-/// KiCad R(-theta) footprint-child rotation (the formula behind
-/// `kicad_transform.rotate_local_to_world`, resolved with the host
-/// Python's own libm cos/sin so the result is bit-identical to the
-/// pure-Python `math.cos`/`math.sin` version).
-fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let (c, s) = math_cos_sin(theta_rad);
-    (x * c + y * s, -x * s + y * c)
-}
+// KiCad R(-theta) footprint-child rotation: consolidated onto the crate's
+// single sanctioned implementation, `kicad_transform::rotate_local_to_world`
+// (see that module's header for the incident history this SSOT exists to
+// prevent repeating). Both this file's former private copy and the SSOT
+// resolved cos/sin the same way (`pad_geometry::math_cos_sin`'s dlsym'd
+// host libm), so this is a behavior-preserving consolidation, not a change.
 
 #[cfg(feature = "python")]
 #[pyfunction]

@@ -163,3 +163,97 @@ independent reimplementation is caught and named (not just counted, for a
 2-copy case); a delegating shim is silent; the real repo is currently
 clean; and the standard anti-vacuity backstops (missing SSOT, empty scan
 paths, unparseable file) fail closed rather than reporting a false clean.
+
+## Addendum — `temper-geometry` intra-crate primitive duplication (same-day follow-up)
+
+Scoped separately from findings #1–#9 above (which were mostly Python-side
+plus the `point_to_segment_distance` family): a sweep of `fn` definitions
+across `packages/temper-geometry/src/*.rs` for the *other* duplicated
+kernel names (`rotate_local_to_world`, `point_distance`,
+`segments_intersect`, `point_in_rect`, `orientation`, `np_minimum`/
+`np_maximum`, `pow`), explicitly coordinated to not re-touch
+`point_to_segment_distance` (owned elsewhere) or `kw_boundary_match_py`
+(owned elsewhere).
+
+**Canonical-home question (core_graph_geometry.rs vs. geometry_kernels.rs).**
+Neither supersedes the other. `core_graph_geometry.rs` is the Wave-4 port of
+`temper_placer/core/{graph,hypergraph,pin_geometry,power_topology,topology,
+courtyard,geometry_types}.py`; `geometry_kernels.rs` is the Wave-4 port of
+`requirements/validators/_geometry.py`, and its own header explicitly
+documents *why* it does not share `point_distance`/`segments_intersect`/
+`orientation`/`point_in_rect` with `drc_constraints_geometry.rs`: different
+pinned-oracle epsilons (`len2 < 1e-12` vs. `seg_len_sq < 1e-10`) and a
+different `segments_intersect` contract (sign-based vs. orientation-code).
+That is the same deliberate-duplication shape as `point_to_segment_distance`
+finding #1 — already self-documented, not re-litigated here. A third
+"unified kernels" module was considered and rejected: it would be exactly
+the disease this audit exists to prevent (a second, competing SSOT).
+
+**Consolidated this pass: `rotate_local_to_world` (5 copies -> 1).**
+`kicad_transform.rs` already carries the crate's self-declared "single
+sanctioned implementation" (its own header cites 12 historical wrong-R(+theta)
+copies as the reason it exists) and was already imported by
+`property_campaigns.rs`/`property_campaigns_3.rs`/`wasm_test_registry.rs` —
+but `clearance_geometry.rs`, `congestion_analysis.rs`, `escape_via.rs`, and
+`drc_constraints_geometry.rs` each still carried their own private
+hand-transcription instead of importing the SSOT (the last of those four
+also duplicated `rotate_world_to_local`, the R(+theta) inverse). Verified
+equivalent, not just read: all five compute `(x*c + y*s, -x*s + y*c)`; two
+sourced `cos`/`sin` via `pad_geometry::math_cos_sin`, two via
+`host_math::cos`/`host_math::sin` directly — traced both to the same
+dlsym'd `host_cos()`/`host_sin()` calls, so bit-identical regardless of
+which path a given file used. Consolidated onto `kicad_transform::
+{rotate_local_to_world, rotate_world_to_local}`; the four private copies
+deleted, replaced with imports. No behavior change: full crate test suite
+(8389 tests, default + `--features python` + `--features wasm-test-registry`
++ `--target wasm32-unknown-unknown`) passes with zero warnings before and
+after, and the differential/PBT/metamorphic suites for all four touched
+Python call sites (`test_kicad_transform_*`, `test_escape_via_*`,
+`test_constraints_geometry_rust_*`, `test_congestion_analysis`,
+`test_clearance_family_rust_*`; 2839 tests) pass unchanged.
+
+**New open finding: `np_minimum`/`np_maximum` (3 copies, DIVERGED).**
+`drc_inflate.rs:54,60`, `heuristics.rs:25,35`, and `resource_bound.rs:78,89`
+each independently reimplement `np.minimum`/`np.maximum`. Empirically
+verified (compiled and ran the three shapes with `rustc -O`, not just
+read) two real divergences: (1) NaN payload —
+`np_minimum(f64::from_bits(0xFFF8000000000001), 1.0)` returns the operand
+unchanged (`0xfff8000000000001`) under `drc_inflate.rs`'s
+`(a < b || isnan(a)) ? a : b` (numpy's own C ternary, transcribed
+verbatim), but collapses to canonical `f64::NAN` (`0x7ff8000000000000`)
+under `heuristics.rs`/`resource_bound.rs`'s `if is_nan(a)||is_nan(b) {
+f64::NAN }` guard. (2) Signed-zero tie-break is order-dependent for two of
+the three and order-*independent* for the third:
+`np_minimum(-0.0, 0.0)` gives `+0.0` under `drc_inflate.rs`/
+`resource_bound.rs`'s shared `a<b?a:b` shape but `-0.0` under
+`heuristics.rs`'s `a.min(b)` (LLVM's `minnum` favors negative zero
+regardless of argument order). Not consolidated: `drc_inflate.rs` and
+`resource_bound.rs` are DRC-adjacent (pad/track inflation gap;
+router_v6 resource bound) per this doc's own point_to_segment_distance
+classification convention, each of the three is independently pinned
+against its own Wave-4 Python oracle, and the cross-arm rule means a
+behavior change here needs its oracle moved in lockstep — outside a
+dedup-only change's hard-constraint-safe surface. Practical severity is
+low today (every call site only branches on `.is_nan()`, never inspects
+payload or relies on the zero tie order) — flagged, not escalated.
+Registered as an `OpenFinding` in `duplicate_predicate_registry.py`
+(`np_minimum / np_maximum`).
+
+**Also verified, not accidental duplication:**
+- `pow` — 2 copies (not 3; the earlier top-line count conflated
+  `pow`/`pow_checked`/`pow2`/`pow_operator`/`pow_distance`), both in
+  `host_math.rs`, `#[cfg(not(target_arch = "wasm32"))]` vs.
+  `#[cfg(target_arch = "wasm32")]` — mutually exclusive, deliberate
+  platform gate, not accidental duplication.
+- `sub_rng` — 9 copies, all private `#[cfg(test)]` per-module seeded-RNG
+  test helpers (identical bodies), not production kernels; low value/risk,
+  left alone and not registered (test-infra boilerplate, same bucket as
+  finding #7's `load_allowlist`, not a safety-relevant primitive).
+- `point_distance`/`segments_intersect`/`point_in_rect`/`orientation`
+  between `geometry_kernels.rs` and `drc_constraints_geometry.rs`/
+  `bundle_analyzer.rs`: confirmed deliberate per `geometry_kernels.rs`'s
+  own header (see canonical-home discussion above) — not re-verified
+  byte-for-byte beyond confirming the header's claimed epsilon values
+  are present in both files' source (`1e-12` in `geometry_kernels.rs`,
+  `1e-10` in `drc_constraints_geometry.rs`), consistent with the header's
+  claim. Not consolidated, correctly so.

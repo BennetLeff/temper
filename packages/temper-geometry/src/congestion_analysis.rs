@@ -64,16 +64,15 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyDictMethods};
 
 use crate::congestion::{ceil_to_int, cpython_max, cpython_min, cpython_min2, int_trunc};
-use crate::host_math;
+use crate::kicad_transform::rotate_local_to_world;
 
-/// `geometry.kicad_transform.rotate_local_to_world` -- R(-theta), via the
-/// host libm (see module doc's B1 note). Op order and grouping match the
-/// reference exactly: no reassociation, no `mul_add` fusion.
-fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let c = host_math::cos(theta_rad);
-    let s = host_math::sin(theta_rad);
-    (x * c + y * s, -x * s + y * c)
-}
+// `rotate_local_to_world` (KiCad R(-theta) footprint-child rotation,
+// `geometry.kicad_transform.rotate_local_to_world`) consolidated onto the
+// crate's single sanctioned implementation in `kicad_transform.rs`: this
+// file's former private copy used `host_math::cos`/`host_math::sin`
+// directly, the SSOT uses `pad_geometry::math_cos_sin`, which itself
+// resolves through the same dlsym'd host libm (`host_cos()`/`host_sin()`)
+// -- bit-identical, behavior-preserving.
 
 /// `core.pin_geometry._normalize_rotation`'s integer-index branch.
 ///

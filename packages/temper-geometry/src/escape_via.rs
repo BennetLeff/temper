@@ -67,6 +67,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 
 use crate::host_math;
+use crate::kicad_transform::rotate_local_to_world;
 use crate::pad_geometry::bounding_radius;
 
 /// `temper_placer.core.pad_geometry.DEFAULT_ROUNDRECT_RATIO`.
@@ -96,15 +97,14 @@ fn side_to_layer_name(side: i64) -> PyResult<String> {
     }
 }
 
-/// `geometry/kicad_transform.rotate_local_to_world` -- R(-theta).
-///
-/// The two expressions are kept in the reference's exact op order and
-/// grouping: no reassociation, no `mul_add` fusion (B7).
-fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let c = host_math::cos(theta_rad);
-    let s = host_math::sin(theta_rad);
-    (x * c + y * s, -x * s + y * c)
-}
+// `rotate_local_to_world` (`geometry/kicad_transform.rotate_local_to_world`
+// -- R(-theta)) consolidated onto the crate's single sanctioned
+// implementation in `kicad_transform.rs`. This file's former private copy
+// used `host_math::cos`/`host_math::sin` directly, the SSOT uses
+// `pad_geometry::math_cos_sin`, which resolves through the same dlsym'd
+// host libm (`host_cos()`/`host_sin()`) -- bit-identical, and both keep
+// the reference's exact op order/grouping (no reassociation, no
+// `mul_add` fusion), so this is behavior-preserving.
 
 /// `core/pin_geometry._normalize_rotation`'s **integer-index** branch: a
 /// quarter-turn index becomes radians.
