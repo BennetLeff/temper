@@ -29,7 +29,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from temper_placer.core.pad_identity import resolve_net_pins
 from temper_placer.router_v6.channel_widths import (
     _build_edt,
 )
@@ -45,32 +44,18 @@ _EDT_CELL_SIZE: float = 0.1  # mm — matches channel_widths.py
 def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
     """Resolve a Net's pads to world coordinates via component lookup.
 
-    Pin resolution goes through
-    :func:`temper_placer.core.pad_identity.resolve_net_pins`
-    (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first match --
-    an independent, previously-unfixed copy of the same bug
-    ``_pipeline_grid._net_pad_positions`` had (see
-    ``temper_placer.core.pad_identity``'s module docstring): a component
-    with more than one physical pad sharing a pad number (K2/K3's
-    current-sharing contacts) would otherwise have every occurrence
-    resolve to the SAME coordinate, silently undercounting capacity
-    demand for that net. Note this function still adds ``pin.position``
-    (the pin's LOCAL, pre-rotation offset) directly rather than routing
-    through ``pin_world_position`` -- a separate, pre-existing rotation
-    bug, out of scope here; only pad IDENTITY is fixed by this change.
+    Delegates to ``temper_placer.core.pin_geometry.net_pad_positions``, the
+    consolidated SSOT. This module's own copy previously summed
+    ``comp.initial_position + pin.position`` directly, silently skipping
+    the component's rotation -- for the 148/169 (87.6%) components on
+    ``pcb/temper.kicad_pcb`` with nonzero ``initial_rotation``, every pad
+    position (and therefore every capacity-demand ratio computed from it)
+    was wrong. See ``pin_geometry.net_pad_positions``'s docstring for the
+    measured error and ``scripts/duplicate_predicate_registry.py``.
     """
-    positions: list[tuple[float, float]] = []
-    for comp_ref, _pin_name, pin in resolve_net_pins(net, comp_by_ref):
-        comp = comp_by_ref.get(comp_ref)
-        comp_pos = getattr(comp, "initial_position", None) if comp is not None else None
-        if comp_pos is None:
-            continue
-        if pin is None:
-            positions.append((float(comp_pos[0]), float(comp_pos[1])))
-            continue
-        px, py = pin.position
-        positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
-    return positions
+    from temper_placer.core.pin_geometry import net_pad_positions
+
+    return net_pad_positions(net, comp_by_ref)
 
 
 def _sum_capacity_in_bbox(

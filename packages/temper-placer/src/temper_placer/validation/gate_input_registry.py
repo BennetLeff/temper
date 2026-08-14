@@ -570,6 +570,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_derived_doc_drift.py", "docs/STRATEGY.md", "doc-drift comparison; probe harness deferred"),
     ("check_domain_partition.py", "elec/build/default.net", "needs compiled netlist (elec/build/, not committed)"),
     ("check_drc_ceiling_approval.py", "power_pcb_dataset/drc_ceiling.json", "git merge-base dependent; probe harness deferred"),
+    ("check_duplicate_predicates.py", "scripts/duplicate_predicate_registry.py", "duplicate-predicate consolidation gate (2026-08-13 defect-multiplier audit); AST-scans registered families' scan_paths for a non-delegating copy; probe harness deferred"),
     ("check_erc_off_grid_consequence.py", "pcb/temper.kicad_sch", "ERC endpoint_off_grid consequence classification (docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md); needs kicad-cli-regenerated ERC JSON + schematic netlist XML; probe harness deferred"),
     ("check_evidence_provenance.py", "docs/evidence/", "provenance scan; probe harness deferred"),
     ("check_footprint_drift.py", "pcb/temper.kicad_pcb", "needs compiled netlist; probe harness deferred"),

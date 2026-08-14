@@ -78,3 +78,22 @@ def pin_world_position(
         (x, y) tuple in mm, in board coordinates.
     """
     return pin_world_position_at(pin, comp)
+
+
+def net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
+    """Resolve a Net's pads to world coordinates via component lookup.
+
+    Delegates to ``temper_placer.core.pad_identity.net_pad_positions``, the
+    canonical occurrence-indexed implementation (merged via PR #1180) --
+    see that module's docstring for the rotation-omission incident
+    (MEASURED 2026-08-08: 148/169 components on ``pcb/temper.kicad_pcb``
+    have nonzero ``initial_rotation``) and the manufacturer-duplicated
+    relay contact-pad collapse this function's occurrence handling exists
+    to prevent (PR #1177). This name is kept as a thin shim because
+    ``scripts/duplicate_predicate_registry.py``'s ``net_pad_positions``
+    family registers it as the SSOT the three ``router_v6`` call sites
+    delegate to; the implementation lives in ``pad_identity``.
+    """
+    from temper_placer.core.pad_identity import net_pad_positions as _impl
+
+    return _impl(net, comp_by_ref)

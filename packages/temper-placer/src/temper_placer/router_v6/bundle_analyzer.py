@@ -195,40 +195,24 @@ class BundleAnalyzer:
     def _net_pad_positions(self, net) -> list[tuple[float, float]]:
         """Resolve a net's pad positions to world coordinates.
 
-        Pin resolution goes through
-        :func:`temper_placer.core.pad_identity.resolve_net_pins`
-        (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first
-        match -- an independent, previously-unfixed copy of the same bug
-        ``_pipeline_grid._net_pad_positions`` had (see
-        ``temper_placer.core.pad_identity``'s module docstring): a
-        component with more than one physical pad sharing a pad number
-        (K2/K3's current-sharing contacts) would otherwise have every
-        occurrence resolve to the SAME coordinate, silently shrinking a
-        net's convex-hull footprint used for bundle/EMI-constraint
-        detection.
+        Delegates to ``temper_placer.core.pin_geometry.net_pad_positions``,
+        the consolidated SSOT. This method previously summed
+        ``comp.initial_position + pin.position`` directly, silently
+        skipping the component's rotation -- for the 148/169 (87.6%)
+        components on ``pcb/temper.kicad_pcb`` with nonzero
+        ``initial_rotation``, every pad position feeding this net's
+        geometric footprint (``_compute_geometric_footprint``, used for
+        bundle-class Jaccard overlap) was wrong. See
+        ``pin_geometry.net_pad_positions``'s docstring for the measured
+        error and ``scripts/duplicate_predicate_registry.py``.
         """
-        from temper_placer.core.pad_identity import resolve_net_pins
-
-        positions: list[tuple[float, float]] = []
         if not self.pcb:
-            return positions
+            return []
 
-        # Build comp_by_ref
+        from temper_placer.core.pin_geometry import net_pad_positions
+
         comp_by_ref = {comp.ref: comp for comp in self.pcb.components}
-
-        for comp_ref, _pin_name, pin in resolve_net_pins(net, comp_by_ref):
-            comp = comp_by_ref.get(comp_ref)
-            if comp is None:
-                continue
-            comp_pos = getattr(comp, "initial_position", None)
-            if comp_pos is None:
-                continue
-            if pin is None:
-                positions.append((float(comp_pos[0]), float(comp_pos[1])))
-                continue
-            px, py = pin.position
-            positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
-        return positions
+        return net_pad_positions(net, comp_by_ref)
 
     def _compute_geometric_footprint(self, net) -> Polygon:
         """Compute the convex hull of a net's pad positions, expanded by median edge length.
