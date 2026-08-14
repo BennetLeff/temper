@@ -501,6 +501,24 @@ class StackupGate(Gate):
         # See PR #1195 / docs/evidence/2026-08-13-router-nlayer-routing.md
         # SS4 and PR #1223.
 
+        # PR #1195 copper-weight/layer-awareness audit
+        # (docs/evidence/2026-08-13-router-nlayer-routing.md SS4): this used
+        # to be `copper_oz=1.0` unconditionally, regardless of `internal` --
+        # correct for the board's declared 1oz INNER copper
+        # (check_stackup_copper_weight_gate.py), but wrong for its declared
+        # 2oz OUTER copper (F.Cu/B.Cu), which this check was silently
+        # evaluating against a copper weight thinner than the board
+        # actually has there -- an error that happens to be
+        # over-conservative (thinner assumed copper needs a wider trace to
+        # pass), so it did not let anything unsafe through, but it is not
+        # the physically real number either. `_STACKUP_COPPER_OZ` cites the
+        # SAME outer/inner weights that gate already enforces live against
+        # `pcb/temper.kicad_pcb`'s own declared stackup -- not a new
+        # assumption, and not a copper-weight VALUE change (the board's
+        # declared weight is unchanged; this only fixes which of that
+        # board's two already-declared weights this specific check reads).
+        copper_oz = _STACKUP_COPPER_OZ["inner"] if internal else _STACKUP_COPPER_OZ["outer"]
+
         min_width_mm = _min_width_ipc2152(
             current_a=current_a,
             copper_oz=copper_oz,
