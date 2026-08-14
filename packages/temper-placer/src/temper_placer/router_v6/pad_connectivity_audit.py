@@ -51,6 +51,7 @@ __all__ = [
     "NetConnectivityResult",
     "check_net_pad_connectivity",
     "audit_pcb_file",
+    "zone_layers_and_fill_stats",
 ]
 
 Point = tuple[float, float]
@@ -102,24 +103,87 @@ class NetConnectivityResult:
     fully_connected: bool  # every pad is in that one group
     has_any_copper: bool  # any segment/via exists for this net at all
     unreached_pads: tuple[NetPad, ...] = field(default_factory=tuple)
+    # Layers on which this net has ANY zone block declared (outline or
+    # filled -- see ``_parse_zones``). Diagnostic only; does not affect
+    # ``fully_connected``/``pads_connected``, which remain a pure
+    # segment+via+pad graph verdict.
+    zone_layers: tuple[str, ...] = field(default_factory=tuple)
+    # True when every one of this net's unreached pads sits on a layer
+    # that has a zone declared for this net -- i.e. the segment/via graph
+    # says "not connected", but a zone pour this audit cannot see (or
+    # cannot see FILLED -- see ``_parse_zones``'s filled/unfilled count)
+    # might be delivering that connection instead. This is a "cannot
+    # measure" verdict, not a "connected" one: the audit does not attempt
+    # point-in-polygon zone-fill analysis (thermal reliefs, clearance
+    # cutouts, unfilled islands all make a naive "inside the outline"
+    # check an active source of false confidence on a mains-voltage
+    # board -- see this module's ``_parse_zones`` docstring).
+    zone_dependent_unmeasured: bool = False
 
     @property
     def is_fake_completion(self) -> bool:
         """The exact b39b382d shape: copper exists for this net (a naive
         "has copper" check, or a segment/via counter, would call this net
         done or improved), but its own pads are not actually joined by
-        that copper. True fake completion, not merely "incomplete"."""
+        that copper. True fake completion, not merely "incomplete".
+
+        Deliberately UNCHANGED by zone dependence: this property answers
+        "does the segment/via graph alone connect this net's pads", which
+        is exactly what it always meant. Use ``category`` for the
+        3-way connected/broken/zone_dependent_unmeasured partition a
+        report should actually act on.
+        """
         return self.has_any_copper and not self.fully_connected
+
+    @property
+    def category(self) -> str:
+        """One of ``"connected"``, ``"zone_dependent_unmeasured"``, or
+        ``"broken"`` -- the partition a completion report should use.
+        A net cannot be honestly called "broken" (nor "connected") when
+        every pad this audit failed to join has a zone declared on its
+        own layer for this net: this audit has no visibility into zone
+        fill geometry at all (see ``_parse_zones``), so that case is
+        neither a confirmed pass nor a confirmed fail.
+        """
+        if self.fully_connected:
+            return "connected"
+        if self.zone_dependent_unmeasured:
+            return "zone_dependent_unmeasured"
+        return "broken"
 
 
 class _UnionFind:
-    __slots__ = ("_parent",)
+    """Union-find with path compression and union-by-size.
+
+    Union-by-size only keeps trees shallow; it does NOT, by itself, make it
+    safe to snapshot ``find(x)`` mid-construction and treat that snapshot
+    as permanent. *Any* union (rank-based or not) can still relocate the
+    root of an already-merged component -- ``union`` always reparents one
+    of the two input roots, and a caller who read that root before the
+    reparenting has a now-stale value. The only thing that makes a
+    ``find()`` result trustworthy is calling it *after* every union that
+    could touch that component has already happened. See
+    ``check_net_pad_connectivity``'s two-pass pad handling, which is the
+    actual fix for that failure mode (was: a per-pad root snapshot taken
+    mid-loop, before later pads' own multi-layer unions had run -- verified
+    against this board's ``thermal.j_fan-p1``, ``discharge.r_dis1a-p2``,
+    and ``discharge.r_dis2a-p2`` nets, and pinned by this module's own
+    regression tests).
+    """
+
+    __slots__ = ("_parent", "_size")
 
     def __init__(self) -> None:
         self._parent: dict = {}
+        self._size: dict = {}
+
+    def _ensure(self, x) -> None:
+        if x not in self._parent:
+            self._parent[x] = x
+            self._size[x] = 1
 
     def find(self, x):
-        self._parent.setdefault(x, x)
+        self._ensure(x)
         root = x
         while self._parent[root] != root:
             root = self._parent[root]
@@ -129,8 +193,43 @@ class _UnionFind:
 
     def union(self, a, b) -> None:
         ra, rb = self.find(a), self.find(b)
-        if ra != rb:
-            self._parent[ra] = rb
+        if ra == rb:
+            return
+        if self._size[ra] < self._size[rb]:
+            ra, rb = rb, ra
+        self._parent[rb] = ra
+        self._size[ra] += self._size[rb]
+
+
+# KiCad's own file format and geometry engine store and quantise every
+# board coordinate to 1 nanometre (1e-6 mm) resolution -- an mm value in a
+# written .kicad_pcb never carries more than 6 decimal digits, and KiCad's
+# internal units (EDA_IU) are integer nanometres. So on any real board, two
+# coordinates that differ by less than half a nanometre are not merely
+# "close" -- they are THE SAME point. This codebase's own pad-position
+# math (footprint-transform composition: translate + rotate + parent
+# offset, chained through several call sites) accumulates float error far
+# below that floor -- observed ~1e-14 mm on this board's WDT_KICK pad
+# (117.3925, 139.53000000000003) vs. its own via, written cleanly at
+# (117.3925, 139.53) -- eight orders of magnitude under the 5e-7 mm/0.5nm
+# resolution floor. Snapping to the nearest nanometre before dividing by
+# tolerance_mm removes exactly that noise, and only that noise: two float
+# representations of what KiCad considers one point become bit-identical
+# before the tolerance-bucket rounding below, so they can no longer land on
+# opposite sides of a round-half-to-even tie by sub-nanometre accident.
+#
+# This does NOT remove tie boundaries in general -- any fixed-decimal
+# bucketing scheme has them, and two genuinely distinct nanometre-resolution
+# points 0.01mm apart can still legitimately land in different
+# ``tolerance_mm``-sized buckets. That is real ambiguity about which side
+# of a grid line a point falls on, not a bug. What this fixes is only the
+# case where the SAME physical point, reconstructed via two different
+# float code paths, disagreed with itself about which bucket it was in.
+_KICAD_NM_PER_MM = 1_000_000
+
+
+def _snap_to_kicad_nm(value: float) -> float:
+    return round(value * _KICAD_NM_PER_MM) / _KICAD_NM_PER_MM
 
 
 def _cluster_key(point: Point, tolerance_mm: float) -> tuple[int, int]:
@@ -143,8 +242,16 @@ def _cluster_key(point: Point, tolerance_mm: float) -> tuple[int, int]:
     mirrors ``astar_core.grid_quantization_tolerance``'s reasoning without
     depending on any specific grid's cell size, since this module runs
     after routing, on written board geometry, independent of grid pitch.
+
+    The coordinates are first snapped to KiCad's own 1nm resolution
+    (``_snap_to_kicad_nm``) so that sub-nanometre float noise from this
+    codebase's own transform math can never push a point across a
+    ``round()`` tie boundary that the point's "true" (nanometre-resolution)
+    value does not actually sit on.
     """
-    return (round(point[0] / tolerance_mm), round(point[1] / tolerance_mm))
+    x = _snap_to_kicad_nm(point[0])
+    y = _snap_to_kicad_nm(point[1])
+    return (round(x / tolerance_mm), round(y / tolerance_mm))
 
 
 def check_net_pad_connectivity(
@@ -154,6 +261,7 @@ def check_net_pad_connectivity(
     vias: Sequence[CopperVia],
     all_layers: Sequence[str] = (),
     tolerance_mm: float = 0.02,
+    zone_layers: Sequence[str] = (),
 ) -> NetConnectivityResult:
     """Does this net's copper actually connect all of its own pads?
 
@@ -165,6 +273,15 @@ def check_net_pad_connectivity(
     ``fully_connected = (largest pad-containing component's pad count ==
     total pad count)`` -- every pad must land in the SAME component, not
     merely "some component with copper in it."
+
+    ``zone_layers`` (optional, pure data -- same design as everything else
+    here: caller parses the board, this function only reasons about
+    already-extracted facts) lists the layers on which this net has ANY
+    zone declared. It never changes ``fully_connected``/``pads_connected``
+    -- those remain a pure segment+via+pad-graph verdict. It only sets
+    ``zone_dependent_unmeasured`` when every pad the graph failed to reach
+    sits on a layer with a zone for this net: see
+    ``NetConnectivityResult.category``.
     """
     if len(pads) <= 1:
         return NetConnectivityResult(
@@ -199,12 +316,24 @@ def check_net_pad_connectivity(
             return [node(pad.position, layer) for layer in layers]
         return [node(pad.position, pad.layer)]
 
-    pad_roots = []
+    # First pass: union each pad's own multi-layer nodes together (a THT
+    # pad's barrel joins every layer it spans) -- but do NOT read back a
+    # root yet. ``_UnionFind.union`` always reparents one of its two input
+    # roots, so a root read here could still be silently relocated by a
+    # LATER pad's own multi-layer union (this is the stale-root bug: see
+    # ``_UnionFind``'s docstring). Collect each pad's representative node
+    # instead of its root.
+    pad_repr_nodes = []
     for pad in pads:
         nodes = pad_nodes(pad)
         for extra in nodes[1:]:
             uf.union(nodes[0], extra)
-        pad_roots.append(uf.find(nodes[0]))
+        pad_repr_nodes.append(nodes[0])
+
+    # Second, separate pass: every union that exists (segments, vias, and
+    # every pad's own multi-layer expansion) is now complete, so no
+    # further union can happen and no root read from here on can go stale.
+    pad_roots = [uf.find(repr_node) for repr_node in pad_repr_nodes]
 
     counts: dict = {}
     for root in pad_roots:
@@ -220,6 +349,18 @@ def check_net_pad_connectivity(
         pad for pad, root in zip(pads, pad_roots) if majority_root is None or root != majority_root
     )
 
+    zone_layer_set = set(zone_layers)
+
+    def _zone_could_reach(pad: NetPad) -> bool:
+        if not zone_layer_set:
+            return False
+        # A through-hole pad's barrel touches every copper layer, so a
+        # zone on ANY layer is a candidate; an SMD pad only benefits from
+        # a zone on its own specific layer.
+        return pad.layer == ALL_LAYERS or pad.layer in zone_layer_set
+
+    zone_dependent_unmeasured = bool(unreached) and all(_zone_could_reach(p) for p in unreached)
+
     return NetConnectivityResult(
         net_name=net_name,
         pad_count=len(pads),
@@ -227,6 +368,8 @@ def check_net_pad_connectivity(
         fully_connected=(largest == len(pads)),
         has_any_copper=bool(segments or vias),
         unreached_pads=unreached,
+        zone_layers=tuple(sorted(zone_layer_set)),
+        zone_dependent_unmeasured=zone_dependent_unmeasured,
     )
 
 
@@ -283,6 +426,62 @@ def _parse_segments_and_vias(
     return segs_by_net, vias_by_net
 
 
+_ZONE_LAYERS_RE = re.compile(r'\(layers\s+((?:"[^"]+"\s*)+)\)')
+
+
+def _parse_zones(pcb_content: str) -> tuple[dict[str, set[str]], int, int]:
+    """Which net/layer combinations have a zone declared, and how many of
+    this file's zone blocks actually carry computed fill geometry.
+
+    **What this deliberately does NOT do: determine whether any pad is
+    actually connected by a zone.** A zone's ``(polygon (pts ...))`` block
+    is the zone's drawn OUTLINE (in this codebase's own zone-emission
+    writer, ``zone_emission.py``, it is a convex-hull-around-pads
+    approximation of where a pour is *intended* -- see that module's
+    ``_convex_hull_from_positions``) -- it is not copper. Only a zone's
+    ``filled_polygon`` sub-block, written by KiCad's own zone-fill engine
+    (or a correct reimplementation honouring clearance cutouts, thermal
+    relief spokes, and unfilled islands) after a fill pass, is real,
+    DRC-visible copper.
+
+    This function counts both cases (``n_filled_zone_blocks`` /
+    ``n_unfilled_zone_blocks``) so a caller can report which situation it's
+    actually in, rather than silently treating "has a zone block" as "has
+    copper". As measured on this project's own written boards
+    (``pcb/temper.kicad_pcb`` and the ``fix/router-nlayer-routing``
+    branch's ``temper_routed_nlayer.kicad_pcb``): ZERO zone blocks in
+    either file carry ``filled_polygon`` data -- this codebase's zone
+    writer never runs a fill pass, so even a correct point-in-polygon
+    implementation would have nothing to test against on those files
+    today. A net with a zone declared but the file carrying no fill data
+    at all is not "probably connected"; it is unmeasured in the strongest
+    sense -- the geometry a real check needs was never computed.
+    """
+    num_to_name = net_number_to_name_map(pcb_content)
+    zone_layers: dict[str, set[str]] = {}
+    n_filled = 0
+    n_unfilled = 0
+    for block in _extract_top_level_blocks(pcb_content, ("zone",)):
+        net_m = _NET_ATTR_RE.search(block)
+        if net_m:
+            name = num_to_name.get(int(net_m.group(1)))
+            if name:
+                layers: set[str] = set()
+                layer_m = _LAYER_RE.search(block)
+                if layer_m:
+                    layers.add(layer_m.group(1))
+                layers_m = _ZONE_LAYERS_RE.search(block)
+                if layers_m:
+                    layers.update(_LAYER_NAME_RE.findall(layers_m.group(1)))
+                if layers:
+                    zone_layers.setdefault(name, set()).update(layers)
+        if "filled_polygon" in block:
+            n_filled += 1
+        else:
+            n_unfilled += 1
+    return zone_layers, n_filled, n_unfilled
+
+
 def _pads_by_net(pcb) -> dict[str, list[NetPad]]:
     from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
 
@@ -304,6 +503,17 @@ def _pads_by_net(pcb) -> dict[str, list[NetPad]]:
                 NetPad(position=pos, layer=layer, ref=f"{comp.ref}.{pad_number}")
             )
     return pads
+
+
+def zone_layers_and_fill_stats(pcb_path: Path) -> tuple[dict[str, set[str]], int, int]:
+    """Public file-reading wrapper around ``_parse_zones`` -- for a caller
+    (e.g. a completion report) that wants the zone/fill facts
+    ``audit_pcb_file`` uses internally, without re-parsing the file.
+    Returns ``(zone_layers_by_net, n_filled_zone_blocks,
+    n_unfilled_zone_blocks)``; see ``_parse_zones`` for exactly what each
+    means and does not mean.
+    """
+    return _parse_zones(pcb_path.read_text())
 
 
 def audit_pcb_file(
@@ -331,6 +541,7 @@ def audit_pcb_file(
 
     pads_by_net = _pads_by_net(pcb)
     segs_by_net, vias_by_net = _parse_segments_and_vias(content)
+    zone_layers_by_net, _n_filled_zones, _n_unfilled_zones = _parse_zones(content)
     all_layers = sorted({s.layer for segs in segs_by_net.values() for s in segs})
 
     results: dict[str, NetConnectivityResult] = {}
@@ -342,5 +553,6 @@ def audit_pcb_file(
             vias_by_net.get(net_name, []),
             all_layers=all_layers,
             tolerance_mm=tolerance_mm,
+            zone_layers=tuple(zone_layers_by_net.get(net_name, ())),
         )
     return results
