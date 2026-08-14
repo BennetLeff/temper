@@ -43,17 +43,98 @@
 // change. `determine_trace_width` now calls `via_clearance::kw_boundary_match`
 // directly; the duplicate private impl and the duplicate pyo3 export are
 // both gone. See `docs/evidence/2026-08-13-pyo3-duplicate-registration-kw-boundary-match.md`.
+//
+// Hyphen-boundary fix (mains-voltage under-sizing defect, live 2026-08-13):
+// `via_clearance::kw_boundary_match`/`word_bounded` treats ONLY `_` (plus a
+// trailing digit) as a word boundary, never `-`.  On this board that meant
+// `hb-gnd` (the half-bridge low-side switch return, ~-170V, R23.2/U6.9
+// VSSB/C23.2/C24.2/U5.3 q_low emitter/T2.1 CT2 primary -- one CT winding
+// from the already-HV `DC_BUS_RTN`, R23/U6/C23/C24/U5/T2 confirmed in
+// `elec/build/default.net` net code 39) and its siblings `hb.gate_hs-vdd` /
+// `hb.gate_ls-vdd` matched none of `["GND","VCC","VDD","VSS","POWER"]` and
+// fell through to the 0.127mm signal default -- a 4x under-width for a
+// current-carrying return path, not merely a naming-convention miss.
+//
+// The fix does NOT widen `via_clearance::kw_boundary_match` itself: that
+// function is shared with `net_class_to_voltage_class` and is frozen behind
+// a byte-exact oracle pin (`test_via_clearance_tier2_rust_differential.py`'s
+// `_ORACLE_PIN_SHA`), whose own `test_net_class_to_voltage_class_oracle_parity`
+// asserts `"AC-DC"`/`"ac-dc"` do NOT match `"AC"` -- widening the shared
+// function to treat `-` as a boundary would flip that assertion and
+// regress a pinned, still-current differential, exactly the "one-armed fix
+// regresses a cross-arm differential" shape #1136's fix hit and #1137 had
+// to repair. `determine_trace_width`'s own boundary contract carries no such
+// pin (nothing outside this module's own, now-updated, differential
+// expectations depends on it staying underscore-only), so this module gets
+// its own hyphen-aware matcher, `kw_boundary_match_hyphen_aware` below,
+// used ONLY here -- `via_clearance::kw_boundary_match` and every net-class /
+// creepage / clearance classification that keys off it (including
+// `net_class_to_voltage_class`, `creepage_check.rs::is_high_voltage_net` --
+// whose `"LINE"` keyword would otherwise sweep every `*-line` SELV net into
+// HV -- and `design_rules.rs::hv_word_boundary_match` -- whose `"COIL"`
+// keyword would otherwise sweep every `*-coil1`/`*-coil2` relay net into
+// HV) are completely unchanged by this fix.  Board-wide simulation across
+// all 162 real nets in `elec/build/default.net` confirms this: exactly 3
+// nets change trace width (`hb-gnd`, `hb.gate_hs-vdd`, `hb.gate_ls-vdd`,
+// all default->power, 0.127mm->0.508mm), and 0 nets change under
+// `net_class_to_voltage_class` (untouched, as expected). See
+// `docs/evidence/2026-08-13-hb-gnd-trace-width-hyphen-boundary.md`.
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use temper_py_bridge;
 
+/// Word-boundary keyword scan used ONLY by `determine_trace_width`: the same
+/// `(?:^|[_-])kw(?:$|[\d_-])` shape as `via_clearance::word_bounded`, widened
+/// to treat an ASCII hyphen as an additional boundary character on both the
+/// leading and trailing side (in addition to `_` and a trailing digit).  See
+/// the module-level "Hyphen-boundary fix" note above for why this is a
+/// separate function rather than a change to `via_clearance::word_bounded`.
+fn word_bounded_hyphen_aware(name: &str, kw: &str) -> bool {
+    let bytes = name.as_bytes();
+    if name.len() < kw.len() {
+        return false;
+    }
+    let is_boundary_byte = |b: u8| b == b'_' || b == b'-';
+    let mut i = 0usize;
+    loop {
+        if (i == 0 || is_boundary_byte(bytes[i - 1])) && name[i..].starts_with(kw) {
+            let after = i + kw.len();
+            if after == name.len() {
+                return true;
+            }
+            if let Some(c) = name[after..].chars().next() {
+                // char::is_digit(10) is exactly the Unicode Nd property
+                // (Python re `\d`); is_ascii_digit would miss non-ASCII
+                // digits -- mirrors via_clearance::word_bounded exactly,
+                // widened only to also accept `-` as a boundary character.
+                #[expect(clippy::is_digit_ascii_radix, reason = "Unicode Nd property required to match Python re \\d")]
+                let is_digit = c.is_digit(10);
+                if c == '_' || c == '-' || is_digit {
+                    return true;
+                }
+            }
+        }
+        match bytes[i..].iter().position(|&b| is_boundary_byte(b)) {
+            Some(p) => i += p + 1,
+            None => return false,
+        }
+    }
+}
+
+/// `any(...)` over `word_bounded_hyphen_aware`, with the same trailing-`_`
+/// keyword strip `via_clearance::kw_boundary_match` applies (redundant once
+/// the boundary regex requires a trailing separator/digit/end, kept for
+/// keyword-set parity with the shared matcher's convention).
+fn kw_boundary_match_hyphen_aware(upper: &str, keywords: &[&str]) -> bool {
+    keywords.iter().any(|kw| word_bounded_hyphen_aware(upper, kw.strip_suffix('_').unwrap_or(kw)))
+}
+
 /// `_determine_trace_width`: returns `(width_mm, reason)` with the reference's
-/// exact reason strings.  Keyword matching delegates to
-/// `via_clearance::kw_boundary_match` (see the consolidation note above) --
-/// there is exactly one `(?:^|_)kw(?:$|[\d_])` implementation in this crate
-/// now, not two.
+/// exact reason strings.  Keyword matching uses `kw_boundary_match_hyphen_aware`
+/// above (NOT `via_clearance::kw_boundary_match` -- see the module-level
+/// "Hyphen-boundary fix" note for why the two are deliberately separate).
 pub fn determine_trace_width(
     net_name: &str,
     default_width: f64,
@@ -62,17 +143,17 @@ pub fn determine_trace_width(
 ) -> (f64, &'static str) {
     let name_upper = net_name.to_ascii_uppercase();
 
-    if crate::via_clearance::kw_boundary_match(&name_upper, &["AC_", "HV_", "HIGH_VOLTAGE"]) {
+    if kw_boundary_match_hyphen_aware(&name_upper, &["AC_", "HV_", "HIGH_VOLTAGE"]) {
         return (hv_width, "High voltage net requires wider trace");
     }
 
-    if crate::via_clearance::kw_boundary_match(&name_upper, &["GND", "VCC", "VDD", "VSS", "POWER"])
+    if kw_boundary_match_hyphen_aware(&name_upper, &["GND", "VCC", "VDD", "VSS", "POWER"])
         || name_upper.starts_with('+')
     {
         return (power_width, "Power net requires wider trace for current capacity");
     }
 
-    if crate::via_clearance::kw_boundary_match(&name_upper, &["GATE", "DRIVE"]) {
+    if kw_boundary_match_hyphen_aware(&name_upper, &["GATE", "DRIVE"]) {
         return (power_width * 0.6, "Gate drive signal requires medium-width trace");
     }
 
@@ -125,10 +206,12 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn kw_boundary_match_cases() {
-        // Exercises `via_clearance::kw_boundary_match` at the call site
-        // `determine_trace_width` actually uses post-consolidation -- proves
-        // the delegation preserved every case this module's own test used to
-        // pin against its now-deleted private `kw_boundary_match_impl`.
+        // `via_clearance::kw_boundary_match` itself -- NOT the call site
+        // `determine_trace_width` uses (that's `kw_boundary_match_hyphen_aware`,
+        // below, as of the hyphen-boundary fix). Pinned here because this
+        // crate's other live caller, `net_class_to_voltage_class`, still
+        // depends on `via_clearance::kw_boundary_match` staying
+        // underscore-only (frozen oracle, see the module-level note).
         use crate::via_clearance::kw_boundary_match;
         assert!(kw_boundary_match("AC_L", &["AC_"]));
         assert!(kw_boundary_match("3V3_HV", &["HV_"]));
@@ -139,6 +222,29 @@ pub(crate) mod tests {
         assert!(kw_boundary_match("GND", &["GND"]));
         assert!(kw_boundary_match("GND_1", &["GND"]));
         assert!(!kw_boundary_match("SIGND", &["GND"]));
+        assert!(!kw_boundary_match("AC-DC", &["AC"])); // hyphen is NOT a boundary here (oracle-pinned)
+    }
+
+    #[cfg_attr(test, test)]
+    fn kw_boundary_match_hyphen_aware_cases() {
+        // Same shape as `kw_boundary_match_cases` above, but for the
+        // hyphen-aware matcher `determine_trace_width` actually uses: every
+        // case that matched with `_` still matches, AND a hyphen now works
+        // identically to an underscore on both sides of the keyword.
+        assert!(kw_boundary_match_hyphen_aware("AC_L", &["AC_"]));
+        assert!(kw_boundary_match_hyphen_aware("GND", &["GND"]));
+        assert!(kw_boundary_match_hyphen_aware("GND_1", &["GND"]));
+        assert!(!kw_boundary_match_hyphen_aware("SIGND", &["GND"]));
+        assert!(!kw_boundary_match_hyphen_aware("HVX", &["HV_"])); // trailing X still not a boundary
+        // The new behavior: hyphen-delimited keywords now match.
+        assert!(kw_boundary_match_hyphen_aware("HB-GND", &["GND"]));
+        assert!(kw_boundary_match_hyphen_aware("HB.GATE_HS-VDD", &["VDD"]));
+        assert!(kw_boundary_match_hyphen_aware("HB.GATE_LS-VDD", &["VDD"]));
+        assert!(kw_boundary_match_hyphen_aware("AC-L", &["AC_"])); // leading boundary via hyphen too
+        assert!(kw_boundary_match_hyphen_aware("PRE-HV-POST", &["HV_"])); // hyphen on both sides
+        // Still no false positive when the keyword sits mid-token with no
+        // separator on either side.
+        assert!(!kw_boundary_match_hyphen_aware("SIGNAL", &["GND"]));
     }
 
     #[cfg_attr(test, test)]
@@ -150,6 +256,41 @@ pub(crate) mod tests {
         assert_eq!(determine_trace_width("SIG_1", 0.1, 0.5, 0.6), (0.1, "Standard signal trace"));
     }
 
+    #[cfg_attr(test, test)]
+    fn determine_trace_width_hyphen_boundary_fix() {
+        // The live defect this fix closes, pinned against the exact real
+        // net names from `elec/build/default.net` (net code 39/`hb-gnd` and
+        // its two half-bridge VDD siblings) and the exact defaults
+        // `assign_trace_widths` uses in production
+        // (`packages/temper-placer/src/temper_placer/router_v6/
+        // trace_width_assignment.py`): a hyphenated power/return net now
+        // gets the power width, not the 5mil signal default.
+        assert_eq!(
+            determine_trace_width("hb-gnd", 0.127, 0.508, 0.635),
+            (0.508, "Power net requires wider trace for current capacity")
+        );
+        assert_eq!(
+            determine_trace_width("hb.gate_hs-vdd", 0.127, 0.508, 0.635),
+            (0.508, "Power net requires wider trace for current capacity")
+        );
+        assert_eq!(
+            determine_trace_width("hb.gate_ls-vdd", 0.127, 0.508, 0.635),
+            (0.508, "Power net requires wider trace for current capacity")
+        );
+        // A net that should stay signal-width still does -- the fix is a
+        // boundary-character widening, not a broadening of which keywords
+        // match. None of these contain a boundary-adjacent HV/POWER/GATE
+        // keyword, hyphenated or not, so they are unaffected.
+        assert_eq!(determine_trace_width("safety.uvlo_logic-line", 0.127, 0.508, 0.635), (0.127, "Standard signal trace"));
+        assert_eq!(determine_trace_width("discharge.k_dis1-coil1", 0.127, 0.508, 0.635), (0.127, "Standard signal trace"));
+        // NOTE: `power_in.bypass_relay-coil1` is NOT a signal-stays-signal
+        // case -- it already matched `POWER` (leading `POWER_IN...` prefix,
+        // boundary via the pre-existing `_`) before this fix, unrelated to
+        // hyphen handling. Left out of this negative list on purpose.
+        assert_eq!(determine_trace_width("hb.power_loop.q_high-g", 0.127, 0.508, 0.635), (0.127, "Standard signal trace"));
+        assert_eq!(determine_trace_width("sig-1", 0.127, 0.508, 0.635), (0.127, "Standard signal trace"));
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -157,7 +298,9 @@ pub(crate) mod tests {
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("trace_width_assignment::tests::kw_boundary_match_cases", kw_boundary_match_cases),
+        ("trace_width_assignment::tests::kw_boundary_match_hyphen_aware_cases", kw_boundary_match_hyphen_aware_cases),
         ("trace_width_assignment::tests::determine_trace_width_precedence", determine_trace_width_precedence),
+        ("trace_width_assignment::tests::determine_trace_width_hyphen_boundary_fix", determine_trace_width_hyphen_boundary_fix),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
