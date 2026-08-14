@@ -628,18 +628,49 @@ def _run_stage4(
     )
     pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
-    if pathfinding_result is None and self.enable_nlayer_astar_spike:
-        # SPIKE PROTOTYPE opt-in (default False; see
-        # RouterV6Pipeline.__init__'s enable_nlayer_astar_spike docstring
-        # and docs/evidence/2026-08-08-nlayer-via-astar-spike.md). Routes
-        # through _astar_nlayer.py's N-layer, via-aware generalization
-        # instead of the production 2-layer-capped path below.
+    # Restrict the grids A* is ever handed to the board's *routable signal*
+    # layers -- the declared-``signal``-role set intersected with the
+    # router's real engine capability (``core.board_layer_roles.
+    # routable_signal_layers_from_path``), not every grid Stage 2 happened
+    # to build. This matters because Stage 2's occupancy-grid construction
+    # (``routing_space.py``) classifies a layer routable from
+    # ``pcb.stackup.layers[*].layer_type in {"signal", "mixed"}``, and on
+    # today's production board (net-batching's ``use_declared_layer_roles=
+    # True`` parse) that MIXED bucket also catches ``In1.Cu``/``In2.Cu`` --
+    # declared ``power`` planes for GND/PWR distribution, not general
+    # signal-routing targets -- purely because nothing is poured on them
+    # yet (see docs/evidence/2026-08-13-router-nlayer-routing.md Sec 3).
+    # Feeding those two straight to A* would let the router place ordinary
+    # signal traces on a plane layer; filtering to the declared-signal set
+    # here is what keeps that from happening while still letting every
+    # declared signal layer (F.Cu, In3.Cu, In4.Cu, B.Cu) through.
+    all_grids = stage2.occupancy_grids or {}
+    routable_layers = _routable_signal_layers_for_pcb(pcb)
+    available_grids = {name: g for name, g in all_grids.items() if name in routable_layers}
+    if not available_grids:
+        # No declared-signal layer got a Stage 2 grid at all (e.g. a
+        # synthetic/test board whose stackup doesn't match the SSOT
+        # accessor's expectations) -- fail open to whatever Stage 2 built
+        # rather than silently routing zero nets, matching this function's
+        # pre-existing behavior for boards outside the production shape.
+        available_grids = all_grids
+
+    use_nlayer = self.enable_nlayer_astar_spike or len(available_grids) > 2
+
+    if pathfinding_result is None and use_nlayer:
+        # Routes through _astar_nlayer.py's N-layer, via-aware
+        # generalization (see docs/evidence/2026-08-08-nlayer-via-astar-spike.md
+        # for its original spike writeup) instead of the legacy
+        # 2-grid-capped path below. Triggered automatically whenever more
+        # than 2 routable signal layers are available -- not just behind
+        # the opt-in ``enable_nlayer_astar_spike`` flag, which callers may
+        # still set explicitly to force this path on a 2-layer board.
         from temper_placer.router_v6._astar_nlayer import (
             run_astar_pathfinding_nlayer,
             select_routing_grids_nlayer,
         )
 
-        nlayer_grids = select_routing_grids_nlayer(stage2.occupancy_grids)
+        nlayer_grids = select_routing_grids_nlayer(available_grids)
         if self.single_layer:
             first_layer = next(iter(nlayer_grids))
             nlayer_grids = {first_layer: nlayer_grids[first_layer]}
@@ -660,7 +691,7 @@ def _run_stage4(
             corridor_buffer_cells=self.corridor_buffer_cells,
         )
     elif pathfinding_result is None:
-        fcu_grid, bcu_grid = select_routing_grids(stage2.occupancy_grids)
+        fcu_grid, bcu_grid = select_routing_grids(available_grids)
 
         pathfinding_result = run_astar_pathfinding(
             channel_mapping,
@@ -681,6 +712,33 @@ def _run_stage4(
         )
 
     return self._run_stage5(pcb, stage2, pathfinding_result)
+
+
+def _routable_signal_layers_for_pcb(pcb: ParsedPCB) -> frozenset[str]:
+    """The board's routable signal layers per the stackup SSOT.
+
+    Reads through ``core.board_layer_roles.routable_signal_layers_from_path``
+    -- the board's own declared ``(layers ...)`` role tokens intersected
+    with :data:`core.board_layer_roles.ENGINE_SUPPORTED_SIGNAL_LAYERS` --
+    rather than any hardcoded layer-name literal, so a stackup edit
+    propagates here automatically. Falls back to the engine-capability set
+    alone when ``pcb`` has no real ``source_path`` on disk (synthetic/test
+    fixtures) or the file can't be parsed for its declared roles.
+    """
+    from temper_placer.core.board_layer_roles import (
+        ENGINE_SUPPORTED_SIGNAL_LAYERS,
+        routable_signal_layers_from_path,
+    )
+
+    source_path = getattr(pcb, "source_path", None)
+    if source_path:
+        try:
+            layers = routable_signal_layers_from_path(source_path)
+            if layers:
+                return frozenset(layers)
+        except (OSError, ValueError):
+            pass
+    return ENGINE_SUPPORTED_SIGNAL_LAYERS
 
 
 def _run_stage5(

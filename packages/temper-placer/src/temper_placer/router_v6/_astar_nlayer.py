@@ -142,18 +142,26 @@ def select_routing_grids_nlayer(
     does not need to (and does not) apply any additional plane-exclusion
     filtering of its own.
 
-    On today's production board that is ``{"F.Cu", "B.Cu"}`` (2 layers;
+    On today's production board (post 2026-08-13 layer-architecture
+    decision) that is ``{"F.Cu", "In3.Cu", "In4.Cu", "B.Cu"}`` (4 layers;
     ``In1.Cu``/``In2.Cu`` are GND/PWR planes per REQ-ELEC-05 and never get
-    an occupancy grid). On a board with more signal layers, every one of
-    them is returned.
+    an occupancy grid passed to this function -- callers are expected to
+    filter ``occupancy_grids`` to the board's routable signal layers, e.g.
+    via ``core.board_layer_roles.routable_signal_layers_from_path``, before
+    calling this). On a board with more signal layers, every one of them
+    is returned.
 
-    Order: ``F.Cu``, ``B.Cu`` first (matching the existing outer-layer
-    preference), then any remaining layers sorted by name -- deterministic
+    Order: the engine-capability ordered tuple
+    (``core.board_layer_roles.ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED``,
+    outer layers first, matching the existing outer-layer preference)
+    first, then any remaining layers sorted by name -- deterministic
     regardless of the input dict's insertion order.
     """
     if not occupancy_grids:
         raise ValueError("No occupancy grid available for A* pathfinding")
-    preferred_order = ["F.Cu", "B.Cu"]
+    from temper_placer.core.board_layer_roles import ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED
+
+    preferred_order = list(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
     ordered_names = [name for name in preferred_order if name in occupancy_grids]
     ordered_names += sorted(name for name in occupancy_grids if name not in ordered_names)
     return {name: occupancy_grids[name] for name in ordered_names}

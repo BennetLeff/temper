@@ -99,18 +99,30 @@ class TestRoutableSignalLayers:
     def test_four_layer_all_signal_layers_are_engine_supported(self):
         assert routable_signal_layers(_FOUR_LAYER_FRAGMENT) == ["F.Cu", "B.Cu"]
 
-    def test_six_layer_new_signal_layers_are_not_yet_routable(self):
-        """The whole point of the engine-support intersection: declaring
-        In3.Cu/In4.Cu signal does not, by itself, make the router capable
-        of routing there -- see the module docstring and the evidence doc
-        Sec 6.4. This must stay {"F.Cu", "B.Cu"} until
-        ENGINE_SUPPORTED_SIGNAL_LAYERS is deliberately widened alongside
-        real occupancy-grid/A* support for the new layers.
+    def test_six_layer_new_signal_layers_are_routable(self):
+        """UNFROZEN 2026-08-13
+        (docs/evidence/2026-08-13-router-nlayer-routing.md): declaring
+        In3.Cu/In4.Cu signal alone would not make the router capable of
+        routing there -- but real occupancy-grid (routing_space.py /
+        occupancy_grid.py, already N-layer generic) and via-aware A*
+        (_astar_nlayer.py, tested) support for exactly these two layers
+        now exists, so ENGINE_SUPPORTED_SIGNAL_LAYERS was widened to match
+        -- see the module docstring's evidence list. In1.Cu/In2.Cu stay
+        excluded: they are declared POWER, not SIGNAL, so
+        signal_layer_names never includes them regardless of engine
+        capability.
         """
-        assert routable_signal_layers(_SIX_LAYER_FRAGMENT) == ["F.Cu", "B.Cu"]
+        assert routable_signal_layers(_SIX_LAYER_FRAGMENT) == [
+            "F.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "B.Cu",
+        ]
 
-    def test_engine_supported_set_is_the_documented_pair(self):
-        assert ENGINE_SUPPORTED_SIGNAL_LAYERS == frozenset({"F.Cu", "B.Cu"})
+    def test_engine_supported_set_is_the_four_signal_layers(self):
+        assert ENGINE_SUPPORTED_SIGNAL_LAYERS == frozenset(
+            {"F.Cu", "In3.Cu", "In4.Cu", "B.Cu"}
+        )
 
 
 class TestIsSignalLayer:
@@ -151,6 +163,13 @@ class TestAgainstTheRealBoard:
         assert roles["In1.Cu"] is LayerRole.POWER
         assert roles["In2.Cu"] is LayerRole.POWER
 
-    def test_real_board_routable_layers_still_two(self):
+    def test_real_board_routable_layers_now_four(self):
+        """UNFROZEN 2026-08-13: the real board declares F.Cu/In3.Cu/In4.Cu/
+        B.Cu signal, and the engine now genuinely supports routing on all
+        four (see ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED's docstring for
+        the evidence) -- so this SSOT accessor's answer for the real,
+        committed board must match, not stay pinned at the pre-2026-08-13
+        pair.
+        """
         content = REAL_BOARD.read_text(encoding="utf-8")
-        assert routable_signal_layers(content) == ["F.Cu", "B.Cu"]
+        assert routable_signal_layers(content) == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
