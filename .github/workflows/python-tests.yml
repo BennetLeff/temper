@@ -2552,6 +2552,24 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_unwired_kernels.py
 
+      # 2026-08-13: `temper-geometry` had two independent `#[pyfunction] pub
+      # fn kw_boundary_match_py` definitions (via_clearance.rs and
+      # trace_width_assignment.rs) both wrap_pyfunction!'d into the same
+      # temper_geometry pymodule -- pyo3's PyModule::add_function is a plain
+      # setattr, so the later registration silently won and the earlier
+      # implementation became unreachable dead code with its own passing
+      # unit tests. Invisible to cargo build/test, to
+      # check_stale_extensions.py (certifies freshness, not per-symbol
+      # implementation-uniqueness), and specifically to
+      # check_unwired_kernels.py just above (its registered_symbols() scan
+      # uses dict.setdefault(), so it silently keeps the first registration
+      # and never notices a second one exists). This gate parses only .rs
+      # source text -- no built extensions needed -- so it runs
+      # unconditionally alongside the other two source-tree scans above.
+      - name: No duplicate pyo3 function/class registration
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_pyo3_duplicate_registration.py
+
       # requirements-ci.txt is baked into the CI image's pre-installed venv
       # (.github/docker/ci.Dockerfile). If it drifts from uv.lock, the image
       # ships a different dependency set than the lockfile declares and jobs
