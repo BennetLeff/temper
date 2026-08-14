@@ -144,6 +144,7 @@ def solve_placement(
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
     validator_input: dict | None = None,
+    auto_pairwise_touch_refs: set[str] | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -266,6 +267,27 @@ def solve_placement(
             unknown) there is no placement to audit -- the skip is logged at
             WARNING, never silent, so an unaudited solve is distinguishable
             from a clean one in the logs.
+        auto_pairwise_touch_refs: Optional restriction on EVERY
+            auto-generated (not explicitly requested) pairwise SEPARATED
+            constraint family -- both the courtyard tau generator and the
+            netclass cross-class generator (issue #504 minimal-disruption
+            follow-up). When given, only pairs where at least one ref is in
+            this set get an auto-generated constraint. ``None`` (default):
+            unrestricted, identical to prior behaviour for every existing
+            caller. This matters specifically for a caller that pins most
+            of the board via ``fixed_positions`` -- absent this filter, a
+            pair where BOTH refs are frozen at their real, unchanged
+            coordinates still gets unconditional courtyard AND netclass
+            constraints, and if that pair already violates either on the
+            real board (measured: 48 courtyard-violating pairs on
+            ``pcb/temper.kicad_pcb`` as of 2026-08-13, none involving the
+            component(s) being placed; netclass cross-class clearances are
+            typically larger and were independently confirmed to trigger
+            the same failure mode), the solve is spuriously infeasible for
+            a reason unrelated to what is actually being placed. See
+            ``_generate_courtyard_separated_constraints`` and
+            ``generate_netclass_separated_constraints``'s docstrings for
+            the full argument.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -338,13 +360,58 @@ def solve_placement(
     margin_units = model_wrapper.mm_to_units(COPPER_EDGE_CLEARANCE_MM)
 
     # Constrain all components to lie within board bounds with edge margin (C2).
+    #
+    # 2026-08-13 (PR #1144 follow-up): restricted to `auto_pairwise_touch_refs`
+    # for the same reason as the courtyard/netclass/NoOverlap2D restrictions
+    # above -- a frozen (fixed_positions) ref's real board position may
+    # already violate this margin (measured: 22 of 168 components on
+    # pcb/temper.kicad_pcb as of 2026-08-13), which is an immediate,
+    # unconditional contradiction with that ref's own frozen-position
+    # equality, independent of anything else in the model. This was the
+    # dominant cause of a reported spurious-UNSAT control-test failure
+    # (an uninvolved component's placement request returning INFEASIBLE
+    # purely because SOME OTHER frozen, unrelated component's real position
+    # sits within/past the edge margin) that survived the courtyard/
+    # netclass/NoOverlap2D fixes alone -- see `CpSatModel.set_bounds`'s
+    # docstring for the full argument.
     model_wrapper.set_bounds(
-        margin_units, margin_units, board_w_units - margin_units, board_h_units - margin_units
+        margin_units,
+        margin_units,
+        board_w_units - margin_units,
+        board_h_units - margin_units,
+        touch_refs=auto_pairwise_touch_refs,
     )
 
     # Wire up NoOverlap2D (redundant global for propagation — per-pair
     # SEPARATED-τ is added during constraint encoding in U2).
-    model_wrapper.add_no_overlap_2d(comp_refs)
+    #
+    # 2026-08-13 (PR #1144 follow-up): this global constraint is added
+    # UNCONDITIONALLY over every ref in *no_overlap_2d_refs* -- unlike the
+    # courtyard/netclass SeparatedConstraint generators (which honour
+    # `auto_pairwise_touch_refs`), it is not even assumption-gated in a way
+    # that actually enforces conditionally (`add_no_overlap_2d`'s returned
+    # assumption literal is registered for labelling but never attached via
+    # `OnlyEnforceIf` to the `AddNoOverlap2D` call itself). For a caller
+    # that pins most of the board via `fixed_positions`, including every
+    # frozen ref here means a pair of two frozen, unrelated components
+    # whose courtyard boxes TRULY overlap at their real committed positions
+    # (measured: 34 such pairs on pcb/temper.kicad_pcb as of 2026-08-13,
+    # none involving the component(s) being placed) makes the model
+    # infeasible for a reason that has nothing to do with what is actually
+    # being solved for -- the same spurious-UNSAT mechanism the courtyard/
+    # netclass filter closes, for the "redundant propagation" global
+    # instead of the per-pair constraints. Restricting the ref list to
+    # `auto_pairwise_touch_refs` when given drops only frozen-vs-frozen
+    # pairs; touch-set-vs-frozen and touch-set-vs-touch-set overlap
+    # avoidance is still fully covered by the (now also `touch_refs`-aware)
+    # per-pair courtyard SeparatedConstraint, which this call was always
+    # documented as merely a redundant propagation aid for.
+    no_overlap_2d_refs = (
+        [r for r in comp_refs if r in auto_pairwise_touch_refs]
+        if auto_pairwise_touch_refs is not None
+        else comp_refs
+    )
+    model_wrapper.add_no_overlap_2d(no_overlap_2d_refs)
 
     # Mains<->SELV physical isolation barrier (opt-in). Must run AFTER every
     # real component is registered (above) — add_isolation_barrier_to_model
@@ -534,6 +601,7 @@ def solve_placement(
         ctx,
         netlist=netlist,
         netclass_rules_data=loaded_netclass_rules,
+        auto_pairwise_touch_refs=auto_pairwise_touch_refs,
     )
 
     # Pad-vs-fixed-copper NoOverlap (issue #523): encode one BoolOr per

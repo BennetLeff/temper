@@ -65,11 +65,23 @@ def generate_netclass_separated_constraints(
     components: list,
     design_rules: DesignRules,
     existing_constraints: list | None = None,
+    touch_refs: set[str] | None = None,
 ) -> list[SeparatedConstraint]:
     """Generate SEPARATED constraints for cross-class component-net pairs.
 
     Only cross-class pairs (different net classes) get explicit constraints.
     Same-class pairs are handled by the existing global NoOverlap2D.
+
+    Args:
+        touch_refs: if given, restricts generation to pairs where at least
+            one ref is in this set -- same "touches" semantics and the same
+            reason as ``_encoder_core._generate_courtyard_separated_constraints``'s
+            own ``touch_refs`` (see that docstring): a caller pinning most
+            of the board via ``fixed_positions`` must not have a pair of
+            two frozen, unrelated components that already violates THIS
+            (typically larger, e.g. 6mm) cross-class clearance turn every
+            solve spuriously infeasible. ``None`` (default): unrestricted,
+            identical to prior behaviour for every existing caller.
     """
     constraints: list[SeparatedConstraint] = []
 
@@ -104,6 +116,8 @@ def generate_netclass_separated_constraints(
     for i in range(len(comp_refs)):
         for j in range(i + 1, len(comp_refs)):
             ra, rb = comp_refs[i], comp_refs[j]
+            if touch_refs is not None and ra not in touch_refs and rb not in touch_refs:
+                continue
             ca, cb = comp_classes[ra], comp_classes[rb]
             if ca == cb:
                 continue
