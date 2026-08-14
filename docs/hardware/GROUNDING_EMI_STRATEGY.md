@@ -150,6 +150,20 @@ assumption going forward. See
 `docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §3 for the full
 disagreement writeup.
 
+**Correction (2026-08-13, layer count):** the board is now 6 layers, not 4 --
+`docs/evidence/2026-08-13-layer-architecture-decision.md`. Two new signal
+layers (`In3.Cu`, `In4.Cu`, both 1 oz) were added flanking the L2/L3 plane
+pair this section describes; L2 and L3 themselves are **unchanged** -- same
+split-domain design, same copper weight, same role. This section's
+grounding architecture (star point, PGND/CGND split, isolation-barrier
+ground treatment) is unaffected by the layer-count change: the two new
+layers carry LV/SELV signal traffic only, by policy, and are not yet
+engine-routable at all (see the evidence doc Sec 5.3/6.4) -- no new ground
+domain, no new return path, and no change to this section's isolation
+analysis. `pcb/temper.kicad_pcb`'s `(layers ...)`/`(setup (stackup ...))`
+blocks are the authoritative declaration of layer count and role; this
+document is not the place that number is tracked.
+
 **Ground Plane Split:**
 
 ```

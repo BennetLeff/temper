@@ -67,12 +67,25 @@ authority:
 # which Sheetpath maps to which Reference). The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- confirmed by
 # hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
+#
+# Re-pinned 2026-08-13 (fix/layer-architecture-ssot, layer-architecture decision
+# docs/evidence/2026-08-13-layer-architecture-decision.md): STALE again --
+# pcb/temper.kicad_pcb changed, but ONLY by extending the (layers ...) block
+# (two new entries, In3.Cu/In4.Cu, role signal) and the (setup (stackup ...))
+# block (two new copper layers + their dielectrics, existing In1.Cu/In2.Cu
+# left byte-identical in role/thickness/position relative to each other) --
+# the same "declaration only, zero component moves" shape as the two prior
+# re-pins above. Confirmed identically: `(at ` line count (897),
+# `(footprint ` count (168), and `Sheetpath` occurrence count (168) are all
+# unchanged before/after this edit. Every alias/unresolved-component board
+# ref above remains verified unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: fb00ab4f90e5b86456a9f89adf7a7d7e2f3b6107
+  measured_at_commit: UNKNOWN
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 5b2ce0f2a79c97be32a9c17e81443c3b473015e0709c6a63dce5b3913ab042ae
+      sha256: 1b15b2747ff55977bd45154e23200c7feaf137e927c4fb9f59d27b2e4c4ade0d
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}

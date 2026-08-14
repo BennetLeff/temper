@@ -62,13 +62,33 @@ change) for the now-authoritative, machine-checkable declaration, and
 `docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §3 for the full
 disagreement writeup.
 
+**Correction (2026-08-13, layer count):** the diagram above and this
+document's title/§1 still describe the 4-layer stack this board shipped with
+before `docs/evidence/2026-08-13-layer-architecture-decision.md`'s decision.
+The board is now 6 layers: two new signal layers (`In3.Cu`, `In4.Cu`) were
+added flanking the plane pair this section describes (`In1.Cu`/`In2.Cu`,
+i.e. L2/L3 below, both **unchanged** -- same role, same copper weight, same
+position relative to each other). The physical order is now F.Cu / In3.Cu
+(new, signal) / In1.Cu (L2, GND) / In2.Cu (L3, PWR) / In4.Cu (new, signal) /
+B.Cu. This document is not redrawn to a 6-layer diagram here -- per this
+repo's SSOT convention (`docs/hardware/FAB_CAPABILITY.md` §"Why JLCPCB, and
+why 2oz matters"), `pcb/temper.kicad_pcb`'s `(layers ...)` /
+`(setup (stackup ...))` blocks are the authoritative, machine-checked
+declaration of layer count, role, and copper weight; this document explains
+*why* the plane pair is designed the way it is, and should be read alongside
+that declaration rather than restating it. See the evidence doc's Sec 6.2
+for the full 6-layer stackup (all copper/dielectric thicknesses, summing to
+the same 1.6mm total).
+
 ### 2.2 Layer Function Summary
 
 | Layer | Name | Copper | Primary Function | Secondary Function |
 |-------|------|--------|------------------|-------------------|
 | L1 | TOP | 2 oz | HV copper pours (DC bus, switch node) | Power components |
+| -- | In3.Cu (new, 2026-08-13) | 1 oz | LV/SELV signal routing only (policy, not yet engine-routable -- see evidence doc Sec 5.3/6.4) | -- |
 | L2 | GND | 1 oz | Ground reference plane | EMI shielding |
 | L3 | PWR | 1 oz | Power distribution (+5V, +3.3V, +15V) | Thermal spreading |
+| -- | In4.Cu (new, 2026-08-13) | 1 oz | LV/SELV signal routing only (policy, not yet engine-routable -- see evidence doc Sec 5.3/6.4) | -- |
 | L4 | BOT | 2 oz | Control signals, digital | Gate drive routing |
 
 ### 2.3 Impedance Characteristics

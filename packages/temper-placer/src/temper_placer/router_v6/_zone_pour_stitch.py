@@ -129,13 +129,38 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
     directly, never going through this function at all -- so the inner
     layer becomes expressible without touching this function's return
     value for any net class.
+
+    CHANGED 2026-08-13 (layer-architecture SSOT,
+    ``docs/evidence/2026-08-13-layer-architecture-decision.md``): the
+    eligible-layer list is now
+    ``core.board_layer_roles.ENGINE_SUPPORTED_SIGNAL_LAYERS`` instead of a
+    second, independently-hardcoded ``["F.Cu", "B.Cu"]`` literal. This
+    function takes no board context (net_name only -- ~9 call sites across
+    this module, ``_net_policy.py``, ``obstacle_map.py``, and
+    ``topology_copper_audit.py`` all call it with just a name), so it
+    cannot safely read a *board's declared* signal-layer set without either
+    threading board context through every one of those sites (out of scope
+    here -- a much larger, separately-risky refactor) or hardcoding a real
+    file path that would silently mis-attribute layer roles for any caller
+    processing a different (e.g. test/synthetic) board. What this call site
+    actually needs is not board-specific anyway: it is a router ENGINE
+    CAPABILITY fact (which layers Stage 2/Stage 4 have grid/pathfinding
+    support for), constant across every board this router processes, not a
+    per-board architecture fact -- so pointing it at the shared, documented,
+    typed constant (still hardcoded, necessarily, but centralized and
+    named instead of tripled) is the correct fix for this specific
+    question, not merely the safe one. See ``board_layer_roles``'s own
+    module docstring for why the *declared-architecture* half of this
+    question (``signal_layer_names``, which DOES read a real board) is a
+    different accessor, used by the utilisation gate instead.
     """
+    from temper_placer.core.board_layer_roles import ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 
     nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
     nc = TEMPER_NET_CLASSES.get(nc_name)
     if nc is not None and nc.routing_strategy in ("plane_required", "plane_preferred"):
-        return ["F.Cu", "B.Cu"]
+        return list(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
     return []
 
 

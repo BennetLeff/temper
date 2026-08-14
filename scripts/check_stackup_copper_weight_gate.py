@@ -80,12 +80,24 @@ REPO_ROOT = find_repo_root()
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 DEFAULT_DERIVATION_DOC = REPO_ROOT / "docs" / "hardware" / "TRACE_WIDTH_CALCULATIONS.md"
 
-# Layer name -> role. Both members of a role must match that role's
-# assumed weight (this also transitively enforces the two outer -- or two
-# inner -- layers agree with each other, since both are compared against
-# the same single assumed-weight figure).
+# Layer name -> role. Every member of a role must match that role's
+# assumed weight (this also transitively enforces every outer -- or every
+# inner -- layer agrees with the others in its role, since all are compared
+# against the same single assumed-weight figure).
+#
+# UPDATED 2026-08-13 (layer-architecture SSOT,
+# docs/evidence/2026-08-13-layer-architecture-decision.md): In3.Cu/In4.Cu
+# added as new declared-signal inner layers (6-layer stackup). They are
+# still copper-weight-checked as INNER layers here, same as the pre-existing
+# In1.Cu/In2.Cu planes -- this gate's role taxonomy is outer-vs-inner
+# COPPER WEIGHT (a fab/current-capacity question), not signal-vs-power
+# ROUTABILITY (a routing-architecture question, now owned by
+# temper_placer.core.board_layer_roles) -- the two are independent axes and
+# this gate only ever checked the former. A signal-role inner layer and a
+# power-role inner layer are both "inner" for copper-weight purposes and
+# both assumed 1oz, matching TRACE_WIDTH_CALCULATIONS.md SS1.
 OUTER_LAYERS = ("F.Cu", "B.Cu")
-INNER_LAYERS = ("In1.Cu", "In2.Cu")
+INNER_LAYERS = ("In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu")
 
 # Parse-rounding tolerance in micrometres. Declared thicknesses in this
 # repo's stackup blocks are written in mm to 3 decimal places (um

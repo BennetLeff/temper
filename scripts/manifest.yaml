@@ -614,6 +614,26 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_layer_utilization_gate.py
+  purpose: 'CI gate: compute declared signal-layer count (temper_placer.core.board_layer_roles,
+    read from pcb/temper.kicad_pcb''s (layers ...) block) against live routing demand (bbox/fill-factor
+    geometry from the real board+netlist, resource_bound.py''s method) and fail closed above a
+    utilization threshold. Reproduces the 1.31-utilization infeasibility PR #1172 measured after a
+    real router failure (40/139 nets, zero legal path) and would have caught it before any router ran
+    -- docs/evidence/2026-08-13-layer-architecture-decision.md. Blocking from introduction (2026-08-13):
+    the real board''s 6-layer declaration (landed the same PR) passes at 0.657.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - sys
 - path: check_manifest_gate.py
   purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
   owner: pipeline
