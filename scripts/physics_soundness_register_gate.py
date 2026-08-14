@@ -260,9 +260,38 @@ def encoder_source_file(encoder_key: str, src_root: Path) -> Path | None:
     return src_root / rel
 
 
+def _is_pure_delegation_reexport(node: ast.AST, symbol: str) -> bool:
+    """True if ``node`` is a top-level ``symbol = <dotted attribute chain>``
+    assignment -- the pure-delegation re-export pattern this repo uses when a
+    pyclass migrates from Python to a pyo3/maturin Rust extension (e.g.
+    ``core/net_types.py``; ``router_v6/constraint_model.py``'s own module
+    docstring names this "the pure-delegation pattern"). The name is real,
+    live, importable code -- it is just bound via assignment rather than a
+    ``class``/``def`` statement, which the plain FunctionDef/ClassDef check
+    above does not recognize on its own.
+
+    Deliberately narrow: only a single ``Name`` target whose value is a bare
+    name or an attribute-chain rooted in one (``_mb.CapacityConstraint``,
+    ``_tdb.model_builder.CapacityConstraint``) counts. This is intentionally
+    unable to be satisfied by a same-named local holding an unrelated literal
+    or call result -- it is not a general "any assignment resolves" carve-out.
+    """
+    if not isinstance(node, ast.Assign):
+        return False
+    if len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
+        return False
+    if node.targets[0].id != symbol:
+        return False
+    value = node.value
+    while isinstance(value, ast.Attribute):
+        value = value.value
+    return isinstance(value, ast.Name)
+
+
 def encoder_resolves(encoder_key: str, src_root: Path) -> tuple[bool, str]:
-    """True if the encoder key resolves to a real function/class in a real
-    file under ``src_root``.  Returns (ok, detail)."""
+    """True if the encoder key resolves to a real function/class -- or a real
+    pure-delegation re-export of one (see ``_is_pure_delegation_reexport``)
+    -- in a real file under ``src_root``.  Returns (ok, detail)."""
     src_file = encoder_source_file(encoder_key, src_root)
     if src_file is None or not src_file.exists():
         return False, f"encoder source file not found for {encoder_key}"
@@ -270,9 +299,12 @@ def encoder_resolves(encoder_key: str, src_root: Path) -> tuple[bool, str]:
         tree = ast.parse(src_file.read_text(), filename=str(src_file))
     except SyntaxError as exc:
         return False, f"encoder source unparseable: {src_file}: {exc}"
+    symbol = encoder_key.rpartition(".")[2]
     for node in tree.body:
-        if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name == encoder_key.rpartition(".")[2]:
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name == symbol:
             return True, str(src_file)
+        if _is_pure_delegation_reexport(node, symbol):
+            return True, f"{src_file} (pure-delegation re-export, e.g. a Rust migration)"
     return False, f"encoder symbol not found in {src_file}"
 
 
