@@ -371,6 +371,107 @@ def _path_length_3d(segments: list[tuple[float, float, str]]) -> float:
     )
 
 
+# Measured 2026-08-14 (docs/evidence/2026-08-14-router-pad-layer-landing.md):
+# feeding the N-layer engine a board whose netclass SSOT assigns a net's
+# *working* layer (e.g. GateDriveSELV/GateDriveHV's ``layer: "B.Cu"``,
+# channel_mapping._assign_layer) independent of which layer that net's own
+# footprints were actually placed on (this board places every SMD part on
+# F.Cu) reproduces the b39b382d fake-completion shape: Tier 1's same-layer
+# 2D search has no notion of "does this XY correspond to a real pad on THIS
+# layer" -- an SMD pad leaves no obstacle on a layer it has no copper on, so
+# Tier 1 walks straight to the pad's exact (x, y) on the WRONG layer and
+# calls it arrival, and because Tier 1 "succeeded" tiers 2/3 (the only tiers
+# that ever place a via) never run. 71 nets on the real board reproduce this;
+# 9 of them (2-pad, pad_count==2, e.g. GATE_HS/PWM_HS/PWM_LS/sclk/RTD_SDI)
+# were confirmed by direct coordinate audit: the emitted copper's endpoint
+# sits exactly on the pad's (x, y), on a layer that pad has no copper on, no
+# via anywhere in the net.
+FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED = "pad_layer_landing_blocked"
+
+
+def _land_route_on_pad_layers(
+    net_name: str,
+    route_path: RoutePath3D,
+    pad_centers_per_net: dict[str, list[tuple[float, float, float, str]]],
+    grids: dict[str, OccupancyGrid],
+    tolerance_mm: float = 0.05,
+) -> RoutePath3D | None:
+    """Insert a landing via wherever the route's own first/last emitted
+    point sits exactly on a net pad's (x, y) but on a layer that pad has no
+    copper on -- the exact defect this module's docstring above measures.
+
+    A no-op (returns ``route_path`` unchanged) whenever both route termini
+    already land on their pad's real layer -- true for the large majority
+    of nets, and for every existing ``_astar_nlayer``/``run_astar_pathfinding_nlayer``
+    unit test, none of which pass ``pcb=`` (so ``pad_centers_per_net`` is
+    always empty there and this function is never reached by them).
+
+    Fails closed (returns ``None``) when the pad's own layer is not free at
+    that exact point (already claimed by an earlier-routed net) -- this
+    function must never write copper that then collides with something
+    else's copper to make a completion counter look better; a net this
+    happens to belongs in ``failed_nets``, not ``routed_paths``.
+
+    THT/``ALL_LAYERS`` terminals (layer containing ``"All"``/``"*.Cu"``/
+    ``"Through"``) are left alone: a via lands on every layer already,
+    there is no "wrong layer" for a through-hole pad.
+    """
+    pads = pad_centers_per_net.get(net_name) or []
+    if not pads or not route_path.segments:
+        return route_path
+
+    def _pad_layer_at(x: float, y: float) -> str | None:
+        for px, py, _radius, layer in pads:
+            if abs(px - x) > tolerance_mm or abs(py - y) > tolerance_mm:
+                continue
+            if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer:
+                return None  # THT: nothing to correct
+            return layer
+        return None
+
+    def _layer_free_at(x: float, y: float, layer: str) -> bool:
+        grid = grids.get(layer)
+        if grid is None:
+            return False
+        gx, gy = grid.world_to_grid(x, y)
+        return grid.is_free(gx, gy)
+
+    segments = list(route_path.segments)
+    via_positions = list(route_path.via_positions)
+    changed = False
+
+    x0, y0, layer0 = segments[0]
+    pad_layer_start = _pad_layer_at(x0, y0)
+    if pad_layer_start is not None and pad_layer_start != layer0:
+        if not _layer_free_at(x0, y0, pad_layer_start):
+            return None
+        segments.insert(0, (x0, y0, pad_layer_start))
+        via_positions.insert(0, (x0, y0))
+        changed = True
+
+    xn, yn, layern = segments[-1]
+    pad_layer_end = _pad_layer_at(xn, yn)
+    if pad_layer_end is not None and pad_layer_end != layern:
+        if not _layer_free_at(xn, yn, pad_layer_end):
+            return None
+        segments.append((xn, yn, pad_layer_end))
+        via_positions.append((xn, yn))
+        changed = True
+
+    if not changed:
+        return route_path
+
+    return RoutePath3D(
+        net_name=route_path.net_name,
+        segments=segments,
+        via_positions=via_positions,
+        path_length=route_path.path_length,
+        via_count=len(via_positions),
+        forced_segment_count=route_path.forced_segment_count,
+        failed_waypoint_indices=route_path.failed_waypoint_indices,
+    )
+
+
 def run_astar_pathfinding_nlayer(
     channel_mapping: ChannelMapping,
     grids: dict[str, OccupancyGrid],
@@ -488,6 +589,22 @@ def run_astar_pathfinding_nlayer(
             allow_forced_segments=_allow_forced_segments(net_name, design_rules, False),
         )
         fallback_count += fb
+
+        landing_blocked = False
+        if route_path and route_path.forced_segment_count == 0:
+            # Must run BEFORE _restore_net_pads: the pad's own-layer grid
+            # cells are only unblocked (static -1 -> free 0) between
+            # _unblock_net_pads above and _restore_net_pads below. Checking
+            # after restoration would see every never-traversed pad cell
+            # reset back to -1 and fail every landing closed, not just the
+            # genuine collisions.
+            landed = _land_route_on_pad_layers(net_name, route_path, pad_centers_per_net, grids)
+            if landed is None:
+                landing_blocked = True
+                route_path = None
+            else:
+                route_path = landed
+
         _restore_net_pads(restoration)
 
         ripped_ids: list[int] = []
@@ -514,6 +631,8 @@ def run_astar_pathfinding_nlayer(
             )
             return True, "", [], None, None
 
+        if landing_blocked:
+            return False, FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED, [], congestion_region(), None
         return False, "no_path", [], congestion_region(), None
 
     def attempt_route_fail_closed(net_name: str):
