@@ -8,8 +8,12 @@ to sync pcb/temper.kicad_pro against design_rules.py's TEMPER_NET_CLASSES
 but only ever touched netclass_assignments (which net maps to which
 class); neither PR, and no gate before this one, ever compared a class's
 own parameter values (clearance, trace width, via diameter, via drill)
-between the two tables. ``HighVoltage.clearance`` disagrees on
-``origin/main`` right now: 6.0 (design_rules.py) vs. 2.0 (kicad_pro).
+between the two tables. ``HighVoltage.clearance`` disagreed on
+``origin/main`` when this gate was added: 6.0 (design_rules.py) vs. 2.0
+(kicad_pro) -- reconciled 2026-08-12 (docs/evidence/
+2026-08-12-netclass-param-reconciliation.md); see ``TestRealRepoIntegration``
+below, which pins the now-clean state. The gate itself is unchanged and
+still runs BLOCKING in CI (continue-on-error removed once it went clean).
 
 ``run()`` accepts ``net_classes`` / ``kicad_pro_classes`` overrides for
 exactly the reason ``check_hv_netclass_coverage.py``'s own tests use the
@@ -28,10 +32,10 @@ Four groups:
    classes shared by name.
 3. ``TestHelperUnits`` -- unit tests for the pure helper functions.
 4. ``TestRealRepoIntegration`` -- the gate's verdict against the actual
-   repo as of this commit is a VIOLATION (not a tool error, not a false
-   clean) -- pins the exact 5 mismatches this task discovered, so a future
-   fix to any one of them must touch this test too, not silently go
-   green.
+   repo as of this commit is CLEAN (the 5 mismatches this task discovered
+   were reconciled 2026-08-12) -- pins the clean state, so a future
+   regression on any one of those 5 fields must touch this test too, not
+   silently go undetected.
 """
 
 from __future__ import annotations

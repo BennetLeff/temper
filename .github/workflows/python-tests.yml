@@ -2139,6 +2139,25 @@ jobs:
         # so it does not block this gate).
         run: uv run python scripts/check_netclass_class_param_correspondence.py
 
+      # --- CI-survey advisory/blocking drift gate (2026-08-13 inert-code
+      # audit) --- gate_input_registry._CI_SCRIPT_SURVEY bills itself as the
+      # single source of truth for this file's gate wiring, and its
+      # "advisory (continue-on-error)" / "BLOCKING" reason text is a
+      # falsifiable claim about the step below (and every other correspondence
+      # gate's step) that nothing checked. It already drifted once: the
+      # entry above (Net-class parameter correspondence gate) still read
+      # "advisory ... currently VIOLATION" after this exact step went
+      # BLOCKING on 2026-08-12. BLOCKING from the start: it is source/prose
+      # scanning only, needs no built board, and is green on introduction.
+
+      - name: CI-survey advisory/blocking drift gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_ci_survey_advisory_drift.py -v --tb=short
+
+      - name: CI-survey advisory/blocking drift gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_ci_survey_advisory_drift.py
+
       - name: Router clearance floor gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_router_clearance_floor.py -v --tb=short

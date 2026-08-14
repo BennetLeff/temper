@@ -628,11 +628,19 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # from each script's scripts/manifest.yaml entry, which was kept current.
     ("check_corpus_fixture_realboard_divergence.py", "power_pcb_dataset/corpus/manifest.yaml", "corpus-fixture <-> real-board divergence gate (2026-08-11 golden-fixture decision); probe harness deferred"),
     ("check_layer_plane_emission_coverage.py", "pcb/temper.kicad_pcb", "declared <-> emitted layer-plane coverage gate; advisory (continue-on-error) pending the underlying In1.Cu/In2.Cu fix; probe harness deferred"),
-    ("check_netclass_class_param_correspondence.py", "pcb/temper.kicad_pro", "netclass scalar-parameter correspondence gate; advisory (continue-on-error); currently VIOLATION on origin/main (HighVoltage.clearance mismatch); probe harness deferred"),
+    ("check_netclass_class_param_correspondence.py", "pcb/temper.kicad_pro", "netclass scalar-parameter correspondence gate; BLOCKING as of 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md) -- all 5 field mismatches (HighVoltage.clearance + 4 Power-class fields) reconciled, continue-on-error removed from the CI step; probe harness deferred"),
     ("check_netclass_map_board_correspondence.py", "pcb/temper.kicad_pcb", "hand-maintained net_classes: YAML <-> board net-name correspondence gate; probe harness deferred"),
     ("check_pcl_config_board_correspondence.py", "packages/temper-placer/configs/constraints/temper_induction_cooker.yaml", "PCL placement-constraint config <-> board correspondence gate; advisory (continue-on-error) pending the config fix; probe harness deferred"),
     ("check_pd2_compartment_evidence.py", "docs/specs/pd2_compartment_evidence.yaml", "PD2/8.0mm creepage compartment-evidence gate; advisory (continue-on-error) pending the compartment being built; probe harness deferred"),
     ("check_venv_integrity.py", "", "venv editable-install identity gate (2026-08-11 shared-venv-hijack incident); source/site-packages scan; probe harness deferred"),
+    # 2026-08-13 inert-code audit: this survey's own "advisory"/"BLOCKING"
+    # prose drifted from the real workflow wiring at least once (this
+    # entry's own check_netclass_class_param_correspondence.py neighbor
+    # above, caught and fixed in the same changeset) -- see
+    # check_ci_survey_advisory_drift.py's module docstring for the measured
+    # before/after. This script is the mechanical check that catches the
+    # next one; it scans this file, so it is self-covering by construction.
+    ("check_ci_survey_advisory_drift.py", "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py", "CI-survey status-claim vs. workflow-wiring drift checker (this file's own advisory/BLOCKING reason text vs. each script's real continue-on-error state); source-tree + workflow scan; probe is the check itself. BLOCKING from the start (no continue-on-error on its own CI step)."),
 ]
 
 
