@@ -88,6 +88,7 @@ from typing import TYPE_CHECKING
 from temper_placer.router_v6._astar_ordering import _compute_net_order
 from temper_placer.router_v6._astar_search import (
     _SEGMENT_3D_FALLBACK_MAX_ITER,
+    _has_safe_partial_geometry,
     _in_bounds,
     _segment_search,
 )
@@ -192,6 +193,8 @@ def _astar_route_nlayer(
     design_rules: DesignRules | None = None,
     allow_forced_segments: bool = True,
     segment_3d_fallback_max_iter: int = _SEGMENT_3D_FALLBACK_MAX_ITER,
+    pad_layer_start: str | None = None,
+    pad_layer_end: str | None = None,
 ) -> tuple[RoutePath3D | None, int]:
     """Route one net's waypoint chain across an arbitrary number of layers.
 
@@ -221,6 +224,33 @@ def _astar_route_nlayer(
     production cost on a 2-layer board, and keeps the *additional* cost
     of more layers bounded by how often tiers 1-2 fail, not by state
     space size on every segment.
+
+    ``pad_layer_start``/``pad_layer_end`` (2026-08-14, docs/evidence/
+    2026-08-14-router-primary-grid-selection-fix.md): the net's own real
+    pad layer at the OVERALL route's first/last waypoint, when known and
+    routable (looked up by the caller from the board's actual pad
+    positions, independent of the netclass-SSOT ``preferred_layer``).
+    ``primary_grid`` (the SSOT/heuristic working layer) still governs
+    Tier 1's search and every mid-route Tier-2 continuity anchor -- this
+    intentionally keeps honouring the netclass's declared copper-weight/
+    routing-convention intent for the body of the route, and for any net
+    whose Tier 1 search succeeds outright (the common case; the pad-layer
+    landing fix -- ``_land_route_on_pad_layers`` -- corrects that case's
+    endpoints with a via after the fact). What changes here is narrower:
+    the anchor layer used at the route's OWN start/end point (never a
+    midpoint another segment continues from) falls back to the pad's real
+    layer instead of blindly re-using ``primary_grid.layer_name`` there.
+    That anchor point has nothing "before"/"after" it to stay continuous
+    with -- it IS the pad -- so anchoring it to a layer the pad has no
+    copper on is never useful, only ever a defect: it is exactly the
+    mechanism that made ``cs_n``/``sdo``/``RTD_DRDY`` still fake-complete
+    after the landing-via fix (Tier 2 anchored its own via at the pad's
+    (x, y) using the wrong ``primary_grid`` layer, and the landing fix's
+    later, separate via at the same point produced three layers stacked
+    on one coordinate -- more than ``via_layer_pair`` can resolve). Fixing
+    the anchor here means Tier 2 never creates that collision, so the
+    landing fix becomes a no-op at that point (it already is correct) and
+    no via ever needs to be reconciled with another via at the same spot.
     """
     waypoints = channel_path.waypoints
     if len(waypoints) < 2 or not grids:
@@ -229,6 +259,20 @@ def _astar_route_nlayer(
     preferred_layer = getattr(channel_path, "preferred_layer", None)
     primary_grid = grids.get(preferred_layer) or next(iter(grids.values()))
     other_grids = [g for name, g in grids.items() if name != primary_grid.layer_name]
+
+    # The route's own start/end anchor layer: the net's real pad layer when
+    # known and this board actually has a routing grid for it, else the same
+    # primary_grid fallback as always. See the docstring above for why this
+    # is scoped to just the two route-boundary anchors, not primary_grid
+    # itself (which stays SSOT-driven for the search and for mid-route
+    # continuity).
+    effective_start_layer = (
+        pad_layer_start if pad_layer_start and pad_layer_start in grids else primary_grid.layer_name
+    )
+    effective_end_layer = (
+        pad_layer_end if pad_layer_end and pad_layer_end in grids else primary_grid.layer_name
+    )
+    last_segment_index = len(waypoints) - 2
 
     detailed_segments: list[tuple[float, float, str]] = []
     via_positions: list[tuple[float, float]] = []
@@ -290,7 +334,7 @@ def _astar_route_nlayer(
             alt_layer = alt_grid.layer_name
             alt_tolerance = grid_quantization_tolerance(alt_grid.cell_size)
             if i == 0:
-                detailed_segments.append((start_world[0], start_world[1], primary_grid.layer_name))
+                detailed_segments.append((start_world[0], start_world[1], effective_start_layer))
             # Real via (layer change at identical x, y) -- never merged by
             # append_grid_path_point/append_exact_terminal_point, which
             # only ever collapse same-layer near-duplicates.
@@ -301,7 +345,13 @@ def _astar_route_nlayer(
             append_exact_terminal_point(
                 detailed_segments, (goal_world[0], goal_world[1], alt_layer), alt_tolerance
             )
-            detailed_segments.append((goal_world[0], goal_world[1], primary_grid.layer_name))
+            # Anchor back to primary for continuity into the NEXT segment --
+            # except at the route's own last waypoint, which has no "next
+            # segment" to stay continuous with and must anchor on the pad's
+            # real layer instead (see this function's docstring on
+            # effective_end_layer).
+            end_anchor_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+            detailed_segments.append((goal_world[0], goal_world[1], end_anchor_layer))
             via_positions.extend((start_world, goal_world))
             routed_on_alt = True
             break
@@ -310,11 +360,13 @@ def _astar_route_nlayer(
 
         # Tier 3: full N-layer via-aware 3D search across every grid.
         net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
+        tier3_start_layer = effective_start_layer if i == 0 else primary_grid.layer_name
+        tier3_goal_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
         result_3d = _route_segment_3d(
             start_world,
             goal_world,
-            primary_grid.layer_name,
-            primary_grid.layer_name,
+            tier3_start_layer,
+            tier3_goal_layer,
             grids,
             via_cost=10.0,
             # Fallback 0.6 -> 0.9mm 2026-08-13, same fab-floor fix as the
@@ -349,8 +401,9 @@ def _astar_route_nlayer(
         forced_segments += 1
         failed_waypoint_indices.append(i + 1)
         if i == 0:
-            detailed_segments.append((start_world[0], start_world[1], primary_grid.layer_name))
-        detailed_segments.append((goal_world[0], goal_world[1], primary_grid.layer_name))
+            detailed_segments.append((start_world[0], start_world[1], effective_start_layer))
+        forced_end_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+        detailed_segments.append((goal_world[0], goal_world[1], forced_end_layer))
 
     path_length = _path_length_3d(detailed_segments)
     return RoutePath3D(
@@ -389,6 +442,114 @@ def _path_length_3d(segments: list[tuple[float, float, str]]) -> float:
 FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED = "pad_layer_landing_blocked"
 
 
+def _pad_layer_at_point(
+    pads: list[tuple[float, float, float, str]],
+    x: float,
+    y: float,
+    tolerance_mm: float = 0.05,
+) -> str | None:
+    """The net's own pad layer at world point ``(x, y)``, or ``None`` when no
+    pad of this net's own ``pads`` list matches, or the matching pad is
+    THT/``ALL_LAYERS`` (layer containing ``"All"``/``"*.Cu"``/``"Through"``
+    -- a via lands on every layer already, so there is no single "wrong
+    layer" to report for a through-hole pad).
+
+    Shared by ``_land_route_on_pad_layers`` (the post-route landing-via
+    correction) and ``run_astar_pathfinding_nlayer``'s per-net driver (the
+    primary_grid / route-boundary-anchor selection fix, docs/evidence/
+    2026-08-14-router-primary-grid-selection-fix.md) -- one lookup, two
+    call sites, so they cannot silently drift out of agreement about what
+    "this net's own pad layer at this point" means.
+    """
+    for px, py, _radius, layer in pads:
+        if abs(px - x) > tolerance_mm or abs(py - y) > tolerance_mm:
+            continue
+        if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer:
+            return None  # THT: nothing to correct
+        return layer
+    return None
+
+
+def _attempt_pad_layer_landing(
+    net_name: str,
+    route_path: RoutePath3D,
+    pad_centers_per_net: dict[str, list[tuple[float, float, float, str]]],
+    grids: dict[str, OccupancyGrid],
+    tolerance_mm: float = 0.05,
+) -> tuple[RoutePath3D, tuple[str, ...]]:
+    """Core landing-via attempt: insert a via at whichever of the route's
+    own first/last emitted points sits exactly on a net pad's (x, y) but on
+    a layer that pad has no copper on -- the exact defect this module's
+    docstring above measures. Returns ``(attempted_route, blocked_ends)``.
+
+    ``attempted_route`` always carries a landing via for every terminus
+    whose pad-layer correction succeeded (or was unnecessary), and is left
+    with its ORIGINAL, wrong-layer point for any terminus in
+    ``blocked_ends`` ("start" and/or "end") -- a terminus whose pad's own
+    layer was not free at that exact point (already claimed by an
+    earlier-routed net). ``attempted_route`` must never be treated as a
+    genuine completion when ``blocked_ends`` is non-empty: the whole point
+    of the fail-closed contract this function's callers honour is that
+    copper claiming to reach a pad it does not actually reach must never
+    ship. It exists so a caller that wants an honest partial-route
+    diagnostic (a net-level decline that still remembers what was
+    legitimately computed, rather than discarding it outright -- see
+    ``run_astar_pathfinding_nlayer``'s ``partial_paths`` handling) has
+    something concrete to record.
+    """
+    pads = pad_centers_per_net.get(net_name) or []
+    if not pads or not route_path.segments:
+        return route_path, ()
+
+    def _layer_free_at(x: float, y: float, layer: str) -> bool:
+        grid = grids.get(layer)
+        if grid is None:
+            return False
+        gx, gy = grid.world_to_grid(x, y)
+        return grid.is_free(gx, gy)
+
+    segments = list(route_path.segments)
+    via_positions = list(route_path.via_positions)
+    changed = False
+    blocked: list[str] = []
+
+    x0, y0, layer0 = segments[0]
+    pad_layer_start = _pad_layer_at_point(pads, x0, y0, tolerance_mm)
+    if pad_layer_start is not None and pad_layer_start != layer0:
+        if _layer_free_at(x0, y0, pad_layer_start):
+            segments.insert(0, (x0, y0, pad_layer_start))
+            via_positions.insert(0, (x0, y0))
+            changed = True
+        else:
+            blocked.append("start")
+
+    # segments[-1] may have shifted if the start insertion happened above --
+    # index from the end, not a stale pre-insertion offset.
+    xn, yn, layern = segments[-1]
+    pad_layer_end = _pad_layer_at_point(pads, xn, yn, tolerance_mm)
+    if pad_layer_end is not None and pad_layer_end != layern:
+        if _layer_free_at(xn, yn, pad_layer_end):
+            segments.append((xn, yn, pad_layer_end))
+            via_positions.append((xn, yn))
+            changed = True
+        else:
+            blocked.append("end")
+
+    if not changed:
+        return route_path, tuple(blocked)
+
+    attempted = RoutePath3D(
+        net_name=route_path.net_name,
+        segments=segments,
+        via_positions=via_positions,
+        path_length=route_path.path_length,
+        via_count=len(via_positions),
+        forced_segment_count=route_path.forced_segment_count,
+        failed_waypoint_indices=route_path.failed_waypoint_indices,
+    )
+    return attempted, tuple(blocked)
+
+
 def _land_route_on_pad_layers(
     net_name: str,
     route_path: RoutePath3D,
@@ -415,61 +576,18 @@ def _land_route_on_pad_layers(
     THT/``ALL_LAYERS`` terminals (layer containing ``"All"``/``"*.Cu"``/
     ``"Through"``) are left alone: a via lands on every layer already,
     there is no "wrong layer" for a through-hole pad.
+
+    A thin, contract-preserving wrapper around ``_attempt_pad_layer_landing``
+    -- see that function for the shared logic and for the (route, blocked)
+    pair a caller wanting a partial-route diagnostic on decline should call
+    directly instead of this wrapper.
     """
-    pads = pad_centers_per_net.get(net_name) or []
-    if not pads or not route_path.segments:
-        return route_path
-
-    def _pad_layer_at(x: float, y: float) -> str | None:
-        for px, py, _radius, layer in pads:
-            if abs(px - x) > tolerance_mm or abs(py - y) > tolerance_mm:
-                continue
-            if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer:
-                return None  # THT: nothing to correct
-            return layer
-        return None
-
-    def _layer_free_at(x: float, y: float, layer: str) -> bool:
-        grid = grids.get(layer)
-        if grid is None:
-            return False
-        gx, gy = grid.world_to_grid(x, y)
-        return grid.is_free(gx, gy)
-
-    segments = list(route_path.segments)
-    via_positions = list(route_path.via_positions)
-    changed = False
-
-    x0, y0, layer0 = segments[0]
-    pad_layer_start = _pad_layer_at(x0, y0)
-    if pad_layer_start is not None and pad_layer_start != layer0:
-        if not _layer_free_at(x0, y0, pad_layer_start):
-            return None
-        segments.insert(0, (x0, y0, pad_layer_start))
-        via_positions.insert(0, (x0, y0))
-        changed = True
-
-    xn, yn, layern = segments[-1]
-    pad_layer_end = _pad_layer_at(xn, yn)
-    if pad_layer_end is not None and pad_layer_end != layern:
-        if not _layer_free_at(xn, yn, pad_layer_end):
-            return None
-        segments.append((xn, yn, pad_layer_end))
-        via_positions.append((xn, yn))
-        changed = True
-
-    if not changed:
-        return route_path
-
-    return RoutePath3D(
-        net_name=route_path.net_name,
-        segments=segments,
-        via_positions=via_positions,
-        path_length=route_path.path_length,
-        via_count=len(via_positions),
-        forced_segment_count=route_path.forced_segment_count,
-        failed_waypoint_indices=route_path.failed_waypoint_indices,
+    attempted, blocked = _attempt_pad_layer_landing(
+        net_name, route_path, pad_centers_per_net, grids, tolerance_mm
     )
+    if blocked:
+        return None
+    return attempted
 
 
 def run_astar_pathfinding_nlayer(
@@ -509,6 +627,27 @@ def run_astar_pathfinding_nlayer(
     failed_nets_set: set[str] = set()
     failure_reports: dict[str, RoutingFailureReport] = {}
     blocker_history: dict[str, set[str]] = {}
+    # Task 2 (docs/evidence/2026-08-14-router-primary-grid-selection-fix.md):
+    # a net-level decline that still has legitimately computed geometry --
+    # a landing via blocked at one endpoint, or a forced-segment refusal
+    # partway through a long multi-waypoint chain -- keeps that geometry
+    # here rather than discarding it outright. Mirrors the SAME pattern
+    # ``_astar_reconstruct.py``'s tree-route path already uses for its own
+    # partial declines (``_has_safe_partial_geometry`` gate, ``partial_paths``
+    # -> ``RoutingResults.partial_routes``): NEVER written to the board
+    # (``_write_routes_to_content`` only ever reads ``compiled_routes``,
+    # built from ``routed_paths``/``routed`` completions) and NEVER counted
+    # toward ``success_count`` (which sums only ``routed_paths``/
+    # ``tree_routes``) -- a diagnostic record, not a second copper channel.
+    partial_paths: dict[str, RoutePath3D] = {}
+    # Visibility counter (this task's "make the disagreement visible"
+    # requirement): how many net endpoints had a netclass-SSOT
+    # ``preferred_layer`` that disagreed with the net's own real pad layer,
+    # and were anchored on the pad's real layer instead. Never silently
+    # folded into either "success" or "failure" -- most of these nets still
+    # route and land correctly; this only reports how often the SSOT and
+    # the physical board disagreed, not whether the net worked.
+    layer_divergence_count = 0
 
     # Note: unlike the production run_astar_pathfinding, THT pad locations
     # are not collected here -- tier 2 (whole-segment layer detour) has no
@@ -536,10 +675,36 @@ def run_astar_pathfinding_nlayer(
     fallback_count = 0
 
     def attempt_route(net_name: str):
-        nonlocal fallback_count
+        nonlocal fallback_count, layer_divergence_count
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
         primary_grid_for_budget = grids.get(channel_path.preferred_layer) or next(iter(grids.values()))
+
+        # Root-cause fix (Task 1, docs/evidence/
+        # 2026-08-14-router-primary-grid-selection-fix.md): the net's own
+        # real pad layer at the route's overall start/end, looked up from
+        # the board's actual pad positions BEFORE any search runs. Passed
+        # through to _astar_route_nlayer so Tier 2/3 anchor the route's own
+        # boundary points on the pad's real layer instead of blindly
+        # re-using the netclass-SSOT preferred_layer there -- see that
+        # function's docstring for why this is scoped to just the two
+        # route-boundary anchors, not primary_grid itself.
+        pads_for_net = pad_centers_per_net.get(net_name) or []
+        pad_layer_start = pad_layer_end = None
+        if pads_for_net and channel_path.waypoints:
+            sx, sy = channel_path.waypoints[0]
+            ex, ey = channel_path.waypoints[-1]
+            pad_layer_start = _pad_layer_at_point(pads_for_net, sx, sy)
+            pad_layer_end = _pad_layer_at_point(pads_for_net, ex, ey)
+            for end_name, pad_layer in (("start", pad_layer_start), ("end", pad_layer_end)):
+                if pad_layer is not None and pad_layer != channel_path.preferred_layer:
+                    layer_divergence_count += 1
+                    logger.info(
+                        "net %r: netclass-SSOT preferred_layer=%r disagrees with the "
+                        "%s pad's own layer=%r; anchoring that route endpoint on the "
+                        "pad's real layer instead of the SSOT layer.",
+                        net_name, channel_path.preferred_layer, end_name, pad_layer,
+                    )
 
         # Same per-net elliptical iteration-budget derivation as production
         # run_astar_pathfinding (_astar_reconstruct.py:189-201) -- NOT just
@@ -587,10 +752,13 @@ def run_astar_pathfinding_nlayer(
             net_id=net_id,
             design_rules=design_rules,
             allow_forced_segments=_allow_forced_segments(net_name, design_rules, False),
+            pad_layer_start=pad_layer_start,
+            pad_layer_end=pad_layer_end,
         )
         fallback_count += fb
 
         landing_blocked = False
+        landing_blocked_ends: tuple[str, ...] = ()
         if route_path and route_path.forced_segment_count == 0:
             # Must run BEFORE _restore_net_pads: the pad's own-layer grid
             # cells are only unblocked (static -1 -> free 0) between
@@ -598,12 +766,26 @@ def run_astar_pathfinding_nlayer(
             # after restoration would see every never-traversed pad cell
             # reset back to -1 and fail every landing closed, not just the
             # genuine collisions.
-            landed = _land_route_on_pad_layers(net_name, route_path, pad_centers_per_net, grids)
-            if landed is None:
+            attempted, blocked_ends = _attempt_pad_layer_landing(
+                net_name, route_path, pad_centers_per_net, grids
+            )
+            if blocked_ends:
+                # Task 2: net-level decline stays net-level (this net's
+                # copper must never claim a pad it does not reach -- see
+                # this module's FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED
+                # docstring history), but the geometry that WAS legitimately
+                # computed (every segment, plus a landing via at whichever
+                # end succeeded) is preserved as a partial-route diagnostic
+                # rather than discarded outright -- never written to the
+                # board, never counted as a completion (see partial_paths's
+                # docstring above).
                 landing_blocked = True
+                landing_blocked_ends = blocked_ends
+                if _has_safe_partial_geometry(attempted):
+                    partial_paths[net_name] = attempted
                 route_path = None
             else:
-                route_path = landed
+                route_path = attempted
 
         _restore_net_pads(restoration)
 
@@ -620,6 +802,16 @@ def run_astar_pathfinding_nlayer(
 
         if route_path:
             if route_path.forced_segment_count > 0:
+                # Same partial-route preservation as the landing-blocked
+                # path above, for the OTHER net-level decline shape
+                # (Tier 1-3 all failed partway through a multi-waypoint
+                # chain): keep whatever prefix of real, A*-searched geometry
+                # was computed before the failure, as a diagnostic only --
+                # _has_safe_partial_geometry rejects a forced/fabricated
+                # edge, matching the exact gate _astar_reconstruct.py's
+                # tree-route path already uses for this same shape.
+                if _has_safe_partial_geometry(route_path):
+                    partial_paths[net_name] = route_path
                 return _forced_segment_decline([], congestion_region())
             routed_paths[net_name] = route_path
             _mark_route_blocked(
@@ -632,7 +824,8 @@ def run_astar_pathfinding_nlayer(
             return True, "", [], None, None
 
         if landing_blocked:
-            return False, FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED, [], congestion_region(), None
+            reason = f"{FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED}:{','.join(landing_blocked_ends)}"
+            return False, reason, [], congestion_region(), None
         return False, "no_path", [], congestion_region(), None
 
     def attempt_route_fail_closed(net_name: str):
@@ -675,4 +868,6 @@ def run_astar_pathfinding_nlayer(
         net_ids=net_ids,
         per_path_latency_ms=per_path_latency_ms,
         coarse_to_fine_fallbacks=fallback_count,
+        partial_paths=partial_paths,
+        layer_divergence_count=layer_divergence_count,
     )
