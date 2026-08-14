@@ -318,13 +318,25 @@ class TestRotationConventionAgainstPcbnewOracle:
         rotated rect pad (the (hw, hh) local corner) must match real pcbnew
         placement for the same local offset and pad rotation.
         """
+        import math
+
         w, h = 1.0, 0.6
         hw, hh = w / 2, h / 2
         px, py = _ORIGIN_X, _ORIGIN_Y
         corners_rel = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
         path = ""
         for i, (dx, dy) in enumerate(corners_rel):
-            rx, ry = _place_local_to_world(dx, dy, px, py, _ANGLE_DEG)
+            # `_place_local_to_world`'s `theta_rad` param is RADIANS
+            # (see `_rect_corner_xy` above, its sibling in this same
+            # class, which converts) -- passing `_ANGLE_DEG` (37.0)
+            # directly here was a degrees/radians unit bug, not a
+            # rotation-sign bug: it fed 37 *radians* (~2120 degrees, i.e.
+            # ~320 degrees after wrapping) into a correctly-signed
+            # transform, which is why this test's own sibling
+            # (`test_rect_corner_matches_pcbnew_at_non_90_degree_angle`,
+            # exercising the exact same `_place_local_to_world` call
+            # through `_rect_corner_xy`) passed while this one failed.
+            rx, ry = _place_local_to_world(dx, dy, px, py, math.radians(_ANGLE_DEG))
             path = f"M {rx},{ry}" if i == 0 else path + f" L {rx},{ry}"
         path += " Z"
         points = [seg.split()[-1] for seg in path.replace("Z", "").split(" ") if "," in seg]
