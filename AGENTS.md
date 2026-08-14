@@ -280,12 +280,30 @@ avoided data loss only by luck (its push/pop happened to balance).
 
 **Enforcement**: `scripts/git-hooks/reference-transaction`, installed into
 the shared `.git/hooks/` directory by `scripts/install_git_stash_guard.py`,
-blocks `git stash` / `git stash push` / `git stash save` / `git stash clear`
-outright (exit 128, `fatal: ref updates aborted by hook`). This is a real,
-tested block — verified to fire under non-interactive, direct `git`
-invocation, from every worktree sharing this repo's `.git` directory,
-without relying on any shell alias or `PATH` trick (a git hook is invoked by
-the `git` binary itself, regardless of what invoked `git`).
+blocks `git stash` / `git stash push` / `git stash push -u` / `git stash
+save` / `git stash clear` outright (exit 128, `fatal: ref updates aborted by
+hook`). This is a real, tested block — verified to fire under
+non-interactive, direct `git` invocation, from every worktree sharing this
+repo's `.git` directory, without relying on any shell alias or `PATH` trick
+(a git hook is invoked by the `git` binary itself, regardless of what
+invoked `git`).
+
+It is installed into this repo's live shared `.git/hooks/` (not just tested
+in a throwaway repo — that distinction mattered: the mechanism existed,
+documented and tested, for two weeks before anyone actually ran the
+installer against the real `.git`, during which three more agents used
+`git stash` in a single session with the hook doing nothing). `make
+worktree` (the standard way new worktrees are created, see
+`docs/solutions/best-practices/per-workstream-worktree-2026-07-31.md`) now
+runs `scripts/install_git_stash_guard.py` on every invocation, so the guard
+reinstalls itself — idempotently, a no-op if already current — every time a
+worktree is created, and cannot silently go missing from a fresh clone or a
+`.git/hooks/` wiped by other tooling. To check or (re)install by hand:
+
+```bash
+python3 scripts/install_git_stash_guard.py --check   # report only
+python3 scripts/install_git_stash_guard.py            # install/update
+```
 
 **Known, tested gap — read before assuming full coverage**: the hook
 *cannot* block `git stash apply`, because `apply` never performs a ref
@@ -298,14 +316,31 @@ treat the hook as covering `apply`, `pop`, or `drop` of existing stack
 entries — the prohibition on those remains a policy rule, not an enforced
 one.** See the comments at the top of
 `scripts/git-hooks/reference-transaction` for the full empirical writeup
-(what was tested, in a throwaway `/tmp` repo, and what the results were).
+(what was tested, in a throwaway `/tmp` repo, and what the results were);
+`scripts/tests/test_git_stash_guard.py` (`TestBlocksRealStashOperations`,
+`TestDocumentedGaps`) pins every one of `stash` / `push` / `push -u` /
+`save` / `clear` / `apply` / `pop` / `drop` against the real hook so any
+future git version that changes this behaviour fails a test, not silently
+changes the security posture.
+
+Even in the one case where dropping *is* blocked (removing the last
+remaining entry), git rewrites `refs/stash`'s reflog before the hook is
+consulted, so `git stash list` goes empty regardless of the block — the
+underlying commit is not deleted (`refs/stash` itself is unchanged and the
+object stays resolvable/reachable) but it becomes invisible to the normal
+stash UI. Do not read "hook fired" as "the stack looks untouched" for this
+one case; it means "the data was not destroyed," which is not the same
+thing.
 
 **Detector (defense in depth for the gap above)**:
 `uv run python scripts/check_stash_stack_gate.py` snapshots the stash
 reflog and diffs it against the last snapshot, flagging any addition or
 disappearance since the last run. It is not a CI gate (CI runners don't
 share this `.git` directory) — run it manually, on a timer, or from a
-`/loop` against the actual dev machine.
+`/loop` against the actual dev machine. A baseline snapshot now exists at
+`<git-common-dir>/stash-guard-snapshot.json`; this script stays alongside
+the hook rather than being superseded by it, because it is the only thing
+that sees `apply`/`pop`/`drop` activity the hook structurally cannot block.
 
 **Bypass** (for a human, working alone, in a clean single-worktree
 context — not the concurrent-agent failure mode this guards against):
