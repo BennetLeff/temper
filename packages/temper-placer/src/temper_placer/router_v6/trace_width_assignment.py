@@ -161,7 +161,7 @@ def assign_trace_widths(
     hv_width: float = 0.635,  # 25mil for HV
     design_rules: Any = None,
     stackup: StackupInfo | None = None,
-    temp_rise_c: float = 10.0,
+    temp_rise_c: float = _tdrc.TRACE_TEMP_RISE_C,
 ) -> TraceWidthAssignment:
     """
     Assign trace widths from the netclass table and layer-aware ampacity.
@@ -205,11 +205,30 @@ def assign_trace_widths(
             width picked without this input can be silently wrong once a
             net can route on an inner layer.
         temp_rise_c: Allowed temperature rise (deg C) for the IPC-2221B
-            derivation, only used when `stackup` is supplied. Matches this
-            repo's existing convention (temper-drc-rs's
-            `ipc2152_min_width_mm`/`gates.py`'s `StackupGate`, both default
-            10.0), not `TRACE_WIDTH_CALCULATIONS.md`'s 20C hand-derivation
-            target -- the more conservative (lower) of the two.
+            derivation, only used when `stackup` is supplied. Defaults to
+            `temper_drc_rs.TRACE_TEMP_RISE_C` (20.0), single-sourced from
+            `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` SS1 ("Max Temp Rise
+            (traces): 20C -- IPC-2221B recommendation").
+
+            FIXED 2026-08-14: this default used to be an independent
+            literal `10.0`, justified only as "matches this repo's existing
+            convention (temper-drc-rs's `ipc2152_min_width_mm`/`gates.py`'s
+            `StackupGate`, both default 10.0)" -- i.e. agreement between
+            uncited code defaults, not agreement with this board's own
+            formal design spec. Measured consequence
+            (docs/evidence/2026-08-14-ntc-no-ampacity-current-fix-and-pour-neck-measurement.md
+            SS2.2 found it, docs/evidence/2026-08-14-ntc-no-realization-and-delta-t-reconciliation.md
+            fixed it): the as-wired production call
+            (`_pipeline_route.py::_run_stage5`) sized every current-cited
+            net (`AC_L`/`AC_N`/`power_in.ntc-no`/`DC_BUS+`/`SW_NODE`/
+            `GATE_H`/`GATE_L`/...) at the uncited 10C figure, not this
+            document's cited 20C one -- e.g. `power_in.ntc-no` at
+            6.329mm instead of 4.156mm. Every current-cited net's required
+            width becomes SMALLER at 20C than at 10C (higher allowed rise
+            needs less copper for the same current) -- this correction is
+            not a shortcut to pass any specific board, it is adopting the
+            cited standard instead of an unsourced internal default; see
+            the second evidence doc above for the full per-net table.
 
     Returns:
         TraceWidthAssignment with all width assignments

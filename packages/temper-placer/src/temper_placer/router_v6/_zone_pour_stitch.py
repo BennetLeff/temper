@@ -74,6 +74,38 @@ logger = logging.getLogger(__name__)
 # not pathological today, left as-is.
 _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains"})
 
+# ADDED 2026-08-14 (docs/evidence/2026-08-14-ntc-no-realization-and-delta-t-reconciliation.md):
+# `power_in.ntc-no` is a per-NET exemption, not a class one -- its
+# netclass (`HighVoltage`) is deliberately NOT in `_CONTINUITY_EXEMPT_CLASSES`
+# above (R6 un-exempted HighVoltage on purpose, to stop SW_NODE/DC_BUS_RTN
+# et al. from getting board-spanning single hulls). R6's own justification
+# for un-exempting HighVoltage was: "Electrical continuity of the net
+# itself is unaffected: the zone is a supplemental pour on top of
+# already-routed copper traces, not the net's only conductive path, so
+# splitting the pour into per-cluster patches does not disconnect
+# anything." That premise is FALSE for `power_in.ntc-no` specifically:
+# `_should_route()` (`_net_policy.py`) excludes every net `_zone_layers_for_net`
+# grants zone eligibility to from A* entirely -- true for every HighVoltage
+# net, including this one -- so the pour is this net's ONLY conductive
+# path, never a supplement to a real routed trace. Measured directly
+# (this evidence doc): `power_in.ntc-no`'s 4 pads (K1.13, RT1.2, U1.2,
+# U2.1 -- 30-140mm apart, no local density pattern) fail the clustering
+# heuristic's "natural gap" test and split into exactly 2 clusters
+# ({K1.13, U1.2}, {RT1.2, U2.1}), each producing its own convex-hull pour
+# with NO stitch trace between them (`_stitch_isolated_pads` only
+# reconnects pads that fall OUTSIDE every pour of their net, and every pad
+# here is already inside its own cluster's pour) -- i.e. clustering this
+# net produces two genuinely disconnected copper islands, the exact
+# fake-completion shape this whole task exists to eliminate, not "a
+# supplemental pour on an already-connected net." Exempting it here
+# (single convex hull over all 4 pads, like `ACMains`) also matches this
+# net's own physical identity: it is not merely "in the same HV domain" as
+# `ac_l`/`ac_n`, it IS the same AC-mains conductor one node further along
+# (the line between the CM choke / bypass-relay NO contact / inrush NTC
+# and the rectifier -- `elec/src/modules.ato`), so the ACMains precedent
+# applies directly, not by analogy.
+_CONTINUITY_EXEMPT_NETS = frozenset({"power_in.ntc-no"})
+
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
     """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
@@ -495,7 +527,7 @@ def _emit_zone_pours(
             nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
             eff_clearance = effective_clearance.get(nc, 0.3)
             prio = zone_priority.get(nc, 0)
-            exempt = nc in _CONTINUITY_EXEMPT_CLASSES
+            exempt = nc in _CONTINUITY_EXEMPT_CLASSES or net_name in _CONTINUITY_EXEMPT_NETS
 
             for layer in zone_layers:
                 try:

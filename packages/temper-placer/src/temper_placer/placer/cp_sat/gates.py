@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import temper_design_bundle_python as _tdb
+import temper_drc_rs as _tdrc
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.feedback import ConstraintDelta  # noqa: F401
@@ -379,7 +380,14 @@ class StackupGate(Gate):
     }
     _DEFAULT_CURRENT = 0.1  # A for nets not in the table
 
-    _DEFAULT_TEMP_RISE_C = 10.0
+    # FIXED 2026-08-14 (docs/hardware/TRACE_WIDTH_CALCULATIONS.md SS1 vs
+    # this repo's prior uncited 10.0 default -- see
+    # temper_drc_rs::ipc::TRACE_TEMP_RISE_C's doc comment for the full
+    # reconciliation). This gate now reads the same single-sourced constant
+    # `assign_trace_widths` (router_v6/trace_width_assignment.py) reads, so
+    # the DRC-gate check and the production width-assignment path that
+    # produces the copper it checks cannot silently disagree on ΔT again.
+    _DEFAULT_TEMP_RISE_C = _tdrc.TRACE_TEMP_RISE_C
     _ROUTABLE_THRESHOLD_MM = 5.0  # widths beyond this are pours, not traces
 
     # ------------------------------------------------------------------

@@ -11,6 +11,53 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+/// Single-sourced IPC-2221B allowed temperature rise for TRACES (°C).
+///
+/// Authority: `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` SS1 ("Max Temp
+/// Rise (traces): 20°C -- IPC-2221B recommendation"), REQ-ELEC-02, the
+/// project's own formal, versioned, "Status: Implemented" board design
+/// spec -- the same class of document already treated as SSOT for
+/// `AC_MAINS_CURRENT_A` (`net_currents()`, above) and cited throughout
+/// `docs/evidence/2026-08-14-ntc-no-ampacity-current-fix-and-pour-neck-measurement.md`.
+///
+/// FIXED 2026-08-14: every prior call site in this codebase that computed
+/// a TRACE width via IPC-2221B/2152 (`ipc2152_min_width_mm`/
+/// `ipc2152_current_capacity` pyo3 defaults, `assign_trace_widths`'s own
+/// `temp_rise_c` parameter default, `StackupGate._DEFAULT_TEMP_RISE_C`)
+/// independently hardcoded `10.0` -- a value with NO citation anywhere in
+/// this codebase beyond "matches this repo's existing convention" (i.e.
+/// those defaults merely agreed with each other, not with this document).
+/// `docs/evidence/2026-08-14-ntc-no-ampacity-current-fix-and-pour-neck-measurement.md`
+/// SS2.2 measured the resulting disagreement directly: the as-wired
+/// production path sized `power_in.ntc-no` (and `AC_L`/`AC_N`, and every
+/// other current-cited net) to 6.329mm at the uncited 10°C default, not
+/// the cited-document's own 4.156mm at 20°C. This constant is the single
+/// home both now read, so they cannot re-diverge.
+///
+/// Consequence, honestly stated (not the direction that "minimises
+/// disruption" -- the task that reconciled this explicitly required
+/// reporting whichever direction the citation implies): correcting 10°C
+/// -> 20°C REDUCES the required width for every current-cited net (higher
+/// allowed rise = less copper needed for the same current), never
+/// increases it. This is not "lowering a requirement to make copper
+/// pass" -- 20°C is IPC-2221B's own cited recommendation for this
+/// application, carried by a real board design document; 10°C was an
+/// arbitrary internal default with no independent derivation for this
+/// board at all.
+pub const TRACE_TEMP_RISE_C: f64 = 20.0;
+
+/// Single-sourced IPC-2221B allowed temperature rise for POURS/ZONES (°C).
+///
+/// Authority: `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` SS1 ("Max Temp
+/// Rise (pours): 40°C -- Acceptable for power zones"). Not yet consumed by
+/// any pour-sizing kernel in this codebase (zone/pour geometry today is
+/// sized by pad-cluster convex hull + netclass margin, not by an IPC
+/// current->width formula) -- provided here so the pour-side citation has
+/// the same single home as the trace-side one the moment a pour-sizing
+/// kernel needs it, rather than a second uncited literal being reinvented
+/// at that point.
+pub const POUR_TEMP_RISE_C: f64 = 40.0;
+
 /// Calculate maximum current capacity using IPC-2221 formula.
 ///
 /// I = k * ΔT^0.44 * A^0.725  where A is cross-sectional area in mils².
