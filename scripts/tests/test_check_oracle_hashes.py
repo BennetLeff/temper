@@ -20,6 +20,17 @@ drifts an oracle, and requires a finding for each.
 The generator (scripts/update_oracle_hashes.py) is pinned by two round-trip
 tests: a generated registry is byte-stable across runs (idempotent) and the
 check passes against the tree it was generated from.
+
+Two more shapes, added 2026-08-13 to close a confirmed discovery blind
+spot: ``TestPackageOracleDiscovery`` proves a multi-file pinned-oracle
+PACKAGE (a directory ending in ``_oracle``, e.g. the real
+``clearance_oracle/``) is discovered and drift-checked even though none of
+its individual files match the flat ``_*_py_oracle.py`` glob; it also
+proves the widened discovery does not sweep in unrelated ``*oracle*``
+directories. ``TestAntiVacuityFloor`` proves the registry's ``min_files``
+floor fails the gate closed if discovery ever finds fewer oracles than a
+prior run recorded, and that the generator refuses to silently lower that
+floor without ``--allow-shrink``.
 """
 
 from __future__ import annotations
@@ -185,11 +196,151 @@ class TestGenerator:
         assert not report.findings
 
 
-def _run_generator(root: Path, registry_path: Path) -> subprocess.CompletedProcess:
+def _run_generator(
+    root: Path, registry_path: Path, extra_args: list[str] | None = None
+) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, "scripts/update_oracle_hashes.py",
-         "--repo-root", str(root), "--registry", str(registry_path)],
+         "--repo-root", str(root), "--registry", str(registry_path), *(extra_args or [])],
         cwd=Path(__file__).resolve().parents[2],
         capture_output=True,
         text=True,
     )
+
+
+class TestPackageOracleDiscovery:
+    """2026-08-13 blind-spot fix: a directory whose name ends in ``_oracle``
+    is a multi-file pinned-oracle package (e.g. real
+    ``clearance_oracle/``, ``explain_oracle/``, ``_parse_engine_py_oracle/``)
+    -- none of its files individually match ``_*_py_oracle.py``, so only
+    the directory-based discovery path in ``_lib/oracle_discovery.py`` can
+    see them at all.
+    """
+
+    def test_package_style_oracle_directory_is_discovered(self, tmp_path):
+        root = tmp_path / "repo"
+        # Plainly-named files inside a "*_oracle"-suffixed directory -- the
+        # exact shape of the real clearance_oracle/ package, none of which
+        # match the flat _*_py_oracle.py glob.
+        _write(root / "packages/temper-placer/tests/requirements/clearance_oracle/__init__.py", "")
+        _write(root / "packages/temper-placer/tests/requirements/clearance_oracle/clearance.py", "X = 1\n")
+        _write(root / "packages/temper-placer/tests/requirements/clearance_oracle/_copper.py", "Y = 2\n")
+        oracles = generator.discover_oracles(root)
+        rels = {str(p.relative_to(root)) for p in oracles}
+        assert rels == {
+            "packages/temper-placer/tests/requirements/clearance_oracle/__init__.py",
+            "packages/temper-placer/tests/requirements/clearance_oracle/clearance.py",
+            "packages/temper-placer/tests/requirements/clearance_oracle/_copper.py",
+        }
+
+    def test_a_directory_that_merely_contains_oracle_in_its_name_is_not_swept_in(self, tmp_path):
+        """Name-based sweeps undercount by missing shapes; the fix must not
+        overcount by sweeping in unrelated directories either. A hyphenated
+        crate-style name (``temper-quality-oracle``, the real Rust crate's
+        shape) and a bare ``oracle`` directory (the real
+        ``temper-drc-rs/src/rules/oracle`` shape) must NOT be treated as
+        pinned-oracle packages -- only an ``_oracle`` (underscore) suffix
+        counts, matching every real oracle-package name in this repo."""
+        root = tmp_path / "repo"
+        _write(root / "packages/temper-quality-oracle/src/not_a_pin.py", "X = 1\n")
+        _write(root / "packages/temper-drc-rs/src/rules/oracle/mod.py", "Y = 2\n")
+        oracles = generator.discover_oracles(root)
+        assert oracles == []
+
+    def test_gate_reports_drift_inside_a_package_style_oracle(self, tmp_path):
+        root = tmp_path / "repo"
+        pkg = "packages/temper-placer/tests/requirements/clearance_oracle"
+        _write(root / pkg / "__init__.py", "")
+        _write(root / pkg / "clearance.py", "X = 1\n")
+        expected = {
+            f"{pkg}/__init__.py": generator.sha256_file(root / pkg / "__init__.py"),
+            f"{pkg}/clearance.py": generator.sha256_file(root / pkg / "clearance.py"),
+        }
+        registry_path = root / "scripts" / "oracle_hashes.json"
+        _write(registry_path, json.dumps(
+            {"version": 1, "algo": "sha256", "files": expected}, indent=2, sort_keys=True,
+        ) + "\n")
+        # clean before the edit
+        assert not gate.run(root, registry_path).findings
+        # an edit inside the package -- exactly the shape the flat glob
+        # cannot see at all, and the whole point of this fix
+        _write(root / pkg / "clearance.py", "X = 999  # accidental edit\n")
+        report = gate.run(root, registry_path)
+        assert any(f.status == gate.DRIFTED and f.rel_path == f"{pkg}/clearance.py"
+                   for f in report.findings)
+
+
+class TestAntiVacuityFloor:
+    """``min_files`` must make the registry fail closed if discovery itself
+    regresses -- the failure mode a DELETED/UNREGISTERED finding cannot
+    catch, because both only fire for files that ARE registered. This is
+    the case where discovery narrows AND the registry is regenerated
+    against that narrower discovery in the same change, so the registry
+    stays internally consistent (files == registry) while quietly covering
+    less than before.
+    """
+
+    def test_check_fails_closed_when_disk_count_is_below_min_files(self, tmp_path):
+        root, registry_path, expected = _make_repo(tmp_path, ["a", "b", "c"])
+        data = json.loads(registry_path.read_text())
+        data["min_files"] = 5  # a prior run saw 5; this tree only has 3
+        _write(registry_path, json.dumps(data, indent=2, sort_keys=True) + "\n")
+        report = gate.run(root, registry_path)
+        assert report.tool_error is not None
+        assert "min_files" in report.tool_error or "floor" in report.tool_error
+
+    def test_check_passes_when_disk_count_meets_min_files(self, tmp_path):
+        root, registry_path, expected = _make_repo(tmp_path, ["a", "b", "c"])
+        data = json.loads(registry_path.read_text())
+        data["min_files"] = 3
+        _write(registry_path, json.dumps(data, indent=2, sort_keys=True) + "\n")
+        report = gate.run(root, registry_path)
+        assert report.tool_error is None
+
+    def test_registry_without_min_files_is_not_penalized(self, tmp_path):
+        """Older/synthetic registries that predate this field must still load."""
+        root, registry_path, _ = _make_repo(tmp_path, ["a"])
+        report = gate.run(root, registry_path)
+        assert report.tool_error is None
+
+    def test_bad_min_files_type_is_tool_error(self, tmp_path):
+        root, registry_path, _ = _make_repo(tmp_path, ["a"])
+        data = json.loads(registry_path.read_text())
+        data["min_files"] = "lots"
+        _write(registry_path, json.dumps(data))
+        report = gate.run(root, registry_path)
+        assert report.tool_error is not None
+
+    def test_generator_ratchets_min_files_up(self, tmp_path):
+        root, registry_path, _ = _make_repo(tmp_path, ["a"])
+        _run_generator(root, registry_path)
+        data = json.loads(registry_path.read_text())
+        assert data["min_files"] == 1
+        _write(root / "packages/temper-placer/tests/core/_b_py_oracle.py", "# b\n")
+        _run_generator(root, registry_path)
+        data = json.loads(registry_path.read_text())
+        assert data["min_files"] == 2
+
+    def test_generator_refuses_to_silently_shrink_min_files(self, tmp_path):
+        root, registry_path, _ = _make_repo(tmp_path, ["a", "b", "c"])
+        _run_generator(root, registry_path)
+        assert json.loads(registry_path.read_text())["min_files"] == 3
+        (root / "packages/temper-placer/tests/core/_c_py_oracle.py").unlink()
+        result = _run_generator(root, registry_path)
+        assert result.returncode == 1
+        assert "min_files" in result.stderr or "floor" in result.stderr
+        # registry unchanged -- refusal must not partially write
+        assert json.loads(registry_path.read_text())["min_files"] == 3
+
+    def test_generator_allow_shrink_lowers_the_floor_deliberately(self, tmp_path):
+        root, registry_path, _ = _make_repo(tmp_path, ["a", "b", "c"])
+        _run_generator(root, registry_path)
+        (root / "packages/temper-placer/tests/core/_c_py_oracle.py").unlink()
+        result = _run_generator(root, registry_path, extra_args=["--allow-shrink"])
+        assert result.returncode == 0
+        data = json.loads(registry_path.read_text())
+        assert data["min_files"] == 2
+        # and the gate is clean against the deliberately-shrunk registry
+        report = gate.run(root, registry_path)
+        assert report.tool_error is None
+        assert not report.findings

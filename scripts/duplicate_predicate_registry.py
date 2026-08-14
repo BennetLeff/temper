@@ -183,6 +183,49 @@ CONSOLIDATED_FAMILIES: tuple[ConsolidatedFamily, ...] = (
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
         consolidated_on="2026-08-13",
     ),
+    ConsolidatedFamily(
+        # Finding #7's "key # comment -> {key: comment}" cluster: 4 of the
+        # 14 load_allowlist copies were byte-identical modulo docstring
+        # (verified by AST diff before consolidating -- no #1181-shaped
+        # silent divergence in this cluster). The other 10 copies parse
+        # genuinely different schemas (different required fields, e.g.
+        # bom-reconciliation's kind/designator/file/reason vs.
+        # doc-path-citations' path/reason) and are intentionally NOT
+        # folded in here -- registered as still-open in OPEN_FINDINGS.
+        name="load_key_comment_allowlist",
+        ssot="_lib.gate_allowlist:load_key_comment_allowlist",
+        ssot_file="scripts/_lib/gate_allowlist.py",
+        def_names=("load_allowlist",),
+        delegate_call_name="load_key_comment_allowlist",
+        scan_paths=(
+            "scripts/check_coverage_gate.py",
+            "scripts/check_evidence_provenance.py",
+            "scripts/check_measurement_provenance.py",
+            "scripts/check_physics_provenance.py",
+        ),
+        evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
+        consolidated_on="2026-08-13",
+    ),
+    ConsolidatedFamily(
+        # Finding #7's "<name>::file-glob # justification -> list[Entry]"
+        # cluster: check_net_classification.py's `qualname` and
+        # check_undeclared_imports.py's `module` were the same parse and
+        # the same fail-closed rules with only the noun differing (verified
+        # by AST diff -- agreed today, no divergence). Each keeps its own
+        # thin `load_allowlist` shim (own dataclass field name, own
+        # GateError class) that calls the shared parser with its noun.
+        name="load_scoped_justification_allowlist",
+        ssot="_lib.gate_allowlist:load_scoped_justification_allowlist",
+        ssot_file="scripts/_lib/gate_allowlist.py",
+        def_names=("load_allowlist",),
+        delegate_call_name="load_scoped_justification_allowlist",
+        scan_paths=(
+            "scripts/check_net_classification.py",
+            "scripts/check_undeclared_imports.py",
+        ),
+        evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
+        consolidated_on="2026-08-13",
+    ),
 )
 
 
@@ -198,7 +241,12 @@ DELIBERATE_DUPLICATE_REGISTRIES: tuple[dict[str, str], ...] = (
         "bucket": "pinned python oracles (Rust-port differential testing)",
         "registry": "scripts/oracle_hashes.json",
         "gate": "scripts/check_oracle_hashes.py",
-        "count_at_audit": "167 _*_py_oracle.py files under packages/*/tests (2026-08-13)",
+        "count_at_audit": (
+            "187 pinned oracle files under packages/*/tests (2026-08-13, post-fix): "
+            "167 _*_py_oracle.py files (the pre-fix count) + 20 files across 3 "
+            "multi-file oracle PACKAGES the flat glob could not see by "
+            "construction (see shared_bug_risk_tracked)."
+        ),
         "why_deliberate": (
             "each is a byte-pinned pre-migration Python implementation the "
             "Wave-4 differential suites compare a Rust port against; "
@@ -216,24 +264,43 @@ DELIBERATE_DUPLICATE_REGISTRIES: tuple[dict[str, str], ...] = (
             "re-fixed here). That risk is per-oracle and requires a human "
             "audit of each pin's original derivation, not a mechanical "
             "gate. Not attempted here; flagged, not assumed away, per this "
-            "file's own brief. A CONFIRMED, VERIFIED gap in this registry's "
-            "own coverage (2026-08-13): its glob "
-            "(update_oracle_hashes.py:ORACLE_GLOB = '_*_py_oracle.py') only "
-            "matches FILES named exactly '..._py_oracle.py'. "
-            "packages/temper-placer/tests/io/_parse_engine_py_oracle/ is a "
-            "PACKAGE (directory) of 8 files (kicad_parser.py, "
-            "_parse_nets.py, _kicad_types.py, kicad_metadata.py, "
-            "_parse_zones.py, _parse_modules.py, __init__.py, "
-            "_parse_board.py, _parse_tracks.py) pinning the KiCad parse "
-            "engine's pre-migration reference -- none of them individually "
-            "match the glob, so the entire package is invisible to "
-            "check_oracle_hashes.py's drift detection. This is exactly the "
-            "kind of gap the #1179 finding warns about: a differential "
-            "test whose reference arm can drift silently. NOT fixed in "
-            "this PR (widening a sibling gate's discovery glob is outside "
-            "duplicate-predicate scope and needs its own verification that "
-            "no other multi-file oracle package exists) -- flagged as the "
-            "single highest-priority follow-up this audit found."
+            "file's own brief. "
+            ""
+            "The discovery-glob gap flagged here 2026-08-13 is FIXED "
+            "2026-08-13 (same-day follow-up, PR closing #1181's finding #9): "
+            "the original glob (update_oracle_hashes.py:ORACLE_GLOB = "
+            "'_*_py_oracle.py') matched FILES named exactly that; a "
+            "multi-file oracle PACKAGE (a directory pinning several "
+            "plainly-named .py files, none individually glob-matching) was "
+            "invisible to check_oracle_hashes.py's drift detection. An "
+            "independent method (content-marker sweep for the 'VERBATIM "
+            "pre-migration' / 'Pinned Python oracle' header every genuine "
+            "oracle carries, diffed against the glob's own output — not "
+            "the same name-based technique that missed the first one) found "
+            "THREE such packages, not the one this audit's grep first "
+            "surfaced: "
+            "packages/temper-placer/tests/io/_parse_engine_py_oracle/ (9 "
+            "files, the KiCad parse engine), "
+            "packages/temper-placer/tests/requirements/clearance_oracle/ (3 "
+            "files, the REQ-SAFE-01 IEC 60335-2-6 clearance/creepage "
+            "validator — the mains-safety-relevant one), and "
+            "packages/temper-placer/tests/explainability/explain_oracle/ (8 "
+            "files). All three were verified, before pinning, to currently "
+            "AGREE with their Rust counterpart (every relevant "
+            "*_rust_differential.py suite green: 55/58, 16/16, 34/34, and "
+            "91/91 passed respectively) — a latent-coverage-gap finding, "
+            "not a live divergence. Discovery is now structural "
+            "(scripts/_lib/oracle_discovery.py: any directory under "
+            "packages/ whose name ends in '_oracle', verified zero false "
+            "positives against every *oracle*-named directory in the real "
+            "tree) rather than a hand-maintained path list, so a 4th "
+            "package pinned the same way is found automatically. The "
+            "registry also now records min_files, a floor that only ever "
+            "ratchets up (update_oracle_hashes.py --allow-shrink required "
+            "to lower it deliberately) — the anti-vacuity backstop for a "
+            "future PR that narrows discover_oracles() and regenerates the "
+            "registry against its own narrower view in the same change, "
+            "which would otherwise pass as internally consistent."
         ),
     },
     {
@@ -352,37 +419,113 @@ OPEN_FINDINGS: tuple[OpenFinding, ...] = (
     OpenFinding(
         name="get_rules_for_net",
         sites=(
-            "packages/temper-placer/src/temper_placer/router_v6/net_batching.py:709",
-            "packages/temper-placer/src/temper_placer/router_v6/stage0_data.py:106",
+            "VERIFIED this PR (was 'Unverified' in the prior audit):",
+            "packages/temper-design-bundle/src/design_rules.rs -- the "
+            "production SSOT. core.design_rules.DesignRules is a pyo3 "
+            "pyclass (Rust-backed), NOT a 3rd Python reimplementation; "
+            "kicad_parser constructs it at runtime and it is what "
+            "pcb.design_rules actually is in production.",
+            "packages/temper-placer/src/temper_placer/router_v6/stage0_data.py:106 "
+            "-- a LEGACY Python dataclass, 'duck-compatible' with the Rust "
+            "pyclass per stage0_data.py's own comment; imported widely as "
+            "a type annotation (ParsedPCB.design_rules: Any admits both) "
+            "but not confirmed constructed at runtime -- likely dead in "
+            "production, still exercised by tests/test_stage0_loader.py.",
+            "packages/temper-placer/src/temper_placer/router_v6/net_batching.py:717 "
+            "(_DesignRulesStub.get_rules_for_net) -- a DELIBERATE Python "
+            "re-implementation, not accidental: the Rust pyclass cannot "
+            "cross the multiprocessing subprocess boundary (unpicklable), "
+            "so the parent precomputes get_rules_for_net(name) once per "
+            "net and the child wraps the lookup in this duck-typed stand-in.",
         ),
-        diverged=False,
+        diverged=True,
         why_not_fixed=(
-            "Two independently-maintained net-name -> NetClassRules "
-            "resolvers found by name-frequency sweep; NOT byte-compared "
-            "against each other in this PR (time-boxed). Net-classification "
-            "is exactly the shape of PR #1162/#1174's hyphen-boundary "
-            "family (a net-name keyword match feeding netclass -> creepage "
-            "rules), so a divergence here would be high-value and this "
-            "should be the first follow-up, not deprioritized."
+            "DIVERGED, FIXED this PR (2026-08-13): _DesignRulesStub's "
+            "fallback branch (net_batching.py, hit when a queried net name "
+            "is absent from the precomputed net_rules dict) hardcoded "
+            "via_diameter_mm=0.6, via_drill_mm=0.3 as LITERALS -- unlike "
+            "stage0_data.DesignRules.get_rules_for_net's equivalent "
+            "fallback, which correctly reads self.default_via_diameter_mm/"
+            "self.default_via_drill_mm. Masked on this repo's own board "
+            "because its Default netclass happens to be exactly 0.6/0.3mm "
+            "(pcb/temper.kicad_pro); other netclasses on the SAME board "
+            "(Power 1.0/0.5, HighVoltage 1.2/0.6, ACMains 1.2/0.6) prove "
+            "the config genuinely varies, so a different Default value "
+            "would have silently propagated the wrong via size through "
+            "this codepath. Tracing every consumer of the returned "
+            "NetClassRules in the net_batching.py subprocess path found "
+            "none that reads .via_diameter_mm/.via_drill_mm today (only "
+            ".trace_width_mm/.clearance_mm are read, in "
+            "constraint_model.py and _consume_capacity) -- so this was a "
+            "latent, not currently live, divergence: a #1179-shaped risk "
+            "(an unpinned copy that still agrees) rather than a #1177/"
+            "#1180-shaped one (an already-wrong copy in active use). Fixed "
+            "by adding default_via_diameter_mm/default_via_drill_mm to "
+            "_DesignRulesStub (defaulting to the pre-fix literals for "
+            "backward compat) and carrying the real "
+            "pcb.design_rules.default_via_diameter_mm/default_via_drill_mm "
+            "through _write_shared_context's pickled shared-context file. "
+            "Regression tests: "
+            "test_design_rules_stub_fallback_carries_real_via_defaults_not_hardcoded_ones, "
+            "test_write_shared_context_carries_real_via_defaults_through_the_pickle "
+            "(packages/temper-placer/tests/router_v6/test_net_batching_subprocess.py) "
+            "-- both use non-0.6/0.3 values specifically so a regression "
+            "back to the hardcoded literals fails regardless of what any "
+            "particular board's config says. clearance_mm/trace_width_mm "
+            "(the fields REQ-SAFE-01-adjacent code actually reads through "
+            "this codepath) were already correct in both copies -- not "
+            "touched, no clearance/creepage value changed by this fix."
         ),
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
     ),
     OpenFinding(
-        name="load_allowlist (CI gate config loaders)",
+        name="load_allowlist (CI gate config loaders) -- 8 of 14 still open",
         sites=(
-            "14 near-identical loaders across scripts/check_*.py "
-            "(each gate hand-rolls its own YAML/JSON allowlist reader with "
-            "a bespoke per-script dataclass shape)",
+            "8 remaining independent loaders, classified DELIBERATE (each "
+            "parses a genuinely different schema -- different required "
+            "fields, different domain -- verified by AST diff, not "
+            "assumed): scripts/check_bom_source_reconciliation.py "
+            "(kind/designator/file/reason + backlog/seeded), "
+            "scripts/check_doc_path_citations.py (path/reason + "
+            "backlog/seeded -- same backlog/seeded validation shape as "
+            "bom-reconciliation's, per its own docstring, but NOT "
+            "consolidated: the entry schema itself differs, so a shared "
+            "function would need a schema-parametrized signature, higher "
+            "risk than this PR's time-box supports), "
+            "scripts/check_netlist_stage_checks.py (check/reason/backlog/"
+            "seeded + arbitrary extra key fields), "
+            "scripts/check_plane_condemnation_quantifier.py "
+            "(layer/date/reason/doc/measured_fraction, dict-keyed), "
+            "scripts/mpn_fabrication_gate.py (file/ref/mpn/checks/reason), "
+            "scripts/check_migration_narrowing.py (4-tuple, regex-parsed), "
+            "scripts/check_typecheck_gate.py (file -> error-count int), "
+            "scripts/check_wire_format_fidelity.py (tab-separated "
+            "key\\treason). "
+            "6 of the original 14 CONSOLIDATED this PR (2026-08-13) -- see "
+            "CONSOLIDATED_FAMILIES: load_key_comment_allowlist (4 sites: "
+            "check_coverage_gate.py, check_evidence_provenance.py, "
+            "check_measurement_provenance.py, check_physics_provenance.py "
+            "-- byte-identical modulo docstring, verified by AST diff) and "
+            "load_scoped_justification_allowlist (2 sites: "
+            "check_net_classification.py's 'qualname', "
+            "check_undeclared_imports.py's 'module' -- same parse, same "
+            "fail-closed rules, only the noun differed)."
         ),
         diverged=False,
         why_not_fixed=(
-            "Boilerplate duplication in CI-gate config loading, not "
-            "physics/geometry/safety logic — low blast radius if one copy "
-            "is subtly wrong (worst case: a gate under- or over-allowlists "
-            "its own findings, which is visible in that gate's own CI "
-            "output). scripts/_lib/gate_allowlist.py already exists as a "
-            "shared-lib candidate; migrating 14 call sites onto it is real "
-            "but mechanical follow-up work, scoped out of this PR."
+            "Both consolidated clusters were checked for the #1181 "
+            "net_pad_positions-shaped divergence pattern (two copies "
+            "silently disagreeing, one already fixed and documented) "
+            "BEFORE consolidating -- AST diff found only docstring/"
+            "cosmetic differences in both pairs, no behavioral divergence, "
+            "for either cluster. The remaining 8 are boilerplate-adjacent "
+            "CI-gate config loading, not physics/geometry/safety logic — "
+            "low blast radius if one copy is subtly wrong (worst case: a "
+            "gate under- or over-allowlists its own findings, visible in "
+            "that gate's own CI output) — genuinely different schemas per "
+            "gate, so consolidating them is a schema-generalization design "
+            "problem, not a mechanical copy-paste removal; scoped out of "
+            "this PR's time-box, same as the original audit scoped out all 14."
         ),
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
     ),

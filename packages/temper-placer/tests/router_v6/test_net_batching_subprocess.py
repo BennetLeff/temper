@@ -265,6 +265,64 @@ class TestCapacityRoundTrip:
         assert rule.trace_width_mm == pytest.approx(0.25)
         assert rule.clearance_mm == pytest.approx(0.2)
 
+    def test_design_rules_stub_fallback_carries_real_via_defaults_not_hardcoded_ones(self):
+        """2026-08-13 fix: get_rules_for_net duplication audit (finding #6,
+        docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md).
+
+        Before this fix, the fallback branch (an unknown net name)
+        hardcoded ``via_diameter_mm=0.6, via_drill_mm=0.3`` as literals --
+        diverging from ``stage0_data.DesignRules.get_rules_for_net``'s
+        equivalent fallback, which correctly used
+        ``self.default_via_diameter_mm``/``self.default_via_drill_mm``.
+        Masked on THIS repo's board because its Default netclass happens
+        to be exactly 0.6/0.3mm -- this test uses different values
+        specifically so a regression back to the hardcoded literals fails
+        loudly regardless of what any particular board's config says.
+        """
+        stub = _DesignRulesStub(
+            net_rules={},
+            default_trace_width_mm=0.25,
+            default_clearance_mm=0.2,
+            default_via_diameter_mm=1.2,
+            default_via_drill_mm=0.6,
+        )
+        rule = stub.get_rules_for_net("UNKNOWN_NET")
+        assert rule.via_diameter_mm == pytest.approx(1.2)
+        assert rule.via_drill_mm == pytest.approx(0.6)
+
+    def test_design_rules_stub_via_defaults_default_to_the_pre_fix_literals(self):
+        """Backward compatibility: a caller that only passes
+        trace-width/clearance (the pre-fix constructor signature) still
+        gets the same 0.6/0.3mm this stub always hardcoded -- the fix
+        widens what CAN be carried through, it does not change behaviour
+        for callers that don't opt in.
+        """
+        stub = _DesignRulesStub(
+            net_rules={}, default_trace_width_mm=0.25, default_clearance_mm=0.2,
+        )
+        rule = stub.get_rules_for_net("UNKNOWN_NET")
+        assert rule.via_diameter_mm == pytest.approx(0.6)
+        assert rule.via_drill_mm == pytest.approx(0.3)
+
+    def test_write_shared_context_carries_real_via_defaults_through_the_pickle(self, tmp_path):
+        """End-to-end: _write_shared_context must read the REAL
+        design_rules.default_via_diameter_mm/default_via_drill_mm (not
+        assume 0.6/0.3) so a board with different via defaults survives
+        the subprocess boundary correctly.
+        """
+
+        class _FakeDesignRulesNonDefaultVias(_FakeDesignRulesForSharedContext):
+            default_via_diameter_mm = 1.2
+            default_via_drill_mm = 0.6
+
+        pcb = _FakePcbForSharedContext(tmp_path / "board.kicad_pcb")
+        pcb.design_rules = _FakeDesignRulesNonDefaultVias()
+        ctx_path = _write_shared_context(pcb, {})
+        with open(ctx_path, "rb") as f:
+            shared = pickle.load(f)
+        assert shared["default_via_diameter_mm"] == pytest.approx(1.2)
+        assert shared["default_via_drill_mm"] == pytest.approx(0.6)
+
 
 # ---------------------------------------------------------------------------
 # Skeleton pickle round trip. Regression coverage for the bug this task
@@ -311,11 +369,15 @@ class _FakeNet:
 class _FakeDesignRulesForSharedContext:
     """Minimal stand-in for the real Rust `DesignRules` pyclass, exposing
     only what `_write_shared_context` itself calls: `get_rules_for_net`
-    plus the two default-width attributes.
+    plus the four default-* attributes (clearance/trace-width, plus
+    via-diameter/via-drill -- carried through since the 2026-08-13 fix so
+    `_DesignRulesStub`'s fallback branch no longer hardcodes them).
     """
 
     default_trace_width_mm = 0.25
     default_clearance_mm = 0.2
+    default_via_diameter_mm = 0.6
+    default_via_drill_mm = 0.3
 
     def get_rules_for_net(self, net_name: str) -> NetClassRules:
         return NetClassRules(
