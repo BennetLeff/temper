@@ -17,8 +17,15 @@ investigation report, not re-derived here):
   ``DC_BUS_RTN``, ``SW_NODE``, ``ac_l``, ``ac_n``, ``tank-out``,
   ``tank.c_tank1-p2``, ``w1_1``) -- HighVoltage/ACMains netclass,
   ``routing_strategy == "plane_required"``.
-- 2 legitimately self-referential (``discharge.k_dis1-no``,
-  ``discharge.k_dis2-no`` -- both "pins" are the literal same physical pad).
+- 2 originally miscounted here as "legitimately self-referential"
+  (``discharge.k_dis1-no``, ``discharge.k_dis2-no``) on the false premise
+  that identical ``(component_ref, pin_name)`` tuples imply the same
+  physical pad. **Corrected 2026-08-13**: both nets have 2 genuinely
+  distinct physical pads 7.5mm apart (K2/K3's manufacturer-duplicated
+  relay contact pads) per ``pad_connectivity_audit`` ground truth -- a
+  real, currently-unconnected 2-terminal net each, not a legitimate
+  zero-copper case. See ``is_self_referential_net``'s docstring and
+  ``test_duplicate_pin_tuple_net_with_no_copper_is_unexplained_not_legitimate``.
 - 19 genuinely attempted by Stage 4's A* and failed closed (forced segment
   disallowed) -- a real, expected outcome the topology-level trace can't see.
 - 6 orphaned by a policy mismatch between two independently-evolving
@@ -142,7 +149,15 @@ def test_nets_carrying_copper_is_the_union_not_explicit_only():
 
 
 def test_is_self_referential_net():
-    assert is_self_referential_net([("K2", "3"), ("K2", "3")])
+    # Corrected 2026-08-13: a net with 2+ pin instances is NOT trusted as
+    # self-referential just because the (component_ref, pin_name) tuples
+    # are identical -- K2/K3's manufacturer-duplicated relay contact pads
+    # (this board's real discharge.k_dis1-no/discharge.k_dis2-no) prove
+    # that tuple identity does not imply physical-pad identity. Only a
+    # genuinely single-pin-instance net (nothing else it could resolve to)
+    # is trusted.
+    assert not is_self_referential_net([("K2", "3"), ("K2", "3")])
+    assert is_self_referential_net([("K2", "3")])
     assert not is_self_referential_net([("K2", "3"), ("K3", "1")])
     assert not is_self_referential_net([])
 
@@ -188,12 +203,12 @@ def test_solved_net_with_zone_copper_is_legitimate_not_a_gap():
     assert audit.unexplained_gap == []
 
 
-def test_self_referential_net_with_no_copper_is_legitimate_gap():
+def test_true_single_pin_net_with_no_copper_is_legitimate_gap():
     content = _board()  # no segment/via/zone blocks at all
     audit = audit_topology_vs_copper(
         ["self_ref_net"],
         content,
-        net_pins={"self_ref_net": [("K2", "3"), ("K2", "3")]},
+        net_pins={"self_ref_net": [("K2", "3")]},
         is_zone_pour_eligible=lambda _: False,
         is_excluded_from_astar=lambda _: False,
     )
@@ -201,6 +216,32 @@ def test_self_referential_net_with_no_copper_is_legitimate_gap():
     assert audit.legitimate_gap == ["self_ref_net"]
     outcome = audit.outcomes["self_ref_net"]
     assert outcome.legitimate_reason == "self_referential_pad"
+
+
+def test_duplicate_pin_tuple_net_with_no_copper_is_unexplained_not_legitimate():
+    """The regression this task fixes: a net whose pin list is 2+ IDENTICAL
+    ``(component_ref, pin_name)`` tuples used to be classified as
+    "legitimately self-referential, no copper needed" -- true only if tuple
+    identity implies physical-pad identity, which is false on this board
+    (K2/K3's manufacturer-duplicated relay contact pads: 2 genuinely
+    distinct physical pads, 7.5mm apart, sharing one pad number). This
+    exact shape -- ``discharge.k_dis1-no``'s real
+    ``[('K2', '3'), ('K2', '3')]`` -- must now surface as unexplained
+    (needs a real reason) instead of being falsely certified as legitimate,
+    which is the accounting guard this task adds."""
+    content = _board()  # zero copper of any kind
+    audit = audit_topology_vs_copper(
+        ["discharge.k_dis1-no"],
+        content,
+        net_pins={"discharge.k_dis1-no": [("K2", "3"), ("K2", "3")]},
+        is_zone_pour_eligible=lambda _: False,
+        is_excluded_from_astar=lambda _: False,
+    )
+    assert audit.legitimate_gap == []
+    assert audit.unexplained_gap == ["discharge.k_dis1-no"]
+    outcome = audit.outcomes["discharge.k_dis1-no"]
+    assert outcome.legitimate_reason is None
+    assert outcome.is_unexplained
 
 
 def test_solved_net_with_no_copper_and_no_reason_is_unexplained():

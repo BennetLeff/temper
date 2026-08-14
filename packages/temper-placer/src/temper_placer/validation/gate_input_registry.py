@@ -579,6 +579,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_manifest_gate.py", "scripts/manifest.yaml", "manifest scan; probe harness deferred"),
     ("check_measurement_provenance.py", "power_pcb_dataset/drc_ceiling.json", "baseline red on main (stale ceiling); probe inconclusive today"),
     ("check_net_classification.py", "elec/domain_manifest.yaml", "source-tree scan; probe harness deferred"),
+    ("check_net_pin_identity_pad_correspondence.py", "pcb/temper.kicad_pcb", "net accounting gate (router silent-net-loss investigation, 2026-08-13): flags a net whose (component_ref, pad_number) pin-identity view collapses to <=1 distinct pin while its real physical pad count is >1 -- the invariant behind discharge.k_dis1-no/discharge.k_dis2-no falsely certifying as a trivial no-copper-needed net; self-contained regex parse of the real board, needs no compiled extension; probe harness deferred"),
     ("check_netlist_board_reconciliation.py", "elec/build/default.net", "netlist<->board reconciliation (plan 2026-08-02-021 R16); needs compiled netlist (elec/build/, not committed)"),
     ("check_netlist_mutation_corpus.py", "elec/build/default.net", "netlist-mutation corpus (plan 2026-08-02-021 R39/U7); needs compiled netlist (elec/build/, not committed)"),
     ("check_netlist_stage_checks.py", "elec/build/default.net", "netlist-stage checks (single-pin nets, unconnected power pins, voltage-domain compatibility; docs/STRATEGY.md 'Checks by stage'); needs compiled netlist (elec/build/, not committed); 27 open findings on a dated backlog allowlist"),

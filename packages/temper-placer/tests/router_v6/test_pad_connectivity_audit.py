@@ -21,9 +21,11 @@ from temper_placer.router_v6.pad_connectivity_audit import (
     ALL_LAYERS,
     CopperSegment,
     CopperVia,
+    NetConnectivityResult,
     NetPad,
     audit_pcb_file,
     check_net_pad_connectivity,
+    find_pin_identity_pad_mismatches,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -214,3 +216,94 @@ def test_audit_pcb_file_runs_on_the_fixture_board():
     for net_name, result in results.items():
         assert result.net_name == net_name
         assert result.pad_count >= 0
+
+
+# ---------------------------------------------------------------------------
+# 3. The accounting guard: find_pin_identity_pad_mismatches.
+#
+# This is the invariant that would have caught discharge.k_dis1-no /
+# discharge.k_dis2-no silently landing in the no-copper bucket while
+# looking, from the router's own (component_ref, pin_name)-identity view,
+# like a trivial net with nothing to connect. See the function's own
+# docstring for the full mechanism.
+# ---------------------------------------------------------------------------
+
+
+def _result(pad_count: int) -> NetConnectivityResult:
+    return NetConnectivityResult(
+        net_name="x",
+        pad_count=pad_count,
+        pads_connected=1,
+        fully_connected=False,
+        has_any_copper=False,
+    )
+
+
+def test_guard_fires_for_the_real_discharge_relay_shape():
+    """Construct the exact losing condition: a net whose only pins are two
+    IDENTICAL (component_ref, pin_name) tuples (the router's pin-identity
+    view says "1 distinct pin, nothing to connect") while the board's real,
+    ground-truth pad count is 2 (K2's manufacturer-duplicated contact pad)
+    -- the guard must flag it."""
+    net_pins = {
+        "discharge.k_dis1-no": [("K2", "3"), ("K2", "3")],
+        "discharge.k_dis2-no": [("K3", "3"), ("K3", "3")],
+    }
+    audit_results = {
+        "discharge.k_dis1-no": _result(pad_count=2),
+        "discharge.k_dis2-no": _result(pad_count=2),
+    }
+    mismatches = find_pin_identity_pad_mismatches(net_pins, audit_results)
+    assert mismatches == ["discharge.k_dis1-no", "discharge.k_dis2-no"]
+
+
+def test_guard_is_silent_for_a_genuinely_trivial_single_pad_net():
+    """A real single-pad net (pin-identity count 1, real pad_count 1) is
+    not a mismatch -- there is genuinely nothing else to connect."""
+    net_pins = {"test_point": [("TP1", "1")]}
+    audit_results = {"test_point": _result(pad_count=1)}
+    assert find_pin_identity_pad_mismatches(net_pins, audit_results) == []
+
+
+def test_guard_is_silent_for_a_net_whose_duplicate_tuples_really_are_one_pad():
+    """A net whose pin-identity view says "1 distinct pin" and whose real
+    pad count also says 1 (e.g. the same schematic pin genuinely listed
+    twice with no second physical location) is not a mismatch -- the guard
+    only fires when the two sources of truth actually disagree."""
+    net_pins = {"harmless_dup": [("U9", "5"), ("U9", "5")]}
+    audit_results = {"harmless_dup": _result(pad_count=1)}
+    assert find_pin_identity_pad_mismatches(net_pins, audit_results) == []
+
+
+def test_guard_is_silent_for_an_ordinary_multi_pin_net():
+    """A normal net with 2+ genuinely distinct pins is never flagged,
+    regardless of its real pad count."""
+    net_pins = {"ordinary": [("U1", "1"), ("U2", "3")]}
+    audit_results = {"ordinary": _result(pad_count=2)}
+    assert find_pin_identity_pad_mismatches(net_pins, audit_results) == []
+
+
+def test_guard_skips_nets_missing_from_either_side():
+    """A net absent from the ground-truth audit results (e.g. not yet
+    routed/parsed) or with an empty pin list is skipped, not a crash."""
+    assert find_pin_identity_pad_mismatches({"no_audit": [("U1", "1"), ("U1", "1")]}, {}) == []
+    assert find_pin_identity_pad_mismatches({"no_pins": []}, {"no_pins": _result(pad_count=2)}) == []
+
+
+def test_guard_against_the_real_board_finds_exactly_the_two_known_nets():
+    """End-to-end against the committed production board (read-only --
+    never modified by this test): the guard must find exactly
+    discharge.k_dis1-no/discharge.k_dis2-no and nothing else, matching
+    this task's own measured investigation."""
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+
+    board = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+    if not board.exists():
+        pytest.skip(f"production board not found: {board}")
+
+    pcb = parse_kicad_pcb_v6(board, use_declared_layer_roles=True)
+    net_pins = {n.name: list(n.pins) for n in pcb.nets}
+    audit_results = audit_pcb_file(board)
+
+    mismatches = find_pin_identity_pad_mismatches(net_pins, audit_results)
+    assert mismatches == ["discharge.k_dis1-no", "discharge.k_dis2-no"]

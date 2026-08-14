@@ -130,3 +130,77 @@ def test_net_pad_positions_never_lands_on_a_different_nets_true_pad():
         "exactly the GATE_HS/R23 shape (docs/evidence/"
         "2026-08-08-nlayer-via-astar-spike.md)"
     )
+
+
+def _relay_with_duplicated_contact_pad(ref: str) -> Component:
+    """A 2-hole relay contact pad sharing one pad number/name -- the real
+    shape of K2/K3 (``temper:Relay_SPDT_Schrack-RT314012``) on
+    ``pcb/temper.kicad_pcb``: pad "3" (the NO contact) is fabricated as TWO
+    physical solder holes, 7.5mm apart, both pads named/numbered "3" for
+    16A current sharing (see that footprint's own embedded datasheet
+    comment). This is what ``discharge.k_dis1-no``/``discharge.k_dis2-no``
+    actually look like: ``net.pins == [(ref, '3'), (ref, '3')]``.
+    """
+    pins = [
+        Pin(
+            name="3",
+            number="3",
+            position=(25.34, -7.5),
+            net=f"{ref}_NO",
+            width=2.0,
+            height=3.0,
+            shape="oval",
+            layer="F.Cu",
+        ),
+        Pin(
+            name="3",
+            number="3",
+            position=(25.34, 0.0),
+            net=f"{ref}_NO",
+            width=2.0,
+            height=3.0,
+            shape="oval",
+            layer="F.Cu",
+        ),
+    ]
+    return Component(
+        ref=ref,
+        footprint="Relay_SPDT_Schrack-RT314012",
+        bounds=(29.9, 13.6),
+        pins=pins,
+        initial_position=(0.0, 0.0),
+        initial_rotation=0,
+    )
+
+
+def test_net_pad_positions_resolves_duplicate_pad_number_to_distinct_physical_pads():
+    """The regression this task fixes: a net whose only pins are two
+    occurrences of the IDENTICAL ``(component_ref, pin_name)`` pair used to
+    collapse to the same coordinate twice (``comp.get_pin(name)`` always
+    returns its first match), making a real 2-terminal net look like a
+    trivial 1-point one -- A* then "routed" a zero-length path between two
+    identical points, reported success, and never actually joined the real
+    second physical pad (MEASURED: ``discharge.k_dis1-no``/
+    ``discharge.k_dis2-no`` on the real board, both landing in
+    ``pad_connectivity_audit``'s no-copper bucket with `has_any_copper ==
+    False` despite Stage 4 printing "routed successfully").
+
+    Fixed: each occurrence of the pair resolves to its OWN distinct
+    physical pad, in encounter order, so the router sees the real 2
+    terminals 7.5mm apart and can actually attempt (and, if legal, emit)
+    connecting copper between them.
+    """
+    comp = _relay_with_duplicated_contact_pad("K2")
+    comp_by_ref = {"K2": comp}
+    net = Net(name="discharge.k_dis1-no", pins=[("K2", "3"), ("K2", "3")])
+
+    positions = _net_pad_positions(net, comp_by_ref)
+
+    assert len(positions) == 2
+    assert positions[0] != positions[1], (
+        "both occurrences of ('K2', '3') collapsed to the same coordinate "
+        "-- the exact defect that made discharge.k_dis1-no/"
+        "discharge.k_dis2-no look like trivial 1-point nets"
+    )
+    assert positions[0] == (25.34, -7.5)
+    assert positions[1] == (25.34, 0.0)

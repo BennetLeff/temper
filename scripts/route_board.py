@@ -100,7 +100,9 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
     return _strip_existing_copper(content)
 
 
-def audit_pad_connectivity(content: str) -> dict[str, Any]:
+def audit_pad_connectivity(
+    content: str, net_pins: dict[str, list[tuple[str, str]]] | None = None
+) -> dict[str, Any]:
     """Run ``pad_connectivity_audit`` against routed ``.kicad_pcb`` content
     and return a compact, JSON-serializable summary.
 
@@ -120,8 +122,25 @@ def audit_pad_connectivity(content: str) -> dict[str, Any]:
     KiCad footprint/pin structure to resolve pad positions the same way the
     router itself does), so ``content`` is written to a throwaway temp file
     first.
+
+    ``net_pins``, when supplied (``{net_name: [(component_ref, pin_name),
+    ...]}``, i.e. ``Net.pins`` per net), additionally runs
+    ``find_pin_identity_pad_mismatches`` -- the accounting guard for a net
+    whose ``(component_ref, pin_name)`` identity view collapses to <=1
+    distinct pin while its real, ground-truth physical pad count is > 1
+    (K2/K3's manufacturer-duplicated relay contact pads,
+    ``discharge.k_dis1-no``/``discharge.k_dis2-no`` being the measured
+    real example -- see ``pad_connectivity_audit.find_pin_identity_pad_mismatches``'s
+    docstring). Surfaced here so the actual production entry point this
+    task names (``route_board.py --net-batching --batch-size 10``) reports
+    the same discrepancy the standalone CI gate
+    (``check_net_pin_identity_pad_correspondence.py``) checks, not only a
+    separate script someone has to remember to run.
     """
-    from temper_placer.router_v6.pad_connectivity_audit import audit_pcb_file
+    from temper_placer.router_v6.pad_connectivity_audit import (
+        audit_pcb_file,
+        find_pin_identity_pad_mismatches,
+    )
 
     with tempfile.NamedTemporaryFile(
         "w", suffix=".kicad_pcb", delete=False, encoding="utf-8"
@@ -137,6 +156,10 @@ def audit_pad_connectivity(content: str) -> dict[str, Any]:
     fake_completion_nets = sorted(n for n, r in results.items() if r.is_fake_completion)
     honest_gap = len(results) - len(fully_connected_nets) - len(fake_completion_nets)
 
+    pin_identity_mismatches = (
+        find_pin_identity_pad_mismatches(net_pins, results) if net_pins else []
+    )
+
     return {
         "audited": len(results),
         "fully_connected": len(fully_connected_nets),
@@ -144,6 +167,7 @@ def audit_pad_connectivity(content: str) -> dict[str, Any]:
         "fake_completion": len(fake_completion_nets),
         "fake_completion_nets": fake_completion_nets,
         "honest_gap": honest_gap,
+        "pin_identity_mismatches": pin_identity_mismatches,
     }
 
 
@@ -265,8 +289,10 @@ def route_once(
 
     # Pad connectivity -- see audit_pad_connectivity's docstring for why
     # this, not the routed/attempted line above, is the completion number
-    # that should be trusted.
-    pad_connectivity = audit_pad_connectivity(content) if content else None
+    # that should be trusted. net_pins feeds the pin-identity/pad-count
+    # accounting guard (see that function's docstring).
+    net_pins = {n.name: list(n.pins) for n in netlist.nets}
+    pad_connectivity = audit_pad_connectivity(content, net_pins) if content else None
 
     return {
         "wall_s": wall_s,
@@ -355,6 +381,22 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
             f"{pc['fully_connected']}/{pc['audited']} nets fully pad-connected  "
             f"fake-completion={pc['fake_completion']} honest-gap={pc['honest_gap']}"
         )
+        mismatches = pc.get("pin_identity_mismatches")
+        if mismatches:
+            # See audit_pad_connectivity's docstring / pad_connectivity_audit.
+            # find_pin_identity_pad_mismatches -- a net whose pin-identity
+            # view claims <=1 distinct pin while its real physical pad
+            # count is >1 is NOT accounted for by "routed" or "unrouted"
+            # above (Stage 4 can print "routed successfully" for it while
+            # emitting zero connecting copper). Printed unconditionally,
+            # not gated behind an allowlist, so this command's own output
+            # can never go quiet about it.
+            line += (
+                f"\n{label} WARNING -- pin-identity/pad-count mismatch "
+                f"({len(mismatches)}, see "
+                "pad_connectivity_audit.find_pin_identity_pad_mismatches): "
+                f"{', '.join(mismatches)}"
+            )
     return line
 
 
