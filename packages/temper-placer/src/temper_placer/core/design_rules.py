@@ -496,6 +496,38 @@ TEMPER_NET_ASSIGNMENTS = {
     # it as a known, pre-existing, deliberately out-of-scope violation of
     # the identical shape; not silently exempted, just not this line's fix.
     "CGND": "GND",
+    # ADDED 2026-08-13 (URGENT hyphen-boundary net-classification defect;
+    # see docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md).
+    # These 5 nets are real, compiled nets on the production board
+    # (elec/build/default.net) and are explicitly declared SELV in
+    # elec/domain_manifest.yaml ("discharge.k_dis1's own declared 'coil'
+    # group"/"power_in.bypass_relay's own declared 'coil' group" --
+    # pin_labels there already call both pins of each pair "SELV coil
+    # drive"). Today they fall through DesignRules.get_rules_for_net's
+    # entire pattern cascade to Default (they contain no GND/Power/gate
+    # keyword). The fix in this same change makes the HighCurrent tier's
+    # "-" boundary widening apply to "COIL" too (consistent with the rest
+    # of the cascade) -- which, left alone, would newly match these five
+    # names ("...-coil1"/"...-coil2") and reclassify them HighCurrent
+    # (safety_category "HV"), the exact false-positive shape
+    # creepage_check.py's 2026-07-27 fix already fought to remove for the
+    # same five nets under a different mechanism (see
+    # router_v6/creepage_check.py's `_is_high_voltage_net` docstring).
+    # Declared explicitly here (Tier 2, wins over the Tier 4+ pattern
+    # cascade) rather than narrowing the boundary fix back down for just
+    # "COIL" -- narrowing would silently reintroduce the hyphen-boundary
+    # defect for the next hyphenated COIL-adjacent net. "Signal" matches
+    # these nets' genuine role (simple SELV relay-coil-drive logic
+    # signals, not a DC supply rail) and is numerically identical to the
+    # Default catch-all these nets already resolve to today (trace_width
+    # 0.2mm, clearance 0.15mm, creepage_mm 0.0) -- this declaration is a
+    # correctness/stability fix (immune to future pattern-cascade churn,
+    # explicit safety_category="LV"), not a clearance/creepage change.
+    "discharge.k_dis1-coil1": "Signal",
+    "discharge.k_dis1-coil2": "Signal",
+    "discharge.k_dis2-coil1": "Signal",
+    "power_in.bypass_relay-coil1": "Signal",
+    "power_in.bypass_relay-coil2": "Signal",
 }
 
 # -----------------------------------------------------------------------------

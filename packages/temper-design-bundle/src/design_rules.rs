@@ -234,14 +234,43 @@ impl ViaTemplate {
 // Word-boundary keyword classifier (the oracle's `_hv_word_boundary_match`)
 // ---------------------------------------------------------------------------
 
-/// Word-boundary keyword match, delimited by `_` or start/end of the
+/// Word-boundary keyword match, delimited by `_`, `-`, or start/end of the
 /// (uppercased) name — a faithful transcription of the oracle's regex:
 ///
 /// - patterns ending in a non-alphanumeric character (e.g. `"DC_BUS+"`) have
 ///   no trailing boundary to anchor on and are matched with a leading anchor
-///   only (`(?:^|_){escaped}`);
-/// - otherwise the pattern must be preceded by start/`_` AND followed by
-///   end/digit/`_` (`(?:^|_){escaped}(?:$|[\d_])`).
+///   only (`(?:^|[_-]){escaped}`);
+/// - otherwise the pattern must be preceded by start/`_`/`-` AND followed by
+///   end/digit/`_`/`-` (`(?:^|[_-]){escaped}(?:$|[\d_-])`).
+///
+/// FIXED 2026-08-13 (URGENT safety defect, same root cause and fix as
+/// `temper-io-types`' `placer_core::netclass`): `-` is now an equivalent
+/// word-boundary character to `_`. This is the matcher behind
+/// `DesignRules::is_gate_net_hv`/`is_gate_net_selv`/`is_high_current_net` --
+/// three of the tiers in `get_rules_for_net`'s pattern cascade, the SAME
+/// cascade `hb-gnd` fell through to `Default` (clearance 0.15mm,
+/// `creepage_mm = 0.0`) via its ground/power tiers before this fix. Left
+/// un-widened, this cascade would still be half-fixed for any hyphenated
+/// net whose correct class depends on GATE/SW_NODE/PWM/DC_BUS/AC_L/AC_N/
+/// COIL rather than GND/Power. See
+/// docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
+///
+/// One keyword in this cascade -- `"COIL"` -- is a genuine, board-confirmed
+/// over-match risk once `-` becomes a boundary: `discharge.k_dis1-coil1`/
+/// `-coil2`, `discharge.k_dis2-coil1`, and `power_in.bypass_relay-coil1`/
+/// `-coil2` are five real, compiled nets on the production board, all
+/// confirmed SELV relay-coil-DRIVE signals in `elec/domain_manifest.yaml`
+/// (not the HV contacts the relay switches) -- widening the boundary alone
+/// would newly reclassify all five from `Default` to `HighCurrent`
+/// (`safety_category = "HV"`), the exact false-positive shape
+/// `creepage_check.py`'s 2026-07-27 fix fought to remove. This is NOT
+/// fixed by narrowing the boundary back down for just `"COIL"` (that would
+/// silently reintroduce the hyphen-boundary defect for any future
+/// hyphenated COIL-adjacent net) -- it is fixed by giving those five real
+/// nets an explicit `TEMPER_NET_ASSIGNMENTS` entry in
+/// `temper_placer/core/design_rules.py` (Tier 2, which wins over this Tier
+/// 4+ pattern cascade), mirroring how every other genuinely ambiguous net
+/// in this table is handled. See that file's own entries for these nets.
 ///
 /// The oracle's patterns are fixed `[A-Za-z0-9_]` constants, so `re.escape`
 /// is the identity and a literal-substring transcription is exact. Documented
@@ -250,18 +279,18 @@ fn hv_word_boundary_match(upper: &str, patterns: &[&str]) -> bool {
     for p in patterns {
         let ends_alnum = p.chars().last().is_some_and(|c| c.is_ascii_alphanumeric());
         if !p.is_empty() && !ends_alnum {
-            if preceded_by_start_or_underscore(upper, p) {
+            if preceded_by_boundary(upper, p) {
                 return true;
             }
-        } else if preceded_by_start_or_underscore(upper, p) && followed_by_boundary(upper, p) {
+        } else if preceded_by_boundary(upper, p) && followed_by_boundary(upper, p) {
             return true;
         }
     }
     false
 }
 
-/// `(?:^|_){p}`: `p` at position 0, or immediately after a `_`.
-fn preceded_by_start_or_underscore(upper: &str, p: &str) -> bool {
+/// `(?:^|[_-]){p}`: `p` at position 0, or immediately after a `_` or `-`.
+fn preceded_by_boundary(upper: &str, p: &str) -> bool {
     let Some(first) = upper.find(p) else {
         return false;
     };
@@ -269,19 +298,22 @@ fn preceded_by_start_or_underscore(upper: &str, p: &str) -> bool {
         return true;
     }
     // `re.search` scans every position; the pattern matches at any `i` where
-    // `upper[i..]` starts with `p` and `upper[i-1] == '_'`.
+    // `upper[i..]` starts with `p` and `upper[i-1]` is `_` or `-`.
     upper
         .match_indices(p)
-        .any(|(i, _)| i > 0 && upper.as_bytes()[i - 1] == b'_')
+        .any(|(i, _)| i > 0 && matches!(upper.as_bytes()[i - 1], b'_' | b'-'))
 }
 
-/// `(?:$|[\d_])` after `p`: end of string, a digit, or `_`.
+/// `(?:$|[\d_-])` after `p`: end of string, a digit, `_`, or `-`.
 fn followed_by_boundary(upper: &str, p: &str) -> bool {
     let Some(i) = upper.find(p) else {
         return false;
     };
     let after = &upper[i + p.len()..];
-    after.is_empty() || after.starts_with('_') || after.chars().next().is_some_and(|c| c.is_ascii_digit())
+    after.is_empty()
+        || after.starts_with('_')
+        || after.starts_with('-')
+        || after.chars().next().is_some_and(|c| c.is_ascii_digit())
 }
 
 #[cfg(test)]
@@ -308,18 +340,42 @@ mod hv_word_boundary_tests {
     }
 
     #[test]
-    fn coil_plain_substring_bug_is_fixed() {
-        // The 2026-07-27 regression: "COIL" must not match
-        // "discharge.k_dis1-coil1" (preceded by '-', not start/'_').
+    fn coil_plain_substring_bug_stays_fixed_and_hyphen_now_bounds_too() {
+        // The 2026-07-27 regression (plain substring): "COIL" must not
+        // match "RECOIL1" (preceded by "RE", not start/'_'/'-').
         assert!(hv_word_boundary_match("COIL", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
-        assert!(!hv_word_boundary_match("DISCHARGE.K_DIS1-COIL1", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
+        assert!(!hv_word_boundary_match("RECOIL1", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
+        // FIXED 2026-08-13: "-" is now an equivalent boundary to "_", so
+        // "discharge.k_dis1-coil1" DOES now match via proper word-boundary
+        // discipline (not plain substring) -- this is the intended,
+        // board-confirmed-and-mitigated flip (see this function's doc
+        // comment; `design_rules.py::TEMPER_NET_ASSIGNMENTS` gives this
+        // exact net, and its four SELV coil-drive siblings, an explicit
+        // Tier-2 override so `get_rules_for_net` never reaches this tier
+        // for them).
+        assert!(hv_word_boundary_match("DISCHARGE.K_DIS1-COIL1", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
         // "DC_BUS_RTN" matches; "DC_BUS+" does NOT (the trailing '+' breaks
-        // the `(?:$|[\d_])` boundary) — verified against the Python oracle.
+        // the `(?:$|[\d_-])` boundary) — verified against the Python oracle.
         assert!(hv_word_boundary_match("DC_BUS_RTN", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
         assert!(!hv_word_boundary_match("DC_BUS+", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
         assert!(hv_word_boundary_match("AC_L", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
         assert!(hv_word_boundary_match("AC_L1", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
         assert!(!hv_word_boundary_match("DAC_L", &["DC_BUS", "AC_L", "AC_N", "COIL"]));
+    }
+
+    #[test]
+    fn hyphen_boundary_both_directions() {
+        // Leading hyphen boundary (new).
+        assert!(hv_word_boundary_match("X-GATE_H", &["GATE", "SW_NODE"]));
+        assert!(hv_word_boundary_match("X-PWM", &["PWM"]));
+        // Trailing hyphen boundary (new).
+        assert!(hv_word_boundary_match("GATE-X", &["GATE", "SW_NODE"]));
+        assert!(hv_word_boundary_match("PWM-1", &["PWM"]));
+        // Still must not over-match: a keyword with letters flanking it on
+        // BOTH sides (no boundary character present at all) never matches,
+        // hyphen present elsewhere in the name or not.
+        assert!(!hv_word_boundary_match("XGATEX-Y", &["GATE", "SW_NODE"]));
+        assert!(!hv_word_boundary_match("MEGAWATT-1", &["AC_L", "AC_N", "DC_BUS", "COIL"]));
     }
 }
 
