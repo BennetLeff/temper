@@ -386,6 +386,70 @@ OPEN_FINDINGS: tuple[OpenFinding, ...] = (
         ),
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
     ),
+    OpenFinding(
+        name="np_minimum / np_maximum",
+        sites=(
+            "packages/temper-geometry/src/drc_inflate.rs:54,60 "
+            "(`if a < b || a.is_nan() { a } else { b }` -- a direct "
+            "transcription of numpy's own C ternary for the `minimum`/"
+            "`maximum` ufuncs (`(a < b || npy_isnan(a)) ? a : b`), "
+            "DRC-adjacent: feeds `np_minimum(gap_x, gap_y)` in the pad/track "
+            "inflation gap computation)",
+            "packages/temper-geometry/src/heuristics.rs:25,35 "
+            "(`if a.is_nan()||b.is_nan(){f64::NAN}else{a.min(b)}` -- "
+            "placement-heuristics only, not DRC-adjacent)",
+            "packages/temper-geometry/src/resource_bound.rs:78,89 "
+            "(`if a.is_nan()||b.is_nan(){f64::NAN}else if a<b{a}else{b}` -- "
+            "router_v6/resource_bound.py, DRC-adjacent by this registry's "
+            "own point_to_segment_distance classification convention: "
+            "router_v6 feeds DRC)",
+        ),
+        diverged=True,
+        why_not_fixed=(
+            "Empirically verified (rustc -O, not just read) two independent "
+            "divergences, not one: "
+            "(1) NaN-payload: np_minimum(f64::from_bits(0xFFF8000000000001), 1.0) "
+            "-- drc_inflate.rs's ternary returns the operand unchanged "
+            "(0xfff8000000000001, payload preserved), heuristics.rs and "
+            "resource_bound.rs both collapse to canonical f64::NAN "
+            "(0x7ff8000000000000) because their `if is_nan(a)||is_nan(b) "
+            "{ f64::NAN }` guard discards which operand was NaN. "
+            "(2) signed-zero tie-break, ORDER-DEPENDENT: "
+            "np_minimum(-0.0, 0.0) -- drc_inflate.rs and resource_bound.rs's "
+            "shared `a<b?a:b` shape both return +0.0 (-0.0<0.0 is false under "
+            "IEEE `<`, so the else-branch `b` wins); heuristics.rs's "
+            "`a.min(b)` returns -0.0 instead (LLVM's minnum intrinsic favors "
+            "the negative zero regardless of argument order -- confirmed "
+            "np_minimum(0.0, -0.0) also gives -0.0 on heuristics.rs's shape, "
+            "so its behavior does not reproduce numpy's real order-dependent "
+            "tie quirk the other two happen to preserve by using the same "
+            "ternary shape numpy's C source uses). "
+            "On the merits: drc_inflate.rs's version is the one to treat as "
+            "reference-correct (verbatim numpy ternary); heuristics.rs and "
+            "resource_bound.rs's NaN-payload collapse is a real bug relative "
+            "to true `np.minimum`/`np.maximum`, currently unobserved because "
+            "every existing test for these three (`test_matches_...`, "
+            "`np_minimum(f64::NAN, 1.0).is_nan()`-style asserts) checks "
+            "`.is_nan()` only, never `.to_bits()` -- so the divergence passes "
+            "today by nobody looking at the payload, not by being absent. "
+            "NOT consolidated in this PR: 2 of 3 sites (drc_inflate.rs, "
+            "resource_bound.rs) are DRC-adjacent per this file's own "
+            "point_to_segment_distance precedent, each is independently "
+            "pinned against its own Wave-4 Python oracle "
+            "(drc_inflate.py / heuristics-slice / router_v6/resource_bound.py), "
+            "and the cross-arm rule (#1136/#1137) means any behavior change "
+            "here needs its oracle moved in lockstep -- out of a dedup-only "
+            "change's hard-constraint-safe surface, same reasoning as the "
+            "point_to_segment_distance finding above. Practical severity is "
+            "LOW (every current call site only branches on `.is_nan()`, "
+            "never inspects the NaN payload or relies on the signed-zero "
+            "tie order), which is why this is flagged rather than escalated, "
+            "but it is a real, demonstrated divergence and should be the "
+            "next thing verified against each Python oracle before any "
+            "future refactor touches these three functions."
+        ),
+        evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
+    ),
 )
 
 

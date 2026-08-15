@@ -61,7 +61,8 @@
 // Python reference does.
 
 use crate::creepage_check::{py_max, py_min};
-use crate::pad_geometry::{math_cos_sin, py_hypot};
+use crate::kicad_transform::{rotate_local_to_world, rotate_world_to_local};
+use crate::pad_geometry::py_hypot;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -79,24 +80,16 @@ fn radians(deg: f64) -> f64 {
     deg * DEG_TO_RAD
 }
 
-/// KiCad R(-theta) footprint-child rotation, the formula behind
-/// `kicad_transform.rotate_local_to_world`.
-fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let (c, s) = math_cos_sin(theta_rad);
-    (x * c + y * s, -x * s + y * c)
-}
+// `rotate_local_to_world` (KiCad R(-theta) footprint-child rotation) and
+// `rotate_world_to_local` (its R(+theta) inverse) consolidated onto the
+// crate's single sanctioned implementations in `kicad_transform.rs`. This
+// file's former private copies used the same `pad_geometry::math_cos_sin`
+// dlsym'd host libm and the same formulas -- behavior-preserving.
 
 /// `kicad_transform.place_local_to_world`.
 fn place_local_to_world(lx: f64, ly: f64, ox: f64, oy: f64, theta_rad: f64) -> (f64, f64) {
     let (rx, ry) = rotate_local_to_world(lx, ly, theta_rad);
     (ox + rx, oy + ry)
-}
-
-/// R(+theta), the inverse of `rotate_local_to_world`
-/// (`kicad_transform.rotate_world_to_local`).
-fn rotate_world_to_local(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let (c, s) = math_cos_sin(theta_rad);
-    (x * c - y * s, x * s + y * c)
 }
 
 // ---------------------------------------------------------------------------
