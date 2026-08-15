@@ -6,12 +6,30 @@ Part of temper-eixu
 
 import pytest
 
+from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
+from temper_placer.router_v6.stage0_data import LayerInfo, StackupInfo
 from temper_placer.router_v6.trace_width_assignment import (
     TraceWidth,
     TraceWidthAssignment,
+    _implied_legacy_current_a,
     assign_trace_widths,
 )
+
+
+def _temper_6layer_stackup() -> StackupInfo:
+    """The board's real declared stackup (PR #1178/#1195):
+    2oz (70um) outer, 1oz (35um) inner, four signal-capable layers.
+    """
+    layers = [
+        LayerInfo(index=0, name="F.Cu", layer_type="signal", thickness_um=70.0),
+        LayerInfo(index=1, name="In1.Cu", layer_type="plane", thickness_um=35.0),
+        LayerInfo(index=2, name="In2.Cu", layer_type="plane", thickness_um=35.0),
+        LayerInfo(index=3, name="In3.Cu", layer_type="signal", thickness_um=35.0),
+        LayerInfo(index=4, name="In4.Cu", layer_type="signal", thickness_um=35.0),
+        LayerInfo(index=5, name="B.Cu", layer_type="signal", thickness_um=70.0),
+    ]
+    return StackupInfo(layers=layers, total_thickness_mm=1.6, layer_count=6)
 
 
 def test_assign_no_widths():
@@ -255,3 +273,191 @@ def test_netclass_widths_are_not_capped_by_the_hv_keyword_bucket():
         _result_for(["w1_2"]), hv_width=0.635, design_rules=dr
     )
     assert assignment.get_width("w1_2") > 0.635 * 4
+
+
+
+# ---------------------------------------------------------------------------
+# Layer-aware assignment (PR #1195 copper-weight-blindness fix,
+# docs/evidence/2026-08-13-router-nlayer-routing.md SS4)
+# ---------------------------------------------------------------------------
+
+
+def test_layer_aware_external_matches_legacy_exactly():
+    """On F.Cu/B.Cu (2oz, external -- the legacy constants' own reference
+    layer), a net with NO specific current-table citation must not move
+    away from the pre-existing flat-constant behavior: the back-derived
+    implied current round-trips through the identical formula it was
+    recovered from. "GND"/"HV_TEST"/"GATE_TEST" all keyword-classify (matching
+    "GND"/"HV_"/"GATE" respectively) but have no entry in
+    `temper_drc_rs.net_currents()` -- unlike the board's actual "GATE_H"/
+    "GATE_L"/"AC_L"/"AC_N", each of which has a SPECIFIC citation that
+    supersedes the back-derivation (see
+    test_layer_aware_ac_l_widens_even_on_external_layer) -- so these three
+    exercise the back-derivation path on its own.
+    """
+    stackup = _temper_6layer_stackup()
+    paths = {
+        "SIG1": RoutePath("SIG1", [(0, 0), (1, 1)], "F.Cu", 1.4),
+        "GND": RoutePath("GND", [(0, 0), (1, 1)], "F.Cu", 1.4),
+        "HV_TEST": RoutePath("HV_TEST", [(0, 0), (1, 1)], "F.Cu", 1.4),
+        "GATE_TEST": RoutePath("GATE_TEST", [(0, 0), (1, 1)], "F.Cu", 1.4),
+    }
+    result = PathfindingResult(routed_paths=paths, failed_nets=[])
+
+    assignment = assign_trace_widths(
+        result,
+        default_width=0.127,
+        power_width=0.508,
+        hv_width=0.635,
+        stackup=stackup,
+    )
+
+    assert assignment.get_width("SIG1") == pytest.approx(0.127, abs=1e-9)
+    assert assignment.get_width("GND") == pytest.approx(0.508, abs=1e-6)
+    assert assignment.get_width("HV_TEST") == pytest.approx(0.635, abs=1e-6)
+    assert assignment.get_width("GATE_TEST") == pytest.approx(0.508 * 0.6, abs=1e-6)
+
+
+def test_layer_aware_ac_l_widens_even_on_external_layer():
+    """AC_L has a SPECIFIC citation in temper_drc_rs.net_currents() (10.0A,
+    the real AC-mains current) that supersedes the back-derived legacy
+    width -- and 10.0A is MORE than the legacy hv_width=0.635mm constant
+    was ever sized for (its own implied current is ~2.8A at 2oz external,
+    see test_implied_legacy_current_a_matches_documented_scale), so this
+    net widens even on F.Cu. This is a genuine, PRE-EXISTING gap this
+    audit found (the flat hv_width constant was already too narrow for
+    real AC-mains current on external copper, independent of PR #1195's
+    inner-layer routing) -- not something this test manufactures.
+    """
+    stackup = _temper_6layer_stackup()
+    paths = {"AC_L": RoutePath("AC_L", [(0, 0), (1, 1)], "F.Cu", 1.4)}
+    result = PathfindingResult(routed_paths=paths, failed_nets=[])
+
+    assignment = assign_trace_widths(
+        result, default_width=0.127, power_width=0.508, hv_width=0.635, stackup=stackup
+    )
+
+    assert assignment.get_width("AC_L") > 0.635
+
+
+def test_layer_aware_internal_widens_power_and_hv():
+    """The SAME nets, routed on In3.Cu (1oz, internal) instead of F.Cu,
+    must get a WIDER trace than the legacy 2oz-external constant -- this is
+    the actual defect PR #1195 exposed, reproduced directly.
+    """
+    stackup = _temper_6layer_stackup()
+    paths = {
+        "GND": RoutePath("GND", [(0, 0), (1, 1)], "In3.Cu", 1.4),
+        "AC_L": RoutePath("AC_L", [(0, 0), (1, 1)], "In3.Cu", 1.4),
+        "GATE_H": RoutePath("GATE_H", [(0, 0), (1, 1)], "In3.Cu", 1.4),
+    }
+    result = PathfindingResult(routed_paths=paths, failed_nets=[])
+
+    assignment = assign_trace_widths(
+        result,
+        default_width=0.127,
+        power_width=0.508,
+        hv_width=0.635,
+        stackup=stackup,
+    )
+
+    assert assignment.get_width("GND") > 0.508
+    assert assignment.get_width("AC_L") > 0.635
+    assert assignment.get_width("GATE_H") > 0.508 * 0.6
+
+
+def test_layer_aware_router_nlayer_routing_regression():
+    """Direct regression test for the exact scenario
+    docs/evidence/2026-08-13-router-nlayer-routing.md SS4 found live:
+    power_in.bypass_relay-coil1/-coil2 and power_in.q_relay_drv-g routed at
+    0.508mm on In3.Cu (1oz). With their real cited currents (75.4mA /
+    75.4mA / 3.3mA -- temper_drc_rs.net_currents()), IPC-2221B's minimum
+    for 1oz internal copper is far under even the board's fabrication-floor
+    width, so the floor governs -- these nets were genuinely safe, not
+    narrowly safe, and this test pins BOTH conclusions: (1) the assigned
+    width still clears the true IPC-2221B minimum for 1oz internal copper
+    with a real margin (the safety property), and (2) the mechanism no
+    longer force-inflates a known-tiny-current net to the old flat
+    power_width just because its name matched a keyword (the precision
+    improvement -- these nets stay at the fabrication floor, not 0.508mm).
+    """
+    import temper_geometry as _tg
+
+    stackup = _temper_6layer_stackup()
+    paths = {
+        "power_in.bypass_relay-coil1": RoutePath3D(
+            "power_in.bypass_relay-coil1", [(0, 0, "In3.Cu"), (1, 1, "In3.Cu")], [], 1.4
+        ),
+        "power_in.bypass_relay-coil2": RoutePath3D(
+            "power_in.bypass_relay-coil2", [(0, 0, "In3.Cu"), (1, 1, "In3.Cu")], [], 1.4
+        ),
+        "power_in.q_relay_drv-g": RoutePath3D(
+            "power_in.q_relay_drv-g", [(0, 0, "In3.Cu"), (1, 1, "In3.Cu")], [], 1.4
+        ),
+    }
+    result = PathfindingResult(routed_paths=paths, failed_nets=[])
+    board_fab_floor = 0.2  # matches this board's actual design_rules.default_trace_width_mm
+
+    assignment = assign_trace_widths(
+        result,
+        default_width=board_fab_floor,
+        power_width=0.508,
+        hv_width=0.635,
+        stackup=stackup,
+    )
+
+    real_current_a = {
+        "power_in.bypass_relay-coil1": 0.0754,
+        "power_in.bypass_relay-coil2": 0.0754,
+        "power_in.q_relay_drv-g": 0.0033,
+    }
+    for net_name, current_a in real_current_a.items():
+        width = assignment.get_width(net_name)
+        # (1) Safety: the assigned width's own IPC-2221B capacity on 1oz
+        # internal copper, at the SAME temp rise, must clear the real
+        # current with margin.
+        capacity_a = _tg.ipc2221b_current_capacity_a_py(width, 1.0, 10.0, True)
+        assert capacity_a > current_a * 2, (
+            f"{net_name}: {width}mm capacity {capacity_a}A does not clear "
+            f"real current {current_a}A with margin"
+        )
+        # (2) Precision: no longer force-inflated to the legacy flat
+        # power_width just because the net matched the "POWER" keyword.
+        assert width == pytest.approx(board_fab_floor, abs=1e-9), (
+            f"{net_name}: {assignment.assignments[net_name].reason}"
+        )
+
+
+def test_layer_aware_ntc_no_widens_on_internal_layer():
+    """power_in.ntc-no carries real AC-mains line current (10A, same
+    physical path as ac_l/ac_n -- see temper_drc_rs's net_currents()
+    citation) despite its "power_in." classification. On an internal
+    layer, this must widen well past the flat power_width constant.
+    """
+    stackup = _temper_6layer_stackup()
+    paths = {
+        "power_in.ntc-no": RoutePath3D(
+            "power_in.ntc-no", [(0, 0, "In3.Cu"), (1, 1, "In3.Cu")], [], 1.4
+        ),
+    }
+    result = PathfindingResult(routed_paths=paths, failed_nets=[])
+
+    assignment = assign_trace_widths(
+        result, default_width=0.127, power_width=0.508, hv_width=0.635, stackup=stackup
+    )
+
+    assert assignment.get_width("power_in.ntc-no") > 0.508 * 3
+
+
+def test_implied_legacy_current_a_matches_documented_scale():
+    """Sanity-check the back-derivation itself against the project's own
+    documented per-class currents (docs/hardware/TRACE_WIDTH_CALCULATIONS.md
+    SS3.4/SS4): not exact (the legacy widths were never derived from these
+    exact figures), just the same order of magnitude, confirming the
+    back-derivation recovers plausible currents rather than nonsense ones.
+    """
+    gate_current = _implied_legacy_current_a(0.508 * 0.6, 10.0)
+    assert 1.0 < gate_current < 3.0  # doc cites 1.5-2.0A for gate drive
+
+    power_current = _implied_legacy_current_a(0.508, 10.0)
+    assert 1.5 < power_current < 4.0

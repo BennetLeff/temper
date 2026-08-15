@@ -762,14 +762,22 @@ def _run_stage5(
 
     if self.verbose:
         print("  4.4: Assigning trace widths...")
-    # `design_rules` is what makes this stage read the netclass `trace_width`
-    # SSOT instead of the three hardcoded keyword buckets -- the identical
-    # threading `place_vias` above already has.  See
-    # docs/evidence/2026-08-13-router-netclass-trace-widths.md.
+    # Both width SSOTs, merged from the two PRs that threaded them: the
+    # netclass `trace_width` table (`design_rules`, PR #1199-era netclass
+    # threading, docs/evidence/2026-08-13-router-netclass-trace-widths.md)
+    # is the declared-width floor, and `stackup` (PR #1195 layer-aware
+    # ampacity, docs/evidence/2026-08-13-router-nlayer-routing.md SS4)
+    # makes width a function of (current, copper weight,
+    # internal-vs-external) per net via IPC-2221B -- which can only WIDEN
+    # the netclass floor, never narrow it.  `pcb.stackup` is read live
+    # from this board's own declared `(setup (stackup ...))` block
+    # (io/_parse_board.py's `_extract_stackup`), so a stackup edit
+    # propagates automatically.
     width_assignment = assign_trace_widths(
         pathfinding_result,
         default_width=pcb.design_rules.default_trace_width_mm,
         design_rules=pcb.design_rules,
+        stackup=pcb.stackup,
     )
 
     if self.verbose:

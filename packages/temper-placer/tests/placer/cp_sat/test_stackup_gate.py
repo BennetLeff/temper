@@ -267,7 +267,6 @@ def test_internal_layer_detection():
     )
     assert result.status is GateStatus.VIOLATIONS  # internal layer → even lower capacity
 
-
 def test_copper_weight_resolved_from_stackup():
     """Copper weight comes from the board stackup, not a hardcoded 1.0.
 
@@ -307,15 +306,26 @@ def test_copper_weight_resolved_from_stackup():
     assert result.status is GateStatus.CLEAN
 
 
-def test_copper_weight_stackup_missing_falls_back_to_1oz():
-    """No stackup → 1 oz fallback (the pre-stackup gate behavior).
+def test_copper_weight_stackup_missing_uses_role_aware_fallback():
+    """No stackup present → role-aware fallback, not a flat 1.0.
 
-    Under 1 oz the 2A minimum is 0.786mm, so a 0.5mm trace is a
-    violation.  Same trace is CLEAN with the 2 oz stackup above — the
-    distinction is what the stackup-driven resolution is for.
+    Merged from two PRs that fixed the same copper-weight blindness
+    differently: main's #1223 reads the board stackup live (with a flat 1.0
+    fallback), PR #1195/#1204 makes the fallback role-aware (2oz outer /
+    1oz inner -- the board's own declared figures).  The merged gate keeps
+    the live read when a stackup exists and falls back role-aware when it
+    does not:
+
+    - F.Cu (external, 2oz fallback): 2A needs only 0.393mm at 2oz, so a
+      0.5mm trace is CLEAN -- the same trace the old flat-1.0 assumption
+      would have flagged (0.786mm at 1oz), which was over-conservative,
+      not physically real.
+    - In3.Cu (internal, 1oz fallback): the SAME 0.5mm/2A trace is a
+      VIOLATION, proving the fallback still enforces the real inner
+      figure instead of being silently widened to the outer weight.
     """
     gate = StackupGate()
-    result = gate.check(
+    result_external = gate.check(
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
@@ -325,7 +335,74 @@ def test_copper_weight_stackup_missing_falls_back_to_1oz():
             )
         )
     )
+    assert result_external.status is GateStatus.CLEAN
+
+    result_internal = gate.check(
+        _make_state(
+            routing=_FakeRoutingResult(
+                compiled_routes={
+                    "GATE_H": _FakeRoute("GATE_H", width_mm=0.5, layer="In3.Cu"),
+                },
+                unrouted_nets=[],
+            )
+        )
+    )
+    assert result_internal.status is GateStatus.VIOLATIONS
+
+
+def test_in3_in4_detected_as_internal():
+    """PR #1195 (docs/evidence/2026-08-13-router-nlayer-routing.md): the
+    board's stackup grew In3.Cu/In4.Cu as new INNER signal layers, but
+    `_is_internal_net` used to only recognize {"In1.Cu", "In2.Cu"} -- so a
+    route on In3.Cu/In4.Cu was silently treated as external (checked
+    against the more lenient k=0.048 curve) even though it is genuinely
+    1oz internal copper. Same width/current as
+    test_internal_layer_detection's In2.Cu case, on In3.Cu instead --
+    must still be flagged.
+    """
+    gate = StackupGate()
+    result = gate.check(
+        _make_state(
+            routing=_FakeRoutingResult(
+                compiled_routes={
+                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.5, layer="In3.Cu"),
+                },
+                unrouted_nets=[],
+            )
+        )
+    )
     assert result.status is GateStatus.VIOLATIONS
+
+
+def test_copper_oz_reads_outer_role_for_external_layer():
+    """The gate used to check EVERY route (internal or external) against a
+    flat `copper_oz=1.0`, even on F.Cu/B.Cu, which the board's own declared
+    stackup says are 2oz -- an accidentally-conservative but physically
+    wrong input. A width that needs 2oz to pass but would fail at a
+    (wrong) 1oz assumption must now pass on F.Cu.
+    """
+    import temper_geometry as _tg
+
+    gate = StackupGate()
+    current_a = 10.0  # AC_L's real cited current
+    # Width whose capacity clears 10A at the REAL 2oz external weight but
+    # would not at 1oz -- proves the gate is reading 2oz here, not 1.0.
+    width_2oz_min = _tg.ipc2221b_min_trace_width_mm_py(current_a, 2.0, 10.0, False)
+    width_1oz_min = _tg.ipc2221b_min_trace_width_mm_py(current_a, 1.0, 10.0, False)
+    assert width_1oz_min > width_2oz_min  # sanity: 1oz genuinely needs more width
+    probe_width = (width_2oz_min + width_1oz_min) / 2.0  # clears 2oz, not 1oz
+
+    result = gate.check(
+        _make_state(
+            routing=_FakeRoutingResult(
+                compiled_routes={
+                    "AC_L": _FakeRoute("AC_L", width_mm=probe_width, layer="F.Cu"),
+                },
+                unrouted_nets=[],
+            )
+        )
+    )
+    assert result.status is GateStatus.CLEAN
 
 
 def test_gate_survives_malformed_route():
