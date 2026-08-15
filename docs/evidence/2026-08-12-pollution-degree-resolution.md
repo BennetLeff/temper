@@ -431,7 +431,10 @@ advance. Slower and less certain than (a) for the same two violations.
   the requirement, never lower it.
 - **It does not settle OVC II vs OVC III** (`hv-clearance-adequacy.md`
   §6.2), which affects the *clearance* determination, not the creepage
-  figure this document is about.
+  figure this document is about. **[Resolved after this document was
+  written: OVC II governs — IEC 60335-1 cl. 29.1, unconditional
+  ("Appliances are in overvoltage category II"); `HIGH_VOLTAGE_CLEARANCE_SPEC.md`
+  §3.2 corrected 2026-08-14. See that document's revision-history v1.4.]**
 
 ---
 
