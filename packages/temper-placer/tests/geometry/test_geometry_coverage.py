@@ -487,7 +487,7 @@ class TestTransformUncovered:
 # overlap.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.overlap import (
+from temper_placer.geometry import (
     box_box_distance,
     box_box_distance_aabb,
     compute_clearance_penalties,

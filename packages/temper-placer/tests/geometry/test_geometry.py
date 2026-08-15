@@ -14,7 +14,7 @@ wrappers take flat scalar coordinates / flat vertex lists.
 
 import numpy as np
 
-from temper_placer.geometry.overlap import (
+from temper_placer.geometry import (
     check_clearance_violation,
     component_overlap_amount,
 )
