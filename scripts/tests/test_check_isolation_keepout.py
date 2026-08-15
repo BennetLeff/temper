@@ -276,7 +276,7 @@ class TestKeepoutSettings:
 
 class TestWidth:
     def test_barrier_narrower_than_minimum(self, tmp_path: Path) -> None:
-        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, needs 8.0mm
+        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, needs 12.6mm
         manifest_path = write_manifest(tmp_path)
         state, report = run(board_path, manifest_path)
         assert state == "violation"

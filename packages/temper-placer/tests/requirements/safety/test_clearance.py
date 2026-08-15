@@ -170,20 +170,17 @@ class TestRequirementMatrix:
             # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md
             # for the (unaffected) voltage-row basis.
             #
-            # UPDATE 2026-07-30 (PD2 adoption, this change): row iv gives
-            # 4.0mm basic / 8.0mm reinforced at Pollution Degree 2 vs.
-            # 6.3mm/12.6mm at PD3 (docs/evidence/2026-07-30-pollution-degree-
-            # determination.md derived the PD3 figures; the values below were
-            # PD3 from that determination until this change). The project
-            # owner has since selected the PD2 enclosure exception as the
-            # production architecture, conditional on a real, verified
-            # sealed PCB compartment -- see
-            # docs/evidence/2026-07-30-pd2-enclosure-decision.md and
-            # HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1/5.1/5.2. The figures
-            # below are the currently-ENFORCED PD2 values; PD3's 6.3mm/12.6mm
-            # remain the documented fallback if that prerequisite is not met
-            # (see IEC60335_REQUIREMENTS's own module-level comment for the
-            # full derivation of both).
+            # UPDATE 2026-08-15 (PD3 enforcement, this change): row iv gives
+            # 6.3mm basic / 12.6mm reinforced at Pollution Degree 3, which is
+            # the governing bar for the as-built, forced-air-vented,
+            # compartment-less board (docs/evidence/2026-08-15-pd2-pd3-
+            # data-driven-decision.md -- the 2026-07-30 PD2 adoption was
+            # conditional on a sealed compartment that was never built, so
+            # the values below are the currently-ENFORCED PD3 figures;
+            # PD2's 4.0mm/8.0mm remain the documented fallback if that
+            # compartment is ever built and verified -- see
+            # IEC60335_REQUIREMENTS's own module-level comment for the full
+            # derivation of both).
             #
             # The CLEARANCE column (3.0mm basic / 6.0mm reinforced) is
             # **UNSOURCED** (flagged 2026-08-15): Table 17 is a CREEPAGE
@@ -193,29 +190,29 @@ class TestRequirementMatrix:
             # working isolation at 400V" citation is debunked
             # (docs/evidence/2026-07-28-creepage-determination-brainstorm.md).
             # The figures are non-binding on a flat board (creepage >=
-            # clearance, and the 4.0/8.0mm creepage floor dominates) but
-            # must be re-sourced before reliance; values are asserted as-is
-            # below so the unsourced baseline stays visible rather than
-            # silently drifting.
-            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
+            # clearance, and the 6.3/12.6mm PD3-enforced creepage floor
+            # dominates) but must be re-sourced before reliance; values are
+            # asserted as-is below so the unsourced baseline stays visible
+            # rather than silently drifting.
+            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 6.3, 8.3),
             (
                 VoltageDomain.MAINS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                8.0,
-                10.0,
+                12.6,
+                14.6,
             ),
             # DC Bus to Control. Same 400V-row basis: DC_BUS's peak/transient
             # working voltage is 400V (spec Sec 2.1).
-            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
+            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 6.3, 8.3),
             (
                 VoltageDomain.DC_BUS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                8.0,
-                10.0,
+                12.6,
+                14.6,
             ),
             # Across Isolation Barrier. Gate Drive Isolated's peak-to-earth
             # working voltage is 355V (spec Sec 2.1) -- also rounds up to the
@@ -225,8 +222,8 @@ class TestRequirementMatrix:
                 VoltageDomain.ISOLATED,
                 InsulationType.REINFORCED,
                 6.0,
-                8.0,
-                10.0,
+                12.6,
+                14.6,
             ),
             # Within LV Domain. min_creepage_mm 1.8 is IEC 60335-1 Table 18
             # row i (<=50V), Material Group IIIa/IIIb, PD3 -- CORRECTED

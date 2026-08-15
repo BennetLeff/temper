@@ -26,7 +26,8 @@ Confirmed instances (see the evidence doc and PR #448 for detail):
     (Package_DIP:DIP-6_W10.16mm, docs/evidence/
     2026-07-28-tank-cap-and-isolator-footprints.md); board still has the
     narrow DIP-6 (Package_DIP:DIP-6_W7.62mm) -- 6.020mm HV<->SELV pad
-    separation against the 8.0mm REQ-SAFE-01 minimum.
+    separation against the 12.6mm REQ-SAFE-01 minimum (PD3, enforced
+    2026-08-15; previously 8.0mm PD2).
   - c_x2 (power_in.c_x2, ref C1): PR #448 corrects the X2 mains cap to a
     15mm-pitch MKP box (Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_
     FKS3_FKP3); until that PR merges, C1 will not appear here (source and

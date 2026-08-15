@@ -2188,16 +2188,17 @@ jobs:
 
       # --- PD2 compartment-evidence gate (docs/evidence/2026-08-11-pd2-decision-record.md) ---
       # A fourth gate for the same declaration/reality-drift shape as Gates
-      # 1-3 above, but for a mechanical rather than electrical claim: on
-      # 2026-08-11 the owner decided the production architecture is PD2
-      # (IEC 60335-2-6 cl. 29.2 Addition), conditional on a sealed, gasketed
-      # PCB compartment that does not exist yet (docs/evidence/
-      # 2026-08-01-pd2-enclosure-legitimacy.md). Every electrical
-      # enforcement point in the tree (generate_kicad_dru.py, the
-      # REQ-SAFE-01 validator, MIN_BARRIER_WIDTH_MM, ...) is already aligned
-      # at the PD2 figure, 8.0mm -- this gate checks the one thing nothing
-      # else checks: whether the compartment that earns that figure has
-      # actually been committed as real, checkable evidence.
+      # 1-3 above, but for a mechanical rather than electrical claim: the
+      # PD2 classification (IEC 60335-2-6 cl. 29.2 Addition) is conditional
+      # on a sealed, gasketed PCB compartment (docs/evidence/
+      # 2026-08-01-pd2-enclosure-legitimacy.md). As of the 2026-08-15
+      # data-driven decision (docs/evidence/2026-08-15-pd2-pd3-data-driven-
+      # decision.md), every electrical enforcement point in the tree
+      # (generate_kicad_dru.py, the REQ-SAFE-01 validator,
+      # MIN_BARRIER_WIDTH_MM, ...) is aligned at the PD3 figure, 12.6mm --
+      # this gate checks the one thing nothing else checks: that the tree
+      # never claims PD2 without the compartment that earns it. Under PD3
+      # it reports NOT_APPLICABLE (pass by design).
 
       - name: PD2 compartment-evidence gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -2205,18 +2206,15 @@ jobs:
 
       - name: PD2 compartment-evidence gate (Gate 4)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # ADVISORY: the sealed compartment does not exist on origin/main as
-        # of 2026-08-11 -- no docs/specs/pd2_compartment_evidence.yaml has
-        # been committed, and per docs/evidence/2026-08-01-pd2-enclosure-legitimacy.md
-        # the board is forced-air-vented (plain rectangular outline, no
-        # vent/compartment provisions; the coil/heatsink duct crosses the
-        # same cavity the PCB occupies). Path to blocking: build the real
-        # cover/gasket/partition, commit docs/specs/pd2_compartment_evidence.yaml
-        # with every field populated (non-placeholder dimensions, an
-        # inspection acceptance bound, and a board-side keepout zone that
-        # this gate cross-checks against pcb/temper.kicad_pcb), confirm this
-        # step goes clean, then remove continue-on-error.
-        continue-on-error: true
+        # BLOCKING as of fix/enforce-pd3-creepage: the 2026-08-15 data-driven
+        # decision (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md)
+        # enforces PD3 (12.6mm reinforced) as the governing bar, so this gate
+        # reports NOT_APPLICABLE (exit 0) -- the compartment prerequisite is
+        # moot while PD3 governs, and the gate's entire purpose (prevent the
+        # tree from claiming PD2 without the compartment) is discharged by the
+        # enforcement flip. continue-on-error removed: a future PR that flips
+        # HV_CREEPAGE_ENFORCED_MM back to PD2 without committing
+        # docs/specs/pd2_compartment_evidence.yaml must now fail closed.
         run: uv run python scripts/check_pd2_compartment_evidence.py
 
       # --- Corpus fixture <-> real-board divergence gate (docs/evidence/

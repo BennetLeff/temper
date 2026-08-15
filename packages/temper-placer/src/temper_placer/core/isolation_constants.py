@@ -28,20 +28,22 @@ no new dependency edge is created in either direction.
 
 See ``scripts/check_isolation_keepout.py``'s module docstring (section
 "Which clearance figure: BASIC clearance through REINFORCED creepage") for
-the full IEC 60335-1 derivation and the PD2 enclosure prerequisite. PD2 is
-the selected production architecture, not a convenience override: the
-gasketed PCB compartment must be kept outside the coil/heatsink airflow path
-and verified before release. If that prerequisite fails, the PD3 fallback
-figure must be selected in both enforcement points together. Never shrink
-this figure to make a gate pass.
+the full IEC 60335-1 derivation and the PD2 enclosure prerequisite. PD3 is
+the enforced production classification (the 2026-08-15 data-driven
+decision, docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md): the
+as-built board is forced-air vented with no cover/gasket/partition, so
+PD3/12.6mm reinforced creepage governs. The PD2 figure (8.0mm) remains a
+documented fallback should the sealed, gasketed PCB compartment (kept
+outside the coil/heatsink airflow path and verified before release) ever
+be built. Never shrink this figure to make a gate pass.
 """
 
 from __future__ import annotations
 
-# REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- 8.0mm at the selected PD2 production target. See
+# REINFORCED creepage, pollution degree 3, material group IIIb, <=400V
+# working voltage -- 12.6mm at the enforced PD3 classification. See
 # scripts/check_isolation_keepout.py's module docstring for the full
-# derivation and the mechanical prerequisite.
-MIN_BARRIER_WIDTH_MM = 8.0
+# derivation and the PD2 enclosure prerequisite.
+MIN_BARRIER_WIDTH_MM = 12.6
 
 __all__ = ["MIN_BARRIER_WIDTH_MM"]

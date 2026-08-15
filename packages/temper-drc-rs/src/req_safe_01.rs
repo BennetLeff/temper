@@ -1107,7 +1107,8 @@ pub fn req_safe_01_check_creepage_path(
 ///   8.0, 11.0}) and the legacy "Table 16 working isolation at 400V"
 ///   citation is debunked (Table 16 is keyed to rated impulse voltage, has
 ///   no 400V row). Non-binding on a flat board (creepage >= clearance via
-///   IEC 60664-1 cl. 5.1.2 -- the 8.0mm creepage floor dominates), but must
+///   IEC 60664-1 cl. 5.1.2 -- the 12.6mm PD3-enforced creepage floor
+///   dominates), but must
 ///   be re-sourced before reliance. Corrected value candidates exist
 ///   (2.0mm reinforced via cl. 29.1.3 + cl. 29.1 soldering adder --
 ///   `scripts/generate_kicad_dru.py`'s HV_INTERNAL_CLEARANCE_MM) but are
@@ -1118,11 +1119,11 @@ pub fn req_safe_01_check_creepage_path(
 ///   decision). CORRECTED 2026-08-15 from the known-low 1.0 pin, which the
 ///   code itself conceded was under even Table 18's PD2 value of 1.1.
 const MATRIX_ROWS: [(&str, &str, &str, f64, f64, f64); 6] = [
-    ("MAINS", "LV_CONTROL", "basic", 3.0, 4.0, 6.0),
-    ("MAINS", "LV_CONTROL", "reinforced", 6.0, 8.0, 10.0),
-    ("DC_BUS", "LV_CONTROL", "basic", 3.0, 4.0, 6.0),
-    ("DC_BUS", "LV_CONTROL", "reinforced", 6.0, 8.0, 10.0),
-    ("MAINS", "ISOLATED", "reinforced", 6.0, 8.0, 10.0),
+    ("MAINS", "LV_CONTROL", "basic", 3.0, 6.3, 8.3),
+    ("MAINS", "LV_CONTROL", "reinforced", 6.0, 12.6, 14.6),
+    ("DC_BUS", "LV_CONTROL", "basic", 3.0, 6.3, 8.3),
+    ("DC_BUS", "LV_CONTROL", "reinforced", 6.0, 12.6, 14.6),
+    ("MAINS", "ISOLATED", "reinforced", 6.0, 12.6, 14.6),
     ("LV_CONTROL", "LV_CONTROL", "functional", 0.5, 1.8, 2.0),
 ];
 

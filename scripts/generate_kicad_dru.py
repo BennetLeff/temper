@@ -66,20 +66,24 @@ if COATING_QUALIFIED:
 # docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3, item 3.
 HV_INTERNAL_CLEARANCE_MM = 2.0
 
-# Reinforced creepage at Pollution Degree 2 (IEC 60335-1 clause 29.2.3 x
+# Reinforced creepage at Pollution Degree 3 (IEC 60335-1 clause 29.2.3 x
 # Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
-# basic 4.0mm x2 = 8.0mm.
+# basic 6.3mm x2 = 12.6mm.
 #
 # IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the default
-# for this appliance class (cooking ranges/hobs). The project owner has
-# selected the PD2 exception for the production architecture, conditional on
-# a documented, gasketed PCB compartment that is outside the coil/heatsink
-# airflow path. If that mechanical prerequisite is not implemented and
-# verified, PD3 remains the fallback requirement and this selection must be
-# revisited before release. See docs/evidence/2026-07-30-pd2-enclosure-
-# decision.md.
-HV_CREEPAGE_PD2_MM = 8.0
-HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
+# for this appliance class (cooking ranges/hobs); PD2 is earned only by a
+# documented, gasketed PCB compartment outside the coil/heatsink airflow
+# path, which is not built and is thermally counterproductive
+# (docs/evidence/2026-07-30-pcb-compartment-thermal-bound.md). The
+# data-driven decision of 2026-08-15 (docs/evidence/2026-08-15-pd2-pd3-
+# data-driven-decision.md) therefore enforces PD3/12.6mm as the governing
+# bar: the as-built board is forced-air vented with no cover/gasket/
+# partition, so 8.0mm was an unearned credit. PD2 remains as the explicit
+# fallback should the sealed compartment ever be built and verified, so a
+# future mechanical reclassification changes both points together rather
+# than silently carrying the PD3 number.
+HV_CREEPAGE_PD2_MM = 8.0  # fallback if a sealed compartment is ever built
+HV_CREEPAGE_PD3_MM = 12.6
 
 # ---------------------------------------------------------------------------
 # Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
@@ -102,12 +106,16 @@ HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
 #     proof this is a genuine path-around-obstacles solver, not a relabeled
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
-# WHICH FIGURE TO EMIT: PD2 is the selected production target, and it must
-# remain aligned with check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM.
-# Both enforcement points therefore emit/enforce 8.0mm. The PD3 constant is
-# retained as an explicit fallback so a future mechanical reclassification
-# changes both points together rather than silently carrying the PD2 number.
-HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
+# WHICH FIGURE TO EMIT: PD3 is the enforced production target (the
+# 2026-08-15 data-driven decision: PD3 governs the as-built, forced-air-
+# vented, compartment-less board; see docs/evidence/2026-08-15-pd2-pd3-
+# data-driven-decision.md), and it must remain aligned with
+# check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM. Both enforcement
+# points therefore emit/enforce 12.6mm. The PD2 constant is retained as an
+# explicit fallback so a future mechanical reclassification (a built, real
+# sealed compartment) changes both points together rather than silently
+# carrying the PD3 number.
+HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
 
 # RULE 10's floor: the clearance every track-involving pair must hold when no
 # stricter, more specific rule matches. This is the bar 503 of the heatsink
@@ -152,9 +160,11 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 #   material group   IIIa/IIIb   (generic FR-4, CTI unstated; the repo-wide
 #                                 assumption, and IEC 60335-1 merges IIIa/IIIb
 #                                 into one column so the choice is immaterial)
-#   pollution degree PD2         (docs/evidence/2026-08-11-pd2-decision-record.md
-#                                 D1 -- the owner's selected target)
-#   => 6.3mm  (PD3, the fallback, would be 10.0mm)
+#   pollution degree PD3         (the 2026-08-15 data-driven decision -- PD3
+#                                 governs the as-built, forced-air-vented,
+#                                 compartment-less board; see docs/evidence/
+#                                 2026-08-15-pd2-pd3-data-driven-decision.md)
+#   => 10.0mm  (PD2, the fallback, would be 6.3mm)
 #
 # The 570.5 Vrms is measured, not assumed: ngspice against the repo's own
 # committed simulation/harness/nets/zvs_margin_sweep.cir, worst OCP-01-passing
@@ -163,30 +173,30 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 # Note 2 ("working voltage takes into account resonant voltages") is what makes
 # the resonant swing -- not the 340 V bus -- the number the table is indexed by.
 #
-# NOT ENFORCED-EQUAL TO HV_CREEPAGE_ENFORCED_MM ON PURPOSE. 8.0mm is a
-# REINFORCED figure (Table 17 basic 4.0mm x2 per clause 29.2.3) for a pair that
+# NOT ENFORCED-EQUAL TO HV_CREEPAGE_ENFORCED_MM ON PURPOSE. 12.6mm is a
+# REINFORCED figure (Table 17 basic 6.3mm x2 per clause 29.2.3) for a pair that
 # crosses the safety barrier. This pair does not cross it -- both sides are HV.
-# Applying 8.0mm here would be the same false-positive shape as the
+# Applying 12.6mm here would be the same false-positive shape as the
 # GateDriveHV/HighVoltageIsolated cases documented in RULE 4's comment below
 # (docs/evidence/2026-08-11-creepage-gatedrivehv-false-positive.md): a
 # same-domain pair charged a cross-barrier figure.
 #
-# PD3 CAVEAT, stated because this number will be read out of context.
-# docs/evidence/2026-08-11-pd2-decision-record.md sec 2 records that the sealed
-# compartment PD2 is conditional on DOES NOT EXIST, and that "PD3/12.6mm governs
-# the as-built construction today". 6.3mm is therefore a FLOOR against the
-# selected target, not a claim the as-built board is compliant; the as-built
-# figure is 10.0mm. Both constants are kept so a mechanical reclassification
-# moves one line, exactly as HV_CREEPAGE_PD2_MM/PD3_MM above do.
+# PD2 CAVEAT, stated because this number will be read out of context.
+# The 2026-08-15 data-driven decision (docs/evidence/2026-08-15-pd2-pd3-
+# data-driven-decision.md) enforces PD3/10.0mm for the as-built
+# construction; 6.3mm (PD2) remains a documented fallback should a sealed
+# compartment ever be built and verified. Both constants are kept so a
+# mechanical reclassification moves one line, exactly as
+# HV_CREEPAGE_PD2_MM/PD3_MM above do.
 #
 # NOTE ON THE BLANK LINE BELOW -- it is load-bearing, not formatting.
 # scripts/check_creepage_clearance_drift.py classifies each constant's
 # insulation TIER by keyword-scanning the contiguous comment block directly
 # above it, and a blank line ends that block
 # (`_contiguous_comment_block_above`). The prose above deliberately discusses
-# the 8.0mm reinforced figure and the 570.5 Vrms working voltage in order to
+# the 12.6mm reinforced figure and the 570.5 Vrms working voltage in order to
 # explain why THIS constant is neither; without the break, those words would
-# be read as this constant's OWN tier and put 6.3mm into a comparison family
+# be read as this constant's OWN tier and put 10.0mm into a comparison family
 # with 8.0mm/12.6mm, which is precisely the false equivalence the paragraph
 # above exists to deny. With the break these three constants classify as
 # tier-unspecified and are FLAGGED rather than compared -- the same treatment
@@ -196,8 +206,8 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 
 # Functional creepage floor for the resonant-tank node, in mm. Derivation,
 # citation and pollution-degree caveat: see the block above.
-HV_TANK_CREEPAGE_PD2_MM = 6.3
-HV_TANK_CREEPAGE_PD3_MM = 10.0  # fallback if the PD2 enclosure prerequisite fails
+HV_TANK_CREEPAGE_PD2_MM = 6.3  # fallback if a sealed compartment is ever built
+HV_TANK_CREEPAGE_PD3_MM = 10.0
 
 # Which of the two above is emitted. Deliberately NOT written as the bare
 # `HV_TANK_CREEPAGE_ENFORCED_MM = HV_TANK_CREEPAGE_PD2_MM` alias that
@@ -227,7 +237,7 @@ HV_TANK_CREEPAGE_PD3_MM = 10.0  # fallback if the PD2 enclosure prerequisite fai
 # The dict-lookup form below keeps the one-line PD switch, duplicates no
 # literal, and reads to that gate as a non-literal expression (its UNRESOLVED
 # bucket) rather than as an alias it must and cannot resolve.
-_TANK_POLLUTION_DEGREE = "PD2"
+_TANK_POLLUTION_DEGREE = "PD3"
 HV_TANK_CREEPAGE_ENFORCED_MM = {
     "PD2": HV_TANK_CREEPAGE_PD2_MM,
     "PD3": HV_TANK_CREEPAGE_PD3_MM,
