@@ -10,26 +10,28 @@
 // temper-drc-rs / temper-constraints — are unreachable), every stage is a
 // guarded identity: `stage_guard` + `Python::attach` + `Ok(state)`. What
 // this suite proves is the SEQUENCING and the Stage<BoardState> contract:
-// the five stages implement the trait, the runner threads the state through
+// the stages implement the trait, the runner threads the state through
 // in declaration order, every run() returns Ok without panicking, and the
 // final state object is the threaded one.
+//
+// 2026-08-15 (ci/unsilence-checks-batch-2): IsolationBarrierStage and
+// DomainClearanceStage were removed — literal no-op stubs with no payload
+// plumbing and no production registration (their kernels run via the Python
+// cp_sat placer). The three compute stages below remain as dormant
+// scaffolding (no production pipeline registers them; the kernels they wrap
+// are called directly by the Python router_v6 pipeline). See
+// docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
 
 use pyo3::prelude::*;
 
 use temper_orchestration::{
-    BoardState, ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage,
-    DomainClearanceStage, IsolationBarrierStage, PipelineConfig, PipelineRunner, StageOutcome,
+    BoardState, ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage, PipelineConfig,
+    PipelineRunner, StageOutcome,
 };
 
-const STAGE_NAMES: &[&str] = &[
-    "clearance_engine",
-    "clearance_check",
-    "creepage_check",
-    "isolation_barrier",
-    "domain_clearance",
-];
+const STAGE_NAMES: &[&str] = &["clearance_engine", "clearance_check", "creepage_check"];
 
 fn build_runner() -> (PipelineRunner<BoardState>, Vec<&'static str>) {
     let mut runner = PipelineRunner::new(PipelineConfig::default());
@@ -40,10 +42,6 @@ fn build_runner() -> (PipelineRunner<BoardState>, Vec<&'static str>) {
     names.push("clearance_check");
     runner.add_stage(Box::new(CreepageCheckStage { payload: None }));
     names.push("creepage_check");
-    runner.add_stage(Box::new(IsolationBarrierStage));
-    names.push("isolation_barrier");
-    runner.add_stage(Box::new(DomainClearanceStage));
-    names.push("domain_clearance");
     (runner, names)
 }
 

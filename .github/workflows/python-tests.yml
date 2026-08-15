@@ -1777,34 +1777,29 @@ jobs:
         # exit non-zero.
         run: uv run python scripts/check_isolation_keepout.py
 
-      # CREEPAGE/CLEARANCE SSOT-DRIFT GATE -- state as of 2026-08-15.
-      # (docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md Task 3;
-      # remediation session 2026-08-08; re-verified 2026-08-14 and 2026-08-15,
-      # see docs/evidence/2026-08-14-creepage-figure-integrity.md and
-      # docs/evidence/2026-08-15-pending-decisions.md item A.)
+      # CREEPAGE/CLEARANCE SSOT-DRIFT GATE -- ENABLED 2026-08-15.
+      # (ci/unsilence-checks-batch-2, mechanism 3 of the silent-check
+      # census). History: written 2026-08-08 (Task 3 of
+      # docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md), fully
+      # unit-tested (44 tests), CI invocation deliberately commented out
+      # pending human approval of the value families it reports. The gate
+      # is a discovery-based cross-source SSOT check: every creepage/
+      # clearance declaration across elec/*.ato, scripts/*.py,
+      # packages/**/*.py|yaml and configs/*.yaml is found by walking the
+      # source, and each (metric, tier) family with 2+ members must carry
+      # exactly one value. Exit codes: 0 = clean, 3 = family mismatch
+      # (VIOLATION), 5 = gate could not run (GATE ERROR).
       #
-      # scripts/check_creepage_clearance_drift.py cross-checks every
-      # creepage/clearance figure declared across elec/*.ato, scripts/*.py,
-      # packages/**/*.py|yaml, and configs/*.yaml by DISCOVERING declaration
-      # sites rather than reading a hand-maintained file list. Its 44 unit
-      # tests (scripts/tests/test_check_creepage_clearance_drift.py) pass
-      # against the checker's own synthetic fixtures and now also exercise
-      # the functional tier and the documented-drift registry.
-      #
-      # The gate was written 2026-08-08 but never wired into any workflow;
-      # on 2026-08-14 it was verified to exit 5 (GATE ERROR) on main -- a
-      # tank selection-alias whose Table 18 FUNCTIONAL tier was outside the
-      # gate's {reinforced, basic, working} vocabulary. Fixed 2026-08-14 by
-      # the dict-lookup workaround (exit 5 -> exit 3) and PROPERLY on
-      # 2026-08-15: 'functional' is now a real tier in _classify_tier
+      # The exit-5 selection-alias blocker on tank_creepage.py's
+      # DEFAULT_TANK_CREEPAGE_MM was fixed in #1203 (dict-lookup form),
+      # and 'functional' became a real tier in _classify_tier on 2026-08-15
       # (classified last so a text that mentions functional only as context
-      # for a reinforced/basic/working figure keeps the more specific tier),
-      # and tank_creepage.py's DEFAULT_TANK_CREEPAGE_MM is back to the
-      # selection-alias form, so the enforced 10.0mm participates in its
+      # for a reinforced/basic/working figure keeps the more specific
+      # tier), so the enforced 10.0mm participates in its
       # [creepage/functional] family and the 6.3mm PD2 fallback is reported
       # as declared-but-not-enforced.
       #
-      # The four 2026-08-08 drift families were resolved or accepted on
+      # The 2026-08-08 drift families were resolved or accepted on
       # 2026-08-15 via the gate's new ACCEPTED_DRIFT registry (still
       # discovered, still printed in full with justification, still
       # self-verifying closed against the reviewed value set):
@@ -1834,19 +1829,32 @@ jobs:
       #   determination. Once an owner decides, either update the stale
       #   6.0 sites or extend ACCEPTED_DRIFT with the decided value.
       #
-      # ENABLEMENT STATUS: the unit-test step below is ENABLED (always
-      # green, exercises the gate against synthetic fixtures). The gate
-      # step stays commented because it exits 3 on main today (the one
-      # honest red above) -- enabling it would red the required Core Tests
-      # context on every PR. Uncomment the gate step once [clearance/
-      # reinforced] is resolved or explicitly accepted.
+      # ENABLEMENT STATUS: BOTH steps below are enabled as of 2026-08-15.
+      # The gate is red by design on origin/main -- exit 3 on the single
+      # honest red above (the ACCEPTED_DRIFT registry clears the other
+      # four). None of the underlying values was changed to make this
+      # pass -- a clearance/creepage value must never be edited to satisfy
+      # a gate (standing repo constraint). This job
+      # (board-provenance-requirements-gates) is NOT in required_contexts,
+      # so the red does not wedge merges; it is a visible, labelled honest
+      # red that finds real cross-source drift and reports it on every
+      # run. Per this file's own convention the gate is NOT
+      # continue-on-error'd: a gate that can run must be allowed to fail
+      # loudly. Un-redding it is a human value decision on the
+      # [clearance/reinforced] family -- NOT a permission to weaken or
+      # re-silence this gate.
       - name: Creepage/clearance drift gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_creepage_clearance_drift.py -v --tb=short
 
-      # - name: Creepage/clearance SSOT-drift gate (cross-source figure agreement)
-      #   if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-      #   run: uv run python scripts/check_creepage_clearance_drift.py
+      - name: Creepage/clearance SSOT-drift gate (cross-source figure agreement)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # RED BY DESIGN on origin/main (exit 3, one honest red -- the
+        # [clearance/reinforced] family; the ACCEPTED_DRIFT registry clears
+        # the other four). Not continue-on-error: a gate that can run must
+        # fail loudly. See the block above for the exact family and the
+        # human decision that would un-red it.
+        run: uv run python scripts/check_creepage_clearance_drift.py
 
       # ---- MUTATING: writes pcb/*.kicad_sch, must stay last ----
       # Removed 2026-08-07: dead weight. The stated reason ("make netlist

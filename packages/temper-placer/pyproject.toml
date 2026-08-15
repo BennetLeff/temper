@@ -77,6 +77,11 @@ addopts = [
     "--tb=short",
     "--strict-markers",
 ]
+# xfail_strict = true: an @pytest.mark.xfail that unexpectedly passes (XPASS)
+# is a hard failure, not a green skip. Mirrors the root pyproject.toml; the
+# router_v6 / requirements suites run with THIS file as their effective
+# config (working-directory: packages/temper-placer).
+xfail_strict = true
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "gpu: marks tests that require GPU",

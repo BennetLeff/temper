@@ -32,6 +32,20 @@
 // expansion (the crate sets `profile.release.panic = "unwind"`), and the
 // `Stage` impls run under `stage_guard` — no panic crosses the boundary.
 // No `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
+//
+// STATUS 2026-08-15 (ci/unsilence-checks-batch-2, silent-check census
+// mechanism 2): the Stage<BoardState> impls in this file have NO production
+// execution path — deterministic_pipeline.rs / router_pipeline.rs never
+// register them; only tests/e3_stages_runner.rs exercises them (with None
+// payloads = identity runs). The three compute stages below
+// (ClearanceEngineStage / ClearanceCheckStage / CreepageCheckStage) wrap the
+// live pyfunction kernels, which the Python router_v6 pipeline calls
+// directly (clearance_check.py / creepage_check.py / _pipeline_verify.py),
+// so they are dormant scaffolding, kept per draft plan 2026-08-09-001 E3 —
+// they do not silence anything. The two literal no-op stubs
+// (IsolationBarrierStage, DomainClearanceStage — `stage_guard(name, || Ok(state))`,
+// nothing computed) were REMOVED in this changeset; their kernels are live
+// via the Python cp_sat placer.
 
 #[cfg(feature = "python")]
 use std::borrow::Cow;
@@ -337,38 +351,6 @@ impl Stage<BoardState> for CreepageCheckStage {
                 Ok(state)
             })
         })
-    }
-}
-
-/// The isolation-barrier stage: domain partition + isolator feasibility
-/// (`isolation_barrier.py`'s pure-compute surface; the CpSatModel wiring is
-/// the ortools boundary and stays Python).
-#[derive(Debug, Clone)]
-pub struct IsolationBarrierStage;
-
-#[cfg(feature = "python")]
-impl Stage<BoardState> for IsolationBarrierStage {
-    fn name(&self) -> Cow<'static, str> {
-        Cow::Borrowed("isolation_barrier")
-    }
-    fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
-        stage_guard("isolation_barrier", || Ok(state))
-    }
-}
-
-/// The domain-clearance stage: the IEC60335 matrix-walk constraint
-/// generation + R24 audit (`domain_clearance.py`; the `SeparatedConstraint`
-/// construction stays Python — pcl is Python-owned).
-#[derive(Debug, Clone)]
-pub struct DomainClearanceStage;
-
-#[cfg(feature = "python")]
-impl Stage<BoardState> for DomainClearanceStage {
-    fn name(&self) -> Cow<'static, str> {
-        Cow::Borrowed("domain_clearance")
-    }
-    fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
-        stage_guard("domain_clearance", || Ok(state))
     }
 }
 
