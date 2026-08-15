@@ -71,6 +71,8 @@ from kiutils.items.gritems import GrPoly  # noqa: E402
 from measure_cross_domain_creepage import (  # noqa: E402
     CURRENT_ENFORCED_MIN_CREEPAGE_MM,
     ToolError,
+    format_diff,
+    format_report,
     load_board,
     load_manifest,
     measure,
@@ -469,3 +471,68 @@ class TestMeasureAllPairs:
         assert len(findings) == len(board.hv_pads) * len(board.selv_pads)
         labels = [f.label for f in findings]
         assert len(labels) == len(set(labels))  # no duplicate pair
+
+
+# ---------------------------------------------------------------------------
+# TestBodyCrossingWording
+# ---------------------------------------------------------------------------
+
+
+class TestBodyCrossingWording:
+    """Pins the corrected ``body_crossing`` output wording (docs/evidence/
+    2026-08-13-hv-creepage-island-slot-and-t1-structural-determination.md,
+    PR #1160): the label must no longer assert a universal "NOT fixable by
+    a slot" verdict -- that overstated an uncited assumption traced to this
+    script's first commit and contradicted by this repo's own one-day-older
+    docs/evidence/2026-07-28-conformal-coating-pd1.md for the identical part
+    class. The corrected label must scope the claim to the straight-line
+    path and flag the island-slot mechanism as unresolved, without changing
+    the classification logic or the reported counts."""
+
+    def test_format_report_scopes_the_unfixability_claim(self, tmp_path: Path) -> None:
+        board_path, manifest_path = _fixture(tmp_path)
+        report, _all, _bodies = measure(board_path, manifest_path, 20.0)
+        text = format_report(report)
+
+        # The overstated universal claim must be gone.
+        assert "NOT fixable by a slot):" not in text
+        assert "(not fixable by a slot):" not in text
+        # The corrected claim must be scoped to the straight-line path and
+        # must flag the island-slot question as open, not silently settled.
+        assert "not fixable by a slot along the straight-line path" in text
+        assert "island-slot detour UNRESOLVED" in text
+        # The count itself is untouched by the wording change.
+        body_crossing = sum(1 for f in report.violations if f.body_class == "body_crossing")
+        assert body_crossing > 0  # this fixture must actually exercise the label
+        assert f"UNRESOLVED, see docstring): {body_crossing}" in text
+
+    def test_format_diff_scopes_the_unfixability_claim(self, tmp_path: Path) -> None:
+        board_path, manifest_path = _fixture(tmp_path)
+        report_lo, all_findings, bodies = measure(board_path, manifest_path, 5.0)
+        report_hi = measure_at_second_threshold(report_lo, all_findings, bodies, 200.0)
+        text = format_diff(report_lo, report_hi)
+
+        assert "NOT fixable by a slot):" not in text
+        assert "(not fixable by a slot):" not in text
+        assert "not fixable by a slot along the straight-line path" in text
+        assert "island-slot detour UNRESOLVED" in text
+
+    def test_docstring_cites_pr_1160_and_the_conflicting_prior_document(self) -> None:
+        import measure_cross_domain_creepage as module
+
+        doc = module.__doc__
+        assert doc is not None
+        # Docstring citations in this module wrap long filenames across
+        # lines with a trailing hyphen (this module's own established
+        # convention, e.g. "check_pad_\norientation.py" above) -- collapse
+        # that back to a contiguous string before substring-matching.
+        collapsed = doc.replace("-\n", "-")
+        # The corrected docstring must cite the determination that traced
+        # and corrected the original claim ...
+        assert "2026-08-13-hv-creepage-island-slot-and-t1-structural-determination.md" in collapsed
+        assert "PR #1160" in doc
+        # ... the earlier same-repo document it was found to contradict ...
+        assert "2026-07-28-conformal-coating-pd1.md" in doc
+        # ... and the standard's clause that remains unread and open.
+        assert "Annex L" in doc
+        assert "IEC 60335-1" in doc

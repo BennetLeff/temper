@@ -100,10 +100,46 @@ runtime, not assumed, and reported in ``Report.back_side_pads_found``.
 
 Body-free vs body-crossing
 ---------------------------
-A surface creepage path that runs under a component's own moulded body
-cannot be lengthened by a routed slot -- the slot would have to be milled
-underneath a mounted part. Classification per pair, for every pair below
-the threshold: build each footprint's body outline from its ``F.Fab`` graphic
+A surface creepage path that would have to run in a straight line UNDER a
+component's own moulded body cannot be lengthened by a slot milled along
+that same straight-line path -- the slot would have to occupy space a
+mounted part already physically occupies. That narrow claim is sound and is
+what the classification below actually tests.
+
+What it does NOT establish -- and what this script's ``body_crossing``
+output label previously overstated as "NOT fixable by a slot" -- is that no
+slot geometry whatsoever can help such a pair. A bounded/"island" slot (both
+ends terminating inside the board, clear of the component's body silhouette)
+does not require milling under the mounted part; it could instead force the
+creepage path to detour around the slot's nearest end while staying on the
+top surface, which is a geometrically different mechanism this classifier
+does not model or rule out. Whether that detour is a valid creepage-
+lengthening measurement under IEC 60664-1's contour rule is a genuinely open
+question:
+``docs/evidence/2026-08-13-hv-creepage-island-slot-and-t1-structural-
+determination.md`` (PR #1160) traced the original "cannot be lengthened by a
+routed slot" claim to an uncited assumption present verbatim, unmodified,
+since this script's first commit (``8302756d3``, 2026-07-29); found it
+contradicted by this repo's own one-day-older
+``docs/evidence/2026-07-28-conformal-coating-pd1.md`` Sec 4.2, which reasoned
+the opposite for the identical part class ("a slot is a board feature and
+reaches under the body; a coating is a surface film and does not"); and
+confirmed directly, against both current IEC 60664-1 editions (3.0:2020 and
+3.1:2025), that neither pictures a bounded/island slot among their 11
+groove/rib/joint/screw-head worked examples (cl. 6.8, renumbered from the
+2002 text's cl. 4.2) -- so the standard neither endorses nor forbids the
+island-slot mechanism. IEC 60335-1:2020 Annex L ("Guidance for the
+measurement of clearances and creepage distances") is the most likely place
+this could be settled, but its content beyond the table of contents could
+not be read in that session; see PR #1160 Sec 3.4 for the exact question
+drafted for a certification lab and the evidence package to hand them. Until
+one of those closes the question, ``body_crossing`` here means "not fixable
+by a slot running the straight-line path under the body" -- a conservative
+screening bound that still requires attention -- not a proven, universal "no
+slot can ever help."
+
+Classification per pair, for every pair below the threshold: build each
+footprint's body outline from its ``F.Fab`` graphic
 items (falling back to ``F.CrtYd`` when a footprint carries no ``F.Fab``
 geometry), as the CONVEX HULL of every point on those layers in board
 coordinates. Convex hull is a deliberate, documented over-approximation
@@ -749,7 +785,10 @@ def format_report(report: Report, *, limit: int = 50) -> str:
     lines.append("")
     lines.append(f"VIOLATIONS (< {report.threshold_mm}mm): {n} of {report.pairs_examined} pairs examined.")
     lines.append(f"  body_free (fixable by a routed slot):     {body_free}")
-    lines.append(f"  body_crossing (NOT fixable by a slot):    {body_crossing}")
+    lines.append(
+        f"  body_crossing (not fixable by a slot along the straight-line path; "
+        f"island-slot detour UNRESOLVED, see docstring): {body_crossing}"
+    )
     lines.append(f"  unknown (no body outline data):           {unknown}")
     if sensitive:
         lines.append(
@@ -798,7 +837,10 @@ def format_diff(report_a: Report, report_b: Report) -> str:
         f"{len(delta)} newly-violating pair(s)."
     )
     lines.append(f"  body_free (fixable by a routed slot):  {body_free}")
-    lines.append(f"  body_crossing (not fixable by a slot):  {body_crossing}")
+    lines.append(
+        f"  body_crossing (not fixable by a slot along the straight-line path; "
+        f"island-slot detour UNRESOLVED, see docstring):  {body_crossing}"
+    )
     lines.append(f"  unknown:                                 {unknown}")
     if delta:
         lines.append("")
