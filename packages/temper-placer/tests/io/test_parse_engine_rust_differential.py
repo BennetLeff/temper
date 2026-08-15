@@ -12,6 +12,13 @@ assertion here drives IDENTICAL inputs through both sides. The Rust engine
 parses the raw ``.kicad_pcb`` text itself (kiutils leaves the boundary,
 parent R4); it must reproduce the kiutils-based extraction bit-identically.
 
+Deliberate post-migration divergence (2026-08-15): ``_extract_nets_from_pcb``
+/ ``extract_nets_pure`` keep single-pad nets in the netlist (the
+pre-migration ``len(n.pins) >= 2`` filter dropped them). Both arms changed in
+lockstep -- see the oracle header and ``parse_engine.rs``'s
+``extract_nets_pure`` docstring -- so the parity asserted here is
+engine-vs-oracle equality on the NEW contract, exactly as before.
+
 Comparison convention (mirrors the priority/loop differentials): objects are
 canonicalized into comparable tuples before assertion. Every non-float leaf
 carries its CONCRETE type in the key (``("int", v)`` vs ``("float", v.hex())``)
