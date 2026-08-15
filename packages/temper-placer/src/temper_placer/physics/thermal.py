@@ -55,13 +55,19 @@ T_J_ABS_MAX_C: float = 175.0
 # IKW40N120H3 IGBTs; every other ref is a PLACEHOLDER — the legacy flat
 # stand-ins, kept because no datasheet has been recovered for those parts.
 # Do not read placeholder entries as measured values. (Designators are not
-# stable across branches: U5/U6 are the IGBTs on main; Q1/Q2 are the legacy
-# analysis-config names for the same half-bridge devices.)
+# stable across branches: U4/U5 are the TO-247 IGBTs on the current board;
+# U5/U6 and Q1/Q2 name the same half-bridge devices on other branches.)
 THERMAL_RESISTANCE_BY_REF: dict[str, tuple[float, float, float]] = {
     "Q1": (0.31, 0.20, 0.45),  # IKW40N120H3 (legacy analysis ref)
     "Q2": (0.31, 0.20, 0.45),  # IKW40N120H3 (legacy analysis ref)
-    "U5": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_high)
-    "U6": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_low)
+    "U4": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_high)
+    "U5": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_low)
+    "U6": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_low, other branches)
+    # TO-220 rectifiers on the shared HS1 heatsink (BOM.md:542 "2xTO-220"):
+    # Rjc is the TO-220-class PLACEHOLDER (no recovered datasheet); Rch/Rha
+    # are the committed shared-heatsink figures (TIM class / HS1 w/ fan).
+    "U1": (0.60, 0.20, 0.45),
+    "U2": (0.60, 0.20, 0.45),
 }
 
 # Placeholder (Rjc, Rch, Rha) for devices without a recovered datasheet.

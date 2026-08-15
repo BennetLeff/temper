@@ -225,13 +225,14 @@ class TestValidateHeatsinkEdge:
 
 class TestValidateTjSafety:
     def test_tj_below_limit_passes(self):
-        # 10W at 5mm with Rjc=0.6: edge_penalty=0, R_total=0.6+0.25+2.0=2.85
-        # Tj = 40 + 10*2.85 = 68.5, well under 150
+        # 10W at 5mm with Rjc=0.6 (explicit), module defaults ambient=60,
+        # Rch=0.20, Rha=0.45 (2026-08-15 corrections): R_total=0.6+0.20+0.45
+        # =1.25, Tj = 60 + 10*1.25 = 72.5, well under 175.
         validate_tj_safety("Q1", 10.0, 0.6, 150.0, 5.0)
 
     def test_tj_at_boundary_passes(self):
-        # Just barely under the limit
-        validate_tj_safety("Q1", 10.0, 0.6, 70.0, 5.0)
+        # Just barely under the limit: Tj = 60 + 10*1.25 = 72.5 < 75.
+        validate_tj_safety("Q1", 10.0, 0.6, 75.0, 5.0)
 
     def test_tj_exceeds_rated_raises(self):
         with pytest.raises(ThermalAnchoringSafetyError, match="Junction temperature violation"):
@@ -242,7 +243,8 @@ class TestValidateTjSafety:
         validate_tj_safety("Q1", 200.0, 0.6, None, 50.0)
 
     def test_missing_rjc_uses_default(self):
-        """When Rjc is None, defaults to 0.6 K/W."""
+        """When Rjc is None, defaults to the IKW40N120H3 datasheet 0.31 K/W
+        (was the flat 0.6 TO-247 stand-in; 2026-08-15 correction)."""
         validate_tj_safety("Q1", 10.0, None, 150.0, 5.0)
 
     def test_far_from_edge_increases_tj(self):

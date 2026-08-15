@@ -717,7 +717,9 @@ class TestMetrics:
         empty = measure_thermal(st, nl, _board())
         # Empty power_dissipation short-circuits: the kernel is never called
         # and the ambient temperature is returned as the max junction temp.
-        assert empty.max_junction_temp_c == 40.0
+        # Default ambient is the 60 °C design-limit (ENVIRONMENTAL_SPEC.md
+        # derating zero-power point; thermal decision 2026-08-15 §6.4).
+        assert empty.max_junction_temp_c == 60.0
         loaded = measure_thermal(st, nl, _board(), power_dissipation={"Q1": 5.0})
         assert loaded.max_junction_temp_c > 0.0
 

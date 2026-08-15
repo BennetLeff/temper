@@ -25,8 +25,15 @@ from dataclasses import dataclass, field
 class _OracleThermalSpec:
     """Thermal management targets."""
 
-    max_junction_temp_c: float = 110.0
-    ambient_temp_c: float = 40.0
+    # RE-PINNED 2026-08-15: defaults now mirror the corrected Rust
+    # ThermalSpec — max_junction_temp_c = 125 (the datasheet-recovery
+    # "design for ≤125 °C" junction limit; the 110 had no documented
+    # basis) and ambient_temp_c = 60 (the design-limit ambient,
+    # ENVIRONMENTAL_SPEC.md derating zero-power point). Decision doc
+    # 2026-08-15 §6.4; see
+    # docs/evidence/2026-08-15-thermal-corrections-implemented.md.
+    max_junction_temp_c: float = 125.0
+    ambient_temp_c: float = 60.0
     power_dissipation: dict[str, float] = field(default_factory=dict)
     target_edge: str = "TOP"
     max_heatspread_mm: float = 10.0
