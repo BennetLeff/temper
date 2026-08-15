@@ -192,6 +192,15 @@ fn py_min_f32(a: f32, b: f32) -> f32 {
 /// length; an empty input returns `(ambient_c, ambient_c, 0.0)` (mirrors
 /// the oracle's untouched `max_tj` and the `if edge_dists else 0.0`
 /// guard).
+///
+/// The ten-argument signature is the kernel's fixed data contract (six
+/// equal-length per-device arrays + board geometry + ambient); the pyo3
+/// bridge below carries the identical surface. Clippy's
+/// `too_many_arguments` lint is a style preference that cannot be satisfied
+/// without restructuring the public API (e.g. bundling the arrays into a
+/// struct), which would churn the pinned differentials for no behavior
+/// change -- so it is allowed here, exactly as on the bridge.
+#[allow(clippy::too_many_arguments)]
 pub fn measure_thermal_edges(
     positions_x: &[f32],
     positions_y: &[f32],
