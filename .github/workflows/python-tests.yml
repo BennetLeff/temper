@@ -139,6 +139,9 @@ on:
       - 'pcb/temper.kicad_pcb'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
+      - 'scripts/check_ipc2221b_trace_width_floor.py'
+      - 'scripts/tests/test_check_ipc2221b_trace_width_floor.py'
+      - 'packages/temper-geometry/src/ipc2221b_current_width.rs'
       - 'pcb/temper.kicad_pro'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -246,6 +249,9 @@ on:
       - 'pcb/temper.kicad_pcb'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
+      - 'scripts/check_ipc2221b_trace_width_floor.py'
+      - 'scripts/tests/test_check_ipc2221b_trace_width_floor.py'
+      - 'packages/temper-geometry/src/ipc2221b_current_width.rs'
       - 'pcb/temper.kicad_pro'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -1549,6 +1555,24 @@ jobs:
         # 2026-07-29-hv-netclass-coverage-gate.md). Never
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_hv_netclass_coverage.py
+
+      - name: IPC-2221B trace-width floor gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_ipc2221b_trace_width_floor.py -v --tb=short
+
+      - name: IPC-2221B current-derived trace-width floor gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: for every net registered in temper_geometry's
+        # ipc2221b_current_width::KNOWN_NET_CURRENTS (currently hb-gnd),
+        # re-derives the IPC-2221B requirement independently and asserts
+        # the width the production assign_trace_widths entrypoint actually
+        # assigns meets it. This is the gate that would have caught
+        # hb-gnd's 0.508mm assignment (PR #1187's hyphen-boundary fix)
+        # still being 3x-9x short of its real ~4.77mm IPC-2221B
+        # requirement (10-22.5A RMS half-bridge low-side switch return --
+        # docs/hardware/TRACE_WIDTH_CALCULATIONS.md's own method). Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_ipc2221b_trace_width_floor.py
 
       - name: Copper-net consistency gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

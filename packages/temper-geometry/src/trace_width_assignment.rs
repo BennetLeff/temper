@@ -160,6 +160,62 @@ pub fn determine_trace_width(
     (default_width, "Standard signal trace")
 }
 
+/// Current-aware trace width: `determine_trace_width` (keyword bucket)
+/// widened, never narrowed, by `ipc2221b_current_width`'s current-derived
+/// IPC-2221B requirement when the net's current is known
+/// (`ipc2221b_current_width::KNOWN_NET_CURRENTS`).
+///
+/// This is the authoritative width derivation as of the `hb-gnd`
+/// under-sizing fix: `determine_trace_width` alone is a pure function of
+/// the net NAME and structurally cannot express a current-appropriate
+/// width for a net like `hb-gnd` (10-22.5A) -- no keyword bucket carries
+/// that number. Where a net's current is known, this function computes the
+/// IPC-2221B floor for that current and takes the max against the
+/// keyword-bucket width, so a correct current-derived figure always wins
+/// and a name-based guess never narrows a value already computed from
+/// current. Where the current is NOT known (not in the registry --
+/// current not derivable from `elec/src`), this is exactly
+/// `determine_trace_width`'s output, unchanged.
+///
+/// `determine_trace_width` itself is left untouched by this function
+/// (called, not modified) so its own pinned-differential test corpus
+/// (`test_determine_trace_width_matches_reference` in
+/// `test_spatial_drc_cluster_rust_differential.py`) keeps testing exactly
+/// what it always tested, undisturbed by this addition -- none of that
+/// corpus's net names are in `ipc2221b_current_width::KNOWN_NET_CURRENTS`,
+/// so the two functions agree everywhere the oracle exercises them.
+pub fn determine_trace_width_ipc_aware(
+    net_name: &str,
+    default_width: f64,
+    power_width: f64,
+    hv_width: f64,
+) -> (f64, String) {
+    let (base_width, base_reason) = determine_trace_width(net_name, default_width, power_width, hv_width);
+
+    match crate::ipc2221b_current_width::lookup(net_name) {
+        Some(entry) => {
+            let ipc_width = crate::ipc2221b_current_width::required_width_mm(
+                entry.current_a_high,
+                entry.temp_rise_c,
+                entry.copper_weight_oz,
+                entry.internal_layer,
+            );
+            if ipc_width > base_width {
+                (
+                    ipc_width,
+                    format!(
+                        "IPC-2221B current-derived requirement ({} A @ {} degC rise, {} oz) overrides name-based classification ({base_width}mm, \"{base_reason}\"); source: {}",
+                        entry.current_a_high, entry.temp_rise_c, entry.copper_weight_oz, entry.source
+                    ),
+                )
+            } else {
+                (base_width, base_reason.to_string())
+            }
+        }
+        None => (base_width, base_reason.to_string()),
+    }
+}
+
 // ---------------------------------------------------------------------------
 // pyo3 boundary
 // ---------------------------------------------------------------------------
@@ -189,9 +245,27 @@ pub fn determine_trace_width_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// `determine_trace_width_ipc_aware` exposed to Python. This is the
+/// function `trace_width_assignment.py`'s `assign_trace_widths`
+/// orchestration should call for production width assignment; the plain
+/// `determine_trace_width_py` above stays exposed unchanged for the
+/// pinned keyword-only differential test.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn determine_trace_width_ipc_aware_py(
+    net_name: String,
+    default_width: f64,
+    power_width: f64,
+    hv_width: f64,
+) -> PyResult<(f64, String)> {
+    temper_py_bridge::catch_unwind(|| determine_trace_width_ipc_aware(&net_name, default_width, power_width, hv_width))
+        .map_err(temper_py_bridge::panic_to_err)
+}
+
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(determine_trace_width_py, m)?)?;
+    m.add_function(wrap_pyfunction!(determine_trace_width_ipc_aware_py, m)?)?;
     Ok(())
 }
 
@@ -291,6 +365,52 @@ pub(crate) mod tests {
         assert_eq!(determine_trace_width("sig-1", 0.127, 0.508, 0.635), (0.127, "Standard signal trace"));
     }
 
+    #[cfg_attr(test, test)]
+    fn determine_trace_width_ipc_aware_widens_hb_gnd() {
+        // The follow-up this module documents: 0.508mm (the hyphen-boundary
+        // fix's output) is still 3x-9x short of what hb-gnd's real current
+        // (10-22.5A RMS) requires. The current-aware function must widen it
+        // to the IPC-2221B floor computed from that current, not settle for
+        // the keyword bucket.
+        let (width, reason) = determine_trace_width_ipc_aware("hb-gnd", 0.127, 0.508, 0.635);
+        assert!((width - 4.77).abs() < 0.02, "hb-gnd current-aware width should be ~4.77mm, got {width}");
+        assert!(width > 0.508, "current-aware width must widen the keyword-bucket 0.508mm, got {width}");
+        assert!(reason.contains("IPC-2221B current-derived"), "reason should say why: {reason}");
+    }
+
+    #[cfg_attr(test, test)]
+    fn determine_trace_width_ipc_aware_unregistered_nets_unchanged() {
+        // hb.gate_hs-vdd / hb.gate_ls-vdd have no registry entry (0 nodes
+        // in elec/build/default.net -- current not derivable), so the
+        // current-aware function must be a pure passthrough of the
+        // keyword-bucket result for them, exactly as it is for any net
+        // outside the current registry.
+        assert_eq!(
+            determine_trace_width_ipc_aware("hb.gate_hs-vdd", 0.127, 0.508, 0.635),
+            (0.508, "Power net requires wider trace for current capacity".to_string())
+        );
+        assert_eq!(
+            determine_trace_width_ipc_aware("hb.gate_ls-vdd", 0.127, 0.508, 0.635),
+            (0.508, "Power net requires wider trace for current capacity".to_string())
+        );
+        assert_eq!(
+            determine_trace_width_ipc_aware("SIG_1", 0.1, 0.5, 0.6),
+            (0.1, "Standard signal trace".to_string())
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn determine_trace_width_ipc_aware_never_narrows() {
+        // A pathological registry entry whose IPC width would be smaller
+        // than the keyword bucket must never narrow the assigned width.
+        // hb-gnd's keyword bucket (power_width) can be pushed above its
+        // IPC floor by passing a huge power_width; the result must stay at
+        // that huge power_width, not drop to the (now smaller) IPC figure.
+        let (width, reason) = determine_trace_width_ipc_aware("hb-gnd", 0.127, 10.0, 0.635);
+        assert_eq!(width, 10.0, "must never narrow below the keyword-bucket width");
+        assert_eq!(reason, "Power net requires wider trace for current capacity");
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -301,6 +421,9 @@ pub(crate) mod tests {
         ("trace_width_assignment::tests::kw_boundary_match_hyphen_aware_cases", kw_boundary_match_hyphen_aware_cases),
         ("trace_width_assignment::tests::determine_trace_width_precedence", determine_trace_width_precedence),
         ("trace_width_assignment::tests::determine_trace_width_hyphen_boundary_fix", determine_trace_width_hyphen_boundary_fix),
+        ("trace_width_assignment::tests::determine_trace_width_ipc_aware_widens_hb_gnd", determine_trace_width_ipc_aware_widens_hb_gnd),
+        ("trace_width_assignment::tests::determine_trace_width_ipc_aware_unregistered_nets_unchanged", determine_trace_width_ipc_aware_unregistered_nets_unchanged),
+        ("trace_width_assignment::tests::determine_trace_width_ipc_aware_never_narrows", determine_trace_width_ipc_aware_never_narrows),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

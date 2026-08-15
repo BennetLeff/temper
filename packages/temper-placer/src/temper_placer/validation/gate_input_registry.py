@@ -575,6 +575,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_footprint_drift.py", "pcb/temper.kicad_pcb", "needs compiled netlist; probe harness deferred"),
     ("check_hash_order_determinism.py", ".hash-order-inventory", "salted-hash order gate (PYTHONHASHSEED determinism); probe harness deferred"),
     ("check_hv_netclass_coverage.py", "elec/domain_manifest.yaml", "HV netclass coverage gate (N4); probe harness deferred"),
+    ("check_ipc2221b_trace_width_floor.py", "packages/temper-geometry/src/ipc2221b_current_width.rs", "current-derived IPC-2221B trace-width floor gate (2026-08-13 hb-gnd under-sizing follow-up); exercises the real assign_trace_widths production entrypoint against a synthetic PathfindingResult; own unit tests (scripts/tests/test_check_ipc2221b_trace_width_floor.py) reconstruct the pre-fix regression and prove it is caught; probe harness deferred"),
     ("check_isolation_keepout.py", "pcb/temper.kicad_pcb", "baseline red on main (no keepout zones); probe inconclusive today"),
     ("check_manifest_gate.py", "scripts/manifest.yaml", "manifest scan; probe harness deferred"),
     ("check_measurement_provenance.py", "power_pcb_dataset/drc_ceiling.json", "baseline red on main (stale ceiling); probe inconclusive today"),
