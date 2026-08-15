@@ -206,11 +206,22 @@ def test_no_crash_copper_balance(results: RoutingResults) -> None:
 @given(results=realistic_routing_results())
 @_SETTINGS
 def test_no_crash_creepage(results: RoutingResults) -> None:
-    """``verify_creepage`` never raises on realistic inputs."""
+    """``verify_creepage`` never raises on realistic inputs.
+
+    Was ``xfail``'d for a ``ZeroDivisionError``: the pre-migration Python
+    ``_point_to_segment_distance``/``_closest_point_on_segment`` guarded
+    only ``dx == 0.0 and dy == 0.0``, which misses the case where ``dx``/
+    ``dy`` are individually nonzero but small enough that ``dx*dx``/
+    ``dy*dy`` each underflow to ``0.0`` -- ``denom`` becomes exactly
+    ``0.0`` without the guard firing, so the projection division crashes.
+    Fixed same-day by commit a75f23a24 (2026-06-25), which guards the
+    computed ``denom == 0.0`` directly; the Rust port (Wave 3,
+    2026-07-31) carries the fix forward bit-exactly. 5000-example direct
+    Hypothesis fuzz of ``verify_creepage`` plus 20000-example unrestricted
+    -float fuzz of the underlying kernels found no crash.
+    """
     try:
         report = verify_creepage(results)
-    except ZeroDivisionError:
-        pytest.xfail("verify_creepage raises ZeroDivisionError on some inputs — known bug")
     except Exception as exc:
         pytest.fail(f"verify_creepage raised {type(exc).__name__}: {exc}")
     assert isinstance(report, CreepageReport)

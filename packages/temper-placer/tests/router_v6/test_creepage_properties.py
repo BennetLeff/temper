@@ -62,12 +62,15 @@ def test_no_self_check(results: RoutingResults) -> None:
     HV nets are never compared against themselves — the loop in
     ``verify_creepage`` skips ``other_net == hv_net``.  This property
     guarantees that invariant holds for every fuzzed input.
+
+    Was ``xfail``'d for a ``ZeroDivisionError`` -- an underflow gap in the
+    pre-migration Python's degenerate-segment guard (fixed same-day by
+    a75f23a24 on 2026-06-25; carried forward bit-exactly by the Rust port).
+    No longer reproduces: see test_dfm_hypothesis_fuzzing.py's
+    ``test_no_crash_creepage`` docstring for the fuzzing evidence.
     """
     try:
         report = verify_creepage(results)
-    except ZeroDivisionError:
-        pytest.xfail("verify_creepage raises ZeroDivisionError on some inputs — known bug")
-        return
     except Exception as exc:
         pytest.fail(f"verify_creepage raised {type(exc).__name__}: {exc}")
 
