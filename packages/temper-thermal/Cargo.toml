@@ -10,7 +10,23 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 faer = { version = "0.24.4", optional = true }
-pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
+# `extension-module` is deliberately NOT a Cargo feature here -- it is
+# supplied by the maturin build alone (`[tool.maturin] features =
+# ["pyo3/extension-module"]` in pyproject.toml, added alongside this change
+# -- this crate's pyproject.toml previously carried no `features` override
+# at all) and nothing else. With `extension-module` in the Cargo features
+# (the prior state), `cargo test --features python` (also the *default*
+# feature set here) links the test binary against an unlinked-libpython
+# pyo3 and fails at link time -- `extension-module` deliberately omits
+# libpython linkage because a real Python-loaded .so resolves those symbols
+# at dlopen time via the interpreter, which a standalone `cargo test` binary
+# never does. Without it here, `cargo test`/`cargo build` link libpython
+# normally and the maturin-produced cdylib still gets `extension-module`
+# from the new pyproject.toml override. Mirrors
+# `temper-orchestration`/`temper-drc-rs`'s identical fix and rationale
+# (measured working there first) -- verified via `uv run maturin develop`
+# after this change.
+pyo3 = { version = "0.29", optional = true }
 temper-py-bridge = { path = "../temper-py-bridge", optional = true }
 
 [features]

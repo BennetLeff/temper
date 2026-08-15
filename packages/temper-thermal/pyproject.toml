@@ -9,4 +9,12 @@ description = "Thermal FDM assembly kernels for temper-placer (pyo3)"
 requires-python = ">=3.11"
 
 [tool.maturin]
+# `pyo3/extension-module` is supplied here (maturin-only), never as a Cargo
+# feature on the crate's own `pyo3` dependency -- see the comment on that
+# dependency in Cargo.toml. Added alongside that change; this crate's
+# Cargo-level `python` feature is already `default = ["python"]`, so no
+# `features = ["python", ...]` entry is needed here, only the
+# extension-module addition itself. Mirrors `temper-io-types`, whose
+# `python` feature is likewise a Cargo default.
+features = ["pyo3/extension-module"]
 module-name = "temper_thermal"

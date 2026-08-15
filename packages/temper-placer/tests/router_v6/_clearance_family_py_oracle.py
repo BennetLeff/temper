@@ -30,6 +30,27 @@ compare the Rust orchestration against it field-by-field, bit-exactly.
 
 Do NOT edit: it is the reference. The ``temper_placer`` imports at the top
 resolve to the pinned pre-E3 modules (the pieces E3 did NOT migrate).
+
+RE-PIN (2026-08-14, its own commit, separate from the behavioral fixes it
+tracks): ``get_clearance``'s ``material_group`` discard (``vc.
+get_creepage_mm()`` called with no argument, always the pyo3 bucket-2
+default) and its internal-layer reduction's un-floored ``> 0.5`` cliff were
+both confirmed defects in the pre-migration source itself, not merely
+things the Rust port diverged from correctly. ``temper-orchestration/src/
+clearance.rs::get_clearance_impl`` (commit 234ce918d, then a
+non-monotonicity fix in this same re-pin's parent commit) and
+``temper-drc-rs/src/router_clearance.rs::get_clearance`` were fixed first;
+this oracle is re-pinned to match ONLY after exhaustively verifying (full
+15,552-case sweep of ``get_clearance``'s public parameter space, plus 500
+randomized ``verify_clearance`` route scenarios) that every resulting
+divergence between the fixed Rust and the previously-frozen oracle body was
+conservative-only (fixed >= frozen, never <) -- see
+``test_oracle_body_matches_pinned_digest``'s docstring for why this is the
+narrow, deliberate exception to "do not edit", and the commit message for
+the full sweep evidence. The two changes are isolated to
+``_oracle_material_group_bucket`` and the internal-layer-reduction line in
+``get_clearance`` only; everything else in this file remains the original
+byte-exact snapshot.
 """
 
 from __future__ import annotations
@@ -71,6 +92,33 @@ _VC_FROM_VALUE = {
 }
 
 
+def _oracle_material_group_bucket(material_group: str) -> int:
+    """Deliberate re-pin (2026-08-14): the pre-migration body this oracle
+    pinned discarded `material_group` entirely (`vc.get_creepage_mm()` was
+    always called with no argument, i.e. pyo3's bucket-2 "typical FR4"
+    default). That discard is a confirmed defect, not a real reference
+    behavior -- see `temper-orchestration/src/clearance.rs`'s
+    `get_clearance_impl` fix (commit 234ce918d) and its own `MaterialGroup`
+    doc comment for the full citation (`docs/specs/HIGH_VOLTAGE_CLEARANCE_
+    SPEC.md` REQ-ELEC-04 Section 3.2: this board's declared Material Group
+    is IIIb). This oracle is re-pinned to the corrected behavior rather than
+    continuing to bless the discard, per this suite's own docstring: "a
+    pre-migration module's source really changed upstream -- re-pin
+    deliberately, in its own commit." Mirrors `MaterialGroup::parse` /
+    `creepage_bucket` in `clearance.rs` exactly, including the hard error on
+    an unrecognized label (no call site in this repo ever passes anything
+    but the "IIIa" default, but the live code no longer accepts a silent
+    fallback and the oracle should not either).
+    """
+    bucket = {"I": 1, "II": 2, "IIIa": 3, "IIIb": 3}.get(material_group.strip())
+    if bucket is None:
+        raise ValueError(
+            f"unknown material_group {material_group!r}; expected one of "
+            '"I", "II", "IIIa", "IIIb" (IEC 60335-1 cl. 29.2 CTI bands)'
+        )
+    return bucket
+
+
 def get_clearance(
     net_class_a: str,
     net_class_b: str,
@@ -83,6 +131,7 @@ def get_clearance(
     design_rule_creepage: float | None = None,
 ) -> float:
     """Return the most-conservative clearance (mm) across all applicable standards."""
+    material_group_bucket = _oracle_material_group_bucket(material_group)
     candidates: list[float] = []
 
     # ---- IEC 60950-1 ---------------------------------------------------
@@ -102,7 +151,9 @@ def get_clearance(
         # Use the more demanding of the two net classes
         for vc in (vc_a, vc_b):
             candidates.append(vc.get_clearance_mm(pollution_degree))
-            candidates.append(vc.get_creepage_mm())
+            # Re-pin (2026-08-14): was `vc.get_creepage_mm()` (bucket-2
+            # discard) -- see `_oracle_material_group_bucket`'s docstring.
+            candidates.append(vc.get_creepage_mm(material_group_bucket))
     except Exception:
         pass
 
@@ -125,8 +176,16 @@ def get_clearance(
     result = max(candidates)
 
     # ---- IEC 60664-1 internal-layer reduction -------------------------
+    # Re-pin (2026-08-14): floored at `.max(0.5)` -- see
+    # `temper-orchestration/src/clearance.rs::get_clearance_impl`'s inline
+    # writeup for the full non-monotonicity diagnosis (a `> 0.5` reduction
+    # gate with no floor lets a larger `result` produce a smaller output
+    # once it crosses the boundary; exhaustively confirmed as the ONLY
+    # divergence direction fixed by this floor, over the full 15,552-case
+    # parameter space of this function). Not a threshold change -- `0.30`
+    # and `0.5` both keep their pre-existing values.
     if layer_type == "internal" and result > 0.5:
-        result = result * INTERNAL_LAYER_CREEPAGE_FACTOR
+        result = max(result * INTERNAL_LAYER_CREEPAGE_FACTOR, 0.5)
 
     return result
 

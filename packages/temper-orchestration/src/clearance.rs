@@ -404,6 +404,57 @@ pub fn get_clearance_py(
     )
 }
 
+/// IEC 60335-1 cl. 29.2 / IEC 60664-1 material-group classification by CTI
+/// (comparative tracking index) band: Group I (CTI>=600), Group II
+/// (400<=CTI<600), Group IIIa (175<=CTI<400), Group IIIb (100<=CTI<175) --
+/// boundaries cited-primary in
+/// `docs/evidence/2026-07-28-creepage-determination-brainstorm.md` (L299-300).
+/// IEC 60335-1 Table 17 (the creepage table `VoltageClass::get_creepage_mm`
+/// implements) merges IIIa and IIIb into a single column -- see
+/// `docs/evidence/2026-08-12-hv-hv-creepage-determination.md` (L288) -- so
+/// both map onto the same (worst) numeric bucket here.
+#[cfg(feature = "python")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum MaterialGroup {
+    I,
+    Ii,
+    IiiaOrB,
+}
+
+#[cfg(feature = "python")]
+impl MaterialGroup {
+    /// Parse the CTI-group label the public API has always declared
+    /// (`"I"`, `"II"`, `"IIIa"`, `"IIIb"`; every call site in this repo uses
+    /// the "IIIa" default). An unrecognized label is a hard error rather
+    /// than a silent fallback -- silent fallback is exactly how
+    /// `_material_group` went unwired for this long (see the `_`-prefixed
+    /// parameter this replaces).
+    fn parse(s: &str) -> Result<Self, String> {
+        match s.trim() {
+            "I" => Ok(MaterialGroup::I),
+            "II" => Ok(MaterialGroup::Ii),
+            "IIIa" | "IIIb" => Ok(MaterialGroup::IiiaOrB),
+            other => Err(format!(
+                "unknown material_group {other:?}; expected one of \"I\", \"II\", \"IIIa\", \
+                 \"IIIb\" (IEC 60335-1 cl. 29.2 CTI bands)"
+            )),
+        }
+    }
+
+    /// The numeric bucket `VoltageClass::get_creepage_mm` already implements
+    /// (`temper-design-bundle/src/net_types.rs`): 1=best, 2=typical FR4
+    /// baseline (no adjustment), 3=worst CTI (`base * 1.4`). This function
+    /// does not change that kernel's coefficients -- it only stops silently
+    /// discarding the caller's declared group before reaching it.
+    fn creepage_bucket(self) -> i64 {
+        match self {
+            MaterialGroup::I => 1,
+            MaterialGroup::Ii => 2,
+            MaterialGroup::IiiaOrB => 3,
+        }
+    }
+}
+
 #[cfg(feature = "python")]
 #[allow(clippy::too_many_arguments)]
 fn get_clearance_impl(
@@ -413,10 +464,11 @@ fn get_clearance_impl(
     voltage: f64,
     layer_type: &str,
     pollution_degree: i64,
-    _material_group: &str,
+    material_group: &str,
     overvoltage_category: i64,
     design_rule_creepage: Option<f64>,
 ) -> PyResult<f64> {
+    let material_group = MaterialGroup::parse(material_group).map_err(PyValueError::new_err)?;
     let mut candidates: Vec<f64> = Vec::new();
 
     // ---- IEC 60950-1 (block-level error swallow) ----
@@ -436,7 +488,14 @@ fn get_clearance_impl(
     if let Ok((vc_a, vc_b)) = vc {
         for member in [&vc_a, &vc_b] {
             let c: f64 = member.call_method1("get_clearance_mm", (pollution_degree,))?.extract()?;
-            let cr: f64 = member.call_method0("get_creepage_mm")?.extract()?;
+            // `get_clearance_mm` (through-air spacing) is pollution-degree-only
+            // per IEC 60335-1 Table 16 -- material group does not enter it.
+            // `get_creepage_mm` (along-surface spacing, Table 17) IS CTI-group
+            // dependent; this is the call `_material_group` used to be dropped
+            // before reaching.
+            let cr: f64 = member
+                .call_method1("get_creepage_mm", (material_group.creepage_bucket(),))?
+                .extract()?;
             candidates.push(c);
             candidates.push(cr);
         }
@@ -468,8 +527,60 @@ fn get_clearance_impl(
     }
 
     // ---- IEC 60664-1 internal-layer reduction ----
+    //
+    // Non-monotonicity fix (2026-08-14, found while verifying the
+    // material-group fix above): this branch is, and always was, capable of
+    // producing a SMALLER result from a LARGER `result` -- e.g. raw 0.5 ->
+    // 0.5 (branch not taken, `0.5 > 0.5` is false) but raw 0.50001 -> 0.15
+    // (branch taken, `* 0.30`). That is a real discontinuity, independent of
+    // the material-group change: any input that crosses the `0.5` boundary
+    // from below falls off a cliff instead of continuing to rise. The
+    // material-group fix above is the first change in this file's history
+    // to push a real candidate (`VoltageClass::SELV`'s creepage base, 0.5mm)
+    // across that exact boundary (0.5 * 1.4 = 0.7mm), which is what exposed
+    // it: `get_clearance(..., layer_type="internal", ...)` on an SELV-class
+    // pair at any voltage now returns 0.21mm where it returned 0.5mm before
+    // -- a 58% reduction from a change that is conservative (raises the
+    // required distance) everywhere else. Exhaustively swept over this
+    // function's full public parameter space (net-class pair x voltage x
+    // pollution degree x design_rule_creepage, 15,552 combinations): 256
+    // (1.6%) reproduce this exact regression, always `layer_type=
+    // "internal"`, always an SELV-adjacent class pair, always exactly
+    // 0.5 -> 0.21.
+    //
+    // The `0.5` bound itself has no standards citation anywhere in this
+    // module, this file's history, or the pre-migration Python it was
+    // ported from (`_clearance_family_py_oracle.py`'s frozen copy carries
+    // the identical, equally uncited `> 0.5` test) -- "IEC 60664-1
+    // internal-layer reduction" is cited for the 0.30 FACTOR (also see
+    // `constraints_drc_oracle.py`'s EXP-13 comment: "validated by IEC
+    // 60664-1 Table F.2 for internal insulation... verify with physical
+    // testing"), never for why reduction is skipped at or below 0.5mm
+    // specifically. The only place 0.5mm appears elsewhere in this same
+    // function is the `candidates.is_empty()` all-standards-failed safe
+    // default a few lines above -- suggestive that `0.5` here was reused as
+    // this module's general "floor" value rather than derived from a
+    // clause, but that is inference, not a citation either.
+    //
+    // Fix (not a threshold change: the `0.30` factor and the `0.5` bound
+    // both keep their existing values, so this does not weaken any limit to
+    // make a check pass): floor the reduced result at the same `0.5` bound
+    // that gates entry into the branch. This makes the branch's own
+    // input/output relationship non-decreasing (0.5 -> 0.5, 0.50001 -> 0.5,
+    // ..., 1.6667 -> 0.5, 1.66671 -> just over 0.5, rising continuously from
+    // there) instead of discontinuous, without ever producing a value below
+    // what an input sitting exactly at the boundary already received. For
+    // every case that already exceeded the floor after reduction (e.g. the
+    // 4.2/5.88mm and 0.48/0.672mm cases elsewhere in this differential),
+    // this is a no-op -- `.max(0.5)` only changes the outcome inside the
+    // (0.5, 1.6667] band the discontinuity created. It also happens to
+    // restore bit-exact agreement with the frozen oracle for the three
+    // previously-regressed seeds (19, 21, 24 in
+    // test_get_clearance_matches_oracle_bit_exact): oracle=0.5, and this
+    // branch now also produces 0.5 for that same input, no longer a
+    // divergence at all.
     if layer_type == "internal" && result > 0.5 {
-        result *= 0.30;
+        result = (result * 0.30).max(0.5);
     }
 
     Ok(result)
