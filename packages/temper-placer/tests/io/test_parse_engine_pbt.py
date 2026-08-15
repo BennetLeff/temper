@@ -60,13 +60,37 @@ def test_component_refs_are_real(corpus_id, path):
 
 
 @pytest.mark.parametrize("corpus_id,path", CORPUS, ids=[c for c, _ in CORPUS])
-def test_nets_have_at_least_two_pins(corpus_id, path):
-    """P2: the netlist contains only nets with >= 2 pins (the extraction's
-    filter is applied -- single-pin nets are dropped, empty nets never appear)."""
+def test_nets_retain_single_pad_nets(corpus_id, path):
+    """P2: the netlist registry keeps EVERY named net, single-pad included.
+
+    (Deliberate 2026-08-15 contract change -- see ``extract_nets_pure`` in
+    ``parse_engine.rs`` and the oracle header: the pre-migration extraction
+    dropped nets with < 2 pins, which erased real nets (``ac_l`` after the
+    ZCD orphan-footprint removal) from the net class mapping and made
+    ``apply_net_class_mapping_strict`` raise. Single-pad nets stay in the
+    registry; routing excludes them via ``_routable_net_names``. The
+    invariants that survive: empty net names and zero-pin nets never
+    appear -- a net is created only when a pin names it -- and the registry
+    is exactly the pin census, no more, no less.)
+    """
     result = _parse(path)
+    seen: dict[str, int] = {}
+    for comp in result.netlist.components:
+        for pin in comp.pins:
+            if pin.net:
+                seen[pin.net] = seen.get(pin.net, 0) + 1
+    registry = {net.name for net in result.netlist.nets}
+    assert set(seen) == registry, (
+        f"{corpus_id}: netlist registry ({len(registry)} nets) != pin census "
+        f"({len(seen)} nets); dropped: {sorted(set(seen) - registry)[:5]}"
+    )
     for net in result.netlist.nets:
-        assert len(net.pins) >= 2, f"{corpus_id}: net {net.name!r} has {len(net.pins)} pins"
+        assert len(net.pins) >= 1, f"{corpus_id}: net {net.name!r} has {len(net.pins)} pins"
         assert net.name != "", f"{corpus_id}: empty net name survives the filter"
+    if corpus_id in {"temper", "rp2040", "bitaxe", "pcb"}:
+        assert any(len(net.pins) == 1 for net in result.netlist.nets), (
+            f"{corpus_id}: corpus has no single-pad net -- retention is untested"
+        )
 
 
 @pytest.mark.parametrize("corpus_id,path", CORPUS, ids=[c for c, _ in CORPUS])
