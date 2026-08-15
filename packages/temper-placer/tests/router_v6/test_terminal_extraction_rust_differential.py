@@ -301,12 +301,15 @@ CASES: tuple[tuple[str, SimpleNamespace, str, list[tuple[str, str]]], ...] = (
     ),
     ("stackup_layer_name_none", _stackup_layer_name_none_pcb(), "NET", [("U1", "1")]),
     ("empty_net_pins", _basic_pcb(), "NET", []),
-    (
-        "duplicate_net_pins",
-        _basic_pcb(),
-        "NET",
-        [("U1", "1"), ("U1", "1"), ("J1", "2")],
-    ),
+    # "duplicate_net_pins" USED to live here (a `[("U1", "1"), ("U1", "1"),
+    # ("J1", "2")]` net_pins list, `_basic_pcb()`'s U1 has exactly ONE
+    # physical pad numbered "1"). It moved out of this bit-exact CASES
+    # tuple by design when the pad-identity fix landed in
+    # `extract_net_terminals` (`terminal_planning.rs`) -- see
+    # `test_duplicate_net_pins_diverges_from_the_pinned_oracle_by_design`
+    # below for why it now DELIBERATELY disagrees with the pinned oracle,
+    # and `extract_net_terminals`'s own doc comment (`terminal_planning.rs`)
+    # for the full argument.
 )
 
 
@@ -319,6 +322,55 @@ def test_extract_net_terminals_bit_exact(case):
         lambda: tuple(_terminal_wire(t) for t in ORACLE.extract_net_terminals(pcb, net_name, net_pins)),
         "extract_net_terminals_py",
         lambda fn: tuple(fn(net_name, list(net_pins), components, stackup_layers)),
+    )
+
+
+def test_duplicate_net_pins_diverges_from_the_pinned_oracle_by_design():
+    """The pad-identity fix (deferred by PR #1180, landed in
+    ``extract_net_terminals``, ``terminal_planning.rs``) makes this ONE
+    case deliberately, permanently disagree with the pinned oracle -- not a
+    regression to chase back to bit-exactness.
+
+    ``_basic_pcb()``'s U1 has exactly ONE physical pad numbered "1". This
+    scenario's ``net_pins`` references it TWICE:
+    ``[("U1", "1"), ("U1", "1"), ("J1", "2")]``.
+
+    * **Oracle** (pinned, ``get_pin``'s first-match semantics): both
+      references resolve to the SAME single pad, emitting two identical
+      terminal rows -- 3 terminals total.
+    * **Fixed kernel** (occurrence-aware, mirrors
+      ``pad_identity.nth_matching_pin``): the first reference is
+      occurrence 0 of pad "1" (the pad that exists); the second is
+      occurrence 1 -- and there IS no second physical pad "1" on this
+      footprint, so it resolves to nothing and is DROPPED, exactly as
+      ``pad_identity.resolve_net_pins``'s own docstring specifies ("fewer
+      matching pins than this occurrence needs ... callers should handle
+      it the same way they would have handled get_pin returning None") --
+      2 terminals total.
+
+    This is a DIFFERENT scenario from K2/K3 (a footprint that genuinely
+    fabricates two physical pads under one pad number): here the
+    duplication lives only in ``net_pins``, not in the footprint, and the
+    pre-fix first-match code could not tell the two situations apart --
+    both looked like "call get_pin once, get a pin" to it. The oracle is a
+    verbatim historical pin (``test_oracle_is_verbatim_copy`` enforces
+    this, and cannot be edited to match without ceasing to be verbatim),
+    so this divergence is not a bug to fix on either arm; it is the two
+    arms answering different, now-distinguished questions correctly.
+    """
+    pcb = _basic_pcb()
+    net_pins = [("U1", "1"), ("U1", "1"), ("J1", "2")]
+    oracle_terminals = tuple(
+        _terminal_wire(t) for t in ORACLE.extract_net_terminals(pcb, "NET", net_pins)
+    )
+    components, stackup_layers = _pcb_parts(pcb)
+    rust_fn = _rust("extract_net_terminals_py")
+    rust_terminals = tuple(rust_fn("NET", list(net_pins), components, stackup_layers))
+
+    assert len(oracle_terminals) == 3, "the pinned (buggy) oracle still double-counts the one real pad"
+    assert len(rust_terminals) == 2, "the fixed kernel drops the unresolvable second occurrence"
+    assert sig(oracle_terminals) != sig(rust_terminals), (
+        "divergence from the pinned oracle is EXPECTED and permanent for this case"
     )
 
 

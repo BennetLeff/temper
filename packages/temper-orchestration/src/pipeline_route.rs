@@ -835,11 +835,45 @@ fn getattr_or<'py>(
 /// `router_v6/_adapter_convert._write_routes_to_content`'s pad-positions
 /// block: `comp_by_ref = {c.ref: c for c in pcb.components}` (duplicate refs:
 /// last writer wins), then per net the `getattr(net, "pins", [])` walk with
-/// `comp.initial_position` (default `(0.0, 0.0)`) and the conditional
-/// `comp.get_pin(pin_name)` call (a missing method or a `None` pin falls
-/// back to the component position; a found pin adds `pin.position`).
-/// Returns `(net_name, positions)` pairs in first-seen net order; a net
-/// whose resolvable pin list is empty is omitted, exactly like the oracle.
+/// `comp.initial_position` (default `(0.0, 0.0)`) and a pin lookup (a
+/// missing pin falls back to the component position; a found pin adds
+/// `pin.position`). Returns `(net_name, positions)` pairs in first-seen net
+/// order; a net whose resolvable pin list is empty is omitted, exactly like
+/// the oracle.
+///
+/// **Pad-identity fix (deferred by PR #1180, landed here).** The
+/// pre-migration Python body this mirrors (`_oracle_collect_pad_positions`,
+/// `tests/router_v6/test_adapter_convert_marshal_rust_differential.py`) and
+/// this function's own prior body both called `comp.get_pin(pin_name)` --
+/// first-match, silently wrong whenever a footprint fabricates more than
+/// one physical pad under the same pad number (K2/K3,
+/// `temper:Relay_SPDT_Schrack-RT314012`, duplicate pads "1", "3", "4" --
+/// two physical holes 7.5mm apart per contact, 16A current sharing). This
+/// now resolves the same `(ref, pin_name, occurrence)` identity the Python
+/// SSOT (`temper_placer.core.pad_identity.resolve_net_pins`) uses:
+/// `occurrence` is the count of prior same-`(comp_ref, pin_name)` entries
+/// already seen earlier in THIS net's own `pins` list, and the match
+/// itself is delegated to the real pyo3 `Component.get_pin_occurrences`
+/// method (`netlist_contracts.rs`, the SSOT predicate for "what does a
+/// pin name/number match") rather than re-scanning `comp.pins` locally --
+/// `comp` here is a live Python object (unlike `terminal_planning.rs`'s
+/// native `ComponentRow`), so calling back into the SSOT method is the
+/// direct analogue of `pad_identity.nth_matching_pin`. Falls back to the
+/// old `get_pin` call (occurrence 0 only) when `get_pin_occurrences` is
+/// absent -- test doubles built with a bare `get_pin` still resolve their
+/// one, unambiguous pin exactly as before.
+///
+/// **The pinned oracle is NOT updated to match** -- same reasoning as
+/// `terminal_planning::extract_net_terminals`'s doc comment: it is a
+/// verbatim, SHA-256-content-addressed pin of the pre-migration Python
+/// body (`test_oracle_bodies_match_pinned_digests`), and carries the
+/// identical first-match bug. The existing differential corpus cannot
+/// even represent a duplicate pad number (every test double's `pins` is a
+/// `dict`/closure keyed by name, which cannot hold two entries under one
+/// key), so this change does not regress
+/// `test_adapter_convert_marshal_rust_differential.py`; see this crate's
+/// own `run_collect_pad_positions_resolves_duplicate_pad_number_occurrences`
+/// test for a direct assertion of the fixed behavior.
 #[pyfunction]
 #[allow(clippy::type_complexity)]
 pub fn run_collect_pad_positions(
@@ -867,11 +901,16 @@ pub fn run_collect_pad_positions(
         let net = net?;
         let mut positions: Vec<(f64, f64)> = Vec::new();
         let pins = getattr_or(py, &net, "pins", &default_empty_list)?;
+        // Occurrence index of each `(comp_ref, pin_name)` entry within
+        // THIS net's own pin list, in encounter order -- mirrors
+        // `pad_identity.net_pin_occurrence_indices`.
+        let mut occurrence_seen: HashMap<(String, String), usize> = HashMap::new();
         for entry in pins.try_iter()? {
             let entry = entry?;
             // for comp_ref, pin_name in ...pins:  (2-tuple unpack)
             let comp_ref: String = entry.get_item(0)?.extract()?;
             let pin_name = entry.get_item(1)?;
+            let pin_name_str: String = pin_name.extract()?;
             let Some(comp) = comp_by_ref.get(&comp_ref) else {
                 continue;
             };
@@ -879,9 +918,27 @@ pub fn run_collect_pad_positions(
             let comp_pos = getattr_or(py, comp, "initial_position", &default_zero_pos)?;
             let cx: f64 = comp_pos.get_item(0)?.extract()?;
             let cy: f64 = comp_pos.get_item(1)?.extract()?;
-            // pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
-            let pin = if comp.hasattr("get_pin")? {
-                Some(comp.call_method1("get_pin", (pin_name,))?)
+
+            let occ_key = (comp_ref, pin_name_str);
+            let occurrence = *occurrence_seen.get(&occ_key).unwrap_or(&0);
+            occurrence_seen.insert(occ_key, occurrence + 1);
+
+            // `nth_matching_pin(comp, pin_name, occurrence)`, delegated to
+            // the real SSOT predicate (`Component.get_pin_occurrences`)
+            // when available; falls back to the old first-match-only
+            // `get_pin` call for occurrence 0 on duck-typed test doubles
+            // that only implement `get_pin`.
+            let pin = if comp.hasattr("get_pin_occurrences")? {
+                let matches = comp.call_method1("get_pin_occurrences", (pin_name,))?;
+                let n_matches: usize = matches.len()?;
+                if occurrence < n_matches {
+                    Some(matches.get_item(occurrence)?)
+                } else {
+                    None
+                }
+            } else if occurrence == 0 && comp.hasattr("get_pin")? {
+                let p = comp.call_method1("get_pin", (pin_name,))?;
+                if p.is_none() { None } else { Some(p) }
             } else {
                 None
             };

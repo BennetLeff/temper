@@ -387,6 +387,48 @@ fn terminal_identity_cmp(a: &TerminalRow, b: &TerminalRow) -> Ordering {
 }
 
 /// `terminal_extraction.extract_net_terminals`.
+///
+/// **Pad-identity fix (deferred by PR #1180, landed here).** The
+/// pre-migration Python oracle this kernel mirrors, and this kernel's own
+/// prior body, resolved each `(component_ref, pad_name)` entry via
+/// first-match (`Component.get_pin`'s exact semantics) -- silently wrong
+/// whenever a footprint fabricates more than one physical pad under the
+/// same pad number, which this board's K2/K3
+/// (`temper:Relay_SPDT_Schrack-RT314012`) do for pads "1", "3", and "4"
+/// (two physical holes 7.5mm apart per logical contact, 16A current
+/// sharing). This function now resolves the SAME identity decision the
+/// Python SSOT (`temper_placer.core.pad_identity`) and the Rust typed
+/// counterpart (`temper-design-bundle::pad_occurrence::PadOccurrence`)
+/// use: `(ref, pad_name, occurrence)`, where `occurrence` is the count of
+/// prior same-`(ref, pad_name)` entries already seen earlier in THIS
+/// net's own `net_pins` list (mirroring
+/// `pad_identity.net_pin_occurrence_indices`/`resolve_net_pins` exactly),
+/// resolved against the `occurrence`-th name/number match in that
+/// component's OWN pin list (mirroring `nth_matching_pin`, which is what
+/// `Component::get_pin_occurrences`, netlist_contracts.rs, computes on the
+/// pyo3 side). No pyo3 round-trip needed here: this kernel already owns
+/// typed `ComponentRow`/`PinRow` structs (native Rust, no `Component`
+/// pyclass in scope), so the occurrence-aware match is implemented
+/// directly against `comp.pins` rather than calling back into Python.
+///
+/// **The pinned oracle (`_terminal_extraction_py_oracle.py`) is NOT
+/// updated to match.** It is a verbatim `git show` extraction of a fixed
+/// historical commit, self-verified character-for-character by
+/// `test_oracle_is_verbatim_copy` -- editing it to fix the bug would make
+/// it no longer verbatim and break that test's own reason to exist. It
+/// carries the identical first-match bug this function used to (see
+/// `Component.get_pin`'s doc, `netlist_contracts.rs`). This is the SAME
+/// shape PR #1179 found in the footprint-bounds oracle: the frozen
+/// reference and the pre-fix kernel agreed only because they shared a
+/// bug. Here the divergence is invisible to
+/// `test_terminal_extraction_rust_differential.py`'s existing corpus,
+/// because every corpus PCB builds each component's `pins` from a flat,
+/// uniquely-keyed list/dict -- none has a component with a duplicated pad
+/// number, so no existing case exercises occurrence > 0 and the
+/// differential's bit-exact assertions are unaffected by this change (see
+/// this crate's own `extract_net_terminals_resolves_duplicate_pad_number_occurrences`
+/// test, added alongside this fix, which asserts the CORRECT behavior
+/// directly rather than against the oracle).
 fn extract_net_terminals(
     net_name: &str,
     net_pins: &[(String, String)],
@@ -419,6 +461,12 @@ fn extract_net_terminals(
         .map(|l| l.name.clone())
         .collect();
 
+    // Occurrence index of each `(component_ref, pad_name)` entry within
+    // THIS net's own `net_pins`, in encounter order -- the same
+    // bookkeeping as `pad_identity.net_pin_occurrence_indices`. 0 for the
+    // first time a given pair appears, 1 for the second, and so on.
+    let mut occurrence_seen: HashMap<(&str, &str), usize> = HashMap::new();
+
     let mut terminals: Vec<TerminalRow> = Vec::new();
     for (component_ref, pad_name) in net_pins {
         let comp_idx = match comp_by_ref.get(component_ref.as_str()) {
@@ -427,13 +475,22 @@ fn extract_net_terminals(
         };
         let comp = &components[comp_idx];
 
-        // `component.get_pin(pad_name)` -- first pin whose `.name` OR
-        // `.number` equals `pad_name`, in pin-list order
-        // (temper-design-bundle's `Component::get_pin`).
+        let key = (component_ref.as_str(), pad_name.as_str());
+        let occurrence = *occurrence_seen.get(&key).unwrap_or(&0);
+        occurrence_seen.insert(key, occurrence + 1);
+
+        // `nth_matching_pin(comp, pad_name, occurrence)` -- the
+        // `occurrence`-th (0-indexed) pin whose `.name` OR `.number`
+        // equals `pad_name`, in `comp.pins` encounter order. Occurrence 0
+        // is `Component::get_pin`'s exact first-match answer; occurrence
+        // > 0 is the physically distinct duplicate pad a first-match scan
+        // silently collapsed onto occurrence 0 (see this function's own
+        // doc comment).
         let pin = match comp
             .pins
             .iter()
-            .find(|p| &p.name == pad_name || &p.number == pad_name)
+            .filter(|p| &p.name == pad_name || &p.number == pad_name)
+            .nth(occurrence)
         {
             Some(p) => p,
             None => continue,
@@ -699,6 +756,52 @@ pub(crate) mod tests {
         // is 5.0 + (-2.0) = 3.0, not 5.0 + 2.0 = 7.0.
         assert_eq!(out[0].x, 3.0);
         assert_eq!(out[0].y, 5.0);
+    }
+
+    /// Pad-identity fix, direct assertion (NOT a differential against the
+    /// pinned oracle -- see `extract_net_terminals`'s own doc comment for
+    /// why: the oracle is a verbatim historical pin and carries the same
+    /// first-match bug this test proves is now fixed). Mirrors K2/K3
+    /// (`temper:Relay_SPDT_Schrack-RT314012`): pad "3" fabricated as two
+    /// physical holes, 7.5mm apart, both carrying the same pad number. A
+    /// net referencing `("K2", "3")` TWICE (once per physical terminal,
+    /// the real `net.pins` shape for a current-sharing contact) must
+    /// resolve to the two DISTINCT pad positions, not the same one twice.
+    #[cfg_attr(test, test)]
+    fn extract_net_terminals_resolves_duplicate_pad_number_occurrences() {
+        let comp = ComponentRow {
+            component_ref: "K2".to_string(),
+            initial_position: Some((0.0, 0.0)),
+            initial_rotation_rad: 0.0,
+            initial_side: None,
+            pins: vec![
+                PinRow {
+                    name: "3".to_string(),
+                    number: "3".to_string(),
+                    position: (25.34, -7.5),
+                    is_pth: true,
+                    layer: Some("F.Cu".to_string()),
+                },
+                PinRow {
+                    name: "3".to_string(),
+                    number: "3".to_string(),
+                    position: (25.34, 0.0),
+                    is_pth: true,
+                    layer: Some("F.Cu".to_string()),
+                },
+            ],
+        };
+        let net_pins = vec![("K2".to_string(), "3".to_string()), ("K2".to_string(), "3".to_string())];
+        let out = extract_net_terminals("NET", &net_pins, &[comp], &[]);
+        assert_eq!(out.len(), 2, "both physical occurrences of pad \"3\" must be resolved, not collapsed to one");
+        let mut positions: Vec<(f64, f64)> = out.iter().map(|t| (t.x, t.y)).collect();
+        positions.sort_by(|a, b| a.1.total_cmp(&b.1));
+        assert_eq!(
+            positions,
+            vec![(25.34, -7.5), (25.34, 0.0)],
+            "the two occurrences must resolve to the two DISTINCT physical pad \
+             positions -- a first-match bug would collapse both to (25.34, -7.5)"
+        );
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
