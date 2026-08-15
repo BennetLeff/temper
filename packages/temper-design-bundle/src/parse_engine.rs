@@ -625,6 +625,32 @@ pub(crate) struct RawBoard {
     pub trace_items: Vec<RawTraceItem>,
     pub stackup_layers: Vec<RawStackupLayer>,
     pub layers: Vec<String>,
+    // Parallel array to `layers` (same length, same order, index-aligned):
+    // the role token (`(0 "F.Cu" signal)`'s `signal`) declared for that
+    // layer in the board's own `(layers ...)` block, or `""` if the entry
+    // has no third token. Added 2026-08-14 alongside
+    // `temper-geometry/src/layer_identity.rs` -- ADDITIVE ONLY. Before this
+    // field existed, `raw_board_from_tree` read a layer's NAME (index 1)
+    // and silently discarded its ROLE token (index 2) entirely, which is
+    // why every consumer downstream of this parser (`_extract_stackup`'s
+    // positional/zone-content heuristic, `core/board.py`'s closed
+    // `LayerIndex`/`STANDARD_LAYER_ORDER` enum) had no structural way to
+    // read the board's own declared role and fell back to inference --
+    // "coincidentally correct" only because the production board has
+    // stayed 4-layer with plane zones on structurally first/last layers.
+    // See `docs/evidence/2026-07-27-phantom-layer-stackup.md` for the
+    // incident this already produced once, and
+    // `temper-geometry/src/layer_identity.rs`'s module doc for the
+    // parallel bug this parser gap was verified (2026-08-14 SSOT dataflow
+    // audit) to be the root cause of. This field is additive and read by
+    // nothing yet in this crate -- it exists so a consumer CAN start
+    // reading the real declared role instead of inferring one; wiring
+    // `_extract_stackup` (or any of its nine verified consumers) onto it
+    // is deliberately NOT done here (`_extract_stackup`'s own
+    // `use_declared_layer_roles` opt-in flag is documented as unsafe to
+    // default on before pours become derived output -- see that
+    // function's docstring) and is out of scope for this change.
+    pub layer_roles: Vec<String>,
     pub general_thickness: Option<Num>,
 }
 
@@ -1108,6 +1134,7 @@ fn raw_board_from_tree(root: &[KiNode], errors: &mut Vec<String>) -> RawBoard {
         trace_items: Vec::new(),
         stackup_layers: Vec::new(),
         layers: Vec::new(),
+        layer_roles: Vec::new(),
         general_thickness: None,
     };
     // The document is a single top-level `(kicad_pcb ...)` list; walk its
@@ -1138,11 +1165,21 @@ fn raw_board_from_tree(root: &[KiNode], errors: &mut Vec<String>) -> RawBoard {
             }
             "layers" => {
                 // `(0 "F.Cu" signal)` -- the NAME is the quoted token at
-                // index 1; index 2 is the layer type.
+                // index 1; index 2 is the declared ROLE token (`signal` /
+                // `power` / `mixed` / `jumper` / `user`). Both are captured
+                // now, index-aligned across `board.layers` /
+                // `board.layer_roles` -- see `RawBoard::layer_roles`'s doc
+                // comment for why the role token was previously discarded
+                // and what reads it.
                 for sub in items.iter().skip(1) {
                     if let KiNode::List(s) = sub
                         && let Some(KiNode::Atom(a)) = s.get(1) {
                             board.layers.push(atom_to_string(a));
+                            let role = match s.get(2) {
+                                Some(KiNode::Atom(role_atom)) => atom_to_string(role_atom),
+                                _ => String::new(),
+                            };
+                            board.layer_roles.push(role);
                         }
                 }
             }
@@ -3214,6 +3251,15 @@ fn extract_stackup_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     out.set_item("zones", zones)?;
     let board_layers = PyList::new(py, raw.layers.iter().map(|s| s.as_str()))?;
     out.set_item("layers", board_layers)?;
+    // Additive (2026-08-14): index-aligned with `"layers"` above -- the
+    // declared role token (`signal`/`power`/`mixed`/`jumper`/`user`) for
+    // each entry, or `""` if the board declared no third token for it. See
+    // `RawBoard::layer_roles`'s doc comment. Not yet read by
+    // `_extract_stackup` in `_parse_board.py` -- see that function's
+    // `use_declared_layer_roles` docstring for why wiring it in is a
+    // separate, deliberately out-of-scope change.
+    let board_layer_roles = PyList::new(py, raw.layer_roles.iter().map(|s| s.as_str()))?;
+    out.set_item("layer_roles", board_layer_roles)?;
     out.set_item("general_thickness", match raw.general_thickness {
         Some(t) => num_to_py(py, t)?,
         None => py.None(),
