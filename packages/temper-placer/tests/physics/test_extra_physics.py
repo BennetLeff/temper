@@ -2,8 +2,6 @@ import math
 
 import temper_thermal as _tt
 
-from temper_placer.physics.emi import check_emi_compliance, predict_radiated_emissions
-
 
 def test_emi_prediction():
     """Verify EMI prediction logic."""
@@ -13,15 +11,15 @@ def test_emi_prediction():
     #     = 3.29e-8 / 3 = 1.096e-8 V/m
     # E_uv = 0.01096 uV/m
     # dBuv = 20 * log10(0.01096) = -39.2 dBuv
-    dbuv = predict_radiated_emissions(100.0, 10.0, 50.0)
+    dbuv = _tt.predict_radiated_emissions_py(100.0, 10.0, 50.0, 3.0)
     assert -40.0 < dbuv < -38.0
-    assert check_emi_compliance(dbuv)
+    assert _tt.check_emi_compliance_py(dbuv, "CISPR32_CLASS_B")
 
 
 def test_emi_scaling():
     """EMI should scale with square of frequency."""
-    e1 = predict_radiated_emissions(100.0, 1.0, 30.0)
-    e2 = predict_radiated_emissions(100.0, 1.0, 60.0)
+    e1 = _tt.predict_radiated_emissions_py(100.0, 1.0, 30.0, 3.0)
+    e2 = _tt.predict_radiated_emissions_py(100.0, 1.0, 60.0, 3.0)
     # 20 * log10( (60/30)^2 ) = 20 * log10(4) = 12.04 dB increase
     assert math.isclose(e2 - e1, 12.04, rel_tol=1e-2)
 
