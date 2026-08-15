@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+import temper_design_bundle_python as _tdb
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 
 # The Rust SafetyValue SSOT (packages/temper-design-bundle/src/safety_value.rs):
@@ -18,7 +19,6 @@ from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 # Table 16/17/18 const tables, never a local hardcoded literal. The import
 # name is the pyo3 module (`temper_design_bundle_python`, not the crate name)
 # -- same convention as temper_placer/io/loop_loader.py.
-import temper_design_bundle_python as _tdb
 
 if not hasattr(_tdb, "creepage_table_lookup"):
     raise RuntimeError(
