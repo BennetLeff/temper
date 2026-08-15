@@ -1754,6 +1754,41 @@ jobs:
       # once a human has resolved (or explicitly accepted) the 4 families
       # above.
       #
+      # STATUS CHECK 2026-08-15 (origin/main @ 8f21d2725): STILL NOT
+      # ENABLED, and still not enableable. Verified by running the gate
+      # against the current tree: it exits 5 (GATE ERROR) -- it cannot even
+      # reach the family report. Two blockers:
+      #
+      #   1. The 4 families above are all still live, at the same figures
+      #      (AC_to_LV 3.0/5.0mm vs deterministic-config HighVoltage
+      #      6.0/6.0mm; HV_INTERNAL_CLEARANCE_MM 2.0 vs HV_to_LV 6.0 vs
+      #      netclass_rules HighVoltageIsolated 6.0; HighVoltageIsolated
+      #      creepage_mm 6.0 vs 8 sites at 8.0mm).
+      #
+      #   2. NEW: packages/temper-placer/src/temper_placer/placer/cp_sat/
+      #      tank_creepage.py (PR #1089, landed 2026-08-12; touched by
+      #      #1129 2026-08-13) declares HV_TANK_CREEPAGE_PD2_MM = 6.3,
+      #      HV_TANK_CREEPAGE_PD3_MM = 10.0 and selects the latter via
+      #      DEFAULT_TANK_CREEPAGE_MM = HV_TANK_CREEPAGE_PD3_MM. The
+      #      enforced site's tier resolves to "unspecified" -- its own text
+      #      says "functional insulation" (IEC 60335-1 Table 18), a tier
+      #      this gate's classifier vocabulary {reinforced, basic, working}
+      #      does not recognize -- so the selection-alias self-verification
+      #      in build_families raises GateError by design (the enforced
+      #      10.0mm figure participates in no comparable family). The gate
+      #      is failing closed exactly as documented, on a declaration site
+      #      added after it was written.
+      #
+      # So the gate still cannot ship as a hard step: Core Tests is a
+      # required context and every PR would go red; the file's own
+      # convention above rules out `continue-on-error` for a gate that can
+      # run. Unit tests are unaffected: 38/38 pass on 2026-08-15
+      # (uv run pytest scripts/tests/test_check_creepage_clearance_drift.py).
+      # Enablement awaits a human decision on BOTH (1) the 4 families and
+      # (2) how the tank_creepage.py figures are to be classified (e.g.
+      # extend the tier vocabulary to "functional", or explicitly accept
+      # that the enforced 10.0mm stays outside comparison).
+      #
       # - name: Creepage/clearance drift gate unit tests
       #   if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
       #   run: uv run pytest scripts/tests/test_check_creepage_clearance_drift.py -v --tb=short
