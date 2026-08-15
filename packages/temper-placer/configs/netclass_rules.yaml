@@ -190,11 +190,12 @@ classes:
   # the two via families measured on the real board (4 of 44 vias).
   FinePitch:
     clearance: 0.1
-    trace_width: 0.127
+    trace_width: 0.2
     via_diameter: 0.8
     via_drill: 0.2
     layer: "B.Cu"
     safety_category: "LV"
+    because: "trace_width FIXED 2026-08-15 (full-route agent finding + docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md): 0.127mm (5mil) was below BOTH the board's setup min_track_width (0.2mm, pcb/temper.kicad_pro) and JLCPCB's real 2oz-multilayer floor (0.15mm/6mil, fetched 2026-08-13) -- the router drew 0.127mm tracks that kicad-cli DRC graded as track_width errors on 6 nets (RTD_SDO, sclk, bias, RTD_CS_N, RTD_HW_FAULT, RTD_SDI). Raised to 0.2mm = the board setup min (also Signal class's width); 0.15mm would still violate the board's 0.2mm min."
 
   # FIXED 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md):
   # all four fields previously matched HighCurrent's row byte-for-byte

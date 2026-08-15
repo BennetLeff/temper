@@ -179,7 +179,13 @@ TEMPER_NET_CLASSES = {
     # varying only by drill diameter).
     "FinePitch": NetClassRules(
         name="FinePitch",
-        trace_width=0.127,
+        # trace_width FIXED 2026-08-15 (full-route agent finding +
+        # docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md):
+        # 0.127mm was below the board's setup min_track_width (0.2mm,
+        # pcb/temper.kicad_pro) AND JLCPCB's 2oz-multilayer floor (0.15mm),
+        # producing track_width DRC errors on 6 routed nets. Raised to
+        # 0.2mm to match both. Matches netclass_rules.yaml + kicad_pro.
+        trace_width=0.2,
         clearance=0.1,
         via_diameter=0.8,
         via_drill=0.2,
