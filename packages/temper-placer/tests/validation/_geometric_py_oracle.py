@@ -28,7 +28,7 @@ from temper_placer.geometry.constraints import (
     compute_boundary_violation,
     point_in_zone,
 )
-from temper_placer.geometry.overlap import (
+from temper_placer.geometry import (
     compute_pairwise_distances,
 )
 from temper_placer.geometry.transform import get_rotated_bounds
