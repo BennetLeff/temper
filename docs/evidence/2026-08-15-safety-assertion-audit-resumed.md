@@ -155,6 +155,7 @@ are consistent with the above; V1–V6 are the headline members re-verified here
 | S11 | `scripts/generate_kicad_dru.py:63-67` `HV_INTERNAL_CLEARANCE_MM = 2.0` | **2.0 mm** | Table 15/16 + cl. 29.1/29.1.3 chain | **DERIVED arithmetic, MISCITED application** | See Part 0, finding N1. Chain itself is fully cited to recovered primary text; the application (reinforced mains↔PELV figure reused as same-domain HV↔HV internal clearance, 120 V-only basis) is not supported. This is the *source* of the "2.0 mm provided" in the tank↔bus finding, and it is also the figure `HighVoltage.clearance` (`design_rules.py:135`) and DRU RULE 4/4c (`generate_kicad_dru.py:1009,1053,1089`) enforce. |
 | S12 | `packages/temper-placer/temper-constraints/src/ipc.rs:111-121` (`ipc2152_forward`, k_ext = **0.065**, internal ×0.65) | k_ext 0.065 / 65% internal | "IPC-2152 forward … internal layers derated to 65%" | **MISCITED (live, under-conservative)** | **This is the kernel the LIVE ampacity gate calls.** `gates.py:488-491` → `_min_width_ipc2152` → `temper_constraints.min_width_ipc2152_py` (`gates.py:580`) → `temper-constraints/src/ipc.rs` k_ext=0.065. The authoritative kernel (`temper-drc-rs/src/ipc.rs:20`, IPC-2221B k=0.048/0.024) gives **+35% less current capacity** at the same geometry — the live gate is *less conservative* than the repo's own authoritative calculator. 0.065 is unsourced (handoff §10). The wrapper's own docstrings contradict each other on the internal derate: `gates.py:568` says "derated by a factor of 0.55 per IPC-2152 Section 3" while `gates.py:591-592` and the kernel say 65% — two "IPC-2152 Section 3" claims, two numbers, no recovered IPC-2152 text. Third mislabeled "IPC-2152" in the repo. |
 | S13 | `gates.py:489` (`copper_oz=1.0` hardcoded) | **1 oz** assumed for every layer | none | **SNAPSHOT (over-provisioned internals)** | The 4-layer stackup SSOT is outer 1 oz / inner **0.5 oz** (`2026-07-08-004` plan: "Outer copper 1oz (35µm), inner copper 0.5oz (17µm)"); `TRACE_WIDTH_CALCULATIONS.md:27-28` claims outer 2 oz / inner 1 oz — a third stackup claim. Assuming 1 oz for 0.5 oz inner layers doubles the ampacity the gate credits internal traces — an under-conservative bias in the same direction as S12. |
+| S14 | `temper-drc-rs/src/rules/mod.rs:257` (`CreepageCheck::new(6.0)`) | **6.0 mm** "minimum isolation width" | none | **SNAPSHOT (dead code)** | The check measures component *package width* against 6.0 — not creepage — and is dead as documented (handoff §9): no netclass declares `safety_category: "iso"` (verified: `design_rules.py` declares only AC/HV/LV). The 6.0 exists only in the registration; no citation, no consumer. `IsolationCheck` (`isolation.rs`) is zone-structural with no numeric constants of its own. |
 
 ---
 
@@ -204,21 +205,21 @@ Files covered in this pass (40 files + 4 more examined via git history): `test_t
 `net_types.rs`, `test_net_types_pbt.py`, `TRACE_WIDTH_CALCULATIONS.md`,
 `FUNCTIONAL_TEST_CRITERIA.md`, `NET_CLASS_SPECIFICATION.md`,
 `HIGH_VOLTAGE_CLEARANCE_SPEC.md`, `isolation.py` (test), `drc_oracle.py`, `lib.rs`,
-`temper-constraints/src/ipc.rs`. Examined via `git show` for archaeology:
+`temper-constraints/src/ipc.rs`, `rules/safety/creepage.rs`, `rules/safety/isolation.rs`.
+Examined via `git show` for archaeology:
 `hv_lv_separation.py` (deleted Python ancestor), `clearance_engine.py` (#25),
 `net_types.py` oracle side of `1f85f4ad1b`, `safety.c` at `04fe05232`.
 
 Still uncovered (known): the remainder of the original chunk A (files never enumerated
 in a surviving artifact — the prior audit's report did not land), plus:
-`temper-drc-rs/src/rules/safety/creepage.rs` & `isolation.rs` (CreepageCheck is
-documented dead — no netclass declares `safety_category: "iso"` — but the file's own
-constants are unaudited), `temper-design-bundle/src/hv_lv_partition.rs` and its five
-test files, `_constraint_types/safety.py`, `validators/isolation.py`,
+`temper-design-bundle/src/hv_lv_partition.rs` and its five test files,
+`_constraint_types/safety.py`, `validators/isolation.py`,
 `test_clearance_copper.py`, `test_creepage_spec_row_form.py`,
 `core/ipc2152.py` (no production caller — latent, per handoff §9), and the
 `drc_ratchet`/`ci_check_drc` ceiling machinery (R27 territory, out of scope here).
 *(The nested `packages/temper-placer/temper-constraints/src/ipc.rs` flagged in handoff
-§10 was covered in this pass — S12/S13.)*
+§10 was covered in this pass — S12/S13; `rules/safety/creepage.rs` & `isolation.rs`
+were covered in this pass — S14, no numeric sites in `isolation.rs`.)*
 
 ## Bottom line
 
@@ -228,10 +229,11 @@ test files, `_constraint_types/safety.py`, `validators/isolation.py`,
    *different* shortfall. The gap it cannot see is enforced by a clearance value
    (2.0 mm) whose derivation is a misapplied reinforced-barrier figure on a 120 V-only
    basis.
-2. **Item 1 (audit):** 23 new sites classified across the four surfaces (Parts 2–5):
-   **6 MISCITED** (S1, S2, S3, S4, S6, S12), **15 SNAPSHOT** (S5, S5b, S7, S8, S10, S13,
-   T1–T4, F1–F5), **1 DERIVED** (S9), plus one dual-classified site (S11/N1: arithmetic
-   chain DERIVED from recovered primary text, *application* MISCITED). The four surfaces are
+2. **Item 1 (audit):** 24 new sites classified across the four surfaces (Parts 2–5):
+   **6 MISCITED** (S1, S2, S3, S4, S6, S12), **16 SNAPSHOT** (S5, S5b, S7, S8, S10, S13,
+   S14, T1–T4, F1–F5), **1 DERIVED** (S9), plus one dual-classified site (S11/N1:
+   arithmetic chain DERIVED from recovered primary text, *application* MISCITED).
+   The four surfaces are
    materially *worse* than the already-audited clearance/creepage tests: no recovered
    primary text anchors the HV/LV 10.0 default, the OVC/CTI spec rows are wrong on
    main, the thermal model's constants are flat heuristics, and the firmware safety
