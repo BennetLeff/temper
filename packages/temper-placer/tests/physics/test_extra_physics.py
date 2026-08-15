@@ -1,7 +1,8 @@
 import math
 
+import temper_thermal as _tt
+
 from temper_placer.physics.emi import check_emi_compliance, predict_radiated_emissions
-from temper_placer.physics.safety import estimate_fault_response_time, estimate_filter_delay
 
 
 def test_emi_prediction():
@@ -28,12 +29,12 @@ def test_emi_scaling():
 def test_safety_delay():
     """Verify RC delay calculation."""
     # R=1k, C=10nF -> Tau = 10us
-    delay = estimate_filter_delay(1000.0, 10e-9)
+    delay = _tt.estimate_filter_delay_py(1000.0, 10e-9, 0.632)
     assert math.isclose(delay * 1e6, 10.0, rel_tol=1e-3)
 
 
 def test_total_response_time():
     """Verify total response time summation."""
     # filter = 5us, logic = 350ns
-    res = estimate_fault_response_time(100.0, 5.0)
+    res = _tt.estimate_fault_response_time_py(100.0, 5.0, 150.0, 200.0)
     assert math.isclose(res, 5.35)
