@@ -51,7 +51,19 @@ def _net_bboxes_from_pcb(pcb: ParsedPCB) -> dict[str, tuple[float, float, float,
     axis-aligned bounding box as (min_x, min_y, max_x, max_y) in mm.
 
     Nets with fewer than 2 pins receive a zero-area bbox at (0, 0, 0, 0).
+
+    Pin resolution goes through
+    :func:`temper_placer.core.pad_identity.resolve_net_pins`
+    (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first match --
+    an independent, previously-unfixed copy of the same bug
+    ``_pipeline_grid._net_pad_positions`` had (see
+    ``temper_placer.core.pad_identity``'s module docstring): a component
+    with more than one physical pad sharing a pad number (K2/K3's
+    current-sharing contacts) would otherwise have every occurrence
+    resolve to the SAME coordinate, silently shrinking that net's bbox and
+    understating its conflict-cluster / resource-exhaustion exposure.
     """
+    from temper_placer.core.pad_identity import resolve_net_pins
     from temper_placer.core.pin_geometry import pin_world_position
 
     bboxes: dict[str, tuple[float, float, float, float]] = {}
@@ -61,14 +73,13 @@ def _net_bboxes_from_pcb(pcb: ParsedPCB) -> dict[str, tuple[float, float, float,
         xs: list[float] = []
         ys: list[float] = []
 
-        for comp_ref, pin_name in getattr(net, "pins", []):
+        for comp_ref, _pin_name, pin in resolve_net_pins(net, comp_by_ref):
             comp = comp_by_ref.get(comp_ref)
             if comp is None:
                 continue
             comp_pos = getattr(comp, "initial_position", None)
             if comp_pos is None:
                 continue
-            pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
             if pin is None:
                 continue
             wx, wy = pin_world_position(pin, comp)

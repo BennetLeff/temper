@@ -1592,6 +1592,23 @@ jobs:
         # unreviewed and fails closed. Never `continue-on-error`.
         run: uv run python scripts/check_net_pin_identity_pad_correspondence.py
 
+      - name: Pad-identity ambiguity gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_identity_ambiguity.py -v --tb=short
+
+      - name: Pad-identity ambiguity gate (duplicate-pad-number footprint x unsafe consumer)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed, component-level complement to the net-accounting gate
+        # above: fails when a footprint IN USE declares more than one
+        # physical pad under the same pad number (K1/K2/K3 today) AND a
+        # production Component.get_pin( call site outside the reviewed
+        # allowlist (ALLOWED_GET_PIN_CALL_SITES in the gate script) resolves
+        # a pin as if (ref, pin_name) were unique -- catches the case the
+        # net-accounting gate above cannot: a duplicated pad sitting inside
+        # an otherwise multi-pin net never collapses that net's WHOLE
+        # pin-identity view to <=1 distinct tuple. Never `continue-on-error`.
+        run: uv run python scripts/check_pad_identity_ambiguity.py
+
       - name: Footprint-drift gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_footprint_drift.py -v --tb=short

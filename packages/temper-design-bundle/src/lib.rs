@@ -1,6 +1,12 @@
 #[cfg(feature = "python")]
 mod net_types;
 
+// Typed physical-pad identity: `(pad_number, occurrence)`, see its module
+// doc for the duplicate-pad-number footgun this removes. Pure Rust, no
+// pyo3 dependency, so it is unconditional like `rotation_quadrant` is in
+// `temper-geometry` -- see that module's own precedent for this pattern.
+pub mod pad_occurrence;
+
 // Wave 4 Phase 3 (formats/IO): the two GEOMETRY/matching kernels ported out
 // of temper_placer/io/kicad_exporter.py (snap_to_nearest_pad,
 // _generate_connector_segments) — see kicad_exporter_geometry.rs's module

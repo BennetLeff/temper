@@ -81,6 +81,7 @@ Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retire
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
 from temper_placer.core.pin_geometry import pin_world_position_at
 
 if TYPE_CHECKING:
@@ -360,6 +361,16 @@ def _get_pin_positions(
 
     Returns:
         List of (x, y) pin positions.
+
+    Pin resolution uses
+    :func:`temper_placer.core.pad_identity.nth_matching_pin`
+    (occurrence-indexed), not a bare ``if pin.name == pin_name or
+    pin.number == pin_name: break`` first-match scan -- a component with
+    more than one physical pad sharing a pad number (K2/K3's
+    manufacturer-duplicated current-sharing contacts) would otherwise have
+    every occurrence resolve to the SAME coordinate, silently corrupting
+    the min-cut source/sink geometry this feeds. See
+    ``temper_placer.core.pad_identity``'s module docstring.
     """
     pin_positions: list[tuple[float, float]] = []
 
@@ -377,9 +388,8 @@ def _get_pin_positions(
         return pin_positions
 
     # Collect pin positions
-    for pin_ref in net.pins:
-        comp_ref, pin_name = pin_ref
-
+    occurrence_indices = net_pin_occurrence_indices(net.pins)
+    for (comp_ref, pin_name), occurrence in zip(net.pins, occurrence_indices, strict=True):
         if comp_ref not in comp_by_ref:
             continue
 
@@ -396,11 +406,10 @@ def _get_pin_positions(
             pos_override = (float(positions[comp_idx, 0]), float(positions[comp_idx, 1]))
 
         # Find pin and get its position
-        for pin in comp.pins:
-            if pin.name == pin_name or pin.number == pin_name:
-                pin_x, pin_y = pin_world_position_at(pin, comp, pos_override=pos_override)
-                pin_positions.append((pin_x, pin_y))
-                break
+        pin = nth_matching_pin(comp, pin_name, occurrence)
+        if pin is not None:
+            pin_x, pin_y = pin_world_position_at(pin, comp, pos_override=pos_override)
+            pin_positions.append((pin_x, pin_y))
 
     return pin_positions
 
