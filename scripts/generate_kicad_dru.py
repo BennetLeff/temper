@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import temper_design_bundle_python as _tdb
+
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 
 # The Rust SafetyValue SSOT (packages/temper-design-bundle/src/safety_value.rs):
