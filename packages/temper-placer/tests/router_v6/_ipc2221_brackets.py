@@ -1,10 +1,22 @@
 """Shared IPC-2221 voltage->creepage bracket data (single copy).
 
-UNSOURCED (flagged 2026-08-15, safety-assertion audit): this bracket table
-is hedged in-source as "(simplified)" and there is **no recovered IPC-2221
-table anywhere in ``docs/``** -- the values are SNAPSHOT pins of the
-implementation, not verified against primary text. Do not present them as
-a sourced IPC-2221 figure; re-sourcing is a separate task.
+UNSOURCED -- NOW VERIFIED MISLABELED (flagged 2026-08-15, safety-assertion
+audit; cross-validated 2026-08-15 against a recovered free copy of
+IPC-2221 (1998) Table 6-1 -- see
+docs/evidence/2026-08-15-pending-decisions.md item C): the values below
+(0.13/0.25/0.5/0.8/1.25/1.6/3.2/6.4/8.0/12.0) appear in **no column** of
+the real Table 6-1 at any row. The bracket *boundaries* are IPC-2221's
+row structure (15/30/50/100/150/170/250/300 V); the *values* are from an
+unidentified source (closest partial match: IPC-9592B's low-voltage
+spacing 0.13/0.25; the 8.0/12.0 tail matches nothing recovered). Relative
+to the real Table 6-1 (B2 external-uncoated column: 0.1/0.1/0.6/0.6/0.6/
+1.25/1.25/1.25/2.5 + per-volt formulae above 500V), this table
+**overestimates** at every row where it can win a max() -- i.e. the error
+direction is conservative, never dangerous. Do NOT silently "correct" it
+to the real IPC-2221 values: that would *lower* a live gate's floor
+(weakening), and re-sourcing is a separate attributed decision with its
+own proof discipline. Do not present these values as a sourced IPC-2221
+figure.
 
 This module is the single shared test-data copy. The implementation SSOT
 is ``temper-geometry``'s ``creepage_check.rs``
