@@ -17,6 +17,8 @@ tags:
   - honest-red
 ---
 
+<!-- provenance: commit=bf4b7d0a716157377826af7acd7deedf5b30ef84 dirty=false (record written at this commit, after all three mechanism changes landed on ci/unsilence-checks-batch-2; every verification run cited below was executed against the working tree at that commit) -->
+
 # Un-silencing batch 2 — three silenced check mechanisms made live
 
 This is the batch-2 record for the silent-check census
