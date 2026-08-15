@@ -172,40 +172,36 @@ TANK_NODE_NET: str = "tank.c_tank1-p2"
 #: ``docs/evidence/2026-08-12-hv-hv-creepage-determination.md`` Sec 3.1.
 HV_TANK_CREEPAGE_PD2_MM: float = 6.3
 
-#: Same row, PD3 = 10.0mm. PD2 is conditional on a sealed compartment that
-#: does not exist on this board (``docs/evidence/2026-08-11-pd2-decision-record.md``),
-#: so PD3 is the figure this module designs against by default.
+#: Same row of Table 18 (functional insulation, cl. 29.2.4), PD3 = 10.0mm.
+#: PD2 is conditional on a sealed compartment that does not exist on this
+#: board (``docs/evidence/2026-08-11-pd2-decision-record.md``), so PD3 is
+#: the figure this module designs against by default.
 HV_TANK_CREEPAGE_PD3_MM: float = 10.0
 
 #: Design against PD3, not PD2 (task instruction, carried into code so a
 #: caller who does not pass ``margin_mm`` gets the as-built-correct figure
 #: rather than the conditional one).
 #:
-#: Deliberately NOT written as the bare ``DEFAULT_TANK_CREEPAGE_MM =
-#: HV_TANK_CREEPAGE_PD3_MM`` alias form. ``scripts/check_creepage_clearance_drift.py``
-#: treats a bare ``NAME2 = NAME1`` as a "selection alias" and then
-#: self-verifies that the selected constant sits in a comparable (metric,
-#: tier) family; it classifies tier by keyword-scanning the attached
-#: comment for reinforced/basic/working. HV_TANK_CREEPAGE_PD2_MM/PD3_MM
-#: above are Table 18 FUNCTIONAL insulation figures -- a tier that gate
-#: does not model -- so they have no family, and the alias form makes the
-#: gate exit 5 ("GATE ERROR -- could not run a trustworthy check"),
-#: strictly worse than the exit 3 it reports without this module. Measured
-#: directly against this file. Adding "functional" to that gate's tier
-#: vocabulary was tried and REJECTED for the identical situation in
-#: ``scripts/generate_kicad_dru.py`` (see that file's own
-#: ``HV_TANK_CREEPAGE_ENFORCED_MM`` block, ~line 195-230): it re-tags other,
-#: unrelated declarations out of real comparison families and reduces gate
-#: sensitivity. The dict-lookup form mirrors that file's established
-#: workaround for this exact figure: it keeps the one-line PD switch,
-#: duplicates no literal, and reads to that gate as a non-literal
-#: expression (its UNRESOLVED bucket) rather than as an alias it must and
-#: cannot resolve.
-_TANK_DEFAULT_POLLUTION_DEGREE = "PD3"
-DEFAULT_TANK_CREEPAGE_MM: float = {
-    "PD2": HV_TANK_CREEPAGE_PD2_MM,
-    "PD3": HV_TANK_CREEPAGE_PD3_MM,
-}[_TANK_DEFAULT_POLLUTION_DEGREE]
+#: Written as the bare ``NAME2 = NAME1`` selection-alias form on purpose.
+#: ``scripts/check_creepage_clearance_drift.py`` models exactly this shape
+#: as a *selection* between same-(metric, tier) candidates: it marks the
+#: unselected sibling ``HV_TANK_CREEPAGE_PD2_MM`` (6.3mm) as "declared but
+#: not enforced" -- reported, never compared as live -- and keeps the
+#: enforced ``HV_TANK_CREEPAGE_PD3_MM`` (10.0mm) participating in its
+#: ``[creepage/functional]`` family, satisfying that gate's own "the
+#: enforced value must still participate in its family" contract.
+#:
+#: This only works because that gate's tier vocabulary now includes
+#: ``functional`` (IEC 60335-1 Table 18; added 2026-08-15, see
+#: ``docs/evidence/2026-08-15-pending-decisions.md`` item A). The earlier
+#: dict-lookup form here (``{"PD2": ..., "PD3": ...}[key]``) was a
+#: workaround for a gate that could not model this tier at all: its
+#: selection-alias self-verification failed closed (exit 5, GATE ERROR)
+#: because the selected constant had no comparable family. The workaround
+#: is now obsolete -- with ``functional`` a real tier the alias form works
+#: and models the enforced-vs-fallback relationship correctly instead of
+#: hiding both values in the gate's UNRESOLVED bucket.
+DEFAULT_TANK_CREEPAGE_MM: float = HV_TANK_CREEPAGE_PD3_MM
 
 
 #: Classes this module treats as equivalent to "HighVoltage" for Group B

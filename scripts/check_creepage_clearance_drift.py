@@ -80,19 +80,34 @@ reviewers to ignore the gate.
 
 So every discovered declaration is classified into a **family** =
 ``(metric, tier)`` where ``metric in {"creepage", "clearance"}`` and
-``tier in {"reinforced", "basic", "working", "unspecified"}``. The tier is
-read from the text actually attached to the declaration (a same-line
+``tier in {"reinforced", "basic", "working", "functional", "unspecified"}``.
+The tier is read from the text actually attached to the declaration (a same-line
 comment, the contiguous comment block immediately above it, or -- for
 ``.ato`` -- the enclosing module's own doc-comment, or -- for YAML -- a
 sibling ``because``/``reason``/``description`` field) rather than guessed
 from the declaration's name or location. Only declarations whose tier is
-explicitly stated (``reinforced``/``basic``/``working``) are compared for
-agreement; a family is asserted internally consistent (all its members
-carry the same ``value_mm``) or reported as a VIOLATION naming every site
-and value. Declarations with an unresolvable tier (``unspecified``) are
-never silently dropped -- they are discovered, counted in the denominator,
-and printed in their own "needs human classification" section, never
-force-compared against anything.
+explicitly stated (``reinforced``/``basic``/``working``/``functional``) are
+compared for agreement; a family is asserted internally consistent (all its
+members carry the same ``value_mm``) or reported as a VIOLATION naming every
+site and value. ``functional`` (IEC 60335-1 Table 18, cl. 29.2.4) is a real
+tier in its own right -- a different table from Table 17 -- and is
+classified LAST on purpose so that a text mentioning functional only as
+context for a reinforced/basic/working figure keeps the more specific tier
+(see ``_classify_tier`` for the measured reason). Declarations with an
+unresolvable tier (``unspecified``) are never silently dropped -- they are
+discovered, counted in the denominator, and printed in their own "needs
+human classification" section, never force-compared against anything.
+
+A family whose multi-value state has been fully investigated, attributed,
+and deliberately accepted is registered in ``ACCEPTED_DRIFT``: it is still
+discovered, still printed in full under its own heading with its
+justification, and still fails closed (GateError) the moment it carries a
+value outside the reviewed set -- it just does not set the violation exit
+state. See that registry's docstring and
+``docs/evidence/2026-08-15-pending-decisions.md`` item A for the per-family
+records. This is the mechanism that lets the gate run in CI despite
+pre-existing, investigated disagreements; a family that is a live,
+unresolved safety question stays a hard red instead.
 
 Indirect YAML matching (the pcl-yaml case)
 --------------------------------------------
@@ -241,11 +256,16 @@ Fail-closed contract
 Exit codes
 ----------
   0 - OK: at least one declaration found, every family (metric, explicit
-      tier) with 2+ members carries exactly one distinct value.
-  3 - VIOLATION: a file failed to parse, or a family has more than one
-      distinct value among its members.
-  5 - GATE ERROR: a scan root is missing, or discovery found zero
-      declarations anywhere (the check did not actually run).
+      tier) with 2+ members carries exactly one distinct value, except
+      families registered in ACCEPTED_DRIFT (reviewed, documented drift --
+      still reported, still self-verified, not exit-affecting).
+  3 - VIOLATION: a file failed to parse, or a family (not in
+      ACCEPTED_DRIFT) has more than one distinct value among its members.
+  5 - GATE ERROR: a scan root is missing, discovery found zero
+      declarations anywhere (the check did not actually run), an
+      ACCEPTED_DRIFT family drifted beyond its reviewed value set, or a
+      selection-alias / KNOWN_TIER_MISCLASSIFICATIONS self-verification
+      failed (the check cannot be trusted as-is).
 
 Usage
 -----
@@ -295,7 +315,7 @@ NOISE_DIR_NAMES = frozenset(
     }
 )
 
-TIER_ORDER = ("reinforced", "basic", "working")  # most-specific first
+TIER_ORDER = ("reinforced", "basic", "working", "functional")  # most-specific first
 
 _NAME_TOKEN_RE = re.compile(r"(?:^|_)(creepage|clearance)(?:_mm)?(?:_|$)", re.IGNORECASE)
 _MM_SUFFIX_RE = re.compile(r"(?:^|_)mm$", re.IGNORECASE)
@@ -333,6 +353,117 @@ KNOWN_TIER_MISCLASSIFICATIONS: frozenset[tuple[str, str]] = frozenset(
 )
 
 
+@dataclass(frozen=True)
+class AcceptedDrift:
+    """A (metric, tier) family whose current multi-value state has been
+    investigated, attributed, and deliberately ACCEPTED -- the gate still
+    discovers every member and prints the family in full, but an accepted
+    family does not set the violation exit state.
+
+    This is the mechanism that lets the drift gate run green in CI despite
+    pre-existing, fully-investigated cross-source disagreements -- the
+    alternative is a gate that is permanently red on main and therefore
+    permanently disabled (the state this project's creepage/clearance gate
+    sat in from 2026-08-08 to 2026-08-15), catching nothing. Accepting a
+    family is NOT silencing it: the family and every one of its members are
+    still discovered and reported under a dedicated heading on every run,
+    and the acceptance self-verifies (see ``_check_accepted_drift``) so it
+    can never silently cover values that were not part of the reviewed
+    state.
+
+    ``accepted_values_mm`` is the closed set of values the family may carry.
+    A run whose family carries a value OUTSIDE that set is a GateError --
+    the drift moved beyond what was reviewed and must be re-reviewed, never
+    silently absorbed by an acceptance written for different values. This
+    mirrors the KNOWN_TIER_MISCLASSIFICATIONS stale-override contract
+    exactly: the override can only ever describe what was investigated.
+
+    Only entries with a real investigation behind them belong here. A
+    family whose disagreement is a live, unresolved safety question (e.g.
+    two candidate values where the correct one for the as-built product is
+    not determinable from repo evidence) must stay a hard red -- see
+    docs/evidence/2026-08-15-pending-decisions.md for which families are
+    which and why."""
+
+    metric: str
+    tier: str
+    accepted_values_mm: frozenset[float]
+    justification: str
+
+
+# Reviewed 2026-08-15 (docs/evidence/2026-08-15-pending-decisions.md, item A).
+# Each entry is the *complete* record of why the family's current spread is
+# acceptable; the values are the closed set the family may carry.
+ACCEPTED_DRIFT: dict[tuple[str, str], AcceptedDrift] = {
+    ("clearance", "basic"): AcceptedDrift(
+        metric="clearance",
+        tier="basic",
+        accepted_values_mm=frozenset({3.0, 6.0}),
+        justification=(
+            "PERMANENT, INVESTIGATED (2026-07-29): 3.0mm (elec/src/constraints.ato "
+            "AC_to_LV.min_clearance -- the atopile SSOT's own ACMains(135V)->LV basic-"
+            "insulation barrier) vs 6.0mm (configs/temper_deterministic_config.yaml "
+            "net_class_rules.HighVoltage.clearance_mm -- one netclass's own routing "
+            "figure at the mains_240v voltage bucket). Two genuinely different "
+            "requirements sharing the coarse 'basic' tier label; IEC 60335-1 figures "
+            "are working-voltage-indexed, so the larger figure at the higher declared "
+            "bucket is the expected direction, not drift. See this gate's module "
+            "docstring 'A tier label alone...' for the full investigation."
+        ),
+    ),
+    ("creepage", "basic"): AcceptedDrift(
+        metric="creepage",
+        tier="basic",
+        accepted_values_mm=frozenset({5.0, 6.0}),
+        justification=(
+            "PERMANENT, INVESTIGATED (2026-07-29): 5.0mm (elec/src/constraints.ato "
+            "AC_to_LV.min_creepage) vs 6.0mm (configs/temper_deterministic_config.yaml "
+            "net_class_rules.HighVoltage.creepage_mm) -- the same two-subsystem pair as "
+            "[clearance/basic] above, same voltage-bucket reasoning, same verdict: "
+            "both sides correctly describe their own requirement."
+        ),
+    ),
+    ("creepage", "reinforced"): AcceptedDrift(
+        metric="creepage",
+        tier="reinforced",
+        accepted_values_mm=frozenset({6.0, 12.6}),
+        justification=(
+            "12.6mm = the decision-documented, enforced PD3 figure: the 2026-08-15 "
+            "data-driven decision (docs/evidence/2026-08-15-pd2-pd3-data-driven-"
+            "decision.md) and PR #1229 set PD3 (12.6mm reinforced) as the as-built "
+            "bar; elec/src/constraints.ato (HighVoltage.creepage, HV_to_LV.min_creepage), "
+            "the 4 pcl temper_production.yaml min_distance_mm sites, and "
+            "isolation_constants.MIN_BARRIER_WIDTH_MM carry it (the ato/pcl sites "
+            "were aligned 2026-08-15 by this changeset; they were the exact PD2-era "
+            "holdovers this gate's module docstring calls out). 6.0mm = UNSOURCED "
+            "legacy figures on TEMPER_NET_CLASSES HighVoltage/HighVoltageIsolated "
+            "creepage_mm (design_rules.py + netclass_rules.yaml), explicitly flagged "
+            "2026-08-15 with 'values unchanged -- re-sourcing is a separate attributed "
+            "decision'. NOT accepted: 8.0mm (the PD2 figure) -- a reappearing PD2 "
+            "declaration fails this gate closed."
+        ),
+    ),
+    ("creepage", "functional"): AcceptedDrift(
+        metric="creepage",
+        tier="functional",
+        accepted_values_mm=frozenset({6.3, 10.0}),
+        justification=(
+            "IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4) row vi "
+            "(>500-800V): 10.0mm = PD3, the enforced figure (2026-08-15 decision + "
+            "#1229; tank_creepage.py DEFAULT_TANK_CREEPAGE_MM selects "
+            "HV_TANK_CREEPAGE_PD3_MM); 6.3mm = PD2, a declared fallback "
+            "(HighVoltageTank placer-config creepage_mm, cited 2026-08-12, predates "
+            "the PD3 decision -- fix direction is to align it to 10.0mm when the "
+            "attributed re-sourcing lands; see docs/evidence/2026-08-15-pending-"
+            "decisions.md). Both are legitimate Table 18 row-vi values for the "
+            "resonant tank node (measured 570.5 Vrms), differing only on the "
+            "open PD2-vs-PD3 pollution-degree question that the 2026-08-15 decision "
+            "resolved in PD3's favour for enforcement."
+        ),
+    ),
+}
+
+
 class GateError(Exception):
     """Raised for any condition that must fail closed (exit 5)."""
 
@@ -344,7 +475,7 @@ class Declaration:
     name: str
     metric: str  # "creepage" | "clearance" | "" (unresolved)
     metric_confidence: str  # "direct" | "numeric-match" | "single-keyword" | "heuristic-order" | "error"
-    tier: str  # "reinforced" | "basic" | "working" | "unspecified"
+    tier: str  # "reinforced" | "basic" | "working" | "functional" | "unspecified"
     value_mm: float | None
     raw: str
     context: str
@@ -390,6 +521,25 @@ def _classify_tier(text: str) -> str:
         return "basic"
     if "working insulation" in lower or re.search(r"\bworking\b", lower):
         return "working"
+    # Functional insulation (IEC 60335-1 Table 18, cl. 29.2.4) is a real
+    # tier in its own right -- a different table from the Table 17 basic /
+    # reinforced figures -- so a declaration whose own text calls its figure
+    # "functional" must be comparable against other functional figures, not
+    # dumped into the unspecified bucket. It is checked LAST on purpose:
+    # "functional" frequently appears in a declaration's context text as a
+    # *contrast* ("...is REINFORCED, unlike functional-only neighbours..."),
+    # so any text that also names reinforced/basic/working must keep that
+    # more specific tier. Only a text that names functional and no other
+    # tier keyword is a pure-functional declaration. Measured against the
+    # pristine tree: a first-priority "functional" check re-tags
+    # netclass_rules.yaml's HighVoltageIsolated entries (whose `because`
+    # reads "reinforced separation to LV/SELV, functional-only to its own
+    # HV/ACMains neighbours") out of the reinforced families and shrinks
+    # real comparison families -- the exact sensitivity loss the
+    # generate_kicad_dru.py / tank_creepage.py workaround comments document.
+    # This ordering was the fix; see docs/evidence/2026-08-15-pending-decisions.md.
+    if "functional" in lower:
+        return "functional"
     return "unspecified"
 
 
@@ -1189,6 +1339,29 @@ def build_families(
     return families, flagged, unresolved, known_blind_spots, declared_not_enforced
 
 
+def _check_accepted_drift(families: list[FamilyResult]) -> None:
+    """Self-verification for ACCEPTED_DRIFT (see that registry's docstring):
+    every accepted family must still carry only the reviewed value set. A
+    family that drifted to a value outside its accepted set is a GateError,
+    not a silent absorption -- the acceptance was written for different
+    values and must be re-reviewed. Called by ``run`` after ``build_families``,
+    before the violation state is computed."""
+    for fam in families:
+        entry = ACCEPTED_DRIFT.get((fam.metric, fam.tier))
+        if entry is None:
+            continue
+        current = set(fam.distinct_values.keys())
+        if not current <= entry.accepted_values_mm:
+            raise GateError(
+                f"ACCEPTED_DRIFT entry [{(entry.metric, entry.tier)}] accepted values "
+                f"{sorted(entry.accepted_values_mm)}mm, but the family now carries "
+                f"{sorted(current)}mm -- the drift moved beyond what was reviewed "
+                f"({entry.justification[:200]}...). Re-review the family before "
+                "extending the acceptance; never absorb new values silently "
+                "(see check_creepage_clearance_drift.py's ACCEPTED_DRIFT docstring)."
+            )
+
+
 # ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
@@ -1224,11 +1397,15 @@ def run(
 
     families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(report.declarations)
 
+    # Accepted families still fail closed on value drift beyond their
+    # reviewed set -- see ACCEPTED_DRIFT/_check_accepted_drift.
+    _check_accepted_drift(families)
+
     state = "clean"
     if report.parse_errors:
         state = "violation"
     for fam in families:
-        if not fam.is_consistent:
+        if not fam.is_consistent and (fam.metric, fam.tier) not in ACCEPTED_DRIFT:
             state = "violation"
 
     return state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced
@@ -1266,9 +1443,16 @@ def _print_report(
     print(f"\n=== FAMILIES: {len(families)} ===")
     violations = 0
     for fam in families:
-        tag = "OK" if fam.is_consistent else "MISMATCH"
+        accepted = (fam.metric, fam.tier) in ACCEPTED_DRIFT
         if not fam.is_consistent:
-            violations += 1
+            if accepted:
+                entry = ACCEPTED_DRIFT[(fam.metric, fam.tier)]
+                tag = f"MISMATCH (ACCEPTED, documented drift -- {entry.justification})"
+            else:
+                tag = "MISMATCH"
+                violations += 1
+        else:
+            tag = "OK"
         print(f"\n  [{fam.metric}/{fam.tier}] {tag} -- {len(fam.members)} declaration(s)")
         for value, members in sorted(fam.distinct_values.items()):
             print(f"    {value}mm:")
