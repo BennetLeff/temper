@@ -462,11 +462,16 @@ def _calculate_required_creepage(voltage: float) -> float:
     601 –1000   12.00
     ===========  =====
 
-    **UNSOURCED (flagged 2026-08-15, safety-assertion audit):** this table
-    is hedged "(simplified)" and no recovered IPC-2221 table exists anywhere
-    in ``docs/``. The values are SNAPSHOT pins of the implementation, not
-    verified against primary text; do not cite them as a sourced IPC-2221
-    figure. The implementation SSOT is ``temper-geometry``'s
+    **UNSOURCED -- NOW VERIFIED MISLABELED (flagged 2026-08-15, safety-
+    assertion audit; cross-validated 2026-08-15 against a recovered free
+    copy of IPC-2221 (1998) Table 6-1):** these values appear in **no
+    column** of the real Table 6-1 at any row (bracket *boundaries* are
+    IPC-2221's, the *values* are from an unidentified source; the error
+    direction vs. the real table is conservative -- overestimate, never
+    dangerous -- and re-sourcing is a separate attributed decision). See
+    docs/evidence/2026-08-15-pending-decisions.md item C and
+    ``tests/router_v6/_ipc2221_brackets.py`` for the cross-validation.
+    The implementation SSOT is ``temper-geometry``'s
     ``creepage_check.rs`` ``required_creepage_bracket`` (this function is a
     pure pyo3 delegation); the bracket data is shared in
     ``tests/router_v6/_ipc2221_brackets.py`` (UNSOURCED label there) and

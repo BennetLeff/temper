@@ -20,10 +20,10 @@ import pytest
 
 from temper_placer.core import manufacturing as prod_mf
 from temper_placer.core import net_classification as prod_nc
-from temper_placer.core import placement_drc as prod_drc
 from temper_placer.core import units as prod_units
 from temper_placer.core.board import Rect as ProdRect
 from temper_placer.core.netlist import build_adjacency_matrix as prod_adjacency
+import temper_io_types as prod_drc
 from tests.wave4_phase2 import _core_py_oracle as oracle
 from tests.wave4_phase2._sig import assert_same
 

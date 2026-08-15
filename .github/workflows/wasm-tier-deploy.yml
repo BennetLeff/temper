@@ -386,7 +386,7 @@ jobs:
 
       # wrangler 4.x requires Node >= 22. wasm-tier-nightly.yml's
       # worker-dispatch-r19 already pins 22 for exactly this eventuality.
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -625,7 +625,7 @@ jobs:
 
       - name: Upload deploy artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-tier-deploy-${{ github.run_id }}
           path: |

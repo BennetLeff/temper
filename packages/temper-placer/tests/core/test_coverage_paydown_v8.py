@@ -330,24 +330,24 @@ class TestGeometryInitSDFGradient:
 
 class TestSmoothLeakyRelu:
     def test_positive_input(self):
-        from temper_placer.geometry.smooth import smooth_leaky_relu
+        from temper_placer.geometry import smooth_leaky_relu
 
-        result = smooth_leaky_relu(5.0)
+        result = smooth_leaky_relu(5.0, 10.0, 0.01)
         # Should be close to 5.0 for large alpha
         assert result == pytest.approx(5.0, abs=0.5)
 
     def test_negative_input(self):
-        from temper_placer.geometry.smooth import smooth_leaky_relu
+        from temper_placer.geometry import smooth_leaky_relu
 
-        result = smooth_leaky_relu(-5.0)
+        result = smooth_leaky_relu(-5.0, 10.0, 0.01)
         # Negative slope 0.01 means ~ -0.05
         assert result < 0
         assert result > -0.1
 
     def test_zero_input(self):
-        from temper_placer.geometry.smooth import smooth_leaky_relu
+        from temper_placer.geometry import smooth_leaky_relu
 
-        result = smooth_leaky_relu(0.0)
+        result = smooth_leaky_relu(0.0, 10.0, 0.01)
         assert result >= 0
 
 
@@ -358,34 +358,34 @@ class TestSmoothLeakyRelu:
 
 class TestPointInPolygonSoft:
     def test_point_inside_square(self):
-        from temper_placer.geometry.polygon import point_in_polygon_soft
+        from temper_placer.geometry import point_in_polygon_soft
 
         # Square: (0,0), (10,0), (10,10), (0,10)
         vertices = [0, 0, 10, 0, 10, 10, 0, 10]
-        result = point_in_polygon_soft(5.0, 5.0, vertices)
+        result = point_in_polygon_soft(5.0, 5.0, vertices, 0.1)
         # Inside -> close to 1
         assert result > 0.5
 
     def test_point_outside_square(self):
-        from temper_placer.geometry.polygon import point_in_polygon_soft
+        from temper_placer.geometry import point_in_polygon_soft
 
         vertices = [0, 0, 10, 0, 10, 10, 0, 10]
-        result = point_in_polygon_soft(20.0, 20.0, vertices)
+        result = point_in_polygon_soft(20.0, 20.0, vertices, 0.1)
         # Outside -> close to 0
         assert result < 0.5
 
 
 class TestPointInRectSoft:
     def test_point_inside(self):
-        from temper_placer.geometry.polygon import point_in_rect_soft
+        from temper_placer.geometry import point_in_rect_soft
 
-        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 10.0, 10.0)
+        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 10.0, 10.0, 0.1)
         assert result > 0.5
 
     def test_point_outside(self):
-        from temper_placer.geometry.polygon import point_in_rect_soft
+        from temper_placer.geometry import point_in_rect_soft
 
-        result = point_in_rect_soft(20.0, 20.0, 0.0, 0.0, 10.0, 10.0)
+        result = point_in_rect_soft(20.0, 20.0, 0.0, 0.0, 10.0, 10.0, 0.1)
         assert result < 0.5
 
 
@@ -396,15 +396,17 @@ class TestPointInRectSoft:
 
 class TestProjectOutsideKeepout:
     def test_point_outside_no_expansion(self):
-        from temper_placer.geometry.projections import project_outside_keepout
+        from temper_placer.geometry import project_outside_keepout
 
-        x, y = project_outside_keepout(15.0, 15.0, 0.0, 0.0, 10.0, 10.0)
+        # half_w/half_h were defaulted to 0.0 by the deleted shim
+        # geometry/projections.py; the Rust kernel requires them explicitly.
+        x, y = project_outside_keepout(15.0, 15.0, 0.0, 0.0, 10.0, 10.0, 0.0, 0.0)
         assert x > 10.0 or y > 10.0
 
     def test_point_inside_keepout(self):
-        from temper_placer.geometry.projections import project_outside_keepout
+        from temper_placer.geometry import project_outside_keepout
 
-        x, y = project_outside_keepout(5.0, 5.0, 0.0, 0.0, 10.0, 10.0)
+        x, y = project_outside_keepout(5.0, 5.0, 0.0, 0.0, 10.0, 10.0, 0.0, 0.0)
         # Should be projected to nearest boundary
         assert x >= 10.0 or y >= 10.0 or x <= 0.0 or y <= 0.0
 

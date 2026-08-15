@@ -22,7 +22,7 @@ from temper_placer.report.formatter import format_json, format_text
 from temper_placer.report.generator import (
     calculate_benchmark_result,
 )
-from temper_placer.report.summary import generate_summary
+import temper_io_types as _rust
 from temper_placer.validation.drc_result import (
     CheckResult,
     Issue,
@@ -121,7 +121,7 @@ def test_prop_summary_counts_match_result():
         rng = random.Random(seed)
         result = _result(rng.randint(0, 4), rng.randint(0, 3), rng)
         placement = _placement(rng.randint(0, 6))
-        text = generate_summary(result, placement, None)
+        text = _rust.report_generate_summary(result, placement)
         assert f"Components: {len(placement.components)}" in text
         assert f"Nets: {len(placement.nets)}" in text
         assert f"Total Checks: {len(result.check_results)}" in text
@@ -130,7 +130,7 @@ def test_prop_summary_counts_match_result():
 def test_prop_summary_passed_failed_sum():
     rng = random.Random(11)
     result = _result(5, 1, rng)
-    text = generate_summary(result, _placement(1), None)
+    text = _rust.report_generate_summary(result, _placement(1))
     passed = sum(1 for c in result.check_results if c.passed)
     failed = sum(1 for c in result.check_results if not c.passed)
     assert f"Passed: {passed}" in text
@@ -139,7 +139,7 @@ def test_prop_summary_passed_failed_sum():
 
 def test_prop_summary_empty_result_says_zero():
     result = RunResult(check_results=[], total_elapsed_ms=0.0)
-    text = generate_summary(result, _placement(0), None)
+    text = _rust.report_generate_summary(result, _placement(0))
     assert "Total Checks: 0" in text
     assert "Passed: 0" in text
 

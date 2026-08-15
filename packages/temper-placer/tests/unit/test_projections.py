@@ -17,7 +17,7 @@ coordinates and return (x, y) tuples.
 
 import pytest
 
-from temper_placer.geometry.projections import (
+from temper_placer.geometry import (
     identity_projection,
     project_onto_board,
     project_onto_edge_strip,
@@ -84,24 +84,26 @@ class TestProjectOntoZone:
 
 class TestProjectOutsideKeepout:
     KEEPOUT = (5.0, 5.0, 10.0, 10.0)
+    # half_w/half_h were defaulted to 0.0 by the deleted shim
+    # geometry/projections.py; the Rust kernel requires them explicitly.
 
     def test_outside_keepout_identity(self):
         """Point outside keepout returns unchanged."""
         kx, ky, kw, kh = self.KEEPOUT
-        result = project_outside_keepout(1.0, 1.0, kx, ky, kw, kh)
+        result = project_outside_keepout(1.0, 1.0, kx, ky, kw, kh, 0.0, 0.0)
         assert result == (1.0, 1.0)
 
     def test_inside_keepout_projected(self):
         """Point inside keepout projected to nearest edge."""
         kx, ky, kw, kh = self.KEEPOUT
-        result = project_outside_keepout(7.5, 7.5, kx, ky, kw, kh)
+        result = project_outside_keepout(7.5, 7.5, kx, ky, kw, kh, 0.0, 0.0)
         # Nearest edge from center (7.5, 7.5) is left at x=5
         assert result == (5.0, 7.5)
 
     def test_on_keepout_edge_stays_on_edge(self):
         """Point on keepout boundary maps to that boundary point."""
         kx, ky, kw, kh = self.KEEPOUT
-        result = project_outside_keepout(5.0, 7.5, kx, ky, kw, kh)
+        result = project_outside_keepout(5.0, 7.5, kx, ky, kw, kh, 0.0, 0.0)
         # Boundary is inclusive; the nearest candidate is the point itself.
         assert result == (5.0, 7.5)
 
@@ -125,8 +127,8 @@ class TestProjectOutsideKeepout:
         """P(P(x)) == P(x)."""
         kx, ky, kw, kh = self.KEEPOUT
         px, py = point
-        p1 = project_outside_keepout(px, py, kx, ky, kw, kh)
-        p2 = project_outside_keepout(*p1, kx, ky, kw, kh)
+        p1 = project_outside_keepout(px, py, kx, ky, kw, kh, 0.0, 0.0)
+        p2 = project_outside_keepout(*p1, kx, ky, kw, kh, 0.0, 0.0)
         assert p1 == pytest.approx(p2, abs=1e-6)
 
 

@@ -14,11 +14,11 @@ wrappers take flat scalar coordinates / flat vertex lists.
 
 import numpy as np
 
-from temper_placer.geometry.overlap import (
+from temper_placer.geometry import (
     check_clearance_violation,
     component_overlap_amount,
 )
-from temper_placer.geometry.polygon import (
+from temper_placer.geometry import (
     point_in_polygon_soft,
     point_in_polygon_winding,
     polygon_area,
@@ -29,7 +29,7 @@ from temper_placer.geometry.polygon import (
 )
 
 # Import geometry functions
-from temper_placer.geometry.primitives import (
+from temper_placer.geometry import (
     distance_to_rect_edge,
     distance_to_specific_edge,
     point_distance,
@@ -44,7 +44,7 @@ from temper_placer.geometry.sdf import (
     sdf_rectangle,
     sdf_union,
 )
-from temper_placer.geometry.smooth import (
+from temper_placer.geometry import (
     hpwl_smooth,
     smooth_abs,
     smooth_max,
@@ -325,13 +325,13 @@ class TestPolygon:
     def test_point_in_polygon_inside(self):
         """Test point inside polygon."""
         square = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
-        inside = point_in_polygon_soft(1.0, 1.0, square, smoothness=10.0)
+        inside = point_in_polygon_soft(1.0, 1.0, square, alpha=10.0)
         assert inside > 0.9  # Should be close to 1
 
     def test_point_in_polygon_outside(self):
         """Test point outside polygon."""
         square = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
-        inside = point_in_polygon_soft(5.0, 5.0, square, smoothness=10.0)
+        inside = point_in_polygon_soft(5.0, 5.0, square, alpha=10.0)
         assert inside < 0.1  # Should be close to 0
 
     def test_winding_number_inside(self):

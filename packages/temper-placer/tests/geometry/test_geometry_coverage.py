@@ -25,7 +25,7 @@ import pytest
 # polygon.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.polygon import (
+from temper_placer.geometry import (
     compute_loop_area,
     compute_loop_perimeter,
     is_convex,
@@ -34,6 +34,7 @@ from temper_placer.geometry.polygon import (
     nearest_point_on_segment,
     point_in_rect,
     point_in_rect_soft,
+    polygon_area,
     polygon_bounding_box,
     polygon_bounding_circle,
     polygon_orientation,
@@ -41,9 +42,6 @@ from temper_placer.geometry.polygon import (
     translate_polygon,
     triangle_area,
 )
-
-# Re-import already-exercised ones used for verification
-from temper_placer.geometry.polygon import polygon_area
 
 
 class TestPolygonUncovered:
@@ -95,12 +93,12 @@ class TestPolygonUncovered:
 
     def test_point_in_rect_soft_inside(self):
         """Soft containment for point inside."""
-        result = point_in_rect_soft(1.0, 1.0, 0.0, 0.0, 2.0, 2.0, smoothness=10.0)
+        result = point_in_rect_soft(1.0, 1.0, 0.0, 0.0, 2.0, 2.0, alpha=10.0)
         assert result > 0.9
 
     def test_point_in_rect_soft_outside(self):
         """Soft containment for point outside."""
-        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 2.0, 2.0, smoothness=10.0)
+        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 2.0, 2.0, alpha=10.0)
         assert result < 0.1
 
     def test_nearest_point_on_segment(self):
@@ -149,7 +147,7 @@ class TestPolygonUncovered:
 # primitives.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.primitives import (
+from temper_placer.geometry import (
     aabb_expand,
     aabb_from_points,
     aabb_intersects,
@@ -292,7 +290,7 @@ class TestPrimitivesUncovered:
 # smooth.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.smooth import (
+from temper_placer.geometry import (
     get_alpha_schedule,
     get_beta_schedule,
     smooth_clip,
@@ -331,7 +329,7 @@ class TestSmoothUncovered:
 
     def test_smooth_leaky_relu_positive(self):
         """Leaky ReLU passes positive values through."""
-        assert smooth_leaky_relu(5.0, alpha=10.0) > 4.9
+        assert smooth_leaky_relu(5.0, alpha=10.0, negative_slope=0.01) > 4.9
 
     def test_smooth_leaky_relu_negative(self):
         """Leaky ReLU has small negative slope."""
@@ -489,7 +487,7 @@ class TestTransformUncovered:
 # overlap.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.overlap import (
+from temper_placer.geometry import (
     box_box_distance,
     box_box_distance_aabb,
     compute_clearance_penalties,
@@ -859,7 +857,7 @@ class TestConstraintFunctions:
 # projections.py
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.projections import (
+from temper_placer.geometry import (
     identity_projection,
     project_onto_board,
     project_onto_edge_strip,
@@ -905,7 +903,9 @@ class TestProjections:
 
     def test_project_outside_keepout(self):
         """Point inside keepout projected outside."""
-        x, y = project_outside_keepout(50.0, 50.0, 40.0, 40.0, 20.0, 20.0)
+        # half_w/half_h were defaulted to 0.0 by the deleted shim
+        # geometry/projections.py; the Rust kernel requires them explicitly.
+        x, y = project_outside_keepout(50.0, 50.0, 40.0, 40.0, 20.0, 20.0, 0.0, 0.0)
         # Point inside keepout -> projected to nearest edge
         assert x is not None
         assert y is not None

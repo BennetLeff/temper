@@ -799,7 +799,24 @@ class TestRoutePcbLayerConstraintsResolution:
 
 
 class TestCrossClassZoneClearance:
-    """U2: cross-class pairwise clearance resolution for zone emission."""
+    """Per-net-PAIR clearance resolution for zone emission.
+
+    REWRITTEN 2026-08-13 (docs/evidence/2026-08-13-zone-pour-safety-clearances.md).
+    Every assertion in this class used to pin a per-NET maximum taken over
+    ``netclass_rules.yaml``'s ``class_pairs`` -- a table whose HV rows cite a
+    standard row that does not exist (PR #1081) and whose own comments call
+    its figures "legacy, not primary-cited". The tests were faithful to that
+    model, which is why they fail against the corrected one; they are not
+    weakened here, they are re-aimed at the table that is actually enforced
+    (``configs/zone_pour_clearance.generated.yaml``, derived from
+    ``pcb/temper.kicad_dru`` under KiCad's own precedence).
+
+    The emitted ``(clearance ...)`` scalar is now the pour's MINIMUM pair
+    requirement, because that is the only value KiCad ever consults for it
+    (it is overridden by any matching custom rule) and the only one that
+    cannot over-clear a pair the rules relax. The per-pair remainder lives in
+    the carved outline, which ``TestZonePourPairClearanceCarve`` pins.
+    """
 
     def _make_result_with_zones(self, net_names, component_pairs, compiled_nets=None):
         from types import SimpleNamespace
@@ -877,15 +894,26 @@ class TestCrossClassZoneClearance:
         _zone_layers_for_net("+170V_BUS") == ["F.Cu", "B.Cu"]. Swapped to
         the net name that is actually assigned to HighVoltage."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
+        from temper_placer.router_v6.zone_pour_clearance import default_table
 
         result = self._make_result_with_zones(
             ["ac_l", "+170V_BUS"],
             {"ac_l": [("C1", "1")], "+170V_BUS": [("C2", "1")]},
         )
+        # A class_pairs override is no longer a lever on the pour at all --
+        # that is the point of the change. Passing an absurd one proves it.
         dr = self._build_dr({("ACMains", "HighVoltage"): {"clearance": 8.0}})
         content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+170V_BUS"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 8.0000)" in output
+        assert "(clearance 8.0000)" not in output
+
+        table = default_table()
+        live = ("ACMains", "HighVoltage")
+        expected = table.min_required("ACMains", live)
+        assert f"(clearance {expected:.4f})" in output
+        # ACMains<->HighVoltage is 3.0mm in the enforced rule file, not the
+        # 6.0mm class_pairs claims and not the 8.0mm this override asks for.
+        assert table.required("ACMains", "HighVoltage", "Track") == 3.0
 
     def test_same_class_nets_keep_own_clearance(self):
         """Two ACMains-class nets resolve to ACMains's own 6.0mm (never
@@ -894,6 +922,7 @@ class TestCrossClassZoneClearance:
         FIXED 2026-07-28: previously used two GND-class nets (PWR_RTN/
         CGND); GND is no longer zone-eligible post-fix (see above)."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
+        from temper_placer.router_v6.zone_pour_clearance import default_table
 
         result = self._make_result_with_zones(
             ["ac_l", "ac_n"],
@@ -902,7 +931,13 @@ class TestCrossClassZoneClearance:
         dr = self._build_dr()
         content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "ac_n"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 6.0000)" in output
+        table = default_table()
+        expected = table.min_required("ACMains", ("ACMains",))
+        assert f"(clearance {expected:.4f})" in output
+        # Two ACMains nets are NOT held 6.0mm apart by the rule file: mains
+        # to mains is same-domain and the DRU relaxes it. The 6.0mm figure
+        # this test used to assert was class_pairs' legacy number.
+        assert table.required("ACMains", "ACMains", "Track") == 0.2
 
     def test_fallback_to_max_clearance_no_class_pair(self):
         """No class_pairs entry -> fallback to max(own, other).
@@ -912,6 +947,7 @@ class TestCrossClassZoneClearance:
         declare 6.0mm, so max(6.0, 6.0) == 6.0 exercises the fallback
         branch even though the two classes carry equal clearance."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
+        from temper_placer.router_v6.zone_pour_clearance import default_table
 
         result = self._make_result_with_zones(
             ["ac_l", "+340V_BUS"],
@@ -920,7 +956,13 @@ class TestCrossClassZoneClearance:
         dr = self._build_dr()
         content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+340V_BUS"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 6.0000)" in output
+        table = default_table()
+        # "+340V_BUS" is not in TEMPER_NET_ASSIGNMENTS, so it is a Default-class
+        # net -- the population the old class_pairs table said nothing about
+        # at all, and the one the mains bar most needs to cover.
+        assert table.required("ACMains", "Default", "Track") == 6.0
+        expected = table.min_required("ACMains", ("ACMains", "Default"))
+        assert f"(clearance {expected:.4f})" in output
 
     def test_single_netclass_no_cross_class(self):
         """Only one zone-eligible netclass: clearance equals own.
@@ -928,6 +970,7 @@ class TestCrossClassZoneClearance:
         FIXED 2026-07-28: previously used vcc (Power, 0.25mm), no longer
         zone-eligible. Uses ac_l (ACMains, 6.0mm) instead."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
+        from temper_placer.router_v6.zone_pour_clearance import default_table
 
         result = self._make_result_with_zones(
             ["ac_l"],
@@ -936,7 +979,8 @@ class TestCrossClassZoneClearance:
         dr = self._build_dr()
         content = '(kicad_pcb (version 20240108) (net 1 "ac_l"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 6.0000)" in output
+        expected = default_table().min_required("ACMains", ("ACMains",))
+        assert f"(clearance {expected:.4f})" in output
 
     def test_route_pcb_e2e_threads_design_rules_to_zone_pours_and_pipeline(self):
         """End-to-end: route_pcb + enable_zone_pours reflects cross-class
@@ -1038,7 +1082,10 @@ class TestCrossClassZoneClearance:
             # Zone-pour output: cross-class clearance emitted in PCB content.
             assert result.routed_pcb_content is not None
             assert "(zone " in result.routed_pcb_content
-            assert "(clearance 9.0000)" in result.routed_pcb_content
+            # design_rules still threads through (the layer_constraints
+            # assertions below prove it); what it no longer does is set the
+            # pour's clearance, so the 9.0mm override must NOT appear.
+            assert "(clearance 9.0000)" not in result.routed_pcb_content
 
             # Pipeline wiring: constructor receives layer_constraints from
             # the design_rules SSOT and enable_zone_pours flag.

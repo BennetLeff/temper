@@ -42,7 +42,10 @@ import struct
 import pytest
 import temper_thermal as _tt
 
-from temper_placer.physics.emi import check_emi_compliance, predict_radiated_emissions
+# The delegation shim temper_placer/physics/emi.py was deleted (pure
+# delegation to temper_thermal; the distance_m=3.0 / "CISPR32_CLASS_B"
+# defaults lived only in the shim signature). The module-level pins now
+# call the Rust kernels directly with those defaults passed explicitly.
 
 # ---------------------------------------------------------------------------
 # Oracle (pre-migration implementation, verbatim)
@@ -232,8 +235,10 @@ def test_direct_compliance_accepts_any_standard_object() -> None:
 
 
 def test_module_delegation_defaults() -> None:
-    # The module keeps the public signature with the default distance_m=3.0.
-    got = predict_radiated_emissions(100.0, 10.0, 1.0)
+    # The deleted shim kept the public signature with the default
+    # distance_m=3.0; passed explicitly now that the Rust kernel is called
+    # directly.
+    got = _tt.predict_radiated_emissions_py(100.0, 10.0, 1.0, 3.0)
     want = _oracle_predict_radiated_emissions(100.0, 10.0, 1.0)
     assert _bits(got) == _bits(want)
 
@@ -242,12 +247,12 @@ def test_module_delegation_known_path() -> None:
     rng = random.Random(11)
     for _ in range(50):
         area, cur, freq, dist = _random_emi_params(rng)
-        got = predict_radiated_emissions(area, cur, freq, dist)
+        got = _tt.predict_radiated_emissions_py(area, cur, freq, dist)
         want = _oracle_predict_radiated_emissions(area, cur, freq, dist)
         assert _bits(got) == _bits(want)
 
 
 def test_module_compliance_delegation() -> None:
-    assert check_emi_compliance(39.9) is _oracle_check_emi_compliance(39.9)
-    assert check_emi_compliance(41.0, "CISPR32_CLASS_A") is _oracle_check_emi_compliance(41.0, "CISPR32_CLASS_A")
-    assert check_emi_compliance(41.0, "CISPR32_CLASS_B") is _oracle_check_emi_compliance(41.0, "CISPR32_CLASS_B")
+    assert _tt.check_emi_compliance_py(39.9, "CISPR32_CLASS_B") is _oracle_check_emi_compliance(39.9)
+    assert _tt.check_emi_compliance_py(41.0, "CISPR32_CLASS_A") is _oracle_check_emi_compliance(41.0, "CISPR32_CLASS_A")
+    assert _tt.check_emi_compliance_py(41.0, "CISPR32_CLASS_B") is _oracle_check_emi_compliance(41.0, "CISPR32_CLASS_B")
