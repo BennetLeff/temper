@@ -396,13 +396,13 @@ class TestPointInRectSoft:
 
 class TestProjectOutsideKeepout:
     def test_point_outside_no_expansion(self):
-        from temper_placer.geometry.projections import project_outside_keepout
+        from temper_placer.geometry import project_outside_keepout
 
         x, y = project_outside_keepout(15.0, 15.0, 0.0, 0.0, 10.0, 10.0)
         assert x > 10.0 or y > 10.0
 
     def test_point_inside_keepout(self):
-        from temper_placer.geometry.projections import project_outside_keepout
+        from temper_placer.geometry import project_outside_keepout
 
         x, y = project_outside_keepout(5.0, 5.0, 0.0, 0.0, 10.0, 10.0)
         # Should be projected to nearest boundary

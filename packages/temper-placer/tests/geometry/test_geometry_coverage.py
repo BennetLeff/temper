@@ -857,7 +857,7 @@ class TestConstraintFunctions:
 # projections.py
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.projections import (
+from temper_placer.geometry import (
     identity_projection,
     project_onto_board,
     project_onto_edge_strip,
