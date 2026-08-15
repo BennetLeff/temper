@@ -252,6 +252,34 @@ test_r2_serialize_board.py) merged cleanly.
   `check_drc_ceiling_approval.py` (raise detected, trailer + evidence
   contract satisfied).
 
+### 7b. CI gate comparison — #1201 introduces ZERO new failures
+
+PR #1201's CI (run 31896199152) fails the same pre-existing set as
+code-only PRs #1199/#1210 (Required Python Tests, Fast Gates, Core Tests,
+Cross-Source Consistency Gates, Board gates, regression — all red on main
+since the #1110/#1113/#1129 rule changes and the 2 drifted oracles).
+Per-gate comparison, main board vs ZCD board (same netlist):
+
+| gate | main | #1201 | verdict |
+|---|---|---|---|
+| check_copper_net_consistency | 347 violations | 329 | improved (pre-existing failure) |
+| check_footprint_drift | 13 | 6 | improved (pre-existing failure) |
+| check_netlist_board_reconciliation | 125 | 113 | improved (pre-existing failure; resync's job) |
+| BOM<->source reconciliation | 8 | 2 | improved (pre-existing failure) |
+| Measurement-provenance gate | FAIL (stale) | **PASS** | fixed by this PR |
+| DRC ceiling approval gate | FAIL (exit 2) | **PASS** | fixed by this PR |
+| Run electronics validation tests | FAIL | **PASS** | fixed by this PR (stale PIN_ZCD_INPUT assertion) |
+| DRC ratchet (ci_check_drc) | FAIL (1393>1298) | **PASS** (1360≤1363) | fixed by this PR |
+
+**Known residue (deliberately not touched)**: the board still carries
+orphaned copper on the deleted `zcd` net — 145 track segments (of 2290),
+plus vias/zones, on net ordinal 162 which no longer exists in the compiled
+netlist (5842767c2 deleted the circuit). The authorization for this PR was
+footprints-only ("Removed exactly the seven footprints and nothing else:
+net declarations 162/162, track segments 2290/2290, vias 48/48, zones
+96/96 byte-identical"). Stripping the orphaned copper is the resync
+PR's (#1134/#1178) job — it must NOT be mixed into this edit.
+
 ## 8. Status
 
 - [x] Branch matrix (75 branches, 5 board families)
