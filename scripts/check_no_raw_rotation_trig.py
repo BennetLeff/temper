@@ -251,27 +251,22 @@ EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
         # ``_cos_sin`` still contains only ``math.cos``/``math.sin`` and no
         # rel/abs arithmetic.
         ("packages/temper-placer/src/temper_placer/placer/template.py", "_cos_sin"),
-        # router_v6/connectivity.py::_to_pad_coordinates -- added 2026-08-13
-        # when removing the two deleted visualization/ entries from
-        # GUARDED_FILES let this file's content actually be scanned for the
-        # first time in a while (the gate exits on tool-error before
-        # scanning ANY guarded file's content once one entry is missing).
-        # Verified, not assumed: `git grep _to_pad_coordinates` finds zero
-        # production callers -- only
-        # tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py
-        # and a separate verbatim copy in
-        # tests/router_v6/test_spatial_tier2_rust_differential.py
-        # (`_oracle__to_pad_coordinates`) call it. Commit 96eb1ce09
-        # ("fix(router): restore _to_pad_coordinates as verbatim Python
-        # (test-only helper)", 2026-08-09) is the function's own explanation:
-        # it deliberately keeps the R(-rotation) convention as a pinned
-        # oracle so the differential suite can detect the Rust kernel's
-        # opposite R(+theta) convention -- computing no production rotation
-        # itself, the inverse of the pattern this gate exists to catch.
-        (
-            "packages/temper-placer/src/temper_placer/router_v6/connectivity.py",
-            "_to_pad_coordinates",
-        ),
+        # router_v6/connectivity.py::_to_pad_coordinates -- an exemption
+        # entry briefly existed here (added 2026-08-13, removed 2026-08-14)
+        # on the theory that this test-only helper's `R(-rotation)`
+        # formula was a *deliberately* sign-divergent pinned oracle meant
+        # to "detect the Rust kernel's opposite R(+theta) convention".
+        # That was backwards: real `pcbnew` ground truth
+        # (`scripts/kicad_pad_rotation_oracle.py`) confirms the Rust
+        # kernel's R(+theta) is correct and this helper's R(-rotation) was
+        # a regression of a bug already fixed once by 8d89069c2
+        # (2026-07-30) and reintroduced by 96eb1ce09 (2026-08-09, "restore
+        # _to_pad_coordinates as verbatim Python") re-typing the
+        # *pre-fix* formula from scratch instead of the corrected one.
+        # Re-fixed 2026-08-14 to delegate to
+        # `temper_placer.geometry.kicad_transform.rotate_world_to_local_deg`
+        # -- see that function's own docstring. It contains no raw trig
+        # anymore, so the exemption entry is removed, not just corrected.
     }
 )
 

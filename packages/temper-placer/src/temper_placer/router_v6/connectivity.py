@@ -16,6 +16,7 @@ from shapely.geometry import LineString as ShapelyLineString
 from shapely.geometry import Point as ShapelyPoint
 from shapely.geometry import Polygon as ShapelyPolygon
 
+from temper_placer.geometry.kicad_transform import rotate_world_to_local_deg
 from temper_placer.router_v6.constraints_geometry import LineSegment, Point
 
 CONTACT_TOLERANCE_MM = 1e-4
@@ -55,21 +56,44 @@ class CopperPad:
 
 
 def _to_pad_coordinates(point: Point, pad: CopperPad) -> tuple[float, float]:
-    """World point -> pad-local frame.
+    """World point -> pad-local frame, undoing the pad's own rotation.
 
-    Verbatim pre-migration implementation (kept Python, test-only helper):
-    the Rust `connectivity_kernels.rs::to_pad_coordinates` uses the opposite
-    rotation sign (R(+theta) internally, pinned by the connectivity
-    differential), which does not match this helper's `R(-rotation)`
-    convention. This function has no production callers -- it exists for the
-    rotation-convention test oracle -- so it stays Python verbatim rather
-    than delegating to a sign-divergent kernel.
+    This delegates to the sanctioned `rotate_world_to_local_deg` (R(+theta),
+    the inverse of KiCad's real R(-theta) footprint-child convention -- see
+    `temper_placer.geometry.kicad_transform`'s module docstring for the
+    confirming evidence). This function has no production callers today --
+    it exists for the rotation-convention test oracle
+    (`tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py`)
+    and is transcribed verbatim (as `_oracle__to_pad_coordinates`) by the
+    Wave-4 differential suite
+    (`tests/router_v6/test_spatial_tier2_rust_differential.py`), which pins
+    the production Rust kernel `connectivity_kernels.rs::to_pad_coordinates`
+    against exactly this formula -- the two are NOT meant to diverge.
+
+    History: this was correctly fixed to delegate here by
+    8d89069c2 (2026-07-30, "fix(geometry): correct remaining
+    rotation-convention call sites"). The Wave-4 migration
+    (c0cc035f2) deleted the whole function when the production logic moved
+    to Rust, breaking this test module's import. 96eb1ce09 (2026-08-09,
+    "restore _to_pad_coordinates as verbatim Python") then "restored" it by
+    re-typing the *original, pre-7/30-fix* buggy formula from scratch
+    (`radians(-pad.rotation)` reapplied through the R(-theta)-shaped matrix
+    -- a forward/inverse confusion, not merely a sign flip: it recomputes
+    something close to the forward local->world transform again instead of
+    the true world->local inverse) under the mistaken belief that this
+    divergence from the Rust kernel's R(+theta) was intentional. It is not:
+    real `pcbnew` ground truth (`scripts/kicad_pad_rotation_oracle.py`)
+    confirms `rotate_world_to_local_deg`/the Rust kernel are correct, and
+    the pre-8d89069c2 formula this reintroduced produces local_x=-0.749 for
+    a fixture whose true local_x is 6.0
+    (`TestToPadCoordinatesAgainstPcbnewOracle::
+    test_oracle_world_point_recovers_original_local_offset`). Restored to
+    the 8d89069c2 form here; see
+    `scripts/check_no_raw_rotation_trig.py`'s `EXEMPT_FUNCTIONS` (this
+    entry removed -- the function contains no raw trig anymore).
     """
-    from math import cos, radians, sin
-
-    angle = radians(-pad.rotation)
     dx, dy = point.x - pad.center.x, point.y - pad.center.y
-    return dx * cos(angle) - dy * sin(angle), dx * sin(angle) + dy * cos(angle)
+    return rotate_world_to_local_deg(dx, dy, pad.rotation)
 
 
 @dataclass(frozen=True)
