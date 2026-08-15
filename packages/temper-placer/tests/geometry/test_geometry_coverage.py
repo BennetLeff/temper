@@ -93,12 +93,12 @@ class TestPolygonUncovered:
 
     def test_point_in_rect_soft_inside(self):
         """Soft containment for point inside."""
-        result = point_in_rect_soft(1.0, 1.0, 0.0, 0.0, 2.0, 2.0, smoothness=10.0)
+        result = point_in_rect_soft(1.0, 1.0, 0.0, 0.0, 2.0, 2.0, alpha=10.0)
         assert result > 0.9
 
     def test_point_in_rect_soft_outside(self):
         """Soft containment for point outside."""
-        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 2.0, 2.0, smoothness=10.0)
+        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 2.0, 2.0, alpha=10.0)
         assert result < 0.1
 
     def test_nearest_point_on_segment(self):
@@ -329,7 +329,7 @@ class TestSmoothUncovered:
 
     def test_smooth_leaky_relu_positive(self):
         """Leaky ReLU passes positive values through."""
-        assert smooth_leaky_relu(5.0, alpha=10.0) > 4.9
+        assert smooth_leaky_relu(5.0, alpha=10.0, negative_slope=0.01) > 4.9
 
     def test_smooth_leaky_relu_negative(self):
         """Leaky ReLU has small negative slope."""
@@ -903,7 +903,9 @@ class TestProjections:
 
     def test_project_outside_keepout(self):
         """Point inside keepout projected outside."""
-        x, y = project_outside_keepout(50.0, 50.0, 40.0, 40.0, 20.0, 20.0)
+        # half_w/half_h were defaulted to 0.0 by the deleted shim
+        # geometry/projections.py; the Rust kernel requires them explicitly.
+        x, y = project_outside_keepout(50.0, 50.0, 40.0, 40.0, 20.0, 20.0, 0.0, 0.0)
         # Point inside keepout -> projected to nearest edge
         assert x is not None
         assert y is not None
