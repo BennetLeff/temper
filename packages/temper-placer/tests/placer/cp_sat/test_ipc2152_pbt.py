@@ -4,7 +4,8 @@ Five invariants (per the migration roadmap's R6 gate):
 
 1. Forward capacity is monotonic non-decreasing in trace width
 2. Forward capacity is monotonic in temperature rise
-3. Internal layers never carry more than external (0.65 derate)
+3. Internal layers never carry more than external (k_int = 0.024 = exactly
+   half of k_ext = 0.048, the IPC-2221B internal-layer coefficient)
 4. Minimum width is monotonic non-decreasing in current
 5. Roundtrip: the minimum width for a current carries at least that
    current within one rounding step
@@ -48,7 +49,10 @@ def test_internal_never_exceeds_external(w: float, oz: float, rise: float):
     ext = _ipc2152_forward(w, oz, rise, False)
     internal = _ipc2152_forward(w, oz, rise, True)
     assert internal <= ext
-    assert internal == ext * 0.65
+    # IPC-2221B: k_int = 0.024 = 0.048 / 2 exactly, so internal capacity
+    # is exactly half of external (bit-exact: 0.024 and 0.048 are both
+    # exactly representable, and halving is exact in f64).
+    assert internal == ext * 0.5
 
 
 @given(_current, _current, _oz, _rise, st.booleans())

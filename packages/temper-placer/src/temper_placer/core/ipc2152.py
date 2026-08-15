@@ -1,7 +1,14 @@
 """
-IPC-2152 inverse ampacity: minimum trace width from expected current.
+IPC-2221B inverse ampacity: minimum trace width from expected current.
 
-Delegates core computation to the temper_drc_rs Rust extension.
+Delegates core computation to the temper_drc_rs Rust extension (the
+authoritative IPC-2221B kernel, k = 0.048 external / 0.024 internal).
+
+Historical note: the "ipc2152" name is legacy — this module's formula is
+IPC-2221B §6.2 (I = k·ΔT^0.44·A^0.725), and nothing in this repo is
+genuinely IPC-2152.  The name predates the correction and is kept for
+API stability; the k coefficients (0.048/0.024) and their IPC-2221B
+source are documented in docs/hardware/TRACE_WIDTH_CALCULATIONS.md §2.
 """
 
 from temper_drc_rs import (  # noqa: F401 — re-export
@@ -32,10 +39,11 @@ def ipc2152_internal_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
 
 
 def ipc2152_min_width(_net_name, current_amps, layer=None, stackup=None):
-    """IPC-2152 minimum trace width for a net on its assigned layer.
+    """IPC-2221B minimum trace width for a net on its assigned layer.
 
     Resolves copper weight and internal/external layer type from the
-    stackup if provided; falls back to defaults (1oz outer, 0.5oz inner)
+    stackup if provided; falls back to 1.0 oz (copper_weight default)
+    with internal/external decided by the layer name ("In*" = internal)
     otherwise.
 
     Supports both board.LayerStackup (board.py) and core/stackup.Stackup

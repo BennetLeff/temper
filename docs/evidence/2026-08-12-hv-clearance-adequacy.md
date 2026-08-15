@@ -588,6 +588,16 @@ determination.
 
 ### 6.2 The OVC II / OVC III contradiction is unresolved and this analysis assumes OVC II
 
+**Resolved after this document was written (2026-08-14): OVC II governs.**
+IEC 60335-1 cl. 29.1 is unconditional — "Appliances are in overvoltage
+category II" — and `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` §3.2 (which
+this section cites as the OVC III source) was corrected to OVC II the same
+day; the identical claim at
+`docs/evidence/2026-08-07-creepage-authority-and-pullback-analysis.md:133-137`
+was corrected in the same pass. See the spec's revision-history v1.4. This
+section's analysis (which already assumes OVC II / 1 500 V) is unchanged;
+its "If OVC III were correct" hypothetical below is now moot.
+
 `scripts/generate_kicad_dru.py:56-63`, `docs/ENVIRONMENTAL_SPEC.md:46` and
 IEC 60335-1 cl. 29.1's own text all give **OVC II → 1 500 V**.
 `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md:86` and
