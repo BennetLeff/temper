@@ -334,21 +334,22 @@ class RoutingGate(Gate):
 
 
 class StackupGate(Gate):
-    """ROUTING-stage gate: reference-plane integrity + IPC-2152 current density.
+    """ROUTING-stage gate: reference-plane integrity + IPC-2221B current density.
 
     Fail-closed three-state discipline (per gate-contract.md):
 
     - ``CLEAN``: no reference-plane splits under signal traces and all
-      routed traces meet IPC-2152 minimum-width for their net current.
+      routed traces meet IPC-2221B minimum-width for their net current.
     - ``VIOLATIONS``: at least one plane-split or under-sized trace found.
     - ``UNMEASURED``: missing stackup, missing routing data, or a
       calculator exception — measurement cannot be performed; never
       ``CLEAN``.
 
-    A simple IPC-2152 ampacity model is embedded (bisection inversion of
-    the IPC-2221 formula) so the gate is self-contained.  When W2/U3
-    lands a dedicated ``core/ipc2152`` module this gate should import
-    that instead.  # TODO(U3): replace with core.ipc2152.
+    A simple IPC-2221B ampacity model is embedded (bisection inversion of
+    the IPC-2221 formula, k = 0.048 external / 0.024 internal) so the gate
+    is self-contained.  When W2/U3 lands a dedicated ``core/ipc2152``
+    module this gate should import that instead.  # TODO(U3): replace with
+    core.ipc2152.
     """  # noqa: E501
 
     stage = GateStage.ROUTING
@@ -442,7 +443,7 @@ class StackupGate(Gate):
             for net_name, route in (routes or {}).items():
                 if net_name in unrouted_set:
                     continue
-                density_violation = self._check_current_density(net_name, route)
+                density_violation = self._check_current_density(net_name, route, state)
                 if density_violation is not None:
                     violations.append(density_violation)
 
@@ -475,8 +476,8 @@ class StackupGate(Gate):
     # Current density (R3)
     # ------------------------------------------------------------------
 
-    def _check_current_density(self, net_name: str, route: Any) -> Violation | None:
-        """Check trace width meets IPC-2152 minimum for the net's current."""
+    def _check_current_density(self, net_name: str, route: Any, state: BoardState) -> Violation | None:
+        """Check trace width meets IPC-2221B minimum for the net's current."""
         current_a = self._resolve_net_current(net_name)
 
         width_mm = _extract_trace_width(route)
@@ -484,10 +485,11 @@ class StackupGate(Gate):
             return None  # no width to check
 
         internal = _is_internal_net(net_name, route)
+        copper_oz = _resolve_copper_oz(route, state)
 
         min_width_mm = _min_width_ipc2152(
             current_a=current_a,
-            copper_oz=1.0,
+            copper_oz=copper_oz,
             temp_rise_c=self._DEFAULT_TEMP_RISE_C,
             internal_layer=internal,
         )
@@ -500,13 +502,14 @@ class StackupGate(Gate):
                 threshold=min_width_mm,
                 description=(
                     f"Net {net_name} trace width {width_mm:.3f}mm "
-                    f"is below IPC-2152 minimum {min_width_mm:.3f}mm "
+                    f"is below IPC-2221B minimum {min_width_mm:.3f}mm "
                     f"for {current_a}A"
                 ),
                 context={
                     "current_a": current_a,
                     "trace_width_mm": width_mm,
                     "min_width_mm": min_width_mm,
+                    "copper_oz": copper_oz,
                 },
             )
         return None
@@ -553,8 +556,36 @@ def _is_internal_net(_net_name: str, route: Any) -> bool:
     return False
 
 
+def _resolve_copper_oz(route: Any, state: BoardState) -> float:
+    """Copper weight (oz) for the route's layer, from the board stackup.
+
+    Reads ``state.board.layer_stackup`` (a ``LayerStackup`` whose layers
+    carry ``copper_weight``) when the stackup declares the route's layer;
+    falls back to 1.0 oz when no stackup or no matching layer is present.
+    Replaces the previous hardcoded ``copper_oz=1.0``: the board's real
+    outer copper is 2 oz (docs/hardware/TRACE_WIDTH_CALCULATIONS.md §1),
+    and a 1 oz assumption materially widens every computed minimum.
+    """
+    layer = getattr(route, "layer", None)
+    if layer is None and hasattr(route, "path"):
+        layer = getattr(route.path, "layer", None)
+    board = getattr(state, "board", None)
+    stackup = getattr(board, "layer_stackup", None) if board is not None else None
+    if stackup is not None and layer is not None:
+        for candidate in getattr(stackup, "layers", ()):
+            if getattr(candidate, "name", None) == layer:
+                weight = getattr(candidate, "copper_weight", None)
+                if isinstance(weight, (int, float)) and weight > 0:
+                    return float(weight)
+                # Duck-typed stackup (core/stackup.Stackup convention).
+                weight = getattr(candidate, "copper_weight_oz", None)
+                if isinstance(weight, (int, float)) and weight > 0:
+                    return float(weight)
+    return 1.0
+
+
 # ------------------------------------------------------------------
-# Embedded IPC-2152 minimum-width (bisection over IPC-2221 forward map).
+# Embedded IPC-2221B minimum-width (bisection over IPC-2221 forward map).
 # Replaced by core.ipc2152 when W2/U3 lands.  # TODO(U3)
 # ------------------------------------------------------------------
 
@@ -565,11 +596,17 @@ def _min_width_ipc2152(
     temp_rise_c: float = 10.0,
     internal_layer: bool = False,
 ) -> float:
-    """Minimum trace width (mm) to carry *current_a* under IPC-2152.
+    """Minimum trace width (mm) to carry *current_a* under IPC-2221B.
 
-    Uses bisection over the IPC-2221 forward formula; the IPC-2152 curve
-    is broadly similar for standard 1oz/10C rise.  Internal layers are
-    derated by a factor of 0.55 per IPC-2152 Section 3.
+    Uses bisection over the IPC-2221 forward formula (I = k·ΔT^0.44·A^0.725)
+    with the standard's layer-dependent k coefficient: 0.048 external /
+    0.024 internal (IPC-2221B §6.2, matching the authoritative kernel in
+    ``temper-drc-rs/src/ipc.rs``).  The internal-layer reduction is carried
+    by the k coefficient itself (0.024 = 0.048 × 0.5) — there is no separate
+    derate multiplier.  (Historical: the pre-2026-08-15 model used an
+    unsourced k=0.065 and an ad-hoc "0.55 per IPC-2152 Section 3" internal
+    derate; both the coefficient and that citation were fabricated — see
+    ``temper-constraints/src/ipc.rs`` module docstring.)
 
     Computed in the ``temper-constraints`` Rust crate (``ipc.rs``) with
     the exact f64 operation order of the former pure-Python bisection
@@ -586,11 +623,15 @@ def _ipc2152_forward(
     temp_rise_c: float,
     internal_layer: bool,
 ) -> float:
-    """IPC-2152 forward current capacity (A).
+    """IPC-2221B forward current capacity (A).
 
-    Uses IPC-2152 external-curve coefficients, roughly matching the
-    universal chart for 1oz / 10C rise.  Internal layers are derated
-    to 65% of external capacity per IPC-2152 Section 3.
+    I = k·ΔT^0.44·A^0.725 with IPC-2221B §6.2 k coefficients: 0.048
+    external / 0.024 internal (same kernel as ``temper-drc-rs``'s
+    authoritative ``estimate_trace_current``).  Internal layers use the
+    internal k directly — no separate derate multiplier.  (Historical: the
+    pre-2026-08-15 model cited "IPC-2152 Section 3" for a 65% internal
+    derate; neither the citation nor the 0.65 factor was genuine — see
+    ``temper-constraints/src/ipc.rs`` module docstring.)
 
     Computed in the ``temper-constraints`` Rust crate (``ipc.rs``).
     """

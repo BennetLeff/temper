@@ -21,11 +21,13 @@ def _oracle_forward(width_mm, copper_oz, temp_rise_c, internal_layer):
     width_mils = width_mm * 39.3701
     thickness_mils = copper_oz * 1.37
     area_mils2 = width_mils * thickness_mils
-    k_ext = 0.065
-    current_ext = k_ext * (temp_rise_c**0.44) * (area_mils2**0.725)
-    if internal_layer:
-        return current_ext * 0.65
-    return current_ext
+    # IPC-2221B k coefficient (0.048 external / 0.024 internal), matching
+    # the corrected kernel. The old oracle used k_ext = 0.065 with a
+    # separate * 0.65 internal derate — fabricated and unsourced; corrected
+    # 2026-08-15 per the audit (see temper-constraints/src/ipc.rs module
+    # docstring). The internal reduction is now carried by k itself.
+    k = 0.024 if internal_layer else 0.048
+    return k * (temp_rise_c**0.44) * (area_mils2**0.725)
 
 
 def _oracle_min_width(current_a, copper_oz, temp_rise_c, internal_layer):
@@ -70,9 +72,9 @@ def test_zero_and_negative_current():
 
 
 def test_known_operating_point():
-    # 1 mm, 1 oz, 10 C external: 3.225 A forward.
+    # 1 mm, 1 oz, 10 C external: 2.382 A forward (IPC-2221B k=0.048).
     cap = _ipc2152_forward(1.0, 1.0, 10.0, False)
-    assert cap == pytest.approx(3.2250131759622898, abs=0.0)
-    # The 2 A threshold inverts to ~0.517 mm.
+    assert cap == pytest.approx(2.381548191479845, abs=0.0)
+    # The 2 A threshold inverts to ~0.786 mm.
     w = _min_width_ipc2152(2.0, 1.0, 10.0, False)
-    assert w == pytest.approx(0.517, abs=0.0)
+    assert w == pytest.approx(0.786, abs=0.0)

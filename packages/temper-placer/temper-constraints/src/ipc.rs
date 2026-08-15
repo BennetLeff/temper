@@ -1,4 +1,4 @@
-//! IPC-2152 ampacity model (Wave 2, CP-SAT gates slice).
+//! IPC-2221B ampacity model (Wave 2, CP-SAT gates slice).
 //!
 //! Python reference: `temper_placer/placer/cp_sat/gates.py`
 //! (`_ipc2152_forward`, `_min_width_ipc2152`) — the physics model behind
@@ -12,6 +12,16 @@
 //! temper-geometry's pad_geometry); the final `round(x, 3)` replicates
 //! Python's banker's rounding (round-half-even), not f64::round (half
 //! away from zero).
+//!
+//! **k coefficients**: IPC-2221B §6.2, k = 0.048 (external) / 0.024
+//! (internal), matching the authoritative kernel in
+//! `temper-drc-rs/src/ipc.rs`. Historical note: this crate once carried
+//! `k_ext = 0.065` (unsourced, fabricated) with an ad-hoc `* 0.65`
+//! internal derate; the 2026-08-15 safety audit found the combination
+//! under-conservative. The corrected values are the ones documented in
+//! `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` §2 (IPC-2221B formula,
+//! k = 0.048 external / 0.024 internal) and verified bit-exactly against
+//! the temper-drc-rs kernel by the differential tests.
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyRuntimeError;
@@ -107,25 +117,31 @@ fn math_pow(x: f64, y: f64) -> f64 {
 // Model
 // ---------------------------------------------------------------------------
 
-/// IPC-2152 forward current capacity (A). Mirrors `_ipc2152_forward`
-/// exactly: `k_ext * (temp_rise_c ** 0.44) * (area_mils2 ** 0.725)`,
-/// internal layers derated to 65%.
+/// IPC-2221B forward current capacity (A). Mirrors `_ipc2152_forward`
+/// exactly: `k * (temp_rise_c ** 0.44) * (area_mils2 ** 0.725)` with the
+/// IPC-2221B layer-dependent k coefficient (0.048 external / 0.024
+/// internal), instead of the earlier fabricated `k_ext = 0.065` with an
+/// ad-hoc 65% internal derate.
+///
+/// Source: IPC-2221B §6.2 (current-carrying capacity), k = 0.048
+/// (external) / 0.024 (internal). This is the same kernel as the
+/// authoritative `temper-drc-rs/src/ipc.rs` `estimate_trace_current`
+/// (k = 0.048 / 0.024); the internal-layer reduction is carried by the k
+/// coefficient itself (0.024 = 0.048 × 0.5), NOT by a separate
+/// multiplier — the old `* 0.65` was unsourced and under-conservative
+/// (2026-08-15 safety audit; corrected values per
+/// docs/hardware/TRACE_WIDTH_CALCULATIONS.md §2).
 fn ipc2152_forward(width_mm: f64, copper_oz: f64, temp_rise_c: f64, internal_layer: bool) -> f64 {
     let width_mils = width_mm * 39.3701;
     let thickness_mils = copper_oz * 1.37;
     let area_mils2 = width_mils * thickness_mils;
-    let k_ext = 0.065;
-    let current_ext = k_ext * math_pow(temp_rise_c, 0.44) * math_pow(area_mils2, 0.725);
-    if internal_layer {
-        current_ext * 0.65
-    } else {
-        current_ext
-    }
+    let k = if internal_layer { 0.024 } else { 0.048 };
+    k * math_pow(temp_rise_c, 0.44) * math_pow(area_mils2, 0.725)
 }
 
 /// Minimum trace width (mm) to carry `current_a` — bisection over the
-/// forward map, exactly mirroring `_min_width_ipc2152` (60 iterations,
-/// `hi` returned, banker's-rounded to 3 decimals).
+/// IPC-2221B forward map, exactly mirroring `_min_width_ipc2152` (60
+/// iterations, `hi` returned, banker's-rounded to 3 decimals).
 fn min_width_ipc2152(current_a: f64, copper_oz: f64, temp_rise_c: f64, internal_layer: bool) -> f64 {
     if current_a <= 0.0 {
         return 0.0;
@@ -194,11 +210,14 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn test_forward_matches_known_point() {
         // 1 mm, 1 oz, 10 C rise, external: 39.3701 * 1.37 = 53.937... mils^2
-        // k_ext * 10^0.44 * area^0.725 = 3.225 A
+        // k * 10^0.44 * area^0.725 = 0.048 * 2.7538... * 18.016... = 2.382 A
         let cap = ipc2152_forward(1.0, 1.0, 10.0, false);
-        assert!((cap - 3.225).abs() < 0.01, "capacity {cap}");
-        let derated = ipc2152_forward(1.0, 1.0, 10.0, true);
-        assert!((derated - cap * 0.65).abs() < 1e-12);
+        assert!((cap - 2.382).abs() < 0.01, "capacity {cap}");
+        // Internal: k = 0.024 = 0.048 / 2 exactly, so capacity is exactly
+        // half of external — the IPC-2221B internal-layer coefficient, not
+        // a separate derate multiplier.
+        let internal = ipc2152_forward(1.0, 1.0, 10.0, true);
+        assert!((internal - cap * 0.5).abs() < 1e-12, "internal {internal}");
     }
 
     #[cfg_attr(test, test)]

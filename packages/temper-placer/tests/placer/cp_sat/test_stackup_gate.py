@@ -78,7 +78,8 @@ def test_clean_signal_nets_in_spec():
             routing=_FakeRoutingResult(
                 compiled_routes={
                     "SIG1": _FakeRoute("SIG1", width_mm=0.3, layer="F.Cu"),
-                    "GATE_H": _FakeRoute("GATE_H", width_mm=0.6, layer="F.Cu"),
+                    # 2A external, 1 oz: IPC-2221B minimum is 0.786mm.
+                    "GATE_H": _FakeRoute("GATE_H", width_mm=1.0, layer="F.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -141,7 +142,8 @@ def test_adequate_width_no_violation():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "GATE_H": _FakeRoute("GATE_H", width_mm=0.6, layer="F.Cu"),
+                    # 2A external, 1 oz: IPC-2221B minimum is 0.786mm.
+                    "GATE_H": _FakeRoute("GATE_H", width_mm=1.0, layer="F.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -264,6 +266,66 @@ def test_internal_layer_detection():
         )
     )
     assert result.status is GateStatus.VIOLATIONS  # internal layer → even lower capacity
+
+
+def test_copper_weight_resolved_from_stackup():
+    """Copper weight comes from the board stackup, not a hardcoded 1.0.
+
+    2A external trace: IPC-2221B minimum is 0.786mm at 1 oz but only
+    0.393mm at 2 oz (width scales inversely with thickness).  A 0.5mm
+    trace is a violation under the old hardcoded 1 oz and CLEAN under
+    the declared 2 oz outer stackup — this test pins the stackup-driven
+    resolution (gates.py `_resolve_copper_oz`).
+    """
+    from temper_placer.core.board import Board, Layer, LayerStackup
+
+    gate = StackupGate()
+    stackup = LayerStackup(
+        layers=(
+            Layer(name="F.Cu", layer_type="signal", copper_weight=2.0, is_routable=True),
+            Layer(name="In1.Cu", layer_type="plane", copper_weight=1.0, is_routable=False),
+            Layer(name="In2.Cu", layer_type="plane", copper_weight=1.0, is_routable=False),
+            Layer(name="B.Cu", layer_type="signal", copper_weight=2.0, is_routable=True),
+        ),
+        thickness=1.6,
+    )
+    board = Board(width=100.0, height=150.0, layer_stackup=stackup)
+    from pathlib import Path
+
+    state = BoardState(
+        board=board,
+        routing=_FakeRoutingResult(
+            compiled_routes={
+                "GATE_H": _FakeRoute("GATE_H", width_mm=0.5, layer="F.Cu"),
+            },
+            unrouted_nets=[],
+        ),
+        routed_pcb_path=Path("/tmp/routed.kicad_pcb"),
+    )
+    # 0.5mm at 2 oz external is above the 0.393mm IPC-2221B minimum.
+    result = gate.check(state)
+    assert result.status is GateStatus.CLEAN
+
+
+def test_copper_weight_stackup_missing_falls_back_to_1oz():
+    """No stackup → 1 oz fallback (the pre-stackup gate behavior).
+
+    Under 1 oz the 2A minimum is 0.786mm, so a 0.5mm trace is a
+    violation.  Same trace is CLEAN with the 2 oz stackup above — the
+    distinction is what the stackup-driven resolution is for.
+    """
+    gate = StackupGate()
+    result = gate.check(
+        _make_state(
+            routing=_FakeRoutingResult(
+                compiled_routes={
+                    "GATE_H": _FakeRoute("GATE_H", width_mm=0.5, layer="F.Cu"),
+                },
+                unrouted_nets=[],
+            )
+        )
+    )
+    assert result.status is GateStatus.VIOLATIONS
 
 
 def test_gate_survives_malformed_route():

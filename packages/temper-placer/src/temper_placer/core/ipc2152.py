@@ -1,7 +1,14 @@
 """
-IPC-2152 inverse ampacity: minimum trace width from expected current.
+IPC-2221B inverse ampacity: minimum trace width from expected current.
 
-Delegates core computation to the temper_drc_rs Rust extension.
+Delegates core computation to the temper_drc_rs Rust extension (the
+authoritative IPC-2221B kernel, k = 0.048 external / 0.024 internal).
+
+Historical note: the "ipc2152" name is legacy — this module's formula is
+IPC-2221B §6.2 (I = k·ΔT^0.44·A^0.725), and nothing in this repo is
+genuinely IPC-2152.  The name predates the correction and is kept for
+API stability; the k coefficients (0.048/0.024) and their IPC-2221B
+source are documented in docs/hardware/TRACE_WIDTH_CALCULATIONS.md §2.
 """
 
 from temper_drc_rs import (  # noqa: F401 — re-export
