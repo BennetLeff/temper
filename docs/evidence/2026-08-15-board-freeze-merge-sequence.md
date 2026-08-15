@@ -1,7 +1,9 @@
 # Board-Freeze Merge Sequence — decision record & first landing (2026-08-15)
 
-Status: IN PROGRESS — first landing (#1201 ZCD removal) being executed; DRC
-re-measurement running at time of writing.
+Status: FIRST LANDING DONE — PR #1201 (ZCD removal) pushed with its
+same-PR DRC ceiling re-measurement (260 samples, all three gates verified
+PASS locally). Awaiting CI green + owner merge; then the resync (#1134)
+lands second.
 
 ## 1. Purpose
 
@@ -215,7 +217,7 @@ is exactly what PR #1134's branch already contains and has been reviewed as.
 The only other auto-merged file (packages/temper-placer/tests/scripts/
 test_r2_serialize_board.py) merged cleanly.
 
-## 7. DRC ceiling re-measurement for #1201 (in progress)
+## 7. DRC ceiling re-measurement for #1201 (DONE — landed in the same PR)
 
 - Board change: `6928b7c8` → `5e5015f8` (7 footprints removed; nets,
   tracks, vias, zones unchanged).
@@ -225,23 +227,44 @@ test_r2_serialize_board.py) merged cleanly.
   #1110/#1113/#1129, so main's gate is currently red even on the unchanged
   board: 1393 errors / 490 warnings vs recorded ceiling 1298/489 — a
   PRE-EXISTING condition, not caused by #1201).
-- Single-sample orientation: main board + current rules = 1393/490; ZCD
-  board + current rules = 1361/371 (Δ −32 errors / −119 warnings — the
-  removal strictly improves the board).
-- Full campaign: 260 samples in two independent 130-sample rounds (matching
-  the file's own documented 260-sample convention for the nondeterministic
-  creepage category). Status: [fill in].
-- Ceiling update: [fill in after campaign].
-- Provenance: measured-live, commit [fill in], dirty false, sample_count
-  260, kicad-cli 10.0.5, input sha256 5e5015f8...
+- **260 samples in two independent 130-sample rounds** (matching the file's
+  own documented 260-sample convention) + a 20-sample control on main's
+  unchanged board for attribution.
+- Round 1 creepage {188: 3, 189: 30, 190: 97}; round 2 {189: 32, 190: 98} —
+  combined {188: 3, 189: 62, 190: 195}: true spread 2 (round 2 alone would
+  have understated it as 1 — the two-round convention caught the tail
+  again, same as the 2026-08-12 record).
+- Results: error_ceiling 1298 → 1363 (the only raise is clearance 402→499,
+  kicad-cli's report cap, caused by pre-existing main-side rule PRs
+  #1110/#1113/#1129 and proven by the main-board control which measures 499
+  too); creepage 202→192, courtyards_overlap 11→8, hole_clearance 105→99,
+  shorting_items 199→193, solder_mask_bridge 154→147, silk_over_copper
+  172→54, warning_ceiling 489→371 (all falls from the removal).
+- Provenance: measured-live, measured_at_commit 7f414b568, dirty false,
+  sample_count 260, kicad-cli 10.0.5, input sha256 5e5015f8...
+- `Ceiling-Approval:` trailer on the ceiling-update commit (2bb63692a),
+  `_march` entry `2026-08-15-zcd-orphan-footprint-removal`, and
+  `temper_constraints.references.yaml` board hash re-pinned (0 component
+  moves, no alias references any removed sheetpath).
+- All three gates verified locally and PASS: `ci_check_drc.py --backend
+  kicad-cli` (1360/1363 errors, 371/371 warnings, noise-headroom guard
+  PASS), `check_measurement_provenance.py` (2/2 fresh), 
+  `check_drc_ceiling_approval.py` (raise detected, trailer + evidence
+  contract satisfied).
 
 ## 8. Status
 
 - [x] Branch matrix (75 branches, 5 board families)
 - [x] Merge order decision + justification
 - [x] Empirical merge simulation (#1201 → resync = clean, byte-identical)
-- [ ] #1201 rebase verified clean (DONE: 7f414b568, board 5e5015f8)
-- [ ] DRC re-measurement (260 samples) — running
-- [ ] drc_ceiling.json update + _march entry
-- [ ] Push to fix/zcd-orphan-footprint-removal, update PR #1201
+- [x] #1201 rebase verified clean (7f414b568, board 5e5015f8)
+- [x] DRC re-measurement (260 samples, two rounds + 20-sample main control)
+- [x] drc_ceiling.json update + _march entry + Ceiling-Approval trailer
+- [x] references.yaml board hash re-pin (0 component moves)
+- [x] Pushed to fix/zcd-orphan-footprint-removal (2bb63692a), PR #1201
+      updated (head MERGEABLE; CI re-running)
+- [ ] PR #1201 merged by owner after CI green
+- [ ] Second landing: #1134 (resync, the hub — 34 branches unblocked)
+- [ ] Third: #1178 (6-layer stackup trunk, after its ceiling approval)
+- [ ] Fourth+: leaf board changes (#1159, #1173/#1176, #1157, ...)
 - [ ] This document committed to chore/board-freeze-merge-sequence
