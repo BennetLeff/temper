@@ -168,6 +168,42 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     return margin, clearance
 
 
+#: Width for a stitch segment on a net with no netclass assignment.  Only
+#: reachable in principle -- ``_stitch_isolated_pads`` is gated on
+#: ``_zone_layers_for_net``, which only returns layers for a net whose class
+#: declares ``routing_strategy plane_required``/``plane_preferred``, i.e. a
+#: net that HAS a class.  Kept as an explicit named floor rather than an
+#: inline literal so it cannot be mistaken for a derived figure.
+_STITCH_FALLBACK_WIDTH_MM = 0.2
+
+
+def _stitch_width_for_net(net_name: str) -> float:
+    """The netclass ``trace_width`` a stitch segment for *net_name* must carry.
+
+    Bug history (2026-08-13,
+    ``docs/evidence/2026-08-13-router-netclass-trace-widths.md``): every
+    stitch segment was emitted at a hardcoded ``0.2`` regardless of class.
+    ``_stitch_isolated_pads`` only ever runs for zone-eligible nets, which on
+    this board are exactly the ``ACMains``/``HighVoltage`` ones -- so the
+    hardcoded literal was, by construction, only ever applied to mains and
+    DC-bus copper, at 6.7% of ``HighVoltage``'s 3.0mm.  Measured after Stage
+    4.4 was fixed to read the netclass table, this path was the entire
+    residual: 4 undersized segments on ``DC_BUS_RTN``,
+    ``hb.power_loop.q_high-g``, ``tank.c_tank1-p2`` and
+    ``discharge.k_dis1-nc``.
+
+    Reads ``TEMPER_NET_ASSIGNMENTS``/``TEMPER_NET_CLASSES`` directly, the
+    same idiom ``_zone_layers_for_net`` and ``_zone_params_for_net`` in this
+    module already use.
+    """
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+
+    rules = TEMPER_NET_CLASSES.get(TEMPER_NET_ASSIGNMENTS.get(net_name, ""))
+    if rules is None or rules.trace_width <= 0.0:
+        return _STITCH_FALLBACK_WIDTH_MM
+    return float(rules.trace_width)
+
+
 def _stitch_isolated_pads(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
@@ -231,11 +267,13 @@ def _stitch_isolated_pads(
             _zone_layers_for_net(net_name)[0] if _zone_layers_for_net(net_name) else "F.Cu"
         )
 
+        stitch_width = _stitch_width_for_net(net_name)
+
         for px, py, nearest_x, nearest_y in targets:
             segments.append(
                 f"  (segment (start {px:.4f} {py:.4f})"
                 f" (end {nearest_x:.4f} {nearest_y:.4f})"
-                f' (width {0.2:.4f}) (layer "{trace_layer}")'
+                f' (width {stitch_width:.4f}) (layer "{trace_layer}")'
                 f" (net {net_num})"
                 f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )

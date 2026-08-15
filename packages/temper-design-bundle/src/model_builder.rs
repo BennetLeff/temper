@@ -146,7 +146,7 @@
 //! Every `#[pymethods]` entry point is wrapped in [`guard`] (`catch_unwind`);
 //! no `unwrap`/`expect` outside `#[cfg(test)]` (crate clippy lint).
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::panic::AssertUnwindSafe;
 use std::sync::Arc;
 
@@ -1271,6 +1271,22 @@ impl ConstraintModel {
 /// Holds the Python input objects opaquely (`Py<PyDict>`/`Py<PyList>`/
 /// `Py<PyAny>`) so iteration order and attribute reads are the live Python
 /// ones — the same objects the pre-migration builder read.
+///
+/// `net_filter`: optional set of net *names*. When present, only the named
+/// nets get `NetChannelVar`/`ViaVar` variables, capacity-constraint terms,
+/// and layer constraints — every per-net loop skips the rest. Net indices
+/// are NOT renumbered: a filtered model keeps the original `pcb.nets`
+/// indices, so variable names (`uses_N{idx}_...`) and the downstream
+/// index-based consumers (`extract_topology`'s `net_names.get(ni)`,
+/// `var_to_net`) stay consistent. This is the "selective SAT" the
+/// `max_sat_nets` pipeline option promises
+/// (`router_v6._pipeline_route._select_sat_nets`): the option used to be
+/// print-only, and the Stage 3 CNF encoded every net regardless (the
+/// `|nets| × |edges|` Sinz term — measured 182-200 GB monolith demand,
+/// see docs/evidence/2026-08-15-stage3-memory-blowup-investigation.md).
+/// Nets not in the filter get no SAT topology and fall through to Stage
+/// 4's existing `fallback_channel_path` A* path, exactly like nets the
+/// solver leaves unassigned.
 #[pyclass(module = "temper_design_bundle_python.model_builder", skip_from_py_object)]
 pub struct ModelBuilder {
     skeletons: Py<PyDict>,
@@ -1284,10 +1300,16 @@ pub struct ModelBuilder {
     bundle_manifest: Option<Py<PyAny>>,
     enable_geographic_pruning: bool,
     enable_via_vars: bool,
+    net_filter: Option<HashSet<String>>,
     model: Py<ConstraintModel>,
 }
 
 impl ModelBuilder {
+    /// Is `net_name` inside the selective-SAT filter (or is there no
+    /// filter)? Everything the builder creates per net consults this.
+    fn net_is_selected(&self, net_name: &str) -> bool {
+        self.net_filter.as_ref().is_none_or(|f| f.contains(net_name))
+    }
     fn skeleton_edges(&self, skeleton: &Bound<'_, PyAny>, layer: &str) -> PyResult<Vec<EdgeRow>> {
         let graph = skeleton.getattr("graph")?;
         let edges_view = graph.getattr("edges")?;
@@ -1415,7 +1437,11 @@ impl ModelBuilder {
         let nets = self.nets.bind(py).clone();
         let skeletons = self.skeletons.bind(py).clone();
 
-        for (net_idx, _net) in nets.iter().enumerate() {
+        for (net_idx, net) in nets.iter().enumerate() {
+            let net_name: String = net.getattr("name")?.extract()?;
+            if !self.net_is_selected(&net_name) {
+                continue;
+            }
             for (layer_name, skeleton) in skeletons.iter() {
                 let layer_name = layer_name.extract::<String>()?;
                 for (edge_id, u, v) in self.skeleton_edges(&skeleton, &layer_name)? {
@@ -1487,8 +1513,12 @@ impl ModelBuilder {
         // Per-net vars for nets not in any bundle.
         let bundled_net_indices: std::collections::HashSet<i64> =
             bundle_id_for_net.iter().map(|(net_idx, _)| *net_idx).collect();
-        for (net_idx, _net) in nets.iter().enumerate() {
+        for (net_idx, net) in nets.iter().enumerate() {
             if bundled_net_indices.contains(&(net_idx as i64)) {
+                continue;
+            }
+            let net_name: String = net.getattr("name")?.extract()?;
+            if !self.net_is_selected(&net_name) {
                 continue;
             }
             for (layer_name, skeleton) in skeletons.iter() {
@@ -1530,7 +1560,11 @@ impl ModelBuilder {
         let net_pins = if pruning { Some(self.net_pins(py)?) } else { None };
         let nets = self.nets.bind(py).clone();
 
-        for (net_idx, _net) in nets.iter().enumerate() {
+        for (net_idx, net) in nets.iter().enumerate() {
+            let net_name: String = net.getattr("name")?.extract()?;
+            if !self.net_is_selected(&net_name) {
+                continue;
+            }
             for (i, node) in nodes.iter().enumerate() {
                 if pruning {
                     let pins = net_pins
@@ -1585,6 +1619,16 @@ impl ModelBuilder {
             }
         }
 
+        // Per-net selective-SAT membership, computed ONCE (110 attribute
+        // reads) instead of once per (edge, net) -- the capacity loop below
+        // is the |edges| x |nets| hot path.
+        let nets = self.nets.bind(py).clone();
+        let mut net_selected: Vec<bool> = Vec::with_capacity(nets.len());
+        for net in nets.iter() {
+            let net_name: String = net.getattr("name")?.extract()?;
+            net_selected.push(self.net_is_selected(&net_name));
+        }
+
         let skeletons = self.skeletons.bind(py).clone();
         for (layer_name, skeleton) in skeletons.iter() {
             let layer_name = layer_name.extract::<String>()?;
@@ -1612,8 +1656,11 @@ impl ModelBuilder {
                     terms.push((bvar, bundle_width));
                 }
 
-                for net_idx in 0..self.nets.bind(py).len() {
+                for (net_idx, selected) in net_selected.iter().enumerate() {
                     if bundle_id_for_net.iter().any(|(n, _)| *n == net_idx as i64) {
+                        continue;
+                    }
+                    if !selected {
                         continue;
                     }
                     if let Some(var) = self.model_net_var(py, net_idx as i64, &edge_id)? {
@@ -1716,6 +1763,9 @@ impl ModelBuilder {
                     Some(i) => *i,
                     None => continue,
                 };
+                if !self.net_is_selected(pin_net.as_deref().unwrap_or("")) {
+                    continue;
+                }
                 let is_pth: bool = pin.getattr("is_pth")?.extract()?;
                 if is_pth {
                     continue;
@@ -1765,7 +1815,8 @@ impl ModelBuilder {
         enable_bundling = false,
         bundle_manifest = None,
         enable_geographic_pruning = false,
-        enable_via_vars = false
+        enable_via_vars = false,
+        net_filter = None
     ))]
     fn new(
         py: Python<'_>,
@@ -1780,6 +1831,7 @@ impl ModelBuilder {
         bundle_manifest: Option<Bound<'_, PyAny>>,
         enable_geographic_pruning: bool,
         enable_via_vars: bool,
+        net_filter: Option<Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         guard(|| {
             let skeletons = as_dict_or_empty(py, skeletons)?;
@@ -1787,6 +1839,18 @@ impl ModelBuilder {
             let channel_widths = as_dict_or_empty(py, channel_widths)?;
             let diff_pairs = as_list_or_empty(py, diff_pairs)?;
             let model = Py::new(py, ConstraintModel::default())?;
+            // `net_filter`: a list of net names, or None. Deduplicated into a
+            // set for O(1) membership; an empty list is honored as "select
+            // nothing" (the pipeline never sends one -- `_select_sat_nets`
+            // returns None for max_sat_nets >= net count, and
+            // `max_sat_nets=0` short-circuits to None at the call site).
+            let net_filter = match net_filter {
+                Some(f) if !f.is_none() => {
+                    let names: Vec<String> = f.try_iter()?.map(|n| n?.extract()).collect::<PyResult<_>>()?;
+                    Some(names.into_iter().collect::<HashSet<_>>())
+                }
+                _ => None,
+            };
             Ok(ModelBuilder {
                 skeletons,
                 nets,
@@ -1799,6 +1863,7 @@ impl ModelBuilder {
                 bundle_manifest: to_option(bundle_manifest)?,
                 enable_geographic_pruning,
                 enable_via_vars,
+                net_filter,
                 model,
             })
         })

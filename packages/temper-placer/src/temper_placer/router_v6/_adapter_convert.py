@@ -237,6 +237,7 @@ def route_pcb(
     components: list | None = None,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
@@ -315,6 +316,15 @@ def route_pcb(
             with ``enable_bundling``/``max_sat_nets``.
         net_batch_size: Nets per Stage 3 SAT batch when
             ``enable_net_batching=True``. Default 10.
+        max_sat_nets: Selective-SAT cap: encode only the top-N nets
+            (ascending pin count) into the Stage 3 model; every other net
+            falls through to Stage 4's unguided A* fallback. Default None
+            -- encode every net. Caps the |nets| x |edges| Sinz CNF term
+            (the 2026-08-15 Stage 3 memory-blowup fix, wired through
+            ``RouterV6Pipeline(max_sat_nets=...)`` ->
+            ``ModelBuilder(net_filter=...)``). Ignored when
+            ``enable_net_batching`` is set (batching takes priority in
+            ``_run_stage3``).
         enable_nlayer_astar_spike: Opt into the N-layer, via-aware A*
             pathfinding spike prototype (``_astar_nlayer.py``) instead of
             the production 2-layer-capped path. Default False -- see
@@ -418,6 +428,7 @@ def route_pcb(
         sat_time_limit_ms=sat_time_limit_ms,
         enable_net_batching=enable_net_batching,
         net_batch_size=net_batch_size,
+        max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
 

@@ -155,6 +155,7 @@ def route_once(
     enable_geographic_pruning: bool = False,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
@@ -201,6 +202,7 @@ def route_once(
         enable_geographic_pruning=enable_geographic_pruning,
         enable_net_batching=enable_net_batching,
         net_batch_size=net_batch_size,
+        max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
     wall_s = time.perf_counter() - t0
@@ -366,6 +368,7 @@ def run_single(
     enable_geographic_pruning: bool = False,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
 ) -> int:
     print(f"Routing {pcb_path} ...")
@@ -375,6 +378,7 @@ def run_single(
         enable_geographic_pruning=enable_geographic_pruning,
         enable_net_batching=enable_net_batching,
         net_batch_size=net_batch_size,
+        max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
     )
     print(_format_run("Result", r))
@@ -437,6 +441,7 @@ def _run_worker_subprocess(
     enable_geographic_pruning: bool = False,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    max_sat_nets: int | None = None,
 ) -> dict[str, Any]:
     """Run one route_once() in a *fresh child process* and return its result.
 
@@ -474,6 +479,8 @@ def _run_worker_subprocess(
             cmd.append("--pruning")
         if enable_net_batching:
             cmd += ["--net-batching", "--batch-size", str(net_batch_size)]
+        if max_sat_nets is not None:
+            cmd += ["--max-sat-nets", str(max_sat_nets)]
         proc = subprocess.run(
             cmd,
             capture_output=True,
@@ -499,6 +506,7 @@ def run_measurement(
     enable_geographic_pruning: bool = False,
     enable_net_batching: bool = False,
     net_batch_size: int = 10,
+    max_sat_nets: int | None = None,
 ) -> int:
     hashseed = os.environ.get("PYTHONHASHSEED")
     print(
@@ -506,6 +514,7 @@ def run_measurement(
         f"fresh process (PYTHONHASHSEED={hashseed!r}, "
         f"pruning={enable_geographic_pruning}, net_batching={enable_net_batching}"
         + (f", batch_size={net_batch_size}" if enable_net_batching else "")
+        + (f", max_sat_nets={max_sat_nets}" if max_sat_nets is not None else "")
         + ") ..."
     )
     completions: list[float] = []
@@ -521,6 +530,7 @@ def run_measurement(
             enable_geographic_pruning=enable_geographic_pruning,
             enable_net_batching=enable_net_batching,
             net_batch_size=net_batch_size,
+            max_sat_nets=max_sat_nets,
         )
         completions.append(r["completion_rate"])
         routed_counts.append(r["routed"])
@@ -629,6 +639,17 @@ def main(argv: list[str] | None = None) -> int:
         help="Nets per Stage 3 SAT batch when --net-batching is set (default 10).",
     )
     parser.add_argument(
+        "--max-sat-nets", type=int, default=None,
+        help=(
+            "Selective SAT: encode only the top-N nets (ascending pin "
+            "count) into the Stage 3 model; every other net falls through "
+            "to Stage 4's unguided A* fallback. Caps the |nets| x |edges| "
+            "CNF term (the 2026-08-15 Stage 3 memory-blowup fix). Default "
+            "None -- encode every net. Ignored when --net-batching is set "
+            "(batching takes priority in _run_stage3)."
+        ),
+    )
+    parser.add_argument(
         "--nlayer-astar-spike", action="store_true",
         help=(
             "Pass enable_nlayer_astar_spike=True to route_pcb() -- routes "
@@ -653,6 +674,7 @@ def main(argv: list[str] | None = None) -> int:
             enable_geographic_pruning=args.pruning,
             enable_net_batching=args.net_batching,
             net_batch_size=args.batch_size,
+            max_sat_nets=args.max_sat_nets,
             enable_nlayer_astar_spike=args.nlayer_astar_spike,
         )
         r.pop("routed_pcb_content", None)
@@ -669,6 +691,7 @@ def main(argv: list[str] | None = None) -> int:
             enable_geographic_pruning=args.pruning,
             enable_net_batching=args.net_batching,
             net_batch_size=args.batch_size,
+            max_sat_nets=args.max_sat_nets,
         )
 
     if args.output is None:
@@ -692,6 +715,7 @@ def main(argv: list[str] | None = None) -> int:
         enable_geographic_pruning=args.pruning,
         enable_net_batching=args.net_batching,
         net_batch_size=args.batch_size,
+        max_sat_nets=args.max_sat_nets,
         enable_nlayer_astar_spike=args.nlayer_astar_spike,
     )
 

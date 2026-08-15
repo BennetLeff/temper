@@ -129,3 +129,129 @@ def test_assign_multiple_net_classes():
     assert assignment.get_width("GND") == 0.508  # Power
     assert assignment.get_width("AC_L") == 0.635  # HV
     assert assignment.get_width("GATE_H") == pytest.approx(0.3048)  # Gate (60% of power)
+
+
+# ---------------------------------------------------------------------------
+# Netclass SSOT (2026-08-13, docs/evidence/2026-08-13-router-netclass-trace-
+# widths.md).  Every test above this line calls `assign_trace_widths` WITHOUT
+# `design_rules` and therefore pins the keyword FALLBACK, which is still the
+# behaviour for a classless net.  These pin the real path.
+# ---------------------------------------------------------------------------
+
+# The 9 nets docs/evidence/2026-08-11-track-width-shorting-root-cause.md
+# measured as undersized on pcb/temper.kicad_pcb, with the netclass
+# `trace_width` each one is required to carry.  `w1_2` and `power_in.ntc-no`
+# are the K1 bypass-relay contact pair -- 100% of the AC mains input current.
+#
+# Values pinned to the CURRENT netclass table (2026-08-13 re-scope, #1129,
+# docs/evidence/2026-08-13-netclass-current-scoping.md): the mA-scale
+# members (discharge.*, q_high-g, zcd, a) moved HighVoltage ->
+# HighVoltageSignal at 0.5mm, and the bus/tank/trace current tier
+# (HighVoltage / HighVoltageTank, incl. w1_2 and power_in.ntc-no) moved
+# 3.0 -> 5.0mm.  #1117's original pin had 3.0 for all of the former
+# HighVoltage members -- stale ground truth after the re-scope, corrected
+# here (a test pinned to a superseded table manufactures confidence).
+_UNDERSIZED_NETS_REQUIRED_MM = {
+    "discharge.k_dis1-nc": 0.5,  # HighVoltageSignal (~20mA bleed string)
+    "hb.gate_hs.driver-p2": 2.0,
+    "hb.power_loop.q_high-g": 0.5,  # HighVoltageSignal (mA-scale gate)
+    "zcd": 0.5,  # HighVoltageSignal (uA-mA divider tap)
+    "a": 0.5,  # HighVoltageSignal (divider tap)
+    "w1_2": 5.0,  # HighVoltage (15A AC mains contact)
+    "GATE_LS": 0.4,
+    "hb.gate_hs.driver-p1-1": 2.0,
+    "power_in.ntc-no": 5.0,  # HighVoltage (15A AC mains contact)
+}
+
+MAINS_NETS = ("w1_2", "power_in.ntc-no")
+
+
+def _real_design_rules():
+    from temper_placer.core.design_rules import create_temper_design_rules
+
+    return create_temper_design_rules()
+
+
+def _result_for(names):
+    return PathfindingResult(
+        routed_paths={n: RoutePath(n, [(0, 0), (10, 10)], "F.Cu", 14.1) for n in names},
+        failed_nets=[],
+    )
+
+
+def test_netclass_table_beats_keyword_buckets_for_every_regressed_net():
+    """The regression this module exists to prevent: all 9 nets that were
+    emitted at 8.3%-50.8% of their required width now get exactly the
+    netclass figure, not a keyword bucket."""
+    dr = _real_design_rules()
+    result = _result_for(_UNDERSIZED_NETS_REQUIRED_MM)
+
+    assignment = assign_trace_widths(
+        result,
+        default_width=0.127,
+        power_width=0.508,
+        hv_width=0.635,
+        design_rules=dr,
+    )
+
+    for net, required in _UNDERSIZED_NETS_REQUIRED_MM.items():
+        assert assignment.get_width(net) == pytest.approx(required), net
+        # and it must not be any of the three keyword buckets
+        assert assignment.get_width(net) not in (0.127, 0.508, 0.635, 0.508 * 0.6)
+
+
+@pytest.mark.parametrize("net", MAINS_NETS)
+def test_mains_carrying_nets_get_full_highvoltage_width(net):
+    """`w1_2`/`power_in.ntc-no` carry the appliance's whole AC mains input
+    current.  Pre-fix they matched no keyword and were emitted at 0.25mm.
+    The expected figure is the LIVE netclass table's 5.0mm (the 2026-08-13
+    re-scope, #1129) -- NOT the 3.0mm #1117's pre-re-scope base pinned."""
+    dr = _real_design_rules()
+    assignment = assign_trace_widths(_result_for([net]), design_rules=dr)
+
+    assert dr.get_rules_for_net(net).name == "HighVoltage"
+    assert assignment.get_width(net) == pytest.approx(dr.get_rules_for_net(net).trace_width_mm)
+    assert assignment.get_width(net) == pytest.approx(5.0)
+
+
+def test_reason_records_the_netclass_it_came_from():
+    dr = _real_design_rules()
+    assignment = assign_trace_widths(_result_for(["w1_2"]), design_rules=dr)
+
+    assert "HighVoltage" in assignment.assignments["w1_2"].reason
+
+
+def test_classless_net_falls_back_to_keywords_and_logs(caplog):
+    """The fallback survives -- but never silently.  A silent fallback is how
+    the original defect outlived three audits of this same defect class."""
+    dr = _real_design_rules()
+    net = "some_net_with_no_class_at_all"
+    assert dr.get_rules_for_net(net).name == "Default"
+
+    with caplog.at_level("WARNING"):
+        assignment = assign_trace_widths(
+            _result_for([net]), default_width=0.127, design_rules=dr
+        )
+
+    assert assignment.get_width(net) == pytest.approx(0.127)
+    assert any(net in rec.getMessage() for rec in caplog.records)
+
+
+def test_missing_design_rules_logs_an_aggregate_warning(caplog):
+    """Omitting `design_rules` entirely is the pre-fix pipeline shape.  It
+    still works, and it is now loud."""
+    with caplog.at_level("WARNING"):
+        assign_trace_widths(_result_for(["w1_2", "power_in.ntc-no"]))
+
+    joined = " ".join(rec.getMessage() for rec in caplog.records)
+    assert "no design_rules" in joined
+
+
+def test_netclass_widths_are_not_capped_by_the_hv_keyword_bucket():
+    """Guards the tempting non-fix: widening `hv_width` instead of reading the
+    table.  3.0mm is 4.7x the 0.635mm HV bucket."""
+    dr = _real_design_rules()
+    assignment = assign_trace_widths(
+        _result_for(["w1_2"]), hv_width=0.635, design_rules=dr
+    )
+    assert assignment.get_width("w1_2") > 0.635 * 4
