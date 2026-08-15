@@ -142,16 +142,25 @@ def test_assign_multiple_net_classes():
 # measured as undersized on pcb/temper.kicad_pcb, with the netclass
 # `trace_width` each one is required to carry.  `w1_2` and `power_in.ntc-no`
 # are the K1 bypass-relay contact pair -- 100% of the AC mains input current.
+#
+# Values pinned to the CURRENT netclass table (2026-08-13 re-scope, #1129,
+# docs/evidence/2026-08-13-netclass-current-scoping.md): the mA-scale
+# members (discharge.*, q_high-g, zcd, a) moved HighVoltage ->
+# HighVoltageSignal at 0.5mm, and the bus/tank/trace current tier
+# (HighVoltage / HighVoltageTank, incl. w1_2 and power_in.ntc-no) moved
+# 3.0 -> 5.0mm.  #1117's original pin had 3.0 for all of the former
+# HighVoltage members -- stale ground truth after the re-scope, corrected
+# here (a test pinned to a superseded table manufactures confidence).
 _UNDERSIZED_NETS_REQUIRED_MM = {
-    "discharge.k_dis1-nc": 3.0,
+    "discharge.k_dis1-nc": 0.5,  # HighVoltageSignal (~20mA bleed string)
     "hb.gate_hs.driver-p2": 2.0,
-    "hb.power_loop.q_high-g": 3.0,
-    "zcd": 3.0,
-    "a": 3.0,
-    "w1_2": 3.0,
+    "hb.power_loop.q_high-g": 0.5,  # HighVoltageSignal (mA-scale gate)
+    "zcd": 0.5,  # HighVoltageSignal (uA-mA divider tap)
+    "a": 0.5,  # HighVoltageSignal (divider tap)
+    "w1_2": 5.0,  # HighVoltage (15A AC mains contact)
     "GATE_LS": 0.4,
     "hb.gate_hs.driver-p1-1": 2.0,
-    "power_in.ntc-no": 3.0,
+    "power_in.ntc-no": 5.0,  # HighVoltage (15A AC mains contact)
 }
 
 MAINS_NETS = ("w1_2", "power_in.ntc-no")
@@ -194,12 +203,15 @@ def test_netclass_table_beats_keyword_buckets_for_every_regressed_net():
 @pytest.mark.parametrize("net", MAINS_NETS)
 def test_mains_carrying_nets_get_full_highvoltage_width(net):
     """`w1_2`/`power_in.ntc-no` carry the appliance's whole AC mains input
-    current.  Pre-fix they matched no keyword and were emitted at 0.25mm."""
+    current.  Pre-fix they matched no keyword and were emitted at 0.25mm.
+    The expected figure is the LIVE netclass table's 5.0mm (the 2026-08-13
+    re-scope, #1129) -- NOT the 3.0mm #1117's pre-re-scope base pinned."""
     dr = _real_design_rules()
     assignment = assign_trace_widths(_result_for([net]), design_rules=dr)
 
     assert dr.get_rules_for_net(net).name == "HighVoltage"
-    assert assignment.get_width(net) == pytest.approx(3.0)
+    assert assignment.get_width(net) == pytest.approx(dr.get_rules_for_net(net).trace_width_mm)
+    assert assignment.get_width(net) == pytest.approx(5.0)
 
 
 def test_reason_records_the_netclass_it_came_from():

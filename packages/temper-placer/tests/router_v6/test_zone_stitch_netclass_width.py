@@ -28,13 +28,16 @@ from temper_placer.router_v6._zone_pour_stitch import (
 @pytest.mark.parametrize(
     ("net", "expected"),
     [
-        ("DC_BUS_RTN", 3.0),
-        ("hb.power_loop.q_high-g", 3.0),
-        ("tank.c_tank1-p2", 3.0),
-        ("discharge.k_dis1-nc", 3.0),
-        ("SW_NODE", 3.0),
-        ("ac_l", 2.5),
-        ("ac_n", 2.5),
+        # Values pinned to the LIVE netclass table (2026-08-13 re-scope,
+        # #1129): HighVoltage/HighVoltageTank 3.0 -> 5.0; the mA-scale
+        # members moved to HighVoltageSignal at 0.5; ACMains 2.5 -> 3.0.
+        ("DC_BUS_RTN", 5.0),
+        ("hb.power_loop.q_high-g", 0.5),
+        ("tank.c_tank1-p2", 5.0),
+        ("discharge.k_dis1-nc", 0.5),
+        ("SW_NODE", 5.0),
+        ("ac_l", 3.0),
+        ("ac_n", 3.0),
     ],
 )
 def test_stitch_width_comes_from_the_netclass_table(net, expected):
@@ -73,6 +76,7 @@ def test_emitted_segment_carries_the_netclass_width():
     _stitch_isolated_pads(pad_positions, segments, {net: 7}, zone_points)
 
     assert segments, "expected at least one stitch segment"
+    expected = f"(width {_stitch_width_for_net(net):.4f})"
     for seg in segments:
-        assert "(width 3.0000)" in seg, seg
+        assert expected in seg, seg
         assert "(width 0.2000)" not in seg
