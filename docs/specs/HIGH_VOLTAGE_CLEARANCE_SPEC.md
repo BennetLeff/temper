@@ -14,9 +14,13 @@ This document defines clearance (through air) and creepage (along surface) requi
 
 ### 2.1 Domain Definitions
 
+**AC Mains corrected 2026-08-14** (was "120-240V RMS", contradicting
+REQ-SYS-01's authoritative 120V RMS ±10% -- see the revision-history entry
+below for what was checked before making this a documentation-only change).
+
 | Domain | ID | Reference | Working Voltage | Peak/Transient | Classification |
 |--------|-----|-----------|-----------------|----------------|----------------|
-| AC Mains | A | Earth/Neutral | 120-240V RMS | 340V | Hazardous |
+| AC Mains | A | Earth/Neutral | 120V RMS ±10% | 340V | Hazardous |
 | DC Bus | B | DC_BUS- | 170-340V DC | 400V (transient) | Hazardous |
 | Gate Drive Isolated | C | IGBT Source | 15V (floating at 340V) | 355V to earth | Hazardous |
 | Low Voltage Control | D | CGND | 3.3-15V | 20V | SELV |
@@ -60,7 +64,7 @@ This document defines clearance (through air) and creepage (along surface) requi
 │  │  • ESP32-S3      │        │  • UCC21550 output side          │   │
 │  │  • MAX31865      │◄──────►│  • Bootstrap supply              │   │
 │  │  • UI circuits   │ I2C    │  • IGBT gates/sources            │   │
-│  │  • ADC sensing   │(ADUM)  │                                  │   │
+│  │  • ADC sensing   │(removed│                                  │   │
 │  │                  │        │                                  │   │
 │  └──────────────────┘        └──────────────────────────────────┘   │
 │                                                                      │
@@ -83,7 +87,7 @@ This document defines clearance (through air) and creepage (along surface) requi
 | Parameter | Value | Justification |
 |-----------|-------|---------------|
 | **Pollution Degree** | **2, conditional** | The production architecture selects the IEC 60335-2-6 cl. 29.2 enclosure exception. A gasketed PCB compartment separate from the coil/heatsink airflow path is a release prerequisite; otherwise PD3 applies. |
-| **Overvoltage Category** | III | Equipment connected to mains distribution |
+| **Overvoltage Category** | **II** (corrected 2026-08-14, was III) | IEC 60335-1 clause 29.1 (CITED-PRIMARY, `docs/evidence/2026-07-28-creepage-determination-brainstorm.md:221-223`): **"Appliances are in overvoltage category II."** Unconditional -- the clause does not distinguish by appliance class. The prior "Equipment connected to mains distribution" justification described OVC III's own use case (equipment *at* the distribution level), not this design's: a detachable-cord, plug-in countertop appliance (IEC C20 inlet/C19 cord, `docs/CONNECTORS_AND_WIRING.md:13`) downstream of the distribution level, at 120V RMS ±10% into a standard 15A US outlet (`REQUIREMENTS.md` REQ-SYS-01). `scripts/generate_kicad_dru.py:56-63` already derives `HV_INTERNAL_CLEARANCE_MM` from OVC II and cites clause 29.1 correctly -- this correction changes no enforced clearance/creepage value, it aligns this document with what is already enforced and independently re-verified in `docs/evidence/2026-08-12-hv-clearance-adequacy.md` Sec 3.1/6.2. |
 | **Material Group** | IIIb | FR4 CTI 175-249V |
 | **Altitude** | ≤2000m | Standard household use |
 | **Working Temperature** | 60°C max ambient | Kitchen environment near cooking |
@@ -125,6 +129,21 @@ fallback.
 ## 4. Clearance Requirements
 
 ### 4.1 Clearance Table (Through Air)
+
+**Flagged, not corrected in this pass (consistent with the outstanding-item
+convention in §6.4 below):** this table's own header still says "Overvoltage
+Category III", the same error §3.2 corrects to OVC II above, and its rows use
+invented round-number working voltages rather than IEC 60335-1 Table 16's own
+rated-impulse-voltage steps -- the same defect class §5.1's creepage table
+had before its 2026-07-30 correction. §7-9's component-specific rows carry
+the same unreconciled figures. None of this table's numbers are read by any
+enforcement gate (`packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`
+and `scripts/generate_kicad_dru.py` are; see §5.1's own note), so leaving it
+uncorrected changes no enforced value -- but a reader should not treat this
+table as current. See `docs/evidence/2026-08-12-hv-clearance-adequacy.md`
+for the real, clause-29.1.5-derived clearance requirement at this board's
+actual worst-case working voltages,
+including the resonant-tank node.
 
 Based on IEC 60664-1 Table F.2 for Overvoltage Category III, Pollution Degree 2:
 
@@ -261,10 +280,7 @@ With slot:     Creepage = 2 × slot width + surface across slot
 - Ground plane cutout under transformer region (center of package)
 - Per UCC21550 datasheet Figure 34 layout recommendation
 
-**ADUM1250 I2C Isolator:**
-- 4.0mm minimum between Side 1 and Side 2 pins
-- No ground plane under center of package
-- Place isolation slot under device if possible
+**ADUM1250 I2C Isolator — REMOVED from the design (2026-07-30, `elec/src/components.ato:51-54`); this bullet and the §8.1 checklist row are stale artifacts, retained only as the historical record, superseded by `docs/hardware/BOM.md:238` ("Isolation is provided by the AuxSupply transformer, not an I2C isolator").**
 
 ### 6.4 Conformal Coating -- NOT a live relaxation on this design (corrected 2026-07-30)
 
@@ -391,7 +407,7 @@ not this document's §7-9, is what actually gates REQ-SAFE-01.** See
 | IGBT Q1 tab to LV | 8.0mm | ___mm | ☐ Pass |
 | IGBT Q2 tab to LV | 8.0mm | ___mm | ☐ Pass |
 | UCC21550 Pin 1-8 to 9-16 | 1.0mm | ___mm | ☐ Pass |
-| ADUM1250 Side1 to Side2 | 4.0mm | ___mm | ☐ Pass |
+| ADUM1250 Side1 to Side2 | N/A — part removed (see §6.3) | — | ☐ N/A |
 | Isolation slot width | 2.0mm | ___mm | ☐ Pass |
 
 ### 8.2 Creepage Verification Checklist
@@ -466,3 +482,4 @@ Create keep-out zones in KiCad:
 | 1.1 | 2026-07-30 | AI Agent | Pollution degree corrected PD2 -> PD3 with citation (§3.2/3.2.1); creepage table mislabel and pollution-degree column corrected, real Table 17 row boundaries substituted for invented round numbers (§5.1/5.2); fabricated conformal-coating creepage multiplier removed and replaced with the real, non-multiplicative mechanism (§6.4). See `docs/evidence/2026-07-30-pollution-degree-determination.md`. §7-9 not yet reconciled -- flagged, not corrected, in this pass. |
 | 1.2 | 2026-07-30 | AI Agent | Owner selected the PD2 enclosure exception for production, conditional on a gasketed PCB compartment outside the coil/heatsink airflow path; restored the literal 8.0mm PD2 row-iv target while retaining 12.6mm as the fallback. |
 | 1.3 | 2026-07-30 | AI Agent | Aligned the third enforcement point this document's Sec 6.4 note flagged as outstanding: the REQ-SAFE-01 requirements validator (`packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`) moved from the PD3 fallback (12.6mm reinforced / 6.3mm basic) to the PD2 target (8.0mm reinforced / 4.0mm basic) this document already declared operative in v1.2, closing the inconsistency between the validator and the already-aligned KiCad DRU generator / physical isolation keepout. See `docs/evidence/2026-07-30-pd2-enclosure-decision.md`. |
+| 1.4 | 2026-08-14 | AI Agent | **Two documentation-only corrections; no enforced clearance/creepage/voltage value changed.** (1) §3.2 Overvoltage Category corrected III -> II, citing IEC 60335-1 clause 29.1 (CITED-PRIMARY, unconditional: "Appliances are in overvoltage category II") -- the prior "Equipment connected to mains distribution" justification actually describes OVC III's own use case, not this cord-and-plug countertop appliance's; `scripts/generate_kicad_dru.py` already assumed and cited OVC II correctly, so this aligns the document with the value already enforced. Also corrected the identical uncited OVC III claim at `docs/evidence/2026-08-07-creepage-authority-and-pullback-analysis.md:133-137`. §4.1's table header still says OVC III and is flagged, not corrected, consistent with §6.4's existing convention for unreconciled sections. (2) §2.1's AC Mains "120-240V RMS" row corrected to "120V RMS ±10%", matching REQ-SYS-01 (`REQUIREMENTS.md`) exactly -- confirmed, not assumed: the design's voltage doubler exists specifically so the appliance needs no 240V input (`docs/hardware/VOLTAGE_DOUBLER_DESIGN.md`: "Compatible with 120V/15A outlet (no 240V required)"), `elec/src/main.ato:52` asserts `v_ac_nominal` within 100-130V, and no 120/240V dual-input or export variant is declared as a design target anywhere in `REQUIREMENTS.md`/`docs/CONNECTORS_AND_WIRING.md`. **No 240V variant is intended for this design.** Two stale artifacts from what appears to be an earlier generic/EU-oriented template were found and are reported, not fixed, here (out of this correction's scope, and neither gates enforced clearance/creepage): `packages/temper-placer/src/temper_placer/core/design_rules.py`'s `ACMains` netclass carries `voltage_v=240.0` (metadata only -- confirmed unconsumed by `scripts/generate_kicad_dru.py`'s per-class trace-width/clearance emission, which reads `.trace_width`/`.clearance`/`.creepage_mm`, not `.voltage_v`), and `packages/temper-placer/configs/pcb_spec.yaml`'s `safety.mains_voltage_v: 230.0` feeds a *separate* derivation path (`packages/temper-placer/src/temper_placer/pipeline/derivation.py` -> `hv_lv_isolation_mm` -> `temper-quality-oracle`/`physics_oracle.py`, a regression/scoring tool, not the board's DRC gate) that should be reconciled to 120V by whoever owns that config, since a reader could otherwise mistake it for a second live voltage target. **If a 240V (or 120/240V dual-input) variant is ever built, this correction and the entire clearance/creepage derivation chain built on it (`scripts/generate_kicad_dru.py`'s `HV_INTERNAL_CLEARANCE_MM`, this document's §3.2/§4/§5) do NOT cover it and must be re-derived**: IEC 60335-1 Table 15's rated-voltage row shifts at 150V, so a genuine 240V rated voltage falls in the >150-300V row, requiring 2500V rated impulse voltage even under OVC II -- the same figure OVC III would have given at 120V, i.e. exactly the discrepancy this correction just removed would reappear on different grounds. See the certification-lab package, `docs/evidence/2026-08-14-certification-lab-package-pd3-and-60664-4.md`, for the related open questions this session also documented. |

@@ -130,6 +130,36 @@ correct for these rows given the PD2/IIIb inputs above.**
 
 ### 1.4 Table 16 derivation (clearance), and where the netclass scalar comes from
 
+**Correction, 2026-08-14: this section's "overvoltage category III" premise is
+wrong and was asserted with no clause citation; it has been carried forward
+from the same error in `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` (now
+corrected — see that document's §3.2 and revision-history v1.4). IEC 60335-1
+clause 29.1 states unconditionally: "Appliances are in overvoltage category
+II"** (CITED-PRIMARY, `docs/evidence/2026-07-28-creepage-determination-brainstorm.md:221-223`).
+At this board's 120V rated voltage, OVC II puts the appliance in Table 15
+row ii (>50V, ≤150V) → **1500V** rated impulse, not the 2500V this section's
+uncorrected OVC III premise used — one full Table 16 step lower. Under the
+corrected OVC II reading, clause 29.1.3's "next higher step" reinforced rule
+gives Table 16's 2500V-row basic figure (1.5mm) plus clause 29.1's +0.5mm
+soldered-construction adder = **2.0mm reinforced clearance**, not 6.0mm — this
+is `scripts/generate_kicad_dru.py`'s `HV_INTERNAL_CLEARANCE_MM`, independently
+derived there from the same clause and matching the netclass `clearance` field
+`design_rules.py` was fixed to on 2026-08-12
+(`docs/evidence/2026-08-12-netclass-param-reconciliation.md`). **This
+section's original "6.0mm is the correct Table 16 reinforced clearance figure,
+just mislabeled as creepage" conclusion (below) is therefore itself
+superseded, not merely mislabeled** — 6.0mm was never a correct Table 16
+figure for this board's mains/DC-bus boundaries at 120V rated voltage under
+either OVC reading available in this repo's primary text. See
+`docs/evidence/2026-08-12-hv-clearance-adequacy.md` for the current,
+worst-case-voltage-aware clearance derivation, and the certification-lab package
+`docs/evidence/2026-08-14-certification-lab-package-pd3-and-60664-4.md` for
+what remains genuinely open. **The rest of this section is retained verbatim
+below as the historical record of how the netclass `creepage_mm=6.0` value
+originated (a field-name conflation, `cb317451`) — that git-history finding is
+independent of the OVC error and still stands; only the "6.0mm itself is a
+correct Table 16 figure" framing around it is corrected here.**
+
 IEC 60335-1 Table 16 (clearance, through air) is keyed to **rated impulse
 voltage** (via Table 15's overvoltage-category lookup), not pollution degree
 or material group. This board's mains/DC-bus boundaries fall under
