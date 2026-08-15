@@ -280,6 +280,8 @@ class TestSolveSubsetCallsAuditResult:
 class _FakeDesignRulesForRunNetBatched:
     default_trace_width_mm = 0.25
     default_clearance_mm = 0.2
+    default_via_diameter_mm = 0.6
+    default_via_drill_mm = 0.3
 
     def get_rules_for_net(self, net_name: str) -> NetClassRules:
         return NetClassRules(

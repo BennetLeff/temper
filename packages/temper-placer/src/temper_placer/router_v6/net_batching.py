@@ -683,6 +683,14 @@ def _write_shared_context(pcb: ParsedPCB, skeletons: dict[str, Any]) -> str:
                 "net_rules": net_rules,
                 "default_trace_width_mm": float(pcb.design_rules.default_trace_width_mm),
                 "default_clearance_mm": float(pcb.design_rules.default_clearance_mm),
+                # Carried through so _DesignRulesStub.get_rules_for_net's
+                # fallback branch (a net name absent from net_rules) can
+                # synthesize a NetClassRules from the REAL configured
+                # defaults instead of a hardcoded literal -- see
+                # _DesignRulesStub's own docstring (2026-08-13 fix,
+                # get_rules_for_net duplication audit).
+                "default_via_diameter_mm": float(pcb.design_rules.default_via_diameter_mm),
+                "default_via_drill_mm": float(pcb.design_rules.default_via_drill_mm),
                 "skeletons": _project_skeletons(skeletons),
             },
             f,
@@ -700,11 +708,33 @@ class _DesignRulesStub:
     and why this narrower substitute is sufficient and verified sufficient
     (not merely assumed) by tracing every ``design_rules.``/``self.pcb.``
     read in ``constraint_model.py``.
+
+    ``default_via_diameter_mm``/``default_via_drill_mm`` default to the
+    Rust ``DesignRules`` pyclass's own defaults (0.6/0.3mm) so existing
+    callers that only pass trace-width/clearance keep working -- but
+    :func:`_write_shared_context` always passes the REAL configured values
+    explicitly. Before this fix, ``get_rules_for_net``'s fallback branch
+    (a net name absent from the precomputed ``net_rules`` dict) hardcoded
+    ``via_diameter_mm=0.6, via_drill_mm=0.3`` as literals instead of
+    reading these fields at all -- silently wrong for any board whose
+    Default netclass's via sizing differs from 0.6/0.3mm (this repo's own
+    board happens not to, which is exactly how the divergence stayed
+    unnoticed: an unpinned copy that still agrees is a latent risk, not a
+    live defect -- 2026-08-13, get_rules_for_net duplication audit,
+    docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md finding
+    #6). Tracing every consumer of this codepath's return value found none
+    that reads ``.via_diameter_mm``/``.via_drill_mm`` today (only
+    ``.trace_width_mm``/``.clearance_mm`` are read, in ``constraint_model.py``
+    and ``_consume_capacity``), so the old hardcoding was not a currently
+    live bug -- but the values were wrong regardless, and would silently
+    stay wrong for any future reader of this object.
     """
 
     net_rules: dict[str, Any]
     default_trace_width_mm: float
     default_clearance_mm: float
+    default_via_diameter_mm: float = 0.6
+    default_via_drill_mm: float = 0.3
 
     def get_rules_for_net(self, net_name: str) -> Any:
         rule = self.net_rules.get(net_name)
@@ -716,8 +746,8 @@ class _DesignRulesStub:
             name="Default",
             clearance_mm=self.default_clearance_mm,
             trace_width_mm=self.default_trace_width_mm,
-            via_diameter_mm=0.6,
-            via_drill_mm=0.3,
+            via_diameter_mm=self.default_via_diameter_mm,
+            via_drill_mm=self.default_via_drill_mm,
         )
 
 
@@ -763,6 +793,11 @@ def _batch_worker_entry(
             net_rules=shared["net_rules"],
             default_trace_width_mm=shared["default_trace_width_mm"],
             default_clearance_mm=shared["default_clearance_mm"],
+            # .get() with the dataclass's own defaults: a shared-context
+            # file written by an older version of _write_shared_context
+            # (before this fix) won't have these keys.
+            default_via_diameter_mm=shared.get("default_via_diameter_mm", 0.6),
+            default_via_drill_mm=shared.get("default_via_drill_mm", 0.3),
         )
         skeletons: dict[str, Any] = shared["skeletons"]
         name_to_net = {n.name: n for n in pcb.nets}

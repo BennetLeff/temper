@@ -47,7 +47,7 @@ import re
 
 from _lib.gate_allowlist import (
     TICKET_PATTERN,
-    load_allowlist as _load_allowlist,
+    load_key_comment_allowlist as load_allowlist,
     git_show_main_allowlist as _git_show_main_allowlist,
     check_shrink_mode as _check_shrink_mode,
 )
@@ -153,19 +153,6 @@ def find_undocumented_constants(
 # ---------------------------------------------------------------------------
 
 
-def load_allowlist(path: Path) -> dict[str, str]:
-    """Parse ``.physics-provenance-allowlist`` into ``{key: ticket_string}``."""
-    entries: dict[str, str] = {}
-    for line in _load_allowlist(path):
-        if "#" in line:
-            key_part, comment = line.split("#", 1)
-            key_part = key_part.strip()
-        else:
-            key_part = line.strip()
-            comment = ""
-        if key_part:
-            entries[key_part] = comment.strip()
-    return entries
 
 
 def git_show_main_allowlist() -> str | None:

@@ -30,7 +30,7 @@ import json
 
 from _lib.gate_allowlist import (
     TICKET_PATTERN,
-    load_allowlist as _load_allowlist,
+    load_key_comment_allowlist as load_allowlist,
     git_show_main_allowlist as _git_show_main_allowlist,
     check_shrink_mode as _check_shrink_mode,
 )
@@ -121,21 +121,6 @@ def find_zero_coverage(files, source_root):
                 zero_cov[allowlist_key] = line_ref
 
     return zero_cov
-
-
-def load_allowlist(path):
-    """Parse .coverage-allowlist into a dict {key: ticket_string}."""
-    entries = {}
-    for line in _load_allowlist(path):
-        if "#" in line:
-            key_part, comment = line.split("#", 1)
-            key_part = key_part.strip()
-        else:
-            key_part = line.strip()
-            comment = ""
-        if key_part:
-            entries[key_part] = comment.strip()
-    return entries
 
 
 def git_show_main_allowlist():

@@ -21,15 +21,28 @@ Output is deterministic: sorted paths, no timestamp, so regeneration is
 idempotent and the ``git diff`` after a re-pin shows exactly the oracle
 files whose pins moved -- not noise.
 
+Anti-vacuity floor (``min_files``)
+------------------------------------
+The registry also records ``min_files``, the largest oracle count any prior
+regeneration has observed. This generator only ever RATCHETS IT UP by
+default -- if discovery finds fewer oracles than the recorded floor (a
+narrowed ``discover_oracles()``, or oracles deleted outside a deliberate
+retirement), it refuses to write, the same way it refuses a vacuous empty
+registry. A genuine, reviewed retirement (e.g. #1021's U5 retirement of
+``_copper_reach_py_oracle.py``) must pass ``--allow-shrink`` explicitly --
+the floor never moves down silently.
+
 Exit codes:
   0 - registry written (or unchanged)
-  1 - discovery/hash/io failure, or zero oracle files found (a registry with
+  1 - discovery/hash/io failure, zero oracle files found (a registry with
       zero entries is the vacuous shape this tool exists to prevent, so it
-      is refused rather than written)
+      is refused rather than written), or discovery count dropped below the
+      registry's recorded ``min_files`` floor without ``--allow-shrink``
 
 Usage:
   uv run --no-sync python scripts/update_oracle_hashes.py
   uv run --no-sync python scripts/update_oracle_hashes.py --repo-root .
+  uv run --no-sync python scripts/update_oracle_hashes.py --allow-shrink
 """
 
 from __future__ import annotations
@@ -42,14 +55,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _lib.oracle_discovery import ORACLE_GLOB, discover_oracles  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
 REGISTRY_FILENAME = "oracle_hashes.json"
-ORACLE_GLOB = "_*_py_oracle.py"
-
-# Directories that may legitimately contain *_py_oracle.py-named files but
-# are not source of truth (build artifacts, environments).
-_EXCLUDED_DIRS = {".venv", "venv", "target", "build", "dist", "node_modules", "__pycache__"}
 
 
 def sha256_file(path: Path) -> str:
@@ -60,30 +69,17 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def discover_oracles(repo_root: Path) -> list[Path]:
-    """Every ``_*_py_oracle.py`` under ``packages/``, sorted by relative path."""
-    found: list[Path] = []
-    packages_dir = repo_root / "packages"
-    if not packages_dir.is_dir():
-        return found
-    for path in packages_dir.rglob(ORACLE_GLOB):
-        if not path.is_file():
-            continue
-        parts = path.relative_to(packages_dir).parts
-        if any(part in _EXCLUDED_DIRS for part in parts):
-            continue
-        found.append(path)
-    return sorted(found, key=lambda p: str(p.relative_to(repo_root)))
-
-
-def registry_payload(oracles: list[Path], repo_root: Path) -> dict:
-    return {
+def registry_payload(oracles: list[Path], repo_root: Path, min_files: int | None = None) -> dict:
+    payload = {
         "version": 1,
         "algo": "sha256",
         "files": {
             str(p.relative_to(repo_root)): sha256_file(p) for p in oracles
         },
     }
+    if min_files is not None:
+        payload["min_files"] = min_files
+    return payload
 
 
 def read_existing_registry(registry_path: Path) -> dict | None:
@@ -104,6 +100,10 @@ def main() -> None:
                         help="Repository root (default: auto-discovered)")
     parser.add_argument("--registry", type=Path, default=None,
                         help="Registry path (default: <repo>/scripts/oracle_hashes.json)")
+    parser.add_argument("--allow-shrink", action="store_true",
+                        help="Permit min_files to move DOWN (a deliberate oracle "
+                             "retirement). Without this flag, a discovery count "
+                             "below the registry's recorded floor refuses to write.")
     args = parser.parse_args()
 
     repo_root = (args.repo_root or find_repo_root()).resolve()
@@ -111,15 +111,38 @@ def main() -> None:
 
     oracles = discover_oracles(repo_root)
     if not oracles:
-        print(f"ERROR: no {ORACLE_GLOB} files found under {repo_root / 'packages'} -- "
-              "refusing to write a vacuous registry", file=sys.stderr)
+        print(f"ERROR: no {ORACLE_GLOB} files, and no '*_oracle' package, found under "
+              f"{repo_root / 'packages'} -- refusing to write a vacuous registry",
+              file=sys.stderr)
         sys.exit(1)
-
-    new_payload = registry_payload(oracles, repo_root)
-    new_files = new_payload["files"]
 
     old_payload = read_existing_registry(registry_path)
     old_files = old_payload.get("files", {}) if isinstance(old_payload, dict) else {}
+    old_min_files = old_payload.get("min_files") if isinstance(old_payload, dict) else None
+    if not isinstance(old_min_files, int) or isinstance(old_min_files, bool) or old_min_files < 0:
+        old_min_files = None
+
+    new_count = len(oracles)
+    if old_min_files is not None and new_count < old_min_files:
+        if not args.allow_shrink:
+            print(
+                f"ERROR: discovery found {new_count} oracle file(s), fewer than the "
+                f"registry's recorded floor of {old_min_files} ('min_files') -- "
+                "refusing to silently lower the anti-vacuity floor. If this is a "
+                "deliberate oracle retirement, re-run with --allow-shrink and record "
+                "why in the PR (e.g. #1021's U5 retirement).",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        print(f"  [SHRINK] min_files {old_min_files} -> {new_count} (--allow-shrink)")
+        next_min_files = new_count
+    else:
+        next_min_files = max(old_min_files or 0, new_count)
+        if old_min_files is not None and next_min_files != old_min_files:
+            print(f"  [min_files] {old_min_files} -> {next_min_files}")
+
+    new_payload = registry_payload(oracles, repo_root, min_files=next_min_files)
+    new_files = new_payload["files"]
 
     changed = 0
     for rel in sorted(set(old_files) | set(new_files)):

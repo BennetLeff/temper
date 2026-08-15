@@ -220,7 +220,7 @@ from _lib.gate_allowlist import (  # noqa: E402
     TICKET_PATTERN,
     check_shrink_mode as _check_shrink_mode,
     git_show_main_allowlist as _git_show_main_allowlist,
-    load_allowlist as _load_allowlist,
+    load_key_comment_allowlist as load_allowlist,
 )
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.measurement_provenance import (  # noqa: E402
@@ -348,18 +348,6 @@ def load_records(artifact: Path) -> list[Record]:
     return [Record(artifact, rid, prov) for rid, prov in extract_records(data)]
 
 
-def load_allowlist(path: Path) -> dict[str, str]:
-    """Parse .measurement-provenance-allowlist into {key: ticket_comment}."""
-    entries: dict[str, str] = {}
-    for line in _load_allowlist(path):
-        if "#" in line:
-            key_part, comment = line.split("#", 1)
-            key_part = key_part.strip()
-        else:
-            key_part, comment = line.strip(), ""
-        if key_part:
-            entries[key_part] = comment.strip()
-    return entries
 
 
 @dataclass

@@ -200,6 +200,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _lib.gate_allowlist import load_scoped_justification_allowlist  # noqa: E402
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
@@ -370,44 +371,15 @@ def load_allowlist(path: Path) -> list[AllowlistEntry]:
     file-scope separator, missing a ``#`` justification, or with an empty
     module/glob/justification is a hard error (fail closed) rather than a
     silently-accepted (or silently over-broad) exemption.
+
+    Thin delegating shim over ``_lib.gate_allowlist``'s shared parser
+    (2026-08-13 dedup with ``check_net_classification.py``'s
+    byte-identical-modulo-noun copy) -- only the ``noun`` used in error
+    messages and this file's own ``AllowlistEntry.module`` field name are
+    local; the parse logic itself lives in exactly one place.
     """
-    if not path.is_file():
-        return []
-    entries: list[AllowlistEntry] = []
-    for lineno, raw in enumerate(path.read_text().splitlines(), start=1):
-        stripped = raw.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        if "#" not in stripped:
-            raise GateError(
-                f"{path}:{lineno}: allowlist entry {stripped!r} has no "
-                "'# justification' comment -- unjustified entries are not allowed"
-            )
-        key_part, justification = stripped.split("#", 1)
-        justification = justification.strip()
-        if not justification:
-            raise GateError(
-                f"{path}:{lineno}: allowlist entry {key_part.strip()!r} has an "
-                "empty justification comment"
-            )
-        key_part = key_part.strip()
-        if "::" not in key_part:
-            raise GateError(
-                f"{path}:{lineno}: allowlist entry {key_part!r} is missing the "
-                "'module::file-glob' separator -- a bare module name would "
-                "exempt every file, which this gate does not allow"
-            )
-        module, file_glob = key_part.split("::", 1)
-        module = module.strip()
-        file_glob = file_glob.strip()
-        if not module:
-            raise GateError(f"{path}:{lineno}: allowlist entry has no module name")
-        if not file_glob:
-            raise GateError(
-                f"{path}:{lineno}: allowlist entry for {module!r} has no file glob"
-            )
-        entries.append(AllowlistEntry(module, file_glob, justification))
-    return entries
+    entries = load_scoped_justification_allowlist(path, error_cls=GateError, noun="module")
+    return [AllowlistEntry(e.name, e.file_glob, e.justification) for e in entries]
 
 
 def matches_allowlist(module: str, file_rel: str, entries: list[AllowlistEntry]) -> bool:
