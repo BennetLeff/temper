@@ -64,7 +64,7 @@ below for what was checked before making this a documentation-only change).
 │  │  • ESP32-S3      │        │  • UCC21550 output side          │   │
 │  │  • MAX31865      │◄──────►│  • Bootstrap supply              │   │
 │  │  • UI circuits   │ I2C    │  • IGBT gates/sources            │   │
-│  │  • ADC sensing   │(ADUM)  │                                  │   │
+│  │  • ADC sensing   │(removed│                                  │   │
 │  │                  │        │                                  │   │
 │  └──────────────────┘        └──────────────────────────────────┘   │
 │                                                                      │
@@ -280,10 +280,7 @@ With slot:     Creepage = 2 × slot width + surface across slot
 - Ground plane cutout under transformer region (center of package)
 - Per UCC21550 datasheet Figure 34 layout recommendation
 
-**ADUM1250 I2C Isolator:**
-- 4.0mm minimum between Side 1 and Side 2 pins
-- No ground plane under center of package
-- Place isolation slot under device if possible
+**ADUM1250 I2C Isolator — REMOVED from the design (2026-07-30, `elec/src/components.ato:51-54`); this bullet and the §8.1 checklist row are stale artifacts, retained only as the historical record, superseded by `docs/hardware/BOM.md:238` ("Isolation is provided by the AuxSupply transformer, not an I2C isolator").**
 
 ### 6.4 Conformal Coating -- NOT a live relaxation on this design (corrected 2026-07-30)
 
@@ -410,7 +407,7 @@ not this document's §7-9, is what actually gates REQ-SAFE-01.** See
 | IGBT Q1 tab to LV | 8.0mm | ___mm | ☐ Pass |
 | IGBT Q2 tab to LV | 8.0mm | ___mm | ☐ Pass |
 | UCC21550 Pin 1-8 to 9-16 | 1.0mm | ___mm | ☐ Pass |
-| ADUM1250 Side1 to Side2 | 4.0mm | ___mm | ☐ Pass |
+| ADUM1250 Side1 to Side2 | N/A — part removed (see §6.3) | — | ☐ N/A |
 | Isolation slot width | 2.0mm | ___mm | ☐ Pass |
 
 ### 8.2 Creepage Verification Checklist
