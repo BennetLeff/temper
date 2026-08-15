@@ -1,10 +1,13 @@
-<!-- provenance: commit=5408cb275 (own branch cert-lab-package, forked from origin/main @ d8d772961)
-     dirty=false at time of writing. Own git worktree (/home/bennet/Desktop/temper-recover-standards),
+<!-- provenance: commit=8f21d2725 (base of branch chore/cert-lab-package-review, = origin/main at the
+     fork point of this finalizing branch; package drafted 2026-08-14 on cert-lab-package @ 5408cb275,
+     reviewed and corrected 2026-08-15 — see "Review corrections" note at the end of Sec 2.5)
+     dirty=false at time of writing. Own git worktree (/tmp/opencode/agent-cert-lab),
      never the main checkout and never .claude/worktrees/agent-a374c69e35366ad12. No pcb/temper.kicad_pcb,
      footprint, DRU threshold, or enforced safety constant was edited by this document or its companion
-     commit. This package draws on work from FIVE branches; every figure below states which one it came
-     from, and whether that branch is merged to `main`. See Sec 0 for the full map before using any
-     number in this document. -->
+     commits (only the two stale ADUM1250 rows in docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md were marked
+     superseded, documentation-only — see Sec 2.6 Q4). This package draws on work from FIVE branches;
+     every figure below states which one it came from, and whether that branch is merged to `main`.
+     See Sec 0 for the full map before using any number in this document. -->
 
 # Certification-lab question package: PD3 island-slot creepage credit (T1/T2/U6) and IEC 60664-4 applicability at 44-50kHz
 
@@ -263,7 +266,13 @@ This is a series-resonant half-bridge induction-cooktop converter. Its tank runs
 frequency = 50kHz`). IEC 60664-4, *Insulation coordination for equipment within low-voltage systems —
 Part 4: Consideration of high-frequency voltage stress*, governs insulation coordination for periodic
 voltages **above 30kHz** per its own scope — this design's entire legal operating range sits above
-that threshold.
+that threshold. The threshold is quoted from the standard's scope as published, without purchase, in
+IEC's own catalogue entry for IEC 60664-4:2005 (Ed. 2.0 — the current edition;
+`webstore.iec.ch/en/publication/2804`) and in the free preview PDF
+(`en-standard.eu/publicdoc/iec_previews/67465.pdf`): *"applicable for the dimensioning of clearances,
+creepage distances and solid insulation stressed by any type of periodic voltages with a fundamental
+frequency above 30 kHz and up to 10 MHz."* This is the only part of the standard readable without
+purchase; the normative dimensioning clauses are not obtainable (§2.5).
 
 **The fact that makes this urgent, not theoretical:** IEC 60335-1 Annex J, clause 6.8.6 (CITED-PRIMARY,
 quoted verbatim from IS 302-1:2008, `docs/evidence/2026-07-28-conformal-coating-pd1.md:143-146`, on
@@ -370,18 +379,45 @@ analyzed anywhere in this repository.**
 
 ### 2.5 The IEC 60664-4 gap itself
 
-This project searched for IEC 60664-4 inside this repository (the literal string "60664-4") across
-every file on every branch reachable from `origin/main` before this session: **zero occurrences.** No
-document anywhere has considered whether this converter's switching frequency invokes it.
+The string "60664-4" appears in four documents now on `main` — all of which *raise* the applicability
+question and none of which *resolves* it: `docs/evidence/2026-08-12-hv-clearance-adequacy.md` §3.3
+("What I could not close: IEC 60664-4") is the earliest and most explicit — it notes the 44-50kHz tank
+sits above the standard's own >30kHz scope and lists the sub-questions §2.6 below formalizes for the
+lab; `docs/evidence/2026-08-12-hv-hv-creepage-determination.md` §6, `docs/evidence/2026-08-12-pollution-degree-resolution.md`
+§7, and `docs/evidence/2026-08-12-unassigned-domain-nets.md` §1.2 record the same open item. (An
+earlier in-repo search recorded the string as appearing zero times —
+`docs/evidence/2026-08-12-hv-clearance-adequacy.md:345` — as of 2026-08-12, before that document
+itself merged via PR #1080; a later writer repeated the claim without re-searching.) **No document
+anywhere has resolved whether this converter's switching frequency invokes the standard, and none
+contains any of IEC 60664-4's normative dimensioning figures** — that is the gap this question sends
+to the lab.
 
-**IEC 60664-4's own normative tables are not obtainable by this project.** Unlike IEC 60335-1 (recovered
-via IS 302-1:2008, an identical Bureau of Indian Standards adoption published under India's RTI Act),
-IEC 60664-4 has no equivalent national-adoption or public-archive route found. This session's task
-brief states its tables were confirmed paywalled at every vendor checked — **that specific
-vendor-by-vendor search is not itself recorded in a committed evidence document this package can cite
-by exact location**, so it is reported here as this session's own finding rather than a re-verifiable
-prior determination, and flagged as such rather than smoothed over. **No figure from IEC 60664-4 is
-used, invented, or estimated anywhere in this document.**
+**IEC 60664-4's own normative tables are not obtainable by this project.** What *is* publicly readable
+without purchase is the standard's scope paragraph, quoted in §2.1 from IEC's own catalogue entry
+(`webstore.iec.ch/en/publication/2804`) and the free preview PDF
+(`en-standard.eu/publicdoc/iec_previews/67465.pdf`, which reproduces the scope and foreword in full):
+those confirm the ">30kHz" applicability threshold but contain no dimensioning values. The normative
+clauses (4/5/6 — high-frequency clearance, creepage, and solid-insulation dimensioning) and the
+annexes that would let anyone compute the actual factors remain paywalled; unlike IEC 60335-1
+(recovered via IS 302-1:2008, an identical Bureau of Indian Standards adoption published under India's
+RTI Act), IEC 60664-4 has no equivalent national-adoption or full-text public-archive route found.
+This session's task brief states its tables were confirmed paywalled at every vendor checked — **that
+specific vendor-by-vendor search is not itself recorded in a committed evidence document this package
+can cite by exact location**, so it is reported here as this session's own finding rather than a
+re-verifiable prior determination, and flagged as such rather than smoothed over. **No figure from IEC
+60664-4's normative tables is used, invented, or estimated anywhere in this document.**
+
+**Review corrections, 2026-08-15** (this section rewritten during finalization): the draft's claim that
+the string "60664-4" had "zero occurrences" in this repository, and that "no document anywhere has
+considered whether this converter's switching frequency invokes it," was accurate as of 2026-08-12
+(when `docs/evidence/2026-08-12-hv-clearance-adequacy.md` §3.3 recorded the same search result) but
+false by the time this package was assembled — PRs #1080/#1081 had since merged that document and
+`docs/evidence/2026-08-12-hv-hv-creepage-determination.md` to `main`, both of which raise exactly this
+question at 44-50kHz. The four documents on `main` named above are the question's true origin; this
+package's §2.6 is the first to formalize it for a lab. The draft's paywall claim was also sharpened:
+the standard's scope paragraph is publicly readable (IEC catalogue entry + free preview PDF, cited in
+§2.1), and only the normative dimensioning clauses are unobtainable. No figure was changed by these
+corrections.
 
 ### 2.6 The precise questions to ask the lab
 
@@ -407,7 +443,10 @@ used, invented, or estimated anywhere in this document.**
 >    ADUM1250 I2C isolator this project's own spec once referenced — `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`
 >    §6.3 — was removed from the design entirely: `elec/src/components.ato:51-54`, "isolation is
 >    provided by the AuxSupply transformer... not an I2C isolator," confirmed absent from
->    `pcb/temper.kicad_pcb` and `docs/hardware/BOM.md:238`). The gate driver's secondary side floats on
+>    `pcb/temper.kicad_pcb` and `docs/hardware/BOM.md:238`). Note that the spec's own §6.3 bullet and
+>    §8.1 verification-checklist row still list the removed part — stale artifacts, marked superseded
+>    in that document on 2026-08-15 and to be read as such; the design's live position is
+>    `elec/src/components.ato:51-54` / `docs/hardware/BOM.md:238`. The gate driver's secondary side floats on
 >    `SW_NODE`, which switches at 44-50kHz. Does the barrier's own pad-gap creepage/clearance rating
 >    (datasheet-specified against DC/mains-frequency withstand) need re-examination for the same
 >    high-frequency periodic stress question raised above, or is a galvanically isolated barrier's
@@ -492,6 +531,9 @@ estimated beyond what the standard's own tables/clauses give directly):
 - Companion, same session: `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` (OVC III→II and AC-Mains
   120-240V→120V corrections — documentation-only, no enforced value changed) and
   `docs/evidence/2026-08-07-creepage-authority-and-pullback-analysis.md` (same OVC correction).
+- Companion, review pass 2026-08-15: `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` §6.3/§8.1 stale
+  ADUM1250 rows marked superseded (documentation-only — the part was removed from the design on
+  2026-07-30, see §2.6 Q4).
 - Question A sources (all on unmerged branches, see §0 table): PR #1152 (`analysis/hv-creepage-pd3-gap`),
   PR #1155 (`analysis/slot-creepage-rescue`), PR #1160 (`analysis/creepage-island-t1-structural`), and
   this session's edge-reaching-slot document (`analysis/edge-slot-through-cut-rescue`).
