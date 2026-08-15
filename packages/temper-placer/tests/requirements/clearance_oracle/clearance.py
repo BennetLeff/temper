@@ -440,7 +440,9 @@ def _intra_component_boundary_components(
     different footprint, a different part, or a milled isolation slot.
 
     Restricted to ``domain_a != domain_b`` on purpose. The one same-domain
-    matrix row is LV_CONTROL<->LV_CONTROL FUNCTIONAL (0.5mm/1.0mm), and
+    matrix row is LV_CONTROL<->LV_CONTROL FUNCTIONAL (0.5mm clearance /
+    1.8mm creepage -- creepage corrected 2026-08-15 from the 1.0 pin to
+    Table 18 row i PD3), and
     applying it inside a single footprint would flag the fixed, qualified pad
     pitch of essentially every multi-pad SELV part. Measured on this board
     rather than assumed: it adds **41 further violation records across 33
