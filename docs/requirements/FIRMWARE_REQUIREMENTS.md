@@ -178,8 +178,8 @@ System SHALL shutdown when heatsink temperature exceeds 100°C.
 | Action | Immediate FAULT transition |
 | Hysteresis | 10°C (restart at 90°C) |
 
-**Validation:** `test_over_temp_shutdown` integration test  
-**Linked Issues:** (baseline requirement)
+**Validation:** `test_sm_fault_on_over_temperature` (firmware/test/test_state_machine.c)
+**Linked Issues:** UNCITED baseline value — see docs/evidence/2026-08-15-firmware-interlock-citations.md (contradicts documented 95 °C shutdown; hardware latch trips at 85 °C; owner decision required)
 
 ---
 
@@ -195,8 +195,8 @@ System SHALL shutdown when DC bus current exceeds 35A.
 | Response time | <1ms |
 | Action | Hardware interlock + FAULT state |
 
-**Validation:** Simulation `sim_ocp_response.cir`  
-**Linked Issues:** (baseline requirement)
+**Validation:** `test_sm_fault_on_over_current` / `test_sm_fault_on_igbt_short_is_distinct` (firmware/test/test_state_machine.c); the named `sim_ocp_response.cir` does not exist in the repo
+**Linked Issues:** UNCITED baseline value — see docs/evidence/2026-08-15-firmware-interlock-citations.md (basis peak-vs-RMS unstated; sits inside the documented full-power tank-current band; owner decision required)
 
 ---
 
