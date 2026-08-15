@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: fb00ab4f90e5b86456a9f89adf7a7d7e2f3b6107
+  measured_at_commit: 223dd1d835438c21c3dc1886d0ebc422726b5964
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -80,12 +80,25 @@ authority:
 # unchanged before/after this edit. Every alias/unresolved-component board
 # ref above remains verified unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+#
+# Re-pinned 2026-08-15 (fix/tp3-u26-creepage-violation, commit 223dd1d83):
+# STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving ONE
+# footprint: TP3 (safety.tp_ocp2_fault) from (123.0, 143.0) to (122.4, 143.0)
+# (0.6mm -X) to clear the 1.0mm FUNCTIONAL creepage violation vs U26
+# (safety.latch) pad 6 measured by the REQ-SAFE-01 validator under main's
+# manifest. No alias/unresolved-component entry in this file references TP3,
+# and the move is position-only: `(footprint ` count (168) and `Sheetpath`
+# occurrence count (168) are unchanged, and the Sheetpath->Reference map is
+# identical before/after (the same footprint, same sheetpath, same ref --
+# only its `(at ...)` line moved). Every alias/unresolved-component board
+# ref above is therefore verified unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: e4eaba1cd9b16396e13f0b84d69d08a916fd5709
+  measured_at_commit: 223dd1d835438c21c3dc1886d0ebc422726b5964
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 1b15b2747ff55977bd45154e23200c7feaf137e927c4fb9f59d27b2e4c4ade0d
+      sha256: ff441d8c79484336b9a8e972348bb3723b3fa36102ba43d0d6a1df80623be6bd
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
