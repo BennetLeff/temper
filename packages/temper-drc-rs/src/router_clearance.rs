@@ -33,7 +33,9 @@
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
+use regex::Regex;
 use std::collections::HashMap;
+use std::sync::OnceLock;
 
 // ---------------------------------------------------------------------------
 // Python positional max()/min() semantics
@@ -238,20 +240,86 @@ enum NetClass {
     Signal,
 }
 
+// Word-boundary keyword matching -- the #1174 Python fix, ported.
+//
+// The predecessor matched each keyword as a plain substring (`upper.contains
+// (kw)`), the exact defect family `classify_net_class` is filed under (#1175):
+// a net like `safety.ovp-line` was classified HV via the "LINE" substring, and
+// `discharge.k_dis1-coil1`/`...coil2` and `power_in.bypass_relay-coil1/2` via
+// the "L1"/"L2" substrings -- all confirmed SELV in the domain manifest. This
+// mirrors the Python reference `_is_hv_keyword_match`
+// (`router_v6/clearance_check.py`), which anchors each keyword between a
+// leading start/underscore and a trailing end/digit/underscore, so a keyword
+// must be its own `_`-delimited token to match.
+
+/// True when the keyword ends in an alphanumeric -- i.e. has a trailing
+/// word-boundary to anchor on. A keyword ending in a non-alphanumeric
+/// ("AC_", "HV_", "B+") can only anchor on the leading side (the same special
+/// case `creepage_check._is_high_voltage_net` makes for "B+").
+fn has_trailing_boundary(kw: &str) -> bool {
+    kw.chars().next_back().is_some_and(|c| c.is_alphanumeric())
+}
+
+/// Regex source for one keyword, mirroring the #1174 Python reference
+/// `re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper)`. `\A`/`\z` stand
+/// in for Python's non-multiline `^`/`$`, which over a net name (no embedded
+/// newlines) are identical.
+fn compile_keyword(kw: &str) -> Option<Regex> {
+    let escaped = regex::escape(kw);
+    let src = if has_trailing_boundary(kw) {
+        format!(r"(?:\A|_){}(?:\z|[\d_])", escaped)
+    } else {
+        format!(r"(?:\A|_){}", escaped)
+    };
+    Regex::new(&src).ok()
+}
+
+/// Precompiled boundary regexes for one keyword list (compiled once; compile is
+/// costly and this runs per (pair, net) on the hot verification path).
+fn boundary_regexes(keywords: &[&str]) -> Vec<Regex> {
+    keywords.iter().filter_map(|kw| compile_keyword(kw)).collect()
+}
+
+fn hv_gate_re() -> &'static [Regex] {
+    static RE: OnceLock<Vec<Regex>> = OnceLock::new();
+    RE.get_or_init(|| boundary_regexes(&HV_GATE_KEYWORDS))
+}
+fn hv_class_re() -> &'static [Regex] {
+    static RE: OnceLock<Vec<Regex>> = OnceLock::new();
+    RE.get_or_init(|| boundary_regexes(&HV_CLASS_KEYWORDS))
+}
+fn gnd_re() -> &'static [Regex] {
+    static RE: OnceLock<Vec<Regex>> = OnceLock::new();
+    RE.get_or_init(|| boundary_regexes(&GND_KEYWORDS))
+}
+fn power_re() -> &'static [Regex] {
+    static RE: OnceLock<Vec<Regex>> = OnceLock::new();
+    RE.get_or_init(|| boundary_regexes(&POWER_KEYWORDS))
+}
+/// "B+" has no alphanumeric trailing character, so it cannot use the
+/// trailing-boundary form; anchored on the leading side only.
+fn b_plus_re() -> &'static Option<Regex> {
+    static RE: OnceLock<Option<Regex>> = OnceLock::new();
+    RE.get_or_init(|| Regex::new(r"(?:\A|_)B\+").ok())
+}
+
 fn is_hv_gate(net_name: &str) -> bool {
     let upper = net_name.to_uppercase();
-    HV_GATE_KEYWORDS.iter().any(|kw| upper.contains(kw))
+    hv_gate_re().iter().any(|re| re.is_match(&upper))
+        || b_plus_re().as_ref().is_some_and(|re| re.is_match(&upper))
 }
 
 fn classify_net_class(net_name: &str) -> NetClass {
     let upper = net_name.to_uppercase();
-    if HV_CLASS_KEYWORDS.iter().any(|kw| upper.contains(kw)) {
+    if hv_class_re().iter().any(|re| re.is_match(&upper))
+        || b_plus_re().as_ref().is_some_and(|re| re.is_match(&upper))
+    {
         return NetClass::Hv;
     }
-    if GND_KEYWORDS.iter().any(|kw| upper.contains(kw)) {
+    if gnd_re().iter().any(|re| re.is_match(&upper)) {
         return NetClass::Gnd;
     }
-    if POWER_KEYWORDS.iter().any(|kw| upper.contains(kw)) {
+    if power_re().iter().any(|re| re.is_match(&upper)) {
         return NetClass::Power;
     }
     NetClass::Signal
@@ -1509,5 +1577,99 @@ mod tests {
         assert_eq!(checks, 1);
         // No violation should be reported for a NaN edge_dist (NaN < required is false).
         assert!(violations.is_empty());
+    }
+
+    // -----------------------------------------------------------------------
+    // Net-classification word-boundary fix (#1175).
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn selv_line_and_coil_nets_are_not_hv() {
+        // The exact nets the substring matcher misclassified as HV -- all
+        // declared SELV in `elec/domain_manifest.yaml`. The `-line` / `-coil`
+        // nets contain the "LINE"/"L1"/"L2" substrings but not as their own
+        // `_`-delimited token; the word-boundary matcher must not sweep them.
+        for net in [
+            "safety.ovp-line",
+            "safety.uvlo_logic-line",
+            "power_in.bypass_relay-coil1",
+            "power_in.bypass_relay-coil2",
+            "discharge.k_dis1-coil1",
+            "discharge.k_dis1-coil2",
+        ] {
+            assert_ne!(
+                classify_net_class(net),
+                NetClass::Hv,
+                "SELV net {net} must not classify as HV",
+            );
+        }
+    }
+
+    #[test]
+    fn genuine_hv_keyword_nets_still_hv() {
+        for net in [
+            "HV_BUS",
+            "AC_L",
+            "AC_N",
+            "MAINS_LIVE",
+            "HIGH_VOLTAGE",
+            "PHASE_A",
+            "LINE_OUT",
+            "NEUTRAL",
+            "PRIMARY_2",
+        ] {
+            assert_eq!(
+                classify_net_class(net),
+                NetClass::Hv,
+                "genuine HV net {net} must classify as HV",
+            );
+        }
+        for net in ["AC_L", "HV_BUS", "MAINS_LIVE"] {
+            assert!(is_hv_gate(net), "gate must fire for {net}");
+        }
+    }
+
+    #[test]
+    fn gnd_and_power_use_word_boundaries_too() {
+        assert_eq!(classify_net_class("GND"), NetClass::Gnd);
+        assert_eq!(classify_net_class("GND_plane"), NetClass::Gnd);
+        assert_eq!(classify_net_class("AGND"), NetClass::Gnd);
+        assert_eq!(classify_net_class("VCC_IO"), NetClass::Power);
+        assert_eq!(classify_net_class("+5V"), NetClass::Power);
+        assert_eq!(classify_net_class("+3V3_aux"), NetClass::Power);
+        // Hyphen is not a token separator; embedded keyword must not match.
+        assert_ne!(classify_net_class("gnd-aux"), NetClass::Gnd);
+        assert_ne!(classify_net_class("x+5v_rail"), NetClass::Power);
+        assert_ne!(classify_net_class("sense_gnd-hs"), NetClass::Gnd);
+    }
+
+    #[test]
+    fn embedded_keywords_do_not_match_without_boundary() {
+        assert_ne!(classify_net_class("safety-line"), NetClass::Hv);
+        assert_ne!(classify_net_class("myL1net"), NetClass::Hv);
+        assert_ne!(classify_net_class("coil2"), NetClass::Hv);
+        assert_ne!(classify_net_class("phasey"), NetClass::Hv);
+        assert_ne!(classify_net_class("superhot"), NetClass::Hv);
+        assert_ne!(classify_net_class("neutralized"), NetClass::Hv);
+        assert!(!is_hv_gate("safety-line"));
+    }
+
+    #[test]
+    fn over_match_simulation_real_net_set_no_hv_sweep() {
+        // Board-wide over-match check against the real net vocabulary the fix
+        // must not sweep into HV. Cf. #1174's SELV `-line`/`-coil` denial and
+        // #1162's "COIL" finding: keyword matching that over-matches is not
+        // the safe direction.
+        for net in [
+            "safety.ovp-line",
+            "safety.uvlo_logic-line",
+            "safety.peak-detect",
+            "power_in.bypass_relay-coil1",
+            "power_in.bypass_relay-coil2",
+            "discharge.k_dis1-coil1",
+            "discharge.k_dis1-coil2",
+        ] {
+            assert_ne!(classify_net_class(net), NetClass::Hv, "{net} swept into HV");
+        }
     }
 }
