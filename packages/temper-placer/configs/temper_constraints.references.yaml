@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: 223dd1d835438c21c3dc1886d0ebc422726b5964
+  measured_at_commit: 540364e84bd6e195d96a6e6b35679f4d5943b0c8
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -93,12 +93,25 @@ authority:
 # only its `(at ...)` line moved). Every alias/unresolved-component board
 # ref above is therefore verified unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+#
+# Re-pinned 2026-08-15 (fix/1178-blockers-zcd-config-tp3-1.8, commit
+# 540364e84): STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving
+# ONE footprint a second time: TP3 (safety.tp_ocp2_fault) from (122.4, 143.0)
+# to (121.9, 143.5) (0.5mm -X + 0.5mm +Y) to clear the 1.8mm FUNCTIONAL
+# creepage bar raised by #1226. Same position-only shape as the prior pin:
+# `(footprint ` count (168) and `Sheetpath` occurrence count (168) are
+# unchanged, and the Sheetpath->Reference map is identical before/after (the
+# same footprint, same sheetpath, same ref -- only its `(at ...)` line
+# moved). No alias/unresolved-component entry references TP3. Every
+# alias/unresolved-component board ref above is therefore verified
+# unaffected. The source export (elec/exports/temper.design-input.v1.json)
+# is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: 223dd1d835438c21c3dc1886d0ebc422726b5964
+  measured_at_commit: 540364e84bd6e195d96a6e6b35679f4d5943b0c8
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: ff441d8c79484336b9a8e972348bb3723b3fa36102ba43d0d6a1df80623be6bd
+      sha256: d2f795bc1d3b0da9203865e8983bc5849b2f38ed1bde2dc0718f00e408d43231
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
