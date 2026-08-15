@@ -139,7 +139,7 @@ passed to `ModelBuilder` differs:
 
 | arm | nets | raw vars | constraints | CNF vars | CNF clauses | solve |
 |---|---:|---:|---:|---:|---:|---|
-| FULL | 110 | 6,490,880 | 30,830 | ~62M (est.) | ~113M (est.) | **not attempted** (needs ~25–28 GB at 2-layer; ~124 GB at real 4-layer skeleton) |
+| FULL | 110 | 6,490,880 | 30,830 | ~62M (est.) | ~113M (est.) | **not attempted** (needs ~25–28 GB at 2-layer; ~182–200 GB at the real 4-layer skeleton) |
 | SINGLE (`w1_1`) | 1 | 59,008 | 30,030 | 59,008 | **12,284** | **SAT, 4.6 ms, RSS +17 MB** |
 
 The single-net arm collapses the CNF by ~4–5 orders of magnitude: with
@@ -183,10 +183,10 @@ route.)
 The machine has 62 GB. The observed "18 GB → 58 GB in ~15 s, every
 time, inside `_run_stage3`" is `encode_to_cnf` allocating at
 ~2.7 GB/s until the OOM killer fires; the process never reaches
-CaDiCaL's clause loading (which alone would need another ~77–88 GB).
+CaDiCaL's clause loading (which alone would need another ~117–135 GB).
 **Attribution is therefore: monolithic Stage 3 CNF encoding, not A\*,
 not `ModelBuilder.build()`** (which completes at ~1.5 GB), and not a
-leak — a fixed, intrinsic ~120–130 GB demand against a 62 GB machine.
+leak — a fixed, intrinsic ~182–200 GB demand against a 62 GB machine.
 
 **The "~1 GB / 8–11 min uninstrumented full route"** in the handoff is
 the **batched** recipe (`route_board.py --net-batching`, the only
@@ -222,7 +222,7 @@ monolith's intrinsic CNF demand.
    changes which nets get SAT topology (small nets first) rather than
    fixing the model size for the nets that remain.
 5. **CNF representation fixes (08-12-004 U1/U2)**: save ~42 GB of our-side
-   storage, but CaDiCaL's 77–88 GB share is untouched — do not make the
+   storage, but CaDiCaL's 117–135 GB share is untouched — do not make the
    monolith fit; worth doing anyway (free win, applies per-batch).
 
 **Not a fix**: a different cardinality encoding (totalizer/commander) —
