@@ -79,6 +79,45 @@ whose bodies are nearly touching. Those are real placement-level
 proximity problems this constraint newly forbids, independent of whether
 they happen to be the specific pair kicad-cli's DRU rule named.
 
+The pair the box constraint structurally cannot see: tank <-> DC-bus rails
+-----------------------------------------------------------------------------
+The one pair this module's own evidence doc measures as the board's
+highest-voltage shortfall — ``tank.c_tank1-p2`` vs the **DC-bus rails**
+(``+170V_BUS``, ``DC_BUS_RTN``), 2.0mm provided against 6.3mm PD2 /
+10.0mm PD3 required (``docs/evidence/2026-08-12-hv-hv-creepage-
+determination.md`` Sec 4.3, a 3.2x-5.0x shortfall) — is **not a
+component-pair at all**. The bus rails are *nets*: a net with no refdes
+can never appear in :func:`tank_creepage_pairs`, so the box constraint
+(and the old test that asserted on it) is structurally blind to exactly
+the pair that matters. The 2026-08-15 safety-assertion audit
+(``docs/evidence/2026-08-15-safety-assertion-audit-resumed.md`` Part 0)
+classified this as a real structural mask, not a documentation gap:
+``len(pairs) == 4 * 42`` would pass unchanged with the tank<->bus gap at
+2.0mm.
+
+This module therefore also exposes a **net-level** enumeration
+(:func:`tank_bus_net_pairs`) and a **copper-level** checker
+(:func:`check_tank_bus_creepage`) for exactly those pairs. The copper
+metric has two honest quantities:
+
+- **Exact pad-to-pad copper distance** (:func:`tank_bus_pad_gap_mm`, the
+  same ``pad_pair_distance`` kernel the REQ-SAFE-01 validator uses) — the
+  quantity kicad-cli measures for a pad-to-pad pair, with no box proxy.
+- **Pour containment** (:func:`tank_bus_pour_contained_pads`): when a
+  tank-node pad lies *inside* a bus-rail zone outline on a layer the pad
+  occupies, the pad-pad distance is NOT the copper gap — the pour
+  approaches the foreign pad to exactly the design's enforced netclass
+  clearance, so the design itself bounds the gap. Measured on the
+  committed board: C26's and R30's tank pads sit inside the ``DC_BUS_RTN``
+  pours on both F.Cu and B.Cu (both are THT, layer=all) — the "2.0mm
+  provided" of the evidence doc is physically real on the committed
+  board, not a hypothetical routing outcome.
+
+The checker reports both kinds against the PD3 margin, and the test pins
+the *enforced* figures (netclass clearance, DRU-emitted creepage, SSOT
+declared creepage) against the 6.3/10.0 requirement so the shortfall is a
+hard, labelled failure rather than a prose caveat.
+
 Scope: which components, and why
 ---------------------------------
 **Group A ("tank refs")**: every component with a pad on
@@ -142,7 +181,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.netlist import Component, Netlist, Pin
     from temper_placer.placer.cp_sat.model import CpSatModel
 
 logger = logging.getLogger(__name__)
@@ -152,11 +191,18 @@ __all__ = [
     "HV_TANK_CREEPAGE_PD3_MM",
     "DEFAULT_TANK_CREEPAGE_MM",
     "TANK_NODE_NET",
+    "TANK_BUS_RAIL_NETS",
     "TankCreepagePair",
+    "TankBusNetPair",
     "TankCreepageReport",
     "tank_node_refs",
     "other_hv_refs",
     "tank_creepage_pairs",
+    "tank_bus_net_pairs",
+    "tank_bus_pad_gap_mm",
+    "tank_bus_pour_contained_pads",
+    "enforced_tank_bus_clearance_mm",
+    "check_tank_bus_creepage",
     "find_tank_self_pairs",
     "tank_creepage_wire_constraints",
     "add_tank_creepage_to_model",
@@ -206,6 +252,20 @@ DEFAULT_TANK_CREEPAGE_MM: float = {
     "PD2": HV_TANK_CREEPAGE_PD2_MM,
     "PD3": HV_TANK_CREEPAGE_PD3_MM,
 }[_TANK_DEFAULT_POLLUTION_DEGREE]
+
+#: The DC-bus rail family the tank node's 570.5 Vrms sits against. Named
+#: explicitly rather than derived: the evidence doc's finding is
+#: specifically "tank.c_tank1-p2 <-> bus rails" and names ``+170V_BUS`` and
+#: ``DC_BUS_RTN`` (``docs/evidence/2026-08-12-hv-hv-creepage-determination.md``
+#: Sec 4.3); ``DC_BUS+``/``DC_BUS-`` are the same family in
+#: ``TEMPER_NET_ASSIGNMENTS`` (``core/design_rules.py``) and are included so
+#: a board that renames or expands the rail set is caught rather than
+#: silently dropping coverage. These are NETS, not components: the box-level
+#: :func:`tank_creepage_pairs` can never name them, which is the structural
+#: gap :func:`tank_bus_net_pairs` closes.
+TANK_BUS_RAIL_NETS: frozenset[str] = frozenset(
+    {"+170V_BUS", "DC_BUS_RTN", "DC_BUS+", "DC_BUS-"}
+)
 
 
 #: Classes this module treats as equivalent to "HighVoltage" for Group B
@@ -318,6 +378,228 @@ def find_tank_self_pairs(netlist: Netlist, net_class_map: dict[str, str] | None 
         if other_nets:
             out.append(c.ref)
     return sorted(out)
+
+
+# ---------------------------------------------------------------------------
+# Tank <-> DC-bus rail pairs: the net-level pair the box constraint cannot
+# see, plus the copper-level checker that measures it. See the module
+# docstring's "The pair the box constraint structurally cannot see" section
+# for why this exists and what the two quantities mean.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TankBusNetPair:
+    """One (tank ref, DC-bus rail net) pair.
+
+    The bus rail is a NET, not a component: this pair can never appear in
+    :func:`tank_creepage_pairs` (a net has no refdes), which is exactly why
+    the box-level constraint was blind to the board's highest-voltage
+    shortfall. ``bus_net`` is a net NAME; asserting it against the board's
+    component refdes set is a falsifier that catches a future regression
+    where the pair silently collides with (or is absorbed by) the
+    component enumeration.
+    """
+
+    tank_ref: str
+    bus_net: str
+
+
+def tank_bus_net_pairs(
+    netlist: Netlist,
+    net_class_map: dict[str, str] | None = None,
+) -> list[TankBusNetPair]:
+    """Every (tank ref, DC-bus rail net) pair whose rail is both
+    HV-classified and present on the board, sorted for deterministic order.
+
+    A rail that is declared in :data:`TANK_BUS_RAIL_NETS` but absent from
+    the board's netlist (``DC_BUS+``/``DC_BUS-`` today) yields no pairs --
+    there is nothing on the board to measure. A rail present but
+    re-classified out of HV drops out too, which is a real coverage
+    regression and is caught by the test's pair-count pin.
+    """
+    # Annotated list[str] (not inferred) so the salted-hash gate can prove
+    # these are sorted lists, not sets: `tank_refs` is set-typed earlier in
+    # this module (tank_creepage_pairs), and `sorted(<set>)` alone does not
+    # clear that typing in the gate's conservative analysis.
+    tank_refs: list[str] = sorted(tank_node_refs(netlist))
+    hv_nets = _hv_net_names(net_class_map)
+    present = frozenset(n.name for n in netlist.nets)
+    bus: list[str] = sorted(TANK_BUS_RAIL_NETS & hv_nets & present)
+    return [TankBusNetPair(a, b) for a in tank_refs for b in bus]
+
+
+def _pad_world_spec(
+    comp: Component, pin: Pin
+) -> tuple[float, float, str, float, float, float, float]:
+    """One pin as ``pad_pair_distance``'s pad tuple in BOARD coordinates.
+
+    ``(width, height, shape, cx, cy, rotation_rad, roundrect_ratio)``.
+    World center = local pin position rotated by the component's quadrant
+    rotation, added to the component center; rotation is the quadrant plus
+    the pad's own intrinsic rotation. Bit-identical to the production
+    REQ-SAFE-01 pad parser (verified against
+    ``temper_drc_rs.req_safe_01_component_pads`` on the real board -- both
+    use ``temper_geometry.rotate_local_to_world_py``, see
+    ``requirements/validators/_copper.py::_rotate``).
+    """
+    import math
+
+    import temper_geometry as _tg
+
+    q = int(comp.initial_rotation_quadrant or 0)
+    dx, dy = _tg.rotate_local_to_world_py(
+        pin.position[0], pin.position[1], math.radians(q * 90)
+    )
+    cx, cy = comp.initial_position
+    rotation_rad = math.radians(q * 90) + math.radians(float(pin.pad_rotation_deg or 0.0))
+    return (pin.width, pin.height, pin.shape, cx + dx, cy + dy, rotation_rad, pin.roundrect_ratio)
+
+
+def _bus_net_pad_specs(netlist: Netlist, bus_net: str) -> list[tuple]:
+    """Every pad on ``bus_net`` as a board-coordinate pad tuple."""
+    return [
+        _pad_world_spec(c, p)
+        for c in netlist.components
+        for p in c.pins
+        if p.net == bus_net
+    ]
+
+
+def tank_bus_pad_gap_mm(netlist: Netlist, pair: TankBusNetPair) -> float:
+    """Exact copper-to-copper distance between ``pair.tank_ref``'s pads on
+    the tank node and every pad on ``pair.bus_net``.
+
+    Uses ``pad_geometry.pad_pair_distance`` -- the exact shape-correct
+    edge-to-edge kernel (no box proxy, no center-to-center optimism): the
+    same quantity kicad-cli measures for a pad-to-pad pair. ``inf`` when
+    either side has no pads (the bus net is present in the netlist by
+    construction of :func:`tank_bus_net_pairs`, so only a tank ref with no
+    tank-net pad can produce it).
+    """
+    from temper_placer.core.pad_geometry import pad_pair_distance
+
+    tank_ref = next(c for c in netlist.components if c.ref == pair.tank_ref)
+    tank_pads = [_pad_world_spec(tank_ref, p) for p in tank_ref.pins if p.net == TANK_NODE_NET]
+    bus_pads = _bus_net_pad_specs(netlist, pair.bus_net)
+    if not tank_pads or not bus_pads:
+        return float("inf")
+    return min(pad_pair_distance(a, b) for a in tank_pads for b in bus_pads)
+
+
+def tank_bus_pour_contained_pads(
+    netlist: Netlist,
+    pair: TankBusNetPair,
+    zones: list,
+) -> list[tuple[str, tuple[str, ...]]]:
+    """Tank-node pads of ``pair.tank_ref`` lying INSIDE a zone outline whose
+    net is ``pair.bus_net``, on a layer the pad occupies.
+
+    Returns ``[(pad_label, layers), ...]``. ``pad_label`` is
+    ``"<ref>.<number>"``; ``layers`` is the sorted tuple of zone layers
+    containing the pad (e.g. ``("B.Cu", "F.Cu")`` for a THT pad inside a
+    two-layer pour).
+
+    Why this is a copper-level quantity, not a placement artifact: the zone
+    *fill* approaches a foreign pad to exactly the design's enforced
+    netclass clearance, so for a contained pad the pad-pad distance is NOT
+    the copper gap -- the pour is between them and the design itself bounds
+    the gap to its clearance value. Measured on the committed board: C26's
+    and R30's tank pads are inside the ``DC_BUS_RTN`` pours on both layers
+    (both are THT, layer=all) -- the evidence doc's "2.0mm provided" is
+    physical copper geometry, not a routing hypothetical.
+
+    ``zones`` are ``temper_placer.core.board.Zone`` objects (from
+    ``parse_kicad_pcb_v6(...).zones``), each with ``net_classes``,
+    ``layers`` and ``polygon``. A pad occupies layer ``L`` when its pin
+    layer is ``"all"`` (THT) or ``L`` itself.
+    """
+    from shapely.geometry import Point, Polygon
+
+    tank_ref = next(c for c in netlist.components if c.ref == pair.tank_ref)
+    per_pad: dict[str, set[str]] = {}
+    for p in tank_ref.pins:
+        if p.net != TANK_NODE_NET:
+            continue
+        pt = Point(_pad_world_spec(tank_ref, p)[3:5])
+        for z in zones:
+            if pair.bus_net not in (z.net_classes or []):
+                continue
+            layers = set(z.layers) & _pin_layers(p)
+            if not layers:
+                continue
+            if Polygon(z.polygon).covers(pt):
+                per_pad.setdefault(f"{pair.tank_ref}.{p.number}", set()).update(layers)
+    return sorted((label, tuple(sorted(layers))) for label, layers in per_pad.items())
+
+
+def _pin_layers(pin: Pin) -> frozenset[str]:
+    """Layers a pin's copper occupies: both faces for a THT pad, else its
+    declared layer."""
+    if pin.is_pth or pin.layer == "all":
+        return frozenset({"F.Cu", "B.Cu"})
+    return frozenset({pin.layer})
+
+
+def enforced_tank_bus_clearance_mm() -> float:
+    """The same-domain HV clearance the design enforces for a
+    tank<->bus-rail pair, in mm.
+
+    KiCad's pairwise clearance between two nets is the max of their two
+    netclasses' clearances; both classes involved here (``HighVoltageTank``
+    and ``HighVoltage``) currently declare 2.0, so this returns 2.0. The
+    governing requirement for the pair is Table 18 functional creepage at
+    the pair's >500-800V band: 6.3mm PD2 / 10.0mm PD3 -- see
+    ``HV_TANK_CREEPAGE_PD2_MM``'s comment. The 2.0 figure is the
+    reinforced mains<->PELV barrier value re-applied as same-domain HV<->HV
+    clearance (``scripts/generate_kicad_dru.py:63-67``, N1 in
+    ``docs/evidence/2026-08-15-safety-assertion-audit-resumed.md``); this
+    function exists so the test can assert the enforced figure against the
+    requirement and FAIL until the value is corrected.
+    """
+    from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+    tank_cls = TEMPER_NET_CLASSES["HighVoltageTank"].clearance
+    bus_cls = TEMPER_NET_CLASSES["HighVoltage"].clearance
+    return float(max(tank_cls, bus_cls))
+
+
+def check_tank_bus_creepage(
+    netlist: Netlist,
+    pairs: list[TankBusNetPair],
+    margin_mm: float = DEFAULT_TANK_CREEPAGE_MM,
+    zones: list | None = None,
+) -> list[tuple[TankBusNetPair, float, str]]:
+    """Recompute the tank<->bus copper gap for every net pair and return
+    every pair whose gap is under ``margin_mm``.
+
+    Returns ``(pair, gap_mm, kind)`` with ``kind`` one of:
+
+    - ``"pad-pad"``: exact pad-to-pad copper distance (:func:`tank_bus_pad_gap_mm`).
+    - ``"pour-bounded"``: a tank pad is inside a bus-net pour outline on a
+      layer it occupies; the reported ``gap_mm`` is the design's enforced
+      netclass clearance (:func:`enforced_tank_bus_clearance_mm`) -- the
+      pour approaches the pad to exactly that clearance, so the design
+      itself bounds the copper gap to a value under the requirement.
+
+    ``zones`` must be supplied for pour-bounded detection (``None`` keeps
+    the check pad-pad only, which is the honest limit of netlist-only
+    data). Independent of the solver: recomputes from coordinates, same
+    discipline as :func:`check_tank_creepage_separation`.
+    """
+    violations: list[tuple[TankBusNetPair, float, str]] = []
+    for pair in pairs:
+        if zones is not None:
+            contained = tank_bus_pour_contained_pads(netlist, pair, zones)
+            if contained:
+                bound = enforced_tank_bus_clearance_mm()
+                if bound < margin_mm:
+                    violations.append((pair, bound, "pour-bounded"))
+                continue  # pad-pad distance is not the gap when a pour bounds it
+        gap = tank_bus_pad_gap_mm(netlist, pair)
+        if gap < margin_mm:
+            violations.append((pair, gap, "pad-pad"))
+    return violations
 
 
 # ---------------------------------------------------------------------------
