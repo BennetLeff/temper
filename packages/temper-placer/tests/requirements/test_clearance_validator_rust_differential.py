@@ -474,5 +474,9 @@ class TestRequirementMatrix:
             "min_clearance_mm": 6.0, "min_creepage_mm": 8.0, "design_value_mm": 10.0,
         }
         assert matrix[("LV_CONTROL", "LV_CONTROL", "functional")] == {
-            "min_clearance_mm": 0.5, "min_creepage_mm": 1.0, "design_value_mm": 2.0,
+            # min_creepage_mm CORRECTED 2026-08-15 1.0 -> 1.8 (IEC 60335-1
+            # Table 18 row i <=50V, Material Group IIIa/IIIb, PD3 -- the
+            # as-built governing pollution degree; the 1.0 pin was a known-
+            # low value the code conceded sat under even Table 18's PD2 1.1).
+            "min_clearance_mm": 0.5, "min_creepage_mm": 1.8, "design_value_mm": 2.0,
         }

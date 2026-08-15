@@ -28,6 +28,7 @@ from temper_placer.router_v6.clearance_check import (
     verify_clearance,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
+from tests.router_v6._ipc2221_brackets import IPC2221_CREEPAGE_BRACKETS
 from tests.router_v6.dfm_boundary_constants import (
     COORD_EXTREME,
     COORD_INF,
@@ -186,31 +187,16 @@ def test_clearance_threshold_nonpositive_behavior(min_clearance, expect_pass):
 
 @pytest.mark.parametrize(
     "voltage, expected_creepage",
+    # bracket boundaries (IPC-2221 table from creepage_check; UNSOURCED --
+    # no recovered IPC-2221 table in docs/, values are SNAPSHOT pins of the
+    # Rust implementation; single shared data copy in
+    # tests/router_v6/_ipc2221_brackets.py)
     [
-        # bracket boundaries (IPC-2221 table from creepage_check)
-        (0, 0.13),
-        (15, 0.13),
-        (16, 0.25),
-        (30, 0.25),
-        (31, 0.50),
-        (50, 0.50),
-        (51, 0.80),
-        (100, 0.80),
-        (101, 1.25),
-        (150, 1.25),
-        (151, 1.60),
-        (170, 1.60),
-        (171, 3.20),
-        (250, 3.20),
-        (251, 6.40),
-        (300, 6.40),
-        (301, 8.00),
-        (600, 8.00),
-        (601, 12.00),
-        (1000, 12.00),
-        # extreme
-        (1e6, 12.00),
-    ],
+        case
+        for lo, hi, mm in IPC2221_CREEPAGE_BRACKETS
+        for case in ((lo, mm), (hi, mm))
+    ]
+    + [(1e6, 12.00)],  # extreme
 )
 def test_voltage_bracket_transitions(voltage, expected_creepage):
     """``_get_required_clearance`` bracket transitions for HV nets.

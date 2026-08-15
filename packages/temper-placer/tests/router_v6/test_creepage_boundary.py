@@ -23,6 +23,7 @@ from temper_placer.router_v6.creepage_check import (
     verify_creepage,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
+from tests.router_v6._ipc2221_brackets import IPC2221_CREEPAGE_BRACKETS
 from tests.router_v6.dfm_boundary_constants import (
     COORD_INF,
     COORD_NAN,
@@ -440,39 +441,19 @@ class TestCoordinateBoundaries:
 # ===================================================================
 
 
-# (voltage, expected_creepage_mm)
-_BRACKET_CASES = [
-    # ≤ 15 V → 0.13
-    (0.0, 0.13),
-    (15.0, 0.13),
-    # 16-30 V → 0.25
-    (15.000001, 0.25),
-    (30.0, 0.25),
-    # 31-50 V → 0.5
-    (30.000001, 0.5),
-    (50.0, 0.5),
-    # 51-100 V → 0.8
-    (50.000001, 0.8),
-    (100.0, 0.8),
-    # 101-150 V → 1.25
-    (100.000001, 1.25),
-    (150.0, 1.25),
-    # 151-170 V → 1.6
-    (150.000001, 1.6),
-    (170.0, 1.6),
-    # 171-250 V → 3.2
-    (170.000001, 3.2),
-    (250.0, 3.2),
-    # 251-300 V → 6.4
-    (250.000001, 6.4),
-    (300.0, 6.4),
-    # 301-600 V → 8.0
-    (300.000001, 8.0),
-    (600.0, 8.0),
-    # 601-1000 V → 12.0 (and > 600)
-    (600.000001, 12.0),
-    (1000.0, 12.0),
+# (voltage, expected_creepage_mm) -- derived from the single shared
+# IPC-2221 bracket data (UNSOURCED: no recovered IPC-2221 table in docs/,
+# values are SNAPSHOT pins of the Rust implementation; see
+# tests/router_v6/_ipc2221_brackets.py). Structure: the lowest bracket's
+# floor, then each bracket's top, then a just-above-top epsilon case for
+# every non-final bracket.
+_BRACKET_CASES: list[tuple[float, float]] = [
+    (0.0, IPC2221_CREEPAGE_BRACKETS[0][2])  # ≤ 15 V → 0.13
 ]
+for _i, (_lo, hi, mm) in enumerate(IPC2221_CREEPAGE_BRACKETS):
+    _BRACKET_CASES.append((float(hi), mm))
+    if _i + 1 < len(IPC2221_CREEPAGE_BRACKETS):
+        _BRACKET_CASES.append((float(hi) + 1e-6, IPC2221_CREEPAGE_BRACKETS[_i + 1][2]))
 
 
 class TestBracketThresholds:

@@ -284,29 +284,34 @@ class ClearanceResult:
 # table -- tested directly by ``test_requirement_matrix_values``.
 #
 # ``min_clearance_mm`` is intentionally NOT changed by either the
-# pollution-degree correction or the PD2 adoption above: IEC 60335-1 Table 16
-# (clearance) is keyed to rated impulse voltage (via Table 15's
-# overvoltage-category lookup), not to pollution degree or material group --
-# the sole pollution-degree-dependent entry in Table 16 is a footnote bumping
-# the lowest (1500V impulse) row from ~0.5mm to 0.8mm at PD3, a row and
-# voltage class this project's >=2500V-impulse boundaries don't use. Every
-# clearance figure below (6.0mm reinforced, 3.0mm basic) already meets or
-# exceeds Table 16's 400V-row minimum regardless of pollution degree --
-# clearance was already conservative, only creepage moves with pollution
-# degree. See the evidence doc for the full reconciliation of Sec 4.2's
-# inconsistent "Design Value" column, which is not used as a basis for
-# anything in this table.
+# pollution-degree correction or the PD2 adoption above, and is flagged
+# **UNSOURCED** as of 2026-08-15: the 3.0mm basic / 6.0mm reinforced
+# figures below are NOT IEC 60335-1 Table 16 values (Table 16 is keyed to
+# rated impulse voltage -- rows 330/500/800/1500/2500/4000/6000/8000/10000 V
+# -- and its entire value set is {0.5, 1.5, 3.0, 5.5, 8.0, 11.0}; the legacy
+# "IEC 60335-1 Table 16 working isolation at 400V" citation attached to the
+# 6.0 figure is debunked twice over: 400V is not a Table 16 row and 6.0mm is
+# not a Table 16 value -- docs/evidence/2026-07-28-creepage-determination-
+# brainstorm.md). The figures are non-binding on a flat board -- IEC 60664-1
+# requires creepage >= clearance, so the 4.0/8.0mm creepage floor dominates
+# every clearance figure below it -- but they remain unsourced and must be
+# re-derived before being relied on. The repo's cited derivation for the
+# reinforced figure exists (`scripts/generate_kicad_dru.py`'s
+# HV_INTERNAL_CLEARANCE_MM: Table 16 0.5mm at 1500V rated impulse -> cl.
+# 29.1.3 next higher step 1.5mm + cl. 29.1 soldered-construction adder
+# 0.5mm = 2.0mm); substituting it is a separate, attributed decision, not
+# made here.
 #
-# The LV_CONTROL<->LV_CONTROL FUNCTIONAL row is intentionally NOT corrected
-# here (by either the PD3 correction or the PD2 adoption) even though the
-# same pollution-degree finding applies to it in principle (IEC 60335-1
-# Table 18 row i, <=50V, Material Group IIIa/IIIb reads 1.1mm PD2 / 1.8mm
-# PD3, vs this row's current 1.0mm, already slightly under even the PD2
-# figure). This is a same-domain (SELV-to-SELV) functional boundary rather
-# than a mains/DC_BUS-to-SELV safety barrier, and needs its own check of
-# whether clause 29.2.4's short-circuit-test exemption already applies
-# before changing -- flagged for a follow-up, not corrected in this pass;
-# see the evidence doc Sec "What this determination does not do."
+# The LV_CONTROL<->LV_CONTROL FUNCTIONAL row's min_creepage_mm is
+# **CORRECTED 2026-08-15** from the legacy 1.0mm pin to **1.8mm**: IEC
+# 60335-1 Table 18 row i (<=50V), Material Group IIIa/IIIb reads 1.1mm
+# PD2 / 1.8mm PD3 (CITED-PRIMARY, docs/evidence/2026-08-12-hv-hv-creepage-
+# determination.md), and the 1.0mm pin was a known-low value the code itself
+# conceded sat under even the PD2 figure. PD3 governs the as-built board
+# (forced-air vented, no cover/gasket/partition -- handoff 2026-08-15 §7.C),
+# so the PD3 cell 1.8mm is the enforced value. Clause 29.2.4's
+# short-circuit-test exemption is NOT claimed here; if it applies, that is a
+# separate documented determination.
 IEC60335_REQUIREMENTS = {
     (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
         "min_clearance_mm": 3.0,
@@ -335,7 +340,7 @@ IEC60335_REQUIREMENTS = {
     },
     (VoltageDomain.LV_CONTROL, VoltageDomain.LV_CONTROL, InsulationType.FUNCTIONAL): {
         "min_clearance_mm": 0.5,
-        "min_creepage_mm": 1.0,
+        "min_creepage_mm": 1.8,
         "design_value_mm": 2.0,
     },
 }
@@ -435,7 +440,9 @@ def _intra_component_boundary_components(
     different footprint, a different part, or a milled isolation slot.
 
     Restricted to ``domain_a != domain_b`` on purpose. The one same-domain
-    matrix row is LV_CONTROL<->LV_CONTROL FUNCTIONAL (0.5mm/1.0mm), and
+    matrix row is LV_CONTROL<->LV_CONTROL FUNCTIONAL (0.5mm clearance /
+    1.8mm creepage -- creepage corrected 2026-08-15 from the 1.0 pin to
+    Table 18 row i PD3), and
     applying it inside a single footprint would flag the fixed, qualified pad
     pitch of essentially every multi-pad SELV part. Measured on this board
     rather than assumed: it adds **41 further violation records across 33

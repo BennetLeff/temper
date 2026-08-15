@@ -1091,13 +1091,39 @@ pub fn req_safe_01_check_creepage_path(
 }
 
 /// The 6 IEC60335_REQUIREMENTS rows, in dict insertion order.
+///
+/// Value provenance (2026-08-15 safety-assertion audit; see
+/// docs/evidence/2026-07-28-creepage-determination-brainstorm.md for the
+/// recovered CITED-PRIMARY tables):
+///
+/// - `min_creepage_mm` for the HV<->SELV/ISOLATED rows (4.0 basic / 8.0
+///   reinforced) traces to Table 17 row iv (>250-400 V), Material Group
+///   IIIa/IIIb, PD2, plus clause 29.2.3 (reinforced = 2x basic) -- the
+///   currently-ENFORCED PD2 figure per the owner's sealed-compartment
+///   decision (docs/evidence/2026-07-30-pd2-enclosure-decision.md); the
+///   PD3 fallback is 6.3/12.6.
+/// - `min_clearance_mm` (3.0 basic / 6.0 reinforced) is **UNSOURCED**: it
+///   is not a Table 16 value (Table 16's value set is {0.5, 1.5, 3.0, 5.5,
+///   8.0, 11.0}) and the legacy "Table 16 working isolation at 400V"
+///   citation is debunked (Table 16 is keyed to rated impulse voltage, has
+///   no 400V row). Non-binding on a flat board (creepage >= clearance via
+///   IEC 60664-1 cl. 5.1.2 -- the 8.0mm creepage floor dominates), but must
+///   be re-sourced before reliance. Corrected value candidates exist
+///   (2.0mm reinforced via cl. 29.1.3 + cl. 29.1 soldering adder --
+///   `scripts/generate_kicad_dru.py`'s HV_INTERNAL_CLEARANCE_MM) but are
+///   NOT substituted here; that is a separate, attributed decision.
+/// - `min_creepage_mm` for the LV_CONTROL<->LV_CONTROL FUNCTIONAL row
+///   (1.8) traces to Table 18 row i (<=50 V), Material Group IIIa/IIIb,
+///   PD3 (the as-built governing pollution degree per the 2026-08-11 PD2/PD3
+///   decision). CORRECTED 2026-08-15 from the known-low 1.0 pin, which the
+///   code itself conceded was under even Table 18's PD2 value of 1.1.
 const MATRIX_ROWS: [(&str, &str, &str, f64, f64, f64); 6] = [
     ("MAINS", "LV_CONTROL", "basic", 3.0, 4.0, 6.0),
     ("MAINS", "LV_CONTROL", "reinforced", 6.0, 8.0, 10.0),
     ("DC_BUS", "LV_CONTROL", "basic", 3.0, 4.0, 6.0),
     ("DC_BUS", "LV_CONTROL", "reinforced", 6.0, 8.0, 10.0),
     ("MAINS", "ISOLATED", "reinforced", 6.0, 8.0, 10.0),
-    ("LV_CONTROL", "LV_CONTROL", "functional", 0.5, 1.0, 2.0),
+    ("LV_CONTROL", "LV_CONTROL", "functional", 0.5, 1.8, 2.0),
 ];
 
 /// `verify_iec60335_compliance(placement, voltage_domains)` — full matrix

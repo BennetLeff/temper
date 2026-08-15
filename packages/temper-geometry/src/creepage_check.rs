@@ -245,6 +245,16 @@ fn min_clearance_distance(segs1: &[Seg], segs2: &[Seg]) -> (f64, f64, f64) {
 /// simplified IPC-2221 voltage→creepage table.  NaN/inf raise (the
 /// Python wrapper surfaces this as ValueError); negative voltages fall
 /// through to the lowest bracket, exactly like the reference.
+///
+/// UNSOURCED (flagged 2026-08-15, safety-assertion audit): this table is
+/// hedged in-source as "(simplified)" and there is NO recovered IPC-2221
+/// table anywhere in docs/ -- the values are SNAPSHOT pins of this
+/// implementation, not verified against primary text. Do not present them
+/// as a sourced IPC-2221 figure. The bracket data is duplicated in
+/// tests/router_v6/_ipc2221_brackets.py (single shared test-data copy,
+/// UNSOURCED label there) and in this crate's own unit test
+/// `required_creepage_brackets` below; `_calculate_required_creepage`'s
+/// docstring documents the table for the Python surface.
 fn required_creepage_bracket(voltage: f64) -> f64 {
     if voltage <= 15.0 {
         0.13
@@ -566,6 +576,10 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn required_creepage_brackets() {
+        // SNAPSHOT pin of the (simplified) IPC-2221 bracket table. UNSOURCED:
+        // no recovered IPC-2221 table exists in docs/; see the
+        // `required_creepage_bracket` doc comment. Shared test data lives in
+        // tests/router_v6/_ipc2221_brackets.py.
         assert_eq!(required_creepage_bracket(15.0), 0.13);
         assert_eq!(required_creepage_bracket(15.000001), 0.25);
         assert_eq!(required_creepage_bracket(50.0), 0.5);

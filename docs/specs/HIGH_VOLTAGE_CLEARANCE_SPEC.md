@@ -147,6 +147,21 @@ including the resonant-tank node.
 
 Based on IEC 60664-1 Table F.2 for Overvoltage Category III, Pollution Degree 2:
 
+> **FLAGGED 2026-08-15 (safety-assertion audit):** two problems with this
+> table's basis. (1) **OVC III vs OVC II**: IEC 60335-1 cl. 29.1 places
+> appliances in overvoltage category **II**, not III
+> (docs/evidence/2026-08-12-hv-clearance-adequacy.md; handoff 2026-08-15
+> §9) -- an OVC III-based table is the wrong column for this appliance. The
+> repo's OVC II-cited clearance derivation is
+> `scripts/generate_kicad_dru.py`'s `HV_INTERNAL_CLEARANCE_MM` (Table 16
+> 0.5mm at 1500V rated impulse -> cl. 29.1.3 next higher step 1.5mm + cl.
+> 29.1 soldered-construction adder 0.5mm = **2.0mm**). (2) The "Design
+> Value" column's 6.0mm at 400V is **UNSOURCED** -- IEC 60335-1 Table 16
+> (the clearance table the repo actually recovered) has no 400V row and no
+> 6.0mm value; 6.0mm appears in no recovered table. This table is retained
+> as-is (values unchanged) with the flag; re-deriving it is a separate
+> attributed task.
+
 | Working Voltage (V) | Basic (mm) | Reinforced (mm) | Design Value (mm) |
 |--------------------|------------|-----------------|-------------------|
 | 50 | 0.5 | 1.0 | 1.5 |
@@ -223,14 +238,20 @@ board) would take the next row up.
 | IGBT tab to LV trace | Reinforced | 400V | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
 | Within SELV | Functional | 15V | 0.5mm | 1.0mm |
 
-**Within SELV (functional) row not corrected in this pass.** The same PD3
-finding applies in principle (Table 18 row i, ≤50V, PD3, Material Group
-IIIa/IIIb = 1.8mm, vs. this row's 1.0mm, which was already slightly under
-Table 18's own PD2 figure of 1.1mm at this row) but this is a same-domain
-SELV-to-SELV functional boundary, not a mains/DC-bus-to-SELV safety barrier,
-and needs its own check of whether clause 29.2.4's short-circuit-test
-exemption already applies before being changed. Flagged, not corrected
-here -- see `docs/evidence/2026-07-30-pollution-degree-determination.md`.
+**Within SELV (functional) row corrected 2026-08-15.** `Min Required`
+0.5mm here is the clearance floor (Table 16, <=1500V rated impulse); the
+creepage figure enforced by the requirement matrix's
+LV_CONTROL<->LV_CONTROL FUNCTIONAL row is **1.8mm** -- IEC 60335-1 Table 18
+row i (<=50V), Material Group IIIa/IIIb, PD3 (CITED-PRIMARY,
+`docs/evidence/2026-08-12-hv-hv-creepage-determination.md`), the as-built
+governing pollution degree (handoff 2026-08-15 §7.C). The prior 1.0mm
+figure was a known-low pin the code itself conceded sat under even Table
+18's PD2 value of 1.1. This row is a same-domain SELV-to-SELV functional
+boundary, not a mains/DC-bus-to-SELV safety barrier; no clause 29.2.4
+short-circuit-test exemption is claimed here. The matrix
+(`validators/clearance.py` `IEC60335_REQUIREMENTS`, mirrored in
+`temper-drc-rs/src/req_safe_01.rs` `MATRIX_ROWS`) is authoritative; this
+spec row mirrors it for documentation.
 
 ## 6. Isolation Barrier Design
 

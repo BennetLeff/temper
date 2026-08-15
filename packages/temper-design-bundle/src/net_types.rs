@@ -518,6 +518,19 @@ fn power_plane_spec(py: Python<'_>) -> PyResult<Py<NetTypeSpec>> {
     )
 }
 
+// UNSOURCED (flagged 2026-08-15): MAINS_HV_SPEC's clearance_mm 6.0 /
+// creepage_mm 6.0 are legacy figures in NO recovered table (IEC 60335-1
+// Table 16 value set {0.5, 1.5, 3.0, 5.5, 8.0, 11.0}; Table 17 row iv
+// >250-400V gives 4.0mm PD2 / 6.3mm PD3 basic, IIIa/IIIb); the original
+// "Table 16 working isolation at 400V" citation is debunked
+// (docs/evidence/2026-07-28-creepage-determination-brainstorm.md). This
+// whole VoltageClass/NetTypeSpec legacy value family (incl. the 14.0
+// creepage base in `get_creepage_mm`) is being migrated to
+// Provenance-carrying values on feat/safety-value-provenance-types
+// (safety_value.rs labels the 14.0 family `Fabricated`); values are NOT
+// changed here to avoid double-migrating. See also the `validate()`
+// "Reference: IEC 60335-1 Table 17/Table 16" error strings below, which
+// cite the same unsourced bases.
 fn mains_hv_spec(py: Python<'_>) -> PyResult<Py<NetTypeSpec>> {
     Py::new(
         py,
