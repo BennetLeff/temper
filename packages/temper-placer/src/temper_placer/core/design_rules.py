@@ -70,6 +70,19 @@ TEMPER_NET_CLASSES = {
     # match netclass_rules.yaml -- the file the router actually consumes --
     # rather than the other direction, since 3.0mm is the value that is
     # actually sufficient.
+    # UNSOURCED (flagged 2026-08-15, safety-assertion audit): clearance=6.0
+    # and creepage_mm=6.0 below are NOT IEC 60335-1 Table 16 values (Table
+    # 16 is keyed to rated impulse voltage; its value set is {0.5, 1.5, 3.0,
+    # 5.5, 8.0, 11.0}) and the legacy "IEC 60335-1 Table 16 working isolation
+    # at 400V" citation is debunked twice over: 400V is not a Table 16 row
+    # and 6.0mm is not a Table 16 value (docs/evidence/2026-07-28-creepage-
+    # determination-brainstorm.md). 6.0mm is also not a Table 17/18 creepage
+    # cell at any row applicable to 120-240V mains. This table is the
+    # placer-feasibility model; the fab-authoritative enforcement is
+    # scripts/generate_kicad_dru.py's cited figures. Values NOT changed
+    # (re-sourcing is a separate attributed decision); the debunked
+    # citation was removed from netclass_rules.yaml's matching entry in
+    # the same pass.
     "ACMains": NetClassRules(
         name="ACMains",
         trace_width=3.0,
@@ -137,6 +150,12 @@ TEMPER_NET_CLASSES = {
         via_drill=0.6,
         via_template="Via3x3",
         voltage_v=400.0,
+        # creepage_mm 6.0: UNSOURCED legacy figure (flagged 2026-08-15) --
+        # not a recovered Table 17 value at row iv (>250-400V: 4.0mm PD2 /
+        # 6.3mm PD3 basic, IIIa/IIIb; reinforced doubles 8.0/12.6mm). The
+        # fab-authoritative figure is scripts/generate_kicad_dru.py's
+        # HV_CREEPAGE_ENFORCED_MM (12.6mm, PD3-pinned, cited). See the
+        # matching note in netclass_rules.yaml.
         creepage_mm=6.0,
         routing_strategy="plane_required",
         dru_priority=20,
@@ -378,11 +397,21 @@ TEMPER_NET_CLASSES = {
         via_drill=0.4,
         via_template="Via1x1",
         voltage_v=400.0,
+        # creepage_mm 6.0 inherited from HighVoltage: UNSOURCED legacy
+        # figure (flagged 2026-08-15) -- see HighVoltage's note above.
         creepage_mm=6.0,
         dru_priority=22,
         required_layer=None,
         safety_category="HV",
     ),
+    # UNSOURCED (flagged 2026-08-15): HighVoltageIsolated's clearance=6.0
+    # and creepage_mm=6.0 are legacy figures -- 6.0mm is in NO recovered
+    # table (Table 16 value set {0.5, 1.5, 3.0, 5.5, 8.0, 11.0}; Table 17
+    # row iv gives 4.0/8.0mm PD2 and 6.3/12.6mm PD3 for this class's
+    # voltage band), and the original "Table 16 working isolation at 400V"
+    # citation is debunked. Fab-authoritative enforcement is
+    # scripts/generate_kicad_dru.py's cited figures. Values unchanged --
+    # re-sourcing is a separate attributed decision.
     "HighVoltageIsolated": NetClassRules(
         name="HighVoltageIsolated",
         trace_width=2.0,

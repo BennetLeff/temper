@@ -209,6 +209,17 @@ Clearance requirements between different net classes (in mm):
 - HV-Iso to LV clearance (6mm) based on reinforced insulation requirement
 - ACMains clearances based on IEC 60335-1 Table 16
 
+> **UNSOURCED (flagged 2026-08-15):** the "ACMains clearances based on IEC
+> 60335-1 Table 16" note is **debunked** -- Table 16 is keyed to *rated
+> impulse voltage* (rows 330/500/800/1500/2500/4000/6000/8000/10000 V),
+> has no 400V row, and its value set {0.5, 1.5, 3.0, 5.5, 8.0, 11.0} has no
+> 6.0mm value (docs/evidence/2026-07-28-creepage-determination-brainstorm.md).
+> Several cells of this §5 matrix (6.0mm values) appear in no recovered
+> table; the matrix also disagrees with `netclass_rules.yaml`'s class_pairs
+> (e.g. HV-to-LV at 8.0mm here vs 6.0mm there) -- a discrepancy flagged,
+> not reconciled, in docs/evidence/2026-08-12-netclass-param-reconciliation.md.
+> Re-sourcing/reconciling this matrix is a separate attributed task.
+
 ## 6. Verification Checklist
 
 - [ ] All nets assigned to appropriate class (no orphan nets)

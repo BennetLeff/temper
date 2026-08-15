@@ -572,16 +572,16 @@ class TestRealBoardTP3Coverage:
         TP3<->U7 is the production-board exemplar of the generator's
         duplicate-emission wart (fixed 2026-08-02, see
         docs/evidence/2026-08-01-domain-constraint-dedup.md): the unordered
-        pair matches BOTH the LV_CONTROL<->LV_CONTROL functional row (1.0mm,
+        pair matches BOTH the LV_CONTROL<->LV_CONTROL functional row (1.8mm,
         both refs drawn from the LV_CONTROL group, emitted as (TP3, U7)) AND
         the DC_BUS<->LV_CONTROL rows (8.0mm, U7 drawn from the DC_BUS group,
         emitted as (U7, TP3)). The generator's pair-dict key used to be the
         *ordered* tuple (ref_a, ref_b), so BOTH constraints were emitted --
-        ``domain_clearance_TP3_U7`` @1.0mm and ``domain_clearance_U7_TP3``
+        ``domain_clearance_TP3_U7`` @1.8mm and ``domain_clearance_U7_TP3``
         @8.0mm. The fix canonicalizes the key to the lexicographically
         sorted ref pair, so exactly ONE constraint survives, at the max
         margin across all matching rows (8.0mm -- the stricter constraint
-        that already dominated the 1.0mm duplicate in the solver), under the
+        that already dominated the 1.8mm duplicate in the solver), under the
         single deterministic id ``domain_clearance_TP3_U7``. This test
         asserts that post-fix single-constraint behavior directly.
         """
@@ -620,10 +620,10 @@ class TestDomainConstraintDedup:
     pre-fix generator emitted **12,022 constraints for only 11,571 unique
     unordered pairs -- 451 duplicate emissions**, every one a pair involving
     an intra-footprint straddler (C6, K1, K2, K3, PS1, T1, U3, U7) that
-    matches both the LV_CONTROL<->LV_CONTROL row (1.0mm, both refs drawn
+    matches both the LV_CONTROL<->LV_CONTROL row (1.8mm, both refs drawn
     from the LV_CONTROL group) and the DC_BUS<->LV_CONTROL rows (8.0mm,
     straddler drawn from the DC_BUS group) with reversed (a, b) ordering --
-    e.g. (C11, C6)@1.0mm and (C6, C11)@8.0mm. Post-fix the generator must
+    e.g. (C11, C6)@1.8mm and (C6, C11)@8.0mm. Post-fix the generator must
     emit exactly one constraint per unordered pair, at the max margin
     across all matching rows, so 12,022 -> 11,571 constraints with the
     unordered pair set unchanged and the per-pair margin map unchanged.

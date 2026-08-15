@@ -159,10 +159,11 @@ class TestRequirementMatrix:
     @pytest.mark.parametrize(
         "domain_a,domain_b,insulation_type,expected_clearance,expected_creepage,expected_design",
         [
-            # Mains to SELV (LV_CONTROL). Creepage/design figures are the
+            # Mains to SELV (LV_CONTROL). The CREEPAGE/design figures are the
             # IEC 60335-1 Table 17 400V row (row iv, >250V and <=400V),
-            # Material Group IIIa/IIIb, not the 300V row: MAINS's own
-            # peak/transient working voltage is 340V
+            # Material Group IIIa/IIIb, PD2 -- 4.0mm basic / 8.0mm reinforced
+            # (reinforced = 2x basic, cl. 29.2.3) -- not the 300V row: MAINS's
+            # own peak/transient working voltage is 340V
             # (docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 2.1), and
             # IEC 60664/60335 tables round a working voltage up to the next
             # tabulated row rather than interpolating. See
@@ -183,6 +184,19 @@ class TestRequirementMatrix:
             # remain the documented fallback if that prerequisite is not met
             # (see IEC60335_REQUIREMENTS's own module-level comment for the
             # full derivation of both).
+            #
+            # The CLEARANCE column (3.0mm basic / 6.0mm reinforced) is
+            # **UNSOURCED** (flagged 2026-08-15): Table 17 is a CREEPAGE
+            # table and cannot support clearance values; IEC 60335-1 Table 16
+            # (clearance) has no 400V row and no 6.0mm value (its value set
+            # is {0.5, 1.5, 3.0, 5.5, 8.0, 11.0}) -- the legacy "Table 16
+            # working isolation at 400V" citation is debunked
+            # (docs/evidence/2026-07-28-creepage-determination-brainstorm.md).
+            # The figures are non-binding on a flat board (creepage >=
+            # clearance, and the 4.0/8.0mm creepage floor dominates) but
+            # must be re-sourced before reliance; values are asserted as-is
+            # below so the unsourced baseline stays visible rather than
+            # silently drifting.
             (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
             (
                 VoltageDomain.MAINS,
@@ -214,13 +228,20 @@ class TestRequirementMatrix:
                 8.0,
                 10.0,
             ),
-            # Within LV Domain
+            # Within LV Domain. min_creepage_mm 1.8 is IEC 60335-1 Table 18
+            # row i (<=50V), Material Group IIIa/IIIb, PD3 -- CORRECTED
+            # 2026-08-15 from the known-low 1.0 pin (which sat under even
+            # Table 18's PD2 value of 1.1). PD3 governs the as-built board
+            # (handoff 2026-08-15 §7.C). min_clearance_mm 0.5 is likewise
+            # the Table 16 floor at <=1500V rated impulse; the 2.0 design
+            # value is the documentary "creepage + 2.0mm" target and gates
+            # nothing.
             (
                 VoltageDomain.LV_CONTROL,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.FUNCTIONAL,
                 0.5,
-                1.0,
+                1.8,
                 2.0,
             ),
         ],

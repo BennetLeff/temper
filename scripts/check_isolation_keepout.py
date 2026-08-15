@@ -47,8 +47,12 @@ this crossing).
 working isolation at 400V" -- note "working isolation": that figure is the
 BASIC/functional clearance between two HV-class nets of similar domain, not
 the reinforced mains<->user-accessible-SELV figure this barrier actually
-needs. Reusing it here would repeat the exact class of error flagged in this
-plan ("do NOT assume 3-6mm; that error was made earlier on this project").
+needs. (The citation itself is debunked as of 2026-08-15: Table 16 has no
+400V row and no 6.0mm value -- docs/evidence/2026-07-28-creepage-
+determination-brainstorm.md; the 6.0mm figures in netclass_rules.yaml are
+now labeled UNSOURCED. The point here is unchanged.) Reusing it here would
+repeat the exact class of error flagged in this plan ("do NOT assume 3-6mm;
+that error was made earlier on this project").
 
 At <=400V working voltage, pollution degree 2, material group IIIb (the
 conservative, unverified-CTI assumption for generic FR4), the commonly
