@@ -591,6 +591,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_physics_provenance.py", "packages/temper-placer/src/temper_placer/physics/", "source-tree scan; probe harness deferred"),
     ("check_plane_condemnation_quantifier.py", "pcb/temper.kicad_pcb", "plane-condemnation quantifier gate (docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md); needs the real board; probe harness deferred"),
     ("check_pll_range_consistency.py", "firmware/components/control/pll_control.h", "firmware-header scan; probe harness deferred"),
+    ("check_pyo3_duplicate_registration.py", "packages/", "duplicate pyo3 function/class registration gate (2026-08-13 kw_boundary_match_py shadowing incident); source-tree scan (.rs), needs no built extensions; probe harness deferred"),
     ("check_rust_drc_presence.py", "packages/temper-drc-rs/src", "extension-symbol scan; probe harness deferred"),
     ("check_script_sunset.py", "scripts/manifest.yaml", "manifest scan (warn-only in CI); probe harness deferred"),
     ("check_stale_extensions.py", "packages/", "extension freshness scan; probe harness deferred"),
