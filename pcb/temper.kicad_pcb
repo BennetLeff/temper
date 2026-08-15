@@ -6474,7 +6474,7 @@
 
   (footprint "TestPoint:TestPoint_Pad_D1.0mm" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 52162710) (tstamp 74d1504e-58dc-5550-1da6-6b6b92b80e69)
-    (at 123.0 143.0 0)
+    (at 122.4 143.0 0)
     (descr "SMD pad as test Point, diameter 1.0mm")
     (tags "test point SMD pad")
     (property "Reference" "TP3")
