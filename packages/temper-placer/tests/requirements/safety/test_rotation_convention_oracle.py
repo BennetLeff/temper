@@ -85,7 +85,6 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from temper_placer.core.courtyard import Courtyard
-from temper_placer.deterministic.stages.setup import DRCOracleSetupStage
 from temper_placer.placer.cp_sat.isolation_barrier import _project_onto_barrier_axis
 from temper_placer.requirements.validators._copper import _rotate as copper_rotate
 
@@ -96,6 +95,8 @@ from temper_placer.requirements.validators._copper import _rotate as copper_rota
 from tests.placer.cp_sat.test_zone_pour_production_measurement import (
     _resolve_pcbnew_python,
 )
+
+import tests.deterministic._setup_py_oracle as _orc_setup  # noqa: E402
 
 # `tests/requirements/safety/test_X.py` -> repo root is 5 levels up
 # (safety -> requirements -> tests -> temper-placer -> packages -> root).
@@ -170,10 +171,22 @@ class TestOtherRotationImplementationsDirectionPin:
 
     def test_setup_stage_rotate_point(self):
         """`deterministic/stages/setup.py::DRCOracleSetupStage._rotate_point`.
-        Confirmed unused by any caller today (see its own docstring) --
-        pinned anyway so a future caller inherits the fix, not the bug.
+
+        As of the D1 Rust Stage-engine port (`a7c7d0702`), the live
+        `DRCOracleSetupStage` is a thin FFI delegate to
+        `temper_orchestration.run_drc_oracle_setup` and no longer carries
+        `_rotate_point` itself -- the pre-migration Python implementation
+        (this method included) is kept alive verbatim, sha256-guarded, as
+        the R1a differential oracle in `tests/deterministic/_setup_py_oracle.py`
+        (see that file's own "DO NOT EDIT, DO NOT FIX" header). Pinning
+        against the oracle copy, not the live FFI wrapper, is therefore the
+        correct fix here -- not a re-pin of the assertion.
+
+        Confirmed unused by any caller today (see the oracle copy's own
+        docstring) -- pinned anyway so a future caller inherits the fix,
+        not the bug.
         """
-        stage = DRCOracleSetupStage()
+        stage = _orc_setup.DRCOracleSetupStage()
         x, y = stage._rotate_point((1.0, 0.0), 90.0)
         assert x == pytest.approx(0.0, abs=1e-9)
         assert y == pytest.approx(-1.0, abs=1e-9)

@@ -191,7 +191,7 @@ jobs:
           echo "ROUTED_HASH=$(sha256sum /tmp/temper_routed.kicad_pcb | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       - name: Upload regenerated board artifact (7-day retention)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: temper-routed-${{ env.ROUTED_HASH }}
           path: /tmp/temper_routed.kicad_pcb
