@@ -369,8 +369,7 @@ pub use board_state::{BoardState, RouteEntry, SlotId, ViaEntry};
 pub use channel_mapping::{ChannelMappingStage, ChannelWidthsStage};
 #[cfg(feature = "python")]
 pub use clearance::{
-    ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage, DomainClearanceStage,
-    IsolationBarrierStage,
+    ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage,
 };
 #[cfg(feature = "python")]
 pub use component_assignment_stage::ComponentAssignmentStage;
