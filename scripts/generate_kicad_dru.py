@@ -13,6 +13,23 @@ from pathlib import Path
 
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 
+# The Rust SafetyValue SSOT (packages/temper-design-bundle/src/safety_value.rs):
+# every safety constant below is a *lookup* into the recovered IEC 60335-1
+# Table 16/17/18 const tables, never a local hardcoded literal. The import
+# name is the pyo3 module (`temper_design_bundle_python`, not the crate name)
+# -- same convention as temper_placer/io/loop_loader.py.
+import temper_design_bundle_python as _tdb
+
+if not hasattr(_tdb, "creepage_table_lookup"):
+    raise RuntimeError(
+        "installed temper_design_bundle_python is stale: missing the "
+        "SafetyValue lookups (creepage_table_lookup / clearance_table_lookup) "
+        "this generator emits its safety constants from. Rebuild the "
+        "extension ('make extensions') before generating the DRU -- a stale "
+        ".so would silently fall back to nothing, and this file must never "
+        "emit a hardcoded safety figure."
+    )
+
 # Repo root is two levels up from this script (scripts/generate_kicad_dru.py)
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = REPO_ROOT / "pcb" / "temper.kicad_dru"
@@ -59,31 +76,47 @@ if COATING_QUALIFIED:
 # Fail-closed reinforced clearance for the mains<->PELV barrier, uncoated.
 # IEC 60335-1 clause 29.1: rated impulse voltage 1500V (120V nominal, OVC II,
 # Table 15) -> Table 16 basic clearance 0.5mm at that step -> clause 29.1.3
-# "next higher step" for reinforced -> 1.5mm nominal, PLUS clause 29.1's
-# +0.5mm soldered-construction adder (this is a soldered PCB, one of the
-# clause's own named examples) = 2.0mm. See
+# "next higher step" for reinforced -> the 2500V row (1.5mm), PLUS clause
+# 29.1's +0.5mm soldered-construction adder (this is a soldered PCB, one of
+# the clause's own named examples) = 2.0mm. See
 # docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 4 and
 # docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3, item 3.
-HV_INTERNAL_CLEARANCE_MM = 2.0
+#
+# WIRED 2026-08-15: the Table 16 cell is now a lookup into the Rust
+# SafetyValue SSOT (clearance_table_lookup) instead of a hardcoded literal.
+# Only the cl. 29.1 +0.5mm soldered-construction adder remains a local
+# constant: it is a clause adder, not a table cell -- no lookup exists for
+# it, and inventing one would violate the repo's never-reconstruct rule.
+#
+# RATED-VOLTAGE CAVEAT (flagged, not silently changed): the chain above is
+# keyed to 120V nominal (rated impulse 1500V). At 240V nominal the chain
+# (2500V rated impulse -> next step 4000V = 3.0mm + 0.5mm) gives 3.5mm; the
+# 2.0mm figure is also a REINFORCED mains<->PELV derivation applied as this
+# board's same-class HV<->HV internal floor (RULE 5). Both facts are
+# documented here so a rated-voltage determination moves one line; this file
+# does not invent one.
+_TABLE_16_2500V_REINFORCED_STEP_MM = _tdb.clearance_table_lookup(2500).value_mm()
+HV_INTERNAL_CLEARANCE_MM = _TABLE_16_2500V_REINFORCED_STEP_MM + 0.5
 
 # Reinforced creepage at Pollution Degree 3 (IEC 60335-1 clause 29.2.3 x
 # Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
-# basic 6.3mm x2 = 12.6mm.
+# basic 4.0mm (PD2) / 6.3mm (PD3) x2 = 8.0mm / 12.6mm. The basic cell is
+# now a lookup into the Rust SafetyValue SSOT (creepage_table_lookup,
+# Table 17); the x2 is clause 29.2.3's own rule ("reinforced = at least
+# double Table 17 basic").
 #
-# IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the default
-# for this appliance class (cooking ranges/hobs); PD2 is earned only by a
-# documented, gasketed PCB compartment outside the coil/heatsink airflow
-# path, which is not built and is thermally counterproductive
-# (docs/evidence/2026-07-30-pcb-compartment-thermal-bound.md). The
-# data-driven decision of 2026-08-15 (docs/evidence/2026-08-15-pd2-pd3-
-# data-driven-decision.md) therefore enforces PD3/12.6mm as the governing
-# bar: the as-built board is forced-air vented with no cover/gasket/
-# partition, so 8.0mm was an unearned credit. PD2 remains as the explicit
-# fallback should the sealed compartment ever be built and verified, so a
-# future mechanical reclassification changes both points together rather
-# than silently carrying the PD3 number.
-HV_CREEPAGE_PD2_MM = 8.0  # fallback if a sealed compartment is ever built
-HV_CREEPAGE_PD3_MM = 12.6
+# ENFORCEMENT SELECTION (2026-08-15, docs/evidence/2026-08-15-pd2-pd3-data-
+# driven-decision.md): the enforced bar is PD3/12.6mm, not PD2. The as-built
+# board is forced-air vented with no cover/gasket/partition, so PD3 governs
+# (IEC 60335-2-6 cl. 29.2 Addition makes PD3 the default for cooking
+# appliances; the PD2 exception requires a sealed compartment that does not
+# exist -- docs/evidence/2026-08-11-pd2-decision-record.md). Enforcing PD2
+# was "unearned credit": the gate reported a smaller number against a bar
+# the product does not earn. Both constants remain declared side by side so
+# a future mechanical reclassification (a real sealed compartment) moves one
+# line, exactly as this block always intended.
+HV_CREEPAGE_PD2_MM = _tdb.creepage_table_lookup(2, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
+HV_CREEPAGE_PD3_MM = _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
 
 # ---------------------------------------------------------------------------
 # Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
@@ -205,9 +238,13 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 # normal pre-existing violations (exit 3) with it.
 
 # Functional creepage floor for the resonant-tank node, in mm. Derivation,
-# citation and pollution-degree caveat: see the block above.
-HV_TANK_CREEPAGE_PD2_MM = 6.3  # fallback if a sealed compartment is ever built
-HV_TANK_CREEPAGE_PD3_MM = 10.0
+# citation and pollution-degree caveat: see the block above. The cells are
+# now lookups into the Rust SafetyValue SSOT (creepage_table_lookup, Table
+# 18, row vi >500-800 V, material group IIIa/IIIb): PD2 = 6.3mm, PD3 =
+# 10.0mm -- the recovered functional-insulation table's own values, not
+# local literals.
+HV_TANK_CREEPAGE_PD2_MM = _tdb.creepage_table_lookup(2, "IIIa/IIIb", ">500-800", "18").value_mm()
+HV_TANK_CREEPAGE_PD3_MM = _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">500-800", "18").value_mm()
 
 # Which of the two above is emitted. Deliberately NOT written as the bare
 # `HV_TANK_CREEPAGE_ENFORCED_MM = HV_TANK_CREEPAGE_PD2_MM` alias that
@@ -237,6 +274,10 @@ HV_TANK_CREEPAGE_PD3_MM = 10.0
 # The dict-lookup form below keeps the one-line PD switch, duplicates no
 # literal, and reads to that gate as a non-literal expression (its UNRESOLVED
 # bucket) rather than as an alias it must and cannot resolve.
+#
+# ENFORCED DEGREE (2026-08-15): PD3 -- the as-built, decision-documented bar
+# (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md). PD2 remains a
+# declared fallback.
 _TANK_POLLUTION_DEGREE = "PD3"
 HV_TANK_CREEPAGE_ENFORCED_MM = {
     "PD2": HV_TANK_CREEPAGE_PD2_MM,
@@ -677,18 +718,22 @@ def generate_dru() -> str:
         f"# 2 and 4 below enforce {fmt_mm(HV_CREEPAGE_ENFORCED_MM)} reinforced creepage across the"
     )
     lines.append("# AC-Mains/HighVoltage <-> everything-else boundary, in addition to their")
-    lines.append("# existing clearance figures. The selected production architecture uses PD2")
-    lines.append("# (8.0mm). PD3 (12.6mm) remains the fallback if the documented enclosure")
+    lines.append("# existing clearance figures. The enforced figure is PD3 (12.6mm) -- the")
+    lines.append("# as-built, decision-documented bar (docs/evidence/2026-08-15-pd2-pd3-data-")
+    lines.append("# driven-decision.md: the board is forced-air vented with no sealed")
+    lines.append("# compartment, so PD3 governs per IEC 60335-2-6 cl. 29.2 Addition). PD2")
+    lines.append("# (8.0mm) is retained as the fallback should the compartment ever be built;")
+    lines.append("# see the source comment on")
     lines.append(
-        "# prerequisite is not implemented; see the source comment on"
         " HV_CREEPAGE_ENFORCED_MM for the"
     )
     lines.append("# selection rule and")
     lines.append("# `scripts/check_isolation_keepout.py` remains the")
     lines.append("# other, independent creepage enforcement point on this board (a conservative")
     lines.append("# straight-line-corridor sufficient bound, not a surface-path measure); this")
-    lines.append("# generator's new rules are the fab-authoritative KiCad DRC path, and they now")
-    lines.append("# agree on the same pinned figure. See docs/evidence/2026-07-28-creepage-")
+    lines.append("# generator's new rules are the fab-authoritative KiCad DRC path. The keepout")
+    lines.append("# gate's own MIN_BARRIER_WIDTH_MM is still PD2-pinned and is a separate")
+    lines.append("# follow-up; this file enforces the PD3 bar. See docs/evidence/2026-07-28-creepage-")
     lines.append("# determination-brainstorm.md for the full clause-cited derivation.")
     lines.append("#")
     lines.append("# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap (see RULE")

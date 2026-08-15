@@ -863,7 +863,7 @@ class TestCreepageDrcFalsifier:
         """The exact 'HV to LV' rule block generate_dru() emits today,
         applied wholesale (not a hand-picked substitute), must produce a
         real creepage violation for a HighVoltage<->Default pad pair whose
-        straight-line gap is well below HV_CREEPAGE_ENFORCED_MM (8.0mm)."""
+        straight-line gap is well below HV_CREEPAGE_ENFORCED_MM (12.6mm)."""
         gap_mm = 3.0
         pcb_path = self._fixture(tmp_path, gap_mm)
         content = gen.generate_dru()
