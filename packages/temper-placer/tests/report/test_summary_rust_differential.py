@@ -18,7 +18,6 @@ import random
 import temper_io_types as _rust
 
 import tests.report._summary_py_oracle as _oracle
-from temper_placer.report.summary import _extract_key_metrics, generate_summary
 from temper_placer.validation.drc_result import (
     CheckResult,
     Issue,
@@ -98,14 +97,14 @@ def _fixtures() -> list[tuple[RunResult, Placement]]:
 
 def test_summary_byte_identical():
     for result, placement in _fixtures():
-        assert generate_summary(result, placement, None) == _oracle.generate_summary(
+        assert _rust.report_generate_summary(result, placement) == _oracle.generate_summary(
             result, placement, None
         )
 
 
 def test_extract_key_metrics_identical():
     for result, _ in _fixtures():
-        ours = _extract_key_metrics(result)
+        ours = _rust.report_extract_key_metrics(result)
         theirs = _oracle._extract_key_metrics(result)
         assert [(name, _metric_key(v)) for name, v in ours] == [
             (name, _metric_key(v)) for name, v in theirs
@@ -141,7 +140,7 @@ def test_board_size_rendering_pins():
     ]:
         p = Placement(components={"X": _comp("X")})
         p.board_width, p.board_height = width, height
-        text = generate_summary(result, p, None)
+        text = _rust.report_generate_summary(result, p)
         assert expected_sub in text
         assert text == _oracle.generate_summary(result, p, None)
 
@@ -167,7 +166,7 @@ def test_category_sorting_pinned():
         total_elapsed_ms=1.0,
     )
     p = Placement(components={"X": _comp("X")})
-    text = generate_summary(result, p, None)
+    text = _rust.report_generate_summary(result, p)
     assert "CLEARANCE: 2" in text
     assert "THERMAL: 1" in text
     assert text.index("CLEARANCE: 2") < text.index("THERMAL: 1")

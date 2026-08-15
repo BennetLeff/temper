@@ -37,11 +37,11 @@ import struct
 import pytest
 import temper_thermal as _tt
 
-from temper_placer.physics.safety import (
-    estimate_fault_response_time,
-    estimate_filter_delay,
-    is_safety_timing_valid,
-)
+# The delegation shim temper_placer/physics/safety.py was deleted (pure
+# delegation to temper_thermal; defaults lived in the shim signature). The
+# module-level pins below now call the Rust kernels directly, passing the
+# former shim defaults explicitly (0.632 / 150.0+200.0 / 10.0) so the
+# default-path behavior is still pinned bit-exactly against the oracle.
 
 # ---------------------------------------------------------------------------
 # Oracle (pre-migration implementation, verbatim)
@@ -203,28 +203,28 @@ def test_direct_safety_timing_valid() -> None:
 
 
 def test_module_delegation_defaults() -> None:
-    got = estimate_filter_delay(1000.0, 1e-6)
+    got = _tt.estimate_filter_delay_py(1000.0, 1e-6, 0.632)
     want = _oracle_estimate_filter_delay(1000.0, 1e-6)
     assert _bits(got) == _bits(want)
 
-    got = estimate_fault_response_time(10.0, 2.5)
+    got = _tt.estimate_fault_response_time_py(10.0, 2.5, 150.0, 200.0)
     want = _oracle_estimate_fault_response_time(10.0, 2.5)
     assert _bits(got) == _bits(want)
 
-    assert is_safety_timing_valid(10.0) is _oracle_is_safety_timing_valid(10.0)
-    assert is_safety_timing_valid(10.5) is _oracle_is_safety_timing_valid(10.5)
+    assert _tt.is_safety_timing_valid_py(10.0, 10.0) is _oracle_is_safety_timing_valid(10.0)
+    assert _tt.is_safety_timing_valid_py(10.5, 10.0) is _oracle_is_safety_timing_valid(10.5)
 
 
 def test_module_delegation_randomized() -> None:
     rng = random.Random(13)
     for _ in range(50):
         r, c, thr = _random_delay_params(rng)
-        got = estimate_filter_delay(r, c, thr)
+        got = _tt.estimate_filter_delay_py(r, c, thr)
         want = _oracle_estimate_filter_delay(r, c, thr)
         assert _bits(got) == _bits(want)
 
     for _ in range(50):
         fd = rng.uniform(0.0, 100.0)
-        got = estimate_fault_response_time(rng.uniform(0.0, 100.0), fd)
+        got = _tt.estimate_fault_response_time_py(rng.uniform(0.0, 100.0), fd, 150.0, 200.0)
         want = _oracle_estimate_fault_response_time(rng.uniform(0.0, 100.0), fd)
         assert _bits(got) == _bits(want)

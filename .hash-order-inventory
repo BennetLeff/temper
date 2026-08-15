@@ -27,7 +27,7 @@ packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py::QualityGate.che
 packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py::_refine_mus::set-materialised 1
 packages/temper-placer/src/temper_placer/regression/drc_ratchet.py::DrcRatchet._run_rust_drc::set-materialised 1
 packages/temper-placer/src/temper_placer/router_v6/_astar_search.py::_astar_route_with_ripup::set-materialised 1
-packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py::_emit_zone_pours::set-loop-records-order 2
+packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py::_emit_zone_pours::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py::_partition_to_components::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py::validate_obstacle_map::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/router_v6/terminal_tree_execution.py::_describe_layer_failure::set-materialised 1

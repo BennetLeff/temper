@@ -10,7 +10,7 @@ from temper_placer.geometry.drc_inflate import (
     inflate_pad_polygon,
     precompute_inflated_dims,
 )
-from temper_placer.geometry.smooth import smooth_relu
+from temper_placer.geometry import smooth_relu
 
 
 def _has_shapely():

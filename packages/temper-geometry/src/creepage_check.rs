@@ -2653,6 +2653,7 @@ pub(crate) mod tests {
         ("creepage_check::tests::point_to_segment_projection_clamps", point_to_segment_projection_clamps),
         ("creepage_check::tests::segments_intersect_crossing", segments_intersect_crossing),
         ("creepage_check::tests::segments_intersect_shared_endpoint_is_not_proper", segments_intersect_shared_endpoint_is_not_proper),
+        ("creepage_check::tests::segments_intersect_overflowing_denom_does_not_return_nan", segments_intersect_overflowing_denom_does_not_return_nan),
         ("creepage_check::tests::segment_to_segment_parallel_gap", segment_to_segment_parallel_gap),
         ("creepage_check::tests::segment_to_segment_crossing_is_zero", segment_to_segment_crossing_is_zero),
         ("creepage_check::tests::min_clearance_filters_by_layer", min_clearance_filters_by_layer),
