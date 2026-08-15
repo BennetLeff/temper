@@ -1134,6 +1134,55 @@ jobs:
           echo "=== residual 3/3: host_math dlsym host-facility test (native-host-only, 1 test) ==="
           cargo test --manifest-path packages/temper-orchestration/Cargo.toml --no-default-features --lib "host_math::tests::host_libm_symbols_actually_resolve"
 
+      # `cargo test --doc` was never invoked in CI (handoff 2026-08-15 §5),
+      # and that is now a live gap rather than a theoretical one:
+      # `agent/layer-identity-type-v2`'s entire structural guarantee is a
+      # `compile_fail` doctest on `Layer`'s private fields
+      # (packages/temper-geometry/src/layer_identity.rs) -- a hardcoded
+      # `Layer { name: "F.Cu".into(), .. }` outside that module must NOT
+      # compile. Without this step that guarantee is decorative: the wasm
+      # tier's native arm (wasm-tier-nightly.yml) runs plain `cargo test`
+      # for exactly ONE rotated crate per night, so temper-geometry's
+      # doctests would execute at most once every ~9 nights and never on
+      # the PR path, and the steps above select `--lib`/`--test` targets
+      # that never build the Doc-tests target at all.
+      #
+      # `--doc` selects ONLY the Doc-tests target -- no lib or integration
+      # tests, so this step neither re-runs nor overlaps with anything
+      # above. `--no-default-features` matches the repo's native-arm
+      # convention (the wasm tier topology, and the removed
+      # temper-geometry step this job used to have): it drops the optional
+      # `python` feature, keeping pyo3's `extension-module` (supplied by
+      # maturin, never by Cargo) out of the doctest link -- the exact
+      # `rust-lld: undefined symbol: PyImport_ImportModule` hazard that
+      # killed the previous default-features temper-geometry step. Every
+      # doctest in the repo is pure Rust, verified green on main
+      # 2026-08-15 across all 14 crates in the same loop as clippy above
+      # (doctest counts then: 3 in temper-geometry incl. 1 compile_fail,
+      # 2 ignored in temper-py-bridge, 0 elsewhere).
+      - name: Doctests (cargo test --doc, --no-default-features)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          set -eu
+          for manifest in \
+                       packages/temper-constraint-compiler/Cargo.toml \
+                       packages/temper-design-bundle/Cargo.toml \
+                       packages/temper-drc-rs/Cargo.toml \
+                       packages/temper-geometry/Cargo.toml \
+                       packages/temper-io-types/Cargo.toml \
+                       packages/temper-orchestration/Cargo.toml \
+                       packages/temper-pcl-ir/Cargo.toml \
+                       packages/temper-py-bridge/Cargo.toml \
+                       packages/temper-py-bridge-derive/Cargo.toml \
+                       packages/temper-quality-oracle/Cargo.toml \
+                       packages/temper-rust-router-core/Cargo.toml \
+                       packages/temper-rust-router/Cargo.toml \
+                       packages/temper-thermal/Cargo.toml \
+                       packages/temper-placer/temper-constraints/Cargo.toml; do
+            echo "=== doctests $manifest ==="
+            cargo test --doc --no-default-features --manifest-path "$manifest"
+          done
+
       # Same gap, same fix, one crate over: temper-geometry's `#[cfg(test)]`
       # modules ran nowhere. CI tested only temper-design-bundle and
       # temper-orchestration, and on 2026-08-06 the escape_via kernel made
