@@ -100,7 +100,7 @@ def _valid_keepout_settings() -> KeepoutSettings:
 def build_board(
     *,
     barrier_layers: list[str] | None = ALL_COPPER_LAYER_NAMES,
-    barrier_x: tuple[float, float] = (45.0, 55.0),
+    barrier_x: tuple[float, float] = (43.0, 57.0),  # 14mm wide -- clears the 12.6mm PD3 minimum
     barrier_y: tuple[float, float] = (0.0, 100.0),
     keepout_settings: KeepoutSettings | None = None,
     include_barrier: bool = True,

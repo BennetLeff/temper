@@ -989,8 +989,8 @@ class TestRulePrecedence:
             "A.Type == 'Track' || B.Type == 'Track'",
             {"clearance": 0.2},
         )
-        assert rules["AC Mains to LV"][1] == {"clearance": 6.0, "creepage": 8.0}
-        assert rules["HV to LV"][1] == {"clearance": 2.0, "creepage": 8.0}
+        assert rules["AC Mains to LV"][1] == {"clearance": 6.0, "creepage": 12.6}
+        assert rules["HV to LV"][1] == {"clearance": 2.0, "creepage": 12.6}
 
     def test_unanalysable_condition_fails_closed(self) -> None:
         """A condition the analyser cannot model must raise, not be skipped:
