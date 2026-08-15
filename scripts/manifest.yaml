@@ -668,6 +668,33 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_net_pin_identity_pad_correspondence.py
+  purpose: 'CI gate: catch a net whose (component_ref, pad_number) pin-identity
+    view silently collapses a real, multi-pad net into a trivial "nothing to
+    connect" one. Root-caused a task investigating discharge.k_dis1-no/
+    discharge.k_dis2-no looking absent from the router accounting under
+    --net-batching: both nets pin-identity-collapse to 1 distinct tuple
+    (K2/K3''s manufacturer-duplicated relay contact pads, two physical solder
+    holes sharing one pad number) while the real board carries 2 distinct
+    physical pads -- the mistake _pipeline_grid._net_pad_positions and
+    topology_copper_audit.is_self_referential_net both made (now fixed). This
+    gate is the standing, self-contained (no compiled extension needed)
+    invariant that would have caught the underlying shape. Human-reviewed
+    allowlist (KNOWN_DUPLICATE_PAD_NUMBER_NETS) for the two known-and-fixed
+    cases; any other net hitting this shape fails closed.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - collections
+  - pathlib
+  - re
+  - sys
 - path: check_router_clearance_floor.py
   purpose: 'CI gate: the clearance the router reserves for an unclassified net must
     never be below the clearance kicad-cli DRC grades that net against. Between

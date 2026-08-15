@@ -1572,6 +1572,26 @@ jobs:
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_copper_net_consistency.py
 
+      - name: Net pin-identity / pad-correspondence gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_net_pin_identity_pad_correspondence.py -v --tb=short -m "not slow"
+
+      - name: Net pin-identity / pad-correspondence gate (duplicate-pad-number nets)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: reads pcb/temper.kicad_pcb directly and flags any net
+        # whose (component_ref, pin_name) pin-identity view collapses to
+        # <=1 distinct pin while its REAL, independently-parsed physical pad
+        # count is > 1 -- the invariant that would have caught
+        # discharge.k_dis1-no/discharge.k_dis2-no (K2/K3's manufacturer-
+        # duplicated relay contact pads) silently looking like trivial,
+        # nothing-to-connect nets to the router's own pin-identity model
+        # while the real board carried two genuinely distinct, currently-
+        # unconnected physical pads. A small, human-reviewed allowlist
+        # (KNOWN_DUPLICATE_PAD_NUMBER_NETS in the gate script) covers the
+        # two known-and-fixed cases; any other net hitting this shape is
+        # unreviewed and fails closed. Never `continue-on-error`.
+        run: uv run python scripts/check_net_pin_identity_pad_correspondence.py
+
       - name: Footprint-drift gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_footprint_drift.py -v --tb=short

@@ -51,6 +51,7 @@ __all__ = [
     "NetConnectivityResult",
     "check_net_pad_connectivity",
     "audit_pcb_file",
+    "find_pin_identity_pad_mismatches",
 ]
 
 Point = tuple[float, float]
@@ -344,3 +345,66 @@ def audit_pcb_file(
             tolerance_mm=tolerance_mm,
         )
     return results
+
+
+def find_pin_identity_pad_mismatches(
+    net_pins: dict[str, Sequence[tuple[str, str]]],
+    audit_results: dict[str, NetConnectivityResult],
+) -> list[str]:
+    """The accounting guard: nets where a ``(component_ref, pin_name)``
+    identity view of a net's pins disagrees with the board's REAL physical
+    pad count.
+
+    **The invariant.** More than one call site in this codebase has used
+    ``(component_ref, pin_name)`` tuple identity as a stand-in for
+    "physical pad identity" -- most concretely, treating a net whose pin
+    list collapses to a single distinct ``(ref, name)`` tuple (``len(set(
+    net.pins)) <= 1``) as having at most one thing to connect. That is
+    false whenever a footprint fabricates more than one physical pad under
+    the same pad number/name -- a real, documented pattern on this board
+    (K2/K3, ``temper:Relay_SPDT_Schrack-RT314012``: pads "1"/"3"/"4" are
+    each two physical solder holes 7.5mm apart, for 16A current sharing).
+    ``discharge.k_dis1-no``/``discharge.k_dis2-no`` (``pins == [('K2',
+    '3'), ('K2', '3')]`` / ``[('K3', '3'), ('K3', '3')]``) are the measured
+    real example: this module's own ground-truth pad extraction (parsed
+    directly off each component's distinct physical pads, no name-based
+    lookup) gives ``pad_count == 2`` for both, at two distinct coordinates.
+    A pin-identity view that collapses them to "1 distinct pin, nothing to
+    connect" is exactly the mistake that let
+    ``_pipeline_grid._net_pad_positions`` (pre-fix) hand Stage 4's A* two
+    IDENTICAL coordinates instead of the real two, and let
+    ``topology_copper_audit.is_self_referential_net`` (pre-fix) certify
+    the resulting no-copper net as "legitimately needs none" -- together,
+    a silent, false "this net is fine" that produced a genuinely
+    unconnected net with a "routed successfully" log line and no failure
+    record anywhere.
+
+    Args:
+        net_pins: net name -> its ``[(component_ref, pin_name), ...]``
+            pin list, as the router/netlist sees it (``Net.pins``).
+        audit_results: net name -> :class:`NetConnectivityResult`, the
+            REAL, ground-truth pad count/connectivity for the same net
+            (from :func:`audit_pcb_file` against the actual board file --
+            never re-derived from ``net_pins`` itself, which is exactly
+            the point: this compares two INDEPENDENT sources).
+
+    Returns:
+        Sorted net names where the pin-identity view says "<=1 distinct
+        pin" but the real board says "more than one physical pad" --
+        every one of these is either a genuine collapse defect (fix the
+        pin-resolution code path that produced ``net_pins``) or a naming
+        coincidence that needs an explicit, reasoned exception -- never a
+        silent pass.
+    """
+    mismatches: list[str] = []
+    for name, pins in net_pins.items():
+        pins = list(pins)
+        if not pins:
+            continue
+        distinct_pins = len(set(pins))
+        result = audit_results.get(name)
+        if result is None:
+            continue
+        if distinct_pins <= 1 and result.pad_count > 1:
+            mismatches.append(name)
+    return sorted(mismatches)
