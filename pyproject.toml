@@ -80,6 +80,12 @@ pythonpath = [
     "elec/validation"
 ]
 addopts = ["-v", "--tb=short"]
+# xfail_strict = true: a test marked @pytest.mark.xfail that unexpectedly
+# passes (XPASS) is a hard failure instead of a green skip. An xfail whose
+# reason is stale (the underlying defect closed) must be retired with a
+# normal assertion, never silently left to xpass. See
+# docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
+xfail_strict = true
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks integration tests requiring full pipeline",

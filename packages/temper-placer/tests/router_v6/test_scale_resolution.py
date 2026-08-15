@@ -41,7 +41,7 @@ from temper_placer.router_v6.creepage_check import (
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
 from tests.router_v6.dfm_boundary_constants import (
-    COORD_EXTREME,
+    COORD_BOUNDARY,
 )
 
 # ============================================================================
@@ -278,6 +278,7 @@ class TestTracesWiderThanBoard:
             (100.0, 50.0, 50.0),
             (200.0, 100.0, 100.0),
             (1e6, 100.0, 100.0),  # Extreme width
+            (float("inf"), 100.0, 100.0),  # Inf width -- previously crashed (xfail), fixed
         ],
     )
     def test_copper_balance_trace_wider_than_board(self, trace_width, board_w, board_h):
@@ -285,13 +286,11 @@ class TestTracesWiderThanBoard:
         r1 = _make_route("N1", [(0.0, 0.0), (10.0, 0.0)], width=trace_width)
         results = _make_results({"N1": r1})
 
-        try:
-            report = analyze_copper_balance(results, board_w, board_h)
-        except Exception:
-            if math.isinf(trace_width):
-                pytest.xfail("Inf trace width causes crash in copper_balance (known gap)")
-            raise
-
+        # 2026-08-15: the try/except xfail scaffold was removed -- Inf trace
+        # width no longer crashes (measured), so a future crash must FAIL
+        # loudly, not silently xfail. See
+        # docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
+        report = analyze_copper_balance(results, board_w, board_h)
         assert len(report.layer_balances) == 4
         # Copper area may be larger than board area — that's expected
         # when the trace is wider than the board.  The percentage
@@ -362,6 +361,7 @@ class TestViaLargerThanBoard:
             (200.0, 100.0, 100.0, 80.0),  # Dia > board width
             (300.0, 150.0, 100.0, 100.0),  # Dia > both dims
             (1e6, 0.5, 100.0, 100.0),  # Extreme dia
+            (float("inf"), 0.5, 100.0, 100.0),  # Inf dia -- previously crashed (xfail), fixed
         ],
     )
     def test_copper_balance_via_larger_than_board(self, via_diameter, drill, board_w, board_h):
@@ -370,13 +370,10 @@ class TestViaLargerThanBoard:
         r1 = _make_route("N1", [(0.0, 0.0), (10.0, 0.0)], vias=[via])
         results = _make_results({"N1": r1})
 
-        try:
-            report = analyze_copper_balance(results, board_w, board_h)
-        except Exception:
-            if math.isinf(via_diameter):
-                pytest.xfail("Inf via diameter causes crash in copper_balance (known gap)")
-            raise
-
+        # 2026-08-15: try/except xfail scaffold removed -- Inf via diameter no
+        # longer crashes (measured); a future crash must fail loudly. See
+        # docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
+        report = analyze_copper_balance(results, board_w, board_h)
         assert len(report.layer_balances) == 4
         # Via annular area may be huge — but shouldn't crash
 
@@ -612,6 +609,7 @@ class TestExtremeClearanceThresholds:
             1e-3,  # 1 µm
             1_000.0,  # 1 metre
             1e6,  # 1 km
+            float("inf"),  # Inf -- rejected by the finite-value guard (xfail)
         ],
     )
     def test_clearance_extreme_threshold(self, min_clearance):
@@ -624,7 +622,7 @@ class TestExtremeClearanceThresholds:
             report = verify_clearance(results, min_clearance=min_clearance)
         except Exception:
             if math.isinf(min_clearance):
-                pytest.xfail("Inf min_clearance causes crash (expected edge-case)")
+                pytest.xfail("Inf min_clearance rejected by finite-value guard (expected edge-case)")
             raise
 
         assert hasattr(report, "violations")
@@ -636,6 +634,7 @@ class TestExtremeClearanceThresholds:
             1e-6,
             1_000.0,
             1e6,
+            float("inf"),  # Inf -- rejected by the finite-value guard (xfail)
         ],
     )
     def test_creepage_extreme_default(self, default_creepage):
@@ -648,7 +647,7 @@ class TestExtremeClearanceThresholds:
             report = verify_creepage(results, default_creepage=default_creepage)
         except Exception:
             if math.isinf(default_creepage):
-                pytest.xfail("Inf default_creepage causes crash (expected edge-case)")
+                pytest.xfail("Inf default_creepage rejected by finite-value guard (expected edge-case)")
             raise
 
         assert hasattr(report, "violations")
@@ -773,24 +772,22 @@ class TestCoordinatePrecision:
     @pytest.mark.parametrize(
         "extreme_coord",
         [
-            *COORD_EXTREME,
+            *COORD_BOUNDARY,
         ],
     )
     def test_extreme_coordinate_stability(self, extreme_coord):
-        """Extreme coordinates (1e-6, 1e6) must not crash segment distance."""
+        """Extreme coordinates (incl. NaN/Inf) must not crash segment distance."""
         x, y = extreme_coord
         a = (0.0, 0.0)
         b = (x, y)
         c = (0.0, 1.0)
         d = (x, y + 1.0)
 
-        try:
-            dist, _, _ = _segment_to_segment_dist(a, b, c, d)
-        except Exception:
-            if math.isinf(x) or math.isinf(y) or math.isnan(x) or math.isnan(y):
-                pytest.xfail(
-                    "NaN/inf coordinate causes crash in _segment_to_segment_dist (known gap)"
-                )
-            raise
+        # 2026-08-15: parametrize widened from COORD_EXTREME to COORD_BOUNDARY
+        # (adds the NaN/Inf cases the xfail scaffold was written for but never
+        # exercised). NaN/Inf no longer crash (measured) -- a future crash must
+        # fail loudly, not silently xfail. See
+        # docs/evidence/2026-08-15-unsilence-checks-batch-2.md.
+        dist, _, _ = _segment_to_segment_dist(a, b, c, d)
 
         assert math.isfinite(dist), f"Non-finite distance for coords ({x}, {y}): {dist}"

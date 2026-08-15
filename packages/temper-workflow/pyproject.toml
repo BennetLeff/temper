@@ -30,6 +30,9 @@ packages = ["src/temper_workflow"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+# xfail_strict = true: an @pytest.mark.xfail that unexpectedly passes (XPASS)
+# is a hard failure, not a green skip. Mirrors the root pyproject.toml.
+xfail_strict = true
 
 [tool.ruff]
 target-version = "py311"
