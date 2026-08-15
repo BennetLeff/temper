@@ -96,9 +96,9 @@ below for what was checked before making this a documentation-only change).
 
 IEC 60335-2-6 clause 29.2 Addition makes PD3 the default for cooking
 appliances unless the insulation is enclosed or located so that it is
-unlikely to be exposed to pollution during normal use. The project owner has
-selected that PD2 exception as the production architecture, with a concrete
-mechanical prerequisite rather than an assumption:
+unlikely to be exposed to pollution during normal use. The project owner
+selected the PD2 exception as the production architecture on 2026-07-30,
+with a concrete mechanical prerequisite rather than an assumption:
 
 - the PCB is inside a covered, gasketed compartment;
 - the compartment is separate from the coil/heatsink forced-air path;
@@ -108,14 +108,15 @@ mechanical prerequisite rather than an assumption:
   and inspection points; and
 - production inspection verifies that the barrier is installed and intact.
 
-`docs/CHASSIS_AIRFLOW_DESIGN.md`, `docs/ASSEMBLY_GUIDE.md`, and
-`docs/ENVIRONMENTAL_SPEC.md` record this as a release requirement. The
-existing PD3 determination in
-`docs/evidence/2026-07-30-pollution-degree-determination.md` remains valid
-for the prior vented layout; it is not evidence that the future enclosure
-has already been built. Until the mechanical prerequisite is verified, PD3
-and its 12.6 mm reinforced-creepage requirement remain the applicable
-fallback.
+**That compartment was never built, and the 2026-08-15 data-driven
+decision (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md)
+supersedes the PD2 adoption: the as-built board is forced-air vented with
+no cover/gasket/partition, so PD3 and its 12.6mm reinforced-creepage
+requirement govern.** `docs/CHASSIS_AIRFLOW_DESIGN.md`,
+`docs/ASSEMBLY_GUIDE.md`, and `docs/ENVIRONMENTAL_SPEC.md` record the
+(now-superseded) compartment as a release requirement; the airflow/thermal
+design is unchanged. The PD2 column remains the documented fallback should
+the sealed compartment ever be built and verified.
 
 ### 3.3 Insulation Types
 
@@ -208,13 +209,16 @@ comparison:
 | >250, ≤400 | 4.0 | 8.0 | 6.3 | **12.6** |
 | >400, ≤500 | 5.0 | 10.0 | 8.0 | 16.0 |
 
-**PD2 governs for the selected, protected-compartment architecture**, once
-the §3.2.1 release gate is verified. MAINS (340V pk), DC_BUS (400V
-pk/transient), and Gate Drive Isolated (355V peak-to-earth) satisfy
-">250, ≤400" literally (400 ≤ 400), which is row iv of Table 17 and gives
-**4.0mm basic / 8.0mm reinforced** at PD2, Material Group IIIa/IIIb. If the
-compartment is not built or fails inspection, use the PD3 column instead:
-**6.3mm basic / 12.6mm reinforced**.
+**PD3 governs (2026-08-15 data-driven decision)**: the sealed compartment
+that would earn the PD2 exception is not built and is thermally
+counterproductive, and the as-built board is forced-air vented with no
+cover/gasket/partition (docs/evidence/2026-08-15-pd2-pd3-data-driven-
+decision.md). MAINS (340V pk), DC_BUS (400V pk/transient), and Gate Drive
+Isolated (355V peak-to-earth) satisfy ">250, ≤400" literally (400 ≤ 400),
+which is row iv of Table 17 and gives **6.3mm basic / 12.6mm reinforced**
+at PD3, Material Group IIIa/IIIb. The PD2 column (4.0mm basic / 8.0mm
+reinforced) remains the documented fallback should the sealed compartment
+ever be built and verified at the §3.2.1 release gate.
 
 The prior PD2 baseline's 10.0mm value was the next voltage row's reinforced
 figure. For the selected 400V boundary, this specification uses the literal
@@ -232,10 +236,10 @@ board) would take the next row up.
 
 | Boundary | Insulation | Working V | Min Required | Design Value |
 |----------|------------|-----------|--------------|--------------|
-| AC Mains to SELV | Reinforced | 340V pk | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
-| DC Bus to SELV | Reinforced | 400V pk | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
+| AC Mains to SELV | Reinforced | 340V pk | 12.6mm PD3 / 8.0mm PD2 fallback | 14.6mm |
+| DC Bus to SELV | Reinforced | 400V pk | 12.6mm PD3 / 8.0mm PD2 fallback | 14.6mm |
 | Across UCC21550 | Reinforced | 400V | Per device spec, not less than selected system target | Per device spec |
-| IGBT tab to LV trace | Reinforced | 400V | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
+| IGBT tab to LV trace | Reinforced | 400V | 12.6mm PD3 / 8.0mm PD2 fallback | 14.6mm |
 | Within SELV | Functional | 15V | 0.5mm | 1.0mm |
 
 **Within SELV (functional) row corrected 2026-08-15.** `Min Required`
@@ -314,8 +318,9 @@ IEC 60664-3) is not a scaling factor: a qualified Type A ("type 1
 protection") coating changes the *pollution degree* of the protected
 microenvironment to **PD1**, per-creepage-path, binary -- either a path is
 fully covered and gets the PD1 figure, or it is not covered at all and gets
-whatever pollution degree actually governs (PD2 for the selected protected
-compartment, with PD3 as the fallback if that release gate fails).
+whatever pollution degree actually governs (PD3 for the enforced
+classification since the 2026-08-15 data-driven decision, with PD2 as the
+documented fallback should the sealed compartment ever be built).
 A x1.5 multiplier is not equivalent to that in either direction and has no
 textual basis.
 
@@ -358,14 +363,14 @@ available for those specific paths at that time -- not before.
 
 **Some component-specific rows in §§7-9 still show pre-2026-07-30 figures
 (8.0/10.0/12.0mm reinforced creepage) and have not yet been reconciled to
-the selected PD2 target and its 12.6mm PD3 fallback -- flagged here so a
+the enforced PD3 target and its 8.0mm PD2 fallback -- flagged here so a
 reader does not mistake them for current. The system-level checklist and
-KiCad example below use the selected 8.0mm PD2 target; remaining component
+KiCad example below use the enforced 12.6mm PD3 target; remaining component
 rows are a separate reconciliation task. Only §3.2, §5.1, §5.2, and §6.4
 were in scope for the pollution-degree decision;
 the validator matrix (`packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`),
 not this document's §7-9, is what actually gates REQ-SAFE-01.** See
-`docs/evidence/2026-07-30-pollution-degree-determination.md`.
+`docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md`.
 
 ## 7. Component-Specific Clearances
 
@@ -420,13 +425,13 @@ not this document's §7-9, is what actually gates REQ-SAFE-01.** See
 
 | Location | Required | Actual | Status |
 |----------|----------|--------|--------|
-| AC_L to CGND | 8.0mm | ___mm | ☐ Pass |
-| AC_N to CGND | 8.0mm | ___mm | ☐ Pass |
-| DC_BUS+ to CGND | 8.0mm | ___mm | ☐ Pass |
-| DC_BUS- to CGND | 8.0mm | ___mm | ☐ Pass |
-| SWITCH_NODE to CGND | 8.0mm | ___mm | ☐ Pass |
-| IGBT Q1 tab to LV | 8.0mm | ___mm | ☐ Pass |
-| IGBT Q2 tab to LV | 8.0mm | ___mm | ☐ Pass |
+| AC_L to CGND | 12.6mm | ___mm | ☐ Pass |
+| AC_N to CGND | 12.6mm | ___mm | ☐ Pass |
+| DC_BUS+ to CGND | 12.6mm | ___mm | ☐ Pass |
+| DC_BUS- to CGND | 12.6mm | ___mm | ☐ Pass |
+| SWITCH_NODE to CGND | 12.6mm | ___mm | ☐ Pass |
+| IGBT Q1 tab to LV | 12.6mm | ___mm | ☐ Pass |
+| IGBT Q2 tab to LV | 12.6mm | ___mm | ☐ Pass |
 | UCC21550 Pin 1-8 to 9-16 | 1.0mm | ___mm | ☐ Pass |
 | ADUM1250 Side1 to Side2 | N/A — part removed (see §6.3) | — | ☐ N/A |
 | Isolation slot width | 2.0mm | ___mm | ☐ Pass |
@@ -435,10 +440,10 @@ not this document's §7-9, is what actually gates REQ-SAFE-01.** See
 
 | Location | Required | Actual | Status |
 |----------|----------|--------|--------|
-| AC Mains to SELV | 8.0mm PD2 / 12.6mm PD3 fallback | ___mm | ☐ Pass |
-| DC Bus to SELV | 8.0mm PD2 / 12.6mm PD3 fallback | ___mm | ☐ Pass |
-| IGBT tab to nearest trace | 8.0mm PD2 / 12.6mm PD3 fallback | ___mm | ☐ Pass |
-| Across isolation barrier | 8.0mm | ___mm | ☐ Pass |
+| AC Mains to SELV | 12.6mm PD3 / 8.0mm PD2 fallback | ___mm | ☐ Pass |
+| DC Bus to SELV | 12.6mm PD3 / 8.0mm PD2 fallback | ___mm | ☐ Pass |
+| IGBT tab to nearest trace | 12.6mm PD3 / 8.0mm PD2 fallback | ___mm | ☐ Pass |
+| Across isolation barrier | 12.6mm | ___mm | ☐ Pass |
 
 ### 8.3 Hi-Pot Test Requirements
 

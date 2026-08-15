@@ -25,6 +25,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_pd2_compartment_evidence import (  # noqa: E402
+    EXIT_OK,
     EXIT_VIOLATION,
     GateError,
     load_board_zone_names,
@@ -346,27 +347,24 @@ class TestAntiVacuity:
 
 
 class TestRealRepoIntegration:
-    def test_real_repo_currently_claims_pd2_with_no_compartment_evidence(self):
-        """As of this gate's writing (2026-08-11), the tree's enforcement
-        points are aligned at PD2/8.0mm and no compartment-evidence file
-        has been committed -- this is CORRECT and expected: the owner
-        decided PD2 but has not yet built the compartment (see
-        docs/evidence/2026-08-11-pd2-decision-record.md). If a compartment
-        evidence file is ever added at docs/specs/pd2_compartment_evidence.yaml,
-        update this test to match and reconsider whether the CI step should
-        stop being advisory."""
+    def test_real_repo_currently_claims_pd3_not_applicable(self):
+        """As of the 2026-08-15 data-driven decision
+        (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md), the
+        tree's enforcement points are aligned at PD3/12.6mm -- the
+        sealed-compartment prerequisite this gate checks does not apply
+        (PD3 governs the as-built, forced-air-vented, compartment-less
+        board). This is CORRECT and expected: PD3 is the governing bar and
+        the gate reports NOT_APPLICABLE. If the tree is ever flipped back
+        to PD2 (HV_CREEPAGE_ENFORCED_MM -> HV_CREEPAGE_PD2_MM) without a
+        real committed compartment, this test must go back to asserting
+        'violation' -- and the CI step is blocking, so the flip would go
+        red immediately."""
         state, report = run(REAL_DRU_SOURCE, REAL_EVIDENCE, REAL_BOARD)
-        assert report.governs == "PD2"
-        assert report.enforced_mm == 8.0
-        if not REAL_EVIDENCE.is_file():
-            assert state == "violation"
-            assert report.evidence_present is False
-        # else: a real compartment has landed -- this branch intentionally
-        # left unassert-ed beyond the governs/enforced_mm checks above so
-        # this test does not fight a genuine fix; the CI step's own
-        # continue-on-error removal is the real signal for that transition.
+        assert report.governs == "PD3"
+        assert report.enforced_mm == 12.6
+        assert state == "not_applicable"
 
-    def test_real_repo_gate_exits_violation_not_error(self):
+    def test_real_repo_gate_exits_ok_under_pd3(self):
         import subprocess
 
         result = subprocess.run(
@@ -375,5 +373,6 @@ class TestRealRepoIntegration:
             text=True,
             cwd=REPO_ROOT,
         )
-        if not REAL_EVIDENCE.is_file():
-            assert result.returncode == EXIT_VIOLATION, result.stdout + result.stderr
+        # PD3 governs -> NOT_APPLICABLE (exit 0, treated as pass). The CI
+        # step is blocking, so this must stay 0 as long as PD3 is enforced.
+        assert result.returncode == EXIT_OK, result.stdout + result.stderr

@@ -468,10 +468,10 @@ class TestRequirementMatrix:
     def test_matrix_values_pinned(self):
         matrix = get_requirement_matrix()
         assert matrix[("MAINS", "LV_CONTROL", "basic")] == {
-            "min_clearance_mm": 3.0, "min_creepage_mm": 4.0, "design_value_mm": 6.0,
+            "min_clearance_mm": 3.0, "min_creepage_mm": 6.3, "design_value_mm": 8.3,
         }
         assert matrix[("MAINS", "LV_CONTROL", "reinforced")] == {
-            "min_clearance_mm": 6.0, "min_creepage_mm": 8.0, "design_value_mm": 10.0,
+            "min_clearance_mm": 6.0, "min_creepage_mm": 12.6, "design_value_mm": 14.6,
         }
         assert matrix[("LV_CONTROL", "LV_CONTROL", "functional")] == {
             # min_creepage_mm CORRECTED 2026-08-15 1.0 -> 1.8 (IEC 60335-1

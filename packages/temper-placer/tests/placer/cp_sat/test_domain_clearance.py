@@ -67,18 +67,17 @@ class TestGeneratorNotVacuous:
         placement, voltage_domains = self._two_domain_placement()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
         [c] = [c for c in constraints if {c.a, c.b} == {"F1", "J1"}]
-        # MAINS<->LV_CONTROL: basic (3.0/4.0) and reinforced (6.0/8.0) both
+        # MAINS<->LV_CONTROL: basic (3.0/6.3) and reinforced (6.0/12.6) both
         # apply; the stricter (max of clearance/creepage across both rows)
         # must win. Creepage figures are the IEC 60335-1 Table 17 400V row
         # (MAINS's own working voltage, 340V peak/transient, is >250V and
-        # the table is not interpolated), Pollution Degree 2 -- the project
-        # owner's selected production target, conditional on the
-        # sealed-compartment prerequisite (see
-        # docs/evidence/2026-07-30-pd2-enclosure-decision.md); PD3's
-        # 6.3/12.6mm figures (docs/evidence/2026-07-30-pollution-degree-
-        # determination.md) remain the documented fallback if that
-        # prerequisite is not met.
-        assert c.min_distance_mm == 8.0
+        # the table is not interpolated), Pollution Degree 3 -- the enforced
+        # classification per the 2026-08-15 data-driven decision
+        # (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md); PD2's
+        # 4.0/8.0mm figures remain the documented fallback should a sealed
+        # compartment ever be built (see
+        # docs/evidence/2026-07-30-pd2-enclosure-decision.md).
+        assert c.min_distance_mm == 12.6
         assert c.tier == ConstraintTier.HARD
         assert c.id == "domain_clearance_F1_J1"
 
@@ -137,12 +136,12 @@ class TestUnorderedPairDedup:
 
         - LV_CONTROL<->LV_CONTROL (FUNCTIONAL, 1.0mm): both refs are drawn
           from the LV_CONTROL group, emitted as (R1, U1).
-        - DC_BUS<->LV_CONTROL (BASIC 4.0mm and REINFORCED 8.0mm): U1 is drawn
+        - DC_BUS<->LV_CONTROL (BASIC 6.3mm and REINFORCED 12.6mm): U1 is drawn
           from the DC_BUS group, emitted as (U1, R1) -- reversed.
 
         This is exactly the wart scenario: the pre-fix generator emitted both
         ``domain_clearance_R1_U1`` @1.0mm and ``domain_clearance_U1_R1``
-        @8.0mm for this one physical pair.
+        @12.6mm for this one physical pair.
         """
         placement = {
             "components": [
@@ -169,10 +168,10 @@ class TestUnorderedPairDedup:
         assert c.a == "R1"
         assert c.b == "U1"
         assert c.id == "domain_clearance_R1_U1"
-        # The max margin across ALL matching rows (8.0mm reinforced) wins --
-        # identical binding semantics to the pre-fix output, where the 8.0mm
+        # The max margin across ALL matching rows (12.6mm reinforced) wins --
+        # identical binding semantics to the pre-fix output, where the 12.6mm
         # constraint dominated the 1.0mm duplicate in the solver anyway.
-        assert c.min_distance_mm == 8.0
+        assert c.min_distance_mm == 12.6
         # The because string is informative across rows: it names both the
         # reversed-order cross-domain row(s) and the same-domain row.
         assert "DC_BUS<->LV_CONTROL" in c.because
@@ -217,7 +216,7 @@ class TestIntraFootprintDomainConflicts:
         c = conflicts[0]
         assert c.ref == "PS1"
         assert {c.domain_a, c.domain_b} == {VoltageDomain.MAINS, VoltageDomain.LV_CONTROL}
-        assert c.margin_mm == 8.0  # PD2 reinforced creepage requirement (per #515)
+        assert c.margin_mm == 12.6  # PD3 reinforced creepage requirement (per 2026-08-15 decision)
 
     def test_non_straddling_components_not_flagged(self) -> None:
         placement, voltage_domains = TestGeneratorNotVacuous()._two_domain_placement()
@@ -308,7 +307,7 @@ class TestIntraFootprintDomainConflicts:
 
 class TestRequiredMarginMm:
     def test_max_of_clearance_and_creepage(self) -> None:
-        assert required_margin_mm({"min_clearance_mm": 6.0, "min_creepage_mm": 8.0}) == 8.0
+        assert required_margin_mm({"min_clearance_mm": 6.0, "min_creepage_mm": 12.6}) == 12.6
 
     def test_every_matrix_row_creepage_dominates_today(self) -> None:
         """Documents the current matrix property this module's docstring
@@ -374,13 +373,10 @@ class TestChebyshevSoundnessBMC:
         # Bounded N: three courtyard half-size pairs (covering degenerate
         # 0-size point components, small, and asymmetric footprints), full
         # integer-mm offset sweep over a window comfortably larger than
-        # every IEC60335_REQUIREMENTS margin (up to 12.6mm -- the PD3
-        # fallback figure, still swept here even though 8.0mm is the
-        # currently-enforced PD2 maximum, so this soundness check keeps
-        # covering the fallback too; see
-        # docs/evidence/2026-07-30-pollution-degree-determination.md and
-        # docs/evidence/2026-07-30-pd2-enclosure-decision.md), at margins
-        # spanning the matrix's actual values.
+        # every IEC60335_REQUIREMENTS margin (up to 12.6mm -- the enforced
+        # PD3 reinforced figure since the 2026-08-15 data-driven decision;
+        # see docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md), at
+        # margins spanning the matrix's actual values.
         half_size_pairs = [
             ((0.0, 0.0), (0.0, 0.0)),
             ((0.5, 0.5), (1.0, 0.5)),
@@ -556,13 +552,13 @@ class TestRealBoardTP3Coverage:
         is >250V and <=400V -- IEC 60335-1 Table 17 row iv, Material Group
         IIIa/IIIb, PD3 -- giving reinforced creepage 12.6mm).
 
-        UPDATE 2026-07-30 (PD2 adoption, this change): the project owner has
-        since selected the PD2 8.0mm reinforced-creepage target for
-        production (docs/evidence/2026-07-30-pd2-enclosure-decision.md),
-        conditional on the sealed-compartment prerequisite; PD3/12.6mm
-        remains the documented fallback if that prerequisite is not met.
-        The margin asserted below is now 8.0mm, the currently-enforced
-        figure.
+        UPDATE 2026-08-15 (PD3 enforcement, this change): the 2026-07-30
+        PD2 adoption was conditional on a sealed compartment that was never
+        built, so the data-driven decision of 2026-08-15
+        (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md) enforces
+        PD3/12.6mm as the governing bar; PD2/8.0mm remains the documented
+        fallback should the compartment ever be built and verified. The
+        margin asserted below is now 12.6mm, the currently-enforced figure.
 
         U7 genuinely straddles domains (it carries `gnd`/`+3V3` -- both
         LV_CONTROL -- *and* `DC_BUS_RTN`, i.e. it is a level-shifting gate
@@ -574,13 +570,13 @@ class TestRealBoardTP3Coverage:
         docs/evidence/2026-08-01-domain-constraint-dedup.md): the unordered
         pair matches BOTH the LV_CONTROL<->LV_CONTROL functional row (1.8mm,
         both refs drawn from the LV_CONTROL group, emitted as (TP3, U7)) AND
-        the DC_BUS<->LV_CONTROL rows (8.0mm, U7 drawn from the DC_BUS group,
+        the DC_BUS<->LV_CONTROL rows (12.6mm, U7 drawn from the DC_BUS group,
         emitted as (U7, TP3)). The generator's pair-dict key used to be the
         *ordered* tuple (ref_a, ref_b), so BOTH constraints were emitted --
         ``domain_clearance_TP3_U7`` @1.8mm and ``domain_clearance_U7_TP3``
-        @8.0mm. The fix canonicalizes the key to the lexicographically
+        @12.6mm. The fix canonicalizes the key to the lexicographically
         sorted ref pair, so exactly ONE constraint survives, at the max
-        margin across all matching rows (8.0mm -- the stricter constraint
+        margin across all matching rows (12.6mm -- the stricter constraint
         that already dominated the 1.8mm duplicate in the solver), under the
         single deterministic id ``domain_clearance_TP3_U7``. This test
         asserts that post-fix single-constraint behavior directly.
@@ -596,11 +592,11 @@ class TestRealBoardTP3Coverage:
             f"emitting the same pair under both (a, b) orderings."
         )
         c = matches[0]
-        # DC_BUS<->LV_CONTROL: max across basic (3.0/4.0) and reinforced
-        # (6.0/8.0) rows is 8.0mm at the currently-enforced PD2 target --
+        # DC_BUS<->LV_CONTROL: max across basic (3.0/6.3) and reinforced
+        # (6.0/12.6) rows is 12.6mm at the currently-enforced PD3 bar --
         # the stricter of the two margins the pair used to be emitted at
-        # (8.0mm vs 1.0mm) must be the single surviving one.
-        assert c.min_distance_mm == 8.0
+        # (12.6mm vs 1.0mm) must be the single surviving one.
+        assert c.min_distance_mm == 12.6
         # Canonical lexicographic (a, b) order + deterministic id, so the id
         # does not depend on which matrix row is iterated first.
         assert c.a == "TP3" and c.b == "U7"

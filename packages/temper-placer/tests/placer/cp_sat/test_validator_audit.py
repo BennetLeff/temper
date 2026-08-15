@@ -217,7 +217,7 @@ class TestAuditFalsifier:
         )
         # A's copper spans x in [2.0, 4.0]; B's spans x in [4.1, 6.1]: the
         # exact copper-to-copper gap is 0.1mm << every MAINS<->LV_CONTROL bar
-        # (3.0/4.0/6.0/8.0), while the centers are 8.1mm apart.
+        # (3.0/6.3/6.0/12.6), while the centers are 8.1mm apart.
         positions = {"A": (0.0, 0.0), "B": (8.1, 0.0)}
         rotations = {"A": 0, "B": 0}
         constraints = [_domain_constraint("A", "B")]
@@ -239,8 +239,8 @@ class TestAuditFalsifier:
         assert all(v.ref_a == "A" and v.ref_b == "B" for v in audit.hard_failures)
         # Every MAINS<->LV_CONTROL matrix row must be a hard violation.
         bars = {(v.metric, v.required_mm) for v in audit.hard_failures}
-        assert bars == {("clearance", 3.0), ("creepage", 4.0),
-                        ("clearance", 6.0), ("creepage", 8.0)}, bars
+        assert bars == {("clearance", 3.0), ("creepage", 6.3),
+                        ("clearance", 6.0), ("creepage", 12.6)}, bars
         assert audit.clean is False
         assert audit.intra_footprint == [] and audit.coverage_gaps == []
 

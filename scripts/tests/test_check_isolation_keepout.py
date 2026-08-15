@@ -100,7 +100,7 @@ def _valid_keepout_settings() -> KeepoutSettings:
 def build_board(
     *,
     barrier_layers: list[str] | None = ALL_COPPER_LAYER_NAMES,
-    barrier_x: tuple[float, float] = (45.0, 55.0),
+    barrier_x: tuple[float, float] = (43.0, 57.0),  # 14mm wide -- clears the 12.6mm PD3 minimum
     barrier_y: tuple[float, float] = (0.0, 100.0),
     keepout_settings: KeepoutSettings | None = None,
     include_barrier: bool = True,
@@ -276,7 +276,7 @@ class TestKeepoutSettings:
 
 class TestWidth:
     def test_barrier_narrower_than_minimum(self, tmp_path: Path) -> None:
-        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, needs 8.0mm
+        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, needs 12.6mm
         manifest_path = write_manifest(tmp_path)
         state, report = run(board_path, manifest_path)
         assert state == "violation"

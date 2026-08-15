@@ -54,22 +54,23 @@ now labeled UNSOURCED. The point here is unchanged.) Reusing it here would
 repeat the exact class of error flagged in this plan ("do NOT assume 3-6mm;
 that error was made earlier on this project").
 
-At <=400V working voltage, pollution degree 2, material group IIIb (the
+At <=400V working voltage, pollution degree 3, material group IIIb (the
 conservative, unverified-CTI assumption for generic FR4), the commonly
 cited (and industry-standard, e.g. widely used in offline/universal-input
 SMPS layout guides for the analogous IEC 60950-1/62368-1 "reinforced
 insulation, <=250Vac mains, post-doubler/PFC bus" case) figures are
-approximately 6.4mm CLEARANCE and 8.0mm CREEPAGE for reinforced insulation.
+approximately 6.4mm CLEARANCE and 12.6mm CREEPAGE for reinforced insulation.
 Creepage (surface distance) is always >= clearance (through-air distance)
 for the same voltage/pollution class, and a PCB keepout enforces surface
 distance directly (both sides of the gap are literally board surface), so
 the creepage figure is the binding one for sizing a physical keepout.
-MIN_BARRIER_WIDTH_MM is therefore **8.0mm** for the selected PD2 production
-architecture. That selection is conditional on a documented, gasketed PCB
-compartment outside the coil/heatsink airflow path; it is not permission to
-weaken the physical board barrier. If the enclosure prerequisite is not
-implemented and verified, the PD3 fallback must be selected consistently in
-this gate and the KiCad generator. Never shrink the barrier to match this
+MIN_BARRIER_WIDTH_MM is therefore **12.6mm** for the enforced PD3
+classification (the 2026-08-15 data-driven decision -- the as-built board
+is forced-air vented with no cover/gasket/partition, so PD3/12.6mm
+governs; see docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md).
+The PD2 8.0mm figure remains the documented fallback should a sealed,
+gasketed PCB compartment outside the coil/heatsink airflow path ever be
+built and verified. Never shrink the barrier to match this
 repo's existing (looser) 6.0mm netclass figure -- see the plan's hard rule
 against weakening a safety distance to get a green gate.
 

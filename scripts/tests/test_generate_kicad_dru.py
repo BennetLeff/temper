@@ -37,15 +37,16 @@ four independent fail-opens on a live mains-connected board:
    LV"), and RULE 4b ("HighVoltageIsolated to LV") now each carry a real
    ``(constraint creepage ...)`` clause pinned to ``HV_CREEPAGE_ENFORCED_MM``.
 
-PD2-vs-PD3 note: the production architecture selects the PD2 exception, so
-``HV_CREEPAGE_ENFORCED_MM`` is pinned to ``HV_CREEPAGE_PD2_MM`` (8.0mm), mirroring
-``scripts/check_isolation_keepout.py``'s current ``MIN_BARRIER_WIDTH_MM``
-(also 8.0mm/PD2). The PD2 selection remains conditional on the mechanical
-prerequisite recorded in
-``docs/evidence/2026-07-30-pd2-enclosure-decision.md``. If that prerequisite
-is not implemented and verified, retargeting to PD3 (12.6mm) must change the
-generator, that script's ``MIN_BARRIER_WIDTH_MM``, and the physical geometry
-together.
+PD2-vs-PD3 note: the 2026-08-15 data-driven decision
+(``docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md``) enforces
+PD3, so ``HV_CREEPAGE_ENFORCED_MM`` is pinned to ``HV_CREEPAGE_PD3_MM``
+(12.6mm), mirroring ``scripts/check_isolation_keepout.py``'s current
+``MIN_BARRIER_WIDTH_MM`` (also 12.6mm/PD3). The PD3 enforcement is the
+governing bar for the as-built, forced-air-vented, compartment-less
+board; the PD2 figure remains the documented fallback should the sealed
+compartment ever be built and verified. Retargeting to PD2 would have to
+change the generator, that script's ``MIN_BARRIER_WIDTH_MM``, and the
+physical geometry together.
 
 Groups:
   TestHighVoltageIsolatedRulesEmitted/NetclassRulesYaml -- carried over from
@@ -212,18 +213,21 @@ class TestNoCoatingRelaxation:
     def test_coating_qualified_flag_is_false(self) -> None:
         assert gen.COATING_QUALIFIED is False
 
-    def test_creepage_figures_recorded_and_pd2_selected(self) -> None:
+    def test_creepage_figures_recorded_and_pd3_selected(self) -> None:
         # Both PD2 and PD3 candidate figures remain declared side by side --
         # the generator must never silently collapse this to one value
         # without recording the other (see docs/evidence/2026-07-28-drc-
         # creepage-constraint.md). This IS emitted as a real KiCad
         # `creepage` constraint (kicad-cli 10.0.4 supports one -- see
-        # TestCreepageConstraintEmitted below), selected as the PD2
-        # production target and matching scripts/check_isolation_keepout.py's
-        # current figure. The enclosure prerequisite remains a release gate.
+        # TestCreepageConstraintEmitted below), selected as the PD3
+        # enforcement target per the 2026-08-15 data-driven decision
+        # (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md) and
+        # matching scripts/check_isolation_keepout.py's current figure. The
+        # PD2 figure remains the documented fallback should a sealed
+        # compartment ever be built.
         assert gen.HV_CREEPAGE_PD2_MM == 8.0
         assert gen.HV_CREEPAGE_PD3_MM == 12.6
-        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD2_MM
+        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD3_MM
 
 
 # ---------------------------------------------------------------------------
@@ -739,23 +743,25 @@ class TestRule1aPadTypeConditionFix:
 # ("HighVoltageIsolated to LV") each carry a second `(constraint
 # creepage ...)` clause alongside their existing clearance constraint,
 # pinned to HV_CREEPAGE_ENFORCED_MM. The PD2 (8.0mm) vs PD3 (12.6mm)
-# production architecture selects the PD2 exception, so
-# HV_CREEPAGE_ENFORCED_MM is pinned to HV_CREEPAGE_PD2_MM, matching the
+# enforcement: the 2026-08-15 data-driven decision enforces PD3, so
+# HV_CREEPAGE_ENFORCED_MM is pinned to HV_CREEPAGE_PD3_MM, matching the
 # figure scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM enforces
-# for the same barrier. The enclosure prerequisite remains a release gate.
+# for the same barrier. The PD2 figure remains the fallback should the
+# sealed compartment ever be built.
 
 
 class TestCreepageConstraintEmitted:
     def test_enforced_constant_is_one_of_the_two_declared_candidates(self) -> None:
         assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
 
-    def test_enforced_constant_currently_pinned_to_pd2(self) -> None:
-        # Documented, deliberate production choice (matches
+    def test_enforced_constant_currently_pinned_to_pd3(self) -> None:
+        # Documented, deliberate enforcement choice per the 2026-08-15
+        # data-driven decision (matches
         # scripts/check_isolation_keepout.py's current MIN_BARRIER_WIDTH_MM,
-        # 8.0mm) -- not an accident of declaration order. If the documented
-        # enclosure prerequisite fails, this assertion and the keepout
-        # constant must move to PD3 together.
-        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD2_MM
+        # 12.6mm) -- not an accident of declaration order. If the sealed
+        # compartment is ever built and verified, this assertion and the
+        # keepout constant must move to PD2 together.
+        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD3_MM
 
     def test_ac_mains_to_lv_rule_emits_creepage_constraint(self) -> None:
         block = _rule_block(gen.generate_dru(), "AC Mains to LV")
@@ -983,8 +989,8 @@ class TestRulePrecedence:
             "A.Type == 'Track' || B.Type == 'Track'",
             {"clearance": 0.2},
         )
-        assert rules["AC Mains to LV"][1] == {"clearance": 6.0, "creepage": 8.0}
-        assert rules["HV to LV"][1] == {"clearance": 2.0, "creepage": 8.0}
+        assert rules["AC Mains to LV"][1] == {"clearance": 6.0, "creepage": 12.6}
+        assert rules["HV to LV"][1] == {"clearance": 2.0, "creepage": 12.6}
 
     def test_unanalysable_condition_fails_closed(self) -> None:
         """A condition the analyser cannot model must raise, not be skipped:
