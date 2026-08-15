@@ -131,7 +131,12 @@ def test_violation_includes_context():
     assert result.status is GateStatus.VIOLATIONS
     v = result.violations[0]
     assert "current_a" in v.context
-    assert v.context["current_a"] == 10.0
+    # 15.0A, not 10.0A: the AC-mains design current was corrected to
+    # elec/src/constraints.ato:11 (ACMainsConstraints.i_max = 15A) by
+    # #1205's c0ceb94d4 -- this assertion predates that correction and
+    # pinned the superseded 10.0A figure (stale ground truth, not a
+    # behavior this test is supposed to guard).
+    assert v.context["current_a"] == 15.0
     assert "min_width_mm" in v.context
 
 
