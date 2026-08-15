@@ -644,8 +644,26 @@ class HVLVSeparationCheck(Check):
 
 
 class CreepageCheck(Check):
-    """Creepage check — delegates to the Rust engine (temper_drc_rs),
-    filtered to this check's name (``safety_creepage``).
+    """Isolation-component package-size sanity check -- delegates to the
+    Rust engine (temper_drc_rs), filtered to this check's name
+    (``safety_creepage``).
+
+    NOT a creepage (surface-path distance) measurement, despite the name
+    kept here for API/registry stability. It checks one declared-isolation
+    component's own package bounding box (``max(width, height)``) against
+    a minimum size -- it never reads a second component's position and
+    never computes a distance between conductors. See
+    ``packages/temper-drc-rs/src/rules/safety/creepage.rs``'s header
+    comment for the full explanation, and
+    ``docs/evidence/2026-08-14-creepage-figure-integrity.md`` for how this
+    was found. The real, IEC-60335-cited, currently-enforced creepage
+    check for this board is ``scripts/generate_kicad_dru.py``'s generated
+    ``.kicad_dru`` ``creepage`` constraint (kicad-cli DRC); the domain-
+    pair/insulation-type-aware ``IEC60335_REQUIREMENTS`` matrix in
+    ``packages/temper-placer/src/temper_placer/requirements/validators/
+    clearance.py`` is a second, independently-sourced correct
+    implementation. Consult those for a real creepage verdict, not this
+    check's name.
 
     ``min_iso_width_mm`` is NOT forwarded to the Rust side: delegation runs
     the Rust registry's own registered ``CreepageCheck`` instance
@@ -669,7 +687,7 @@ class CreepageCheck(Check):
 
     @property
     def description(self) -> str:
-        return "Verify minimum creepage (isolation width) requirements per IEC 60335."
+        return "Isolation-component package-size sanity check (NOT a creepage/surface-path measurement -- see class docstring)."
 
     def run(
         self,

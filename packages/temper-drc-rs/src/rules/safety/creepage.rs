@@ -1,8 +1,56 @@
-// Safety check: creepage — isolation components must have minimum package width.
+// Safety check (registered as "safety_creepage" -- name kept stable; see
+// note below): isolation-component package-size sanity check.
 //
-// Checks isolation components (optocouplers, transformers, isolators, etc.)
-// to ensure their package provides sufficient physical distance across the
-// isolation barrier (minimum package width >= min_iso_width_mm).
+// WHAT THIS DOES NOT DO, stated plainly because the registered name
+// invites the opposite reading (found and documented by a 2026-08 dark-
+// matter census, docs/evidence/2026-08-14-creepage-figure-integrity.md):
+// this rule does NOT measure creepage. Creepage is a distance measured
+// ALONG A SURFACE between the nearest copper of two different nets/
+// potentials -- this rule never reads two components' positions relative
+// to each other, never reads pad/copper geometry, and never computes any
+// distance between conductors at all. It reads exactly one component's
+// own package bounding box (`max(width, height)`) and compares that
+// single number to a threshold. It is a component-selection heuristic
+// ("is this declared-isolation part's footprint at least this big"), not
+// a creepage measurement, and a passing result here says nothing about
+// the real surface-path distance on the board.
+//
+// The real, IEC-60335-cited, currently-enforced creepage check for this
+// board is `scripts/generate_kicad_dru.py`'s generated `.kicad_dru`
+// `(constraint creepage (min ...))` rules, verified against kicad-cli
+// 10.0.4's real surface-path solver
+// (docs/evidence/2026-07-28-drc-creepage-constraint.md). The domain-pair/
+// insulation-type-aware `IEC60335_REQUIREMENTS` matrix in
+// `packages/temper-placer/src/temper_placer/requirements/validators/
+// clearance.py` is a second, independently-sourced correct implementation.
+// Neither is affected by this rule's presence, absence, or correctness --
+// consult those, not this rule's "safety_creepage" name, for a real
+// creepage verdict.
+//
+// What this rule DOES do, honestly: for a component whose net class is
+// declared `safety_category == "iso"` (or, failing that, whose net-class
+// name matches one of 8 keywords), it flags a package bounding box under
+// `min_iso_width_mm` as too small to plausibly be a real isolation part
+// (optocoupler, isolated DC-DC, isolation transformer). That is a crude
+// BOM/footprint sanity check, not a distance measurement, and it is
+// currently unreachable on this board's real net-class taxonomy (none of
+// `packages/temper-placer/configs/netclass_rules.yaml`'s 8 net classes
+// declare `safety_category: "iso"` or match the keyword list) --
+// docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md measured this
+// directly.
+//
+// NOT renamed/removed here: `"safety_creepage"` is asserted verbatim by
+// several Python test suites (test_drc_result_coverage.py,
+// test_coverage_paydown_v9.py, the *_rust_differential.py suites) and is
+// the shape `_drc_result_py_oracle.py` -- a content-hash-pinned
+// differential oracle this project's own constraints forbid deleting or
+// consolidating -- mirrors. Renaming the identifier is a real, wider fix
+// (coordinated update across those files plus whatever re-pins the
+// oracle's hash) that this pass deliberately leaves for a dedicated
+// follow-up rather than attempting under this task's time/risk budget;
+// only the misleading prose above and the violation message below are
+// corrected here, which changes no test-visible identifier and no
+// enforcement behavior.
 //
 // Ported from: packages/temper-drc/src/temper_drc/checks/safety/creepage.py
 //
@@ -53,7 +101,13 @@ impl DrcRule for CreepageCheck {
     }
 
     fn description(&self) -> &str {
-        "Verify isolation component width for creepage safety."
+        // NOT a creepage (surface-path distance) measurement -- see this
+        // file's header comment. This checks one declared-isolation
+        // component's own package bounding box against a minimum size,
+        // nothing more. The real creepage enforcement for this board is
+        // scripts/generate_kicad_dru.py's generated .kicad_dru `creepage`
+        // constraint (kicad-cli DRC).
+        "Isolation-component package-size sanity check (NOT a creepage/surface-path measurement -- see module header comment)."
     }
 
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
@@ -64,8 +118,12 @@ impl DrcRule for CreepageCheck {
                 continue;
             }
 
-            // For an isolation component, the max(width, height) defines
-            // the separation distance across the barrier (matching Python).
+            // NOT a creepage distance: this is the component's own package
+            // bounding box (matching the ported Python original), used
+            // only as a crude "is this plausibly a real isolation part"
+            // footprint-size sanity check. It is never compared against
+            // another component's position, so it cannot represent a
+            // distance between two conductors.
             let package_width = comp.width.max(comp.height);
 
             if package_width < self.min_iso_width_mm {
@@ -79,7 +137,7 @@ impl DrcRule for CreepageCheck {
                     Severity::Error,
                     "SAF_CRP_001",
                     &format!(
-                        "Creepage violation: component {} width {:.1}mm < {:.1}mm",
+                        "Isolation component package too small: {} max(width,height) {:.1}mm < {:.1}mm (package-size heuristic, not a creepage/surface-path measurement)",
                         comp.refdes, package_width, self.min_iso_width_mm,
                     ),
                     DrcCategory::Safety,
