@@ -877,6 +877,36 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Tank <-> DC-bus rail creepage gate (PR merge path, added 2026-08-15).
+      # The tank<->bus pair is the board's highest-voltage shortfall: 2.0mm
+      # enforced vs 6.3mm PD2 / 10.0mm PD3 required (docs/evidence/2026-08-12-
+      # hv-hv-creepage-determination.md Sec 4.3; the audit in docs/evidence/
+      # 2026-08-15-safety-assertion-audit-resumed.md Part 0 classified the
+      # old suite as structurally incapable of seeing it). Until this step
+      # existed, test_tank_creepage.py ran ONLY in the nightly extended-cpsat
+      # job behind continue-on-error: true -- a shortfall could merge
+      # invisibly. This step runs the suite hard on every PR and every push
+      # to main (the `test` job is in required-checks.json's required_contexts
+      # as "Core Tests").
+      #
+      # EXPECTED RED until the SafetyValue migration raises the enforced
+      # tank<->bus figures: TestTankBusEnforcement asserts the design-rule
+      # figures (netclass clearance 2.0mm, DRU-emitted 6.3mm, SSOT declared
+      # 6.0/6.3mm) against the governing PD3 functional creepage (10.0mm).
+      # A labelled red is the point -- the test must fail until the design is
+      # built to the requirement. Do NOT weaken these assertions to green the
+      # step (repo rule: never make a check pass by weakening it).
+      - name: Run tank<->bus creepage gate (safety shortfall)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 27 --
+          tests/placer/cp_sat/test_tank_creepage.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       # Removed 2026-08-07: dead weight. The `run:` command already ends in
       # `|| echo "::warning ..."`, a shell fallback that makes the WHOLE
       # step exit 0 unconditionally (verified: `bash -c 'false || echo x;
