@@ -301,7 +301,7 @@ class TestInductiveLadderPBT:
     @settings(max_examples=50, deadline=30000)
     def test_channel_skeleton_invariant(self, node_count):
         """Channel skeleton with valid graph handles arbitrary node counts."""
-        import networkx as nx
+        import tests.graph_fixtures as nx
 
         from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 

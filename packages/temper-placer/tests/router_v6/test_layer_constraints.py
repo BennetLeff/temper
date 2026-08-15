@@ -1,4 +1,4 @@
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 
 from temper_placer.core.netlist import Component, Net, Pin

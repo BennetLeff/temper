@@ -42,7 +42,7 @@ two things no ModelBuilder-only test can:
 
 from __future__ import annotations
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 
 from temper_placer.core.netlist import Component, Net, Pin

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import networkx as nx
+import tests.graph_fixtures as nx
 
 from temper_placer.router_v6.constraint_model import ModelBuilder, NetChannelVar
 

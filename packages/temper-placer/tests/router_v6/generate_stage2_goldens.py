@@ -16,9 +16,9 @@ import sys
 from enum import Enum
 from pathlib import Path
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import numpy as np
-from networkx.readwrite import node_link_data
+from tests.graph_fixtures import node_link_data
 from shapely.geometry import MultiPolygon, Polygon
 
 HERE = Path(__file__).resolve().parent

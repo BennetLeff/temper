@@ -46,7 +46,7 @@ import math
 import random
 
 import hypothesis.strategies as st
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 from hypothesis import HealthCheck, given, settings
 

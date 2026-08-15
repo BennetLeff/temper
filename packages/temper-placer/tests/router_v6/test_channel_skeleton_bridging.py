@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import time
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 from shapely.geometry import LineString, MultiPolygon, box
 from shapely.ops import unary_union

@@ -49,7 +49,7 @@ P6, on the pre-fix shared-dict shape via the oracle's mutable dataclass).
 from __future__ import annotations
 
 import hypothesis.strategies as st
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 from hypothesis import given, settings
 

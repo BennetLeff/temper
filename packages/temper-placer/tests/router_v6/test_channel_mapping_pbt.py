@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import random
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st

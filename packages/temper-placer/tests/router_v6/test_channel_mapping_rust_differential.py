@@ -32,7 +32,7 @@ from __future__ import annotations
 import math
 import random
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 
 from temper_placer.router_v6 import channel_mapping as cm

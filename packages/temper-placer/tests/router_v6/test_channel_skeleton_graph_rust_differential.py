@@ -20,23 +20,26 @@ import random
 import subprocess
 from pathlib import Path
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 import temper_design_bundle_python as _tdb
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 # ===========================================================================
-# G1 evidence: the oracle is the live networkx, pinned by version check
+# G1 evidence: the oracle is the networkx-3.6.1 port, pinned by construction
 # ===========================================================================
 
 
-def test_networkx_version():
-    """The differential is pinned against exactly this networkx version."""
-    assert nx.__version__ == "3.6.1", (
-        f"networkx version {nx.__version__} != 3.6.1 -- "
-        "the differential oracle is version-specific"
-    )
+def test_oracle_is_graph_fixtures():
+    """The differential oracle is graph_fixtures — a port of networkx 3.6.1's
+    container/algorithm semantics (verified parity-exact before networkx was
+    removed from the environment). Asserting the fixture is bound here pins
+    that a live networkx install can never silently become the oracle again."""
+    import tests.graph_fixtures as fixtures
+
+    assert nx is fixtures
+    assert not hasattr(nx, "__version__")  # the port is not a networkx install
 
 
 # ===========================================================================

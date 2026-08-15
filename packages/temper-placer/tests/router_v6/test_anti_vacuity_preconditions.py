@@ -62,7 +62,7 @@ Groups:
 
 from __future__ import annotations
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 from shapely.geometry import MultiPolygon
 

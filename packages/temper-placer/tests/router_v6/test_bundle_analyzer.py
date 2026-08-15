@@ -7,7 +7,7 @@ Test scenarios: T-U1-1 through T-U1-8
 
 import math
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 
 from temper_placer.router_v6.bundle_analyzer import (

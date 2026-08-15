@@ -179,7 +179,7 @@ def test_smd_thermal_relief_uses_netlist_order():
 # ---------------------------------------------------------------------------
 
 _CHANNEL_SNIPPET = """
-import networkx as nx
+import tests.graph_fixtures as nx
 
 from temper_placer.router_v6.channel_mapping import (
     _is_near_skeleton,
@@ -238,7 +238,7 @@ def test_channel_waypoint_fallback_is_insertion_order_independent():
     snippet = """
 import random
 
-import networkx as nx
+import tests.graph_fixtures as nx
 
 from temper_placer.router_v6.channel_mapping import _nearest_skeleton_node
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton

@@ -46,7 +46,7 @@ import inspect
 import math
 from pathlib import Path
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 
 import tests.router_v6._constraint_model_builder_py_oracle as _orc
