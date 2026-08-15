@@ -1,13 +1,15 @@
-<!-- provenance: commit=8f21d2725 (base of branch chore/cert-lab-package-review, = origin/main at the
-     fork point of this finalizing branch; package drafted 2026-08-14 on cert-lab-package @ 5408cb275,
-     reviewed and corrected 2026-08-15 — see "Review corrections" note at the end of Sec 2.5)
-     dirty=false at time of writing. Own git worktree (/tmp/opencode/agent-cert-lab),
-     never the main checkout and never .claude/worktrees/agent-a374c69e35366ad12. No pcb/temper.kicad_pcb,
-     footprint, DRU threshold, or enforced safety constant was edited by this document or its companion
-     commits (only the two stale ADUM1250 rows in docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md were marked
-     superseded, documentation-only — see Sec 2.6 Q4). This package draws on work from FIVE branches;
-     every figure below states which one it came from, and whether that branch is merged to `main`.
-     See Sec 0 for the full map before using any number in this document. -->
+<!-- provenance: commit=8f21d27257a017209cb8969500eb64ba71d1e53b dirty=false (base of branch
+     chore/cert-lab-package-review = origin/main at the fork point of this finalizing branch;
+     package drafted 2026-08-14 on cert-lab-package @ 5408cb275, reviewed and corrected
+     2026-08-15 — see "Review corrections" note at the end of Sec 2.5). Own git worktree
+     (/tmp/opencode/agent-cert-lab), never the main checkout and never
+     .claude/worktrees/agent-a374c69e35366ad12. No pcb/temper.kicad_pcb, footprint, DRU
+     threshold, or enforced safety constant was edited by this document or its companion
+     commits (only the two stale ADUM1250 rows in docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md
+     were marked superseded, documentation-only — see Sec 2.6 Q4). This package draws on
+     work from FIVE branches; every figure below states which one it came from, and whether
+     that branch is merged to `main`. See Sec 0 for the full map before using any number in
+     this document. -->
 
 # Certification-lab question package: PD3 island-slot creepage credit (T1/T2/U6) and IEC 60664-4 applicability at 44-50kHz
 
