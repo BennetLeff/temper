@@ -1747,149 +1747,73 @@ jobs:
         # exit non-zero.
         run: uv run python scripts/check_isolation_keepout.py
 
-      # PREPARED, NOT ENABLED -- pending human approval
+      # CREEPAGE/CLEARANCE SSOT-DRIFT GATE -- state as of 2026-08-15.
       # (docs/evidence/2026-08-08-drc-safety-rule-vacuity-audit.md Task 3;
-      # remediation session 2026-08-08; re-verified and updated 2026-08-14,
-      # see docs/evidence/2026-08-14-creepage-figure-integrity.md).
+      # remediation session 2026-08-08; re-verified 2026-08-14 and 2026-08-15,
+      # see docs/evidence/2026-08-14-creepage-figure-integrity.md and
+      # docs/evidence/2026-08-15-pending-decisions.md item A.)
       #
-      # scripts/check_creepage_clearance_drift.py is a real, sophisticated,
-      # already-tested gate (scripts/tests/test_check_creepage_clearance_drift.py,
-      # 38 tests, all passing today against the checker's own synthetic
-      # fixtures) that cross-checks every creepage/clearance figure declared
-      # across elec/*.ato, scripts/*.py, packages/**/*.py|yaml, and
-      # configs/*.yaml by discovering declaration sites rather than reading
-      # a hand-maintained file list. It was written but never wired into
-      # any workflow -- confirmed by `grep -rl check_creepage_clearance_drift
-      # .github/workflows/` returning no matches (for either the gate
-      # script OR its own unit-test file) outside this comment.
+      # scripts/check_creepage_clearance_drift.py cross-checks every
+      # creepage/clearance figure declared across elec/*.ato, scripts/*.py,
+      # packages/**/*.py|yaml, and configs/*.yaml by DISCOVERING declaration
+      # sites rather than reading a hand-maintained file list. Its 44 unit
+      # tests (scripts/tests/test_check_creepage_clearance_drift.py) pass
+      # against the checker's own synthetic fixtures and now also exercise
+      # the functional tier and the documented-drift registry.
       #
-      # 2026-08-14 UPDATE: between the 2026-08-08 session and today, an
-      # unrelated feature commit (ad8498f7d, tank-node functional creepage)
-      # added a Python selection-alias (DEFAULT_TANK_CREEPAGE_MM =
-      # HV_TANK_CREEPAGE_PD3_MM in packages/temper-placer/.../tank_creepage.py)
-      # whose target has no comparable (metric, tier) family -- Table 18
-      # functional-insulation figures are deliberately kept tier-unspecified
-      # repo-wide (see that constant's own comment, and
-      # scripts/generate_kicad_dru.py's HV_TANK_CREEPAGE_ENFORCED_MM block,
-      # which already documents this exact trap and its accepted workaround).
-      # This made the gate exit 5 (GATE ERROR), not 3 -- strictly worse, and
-      # it could not even reach the 4 families below. Fixed 2026-08-14 by
-      # converting DEFAULT_TANK_CREEPAGE_MM to the same dict-lookup form
-      # generate_kicad_dru.py already uses for the identical situation,
-      # which is not a value/threshold/comparison change -- see that
-      # commit's message and the constant's own updated comment.
+      # The gate was written 2026-08-08 but never wired into any workflow;
+      # on 2026-08-14 it was verified to exit 5 (GATE ERROR) on main -- a
+      # tank selection-alias whose Table 18 FUNCTIONAL tier was outside the
+      # gate's {reinforced, basic, working} vocabulary. Fixed 2026-08-14 by
+      # the dict-lookup workaround (exit 5 -> exit 3) and PROPERLY on
+      # 2026-08-15: 'functional' is now a real tier in _classify_tier
+      # (classified last so a text that mentions functional only as context
+      # for a reinforced/basic/working figure keeps the more specific tier),
+      # and tank_creepage.py's DEFAULT_TANK_CREEPAGE_MM is back to the
+      # selection-alias form, so the enforced 10.0mm participates in its
+      # [creepage/functional] family and the 6.3mm PD2 fallback is reported
+      # as declared-but-not-enforced.
       #
-      # Running it against the real repo TODAY (post-fix) exits 3 (FAILED)
-      # with 4 mismatched value families -- unchanged in substance from
-      # 2026-08-08, re-verified today with corrected line numbers and a
-      # root cause for two of the four:
-      #   - [clearance/basic]: elec/src/constraints.ato:90
-      #     (AC_to_LV.min_clearance) = 3.0mm vs
-      #     configs/temper_deterministic_config.yaml:166
-      #     (net_class_rules.HighVoltage.clearance_mm) = 6.0mm.
-      #     NOT A DEFECT IN EITHER SOURCE -- this gate's own module
-      #     docstring (check_creepage_clearance_drift.py, "A tier label
-      #     alone... does not imply...") documents this exact pair as
-      #     investigated 2026-07-29 and found to be two genuinely different
-      #     requirements (135V ACMains-domain boundary vs. a materially
-      #     higher voltage-bucket netclass's own routing figure) that
-      #     happen to share the coarse "basic" tier label. Deliberately
-      #     left as a permanent MISMATCH, not silently special-cased,
-      #     because closing it mechanically would require free-text
-      #     citation parsing the docstring explicitly rules out of scope.
-      #   - [creepage/basic]: elec/src/constraints.ato:91
-      #     (AC_to_LV.min_creepage) = 5.0mm vs
-      #     configs/temper_deterministic_config.yaml:167
-      #     (net_class_rules.HighVoltage.creepage_mm) = 6.0mm.
-      #     Same non-defect, same citation, as [clearance/basic] above.
-      #   - [clearance/reinforced]: scripts/generate_kicad_dru.py:67
-      #     (HV_INTERNAL_CLEARANCE_MM) = 2.0mm and
-      #     packages/temper-placer/configs/netclass_rules.yaml:42
-      #     (classes.HighVoltage.clearance) = 2.0mm (this second site was
-      #     already corrected 2026-08-12, docs/evidence/2026-08-12-netclass-
-      #     param-reconciliation.md) vs elec/src/constraints.ato:83
-      #     (HV_to_LV.min_clearance) = 6.0mm and
-      #     packages/temper-placer/configs/netclass_rules.yaml:143
-      #     (classes.HighVoltageIsolated.clearance) = 6.0mm, neither of
-      #     which received that same 2026-08-12 fix.
-      #     LIKELY STALE, NOT YET CORRECTED: generate_kicad_dru.py's own
-      #     RULE 4 ("HV to LV") and RULE 4b ("HighVoltageIsolated to LV")
-      #     -- the fab-authoritative, currently-enforced kicad-cli DRC
-      #     rules for these exact two pairs -- both emit
-      #     `(constraint clearance (min 2.0mm))`, with RULE 4b's own
-      #     comment stating outright this is "a documented, deliberate
-      #     reduction below the 6.0mm per-netclass baseline that would
-      #     otherwise apply". That reads as strong, citable evidence the
-      #     two 6.0mm sites above are the same uncorrected legacy baseline
-      #     already fixed once (for HighVoltage.clearance) and missed for
-      #     its two siblings. NOT corrected in this pass: per this task's
-      #     own non-negotiable constraint, no clearance/creepage/DRU
-      #     threshold may be changed to make a check pass, and this
-      #     board's own automated review classifier independently declined
-      #     an attempted edit to these two values on exactly that basis.
-      #     Whether 2.0mm is itself IEC-adequate for this pair also
-      #     remains open -- generate_kicad_dru.py's RULE 4 comment itself
-      #     flags "IEC 60664-1 at 400V working voltage may require 3.0mm+
-      #     clearance -- verify before HV bring-up", and
-      #     docs/evidence/2026-08-12-highvoltage-clearance-discrepancy.md
-      #     explicitly declines to close that deeper question. DECISION
-      #     NEEDED: a human must either (a) update constraints.ato:83 and
-      #     netclass_rules.yaml:143 to 2.0mm to match what RULE 4/4b
-      #     actually enforce (closing the SSOT-agreement gap, not the
-      #     deeper IEC-adequacy question), or (b) determine the 6.0mm
-      #     figures are in fact independently correct for a reason not
-      #     documented anywhere in this repo today.
-      #   - [creepage/reinforced]: packages/temper-placer/configs/
-      #     netclass_rules.yaml:46 (classes.HighVoltage.creepage_mm) = 6.0mm
-      #     and netclass_rules.yaml:147 (classes.HighVoltageIsolated.
-      #     creepage_mm) = 6.0mm vs 8 sites at 8.0mm, including
-      #     elec/src/constraints.ato:36/:84, generate_kicad_dru.py:81
-      #     (HV_CREEPAGE_PD2_MM, HV_CREEPAGE_ENFORCED_MM's real, cited,
-      #     currently-enforced value), isolation_constants.py:45
-      #     (MIN_BARRIER_WIDTH_MM), and 4 pcl/temper_production.yaml
-      #     min_distance_mm entries. Note HighVoltage.creepage_mm is in
-      #     the SAME netclass_rules.yaml class block whose `clearance`
-      #     field was already corrected 2026-08-12 -- its `because` field
-      #     documents that clearance fix but says nothing about
-      #     creepage_mm, which was left at the old, uncited 6.0mm figure.
-      #     SAME SHAPE, SAME DECISION NEEDED as [clearance/reinforced]
-      #     above -- not corrected here for the same reason.
+      # The four 2026-08-08 drift families were resolved or accepted on
+      # 2026-08-15 via the gate's new ACCEPTED_DRIFT registry (still
+      # discovered, still printed in full with justification, still
+      # self-verifying closed against the reviewed value set):
+      #   - [clearance/basic] 3.0 vs 6.0mm -- PERMANENT, investigated
+      #     2026-07-29: two different requirements (135V ACMains pair vs
+      #     mains_240v-bucket netclass figure) sharing the coarse 'basic'
+      #     tier label. Accepted.
+      #   - [creepage/basic] 5.0 vs 6.0mm -- same pair, same verdict. Accepted.
+      #   - [creepage/reinforced] 6.0 (UNSOURCED legacy TEMPER_NET_CLASSES
+      #     figures, re-sourcing deferred) vs 12.6mm (decision-documented
+      #     PD3; ato + pcl sites aligned 8.0->12.6mm by the 2026-08-15
+      #     changeset). 8.0mm PD2 is explicitly NOT accepted. Accepted.
+      #   - [creepage/functional] 6.3 (PD2 fallback) vs 10.0mm (PD3
+      #     enforced). Accepted.
       #
-      # Separately (not one of the 4 failing families -- this selection-
-      # alias mechanism correctly excludes it from comparison, see
-      # "DECLARED BUT NOT ENFORCED" in the gate's own report):
-      # scripts/generate_kicad_dru.py:82's HV_CREEPAGE_PD3_MM = 12.6mm is a
-      # deliberately-declared, not-enforced fallback -- HV_CREEPAGE_ENFORCED_MM
-      # currently and correctly selects HV_CREEPAGE_PD2_MM (8.0mm), per the
-      # project owner's own settled, documented decision
-      # (docs/evidence/2026-07-30-pd2-enclosure-decision.md,
-      # docs/evidence/2026-08-11-pd2-decision-record.md -- PD2 is the
-      # selected production target, NOT yet earned by a built compartment,
-      # tracked by its own dedicated, currently-red advisory gate,
-      # scripts/check_pd2_compartment_evidence.py). A stale prose comment
-      # in packages/temper-placer/configs/netclass_rules.yaml (originally
-      # around line 133) described HV_CREEPAGE_ENFORCED_MM as "12.6mm,
-      # PD3-pinned" -- accurate when written 2026-07-28, never updated
-      # after the PD2/PD3 selection settled; corrected 2026-08-14.
+      # REMAINING BLOCKER -- one honest red, needs an owner value decision:
+      #   [clearance/reinforced] 2.0mm (netclass HighVoltage.clearance,
+      #   cited Table 16 + cl.29.1 derivation; what RULE 4/4b actually
+      #   emit) vs 6.0mm (ato HV_to_LV.min_clearance + netclass
+      #   HighVoltageIsolated.clearance, uncited legacy; 6.0 is in NO
+      #   recovered Table 16 value set {0.5,1.5,3.0,5.5,8.0,11.0}). The
+      #   correct figure for the HV<->LV barrier is not determinable from
+      #   repo evidence (the DRC's own RULE 4 note flags IEC 60664-1 at
+      #   400V may require 3.0mm+), so this family is deliberately NOT
+      #   registered: lowering the declared 6.0 to match enforcement would
+      #   weaken a declared figure, and raising enforcement needs a real
+      #   determination. Once an owner decides, either update the stale
+      #   6.0 sites or extend ACCEPTED_DRIFT with the decided value.
       #
-      # Turning this on is a human decision (it would go CI-red today on
-      # main, exactly as intended -- this is a real gate finding real
-      # drift, not a broken gate). The step below is deliberately commented
-      # out rather than `continue-on-error`'d: per this file's own
-      # convention, a gate that can run must be allowed to fail loudly, so
-      # softening it defeats the purpose. Uncomment both steps together
-      # once a human has resolved (or explicitly accepted, the way
-      # [clearance/basic]/[creepage/basic] already are) all 4 families
-      # above. [clearance/reinforced] and [creepage/reinforced] each need
-      # one explicit value decision (see "DECISION NEEDED" above); this
-      # session's own permission classifier declined to make either edit,
-      # consistent with this task's constraint that a clearance/creepage
-      # value must never be changed to make a check pass.
-      #
-      # - name: Creepage/clearance drift gate unit tests
-      #   if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-      #   run: uv run pytest scripts/tests/test_check_creepage_clearance_drift.py -v --tb=short
-      #
+      # ENABLEMENT STATUS: the unit-test step below is ENABLED (always
+      # green, exercises the gate against synthetic fixtures). The gate
+      # step stays commented because it exits 3 on main today (the one
+      # honest red above) -- enabling it would red the required Core Tests
+      # context on every PR. Uncomment the gate step once [clearance/
+      # reinforced] is resolved or explicitly accepted.
+      - name: Creepage/clearance drift gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_creepage_clearance_drift.py -v --tb=short
+
       # - name: Creepage/clearance SSOT-drift gate (cross-source figure agreement)
       #   if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
       #   run: uv run python scripts/check_creepage_clearance_drift.py
