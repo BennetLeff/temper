@@ -1793,6 +1793,21 @@ struct PadOut {
 }
 
 /// Port of `_extract_nets_from_pcb` from `_parse_nets.py`.
+///
+/// DIVERGENCE (2026-08-15, deliberate, in lockstep with the pinned oracle
+/// `tests/io/_parse_engine_py_oracle/_parse_nets.py`): the pre-migration
+/// Python dropped nets with fewer than 2 pins (`if len(n.pins) >= 2`).
+/// Single-pad nets are real electrical entities -- they still carry a net
+/// class assignment (DRC, DRU emission, safety classification) and must
+/// stay in the netlist registry so `Netlist.apply_net_class_mapping_strict`
+/// can resolve every key of `temper_constraints.yaml`'s `net_classes:`
+/// (the ZCD orphan-footprint removal leaves `ac_l` as a single-pad net --
+/// PR #1178 lineage; without this, the strict net-class mapping raises
+/// `ValueError` naming `ac_l` as an unresolved key). Routing already
+/// excludes them (`router_v6.routing_space._routable_net_names` requires
+/// >= 2 pins); the registry just no longer forgets they exist. Kept in
+/// lockstep with the oracle so the R1a differential stays a parity check
+/// rather than asserting the pre-migration drop.
 fn extract_nets_pure(components: &[CompOut]) -> Vec<(String, Vec<(String, String)>)> {
     // (net_name, [(comp_ref, pin_name)]) in first-encounter order.
     let mut order: Vec<String> = Vec::new();
@@ -1813,15 +1828,14 @@ fn extract_nets_pure(components: &[CompOut]) -> Vec<(String, Vec<(String, String
             entry.push((comp.r#ref.clone(), pin.name.clone()));
         }
     }
+    // Every name in `order` was inserted with at least one pin, so no
+    // filtering is needed -- single-pad nets are retained (see the function
+    // docstring for why).
     order
         .into_iter()
-        .filter_map(|name| {
+        .map(|name| {
             let pins = nets.get(&name).cloned().unwrap_or_default();
-            if pins.len() >= 2 {
-                Some((name, pins))
-            } else {
-                None
-            }
+            (name, pins)
         })
         .collect()
 }
@@ -3471,6 +3485,54 @@ mod tests {
             }
         }
         assert!(size_seen && angle_seen);
+    }
+
+    /// Single-pad nets must stay in the netlist registry (deliberate
+    /// 2026-08-15 divergence from the pre-migration `len(pins) >= 2` drop --
+    /// see `extract_nets_pure`'s docstring). A net with one pad still needs
+    /// its net class assignment (DRC/DRU/safety) and must resolve in
+    /// `Netlist.apply_net_class_mapping_strict`; routing excludes it via
+    /// `_routable_net_names`, not by erasing it from the registry.
+    #[test]
+    fn extract_nets_pure_keeps_single_pad_nets() {
+        fn pin(name: &str, net: &str) -> RawPinOut {
+            RawPinOut {
+                name: name.to_string(),
+                number: name.to_string(),
+                position: (Num::F(0.0), Num::F(0.0)),
+                net: Some(net.to_string()),
+                width: Num::F(1.0),
+                height: Num::F(1.0),
+                shape: "rect".to_string(),
+                layer: "F.Cu".to_string(),
+                drill: NumOrDrill::Num(Num::F(0.0)),
+                is_pth: false,
+                roundrect_ratio: Num::F(0.0),
+                pad_rotation_deg: 0.0,
+            }
+        }
+        fn comp(r#ref: &str, pins: Vec<RawPinOut>) -> CompOut {
+            CompOut {
+                r#ref: r#ref.to_string(),
+                footprint: "R:R_0603".to_string(),
+                bounds: (0.0, 0.0),
+                pins,
+                initial_position: (0.0, 0.0),
+                fixed: false,
+                initial_rotation_quadrant: 0,
+                initial_side: 0,
+                attributes: Vec::new(),
+                sheetpath: None,
+            }
+        }
+        let components = vec![
+            comp("F1", vec![pin("1", "ac_l")]),
+            comp("U1", vec![pin("1", "gnd"), pin("2", "gnd")]),
+        ];
+        let nets = extract_nets_pure(&components);
+        let names: Vec<&str> = nets.iter().map(|(n, _)| n.as_str()).collect();
+        assert_eq!(names, vec!["ac_l", "gnd"], "single-pad net must be retained");
+        assert_eq!(nets[0].1, vec![("F1".to_string(), "1".to_string())]);
     }
 
 }

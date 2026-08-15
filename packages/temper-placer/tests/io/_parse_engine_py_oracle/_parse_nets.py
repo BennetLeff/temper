@@ -4,6 +4,14 @@
 # so the oracle package is self-contained. Extraction bodies, dataclasses and
 # kiutils usage are byte-identical to the pre-migration source. This is the pinned
 # Python arm of the Rust parse-engine differential (R1a).
+#
+# DELIBERATE DIVERGENCE 2026-08-15: `_extract_nets_from_pcb` no longer drops
+# single-pad nets (the pre-migration `len(n.pins) >= 2` filter). This oracle
+# pins the MIGRATION contract -- Rust engine output == oracle output -- not the
+# pre-migration behavior; a deliberate behavior correction has to be made on
+# both sides or the differential starts asserting the defect (same precedent as
+# the 0.25 -> 0.20 default_trace_width correction below). See that function's
+# comment and extract_nets_pure in parse_engine.rs for the full rationale.
 
 """Internal: net, net class, safety classification, and design rules extraction."""
 
@@ -56,7 +64,18 @@ def _extract_nets_from_pcb(
 
             nets_dict[pin.net].pins.append((comp.ref, pin.name))
 
-    return [n for n in nets_dict.values() if len(n.pins) >= 2]
+    # DIVERGENCE (2026-08-15, deliberate, in lockstep with the Rust engine --
+    # see extract_nets_pure in parse_engine.rs): the pre-migration code
+    # filtered `len(n.pins) >= 2`, dropping single-pad nets. Single-pad nets
+    # are real electrical entities that still need net-class assignment
+    # (DRC, DRU emission, safety classification) and must stay in the
+    # netlist registry so apply_net_class_mapping_strict can resolve every
+    # key of temper_constraints.yaml's net_classes: (the ZCD orphan-footprint
+    # removal leaves ac_l as a single-pad net). Routing already excludes
+    # them (routing_space._routable_net_names requires >= 2 pins). Kept in
+    # lockstep so the R1a differential stays a parity check rather than
+    # asserting the pre-migration drop.
+    return list(nets_dict.values())
 
 
 def _apply_safety_classifications(netlist: Netlist, design_rules: DesignRules) -> None:
