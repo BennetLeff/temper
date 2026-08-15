@@ -202,6 +202,14 @@ mod model;
 pub(crate) mod net_class_validation;
 pub(crate) mod netlist;
 pub(crate) mod pcl;
+// Safety-critical values with provenance: the recovered IEC 60335-1
+// Table 16/17/18 const tables plus the Derived/Fabricated/Unobtainable
+// provenance vocabulary (see safety_value.rs's module docstring). NOT gated
+// on `python` — the wasm32 tier and the coverage gate both build the
+// `--no-default-features` configuration, and the tables are pure const data
+// with no pyo3 dependency. The pyo3 surface inside the module is itself
+// `#[cfg(feature = "python")]`-gated.
+pub mod safety_value;
 mod serialize;
 mod sexpr;
 
@@ -499,6 +507,11 @@ mod python {
         crate::fixed_copper_builder::register(module)?;
         // Wave 4 follow-up: the hv_lv_partition stage's decision kernels
         // (see hv_lv_partition.rs). Registered after constraint_model.
-        crate::hv_lv_partition::register(module)
+        crate::hv_lv_partition::register(module)?;
+
+        // Safety-critical values with provenance: the recovered
+        // IEC 60335-1 Table 16/17/18 lookups (see safety_value.rs).
+        crate::safety_value::register(module)?;
+        Ok(())
     }
 }
