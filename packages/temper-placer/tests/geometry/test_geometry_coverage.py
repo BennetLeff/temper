@@ -147,7 +147,7 @@ class TestPolygonUncovered:
 # primitives.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.primitives import (
+from temper_placer.geometry import (
     aabb_expand,
     aabb_from_points,
     aabb_intersects,

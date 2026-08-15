@@ -29,7 +29,7 @@ from temper_placer.geometry import (
 )
 
 # Import geometry functions
-from temper_placer.geometry.primitives import (
+from temper_placer.geometry import (
     distance_to_rect_edge,
     distance_to_specific_edge,
     point_distance,
