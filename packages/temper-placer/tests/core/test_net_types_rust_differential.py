@@ -9,11 +9,15 @@ pattern for every later contract migration.
 The Rust pyo3 pyclasses ``NetType``, ``ConnectivityStrategy``,
 ``VoltageClass``, ``NetTypeSpec``, ``NetClassification`` (in
 ``temper_design_bundle_python``, from the ``temper-design-bundle`` crate)
-must reproduce the pre-migration Python implementation of
-``temper_placer/core/net_types.py`` bit-identically. The pre-migration
-implementation is pinned verbatim as the oracle
-(``_net_types_py_oracle.py``, commit 37a4251e0) and every assertion here
-drives IDENTICAL inputs through both sides.
+must reproduce the Python reference implementation of
+``temper_placer/core/net_types.py`` bit-identically. The reference is
+pinned as the oracle (``_net_types_py_oracle.py``), deliberately re-pinned
+2026-08-15 with the truthy creepage migration: the oracle and the Rust
+pyclass previously shared the fabricated ``14.0``-based creepage table
+(written in the same commit ``1f85f4ad1``); both now resolve the recovered
+Table 17 values identically (see the oracle's ``get_creepage_mm`` docstring
+and ``docs/evidence/2026-08-15-creepage-base-14-verification.md``).
+Every assertion here drives IDENTICAL inputs through both sides.
 
 Comparison convention (mirrors the repo's other ``*_rust_differential.py``
 files): objects are canonicalized into plain comparable tuples before
@@ -159,14 +163,28 @@ def test_get_clearance_mm_bit_identical(pollution_degree):
         )
 
 
+@pytest.mark.parametrize("pollution_degree", [1, 2, 3])
 @pytest.mark.parametrize("material_group", [1, 2, 3])
-def test_get_creepage_mm_bit_identical(material_group):
+def test_get_creepage_mm_bit_identical(pollution_degree, material_group):
+    """Bit-identical creepage across the (group x PD) grid.
+
+    Re-pinned 2026-08-15 with the truthy Table 17 migration (see the
+    oracle's get_creepage_mm docstring): the old single-parameter
+    (material_group) grid pinned the fabricated 14.0-based values; the new
+    grid keys the recovered table by (bracket, PD, group), with PD3 the
+    enforced default.
+    """
     for py_member in _oracle.VoltageClass:
         rust_member = getattr(VOLTAGE_CLASS, py_member.name)
-        py_result = py_member.get_creepage_mm(material_group)
-        rust_result = rust_member.get_creepage_mm(material_group)
+        py_result = py_member.get_creepage_mm(
+            material_group=material_group, pollution_degree=pollution_degree
+        )
+        rust_result = rust_member.get_creepage_mm(
+            material_group=material_group, pollution_degree=pollution_degree
+        )
         assert float(rust_result).hex() == float(py_result).hex(), (
-            f"{py_member.name} material_group={material_group}: "
+            f"{py_member.name} material_group={material_group} "
+            f"pollution_degree={pollution_degree}: "
             f"rust={rust_result!r} py={py_result!r}"
         )
 
@@ -245,7 +263,7 @@ def test_spec_construction_defaults_identical():
             "net_type": "HIGH_VOLTAGE",
             "connectivity": "COPPER_POUR",
             "voltage_class": "MAINS_240V",
-            "creepage_mm": 6.0,
+            "creepage_mm": 9.0,
             "clearance_mm": 6.0,
         },
         # High current with Via1x1 -> error

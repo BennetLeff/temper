@@ -591,10 +591,21 @@ def test_hv_escalation_both_hv():
     )
     assert report.total_checks == 1
     # 400V → most-conservative across all standards (IEC 60950-1, 60335-1,
-    # 60664-1, 62368-1, IPC-2221) = 14.0 mm.  The old IPC-2221-only value
-    # was 8.0; the unified engine is correctly more conservative.
+    # 60664-1, 62368-1, IPC-2221) = 12.6 mm.
+    #
+    # Re-pinned 2026-08-15 with the creepage migration: the previous 14.0
+    # expectation pinned the fabricated HIGH_VOLTAGE creepage base (origin
+    # commit 418fab757) through two synchronized copies — the
+    # design-bundle `VoltageClass` and the `router_clearance.rs` gate's
+    # embedded table (SNAPSHOT; see
+    # docs/evidence/2026-08-15-creepage-base-14-verification.md). Both are
+    # now migrated to recovered Table 17 values; the governing 60335-1
+    # candidate for a <=400 V HV pair is the row iv (>250-400 V) PD3
+    # group IIIa/IIIb cell (6.3) x 2 per cl. 29.2.3 = 12.6 mm — the
+    # verification doc's endorsed PD3-as-built figure for the <=400 V
+    # barrier.
     if report.violation_count > 0:
-        assert report.violations[0].required_clearance == pytest.approx(14.0)
+        assert report.violations[0].required_clearance == pytest.approx(12.6)
 
 
 # ============================================================================

@@ -16,7 +16,7 @@
 // matches a narrow high-voltage keyword gate. Measured on the real
 // production board (pcb/temper.kicad_pcb, 603 nets): only 1.16% of nets
 // are HV-gated, and only 3 distinct required-clearance values occur in
-// practice (0.127mm default, 4.2mm internal-HV, 14.0mm external-HV). That
+// practice (0.127mm default, 4.2mm internal-HV, 12.6mm external-HV). That
 // is the basis for the two-tier structure below:
 //
 //   - FINE-vs-FINE same-layer segments (the ~99% majority, fixed small
@@ -423,14 +423,28 @@ fn voltage_class_clearance_mm(vc: VoltageClass) -> f64 {
     }
 }
 
-/// IEC 60335-1 Table 17, material group 2 (the only value requested here).
+/// IEC 60335-1 Table 17 (creepage) for the voltage classes this gate can
+/// see. Values mirror the `temper_design_bundle_python` `VoltageClass`
+/// pyclass's no-arg `get_creepage_mm()` — which this gate is the
+/// differential partner of (see `test_clearance_family_rust_differential.py`).
+///
+/// Re-pinned 2026-08-15 with the net_types creepage migration: the previous
+/// table (0.5 / 1.6 / 2.5 / 5.0 / 14.0) was the fabricated
+/// `base x {0.8, 1.0, 1.4}` structure (origin commit `418fab757`, no
+/// traceable 14.0 cell for this board; see
+/// docs/evidence/2026-08-15-creepage-base-14-verification.md). The pyclass
+/// now returns recovered Table 17 values keyed by (bracket, PD, group):
+/// no-arg = PD3 (as-built governing degree), group IIIa/IIIb (generic
+/// FR-4), with the cl. 29.2.3 reinforced figure (2x basic) for the HV-side
+/// classes and the basic cell for SELV/LOW_VOLTAGE. This table must track
+/// the pyclass exactly — the differential test enforces it.
 fn voltage_class_creepage_mm(vc: VoltageClass) -> f64 {
     match vc {
-        VoltageClass::Selv => 0.5,
-        VoltageClass::LowVoltage => 1.6,
-        VoltageClass::Mains120V => 2.5,
-        VoltageClass::Mains240V => 5.0,
-        VoltageClass::HighVoltage => 14.0,
+        VoltageClass::Selv => 1.9,       // basic, <=50 V row, PD3, IIIa/IIIb
+        VoltageClass::LowVoltage => 1.9, // basic, <=50 V row, PD3, IIIa/IIIb
+        VoltageClass::Mains120V => 4.8,  // reinforced (2.4 x 2), >50-125 row, PD3
+        VoltageClass::Mains240V => 8.0,  // reinforced (4.0 x 2), >125-250 row, PD3
+        VoltageClass::HighVoltage => 12.6, // reinforced (6.3 x 2), >250-400 row, PD3
     }
 }
 
@@ -501,6 +515,9 @@ const INTERNAL_LAYER_CREEPAGE_FACTOR: f64 = 0.30;
 /// Port of `get_clearance()`, restricted to the parameters
 /// `_get_required_clearance` actually passes (pollution_degree=2,
 /// overvoltage_category=2, material_group="IIIa"/2, no design_rule_creepage).
+/// Note: the 60335 creepage candidate is the pyclass's no-arg
+/// `get_creepage_mm()` (PD3, the as-built governing degree), not the
+/// pollution_degree parameter — see `voltage_class_creepage_mm`.
 fn get_clearance(class_a: NetClass, class_b: NetClass, voltage: f64, layer_internal: bool) -> f64 {
     let (iec_clr, iec_creep) = iec60950_clearance_creepage(voltage);
     let vc_a = net_class_to_voltage_class(class_a);
@@ -1518,7 +1535,14 @@ mod tests {
     #[test]
     fn hv_escalation_matches_expected_value() {
         // Mirrors test_hv_escalation_both_hv in the Python suite: both HV,
-        // 400V -> required clearance 14.0mm (HIGH_VOLTAGE creepage table).
+        // 400V -> required clearance 12.6mm (HIGH_VOLTAGE creepage table,
+        // cl. 29.2.3 reinforced, PD3, group IIIa/IIIb).
+        //
+        // Re-pinned 2026-08-15 with the net_types creepage migration: the
+        // previous 14.0 was the fabricated HIGH_VOLTAGE creepage base
+        // (origin commit 418fab757); the pyclass the gate tracks now
+        // returns the recovered Table 17 row iv (>250-400 V) PD3 cell
+        // (6.3) x 2 = 12.6 (see voltage_class_creepage_mm).
         let routes = vec![
             RouteIn {
                 net_name: "HV_BUS".to_string(),
@@ -1541,7 +1565,7 @@ mod tests {
         let (violations, checks) = verify_route_clearance_impl(&routes, 0.127, &voltage_ratings);
         assert_eq!(checks, 1);
         if !violations.is_empty() {
-            assert!((violations[0].5 - 14.0).abs() < 1e-9, "required={}", violations[0].5);
+            assert!((violations[0].5 - 12.6).abs() < 1e-9, "required={}", violations[0].5);
         }
     }
 

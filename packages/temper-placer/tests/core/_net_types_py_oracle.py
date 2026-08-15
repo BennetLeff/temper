@@ -94,32 +94,63 @@ class VoltageClass(Enum):
             return base * 0.8
         return base
 
-    def get_creepage_mm(self, material_group: int = 2) -> float:
+    def get_creepage_mm(self, material_group: int = 2, pollution_degree: int = 3) -> float:
         """
-        Get minimum creepage (along surface) per IEC 60335.
+        Get minimum creepage (along surface) per IEC 60335-1.
+
+        Re-pinned 2026-08-15 (deliberate re-pin, evidence:
+        docs/evidence/2026-08-15-creepage-base-14-verification.md): the
+        previous base x {0.8, 1.0, 1.4} table carried a fabricated 14.0 mm
+        HIGH_VOLTAGE base (origin commit 418fab757) and an unsourced
+        factor structure. The value is now a lookup into the recovered
+        Table 17 (CITED-PRIMARY, IS 302-1:2008) keyed by (voltage bracket,
+        pollution degree, material group), matching the Rust pyclass
+        bit-identically.
 
         Args:
-            material_group: 1=best, 2=typical FR4, 3=worst CTI
+            material_group: 1 = I (600 < CTI); 2 = IIIa/IIIb (typical FR-4,
+                default); 3 = IIIa/IIIb (worst CTI = IIIb — the standard
+                merges IIIa and IIIb into one column, cl. 29.2).
+            pollution_degree: 1, 2 or 3; default 3 (PD3 is the as-built
+                governing degree; PD2 remains queryable for comparison).
 
         Returns:
-            Minimum creepage in mm
+            Minimum creepage in mm: the cl. 29.2.3 reinforced figure
+            (2x basic) for the HV-side classes (MAINS_120V, MAINS_240V,
+            HIGH_VOLTAGE), the basic Table 17 cell for SELV/LOW_VOLTAGE.
         """
-        # IEC 60335-1 Table 17 (basic insulation, material group II)
-        creepages = {
-            VoltageClass.SELV: 0.5,
-            VoltageClass.LOW_VOLTAGE: 1.6,
-            VoltageClass.MAINS_120V: 2.5,
-            VoltageClass.MAINS_240V: 5.0,  # 6.3mm for reinforced
-            VoltageClass.HIGH_VOLTAGE: 14.0,
+        # Recovered Table 17, basic creepage per (bracket, PD); groups are
+        # the merged IIIa/IIIb column except where group I is selected.
+        # Bracket per class follows the verification doc §5 row assignments.
+        _BRACKET = {
+            VoltageClass.SELV: "<=50",
+            VoltageClass.LOW_VOLTAGE: "<=50",
+            VoltageClass.MAINS_120V: ">50-125",
+            VoltageClass.MAINS_240V: ">125-250",
+            VoltageClass.HIGH_VOLTAGE: ">250-400",
         }
-        base = creepages.get(self, 5.0)
+        # (bracket, pd) -> (group I, group IIIa/IIIb); pd=1 is a single
+        # merged column regardless of group.
+        _BASIC = {
+            "<=50": {1: 0.2, 2: (0.6, 1.2), 3: (1.5, 1.9)},
+            ">50-125": {1: 0.3, 2: (0.8, 1.5), 3: (1.9, 2.4)},
+            ">125-250": {1: 0.6, 2: (1.3, 2.5), 3: (3.2, 4.0)},
+            ">250-400": {1: 1.0, 2: (2.0, 4.0), 3: (5.0, 6.3)},
+        }
+        _REINFORCED_CLASSES = {
+            VoltageClass.MAINS_120V,
+            VoltageClass.MAINS_240V,
+            VoltageClass.HIGH_VOLTAGE,
+        }
 
-        # Adjust for material group
-        if material_group == 3:
-            return base * 1.4
-        elif material_group == 1:
-            return base * 0.8
-        return base
+        bracket = _BRACKET[self]
+        pd = pollution_degree if pollution_degree in (1, 2, 3) else 3
+        group = 1 if material_group == 1 else 2  # 2 and 3 both -> IIIa/IIIb
+        row = _BASIC[bracket][pd]
+        basic = row if pd == 1 else row[0 if group == 1 else 1]
+        if self in _REINFORCED_CLASSES:
+            return basic * 2.0  # cl. 29.2.3: reinforced = at least double Table 17 basic
+        return basic
 
 
 @dataclass(frozen=True)
@@ -174,7 +205,7 @@ class NetTypeSpec:
             if self.creepage_mm < min_creepage:
                 errors.append(
                     f"High voltage net ({self.voltage_class.name}) requires creepage >= {min_creepage}mm, "
-                    f"got {self.creepage_mm}mm. Reference: IEC 60335-1 Table 17"
+                    f"got {self.creepage_mm}mm. Reference: IEC 60335-1 Table 17 (cl. 29.2.3 reinforced)"
                 )
             if self.clearance_mm < self.voltage_class.get_clearance_mm():
                 errors.append(

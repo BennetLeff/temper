@@ -141,8 +141,9 @@ pure-delegation re-export of the `temper_design_bundle_python` pyclasses).
 functions are recursive and none iterate over a dimension whose correctness
 depends on a size parameter:
 
-- `get_clearance_mm` / `get_creepage_mm` are single table lookups with a
-  constant multiplier — no loop, no recursion.
+- `get_clearance_mm` is a single table lookup with a constant multiplier;
+  `get_creepage_mm` is a single recovered-Table-17 lookup (with the
+  cl. 29.2.3 doubling for the HV-side classes) — no loop, no recursion.
 - `NetTypeSpec::validate` is a fixed sequence of four disjoint branch tests
   over a fixed field set — the number of error classes is constant.
 - `classify_net` / `get_plane_nets` / `get_pour_nets` / `validate_all` /
@@ -159,20 +160,31 @@ recorded instead.
 ## Structural proof
 
 **Claim (bit-identical parity).** For every public symbol, the pyclass
-behaviour is bit-identical to the pinned pre-migration Python
-implementation (`packages/temper-placer/tests/core/_net_types_py_oracle.py`,
-commit `37a4251e0`).
+behaviour is bit-identical to the pinned Python reference
+(`packages/temper-placer/tests/core/_net_types_py_oracle.py`, re-pinned
+2026-08-15 with the truthy creepage migration — see below).
 
 *Proof by structural cases.*
 
 1. **Enum tables (`get_clearance_mm`, `get_creepage_mm`).** Both sides are
-   finite `match`/dict lookups over the same 5-member closed domain with the
-   same base constants, scaled by the same IEEE-754 multipliers
-   (`0.8 / 1.0 / 1.4 / 1.5`) for the same guard values. IEEE-754 double
-   multiplication is deterministic across implementations, so each of the
-   5 × 3 input combinations yields bit-identical doubles. Exhaustive
-   coverage: the differential test drives every member × every degree/group,
-   and P1/P1b re-assert the closed form independently.
+   finite `match`/dict lookups over the same 5-member closed domain.
+   `get_clearance_mm` keeps the pre-migration base constants scaled by the
+   same IEEE-754 multipliers (`0.8 / 1.0 / 1.5`). `get_creepage_mm` was
+   migrated 2026-08-15 from the fabricated `base * {0.8, 1.0, 1.4}`
+   structure (a 14.0-mm HIGH_VOLTAGE base with no traceable source, origin
+   commit `418fab757`) to typed lookups into the recovered Table 17
+   (`src/safety_value.rs`, CITED-PRIMARY) keyed by (voltage bracket,
+   pollution degree, material group) — see the method docstring and
+   `docs/evidence/2026-08-15-creepage-base-14-verification.md`. The oracle
+   was deliberately re-pinned in the same change because it was the same
+   fabricated lineage (byte-identical to the old implementation); the
+   re-pin is documented in the oracle's `get_creepage_mm` docstring. Both
+   sides now resolve the same recovered-table cells with the same
+   cl. 29.2.3 doubling for the HV-side classes, so each of the
+   5 × 3 × 3 input combinations yields bit-identical doubles. Exhaustive
+   coverage: the differential test drives every member × every
+   group × every PD, and P1/P1b re-assert the recovered-table reference
+   independently.
 
 2. **`validate` / `is_valid`.** The error corpus is produced by four
    pairwise-disjoint branch conditions, each transcribed verbatim from the

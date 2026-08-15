@@ -21,12 +21,21 @@
 //!   Rust's `{:?}` writes `1e300`, `1e-5`, `NaN`. The `py_float_str` helper
 //!   post-processes Rust's shortest-round-trip output into the CPython
 //!   rendering so message text is bit-identical on every input.
-//! - `get_clearance_mm`/`get_creepage_mm` are `base * {0.8, 1.0, 1.4, 1.5}`
-//!   — identical IEEE-754 doubles in Rust and Python.
+//! - `get_clearance_mm` is `base * {0.8, 1.0, 1.5}` — identical IEEE-754
+//!   doubles in Rust and Python (unchanged legacy structure).
+//! - `get_creepage_mm` was retired from the fabricated
+//!   `base * {0.8, 1.0, 1.4}` structure on 2026-08-15 and is now a typed
+//!   lookup into the recovered Table 17 via `safety_value` (see the method
+//!   docstring and `docs/evidence/2026-08-15-creepage-base-14-verification.md`).
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PySet};
 use std::collections::{HashMap, HashSet};
+
+use crate::safety_value::{
+    creepage_reinforced, table_17_lookup, MaterialGroup, PollutionDegree, SafetyValue,
+    VoltageRange,
+};
 
 // ---------------------------------------------------------------------------
 // CPython repr(float) replica
@@ -232,24 +241,158 @@ impl VoltageClass {
         }
     }
 
-    /// Minimum creepage (along surface) per IEC 60335, in mm.
+    /// Minimum creepage (along surface) per IEC 60335-1, in mm.
     ///
-    /// `material_group`: 1=best, 2=typical FR4, 3=worst CTI.
-    #[pyo3(signature = (material_group = 2))]
-    pub fn get_creepage_mm(&self, material_group: i64) -> f64 {
-        let base = match self {
-            VoltageClass::SELV => 0.5,
-            VoltageClass::LOW_VOLTAGE => 1.6,
-            VoltageClass::MAINS_120V => 2.5,
-            VoltageClass::MAINS_240V => 5.0,
-            VoltageClass::HIGH_VOLTAGE => 14.0,
-        };
-        match material_group {
-            3 => base * 1.4,
-            1 => base * 0.8,
-            _ => base,
+    /// **Retired 2026-08-15**: the previous `base * {0.8, 1.0, 1.4}`
+    /// structure used a fabricated `14.0` HIGH_VOLTAGE base (origin commit
+    /// `418fab757`, no row/clause; see
+    /// `docs/evidence/2026-08-15-creepage-base-14-verification.md`). The
+    /// value is now a typed lookup into the recovered Table 17
+    /// (`safety_value::TABLE_17`, CITED-PRIMARY) keyed exactly as the
+    /// standard's table is — (voltage bracket, pollution degree, material
+    /// group) — via [`VoltageClass::required_creepage`].
+    ///
+    /// - `material_group`: 1 = I (600 < CTI), 2 = IIIa/IIIb (typical FR-4,
+    ///   the repo-wide assumption for generic FR-4 with CTI unstated —
+    ///   default), 3 = IIIa/IIIb (worst CTI = IIIb). Table 17/18 **merge**
+    ///   IIIa and IIIb into one column (cl. 29.2), so 2 and 3 are the same
+    ///   column — the old strict 1 < 2 < 3 scaling was the fabricated
+    ///   structure, not the standard's.
+    /// - `pollution_degree`: 1, 2 or 3; **default 3** — PD3 is the
+    ///   as-built governing degree (forced-air vented, no cover/gasket/
+    ///   partition; handoff 2026-08-15 §7.C and
+    ///   `docs/evidence/2026-08-11-pd2-decision-record.md`). PD2 stays
+    ///   queryable for comparison.
+    ///
+    /// For the HV-side classes (`MAINS_120V`, `MAINS_240V`, `HIGH_VOLTAGE`)
+    /// the returned value is the cl. 29.2.3 **reinforced** figure (2x the
+    /// Table 17 basic cell) — the barrier requirement these classes enforce
+    /// on the board (matches `temper_placer/core/isolation_constants.py`'s
+    /// `MIN_BARRIER_WIDTH_MM = 8.0` and REQ-ELEC-04 §5.1's 8.0/12.6).
+    /// `SELV`/`LOW_VOLTAGE` return the basic Table 17 cell (no reinforced
+    /// requirement applies to them). [`VoltageClass::basic_creepage`] /
+    /// [`VoltageClass::reinforced_creepage`] expose both figures for every
+    /// class.
+    #[pyo3(signature = (material_group = 2, pollution_degree = 3))]
+    pub fn get_creepage_mm(&self, material_group: i64, pollution_degree: i64) -> f64 {
+        self.required_creepage(
+            pd_from_i64(pollution_degree),
+            group_from_i64(material_group),
+        )
+        .value_mm()
+    }
+
+    /// The basic Table 17 cell for this class's voltage bracket, pollution
+    /// degree and material group (cl. 29.2.1).
+    #[pyo3(signature = (material_group = 2, pollution_degree = 3))]
+    pub fn get_basic_creepage_mm(&self, material_group: i64, pollution_degree: i64) -> f64 {
+        self.basic_creepage(pd_from_i64(pollution_degree), group_from_i64(material_group))
+            .value_mm()
+    }
+
+    /// The cl. 29.2.3 reinforced figure (2x the basic Table 17 cell) for
+    /// this class's voltage bracket, pollution degree and material group.
+    #[pyo3(signature = (material_group = 2, pollution_degree = 3))]
+    pub fn get_reinforced_creepage_mm(&self, material_group: i64, pollution_degree: i64) -> f64 {
+        self.reinforced_creepage(
+            pd_from_i64(pollution_degree),
+            group_from_i64(material_group),
+        )
+        .value_mm()
+    }
+
+    /// Human-readable provenance of the value [`VoltageClass::get_creepage_mm`]
+    /// returns (which recovered table row / clause / derivation it traces
+    /// to) — the safety-assertion audit's traceability surface.
+    #[pyo3(signature = (material_group = 2, pollution_degree = 3))]
+    pub fn get_creepage_provenance(&self, material_group: i64, pollution_degree: i64) -> String {
+        self.required_creepage(
+            pd_from_i64(pollution_degree),
+            group_from_i64(material_group),
+        )
+        .provenance_debug()
+    }
+}
+
+/// Rust-only helpers resolving a [`VoltageClass`] to its recovered
+/// [`SafetyValue`]s. Not part of the pyo3 surface (the f64 accessors above
+/// wrap these).
+impl VoltageClass {
+    /// The Table 17/18 voltage bracket for this class's working voltage.
+    ///
+    /// - `SELV` / `LOW_VOLTAGE`: `<=50` row — the board's SELV domains run
+    ///   <=15 V and LOW_VOLTAGE is <50 V DC (the HIGH_VOLTAGE_CLEARANCE_SPEC
+    ///   §4 SELV row is 15 V). The 60 V DC outer bound of the SELV
+    ///   definition would fall in the `>50-125` row; re-key if a SELV rail
+    ///   above 50 V is ever introduced.
+    /// - `MAINS_120V`: `>50-125` row (120 V rms working voltage).
+    /// - `MAINS_240V`: `>125-250` row (240 V rms working voltage).
+    /// - `HIGH_VOLTAGE`: `>250-400` row (<=400 V bus barrier; the resonant
+    ///   tank band `>500-800` is not a `VoltageClass` — see
+    ///   `safety_value::reinforced_creepage_tank_pd3`).
+    ///
+    /// Row assignments follow the verification doc §5, which keys each
+    /// working voltage to its literal Table 17 row.
+    fn voltage_range(&self) -> VoltageRange {
+        match self {
+            VoltageClass::SELV | VoltageClass::LOW_VOLTAGE => VoltageRange::UpTo50,
+            VoltageClass::MAINS_120V => VoltageRange::Gt50Le125,
+            VoltageClass::MAINS_240V => VoltageRange::Gt125Le250,
+            VoltageClass::HIGH_VOLTAGE => VoltageRange::Gt250Le400,
         }
     }
+
+    /// The basic-insulation Table 17 cell (cl. 29.2.1) for this class's
+    /// bracket, with full `RecoveredPrimary` provenance.
+    fn basic_creepage(&self, pd: PollutionDegree, group: MaterialGroup) -> SafetyValue {
+        match table_17_lookup(pd, group, self.voltage_range()) {
+            Some(v) => v.clone(),
+            // Const tables are complete for every bracket a class maps to;
+            // a miss is a programming error, not a data condition.
+            None => panic!(
+                "internal error: Table 17 missing cell for ({pd}, {group}, {})",
+                self.voltage_range()
+            ),
+        }
+    }
+
+    /// The cl. 29.2.3 reinforced figure (2x basic) for this class's bracket,
+    /// with `Derived` provenance boxing the basic cell.
+    fn reinforced_creepage(&self, pd: PollutionDegree, group: MaterialGroup) -> SafetyValue {
+        creepage_reinforced(&self.basic_creepage(pd, group))
+    }
+
+    /// The creepage requirement this class enforces: the cl. 29.2.3
+    /// reinforced figure for the HV-side classes (they form the reinforced
+    /// barrier on this board), the basic Table 17 cell for SELV/LOW_VOLTAGE
+    /// (no reinforced requirement applies).
+    fn required_creepage(&self, pd: PollutionDegree, group: MaterialGroup) -> SafetyValue {
+        let basic = self.basic_creepage(pd, group);
+        match self {
+            VoltageClass::MAINS_120V | VoltageClass::MAINS_240V | VoltageClass::HIGH_VOLTAGE => {
+                creepage_reinforced(&basic)
+            }
+            VoltageClass::SELV | VoltageClass::LOW_VOLTAGE => basic,
+        }
+    }
+}
+
+/// Map the legacy `material_group` int to a [`MaterialGroup`]. 1 = I (best
+/// CTI); 2 = typical FR-4 and 3 = worst CTI both resolve to the merged
+/// IIIa/IIIb column — the standard collapses IIIa and IIIb into one column
+/// (cl. 29.2), so the old 2-vs-3 distinction was part of the fabricated
+/// factor structure. Unknown values resolve to IIIa/IIIb (conservative).
+fn group_from_i64(v: i64) -> MaterialGroup {
+    match v {
+        1 => MaterialGroup::I,
+        _ => MaterialGroup::IIIaOrIIIb,
+    }
+}
+
+/// Map the `pollution_degree` int to a [`PollutionDegree`]. Unknown values
+/// resolve to PD3 (the enforced default — conservative).
+fn pd_from_i64(v: i64) -> PollutionDegree {
+    PollutionDegree::from_u8(v as u8).unwrap_or(PollutionDegree::PD3)
 }
 
 // ---------------------------------------------------------------------------
@@ -373,11 +516,15 @@ impl NetTypeSpec {
 
         // High voltage MUST have IEC 60335 creepage/clearance.
         if self.net_type == NetType::HIGH_VOLTAGE {
-            let min_creepage = self.voltage_class.get_creepage_mm(2);
+            // No-arg Python default: PD3 (as-built governing degree),
+            // material group IIIa/IIIb (generic FR-4) — the Rust call below
+            // passes (2, 3) = (material_group, pollution_degree) explicitly
+            // (pyo3 signature defaults apply only at the Python boundary).
+            let min_creepage = self.voltage_class.get_creepage_mm(2, 3);
             if self.creepage_mm < min_creepage {
                 errors.push(format!(
                     "High voltage net ({}) requires creepage >= {}mm, got {}mm. \
-                     Reference: IEC 60335-1 Table 17",
+                     Reference: IEC 60335-1 Table 17 (cl. 29.2.3 reinforced)",
                     self.voltage_class.name(),
                     py_float_str(min_creepage),
                     py_float_str(self.creepage_mm)
@@ -924,4 +1071,125 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add("POWER_PLANE_SPEC", power_plane_spec(py)?)?;
     module.add("MAINS_HV_SPEC", mains_hv_spec(py)?)?;
     module.add("SIGNAL_SPEC", signal_spec(py)?)
+}
+
+// ---------------------------------------------------------------------------
+// Tests — creepage migration (2026-08-15)
+// ---------------------------------------------------------------------------
+// These pin the truthy table-derived values replacing the fabricated
+// `base * {0.8, 1.0, 1.4}` structure (origin commit `418fab757`; see
+// `docs/evidence/2026-08-15-creepage-base-14-verification.md` §5 for the
+// row assignments). The expected values are transcriptions of recovered
+// Table 17 (CITED-PRIMARY, IS 302-1:2008 — see
+// `safety_value::DOC_CREEPAGE_BRAINSTORM` §3.3 and
+// `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` §5.1) with the cl. 29.2.3
+// doubling applied for the HV-side classes.
+//
+// Note: this module is `#[cfg(feature = "python")]`-gated (see lib.rs), so
+// these tests run only in `--features python` builds — the CI-visible
+// coverage for the same values is the Python-side differential + pbt suites
+// (`test_net_types_rust_differential.py`, `test_net_types_pbt.py`).
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod creepage_tests {
+    use super::*;
+
+    /// Basic Table 17, group IIIa/IIIb (generic FR-4), PD2 / PD3, per
+    /// bracket. Recovered-table transcription (see module docstring).
+    const BASIC_PD2_III: f64 = 4.0; // >250-400 row (HIGH_VOLTAGE)
+    const BASIC_PD3_III: f64 = 6.3; // >250-400 row (HIGH_VOLTAGE)
+
+    #[test]
+    fn old_fabricated_values_are_gone() {
+        // The 14.0 base must no longer be reachable through the class API
+        // at any (group, pd) combination.
+        for mg in 1..=3i64 {
+            for pd in 1..=3i64 {
+                assert_ne!(
+                    VoltageClass::HIGH_VOLTAGE.get_creepage_mm(mg, pd),
+                    14.0,
+                    "fabricated 14.0 still returned for group={mg} pd={pd}"
+                );
+            }
+        }
+        assert_eq!(
+            VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 3),
+            12.6,
+            "HIGH_VOLTAGE default must be the recovered PD3-reinforced value"
+        );
+    }
+
+    #[test]
+    fn default_values_match_recovered_table() {
+        // No-arg Python defaults: PD3 (enforced), group IIIa/IIIb.
+        // Reinforced (cl. 29.2.3) for the HV-side classes; basic for
+        // SELV/LOW_VOLTAGE. (2, 3) = (material_group, pollution_degree).
+        assert_eq!(VoltageClass::SELV.get_creepage_mm(2, 3), 1.9); // basic, <=50 row PD3
+        assert_eq!(VoltageClass::LOW_VOLTAGE.get_creepage_mm(2, 3), 1.9); // basic, <=50 row PD3
+        assert_eq!(VoltageClass::MAINS_120V.get_creepage_mm(2, 3), 4.8); // 2.4 x 2
+        assert_eq!(VoltageClass::MAINS_240V.get_creepage_mm(2, 3), 8.0); // 4.0 x 2
+        assert_eq!(VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 3), 12.6); // 6.3 x 2
+    }
+
+    #[test]
+    fn pd2_remains_queryable_for_comparison() {
+        assert_eq!(VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 2), 8.0); // 4.0 x 2
+        assert_eq!(VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 3), 12.6);
+        // PD3 strictly dominates PD2 at the same group.
+        assert!(
+            VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 3)
+                > VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 2)
+        );
+    }
+
+    #[test]
+    fn basic_and_reinforced_accessors_match_table() {
+        // BASIC_PD2_III / BASIC_PD3_III are the >250-400 row values.
+        assert_eq!(VoltageClass::HIGH_VOLTAGE.get_basic_creepage_mm(2, 2), BASIC_PD2_III);
+        assert_eq!(VoltageClass::HIGH_VOLTAGE.get_basic_creepage_mm(2, 3), BASIC_PD3_III);
+        assert_eq!(
+            VoltageClass::HIGH_VOLTAGE.get_reinforced_creepage_mm(2, 2),
+            BASIC_PD2_III * 2.0
+        );
+        assert_eq!(
+            VoltageClass::HIGH_VOLTAGE.get_reinforced_creepage_mm(2, 3),
+            BASIC_PD3_III * 2.0
+        );
+        // SELV/LOW_VOLTAGE enforce the basic cell (no reinforced
+        // requirement), so the required value equals the basic value.
+        assert_eq!(
+            VoltageClass::SELV.get_creepage_mm(2, 2),
+            VoltageClass::SELV.get_basic_creepage_mm(2, 2)
+        );
+    }
+
+    #[test]
+    fn material_group_merging_iii_a_iii_b() {
+        // The standard merges IIIa and IIIb into one column (cl. 29.2):
+        // legacy groups 2 (typical FR-4) and 3 (worst CTI) must agree, and
+        // group 1 (I) must be strictly smaller at the same PD.
+        assert_eq!(
+            VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 3),
+            VoltageClass::HIGH_VOLTAGE.get_creepage_mm(3, 3)
+        );
+        assert!(
+            VoltageClass::HIGH_VOLTAGE.get_creepage_mm(1, 3)
+                < VoltageClass::HIGH_VOLTAGE.get_creepage_mm(2, 3)
+        );
+    }
+
+    #[test]
+    fn provenance_is_recovered_or_derived_never_fabricated() {
+        let v = VoltageClass::HIGH_VOLTAGE.required_creepage(PollutionDegree::PD3, MaterialGroup::IIIaOrIIIb);
+        assert!(!v.is_fabricated());
+        assert!(!v.is_unobtainable());
+        let dbg = v.provenance_debug();
+        assert!(
+            dbg.contains("Derived:") && dbg.contains("29.2.3"),
+            "expected a cl. 29.2.3 Derived provenance, got: {dbg}"
+        );
+        let basic = VoltageClass::HIGH_VOLTAGE.basic_creepage(PollutionDegree::PD3, MaterialGroup::IIIaOrIIIb);
+        assert!(basic.provenance_debug().contains("RecoveredPrimary: Table 17"));
+    }
 }

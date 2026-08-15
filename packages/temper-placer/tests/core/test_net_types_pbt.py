@@ -70,15 +70,39 @@ _CLEARANCE_BASE = {
     "MAINS_240V": 3.0,
     "HIGH_VOLTAGE": 8.0,
 }
-_CREEPAGE_BASE = {
-    "SELV": 0.5,
-    "LOW_VOLTAGE": 1.6,
-    "MAINS_120V": 2.5,
-    "MAINS_240V": 5.0,
-    "HIGH_VOLTAGE": 14.0,
-}
 _CLEARANCE_FACTOR = {1: 0.8, 2: 1.0, 3: 1.5}
-_CREEPAGE_FACTOR = {1: 0.8, 2: 1.0, 3: 1.4}
+
+# Recovered IEC 60335-1 Table 17 creepage reference (CITED-PRIMARY,
+# IS 302-1:2008 — docs/evidence/2026-07-28-creepage-determination-brainstorm.md
+# §3.3, cross-checked in docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md §5.1).
+#
+# NOTE 2026-08-15 (retired SNAPSHOT): this reference previously carried
+# `_CREEPAGE_BASE x {0.8, 1.0, 1.4}` — byte-identical to the implementation
+# it claimed to check independently, written in the same commit 1f85f4ad1
+# (the fabricated 14.0-mm HIGH_VOLTAGE base; see
+# docs/evidence/2026-08-15-creepage-base-14-verification.md). It now
+# transcribes the recovered table, so a regression cannot hide behind a
+# self-consistent lie.
+#
+# Basic creepage per (voltage bracket, pollution degree); columns are
+# (group I, group IIIa/IIIb) — the standard merges IIIa and IIIb into one
+# column (cl. 29.2). PD1 is a single merged column regardless of group.
+_T17_ROW_BY_CLASS = {
+    "SELV": "<=50",  # board SELV domains run <=15 V
+    "LOW_VOLTAGE": "<=50",  # <50 V DC
+    "MAINS_120V": ">50-125",  # 120 V rms working voltage
+    "MAINS_240V": ">125-250",  # 240 V rms working voltage
+    "HIGH_VOLTAGE": ">250-400",  # <=400 V bus barrier
+}
+_T17_BASIC = {
+    "<=50": {1: 0.2, 2: (0.6, 1.2), 3: (1.5, 1.9)},
+    ">50-125": {1: 0.3, 2: (0.8, 1.5), 3: (1.9, 2.4)},
+    ">125-250": {1: 0.6, 2: (1.3, 2.5), 3: (3.2, 4.0)},
+    ">250-400": {1: 1.0, 2: (2.0, 4.0), 3: (5.0, 6.3)},
+}
+# HV-side classes enforce the cl. 29.2.3 reinforced figure (2x basic);
+# SELV/LOW_VOLTAGE enforce the basic cell.
+_REINFORCED_CLASSES = {"MAINS_120V", "MAINS_240V", "HIGH_VOLTAGE"}
 
 _SPEC_CONSTANTS = {
     "ground": "GROUND_PLANE_SPEC",
@@ -178,19 +202,30 @@ def test_p1_clearance_table_matches_reference(member, degree):
 
 @given(
     st.sampled_from(_VOLTAGE_CLASSES),
-    st.sampled_from([1, 2, 3]),
+    st.sampled_from([1, 2, 3]),  # material group
+    st.sampled_from([1, 2, 3]),  # pollution degree
 )
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
-def test_p1b_creepage_table_matches_reference(member, group):
-    expected = _CREEPAGE_BASE[member.name] * _CREEPAGE_FACTOR[group]
-    got = member.get_creepage_mm(group)
+def test_p1b_creepage_table_matches_reference(member, group, pd):
+    row = _T17_ROW_BY_CLASS[member.name]
+    cell = _T17_BASIC[row][pd]
+    basic = cell if pd == 1 else cell[0 if group == 1 else 1]
+    expected = basic * (2.0 if member.name in _REINFORCED_CLASSES else 1.0)
+    got = member.get_creepage_mm(material_group=group, pollution_degree=pd)
     assert float(got).hex() == float(expected).hex(), (
-        f"{member.name} group={group}: rust={got!r} ref={expected!r}"
+        f"{member.name} group={group} pd={pd}: rust={got!r} ref={expected!r}"
     )
-    if group == 3:
-        assert member.get_creepage_mm(3) > member.get_creepage_mm(2)
-    if group == 1:
-        assert member.get_creepage_mm(1) < member.get_creepage_mm(2)
+    # Vacuity guards: both keying dimensions genuinely bite. PD3 strictly
+    # dominates PD2 at the same group (every bracket's PD3 cell > PD2 cell),
+    # and group I is strictly below group IIIa/IIIb at the same PD.
+    if pd == 3:
+        assert member.get_creepage_mm(material_group=group, pollution_degree=3) > member.get_creepage_mm(
+            material_group=group, pollution_degree=2
+        )
+    if group == 1 and pd != 1:
+        assert member.get_creepage_mm(material_group=1, pollution_degree=pd) < member.get_creepage_mm(
+            material_group=2, pollution_degree=pd
+        )
 
 
 # ---------------------------------------------------------------------------
