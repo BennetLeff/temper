@@ -33,7 +33,6 @@ from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ModelBuilder
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
 
-
 # ---------------------------------------------------------------------------
 # Shared fixtures (mirror test_constraint_model_builder_rust_differential.py)
 # ---------------------------------------------------------------------------
