@@ -45,6 +45,41 @@ from dataclasses import replace
 import temper_design_bundle_python as _tdb
 import temper_geometry as _tg
 
+
+def _stage3_mem_trace_enabled() -> bool:
+    """TEMPER_STAGE3_MEM_TRACE: per-phase PID+RSS entry/exit tracing.
+
+    2026-08-15 Stage 3 memory-blowup investigation: prints
+    ``[mem-trace pid=.. rss_kb=..]`` lines to stderr around
+    ``ModelBuilder.build()`` so the exact phase where RSS climbs can be
+    attributed without attaching a profiler. Off by default -- one
+    env::var() call per check, zero cost otherwise. stderr (never stdout)
+    so routed-board content and any stdout consumers are unaffected.
+    """
+    return os.environ.get("TEMPER_STAGE3_MEM_TRACE") is not None
+
+
+def _stage3_mem_kb() -> int:
+    """Current process RSS in KiB from /proc/<pid>/status (or -1)."""
+    try:
+        with open(f"/proc/{os.getpid()}/status", encoding="utf-8") as _f:
+            for _line in _f:
+                if _line.startswith("VmRSS:"):
+                    return int(_line.split()[1])
+    except Exception:
+        pass
+    return -1
+
+
+def _stage3_mem_trace(tag: str) -> None:
+    if _stage3_mem_trace_enabled():
+        print(
+            f"[mem-trace pid={os.getpid()} rss_kb={_stage3_mem_kb()}] {tag}",
+            file=sys.stderr,
+            flush=True,
+        )
+
+
 # Phase E batch E1: the constraint-model data model and the ModelBuilder
 # orchestration live in the Rust `model_builder` submodule; these names
 # re-export the pyclasses (the pure-delegation pattern, mirroring
@@ -289,8 +324,11 @@ class ModelBuilder:
         non-emptiness precondition stay Python (see the module docstring).
         """
         t0 = time.perf_counter() if os.environ.get("TEMPER_MODEL_TRACE") else None
+        _stage3_mem_trace("ModelBuilder.build() ENTER")
         self.model = self._rust.build()
+        _stage3_mem_trace("ModelBuilder.build() rust _mb.build() done")
         self._apply_pcl_constraints()
+        _stage3_mem_trace("ModelBuilder.build() PCL applied")
         if t0 is not None:
             # 2026-08-07 U5 measurement instrumentation
             # (docs/plans/2026-08-07-001-feat-router-encoding-pruning-plan.md).
@@ -330,6 +368,10 @@ class ModelBuilder:
                 f"docs/evidence/2026-08-07-router-silent-noop-diagnosis.md."
             )
 
+        _stage3_mem_trace(
+            f"ModelBuilder.build() EXIT vars={self.model.variable_count} "
+            f"cons={self.model.constraint_count}"
+        )
         return self.model
 
     def _apply_pcl_constraints(self):
