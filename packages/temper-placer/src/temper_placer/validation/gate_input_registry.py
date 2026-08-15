@@ -574,6 +574,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_erc_off_grid_consequence.py", "pcb/temper.kicad_sch", "ERC endpoint_off_grid consequence classification (docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md); needs kicad-cli-regenerated ERC JSON + schematic netlist XML; probe harness deferred"),
     ("check_evidence_provenance.py", "docs/evidence/", "provenance scan; probe harness deferred"),
     ("check_footprint_drift.py", "pcb/temper.kicad_pcb", "needs compiled netlist; probe harness deferred"),
+    ("check_geometry_primitive_duplication.py", "packages/", "point-to-segment-distance structural-duplication gate (2026-08-13 epsilon consolidation, docs/evidence/2026-08-13-point-to-segment-distance-epsilon-consolidation.md); scans Rust source directly against .geometry-primitive-duplication-allowlist; probe is the check itself"),
     ("check_hash_order_determinism.py", ".hash-order-inventory", "salted-hash order gate (PYTHONHASHSEED determinism); probe harness deferred"),
     ("check_hv_netclass_coverage.py", "elec/domain_manifest.yaml", "HV netclass coverage gate (N4); probe harness deferred"),
     ("check_isolation_keepout.py", "pcb/temper.kicad_pcb", "baseline red on main (no keepout zones); probe inconclusive today"),

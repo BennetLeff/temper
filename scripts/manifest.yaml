@@ -530,6 +530,24 @@ scripts:
   - sys
   - tempfile
   - yaml
+- path: check_geometry_primitive_duplication.py
+  purpose: 'CI gate: fail when a Rust crate carries its own body of a point-to-segment-distance-shaped
+    kernel (degenerate-length branch + [0,1] clamp + Euclidean close) that is not recorded in
+    .geometry-primitive-duplication-allowlist with a reason. Closes the 2026-08-13 finding that
+    point_to_segment_distance had 5 independent Rust bodies, each pinned to its own Python oracle
+    with its own degenerate-length epsilon (1e-12, 1e-10, exact-zero, exact-zero-or-non-finite), one
+    on the HV creepage safety path. Detection is structural, not name-based, so a renamed copy (as
+    fixed_copper.rs''s was) still matches. NEW_COPY and STALE_ENTRY both fail closed.'
+  owner: pipeline
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - re
+  - sys
 - path: check_hash_order_determinism.py
   purpose: 'CI gate: fail on any NEW site under packages/*/src that records a PYTHONHASHSEED-chosen order
     -- a set/frozenset iteration materialised, accumulated over, indexed, first-element-selected or appended
