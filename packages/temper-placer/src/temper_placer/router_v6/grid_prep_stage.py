@@ -16,6 +16,34 @@ from temper_placer.router_v6.stage_validators import (
 )
 
 
+def _routable_layers_for(pcb) -> tuple[str, ...]:
+    """Resolve the layer set this stage should build grids for.
+
+    Reads through ``core.board_layer_roles.routable_signal_layers_from_path``
+    -- the board's own declared signal layers intersected with the router's
+    real engine capability -- rather than a hardcoded pair, so a stackup
+    edit (e.g. the 2026-08-13 6-layer decision) propagates here
+    automatically. Falls back to the engine-capability constant alone
+    (never a bare ``("F.Cu", "B.Cu")`` literal) when ``pcb`` has no real
+    ``source_path`` to read (synthetic/test fixtures) or the board file
+    can't be parsed for its declared roles.
+    """
+    from temper_placer.core.board_layer_roles import (
+        ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED,
+        routable_signal_layers_from_path,
+    )
+
+    source_path = getattr(pcb, "source_path", None)
+    if source_path:
+        try:
+            layers = routable_signal_layers_from_path(source_path)
+            if layers:
+                return tuple(layers)
+        except (OSError, ValueError):
+            pass
+    return ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED
+
+
 class GridPrepStage(Stage):
     """Stage 4.0: Build per-layer occupancy grids for A* pathfinding."""
 
@@ -40,7 +68,7 @@ class GridPrepStage(Stage):
         import numpy as np
 
         grids: dict[str, OccupancyGrid] = {}
-        for layer in ("F.Cu", "B.Cu"):
+        for layer in _routable_layers_for(pcb):
             grid_array = np.zeros((height_cells, width_cells), dtype=np.int8)
             grids[layer] = OccupancyGrid(
                 layer_name=layer,
@@ -69,7 +97,8 @@ def validate_grid_prep(state: BoardState) -> list[StageDRCFailure]:
         )
         return failures
 
-    for layer in ("F.Cu", "B.Cu"):
+    expected_layers = _routable_layers_for(state._parsed_pcb)
+    for layer in expected_layers:
         if layer not in state.parsed_grids:
             failures.append(
                 StageDRCFailure(
