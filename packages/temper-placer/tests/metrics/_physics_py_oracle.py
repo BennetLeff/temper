@@ -93,10 +93,12 @@ class OracleGeometricMetrics:
 
 @dataclass
 class OracleThermalMetrics:
-    """Verbatim ``ThermalMetrics`` (thermal safety metrics)."""
+    """Reference ``ThermalMetrics`` (thermal safety metrics)."""
 
     max_junction_temp_c: float = 0.0
     thermal_margin_c: float = 0.0
+    thermal_margin_touch_c: float = 0.0
+    thermal_margin_component_c: float = 0.0
     edge_distance_avg_mm: float = 0.0
 
 
@@ -193,21 +195,40 @@ def _oracle_measure_thermal(
     netlist,
     board,
     power_dissipation: dict[str, float] | None = None,
-    ambient_temp_c: float = 40.0,
+    ambient_temp_c: float = 60.0,
 ) -> OracleThermalMetrics:
     """
     Estimate junction temperatures based on placement and power dissipation.
 
-    Verbatim body of ``measure_thermal`` at the pinned commit (only the
-    class name changed). ``estimate_junction_temp`` is imported from the
-    real (already Rust-delegating, Wave 4 Phase A #3) module -- that
-    sub-kernel's bit-parity is independently pinned by
+    Reference body of ``measure_thermal`` after the 2026-08-15 thermal
+    correction (per-footprint R resolution, firmware-trip/touch/component
+    margins, 60 °C worst-case ambient).  ``estimate_junction_temp`` is
+    imported from the real (already Rust-delegating, Wave 4 Phase A #3)
+    module -- that sub-kernel's bit-parity is independently pinned by
     ``test_thermal_rust_differential.py`` and is not re-proven here.
+
+    NOTE: this file is content-hash pinned in ``scripts/oracle_hashes.json``.
+    This edit is the deliberate re-pin of the thermal-correction PR — the
+    pre-correction oracle pinned the wrong analysis constants (flat
+    0.6/0.25/1.0 K/W for every component, 150 °C margin, 40 °C ambient),
+    which the safety audit found defective.  The corrected reference is
+    proven bit-identical to the Rust kernel by
+    ``tests/metrics/test_physics_rust_differential.py``.  See
+    ``docs/evidence/2026-08-15-thermal-analysis-corrections.md``.
     """
     if not power_dissipation:
-        return OracleThermalMetrics(ambient_temp_c, 0.0, 0.0)
+        return OracleThermalMetrics(ambient_temp_c, 0.0, 0.0, 0.0, 0.0)
 
-    from temper_placer.physics.thermal import estimate_junction_temp
+    from temper_placer.physics.thermal import (
+        COMPONENT_MAX_C,
+        FIRMWARE_TRIP_C,
+        TOUCH_TEMP_C,
+        _DEFAULT_RCH,
+        _DEFAULT_RHA,
+        _DEFAULT_RJC,
+        estimate_junction_temp,
+        lookup_thermal_properties,
+    )
 
     positions = np.array(state.positions)
     max_tj = ambient_temp_c
@@ -226,13 +247,33 @@ def _oracle_measure_thermal(
         dist = min(dx, dy)
         edge_dists.append(dist)
 
-        # Estimate Tj using the refined model
-        tj = estimate_junction_temp(power_W=power, edge_distance_mm=dist, ambient_C=ambient_temp_c)
+        # Per-footprint thermal properties (Rust table), falling back to
+        # the legacy flat stackup for unmatched footprints.
+        comp = netlist.components[idx]
+        props = lookup_thermal_properties(comp.footprint)
+        if props is None:
+            rjc, rch, rha = _DEFAULT_RJC, _DEFAULT_RCH, _DEFAULT_RHA
+        else:
+            rjc, rch, rha, _source = props
+
+        # Estimate Tj using the refined model (copper area 0.0 here —
+        # no benefit claimed, conservative direction).
+        tj = estimate_junction_temp(
+            power_W=power,
+            edge_distance_mm=dist,
+            copper_area_mm2=0.0,
+            ambient_C=ambient_temp_c,
+            Rjc=rjc,
+            Rch=rch,
+            Rha_base=rha,
+        )
         max_tj = max(max_tj, tj)
 
     metrics = OracleThermalMetrics()
     metrics.max_junction_temp_c = max_tj
-    metrics.thermal_margin_c = 150.0 - max_tj  # 150C is typical shutdown
+    metrics.thermal_margin_c = FIRMWARE_TRIP_C - max_tj
+    metrics.thermal_margin_touch_c = TOUCH_TEMP_C - max_tj
+    metrics.thermal_margin_component_c = COMPONENT_MAX_C - max_tj
     metrics.edge_distance_avg_mm = float(np.mean(edge_dists)) if edge_dists else 0.0
 
     return metrics

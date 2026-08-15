@@ -44,6 +44,16 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import temper_thermal as _tt
 
+from temper_placer.physics.thermal import (
+    COMPONENT_MAX_C,
+    FIRMWARE_TRIP_C,
+    TOUCH_TEMP_C,
+    _DEFAULT_RCH,
+    _DEFAULT_RHA,
+    _DEFAULT_RJC,
+    lookup_thermal_properties,
+)
+
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
@@ -73,10 +83,32 @@ class EMIMetrics:
 
 @dataclass
 class ThermalMetrics:
-    """Thermal safety metrics."""
+    """Thermal safety metrics.
+
+    All margins are computed against the three temperature limits the
+    repo actually protects at (2026-08-15 correction — previously the
+    analysis used a flat 150 °C "typical shutdown" that nothing on the
+    board enforces):
+
+    - ``thermal_margin_c`` — margin to the firmware over-temperature trip
+      (``FIRMWARE_TRIP_C`` = 80 °C, the decided
+      ``OVER_TEMP_THRESHOLD`` per
+      ``docs/evidence/2026-08-15-thermal-threshold-decision.md`` verdict 2;
+      the firmware edit is a separate pending task).
+    - ``thermal_margin_touch_c`` — margin to the heatsink touch/trip
+      temperature (``TOUCH_TEMP_C`` = 85 °C,
+      ``docs/FUNCTIONAL_TEST_CRITERIA.md`` §2.3).
+    - ``thermal_margin_component_c`` — margin to the component limit
+      (``COMPONENT_MAX_C`` = 120 °C, coil NTC trip per the same table).
+
+    ``thermal_margin_c == 0.0`` with no power-dissipation data is the
+    unmeasured sentinel (the pre-correction convention, kept).
+    """
 
     max_junction_temp_c: float = 0.0
     thermal_margin_c: float = 0.0
+    thermal_margin_touch_c: float = 0.0
+    thermal_margin_component_c: float = 0.0
     edge_distance_avg_mm: float = 0.0
 
 
@@ -279,7 +311,7 @@ def measure_thermal(
     netlist: Netlist,
     board: Board,
     power_dissipation: dict[str, float] | None = None,
-    ambient_temp_c: float = 40.0,
+    ambient_temp_c: float = 60.0,
 ) -> ThermalMetrics:
     """
     Estimate junction temperatures based on placement and power dissipation.
@@ -292,15 +324,42 @@ def measure_thermal(
     Mirrors this function's exact NEP-50 float32-narrowing arithmetic
     bit-for-bit (pinned by
     ``tests/metrics/test_physics_rust_differential.py``).
+
+    2026-08-15 corrections (see ``physics/thermal.py`` module docstring):
+
+    - ``ambient_temp_c`` defaults to **60 °C** (the repo's worst-case
+      design ambient, ``docs/guides/THERMAL_DESIGN_GUIDE.md`` §2.2), not
+      the 40 °C the pre-correction analysis used.
+    - Each device's junction-to-case / case-to-heatsink /
+      heatsink-to-ambient resistances are resolved **per footprint** from
+      the Rust ``temper_thermal.lookup_thermal_properties_py`` table
+      (keyed by footprint, not refdes).  Footprints with no table entry
+      fall back to the legacy flat ``(0.6, 0.25, 1.0)`` K/W stackup
+      (UNSOURCED).  The copper-spreading benefit is exercised with the
+      per-device copper area passed to the kernel (0.0 here — the caller
+      supplies measured copper areas when available; a 0.0 area claims no
+      benefit, which is the conservative direction).
+    - Margins are computed against the **decided firmware trip** (80 °C,
+      per ``docs/evidence/2026-08-15-thermal-threshold-decision.md``
+      verdict 2 — ``OVER_TEMP_THRESHOLD`` moves 100 → 80 °C; the firmware
+      edit is a separate pending task), the **touch/trip** temperature
+      (85 °C) and the **component limit** (120 °C) per
+      ``docs/FUNCTIONAL_TEST_CRITERIA.md`` §2.3 — not the pre-correction
+      flat 150 °C "typical shutdown" (150 °C is the IKW40N120H3 *storage*
+      temperature, not a junction limit).
     """
     if not power_dissipation:
-        return ThermalMetrics(ambient_temp_c, 0.0, 0.0)
+        return ThermalMetrics(ambient_temp_c, 0.0, 0.0, 0.0, 0.0)
 
     positions = np.asarray(state.positions)
 
     xs: list[float] = []
     ys: list[float] = []
     powers: list[float] = []
+    rjc_arr: list[float] = []
+    rch_arr: list[float] = []
+    rha_arr: list[float] = []
+    copper_arr: list[float] = []
     for ref, power in power_dissipation.items():
         try:
             idx = netlist.get_component_index(ref)
@@ -310,6 +369,22 @@ def measure_thermal(
         ys.append(float(positions[idx, 1]))
         powers.append(float(power))
 
+        # Resolve per-footprint thermal properties (Rust table); fall
+        # back to the legacy flat stackup for unmatched footprints.
+        comp = netlist.components[idx]
+        props = lookup_thermal_properties(comp.footprint)
+        if props is None:
+            rjc_arr.append(_DEFAULT_RJC)
+            rch_arr.append(_DEFAULT_RCH)
+            rha_arr.append(_DEFAULT_RHA)
+        else:
+            rjc_arr.append(props[0])
+            rch_arr.append(props[1])
+            rha_arr.append(props[2])
+        # Copper area: the caller passes measured areas via the kernel
+        # when available; 0.0 here claims no copper-spreading benefit.
+        copper_arr.append(0.0)
+
     max_tj, edge_distance_avg_mm = _tt.measure_thermal_edges_py(
         xs,
         ys,
@@ -318,11 +393,17 @@ def measure_thermal(
         float(board.width),
         float(board.height),
         float(ambient_temp_c),
+        rjc_arr,
+        rch_arr,
+        rha_arr,
+        copper_arr,
     )
 
     metrics = ThermalMetrics()
     metrics.max_junction_temp_c = max_tj
-    metrics.thermal_margin_c = 150.0 - max_tj  # 150C is typical shutdown
+    metrics.thermal_margin_c = FIRMWARE_TRIP_C - max_tj
+    metrics.thermal_margin_touch_c = TOUCH_TEMP_C - max_tj
+    metrics.thermal_margin_component_c = COMPONENT_MAX_C - max_tj
     metrics.edge_distance_avg_mm = edge_distance_avg_mm
 
     return metrics

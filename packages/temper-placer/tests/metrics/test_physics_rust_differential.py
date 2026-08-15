@@ -65,7 +65,13 @@ def assert_metrics_bit_identical(got, expected) -> None:
 
 
 def assert_thermal_bit_identical(got, expected) -> None:
-    for field in ("max_junction_temp_c", "thermal_margin_c", "edge_distance_avg_mm"):
+    for field in (
+        "max_junction_temp_c",
+        "thermal_margin_c",
+        "thermal_margin_touch_c",
+        "thermal_margin_component_c",
+        "edge_distance_avg_mm",
+    ):
         g = getattr(got, field)
         e = getattr(expected, field)
         assert key(g) == key(e), f"{field}: rust={g!r} ({key(g)}) oracle={e!r} ({key(e)})"
@@ -143,7 +149,7 @@ def marshal_geometric_args(state, netlist, board, min_separation=0.5):
     )
 
 
-def marshal_thermal_args(state, netlist, board, power_dissipation, ambient_temp_c=40.0):
+def marshal_thermal_args(state, netlist, board, power_dissipation, ambient_temp_c=60.0):
     positions = np.asarray(state.positions)
     xs, ys, powers = [], [], []
     for ref, power in power_dissipation.items():

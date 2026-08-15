@@ -41,12 +41,18 @@ def _oracle_estimate_junction_temp(
     power_W,
     edge_distance_mm,
     copper_area_mm2=0.0,
-    ambient_C=40.0,
+    ambient_C=60.0,
     Rjc=0.6,
     Rch=0.25,
     Rha_base=1.0,
 ):
-    """Verbatim scalar core of the pre-migration junction-temp model."""
+    """Verbatim scalar core of the pre-migration junction-temp model.
+
+    ambient_C default is 60.0 (not the pre-correction 40.0) — the
+    2026-08-15 thermal correction moved the module default to the
+    worst-case design ambient; this oracle mirrors the live module so the
+    defaults-route-through pin stays bit-exact. See
+    docs/evidence/2026-08-15-thermal-analysis-corrections.md."""
     # 1. Edge Penalty
     # Effective Rha increases as component moves away from edge (mount point)
     # Heuristic: 0.2 K/W per mm beyond 5mm
@@ -267,8 +273,9 @@ def test_module_level_bit_exact(seed):
 
 
 def test_module_level_defaults_bit_exact():
-    """Default arguments (copper=0, ambient=40, Rjc=0.6, Rch=0.25,
-    Rha=1.0) route through the kernel unchanged."""
+    """Default arguments (copper=0, ambient=60, Rjc=0.6, Rch=0.25,
+    Rha=1.0) route through the kernel unchanged. ambient default is 60.0
+    since the 2026-08-15 correction (worst-case design ambient, was 40.0)."""
     for power, edge in [(15.0, 5.0), (15.0, 10.0), (50.0, 15.0), (0.0, 3.0)]:
         expected = _oracle_estimate_junction_temp(power, edge)
         got = estimate_junction_temp(power_W=power, edge_distance_mm=edge)
