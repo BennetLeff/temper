@@ -388,6 +388,10 @@ void transition_to(system_state_t new_state) {
 
 bool check_safety_interlocks(void) {
     /* Over-temperature check */
+    /* 100.0f is the live firmware over-temp trip. Owner decision pending
+     * (docs/evidence/2026-08-15-thermal-threshold-decision.md): the data-driven
+     * recommendation is 80.0°C (75°C warn/derate -> 80°C trip ladder). Do not
+     * change without owner sign-off. */
     if (read_heatsink_temperature() > 100.0f) {
         enter_hardware_latched_fault(FAULT_OVER_TEMP);
         return true;

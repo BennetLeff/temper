@@ -39,7 +39,22 @@ static const char *TAG = "safety";
 
 /* Configuration */
 #define CONTROL_LOOP_FREQ_HZ    100
+/* OVER_TEMP_THRESHOLD: current value 100.0°C. Owner decision pending
+ * (docs/evidence/2026-08-15-thermal-threshold-decision.md): the data-driven
+ * recommendation is 80.0°C -- at 100°C the IGBT junction is ~160°C at the
+ * design-limit ambient and the trip cannot be acceptance-tested; at 80°C the
+ * firmware becomes the live protector with the 75°C warn/derate -> 80°C trip
+ * ladder. DO NOT change without owner sign-off; the decision doc is the
+ * reference. The live trip also exists as a literal in
+ * state_machine.c::check_safety_interlocks (keep in sync). */
 #define OVER_TEMP_THRESHOLD     100.0f  /* °C */
+/* OVER_CURRENT_THRESHOLD: current value 35.0A. Owner decision pending
+ * (docs/evidence/2026-08-15-ocp-threshold-decision.md): the data-driven
+ * recommendation is 40A peak (band 38-42A) -- 35A is WRONG (below the
+ * 1800W operating peak once coil resistance is under ~2.25Ω; the IGBT is
+ * rated 40A continuous, so 40A = 100% of rating, "softer, earlier" layer
+ * under the 55-65A hardware OCP). DO NOT change without owner sign-off;
+ * the decision doc is the reference. */
 #define OVER_CURRENT_THRESHOLD  35.0f   /* Amps */
 #define TEMP_HYSTERESIS         5.0f    /* °C - hysteresis band */
 #define CURRENT_HYSTERESIS      2.0f    /* A - hysteresis band */
