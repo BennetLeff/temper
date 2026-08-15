@@ -387,18 +387,21 @@ void transition_to(system_state_t new_state) {
 }
 
 bool check_safety_interlocks(void) {
-    /* Over-temperature check */
-    if (read_heatsink_temperature() > 100.0f) {
+    /* Over-temperature check — threshold from config.yaml (interlocks:) */
+    if (read_heatsink_temperature() > OVER_TEMP_THRESHOLD) {
         enter_hardware_latched_fault(FAULT_OVER_TEMP);
         return true;
     }
 
-    /* Over-current check — IGBT short (>50A) takes priority over over-current */
-    if (read_dc_bus_current() > 50.0f) {
+    /* Over-current check — IGBT short (> IGBT_SHORT_CURRENT_THRESHOLD) takes
+     * priority over over-current (> OVER_CURRENT_THRESHOLD). Both thresholds
+     * come from config.yaml (interlocks:); see
+     * docs/evidence/2026-08-15-firmware-interlock-citations.md. */
+    if (read_dc_bus_current() > IGBT_SHORT_CURRENT_THRESHOLD) {
         enter_hardware_latched_fault(FAULT_IGBT_SHORT);
         return true;
     }
-    if (read_dc_bus_current() > 35.0f) {
+    if (read_dc_bus_current() > OVER_CURRENT_THRESHOLD) {
         enter_hardware_latched_fault(FAULT_OVER_CURRENT);
         return true;
     }

@@ -194,10 +194,10 @@ void config_print(void);
  * Every value matches the corresponding field in the *_DEFAULT block above.
  * New parameters should use `legacy_define: false` and access g_config directly.
  */
-{% for group in [temperatures, timeouts, thresholds, misc, runaway] %}
+{% for group in [temperatures, timeouts, thresholds, misc, runaway, interlocks] %}
 {%- for entry in group %}
 {%- if entry.legacy_define_only and entry.c_symbol %}
-#define {{ entry.c_symbol }} {{ entry.value }}
+#define {{ entry.c_symbol }} {{ c_value(entry.value, entry.c_type) }}
 {%- elif not (entry.legacy_define is defined and entry.legacy_define == false) and entry.c_symbol %}
 #define {{ entry.c_symbol }} {{ c_value(entry.value, entry.c_type) }}
 {%- endif %}
