@@ -358,7 +358,7 @@ class TestSmoothLeakyRelu:
 
 class TestPointInPolygonSoft:
     def test_point_inside_square(self):
-        from temper_placer.geometry.polygon import point_in_polygon_soft
+        from temper_placer.geometry import point_in_polygon_soft
 
         # Square: (0,0), (10,0), (10,10), (0,10)
         vertices = [0, 0, 10, 0, 10, 10, 0, 10]
@@ -367,7 +367,7 @@ class TestPointInPolygonSoft:
         assert result > 0.5
 
     def test_point_outside_square(self):
-        from temper_placer.geometry.polygon import point_in_polygon_soft
+        from temper_placer.geometry import point_in_polygon_soft
 
         vertices = [0, 0, 10, 0, 10, 10, 0, 10]
         result = point_in_polygon_soft(20.0, 20.0, vertices)
@@ -377,13 +377,13 @@ class TestPointInPolygonSoft:
 
 class TestPointInRectSoft:
     def test_point_inside(self):
-        from temper_placer.geometry.polygon import point_in_rect_soft
+        from temper_placer.geometry import point_in_rect_soft
 
         result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 10.0, 10.0)
         assert result > 0.5
 
     def test_point_outside(self):
-        from temper_placer.geometry.polygon import point_in_rect_soft
+        from temper_placer.geometry import point_in_rect_soft
 
         result = point_in_rect_soft(20.0, 20.0, 0.0, 0.0, 10.0, 10.0)
         assert result < 0.5

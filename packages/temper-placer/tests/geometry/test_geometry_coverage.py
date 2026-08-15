@@ -25,7 +25,7 @@ import pytest
 # polygon.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.polygon import (
+from temper_placer.geometry import (
     compute_loop_area,
     compute_loop_perimeter,
     is_convex,
@@ -34,6 +34,7 @@ from temper_placer.geometry.polygon import (
     nearest_point_on_segment,
     point_in_rect,
     point_in_rect_soft,
+    polygon_area,
     polygon_bounding_box,
     polygon_bounding_circle,
     polygon_orientation,
@@ -41,9 +42,6 @@ from temper_placer.geometry.polygon import (
     translate_polygon,
     triangle_area,
 )
-
-# Re-import already-exercised ones used for verification
-from temper_placer.geometry.polygon import polygon_area
 
 
 class TestPolygonUncovered:

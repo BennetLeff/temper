@@ -18,7 +18,7 @@ from temper_placer.geometry.overlap import (
     check_clearance_violation,
     component_overlap_amount,
 )
-from temper_placer.geometry.polygon import (
+from temper_placer.geometry import (
     point_in_polygon_soft,
     point_in_polygon_winding,
     polygon_area,
