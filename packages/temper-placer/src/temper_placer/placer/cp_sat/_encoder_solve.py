@@ -71,6 +71,12 @@ class CpSatPlacementResult:
     # Populated only when solve_placement(tank_creepage=...) was passed;
     # see tank_creepage.py::TankCreepageReport.
     tank_creepage_report: object | None = None
+    # Populated only when solve_placement(body_collision_input=...) was
+    # passed; see body_collision.py::BodyCollisionAuditResult. A NEW or
+    # WORSENED F.Fab body collision raises inside solve_placement rather
+    # than landing here (fail-closed); allowlisted (unchanged-or-better)
+    # pre-existing collisions are reported on this field for visibility.
+    body_collision_audit: object | None = None
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -144,6 +150,7 @@ def solve_placement(
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
     validator_input: dict | None = None,
+    body_collision_input: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -266,6 +273,29 @@ def solve_placement(
             unknown) there is no placement to audit -- the skip is logged at
             WARNING, never silent, so an unaudited solve is distinguishable
             from a clean one in the logs.
+        body_collision_input: Optional fail-closed ``F.Fab`` body-collision
+            post-solve audit (the guard this parameter exists for: commit
+            ``de59c0458`` moved 12 components and created a 7.73mm real
+            body interpenetration that nothing in the pipeline rejected).
+            A dict carrying ``{"fab_bodies": {ref: FabBody}, "allowlist":
+            BodyCollisionAllowlist}`` -- see ``body_collision.py`` and
+            ``io.fab_body_extraction.extract_fab_bodies``. When given AND
+            the solve is feasible/optimal, recomputes true ``F.Fab`` body
+            overlap for every component pair with known geometry
+            (``body_collision.audit_body_collisions``) and RAISES when any
+            pair shows a body collision that is either not on the
+            allowlist (a NEW collision) or worse than the allowlist's
+            recorded baseline for that pair (a WORSENED pre-existing
+            collision) -- both are hard failures, unlike the reportable-
+            only intra-footprint/coverage-gap buckets of the validator
+            audit above, because there is no placement-independent reason
+            for a real body interpenetration to exist. Allowlisted pairs at
+            or below baseline are reported on
+            ``CpSatPlacementResult.body_collision_audit``, never raised.
+            Absent (default): the solve is unaudited for body collisions,
+            logged at WARNING when the solve terminated feasible/optimal
+            (mirrors validator_input's documented-skip logging) so an
+            unaudited solve is distinguishable from a clean one.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -741,6 +771,60 @@ def solve_placement(
     elif status_str in ("optimal", "feasible"):
         logger.debug("validator post-solve audit skipped (validator_input not provided)")
 
+    # R24 fail-closed F.Fab body-collision post-solve audit: this is the
+    # chokepoint every produced placement passes through (both `temper
+    # optimize --no-loop` and PlaceRouteLoop route their CP-SAT calls here),
+    # so this is where a placement with a real physical body collision must
+    # fail -- not three steps downstream as an opaque courtyards_overlap
+    # ratchet number (see body_collision.py's module docstring for the
+    # de59c0458/#602 and PR #1168 incidents this closes). A NEW or WORSENED
+    # collision is a hard failure, same posture as fixed-copper/validator
+    # audits above; a pre-existing allowlisted collision at or below its
+    # recorded baseline is reported, never raised.
+    body_collision_audit = None
+    if status_str in ("optimal", "feasible") and body_collision_input is not None:
+        from temper_placer.placer.cp_sat.body_collision import audit_body_collisions
+
+        fab_bodies = body_collision_input.get("fab_bodies")
+        allowlist = body_collision_input.get("allowlist")
+        if fab_bodies is None or allowlist is None:
+            raise ValueError(
+                "body_collision_input must carry both 'fab_bodies' and "
+                "'allowlist' -- a silent skip would leave the solve "
+                "unaudited for physically-unassemblable body collisions"
+            )
+        body_collision_audit = audit_body_collisions(
+            fab_bodies, positions, rotations, allowlist
+        )
+        if body_collision_audit.violations:
+            worst = max(body_collision_audit.violations, key=lambda v: v.overlap_mm2)
+            raise RuntimeError(
+                f"F.Fab body-collision post-solve audit FAILED for a "
+                f"{status_str} solve: {len(body_collision_audit.violations)} "
+                f"violating pair(s); worst: {worst.describe()}. This placement "
+                "is physically unassemblable (two component bodies occupy the "
+                "same space) and is rejected before it can be written to a "
+                "board. Run audit_body_collisions directly to inspect the "
+                "full result, or see body_collision.py's module docstring."
+            )
+        logger.info(
+            "F.Fab body-collision post-solve audit: 0 violations, %d "
+            "allowlisted (unchanged-or-better) pre-existing collision(s) over "
+            "%d checked pair(s)",
+            len(body_collision_audit.allowlisted),
+            body_collision_audit.checked_pairs,
+        )
+    elif body_collision_input is not None:
+        logger.warning(
+            "F.Fab body-collision post-solve audit did NOT run: the solve "
+            "terminated with status %r (only an optimal/feasible solve has a "
+            "placement to audit) -- this solve was NOT verified against "
+            "physical body collisions.",
+            status_str,
+        )
+    elif status_str in ("optimal", "feasible"):
+        logger.debug("body-collision post-solve audit skipped (body_collision_input not provided)")
+
     return CpSatPlacementResult(
         positions=positions,
         rotations=rotations,
@@ -753,6 +837,7 @@ def solve_placement(
         isolation_barrier_report=isolation_barrier_report,
         validator_audit=validator_audit,
         tank_creepage_report=tank_creepage_report,
+        body_collision_audit=body_collision_audit,
     )
 
 
