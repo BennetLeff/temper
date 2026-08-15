@@ -28,15 +28,17 @@ dominant `|nets| × |edges|` Sinz-encoding term from ~100 nets to 1").
    `py_vars`/`py_cons` lists → `solve_topology_rust` (Rust:
    `model_from_python` → `rewrite` → `encode_to_cnf` → CaDiCaL).
 2. **Net-filtering hypothesis CONFIRMED, quantitatively.** The model is
-   exactly `|nets| × |edges|` raw variables: 110 nets × 59,008 edges =
-   6,490,880 vars, measured exact on the 2-layer skeleton; the real
-   route's 4-layer skeleton is 134,361 edges → 14,779,710 raw vars.
-   A single-net model builds the same skeleton to 59,008 vars and its
-   CNF collapses to **12,284 clauses, solved SAT in 4.6 ms** — the Sinz
-   AtMostK encoding (the blowup) simply never fires with one term.
+   exactly `|nets| × |edges|` raw variables — verified exact at two
+   scales: 110 nets × 59,008 edges = 6,490,880 vars (probe, 2-layer
+   skeleton), and the real route's own mem-trace showing a 10-net batch
+   at 2,041,440 vars ⇒ **204,144 edges** ⇒ 22,455,840 raw vars at 110
+   nets (4-layer skeleton, escape vias included). A single-net model
+   builds the same skeleton to 59,008 vars and its CNF collapses to
+   **12,284 clauses, solved SAT in 4.6 ms** — the Sinz AtMostK encoding
+   (the blowup) simply never fires with one term.
 3. **The blowup is the monolithic Sinz sequential-counter encoding over
-   ~134K capacity constraints × 110 nets each**: ~505M CNF clauses /
-   ~262M CNF vars at the current skeleton, ≈ **~124 GB** (56 B/clause in
+   ~204K capacity constraints × 110 nets each**: ~768M CNF clauses /
+   ~399M CNF vars at the real skeleton, ≈ **~182–200 GB** (56 B/clause in
    our `Vec<Vec<i32>>`, 152–175 B/clause inside CaDiCaL, per the measured
    per-item costs in `docs/plans/2026-08-12-004`). The machine has 62 GB.
    The process is OOM-killed at ~58 GB inside `encode_to_cnf` — before
@@ -57,12 +59,16 @@ dominant `|nets| × |edges|` Sinz-encoding term from ~100 nets to 1").
    narrow**. Its four pads (K1, RT1, U1, U2) span nearly the whole board
    (x = 28 … 168 mm); a single-hull pour threading them at ≥4.16 mm necks
    fragments under DRC-aware fill for geometric reasons, not solver
-   reasons. The memory bug blocks the monolithic route that would let the
-   router evaluate a full-board pour; the batched recipe routes but its
-   Stage 3 capacity constraints are vacuous at `batch_size=10`
-   (plan 2026-08-12-003's finding). **Recommended path: geographic
-   pruning (or `batch_size` ≥ K), then re-place K1/RT1/U1/U2 to shrink
-   the net's bounding hull — or manual 5.0 mm routing.**
+   reasons — confirmed on a real batched route this session: the pour
+   split into 2 hulls × 2 layers, and the drawn traces are still
+   0.508 mm because the Stage-4.4 pass-through defect (declared class
+   width never reaches `assign_trace_widths`) is still live. The memory
+   bug blocks the monolithic route that would let the router evaluate a
+   full-board pour; the batched recipe routes but its Stage 3 capacity
+   constraints are vacuous at `batch_size=10` (plan 2026-08-12-003's
+   finding). **Recommended path: geographic pruning (or `batch_size` ≥
+   K), fix the Stage-4.4 width pass-through, re-place K1/RT1/U1/U2 to
+   shrink the net's bounding hull — or manual 5.0 mm routing.**
 
 ## 1. Call path (traced, not inferred)
 
@@ -103,24 +109,28 @@ correction log). The default `route_board.py` invocation passes
 ## 2. Skeleton sizes measured on the current board
 
 Stage 2 run directly (probe committed as
-`docs/evidence/2026-08-15-stage2-skeleton-probe.py`; caveat:
-`escape_vias=[]`, so the exact edge counts differ from a real route by a
-few percent, but not by an order of magnitude):
+`docs/evidence/2026-08-15-stage2-skeleton-probe.py`), plus the
+ground-truth measurement from the real route's own mem-trace (below):
 
-| stackup parsing | F.Cu | B.Cu | In1.Cu | In2.Cu | **total edges** | raw vars @110 nets |
+| measurement | F.Cu | B.Cu | In1.Cu | In2.Cu | **total edges** | raw vars @110 nets |
 |---|---:|---:|---:|---:|---:|---:|
-| `use_declared_layer_roles=False` (zone-content; NOT the pipeline) | 0 (plane) | 0 (plane) | 29,504 | 29,504 | **59,008** | 6,490,880 |
-| `use_declared_layer_roles=True` (**the real pipeline's setting**, `router_pipeline.rs:269`) | 52,815 | 22,538 | 29,504 | 29,504 | **134,361** | **14,779,710** |
+| probe, `use_declared_layer_roles=False` (zone-content; NOT the pipeline), `escape_vias=[]` | 0 (plane) | 0 (plane) | 29,504 | 29,504 | **59,008** | 6,490,880 |
+| probe, `use_declared_layer_roles=True` (**the real pipeline's setting**, `router_pipeline.rs:269`), `escape_vias=[]` | 52,815 | 22,538 | 29,504 | 29,504 | **134,361** | 14,779,710 |
+| **real route** (`route_board.py --net-batching`), `ModelBuilder.build()` mem-trace: 10-net batch → 2,041,440 vars ⇒ **204,144 edges** | — | — | — | — | **≈204,144** | **22,455,840** |
 
-The 2026-08-12 plan's 204,490-edge figure (F.Cu 114,622 …) predates
-board edits since (ZCD removal etc.); the current board is smaller, but
-the verdict is unchanged (below).
+Escape vias are obstacles: they *enlarge* the medial-axis skeleton
+(204,144 real vs 134,361 without them). The real route's 204,144-edge
+skeleton matches the 2026-08-12-004 plan's "204,490-edge current
+skeleton" to within 0.2% — that plan's full-scale extrapolation was
+correct, and this session's probe without escape vias under-estimated by
+~34%. The verdict is the same either way (Section 4).
 
 **ModelBuilder.build() verified exact** at the 2-layer scale: built
 6,490,880 vars / 30,830 constraints in 65 s, RSS 1.56 GB — the var count
 matches `|nets| × |edges| = 110 × 59,008` exactly (Rust packed arena;
 the 326.7 B/var model-layer cost measured in 2026-08-12-002 has since
-been fixed).
+been fixed). The real route's batch build (10 nets → 2,041,440 vars /
+109,152 cons) matches `10 × 204,144` exactly.
 
 ## 3. Net-filtering hypothesis: CONFIRMED by controlled experiment
 
@@ -153,20 +163,22 @@ named suspects in the hypothesis were:
 
 ## 4. What the blowup is (sized, current board)
 
-Full monolith at the real 134,361-edge skeleton, 110 nets:
+Full monolith at the real route's 204,144-edge skeleton, 110 nets:
 
 | layer | size | cost | total |
 |---|---:|---:|---:|
-| raw model (packed, post-08-12-002 fix) | 14.78M vars | ~8.9 B/var | ~0.13 GB |
-| CNF `var_map` + aux-var names | ~262M vars (14.8M primary + ~247M Sinz aux) | 56 B/aux name (dead — nothing reads it, U1 of 08-12-004) | ~13.8 GB |
-| CNF clauses (`Vec<Vec<i32>>`) | ~505M | 56 B/clause (U2 of 08-12-004 packs to 13.8 B) | ~28.3 GB |
-| CaDiCaL clause storage | ~505M | 152–175 B/clause (measured, not changeable by representation) | **~77–88 GB** |
-| **total** | | | **~120–130 GB** |
+| raw model (packed, post-08-12-002 fix) | 22.46M vars | ~8.9 B/var | ~0.2 GB |
+| CNF `var_map` + aux-var names | ~399M vars (22.5M primary + ~377M Sinz aux) | 56 B/aux name (dead — nothing reads it, U1 of 08-12-004) | ~21.1 GB |
+| CNF clauses (`Vec<Vec<i32>>`) | ~768M | 56 B/clause (U2 of 08-12-004 packs to 13.8 B) | ~43.1 GB |
+| CaDiCaL clause storage | ~768M | 152–175 B/clause (measured, not changeable by representation) | **~117–135 GB** |
+| **total** | | | **~182–200 GB** |
 
 (Scaling constants: 1,846 aux/constraint and 3,767 clauses/constraint
 from the 2026-07-27 42,145,777-var / 78,107,180-clause measurement at
-20,734 constraints, applied to ~134K constraints. Same method as
-2026-08-12-004, which measured 182–200 GB at the then-larger skeleton.)
+20,734 constraints, applied to ~204K constraints. These numbers are
+identical to 2026-08-12-004's full-scale estimate — this session
+independently confirmed its 204,490-edge assumption against the real
+route.)
 
 The machine has 62 GB. The observed "18 GB → 58 GB in ~15 s, every
 time, inside `_run_stage3`" is `encode_to_cnf` allocating at
@@ -239,9 +251,10 @@ both the 4.16 mm trace and 4.77 mm pour minima).
 
 **Current committed copper** (`pcb/temper.kicad_pcb`, net 88): 31
 segments — 30 × **0.508 mm** + 1 × 0.25 mm, **0 zones**.
-0.508 mm at 20 °C/2 oz carries ~2.1 A (IPC-2221B) — **8× under the 15 A
-requirement. Ampacity is not achieved.** (Connectivity of the four pads
-is separately verified per the handoff.)
+0.508 mm at 20 °C/2 oz carries ~3.3 A (IPC-2221B, same formula as the
+scoping doc) — **~4.5× under the 15 A requirement, 8× under the required
+width. Ampacity is not achieved.** (Connectivity of the four pads is
+separately verified per the handoff.)
 
 **The four pads** (net 88): K1 relay contact 13 @ (95.2, 221.4); RT1 NTC
 disc pin 2 @ (40.4, 210.1); U1 TO-220-2 pin 2 @ (168.0, 223.0); U2
@@ -271,21 +284,49 @@ solver defect.
    drawn width — must be fixed first or the drawn copper will not match
    the declared 5.0 mm).
 
+### 7.1 Measured on a real batched route (this session, 2026-08-15)
+
+Full `route_board.py --net-batching` run (503 s, 65/104 nets routed,
+51/139 pad-connected, 43 fake-completion — `power_in.ntc-no` **in the
+fake-completion list**: copper exists but does not join all four pads):
+
+- **Drawn trace width: 71 × 0.508 mm segments** (+1 × 0.2, +1 × 0.3048)
+  — not the declared 5.0 mm. Cause confirmed in code: the Stage-4.4
+  pass-through defect is **still live** (`_pipeline_route.py:690-693`
+  calls `assign_trace_widths(..., default_width=...)` only; the netclass
+  `trace_width` never reaches it). `power_in.ntc-no` then keyword-matches
+  `"POWER"` in `temper-geometry/src/trace_width_assignment.rs:71` and gets
+  the `power_width=0.508` default. The class width is a declaration with
+  no route to the drawn copper.
+- **The pour split into 2 hulls × 2 layers = 4 zone blocks**: east hull
+  (F.Cu+B.Cu) bbox x=[90.1,170.0] y=[221.0,229.6] spanning K1→U1; west
+  hull (F.Cu+B.Cu) bbox x=[21.2,42.4] y=[173.4,212.1] spanning
+  U2→RT1. The middle of the board (x≈42–90) carries no net-88 zone — a
+  single hull cannot thread it at ≥4.16 mm necks. Under real KiCad fill
+  each hull fragments further into islands (the handoff's 47+ figure) —
+  the geometric consequence of the 140 mm pad span, now confirmed at the
+  zone-outline level without needing KiCad.
+
 ## 8. What was not run, and why (honest gaps)
 
 - **The monolithic route reproduction** (dies at ~58 GB): already
   established by the handoff ("every time"); re-running it would
   OOM-kill the shared machine for no new attribution. The attribution
-  (encode_to_cnf, ~124 GB demand vs 62 GB) is now established by
-  measurement + arithmetic instead. **Outstanding**: a per-phase
-  VmRSS trace of the monolith's death (the instrumentation on this
-  branch is ready for it whenever the machine is quiet and an owner
-  authorizes the OOM).
+  (encode_to_cnf, ~182–200 GB demand vs 62 GB) is now established by
+  measurement + arithmetic instead — the mem-trace instrumentation on
+  this branch is ready for a per-phase VmRSS trace of the death whenever
+  the machine is quiet and an owner authorizes the OOM. **Outstanding.**
 - **Geographic-pruning route** (`--pruning`): not measured (needs a
   full route); listed as the architectural fix with the net-batching
-  recipe as the working fallback.
-- **Exact F.Cu/B.Cu edge counts under real escape vias**: my probe used
-  `escape_vias=[]`; the real route's Stage-2 numbers differ by a few
-  percent (the 134,361 figure is the same order as the 08-12 204,490
-  figure's verdict, and Section 4's ~124 GB conclusion is insensitive to
-  ±20%).
+  recipe as the working fallback. **Outstanding.**
+- **KiCad's exact island count** for the net-88 pour: the 4 zone hulls
+  (Section 7.1) are raw outlines; KiCad's fill-time fragmentation count
+  (the handoff's 47+) requires opening the board in KiCad or a
+  fill-equivalent pass. The mechanism is confirmed at the outline level
+  (2 hulls + fake-completion audit); the exact fill count was not
+  re-derived. **Outstanding.**
+- **Exact F.Cu/B.Cu edge counts under real escape vias**: the probe's
+  `escape_vias=[]` under-estimated the skeleton (134,361 vs the real
+  route's 204,144); the real route's own mem-trace (`ModelBuilder.build()
+  EXIT vars=2,041,440` for a 10-net batch) is the ground truth used in
+  Section 4.
