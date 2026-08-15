@@ -199,6 +199,24 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_ci_survey_advisory_drift.py
+  purpose: 'CI gate: cross-check gate_input_registry._CI_SCRIPT_SURVEY''s free-text "advisory"/"BLOCKING"
+    claims about each gate script''s CI wiring against the real continue-on-error state of its step(s)
+    in .github/workflows/python-tests.yml. Catches prose that drifted from reality in either direction
+    -- measured 2026-08-13: check_netclass_class_param_correspondence.py''s entry still read "advisory
+    (continue-on-error); currently VIOLATION" after the underlying mismatch was reconciled and the step
+    made blocking on 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
@@ -724,10 +742,10 @@ scripts:
     and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance, trace_width/track_width,
     via_diameter, via_drill) -- the dimension PR #1023/#1025 (both titled as syncing kicad_pro against
     design_rules.py) and sync_kicad_netclass_assignments.py never checked: all three only ever compare/write
-    netclass_assignments (which net maps to which class), never a class''s own parameter values. Currently
-    VIOLATION on origin/main: HighVoltage.clearance 6.0mm (design_rules.py) vs 2.0mm (kicad_pro), plus
-    4 Power-class field mismatches (docs/evidence/ 2026-08-12-gate-vacuity-structural-prevention.md).
-    Advisory (continue-on-error) until reconciled.'
+    netclass_assignments (which net maps to which class), never a class''s own parameter values. Reconciled
+    2026-08-12: HighVoltage.clearance and 4 Power-class field mismatches were resolved
+    (docs/evidence/2026-08-12-netclass-param-reconciliation.md). BLOCKING as of 2026-08-12
+    (continue-on-error removed from the CI step once the gate went clean).'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
