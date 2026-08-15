@@ -39,10 +39,11 @@ def ipc2152_internal_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
 
 
 def ipc2152_min_width(_net_name, current_amps, layer=None, stackup=None):
-    """IPC-2152 minimum trace width for a net on its assigned layer.
+    """IPC-2221B minimum trace width for a net on its assigned layer.
 
     Resolves copper weight and internal/external layer type from the
-    stackup if provided; falls back to defaults (1oz outer, 0.5oz inner)
+    stackup if provided; falls back to 1.0 oz (copper_weight default)
+    with internal/external decided by the layer name ("In*" = internal)
     otherwise.
 
     Supports both board.LayerStackup (board.py) and core/stackup.Stackup
