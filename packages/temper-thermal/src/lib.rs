@@ -69,6 +69,7 @@ pub mod safety;
 pub mod solve;
 pub mod thermal_edges;
 pub mod thermal_potential;
+pub mod thermal_properties;
 pub mod thermal_scorer;
 pub mod tj_cross_check;
 
@@ -166,5 +167,9 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parameter_bounds::worst_case_values_py, m)?)?;
     m.add_function(wrap_pyfunction!(geometric_metrics::measure_geometric_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_edges::measure_thermal_edges_py, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        thermal_properties::lookup_thermal_properties_py,
+        m
+    )?)?;
     Ok(())
 }

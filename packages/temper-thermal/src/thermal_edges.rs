@@ -152,10 +152,22 @@ fn py_min_f32(a: f32, b: f32) -> f32 {
 /// * `board_width` / `board_height` — board extents (mm, full precision).
 /// * `ambient_c` — ambient temperature (°C); also `max_tj`'s initial
 ///   value (mirrors `max_tj = ambient_temp_c` before the loop).
+/// * `rjc_arr` / `rch_arr` / `rha_arr` / `copper_arr` — OPTIONAL
+///   per-device thermal-resistance and copper-area arrays (same
+///   order/length as `powers`).  `None` (the default) applies the legacy
+///   flat `(0.6, 0.25, 1.0)` K/W stackup and zero copper area — the
+///   pre-correction behavior, kept bit-identical for the pinned
+///   differential — so callers that have no per-component data get
+///   exactly the old numbers.  Callers WITH per-component data (from
+///   [`crate::thermal_properties::lookup_thermal_properties`]) pass
+///   arrays here and the copper-spreading benefit (larger pour → lower
+///   effective Rha) is actually exercised.  When provided, all four must
+///   have length `n` (the caller resolves every device or falls back per
+///   device to the flat values before calling).
 ///
 /// Returns `(max_junction_temp_c, edge_distance_avg_mm)`. The caller
-/// derives `thermal_margin_c = 150.0 - max_junction_temp_c` (a single
-/// subtraction — kept in Python, not worth its own kernel call).
+/// derives `thermal_margin_c = trip_limit_c - max_junction_temp_c` (a
+/// single subtraction — kept in Python, not worth its own kernel call).
 ///
 /// `positions_x`/`positions_y`/`powers` must be equal length; an empty
 /// input returns `(ambient_c, 0.0)` (mirrors the oracle's untouched
@@ -168,6 +180,10 @@ pub fn measure_thermal_edges(
     board_width: f64,
     board_height: f64,
     ambient_c: f64,
+    rjc_arr: Option<&[f64]>,
+    rch_arr: Option<&[f64]>,
+    rha_arr: Option<&[f64]>,
+    copper_arr: Option<&[f64]>,
 ) -> (f64, f64) {
     let n = positions_x.len();
     let mut max_tj = ambient_c;
@@ -196,9 +212,16 @@ pub fn measure_thermal_edges(
         let dist = py_min_f32(dx, dy);
         edge_dists.push(dist);
 
+        // Per-device thermal properties when provided; the legacy flat
+        // stackup and zero copper when not (bit-identical to the pinned
+        // oracle, which never had per-component data).
+        let rjc = rjc_arr.and_then(|a| a.get(k)).copied().unwrap_or(0.6);
+        let rch = rch_arr.and_then(|a| a.get(k)).copied().unwrap_or(0.25);
+        let rha = rha_arr.and_then(|a| a.get(k)).copied().unwrap_or(1.0);
+        let copper = copper_arr.and_then(|a| a.get(k)).copied().unwrap_or(0.0);
         // pyo3 f64 extraction from a Python float(np.float32(x)) widens
         // exactly (lossless) — `dist as f64` reproduces the same value.
-        let tj = estimate_junction_temp(powers[k], dist as f64, 0.0, ambient_c, 0.6, 0.25, 1.0);
+        let tj = estimate_junction_temp(powers[k], dist as f64, copper, ambient_c, rjc, rch, rha);
         max_tj = hostmath::py_max(max_tj, tj);
     }
 
@@ -226,6 +249,10 @@ pub fn measure_thermal_edges(
     board_width,
     board_height,
     ambient_c,
+    rjc=None,
+    rch=None,
+    rha=None,
+    copper=None,
 ))]
 pub fn measure_thermal_edges_py(
     positions_x: Vec<f32>,
@@ -235,6 +262,10 @@ pub fn measure_thermal_edges_py(
     board_width: f64,
     board_height: f64,
     ambient_c: f64,
+    rjc: Option<Vec<f64>>,
+    rch: Option<Vec<f64>>,
+    rha: Option<Vec<f64>>,
+    copper: Option<Vec<f64>>,
 ) -> PyResult<(f64, f64)> {
     temper_py_bridge::catch_unwind(|| {
         measure_thermal_edges(
@@ -245,6 +276,10 @@ pub fn measure_thermal_edges_py(
             board_width,
             board_height,
             ambient_c,
+            rjc.as_deref(),
+            rch.as_deref(),
+            rha.as_deref(),
+            copper.as_deref(),
         )
     })
     .map_err(temper_py_bridge::panic_to_err)
@@ -257,7 +292,7 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn empty_input_returns_ambient_and_zero() {
-        let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, 40.0);
+        let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, 40.0, None, None, None, None);
         assert_eq!(max_tj, 40.0);
         assert_eq!(avg, 0.0);
     }
@@ -268,9 +303,54 @@ pub(crate) mod tests {
         // -> dist = 5. Tj = 40 + 15*(0.6+0.25+1.0) = 67.75 (edge_penalty 0
         // since d-5=0).
         let (max_tj, avg) =
-            measure_thermal_edges(&[5.0], &[50.0], &[15.0], (0.0, 0.0), 100.0, 100.0, 40.0);
+            measure_thermal_edges(&[5.0], &[50.0], &[15.0], (0.0, 0.0), 100.0, 100.0, 40.0, None, None, None, None);
         assert_eq!(max_tj, 67.75);
         assert_eq!(avg, 5.0);
+    }
+
+    #[cfg_attr(test, test)]
+    fn per_device_thermal_properties_override_flat_stackup() {
+        // Same geometry as `single_device_edge_mounted` but with the IGBT
+        // datasheet stackup (Rjc=0.31, Rch=0.20, Rha=0.45) and 2000 mm² of
+        // copper: R_total = 0.31+0.20+0.45 - min(0.5, (2000/1000)*0.1) =
+        // 0.96 - 0.2 = 0.76 K/W -> Tj = 60 + 15*0.76 = 71.4 (ambient 60 °C
+        // worst case, per THERMAL_DESIGN_GUIDE §2.2).
+        let (max_tj, _avg) = measure_thermal_edges(
+            &[5.0],
+            &[50.0],
+            &[15.0],
+            (0.0, 0.0),
+            100.0,
+            100.0,
+            60.0,
+            Some(&[0.31]),
+            Some(&[0.20]),
+            Some(&[0.45]),
+            Some(&[2000.0]),
+        );
+        // edge_penalty = max(0.0, 5.0 - 5.0)*0.2 = 0.0
+        // copper_benefit = min(0.5, 2.0*0.1) = 0.2
+        // R_total = 0.31 + 0.20 + 0.45 + 0.0 - 0.2 = 0.76
+        // Tj = 60.0 + 15.0*0.76 = 71.4
+        assert_eq!(max_tj, 71.4);
+    }
+
+    #[cfg_attr(test, test)]
+    fn copper_benefit_reduces_tj_with_per_device_arrays() {
+        // Same device, no copper vs 5000 mm² copper (cap 0.5 K/W):
+        //   no copper:     R_total = 0.96,      Tj = 60 + 15*0.96 = 74.4
+        //   5000 mm²:      benefit = 0.5,       R_total = 0.46, Tj = 66.9
+        let (tj_no_cu, _) = measure_thermal_edges(
+            &[5.0], &[50.0], &[15.0], (0.0, 0.0), 100.0, 100.0, 60.0,
+            Some(&[0.31]), Some(&[0.20]), Some(&[0.45]), Some(&[0.0]),
+        );
+        let (tj_cu, _) = measure_thermal_edges(
+            &[5.0], &[50.0], &[15.0], (0.0, 0.0), 100.0, 100.0, 60.0,
+            Some(&[0.31]), Some(&[0.20]), Some(&[0.45]), Some(&[5000.0]),
+        );
+        assert_eq!(tj_no_cu, 74.4);
+        assert_eq!(tj_cu, 66.9);
+        assert!(tj_cu < tj_no_cu);
     }
 
     #[cfg_attr(test, test)]
@@ -283,6 +363,7 @@ pub(crate) mod tests {
             100.0,
             100.0,
             40.0,
+            None, None, None, None,
         );
         // Device 2: dist = min(5, 95, 5, 95) = 5 too (dy = min(5,95)=5) —
         // pick a genuinely closer point instead.
@@ -294,6 +375,7 @@ pub(crate) mod tests {
             100.0,
             100.0,
             40.0,
+            None, None, None, None,
         );
         assert!(max_tj2 >= max_tj || max_tj2 > 0.0); // sanity: fold ran
         assert!(max_tj >= 40.0);
@@ -390,7 +472,7 @@ pub(crate) mod tests {
             fn prop_measure_empty_returns_ambient(
                 ambient in 0.0f64..100.0f64,
             ) {
-                let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, ambient);
+                let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, ambient, None, None, None, None);
                 prop_assert_eq!(max_tj, ambient);
                 prop_assert_eq!(avg, 0.0);
             }
@@ -410,6 +492,7 @@ pub(crate) mod tests {
                 let (max_tj, avg) = measure_thermal_edges(
                     &xs[..n], &ys[..n], &powers[..n],
                     (0.0, 0.0), 200.0, 200.0, ambient,
+                    None, None, None, None,
                 );
                 prop_assert!(max_tj.is_finite());
                 prop_assert!(avg.is_finite());
@@ -430,6 +513,7 @@ pub(crate) mod tests {
                 let (max_tj, _avg) = measure_thermal_edges(
                     &xs[..n], &ys[..n], &powers[..n],
                     (0.0, 0.0), 200.0, 200.0, ambient,
+                    None, None, None, None,
                 );
                 prop_assert!(max_tj >= ambient,
                     "max_tj {max_tj} < ambient {ambient}");
@@ -449,10 +533,12 @@ pub(crate) mod tests {
                 let a = measure_thermal_edges(
                     &xs[..n], &ys[..n], &powers[..n],
                     (0.0, 0.0), 200.0, 200.0, ambient,
+                    None, None, None, None,
                 );
                 let b = measure_thermal_edges(
                     &xs[..n], &ys[..n], &powers[..n],
                     (0.0, 0.0), 200.0, 200.0, ambient,
+                    None, None, None, None,
                 );
                 prop_assert_eq!(a.0.to_bits(), b.0.to_bits());
                 prop_assert_eq!(a.1.to_bits(), b.1.to_bits());
@@ -468,6 +554,8 @@ pub(crate) mod tests {
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("thermal_edges::tests::empty_input_returns_ambient_and_zero", empty_input_returns_ambient_and_zero),
         ("thermal_edges::tests::single_device_edge_mounted", single_device_edge_mounted),
+        ("thermal_edges::tests::per_device_thermal_properties_override_flat_stackup", per_device_thermal_properties_override_flat_stackup),
+        ("thermal_edges::tests::copper_benefit_reduces_tj_with_per_device_arrays", copper_benefit_reduces_tj_with_per_device_arrays),
         ("thermal_edges::tests::max_tj_folds_over_multiple_devices", max_tj_folds_over_multiple_devices),
         ("thermal_edges::tests::pairwise_sum_f32_matches_naive_below_eight", pairwise_sum_f32_matches_naive_below_eight),
         ("thermal_edges::tests::pairwise_sum_f32_recurses_above_blocksize", pairwise_sum_f32_recurses_above_blocksize),
