@@ -39,8 +39,10 @@ static const char *TAG = "safety";
 
 /* Configuration */
 #define CONTROL_LOOP_FREQ_HZ    100
-#define OVER_TEMP_THRESHOLD     100.0f  /* °C */
-#define OVER_CURRENT_THRESHOLD  35.0f   /* Amps */
+/* Over-temperature / over-current interlock thresholds are single-sourced
+ * in firmware/config.yaml (interlocks: section) and emitted into config.h.
+ * Citation status and the open owner decisions on their values are recorded
+ * there and in docs/evidence/2026-08-15-firmware-interlock-citations.md. */
 #define TEMP_HYSTERESIS         5.0f    /* °C - hysteresis band */
 #define CURRENT_HYSTERESIS      2.0f    /* A - hysteresis band */
 
