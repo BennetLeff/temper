@@ -14,7 +14,6 @@
 # Entries may only be added with a # TODO: temper-xxx ticket reference.
 # See AGENTS.md §Coverage Gate for details.
 
-temper_placer/core/placement_drc.py::validate_placement_drc  # TODO: temper-xxx
 temper_placer/core/state.py::PlacementState.from_netlist_and_board  # TODO: temper-xxx
 temper_placer/adapters/deterministic_adapter.py::wrap_deterministic_stage  # TODO: temper-xxx
 temper_placer/adapters/register_strategies.py::PlacementStage.run  # TODO: temper-xxx

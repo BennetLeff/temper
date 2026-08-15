@@ -52,7 +52,6 @@ source_modules =
     temper_placer.validation
 forbidden_modules =
     temper_placer.core.graph
-    temper_placer.core.placement_drc
     temper_placer.core.power_topology
 as_packages = False
 ignore_imports =
