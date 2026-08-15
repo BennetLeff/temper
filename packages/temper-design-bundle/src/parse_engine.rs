@@ -1805,7 +1805,7 @@ struct PadOut {
 /// PR #1178 lineage; without this, the strict net-class mapping raises
 /// `ValueError` naming `ac_l` as an unresolved key). Routing already
 /// excludes them (`router_v6.routing_space._routable_net_names` requires
-/// >= 2 pins); the registry just no longer forgets they exist. Kept in
+/// at least 2 pins); the registry just no longer forgets they exist. Kept in
 /// lockstep with the oracle so the R1a differential stays a parity check
 /// rather than asserting the pre-migration drop.
 fn extract_nets_pure(components: &[CompOut]) -> Vec<(String, Vec<(String, String)>)> {
