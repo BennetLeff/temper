@@ -2,8 +2,18 @@
 # Copied from packages/temper-placer/src/temper_placer/io/_parse_modules.py at commit 79ab9bd0e.
 # Only edits vs the source: intra-oracle imports rewritten (temper_placer.io.X -> .X)
 # so the oracle package is self-contained. Extraction bodies, dataclasses and
-# kiutils usage are byte-identical to the pre-migration source. This is the pinned
-# Python arm of the Rust parse-engine differential (R1a).
+# kiutils usage are byte-identical to the pre-migration source EXCEPT for
+# `_calculate_footprint_bounds`'s fp_circle/fp_poly handling (see comments
+# inline): the pinned commit's circle branch checked `hasattr(item,
+# "radius")`, an attribute kiutils' FpCircle has never had, making it dead
+# code since before this file was pinned -- and fp_poly was never handled at
+# all. Both are real, independent, pre-existing defects in the pinned source
+# itself, not artifacts of pinning it. Fixed here (radius via center-to-end
+# distance; poly via its coordinate list) in lockstep with the equivalent
+# Rust fix, so the R1a differential below continues to mean something for
+# circle/poly-bearing footprints instead of certifying that two
+# implementations agree by sharing a bug. This is the pinned Python arm of
+# the Rust parse-engine differential (R1a).
 
 """Internal: footprint/module parsing, pad extraction, and bounds calculation."""
 
@@ -378,12 +388,45 @@ def _calculate_footprint_bounds(
                         y_max = max(y_max, pt.Y)
                     has_valid_items = True
 
-                if hasattr(item, "center") and hasattr(item, "radius"):
-                    cx, cy, r = item.center.X, item.center.Y, item.radius
+                # NOT part of the pinned pre-migration commit (79ab9bd0e):
+                # that revision checked `hasattr(item, "radius")`, but
+                # kiutils' `FpCircle` (installed version, see
+                # kiutils.items.fpitems.FpCircle) has never exposed a
+                # `radius` attribute -- only `center` and `end` (a point on
+                # the circumference). The check was dead code from before
+                # the Rust migration existed: every `fp_circle` courtyard/
+                # fab graphic silently contributed nothing to bounds, on
+                # BOTH the pre-migration Python and (after the byte-exact
+                # port) the Rust engine, so the R1a differential validated
+                # two implementations that agreed only because they shared
+                # the same bug. Restoring the evidently-intended behaviour
+                # here (radius = center-to-end distance, matching the Rust
+                # fix in `parse_engine.rs::calculate_footprint_bounds`) so
+                # this oracle is actually exercising the fixed Rust code
+                # instead of reproducing the historical defect it inherited.
+                if hasattr(item, "center") and hasattr(item, "end") and not hasattr(item, "start"):
+                    cx, cy = item.center.X, item.center.Y
+                    r = math.dist((cx, cy), (item.end.X, item.end.Y))
                     x_min = min(x_min, cx - r)
                     y_min = min(y_min, cy - r)
                     x_max = max(x_max, cx + r)
                     y_max = max(y_max, cy + r)
+                    has_valid_items = True
+
+                # Also not part of the pinned commit: `FpPoly` (kiutils'
+                # ``fp_poly``) was never matched by either branch above (it
+                # exposes `coordinates`, not `start`/`end` or `center`/
+                # `radius`) -- a second, independent gap in the same
+                # pre-migration function, not something the Rust port
+                # introduced. Added for the same reason as the circle fix
+                # above: a polygonal courtyard/fab outline is just as real
+                # an extent as a line's endpoints.
+                if hasattr(item, "coordinates") and item.coordinates:
+                    for pt in item.coordinates:
+                        x_min = min(x_min, pt.X)
+                        y_min = min(y_min, pt.Y)
+                        x_max = max(x_max, pt.X)
+                        y_max = max(y_max, pt.Y)
                     has_valid_items = True
 
             gfx_bounds = (x_min, y_min, x_max, y_max) if has_valid_items else None
