@@ -940,7 +940,7 @@ jobs:
 
       - name: Upload verdict artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-tier-pr-verdict-${{ github.run_id }}
           # Globbed rather than one hardcoded path per tier: the files are

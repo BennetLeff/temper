@@ -729,7 +729,7 @@ jobs:
       # there as "temper-X has no built count", exit 2.
       - name: Upload local sweep artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-tier-nightly-local-${{ github.run_id }}
           path: |
@@ -1133,7 +1133,7 @@ jobs:
 
       - name: Upload deployed-Worker sweep artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wasm-tier-nightly-worker-${{ github.run_id }}
           path: |
