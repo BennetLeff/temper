@@ -290,7 +290,7 @@ class TestPrimitivesUncovered:
 # smooth.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.smooth import (
+from temper_placer.geometry import (
     get_alpha_schedule,
     get_beta_schedule,
     smooth_clip,

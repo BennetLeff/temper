@@ -44,7 +44,7 @@ from temper_placer.geometry.sdf import (
     sdf_rectangle,
     sdf_union,
 )
-from temper_placer.geometry.smooth import (
+from temper_placer.geometry import (
     hpwl_smooth,
     smooth_abs,
     smooth_max,
