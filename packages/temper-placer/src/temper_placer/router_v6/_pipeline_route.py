@@ -233,6 +233,11 @@ def _build_clause_origin(model: ConstraintModel) -> list[str]:
 
 def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     """Run Stage 3: Topological Routing."""
+    from temper_placer.router_v6.constraint_model import (
+        _stage3_mem_trace,
+    )
+
+    _stage3_mem_trace("_run_stage3 ENTER")
 
     # `#871` net-batching prototype: solve Stage 3's SAT model in batches
     # of `self.net_batch_size` nets instead of one monolithic model.
@@ -306,6 +311,8 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         constraint_model = model_builder.build()
         bundle_manifest = None
 
+    _stage3_mem_trace("_run_stage3 ModelBuilder.build() done")
+
     if os.environ.get("TEMPER_PCL_CONSTRAINTS"):
         constraint_model = self._augment_with_pcl_constraints(
             constraint_model, net_names, pcb, stage2
@@ -344,6 +351,10 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     else:
         from temper_rust_router import solve_topology_rust
 
+        _stage3_mem_trace(
+            f"_run_stage3 solve_topology_rust ENTER "
+            f"(py_vars={len(py_vars)} py_cons={len(py_cons)})"
+        )
         rust_result = solve_topology_rust(
             py_vars,
             py_cons,
@@ -351,6 +362,7 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             conflict_limit=self.sat_conflict_limit,
             time_limit_ms=self.sat_time_limit_ms,
         )
+        _stage3_mem_trace("_run_stage3 solve_topology_rust EXIT")
         cegar_iterations = 0
         budget_used = 0
         degraded_nets = []
@@ -389,6 +401,10 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     )
 
     clause_origin = _build_clause_origin(constraint_model)
+    _stage3_mem_trace(
+        f"_run_stage3 _build_clause_origin done "
+        f"(origins={len(clause_origin)})"
+    )
     if rust_result["status"] == "unsat":
         core_indices = rust_result.get("unsat_core", [])
         unsat_core_names = []
