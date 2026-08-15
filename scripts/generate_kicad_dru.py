@@ -247,34 +247,37 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 HV_TANK_CREEPAGE_PD2_MM = _tdb.creepage_table_lookup(2, "IIIa/IIIb", ">500-800", "18").value_mm()
 HV_TANK_CREEPAGE_PD3_MM = _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">500-800", "18").value_mm()
 
-# Which of the two above is emitted. Deliberately NOT written as the bare
-# `HV_TANK_CREEPAGE_ENFORCED_MM = HV_TANK_CREEPAGE_PD2_MM` alias that
-# HV_CREEPAGE_ENFORCED_MM above uses, and the reason is worth recording rather
-# than leaving as a stylistic oddity:
+# Which of the two above is emitted. Kept in the dict-lookup form (not the
+# bare `HV_TANK_CREEPAGE_ENFORCED_MM = HV_TANK_CREEPAGE_PD2_MM` alias that
+# HV_CREEPAGE_ENFORCED_MM above uses) for a now-historical reason worth
+# recording rather than leaving as a stylistic oddity:
 #
 # scripts/check_creepage_clearance_drift.py treats a bare `NAME2 = NAME1` as a
 # "selection alias" and then self-checks that the SELECTED constant sits in a
-# comparable (metric, tier) family. It classifies tier by keyword-scanning the
-# attached comment for reinforced/basic/working. This figure is FUNCTIONAL
-# insulation (Table 18) -- a tier that gate does not model -- so it has no
-# family, and the alias form makes the gate exit 5 ("GATE ERROR -- could not run
-# a trustworthy check"), strictly worse than the exit 3 it already reports on
-# main. Measured both ways.
+# comparable (metric, tier) family. The two tank constants above are
+# non-literal lookups (creepage_table_lookup calls), so this alias would
+# resolve to a non-literal value and land in that gate's UNRESOLVED bucket
+# either way -- the dict form is retained because it reads as a non-literal
+# expression there too and changes nothing, and because a future literal
+# rewrite of the lookups must not silently turn this into an alias whose
+# selected candidate has no comparable family.
 #
-# Adding "functional" to that gate's tier vocabulary was tried and REJECTED:
-# measured against the pristine tree it also re-tags netclass_rules.yaml's
-# HighVoltageIsolated clearance/creepage entries (whose `because` reads
-# "reinforced separation to LV/SELV, functional-only to its own HV/ACMains
-# neighbours") out of the reinforced families, shrinking [clearance/reinforced]
-# from 4 members to 3 and [creepage/reinforced] from 10 to 9 and turning two
-# real MISMATCH reports into OK ones. That is a loss of gate sensitivity, not a
-# fix. Teaching that gate a functional tier properly -- so it discriminates "the
-# value IS functional" from "the text mentions functional" -- is real work and
-# belongs in its own change, not smuggled in under a creepage rule.
-#
-# The dict-lookup form below keeps the one-line PD switch, duplicates no
-# literal, and reads to that gate as a non-literal expression (its UNRESOLVED
-# bucket) rather than as an alias it must and cannot resolve.
+# HISTORY (2026-08-15): a naive "functional" keyword in that gate's tier
+# classifier WAS tried and REJECTED here -- measured against the pristine
+# tree it also re-tags netclass_rules.yaml's HighVoltageIsolated
+# clearance/creepage entries (whose `because` reads "reinforced separation
+# to LV/SELV, functional-only to its own HV/ACMains neighbours") out of the
+# reinforced families, shrinking [clearance/reinforced] from 4 members to 3
+# and [creepage/reinforced] from 10 to 9 and turning two real MISMATCH
+# reports into OK ones. That is a loss of gate sensitivity, not a fix. The
+# functional tier landed PROPERLY instead (docs/evidence/2026-08-15-pending-
+# decisions.md item A): classified last in _classify_tier so a text that
+# mentions functional only as context for a reinforced/basic/working figure
+# keeps the more specific tier -- only a text that names functional and no
+# other tier keyword classifies as functional. With that in place the
+# tank_creepage.py selection alias works again (its enforced 10.0mm
+# participates in the [creepage/functional] family); this file's constants
+# remain lookups and are unaffected.
 #
 # ENFORCED DEGREE (2026-08-15): PD3 -- the as-built, decision-documented bar
 # (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md). PD2 remains a

@@ -716,6 +716,141 @@ class TestAntiVacuity:
 # ---------------------------------------------------------------------------
 
 
+class TestFunctionalTier:
+    def test_functional_tier_forms_its_own_family(self, tmp_path: Path) -> None:
+        """IEC 60335-1 Table 18 functional-insulation figures are a real
+        tier in their own right: two functional creepage declarations are
+        compared against each other, and never against reinforced figures."""
+        _mk_scan_roots(tmp_path)
+        _mk(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py",
+            "#: IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4), row vi\n"
+            "HV_TANK_CREEPAGE_PD2_MM = 6.3\n"
+            "#: Same row of Table 18 (functional insulation), PD3\n"
+            "HV_TANK_CREEPAGE_PD3_MM = 10.0\n",
+        )
+        _mk(
+            tmp_path,
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            "classes:\n"
+            "  HighVoltageTank:\n"
+            '    because: "IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4) PD2 = 6.3mm"\n'
+            "    creepage_mm: 6.3\n"
+            "  HighVoltage:\n"
+            '    because: "IEC 60335-1 reinforced insulation (Table 17 row iv x2)"\n'
+            "    creepage_mm: 12.6\n",
+        )
+        decls = discover_python(tmp_path)[0] + discover_yaml(tmp_path)[0]
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
+        func_fam = next(f for f in families if f.metric == "creepage" and f.tier == "functional")
+        assert not func_fam.is_consistent
+        assert set(func_fam.distinct_values.keys()) == {6.3, 10.0}
+        # The reinforced figure stays in its own family, never merged with
+        # the functional one.
+        ref_fam = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
+        assert set(ref_fam.distinct_values.keys()) == {12.6}
+
+    def test_functional_mentioned_as_context_keeps_more_specific_tier(self, tmp_path: Path) -> None:
+        """The measured rejection case for a naive 'functional' keyword add:
+        HighVoltageIsolated's `because` reads 'reinforced separation to
+        LV/SELV, functional-only to its own HV/ACMains neighbours' -- the
+        VALUE is reinforced, 'functional' is only context. Functional must
+        be classified LAST so this stays in the reinforced family."""
+        _mk_scan_roots(tmp_path)
+        _mk(
+            tmp_path,
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            "classes:\n"
+            "  HighVoltageIsolated:\n"
+            '    because: "reinforced separation to LV/SELV, functional-only to its own HV/ACMains neighbours"\n'
+            "    creepage_mm: 6.0\n",
+        )
+        decls = discover_yaml(tmp_path)[0]
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
+        ref_fam = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
+        assert [d.value_mm for d in ref_fam.members] == [6.0]
+        assert not any(f.tier == "functional" for f in families)
+
+    def test_pure_functional_tank_selection_alias_keeps_enforced_value_in_family(
+        self, tmp_path: Path
+    ) -> None:
+        """The tank_creepage.py shape after 2026-08-15: a bare-name selection
+        alias whose target is a Table 18 functional figure. The enforced
+        value must participate in its (creepage, functional) family and the
+        unselected PD2 sibling must be reported as declared-not-enforced --
+        this is the alias self-verification contract applied to the
+        functional tier."""
+        _mk_scan_roots(tmp_path)
+        _mk(
+            tmp_path,
+            "packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py",
+            "#: IEC 60335-1 Table 18 (functional insulation, cl. 29.2.4), row vi, PD2\n"
+            "HV_TANK_CREEPAGE_PD2_MM = 6.3\n"
+            "#: Same row of Table 18 (functional insulation), PD3\n"
+            "HV_TANK_CREEPAGE_PD3_MM = 10.0\n"
+            "DEFAULT_TANK_CREEPAGE_MM = HV_TANK_CREEPAGE_PD3_MM\n",
+        )
+        decls = discover_python(tmp_path)[0]
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
+        func_fam = next(f for f in families if f.metric == "creepage" and f.tier == "functional")
+        # Both the enforced constant and its selection alias participate at
+        # 10.0mm -- the alias is a selector, not a candidate, but it is a
+        # live declaration and is compared like any other.
+        assert [d.value_mm for d in func_fam.members] == [10.0, 10.0]
+        assert any(d.name == "HV_TANK_CREEPAGE_PD3_MM" for d in func_fam.members)
+        assert any(d.name == "DEFAULT_TANK_CREEPAGE_MM" for d in func_fam.members)
+        assert len(declared_not_enforced) == 1
+        assert declared_not_enforced[0].value_mm == 6.3
+        assert declared_not_enforced[0].enforced_value_mm == 10.0
+
+
+class TestAcceptedDrift:
+    def test_registry_entries_are_reviewed_families(self) -> None:
+        """Every ACCEPTED_DRIFT entry must name a real (metric, tier) pair
+        with a non-empty reviewed value set and a non-empty justification --
+        catches a typo'd key that would silently protect nothing."""
+        from check_creepage_clearance_drift import ACCEPTED_DRIFT
+
+        assert ACCEPTED_DRIFT
+        for (metric, tier), entry in ACCEPTED_DRIFT.items():
+            assert entry.metric == metric
+            assert entry.tier == tier
+            assert entry.accepted_values_mm
+            assert entry.justification
+            assert metric in {"creepage", "clearance"}
+            assert tier in {"reinforced", "basic", "working", "functional"}
+
+    def test_accepted_family_members_still_fully_discovered_and_reported(self, tmp_path: Path) -> None:
+        """Acceptance must not hide the family: every member of an accepted
+        mismatched family still appears in the report's family list with its
+        value, and the report still shows the mismatch -- only the violation
+        exit state is relaxed."""
+        _mk_scan_roots(tmp_path)
+        _mk(
+            tmp_path,
+            "elec/src/constraints.ato",
+            "module Constraints:\n"
+            "    # ACMains to Default: Basic insulation\n"
+            "    module AC_to_LV:\n"
+            "        min_clearance = 3.0mm\n",
+        )
+        _mk(
+            tmp_path,
+            "configs/temper_deterministic_config.yaml",
+            "net_class_rules:\n"
+            "  HighVoltage:\n"
+            "    # basic insulation at the mains_240v voltage bucket\n"
+            "    clearance_mm: 6.0\n",
+        )
+        state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced = run(tmp_path)
+        assert state == "clean"
+        basic_fam = next(f for f in families if f.metric == "clearance" and f.tier == "basic")
+        assert not basic_fam.is_consistent
+        assert set(basic_fam.distinct_values.keys()) == {3.0, 6.0}
+        assert len(basic_fam.members) == 2
+
+
 class TestEndToEnd:
     def _write_agreeing_tree(self, tmp_path: Path) -> None:
         _mk_scan_roots(tmp_path)
@@ -725,13 +860,13 @@ class TestEndToEnd:
             "module Constraints:\n"
             "    # HighVoltage to Default: Reinforced insulation\n"
             "    module HV_to_LV:\n"
-            "        min_creepage = 8.0mm\n",
+            "        min_creepage = 12.6mm\n",
         )
         _mk(
             tmp_path,
             "scripts/check_isolation_keepout.py",
-            "# REINFORCED creepage, pollution degree 2\n"
-            "MIN_BARRIER_WIDTH_MM = 8.0\n",
+            "# REINFORCED creepage, pollution degree 3 (PD3 GOVERNS)\n"
+            "MIN_BARRIER_WIDTH_MM = 12.6\n",
         )
 
     def test_agreeing_tree_is_clean(self, tmp_path: Path) -> None:
@@ -748,19 +883,62 @@ class TestEndToEnd:
         """Reproduces the exact shape of the verified defect: the gate
         (check_isolation_keepout.py) was retargeted to PD3 (12.6mm) but the
         .ato source of truth was not -- the gate must fail, non-vacuously,
-        naming both sites and both values."""
+        naming both sites and both values.
+
+        Since 2026-08-15 the (creepage, reinforced) family is registered in
+        ACCEPTED_DRIFT with the reviewed value set {6.0, 12.6}mm (see that
+        registry's justification -- the PD2 figure 8.0mm is explicitly NOT
+        accepted). A synthetic tree in which the .ato still carries the
+        pre-retarget 8.0mm PD2 figure therefore fails CLOSED (GateError:
+        the family drifted beyond its reviewed values and must be
+        re-reviewed), which is the correct, loud failure for exactly the
+        defect shape this test reproduces -- a reappearing PD2 figure must
+        never be silently absorbed by the acceptance."""
         self._write_agreeing_tree(tmp_path)
         _mk(
             tmp_path,
+            "elec/src/constraints.ato",
+            "module Constraints:\n"
+            "    # HighVoltage to Default: Reinforced insulation\n"
+            "    module HV_to_LV:\n"
+            "        min_creepage = 8.0mm\n",
+        )
+        with pytest.raises(GateError):
+            run(tmp_path)
+
+    def test_accepted_mismatch_within_reviewed_values_is_not_a_violation(self, tmp_path: Path) -> None:
+        """A mismatched family whose spread is inside its ACCEPTED_DRIFT
+        reviewed value set is still discovered and still printed in full,
+        but does not set the violation state -- that is the mechanism that
+        lets the gate run green in CI despite investigated, accepted
+        cross-source disagreements. 6.0mm is the UNSOURCED-legacy member of
+        the (creepage, reinforced) acceptance; 12.6mm is the enforced PD3
+        member."""
+        _mk_scan_roots(tmp_path)
+        _mk(
+            tmp_path,
+            "elec/src/constraints.ato",
+            "module Constraints:\n"
+            "    # HighVoltage to Default: Reinforced insulation\n"
+            "    module HV_to_LV:\n"
+            "        min_creepage = 12.6mm\n",
+        )
+        _mk(
+            tmp_path,
             "scripts/check_isolation_keepout.py",
-            "# REINFORCED creepage, pollution degree 3 (PD3 GOVERNS)\n"
+            "# REINFORCED creepage, PD3-pinned enforcement\n"
             "MIN_BARRIER_WIDTH_MM = 12.6\n",
         )
+        _mk(
+            tmp_path,
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            "classes:\n"
+            "  HighVoltage:\n"
+            "    # UNSOURCED legacy reinforced figure, re-sourcing deferred (2026-08-15)\n"
+            "    creepage_mm: 6.0\n",
+        )
         state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced = run(tmp_path)
-        assert state == "violation"
+        assert state == "clean"
         reinforced_creepage = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
         assert not reinforced_creepage.is_consistent
-        assert set(reinforced_creepage.distinct_values.keys()) == {8.0, 12.6}
-        sites = {d.file for d in reinforced_creepage.members}
-        assert "elec/src/constraints.ato" in sites
-        assert "scripts/check_isolation_keepout.py" in sites
+        assert set(reinforced_creepage.distinct_values.keys()) == {6.0, 12.6}

@@ -98,43 +98,45 @@ constraints:
 
   # --- HV/LV reinforced-insulation creepage -----------------------------
   # min_distance_mm matches elec/src/constraints.ato's HV_to_LV block
-  # exactly (min_clearance=6.0mm, min_creepage=8.0mm; using the stricter
-  # creepage figure). Representative HV parts vs. the MCU, not exhaustive
-  # pairwise coverage of every HV component -- the HV/Power/Signal/MCU
-  # zone split above does the bulk of the separation work; these are the
-  # highest-voltage parts (tank at 400V peak, bus at 340V) as a belt-and-
-  # suspenders hard constraint.
+  # exactly (min_clearance=6.0mm, min_creepage=12.6mm; using the stricter
+  # creepage figure). 12.6mm is the PD3 as-built bar (2026-08-15 data-driven
+  # decision + PR #1229; aligned here 2026-08-15 -- was 8.0mm PD2, see
+  # docs/evidence/2026-08-15-pending-decisions.md item A). Representative HV
+  # parts vs. the MCU, not exhaustive pairwise coverage of every HV component
+  # -- the HV/Power/Signal/MCU zone split above does the bulk of the
+  # separation work; these are the highest-voltage parts (tank at 400V peak,
+  # bus at 340V) as a belt-and-suspenders hard constraint.
   - type: separated
     id: "tank-cap1-mcu-creepage"
     a: C25
     b: U22
-    min_distance_mm: 8.0
+    min_distance_mm: 12.6
     tier: 1
-    because: "IEC 60335-1 reinforced-insulation creepage, HV tank cap (400V peak) to MCU (constraints.ato HV_to_LV)"
+    because: "IEC 60335-1 reinforced-insulation creepage (PD3), HV tank cap (400V peak) to MCU (constraints.ato HV_to_LV)"
 
   - type: separated
     id: "tank-cap2-mcu-creepage"
     a: C26
     b: U22
-    min_distance_mm: 8.0
+    min_distance_mm: 12.6
     tier: 1
-    because: "IEC 60335-1 reinforced-insulation creepage, HV tank cap (400V peak) to MCU (constraints.ato HV_to_LV)"
+    because: "IEC 60335-1 reinforced-insulation creepage (PD3), HV tank cap (400V peak) to MCU (constraints.ato HV_to_LV)"
 
   - type: separated
     id: "igbt-high-mcu-creepage"
     a: U4
     b: U22
-    min_distance_mm: 8.0
+    min_distance_mm: 12.6
     tier: 1
-    because: "IEC 60335-1 reinforced-insulation creepage, HV switch node to MCU (constraints.ato HV_to_LV)"
+    because: "IEC 60335-1 reinforced-insulation creepage (PD3), HV switch node to MCU (constraints.ato HV_to_LV)"
 
   - type: separated
     id: "bus-cap-mcu-creepage"
     a: C2
     b: U22
-    min_distance_mm: 8.0
+    min_distance_mm: 12.6
     tier: 1
-    because: "IEC 60335-1 reinforced-insulation creepage, 340V DC bus cap to MCU (constraints.ato HV_to_LV)"
+    because: "IEC 60335-1 reinforced-insulation creepage (PD3), 340V DC bus cap to MCU (constraints.ato HV_to_LV)"
 
   # --- MCU antenna clearance --------------------------------------------
   - type: on_side

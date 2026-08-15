@@ -33,7 +33,13 @@ module Constraints:
         clearance = 2.0mm
         v_max = 400V  # Absolute max
         i_max = 25A
-        creepage = 8.0mm   # IEC 60335-1 reinforced insulation
+        # IEC 60335-1 reinforced insulation creepage, PD3 (12.6mm) -- the
+        # as-built bar per docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md
+        # and PR #1229; aligned here 2026-08-15 to match the enforced
+        # HV_CREEPAGE_ENFORCED_MM (docs/evidence/2026-08-15-pending-decisions.md).
+        # (PD2 would be 8.0mm; it is conditional on a sealed compartment that
+        # does not exist on this board.)
+        creepage = 12.6mm
         air_clearance = 6.0mm
 
     # AC Mains Input
@@ -78,10 +84,12 @@ module Constraints:
     # ===========================================================================
     
     # HighVoltage to Default: Reinforced insulation
-    # Requires 8mm creepage, 6mm clearance, and isolation slot
+    # Requires 12.6mm creepage (PD3, the as-built bar per the 2026-08-15
+    # data-driven decision and PR #1229; PD2/8.0mm is conditional on a
+    # sealed compartment that does not exist), 6mm clearance, and isolation slot
     module HV_to_LV:
         min_clearance = 6.0mm
-        min_creepage = 8.0mm
+        min_creepage = 12.6mm
         requires_slot = True
         slot_width = 1.0mm
 
