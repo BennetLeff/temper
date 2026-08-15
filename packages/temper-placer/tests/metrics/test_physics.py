@@ -108,7 +108,7 @@ class TestMeasureThermal:
         netlist = Netlist()
         board = Board(width=100, height=100)
         result = measure_thermal(state, netlist, board, None)
-        assert result.max_junction_temp_c == 40.0  # ambient
+        assert result.max_junction_temp_c == 60.0  # ambient (design-limit)
         assert result.thermal_margin_c == 0.0
 
     def test_empty_power_dict(self):
@@ -120,5 +120,5 @@ class TestMeasureThermal:
         netlist = Netlist()
         board = Board(width=100, height=100)
         result = measure_thermal(state, netlist, board, {})
-        assert result.max_junction_temp_c == 40.0
+        assert result.max_junction_temp_c == 60.0
         assert result.thermal_margin_c == 0.0

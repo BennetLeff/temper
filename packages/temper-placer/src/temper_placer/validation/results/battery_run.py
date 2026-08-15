@@ -242,7 +242,7 @@ def _make_thermal_scorer_adapter(
     fdm_config: Any,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
-    T_j_max: float = 150.0,
+    T_j_max: float = 175.0,
     *,
     copper_grid: np.ndarray | None = None,
     h_field: np.ndarray | None = None,
@@ -676,7 +676,7 @@ def run_thermal_helps_battery(
             origin_mm=(0.0, 0.0),
             height_cells=50,
             width_cells=50,
-            ambient_C=40.0,
+            ambient_C=60.0,
             heatsink_edge="TOP",
             max_cells=5000,
         )
@@ -702,9 +702,9 @@ def run_thermal_helps_battery(
         )
         fdm_config.max_cells = needed
 
-    T_j_max = 150.0
+    T_j_max = 175.0
     if operating_point_config:
-        T_j_max = float(operating_point_config.get("T_j_max", 150.0))
+        T_j_max = float(operating_point_config.get("T_j_max", 175.0))
 
     # --- Build copper coverage grid (#137: feed solver real stackup planes) ---
     copper_grid: np.ndarray | None = None

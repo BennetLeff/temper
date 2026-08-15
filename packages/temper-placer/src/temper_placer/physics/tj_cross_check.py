@@ -194,7 +194,7 @@ class TjCrossCheckGate(Gate):
         device_thermal: dict[str, DeviceThermalConfig],
         *,
         tau_C: float = 5.0,
-        T_amb: float = 40.0,
+        T_amb: float = 60.0,
     ):
         """
         Args:
@@ -204,7 +204,8 @@ class TjCrossCheckGate(Gate):
             device_thermal: ``{ref: DeviceThermalConfig}`` per-device
                 datasheet R_θ with ``because`` citations.
             tau_C: Absolute tolerance (°C) for cross-check agreement.
-            T_amb: Ambient temperature (°C) — shared input.
+            T_amb: Ambient temperature (°C) — shared input. Default 60
+                (the design-limit ambient).
         """
         # Validate we have real config (catch None/empty early)
         if not devices:

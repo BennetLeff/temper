@@ -110,7 +110,14 @@ module Constraints:
     
     module ThermalZones:
         # IGBT zone - maximum heat generation
-        igbt_max_temp = 423.15K
+        # 448.15K = 175 °C = IKW40N120H3 Tvj(max), the datasheet absolute
+        # survival limit (was 423.15K = 150 °C, which is the datasheet's
+        # STORAGE temperature Tstg, not a junction limit — decision doc
+        # 2026-08-15 §6.3).
+        igbt_max_temp = 448.15K
+        # 398.15K = 125 °C = the datasheet-recovery "design for ≤125 °C"
+        # junction limit (IKW40N120H3_Documentation.md §5.1.1) — correct
+        # as the derate figure.
         igbt_derate_temp = 398.15K
         
         # Power inductor zone

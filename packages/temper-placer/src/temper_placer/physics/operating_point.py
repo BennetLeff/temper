@@ -83,24 +83,32 @@ class OperatingPointConfig:
     """Switching frequency (Hz)."""
 
     # --- Thermal chain (shared with U5 thermal solver) ------------------
-    T_amb: float = 40.0
-    """Ambient temperature (°C)."""
+    T_amb: float = 60.0
+    """Ambient temperature (°C) — the 60 °C design-limit ambient
+    (`docs/ENVIRONMENTAL_SPEC.md` derating zero-power point; decision doc
+    §6.4)."""
 
-    T_j_max: float = 150.0
-    """Maximum junction temperature (°C)."""
+    T_j_max: float = 175.0
+    """Maximum junction temperature (°C) — the IKW40N120H3 datasheet
+    Tvj(max) = 175 °C absolute survival limit (the 150 °C used before was
+    the datasheet's storage temperature, not a junction limit; the
+    125 °C design-for limit is `docs/guides/THERMAL_DESIGN_GUIDE.md`'s
+    reliability guidance — this gate checks the datasheet absolute max)."""
 
-    R_theta_jc: float = 0.6
-    """Junction-to-case thermal resistance (K/W)."""
+    R_theta_jc: float = 0.31
+    """Junction-to-case thermal resistance (K/W) — IKW40N120H3 datasheet
+    Rth(j-c) = 0.31 K/W (supersedes the flat 0.6 TO-247 stand-in)."""
 
-    R_theta_cs: float = 0.25
-    """Case-to-sink thermal resistance (K/W)."""
+    R_theta_cs: float = 0.20
+    """Case-to-sink thermal resistance (K/W) — committed TIM/Sil-Pad
+    figure (`docs/guides/THERMAL_DESIGN_GUIDE.md` §3.1)."""
 
-    R_theta_sa: float = 1.0
-    """Sink-to-ambient thermal resistance (K/W).
-    Wakefield 694-100 extrusion family, ~75mm length, natural convection,
-    de-rated for temper induction-cooker enclosure (50 °C ambient, limited
-    vertical chimney). Conservative: the 694-100 at 100mm is ~0.5 °C/W;
-    75mm is ~0.8 °C/W at 0 LFM; enclosure de-rating 1.25× → 1.0 °C/W."""
+    R_theta_sa: float = 0.45
+    """Sink-to-ambient thermal resistance (K/W) — HS1 Wakefield-Vette
+    392-120AB with fan (`docs/guides/THERMAL_DESIGN_GUIDE.md` §3.1;
+    `docs/hardware/SYSTEM_THERMAL_BUDGET.md` uses 0.35–0.45; decision doc
+    §3.2 commits 0.45). Supersedes the 1.0 K/W natural-convection stand-in
+    that described a different, smaller extrusion.""".strip()
 
     # --- Switching waveform ----------------------------------------------
     t_rise: float = 50e-9

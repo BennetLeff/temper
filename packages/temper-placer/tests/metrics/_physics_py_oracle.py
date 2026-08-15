@@ -1,10 +1,10 @@
 """Pinned Python oracle for ``metrics/physics.py`` (Wave 4, physics/metrics
 cluster).
 
-DO NOT EDIT -- THESE ARE THE REFERENCE.
-=======================================
+DO NOT EDIT EXCEPT FOR A DELIBERATE, DOCUMENTED RE-PIN.
+=======================================================
 ``GeometricMetrics``, ``ThermalMetrics`` and the bodies of
-``_oracle_measure_geometric`` / ``_oracle_measure_thermal`` below are a
+``_oracle_measure_geometric`` / ``_oracle_measure_thermal`` below were a
 **verbatim** ``git show`` extraction from commit
 ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5`` (``origin/main``, 2026-08-03) of
 ``temper_placer/metrics/physics.py`` -- the module as committed *before* any
@@ -15,6 +15,15 @@ checks are not set up for this module (no prior precedent file existed to
 diff against); the extraction is a direct ``git show <sha>:<path>`` copy-out,
 kept in one block below for an easy side-by-side diff against
 ``git show 550cab2a3:packages/temper-placer/src/temper_placer/metrics/physics.py``.
+
+**RE-PIN 2026-08-15 (thermal corrections):** ``_oracle_measure_thermal`` was
+deliberately re-pinned to the corrected physics — per-device thermal
+resistances, the Ts→Tc→Tj sensor chain, 60 °C design-limit ambient, and the
+80 °C firmware-trip margin — in lockstep with ``measure_thermal`` and the
+``temper-thermal`` kernel (see the function docstring and
+``docs/evidence/2026-08-15-thermal-corrections-implemented.md``). The
+content hash in ``scripts/oracle_hashes.json`` was re-pinned in the same
+commit. ``_oracle_measure_geometric`` is untouched (no physics change).
 
 Scope
 -----
@@ -193,24 +202,31 @@ def _oracle_measure_thermal(
     netlist,
     board,
     power_dissipation: dict[str, float] | None = None,
-    ambient_temp_c: float = 40.0,
+    ambient_temp_c: float = 60.0,
 ) -> OracleThermalMetrics:
     """
     Estimate junction temperatures based on placement and power dissipation.
 
-    Verbatim body of ``measure_thermal`` at the pinned commit (only the
-    class name changed). ``estimate_junction_temp`` is imported from the
-    real (already Rust-delegating, Wave 4 Phase A #3) module -- that
-    sub-kernel's bit-parity is independently pinned by
-    ``test_thermal_rust_differential.py`` and is not re-proven here.
+    RE-PINNED 2026-08-15 (thermal corrections): the body mirrors the
+    CURRENT ``measure_thermal`` — the sensor-chain model (Ts → Tc → Tj)
+    with per-device resistances resolved by
+    ``temper_placer.physics.thermal.thermal_resistance_for``, the 60 °C
+    design-limit ambient default, and ``thermal_margin_c`` vs the 80 °C
+    firmware heatsink trip in sensor space (was: flat 0.6/0.25/1.0 K/W
+    for every device and ``150.0 - max_tj``). The edge-distance f32
+    narrowing is preserved exactly (same NEP-50 semantics as the kernel);
+    the penalty is widened to f64 before arithmetic, mirroring the
+    kernel's ``dist as f64``. See
+    ``docs/evidence/2026-08-15-thermal-corrections-implemented.md``.
     """
     if not power_dissipation:
         return OracleThermalMetrics(ambient_temp_c, 0.0, 0.0)
 
-    from temper_placer.physics.thermal import estimate_junction_temp
+    from temper_placer.physics.thermal import thermal_resistance_for
 
     positions = np.array(state.positions)
     max_tj = ambient_temp_c
+    max_ts = ambient_temp_c
     edge_dists = []
 
     for ref, power in power_dissipation.items():
@@ -220,19 +236,29 @@ def _oracle_measure_thermal(
             continue
 
         pos = positions[idx]
-        # Dist to closest edge
+        # Dist to closest edge (f32 NEP-50 narrowing, same as the kernel)
         dx = min(pos[0] - board.origin[0], board.origin[0] + board.width - pos[0])
         dy = min(pos[1] - board.origin[1], board.origin[1] + board.height - pos[1])
         dist = min(dx, dy)
         edge_dists.append(dist)
 
-        # Estimate Tj using the refined model
-        tj = estimate_junction_temp(power_W=power, edge_distance_mm=dist, ambient_C=ambient_temp_c)
+        # Sensor-chain model (kernel mirror): penalty widened to f64 first
+        # (matches `dist as f64`), copper_area is always 0.0 in this kernel.
+        rjc, rch, rha = thermal_resistance_for(ref)
+        dist_f = float(dist)
+        edge_penalty = max(0.0, dist_f - 5.0) * 0.2
+        rha_eff = (rha + edge_penalty) - 0.0
+        ts = ambient_temp_c + float(power) * rha_eff
+        tc = ts + float(power) * rch
+        tj = tc + float(power) * rjc
+        max_ts = max(max_ts, ts)
         max_tj = max(max_tj, tj)
 
     metrics = OracleThermalMetrics()
     metrics.max_junction_temp_c = max_tj
-    metrics.thermal_margin_c = 150.0 - max_tj  # 150C is typical shutdown
+    # Margin vs the 80 °C firmware heatsink trip, in sensor (Ts) space
+    # (decision doc 2026-08-15 §6.1; was 150.0 - max_tj).
+    metrics.thermal_margin_c = 80.0 - max_ts
     metrics.edge_distance_avg_mm = float(np.mean(edge_dists)) if edge_dists else 0.0
 
     return metrics

@@ -139,7 +139,7 @@ def _extract_fdm_field(state: BoardState) -> np.ndarray:
         origin_mm=(0.0, 0.0),
         height_cells=min(50, int(state.board.height)),
         width_cells=min(50, int(state.board.width)),
-        ambient_C=40.0,
+        ambient_C=60.0,
         heatsink_edge="BOTTOM",
     )
     copper = copper_coverage_grid(state.board, config)

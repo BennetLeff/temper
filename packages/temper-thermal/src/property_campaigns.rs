@@ -1207,8 +1207,10 @@ fn te_gen_ambient(seed: u64) -> f64 {
 /// Mirrors proptest property `prop_measure_empty_returns_ambient`.
 fn te_measure_empty_returns_ambient_impl(seed: u64) {
     let ambient = te_gen_ambient(seed);
-    let (max_tj, avg) = measure_thermal_edges(&[], &[], &[], (0.0, 0.0), 100.0, 100.0, ambient);
+    let (max_tj, max_ts, avg) =
+        measure_thermal_edges(&[], &[], &[], &[], &[], &[], (0.0, 0.0), 100.0, 100.0, ambient);
     assert_eq!(max_tj, ambient, "seed={seed}");
+    assert_eq!(max_ts, ambient, "seed={seed}");
     assert_eq!(avg, 0.0, "seed={seed}");
 }
 
@@ -1216,8 +1218,20 @@ fn te_measure_empty_returns_ambient_impl(seed: u64) {
 fn te_measure_finite_for_finite_inputs_impl(seed: u64) {
     let (xs, ys, powers) = te_gen_devices(seed, 5);
     let ambient = te_gen_ambient(seed);
-    let (max_tj, avg) = measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    let (max_tj, max_ts, avg) = measure_thermal_edges(
+        &xs,
+        &ys,
+        &powers,
+        &powers,
+        &powers,
+        &powers,
+        (0.0, 0.0),
+        200.0,
+        200.0,
+        ambient,
+    );
     assert!(max_tj.is_finite(), "seed={seed}");
+    assert!(max_ts.is_finite(), "seed={seed}");
     assert!(avg.is_finite(), "seed={seed}");
 }
 
@@ -1225,19 +1239,55 @@ fn te_measure_finite_for_finite_inputs_impl(seed: u64) {
 fn te_max_tj_at_least_ambient_impl(seed: u64) {
     let (xs, ys, powers) = te_gen_devices(seed, 5);
     let ambient = te_gen_ambient(seed);
-    let (max_tj, _avg) =
-        measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    let (max_tj, max_ts, _avg) = measure_thermal_edges(
+        &xs,
+        &ys,
+        &powers,
+        &powers,
+        &powers,
+        &powers,
+        (0.0, 0.0),
+        200.0,
+        200.0,
+        ambient,
+    );
     assert!(max_tj >= ambient, "seed={seed} max_tj {max_tj} < ambient {ambient}");
+    // Chain invariant: the heatsink cannot be hotter than the junction.
+    assert!(max_ts >= ambient, "seed={seed} max_ts {max_ts} < ambient {ambient}");
+    assert!(max_ts <= max_tj, "seed={seed} max_ts {max_ts} > max_tj {max_tj}");
 }
 
 /// Mirrors proptest property `prop_measure_deterministic`.
 fn te_measure_deterministic_impl(seed: u64) {
     let (xs, ys, powers) = te_gen_devices(seed, 5);
     let ambient = te_gen_ambient(seed);
-    let a = measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
-    let b = measure_thermal_edges(&xs, &ys, &powers, (0.0, 0.0), 200.0, 200.0, ambient);
+    let a = measure_thermal_edges(
+        &xs,
+        &ys,
+        &powers,
+        &powers,
+        &powers,
+        &powers,
+        (0.0, 0.0),
+        200.0,
+        200.0,
+        ambient,
+    );
+    let b = measure_thermal_edges(
+        &xs,
+        &ys,
+        &powers,
+        &powers,
+        &powers,
+        &powers,
+        (0.0, 0.0),
+        200.0,
+        200.0,
+        ambient,
+    );
     assert_eq!(a.0.to_bits(), b.0.to_bits(), "seed={seed}");
     assert_eq!(a.1.to_bits(), b.1.to_bits(), "seed={seed}");
+    assert_eq!(a.2.to_bits(), b.2.to_bits(), "seed={seed}");
 }
 
 // ===========================================================================
