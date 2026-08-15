@@ -117,6 +117,24 @@ fn orient(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
 /// only (strict `< 0.0` orientation products — shared endpoints and
 /// collinear overlaps do not count), then the intersection point via the
 /// parameter on segment 2.  Returns `(intersects, ix, iy)`.
+///
+/// `denom.is_finite()` guard (2026-08-14): at astronomically large
+/// coordinate magnitudes (never produced by real board geometry, which is
+/// bounded to the board's own extent in mm — found by unrestricted-float
+/// kernel fuzzing while investigating the `verify_creepage`
+/// ZeroDivisionError report), `dx1 * dy2` / `dy1 * dx2` can each overflow
+/// to `+-inf` before the subtraction, so `denom` becomes `inf`, `-inf`, or
+/// (opposite-sign overflow) `NaN` -- `!= 0.0` alone does not catch any of
+/// those, and the resulting `t = .../denom` propagates `NaN` into `ix`/
+/// `iy` while `intersects` still reports `true`: a wrong, silently
+/// unflagged answer, not a crash -- worse on a safety check than an
+/// exception would be. Same `denom == 0.0 || !denom.is_finite()` discipline
+/// already used by `point_to_segment_distance`/`closest_point_on_segment`
+/// above; falling through to `(false, 0.0, 0.0)` here just means the
+/// unrepresentable-in-f64 crossing point is reported as "no proper
+/// intersection found" rather than a `NaN` one, which is what
+/// `segment_to_segment_info`'s endpoint-distance fallback already expects
+/// from a `false` result.
 #[expect(clippy::too_many_arguments, reason = "creepage_check.py port mirrors _segments_intersect's 2-segment signature 1:1; a config struct would change the ported shape")]
 fn segments_intersect(
     x1: f64,
@@ -138,7 +156,7 @@ fn segments_intersect(
         let dx2 = x4 - x3;
         let dy2 = y4 - y3;
         let denom = dx1 * dy2 - dy1 * dx2;
-        if denom != 0.0 {
+        if denom != 0.0 && denom.is_finite() {
             let t = ((x1 - x3) * dy1 - (y1 - y3) * dx1) / denom;
             let ix = x3 + t * dx2;
             let iy = y3 + t * dy2;
@@ -489,6 +507,33 @@ pub(crate) mod tests {
     fn segments_intersect_shared_endpoint_is_not_proper() {
         let (hit, _, _) = segments_intersect(0.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 10.0);
         assert!(!hit);
+    }
+
+    #[cfg_attr(test, test)]
+    fn segments_intersect_overflowing_denom_does_not_return_nan() {
+        // Falsifying example from unrestricted-float kernel fuzzing
+        // (20000-example Hypothesis run against segments_intersect_py while
+        // investigating the verify_creepage ZeroDivisionError report):
+        // both cross-product terms overflow f64 before the subtraction, so
+        // the pre-fix `denom != 0.0` guard let `t = inf / -inf = NaN`
+        // through with `intersects == true`. Never reachable from real
+        // board geometry (coordinates bounded to the board's own mm
+        // extent), but a NaN "found an intersection" answer would be worse
+        // than a crash on a safety check, so it is asserted against here
+        // even though it cannot occur in production.
+        let (hit, ix, iy) = segments_intersect(
+            0.0,
+            1.0,
+            0.0,
+            -3.904455678668382e187,
+            4.6042093515975594e120,
+            0.0,
+            -1.0,
+            0.0,
+        );
+        if hit {
+            assert!(ix.is_finite() && iy.is_finite(), "non-finite intersection point ({ix}, {iy})");
+        }
     }
 
     #[cfg_attr(test, test)]
