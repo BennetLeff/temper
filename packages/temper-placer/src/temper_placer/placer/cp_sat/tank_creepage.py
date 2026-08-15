@@ -393,10 +393,14 @@ def tank_bus_net_pairs(
     re-classified out of HV drops out too, which is a real coverage
     regression and is caught by the test's pair-count pin.
     """
-    tank_refs = sorted(tank_node_refs(netlist))
+    # Annotated list[str] (not inferred) so the salted-hash gate can prove
+    # these are sorted lists, not sets: `tank_refs` is set-typed earlier in
+    # this module (tank_creepage_pairs), and `sorted(<set>)` alone does not
+    # clear that typing in the gate's conservative analysis.
+    tank_refs: list[str] = sorted(tank_node_refs(netlist))
     hv_nets = _hv_net_names(net_class_map)
     present = frozenset(n.name for n in netlist.nets)
-    bus = sorted(TANK_BUS_RAIL_NETS & hv_nets & present)
+    bus: list[str] = sorted(TANK_BUS_RAIL_NETS & hv_nets & present)
     return [TankBusNetPair(a, b) for a in tank_refs for b in bus]
 
 
