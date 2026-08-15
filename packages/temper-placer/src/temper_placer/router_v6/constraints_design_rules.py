@@ -135,7 +135,14 @@ class ClearanceMatrix:
     _clearances: dict[tuple[str, str], float] = field(default_factory=dict)
     default_clearance: float = 0.2  # mm
     default_track_width: float = 0.2  # mm
-    default_via_diameter: float = 0.6  # mm
+    # RAISED 0.6 -> 0.9mm 2026-08-13 (docs/evidence/2026-08-13-jlcpcb-fab-
+    # capability-envelope.md, docs/hardware/FAB_CAPABILITY.md): 0.6mm pad /
+    # 0.3mm drill gave a 0.15mm annular ring, below JLCPCB's 2oz PTH
+    # annular-ring floor (0.254mm). 0.9mm = 0.3mm drill (unchanged) + 2 x
+    # 0.3mm ring target, the same board-wide ring convention applied to
+    # every TEMPER_NET_CLASSES entry (core/design_rules.py) and to
+    # stage0_data.py's identical default below.
+    default_via_diameter: float = 0.9  # mm
     default_via_drill: float = 0.3  # mm
 
     # Per-net-class rules
@@ -500,7 +507,9 @@ class DesignRulesParser:
                     name=nc.name,
                     trace_width=nc.traceWidth if hasattr(nc, "traceWidth") else 0.2,
                     clearance=nc.clearance if hasattr(nc, "clearance") else 0.2,
-                    via_diameter=nc.viaDia if hasattr(nc, "viaDia") else 0.6,
+                    # Fallback 0.6 -> 0.9mm 2026-08-13, matching this class's
+                    # default_via_diameter fix above (same fab-floor reason).
+                    via_diameter=nc.viaDia if hasattr(nc, "viaDia") else 0.9,
                     via_drill=nc.viaDrill if hasattr(nc, "viaDrill") else 0.3,
                     dru_priority=getattr(nc, "druPriority", 0),
                 )

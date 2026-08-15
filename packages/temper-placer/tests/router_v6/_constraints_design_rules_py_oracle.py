@@ -157,7 +157,13 @@ class ClearanceMatrix:
     _clearances: dict[tuple[str, str], float] = field(default_factory=dict)
     default_clearance: float = 0.2  # mm
     default_track_width: float = 0.2  # mm
-    default_via_diameter: float = 0.6  # mm
+    # RAISED 0.6 -> 0.9mm 2026-08-13, re-pinned to track the identical live
+    # fix in router_v6/constraints_design_rules.py (docs/evidence/
+    # 2026-08-13-jlcpcb-fab-capability-envelope.md) -- same category of
+    # legitimate SSOT-data re-pin as this file's docstring already covers
+    # (module contract change -> re-pin from the new base), not a semantics
+    # edit.
+    default_via_diameter: float = 0.9  # mm
     default_via_drill: float = 0.3  # mm
 
     # Per-net-class rules
@@ -492,7 +498,7 @@ class DesignRulesParser:
                     name=nc.name,
                     trace_width=nc.traceWidth if hasattr(nc, "traceWidth") else 0.2,
                     clearance=nc.clearance if hasattr(nc, "clearance") else 0.2,
-                    via_diameter=nc.viaDia if hasattr(nc, "viaDia") else 0.6,
+                    via_diameter=nc.viaDia if hasattr(nc, "viaDia") else 0.9,
                     via_drill=nc.viaDrill if hasattr(nc, "viaDrill") else 0.3,
                     dru_priority=getattr(nc, "druPriority", 0),
                 )

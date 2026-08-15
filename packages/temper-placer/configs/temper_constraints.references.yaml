@@ -49,12 +49,22 @@ authority:
 # source export (elec/exports/temper.design-input.v1.json) is untouched --
 # this resync only wrote pcb/temper.kicad_pcb, not elec/ -- confirmed by
 # hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
+#
+# Re-pinned 2026-08-13 (via-annular-ring-floor fix, commit 0a69076da): STALE
+# again -- pcb/temper.kicad_pcb changed, but NOT in any way this file's
+# aliases/unresolved-components could be affected by: every changed line in
+# that commit's board diff is a `(via ...)` block's `size`/`drill` field
+# (confirmed: `git show 0a69076da -- pcb/temper.kicad_pcb` has zero changed
+# lines that are not `size`/`drill`) -- no `reference`, `Sheetpath`, or
+# footprint declaration moved. No re-derivation was needed; only the hash
+# pin below is refreshed. Source export unchanged (still
+# 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0).
 provenance:
-  measured_at_commit: 96ebe489cbfb2d69e5f6dd0d76fd4889e224c2d2
+  measured_at_commit: 0a69076da28a9bb7365a3534eaee47f0d6284d1e
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6
+      sha256: 191da2fa4461593c6c3718c6f67984bc8b6180ffe4581c81430fec0d7b5e1b44
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
