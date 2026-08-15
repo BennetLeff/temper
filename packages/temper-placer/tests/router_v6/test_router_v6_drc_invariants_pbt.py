@@ -252,11 +252,16 @@ def test_no_crash_annular_ring(rr: RoutingResults) -> None:
 @given(rr=realistic_routing_results())
 @_SETTINGS
 def test_no_crash_creepage(rr: RoutingResults) -> None:
-    """``verify_creepage`` never raises on valid ``RoutingResults``."""
+    """``verify_creepage`` never raises on valid ``RoutingResults``.
+
+    Was ``xfail``'d for a ``ZeroDivisionError`` -- an underflow gap in the
+    pre-migration Python's degenerate-segment guard (fixed same-day by
+    a75f23a24 on 2026-06-25; carried forward bit-exactly by the Rust port).
+    No longer reproduces: see test_dfm_hypothesis_fuzzing.py's
+    ``test_no_crash_creepage`` docstring for the fuzzing evidence.
+    """
     try:
         report = verify_creepage(rr)
-    except ZeroDivisionError:
-        pytest.xfail("verify_creepage raises ZeroDivisionError on some inputs — known bug")
     except Exception as exc:
         pytest.fail(f"verify_creepage raised {type(exc).__name__}: {exc}")
     assert isinstance(report, CreepageReport)
