@@ -723,10 +723,7 @@ def generate_dru() -> str:
     lines.append("# driven-decision.md: the board is forced-air vented with no sealed")
     lines.append("# compartment, so PD3 governs per IEC 60335-2-6 cl. 29.2 Addition). PD2")
     lines.append("# (8.0mm) is retained as the fallback should the compartment ever be built;")
-    lines.append("# see the source comment on")
-    lines.append(
-        " HV_CREEPAGE_ENFORCED_MM for the"
-    )
+    lines.append("# see the source comment on HV_CREEPAGE_ENFORCED_MM for the")
     lines.append("# selection rule and")
     lines.append("# `scripts/check_isolation_keepout.py` remains the")
     lines.append("# other, independent creepage enforcement point on this board (a conservative")
