@@ -412,6 +412,21 @@ def test_real_board_traces_vias_zones_are_deterministic_across_parses():
     outside this change's scope (issue #873 is traces/vias/zones only);
     fixing it here would be scope creep into code this task does not own.
     Recorded as a finding, not silently swept into a looser assertion.
+
+    RE-DERIVED 2026-08-13 (board/schematic resync, this same PR): the
+    segment/via counts below dropped from issue #873's original 2290
+    segments / 48 vias to 2149 / 44. This is a real, deliberate copper
+    removal, not drift: the resync deleted the ZCD (zero-crossing
+    detection) circuit's 7 footprints (D2, R6-R10, U3 --
+    `power_in.zcd_opto` and friends, removed from `elec/src` by commit
+    `5842767c2` well before this board resync but never reconciled onto
+    the board until now) and, ahead of the resync tool's own net-remap
+    step (which correctly refuses to guess a remapping for orphaned
+    copper), their now-orphaned copper was explicitly ripped up: 141
+    segments + 4 vias on the `zcd`/`a`/`power_in.r_zcd_top1-p2` nets,
+    all of which have no counterpart in the current netlist at all.
+    2290 - 141 = 2149 segments; 48 - 4 = 44 vias -- exact. Zone count
+    (96) is unchanged: none of the removed copper was zone fill.
     """
     sys.path.insert(0, str(_REPO_ROOT / "packages" / "temper-placer" / "src"))
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
@@ -430,16 +445,18 @@ def test_real_board_traces_vias_zones_are_deterministic_across_parses():
     assert board_dict_1["traces"] == board_dict_2["traces"]
     assert board_dict_1["vias"] == board_dict_2["vias"]
     assert board_dict_1["zones"] == board_dict_2["zones"]
-    # Anti-vacuity: the committed board is non-trivially routed (issue #873's
-    # own numbers -- 2290 segments, 48 vias, 96 zones), so an empty-vs-empty
-    # comparison can't pass this by accident. ``traces`` entries are grouped
-    # by (net, layer) (see _traces_from_parsed), so the top-level count is
-    # smaller than the raw segment count -- the total segment count is the
-    # invariant that must match the issue's number exactly.
+    # Anti-vacuity: the committed board is non-trivially routed (2149
+    # segments, 44 vias, 96 zones -- re-measured on the resynced board, see
+    # this test's own docstring for the exact accounting against issue
+    # #873's original 2290/48/96), so an empty-vs-empty comparison can't
+    # pass this by accident. ``traces`` entries are grouped by (net, layer)
+    # (see _traces_from_parsed), so the top-level count is smaller than the
+    # raw segment count -- the total segment count is the invariant that
+    # must match exactly.
     assert len(board_dict_1["traces"]) > 10
     total_segments = sum(len(t["segments"]) for t in board_dict_1["traces"])
-    assert total_segments == 2290
-    assert len(board_dict_1["vias"]) == 48
+    assert total_segments == 2149
+    assert len(board_dict_1["vias"]) == 44
     assert len(board_dict_1["zones"]) == 96
 
 
@@ -619,25 +636,33 @@ def test_real_board_isolator_component_refs_resolve_to_real_components():
     ``isolators:`` list must resolve to a real, live refdes on the committed
     board via the footprint's own ``Sheetpath`` property.
 
-    The expected set tracks ``elec/domain_manifest.yaml``'s current
-    ``isolators:`` list -- 7 components as of 2026-08-08. ``U3`` is absent by
-    design: ``power_in.zcd_opto`` (H11L1 mains-ZCD optocoupler) was removed
-    from the manifest and from ``elec/src`` by commit ``5842767c`` (plus
-    ``300c4a70``), a deliberate, documented deletion (no firmware consumer,
-    no architectural role, 8.560mm HV<->SELV pad separation failing the
-    12.6mm PD3 target -- see
-    ``docs/evidence/2026-07-30-zcd-optocoupler-removal.md``). The committed
-    board still physically carries U3 (its board resync was explicitly
-    deferred), but the refset is derived from the manifest SSOT, so it no
-    longer includes U3. ``safety.ocp2.ct`` (the OCP-02 CT, added to the
-    manifest 2026-08-07) likewise has no footprint on the un-resynced board
-    yet and so resolves to nothing here."""
+    RE-DERIVED 2026-08-13 after the board/schematic resync (this same PR):
+    the manifest's ``isolators:`` list now has 8 entries (was 7 as of
+    2026-08-08) -- ``safety.ocp2.ct`` (OCP-02's second CT, added to the
+    manifest 2026-08-07 alongside the schematic change) now has a real
+    footprint and Sheetpath on the board for the first time, resolving to
+    ``T2``. ``U3`` remains correctly absent: ``power_in.zcd_opto`` (H11L1
+    mains-ZCD optocoupler) was removed from the manifest and ``elec/src`` by
+    commit ``5842767c`` (plus ``300c4a70``) -- a deliberate, documented
+    deletion (no firmware consumer, no architectural role, 8.560mm
+    HV<->SELV pad separation failing the 12.6mm PD3 target -- see
+    ``docs/evidence/2026-07-30-zcd-optocoupler-removal.md``) -- and this
+    resync's own board write physically DROPS its footprint too (the board
+    no longer "still physically carries U3" the way the pre-resync board
+    this test used to describe did; see the resync PR's `removed` list).
+    ``hb.gate_hs.driver`` resolves to ``U6``, not the pre-resync board's
+    ``U7`` -- the resync's systematic designator renumber (keyed by
+    Sheetpath/instance_path, not refdes -- refdes is not stable identity
+    here, see this repo's own `scripts/check_refdes_identity_stability.py`)
+    moved it there; the refdes ``U7`` on the resynced board now names a
+    completely different, non-isolator component
+    (`hb.gate_hs.boot_diode`)."""
     sys.path.insert(0, str(_REPO_ROOT / "packages" / "temper-placer" / "src"))
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
     parsed = parse_kicad_pcb_v6(str(_REAL_PCB_PATH))
     refs = r2_serialize_board._isolator_component_refs(parsed)
-    assert refs == {"C6", "K1", "K2", "K3", "PS1", "T1", "U7"}
+    assert refs == {"C6", "K1", "K2", "K3", "PS1", "T1", "T2", "U6"}
 
 
 @pytest.mark.skipif(

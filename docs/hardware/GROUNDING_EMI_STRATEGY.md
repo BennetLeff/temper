@@ -130,7 +130,39 @@ This document defines the grounding architecture and EMI strategy for a 2kW indu
 | L1 (Top) | Power components, high-current traces | 2 oz |
 | L2 | Ground plane (split PGND/CGND) | 1 oz |
 | L3 | Power plane (5V, 3.3V islands) | 1 oz |
-| L4 (Bottom) | Control signals, gate drive | 1 oz |
+| L4 (Bottom) | Control signals, gate drive | 2 oz |
+
+**Correction (2026-08-13):** L4 was previously listed here as 1 oz, disagreeing
+with `docs/hardware/TRACE_WIDTH_CALCULATIONS.md` §1/§3.4/§4, which sizes every
+external-layer path (including the GateDrive class, which routes on L4) from a
+uniform 2 oz outer-copper assumption, and with
+`docs/specs/PCB_SPECIFICATION.md` §5.3 and §12.2's order-form line ("Copper:
+2oz outer, 1oz inner"), which is generic across both outer layers. JLCPCB's
+"outer copper weight" is a single stackup-wide order-form setting applied to
+both L1 and L4 together (`docs/hardware/FAB_CAPABILITY.md` §1, row 1b/3) --
+asymmetric per-side outer copper is not a standard option there, so a design
+that wants 2 oz on L1 gets 2 oz on L4 too, whether or not that was the
+original intent. This table was the stale value; `pcb/temper.kicad_pcb`'s
+`(setup (stackup ...))` block (added alongside this correction) now declares
+L4 as 2 oz explicitly, and `scripts/check_stackup_copper_weight_gate.py`
+enforces the board stays consistent with TRACE_WIDTH_CALCULATIONS.md's
+assumption going forward. See
+`docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §3 for the full
+disagreement writeup.
+
+**Correction (2026-08-13, layer count):** the board is now 6 layers, not 4 --
+`docs/evidence/2026-08-13-layer-architecture-decision.md`. Two new signal
+layers (`In3.Cu`, `In4.Cu`, both 1 oz) were added flanking the L2/L3 plane
+pair this section describes; L2 and L3 themselves are **unchanged** -- same
+split-domain design, same copper weight, same role. This section's
+grounding architecture (star point, PGND/CGND split, isolation-barrier
+ground treatment) is unaffected by the layer-count change: the two new
+layers carry LV/SELV signal traffic only, by policy, and are not yet
+engine-routable at all (see the evidence doc Sec 5.3/6.4) -- no new ground
+domain, no new return path, and no change to this section's isolation
+analysis. `pcb/temper.kicad_pcb`'s `(layers ...)`/`(setup (stackup ...))`
+blocks are the authoritative declaration of layer count and role; this
+document is not the place that number is tracked.
 
 **Ground Plane Split:**
 

@@ -53,6 +53,35 @@ Supplementary: <https://jlcpcb.com/help/article/jlcpcb-copper-weight>,
 | 6c | Material certification per order | **Not confirmed.** JLCPCB links generic material datasheets and an ISO9001/14001/RoHS/REACH "Certifications Center"; no published statement of a per-order Material Test Report / Certificate of Conformance | | Would need to be requested directly from JLCPCB support — do not assume it exists |
 | 7a | Solder mask min. dam/bridge width | 1oz: 0.10mm (color), 0.13mm (black/white) | **2oz: 0.20mm (any color)** | |
 
+**Note (2026-08-13):** row 3 above ("2oz on a 4-layer board") describes the
+board's architecture as it stood before
+`docs/evidence/2026-08-13-layer-architecture-decision.md`'s decision. The
+board is now 6-layer — see §1a below for the 6-layer-specific figures that
+decision depended on.
+
+## 1a. 6-layer capability (2026-08-13 layer-architecture decision)
+
+Sourced live, 2026-08-13, same method as §1: <https://jlcpcb.com/capabilities/pcb-capabilities>
+(re-fetched, cross-checked against §1's original fetch),
+<https://jlcpcb.com/6-layer-pcb>, and <https://jlcpcb.com/resources/6-layer-pcbs>.
+Full derivation: `docs/evidence/2026-08-13-layer-architecture-decision.md` §2.
+
+| # | Parameter | 4-layer, 2oz (§1, already sourced) | **6-layer, 2oz** | Notes |
+|---|---|---|---|---|
+| 1a-6L | Outer copper weight options | 1oz, 2oz (standard) | **1oz, 2oz — identical, "Finished Outer Layer Copper: 1 oz / 2 oz (35um / 70um)"** | Not a special-order/DFM-review tier for 6-layer either |
+| 1c-6L | Inner copper weight options | 0.5oz (default), 1oz, 2oz | **0.5oz (default), 1oz, 2oz — identical** | Same default-copper-weight caveat as §1 row 1c/4, now applying to 4 inner layers instead of 2 (`In1.Cu`–`In4.Cu`) |
+| 1-6L | Min. track width & spacing, 2oz multilayer | 0.15 / 0.15 mm (6/6 mil) | **0.15 / 0.15 mm (6/6 mil) — identical, not broken out separately by layer count** | The floor does not tighten from 4 to 6 layers |
+| 3-6L | Turnaround | Not separately sourced in §1 | "As fast as 48 hours for 6-layer PCBs" (marketing copy) | Same fast-turn bracket as JLCPCB's general service, not flagged as slow/exotic |
+| 4-6L | Price (this board's exact spec: 6-layer, 2oz outer/1oz inner, ~152×234mm-class outline, ENIG) | — | **Not obtainable without a real design upload** | `cart.jlcpcb.com/quote` confirmed (direct fetch, 2026-08-13) to be a dynamic app with no static price table; "$2 for 5pcs" is a promotional headline figure for an unspecified minimal spec, not a quote for this board. No multiplier vs. 4-layer is published anywhere JLCPCB's own pages were checked. |
+
+**Bottom line for the layer-architecture decision:** nothing about JLCPCB's
+published capability envelope changes between 4 and 6 layers at this
+board's copper weight — the same 0.15mm/0.15mm floor, the same "2oz is
+standard, not special-order" status, the same inner-copper default caveat.
+The only genuinely new information 6-layer requires is an explicit
+"1oz inner" order note covering two more layers than before, which is a
+paperwork detail, not a capability gap.
+
 ## 2. Named alternatives — where they differ materially
 
 | Fab | 2oz outer, multilayer, min trace/space | Source |

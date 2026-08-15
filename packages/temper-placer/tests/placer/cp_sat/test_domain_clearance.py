@@ -273,35 +273,78 @@ class TestIntraFootprintDomainConflicts:
         )
 
     def test_real_board_finds_known_isolators(self) -> None:
-        """Cross-check against the validator's own real-board finding
-        (test_clearance.py::TestClearanceIntegration, 13 intra-footprint
-        records across {C6, K1, K2, K3, T1, U3, U7} at the current 10.0mm
-        reinforced bar): every one of those refs must appear here too, since
-        this is deliberately the coarser, component-level superset check
-        (see docstring) -- a false negative here would mean a real
-        REQ-SAFE-01 intra-footprint violation that this early-warning
-        mechanism failed to flag at all."""
+        """Cross-check against the validator's OWN LIVE real-board finding
+        (``verify_iec60335_compliance`` over the full manifest-derived
+        classification, the same call ``test_clearance.py``'s full-coverage
+        cross-check makes) -- every ref the validator itself currently
+        reports as an intra-footprint (pair_kind == "intra") violation must
+        also appear in this coarser, component-level superset check (see
+        class docstring); a false negative here would mean a real
+        REQ-SAFE-01 intra-footprint violation that this fast early-warning
+        mechanism failed to flag at all.
+
+        RE-DERIVED 2026-08-13, after the board/schematic resync (the
+        systematic designator renumber + OCP-02/J_RTD1 component additions
+        that PR #1123 was blocked on -- see the resync PR). The set used to
+        be a HARDCODED historical snapshot, ``{C6, K1, K2, K3, T1, U3,
+        U7}`` ("13 intra-footprint records"), keyed by refdes -- exactly the
+        fragility this resync exists to eliminate: two of those seven
+        (``U3``, ``U7``) no longer name the same physical components after
+        the renumber (old ``U3`` = the deleted ZCD optocoupler; old ``U7`` =
+        the half-bridge gate driver, now ``U6``), so the literal set would
+        silently go stale on the next renumber too. Querying the validator
+        LIVE instead of pinning a literal removes that fragility structurally
+        -- the whole point of this cross-check is "does the coarse check
+        still agree with the real one", which a live call answers directly
+        and a frozen snapshot cannot.
+
+        On the resynced board (measured directly, this call): the real
+        validator finds 0 intra-footprint violations (0 total violations of
+        any kind, 157/168 components classified, 93.5% coverage) -- every
+        domain-straddling part on this board (C6, K1, K2, K3, PS1, T1, T2,
+        U6 -- see this class's own docstring/log for how each earns that
+        classification) is internally isolated widely enough to individually
+        clear the required creepage/clearance bar, so the live "known" set
+        below is currently empty and the assertion holds vacuously. That is
+        not a regression in what this test checks: the moment the real
+        validator finds ANY intra-footprint violation again, this test picks
+        it up on the next run with no further edits required, and fails if
+        the coarse check has stopped flagging it.
+        """
         import pytest
 
         from tests.requirements.safety._real_board_fixture import (
             RealBoardUnavailable,
             load_real_board_placement,
         )
+        from temper_placer.requirements.validators.clearance import (
+            verify_iec60335_compliance,
+        )
 
         try:
-            placement, voltage_domains, _stats = load_real_board_placement()
+            placement, voltage_domains, stats = load_real_board_placement()
         except RealBoardUnavailable as exc:
             pytest.skip(f"{exc} (run `make netlist` first)")
 
         conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
         flagged_refs = {c.ref for c in conflicts}
-        known_validator_intra_refs = {"C6", "K1", "K2", "K3", "T1", "U3", "U7"}
+
+        full_result = verify_iec60335_compliance(
+            stats["full_placement"], stats["full_voltage_domains"]
+        )
+        known_validator_intra_refs: set[str] = set()
+        for v in full_result.violations:
+            if getattr(v, "pair_kind", None) == "intra":
+                known_validator_intra_refs.add(v.ref_a)
+                known_validator_intra_refs.add(v.ref_b)
+
         missing = known_validator_intra_refs - flagged_refs
         assert not missing, (
             f"{missing} have a REAL pad-level intra-footprint REQ-SAFE-01 "
-            f"violation (per the validator) but this component-level "
-            f"early-warning check missed them -- it should be a superset, "
-            f"never a subset, of the validator's own finding."
+            f"violation (per the validator, measured live this run) but "
+            f"this component-level early-warning check missed them -- it "
+            f"should be a superset, never a subset, of the validator's own "
+            f"live finding."
         )
 
 
@@ -499,18 +542,41 @@ class TestPostSolveAudit:
 
 class TestRealBoardTP3Coverage:
     """Falsifier for a specific DRC finding: kicad-cli reports a
-    HighVoltage-netclass clearance violation between `TP3` (a UVL-02 test
-    point on `safety.uvlo_logic-line`) and `U7` (DC_BUS_RTN). Root cause:
-    `TP3`'s net was entirely absent from
-    `tests.requirements.safety._real_board_fixture._NET_DOMAINS`, so this
-    generator -- which pairs components purely off that classification --
-    silently produced zero `SeparatedConstraint`s for any pair involving
-    `TP3`. This class checks the generator's real-board behavior directly
-    (not just the fixture's own classification, covered separately in
+    HighVoltage-netclass clearance violation between the UVL-02 test point
+    on `safety.uvlo_logic-line` and the half-bridge gate driver (DC_BUS_RTN
+    domain nets). Root cause: that test point's net was entirely absent
+    from `tests.requirements.safety._real_board_fixture._NET_DOMAINS`, so
+    this generator -- which pairs components purely off that classification
+    -- silently produced zero `SeparatedConstraint`s for any pair involving
+    it. This class checks the generator's real-board behavior directly (not
+    just the fixture's own classification, covered separately in
     `tests/requirements/safety/test_clearance.py::
     TestClearanceIntegration::test_tp3_uvlo_line_is_classified`) so a
     regression in either the fixture *or* the generator's own pairing logic
     is caught here.
+
+    RE-DERIVED 2026-08-13 (board/schematic resync, refdes renumber): the
+    class name and this docstring's history keep the original `TP3`/`U7`
+    labels for continuity with the DRC finding/evidence docs that used
+    them, but those refs now name DIFFERENT physical components after the
+    resync's systematic designator renumber (instance-path/Sheetpath is the
+    stable identity here, not the refdes -- see the resync PR). The two
+    components this class is actually about, by sheetpath:
+
+      - `safety.tp_uvlo2_fault` (the UVL-02 test point on
+        `safety.uvlo_logic-line`): was board ref `TP3`, is now `TP4`
+        (matching `elec/src`'s own designator for it; the old `TP3` slot on
+        this board is now a DIFFERENT, newly-added component,
+        `safety.tp_ocp2_fault`).
+      - `hb.gate_hs.driver` (the half-bridge high-side gate driver,
+        genuinely domain-straddling -- `+15V_LS`/`GATE_HS`/its own driver
+        pins are DC_BUS, `gnd`/`+3V3`/`SHUTDOWN` are LV_CONTROL, confirmed
+        directly against `tests.requirements.safety._real_board_fixture`'s
+        own net->domain map): was board ref `U7`, is now `U6`.
+
+    The tests below assert on `TP4`/`U6` -- the SAME two physical
+    components the original DRC finding was about, under their current,
+    correct designators.
     """
 
     def _load(self):
@@ -529,10 +595,11 @@ class TestRealBoardTP3Coverage:
     def test_generator_emits_at_least_one_constraint_for_tp3(self) -> None:
         placement, voltage_domains, _stats = self._load()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
-        tp3_constraints = [c for c in constraints if c.a == "TP3" or c.b == "TP3"]
-        assert tp3_constraints, (
+        tp4_constraints = [c for c in constraints if c.a == "TP4" or c.b == "TP4"]
+        assert tp4_constraints, (
             "generate_domain_clearance_constraints() produced 0 constraints "
-            "involving TP3 against the real board -- TP3's net "
+            "involving TP4 (safety.tp_uvlo2_fault, formerly board ref TP3 "
+            "pre-resync) against the real board -- its net "
             "(safety.uvlo_logic-line) is unclassified again, so the "
             "generator is silently skipping every pair that touches it "
             "(the exact R24-follow-up gap this test guards)."
@@ -540,10 +607,10 @@ class TestRealBoardTP3Coverage:
 
     def test_generator_covers_the_tp3_u7_pair_specifically(self) -> None:
         """The DRC finding this session investigated was specifically
-        TP3<->U7 (kicad-cli: HighVoltage netclass, 2.0mm required, 0.336mm
-        actual). Confirm the generator emits a constraint for this pair at
-        the DC_BUS<->LV_CONTROL margin -- 12.6mm as of the 2026-07-30
-        pollution-degree correction (see
+        (the component now named) TP4 <-> U6 (kicad-cli: HighVoltage
+        netclass, 2.0mm required, 0.336mm actual). Confirm the generator
+        emits a constraint for this pair at the DC_BUS<->LV_CONTROL margin
+        -- 12.6mm as of the 2026-07-30 pollution-degree correction (see
         docs/evidence/2026-07-30-pollution-degree-determination.md:
         IEC 60335-2-6 cl. 29.2 Addition makes Pollution Degree 3 the
         default for this appliance class and no enclosure/sealing argument
@@ -560,36 +627,37 @@ class TestRealBoardTP3Coverage:
         fallback should the compartment ever be built and verified. The
         margin asserted below is now 12.6mm, the currently-enforced figure.
 
-        U7 genuinely straddles domains (it carries `gnd`/`+3V3` -- both
-        LV_CONTROL -- *and* `DC_BUS_RTN`, i.e. it is a level-shifting gate
-        driver, confirmed directly: ``[c['nets'] for c in placement if
-        c['ref']=='U7'] == ['gnd', '+3V3', 'DC_BUS_RTN']``).
+        U6 (the half-bridge gate driver, formerly board ref U7 pre-resync)
+        genuinely straddles domains (it carries `gnd`/`+3V3`/`SHUTDOWN` --
+        all LV_CONTROL -- *and* `+15V_LS`/`GATE_HS`/its own driver pins --
+        all DC_BUS, confirmed directly against
+        `_real_board_fixture`'s net->domain map).
 
-        TP3<->U7 is the production-board exemplar of the generator's
+        TP4<->U6 is the production-board exemplar of the generator's
         duplicate-emission wart (fixed 2026-08-02, see
         docs/evidence/2026-08-01-domain-constraint-dedup.md): the unordered
         pair matches BOTH the LV_CONTROL<->LV_CONTROL functional row (1.8mm,
-        both refs drawn from the LV_CONTROL group, emitted as (TP3, U7)) AND
-        the DC_BUS<->LV_CONTROL rows (12.6mm, U7 drawn from the DC_BUS group,
-        emitted as (U7, TP3)). The generator's pair-dict key used to be the
+        both refs drawn from the LV_CONTROL group, emitted as (TP4, U6)) AND
+        the DC_BUS<->LV_CONTROL rows (12.6mm, U6 drawn from the DC_BUS group,
+        emitted as (U6, TP4)). The generator's pair-dict key used to be the
         *ordered* tuple (ref_a, ref_b), so BOTH constraints were emitted --
-        ``domain_clearance_TP3_U7`` @1.8mm and ``domain_clearance_U7_TP3``
+        ``domain_clearance_TP4_U6`` @1.8mm and ``domain_clearance_U6_TP4``
         @12.6mm. The fix canonicalizes the key to the lexicographically
         sorted ref pair, so exactly ONE constraint survives, at the max
         margin across all matching rows (12.6mm -- the stricter constraint
         that already dominated the 1.8mm duplicate in the solver), under the
-        single deterministic id ``domain_clearance_TP3_U7``. This test
+        single deterministic id ``domain_clearance_TP4_U6``. This test
         asserts that post-fix single-constraint behavior directly.
         """
         placement, voltage_domains, _stats = self._load()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
-        matches = [c for c in constraints if {c.a, c.b} == {"TP3", "U7"}]
+        matches = [c for c in constraints if {c.a, c.b} == {"TP4", "U6"}]
         assert len(matches) == 1, (
             f"Expected exactly ONE SeparatedConstraint for the unordered "
-            f"TP3<->U7 pair after the dedup fix, got {len(matches)} -- "
-            f"either TP3's net is unclassified again, U7 no longer carries a "
-            f"DC_BUS-domain net (DC_BUS_RTN), or the generator regressed to "
-            f"emitting the same pair under both (a, b) orderings."
+            f"TP4<->U6 pair after the dedup fix, got {len(matches)} -- "
+            f"either TP4's net is unclassified again, U6 no longer carries a "
+            f"DC_BUS-domain net, or the generator regressed to emitting the "
+            f"same pair under both (a, b) orderings."
         )
         c = matches[0]
         # DC_BUS<->LV_CONTROL: max across basic (3.0/6.3) and reinforced
@@ -599,8 +667,8 @@ class TestRealBoardTP3Coverage:
         assert c.min_distance_mm == 12.6
         # Canonical lexicographic (a, b) order + deterministic id, so the id
         # does not depend on which matrix row is iterated first.
-        assert c.a == "TP3" and c.b == "U7"
-        assert c.id == "domain_clearance_TP3_U7"
+        assert c.a == "TP4" and c.b == "U6"
+        assert c.id == "domain_clearance_TP4_U6"
 
 
 # ---------------------------------------------------------------------------
@@ -653,30 +721,53 @@ class TestDomainConstraintDedup:
         )
 
     def test_production_board_constraint_count_11571(self) -> None:
-        """12,022 (pre-fix) -> 11,571 (post-fix) -> 11,343 (2026-08-09)
-        constraints on the production board.
+        """12,022 (pre-fix) -> 11,571 (post-fix) -> 11,343 (2026-08-09) ->
+        11,466 (2026-08-13, this board/schematic resync) constraints on the
+        production board.
 
-        11,571 -> 11,343 (delta 228, all in the 8.0mm HV bucket) is the
-        board's `In1.Cu`/`In2.Cu` signal -> power declaration (`c4956df6`,
-        4-layer power-plane stackup): pairs whose nets route on the inner
-        plane layers are no longer signal-clearance pairs. The 1.0mm bucket
-        is unchanged (5,565), so the signal-layer pair set is untouched;
-        only the HV/plane-bucket shrinks. Re-measured 2026-08-09 and stable
-        across runs."""
+        RE-DERIVED 2026-08-13, after resyncing `pcb/temper.kicad_pcb`
+        against `elec/src` (the systematic designator renumber + ZCD-circuit
+        removal + OCP-02/J_RTD1 additions PR #1123 was blocked on -- see the
+        resync PR; #1123 itself intentionally left this assertion red at
+        11,001 measured against a *stale* board, pending exactly this
+        resync). The component set genuinely changed, so the pair count
+        changing is expected, not a regression to chase back to 11,343:
+
+          - 7 components removed (the deleted ZCD circuit: D2, R6, R7, R8,
+            R9, R10, U3 -- elec/src commit 5842767c2's `power_in.zcd_opto`
+            and friends), which only ever existed on the stale board.
+          - 6 components added (the previously-missing schematic
+            components: C37, J1, R65, T2, TP3, U19 -- OCP-02's
+            `safety.ocp2.*` group and `rtd_pan.j_rtd1`). Of these, T2
+            (`safety.ocp2.ct`) is itself intra-footprint domain-straddling
+            (its CT primary sits on `DC_BUS_RTN`, secondary on SELV) and is
+            therefore EXCLUDED from constraint generation entirely (see
+            `find_intra_footprint_domain_conflicts`/this module's own
+            docstring) -- it contributes pairs to neither bucket, only to
+            the intra-footprint straddling set `test_real_board_finds_
+            known_isolators` checks.
+
+        Net effect, measured directly (this test, re-run to confirm
+        stability across invocations): 5,778 -> 5,580 pairs at 8.0mm
+        (-198) and 5,565 -> 5,886 pairs at 1.0mm (+321), for
+        11,343 -> 11,466 total (+123). The 8.0mm (HV/plane) bucket shrinking
+        while the 1.0mm (signal) bucket grows is consistent with the ZCD
+        removal taking out several HV-adjacent `power_in` parts (fewer
+        DC_BUS<->LV_CONTROL pairs) while the net new SELV-domain component
+        count (5 pair-contributing additions vs. 7 removals, but against a
+        much larger same-domain population) still nets more 1.0mm pairs
+        overall."""
         placement, voltage_domains, _stats = self._load()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
-        assert len(constraints) == 11_343, (
-            f"Expected 11,343 constraints (one per unordered pair, down from "
-            f"the pre-fix 12,022 with 451 duplicate emissions), got "
-            f"{len(constraints)}"
+        assert len(constraints) == 11_466, (
+            f"Expected 11,466 constraints (one per unordered pair, on the "
+            f"resynced board), got {len(constraints)}"
         )
         # Margin distribution must match the measured unique-pair set:
-        # 5,778 pairs at 8.0mm + 5,565 pairs at 1.0mm == 11,343. The 8.0mm
-        # bucket shrank 6,006 -> 5,778 with the In1.Cu/In2.Cu power-plane
-        # declaration; the 1.0mm signal bucket is unchanged.
+        # 5,580 pairs at 8.0mm + 5,886 pairs at 1.0mm == 11,466.
         from collections import Counter
 
         dist = Counter(round(c.min_distance_mm, 3) for c in constraints)
-        assert dist[8.0] == 5_778
-        assert dist[1.0] == 5_565
-        assert sum(dist.values()) == 11_343
+        assert dist[8.0] == 5_580
+        assert dist[1.0] == 5_886
+        assert sum(dist.values()) == 11_466

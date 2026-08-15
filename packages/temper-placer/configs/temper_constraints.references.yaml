@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: 3f1744ca3abfc14f8c80df78e8d359c264a46917
+  measured_at_commit: 540364e84bd6e195d96a6e6b35679f4d5943b0c8
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -36,16 +36,86 @@ authority:
 # (source designator -> board reference, matched by KiCad sheetpath) is
 # verified unaffected. The board hash is re-pinned to today's content; the
 # source export hash is unchanged.
+#
+# Re-derived 2026-08-13 (board/schematic resync, this same PR): STALE again
+# -- pcb/temper.kicad_pcb changed (the resync this PR ships: ~90 designators
+# renumbered by Sheetpath, 7 ZCD-circuit footprints removed, 6 previously-
+# missing schematic components added). Every alias/unresolved-component board
+# ref above was RE-VERIFIED by direct Sheetpath match against the resynced
+# board (kiutils, comparing old-board and new-board Sheetpath->Reference
+# maps for every path this file names), not carried over: 8 of the 22
+# `component_aliases` targets and 3 of the `unresolved_components` board-ref
+# mentions changed (see the inline "-- was X pre-resync" notes above). The
+# source export (elec/exports/temper.design-input.v1.json) is untouched --
+# this resync only wrote pcb/temper.kicad_pcb, not elec/ -- confirmed by
+# hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
+#
+# Re-pinned 2026-08-13 (fix/pcb-stackup-declaration, commit fb00ab4f9): STALE
+# again -- pcb/temper.kicad_pcb changed, but ONLY by adding a
+# (setup (stackup ...)) copper-weight/dielectric declaration block (no
+# stackup existed anywhere in the KiCad project before; see
+# docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md). This is a
+# pure metadata addition -- confirmed zero component moves and zero
+# Sheetpath changes: `(at ` line count (897), `(footprint ` count (168), and
+# `Sheetpath` occurrence count (168) are all identical before/after (diffed
+# byte-for-byte against the prior board with the stackup block stripped back
+# out, which reproduces the prior file exactly). Every alias/unresolved-
+# component board ref above is therefore verified unaffected without needing
+# a fresh Sheetpath->Reference re-match (the same "moved ZERO components"
+# shortcut the 2026-08-11 c4956df66 entry above used, for the same reason:
+# a change scoped entirely outside any `(footprint ...)` block cannot alter
+# which Sheetpath maps to which Reference). The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- confirmed by
+# hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
+#
+# Re-pinned 2026-08-13 (fix/layer-architecture-ssot, layer-architecture decision
+# docs/evidence/2026-08-13-layer-architecture-decision.md): STALE again --
+# pcb/temper.kicad_pcb changed, but ONLY by extending the (layers ...) block
+# (two new entries, In3.Cu/In4.Cu, role signal) and the (setup (stackup ...))
+# block (two new copper layers + their dielectrics, existing In1.Cu/In2.Cu
+# left byte-identical in role/thickness/position relative to each other) --
+# the same "declaration only, zero component moves" shape as the two prior
+# re-pins above. Confirmed identically: `(at ` line count (897),
+# `(footprint ` count (168), and `Sheetpath` occurrence count (168) are all
+# unchanged before/after this edit. Every alias/unresolved-component board
+# ref above remains verified unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+#
+# Re-pinned 2026-08-15 (fix/tp3-u26-creepage-violation, commit 223dd1d83):
+# STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving ONE
+# footprint: TP3 (safety.tp_ocp2_fault) from (123.0, 143.0) to (122.4, 143.0)
+# (0.6mm -X) to clear the 1.0mm FUNCTIONAL creepage violation vs U26
+# (safety.latch) pad 6 measured by the REQ-SAFE-01 validator under main's
+# manifest. No alias/unresolved-component entry in this file references TP3,
+# and the move is position-only: `(footprint ` count (168) and `Sheetpath`
+# occurrence count (168) are unchanged, and the Sheetpath->Reference map is
+# identical before/after (the same footprint, same sheetpath, same ref --
+# only its `(at ...)` line moved). Every alias/unresolved-component board
+# ref above is therefore verified unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+#
+# Re-pinned 2026-08-15 (fix/1178-blockers-zcd-config-tp3-1.8, commit
+# 540364e84): STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving
+# ONE footprint a second time: TP3 (safety.tp_ocp2_fault) from (122.4, 143.0)
+# to (121.9, 143.5) (0.5mm -X + 0.5mm +Y) to clear the 1.8mm FUNCTIONAL
+# creepage bar raised by #1226. Same position-only shape as the prior pin:
+# `(footprint ` count (168) and `Sheetpath` occurrence count (168) are
+# unchanged, and the Sheetpath->Reference map is identical before/after (the
+# same footprint, same sheetpath, same ref -- only its `(at ...)` line
+# moved). No alias/unresolved-component entry references TP3. Every
+# alias/unresolved-component board ref above is therefore verified
+# unaffected. The source export (elec/exports/temper.design-input.v1.json)
+# is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: 3f1744ca3abfc14f8c80df78e8d359c264a46917
-  dirty: UNKNOWN
+  measured_at_commit: 540364e84bd6e195d96a6e6b35679f4d5943b0c8
+  dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64
+      sha256: d2f795bc1d3b0da9203865e8983bc5849b2f38ed1bde2dc0718f00e408d43231
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
-  source: backfilled-historical
+  source: measured-live
 
 # Re-derived 2026-08-01 against the post-#517/#521 board (169 components)
 # by matching each board component's KiCad sheetpath to its source instance
@@ -62,35 +132,47 @@ provenance:
 # match method, same authority commit/board -- these are net-new key strings
 # resolving to already-verified targets below (U9, R23, R27), plus one new
 # target (R60, the heatsink NTC) not previously in this manifest.
+#
+# RE-DERIVED 2026-08-13 (board/schematic resync, this same PR): every target
+# below re-verified by direct sheetpath match against the resynced board (not
+# assumed carried-over) -- `scripts/resync_pcb_netlist.py`'s systematic
+# designator renumber (Sheetpath/instance-path identity preserved, refdes
+# reassigned to match `elec/src`) changed 8 of the 22 targets below. Exactly
+# the fragility class this file's own header warns about ("the source name is
+# not a live designator") now also applies to a REFDES THAT USED TO BE the
+# live designator and no longer is -- re-verified by sheetpath, not by
+# assuming yesterday's board ref still means the same thing.
 component_aliases:
-  C_BUS1: C2       # power_in.c_bus1
-  C_BUS2: C3       # power_in.c_bus2
-  C_DC: C24        # hb.c_dc_hf
-  C_BOOT: C17      # hb.gate_hs.boot_cap
-  D_BOOT: U8       # hb.gate_hs.boot_diode
-  U_RTD: U9        # rtd_pan.adc -- thermal_management.yaml's own spelling of the MAX31865 alias below
-  TH_HEATSINK: R60 # safety.thermal.ntc (THM-01, "lug-mount on heatsink" per its own docstring
+  C_BUS1: C2       # power_in.c_bus1 (unchanged)
+  C_BUS2: C3       # power_in.c_bus2 (unchanged)
+  C_DC: C24        # hb.c_dc_hf (unchanged)
+  C_BOOT: C17      # hb.gate_hs.boot_cap (unchanged)
+  D_BOOT: U7       # hb.gate_hs.boot_diode -- was U8 pre-resync
+  U_RTD: U8        # rtd_pan.adc -- thermal_management.yaml's own spelling of the MAX31865 alias below; was U9 pre-resync
+  TH_HEATSINK: R55 # safety.thermal.ntc (THM-01, "lug-mount on heatsink" per its own docstring
                    # in elec/src/modules.ato:2408 -- modeled as a Resistor footprint, "Using
                    # Resistor as NTC placeholder" per the same docstring, hence the R-prefix ref)
-  R_GATE_HIGH: R23 # hb.gate_hs.rg_on -- thermal_management.yaml's own spelling of R_GATE_H below
-  R_GATE_LOW: R27  # hb.gate_ls.rg_on -- thermal_management.yaml's own spelling of R_GATE_L below
+                   # -- was R60 pre-resync
+  R_GATE_HIGH: R18 # hb.gate_hs.rg_on -- thermal_management.yaml's own spelling of R_GATE_H below; was R23 pre-resync
+  R_GATE_LOW: R22  # hb.gate_ls.rg_on -- thermal_management.yaml's own spelling of R_GATE_L below; was R27 pre-resync
   C_VCC2: C17      # hb.gate_hs.boot_cap -- thermal_management.yaml's own inline comment ("#
                    # Bootstrap cap") names this component; C17 is the only bootstrap cap in the
                    # design (same target as C_BOOT above) -- there is exactly one, so this is not
-                   # a guess among candidates the way C_VCC1 (below, unresolved) would be
-  MAX31865: U9     # rtd_pan.adc
-  U_GATE: U7       # hb.gate_hs.driver
-  U_GD: U7         # legacy validation.yaml spelling of U_GATE
-  R_GATE_H: R23    # hb.gate_hs.rg_on
-  R_GATE_L: R27    # hb.gate_ls.rg_on
-  U_CT: T1         # ct_sense.ct
-  R_BURDEN: R31    # ct_sense.r_burden
-  C_CT_FILT: C28   # ct_sense.c_filter
-  U_BUCK: U4       # power_mgmt.buck_3v3.buck
-  U_MCU: U27       # mcu.mcu
-  C_MCU_1: C38     # mcu.c_vcc1
-  C_MCU_2: C39     # mcu.c_vcc2
-  Y1: C6           # power_in.y_cap_pe
+                   # a guess among candidates the way C_VCC1 (below, unresolved) would be (unchanged)
+  MAX31865: U8     # rtd_pan.adc -- was U9 pre-resync
+  U_GATE: U6       # hb.gate_hs.driver -- was U7 pre-resync
+  U_GD: U6         # legacy validation.yaml spelling of U_GATE -- was U7 pre-resync
+  R_GATE_H: R18    # hb.gate_hs.rg_on -- was R23 pre-resync
+  R_GATE_L: R22    # hb.gate_ls.rg_on -- was R27 pre-resync
+  U_CT: T1         # ct_sense.ct (unchanged)
+  R_BURDEN: R25    # ct_sense.r_burden -- was R31 pre-resync
+  C_CT_FILT: C28   # ct_sense.c_filter (unchanged)
+  U_BUCK: U3       # power_mgmt.buck_3v3.buck -- was U4 pre-resync (U4 now names hb.power_loop.q_high,
+                   # a DIFFERENT physical component -- see unresolved_components.Q1 below)
+  U_MCU: U27       # mcu.mcu (unchanged)
+  C_MCU_1: C39     # mcu.c_vcc1 -- was C38 pre-resync
+  C_MCU_2: C40     # mcu.c_vcc2 -- was C39 pre-resync
+  Y1: C6           # power_in.y_cap_pe (unchanged)
 
 # These names are deliberately not aliases. Q1/Q2/D1/D2 are live board
 # designators for different source instances, while the legacy config uses
@@ -99,10 +181,20 @@ component_aliases:
 # export/production board. Each must be resolved in the source model before
 # the corresponding constraint can be enabled.
 unresolved_components:
-  Q1: live designator is power_in.q_relay_drv; legacy config means hb.power_loop.q_high (board ref U5)
-  Q2: live designator is discharge.q_dis_drv; legacy config means hb.power_loop.q_low (board ref U6)
-  D1: live designator is power_in.d_flyback; legacy config means power_in.d1 (board ref U1)
-  D2: live designator is power_in.d_zcd_clamp; legacy config means power_in.d2 (board ref U2)
+  Q1: live designator is power_in.q_relay_drv; legacy config means hb.power_loop.q_high (board ref U4 -- was U5 pre-resync)
+  Q2: live designator is discharge.q_dis_drv; legacy config means hb.power_loop.q_low (board ref U5 -- was U6 pre-resync)
+  D1: live designator is power_in.d_flyback; legacy config means power_in.d1 (board ref U1, unchanged)
+  D2: >-
+    RE-DERIVED 2026-08-13 (board/schematic resync): the collision this entry names has changed
+    shape, not just re-verified its old shape. Pre-resync, the live designator D2 was
+    power_in.d_zcd_clamp (the ZCD circuit's clamp diode). That component no longer exists at all
+    -- power_in.d_zcd_clamp (elec/src's power_in.zcd_opto group) was deleted from elec/src by
+    commit 5842767c2 and this resync removed its footprint from the board (see the resync PR).
+    The live designator D2 now names a DIFFERENT component, discharge.d_fly1 (a flyback diode in
+    the bus-discharge/snubber circuit -- was board ref D3 pre-resync). Legacy config still means
+    power_in.d2 (board ref U2, unchanged), which remains a real, different, unaliased component.
+    Still correctly unresolved: D2 is still a live designator for a component the legacy config
+    does not mean, now for a different real component than before.
   C_VCC: multiple gate-driver decouplers exist (C20/C21/C22/C23)
   C_TANK: multiple resonant capacitors exist (C25/C26/C27)
   C_MCU_3: source export has only mcu.c_vcc1 and mcu.c_vcc2
@@ -117,14 +209,15 @@ unresolved_components:
   R_SNUB: >-
     thermal_management.yaml describes an IGBT commutation snubber ('dissipates heat during
     switching... protect capacitor from electrolyte degradation'); the only real R/C snubber
-    pair in the source is discharge.r_snub1/r_snub2 (board refs R19/R20), a contact-arc snubber
-    across the bus-discharge relay contacts (elec/src/modules.ato lines 1258-1341), a different
-    circuit than the one described. Two equally unprivileged real candidates exist and neither
-    matches the stated intent -- not a rename.
+    pair in the source is discharge.r_snub1/r_snub2 (board refs R14/R15 -- were R19/R20
+    pre-resync), a contact-arc snubber across the bus-discharge relay contacts
+    (elec/src/modules.ato lines 1258-1341), a different circuit than the one described. Two
+    equally unprivileged real candidates exist and neither matches the stated intent -- not a
+    rename.
   C_SNUB: >-
     same circuit-identity mismatch as R_SNUB -- the real pair is discharge.c_snub1/c_snub2
-    (board refs C7/C8), paired with the relay-contact snubber resistors above, not an IGBT
-    switching snubber cap.
+    (board refs C7/C8, unchanged), paired with the relay-contact snubber resistors above, not an
+    IGBT switching snubber cap.
   C_VCC1: >-
     paired in thermal_management.yaml with R_GATE_LOW as an implied low-side counterpart to
     C_VCC2 (the high-side bootstrap cap, aliased above to C17). No such counterpart exists in

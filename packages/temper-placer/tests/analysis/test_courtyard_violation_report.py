@@ -213,8 +213,17 @@ def test_real_board_violation_count_in_expected_range():
     # chars. Previous range (27-29 / 16-18) predates that board change
     # (the tank-cap courtyard split removed the overlap). Bands leave
     # headroom for run-to-run DRC noise without hiding a real regression.
-    assert 12 <= courtyard_count <= 18, f"Expected ~14 courtyards_overlap, got {courtyard_count}"
-    assert 7 <= pth_count <= 12, f"Expected ~9 pth_inside_courtyard, got {pth_count}"
+    #
+    # RE-DERIVED 2026-08-13 after the board/schematic resync (this same
+    # PR): measured courtyards_overlap=8, pth_inside_courtyard=1 (both
+    # improvements -- the resync removed the 7-footprint ZCD circuit and
+    # its 145 now-orphaned copper items, which accounted for several of
+    # the prior overlaps; the one remaining pth_inside_courtyard finding
+    # is pre-existing, unrelated to any component this PR added or moved).
+    # Bands tightened to bracket the new measured values with the same
+    # style of headroom the prior baseline used, not loosened arbitrarily.
+    assert 5 <= courtyard_count <= 11, f"Expected ~8 courtyards_overlap, got {courtyard_count}"
+    assert 0 <= pth_count <= 4, f"Expected ~1 pth_inside_courtyard, got {pth_count}"
     assert len(report) > 100
 
     print(

@@ -14,8 +14,20 @@
 | Max Temp Rise (traces) | 20°C | IPC-2221B recommendation |
 | Max Temp Rise (pours) | 40°C | Acceptable for power zones |
 | Outer Copper Weight | 2 oz (70 µm) | JLCPCB capability |
-| Inner Copper Weight | 1 oz (35 µm) | Standard for 4-layer |
+| Inner Copper Weight | 1 oz (35 µm) | Applies to every inner layer -- see note below |
 | Board Thickness | 1.6mm | Standard FR4 |
+
+**Note (2026-08-13):** the board moved from 4 layers (2 signal, 2 power-plane
+inner layers) to 6 layers (4 signal, 2 power-plane inner layers) --
+`docs/evidence/2026-08-13-layer-architecture-decision.md`. The **1 oz inner**
+assumption above applies uniformly to all four inner layers
+(`In1.Cu`/`In2.Cu`, unchanged planes, and the two new signal layers
+`In3.Cu`/`In4.Cu`) -- `pcb/temper.kicad_pcb`'s `(setup (stackup ...))` block
+is the authoritative, machine-checked declaration
+(`scripts/check_stackup_copper_weight_gate.py`, extended in the same change
+to check all four). This table is the *assumption* every derivation below is
+computed against, not the SSOT itself -- see that gate for what enforces
+agreement between the two.
 
 ## 2. IPC-2221B Trace Width Formula
 
