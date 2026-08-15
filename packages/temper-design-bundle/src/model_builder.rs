@@ -1656,11 +1656,11 @@ impl ModelBuilder {
                     terms.push((bvar, bundle_width));
                 }
 
-                for net_idx in 0..nets.len() {
+                for (net_idx, selected) in net_selected.iter().enumerate() {
                     if bundle_id_for_net.iter().any(|(n, _)| *n == net_idx as i64) {
                         continue;
                     }
-                    if !net_selected[net_idx] {
+                    if !selected {
                         continue;
                     }
                     if let Some(var) = self.model_net_var(py, net_idx as i64, &edge_id)? {
