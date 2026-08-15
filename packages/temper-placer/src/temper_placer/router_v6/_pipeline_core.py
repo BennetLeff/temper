@@ -227,6 +227,20 @@ class RouterV6Pipeline:
                 bound; set this in addition if a hard real-time ceiling
                 is also needed (e.g. in a CI job with its own timeout).
                 If both are set, whichever fires first wins.
+            max_sat_nets: Selective-SAT cap: route only the top-N nets
+                (ascending pin count, stable) through the Stage 3 SAT
+                model; every other net skips the model and falls through
+                to Stage 4's unguided ``fallback_channel_path`` A* path.
+                ``None`` (default) encodes every net. Prior to
+                2026-08-15 this option was print-only: ``_select_sat_nets``
+                computed the subset but ``ModelBuilder`` still encoded all
+                110 nets, so the Stage 3 CNF (``|nets| x |edges|`` Sinz
+                term) was unchanged regardless of the cap -- see
+                docs/evidence/2026-08-15-stage3-memory-blowup-
+                investigation.md. The subset is now threaded in as
+                ``ModelBuilder(net_filter=...)`` and to
+                ``solve_topology_rust``. Ignored when ``enable_bundling``
+                is set.
             thermal_flat: U8 optional (N,) float32 thermal cost field
                 (from CostFieldInput.cost_flat).  Threaded to A*
                 kernel step-cost.

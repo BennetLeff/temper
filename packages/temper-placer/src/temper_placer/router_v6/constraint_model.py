@@ -286,6 +286,7 @@ class ModelBuilder:
         bundle_manifest=None,
         enable_geographic_pruning: bool = False,
         enable_via_vars: bool = False,
+        net_filter: list[str] | None = None,
     ):
         self.skeletons = skeletons or {}
         self.nets = nets
@@ -298,6 +299,7 @@ class ModelBuilder:
         self.bundle_manifest = bundle_manifest
         self.enable_geographic_pruning = enable_geographic_pruning
         self.enable_via_vars = enable_via_vars
+        self.net_filter = net_filter
         self.net_to_idx = {net.name: i for i, net in enumerate(self.nets)}
         self._rust = _mb.ModelBuilder(
             skeletons=self.skeletons,
@@ -311,6 +313,7 @@ class ModelBuilder:
             bundle_manifest=self.bundle_manifest,
             enable_geographic_pruning=self.enable_geographic_pruning,
             enable_via_vars=self.enable_via_vars,
+            net_filter=self.net_filter,
         )
         self.model = ConstraintModel()
 

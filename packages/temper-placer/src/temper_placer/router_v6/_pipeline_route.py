@@ -263,6 +263,16 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
 
     if self.verbose:
         print("  3.1-3.6: Building constraint model...")
+    # `_select_sat_nets` computes the top-N nets for selective SAT routing.
+    # It used to be print-only: the model below encoded EVERY net and the
+    # Stage 3 CNF blew up at |nets| x |edges| (the 2026-08-15 Stage 3
+    # memory-blowup investigation -- 182-200 GB monolith demand). The
+    # filtered list is now threaded into ModelBuilder as `net_filter` so
+    # only the selected nets get variables / capacity terms, and into
+    # solve_topology_rust so the reported topology covers exactly the
+    # selected nets. Non-selected nets fall through to Stage 4's existing
+    # `fallback_channel_path` A* path (the same path nets the solver
+    # leaves unassigned take today).
     target_names = (
         self._select_sat_nets(pcb) if self.max_sat_nets and not self.enable_bundling else None
     )
@@ -296,6 +306,7 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             enable_bundling=True,
             bundle_manifest=bundle_manifest,
             enable_geographic_pruning=self.enable_geographic_pruning,
+            net_filter=target_names,
         )
         constraint_model = model_builder.build()
     else:
@@ -307,6 +318,7 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             diff_pairs=diff_pairs,
             pcb=pcb,
             enable_geographic_pruning=self.enable_geographic_pruning,
+            net_filter=target_names,
         )
         constraint_model = model_builder.build()
         bundle_manifest = None
@@ -355,10 +367,15 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
             f"_run_stage3 solve_topology_rust ENTER "
             f"(py_vars={len(py_vars)} py_cons={len(py_cons)})"
         )
+        # `target_names` (the selective-SAT subset) when active, else the
+        # full net list -- the topology output then covers exactly the nets
+        # the model encodes; unselected nets fall through to Stage 4's
+        # fallback A* path (map_topology_to_channels drops nets with no
+        # channel sequence before Stage 4's fallback_channel_path fires).
         rust_result = solve_topology_rust(
             py_vars,
             py_cons,
-            net_names,
+            target_names if target_names is not None else net_names,
             conflict_limit=self.sat_conflict_limit,
             time_limit_ms=self.sat_time_limit_ms,
         )
