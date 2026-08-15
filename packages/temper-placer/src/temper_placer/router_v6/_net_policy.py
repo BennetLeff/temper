@@ -56,6 +56,39 @@ def _should_route(net_name: str) -> bool:
     ``SW_NODE``, ``DC_BUS_RTN``, ``ac_l``, ``ac_n``) is unaffected and stays
     excluded from A*, since a pour genuinely covers it.
     """
+    from temper_placer.router_v6._zone_pour_stitch import _CONTINUITY_EXEMPT_NETS
+
+    # ADDED then REVISED 2026-08-14
+    # (docs/evidence/2026-08-14-ntc-no-realization-and-delta-t-reconciliation.md):
+    # this started as an attempt to let A* attempt a real backbone trace
+    # for `_CONTINUITY_EXEMPT_NETS` members IN ADDITION to their pour (a
+    # pad geometrically "inside" a zone outline is invisible to the
+    # pad-connectivity audit's segment/via graph, so a pour-only
+    # realization can never be scored `fully_connected` -- see that
+    # module's docstring). That attempt was REVERTED same-day after direct
+    # measurement: routing `power_in.ntc-no` through A* -- even in
+    # isolation, filtered to just this one net against the real board's
+    # real obstacle geometry, nowhere near the full ~139-net pipeline --
+    # exhausted an 8GB hard cap and aborted ("memory allocation of 4 bytes
+    # failed") rather than terminating with a clean route-or-fail verdict.
+    # This is a router robustness gap (unbounded/inefficient search when a
+    # wide net's clearance-respecting path is very hard or impossible to
+    # find), not merely "this net is hard to route" -- and it reproduces
+    # with or without this carve-out, since `_should_route`'s upstream
+    # `is_hv_net('power_in.ntc-no')` already independently returns False
+    # (a separate, unrelated name-classifier gap -- see the evidence doc
+    # SS1.4), which ALSO falls through to "route via A*" today. Explicitly
+    # EXCLUDING `_CONTINUITY_EXEMPT_NETS` from A* here is therefore not
+    # optional caution, it is the one place in this function that can
+    # override that other gap and actually prevent the crash. Real
+    # pad-to-pad connectivity for these nets is instead provided by direct
+    # stitch segments inside the pour's own convex hull
+    # (`_zone_pour_stitch.py`'s pad-to-pad stitching), which needs no
+    # obstacle search at all: any straight line between two pads that are
+    # both inside the same convex hull stays entirely inside it.
+    if net_name in _CONTINUITY_EXEMPT_NETS:
+        return False
+
     from temper_placer.router_v6.net_classification import (
         is_ground_net,
         is_hv_net,

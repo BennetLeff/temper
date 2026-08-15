@@ -141,8 +141,8 @@ class TestIpc2152CurrentCapacity:
 class TestNetCurrents:
     def test_known_nets(self):
         assert get_net_current("DC_BUS+") == 16.0
-        assert get_net_current("AC_L") == 10.0
-        assert get_net_current("AC_N") == 10.0
+        assert get_net_current("AC_L") == 15.0
+        assert get_net_current("AC_N") == 15.0
         assert get_net_current("SW_NODE") == 16.0
         assert get_net_current("GATE_H") == 2.0
         assert get_net_current("GATE_L") == 2.0
@@ -243,7 +243,9 @@ class TestIpc2152Integration:
         assert w > 0.4  # gate drive needs more than a thin signal trace
 
     def test_ac_mains_needs_substantial_width(self):
-        w = ipc2152_min_width("AC_L", 10.0, layer="F.Cu")
+        # 15.0A: elec/src/constraints.ato:11 (ACMainsConstraints.i_max), not
+        # the stale 10.0A this test used to hardcode.
+        w = ipc2152_min_width("AC_L", 15.0, layer="F.Cu")
         assert w > 3.0  # mains traces are wide (though usually pours)
 
     def test_supply_rails_finite(self):

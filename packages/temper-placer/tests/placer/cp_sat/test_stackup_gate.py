@@ -131,7 +131,12 @@ def test_violation_includes_context():
     assert result.status is GateStatus.VIOLATIONS
     v = result.violations[0]
     assert "current_a" in v.context
-    assert v.context["current_a"] == 10.0
+    # 15.0A, not 10.0A: the AC-mains design current was corrected to
+    # elec/src/constraints.ato:11 (ACMainsConstraints.i_max = 15A) by
+    # #1205's c0ceb94d4 -- this assertion predates that correction and
+    # pinned the superseded 10.0A figure (stale ground truth, not a
+    # behavior this test is supposed to guard).
+    assert v.context["current_a"] == 15.0
     assert "min_width_mm" in v.context
 
 
@@ -385,6 +390,64 @@ def test_copper_oz_reads_outer_role_for_external_layer():
 
     gate = StackupGate()
     current_a = 10.0  # AC_L's real cited current
+    # Width whose capacity clears 10A at the REAL 2oz external weight but
+    # would not at 1oz -- proves the gate is reading 2oz here, not 1.0.
+    width_2oz_min = _tg.ipc2221b_min_trace_width_mm_py(current_a, 2.0, 10.0, False)
+    width_1oz_min = _tg.ipc2221b_min_trace_width_mm_py(current_a, 1.0, 10.0, False)
+    assert width_1oz_min > width_2oz_min  # sanity: 1oz genuinely needs more width
+    probe_width = (width_2oz_min + width_1oz_min) / 2.0  # clears 2oz, not 1oz
+
+    result = gate.check(
+        _make_state(
+            routing=_FakeRoutingResult(
+                compiled_routes={
+                    "AC_L": _FakeRoute("AC_L", width_mm=probe_width, layer="F.Cu"),
+                },
+                unrouted_nets=[],
+            )
+        )
+    )
+    assert result.status is GateStatus.CLEAN
+
+
+def test_in3_in4_detected_as_internal():
+    """PR #1195 (docs/evidence/2026-08-13-router-nlayer-routing.md): the
+    board's stackup grew In3.Cu/In4.Cu as new INNER signal layers, but
+    `_is_internal_net` used to only recognize {"In1.Cu", "In2.Cu"} -- so a
+    route on In3.Cu/In4.Cu was silently treated as external (checked
+    against the more lenient k=0.048 curve) even though it is genuinely
+    1oz internal copper. Same width/current as
+    test_internal_layer_detection's In2.Cu case, on In3.Cu instead --
+    must still be flagged.
+    """
+    gate = StackupGate()
+    result = gate.check(
+        _make_state(
+            routing=_FakeRoutingResult(
+                compiled_routes={
+                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.5, layer="In3.Cu"),
+                },
+                unrouted_nets=[],
+            )
+        )
+    )
+    assert result.status is GateStatus.VIOLATIONS
+
+
+def test_copper_oz_reads_outer_role_for_external_layer():
+    """The gate used to check EVERY route (internal or external) against a
+    flat `copper_oz=1.0`, even on F.Cu/B.Cu, which the board's own declared
+    stackup says are 2oz -- an accidentally-conservative but physically
+    wrong input. A width that needs 2oz to pass but would fail at a
+    (wrong) 1oz assumption must now pass on F.Cu.
+    """
+    import temper_geometry as _tg
+
+    gate = StackupGate()
+    # 15.0A: elec/src/constraints.ato:11 (ACMainsConstraints.i_max) -- AC_L's
+    # real cited current. Must track StackupGate._DEFAULT_NET_CURRENTS["AC_L"]
+    # or this probe's width no longer brackets what the gate actually checks.
+    current_a = 15.0
     # Width whose capacity clears 10A at the REAL 2oz external weight but
     # would not at 1oz -- proves the gate is reading 2oz here, not 1.0.
     width_2oz_min = _tg.ipc2221b_min_trace_width_mm_py(current_a, 2.0, 10.0, False)

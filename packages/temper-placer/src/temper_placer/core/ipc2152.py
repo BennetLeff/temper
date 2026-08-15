@@ -14,26 +14,35 @@ source are documented in docs/hardware/TRACE_WIDTH_CALCULATIONS.md §2.
 from temper_drc_rs import (  # noqa: F401 — re-export
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
+    TRACE_TEMP_RISE_C,
     get_net_current,
     ipc2152_current_capacity,
     ipc2152_min_width_mm,
 )
 
 
-def ipc2152_external_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
+def ipc2152_external_width(current_amps, copper_weight_oz, temp_rise_c=TRACE_TEMP_RISE_C):
     """Trace width in mm for external layers (F.Cu / B.Cu).
 
     Convenience wrapper around ipc2152_min_width_mm with internal_layer=False.
+
+    FIXED 2026-08-14: default was an independent literal `10.0`; now reads
+    the single-sourced `temper_drc_rs.TRACE_TEMP_RISE_C` (20.0, cited from
+    docs/hardware/TRACE_WIDTH_CALCULATIONS.md SS1) -- see that constant's
+    doc comment for the full reconciliation.
     """
     return ipc2152_min_width_mm(current_amps, copper_weight_oz, temp_rise_c, False)
 
 
-def ipc2152_internal_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
+def ipc2152_internal_width(current_amps, copper_weight_oz, temp_rise_c=TRACE_TEMP_RISE_C):
     """Trace width in mm for internal layers (In1.Cu / In2.Cu).
 
     Uses the internal-layer curve (k=0.024), producing roughly double the
     area requirement of the external curve for the same current (approx
     0.5x derating in current capacity).
+
+    FIXED 2026-08-14: default was an independent literal `10.0`; see
+    `ipc2152_external_width`'s docstring above for the reconciliation.
     """
     return ipc2152_min_width_mm(current_amps, copper_weight_oz, temp_rise_c, True)
 

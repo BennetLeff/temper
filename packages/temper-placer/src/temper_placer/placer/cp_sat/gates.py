@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import temper_design_bundle_python as _tdb
+import temper_drc_rs as _tdrc
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.feedback import ConstraintDelta  # noqa: F401
@@ -362,8 +363,15 @@ class StackupGate(Gate):
     _DEFAULT_NET_CURRENTS: dict[str, float] = {
         "DC_BUS+": 16.0,
         "SW_NODE": 16.0,
-        "AC_L": 10.0,
-        "AC_N": 10.0,
+        # 15.0A, not 10.0A: SSOT is `elec/src/constraints.ato:11`
+        # (`ACMainsConstraints.i_max = 15A`), corroborated by
+        # `docs/specs/NET_CLASS_SPECIFICATION.md` SS3.6 ("Current Rating: 15A
+        # (1800W @ 120V)"). Kept in lockstep with
+        # `temper_drc_rs::ipc::net_currents()`'s `AC_MAINS_CURRENT_A`, which
+        # this table mirrors -- see
+        # tests/placer/cp_sat/test_net_currents_rust_differential.py.
+        "AC_L": 15.0,
+        "AC_N": 15.0,
         "GATE_H": 2.0,
         "GATE_L": 2.0,
         "+3V3": 0.5,
@@ -372,7 +380,14 @@ class StackupGate(Gate):
     }
     _DEFAULT_CURRENT = 0.1  # A for nets not in the table
 
-    _DEFAULT_TEMP_RISE_C = 10.0
+    # FIXED 2026-08-14 (docs/hardware/TRACE_WIDTH_CALCULATIONS.md SS1 vs
+    # this repo's prior uncited 10.0 default -- see
+    # temper_drc_rs::ipc::TRACE_TEMP_RISE_C's doc comment for the full
+    # reconciliation). This gate now reads the same single-sourced constant
+    # `assign_trace_widths` (router_v6/trace_width_assignment.py) reads, so
+    # the DRC-gate check and the production width-assignment path that
+    # produces the copper it checks cannot silently disagree on ΔT again.
+    _DEFAULT_TEMP_RISE_C = _tdrc.TRACE_TEMP_RISE_C
     _ROUTABLE_THRESHOLD_MM = 5.0  # widths beyond this are pours, not traces
 
     # ------------------------------------------------------------------
@@ -500,6 +515,24 @@ class StackupGate(Gate):
         # anything unsafe through, but not the physically real number).
         # See PR #1195 / docs/evidence/2026-08-13-router-nlayer-routing.md
         # SS4 and PR #1223.
+
+        # PR #1195 copper-weight/layer-awareness audit
+        # (docs/evidence/2026-08-13-router-nlayer-routing.md SS4): this used
+        # to be `copper_oz=1.0` unconditionally, regardless of `internal` --
+        # correct for the board's declared 1oz INNER copper
+        # (check_stackup_copper_weight_gate.py), but wrong for its declared
+        # 2oz OUTER copper (F.Cu/B.Cu), which this check was silently
+        # evaluating against a copper weight thinner than the board
+        # actually has there -- an error that happens to be
+        # over-conservative (thinner assumed copper needs a wider trace to
+        # pass), so it did not let anything unsafe through, but it is not
+        # the physically real number either. `_STACKUP_COPPER_OZ` cites the
+        # SAME outer/inner weights that gate already enforces live against
+        # `pcb/temper.kicad_pcb`'s own declared stackup -- not a new
+        # assumption, and not a copper-weight VALUE change (the board's
+        # declared weight is unchanged; this only fixes which of that
+        # board's two already-declared weights this specific check reads).
+        copper_oz = _STACKUP_COPPER_OZ["inner"] if internal else _STACKUP_COPPER_OZ["outer"]
 
         min_width_mm = _min_width_ipc2152(
             current_a=current_a,

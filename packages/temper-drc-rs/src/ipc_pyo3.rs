@@ -37,7 +37,7 @@ fn estimate_current_from_net_class(
 }
 
 #[pyfunction]
-#[pyo3(signature = (current_amps, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
+#[pyo3(signature = (current_amps, copper_weight_oz, temp_rise_c=ipc::TRACE_TEMP_RISE_C, internal_layer=false))]
 fn ipc2152_min_width_mm(
     current_amps: f64,
     copper_weight_oz: f64,
@@ -50,7 +50,7 @@ fn ipc2152_min_width_mm(
 }
 
 #[pyfunction]
-#[pyo3(signature = (width_mm, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
+#[pyo3(signature = (width_mm, copper_weight_oz, temp_rise_c=ipc::TRACE_TEMP_RISE_C, internal_layer=false))]
 fn ipc2152_current_capacity(
     width_mm: f64,
     copper_weight_oz: f64,
@@ -81,5 +81,10 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(net_currents, m)?)?;
     m.add("NET_CURRENTS", ipc::net_currents().clone())?;
     m.add("DEFAULT_SIGNAL_CURRENT", ipc::DEFAULT_SIGNAL_CURRENT)?;
+    // Single-sourced ΔT convention (docs/hardware/TRACE_WIDTH_CALCULATIONS.md
+    // SS1) -- exposed so Python callers read this instead of re-hardcoding
+    // their own literal. See ipc::TRACE_TEMP_RISE_C's doc comment.
+    m.add("TRACE_TEMP_RISE_C", ipc::TRACE_TEMP_RISE_C)?;
+    m.add("POUR_TEMP_RISE_C", ipc::POUR_TEMP_RISE_C)?;
     Ok(())
 }
