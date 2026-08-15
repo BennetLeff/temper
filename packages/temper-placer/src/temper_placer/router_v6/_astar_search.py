@@ -551,7 +551,14 @@ def _astar_route_multilayer(
             fallback_layer,
             grids_3d,
             via_cost=10.0,
-            via_diameter=net_rules.via_diameter_mm if net_rules else 0.6,
+            # Fallback 0.6 -> 0.9mm 2026-08-13 (docs/evidence/2026-08-13-
+            # jlcpcb-fab-capability-envelope.md): matches the same fab-floor
+            # fix applied to every other via_diameter default in this repo
+            # (core/design_rules.py, router_v6/constraints_design_rules.py,
+            # router_v6/stage0_data.py) -- 0.6mm/0.2mm-clearance-scale drill
+            # gave a sub-floor annular ring for any net that resolves to no
+            # net_rules.
+            via_diameter=net_rules.via_diameter_mm if net_rules else 0.9,
             clearance=net_rules.clearance_mm if net_rules else 0.2,
             net_id=net_id,
             max_iter=segment_3d_fallback_max_iter,

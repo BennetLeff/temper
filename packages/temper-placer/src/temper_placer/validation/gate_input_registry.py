@@ -571,9 +571,11 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_derived_doc_drift.py", "docs/STRATEGY.md", "doc-drift comparison; probe harness deferred"),
     ("check_domain_partition.py", "elec/build/default.net", "needs compiled netlist (elec/build/, not committed)"),
     ("check_drc_ceiling_approval.py", "power_pcb_dataset/drc_ceiling.json", "git merge-base dependent; probe harness deferred"),
+    ("check_duplicate_predicates.py", "scripts/duplicate_predicate_registry.py", "duplicate-predicate consolidation gate (2026-08-13 defect-multiplier audit); AST-scans registered families' scan_paths for a non-delegating copy; probe harness deferred"),
     ("check_erc_off_grid_consequence.py", "pcb/temper.kicad_sch", "ERC endpoint_off_grid consequence classification (docs/evidence/2026-08-07-erc-off-grid-endpoint-analysis.md); needs kicad-cli-regenerated ERC JSON + schematic netlist XML; probe harness deferred"),
     ("check_evidence_provenance.py", "docs/evidence/", "provenance scan; probe harness deferred"),
     ("check_footprint_drift.py", "pcb/temper.kicad_pcb", "needs compiled netlist; probe harness deferred"),
+    ("check_geometry_primitive_duplication.py", "packages/", "point-to-segment-distance structural-duplication gate (2026-08-13 epsilon consolidation, docs/evidence/2026-08-13-point-to-segment-distance-epsilon-consolidation.md); scans Rust source directly against .geometry-primitive-duplication-allowlist; probe is the check itself"),
     ("check_hash_order_determinism.py", ".hash-order-inventory", "salted-hash order gate (PYTHONHASHSEED determinism); probe harness deferred"),
     ("check_hv_netclass_coverage.py", "elec/domain_manifest.yaml", "HV netclass coverage gate (N4); probe harness deferred"),
     ("check_isolation_keepout.py", "pcb/temper.kicad_pcb", "baseline red on main (no keepout zones); probe inconclusive today"),
@@ -581,15 +583,18 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     ("check_manifest_gate.py", "scripts/manifest.yaml", "manifest scan; probe harness deferred"),
     ("check_measurement_provenance.py", "power_pcb_dataset/drc_ceiling.json", "baseline red on main (stale ceiling); probe inconclusive today"),
     ("check_net_classification.py", "elec/domain_manifest.yaml", "source-tree scan; probe harness deferred"),
+    ("check_net_pin_identity_pad_correspondence.py", "pcb/temper.kicad_pcb", "net accounting gate (router silent-net-loss investigation, 2026-08-13): flags a net whose (component_ref, pad_number) pin-identity view collapses to <=1 distinct pin while its real physical pad count is >1 -- the invariant behind discharge.k_dis1-no/discharge.k_dis2-no falsely certifying as a trivial no-copper-needed net; self-contained regex parse of the real board, needs no compiled extension; probe harness deferred"),
     ("check_netlist_board_reconciliation.py", "elec/build/default.net", "netlist<->board reconciliation (plan 2026-08-02-021 R16); needs compiled netlist (elec/build/, not committed)"),
     ("check_netlist_mutation_corpus.py", "elec/build/default.net", "netlist-mutation corpus (plan 2026-08-02-021 R39/U7); needs compiled netlist (elec/build/, not committed)"),
     ("check_netlist_stage_checks.py", "elec/build/default.net", "netlist-stage checks (single-pin nets, unconnected power pins, voltage-domain compatibility; docs/STRATEGY.md 'Checks by stage'); needs compiled netlist (elec/build/, not committed); 27 open findings on a dated backlog allowlist"),
     ("check_no_raw_rotation_trig.py", "", "source-tree scan; probe harness deferred"),
     ("check_oracle_hashes.py", "scripts/oracle_hashes.json", "oracle content-hash gate (decision 2026-08-06); probe is the check itself"),
+    ("check_pad_identity_ambiguity.py", "pcb/temper.kicad_pcb", "structural pad-identity gate (pad-identity SSOT task, 2026-08-13): component-level, not net-level -- fails when a footprint in use declares more than one physical pad under the same pad number (K1/K2/K3 today) AND a production .get_pin( call site outside the reviewed allowlist resolves a pin as if (ref, pin_name) were unique; complements check_net_pin_identity_pad_correspondence.py's net-accounting invariant, which is silent for a duplicated pad sitting inside an otherwise-multi-pin net (K2/K3's pad \"1\"/\"4\"); self-contained regex board parse + ast source scan, needs no compiled extension; probe harness deferred"),
     ("check_pad_orientation.py", "pcb/temper.kicad_pcb", "needs the real board; probe harness deferred"),
     ("check_physics_provenance.py", "packages/temper-placer/src/temper_placer/physics/", "source-tree scan; probe harness deferred"),
     ("check_plane_condemnation_quantifier.py", "pcb/temper.kicad_pcb", "plane-condemnation quantifier gate (docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md); needs the real board; probe harness deferred"),
     ("check_pll_range_consistency.py", "firmware/components/control/pll_control.h", "firmware-header scan; probe harness deferred"),
+    ("check_pyo3_duplicate_registration.py", "packages/", "duplicate pyo3 function/class registration gate (2026-08-13 kw_boundary_match_py shadowing incident); source-tree scan (.rs), needs no built extensions; probe harness deferred"),
     ("check_rust_drc_presence.py", "packages/temper-drc-rs/src", "extension-symbol scan; probe harness deferred"),
     ("check_script_sunset.py", "scripts/manifest.yaml", "manifest scan (warn-only in CI); probe harness deferred"),
     ("check_stackup_copper_weight_gate.py", "pcb/temper.kicad_pcb", "stackup <-> trace-width-derivation copper-weight correspondence gate (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md); parses pcb/temper.kicad_pcb's (setup (stackup ...)) block and docs/hardware/TRACE_WIDTH_CALCULATIONS.md §1 directly; probe harness deferred"),
@@ -632,7 +637,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # from each script's scripts/manifest.yaml entry, which was kept current.
     ("check_corpus_fixture_realboard_divergence.py", "power_pcb_dataset/corpus/manifest.yaml", "corpus-fixture <-> real-board divergence gate (2026-08-11 golden-fixture decision); probe harness deferred"),
     ("check_layer_plane_emission_coverage.py", "pcb/temper.kicad_pcb", "declared <-> emitted layer-plane coverage gate; advisory (continue-on-error) pending the underlying In1.Cu/In2.Cu fix; probe harness deferred"),
-    ("check_netclass_class_param_correspondence.py", "pcb/temper.kicad_pro", "netclass scalar-parameter correspondence gate; advisory (continue-on-error); currently VIOLATION on origin/main (HighVoltage.clearance mismatch); probe harness deferred"),
+    ("check_netclass_class_param_correspondence.py", "pcb/temper.kicad_pro", "netclass scalar-parameter correspondence gate; BLOCKING as of 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md) -- all 5 field mismatches (HighVoltage.clearance + 4 Power-class fields) reconciled, continue-on-error removed from the CI step; probe harness deferred"),
     ("check_netclass_map_board_correspondence.py", "pcb/temper.kicad_pcb", "hand-maintained net_classes: YAML <-> board net-name correspondence gate; probe harness deferred"),
     ("check_pcl_config_board_correspondence.py", "packages/temper-placer/configs/constraints/temper_induction_cooker.yaml", "PCL placement-constraint config <-> board correspondence gate; advisory (continue-on-error) pending the config fix; probe harness deferred"),
     ("check_pd2_compartment_evidence.py", "docs/specs/pd2_compartment_evidence.yaml", "PD2/8.0mm creepage compartment-evidence gate; advisory (continue-on-error) pending the compartment being built; probe harness deferred"),
@@ -647,6 +652,20 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # Consistency Gates job but did not register it here -- the same
     # completeness gap as the two batches above, and caught the same way.
     ("check_board_sync_stamp.py", "pcb/.board_sync_stamp.json", "board<->netlist provenance stamp gate (PR #1131): re-derives the netlist's own freshness against elec/src/** FIRST, then compares the board's recorded sync stamp, so the check cannot pass by comparing two stale artifacts to each other -- the failure mode that let the 2026-08-07 board/schematic desync survive five days behind a cached netlist; probe harness deferred (scripts/tests/test_check_board_sync_stamp.py covers its 13 failure modes directly)"),
+    ("check_pyo3_duplicate_registration.py", "packages/", "duplicate pyo3 function/class registration gate (2026-08-13 kw_boundary_match_py shadowing incident); source-tree scan (.rs), needs no built extensions; probe harness deferred"),
+    # 2026-08-13 inert-code audit: this survey's own "advisory"/"BLOCKING"
+    # prose drifted from the real workflow wiring at least once (this
+    # entry's own check_netclass_class_param_correspondence.py neighbor
+    # above, caught and fixed in the same changeset) -- see
+    # check_ci_survey_advisory_drift.py's module docstring for the measured
+    # before/after. This script is the mechanical check that catches the
+    # next one; it scans this file, so it is self-covering by construction.
+    ("check_ci_survey_advisory_drift.py", "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py", "CI-survey status-claim vs. workflow-wiring drift checker (this file's own advisory/BLOCKING reason text vs. each script's real continue-on-error state); source-tree + workflow scan; probe is the check itself. BLOCKING from the start (no continue-on-error on its own CI step)."),
+    # 2026-08-13 via-annular-ring-floor fix (docs/evidence/
+    # 2026-08-13-jlcpcb-fab-capability-envelope.md): a new gate, registered
+    # here in the SAME PR that wires it into CI -- PR #1138 exists
+    # precisely because a prior gate was wired into CI without this step.
+    ("check_fab_capability_floor.py", "docs/hardware/FAB_CAPABILITY.md", "board via annular ring + 'Via hole clearance' DRU rule vs. JLCPCB 2oz-multilayer fab floor; probe harness deferred"),
 ]
 
 

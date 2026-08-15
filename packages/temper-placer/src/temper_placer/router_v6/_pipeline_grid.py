@@ -20,51 +20,24 @@ from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
 def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
     """Resolve a Net's pads to world coordinates via component lookup.
 
-    ``Net`` carries ``pins`` as ``[(component_ref, pin_name), ...]``; this
-    helper joins each pair with the corresponding component's pin to
-    produce a list of (x, y) world coordinates, via
-    ``pin_world_position`` -- "the single source of truth for all
-    pad-position computation" (its own module docstring), which applies
-    the component's rotation and side-mirror to the pin's local offset.
-
-    This used to add ``pin.position`` (the pin's LOCAL, unrotated offset --
-    see ``Component``/``Pin`` construction in ``parse_engine.rs``, which
-    stores it pad-centroid-relative and pre-rotation, with rotation applied
-    separately) directly to ``comp.initial_position``, silently skipping
-    rotation entirely. MEASURED on ``pcb/temper.kicad_pcb`` (2026-08-08):
-    148 of 169 components (87.6%) have a nonzero ``initial_rotation_quadrant`` --
-    for any of them, the naive sum was wrong by exactly the pin's rotated-
-    vs-unrotated offset delta (e.g. C1, rotated 90 degrees: naive gave
-    (43.99, 206.72) for pin 1 where the correct, KiCad-matching world
-    position is (51.49, 214.22) -- a 7.5mm error). This function's output
-    feeds both ``fallback_channel_path`` and
+    Delegates to ``temper_placer.core.pin_geometry.net_pad_positions``, the
+    consolidated SSOT for this computation -- see that function's docstring
+    for the rotation-omission incident this module used to carry
+    independently (MEASURED 2026-08-08: 148/169 components on
+    ``pcb/temper.kicad_pcb`` have nonzero ``initial_rotation``; a naive
+    ``comp.initial_position + pin.position`` sum is wrong for all of them).
+    This function's output feeds both ``fallback_channel_path`` and
     ``expand_channel_path_terminals`` (via ``_run_stage4``'s ``pads``
     parameter) as the router's "ground truth" for where a net's own pads
-    are, so this bug directly undermined the reliability of the terminal
-    validation this module's ``_validated_two_pad_terminals`` performs, for
-    the large majority of this board's components.
-
-    Pads whose component is missing from ``comp_by_ref`` or which lack a
-    resolvable position are skipped silently so the caller's fallback
-    logic can decide what to do.
+    are, so correctness here directly affects the terminal validation this
+    module's ``_validated_two_pad_terminals`` performs. Kept as a
+    module-local name (rather than importing ``net_pad_positions`` at every
+    call site) because ``_pipeline_route.py`` imports this exact symbol
+    from this module.
     """
-    from temper_placer.core.pin_geometry import pin_world_position
+    from temper_placer.core.pin_geometry import net_pad_positions
 
-    positions: list[tuple[float, float]] = []
-    for comp_ref, pin_name in getattr(net, "pins", []):
-        comp = comp_by_ref.get(comp_ref)
-        if comp is None:
-            continue
-        comp_pos = getattr(comp, "initial_position", None)
-        if comp_pos is None:
-            continue
-        pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
-        if pin is None:
-            positions.append((float(comp_pos[0]), float(comp_pos[1])))
-            continue
-        wx, wy = pin_world_position(pin, comp)
-        positions.append((float(wx), float(wy)))
-    return positions
+    return net_pad_positions(net, comp_by_ref)
 
 
 def _last_skeleton(skeletons: dict[str, Any]) -> Any:

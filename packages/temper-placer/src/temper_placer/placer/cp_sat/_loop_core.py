@@ -100,6 +100,13 @@ class _LoopCoreMixin:
             # audit (set by PlaceRouteLoop.run(validator_input=...)). Absent
             # (the default) keeps the solve byte-identical to pre-wiring.
             solver_kwargs["validator_input"] = self._validator_input
+        if getattr(self, "_body_collision_input", None):
+            # Fail-closed F.Fab body-collision post-solve audit (set by
+            # PlaceRouteLoop.run(body_collision_input=...)). Absent (the
+            # default) keeps the solve byte-identical to pre-wiring; see
+            # body_collision.py's module docstring for what this guards
+            # against.
+            solver_kwargs["body_collision_input"] = self._body_collision_input
         return solver(**solver_kwargs)
 
     def run(
@@ -117,6 +124,7 @@ class _LoopCoreMixin:
         routed_pcb_path: Path | None = None,
         source_pcb_path: Path | None = None,
         validator_input: dict | None = None,
+        body_collision_input: dict | None = None,
     ) -> LoopResult:
         """Run the full place-route loop.
 
@@ -143,6 +151,12 @@ class _LoopCoreMixin:
                 REQ-SAFE-01 validator post-solve audit (issue #523 gap 2)
                 runs on each feasible solved placement. ``None`` (the
                 default) keeps every round byte-identical to pre-wiring.
+            body_collision_input: Optional ``{"fab_bodies": ..., "allowlist":
+                ...}`` forwarded into every ``solve_placement`` round so the
+                fail-closed ``F.Fab`` body-collision post-solve audit runs on
+                each feasible solved placement (see ``body_collision.py``).
+                ``None`` (the default) keeps every round byte-identical to
+                pre-wiring.
 
         Returns:
             LoopResult with success status, placement, and routing.
@@ -158,6 +172,7 @@ class _LoopCoreMixin:
         self._reference_aliases = reference_aliases
         self._loop_aliases = loop_aliases
         self._validator_input = validator_input
+        self._body_collision_input = body_collision_input
         self._netclass_rules = load_netclass_rules()
         if self._netclass_rules is not None:
             self.classifier.design_rules = self._netclass_rules.design_rules

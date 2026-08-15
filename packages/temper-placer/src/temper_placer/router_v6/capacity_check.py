@@ -42,22 +42,20 @@ _EDT_CELL_SIZE: float = 0.1  # mm — matches channel_widths.py
 
 
 def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
-    """Resolve a Net's pads to world coordinates via component lookup."""
-    positions: list[tuple[float, float]] = []
-    for comp_ref, pin_name in getattr(net, "pins", []):
-        comp = comp_by_ref.get(comp_ref)
-        if comp is None:
-            continue
-        comp_pos = getattr(comp, "initial_position", None)
-        if comp_pos is None:
-            continue
-        pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
-        if pin is None:
-            positions.append((float(comp_pos[0]), float(comp_pos[1])))
-            continue
-        px, py = pin.position
-        positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
-    return positions
+    """Resolve a Net's pads to world coordinates via component lookup.
+
+    Delegates to ``temper_placer.core.pin_geometry.net_pad_positions``, the
+    consolidated SSOT. This module's own copy previously summed
+    ``comp.initial_position + pin.position`` directly, silently skipping
+    the component's rotation -- for the 148/169 (87.6%) components on
+    ``pcb/temper.kicad_pcb`` with nonzero ``initial_rotation``, every pad
+    position (and therefore every capacity-demand ratio computed from it)
+    was wrong. See ``pin_geometry.net_pad_positions``'s docstring for the
+    measured error and ``scripts/duplicate_predicate_registry.py``.
+    """
+    from temper_placer.core.pin_geometry import net_pad_positions
+
+    return net_pad_positions(net, comp_by_ref)
 
 
 def _sum_capacity_in_bbox(

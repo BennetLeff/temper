@@ -54,8 +54,16 @@ _NET_ALPHABET = [
     "+15V_AUX",  # power tier ('+' prefix)
     "GATE_H_2",  # gate-HV tier
     "PWM_H_2",  # gate-SELV tier
-    "COIL_2",  # high-current tier
-    "discharge.k_dis1-coil1",  # the 2026-07-27 bug case -> Default
+    "COIL_2",  # high-current tier (underscore boundary, pre-existing)
+    "TEST-COIL1",  # high-current tier via the 2026-08-13 hyphen-boundary fix
+    "hb-gnd",  # the 2026-08-13 hyphen-boundary fix -> GND (real, still
+    # unassigned net -- see PR #1145 / docs/evidence/
+    # 2026-08-13-hyphen-boundary-netclass-defect.md; NOT
+    # "discharge.k_dis1-coil1" any more, which now carries an explicit
+    # TEMPER_NET_ASSIGNMENTS entry (Tier 2) added by this same fix and so
+    # would legitimately disagree with `_predict_class`'s pattern-tiers-only
+    # prediction -- see `test_p3_fails_for_plain_substring` below for
+    # where that net's role moved to)
     "NET_X9",  # Default catch-all
 ]
 
@@ -73,14 +81,21 @@ def _f(value):
 
 def _wb_ref(upper: str, patterns: tuple[str, ...]) -> bool:
     r"""Independent transcription of design_rules' word-boundary matcher:
-    ``(?:^|_){p}(?:$|[\d_])`` (leading-anchor-only when the pattern ends in a
-    non-alphanumeric character)."""
+    ``(?:^|[_-]){p}(?:$|[\d_-])`` (leading-anchor-only when the pattern ends
+    in a non-alphanumeric character).
+
+    FIXED 2026-08-13 (URGENT safety defect): widened from `_`-only to
+    `[_-]` boundary chars, mirroring the identical fix in
+    `design_rules.rs::hv_word_boundary_match` and its pinned oracle
+    (`_design_rules_py_oracle.py::_hv_word_boundary_match`). See
+    docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
+    """
     for p in patterns:
         escaped = re.escape(p)
         if p and not p[-1].isalnum():
-            if re.search(rf"(?:^|_){escaped}", upper):
+            if re.search(rf"(?:^|[_-]){escaped}", upper):
                 return True
-        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+        elif re.search(rf"(?:^|[_-]){escaped}(?:$|[\d_-])", upper):
             return True
     return False
 
@@ -257,8 +272,20 @@ def test_p3_classification_matches_reference(net_a, net_b):
 
 def test_p3_fails_for_plain_substring(_restore_kernels):
     """The 2026-07-27 regression: a plain-substring classifier matches
-    ``discharge.k_dis1-coil1`` as high-current; the word-boundary cascade
-    (and the migration) must not."""
+    ``RECOIL1`` as high-current; the word-boundary cascade (and the
+    migration) must not.
+
+    CHANGED 2026-08-13: this used to exercise ``discharge.k_dis1-coil1``
+    -- but that net now carries an explicit ``TEMPER_NET_ASSIGNMENTS``
+    entry (added by this same fix, to prevent the hyphen-boundary widening
+    below from misclassifying it -- see ``_NET_ALPHABET``'s comment), so
+    it would go through Tier 2 and no longer discriminate a plain-substring
+    classifier from the real word-boundary cascade either way. ``RECOIL1``
+    is not a real assignment key and still isolates exactly the property
+    under test: "COIL" is a substring of "RECOIL1" (bug: matches) but is
+    not preceded by a boundary character -- start, ``_``, or (since
+    2026-08-13) ``-`` (correct: does not match).
+    """
     def substring_classifier(dr, net, nc=None):
         upper = net.upper()
         if "GATE" in upper or "SW_NODE" in upper:
@@ -272,7 +299,7 @@ def test_p3_fails_for_plain_substring(_restore_kernels):
     _kernels.rules_for_net = substring_classifier
     with pytest.raises(AssertionError):
         test_p3_classification_matches_reference.hypothesis.inner_test(
-            "discharge.k_dis1-coil1", "NET_X9"
+            "RECOIL1", "NET_X9"
         )
 
 

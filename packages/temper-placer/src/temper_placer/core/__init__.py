@@ -70,6 +70,20 @@ from temper_placer.core.net_types import (
 )
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
+# Physical pad identity (SSOT: (ref, pin_number, occurrence) -- see module docstring)
+from temper_placer.core.pad_identity import (
+    AmbiguousPinError,
+    PadOccurrence,
+    duplicate_pad_numbers,
+    get_unique_pin,
+    iter_matching_pins,
+    iter_pin_occurrences,
+    net_pad_positions,
+    net_pin_occurrence_indices,
+    nth_matching_pin,
+    resolve_net_pins,
+)
+
 # Net priority classification
 from temper_placer.core.priority import PlacementPriority, PriorityConfig, RoutingPriority
 
@@ -109,6 +123,17 @@ __all__ = [
     "Pin",
     "Net",
     "Netlist",
+    # Physical pad identity
+    "AmbiguousPinError",
+    "PadOccurrence",
+    "duplicate_pad_numbers",
+    "get_unique_pin",
+    "iter_matching_pins",
+    "iter_pin_occurrences",
+    "net_pad_positions",
+    "net_pin_occurrence_indices",
+    "nth_matching_pin",
+    "resolve_net_pins",
     # Net type classification
     "NetType",
     "ConnectivityStrategy",

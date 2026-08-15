@@ -23,39 +23,37 @@
 //   value in Python and Rust).
 // * Net names are ASCII (Python `str.upper()` is replicated with
 //   `to_ascii_uppercase()`); this is the pinned contract.
+//
+// Consolidation (2026-08-13, defect-multiplier audit finding #4 /
+// duplicate-pyo3-registration incident): this module used to carry its own
+// private `kw_boundary_match_impl`, independently reimplementing the exact
+// `(?:^|_)kw(?:$|[\d_])` predicate `via_clearance.rs::kw_boundary_match`
+// (née `word_bounded`) already computes, AND independently exported it to
+// Python as `#[pyfunction] kw_boundary_match_py` -- the identical name
+// `via_clearance.rs` also exports.  Both got `wrap_pyfunction!`'d into the
+// same `temper_geometry` pymodule (`lib.rs`'s `#[pymodule] fn
+// temper_geometry`); pyo3's `PyModule::add_function` is a plain attribute
+// `setattr`, so the later `register()` call silently overwrote the earlier
+// one -- `via_clearance::register` runs after this module's `register` in
+// `lib.rs`, so Python callers were always getting `via_clearance`'s
+// implementation regardless of which module's docstring they read.
+// Verified byte-for-byte behaviorally equivalent before consolidating
+// (972 real-net x real-keyword-set pairs + 2028 synthetic hyphen/underscore
+// variants, 0 mismatches) -- this is a pure delegation, not a behavior
+// change. `determine_trace_width` now calls `via_clearance::kw_boundary_match`
+// directly; the duplicate private impl and the duplicate pyo3 export are
+// both gone. See `docs/evidence/2026-08-13-pyo3-duplicate-registration-kw-boundary-match.md`.
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use temper_py_bridge;
 
-/// `_kw_boundary_match`: does any keyword occur in `upper` delimited by
-/// `_`/start-of-string before and `_`/digit/end-of-string after?
-fn kw_boundary_match_impl(upper: &str, keywords: &[&str]) -> bool {
-    let bytes = upper.as_bytes();
-    let n = bytes.len();
-    for kw in keywords {
-        let kw = kw.strip_suffix('_').unwrap_or(kw);
-        let kwb = kw.as_bytes();
-        let k = kwb.len();
-        if k == 0 || k > n {
-            continue;
-        }
-        for i in 0..=(n - k) {
-            if &bytes[i..i + k] == kwb {
-                let pre_ok = i == 0 || bytes[i - 1] == b'_';
-                let post_ok = i + k == n || bytes[i + k].is_ascii_digit() || bytes[i + k] == b'_';
-                if pre_ok && post_ok {
-                    return true;
-                }
-            }
-        }
-    }
-    false
-}
-
 /// `_determine_trace_width`: returns `(width_mm, reason)` with the reference's
-/// exact reason strings.
+/// exact reason strings.  Keyword matching delegates to
+/// `via_clearance::kw_boundary_match` (see the consolidation note above) --
+/// there is exactly one `(?:^|_)kw(?:$|[\d_])` implementation in this crate
+/// now, not two.
 pub fn determine_trace_width(
     net_name: &str,
     default_width: f64,
@@ -64,17 +62,17 @@ pub fn determine_trace_width(
 ) -> (f64, &'static str) {
     let name_upper = net_name.to_ascii_uppercase();
 
-    if kw_boundary_match_impl(&name_upper, &["AC_", "HV_", "HIGH_VOLTAGE"]) {
+    if crate::via_clearance::kw_boundary_match(&name_upper, &["AC_", "HV_", "HIGH_VOLTAGE"]) {
         return (hv_width, "High voltage net requires wider trace");
     }
 
-    if kw_boundary_match_impl(&name_upper, &["GND", "VCC", "VDD", "VSS", "POWER"])
+    if crate::via_clearance::kw_boundary_match(&name_upper, &["GND", "VCC", "VDD", "VSS", "POWER"])
         || name_upper.starts_with('+')
     {
         return (power_width, "Power net requires wider trace for current capacity");
     }
 
-    if kw_boundary_match_impl(&name_upper, &["GATE", "DRIVE"]) {
+    if crate::via_clearance::kw_boundary_match(&name_upper, &["GATE", "DRIVE"]) {
         return (power_width * 0.6, "Gate drive signal requires medium-width trace");
     }
 
@@ -169,13 +167,15 @@ pub fn ipc2221b_min_trace_width_mm(
 // pyo3 boundary
 // ---------------------------------------------------------------------------
 
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn kw_boundary_match_py(upper: String, keywords: Vec<String>) -> PyResult<bool> {
-    let kws: Vec<&str> = keywords.iter().map(|s| s.as_str()).collect();
-    temper_py_bridge::catch_unwind(|| kw_boundary_match_impl(&upper, &kws))
-        .map_err(temper_py_bridge::panic_to_err)
-}
+// `kw_boundary_match_py` is NOT re-exported from this module.  It used to
+// be (see the consolidation note at the top of this file) -- the sole
+// pyo3-visible `kw_boundary_match_py` now lives in `via_clearance.rs`, the
+// same underlying predicate `determine_trace_width` above calls directly.
+// A second `#[pyfunction] kw_boundary_match_py` here would silently shadow
+// (or be shadowed by) that one again the moment both `register()`s ran in
+// the same `#[pymodule]` -- exactly the defect this consolidation fixes.
+// `scripts/check_pyo3_duplicate_registration.py` fails CI closed if this
+// regresses.
 
 #[cfg(feature = "python")]
 #[pyfunction]
@@ -222,7 +222,6 @@ pub fn ipc2221b_min_trace_width_mm_py(
 
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(kw_boundary_match_py, m)?)?;
     m.add_function(wrap_pyfunction!(determine_trace_width_py, m)?)?;
     m.add_function(wrap_pyfunction!(ipc2221b_current_capacity_a_py, m)?)?;
     m.add_function(wrap_pyfunction!(ipc2221b_min_trace_width_mm_py, m)?)?;
@@ -240,15 +239,20 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn kw_boundary_match_cases() {
-        assert!(kw_boundary_match_impl("AC_L", &["AC_"]));
-        assert!(kw_boundary_match_impl("3V3_HV", &["HV_"]));
-        assert!(kw_boundary_match_impl("HV", &["HV_"]));
-        assert!(kw_boundary_match_impl("HIGH_VOLTAGE_SIDE", &["HIGH_VOLTAGE"]));
-        assert!(!kw_boundary_match_impl("NONHV", &["HV_"])); // no leading boundary
-        assert!(!kw_boundary_match_impl("HVX", &["HV_"])); // trailing X not in [$_\d]
-        assert!(kw_boundary_match_impl("GND", &["GND"]));
-        assert!(kw_boundary_match_impl("GND_1", &["GND"]));
-        assert!(!kw_boundary_match_impl("SIGND", &["GND"]));
+        // Exercises `via_clearance::kw_boundary_match` at the call site
+        // `determine_trace_width` actually uses post-consolidation -- proves
+        // the delegation preserved every case this module's own test used to
+        // pin against its now-deleted private `kw_boundary_match_impl`.
+        use crate::via_clearance::kw_boundary_match;
+        assert!(kw_boundary_match("AC_L", &["AC_"]));
+        assert!(kw_boundary_match("3V3_HV", &["HV_"]));
+        assert!(kw_boundary_match("HV", &["HV_"]));
+        assert!(kw_boundary_match("HIGH_VOLTAGE_SIDE", &["HIGH_VOLTAGE"]));
+        assert!(!kw_boundary_match("NONHV", &["HV_"])); // no leading boundary
+        assert!(!kw_boundary_match("HVX", &["HV_"])); // trailing X not in [$_\d]
+        assert!(kw_boundary_match("GND", &["GND"]));
+        assert!(kw_boundary_match("GND_1", &["GND"]));
+        assert!(!kw_boundary_match("SIGND", &["GND"]));
     }
 
     #[cfg_attr(test, test)]

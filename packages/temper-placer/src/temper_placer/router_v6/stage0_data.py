@@ -98,7 +98,13 @@ class DesignRules:
     net_class_assignments: dict[str, str] = field(default_factory=dict)  # net_name -> class_name
     default_clearance_mm: float = 0.2
     default_trace_width_mm: float = 0.2
-    default_via_diameter_mm: float = 0.6
+    # RAISED 0.6 -> 0.9mm 2026-08-13 (docs/evidence/2026-08-13-jlcpcb-fab-
+    # capability-envelope.md, docs/hardware/FAB_CAPABILITY.md): matches the
+    # same fab-floor fix applied to core/design_rules.py's
+    # create_temper_design_rules() and router_v6/constraints_design_rules.py
+    # -- 0.6mm/0.3mm gave a 0.15mm annular ring, below JLCPCB's 2oz PTH
+    # annular-ring floor (0.254mm).
+    default_via_diameter_mm: float = 0.9
     default_via_drill_mm: float = 0.3
     min_hole_to_hole_mm: float = 0.25
     min_annular_ring_mm: float = 0.1

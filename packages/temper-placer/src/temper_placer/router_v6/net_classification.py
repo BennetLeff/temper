@@ -56,6 +56,23 @@ R19: the pre-migration constants and ``_matches_any`` are retained,
 unchanged and unused in production, as the in-repo statement of the
 matching rule the Rust port reproduces -- pinned oracle for
 ``tests/router_v6/test_net_classification_rust_differential.py``.
+
+Bug history (2026-08-13), URGENT: `_matches_any`'s boundary was `_` or
+start/end of string ONLY -- `-` was never a boundary character. atopile's
+compiled net names use `-` and `_` interchangeably (`hb-gnd`,
+`hb.gate_hs.driver-p1`, `safety.uvlo_logic-line`, ...) -- 85 of the 162
+nets on the real production board contain a hyphen, and every one was
+invisible to `is_ground_net`/`is_power_net`/`is_hv_net` whenever the
+matching keyword sat on the hyphen side of a boundary. Confirmed live:
+`is_ground_net("hb-gnd")` was `False` while `is_ground_net("hb_gnd")` was
+`True`, and `hb-gnd` is a genuine HV net that fell through
+`DesignRules.get_rules_for_net`'s pattern cascade to `Default`
+(`creepage_mm = 0.0`). FIXED: `_matches_any` now takes an explicit
+`boundary` parameter (default `"_"`, unchanged); callers matching a
+net-name pattern set pass `boundary="_-"`. Pin-name patterns keep the
+original `_`-only boundary (same split as `core/net_classification.py`
+and the Rust port's `PatternSet::boundary_chars`). See
+docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
 """
 
 from __future__ import annotations
@@ -87,8 +104,9 @@ CLOCK_PIN_PATTERNS: frozenset[str] = frozenset(
 )
 
 
-def _matches_any(name: str, patterns: frozenset[str]) -> bool:
-    """Word-boundary pattern match, delimited by "_" or start/end of string.
+def _matches_any(name: str, patterns: frozenset[str], boundary: str = "_") -> bool:
+    """Word-boundary pattern match, delimited by any char in `boundary` or
+    start/end of string.
 
     A pattern ending in a non-alphanumeric character (e.g. "DC_BUS+",
     "DC_BUS-") has no trailing boundary to anchor on and is matched with a
@@ -101,14 +119,20 @@ def _matches_any(name: str, patterns: frozenset[str]) -> bool:
     (``temper-io-types``'s ``placer_core::netclass``) reproduces exactly
     this matching rule, and the differential runs it against the Rust for
     every name it generates.
+
+    `boundary` defaults to `"_"` (the original behavior, still correct for
+    the four pin-name pattern sets). Callers matching one of the three
+    net-name pattern sets pass `boundary="_-"` -- see this module's
+    2026-08-13 bug-history note above.
     """
     upper = name.upper()
+    boundary_class = re.escape(boundary)
     for p in patterns:
         escaped = re.escape(p)
         if p and not p[-1].isalnum():
-            if re.search(rf"(?:^|_){escaped}", upper):
+            if re.search(rf"(?:^|[{boundary_class}]){escaped}", upper):
                 return True
-        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+        elif re.search(rf"(?:^|[{boundary_class}]){escaped}(?:$|[\d{boundary_class}])", upper):
             return True
     return False
 

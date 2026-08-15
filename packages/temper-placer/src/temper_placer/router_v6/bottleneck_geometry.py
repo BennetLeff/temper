@@ -600,20 +600,31 @@ def _resolve_pad_cells(
     Pads that resolve to no cells (e.g. PTH on a 0-layer grid) are
     skipped. The first emitted pad is the source; everything else is
     the sink side.
+
+    Pin resolution uses
+    :func:`temper_placer.core.pad_identity.nth_matching_pin`
+    (occurrence-indexed), not a bare ``next(p for p in comp.pins if
+    p.name == pin_name or p.number == pin_name)`` first-match scan -- a
+    component with more than one physical pad sharing a pad number
+    (K2/K3's manufacturer-duplicated current-sharing contacts) would
+    otherwise have every occurrence resolve to the SAME source/sink cell,
+    silently corrupting the min-cut geometry this function builds. See
+    ``temper_placer.core.pad_identity``'s module docstring.
     """
+    from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
+
     source_cells: list[tuple[int, int, int]] = []
     sink_cells: list[tuple[int, int, int]] = []
 
     pads: list[tuple[tuple[str, str], list[tuple[int, int, int]], tuple[float, float]]] = []
     if board_state.netlist is not None and net is not None:
-        for comp_ref, pin_name in getattr(net, "pins", []):
+        net_pins = list(getattr(net, "pins", []) or [])
+        occurrence_indices = net_pin_occurrence_indices(net_pins)
+        for (comp_ref, pin_name), occurrence in zip(net_pins, occurrence_indices, strict=True):
             comp = next((c for c in board_state.netlist.components if c.ref == comp_ref), None)
             if comp is None:
                 continue
-            pin = next(
-                (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
-                None,
-            )
+            pin = nth_matching_pin(comp, pin_name, occurrence)
             if pin is None:
                 continue
             x_mm, y_mm = pin_world_position(pin, comp)
@@ -966,21 +977,28 @@ def analyze_bottleneck(
     # when available; used by ``_compute_cell_capacity`` to discount
     # capacity only when the neighbour pad is from a strictly
     # higher-safety category (plan R4 "category-HIGH on category-LOW").
+    # Pin resolution uses temper_placer.core.pad_identity.nth_matching_pin
+    # (occurrence-indexed), not a bare first-match `next(...)` scan -- see
+    # `_resolve_pad_cells`'s docstring above for why: a component with more
+    # than one physical pad sharing a pad number (K2/K3's current-sharing
+    # contacts) would otherwise have every occurrence resolve to the SAME
+    # cell, silently misattributing net-class capacity discounts.
+    from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
+
     pad_net_classes: dict[tuple[int, int, int], str] = {}
     design_rules = getattr(board_state, "design_rules", None)
     pin_net_class_assignments = getattr(design_rules, "net_class_assignments", None)
     if board_state.netlist is not None and net is not None:
-        for comp_ref, pin_name in getattr(net, "pins", []):
+        net_pins = list(getattr(net, "pins", []) or [])
+        occurrence_indices = net_pin_occurrence_indices(net_pins)
+        for (comp_ref, pin_name), occurrence in zip(net_pins, occurrence_indices, strict=True):
             comp = next(
                 (c for c in board_state.netlist.components if c.ref == comp_ref),
                 None,
             )
             if comp is None:
                 continue
-            pin = next(
-                (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
-                None,
-            )
+            pin = nth_matching_pin(comp, pin_name, occurrence)
             if pin is None:
                 continue
             x_mm, y_mm = pin_world_position(pin, comp)

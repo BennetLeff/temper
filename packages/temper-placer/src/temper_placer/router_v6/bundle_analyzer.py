@@ -193,28 +193,26 @@ class BundleAnalyzer:
         return lengths[mid] if len(lengths) % 2 == 1 else (lengths[mid - 1] + lengths[mid]) / 2.0
 
     def _net_pad_positions(self, net) -> list[tuple[float, float]]:
-        """Resolve a net's pad positions to world coordinates."""
-        positions: list[tuple[float, float]] = []
+        """Resolve a net's pad positions to world coordinates.
+
+        Delegates to ``temper_placer.core.pin_geometry.net_pad_positions``,
+        the consolidated SSOT. This method previously summed
+        ``comp.initial_position + pin.position`` directly, silently
+        skipping the component's rotation -- for the 148/169 (87.6%)
+        components on ``pcb/temper.kicad_pcb`` with nonzero
+        ``initial_rotation``, every pad position feeding this net's
+        geometric footprint (``_compute_geometric_footprint``, used for
+        bundle-class Jaccard overlap) was wrong. See
+        ``pin_geometry.net_pad_positions``'s docstring for the measured
+        error and ``scripts/duplicate_predicate_registry.py``.
+        """
         if not self.pcb:
-            return positions
+            return []
 
-        # Build comp_by_ref
+        from temper_placer.core.pin_geometry import net_pad_positions
+
         comp_by_ref = {comp.ref: comp for comp in self.pcb.components}
-
-        for comp_ref, pin_name in getattr(net, "pins", []):
-            comp = comp_by_ref.get(comp_ref)
-            if comp is None:
-                continue
-            comp_pos = getattr(comp, "initial_position", None)
-            if comp_pos is None:
-                continue
-            pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
-            if pin is None:
-                positions.append((float(comp_pos[0]), float(comp_pos[1])))
-                continue
-            px, py = pin.position
-            positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
-        return positions
+        return net_pad_positions(net, comp_by_ref)
 
     def _compute_geometric_footprint(self, net) -> Polygon:
         """Compute the convex hull of a net's pad positions, expanded by median edge length.

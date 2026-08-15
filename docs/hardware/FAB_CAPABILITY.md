@@ -121,5 +121,36 @@ summarizes.
 | `trace_width_assignment.py: default_width` ("5mil standard") | 0.127mm | floor is 0.15mm | **FAIL** — below floor; not currently used by any routed track on the real board, but latent |
 | `netclass_rules.yaml` / `pcb/temper.kicad_pro`: `FinePitch`, `Differential` `trace_width` | 0.127mm | floor is 0.15mm | **FAIL** — below floor |
 | `netclass_rules.yaml` / `pcb/temper.kicad_pro`: `FinePitch`, `Differential`, "Same footprint pads" `clearance` | 0.1mm | floor is 0.15mm | **FAIL** — below floor |
-| Board's actual via geometry (0.4mm/0.2mm and 0.8mm/0.4mm size/drill) | annular ring 0.1mm / 0.2mm | floor is 0.254mm | **FAIL** — both via families, all 44 vias on the board |
-| `scripts/generate_kicad_dru.py`: "Via hole clearance" rule | 0.25mm | JLCPCB PTH-to-track absolute min is 0.28mm | **FAIL, independent of copper weight** — the repo's own number is below JLCPCB's floor at *any* copper weight |
+
+| Board's actual via geometry (was 0.4mm/0.2mm and 0.8mm/0.4mm size/drill) | **FIXED 2026-08-13**: now 0.8mm/0.2mm and 1.0mm/0.4mm (0.3mm ring, both families) | floor is 0.254mm | **PASS** (0.046mm margin) — all 44 vias on the board, plus every `TEMPER_NET_CLASSES`/`netclass_rules.yaml`/`pcb/temper.kicad_pro` via template raised in lock-step so a future route does not regress. See `docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md` §9 and this fix's own PR. |
+| `scripts/generate_kicad_dru.py`: "Via hole clearance" rule | **FIXED 2026-08-13**: now 0.28mm | JLCPCB PTH-to-track absolute min is 0.28mm | **PASS** — raised to the fab floor exactly (not the 0.35mm recommended figure — see the rule's own derivation comment for why). This does not, by itself, fix the 90 pre-existing `hole_clearance` findings (hole-to-*neighboring-copper* congestion, a routing problem, not a via-pad-vs-own-drill geometry problem) — those remain scoped to the router-congestion/rerouting effort. |
+
+The `FinePitch`/`Differential` `trace_width`/`clearance` latent-risk rows above are unchanged by this fix — they govern trace geometry, not via annular ring or hole-to-copper spacing, and are explicitly out of this fix's scope (see the fix's own PR description).
+
+---
+
+## 5. Machine-readable summary (gate input)
+
+**This fenced block is the single source of truth `scripts/check_fab_capability_floor.py`
+parses at CI time** — it is not independent of the cited table above, it is
+the same §1 figures in a form a script can load without regexing prose.
+Keep both in sync: a change to any figure below must also update the
+matching row in §1 (and vice versa), same convention as this repo's other
+generated-from-declared pairs (e.g. `netclass_rules.yaml` vs
+`pcb/temper.kicad_pro`).
+
+```yaml
+# JLCPCB, 2oz outer multilayer (this board's declared copper weight, §3).
+# Every key here traces to a §1 table row; see that row for citation.
+jlcpcb_2oz_multilayer:
+  min_annular_ring_mm: 0.254          # §1 row 2a
+  min_hole_to_copper_pth_to_track_abs_min_mm: 0.28    # §1 row 2c
+  min_hole_to_copper_pth_to_track_recommended_mm: 0.35  # §1 row 2c
+  min_hole_to_copper_via_to_copper_mm: 0.2            # §1 row 2c
+  min_drill_mm: 0.15                  # §1 row 2b
+  min_track_width_mm: 0.15            # §1 row 1a
+  min_track_spacing_mm: 0.15          # §1 row 1a
+  min_solder_mask_dam_mm: 0.20        # §1 row 7a
+  min_board_edge_to_copper_routed_mm: 0.2   # §1 row 5a
+  min_plated_slot_width_mm: 0.35      # §1 row 5c
+```

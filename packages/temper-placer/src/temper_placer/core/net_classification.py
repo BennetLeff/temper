@@ -32,6 +32,28 @@ rather than defining local keyword lists.
    `router_v6/constraints_design_rules.py`, and
    `deterministic/stages/via_validation.py`, so it is not dead code.
    See docs/evidence/2026-07-27-net-classification-gate.md.
+
+.. note:: **Bug history (2026-08-13), URGENT.** `_matches_any`'s boundary
+   was `_` or start/end of string ONLY -- `-` was never a boundary
+   character, for either the net-name patterns (`GROUND_NET_PATTERNS`/
+   `POWER_NET_PATTERNS`/`HV_NET_PATTERNS`) or the pin-name ones. atopile's
+   compiled net names use `-` and `_` interchangeably (`hb-gnd`,
+   `hb.gate_hs.driver-p1`, `safety.uvlo_logic-line`, ...) -- 85 of the 162
+   nets on the real production board contain a hyphen, and every one was
+   invisible to `is_ground_net`/`is_power_net`/`is_hv_net` whenever the
+   matching keyword sat on the hyphen side of a boundary. Confirmed live:
+   `is_ground_net("hb-gnd")` was `False` while `is_ground_net("hb_gnd")`
+   was `True`, and `hb-gnd` is a genuine HV net (the half-bridge low-side
+   return) that fell through `DesignRules.get_rules_for_net`'s entire
+   pattern cascade to the `Default` net class -- `creepage_mm = 0.0`.
+   FIXED: `_matches_any` now takes an explicit `boundary` parameter
+   (default `"_"`, unchanged); the three net-name pattern sets are matched
+   with `boundary="_-"` by their callers. Pin-name patterns keep the
+   original `_`-only boundary -- not audited for real hyphenated pin
+   names the way the 162 compiled net names were, so widening them is a
+   separate, undone follow-up (same split as the Rust port,
+   `temper_io_types::placer_core::netclass::PatternSet::boundary_chars`).
+   See docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
 """
 
 from __future__ import annotations
@@ -62,21 +84,29 @@ CLOCK_PIN_PATTERNS: frozenset[str] = frozenset(
 )
 
 
-def _matches_any(name: str, patterns: frozenset[str]) -> bool:
-    """Word-boundary pattern match, delimited by "_" or start/end of string.
+def _matches_any(name: str, patterns: frozenset[str], boundary: str = "_") -> bool:
+    """Word-boundary pattern match, delimited by any char in `boundary` or
+    start/end of string.
 
     A pattern ending in a non-alphanumeric character (e.g. "DC_BUS+",
     "DC_BUS-") has no trailing boundary to anchor on and is matched with
     a leading anchor only -- mirrors the identical fix in
     ``router_v6.net_classification._matches_any``.
+
+    `boundary` defaults to `"_"` (the original behavior, still correct for
+    the four pin-name pattern sets). Callers matching one of the three
+    net-name pattern sets (`GROUND_NET_PATTERNS`/`POWER_NET_PATTERNS`/
+    `HV_NET_PATTERNS`) pass `boundary="_-"` -- see this module's 2026-08-13
+    bug-history note above.
     """
     upper = name.upper()
+    boundary_class = re.escape(boundary)
     for p in patterns:
         escaped = re.escape(p)
         if p and not p[-1].isalnum():
-            if re.search(rf"(?:^|_){escaped}", upper):
+            if re.search(rf"(?:^|[{boundary_class}]){escaped}", upper):
                 return True
-        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+        elif re.search(rf"(?:^|[{boundary_class}]){escaped}(?:$|[\d{boundary_class}])", upper):
             return True
     return False
 

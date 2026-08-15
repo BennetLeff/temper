@@ -56,6 +56,7 @@ Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retire
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pad_identity import net_pin_occurrence_indices, nth_matching_pin
 from temper_placer.core.pin_geometry import pin_world_position_at
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry import (
@@ -416,6 +417,15 @@ def _compute_wirelength_metrics(
     (weighted total, max, and CPython-3.12-compensated-``sum()`` average)
     delegates to ``temper_quality_oracle.wirelength_metrics_py``
     (Wave 4); see ``validation_metrics.rs`` for the ported arithmetic.
+
+    Pin resolution uses
+    :func:`temper_placer.core.pad_identity.nth_matching_pin`
+    (occurrence-indexed), not ``comp.get_pin(pin_name)``'s first match --
+    a component with more than one physical pad sharing a pad number
+    (K2/K3's manufacturer-duplicated current-sharing contacts) would
+    otherwise have every occurrence resolve to the SAME coordinate,
+    silently shrinking that net's HPWL bounding box. See
+    ``temper_placer.core.pad_identity``'s module docstring.
     """
     hpwl_values: list[float] = []
     weights: list[float] = []
@@ -426,12 +436,13 @@ def _compute_wirelength_metrics(
 
         # Collect all pin positions for this net
         pin_positions = []
+        occurrence_indices = net_pin_occurrence_indices(net.pins)
 
-        for comp_ref, pin_name in net.pins:
+        for (comp_ref, pin_name), occurrence in zip(net.pins, occurrence_indices, strict=True):
             try:
                 comp_idx = netlist.get_component_index(comp_ref)
                 comp = netlist.get_component(comp_ref)
-                pin = comp.get_pin(pin_name)
+                pin = nth_matching_pin(comp, pin_name, occurrence)
 
                 if pin is None:
                     continue

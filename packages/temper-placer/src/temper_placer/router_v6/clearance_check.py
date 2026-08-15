@@ -13,6 +13,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+import temper_geometry as _tg
+
 from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.clearance_engine import get_clearance
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -794,13 +796,40 @@ def _is_hv_keyword_match(upper: str) -> bool:
     fix mirrors. See ``docs/evidence/2026-07-27-net-classification-gate.md``
     for the full before/after proof against every net name in the
     manifest.
+
+    2026-08-13: the matching *mechanism* (``re.search(rf"(?:^|_){{kw}}
+    (?:$|[\\d_])", upper)`` per keyword) was itself a hand-typed, independent
+    copy of the boundary-regex shape this docstring already names as "the
+    identical defect class ... fixed once" -- ``clearance_engine.
+    _kw_boundary_match`` already delegates the identical mechanism to
+    ``temper_geometry.kw_boundary_match_py`` (differentially pinned by
+    ``tests/router_v6/test_via_clearance_tier2_rust_differential.py``), so
+    this function now calls that same kernel instead of re-typing the regex
+    a fourth time (see ``scripts/duplicate_predicate_registry.py``, family
+    ``net_name_boundary_match``, for the other three copies and why they
+    are NOT touched here: two are pinned oracles, one is
+    ``creepage_check.py``'s own already-delegating copy).
+    ``_CLASSIFY_HV_KEYWORDS`` stays local -- its vocabulary is specific to
+    physical-clearance classification, not the IEC 60335-1 voltage-class
+    vocabulary ``clearance_engine`` uses -- only the matching mechanism is
+    shared, not the keyword data. Verified equivalent for every keyword in
+    ``_CLASSIFY_HV_KEYWORDS`` (none contain regex-special characters or a
+    trailing ``_``, so ``re.escape`` and ``kw_boundary_match``'s
+    ``strip_suffix('_')`` are both no-ops here) before this change; the
+    pinned oracle copy of this function
+    (``tests/router_v6/_clearance_family_py_oracle.py::
+    _oracle_is_hv_keyword_match``) is deliberately left untouched -- it is
+    registered in ``scripts/oracle_hashes.json`` and exists precisely to be
+    an independent implementation for the Rust-port differential suite.
     """
-    for kw in _CLASSIFY_HV_KEYWORDS:
-        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
-            return True
+    if _tg.kw_boundary_match_py(upper, list(_CLASSIFY_HV_KEYWORDS)):
+        return True
     # "B+" has no alphanumeric trailing boundary to anchor on; anchored
     # on the leading "_"/start side only (mirrors
-    # creepage_check._is_high_voltage_net's identical special case).
+    # creepage_check._is_high_voltage_net's identical special case). Not
+    # folded into kw_boundary_match_py above: its contract is a trailing-
+    # "_"-strip, not a general non-alnum-suffix rule, so "B+" keeps its own
+    # anchored regex rather than risk a silent semantic change here.
     return bool(re.search(r"(?:^|_)B\+", upper))
 
 
