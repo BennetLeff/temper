@@ -261,6 +261,65 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
     return []
 
 
+def _own_pads_on_layer(
+    net_name: str,
+    layer: str,
+    *,
+    pcb: Any,
+    fallback_positions: list[tuple[float, float]],
+) -> list[tuple[float, float]]:
+    """The net's own pad positions that actually exist on *layer*.
+
+    ``pour_outline_py``'s ``own_pads`` is used only for island
+    classification under PadsOnly, and it must be layer-honest: a piece
+    on In3.Cu may only be credited with pads that physically exist on
+    In3.Cu.  SMD pads are single-layer (``pin_world_layer`` == the
+    pad's declared layer); THT pads report ``"all"``/``"*.Cu"`` (or a
+    ``"Through"`` marker) and exist on every copper layer.
+
+    Returns ``[]`` when the net has NO pad on *layer* -- the caller
+    (``_emit_zone_pours``) skips the layer entirely in that case,
+    because a pour with no own pad on the layer is isolated copper
+    (measured: 19 "Isolated copper fill" findings for F.Cu-only SMD
+    nets poured onto In3.Cu/In4.Cu).
+
+    *fallback_positions* is used only when there is no ``pcb`` (unit
+    tests / synthetic fixtures that pass positions directly) -- such
+    callers exercise single-layer fixtures, where the blind list is the
+    caller's own intent.
+    """
+    if pcb is None:
+        return fallback_positions
+    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
+
+    out: list[tuple[float, float]] = []
+    saw_net_pin = False
+    for comp in getattr(pcb, "components", []) or []:
+        for pin in getattr(comp, "pins", []) or []:
+            if not pin.net or pin.net != net_name:
+                continue
+            saw_net_pin = True
+            raw = pin_world_layer(pin)
+            on_layer = raw in ("all", "*.Cu", layer) or (
+                isinstance(raw, str) and "Through" in raw
+            )
+            if not on_layer:
+                continue
+            pos = pin_world_position(pin, comp)
+            out.append((float(pos[0]), float(pos[1])))
+    if not saw_net_pin:
+        # The pcb carries no pins for this net at all -- a synthetic
+        # fixture whose pads live only in the caller's pad_positions
+        # dict (test_adapter's SimpleNamespace pcbs).  The caller's list
+        # is its own intent for those; honour it.
+        return fallback_positions
+    # Deterministic order (the caller's list order is not preserved by
+    # the pcb walk) -- the Rust island check is order-independent, but the
+    # emitted zone list must not depend on component iteration order.
+    out.sort()
+    return out
+
+
 def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     """Resolve per-netclass zone margin and clearance from DesignRules."""
     from temper_placer.core.design_rules import (
@@ -643,33 +702,39 @@ def _emit_zone_pours(
 ) -> None:
     """Emit filled-copper zone geometry for all zone-eligible nets.
 
+    WIRED 2026-08-16: the outline for every zone is computed by the Rust
+    zone generator (``temper_geometry.pour_outline_py``,
+    packages/temper-geometry/src/zone_generator.rs), carved against the
+    other nets' copper at ``max(clearance, creepage)`` per pair and
+    emitted hole-preserving (one ``(polygon (pts ...))`` per ring) via
+    ``temper_geometry.emit_zone_outline_s_expr_py``.  See
+    docs/evidence/2026-08-16-zone-pour-rust-generator.md for the
+    before/after measurements (holes, creepage carve, island policy).
+
     ``tstamp_counter``: see ``_stitch_isolated_pads`` -- threaded through
     so the isolated-pad stitch segments this function emits (via
     ``_stitch_isolated_pads``) continue the same deterministic tstamp
     sequence as the caller's other segments/vias.
 
     ``pcb``: the ``ParsedPCB`` the caller already has (``result.pcb`` in
-    ``_write_routes_to_content``), used only to resolve the board outline
-    so every emitted hull can be clipped to it (R6,
-    docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md --
-    ``zone_emission.compute_zones_for_net``'s ``board_polygon`` argument).
-    ``None`` (the default, and every existing call site before this
-    change) disables clipping and reproduces the prior unclipped
-    behavior -- callers that don't have a ``ParsedPCB`` handy (e.g. unit
-    tests constructing pad positions directly) are unaffected.
+    ``_write_routes_to_content``), used to resolve the board outline
+    (so every emitted hull can be clipped to it -- R6,
+    docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md) AND the
+    other nets' copper the pour must be carved against.  ``None`` (the
+    default, and every existing call site before this change) disables
+    clipping and carves against nothing -- callers that don't have a
+    ``ParsedPCB`` handy (e.g. unit tests constructing pad positions
+    directly) are unaffected.
     """
     from temper_placer.core.design_rules import (
         TEMPER_NET_ASSIGNMENTS,
         TEMPER_NET_CLASSES,
     )
     from temper_placer.router_v6.zone_emission import (
-        ZoneDefinition,
         compute_zones_for_net,
-        emit_zone_s_expr,
     )
     from temper_placer.router_v6.zone_pour_clearance import (
         default_table,
-        pair_clearance_keepout,
     )
 
     board_polygon = None
@@ -786,27 +851,112 @@ def _emit_zone_pours(
                         cluster=not exempt,
                         board_polygon=board_polygon,
                     )
-                    keepout = pair_clearance_keepout(
+                    # WIRED 2026-08-16 (docs/evidence/2026-08-16-zone-pour-
+                    # rust-generator.md): the outline carve moved from the
+                    # Python shapely keepout+difference (`pair_clearance_keepout`
+                    # + `_carve_outline`) to the Rust zone generator
+                    # (`temper_geometry.pour_outline_py`). Three defects closed,
+                    # all measured in docs/evidence/2026-08-15-rust-zone-pour-
+                    # design.md:
+                    #   1. holes: the Python emitter carried a single ring, so
+                    #      interior keepouts (an HV pad buried inside a hull)
+                    #      did not carve the OUTLINE and the fill fractured
+                    #      into thin rings (167 isolated_copper islands
+                    #      measured). The Rust generator returns exterior +
+                    #      holes per outline and `emit_zone_outline_s_expr_py`
+                    #      writes one `(polygon (pts ...))` per ring.
+                    #   2. creepage: the carve used the DRU CLEARANCE table
+                    #      (HV-vs-LV 2.0mm) where the DRC judges creepage
+                    #      (12.6mm PD3). The obstacle records below carry
+                    #      `max(clearance, creepage)` per pair (the creepage
+                    #      twin table, configs/zone_pour_creepage.generated.
+                    #      yaml) -- measured min gap 2.00mm -> 12.58mm.
+                    #   3. islands: PadsOnly for clustered pours drops padless
+                    #      pieces (pure isolated_copper liability); the old
+                    #      carve kept every piece above the area floor.
+                    #      `_CONTINUITY_EXEMPT_NETS` (ntc-no) stays a single
+                    #      hull and now fails HONESTLY (0/4 pads at PD3)
+                    #      instead of emitting 47+ misleading islands.
+                    # The zone's `(clearance ...)` scalar is unchanged
+                    # (effective_clearance, the min pair requirement); the
+                    # per-pair figure lives in the carved outline.
+                    from temper_placer.router_v6.zone_pour_clearance import (
+                        collect_zone_obstacle_records,
+                    )
+                    from temper_placer.router_v6.zone_pour_creepage import (
+                        default_creepage_table,
+                    )
+
+                    creepage_table = default_creepage_table()
+                    obstacles = collect_zone_obstacle_records(
                         net_name,
                         layer,
                         pcb=pcb,
                         segments=segments,
                         net_number_to_name=number_to_name,
-                        table=clearance_table,
+                        clearance_table=clearance_table,
+                        creepage_table=creepage_table,
                     )
+                    # PadsOnly for every pour except GND-class return planes:
+                    # padless islands on a signal/HV/mains pour are pure
+                    # isolated_copper liability (and for ntc-no the honest
+                    # "0 pads coverable at PD3 -> emit nothing" answer),
+                    # while a return plane wants padless copper for plane
+                    # continuity/shielding.  Same split the Rust
+                    # IslandPolicy enum documents; the design doc's KeepAll
+                    # rationale is specifically "gnd on a dedicated layer"
+                    # (docs/evidence/2026-08-15-rust-zone-pour-design.md
+                    # section 5.3), which on this board is CGND/PWR_RTN
+                    # (GND class) -- ACMains is NOT given that treatment:
+                    # an isolated padless island at mains potential is a
+                    # hazard, not shielding.
+                    pads_only = nc not in ("GND",)
+                    # own_pads must be LAYER-FILTERED: a piece on In3.Cu
+                    # may only be credited with pads that actually exist on
+                    # In3.Cu (SMD pads are single-layer; THT pads are
+                    # "all"/"*.Cu").  Agent 64's harness measured exactly
+                    # this distinction -- ntc-no has 4 pads, only its THT
+                    # pads exist on inner layers, so on F.Cu the pour
+                    # fails honestly (0/4) while a layer-blind own-pad
+                    # list would wrongly let inner-layer pieces survive on
+                    # an F.Cu pad's position.
+                    own_pads_on_layer = _own_pads_on_layer(
+                        net_name, layer, pcb=pcb, fallback_positions=positions
+                    )
+                    # A net with NO pad on this layer must not pour on it
+                    # at all: the fill would be isolated copper (KiCad
+                    # flags "Isolated copper fill" -- measured 19 findings
+                    # for F.Cu-only HighVoltageSignal nets poured onto
+                    # In3.Cu/In4.Cu).  An SMD-only net's pads are single
+                    # layer; the only pads that exist everywhere are THT.
+                    if not own_pads_on_layer:
+                        continue
                     for zd in zds:
-                        for outline in _carve_outline(zd.points, keepout):
-                            zd_out = ZoneDefinition(
-                                net_name=zd.net_name,
-                                net_number=zd.net_number,
-                                layer=zd.layer,
-                                points=outline,
-                                clearance=eff_clearance,
-                                min_thickness=zd.min_thickness,
-                                priority=prio,
+                        pour_zones = _tg.pour_outline_py(
+                            list(zd.points),
+                            own_pads_on_layer,
+                            obstacles,
+                            _MIN_CARVED_AREA_MM2,
+                            pads_only,
+                        )
+                        for zone_rings in pour_zones:
+                            exterior = zone_rings[0]
+                            holes = zone_rings[1:]
+                            if len(exterior) < 3:
+                                continue
+                            segments.append(
+                                _tg.emit_zone_outline_s_expr_py(
+                                    zd.net_number,
+                                    zd.net_name,
+                                    zd.layer,
+                                    exterior,
+                                    holes,
+                                    eff_clearance,
+                                    prio,
+                                    zd.min_thickness,
+                                )
                             )
-                            segments.append(emit_zone_s_expr(zd_out))
-                            zone_points_by_net.setdefault(net_name, []).append(zd_out.points)
+                            zone_points_by_net.setdefault(net_name, []).append(tuple(exterior))
                 except ValueError:
                     pass
 
