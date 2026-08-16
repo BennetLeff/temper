@@ -264,8 +264,16 @@ class RouterV6Pipeline:
             enable_net_batching: Batch Stage 3's SAT solve over
                 ``net_batch_size`` nets at a time instead of building one
                 model for every net (`#871`'s net-batching prototype, see
-                ``net_batching.py``). Default False (behavior unchanged
-                -- the existing single-model path is untouched). Mutually
+                ``net_batching.py``). Default False -- but since 2026-08-16
+                the monolithic default is no longer dangerous: when this is
+                False (and bundling/geographic pruning are not reducing the
+                model), ``_run_stage3`` estimates the raw model size
+                (``|nets| x |edges|``) and auto-routes through the batched
+                path with a warning when it exceeds
+                ``_pipeline_route._AUTO_BATCH_VAR_THRESHOLD`` (the
+                Stage 3 memory fix; see
+                ``docs/evidence/2026-08-15-stage3-memory-blowup-
+                investigation.md``). Mutually
                 orthogonal to ``enable_bundling``/``max_sat_nets``; if
                 more than one is set, net_batching takes priority (it is
                 checked first in ``_run_stage3``).

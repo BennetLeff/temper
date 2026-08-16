@@ -315,10 +315,14 @@ def route_pcb(
             3's SAT model in batches of ``net_batch_size`` nets, with
             each batch's channel capacity reduced by what earlier
             batches already consumed, instead of one monolithic model
-            covering every net. Default False (behavior unchanged). See
-            ``router_v6/net_batching.py`` for the full design and
-            ``RouterV6Pipeline.__init__``'s docstring for interaction
-            with ``enable_bundling``/``max_sat_nets``.
+            covering every net. Default False -- but since 2026-08-16 the
+            monolithic default auto-routes through the batched path when
+            the estimated raw model (|nets| x |edges|) exceeds
+            ``_pipeline_route._AUTO_BATCH_VAR_THRESHOLD`` (Stage 3
+            memory fix; see docs/evidence/2026-08-15-stage3-memory-
+            blowup-investigation.md). See ``router_v6/net_batching.py``
+            and ``RouterV6Pipeline.__init__``'s docstring for
+            interaction with ``enable_bundling``/``max_sat_nets``.
         net_batch_size: Nets per Stage 3 SAT batch when
             ``enable_net_batching=True``. Default 10.
         max_sat_nets: Selective-SAT cap: encode only the top-N nets
