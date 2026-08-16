@@ -1047,6 +1047,29 @@ def generate_ground_plane_blocks(
         existing_holes.append((vx, vy, via_radius_mm))
         if needs_stub:
             via_offset_count += 1
+            # The stub itself is real 1.0mm-wide F.Cu copper and was not
+            # covered by the via-drop point search (which only clears the
+            # via's own footprint): measured (2026-08-16 route v2), 6 of
+            # the residual 18 shorting_items were gnd stubs running from a
+            # pad to its offset via straight across an adjacent other-net
+            # pad (rtd_force_p/rtd_sense_p on U8, io0 on SW2, s1, refin_n,
+            # vcc) that the via ring search dodged but the stub line did
+            # not. Gate the stub with the same buffered-footprint check as
+            # the backbone fallback; a blocked stub is skipped fail-closed
+            # (the via stays; the pad just isn't stub-joined, a labelled
+            # connectivity cost on this net).
+            stub_footprint = LineString([(x, y), (vx, vy)]).buffer(
+                STITCH_TRACE_WIDTH_MM / 2.0
+            )
+            stub_blocked = (
+                keepout_established and stub_footprint.intersects(keepout)
+            ) or (
+                via_avoid_copper is not None
+                and not via_avoid_copper.is_empty
+                and stub_footprint.intersects(via_avoid_copper)
+            )
+            if stub_blocked:
+                continue
             new_blocks.append(
                 f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
                 f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'
