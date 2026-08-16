@@ -143,9 +143,11 @@ def marshal_geometric_args(state, netlist, board, min_separation=0.5):
     )
 
 
-def marshal_thermal_args(state, netlist, board, power_dissipation, ambient_temp_c=40.0):
+def marshal_thermal_args(state, netlist, board, power_dissipation, ambient_temp_c=60.0):
+    from temper_placer.physics.thermal import thermal_resistance_for
+
     positions = np.asarray(state.positions)
-    xs, ys, powers = [], [], []
+    xs, ys, powers, rjcs, rchs, rhas = [], [], [], [], [], []
     for ref, power in power_dissipation.items():
         try:
             idx = netlist.get_component_index(ref)
@@ -154,10 +156,17 @@ def marshal_thermal_args(state, netlist, board, power_dissipation, ambient_temp_
         xs.append(float(positions[idx, 0]))
         ys.append(float(positions[idx, 1]))
         powers.append(float(power))
+        rjc, rch, rha = thermal_resistance_for(ref)
+        rjcs.append(rjc)
+        rchs.append(rch)
+        rhas.append(rha)
     return (
         xs,
         ys,
         powers,
+        rjcs,
+        rchs,
+        rhas,
         (float(board.origin[0]), float(board.origin[1])),
         float(board.width),
         float(board.height),
@@ -234,7 +243,7 @@ class TestDirectRustKernelPins:
 
         expected = _oracle_measure_thermal(state, netlist, board, power_dissipation=power)
         args = marshal_thermal_args(state, netlist, board, power)
-        max_tj, edge_avg = _tt.measure_thermal_edges_py(*args)
+        max_tj, max_ts, edge_avg = _tt.measure_thermal_edges_py(*args)
 
         assert key(max_tj) == key(expected.max_junction_temp_c)
         assert key(edge_avg) == key(expected.edge_distance_avg_mm)

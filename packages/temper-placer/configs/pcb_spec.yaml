@@ -3,8 +3,13 @@
 name: "Temper V1"
 
 thermal:
-  max_junction_temp_c: 110.0
-  ambient_temp_c: 40.0
+  # 125 °C = the datasheet-recovery "design for ≤125 °C" junction limit
+  # (components/IKW40N120H3/IKW40N120H3_Documentation.md §5.1.1); the
+  # absolute survival limit is Tvj(max) = 175 °C. 60 °C ambient = the
+  # docs/ENVIRONMENTAL_SPEC.md §1.1 derating zero-power point (decision
+  # doc 2026-08-15 §6.4).
+  max_junction_temp_c: 125.0
+  ambient_temp_c: 60.0
   target_edge: "BOTTOM"
   max_heatspread_mm: 30.0
   power_dissipation:

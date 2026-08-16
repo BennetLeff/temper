@@ -550,7 +550,7 @@ def validate_tj_safety(
     Rjc: float | None,
     rated_tj_max: float | None,
     edge_distance_mm: float,
-    ambient_C: float = 40.0,
+    ambient_C: float = 60.0,
 ) -> None:
     """Validate that predicted junction temperature does not exceed rated maximum.
 
@@ -563,8 +563,12 @@ def validate_tj_safety(
         return
 
     if Rjc is None:
-        logger.warning("No Rjc value for '%s' --- using conservative default 0.6 K/W.", device_ref)
-        Rjc = 0.6
+        logger.warning(
+            "No Rjc value for '%s' --- using IKW40N120H3 datasheet default "
+            "0.31 K/W (supersedes the flat 0.6 TO-247 stand-in).",
+            device_ref,
+        )
+        Rjc = 0.31
 
     from temper_placer.physics.thermal import estimate_junction_temp
 

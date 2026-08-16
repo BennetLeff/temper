@@ -44,6 +44,8 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import temper_thermal as _tt
 
+from temper_placer.physics.thermal import FIRMWARE_TRIP_TS_C, thermal_resistance_for
+
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
@@ -279,19 +281,29 @@ def measure_thermal(
     netlist: Netlist,
     board: Board,
     power_dissipation: dict[str, float] | None = None,
-    ambient_temp_c: float = 40.0,
+    ambient_temp_c: float = 60.0,
 ) -> ThermalMetrics:
     """
     Estimate junction temperatures based on placement and power dissipation.
 
-    The edge-distance computation, the ``max_tj`` fold, and
-    ``edge_distance_avg_mm`` run in the ``temper-thermal`` Rust kernel
-    (``measure_thermal_edges_py``, Wave 4), which internally calls the
-    already-Rust ``estimate_junction_temp`` (Wave 4 Phase A #3) directly
-    per device rather than round-tripping through Python once per item.
+    **Sensor-chain model (corrected 2026-08-15):** the thermal sensor
+    measures heatsink temperature Ts, not junction temperature, and the
+    chain is ``Tj = Tc + P·Rjc; Tc = Ts + P·Rch; Ts = Ta + P·Rha``.
+    The edge-distance computation, the per-device Ts/Tc/Tj chain, the
+    ``max_tj``/``max_ts`` folds, and ``edge_distance_avg_mm`` run in the
+    ``temper-thermal`` Rust kernel (``measure_thermal_edges_py``, Wave 4)
+    with PER-DEVICE resistances (``physics.thermal.thermal_resistance_for``
+    — datasheet values for the IKW40N120H3 IGBTs, placeholders elsewhere).
     Mirrors this function's exact NEP-50 float32-narrowing arithmetic
     bit-for-bit (pinned by
     ``tests/metrics/test_physics_rust_differential.py``).
+
+    ``thermal_margin_c`` is the margin of the hottest heatsink temperature
+    against the 80 °C firmware over-temp trip — the first active
+    protection layer, at the sensor (decision doc §6.1). The junction
+    limits are 125 °C (design-for) / 175 °C (absolute survival) — see
+    ``physics.thermal``'s constants. The previous 150 °C margin basis was
+    the datasheet's storage temperature (Tstg), not a junction limit.
     """
     if not power_dissipation:
         return ThermalMetrics(ambient_temp_c, 0.0, 0.0)
@@ -301,6 +313,9 @@ def measure_thermal(
     xs: list[float] = []
     ys: list[float] = []
     powers: list[float] = []
+    rjcs: list[float] = []
+    rchs: list[float] = []
+    rhas: list[float] = []
     for ref, power in power_dissipation.items():
         try:
             idx = netlist.get_component_index(ref)
@@ -309,11 +324,18 @@ def measure_thermal(
         xs.append(float(positions[idx, 0]))
         ys.append(float(positions[idx, 1]))
         powers.append(float(power))
+        rjc, rch, rha = thermal_resistance_for(ref)
+        rjcs.append(rjc)
+        rchs.append(rch)
+        rhas.append(rha)
 
-    max_tj, edge_distance_avg_mm = _tt.measure_thermal_edges_py(
+    max_tj, max_ts, edge_distance_avg_mm = _tt.measure_thermal_edges_py(
         xs,
         ys,
         powers,
+        rjcs,
+        rchs,
+        rhas,
         (float(board.origin[0]), float(board.origin[1])),
         float(board.width),
         float(board.height),
@@ -322,7 +344,9 @@ def measure_thermal(
 
     metrics = ThermalMetrics()
     metrics.max_junction_temp_c = max_tj
-    metrics.thermal_margin_c = 150.0 - max_tj  # 150C is typical shutdown
+    # Margin vs the 80 °C firmware heatsink trip, in sensor (Ts) space —
+    # see the decision doc §6.1 ladder (75 warn / 80 firmware / 85 latch).
+    metrics.thermal_margin_c = FIRMWARE_TRIP_TS_C - max_ts
     metrics.edge_distance_avg_mm = edge_distance_avg_mm
 
     return metrics

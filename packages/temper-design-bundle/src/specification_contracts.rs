@@ -114,8 +114,13 @@ impl ThermalSpec {
         max_heatspread_mm: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         Ok(Self {
-            max_junction_temp_c: opt_or(py, max_junction_temp_c, 110.0_f64)?,
-            ambient_temp_c: opt_or(py, ambient_temp_c, 40.0_f64)?,
+            // 125 °C = the datasheet-recovery "design for ≤125 °C" junction
+            // limit (IKW40N120H3_Documentation.md §5.1.1); the 110 °C used
+            // before had no documented basis. Ambient default is the 60 °C
+            // design-limit (docs/ENVIRONMENTAL_SPEC.md §1.1 derating
+            // zero-power point). Decision doc 2026-08-15 §6.4.
+            max_junction_temp_c: opt_or(py, max_junction_temp_c, 125.0_f64)?,
+            ambient_temp_c: opt_or(py, ambient_temp_c, 60.0_f64)?,
             power_dissipation: dict_or_new(py, power_dissipation)?
                 .into_bound(py)
                 .cast::<PyDict>()?

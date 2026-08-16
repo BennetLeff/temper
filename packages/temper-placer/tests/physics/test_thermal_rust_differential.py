@@ -41,12 +41,18 @@ def _oracle_estimate_junction_temp(
     power_W,
     edge_distance_mm,
     copper_area_mm2=0.0,
-    ambient_C=40.0,
-    Rjc=0.6,
-    Rch=0.25,
-    Rha_base=1.0,
+    ambient_C=60.0,
+    Rjc=0.31,
+    Rch=0.20,
+    Rha_base=0.45,
 ):
-    """Verbatim scalar core of the pre-migration junction-temp model."""
+    """Verbatim scalar core of the pre-migration junction-temp model.
+
+    RE-PINNED 2026-08-15: the DEFAULT arguments now mirror the corrected
+    module defaults (ambient 60 °C; IKW40N120H3 datasheet Rjc = 0.31,
+    TIM Rch = 0.20, HS1-with-fan Rha = 0.45) — the arithmetic body is
+    unchanged. See docs/evidence/2026-08-15-thermal-corrections-implemented.md.
+    """
     # 1. Edge Penalty
     # Effective Rha increases as component moves away from edge (mount point)
     # Heuristic: 0.2 K/W per mm beyond 5mm
@@ -267,8 +273,9 @@ def test_module_level_bit_exact(seed):
 
 
 def test_module_level_defaults_bit_exact():
-    """Default arguments (copper=0, ambient=40, Rjc=0.6, Rch=0.25,
-    Rha=1.0) route through the kernel unchanged."""
+    """Default arguments (copper=0, ambient=60, Rjc=0.31, Rch=0.20,
+    Rha=0.45 — the 2026-08-15 corrected defaults) route through the
+    kernel unchanged."""
     for power, edge in [(15.0, 5.0), (15.0, 10.0), (50.0, 15.0), (0.0, 3.0)]:
         expected = _oracle_estimate_junction_temp(power, edge)
         got = estimate_junction_temp(power_W=power, edge_distance_mm=edge)
@@ -279,7 +286,7 @@ def test_module_level_custom_thermal_params():
     """Custom Rjc/Rch/Rha_base route through (thermal_potential.py call
     shape: ambient + Rjc only, defaults for the rest)."""
     expected = _oracle_estimate_junction_temp(
-        12.0, 8.0, 0.0, 25.0, 0.9, 0.25, 1.0
+        12.0, 8.0, 0.0, 25.0, 0.9, 0.20, 0.45
     )
     got = estimate_junction_temp(
         power_W=12.0, edge_distance_mm=8.0, ambient_C=25.0, Rjc=0.9

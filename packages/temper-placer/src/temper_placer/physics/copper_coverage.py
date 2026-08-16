@@ -239,7 +239,7 @@ SANITY_CEILING_C = 400.0
 
 def check_thermal_plausibility(
     field: np.ndarray | None,
-    ambient_C: float = 40.0,  # noqa: ARG001
+    ambient_C: float = 60.0,  # noqa: ARG001
     ceiling_C: float = SANITY_CEILING_C,
 ) -> tuple[bool, str]:
     """Check if a thermal field is physically plausible.
