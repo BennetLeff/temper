@@ -114,13 +114,13 @@ islands).
 
 | Fix path | Count | Categories |
 |---|---|---|
-| **Routing-fixable** | **~2060** | creepage 449, clearance 499, shorting 204, track_width 199, solder_mask 208, hole_clearance 199, copper_edge 44, track_dangling 34, holes_co_located 14, tracks_crossing 2, via_dangling 2, via sizes 18 (6 dia + 6 drill + 6 annular), unconnected-routing 272 |
+| **Routing-fixable** | **~2140** | creepage 449, clearance 499, shorting 204, track_width 199, solder_mask 208, hole_clearance 199, copper_edge 44, track_dangling 34, holes_co_located 14, tracks_crossing 2, via_dangling 2, via sizes 18 (6 dia + 6 drill + 6 annular), unconnected-routing 267 |
 | **Placement-fixable** | **~50** | creepage placement 41, courtyards_overlap 8, pth_inside_courtyard 1 |
 | **Silk / board-side cosmetic** | **~261** | silk_overlap 199, silk_over_copper 61, silk_edge 1 |
 | **Config / DRU / library** | **~65** | creepage same-footprint 21, lib_mismatch 26, lib_issues 13, missing_courtyard 5 |
 | **Missing component (OCP-02/T2)** | **5** | unconnected on T2 pads + s1 net |
 | **Zone redesign + fill** | **54** | unconnected on zone nets (3 of 57 resolve as-is) |
-| **Genuine board defect / cert question** | **7** | T1/T2/U6 same-footprint pad-pad creepage (isolation-barrier credit — needs cert-lab answer, not a re-route) |
+| **Genuine board defect / cert question** | **7** | T1/T2/U6 same-footprint pad-pad creepage (isolation-barrier credit — needs cert-lab answer, not a re-route; these 7 are inside the 21 config same-footprint count, listed here for the owner decision) |
 
 > Note on the config bucket: `track_width` is listed under routing but has a
 > legitimate config alternative (reclass the three coil nets out of Power).
