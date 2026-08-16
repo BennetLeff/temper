@@ -27,6 +27,7 @@ classes:
   - HighSpeed
   - HighVoltage
   - HighVoltageIsolated
+  - HighVoltageSignal
   - HighVoltageTank
   - Power
   - Signal
@@ -42,6 +43,7 @@ pairs:
   ACMains|HighSpeed: 6.0
   ACMains|HighVoltage: 3.0
   ACMains|HighVoltageIsolated: 6.0
+  ACMains|HighVoltageSignal: 3.0
   ACMains|HighVoltageTank: 3.0
   ACMains|Power: 6.0
   ACMains|Signal: 6.0
@@ -54,6 +56,7 @@ pairs:
   Default|HighSpeed: 0.2
   Default|HighVoltage: 2.0
   Default|HighVoltageIsolated: 2.0
+  Default|HighVoltageSignal: 2.0
   Default|HighVoltageTank: 2.0
   Default|Power: 0.2
   Default|Signal: 0.2
@@ -65,6 +68,7 @@ pairs:
   FinePitch|HighSpeed: 0.2
   FinePitch|HighVoltage: 2.0
   FinePitch|HighVoltageIsolated: 2.0
+  FinePitch|HighVoltageSignal: 2.0
   FinePitch|HighVoltageTank: 2.0
   FinePitch|Power: 0.2
   FinePitch|Signal: 0.2
@@ -75,6 +79,7 @@ pairs:
   GateDriveHV|HighSpeed: 0.2
   GateDriveHV|HighVoltage: 0.5
   GateDriveHV|HighVoltageIsolated: 0.5
+  GateDriveHV|HighVoltageSignal: 0.5
   GateDriveHV|HighVoltageTank: 0.5
   GateDriveHV|Power: 0.2
   GateDriveHV|Signal: 0.2
@@ -84,6 +89,7 @@ pairs:
   GateDriveSELV|HighSpeed: 0.2
   GateDriveSELV|HighVoltage: 2.0
   GateDriveSELV|HighVoltageIsolated: 2.0
+  GateDriveSELV|HighVoltageSignal: 2.0
   GateDriveSELV|HighVoltageTank: 2.0
   GateDriveSELV|Power: 0.2
   GateDriveSELV|Signal: 0.2
@@ -92,6 +98,7 @@ pairs:
   Ground|HighSpeed: 0.2
   Ground|HighVoltage: 2.0
   Ground|HighVoltageIsolated: 2.0
+  Ground|HighVoltageSignal: 2.0
   Ground|HighVoltageTank: 2.0
   Ground|Power: 0.2
   Ground|Signal: 0.2
@@ -99,24 +106,32 @@ pairs:
   HighCurrent|HighSpeed: 0.2
   HighCurrent|HighVoltage: 2.0
   HighCurrent|HighVoltageIsolated: 2.0
+  HighCurrent|HighVoltageSignal: 2.0
   HighCurrent|HighVoltageTank: 2.0
   HighCurrent|Power: 0.2
   HighCurrent|Signal: 0.2
   HighSpeed|HighSpeed: 0.2
   HighSpeed|HighVoltage: 2.0
   HighSpeed|HighVoltageIsolated: 2.0
+  HighSpeed|HighVoltageSignal: 2.0
   HighSpeed|HighVoltageTank: 2.0
   HighSpeed|Power: 0.2
   HighSpeed|Signal: 0.2
   HighVoltage|HighVoltage: 0.2
   HighVoltage|HighVoltageIsolated: 2.0
+  HighVoltage|HighVoltageSignal: 0.2
   HighVoltage|HighVoltageTank: 0.2
   HighVoltage|Power: 2.0
   HighVoltage|Signal: 2.0
   HighVoltageIsolated|HighVoltageIsolated: 0.2
+  HighVoltageIsolated|HighVoltageSignal: 2.0
   HighVoltageIsolated|HighVoltageTank: 2.0
   HighVoltageIsolated|Power: 2.0
   HighVoltageIsolated|Signal: 2.0
+  HighVoltageSignal|HighVoltageSignal: 0.2
+  HighVoltageSignal|HighVoltageTank: 0.2
+  HighVoltageSignal|Power: 2.0
+  HighVoltageSignal|Signal: 2.0
   HighVoltageTank|HighVoltageTank: 0.2
   HighVoltageTank|Power: 2.0
   HighVoltageTank|Signal: 2.0
