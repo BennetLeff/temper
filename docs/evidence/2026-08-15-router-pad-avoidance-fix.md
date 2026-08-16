@@ -136,18 +136,35 @@ Route command (identical to the DRC agent's recipe):
 ### Before (buggy `run_collect_pad_positions`)
 
 - Classification board (`final-route-6layer-output.kicad_pcb`, agent-final-6layer
-  lineage): **204 shorting_items / 2 tracks_crossing**.
+  lineage): **204 shorting_items / 2 tracks_crossing** (DRC agent's measurement).
 - Same-board re-run on this worktree's board (main lineage) with the pre-fix
-  extension: shorting_items **TBD**, tracks_crossing **TBD** (fill after run).
+  extension, identical recipe (`--net-batching --batch-size 10`):
+  **16 swap stitches**, `tracks_crossing` **5** (run_drc) / **4** (direct
+  kicad-cli), `shorting_items` **199–201** (at KiCad's per-report cap),
+  total DRC violations **1666**.
 
 ### After (fixed extension)
 
-- This worktree's board (main lineage), same recipe: shorting_items **TBD**,
-  tracks_crossing **TBD** (fill after run).
-- Expected: the pad-swap shorts (the 14 swap stitches + both crossings) are
-  structurally impossible now — no stitch can start on another net's pad because
-  every net's pad positions are rotation-correct. Residual shorts belong to the
-  separate width-mismatch defect below.
+Same board, same recipe, only the extension differs:
+
+- **0 swap stitches** — the rotation defect is structurally gone.
+- `tracks_crossing` **1** — down from 4–5; the one remaining crossing
+  (`safety.ovp.r_adc_top1-p2` × `power_in.ntc-no` on In3.Cu) is the separate
+  width-mismatch defect (present before the fix too).
+- `shorting_items` **199–205** — still at KiCad's per-report cap; the count is
+  dominated by the width-mismatch defect below, so the capped total does not
+  visibly move even though every swap short is gone.
+- total DRC violations **1638** (down from 1666); run_drc error count
+  **1162** (down from 1190).
+- Stitch geometry verified directly: `ac_n` now emits **zero** track segments
+  (pure pour); `w1_1`'s trunk starts at its own C1/RV1 pads; `w1_2`'s trunk
+  terminates at RT1 pad 1 (40.4, 210.1) — its own pad — instead of the swap
+  stitch from power_in.ntc-no's pad; `power_in.ntc-no`'s In3.Cu connectors
+  terminate at its own pads (32.9, 210.1) etc.
+
+The swap-short class (e.g. `power_in.ntc-no` × `w1_2` at the RT1 pads, `w1_1` ×
+`ac_n` at the RV1 pads) is zero after the fix; the residual shorts all belong to
+the width-mismatch defect.
 
 ## Remaining shorts — a separate, pre-existing defect (NOT fixed here)
 
