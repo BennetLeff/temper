@@ -5730,7 +5730,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f03b0339) (tstamp b724a208-9a6f-4102-605c-0a79a5a18144)
-    (at 44.92 36.06 90)
+    (at 43.9 36.1 90)
     (descr "Resistor, Axial_DIN0207 series, Axial, Horizontal, pin pitch=10.16mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
     (tags "Resistor Axial_DIN0207 series Axial Horizontal pin pitch 10.16mm 0.25W = 1/4W length 6.3mm diameter 2.5mm")
     (property "Reference" "R60")
