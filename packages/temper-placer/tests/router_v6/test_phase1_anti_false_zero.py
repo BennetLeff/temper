@@ -52,7 +52,13 @@ _CONSTRAINT_SNAPSHOT = {
     "HighCurrent.clearance": 0.25,
     "Signal.clearance": 0.15,
     "FinePitch.clearance": 0.1,
-    "FinePitch.trace_width": 0.127,
+    # FinePitch.trace_width re-baselined 0.127 -> 0.2 on 2026-08-15: the
+    # 0.127 figure was below the board's min_track_width (0.2mm,
+    # pcb/temper.kicad_pro) and JLCPCB's 2oz-multilayer floor (0.15mm),
+    # producing track_width DRC errors on 6 routed nets. This is a RAISE,
+    # so it cannot hide a real improvement behind a relaxed constraint
+    # (the snapshot's guard direction is `actual >= expected`).
+    "FinePitch.trace_width": 0.2,
     "default_clearance_mm": 0.2,
 }
 

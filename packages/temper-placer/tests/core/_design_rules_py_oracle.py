@@ -421,7 +421,7 @@ TEMPER_NET_CLASSES = {
     ),
     "FinePitch": NetClassRules(
         name="FinePitch",
-        trace_width=0.127,
+        trace_width=0.2,
         clearance=0.1,
         via_diameter=0.8,
         via_drill=0.2,

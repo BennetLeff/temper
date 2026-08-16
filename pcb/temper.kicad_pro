@@ -360,11 +360,11 @@
         "name": "FinePitch",
         "pcb_color": "rgba(0, 200, 200, 1.000)",
         "schematic_color": "rgba(0, 200, 200, 1.000)",
-        "track_width": 0.127,
+        "track_width": 0.2,
         "via_diameter": 0.8,
         "via_drill": 0.2,
         "wire_width": 6,
-        "description": "Fine-pitch IC signals. QFN-56 (0.4mm pitch, 0.16mm gap), USB-C. JLCPCB 0.1mm min."
+        "description": "Fine-pitch IC signals. QFN-56 (0.4mm pitch, 0.16mm gap), USB-C. trace_width 0.2mm = board setup min_track_width (matches netclass_rules.yaml + design_rules.py; was 0.127mm, below both the board min and JLCPCB's 2oz-multilayer 0.15mm floor -- docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md)."
       },
       {
         "bus_width": 12,
