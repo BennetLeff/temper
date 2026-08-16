@@ -588,6 +588,49 @@ TEMPER_NET_ASSIGNMENTS = {
     "VBOOT_L": "HighVoltageIsolated",
     "hb.gate_hs.driver-p1-1": "HighVoltageIsolated",
     "hb.gate_hs.driver-p2": "HighVoltageIsolated",
+    # ADDED 2026-08-13 (docs/evidence/2026-08-13-ovp01-midchain-single-fault-
+    # creepage.md). OVP-01 protective-impedance-divider MID-CHAIN interior
+    # nodes -- PR #1164 traced their normal voltage (~58-114V, re-derived
+    # independently, matching exactly) and left them "deliberately
+    # unclassified" (elec/domain_manifest.yaml, matching the 2026-07-27
+    # precedent at commit 70503e6dc), which resolves to Default:
+    # creepage_mm=0.0, zero enforcement. Two findings this evidence doc adds:
+    # (1) under Clause 8.1.4's OWN required single-fault condition (the
+    # top-side resistor nearest the bus shorts -- the same fault class the
+    # manifest's own touch-current arithmetic already evaluates, just never
+    # carried through to the interior node's own voltage), r_div_top1-p2 /
+    # r_adc_top1-p2 reach the FULL +170V_BUS potential (170.0V exactly) and
+    # r_div_top2-p2 / r_adc_top2-p2 reach 86.6-87.4V -- both above the SELV
+    # ceiling even though the "-top2-p2" pair's NORMAL voltage (58.1-58.9V)
+    # sits just under it. (2) declaring any of the four in
+    # elec/domain_manifest.yaml's domains: HV/SELV dict was tried and
+    # empirically breaks scripts/check_domain_partition.py: its chain model
+    # (synthesize_chain_head_isolators) treats only the FIRST chain member as
+    # a graph isolator, by deliberate design (declaring every member "caused
+    # false isolator-barrier violations in practice") -- so every node
+    # downstream, these four included, sits in the SAME connected component
+    # as the already-declared-SELV far end (comp.INP / V_BUS_SENSE), and
+    # domain-labeling them HV there asserts two domains for one connected
+    # component, which check_domain_disjointness correctly rejects. This
+    # table is the decoupled alternative: an entry here is read by
+    # check_hv_netclass_coverage.py's PROPERTIES 1/3/4 only in the
+    # domain_manifest.yaml -> here direction, never the reverse, so it adds
+    # real netclass coverage without asserting a topology claim the gate
+    # would (correctly) reject. Mapped to the EXISTING "HighVoltage" class,
+    # not a new value -- see the evidence doc Sec 4 for why 6.0mm is a safe
+    # over-provision here rather than the precisely-derived figure (IEC
+    # 60335-1 Table 17/18 would put these specific voltage bands at
+    # 1.4-4.0mm depending on table/row; a purpose-built netclass at the
+    # correct row is named there as a follow-up, mirroring this project's
+    # own HighVoltageTank precedent, not invented here). pcb/temper.kicad_pro's
+    # netclass_assignments -- what the real kicad-cli DRC reads -- is a
+    # separate, still-open follow-up (matches PR #1145/#1164's own precedent
+    # of leaving that wiring for later); this entry alone does not yet change
+    # the physical board's DRC creepage enforcement.
+    "safety.ovp.r_div_top1-p2": "HighVoltage",
+    "safety.ovp.r_div_top2-p2": "HighVoltage",
+    "safety.ovp.r_adc_top1-p2": "HighVoltage",
+    "safety.ovp.r_adc_top2-p2": "HighVoltage",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
     "sdi": "FinePitch",

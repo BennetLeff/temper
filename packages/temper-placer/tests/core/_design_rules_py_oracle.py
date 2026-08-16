@@ -681,6 +681,18 @@ TEMPER_NET_ASSIGNMENTS = {
     "VBOOT_L": "HighVoltageIsolated",
     "hb.gate_hs.driver-p1-1": "HighVoltageIsolated",
     "hb.gate_hs.driver-p2": "HighVoltageIsolated",
+    # RE-PINNED 2026-08-13 alongside the live design_rules.py addition (see
+    # docs/evidence/2026-08-13-ovp01-midchain-single-fault-creepage.md and
+    # design_rules.py's own comment at this same table entry for the full
+    # derivation): OVP-01 protective-impedance-divider mid-chain interior
+    # nodes, mapped to the existing HighVoltage class. This entry is
+    # deliberately kept in sync with the live wrapper (unlike the
+    # pre-existing, separately-tracked gnd/PWR_RTN drift below, which this
+    # change does not touch or attempt to resolve).
+    "safety.ovp.r_div_top1-p2": "HighVoltage",
+    "safety.ovp.r_div_top2-p2": "HighVoltage",
+    "safety.ovp.r_adc_top1-p2": "HighVoltage",
+    "safety.ovp.r_adc_top2-p2": "HighVoltage",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
     "sdi": "FinePitch",
