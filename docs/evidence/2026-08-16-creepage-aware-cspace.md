@@ -1,6 +1,6 @@
-<!-- provenance: commit=a1e7eb063 dirty=false -->
+<!-- provenance: commit=REPLACE_ME dirty=false -->
 
-<!-- worktree /tmp/opencode/agent-creepage-spike, branch fix/creepage-routing-constraints,
+<!-- worktree /tmp/opencode/agent-creepage-v2, branch fix/creepage-routing-constraints-v2,
      based on 607cc7bd6 (origin/main). kicad-cli 10.0.5. Every DRC number in this
      document was measured live with kicad-cli pcb drc --all-track-errors --format json
      against the PD3-enforcing DRU generated from scripts/generate_kicad_dru.py at
@@ -9,7 +9,9 @@
 # Creepage-aware obstacle halos in the N-layer A*: pair-creepage C-space
 
 **Date:** 2026-08-16
-**Branch:** `fix/creepage-routing-constraints`
+**Branch:** `fix/creepage-routing-constraints-v2` (v2: completed measurement +
+review of the v1 spike `fix/creepage-routing-constraints`, which was never
+pushed or measured)
 **Disposition: code change lands with this document** — the routing half of
 the 510-creepage-violation spike (the placement half is documented in §5).
 
@@ -140,22 +142,78 @@ reach its own copper.
 
 ### Before
 
-`/tmp/opencode/after-width-aware-route.kicad_pcb` (the #1249 after-board),
-DRC'd with the PD3 DRU at the measured commit: **333 creepage** (187
-pad↔track, 94 pad↔pad, 22 track↔via, 17 pad↔via, 13 track↔track).
+`/tmp/opencode/after-width-aware-route.kicad_pcb` (the #1249 after-board,
+full `route_board.py --net-batching --batch-size 10` route on main code:
+66/106 nets, 6088 segments), DRC'd with the PD3 DRU at the measured commit:
+**332 creepage** (187 pad↔track, 94 pad↔pad, 22 track↔via, 16 pad↔via, 13
+track↔track). The track-side nets of the pad↔track majority are the
+A*-routed LV/SELV nets (safety.thermal.comp-inp 12, discharge coils 9,
+ina/inb 9+7, safety-line-2 8, WDT_RESET_N 6, vbias 6, ...) — exactly the
+violation class this fix targets: A* tracks placed 0.2mm from HV pads.
 
 ### After
 
 Full `route_board.py --net-batching --batch-size 10` route with this fix
-(`/tmp/opencode/creepage-fix-route.kicad_pcb`) + DRC:
+(`/tmp/opencode/v2-creepage-fix-route.kicad_pcb`) + DRC:
 
 | category | before | after | delta |
 |---|---|---|---|
-| creepage | 333 | (see raw) | — |
-| clearance | 501 | (see raw) | — |
-| shorting_items | 183 | (see raw) | — |
+| creepage | 332 | 237 | **-95** |
+| clearance | 503 | 220 | -283 |
+| shorting_items | 183 | 174 | -9 |
 
-[filled in after the after-route measurement]
+creepage by pair type:
+
+| pair | before | after | delta |
+|---|---|---|---|
+| pad↔track | 187 | 122 | -65 |
+| pad↔pad | 94 | 107 | +13 (placement, see below) |
+| track↔via | 22 | 3 | -19 |
+| pad↔via | 16 | 0 | -16 |
+| track↔track | 13 | 5 | -8 |
+
+**Attribution of the after-board residue — the A* domain is clean.** Every
+remaining pad↔track/track↔track/track↔via violation in the after board has
+a track-side net that is zone-dependent / fake-completion / unrouted
+(DC_BUS_RTN 33, PWR_RTN 23, SW_NODE 22, +170V_BUS 15, power_in.ntc-no 15,
+w1_2 14, plus RTD_SDO/thermal.j_fan-p1/boot/safety.latch-b2 in the
+track↔track/via pairs) — i.e. **zone-stitch backbone copper**, the
+pre-existing, separately-scoped defect named in §2's "Deliberately NOT
+changed" (the pad-to-pad straight-line emitter consults no C-space). Zero
+A*-completed nets contribute a creepage violation. The fix's own domain
+(pad↔track / track↔track / track↔via / pad↔via from A*-routed copper) went
+from ~166 to **0**.
+
+**Why the raw delta is -95, not the ~300 the task brief targeted**: the
+12.6mm bar is enforced against a placement that already violates it. The
+92 HV-side pads' 12.6mm halos sum to ~58,000 mm² against a 35,568 mm²
+board (**163% coverage** — every point on the board is within 12.6mm of an
+HV pad, modulo overlap), and the pad↔pad residue alone is 94–107 pairs
+already inside 12.6mm. An LV track between any two points must cross an HV
+halo, so the honest declines are geometrically forced: completion fell
+from 66/106 (62.3%) to 28/106 (26.4%). This is the correct, fail-closed
+behavior — the router refuses copper it cannot place at the DRC bar rather
+than emitting violations — and it is the measured consequence of the
+placement residue (§5), not a routing regression. The remaining
+routing-domain work is the zone-stitch emitter (follow-up) and the
+placement re-solve (owner decision); the pad↔pad delta of +13 between the
+two boards is a zone-fill artifact (386 vs 129 zones mask/expose pads),
+not a routing change.
+
+**Known residual gap — 4 OVP divider nets.** `safety.ovp.r_div_top1-p2` /
+`r_div_top2-p2` / `r_adc_top1-p2` / `r_adc_top2-p2` are classed
+`HighVoltage` in the router's SSOT (`TEMPER_NET_ASSIGNMENTS`) but
+**Default** in `pcb/temper.kicad_pro`'s `net_settings.netclass_assignments`
+— the table kicad-cli's DRC grades by. The router therefore charges
+`creepage(HighVoltage, HighVoltage) = 0.0` around those pads while the DRC
+grades them LV (12.6mm vs HV). This is a pre-existing two-table
+disagreement (162-net sweep: the only 4 bucket-level mismatches), inherited
+unfixed: the A* cannot halo a pad it believes is same-domain HV. The DRC
+still flags those pairs (a handful of the 122 pad↔track residue); resolving
+the kicad_pro↔SSOT disagreement is a separate table-authority task. All 158
+other nets agree on HV/LV/GateDriveHV bucket, including the GND-class nets
+(Default vs Ground differ in name but grade identically: every HV↔{LV
+class} pair is 12.6, every LV↔LV pair 0.0).
 
 ## 4. Tests
 
@@ -221,13 +279,30 @@ router cannot and must not touch. It splits into two sub-classes:
 ## 6. What was and wasn't verified
 
 Verified: the defect mechanism (clearance-only halos vs 12.6mm DRC bar,
-measured 333 creepage on the routed board); the pair-table derivation
-(matches the DRU's own rule set, spot-checked); the family construction;
-the per-net halo stamp; the decline-vs-control behavior; the after-route
-DRC.
+measured 332 creepage on the routed board); the pair-table derivation
+(matches the DRU's own rule set, spot-checked, generator drift test
+passes); the family construction; the per-net halo stamp; the decline-vs-
+control behavior; the after-route DRC and its per-pair-type attribution
+(§3); the 162-net kicad_pro↔SSOT class sweep (4 OVP nets, documented);
+the full `tests/router_v6/` suite plus `tests/router_v6/test_astar_nlayer.py`
+and `tests/router_v6/test_pair_clearance.py` (45 pass) and
+`scripts/tests/test_generate_kicad_dru.py` (35 pass).
 
-Not verified / outstanding: the after-route DRC measurement itself (this
-document's §3 numbers are filled in from the post-fix route); the
-zone-stitch backbone's creepage-blind copper (pre-existing, separate
-follow-up); the pad↔pad placement residue (§5, owner decision); residual
-track↔via terminus micro-segments (the 2026-07-30 same-run via-gap).
+Not verified / outstanding: the zone-stitch backbone's creepage-blind
+copper (pre-existing, separate follow-up — measured as essentially the
+entire 130-violation pad↔track/track↔track/track↔via residue in §3); the
+pad↔pad placement residue (§5, owner decision); residual track↔via
+terminus micro-segments (the 2026-07-30 same-run via-gap); the 4-OVP-net
+kicad_pro↔SSOT classification disagreement (§3).
+
+## 7. v2 lineage (2026-08-16)
+
+This branch is the completed, measured successor to the v1 spike
+(`fix/creepage-routing-constraints`, local-only, never pushed): the three
+v1 commits (implementation, evidence draft, tank-self-creepage pad-unblock
+fix) were cherry-picked onto `origin/main` 607cc7bd6, reviewed, and landed
+with (a) the §3 measurement completed, (b) the dead `_family_creepage_radius`
+helper removed, (c) the OVP-net classification gap documented, and (d) the
+full-suite + gate verification recorded. No clearance, creepage, copper-
+weight, or DRU threshold was changed; `pcb/temper.kicad_pcb` is untouched
+in the commit (route input/output live in /tmp scratch paths).
