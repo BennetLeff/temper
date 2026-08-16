@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy
+.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs
 
 # Show help for workflow commands
 help:
@@ -26,6 +26,8 @@ help:
 	@echo "  make extensions-check- Report stale/missing pyo3 extension crates without rebuilding"
 	@echo "  make venv-isolate    - Give THIS worktree its own .venv, independent of any shared checkout"
 	@echo "  make venv-integrity-check - Assert THIS venv's editable installs point at THIS repo root, not a worktree/other checkout"
+	@echo "  make cargo-target-dir-guard - Install/refresh the ~/.local/bin/cargo wrapper so direct cargo/maturin calls can't cold-build a private target-shared"
+	@echo "  make check-worktree-target-dirs [CLEAN=1] - Fail if any worktree has its own private target-shared/ (CLEAN=1 also deletes CACHEDIR.TAG-verified ones)"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -470,7 +472,37 @@ regen-check:
 CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse --path-format=absolute --git-common-dir)")/target-shared
 export CARGO_TARGET_DIR
 
-venv-isolate:
+# Backstop for cargo/maturin invoked DIRECTLY (not through make), where the
+# above export doesn't help: `source scripts/cargo_shared_env.sh` only
+# protects the invocations made in the SAME shell process as the `source`.
+# Agent tool-calling harnesses start a fresh shell per command -- sourcing
+# in one call has no effect on a `cargo build` in the next one, which is how
+# the 2026-08-11/12 incident (99 worktrees, ~74 GB) recurred despite the
+# documented remedy. `scripts/install_cargo_target_dir_guard.py` installs a
+# `cargo` wrapper at ~/.local/bin/cargo (ahead of ~/.cargo/bin on PATH) that
+# fixes CARGO_TARGET_DIR unconditionally, independent of shell state. It is
+# a ONE-TIME host-level install (protects every worktree immediately, not
+# just this one), idempotent, and scoped to this repo only -- other cargo
+# projects on the host are untouched. Run here, on `worktree`/`venv-isolate`,
+# so it self-heals (e.g. after `rustup update` recreates ~/.cargo/bin/cargo)
+# without anyone having to remember a separate step. Best-effort: a failure
+# here does not fail the target it's called from, because the `make`-level
+# export above already makes `make extensions`/`make build` etc. correct
+# regardless -- this only closes the gap for direct cargo/maturin calls.
+cargo-target-dir-guard:
+	@python3 scripts/install_cargo_target_dir_guard.py --check >/dev/null 2>&1 && echo "cargo-target-dir guard: OK (~/.local/bin/cargo)" || { \
+		echo "cargo-target-dir guard: installing/refreshing..."; \
+		python3 scripts/install_cargo_target_dir_guard.py || echo "WARNING: could not install cargo-target-dir guard -- non-fatal, but direct cargo/maturin calls outside 'make' may cold-build a private target-shared. See AGENTS.md 'Shared cargo build cache'."; \
+	}
+
+# Report-only gate: fails if any worktree (in-tree or out-of-tree) has its
+# own private target-shared/ instead of the shared one. `make CLEAN=1
+# check-worktree-target-dirs` also deletes violations that pass the
+# CACHEDIR.TAG safety predicate (see scripts/check_no_worktree_target_dirs.py).
+check-worktree-target-dirs:
+	@python3 scripts/check_no_worktree_target_dirs.py $(if $(filter 1,$(CLEAN)),--clean,)
+
+venv-isolate: cargo-target-dir-guard
 	@echo "Provisioning this worktree's own .venv (uv sync --all-packages)..."
 	uv sync --all-packages
 	@echo "Building pyo3 extensions into it..."
@@ -510,6 +542,7 @@ worktree:
 	@echo "worktree created: $(WT_PATH) on branch $(NAME) from $(BASE)"
 	@echo "  cd $(WT_PATH)"
 	@python3 scripts/install_git_stash_guard.py || echo "warning: git-stash-guard install failed -- run 'python3 scripts/install_git_stash_guard.py' manually before using git stash in any worktree"
+	@$(MAKE) -C "$(WT_PATH)" cargo-target-dir-guard
 	@if [ "$(VENV)" = "1" ]; then echo "provisioning isolated .venv..."; $(MAKE) -C "$(WT_PATH)" venv-isolate; fi
 
 gerbers: build

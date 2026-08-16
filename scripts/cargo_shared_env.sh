@@ -19,7 +19,20 @@
 # The Makefile exports the same value (see its `CARGO_TARGET_DIR :=` line), so
 # anything run through `make` is already correct. This file exists for the paths
 # that do NOT go through make -- `cargo test`, `cargo build`, `cargo clippy`,
-# and direct `maturin develop` -- which is most of what agents actually run.
+# and direct `maturin develop`.
+#
+# 2026-08-13: sourcing this is no longer the PRIMARY defense for those direct
+# calls. It only protects invocations made in the SAME shell process as the
+# `source` -- agent tool-calling harnesses start a fresh shell per command, so
+# sourcing in one call has no effect on a build in the next one, which is how
+# the incident this file cites recurred a third time (~74 GB / 99 worktrees,
+# 2026-08-11/12) despite this script being documented and in every agent
+# brief. `scripts/install_cargo_target_dir_guard.py` (`make
+# cargo-target-dir-guard`) installs a `cargo` PATH wrapper that fixes
+# CARGO_TARGET_DIR unconditionally, independent of shell state -- run that
+# instead for the actual guarantee. This script remains correct and still
+# useful for a genuinely persistent interactive shell (a real terminal, not a
+# one-shot tool call).
 #
 # Trade-off, unchanged from the config block: cargo takes an exclusive lock on
 # the target directory, so concurrent builds in different worktrees serialise

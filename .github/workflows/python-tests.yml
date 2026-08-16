@@ -564,6 +564,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_venv_integrity.py -v --tb=short
 
+      - name: No-private-target-shared gate tests
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_no_worktree_target_dirs.py -v --tb=short
+
       # Runs BEFORE the staleness gate below on purpose: staleness compares
       # an installed artifact's content/mtime against "this checkout"'s
       # sources, which is only a coherent question once we know the venv's
@@ -580,6 +584,18 @@ jobs:
       - name: Venv-integrity gate (editable installs point at this checkout)
         if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         run: uv run --no-sync python scripts/check_venv_integrity.py
+
+      # No per-worktree `target-shared/` (2026-08-11/12 incident: 99
+      # worktrees, ~74 GB of private cargo caches -- see
+      # scripts/install_cargo_target_dir_guard.py for the structural fix
+      # and scripts/check_no_worktree_target_dirs.py for this gate's
+      # implementation). A CI runner never has the multi-worktree fleet
+      # that motivates this -- it will just report clean -- but it is the
+      # standing check a developer/agent runs by hand against the real
+      # workstation's `.claude/worktrees/*` and sibling worktree dirs.
+      - name: No private per-worktree target-shared/ gate
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
+        run: uv run --no-sync python scripts/check_no_worktree_target_dirs.py
 
       # Build side of content-hash freshness (scripts/_lib/freshness.py).
       # Every pyo3 crate has just been built or installed from THIS
