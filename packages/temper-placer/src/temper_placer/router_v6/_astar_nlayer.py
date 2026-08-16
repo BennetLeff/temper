@@ -1096,6 +1096,15 @@ def run_astar_pathfinding_nlayer(
         active_grids = families[family_key]
         family_inflation = _family_static_inflation(family_key)
         net_rule = design_rules.get_rules_for_net(net_name)
+        # Self-creepage (2026-08-16): a same-family net's halo stamp around
+        # THIS net's pads carries creepage(family_class, family_class) --
+        # nonzero only for HighVoltageTank (10.0mm, RULE 5a tank<->tank).
+        # The unblock must punch through that leftover ring too, or a tank
+        # net could never reach its own pads after another tank net routed.
+        # The over-wide circle's clips into foreign halos are re-blocked by
+        # _stamp_foreign_creepage_halos immediately below.
+        self_creepage = default_creepage_table().self_creepage(family_key[2])
+        unblock_inflation = family_inflation + self_creepage
         primary_grid_for_budget = active_grids.get(channel_path.preferred_layer) or next(
             iter(active_grids.values())
         )
@@ -1152,7 +1161,7 @@ def run_astar_pathfinding_nlayer(
             net_name,
             pad_centers_per_net,
             active_grids,
-            inflation_mm=family_inflation,
+            inflation_mm=unblock_inflation,
             escape_vias_map=escape_vias_map,
             existing_vias_map=existing_vias_per_net,
         )
