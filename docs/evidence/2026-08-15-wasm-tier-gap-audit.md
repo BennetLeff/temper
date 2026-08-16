@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-15/16 at commit 6285d6889b30644feb546912fdaebd50832d1166 (origin/main), worktree /tmp/opencode/agent-wasm-gaps, branch chore/wasm-tier-gap-audit. Deployed-corpus census reused from the last successful wasm-tier-deploy.yml run 31921103703 (headSha a5da999cb1a3438d01dfe472333e6d8dba2e0b01, 2026-08-16T02:06:18Z) -- the deployed workers are the a5da999cb build; HEAD differs from it only by commit 6285d6889 (pcb/temper.kicad_pcb courtyard-collision fixes, no package/ change). -->
+<!-- provenance: commit=00e1f1d573ac50d5f31e8a1d4a0b26317f43a131 dirty=false -->
 
 # WASM tier gap audit — orchestration eligibility, tier gaps, CI wiring, post-session freshness
 
