@@ -479,8 +479,8 @@ void test_fault_ocp_during_heating(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject over-current condition (>35A) */
-    mock_sm_set_dc_bus_current(40.0f);
+    /* Inject over-current condition (>40A) */
+    mock_sm_set_dc_bus_current(45.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -542,7 +542,7 @@ void test_fault_thermal_igbt(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject IGBT over-temperature (heatsink >100C) */
+    /* Inject IGBT over-temperature (heatsink >80C) */
     mock_sm_set_heatsink_temperature(110.0f);
     mock_sm_advance_time(100);
     state_machine_update();

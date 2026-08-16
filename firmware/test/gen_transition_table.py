@@ -93,7 +93,7 @@ EVENT_STUBS = {
     "NEAR_TARGET": "mock_sm_set_pan_temperature(92.0f);",
     "PREHEAT_TIMEOUT": "mock_sm_advance_time(600001);",
     "OVER_TEMP": "mock_sm_set_heatsink_temperature(105.0f);",
-    "OVER_CURRENT": "mock_sm_set_dc_bus_current(40.0f);",
+    "OVER_CURRENT": "mock_sm_set_dc_bus_current(45.0f);",
     "FAN_FAILURE": "mock_sm_set_fan_running(false);",
     "PROBE_OPEN": "mock_sm_set_rtd_resistance(15000.0f);",
     "PROBE_SHORT": "mock_sm_set_rtd_resistance(5.0f);",

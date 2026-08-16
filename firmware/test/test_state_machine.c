@@ -502,8 +502,8 @@ void test_sm_fault_on_over_temperature(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger over-temperature (>100°C heatsink) */
-    mock_sm_set_heatsink_temperature(105.0f);
+    /* Trigger over-temperature (>80°C heatsink) */
+    mock_sm_set_heatsink_temperature(85.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -535,8 +535,8 @@ void test_sm_fault_on_over_current(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger over-current (>35A) */
-    mock_sm_set_dc_bus_current(40.0f);
+    /* Trigger over-current (>40A) */
+    mock_sm_set_dc_bus_current(45.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -577,7 +577,7 @@ void test_sm_fault_on_igbt_short(void) {
 }
 
 /**
- * Test: IGBT short does NOT trigger at 35A (should be FAULT_OVER_CURRENT)
+ * Test: IGBT short does NOT trigger at 40A (should be FAULT_OVER_CURRENT)
  */
 void test_sm_fault_on_igbt_short_is_distinct(void) {
     setup_test();
@@ -599,8 +599,8 @@ void test_sm_fault_on_igbt_short_is_distinct(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* 40A triggers FAULT_OVER_CURRENT, not FAULT_IGBT_SHORT (>50A) */
-    mock_sm_set_dc_bus_current(40.0f);
+    /* 45A triggers FAULT_OVER_CURRENT, not FAULT_IGBT_SHORT (>50A) */
+    mock_sm_set_dc_bus_current(45.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     

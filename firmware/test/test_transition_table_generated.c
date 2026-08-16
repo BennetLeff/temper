@@ -113,7 +113,7 @@ static void apply_event_stubs(const char *event) {
         return;
     }
     if (strcmp(event, "OVER_CURRENT") == 0) {
-        mock_sm_set_dc_bus_current(40.0f);
+        mock_sm_set_dc_bus_current(45.0f);
         return;
     }
     if (strcmp(event, "FAN_FAILURE") == 0) {

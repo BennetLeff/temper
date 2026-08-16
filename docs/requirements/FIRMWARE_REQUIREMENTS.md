@@ -170,16 +170,16 @@ Software watchdog SHALL trigger shutdown within 10 seconds of system hang.
 **Priority:** P0  
 **Status:** VERIFIED
 
-System SHALL shutdown when heatsink temperature exceeds 100°C.
+System SHALL shutdown when heatsink temperature exceeds 80°C.
 
 | Parameter | Value |
 |-----------|-------|
-| Threshold | 100°C heatsink |
+| Threshold | 80°C heatsink |
 | Action | Immediate FAULT transition |
-| Hysteresis | 10°C (restart at 90°C) |
+| Hysteresis | 10°C (restart at 70°C) |
 
 **Validation:** `test_sm_fault_on_over_temperature` (firmware/test/test_state_machine.c)
-**Linked Issues:** UNCITED baseline value — see docs/evidence/2026-08-15-firmware-interlock-citations.md (contradicts documented 95 °C shutdown; hardware latch trips at 85 °C; owner decision required)
+**Linked Issues:** Per thermal threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch (85°C); 100°C was dead code — hardware always fired first. See docs/evidence/2026-08-15-thermal-threshold-decision.md (committed aaa0af2dd).
 
 ---
 
@@ -187,16 +187,16 @@ System SHALL shutdown when heatsink temperature exceeds 100°C.
 **Priority:** P0  
 **Status:** VERIFIED
 
-System SHALL shutdown when DC bus current exceeds 35A.
+System SHALL shutdown when DC bus current exceeds 40A peak.
 
 | Parameter | Value |
 |-----------|-------|
-| Threshold | 35A DC bus |
+| Threshold | 40A peak DC bus |
 | Response time | <1ms |
 | Action | Hardware interlock + FAULT state |
 
 **Validation:** `test_sm_fault_on_over_current` / `test_sm_fault_on_igbt_short_is_distinct` (firmware/test/test_state_machine.c); the named `sim_ocp_response.cir` does not exist in the repo
-**Linked Issues:** UNCITED baseline value — see docs/evidence/2026-08-15-firmware-interlock-citations.md (basis peak-vs-RMS unstated; sits inside the documented full-power tank-current band; owner decision required)
+**Linked Issues:** Per OCP threshold decision (#1234): 40A peak. 35A was RMS equivalent of hardware trip (50.1/√2), mislabeled as operating limit. 40A = IGBT continuous rating, 125% of hardware OCP. See docs/evidence/2026-08-15-ocp-threshold-decision.md (committed a720f9179).
 
 ---
 

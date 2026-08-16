@@ -583,9 +583,9 @@ static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass)
  * staged MAX31865 guard window. */
 #define INV_MAX_ABSOLUTE_TEMP_C    300.0f
 #define INV_MAX_TEMP_RISE_RATE     15.0f   /* C/s */
-#define INV_MAX_DC_CURRENT_35A     35.0f
+#define INV_MAX_DC_CURRENT_40A     40.0f
 #define INV_MAX_DC_CURRENT_50A     50.0f
-#define INV_MAX_HEATSINK_TEMP      100.0f
+#define INV_MAX_HEATSINK_TEMP      80.0f
 #define INV_DT_MS                  100     /* DT_MS from SIL test */
 
 static int check_trace_invariants(const csvrow_t *rows, int row_count,
@@ -618,15 +618,15 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
             }
         }
 
-        /* Base case 3: over-current (>50A = IGBT short, >35A = over-current) */
+        /* Base case 3: over-current (>50A = IGBT short, >40A = over-current) */
         if (curr > INV_MAX_DC_CURRENT_50A) {
             printf("  [INV] tick %d: current %.1f > %.1f (IGBT short)\n",
                    t, curr, INV_MAX_DC_CURRENT_50A);
             violations++;
         }
-        if (curr > INV_MAX_DC_CURRENT_35A) {
+        if (curr > INV_MAX_DC_CURRENT_40A) {
             printf("  [INV] tick %d: current %.1f > %.1f (over-current)\n",
-                   t, curr, INV_MAX_DC_CURRENT_35A);
+                   t, curr, INV_MAX_DC_CURRENT_40A);
             violations++;
         }
 

@@ -30,7 +30,7 @@ static void test_safety_ok_normal_conditions(void) {
 
 static void test_safety_over_temp_detection(void) {
     safety_sim_reset();
-    safety_sim_set_temp(101.0f);  /* Over 100°C threshold */
+    safety_sim_set_temp(81.0f);  /* Over 80°C threshold */
     
     safety_status_t status = run_safety_check();
     TEST_ASSERT_EQUAL_INT(SAFETY_OVER_TEMP, status);
@@ -38,7 +38,7 @@ static void test_safety_over_temp_detection(void) {
 
 static void test_safety_temp_at_threshold(void) {
     safety_sim_reset();
-    safety_sim_set_temp(100.0f);  /* Exactly at threshold */
+    safety_sim_set_temp(80.0f);  /* Exactly at threshold */
     
     /* At threshold should still be OK (> not >=) */
     safety_status_t status = run_safety_check();
@@ -47,7 +47,7 @@ static void test_safety_temp_at_threshold(void) {
 
 static void test_safety_over_current_detection(void) {
     safety_sim_reset();
-    safety_sim_set_current(36.0f);  /* Over 35A threshold */
+    safety_sim_set_current(41.0f);  /* Over 40A threshold */
     
     safety_status_t status = run_safety_check();
     TEST_ASSERT_EQUAL_INT(SAFETY_OVER_CURRENT, status);
@@ -55,7 +55,7 @@ static void test_safety_over_current_detection(void) {
 
 static void test_safety_current_at_threshold(void) {
     safety_sim_reset();
-    safety_sim_set_current(35.0f);  /* Exactly at threshold */
+    safety_sim_set_current(40.0f);  /* Exactly at threshold */
     
     safety_status_t status = run_safety_check();
     TEST_ASSERT_EQUAL_INT(SAFETY_OK, status);
