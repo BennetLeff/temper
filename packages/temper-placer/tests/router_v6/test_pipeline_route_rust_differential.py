@@ -82,7 +82,7 @@ _BODY_DIGESTS = {
     "select_routing_grids": "8b45bfa73df1d4c9d4e862aca7501a700df0647ab0e3e4415cf3a1f8469a40b3",
     "_next_tstamp": "bec736a752d4896639a98d1f3f1ab0f50139390d442ecc5d94a3d3e4441eb640",
     "_to_stage0_netclass_rules": "334e7bf0b4d16bb36892751529e6a946821ed53d7fade601f1f5f7d39284b79f",
-    "_write_routes_to_content": "dd7c3380acb300ddc4ae8d8830b14b0febcf0a909d4a9549d546219eca7d8a6d",
+    "_write_routes_to_content": "05ac970874ee1d998fad030ade3bd58987d7d79295255d7259b985964d6cc36c",
 }
 
 

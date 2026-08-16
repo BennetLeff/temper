@@ -837,9 +837,20 @@ fn getattr_or<'py>(
 /// last writer wins), then per net the `getattr(net, "pins", [])` walk with
 /// `comp.initial_position` (default `(0.0, 0.0)`) and the conditional
 /// `comp.get_pin(pin_name)` call (a missing method or a `None` pin falls
-/// back to the component position; a found pin adds `pin.position`).
-/// Returns `(net_name, positions)` pairs in first-seen net order; a net
-/// whose resolvable pin list is empty is omitted, exactly like the oracle.
+/// back to the component position; a found pin resolves its WORLD position
+/// through `temper_geometry.pin_world_position_at_py` -- rotation- and
+/// side-aware, the SSOT kernel). Returns `(net_name, positions)` pairs in
+/// first-seen net order; a net whose resolvable pin list is empty is
+/// omitted, exactly like the oracle.
+///
+/// ROTATION FIX (2026-08-15): the pre-migration body (and this port, until
+/// now) summed `comp.initial_position + pin.position` with no component
+/// rotation -- see the in-loop comment for the 204-short incident this
+/// caused. The pad-position block of the pinned writer oracle
+/// (`_adapter_convert_py_oracle.py`) and the marshal differential's
+/// `_oracle_collect_pad_positions` were re-pinned in the same commit with
+/// the same rotation-aware formula (PR #1207 standard: fix behaviour first,
+/// prove divergence == the corrected positions, re-pin with evidence).
 #[pyfunction]
 #[allow(clippy::type_complexity)]
 pub fn run_collect_pad_positions(
@@ -887,10 +898,38 @@ pub fn run_collect_pad_positions(
             };
             match pin {
                 Some(p) if !p.is_none() => {
-                    let pos = p.getattr("position")?;
-                    let px: f64 = pos.get_item(0)?.extract()?;
-                    let py_: f64 = pos.get_item(1)?.extract()?;
-                    positions.push((cx + px, cy + py_));
+                    // Rotation/side-aware world position, delegated to the
+                    // temper-geometry SSOT kernel (`pin_world_position_at_py`,
+                    // the same function `core.pin_geometry.pin_world_position`
+                    // shims to -- host-libm cos/sin, mirror + R(-theta)).
+                    //
+                    // The pre-migration body this port mirrors summed
+                    // `comp.initial_position + pin.position` with NO component
+                    // rotation (and no side mirror). For a rotated 2-pad
+                    // component that lands every pad on the MIRROR position
+                    // across the anchor -- i.e. the OTHER pad -- so the
+                    // zone-stitch writer emitted each net's stitch track from
+                    // the other net's physical pad: 204 `shorting_items` +
+                    // 2 `tracks_crossing` on the 2026-08-15 routed board
+                    // (e.g. w1_1's stitch from RV1's ac_n pad). See
+                    // docs/evidence/2026-08-15-router-pad-avoidance-fix.md.
+                    // The A* waypoint path was never affected -- it has always
+                    // resolved pads through `pad_identity.net_pad_positions`
+                    // (rotation-correct); only this write-path collector
+                    // carried the omission.
+                    //
+                    // `pin_world_position_at_py` reads `initial_rotation_quadrant`
+                    // (missing -> 0.0, exactly like the shim) and
+                    // `initial_side` (missing -> 0) itself, so duck-typed
+                    // stubs without those attrs keep their pre-fix positions
+                    // (rotation 0) -- the differential's rotation-0 cases are
+                    // unchanged by construction.
+                    let kernel = py
+                        .import("temper_geometry")?
+                        .getattr("pin_world_position_at_py")?;
+                    let wx_wy = kernel.call1((&p, comp))?;
+                    let (wx, wy): (f64, f64) = wx_wy.extract()?;
+                    positions.push((wx, wy));
                 }
                 _ => positions.push((cx, cy)),
             }
