@@ -1188,14 +1188,14 @@ class TestDeduplicateVias:
 
 class TestDSNNormalizer:
     def test_strip_control_chars_none(self):
-        from temper_placer.io.dsn_normalizer import strip_control_chars
+        from temper_io_types import strip_control_chars
 
         text = "hello world"
         result = strip_control_chars(text)
         assert result == text
 
     def test_strip_control_chars_removes_null(self):
-        from temper_placer.io.dsn_normalizer import strip_control_chars
+        from temper_io_types import strip_control_chars
 
         text = "hello\x00world"
         result = strip_control_chars(text)
@@ -1204,7 +1204,7 @@ class TestDSNNormalizer:
         assert "world" in result
 
     def test_normalize_dsn_identity(self):
-        from temper_placer.io.dsn_normalizer import normalize_dsn
+        from temper_io_types import normalize_dsn
 
         # Already-normalized DSN should round-trip
         text = "(pcb test\n  (component U1\n  )\n)\n"
@@ -1212,14 +1212,14 @@ class TestDSNNormalizer:
         assert len(result) > 0
 
     def test_is_dsn_normalized_true(self):
-        from temper_placer.io.dsn_normalizer import is_dsn_normalized
+        from temper_io_types import is_dsn_normalized
 
         text = "(pcb test\n  (component U1\n  )\n)\n"
         result = is_dsn_normalized(text)
         assert isinstance(result, bool)
 
     def test_is_dsn_normalized_false(self):
-        from temper_placer.io.dsn_normalizer import is_dsn_normalized
+        from temper_io_types import is_dsn_normalized
 
         # Tab indentation is not normalized
         text = "(pcb test\n\t(component U1\n\t)\n)\n"
