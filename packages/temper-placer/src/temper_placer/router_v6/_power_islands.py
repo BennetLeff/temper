@@ -227,6 +227,7 @@ __all__ = [
     "PLANE_LAYER",
     "POWER_ISLAND_NETS",
     "PowerIslandResult",
+    "generate_power_islands_blocks",
     "generate_power_islands_content",
 ]
 
@@ -279,22 +280,38 @@ class PowerIslandResult:
         )
 
 
-def generate_power_islands_content(
+def generate_power_islands_blocks(
     pcb_path: Path,
     *,
     nets: tuple[str, ...] = POWER_ISLAND_NETS,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
-) -> tuple[str, dict[str, PowerIslandResult]]:
-    """Read *pcb_path*, compute per-rail ``In2.Cu`` power-island pours +
-    via/MST stitching for every net in *nets*, and return
-    ``(new_board_content, {net_name: PowerIslandResult})``.
+    tstamp_counter: list[int] | None = None,
+    segments: list[str] | None = None,
+) -> tuple[list[str], dict[str, PowerIslandResult]]:
+    """Compute per-rail ``In2.Cu`` power-island pours + via/MST stitching
+    for every net in *nets* and return the NEW s-expression blocks plus
+    the per-rail result reports.
 
-    Does not write anything. Rails are processed in the order given in
-    *nets* (default: pad-count-descending); each rail's emitted zone
-    footprint, drop vias, and backbone segments are folded into the
-    obstacle set every later rail avoids, so the result never has two
-    rails' new copper overlapping on ``In2.Cu`` (or a later rail's F.Cu/
-    B.Cu vias landing on an earlier rail's).
+    Does not write anything. This is the production wiring seam (the
+    ``_ground_plane.generate_ground_plane_blocks`` counterpart): the
+    caller appends the blocks to its own emitted copper after the pour
+    pass. Rails are processed in the order given in *nets* (default:
+    pad-count-descending); each rail's emitted zone footprint, drop vias,
+    and backbone segments are folded into the obstacle set every later
+    rail avoids, so the result never has two rails' new copper
+    overlapping on ``In2.Cu`` (or a later rail's F.Cu/B.Cu vias landing
+    on an earlier rail's). ``tstamp_counter`` is threaded from the caller
+    (same convention as ``generate_ground_plane_blocks``) so the blocks'
+    tstamps continue the caller's deterministic sequence; when ``None`` a
+    fresh counter is used (the standalone script and the spike tests call
+    it without one).
+
+    UPDATED 2026-08-16: the pour outline for every rail is now computed
+    by the Rust zone generator (``temper_geometry.pour_outline_py`` /
+    ``emit_zone_outline_s_expr_py``, the #1257 machinery) carved at
+    ``max(clearance, creepage)`` per foreign obstacle -- see the zone
+    footprint section below for the measured rationale and the
+    ``docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py`` data.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.placer.cp_sat.isolation_barrier import (
@@ -305,13 +322,23 @@ def generate_power_islands_content(
     from temper_placer.router_v6.routing_space import _get_board_polygon
     from temper_placer.router_v6.topology_copper_audit import net_number_to_name_map
     from temper_placer.router_v6.zone_emission import (
-        ZoneDefinition,
         compute_zones_for_net,
-        emit_zone_s_expr,
     )
 
     content = pcb_path.read_text()
     pcb = parse_kicad_pcb_v6(pcb_path)
+
+    # The default manifest path is CWD-relative, and production callers
+    # (route_pcb via _write_routes_to_content) run from arbitrary CWDs
+    # (pytest from packages/temper-placer, route_board.py from the repo
+    # root). Resolve a missing relative default against the repo root
+    # (this module lives at packages/temper-placer/src/temper_placer/
+    # router_v6/, so the repo root is five parents up) before handing it
+    # to the loader -- the same fallback _ground_plane.py already has.
+    if not domain_manifest_path.is_file() and not domain_manifest_path.is_absolute():
+        alt = Path(__file__).resolve().parents[5] / domain_manifest_path
+        if alt.is_file():
+            domain_manifest_path = alt
 
     num_to_name = net_number_to_name_map(content)
     name_to_num = {v: k for k, v in num_to_name.items()}
@@ -351,7 +378,8 @@ def generate_power_islands_content(
     if keepout_established:
         plane_region_base = plane_region_base.difference(keepout)
 
-    tstamp_counter = [0]
+    if tstamp_counter is None:
+        tstamp_counter = [0]
 
     def _next_tstamp() -> str:
         from temper_placer.router_v6._adapter_convert import _next_tstamp as _nt
@@ -411,10 +439,60 @@ def generate_power_islands_content(
                 p.layer == ALL_LAYERS
             )
 
-        # --- Zone footprint: per-component clusters (cluster=True -- these
-        # are "islands", plural, not one board-spanning hull like gnd's). ---
+        # --- Zone footprint: one hull per rail, carved by the Rust zone
+        # generator (2026-08-16). ---
+        # Previously: compute_zones_for_net(cluster=True) convex hulls
+        # emitted via single-ring emit_zone_s_expr -- no carve, no holes,
+        # clearance scalar only -- the same emission that fragmented the
+        # historical +3V3 pours into pad-sized remnants (the measured
+        # reason R1/R7 made Power trace-only). The Rust generator
+        # (temper_geometry.pour_outline_py / emit_zone_outline_s_expr_py,
+        # #1257) carves each foreign obstacle's halo at that pair's
+        # max(clearance, creepage) -- 12.6mm HV-vs-Power creepage, not the
+        # 2.0mm clearance table -- and emits one (polygon ...) element per
+        # ring (exterior + holes). Measured 2026-08-16
+        # (docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py): a
+        # per-cluster carve covers 28/50 +3V3 pads in 12 zones, while a
+        # SINGLE hull over all 50 pads (cluster=False, the gnd-plane
+        # precedent) covers 34/50 pads in just 2 islands -- the same
+        # fragmentation lesson gnd taught (see _ground_plane.py's region
+        # comment): splitting the region before carving multiplies
+        # islands without adding coverage. The remaining ~16 pads sit
+        # inside the 12.6mm HV creepage halos and cannot be pour-covered
+        # on ANY layer; they are trace-routing debt, reported honestly.
+        # The pour is still PadsOnly -- padless islands are pure
+        # isolated_copper liability -- and `_zone_layers_for_net` is
+        # still NOT consulted (R1/R7's
+        # `test_power_class_is_not_zone_eligible` stays intact: Power
+        # remains outer-layer trace-only by policy; this is the
+        # sanctioned `_ground_plane.py`-precedent inner-layer generator,
+        # per this module's own docstring).
+        import temper_geometry as _tg
+
+        from temper_placer.router_v6.zone_pour_clearance import (
+            collect_zone_obstacle_records,
+        )
+        from temper_placer.router_v6.zone_pour_clearance import (
+            default_table as _zone_clearance_default_table,
+        )
+        from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+        obstacle_records = [
+            tuple(r)
+            for r in collect_zone_obstacle_records(
+                net_name,
+                PLANE_LAYER,
+                pcb=pcb,
+                segments=[],
+                net_number_to_name=num_to_name,
+                clearance_table=_zone_clearance_default_table(),
+                creepage_table=default_creepage_table(),
+            )
+        ]
+        own_rust = [(float(x), float(y)) for x, y in positions]
+
         zones = compute_zones_for_net(
-            net_name, net_num, positions, layer=PLANE_LAYER, margin=0.5, cluster=True,
+            net_name, net_num, positions, layer=PLANE_LAYER, margin=0.5, cluster=False,
             board_polygon=None,
         )
         plane_region = plane_region_base
@@ -424,6 +502,8 @@ def generate_power_islands_content(
             )
 
         zone_polys: list[Polygon] = []
+        pour_area_mm2 = 0.0
+        this_rail_zone_geoms: list[Polygon] = []
         for zd in zones:
             hull_poly = Polygon(zd.points)
             clipped = hull_poly.intersection(plane_region)
@@ -431,29 +511,75 @@ def generate_power_islands_content(
                 continue
             geoms = list(clipped.geoms) if hasattr(clipped, "geoms") else [clipped]
             for g in geoms:
-                if hasattr(g, "exterior") and not g.is_empty and len(g.exterior.coords) >= 4:
-                    zone_polys.append(g)
-
-        pour_area_mm2 = 0.0
-        this_rail_zone_geoms: list[Polygon] = []
-        for poly in zone_polys:
-            pour_area_mm2 += poly.area
-            this_rail_zone_geoms.append(poly)
-            pts = [(float(x), float(y)) for x, y in poly.exterior.coords]
-            if len(pts) > 1 and pts[0] == pts[-1]:
-                pts.pop()
-            if len(pts) < 3:
-                continue
-            zd = ZoneDefinition(
-                net_name=net_name,
-                net_number=net_num,
-                layer=PLANE_LAYER,
-                points=tuple(pts),
-                clearance=0.25,
-                min_thickness=0.25,
-                priority=0,
-            )
-            new_blocks.append(emit_zone_s_expr(zd))
+                if not hasattr(g, "exterior") or g.is_empty or len(g.exterior.coords) < 4:
+                    continue
+                rpts = [(float(x), float(y)) for x, y in g.exterior.coords]
+                if len(rpts) > 1 and rpts[0] == rpts[-1]:
+                    rpts.pop()
+                if len(rpts) < 3:
+                    continue
+                # The clip's piece may carry INTERIOR rings (an earlier
+                # rail's buffered zone region, or a keepout island, sitting
+                # inside this hull).  pour_outline_py takes a single region
+                # ring, so passing only the exterior would silently pour
+                # back over the other rail (measured 2026-08-16: vcc's
+                # outline overlapped +3V3's by 75mm^2 exactly this way --
+                # the region hole was dropped at the ring extraction).  The
+                # region polygon (exterior + these interior rings) is
+                # subtracted from the Rust carve result below so every
+                # interior hole survives into the emitted outline.
+                region_interiors = [
+                    [(float(x), float(y)) for x, y in ring.coords]
+                    for ring in g.interiors
+                ]
+                region_interiors = [r for r in region_interiors if len(r) >= 3]
+                region_poly = Polygon(rpts, region_interiors)
+                pour_zones = _tg.pour_outline_py(
+                    rpts, own_rust, obstacle_records, 0.25 * 0.25, True
+                )
+                final_rings: list[tuple[list, list]] = []
+                for zone_rings in pour_zones:
+                    zp = Polygon(
+                        zone_rings[0],
+                        [list(h) for h in zone_rings[1:] if len(h) >= 3],
+                    )
+                    remaining = zp.intersection(region_poly)
+                    if remaining.is_empty:
+                        continue
+                    pieces = (
+                        list(remaining.geoms) if hasattr(remaining, "geoms") else [remaining]
+                    )
+                    for piece in pieces:
+                        if piece.is_empty or not hasattr(piece, "exterior"):
+                            continue
+                        ext = [(float(x), float(y)) for x, y in piece.exterior.coords]
+                        if ext and ext[0] == ext[-1]:
+                            ext.pop()
+                        pholes = [
+                            [(float(x), float(y)) for x, y in h.coords]
+                            for h in piece.interiors
+                        ]
+                        pholes = [h for h in pholes if len(h) >= 3]
+                        if len(ext) >= 3:
+                            final_rings.append((ext, pholes))
+                for exterior, holes in final_rings:
+                    new_blocks.append(
+                        _tg.emit_zone_outline_s_expr_py(
+                            net_num,
+                            net_name,
+                            PLANE_LAYER,
+                            exterior,
+                            holes,
+                            0.25,
+                            0,
+                            0.25,
+                        )
+                    )
+                    hole_polys = [list(h) for h in holes if len(h) >= 3]
+                    carved = Polygon(exterior, hole_polys)
+                    zone_polys.append(carved)
+                    this_rail_zone_geoms.append(carved)
+                    pour_area_mm2 += abs(carved.area)
 
         if this_rail_zone_geoms:
             merged_this_rail = unary_union(this_rail_zone_geoms)
@@ -462,6 +588,17 @@ def generate_power_islands_content(
                 if other_rail_zone_region is None
                 else unary_union([other_rail_zone_region, merged_this_rail])
             )
+        # Union of THIS rail's carved pour outlines -- the fill's real
+        # copper footprint on In2.Cu. Vias placed inside it touch the rail
+        # after fill (see _find_via_drop_point's pour_region parameter); a
+        # via outside it sits on the F.Cu backbone only (measured 2026-08-16:
+        # keepout-only placement landed vias up to 12.6mm from HV copper,
+        # outside the creepage-carved fill, touching no rail at all).
+        pour_region: Polygon | None = None
+        if this_rail_zone_geoms:
+            merged_pour = unary_union(this_rail_zone_geoms)
+            if not merged_pour.is_empty:
+                pour_region = merged_pour
 
         # --- Drop vias + MST backbone. Vias: keepout + this run's own
         # prior new copper + OTHER nets' pre-existing F.Cu/B.Cu copper
@@ -479,9 +616,37 @@ def generate_power_islands_content(
         other_copper_bcu = _collect_other_net_copper(
             pcb, net_name, "B.Cu", OTHER_NET_CLEARANCE_MM
         )
+        # The route's own F.Cu/B.Cu copper (in-memory segment strings,
+        # invisible to the stripped board file this generator re-parses)
+        # must also be avoided -- see
+        # _corridor_backbone.routed_segments_obstacle's docstring for the
+        # measured 2026-08-16 failure mode (backbones blind to the routed
+        # copper + the earlier gnd plane crossed them 81 times on one
+        # route). The gnd plane's blocks are part of *segments* by the
+        # time this generator runs (the caller extends the list first), so
+        # gnd's vias/backbone are included here too.
+        from temper_placer.router_v6._corridor_backbone import (
+            routed_segments_obstacle,
+        )
+
+        routed_fcu_avoid = routed_segments_obstacle(
+            segments, net_name, "F.Cu", num_to_name,
+            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        )
+        routed_bcu_avoid = routed_segments_obstacle(
+            segments, net_name, "B.Cu", num_to_name,
+            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        )
         via_avoid_parts = [
             g
-            for g in (other_copper_fcu, other_copper_bcu, *run_new_fcu_copper, *run_new_bcu_copper)
+            for g in (
+                other_copper_fcu,
+                other_copper_bcu,
+                routed_fcu_avoid,
+                routed_bcu_avoid,
+                *run_new_fcu_copper,
+                *run_new_bcu_copper,
+            )
             if g is not None
         ]
         via_avoid_copper: Polygon | None = (
@@ -509,6 +674,7 @@ def generate_power_islands_content(
                 keepout=keepout if keepout_established else None,
                 other_copper=via_avoid_copper,
                 board_polygon=board_polygon,
+                pour_region=pour_region,
             )
             if drop_point is None:
                 via_unresolved_conflict += 1
@@ -577,12 +743,19 @@ def generate_power_islands_content(
         other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
             pcb, net_name, "F.Cu", _net_clearance, this_net_own_clearance, _default_clearance
         )
+        # The route's own F.Cu copper (and the earlier gnd plane, which is
+        # part of *segments* by now) is an obstacle for the backbone search
+        # too -- see routed_segments_obstacle's docstring.
+        routed_fcu_backbone = routed_segments_obstacle(
+            segments, net_name, "F.Cu", num_to_name,
+            _net_clearance, this_net_own_clearance, _default_clearance,
+        )
         prior_rail_backbone_obstacles = [
             g.buffer(INTER_RAIL_CLEARANCE_MM) for g in run_new_fcu_copper
         ]
         backbone_grid = build_obstacle_grid(
             board_polygon,
-            [keepout, other_copper_fcu_backbone, *prior_rail_backbone_obstacles],
+            [keepout, other_copper_fcu_backbone, routed_fcu_backbone, *prior_rail_backbone_obstacles],
         )
         backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
@@ -698,8 +871,33 @@ def generate_power_islands_content(
             mst_edges_fallback_count=len(edges) - astar_routed_count,
         )
 
+    return new_blocks, results
+
+
+def generate_power_islands_content(
+    pcb_path: Path,
+    *,
+    nets: tuple[str, ...] = POWER_ISLAND_NETS,
+    domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
+    segments: list[str] | None = None,
+) -> tuple[str, dict[str, PowerIslandResult]]:
+    """Standalone/CLI entry point: read *pcb_path*, compute the ``In2.Cu``
+    power-island blocks (via ``generate_power_islands_blocks``), splice
+    them into the file's own content, and return ``(new board content,
+    {net_name: PowerIslandResult})``.
+
+    This is the surface the standalone spike and the spike tests use.
+    Production goes through ``generate_power_islands_blocks`` instead
+    (from ``_write_routes_to_content``), because the routed board's
+    content string is assembled in memory -- splicing back into the
+    file's own text would drop the routing segments.
+    """
+    content = pcb_path.read_text()
+    blocks, results = generate_power_islands_blocks(
+        pcb_path, nets=nets, domain_manifest_path=domain_manifest_path, segments=segments
+    )
     new_content = content.rstrip()
     if new_content.endswith(")"):
-        new_content = new_content[:-1] + "\n" + "\n".join(new_blocks) + "\n)\n"
+        new_content = new_content[:-1] + "\n" + "\n".join(blocks) + "\n)\n"
 
     return new_content, results

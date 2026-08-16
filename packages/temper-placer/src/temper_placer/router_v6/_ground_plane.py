@@ -171,6 +171,18 @@ def _dedupe_positions(
     return list(seen.values())
 
 
+def _ring_area(ring: list[tuple[float, float]]) -> float:
+    """Shoelace absolute area of a closed ring (used for the Rust zone
+    generator's outline rings, whose exterior/holes are open vertex lists)."""
+    n = len(ring)
+    s = 0.0
+    for i in range(n):
+        x1, y1 = ring[i]
+        x2, y2 = ring[(i + 1) % n]
+        s += x1 * y2 - x2 * y1
+    return abs(s) / 2.0
+
+
 def mst_edges(positions: list[tuple[float, float]]) -> list[tuple[int, int]]:
     """Prim's-algorithm minimum spanning tree over *positions* (plain
     Euclidean, O(n^2) -- fine for the <=100-node counts this module
@@ -472,11 +484,24 @@ def _find_via_drop_point(
     keepout: Polygon | None,
     other_copper: Polygon | None,
     board_polygon: Polygon,
+    pour_region: Polygon | None = None,
 ) -> tuple[tuple[float, float] | None, bool]:
     """Find a point to drop a via that clears every existing hole (by
     ``MIN_HOLE_EDGE_GAP_MM``, edge to edge), the HV keepout, other nets'
     copper, and the board outline -- trying *pad_pos* itself first, then a
     small local ring search around it.
+
+    ``pour_region`` (optional): the union of this run's OWN zone-fill
+    outlines (exterior minus holes). When given, pour-INSIDE points are
+    preferred (pass 1: pad_pos then ring, requiring the via footprint to
+    sit inside the filled region, so the via's barrel actually touches the
+    plane copper after fill -- measured 2026-08-16: vias placed against
+    the ~9.5mm keepout alone land up to 12.6mm from HV copper, i.e.
+    OUTSIDE the creepage-carved fill, and touch no plane at all). If no
+    pour-inside point exists, pass 2 falls back to the keepout-clear-only
+    behaviour (a via outside the pour can still be joined by the F.Cu MST
+    backbone, so connectivity never regresses -- the plane just does not
+    add to it).
 
     Returns ``(point, needs_stub)``: ``needs_stub`` is True when the
     returned point is not *pad_pos* itself, telling the caller to emit a
@@ -488,7 +513,7 @@ def _find_via_drop_point(
     MST backbone's keepout detour).
     """
 
-    def _clear(pt: tuple[float, float]) -> bool:
+    def _clear(pt: tuple[float, float], *, require_pour: bool) -> bool:
         p = Point(pt)
         footprint = p.buffer(via_radius_mm, quad_segs=12)
         if not board_polygon.contains(footprint):
@@ -497,6 +522,8 @@ def _find_via_drop_point(
             return False
         if other_copper is not None and footprint.intersects(other_copper):
             return False
+        if require_pour and pour_region is not None and not pour_region.contains(footprint):
+            return False
         x, y = pt
         for hx, hy, hr in existing_holes:
             min_gap = via_radius_mm + hr + MIN_HOLE_EDGE_GAP_MM
@@ -504,20 +531,25 @@ def _find_via_drop_point(
                 return False
         return True
 
-    if _clear(pad_pos):
-        return pad_pos, False
+    def _search(*, require_pour: bool) -> tuple[tuple[float, float] | None, bool]:
+        if _clear(pad_pos, require_pour=require_pour):
+            return pad_pos, False
+        for radius in VIA_OFFSET_RING_RADII_MM:
+            for i in range(VIA_OFFSET_RING_STEPS):
+                angle = 2.0 * math.pi * i / VIA_OFFSET_RING_STEPS
+                cand = (
+                    pad_pos[0] + radius * math.cos(angle),
+                    pad_pos[1] + radius * math.sin(angle),
+                )
+                if _clear(cand, require_pour=require_pour):
+                    return cand, True
+        return None, False
 
-    for radius in VIA_OFFSET_RING_RADII_MM:
-        for i in range(VIA_OFFSET_RING_STEPS):
-            angle = 2.0 * math.pi * i / VIA_OFFSET_RING_STEPS
-            cand = (
-                pad_pos[0] + radius * math.cos(angle),
-                pad_pos[1] + radius * math.sin(angle),
-            )
-            if _clear(cand):
-                return cand, True
-
-    return None, False
+    if pour_region is not None:
+        found = _search(require_pour=True)
+        if found[0] is not None:
+            return found
+    return _search(require_pour=False)
 
 
 def _emit_keepout_zone_s_expr(points: list[tuple[float, float]], layer: str, uuid: str) -> str:
@@ -675,12 +707,13 @@ def generate_ground_plane_blocks(
 
     Does not write anything -- the caller decides where the output goes
     (a scratch copy for validation, or the tracked board once validated).
-    Reuses the same zone-emission primitives
-    (``zone_emission.compute_zones_for_net`` / ``emit_zone_s_expr``) the
-    production ``_emit_zone_pours`` path uses for F.Cu/B.Cu pours, and
-    the same via/segment s-expression conventions already written
-    elsewhere in this board by ``router_v6``'s route-writing path
-    (see module docstring).
+    The pour outline is computed by the Rust zone generator
+    (``temper_geometry.pour_outline_py`` /
+    ``emit_zone_outline_s_expr_py``, the #1257 machinery) carved at
+    ``max(clearance, creepage)`` per foreign obstacle -- same as the
+    production ``_emit_zone_pours`` path -- and the via/segment
+    s-expression conventions are the same ones written elsewhere in this
+    board by ``router_v6``'s route-writing path (see module docstring).
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.placer.cp_sat.isolation_barrier import (
@@ -690,10 +723,6 @@ def generate_ground_plane_blocks(
     from temper_placer.router_v6.pad_connectivity_audit import _pads_by_net
     from temper_placer.router_v6.routing_space import _get_board_polygon
     from temper_placer.router_v6.topology_copper_audit import net_number_to_name_map
-    from temper_placer.router_v6.zone_emission import (
-        compute_zones_for_net,
-        emit_zone_s_expr,
-    )
 
     # The default manifest path is CWD-relative, and production callers
     # (route_pcb via _write_routes_to_content) run from arbitrary CWDs
@@ -899,30 +928,79 @@ def generate_ground_plane_blocks(
     # holes are only checked against the (per-point, not per-path) via
     # placement search below, where losing one candidate point is cheap.
 
-    zones = compute_zones_for_net(
-        GND_NET_NAME,
-        gnd_net_num,
-        gnd_positions,
-        layer=PLANE_LAYER,
-        margin=0.0,
-        cluster=False,
-        board_polygon=None,
+    # --- Rust zone-generator pour (2026-08-16): full-board region carved
+    # at max(clearance, creepage) per obstacle, holes preserved. ---
+    # Previously the pour was the convex hull of gnd's own pads clipped to
+    # plane_region (Python `compute_zones_for_net` + single-ring
+    # `emit_zone_s_expr`): a single-ring outline that (a) could not express
+    # interior holes (an HV pad deep inside the hull stayed inside the
+    # outline), (b) was carved only at the keepout's ~9.5mm standoff rather
+    # than the 12.6mm pair creepage the DRC judges, and (c) fragmented the
+    # FILL into separate unconnected plane pieces -- measured 2026-08-16 via
+    # pcbnew's connectivity data on the definitive route: only 38/88 gnd
+    # pads landed in the largest component after `--refill-zones`, because
+    # the plane itself was several disconnected fill pieces, not one net.
+    # The Rust generator (temper_geometry.pour_outline_py /
+    # emit_zone_outline_s_expr_py, the #1257 production wiring) carves
+    # every foreign obstacle's halo at that pair's max(clearance, creepage)
+    # and emits one (polygon ...) element per ring (exterior + holes) --
+    # the same machinery _emit_zone_pours uses, applied to the plane.
+    import temper_geometry as _tg
+
+    from temper_placer.router_v6.zone_pour_clearance import (
+        collect_zone_obstacle_records,
     )
-    # compute_zones_for_net gives the convex hull of gnd's own pads
-    # (unclipped here -- clipping is done explicitly below against
-    # plane_region, which already carries both the board-edge margin
-    # and the HV keepout, so the hull is bounded by the *safe* region,
-    # not merely by Edge.Cuts).
-    zone_polys: list[Polygon] = []
-    for zd in zones:
-        hull_poly = Polygon(zd.points)
-        clipped = hull_poly.intersection(plane_region)
-        if clipped.is_empty:
+    from temper_placer.router_v6.zone_pour_clearance import (
+        default_table as _zone_clearance_default_table,
+    )
+    from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+    obstacle_records = [
+        tuple(r)
+        for r in collect_zone_obstacle_records(
+            GND_NET_NAME,
+            PLANE_LAYER,
+            pcb=pcb,
+            segments=[],
+            net_number_to_name=num_to_name,
+            clearance_table=_zone_clearance_default_table(),
+            creepage_table=default_creepage_table(),
+        )
+    ]
+    own_rust = [(float(x), float(y)) for x, y in gnd_positions]
+
+    # The pour REGION is the convex hull of gnd's own pads (UNCLIPPED) --
+    # NOT the keepout-clipped safe region. Measured 2026-08-16: the Rust
+    # generator's per-obstacle creepage halos (12.6mm HV-vs-LV) are
+    # STRICTER than the 9.5mm keepout (corridor + margin) they replace,
+    # so pre-clipping the hull to plane_region is redundant AND harmful:
+    # the clip's boolean can split the hull into many pieces (measured 11)
+    # that then pour separately and never touch, while the raw hull carves
+    # into 2 islands covering 69/88 gnd pad positions (design doc §7A
+    # shape: "pour pieces 6, gnd pads inside pour 67/88"). The keepout
+    # rule-zones below remain as an independent fill-time defense.
+    from shapely.geometry import MultiPoint as _MultiPoint
+
+    hull_poly = _MultiPoint(own_rust).convex_hull
+    region_parts = [hull_poly]
+    pour_zone_rings: list[tuple[list, list]] = []  # (exterior, holes)
+    pour_area_mm2 = 0.0
+    for part in region_parts:
+        if part.is_empty or not hasattr(part, "exterior"):
             continue
-        geoms = list(clipped.geoms) if hasattr(clipped, "geoms") else [clipped]
-        for g in geoms:
-            if hasattr(g, "exterior") and not g.is_empty and len(g.exterior.coords) >= 4:
-                zone_polys.append(g)
+        rpts = [(float(x), float(y)) for x, y in part.exterior.coords]
+        if len(rpts) > 1 and rpts[0] == rpts[-1]:
+            rpts.pop()
+        if len(rpts) < 3:
+            continue
+        pour_zones = _tg.pour_outline_py(rpts, own_rust, obstacle_records, 0.25 * 0.25, False)
+        for zone_rings in pour_zones:
+            exterior = zone_rings[0]
+            holes = zone_rings[1:]
+            if len(exterior) < 3:
+                continue
+            pour_zone_rings.append((exterior, holes))
+            pour_area_mm2 += _ring_area(exterior) - sum(_ring_area(h) for h in holes)
 
     # tstamp_counter: threaded from the caller (production) or a fresh
     # [0] (standalone/tests) -- see generate_ground_plane_blocks' docstring.
@@ -931,34 +1009,44 @@ def generate_ground_plane_blocks(
 
         return _nt(tstamp_counter)
 
-    new_blocks: list[str] = []
-    pour_area_mm2 = 0.0
-    for poly in zone_polys:
-        pour_area_mm2 += poly.area
-        pts = [(float(x), float(y)) for x, y in poly.exterior.coords]
-        if len(pts) > 1 and pts[0] == pts[-1]:
-            pts.pop()
-        if len(pts) < 3:
-            continue
-        from temper_placer.router_v6.zone_emission import ZoneDefinition
+    # Union of the carved pour outlines (exterior minus holes) -- the
+    # fill's real copper footprint. Vias placed inside it touch the plane
+    # after fill (see _find_via_drop_point's pour_region parameter); a via
+    # outside it sits on the F.Cu backbone only.
+    pour_region: Polygon | None = None
+    if pour_zone_rings:
+        from shapely.ops import unary_union as _unary_union_pour
 
-        zd = ZoneDefinition(
-            net_name=GND_NET_NAME,
-            net_number=gnd_net_num,
-            layer=PLANE_LAYER,
-            points=tuple(pts),
-            clearance=0.3,
-            min_thickness=0.25,
-            priority=0,
+        pour_geoms: list = []
+        for exterior, holes in pour_zone_rings:
+            hp = [list(h) for h in holes if len(h) >= 3]
+            pour_geoms.append(Polygon(exterior, hp))
+        merged = _unary_union_pour(pour_geoms)
+        if not merged.is_empty:
+            pour_region = merged
+
+    new_blocks: list[str] = []
+    for exterior, holes in pour_zone_rings:
+        new_blocks.append(
+            _tg.emit_zone_outline_s_expr_py(
+                gnd_net_num,
+                GND_NET_NAME,
+                PLANE_LAYER,
+                exterior,
+                holes,
+                0.3,
+                0,
+                0.25,
+            )
         )
-        new_blocks.append(emit_zone_s_expr(zd))
 
     # Explicit fill-time keepout zone(s) over the FULL HV keepout region on
-    # PLANE_LAYER -- independent defense against the pour-outline hole
-    # dropping bug documented in _emit_keepout_zone_s_expr's docstring.
-    # This is the actual creepage fix: it holds even where the pour's own
-    # clipped outline (zone_polys, exterior-only above) would otherwise
-    # have silently filled in one of its own interior holes.
+    # PLANE_LAYER -- independent defense against a pour-outline hole
+    # dropping bug (documented in _emit_keepout_zone_s_expr's docstring)
+    # and against any residual carve imprecision: the Rust generator's
+    # outline now carries interior holes, but the rule-area zone tells
+    # KiCad's own fill engine "no copper pour here" unconditionally, so
+    # the HV keepout holds even if a future outline change regresses.
     keepout_zone_count = 0
     if keepout_established:
         keepout_pieces = list(keepout.geoms) if hasattr(keepout, "geoms") else [keepout]
@@ -1018,6 +1106,7 @@ def generate_ground_plane_blocks(
             keepout=keepout if keepout_established else None,
             other_copper=via_avoid_copper,
             board_polygon=board_polygon,
+            pour_region=pour_region,
         )
         if drop_point is None:
             via_unresolved_conflict += 1
@@ -1133,7 +1222,6 @@ def generate_ground_plane_blocks(
         collect_other_net_copper_by_pairwise_clearance,
         compute_corridor_mask,
         corridor_aware_spanning_edges,
-        resolve_netclass_clearances,
     )
 
     # A separate, per-net-pair-correct clearance polygon for the A*
@@ -1336,7 +1424,7 @@ def generate_ground_plane_blocks(
         - via_skipped_through_hole
         - via_unresolved_conflict,
         mst_edge_count=len(edges) - crossed_keepout,
-        zone_polygon_count=len(zone_polys),
+        zone_polygon_count=len(pour_zone_rings),
         keepout_established=keepout_established,
         keepout_area_mm2=keepout.area if keepout_established else 0.0,
         pour_area_mm2=pour_area_mm2,
@@ -1354,6 +1442,7 @@ def generate_ground_plane_content(
     pcb_path: Path,
     *,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
+    segments: list[str] | None = None,
 ) -> tuple[str, GroundPlaneResult]:
     """Standalone/CLI entry point: read *pcb_path*, compute the In1.Cu
     ``gnd`` plane blocks (via ``generate_ground_plane_blocks``), splice
@@ -1369,7 +1458,7 @@ def generate_ground_plane_content(
     """
     content = pcb_path.read_text()
     blocks, result = generate_ground_plane_blocks(
-        pcb_path, domain_manifest_path=domain_manifest_path
+        pcb_path, domain_manifest_path=domain_manifest_path, segments=segments
     )
     new_content = content.rstrip()
     if new_content.endswith(")"):

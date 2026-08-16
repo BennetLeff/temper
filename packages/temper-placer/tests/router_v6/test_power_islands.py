@@ -90,26 +90,41 @@ class TestGeneratePowerIslandsOnRealBoard:
 
         new_content, results = generate_power_islands_content(scratch)
 
-        # Extract each emitted In2.Cu zone's own polygon + net name via the
-        # same s-expression convention _ground_plane.py's own test/tooling
-        # already relies on (net_name captured from the zone's net_name
-        # attribute, points from its polygon).
+        # Extract each emitted In2.Cu zone as ONE polygon with holes, in
+        # KiCad's own serialization: the first (polygon ...) element of a
+        # zone is the exterior ring, every later element a hole ("The first
+        # polygon is the main outline. Others are holes inside the main
+        # outline" -- ZONE::AddPolygon).  The Rust emitter writes
+        # "(polygon\n (pts\n (xy ...))" (whitespace between tokens), unlike
+        # the old single-ring Python emitter's "(polygon (pts (xy ...)))".
+        # Zone text is captured per (net_name, block-index) so rings group
+        # correctly even when consecutive zones share a net_name.
         zone_blocks = re.findall(
-            r'\(zone \(net (\d+)\) \(net_name "([^"]*)"\) \(layer "In2\.Cu"\).*?'
-            r"\(polygon \(pts (.*?)\)\)\)",
+            r'\(zone \(net (\d+)\) \(net_name "([^"]*)"\) \(layer "In2\.Cu"\)(.*?)'
+            r"(?=\n  \(zone|\n\)\n)",
             new_content,
             flags=re.DOTALL,
         )
         by_net: dict[str, list[Polygon]] = {}
-        for _net_num, net_name, pts_str in zone_blocks:
+        for _net_num, net_name, zone_body in zone_blocks:
             if not net_name:
                 continue  # the shared fill-time keepout zone (net_name "")
-            coords = [
+            rings = re.findall(r"\(polygon\s+\(pts\s+(.*?)\)\)", zone_body, flags=re.DOTALL)
+            if not rings:
+                continue
+            exterior = [
                 (float(x), float(y))
-                for x, y in re.findall(r"\(xy ([\-0-9.]+) ([\-0-9.]+)\)", pts_str)
+                for x, y in re.findall(r"\(xy ([\-0-9.]+) ([\-0-9.]+)\)", rings[0])
             ]
-            if len(coords) >= 3:
-                by_net.setdefault(net_name, []).append(Polygon(coords))
+            holes = [
+                [
+                    (float(x), float(y))
+                    for x, y in re.findall(r"\(xy ([\-0-9.]+) ([\-0-9.]+)\)", r)
+                ]
+                for r in rings[1:]
+            ]
+            if len(exterior) >= 3:
+                by_net.setdefault(net_name, []).append(Polygon(exterior, holes))
 
         assert len(by_net) >= 2, "expected at least two rails to have emitted zones"
 
@@ -118,7 +133,10 @@ class TestGeneratePowerIslandsOnRealBoard:
             for j in range(i + 1, len(nets)):
                 for poly_a in by_net[nets[i]]:
                     for poly_b in by_net[nets[j]]:
-                        overlap = poly_a.intersection(poly_b).area
+                        # .buffer(0) repairs any GEOS-invalid ring (snap-
+                        # grid collinear edges) before the boolean, so a
+                        # robustness exception cannot masquerade as a pass.
+                        overlap = poly_a.buffer(0).intersection(poly_b.buffer(0)).area
                         assert overlap < 1e-6, (
                             f"{nets[i]!r} and {nets[j]!r} zones overlap by "
                             f"{overlap:.4f}mm^2 on {PLANE_LAYER}"
