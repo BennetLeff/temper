@@ -736,6 +736,7 @@ def _write_routes_to_content(
             gnd_blocks, _gnd_report = generate_ground_plane_blocks(
                 Path(gnd_source),
                 tstamp_counter=tstamp_counter,
+                segments=segments,
             )
             segments.extend(gnd_blocks)
 

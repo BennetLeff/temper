@@ -199,7 +199,21 @@ class TestGenerateGroundPlaneOnRealBoard:
         # A real, labelled connectivity cost is preferred to emitting
         # shorts -- the metric must not be propped up by copper that
         # DRC rejects.
-        assert after.pads_connected >= 4
+        #
+        # RE-DERIVED again 2026-08-16 (same fix, same day): 4 -> 3. The
+        # follow-up gates in the same PR are stricter still: (a)
+        # `_blocked` now tests the REAL copper footprint (line buffered
+        # by STITCH_TRACE_WIDTH_MM/2), which catches the 21.2mm edge
+        # whose unbuffered line cleared C39's +3V3 pad's pairwise buffer
+        # by 0.34mm but whose 1.0mm-wide track cut into it; and (b) the
+        # drop-via search and the backbone now also avoid THIS ROUTE'S
+        # OWN emitted other-net copper on all four layers (61 via-
+        # involved shorting_items on the first post-fix route were gnd
+        # drop vias landing on the route's own In3.Cu/In4.Cu tracks).
+        # Each new gate removes copper DRC rejects; each costs audit-
+        # visible pads the plane itself still covers. Floor tracks the
+        # honest, fail-closed number.
+        assert after.pads_connected >= 3
 
         # The generator's own report must agree with reality, not merely
         # claim it.

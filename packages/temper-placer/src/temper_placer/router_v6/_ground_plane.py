@@ -639,6 +639,7 @@ def generate_ground_plane_blocks(
     *,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
     tstamp_counter: list[int] | None = None,
+    segments: list[str] | None = None,
 ) -> tuple[list[str], GroundPlaneResult]:
     """Compute an ``In1.Cu`` ``gnd`` plane + via/MST stitching and return
     the NEW s-expression blocks (zone / keepout-zone / via / segment
@@ -654,6 +655,23 @@ def generate_ground_plane_blocks(
     deterministic sequence instead of restarting at 0 and colliding with
     the routed content's; when ``None`` a fresh counter is used (the
     standalone script and the spike tests call it without one).
+
+    ``segments``: the s-expression track/via strings THIS ROUTE already
+    emitted (Stage 4's A* routes + the pour pass), threaded from
+    ``_write_routes_to_content``. The plane generator re-reads the
+    ORIGINAL board file (``pcb_path``), which cannot see that copper;
+    without this parameter the drop vias and MST backbone would treat the
+    route's own other-net tracks (F.Cu, and on the signal layers the
+    through-vias physically span -- In3.Cu/In4.Cu) as empty space.
+    Measured (2026-08-16 post-fix route): 61 of the residual
+    shorting_items were gnd drop vias landing on / inside this route's
+    In3.Cu/In4.Cu other-net tracks, and the backbone could still cross
+    this route's F.Cu tracks. When provided, every other-net segment/via
+    in *segments* is buffered by its real pairwise clearance and unioned
+    into BOTH the via-placement obstacle set (all four layers the via's
+    footprint spans) and the backbone obstacle grid/_blocked check
+    (F.Cu). ``None`` (standalone/tests) preserves the pre-change
+    original-board-only view.
 
     Does not write anything -- the caller decides where the output goes
     (a scratch copy for validation, or the tracked board once validated).
@@ -790,7 +808,87 @@ def generate_ground_plane_blocks(
 
         via_avoid_copper = _unary_union_via(via_avoid_parts)
 
+    # THIS ROUTE'S OWN OTHER-NET COPPER (2026-08-16, fix/route-to-100-
+    # percent): the generator re-reads the ORIGINAL board, which cannot
+    # see the segments Stage 4 and the pour pass just emitted. Without
+    # them, a gnd drop via (a through-via whose barrel physically spans
+    # In3.Cu/In4.Cu) can land on top of this route's other-net tracks on
+    # those layers, and the MST backbone can cross this route's other-net
+    # F.Cu tracks -- measured 61 via-involved shorting_items on the
+    # 2026-08-16 post-fix route. Parse *segments* (same regexes the zone
+    # carve uses) and buffer each other-net item by its real pairwise
+    # clearance (resolve_netclass_clearances' net_clearance, the same
+    # kicad_pro-derived per-net map the A* corridor uses).
+    from temper_placer.router_v6._corridor_backbone import resolve_netclass_clearances
+
+    kicad_pro_path = pcb_path.with_suffix(".kicad_pro")
+    net_clearance, default_clearance = resolve_netclass_clearances(kicad_pro_path)
+    gnd_own_clearance = net_clearance.get(GND_NET_NAME, default_clearance)
+
+    emitted_avoid_copper: Polygon | None = None
+    emitted_fcu_copper: Polygon | None = None
+    emitted_holes: list[tuple[float, float, float]] = []
+    if segments:
+        from temper_placer.router_v6.zone_pour_clearance import _SEGMENT_RE, _VIA_RE
+
+        emitted_geoms: list = []
+        emitted_fcu_geoms: list = []
+        for line in segments:
+            match = _SEGMENT_RE.search(line)
+            if match:
+                x0, y0, x1, y1, width, seg_layer, net_num = match.groups()
+                other = num_to_name.get(int(net_num), "")
+                if not other or other == GND_NET_NAME:
+                    continue
+                layer = seg_layer
+                if layer not in ("F.Cu", "B.Cu", "In3.Cu", "In4.Cu"):
+                    continue
+                pair_clr = max(
+                    gnd_own_clearance,
+                    net_clearance.get(other, default_clearance),
+                )
+                geom = LineString(
+                    [(float(x0), float(y0)), (float(x1), float(y1))]
+                ).buffer(float(width) / 2.0 + pair_clr, quad_segs=8)
+                emitted_geoms.append(geom)
+                if layer == "F.Cu":
+                    emitted_fcu_geoms.append(geom)
+                continue
+            match = _VIA_RE.search(line)
+            if match:
+                x, y, size, via_layers, net_num = match.groups()
+                other = num_to_name.get(int(net_num), "")
+                if not other or other == GND_NET_NAME:
+                    continue
+                pair_clr = max(
+                    gnd_own_clearance,
+                    net_clearance.get(other, default_clearance),
+                )
+                geom = Point(float(x), float(y)).buffer(
+                    float(size) / 2.0 + pair_clr, quad_segs=8
+                )
+                emitted_geoms.append(geom)
+                if "F.Cu" in via_layers.replace('"', "").split():
+                    emitted_fcu_geoms.append(geom)
+                emitted_holes.append((float(x), float(y), float(size) / 2.0))
+        if emitted_geoms:
+            from shapely.ops import unary_union as _unary_union_emitted
+
+            emitted_avoid_copper = _unary_union_emitted(emitted_geoms)
+            via_avoid_parts.append(emitted_avoid_copper)
+            if len(via_avoid_parts) > 1:
+                via_avoid_copper = _unary_union_via(via_avoid_parts)
+        if emitted_fcu_geoms:
+            from shapely.ops import unary_union as _unary_union_emitted
+
+            emitted_fcu_copper = _unary_union_emitted(emitted_fcu_geoms)
+
     existing_holes = _existing_drilled_holes(pcb, GND_NET_NAME)
+    # Emitted vias' drills are real holes the drop-via search must respect
+    # (hole-to-hole is unconditional in the DRU, same-net exempted for
+    # gnd's own -- these are OTHER nets' drills).
+    for hx, hy, hr in emitted_holes:
+        existing_holes.append((hx, hy, hr))
     # NOTE (measured 2026-08-11): a variant of this function also built a
     # small buffered-hole region and blocked the MST backbone from
     # crossing it, hoping the hole set being small/sparse (dozens, not
@@ -1024,14 +1122,19 @@ def generate_ground_plane_blocks(
     # wrong number: this board's real, kicad-cli-enforced clearance is
     # per NET-CLASS PAIR (0.2mm Default-vs-Default, 0.5mm against Power,
     # etc.), read directly from pcb/temper.kicad_pro -- the same file
-    # kicad-cli itself resolves netclasses from.
-    kicad_pro_path = pcb_path.with_suffix(".kicad_pro")
-    net_clearance, default_clearance = resolve_netclass_clearances(kicad_pro_path)
-    gnd_own_clearance = net_clearance.get(GND_NET_NAME, default_clearance)
+    # kicad-cli itself resolves netclasses from. (net_clearance /
+    # default_clearance / gnd_own_clearance are resolved ABOVE, in the
+    # emitted-copper block, so both consumers share one resolution.)
     other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
         pcb, GND_NET_NAME, "F.Cu", net_clearance, gnd_own_clearance, default_clearance
     )
-    backbone_grid = build_obstacle_grid(board_polygon, [keepout, other_copper_fcu_backbone])
+    # Union in this route's own emitted other-net F.Cu copper (parsed
+    # above): the A* corridor must also route around the tracks this very
+    # run placed on F.Cu, not only the pre-existing board copper.
+    backbone_obstacles: list[Polygon | None] = [keepout, other_copper_fcu_backbone]
+    if emitted_fcu_copper is not None:
+        backbone_obstacles.append(emitted_fcu_copper)
+    backbone_grid = build_obstacle_grid(board_polygon, backbone_obstacles)
     backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
     # Component-aware, not Euclidean-MST-topology-locked: attempting A*
@@ -1104,13 +1207,27 @@ def generate_ground_plane_blocks(
     # below, where losing one candidate point is cheap (fail closed for
     # that ONE via, not the whole backbone).
     def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
-        line = LineString([p1, p2])
-        if keepout_established and line.intersects(keepout):
+        # The REAL copper footprint, not the zero-width line: the emitted
+        # segment is STITCH_TRACE_WIDTH_MM wide, so the line must be
+        # buffered by its own half-width before the keepout/foreign-copper
+        # intersects test -- measured (2026-08-16 post-fix route): an
+        # unbuffered line that cleared C39's +3V3 pad's pairwise buffer by
+        # 0.34mm was emitted as a 1.0mm-wide track whose edge cut 0.16mm
+        # into that same buffer, a real shorting_items violation the
+        # zero-width check could not see.
+        footprint = LineString([p1, p2]).buffer(STITCH_TRACE_WIDTH_MM / 2.0)
+        if keepout_established and footprint.intersects(keepout):
             return True
-        return (
+        if (
             other_copper_fcu_backbone is not None
             and not other_copper_fcu_backbone.is_empty
-            and line.intersects(other_copper_fcu_backbone)
+            and footprint.intersects(other_copper_fcu_backbone)
+        ):
+            return True
+        return (
+            emitted_fcu_copper is not None
+            and not emitted_fcu_copper.is_empty
+            and footprint.intersects(emitted_fcu_copper)
         )
 
     # Emit every component-local A*-routed edge unconditionally -- these
