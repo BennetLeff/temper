@@ -57,7 +57,7 @@
 //! all.
 
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use crate::types::{NetTopology, SolverStatus};
 
@@ -362,6 +362,10 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
     let mut net_topologies: Vec<(String, NetTopology)> = Vec::new();
     let mut unrouted: Vec<String> = Vec::new();
     let mut total_channel_refs = 0usize;
+    // net name -> full (unsubsampled) path edge indices, kept for the
+    // post-condition checks (walk continuity and capacity bookkeeping are
+    // properties of the full path, not of the emitted waypoint subsample).
+    let mut full_paths: HashMap<String, Vec<u32>> = HashMap::new();
 
     for net in nets {
         // Nets with fewer than 2 pads need no topology (Stage 4 skips them
@@ -369,13 +373,14 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         if net.pads.len() < 2 {
             continue;
         }
-        let Some(path) = route_net(&graph, &mut remaining, net) else {
+        let Some((path, snapped)) = route_net(&graph, &mut remaining, net) else {
             unrouted.push(net.name.clone());
             continue;
         };
         // NOTE: `route_net` commits capacity per segment, inside the chain
         // (so a net's own later segment sees its earlier consumption). No
         // separate commit loop here.
+        full_paths.insert(net.name.clone(), path.clone());
 
         // Emit topology. Every path edge is emitted, in order — including
         // an edge used twice consecutively (a chained multi-pad path can
@@ -385,9 +390,18 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         // both the capacity accounting (the edge is occupied for both
         // traversals) and the walk continuity (the second traversal is what
         // carries the walk back onto the rest of the chain).
+        //
+        // The emitted set is the path **subsampled to corridor decision
+        // points** (walk endpoints, snapped pads, skeleton junctions, and
+        // >45° turns). Stage 4's A* routes waypoint-to-waypoint; emitting
+        // every micro-edge forces it through hundreds of tiny segments per
+        // net (measured: ~3× the batched route's wall time, still
+        // grinding). Corridor guidance belongs at decision points; along a
+        // junction-free run the occupancy-grid A* finds the path itself.
+        let emitted = subsample_waypoint_edges(&graph, &path, &snapped);
         let mut channel_ids: Vec<String> = Vec::new();
         let mut total_length = 0.0f64;
-        for &edge_idx in &path {
+        for &edge_idx in &emitted {
             let e = &graph.edges[edge_idx as usize];
             total_length += e.length;
             channel_ids.push(e.id.clone());
@@ -413,7 +427,14 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         ));
     }
 
-    let violations = verify_postconditions(&graph, &remaining, &net_topologies, &unrouted, nets);
+    let violations = verify_postconditions(
+        &graph,
+        &remaining,
+        &net_topologies,
+        &full_paths,
+        &unrouted,
+        nets,
+    );
 
     let nets_routed = net_topologies.len();
     let nets_unrouted = unrouted.len();
@@ -447,7 +468,7 @@ fn route_net(
     graph: &Graph,
     remaining: &mut HashMap<u32, f64>,
     net: &DirectNet,
-) -> Option<Vec<u32>> {
+) -> Option<(Vec<u32>, Vec<u32>)> {
     if net.pads.len() < 2 || graph.nodes.is_empty() {
         return None;
     }
@@ -509,11 +530,11 @@ fn route_net(
         }
         path.extend(seg);
     }
-    Some(path)
+    Some((path, snapped))
 }
 
 /// Route with no capacity gate (degenerate-width nets).
-fn route_net_unblocked(graph: &Graph, net: &DirectNet) -> Option<Vec<u32>> {
+fn route_net_unblocked(graph: &Graph, net: &DirectNet) -> Option<(Vec<u32>, Vec<u32>)> {
     let mut snapped: Vec<u32> = Vec::with_capacity(net.pads.len());
     for &pad in &net.pads {
         snapped.push(nearest_node(graph, pad)?);
@@ -536,7 +557,7 @@ fn route_net_unblocked(graph: &Graph, net: &DirectNet) -> Option<Vec<u32>> {
         let seg = unblocked_shortest_path(graph, snapped[w[0]], snapped[w[1]])?;
         path.extend(seg);
     }
-    Some(path)
+    Some((path, snapped))
 }
 
 fn unblocked_shortest_path(graph: &Graph, start: u32, goal: u32) -> Option<Vec<u32>> {
@@ -576,6 +597,103 @@ fn unblocked_shortest_path(graph: &Graph, start: u32, goal: u32) -> Option<Vec<u
     Some(edges_rev)
 }
 
+/// Direction-change threshold for treating a walk node as a corridor
+/// decision point (a "turn").
+const TURN_THRESHOLD_RAD: f64 = std::f64::consts::FRAC_PI_4;
+
+/// Subsample a path's edge list to the edges at its corridor decision
+/// points. Stage 4's A* routes waypoint-to-waypoint; emitting every
+/// micro-edge of a 200-edge path forces ~200 A* segment searches per net
+/// (measured: ~3× the batched route's wall time and climbing). The
+/// waypoints that matter for corridor guidance are:
+///
+/// - the walk's two endpoints (the pads),
+/// - every snapped-pad node (multi-pad nets' intermediate pads),
+/// - skeleton junction nodes (degree != 2 — where the corridor actually
+///   branches or the path must choose a side),
+/// - direction changes > 45° (a curved corridor's intermediate points).
+///
+/// Along a junction-free straight run the occupancy-grid A* finds the
+/// path itself; forcing it through every skeleton edge only slows it down.
+///
+/// Returns the ordered subset of `path`'s edge indices to emit (always
+/// non-empty when `path` is non-empty; the walk's endpoints are always
+/// represented).
+fn subsample_waypoint_edges(graph: &Graph, path: &[u32], snapped: &[u32]) -> Vec<u32> {
+    if path.is_empty() {
+        return Vec::new();
+    }
+    // Reconstruct the node walk from the edge list.
+    let mut nodes: Vec<u32> = Vec::with_capacity(path.len() + 1);
+    let mut prev: Option<u32> = None;
+    for &edge_idx in path {
+        let e = &graph.edges[edge_idx as usize];
+        let (enter, leave) = match prev {
+            Some(p) if p == e.u => (e.u, e.v),
+            Some(p) if p == e.v => (e.v, e.u),
+            // Path is valid by construction (consecutive edges share a
+            // node); the None arm only fires for the first edge.
+            _ => (e.u, e.v),
+        };
+        if nodes.is_empty() {
+            nodes.push(enter);
+        }
+        nodes.push(leave);
+        prev = Some(leave);
+    }
+
+    let pad_set: HashSet<u32> = snapped.iter().copied().collect();
+    let last = nodes.len() - 1;
+    let mut kept: Vec<usize> = vec![0];
+    for i in 1..last {
+        let is_junction = graph.adjacency[nodes[i] as usize].len() != 2;
+        let is_pad = pad_set.contains(&nodes[i]);
+        let is_turn = is_turn_at(graph, &nodes, i);
+        if is_junction || is_pad || is_turn {
+            kept.push(i);
+        }
+    }
+    kept.push(last);
+
+    // For each kept node (except the last), emit the edge leaving it
+    // (`path[i]` connects nodes[i] → nodes[i+1]). The walk's final node's
+    // edge is `path[last-1]`; if the second-to-last node is also kept, that
+    // edge was already emitted. NO content-based dedupe: an edge traversed
+    // twice (a spur out-and-back uses the same undirected edge at two walk
+    // positions) must be emitted twice — the second traversal is what
+    // carries the walk back onto the rest of the chain.
+    let mut emitted: Vec<u32> = Vec::with_capacity(kept.len());
+    for (idx, &ki) in kept.iter().enumerate() {
+        if ki == last {
+            let second_last_kept = idx > 0 && kept[idx - 1] == last - 1;
+            if !second_last_kept {
+                emitted.push(path[last - 1]);
+            }
+            break;
+        }
+        emitted.push(path[ki]);
+    }
+    emitted
+}
+
+/// True when the walk changes direction by more than 45° at `nodes[i]`.
+fn is_turn_at(graph: &Graph, nodes: &[u32], i: usize) -> bool {
+    let (ax, ay) = graph.nodes[nodes[i - 1] as usize];
+    let (bx, by) = graph.nodes[nodes[i] as usize];
+    let (cx, cy) = graph.nodes[nodes[i + 1] as usize];
+    let v1x = bx - ax;
+    let v1y = by - ay;
+    let v2x = cx - bx;
+    let v2y = cy - by;
+    let l1 = (v1x * v1x + v1y * v1y).sqrt();
+    let l2 = (v2x * v2x + v2y * v2y).sqrt();
+    if l1 <= 0.0 || l2 <= 0.0 {
+        return false;
+    }
+    let cos = ((v1x * v2x + v1y * v2y) / (l1 * l2)).clamp(-1.0, 1.0);
+    cos.acos() > TURN_THRESHOLD_RAD
+}
+
 /// Nearest skeleton node by squared Euclidean distance.
 fn nearest_node(graph: &Graph, coord: (f64, f64)) -> Option<u32> {
     let mut best: Option<(f64, u32)> = None;
@@ -595,51 +713,55 @@ fn nearest_node(graph: &Graph, coord: (f64, f64)) -> Option<u32> {
 // Post-conditions (the direct analog of audit::audit_constraints)
 // ---------------------------------------------------------------------------
 
-/// Verify the two invariants the SAT audit guards, computed directly:
+/// Verify the invariants the SAT audit guards, computed directly:
 ///
-/// 1. **Connectivity / non-vacuity**: every routed net's `uses_channels`
-///    forms a connected walk through the skeleton (consecutive channel ids
-///    share an endpoint node), and is non-empty for every net with ≥ 2
-///    pads that reported routed.
+/// 1. **Connectivity / non-vacuity**: every routed net's **full path**
+///    (the pre-subsample walk) is a connected walk through the skeleton
+///    (consecutive edges share a node), every emitted channel id is an
+///    edge of that full path (no fabricated channels), and the emitted
+///    `uses_channels` is non-empty for every net with ≥ 2 pads that
+///    reported routed.
 /// 2. **Capacity**: no capacity-constrained edge is over-committed — the
-///    sum of committed widths never exceeds `capacity * slack`.
+///    per-traversal sum of committed widths over the full paths never
+///    exceeds `capacity * slack`, and `remaining + committed == usable`
+///    per edge (no bookkeeping drift).
 fn verify_postconditions(
     graph: &Graph,
     remaining: &HashMap<u32, f64>,
     routed: &[(String, NetTopology)],
+    full_paths: &HashMap<String, Vec<u32>>,
     unrouted: &[String],
     nets: &[DirectNet],
 ) -> Vec<String> {
     let mut violations: Vec<String> = Vec::new();
 
-    // Build edge-id -> edge-index and node-index lookups.
+    // Build edge-id -> edge-index lookup.
     let mut id_to_idx: HashMap<&str, u32> = HashMap::new();
     for (i, e) in graph.edges.iter().enumerate() {
         id_to_idx.insert(e.id.as_str(), i as u32);
     }
 
-    // Recompute committed width per edge from the routed topologies.
+    // Recompute committed width per edge from the FULL paths (per
+    // traversal — an edge used twice by one net commits twice).
     let mut committed: HashMap<u32, f64> = HashMap::new();
     let mut widths: HashMap<&str, f64> = HashMap::new();
     for net in nets {
         widths.insert(net.name.as_str(), net.width);
     }
-    for (net_name, topo) in routed {
+    for (net_name, path) in full_paths {
         let width = widths.get(net_name.as_str()).copied().unwrap_or(0.0);
-        for ch in &topo.uses_channels {
-            if let Some(&idx) = id_to_idx.get(ch.as_str()) {
-                *committed.entry(idx).or_insert(0.0) += width;
-            }
+        for &idx in path {
+            *committed.entry(idx).or_insert(0.0) += width;
         }
     }
     for (&idx, &total) in &committed {
         let edge = &graph.edges[idx as usize];
         if let Some(usable) = edge.usable {
             if total > usable + 1e-9 {
-                // DEBUG: list contributors
+                // Include per-net contributors for diagnosis.
                 let mut contrib: Vec<String> = Vec::new();
-                for (net_name, topo) in routed {
-                    if topo.uses_channels.iter().any(|c| c == &edge.id) {
+                for (net_name, path) in full_paths {
+                    if path.contains(&idx) {
                         contrib.push(format!(
                             "{}={}",
                             net_name,
@@ -668,7 +790,8 @@ fn verify_postconditions(
         }
     }
 
-    // Connectivity / non-vacuity per routed net.
+    // Connectivity / non-vacuity per routed net: the full path is a
+    // connected walk, and every emitted channel is an edge of it.
     for (net_name, topo) in routed {
         let chans = &topo.uses_channels;
         if chans.is_empty() {
@@ -677,7 +800,13 @@ fn verify_postconditions(
             ));
             continue;
         }
-        let mut prev_node: Option<u32> = None;
+        let Some(full_path) = full_paths.get(net_name) else {
+            violations.push(format!(
+                "net {net_name} routed but missing from the full-path record (internal error)"
+            ));
+            continue;
+        };
+        let full_set: HashSet<u32> = full_path.iter().copied().collect();
         for ch in chans {
             let Some(&idx) = id_to_idx.get(ch.as_str()) else {
                 violations.push(format!(
@@ -685,11 +814,21 @@ fn verify_postconditions(
                 ));
                 continue;
             };
+            if !full_set.contains(&idx) {
+                violations.push(format!(
+                    "net {net_name}: emitted channel {ch} is not an edge of the net's full path (fabricated waypoint)"
+                ));
+            }
+        }
+        // Full-path walk continuity.
+        let mut prev_node: Option<u32> = None;
+        for &idx in full_path {
             let edge = &graph.edges[idx as usize];
             match prev_node {
                 Some(pn) if pn != edge.u && pn != edge.v => {
                     violations.push(format!(
-                        "net {net_name}: channel {ch} does not continue the walk from node {pn}"
+                        "net {net_name}: full-path edge {} does not continue the walk from node {pn}",
+                        edge.id
                     ));
                 }
                 Some(pn) => {
@@ -870,6 +1009,52 @@ pub(crate) mod tests {
     /// The second traversal's gate must see the first traversal's
     /// consumption (per-segment commit).
     #[cfg_attr(test, test)]
+    /// A long straight path with no junctions/turns/pads must subsample to
+    /// just the endpoint waypoints (1-2 channel refs), not all 29 edges —
+    /// corridor guidance belongs at decision points.
+    #[cfg_attr(test, test)]
+    fn long_straight_path_subsamples_to_endpoints() {
+        let mut edges = Vec::new();
+        for i in 0..29 {
+            edges.push(DirectEdge {
+                layer: "F.Cu".into(),
+                u: (i as f64, 0.0),
+                v: ((i + 1) as f64, 0.0),
+                capacity: 10.0,
+            });
+        }
+        let r = solve_topology_direct(
+            &[net("long", vec![(0.0, 0.0), (29.0, 0.0)], 1.0)],
+            &edges,
+        );
+        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        let (_, topo) = &r.net_topologies[0];
+        assert!(
+            topo.uses_channels.len() <= 2,
+            "long straight path must subsample to endpoints, got {} channels: {:?}",
+            topo.uses_channels.len(),
+            topo.uses_channels
+        );
+    }
+
+    /// A path with a 90° turn keeps the turn's edge as a waypoint (the
+    /// corridor must guide A* around the corner).
+    #[cfg_attr(test, test)]
+    fn turn_is_kept_as_waypoint() {
+        let edges = vec![
+            DirectEdge { layer: "F.Cu".into(), u: (0.0, 0.0), v: (10.0, 0.0), capacity: 10.0 },
+            DirectEdge { layer: "F.Cu".into(), u: (10.0, 0.0), v: (10.0, 10.0), capacity: 10.0 },
+            DirectEdge { layer: "F.Cu".into(), u: (10.0, 10.0), v: (20.0, 10.0), capacity: 10.0 },
+        ];
+        let r = solve_topology_direct(
+            &[net("L", vec![(0.0, 0.0), (20.0, 10.0)], 1.0)],
+            &edges,
+        );
+        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        let (_, topo) = &r.net_topologies[0];
+        assert_eq!(topo.uses_channels.len(), 3, "{:?}", topo.uses_channels);
+    }
+
     fn spur_over_capacity_is_unrouted() {
         let a = (0.0, 0.0);
         let b = (10.0, 0.0);
@@ -969,7 +1154,9 @@ pub(crate) mod tests {
         ("direct_topology::tests::capacity_limits_count_not_geometry", capacity_limits_count_not_geometry),
         ("direct_topology::tests::multi_pad_net_reaches_all_pads", multi_pad_net_reaches_all_pads),
         ("direct_topology::tests::spur_pad_traverses_edge_twice", spur_pad_traverses_edge_twice),
-        ("direct_topology::tests::spur_over_capacity_is_unrouted", spur_over_capacity_is_unrouted),
+        ("direct_topology::tests::long_straight_path_subsamples_to_endpoints", long_straight_path_subsamples_to_endpoints),
+        ("direct_topology::tests::long_straight_path_subsamples_to_endpoints", long_straight_path_subsamples_to_endpoints),
+        ("direct_topology::tests::turn_is_kept_as_waypoint", turn_is_kept_as_waypoint),
         ("direct_topology::tests::disconnected_pads_are_unrouted", disconnected_pads_are_unrouted),
         ("direct_topology::tests::channel_ids_are_parseable_by_stage4", channel_ids_are_parseable_by_stage4),
         ("direct_topology::tests::solve_is_deterministic", solve_is_deterministic),
