@@ -5699,7 +5699,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f3ba31bf) (tstamp 19780ff7-1001-f98b-3fdf-7f4cfda76f2f)
-    (at 55.71 174.09 180)
+    (at 51.71 174.09 180)
     (descr "Resistor, Axial_DIN0918 series, Axial, Horizontal, pin pitch=22.86mm, 4W, length*diameter=18*9mm^2")
     (tags "Resistor Axial_DIN0918 series Axial Horizontal pin pitch 22.86mm 4W length 18mm diameter 9mm")
     (property "Reference" "R6")
