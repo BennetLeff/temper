@@ -1,3 +1,4 @@
+<!-- provenance: commit=b062cf9dfacbbbee7a04a469e790d9b2e6eaffb8 dirty=false -->
 <!-- provenance: baseline artifact scratch_out/temper_routed_nlayer.kicad_pcb produced on branch
 fix/router-nlayer-routing (commit 1d6aa4020, docs measurement committed as f870bc966), worktree
 /home/bennet/Desktop/temper-worktrees/router-nlayer-routing -- read-only input to this document, never
