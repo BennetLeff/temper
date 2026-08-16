@@ -742,11 +742,25 @@ TEMPER_NET_ASSIGNMENTS = {
     # than GND's), not a safety loosening.
     "gnd": "Power",
     "PWR_RTN": "HighVoltage",
-    "discharge.k_dis1-coil1": "Signal",
-    "discharge.k_dis1-coil2": "Signal",
-    "discharge.k_dis2-coil1": "Signal",
-    "power_in.bypass_relay-coil1": "Signal",
-    "power_in.bypass_relay-coil2": "Signal",
+    # RE-PINNED 2026-08-16 (fix/route-to-100-percent, Fix 2): the five
+    # relay-coil nets moved "Signal" -> "Power", mirroring the live
+    # design_rules.py change of the same day. The Signal values were a
+    # 2026-08-13 stability declaration whose PRIMARY purpose (blocking
+    # the hyphen-boundary-widened "COIL" keyword from reclassifying these
+    # nets HighCurrent/safety_category "HV") is preserved by an explicit
+    # Tier-2 Power entry; the Signal VALUE drifted from every other home
+    # of this fact (pcb/temper.kicad_pro's net_settings.netclass_
+    # assignments has assigned them Power since PR #1087, and configs/
+    # temper_production_config.yaml says "relay coil drivers into Power"),
+    # measured as 531 real kicad-cli track_width violations on the
+    # 2026-08-16 capstone route (0.2mm emitted vs the DRC-enforced 1.0mm
+    # Power min). Re-pin is mechanical (only these 5 values changed; the
+    # keyword-cascade semantics this oracle pins are untouched).
+    "discharge.k_dis1-coil1": "Power",
+    "discharge.k_dis1-coil2": "Power",
+    "discharge.k_dis2-coil1": "Power",
+    "power_in.bypass_relay-coil1": "Power",
+    "power_in.bypass_relay-coil2": "Power",
 }
 
 

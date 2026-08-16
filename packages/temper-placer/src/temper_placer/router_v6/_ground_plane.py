@@ -87,7 +87,22 @@ VIA_DRILL_MM = 0.4
 # In1.Cu carries zero pre-existing copper of any kind (measured: this is
 # the whole point of this module), so a modest, ordinary trace width for
 # the MST backbone is not competing with anything on this layer.
-STITCH_TRACE_WIDTH_MM = 0.4
+#
+# RAISED 0.4 -> 1.0mm 2026-08-16 (full-route agent, fix/route-to-100-
+# percent): the 0.4mm width violated the DRC's own netclass rule for
+# gnd copper. pcb/temper.kicad_pro assigns gnd to the declared "GND"
+# class (track_width 1.0mm), and the emitted DRU carries a "Ground trace
+# width" rule at min 1.0mm -- measured on the 2026-08-16 capstone route:
+# all 216 backbone/stub segments at 0.4mm were real track_width DRC
+# violations (216 of the 747 uncapped total). 1.0mm matches both the
+# GND-class SSOT width (design_rules TEMPER_NET_CLASSES["GND"]
+# trace_width=1.0) and the Power-class width design_rules maps the net
+# name "gnd" to; it is also a better fit for the backbone's actual role
+# (real return-current copper, not just audit-visible topology). The
+# corridor mask's erosion (compute_corridor_mask uses this same constant)
+# tightens correspondingly; the keepout-only fallback and the drop-via
+# stubs share the same width.
+STITCH_TRACE_WIDTH_MM = 1.0
 
 # Extra margin beyond the measured/derived keepout band, independent of
 # clearance-class values -- errs toward a smaller, safer plane rather
