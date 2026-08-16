@@ -78,12 +78,23 @@ instead of encoded as clauses):
    traversals, and would have silently under-counted the physical copper in
    the channel.)
 4. **Post-conditions verified and raised on** (the direct analog of
-   `audit_result`): every routed net's channel list is a connected walk
-   through the skeleton and no capacity-constrained edge is over-committed
-   (`remaining + committed == usable`). These checks caught two real bugs
-   during development — a consecutive-duplicate dedupe that corrupted both
-   bookkeeping and walk continuity, and the per-traversal gate gap above —
-   and are standing checks, not scaffolding.
+   `audit_result`): every routed net's full path is a connected walk
+   through the skeleton, every emitted channel is an edge of that path
+   (no fabricated waypoints), and no capacity-constrained edge is
+   over-committed (`remaining + committed == usable`). These checks
+   caught three real bugs during development — a consecutive-duplicate
+   dedupe that corrupted both bookkeeping and walk continuity, the
+   per-traversal gate gap (a spur out-and-back could commit 2×width to an
+   edge that only carries width), and an emitted-channel/walk mismatch
+   after waypoint subsampling — and are standing checks, not scaffolding.
+5. **Waypoint subsampling.** The emitted `uses_channels` is the path
+   subsampled to its corridor *decision points*: walk endpoints, snapped
+   pads, skeleton junctions (degree ≠ 2), and >45° turns. Stage 4's A*
+   routes waypoint-to-waypoint; emitting every micro-edge of a 200-edge
+   path forced ~200 A* segment searches per net (measured: a monolithic
+   route still grinding at 3× the batched wall time). Corridor guidance
+   belongs at decision points; along a junction-free straight run the
+   occupancy-grid A* finds the path itself.
 
 The output shape is byte-compatible with `extraction::extract_topology`'s
 `TopologyGraph` (same `uses_channels` / `path_graph` /

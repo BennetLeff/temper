@@ -382,14 +382,14 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         // separate commit loop here.
         full_paths.insert(net.name.clone(), path.clone());
 
-        // Emit topology. Every path edge is emitted, in order — including
-        // an edge used twice consecutively (a chained multi-pad path can
-        // legitimately traverse a skeleton spur out-and-back: pad P2 at the
-        // spur tip means segment P1→P2 ends on the spur edge and segment
-        // P2→P3 immediately retraces it). Deduplicating those would corrupt
-        // both the capacity accounting (the edge is occupied for both
-        // traversals) and the walk continuity (the second traversal is what
-        // carries the walk back onto the rest of the chain).
+        // Emit topology. The full path legitimately includes an edge used
+        // twice consecutively (a chained multi-pad path can traverse a
+        // skeleton spur out-and-back: pad P2 at the spur tip means segment
+        // P1→P2 ends on the spur edge and segment P2→P3 immediately
+        // retraces it). Deduplicating those would corrupt both the capacity
+        // accounting (the edge is occupied for both traversals) and the
+        // walk continuity (the second traversal is what carries the walk
+        // back onto the rest of the chain).
         //
         // The emitted set is the path **subsampled to corridor decision
         // points** (walk endpoints, snapped pads, skeleton junctions, and
@@ -400,12 +400,12 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         // junction-free run the occupancy-grid A* finds the path itself.
         let emitted = subsample_waypoint_edges(&graph, &path, &snapped);
         let mut channel_ids: Vec<String> = Vec::new();
-        let mut total_length = 0.0f64;
         for &edge_idx in &emitted {
-            let e = &graph.edges[edge_idx as usize];
-            total_length += e.length;
-            channel_ids.push(e.id.clone());
+            channel_ids.push(graph.edges[edge_idx as usize].id.clone());
         }
+        // Length estimate reflects the FULL path (the net's real corridor
+        // length), not the subsample.
+        let total_length: f64 = path.iter().map(|&e| graph.edges[e as usize].length).sum();
 
         total_channel_refs += channel_ids.len();
         let path_graph: Vec<(String, String)> = if channel_ids.len() == 1 {
