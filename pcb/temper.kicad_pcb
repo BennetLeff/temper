@@ -3524,7 +3524,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9792588b) (tstamp 9b1497d4-d1ec-1a99-41c9-08a2d8a269e1)
-    (at 78.12 224.66 180)
+    (at 112 218 90)
     (descr "C, Rect series, Radial, pin pitch=15.00mm, length*width=18*11mm^2, Capacitor, http://www.wima.com/EN/WIMA_FKS_3.pdf")
     (tags "C Rect series Radial pin pitch 15.00mm length 18mm width 11mm Capacitor")
     (property "Reference" "C7")
@@ -3850,7 +3850,7 @@
 
   (footprint "temper:Relay_SPST_Omron-G4A-E" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit dfffc6b5) (tstamp 0b982040-5316-4da5-e83f-acd4396bda7a)
-    (at 95.23 221.395 180)
+    (at 90 222 0)
     (descr "Omron G4A-1A-E PCB power relay, #250 Faston quick-connect contacts + PCB coil terminals. Dimensions from official Omron datasheet (https://omronfs.omron.com/en_US/ecb/products/pdf/en-g4a.pdf, Cat. No. J056-E1-09, page 2 'Dimensions' section): body envelope 30.5 x 16 x 23.5mm max; coil pins (A1,A2) at 6.35mm pitch, standard 0.25in relay coil spacing; 4x mounting/locating holes, 1.8mm dia, in a 22mm(X) x 12mm(Y, asymmetric 6.25/5.75 split) pattern -- both sub-dimensions confirmed internally consistent (6.25+5.75=12.00mm exactly matches the datasheet's labeled 12mm total). Pad numbers match the real EN50005 relay pinout used by the placed KiCad symbol (Relay:Relay_SPST-NO): A1/A2 = coil, 13/14 = contacts (COM/NO). Contact terminals (13=COM, 14=NO) are #250 (6.35mm, SAE/AMP industry-standard width, not vendor-specific) Faston quick-connect tabs -- the datasheet's own Model Number Legend confirms both terminal-shape variants (E vs PE) share identical 'PCB coil terminals' wording and differ only in contact terminal type, so these tabs have zero PCB copper connection on this variant; they mate externally with a push-on spade connector, not a PCB trace. Modeled here as SMD (no-drill) landing pads purely for netlist/footprint pin-count parity and courtyard/placement-clearance purposes -- NOT a claim that solder-in-hole geometry exists at these exact coordinates. Relative layout (tabs on the opposite long edge from the coil row, mirroring the coil's left/right split) is taken directly from the datasheet's own Terminal Arrangement diagram; the tabs' precise Y-offset from the coil row is a reasonable placement within the confirmed courtyard bounds, not a measured value -- verify against the physical part before hand-soldering wires to pads 13/14. Mounting holes are NPTH (mechanical only, no net); their pattern's position relative to the coil pins is datasheet-derived from a linearized reading, not a pixel-exact trace -- cross-check against the datasheet page 2 drawing before fabrication.")
     (tags "relay SPST G4A Omron power relay")
     (property "Reference" "K1")
@@ -6277,7 +6277,7 @@
 
   (footprint "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm" (version 20240108) (generator stub) (layer "F.Cu")
     (tedit 1f0680d0) (tstamp cf4e6aa1-cf9c-2aed-b3d6-61d0a7fb0185)
-    (at 40.4 210.1 180)
+    (at 82 205.5 0)
     (descr "Stub for Ametherm SL32 10015 NTC.")
     (property "Reference" "RT1")
     (property "Value" "?")
@@ -6513,7 +6513,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-220-2_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2917c834) (tstamp 91d930bf-cee7-584e-285e-b36aba2b0dc1)
-    (at 168 223.03 180)
+    (at 60 218 0)
     (descr "TO-220-2, Vertical, RM 5.08mm, see https://www.centralsemi.com/PDFS/CASE/TO-220-2PD.PDF")
     (tags "TO-220-2 Vertical RM 5.08mm")
     (property "Reference" "U1")
@@ -7196,7 +7196,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-220-2_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9678afa3) (tstamp f6ce20a7-d8ab-3a55-eb50-7698868ae788)
-    (at 28.29 175.44 180)
+    (at 66 226 180)
     (descr "TO-220-2, Vertical, RM 5.08mm, see https://www.centralsemi.com/PDFS/CASE/TO-220-2PD.PDF")
     (tags "TO-220-2 Vertical RM 5.08mm")
     (property "Reference" "U2")
