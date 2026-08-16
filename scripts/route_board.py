@@ -296,6 +296,13 @@ def route_once(
     net_pins = {n.name: list(n.pins) for n in netlist.nets}
     pad_connectivity = audit_pad_connectivity(content, net_pins) if content else None
 
+    # NetRouteResult (2026-08-16): the router's OWN verified verdicts --
+    # computed inside route_pcb() by the always-on Rust preflight over the
+    # emitted copper. "connected" here means NetRouteResult::verify_continuity
+    # proved it; the post-hoc audit above is the independent cross-check.
+    # None means the preflight failed to run (no verdicts exist).
+    net_route_results = getattr(result, "net_route_results", None)
+
     return {
         "wall_s": wall_s,
         "completion_rate": completion,
@@ -313,6 +320,7 @@ def route_once(
         "should_route_excluded_nets": should_route_excluded_nets,
         "pad_connectivity": pad_connectivity,
         "net_batch_summary": getattr(result, "net_batch_summary", None) or {},
+        "net_route_results": net_route_results,
     }
 
 
@@ -399,6 +407,28 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
                 "pad_connectivity_audit.find_pin_identity_pad_mismatches): "
                 f"{', '.join(mismatches)}"
             )
+    nrr = r.get("net_route_results")
+    if nrr:
+        # The router's OWN Rust-verified verdicts (2026-08-16): "connected"
+        # is only reachable through NetRouteResult::verify_continuity, so
+        # every net below is classified by actual copper continuity, never
+        # by "A* found a grid path". Printed unconditionally when present;
+        # None (preflight failed to run) prints nothing rather than a
+        # fabricated number.
+        connected = sorted(n for n, v in nrr.items() if v.disposition == "connected")
+        partial = sorted(n for n, v in nrr.items() if v.disposition == "partial")
+        zone_dep = sorted(n for n, v in nrr.items() if v.disposition == "zone_dependent")
+        failed = sorted(n for n, v in nrr.items() if v.disposition == "failed")
+        line += (
+            f"\n{label} (verified copper, NetRouteResult): "
+            f"{len(connected)} connected, {len(zone_dep)} zone-dependent, "
+            f"{len(partial)} partial, {len(failed)} failed "
+            f"of {len(nrr)} pad-bearing nets"
+        )
+        if partial:
+            line += f"\n  partial (copper exists, pads NOT all joined): {', '.join(partial)}"
+        if zone_dep:
+            line += f"\n  zone-dependent (outline only, no fill): {', '.join(zone_dep)}"
     return line
 
 

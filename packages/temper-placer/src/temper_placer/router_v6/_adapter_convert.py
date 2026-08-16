@@ -807,6 +807,32 @@ def _build_routing_result(
 
         connectivity = connectivity_preflight(routed_content, pad_positions)
 
+    # NetRouteResult (2026-08-16): Rust-verified per-net verdicts over the
+    # EMITTED content, ALWAYS on -- "connected" is only reachable through
+    # NetRouteResult::verify_continuity, whose Connected variant cannot be
+    # fabricated (private VerifiedRoute fields). This is the router-side
+    # fake-completion fix: the A* "path found" claim is no longer the
+    # completion claim. The legacy connectivity_preflight above stays
+    # flag-gated (differential-pinned); this is the authoritative verdict.
+    net_route_results: dict[str, Any] | None = None
+    if routed_content:
+        try:
+            from temper_placer.router_v6.kicad_connectivity import (
+                net_route_result_preflight,
+            )
+
+            net_route_results = net_route_result_preflight(routed_content)
+        except Exception:
+            # Fail open with a LOUD non-result (None), never a fabricated
+            # "connected": a caller that sees None knows the verdicts are
+            # missing; a caller that saw {} would read it as "all failed".
+            logger.warning(
+                "route_pcb: NetRouteResult preflight failed to run — no "
+                "per-net verified verdicts will be reported for this route",
+                exc_info=True,
+            )
+            net_route_results = None
+
     return RoutingResult(
         completion_rate=completion_rate,
         unrouted_nets=unrouted_nets,
@@ -817,6 +843,7 @@ def _build_routing_result(
         forced_segment_nets=forced_segment_nets,
         topology_solved_nets=topology_solved_nets,
         net_batch_summary=_summarize_batch_results(getattr(result, "batch_results", None)),
+        net_route_results=net_route_results,
     )
 
 

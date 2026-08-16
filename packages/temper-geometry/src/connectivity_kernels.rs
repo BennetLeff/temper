@@ -169,6 +169,21 @@ fn layers_intersect(a: &[i64], b: &[i64]) -> bool {
     a.iter().any(|x| b.contains(x))
 }
 
+/// The full connectivity union-find result: which pads are joined, and —
+/// for every track/via — which pad component (if any) its copper belongs
+/// to. The pad components are keyed by their canonical union-find root so
+/// a caller can cross-reference them against [`ConnectivityPartition::track_roots`] /
+/// [`ConnectivityPartition::via_roots`].
+pub struct ConnectivityPartition {
+    /// `(canonical root index, ascending pad indices)` for every component
+    /// that contains at least one pad, ordered by root index.
+    pub pad_components: Vec<(usize, Vec<usize>)>,
+    /// The union-find root of each track item (index-aligned with `tracks`).
+    pub track_roots: Vec<usize>,
+    /// The union-find root of each via item (index-aligned with `vias`).
+    pub via_roots: Vec<usize>,
+}
+
 /// The connectivity union-find over pads, tracks and vias, plus the zone
 /// union pairs computed in Python from the kept shapely predicates.
 /// Returns each component's pad indices in ascending order.
@@ -179,6 +194,27 @@ pub fn connectivity_components(
     zone_pairs: &[(usize, usize)],
     total_items: usize,
 ) -> Vec<Vec<usize>> {
+    connectivity_partition(pads, tracks, vias, zone_pairs, total_items)
+        .pad_components
+        .into_iter()
+        .map(|(_root, pads)| pads)
+        .collect()
+}
+
+/// The full union-find over pads, tracks and vias, plus the zone union
+/// pairs computed in Python from the kept shapely predicates. Returns the
+/// pad components, each keyed by its canonical root, plus every track's and
+/// via's root — so a caller can determine exactly which copper items
+/// participate in a given pad component. `connectivity_components` is a
+/// thin wrapper returning only the pad groups (bit-identical output, pinned
+/// by the Wave-4 differential suite).
+pub fn connectivity_partition(
+    pads: &[PadData],
+    tracks: &[TrackData],
+    vias: &[ViaData],
+    zone_pairs: &[(usize, usize)],
+    total_items: usize,
+) -> ConnectivityPartition {
     let pad_count = pads.len();
     let track_start = pad_count;
     let via_start = track_start + tracks.len();
@@ -261,7 +297,11 @@ pub fn connectivity_components(
     for (pad_index, _) in pads.iter().enumerate() {
         groups.entry(find(&mut parent, pad_index)).or_default().push(pad_index);
     }
-    groups.into_values().collect()
+    ConnectivityPartition {
+        pad_components: groups.into_iter().collect(),
+        track_roots: (0..tracks.len()).map(|i| find(&mut parent, track_start + i)).collect(),
+        via_roots: (0..vias.len()).map(|i| find(&mut parent, via_start + i)).collect(),
+    }
 }
 
 #[cfg(feature = "python")]
