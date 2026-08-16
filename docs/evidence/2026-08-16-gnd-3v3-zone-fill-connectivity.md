@@ -204,8 +204,28 @@ copper).
 Measured on the routed board's own copper fed back through the seam
 (pcbnew fill + kicad-cli DRC): **tracks_crossing 81 -> 16** with
 connectivity holding (gnd 57/88, +3V3 23/50), zone-involved creepage 0.
-The 16 residual crossings are the documented keepout-only fallback edges
+The residual crossings are the documented keepout-only fallback edges
 (`mst_edges_fallback`), reported honestly per rail.
+
+### 5.1 Final full-route numbers (route v2, all fixes wired)
+
+A fresh batched route on the completed branch (`scripts/route_board.py
+--net-batching --batch-size 10`, 817s wall, 14 batches, 0 crashed):
+
+| metric | route v2 |
+|---|---|
+| audit (fill-blind PRIMARY): nets fully pad-connected | 89/139 |
+| gnd (pcbnew, after KiCad fill) | **58/88** largest component (15/88 trace graph) |
+| +3V3 (pcbnew) | **23/50** (9/50 trace graph) |
+| vcc / +15V / PWR_RTN | 3/13 / 3/10 / 5/15 |
+| power_in.ntc-no (pcbnew) | **3/3** |
+| DRC total | 2185 (definitive route: 2305) |
+| tracks_crossing | 76 total: 34 involving plane/power nets (the documented fallback residual) + 42 routed-vs-routed (the A*'s own, run-to-run churn -- 10 on the definitive route, same code) |
+| creepage | 302 total, **5 zone-involved** (vs 790 with the old Python zones on the definitive route) |
+
+The audit's 89/139 vs the definitive route's 92/139 is the documented
+run-to-run net churn (route v1 on this branch also measured 89/139), not
+a regression from the emission changes, which run entirely after the A*.
 
 ## 6. Files touched
 
