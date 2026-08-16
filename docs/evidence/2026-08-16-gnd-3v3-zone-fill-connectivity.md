@@ -207,25 +207,40 @@ connectivity holding (gnd 57/88, +3V3 23/50), zone-involved creepage 0.
 The residual crossings are the documented keepout-only fallback edges
 (`mst_edges_fallback`), reported honestly per rail.
 
-### 5.1 Final full-route numbers (route v2, all fixes wired)
+### 5.1 Final numbers (rebased onto origin/main @ 7b424488f, #1259-#1263)
 
-A fresh batched route on the completed branch (`scripts/route_board.py
---net-batching --batch-size 10`, 817s wall, 14 batches, 0 crashed):
+The branch was rebased onto the five commits that landed after its base
+(#1259 zone-generator adoption, #1260 Stage-3 rewrite, #1261 zone-stitch
+C-space gates + Power width, #1262/#1263 capstone docs). **#1261 already
+implemented the gnd-side of the routed-copper avoidance** (its emitted-
+copper parsing is strictly more complete than this branch's first cut:
+via placement avoids ALL routed copper on every layer, the fallback
+rejects copper-crossing straight edges, and its own measurement documents
+the honest consequence: "the previous 15/88 gnd audit floor was partly
+built on shorting fallback copper; the honest corridor-clean connectivity
+is 4/88 -- a labelled gap beats emitting shorts"). This branch's
+`routed_segments_obstacle` additions to `_ground_plane.py` were therefore
+dropped as superseded; the `_power_islands.py` routed-copper avoidance
+(each rail's vias/backbone avoid the routed tracks and the earlier gnd
+plane) remains this branch's contribution on top of #1261.
 
-| metric | route v2 |
+Final seam measurement (route v2's own 6407 segment/via strings fed back
+through the generators, pcbnew fill + kicad-cli DRC on the splice):
+
+| metric | value |
 |---|---|
-| audit (fill-blind PRIMARY): nets fully pad-connected | 89/139 |
-| gnd (pcbnew, after KiCad fill) | **58/88** largest component (15/88 trace graph) |
-| +3V3 (pcbnew) | **23/50** (9/50 trace graph) |
+| gnd (pcbnew, largest component after fill) | **28/88** (plane covers 69/88 pad positions; #1261's copper/hole-avoiding via placement constrains the rest -- 45 pads get no via, the honest upstream trade) |
+| +3V3 (pcbnew) | **23/50** |
 | vcc / +15V / PWR_RTN | 3/13 / 3/10 / 5/15 |
 | power_in.ntc-no (pcbnew) | **3/3** |
-| DRC total | 2185 (definitive route: 2305) |
-| tracks_crossing | 76 total: 34 involving plane/power nets (the documented fallback residual) + 42 routed-vs-routed (the A*'s own, run-to-run churn -- 10 on the definitive route, same code) |
-| creepage | 302 total, **5 zone-involved** (vs 790 with the old Python zones on the definitive route) |
+| tracks_crossing from the plane/power copper | **0** (pre-rebase: 81; #1261's fallback gate + this branch's rail avoidance eliminate them) |
+| zone-involved creepage | **0** |
+| total DRC violations (spliced, refilled) | 487 |
 
-The audit's 89/139 vs the definitive route's 92/139 is the documented
-run-to-run net churn (route v1 on this branch also measured 89/139), not
-a regression from the emission changes, which run entirely after the A*.
+The audit (fill-blind PRIMARY metric) still reports gnd 15/88 and +3V3
+9/50 in the trace graph: the plane/pour copper is invisible to it by
+documented design, and #1261's safety gates shrank the F.Cu backbone that
+the audit can see. The pcbnew harness is the fill-aware truth.
 
 ## 6. Files touched
 
