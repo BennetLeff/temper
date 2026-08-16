@@ -20,10 +20,18 @@ VERIFICATION.md.
 
 The ``temper_placer`` imports below resolve to the pinned pre-E6 modules
 the verbatim bodies call back into (``_zone_pour_stitch``'s
-``_chamfer_path_points`` / ``_emit_zone_pours`` and ``_strip_copper``'s
-``strip_existing_zones`` stay Python single-source).  ``logger`` here names
+``_chamfer_path_points`` / ``_emit_zone_pours``).  ``logger`` here names
 the ORIGINAL module's logger so the unrepresented-field warnings hit the
 same record the shim's do.  Do NOT edit: it is the reference.
+
+RE-PIN 2026-08-16 (Tier-2 shim deletion): ``strip_existing_zones`` is now
+imported from ``temper_io_types`` directly. The ``router_v6/_strip_copper.py``
+shim (a pure re-export of the Rust ``strip_copper`` kernel) was deleted
+same-day; its only oracle-side consumer was this import line. The call
+site (``_write_routes_to_content``, line 465) is unchanged, so the
+``_BODY_DIGESTS`` pins in ``test_pipeline_route_rust_differential.py``
+remain valid. Parity is Rust-vs-Rust by construction (the shim delegated
+byte-identically — see ``test_strip_copper_rust_differential.py``).
 
 RE-PIN 2026-08-15 (router pad-avoidance fix): the ``_write_routes_to_content``
 pad-positions block was re-pinned to be rotation-aware (see the in-block
@@ -45,7 +53,7 @@ import re
 import uuid
 from pathlib import Path
 
-from temper_placer.router_v6._strip_copper import strip_existing_zones
+from temper_io_types import strip_existing_zones
 from temper_placer.router_v6._zone_pour_stitch import (
     _chamfer_path_points,
     _emit_zone_pours,

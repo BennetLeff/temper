@@ -429,7 +429,7 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
-    from temper_placer.router_v6._strip_copper import strip_existing_copper
+    from temper_io_types import strip_existing_copper
     from temper_placer.router_v6.adapter import route_pcb
 
     rules_path = REPO_ROOT / "packages" / "temper-placer" / "configs" / "netclass_rules.yaml"

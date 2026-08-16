@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import re
 
-from temper_placer.router_v6._strip_copper import (
+from temper_io_types import (
     strip_existing_copper,
     strip_existing_zones,
 )

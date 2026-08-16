@@ -21,7 +21,7 @@ from temper_placer.router_v6._adapter_types import (
     ParsedPcbLike,
     RoutingResult,
 )
-from temper_placer.router_v6._strip_copper import strip_existing_zones
+from temper_io_types import strip_existing_zones
 
 # Re-exported from _zone_pour_stitch.py (LOC cap paydown, temper-N7-cap5):
 # _stitch_isolated_pads/_emit_zone_pours/_zone_layers_for_net/
