@@ -249,6 +249,13 @@ pub mod via_clearance;
 pub mod bottleneck_kernels;
 pub mod layer_capacity_kernels;
 pub mod connectivity_kernels;
+// NetRouteResult (2026-08-16): the verified per-net routing verdict --
+// `Connected` is constructible only through `verify_continuity`, which runs
+// union-find over the ACTUAL emitted copper (see the module doc for the
+// fake-completion bug class this closes). Declared after
+// `connectivity_kernels` (whose `connectivity_partition` it reuses) so
+// appends cannot rewrite a parallel agent's lines.
+pub mod net_route_result;
 pub mod obstacle_map_kernels;
 // Wave 4, spatial-tier-2 unit: router_v6/bundle_analyzer.py's GEOS seam
 // (MultiPoint.convex_hull + hull.buffer + STRtree contains) -- GEOS
@@ -363,6 +370,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::bottleneck_kernels::register(m)?;
     crate::layer_capacity_kernels::register(m)?;
     crate::connectivity_kernels::register(m)?;
+    crate::net_route_result::register(m)?;
     crate::obstacle_map_kernels::register(m)?;
     crate::bundle_analyzer::register(m)?;
     crate::placement_topology::register(m)?;
