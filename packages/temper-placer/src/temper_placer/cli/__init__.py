@@ -14,6 +14,7 @@ from temper_placer.profiling.cli import profile
 
 from ._io import console
 from .andon_commands import andon
+from .repair_commands import repair_unplaced
 from .timing import timing
 from .trace_commands import trace
 from .version import version
@@ -32,6 +33,7 @@ main.add_command(andon)
 main.add_command(timing)
 main.add_command(profile)
 main.add_command(watch)
+main.add_command(repair_unplaced)
 
 
 def _find_repo_file(relative_path: str) -> Path | None:
