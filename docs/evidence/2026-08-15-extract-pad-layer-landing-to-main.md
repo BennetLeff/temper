@@ -1,4 +1,4 @@
-<!-- provenance: commit=ba32ed0d753817728c8ea005e473c0482cb69663 dirty=false -->
+<!-- provenance: commit=fdbe0a6ad2bed62f9bbe13dcd894db92ffbfe6a9 dirty=false -->
 ---
 title: "Extract the pad-layer landing fix (#1196/#1197) onto main -- before/after measured on current main"
 date: 2026-08-15
