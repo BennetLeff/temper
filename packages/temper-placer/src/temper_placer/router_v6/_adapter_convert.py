@@ -705,6 +705,36 @@ def _write_routes_to_content(
             pcb=pcb,
         )
 
+        # M4: gnd's dedicated In1.Cu ground plane. gnd -- the board's
+        # largest net (88 pads) -- is mapped to the "Power" netclass
+        # (kicad_pro does not declare a "GND" class; see design_rules.py's
+        # gnd entry), and Power declares no routing_strategy, so
+        # _zone_layers_for_net("gnd") == [] and the F.Cu/B.Cu pour pass
+        # above never gives it copper (measured before this: zero copper
+        # on gnd). router_v6/_ground_plane.py emits its pour + HV/SELV
+        # keepout + drop vias + MST backbone on In1.Cu; it was a
+        # standalone spike (scripts/generate_ground_plane.py) with no
+        # production caller until being wired in here. The blocks are
+        # appended AFTER the R7 strip + pour pass above so the In1.Cu
+        # zones survive, and tstamp_counter is threaded so the plane's
+        # tstamps continue this run's deterministic sequence.
+        gnd_source = getattr(pcb, "source_path", None) if pcb is not None else None
+        # Only boards that actually declare a gnd net get the plane --
+        # synthetic fixtures without one are skipped (the generator itself
+        # raises ValueError for a gnd-less board; that is the right
+        # discipline for the standalone script, wrong for production
+        # routing of arbitrary input boards).
+        if gnd_source is not None and "gnd" in net_name_to_number:
+            from temper_placer.router_v6._ground_plane import (
+                generate_ground_plane_blocks,
+            )
+
+            gnd_blocks, _gnd_report = generate_ground_plane_blocks(
+                Path(gnd_source),
+                tstamp_counter=tstamp_counter,
+            )
+            segments.extend(gnd_blocks)
+
     if not segments:
         return pcb_content, pad_positions
 
