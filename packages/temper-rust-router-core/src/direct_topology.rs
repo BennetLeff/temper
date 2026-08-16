@@ -597,26 +597,26 @@ fn unblocked_shortest_path(graph: &Graph, start: u32, goal: u32) -> Option<Vec<u
     Some(edges_rev)
 }
 
-/// Direction-change threshold for treating a walk node as a corridor
-/// decision point (a "turn").
-const TURN_THRESHOLD_RAD: f64 = std::f64::consts::PI / 6.0; // 30°
-
 /// Subsample a path's edge list to the edges at its corridor decision
-/// points. Stage 4's A* routes waypoint-to-waypoint; emitting every
-/// micro-edge of a 200-edge path forces ~200 A* segment searches per net
-/// (measured: ~3× the batched route's wall time and climbing). The
-/// waypoints that matter for corridor guidance are:
+/// points.
 ///
-/// - the walk's two endpoints (the pads),
-/// - every snapped-pad node (multi-pad nets' intermediate pads),
-/// - direction changes > 30° (where the corridor actually bends; the
-///   skeleton's junctions are NOT kept — a medial-axis graph's average
-///   degree is > 2, so "degree ≠ 2" keeps almost every node and the
-///   subsample degenerates back to the full path, measured).
+/// **2026-08-16 measured finding (docs/evidence/2026-08-16-sat-capacity-
+/// vacuity-fix.md): Stage 4's occupancy-grid A* must NOT be forced through
+/// corridor waypoints on this board.** A monolithic route with turn+junction
+/// corridor waypoints achieved 62/139 pad-connected vs 92/139 for the
+/// batched (no-corridor) reference — 63 of 98 topology-solved nets emitted
+/// zero copper, because the corridors serialize every net through the same
+/// skeleton channels and later nets' segments fail against the shared
+/// occupancy grid, where free A* would route around. Stage 4's A* is a
+/// complete router from raw pad positions; the corridor's only remaining
+/// job is to exist (the vacuity fix: Stage 3 must decide a real,
+/// capacity-feasible topology) without constraining the geometric search.
 ///
-/// Along a junction-free straight run the occupancy-grid A* finds the
-/// path itself; forcing it through every skeleton edge or every corridor
-/// junction only slows it down.
+/// So the emitted waypoint set is the walk's **endpoints only** (plus the
+/// intermediate snapped pads of multi-pad nets, which Stage 4's A* must
+/// reach — its all-pad-tree expansion adds any it would miss anyway). The
+/// full capacity-aware path is still computed, capacity-committed, and
+/// post-condition-verified; only the *emission* is endpoint-minimal.
 ///
 /// Returns the ordered subset of `path`'s edge indices to emit (always
 /// non-empty when `path` is non-empty; the walk's endpoints are always
@@ -648,9 +648,7 @@ fn subsample_waypoint_edges(graph: &Graph, path: &[u32], snapped: &[u32]) -> Vec
     let last = nodes.len() - 1;
     let mut kept: Vec<usize> = vec![0];
     for i in 1..last {
-        let is_pad = pad_set.contains(&nodes[i]);
-        let is_turn = is_turn_at(graph, &nodes, i);
-        if is_pad || is_turn {
+        if pad_set.contains(&nodes[i]) {
             kept.push(i);
         }
     }
@@ -675,24 +673,6 @@ fn subsample_waypoint_edges(graph: &Graph, path: &[u32], snapped: &[u32]) -> Vec
         emitted.push(path[ki]);
     }
     emitted
-}
-
-/// True when the walk changes direction by more than 30° at `nodes[i]`.
-fn is_turn_at(graph: &Graph, nodes: &[u32], i: usize) -> bool {
-    let (ax, ay) = graph.nodes[nodes[i - 1] as usize];
-    let (bx, by) = graph.nodes[nodes[i] as usize];
-    let (cx, cy) = graph.nodes[nodes[i + 1] as usize];
-    let v1x = bx - ax;
-    let v1y = by - ay;
-    let v2x = cx - bx;
-    let v2y = cy - by;
-    let l1 = (v1x * v1x + v1y * v1y).sqrt();
-    let l2 = (v2x * v2x + v2y * v2y).sqrt();
-    if l1 <= 0.0 || l2 <= 0.0 {
-        return false;
-    }
-    let cos = ((v1x * v2x + v1y * v2y) / (l1 * l2)).clamp(-1.0, 1.0);
-    cos.acos() > TURN_THRESHOLD_RAD
 }
 
 /// Nearest skeleton node by squared Euclidean distance.
@@ -966,7 +946,9 @@ pub(crate) mod tests {
         let n2 = &r.net_topologies[1].1;
         assert!(n1.uses_channels[0].contains("(0.000000, 0.000000)_(10.000000, 0.000000)"));
         assert!(!n2.uses_channels.iter().any(|id| id.contains("(0.000000, 0.000000)_(10.000000, 0.000000)")));
-        assert_eq!(n2.uses_channels.len(), 3);
+        // Endpoint-only emission: n2's alternate path emits its first and
+        // last edges only (a-x and y-b).
+        assert_eq!(n2.uses_channels.len(), 2, "{:?}", n2.uses_channels);
     }
 
     /// Multi-pad net: 3 pads chained, all reached.
@@ -980,9 +962,11 @@ pub(crate) mod tests {
     }
 
     /// A pad at the tip of a skeleton spur forces an out-and-back traversal
-    /// of the same edge twice (consecutively). Both traversals must be
-    /// emitted (dedupe would corrupt capacity bookkeeping and the walk),
-    /// and capacity must be committed for both.
+    /// of the same edge twice in the full path. The emitted set is the
+    /// endpoints + intermediate pads (the spur tip is a pad, so the spur
+    /// edge is emitted once); the double traversal stays internal to the
+    /// capacity accounting and the post-condition walk check — the full
+    /// path is what must not be deduped.
     #[cfg_attr(test, test)]
     fn spur_pad_traverses_edge_twice() {
         // Main line a--b--c with a spur d--b.
@@ -999,17 +983,14 @@ pub(crate) mod tests {
         let r = solve_topology_direct(&[net("spur", vec![a, d, c], 1.0)], &edges);
         assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
         let (_, topo) = &r.net_topologies[0];
-        // a-b, b-d, d-b (same id as b-d), b-c => 4 channel refs, with the
-        // spur edge appearing twice (consecutively).
-        assert_eq!(topo.uses_channels.len(), 4, "{:?}", topo.uses_channels);
-        assert_eq!(topo.uses_channels[1], topo.uses_channels[2]);
+        // Emitted: a-b, b-d (spur, the pad waypoint), b-c => 3 channels,
+        // with the spur edge in the middle.
+        assert_eq!(topo.uses_channels.len(), 3, "{:?}", topo.uses_channels);
+        // The full path's double traversal committed 2x width on the spur
+        // edge: capacity usable = 10*0.8 = 8 >= 2*1.0, so no violation.
+        // (The over-capacity variant is `spur_over_capacity_is_unrouted`.)
     }
 
-    /// A spur whose capacity cannot carry the out-and-back traversal
-    /// (2×width > usable) must make the net unrouted — never over-committed.
-    /// The second traversal's gate must see the first traversal's
-    /// consumption (per-segment commit).
-    #[cfg_attr(test, test)]
     /// A long straight path with no junctions/turns/pads must subsample to
     /// just the endpoint waypoints (1-2 channel refs), not all 29 edges —
     /// corridor guidance belongs at decision points.
@@ -1038,10 +1019,12 @@ pub(crate) mod tests {
         );
     }
 
-    /// A path with a 90° turn keeps the turn's edge as a waypoint (the
-    /// corridor must guide A* around the corner).
+    /// Corridor waypoints are NOT forced on Stage 4 (measured: they
+    /// degrade connectivity 62 vs 92 on this board) — the emitted set is
+    /// the walk's endpoints plus intermediate snapped pads only. A path
+    /// with a 90° turn emits just the first and last edges.
     #[cfg_attr(test, test)]
-    fn turn_is_kept_as_waypoint() {
+    fn turn_is_not_emitted_endpoints_only() {
         let edges = vec![
             DirectEdge { layer: "F.Cu".into(), u: (0.0, 0.0), v: (10.0, 0.0), capacity: 10.0 },
             DirectEdge { layer: "F.Cu".into(), u: (10.0, 0.0), v: (10.0, 10.0), capacity: 10.0 },
@@ -1053,7 +1036,7 @@ pub(crate) mod tests {
         );
         assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
         let (_, topo) = &r.net_topologies[0];
-        assert_eq!(topo.uses_channels.len(), 3, "{:?}", topo.uses_channels);
+        assert_eq!(topo.uses_channels.len(), 2, "{:?}", topo.uses_channels);
     }
 
     /// A path that passes *straight through* a junction (no direction
@@ -1084,6 +1067,11 @@ pub(crate) mod tests {
         assert_eq!(topo.uses_channels.len(), 2, "{:?}", topo.uses_channels);
     }
 
+    /// A spur whose capacity cannot carry the out-and-back traversal
+    /// (2×width > usable) must make the net unrouted — never over-committed.
+    /// The second traversal's gate must see the first traversal's
+    /// consumption (per-segment commit).
+    #[cfg_attr(test, test)]
     fn spur_over_capacity_is_unrouted() {
         let a = (0.0, 0.0);
         let b = (10.0, 0.0);
@@ -1184,9 +1172,9 @@ pub(crate) mod tests {
         ("direct_topology::tests::multi_pad_net_reaches_all_pads", multi_pad_net_reaches_all_pads),
         ("direct_topology::tests::spur_pad_traverses_edge_twice", spur_pad_traverses_edge_twice),
         ("direct_topology::tests::long_straight_path_subsamples_to_endpoints", long_straight_path_subsamples_to_endpoints),
-        ("direct_topology::tests::long_straight_path_subsamples_to_endpoints", long_straight_path_subsamples_to_endpoints),
-        ("direct_topology::tests::turn_is_kept_as_waypoint", turn_is_kept_as_waypoint),
+        ("direct_topology::tests::turn_is_not_emitted_endpoints_only", turn_is_not_emitted_endpoints_only),
         ("direct_topology::tests::straight_through_junction_is_not_kept", straight_through_junction_is_not_kept),
+        ("direct_topology::tests::spur_over_capacity_is_unrouted", spur_over_capacity_is_unrouted),
         ("direct_topology::tests::disconnected_pads_are_unrouted", disconnected_pads_are_unrouted),
         ("direct_topology::tests::channel_ids_are_parseable_by_stage4", channel_ids_are_parseable_by_stage4),
         ("direct_topology::tests::solve_is_deterministic", solve_is_deterministic),
