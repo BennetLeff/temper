@@ -414,7 +414,7 @@ def collect_zone_obstacle_records(
         )
 
     for via in getattr(pcb, "vias", []) or []:
-        if via.net == zone_net or layer not in getattr(via, "layers", ()):
+        if via.net == zone_net or not _via_is_on_layer(getattr(via, "layers", ()), layer):
             continue
         records.append(
             (
@@ -452,7 +452,8 @@ def collect_zone_obstacle_records(
         match = _VIA_RE.search(line)
         if match:
             x, y, size, via_layers, net_num = match.groups()
-            if layer not in via_layers:
+            via_layers_tuple = tuple(via_layers.replace('"', "").split())
+            if not _via_is_on_layer(via_layers_tuple, layer):
                 continue
             other = names.get(int(net_num), "")
             if not other or other == zone_net:
@@ -470,3 +471,43 @@ def collect_zone_obstacle_records(
             )
 
     return records
+
+
+def _via_is_on_layer(via_layers, layer: str) -> bool:
+    """Is a via's copper barrel present on *layer*?
+
+    KiCad's DRC creepage graph models a via as a copper CYLINDER passing
+    through every layer between its declared endpoints -- not as copper
+    only on the two endpoint layers.  Measured on the production board:
+    every via is a through-via (``("F.Cu", "B.Cu")``), and the zone-vs-
+    via creepage findings (30 of 40 after the creepage carve) sat exactly
+    on In3.Cu/In4.Cu -- layers a 2-layer-endpoint via does not literally
+    name but physically spans.  So a via is an obstacle on *layer* when
+    the layer is inside the via's declared span (between its min and max
+    copper layer), not merely one of its two named endpoints.
+
+    ``via_layers`` is a tuple of layer names (``("F.Cu", "B.Cu")`` for a
+    through via).  Returns False for a via that names only one layer or
+    whose span does not include *layer*.
+    """
+    if not via_layers:
+        # No declared layers -- cannot establish a span; treat as absent
+        # from *layer* (matches the legacy ``layer in layers`` skip).
+        return False
+    if layer in via_layers:
+        # The layer is a named endpoint.
+        return True
+    # Span test: does *layer* sit between the via's declared endpoints?
+    # Only copper layers participate in a via span; a via with a single
+    # declared layer is a blind/buried via on exactly that layer.
+    from temper_placer.core.board_layer_roles import ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED
+
+    ordered = list(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
+    if layer not in ordered:
+        return False
+    idx = ordered.index(layer)
+    layer_idx = [i for i, name in enumerate(ordered) if name in via_layers]
+    if not layer_idx:
+        return False
+    lo, hi = min(layer_idx), max(layer_idx)
+    return lo <= idx <= hi

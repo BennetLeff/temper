@@ -87,6 +87,22 @@ use geo::{Area, BooleanOps, Coord, MultiPolygon, Polygon as GeoPolygon};
 /// approximation is free to differ (see module doc).
 pub const HALO_SEGMENTS: usize = 24;
 
+/// Radius inflation factor for polygonal halo approximations.
+///
+/// A regular n-gon built from vertices at radius R is INSCRIBED: its edge
+/// midpoints (the points of closest approach to the centre) sit at
+/// `R * cos(pi/n)`, not at R.  The carve distance is the edge-to-edge gap,
+/// so an un-inflated halo undercuts the required separation by
+/// `R * (1 - cos(pi/n))` -- for a 12.6mm creepage halo at 24 segments that
+/// is 0.11mm, and the DRC measures it (12.49mm actual vs 12.60mm required,
+/// measured on the production board 2026-08-16).  Inflating the radius by
+/// `1/cos(pi/n)` puts the polygon's EDGES at the true required distance
+/// (the vertices then sit slightly further out -- conservative, never a
+/// violation).
+pub fn halo_radius_inflate() -> f64 {
+    1.0 / (std::f64::consts::PI / HALO_SEGMENTS as f64).cos()
+}
+
 /// Coordinate snap grid (mm) applied to every input ring before the
 /// polygon-boolean carve.
 ///
@@ -152,18 +168,43 @@ impl ZoneObstacle {
                 half_h,
                 rotation_rad: _,
                 clearance_mm,
-            } => disc(position, half_w.max(half_h) + clearance_mm, HALO_SEGMENTS),
+            } => disc(
+                position,
+                // HALF-DIAGONAL, not max(half_w, half_h): the furthest
+                // point on a RECTANGULAR pad from its own centre is a
+                // corner, not an edge midpoint.  A disc of radius
+                // max(w,h)/2 under-covers a rect pad's corners by
+                // hypot(w/2,h/2) - max(w,h)/2 -- measured 0.30mm for the
+                // 3.0x2.0mm PTH relay pad and a 12.6mm creepage halo
+                // (DRC actual 12.48 vs 12.60 required, 2026-08-16).  The
+                // same half-diagonal convention is already documented in
+                // router_v6/_ground_plane.py's _collect_hv_copper_geometry.
+                // (rotation_rad is unused by the disc -- a disc is
+                // rotation-invariant, so the corner reach is the same in
+                // every orientation.)
+                (half_w.hypot(half_h) + clearance_mm) * halo_radius_inflate(),
+                HALO_SEGMENTS,
+            ),
             ZoneObstacle::Via {
                 position,
                 diameter_mm,
                 clearance_mm,
-            } => disc(position, diameter_mm / 2.0 + clearance_mm, HALO_SEGMENTS),
+            } => disc(
+                position,
+                (diameter_mm / 2.0 + clearance_mm) * halo_radius_inflate(),
+                HALO_SEGMENTS,
+            ),
             ZoneObstacle::Track {
                 start,
                 end,
                 width_mm,
                 clearance_mm,
-            } => capsule(start, end, width_mm / 2.0 + clearance_mm, HALO_SEGMENTS),
+            } => capsule(
+                start,
+                end,
+                (width_mm / 2.0 + clearance_mm) * halo_radius_inflate(),
+                HALO_SEGMENTS,
+            ),
         }
     }
 }
@@ -695,8 +736,16 @@ pub(crate) mod tests {
         let pad_pt = Point::new(50.0, 40.0);
         assert!(!res.outlines[0].contains_point(&pad_pt));
         assert!(res.outlines[0].contains_point(&Point::new(5.0, 5.0)));
-        // Halo area ≈ pi * 6^2 ≈ 113.1 mm²
-        assert!((res.keepout_area_mm2 - std::f64::consts::PI * 36.0).abs() < 2.0);
+        // The halo's EDGES must sit at the required separation, so the
+        // radius is inflated by 1/cos(pi/24) (inscribed-polygon effect,
+        // see halo_radius_inflate()).  The pad halo radius is the
+        // half-DIAGONAL (hypot(1,1) = sqrt(2)) plus the clearance, so the
+        // nominal area is pi * (sqrt(2)+5)^2, scaled by the inflation
+        // factor squared.
+        let nominal_r = std::f64::consts::SQRT_2 + 5.0;
+        let expected =
+            std::f64::consts::PI * nominal_r * nominal_r * halo_radius_inflate() * halo_radius_inflate();
+        assert!((res.keepout_area_mm2 - expected).abs() < 2.0);
     }
 
     #[cfg_attr(test, test)]
@@ -808,16 +857,24 @@ pub(crate) mod tests {
     fn capsule_halo_has_positive_area() {
         let c = capsule(Point::new(0.0, 0.0), Point::new(10.0, 0.0), 2.0, 24);
         let area = c.unsigned_area();
-        // Rect 10 x 4 plus two semicircle caps r=2: 40 + pi*4 ≈ 52.57
-        assert!((area - 52.57).abs() < 1.5, "capsule area {area}");
+        // Rect 10 x 4 plus two semicircle caps r=2: 40 + pi*4 ≈ 52.57,
+        // inflated by the inscribed-polygon factor (halo_radius_inflate())
+        // so the capsule's straight-side edges sit at the true radius.
+        let infl = halo_radius_inflate();
+        let expected = 10.0 * 2.0 * 2.0 * infl + std::f64::consts::PI * 4.0 * infl * infl;
+        assert!((area - expected).abs() < 1.5, "capsule area {area} vs {expected}");
     }
 
     #[cfg_attr(test, test)]
     fn disc_halo_area() {
         let d = disc(Point::new(0.0, 0.0), 3.0, 24);
         let area = d.unsigned_area();
-        // 24-gon inscribed in radius-3 circle: 12 * r^2 * sin(2pi/24) ≈ 27.95
-        assert!((area - std::f64::consts::PI * 9.0).abs() < 0.5, "disc area {area}");
+        // 24-gon with vertices at inflated radius R*1/cos(pi/24): the
+        // inscribed area at R=3 is 12 * r^2 * sin(2pi/24) ≈ 27.95, scaled
+        // by the inflation factor squared.
+        let infl = halo_radius_inflate();
+        let expected = 12.0 * 9.0 * (2.0 * std::f64::consts::PI / 24.0).sin() * infl * infl;
+        assert!((area - expected).abs() < 0.5, "disc area {area} vs {expected}");
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---

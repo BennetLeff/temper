@@ -277,20 +277,28 @@ def _own_pads_on_layer(
     pad's declared layer); THT pads report ``"all"``/``"*.Cu"`` (or a
     ``"Through"`` marker) and exist on every copper layer.
 
-    Falls back to *fallback_positions* (the caller's layer-blind list)
-    when no ``pcb`` is available (unit tests / synthetic fixtures) --
-    those callers pass positions for nets whose pads are all on one
-    layer, so the blind list is correct there.
+    Returns ``[]`` when the net has NO pad on *layer* -- the caller
+    (``_emit_zone_pours``) skips the layer entirely in that case,
+    because a pour with no own pad on the layer is isolated copper
+    (measured: 19 "Isolated copper fill" findings for F.Cu-only SMD
+    nets poured onto In3.Cu/In4.Cu).
+
+    *fallback_positions* is used only when there is no ``pcb`` (unit
+    tests / synthetic fixtures that pass positions directly) -- such
+    callers exercise single-layer fixtures, where the blind list is the
+    caller's own intent.
     """
     if pcb is None:
         return fallback_positions
     from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
 
     out: list[tuple[float, float]] = []
+    saw_net_pin = False
     for comp in getattr(pcb, "components", []) or []:
         for pin in getattr(comp, "pins", []) or []:
             if not pin.net or pin.net != net_name:
                 continue
+            saw_net_pin = True
             raw = pin_world_layer(pin)
             on_layer = raw in ("all", "*.Cu", layer) or (
                 isinstance(raw, str) and "Through" in raw
@@ -299,11 +307,17 @@ def _own_pads_on_layer(
                 continue
             pos = pin_world_position(pin, comp)
             out.append((float(pos[0]), float(pos[1])))
+    if not saw_net_pin:
+        # The pcb carries no pins for this net at all -- a synthetic
+        # fixture whose pads live only in the caller's pad_positions
+        # dict (test_adapter's SimpleNamespace pcbs).  The caller's list
+        # is its own intent for those; honour it.
+        return fallback_positions
     # Deterministic order (the caller's list order is not preserved by
     # the pcb walk) -- the Rust island check is order-independent, but the
     # emitted zone list must not depend on component iteration order.
     out.sort()
-    return out if out else fallback_positions
+    return out
 
 
 def _zone_params_for_net(net_name: str) -> tuple[float, float]:
@@ -909,6 +923,14 @@ def _emit_zone_pours(
                     own_pads_on_layer = _own_pads_on_layer(
                         net_name, layer, pcb=pcb, fallback_positions=positions
                     )
+                    # A net with NO pad on this layer must not pour on it
+                    # at all: the fill would be isolated copper (KiCad
+                    # flags "Isolated copper fill" -- measured 19 findings
+                    # for F.Cu-only HighVoltageSignal nets poured onto
+                    # In3.Cu/In4.Cu).  An SMD-only net's pads are single
+                    # layer; the only pads that exist everywhere are THT.
+                    if not own_pads_on_layer:
+                        continue
                     for zd in zds:
                         pour_zones = _tg.pour_outline_py(
                             list(zd.points),
