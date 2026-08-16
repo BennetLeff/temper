@@ -48,9 +48,9 @@ import struct
 import pytest
 import temper_thermal as _tt
 
-from temper_placer.physics.inductance import (
-    estimate_gate_inductance,
-    estimate_loop_inductance,
+from temper_thermal import (
+    estimate_gate_inductance_py,
+    estimate_loop_inductance_py,
 )
 
 # ---------------------------------------------------------------------------
@@ -244,17 +244,12 @@ def test_direct_zero_height_edge():
 
 @pytest.mark.parametrize("seed", range(10))
 def test_module_level_loop_inductance_bit_exact(seed):
-    """estimate_loop_inductance (delegating) == oracle, bit-exact."""
+    """estimate_loop_inductance (Rust pyo3) == oracle, bit-exact."""
     rng = random.Random(2000 + seed)
     for _ in range(25):
         area, perim, h, rf = _random_loop_params(rng)
         expected = _oracle_estimate_loop_inductance(area, perim, h, rf)
-        got = estimate_loop_inductance(
-            loop_area_mm2=area,
-            perimeter_mm=perim,
-            layer_separation_mm=h,
-            routing_factor=rf,
-        )
+        got = estimate_loop_inductance_py(area, perim, h, rf)
         assert got == expected, (
             f"delegation mismatch (area={area!r} perim={perim!r} h={h!r} "
             f"rf={rf!r}): rust={got!r} oracle={expected!r}"
@@ -263,22 +258,23 @@ def test_module_level_loop_inductance_bit_exact(seed):
 
 @pytest.mark.parametrize("seed", range(5))
 def test_module_level_gate_inductance_bit_exact(seed):
-    """estimate_gate_inductance (delegating) == oracle, bit-exact."""
+    """estimate_gate_inductance (Rust pyo3) == oracle, bit-exact."""
     rng = random.Random(3000 + seed)
     for _ in range(25):
         a = rng.uniform(0.0, 50.0)
         b = rng.uniform(0.0, 50.0)
         expected = _oracle_estimate_gate_inductance(a, b)
-        got = estimate_gate_inductance(source_to_gate_dist_mm=a, return_dist_mm=b)
+        got = estimate_gate_inductance_py(a, b)
         assert got == expected, (
             f"gate delegation mismatch (a={a!r} b={b!r}): rust={got!r} oracle={expected!r}"
         )
 
 
 def test_module_level_defaults_bit_exact():
-    """Default-argument parity: the module's defaults (h=0.4, rf=1.2)
-    flow through the delegation exactly."""
+    """Default-argument parity: the shim's defaults (h=0.4, rf=1.2) are
+    inlined at the call site; verify the resulting values match the
+    oracle's defaults exactly."""
     expected = _oracle_estimate_loop_inductance(100.0, 40.0)
-    got = estimate_loop_inductance(loop_area_mm2=100.0, perimeter_mm=40.0)
+    got = estimate_loop_inductance_py(100.0, 40.0, 0.4, 1.2)
     assert got == expected, f"defaults: rust={got!r} oracle={expected!r}"
     assert got == pytest.approx(198.0, abs=0.1)
