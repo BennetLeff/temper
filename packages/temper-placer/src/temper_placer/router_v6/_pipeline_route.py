@@ -689,6 +689,11 @@ def _run_stage4(
             enable_coarse_to_fine=self.enable_coarse_to_fine,
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,
+            # 2026-08-16 width-aware C-space: per-net-width grid families
+            # rebuilt from the Stage-2 routing spaces (each family erodes
+            # its static layer by width/2 + clearance instead of the flat
+            # 0.1mm default) -- see _astar_nlayer.py's family helpers.
+            routing_spaces=stage2.routing_spaces,
         )
     elif pathfinding_result is None:
         fcu_grid, bcu_grid = select_routing_grids(available_grids)
