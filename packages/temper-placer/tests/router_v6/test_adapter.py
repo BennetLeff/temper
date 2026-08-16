@@ -1120,13 +1120,12 @@ class TestRoutePcbGeographicPruningWiring:
     `route_pcb() -> RouterV6Pipeline -> _run_stage3` chain, so a broken
     default anywhere cannot flip production behavior silently.
 
-    The vacuity fix (docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md)
+    The vacuity fix (docs/evidence/2026-08-16-sat-vacuity-noop-vs-direct-solver.md)
     changed where that journey ends: the monolithic default now routes
-    Stage 3 through the direct capacity-aware solver
-    (`_run_stage3_direct`), which builds **no** `ModelBuilder` and **no**
-    SAT model — geographic pruning was a memory-reduction mechanism for
-    the |nets|×|edges| SAT encoding, and the direct solver does not build
-    that encoding. The flag still threads through
+    Stage 3 as a structural **no-op** — which builds **no** `ModelBuilder`
+    and **no** SAT model — geographic pruning was a memory-reduction
+    mechanism for the |nets|×|edges| SAT encoding, and the no-op does not
+    build that encoding. The flag still threads through
     `route_pcb() -> RouterV6Pipeline` (accepted, stored, dispatched) and
     still reaches `ModelBuilder` on the SAT path (net-batching /
     `enable_bundling` / `TEMPER_STAGE3_FORCE_SAT=1`). The tests below
@@ -1151,11 +1150,11 @@ class TestRoutePcbGeographicPruningWiring:
         assert pcb_path.exists(), f"fixture missing: {pcb_path}"
         return type("ParsedPCB", (), {"source_path": str(pcb_path)})()
 
-    def test_enable_geographic_pruning_true_runs_default_direct_path(self):
-        """Pruning=True on the default (monolithic, direct-solver) path:
+    def test_enable_geographic_pruning_true_runs_default_noop_path(self):
+        """Pruning=True on the default (monolithic, no-op) path:
         the route completes and NO ModelBuilder is constructed — Stage 3
-        is the direct capacity-aware solver, not the SAT model the
-        pruning flag existed to shrink."""
+        is the vacuity no-op, not the SAT model the pruning flag existed
+        to shrink."""
         from temper_placer.router_v6.constraint_model import ModelBuilder
 
         parsed = self._minimal_board_parsed()
@@ -1173,7 +1172,7 @@ class TestRoutePcbGeographicPruningWiring:
         assert result is not None
         assert not captured_kwargs, (
             "default (non-batched, non-bundling) Stage 3 must not build a "
-            "SAT ModelBuilder at all (vacuity fix: direct solver path); "
+            "SAT ModelBuilder at all (vacuity fix: no-op path); "
             f"ModelBuilder was constructed with {captured_kwargs!r}"
         )
 

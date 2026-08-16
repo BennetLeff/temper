@@ -455,7 +455,22 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
 
     result = route_pcb(parsed_stub, {}, design_rules=rules.design_rules)
     assert result.routed_pcb_content
-    assert result.topology_solved_nets, "expected Stage 3 to solve at least one net's topology"
+
+    # Vacuity fix (docs/evidence/2026-08-16-sat-vacuity-noop-vs-direct-solver.md):
+    # the default monolithic Stage 3 is now a structural no-op -- the SAT
+    # model cannot force a `NetChannelVar` true, so it never decided
+    # topology and the monolithic CNF (182-200 GB) could not even fit.
+    # The default therefore claims NO topology; every net is routed by
+    # Stage 4's occupancy-grid A* from raw pad positions. The audit's
+    # anti-vacuity job (catch "claimed solved but no copper") is still
+    # exercised by the synthetic tests above; over an empty claim set it
+    # must find no gap, and the real signal here is that the route
+    # completes with copper emitted.
+    assert result.topology_solved_nets == [], (
+        "vacuity fix: default (non-batched, non-bundling) Stage 3 must "
+        "claim no topology (no-op path); got "
+        f"{result.topology_solved_nets!r}"
+    )
 
     net_pins = {n.name: list(n.pins) for n in netlist.nets}
     audit = audit_topology_vs_copper(

@@ -117,24 +117,23 @@ class TestEstimateStage3ModelVars:
 
 
 class TestRunStage3AutoBatchDecision:
-    """The auto-batch safety net's scope after the 2026-08-16 vacuity fix
-    (docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md): the default
-    (non-batched, non-bundling) monolith is now the **direct capacity-aware
-    solver** — it builds no SAT model at all, so the auto-batch safety net
+    """The safety net's scope after the 2026-08-16 vacuity fix
+    (docs/evidence/2026-08-16-sat-vacuity-noop-vs-direct-solver.md): the
+    default (non-batched, non-bundling) monolith is now a **structural
+    no-op** — it builds no SAT model at all, so the auto-batch safety net
     is unnecessary there (and must NOT fire: silently redirecting the
-    direct solver to the vacuous batched SAT would undo the fix). The
-    auto-batch now guards only the paths that can still build a big SAT
-    model: `enable_bundling` and `TEMPER_STAGE3_FORCE_SAT=1`.
+    no-op to the vacuous batched SAT would undo the fix). The auto-batch
+    now guards only the paths that can still build a big SAT model:
+    `enable_bundling` and `TEMPER_STAGE3_FORCE_SAT=1`.
     """
 
     def _pipeline(self, **kwargs):
         return RouterV6Pipeline(verbose=False, **kwargs)
 
-    def test_oversized_default_monolith_goes_direct(self):
+    def test_oversized_default_monolith_is_noop(self):
         """Production-board scale (110 nets x ~204K edges = 22.5M raw vars,
-        far above the 2.5M threshold): the default monolith must go to the
-        DIRECT solver (no model, no OOM) — NOT the auto-batched vacuous
-        SAT."""
+        far above the 2.5M threshold): the default monolith is the vacuity
+        no-op — no model, no auto-batch, no OOM, empty topology."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
         assert pr._estimate_stage3_model_vars(pcb, stage2, None) > pr._AUTO_BATCH_VAR_THRESHOLD
@@ -146,13 +145,15 @@ class TestRunStage3AutoBatchDecision:
         ):
             out = pipe._run_stage3(pcb, stage2)
 
-        spy_direct.assert_called_once()
+        spy_direct.assert_not_called()
         spy_batched.assert_not_called()
-        assert out == "DIRECT"
+        assert out.topology_graph is None
+        assert out.constraint_model is None
 
-    def test_small_board_default_goes_direct(self):
+    def test_small_board_default_is_noop(self):
         """Small board (10 nets x 1,000 edges = 10K raw vars): the default
-        monolith also goes direct — no batched call, no SAT ModelBuilder."""
+        is also the vacuity no-op — no batched call, no SAT ModelBuilder,
+        no direct solver."""
         pcb = _fake_pcb(10)
         stage2 = _fake_stage2([1_000])
         assert pr._estimate_stage3_model_vars(pcb, stage2, None) < pr._AUTO_BATCH_VAR_THRESHOLD
@@ -165,10 +166,10 @@ class TestRunStage3AutoBatchDecision:
         ):
             out = pipe._run_stage3(pcb, stage2)
 
-        spy_direct.assert_called_once()
+        spy_direct.assert_not_called()
         spy_batched.assert_not_called()
         mb.assert_not_called()
-        assert out == "DIRECT"
+        assert out.topology_graph is None
 
     def test_explicit_batching_is_untouched(self):
         """enable_net_batching=True (the legacy batched SAT recipe, the
@@ -187,10 +188,10 @@ class TestRunStage3AutoBatchDecision:
 
         assert spy_batched.call_count == 1
 
-    def test_pruning_default_goes_direct(self):
+    def test_pruning_default_is_noop(self):
         """Geographic pruning was an explicit model-reduction opt-in for
-        the SAT |nets| x |edges| model; the direct solver builds no model,
-        so the default path goes direct regardless of the pruning flag."""
+        the SAT |nets| x |edges| model; the no-op builds no model, so the
+        default path is the no-op regardless of the pruning flag."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
         pipe = self._pipeline(enable_geographic_pruning=True)
@@ -201,9 +202,9 @@ class TestRunStage3AutoBatchDecision:
         ):
             out = pipe._run_stage3(pcb, stage2)
 
-        spy_direct.assert_called_once()
+        spy_direct.assert_not_called()
         spy_batched.assert_not_called()
-        assert out == "DIRECT"
+        assert out.topology_graph is None
 
     def test_bundling_skips_auto_batch(self):
         """Bundling (type-gated lazy grounding) is its own reduction; the
@@ -243,10 +244,11 @@ class TestRunStage3AutoBatchDecision:
 
         spy_batched.assert_not_called()
 
-    def test_selective_subset_default_goes_direct_with_subset(self):
-        """max_sat_nets=N selects N nets; the default path goes direct with
-        exactly that subset as target_names (the selective cap is honored
-        by the direct solver)."""
+    def test_selective_subset_default_is_noop(self):
+        """max_sat_nets=N selects N nets, but the vacuity no-op default
+        does not build a model at all — no solver consumes the subset; the
+        selective cap is irrelevant on the no-op path (it still applies on
+        the SAT paths)."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
         pipe = self._pipeline(max_sat_nets=10)
@@ -261,10 +263,9 @@ class TestRunStage3AutoBatchDecision:
         ):
             out = pipe._run_stage3(pcb, stage2)
 
-        spy_direct.assert_called_once()
-        assert spy_direct.call_args.kwargs["target_names"] == selected
+        spy_direct.assert_not_called()
         spy_batched.assert_not_called()
-        assert out == "DIRECT"
+        assert out.topology_graph is None
 
     def test_force_sat_oversized_still_auto_batches(self, monkeypatch):
         """TEMPER_STAGE3_FORCE_SAT=1 opts back into the SAT monolith —
