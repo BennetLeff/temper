@@ -443,13 +443,21 @@ class ClearanceMatrix:
                 if poly:
                     clearance = 0.2
                     # Word-boundary match on the zone name (delimited by
-                    # "_" or start/end) -- bare "HV" as a substring risked
-                    # matching any zone name merely containing those two
-                    # letters. Same defect class confirmed three times
+                    # "_"/"-" or start/end) -- bare "HV" as a substring
+                    # risked matching any zone name merely containing those
+                    # two letters. Same defect class confirmed three times
                     # elsewhere in this repo; found here by
                     # scripts/check_net_classification.py. See
                     # docs/evidence/2026-07-27-net-classification-gate.md.
-                    if re.search(r"(?:^|_)HV(?:$|[\d_])", z.name.upper()):
+                    #
+                    # FIXED 2026-08-13 (URGENT hyphen-boundary
+                    # net-classification defect, "Family C" -- see PR
+                    # #1145/#1162's "Family A"/"Family B" fixes elsewhere in
+                    # this repo): the boundary was "_" or start/end of
+                    # string ONLY -- "-" was never a boundary character. "-"
+                    # is now an equivalent boundary character to "_". See
+                    # docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+                    if re.search(r"(?:^|[_-])HV(?:$|[\d_-])", z.name.upper()):
                         clearance = 3.0  # Standard HV clearance for Temper
 
                     routing_zones.append(

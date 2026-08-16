@@ -13,6 +13,7 @@ from temper_placer._constraint_types.config import (
     LossConfig,
     LossesConfig,
     ManufacturingConstraints,
+    PlacementConstraints,
     PlacementInitialization,
     SeedFilterConfig,
 )
@@ -186,3 +187,31 @@ class TestPlacementInitialization:
     def test_grid_resolution_zero_rejected(self):
         with pytest.raises(ValidationError, match="greater_than_equal"):
             PlacementInitialization(anchoring_grid_resolution=0)
+
+
+class TestPlacementConstraintsGetNetClass:
+    """2026-08-13: hyphen-boundary net-classification defect ("Family C" --
+    see PR #1145/#1162's "Family A"/"Family B" fixes elsewhere in this
+    repo). `get_net_class`'s keyword fallback anchored word boundaries on
+    "_" and start/end-of-string only, never "-". See
+    docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+    """
+
+    def test_hyphen_is_now_a_word_boundary(self):
+        pc = PlacementConstraints()
+        assert pc.get_net_class("hb-gnd") == "Power"
+        assert pc.get_net_class("x-hv") == "HighVoltage"
+        assert pc.get_net_class("x-bus") == "HighVoltage"
+        # Underscore boundary is unaffected.
+        assert pc.get_net_class("hb_gnd") == "Power"
+
+    def test_hyphen_boundary_does_not_over_match(self):
+        pc = PlacementConstraints()
+        # "GND" flanked by letters on both sides must still not match,
+        # hyphen present in the name or not.
+        assert pc.get_net_class("foregnd-x") == "Signal"
+        assert pc.get_net_class("backgnd") == "Signal"
+
+    def test_explicit_net_classes_still_win(self):
+        pc = PlacementConstraints(net_classes={"hb-gnd": "Signal"})
+        assert pc.get_net_class("hb-gnd") == "Signal"

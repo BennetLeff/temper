@@ -3,6 +3,43 @@ Router V6 Stage 5.7: Verify Clearance
 
 Validates clearance distances between all conductors.
 Part of temper-8vjm (Stage 5 - Manufacturing DRC)
+
+.. note:: **Bug history (2026-08-13), URGENT.** `_is_hv_keyword_match`'s
+   word boundary was `_` or start/end of string ONLY -- `-` was never a
+   boundary character. This is "Family C" of the hyphen-boundary
+   net-classification defect (see PR #1145/#1162's "Family A"/"Family B"
+   fixes in ``temper_io_types::placer_core::netclass`` and
+   ``temper_design_bundle::design_rules``): atopile's compiled net names
+   use ``-`` and ``_`` interchangeably as within-segment word separators
+   (``hb-gnd``, ``safety.uvlo_logic-line``, ...) -- 85 of the 162 net names
+   on the real production board contain a hyphen, and every one was
+   invisible to ``_is_hv_keyword_match``/``_classify_net_class`` whenever
+   the matching keyword sat on the hyphen side of a boundary. FIXED: ``-``
+   is now an equivalent boundary character to ``_`` on both sides.
+
+   **Over-match found and mitigated**: widening the boundary uniformly
+   would reclassify 14 real, confirmed-SELV nets
+   (``safety-line``/``safety-line-1..7``, ``safety.ocp-line``,
+   ``safety.ocp2-line``, ``safety.ovp-line``, ``safety.thermal-line``,
+   ``safety.coil_thermal-line``, ``safety.uvlo_logic-line``) from
+   ``Default``/``SIGNAL`` to ``HV`` via the ``"LINE"`` keyword now matching
+   their trailing ``-line`` suffix -- the same false-positive shape the
+   2026-07-27 fix already fought to remove for ``_`` (see
+   ``_is_hv_keyword_match``'s own bug-history docstring below), now
+   reappearing for ``-``. All 14 are independently confirmed SELV
+   (``elec/domain_manifest.yaml``'s own declaration for
+   ``safety.uvlo_logic-line``; PR #1164's per-net trace for the rest, all
+   "power_3v3-bound SafetyInterlock fault-tree logic"; PR #1123's
+   independent trace for ``safety.ocp2-line``; 4 of the 14
+   (``safety-line-4..7``) additionally carry zero connected pads per PR
+   #1164's Sec C, so they pose no physical creepage risk regardless of
+   classification). Mitigated by ``_SELV_LINE_NET_OVERRIDES`` below (an
+   explicit denylist consulted before the keyword cascade), NOT by
+   narrowing the boundary back down for ``"LINE"`` -- narrowing would
+   silently reintroduce the hyphen-boundary defect for the next hyphenated
+   LINE-adjacent net, the same reasoning PR #1162 already applied to its
+   own ``"COIL"`` over-match. See
+   docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
 """
 
 from __future__ import annotations
@@ -754,13 +791,14 @@ def _get_required_clearance(
     return default_clearance
 
 
-# Word-boundary HV keywords for _classify_net_class, delimited by "_" or
-# start/end of the (uppercased) net name -- "AC_"/"HV_" collapse to bare
-# "AC"/"HV" here because the boundary regex below already requires a
-# trailing "_"/digit/end, making an explicit trailing "_" in the keyword
-# itself redundant (and, unlike the literal-substring form, this version
-# also recognises a bare trailing "AC"/"HV" with no underscore, e.g. a
-# net literally named "HV").
+# Word-boundary HV keywords for _classify_net_class, delimited by "_"/"-"
+# (widened from "_"-only 2026-08-13, see this module's own top-of-file
+# bug-history note) or start/end of the (uppercased) net name -- "AC_"/"HV_"
+# collapse to bare "AC"/"HV" here because the boundary regex below already
+# requires a trailing "_"/"-"/digit/end, making an explicit trailing "_" in
+# the keyword itself redundant (and, unlike the literal-substring form, this
+# version also recognises a bare trailing "AC"/"HV" with no underscore, e.g.
+# a net literally named "HV").
 _CLASSIFY_HV_KEYWORDS = (
     "AC",
     "HV",
@@ -775,6 +813,44 @@ _CLASSIFY_HV_KEYWORDS = (
     "L3",
     "PHASE",
     "VBUS",
+)
+
+# ADDED 2026-08-13 (URGENT hyphen-boundary net-classification defect; see
+# this module's own top-of-file bug-history note and
+# docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md).
+# These 14 real, compiled nets on the production board
+# (elec/build/default.net) all end in a hyphenated "-line" suffix and would
+# be newly reclassified HV by the "LINE" keyword once "-" becomes a word
+# boundary -- the same false-positive shape the 2026-07-27 fix already
+# removed for "_". All 14 are independently confirmed SELV:
+# elec/domain_manifest.yaml's own declaration for safety.uvlo_logic-line;
+# PR #1164's per-net trace for the other 13 ("power_3v3-bound
+# SafetyInterlock fault-tree logic", 4 of which -- safety-line-4..7 --
+# additionally carry zero connected pads so they pose no physical creepage
+# risk regardless of classification); PR #1123's independent trace for
+# safety.ocp2-line. Declared here (checked before the keyword cascade)
+# rather than narrowing the boundary fix back down for "LINE" -- narrowing
+# would silently reintroduce the hyphen-boundary defect for the next
+# hyphenated LINE-adjacent net. Uppercased because callers only ever pass
+# this module's own `.upper()`'d net name into `_is_hv_keyword_match`.
+_SELV_LINE_NET_OVERRIDES = frozenset(
+    name.upper()
+    for name in (
+        "safety-line",
+        "safety-line-1",
+        "safety-line-2",
+        "safety-line-3",
+        "safety-line-4",
+        "safety-line-5",
+        "safety-line-6",
+        "safety-line-7",
+        "safety.ocp-line",
+        "safety.ocp2-line",
+        "safety.ovp-line",
+        "safety.thermal-line",
+        "safety.coil_thermal-line",
+        "safety.uvlo_logic-line",
+    )
 )
 
 
@@ -804,33 +880,21 @@ def _is_hv_keyword_match(upper: str) -> bool:
     _kw_boundary_match`` already delegates the identical mechanism to
     ``temper_geometry.kw_boundary_match_py`` (differentially pinned by
     ``tests/router_v6/test_via_clearance_tier2_rust_differential.py``), so
-    this function now calls that same kernel instead of re-typing the regex
-    a fourth time (see ``scripts/duplicate_predicate_registry.py``, family
-    ``net_name_boundary_match``, for the other three copies and why they
-    are NOT touched here: two are pinned oracles, one is
-    ``creepage_check.py``'s own already-delegating copy).
-    ``_CLASSIFY_HV_KEYWORDS`` stays local -- its vocabulary is specific to
-    physical-clearance classification, not the IEC 60335-1 voltage-class
-    vocabulary ``clearance_engine`` uses -- only the matching mechanism is
-    shared, not the keyword data. Verified equivalent for every keyword in
-    ``_CLASSIFY_HV_KEYWORDS`` (none contain regex-special characters or a
-    trailing ``_``, so ``re.escape`` and ``kw_boundary_match``'s
-    ``strip_suffix('_')`` are both no-ops here) before this change; the
-    pinned oracle copy of this function
+    this function widened its own boundary to "_"/"-" (Family C) rather than widening the shared kernel, which stays "_"-only for its own pinned differential and its audited-zero live exposure path. ``_CLASSIFY_HV_KEYWORDS`` stays local -- its vocabulary is specific to physical-clearance classification, not the IEC 60335-1 voltage-class vocabulary ``clearance_engine`` uses -- only the matching mechanism is shared, not the keyword data. The widened "LINE" keyword's over-match on 14 real confirmed-SELV "-line" nets is guarded by :data:`_SELV_LINE_NET_OVERRIDES`, checked first. The pinned oracle copy of this function
     (``tests/router_v6/_clearance_family_py_oracle.py::
     _oracle_is_hv_keyword_match``) is deliberately left untouched -- it is
     registered in ``scripts/oracle_hashes.json`` and exists precisely to be
     an independent implementation for the Rust-port differential suite.
     """
-    if _tg.kw_boundary_match_py(upper, list(_CLASSIFY_HV_KEYWORDS)):
-        return True
+    if upper in _SELV_LINE_NET_OVERRIDES:
+        return False
+    for kw in _CLASSIFY_HV_KEYWORDS:
+        if re.search(rf"(?:^|[_-]){re.escape(kw)}(?:$|[\d_-])", upper):
+            return True
     # "B+" has no alphanumeric trailing boundary to anchor on; anchored
-    # on the leading "_"/start side only (mirrors
-    # creepage_check._is_high_voltage_net's identical special case). Not
-    # folded into kw_boundary_match_py above: its contract is a trailing-
-    # "_"-strip, not a general non-alnum-suffix rule, so "B+" keeps its own
-    # anchored regex rather than risk a silent semantic change here.
-    return bool(re.search(r"(?:^|_)B\+", upper))
+    # on the leading "_"/"-"/start side only (mirrors
+    # creepage_check._is_high_voltage_net's identical special case).
+    return bool(re.search(r"(?:^|[_-])B\+", upper))
 
 
 def _classify_net_class(net_name: str) -> str:
@@ -843,6 +907,15 @@ def _classify_net_class(net_name: str) -> str:
     ``scripts/check_net_classification.py``'s 2026-07-28 vocabulary
     extension prompted -- see
     docs/evidence/2026-07-28-zone-layer-classification-fix.md.
+
+    FIXED 2026-08-13: the GND/POWER branches' word boundary widened from
+    "_"-only to "_"/"-" alongside the HV branch (see this module's
+    top-of-file bug-history note) -- board-wide simulation of all 162 real
+    net names found zero over-match risk for these two branches (unlike
+    the HV branch's "LINE" keyword): the only flips are ``hb-gnd`` (GND)
+    and ``hb.gate_hs-vdd``/``hb.gate_ls-vdd`` (POWER, both 0-pad phantom
+    nets), all correct/intended per PR #1145's and PR #1162's own findings
+    for the identical net names in the sibling matcher families.
     """
     if net_name in _load_manifest_hv_net_names():
         return "HV"
@@ -850,13 +923,13 @@ def _classify_net_class(net_name: str) -> str:
     if _is_hv_keyword_match(upper):
         return "HV"
     if any(
-        re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper)
+        re.search(rf"(?:^|[_-]){re.escape(kw)}(?:$|[\d_-])", upper)
         for kw in ("GND", "VSS", "PGND", "CGND", "AGND")
     ):
         return "GND"
     if any(
-        re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper) for kw in ("VCC", "VDD", "POWER")
-    ) or re.search(r"^\+(?:3V3|5V|12V|15V)(?:$|_)", upper):
+        re.search(rf"(?:^|[_-]){re.escape(kw)}(?:$|[\d_-])", upper) for kw in ("VCC", "VDD", "POWER")
+    ) or re.search(r"^\+(?:3V3|5V|12V|15V)(?:$|[_-])", upper):
         return "POWER"
     return "SIGNAL"
 

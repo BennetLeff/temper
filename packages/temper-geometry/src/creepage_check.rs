@@ -292,11 +292,24 @@ fn py_repr_nonfinite(v: f64) -> String {
 }
 
 /// Word-boundary keyword scan, the exact semantics of the reference's
-/// `(?:^|_)kw(?:$|[\d_])` regex.  Candidate start positions are 0 and
-/// every index right after a `_` (ASCII `_` never appears inside a
+/// `(?:^|[_-])kw(?:$|[\d_-])` regex.  Candidate start positions are 0 and
+/// every index right after a `_` or `-` (ASCII `_`/`-` never appear inside a
 /// multi-byte UTF-8 char, so a byte scan is safe); the trailing check
 /// decodes the next char so Unicode decimal digits match Python re's
 /// `\d` (`char::to_digit(10)` is exactly the Nd property).
+///
+/// FIXED 2026-08-13 (URGENT safety defect, same root cause and fix as
+/// `temper-io-types`'s `placer_core::netclass` and `temper-design-bundle`'s
+/// `design_rules.rs::hv_word_boundary_match` -- "Family A"/"Family B" of the
+/// hyphen-boundary defect family): `-` was never a boundary character here
+/// either, only `_`. atopile's compiled net names use `-` and `_`
+/// interchangeably as within-segment word separators (`hb-gnd`,
+/// `hb.gate_hs.driver-p1`, `safety.uvlo_logic-line`, ...) -- 85 of the 162
+/// net names on the real production board contain a hyphen, and every one
+/// was invisible to `is_high_voltage_net` whenever its matching keyword sat
+/// on the hyphen side of a boundary. `-` is now an equivalent boundary
+/// character to `_` on both sides. See
+/// docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
 fn word_bounded(name: &str, kw: &str) -> bool {
     let bytes = name.as_bytes();
     if name.len() < kw.len() {
@@ -304,7 +317,7 @@ fn word_bounded(name: &str, kw: &str) -> bool {
     }
     let mut i = 0usize;
     loop {
-        if (i == 0 || bytes[i - 1] == b'_') && name[i..].starts_with(kw) {
+        if (i == 0 || matches!(bytes[i - 1], b'_' | b'-')) && name[i..].starts_with(kw) {
             let after = i + kw.len();
             if after == name.len() {
                 return true;
@@ -314,21 +327,24 @@ fn word_bounded(name: &str, kw: &str) -> bool {
                 // (Python re `\d`); is_ascii_digit would miss non-ASCII digits.
                 #[expect(clippy::is_digit_ascii_radix, reason = "Unicode Nd property required to match Python re \\d")]
                 let is_digit = c.is_digit(10);
-                if c == '_' || is_digit {
+                if c == '_' || c == '-' || is_digit {
                     return true;
                 }
             }
         }
-        match bytes[i..].iter().position(|&b| b == b'_') {
+        match bytes[i..].iter().position(|&b| b == b'_' || b == b'-') {
             Some(p) => i += p + 1,
             None => return false,
         }
     }
 }
 
-/// `(?:^|_)kw` — leading boundary only, no trailing constraint (the
+/// `(?:^|[_-])kw` — leading boundary only, no trailing constraint (the
 /// reference's "B+" special case, which has no alphanumeric trailing
 /// boundary to anchor on).
+///
+/// FIXED 2026-08-13: `-` is now an equivalent leading boundary to `_`,
+/// same fix and rationale as [`word_bounded`] above.
 fn word_bounded_prefix(name: &str, kw: &str) -> bool {
     let bytes = name.as_bytes();
     if name.len() < kw.len() {
@@ -336,22 +352,80 @@ fn word_bounded_prefix(name: &str, kw: &str) -> bool {
     }
     let mut i = 0usize;
     loop {
-        if (i == 0 || bytes[i - 1] == b'_') && name[i..].starts_with(kw) {
+        if (i == 0 || matches!(bytes[i - 1], b'_' | b'-')) && name[i..].starts_with(kw) {
             return true;
         }
-        match bytes[i..].iter().position(|&b| b == b'_') {
+        match bytes[i..].iter().position(|&b| b == b'_' || b == b'-') {
             Some(p) => i += p + 1,
             None => return false,
         }
     }
 }
 
+/// Real, compiled nets on the production board (`elec/build/default.net`)
+/// that would be newly reclassified HV by the 2026-08-13 hyphen-boundary
+/// widening above, via the "LINE" keyword matching their trailing
+/// `-line` suffix (preceded by `-`, which is now a boundary character) --
+/// the same false-positive shape the 2026-07-27 fix already removed for
+/// `_line`. All 14 are independently confirmed SELV:
+/// `elec/domain_manifest.yaml`'s own declaration for
+/// `safety.uvlo_logic-line`; PR #1164's per-net trace for the other 13
+/// ("power_3v3-bound SafetyInterlock fault-tree logic" -- 4 of which,
+/// `safety-line-4..7`, additionally carry zero connected pads, so they
+/// pose no physical creepage risk regardless of classification); PR
+/// #1123's independent trace for `safety.ocp2-line`.
+///
+/// Checked here (inside the shared kernel) rather than only in the Python
+/// wrapper (`creepage_check.py::_is_high_voltage_net`) because
+/// `temper-orchestration`'s `clearance::run_creepage_check` -- the actual
+/// production per-pair creepage decision -- calls
+/// `is_high_voltage_net_py` directly (`tg_high_voltage_net` in
+/// `clearance.rs`), bypassing the Python wrapper entirely. A Python-side
+/// override alone would miss this production path.
+///
+/// NOT fixed by narrowing the hyphen-boundary widening back down for
+/// "LINE" specifically -- narrowing would silently reintroduce the
+/// hyphen-boundary defect for the next hyphenated LINE-adjacent net. This
+/// mirrors PR #1162's own "COIL" over-match, mitigated there by an
+/// explicit `TEMPER_NET_ASSIGNMENTS` entry rather than narrowing.
+///
+/// This is a small, fixed denylist of literal net names -- not a read of
+/// `elec/domain_manifest.yaml` -- so it does not reintroduce the
+/// project-manifest coupling this module's own docstring already declined
+/// (see `is_high_voltage_net`'s 2026-07-27 bug-history note): it is the
+/// same category of hardcoding as `BROAD_KEYWORDS` itself, tuned to this
+/// project's real net names, not a general mechanism.
+const SELV_LINE_NET_OVERRIDES: [&str; 14] = [
+    "SAFETY-LINE",
+    "SAFETY-LINE-1",
+    "SAFETY-LINE-2",
+    "SAFETY-LINE-3",
+    "SAFETY-LINE-4",
+    "SAFETY-LINE-5",
+    "SAFETY-LINE-6",
+    "SAFETY-LINE-7",
+    "SAFETY.OCP-LINE",
+    "SAFETY.OCP2-LINE",
+    "SAFETY.OVP-LINE",
+    "SAFETY.THERMAL-LINE",
+    "SAFETY.COIL_THERMAL-LINE",
+    "SAFETY.UVLO_LOGIC-LINE",
+];
+
 /// Mirrors creepage_check.py `_is_high_voltage_net`: keyword order and
 /// word-boundary discipline identical to the reference (the 2026-07-27
-/// fix — word-boundary on `_`, never plain substring).  Keyword set and
-/// evaluation order preserved verbatim.
+/// fix — word-boundary on `_`/`-`, never plain substring; `-` added
+/// 2026-08-13, see [`word_bounded`]).  Keyword set and evaluation order
+/// preserved verbatim.
+///
+/// FIXED 2026-08-13: checks [`SELV_LINE_NET_OVERRIDES`] first (see its own
+/// doc comment) -- the hyphen-boundary widening's one confirmed over-match
+/// on the real board.
 fn is_high_voltage_net(net_name: &str) -> bool {
     let name_upper = net_name.to_uppercase();
+    if SELV_LINE_NET_OVERRIDES.contains(&name_upper.as_str()) {
+        return false;
+    }
     const BROAD_KEYWORDS: [&str; 11] = [
         "HIGH_VOLTAGE",
         "MAINS",
@@ -603,23 +677,66 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn hv_word_boundary_negative() {
         // The 2026-07-27 regression set: substring matches must NOT fire.
+        // NOTE 2026-08-13: "discharge.k_dis1-coil1"/"...-coil2" and
+        // "safety-line"/"safety.ovp-line" stay in THIS negative list even
+        // after the hyphen-boundary fix below -- not because the fix
+        // narrows anything, but because none of these names contain any
+        // of BROAD_KEYWORDS/"AC"/"HV"/"B+" as a substring at all in the
+        // first place (verified: no "L1"/"L2"/"L3"/"LINE"/... substring
+        // sits at a boundary in "COIL1"/"COIL2", and "LINE" in "-line" is
+        // preceded by "-", which see the new hyphen-boundary positive
+        // tests below for where that in fact DOES now flip). See
+        // `hv_word_boundary_hyphen_flips_and_stays_bounded` for the
+        // genuine board-confirmed flip this fix causes, and its mitigation.
         for name in [
             "discharge.k_dis1-coil1",
             "discharge.k_dis1-coil2",
-            "safety-line",
-            "safety.ovp-line",
             "TRACE",
             "ACH",
             "CAC",
             "HIVE",
             "BEHAVE",
             "XHVX",
-            "AC-",
             "AC.",
             "AC:",
         ] {
             assert!(!is_high_voltage_net(name), "{name}");
         }
+    }
+
+    #[cfg_attr(test, test)]
+    fn hv_word_boundary_hyphen_flips_and_stays_bounded() {
+        // FIXED 2026-08-13 (URGENT safety defect, same root cause as
+        // `is_ground_net`/`is_power_net`/`is_hv_net` in `temper-io-types`
+        // and `is_gate_net_hv`/`is_gate_net_selv`/`is_high_current_net` in
+        // `temper-design-bundle`): `-` is now an equivalent word-boundary
+        // character to `_`. "AC-"/"-AC" now match "AC" the way "AC_"/"_AC"
+        // already did (see `hv_word_boundary_positive` above).
+        assert!(is_high_voltage_net("AC-"));
+        assert!(is_high_voltage_net("-AC"));
+        assert!(is_high_voltage_net("X-HV"));
+        assert!(is_high_voltage_net("HV-X"));
+        assert!(is_high_voltage_net("PHASE-L2"));
+        assert!(is_high_voltage_net("BUS-L1"));
+
+        // The genuine, board-confirmed over-match this widening WOULD
+        // cause, absent SELV_LINE_NET_OVERRIDES: "LINE" would hyphen-
+        // boundary-match inside "safety-line"/"safety.ovp-line" (preceded
+        // by "-", not "_") -- both real, compiled nets on the production
+        // board, both explicitly declared SELV. Mitigated by
+        // `SELV_LINE_NET_OVERRIDES` (checked first in
+        // `is_high_voltage_net`), NOT by narrowing the boundary back down
+        // for "LINE" -- see that constant's doc comment for the full
+        // 14-net list and justification (mirrors PR #1162's "COIL"
+        // over-match mitigation for a sibling matcher family).
+        assert!(!is_high_voltage_net("safety-line"));
+        assert!(!is_high_voltage_net("safety.ovp-line"));
+        assert!(!is_high_voltage_net("safety.uvlo_logic-line"));
+        assert!(!is_high_voltage_net("safety.ocp2-line"));
+        // But a genuinely-HV net that merely happens to end in "-line"
+        // must still match -- the override is a literal-name denylist, not
+        // a blanket "-line" exemption.
+        assert!(is_high_voltage_net("mains-line"));
     }
 
     #[cfg_attr(test, test)]
@@ -2660,6 +2777,7 @@ pub(crate) mod tests {
         ("creepage_check::tests::required_creepage_brackets", required_creepage_brackets),
         ("creepage_check::tests::hv_word_boundary_positive", hv_word_boundary_positive),
         ("creepage_check::tests::hv_word_boundary_negative", hv_word_boundary_negative),
+        ("creepage_check::tests::hv_word_boundary_hyphen_flips_and_stays_bounded", hv_word_boundary_hyphen_flips_and_stays_bounded),
         ("creepage_check::tests::hv_case_insensitive", hv_case_insensitive),
         ("creepage_check::tests::hv_non_ascii_does_not_crash", hv_non_ascii_does_not_crash),
         ("creepage_check::tests::cc_seg_pair_coverage_guard_hits_close_and_crossing_cases", cc_seg_pair_coverage_guard_hits_close_and_crossing_cases),

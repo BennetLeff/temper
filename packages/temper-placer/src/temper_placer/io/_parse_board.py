@@ -70,6 +70,18 @@ def _is_plane_required_net(net_name: str) -> bool:
 
     Kept in Python: reads the Python-side netclass SSOT (``core/design_rules``
     keeps its constant tables per the delegation precedent).
+
+    FIXED 2026-08-13 (URGENT hyphen-boundary net-classification defect,
+    "Family C" -- see PR #1145/#1162's "Family A"/"Family B" fixes
+    elsewhere in this repo): the keyword fallback's word boundary was "_"
+    or start/end of string ONLY -- "-" was never a boundary character,
+    even though 85 of the 162 real net names on the production board
+    contain a hyphen. "-" is now an equivalent boundary character to "_".
+    Board-wide simulation of all 162 real net names found exactly one
+    flip for this function's keyword set (GND/VCC/PWR): ``hb-gnd`` (now
+    plane-eligible) -- correct/intended, matching PR #1145's own finding
+    for this net. See
+    docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
     """
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 
@@ -80,7 +92,7 @@ def _is_plane_required_net(net_name: str) -> bool:
 
     upper = net_name.upper()
     return any(
-        re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper) for kw in ("GND", "VCC", "PWR")
+        re.search(rf"(?:^|[_-]){kw}(?:$|[\d_-])", upper) for kw in ("GND", "VCC", "PWR")
     )
 
 

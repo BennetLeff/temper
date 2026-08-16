@@ -66,6 +66,13 @@ def _expected_plane_required_net(net_name: str) -> bool:
     from the documented rule, not just so it repeats whatever the
     function currently returns. If this ever disagrees with
     ``_is_plane_required_net`` on a real net, one of the two is wrong.
+
+    RE-PINNED 2026-08-13 (URGENT hyphen-boundary net-classification
+    defect, "Family C" -- see PR #1145/#1162's "Family A"/"Family B"
+    fixes elsewhere in this repo): the word boundary widened from
+    "_"-only to "_"/"-", mirroring the identical fix in
+    ``_parse_board.py::_is_plane_required_net``. See
+    docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
     """
     nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
     nc = TEMPER_NET_CLASSES.get(nc_name)
@@ -73,7 +80,7 @@ def _expected_plane_required_net(net_name: str) -> bool:
         return nc.routing_strategy == "plane_required"
 
     upper = net_name.upper()
-    return any(re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper) for kw in ("GND", "VCC", "PWR"))
+    return any(re.search(rf"(?:^|[_-]){kw}(?:$|[\d_-])", upper) for kw in ("GND", "VCC", "PWR"))
 
 
 def test_production_board_fcu_is_not_a_full_layer_plane(_pcb_content):
@@ -179,3 +186,33 @@ def test_default_behavior_unchanged_fcu_absent_from_routing_space(_pcb_content):
     assert "F.Cu" not in routing_spaces
     assert "B.Cu" not in routing_spaces
     assert set(routing_spaces.keys()) == {"In1.Cu", "In2.Cu"}
+
+
+# -----------------------------------------------------------------------------
+# 2026-08-13: hyphen-boundary net-classification defect ("Family C" -- see
+# PR #1145/#1162's "Family A"/"Family B" fixes elsewhere in this repo).
+# `_is_plane_required_net`'s keyword fallback anchored word boundaries on
+# "_" and start/end-of-string only, never "-". See
+# docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md.
+# -----------------------------------------------------------------------------
+
+
+def test_is_plane_required_net_hyphen_is_now_a_boundary():
+    assert _is_plane_required_net("hb-gnd")
+    assert _is_plane_required_net("x-vcc")
+    # Underscore boundary is unaffected.
+    assert _is_plane_required_net("hb_gnd")
+
+
+def test_is_plane_required_net_hyphen_boundary_does_not_over_match():
+    assert not _is_plane_required_net("foregnd-x")
+    assert not _is_plane_required_net("backgnd")
+
+
+def test_is_plane_required_net_matches_oracle_for_all_hyphenated_flips(_pcb_content):
+    """The production function and the independent SSOT-plus-fallback
+    oracle above must still agree after the hyphen-boundary fix, on both
+    the one real board net this fix flips (``hb-gnd``, per PR #1145) and a
+    synthetic non-flip control."""
+    for net in ("hb-gnd", "x-vcc", "foregnd-x", "safety-line"):
+        assert _is_plane_required_net(net) == _expected_plane_required_net(net), net
