@@ -379,11 +379,11 @@ def test_run_astar_pathfinding_nlayer_lands_a_route_forced_onto_the_wrong_layer(
 
     monkeypatch.setattr(
         "temper_placer.router_v6._astar_nlayer._extract_pad_centers_per_net",
-        lambda pcb: {"NET1": [(*start, 0.5, "F.Cu"), (*goal, 0.5, "F.Cu")]},
+        lambda _pcb: {"NET1": [(*start, 0.5, "F.Cu"), (*goal, 0.5, "F.Cu")]},
     )
     monkeypatch.setattr(
         "temper_placer.router_v6._astar_nlayer._extract_existing_via_centers_per_net",
-        lambda pcb: {},
+        lambda _pcb: {},
     )
 
     result = run_astar_pathfinding_nlayer(
