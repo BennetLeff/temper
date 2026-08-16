@@ -328,6 +328,18 @@ def generate_power_islands_blocks(
     content = pcb_path.read_text()
     pcb = parse_kicad_pcb_v6(pcb_path)
 
+    # The default manifest path is CWD-relative, and production callers
+    # (route_pcb via _write_routes_to_content) run from arbitrary CWDs
+    # (pytest from packages/temper-placer, route_board.py from the repo
+    # root). Resolve a missing relative default against the repo root
+    # (this module lives at packages/temper-placer/src/temper_placer/
+    # router_v6/, so the repo root is five parents up) before handing it
+    # to the loader -- the same fallback _ground_plane.py already has.
+    if not domain_manifest_path.is_file() and not domain_manifest_path.is_absolute():
+        alt = Path(__file__).resolve().parents[5] / domain_manifest_path
+        if alt.is_file():
+            domain_manifest_path = alt
+
     num_to_name = net_number_to_name_map(content)
     name_to_num = {v: k for k, v in num_to_name.items()}
 
