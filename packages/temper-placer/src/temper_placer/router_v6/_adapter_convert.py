@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import temper_orchestration as _to
+from temper_io_types import strip_existing_zones
 
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.router_v6._adapter_types import (
@@ -21,7 +22,6 @@ from temper_placer.router_v6._adapter_types import (
     ParsedPcbLike,
     RoutingResult,
 )
-from temper_io_types import strip_existing_zones
 
 # Re-exported from _zone_pour_stitch.py (LOC cap paydown, temper-N7-cap5):
 # _stitch_isolated_pads/_emit_zone_pours/_zone_layers_for_net/
@@ -739,6 +739,33 @@ def _write_routes_to_content(
                 segments=segments,
             )
             segments.extend(gnd_blocks)
+
+        # +3V3/vcc/+15V In2.Cu power islands (2026-08-16).
+        # The Power netclass is deliberately trace-only by policy (R1/R7,
+        # docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md --
+        # _zone_layers_for_net("+3V3") stays [] and
+        # test_power_class_is_not_zone_eligible stays green), which is
+        # exactly why +3V3 measured 1/50 pads connected on the definitive
+        # route: A* does not route it either (it is in the unrouted set).
+        # The Rust zone generator's measured carve
+        # (docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py)
+        # covers 34/50 +3V3 pads on In2.Cu at PD3 creepage -- the
+        # sanctioned _ground_plane.py precedent for an inner-layer pour
+        # that never goes through _zone_layers_for_net, per
+        # _power_islands.py's own module docstring. The blocks are
+        # appended after the gnd plane so In2.Cu zones survive.
+        if gnd_source is not None and any(
+            n in net_name_to_number for n in ("+3V3", "vcc", "+15V")
+        ):
+            from temper_placer.router_v6._power_islands import (
+                generate_power_islands_blocks,
+            )
+
+            island_blocks, _island_reports = generate_power_islands_blocks(
+                Path(gnd_source),
+                tstamp_counter=tstamp_counter,
+            )
+            segments.extend(island_blocks)
 
     if not segments:
         return pcb_content, pad_positions
