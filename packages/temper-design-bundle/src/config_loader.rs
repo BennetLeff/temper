@@ -32,7 +32,7 @@
 //! this crate's own pyclasses, `NetGraph`/`SubNetEdge` from
 //! `temper_placer.core.net_graph` (now resolved — same-crate pyclasses), PCL constraints from
 //! `temper_placer.pcl`, `estimate_current_from_net_class` from
-//! `temper_placer.core.ipc2221`), so error timing and error text are the
+//! `temper_drc_rs`), so error timing and error text are the
 //! oracle's by construction.
 //!
 //! Arithmetic (e.g. `bounds_ratio` scaling, `fixed_positions` floats) goes
@@ -1992,7 +1992,7 @@ fn validate_current_capacity<'py>(
     let logger = PyModule::import(py, "logging")?
         .getattr("getLogger")?
         .call1(("temper_placer.io.config_loader",))?;
-    let estimate = py_callable(py, "temper_placer.core.ipc2221", "estimate_current_from_net_class")?;
+    let estimate = py_callable(py, "temper_drc_rs", "estimate_current_from_net_class")?;
     let net_classes = constraints.getattr("net_classes")?;
     let net_class_rules = constraints.getattr("net_class_rules")?;
     let zones = constraints.getattr("zones")?;

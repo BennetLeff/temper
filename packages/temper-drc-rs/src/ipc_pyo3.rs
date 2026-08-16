@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use crate::ipc;
 
 #[pyfunction]
+#[pyo3(signature = (width_mm, thickness_oz=1.0, temp_rise_c=10.0, internal_layer=false))]
 fn estimate_trace_current(
     width_mm: f64,
     thickness_oz: f64,
@@ -26,6 +27,7 @@ fn estimate_trace_current(
 }
 
 #[pyfunction]
+#[pyo3(signature = (trace_width_mm, thickness_oz=1.0, temp_rise_c=10.0))]
 fn estimate_current_from_net_class(
     trace_width_mm: f64,
     thickness_oz: f64,

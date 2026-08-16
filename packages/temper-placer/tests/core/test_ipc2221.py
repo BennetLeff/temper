@@ -1,9 +1,16 @@
-"""Tests for core.ipc2221 module."""
+"""Tests for the IPC-2221 trace-current kernels (``temper_drc_rs``).
+
+The ``core/ipc2221.py`` shim was deleted 2026-08-16 (it was pure delegation
+plus a dead, UNCITED ``TRACE_CURRENT_TABLE_1OZ`` lookup table with no
+production caller — see the 2026-08-15 safety-constant census). The kernels
+now carry the shim's default arguments directly in their pyo3 signatures
+(1 oz, 10 °C rise, external layer), so these tests exercise the real Rust
+surface with the same call shapes the shim used to accept.
+"""
 
 import pytest
 
-from temper_placer.core.ipc2221 import (
-    TRACE_CURRENT_TABLE_1OZ,
+from temper_drc_rs import (
     estimate_current_from_net_class,
     estimate_trace_current,
 )
@@ -44,13 +51,3 @@ class TestTraceCurrentEstimation:
     def test_estimate_from_net_class_with_thickness(self):
         c = estimate_current_from_net_class(0.5, thickness_oz=2.0, temp_rise_c=20.0)
         assert c > 0
-
-
-class TestTraceCurrentTable:
-    """Verify the lookup table is well-formed."""
-
-    def test_table_entries(self):
-        assert len(TRACE_CURRENT_TABLE_1OZ) > 0
-        # All keys should be positive
-        for k in TRACE_CURRENT_TABLE_1OZ:
-            assert k > 0
