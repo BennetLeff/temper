@@ -9,11 +9,16 @@ Wave 4 migration note: the rasterisation kernels of ``OccupancyGrid``
 ``unmark_path``, ``get_blocking_nets``, ``mark_via_blocked``, ``downsample``)
 now delegate to ``temper_geometry``'s ``occupancy_raster`` kernels
 (``packages/temper-geometry/src/occupancy_raster.rs``); this module keeps
-its original public API. ``build_occupancy_grid`` was NOT migrated: its hot
-path is ``shapely.contains()`` (GEOS) over points sampled inside a polygon
-produced by GEOS buffer-erosion -- opaque library behaviour with no
-accessible bit-exact Rust equivalent, so it stays Python. See
-``packages/temper-geometry/VERIFICATION.md`` for the full writeup.
+its original public API. ``build_occupancy_grid``'s CONTAINMENT step
+(formerly ``shapely.contains()`` over every cell center) was migrated to
+the same module's strict-interior scanline
+(``temper_geometry.rasterize_area_polygons_py``) on 2026-08-15 — the
+polygon vertices are still GEOS-produced (the erosion
+``available_area.buffer(-inflation_mm, quad_segs=4)`` stays Python/GEOS;
+the S1 spike's finding was about GEOS polygon ALGEBRA, not the
+point-in-polygon PREDICATE).  See
+``docs/evidence/2026-08-15-rust-obstacle-map-integration.md`` and the
+differential in ``test_occupancy_grid_rust_differential.py``.
 """
 
 from __future__ import annotations
@@ -24,7 +29,6 @@ from enum import Enum
 
 import numpy as np
 import temper_geometry as _tg
-from shapely import contains, points
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -339,6 +343,32 @@ def mark_path_blocked_3d(
             grids[layer1].mark_path_blocked(segment, trace_width, clearance, net_id)
 
 
+def _area_rings(area) -> tuple[list[list[float]], list[list[list[float]]]]:
+    """Marshal a Shapely Polygon/MultiPolygon into the flat coordinate
+    lists ``rasterize_area_polygons_py`` consumes: one ``[x0,y0,x1,y1,...]``
+    exterior ring per component, plus a per-component list of flat hole
+    rings (index-aligned with the exteriors).  Empty components are
+    dropped from both lists.  The vertices are GEOS-produced (the caller's
+    erosion/difference); only the containment predicate is evaluated in
+    Rust."""
+    parts = list(getattr(area, "geoms", [area]))
+    outer_rings: list[list[float]] = []
+    hole_rings: list[list[list[float]]] = []
+    for part in parts:
+        if part.is_empty:
+            continue
+        outer_rings.append(
+            np.asarray(part.exterior.coords, dtype=float).ravel().tolist()
+        )
+        hole_rings.append(
+            [
+                np.asarray(h.coords, dtype=float).ravel().tolist()
+                for h in part.interiors
+            ]
+        )
+    return outer_rings, hole_rings
+
+
 def build_occupancy_grid(
     routing_space: RoutingSpace,
     cell_size: float = 0.1,
@@ -428,26 +458,35 @@ def build_occupancy_grid(
     y_indices = np.arange(height_cells)
     xx_idx, yy_idx = np.meshgrid(x_indices, y_indices)
 
-    # 2. Convert to world coordinates
-    xx_world = x_min + (xx_idx + 0.5) * cell_size
-    yy_world = y_min + (yy_idx + 0.5) * cell_size
-
-    # 3. Create Shapely points in batch
-    # Flatten for vectorization
-    flat_x = xx_world.ravel()
-    flat_y = yy_world.ravel()
-    batch_points = points(flat_x, flat_y)
-
-    # 4. Check containment in batch
-    # Note: check_area is a Polygon/MultiPolygon. contains() supports array input.
-    mask_flat = contains(check_area, batch_points)
-
-    # 5. Reshape and update grid
-    mask = mask_flat.reshape(height_cells, width_cells)
-
-    # Set Free (0) where mask is True (contained in available area)
-    # The grid was initialized to -1 (Blocked)
-    grid[mask] = 0
+    # 3/4/5. Rasterize the (possibly eroded) available area's strict
+    # interior into the grid.
+    #
+    # 2026-08-15 migration (docs/evidence/2026-08-15-rust-obstacle-map-integration.md):
+    # the hot path used to be `shapely.contains(check_area, batch_points)` —
+    # a GEOS prepared-geometry predicate over ~3.7M cell centers per layer,
+    # measured at ~46 s across the six layers of pcb/temper.kicad_pcb on one
+    # route.  It is now `temper_geometry.rasterize_area_polygons_py`, a
+    # strict-interior scanline fed the SAME GEOS-produced polygon vertices
+    # (the erosion above stays Python/GEOS — JUSTIFIED-KEEP; the S1 spike's
+    # non-reproducibility finding was about GEOS polygon ALGEBRA, i.e. which
+    # vertices get emitted, not about the point-in-polygon PREDICATE over a
+    # fixed vertex sequence).  Convention is GEOS-`contains` parity: a cell
+    # center exactly on the boundary is NOT contained (stays blocked, the
+    # conservative direction — the boundary is already C-space-inflated, so
+    # freeing it would let A* route at exactly clearance distance).
+    # Parity against the GEOS reference on the real board's six layers is
+    # proven by the differential in test_occupancy_grid_rust_differential.py.
+    grid = np.full((height_cells, width_cells), -1, dtype=np.int8)
+    if not check_area.is_empty:
+        outer_rings, hole_rings = _area_rings(check_area)
+        _tg.rasterize_area_polygons_py(
+            grid,
+            outer_rings,
+            hole_rings,
+            x_min,
+            y_min,
+            cell_size,
+        )
 
     # Record which cells were static obstacles (-1) before routing
     static_mask = grid == -1

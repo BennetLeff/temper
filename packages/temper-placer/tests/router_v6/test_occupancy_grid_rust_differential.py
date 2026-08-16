@@ -67,8 +67,8 @@ import pytest
 from temper_placer.router_v6 import occupancy_grid as occupancy_grid_module
 from temper_placer.router_v6.occupancy_grid import CellState, OccupancyGrid
 
-from ._occupancy_raster_py_oracle import _OracleOccupancyGrid
 from ._occupancy_raster_py_oracle import CellState as _OracleCellState
+from ._occupancy_raster_py_oracle import _OracleOccupancyGrid
 
 _PINNED_COMMIT = "28366722f3f1c905877f1dc08533ac18d3d8825b"
 _PINNED_PATH = "packages/temper-placer/src/temper_placer/router_v6/occupancy_grid.py"
@@ -520,3 +520,183 @@ def test_oracle_cellstate_matches_production():
     assert _OracleCellState.FREE.value == CellState.FREE.value == 0
     assert _OracleCellState.BLOCKED.value == CellState.BLOCKED.value == 1
     assert _OracleCellState.RESERVED.value == CellState.RESERVED.value == 2
+
+
+# ---------------------------------------------------------------------------
+# build_occupancy_grid's containment step (2026-08-15): the strict-interior
+# scanline `rasterize_area_polygons_py` vs the shapely/GEOS `contains()`
+# reference it replaced.  Convention: boundary cells stay blocked (-1),
+# GEOS-`contains` parity.  See
+# docs/evidence/2026-08-15-rust-obstacle-map-integration.md.
+# ---------------------------------------------------------------------------
+
+
+def test_rasterize_area_polygons_delegates_to_rust(monkeypatch):
+    monkeypatch.setattr(
+        occupancy_grid_module._tg, "rasterize_area_polygons_py", _raise_marker
+    )
+    from shapely.geometry import MultiPolygon, box
+
+    from temper_placer.router_v6.routing_space import RoutingSpace
+
+    space = RoutingSpace(
+        layer_name="F.Cu",
+        available_area=MultiPolygon([box(0, 0, 10, 10)]),
+        total_area=100.0,
+        obstacle_area=0.0,
+        routing_area=100.0,
+    )
+    with pytest.raises(_WiringMarker):
+        occupancy_grid_module.build_occupancy_grid(space, cell_size=1.0)
+
+
+def _marshal_area(area):
+    """Same marshalling `_area_rings` performs (import from the module so
+    the test follows the production code path)."""
+    return occupancy_grid_module._area_rings(area)
+
+
+def _rasterize_rust(area, origin_x, origin_y, cell_size, w, h):
+    grid = np.full((h, w), -1, dtype=np.int8)
+    outer_rings, hole_rings = _marshal_area(area)
+    occupancy_grid_module._tg.rasterize_area_polygons_py(
+        grid, outer_rings, hole_rings, origin_x, origin_y, cell_size
+    )
+    return grid
+
+
+def _rasterize_shapely(area, origin_x, origin_y, cell_size, w, h):
+    from shapely import contains, points
+
+    xx_idx, yy_idx = np.meshgrid(np.arange(w), np.arange(h))
+    xx_world = origin_x + (xx_idx + 0.5) * cell_size
+    yy_world = origin_y + (yy_idx + 0.5) * cell_size
+    mask = contains(area, points(xx_world.ravel(), yy_world.ravel()))
+    return np.where(mask.reshape(h, w), 0, -1).astype(np.int8)
+
+
+def test_rasterize_area_polygons_matches_shapely_randomized():
+    """Randomized differential: arbitrary MultiPolygons (boxes, circles,
+    donuts, unions) at arbitrary offsets/scales vs the GEOS reference.
+
+    Random offsets deliberately land polygon edges ON cell-center rows and
+    columns sometimes (axis-aligned shapes + 0.1/0.5 cell sizes), which is
+    exactly the boundary-alignment case the horizontal-edge pass exists for;
+    the GEOS reference says those cells are NOT contained, and so must the
+    kernel."""
+
+    from shapely.geometry import MultiPolygon, Point, box
+    from shapely.ops import unary_union
+
+    rng = random.Random(20260815)
+    matched = 0
+    for trial in range(120):
+        cell = rng.choice([0.1, 0.5, 1.0])
+        w, h = rng.randint(8, 40), rng.randint(8, 40)
+        origin = (rng.uniform(-3.0, 3.0), rng.uniform(-3.0, 3.0))
+        shapes = []
+        for _ in range(rng.randint(1, 3)):
+            kind = rng.choice(["box", "circle", "donut", "u"])
+            cx = rng.uniform(origin[0] + 1.0, origin[0] + (w - 1) * cell)
+            cy = rng.uniform(origin[1] + 1.0, origin[1] + (h - 1) * cell)
+            r = rng.uniform(1.0, 4.0)
+            if kind == "box":
+                half = rng.uniform(0.5, 3.0)
+                shapes.append(box(cx - half, cy - half, cx + half, cy + half))
+            elif kind == "circle":
+                shapes.append(Point(cx, cy).buffer(r, quad_segs=4))
+            elif kind == "donut":
+                inner_r = r * rng.uniform(0.2, 0.6)
+                shapes.append(Point(cx, cy).buffer(r, quad_segs=4).difference(
+                    Point(cx, cy).buffer(inner_r, quad_segs=4)
+                ))
+            else:  # u: concave shape with an inner corner row
+                s = rng.uniform(1.0, 3.0)
+                shapes.append(
+                    box(cx - s, cy - s, cx + s, cy + s).difference(
+                        box(cx - s / 2, cy - s, cx + s / 2, cy)
+                    )
+                )
+        merged = unary_union(shapes)
+        merged_geoms = list(merged.geoms) if hasattr(merged, "geoms") else [merged]
+        area = MultiPolygon(merged_geoms)
+        rust = _rasterize_rust(area, origin[0], origin[1], cell, w, h)
+        ref = _rasterize_shapely(area, origin[0], origin[1], cell, w, h)
+        if not np.array_equal(rust, ref):
+            ys, xs = np.where(rust != ref)
+            from shapely import distance, points
+
+            probe = points(
+                origin[0] + (xs + 0.5) * cell, origin[1] + (ys + 0.5) * cell
+            )
+            d = distance(probe, area.boundary)
+            pytest.fail(
+                f"trial {trial}: {len(ys)} mismatches, min dist to boundary "
+                f"{d.min():.3e} mm; sample cells (row,col,rust,ref)="
+                f"{[(int(y), int(x), int(rust[y, x]), int(ref[y, x])) for y, x in zip(ys[:5], xs[:5])]}"
+            )
+        matched += 1
+    assert matched == 120
+
+
+def test_rasterize_area_polygons_boundary_aligned_cells_stay_blocked():
+    """Explicit boundary-alignment cases: a box whose edges land exactly on
+    cell-center rows/columns must keep those cells blocked (GEOS parity),
+    including the horizontal-bottom-edge row the interval endpoints alone
+    would free."""
+    from shapely.geometry import MultiPolygon, box
+
+    area = MultiPolygon([box(0, 0, 10, 10)])
+    # origin (-0.5, -0.5), cell 1.0 -> centers at 0..9: row 0 and col 0 are
+    # exactly on the bottom/left edges.
+    rust = _rasterize_rust(area, -0.5, -0.5, 1.0, 10, 10)
+    ref = _rasterize_shapely(area, -0.5, -0.5, 1.0, 10, 10)
+    assert np.array_equal(rust, ref)
+    assert rust[0, 5] == -1  # (5.0, 0.0): on the bottom edge -> blocked
+    assert rust[5, 0] == -1  # (0.0, 5.0): on the left edge -> blocked
+    assert rust[5, 5] == 0  # (5.0, 5.0): strictly inside -> free
+
+
+def test_rasterize_area_polygons_matches_shapely_on_real_board():
+    """The real production inputs: all six layers of pcb/temper.kicad_pcb's
+    routing spaces, cell-by-cell against GEOS.  This is the same measurement
+    recorded in docs/evidence/2026-08-15-rust-obstacle-map-integration.md
+    (0 mismatches across ~22.3M cells, ~47.5 s -> ~0.4 s)."""
+    from pathlib import Path
+
+    repo_root = Path(__file__).resolve()
+    while not (repo_root / "pcb" / "temper.kicad_pcb").exists():
+        repo_root = repo_root.parent
+        if repo_root == Path(repo_root.anchor):
+            pytest.skip("pcb/temper.kicad_pcb not available in this checkout")
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+    from temper_placer.router_v6.obstacle_map import build_obstacle_map
+    from temper_placer.router_v6.routing_space import compute_routing_space
+
+    pcb = parse_kicad_pcb_v6(repo_root / "pcb" / "temper.kicad_pcb", use_declared_layer_roles=True)
+    obstacle_maps = build_obstacle_map(pcb, [])
+    routing_spaces = compute_routing_space(pcb, [], obstacle_maps=obstacle_maps)
+    inflation = pcb.design_rules.default_trace_width_mm / 2.0
+    total_cells = 0
+    for layer_name, rs in routing_spaces.items():
+        cell_size = 0.1
+        margin = 2.0
+        x_min, y_min, x_max, y_max = rs.available_area.bounds
+        x_min -= margin
+        y_min -= margin
+        x_max += margin
+        y_max += margin
+        w = max(1, int(np.ceil((x_max - x_min) / cell_size)))
+        h = max(1, int(np.ceil((y_max - y_min) / cell_size)))
+        check_area = rs.available_area
+        if inflation > 0:
+            check_area = rs.available_area.buffer(-inflation, quad_segs=4)
+        rust = _rasterize_rust(check_area, x_min, y_min, cell_size, w, h)
+        ref = _rasterize_shapely(check_area, x_min, y_min, cell_size, w, h)
+        total_cells += w * h
+        assert np.array_equal(rust, ref), (
+            f"layer {layer_name}: {int(np.sum(rust != ref))} mismatches vs GEOS"
+        )
+    # Guard against a silently-shrunk board: the production grid is ~3.7M
+    # cells/layer across the 6 declared layers.
+    assert total_cells >= 15_000_000, f"suspiciously small board: {total_cells} cells"

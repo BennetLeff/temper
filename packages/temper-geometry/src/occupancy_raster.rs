@@ -9,18 +9,19 @@
 // `test_occupancy_grid_rust_differential.py`.
 //
 // NOT migrated (glue / library-dependent):
-//   - `build_occupancy_grid`: its hot path is `shapely.contains()` (a GEOS
-//     prepared-geometry predicate) over points sampled inside a polygon
-//     produced by `available_area.buffer(-inflation_mm, quad_segs=4)` (a
-//     GEOS/JTS buffer-erosion operation with its own curve tessellation).
-//     Neither GEOS's `contains` predicate nor its buffering algorithm has an
-//     accessible pure-Rust equivalent guaranteed bit-identical to what
-//     `shapely` calls — reimplementing point-in-polygon here (even with the
-//     crate's own `polygon::point_in_polygon_winding`) would test a
-//     DIFFERENT algorithm against a boundary GEOS computed, with no
-//     guarantee the boundary matches at all (same shape of refusal as the
-//     `np.dot`-dispatches-to-Accelerate-BLAS case: the reference is opaque
-//     library behaviour, not a reimplementable kernel). Left in Python.
+//   - `build_occupancy_grid`'s EROSION step (`available_area.buffer(-inflation,
+//     quad_segs=4)`) stays Python/GEOS — the S1 spike
+//     (docs/evidence/2026-08-04-geos-polygon-algebra-spike.md) found GEOS
+//     polygon algebra not bit-reproducible, and this module's header is not
+//     the place to relitigate that.  What DID migrate (2026-08-15,
+//     `docs/evidence/2026-08-15-rust-obstacle-map-integration.md`): the
+//     CONTAINMENT PREDICATE over the eroded polygon's vertices —
+//     `shapely.contains(check_area, batch_points)` over ~3.7M cell centers
+//     per layer — is a well-defined strict point-in-polygon question, not
+//     polygon algebra, and is reimplemented as the scanline
+//     `rasterize_area_polygons_py` below (GEOS-`contains` parity: boundary
+//     cells stay blocked).  Parity on the real board is proven by the
+//     differential in `test_occupancy_grid_rust_differential.py`.
 //   - `world_to_grid` / `grid_to_world`: trivial arithmetic; the migrated
 //     kernels below inline the identical bit-exact conversion rather than
 //     exposing it as a standalone entry point.
@@ -825,6 +826,295 @@ pub fn downsample_or_blocks_py(
 }
 
 // ---------------------------------------------------------------------------
+// `build_occupancy_grid` rasterisation (2026-08-15): strict point-in-polygon
+// scanline, migrated from `shapely.contains(check_area, batch_points)`.
+//
+// The polygon vertices are still GEOS-produced (the erosion
+// `available_area.buffer(-inflation_mm, quad_segs=4)` stays Python/GEOS —
+// JUSTIFIED-KEEP, see the module header); only the CONTAINMENT PREDICATE
+// moves here.  That split is the S1-spike distinction made operational: GEOS
+// polygon *algebra* (union/difference/buffer vertex emission) is not
+// bit-reproducible, but "is this grid cell center strictly inside a polygon
+// whose vertices are given" is a well-defined point-in-polygon question.
+//
+// Convention: strict interior, GEOS-`contains` parity — a cell center exactly
+// on a polygon boundary is NOT contained (stays blocked, the conservative
+// direction).  This matters: the C-space boundary is already inflated by
+// trace-width/2, so a route centered exactly on it would sit at exactly the
+// clearance distance; freeing boundary cells would let A* route ON the edge.
+//
+// Algorithm: per-row scanline.  For each polygon and each row whose cell
+// centers fall within the polygon bbox, collect x-crossings of the outer
+// ring (half-open y1 <= row_y < y2 convention, the standard PNPOLY rule),
+// sort, pair into inside-intervals, subtract hole intervals, and free the
+// cells whose centers lie strictly inside a surviving interval.  Cells whose
+// center lies exactly on a horizontal edge (the one boundary case the
+// interval endpoints cannot see) are re-blocked afterwards.  Cost is
+// O(V log V + cells) per layer vs O(V x cells) for a naive per-cell test.
+// ---------------------------------------------------------------------------
+
+/// One open ring (shapely rings are closed; the duplicate closing vertex is
+/// dropped so no zero-length closing edge participates in crossing math).
+type Ring = Vec<(f64, f64)>;
+
+struct RasterPoly {
+    outer: Ring,
+    holes: Vec<Ring>,
+    min_y: f64,
+    max_y: f64,
+    /// Horizontal edges as (y, x0, x1) with x0 <= x1 — their cells are
+    /// boundary cells that the crossing-interval logic cannot see.
+    horiz: Vec<(f64, f64, f64)>,
+}
+
+/// Flatten a shapely ring's coordinate list (closed) into an open ring.
+fn open_ring(coords: &[f64]) -> Ring {
+    let mut ring: Ring = coords.chunks_exact(2).map(|c| (c[0], c[1])).collect();
+    if ring.len() > 1 && ring.first() == ring.last() {
+        ring.pop();
+    }
+    ring
+}
+
+fn ring_bbox(ring: &Ring) -> Option<(f64, f64, f64, f64)> {
+    let (mut min_x, mut max_x, mut min_y, mut max_y) = (f64::INFINITY, f64::NEG_INFINITY, f64::INFINITY, f64::NEG_INFINITY);
+    for &(x, y) in ring {
+        min_x = min_x.min(x);
+        max_x = max_x.max(x);
+        min_y = min_y.min(y);
+        max_y = max_y.max(y);
+    }
+    if !(min_x <= max_x && min_y <= max_y) {
+        return None;
+    }
+    Some((min_x, max_x, min_y, max_y))
+}
+
+fn collect_horiz(ring: &Ring, out: &mut Vec<(f64, f64, f64)>) {
+    let n = ring.len();
+    for k in 0..n {
+        let (x1, y1) = ring[k];
+        let (x2, y2) = ring[(k + 1) % n];
+        if y1 == y2 {
+            let (hx0, hx1) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
+            out.push((y1, hx0, hx1));
+        }
+    }
+}
+
+/// x-crossings of a ring at a row's center y, half-open (PNPOLY convention:
+/// an edge contributes when `min(y1,y2) <= row_y < max(y1,y2)`), sorted.
+fn crossings(ring: &Ring, row_y: f64) -> Vec<f64> {
+    let mut xs = Vec::new();
+    let n = ring.len();
+    for k in 0..n {
+        let (x1, y1) = ring[k];
+        let (x2, y2) = ring[(k + 1) % n];
+        if y1 == y2 {
+            continue;
+        }
+        if (y1 <= row_y && row_y < y2) || (y2 <= row_y && row_y < y1) {
+            let t = (row_y - y1) / (y2 - y1);
+            xs.push(x1 + t * (x2 - x1));
+        }
+    }
+    xs.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    xs
+}
+
+/// Pair sorted crossings into inside-intervals; zero-width intervals
+/// (touching vertices) contribute nothing.
+fn pair_intervals(xs: &[f64]) -> Vec<(f64, f64)> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i + 1 < xs.len() {
+        let (lo, hi) = (xs[i], xs[i + 1]);
+        if hi > lo {
+            out.push((lo, hi));
+        }
+        i += 2;
+    }
+    out
+}
+
+/// `outer` minus `holes` (both interval lists, each sorted by start).
+fn subtract_intervals(outer: &[(f64, f64)], holes: &[(f64, f64)]) -> Vec<(f64, f64)> {
+    let mut out = Vec::new();
+    for &(lo, hi) in outer {
+        let mut cur = lo;
+        for &(hlo, hhi) in holes {
+            if hhi <= cur {
+                continue;
+            }
+            if hlo >= hi {
+                break;
+            }
+            if hlo > cur {
+                out.push((cur, hlo.min(hi)));
+            }
+            cur = cur.max(hhi);
+            if cur >= hi {
+                break;
+            }
+        }
+        if cur < hi {
+            out.push((cur, hi));
+        }
+    }
+    out
+}
+
+/// Rasterize a MultiPolygon's strict-interior mask into a pre-filled -1
+/// (blocked) int8 grid: cells whose centers are strictly inside any polygon
+/// component are set to 0 (free).  Boundary cells stay blocked (GEOS
+/// `contains` parity).
+fn rasterize_polygon(
+    cells: &[Cell<i8>],
+    cols: usize,
+    rows: usize,
+    origin_x: f64,
+    origin_y: f64,
+    cell_size: f64,
+    poly: &RasterPoly,
+) {
+    if poly.outer.len() < 3 {
+        return;
+    }
+    // Row range whose center-y falls within the polygon bbox.  Cells whose
+    // centers are on the boundary are excluded by the interval endpoints
+    // (and the horizontal-edge pass below); scanning a row whose centers all
+    // lie outside the bbox is pointless.
+    let j0 = ((((poly.min_y - origin_y) / cell_size) - 0.5).ceil() as i64).max(0) as usize;
+    let j1 = ((((poly.max_y - origin_y) / cell_size) - 0.5).floor() as i64).min(rows as i64 - 1);
+    if j0 as i64 > j1 {
+        return;
+    }
+    for j in j0..=j1 as usize {
+        let row_y = origin_y + (j as f64 + 0.5) * cell_size;
+        let xs = crossings(&poly.outer, row_y);
+        let mut intervals = pair_intervals(&xs);
+        for hole in &poly.holes {
+            let hxs = crossings(hole, row_y);
+            if hxs.len() >= 2 {
+                let hole_intervals = pair_intervals(&hxs);
+                intervals = subtract_intervals(&intervals, &hole_intervals);
+            }
+        }
+        for &(lo, hi) in &intervals {
+            // Cells with center strictly in (lo, hi).
+            let i0 = ((((lo - origin_x) / cell_size) - 0.5).floor() as i64 + 1).max(0);
+            let i1 = ((((hi - origin_x) / cell_size) - 0.5).ceil() as i64 - 1).min(cols as i64 - 1);
+            if i0 <= i1 {
+                for i in i0 as usize..=i1 as usize {
+                    cells[j * cols + i].set(0);
+                }
+            }
+        }
+    }
+    // Horizontal-edge boundary pass: a cell whose center lies exactly on a
+    // horizontal edge is ON the boundary, hence blocked (GEOS contains
+    // parity) — the interval endpoints above cannot see this case because a
+    // horizontal edge contributes no crossing.
+    for &(hy, hx0, hx1) in &poly.horiz {
+        let jf = ((hy - origin_y) / cell_size) - 0.5;
+        let jr = jf.round();
+        if jr == jf {
+            let j = jr as i64;
+            if (0..rows as i64).contains(&j) {
+                let i_lo = ((((hx0 - origin_x) / cell_size) - 0.5).ceil() as i64).max(0);
+                let i_hi = ((((hx1 - origin_x) / cell_size) - 0.5).floor() as i64).min(cols as i64 - 1);
+                if i_lo <= i_hi {
+                    for i in i_lo as usize..=i_hi as usize {
+                        cells[j as usize * cols + i].set(-1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Rasterize a set of polygon components (outer rings + per-polygon holes)
+/// into a pre-filled -1 grid (see `rasterize_polygon`).
+#[allow(clippy::too_many_arguments)]
+fn rasterize_area_polygons(
+    cells: &[Cell<i8>],
+    cols: usize,
+    rows: usize,
+    origin_x: f64,
+    origin_y: f64,
+    cell_size: f64,
+    polys: &[RasterPoly],
+) -> PyResult<()> {
+    if cell_size <= 0.0 || !cell_size.is_finite() {
+        return Err(PyValueError::new_err("cell_size must be positive and finite"));
+    }
+    for poly in polys {
+        rasterize_polygon(cells, cols, rows, origin_x, origin_y, cell_size, poly);
+    }
+    Ok(())
+}
+
+/// Python entry: rasterize the strict interior of a MultiPolygon (flat
+/// coordinate lists: one `[x0,y0,x1,y1,...]` outer ring per polygon; one
+/// nested list of flat hole rings per polygon, index-aligned with
+/// `outer_rings`) into `grid` (pre-filled with -1 = blocked; cells strictly
+/// inside become 0 = free).
+#[pyfunction]
+#[pyo3(signature = (grid, outer_rings, holes, origin_x, origin_y, cell_size))]
+#[allow(clippy::too_many_arguments)]
+pub fn rasterize_area_polygons_py(
+    py: Python<'_>,
+    grid: PyBuffer<i8>,
+    outer_rings: Vec<Vec<f64>>,
+    holes: Vec<Vec<Vec<f64>>>,
+    origin_x: f64,
+    origin_y: f64,
+    cell_size: f64,
+) -> PyResult<()> {
+    temper_py_bridge::catch_unwind(|| {
+        if outer_rings.len() != holes.len() {
+            return Err(PyValueError::new_err(
+                "outer_rings and holes must have the same length (one holes entry per polygon)",
+            ));
+        }
+        let (rows, cols) = grid_shape(&grid)?;
+        let cells = grid_cells(&grid, py)?;
+        let mut polys: Vec<RasterPoly> = Vec::with_capacity(outer_rings.len());
+        for (outer, hs) in outer_rings.iter().zip(holes.iter()) {
+            let outer_ring = open_ring(outer);
+            let Some((_min_x, _max_x, min_y, max_y)) = ring_bbox(&outer_ring) else {
+                continue;
+            };
+            let mut horiz = Vec::new();
+            collect_horiz(&outer_ring, &mut horiz);
+            let mut holes_out = Vec::with_capacity(hs.len());
+            for h in hs.iter() {
+                let hole_ring = open_ring(h);
+                collect_horiz(&hole_ring, &mut horiz);
+                holes_out.push(hole_ring);
+            }
+            polys.push(RasterPoly {
+                outer: outer_ring,
+                holes: holes_out,
+                min_y,
+                max_y,
+                horiz,
+            });
+        }
+        rasterize_area_polygons(
+            cells,
+            cols as usize,
+            rows as usize,
+            origin_x,
+            origin_y,
+            cell_size,
+            &polys,
+        )
+    })
+    .map_err(temper_py_bridge::panic_to_err)?
+}
+
+// ---------------------------------------------------------------------------
 // Pure-kernel unit tests
 // ---------------------------------------------------------------------------
 
@@ -1079,5 +1369,143 @@ mod tests {
         assert_eq!(out[0], 0);
         // bottom-right block includes padded (out-of-bounds) cells -> blocked
         assert_eq!(out[nw - 1 + (nh - 1) * nw], 1);
+    }
+
+    // -----------------------------------------------------------------------
+    // rasterize_area_polygons (2026-08-15): strict-interior scanline.
+    // Convention: boundary cells stay blocked (-1), GEOS contains() parity.
+    // -----------------------------------------------------------------------
+
+    fn poly_box(x0: f64, y0: f64, x1: f64, y1: f64) -> RasterPoly {
+        let outer = vec![(x0, y0), (x1, y0), (x1, y1), (x0, y1)];
+        let mut horiz = Vec::new();
+        collect_horiz(&outer, &mut horiz);
+        RasterPoly {
+            outer,
+            holes: vec![],
+            min_y: y0,
+            max_y: y1,
+            horiz,
+        }
+    }
+
+    #[test]
+    fn test_rasterize_box_frees_strict_interior() {
+        // 20x20 grid, 1.0mm cells, origin (-2,-2): centers at
+        // -1.5,-0.5,0.5,...,18.5.  Box [0,10]x[0,10]: cells with center
+        // strictly inside -> x,y in {0.5..9.5}.
+        let cells = cells_from(&[-1i8; 20 * 20]);
+        let polys = vec![poly_box(0.0, 0.0, 10.0, 10.0)];
+        rasterize_area_polygons(&cells, 20, 20, -2.0, -2.0, 1.0, &polys).unwrap();
+        let g = cells_to(&cells);
+        // center (0.5, 0.5) -> row 2, col 2 -> free
+        assert_eq!(g[2 * 20 + 2], 0);
+        // center (9.5, 9.5) -> row 11, col 11 -> free
+        assert_eq!(g[11 * 20 + 11], 0);
+        // center (-0.5, -0.5) -> row 1, col 1 -> outside -> blocked
+        assert_eq!(g[1 * 20 + 1], -1);
+        // far corner cells stay blocked
+        assert_eq!(g[0 * 20 + 0], -1);
+        assert_eq!(g[19 * 20 + 19], -1);
+    }
+
+    #[test]
+    fn test_rasterize_box_aligned_boundary_rows_stay_blocked() {
+        // Box [0,10]x[0,10] on a grid whose cell centers EXACTLY include
+        // y=0 (origin -0.5, cell 1.0 -> centers at 0.0,1.0,...,9.0): the
+        // row at y=0 sits exactly on the bottom boundary -> every cell on
+        // it must stay blocked even though its x is inside the box.
+        let cells = cells_from(&[-1i8; 10 * 10]);
+        let polys = vec![poly_box(0.0, 0.0, 10.0, 10.0)];
+        rasterize_area_polygons(&cells, 10, 10, -0.5, -0.5, 1.0, &polys).unwrap();
+        let g = cells_to(&cells);
+        // row y=0 is row 0; col x=5 is col 5 -> blocked (on the bottom edge)
+        assert_eq!(g[0 * 10 + 5], -1);
+        // row y=1.0 is row 1; col 5 -> strictly inside -> free
+        assert_eq!(g[1 * 10 + 5], 0);
+        // col x=0 (left edge) on interior row y=5 -> blocked (on the edge)
+        assert_eq!(g[5 * 10 + 0], -1);
+        // col x=1 on row y=5 -> strictly inside -> free
+        assert_eq!(g[5 * 10 + 1], 0);
+    }
+
+    #[test]
+    fn test_rasterize_hole_stays_blocked() {
+        // 20x20 grid, 1.0mm cells, origin (0,0): centers at 0.5,1.5,...,19.5.
+        // Outer box [0,20]x[0,20] with hole [8,12]x[8,12] (a donut): the
+        // hole's interior cells stay blocked, the ring stays free.
+        let outer = vec![(0.0, 0.0), (20.0, 0.0), (20.0, 20.0), (0.0, 20.0)];
+        let holes = vec![vec![(8.0, 8.0), (12.0, 8.0), (12.0, 12.0), (8.0, 12.0)]];
+        let mut horiz = Vec::new();
+        collect_horiz(&outer, &mut horiz);
+        collect_horiz(&holes[0], &mut horiz);
+        let poly = RasterPoly {
+            outer,
+            holes: holes.clone(),
+            min_y: 0.0,
+            max_y: 20.0,
+            horiz,
+        };
+        let cells = cells_from(&[-1i8; 20 * 20]);
+        rasterize_area_polygons(&cells, 20, 20, 0.0, 0.0, 1.0, &[poly]).unwrap();
+        let g = cells_to(&cells);
+        // (5.5, 5.5) -> row 5, col 5: inside outer, outside hole -> free
+        assert_eq!(g[5 * 20 + 5], 0);
+        // (10.5, 10.5) -> row 10, col 10: inside the hole -> blocked
+        assert_eq!(g[10 * 20 + 10], -1);
+        // (14.5, 14.5) -> free again
+        assert_eq!(g[14 * 20 + 14], 0);
+    }
+
+    #[test]
+    fn test_rasterize_empty_polygons_is_noop() {
+        let cells = cells_from(&[-1i8; 25]);
+        rasterize_area_polygons(&cells, 5, 5, 0.0, 0.0, 1.0, &[]).unwrap();
+        assert_eq!(cells_to(&cells), vec![-1i8; 25]);
+    }
+
+    #[test]
+    fn test_rasterize_concave_u_row_through_inner_corners() {
+        // U-shape opening downward: interior = left arm x in [0,2] over
+        // y in [0,10], right arm x in [8,10] over y in [0,10], top bar
+        // x in [2,8] over y in [5,10]; the notch [2,8]x[0,5] is outside.
+        // The notch is part of the OUTER ring, not a hole.
+        // CCW ring: (0,0) (2,0) (2,5) (8,5) (8,0) (10,0) (10,10) (0,10).
+        let outer = vec![
+            (0.0, 0.0),
+            (2.0, 0.0),
+            (2.0, 5.0),
+            (8.0, 5.0),
+            (8.0, 0.0),
+            (10.0, 0.0),
+            (10.0, 10.0),
+            (0.0, 10.0),
+        ];
+        let mut horiz = Vec::new();
+        collect_horiz(&outer, &mut horiz);
+        let poly = RasterPoly {
+            outer,
+            holes: vec![],
+            min_y: 0.0,
+            max_y: 10.0,
+            horiz,
+        };
+        // Grid origin (-0.5,-0.5), cell 1.0: centers at 0.0,1.0,...,9.0.
+        // Row y=5.0 passes exactly through the inner corners (2,5)/(8,5).
+        let cells = cells_from(&[-1i8; 10 * 10]);
+        rasterize_area_polygons(&cells, 10, 10, -0.5, -0.5, 1.0, &[poly]).unwrap();
+        let g = cells_to(&cells);
+        // (1.0, 5.0) -> col 1, row 5: inside the left arm -> free
+        assert_eq!(g[5 * 10 + 1], 0);
+        // (5.0, 5.0) -> col 5, row 5: on the notch's top edge -> blocked
+        assert_eq!(g[5 * 10 + 5], -1);
+        // (9.0, 5.0) -> col 9, row 5: inside the right arm -> free
+        assert_eq!(g[5 * 10 + 9], 0);
+        // (5.0, 9.0) -> col 5, row 9: inside the top bar -> free
+        assert_eq!(g[9 * 10 + 5], 0);
+        // (5.0, 1.0) -> col 5, row 1: inside the notch -> blocked
+        assert_eq!(g[1 * 10 + 5], -1);
+        // (1.0, 1.0) -> col 1, row 1: inside the left arm -> free
+        assert_eq!(g[1 * 10 + 1], 0);
     }
 }
