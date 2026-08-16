@@ -407,31 +407,75 @@ artifacts are evidence, not output, and it refuses rather than laundering them:
   and records it only under `--accept-oracle-drift`. A genuinely *new* oracle is
   unregistered rather than drifted, and is recorded without ceremony.
 
-## Shared cargo build cache — required when working in a worktree
+## Shared cargo build cache — enforced automatically, not just documented
 
-Before invoking `cargo` or `maturin` **directly** (not via `make`), source
-this once per shell:
+`make cargo-target-dir-guard` installs a `cargo` wrapper at
+`~/.local/bin/cargo` (ahead of `~/.cargo/bin` on PATH) that fixes
+`CARGO_TARGET_DIR` for **every** cargo/maturin invocation on this host, from
+any worktree, in any shell — no sourcing, no remembering. `make worktree`
+and `make venv-isolate` install/refresh it automatically. If you're setting
+up a worktree by hand (`git worktree add`, not `make worktree`), run it
+once:
 
 ```bash
-source scripts/cargo_shared_env.sh
+python3 scripts/install_cargo_target_dir_guard.py
 ```
 
-Anything run through `make` already exports the same value and needs no
-action.
+It is scoped to this repo only (checked via `git rev-parse
+--git-common-dir`) and never touches other cargo projects on the host, and
+it respects an explicitly-set `CARGO_TARGET_DIR` rather than overriding it.
+See `scripts/install_cargo_target_dir_guard.py`'s module docstring for the
+full mechanism and `scripts/check_no_worktree_target_dirs.py` (`make
+check-worktree-target-dirs`, `CLEAN=1` to also delete violations that pass
+a `CACHEDIR.TAG` safety check) for the gate that catches anything that
+still slips through — e.g. a worktree that existed before the guard was
+installed.
 
-Why it matters: `.cargo/config.toml` sets `build.target-dir` to the
-*relative* path `target-shared`. Cargo resolves a relative `target-dir`
-against the config file's own directory, and every git worktree gets its own
-tracked **copy** of that file — so each worktree lands on its own
-`target-shared` and compiles all 10 pyo3 crates from cold. `CARGO_TARGET_DIR`
-overrides `build.target-dir` and can hold an absolute path, which is why the
-sharing is done there rather than in the config.
+**Why this replaced "source `scripts/cargo_shared_env.sh` once per shell"
+(2026-08-13):** that guidance was correct for a persistent interactive
+shell but not for how agents actually invoke commands. Agent tool-calling
+harnesses start a *fresh shell process per tool call* — shell state,
+including exported env vars, does not persist between calls. Sourcing the
+script in one call has zero effect on a `cargo build` issued in the next
+call, which is the overwhelmingly common pattern. This was confirmed
+directly while investigating the 2026-08-12 recurrence: exporting
+`CARGO_TARGET_DIR` in one shell and checking it in a fresh one showed it
+unset, and a bare `cargo metadata` run from a worktree with the var unset
+resolved `target_directory` to that worktree's own private
+`target-shared` — reproducing the incident mechanism live. The
+`source`-based guidance is still correct and still works for a genuinely
+persistent interactive shell (it's what the wrapper itself uses
+internally), but it is no longer the primary defense.
 
-This is not hypothetical. It caused the 51 GB incident the config block
-cites, and it recurred on 2026-08-06: 25 private caches totalling 36.6 GB,
-the disk at 98%, and 16 GB reclaimed by hand. Agent worktrees are the main
-source, because they are created outside the repo tree (`/private/tmp/...`)
-and then run `cargo test` / `cargo build` / `cargo clippy` directly.
+**The "anything run through `make` already exports the same value" claim
+was verified and holds**: `CARGO_TARGET_DIR` is computed and exported at
+the top of the Makefile itself
+(`CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse
+--path-format=absolute --git-common-dir)")/target-shared`), recomputed
+fresh on every `make` invocation regardless of the calling shell's prior
+state, and inherited by every recipe command as a normal OS environment
+variable. `make extensions`, `make build`, etc. were never the gap — direct
+`cargo`/`maturin` calls outside `make` were.
+
+Why it matters underneath all of this: `.cargo/config.toml` sets
+`build.target-dir` to the *relative* path `target-shared`. Cargo resolves a
+relative `target-dir` against the config file's own directory, and every
+git worktree gets its own tracked **copy** of that file — so, absent the
+guard above, each worktree lands on its own `target-shared` and compiles
+all 10 pyo3 crates from cold. `CARGO_TARGET_DIR` overrides `build.target-dir`
+and can hold an absolute path, which is why the sharing is done there
+rather than in the config (a hardcoded absolute path in the tracked config
+would also break CI, whose checkout lives at a different absolute path).
+
+This is not hypothetical. It caused a 51 GB incident, recurred on
+2026-08-06 (25 private caches totalling 36.6 GB, the disk at 98%, 16 GB
+reclaimed by hand), and recurred again on 2026-08-11/12 at ~74 GB across 99
+worktrees despite the documented `source`-based remedy being in every agent
+brief — which is why enforcement moved from a shell convention to a PATH
+wrapper plus a standing gate. Agent worktrees are the main source, because
+they are created outside a persistent shell's lifetime and run `cargo
+test` / `cargo build` / `cargo clippy` / `maturin develop` directly, one
+tool call at a time.
 
 The trade-off is deliberate and unchanged: cargo takes an exclusive lock on
 the target directory, so concurrent builds in different worktrees serialise

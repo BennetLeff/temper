@@ -652,6 +652,7 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # Consistency Gates job but did not register it here -- the same
     # completeness gap as the two batches above, and caught the same way.
     ("check_board_sync_stamp.py", "pcb/.board_sync_stamp.json", "board<->netlist provenance stamp gate (PR #1131): re-derives the netlist's own freshness against elec/src/** FIRST, then compares the board's recorded sync stamp, so the check cannot pass by comparing two stale artifacts to each other -- the failure mode that let the 2026-08-07 board/schematic desync survive five days behind a cached netlist; probe harness deferred (scripts/tests/test_check_board_sync_stamp.py covers its 13 failure modes directly)"),
+
     ("check_pyo3_duplicate_registration.py", "packages/", "duplicate pyo3 function/class registration gate (2026-08-13 kw_boundary_match_py shadowing incident); source-tree scan (.rs), needs no built extensions; probe harness deferred"),
     # 2026-08-13 inert-code audit: this survey's own "advisory"/"BLOCKING"
     # prose drifted from the real workflow wiring at least once (this
@@ -666,6 +667,14 @@ _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # here in the SAME PR that wires it into CI -- PR #1138 exists
     # precisely because a prior gate was wired into CI without this step.
     ("check_fab_capability_floor.py", "docs/hardware/FAB_CAPABILITY.md", "board via annular ring + 'Via hole clearance' DRU rule vs. JLCPCB 2oz-multilayer fab floor; probe harness deferred"),
+
+    # 2026-08-13 cargo-target-dir-enforcement: closes the recurring
+    # per-worktree `target-shared/` incident (51 GB, then 36.6 GB, then
+    # ~74 GB across 99 worktrees). Both scripts are named in a
+    # python-tests.yml comment (hence caught by this survey's `scripts/*.py`
+    # text scan), but only one is actually invoked as a `run:` step there.
+    ("check_no_worktree_target_dirs.py", "", "no-private-target-shared gate (2026-08-11/12 incident); scans `git worktree list` for any worktree, in-tree or out-of-tree, with its own real (non-canonical) target-shared/; trivially clean on a CI runner (single checkout, no worktree fleet) -- meaningful on the dev workstation where the incident actually occurs; probe harness deferred (scripts/tests/test_check_no_worktree_target_dirs.py exercises the CACHEDIR.TAG safety predicate directly)"),
+    ("install_cargo_target_dir_guard.py", "", "installs the `cargo` PATH-shadow wrapper (~/.local/bin/cargo) that is the actual structural fix -- named only in a python-tests.yml comment, not invoked in CI: it is a host-level installer (writes outside the repo, to ~/.local/bin), run manually or self-healed via `make` targets, not a CI gate; probe harness deferred"),
 ]
 
 

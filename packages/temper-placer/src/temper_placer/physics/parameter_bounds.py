@@ -256,7 +256,7 @@ def compute_thermal_soundness(
     fdm_config: ThermalFDMConfig | None = None,
     devices: dict[str, tuple[float, float]] | None = None,
     power_map: dict[str, float] | None = None,
-    T_j_max: float = 150.0,
+    T_j_max: float = 175.0,
     copper_grid: np.ndarray | None = None,  # noqa: ARG001 -- public API, see docstring
     h_field: np.ndarray | None = None,  # noqa: ARG001 -- public API, see docstring
     ambient_C: float | None = None,  # noqa: ARG001 -- public API, see docstring
@@ -280,7 +280,9 @@ def compute_thermal_soundness(
         fdm_config: FDM grid config.
         devices: ``{ref: (x_mm, y_mm)}`` nominal device positions.
         power_map: ``{ref: power_W}`` per-device dissipation.
-        T_j_max: Junction temperature ceiling (deg C).
+        T_j_max: Junction temperature ceiling (deg C). Default 175 — the
+            IKW40N120H3 datasheet Tvj(max) absolute survival limit (the
+            150 °C used before was the datasheet's storage temperature).
         copper_grid: Optional pre-built copper coverage.
         h_field: Optional pre-built vertical sink field.
         ambient_C: Override ambient (from config if None).
@@ -308,7 +310,7 @@ def compute_thermal_soundness(
             origin_mm=(0.0, 0.0),
             height_cells=25,
             width_cells=25,
-            ambient_C=corner.get("ambient_C", 40.0),
+            ambient_C=corner.get("ambient_C", 60.0),
             heatsink_edge="TOP",
             max_cells=5000,
         )

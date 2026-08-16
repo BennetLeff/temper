@@ -941,6 +941,25 @@ scripts:
   - dataclasses
   - pathlib
   - sys
+- path: check_no_worktree_target_dirs.py
+  purpose: 'CI gate: fails if any git worktree of this repo (in-tree under .claude/worktrees or an
+    out-of-tree sibling/temp dir) has its own private target-shared/ instead of the shared main-checkout
+    one -- the recurring incident (51 GB, then 36.6 GB, then ~74 GB across 99 worktrees on 2026-08-11/12)
+    caused by .cargo/config.toml''s relative target-dir resolving per-worktree. `--clean` also deletes
+    violations that pass a CACHEDIR.TAG safety predicate. Trivially clean on a CI runner (single checkout);
+    meaningful on the dev workstation where the incident occurs. See install_cargo_target_dir_guard.py
+    for the structural fix this backstops.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - json
+  - pathlib
+  - shutil
+  - subprocess
+  - sys
 - path: check_oracle_hashes.py
   purpose: 'CI gate (oracle content-hash gate, decision 2026-08-06, issues #754 P2-2 / #758): every _*_py_oracle.py
     under packages/ is a VERBATIM pin of a pre-migration Python implementation, and the Wave-4 differential
@@ -1836,6 +1855,25 @@ scripts:
   - datetime
   - pathlib
   - re
+  - subprocess
+  - sys
+- path: install_cargo_target_dir_guard.py
+  purpose: 'Install a `cargo` PATH-shadow wrapper at ~/.local/bin/cargo (ahead of ~/.cargo/bin) that
+    sets CARGO_TARGET_DIR to the shared main-checkout target-shared for every cargo/maturin invocation
+    on this host, from any worktree, regardless of shell state -- closes the gap left by `source
+    scripts/cargo_shared_env.sh` (only protects invocations in the same shell process as the source,
+    which does not hold for agent tool-calling harnesses that start a fresh shell per command; the
+    mechanism behind the ~74 GB / 99-worktree 2026-08-11/12 recurrence). Scoped to this repo only via
+    `git rev-parse --git-common-dir`; run via `make cargo-target-dir-guard`.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - os
+  - pathlib
+  - shutil
   - subprocess
   - sys
 - path: install_git_stash_guard.py

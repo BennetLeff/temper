@@ -110,6 +110,7 @@ def run_astar_pathfinding(
     thermal_weight: float = 0.0,  # U8: multiplier on per-cell thermal cost
     enforce_all_pad_tree: bool = False,
     tree_3d_fallback_max_iter: int = _TREE_SEGMENT_3D_FALLBACK_MAX_ITER,
+    enable_pair_clearance: bool = True,
 ) -> PathfindingResult:
     """Run A* or Theta* pathfinding to generate routing paths."""
     if design_rules is None:
@@ -119,6 +120,32 @@ def run_astar_pathfinding(
     all_grids: dict[str, OccupancyGrid] = {grid.layer_name: grid}
     if alternate_grid:
         all_grids[alternate_grid.layer_name] = alternate_grid
+
+    # PER-NET-PAIR CLEARANCE (2026-08-12). ``all_grids`` above is the single
+    # occupancy family the router has always had, in which a routed net is
+    # dilated by its OWN net class's clearance and whichever net routes first
+    # therefore decides the separation for the pair. ``ProfileGrids`` keeps
+    # one such family per clearance profile and hands each net the family
+    # whose stamps already carry ``required(other_class, this_class)`` --
+    # see profile_grids.py / pair_clearance.py. The first family IS
+    # ``all_grids`` (no copy), so a board with one live profile is byte-for-
+    # byte the old behaviour.
+    profile_grids = None
+    if enable_pair_clearance:
+        from temper_placer.router_v6.profile_grids import build_profile_grids
+
+        profile_grids = build_profile_grids(all_grids, design_rules)
+        print(
+            f"  Pair-clearance occupancy: {len(profile_grids.profiles.profiles)} "
+            f"profile(s) {profile_grids.profiles.profiles}",
+            flush=True,
+        )
+
+    def grids_for(net_name: str) -> dict[str, OccupancyGrid]:
+        """The occupancy family *net_name* searches."""
+        if profile_grids is None:
+            return all_grids
+        return profile_grids.grids_for_net(net_name)
 
     routed_paths: dict[str, RoutePath | RoutePath3D] = {}
     failed_nets_set: set[str] = set()
@@ -185,7 +212,12 @@ def run_astar_pathfinding(
         tree_route_active = enforce_all_pad_tree and len(channel_path.waypoints) > 2
         planned_tree_active = tree_route_active and channel_path.terminal_tree is not None
 
-        primary_grid = all_grids.get(channel_path.preferred_layer, grid)
+        # Every grid this net touches comes from ITS clearance profile's
+        # family, never from `all_grids` directly -- that is the whole point
+        # of the pair-clearance model. `all_grids` remains the profile-0
+        # family, so `grids_for` is the identity when the feature is off.
+        active_grids = grids_for(net_name)
+        primary_grid = active_grids.get(channel_path.preferred_layer, grid)
 
         if net_budgets is not None:
             per_net_max_iter = net_budgets.get(net_name, max_iter)
@@ -201,14 +233,18 @@ def run_astar_pathfinding(
                 derived = max(1000, min(ellipse_cells, grid_area))
                 per_net_max_iter = min(max_iter, derived)
         alt_layer = next(
-            (layer for layer in all_grids if layer != channel_path.preferred_layer), None
+            (layer for layer in active_grids if layer != channel_path.preferred_layer), None
         )
-        active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
+        active_alternate = active_grids.get(alt_layer) if alt_layer else alternate_grid
 
+        # Only this net's OWN family is re-opened around its own pads. The
+        # other families are searched by other nets, which must keep seeing
+        # this net's pads blocked -- so `active_grids`, not every family, is
+        # the correct scope here.
         restoration = _unblock_net_pads(
             net_name,
             pad_centers_per_net,
-            all_grids,
+            active_grids,
             inflation_mm=base_inflation,
             escape_vias_map=escape_vias_map,
             existing_vias_map=existing_vias_per_net,
@@ -226,7 +262,7 @@ def run_astar_pathfinding(
             execution = execute_terminal_tree(
                 channel_path.terminal_tree,
                 channel_path.terminals,
-                all_grids,
+                active_grids,
                 max_iter=per_net_max_iter,
                 net_id=net_id,
                 trace_width=tree_net_rule.trace_width_mm,
@@ -236,6 +272,20 @@ def run_astar_pathfinding(
                 # straight through is what put two 0.25mm Default tracks
                 # 0.40mm apart against a 0.20mm rule.
                 clearance=effective_blocking_clearance(tree_net_rule),
+                # Each completed branch is copper the moment it exists, so it
+                # must appear in every family at that family's radius -- not
+                # only in the one this net is searching. Without this sink a
+                # tree-routed net's branches would be invisible to every
+                # other profile.
+                mark_sink=(
+                    None
+                    if profile_grids is None
+                    else (
+                        lambda layer, path, _net=net_name, _w=tree_net_rule.trace_width_mm, _id=net_id: profile_grids.mark_path(
+                            layer, path, _net, _w, _id
+                        )
+                    )
+                ),
             )
             completed_geometry = TreeRouteGeometry(
                 net_name=net_name,
@@ -292,7 +342,10 @@ def run_astar_pathfinding(
             net_ids,
             active_alternate,
             tht_locations,
-            all_grids=all_grids,
+            # Blocker identification must read the SAME family the search
+            # ran against, or the net ids it reports name copper that never
+            # obstructed this net.
+            all_grids=active_grids,
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
@@ -376,13 +429,25 @@ def run_astar_pathfinding(
                         # stale over/under-sized footprint behind whenever
                         # ripped_name's real class differs from the default.
                         ripped_rule = design_rules.get_rules_for_net(ripped_name)
-                        _unmark_route_blocked(
-                            ripped_path,
-                            all_grids,
-                            ripped_rule.trace_width_mm,
-                            effective_blocking_clearance(ripped_rule),
-                            ripped_id,
-                        )
+                        if profile_grids is None:
+                            _unmark_route_blocked(
+                                ripped_path,
+                                all_grids,
+                                ripped_rule.trace_width_mm,
+                                effective_blocking_clearance(ripped_rule),
+                                ripped_id,
+                            )
+                        else:
+                            # Symmetric with mark_route below: the same radii,
+                            # per family. Unmarking every family with one
+                            # radius would leave a stale halo in all but one
+                            # of them.
+                            profile_grids.unmark_route(
+                                ripped_path,
+                                ripped_name,
+                                ripped_rule.trace_width_mm,
+                                ripped_id,
+                            )
                         del routed_paths[ripped_name]
                         reroute_queue.append(ripped_name)
                         ripup_counts[ripped_name] = ripup_counts.get(ripped_name, 0) + 1
@@ -403,14 +468,29 @@ def run_astar_pathfinding(
             # reserved the correct (and sometimes very different -- e.g.
             # HighVoltage's 3.0mm/6.0mm) per-net width for the same net. See
             # docs/evidence/2026-08-08-stage4-astar-clearance-mismatch.md.
+            #
+            # PER-PAIR (2026-08-12): that per-net rule is still the floor, but
+            # it is only half the requirement -- it says how much room THIS
+            # net wants, never how much room the net that comes next needs
+            # from it. `mark_route` stamps this same copper into every
+            # clearance-profile family at that family's own radius, so the
+            # separation no longer depends on which of the pair routed first.
             net_rule = design_rules.get_rules_for_net(net_name)
-            _mark_route_blocked(
-                route_path,
-                all_grids,
-                trace_width=net_rule.trace_width_mm,
-                clearance=effective_blocking_clearance(net_rule),
-                net_id=net_id,
-            )
+            if profile_grids is None:
+                _mark_route_blocked(
+                    route_path,
+                    all_grids,
+                    trace_width=net_rule.trace_width_mm,
+                    clearance=effective_blocking_clearance(net_rule),
+                    net_id=net_id,
+                )
+            else:
+                profile_grids.mark_route(
+                    route_path,
+                    net_name,
+                    net_rule.trace_width_mm,
+                    net_id,
+                )
 
             # forced_segment_count > 0 always returns above now (no net
             # class is exempt from the fail-closed gate) -- a route

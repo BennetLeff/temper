@@ -396,6 +396,7 @@ def _stitch_isolated_pads(
                 f"  (segment (start {px:.4f} {py:.4f})"
                 f" (end {nearest_x:.4f} {nearest_y:.4f})"
                 f' (width {stitch_width:.4f}) (layer "{trace_layer}")'
+
                 f" (net {net_num})"
                 f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )
@@ -594,6 +595,8 @@ def _stitch_pads_to_each_other(
                 remaining.remove(best[1])
 
         via_dropped: set[int] = set()
+        stitch_width = _stitch_width_for_net(net_name)
+
         for i, j in edges:
             xi, yi = positions[i]
             xj, yj = positions[j]
@@ -617,7 +620,7 @@ def _stitch_pads_to_each_other(
             segments.append(
                 f"  (segment (start {xi:.4f} {yi:.4f})"
                 f" (end {xj:.4f} {yj:.4f})"
-                f' (width {0.2:.4f}) (layer "{_STITCH_LAYER}")'
+                f' (width {stitch_width:.4f}) (layer "{_STITCH_LAYER}")'
                 f" (net {net_num})"
                 f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )

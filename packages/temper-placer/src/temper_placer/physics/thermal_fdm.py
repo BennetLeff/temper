@@ -33,7 +33,7 @@ Public API (consumed by U7/U8/U9)
             origin_mm=(0.0, 0.0),
             height_cells=100,
             width_cells=200,
-            ambient_C=40.0,
+            ambient_C=60.0,
             heatsink_edge="TOP",
         ),
         devices={"Q1": (25.0, 10.0), "Q2": (35.0, 10.0)},
@@ -93,7 +93,7 @@ class ThermalFDMConfig:
     height_cells: int
     width_cells: int
 
-    ambient_C: float = 40.0
+    ambient_C: float = 60.0
     heatsink_edge: str = "TOP"  # "TOP" | "BOTTOM" | "LEFT" | "RIGHT"
 
     # Thermal properties

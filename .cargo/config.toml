@@ -59,13 +59,18 @@
 # the main checkout, from .claude/worktrees/*, and from worktrees outside the
 # repo tree entirely. CARGO_TARGET_DIR overrides build.target-dir.
 #
-# If you invoke cargo/maturin WITHOUT going through the Makefile, export it
-# yourself or you get a private cold build:
-#
-#     source scripts/cargo_shared_env.sh
-#
-# which exports exactly that value. Prefer sourcing the script over pasting the
-# expression, so the derivation has one definition rather than three.
+# If you invoke cargo/maturin WITHOUT going through the Makefile, this is
+# handled for you automatically: `make cargo-target-dir-guard` (also run by
+# `make worktree` / `make venv-isolate`) installs a `cargo` PATH wrapper at
+# ~/.local/bin/cargo that sets CARGO_TARGET_DIR unconditionally, regardless
+# of shell state -- see scripts/install_cargo_target_dir_guard.py. It
+# replaced `source scripts/cargo_shared_env.sh` as the primary defense
+# 2026-08-13: sourcing only protects invocations made in the SAME shell
+# process as the `source`, which does not hold for agent tool-calling
+# harnesses that start a fresh shell per command -- the exact mechanism
+# behind the ~74 GB / 99-worktree recurrence of this incident. The script
+# still exists and is still correct for a genuinely persistent interactive
+# shell; it is what the wrapper itself execs into.
 [build]
 target-dir = "target-shared"
 
