@@ -273,11 +273,34 @@
 > superseded design point. `CST-1005` was retired in commit `5a58b397`
 > (5 A, 50/60 Hz only, 65 °C max).
 
-### 4.4 Redundant Overcurrent Protection (DC Bus Shunt) — NOT INSTANTIATED
+### 4.4 Redundant Overcurrent Protection (OCP-02) — **DE-SCOPED 2026-08-16 (DNF)**
 
-**No parts.** `SecondaryOCPComparator` (OCP-02, 60.0A threshold) is fully designed in `elec/src/modules.ato:1851-1985` (`docs/hardware/OCP02_DESIGN.md`) but is commented out at both its `SafetyInterlock` instantiation and its `Top`-level shunt-splice wiring (`main.ato:290-306`, `modules.ato:2082-2111`). This is a **topology decision, not a value error**: in this voltage-doubler board, `DC_BUS_RTN` sits ~170V below signal ground (`power_return`/`gnd` are the doubler midpoint — `main.ato:247,283`), so the `INA240A1` current-sense amplifier specified for a low-side shunt there would see ~170V of common-mode against its -4V to +80V absolute rating. As designed, it would destroy the part.
+**No parts costed, deliberately.** OCP-02 is **de-scoped** as of 2026-08-16 (decision record:
+`docs/evidence/2026-08-16-ocp02-descope-implementation.md`; recommendation:
+`docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md` Part 2, on main). Its three parts —
+**T2** (Coilcraft CST3015-100ED CT, `safety.ocp2.ct`), **R65** (4.12Ω burden, RC1206),
+**C37** (0603 filter) — remain **staged off-board at (100.0, 300.0) / (44.0, 272.12) /
+(20.0, 272.12)** on `pcb/temper.kicad_pcb` and are **DNF (do not fit): do not populate, do not
+place, do not cost**. The design is instantiated and wired in `elec/src/modules.ato`
+(`SecondaryOCPComparator`, Option A second CT, 2026-08-07) and is deliberately kept there so the
+interface survives for the aperture-CT reinstatement path — but nothing on the board or in this
+BOM is to be built from it.
 
-Per task instructions, `R_SHUNT` (WSLP25122L000FEA), `U_DIFF` (INA240A1QPWRQ1), and `U_COMP2` (previously costed as LM393DR — source's actual design uses a TLV3201, not an LM393) are removed from this BOM. **Do not add them** until the sensing-domain topology decision is made; see `docs/hardware/OCP02_DESIGN.md` and the `SecondaryOCPComparator` docstring for the shunt-at-midpoint / isolated-amplifier / high-common-mode-part options under consideration.
+**Why (one line):** the CST3015's 9.100mm intrinsic primary↔secondary creepage cannot reach the
+12.6mm PD3 reinforced bar in any placement (the same defect already sits on the board in T1), and
+every alternative sensing mechanism (Hall ICs 4.0–4.2mm, AMC1301 isolated amp 8.5mm, other CTs
+≤9.1mm) fails it too with datasheet-verified figures. OCP-02 is not IEC 60335-1 clause-mandated;
+OCP-01 (50.1A hardware comparator + 40A firmware layer) remains the primary protection.
+
+**History, so this section reads correctly:** the original OCP-02 design (shunt + INA240 + LM393,
+`docs/hardware/OCP02_DESIGN.md`) was superseded 2026-08-07 by Option A — a second current
+transformer — because `DC_BUS_RTN` sits ~170V below signal ground (`power_return`/`gnd` are the
+doubler midpoint, `main.ato:247,283`), putting ~170V common-mode across the INA240's −4V to +80V
+absolute rating. `R_SHUNT` (WSLP25122L000FEA), `U_DIFF` (INA240A1QPWRQ1) and `U_COMP2` (LM393DR)
+are removed from this BOM and **must not be added back** — the CT design they belonged to was
+superseded before the parts were ever placed. Reinstatement triggers (all conditions in the
+decision record): a verified reinforced-insulation certificate for an aperture/donut CT, a
+cert-lab "yes" on slot closed-end creepage credit, or a real sealed PD2 compartment.
 
 ### 4.5 CT Signal Conditioning (Bias + Filter)
 

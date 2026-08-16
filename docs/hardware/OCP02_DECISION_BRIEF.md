@@ -2,6 +2,17 @@
 
 # OCP-02 — Secondary Overcurrent Protection: Decision Brief
 
+> **DECISION SUPERSEDED 2026-08-16.** This brief's recommendation — "build it — second current
+> transformer at `DC_BUS_RTN`" — was implemented (Option A, 2026-08-07) and then **de-scoped** on
+> 2026-08-16: the CST3015 CT's 9.100mm intrinsic primary↔secondary creepage cannot reach the
+> 12.6mm PD3 reinforced bar in any placement, no alternative mechanism clears it (Hall ICs
+> 4.0–4.2mm, AMC1301 8.5mm — datasheet-verified in `docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md`),
+> and OCP-02 is not IEC 60335-1 clause-mandated. The brief's common-mode analysis and option
+> assessment remain the correct record of the 2026-08-07 decision; the de-scope decision record is
+> `docs/evidence/2026-08-16-ocp02-descope-implementation.md`. The aperture-CT reinstatement path it
+> could not have evaluated remains the standing long-term fix (blocked on a verified
+> reinforced-insulation certificate).
+
 **Date:** 2026-08-07
 **Decision required:** which sensing topology resolves OCP-02's blocked
 common-mode problem, or whether to de-scope the requirement instead.

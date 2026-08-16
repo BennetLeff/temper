@@ -1,5 +1,14 @@
 # OCP-02 — Secondary Overcurrent Protection: Design
 
+> **SUPERSEDED 2026-08-07, then DE-SCOPED 2026-08-16.** This document describes the original
+> shunt+INA240 design, which was replaced on 2026-08-07 by Option A — a second current transformer
+> (`SecondaryOCPComparator` in `elec/src/modules.ato`, T2/C37/R65) — because `DC_BUS_RTN` sits
+> ~170V below signal ground, beyond the INA240's −4V to +80V absolute rating. That CT design is
+> itself now **de-scoped (DNF)** as of 2026-08-16: its CST3015 cannot reach the 12.6mm PD3
+> reinforced-creepage bar in any placement, and no alternative mechanism clears it
+> (`docs/evidence/2026-08-16-ocp02-descope-implementation.md`). Read this design doc as history,
+> not as the live design.
+
 **Date:** 2026-07-26
 **Gate:** OCP-02 — secondary OCP, **55–65 A, <5 µs** (`docs/STRATEGY.md`)
 **Status:** designed, **not implemented** — one blocker, stated below.
