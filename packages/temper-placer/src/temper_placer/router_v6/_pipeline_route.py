@@ -276,6 +276,148 @@ def _build_clause_origin(model: ConstraintModel) -> list[str]:
     return _to.run_build_clause_origin(model)
 
 
+def _run_stage3_direct(
+    self,
+    pcb: ParsedPCB,
+    stage2: Stage2Output,
+    target_names: list[str] | None = None,
+) -> Stage3Output:
+    """Stage 3 topological routing via the direct capacity-aware solver.
+
+    Replaces the (vacuously satisfied, memory-infeasible) monolithic SAT
+    model with ``temper_rust_router.solve_topology_direct_py``: each net's
+    pads are snapped to the nearest skeleton node and a capacity-aware
+    shortest path is computed between consecutive pads; edges whose
+    remaining width cannot carry the net are blocked, so later nets
+    re-route around congested channels. Every net receives a **real**
+    topology (the connectivity the SAT model never forced), capacity is
+    enforced by construction, and the CNF that cost 182-200 GB at full
+    scale is never built.
+
+    The output shape is identical to the SAT path's ``topology_graph``, so
+    Stage 4's ``map_topology_to_channels`` consumes it unchanged. Nets that
+    cannot be routed within capacity (or whose pads lie outside the
+    skeleton's reachable component) are reported in ``degraded_nets`` and
+    fall through to Stage 4's existing ``fallback_channel_path`` A* path —
+    the same honest degraded handling the net-batching path uses.
+
+    ``target_names`` (the ``max_sat_nets`` selective cap): when set, only
+    the named nets receive topology; every other net falls through to
+    Stage 4's unguided A* fallback, preserving the documented selective-SAT
+    semantic.
+    """
+    from temper_placer.router_v6._pipeline_grid import _net_pad_positions
+    from temper_placer.router_v6.constraint_model import _stage3_mem_trace
+    from temper_placer.router_v6.net_batching import HUB_BLOCKS, order_nets_for_batching
+    from temper_rust_router import solve_topology_direct_py
+
+    if self.verbose:
+        print("  3.1-3.6: Direct capacity-aware topology solve (no SAT model)...")
+
+    skeletons = stage2.skeletons or {}
+    channel_widths = stage2.channel_widths or {}
+    design_rules = getattr(pcb, "design_rules", None)
+    nets = list(pcb.nets)
+    source_path = getattr(pcb, "source_path", None)
+
+    # Batching order (low fan-out first, hubs last, diff pairs adjacent):
+    # easy nets commit their channel capacity first, so contentious nets
+    # re-route around what is already committed — the same priority the
+    # net-batching path applies, and fully deterministic.
+    order = order_nets_for_batching(nets, source_path, hub_blocks=HUB_BLOCKS)
+    comp_by_ref = {c.ref: c for c in pcb.components}
+
+    net_names: list[str] = []
+    pads_by_net: list[list[tuple[float, float]]] = []
+    widths_by_net: list[float] = []
+    for i in order:
+        net = nets[i]
+        if target_names is not None and net.name not in target_names:
+            continue
+        pads = _net_pad_positions(net, comp_by_ref)
+        width = 0.0
+        if design_rules is not None:
+            rule = design_rules.get_rules_for_net(net.name)
+            width = rule.trace_width_mm + rule.clearance_mm
+        net_names.append(net.name)
+        pads_by_net.append(pads)
+        widths_by_net.append(width)
+
+    # Skeleton edges with per-layer channel widths (capacity). Mirrors the
+    # Rust model builder's lookup: `edge_widths.get((u, v))` with a
+    # reversed-key fallback, missing/zero width => no capacity constraint.
+    edges: list[tuple[str, tuple[float, float], tuple[float, float], float]] = []
+    for layer_name, skeleton in skeletons.items():
+        cw = channel_widths.get(layer_name)
+        edge_widths = cw.edge_widths if cw is not None else {}
+        for u, v in skeleton.graph.edges:
+            cap = edge_widths.get((u, v))
+            if cap is None:
+                cap = edge_widths.get((v, u), 0.0)
+            edges.append((layer_name, u, v, float(cap)))
+
+    _stage3_mem_trace(
+        f"_run_stage3_direct solve_topology_direct_py ENTER "
+        f"(nets={len(net_names)} edges={len(edges)})"
+    )
+    rust_result = solve_topology_direct_py(
+        net_names,
+        pads_by_net,
+        widths_by_net,
+        edges,
+    )
+    _stage3_mem_trace("_run_stage3_direct solve_topology_direct_py EXIT")
+
+    # Post-condition violations are the direct analog of `audit_result`:
+    # raise, don't warn (same contract as the SAT path's audit).
+    violations = list(rust_result.get("post_condition_violations", []))
+    if violations:
+        msg = (
+            f"Direct topology solver produced {len(violations)} post-condition "
+            f"violation(s): {violations}"
+        )
+        raise RuntimeError(msg)
+
+    if self.verbose:
+        stats = rust_result.get("solver_stats", {})
+        print(
+            f"    Direct topology: {stats.get('nets_routed', 0)} nets routed, "
+            f"{stats.get('nets_unrouted', 0)} unrouted, "
+            f"{stats.get('total_channel_refs', 0)} channel references over "
+            f"{stats.get('total_edges', 0)} edges, "
+            f"{rust_result.get('solver_time_ms', 0.0):.1f} ms"
+        )
+
+    topology_graph = TopologyGraph(net_topologies={})
+    for net_name, topo_data in rust_result.get("topology_graph", {}).items():
+        path_edges = list(topo_data.get("path_graph", []))
+        if path_edges:
+            pg = PathGraph(path_edges)
+        else:
+            pg = None
+        ntopo = NetTopology(
+            net_name=net_name,
+            path_graph=pg,
+            uses_channels=list(topo_data.get("uses_channels", [])),
+            total_length_estimate=float(topo_data.get("total_length_estimate", 0)),
+        )
+        topology_graph.net_topologies[net_name] = ntopo
+
+    degraded_nets = list(rust_result.get("unrouted_nets", []))
+    if self.verbose:
+        print(f"    Direct topology: {len(topology_graph.net_topologies)} nets assigned, {len(degraded_nets)} degraded")
+
+    return Stage3Output(
+        constraint_model=None,
+        solution=None,
+        topology_graph=topology_graph,
+        aesthetic_preferences=[],
+        degraded_nets=degraded_nets,
+        cegar_iterations=0,
+        budget_used=0,
+    )
+
+
 def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     """Run Stage 3: Topological Routing."""
     from temper_placer.router_v6.constraint_model import (
@@ -307,6 +449,27 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     # see RouterV6Pipeline.__init__'s enable_net_batching docstring.
     use_net_batching = bool(getattr(self, "enable_net_batching", False))
 
+    # 2026-08-16 vacuity fix (docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md):
+    # the SAT model is structurally vacuous (nothing forces a `NetChannelVar`
+    # true — every solve returns "0 conflicts, 0 decisions" and an empty
+    # topology) AND its monolith cannot fit in memory (110 nets × 204,144
+    # edges → ~399M Sinz aux vars / ~768M clauses ≈ 182-200 GB on this
+    # board). The default (non-batched, non-bundling) Stage 3 path therefore
+    # routes topology via the direct capacity-aware solver
+    # (`solve_topology_direct_py`): a real per-net channel path (the
+    # connectivity the SAT model never forced) with capacity enforced by
+    # construction, and no model/CNF built at all — the memory fix, so this
+    # branch must run BEFORE the auto-batch safety net below (a large board
+    # must not be silently redirected to the vacuous batched SAT). The SAT
+    # paths remain reachable: net-batching (above), `enable_bundling`
+    # (below), or the `TEMPER_STAGE3_FORCE_SAT=1` env escape hatch.
+    if (
+        not use_net_batching
+        and not self.enable_bundling
+        and not os.environ.get("TEMPER_STAGE3_FORCE_SAT")
+    ):
+        return self._run_stage3_direct(pcb, stage2, target_names=target_names)
+
     # 2026-08-16 auto-batch safety net (Stage 3 memory fix, option 1):
     # when batching was NOT explicitly requested and the caller is not
     # already reducing the model via bundling or geographic pruning, the
@@ -318,6 +481,11 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     # genuinely want the monolith on a large board can shrink the model
     # below the threshold with max_sat_nets (the estimate honors the
     # selective-SAT subset).
+    #
+    # Only the SAT monolith paths can still OOM (the direct solver above
+    # never builds a model), so this net is reachable only via
+    # `enable_bundling` or `TEMPER_STAGE3_FORCE_SAT=1` -- which is
+    # exactly where the safety net is still needed.
     if (
         not use_net_batching
         and not self.enable_bundling
@@ -354,6 +522,9 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         )
         self.last_batch_results = batch_results
         return stage3_output
+
+    net_names = [net.name for net in pcb.nets]
+    diff_pairs = infer_differential_pairs(net_names)
 
     if self.verbose:
         print("  3.1-3.6: Building constraint model...")
