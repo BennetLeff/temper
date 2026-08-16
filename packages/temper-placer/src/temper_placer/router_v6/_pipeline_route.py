@@ -24,6 +24,7 @@ pinned verbatim as ``tests/router_v6/_pipeline_route_py_oracle.py``
 
 from __future__ import annotations
 
+import logging
 import os
 from collections import defaultdict
 from typing import Any, cast
@@ -77,6 +78,50 @@ def _select_sat_nets(self, pcb: ParsedPCB) -> list[str] | None:
     """
     nets = [(net.name, len(net.pins)) for net in pcb.nets]
     return _to.run_select_sat_nets(nets, self.max_sat_nets)
+
+
+#: Stage 3 auto-batch threshold (2026-08-16, the Stage 3 memory fix's
+#: option 1). The monolithic Stage 3 SAT model is exactly
+#: ``|nets| x |edges|`` raw variables (verified exact in
+#: ``docs/evidence/2026-08-15-stage3-memory-blowup-investigation.md``),
+#: and the Sinz sequential-counter CNF encoding multiplies that by
+#: ~17.7x CNF vars / ~34x clauses. On the production board (110 nets x
+#: ~204K edges = ~22.5M raw vars) the monolith's CNF demand is
+#: ~182-200 GB against a 62 GB machine and is OOM-killed at ~58 GB
+#: inside ``encode_to_cnf`` before CaDiCaL even loads.
+#:
+#: 2.5M raw vars caps an attempted monolith's CNF demand at roughly
+#: ~20-25 GB (survivable alone, never safe on a busy shared machine).
+#: The initial 10M suggestion was rejected deliberately: 10M raw vars
+#: extrapolates to ~80-88 GB demand -- an OOM on this machine by
+#: construction, i.e. exactly the bug this threshold exists to prevent.
+#: Test boards (<= ~2M raw vars) never trip it, so their monolith
+#: behavior is unchanged.
+_AUTO_BATCH_VAR_THRESHOLD = 2_500_000
+
+
+def _estimate_stage3_model_vars(
+    pcb: ParsedPCB,
+    stage2: Stage2Output,
+    net_filter: list[str] | None,
+) -> int:
+    """Estimate the monolithic Stage 3 model's raw variable count.
+
+    ``ModelBuilder.create_per_net_channel_vars`` allocates one
+    NetChannelVar per (net, edge) pair, so the raw model is exactly
+    ``|nets| x |edges|`` variables (verified exact at two scales in the
+    2026-08-15 memory-blowup investigation). ``|nets|`` is the number of
+    nets in the model -- ``net_filter`` (selective SAT / ``max_sat_nets``)
+    when set, else every net on the board. ``|edges|`` is the total
+    skeleton edge count across layers (escape vias are obstacles and
+    enlarge the skeleton, so they are included by construction here).
+    Returns 0 when Stage 2 produced no skeletons.
+    """
+    if not stage2.skeletons:
+        return 0
+    n_nets = len(net_filter) if net_filter else len(pcb.nets)
+    total_edges = sum(sk.edge_count for sk in stage2.skeletons.values())
+    return n_nets * total_edges
 
 
 def _augment_with_pcl_constraints(
@@ -239,11 +284,63 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
 
     _stage3_mem_trace("_run_stage3 ENTER")
 
+    net_names = [net.name for net in pcb.nets]
+    diff_pairs = infer_differential_pairs(net_names)
+
+    # `_select_sat_nets` computes the top-N nets for selective SAT routing.
+    # It used to be print-only: the model below encoded EVERY net and the
+    # Stage 3 CNF blew up at |nets| x |edges| (the 2026-08-15 Stage 3
+    # memory-blowup investigation -- 182-200 GB monolith demand). The
+    # filtered list is now threaded into ModelBuilder as `net_filter` so
+    # only the selected nets get variables / capacity terms, and into
+    # solve_topology_rust so the reported topology covers exactly the
+    # selected nets. Non-selected nets fall through to Stage 4's existing
+    # `fallback_channel_path` A* path (the same path nets the solver
+    # leaves unassigned take today).
+    target_names = (
+        self._select_sat_nets(pcb) if self.max_sat_nets and not self.enable_bundling else None
+    )
+
     # `#871` net-batching prototype: solve Stage 3's SAT model in batches
     # of `self.net_batch_size` nets instead of one monolithic model.
     # Checked first/takes priority over enable_bundling/max_sat_nets --
     # see RouterV6Pipeline.__init__'s enable_net_batching docstring.
-    if getattr(self, "enable_net_batching", False):
+    use_net_batching = bool(getattr(self, "enable_net_batching", False))
+
+    # 2026-08-16 auto-batch safety net (Stage 3 memory fix, option 1):
+    # when batching was NOT explicitly requested and the caller is not
+    # already reducing the model via bundling or geographic pruning, the
+    # default is the monolithic path -- which on this board (110 nets x
+    # ~204K edges = ~22.5M raw vars) demands ~182-200 GB and is
+    # OOM-killed at ~58 GB before CaDiCaL even loads. Estimate the raw
+    # variable count and route through the batched path (the documented
+    # production recipe) instead of attempting an OOM. Callers that
+    # genuinely want the monolith on a large board can shrink the model
+    # below the threshold with max_sat_nets (the estimate honors the
+    # selective-SAT subset).
+    if (
+        not use_net_batching
+        and not self.enable_bundling
+        and not self.enable_geographic_pruning
+    ):
+        est_vars = _estimate_stage3_model_vars(pcb, stage2, target_names)
+        if est_vars > _AUTO_BATCH_VAR_THRESHOLD:
+            logging.getLogger(__name__).warning(
+                "Stage 3 monolithic model would be ~%d raw variables "
+                "(|nets| x |edges|), above the auto-batch threshold (%d). "
+                "Routing through net-batching (batch_size=%d) instead of "
+                "the OOMing monolith. Pass enable_net_batching=True "
+                "explicitly, or max_sat_nets to shrink the model below the "
+                "threshold, to control this. See "
+                "docs/evidence/2026-08-15-stage3-memory-blowup-"
+                "investigation.md.",
+                est_vars,
+                _AUTO_BATCH_VAR_THRESHOLD,
+                self.net_batch_size,
+            )
+            use_net_batching = True
+
+    if use_net_batching:
         from temper_placer.router_v6.net_batching import run_net_batched_stage3
 
         stage3_output, batch_results = run_net_batched_stage3(
@@ -258,24 +355,8 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         self.last_batch_results = batch_results
         return stage3_output
 
-    net_names = [net.name for net in pcb.nets]
-    diff_pairs = infer_differential_pairs(net_names)
-
     if self.verbose:
         print("  3.1-3.6: Building constraint model...")
-    # `_select_sat_nets` computes the top-N nets for selective SAT routing.
-    # It used to be print-only: the model below encoded EVERY net and the
-    # Stage 3 CNF blew up at |nets| x |edges| (the 2026-08-15 Stage 3
-    # memory-blowup investigation -- 182-200 GB monolith demand). The
-    # filtered list is now threaded into ModelBuilder as `net_filter` so
-    # only the selected nets get variables / capacity terms, and into
-    # solve_topology_rust so the reported topology covers exactly the
-    # selected nets. Non-selected nets fall through to Stage 4's existing
-    # `fallback_channel_path` A* path (the same path nets the solver
-    # leaves unassigned take today).
-    target_names = (
-        self._select_sat_nets(pcb) if self.max_sat_nets and not self.enable_bundling else None
-    )
 
     if self.enable_bundling:
         assert stage2.skeletons is not None, "Stage 2 skeletons required for bundling"
