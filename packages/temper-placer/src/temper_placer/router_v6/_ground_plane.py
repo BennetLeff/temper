@@ -1059,11 +1059,25 @@ def generate_ground_plane_blocks(
     # between DIFFERENT corridor-mask components (a genuine physical
     # disconnection under full clearance, not a search weakness) and (b)
     # the rare intra-component edge the bounded A* search itself could
-    # not close. It still only avoids the HV keepout (never other-net
-    # copper), which is why it can still contribute residual
-    # tracks_crossing/clearance/solder_mask_bridge for exactly those
-    # edges; reported honestly via
-    # GroundPlaneResult.mst_edges_fallback_count rather than silently.
+    # not close.
+    # UPDATED 2026-08-16 (fix/route-to-100-percent): the fallback now
+    # ALSO avoids other nets' existing F.Cu copper, not just the HV
+    # keepout. ``other_copper_fcu_backbone`` (the per-pair-clearance-
+    # buffered foreign-copper union computed above for the A* obstacle
+    # grid -- reused, not re-derived) is now a second blocked-region
+    # input, so a straight fallback edge that would cross another net's
+    # copper is detoured or dropped instead of emitted as a
+    # tracks_crossing/shorting line. Measured on the 2026-08-16 capstone
+    # route: the 55.2mm straight fallback edge on F.Cu was the single
+    # largest gnd shorting source (shorting hb-gnd's pad on T2). The
+    # one-bend detour below shares the same check, so it can no longer
+    # re-introduce a crossing through a waypoint either. Cost: strictly
+    # fewer fallback edges emitted (fail-closed), reported honestly via
+    # GroundPlaneResult.mst_edges_fallback_count/crossed_keepout --
+    # connectivity for the affected pads is then carried by the In1.Cu
+    # plane itself, which pad_connectivity_audit does not parse (its
+    # documented zone-blindness gap), so a real, labelled connectivity
+    # cost on this net is expected and preferred to emitting shorts.
     # NOTE (measured 2026-08-11): also routing the MST backbone around
     # every OTHER net's existing drilled holes (other_net_hole_avoid,
     # built above for exactly this) was tried here too and reverted --
@@ -1075,7 +1089,14 @@ def generate_ground_plane_blocks(
     # below, where losing one candidate point is cheap (fail closed for
     # that ONE via, not the whole backbone).
     def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
-        return keepout_established and LineString([p1, p2]).intersects(keepout)
+        line = LineString([p1, p2])
+        if keepout_established and line.intersects(keepout):
+            return True
+        return (
+            other_copper_fcu_backbone is not None
+            and not other_copper_fcu_backbone.is_empty
+            and line.intersects(other_copper_fcu_backbone)
+        )
 
     # Emit every component-local A*-routed edge unconditionally -- these
     # are additional real connectivity beyond (and not necessarily a

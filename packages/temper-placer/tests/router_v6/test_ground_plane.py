@@ -173,7 +173,33 @@ class TestGenerateGroundPlaneOnRealBoard:
         # resyncs); 46 of 87 MST edges now cross the HV keepout and are
         # dropped fail-closed. The generator is unchanged; the floor
         # tracks the board.
-        assert after.pads_connected >= 15
+        #
+        # RE-DERIVED 2026-08-16 (fix/route-to-100-percent, Fix 1): floor
+        # 15 -> 4, and this is a MEASURED DOWNWARD CORRECTION, not a
+        # regression. The fallback loop's `_blocked` gate now also
+        # rejects a straight edge that crosses ANOTHER NET'S EXISTING
+        # F.Cu COPPER (buffered by the real pairwise clearance), not only
+        # the HV keepout -- see _ground_plane.generate_ground_plane_blocks'
+        # "UPDATED 2026-08-16" comment. Measured on the 2026-08-16
+        # capstone route, the keepout-only fallback emitted straight
+        # backbone lines that SHORTED other nets (the 55.2mm F.Cu edge
+        # shorting hb-gnd's pad on T2 was the single largest gnd
+        # shorting source); the prior 15/88 floor was therefore partly
+        # built on shorting copper -- the audit counted pads joined by
+        # copper that DRC flags as electrical shorts between different
+        # nets. With the gate fail-closed (drop the edge rather than
+        # short), the honest corridor-clean connectivity is 4/88 (the
+        # 13-15 component-local A*-routed edges plus the rare detour;
+        # the corridor mask fragments the board under full pairwise
+        # clearance, so cross-component edges are genuine physical
+        # disconnections -- no smarter search reconnects them without
+        # shorting). The In1.Cu PLANE itself still covers all 88 pads
+        # electrically (the audit is zone-blind by documented design);
+        # this floor is the audit-legible backbone's, not the board's.
+        # A real, labelled connectivity cost is preferred to emitting
+        # shorts -- the metric must not be propped up by copper that
+        # DRC rejects.
+        assert after.pads_connected >= 4
 
         # The generator's own report must agree with reality, not merely
         # claim it.
