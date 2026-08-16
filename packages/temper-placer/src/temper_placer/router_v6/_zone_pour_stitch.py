@@ -261,6 +261,51 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
     return []
 
 
+def _own_pads_on_layer(
+    net_name: str,
+    layer: str,
+    *,
+    pcb: Any,
+    fallback_positions: list[tuple[float, float]],
+) -> list[tuple[float, float]]:
+    """The net's own pad positions that actually exist on *layer*.
+
+    ``pour_outline_py``'s ``own_pads`` is used only for island
+    classification under PadsOnly, and it must be layer-honest: a piece
+    on In3.Cu may only be credited with pads that physically exist on
+    In3.Cu.  SMD pads are single-layer (``pin_world_layer`` == the
+    pad's declared layer); THT pads report ``"all"``/``"*.Cu"`` (or a
+    ``"Through"`` marker) and exist on every copper layer.
+
+    Falls back to *fallback_positions* (the caller's layer-blind list)
+    when no ``pcb`` is available (unit tests / synthetic fixtures) --
+    those callers pass positions for nets whose pads are all on one
+    layer, so the blind list is correct there.
+    """
+    if pcb is None:
+        return fallback_positions
+    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
+
+    out: list[tuple[float, float]] = []
+    for comp in getattr(pcb, "components", []) or []:
+        for pin in getattr(comp, "pins", []) or []:
+            if not pin.net or pin.net != net_name:
+                continue
+            raw = pin_world_layer(pin)
+            on_layer = raw in ("all", "*.Cu", layer) or (
+                isinstance(raw, str) and "Through" in raw
+            )
+            if not on_layer:
+                continue
+            pos = pin_world_position(pin, comp)
+            out.append((float(pos[0]), float(pos[1])))
+    # Deterministic order (the caller's list order is not preserved by
+    # the pcb walk) -- the Rust island check is order-independent, but the
+    # emitted zone list must not depend on component iteration order.
+    out.sort()
+    return out if out else fallback_positions
+
+
 def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     """Resolve per-netclass zone margin and clearance from DesignRules."""
     from temper_placer.core.design_rules import (
@@ -821,11 +866,11 @@ def _emit_zone_pours(
                     # The zone's `(clearance ...)` scalar is unchanged
                     # (effective_clearance, the min pair requirement); the
                     # per-pair figure lives in the carved outline.
-                    from temper_placer.router_v6.zone_pour_creepage import (
-                        default_creepage_table,
-                    )
                     from temper_placer.router_v6.zone_pour_clearance import (
                         collect_zone_obstacle_records,
+                    )
+                    from temper_placer.router_v6.zone_pour_creepage import (
+                        default_creepage_table,
                     )
 
                     creepage_table = default_creepage_table()
@@ -852,10 +897,22 @@ def _emit_zone_pours(
                     # an isolated padless island at mains potential is a
                     # hazard, not shielding.
                     pads_only = nc not in ("GND",)
+                    # own_pads must be LAYER-FILTERED: a piece on In3.Cu
+                    # may only be credited with pads that actually exist on
+                    # In3.Cu (SMD pads are single-layer; THT pads are
+                    # "all"/"*.Cu").  Agent 64's harness measured exactly
+                    # this distinction -- ntc-no has 4 pads, only its THT
+                    # pads exist on inner layers, so on F.Cu the pour
+                    # fails honestly (0/4) while a layer-blind own-pad
+                    # list would wrongly let inner-layer pieces survive on
+                    # an F.Cu pad's position.
+                    own_pads_on_layer = _own_pads_on_layer(
+                        net_name, layer, pcb=pcb, fallback_positions=positions
+                    )
                     for zd in zds:
                         pour_zones = _tg.pour_outline_py(
                             list(zd.points),
-                            positions,
+                            own_pads_on_layer,
                             obstacles,
                             _MIN_CARVED_AREA_MM2,
                             pads_only,
@@ -878,8 +935,6 @@ def _emit_zone_pours(
                                 )
                             )
                             zone_points_by_net.setdefault(net_name, []).append(tuple(exterior))
-                except ValueError:
-                    pass
                 except ValueError:
                     pass
 

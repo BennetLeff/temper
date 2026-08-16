@@ -87,6 +87,24 @@ use geo::{Area, BooleanOps, Coord, MultiPolygon, Polygon as GeoPolygon};
 /// approximation is free to differ (see module doc).
 pub const HALO_SEGMENTS: usize = 24;
 
+/// Coordinate snap grid (mm) applied to every input ring before the
+/// polygon-boolean carve.
+///
+/// Why: `geo::BooleanOps` (0.28) is a sweep-line implementation that
+/// PANICS ("unable to compare active segments!" /
+/// "segment not found in active-vec-set") when hundreds of overlapping
+/// halos produce nearly-coincident collinear edges with floating-point
+/// noise (measured on the production board: every zone-eligible net
+/// panicked with 500+ obstacles; georust/geo#1174 is the same crash,
+/// fixed upstream only in 0.29 via a different engine).  Snapping every
+/// ring vertex to this grid turns near-coincident points into exactly
+/// coincident points so the sweep's segment ordering is total.  0.001mm
+/// is 1/12500 of the board's smallest DRC-relevant separation (12.6mm
+/// creepage) -- far below any meaningful dimension, and KiCad itself
+/// writes 4-decimal coordinates (0.0001mm resolution), so the snap is
+/// at 10x KiCad's own coordinate resolution.
+pub const SNAP_GRID_MM: f64 = 0.001;
+
 /// A foreign-copper obstacle and the separation this pour must keep from it.
 ///
 /// `clearance_mm` is the *pair-specific* required separation (electrical
@@ -288,13 +306,65 @@ pub fn pour_outline(
     min_island_area_mm2: f64,
     policy: IslandPolicy,
 ) -> PourResult {
-    // 1. Union every obstacle halo into one keepout.
-    let halos: Vec<GeoPolygon<f64>> = obstacles.iter().map(|o| o.halo_polygon()).collect();
-    let keepout: MultiPolygon<f64> = MultiPolygon::new(halos).union(&MultiPolygon::new(vec![]));
+    // 1. Union every obstacle halo into one keepout.  Every ring is
+    // snapped to SNAP_GRID_MM and deduped of repeated consecutive points
+    // FIRST -- geo 0.28's sweep-line BooleanOps panics on floating-point
+    // near-coincident collinear edges (measured on the production board
+    // with 500+ overlapping halos; see SNAP_GRID_MM's doc comment).
+    let snap = |pts: &[Point]| -> Vec<Point> {
+        let mut out: Vec<Point> = Vec::with_capacity(pts.len());
+        for p in pts {
+            let q = Point::new(
+                (p.x / SNAP_GRID_MM).round() * SNAP_GRID_MM,
+                (p.y / SNAP_GRID_MM).round() * SNAP_GRID_MM,
+            );
+            if out.last() != Some(&q) {
+                out.push(q);
+            }
+        }
+        // Close the ring: if the snapped ring's first/last differ, append
+        // the first point so geo sees a closed polygon.  (geo's polygon
+        // ring handling tolerates an open ring, but a closed one is the
+        // unambiguous form.)
+        if out.len() > 1 && out[0] != out[out.len() - 1] {
+            out.push(out[0]);
+        }
+        out
+    };
+    let halos: Vec<GeoPolygon<f64>> = obstacles
+        .iter()
+        .map(|o| {
+            let poly = o.halo_polygon();
+            let snapped = snap(
+                &poly
+                    .exterior()
+                    .coords()
+                    .map(|c| Point::new(c.x, c.y))
+                    .collect::<Vec<_>>(),
+            );
+            let ring: Vec<Coord<f64>> = snapped.iter().map(|p| Coord { x: p.x, y: p.y }).collect();
+            GeoPolygon::new(ring.into(), vec![])
+        })
+        .collect();
+    // Union incrementally (fold), not in one giant MultiPolygon::union:
+    // geo 0.28's sweep-line BooleanOps panics
+    // ("unable to compare active segments!" / "segment not found in
+    // active-vec-set") when hundreds of overlapping halos are unioned at
+    // once (measured on the production board: every zone-eligible net
+    // panicked with 500+ obstacles).  A fold keeps each sweep's active-set
+    // small enough to stay total.  The result is order-independent (union
+    // is commutative) up to floating-point snap effects, and the final
+    // polygon set is the same; deterministic per run.
+    let mut keepout: MultiPolygon<f64> = MultiPolygon::new(vec![]);
+    for halo in &halos {
+        keepout = keepout.union(&MultiPolygon::new(vec![halo.clone()]));
+    }
     let keepout_area_mm2: f64 = keepout.iter().map(|p| p.unsigned_area()).sum();
 
-    // 2. Carve.
-    let region_geo = MultiPolygon::new(vec![ring_to_geo_polygon(region)]);
+    // 2. Carve.  The region ring is snapped/deduped the same way so the
+    // difference's sweep sees the same total ordering.
+    let region_snapped = snap(region);
+    let region_geo = MultiPolygon::new(vec![ring_to_geo_polygon(&region_snapped)]);
     let carved = region_geo.difference(&keepout);
 
     // 3. Decompose + filter.
@@ -749,4 +819,21 @@ pub(crate) mod tests {
         // 24-gon inscribed in radius-3 circle: 12 * r^2 * sin(2pi/24) ≈ 27.95
         assert!((area - std::f64::consts::PI * 9.0).abs() < 0.5, "disc area {area}");
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("zone_generator::tests::empty_obstacles_leave_region_whole", empty_obstacles_leave_region_whole),
+        ("zone_generator::tests::single_pad_halo_carves_a_hole", single_pad_halo_carves_a_hole),
+        ("zone_generator::tests::island_policy_pads_only_drops_padless_pieces", island_policy_pads_only_drops_padless_pieces),
+        ("zone_generator::tests::sliver_filter_drops_tiny_pieces", sliver_filter_drops_tiny_pieces),
+        ("zone_generator::tests::orientation_is_normalised", orientation_is_normalised),
+        ("zone_generator::tests::emit_with_holes_has_one_polygon_element_per_ring", emit_with_holes_has_one_polygon_element_per_ring),
+        ("zone_generator::tests::capsule_halo_has_positive_area", capsule_halo_has_positive_area),
+        ("zone_generator::tests::disc_halo_area", disc_halo_area),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

@@ -66,7 +66,7 @@ rstar = "0.12"
 # same pinned version. Pure Rust (QuickHull, Barber-Dobkin-Huhdanpaa), no
 # libc/OS dependency, so it builds for wasm32 the same way temper-drc-rs's
 # unconditional (non-wasm-gated) `geo` dependency already does.
-geo = "0.28"
+geo = "0.29"
 # hierarchical_clustering.rs: Ward-linkage agglomerative clustering for
 # router_v6/zone_emission.py's `_cluster_positions`, replacing
 # scipy.cluster.hierarchy.linkage(method="ward")/fcluster/pdist. Pure Rust,

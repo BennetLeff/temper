@@ -115,6 +115,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-geometry")] crate::via_clearance::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::via_placement::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::zone::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-geometry")] crate::zone_generator::tests::WASM_TESTS,
 ];
 
 /// Total number of registered tests *in the currently-selected families*.

@@ -17,7 +17,6 @@ from pathlib import Path
 from temper_placer.router_v6.zone_pour_clearance import OTHER_TYPES, UNASSIGNED_NETCLASS
 from temper_placer.router_v6.zone_pour_creepage import (
     default_creepage_table,
-    load_zone_pour_creepage_table,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
