@@ -125,7 +125,13 @@ classes:
   HighVoltageSignal:
     clearance: 2.0
     trace_width: 0.5
-    via_diameter: 0.8
+    # via_diameter RAISED 0.8 -> 1.0mm 2026-08-16 (annular ring 0.3mm vs
+    # the board's own min_via_annular_width 0.254mm in pcb/temper.kicad_pro
+    # design_settings -- the 0.8/0.4 pair's 0.2mm ring produced all 68
+    # annular_width DRC errors on the 2026-08-16 route). Aligns this file
+    # with the identical 1.0/0.4 already declared for this class in
+    # core/design_rules.py (the two homes had drifted apart).
+    via_diameter: 1.0
     via_drill: 0.4
     # creepage_mm 6.0 inherited from HighVoltage: UNSOURCED legacy figure
     # (flagged 2026-08-15) -- see HighVoltage's note above.

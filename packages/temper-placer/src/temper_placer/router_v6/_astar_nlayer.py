@@ -105,6 +105,7 @@ from temper_placer.router_v6._routing_reports import (
 from temper_placer.router_v6.astar_core import (
     RoutePath3D,
     _route_segment_3d,
+    _via_placement_halo_free,
     append_exact_terminal_point,
     append_grid_path_point,
     grid_quantization_tolerance,
@@ -274,6 +275,14 @@ def _astar_route_nlayer(
     primary_grid = grids.get(preferred_layer) or next(iter(grids.values()))
     other_grids = [g for name, g in grids.items() if name != primary_grid.layer_name]
 
+    # Netclass via/trace sizing for the via-span clearance checks below
+    # (tier-2 anchors and tier-3 transitions both need the via's real
+    # diameter and the net's real track width to reserve the via halo on
+    # every pierced layer -- see astar_core._via_placement_halo_free).
+    net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
+    via_diameter_mm = getattr(net_rules, "via_diameter_mm", 0.9) if net_rules else 0.9
+    trace_width_mm = getattr(net_rules, "trace_width_mm", 0.2) if net_rules else 0.2
+
     # The route's own start/end anchor layer: the net's real pad layer when
     # known and this board actually has a routing grid for it, else the same
     # primary_grid fallback as always. See the docstring above for why this
@@ -367,6 +376,27 @@ def _astar_route_nlayer(
                 # Real via (layer change at identical x, y) -- never merged
                 # by append_grid_path_point/append_exact_terminal_point,
                 # which only ever collapse same-layer near-duplicates.
+                #
+                # 2026-08-16 via-span clearance: the anchor via's barrel
+                # pierces every layer between start_anchor_layer and
+                # alt_layer, and this site previously appended it with NO
+                # occupancy check at all -- a via at the waypoint could
+                # land its barrel inside a foreign track on an inner
+                # pierced layer (one of the residual 11 shorting_items
+                # classes). Skip the whole tier-2 detour (try the next
+                # alternate layer, then tier 3) when the via's halo is
+                # not free on every pierced layer.
+                if not _via_placement_halo_free(
+                    grids,
+                    start_world[0],
+                    start_world[1],
+                    start_anchor_layer,
+                    alt_layer,
+                    via_diameter_mm,
+                    trace_width_mm,
+                    net_id,
+                ):
+                    continue
                 detailed_segments.append((start_world[0], start_world[1], alt_layer))
                 via_positions.append(start_world)
             elif i == 0:
@@ -388,6 +418,17 @@ def _astar_route_nlayer(
             # anchor above.
             end_anchor_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
             if end_anchor_layer != alt_layer:
+                if not _via_placement_halo_free(
+                    grids,
+                    goal_world[0],
+                    goal_world[1],
+                    end_anchor_layer,
+                    alt_layer,
+                    via_diameter_mm,
+                    trace_width_mm,
+                    net_id,
+                ):
+                    continue
                 detailed_segments.append((goal_world[0], goal_world[1], end_anchor_layer))
                 via_positions.append(goal_world)
             routed_on_alt = True
@@ -396,7 +437,6 @@ def _astar_route_nlayer(
             continue
 
         # Tier 3: full N-layer via-aware 3D search across every grid.
-        net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
         tier3_start_layer = effective_start_layer if i == 0 else primary_grid.layer_name
         tier3_goal_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
         result_3d = _route_segment_3d(
@@ -409,10 +449,14 @@ def _astar_route_nlayer(
             # Fallback 0.6 -> 0.9mm 2026-08-13, same fab-floor fix as the
             # identical fallback in _astar_search.py (docs/evidence/
             # 2026-08-13-jlcpcb-fab-capability-envelope.md).
-            via_diameter=net_rules.via_diameter_mm if net_rules else 0.9,
+            via_diameter=via_diameter_mm,
             clearance=net_rules.clearance_mm if net_rules else 0.2,
             net_id=net_id,
             max_iter=segment_3d_fallback_max_iter,
+            # 2026-08-16: the via-span clearance check needs the net's
+            # real trace width to reserve the via's extra barrel extent
+            # (see astar_core._via_placement_halo_free).
+            trace_width=trace_width_mm,
         )
         if result_3d is not None:
             world_path_3d, via_positions_3d = result_3d
@@ -513,6 +557,9 @@ def _attempt_pad_layer_landing(
     pad_centers_per_net: dict[str, list[tuple[float, float, float, str]]],
     grids: dict[str, OccupancyGrid],
     tolerance_mm: float = 0.05,
+    via_diameter_mm: float = 0.9,
+    trace_width_mm: float = 0.2,
+    net_id: int = 0,
 ) -> tuple[RoutePath3D, tuple[str, ...]]:
     """Core landing-via attempt: insert a via at whichever of the route's
     own first/last emitted points sits exactly on a net pad's (x, y) but on
@@ -524,7 +571,13 @@ def _attempt_pad_layer_landing(
     with its ORIGINAL, wrong-layer point for any terminus in
     ``blocked_ends`` ("start" and/or "end") -- a terminus whose pad's own
     layer was not free at that exact point (already claimed by an
-    earlier-routed net). ``attempted_route`` must never be treated as a
+    earlier-routed net), or whose landing via's barrel would violate the
+    width-aware C-space on a layer the via pierces (2026-08-16: the
+    landing via previously checked ONLY the pad's own layer, so a through
+    landing via could land its In3.Cu/In4.Cu barrel inside a foreign
+    track -- one of the residual 11 shorting_items classes; the check is
+    now the full via-span clearance, ``astar_core._via_placement_halo_free``).
+    ``attempted_route`` must never be treated as a
     genuine completion when ``blocked_ends`` is non-empty: the whole point
     of the fail-closed contract this function's callers honour is that
     copper claiming to reach a pad it does not actually reach must never
@@ -538,12 +591,20 @@ def _attempt_pad_layer_landing(
     if not pads or not route_path.segments:
         return route_path, ()
 
-    def _layer_free_at(x: float, y: float, layer: str) -> bool:
-        grid = grids.get(layer)
-        if grid is None:
-            return False
-        gx, gy = grid.world_to_grid(x, y)
-        return grid.is_free(gx, gy)
+    def _landing_via_free(x: float, y: float, from_layer: str, to_layer: str) -> bool:
+        # The via's full halo on every layer it pierces (pad layer and
+        # route layer and everything physically between them) -- not just
+        # the pad's own layer.
+        return _via_placement_halo_free(
+            grids,
+            x,
+            y,
+            from_layer,
+            to_layer,
+            via_diameter_mm,
+            trace_width_mm,
+            net_id,
+        )
 
     segments = list(route_path.segments)
     via_positions = list(route_path.via_positions)
@@ -553,7 +614,7 @@ def _attempt_pad_layer_landing(
     x0, y0, layer0 = segments[0]
     pad_layer_start = _pad_layer_at_point(pads, x0, y0, tolerance_mm)
     if pad_layer_start is not None and pad_layer_start != layer0:
-        if _layer_free_at(x0, y0, pad_layer_start):
+        if _landing_via_free(x0, y0, pad_layer_start, layer0):
             segments.insert(0, (x0, y0, pad_layer_start))
             via_positions.insert(0, (x0, y0))
             changed = True
@@ -565,7 +626,7 @@ def _attempt_pad_layer_landing(
     xn, yn, layern = segments[-1]
     pad_layer_end = _pad_layer_at_point(pads, xn, yn, tolerance_mm)
     if pad_layer_end is not None and pad_layer_end != layern:
-        if _layer_free_at(xn, yn, pad_layer_end):
+        if _landing_via_free(xn, yn, pad_layer_end, layern):
             segments.append((xn, yn, pad_layer_end))
             via_positions.append((xn, yn))
             changed = True
@@ -1194,7 +1255,13 @@ def run_astar_pathfinding_nlayer(
             # reset back to -1 and fail every landing closed, not just the
             # genuine collisions.
             attempted, blocked_ends = _attempt_pad_layer_landing(
-                net_name, route_path, pad_centers_per_net, active_grids
+                net_name,
+                route_path,
+                pad_centers_per_net,
+                active_grids,
+                via_diameter_mm=getattr(net_rule, "via_diameter_mm", 0.9) if net_rule else 0.9,
+                trace_width_mm=getattr(net_rule, "trace_width_mm", 0.2) if net_rule else 0.2,
+                net_id=net_id,
             )
             if blocked_ends:
                 # Task 2: net-level decline stays net-level (this net's
@@ -1241,6 +1308,46 @@ def run_astar_pathfinding_nlayer(
                     partial_paths[net_name] = route_path
                 return _forced_segment_decline([], congestion_region())
             routed_paths[net_name] = route_path
+            # 2026-08-16 fab-rule fixes: a THT pad already spans every
+            # copper layer -- a via dropped at its centre is redundant and
+            # DRC-flags as holes_co_located (60 on the 2026-08-16 route).
+            # Drop via positions that coincide with the net's own THT pad
+            # centres BEFORE the stamp and emission see them; the pad
+            # itself carries the layer transition, so no connectivity is
+            # lost. Also dedupe identical via positions (a waypoint shared
+            # by two segments records the same via twice, doubling
+            # holes_co_located/annular_width counts).
+            tht_pad_positions = [
+                (px, py)
+                for px, py, _r, layer in (pad_centers_per_net.get(net_name) or [])
+                if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer
+            ]
+            if tht_pad_positions or len(route_path.via_positions) != len(
+                {(round(vx, 4), round(vy, 4)) for vx, vy in route_path.via_positions}
+            ):
+                kept_vias: list[tuple[float, float]] = []
+                seen: set[tuple[float, float]] = set()
+                for vx, vy in route_path.via_positions:
+                    key = (round(vx, 4), round(vy, 4))
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    if any(
+                        abs(vx - px) < 0.05 and abs(vy - py) < 0.05
+                        for px, py in tht_pad_positions
+                    ):
+                        continue
+                    kept_vias.append((vx, vy))
+                if len(kept_vias) != len(route_path.via_positions):
+                    route_path = RoutePath3D(
+                        net_name=route_path.net_name,
+                        segments=route_path.segments,
+                        via_positions=kept_vias,
+                        path_length=route_path.path_length,
+                        via_count=len(kept_vias),
+                        forced_segment_count=route_path.forced_segment_count,
+                        failed_waypoint_indices=route_path.failed_waypoint_indices,
+                    )
             # Width/creepage-aware stamp (2026-08-16): the routed net's own
             # real width (not the flat 0.2mm board default, which
             # under-reserved a 5.0mm HighVoltage track's halo by 2.2mm and
@@ -1248,6 +1355,7 @@ def run_astar_pathfinding_nlayer(
             # 6-layer board), into EVERY family at that family's
             # searching-net radius: w_F/2 + max(cl_F, C,
             # creepage(class_F, family_class)) + W/2. Each family's static
+
             # layer already reserves W/2 + C, so the separation between
             # this net and any net searching that family is >=
             # max(cl_F, C, creepage) > 0 edge-to-edge by construction --

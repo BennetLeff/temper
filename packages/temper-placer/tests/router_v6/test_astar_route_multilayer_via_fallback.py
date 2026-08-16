@@ -500,8 +500,8 @@ def _carve_local_via_bottleneck(
 
     This helper carves a local, fully-sealed obstruction (blocking a
     ``2*half_span`` square region on BOTH copied layers except a
-    single-cell-wide F.Cu corridor row broken by one wall cell, and a
-    tiny B.Cu via-window straddling that wall) into COPIES of the real
+    corridor band with one F.Cu wall, and a matching B.Cu via window
+    straddling that wall) into COPIES of the real
     grid arrays, at a real free anchor point. This keeps the test
     exercising real production-scale grid dimensions, the real
     ``OccupancyGrid``/``Stage2Orchestrator`` pipeline output, and the
@@ -509,6 +509,18 @@ def _carve_local_via_bottleneck(
     "no F.Cu-only path exists" precondition deterministic rather than
     dependent on incidental (and, per the above, currently absent) real
     board topology.
+
+    2026-08-16: the corridor/window were widened from the original
+    1-cell corridor + 3-cell window to a 9-cell-tall band + 17-cell
+    window because the 3D fallback's via legality check now verifies
+    the via's real barrel halo (via_diameter/2 + clearance envelope,
+    ``astar_core._via_placement_halo_free``) on EVERY pierced layer --
+    a 0.9mm via physically cannot fit through a 0.3mm window, and the
+    old point-check that let it was the same under-reservation that
+    produced the 2026-08-16 via-vs-inner-track shorts. The sealed strip
+    spans the FULL board width (not just the local block), so no
+    around-the-block F.Cu detour exists -- the wall spanning the band's
+    full height leaves the B.Cu via crossing as the only path.
     """
     from dataclasses import replace
 
@@ -524,12 +536,25 @@ def _carve_local_via_bottleneck(
     col0, col1 = ax - half_span, ax + half_span + 1
     wall_x = ax
 
-    fcu2.grid[row0:row1, col0:col1] = -1  # seal the local region on F.Cu...
-    fcu2.grid[ay, col0:col1] = 0  # ...except one corridor row...
-    fcu2.grid[ay, wall_x] = -1  # ...broken by one wall cell
+    # Corridor band 9 cells tall (large enough for a 0.9mm via's halo)
+    # on F.Cu, with a 9x1 wall spanning the band's full height so no
+    # F.Cu-only detour around it exists. The sealed strip runs the FULL
+    # board width so the search cannot leave the band and walk around
+    # the sealed block.
+    band_half = 4
+    fcu2.grid[row0:row1, :] = -1  # seal the whole strip on F.Cu...
+    fcu2.grid[ay - band_half : ay + band_half + 1, col0:col1] = 0  # ...except the band...
+    fcu2.grid[ay - band_half : ay + band_half + 1, wall_x] = -1  # ...with a full-height wall
 
-    bcu2.grid[row0:row1, col0:col1] = -1  # seal the same region on B.Cu...
-    bcu2.grid[ay, wall_x - 1 : wall_x + 2] = 0  # ...except a via window at the wall
+    # B.Cu: via window 17 cells wide x 9 tall straddling the wall -- big
+    # enough for a 0.9mm via's disc (radius 0.45mm + clearance) to be
+    # free on B.Cu at every legal via point (>= 4 cells from the wall).
+    win_half = 8
+    bcu2.grid[row0:row1, :] = -1  # seal the same strip on B.Cu...
+    bcu2.grid[
+        ay - band_half : ay + band_half + 1,
+        wall_x - win_half : wall_x + win_half + 1,
+    ] = 0  # ...except a via window at the wall
 
     start_world = fcu2.grid_to_world(col0, ay)
     goal_world = fcu2.grid_to_world(col1 - 1, ay)
