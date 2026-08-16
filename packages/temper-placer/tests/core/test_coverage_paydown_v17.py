@@ -61,6 +61,7 @@ from temper_placer.router_v6.connectivity import (
     PadIdentity,
     verify_connectivity_by_net,
     verify_net_connectivity,
+    verify_net_route_result,
 )
 from temper_placer.router_v6.constraints_design_rules import (
     ClearanceMatrix,
@@ -922,6 +923,82 @@ class TestConnectivity:
         tracks = [CopperTrack(Point(0, 0), Point(10, 0), 0, 0.2, "N1")]
         by_net = verify_connectivity_by_net(self._pads(), tracks, [], [])
         assert set(by_net) == {"N1"}
+
+
+class TestNetRouteResult:
+    """NetRouteResult — the type-system fix for fake completions.
+
+    `verify_net_route_result` returns the Rust kernel's per-net verdict
+    whose `Connected` variant is constructible only by
+    `NetRouteResult::verify_continuity` (private VerifiedRoute fields —
+    see packages/temper-geometry/src/net_route_result.rs). The coverage
+    gate runs only tests/core, so these mirrors live here as well as in
+    tests/router_v6/test_net_route_result.py.
+    """
+
+    def _pads(self, net="N1"):
+        pid1 = PadIdentity("U1", "1", net, 0.0, 0.0, (0,))
+        pid2 = PadIdentity("U1", "2", net, 10.0, 0.0, (0,))
+        return [
+            CopperPad(pid1, Point(0, 0), "circle", (1.0, 1.0)),
+            CopperPad(pid2, Point(10, 0), "circle", (1.0, 1.0)),
+        ]
+
+    def test_all_pads_joined_is_connected(self):
+        tracks = [CopperTrack(Point(0, 0), Point(10, 0), 0, 0.2, "N1")]
+        result = verify_net_route_result(self._pads(), tracks, [])
+        assert result.disposition == "connected"
+
+    def test_fake_completion_shape_is_partial(self):
+        # Copper exists but joins only one of the two pads (b39b382d shape):
+        # partial, never connected.
+        tracks = [CopperTrack(Point(0, 0), Point(2, 0), 0, 0.2, "N1")]
+        result = verify_net_route_result(self._pads(), tracks, [])
+        assert result.disposition == "partial"
+        assert result.unconnected_pads != []
+
+    def test_zone_outline_alone_is_zone_dependent(self):
+        result = verify_net_route_result(
+            self._pads(), [], [], zone_layers=[0], zone_outline_count=1
+        )
+        assert result.disposition == "zone_dependent"
+        assert result.outline_count == 1
+
+    def test_no_copper_is_failed(self):
+        result = verify_net_route_result(self._pads(), [], [])
+        assert result.disposition == "failed"
+        assert result.reason == "no_copper_emitted"
+
+
+class TestNetRouteResultPreflightCoverage:
+    """`kicad_connectivity.net_route_result_preflight` (public) exercised
+    from tests/core for the coverage gate."""
+
+    _MINIMAL_JOINED = """(kicad_pcb (version 20240108)
+  (generator "temper-test")
+  (layers
+    (0 "F.Cu" signal)
+    (31 "B.Cu" signal)
+  )
+  (net 1 "N")
+  (footprint "Test:R" (layer "F.Cu")
+    (at 0 0 0)
+    (property "Reference" "R1" (at 0 0 0) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
+    (pad "1" thru_hole circle (at -2.5 0 0) (size 1.5 1.5) (drill 0.8) (layers *.Cu *.Mask) (net 1 "N"))
+    (pad "2" thru_hole circle (at 2.5 0 0) (size 1.5 1.5) (drill 0.8) (layers *.Cu *.Mask) (net 1 "N"))
+  )
+  (segment (start -2.5 0) (end 2.5 0) (width 0.5) (layer "F.Cu") (net 1) (tstamp "00000000-0000-0000-0000-000000000001"))
+)
+"""
+
+    def test_preflight_classifies_written_content(self):
+        from temper_placer.router_v6.kicad_connectivity import (
+            net_route_result_preflight,
+        )
+
+        results = net_route_result_preflight(self._MINIMAL_JOINED)
+        assert "N" in results
+        assert results["N"].disposition == "connected"
 
 
 # ---------------------------------------------------------------------------

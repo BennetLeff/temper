@@ -24,8 +24,6 @@ The core claims under test:
 
 from __future__ import annotations
 
-import pytest
-
 from temper_placer.router_v6.connectivity import (
     CopperPad,
     CopperTrack,

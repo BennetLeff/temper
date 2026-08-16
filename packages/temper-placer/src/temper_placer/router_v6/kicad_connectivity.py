@@ -10,6 +10,7 @@ inspects it.
 from __future__ import annotations
 
 import re
+from typing import Any
 
 from temper_placer.router_v6.connectivity import (
     CopperPad,
@@ -43,6 +44,11 @@ _VIA_RE = re.compile(
     r'\s+\(layers\s+"([^"]+)"\s+"([^"]+)"\)'
     r"\s+\(net\s+(\d+)\)"
 )
+
+# `(at X Y)` inside a paren-balanced via block (the audit's `_VIA_AT_RE`).
+_VIA_AT_RE = re.compile(r"\(at\s+([-\d.]+)\s+([-\d.]+)\)")
+# Bare `"name"` tokens inside a layers list (the audit's `_LAYER_NAME_RE`).
+_LAYER_NAME_RE = re.compile(r'"([^"]+)"')
 
 _NET_NAME_RE = re.compile(r'\(net\s+(\d+)\s+"([^"]+)"')
 
@@ -197,14 +203,33 @@ def _copper_layer_id_map(pcb_content: str) -> tuple[dict[str, int], set[int]]:
     -> 1) is only used by the legacy U4 preflight and would silently merge
     In1.Cu / In3.Cu / In4.Cu / B.Cu into one layer on this 6-layer board.
     """
-    from temper_placer.router_v6.pad_connectivity_audit import (
-        _extract_top_level_blocks,
-    )
+
+    # `(layers` stands alone on its own line (no trailing space), so the
+    # shared `_extract_top_level_blocks` pattern `^\s*\((layers)\s` never
+    # matches it. Extract the block locally with a word boundary instead.
+    def _layers_blocks() -> list[str]:
+        pattern = re.compile(r"^\s*\(layers\b")
+        blocks: list[str] = []
+        cur: list[str] = []
+        depth = 0
+        in_block = False
+        for line in pcb_content.split("\n"):
+            if not in_block and pattern.match(line):
+                in_block = True
+                depth = 0
+                cur = []
+            if in_block:
+                cur.append(line)
+                depth += line.count("(") - line.count(")")
+                if depth <= 0:
+                    in_block = False
+                    blocks.append("\n".join(cur))
+        return blocks
 
     name_to_id: dict[str, int] = {}
     copper_ids: set[int] = set()
-    for block in _extract_top_level_blocks(pcb_content, ("layers",)):
-        for m in re.finditer(r'\(\s*(\d+)\s+"([^"]+)"\s+(\S+)', block):
+    for block in _layers_blocks():
+        for m in re.finditer(r'\(\s*(\d+)\s+"([^"]+)"\s+([^)\s]+)', block):
             layer_id, name, role = m.groups()
             name_to_id[name] = int(layer_id)
             if role in ("signal", "power", "mixed", "jumper"):
@@ -226,7 +251,7 @@ def _copper_pads_by_net(
     for comp in pcb.components:
         if not hasattr(comp, "pins"):
             continue
-        comp_rot_deg = float(getattr(comp, "initial_rotation", 0) or 0) * 90.0
+        comp_rot_deg = float(getattr(comp, "initial_rotation_quadrant", 0) or 0) * 90.0
         for pin in comp.pins:
             if not pin.net:
                 continue
@@ -325,7 +350,6 @@ def net_route_result_preflight(pcb_content: str) -> dict[str, Any]:
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6.pad_connectivity_audit import (
         _extract_top_level_blocks,
-        net_number_to_name_map,
     )
 
     layer_id, copper_ids = _copper_layer_id_map(pcb_content)
@@ -351,21 +375,43 @@ def net_route_result_preflight(pcb_content: str) -> dict[str, Any]:
         )
 
     vias_by_net: dict[str, list[CopperVia]] = {}
-    for m in _VIA_RE.finditer(pcb_content):
-        x, y, size, drill, layer_from, layer_to, net_num = m.groups()
-        l_from = layer_id.get(layer_from)
-        l_to = layer_id.get(layer_to)
-        if l_from is None or l_to is None or l_from not in copper_ids or l_to not in copper_ids:
+    for block in _extract_top_level_blocks(pcb_content, ("via",)):
+        at_m = _VIA_AT_RE.search(block)
+        size_m = re.search(r"\(size\s+([-\d.]+)\)", block)
+        net_m = re.search(r"\(net\s+(\d+)\)", block)
+        layers_m = re.search(r'\(layers\s+((?:"[^"]+"\s*)+)\)', block)
+        if not (at_m and net_m):
             continue
-        name = net_name_map.get(int(net_num))
+        name = net_name_map.get(int(net_m.group(1)))
         if not name:
+            continue
+        # KiCad via semantics (the audit's `_parse_segments_and_vias` rule):
+        # a via with NO type token (blind/buried/micro) is THROUGH — it
+        # pierces every copper layer regardless of the declared layer pair
+        # (which is only the stack extent). A typed via connects exactly
+        # its declared layer pair.
+        is_typed = re.search(r"\(via\s+(blind|buried|micro)\b", block) is not None
+        if is_typed:
+            if layers_m is None:
+                continue
+            layer_names = _LAYER_NAME_RE.findall(layers_m.group(1))
+            if len(layer_names) < 2:
+                continue
+            l_from = layer_id.get(layer_names[0])
+            l_to = layer_id.get(layer_names[1])
+            if l_from is None or l_to is None:
+                continue
+            via_layers = {l_from, l_to}
+        else:
+            via_layers = set(copper_ids)
+        if not via_layers:
             continue
         vias_by_net.setdefault(name, []).append(
             CopperVia(
                 net=name,
-                center=Point(float(x), float(y)),
-                diameter=float(size),
-                layers=frozenset((l_from, l_to)),
+                center=Point(float(at_m.group(1)), float(at_m.group(2))),
+                diameter=float(size_m.group(1)) if size_m else 0.6,
+                layers=frozenset(via_layers),
             )
         )
 
