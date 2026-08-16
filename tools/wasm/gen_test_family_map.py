@@ -136,6 +136,16 @@ MODULE_FAMILY: dict[tuple[str, str], str] = {
     # `check_feature_agreement` has no opinion: this is a judgement the coarse
     # split cannot make, which is what the nine-family map is for.
     ("ipc", "tests"): "routing",
+    # `manufacturing.rs` (portable FabricationEnvelope type, added by #964)
+    # is a fabrication-tolerance SHAPE module -- a data type, not a rule
+    # kernel -- so it belongs with the other pure-type modules under `types`,
+    # same as `pyfmt::tests` / `pymath::tests` / `board::tests`. It is not
+    # under `rules/`, so its Cargo-feature bucket is `infra` and
+    # `check_feature_agreement` has no opinion (same as `ipc` above). Added
+    # 2026-08-16: #964 landed the module's registry entry (wasm-registry-
+    # infra) without a family-map entry, so `gen_test_family_map.py --check`
+    # was red on main from merge until this entry.
+    ("manufacturing", "tests"): "types",
     ("pyfmt", "tests"): "types",
     ("pymath", "tests"): "types",
     ("rules", "integration_tests"): "integration",

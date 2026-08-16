@@ -880,6 +880,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "temper-data-model"
+version = "0.1.0"
+
+[[package]]
 name = "temper-design-bundle"
 version = "0.1.0"
 dependencies = [
@@ -913,6 +917,7 @@ dependencies = [
  "getrandom",
  "kodama",
  "rand",
+ "regex",
  "rstar 0.12.2",
  "spade",
 ]
@@ -929,6 +934,9 @@ dependencies = [
 [[package]]
 name = "temper-orchestration"
 version = "0.1.0"
+dependencies = [
+ "temper-data-model",
+]
 
 [[package]]
 name = "temper-pcl-ir"
