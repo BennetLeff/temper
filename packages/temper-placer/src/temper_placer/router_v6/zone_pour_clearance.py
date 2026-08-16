@@ -309,3 +309,164 @@ def pair_clearance_keepout(
     if not geoms:
         return None
     return unary_union(geoms)
+
+
+# ---------------------------------------------------------------------------
+# Structured obstacle records for the Rust zone generator
+# ---------------------------------------------------------------------------
+#
+# ``pair_clearance_keepout`` above returns a shapely union -- the right
+# shape for the legacy Python carve.  The Rust generator
+# (``temper_geometry.pour_outline_py``, packages/temper-geometry/src/
+# zone_generator.rs) consumes per-obstacle RECORDS instead, each carrying
+# its own already-resolved pair separation, because the separation is now
+# ``max(clearance, creepage)`` per pair -- a union cannot carry per-item
+# figures.  This collector is that record source: identical geometry
+# walk to the keepout builder (same pin/track/via iteration, same
+# emitted-segment parsing), one record per foreign item.
+#
+# Record format (the pyo3 bridge contract, see zone_generator.rs):
+#   (kind, x, y, a, b, w, separation)
+#     kind 0 = Pad:   x,y = centre, a = half_w, b = half_h, w unused
+#     kind 1 = Track: x,y = start, a,b = end, w = width
+#     kind 2 = Via:   x,y = centre, a = diameter, b/w unused
+# ``separation`` is the caller-resolved pair figure, already
+# ``max(clearance, creepage)`` for that net pair.
+
+
+def collect_zone_obstacle_records(
+    zone_net: str,
+    layer: str,
+    *,
+    pcb: object | None = None,
+    segments: list[str] | None = None,
+    net_number_to_name: dict[int, str] | None = None,
+    clearance_table: ZonePourClearanceTable | None = None,
+    creepage_table=None,
+):
+    """Flat ``(kind, x, y, a, b, w, separation)`` records for every other
+    net's copper on *layer* -- the obstacle input for
+    ``temper_geometry.pour_outline_py``.
+
+    Mirrors :func:`pair_clearance_keepout`'s geometry walk exactly (same
+    sources: ``pcb`` pads/tracks/vias + ``segments`` emitted this route;
+    same "other zones are not carved against" decision -- KiCad resolves
+    zone-to-zone overlap by priority at fill time).  The difference is
+    per-item separation: ``max(clearance_table.required(...),
+    creepage_table.required(...))`` -- the DRU clearance figure for the
+    pair unless the DRU creepage rule governs it harder (HV-vs-LV: 12.6mm
+    creepage vs 2.0mm clearance -- the measured ``+170V_BUS`` violation
+    family, docs/evidence/2026-08-15-rust-zone-pour-design.md section 4).
+
+    Returns a (possibly empty) list of records.
+    """
+    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
+
+    clearance_table = clearance_table or default_table()
+    zone_class = _net_class_of(zone_net)
+    names = net_number_to_name or {}
+
+    def separation_for(other_net: str, item_type: str) -> float:
+        other_class = _net_class_of(other_net)
+        clearance = clearance_table.required(zone_class, other_class, item_type)
+        if creepage_table is not None:
+            clearance = max(clearance, creepage_table.required(zone_class, other_class, item_type))
+        return clearance
+
+    records: list = []
+
+    for comp in getattr(pcb, "components", []) or []:
+        for pin in getattr(comp, "pins", []) or []:
+            if not pin.net or pin.net == zone_net:
+                continue
+            raw_layer = pin_world_layer(pin)
+            on_layer = raw_layer in ("all", "*.Cu", layer) or (
+                isinstance(raw_layer, str) and "Through" in raw_layer
+            )
+            if not on_layer:
+                continue
+            pos = pin_world_position(pin, comp)
+            records.append(
+                (
+                    0,  # Pad
+                    pos[0],
+                    pos[1],
+                    pin.width / 2.0,
+                    pin.height / 2.0,
+                    0.0,
+                    separation_for(pin.net, "Pad"),
+                )
+            )
+
+    for track in getattr(pcb, "tracks", []) or []:
+        if track.net == zone_net or track.layer != layer:
+            continue
+        records.append(
+            (
+                1,  # Track
+                track.start[0],
+                track.start[1],
+                track.end[0],
+                track.end[1],
+                track.width,
+                separation_for(track.net, "Track"),
+            )
+        )
+
+    for via in getattr(pcb, "vias", []) or []:
+        if via.net == zone_net or layer not in getattr(via, "layers", ()):
+            continue
+        records.append(
+            (
+                2,  # Via
+                via.position[0],
+                via.position[1],
+                via.diameter,
+                0.0,
+                0.0,
+                separation_for(via.net, "Via"),
+            )
+        )
+
+    for line in segments or []:
+        match = _SEGMENT_RE.search(line)
+        if match:
+            x0, y0, x1, y1, width, seg_layer, net_num = match.groups()
+            if seg_layer != layer:
+                continue
+            other = names.get(int(net_num), "")
+            if not other or other == zone_net:
+                continue
+            records.append(
+                (
+                    1,  # Track
+                    float(x0),
+                    float(y0),
+                    float(x1),
+                    float(y1),
+                    float(width),
+                    separation_for(other, "Track"),
+                )
+            )
+            continue
+        match = _VIA_RE.search(line)
+        if match:
+            x, y, size, via_layers, net_num = match.groups()
+            if layer not in via_layers:
+                continue
+            other = names.get(int(net_num), "")
+            if not other or other == zone_net:
+                continue
+            records.append(
+                (
+                    2,  # Via
+                    float(x),
+                    float(y),
+                    float(size),
+                    0.0,
+                    0.0,
+                    separation_for(other, "Via"),
+                )
+            )
+
+    return records

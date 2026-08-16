@@ -469,9 +469,12 @@ use pyo3::prelude::*;
 /// * `min_island_area_mm2`: sliver floor.
 /// * `pads_only`: island policy (`true` = drop padless pieces).
 ///
-/// Returns a list of zones, each a flat `(exterior..., n_holes,
-/// hole0..., hole1..., ...)` list where the hole ring count prefixes each
-/// hole's vertices.  (The Python side re-assembles rings from the counts.)
+/// Returns a list of zones; each zone is a list of rings, ring 0 the
+/// exterior and rings 1.. the holes (each ring an open `Vec<(x, y)>`).
+/// The ring-per-zone structure is unambiguous by construction (an early
+/// prototype flattened rings with only the HOLE lengths prefixed, which
+/// left the Python side unable to locate the exterior's end -- this
+/// structured form is the production contract).
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (region, own_pads, obstacles, min_island_area_mm2, pads_only))]
@@ -481,7 +484,7 @@ pub fn pour_outline_py(
     obstacles: Vec<(u8, f64, f64, f64, f64, f64, f64)>,
     min_island_area_mm2: f64,
     pads_only: bool,
-) -> PyResult<Vec<Vec<f64>>> {
+) -> PyResult<Vec<Vec<Vec<(f64, f64)>>>> {
     temper_py_bridge::catch_unwind(|| {
         let region_pts: Vec<Point> = region.iter().map(|(x, y)| Point::new(*x, *y)).collect();
         let own: Vec<Point> = own_pads.iter().map(|(x, y)| Point::new(*x, *y)).collect();
@@ -517,20 +520,12 @@ pub fn pour_outline_py(
         );
         let mut out = Vec::with_capacity(res.outlines.len());
         for z in &res.outlines {
-            let mut flat: Vec<f64> = Vec::new();
-            for p in &z.exterior {
-                flat.push(p.x);
-                flat.push(p.y);
-            }
-            flat.push(z.holes.len() as f64);
+            let mut rings: Vec<Vec<(f64, f64)>> = Vec::with_capacity(z.holes.len() + 1);
+            rings.push(z.exterior.iter().map(|p| (p.x, p.y)).collect());
             for h in &z.holes {
-                flat.push(h.len() as f64);
-                for p in h {
-                    flat.push(p.x);
-                    flat.push(p.y);
-                }
+                rings.push(h.iter().map(|p| (p.x, p.y)).collect());
             }
-            out.push(flat);
+            out.push(rings);
         }
         out
     })
