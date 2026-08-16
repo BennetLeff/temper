@@ -79,6 +79,40 @@ def _next_tstamp(counter: list[int]) -> str:
     return str(uuid.uuid5(_TSTAMP_NAMESPACE, f"temper-router-v6-tstamp-{n}"))
 
 
+def _via_type_token(from_layer: str, to_layer: str) -> str | None:
+    """KiCad via type token for a declared layer pair, or ``None`` for through.
+
+    Byte-identical twin of ``via_type_token`` in
+    ``temper-orchestration/src/pipeline_route.rs`` (the differential suites
+    pin the two to each other). KiCad's canonical outer copper layers are
+    ``F.Cu``/``B.Cu`` on every board, so the full-stack pair is always
+    ``F.Cu``/``B.Cu``:
+
+    * ``F.Cu`` <-> ``B.Cu``           -> through  (no token; KiCad's format
+                                                  default is through)
+    * exactly one outer layer         -> ``"blind"`` (outer <-> inner)
+    * two inner layers                -> ``"buried"`` (inner <-> inner)
+    * same layer on both ends         -> through  (degenerate; unchanged from
+                                                  the pre-fix emission)
+
+    Without the token KiCad silently widens every layer-pair via to a
+    through via piercing every copper layer -- 16 phantom DRC shorts on
+    layers outside the declared pair (see
+    docs/evidence/2026-08-15-via-type-emission-fix.md).
+    """
+    outer = ("F.Cu", "B.Cu")
+    # Degenerate same-layer pair (should not occur -- the router derives
+    # pairs from real layer transitions): keep the pre-fix emission (no
+    # token), which is also the conservative KiCad default.
+    if from_layer == to_layer:
+        return None
+    if from_layer in outer and to_layer in outer:
+        return None
+    if from_layer in outer or to_layer in outer:
+        return "blind"
+    return "buried"
+
+
 def _to_stage0_netclass_rules(rules: Any) -> Any:
     """Convert a core NetClassRules (or duck-type-compatible shape) into a
     stage0 NetClassRules dataclass.
@@ -365,10 +399,19 @@ def _write_routes_to_content(
                 )
                 i = j - 1
         # U5: emit real (via ...) s-expressions for each Via in the compiled route.
+        # KiCad via-type emission: a via whose declared layer pair is NOT the
+        # full copper stack must carry a `blind`/`buried` type token, or KiCad
+        # defaults it to a THROUGH via piercing every copper layer. This is the
+        # byte-identical twin of the Rust `via_type_token` helper in
+        # temper-orchestration pipeline_route.rs (see
+        # docs/evidence/2026-08-15-via-type-emission-fix.md). The differential
+        # suites pin the two to each other.
         for via in getattr(compiled_route, "vias", []):
             vx, vy = via.position
+            type_token = _via_type_token(via.from_layer, via.to_layer)
+            via_head = f"  (via {type_token} (at" if type_token else "  (via (at"
             segments.append(
-                f"  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})"
+                f"{via_head} {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})"
                 f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
                 f' (net {net_num}) (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )
