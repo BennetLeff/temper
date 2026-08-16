@@ -232,6 +232,13 @@ the router's own result is honest.
   now visibly contradicted by the verified line in normal output, not
   silently trusted). Retiring the print in favour of verified-verdict-only
   reporting is a follow-up, not this change.
+* The legacy `V6RouterAdapter.rrr_route_all_nets` path (`_adapter_core.py`)
+  builds `_AdapterRoutePath` success flags directly from
+  `stage4.routed_paths` and does not run the preflight — it is the
+  MazeRouter-compatibility surface, not the `route_pcb` production entry
+  point (`route_board.py`'s docstring: route_pcb "is now the only routing
+  entry point"). Wiring the verified verdicts into that legacy surface is a
+  follow-up.
 * `verify_net_connectivity` (U3/U4, flag-gated) is left untouched: it is
   differential-pinned and its 1-pad → INCOMPLETE semantics differ from the
   audit's/`NetRouteResult`'s 1-pad → connected. The new type is the
