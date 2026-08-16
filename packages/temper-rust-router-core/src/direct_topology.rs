@@ -369,16 +369,13 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         if net.pads.len() < 2 {
             continue;
         }
-        let Some(path) = route_net(&graph, &remaining, net) else {
+        let Some(path) = route_net(&graph, &mut remaining, net) else {
             unrouted.push(net.name.clone());
             continue;
         };
-        // Commit capacity.
-        for &edge_idx in &path {
-            if let Some(rem) = remaining.get_mut(&edge_idx) {
-                *rem = (*rem - net.width).max(0.0);
-            }
-        }
+        // NOTE: `route_net` commits capacity per segment, inside the chain
+        // (so a net's own later segment sees its earlier consumption). No
+        // separate commit loop here.
 
         // Emit topology. Every path edge is emitted, in order — including
         // an edge used twice consecutively (a chained multi-pad path can
@@ -439,7 +436,18 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
 /// Route a single net: snap pads to nearest skeleton nodes, chain
 /// capacity-aware shortest paths between consecutive snapped pads. Returns
 /// the ordered edge indices, or `None` if any segment is unroutable.
-fn route_net(graph: &Graph, remaining: &HashMap<u32, f64>, net: &DirectNet) -> Option<Vec<u32>> {
+///
+/// Capacity is committed **per segment, inside the chain**: a later segment
+/// of the same net (e.g. a skeleton spur the net must go out-and-back
+/// along) must see the earlier segments' consumption in the gate, or the
+/// net could be granted 2×width on an edge that only carries width. On a
+/// later-segment failure the already-committed segments are rolled back so
+/// the failed net leaves no phantom consumption behind.
+fn route_net(
+    graph: &Graph,
+    remaining: &mut HashMap<u32, f64>,
+    net: &DirectNet,
+) -> Option<Vec<u32>> {
     if net.pads.len() < 2 || graph.nodes.is_empty() {
         return None;
     }
@@ -471,7 +479,34 @@ fn route_net(graph: &Graph, remaining: &HashMap<u32, f64>, net: &DirectNet) -> O
 
     let mut path: Vec<u32> = Vec::new();
     for w in order.windows(2) {
-        let seg = capacity_aware_shortest_path(graph, snapped[w[0]], snapped[w[1]], remaining, net.width)?;
+        let seg = match capacity_aware_shortest_path(
+            graph,
+            snapped[w[0]],
+            snapped[w[1]],
+            remaining,
+            net.width,
+        ) {
+            Some(seg) => seg,
+            None => {
+                // Roll back this net's already-committed segments so the
+                // failed net leaves no phantom capacity consumption.
+                for &edge_idx in &path {
+                    if let Some(rem) = remaining.get_mut(&edge_idx) {
+                        *rem += net.width;
+                    }
+                }
+                return None;
+            }
+        };
+        // Commit this segment immediately: the next segment's gate must see
+        // this net's own consumption (spur out-and-back needs 2×width on
+        // the spur edge, and the second traversal must be blocked if the
+        // remaining width cannot carry it).
+        for &edge_idx in &seg {
+            if let Some(rem) = remaining.get_mut(&edge_idx) {
+                *rem = (*rem - net.width).max(0.0);
+            }
+        }
         path.extend(seg);
     }
     Some(path)
@@ -601,9 +636,20 @@ fn verify_postconditions(
         let edge = &graph.edges[idx as usize];
         if let Some(usable) = edge.usable {
             if total > usable + 1e-9 {
+                // DEBUG: list contributors
+                let mut contrib: Vec<String> = Vec::new();
+                for (net_name, topo) in routed {
+                    if topo.uses_channels.iter().any(|c| c == &edge.id) {
+                        contrib.push(format!(
+                            "{}={}",
+                            net_name,
+                            widths.get(net_name.as_str()).copied().unwrap_or(0.0)
+                        ));
+                    }
+                }
                 violations.push(format!(
-                    "capacity over-committed on channel {}: committed {:.4}mm > usable {:.4}mm",
-                    edge.id, total, usable
+                    "capacity over-committed on channel {}: committed {:.4}mm > usable {:.4}mm (contributors: {})",
+                    edge.id, total, usable, contrib.join(", ")
                 ));
             }
         }
@@ -819,6 +865,29 @@ pub(crate) mod tests {
         assert_eq!(topo.uses_channels[1], topo.uses_channels[2]);
     }
 
+    /// A spur whose capacity cannot carry the out-and-back traversal
+    /// (2×width > usable) must make the net unrouted — never over-committed.
+    /// The second traversal's gate must see the first traversal's
+    /// consumption (per-segment commit).
+    #[cfg_attr(test, test)]
+    fn spur_over_capacity_is_unrouted() {
+        let a = (0.0, 0.0);
+        let b = (10.0, 0.0);
+        let c = (20.0, 0.0);
+        let d = (10.0, 10.0); // spur tip, joined at b
+        let edges = vec![
+            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
+            DirectEdge { layer: "F.Cu".into(), u: b, v: c, capacity: 10.0 },
+            // Spur usable = 1.0 * 0.8 = 0.8 < 2×width 0.6? width 0.5: 2×0.5
+            // = 1.0 > 0.8 -> the out-and-back cannot fit -> unrouted.
+            DirectEdge { layer: "F.Cu".into(), u: b, v: d, capacity: 1.0 },
+        ];
+        let r = solve_topology_direct(&[net("spur", vec![a, d, c], 0.5)], &edges);
+        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(r.net_topologies.is_empty(), "{:?}", r.net_topologies);
+        assert_eq!(r.unrouted, vec!["spur".to_string()]);
+    }
+
     /// Disconnected graph: net with pads in different components is unrouted,
     /// not silently dropped or mis-routed.
     #[cfg_attr(test, test)]
@@ -900,6 +969,7 @@ pub(crate) mod tests {
         ("direct_topology::tests::capacity_limits_count_not_geometry", capacity_limits_count_not_geometry),
         ("direct_topology::tests::multi_pad_net_reaches_all_pads", multi_pad_net_reaches_all_pads),
         ("direct_topology::tests::spur_pad_traverses_edge_twice", spur_pad_traverses_edge_twice),
+        ("direct_topology::tests::spur_over_capacity_is_unrouted", spur_over_capacity_is_unrouted),
         ("direct_topology::tests::disconnected_pads_are_unrouted", disconnected_pads_are_unrouted),
         ("direct_topology::tests::channel_ids_are_parseable_by_stage4", channel_ids_are_parseable_by_stage4),
         ("direct_topology::tests::solve_is_deterministic", solve_is_deterministic),
