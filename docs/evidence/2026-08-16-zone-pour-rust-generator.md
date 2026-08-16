@@ -232,11 +232,16 @@ sparse-inner-layer zones; creepage table HV-vs-LV = 12.6mm live.
 ## 4. Outstanding
 
 - **Full-route verification**: the production `route_pcb` run was
-  OOM-killed at 53 GB RSS (global OOM under concurrent load).  The
-  emission seam + kicad-cli refill measured the zone output directly
-  (2.2), but a full routed board's zone roster should be re-measured on
-  a quiet machine -- and the Stage-3 SAT memory blowup (handoff section
-  6) is the underlying cause of the OOM, still unfixed.
+  OOM-killed TWICE at ~54 GB RSS (global OOM; kernel log
+  `oom-kill pid 935359` and `oom-kill pid 1017806`) -- the documented
+  pre-existing Stage-3 SAT memory blowup (handoff section 6: "climbs
+  18 GB -> 58 GB in ~15 s at t~260-270 s, every time, inside
+  `_run_stage3`"), not a zone-emission failure: the emission phase
+  completes (the seam harness drives the identical production function
+  `_emit_zone_pours` over the real board) and the emitted zones are
+  DRC-verified by the kicad-cli refill measurement (2.2).  A full
+  routed board's zone roster should be re-measured once the Stage-3
+  memory bug is fixed or on a quiet machine with memory headroom.
 - Copper-neck island *bridging* (reconnecting split pieces with a
   narrow same-net corridor) remains documented future work in the design
   doc -- not attempted (a wrong-width neck is itself a DRC violation).
