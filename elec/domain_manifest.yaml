@@ -648,6 +648,59 @@ domains:
                              # whose output drives `safety.ocp2-line`
                              # (PR #1123). No HV node is read, driven, or
                              # referenced anywhere on this net.
+                             # (r_div_top1-p2, r_div_top2-p2, and the ADC
+                             # divider's analogous r_adc_top1-p2/r_adc_top2-p2
+                             # -- sitting at ~57-114V NORMAL per the same
+                             # arithmetic) are NOT added here either as HV or
+                             # SELV -- but the reason is NOT "forcing either
+                             # label would be a naming-convention guess" (the
+                             # 2026-07-27-domain-classification-coverage.md
+                             # phrasing this comment used to defer to): that
+                             # conflates "inferred from net-name spelling"
+                             # (what the manifest's ground rule above
+                             # actually forbids) with "a genuinely derivable
+                             # voltage the manifest declined to act on." The
+                             # real reason, verified 2026-08-13
+                             # (docs/evidence/
+                             # 2026-08-13-ovp01-midchain-single-fault-
+                             # creepage.md): (1) under Clause 8.1.4's OWN
+                             # required single-fault condition (the top-side
+                             # resistor nearest the bus shorts), r_div_top1-p2
+                             # / r_adc_top1-p2 reach the FULL +170V_BUS
+                             # potential (170.0V exactly, re-derived) and
+                             # r_div_top2-p2 / r_adc_top2-p2 reach 86.6-87.4V
+                             # -- both pairs above the SELV ceiling under
+                             # fault, so "neither HV nor SELV by voltage" is
+                             # only true of their NORMAL condition, not the
+                             # governing single-fault one; and (2) declaring
+                             # any of the four HV here was tried and
+                             # empirically breaks
+                             # scripts/check_domain_partition.py --
+                             # synthesize_chain_head_isolators treats only
+                             # the chain's FIRST member as a graph isolator
+                             # (by deliberate design: treating every member
+                             # that way "caused false isolator-barrier
+                             # violations in practice"), so all four interior
+                             # nodes sit in the SAME connected component as
+                             # the already-verified-SELV far end
+                             # (comp.INP/V_BUS_SENSE) -- domain-labeling them
+                             # HV asserts two domains for one connected
+                             # component, which the disjointness check
+                             # correctly rejects. That is the real,
+                             # structural reason this axis cannot represent
+                             # them, not a stylistic deferral. Real netclass
+                             # coverage (reusing the existing HighVoltage
+                             # class, not a new value) was given instead via
+                             # TEMPER_NET_ASSIGNMENTS
+                             # (packages/temper-placer/src/temper_placer/core/
+                             # design_rules.py) -- a decoupled mechanism that
+                             # does not make a domains: topology claim; see
+                             # the evidence doc for the full derivation, the
+                             # empirical test, and named follow-ups
+                             # (pcb/temper.kicad_pro wiring; a purpose-built,
+                             # correctly-sized netclass per IEC 60335-1 Table
+                             # 17/18, mirroring this project's own
+                             # HighVoltageTank precedent).
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
