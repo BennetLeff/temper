@@ -9,18 +9,18 @@
 //! board (2026-08-15 DRC classification, `docs/evidence/2026-08-15-drc-
 //! violation-classification.md`):
 //!
-//! 1. **The outline cannot express interior holes.**  KiCad's zone polygon
-//!    element *can*: the first `(pts ...)` block is the exterior and every
-//!    subsequent `(pts ...)` block is a hole (verified against the KiCad
-//!    source: `pcb_io_kicad_sexpr_parser.cpp`'s `parseZONE` does
-//!    `AddOutline` then `AddHole`, and `zone.h` documents "Other polygons
-//!    inside the main polygon are holes").  The Python emitter's
-//!    `_carve_outline` *drops* interior holes because its s-expression
-//!    writer emits a single ring, so an HV pad buried inside a pour hull
-//!    does not carve the outline -- the FILL must dodge it at local
-//!    clearance, producing thin copper rings that fracture into islands.
-//!    The fill test measured **167 isolated_copper islands** and **+222
-//!    creepage violations** after `--refill-zones`.
+//! 1. **The outline cannot express interior holes.**  KiCad's zone
+//!    serialization *can*: the writer emits one `(polygon (pts ...))`
+//!    element per ring (verified against `pcb_io_kicad_sexpr.cpp`'s
+//!    `format(const ZONE*)`), and `parseZONE` documents "The first polygon
+//!    is the main outline. Others are holes inside the main outline"
+//!    (`ZONE::AddPolygon`).  The Python emitter's `_carve_outline` *drops*
+//!    interior holes because its s-expression writer emits a single ring,
+//!    so an HV pad buried inside a pour hull does not carve the outline --
+//!    the FILL must dodge it at local clearance, producing thin copper
+//!    rings that fracture into islands.  The fill test measured
+//!    **167 isolated_copper islands** and **+222 creepage violations**
+//!    after `--refill-zones`.
 //! 2. **The carve uses electrical clearance, not creepage.**  The Python
 //!    keepout (`pair_clearance_keepout`) buffers foreign copper by the
 //!    DRU *clearance* table (HV-vs-LV 2.0 mm), but the DRC judges *creepage*
@@ -62,8 +62,9 @@
 //!    pieces containing no own pad ([`IslandPolicy::PadsOnly`]).
 //!
 //! The output is a list of [`ZoneOutline`]s, each of which the emitter
-//! ([`emit_zone_s_expr`]) renders as ONE KiCad `(zone ...)` with a
-//! multi-`(pts ...)` polygon -- holes preserved, so the fill never has to
+//! ([`emit_zone_s_expr`]) renders as ONE KiCad `(zone ...)` carrying one
+//! `(polygon (pts ...))` element per ring -- exterior first, then one
+//! element per hole -- so holes are preserved and the fill never has to
 //! thread thin rings around interior obstacles.
 //!
 //! # Non-goals (deliberate)
@@ -213,8 +214,10 @@ fn capsule(start: Point, end: Point, radius: f64, segments: usize) -> GeoPolygon
 }
 
 /// One emitted zone contour: an exterior ring plus zero or more interior
-/// holes.  KiCad expresses this as one `(polygon (pts ...) (pts ...))`
-/// element -- first block exterior, remaining blocks holes.
+/// holes.  KiCad expresses this as one `(zone ...)` carrying one
+/// `(polygon (pts ...))` element per ring -- first element exterior,
+/// remaining elements holes (the format `pcb_io_kicad_sexpr.cpp` writes
+/// and `parseZONE` reads).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ZoneOutline {
     pub exterior: Vec<Point>,
@@ -405,9 +408,17 @@ fn normalize_ring(pts: &[Point], want_ccw: bool) -> Vec<Point> {
 // ===========================================================================
 
 /// Render a [`ZoneOutline`] as a KiCad `(zone ...)` s-expression whose
-/// `(polygon ...)` element carries one `(pts ...)` block per ring --
-/// exterior first, holes after (KiCad: first polygon = main outline, next
-/// = holes).
+/// outline carries one `(polygon (pts ...))` element per ring -- exterior
+/// first, then one element per hole.
+///
+/// This is KiCad's own serialization (verified against
+/// `pcb_io_kicad_sexpr.cpp::format(const ZONE*)`): the writer emits a
+/// `(polygon ...)` element per `SHAPE_LINE_CHAIN` of the outline poly-set,
+/// and `pcb_io_kicad_sexpr_parser.cpp::parseZONE` documents "The first
+/// polygon is the main outline. Others are holes inside the main outline"
+/// (`ZONE::AddPolygon`).  A single `(polygon ...)` element with multiple
+/// `(pts ...)` blocks is NOT the format -- it fails to parse (measured
+/// against kicad-cli 10.0.5, 2026-08-15).
 ///
 /// Field conventions match the existing `zone_pour.rs::emit_zone_s_expr`
 /// (`{:.4}` float formatting, `(connect_pads yes (clearance ...))`,
@@ -421,24 +432,20 @@ pub fn emit_zone_s_expr(
     priority: i64,
     min_thickness: f64,
 ) -> String {
-    let mut rings: Vec<&[Point]> = Vec::with_capacity(1 + outline.holes.len());
-    rings.push(&outline.exterior);
-    rings.extend(outline.holes.iter().map(|h| h.as_slice()));
     let mut poly = String::new();
-    for ring in rings {
-        poly.push_str("\n    (pts");
+    for ring in std::iter::once(&outline.exterior).chain(outline.holes.iter()) {
+        poly.push_str("\n    (polygon\n      (pts");
         for p in ring {
-            poly.push_str(&format!("\n      (xy {:.4} {:.4})", p.x, p.y));
+            poly.push_str(&format!("\n        (xy {:.4} {:.4})", p.x, p.y));
         }
-        poly.push(')');
+        poly.push_str("))");
     }
     format!(
         "  (zone (net {net_number}) (net_name \"{net_name}\") (layer \"{layer}\") \
          (hatch full 0.5) (priority {priority}) \
          (connect_pads yes (clearance {clearance:.4})) \
          (min_thickness {min_thickness:.4}) \
-         (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5)) \
-         (polygon{poly}))"
+         (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5)){poly})"
     )
 }
 
@@ -696,7 +703,7 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
-    fn emit_with_holes_has_multiple_pts_blocks() {
+    fn emit_with_holes_has_one_polygon_element_per_ring() {
         let outline = ZoneOutline {
             exterior: rect(0.0, 0.0, 10.0, 10.0),
             holes: vec![rect(3.0, 3.0, 4.0, 4.0)],
@@ -704,12 +711,27 @@ pub(crate) mod tests {
         let s = emit_zone_s_expr(7, "gnd", "In1.Cu", &outline, 0.3, 0, 0.25);
         assert!(s.contains("(zone (net 7)"));
         assert!(s.contains("(net_name \"gnd\")"));
-        // Two (pts blocks: exterior + one hole.
+        // One (polygon ...) element per ring: exterior + 1 hole.
+        let polygons = s.matches("(polygon").count();
+        assert_eq!(polygons, 2, "expected exterior + 1 hole polygon elements, got {s}");
+        // Each polygon element carries exactly one (pts ...) block.
         let pts_count = s.matches("(pts").count();
-        assert_eq!(pts_count, 2, "expected exterior + 1 hole, got {s}");
+        assert_eq!(pts_count, 2, "expected one (pts per polygon element, got {s}");
         assert!(s.contains("(xy 0.0000 0.0000)"));
         // Hole ring is present.
         assert!(s.contains("(xy 3.0000 3.0000)"));
+        // Whole zone is one balanced s-expression.
+        assert_eq!(s.matches('(').count(), s.matches(')').count());
+        // The hole ring is NOT inside the exterior's polygon element: the
+        // hole has its own (polygon ...) element.
+        let first = s.find("(polygon").unwrap();
+        let second = s[first + 1..]
+            .find("(polygon")
+            .map(|i| first + 1 + i)
+            .unwrap_or(s.len());
+        let ext_block = &s[first..second];
+        assert!(ext_block.contains("(xy 0.0000 0.0000)"));
+        assert!(!ext_block.contains("(xy 3.0000 3.0000)"));
     }
 
     #[cfg_attr(test, test)]
