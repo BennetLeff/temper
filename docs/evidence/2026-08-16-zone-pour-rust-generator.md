@@ -101,6 +101,39 @@ changed the return to structured `Vec<Vec<Vec<(f64, f64)>>>`
 (zone → rings → points, ring 0 exterior) -- unambiguous by construction.
 The pure-Rust core and its 8 unit tests are unchanged.
 
+### 1.5 geo 0.28 -> 0.29 (BooleanOps engine)
+
+geo 0.28's sweep-line `BooleanOps` panics on the production board --
+`unable to compare active segments!` / `segment not found in
+active-vec-set` -- whenever a pour is carved against 500+ overlapping
+halos (measured: every zone-eligible net panicked; georust/geo#1174 is
+the same crash).  Upstream replaced the sweep engine with i_overlay
+(georust/geo#1234, released in 0.29).  `temper-geometry` is the only
+crate that needs the fix; `temper-drc-rs` stays on 0.28.  As a
+belt-and-braces the generator also snaps every input ring to a 0.001mm
+grid (10x KiCad's own 4-decimal coordinate resolution) and dedupes
+repeated points before the boolean.
+
+### 1.6 Exact carve geometry (DRC-measured corrections)
+
+The first refill run showed the carve was ALMOST at the required
+separation and KiCad measured the residual.  Four corrections, each
+attributed to a specific finding (commit `9c06de20`, full body):
+
+1. **Inscribed-polygon undercut**: a 24-gon halo has edge midpoints at
+   R*cos(pi/24) = 0.9914R, so a 12.6mm halo measured 12.49mm.  Radii
+   inflated by 1/cos(pi/24) so the polygon's EDGES sit at the true
+   distance.
+2. **Rect-pad corner reach**: a pad's furthest point is a corner
+   (hypot(w/2,h/2)), not max(w,h)/2 -- same half-diagonal convention
+   `_ground_plane.py` already documents.
+3. **Through-via span**: KiCad models a via's copper barrel on every
+   layer it passes, not just its 2 named endpoints; `_via_is_on_layer`
+   tests the span.
+4. **Layer-honest own pads**: an F.Cu-only SMD net must not pour on
+   In3.Cu (19 measured isolated-copper findings); the layer filter now
+   skips layers with no own pad.
+
 ## 2. Verification
 
 ### 2.1 Unit / differential
@@ -126,41 +159,59 @@ The pure-Rust core and its 8 unit tests are unchanged.
   untouched semantics; creepage render added).
 - Import boundary gate: PASSED (0 new violations).
 
-### 2.2 Production route
+### 2.2 Production seam + kicad-cli refill
 
-`tests/router_v6/test_temper_production_board_routing.py` (full
-`route_pcb` on `pcb/temper.kicad_pcb`, the same entry point
-`scripts/route_board.py` uses) -- see the session log for the routed
-zone roster; verification script `docs/evidence/2026-08-16-zone-pour-
-route-verify.py` reports the four claims:
+The full `route_pcb` production run was OOM-killed at 53 GB RSS on
+2026-08-16 (global OOM while another agent ran a full router_v6 pytest
+suite; kernel log `oom-kill pid 935359`).  Per the repo's
+no-compete-on-memory rule, verification went through the exact
+production emission seam instead: `_emit_zone_pours` fed the real
+parsed board, the emitted 64 zone blocks spliced into a COPY of
+`pcb/temper.kicad_pcb` (R7 strip + replace, same as the route path),
+then `kicad-cli pcb drc --refill-zones` (10.0.5) on the copy --
+`docs/evidence/2026-08-16-zone-pour-refill-verify.py`.
 
-- **A.** rotation-corrected positions: the obstacle geometry uses
-  `pin_world_position` (the #1245 rotation fix) exactly as the old
-  keepout did -- no change of geometry source, only of the carve engine.
-- **B.** creepage carve: live tables resolve HV↔LV to 12.6mm and the
-  obstacle collector passes `max(clearance, creepage)` per record (unit
-  test pins the 27mm vs 6mm hole bbox).
-- **C.** gnd In1.Cu plane present: `_ground_plane.py`'s plane is
-  unchanged by this wiring (separate path, already production from
-  #1245) and still emits its In1.Cu gnd zone.
-- **D.** ntc-no emits 0 zones (honest PD3 failure).
+Measured (kicad-cli 10.0.5, --refill-zones, --severity-all):
 
-### 2.3 kicad-cli refill
+| board state | isolated_copper | zone-involved creepage | total violations |
+|---|---|---|---|
+| committed board, its own 96 zones | **107** | **213** | 1977 |
+| no zones at all (bare) | 0 | 0 | 1678 |
+| **Rust-generated zones (this wiring)** | **0** | **0** | **1679** |
 
-`--refill-zones` DRC on the routed scratch copy: see session log for the
-isolated_copper count (the 167-island failure mode this wiring exists to
-close).
+The Rust zones add **one** violation over a bare no-zone board; the
+committed zones added 299.  The remaining 330 creepage findings are the
+board's own pre-existing pad/track pairs (329 in the bare baseline --
+the board is mostly unrouted).
+
+The carve's exactness came from four DRC-measured corrections, each
+attributed to a specific finding (commit `9c06de20`, see its body):
+inscribed-polygon undercut (12.49 vs 12.60mm actual -- halo radii
+inflated by 1/cos(pi/24)); rect-pad corner reach (half-diagonal, not
+max(w,h)/2); through-via layer span (KiCad models the via barrel on
+every layer it passes, not just its 2 named endpoints); and
+layer-honest own pads (an F.Cu-only SMD net must not pour on In3.Cu --
+19 measured isolated-copper findings).
+
+Seam-level claims (docs/evidence/2026-08-16-zone-pour-seam-verify.py):
+64 zones across 43 net/layer pairs; gnd In1.Cu plane present (separate
+`_ground_plane.py` path, #1245); ntc-no F.Cu = 0 zones (honest 0/4 PD3
+failure, was 47+ islands) while its THT pads get the design-doc-B2
+sparse-inner-layer zones; creepage table HV-vs-LV = 12.6mm live.
 
 ## 3. Files touched
 
 - `packages/temper-geometry/src/zone_generator.rs` -- pyo3 return made
-  structured (1.4); core unchanged.
+  structured (1.4); geo 0.29 upgrade + ring snap (1.5); exact halo
+  geometry (1.6); core algorithm unchanged in spirit.
+- `packages/temper-geometry/Cargo.toml` / `Cargo.lock` -- geo 0.28 -> 0.29
+  (+ i_overlay transitive deps).
 - `packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py`
   -- `_emit_zone_pours` now calls `pour_outline_py` +
-  `emit_zone_outline_s_expr_py`.
+  `emit_zone_outline_s_expr_py`; `_own_pads_on_layer` layer-honest filter.
 - `packages/temper-placer/src/temper_placer/router_v6/zone_pour_clearance.py`
   -- new `collect_zone_obstacle_records` (structured records with
-  max(clearance, creepage)).
+  max(clearance, creepage)) + `_via_is_on_layer` span test.
 - `packages/temper-placer/src/temper_placer/router_v6/zone_pour_creepage.py`
   -- NEW loader for the creepage twin table.
 - `packages/temper-placer/configs/zone_pour_creepage.generated.yaml` --
@@ -170,12 +221,22 @@ close).
 - `packages/temper-placer/tests/router_v6/test_zone_pour_creepage.py`,
   `test_zone_pour_rust_wiring.py` -- NEW tests.
 - `docs/evidence/2026-08-16-zone-pour-route-verify.py` -- route
-  verification harness (read-only).
+  verification harness (read-only; the full route was OOM-killed, see
+  2.2 -- the seam + refill harnesses are the executed verification).
+- `docs/evidence/2026-08-16-zone-pour-seam-verify.py`,
+  `docs/evidence/2026-08-16-zone-pour-refill-verify.py` -- executed
+  verification harnesses (read-only).
 
 `pcb/temper.kicad_pcb` untouched (sha256 unchanged from origin/main).
 
 ## 4. Outstanding
 
+- **Full-route verification**: the production `route_pcb` run was
+  OOM-killed at 53 GB RSS (global OOM under concurrent load).  The
+  emission seam + kicad-cli refill measured the zone output directly
+  (2.2), but a full routed board's zone roster should be re-measured on
+  a quiet machine -- and the Stage-3 SAT memory blowup (handoff section
+  6) is the underlying cause of the OOM, still unfixed.
 - Copper-neck island *bridging* (reconnecting split pieces with a
   narrow same-net corridor) remains documented future work in the design
   doc -- not attempted (a wrong-width neck is itself a DRC violation).
@@ -183,3 +244,6 @@ close).
   (not the Rust generator) -- it was already production-wired by #1245
   and measures correctly (6 pieces, 67/88 pads, min gap 12.58mm); moving
   it onto the Rust core is a separate, optional follow-up.
+- The 330 residual creepage findings are the board's own pre-existing
+  pad/track pairs (329 in the no-zone baseline) -- the zone carve adds
+  none; they are routing/placement debt, not zone-emission debt.
