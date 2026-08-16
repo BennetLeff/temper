@@ -840,13 +840,13 @@ class TestDsnNormalizerEdgeCases:
     """Additional DSN normalizer tests for edge cases."""
 
     def test_strip_control_chars_no_change(self):
-        from temper_placer.io.dsn_normalizer import strip_control_chars
+        from temper_io_types import strip_control_chars
 
         clean = "(pcb test)\n"
         assert strip_control_chars(clean) == clean
 
     def test_strip_control_chars_multiple_null(self):
-        from temper_placer.io.dsn_normalizer import strip_control_chars
+        from temper_io_types import strip_control_chars
 
         dsn = "\x00\x00(pcb\x00 test\x00)\x00"
         result = strip_control_chars(dsn)
@@ -854,24 +854,24 @@ class TestDsnNormalizerEdgeCases:
         assert "(pcb test)" in result
 
     def test_strip_control_chars_empty_string(self):
-        from temper_placer.io.dsn_normalizer import strip_control_chars
+        from temper_io_types import strip_control_chars
 
         assert strip_control_chars("") == ""
 
     def test_normalize_preserves_schema_version_header(self):
-        from temper_placer.io.dsn_normalizer import normalize_dsn
+        from temper_io_types import normalize_dsn
 
         dsn = ";schema-version: sha256:abc123\n(pcb test)\n"
         result = normalize_dsn(dsn)
         assert ";schema-version:" in result
 
     def test_is_normalized_clean_dsn(self):
-        from temper_placer.io.dsn_normalizer import is_dsn_normalized
+        from temper_io_types import is_dsn_normalized
 
         assert is_dsn_normalized("(pcb test)\n") is True
 
     def test_is_normalized_missing_newline(self):
-        from temper_placer.io.dsn_normalizer import is_dsn_normalized
+        from temper_io_types import is_dsn_normalized
 
         assert is_dsn_normalized("(pcb test)") is False
 

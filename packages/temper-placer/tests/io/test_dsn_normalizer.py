@@ -1,4 +1,4 @@
-from temper_placer.io.dsn_normalizer import is_dsn_normalized, normalize_dsn, strip_control_chars
+from temper_io_types import is_dsn_normalized, normalize_dsn, strip_control_chars
 
 
 def test_normalize_strips_non_semantic_lines():

@@ -1098,7 +1098,7 @@ class QualityGate(Gate):
             )
 
         try:
-            from temper_placer.router_v6.metrics.slop_linter import lint_all
+            from temper_quality_oracle import slop_lint_all_py as lint_all
 
             artifacts = lint_all(pcb)
         except ImportError as exc:

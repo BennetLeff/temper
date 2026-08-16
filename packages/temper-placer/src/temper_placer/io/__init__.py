@@ -25,7 +25,7 @@ from temper_placer.io.config_loader import (
 
 # DSN/SES universal seam
 from temper_placer.io.dsn_exporter import DSNExporter
-from temper_placer.io.dsn_normalizer import is_dsn_normalized, normalize_dsn, strip_control_chars
+from temper_io_types import is_dsn_normalized, normalize_dsn, strip_control_chars
 from temper_placer.io.dsn_schema import (
     compute_dsn_schema_hash,
     embed_schema_header,

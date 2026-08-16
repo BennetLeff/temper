@@ -191,7 +191,7 @@ def measure_emi(
     if not loop_refs:
         return EMIMetrics()
 
-    from temper_placer.physics.inductance import estimate_loop_inductance
+    from temper_thermal import estimate_loop_inductance_py as estimate_loop_inductance
 
     positions = np.array(state.positions)
     metrics = EMIMetrics()
@@ -229,7 +229,9 @@ def measure_emi(
         perimeter = np.sum(np.sqrt(np.sum(diffs**2, axis=1)))
 
         # 3. Estimate Inductance (nH)
-        inductance = estimate_loop_inductance(loop_area_mm2=area, perimeter_mm=perimeter)
+        # Rust pyo3 binding takes all four args positionally; the shim's
+        # defaults (0.4 mm layer separation, 1.2 routing factor) are inlined.
+        inductance = estimate_loop_inductance(area, perimeter, 0.4, 1.2)
 
         if i == 0:  # Convention: first loop is gate drive
             metrics.gate_loop_area_mm2 = inductance  # Note: field name remains for compatibility
