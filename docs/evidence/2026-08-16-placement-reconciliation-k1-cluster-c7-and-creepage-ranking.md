@@ -94,7 +94,7 @@ exactly, validating the environment.
 
 | category | main ceiling (077d4b69) | this PR (ddb96f9e) | delta | notes |
 |---|---:|---:|---:|---|
-| creepage | 331 (obs 327-329) | **314** (obs 313-314) | **-17 max / -13 min** | deterministic; see 1.5 for attribution |
+| creepage | 331 (obs 327-329) | **315** (ceiling; obs 313-314) | **-16 ceiling / -13..-15 observed** | deterministic, spread 1; see 1.5 for attribution |
 | clearance (TRUE, uncapped) | 1105 | **1117** | **+12 (RAISE)** | `measure_uncapped_drc.py dru-category clearance`, 2 independent runs byte-identical; attributed to relocation into a denser neighborhood (same class as #1244's own +21) |
 | courtyards_overlap | 1 | 1 | 0 | same set (C2xC3), zero new |
 | hole_clearance | 96 | 90 | -6 | |
@@ -259,19 +259,22 @@ slot rescue path for T1/U6); T2 is Issue 2 above.
 
 ## DRC ceiling update (this PR)
 
-- error_ceiling 2285 -> **2297** (clearance 1105->1117 +12; creepage 331->314 -17;
+- error_ceiling 2285 -> **2259** (clearance 1105->1117 +12; creepage 331->315 -16;
   hole_clearance 96->90 -6; shorting 197->189 -8; solder_mask 147->139 -8;
-  pth_inside 1->0 -1; all other error categories unchanged).
-- warning_ceiling: see `_march` entry for the measured warning deltas (silk_over_copper
-  and any others that moved).
-- `Ceiling-Approval:` trailer carried on the landing commit: the only rise is clearance
-  +12, a genuine, attributed consequence of the relocation into a denser neighborhood
-  (same class as #1244's own +21 measurement; this PR's net is lower because C7's move
-  back into the pocket clears room the cluster would otherwise take). Measured-live:
-  120 samples, kicad-cli 10.0.5, clean tree, resolvable measured_at_commit, input hash
-  matching the committed board; noise-headroom guard verified via
-  `ci_check_drc.py`/`DrcRatchet.check_noise_headroom` (creepage band 313-314, spread 1;
-  ceiling 314 = max 313/314 + spread headroom — see the `_march` entry).
+  all other error categories unchanged). Verified by
+  `scripts/ci_check_drc.py --backend kicad-cli`: PASS (1446/2259 errors,
+  355/13563 warnings within ceiling) and noise-headroom guard PASS
+  (creepage ceiling 315 with observed spread 1: 315-314 = 1 >= 314-313 = 1).
+- warning_ceiling 13562 -> **13563** (silk_over_copper 40->42 +2, the moved
+  components' silk; pth_inside_courtyard 1->0 -1).
+- `Ceiling-Approval:` trailer carried on the landing commit: the only rises are
+  clearance +12 and silk_over_copper +2, genuine, attributed consequences of
+  the relocation into a denser neighborhood (same class as #1244's own +21
+  measurement; this PR's net is lower because C7's move keeps the cluster
+  tighter). Measured-live: 120 samples, kicad-cli 10.0.5, clean tree,
+  resolvable measured_at_commit (dcc96d099), input hash ddb96f9e matching the
+  committed board; both the DRC-ceiling-approval gate and the
+  measurement-provenance gate pass on this branch.
 
 ## Follow-ups filed (not done here, explicitly out of scope)
 
