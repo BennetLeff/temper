@@ -43,11 +43,8 @@ from temper_placer.router_v6.clearance_engine import (
     calculate_safety_distances,
     get_clearance,
 )
-from temper_placer.router_v6.grid_converter import (
+from temper_placer.router_v6.grid_types import (
     GridCell,
-    compute_path_length,
-    count_vias_in_path,
-    extract_vias,
 )
 from temper_placer.router_v6.path_simplify import (
     estimate_segment_count,
@@ -200,8 +197,9 @@ def test_p3_fails_for_inverted_tables(_restore_kernels) -> None:
 @given(_cell_path())
 @settings(max_examples=100, deadline=2000)
 def test_p4_via_count_equals_extract_len(cells):
-    assert count_vias_in_path(cells) == len(extract_vias(cells))
-    assert count_vias_in_path(cells) <= max(0, len(cells) - 1)
+    layers = [c.layer for c in cells]
+    assert _tg.count_vias_in_path_py(layers) == len(_tg.extract_vias_py(layers))
+    assert _tg.count_vias_in_path_py(layers) <= max(0, len(cells) - 1)
 
 
 @given(
@@ -251,7 +249,7 @@ def test_p4_fails_for_mixed_axes_grid_to_world(_restore_kernels) -> None:
 )
 @settings(max_examples=100, deadline=2000)
 def test_p5_path_length_two_cells_exact_formula(x1, y1, x2, y2, size):
-    got = compute_path_length([GridCell(x1, y1, 0), GridCell(x2, y2, 1)], size)
+    got = _tg.compute_path_length_py([x1, x2], [y1, y2], size)
     expected = (abs(x2 - x1) + abs(y2 - y1)) * size
     assert got == expected  # bit-exact: int delta promoted once, one multiply
 
@@ -359,8 +357,8 @@ def _restore_kernels():
 def test_sanity_kernel_is_not_trivial() -> None:
     straight = [GridCell(i, 0, 0) for i in range(5)]
     assert len(simplify_path(straight)) < len(straight)
-    assert compute_path_length([GridCell(0, 0, 0), GridCell(3, 4, 0)], 0.5) > 0.0
-    assert count_vias_in_path([GridCell(0, 0, 0), GridCell(1, 0, 1)]) == 1
+    assert _tg.compute_path_length_py([0, 3], [0, 4], 0.5) > 0.0
+    assert _tg.count_vias_in_path_py([0, 1]) == 1
     assert _tg.net_class_to_voltage_class_py("GND") != _tg.net_class_to_voltage_class_py("HV")
 
 
@@ -380,8 +378,10 @@ def test_sanity_kernel_is_not_trivial() -> None:
 def test_m1_path_length_invariant_under_translation(cells, tx, ty, size):
     """M1: integer translation of the path leaves the Manhattan length
     bit-exact (int deltas are unchanged)."""
-    before = compute_path_length([GridCell(x, y, 0) for x, y in cells], size)
-    after = compute_path_length([GridCell(x + tx, y + ty, 0) for x, y in cells], size)
+    before = _tg.compute_path_length_py([x for x, _ in cells], [y for _, y in cells], size)
+    after = _tg.compute_path_length_py(
+        [x + tx for x, _ in cells], [y + ty for _, y in cells], size
+    )
     assert before == after
 
 

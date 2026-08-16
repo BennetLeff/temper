@@ -15,7 +15,7 @@ text character for character.
 
 Why this module has no float/NaN/hash traps
 --------------------------------------------
-``GridCell`` (``router_v6/grid_converter.py``) is ``x: int, y: int, layer:
+``GridCell`` (``router_v6/grid_types.py``) is ``x: int, y: int, layer:
 int = 0`` -- every comparison in this module (``==`` on ints) is exact and
 total.  There is no ``math.hypot``, no ``int()`` truncation, no ``min``/``max``
 over a NaN-poisoned iterable, and no set/dict whose iteration order could
@@ -27,7 +27,7 @@ a behavior change even though nothing here is nondeterministic across runs.
 
 from __future__ import annotations
 
-from temper_placer.router_v6.grid_converter import GridCell
+from temper_placer.router_v6.grid_types import GridCell
 
 __all__ = ["is_collinear", "simplify_path", "estimate_segment_count"]
 

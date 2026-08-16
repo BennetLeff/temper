@@ -833,7 +833,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
     """Validate that high-current nets have appropriate routing strategies."""
     import logging
 
-    from temper_placer.core.ipc2221 import estimate_current_from_net_class
+    from temper_drc_rs import estimate_current_from_net_class
 
     logger = logging.getLogger(__name__)
     for net_name, net_class_name in constraints.net_classes.items():

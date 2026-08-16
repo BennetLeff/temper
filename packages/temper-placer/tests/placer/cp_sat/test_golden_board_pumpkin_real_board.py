@@ -362,7 +362,7 @@ def test_golden_board_drc_regression_pumpkin_real_board(request: pytest.FixtureR
     # placement, alone, on bare footprints, clear DRC -- not "is the old
     # routing still valid," which no placement algorithm (OR-Tools or
     # Pumpkin) is trying to answer here.
-    from temper_placer.router_v6._strip_copper import strip_existing_copper
+    from temper_io_types import strip_existing_copper
 
     raw, n_stripped = strip_existing_copper(_REAL_PRODUCTION_BOARD.read_text(encoding="utf-8"))
     print(

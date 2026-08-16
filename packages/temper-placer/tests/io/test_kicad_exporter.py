@@ -13,7 +13,7 @@ from temper_placer.io.kicad_exporter import (
     path_to_segments,
     path_to_vias,
 )
-from temper_placer.router_v6.grid_converter import GridCell
+from temper_placer.router_v6.grid_types import GridCell
 
 
 @dataclass

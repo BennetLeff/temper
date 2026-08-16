@@ -37,7 +37,7 @@ from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 
 # IPC-2221 PCB design standards
-from temper_placer.core.ipc2221 import estimate_current_from_net_class
+from temper_drc_rs import estimate_current_from_net_class
 from temper_placer.core.loop import (
     Loop,
     LoopCollection,

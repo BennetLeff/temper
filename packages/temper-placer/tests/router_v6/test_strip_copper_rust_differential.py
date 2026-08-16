@@ -1,15 +1,13 @@
 """Differential tests: Rust paren-balanced copper-strip kernels vs the
 pre-migration Python reference (``router_v6/_strip_copper.py``, Wave-4 PORT).
 
-``_strip_copper.py`` is the last production-path Python in this repo whose
-real string-manipulation logic survived the Rust migration wave: it removes
-committed ``(segment ...)``/``(via ...))/``(zone ...)`` s-expression blocks
-from KiCad board content by tracking parenthesis depth from each block's
-opening line. The three pure functions migrated to
-``packages/temper-io-types/src/strip_copper.rs`` are pinned bit-exactly
-against a VERBATIM copy of the pre-migration implementations (the
-``_oracle_*`` block below, ``git show 28de4543d:packages/temper-placer/src/
-temper_placer/router_v6/_strip_copper.py``):
+The pre-migration Python removed committed ``(segment ...)``/``(via ...)``/
+``(zone ...)`` s-expression blocks from KiCad board content by tracking
+parenthesis depth from each block's opening line. The pure functions
+migrated to ``packages/temper-io-types/src/strip_copper.rs`` are pinned
+bit-exactly against a VERBATIM copy of the pre-migration implementations
+(the ``_oracle_*`` block below, ``git show 28de4543d:packages/temper-placer/
+src/temper_placer/router_v6/_strip_copper.py``):
 
 - ``_oracle_strip_blocks`` — the paren-depth loop. Every behavioural corner
   the Rust port must reproduce lives here: ``str.split("\\n")`` (CRLF keeps
@@ -27,9 +25,11 @@ The ``_oracle_*`` prefix is the only difference from the committed file.
 Consumers (``_adapter_convert.py``'s ``_write_routes_to_content``, the
 measurement/CLI clean re-route path in ``scripts/route_board.py``, and the
 ``strip_existing_copper`` import in ``test_topology_copper_audit.py``) see
-the same two public functions through the delegation shim, so "which blocks
-count as committed copper" is still answered in exactly one place -- it is
-just answered in Rust now.
+the same two public functions through the Rust surface directly (the
+``router_v6/_strip_copper.py`` delegation shim was deleted 2026-08-16 --
+Tier-2 shim deletion; consumers import ``temper_io_types`` directly), so
+"which blocks count as committed copper" is still answered in exactly one
+place -- it is just answered in Rust now.
 
 RED state (R1f): this module imports ``temper_io_types.strip_existing_copper``
 at collection time, so the whole file fails to collect with ``AttributeError``
@@ -44,13 +44,6 @@ from collections import Counter
 import pytest
 import temper_io_types as _rs
 from hypothesis import given, settings, strategies as st
-
-from temper_placer.router_v6._strip_copper import (
-    strip_existing_copper as shim_strip_existing_copper,
-)
-from temper_placer.router_v6._strip_copper import (
-    strip_existing_zones as shim_strip_existing_zones,
-)
 
 # ---------------------------------------------------------------------------
 # Verbatim pre-migration oracles (copied from _strip_copper.py AS COMMITTED at
@@ -350,14 +343,6 @@ def test_real_production_board_parity() -> None:
 
     _assert_parity(_RS_COPPER(content), _oracle_strip_existing_copper(content), "real board copper")
     _assert_parity(_RS_ZONES(content), _oracle_strip_existing_zones(content), "real board zones")
-
-
-def test_shim_delegates_to_rust() -> None:
-    """The delegation shim must be byte-identical to the Rust surface (the
-    consumers' contract), not just to the oracle."""
-    for content in (_BOARD_SNIPPET, _CRLF, _sample_board(_SAMPLE_ZONE, _SAMPLE_SEGMENT)):
-        _assert_parity(shim_strip_existing_copper(content), _RS_COPPER(content), "shim copper")
-        _assert_parity(shim_strip_existing_zones(content), _RS_ZONES(content), "shim zones")
 
 
 # ---------------------------------------------------------------------------

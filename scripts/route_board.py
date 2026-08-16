@@ -32,7 +32,7 @@ Report fields (both modes): completion (routed/attempted nets), segment,
 via, and zone counts (grep-equivalent substring counts on the routed
 content), and wall time. Zones are U3's regenerated pours (R7) -- the
 board fed to route_pcb has its committed zones stripped first (see
-strip_existing_copper in temper_placer.router_v6._strip_copper), so any
+strip_existing_copper in temper_io_types), so any
 zones present in the output are this run's own regenerated output, never
 carried-over stale input.
 """
@@ -76,7 +76,7 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
     """Remove committed (segment ...), (via ...), and (zone ...) blocks.
 
     U3 (R7): thin re-export of the shared, paren-balanced implementation in
-    ``temper_placer.router_v6._strip_copper`` -- kept as a module-level name
+    ``temper_io_types`` -- kept as a module-level name
     here (rather than only inlined in ``route_once``) so this remains
     directly importable/testable as ``route_board.strip_existing_copper``,
     matching this script's prior art. The import itself is deferred inside
@@ -93,7 +93,7 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
     nested ``(polygon (pts (xy ..) ...))``). That is why every "clean"
     re-route still inherited all 96 committed zones.
     """
-    from temper_placer.router_v6._strip_copper import (
+    from temper_io_types import (
         strip_existing_copper as _strip_existing_copper,
     )
 

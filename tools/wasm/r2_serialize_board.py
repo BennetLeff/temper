@@ -246,13 +246,13 @@ def build_board_dict(
     # `current_a = net_class.max_current_rating if not None else
     # estimate_current_from_net_class(net_class.trace_width_mm)` when
     # loading any PCL constraints config -- i.e. an IPC-2221 trace-width ->
-    # ampacity estimate (`temper_placer.core.ipc2221`, backed by the
-    # `temper_ipc` Rust crate) is already the harness's own accepted
+    # ampacity estimate (`temper_drc_rs.estimate_current_from_net_class`,
+    # backed by the `temper-drc-rs` ipc kernel) is already the harness's own accepted
     # fallback for an unpopulated per-class current rating, not a value this
     # producer invents. Applied uniformly to every class (harness-sourced
     # and KiCad-declared-only) so a class that *does* someday declare a real
     # `max_current_rating` keeps that authoritative value untouched.
-    from temper_placer.core.ipc2221 import estimate_current_from_net_class
+    from temper_drc_rs import estimate_current_from_net_class
 
     def _current_rating(declared: float | None, trace_width_mm: float) -> float | None:
         if declared is not None:

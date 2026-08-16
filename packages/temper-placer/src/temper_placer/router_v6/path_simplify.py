@@ -18,7 +18,7 @@ kernel dedupe; ``temper-geometry`` is the sole copy, pinned by both
 
 import temper_geometry as _tg
 
-from temper_placer.router_v6.grid_converter import GridCell
+from temper_placer.router_v6.grid_types import GridCell
 
 
 def _cell_wire(cell: GridCell) -> tuple[int, int, int]:

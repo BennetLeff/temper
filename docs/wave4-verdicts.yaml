@@ -1188,12 +1188,13 @@ removal_surfaces:
       - packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py
       - packages/temper-placer/src/temper_placer/router_v6/_adapter_core.py
       - packages/temper-placer/src/temper_placer/router_v6/adapter.py
-      - packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py
     verdict: PORT
     note: >-
       route_pcb entry point, KiCad s-expression text writing/stripping,
       MazeRouter-compat shim -- I/O and orchestration (evidence doc Sec 2.1,
       "Adapter I/O" row, 1,484 LOC; exact current-LOC match).
+      (_strip_copper.py in this row was deleted 2026-08-16 -- its kernels
+      are pure Rust re-exports now; the shim is gone.)
   - paths:
       - packages/temper-placer/src/temper_placer/deterministic/stages/__init__.py
       - packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py
@@ -1379,12 +1380,15 @@ removal_surfaces:
       - packages/temper-placer/src/temper_placer/router_v6/terminal_extraction.py
       - packages/temper-placer/src/temper_placer/router_v6/terminal_tree.py
       - packages/temper-placer/src/temper_placer/router_v6/path_simplify.py
-      - packages/temper-placer/src/temper_placer/router_v6/grid_converter.py
+      - packages/temper-placer/src/temper_placer/router_v6/grid_types.py
     verdict: PORT
     note: >-
       Manhattan-distance tree planning, collinearity/path-simplification,
       coordinate conversion + path-length computation (evidence doc Sec 2.1,
       "Terminal-tree planning + path geometry" row, 390 LOC).
+      (grid_converter.py in this row was split 2026-08-16: GridCell moved to
+      grid_types.py; the four delegation functions were deleted -- the
+      kernels are pure temper-geometry re-exports now.)
   - paths:
       - packages/temper-placer/src/temper_placer/router_v6/constraints_drc_oracle.py
       - packages/temper-placer/src/temper_placer/router_v6/constraints_spatial_index.py

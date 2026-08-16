@@ -699,7 +699,7 @@ def test_rotation_index_zero_must_not_be_dropped_from_write(tmp_path):
     pytest.importorskip("kiutils.board")
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.placer.cp_sat._encoder_solve import CpSatPlacementResult
-    from temper_placer.router_v6._strip_copper import strip_existing_copper
+    from temper_io_types import strip_existing_copper
     from temper_placer.router_v6.adapter import _apply_placements_to_pcb
 
     pcb_path = tmp_path / "asymrot.kicad_pcb"
