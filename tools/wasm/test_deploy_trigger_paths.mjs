@@ -31,7 +31,9 @@
  * list in the workflow YAML (see that file's own comment on this). This
  * repo's `tools/wasm/*.mjs` are deliberately dependency-free (no
  * `js-yaml`, no `node_modules` at all — see `tier_topology.mjs`'s header),
- * so rather than add a YAML-parsing dependency for one nine-line block,
+ * so rather than add a YAML-parsing dependency for one paths block (now
+ * fourteen entries, one of which is the nested
+ * `packages/temper-placer/temper-constraints/**` path),
  * this file extracts the `paths:` list with a small, deliberately narrow
  * regex scoped to the exact `on: push: paths:` shape the workflow uses
  * today. It is NOT a general YAML parser and does not try to be one — if
@@ -61,6 +63,16 @@ function extractPushPaths(yamlText) {
   }
   const patterns = [];
   for (let i = pathsIdx + 1; i < lines.length; i++) {
+    const stripped = lines[i].trim();
+    // A comment or blank line between bullets does not end the list: the
+    // workflow's paths: block carries a prose warning immediately before the
+    // nested `packages/temper-placer/temper-constraints/**` entry, and a
+    // `break` on it would silently truncate the extraction there -- reading
+    // 10 of 14 patterns and then passing every case against a filter that no
+    // longer exists. That is exactly the drift this test exists to catch,
+    // happening inside the test itself. (An indented YAML comment starts with
+    // `#` after optional whitespace; a blank line is empty.)
+    if (stripped === "" || stripped.startsWith("#")) continue;
     const m = lines[i].match(/^\s{6}-\s+'([^']+)'\s*$/);
     if (!m) break;
     patterns.push(m[1]);
@@ -167,17 +179,22 @@ const CASES = [
     files: ["packages/temper-geometry/Cargo.toml"],
   },
   {
-    label: "synthetic — temper-orchestration source (a real crate, NOT a wasm-tier crate; should NOT fire)",
-    want: false,
+    label: "synthetic — temper-orchestration source (a wasm-tier crate since #989; must fire so a push to it triggers a redeploy)",
+    want: true,
     files: ["packages/temper-orchestration/src/clearance.rs"],
   },
   {
-    label: "synthetic — temper-constraints (placer's own sub-crate, NOT a wasm-tier crate; should NOT fire)",
-    want: false,
+    label: "synthetic — temper-constraints, the NESTED sub-crate (a wasm-tier crate since #989; must fire via the explicit nested path — a bare packages/temper-constraints/** glob would silently match nothing)",
+    want: true,
     files: ["packages/temper-placer/temper-constraints/src/ipc.rs"],
   },
   {
-    label: "DOCUMENTED DRIFT GAP — a hypothetical 10th tier registered in the topology but not yet added to this filter's paths: list (should NOT fire here; caught instead by the next `schedule` run, at most ~24h later — see the workflow's own 'DRIFT RISK' comment)",
+    label: "synthetic — temper-rust-router source (a wasm-tier crate since #989; must fire)",
+    want: true,
+    files: ["packages/temper-rust-router/src/net_ordering.rs"],
+  },
+  {
+    label: "DOCUMENTED DRIFT GAP — a hypothetical new tier registered in the topology but not yet added to this filter's paths: list (should NOT fire here; caught instead by the next `schedule` run, at most ~24h later — see the workflow's own 'DRIFT RISK' comment)",
     want: false,
     files: ["packages/temper-hypothetical-new-crate/src/wasm_test_registry.rs"],
   },
