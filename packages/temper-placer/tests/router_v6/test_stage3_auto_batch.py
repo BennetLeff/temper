@@ -54,11 +54,14 @@ from temper_placer.core.netlist import Net  # noqa: E402
 
 
 def _fake_pcb(n_nets: int):
-    """Minimal ParsedPCB stand-in: only ``.nets`` (for ``net_names`` and
-    the estimate) and ``.design_rules`` (threaded to the stubbed
-    ModelBuilder) are consumed by the paths these tests exercise."""
+    """Minimal ParsedPCB stand-in: ``.nets`` (for ``net_names`` and the
+    estimate), ``.components`` (the direct solver reads it for pad
+    resolution) and ``.design_rules`` (threaded to the stubbed
+    ModelBuilder) are the attributes the paths these tests exercise
+    consume."""
     return SimpleNamespace(
         nets=[Net(name=f"net{i}", pins=[]) for i in range(n_nets)],
+        components=[],
         design_rules=None,
     )
 
@@ -114,67 +117,63 @@ class TestEstimateStage3ModelVars:
 
 
 class TestRunStage3AutoBatchDecision:
-    """The safety net must fire exactly when the monolith would be too big
-    -- and must NOT fire when the model fits, so small-board behavior is
-    unchanged."""
+    """The auto-batch safety net's scope after the 2026-08-16 vacuity fix
+    (docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md): the default
+    (non-batched, non-bundling) monolith is now the **direct capacity-aware
+    solver** — it builds no SAT model at all, so the auto-batch safety net
+    is unnecessary there (and must NOT fire: silently redirecting the
+    direct solver to the vacuous batched SAT would undo the fix). The
+    auto-batch now guards only the paths that can still build a big SAT
+    model: `enable_bundling` and `TEMPER_STAGE3_FORCE_SAT=1`.
+    """
 
     def _pipeline(self, **kwargs):
         return RouterV6Pipeline(verbose=False, **kwargs)
 
-    def test_auto_batches_when_estimate_exceeds_threshold(self):
+    def test_oversized_default_monolith_goes_direct(self):
         """Production-board scale (110 nets x ~204K edges = 22.5M raw vars,
-        far above the 2.5M threshold): a caller that never asked for
-        batching must get the batched path, not the OOMing monolith."""
+        far above the 2.5M threshold): the default monolith must go to the
+        DIRECT solver (no model, no OOM) — NOT the auto-batched vacuous
+        SAT."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
         assert pr._estimate_stage3_model_vars(pcb, stage2, None) > pr._AUTO_BATCH_VAR_THRESHOLD
 
         pipe = self._pipeline()  # enable_net_batching defaults False
-        stub_output = SimpleNamespace()
-        calls: list[tuple] = []
-
-        def _spy_run_batched(*args, **kwargs):
-            calls.append((args, kwargs))
-            return (stub_output, [])
-
-        with patch.object(
-            net_batching, "run_net_batched_stage3", _spy_run_batched
+        with (
+            patch.object(pipe, "_run_stage3_direct", return_value="DIRECT") as spy_direct,
+            patch.object(net_batching, "run_net_batched_stage3") as spy_batched,
         ):
             out = pipe._run_stage3(pcb, stage2)
 
-        assert len(calls) == 1, "expected exactly one batched Stage 3 run"
-        assert calls[0][1]["batch_size"] == pipe.net_batch_size
-        assert out is stub_output  # the stage3 output the spy returned
+        spy_direct.assert_called_once()
+        spy_batched.assert_not_called()
+        assert out == "DIRECT"
 
-    def test_does_not_auto_batch_when_estimate_fits(self):
-        """Small board (10 nets x 1,000 edges = 10K raw vars): the monolith
-        must run exactly as before -- no batched call, real monolith path."""
+    def test_small_board_default_goes_direct(self):
+        """Small board (10 nets x 1,000 edges = 10K raw vars): the default
+        monolith also goes direct — no batched call, no SAT ModelBuilder."""
         pcb = _fake_pcb(10)
         stage2 = _fake_stage2([1_000])
         assert pr._estimate_stage3_model_vars(pcb, stage2, None) < pr._AUTO_BATCH_VAR_THRESHOLD
 
         pipe = self._pipeline()
         with (
+            patch.object(pipe, "_run_stage3_direct", return_value="DIRECT") as spy_direct,
             patch.object(pr, "ModelBuilder") as mb,
             patch.object(net_batching, "run_net_batched_stage3") as spy_batched,
-            patch(
-                "temper_rust_router.solve_topology_rust",
-                return_value=dict(_SAT_RESULT),
-            ),
-            patch("temper_rust_router.audit_result", return_value=[]),
         ):
-            mb.return_value.build.return_value = SimpleNamespace(
-                variables=[], constraints=[]
-            )
             out = pipe._run_stage3(pcb, stage2)
 
+        spy_direct.assert_called_once()
         spy_batched.assert_not_called()
-        assert out.solution.status == SolverStatus.SATISFIABLE
-        assert out.constraint_model is not None
+        mb.assert_not_called()
+        assert out == "DIRECT"
 
     def test_explicit_batching_is_untouched(self):
-        """enable_net_batching=True (the old documented recipe) still goes
-        straight to the batched branch; the estimate is irrelevant."""
+        """enable_net_batching=True (the legacy batched SAT recipe, the
+        measured 92/139-era reference) still goes straight to the batched
+        branch; the estimate is irrelevant."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
         pipe = self._pipeline(enable_net_batching=True)
@@ -188,29 +187,23 @@ class TestRunStage3AutoBatchDecision:
 
         assert spy_batched.call_count == 1
 
-    def test_geographic_pruning_skips_auto_batch(self):
-        """Geographic pruning is an explicit model-reduction opt-in: the
-        raw |nets| x |edges| estimate wildly over-estimates the pruned
-        model, so auto-batch must not fire (the caller chose pruning)."""
+    def test_pruning_default_goes_direct(self):
+        """Geographic pruning was an explicit model-reduction opt-in for
+        the SAT |nets| x |edges| model; the direct solver builds no model,
+        so the default path goes direct regardless of the pruning flag."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
         pipe = self._pipeline(enable_geographic_pruning=True)
 
         with (
-            patch.object(pr, "ModelBuilder") as mb,
+            patch.object(pipe, "_run_stage3_direct", return_value="DIRECT") as spy_direct,
             patch.object(net_batching, "run_net_batched_stage3") as spy_batched,
-            patch(
-                "temper_rust_router.solve_topology_rust",
-                return_value=dict(_SAT_RESULT),
-            ),
-            patch("temper_rust_router.audit_result", return_value=[]),
         ):
-            mb.return_value.build.return_value = SimpleNamespace(
-                variables=[], constraints=[]
-            )
-            pipe._run_stage3(pcb, stage2)
+            out = pipe._run_stage3(pcb, stage2)
 
+        spy_direct.assert_called_once()
         spy_batched.assert_not_called()
+        assert out == "DIRECT"
 
     def test_bundling_skips_auto_batch(self):
         """Bundling (type-gated lazy grounding) is its own reduction; the
@@ -250,30 +243,49 @@ class TestRunStage3AutoBatchDecision:
 
         spy_batched.assert_not_called()
 
-    def test_selective_sat_subset_below_threshold_keeps_monolith(self):
-        """max_sat_nets=N shrinks the model to N x |edges|: with N small
-        enough the monolith fits and must run (selective SAT is the
-        documented escape hatch for callers who want the monolith on a
-        large board)."""
+    def test_selective_subset_default_goes_direct_with_subset(self):
+        """max_sat_nets=N selects N nets; the default path goes direct with
+        exactly that subset as target_names (the selective cap is honored
+        by the direct solver)."""
         pcb = _fake_pcb(110)
         stage2 = _fake_stage2([204_144])
-        pipe = self._pipeline(max_sat_nets=10)  # 10 x 204,144 = 2.04M < 2.5M
+        pipe = self._pipeline(max_sat_nets=10)
 
+        selected = [f"net{i}" for i in range(10)]
         with (
             patch.object(
-                pipe, "_select_sat_nets", return_value=[f"net{i}" for i in range(10)]
+                pipe, "_select_sat_nets", return_value=selected
             ),
-            patch.object(pr, "ModelBuilder") as mb,
+            patch.object(pipe, "_run_stage3_direct", return_value="DIRECT") as spy_direct,
             patch.object(net_batching, "run_net_batched_stage3") as spy_batched,
-            patch(
-                "temper_rust_router.solve_topology_rust",
-                return_value=dict(_SAT_RESULT),
-            ),
-            patch("temper_rust_router.audit_result", return_value=[]),
         ):
-            mb.return_value.build.return_value = SimpleNamespace(
-                variables=[], constraints=[]
-            )
-            pipe._run_stage3(pcb, stage2)
+            out = pipe._run_stage3(pcb, stage2)
 
+        spy_direct.assert_called_once()
+        assert spy_direct.call_args.kwargs["target_names"] == selected
         spy_batched.assert_not_called()
+        assert out == "DIRECT"
+
+    def test_force_sat_oversized_still_auto_batches(self, monkeypatch):
+        """TEMPER_STAGE3_FORCE_SAT=1 opts back into the SAT monolith —
+        the one path that can still build a big model, so the auto-batch
+        safety net must still fire there."""
+        monkeypatch.setenv("TEMPER_STAGE3_FORCE_SAT", "1")
+        pcb = _fake_pcb(110)
+        stage2 = _fake_stage2([204_144])
+        assert pr._estimate_stage3_model_vars(pcb, stage2, None) > pr._AUTO_BATCH_VAR_THRESHOLD
+
+        pipe = self._pipeline()
+        stub_output = SimpleNamespace()
+        with (
+            patch.object(pipe, "_run_stage3_direct") as spy_direct,
+            patch.object(
+                net_batching, "run_net_batched_stage3",
+                return_value=(stub_output, []),
+            ) as spy_batched,
+        ):
+            out = pipe._run_stage3(pcb, stage2)
+
+        spy_direct.assert_not_called()
+        spy_batched.assert_called_once()
+        assert out is stub_output

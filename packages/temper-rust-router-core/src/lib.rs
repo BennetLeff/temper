@@ -12,6 +12,7 @@ pub mod audit;
 #[cfg(feature = "sat")]
 pub mod bmc;
 pub mod combinator;
+pub mod direct_topology;
 pub mod encoding;
 pub mod esl;
 pub mod extraction;

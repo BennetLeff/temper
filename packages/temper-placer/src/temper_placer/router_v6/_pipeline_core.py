@@ -24,6 +24,7 @@ from temper_placer.router_v6._pipeline_grid import (
 from temper_placer.router_v6._pipeline_route import (
     _augment_with_pcl_constraints,
     _run_stage3,
+    _run_stage3_direct,
     _run_stage4,
     _run_stage5,
     _select_sat_nets,
@@ -427,6 +428,7 @@ RouterV6Pipeline._compute_resource_bound = _compute_resource_bound
 RouterV6Pipeline._select_sat_nets = _select_sat_nets
 RouterV6Pipeline._augment_with_pcl_constraints = _augment_with_pcl_constraints
 RouterV6Pipeline._run_stage3 = _run_stage3
+RouterV6Pipeline._run_stage3_direct = _run_stage3_direct
 RouterV6Pipeline._run_stage4 = _run_stage4
 RouterV6Pipeline._run_stage5 = _run_stage5
 RouterV6Pipeline._run_manufacturing_drc = _run_manufacturing_drc

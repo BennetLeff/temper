@@ -312,6 +312,127 @@ mod py {
         Ok(d.into())
     }
 
+    /// Direct capacity-aware topology solve (no CNF, no SAT).
+    ///
+    /// The Stage 3 SAT encoding is structurally vacuous (nothing forces a
+    /// `NetChannelVar` true — see
+    /// `temper_rust_router_core::direct_topology`'s module docstring) and
+    /// the monolithic CNF cannot fit in memory (182-200 GB on this board).
+    /// This entry point replaces it with a direct graph algorithm: each
+    /// net's pads snap to the nearest skeleton node, a capacity-aware
+    /// shortest path is computed between consecutive pads (edges whose
+    /// remaining width cannot carry the net are blocked, re-routing later
+    /// nets around congested channels), and the path is committed against
+    /// per-edge capacity. Output shape is identical to
+    /// `solve_topology_rust`'s `topology_graph`, so Stage 4's
+    /// `map_topology_to_channels` consumes it unchanged.
+    ///
+    /// Args:
+    ///   net_names: nets in solve order (the batching order — low fan-out
+    ///     first, hubs last — so easy nets commit capacity first).
+    ///   pads_by_net: per-net pad positions (world coords), aligned with
+    ///     `net_names`.
+    ///   widths_by_net: per-net consumed width (`trace_width + clearance`
+    ///     mm), aligned with `net_names`.
+    ///   edges: skeleton edges as `(layer, u, v, capacity)` tuples.
+    ///
+    /// Returns a dict with `status`, `topology_graph`
+    /// (`{net: {uses_channels, path_graph, total_length_estimate}}`),
+    /// `unrouted_nets`, `post_condition_violations` (empty = clean; the
+    /// caller must raise on non-empty, mirroring `audit_result`'s
+    /// contract), and measurement keys.
+    #[pyfunction]
+    #[pyo3(signature = (net_names, pads_by_net, widths_by_net, edges))]
+    fn solve_topology_direct_py(
+        py: Python<'_>,
+        net_names: Vec<String>,
+        pads_by_net: Vec<Vec<(f64, f64)>>,
+        widths_by_net: Vec<f64>,
+        edges: Vec<(String, (f64, f64), (f64, f64), f64)>,
+    ) -> PyResult<Py<PyDict>> {
+        use temper_rust_router_core::direct_topology::{
+            solve_topology_direct, DirectEdge, DirectNet,
+        };
+
+        if net_names.len() != pads_by_net.len() || net_names.len() != widths_by_net.len() {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "net_names ({}) / pads_by_net ({}) / widths_by_net ({}) length mismatch",
+                net_names.len(),
+                pads_by_net.len(),
+                widths_by_net.len(),
+            )));
+        }
+
+        let nets: Vec<DirectNet> = net_names
+            .iter()
+            .zip(pads_by_net.iter())
+            .zip(widths_by_net.iter())
+            .map(|((name, pads), width)| DirectNet {
+                name: name.clone(),
+                pads: pads.clone(),
+                width: *width,
+            })
+            .collect();
+        let direct_edges: Vec<DirectEdge> = edges
+            .into_iter()
+            .map(|(layer, u, v, capacity)| DirectEdge {
+                layer,
+                u,
+                v,
+                capacity,
+            })
+            .collect();
+
+        let result = solve_topology_direct(&nets, &direct_edges);
+
+        let d = PyDict::new(py);
+        d.set_item(
+            "status",
+            match result.status {
+                SolverStatus::Satisfiable => "sat",
+                SolverStatus::Unsatisfiable => "unsat",
+                SolverStatus::Unknown => "unknown",
+            },
+        )?;
+        d.set_item("assignments", PyDict::new(py))?;
+
+        // Topology graph: net_name → {uses_channels, path_graph, total_length_estimate}
+        // inserted in input net order (deterministic dict order for Python).
+        let py_topology = PyDict::new(py);
+        for (net_name, net_topo) in &result.net_topologies {
+            let entry = PyDict::new(py);
+            entry.set_item("uses_channels", net_topo.uses_channels.clone())?;
+            let py_path: Vec<(String, String)> = net_topo.path_graph.clone();
+            entry.set_item("path_graph", py_path)?;
+            entry.set_item("total_length_estimate", net_topo.total_length_estimate)?;
+            py_topology.set_item(net_name, entry)?;
+        }
+        d.set_item("topology_graph", py_topology)?;
+        d.set_item("unrouted_nets", result.unrouted.clone())?;
+        d.set_item(
+            "post_condition_violations",
+            result.post_condition_violations.clone(),
+        )?;
+        d.set_item("solver_time_ms", result.stats.wall_ms)?;
+        d.set_item("num_vars", 0usize)?;
+        d.set_item("num_clauses", 0usize)?;
+        d.set_item("unsat_core", PyList::new(py, Vec::<Py<PyAny>>::new())?)?;
+        d.set_item("var_to_net", Vec::<usize>::new())?;
+
+        let py_stats = PyDict::new(py);
+        py_stats.set_item("nets_routed", result.stats.nets_routed)?;
+        py_stats.set_item("nets_unrouted", result.stats.nets_unrouted)?;
+        py_stats.set_item("total_channel_refs", result.stats.total_channel_refs)?;
+        py_stats.set_item("total_edges", result.stats.total_edges)?;
+        py_stats.set_item("total_nodes", result.stats.total_nodes)?;
+        py_stats.set_item("cpu_solve_time_ms", result.stats.wall_ms)?;
+        py_stats.set_item("clause_to_var_ratio", 0.0f64)?;
+        py_stats.set_item("solve_throughput", 0.0f64)?;
+        d.set_item("solver_stats", py_stats)?;
+
+        Ok(d.into())
+    }
+
     /// Audit solver output against the constraint model itself.
     ///
     /// Validates that every CapacityConstraint, DiffPairConstraint, and
@@ -408,6 +529,7 @@ mod py {
 
         // Register the solver entry point and constraint auditor.
         m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
+        m.add_function(wrap_pyfunction!(solve_topology_direct_py, m)?)?;
         m.add_function(wrap_pyfunction!(audit_result, m)?)?;
         m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
         m.add_function(wrap_pyfunction!(classify_component_rs, m)?)?;
