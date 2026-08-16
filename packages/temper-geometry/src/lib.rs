@@ -160,6 +160,14 @@ pub mod fixed_copper;
 // register().
 #[cfg(feature = "python")]
 pub mod zone_pour;
+// Zone-pour OUTLINE generation with per-pair clearance/creepage carving
+// (2026-08-15 design, docs/evidence/2026-08-15-rust-zone-pour-design.md):
+// keepout-union + polygon-boolean carve on `geo::BooleanOps` (same
+// dependency as convex_hull.rs), hole-preserving output.  Pure-Rust core
+// (wasm32-safe) with a thin pyo3 surface under the `python` feature.
+pub mod zone_generator;
+#[cfg(feature = "python")]
+pub use zone_generator::{emit_zone_s_expr_py, pour_outline_py};
 // router_v6/zone_emission.py's `_cluster_positions`: Ward-linkage
 // hierarchical clustering + flat-cut, replacing
 // scipy.cluster.hierarchy.linkage/fcluster/pdist. See this module's own doc
@@ -354,6 +362,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
+    crate::zone_generator::register(m)?;
     crate::channel_skeleton::register(m)?;
     crate::hierarchical_clustering::register(m)?;
     crate::geometry_kernels::register(m)?;
