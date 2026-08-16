@@ -346,8 +346,7 @@ use temper_py_bridge;
 /// constructor, so a `disposition == "connected"` object is proof that the
 /// Rust union-find ran over real geometry.
 #[cfg(feature = "python")]
-#[pyclass(name = "NetRouteResult", module = "temper_geometry", frozen)]
-#[derive(Clone)]
+#[pyclass(name = "NetRouteResult", module = "temper_geometry", frozen, skip_from_py_object)]
 pub struct PyNetRouteResult {
     #[pyo3(get)]
     disposition: &'static str,
