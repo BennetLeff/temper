@@ -1,7 +1,7 @@
 [
   {
     "name": "SIL: Over-Temperature Fault (HEATING)",
-    "description": "Heatsink exceeds 100C during HEATING triggers FAULT_OVER_TEMP",
+    "description": "Heatsink exceeds 80C during HEATING triggers FAULT_OVER_TEMP",
     "trace_file": "trace_fault_over_temp.csv",
     "origin_state": "HEATING",
     "initial_conditions": {
@@ -32,7 +32,7 @@
   },
   {
     "name": "SIL: Over-Current Fault (HEATING)",
-    "description": "DC bus current exceeds 35A during HEATING triggers FAULT_OVER_CURRENT",
+    "description": "DC bus current exceeds 40A during HEATING triggers FAULT_OVER_CURRENT",
     "trace_file": "trace_fault_over_current.csv",
     "origin_state": "HEATING",
     "initial_conditions": {
@@ -337,7 +337,7 @@
   },
   {
     "name": "SIL: Over-Temperature Fault (PREHEAT)",
-    "description": "Heatsink exceeds 100C during PREHEAT triggers FAULT_OVER_TEMP -- coverage gap fill: transition_table.yaml defines this path from PREHEAT as well as HEATING, but only HEATING was previously exercised",
+    "description": "Heatsink exceeds 80C during PREHEAT triggers FAULT_OVER_TEMP -- coverage gap fill: transition_table.yaml defines this path from PREHEAT as well as HEATING, but only HEATING was previously exercised",
     "trace_file": "trace_fault_over_temp_preheat.csv",
     "origin_state": "PREHEAT",
     "initial_conditions": {
@@ -368,7 +368,7 @@
   },
   {
     "name": "SIL: Over-Current Fault (PREHEAT)",
-    "description": "DC bus current exceeds 35A during PREHEAT triggers FAULT_OVER_CURRENT -- coverage gap fill",
+    "description": "DC bus current exceeds 40A during PREHEAT triggers FAULT_OVER_CURRENT -- coverage gap fill",
     "trace_file": "trace_fault_over_current_preheat.csv",
     "origin_state": "PREHEAT",
     "initial_conditions": {

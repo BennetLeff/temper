@@ -630,8 +630,9 @@ void state_fault_update(void) {
         }
     }
 
-    /* Monitor critical temperature even in fault */
-    if (read_heatsink_temperature() > 125.0f) {
+    /* Monitor critical temperature even in fault — threshold from
+     * config.yaml (interlocks: FAULT_STATE_MAX_TEMP_C) */
+    if (read_heatsink_temperature() > FAULT_STATE_MAX_TEMP_C) {
         trigger_hardware_shutdown();
     }
 

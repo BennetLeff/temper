@@ -224,3 +224,79 @@ runaway:
     units: "°C/s"
     env_var: RUNAWAY_MAX_TEMP_RISE_RATE_C_PER_S
     doc: "Maximum pan temperature rise rate before runaway interlock triggers"
+
+# ============================================================================
+# INTERLOCK THRESHOLDS -- software safety interlocks.
+#
+# Single source for the thresholds previously hardcoded as literals/#defines
+# in firmware/components/safety/safety.c, firmware/main/state_machine.c and
+# firmware/main/state_handlers.c. Emitted as bare #defines only
+# (legacy_define_only): a safety interlock is a compile-time constant and must
+# not be runtime-tunable via env vars.
+#
+# CITATION STATUS 2026-08-15 -- see
+# docs/evidence/2026-08-15-firmware-interlock-citations.md for the full audit:
+#   - OVER_TEMP_THRESHOLD and OVER_CURRENT_THRESHOLD date to the initial
+#     2025-12-14 sync (commit 04fe05232, "syncing dec 14") and originally
+#     carried NO citation to any datasheet, hardware design spec, or
+#     IEC 60335-1 clause. Both were labelled UNCITED in the audit; the
+#     data-driven decisions that resolve them landed on main as #1233
+#     (thermal 100->80C) and #1234 (OCP 35->40A peak), applied here.
+#   - IGBT_SHORT_CURRENT_THRESHOLD and FAULT_STATE_MAX_TEMP_C were hardcoded
+#     literals with the same lack of citation; they are single-sourced here so
+#     the whole interlock family has one home instead of four.
+interlocks:
+  - c_symbol: OVER_TEMP_THRESHOLD
+    value: 80.0
+    c_type: float
+    units: "°C"
+    doc: >-
+      Heatsink over-temperature interlock (firmware trip). Per thermal
+      threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch
+      (85°C). 100°C was dead code — hardware always fired first. Decision
+      ladder: 75°C warn/derate → 80°C firmware shutdown → 85°C hardware
+      latch → 125°C fault-state backstop (docs/evidence/2026-08-15-thermal-
+      threshold-decision.md; committed aaa0af2dd).
+    legacy_define_only: true
+
+  - c_symbol: OVER_CURRENT_THRESHOLD
+    value: 40.0
+    c_type: float
+    units: "A"
+    doc: >-
+      Over-current interlock (software trip). Per OCP threshold decision
+      (#1234): 40A peak. 35A was RMS equivalent of hardware trip (50.1/√2),
+      mislabeled as operating limit. 40A = IGBT continuous rating, 125% of
+      hardware OCP (docs/evidence/2026-08-15-ocp-threshold-decision.md;
+      committed a720f9179). Layering: +25% above the 31.9A 1800W operating
+      peak, -11% below the 45A hardware OCP-01 acceptance floor.
+    legacy_define_only: true
+
+  - c_symbol: IGBT_SHORT_CURRENT_THRESHOLD
+    value: 50.0
+    c_type: float
+    units: "A"
+    doc: >-
+      IGBT-short fault threshold: DC-bus/tank current above this latches
+      FAULT_IGBT_SHORT (firmware/main/state_machine.c check_safety_interlocks).
+      UNCITED: hardcoded literal since the initial sync; no citation. Coincides
+      with the hardware OCP-01 comparator trip (50.1 A peak, 45-55 A window,
+      CT_SENSING_DESIGN.md §2.1 / elec/src/modules.ato CurrentSensing). No
+      desaturation path exists (DESAT_DECISION_BRIEF.md), so this is the only
+      IGBT-short detection. Same full-power-band tension as
+      OVER_CURRENT_THRESHOLD: 1800 W at typical coupling is 56.6 A peak
+      (docs/evidence/2026-07-26-ocp01-vs-full-power-current.md).
+    legacy_define_only: true
+
+  - c_symbol: FAULT_STATE_MAX_TEMP_C
+    value: 125.0
+    c_type: float
+    units: "°C"
+    doc: >-
+      Critical-temperature monitor while latched in STATE_FAULT
+      (firmware/main/state_handlers.c state_fault_update): heatsink above this
+      triggers trigger_hardware_shutdown(). UNCITED: hardcoded literal, no
+      citation. Above the IKW40N120H3 Tc(max recommended) = 100°C; a
+      last-resort backup that only matters if the normal interlock paths are
+      already broken.
+    legacy_define_only: true
