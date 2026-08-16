@@ -32,8 +32,8 @@ from unittest.mock import patch
 
 import pytest
 
-from temper_placer.router_v6 import net_batching
 from temper_placer.router_v6 import _pipeline_route as pr
+from temper_placer.router_v6 import net_batching
 from temper_placer.router_v6._pipeline_core import RouterV6Pipeline
 from temper_placer.router_v6.topology_solver import SolverStatus
 
