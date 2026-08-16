@@ -708,17 +708,6 @@ def _family_static_inflation(signature: tuple[float, float, str]) -> float:
     return round(width / 2.0 + clearance, 9)
 
 
-def _family_creepage_radius(
-    signature: tuple[float, float, str],
-    pad_class: str,
-    table,
-) -> float:
-    """The creepage-only extra a family charges around an obstacle of
-    ``pad_class``: ``creepage(family_class, pad_class)``, floored at 0."""
-    _w, _c, family_class = signature
-    return float(table.required(family_class, pad_class))
-
-
 def _stamp_foreign_creepage_halos(
     net_name: str,
     grids: dict[str, OccupancyGrid],
