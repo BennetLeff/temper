@@ -11,6 +11,7 @@ import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import temper_geometry as _tg
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
@@ -21,7 +22,6 @@ from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
-from temper_placer.router_v6.grid_converter import grid_to_world
 from temper_placer.router_v6.path_simplify import simplify_path
 
 if TYPE_CHECKING:
@@ -160,7 +160,7 @@ def path_to_segments(
         layer_map = layer_map or LAYER_MAP
         simplified = simplify_path(path.cells)
         for c in simplified:
-            x, y = grid_to_world(c, origin, path_cell_size)
+            x, y = _tg.grid_to_world_py(c.x, c.y, origin[0], origin[1], path_cell_size)
             layer_name = layer_map.get(c.layer, "F.Cu")
             coords.append((x, y, layer_name))
     elif hasattr(path, "segments") and path.segments:
@@ -220,7 +220,7 @@ def path_to_vias(
         path_cell_size = getattr(path, "cell_size", cell_size)
         layer_map = layer_map or LAYER_MAP
         for c in path.cells:
-            x, y = grid_to_world(c, origin, path_cell_size)
+            x, y = _tg.grid_to_world_py(c.x, c.y, origin[0], origin[1], path_cell_size)
             layer_name = layer_map.get(c.layer, "F.Cu")
             coords.append((x, y, layer_name))
     elif hasattr(path, "segments") and path.segments:

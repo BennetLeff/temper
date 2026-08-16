@@ -20,7 +20,9 @@ Migrated kernels
   ``_oracle_kw_boundary_match``, ``_oracle_net_class_to_voltage_class`` and
   the composite ``_oracle_get_clearance`` — all verbatim copies.
 * ``grid_converter`` — ``grid_to_world``, ``extract_vias``,
-  ``compute_path_length``, ``count_vias_in_path``.  Pinned via the four
+  ``compute_path_length``, ``count_vias_in_path`` (the Python shim was
+  deleted 2026-08-16; the kernels are exercised via ``_rust()`` directly
+  against the four ``_oracle_*`` copies below).  Pinned via the four
   ``_oracle_*`` copies below.
 * ``path_simplify`` — ``is_collinear``, ``simplify_path``,
   ``estimate_segment_count``.  These were migrated to ``temper-rust-router``
@@ -63,16 +65,8 @@ from temper_placer.router_v6.clearance_engine import (
     get_clearance,
 )
 from temper_placer.router_v6.creepage_check import _calculate_required_creepage
-from temper_placer.router_v6.grid_converter import (
+from temper_placer.router_v6.grid_types import (
     GridCell as ShimGridCell,
-)
-from temper_placer.router_v6.grid_converter import (
-    compute_path_length,
-    count_vias_in_path,
-    grid_to_world,
-)
-from temper_placer.router_v6.grid_converter import (
-    extract_vias as _shim_extract_vias,
 )
 from temper_placer.router_v6.via_placement import (
     _get_adjacent_layer as _shim_adjacent_layer,
@@ -941,7 +935,6 @@ def test_grid_to_world_oracle_parity():
         o = _oracle_grid_to_world(cell, origin, size)
         got = fn(cell.x, cell.y, origin[0], origin[1], size)
         assert sig(o) == sig(got), (cell, origin, size)
-        assert sig(grid_to_world(cell, origin, size)) == sig(o), (cell, origin, size)
 
 
 def test_extract_vias_and_count_oracle_parity():
@@ -959,9 +952,7 @@ def test_extract_vias_and_count_oracle_parity():
         o = _oracle_extract_vias(cells)
         got = fn([c.layer for c in cells])
         assert sig(o) == sig(list(got)), cells
-        assert sig(_shim_extract_vias(cells)) == sig(o), cells
         assert sig(_oracle_count_vias_in_path(cells)) == sig(cnt([c.layer for c in cells])), cells
-        assert sig(count_vias_in_path(cells)) == sig(len(o)), cells
 
 
 def test_compute_path_length_oracle_parity():
@@ -986,7 +977,6 @@ def test_compute_path_length_oracle_parity():
         o = _oracle_compute_path_length(cells, size)
         got = fn([c.x for c in cells], [c.y for c in cells], size)
         assert sig(o) == sig(got), (cells, size)
-        assert sig(compute_path_length(cells, size)) == sig(o), (cells, size)
 
 
 # ===========================================================================

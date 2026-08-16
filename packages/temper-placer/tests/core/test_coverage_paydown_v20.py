@@ -73,7 +73,7 @@ from temper_placer.placer.template import (
     load_template_from_yaml,
 )
 from temper_placer.router_v6.congestion import CongestionResult
-from temper_placer.router_v6.grid_converter import GridCell
+from temper_placer.router_v6.grid_types import GridCell
 from temper_placer.topological.force_refinement import (
     apply_force_refinement,
     compute_adjacency_force,

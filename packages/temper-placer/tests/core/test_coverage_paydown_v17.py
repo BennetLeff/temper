@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import temper_geometry as _tg
 from shapely.geometry import Polygon as ShapelyPolygon
 
 from temper_placer.core.board import Board
@@ -94,12 +95,8 @@ from temper_placer.router_v6.dense_package_detection import (
     identify_dense_packages,
 )
 from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differential_pairs
-from temper_placer.router_v6.grid_converter import (
+from temper_placer.router_v6.grid_types import (
     GridCell,
-    compute_path_length,
-    count_vias_in_path,
-    extract_vias,
-    grid_to_world,
 )
 from temper_placer.router_v6.layer_assignment import (
     assign_layers,
@@ -268,19 +265,19 @@ class TestConstraintsGeometry:
 
 class TestGridConverter:
     def test_grid_to_world(self):
-        assert grid_to_world(GridCell(10, 20, 0), (0, 0), 0.5) == (5.25, 10.25)
+        assert _tg.grid_to_world_py(10, 20, 0, 0, 0.5) == (5.25, 10.25)
 
     def test_extract_vias(self):
         cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(1, 0, 1), GridCell(2, 0, 1)]
-        assert extract_vias(cells) == [2]
+        assert list(_tg.extract_vias_py([c.layer for c in cells])) == [2]
 
     def test_compute_path_length(self):
         cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-        assert compute_path_length(cells, cell_size=0.5) == pytest.approx(1.0)
+        assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 0.5) == pytest.approx(1.0)
 
     def test_count_vias_in_path(self):
         cells = [GridCell(0, 0, 0), GridCell(1, 0, 1), GridCell(2, 0, 1), GridCell(3, 0, 0)]
-        assert count_vias_in_path(cells) == 2
+        assert _tg.count_vias_in_path_py([c.layer for c in cells]) == 2
 
 
 # ---------------------------------------------------------------------------
