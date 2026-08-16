@@ -21,8 +21,8 @@ use crate::corridor::extract_corridor_mask;
 use crate::corridor_erosion::corridor_mask_for_net_py;
 use crate::occupancy_raster::{
     blocking_net_ids_py, downsample_or_blocks_py, mark_path_rect_into_grid_py,
-    mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, unmark_path_rect_into_grid_py,
-    unmark_segment_rect_into_grid_py,
+    mark_segment_rect_into_grid_py, mark_via_circle_into_grid_py, rasterize_area_polygons_py,
+    unmark_path_rect_into_grid_py, unmark_segment_rect_into_grid_py,
 };
 use crate::grid_raster::{
     block_circle_into_grid_py, block_rect_into_grid_py, block_segment_into_grid_py,
@@ -1523,6 +1523,9 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(blocking_net_ids_py, m)?)?;
     m.add_function(wrap_pyfunction!(mark_via_circle_into_grid_py, m)?)?;
     m.add_function(wrap_pyfunction!(downsample_or_blocks_py, m)?)?;
+    // build_occupancy_grid rasterisation (2026-08-15): strict-interior
+    // point-in-polygon scanline replacing shapely.contains(check_area, ...)
+    m.add_function(wrap_pyfunction!(rasterize_area_polygons_py, m)?)?;
 
     // organizational heuristics (Wave 4: heuristics/organizational.py's
     // five _place_* position kernels)
