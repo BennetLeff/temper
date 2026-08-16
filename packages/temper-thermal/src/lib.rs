@@ -67,6 +67,7 @@ pub mod safety;
 // dependency in its graph and therefore does not compile this module.
 #[cfg(feature = "python")]
 pub mod solve;
+pub mod thermal_constants;
 pub mod thermal_edges;
 pub mod thermal_potential;
 pub mod thermal_scorer;
@@ -166,5 +167,14 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parameter_bounds::worst_case_values_py, m)?)?;
     m.add_function(wrap_pyfunction!(geometric_metrics::measure_geometric_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_edges::measure_thermal_edges_py, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::default_ambient_c, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::firmware_trip_ts_c, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::tj_design_max_c, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::tj_abs_max_c, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::ikw40n120h3_rjc_kw, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::tim_rch_kw, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::hs1_rha_kw, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::placeholder_rjc_rch_rha, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_constants::thermal_resistance_for_py, m)?)?;
     Ok(())
 }

@@ -18,7 +18,8 @@
 //! resistances** (`rjc`/`rch`/`rha` resolved by the caller from datasheet
 //! values where they exist — IKW40N120H3: Rjc = 0.31 K/W; the committed
 //! TIM Rch ≈ 0.20 K/W and HS1-with-fan Rha ≈ 0.45 K/W — and placeholder
-//! values elsewhere) instead of the flat 0.6/0.25/1.0 stand-ins for every
+//! values elsewhere — the values' single source of truth is
+//! [`crate::thermal_constants`] — instead of the flat 0.6/0.25/1.0 stand-ins for every
 //! device. See `docs/evidence/2026-08-15-thermal-threshold-decision.md` §3.2
 //! for the values and `docs/evidence/2026-08-15-thermal-corrections-implemented.md`
 //! for this correction. The edge-penalty / copper-benefit heuristics of the

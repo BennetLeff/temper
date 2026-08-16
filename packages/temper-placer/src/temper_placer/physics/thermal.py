@@ -1,9 +1,13 @@
 """
 Thermal junction temperature estimation for PCB components.
 
-The scalar arithmetic runs in the ``temper-thermal`` Rust kernel
-(``estimate_junction_temp_py``, Wave 4 Phase A #3); this module keeps
-the public API and the default thermal-resistance parameters.
+**Thin re-export shim (2026-08-16).** Every thermal constant and all
+scalar arithmetic live in the ``temper-thermal`` Rust crate — the
+constants in ``thermal_constants.rs`` (the single source of truth; see
+``docs/evidence/2026-08-16-thermal-constants-moved-to-rust.md``), the
+arithmetic in ``estimate_junction_temp_py`` (Wave 4 Phase A #3). This
+module keeps the public API stable and reads the constants back from
+Rust at import time; it holds no copy of any thermal value.
 
 **Sensor-chain model (corrected 2026-08-15).** The thermal sensor
 (NTC_HS) measures **heatsink temperature Ts**, not junction temperature.
@@ -36,9 +40,15 @@ from __future__ import annotations
 
 import temper_thermal as _tt
 
+# ---------------------------------------------------------------------------
+# Constants — single source of truth:
+# packages/temper-thermal/src/thermal_constants.rs
+# (moved 2026-08-16; values unchanged, provenance documented there).
+# ---------------------------------------------------------------------------
+
 # Design-limit ambient (°C) — the zero-power point of ENVIRONMENTAL_SPEC.md's
 # derating curve (100% at 40 °C → 0% at 60 °C). Decision doc §6.4.
-DEFAULT_AMBIENT_C: float = 60.0
+DEFAULT_AMBIENT_C: float = _tt.default_ambient_c()
 
 # Thermal limits per the 2026-08-15 thermal-threshold decision (§6.1, §6.4):
 # the firmware over-temp trip (80 °C at the heatsink sensor, first active
@@ -46,43 +56,33 @@ DEFAULT_AMBIENT_C: float = 60.0
 # (125 °C), and the IKW40N120H3 absolute junction maximum (Tvj(max) = 175 °C).
 # The 150 °C that used to serve as the margin basis was the datasheet's
 # STORAGE temperature (Tstg = -55…+150 °C), not a junction limit.
-FIRMWARE_TRIP_TS_C: float = 80.0
-T_J_DESIGN_MAX_C: float = 125.0
-T_J_ABS_MAX_C: float = 175.0
-
-# Per-component lumped thermal resistances (Rjc, Rch, Rha) in K/W, keyed by
-# refdes (the analysis input unit). Datasheet-recovered values for the
-# IKW40N120H3 IGBTs; every other ref is a PLACEHOLDER — the legacy flat
-# stand-ins, kept because no datasheet has been recovered for those parts.
-# Do not read placeholder entries as measured values. (Designators are not
-# stable across branches: U4/U5 are the TO-247 IGBTs on the current board;
-# U5/U6 and Q1/Q2 name the same half-bridge devices on other branches.)
-THERMAL_RESISTANCE_BY_REF: dict[str, tuple[float, float, float]] = {
-    "Q1": (0.31, 0.20, 0.45),  # IKW40N120H3 (legacy analysis ref)
-    "Q2": (0.31, 0.20, 0.45),  # IKW40N120H3 (legacy analysis ref)
-    "U4": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_high)
-    "U5": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_low)
-    "U6": (0.31, 0.20, 0.45),  # IKW40N120H3 (hb.power_loop.q_low, other branches)
-    # TO-220 rectifiers on the shared HS1 heatsink (BOM.md:542 "2xTO-220"):
-    # Rjc is the TO-220-class PLACEHOLDER (no recovered datasheet); Rch/Rha
-    # are the committed shared-heatsink figures (TIM class / HS1 w/ fan).
-    "U1": (0.60, 0.20, 0.45),
-    "U2": (0.60, 0.20, 0.45),
-}
+FIRMWARE_TRIP_TS_C: float = _tt.firmware_trip_ts_c()
+T_J_DESIGN_MAX_C: float = _tt.tj_design_max_c()
+T_J_ABS_MAX_C: float = _tt.tj_abs_max_c()
 
 # Placeholder (Rjc, Rch, Rha) for devices without a recovered datasheet.
 # KEPT UNCHANGED from the pre-correction flat stand-ins — this is the
 # documented "no datasheet" value, not a measured one.
-PLACEHOLDER_RJC_RCH_RHA: tuple[float, float, float] = (0.6, 0.25, 1.0)
+PLACEHOLDER_RJC_RCH_RHA: tuple[float, float, float] = _tt.placeholder_rjc_rch_rha()
+
+# Default-device stackup (IKW40N120H3 datasheet / committed TIM / HS1 w/ fan)
+# used by ``estimate_junction_temp``'s default arguments.
+_IKW40N120H3_RJC_KW: float = _tt.ikw40n120h3_rjc_kw()
+_TIM_RCH_KW: float = _tt.tim_rch_kw()
+_HS1_RHA_KW: float = _tt.hs1_rha_kw()
 
 
 def thermal_resistance_for(ref: str) -> tuple[float, float, float]:
     """Return the per-component (Rjc, Rch, Rha) for a refdes.
 
-    Datasheet-recovered values for the IKW40N120H3 IGBTs; the placeholder
-    (0.6, 0.25, 1.0) K/W for every other ref — see the module docstring.
+    Datasheet-recovered values for the IKW40N120H3 IGBTs; the TO-220
+    rectifier Rjc is a placeholder; the flat legacy stand-in
+    (0.6, 0.25, 1.0) K/W for every other ref. Resolved in Rust
+    (``thermal_constants.rs``), keyed by the device's stable identity
+    (value/footprint), not by designator — see the Rust module docstring.
     """
-    return THERMAL_RESISTANCE_BY_REF.get(ref, PLACEHOLDER_RJC_RCH_RHA)
+    rjc, rch, rha, _source = _tt.thermal_resistance_for_py(ref)
+    return (rjc, rch, rha)
 
 
 def estimate_junction_temp(
@@ -90,9 +90,9 @@ def estimate_junction_temp(
     edge_distance_mm: float,
     copper_area_mm2: float = 0.0,
     ambient_C: float = DEFAULT_AMBIENT_C,
-    Rjc: float = 0.31,
-    Rch: float = 0.20,
-    Rha_base: float = 0.45,
+    Rjc: float = _IKW40N120H3_RJC_KW,
+    Rch: float = _TIM_RCH_KW,
+    Rha_base: float = _HS1_RHA_KW,
 ) -> float:
     """
     Estimate component junction temperature from placement and environment.
