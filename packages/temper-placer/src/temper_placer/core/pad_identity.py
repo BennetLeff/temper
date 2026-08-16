@@ -62,7 +62,9 @@ here -- see ``docs/evidence/2026-08-13-pad-identity-ssot.md`` for why
 LIVE terminal-extraction path) and
 ``temper-orchestration/src/pipeline_route.rs::run_collect_pad_positions``
 (a Rust port of a pinned Python oracle that calls ``get_pin`` the same
-way).
+way -- its ROTATION omission was fixed 2026-08-15, see
+``docs/evidence/2026-08-15-router-pad-avoidance-fix.md``; the first-match
+occurrence collapse remains deferred).
 
 **Where the matching predicate itself lives.** "Does this pin's name or
 number equal X" is answered by the Rust ``Component.get_pin_occurrences``

@@ -79,6 +79,12 @@ class CopperVia:
     (matches how vias in this codebase's occupancy-grid marking are
     treated -- ``astar_grid._mark_route_blocked`` blocks a via on every
     grid it has, not just its nominal start/end layer).
+
+    ``_parse_segments_and_vias`` fills this from KiCad semantics: a via
+    with a ``blind``/``buried``/``micro`` type token gets its declared
+    layer pair; a via with NO type token is a THROUGH via and gets
+    ``()`` -- the file format default is through, and a through via
+    pierces every copper layer regardless of the declared pair.
     """
 
     position: Point
@@ -384,6 +390,9 @@ _SEGMENT_END_RE = re.compile(r"\(end\s+([-\d.]+)\s+([-\d.]+)\)")
 _LAYER_RE = re.compile(r'\(layer\s+"([^"]+)"\)')
 _VIA_AT_RE = re.compile(r"\(at\s+([-\d.]+)\s+([-\d.]+)\)")
 _VIA_LAYERS_RE = re.compile(r'\(layers\s+((?:"[^"]+"\s*)+)\)')
+# KiCad's via type token is a bare `blind`/`buried`/`micro` right after
+# `(via` (pcb_io_kicad_sexpr_parser.cpp parsePCB_VIA). Absent -> THROUGH.
+_VIA_TYPE_RE = re.compile(r"\(via\s+(blind|buried|micro)\b")
 _LAYER_NAME_RE = re.compile(r'"([^"]+)"')
 
 
@@ -420,7 +429,18 @@ def _parse_segments_and_vias(
         if not name:
             continue
         layers_m = _VIA_LAYERS_RE.search(block)
-        layers = tuple(_LAYER_NAME_RE.findall(layers_m.group(1))) if layers_m else ()
+        type_m = _VIA_TYPE_RE.search(block)
+        if type_m:
+            # A typed via (blind / buried / micro) connects exactly its
+            # declared layer pair -- nothing outside it.
+            layers = tuple(_LAYER_NAME_RE.findall(layers_m.group(1))) if layers_m else ()
+        else:
+            # No type token: KiCad treats the via as THROUGH -- it pierces
+            # every copper layer regardless of the declared pair (which is
+            # only the stack extent, e.g. F.Cu/B.Cu). ``()`` is the
+            # CopperVia convention for "spans every layer the checker knows
+            # about" (see CopperVia's docstring).
+            layers = ()
         vias_by_net.setdefault(name, []).append(
             CopperVia(position=(float(at_m.group(1)), float(at_m.group(2))), layers=layers)
         )

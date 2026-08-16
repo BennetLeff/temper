@@ -372,6 +372,43 @@ def test_parse_zones_extracts_net_layer_and_fill_state():
     assert n_unfilled == 1
 
 
+def test_parse_vias_type_token_controls_connectivity_layers():
+    """``_parse_segments_and_vias`` must apply KiCad's via semantics.
+
+    A via with NO type token is a THROUGH via and pierces every copper
+    layer -- the declared ``(layers ...)`` pair is only the stack extent.
+    A via carrying a ``blind``/``buried``/``micro`` token connects exactly
+    its declared pair. This is the audit side of the router's via-type
+    emission fix (see docs/evidence/2026-08-15-via-type-emission-fix.md):
+    before the fix the router wrote layer-pair vias with no token, and the
+    audit's pair-only model under-reported real connectivity; after it the
+    same pair-only model is exactly right for the now-typed vias.
+    """
+    from temper_placer.router_v6.pad_connectivity_audit import _parse_segments_and_vias
+
+    content = (
+        '(net 1 "through_net")\n'
+        '(net 2 "blind_net")\n'
+        '(net 3 "buried_net")\n'
+        # Through: no type token -- the pair is F.Cu/B.Cu but the via
+        # pierces every layer.
+        '  (via (at 1.0 2.0) (size 0.6) (drill 0.3) (layers "F.Cu" "B.Cu") (net 1) (tstamp "a"))\n'
+        # Blind: typed token -- connects exactly F.Cu <-> In3.Cu.
+        '  (via blind (at 3.0 4.0) (size 0.6) (drill 0.3) (layers "F.Cu" "In3.Cu") (net 2) (tstamp "b"))\n'
+        # Buried: typed token -- connects exactly In1.Cu <-> In3.Cu.
+        '  (via buried (at 5.0 6.0) (size 0.6) (drill 0.3) (layers "In1.Cu" "In3.Cu") (net 3) (tstamp "c"))\n'
+        '  (segment (start 0 0) (end 1 1) (width 0.25) (layer "F.Cu") (net 1) (tstamp "d"))\n'
+    )
+    segs, vias = _parse_segments_and_vias(content)
+    # _parse_segments_and_vias returns vias grouped by net name.
+    through = vias["through_net"][0]
+    blind = vias["blind_net"][0]
+    buried = vias["buried_net"][0]
+    assert through.layers == (), "no type token => THROUGH => every layer"
+    assert blind.layers == ("F.Cu", "In3.Cu")
+    assert buried.layers == ("In1.Cu", "In3.Cu")
+
+
 # ---------------------------------------------------------------------------
 # 2. Real-board adapter smoke test.
 # ---------------------------------------------------------------------------

@@ -45,7 +45,7 @@ class RouteStage(Stage):
         use_theta_star = getattr(state, "enable_theta_star", False)
         use_lazy_theta_star = getattr(state, "enable_lazy_theta_star", False)
         enable_coarse_to_fine = getattr(state, "enable_coarse_to_fine", False)
-        enable_all_pad_tree = getattr(state, "enable_all_pad_tree", False)
+        enable_all_pad_tree = getattr(state, "enable_all_pad_tree", True)
         tree_3d_fallback_max_iter = getattr(state, "tree_3d_fallback_max_iter", 10_000)
         coarse_factor = getattr(state, "coarse_factor", 4)
         corridor_buffer_cells = getattr(state, "corridor_buffer_cells", 12)

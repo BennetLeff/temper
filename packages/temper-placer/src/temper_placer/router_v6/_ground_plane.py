@@ -141,6 +141,7 @@ __all__ = [
     "PLANE_LAYER",
     "GroundPlaneResult",
     "compute_hv_selv_keepout",
+    "generate_ground_plane_blocks",
     "generate_ground_plane_content",
     "mst_edges",
 ]
@@ -618,13 +619,26 @@ class GroundPlaneResult:
         )
 
 
-def generate_ground_plane_content(
+def generate_ground_plane_blocks(
     pcb_path: Path,
     *,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
-) -> tuple[str, GroundPlaneResult]:
-    """Read *pcb_path*, compute an ``In1.Cu`` ``gnd`` plane + via/MST
-    stitching, and return (new board content, result report).
+    tstamp_counter: list[int] | None = None,
+) -> tuple[list[str], GroundPlaneResult]:
+    """Compute an ``In1.Cu`` ``gnd`` plane + via/MST stitching and return
+    the NEW s-expression blocks (zone / keepout-zone / via / segment
+    strings) plus a result report.
+
+    This is the production wiring seam: ``router_v6/_adapter_convert.py``'s
+    ``_write_routes_to_content`` appends these blocks to its own emitted
+    copper after the F.Cu/B.Cu pour pass, so the gnd plane rides every
+    ``route_pcb()`` run (previously this generator was a standalone spike
+    -- ``scripts/generate_ground_plane.py`` -- with no production caller).
+    ``tstamp_counter`` is threaded from the caller (same convention as
+    ``_emit_zone_pours``) so the plane's tstamps continue the caller's
+    deterministic sequence instead of restarting at 0 and colliding with
+    the routed content's; when ``None`` a fresh counter is used (the
+    standalone script and the spike tests call it without one).
 
     Does not write anything -- the caller decides where the output goes
     (a scratch copy for validation, or the tracked board once validated).
@@ -647,6 +661,22 @@ def generate_ground_plane_content(
         compute_zones_for_net,
         emit_zone_s_expr,
     )
+
+    # The default manifest path is CWD-relative, and production callers
+    # (route_pcb via _write_routes_to_content) run from arbitrary CWDs
+    # (pytest from packages/temper-placer, route_board.py from the repo
+    # root). Resolve a missing relative default against the repo root
+    # (this module lives at packages/temper-placer/src/temper_placer/
+    # router_v6/, so the repo root is five parents up) before handing it
+    # to the loader, which raises the honest FileNotFoundError if neither
+    # location exists.
+    if not domain_manifest_path.is_file() and not domain_manifest_path.is_absolute():
+        alt = Path(__file__).resolve().parents[5] / domain_manifest_path
+        if alt.is_file():
+            domain_manifest_path = alt
+
+    if tstamp_counter is None:
+        tstamp_counter = [0]
 
     content = pcb_path.read_text()
     pcb = parse_kicad_pcb_v6(pcb_path)
@@ -781,8 +811,8 @@ def generate_ground_plane_content(
             if hasattr(g, "exterior") and not g.is_empty and len(g.exterior.coords) >= 4:
                 zone_polys.append(g)
 
-    tstamp_counter = [0]
-
+    # tstamp_counter: threaded from the caller (production) or a fresh
+    # [0] (standalone/tests) -- see generate_ground_plane_blocks' docstring.
     def _next_tstamp() -> str:
         from temper_placer.router_v6._adapter_convert import _next_tstamp as _nt
 
@@ -1124,10 +1154,6 @@ def generate_ground_plane_content(
             rerouted,
         )
 
-    new_content = content.rstrip()
-    if new_content.endswith(")"):
-        new_content = new_content[:-1] + "\n" + "\n".join(new_blocks) + "\n)\n"
-
     result = GroundPlaneResult(
         pad_count=len(gnd_positions),
         drop_via_count=len(gnd_positions)
@@ -1145,4 +1171,31 @@ def generate_ground_plane_content(
         mst_edges_astar_routed_count=astar_routed_count,
         mst_edges_fallback_count=len(edges) - astar_routed_count,
     )
+    return new_blocks, result
+
+
+def generate_ground_plane_content(
+    pcb_path: Path,
+    *,
+    domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
+) -> tuple[str, GroundPlaneResult]:
+    """Standalone/CLI entry point: read *pcb_path*, compute the In1.Cu
+    ``gnd`` plane blocks (via ``generate_ground_plane_blocks``), splice
+    them into the file's own content, and return ``(new board content,
+    result report)``.
+
+    This is the surface ``scripts/generate_ground_plane.py`` and the
+    spike tests use. Production goes through
+    ``generate_ground_plane_blocks`` instead (from
+    ``_write_routes_to_content``), because the routed board's content
+    string is assembled in memory -- splicing back into the file's own
+    text would drop the routing segments.
+    """
+    content = pcb_path.read_text()
+    blocks, result = generate_ground_plane_blocks(
+        pcb_path, domain_manifest_path=domain_manifest_path
+    )
+    new_content = content.rstrip()
+    if new_content.endswith(")"):
+        new_content = new_content[:-1] + "\n" + "\n".join(blocks) + "\n)\n"
     return new_content, result

@@ -595,10 +595,25 @@ fn emit_route(
     // route with vias NameErrors there; here `net_num` is always resolved,
     // which is behaviourally identical on every reachable input -- the
     // differential's domain -- and documented.)
+    //
+    // KiCad via-type emission: a via whose declared layer pair is NOT the
+    // full copper stack must carry a `blind`/`buried` type token. Without
+    // it KiCad's parser (pcb_io_kicad_sexpr_parser.cpp `parsePCB_VIA`)
+    // defaults the via to VIATYPE::THROUGH and the via pierces every copper
+    // layer regardless of the declared pair -- measured as 16 phantom DRC
+    // shorts on layers outside the declared pair on the router's own output
+    // (docs/evidence/2026-08-15-via-type-emission-fix.md). See
+    // `via_type_token` for the classification rule; the oracle file
+    // `_adapter_convert_py_oracle.py` mirrors this byte-for-byte.
     for (vx, vy, diameter, drill, from_layer, to_layer) in vias {
         let seg_id = next_tstamp_internal(counter)?;
+        let via_head = match via_type_token(from_layer, to_layer) {
+            Some(token) => format!("  (via {} (at", token),
+            None => "  (via (at".to_string(),
+        };
         segments.push(format!(
-            "  (via (at {} {}) (size {}) (drill {}) (layers \"{}\" \"{}\") (net {}) (tstamp \"{}\"))",
+            "{} {} {}) (size {}) (drill {}) (layers \"{}\" \"{}\") (net {}) (tstamp \"{}\"))",
+            via_head,
             py_fmt4(py, *vx)?,
             py_fmt4(py, *vy)?,
             py_fmt4(py, *diameter)?,
@@ -618,6 +633,39 @@ fn emit_route(
 /// to route every rendered float through CPython).
 fn py_fmt4(py: Python<'_>, f: f64) -> PyResult<String> {
     d6_util::py_format(py, "{:.4f}", &[f.into_pyobject(py)?.into_any()])?.extract()
+}
+
+/// KiCad via type token for a declared layer pair, or `None` for through.
+///
+/// KiCad's canonical copper layer names fix the outer layers as `F.Cu` and
+/// `B.Cu` on every board, so the full-stack pair is always `F.Cu`/`B.Cu`:
+///
+/// * `F.Cu` <-> `B.Cu` -> through (no token emitted; KiCad's format
+///   default is through)
+/// * exactly one outer layer -> `blind` (outer <-> inner)
+/// * two inner layers -> `buried` (inner <-> inner)
+/// * same layer on both ends -> through (degenerate; unchanged from the
+///   pre-fix emission, which emitted no token for every pair)
+///
+/// A same-layer "via" is nonsense and should not occur (the router derives
+/// pairs from real layer transitions), but the classification must be total:
+/// keeping the no-token emission for it is the conservative choice, exactly
+/// what the pre-fix writer produced.
+#[cfg(any(feature = "python", test))]
+fn via_type_token(from_layer: &str, to_layer: &str) -> Option<&'static str> {
+    const OUTER_LAYERS: [&str; 2] = ["F.Cu", "B.Cu"];
+    // Degenerate same-layer pair (should not occur -- the router derives
+    // pairs from real layer transitions): keep the pre-fix emission (no
+    // token), which is also the conservative KiCad default.
+    if from_layer == to_layer {
+        return None;
+    }
+    let is_outer = |layer: &str| OUTER_LAYERS.contains(&layer);
+    match (is_outer(from_layer), is_outer(to_layer)) {
+        (true, true) => None,
+        (false, false) => Some("buried"),
+        _ => Some("blind"),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -837,9 +885,20 @@ fn getattr_or<'py>(
 /// last writer wins), then per net the `getattr(net, "pins", [])` walk with
 /// `comp.initial_position` (default `(0.0, 0.0)`) and the conditional
 /// `comp.get_pin(pin_name)` call (a missing method or a `None` pin falls
-/// back to the component position; a found pin adds `pin.position`).
-/// Returns `(net_name, positions)` pairs in first-seen net order; a net
-/// whose resolvable pin list is empty is omitted, exactly like the oracle.
+/// back to the component position; a found pin resolves its WORLD position
+/// through `temper_geometry.pin_world_position_at_py` -- rotation- and
+/// side-aware, the SSOT kernel). Returns `(net_name, positions)` pairs in
+/// first-seen net order; a net whose resolvable pin list is empty is
+/// omitted, exactly like the oracle.
+///
+/// ROTATION FIX (2026-08-15): the pre-migration body (and this port, until
+/// now) summed `comp.initial_position + pin.position` with no component
+/// rotation -- see the in-loop comment for the 204-short incident this
+/// caused. The pad-position block of the pinned writer oracle
+/// (`_adapter_convert_py_oracle.py`) and the marshal differential's
+/// `_oracle_collect_pad_positions` were re-pinned in the same commit with
+/// the same rotation-aware formula (PR #1207 standard: fix behaviour first,
+/// prove divergence == the corrected positions, re-pin with evidence).
 #[pyfunction]
 #[allow(clippy::type_complexity)]
 pub fn run_collect_pad_positions(
@@ -887,10 +946,38 @@ pub fn run_collect_pad_positions(
             };
             match pin {
                 Some(p) if !p.is_none() => {
-                    let pos = p.getattr("position")?;
-                    let px: f64 = pos.get_item(0)?.extract()?;
-                    let py_: f64 = pos.get_item(1)?.extract()?;
-                    positions.push((cx + px, cy + py_));
+                    // Rotation/side-aware world position, delegated to the
+                    // temper-geometry SSOT kernel (`pin_world_position_at_py`,
+                    // the same function `core.pin_geometry.pin_world_position`
+                    // shims to -- host-libm cos/sin, mirror + R(-theta)).
+                    //
+                    // The pre-migration body this port mirrors summed
+                    // `comp.initial_position + pin.position` with NO component
+                    // rotation (and no side mirror). For a rotated 2-pad
+                    // component that lands every pad on the MIRROR position
+                    // across the anchor -- i.e. the OTHER pad -- so the
+                    // zone-stitch writer emitted each net's stitch track from
+                    // the other net's physical pad: 204 `shorting_items` +
+                    // 2 `tracks_crossing` on the 2026-08-15 routed board
+                    // (e.g. w1_1's stitch from RV1's ac_n pad). See
+                    // docs/evidence/2026-08-15-router-pad-avoidance-fix.md.
+                    // The A* waypoint path was never affected -- it has always
+                    // resolved pads through `pad_identity.net_pad_positions`
+                    // (rotation-correct); only this write-path collector
+                    // carried the omission.
+                    //
+                    // `pin_world_position_at_py` reads `initial_rotation_quadrant`
+                    // (missing -> 0.0, exactly like the shim) and
+                    // `initial_side` (missing -> 0) itself, so duck-typed
+                    // stubs without those attrs keep their pre-fix positions
+                    // (rotation 0) -- the differential's rotation-0 cases are
+                    // unchanged by construction.
+                    let kernel = py
+                        .import("temper_geometry")?
+                        .getattr("pin_world_position_at_py")?;
+                    let wx_wy = kernel.call1((&p, comp))?;
+                    let (wx, wy): (f64, f64) = wx_wy.extract()?;
+                    positions.push((wx, wy));
                 }
                 _ => positions.push((cx, cy)),
             }
@@ -1338,6 +1425,30 @@ pub(crate) mod tests {
         );
     }
 
+
+    #[cfg_attr(test, test)]
+    fn via_type_token_full_stack_pair_is_through() {
+        assert_eq!(via_type_token("F.Cu", "B.Cu"), None);
+        assert_eq!(via_type_token("B.Cu", "F.Cu"), None);
+        // Degenerate same-layer pair keeps the pre-fix (no-token) emission.
+        assert_eq!(via_type_token("F.Cu", "F.Cu"), None);
+        assert_eq!(via_type_token("In2.Cu", "In2.Cu"), None);
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_type_token_outer_to_inner_is_blind() {
+        assert_eq!(via_type_token("F.Cu", "In3.Cu"), Some("blind"));
+        assert_eq!(via_type_token("In3.Cu", "F.Cu"), Some("blind"));
+        assert_eq!(via_type_token("B.Cu", "In4.Cu"), Some("blind"));
+        assert_eq!(via_type_token("In4.Cu", "B.Cu"), Some("blind"));
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_type_token_inner_to_inner_is_buried() {
+        assert_eq!(via_type_token("In1.Cu", "In3.Cu"), Some("buried"));
+        assert_eq!(via_type_token("In3.Cu", "In1.Cu"), Some("buried"));
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1350,6 +1461,9 @@ pub(crate) mod tests {
         ("pipeline_route::tests::uuid5_is_deterministic_and_name_sensitive", uuid5_is_deterministic_and_name_sensitive),
         ("pipeline_route::tests::select_sat_nets_bounds_and_stable_order", select_sat_nets_bounds_and_stable_order),
         ("pipeline_route::tests::select_sat_nets_duplicate_name_last_writer_wins", select_sat_nets_duplicate_name_last_writer_wins),
+        ("pipeline_route::tests::via_type_token_full_stack_pair_is_through", via_type_token_full_stack_pair_is_through),
+        ("pipeline_route::tests::via_type_token_outer_to_inner_is_blind", via_type_token_outer_to_inner_is_blind),
+        ("pipeline_route::tests::via_type_token_inner_to_inner_is_buried", via_type_token_inner_to_inner_is_buried),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

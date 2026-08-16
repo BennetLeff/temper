@@ -100,3 +100,62 @@ class TestViaEmission:
             '(kicad_pcb\n  (net 1 "NET")\n  (net 2 "OTHER")\n)\n', result
         )[0]
         assert "(net 1)" in content
+
+    def test_partial_stack_via_emits_blind_type_token(self):
+        """A via whose pair is NOT the full stack must carry a `blind` token.
+
+        KiCad's file format default is THROUGH: a via with no type token
+        pierces every copper layer regardless of its declared layer pair.
+        This was the router's emission bug -- every layer-pair via was
+        silently widened to a through via (16 phantom DRC shorts on layers
+        outside the declared pair). See
+        docs/evidence/2026-08-15-via-type-emission-fix.md.
+        """
+        from temper_placer.router_v6.astar_core import RoutePath
+
+        path = RoutePath(
+            net_name="NET",
+            coordinates=[(0, 0), (5, 0), (10, 0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        )
+        via = _StubVia((2.5, 0.0), "F.Cu", "In3.Cu", 0.6, 0.3, "NET")
+        result = _make_result({"NET": path}, [via])
+        content = _write_routes_to_content('(kicad_pcb\n  (net 1 "NET")\n)\n', result)[0]
+        assert "(via blind (at 2.5000 0.0000)" in content
+        assert '(layers "F.Cu" "In3.Cu")' in content
+
+    def test_inner_pair_via_emits_buried_type_token(self):
+        """An inner-inner via pair must carry a `buried` token."""
+        from temper_placer.router_v6.astar_core import RoutePath
+
+        path = RoutePath(
+            net_name="NET",
+            coordinates=[(0, 0), (5, 0), (10, 0)],
+            layer_name="In1.Cu",
+            path_length=10.0,
+        )
+        via = _StubVia((2.5, 0.0), "In1.Cu", "In3.Cu", 0.6, 0.3, "NET")
+        result = _make_result({"NET": path}, [via])
+        content = _write_routes_to_content('(kicad_pcb\n  (net 1 "NET")\n)\n', result)[0]
+        assert "(via buried (at 2.5000 0.0000)" in content
+
+    def test_full_stack_via_keeps_no_type_token(self):
+        """F.Cu <-> B.Cu is the full stack: through, so NO token is emitted.
+
+        The KiCad default (no token) is exactly right for this pair, and
+        the pre-fix byte format for it must be preserved."""
+        from temper_placer.router_v6.astar_core import RoutePath
+
+        path = RoutePath(
+            net_name="NET",
+            coordinates=[(0, 0), (5, 0), (10, 0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        )
+        via = _StubVia((2.5, 0.0), "F.Cu", "B.Cu", 0.6, 0.3, "NET")
+        result = _make_result({"NET": path}, [via])
+        content = _write_routes_to_content('(kicad_pcb\n  (net 1 "NET")\n)\n', result)[0]
+        assert "(via (at 2.5000 0.0000)" in content
+        assert "via blind" not in content
+        assert "via buried" not in content

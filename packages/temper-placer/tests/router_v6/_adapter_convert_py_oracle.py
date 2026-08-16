@@ -25,11 +25,22 @@ the verbatim bodies call back into (``_zone_pour_stitch``'s
 the ORIGINAL module's logger so the unrepresented-field warnings hit the
 same record the shim's do.  Do NOT edit: it is the reference.
 
+RE-PIN 2026-08-15 (router pad-avoidance fix): the ``_write_routes_to_content``
+pad-positions block was re-pinned to be rotation-aware (see the in-block
+comment and ``docs/evidence/2026-08-15-router-pad-avoidance-fix.md``) --
+the pre-migration body omitted component rotation, which put every pad of
+a rotated component at the other pad's position and caused the zone-stitch
+writer to emit dead shorts (204 ``shorting_items`` + 2
+``tracks_crossing``). Everything else in this file is still verbatim from
+the dispatch base; the content hash in ``scripts/oracle_hashes.json`` was
+updated in the same commit.
+
 """
 
 from __future__ import annotations
 
 import logging
+import math
 import re
 import uuid
 from pathlib import Path
@@ -77,6 +88,40 @@ def _next_tstamp(counter: list[int]) -> str:
     n = counter[0]
     counter[0] = n + 1
     return str(uuid.uuid5(_TSTAMP_NAMESPACE, f"temper-router-v6-tstamp-{n}"))
+
+
+def _via_type_token(from_layer: str, to_layer: str) -> str | None:
+    """KiCad via type token for a declared layer pair, or ``None`` for through.
+
+    Byte-identical twin of ``via_type_token`` in
+    ``temper-orchestration/src/pipeline_route.rs`` (the differential suites
+    pin the two to each other). KiCad's canonical outer copper layers are
+    ``F.Cu``/``B.Cu`` on every board, so the full-stack pair is always
+    ``F.Cu``/``B.Cu``:
+
+    * ``F.Cu`` <-> ``B.Cu``           -> through  (no token; KiCad's format
+                                                  default is through)
+    * exactly one outer layer         -> ``"blind"`` (outer <-> inner)
+    * two inner layers                -> ``"buried"`` (inner <-> inner)
+    * same layer on both ends         -> through  (degenerate; unchanged from
+                                                  the pre-fix emission)
+
+    Without the token KiCad silently widens every layer-pair via to a
+    through via piercing every copper layer -- 16 phantom DRC shorts on
+    layers outside the declared pair (see
+    docs/evidence/2026-08-15-via-type-emission-fix.md).
+    """
+    outer = ("F.Cu", "B.Cu")
+    # Degenerate same-layer pair (should not occur -- the router derives
+    # pairs from real layer transitions): keep the pre-fix emission (no
+    # token), which is also the conservative KiCad default.
+    if from_layer == to_layer:
+        return None
+    if from_layer in outer and to_layer in outer:
+        return None
+    if from_layer in outer or to_layer in outer:
+        return "blind"
+    return "buried"
 
 
 def _to_stage0_netclass_rules(rules: Any) -> Any:
@@ -218,6 +263,23 @@ def _write_routes_to_content(
         net_name_to_number[m.group(2)] = int(m.group(1))
 
     # Collect pad world positions from the parsed PCB data
+    #
+    # RE-PINNED 2026-08-15 (rotation): the pre-migration body summed
+    # ``comp.initial_position + pin.position`` with no component rotation,
+    # which placed every pad of a rotated component at its MIRROR position
+    # across the anchor -- for a 2-pad part that is the OTHER pad -- so the
+    # zone-stitch writer emitted each net's stitch track from the other
+    # net's physical pad (204 ``shorting_items`` + 2 ``tracks_crossing`` on
+    # the 2026-08-15 routed board; see
+    # ``docs/evidence/2026-08-15-router-pad-avoidance-fix.md``). This block
+    # now applies the same mirror + R(-theta) transform as
+    # ``temper_geometry.pin_world_position_at_py`` (rotation quadrant 0-3 ->
+    # q*pi/2, side 1 -> mirror X, then ``x*c + y*s`` / ``-x*s + y*c``),
+    # keeping the duck-typed attribute defaults (missing rotation/side
+    # attrs -> 0 -> identical to the pre-fix body). The same correction was
+    # applied to ``temper-orchestration::run_collect_pad_positions`` (the
+    # Rust port this oracle pins) and the marshal differential's
+    # ``_oracle_collect_pad_positions``, in this same commit.
     pcb = getattr(result, "pcb", None)
     if pcb is not None:
         comp_by_ref = {c.ref: c for c in pcb.components}
@@ -227,15 +289,32 @@ def _write_routes_to_content(
                 comp = comp_by_ref.get(comp_ref)
                 if comp is None:
                     continue
-                comp_pos = getattr(comp, "initial_position", (0.0, 0.0))
+                comp_pos = getattr(comp, "initial_position", (0.0, 0.0)) or (0.0, 0.0)
                 pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
                 if pin is None:
                     positions.append((float(comp_pos[0]), float(comp_pos[1])))
+                    continue
+                px, py = pin.position
+                rot_q = getattr(comp, "initial_rotation_quadrant", None)
+                if rot_q is None:
+                    rotation_rad = 0.0
+                elif isinstance(rot_q, int):  # bool included, like pyo3's i64 extract
+                    rotation_rad = rot_q * math.pi / 2.0
                 else:
-                    px, py = pin.position
-                    positions.append(
-                        (float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py))
-                    )
+                    rotation_rad = float(rot_q)
+                side_attr = getattr(comp, "initial_side", None)
+                if side_attr is None or not side_attr:
+                    side = 0
+                elif isinstance(side_attr, int):
+                    side = int(side_attr)
+                else:
+                    side = 0
+                mx = -px if side == 1 else px
+                c = math.cos(rotation_rad)
+                s = math.sin(rotation_rad)
+                wx = mx * c + py * s
+                wy = -mx * s + py * c
+                positions.append((float(comp_pos[0]) + wx, float(comp_pos[1]) + wy))
             if positions:
                 pad_positions[net.name] = positions
 
@@ -365,10 +444,19 @@ def _write_routes_to_content(
                 )
                 i = j - 1
         # U5: emit real (via ...) s-expressions for each Via in the compiled route.
+        # KiCad via-type emission: a via whose declared layer pair is NOT the
+        # full copper stack must carry a `blind`/`buried` type token, or KiCad
+        # defaults it to a THROUGH via piercing every copper layer. This is the
+        # byte-identical twin of the Rust `via_type_token` helper in
+        # temper-orchestration pipeline_route.rs (see
+        # docs/evidence/2026-08-15-via-type-emission-fix.md). The differential
+        # suites pin the two to each other.
         for via in getattr(compiled_route, "vias", []):
             vx, vy = via.position
+            type_token = _via_type_token(via.from_layer, via.to_layer)
+            via_head = f"  (via {type_token} (at" if type_token else "  (via (at"
             segments.append(
-                f"  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})"
+                f"{via_head} {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})"
                 f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
                 f' (net {net_num}) (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )
