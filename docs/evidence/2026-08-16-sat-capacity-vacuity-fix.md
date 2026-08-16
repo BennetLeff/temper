@@ -120,20 +120,58 @@ Stage 4's fallback).
 |---|---|---|
 | monolith, before (2026-08-15) | ~58 GB observed → OOM-killed; 182–200 GB intrinsic demand | never completed |
 | batched `--net-batching` (reference) | ~1–5 GB per batch subprocess | completes, but vacuous (empty topology) |
-| **monolith, after this fix** | **Stage 3 adds ~0 GB over the Stage-2 baseline** (HWM 2.9 GB is Stage 2's EDT; Stage 3 RSS stayed at the pre-Stage-3 level through the direct solve) | completes (see §route) |
+| **monolith, after this fix** | **Stage 3 adds ~0 GB over the Stage-2 baseline** (HWM 2.94 GB is Stage 2's EDT; Stage 3 RSS stayed at the pre-Stage-3 level through the direct solve) | **completes: 96/139 pad-connected in 291 s, peak RSS 2.94 GB** |
 
 No CNF is built at all — the 22.5M-variable / 399M-aux / 768M-clause
 encoding is gone.
 
 ## Route result (measured this task)
 
-`scripts/route_board.py --output /tmp/opencode/route3.kicad_pcb` (default:
+`scripts/route_board.py --output /tmp/opencode/route6.kicad_pcb` (default:
 monolithic, no `--net-batching`):
 
-- wall: ~ (fill after run)
-- peak RSS: ~ (fill after run)
-- pad connectivity: (fill after run — compare to batched 92/139)
-- DRC: (fill after run)
+| metric | monolithic (this fix) | batched reference (`--net-batching`) |
+|---|---|---|
+| wall | **291 s** | 485 s (2026-08-12 measurement, lighter machine load) |
+| peak RSS | **2.94 GB** (Stage 2's EDT; Stage 3 adds ~0) | ~1–5 GB per batch subprocess |
+| pad connectivity | **96/139** | 92/139 |
+| fake-completion | 8 | — |
+| DRC on output | 1720 violations (511 clearance, 226 unconnected, 206 shorting) | not re-measured here |
+
+**Monolithic route completes in < 4 GB, no OOM — the primary deliverable.**
+Connectivity is **96/139 ≥ 92/139** (same or better than batched), and the
+monolith is *faster* than the batched reference (291 s vs 485 s).
+
+## The corridor-waypoint finding (measured, three iterations)
+
+Emission granularity was iterated against the real board; the third
+iteration is what shipped:
+
+1. **Per-edge emission**: monolithic route still grinding at 3× batched
+   wall time (25+ min) — Stage 4 A* routes waypoint-to-waypoint, and a
+   200-edge net path means ~200 A* segment searches.
+2. **Junction+turn subsampling** (degree≠2 kept): still grinding at 40
+   min — a medial-axis skeleton's average degree is >2, so the junction
+   rule keeps almost every node and the subsample degenerates.
+3. **Turn-only subsampling** (>30°): completed in 672 s but **62/139** —
+   63 of 98 topology-solved nets emitted zero copper. The corridors
+   serialize every net through the same skeleton channels; later nets'
+   segments fail against Stage 4's shared occupancy grid, where free A*
+   would route around. Corridor waypoints *constrain* Stage 4 and degrade
+   connectivity by 30 nets on this board.
+4. **Endpoint-only emission** (shipped): the emitted waypoint set is the
+   walk's endpoints plus intermediate snapped pads; the full capacity-aware
+   path is still computed, capacity-committed, and post-condition-verified.
+   Result: 96/139, 291 s.
+
+**The honest conclusion**: Stage 4's occupancy-grid A* is a complete router
+from raw pad positions (`docs/evidence/2026-08-08-terminal-defect-and-pad-
+connectivity-fix.md`'s independent finding that topology was never consumed
+under net-batching was not an accident — Stage 4 does not need corridors on
+this board, and forcing them through it costs 30 connected nets). The
+vacuity fix's deliverable is that Stage 3 *decides* a real, capacity-aware,
+connected topology (the connectivity-forcing constraint the SAT model
+lacked) — not that Stage 4 be forced to follow its every edge.
 
 ## Tests
 
@@ -143,7 +181,7 @@ monolithic, no `--net-batching`):
   spur out-and-back double-traversal, spur over-capacity → unrouted,
   multi-pad chaining, disconnected-pads → degraded, Stage-4-parseable
   channel ids, determinism, single-pad skip, unlimited no-capacity edges.
-  Registered in the wasm test registry (3447 → 3457 tests).
+  Registered in the wasm test registry (3447 → 3452 tests).
 - `packages/temper-placer/tests/router_v6/test_stage3_direct_solver.py`:
   pipeline-level vacuity regression, capacity-conflict re-route, degraded
   reporting, `_run_stage3` dispatch (direct is the default; the SAT escape
