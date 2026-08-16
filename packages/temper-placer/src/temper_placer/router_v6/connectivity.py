@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Any
 
 import temper_geometry as _tg
 from shapely.geometry import LineString as ShapelyLineString
@@ -247,6 +248,75 @@ def verify_net_connectivity(
         components=components,
         unresolved_islands=tuple(component_pads[1:]),
         reason=None if disposition is NetDisposition.ROUTED else "disconnected_required_pads",
+    )
+
+
+def verify_net_route_result(
+    pads: Iterable[CopperPad],
+    tracks: Iterable[CopperTrack],
+    vias: Iterable[CopperVia],
+    zone_layers: Iterable[int] = (),
+    zone_outline_count: int = 0,
+) -> Any:
+    """Return the Rust-verified per-net verdict (``NetRouteResult`` pyclass).
+
+    This is the type-system fix for fake completions: the returned object's
+    ``disposition`` is ``"connected"`` ONLY when the Rust
+    ``net_route_result::NetRouteResult::verify_continuity`` union-find over
+    the actual emitted copper joined every pad into one component. There is
+    no Python-side constructor — the pyclass is produced by the Rust
+    kernel, whose ``Connected`` variant is unconstructible outside
+    ``verify_continuity`` (private ``VerifiedRoute`` fields; see
+    ``packages/temper-geometry/src/net_route_result.rs``).
+
+    Unlike :func:`verify_net_connectivity`, zones are NEVER unioned here:
+    a zone ``(polygon ...)`` block is an outline, not copper (nothing in
+    this codebase runs KiCad's fill pass — measured zero
+    ``filled_polygon`` blocks in written boards). ``zone_layers`` (int layer
+    ids on which the net has any zone block) and ``zone_outline_count``
+    only feed the ``ZoneDependent`` classification.
+
+    Args:
+        pads: The net's real pads (position, shape, size, rotation, layers).
+        tracks: The emitted track segments (same layer model as the pads).
+        vias: The emitted vias (explicit layer span).
+        zone_layers: Layers (int ids) with any zone block for this net.
+        zone_outline_count: Number of zone blocks declared for this net.
+    """
+    ordered_pads = tuple(sorted(pads, key=lambda pad: pad.identity))
+    ordered_tracks = tuple(sorted(tracks, key=_track_key))
+    ordered_vias = tuple(sorted(vias, key=_via_key))
+
+    pad_flat: list[float] = []
+    pad_shapes: list[int] = []
+    pad_layers: list[list[int]] = []
+    for pad in ordered_pads:
+        pad_flat.extend([pad.center.x, pad.center.y, pad.rotation, pad.size[0], pad.size[1]])
+        pad_shapes.append(1 if pad.shape == "circle" else 0)
+        pad_layers.append(list(pad.layers))
+
+    track_flat: list[float] = []
+    track_layers: list[int] = []
+    for track in ordered_tracks:
+        track_flat.extend([track.start.x, track.start.y, track.end.x, track.end.y, track.width])
+        track_layers.append(int(track.layer))
+
+    via_flat: list[float] = []
+    via_layers: list[list[int]] = []
+    for via in ordered_vias:
+        via_flat.extend([via.center.x, via.center.y, via.diameter])
+        via_layers.append(list(via.layers))
+
+    return _tg.verify_net_route_result_py(
+        pad_flat,
+        pad_shapes,
+        pad_layers,
+        track_flat,
+        track_layers,
+        via_flat,
+        via_layers,
+        [int(layer) for layer in zone_layers],
+        int(zone_outline_count),
     )
 
 

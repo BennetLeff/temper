@@ -110,6 +110,14 @@ class RoutingResult:
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
     connectivity: dict[str, Any] | None = None
+    # Rust-verified per-net verdicts (2026-08-16): net name ->
+    # temper_geometry.NetRouteResult pyclass, computed ALWAYS by
+    # _build_routing_result over the emitted content. disposition
+    # "connected" appears only when NetRouteResult::verify_continuity's
+    # union-find proved it — the A* "path found" claim is not a completion
+    # claim. None means the preflight failed to run (no verdicts exist,
+    # which is honest); an empty dict would mean "no pad-bearing nets".
+    net_route_results: dict[str, Any] | None = None
     # Net names Stage 3 (net-batched or monolithic) produced a NetTopology
     # for -- i.e. what "solved" means today, BEFORE Stage 4 tries to turn
     # that topology into physical copper. Exposed so a caller (e.g.
