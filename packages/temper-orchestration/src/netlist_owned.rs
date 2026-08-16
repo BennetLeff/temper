@@ -71,12 +71,20 @@
 //!   `vias`, `placements`) are owned as the `*Set` `HashSet` newtypes and
 //!   marshalled by the shared [`frozenset_read`]/[`frozenset_write`]
 //!   helpers: read accepts a frozenset OR a set, write always rebuilds a
-//!   frozenset whose iteration order is a DETERMINISTIC function of the
-//!   values (the rebuilt element objects are sorted by their Python `repr`
-//!   before insertion — the U1 recorded bound, see `collections.rs`'s
-//!   module doc). Bit-identity is pinned by the gate only on the guaranteed
-//!   shapes (empty/single-element); content + type + determinism are pinned
-//!   for multi-element sets.
+//!   frozenset by sorting the rebuilt element objects by their Python `repr`
+//!   before insertion. This makes the rebuild REPRODUCIBLE WITHIN a fixed
+//!   process/`PYTHONHASHSEED` (two `to_python` calls on the same owned value
+//!   agree) — it does **not** make the resulting frozenset's Python-side
+//!   iteration order stable ACROSS different `PYTHONHASHSEED` values for any
+//!   element type whose hash mixes a `str`/`bytes` field (every element type
+//!   here — `Trace.net`, `Via.net`/`layers`, `LayerAssignment.net_name`, the
+//!   `(str, str)` pair sets, ...). See `frozenset_write`'s own doc comment
+//!   for the correction and the PR #1137 disproof; the true (narrower) U1
+//!   bound that IS cross-run-stable applies only to `marshal.rs`'s
+//!   `HashSet<SlotId>` (float-only tuples, never salted). Bit-identity is
+//!   pinned by the gate only on the guaranteed shapes (empty/single-element);
+//!   multi-element sets are pinned on content + type only (order-independent
+//!   comparison — never on iteration order, within or across runs).
 //! - **the three violation lists** (`drc_violations`,
 //!   `connectivity_violations`, `placement_violations`) are Python TUPLES —
 //!   owned as the order-preserving `*List` `Vec` newtypes and marshalled by
@@ -1100,13 +1108,55 @@ fn credits_to_python(py: Python<'_>, credits: &[ClearanceCredit]) -> PyResult<Py
 // `HashSet` iteration is process-random, an unacceptable property for a
 // deterministic engine's write-back. Sorting the REBUILT element objects by
 // their CPython `repr` (a deterministic function of the values) makes the
-// rebuilt frozenset's table layout — and therefore its Python-side
-// iteration order — deterministic across runs. The U1 recorded bound
-// applies verbatim: for a COLLISION-FREE set CPython's iteration order is a
-// pure function of the values, so the rebuilt frozenset round-trips
-// bit-identically; with collisions the order is a
-// deterministic-but-different table-layout artifact. Type, membership
-// content and `==` are preserved in every case.
+// rebuild REPRODUCIBLE WITHIN A FIXED PROCESS/PYTHONHASHSEED: two `to_python`
+// calls on the same owned value, in the same process, always produce the
+// same repr-sorted insertion sequence and therefore the same resulting
+// frozenset (`frozenset_rebuild_is_deterministic` in the test module below
+// pins exactly this).
+//
+// CORRECTION (this comment previously claimed the rebuild's Python-side
+// iteration order is "deterministic across runs" -- i.e. stable across
+// different PYTHONHASHSEED values. That is FALSE for any element type whose
+// `__hash__` mixes a `str`/`bytes` field, which is every element type this
+// function actually serves (`Trace`/`Via`'s `net`/`layer`, `LayerAssignment`'s
+// `net_name`, the `(str, str)` pair sets, ...). Empirically disproven during
+// PR #1137's investigation: the SAME repr-sorted insertion sequence, replayed
+// across 5+ distinct `PYTHONHASHSEED` values, produced a DIFFERENT final
+// frozenset iteration order at every seed. Mechanism: CPython's frozenset
+// iteration order is a function of each element's `hash()` modulo the table
+// size (a probe-sequence/slot-layout artifact), and `hash()` on a `str`
+// component is salted per-process (PEP 456) -- sorting the INSERTION order by
+// repr says nothing about the SLOT each element lands in once inserted, so
+// two processes with different salts can (and empirically do) produce two
+// different final orders from the identical sorted input. Sorting-before-
+// insertion only pins the *insertion sequence*, which is enough to make
+// collision tie-breaks reproducible within one process/seed -- it was never
+// enough to make the table's resulting slot order agree across processes.
+//
+// The U1 bound this section used to invoke verbatim (`HashSet<SlotId>` in
+// `marshal.rs`) is NOT the same claim and remains true there for a different
+// reason: `SlotId` is `(f64, f64)`, and CPython does not salt float hashing
+// (only `str`/`bytes`/`datetime` are randomized) -- so `SlotId`'s `hash()` is
+// itself stable across processes, and a collision-free `HashSet<SlotId>`
+// really does rebuild to a cross-run-identical frozenset. That property does
+// not transfer to any element type with a string-bearing hash, which is why
+// it was wrong to restate it here for `frozenset_write`'s general element
+// type `T: Marshal`.
+//
+// What this means for callers: do NOT rely on a rebuilt frozenset's
+// Python-side iteration order being stable across processes/PYTHONHASHSEED.
+// If a caller needs a stable, human- or test-visible order (diagnostic
+// output, KiCad emission, "first N" previews, tie-break selection), it must
+// sort EXPLICITLY at the point of consumption -- never lean on set iteration
+// order, repr-sorted-insertion or not. The established pattern is
+// `temper_placer.io._write_tracks`'s `_trace_emission_key`/`_via_emission_key`
+// total-order sort before emission; see also PR #1137, which fixed exactly
+// this class of bug in `TrackDeduplicationStage`/`ViaDeduplicationStage` by
+// materializing `routes`/`vias` and sorting by repr before reading "first",
+// in both the Rust stage and its pinned Python oracle.
+//
+// Type, membership content and `==` are preserved in every case (repr-sorted
+// or not) -- only the ACROSS-RUN iteration order claim above was false.
 //
 // `tuple_list_read`/`tuple_list_write` serve the three violation lists
 // (`tuple[Violation, ...]` etc.): read casts a TUPLE (a list is rejected —
@@ -1139,7 +1189,11 @@ fn frozenset_write<T: Marshal>(py: Python<'_>, set: &HashSet<T>) -> PyResult<Py<
     // repr of a rebuilt element is a pure function of its values). Two
     // distinct owned elements never produce equal reprs (a repr is a
     // function of the fields, and distinct fields render distinctly), so
-    // the sort is total in practice; ties (none expected) are stable.
+    // the sort is total in practice; ties (none expected) are stable. This
+    // pins the INSERTION sequence, not the resulting frozenset's iteration
+    // order — see the module-level comment above `frozenset_read` for why
+    // those are different claims and the latter is NOT cross-run stable for
+    // string-hashing element types.
     let mut items: Vec<(String, Py<PyAny>)> = Vec::with_capacity(set.len());
     for element in set {
         let obj = element.to_python(py)?;

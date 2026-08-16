@@ -124,7 +124,19 @@ class ViaValidationStage(Stage):
             print(f"ViaValidation: Plane vias: {plane_vias_kept}/{plane_vias_total} kept")
             if plane_vias_removed:
                 print("  Removed plane vias (first 5):")
-                for net, pos, layers, conn in plane_vias_removed[:5]:
+                # DELIBERATE DEVIATION from the verbatim pre-migration
+                # snapshot (see the module docstring): `plane_vias_removed`
+                # was appended in `state.vias`' frozenset iteration order,
+                # which is PYTHONHASHSEED-salted for Via's string
+                # `net`/`layers` fields -- printing it unsorted made an
+                # otherwise byte-identical run's diagnostic vary across
+                # processes (flagged in PR #1137's blast-radius survey,
+                # fixed here). `sorted()` over the plain (net, pos, layers,
+                # conn) tuples is a total order over VALUES only, never
+                # repr/hash, applied identically to the Rust port
+                # (`via_validation_stage.rs`) per PR #1137's "both arms
+                # must agree" lesson.
+                for net, pos, layers, conn in sorted(plane_vias_removed)[:5]:
                     print(f"    {net} at {pos} layers={layers} connected={conn}")
 
         return replace(state, vias=frozenset(valid_vias))

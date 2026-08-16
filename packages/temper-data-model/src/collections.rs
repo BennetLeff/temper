@@ -46,19 +46,34 @@
 //! | `connectivity_violations` | `tuple[ConnectivityViolation, ...] \| None` | [`ConnectivityViolationList`] |
 //! | `placement_violations` | `tuple[PlacementViolation, ...] \| None` | [`PlacementViolationList`] |
 //!
-//! # The set-iteration-order bound (inherited from U1)
+//! # The set-iteration-order bound (inherited from U1 — NARROWER than it looks)
 //!
 //! Every `frozenset`-backed field is owned as a `HashSet` of its element
-//! type, exactly like U1's `HashSet<SlotId>`: membership content and `==`
-//! are preserved in every round-trip, and the rebuilt frozenset's iteration
-//! order is a DETERMINISTIC function of the values (the orchestration-side
+//! type, structurally like U1's `HashSet<SlotId>`: membership content and
+//! `==` are preserved in every round-trip. The orchestration-side
 //! `to_python` sorts the rebuilt elements by their Python `repr` before
-//! insertion — see `netlist_owned.rs`). Bit-identity (type + `repr` + `==`)
-//! is pinned by the round-trip gate only on the guaranteed shapes (empty /
-//! single-element, and any collision-free set — CPython's set iteration
-//! order is then a pure function of the values); a colliding multi-element
-//! set round-trips content-identically in a deterministic-but-different
-//! order.
+//! insertion (see `netlist_owned.rs`), which makes the rebuild REPRODUCIBLE
+//! WITHIN a fixed process/`PYTHONHASHSEED` (repeated rebuilds of the same
+//! owned value agree) — this comment previously claimed that also makes the
+//! rebuilt frozenset's iteration order "a DETERMINISTIC function of the
+//! values" full stop, i.e. stable ACROSS different `PYTHONHASHSEED` values.
+//! That is FALSE for every element type this crate actually defines: `Zone`,
+//! `Trace`/`Via`, `LayerAssignment`, the `(str, str)` pair types, etc. all
+//! hash through at least one `str` field, and CPython salts `str`/`bytes`
+//! hashing per process (PEP 456) — empirically disproven during PR #1137's
+//! investigation (same repr-sorted insertion sequence, different final
+//! frozenset iteration order across 5+ `PYTHONHASHSEED` values). U1's ORIGINAL
+//! claim is still true for `HashSet<SlotId>` specifically, because `SlotId`
+//! is `(f64, f64)` and CPython does not salt float hashing — that narrower
+//! fact does not generalize to string-hashing element types, and restating it
+//! here as if it did was the bug. Bit-identity (type + `repr` + `==`) is
+//! pinned by the round-trip gate only on the guaranteed shapes (empty /
+//! single-element, where order is vacuous); a multi-element set round-trips
+//! content-identically (type, `==`, membership) but its iteration order is
+//! NOT asserted across runs — callers needing a stable visible order must
+//! sort explicitly at the point of consumption (see
+//! `temper_placer.io._write_tracks`'s emission-key pattern, and PR #1137's
+//! fix to the dedup stages' "first wins" tie-break).
 //!
 //! # The owned-equality bound (frozenset elements)
 //!
