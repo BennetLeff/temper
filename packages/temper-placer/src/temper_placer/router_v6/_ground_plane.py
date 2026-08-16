@@ -1222,7 +1222,6 @@ def generate_ground_plane_blocks(
         collect_other_net_copper_by_pairwise_clearance,
         compute_corridor_mask,
         corridor_aware_spanning_edges,
-        resolve_netclass_clearances,
     )
 
     # A separate, per-net-pair-correct clearance polygon for the A*
@@ -1443,6 +1442,7 @@ def generate_ground_plane_content(
     pcb_path: Path,
     *,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
+    segments: list[str] | None = None,
 ) -> tuple[str, GroundPlaneResult]:
     """Standalone/CLI entry point: read *pcb_path*, compute the In1.Cu
     ``gnd`` plane blocks (via ``generate_ground_plane_blocks``), splice
@@ -1458,7 +1458,7 @@ def generate_ground_plane_content(
     """
     content = pcb_path.read_text()
     blocks, result = generate_ground_plane_blocks(
-        pcb_path, domain_manifest_path=domain_manifest_path
+        pcb_path, domain_manifest_path=domain_manifest_path, segments=segments
     )
     new_content = content.rstrip()
     if new_content.endswith(")"):

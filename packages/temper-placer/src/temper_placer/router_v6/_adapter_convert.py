@@ -736,6 +736,10 @@ def _write_routes_to_content(
             gnd_blocks, _gnd_report = generate_ground_plane_blocks(
                 Path(gnd_source),
                 tstamp_counter=tstamp_counter,
+                # The routed copper (this run's segments, in memory) must
+                # be an obstacle for the plane's vias/backbone -- the
+                # stripped board file the generator re-parses cannot show
+                # it (parsed inside the generator, #1261).
                 segments=segments,
             )
             segments.extend(gnd_blocks)
@@ -764,6 +768,11 @@ def _write_routes_to_content(
             island_blocks, _island_reports = generate_power_islands_blocks(
                 Path(gnd_source),
                 tstamp_counter=tstamp_counter,
+                # segments already includes the gnd plane's blocks (extended
+                # above), so each rail's vias/backbone avoid gnd's F.Cu
+                # copper AND every routed track (see the routed-segments
+                # obstacle notes above).
+                segments=segments,
             )
             segments.extend(island_blocks)
 

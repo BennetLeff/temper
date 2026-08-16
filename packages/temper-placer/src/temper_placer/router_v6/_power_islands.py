@@ -286,6 +286,7 @@ def generate_power_islands_blocks(
     nets: tuple[str, ...] = POWER_ISLAND_NETS,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
     tstamp_counter: list[int] | None = None,
+    segments: list[str] | None = None,
 ) -> tuple[list[str], dict[str, PowerIslandResult]]:
     """Compute per-rail ``In2.Cu`` power-island pours + via/MST stitching
     for every net in *nets* and return the NEW s-expression blocks plus
@@ -603,9 +604,37 @@ def generate_power_islands_blocks(
         other_copper_bcu = _collect_other_net_copper(
             pcb, net_name, "B.Cu", OTHER_NET_CLEARANCE_MM
         )
+        # The route's own F.Cu/B.Cu copper (in-memory segment strings,
+        # invisible to the stripped board file this generator re-parses)
+        # must also be avoided -- see
+        # _corridor_backbone.routed_segments_obstacle's docstring for the
+        # measured 2026-08-16 failure mode (backbones blind to the routed
+        # copper + the earlier gnd plane crossed them 81 times on one
+        # route). The gnd plane's blocks are part of *segments* by the
+        # time this generator runs (the caller extends the list first), so
+        # gnd's vias/backbone are included here too.
+        from temper_placer.router_v6._corridor_backbone import (
+            routed_segments_obstacle,
+        )
+
+        routed_fcu_avoid = routed_segments_obstacle(
+            segments, net_name, "F.Cu", num_to_name,
+            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        )
+        routed_bcu_avoid = routed_segments_obstacle(
+            segments, net_name, "B.Cu", num_to_name,
+            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        )
         via_avoid_parts = [
             g
-            for g in (other_copper_fcu, other_copper_bcu, *run_new_fcu_copper, *run_new_bcu_copper)
+            for g in (
+                other_copper_fcu,
+                other_copper_bcu,
+                routed_fcu_avoid,
+                routed_bcu_avoid,
+                *run_new_fcu_copper,
+                *run_new_bcu_copper,
+            )
             if g is not None
         ]
         via_avoid_copper: Polygon | None = (
@@ -702,12 +731,19 @@ def generate_power_islands_blocks(
         other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
             pcb, net_name, "F.Cu", _net_clearance, this_net_own_clearance, _default_clearance
         )
+        # The route's own F.Cu copper (and the earlier gnd plane, which is
+        # part of *segments* by now) is an obstacle for the backbone search
+        # too -- see routed_segments_obstacle's docstring.
+        routed_fcu_backbone = routed_segments_obstacle(
+            segments, net_name, "F.Cu", num_to_name,
+            _net_clearance, this_net_own_clearance, _default_clearance,
+        )
         prior_rail_backbone_obstacles = [
             g.buffer(INTER_RAIL_CLEARANCE_MM) for g in run_new_fcu_copper
         ]
         backbone_grid = build_obstacle_grid(
             board_polygon,
-            [keepout, other_copper_fcu_backbone, *prior_rail_backbone_obstacles],
+            [keepout, other_copper_fcu_backbone, routed_fcu_backbone, *prior_rail_backbone_obstacles],
         )
         backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
@@ -831,6 +867,7 @@ def generate_power_islands_content(
     *,
     nets: tuple[str, ...] = POWER_ISLAND_NETS,
     domain_manifest_path: Path = DEFAULT_DOMAIN_MANIFEST_PATH,
+    segments: list[str] | None = None,
 ) -> tuple[str, dict[str, PowerIslandResult]]:
     """Standalone/CLI entry point: read *pcb_path*, compute the ``In2.Cu``
     power-island blocks (via ``generate_power_islands_blocks``), splice
@@ -845,7 +882,7 @@ def generate_power_islands_content(
     """
     content = pcb_path.read_text()
     blocks, results = generate_power_islands_blocks(
-        pcb_path, nets=nets, domain_manifest_path=domain_manifest_path
+        pcb_path, nets=nets, domain_manifest_path=domain_manifest_path, segments=segments
     )
     new_content = content.rstrip()
     if new_content.endswith(")"):

@@ -262,6 +262,72 @@ def collect_other_net_copper_by_pairwise_clearance(
     return unary_union(geoms)
 
 
+def routed_segments_obstacle(
+    segments: list[str] | None,
+    exclude_net: str,
+    layer: str,
+    net_number_to_name: dict[int, str],
+    net_clearance: dict[str, float],
+    own_net_clearance_mm: float,
+    default_clearance_mm: float,
+) -> Polygon | None:
+    """Buffered obstacle polygon from THIS route's emitted segment/via
+    strings on *layer* -- the routed copper that the stripped board file
+    cannot show.
+
+    The plane/backbone generators re-parse the STRIPPED source board (the
+    route's own copper is assembled in memory and never written to a file
+    the generators could read), so ``collect_other_net_copper_by_pairwise_clearance``
+    -- which walks ``pcb.tracks``/``pcb.vias`` -- sees ZERO routed tracks:
+    measured 2026-08-16, the +3V3/vcc/+15V F.Cu backbones crossed the
+    routed tracks and each other 81 times on one route (the definitive
+    route's gnd-only backbone crossed ~10). This parses the in-memory
+    ``(segment ...)``/``(via ...)`` strings the caller already holds and
+    buffers each foreign net's copper by the same per-net pairwise
+    clearance, so the corridor the backbone searches actually respects the
+    copper that will be on the layer. Mirrors
+    ``collect_other_net_copper_by_pairwise_clearance``'s conventions.
+    """
+    from temper_placer.router_v6.zone_pour_clearance import _SEGMENT_RE, _VIA_RE
+
+    geoms: list = []
+
+    def _pairwise(net_name: str) -> float:
+        return max(own_net_clearance_mm, net_clearance.get(net_name, default_clearance_mm))
+
+    for line in segments or []:
+        m = _SEGMENT_RE.search(line)
+        if m:
+            x0, y0, x1, y1, width, seg_layer, net_num = m.groups()
+            if seg_layer != layer:
+                continue
+            name = net_number_to_name.get(int(net_num), "")
+            if not name or name == exclude_net:
+                continue
+            geoms.append(
+                LineString([(float(x0), float(y0)), (float(x1), float(y1))]).buffer(
+                    float(width) / 2.0 + _pairwise(name), quad_segs=8
+                )
+            )
+            continue
+        m = _VIA_RE.search(line)
+        if m:
+            x, y, size, layers_str, net_num = m.groups()
+            if layer not in layers_str:
+                continue
+            name = net_number_to_name.get(int(net_num), "")
+            if not name or name == exclude_net:
+                continue
+            geoms.append(
+                Point(float(x), float(y)).buffer(
+                    float(size) / 2.0 + _pairwise(name), quad_segs=8
+                )
+            )
+    if not geoms:
+        return None
+    return unary_union(geoms)
+
+
 # Arbitrary positive sentinel passed as `net_id` to `_astar_search` /
 # `corridor_mask_for_net`. This grid never marks any cell with a positive
 # value (only 0=free / -1=blocked -- see `build_obstacle_grid`), so the
