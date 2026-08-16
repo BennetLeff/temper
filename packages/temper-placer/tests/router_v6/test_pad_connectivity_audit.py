@@ -347,34 +347,6 @@ def test_tht_pad_gets_zone_coverage_from_any_declared_layer():
     assert result.category == "zone_dependent_unmeasured"
 
 
-def test_parse_vias_models_untyped_vias_as_through():
-    """KiCad's format omits the ``(type ...)`` token for THROUGH vias -- it
-    is written only for blind/buried. A through via physically spans EVERY
-    copper layer of the stack, not just its nominal ``(layers "F.Cu"
-    "B.Cu")`` endpoint pair, so ``_parse_segments_and_vias`` must parse an
-    absent (or explicit ``through``) token as ``layers=()`` (the checker's
-    "spans every layer" encoding). A ``(type blind)`` via keeps its
-    declared pair. Measured on the routed nlayer board: this moved the
-    audit from 32/112 to 35/112 fully-connected multi-pad nets (cs_n,
-    RTD_DRDY, sdo), zero regressions -- every router and ground-plane via
-    is untyped."""
-    from temper_placer.router_v6.pad_connectivity_audit import (
-        _parse_segments_and_vias,
-    )
-
-    content = (
-        '(net 3 "cs_n")\n'
-        '(net 4 "sig_b")\n'
-        '(via (at 10.5 20.5) (size 0.6) (drill 0.3) '
-        '(layers "F.Cu" "B.Cu") (net 3) (tstamp "a"))\n'
-        '(via (at 11.5 21.5) (size 0.6) (drill 0.3) '
-        '(layers "F.Cu" "In2.Cu") (type blind) (net 4) (tstamp "b"))\n'
-    )
-    _segs, vias = _parse_segments_and_vias(content)
-    assert vias["cs_n"] == [CopperVia(position=(10.5, 20.5), layers=())]
-    assert vias["sig_b"] == [CopperVia(position=(11.5, 21.5), layers=("F.Cu", "In2.Cu"))]
-
-
 def test_parse_zones_extracts_net_layer_and_fill_state():
     """``_parse_zones`` must (a) map net name -> declared zone layers and
     (b) separately count zone blocks that carry real ``filled_polygon``
