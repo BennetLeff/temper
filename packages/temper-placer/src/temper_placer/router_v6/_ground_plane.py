@@ -1122,6 +1122,46 @@ def generate_ground_plane_blocks(
             continue
 
         vx, vy = drop_point
+
+        # 2026-08-16 orphan-via fix: an offset drop point whose stub is
+        # blocked would previously leave an orphan via at the offset point
+        # (the via block was appended BEFORE the stub gate, and a blocked
+        # stub only `continue`d past the stub, keeping the via). An offset
+        # via with no stub touches no F.Cu copper at all -- the plane side
+        # is the only connection, so DRC flags it via_dangling ("not
+        # connected or connected on only one layer"; all 44 via_dangling
+        # items on the 2026-08-16 route were gnd drop vias). Validate the
+        # via's F.Cu-side connectivity BEFORE emitting: an offset via is
+        # only emitted together with its stub. The stub's blocked-check is
+        # computed first and the via is skipped fail-closed alongside it.
+        stub_blocked = False
+        if needs_stub:
+            stub_footprint = LineString([(x, y), (vx, vy)]).buffer(
+                STITCH_TRACE_WIDTH_MM / 2.0
+            )
+            stub_blocked = (
+                keepout_established and stub_footprint.intersects(keepout)
+            ) or (
+                via_avoid_copper is not None
+                and not via_avoid_copper.is_empty
+                and stub_footprint.intersects(via_avoid_copper)
+            )
+            if stub_blocked:
+                via_unresolved_conflict += 1
+                logger.warning(
+                    "generate_ground_plane_content: drop point offset "
+                    "(%.4f, %.4f) for gnd pad at (%.4f, %.4f) clears the via "
+                    "footprint but the joining stub crosses the HV keepout/"
+                    "another net's copper -- skipping BOTH via and stub "
+                    "fail-closed (an orphan via with no F.Cu connection "
+                    "would DRC-flag as via_dangling).",
+                    vx,
+                    vy,
+                    x,
+                    y,
+                )
+                continue
+
         new_blocks.append(
             f'  (via (at {vx:.4f} {vy:.4f}) (size {VIA_SIZE_MM:.4f}) '
             f'(drill {VIA_DRILL_MM:.4f}) (layers "F.Cu" "B.Cu") '
@@ -1146,19 +1186,8 @@ def generate_ground_plane_blocks(
             # not. Gate the stub with the same buffered-footprint check as
             # the backbone fallback; a blocked stub is skipped fail-closed
             # (the via stays; the pad just isn't stub-joined, a labelled
-            # connectivity cost on this net).
-            stub_footprint = LineString([(x, y), (vx, vy)]).buffer(
-                STITCH_TRACE_WIDTH_MM / 2.0
-            )
-            stub_blocked = (
-                keepout_established and stub_footprint.intersects(keepout)
-            ) or (
-                via_avoid_copper is not None
-                and not via_avoid_copper.is_empty
-                and stub_footprint.intersects(via_avoid_copper)
-            )
-            if stub_blocked:
-                continue
+            # connectivity cost on this net). The blocked case is handled
+            # above, before the via is emitted.
             new_blocks.append(
                 f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
                 f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'

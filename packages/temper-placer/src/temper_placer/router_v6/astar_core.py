@@ -56,6 +56,133 @@ def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Via physical-span clearance (2026-08-16).
+#
+# Root cause of the residual 11 shorting_items on the 2026-08-16 route
+# (docs/evidence/2026-08-16-route-to-100-stitch-cspace-and-power-width.md
+# Sec 5, item 5): every via-placement site in the N-layer A* machinery
+# checked the via's clearance against the occupancy grid on AT MOST ONE
+# layer -- the destination layer of a tier-3 transition, the pad's own
+# layer of a landing via, or nothing at all for a tier-2 anchor -- never
+# on every layer the via's barrel physically pierces. A through via
+# F.Cu<->B.Cu therefore landed with its In3.Cu/In4.Cu barrel inside
+# another net's track, and the width-aware C-space family grids could
+# not prevent it because the placement check never consulted the inner
+# layers' grids. (#1249 fixed track halos; this is the via-vs-inner-track
+# half of the same class.)
+#
+# Two things a via placement must check, on EVERY layer the via pierces:
+#
+#   * the via's CENTER cell must be free. The family grid stamps foreign
+#     copper at w_F/2 + max(cl_F, C) + W/2 (the searching net's own
+#     half-width W/2 included), so a free center cell already guarantees
+#     the required edge-to-edge pair clearance for a net whose TRACK is
+#     the copper being placed.
+#   * the via is WIDER than the net's track (0.8-1.2mm via vs 0.2mm
+#     track on this board). The family stamp only reserves W/2 around a
+#     foreign obstacle, so the via's extra barrel extent -- the annulus
+#     from W/2 out to via_diameter/2 -- is not covered by the center
+#     point-check. The check must therefore also verify the disc of
+#     radius max(0, via_diameter/2 - W/2) around the via center on every
+#     pierced layer.
+#
+# Together these give: d(via_center, F_centerline) >= v_d/2 + w_F/2 +
+# max(cl_F, C), i.e. edge-to-edge gap >= max(cl_F, C) >= the DRC pair
+# floor -- exactly the guarantee the width-aware family design gives
+# track-vs-track placements.
+# ---------------------------------------------------------------------------
+
+# Physical order of the routable signal layers, F.Cu (top) to B.Cu
+# (bottom), mirroring core.board_layer_roles.ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED.
+# A via from layer A to layer B pierces every signal layer between them in
+# THIS order (In1.Cu/In2.Cu are power planes -- never routing grids -- and
+# carry no A*-routable tracks, so they need no grid check here; the zone
+# carve handles their via holes separately).
+VIA_SPAN_LAYER_ORDER: tuple[str, ...] = ("F.Cu", "In3.Cu", "In4.Cu", "B.Cu")
+
+
+def _via_span_layers(
+    from_layer: str, to_layer: str, grid_layers: set[str] | frozenset[str] | dict
+) -> list[str]:
+    """The grid layers a via from ``from_layer`` to ``to_layer`` physically
+    pierces, in stackup order, intersected with the available grids.
+
+    A through via F.Cu<->B.Cu returns every available grid; a blind via
+    F.Cu<->In3.Cu returns just those two; a buried via In3.Cu<->In4.Cu
+    returns those two. Layers outside ``VIA_SPAN_LAYER_ORDER`` (never the
+    case on the production board, which is exactly the declared signal set)
+    degrade to just the two endpoint layers rather than returning an empty
+    span (fail-safe: never skip a check because of a layer-name surprise).
+    """
+    try:
+        i = VIA_SPAN_LAYER_ORDER.index(from_layer)
+        j = VIA_SPAN_LAYER_ORDER.index(to_layer)
+    except ValueError:
+        return [from_layer, to_layer]
+    lo, hi = (i, j) if i <= j else (j, i)
+    return [layer for layer in VIA_SPAN_LAYER_ORDER[lo : hi + 1] if layer in grid_layers]
+
+
+def _via_placement_halo_free(
+    grids: dict,
+    x_world: float,
+    y_world: float,
+    from_layer: str,
+    to_layer: str,
+    via_diameter: float,
+    trace_width: float,
+    net_id: int,
+) -> bool:
+    """True iff a via of ``via_diameter`` at ``(x_world, y_world)`` may be
+    placed between ``from_layer`` and ``to_layer`` without violating the
+    width-aware family C-space on any layer its barrel pierces.
+
+    ``grids`` are the searching net's OWN width family (foreign copper
+    already stamped at w_F/2 + max(cl_F, C) + W/2). Checks, on every
+    pierced layer:
+
+      * the via's center cell is free (``is_free``), and
+      * the via's extra barrel extent beyond the net's track half-width,
+        ``max(0, via_diameter/2 - trace_width/2)``, is free as a disc.
+
+    ``net_id`` cells are treated as free: the net's own unblocked pads
+    (and, at the post-route landing check, its own already-stamped
+    copper) legitimately sit inside the halo.
+    """
+    radius_mm = max(0.0, via_diameter / 2.0 - trace_width / 2.0)
+    for layer in _via_span_layers(from_layer, to_layer, set(grids.keys())):
+        grid = grids.get(layer)
+        if grid is None:
+            continue
+        gx, gy = grid.world_to_grid(x_world, y_world)
+        if not in_bounds(gx, gy, grid.width_cells, grid.height_cells):
+            return False
+        center_val = grid.grid[gy, gx]
+        if center_val != 0 and center_val != net_id:
+            return False
+        if radius_mm > 0.0:
+            # Small epsilon: a cell whose centre sits exactly at the disc
+            # boundary computes a float distance marginally ABOVE the
+            # radius (e.g. 0.30000000000000004 > 0.3) and would otherwise
+            # slip past the check -- the exact under-reservation this
+            # helper exists to close.
+            epsilon = 1e-9
+            expansion = int(math.ceil(radius_mm / grid.cell_size)) + 1
+            for dy in range(-expansion, expansion + 1):
+                for dx in range(-expansion, expansion + 1):
+                    if not in_bounds(gx + dx, gy + dy, grid.width_cells, grid.height_cells):
+                        continue
+                    wx, wy = grid.grid_to_world(gx + dx, gy + dy)
+                    dist = ((wx - x_world) ** 2 + (wy - y_world) ** 2) ** 0.5
+                    if dist > radius_mm + epsilon:
+                        continue
+                    val = grid.grid[gy + dy, gx + dx]
+                    if val != 0 and val != net_id:
+                        return False
+    return True
+
+
+# ---------------------------------------------------------------------------
 # Grid-quantization-aware path-point de-duplication.
 #
 # Root cause of docs/evidence/2026-07-27-acid-trap-elimination.md: pad,
@@ -377,6 +504,7 @@ def _astar_search_3d(
     clearance: float = 0.2,
     net_id: int = 0,
     max_iter: int | None = None,
+    trace_width: float = 0.2,
 ) -> tuple[list, list[tuple[int, int]]] | None:
     """
     3D A* search with layer transitions (via insertion).
@@ -518,7 +646,26 @@ def _astar_search_3d(
                 other_grid = grids[other_layer]
                 # Can place via if current cell is free on other layer
                 if other_grid.is_free(x, y):
-                    # Via cost discourages excessive transitions
+                    # 2026-08-16 via-span clearance (see the module-level
+                    # helpers): the via's barrel pierces EVERY layer between
+                    # `layer` and `other_layer`, not just the destination --
+                    # a through via F.Cu<->B.Cu previously checked only B.Cu
+                    # and landed its In3.Cu/In4.Cu barrel inside a foreign
+                    # track (the residual 11 shorting_items). Verify the
+                    # via's full halo on every pierced layer before allowing
+                    # the move.
+                    wx, wy = other_grid.grid_to_world(x, y)
+                    if not _via_placement_halo_free(
+                        grids,
+                        wx,
+                        wy,
+                        layer,
+                        other_layer,
+                        via_diameter,
+                        trace_width,
+                        net_id,
+                    ):
+                        continue
                     moves.append(((x, y, other_layer), via_cost))
 
         for neighbor_key, move_cost in moves:
@@ -564,6 +711,7 @@ def _route_segment_3d(
     clearance: float = 0.2,
     net_id: int = 0,
     max_iter: int | None = _ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
+    trace_width: float = 0.2,
 ) -> tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None:
     """
     Route a single segment using 3D A* with via insertion.
@@ -630,6 +778,7 @@ def _route_segment_3d(
         clearance=clearance,
         net_id=net_id,
         max_iter=max_iter,
+        trace_width=trace_width,
     )
 
     if result is None:

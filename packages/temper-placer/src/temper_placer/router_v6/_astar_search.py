@@ -562,6 +562,10 @@ def _astar_route_multilayer(
             clearance=net_rules.clearance_mm if net_rules else 0.2,
             net_id=net_id,
             max_iter=segment_3d_fallback_max_iter,
+            # 2026-08-16: via-span clearance needs the net's real trace
+            # width so the halo check reserves the via's extra barrel
+            # extent (see astar_core._via_placement_halo_free).
+            trace_width=net_rules.trace_width_mm if net_rules else 0.2,
         )
 
         if result_3d is not None:
