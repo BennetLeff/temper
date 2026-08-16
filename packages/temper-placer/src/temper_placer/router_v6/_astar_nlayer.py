@@ -85,6 +85,9 @@ import math
 import time
 from typing import TYPE_CHECKING
 
+import numpy as np
+import temper_geometry as _tg
+
 from temper_placer.router_v6._astar_ordering import _compute_net_order
 from temper_placer.router_v6._astar_search import (
     _SEGMENT_3D_FALLBACK_MAX_ITER,
@@ -116,7 +119,16 @@ from temper_placer.router_v6.astar_grid import (
 )
 from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
 from temper_placer.router_v6.net_classification import classify_net_type
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
+from temper_placer.router_v6.obstacle_map import (
+    _circle_buffer_ring,
+    _create_pad_polygon,
+)
+from temper_placer.router_v6.occupancy_grid import (
+    OccupancyGrid,
+    _area_rings,
+    build_occupancy_grid,
+)
+from temper_placer.router_v6.pair_creepage import default_creepage_table, net_class_of
 from temper_placer.router_v6.stage0_data import DesignRules
 
 if TYPE_CHECKING:
@@ -616,33 +628,57 @@ def _land_route_on_pad_layers(
 
 
 # ---------------------------------------------------------------------------
-# Width-aware C-space families (2026-08-16).
+# Width- and creepage-aware C-space families (2026-08-16).
 #
-# Root cause being fixed: the occupancy grids are built ONCE, with a static
-# erosion of `default_trace_width_mm / 2` (= 0.1mm) around every static
-# obstacle, and every routed track is stamped back into them at the flat
-# board default width (0.2mm) instead of its own width. The router then
-# emits tracks up to 5.0mm wide (the netclass SSOT, threaded into
+# Root cause being fixed (widths): the occupancy grids are built ONCE, with
+# a static erosion of `default_trace_width_mm / 2` (= 0.1mm) around every
+# static obstacle, and every routed track is stamped back into them at the
+# flat board default width (0.2mm) instead of its own width. The router
+# then emits tracks up to 5.0mm wide (the netclass SSOT, threaded into
 # assign_trace_widths), so a 5.0mm HighVoltage track threads its
 # centerline 0.1mm from a pad and overlaps it by 2.4mm -- measured as 204
 # shorting_items on the 6-layer routed board (2026-08-15), of which w1_1
 # (5.0mm) alone accounts for 120, split 110 pad<->track / 63 track<->track
 # / 31 track<->via.
 #
+# Root cause being fixed (creepage): the same obstacle map reserved only
+# CLEARANCE around obstacles and between routed nets (0.2mm -- the RULE 10
+# track-involving floor), while the DRC grades HV<->LV pairs at 12.6mm
+# creepage (PD3 reinforced) and HV<->HV tank pairs at 10.0mm (PD3
+# functional). The A* therefore routed HV tracks 0.2mm from LV pads and
+# tracks -- measured as ~300 pad<->track / track<->track creepage
+# violations on the routed board (docs/evidence/2026-08-16-creepage-aware-
+# cspace.md). The width-aware C-space (#1249) added per-net WIDTH halos but
+# not CREEPAGE halos; this block adds them, keyed on the pair table
+# configs/pair_creepage.generated.yaml (the DRU's own creepage rules
+# resolved under KiCad's precedence -- see router_v6/pair_creepage.py).
+#
 # Fix: one occupancy-grid family per distinct (trace_width, floored
-# clearance) signature among the nets this run actually routes. Family
-# (W, C) provides the C-space a net of width W and clearance C needs:
+# clearance, creepage class) signature among the nets this run actually
+# routes. Family (W, C, class) provides the C-space a net of width W,
+# clearance C and class `class` needs:
 #
 #   * static obstacles (pads, vias, board edge, keepouts) eroded by
 #     W/2 + C -- the searching net's own half-width plus the DRC's 0.2mm
 #     track-involving floor -- so its centerline can never come within its
 #     own copper extent of a static obstacle (no pad<->track shorts);
 #   * every routed foreign net F stamped at
-#     w_F/2 + max(cl_F, C) + W/2 -- the marked net's half-width plus the
-#     family's searching half-width plus a clearance floor, so the
-#     edge-to-edge gap between F and any net searching this family is
-#     >= max(cl_F, C) > 0 by construction (no track<->track/via shorts),
-#     and the separation no longer depends on which of a pair routed first.
+#     w_F/2 + max(cl_F, C, creepage(class_F, class)) + W/2 -- the marked
+#     net's half-width plus the family's searching half-width plus a
+#     clearance floor AND the creepage the DRU grades between F's class
+#     and this family's class, so the edge-to-edge gap between F and any
+#     net searching this family is
+#     >= max(cl_F, C, creepage(class_F, class)) > 0 by construction
+#     (no track<->track/via shorts or creepage violations), and the
+#     separation no longer depends on which of a pair routed first;
+#   * the searching net's own class's static pads additionally reserve
+#     creepage(class, pad_class) -- stamped per-net as -1 (see
+#     `_stamp_foreign_creepage_halos`) so the creepage halo is charged
+#     against FOREIGN pads only: the pad's own net keeps its pads
+#     enterable through the existing `_unblock_net_pads` mechanism
+#     (which clears only -1 cells within the pad + W/2 + C), and the
+#     -1 halo is never cleared by it (it sits outside that radius), so
+#     no per-net halo can be accidentally routed through.
 #
 # Each net searches the family matching its own rule; routed copper is
 # stamped into EVERY family at that family's radius (the same per-family
@@ -653,22 +689,250 @@ def _land_route_on_pad_layers(
 # ---------------------------------------------------------------------------
 
 
-def _width_family_signature(rule: object) -> tuple[float, float]:
-    """The (width, floored-clearance) family key for a net's rule."""
+def _family_signature(rule: object) -> tuple[float, float, str]:
+    """The (width, floored-clearance, creepage-class) family key for a net."""
     width = float(getattr(rule, "trace_width_mm", 0.0) or 0.0)
     declared = float(getattr(rule, "clearance_mm", 0.0) or 0.0)
+    class_name = str(getattr(rule, "name", "Default") or "Default")
     # DEFAULT_ROUTING_CLEARANCE_MM is RULE 10's floor: any pair where
     # either side is a track is graded at >= 0.2mm, so a class declaring
     # less (FinePitch 0.1) still needs the floor charged. Flooring here
     # also merges classes that behave identically once floored (Signal
     # 0.15 and Default 0.2, both 0.2mm wide) into one family.
-    return (round(width, 6), round(max(declared, DEFAULT_ROUTING_CLEARANCE_MM), 6))
+    return (round(width, 6), round(max(declared, DEFAULT_ROUTING_CLEARANCE_MM), 6), class_name)
 
 
-def _family_static_inflation(signature: tuple[float, float]) -> float:
+def _family_static_inflation(signature: tuple[float, float, str]) -> float:
     """Erosion for a family's static obstacle layer (W/2 + C)."""
-    width, clearance = signature
+    width, clearance, _class = signature
     return round(width / 2.0 + clearance, 9)
+
+
+def _family_creepage_radius(
+    signature: tuple[float, float, str],
+    pad_class: str,
+    table,
+) -> float:
+    """The creepage-only extra a family charges around an obstacle of
+    ``pad_class``: ``creepage(family_class, pad_class)``, floored at 0."""
+    _w, _c, family_class = signature
+    return float(table.required(family_class, pad_class))
+
+
+def _stamp_foreign_creepage_halos(
+    net_name: str,
+    grids: dict[str, OccupancyGrid],
+    halos: dict[str, list[tuple[str, list, list]]],
+) -> None:
+    """Re-block the creepage halos around every FOREIGN pad/via/track/zone.
+
+    ``_unblock_net_pads`` clears the -1 cells inside the routing net's own
+    pad circles (radius + W/2 + C) -- and, on a dense board, whatever part
+    of a foreign pad's much larger creepage halo happens to fall inside
+    that circle. That leaves a hole through which the routing net could
+    approach a foreign pad inside its required creepage distance, exactly
+    the violation class this module exists to prevent. This re-stamps the
+    full halo (pad extent + W/2 + C + pair creepage) of every obstacle NOT
+    owned by the routing net, restricted to cells that are currently free
+    (0): cells already blocked (-1) or already owned by a routed net stay
+    untouched, and the routing net's own pads -- cleared to 0 by the
+    unblock -- stay free unless a foreign halo genuinely covers them (in
+    which case the honest answer is that the pad cannot be reached).
+
+    ``halos`` is the per-layer ``[(net_name, outer_rings, holes)]`` list
+    ``_build_width_families`` precomputed for this family (empty for
+    synthetic fixtures / identity fallback, making this a no-op).
+    """
+    if not halos:
+        return
+    for layer, grid in grids.items():
+        entries = halos.get(layer)
+        if not entries:
+            continue
+        foreign = [(outer, holes) for n, outer, holes in entries if n != net_name]
+        if not foreign:
+            continue
+        temp = np.full(grid.grid.shape, 1, dtype=np.int8)
+        # Each entry's `outer`/`holes` are themselves the _area_rings
+        # marshalling (lists of flat rings); concatenate across polygons.
+        _tg.rasterize_area_polygons_py(
+            temp,
+            [ring for outer, _holes in foreign for ring in outer],
+            [holes for _outer, holes in foreign],
+            grid.origin[0],
+            grid.origin[1],
+            grid.cell_size,
+        )
+        inside = (temp == 0) & (grid.grid == 0)
+        grid.grid[inside] = -1
+
+
+def _family_halo_layers(
+    family_signature: tuple[float, float, str],
+    layer_grids: dict[str, OccupancyGrid],
+    design_rules: DesignRules,
+    pcb,
+    escape_vias_map: dict[str, list[tuple[float, float, float]]] | None,
+) -> dict[str, list[tuple[str, list, list]]]:
+    """Per-layer creepage-halo polygons for one family, pre-marshalled.
+
+    Each entry is ``(net_name, outer_rings, holes)`` ready for
+    ``temper_geometry.rasterize_area_polygons_py`` (see
+    ``_stamp_foreign_creepage_halos``). Sources mirror
+    ``obstacle_map.build_obstacle_map``'s obstacle inventory -- pads, escape
+    vias, pre-existing vias, pre-routed tracks and net-eligible zones -- so
+    the A* reserves the same copper the static layer already blocks, plus
+    the pair creepage the DRC grades between this family's class and the
+    obstacle's net class. A zero-creepage pair contributes no entry: the
+    grid's W/2 + C erosion already reserves that obstacle.
+    """
+    from temper_placer.core.pin_geometry import pin_world_position
+    from shapely.geometry import Polygon
+
+    table = default_creepage_table()
+    _w, _c, family_class = family_signature
+    base_inflation = _family_static_inflation(family_signature)
+    routable_layers = set(layer_grids)
+
+    def _halo_poly(radius_mm: float, base_poly) -> list | None:
+        total = base_inflation + radius_mm
+        if total <= 0.0:
+            return None
+        buffered = base_poly.buffer(total, quad_segs=4)
+        if buffered.is_empty:
+            return None
+        outer_rings, holes = _area_rings(buffered)
+        if not outer_rings:
+            return None
+        return [outer_rings, holes]
+
+    per_layer: dict[str, list[tuple[str, list, list]]] = {layer: [] for layer in routable_layers}
+
+    # Pads (mirrors obstacle_map.build_obstacle_map's pad loop).
+    for comp in pcb.components:
+        comp_x, comp_y = 0.0, 0.0
+        if comp.initial_position:
+            comp_x, comp_y = comp.initial_position
+        angle = 0.0
+        if comp.initial_rotation_quadrant is not None:
+            angle = float(comp.initial_rotation_quadrant) * math.pi / 2.0
+        for pin in comp.pins:
+            if not pin.net:
+                continue
+            px, py = pin_world_position(pin, comp)
+            pad_poly = _create_pad_polygon(pin, px, py, angle)
+            pad_class = net_class_of(pin.net, design_rules)
+            creep = table.required(family_class, pad_class)
+            if creep <= 0.0:
+                continue
+            marshalled = _halo_poly(creep, pad_poly)
+            if marshalled is None:
+                continue
+            if pin.layer in ["All", "all"] or "*.Cu" in pin.layer or "Through" in pin.layer:
+                target_layers = routable_layers
+            else:
+                target_layers = {pin.layer} & routable_layers
+            for layer in target_layers:
+                per_layer[layer].append((pin.net, marshalled[0], marshalled[1]))
+
+    # Escape vias (through-hole: every routable layer).
+    for net_name, vias in (escape_vias_map or {}).items():
+        via_class = net_class_of(net_name, design_rules)
+        creep = table.required(family_class, via_class)
+        if creep <= 0.0:
+            continue
+        for vx, vy, diameter in vias:
+            via_poly = Polygon(
+                _circle_buffer_ring(vx, vy, diameter / 2.0, 8)
+            )
+            marshalled = _halo_poly(creep, via_poly)
+            if marshalled is None:
+                continue
+            for layer in routable_layers:
+                per_layer[layer].append((net_name, marshalled[0], marshalled[1]))
+
+    # Pre-existing vias (through-hole: every routable layer).
+    for via in getattr(pcb, "vias", None) or []:
+        via_net = getattr(via, "net", None)
+        if not via_net:
+            continue
+        via_class = net_class_of(via_net, design_rules)
+        creep = table.required(family_class, via_class)
+        if creep <= 0.0:
+            continue
+        via_poly = Polygon(
+            _circle_buffer_ring(via.position[0], via.position[1], via.diameter / 2.0, 8)
+        )
+        marshalled = _halo_poly(creep, via_poly)
+        if marshalled is None:
+            continue
+        for layer in routable_layers:
+            per_layer[layer].append((via_net, marshalled[0], marshalled[1]))
+
+    # Pre-routed tracks (their declared layer only).
+    for track in getattr(pcb, "tracks", None) or []:
+        track_net = getattr(track, "net", None)
+        if not track_net or track.layer not in routable_layers:
+            continue
+        track_class = net_class_of(track_net, design_rules)
+        creep = table.required(family_class, track_class)
+        if creep <= 0.0:
+            continue
+        from shapely.geometry import LineString
+
+        line = LineString([track.start, track.end])
+        line_poly = line.buffer(track.width / 2.0, cap_style=1)
+        marshalled = _halo_poly(creep, line_poly)
+        if marshalled is None:
+            continue
+        per_layer[track.layer].append((track_net, marshalled[0], marshalled[1]))
+
+    # Net-eligible zones (same eligibility rule obstacle_map uses; a zone
+    # whose net class gets no pour in the routed output is stale input and
+    # blocks nothing -- see obstacle_map.py's zone section).
+    from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
+
+    for zone in getattr(pcb, "zones", None) or []:
+        if not hasattr(zone, "polygon") or not zone.polygon:
+            continue
+        net_names = [n for n in (getattr(zone, "net_classes", None) or []) if n]
+        if net_names and not any(_zone_layers_for_net(n) for n in net_names):
+            continue
+        zone_creep = max(
+            (table.required(family_class, net_class_of(n, design_rules)) for n in net_names),
+            default=0.0,
+        )
+        if zone_creep <= 0.0:
+            continue
+        try:
+            zone_poly = Polygon(zone.polygon)
+            if not zone_poly.is_valid:
+                zone_poly = zone_poly.buffer(0)
+        except Exception:
+            continue
+        marshalled = _halo_poly(zone_creep, zone_poly)
+        if marshalled is None:
+            continue
+        zone_layers = zone.layers if hasattr(zone, "layers") else ["F.Cu"]
+        for layer in set(zone_layers) & routable_layers:
+            per_layer[layer].append((net_names[0] if net_names else "", marshalled[0], marshalled[1]))
+
+    return {layer: entries for layer, entries in per_layer.items() if entries}
+
+
+def _build_creepage_halos(
+    families: dict[tuple[float, float, str], dict[str, OccupancyGrid]],
+    design_rules: DesignRules,
+    pcb,
+    escape_vias_map: dict[str, list[tuple[float, float, float]]] | None,
+) -> dict[tuple[float, float, str], dict[str, list[tuple[str, list, list]]]]:
+    """Precompute each family's per-layer creepage-halo polygon lists."""
+    halos: dict[tuple[float, float, str], dict[str, list[tuple[str, list, list]]]] = {}
+    for signature, layer_grids in families.items():
+        halos[signature] = _family_halo_layers(
+            signature, layer_grids, design_rules, pcb, escape_vias_map
+        )
+    return halos
 
 
 def _build_width_families(
@@ -676,29 +940,34 @@ def _build_width_families(
     routing_spaces: dict[str, RoutingSpace] | None,
     routable_nets: list[str],
     design_rules: DesignRules,
+    pcb=None,
+    escape_vias_map: dict[str, list[tuple[float, float, float]]] | None = None,
 ) -> tuple[
-    dict[tuple[float, float], dict[str, OccupancyGrid]],
-    dict[str, tuple[float, float]],
+    dict[tuple[float, float, str], dict[str, OccupancyGrid]],
+    dict[str, tuple[float, float, str]],
+    dict[tuple[float, float, str], dict[str, list[tuple[str, list, list]]]],
 ]:
-    """Build one occupancy-grid family per (width, clearance) signature.
+    """Build one occupancy-grid family per (width, clearance, class) signature.
 
-    Returns ``(families, family_of_net)``. ``families`` maps a signature to
-    a per-layer grid dict rebuilt from ``routing_spaces`` with that
-    signature's static erosion; ``family_of_net`` maps each routable net to
-    the signature it searches. With ``routing_spaces=None`` a single
-    identity family reuses ``grids`` unchanged (historical behaviour, and
-    what the unit tests exercise).
+    Returns ``(families, family_of_net, family_halos)``. ``families`` maps
+    a signature to a per-layer grid dict rebuilt from ``routing_spaces``
+    with that signature's static erosion; ``family_of_net`` maps each
+    routable net to the signature it searches; ``family_halos`` maps each
+    family to its precomputed per-layer creepage-halo polygon lists (empty
+    without a ``pcb`` -- synthetic fixtures have no obstacles to halo).
+    With ``routing_spaces=None`` a single identity family reuses ``grids``
+    unchanged (historical behaviour, and what the unit tests exercise).
     """
     family_of_net = {
-        net_name: _width_family_signature(design_rules.get_rules_for_net(net_name))
+        net_name: _family_signature(design_rules.get_rules_for_net(net_name))
         for net_name in routable_nets
     }
     if not routing_spaces:
         # Identity fallback: one family, the caller's grids as-is.
-        default_signature = _width_family_signature(design_rules.get_rules_for_net(""))
-        return {default_signature: grids}, family_of_net
+        default_signature = _family_signature(design_rules.get_rules_for_net(""))
+        return {default_signature: grids}, family_of_net, {}
 
-    families: dict[tuple[float, float], dict[str, OccupancyGrid]] = {}
+    families: dict[tuple[float, float, str], dict[str, OccupancyGrid]] = {}
     # Build in `grids`' own layer order (deterministic; the caller's dict
     # is already in engine-preference order) so `next(iter(...))` picks in
     # the same order the caller's grids did.
@@ -712,7 +981,8 @@ def _build_width_families(
             for layer in grids
             if layer in routing_spaces
         }
-    return families, family_of_net
+    family_halos = _build_creepage_halos(families, design_rules, pcb, escape_vias_map) if pcb else {}
+    return families, family_of_net, family_halos
 
 
 def run_astar_pathfinding_nlayer(
@@ -803,12 +1073,13 @@ def run_astar_pathfinding_nlayer(
     net_ids = {name: i + 1 for i, name in enumerate(routable_nets)}
     id_to_net = {v: k for k, v in net_ids.items()}
 
-    # Width-aware C-space families (2026-08-16): one grid family per
-    # (width, clearance) signature among the nets this run routes, so the
-    # static obstacle layer and every routed-copper stamp reserve the
-    # searching net's real half-width instead of the 0.1mm board default.
-    families, family_of_net = _build_width_families(
-        grids, routing_spaces, routable_nets, design_rules
+    # Width/creepage-aware C-space families (2026-08-16): one grid family
+    # per (width, clearance, creepage class) signature among the nets this
+    # run routes, so the static obstacle layer and every routed-copper
+    # stamp reserve the searching net's real half-width and the DRC's pair
+    # creepage instead of the flat 0.1mm/0.2mm board defaults.
+    families, family_of_net, family_halos = _build_width_families(
+        grids, routing_spaces, routable_nets, design_rules, pcb, escape_vias_map
     )
 
     per_path_latency_ms: dict[str, float] = {}
@@ -885,6 +1156,15 @@ def run_astar_pathfinding_nlayer(
             escape_vias_map=escape_vias_map,
             existing_vias_map=existing_vias_per_net,
         )
+
+        # Creepage-aware C-space (2026-08-16): the unblock above cleared the
+        # -1 cells inside this net's own pad circles -- including whatever
+        # part of a foreign pad's much larger creepage halo fell inside
+        # them. Re-stamp the foreign halos so this net cannot route through
+        # another net's required creepage distance (see
+        # _stamp_foreign_creepage_halos). No-op for synthetic fixtures
+        # (family_halos empty).
+        _stamp_foreign_creepage_halos(net_name, active_grids, family_halos.get(family_key, {}))
 
         route_path, fb = _astar_route_nlayer(
             net_name,
@@ -963,21 +1243,29 @@ def run_astar_pathfinding_nlayer(
                     partial_paths[net_name] = route_path
                 return _forced_segment_decline([], congestion_region())
             routed_paths[net_name] = route_path
-            # Width-aware stamp (2026-08-16): the routed net's own real
-            # width (not the flat 0.2mm board default, which under-reserved
-            # a 5.0mm HighVoltage track's halo by 2.2mm and was the
-            # measured cause of the 204 shorting_items on the 6-layer
-            # board), into EVERY family at that family's searching-net
-            # radius: w_F/2 + max(cl_F, C) + W/2. Each family's static
+            # Width/creepage-aware stamp (2026-08-16): the routed net's own
+            # real width (not the flat 0.2mm board default, which
+            # under-reserved a 5.0mm HighVoltage track's halo by 2.2mm and
+            # was the measured cause of the 204 shorting_items on the
+            # 6-layer board), into EVERY family at that family's
+            # searching-net radius: w_F/2 + max(cl_F, C,
+            # creepage(class_F, family_class)) + W/2. Each family's static
             # layer already reserves W/2 + C, so the separation between
             # this net and any net searching that family is >=
-            # max(cl_F, C) > 0 edge-to-edge by construction.
+            # max(cl_F, C, creepage) > 0 edge-to-edge by construction --
+            # the creepage term is what keeps an HV track 12.6mm from an LV
+            # net's copper instead of 0.2mm (the DRC-graded bar, resolved
+            # from the DRU by router_v6/pair_creepage).
+            creepage_table = default_creepage_table()
             for _fam_key, _fam_grids in families.items():
+                _fam_w, _fam_c, _fam_class = _fam_key
+                pair_creepage = creepage_table.required(net_rule.name, _fam_class)
                 _mark_route_blocked(
                     route_path,
                     _fam_grids,
                     trace_width=net_rule.trace_width_mm,
-                    clearance=max(net_rule.clearance_mm, _fam_key[1]) + _fam_key[0] / 2.0,
+                    clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage)
+                    + _fam_w / 2.0,
                     net_id=net_id,
                     via_diameter=net_rule.via_diameter_mm,
                 )
