@@ -384,6 +384,12 @@ _SEGMENT_END_RE = re.compile(r"\(end\s+([-\d.]+)\s+([-\d.]+)\)")
 _LAYER_RE = re.compile(r'\(layer\s+"([^"]+)"\)')
 _VIA_AT_RE = re.compile(r"\(at\s+([-\d.]+)\s+([-\d.]+)\)")
 _VIA_LAYERS_RE = re.compile(r'\(layers\s+((?:"[^"]+"\s*)+)\)')
+# KiCad via type token: `(type through)` / `(type blind)` / `(type buried)`.
+# A via WITHOUT this token is a THROUGH via by the format's own default
+# (KiCad writes the token only for non-through vias) -- it physically
+# spans every copper layer of the stack, not merely its nominal
+# (layers ...) endpoint pair.
+_VIA_TYPE_RE = re.compile(r'\(type\s+"?([^")]+)"?\)')
 _LAYER_NAME_RE = re.compile(r'"([^"]+)"')
 
 
@@ -421,6 +427,22 @@ def _parse_segments_and_vias(
             continue
         layers_m = _VIA_LAYERS_RE.search(block)
         layers = tuple(_LAYER_NAME_RE.findall(layers_m.group(1))) if layers_m else ()
+        # Through-via fix (2026-08-15): the (layers "F.Cu" "B.Cu") pair is
+        # a through via's ENDPOINTS, not its full span. KiCad's format
+        # omits the (type ...) token for through vias (it is written only
+        # for blind/buried), so an absent token -- which is what every via
+        # this project's router and ground-plane generator emit -- means
+        # the via touches EVERY copper layer of the stack. The checker
+        # maps ``layers=()`` to the layer universe (see CopperVia's
+        # docstring), which previously never fired because every parsed
+        # via carried its declared endpoint pair and was modelled as
+        # connecting only those two layers -- under-reporting connectivity
+        # for every net whose copper crosses an inner layer through a
+        # via. Measured on the current committed board: 60/139 -> 62/139
+        # (cs_n and RTD_DRDY become connected).
+        type_m = _VIA_TYPE_RE.search(block)
+        if not type_m or type_m.group(1) == "through":
+            layers = ()
         vias_by_net.setdefault(name, []).append(
             CopperVia(position=(float(at_m.group(1)), float(at_m.group(2))), layers=layers)
         )

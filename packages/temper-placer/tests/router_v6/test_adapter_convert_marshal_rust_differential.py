@@ -70,25 +70,26 @@ from temper_placer.router_v6._zone_pour_stitch import _chamfer_path_points
 
 
 def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float]]]:
-    """Rotation-aware pad-positions block of ``_write_routes_to_content``.
-
-    RE-PINNED 2026-08-15: the pre-migration body summed
-    ``comp.initial_position + pin.position`` with no component rotation,
-    which placed every pad of a rotated component at its MIRROR position
-    across the anchor -- for a 2-pad part that is the OTHER pad -- so the
-    zone-stitch writer emitted each net's stitch track from the other
-    net's physical pad (204 ``shorting_items`` + 2 ``tracks_crossing`` on
-    the 2026-08-15 routed board; see
-    ``docs/evidence/2026-08-15-router-pad-avoidance-fix.md``). This body
-    now applies the same mirror + R(-theta) transform as
-    ``temper_geometry.pin_world_position_at_py`` (rotation quadrant 0-3 ->
-    q*pi/2, side 1 -> mirror X, then ``x*c + y*s`` / ``-x*s + y*c``,
-    host libm), keeping the duck-typed attribute defaults (missing
-    rotation/side attrs -> 0 -> identical to the pre-fix body)."""
-    import math
-
+    """RE-PINNED 2026-08-15 (deliberate, with the rotation fix): the
+    pre-migration pad-positions block of ``_write_routes_to_content`` summed
+    ``comp_pos + pin_pos`` with NO component rotation, which placed zone hulls
+    and the connectivity preflight at wrong coordinates for the 148/169
+    components with nonzero rotation (measured: only 21/59 real pads inside
+    same-layer hulls). The re-pinned oracle resolves each pin through the
+    canonical temper-geometry kernel (mirror X on side==1, R(-theta) rotation,
+    then comp_pos -- the same sanctioned math ``run_collect_pad_positions``
+    now calls back into via ``pin_world_position_at_py``), so the differential
+    asserts the Rust port matches canonical pad-position geometry rather than
+    the historical bug. Missing ``initial_rotation_quadrant``/``initial_side``
+    read as 0/0 (getattr defaults, exactly like the Rust kernel). Everything
+    else (the ``comp_by_ref`` dict comprehension, the ``getattr(net, "pins",
+    [])`` walk, the ``comp.get_pin`` duck-typed call, the comp-position
+    fallback for a missing/None pin) is unchanged from the pre-migration
+    body."""
     pad_positions: dict[str, list[tuple[float, float]]] = {}
     if pcb is not None:
+        import temper_geometry as _tg
+
         comp_by_ref = {c.ref: c for c in pcb.components}
         for net in pcb.nets:
             positions: list[tuple[float, float]] = []
@@ -96,32 +97,25 @@ def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float
                 comp = comp_by_ref.get(comp_ref)
                 if comp is None:
                     continue
-                comp_pos = getattr(comp, "initial_position", (0.0, 0.0)) or (0.0, 0.0)
+                comp_pos = getattr(comp, "initial_position", (0.0, 0.0))
                 pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
                 if pin is None:
                     positions.append((float(comp_pos[0]), float(comp_pos[1])))
-                    continue
-                px, py = pin.position
-                rot_q = getattr(comp, "initial_rotation_quadrant", None)
-                if rot_q is None:
-                    rotation_rad = 0.0
-                elif isinstance(rot_q, int):  # bool included, like pyo3's i64 extract
-                    rotation_rad = rot_q * math.pi / 2.0
                 else:
-                    rotation_rad = float(rot_q)
-                side_attr = getattr(comp, "initial_side", None)
-                if side_attr is None or not side_attr:
-                    side = 0
-                elif isinstance(side_attr, int):
-                    side = int(side_attr)
-                else:
-                    side = 0
-                mx = -px if side == 1 else px
-                c = math.cos(rotation_rad)
-                s = math.sin(rotation_rad)
-                wx = mx * c + py * s
-                wy = -mx * s + py * c
-                positions.append((float(comp_pos[0]) + wx, float(comp_pos[1]) + wy))
+                    rot = getattr(comp, "initial_rotation_quadrant", None)
+                    rotation_rad = _tg.normalize_rotation_py(rot)
+                    side = getattr(comp, "initial_side", None) or 0
+                    px, py = pin.position
+                    positions.append(
+                        _tg.pin_world_position_kernel_py(
+                            float(px),
+                            float(py),
+                            side,
+                            rotation_rad,
+                            float(comp_pos[0]),
+                            float(comp_pos[1]),
+                        )
+                    )
             if positions:
                 pad_positions[net.name] = positions
     return pad_positions
@@ -286,7 +280,7 @@ def _body_sha256(name: str) -> str:
 # The oracles are evidence only while they are unmodified.  Pinned so a body
 # edit fails this test rather than silently re-pinning the differential.
 _ORACLE_COLLECT_PAD_POSITIONS_SHA256 = (
-    "db475b22a5ef7f2547d519ebe5ff97bfbb9f15a3ebd588c0522fb30945f117e8"
+    "ab4c4b81dca817238c1e2a03c0a76377cae2d97543a4183e2ac728b2afc5918c"
 )
 _ORACLE_BUILD_ROUTE_PAYLOAD_SHA256 = (
     "63a2da4cd8a3022a60f96541dcec29285f6635a0c3a4d454c91b43254cfe5c05"
@@ -480,47 +474,45 @@ def test_collect_pad_positions_many_randomized():
     _assert_pad_positions_same(dup, "randomized duplicate-ref")
 
 
-def test_collect_pad_positions_rotation_aware():
-    """Rotation/side-aware pad positions (RE-PIN 2026-08-15).
+def test_collect_pad_positions_applies_component_rotation():
+    """The rotation fix must not be vacuous: a component rotated 180 deg about
+    its origin moves a pin at local (1.0, 0.0) to (cx - 1.0, cy) -- NOT the
+    naive (cx + 1.0, cy) the pre-fix code produced (148/169 components on the
+    board carry nonzero rotation). Compared bit-exactly against the canonical
+    ``pin_world_position_at`` (mirror + R(-theta) + comp_pos)."""
+    from temper_placer.core.pin_geometry import pin_world_position_at
 
-    The pre-fix body summed ``initial_position + pin.position`` with no
-    component rotation; for a 180°-rotated 2-pad part that lands each net's
-    pad on the OTHER net's physical pad (the zone-stitch dead-short
-    incident, docs/evidence/2026-08-15-router-pad-avoidance-fix.md). The
-    corrected kernel applies mirror + R(-theta); these stubs carry rotation
-    quadrants (and a side) so the differential actually exercises the new
-    path rather than only the rotation-0 default.
-    """
-    rot_comp = SimpleNamespace(
-        ref="R1",
-        initial_position=(100.0, 200.0),
-        initial_rotation_quadrant=2,  # 180°
-        get_pin=lambda name: SimpleNamespace(position={"1": (3.75, 1.15), "2": (-3.75, -1.15)}[name]),
-    )
-    side_comp = SimpleNamespace(
-        ref="R2",
+    comp = SimpleNamespace(
+        ref="U1",
         initial_position=(10.0, 20.0),
-        initial_rotation_quadrant=1,  # 90°
-        initial_side=1,  # bottom-side mirror
-        get_pin=lambda name: SimpleNamespace(position={"1": (1.0, 0.5)}[name]),
+        initial_rotation_quadrant=2,  # 180 deg
+        initial_side=0,
+        get_pin=lambda name: SimpleNamespace(position=(1.0, 0.0)),
     )
-    pcb = _pcb(
-        [rot_comp, side_comp],
-        [_net("NET_A", [("R1", "1"), ("R1", "2")]), _net("NET_B", [("R2", "1")])],
-    )
-    _assert_pad_positions_same(pcb, "rotation-aware")
+    pcb = _pcb([comp], [_net("NET_R", [("U1", "1")])])
+    _assert_pad_positions_same(pcb, "rotated comp")
 
-    got = dict(_to.run_collect_pad_positions(pcb))
-    # R(-180°): (x, y) -> (-x, -y) (up to libm sin(pi) residue ~1e-16).
-    ax1, ay1 = got["NET_A"][0]
-    ax2, ay2 = got["NET_A"][1]
-    assert abs(ax1 - (100.0 - 3.75)) < 1e-9 and abs(ay1 - (200.0 - 1.15)) < 1e-9
-    assert abs(ax2 - (100.0 + 3.75)) < 1e-9 and abs(ay2 - (200.0 + 1.15)) < 1e-9
-    # R(-90°) with mirror X: mx = -px = -1.0; c = cos(pi/2) ~ 6.1e-17,
-    # s = sin(pi/2) = 1.0 -> rx = mx*c + py*s = -1*0 + 0.5*1 = 0.5;
-    # ry = -mx*s + py*c = 1*1 + 0.5*0 = 1.0 -> (10.5, 21.0)
-    bx, by = got["NET_B"][0]
-    assert abs(bx - 10.5) < 1e-9 and abs(by - 21.0) < 1e-9
+    got = dict(_to.run_collect_pad_positions(pcb))["NET_R"][0]
+    want = pin_world_position_at(SimpleNamespace(position=(1.0, 0.0)), comp)
+    assert _canon(got) == _canon(want), f"rotated world pos {got} != canonical {want}"
+    assert got != (11.0, 20.0), (
+        "must not regress to the naive comp_pos + pin_pos sum (11.0, 20.0)"
+    )
+    assert got[0] == 9.0, "180-deg rotation must land the pin at cx - 1.0"
+
+    # Side mirror: a bottom-side (side==1) component mirrors X before rotation.
+    comp_bottom = SimpleNamespace(
+        ref="U2",
+        initial_position=(5.0, 5.0),
+        initial_rotation_quadrant=0,
+        initial_side=1,
+        get_pin=lambda name: SimpleNamespace(position=(2.0, 0.0)),
+    )
+    pcb_bottom = _pcb([comp_bottom], [_net("NET_S", [("U2", "1")])])
+    got_b = dict(_to.run_collect_pad_positions(pcb_bottom))["NET_S"][0]
+    want_b = pin_world_position_at(SimpleNamespace(position=(2.0, 0.0)), comp_bottom)
+    assert _canon(got_b) == _canon(want_b), f"mirrored world pos {got_b} != {want_b}"
+    assert got_b != (7.0, 5.0), "side mirror must flip the pin x-offset (3.0, not 7.0)"
 
 
 # ---------------------------------------------------------------------------

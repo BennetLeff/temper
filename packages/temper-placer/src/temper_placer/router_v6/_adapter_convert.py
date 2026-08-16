@@ -226,7 +226,7 @@ def route_pcb(
     design_rules: Any = None,
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
-    enable_all_pad_tree: bool = False,
+    enable_all_pad_tree: bool = True,
     enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
     enable_geographic_pruning: bool = False,
@@ -269,8 +269,13 @@ def route_pcb(
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
             (from CostFieldInput.weight).  0.0 = field-off.
-        enable_all_pad_tree: Enable experimental all-terminal tree
-            expansion (default False).
+        enable_all_pad_tree: Expand the Stage 4 A* waypoint chain to visit
+            every terminal of multi-pad (N>2) nets, not just the SAT-derived
+            channel waypoints -- without it, pad centres missing from the
+            chain are never appended and A* never routes to them (measured
+            2026-08-15: +15V_LS's C23.1+U7.2 were visited, U6.11 was not).
+            Default True (callers that want the old SAT-waypoints-only
+            behaviour can pass False).
         enable_zone_pours: Emit filled-copper zone geometry for power/
             ground/HV nets (per netclass SSOT).  Default True -- zones
             are enabled by default for multi-layer power/ground routing.
@@ -699,6 +704,36 @@ def _write_routes_to_content(
             tstamp_counter=tstamp_counter,
             pcb=pcb,
         )
+
+        # M4: gnd's dedicated In1.Cu ground plane. gnd -- the board's
+        # largest net (88 pads) -- is mapped to the "Power" netclass
+        # (kicad_pro does not declare a "GND" class; see design_rules.py's
+        # gnd entry), and Power declares no routing_strategy, so
+        # _zone_layers_for_net("gnd") == [] and the F.Cu/B.Cu pour pass
+        # above never gives it copper (measured before this: zero copper
+        # on gnd). router_v6/_ground_plane.py emits its pour + HV/SELV
+        # keepout + drop vias + MST backbone on In1.Cu; it was a
+        # standalone spike (scripts/generate_ground_plane.py) with no
+        # production caller until being wired in here. The blocks are
+        # appended AFTER the R7 strip + pour pass above so the In1.Cu
+        # zones survive, and tstamp_counter is threaded so the plane's
+        # tstamps continue this run's deterministic sequence.
+        gnd_source = getattr(pcb, "source_path", None) if pcb is not None else None
+        # Only boards that actually declare a gnd net get the plane --
+        # synthetic fixtures without one are skipped (the generator itself
+        # raises ValueError for a gnd-less board; that is the right
+        # discipline for the standalone script, wrong for production
+        # routing of arbitrary input boards).
+        if gnd_source is not None and "gnd" in net_name_to_number:
+            from temper_placer.router_v6._ground_plane import (
+                generate_ground_plane_blocks,
+            )
+
+            gnd_blocks, _gnd_report = generate_ground_plane_blocks(
+                Path(gnd_source),
+                tstamp_counter=tstamp_counter,
+            )
+            segments.extend(gnd_blocks)
 
     if not segments:
         return pcb_content, pad_positions
