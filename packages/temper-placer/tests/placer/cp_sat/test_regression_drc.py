@@ -1152,28 +1152,29 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     The fix is not "make the monolithic path fit in memory" -- it is
     recognizing that monolithic was never the path this test should have
     exercised.  ``scripts/route_board.py`` (the only production routing
-    entry point -- see its own module docstring) defaults
-    ``enable_net_batching=True`` since 2026-08-16 (the Stage 3 memory
-    fix: the monolithic default OOMs, so ``--net-batching`` became the
-    default with ``--no-net-batching`` as the explicit opt-out; oversized
-    monolithic models are additionally auto-batched at runtime in
-    ``_pipeline_route._run_stage3``), matching the *documented recipe*
-    that actually produces a shipped board
+    entry point -- see its own module docstring) has used the net-batching
+    recipe since 2026-08-12 and made it the default on 2026-08-16 (#1250);
+    as of 2026-08-16 the default monolithic path no longer OOMs -- Stage 3
+    there is the direct capacity-aware topology solver
+    (``docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md``), which
+    builds no SAT model at all (89/139 pad-connected, ~2.9GB peak, ~5min
+    vs the batched reference's 89/139 at ~16min).  This test still
+    exercises the *batched* recipe explicitly (``enable_net_batching=True``
+    below) because the ratchet ceilings were seeded from it
     (``docs/evidence/2026-08-12-board-recipe-reproducibility.md`` §1: place
     -> ``route_board.py --net-batching``).
-    Net-batching and monolithic are proven to be different algorithms, not
-    two routes to the same board
-    (``docs/plans/2026-08-12-003-fix-sat-capacity-encoding-plan.md``): at
+    Net-batching and the direct solver are different algorithms with
+    different Stage-3 semantics, not two routes to the same board: at
     ``net_batching.DEFAULT_BATCH_SIZE = 10`` the Stage-3 ``AtMostK``
     capacity guard never fires (K ≈ 17), and an instrumented production run
     showed the cross-batch greedy bookkeeping that supposedly enforces
     capacity instead receives zero data -- Stage 4's occupancy-grid A* is
-    the whole story under net-batching, in a way it structurally cannot be
-    under monolithic (which DOES encode capacity into the CNF).  That means
-    this test switching to net-batching is not a cosmetic flag flip: it
-    changes what gets guarded, from an algorithm nothing ships, to the one
-    that does.  See ``docs/evidence/2026-08-12-production-ratchet-runnable.md``
-    for the full verdict and the peak-RSS measurement this change enables.
+    the whole story under net-batching; the direct solver enforces channel
+    capacity by construction.  That means this test switching to
+    net-batching is not a cosmetic flag flip: it changes what gets guarded,
+    from an algorithm nothing ships, to the one that does.  See
+    ``docs/evidence/2026-08-12-production-ratchet-runnable.md`` for the
+    full verdict and the peak-RSS measurement this change enables.
 
     PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS/UNCONNECTED (178/463) were
     seeded against the monolithic path's output (see the provenance block

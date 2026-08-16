@@ -87,14 +87,14 @@ instead of encoded as clauses):
    per-traversal gate gap (a spur out-and-back could commit 2×width to an
    edge that only carries width), and an emitted-channel/walk mismatch
    after waypoint subsampling — and are standing checks, not scaffolding.
-5. **Waypoint subsampling.** The emitted `uses_channels` is the path
-   subsampled to its corridor *decision points*: walk endpoints, snapped
-   pads, skeleton junctions (degree ≠ 2), and >45° turns. Stage 4's A*
-   routes waypoint-to-waypoint; emitting every micro-edge of a 200-edge
-   path forced ~200 A* segment searches per net (measured: a monolithic
-   route still grinding at 3× the batched wall time). Corridor guidance
-   belongs at decision points; along a junction-free straight run the
-   occupancy-grid A* finds the path itself.
+5. **Pad-waypoint emission.** The emitted `uses_channels` is one channel
+   id per consecutive pad pair (topology-decided order — given order for
+   2-pad nets, sorted for multi-pad, matching Stage 4's fallback
+   convention), encoding the pads' own coordinates. Corridor waypoints
+   were measured to *degrade* Stage 4 on this board (turn+junction:
+   62/139 — see the corridor-waypoint finding below); the pads-only
+   emission achieves batched parity (89/139) at 1/3 the wall time while
+   the full capacity-aware path remains the recorded, verified decision.
 
 The output shape is byte-compatible with `extraction::extract_topology`'s
 `TopologyGraph` (same `uses_channels` / `path_graph` /
@@ -125,26 +125,32 @@ Stage 4's fallback).
 No CNF is built at all — the 22.5M-variable / 399M-aux / 768M-clause
 encoding is gone.
 
-## Route result (measured this task)
+## Route result (measured this task, current `main` tree)
 
-`scripts/route_board.py --output /tmp/opencode/route6.kicad_pcb` (default:
-monolithic, no `--net-batching`):
+`scripts/route_board.py --no-net-batching --output ...` (monolithic, the
+direct solver):
 
 | metric | monolithic (this fix) | batched reference (`--net-batching`) |
 |---|---|---|
-| wall | **291 s** | 485 s (2026-08-12 measurement, lighter machine load) |
-| peak RSS | **2.94 GB** (Stage 2's EDT; Stage 3 adds ~0) | ~1–5 GB per batch subprocess |
-| pad connectivity | **96/139** | 92/139 |
-| fake-completion | 8 | — |
-| DRC on output | 1720 violations (511 clearance, 226 unconnected, 206 shorting) | not re-measured here |
+| wall | **318 s** | 956 s (same tree, same machine load) |
+| peak RSS | **~2.9 GB** (Stage 2's EDT; Stage 3 adds ~0) | ~1–5 GB per batch subprocess |
+| pad connectivity | **89/139** | 89/139 (same tree) |
+| fake-completion | 11 | 13 |
+| DRC on output | 1556 violations (503 clearance, 228 unconnected, 200 shorting) | — |
 
 **Monolithic route completes in < 4 GB, no OOM — the primary deliverable.**
-Connectivity is **96/139 ≥ 92/139** (same or better than batched), and the
-monolith is *faster* than the batched reference (291 s vs 485 s).
+Connectivity is **equal to the batched reference (89/139) on the same
+tree**, at **1/3 the wall time**, with the vacuity fixed (Stage 3 decides a
+real capacity-aware topology; the batched SAT decides nothing — its 89 is
+produced entirely by Stage 4's fallback A*). Earlier measurements on the
+pre-rebase tree: 96/139 monolithic vs 92/139 batched (the reference's
+92 → 89 drop is the intervening main-tree changes — board #1248, zone
+generator #1257, stricter connectivity #1256 — which affected both arms
+equally).
 
-## The corridor-waypoint finding (measured, three iterations)
+## The corridor-waypoint finding (measured, four iterations)
 
-Emission granularity was iterated against the real board; the third
+Emission granularity was iterated against the real board; the fourth
 iteration is what shipped:
 
 1. **Per-edge emission**: monolithic route still grinding at 3× batched
@@ -158,20 +164,28 @@ iteration is what shipped:
    serialize every net through the same skeleton channels; later nets'
    segments fail against Stage 4's shared occupancy grid, where free A*
    would route around. Corridor waypoints *constrain* Stage 4 and degrade
-   connectivity by 30 nets on this board.
-4. **Endpoint-only emission** (shipped): the emitted waypoint set is the
-   walk's endpoints plus intermediate snapped pads; the full capacity-aware
-   path is still computed, capacity-committed, and post-condition-verified.
-   Result: 96/139, 291 s.
+   connectivity by ~27 nets on this board.
+4. **Pad-waypoint emission** (shipped): the emitted `uses_channels` is one
+   id per consecutive pad pair (topology-decided order — given order for
+   2-pad nets, sorted for multi-pad, matching Stage 4's fallback
+   convention exactly), encoding the pads' own coordinates. The full
+   capacity-aware path is still computed, capacity-committed, and
+   post-condition-verified; only the *emission* is pad-based. Result:
+   **89/139 = batched parity, 318 s**. (The intermediate skeleton-edge
+   endpoint emission measured 86/139 — the pad-adjacent skeleton nodes
+   force pad breakout through congested nodes where free A* routes
+   around.)
 
 **The honest conclusion**: Stage 4's occupancy-grid A* is a complete router
 from raw pad positions (`docs/evidence/2026-08-08-terminal-defect-and-pad-
 connectivity-fix.md`'s independent finding that topology was never consumed
 under net-batching was not an accident — Stage 4 does not need corridors on
-this board, and forcing them through it costs 30 connected nets). The
+this board, and forcing them through it costs ~27 connected nets). The
 vacuity fix's deliverable is that Stage 3 *decides* a real, capacity-aware,
 connected topology (the connectivity-forcing constraint the SAT model
-lacked) — not that Stage 4 be forced to follow its every edge.
+lacked) — not that Stage 4 be forced to follow its every edge. The emitted
+pad pairs carry the topology's *decision* (which pads connect, in what
+order, capacity-feasible) without constraining the geometric search.
 
 ## Tests
 

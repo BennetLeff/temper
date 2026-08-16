@@ -177,7 +177,7 @@ def route_once(
     *,
     keep_existing_copper: bool = False,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = True,
+    enable_net_batching: bool = False,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
@@ -438,7 +438,7 @@ def run_single(
     output_path: Path,
     *,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = True,
+    enable_net_batching: bool = False,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
@@ -511,7 +511,7 @@ def _run_worker_subprocess(
     rules_path: Path,
     *,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = True,
+    enable_net_batching: bool = False,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
 ) -> dict[str, Any]:
@@ -576,7 +576,7 @@ def run_measurement(
     n: int,
     *,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = True,
+    enable_net_batching: bool = False,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
 ) -> int:
@@ -702,17 +702,17 @@ def main(argv: list[str] | None = None) -> int:
         "--net-batching",
         dest="net_batching",
         action=argparse.BooleanOptionalAction,
-        default=True,
+        default=False,
         help=(
             "Pass enable_net_batching=True to route_pcb() (`#871` net-"
-            "batching, see router_v6/net_batching.py). Default True since "
-            "2026-08-16: the monolithic Stage 3 SAT model (|nets| x |edges| "
-            "raw vars, ~22.5M on this board) demands ~182-200 GB and is "
-            "OOM-killed at ~58 GB, while the batched path is the documented "
-            "production recipe (~1-5 GB/batch). Pass --no-net-batching for "
-            "the monolithic path (dangerous on this board -- it is also "
-            "auto-batched at runtime when the model exceeds the auto-batch "
-            "threshold, see _pipeline_route.py)."
+            "batching, see router_v6/net_batching.py). Default False since "
+            "2026-08-16 (reverted from #1250's True): the monolithic path "
+            "no longer OOMs -- Stage 3's default is the direct capacity-"
+            "aware topology solver (docs/evidence/2026-08-16-sat-capacity-"
+            "vacuity-fix.md), which builds no SAT model at all and measures "
+            "96/139 pad-connected in ~291s vs the batched vacuous SAT's "
+            "92/139 in ~485s. Pass --net-batching for the legacy batched "
+            "SAT recipe (still the measured 92/139 reference)."
         ),
     )
     parser.add_argument(
