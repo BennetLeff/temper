@@ -49,7 +49,6 @@ from pathlib import Path
 import pytest
 
 from temper_placer.validation._drc_api import copy_kicad_project_sidecar
-
 from tests.placer.cp_sat._parallel_drc import run_drc_loud, run_drc_samples
 
 TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -1154,10 +1153,14 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     recognizing that monolithic was never the path this test should have
     exercised.  ``scripts/route_board.py`` (the only production routing
     entry point -- see its own module docstring) defaults
-    ``enable_net_batching=False`` too, but the *documented recipe* that
-    actually produces a shipped board
+    ``enable_net_batching=True`` since 2026-08-16 (the Stage 3 memory
+    fix: the monolithic default OOMs, so ``--net-batching`` became the
+    default with ``--no-net-batching`` as the explicit opt-out; oversized
+    monolithic models are additionally auto-batched at runtime in
+    ``_pipeline_route._run_stage3``), matching the *documented recipe*
+    that actually produces a shipped board
     (``docs/evidence/2026-08-12-board-recipe-reproducibility.md`` §1: place
-    -> ``route_board.py --net-batching``) always passes ``--net-batching``.
+    -> ``route_board.py --net-batching``).
     Net-batching and monolithic are proven to be different algorithms, not
     two routes to the same board
     (``docs/plans/2026-08-12-003-fix-sat-capacity-encoding-plan.md``): at

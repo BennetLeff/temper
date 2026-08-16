@@ -177,7 +177,7 @@ def route_once(
     *,
     keep_existing_copper: bool = False,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = False,
+    enable_net_batching: bool = True,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
@@ -408,7 +408,7 @@ def run_single(
     output_path: Path,
     *,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = False,
+    enable_net_batching: bool = True,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
     enable_nlayer_astar_spike: bool = False,
@@ -481,7 +481,7 @@ def _run_worker_subprocess(
     rules_path: Path,
     *,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = False,
+    enable_net_batching: bool = True,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
 ) -> dict[str, Any]:
@@ -546,7 +546,7 @@ def run_measurement(
     n: int,
     *,
     enable_geographic_pruning: bool = False,
-    enable_net_batching: bool = False,
+    enable_net_batching: bool = True,
     net_batch_size: int = 10,
     max_sat_nets: int | None = None,
 ) -> int:
@@ -669,11 +669,20 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     parser.add_argument(
-        "--net-batching", action="store_true",
+        "--net-batching",
+        dest="net_batching",
+        action=argparse.BooleanOptionalAction,
+        default=True,
         help=(
             "Pass enable_net_batching=True to route_pcb() (`#871` net-"
-            "batching prototype, see router_v6/net_batching.py). Default "
-            "False -- unchanged monolithic-model behavior."
+            "batching, see router_v6/net_batching.py). Default True since "
+            "2026-08-16: the monolithic Stage 3 SAT model (|nets| x |edges| "
+            "raw vars, ~22.5M on this board) demands ~182-200 GB and is "
+            "OOM-killed at ~58 GB, while the batched path is the documented "
+            "production recipe (~1-5 GB/batch). Pass --no-net-batching for "
+            "the monolithic path (dangerous on this board -- it is also "
+            "auto-batched at runtime when the model exceeds the auto-batch "
+            "threshold, see _pipeline_route.py)."
         ),
     )
     parser.add_argument(
