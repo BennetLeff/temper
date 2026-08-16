@@ -22,6 +22,14 @@ from temper_placer.router_v6.constraints_geometry import LineSegment, Point
 
 CONTACT_TOLERANCE_MM = 1e-4
 
+# Public Python name for the Rust-verified verdict type. The pyclass has no
+# Python-side constructor -- every instance comes from
+# `verify_net_route_result`, whose `Connected` variant is constructible only
+# by the Rust `NetRouteResult::verify_continuity` (private VerifiedRoute
+# fields; see packages/temper-geometry/src/net_route_result.rs). Consumers
+# read `.disposition` etc. and may use this name for typing/isinstance.
+NetRouteResult = _tg.NetRouteResult
+
 
 class NetDisposition(StrEnum):
     ROUTED = "routed"
