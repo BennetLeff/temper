@@ -217,10 +217,13 @@ class TestRunStage3DirectVacuityRegression:
 
 
 class TestRunStage3Dispatch:
-    """The `_run_stage3` wiring: the monolithic default now uses the
-    direct solver; SAT remains reachable behind flags / the env hatch."""
+    """The `_run_stage3` wiring: the monolithic default is now a structural
+    no-op (the vacuity fix — the SAT never decided topology and the direct
+    solver's waypoint guidance measurably regresses route quality, see
+    docs/evidence/2026-08-16-sat-vacuity-noop-vs-direct-solver.md); SAT
+    remains reachable behind flags / the env hatch."""
 
-    def test_default_monolith_dispatches_to_direct(self, tmp_path):
+    def test_default_monolith_is_noop(self, tmp_path):
         pcb_path = tmp_path / "board.kicad_pcb"
         pcb_path.write_text("(kicad_pcb)")
         pipeline = _make_pipeline(verbose=False)
@@ -233,8 +236,9 @@ class TestRunStage3Dispatch:
             nets=[net], source_path=pcb_path, design_rules=None, components=[]
         )
 
-        # `self._run_stage3_direct` resolves through the class attribute
-        # assigned in _pipeline_core.py — patch that, not the module name.
+        # The vacuity fix made the default (non-batched, non-bundling,
+        # non-forced) Stage 3 a no-op: empty Stage3Output, no ModelBuilder,
+        # no direct-solver call, no SAT call.
         from temper_placer.router_v6._pipeline_core import RouterV6Pipeline
 
         with patch.object(
@@ -243,8 +247,10 @@ class TestRunStage3Dispatch:
             "temper_placer.router_v6._pipeline_route.ModelBuilder"
         ) as mb:
             result = pipeline._run_stage3(pcb, stage2)
-        assert result == "DIRECT"
-        direct.assert_called_once()
+        assert result.topology_graph is None
+        assert result.constraint_model is None
+        assert result.solution is None
+        direct.assert_not_called()
         mb.assert_not_called()
 
     def test_force_sat_env_hatch_reaches_sat_path(self, tmp_path, monkeypatch):
@@ -299,7 +305,10 @@ class TestRunStage3Dispatch:
 
 class TestPostConditionRaise:
     """Post-condition violations raise (the direct analog of the SAT
-    path's `audit_result` contract: raise, don't warn)."""
+    path's `audit_result` contract: raise, don't warn). The direct
+    solver is no longer the `_run_stage3` default (vacuity fix: no-op),
+    but remains callable as `_run_stage3_direct` / the Rust kernel, and
+    its audit contract is pinned here directly."""
 
     def test_violation_raises(self, tmp_path):
         pcb_path = tmp_path / "board.kicad_pcb"
@@ -322,4 +331,4 @@ class TestPostConditionRaise:
         with patch(
             "temper_rust_router.solve_topology_direct_py", return_value=fake_result
         ), pytest.raises(RuntimeError, match="post-condition"):
-            pipeline._run_stage3(pcb, stage2)
+            pipeline._run_stage3_direct(pcb, stage2)

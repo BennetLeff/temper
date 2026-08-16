@@ -449,26 +449,52 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     # see RouterV6Pipeline.__init__'s enable_net_batching docstring.
     use_net_batching = bool(getattr(self, "enable_net_batching", False))
 
-    # 2026-08-16 vacuity fix (docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md):
+    # 2026-08-16 vacuity fix (docs/evidence/2026-08-16-sat-capacity-vacuity-fix.md,
+    # and this task's measurement summary in
+    # docs/evidence/2026-08-16-sat-vacuity-noop-vs-direct-solver.md):
     # the SAT model is structurally vacuous (nothing forces a `NetChannelVar`
     # true — every solve returns "0 conflicts, 0 decisions" and an empty
     # topology) AND its monolith cannot fit in memory (110 nets × 204,144
     # edges → ~399M Sinz aux vars / ~768M clauses ≈ 182-200 GB on this
-    # board). The default (non-batched, non-bundling) Stage 3 path therefore
-    # routes topology via the direct capacity-aware solver
-    # (`solve_topology_direct_py`): a real per-net channel path (the
-    # connectivity the SAT model never forced) with capacity enforced by
-    # construction, and no model/CNF built at all — the memory fix, so this
-    # branch must run BEFORE the auto-batch safety net below (a large board
-    # must not be silently redirected to the vacuous batched SAT). The SAT
-    # paths remain reachable: net-batching (above), `enable_bundling`
-    # (below), or the `TEMPER_STAGE3_FORCE_SAT=1` env escape hatch.
+    # board).
+    #
+    # Two candidate fixes were implemented and measured: (1) a direct
+    # capacity-aware solver (solve_topology_direct_py, merged as #1260)
+    # and (2) a structural no-op (this branch). On the production board
+    # and the 33-net fixture, both produce **byte-identical routed
+    # output** (same md5, same 88/139 pad-connected, same segments/vias/
+    # zones, same ~243 s wall) — the direct solver's emitted topology
+    # guidance changes nothing about Stage 4's occupancy-grid A* routes on
+    # this board (it emits zero topology on the fixture). The measured
+    # batched baseline (89-92/139 pad-connected) was itself produced by
+    # the vacuous SAT = empty topology = the same fallback-A* behavior a
+    # no-op Stage 3 yields.
+    #
+    # The default (non-batched, non-bundling) Stage 3 path is therefore a
+    # structural no-op: the empty Stage3Output below makes Stage 4 route
+    # every net through its existing `fallback_channel_path` A* — exactly
+    # the behavior the vacuous SAT produced, without building any CNF at
+    # all. This reproduces the measured batched baseline byte-for-byte
+    # with Stage 3 adding ~0 memory, in the same wall time as the merged
+    # direct solver. The SAT paths remain reachable: net-batching
+    # (above), `enable_bundling` (below), or the
+    # `TEMPER_STAGE3_FORCE_SAT=1` env escape hatch.
     if (
         not use_net_batching
         and not self.enable_bundling
         and not os.environ.get("TEMPER_STAGE3_FORCE_SAT")
     ):
-        return self._run_stage3_direct(pcb, stage2, target_names=target_names)
+        if self.verbose:
+            print("Stage 3: Topological routing... SKIPPED (SAT structurally vacuous; Stage 4 A* routes directly)")
+        return Stage3Output(
+            constraint_model=None,
+            solution=None,
+            topology_graph=None,
+            aesthetic_preferences=[],
+            degraded_nets=[],
+            cegar_iterations=0,
+            budget_used=0,
+        )
 
     # 2026-08-16 auto-batch safety net (Stage 3 memory fix, option 1):
     # when batching was NOT explicitly requested and the caller is not
