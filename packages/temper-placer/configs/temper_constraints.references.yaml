@@ -106,12 +106,23 @@ authority:
 # alias/unresolved-component board ref above is therefore verified
 # unaffected. The source export (elec/exports/temper.design-input.v1.json)
 # is untouched -- hash unchanged.
+# Re-pinned 2026-08-16 (fix/placement-reconciliation, commit dcc96d099):
+# STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving FIVE
+# footprints (position-only, same pattern as the prior pins): K1/RT1/U1/U2
+# into the PR #1244 power_in.ntc-no cluster + C7 to (112, 218, 90) clear of
+# the pocket. `(footprint ` count (168) and `Sheetpath` occurrence count
+# (168) are unchanged, and the Sheetpath->Reference map is identical
+# before/after (same footprints, same sheetpaths, same refs -- only their
+# `(at ...)` lines moved). No alias/unresolved-component entry references
+# any of the five. Every alias/unresolved-component board ref above is
+# therefore verified unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: 34b14d58939313797c3b9e289d9a0881404a5ba3
+  measured_at_commit: dcc96d0995d0429971bcf487f4219b51916b6e2a
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 077d4b6993c2708ea8d32572300f2964d2e0fb1634f903f5736b3a6eb38f2fda
+      sha256: ddb96f9e03abdcbb0aa40523b45c07413bc694309417628907780e3d19527ef2
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
