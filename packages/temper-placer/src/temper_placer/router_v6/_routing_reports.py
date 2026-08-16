@@ -101,6 +101,14 @@ class PathfindingResult:
     partial_paths: dict[str, RoutePath | RoutePath3D] = field(default_factory=dict)
     tree_routes: dict[str, TreeRouteGeometry] = field(default_factory=dict)
     partial_tree_routes: dict[str, TreeRouteGeometry] = field(default_factory=dict)
+    # 2026-08-14 (docs/evidence/2026-08-14-router-primary-grid-selection-fix.md,
+    # Task 1): count of net endpoints where a netclass-SSOT preferred_layer
+    # disagreed with the net's own real pad layer, and the route's boundary
+    # anchor was resolved onto the pad's real layer instead. Visibility only
+    # -- never folded into success/failure accounting. 0 for any caller that
+    # doesn't populate it (e.g. the production 2-grid pipeline, which has no
+    # equivalent per-endpoint pad-layer lookup yet).
+    layer_divergence_count: int = 0
 
     @property
     def success_count(self) -> int:

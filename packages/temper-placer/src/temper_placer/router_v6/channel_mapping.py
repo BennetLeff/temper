@@ -131,20 +131,32 @@ def _assign_layer(
     net_name: str,
     layer_constraints: dict | None = None,
 ) -> str:
-    """Assign net to preferred routing layer.
+    """Assign net to preferred routing *working* layer for the N-layer A*
+    driver's Tier 1 search and mid-route continuity anchoring.
 
-    Resolution order:
-    1. SSOT ``layer_constraints`` (from
-       ``layer_assignments_from_netclass``) when available, the net's
-       class is *explicit* (not a catch-all Default), and the resolved
-       layer is routable (F.Cu / B.Cu).  **Completion-preserving:** the
-       SSOT layer is only applied when it does not differ from the
-       heuristic layer — nets whose heuristic says F.Cu (signal / SMD
-       pads) are never forced to B.Cu, and vice versa.  This avoids
-       unconnected pads when A* routes on a layer where the pads don't
-       exist.
-    2. Heuristic: power / ground / HV → B.Cu; signal → F.Cu.
-    3. Single-layer mode overrides everything → F.Cu.
+    Resolution order (``assign_layer_impl`` in
+    ``temper-orchestration/src/channel_mapping.rs``):
+    1. Single-layer mode overrides everything -> F.Cu.
+    2. SSOT ``layer_constraints`` (from ``layer_assignments_from_netclass``)
+       when available and the net's class is *explicit* (not a catch-all
+       Default) -- applied **unconditionally**, with no check against the
+       net's own pad layer or the heuristic below. (This docstring
+       previously described a now-removed "divergence guard" that applied
+       the SSOT layer only when it agreed with the heuristic; that guard
+       does not exist in this function today -- see
+       ``docs/evidence/2026-08-14-router-pad-layer-landing-fix.md`` §1 for
+       why it was removed and what removing it actually cost, and
+       ``docs/evidence/2026-08-14-router-primary-grid-selection-fix.md``
+       for how the N-layer A* driver copes with the resulting SSOT/pad
+       disagreement without restoring it.)
+    3. Heuristic: power / ground / HV -> B.Cu; signal -> F.Cu.
+
+    This function does NOT itself reconcile the SSOT layer against where a
+    net's own footprints are actually placed -- ``_astar_nlayer.py``'s
+    ``_land_route_on_pad_layers`` (post-route landing-via correction) and
+    ``run_astar_pathfinding_nlayer``'s ``pad_layer_start``/``pad_layer_end``
+    (route-boundary anchor selection) are what make the disagreement safe
+    to route through, downstream of this net-wide single-layer choice.
     """
     return _to.run_assign_layer(net_name, layer_constraints)
 

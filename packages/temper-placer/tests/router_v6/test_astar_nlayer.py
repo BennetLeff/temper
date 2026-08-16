@@ -18,6 +18,7 @@ import pytest
 
 from temper_placer.router_v6._astar_nlayer import (
     _astar_route_nlayer,
+    _land_route_on_pad_layers,
     run_astar_pathfinding_nlayer,
     select_routing_grids_nlayer,
 )
@@ -114,6 +115,43 @@ def test_nlayer_two_grid_bottleneck_uses_tier2_alternate_detour():
     assert result.forced_segment_count == 0
     assert result.via_positions == [start, goal]
     assert any(seg[2] == "B.Cu" for seg in result.segments)
+
+
+def test_nlayer_tier2_skips_degenerate_same_layer_anchor_via():
+    """Measured 2026-08-14 (docs/evidence/
+    2026-08-14-router-primary-grid-selection-fix.md, Task 1 follow-up): when
+    the pad's own real layer (pad_layer_start/pad_layer_end) happens to
+    equal the layer Tier 2's alternate-detour actually lands on, the route's
+    own boundary anchor must NOT still emit a same-(x, y) duplicate point --
+    that would produce a KiCad via record spanning zero real layers
+    (``(layers "F.Cu" "F.Cu")``), a defect the very first production
+    measurement of this fix's ``via_layer_pair``-facing surface caught
+    (net RTD_SDO). B.Cu is entirely blocked so Tier 1 (primary=B.Cu) fails
+    outright and Tier 2 detours onto F.Cu, which is ALSO the pads' own real
+    layer -- so the route must land directly on F.Cu with no via anywhere.
+    """
+    b_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
+    b_grid = OccupancyGrid("B.Cu", b_arr, (0.0, 0.0), _CELL, _SIZE, _SIZE)
+    f_grid = _open_grid("F.Cu")
+    grids = {"F.Cu": f_grid, "B.Cu": b_grid}
+
+    start, goal = (2.0, 2.0), (8.0, 8.0)
+    channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 10.0, preferred_layer="B.Cu")
+
+    result, _fb = _astar_route_nlayer(
+        "NET1", channel_path, grids, net_id=1,
+        pad_layer_start="F.Cu", pad_layer_end="F.Cu",
+    )
+    assert result is not None
+    assert result.forced_segment_count == 0
+    assert result.via_positions == [], (
+        "the pad's real layer already matches the alt-layer Tier 2 landed "
+        "on -- no via is needed or correct here"
+    )
+    assert all(seg[2] == "F.Cu" for seg in result.segments), (
+        "must never emit a B.Cu anchor point (and therefore no degenerate "
+        "same-layer via) when the pad's own layer already equals alt_layer"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -250,3 +288,112 @@ def test_run_astar_pathfinding_nlayer_declines_unroutable_net_honestly():
     assert "DEAD_NET" in result.failed_nets
     assert "DEAD_NET" not in result.routed_paths
     assert "DEAD_NET" in result.failure_reports
+
+
+# ---------------------------------------------------------------------------
+# 5. _land_route_on_pad_layers: measured 2026-08-14 fix for the b39b382d
+#    fake-completion shape this module's own SSOT-driven preferred_layer can
+#    reproduce -- a net's *working* layer (netclass SSOT, e.g.
+#    GateDriveSELV's ``layer: "B.Cu"``) can differ from the layer its own
+#    footprints are actually placed on (this board places every SMD part on
+#    F.Cu). Tier 1 has no notion of "does this XY have real copper on THIS
+#    layer" -- an SMD pad leaves no grid obstacle on a layer it has no
+#    copper on, so Tier 1 walks straight to the pad's (x, y) on the WRONG
+#    layer and calls it arrival, with no via ever placed.
+# ---------------------------------------------------------------------------
+
+
+def test_land_route_on_pad_layers_is_a_noop_when_termini_already_match():
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[(2.0, 2.0, "F.Cu"), (8.0, 8.0, "F.Cu")],
+        via_positions=[],
+        path_length=10.0,
+    )
+    pads = {"NET1": [(2.0, 2.0, 0.5, "F.Cu"), (8.0, 8.0, 0.5, "F.Cu")]}
+    result = _land_route_on_pad_layers("NET1", route, pads, grids)
+    assert result is route, "must not mutate/replace a route whose termini already sit on their pad's real layer"
+
+
+def test_land_route_on_pad_layers_inserts_landing_vias_at_both_termini():
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[(2.0, 2.0, "B.Cu"), (8.0, 8.0, "B.Cu")],
+        via_positions=[],
+        path_length=10.0,
+    )
+    pads = {"NET1": [(2.0, 2.0, 0.5, "F.Cu"), (8.0, 8.0, 0.5, "F.Cu")]}
+    result = _land_route_on_pad_layers("NET1", route, pads, grids)
+    assert result is not None
+    assert result.segments[0] == (2.0, 2.0, "F.Cu")
+    assert result.segments[1] == (2.0, 2.0, "B.Cu")
+    assert result.segments[-2] == (8.0, 8.0, "B.Cu")
+    assert result.segments[-1] == (8.0, 8.0, "F.Cu")
+    assert (2.0, 2.0) in result.via_positions
+    assert (8.0, 8.0) in result.via_positions
+
+
+def test_land_route_on_pad_layers_fails_closed_when_pad_layer_occupied():
+    """A landing via must never be fabricated through another net's
+    already-claimed copper -- decline (None), don't emit a colliding via."""
+    f_grid = _open_grid("F.Cu")
+    gx, gy = f_grid.world_to_grid(2.0, 2.0)
+    f_grid.grid[gy, gx] = 7  # claimed by a different, earlier-routed net
+    grids = {"F.Cu": f_grid, "B.Cu": _open_grid("B.Cu")}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[(2.0, 2.0, "B.Cu"), (8.0, 8.0, "B.Cu")],
+        via_positions=[],
+        path_length=10.0,
+    )
+    pads = {"NET1": [(2.0, 2.0, 0.5, "F.Cu"), (8.0, 8.0, 0.5, "F.Cu")]}
+    result = _land_route_on_pad_layers("NET1", route, pads, grids)
+    assert result is None
+
+
+def test_land_route_on_pad_layers_leaves_tht_pads_alone():
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[(2.0, 2.0, "B.Cu"), (8.0, 8.0, "B.Cu")],
+        via_positions=[],
+        path_length=10.0,
+    )
+    pads = {"NET1": [(2.0, 2.0, 0.5, "All"), (8.0, 8.0, 0.5, "All")]}
+    result = _land_route_on_pad_layers("NET1", route, pads, grids)
+    assert result is route, "a THT/ALL_LAYERS pad has no 'wrong layer' -- nothing to land"
+
+
+def test_run_astar_pathfinding_nlayer_lands_a_route_forced_onto_the_wrong_layer(monkeypatch):
+    """End-to-end reproduction of the measured defect and its fix: a net
+    whose SSOT ``preferred_layer`` (B.Cu) differs from the layer its real
+    pads sit on (F.Cu, as every SMD part on the production board does) must
+    still terminate on copper that actually reaches those pads, not on
+    B.Cu copper that merely coincides with the pad's (x, y)."""
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    start, goal = (2.0, 2.0), (8.0, 8.0)
+    channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 10.0, preferred_layer="B.Cu")
+    channel_mapping = ChannelMapping(channel_paths={"NET1": channel_path})
+
+    monkeypatch.setattr(
+        "temper_placer.router_v6._astar_nlayer._extract_pad_centers_per_net",
+        lambda _pcb: {"NET1": [(*start, 0.5, "F.Cu"), (*goal, 0.5, "F.Cu")]},
+    )
+    monkeypatch.setattr(
+        "temper_placer.router_v6._astar_nlayer._extract_existing_via_centers_per_net",
+        lambda _pcb: {},
+    )
+
+    result = run_astar_pathfinding_nlayer(
+        channel_mapping, grids, design_rules=DesignRules(), pcb=object()
+    )
+
+    assert "NET1" in result.routed_paths
+    assert "NET1" not in result.failed_nets
+    routed = result.routed_paths["NET1"]
+    assert routed.segments[0][2] == "F.Cu", "must land on the pad's real layer, not the SSOT-forced one"
+    assert routed.segments[-1][2] == "F.Cu"
+    assert start in routed.via_positions
+    assert goal in routed.via_positions
