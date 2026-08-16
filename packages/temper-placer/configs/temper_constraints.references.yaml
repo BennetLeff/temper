@@ -111,7 +111,7 @@ provenance:
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: d2f795bc1d3b0da9203865e8983bc5849b2f38ed1bde2dc0718f00e408d43231
+      sha256: b2ae6c661ca9eeaa27cc4bb9b83d06291856d04ac42509482a6421a9645d20df
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
