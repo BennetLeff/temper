@@ -748,18 +748,38 @@ TEMPER_NET_ASSIGNMENTS = {
     # Declared explicitly here (Tier 2, wins over the Tier 4+ pattern
     # cascade) rather than narrowing the boundary fix back down for just
     # "COIL" -- narrowing would silently reintroduce the hyphen-boundary
-    # defect for the next hyphenated COIL-adjacent net. "Signal" matches
-    # these nets' genuine role (simple SELV relay-coil-drive logic
-    # signals, not a DC supply rail) and is numerically identical to the
-    # Default catch-all these nets already resolve to today (trace_width
-    # 0.2mm, clearance 0.15mm, creepage_mm 0.0) -- this declaration is a
-    # correctness/stability fix (immune to future pattern-cascade churn,
-    # explicit safety_category="LV"), not a clearance/creepage change.
-    "discharge.k_dis1-coil1": "Signal",
-    "discharge.k_dis1-coil2": "Signal",
-    "discharge.k_dis2-coil1": "Signal",
-    "power_in.bypass_relay-coil1": "Signal",
-    "power_in.bypass_relay-coil2": "Signal",
+    # defect for the next hyphenated COIL-adjacent net.
+    #
+    # CHANGED 2026-08-16 (full-route agent, fix/route-to-100-percent):
+    # "Signal" -> "Power". The original Signal declaration (2026-08-13,
+    # #1134) was a stability fix whose PRIMARY purpose -- blocking the
+    # hyphen-boundary-widened "COIL" keyword from reclassifying these
+    # five nets HighCurrent (safety_category "HV") -- survives unchanged
+    # under an explicit Power entry (an explicit Tier-2 declaration still
+    # wins over the Tier 4+ cascade, and Power != HighCurrent). But the
+    # Signal VALUE drifted from every other home of this fact: pcb/
+    # temper.kicad_pro's net_settings.netclass_assignments (the file
+    # kicad-cli's DRC actually reads) has assigned all five nets "Power"
+    # since PR #1087 (2026-08-12, "12V/75mA relay coil-drive nets, per
+    # elec/src/modules.ato; explicitly classed 'Power' already in
+    # configs/temper_production_config.yaml"), and configs/
+    # temper_production_config.yaml itself says "Power nets pull the
+    # 15V/3V3 conversion + relay coil drivers into Power". The mismatch
+    # measured as 531 real kicad-cli track_width DRC violations on the
+    # 2026-08-16 capstone route: every coil-net track emitted at the
+    # Signal width (0.2mm) while the DRC's "Power trace width" rule
+    # requires 1.0mm. Aligning the router's emitted width with the
+    # DRC-enforced class (Power 1.0mm -- strictly WIDER copper, the
+    # conservative direction, matching the router's own C-space halos
+    # which already read Power 0.5mm clearance from kicad_pro) is the
+    # same shape as the #1255 FinePitch fix: make the emitted width
+    # satisfy the enforced rule. Safety_category stays "LV" (Power's own
+    # category); no clearance/creepage threshold changes anywhere.
+    "discharge.k_dis1-coil1": "Power",
+    "discharge.k_dis1-coil2": "Power",
+    "discharge.k_dis2-coil1": "Power",
+    "power_in.bypass_relay-coil1": "Power",
+    "power_in.bypass_relay-coil2": "Power",
 }
 
 # -----------------------------------------------------------------------------

@@ -17,6 +17,7 @@ unchanged.
 from __future__ import annotations
 
 import logging
+import math
 from typing import Any
 
 import temper_geometry as _tg
@@ -392,6 +393,7 @@ def _stitch_isolated_pads(
     zone_points: dict[str, list[tuple[tuple[float, float], ...]]],
     *,
     tstamp_counter: list[int] | None = None,
+    pcb: Any = None,
 ) -> None:
     """U3: emit straight-line trace segments from pads outside every
     dense-cluster pour back to the nearest pour for that net.
@@ -399,11 +401,36 @@ def _stitch_isolated_pads(
     Uses the already-computed zone polygons (from the zone-emission
     loop above) rather than re-clustering independently.
 
+    C-SPACE GATE (2026-08-16, fix/route-to-100-percent): every proposed
+    segment is checked against the SAME per-pair obstacle records the
+    Rust zone carve uses (``collect_zone_obstacle_records`` -- other
+    nets' copper on this layer, each buffered by its own
+    ``max(clearance, creepage)`` pair separation, including both the
+    pre-existing board copper AND the segments/vias this route emitted)
+    BEFORE it is drawn. A segment whose buffered footprint (its own
+    half-width + that pair's separation) intersects any foreign obstacle
+    is SKIPPED, fail-closed, rather than emitted as a known-shorting
+    straight line. Measured on the 2026-08-16 capstone route: the
+    un-gated version emitted 5mm-wide straight pad-to-pour lines for the
+    HV zone nets (DC_BUS_RTN up to 193mm, PWR_RTN, SW_NODE) that crossed
+    unrelated nets' copper wholesale -- the dominant share of the
+    shorting_items violations. The zone carve already guarantees the
+    DESTINATION pour vertex is >= separation away from every foreign
+    obstacle; the pad end and the line between are what this gate
+    protects. Skipped stitches are reported per net via logger.warning
+    rather than silently dropped.
+
     ``tstamp_counter`` lets a caller (``_emit_zone_pours`` /
     ``_write_routes_to_content``) share one deterministic tstamp
     sequence across every element emitted in a single route_pcb() call.
     Callers that invoke this function standalone (e.g. tests) get a
     fresh, independent counter starting at 0.
+
+    ``pcb``: the ``ParsedPCB`` the caller already has, used to resolve
+    the other nets' copper for the C-space gate (same source the zone
+    carve uses). ``None`` (unit tests / synthetic fixtures) disables the
+    gate -- callers without a ``pcb`` have no foreign-copper data to
+    consult and keep the prior behavior.
 
     Wave 4: the point-in-polygon (``shapely.Polygon.contains``/``.touches``)
     and nearest-boundary-vertex (``scipy.spatial.cKDTree``) geometry
@@ -412,10 +439,22 @@ def _stitch_isolated_pads(
     eligibility check (``_zone_layers_for_net``) and tstamp/segment
     formatting stay here -- they are not geometry.
     """
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
     from temper_placer.router_v6._adapter_convert import _next_tstamp
+    from temper_placer.router_v6.zone_pour_clearance import (
+        collect_zone_obstacle_records,
+        default_table,
+    )
+    from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
 
     if tstamp_counter is None:
         tstamp_counter = [0]
+
+    clearance_table = default_table()
+    creepage_table = default_creepage_table()
+    number_to_name = {num: name for name, num in net_name_to_number.items()}
 
     for net_name, positions in pad_positions.items():
         # Zone-eligibility check delegates to _zone_layers_for_net() rather
@@ -450,7 +489,46 @@ def _stitch_isolated_pads(
 
         stitch_width = _stitch_width_for_net(net_name)
 
+        # C-space gate: the same per-pair obstacle records the Rust zone
+        # carve consumes (foreign copper on the stitch layer, each item
+        # buffered by its own max(clearance, creepage) pair separation).
+        # Each record is (kind, x, y, a, b, w, separation); buffered by
+        # its own physical half-extent + separation so the union already
+        # carries the required standoff -- the segment's own half-width is
+        # then the only extra the footprint check has to add.
+        obstacle_union: Any = None
+        if pcb is not None:
+            records = collect_zone_obstacle_records(
+                net_name,
+                trace_layer,
+                pcb=pcb,
+                segments=segments,
+                net_number_to_name=number_to_name,
+                clearance_table=clearance_table,
+                creepage_table=creepage_table,
+            )
+            geoms: list = []
+            for kind, x, y, a, b, w, separation in records:
+                if kind == 0:  # Pad: x,y centre; a=half_w, b=half_h
+                    geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
+                elif kind == 1:  # Track: x,y start; a,b end; w width
+                    geoms.append(
+                        LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8)
+                    )
+                else:  # Via: x,y centre; a diameter
+                    geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
+            if geoms:
+                obstacle_union = unary_union(geoms)
+
+        skipped = 0
         for px, py, nearest_x, nearest_y in targets:
+            if obstacle_union is not None and not obstacle_union.is_empty:
+                footprint = LineString([(px, py), (nearest_x, nearest_y)]).buffer(
+                    stitch_width / 2.0, quad_segs=8
+                )
+                if footprint.intersects(obstacle_union):
+                    skipped += 1
+                    continue
             segments.append(
                 f"  (segment (start {px:.4f} {py:.4f})"
                 f" (end {nearest_x:.4f} {nearest_y:.4f})"
@@ -458,6 +536,20 @@ def _stitch_isolated_pads(
 
                 f" (net {net_num})"
                 f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
+            )
+        if skipped:
+            logger.warning(
+                "_stitch_isolated_pads: %d of %d pad->pour stitch segment(s) "
+                "for net %r on %s were SKIPPED because their buffered "
+                "footprint (width %.3fmm + pair clearance/creepage) crosses "
+                "another net's copper -- fail-closed, no copper emitted "
+                "through a foreign obstacle. This net's pads may rely on the "
+                "zone itself for continuity.",
+                skipped,
+                len(targets),
+                net_name,
+                trace_layer,
+                stitch_width,
             )
 
 
@@ -516,6 +608,7 @@ def _stitch_pads_to_each_other(
     net_name_to_number: dict[str, int],
     *,
     tstamp_counter: list[int] | None = None,
+    pcb: Any = None,
 ) -> None:
     """ADDED 2026-08-14 (docs/evidence/2026-08-14-ntc-no-realization-and-
     delta-t-reconciliation.md): for ``_CONTINUITY_EXEMPT_NETS`` members
@@ -526,6 +619,26 @@ def _stitch_pads_to_each_other(
     pad of a single-hull continuity-exempt net is already INSIDE that one
     hull, so none is ever "isolated" and none gets a stitch from that
     function).
+
+    C-SPACE GATE (2026-08-16, fix/route-to-100-percent): the same
+    fail-closed obstacle check ``_stitch_isolated_pads`` now applies to
+    its F.Cu segments is applied here to the In3.Cu MST edges. The
+    original 2026-08-14 verification of ``_CONTINUITY_EXEMPT_NET_VERIFIED_EDGES``
+    measured a board on which In3.Cu carried ZERO copper of any kind (the
+    layer was added by PR #1195 and nothing routed there yet); the 2026-08-16
+    capstone + post-fix routes show that assumption is stale: HighVoltage
+    nets like ``w1_2``/``w1_1`` (A*-routed on In3.Cu at the 5.0mm netclass
+    width -- ``_should_route``'s HV keyword classifier does not recognize
+    the ``w1_1``/``w1_2`` names, so they route instead of being zone-
+    covered) now occupy In3.Cu, and ntc-no's straight 27-79mm MST edges
+    cross them wholesale (76 shorting_items on the 2026-08-16 post-fix
+    route, all ``power_in.ntc-no <-> w1_2``). Each edge's buffered
+    footprint (its own half-width + the pair's max(clearance, creepage))
+    is now checked against the same per-pair obstacle records the zone
+    carve uses; a blocked edge is SKIPPED, never emitted. The endpoint
+    vias stay (same-net copper at the net's own pads, no short risk), so
+    the audit still sees the pads reach In3.Cu -- but an honest gap
+    between pads is reported rather than a shorting straight line.
 
     REVISED 2026-08-14, same day: the first version of this function drew
     these connectors on the SAME layer as the pour (F.Cu) as plain
@@ -593,6 +706,8 @@ def _stitch_pads_to_each_other(
     """
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
     from temper_placer.router_v6._adapter_convert import _next_tstamp
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
 
     _STITCH_LAYER = "In3.Cu"
 
@@ -656,9 +771,55 @@ def _stitch_pads_to_each_other(
         via_dropped: set[int] = set()
         stitch_width = _stitch_width_for_net(net_name)
 
+        # C-space gate (2026-08-16): foreign copper on the stitch layer,
+        # each item buffered by its own max(clearance, creepage) pair
+        # separation -- the same per-pair obstacle records the zone carve
+        # consumes (see _stitch_isolated_pads for the identical gate on
+        # F.Cu). Built once per net; an edge whose buffered footprint
+        # intersects it is skipped, fail-closed.
+        obstacle_union: Any = None
+        if pcb is not None:
+            from temper_placer.router_v6.zone_pour_clearance import (
+                collect_zone_obstacle_records,
+                default_table,
+            )
+            from temper_placer.router_v6.zone_pour_creepage import (
+                default_creepage_table,
+            )
+
+            records = collect_zone_obstacle_records(
+                net_name,
+                _STITCH_LAYER,
+                pcb=pcb,
+                segments=segments,
+                net_number_to_name={num: name for name, num in net_name_to_number.items()},
+                clearance_table=default_table(),
+                creepage_table=default_creepage_table(),
+            )
+            geoms: list = []
+            for kind, x, y, a, b, w, separation in records:
+                if kind == 0:  # Pad
+                    geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
+                elif kind == 1:  # Track
+                    geoms.append(
+                        LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8)
+                    )
+                else:  # Via
+                    geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
+            if geoms:
+                obstacle_union = unary_union(geoms)
+
+        skipped = 0
         for i, j in edges:
             xi, yi = positions[i]
             xj, yj = positions[j]
+            if obstacle_union is not None and not obstacle_union.is_empty:
+                footprint = LineString([(xi, yi), (xj, yj)]).buffer(
+                    stitch_width / 2.0, quad_segs=8
+                )
+                if footprint.intersects(obstacle_union):
+                    skipped += 1
+                    continue
             for idx, (px, py) in ((i, (xi, yi)), (j, (xj, yj))):
                 if idx in via_dropped:
                     continue
@@ -682,6 +843,20 @@ def _stitch_pads_to_each_other(
                 f' (width {stitch_width:.4f}) (layer "{_STITCH_LAYER}")'
                 f" (net {net_num})"
                 f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
+            )
+        if skipped:
+            logger.warning(
+                "_stitch_pads_to_each_other: %d of %d pad-to-pad edge(s) "
+                "for net %r on %s were SKIPPED because their buffered "
+                "footprint (width %.3fmm + pair clearance/creepage) crosses "
+                "another net's copper -- fail-closed, no copper emitted "
+                "through a foreign obstacle. The net's pads may rely on "
+                "the zone itself for continuity.",
+                skipped,
+                len(edges),
+                net_name,
+                _STITCH_LAYER,
+                stitch_width,
             )
 
 
@@ -966,12 +1141,14 @@ def _emit_zone_pours(
         net_name_to_number,
         zone_points_by_net,
         tstamp_counter=tstamp_counter,
+        pcb=pcb,
     )
     _stitch_pads_to_each_other(
         pad_positions,
         segments,
         net_name_to_number,
         tstamp_counter=tstamp_counter,
+        pcb=pcb,
     )
 
 
