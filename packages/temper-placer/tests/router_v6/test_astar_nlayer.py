@@ -18,14 +18,18 @@ import pytest
 
 from temper_placer.router_v6._astar_nlayer import (
     _astar_route_nlayer,
+    _build_width_families,
+    _family_static_inflation,
     _land_route_on_pad_layers,
+    _width_family_signature,
     run_astar_pathfinding_nlayer,
     select_routing_grids_nlayer,
 )
 from temper_placer.router_v6.astar_core import RoutePath3D
+from temper_placer.router_v6.astar_grid import _mark_route_blocked
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-from temper_placer.router_v6.stage0_data import DesignRules
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
+from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
 
 _SIZE = 21
 _CELL = 0.5
@@ -397,3 +401,242 @@ def test_run_astar_pathfinding_nlayer_lands_a_route_forced_onto_the_wrong_layer(
     assert routed.segments[-1][2] == "F.Cu"
     assert start in routed.via_positions
     assert goal in routed.via_positions
+
+
+# ---------------------------------------------------------------------------
+# 6. Width-aware C-space (2026-08-16): one occupancy-grid family per
+#    (width, clearance) signature -- static obstacles eroded by W/2 + C,
+#    routed copper stamped into every family at
+#    w_F/2 + max(cl_F, C) + W/2 -- so a 5.0mm track can no longer be routed
+#    through copper the old flat 0.1mm halo failed to reserve. See
+#    docs/evidence/2026-08-16-width-aware-cspace.md.
+# ---------------------------------------------------------------------------
+
+
+def _make_rule(name: str, width: float, clearance: float, via: float = 0.9) -> NetClassRules:
+    return NetClassRules(
+        name=name,
+        clearance_mm=clearance,
+        trace_width_mm=width,
+        via_diameter_mm=via,
+        via_drill_mm=0.3,
+    )
+
+
+def _make_width_aware_design_rules() -> DesignRules:
+    return DesignRules(
+        net_classes={
+            "Default": _make_rule("Default", 0.2, 0.2),
+            "HighVoltage": _make_rule("HighVoltage", 5.0, 2.0, via=1.2),
+        },
+        net_class_assignments={"NARROW": "Default", "WIDE": "HighVoltage"},
+        default_clearance_mm=0.2,
+        default_trace_width_mm=0.2,
+    )
+
+
+def _make_box_routing_space(layer: str, side_mm: float):
+    from shapely.geometry import MultiPolygon, box
+
+    from temper_placer.router_v6.routing_space import RoutingSpace
+
+    b = box(0.0, 0.0, side_mm, side_mm)
+    area = side_mm * side_mm
+    return RoutingSpace(
+        layer_name=layer,
+        available_area=MultiPolygon([b]),
+        total_area=area,
+        obstacle_area=0.0,
+        routing_area=area,
+        obstacles=None,
+    )
+
+
+def test_width_family_signature_floors_clearance_and_merges():
+    # Default 0.2/0.2 stays as-is; FinePitch's declared 0.1mm is below the
+    # DRC's 0.2mm track-involving floor and must be floored; HighVoltage
+    # passes through untouched.
+    assert _width_family_signature(_make_rule("Default", 0.2, 0.2)) == (0.2, 0.2)
+    assert _width_family_signature(_make_rule("FinePitch", 0.127, 0.1)) == (0.127, 0.2)
+    assert _width_family_signature(_make_rule("HighVoltage", 5.0, 2.0)) == (5.0, 2.0)
+
+
+def test_family_static_inflation_is_half_width_plus_clearance():
+    assert _family_static_inflation((0.2, 0.2)) == 0.3  # 0.1 + 0.2
+    assert _family_static_inflation((5.0, 2.0)) == 4.5  # 2.5 + 2.0
+    assert _family_static_inflation((0.127, 0.2)) == 0.2635  # floored clearance
+
+
+def test_build_width_families_erodes_static_layer_per_width():
+    """The wide family's static layer is eroded by 4.5mm, the narrow
+    family's by 0.3mm -- identical grid frames, different free area."""
+    side = 40.0
+    rs = {"F.Cu": _make_box_routing_space("F.Cu", side)}
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_width_aware_design_rules()
+
+    families, family_of_net = _build_width_families(base, rs, ["NARROW", "WIDE"], rules)
+
+    assert family_of_net == {"NARROW": (0.2, 0.2), "WIDE": (5.0, 2.0)}
+    narrow = families[(0.2, 0.2)]["F.Cu"]
+    wide = families[(5.0, 2.0)]["F.Cu"]
+    assert (narrow.origin, narrow.cell_size, narrow.width_cells, narrow.height_cells) == (
+        wide.origin,
+        wide.cell_size,
+        wide.width_cells,
+        wide.height_cells,
+    ), "families must share the grid frame, differing only in erosion"
+    assert narrow.free_cell_count > wide.free_cell_count
+
+    # World x=1.0 is 0.7mm inside the narrow family's 0.3mm-eroded area but
+    # 3.5mm outside the wide family's 4.5mm-eroded area.
+    gx, gy = narrow.world_to_grid(1.0, 20.0)
+    assert narrow.is_free(gx, gy)
+    assert wide.is_blocked(gx, gy)
+
+
+def test_build_width_families_without_routing_spaces_is_identity():
+    """Synthetic fixtures (and every pre-existing unit test) pass no
+    routing_spaces -- the caller's grids must be reused as-is."""
+    base = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    rules = _make_width_aware_design_rules()
+    families, family_of_net = _build_width_families(base, None, ["NARROW", "WIDE"], rules)
+    assert families[(0.2, 0.2)] is base, "single identity family must BE the caller's dict"
+
+
+def _min_centerline_distance(path_a, path_b) -> float:
+    pts_a = [(s[0], s[1]) for s in path_a.segments]
+    pts_b = [(s[0], s[1]) for s in path_b.segments]
+    best = float("inf")
+    for x1, y1 in pts_a:
+        for x2, y2 in pts_b:
+            best = min(best, ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5)
+    return best
+
+
+def test_wide_net_cannot_cross_narrow_net_width_aware_halo():
+    """NARROW (0.2mm, Default) routes first down x=20; WIDE (5.0mm,
+    HighVoltage) then tries to cross at y=20 on the same single layer.
+    The width-aware C-space stamps NARROW into WIDE's family at
+    0.1 + max(0.2, 2.0) + 2.5 = 4.6mm radius -- a 9.2mm blocked band with
+    no detour room on a 40mm board -- so WIDE declines honestly. The old
+    flat 0.2mm stamp (0.3mm radius) let WIDE cross straight through and
+    short against NARROW's copper."""
+    side = 40.0
+    rs = {"F.Cu": _make_box_routing_space("F.Cu", side)}
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_width_aware_design_rules()
+    narrow_ch = ChannelPath(
+        "NARROW", ["CH1"], [(20.0, 4.0), (20.0, 36.0)], 32.0, preferred_layer="F.Cu"
+    )
+    wide_ch = ChannelPath(
+        "WIDE", ["CH2"], [(6.0, 20.0), (34.0, 20.0)], 28.0, preferred_layer="F.Cu"
+    )
+    channel_mapping = ChannelMapping(channel_paths={"NARROW": narrow_ch, "WIDE": wide_ch})
+
+    result = run_astar_pathfinding_nlayer(
+        channel_mapping, base, design_rules=rules, max_iter=200_000, routing_spaces=rs
+    )
+
+    assert "NARROW" in result.routed_paths
+    if "WIDE" in result.routed_paths:
+        min_d = _min_centerline_distance(result.routed_paths["WIDE"], result.routed_paths["NARROW"])
+        assert min_d >= 2.0, f"WIDE crossed NARROW within {min_d:.3f}mm -- a short"
+    else:
+        assert "WIDE" in result.failed_nets, "WIDE must decline honestly, never fabricate"
+
+    # Control: with NARROW's copper absent, WIDE routes fine through the
+    # same 4.5mm-eroded corridor -- proving the decline above is caused by
+    # NARROW's width-aware halo, not by the wide family being unroutable.
+    wide_only = ChannelMapping(channel_paths={"WIDE": wide_ch})
+    control = run_astar_pathfinding_nlayer(
+        wide_only, base, design_rules=rules, max_iter=200_000, routing_spaces=rs
+    )
+    assert "WIDE" in control.routed_paths
+
+
+def test_narrow_net_stamp_radius_differs_between_families(monkeypatch):
+    """The stamp NARROW's copper leaves behind must be 4.6mm in WIDE's
+    family (0.1 + max(0.2, 2.0) + 2.5) but only 0.4mm in its own
+    (0.1 + max(0.2, 0.2) + 0.1) -- verified at the driver's actual
+    ``_mark_route_blocked`` call sites."""
+    side = 40.0
+    rs = {"F.Cu": _make_box_routing_space("F.Cu", side)}
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_width_aware_design_rules()
+    narrow_ch = ChannelPath(
+        "NARROW", ["CH1"], [(20.0, 4.0), (20.0, 36.0)], 32.0, preferred_layer="F.Cu"
+    )
+    wide_ch = ChannelPath(
+        "WIDE", ["CH2"], [(6.0, 20.0), (34.0, 20.0)], 28.0, preferred_layer="F.Cu"
+    )
+    channel_mapping = ChannelMapping(channel_paths={"NARROW": narrow_ch, "WIDE": wide_ch})
+
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    calls: list[tuple[float, float, float]] = []
+    real_mark = _nl._mark_route_blocked
+
+    def spy(route_path, grids, trace_width, clearance, net_id, via_diameter=0.6):
+        calls.append((trace_width, clearance, via_diameter))
+        return real_mark(route_path, grids, trace_width, clearance, net_id, via_diameter)
+
+    monkeypatch.setattr(_nl, "_mark_route_blocked", spy)
+
+    result = run_astar_pathfinding_nlayer(
+        channel_mapping, base, design_rules=rules, max_iter=200_000, routing_spaces=rs
+    )
+    assert "NARROW" in result.routed_paths
+    # WIDE is expected to decline here (see
+    # test_wide_net_cannot_cross_narrow_net_width_aware_halo) -- the point
+    # of THIS test is the stamp NARROW left in both families regardless.
+    assert "WIDE" in result.failed_nets
+
+    # NARROW (0.2mm/0.2mm, via 0.9) was stamped into BOTH live families:
+    #   own family   (0.2, 0.2): clearance max(0.2,0.2) + 0.1 = 0.3
+    #   wide family  (5.0, 2.0): clearance max(0.2,2.0) + 2.5 = 4.5
+    # and the rasteriser adds w_N/2 = 0.1, so radii are 0.4mm / 4.6mm.
+    narrow_stamps = [c for c in calls if c[0] == 0.2]
+    assert len(narrow_stamps) == 2, f"NARROW stamped {len(narrow_stamps)} family/ies, want 2"
+    clearances = sorted(round(c[1], 6) for c in narrow_stamps)
+    assert clearances == [0.3, 4.5], f"per-family stamp clearances {clearances} != [0.3, 4.5]"
+    assert all(c[2] == 0.9 for c in narrow_stamps), "NARROW's via_diameter 0.9 must be used"
+
+
+def test_mark_route_blocked_uses_net_via_diameter():
+    """Vias are stamped at the routed net's real via diameter, not the
+    historical hardcoded 0.6mm (a 1.2mm HV via marked at 0.6mm under-
+    reserved its halo by 0.3mm per side)."""
+    grid = _open_grid("F.Cu")  # 0.5mm cells
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[(1.0, 1.0, "F.Cu"), (5.0, 1.0, "F.Cu")],
+        via_positions=[(3.0, 3.0)],  # off the segment line, so the via radius
+        # check below is not contaminated by the segment's own stamp
+        path_length=4.0,
+        via_count=1,
+    )
+    # 1.2mm via, 0.2 clearance -> radius 0.8mm -> expansion ceil(0.8/0.5)=2
+    _mark_route_blocked(
+        route, {"F.Cu": grid}, trace_width=0.2, clearance=0.2, net_id=3, via_diameter=1.2
+    )
+    gx, gy = grid.world_to_grid(3.0, 3.0)
+    assert grid.grid[gy, gx] == 3
+    assert grid.grid[gy, gx + 1] == 3, "0.5mm <= 0.8mm radius must be blocked"
+    assert grid.grid[gy, gx + 2] == 0, "1.0mm > 0.8mm radius must stay free"
+
+
+def test_mark_route_blocked_via_diameter_default_preserves_legacy_behavior():
+    grid = _open_grid("F.Cu")
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[(1.0, 1.0, "F.Cu"), (5.0, 1.0, "F.Cu")],
+        via_positions=[(3.0, 3.0)],
+        path_length=4.0,
+        via_count=1,
+    )
+    # default 0.6mm via, 0.2 clearance -> radius 0.5mm -> expansion 1
+    _mark_route_blocked(route, {"F.Cu": grid}, trace_width=0.2, clearance=0.2, net_id=3)
+    gx, gy = grid.world_to_grid(3.0, 3.0)
+    assert grid.grid[gy, gx + 1] == 3, "0.5mm <= 0.5mm radius must be blocked (legacy behavior)"
+    assert grid.grid[gy, gx + 2] == 0

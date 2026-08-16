@@ -114,12 +114,14 @@ from temper_placer.router_v6.astar_grid import (
     _restore_net_pads,
     _unblock_net_pads,
 )
+from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
 from temper_placer.router_v6.net_classification import classify_net_type
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
 from temper_placer.router_v6.stage0_data import DesignRules
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.channel_mapping import ChannelMapping
-    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+    from temper_placer.router_v6.routing_space import RoutingSpace
 
 logger = logging.getLogger(__name__)
 
@@ -613,6 +615,106 @@ def _land_route_on_pad_layers(
     return attempted
 
 
+# ---------------------------------------------------------------------------
+# Width-aware C-space families (2026-08-16).
+#
+# Root cause being fixed: the occupancy grids are built ONCE, with a static
+# erosion of `default_trace_width_mm / 2` (= 0.1mm) around every static
+# obstacle, and every routed track is stamped back into them at the flat
+# board default width (0.2mm) instead of its own width. The router then
+# emits tracks up to 5.0mm wide (the netclass SSOT, threaded into
+# assign_trace_widths), so a 5.0mm HighVoltage track threads its
+# centerline 0.1mm from a pad and overlaps it by 2.4mm -- measured as 204
+# shorting_items on the 6-layer routed board (2026-08-15), of which w1_1
+# (5.0mm) alone accounts for 120, split 110 pad<->track / 63 track<->track
+# / 31 track<->via.
+#
+# Fix: one occupancy-grid family per distinct (trace_width, floored
+# clearance) signature among the nets this run actually routes. Family
+# (W, C) provides the C-space a net of width W and clearance C needs:
+#
+#   * static obstacles (pads, vias, board edge, keepouts) eroded by
+#     W/2 + C -- the searching net's own half-width plus the DRC's 0.2mm
+#     track-involving floor -- so its centerline can never come within its
+#     own copper extent of a static obstacle (no pad<->track shorts);
+#   * every routed foreign net F stamped at
+#     w_F/2 + max(cl_F, C) + W/2 -- the marked net's half-width plus the
+#     family's searching half-width plus a clearance floor, so the
+#     edge-to-edge gap between F and any net searching this family is
+#     >= max(cl_F, C) > 0 by construction (no track<->track/via shorts),
+#     and the separation no longer depends on which of a pair routed first.
+#
+# Each net searches the family matching its own rule; routed copper is
+# stamped into EVERY family at that family's radius (the same per-family
+# structure profile_grids.py gives the legacy 2-layer path, extended here
+# to the static obstacle layer). When `routing_spaces` is unavailable
+# (synthetic test fixtures), a single identity family reusing the caller's
+# grids keeps the historical behaviour.
+# ---------------------------------------------------------------------------
+
+
+def _width_family_signature(rule: object) -> tuple[float, float]:
+    """The (width, floored-clearance) family key for a net's rule."""
+    width = float(getattr(rule, "trace_width_mm", 0.0) or 0.0)
+    declared = float(getattr(rule, "clearance_mm", 0.0) or 0.0)
+    # DEFAULT_ROUTING_CLEARANCE_MM is RULE 10's floor: any pair where
+    # either side is a track is graded at >= 0.2mm, so a class declaring
+    # less (FinePitch 0.1) still needs the floor charged. Flooring here
+    # also merges classes that behave identically once floored (Signal
+    # 0.15 and Default 0.2, both 0.2mm wide) into one family.
+    return (round(width, 6), round(max(declared, DEFAULT_ROUTING_CLEARANCE_MM), 6))
+
+
+def _family_static_inflation(signature: tuple[float, float]) -> float:
+    """Erosion for a family's static obstacle layer (W/2 + C)."""
+    width, clearance = signature
+    return round(width / 2.0 + clearance, 9)
+
+
+def _build_width_families(
+    grids: dict[str, OccupancyGrid],
+    routing_spaces: dict[str, RoutingSpace] | None,
+    routable_nets: list[str],
+    design_rules: DesignRules,
+) -> tuple[
+    dict[tuple[float, float], dict[str, OccupancyGrid]],
+    dict[str, tuple[float, float]],
+]:
+    """Build one occupancy-grid family per (width, clearance) signature.
+
+    Returns ``(families, family_of_net)``. ``families`` maps a signature to
+    a per-layer grid dict rebuilt from ``routing_spaces`` with that
+    signature's static erosion; ``family_of_net`` maps each routable net to
+    the signature it searches. With ``routing_spaces=None`` a single
+    identity family reuses ``grids`` unchanged (historical behaviour, and
+    what the unit tests exercise).
+    """
+    family_of_net = {
+        net_name: _width_family_signature(design_rules.get_rules_for_net(net_name))
+        for net_name in routable_nets
+    }
+    if not routing_spaces:
+        # Identity fallback: one family, the caller's grids as-is.
+        default_signature = _width_family_signature(design_rules.get_rules_for_net(""))
+        return {default_signature: grids}, family_of_net
+
+    families: dict[tuple[float, float], dict[str, OccupancyGrid]] = {}
+    # Build in `grids`' own layer order (deterministic; the caller's dict
+    # is already in engine-preference order) so `next(iter(...))` picks in
+    # the same order the caller's grids did.
+    for net_name in routable_nets:
+        signature = family_of_net[net_name]
+        if signature in families:
+            continue
+        inflation = _family_static_inflation(signature)
+        families[signature] = {
+            layer: build_occupancy_grid(routing_spaces[layer], inflation_mm=inflation)
+            for layer in grids
+            if layer in routing_spaces
+        }
+    return families, family_of_net
+
+
 def run_astar_pathfinding_nlayer(
     channel_mapping: ChannelMapping,
     grids: dict[str, OccupancyGrid],
@@ -630,6 +732,7 @@ def run_astar_pathfinding_nlayer(
     net_budgets: dict[str, int] | None = None,
     thermal_flat=None,
     thermal_weight: float = 0.0,
+    routing_spaces: dict[str, RoutingSpace] | None = None,
 ) -> PathfindingResult:
     """N-layer, via-aware generalization of ``astar_pathfinding.run_astar_pathfinding``.
 
@@ -640,6 +743,12 @@ def run_astar_pathfinding_nlayer(
     docstring for what is deliberately out of scope for this spike
     (all-pad-tree, congestion tensor, thermal field support is threaded
     through but untested at scale, rip-up-and-reroute).
+
+    ``routing_spaces`` (2026-08-16): the Stage-2 per-layer
+    ``RoutingSpace`` objects, used to rebuild each width family's grids
+    with that family's static C-space erosion. ``None`` (synthetic
+    fixtures, and every pre-existing unit test) keeps a single identity
+    family over the caller's grids -- see ``_build_width_families``.
     """
     if not grids:
         raise ValueError("No occupancy grids available for N-layer A* pathfinding")
@@ -693,7 +802,15 @@ def run_astar_pathfinding_nlayer(
 
     net_ids = {name: i + 1 for i, name in enumerate(routable_nets)}
     id_to_net = {v: k for k, v in net_ids.items()}
-    base_inflation = design_rules.default_trace_width_mm / 2.0
+
+    # Width-aware C-space families (2026-08-16): one grid family per
+    # (width, clearance) signature among the nets this run routes, so the
+    # static obstacle layer and every routed-copper stamp reserve the
+    # searching net's real half-width instead of the 0.1mm board default.
+    families, family_of_net = _build_width_families(
+        grids, routing_spaces, routable_nets, design_rules
+    )
+
     per_path_latency_ms: dict[str, float] = {}
     fallback_count = 0
 
@@ -701,7 +818,16 @@ def run_astar_pathfinding_nlayer(
         nonlocal fallback_count, layer_divergence_count
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
-        primary_grid_for_budget = grids.get(channel_path.preferred_layer) or next(iter(grids.values()))
+        # This net's OWN family: the grids whose static erosion and
+        # routed-copper stamps already carry this net's width and
+        # clearance -- never the shared `grids` dict directly.
+        family_key = family_of_net[net_name]
+        active_grids = families[family_key]
+        family_inflation = _family_static_inflation(family_key)
+        net_rule = design_rules.get_rules_for_net(net_name)
+        primary_grid_for_budget = active_grids.get(channel_path.preferred_layer) or next(
+            iter(active_grids.values())
+        )
 
         # Root-cause fix (Task 1, docs/evidence/
         # 2026-08-14-router-primary-grid-selection-fix.md): the net's own
@@ -754,8 +880,8 @@ def run_astar_pathfinding_nlayer(
         restoration = _unblock_net_pads(
             net_name,
             pad_centers_per_net,
-            grids,
-            inflation_mm=base_inflation,
+            active_grids,
+            inflation_mm=family_inflation,
             escape_vias_map=escape_vias_map,
             existing_vias_map=existing_vias_per_net,
         )
@@ -763,7 +889,7 @@ def run_astar_pathfinding_nlayer(
         route_path, fb = _astar_route_nlayer(
             net_name,
             channel_path,
-            grids,
+            active_grids,
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             max_iter=per_net_max_iter,
@@ -790,7 +916,7 @@ def run_astar_pathfinding_nlayer(
             # reset back to -1 and fail every landing closed, not just the
             # genuine collisions.
             attempted, blocked_ends = _attempt_pad_layer_landing(
-                net_name, route_path, pad_centers_per_net, grids
+                net_name, route_path, pad_centers_per_net, active_grids
             )
             if blocked_ends:
                 # Task 2: net-level decline stays net-level (this net's
@@ -814,7 +940,7 @@ def run_astar_pathfinding_nlayer(
 
         ripped_ids: list[int] = []
         if route_path and route_path.forced_segment_count > 0:
-            blockers = _identify_blocking_nets(channel_path, list(grids.values()))
+            blockers = _identify_blocking_nets(channel_path, list(active_grids.values()))
             if blockers:
                 ripped_ids = sorted(blockers)
         blocker_names = [id_to_net.get(rid, f"Unknown-{rid}") for rid in ripped_ids]
@@ -837,13 +963,24 @@ def run_astar_pathfinding_nlayer(
                     partial_paths[net_name] = route_path
                 return _forced_segment_decline([], congestion_region())
             routed_paths[net_name] = route_path
-            _mark_route_blocked(
-                route_path,
-                grids,
-                trace_width=design_rules.default_trace_width_mm,
-                clearance=design_rules.default_clearance_mm,
-                net_id=net_id,
-            )
+            # Width-aware stamp (2026-08-16): the routed net's own real
+            # width (not the flat 0.2mm board default, which under-reserved
+            # a 5.0mm HighVoltage track's halo by 2.2mm and was the
+            # measured cause of the 204 shorting_items on the 6-layer
+            # board), into EVERY family at that family's searching-net
+            # radius: w_F/2 + max(cl_F, C) + W/2. Each family's static
+            # layer already reserves W/2 + C, so the separation between
+            # this net and any net searching that family is >=
+            # max(cl_F, C) > 0 edge-to-edge by construction.
+            for _fam_key, _fam_grids in families.items():
+                _mark_route_blocked(
+                    route_path,
+                    _fam_grids,
+                    trace_width=net_rule.trace_width_mm,
+                    clearance=max(net_rule.clearance_mm, _fam_key[1]) + _fam_key[0] / 2.0,
+                    net_id=net_id,
+                    via_diameter=net_rule.via_diameter_mm,
+                )
             return True, "", [], None, None
 
         if landing_blocked:

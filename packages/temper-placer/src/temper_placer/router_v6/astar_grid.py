@@ -292,8 +292,16 @@ def _mark_route_blocked(
     trace_width: float,
     clearance: float,
     net_id: int,
+    via_diameter: float = 0.6,
 ) -> None:
-    """Mark a path blocked on its respective layer grids."""
+    """Mark a path blocked on its respective layer grids.
+
+    ``via_diameter`` (2026-08-16): the diameter the route's vias are
+    stamped at. Defaults to the historical hardcoded 0.6mm so existing
+    callers keep their exact behaviour; the N-layer path passes the
+    routed net's real class ``via_diameter_mm`` (0.8-1.2mm on this board),
+    so a via no longer under-reserves its halo by up to 0.3mm per side.
+    """
     if isinstance(route_path, RoutePath3D):
         # Mark each segment on its specific layer
         for i in range(len(route_path.segments) - 1):
@@ -310,7 +318,7 @@ def _mark_route_blocked(
         # Mark vias on ALL layers (assuming they span the stackup for now)
         for vx, vy in route_path.via_positions:
             for grid in grids.values():
-                grid.mark_via_blocked(vx, vy, 0.6, clearance, net_id)  # 0.6mm via dia
+                grid.mark_via_blocked(vx, vy, via_diameter, clearance, net_id)
     else:
         # Legacy single-layer behavior
         if route_path.layer_name in grids:
