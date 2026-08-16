@@ -393,7 +393,7 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         //
         // The emitted set is the path **subsampled to corridor decision
         // points** (walk endpoints, snapped pads, skeleton junctions, and
-        // >45° turns). Stage 4's A* routes waypoint-to-waypoint; emitting
+        // >30° turns). Stage 4's A* routes waypoint-to-waypoint; emitting
         // every micro-edge forces it through hundreds of tiny segments per
         // net (measured: ~3× the batched route's wall time, still
         // grinding). Corridor guidance belongs at decision points; along a
@@ -599,7 +599,7 @@ fn unblocked_shortest_path(graph: &Graph, start: u32, goal: u32) -> Option<Vec<u
 
 /// Direction-change threshold for treating a walk node as a corridor
 /// decision point (a "turn").
-const TURN_THRESHOLD_RAD: f64 = std::f64::consts::FRAC_PI_4;
+const TURN_THRESHOLD_RAD: f64 = std::f64::consts::PI / 6.0; // 30°
 
 /// Subsample a path's edge list to the edges at its corridor decision
 /// points. Stage 4's A* routes waypoint-to-waypoint; emitting every
@@ -609,12 +609,14 @@ const TURN_THRESHOLD_RAD: f64 = std::f64::consts::FRAC_PI_4;
 ///
 /// - the walk's two endpoints (the pads),
 /// - every snapped-pad node (multi-pad nets' intermediate pads),
-/// - skeleton junction nodes (degree != 2 — where the corridor actually
-///   branches or the path must choose a side),
-/// - direction changes > 45° (a curved corridor's intermediate points).
+/// - direction changes > 30° (where the corridor actually bends; the
+///   skeleton's junctions are NOT kept — a medial-axis graph's average
+///   degree is > 2, so "degree ≠ 2" keeps almost every node and the
+///   subsample degenerates back to the full path, measured).
 ///
 /// Along a junction-free straight run the occupancy-grid A* finds the
-/// path itself; forcing it through every skeleton edge only slows it down.
+/// path itself; forcing it through every skeleton edge or every corridor
+/// junction only slows it down.
 ///
 /// Returns the ordered subset of `path`'s edge indices to emit (always
 /// non-empty when `path` is non-empty; the walk's endpoints are always
@@ -646,10 +648,9 @@ fn subsample_waypoint_edges(graph: &Graph, path: &[u32], snapped: &[u32]) -> Vec
     let last = nodes.len() - 1;
     let mut kept: Vec<usize> = vec![0];
     for i in 1..last {
-        let is_junction = graph.adjacency[nodes[i] as usize].len() != 2;
         let is_pad = pad_set.contains(&nodes[i]);
         let is_turn = is_turn_at(graph, &nodes, i);
-        if is_junction || is_pad || is_turn {
+        if is_pad || is_turn {
             kept.push(i);
         }
     }
@@ -676,7 +677,7 @@ fn subsample_waypoint_edges(graph: &Graph, path: &[u32], snapped: &[u32]) -> Vec
     emitted
 }
 
-/// True when the walk changes direction by more than 45° at `nodes[i]`.
+/// True when the walk changes direction by more than 30° at `nodes[i]`.
 fn is_turn_at(graph: &Graph, nodes: &[u32], i: usize) -> bool {
     let (ax, ay) = graph.nodes[nodes[i - 1] as usize];
     let (bx, by) = graph.nodes[nodes[i] as usize];
@@ -1055,6 +1056,34 @@ pub(crate) mod tests {
         assert_eq!(topo.uses_channels.len(), 3, "{:?}", topo.uses_channels);
     }
 
+    /// A path that passes *straight through* a junction (no direction
+    /// change) must NOT keep the junction as a waypoint — on a medial-axis
+    /// skeleton most nodes are junctions; keeping them degenerates the
+    /// subsample back to the full path (measured).
+    #[cfg_attr(test, test)]
+    fn straight_through_junction_is_not_kept() {
+        // Cross-shaped graph: horizontal a--b--c, vertical d--b--e. The
+        // path a->c passes straight through b (a junction of degree 4).
+        let a = (0.0, 0.0);
+        let b = (10.0, 0.0);
+        let c = (20.0, 0.0);
+        let d = (10.0, 10.0);
+        let e = (10.0, -10.0);
+        let edges = vec![
+            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
+            DirectEdge { layer: "F.Cu".into(), u: b, v: c, capacity: 10.0 },
+            DirectEdge { layer: "F.Cu".into(), u: b, v: d, capacity: 10.0 },
+            DirectEdge { layer: "F.Cu".into(), u: b, v: e, capacity: 10.0 },
+        ];
+        let r = solve_topology_direct(
+            &[net("thru", vec![a, c], 1.0)],
+            &edges,
+        );
+        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        let (_, topo) = &r.net_topologies[0];
+        assert_eq!(topo.uses_channels.len(), 2, "{:?}", topo.uses_channels);
+    }
+
     fn spur_over_capacity_is_unrouted() {
         let a = (0.0, 0.0);
         let b = (10.0, 0.0);
@@ -1157,6 +1186,7 @@ pub(crate) mod tests {
         ("direct_topology::tests::long_straight_path_subsamples_to_endpoints", long_straight_path_subsamples_to_endpoints),
         ("direct_topology::tests::long_straight_path_subsamples_to_endpoints", long_straight_path_subsamples_to_endpoints),
         ("direct_topology::tests::turn_is_kept_as_waypoint", turn_is_kept_as_waypoint),
+        ("direct_topology::tests::straight_through_junction_is_not_kept", straight_through_junction_is_not_kept),
         ("direct_topology::tests::disconnected_pads_are_unrouted", disconnected_pads_are_unrouted),
         ("direct_topology::tests::channel_ids_are_parseable_by_stage4", channel_ids_are_parseable_by_stage4),
         ("direct_topology::tests::solve_is_deterministic", solve_is_deterministic),
