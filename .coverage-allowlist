@@ -271,11 +271,6 @@ temper_placer/router_v6/grid_prep_stage.py::GridPrepStage.name  # TODO: temper-x
 temper_placer/router_v6/grid_prep_stage.py::GridPrepStage.run  # TODO: temper-xxx
 temper_placer/router_v6/grid_prep_stage.py::validate_grid_prep  # TODO: temper-xxx
 temper_placer/router_v6/kicad_connectivity.py::connectivity_preflight  # TODO: temper-xxx
-temper_placer/router_v6/metrics/slop_linter.py::lint_all  # TODO: temper-xxx
-temper_placer/router_v6/metrics/slop_linter.py::lint_hairpin_turns  # TODO: temper-xxx
-temper_placer/router_v6/metrics/slop_linter.py::lint_isolated_vias  # TODO: temper-xxx
-temper_placer/router_v6/metrics/slop_linter.py::lint_single_net_detours  # TODO: temper-xxx
-temper_placer/router_v6/metrics/slop_linter.py::lint_zigzag_patterns  # TODO: temper-xxx
 temper_placer/router_v6/net_prep_stage.py::NetPrepStage.name  # TODO: temper-xxx
 temper_placer/router_v6/net_prep_stage.py::NetPrepStage.run  # TODO: temper-xxx
 temper_placer/router_v6/net_prep_stage.py::validate_net_prep  # TODO: temper-xxx
