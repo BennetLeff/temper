@@ -21,10 +21,44 @@ DRC count are now **fixed on main** (#1245, #1246, #1222, #1220, #1223,
 width-aware C-space router fix (in progress by another agent), (2) a zone
 redesign with a real fill pass, (3) placement-domain creepage work, and
 (4) three owner decisions (T1/T2/U6 cert-lab creepage credit, the
-C2/C3 placement, Power-class coil-net reclass). **No number in this plan
-was re-measured after #1245/#1246 landed** — the first action in the
-dependency graph is that re-measurement, on the output of the auto-batch
-route this branch enabled.
+C2/C3 placement, Power-class coil-net reclass). **Step 1 of the dependency
+graph (re-route on current main + re-measure) was executed while writing
+this plan — §1.4 has the fresh post-fix numbers.**
+
+## 1.4 Step 1 executed — the first post-#1245/#1246 route and DRC (2026-08-16)
+
+Route: `scripts/route_board.py --no-net-batching` (the former OOMing
+monolithic default) on `origin/main @ fdbe0a6ad` + this branch,
+`pcb/temper.kicad_pcb` **untouched** (sha256 verified). The Stage 3
+auto-batch safety net fired ("monolithic model would be ~35,415,254 raw
+variables … routing through net-batching") and the route **completed —
+the first successful no-flag monolithic-request invocation in the
+project's history on this board**. Output:
+`/tmp/opencode/auto-batch-test-route.kicad_pcb` (scratch, not committed).
+
+| metric | pre-fix routed (Run B, 84cc526fd) | **post-fix (this branch)** | committed board |
+|---|---|---|---|
+| A\* "routed" | 97/107 (90.7%) | 76/106 (71.7%) | — |
+| **pad-connected (PRIMARY)** | **60/139** | **92/139** (+53%) | 27/139 |
+| fake-completion | 66 | **14** | — |
+| honest-gap | 13 | 33 | — |
+| segments / vias / zones | 6012 / 74 / 231 | 7972 / 216 / 391 | — |
+| wall | 747 s | 890 s (busier machine) | — |
+| DRC errors (PD3 DRU, no fill) | 1877 | **1930** | 1474 |
+| DRC warnings | 485 | **378** | 380 |
+| unconnected_items (DRC) | 329 | **0** (zone-optimistic view; audit's 92/139 is honest) | 426 |
+
+**Reading**: with 33% more segments and 2.9× more vias, DRC errors rose
+only +2.8% while connectivity rose +53% — the per-copper violation density
+dropped sharply, creepage actually **fell 510 → 489** despite far more HV
+copper routed, and mask fell 208 → 180. The honest-gap list (33) is now
+dominated by pour-class nets (`+3V3`, `I_SENSE`, `vcc`, `sdi/sdo`,
+`gnd`-adjacent) rather than wrong-layer landings — M1/M2/M3 did their job.
+`tracks_crossing` 10 (up from 2) and `annular_width` 86 (new) are the
+post-fix rebalancing: more correct vias (216 vs 74) surface more
+via-geometry violations. The saturated caps (clearance 499, shorting 199,
+hole 199, track_width 199) are unchanged lower bounds — those clusters are
+the plan's remaining work, exactly as §2 estimates.
 
 ---
 
@@ -78,8 +112,9 @@ route this branch enabled.
 Base: agent 59's routed 6-layer board classification (pre-#1245/#1246),
 2248 errors + 519 warnings unfilled, 329 unconnected items, measured with
 the PD3 DRU (12.6 mm reinforced). Landed fixes subtracted per their own
-measured deltas. **This is an estimate, not a measurement** — the
-first post-fix route (this branch's auto-batch output) is the re-anchor.
+measured deltas. **The §1.4 re-measurement (1930 errors / 378 warnings,
+92/139 connected) is the live anchor; this section is the projection from
+the classification to that anchor and beyond.**
 
 | Category | Classified | Landed since | Residual after landed | Fix that zeroes it | Status |
 |---|---:|---:|---:|---|---|
