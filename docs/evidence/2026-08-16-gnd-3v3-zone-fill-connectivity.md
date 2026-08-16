@@ -185,7 +185,29 @@ family of their own; the zone-involved creepage measurement from the
 #1257 seam verification (0 added over bare) applies to the same carve
 machinery.
 
-## 5. Files touched
+## 5. Routed-copper avoidance for the backbones (follow-up fix)
+
+Measured on the first full route with the pours wired in: the
+gnd/+3V3/vcc/+15V F.Cu backbones crossed the routed tracks and each other
+**81 times** (the definitive route's gnd-only backbone crossed ~10).
+Root cause: the generators re-parse the STRIPPED source board, whose pcb
+has zero tracks -- the route's copper exists only as in-memory segment
+strings, so the corridor-aware A* obstacle grid and the via-placement
+avoidance never saw it. Both generators accepted a `segments=` parameter
+(`routed_segments_obstacle` in `_corridor_backbone.py` parses the
+in-memory `(segment ...)`/`(via ...)` strings, buffers each foreign net's
+copper by the same per-net pairwise clearance, and is unioned into the
+via avoidance and the backbone grid; `_write_routes_to_content` passes
+the routed segments, so the power rails also avoid the gnd plane's F.Cu
+copper).
+
+Measured on the routed board's own copper fed back through the seam
+(pcbnew fill + kicad-cli DRC): **tracks_crossing 81 -> 16** with
+connectivity holding (gnd 57/88, +3V3 23/50), zone-involved creepage 0.
+The 16 residual crossings are the documented keepout-only fallback edges
+(`mst_edges_fallback`), reported honestly per rail.
+
+## 6. Files touched
 
 - `packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py`
   -- Rust-generator plane, region choice, pour_region via placement.
@@ -204,12 +226,8 @@ machinery.
 `pcb/temper.kicad_pcb` untouched (fill is a post-route operation; no
 board edit was authorized or needed).
 
-## 6. Outstanding
+## 7. Outstanding
 
-- The full-route verification with the new emission (the definitive route
-  predates this work) -- a fresh batched route on this branch, then
-  pcbnew fill + connectivity. **OUTSTANDING at the time of writing**
-  (the route was launched; see the branch's route log for results).
 - The remaining HV-adjacent pads (gnd ~31, +3V3 ~16): real trace routing
   through 12.6mm creepage corridors -- the design doc's documented next
   step, unchanged by this work.
