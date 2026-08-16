@@ -70,12 +70,26 @@ from temper_placer.router_v6._zone_pour_stitch import _chamfer_path_points
 
 
 def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float]]]:
-    """VERBATIM pad-positions block of ``_write_routes_to_content`` (the
-    pre-migration Python body: ``comp_by_ref`` dict comprehension, the
-    ``getattr(net, "pins", [])`` walk, the ``comp.get_pin`` duck-typed call
-    and the ``float(...)`` position sums)."""
+    """RE-PINNED 2026-08-15 (deliberate, with the rotation fix): the
+    pre-migration pad-positions block of ``_write_routes_to_content`` summed
+    ``comp_pos + pin_pos`` with NO component rotation, which placed zone hulls
+    and the connectivity preflight at wrong coordinates for the 148/169
+    components with nonzero rotation (measured: only 21/59 real pads inside
+    same-layer hulls). The re-pinned oracle resolves each pin through the
+    canonical temper-geometry kernel (mirror X on side==1, R(-theta) rotation,
+    then comp_pos -- the same sanctioned math ``run_collect_pad_positions``
+    now calls back into via ``pin_world_position_at_py``), so the differential
+    asserts the Rust port matches canonical pad-position geometry rather than
+    the historical bug. Missing ``initial_rotation_quadrant``/``initial_side``
+    read as 0/0 (getattr defaults, exactly like the Rust kernel). Everything
+    else (the ``comp_by_ref`` dict comprehension, the ``getattr(net, "pins",
+    [])`` walk, the ``comp.get_pin`` duck-typed call, the comp-position
+    fallback for a missing/None pin) is unchanged from the pre-migration
+    body."""
     pad_positions: dict[str, list[tuple[float, float]]] = {}
     if pcb is not None:
+        import temper_geometry as _tg
+
         comp_by_ref = {c.ref: c for c in pcb.components}
         for net in pcb.nets:
             positions: list[tuple[float, float]] = []
@@ -88,9 +102,19 @@ def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float
                 if pin is None:
                     positions.append((float(comp_pos[0]), float(comp_pos[1])))
                 else:
+                    rot = getattr(comp, "initial_rotation_quadrant", None)
+                    rotation_rad = _tg.normalize_rotation_py(rot)
+                    side = getattr(comp, "initial_side", None) or 0
                     px, py = pin.position
                     positions.append(
-                        (float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py))
+                        _tg.pin_world_position_kernel_py(
+                            float(px),
+                            float(py),
+                            side,
+                            rotation_rad,
+                            float(comp_pos[0]),
+                            float(comp_pos[1]),
+                        )
                     )
             if positions:
                 pad_positions[net.name] = positions
@@ -256,7 +280,7 @@ def _body_sha256(name: str) -> str:
 # The oracles are evidence only while they are unmodified.  Pinned so a body
 # edit fails this test rather than silently re-pinning the differential.
 _ORACLE_COLLECT_PAD_POSITIONS_SHA256 = (
-    "0353f298eb88d1794ca901e34d7059a0a8c25b8408722fcf4dc8a79c2076d166"
+    "ab4c4b81dca817238c1e2a03c0a76377cae2d97543a4183e2ac728b2afc5918c"
 )
 _ORACLE_BUILD_ROUTE_PAYLOAD_SHA256 = (
     "63a2da4cd8a3022a60f96541dcec29285f6635a0c3a4d454c91b43254cfe5c05"
@@ -448,6 +472,47 @@ def test_collect_pad_positions_many_randomized():
         [_net("N", [("C1", "1")])],
     )
     _assert_pad_positions_same(dup, "randomized duplicate-ref")
+
+
+def test_collect_pad_positions_applies_component_rotation():
+    """The rotation fix must not be vacuous: a component rotated 180 deg about
+    its origin moves a pin at local (1.0, 0.0) to (cx - 1.0, cy) -- NOT the
+    naive (cx + 1.0, cy) the pre-fix code produced (148/169 components on the
+    board carry nonzero rotation). Compared bit-exactly against the canonical
+    ``pin_world_position_at`` (mirror + R(-theta) + comp_pos)."""
+    from temper_placer.core.pin_geometry import pin_world_position_at
+
+    comp = SimpleNamespace(
+        ref="U1",
+        initial_position=(10.0, 20.0),
+        initial_rotation_quadrant=2,  # 180 deg
+        initial_side=0,
+        get_pin=lambda name: SimpleNamespace(position=(1.0, 0.0)),
+    )
+    pcb = _pcb([comp], [_net("NET_R", [("U1", "1")])])
+    _assert_pad_positions_same(pcb, "rotated comp")
+
+    got = dict(_to.run_collect_pad_positions(pcb))["NET_R"][0]
+    want = pin_world_position_at(SimpleNamespace(position=(1.0, 0.0)), comp)
+    assert _canon(got) == _canon(want), f"rotated world pos {got} != canonical {want}"
+    assert got != (11.0, 20.0), (
+        "must not regress to the naive comp_pos + pin_pos sum (11.0, 20.0)"
+    )
+    assert got[0] == 9.0, "180-deg rotation must land the pin at cx - 1.0"
+
+    # Side mirror: a bottom-side (side==1) component mirrors X before rotation.
+    comp_bottom = SimpleNamespace(
+        ref="U2",
+        initial_position=(5.0, 5.0),
+        initial_rotation_quadrant=0,
+        initial_side=1,
+        get_pin=lambda name: SimpleNamespace(position=(2.0, 0.0)),
+    )
+    pcb_bottom = _pcb([comp_bottom], [_net("NET_S", [("U2", "1")])])
+    got_b = dict(_to.run_collect_pad_positions(pcb_bottom))["NET_S"][0]
+    want_b = pin_world_position_at(SimpleNamespace(position=(2.0, 0.0)), comp_bottom)
+    assert _canon(got_b) == _canon(want_b), f"mirrored world pos {got_b} != {want_b}"
+    assert got_b != (7.0, 5.0), "side mirror must flip the pin x-offset (3.0, not 7.0)"
 
 
 # ---------------------------------------------------------------------------

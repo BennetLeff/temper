@@ -887,10 +887,22 @@ pub fn run_collect_pad_positions(
             };
             match pin {
                 Some(p) if !p.is_none() => {
-                    let pos = p.getattr("position")?;
-                    let px: f64 = pos.get_item(0)?.extract()?;
-                    let py_: f64 = pos.get_item(1)?.extract()?;
-                    positions.push((cx + px, cy + py_));
+                    // Rotation-aware world position: call back through the
+                    // sanctioned temper-geometry kernel
+                    // (`pin_world_position_at_py`: mirror X on side==1,
+                    // R(-theta) rotate, then add comp position) instead of the
+                    // naive `comp_pos + pin_pos` sum. 148/169 components on
+                    // the board have nonzero rotation; the naive sum put zone
+                    // hulls and the connectivity preflight around wrong
+                    // coordinates (measured 2026-08-15: only 21/59 real pads
+                    // inside same-layer hulls). Same D4/D5 mixin-call-back
+                    // pattern as the chamfer above -- the geometry stays
+                    // single-source in temper-geometry, so it cannot drift.
+                    let tg = py.import("temper_geometry")?;
+                    let world_pos = tg.getattr("pin_world_position_at_py")?.call1((p, comp))?;
+                    let wx: f64 = world_pos.get_item(0)?.extract()?;
+                    let wy: f64 = world_pos.get_item(1)?.extract()?;
+                    positions.push((wx, wy));
                 }
                 _ => positions.push((cx, cy)),
             }
