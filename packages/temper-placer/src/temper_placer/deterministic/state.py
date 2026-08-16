@@ -123,7 +123,7 @@ class BoardState:
     enable_theta_star: bool = False
     enable_lazy_theta_star: bool = False
     enable_coarse_to_fine: bool = False
-    enable_all_pad_tree: bool = False
+    enable_all_pad_tree: bool = True
     tree_3d_fallback_max_iter: int = 10_000
     coarse_factor: int = 4
     corridor_buffer_cells: int = 12

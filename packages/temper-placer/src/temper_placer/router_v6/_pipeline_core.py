@@ -151,7 +151,7 @@ class RouterV6Pipeline:
         layer_constraints: dict[str, Any] | None = None,
         thermal_flat: Any = None,  # U8: (N,) float32 cost field
         thermal_weight: float = 0.0,  # U8: multiplier
-        enable_all_pad_tree: bool = False,
+        enable_all_pad_tree: bool = True,
         enable_zone_pours: bool = False,
         enable_connectivity_verifier: bool = False,
         enable_erc_check: bool = False,
@@ -246,8 +246,10 @@ class RouterV6Pipeline:
                 kernel step-cost.
             thermal_weight: U8 multiplier on per-cell thermal cost
                 (from CostFieldInput.weight).  0.0 = field-off.
-            enable_all_pad_tree: Enable experimental all-terminal tree
-                expansion. Disabled pending production KiCad DRC evidence.
+            enable_all_pad_tree: Expand the Stage 4 A* waypoint chain to
+                every terminal of multi-pad (N>2) nets (see
+                ``route_pcb``'s docstring). Default True; pass False for
+                SAT-waypoints-only behaviour.
             enable_erc_check: Run kicad-cli pcb erc on the routed board
                 after stage-4 geometric realization. Default-off —
                 promotion is a separate decision, matching

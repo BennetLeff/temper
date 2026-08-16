@@ -226,7 +226,7 @@ def route_pcb(
     design_rules: Any = None,
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
-    enable_all_pad_tree: bool = False,
+    enable_all_pad_tree: bool = True,
     enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
     enable_geographic_pruning: bool = False,
@@ -269,8 +269,13 @@ def route_pcb(
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
             (from CostFieldInput.weight).  0.0 = field-off.
-        enable_all_pad_tree: Enable experimental all-terminal tree
-            expansion (default False).
+        enable_all_pad_tree: Expand the Stage 4 A* waypoint chain to visit
+            every terminal of multi-pad (N>2) nets, not just the SAT-derived
+            channel waypoints -- without it, pad centres missing from the
+            chain are never appended and A* never routes to them (measured
+            2026-08-15: +15V_LS's C23.1+U7.2 were visited, U6.11 was not).
+            Default True (callers that want the old SAT-waypoints-only
+            behaviour can pass False).
         enable_zone_pours: Emit filled-copper zone geometry for power/
             ground/HV nets (per netclass SSOT).  Default True -- zones
             are enabled by default for multi-layer power/ground routing.
