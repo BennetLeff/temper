@@ -248,6 +248,122 @@ domains:
                              # 400V-rated resonant tank. Also flagged
                              # UNVERIFIED by the sibling coverage doc
                              # (Sec 7).
+      - input                # ADDED (this change): traced from the freshly
+                             # compiled netlist -- net contains U6.10
+                             # (UCC21550 pin 10 = OUTB, `components.ato`'s
+                             # own "# Secondary side" pin group, the SAME
+                             # isolator "secondary" group already declared
+                             # below for `hb.gate_hs.driver` -- VSSB/OUTB/
+                             # VDDB/VSSA/OUTA/VDDA) and R22.1
+                             # (`hb.gate_ls.rg_on.p1`). This is
+                             # `GateDriveLS`'s own generic `input` signal
+                             # (modules.ato: `input ~ rg_on.p1`), wired at
+                             # `HalfBridge` level via `gate_hs.driver.OUTB ~
+                             # gate_ls.input` (modules.ato:423) -- i.e. the
+                             # UCC21550's raw low-side driver-output pin,
+                             # ONE GATE RESISTOR (rg_on, 2.2ohm) upstream of
+                             # the already-declared HV net `GATE_LS`
+                             # (`rg_on.p2 ~ drive.out`). Exact structural
+                             # analogue of `hb.power_loop.q_high-g` (already
+                             # declared above): that net is `GATE_HS`'s own
+                             # downstream (post-resistor) sibling on the
+                             # HIGH side; `input` is `GATE_LS`'s own
+                             # upstream (pre-resistor, i.e. the driver pin
+                             # itself) sibling on the LOW side. Floats on
+                             # `DC_BUS_RTN` via `driver.VSSB` (pin 9,
+                             # `dc_bus.hv_minus ~ gate_hs.driver.VSSB`,
+                             # modules.ato:424), same potential as `hb-gnd`
+                             # and `GATE_LS`. Same defect shape as `hb-gnd`
+                             # (PR #1145): an auto-named net that inherited
+                             # a generic, easy-to-miss signal name (`input`,
+                             # from the sub-module's own field, not an
+                             # instance-qualified path) and fell through to
+                             # `Default` (0.0mm creepage) despite sitting on
+                             # a pin the isolator's own component-level
+                             # group declaration already calls "secondary"
+                             # (HV side of the barrier).
+      - discharge.k_dis1-no  # ADDED (this change): the SAME isolator
+                             # "contacts" group (below) as `discharge.
+                             # k_dis1-nc`, which this manifest already
+                             # declares HV with the reasoning "the SAME
+                             # group as pin 1 (COM) ... COM/NO/NC are one
+                             # physical switch mechanism, one domain" --
+                             # that reasoning was never applied to pin 3
+                             # (NO) itself, which is exactly this net (net
+                             # contains only K2.3). Traced independently:
+                             # BusDischarge's NO contacts are deliberately
+                             # left unconnected to any OTHER component
+                             # (modules.ato: "NO contacts intentionally
+                             # unconnected: energized = pole held on NO =
+                             # discharge path open") but the PAD itself is
+                             # still physically part of the same relay
+                             # contact block as COM (`k_dis1.COM ~ mid`,
+                             # `mid` = `power_return` = already-declared HV
+                             # `PWR_RTN`, main.ato:937) and NC (already
+                             # declared HV). Same mechanical contact
+                             # bank, same domain, same gap this manifest
+                             # already closed for the NC pin.
+      - discharge.k_dis2-no  # ADDED (this change), same reasoning as
+                             # discharge.k_dis1-no above: same isolator
+                             # "contacts" group as the already-declared
+                             # `discharge.k_dis2-nc`; net contains only
+                             # K3.3 (NO), left electrically unconnected to
+                             # other components by design but still the
+                             # same physical HV contact bank as COM/NC.
+      - discharge.r_dis1a-p2 # ADDED (this change): traced from the
+                             # compiled netlist -- net contains R7.1
+                             # (`discharge.r_dis1b.p1`) and R6.2
+                             # (`discharge.r_dis1a.p2`), the mid-node of
+                             # BusDischarge's half-bus-1 bleed string:
+                             # `hv_plus -> r_dis1a(3.9k) -> r_dis1b(3.9k) ->
+                             # k_dis1.NC -> mid` (modules.ato:1322-1325).
+                             # `hv_plus` = `dc_bus_plus` = already-declared
+                             # HV `+170V_BUS`; `mid` = `power_return` =
+                             # already-declared HV `PWR_RTN`
+                             # (main.ato:936-937) -- BOTH ends of this
+                             # resistor string are already-declared HV
+                             # nets, so every interior node (this one
+                             # included) is unambiguously HV throughout,
+                             # unlike the OVP-01 protective-impedance
+                             # dividers (which bridge HV into the
+                             # PE-bonded SELV `gnd` and are handled
+                             # separately, below). Nominal potential: per
+                             # this module's own sizing comment (peak power
+                             # 170^2/7.8k/2 = 3.7W/2 per string), this node
+                             # sits at roughly half of a 170V half-bus
+                             # under normal (non-discharging) bias.
+      - discharge.r_dis2a-p2 # ADDED (this change), same reasoning as
+                             # discharge.r_dis1a-p2 above: net contains
+                             # R9.1 (`discharge.r_dis2b.p1`) and R8.2
+                             # (`discharge.r_dis2a.p2`), the mid-node of
+                             # half-bus-2's bleed string `mid -> r_dis2a
+                             # (3.9k) -> r_dis2b(3.9k) -> k_dis2.NC ->
+                             # hv_minus` (modules.ato:1328-1331). `mid` =
+                             # already-declared HV `PWR_RTN`; `hv_minus` =
+                             # `dc_bus_minus` = already-declared HV
+                             # `DC_BUS_RTN`. Both ends already-declared HV.
+      - discharge.r_snub1-p2 # ADDED (this change): net contains C7.1
+                             # (`discharge.c_snub1.p1`) and R14.2
+                             # (`discharge.r_snub1.p2`), the mid-node of
+                             # the RC snubber bridging K2's own NC-COM
+                             # contact gap: `k_dis1.NC ~ r_snub1.p1 ->
+                             # r_snub1.p2 -> c_snub1.p1 -> c_snub1.p2 ->
+                             # k_dis1.COM` (modules.ato:1336-1338). Both
+                             # ends of this string (`k_dis1.NC`, already
+                             # HV-declared via `discharge.k_dis1-nc`, and
+                             # `k_dis1.COM` = `mid` = already-declared HV
+                             # `PWR_RTN`) are HV, so the interior snubber
+                             # node is HV throughout -- a DC-blocked AC-only
+                             # path across the SAME HV contact gap, not a
+                             # crossing into any other domain.
+      - discharge.r_snub2-p2 # ADDED (this change), same reasoning as
+                             # discharge.r_snub1-p2 above: net contains
+                             # C8.1 (`discharge.c_snub2.p1`) and R15.2
+                             # (`discharge.r_snub2.p2`), the mid-node of
+                             # K3's NC-COM snubber (modules.ato:1339-1341).
+                             # Both ends (`k_dis2.NC`, already HV-declared;
+                             # `k_dis2.COM` = `hv_minus` = already-declared
+                             # HV `DC_BUS_RTN`) are HV.
 
   # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
   # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is
@@ -382,6 +498,32 @@ domains:
                              # neither HV nor SELV by voltage, and remain
                              # deliberately unclassified; see
                              # 2026-07-27-domain-classification-coverage.md.
+                             #
+                             # NOTED (this change, NOT added as a nets:
+                             # entry -- deliberate, mirrors the r_div
+                             # treatment above): the OVP-01 ADC-sense
+                             # divider's own analogous interior nodes,
+                             # `safety.ovp.r_adc_top1-p2` (R51.1/R52.2) and
+                             # `safety.ovp.r_adc_top2-p2` (R52.1/R53.2,
+                             # `ovp01_adc_sense_divider` chain below,
+                             # r_adc_top1-3 = 3x169k, r_adc_bot = 10k),
+                             # currently fall to `Default` (0.0mm
+                             # creepage) exactly like `hb-gnd` did. Re-
+                             # deriving the same arithmetic pattern used
+                             # above (170V / (3*169k+10k) = 328.8uA normal):
+                             # r_adc_top1-p2 sits at 170V - 328.8uA*169k =
+                             # ~114.4V, r_adc_top2-p2 at ~58.8V -- the same
+                             # "genuinely mid-chain, neither HV nor SELV by
+                             # voltage" case as r_div_top1-p2/r_div_top2-p2,
+                             # structurally identical (both ends of this
+                             # divider are already covered: `+170V_BUS` is
+                             # declared HV, `V_BUS_SENSE` is declared SELV
+                             # via this same protective-impedance
+                             # construction). Left deliberately unclassified
+                             # here for consistency with the existing r_div
+                             # precedent, not silently dropped: flagged
+                             # explicitly as a human-judgment item in this
+                             # change's PR description.
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after

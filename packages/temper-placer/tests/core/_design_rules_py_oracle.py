@@ -19,6 +19,7 @@ file drifted. The edit is faithful -- the added entry is byte-identical to
 the live ``design_rules.py`` table. Re-pinned from the on-disk bytes after
 establishing the cause.
 
+
 RE-PINNED 2026-08-13 (CI red-gate triage, fix/ci-core-tests-clearance-gate):
 commit 322cbf5b0 (#1092, "gnd/PWR_RTN -> classes kicad_pro actually
 declares") reassigned ``TEMPER_NET_ASSIGNMENTS["gnd"]`` from ``"GND"`` to
@@ -34,6 +35,30 @@ snapshot). Re-pinned from the on-disk ``design_rules.py`` bytes for these
 two entries only, after tracing the drift to that commit -- no other entry
 changed. See ``git show 322cbf5b0`` and
 ``docs/evidence/2026-08-12-nonexistent-gnd-class-mapping.md``.
+
+
+RE-PINNED 2026-08-13 (URGENT safety defect, hyphen-boundary net
+classification): `_hv_word_boundary_match`'s boundary was `_` or
+start/end of string ONLY -- `-` was never a boundary character, in
+either this oracle or the Rust port it pins (`temper-design-bundle`'s
+`design_rules.rs::hv_word_boundary_match`). atopile's compiled net names
+use `-` and `_` interchangeably as within-segment word separators
+(`hb-gnd`, `hb.gate_hs.driver-p1`, `safety.uvlo_logic-line`, ...), so
+every hyphenated net on the real board was invisible to
+`_is_gate_net_hv`/`_is_gate_net_selv`/`_is_high_current_net` whenever the
+matching keyword sat on the hyphen side of a boundary -- the same defect,
+same root cause, as the sibling fix in
+`temper_placer/router_v6/net_classification.py`'s `_matches_any`. `-` is
+now an equivalent boundary to `_` here too. One keyword in this
+cascade -- `"COIL"` -- is a genuine over-match risk once `-` becomes a
+boundary (`discharge.k_dis1-coil1`/`-coil2`, `discharge.k_dis2-coil1`,
+`power_in.bypass_relay-coil1`/`-coil2` are five real, confirmed-SELV
+relay-coil-drive nets that would newly match); mitigated by giving those
+five nets an explicit `TEMPER_NET_ASSIGNMENTS` entry in the live
+`design_rules.py` (Tier 2, wins over this Tier 4+ cascade), not by
+narrowing the boundary back down -- narrowing would silently reintroduce
+the hyphen-boundary defect for the next hyphenated COIL-adjacent net. See
+docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
 
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
@@ -57,8 +82,8 @@ from temper_placer.core.netclass_rules_gen import NetClassRules
 
 
 def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:
-    """Word-boundary keyword match, delimited by ``_`` or start/end of
-    the (uppercased) name.
+    """Word-boundary keyword match, delimited by ``_``, ``-``, or start/end
+    of the (uppercased) name.
 
     A pattern ending in a non-alphanumeric character (e.g. ``"DC_BUS+"``)
     has no trailing boundary to anchor on and is matched with a leading
@@ -66,14 +91,15 @@ def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:
     ``router_v6.net_classification._matches_any`` and
     ``router_v6.clearance_check._is_hv_keyword_match`` -- see those
     modules' docstrings for the shared bug history (plain substring
-    matching of short net-classification keywords).
+    matching of short net-classification keywords), and this file's own
+    2026-08-13 re-pin note above for the hyphen-boundary widening.
     """
     for p in patterns:
         escaped = re.escape(p)
         if p and not p[-1].isalnum():
-            if re.search(rf"(?:^|_){escaped}", upper):
+            if re.search(rf"(?:^|[_-]){escaped}", upper):
                 return True
-        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+        elif re.search(rf"(?:^|[_-]){escaped}(?:$|[\d_-])", upper):
             return True
     return False
 
@@ -397,7 +423,7 @@ TEMPER_NET_CLASSES = {
         name="FinePitch",
         trace_width=0.127,
         clearance=0.1,
-        via_diameter=0.4,
+        via_diameter=0.8,
         via_drill=0.2,
         via_template="Via1x1",
         dru_priority=30,
@@ -408,7 +434,7 @@ TEMPER_NET_CLASSES = {
         name="Power",
         trace_width=1.0,
         clearance=0.5,
-        via_diameter=1.0,
+        via_diameter=1.1,
         via_drill=0.5,
         via_template="Via2x2",
         dru_priority=40,
@@ -428,7 +454,7 @@ TEMPER_NET_CLASSES = {
         name="GateDriveHV",
         trace_width=0.4,
         clearance=0.25,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via1x1",
         dru_priority=50,
@@ -442,7 +468,7 @@ TEMPER_NET_CLASSES = {
         name="GateDriveSELV",
         trace_width=0.4,
         clearance=0.25,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via1x1",
         dru_priority=51,
@@ -453,7 +479,7 @@ TEMPER_NET_CLASSES = {
         name="GND",
         trace_width=1.0,
         clearance=0.3,
-        via_diameter=1.0,
+        via_diameter=1.1,
         via_drill=0.5,
         via_template="Via3x3",
         routing_strategy="plane_preferred",
@@ -465,7 +491,7 @@ TEMPER_NET_CLASSES = {
         name="HighSpeed",
         trace_width=0.15,
         clearance=0.2,
-        via_diameter=0.6,
+        via_diameter=0.9,
         via_drill=0.3,
         target_impedance=50.0,
         via_template="Via1x1",
@@ -477,7 +503,7 @@ TEMPER_NET_CLASSES = {
         name="Signal",
         trace_width=0.2,
         clearance=0.15,
-        via_diameter=0.6,
+        via_diameter=0.9,
         via_drill=0.3,
         via_template="Via1x1",
         dru_priority=80,
@@ -488,7 +514,7 @@ TEMPER_NET_CLASSES = {
         name="HighCurrent",
         trace_width=0.5,
         clearance=0.25,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via4x4",
         dru_priority=90,
@@ -531,7 +557,7 @@ TEMPER_NET_CLASSES = {
         name="HighVoltageSignal",
         trace_width=0.5,
         clearance=2.0,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via1x1",
         voltage_v=400.0,
@@ -563,7 +589,7 @@ TEMPER_NET_CLASSES = {
         name="HighVoltageIsolated",
         trace_width=2.0,
         clearance=6.0,
-        via_diameter=1.0,
+        via_diameter=1.1,
         via_drill=0.5,
         via_template="Via1x1",
         voltage_v=20.0,
@@ -688,6 +714,7 @@ TEMPER_NET_ASSIGNMENTS = {
     "V_BUS_SENSE": "Power",
     # GND - power return
     "CGND": "GND",
+
     # RE-PINNED 2026-08-13 (see module docstring): commit 322cbf5b0
     # (#1092, "gnd/PWR_RTN -> classes kicad_pro actually declares")
     # reassigned both "gnd" and "PWR_RTN" away from the "GND" class (real
@@ -703,6 +730,11 @@ TEMPER_NET_ASSIGNMENTS = {
     # than GND's), not a safety loosening.
     "gnd": "Power",
     "PWR_RTN": "HighVoltage",
+    "discharge.k_dis1-coil1": "Signal",
+    "discharge.k_dis1-coil2": "Signal",
+    "discharge.k_dis2-coil1": "Signal",
+    "power_in.bypass_relay-coil1": "Signal",
+    "power_in.bypass_relay-coil2": "Signal",
 }
 
 
@@ -733,7 +765,13 @@ def create_temper_design_rules() -> DesignRules:
     return DesignRules(
         default_trace_width=0.2,
         default_clearance=0.15,  # Relaxed from 0.2mm to allow signal density (Targeted Reduction)
-        default_via_diameter=0.6,
+        # RAISED 0.6 -> 0.9mm 2026-08-13, mirroring the live module's
+        # identical fix (docs/evidence/2026-08-13-jlcpcb-fab-capability-
+        # envelope.md) -- same re-pin precedent as the 2026-08-12
+        # HighVoltageTank addition documented in this file's module
+        # docstring: this is live SSOT data the oracle must track, not a
+        # semantics change.
+        default_via_diameter=0.9,
         default_via_drill=0.3,
         net_classes=deepcopy(TEMPER_NET_CLASSES),
         net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),

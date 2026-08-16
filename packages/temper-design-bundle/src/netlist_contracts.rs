@@ -540,6 +540,28 @@ impl Component {
     }
 
     /// Get a pin by name or number (first match, else `None`).
+    ///
+    /// **Not a safe physical-pad key when this component's footprint has
+    /// duplicate pad numbers.** A footprint can fabricate more than one
+    /// physical solder pad under the same pad number/name (this board's
+    /// K2/K3, `temper:Relay_SPDT_Schrack-RT314012`, duplicate pads "1",
+    /// "3", and "4" -- two physical holes 7.5mm apart per contact, for
+    /// 16A current sharing); this method always returns the FIRST match
+    /// and gives no signal that a second, physically distinct pad with
+    /// the same name exists. Calling it once per `Net.pins` occurrence is
+    /// exactly the mistake that made the router print "routed
+    /// successfully" for a net while writing zero connecting copper (see
+    /// `_pipeline_grid._nth_matching_pin`'s docstring, Python side, for
+    /// the full incident). When a component's pin list might contain
+    /// duplicate numbers, use [`Component::get_pin_occurrences`] (returns
+    /// every match) instead and resolve which occurrence you mean
+    /// explicitly -- see `temper_placer.core.pad_identity`
+    /// (`PadOccurrence`) for the canonical Python-side helper, and
+    /// `pad_occurrence::PadOccurrence` for the Rust-side typed identity.
+    /// Safe uses of this method are ones that only need pin
+    /// EXISTENCE/net-membership (every occurrence of a duplicated pad
+    /// number shares the same net, by construction of what "duplicate
+    /// contact pad" means), not a specific physical position.
     fn get_pin<'py>(
         &self,
         py: Python<'py>,
@@ -553,6 +575,29 @@ impl Component {
             }
         }
         Ok(py.None().into_bound(py))
+    }
+
+    /// Every pin whose `name` or `number` equals `name_or_number`, in
+    /// `self.pins` encounter order -- the general, ambiguity-safe
+    /// alternative to [`Component::get_pin`] (see that method's doc for
+    /// why the first-match shortcut is unsafe whenever a footprint
+    /// duplicates a pad number). Empty list, not `None`, when nothing
+    /// matches. Element `i` of the returned list is occurrence `i` in the
+    /// sense of `pad_occurrence::PadOccurrence::new(name_or_number, i)`.
+    fn get_pin_occurrences<'py>(
+        &self,
+        py: Python<'py>,
+        name_or_number: &Bound<'py, PyAny>,
+    ) -> PyResult<Bound<'py, PyList>> {
+        let out = PyList::empty(py);
+        for pin in self.pins.bind(py).try_iter()? {
+            let pin = pin?;
+            if pin.getattr("name")?.eq(name_or_number)? || pin.getattr("number")?.eq(name_or_number)?
+            {
+                out.append(pin)?;
+            }
+        }
+        Ok(out)
     }
 
     /// All pins whose `net` equals `net_name`.

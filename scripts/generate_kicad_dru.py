@@ -168,6 +168,37 @@ HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
 DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 
 # ---------------------------------------------------------------------------
+# "Via hole clearance" (kicad-cli's `hole_clearance` constraint) floor.
+#
+# RAISED 2026-08-13 (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md
+# sec.2/sec.7.4, docs/hardware/FAB_CAPABILITY.md #2c) from a bare 0.25mm to
+# JLCPCB's own published PTH-to-track absolute minimum hole-to-copper spacing,
+# 0.28mm -- 0.25mm was BELOW every published JLCPCB floor for this dimension,
+# independent of copper weight (this figure is not broken out by oz), meaning
+# the repo's own rule could pass a via/hole geometry the fab's line cannot
+# build, silently. This is a MANUFACTURABILITY floor, not a safety margin --
+# it bounds how close a drilled hole may sit to a DIFFERENT net's copper so
+# the fab's etch/drill registration tolerance does not bridge them. It has no
+# relationship to, and does not touch, any IEC-60335-derived creepage/
+# clearance safety figure in this file (HV_INTERNAL_CLEARANCE_MM,
+# HV_CREEPAGE_ENFORCED_MM, etc.) -- those bound electrical isolation between
+# potentials; this bounds mechanical hole-to-copper registration tolerance.
+#
+# Why 0.28mm and not JLCPCB's 0.35mm "recommended" figure: the task is to
+# raise the floor to "at least" the fab minimum, not to adopt a stricter
+# design-margin figure on top of it -- 0.28mm is the smallest value that
+# stops the rule from passing a geometry JLCPCB's line has published it
+# cannot build. Note this does NOT fix the 90 pre-existing `hole_clearance`
+# findings on the real board (docs/evidence/2026-08-13-jlcpcb-fab-capability-
+# envelope.md sec.7.4/sec.9): those are hole-to-*neighboring-copper*
+# congestion, a routing/placement problem, not a via-pad-vs-own-drill
+# geometry problem -- raising this floor makes the check correctly stricter
+# (some previously-passing 0.25-0.28mm gaps now fail too), it does not by
+# itself move any copper. Fixing the congestion is scoped to the router-
+# congestion/rerouting effort this task's brief explicitly carves out.
+VIA_HOLE_CLEARANCE_MM = 0.28
+
+# ---------------------------------------------------------------------------
 # HV<->HV FUNCTIONAL creepage at the resonant-tank node (ADDED 2026-08-12).
 #
 # The three creepage constraints above (RULES 2, 4, 4b) all require ONE SIDE to
@@ -1639,7 +1670,7 @@ def generate_dru() -> str:
     lines.append(_SEP)
     lines.append("")
     lines.append('(rule "Via hole clearance"')
-    lines.append("   (constraint hole_clearance (min 0.25mm))")
+    lines.append(f"   (constraint hole_clearance (min {fmt_mm(VIA_HOLE_CLEARANCE_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append('(rule "PTH hole to hole"')

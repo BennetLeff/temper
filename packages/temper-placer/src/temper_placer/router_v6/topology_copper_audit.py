@@ -29,13 +29,27 @@ a "solved" net:
 MEASURED on a real net-batched production run (`pcb/temper.kicad_pcb`,
 ``--net-batching --batch-size 10``, this task's investigation): of 110
 topology-solved nets, 36 emitted no explicit copper (segment/via). Of those
-36: 9 were legitimately zone-pour-covered instead, 2 were self-referential
-(both "pins" the same physical pad -- zero-length, no copper needed), 19
-were attempted by Stage 4's A* and genuinely failed to find a legal path
+36: 9 were legitimately zone-pour-covered instead, 19 were attempted by
+Stage 4's A* and genuinely failed to find a legal path
 (forced-segment-disallowed), and 6 (``+15V``, ``+3V3``, ``PWR_RTN``,
 ``V_BUS_SENSE``, ``gnd``, ``vcc``) fell into the ``_should_route``/
 ``_zone_layers_for_net`` policy gap above -- excluded from A* *and* not
 zone-eligible, orphaned by construction, regardless of net-batching.
+
+**Correction, 2026-08-13.** The remaining 2 (``discharge.k_dis1-no``,
+``discharge.k_dis2-no``) were originally counted here as "self-referential
+(both 'pins' the same physical pad -- zero-length, no copper needed)."
+That was wrong: ``pad_connectivity_audit`` (ground truth -- real pad
+positions parsed off the board) shows both nets have 2 physical pads at 2
+distinct coordinates, 7.5mm apart (K2/K3's manufacturer-duplicated
+current-sharing contact pads -- see ``is_self_referential_net``'s
+docstring for the full mechanism). They are a real, currently-unconnected
+2-terminal net each, not a legitimate zero-copper case, and this module's
+own ``is_self_referential_net`` helper no longer classifies them that way.
+Root-caused and fixed in ``_pipeline_grid._net_pad_positions`` (the
+router's own pad-position resolution had the identical name-identity
+mistake, which is why Stage 4 printed "routed successfully" for both while
+emitting zero connecting copper -- a false positive, not a policy gap).
 
 This module gives that divergence a name and a shape so it can be reported
 alongside the topology-level trace (instead of only discoverable by
@@ -165,16 +179,45 @@ def nets_carrying_copper(pcb_content: str) -> set[str]:
 
 
 def is_self_referential_net(pins: Sequence[tuple[str, str]]) -> bool:
-    """True if every pin entry names the identical (component, pad).
+    """True only for a genuinely single-pin-instance net -- ``len(pins) == 1``.
 
-    A net whose only "pins" are the same physical pad, listed more than
-    once, has zero physical extent -- there is nothing to connect, so no
-    copper is needed and none being emitted is correct, not a gap. MEASURED
-    real example (``pcb/temper.kicad_pcb``): ``discharge.k_dis1-no`` and
-    ``discharge.k_dis2-no``, each with ``pins == [('K2', '3'), ('K2', '3')]``
-    / ``[('K3', '3'), ('K3', '3')]`` respectively.
+    **Corrected 2026-08-13 (this was wrong).** This used to also return
+    ``True`` whenever every ``(component_ref, pin_name)`` entry was
+    identical for ``len(pins) >= 2`` -- e.g. ``pins == [('K2', '3'),
+    ('K2', '3')]`` -- on the theory that "same (component, pad) name,
+    listed twice" means "the same physical pad, so there is nothing to
+    connect." **That is false on this exact board.** K2/K3 (the discharge
+    relays, ``temper:Relay_SPDT_Schrack-RT314012``) have a
+    manufacturer-duplicated pad "3"/"4"/"1" -- two GENUINELY DISTINCT
+    physical solder holes, 7.5mm apart, sharing one pad number/name for
+    16A current-sharing (see the footprint's own embedded datasheet
+    comment in ``pcb/temper.kicad_pcb``). ``discharge.k_dis1-no`` /
+    ``discharge.k_dis2-no`` (``pins == [('K2', '3'), ('K2', '3')]`` /
+    ``[('K3', '3'), ('K3', '3')]``) were the real example this function's
+    old docstring cited as *proof* of the (wrong) rule: MEASURED against
+    ``pad_connectivity_audit`` (ground truth -- real physical pad
+    positions parsed directly off the board, independent of this
+    ``(ref, pin_name)`` tuple identity) both nets have ``pad_count == 2``
+    at two distinct coordinates, ``has_any_copper == False`` -- a real,
+    currently-unconnected 2-terminal net, not a trivial one. The false
+    "self_referential_pad" classification let ``audit_topology_vs_copper``
+    certify a genuine no-copper gap as "legitimately needs none," which is
+    the mechanism that made these two nets look accounted-for while
+    actually being silently unrouted (see ``_pipeline_grid._net_pad_positions``,
+    whose ``comp.get_pin(name)`` first-match lookup made the same mistake
+    on the router's own routing path, not just this diagnostic one).
+
+    ``(component_ref, pin_name)`` identity is therefore not a safe proxy
+    for physical-pad identity on this board and this function no longer
+    trusts it for ``len(pins) >= 2``: a net component name/pin-name tuple
+    matching another's tells you nothing about whether they're the same
+    copper unless a footprint is known never to duplicate pad numbers,
+    which K2/K3 disprove. Only the unambiguous, position-independent case
+    -- a net with exactly one pin *instance* total, so there is only ever
+    one thing to resolve regardless of what it turns out to be -- is
+    trusted here.
     """
-    return len(pins) >= 1 and len(set(pins)) == 1
+    return len(pins) == 1
 
 
 @dataclass

@@ -1527,6 +1527,40 @@ fn calculate_footprint_bounds(fp: &RawFootprint, center_offset_x: f64, center_of
                     }
                     has_valid = true;
                 }
+                // Oracle: `if hasattr(item, "center") and hasattr(item,
+                // "radius")` -- a circle contributes a square bounding box
+                // of side `2*radius` centred on `center`. kiutils' `FpCircle`
+                // stores `center`+`end` (a point on the circumference), not
+                // a precomputed `radius`, so the radius is the centre-to-end
+                // Euclidean distance.
+                RawFpItem::Circle { center, end, .. } => {
+                    let dx = end.x.to_f64() - center.x.to_f64();
+                    let dy = end.y.to_f64() - center.y.to_f64();
+                    let r = (dx * dx + dy * dy).sqrt();
+                    let cx = center.x.to_f64();
+                    let cy = center.y.to_f64();
+                    x_min = Num::py_min(x_min, Num::F(cx - r));
+                    y_min = Num::py_min(y_min, Num::F(cy - r));
+                    x_max = Num::py_max(x_max, Num::F(cx + r));
+                    y_max = Num::py_max(y_max, Num::F(cy + r));
+                    has_valid = true;
+                }
+                // Not in the pre-migration oracle (kiutils' `FpPoly` was
+                // never matched by its `start`/`end` or `center`/`radius`
+                // checks either), but a polygon's vertices are exactly as
+                // real a courtyard/fab extent as a line's endpoints -- drop
+                // it here and a polygonal courtyard silently vanishes from
+                // every downstream spacing/keepout/congestion consumer the
+                // same way the circle did.
+                RawFpItem::Poly { coords, .. } if !coords.is_empty() => {
+                    for pt in coords {
+                        x_min = Num::py_min(x_min, pt.x);
+                        y_min = Num::py_min(y_min, pt.y);
+                        x_max = Num::py_max(x_max, pt.x);
+                        y_max = Num::py_max(y_max, pt.y);
+                    }
+                    has_valid = true;
+                }
                 _ => {}
             }
         }
@@ -3533,6 +3567,7 @@ mod tests {
         assert!(size_seen && angle_seen);
     }
 
+
     /// Single-pad nets must stay in the netlist registry (deliberate
     /// 2026-08-15 divergence from the pre-migration `len(pins) >= 2` drop --
     /// see `extract_nets_pure`'s docstring). A net with one pad still needs
@@ -3581,4 +3616,161 @@ mod tests {
         assert_eq!(nets[0].1, vec![("F1".to_string(), "1".to_string())]);
     }
 
+
+    fn pos(x: f64, y: f64) -> RawPos {
+        RawPos { x: Num::F(x), y: Num::F(y), angle: None, unlocked: false }
+    }
+
+    /// Regression for the bug this module was built to fix: a footprint
+    /// whose ONLY graphic item is an `fp_circle` must produce bounds that
+    /// cover that circle, not the `(2.0, 2.0)` empty-footprint fallback.
+    /// Before the fix, `Circle` fell into `calculate_footprint_bounds`'s
+    /// catch-all `_ => {}` arm exactly like `Line`/`Rect`/`Arc`/`TextBox`
+    /// do NOT -- `has_valid` was never set, `gfx_bounds` came back `None`,
+    /// and (with no pads either) the function returned the bare (2.0, 2.0)
+    /// fallback instead of a box covering the circle.
+    #[test]
+    fn circle_only_courtyard_produces_circle_bounds() {
+        let fp = RawFootprint {
+            position: RawPos::origin(),
+            layer: "F.Cu".to_string(),
+            locked: false,
+            lib_id: "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn".to_string(),
+            entry_name: "CP_Radial_D35.0mm_P10.00mm_SnapIn".to_string(),
+            properties: vec![],
+            pads: vec![],
+            graphic_items: vec![RawFpItem::Circle {
+                center: pos(5.0, 0.0),
+                end: pos(22.75, 0.0),
+                layer: "F.CrtYd".to_string(),
+            }],
+        };
+        let (width, height) = calculate_footprint_bounds(&fp, 0.0, 0.0);
+        // radius = |22.75 - 5| = 17.75 -> diameter (and the symmetric box
+        // side, since center_offset is 0 and the circle is centred off-
+        // origin at x=5) = 2 * max(|5-17.75|, |5+17.75|) = 2*22.75 = 45.5
+        // in x; y is symmetric about 0 so 2*17.75 = 35.5.
+        assert!((width - 45.5).abs() < 1e-9, "width={width}, expected 45.5");
+        assert!((height - 35.5).abs() < 1e-9, "height={height}, expected 35.5");
+    }
+
+    /// The real `CP_Radial_D35.0mm_P10.00mm_SnapIn` footprint geometry used
+    /// by C2/C3/C4/C5 on `pcb/temper.kicad_pcb`: an F.CrtYd circle (center
+    /// 5,0 / end 22.75,0 -> radius 17.75, a 35.5mm-diameter courtyard), an
+    /// F.Fab circle (center 5,0 / end 22.5,0), two short F.Fab line
+    /// segments (a polarity mark), and two through-hole pads at (0,0) and
+    /// (10,0) (4x4mm each). `center_offset` is threaded as the real pad
+    /// centroid ((0+10)/2, (0+0)/2) = (5, 0) -- the same point
+    /// `_extract_components_from_pcb`/`extract_components_pure` compute and
+    /// pass, and coincidentally the same point the courtyard circles are
+    /// centred on. With the circle dropped (pre-fix), bounds fell back to
+    /// the tiny F.Fab polarity-mark line segments plus the two pads --
+    /// on the order of 30mm x 19mm, NOT the 35.5mm the part actually
+    /// occupies. This is the C2xC3 collision root cause quoted directly
+    /// from the real board.
+    #[test]
+    fn real_cp_radial_d35_courtyard_matches_kicad_diameter() {
+        let fp = RawFootprint {
+            position: RawPos::origin(),
+            layer: "F.Cu".to_string(),
+            locked: false,
+            lib_id: "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn".to_string(),
+            entry_name: "CP_Radial_D35.0mm_P10.00mm_SnapIn".to_string(),
+            properties: vec![],
+            pads: vec![
+                RawPad {
+                    number: "1".to_string(),
+                    shape: "roundrect".to_string(),
+                    position: pos(0.0, 0.0),
+                    size: pos(4.0, 4.0),
+                    drill: None,
+                    layers: vec!["*.Cu".to_string()],
+                    roundrect_ratio: None,
+                    net: None,
+                },
+                RawPad {
+                    number: "2".to_string(),
+                    shape: "circle".to_string(),
+                    position: pos(10.0, 0.0),
+                    size: pos(4.0, 4.0),
+                    drill: None,
+                    layers: vec!["*.Cu".to_string()],
+                    roundrect_ratio: None,
+                    net: None,
+                },
+            ],
+            graphic_items: vec![
+                RawFpItem::Line {
+                    start: pos(-10.065141, -7.6875),
+                    end: pos(-6.565141, -7.6875),
+                    layer: "F.Fab".to_string(),
+                },
+                RawFpItem::Line {
+                    start: pos(-8.315141, -9.4375),
+                    end: pos(-8.315141, -5.9375),
+                    layer: "F.Fab".to_string(),
+                },
+                RawFpItem::Circle {
+                    center: pos(5.0, 0.0),
+                    end: pos(22.5, 0.0),
+                    layer: "F.Fab".to_string(),
+                },
+                RawFpItem::Circle {
+                    center: pos(5.0, 0.0),
+                    end: pos(22.75, 0.0),
+                    layer: "F.CrtYd".to_string(),
+                },
+            ],
+        };
+        // Pad centroid offset, exactly as `extract_components_pure` computes it.
+        let (width, height) = calculate_footprint_bounds(&fp, 5.0, 0.0);
+        assert!((width - 35.5).abs() < 1e-9, "width={width}, expected 35.5 (the part's real diameter)");
+        assert!((height - 35.5).abs() < 1e-9, "height={height}, expected 35.5 (the part's real diameter)");
+    }
+
+    /// Same defect class, different shape: a footprint whose only
+    /// courtyard/fab geometry is an `fp_poly` must have its vertices
+    /// included in bounds. `Poly` fell into the same `_ => {}` catch-all
+    /// as `Circle` (dropped silently, `has_valid` never set).
+    #[test]
+    fn poly_only_fab_outline_produces_poly_bounds() {
+        let fp = RawFootprint {
+            position: RawPos::origin(),
+            layer: "F.Cu".to_string(),
+            locked: false,
+            lib_id: "Package_TO_SOT_SMD:SOT-23".to_string(),
+            entry_name: "SOT-23".to_string(),
+            properties: vec![],
+            pads: vec![],
+            graphic_items: vec![RawFpItem::Poly {
+                coords: vec![pos(-1.4, -0.75), pos(1.4, -0.75), pos(1.4, 0.75), pos(-1.4, 0.75)],
+                layer: "F.Fab".to_string(),
+            }],
+        };
+        let (width, height) = calculate_footprint_bounds(&fp, 0.0, 0.0);
+        assert!((width - 2.8).abs() < 1e-9, "width={width}, expected 2.8");
+        assert!((height - 1.5).abs() < 1e-9, "height={height}, expected 1.5");
+    }
+
+    /// An empty `fp_poly` (zero vertices -- degenerate but not impossible
+    /// from a hand-edited footprint) must not be treated as a valid bounds
+    /// contributor; with no other geometry and no pads this falls through
+    /// to the `(2.0, 2.0)` empty-footprint default, same as it would if the
+    /// item were absent entirely.
+    #[test]
+    fn empty_poly_does_not_fake_valid_bounds() {
+        let fp = RawFootprint {
+            position: RawPos::origin(),
+            layer: "F.Cu".to_string(),
+            locked: false,
+            lib_id: "Test:Empty".to_string(),
+            entry_name: "Empty".to_string(),
+            properties: vec![],
+            pads: vec![],
+            graphic_items: vec![RawFpItem::Poly { coords: vec![], layer: "F.Fab".to_string() }],
+        };
+        let (width, height) = calculate_footprint_bounds(&fp, 0.0, 0.0);
+        assert!((width - 2.0).abs() < 1e-9, "width={width}, expected 2.0 fallback");
+        assert!((height - 2.0).abs() < 1e-9, "height={height}, expected 2.0 fallback");
+    }
 }

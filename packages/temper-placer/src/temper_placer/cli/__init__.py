@@ -124,6 +124,76 @@ def _print_validator_audit(result: object, indent: str = "  ") -> None:
     )
 
 
+def _build_body_collision_input(input_pcb: Path) -> dict | None:
+    """Construct ``solve_placement``'s ``body_collision_input`` from the
+    real board -- arms the fail-closed ``F.Fab`` body-collision post-solve
+    audit (see ``placer.cp_sat.body_collision``).
+
+    Returns None -- and logs why -- when the audit inputs are unavailable
+    (the pinned allowlist config is missing, or the board carries no
+    parseable ``F.Fab`` geometry at all). The audit is additive; an absent
+    ``body_collision_input`` is the encoder's documented skip, so the solve
+    proceeds byte-identical to the pre-wiring behavior -- but this is the
+    ONE production call site, so in normal operation this is always armed,
+    same posture as ``_build_validator_input``.
+    """
+    from temper_placer.io.fab_body_extraction import extract_fab_bodies
+    from temper_placer.placer.cp_sat.body_collision import load_body_collision_allowlist
+
+    allowlist_path = _find_repo_file("packages/temper-placer/configs/body_collision_allowlist.yaml")
+    if allowlist_path is None:
+        console.print(
+            "[yellow]F.Fab body-collision post-solve audit SKIPPED: "
+            "packages/temper-placer/configs/body_collision_allowlist.yaml not "
+            "found (run from the repo root). The solve runs unaudited for "
+            "body collisions.[/]"
+        )
+        return None
+
+    try:
+        allowlist = load_body_collision_allowlist(allowlist_path)
+        fab_bodies = extract_fab_bodies(input_pcb)
+    except (FileNotFoundError, ValueError) as exc:
+        console.print(
+            f"[yellow]F.Fab body-collision post-solve audit SKIPPED: {exc} "
+            "(audit inputs unavailable; solve runs unaudited)[/]"
+        )
+        return None
+
+    if not fab_bodies:
+        console.print(
+            "[yellow]F.Fab body-collision post-solve audit SKIPPED: no "
+            "component on the input board carries parseable F.Fab geometry "
+            "-- re-running the audit would vacuous-pass (solve runs "
+            "unaudited)[/]"
+        )
+        return None
+
+    console.print(
+        f"  [cyan]F.Fab body-collision audit armed[/]: "
+        f"{len(fab_bodies)} component(s) with body geometry, "
+        f"{len(allowlist)} pre-existing collision(s) allowlisted"
+    )
+    return {"fab_bodies": fab_bodies, "allowlist": allowlist}
+
+
+def _print_body_collision_audit(result: object, indent: str = "  ") -> None:
+    """Surface the body-collision post-solve audit when a solve carried
+    ``body_collision_input`` (additive reporting; absent audit = no
+    output). A non-empty ``violations`` list never reaches here -- it
+    raises inside ``solve_placement`` -- so this only ever reports the
+    allowlisted (unchanged-or-better) pre-existing debt a clean solve
+    carried forward."""
+    audit = getattr(result, "body_collision_audit", None)
+    if audit is None:
+        return
+    console.print(
+        f"{indent}F.Fab body-collision post-solve audit: 0 violations, "
+        f"{len(audit.allowlisted)} allowlisted pre-existing collision(s) over "
+        f"{audit.checked_pairs} checked pair(s)"
+    )
+
+
 def _print_tank_creepage_report(result: object, indent: str = "  ") -> None:
     """Surface what the tank-node creepage constraint actually encoded.
 
@@ -572,6 +642,12 @@ def optimize(
             # PlaceRouteLoop -> solve_placement). None (inputs unavailable ->
             # logged skip) leaves the loop byte-identical to pre-wiring.
             validator_input = _build_validator_input(input_pcb)
+            # Fail-closed F.Fab body-collision post-solve audit, armed on
+            # every feasible loop round the same way validator_input is
+            # above (forwarded into PlaceRouteLoop -> solve_placement). None
+            # (inputs unavailable -> logged skip) leaves the loop
+            # byte-identical to pre-wiring; see body_collision.py.
+            body_collision_input = _build_body_collision_input(input_pcb)
 
             loop_result = loop_runner.run(
                 netlist=netlist,
@@ -586,11 +662,13 @@ def optimize(
                 all_gates=all_gates,
                 source_pcb_path=input_pcb,
                 validator_input=validator_input,
+                body_collision_input=body_collision_input,
             )
 
             # Surface UNSAT core from CP-SAT placement result.
             _maybe_surface_unsat(loop_result.placement, unsat_report)
             _print_validator_audit(loop_result.placement)
+            _print_body_collision_audit(loop_result.placement)
 
             if loop_result.success:
                 console.print(f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds")
@@ -757,6 +835,14 @@ def optimize(
             # validator_input is the encoder's documented skip).
             validator_input = _build_validator_input(input_pcb)
 
+            # Fail-closed F.Fab body-collision post-solve audit (this guard's
+            # whole reason for existing: commit de59c0458/#602 produced a
+            # 7.73mm real body interpenetration that nothing in the pipeline
+            # rejected, and PR #1168 reproduced the defect live). Armed the
+            # same way validator_input is above; None (inputs unavailable ->
+            # logged skip) leaves the solve byte-identical to pre-wiring.
+            body_collision_input = _build_body_collision_input(input_pcb)
+
             # Warm-start: seed solver with deterministic pipeline positions.
             hint_positions = None
             if warm_start:
@@ -814,11 +900,18 @@ def optimize(
                 # module docstring and
                 # docs/evidence/2026-08-12-tank-creepage-placement.md sec 2).
                 tank_creepage={"margin_mm": DEFAULT_TANK_CREEPAGE_MM},
+                # F.Fab body-collision guard, armed above. A NEW or WORSENED
+                # collision raises inside solve_placement -- the placement
+                # never reaches the write-to-board step below. Allowlisted
+                # pre-existing collisions land on cp_result.body_collision_audit
+                # and are printed below.
+                body_collision_input=body_collision_input,
             )
 
             console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
             _print_tank_creepage_report(cp_result)
             _print_validator_audit(cp_result)
+            _print_body_collision_audit(cp_result)
 
             if cp_result.status in ("infeasible", "model_invalid"):
                 _maybe_surface_unsat(cp_result, unsat_report)

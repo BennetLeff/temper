@@ -162,11 +162,26 @@ TEMPER_NET_CLASSES = {
         required_layer="B.Cu",
         safety_category="HV",
     ),
+    # via_diameter RAISED 0.4 -> 0.8mm 2026-08-13
+    # (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1,
+    # docs/hardware/FAB_CAPABILITY.md #2a): the old 0.4mm/0.2mm pad/drill pair
+    # gave a 0.1mm annular ring, below JLCPCB's 2oz PTH annular-ring floor
+    # (0.254mm) -- this is the smaller of the two via families measured on
+    # the real board, and it fails even JLCPCB's 1oz ABSOLUTE MINIMUM
+    # (0.15mm), not just the 2oz figure. New pad = drill (0.2mm, unchanged --
+    # this is a manufacturability fix to pad geometry, not a drill/current-
+    # capacity change) + 2 x 0.3mm target ring (0.3mm chosen for margin over
+    # the 0.254mm floor, not the bare minimum 0.708mm pad -- ACMains/
+    # HighVoltage/HighVoltageTank above already use a 1.2mm/0.6mm pad/drill
+    # pair, a 0.3mm ring that already clears the floor; every other class in
+    # this table is raised to the SAME 0.3mm ring target below, so via
+    # geometry across the whole netclass table is now uniform on ring width,
+    # varying only by drill diameter).
     "FinePitch": NetClassRules(
         name="FinePitch",
         trace_width=0.127,
         clearance=0.1,
-        via_diameter=0.4,
+        via_diameter=0.8,
         via_drill=0.2,
         via_template="Via1x1",
         dru_priority=30,
@@ -186,11 +201,15 @@ TEMPER_NET_CLASSES = {
     # SS2/SS3.2's formal "Power (Low Voltage Rails)" row (1.0mm trace /
     # 0.5mm clearance / 1.0mm via pad / 0.5mm via drill / 3A), independently
     # of each other. kicad_pro was correct; this table was wrong.
+    # via_diameter RAISED 1.0 -> 1.1mm 2026-08-13 (same JLCPCB-2oz-annular-
+    # ring-floor fix as FinePitch above): 1.0mm/0.5mm gave a 0.25mm ring,
+    # 0.004mm short of the 0.254mm floor. New pad = 0.5mm drill (unchanged)
+    # + 2 x 0.3mm ring target, matching the board-wide 0.3mm-ring convention.
     "Power": NetClassRules(
         name="Power",
         trace_width=1.0,
         clearance=0.5,
-        via_diameter=1.0,
+        via_diameter=1.1,
         via_drill=0.5,
         via_template="Via2x2",
         dru_priority=40,
@@ -206,11 +225,17 @@ TEMPER_NET_CLASSES = {
     # (SELV) MCU PWM inputs. Every clearance/width/via value below is
     # unchanged from the pre-split class -- only the class model and
     # safety_category differ.
+    # via_diameter RAISED 0.8 -> 1.0mm 2026-08-13 (same JLCPCB-2oz-annular-
+    # ring-floor fix, board-wide 0.3mm-ring convention -- see FinePitch
+    # above): 0.8mm/0.4mm gave a 0.2mm ring, below the 0.254mm floor. This is
+    # also the exact family (0.8mm/0.4mm) measured on all 40 of the board's
+    # larger-family real vias
+    # (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1).
     "GateDriveHV": NetClassRules(
         name="GateDriveHV",
         trace_width=0.4,
         clearance=0.25,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via1x1",
         dru_priority=50,
@@ -224,7 +249,7 @@ TEMPER_NET_CLASSES = {
         name="GateDriveSELV",
         trace_width=0.4,
         clearance=0.25,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via1x1",
         dru_priority=51,
@@ -243,11 +268,13 @@ TEMPER_NET_CLASSES = {
     # field never declared what the config file already said. See R3-R5 of
     # the plan above; _zone_layers_for_net (_zone_pour_stitch.py) is the
     # paired fix that makes the eligibility check recognize this tier.
+    # via_diameter RAISED 1.0 -> 1.1mm 2026-08-13 (same fix as Power above:
+    # 1.0mm/0.5mm gave a 0.25mm ring, 0.004mm short of the 0.254mm floor).
     "GND": NetClassRules(
         name="GND",
         trace_width=1.0,
         clearance=0.3,
-        via_diameter=1.0,
+        via_diameter=1.1,
         via_drill=0.5,
         via_template="Via3x3",
         routing_strategy="plane_preferred",
@@ -255,11 +282,14 @@ TEMPER_NET_CLASSES = {
         required_layer=None,
         safety_category="LV",
     ),
+    # via_diameter RAISED 0.6 -> 0.9mm 2026-08-13 (board-wide 0.3mm-ring fix,
+    # see FinePitch above): 0.6mm/0.3mm gave a 0.15mm ring, below the
+    # 0.254mm floor.
     "HighSpeed": NetClassRules(
         name="HighSpeed",
         trace_width=0.15,
         clearance=0.2,
-        via_diameter=0.6,
+        via_diameter=0.9,
         via_drill=0.3,
         target_impedance=50.0,
         via_template="Via1x1",
@@ -271,18 +301,21 @@ TEMPER_NET_CLASSES = {
         name="Signal",
         trace_width=0.2,
         clearance=0.15,
-        via_diameter=0.6,
+        via_diameter=0.9,
         via_drill=0.3,
         via_template="Via1x1",
         dru_priority=80,
         required_layer=None,
         safety_category="LV",
     ),
+    # via_diameter RAISED 0.8 -> 1.0mm 2026-08-13 (same fix as GateDriveHV/
+    # GateDriveSELV above; this is the other class sharing the 0.8mm/0.4mm
+    # family measured on the board's 40 larger-family real vias).
     "HighCurrent": NetClassRules(
         name="HighCurrent",
         trace_width=0.5,
         clearance=0.25,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via4x4",
         dru_priority=90,
@@ -365,6 +398,7 @@ TEMPER_NET_CLASSES = {
         required_layer="B.Cu",
         safety_category="HV",
     ),
+
     # ADDED 2026-08-13 (docs/evidence/2026-08-13-netclass-current-scoping.md):
     # the mA-scale current tier carved OUT of HighVoltage above -- same
     # voltage domain (elec/domain_manifest.yaml's `HV` domain: these nets
@@ -393,7 +427,7 @@ TEMPER_NET_CLASSES = {
         name="HighVoltageSignal",
         trace_width=0.5,
         clearance=2.0,
-        via_diameter=0.8,
+        via_diameter=1.0,
         via_drill=0.4,
         via_template="Via1x1",
         voltage_v=400.0,
@@ -412,11 +446,15 @@ TEMPER_NET_CLASSES = {
     # citation is debunked. Fab-authoritative enforcement is
     # scripts/generate_kicad_dru.py's cited figures. Values unchanged --
     # re-sourcing is a separate attributed decision.
+
+    # via_diameter RAISED 1.0 -> 1.1mm 2026-08-13 (same fix as Power/GND
+    # above: 1.0mm/0.5mm gave a 0.25mm ring, 0.004mm short of the 0.254mm
+    # floor).
     "HighVoltageIsolated": NetClassRules(
         name="HighVoltageIsolated",
         trace_width=2.0,
         clearance=6.0,
-        via_diameter=1.0,
+        via_diameter=1.1,
         via_drill=0.5,
         via_template="Via1x1",
         voltage_v=20.0,
@@ -641,6 +679,38 @@ TEMPER_NET_ASSIGNMENTS = {
     # it as a known, pre-existing, deliberately out-of-scope violation of
     # the identical shape; not silently exempted, just not this line's fix.
     "CGND": "GND",
+    # ADDED 2026-08-13 (URGENT hyphen-boundary net-classification defect;
+    # see docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md).
+    # These 5 nets are real, compiled nets on the production board
+    # (elec/build/default.net) and are explicitly declared SELV in
+    # elec/domain_manifest.yaml ("discharge.k_dis1's own declared 'coil'
+    # group"/"power_in.bypass_relay's own declared 'coil' group" --
+    # pin_labels there already call both pins of each pair "SELV coil
+    # drive"). Today they fall through DesignRules.get_rules_for_net's
+    # entire pattern cascade to Default (they contain no GND/Power/gate
+    # keyword). The fix in this same change makes the HighCurrent tier's
+    # "-" boundary widening apply to "COIL" too (consistent with the rest
+    # of the cascade) -- which, left alone, would newly match these five
+    # names ("...-coil1"/"...-coil2") and reclassify them HighCurrent
+    # (safety_category "HV"), the exact false-positive shape
+    # creepage_check.py's 2026-07-27 fix already fought to remove for the
+    # same five nets under a different mechanism (see
+    # router_v6/creepage_check.py's `_is_high_voltage_net` docstring).
+    # Declared explicitly here (Tier 2, wins over the Tier 4+ pattern
+    # cascade) rather than narrowing the boundary fix back down for just
+    # "COIL" -- narrowing would silently reintroduce the hyphen-boundary
+    # defect for the next hyphenated COIL-adjacent net. "Signal" matches
+    # these nets' genuine role (simple SELV relay-coil-drive logic
+    # signals, not a DC supply rail) and is numerically identical to the
+    # Default catch-all these nets already resolve to today (trace_width
+    # 0.2mm, clearance 0.15mm, creepage_mm 0.0) -- this declaration is a
+    # correctness/stability fix (immune to future pattern-cascade churn,
+    # explicit safety_category="LV"), not a clearance/creepage change.
+    "discharge.k_dis1-coil1": "Signal",
+    "discharge.k_dis1-coil2": "Signal",
+    "discharge.k_dis2-coil1": "Signal",
+    "power_in.bypass_relay-coil1": "Signal",
+    "power_in.bypass_relay-coil2": "Signal",
 }
 
 # -----------------------------------------------------------------------------
@@ -669,7 +739,12 @@ def create_temper_design_rules() -> DesignRules:
     return DesignRules(
         default_trace_width=0.2,
         default_clearance=0.15,  # Relaxed from 0.2mm to allow signal density (Targeted Reduction)
-        default_via_diameter=0.6,
+        # default_via_diameter RAISED 0.6 -> 0.9mm 2026-08-13 (same JLCPCB
+        # 2oz-annular-ring-floor fix, board-wide 0.3mm-ring convention, as
+        # every TEMPER_NET_CLASSES entry above -- see FinePitch's comment):
+        # 0.6mm/0.3mm gave a 0.15mm ring, below the 0.254mm floor. This is
+        # the fallback used for any net that resolves to no declared class.
+        default_via_diameter=0.9,
         default_via_drill=0.3,
         net_classes=deepcopy(TEMPER_NET_CLASSES),
         net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),

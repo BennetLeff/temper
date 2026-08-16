@@ -168,12 +168,26 @@ PLANE_LAYER = "In2.Cu"
 # tuple already names, not on PLANE_LAYER itself.
 BACKBONE_LAYER = "F.Cu"
 
-# Matches this board's Power netclass via convention (design_rules.py:
-# TEMPER_NET_CLASSES["Power"].via_diameter/via_drill == 0.8/0.4mm exactly)
-# -- the same values _ground_plane.py already uses for gnd's Via3x3-class
-# drops, so this is not a new convention, just the same one applied to a
-# different net class that happens to specify identical numbers.
-VIA_SIZE_MM = 0.8
+# NOTE: the comment this replaced claimed this matched design_rules.py's
+# Power netclass via convention "0.8/0.4mm exactly" -- that was already
+# stale before this fix: Power's via_diameter/via_drill was corrected to
+# 1.0/0.5mm on 2026-08-12 (docs/evidence/2026-08-12-netclass-param-
+# reconciliation.md) and this literal constant was never updated alongside
+# it, so it had already drifted from the class it claimed to mirror. This
+# constant is, and always was, an independent hardcoded generator (one of
+# the two literal generators of the board's 44 vias, along with
+# _ground_plane.py's identical constant) -- not a derived mirror of any
+# netclass table.
+#
+# RAISED size 0.8 -> 1.0mm 2026-08-13
+# (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1,
+# docs/hardware/FAB_CAPABILITY.md): the old 0.8mm pad / 0.4mm drill pair
+# gave a 0.2mm annular ring, below JLCPCB's 2oz PTH annular-ring floor
+# (0.254mm). Drill is unchanged (0.4mm) -- pure pad-geometry fix. New pad =
+# drill + 2 x 0.3mm ring target, the board-wide 0.3mm-ring convention (see
+# _ground_plane.py's identical constant and every TEMPER_NET_CLASSES
+# via_diameter in core/design_rules.py).
+VIA_SIZE_MM = 1.0
 VIA_DRILL_MM = 0.4
 STITCH_TRACE_WIDTH_MM = 0.3
 

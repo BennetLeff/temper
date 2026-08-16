@@ -70,12 +70,18 @@ PLANE_LAYER = "In1.Cu"
 # from its own declared `layers` tuple, not from stackup position.
 BACKBONE_LAYER = "F.Cu"
 
-# Matches the existing production via convention already written by
-# router_v6 elsewhere in this file (see pcb/temper.kicad_pcb's own
-# existing vias: `(size 0.8) (drill 0.4) (layers "F.Cu" "B.Cu")` --
-# a standard plated through-hole via, which contacts every inner copper
-# layer it physically passes through, including In1.Cu).
-VIA_SIZE_MM = 0.8
+# RAISED size 0.8 -> 1.0mm 2026-08-13
+# (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1,
+# docs/hardware/FAB_CAPABILITY.md): this constant is one of the two literal
+# generators of the 44 vias measured on the real board -- the old 0.8mm
+# pad / 0.4mm drill pair gave a 0.2mm annular ring, below JLCPCB's 2oz PTH
+# annular-ring floor (0.254mm); every one of this module's stitching vias
+# failed it. Drill is unchanged (0.4mm) -- this is a pure pad-geometry fix,
+# not a current-capacity change. New pad = drill + 2 x 0.3mm ring target,
+# the same board-wide 0.3mm-ring convention applied to every
+# TEMPER_NET_CLASSES via_diameter (core/design_rules.py) and to
+# _power_islands.py's identical constant below.
+VIA_SIZE_MM = 1.0
 VIA_DRILL_MM = 0.4
 
 # In1.Cu carries zero pre-existing copper of any kind (measured: this is

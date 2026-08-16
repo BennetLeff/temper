@@ -219,6 +219,24 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_ci_survey_advisory_drift.py
+  purpose: 'CI gate: cross-check gate_input_registry._CI_SCRIPT_SURVEY''s free-text "advisory"/"BLOCKING"
+    claims about each gate script''s CI wiring against the real continue-on-error state of its step(s)
+    in .github/workflows/python-tests.yml. Catches prose that drifted from reality in either direction
+    -- measured 2026-08-13: check_netclass_class_param_correspondence.py''s entry still read "advisory
+    (continue-on-error); currently VIOLATION" after the underlying mismatch was reconciled and the step
+    made blocking on 2026-08-12 (docs/evidence/2026-08-12-netclass-param-reconciliation.md).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
@@ -431,6 +449,30 @@ scripts:
   - rich.console
   - subprocess
   - sys
+- path: check_fab_capability_floor.py
+  purpose: 'CI gate: board via geometry and the "Via hole clearance" DRU rule must
+    never fall below JLCPCB''s published 2oz-multilayer manufacturability floor
+    (docs/hardware/FAB_CAPABILITY.md sec.5, the sole numeric source -- this script
+    hardcodes no fab figure). docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md
+    measured every via on the board (44/44) below JLCPCB''s 0.254mm PTH annular-ring
+    floor, and the repo''s own "Via hole clearance" DRU rule (0.25mm) below JLCPCB''s
+    0.28mm PTH-to-track absolute minimum independent of copper weight -- the repo''s
+    own rule could never have caught this. Five properties: P1 real board via
+    geometry, P2 TEMPER_NET_CLASSES via templates, P3 router_v6 generator constants
+    (_ground_plane.py/_power_islands.py VIA_SIZE_MM/VIA_DRILL_MM), P4/P5 the DRU
+    rule constant and its emitted text. Mutation-verified against the exact pre-fix
+    shapes (scripts/tests/test_check_fab_capability_floor.py).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_fault_list_consistency.py
   purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
   owner: firmware
@@ -532,6 +574,24 @@ scripts:
   - sys
   - tempfile
   - yaml
+- path: check_geometry_primitive_duplication.py
+  purpose: 'CI gate: fail when a Rust crate carries its own body of a point-to-segment-distance-shaped
+    kernel (degenerate-length branch + [0,1] clamp + Euclidean close) that is not recorded in
+    .geometry-primitive-duplication-allowlist with a reason. Closes the 2026-08-13 finding that
+    point_to_segment_distance had 5 independent Rust bodies, each pinned to its own Python oracle
+    with its own degenerate-length epsilon (1e-12, 1e-10, exact-zero, exact-zero-or-non-finite), one
+    on the HV creepage safety path. Detection is structural, not name-based, so a renamed copy (as
+    fixed_copper.rs''s was) still matches. NEW_COPY and STALE_ENTRY both fail closed.'
+  owner: pipeline
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - re
+  - sys
 - path: check_hash_order_determinism.py
   purpose: 'CI gate: fail on any NEW site under packages/*/src that records a PYTHONHASHSEED-chosen order
     -- a set/frozenset iteration materialised, accumulated over, indexed, first-element-selected or appended
@@ -708,6 +768,33 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_net_pin_identity_pad_correspondence.py
+  purpose: 'CI gate: catch a net whose (component_ref, pad_number) pin-identity
+    view silently collapses a real, multi-pad net into a trivial "nothing to
+    connect" one. Root-caused a task investigating discharge.k_dis1-no/
+    discharge.k_dis2-no looking absent from the router accounting under
+    --net-batching: both nets pin-identity-collapse to 1 distinct tuple
+    (K2/K3''s manufacturer-duplicated relay contact pads, two physical solder
+    holes sharing one pad number) while the real board carries 2 distinct
+    physical pads -- the mistake _pipeline_grid._net_pad_positions and
+    topology_copper_audit.is_self_referential_net both made (now fixed). This
+    gate is the standing, self-contained (no compiled extension needed)
+    invariant that would have caught the underlying shape. Human-reviewed
+    allowlist (KNOWN_DUPLICATE_PAD_NUMBER_NETS) for the two known-and-fixed
+    cases; any other net hitting this shape fails closed.'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - collections
+  - pathlib
+  - re
+  - sys
 - path: check_router_clearance_floor.py
   purpose: 'CI gate: the clearance the router reserves for an unclassified net must
     never be below the clearance kicad-cli DRC grades that net against. Between
@@ -737,10 +824,10 @@ scripts:
     and design_rules.py''s TEMPER_NET_CLASSES agrees on all four scalar routing fields (clearance, trace_width/track_width,
     via_diameter, via_drill) -- the dimension PR #1023/#1025 (both titled as syncing kicad_pro against
     design_rules.py) and sync_kicad_netclass_assignments.py never checked: all three only ever compare/write
-    netclass_assignments (which net maps to which class), never a class''s own parameter values. Currently
-    VIOLATION on origin/main: HighVoltage.clearance 6.0mm (design_rules.py) vs 2.0mm (kicad_pro), plus
-    4 Power-class field mismatches (docs/evidence/ 2026-08-12-gate-vacuity-structural-prevention.md).
-    Advisory (continue-on-error) until reconciled.'
+    netclass_assignments (which net maps to which class), never a class''s own parameter values. Reconciled
+    2026-08-12: HighVoltage.clearance and 4 Power-class field mismatches were resolved
+    (docs/evidence/2026-08-12-netclass-param-reconciliation.md). BLOCKING as of 2026-08-12
+    (continue-on-error removed from the CI step once the gate went clean).'
   owner: bennet
   last_run: '2026-08-12'
   category: keep
@@ -896,6 +983,33 @@ scripts:
   - hashlib
   - json
   - pathlib
+  - sys
+- path: check_pad_identity_ambiguity.py
+  purpose: 'CI gate: structural, component-level complement to check_net_pin_identity_pad_correspondence.py
+    (PR #1177''s net-accounting gate). Fails when a footprint IN USE on the board declares more than one
+    physical pad under the same pad number (K1/K2/K3 today -- K2/K3''s manufacturer-duplicated relay
+    contact pads "1"/"3"/"4", K1''s four duplicate NPTH mechanical mounting holes) AND a production
+    Component.get_pin( call site outside a small, reasoned allowlist (core/loop_extractor.py::get_pin_net,
+    which only needs pin existence/net-membership) resolves a pin as if (ref, pin_name) were a unique key.
+    Closes the net-level gate''s blind spot: a duplicated pad sitting inside an otherwise multi-pin net
+    (K2/K3''s pad "1" -> PWR_RTN/DC_BUS_RTN, pad "4" -> discharge.k_dis1-nc/k_dis2-nc) never collapses the
+    WHOLE net to <=1 distinct tuple, so the net-level gate is silent for it even though a first-match
+    consumer still mis-resolves the duplicated pad. Self-contained: paren-balanced regex board parse (no
+    compiled extension) + ast source scan (no import of the scanned modules).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - collections
+  - dataclasses
+  - pathlib
+  - re
   - sys
 - path: check_pad_orientation.py
   purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a

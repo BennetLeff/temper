@@ -167,10 +167,16 @@ classes:
   # history and the still-open compartment-evidence prerequisite that
   # decision is conditional on) plus HV_INTERNAL_CLEARANCE_MM (2.0mm,
   # cited) -- not this placer-feasibility config.
+  #
+  # via_diameter values below RAISED 2026-08-13 to a uniform 0.3mm annular
+  # ring (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md,
+  # docs/hardware/FAB_CAPABILITY.md): 1.0/0.5 gave a 0.25mm ring, 0.004mm
+  # short of JLCPCB's 2oz PTH annular-ring floor (0.254mm). Mirrors the
+  # identical fix in core/design_rules.py's TEMPER_NET_CLASSES.
   HighVoltageIsolated:
     clearance: 6.0
     trace_width: 2.0
-    via_diameter: 1.0
+    via_diameter: 1.1
     via_drill: 0.5
     creepage_mm: 6.0
     voltage_v: 20.0
@@ -178,10 +184,14 @@ classes:
     safety_category: "HV"
     because: "Floating gate-drive bootstrap supply, same HV domain as ac_l/+170V_BUS/SW_NODE (elec/domain_manifest.yaml) -- reinforced separation to LV/SELV, functional-only to its own HV/ACMains neighbours (see class_pairs below)"
 
+  # via_diameter RAISED 0.4 -> 0.8mm 2026-08-13 (same fab-floor fix as
+  # HighVoltageIsolated above): 0.4/0.2 gave a 0.1mm annular ring, below
+  # even JLCPCB's 1oz ABSOLUTE MINIMUM (0.15mm) -- this is the smaller of
+  # the two via families measured on the real board (4 of 44 vias).
   FinePitch:
     clearance: 0.1
     trace_width: 0.127
-    via_diameter: 0.4
+    via_diameter: 0.8
     via_drill: 0.2
     layer: "B.Cu"
     safety_category: "LV"
@@ -195,10 +205,13 @@ classes:
   # clearance=0.5mm) and docs/specs/NET_CLASS_SPECIFICATION.md's formal
   # Power row (1.0mm trace / 0.5mm clearance / 1.0mm via pad / 0.5mm via
   # drill / 3A).
+  # via_diameter RAISED 1.0 -> 1.1mm 2026-08-13 (same fab-floor fix, see
+  # FinePitch above): 1.0/0.5 gave a 0.25mm ring, 0.004mm short of the
+  # 0.254mm floor.
   Power:
     clearance: 0.5
     trace_width: 1.0
-    via_diameter: 1.0
+    via_diameter: 1.1
     via_drill: 0.5
     layer: "B.Cu"
     safety_category: "LV"
@@ -213,10 +226,15 @@ classes:
   # rule keyed on "GateDrive" unable to answer which side of the barrier it
   # protected. Every clearance/width/via VALUE below is unchanged from the
   # pre-split class -- this is a class-model change, not a numbers change.
+  # via_diameter RAISED 0.8 -> 1.0mm 2026-08-13 for GateDriveHV/
+  # GateDriveSELV (same fab-floor fix, see FinePitch above): 0.8/0.4 gave a
+  # 0.2mm ring, below the 0.254mm floor. This is the exact family measured
+  # on all 40 of the board's larger-family real vias
+  # (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1).
   GateDriveHV:
     clearance: 0.25
     trace_width: 0.4
-    via_diameter: 0.8
+    via_diameter: 1.0
     via_drill: 0.4
     layer: "B.Cu"
     safety_category: "HV"
@@ -225,24 +243,29 @@ classes:
   GateDriveSELV:
     clearance: 0.25
     trace_width: 0.4
-    via_diameter: 0.8
+    via_diameter: 1.0
     via_drill: 0.4
     layer: "B.Cu"
     safety_category: "LV"
     because: "PWM_HS/PWM_LS are the MCU-side PWM outputs, primary (SELV) side of U7's reinforced barrier, per elec/domain_manifest.yaml. 'LV' is the correct category for SELV in this vocabulary -- there is no separate SELV value in the safety_category enum (HV/LV/AC/iso)."
 
+  # via_diameter RAISED 1.0 -> 1.1mm 2026-08-13 (same fab-floor fix as
+  # Power above): 1.0/0.5 gave a 0.25mm ring, 0.004mm short of the floor.
   GND:
     clearance: 0.3
     trace_width: 1.0
-    via_diameter: 1.0
+    via_diameter: 1.1
     via_drill: 0.5
     layer: "In1.Cu"
     safety_category: "LV"
 
+  # via_diameter RAISED 0.6 -> 0.9mm 2026-08-13 for HighSpeed/Signal (same
+  # fab-floor fix, see FinePitch above): 0.6/0.3 gave a 0.15mm ring, below
+  # the 0.254mm floor.
   HighSpeed:
     clearance: 0.2
     trace_width: 0.15
-    via_diameter: 0.6
+    via_diameter: 0.9
     via_drill: 0.3
     target_impedance: 50.0
     layer: "B.Cu"
@@ -251,15 +274,17 @@ classes:
   Signal:
     clearance: 0.15
     trace_width: 0.2
-    via_diameter: 0.6
+    via_diameter: 0.9
     via_drill: 0.3
     layer: "F.Cu"
     safety_category: "LV"
 
+  # via_diameter RAISED 0.8 -> 1.0mm 2026-08-13 (same fab-floor fix as
+  # GateDriveHV/GateDriveSELV above).
   HighCurrent:
     clearance: 0.25
     trace_width: 0.5
-    via_diameter: 0.8
+    via_diameter: 1.0
     via_drill: 0.4
     layer: "F.Cu"
     safety_category: "HV"

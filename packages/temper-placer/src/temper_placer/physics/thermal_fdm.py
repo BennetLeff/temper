@@ -152,26 +152,18 @@ def _trace_to_cell_coverage(
     return np.frombuffer(raw, dtype=np.float64).reshape((height_cells, width_cells)).copy()
 
 
-def _point_to_segment_distance(
-    px: float,
-    py: float,
-    ax: float,
-    ay: float,
-    bx: float,
-    by: float,
-) -> float:
-    """Squared Euclidean distance from point to line segment AB."""
-    dx = bx - ax
-    dy = by - ay
-    seg_len_sq = dx * dx + dy * dy
-
-    if seg_len_sq < 1e-18:
-        return float(np.sqrt((px - ax) ** 2 + (py - ay) ** 2))
-
-    t = max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / seg_len_sq))
-    proj_x = ax + t * dx
-    proj_y = ay + t * dy
-    return float(np.sqrt((px - proj_x) ** 2 + (py - proj_y) ** 2))
+# NOTE: this module used to carry its own `_point_to_segment_distance`
+# (pure Python/numpy, degenerate-segment threshold `seg_len_sq < 1e-18` --
+# a value that matched none of the ~13 other independent copies of this
+# predicate scattered across the repo; see
+# `scripts/duplicate_predicate_registry.py`'s `point_to_segment_distance`
+# family). It was dead: `_trace_to_cell_coverage` above calls the Rust
+# kernel `_tt.trace_to_cell_coverage` directly and never called it, and no
+# other module imported it (confirmed by a repo-wide grep before removal).
+# Deleted rather than "consolidated onto the canonical kernel" because
+# there is no live call site to redirect -- removing an unreachable,
+# independently-thresholded copy is strictly safer than wiring it into
+# creepage-adjacent Rust geometry it never actually needed.
 
 
 def _build_conductivity_field(

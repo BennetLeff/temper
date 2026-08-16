@@ -1679,6 +1679,43 @@ jobs:
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_copper_net_consistency.py
 
+      - name: Net pin-identity / pad-correspondence gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_net_pin_identity_pad_correspondence.py -v --tb=short -m "not slow"
+
+      - name: Net pin-identity / pad-correspondence gate (duplicate-pad-number nets)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: reads pcb/temper.kicad_pcb directly and flags any net
+        # whose (component_ref, pin_name) pin-identity view collapses to
+        # <=1 distinct pin while its REAL, independently-parsed physical pad
+        # count is > 1 -- the invariant that would have caught
+        # discharge.k_dis1-no/discharge.k_dis2-no (K2/K3's manufacturer-
+        # duplicated relay contact pads) silently looking like trivial,
+        # nothing-to-connect nets to the router's own pin-identity model
+        # while the real board carried two genuinely distinct, currently-
+        # unconnected physical pads. A small, human-reviewed allowlist
+        # (KNOWN_DUPLICATE_PAD_NUMBER_NETS in the gate script) covers the
+        # two known-and-fixed cases; any other net hitting this shape is
+        # unreviewed and fails closed. Never `continue-on-error`.
+        run: uv run python scripts/check_net_pin_identity_pad_correspondence.py
+
+      - name: Pad-identity ambiguity gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_identity_ambiguity.py -v --tb=short
+
+      - name: Pad-identity ambiguity gate (duplicate-pad-number footprint x unsafe consumer)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed, component-level complement to the net-accounting gate
+        # above: fails when a footprint IN USE declares more than one
+        # physical pad under the same pad number (K1/K2/K3 today) AND a
+        # production Component.get_pin( call site outside the reviewed
+        # allowlist (ALLOWED_GET_PIN_CALL_SITES in the gate script) resolves
+        # a pin as if (ref, pin_name) were unique -- catches the case the
+        # net-accounting gate above cannot: a duplicated pad sitting inside
+        # an otherwise multi-pin net never collapses that net's WHOLE
+        # pin-identity view to <=1 distinct tuple. Never `continue-on-error`.
+        run: uv run python scripts/check_pad_identity_ambiguity.py
+
       - name: Footprint-drift gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_footprint_drift.py -v --tb=short
@@ -2259,6 +2296,7 @@ jobs:
         # so it does not block this gate).
         run: uv run python scripts/check_netclass_class_param_correspondence.py
 
+
       # --- Stackup <-> trace-width-derivation copper-weight gate (docs/evidence/
       # 2026-08-13-jlcpcb-fab-capability-envelope.md) ---
       # A seventh gate for the same declaration/reality-drift shape as Gates
@@ -2309,6 +2347,27 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_layer_utilization_gate.py
 
+
+
+      # --- CI-survey advisory/blocking drift gate (2026-08-13 inert-code
+      # audit) --- gate_input_registry._CI_SCRIPT_SURVEY bills itself as the
+      # single source of truth for this file's gate wiring, and its
+      # "advisory (continue-on-error)" / "BLOCKING" reason text is a
+      # falsifiable claim about the step below (and every other correspondence
+      # gate's step) that nothing checked. It already drifted once: the
+      # entry above (Net-class parameter correspondence gate) still read
+      # "advisory ... currently VIOLATION" after this exact step went
+      # BLOCKING on 2026-08-12. BLOCKING from the start: it is source/prose
+      # scanning only, needs no built board, and is green on introduction.
+
+      - name: CI-survey advisory/blocking drift gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_ci_survey_advisory_drift.py -v --tb=short
+
+      - name: CI-survey advisory/blocking drift gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_ci_survey_advisory_drift.py
+
       - name: Router clearance floor gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_router_clearance_floor.py -v --tb=short
@@ -2322,6 +2381,24 @@ jobs:
         # heatsink candidate board and was invisible in either file alone --
         # see docs/evidence/2026-08-12-clearance-congestion-band.md.
         run: uv run python scripts/check_router_clearance_floor.py
+
+      - name: Fab-capability floor gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_fab_capability_floor.py -v --tb=short
+
+      - name: Fab-capability (JLCPCB 2oz) via/hole-clearance floor gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # BLOCKING from the start, deliberately: this gate is green on the
+        # tree that introduces it (44/44 board vias + every net-class via
+        # template + both router_v6 generator constants raised to a 0.3mm
+        # ring; the "Via hole clearance" DRU rule raised 0.25mm -> 0.28mm),
+        # so it can only ever fail on a reintroduction. Reads its numeric
+        # floor from docs/hardware/FAB_CAPABILITY.md sec.5, never a
+        # hardcoded constant -- see
+        # docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md for
+        # the sourced JLCPCB figures and the pre-fix measurement (44/44
+        # vias below the 0.254mm floor).
+        run: uv run python scripts/check_fab_capability_floor.py
 
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -2748,6 +2825,42 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_unwired_kernels.py
 
+      # 2026-08-13: `temper-geometry` had two independent `#[pyfunction] pub
+      # fn kw_boundary_match_py` definitions (via_clearance.rs and
+      # trace_width_assignment.rs) both wrap_pyfunction!'d into the same
+      # temper_geometry pymodule -- pyo3's PyModule::add_function is a plain
+      # setattr, so the later registration silently won and the earlier
+      # implementation became unreachable dead code with its own passing
+      # unit tests. Invisible to cargo build/test, to
+      # check_stale_extensions.py (certifies freshness, not per-symbol
+      # implementation-uniqueness), and specifically to
+      # check_unwired_kernels.py just above (its registered_symbols() scan
+      # uses dict.setdefault(), so it silently keeps the first registration
+      # and never notices a second one exists). This gate parses only .rs
+      # source text -- no built extensions needed -- so it runs
+      # unconditionally alongside the other two source-tree scans above.
+      - name: No duplicate pyo3 function/class registration
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_pyo3_duplicate_registration.py
+      # 2026-08-13: `point_to_segment_distance` had 5 independent Rust bodies
+      # across temper-geometry and temper-constraint-compiler, each pinned to
+      # its own Python oracle with its own degenerate-length epsilon (1e-12,
+      # 1e-10, exact-zero, exact-zero-or-non-finite) -- one of them directly
+      # on the HV creepage/clearance safety path. None was caught by any
+      # existing gate: each differential proves internal consistency against
+      # its own oracle, not that the copy should exist, and a name-based
+      # search undercounts (fixed_copper.rs's copy was renamed to
+      # `point_segment_distance`). This gate scans Rust source structurally
+      # (a degenerate-length branch + a [0,1] clamp + a Euclidean close, not
+      # a specific function name) so the next accidental copy -- renamed or
+      # not -- fails a PR before merge instead of quietly acquiring its own
+      # pinned oracle. See docs/evidence/2026-08-13-point-to-segment-distance-
+      # epsilon-consolidation.md. Needs no built extensions -- parses .rs
+      # source text -- so it runs unconditionally like the gate above.
+      - name: No new point-to-segment-distance-shaped Rust copies (geometry-primitive-duplication gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_geometry_primitive_duplication.py
+
       # requirements-ci.txt is baked into the CI image's pre-installed venv
       # (.github/docker/ci.Dockerfile). If it drifts from uv.lock, the image
       # ships a different dependency set than the lockfile declares and jobs
@@ -2852,6 +2965,24 @@ jobs:
       - name: No raw rotation trig outside kicad_transform
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_no_raw_rotation_trig.py
+
+      - name: Duplicate-predicate consolidation gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_duplicate_predicates.py -v --tb=short
+
+      # 2026-08-13 defect-multiplier audit (docs/evidence/2026-08-13-defect-
+      # multiplier-duplication-audit.md): the same-shape defect across pad
+      # resolution, net-name boundary matching, footprint bounds and rotation
+      # units was the same logic independently reimplemented in several
+      # places, so one defect became N. The registry module (see
+      # duplicate_predicate_registry.py, alongside this gate under scripts/)
+      # registers each family that has since been consolidated onto one SSOT
+      # (net_pad_positions; thermal_fdm's dead point_to_segment_distance
+      # copy); this gate fails if a NEW independent copy of a registered
+      # family's def name reappears, named per offending site.
+      - name: Duplicate-predicate consolidation gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_duplicate_predicates.py
 
       # Constraint mutation suite (plan 2026-08-02-006, R32): every CP-SAT
       # constraint encoding must carry a non-empty, triaged kill set in

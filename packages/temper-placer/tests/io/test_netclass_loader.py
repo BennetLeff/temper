@@ -148,7 +148,12 @@ class TestGateDriveSplit:
         for rules in (hv, selv):
             assert rules.clearance == 0.25
             assert rules.trace_width == 0.4
-            assert rules.via_diameter == 0.8
+            # via_diameter RAISED 0.8 -> 1.0mm 2026-08-13 (docs/evidence/
+            # 2026-08-13-jlcpcb-fab-capability-envelope.md): 0.8/0.4 gave a
+            # 0.2mm annular ring, below JLCPCB's 2oz PTH floor (0.254mm).
+            # Both halves of the R4 split still agree with each other (the
+            # invariant this test checks), just at the raised value.
+            assert rules.via_diameter == 1.0
             assert rules.via_drill == 0.4
             assert rules.layer == "B.Cu"
 

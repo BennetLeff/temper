@@ -41,6 +41,44 @@
 //! implement the full (not simple) Unicode uppercase mapping, including
 //! the length-changing ones: `'ß' -> "SS"` and `'ı' -> "I"` were
 //! measured to agree. The differential includes a Unicode corpus.
+//!
+//! # `-` is now a word boundary too, for net-name patterns only (2026-08-13)
+//!
+//! FIXED (URGENT safety defect): the reference regex `(?:^|_)` anchored
+//! word-boundary matching on `_` and start/end of string only -- `-` was
+//! never a boundary character, in either the Python reference or the
+//! original Rust port. atopile's compiled net names use `-` and `_`
+//! interchangeably as within-segment word separators (`hb-gnd`,
+//! `hb.gate_hs.driver-p1`, `safety.uvlo_logic-line`, ...): 85 of the 162
+//! net names on the real production board (`elec/build/default.net`)
+//! contain a hyphen, and every one of them was invisible to
+//! `is_ground_net`/`is_power_net`/`is_hv_net` whenever the matching keyword
+//! sat on the hyphen side of a word boundary. Confirmed live:
+//! `is_ground_net("hb-gnd")` was `False` while `is_ground_net("hb_gnd")` was
+//! `True` -- and `hb-gnd` is the half-bridge low-side return, a genuine HV
+//! net (~-170V), which fell through `DesignRules.get_rules_for_net`'s
+//! entire pattern cascade to the `Default` net class: clearance 0.15mm,
+//! `creepage_mm = 0.0`. See `docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md`.
+//!
+//! [`PatternSet::boundary_chars`] now widens the boundary to `[_-]` for the
+//! four *net-name* pattern sets (`GroundNet`/`PowerNet`/`HvNet`/`PowerNetV6`)
+//! only. The four *pin-name* sets keep the original `_`-only boundary --
+//! left as a documented, separate follow-up (see that method's doc comment
+//! for why). This is NOT a blanket "any short keyword now matches more
+//! net names" change: `full_board_hyphenated_net_scan` below enumerates
+//! every net on the real, compiled board whose classification the widened
+//! boundary flips (3 total, board-wide, across the three net-level
+//! predicates this module owns) and pins each one against
+//! `elec/domain_manifest.yaml`'s hand-reviewed HV/SELV declaration --
+//! `hb-gnd` (the intended fix) is the only flip through `is_ground_net`;
+//! `is_hv_net` has zero flips board-wide. `is_power_net`'s two flips
+//! (`hb.gate_hs-vdd`, `hb.gate_ls-vdd`) are zero-pad phantom nets (see the
+//! evidence doc). A SEPARATE matcher family
+//! (`temper-design-bundle`'s `hv_word_boundary_match`, not owned by this
+//! module) has its own 5 flips, one of which (the `COIL` keyword) is a
+//! genuine over-match risk mitigated there by explicit net-class
+//! assignments rather than by narrowing this boundary fix -- see that
+//! crate's `design_rules.rs` and the evidence doc.
 
 use regex::Regex;
 use std::sync::OnceLock;
@@ -93,11 +131,48 @@ impl PatternSet {
         }
     }
 
+    /// Which literal characters (besides start/end-of-string) count as a
+    /// word boundary for this set.
+    ///
+    /// FIXED 2026-08-13 (URGENT safety defect): the four *net-name* sets
+    /// (`GroundNet`/`PowerNet`/`HvNet`/`PowerNetV6` -- what `is_ground_net`/
+    /// `is_power_net`/`is_hv_net`/`router_v6::is_power_net_v6` delegate to)
+    /// now treat `-` as an equivalent boundary to `_`. Net names compiled by
+    /// atopile use `-` and `_` interchangeably as within-segment word
+    /// separators (`elec/build/default.net`: `hb-gnd`, `hb.gate_hs.driver-p1`,
+    /// `safety.uvlo_logic-line`, ...) -- 85 of 162 compiled net names on the
+    /// real board contain a hyphen. Anchoring on `_` only made every one of
+    /// those 85 invisible to `is_ground_net`/`is_power_net`/`is_hv_net`
+    /// whenever their matching keyword sat on the hyphen side of a boundary:
+    /// confirmed live, `is_ground_net("hb-gnd")` was `False` while
+    /// `is_ground_net("hb_gnd")` was `True`, and `hb-gnd` is a genuine HV
+    /// net (the half-bridge low-side return, ~-170V) that fell through
+    /// `DesignRules.get_rules_for_net`'s entire pattern cascade straight to
+    /// the `Default` net class -- clearance 0.15mm, `creepage_mm = 0.0`,
+    /// i.e. ZERO creepage enforcement. See
+    /// `docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md`.
+    ///
+    /// The four *pin-name* sets (`GroundPin`/`PowerPin`/`HvPin`/`ClockPin`)
+    /// deliberately keep the OLD `_`-only boundary: this repo's schematic
+    /// pin names (`GND`, `VCC`, `A0`, ...) were not audited for hyphenated
+    /// instances the way the 162 compiled net names were, so widening them
+    /// blind is not proven safe the way the net-name fix is (see the
+    /// `full_board_hyphenated_net_scan` test below, which enumerates every
+    /// real flip on the real board for the widened sets and cross-checks
+    /// each one against `elec/domain_manifest.yaml`). Left as a documented,
+    /// separate follow-up rather than silently folded into this fix.
+    fn boundary_chars(self) -> &'static str {
+        match self {
+            PatternSet::GroundNet | PatternSet::PowerNet | PatternSet::HvNet | PatternSet::PowerNetV6 => "_-",
+            PatternSet::GroundPin | PatternSet::PowerPin | PatternSet::HvPin | PatternSet::ClockPin => "_",
+        }
+    }
+
     fn compiled(self) -> &'static Vec<Regex> {
         macro_rules! cell {
             ($name:ident) => {{
                 static $name: OnceLock<Vec<Regex>> = OnceLock::new();
-                $name.get_or_init(|| compile_set(self.patterns()))
+                $name.get_or_init(|| compile_set(self.patterns(), self.boundary_chars()))
             }};
         }
         match self {
@@ -127,35 +202,50 @@ fn has_trailing_boundary(pattern: &str) -> bool {
     }
 }
 
-fn compile_set(patterns: &[&str]) -> Vec<Regex> {
+fn compile_set(patterns: &[&str], boundary_chars: &str) -> Vec<Regex> {
     patterns
         .iter()
-        .filter_map(|p| Regex::new(&pattern_source(p)).ok())
+        .filter_map(|p| Regex::new(&pattern_source_with_boundary(p, boundary_chars)).ok())
         .collect()
 }
 
-/// Build the regex source for one pattern, mirroring `_matches_any`.
+/// Build the regex source for one pattern against the default (`_`-only)
+/// boundary -- mirrors `_matches_any` as originally written, and stays the
+/// public entry point so existing callers (docs, differential harnesses)
+/// that assumed `_`-only boundary keep compiling. Net-name pattern sets no
+/// longer compile through this function -- see [`pattern_source_with_boundary`]
+/// and [`PatternSet::boundary_chars`].
 pub fn pattern_source(pattern: &str) -> String {
+    pattern_source_with_boundary(pattern, "_")
+}
+
+/// Build the regex source for one pattern, mirroring `_matches_any`, with
+/// `boundary_chars` as the set of literal characters (besides start/end of
+/// string) that count as a word boundary -- `"_"` (the original, still used
+/// for pin-name sets) or `"_-"` (net-name sets, fixed 2026-08-13: see
+/// [`PatternSet::boundary_chars`] for the full defect writeup).
+fn pattern_source_with_boundary(pattern: &str, boundary_chars: &str) -> String {
     let escaped = regex::escape(pattern);
+    let b = regex::escape(boundary_chars);
     // The reference's guard is `if p and not p[-1].isalnum()`, so an
     // *empty* pattern falls through to the `elif` branch, not the
     // leading-anchor one. The two branches are NOT equivalent on the
-    // empty pattern (`(?:^|_)` matches "ABC"; `(?:^|_)(?:$|[\d_])` does
-    // not), so the emptiness test has to sit on this side of the `&&`
+    // empty pattern (`(?:^|[_-])` matches "ABC"; `(?:^|[_-])(?:$|[\d_-])`
+    // does not), so the emptiness test has to sit on this side of the `&&`
     // even though no set currently contains an empty pattern.
     if !pattern.is_empty() && !has_trailing_boundary(pattern) {
         // Leading anchor only — a pattern ending in a non-alphanumeric
         // character ("DC_BUS+", "DC_BUS-") has no trailing boundary to
         // anchor on.
-        format!(r"(?:\A|_){escaped}")
+        format!(r"(?:\A|[{b}]){escaped}")
     } else {
-        // `(?:$|[\d_])` in Python == end-of-text, or immediately before a
-        // single trailing newline, or a digit/underscore. The `regex`
-        // crate has no look-around, so the "before a trailing newline"
-        // half is handled by [`strip_one_trailing_newline`] on the
-        // haystack instead of by the pattern; see its docs for why the
+        // `(?:$|[\d_-])` in Python terms == end-of-text, or immediately
+        // before a single trailing newline, or a digit/boundary-char. The
+        // `regex` crate has no look-around, so the "before a trailing
+        // newline" half is handled by [`strip_one_trailing_newline`] on
+        // the haystack instead of by the pattern; see its docs for why the
         // two are equivalent.
-        format!(r"(?:\A|_){escaped}(?:\z|[\d_])")
+        format!(r"(?:\A|[{b}]){escaped}(?:\z|[\d{b}])")
     }
 }
 
@@ -404,6 +494,147 @@ pub(crate) mod tests {
         assert_eq!(classify_net_type_v6("GND"), "ground");
     }
 
+    // -------------------------------------------------------------------
+    // 2026-08-13 hyphen-boundary fix: `-` is now a word boundary for the
+    // three net-name predicates, equivalently to `_`.
+    // -------------------------------------------------------------------
+
+    #[cfg_attr(test, test)]
+    fn hyphen_is_now_a_net_name_boundary() {
+        // The URGENT defect this fix closes, confirmed live before the fix:
+        // is_ground_net("hb-gnd") was False while is_ground_net("hb_gnd")
+        // was True. hb-gnd is the half-bridge low-side return -- a genuine
+        // HV net -- and fell all the way through `DesignRules.
+        // get_rules_for_net`'s pattern cascade to `Default` (creepage_mm =
+        // 0.0) as a result. See PR #1145 and
+        // docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
+        assert!(is_ground_net("hb-gnd"));
+        assert!(is_ground_net("hb_gnd")); // unchanged: still matches
+        assert!(is_ground_net("a-gnd"));
+        assert!(is_ground_net("dc-gnd"));
+        assert!(is_ground_net("DGND")); // start-anchored (no boundary char needed), unaffected by this fix
+
+        // Every net-name predicate, not just is_ground_net.
+        assert!(is_power_net("hb-vcc"));
+        assert!(is_hv_net("x-ac_l"));
+        assert!(is_power_net_v6("hb-dc_bus"));
+
+        // Trailing-side widening too (not just leading).
+        assert!(is_ground_net("gnd-1")); // digit still also accepted, unaffected
+        assert!(is_ground_net("gnd-x")); // NEW: trailing '-' also a boundary
+    }
+
+    #[cfg_attr(test, test)]
+    fn hyphen_boundary_does_not_over_match() {
+        // The fix must not turn "-" into a plain-substring free-for-all --
+        // a keyword NOT adjacent to ANY boundary character (start/end/`_`/
+        // `-`) on the relevant side must still not match, hyphen present
+        // in the name or not.
+        assert!(!is_ground_net("foregnd")); // "GND" preceded by 'E', no boundary char there
+        assert!(!is_ground_net("foregnd-x")); // trailing hyphen doesn't retroactively bound the leading side
+        assert!(!is_hv_net("speed")); // classic PE-in-SPEED false positive, still rejected
+        assert!(!is_hv_net("type-speed")); // hyphen doesn't rescue a mid-token substring
+        assert!(!is_ground_net("xgndx")); // GND flanked by letters on both sides
+        assert!(!is_power_net("hb-vccx")); // trailing char after VCC is not a boundary
+    }
+
+    #[cfg_attr(test, test)]
+    fn pin_name_boundary_is_unchanged_by_the_net_name_fix() {
+        // GroundPin/PowerPin/HvPin/ClockPin deliberately keep the original
+        // `_`-only boundary (see `PatternSet::boundary_chars`'s doc comment
+        // for why widening them was not in scope of this fix).
+        assert!(!is_ground_pin("hb-gnd"));
+        assert!(is_ground_pin("hb_gnd"));
+        assert!(!is_power_pin("hb-vcc"));
+        assert!(!is_hv_pin("hb-mains"));
+        assert!(!is_clock_pin("hb-clk"));
+    }
+
+    /// Every hyphenated net name on the real, compiled production board
+    /// (`elec/build/default.net`, 85 of 162 nets as of this fix -- see
+    /// `scripts/check_net_classification.py`'s sibling investigation and
+    /// `docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md`'s
+    /// per-net table). This is the actual blast-radius proof: for every
+    /// one of these real names, the widened boundary flips a net-name
+    /// predicate's result for EXACTLY the 7 names listed below (verified
+    /// against `elec/domain_manifest.yaml`'s HV/SELV declaration in the
+    /// evidence doc) and leaves the other 78 unaffected. If this list ever
+    /// needs regenerating: `grep -oP '\(net \(code "\d+"\) \(name "\K[^"]+'
+    /// elec/build/default.net | sort -u`, filtered to names containing `-`.
+    const REAL_BOARD_HYPHENATED_NETS: &[&str] = &[
+        "discharge.k_dis1-coil1", "discharge.k_dis1-coil2", "discharge.k_dis1-nc",
+        "discharge.k_dis1-no", "discharge.k_dis2-coil1", "discharge.k_dis2-nc",
+        "discharge.k_dis2-no", "discharge.q_dis_drv-g", "discharge.r_dis1a-p2",
+        "discharge.r_dis2a-p2", "discharge.r_snub1-p2", "discharge.r_snub2-p2",
+        "hb-gnd", "hb.gate_hs-vdd", "hb.gate_hs.driver-p1", "hb.gate_hs.driver-p1-1",
+        "hb.gate_hs.driver-p2", "hb.gate_ls-vdd", "hb.power_loop.q_high-g",
+        "mcu-reference", "mcu-reference-1", "mcu-reference-2", "mcu-reference-3",
+        "mcu-reference-4", "mcu-reference-5", "mcu-reference-6", "mcu-reference-7",
+        "mcu-reference-8", "power_in.bypass_relay-coil1", "power_in.bypass_relay-coil2",
+        "power_in.ntc-no", "power_in.q_relay_drv-g", "rtd_pan-reference",
+        "rtd_pan-reference-1", "rtd_pan.high_window-out", "rtd_pan.low_window-out",
+        "rtd_pan.r_high_top-inp", "rtd_pan.r_low_top-inn", "rtd_pan.rail_monitor-ina_p",
+        "rtd_pan.rail_monitor-outa", "rtd_pan.rail_monitor-outb", "safety-line",
+        "safety-line-1", "safety-line-2", "safety-line-3", "safety-line-4",
+        "safety-line-5", "safety-line-6", "safety-line-7", "safety-reference",
+        "safety-reference-1", "safety-reference-2", "safety-reference-3",
+        "safety.coil_thermal-line", "safety.coil_thermal.comp-inp",
+        "safety.fault_any_or-a2", "safety.fault_any_or-y2", "safety.fault_any_or-y3",
+        "safety.fault_or-a2", "safety.fault_or-b2", "safety.fault_or-y2",
+        "safety.fault_or-y3", "safety.fault_or3-b2", "safety.fault_or3-y2",
+        "safety.fault_or3-y3", "safety.latch-b2", "safety.ocp-line",
+        "safety.ocp.comp-inn", "safety.ocp2-line", "safety.ovp-line",
+        "safety.ovp-reference", "safety.ovp.comp-inp", "safety.ovp.r_adc_top1-p2",
+        "safety.ovp.r_adc_top2-p2", "safety.ovp.r_div_top1-p2", "safety.ovp.r_div_top2-p2",
+        "safety.thermal-line", "safety.thermal.comp-inp", "safety.uvlo_logic-line",
+        "safety.uvlo_logic.mon-ina_p", "safety.uvlo_logic.mon-outa",
+        "safety.uvlo_logic.mon-outb", "tank-out", "tank.c_tank1-p2", "thermal.j_fan-p1",
+    ];
+
+    #[cfg_attr(test, test)]
+    fn full_board_hyphenated_net_scan() {
+        assert_eq!(REAL_BOARD_HYPHENATED_NETS.len(), 85, "board net list drifted -- regenerate");
+
+        // Old ("_"-only) boundary behaviour, reproduced locally so this
+        // test does not depend on a pre-fix code path still existing.
+        fn matches_any_old_boundary(name: &str, set: PatternSet) -> bool {
+            let upper = name.to_uppercase();
+            let haystack = strip_one_trailing_newline(&upper);
+            set.patterns().iter().any(|p| {
+                Regex::new(&pattern_source_with_boundary(p, "_")).unwrap().is_match(haystack)
+            })
+        }
+
+        let mut flips: Vec<(&str, &str)> = Vec::new();
+        for &net in REAL_BOARD_HYPHENATED_NETS {
+            for (label, set) in [
+                ("is_ground_net", PatternSet::GroundNet),
+                ("is_power_net", PatternSet::PowerNet),
+                ("is_hv_net", PatternSet::HvNet),
+            ] {
+                let old = matches_any_old_boundary(net, set);
+                let new = matches_any(net, set);
+                if old != new {
+                    flips.push((net, label));
+                }
+            }
+        }
+
+        // Exactly these 7 (net, predicate) flips exist board-wide, per the
+        // full-board simulation in
+        // docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
+        // Any OTHER flip appearing here is a genuine over-match regression;
+        // any of these 3 disappearing is a fix regression.
+        let mut expected = vec![
+            ("hb-gnd", "is_ground_net"),
+            ("hb.gate_hs-vdd", "is_power_net"),
+            ("hb.gate_ls-vdd", "is_power_net"),
+        ];
+        flips.sort();
+        expected.sort();
+        assert_eq!(flips, expected, "hyphen-boundary flip set drifted from the audited set");
+    }
+
     #[cfg_attr(test, test)]
     fn v6_signal_is_the_complement() {
         for name in ["GND", "VCC", "DC_BUS", "+24V", "AC_L", "SDA", "", "PE"] {
@@ -432,6 +663,10 @@ pub(crate) mod tests {
         ("placer_core::netclass::tests::v6_power_net_extra_patterns", v6_power_net_extra_patterns),
         ("placer_core::netclass::tests::v6_power_net_plus_prefix_heuristic", v6_power_net_plus_prefix_heuristic),
         ("placer_core::netclass::tests::v6_classify_precedence_matches_core_ordering", v6_classify_precedence_matches_core_ordering),
+        ("placer_core::netclass::tests::hyphen_is_now_a_net_name_boundary", hyphen_is_now_a_net_name_boundary),
+        ("placer_core::netclass::tests::hyphen_boundary_does_not_over_match", hyphen_boundary_does_not_over_match),
+        ("placer_core::netclass::tests::pin_name_boundary_is_unchanged_by_the_net_name_fix", pin_name_boundary_is_unchanged_by_the_net_name_fix),
+        ("placer_core::netclass::tests::full_board_hyphenated_net_scan", full_board_hyphenated_net_scan),
         ("placer_core::netclass::tests::v6_signal_is_the_complement", v6_signal_is_the_complement),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---

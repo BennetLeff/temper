@@ -671,6 +671,43 @@ def test_extract_stackup_parity(corpus_id, path):
 
 
 # ---------------------------------------------------------------------------
+# Regression: calculate_footprint_bounds must not silently drop fp_circle /
+# fp_poly courtyard geometry. Anchored on the REAL `pcb/temper.kicad_pcb`
+# CP_Radial_D35.0mm_P10.00mm_SnapIn footprints (C2/C3/C4/C5) rather than a
+# synthetic fixture, so a regression that reintroduces the bug (or a future
+# change to this footprint in the corpus) shows up here directly against a
+# known-correct physical diameter, independent of the oracle-parity checks
+# above. The pre-fix defect: `RawFpItem::Circle`/`RawFpItem::Poly` matched
+# only the catch-all `_ => {}` arm in `calculate_footprint_bounds`
+# (parse_engine.rs) -- a footprint's ONLY courtyard graphic being an
+# `fp_circle` produced a body-less bounding box (courtyard/fab fell through
+# to the pad-only or (2.0, 2.0) fallback), which is exactly what modelled
+# C2/C3 at ~30x19mm instead of their real 35.5mm diameter and let the
+# placer produce the C2xC3 body collision (7.73mm F.Fab interpenetration,
+# PR #1158/#1176) undetected.
+# ---------------------------------------------------------------------------
+
+
+def test_cp_radial_d35_bounds_match_real_diameter_on_the_real_board():
+    content = _content(REPO_ROOT / "pcb" / "temper.kicad_pcb")
+    result = _PARSE_ENGINE.parse_kicad_pcb(content, normalize=True)
+    by_ref = {c.ref: c for c in result.netlist.components}
+    radial_refs = {"C2", "C3", "C4", "C5"}
+    seen = {ref for ref in by_ref if by_ref[ref].footprint.endswith(
+        "CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    )}
+    assert seen == radial_refs, f"expected exactly {radial_refs} on the real board, found {seen}"
+    for ref in radial_refs:
+        width, height = by_ref[ref].bounds
+        # F.CrtYd is `(fp_circle (center 5 0) (end 22.75 0) ...)` on every
+        # instance -- radius 17.75mm, diameter 35.5mm. Both dimensions must
+        # reflect the circle (a box modelled from the tiny F.Fab polarity
+        # marks/pads alone, pre-fix, measured ~30.13 x 18.88mm).
+        assert width == pytest.approx(35.5, abs=1e-6), f"{ref}: width={width}, expected 35.5mm"
+        assert height == pytest.approx(35.5, abs=1e-6), f"{ref}: height={height}, expected 35.5mm"
+
+
+# ---------------------------------------------------------------------------
 # Empty-input semantics (asserted, per the anti-vacuity discipline).
 # ---------------------------------------------------------------------------
 

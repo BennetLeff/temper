@@ -954,11 +954,19 @@ def _positions_to_devices(
 
 
 def _board_bounds(board: Any) -> tuple[float, float, float, float]:
-    """Extract (x_min, y_min, x_max, y_max) from a board object."""
+    """Extract (x_min, y_min, x_max, y_max) from a board object.
+
+    ``Board`` (``temper_placer.core.board``) has an ``origin: tuple[float,
+    float]`` field, not ``origin_x``/``origin_y`` -- those attributes never
+    existed, so ``getattr(board, "origin_x", 0.0)`` silently defaulted to
+    0.0 forever (masked because every ``Board(...)`` construction reaching
+    this call site happens to use ``origin=(0, 0)``). Mirrors
+    ``router_v6/power_plane.py::_board_bounds``, which reads
+    ``board.origin`` correctly.
+    """
     w = getattr(board, "width", 100.0)
     h = getattr(board, "height", 100.0)
-    ox = getattr(board, "origin_x", 0.0)
-    oy = getattr(board, "origin_y", 0.0)
+    ox, oy = getattr(board, "origin", (0.0, 0.0))
     return (ox, oy, ox + w, oy + h)
 
 
