@@ -107,11 +107,11 @@ authority:
 # unaffected. The source export (elec/exports/temper.design-input.v1.json)
 # is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: 540364e84bd6e195d96a6e6b35679f4d5943b0c8
+  measured_at_commit: f0797a950827ceccf69dc6e5c02d1a083ac6f2bd
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: b2ae6c661ca9eeaa27cc4bb9b83d06291856d04ac42509482a6421a9645d20df
+      sha256: d88fec91666e1bc7567cd222f4d71b4c8bf5ebfb590e97243f2c15e78f40ab95
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
