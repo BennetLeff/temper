@@ -45,28 +45,14 @@ def _circle_buffer_ring(x: float, y: float, radius: float, quad_segs: int = 8) -
     return list(_tg.circle_buffer_ring_py(float(x), float(y), float(radius), int(quad_segs)))
 
 
-def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str, MultiPolygon]:
+def _iter_obstacle_items(pcb: ParsedPCB, escape_vias: list[EscapeVia]):
+    """Yield ``(layer_name, polygon, net_name_or_None)`` for every obstacle
+    item on the board, in the exact order/geometry ``build_obstacle_map``
+    unions.  Single source of obstacle geometry so the per-net-class variant
+    (:func:`build_class_obstacle_map`) cannot drift from the unioned map --
+    the class grouping is a pure post-process over the SAME items, not a
+    second geometry walk.
     """
-    Build a map of obstacles for each copper layer.
-
-    Obstacles include:
-    1. Component pads (on their respective layers).
-    2. Escape vias (on all layers, assuming through-hole for now).
-    3. Keepout zones (from PCB data).
-    4. Pre-routed tracks already on the board.
-    5. Pre-existing vias already on the board.
-    6. Board edge (optional: treated as outer boundary or inverted obstacle).
-
-    Args:
-        pcb: Parsed PCB data containing components, nets, and design rules.
-        escape_vias: List of generated escape vias.
-
-    Returns:
-        Dictionary mapping layer name (e.g. "F.Cu") to a Shapely MultiPolygon
-        representing the union of all obstacles on that layer.
-    """
-    layer_obstacles = defaultdict(list)
-
     # 1. Component Pads
     for comp in pcb.components:
         comp_x, comp_y = 0.0, 0.0
@@ -87,16 +73,17 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
             # For robustness, we'll use a rotated rectangle or circle approximation.
 
             pad_poly = _create_pad_polygon(pin, px, py, angle)
+            net_name = getattr(pin, "net", None)
 
             # Add to appropriate layer(s)
             if pin.layer in ["All", "all"] or "*.Cu" in pin.layer or "Through" in pin.layer:
                 # Add to all signal layers
                 for layer_info in pcb.stackup.layers:
                     if layer_info.layer_type in ["signal", "mixed"]:
-                        layer_obstacles[layer_info.name].append(pad_poly)
+                        yield layer_info.name, pad_poly, net_name
             else:
                 # Specific layer (e.g. "F.Cu")
-                layer_obstacles[pin.layer].append(pad_poly)
+                yield pin.layer, pad_poly, net_name
 
     # 2. Escape Vias
     # Assume Through-Hole Vias for now (blocking all layers)
@@ -108,10 +95,11 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
         via_poly = Polygon(
             _circle_buffer_ring(via.position[0], via.position[1], via.diameter / 2.0, 8)
         )
+        net_name = getattr(via, "net_name", None)
 
         for layer_info in pcb.stackup.layers:
             if layer_info.layer_type in ["signal", "mixed"]:
-                layer_obstacles[layer_info.name].append(via_poly)
+                yield layer_info.name, via_poly, net_name
 
     # 3. Zones / Keepouts
     if hasattr(pcb, "zones") and pcb.zones:
@@ -196,7 +184,7 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
             layers = zone.layers if hasattr(zone, "layers") else ["F.Cu"]
 
             for layer in layers:
-                layer_obstacles[layer].append(poly)
+                yield layer, poly, (net_names[0] if net_names else None)
 
     # 4. Pre-routed Tracks
     if hasattr(pcb, "tracks") and pcb.tracks:
@@ -208,7 +196,7 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
                 line = LineString([track.start, track.end])
                 # Buffer by half width
                 poly = line.buffer(track.width / 2.0, cap_style=1)  # 1=Round
-                layer_obstacles[track.layer].append(poly)
+                yield track.layer, poly, getattr(track, "net", None)
             except Exception:
                 continue
 
@@ -243,13 +231,20 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
             # for consistency, not just their two declared endpoints.
             for layer_info in pcb.stackup.layers:
                 if layer_info.layer_type in ["signal", "mixed"]:
-                    layer_obstacles[layer_info.name].append(via_poly)
+                    yield layer_info.name, via_poly, getattr(via, "net", None)
 
     # 6. Board Edge (Constraint)
     # Usually we route *inside* the board. The obstacle map represents *blocked* areas.
     # The inverse of the board polygon is the "infinite" obstacle.
     # For this function, we return internal obstacles.
     # The router should handle the board boundary separately.
+
+
+def _union_per_layer(items) -> dict[str, MultiPolygon]:
+    """Union ``(layer, polygon, _net)`` items into one MultiPolygon per layer."""
+    layer_obstacles = defaultdict(list)
+    for layer, poly, _net in items:
+        layer_obstacles[layer].append(poly)
 
     # Union all obstacles per layer
     result_map = {}
@@ -268,6 +263,82 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
         result_map[layer] = merged
 
     return result_map
+
+
+def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str, MultiPolygon]:
+    """
+    Build a map of obstacles for each copper layer.
+
+    Obstacles include:
+    1. Component pads (on their respective layers).
+    2. Escape vias (on all layers, assuming through-hole for now).
+    3. Keepout zones (from PCB data).
+    4. Pre-routed tracks already on the board.
+    5. Pre-existing vias already on the board.
+    6. Board edge (optional: treated as outer boundary or inverted obstacle).
+
+    Args:
+        pcb: Parsed PCB data containing components, nets, and design rules.
+        escape_vias: List of generated escape vias.
+
+    Returns:
+        Dictionary mapping layer name (e.g. "F.Cu") to a Shapely MultiPolygon
+        representing the union of all obstacles on that layer.
+    """
+    return _union_per_layer(_iter_obstacle_items(pcb, escape_vias))
+
+
+def build_class_obstacle_map(
+    pcb: ParsedPCB,
+    escape_vias: list[EscapeVia],
+    design_rules=None,
+) -> dict[str, dict[str, MultiPolygon]]:
+    """Obstacle polygons grouped by the net class of the net each obstacle
+    belongs to: ``{layer_name: {net_class: MultiPolygon}}``.
+
+    Uses the SAME obstacle geometry as :func:`build_obstacle_map` (both walk
+    :func:`_iter_obstacle_items` -- this function is a pure post-process that
+    groups by net instead of unioning across nets, so the two cannot drift).
+    Items with no net at all (keepout zones, unconnected pads, pre-existing
+    copper whose net did not parse) land under ``None``.
+
+    ``design_rules`` is the router's ``DesignRules`` (duck-typed: anything
+    with ``get_rules_for_net(net).name``); when ``None`` the obstacle map
+    falls back to ``pcb.design_rules`` if present.  A net with no class
+    assignment resolves to ``"Default"`` (the router's catch-all class), the
+    same treatment the family signature gives such nets.
+
+    This is the per-class view the creepage-aware C-space needs: the family
+    grids must erode an HV-class pad by ``W/2 + max(C, 12.6)`` while an
+    LV-class pad only needs ``W/2 + max(C, 0)``, which is impossible from a
+    unioned obstacle MultiPolygon alone.
+    """
+    rules = design_rules if design_rules is not None else getattr(pcb, "design_rules", None)
+
+    def _class_of_net(net_name: str | None) -> str | None:
+        if not net_name:
+            return None
+        if rules is None:
+            return "Default"
+        try:
+            rule = rules.get_rules_for_net(net_name)
+            return getattr(rule, "name", None) or "Default"
+        except Exception:
+            return "Default"
+
+    layer_classes: dict[str, dict[str | None, list]] = defaultdict(lambda: defaultdict(list))
+    for layer, poly, net_name in _iter_obstacle_items(pcb, escape_vias):
+        layer_classes[layer][_class_of_net(net_name)].append(poly)
+
+    result: dict[str, dict[str | None, MultiPolygon]] = {}
+    for layer, classes in layer_classes.items():
+        result[layer] = {}
+        for class_name, polys in classes.items():
+            merged = unary_union(polys)
+            if isinstance(merged, Polygon):
+                merged = MultiPolygon([merged])
+            result[layer][class_name] = merged
+    return result
 
 
 class ObstacleMapStage(Stage):

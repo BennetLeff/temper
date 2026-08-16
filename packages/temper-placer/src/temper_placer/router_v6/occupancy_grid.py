@@ -374,6 +374,7 @@ def build_occupancy_grid(
     cell_size: float = 0.1,
     margin: float = 2.0,
     inflation_mm: float = 0.0,
+    check_area: object | None = None,
 ) -> OccupancyGrid:
     """
     Build occupancy grid from routing space with C-Space inflation.
@@ -383,6 +384,15 @@ def build_occupancy_grid(
         cell_size: Grid cell size in mm (default 0.1mm)
         margin: Margin around routing area in mm
         inflation_mm: Buffer to erode free area by (for C-Space)
+        check_area: Optional pre-eroded free-area geometry.  When given,
+            rasterize THIS instead of ``available_area.buffer(-inflation)``
+            (the 2026-08-16 creepage-aware halo path carves per-class
+            annuli the uniform erosion cannot express, then passes the
+            combined free area through here).  The grid frame -- origin,
+            cell size, dimensions -- still comes from
+            ``routing_space.available_area``, so a caller that erodes the
+            area itself keeps an identical grid layout to the uniform
+            erosion path.
 
     Returns:
         OccupancyGrid with blocked cells marked
@@ -439,18 +449,31 @@ def build_occupancy_grid(
     # un-eroded area there would emit copper that violates by construction,
     # which is the whole defect class this fix belongs to. It is logged so the
     # cause is visible rather than surfacing as mass A* failure.
-    check_area = routing_space.available_area
-    if inflation_mm > 0:
-        # Erode the available area (which is dilation of obstacles)
-        check_area = routing_space.available_area.buffer(-inflation_mm, quad_segs=4)
+    if check_area is not None:
+        # Caller-provided pre-eroded free area (creepage-aware family
+        # path) -- use as-is; the grid frame above still comes from
+        # routing_space.available_area, so layout is identical to the
+        # uniform-erosion path.
         if check_area.is_empty:
             logger.warning(
-                "C-space erosion emptied layer %s at inflation_mm=%r: no trace "
-                "of this width fits anywhere on the layer, so every cell is "
-                "blocked. This is a real geometric result, not a grid bug.",
+                "C-space carve emptied layer %s: no trace of this width "
+                "fits anywhere on the layer, so every cell is blocked. This "
+                "is a real geometric result, not a grid bug.",
                 routing_space.layer_name,
-                inflation_mm,
             )
+    else:
+        check_area = routing_space.available_area
+        if inflation_mm > 0:
+            # Erode the available area (which is dilation of obstacles)
+            check_area = routing_space.available_area.buffer(-inflation_mm, quad_segs=4)
+            if check_area.is_empty:
+                logger.warning(
+                    "C-space erosion emptied layer %s at inflation_mm=%r: no trace "
+                    "of this width fits anywhere on the layer, so every cell is "
+                    "blocked. This is a real geometric result, not a grid bug.",
+                    routing_space.layer_name,
+                    inflation_mm,
+                )
 
     # Vectorized grid construction
     # 1. Create coordinate grids

@@ -29,6 +29,7 @@ from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
+from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
 
 _SIZE = 21
@@ -455,16 +456,18 @@ def _make_box_routing_space(layer: str, side_mm: float):
 def test_width_family_signature_floors_clearance_and_merges():
     # Default 0.2/0.2 stays as-is; FinePitch's declared 0.1mm is below the
     # DRC's 0.2mm track-involving floor and must be floored; HighVoltage
-    # passes through untouched.
-    assert _width_family_signature(_make_rule("Default", 0.2, 0.2)) == (0.2, 0.2)
-    assert _width_family_signature(_make_rule("FinePitch", 0.127, 0.1)) == (0.127, 0.2)
-    assert _width_family_signature(_make_rule("HighVoltage", 5.0, 2.0)) == (5.0, 2.0)
+    # passes through untouched. The signature carries the net CLASS as its
+    # third element so HighVoltage and HighVoltageTank (both 5.0/2.0) get
+    # distinct families for creepage-aware halos.
+    assert _width_family_signature(_make_rule("Default", 0.2, 0.2)) == (0.2, 0.2, "Default")
+    assert _width_family_signature(_make_rule("FinePitch", 0.127, 0.1)) == (0.127, 0.2, "FinePitch")
+    assert _width_family_signature(_make_rule("HighVoltage", 5.0, 2.0)) == (5.0, 2.0, "HighVoltage")
 
 
 def test_family_static_inflation_is_half_width_plus_clearance():
-    assert _family_static_inflation((0.2, 0.2)) == 0.3  # 0.1 + 0.2
-    assert _family_static_inflation((5.0, 2.0)) == 4.5  # 2.5 + 2.0
-    assert _family_static_inflation((0.127, 0.2)) == 0.2635  # floored clearance
+    assert _family_static_inflation((0.2, 0.2, "Default")) == 0.3  # 0.1 + 0.2
+    assert _family_static_inflation((5.0, 2.0, "HighVoltage")) == 4.5  # 2.5 + 2.0
+    assert _family_static_inflation((0.127, 0.2, "FinePitch")) == 0.2635  # floored clearance
 
 
 def test_build_width_families_erodes_static_layer_per_width():
@@ -477,9 +480,12 @@ def test_build_width_families_erodes_static_layer_per_width():
 
     families, family_of_net = _build_width_families(base, rs, ["NARROW", "WIDE"], rules)
 
-    assert family_of_net == {"NARROW": (0.2, 0.2), "WIDE": (5.0, 2.0)}
-    narrow = families[(0.2, 0.2)]["F.Cu"]
-    wide = families[(5.0, 2.0)]["F.Cu"]
+    assert family_of_net == {
+        "NARROW": (0.2, 0.2, "Default"),
+        "WIDE": (5.0, 2.0, "HighVoltage"),
+    }
+    narrow = families[(0.2, 0.2, "Default")]["F.Cu"]
+    wide = families[(5.0, 2.0, "HighVoltage")]["F.Cu"]
     assert (narrow.origin, narrow.cell_size, narrow.width_cells, narrow.height_cells) == (
         wide.origin,
         wide.cell_size,
@@ -501,7 +507,7 @@ def test_build_width_families_without_routing_spaces_is_identity():
     base = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
     rules = _make_width_aware_design_rules()
     families, family_of_net = _build_width_families(base, None, ["NARROW", "WIDE"], rules)
-    assert families[(0.2, 0.2)] is base, "single identity family must BE the caller's dict"
+    assert families[(0.2, 0.2, "Default")] is base, "single identity family must BE the caller's dict"
 
 
 def _min_centerline_distance(path_a, path_b) -> float:
@@ -592,7 +598,8 @@ def test_narrow_net_stamp_radius_differs_between_families(monkeypatch):
     # of THIS test is the stamp NARROW left in both families regardless.
     assert "WIDE" in result.failed_nets
 
-    # NARROW (0.2mm/0.2mm, via 0.9) was stamped into BOTH live families:
+    # No pcb is passed, so no creepage table is wired up and the stamp
+    # clearances are the width-aware figures from #1261:
     #   own family   (0.2, 0.2): clearance max(0.2,0.2) + 0.1 = 0.3
     #   wide family  (5.0, 2.0): clearance max(0.2,2.0) + 2.5 = 4.5
     # and the rasteriser adds w_N/2 = 0.1, so radii are 0.4mm / 4.6mm.
@@ -640,3 +647,191 @@ def test_mark_route_blocked_via_diameter_default_preserves_legacy_behavior():
     gx, gy = grid.world_to_grid(3.0, 3.0)
     assert grid.grid[gy, gx + 1] == 3, "0.5mm <= 0.5mm radius must be blocked (legacy behavior)"
     assert grid.grid[gy, gx + 2] == 0
+
+
+# ---------------------------------------------------------------------------
+# 7. Creepage-aware obstacle halos (2026-08-16): family grids additionally
+#    carve the pair-creepage annulus around obstacle net classes whose
+#    creepage to the family's routing class exceeds the DRC clearance.
+#    See docs/evidence/2026-08-16-creepage-aware-obstacle-halos.md.
+# ---------------------------------------------------------------------------
+
+
+def _make_creepage_design_rules() -> DesignRules:
+    return DesignRules(
+        net_classes={
+            "Default": _make_rule("Default", 0.2, 0.2),
+            "Signal": _make_rule("Signal", 0.2, 0.2),
+            "HighVoltage": _make_rule("HighVoltage", 5.0, 2.0, via=1.2),
+            "HighVoltageTank": _make_rule("HighVoltageTank", 5.0, 2.0, via=1.2),
+        },
+        net_class_assignments={
+            "SIG": "Signal",
+            "HV": "HighVoltage",
+            "TANK": "HighVoltageTank",
+        },
+        default_clearance_mm=0.2,
+        default_trace_width_mm=0.2,
+    )
+
+
+def test_creepage_aware_grid_carves_hv_obstacle_ring_into_lv_family():
+    """A Signal family (0.2/0.2) built over a board carrying a HighVoltage
+    pad must reserve W/2 + max(0.2, 12.6) = 12.7mm around that pad -- the
+    DRC clearance floor (0.3mm) would let an LV track thread within
+    creepage distance of HV copper."""
+    from shapely.geometry import MultiPolygon, box
+
+    from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+    side = 40.0
+    # Production shape: the routing space's available_area already excludes
+    # the obstacle (board - obstacle); the base erosion reserves W/2 + C
+    # around it and the creepage carve adds the 4.5..12.7mm annulus.
+    hv_pad = MultiPolygon([box(20.0, 20.0, 21.0, 21.0)])
+    full_area = box(0.0, 0.0, side, side)
+    available = full_area.difference(hv_pad)
+    rs = {
+        "F.Cu": RoutingSpace(
+            layer_name="F.Cu",
+            available_area=available,
+            total_area=side * side,
+            obstacle_area=1.0,
+            routing_area=side * side - 1.0,
+            obstacles=hv_pad,
+        )
+    }
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_creepage_design_rules()
+
+    class_obstacles = {
+        "F.Cu": {
+            "HighVoltage": hv_pad,
+        }
+    }
+    creepage_table = default_creepage_table()
+
+    families, family_of_net = _build_width_families(
+        base,
+        rs,
+        ["SIG", "HV"],
+        rules,
+        class_obstacles=class_obstacles,
+        creepage_table=creepage_table,
+    )
+
+    sig = families[(0.2, 0.2, "Signal")]["F.Cu"]
+    hv = families[(5.0, 2.0, "HighVoltage")]["F.Cu"]
+
+    # Same frame, both eroded at their own class's clearance:
+    assert (sig.origin, sig.cell_size, sig.width_cells, sig.height_cells) == (
+        hv.origin,
+        hv.cell_size,
+        hv.width_cells,
+        hv.height_cells,
+    )
+
+    # Cell at (26.0, 20.5): 5.0mm from the HV pad edge.
+    #   Signal family: 5.0 < 12.7 (0.1 + 12.6) -> BLOCKED by creepage ring.
+    #   HV family:     5.0 > 4.5 (2.5 + 2.0) and same-class creepage 0 -> FREE.
+    gx, gy = sig.world_to_grid(26.0, 20.5)
+    assert sig.is_blocked(gx, gy), "LV net must be blocked 5mm from HV pad (creepage 12.6)"
+    gx_hv, gy_hv = hv.world_to_grid(26.0, 20.5)
+    assert hv.is_free(gx_hv, gy_hv), "HV net may approach its own-class obstacle at 5mm"
+
+    # Cell at (22.0, 20.5): 1.0mm from the pad.  BOTH families block it
+    # (HV family at clearance 2.0: 1.0 < 4.5).
+    gx, gy = sig.world_to_grid(22.0, 20.5)
+    assert sig.is_blocked(gx, gy)
+    assert hv.is_blocked(*hv.world_to_grid(22.0, 20.5))
+
+
+def test_creepage_aware_grid_tank_class_carves_10mm_ring_around_hv():
+    """HighVoltageTank and HighVoltage share (5.0, 2.0) but the tank net
+    needs 10.0mm functional creepage from HighVoltage copper while
+    HighVoltage-to-HighVoltage needs only clearance.  The class-bearing
+    family signature must give them DIFFERENT families."""
+    from shapely.geometry import MultiPolygon, box
+
+    from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+    side = 40.0
+    hv_pad = MultiPolygon([box(20.0, 20.0, 21.0, 21.0)])
+    available = box(0.0, 0.0, side, side).difference(hv_pad)
+    rs = {
+        "F.Cu": RoutingSpace(
+            layer_name="F.Cu",
+            available_area=available,
+            total_area=side * side,
+            obstacle_area=1.0,
+            routing_area=side * side - 1.0,
+            obstacles=hv_pad,
+        )
+    }
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_creepage_design_rules()
+
+    class_obstacles = {
+        "F.Cu": {
+            "HighVoltage": hv_pad,
+        }
+    }
+    creepage_table = default_creepage_table()
+
+    families, family_of_net = _build_width_families(
+        base,
+        rs,
+        ["HV", "TANK"],
+        rules,
+        class_obstacles=class_obstacles,
+        creepage_table=creepage_table,
+    )
+
+    # Distinct families: tank must not search HV's (5.0, 2.0) grids.
+    assert family_of_net["HV"] == (5.0, 2.0, "HighVoltage")
+    assert family_of_net["TANK"] == (5.0, 2.0, "HighVoltageTank")
+    assert family_of_net["HV"] != family_of_net["TANK"]
+
+    hv = families[(5.0, 2.0, "HighVoltage")]["F.Cu"]
+    tank = families[(5.0, 2.0, "HighVoltageTank")]["F.Cu"]
+
+    # Cell at (26.0, 20.5): 5.0mm from the pad edge.
+    #   tank family: 5.0 < 7.5 (2.5 + 10.0 functional creepage) -> BLOCKED.
+    #   hv family:   5.0 > 4.5 (2.5 + 2.0) -> FREE.
+    assert tank.is_blocked(*tank.world_to_grid(26.0, 20.5)), (
+        "tank must hold 10.0mm creepage from HV copper"
+    )
+    assert hv.is_free(*hv.world_to_grid(26.0, 20.5)), "HV-vs-HV needs only the clearance floor"
+
+
+def test_creepage_stamp_charges_pair_between_stamped_and_family_class():
+    """The routed-copper stamp must reserve max(cl_F, C, creepage(F_class,
+    family_class)) + W/2 -- a HighVoltage track stamped into a Signal
+    family's grids reserves 12.6mm creepage, not just the 2.0mm clearance
+    figure, while same-class stamps keep the width-aware figure.  Tests
+    ``_stamp_clearance``, the exact function the driver's stamp loop calls
+    for every (routed net, family) pair."""
+    from temper_placer.router_v6._astar_nlayer import _stamp_clearance
+    from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+    rules = _make_creepage_design_rules()
+    hv_rule = rules.get_rules_for_net("HV")
+    table = default_creepage_table()
+
+    hv_family = (5.0, 2.0, "HighVoltage")
+    sig_family = (0.2, 0.2, "Signal")
+
+    # HV copper stamped into HV's own family: max(2.0, 2.0, 0.0) + 2.5
+    assert _stamp_clearance(hv_rule, hv_family, table) == 4.5
+
+    # HV copper stamped into the Signal family: max(2.0, 0.2, 12.6) + 0.1
+    assert _stamp_clearance(hv_rule, sig_family, table) == 12.7
+
+    # Without a creepage table (synthetic fixtures) the width-aware-only
+    # figures from #1261 apply unchanged.
+    assert _stamp_clearance(hv_rule, hv_family, None) == 4.5
+    assert _stamp_clearance(hv_rule, sig_family, None) == 2.1
+
+    # Same-class stamp stays at the width-aware figure even WITH a table
+    # (creepage HighVoltage|HighVoltage = 0.0).
+    assert _stamp_clearance(hv_rule, hv_family, table) == 4.5
