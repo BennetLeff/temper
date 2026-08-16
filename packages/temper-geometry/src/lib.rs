@@ -335,6 +335,17 @@ pub mod rotation_quadrant;
 // (this file's prior tail) so appends cannot rewrite a parallel agent's
 // lines.
 pub mod layer_identity;
+// ClearanceHalo (2026-08-16): conservative-superset obstacle-halo type
+// whose constructors guarantee the halo contains the true Minkowski sum
+// (obstacle + clearance) — circumscribed polygon for circular pads,
+// half-diagonal disc for rect pads — with property tests guarding the
+// three geometry bugs found during zone-generator verification (inscribed
+// undercut, rect corner reach, 500+ overlap panic). Pure Rust, no pyo3
+// surface (adoption by zone_generator.rs is a Rust-side follow-up), so it
+// is unconditional like `units` above. Declared after `layer_identity`
+// (this file's prior tail) so appends cannot rewrite a parallel agent's
+// lines.
+pub mod clearance_halo;
 // wasm32 has no OS RNG; getrandom will not compile there without a source.
 // See this module's doc comment for why the source fails instead of quietly
 // substituting a deterministic PRNG.
