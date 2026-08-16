@@ -540,15 +540,20 @@ pub fn pour_outline_py(
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pour_outline_py, m)?)?;
-    m.add_function(wrap_pyfunction!(emit_zone_s_expr_py, m)?)?;
+    m.add_function(wrap_pyfunction!(emit_zone_outline_s_expr_py, m)?)?;
     Ok(())
 }
 
 /// Pyo3 wrapper for [`emit_zone_s_expr`].
+///
+/// Named `emit_zone_outline_s_expr_py` (NOT `emit_zone_s_expr_py`) to avoid
+/// silently shadowing `zone_pour.rs`'s single-ring emitter of that name --
+/// the pyo3 registration-order hazard documented in AGENTS.md: a later
+/// `add_function` of the same name shadows the earlier one with no error.
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (net_number, net_name, layer, exterior, holes, clearance, priority, min_thickness))]
-pub fn emit_zone_s_expr_py(
+pub fn emit_zone_outline_s_expr_py(
     net_number: i64,
     net_name: String,
     layer: String,
