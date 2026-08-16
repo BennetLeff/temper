@@ -160,16 +160,30 @@ pub enum ZoneObstacle {
 }
 
 impl ZoneObstacle {
+    /// The obstacle's clearance halo as a geo polygon for the keepout union.
+    ///
+    /// ADOPTED (2026-08-16) onto
+    /// [`ClearanceHalo`](crate::clearance_halo::ClearanceHalo): every halo is
+    /// now built through the typed constructor, whose conservative-superset
+    /// guarantee is structural — the polygon is circumscribed (contains the
+    /// true shape, edges at the true required distance) and the containment
+    /// is verified against boundary witnesses before the value can exist.
+    /// The polygons produced are geometrically identical to the previous
+    /// hand-rolled `disc`/`capsule` construction (same circumscribed
+    /// vertices at `r / cos(π/24)`), so the carve geometry is unchanged; the
+    /// half-diagonal pad convention and the `1/cos(π/24)` inflation that the
+    /// 2026-08-16 DRC findings (`9c06de200`) established are now enforced by
+    /// the type rather than by one-line fixes.
     fn halo_polygon(&self) -> GeoPolygon<f64> {
-        match *self {
+        use crate::clearance_halo::ClearanceHalo;
+        let halo: ClearanceHalo = match *self {
             ZoneObstacle::Pad {
                 position,
                 half_w,
                 half_h,
-                rotation_rad: _,
+                rotation_rad,
                 clearance_mm,
-            } => disc(
-                position,
+            } => {
                 // HALF-DIAGONAL, not max(half_w, half_h): the furthest
                 // point on a RECTANGULAR pad from its own centre is a
                 // corner, not an edge midpoint.  A disc of radius
@@ -182,16 +196,24 @@ impl ZoneObstacle {
                 // (rotation_rad is unused by the disc -- a disc is
                 // rotation-invariant, so the corner reach is the same in
                 // every orientation.)
-                (half_w.hypot(half_h) + clearance_mm) * halo_radius_inflate(),
-                HALO_SEGMENTS,
-            ),
+                ClearanceHalo::from_rect_pad_with_segments(
+                    geo::Point::new(position.x, position.y),
+                    2.0 * half_w,
+                    2.0 * half_h,
+                    0.0,
+                    rotation_rad,
+                    clearance_mm,
+                    HALO_SEGMENTS,
+                )
+            }
             ZoneObstacle::Via {
                 position,
                 diameter_mm,
                 clearance_mm,
-            } => disc(
-                position,
-                (diameter_mm / 2.0 + clearance_mm) * halo_radius_inflate(),
+            } => ClearanceHalo::from_circular_pad_with_segments(
+                geo::Point::new(position.x, position.y),
+                diameter_mm / 2.0,
+                clearance_mm,
                 HALO_SEGMENTS,
             ),
             ZoneObstacle::Track {
@@ -199,17 +221,31 @@ impl ZoneObstacle {
                 end,
                 width_mm,
                 clearance_mm,
-            } => capsule(
-                start,
-                end,
-                (width_mm / 2.0 + clearance_mm) * halo_radius_inflate(),
+            } => ClearanceHalo::from_track_with_segments(
+                geo::Point::new(start.x, start.y),
+                geo::Point::new(end.x, end.y),
+                width_mm,
+                clearance_mm,
                 HALO_SEGMENTS,
             ),
-        }
+        };
+        let ring: Vec<Coord<f64>> = halo
+            .polygon()
+            .exterior()
+            .coords()
+            .map(|c| Coord { x: c.x, y: c.y })
+            .collect();
+        GeoPolygon::new(ring.into(), vec![])
     }
 }
 
 /// A regular-polygon approximation of a disc of `radius` at `center`.
+///
+/// Retained as the REFERENCE construction the halo-area tests compare the
+/// [`ClearanceHalo`](crate::clearance_halo::ClearanceHalo) adoption against
+/// (bit-identical polygons — the adoption changed the guarantee layer, not
+/// the shape); production halo construction now goes through `ClearanceHalo`.
+#[cfg(any(test, feature = "wasm-registry"))]
 fn disc(center: Point, radius: f64, segments: usize) -> GeoPolygon<f64> {
     let ring: Vec<Coord<f64>> = (0..segments)
         .map(|i| {
@@ -232,6 +268,12 @@ fn disc(center: Point, radius: f64, segments: usize) -> GeoPolygon<f64> {
 /// `start - p*r` through `start - u*r` to `start + p*r`), straight top
 /// side closing back to `end + p*r` -- where `u` is the segment direction
 /// and `p` is its +90° CCW perpendicular.
+///
+/// Retained as the REFERENCE construction the halo-area tests compare the
+/// [`ClearanceHalo`](crate::clearance_halo::ClearanceHalo) adoption against
+/// (bit-identical polygons — the adoption changed the guarantee layer, not
+/// the shape); production halo construction now goes through `ClearanceHalo`.
+#[cfg(any(test, feature = "wasm-registry"))]
 fn capsule(start: Point, end: Point, radius: f64, segments: usize) -> GeoPolygon<f64> {
     let dx = end.x - start.x;
     let dy = end.y - start.y;
@@ -807,7 +849,7 @@ pub(crate) mod tests {
             assert!(o.area_mm2() >= 0.25 * 0.25 || res.dropped_islands > 0);
         }
         // The two big side pieces survive.
-        assert!(res.outlines.len() >= 1);
+        assert!(!res.outlines.is_empty());
     }
 
     #[cfg_attr(test, test)]

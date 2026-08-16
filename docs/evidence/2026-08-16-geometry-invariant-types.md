@@ -191,3 +191,130 @@ the type — the half-diagonal and inflation conventions already match). No
 pyo3 surface is added here: the type is a Rust-side construction guard, and
 no Python consumer exists yet (YAGNI; adding one would be speculative
 surface for zero call sites).
+
+---
+
+# Delta (second changeset, same day): structural verification, tracks/vias, zone-generator adoption
+
+**Scope**: the first changeset (#1258) made the polygon field private and the
+construction circumscribed; the guarantee was *by construction*. This
+changeset adds the task's second layer — a [`ConservativeSuperset`] ZST marker
+whose only constructor runs a witness-based containment check, so a
+`ClearanceHalo` can only exist if the containment was *verified*, not just
+assumed — plus the track/via constructors and the zone-generator adoption
+that §6 deferred. Base `origin/main` @ `607cc7bd6` (the #1258 merge), dirty
+at measurement time (this delta was uncommitted when its tests ran).
+
+<!-- provenance: commit=607cc7bd662b14eb3e34e65859e9a5d74dedb3dc dirty=true -->
+
+## 7. Structural verification: the `ConservativeSuperset` marker
+
+The first changeset's guarantee is "the polygon field is private, so the
+only two constructors are the only places the approximations can be made".
+That is true but *assumed*: nothing at construction time checks that the
+formula actually produced a containing polygon. This changeset adds the
+check:
+
+* `ConservativeSuperset` — a ZST marker whose **only** constructor,
+  `verified(polygon, witnesses, description)`, asserts every witness is
+  inside the halo polygon (boundary-inclusive: the witnesses that pin the
+  circumscription sit exactly on the polygon's edges, so geo's interior-only
+  `Contains` is the wrong probe here; the crate's winding predicate with its
+  1e-12 on-edge tolerance is used).
+* Witnesses are sampled from the **true shape's boundary** at exactly the
+  points where an undercut would show: for circles, the edge-midpoint
+  directions (where an inscribed polygon dips inside by `r·(1−cos(π/n))`),
+  the vertex directions, and a uniform sample; for rect pads, the actual
+  rotated boundary (straight edges, corner arcs, and the four sharp corners
+  — the farthest points); for capsules, the straight sides and both cap
+  semicircles including the cap-edge-midpoint directions.
+* The geometric proof condition is checked too: every polygon edge's
+  distance from the shape (centre for circles, segment for capsules) is ≥
+  the true radius. Combined with convexity (circumscribed regular polygons /
+  capsules), this *proves* containment, with the witnesses as belt.
+* If the check fails, the side count is increased and retried (capped at
+  `MAX_SIDES`, then panics loudly — a halo that cannot hold its guarantee is
+  a programming error, and silence is exactly how the three bugs shipped).
+
+Two construction defects were found **by this machinery during
+development**:
+
+1. **Bounding-box-corner witnesses are geometrically wrong for a circle.**
+   An early draft (per the dispatch's sketch) verified "every vertex of the
+   true circle's bounding box is inside the polygon". Those points sit at
+   `r√2` from the centre — they are NOT on the circle — and no circumscribed
+   polygon ever contains them, so the retry loop ran to its cap (first
+   symptom: a 15-minute test timeout). Fixed: all witnesses are ON the true
+   boundary.
+2. **Off-origin rotation double-translation** (found by the proptest, not
+   the example tests): a draft of the rect-witness builder subtracted
+   `center` twice from already-local coordinates, moving every witness
+   outside the halo whenever `center ≠ (0,0)`. Every origin-centred example
+   passed; the randomized property (centres in `[-50, 50]²`) failed
+   immediately on `cx = −43.3`. Pinned in
+   `packages/temper-geometry/proptest-regressions/clearance_halo.txt` (the
+   committed proptest regression file re-runs the failing input first on
+   every future run).
+
+## 8. New constructors: tracks and vias
+
+* `from_track(start, end, width, clearance, eps)` / `from_track_with_segments`
+  — a circumscribed capsule (Minkowski sum of the segment and the clearance
+  circle). Every polygon edge is at distance ≥ `width/2 + clearance` from
+  the segment; the capsule polygon being convex, this implies the entire
+  true capsule is contained (tube argument). Verified by the edge-distance
+  condition AND cap/straight-side witnesses.
+* `from_via(position, diameter, clearance, eps)` — a circular pad of radius
+  `diameter/2`.
+* `*_with_segments` variants for all shapes (the zone generator's fixed-24
+  convention; the zone generator's own `disc`/`capsule` area tests confirm
+  the adopted polygons are bit-identical to the old construction).
+
+## 9. Zone-generator adoption (the §6 follow-up, done)
+
+`ZoneObstacle::halo_polygon` now builds every halo through `ClearanceHalo`:
+
+| obstacle | constructor | shape |
+|---|---|---|
+| `Pad` | `from_rect_pad_with_segments(position, 2·half_w, 2·half_h, 0.0, rot, clearance, 24)` | disc at the half-diagonal |
+| `Via` | `from_circular_pad_with_segments(position, diameter/2, clearance, 24)` | disc |
+| `Track` | `from_track_with_segments(start, end, width, clearance, 24)` | capsule |
+
+The polygons are geometrically identical to the previous hand-rolled
+`disc`/`capsule` (same circumscribed vertices at `r/cos(π/24)` — verified by
+the zone generator's `disc_halo_area` / `capsule_halo_has_positive_area`
+tests passing unchanged). The half-diagonal convention and the
+`1/cos(π/24)` inflation that the DRC findings established are now enforced
+by the type rather than by one-line fixes. `disc`/`capsule` are retained,
+gated to test builds, as the reference construction the area tests compare
+against.
+
+## 10. Randomized properties (proptest) — without losing the wasm tier
+
+The first changeset deliberately avoided proptest ("a dev-dependency would
+exclude them from the wasm Worker tier"). The nested-gated-module pattern
+solves the trade-off: the randomized properties live in
+`tests::proptests` (its own wasm-registry census entry, excluded as a
+proptest dev-dependency), while the deterministic example tests stay in
+`tests` and remain wasm-registered (10 tests, up from 4). Three proptest
+properties: circle containment + clearance floor, rect corners + clearance
+floor (off-origin, rotated — caught defect 7.2), track clearance floor.
+
+## 11. Verification (this changeset)
+
+* `cargo test -p temper-geometry`: **8489 passed, 0 failed** (baseline
+  8444 + 13 new in clearance_halo + 8 zone-generator tests, all green).
+* `cargo clippy --lib --tests`: 0 warnings (one pre-existing
+  `zone_generator.rs` test-style `len() >= 1` fixed; the pyo3-surface
+  type_complexity / too_many_arguments warnings are pre-existing in the
+  merged `zone_generator.rs` and untouched here).
+* wasm registry: `scripts/gen_wasm_test_registry.py --crate
+  temper-geometry --check` green — `clearance_halo::tests` (10) registered,
+  `clearance_halo::proptests` (3) excluded by the generator's own
+  predicate; `cargo build --no-default-features` verified.
+* geo 0.28 panic reproduction (for the record; the repo now pins geo 0.29):
+  a one-shot `MultiPolygon::union` of 500 varying-radius halos panicked on
+  geo 0.28 (`segment not found in active-vec-set: 791`, reproduced
+  2026-08-16); the fold+snap pattern the zone generator uses completed
+  (1 poly, 717 mm²). The stress test in the module guards the fold pattern
+  and now also runs under geo 0.29.
