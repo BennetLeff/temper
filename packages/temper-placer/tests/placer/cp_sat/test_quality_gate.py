@@ -47,7 +47,7 @@ def test_clean_no_artifacts():
     try:
         gate = QualityGate()
         with mock.patch(
-            "temper_placer.router_v6.metrics.slop_linter.lint_all",
+            "temper_quality_oracle.slop_lint_all_py",
             return_value=[],
         ):
             result = gate.check(BoardState(routed_pcb_path=pcb))
@@ -77,7 +77,7 @@ def test_violations_one_hairpin():
     try:
         gate = QualityGate()
         with mock.patch(
-            "temper_placer.router_v6.metrics.slop_linter.lint_all",
+            "temper_quality_oracle.slop_lint_all_py",
             return_value=[hairpin],
         ):
             result = gate.check(BoardState(routed_pcb_path=pcb))
@@ -135,7 +135,7 @@ def test_violations_multiple_artifact_types():
     try:
         gate = QualityGate()
         with mock.patch(
-            "temper_placer.router_v6.metrics.slop_linter.lint_all",
+            "temper_quality_oracle.slop_lint_all_py",
             return_value=artifacts,
         ):
             result = gate.check(BoardState(routed_pcb_path=pcb))
@@ -161,7 +161,7 @@ def test_violations_context_has_artifacts():
     try:
         gate = QualityGate()
         with mock.patch(
-            "temper_placer.router_v6.metrics.slop_linter.lint_all",
+            "temper_quality_oracle.slop_lint_all_py",
             return_value=[hairpin],
         ):
             result = gate.check(BoardState(routed_pcb_path=pcb))
@@ -199,7 +199,7 @@ def test_unmeasured_linter_exception():
     try:
         gate = QualityGate()
         with mock.patch(
-            "temper_placer.router_v6.metrics.slop_linter.lint_all",
+            "temper_quality_oracle.slop_lint_all_py",
             side_effect=RuntimeError("PCB parse error"),
         ):
             result = gate.check(BoardState(routed_pcb_path=pcb))
@@ -216,7 +216,7 @@ def test_unmeasured_import_error():
     try:
         gate = QualityGate()
         with mock.patch(
-            "temper_placer.router_v6.metrics.slop_linter.lint_all",
+            "temper_quality_oracle.slop_lint_all_py",
             side_effect=ImportError("no module named slop_linter"),
         ):
             result = gate.check(BoardState(routed_pcb_path=pcb))
