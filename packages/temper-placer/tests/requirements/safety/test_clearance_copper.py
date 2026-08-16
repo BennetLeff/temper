@@ -18,7 +18,7 @@ import math
 
 import pytest
 
-from tests.requirements.validators.clearance import (
+from temper_placer.requirements.validators.clearance import (
     CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND,
     CREEPAGE_MODEL_UNBROKEN_SURFACE,
     InsulationType,

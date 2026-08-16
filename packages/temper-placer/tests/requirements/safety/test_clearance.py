@@ -10,7 +10,7 @@ import pytest
 # Import validators (will fail until implemented)
 VALIDATORS_AVAILABLE = False
 try:
-    from tests.requirements.validators.clearance import (
+    from temper_placer.requirements.validators.clearance import (
         IEC60335_REQUIREMENTS,
         ClearanceResult,
         ClearanceViolation,
