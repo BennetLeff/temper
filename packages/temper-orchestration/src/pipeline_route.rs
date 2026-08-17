@@ -80,6 +80,10 @@ use crate::d6_util;
 use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
+#[cfg(feature = "python")]
+use temper_geometry::core_graph_geometry::normalize_rotation_index;
+#[cfg(feature = "python")]
+use temper_geometry::WorldPosition;
 
 /// The deterministic KiCad `tstamp` UUIDv5 namespace
 /// (`uuid.UUID("f8b1a2b0-6c4e-4a3a-9b7a-1a2b3c4d5e6f").bytes`).
@@ -946,10 +950,12 @@ pub fn run_collect_pad_positions(
             };
             match pin {
                 Some(p) if !p.is_none() => {
-                    // Rotation/side-aware world position, delegated to the
-                    // temper-geometry SSOT kernel (`pin_world_position_at_py`,
-                    // the same function `core.pin_geometry.pin_world_position`
-                    // shims to -- host-libm cos/sin, mirror + R(-theta)).
+                    // Rotation/side-aware world position, constructed
+                    // through the temper-geometry SSOT kernel
+                    // (`WorldPosition::from_component_pin`, the same
+                    // `pin_world_position_kernel` that
+                    // `pin_world_position_at_py` wraps -- host-libm cos/sin,
+                    // mirror + R(-theta)).
                     //
                     // The pre-migration body this port mirrors summed
                     // `comp.initial_position + pin.position` with NO component
@@ -966,18 +972,45 @@ pub fn run_collect_pad_positions(
                     // (rotation-correct); only this write-path collector
                     // carried the omission.
                     //
-                    // `pin_world_position_at_py` reads `initial_rotation_quadrant`
-                    // (missing -> 0.0, exactly like the shim) and
-                    // `initial_side` (missing -> 0) itself, so duck-typed
-                    // stubs without those attrs keep their pre-fix positions
-                    // (rotation 0) -- the differential's rotation-0 cases are
-                    // unchanged by construction.
-                    let kernel = py
-                        .import("temper_geometry")?
-                        .getattr("pin_world_position_at_py")?;
-                    let wx_wy = kernel.call1((&p, comp))?;
-                    let (wx, wy): (f64, f64) = wx_wy.extract()?;
-                    positions.push((wx, wy));
+                    // `WorldPosition` has no constructor from raw (x, y)
+                    // coordinates, so the naive sum this incident kept
+                    // reintroducing is unrepresentable here by construction.
+                    //
+                    // The attribute reads below replicate `pin_world_position_at_py`
+                    // exactly: `initial_rotation_quadrant` (missing -> 0.0;
+                    // int -> index*PI/2; float -> as-is), `initial_side`
+                    // (missing/falsy -> 0), `pin.position`, and the
+                    // already-read `comp.initial_position` (missing -> (0,0)).
+                    // Duck-typed stubs without those attrs keep their
+                    // pre-fix positions (rotation 0) -- the differential's
+                    // rotation-0 cases are unchanged by construction.
+                    let rotation_rad: f64 = match comp.getattr("initial_rotation_quadrant") {
+                        Ok(attr) if !attr.is_none() => match attr.extract::<i64>() {
+                            Ok(index) => normalize_rotation_index(index),
+                            Err(_) => attr.extract::<f64>()?,
+                        },
+                        _ => 0.0,
+                    };
+                    let side: i64 = match comp.getattr("initial_side") {
+                        Ok(attr) => {
+                            if attr.is_none() || !attr.is_truthy().unwrap_or(false) {
+                                0
+                            } else {
+                                attr.extract::<i64>().unwrap_or(0)
+                            }
+                        }
+                        Err(_) => 0,
+                    };
+                    let pin_pos = p.getattr("position")?;
+                    let px: f64 = pin_pos.get_item(0)?.extract()?;
+                    let py: f64 = pin_pos.get_item(1)?.extract()?;
+                    // `from_component_pin` sums `comp_rotation + quadrant*(PI/2)`;
+                    // the two paths above pass exactly one nonzero term so the
+                    // resolved rotation_rad is bit-identical to the kernel's.
+                    // `side` is 0 or 1 in practice (KiCad's bottom-side flag);
+                    // the i64 read snaps into the type's i32 slot losslessly.
+                    let world = WorldPosition::from_component_pin((cx, cy), rotation_rad, (px, py), 0, side as i32);
+                    positions.push((world.x(), world.y()));
                 }
                 _ => positions.push((cx, cy)),
             }

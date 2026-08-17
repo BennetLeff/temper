@@ -373,6 +373,16 @@ pub struct PourResult {
 ///   for a clustered pour).  A single CCW exterior ring.
 /// * `own_pads` -- the net's own pad positions on this layer, used only
 ///   for island classification under [`IslandPolicy::PadsOnly`].
+///   **These must be WORLD positions** (component rotation + side mirror
+///   applied) -- the zone generator computes hulls/carves from them
+///   directly and has no component context to fix them up. The 2026-08-15
+///   zone-hull incident (only 21/59 real pads inside their same-layer
+///   hulls) and the zone-stitch swap shorts were both caused by callers
+///   feeding naive `comp_pos + pin_pos` coordinates with the rotation
+///   omitted. The sanctioned way to produce them is
+///   [`crate::world_position::WorldPosition::from_component_pin`] (the
+///   only constructor of a world position -- there is no raw-coordinate
+///   path into the type).
 /// * `obstacles` -- every other net's copper on this layer, each carrying
 ///   its pair-resolved separation.
 /// * `min_island_area_mm2` -- pieces strictly smaller than this are
@@ -613,7 +623,13 @@ use pyo3::prelude::*;
 ///
 /// Argument layout (flat lists, matching this crate's bridge conventions):
 /// * `region`: `Vec<(f64, f64)>` -- starting region exterior ring.
-/// * `own_pads`: `Vec<(f64, f64)>` -- the net's own pad positions.
+/// * `own_pads`: `Vec<(f64, f64)>` -- the net's own pad positions. **World
+///   positions** (component rotation + side mirror applied); the generator
+///   has no component context to fix them up. Produce them via
+///   `temper_geometry.world_position_from_component_pin_py` /
+///   `WorldPosition::from_component_pin` -- never a bare
+///   `comp_pos + pin_pos` sum (that omission caused the 2026-08-15
+///   zone-hull and zone-stitch swap-short incidents).
 /// * `obstacles`: `Vec<(kind, x, y, a, b, w, clearance)>` -- flattened
 ///   obstacle records; `kind` selects the interpretation:
 ///   - `0` = Pad: x,y = centre, a = half_w, b = half_h, w unused
@@ -631,6 +647,11 @@ use pyo3::prelude::*;
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (region, own_pads, obstacles, min_island_area_mm2, pads_only))]
+// `clippy::type_complexity`: the return type is the pyo3 bridge contract
+// the Python shim marshals (`list[list[list[(float, float)]]]`); factoring
+// it would change the module's Python surface. Same treatment as
+// `pipeline_route.rs::run_build_route_payload`.
+#[allow(clippy::type_complexity)]
 pub fn pour_outline_py(
     region: Vec<(f64, f64)>,
     own_pads: Vec<(f64, f64)>,
@@ -701,6 +722,11 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (net_number, net_name, layer, exterior, holes, clearance, priority, min_thickness))]
+// `clippy::too_many_arguments`: all eight parameters are the pyo3 bridge
+// contract the Python shim calls by keyword (the `#[pyo3(signature = ...)]`
+// names are the Python-side parameter names); collapsing them into a struct
+// would change the module's Python surface.
+#[allow(clippy::too_many_arguments)]
 pub fn emit_zone_outline_s_expr_py(
     net_number: i64,
     net_name: String,
