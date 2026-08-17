@@ -171,3 +171,4 @@ power_pcb_dataset/sources/
 
 # Rust-only crates build into the shared target dir
 /crates/*/target/
+.scratch/
