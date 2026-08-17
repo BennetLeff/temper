@@ -117,6 +117,34 @@ def _place_vias_for_path(
         seg_xs = [s[0] for s in segs]
         seg_ys = [s[1] for s in segs]
         seg_layers = [s[2] for s in segs]
+
+        # FIXED 2026-08-17 (docs/evidence/2026-08-17-via-dangling-25-real-
+        # defects.md): a route whose OWN emitted segments never leave a
+        # single copper layer cannot have a genuine layer-transition point
+        # for `via_layer_pair_py` to derive -- `via_segment_index` either
+        # finds no matching segment, or matches one with no differing-layer
+        # successor (e.g. the path's own terminal point), and in EITHER
+        # case falls back to the hardcoded ("F.Cu", "B.Cu") pair
+        # (via_clearance.rs::via_layer_pair). That fallback fabricates a
+        # full through-via with no basis in the route's actual geometry:
+        # since the whole net never puts copper on the "other" layer
+        # anywhere on the board, the via ends up with real copper touching
+        # it on at most one of its two spanned layers by construction --
+        # KiCad's `via_dangling` warning ("Via is not connected or
+        # connected on only one layer"), not by any downstream routing
+        # mistake but because this function asked for a via that could
+        # never have had a purpose. Measured directly on the committed
+        # board (`pcb/temper.kicad_pcb`): all 25 `via_dangling` findings
+        # belong to nets whose entire routed copper sits on exactly one
+        # external layer, and every stray `via_positions` entry on those
+        # nets is 21-230mm from the net's own nearest pad (never a
+        # pad-landing via) -- i.e. mid-route debris from a stale pathfinder
+        # waypoint, not a real transition. A single-layer path needs zero
+        # vias; skip via placement for it entirely rather than emit one
+        # from a fallback that cannot be right for it.
+        if len(set(seg_layers)) <= 1:
+            return vias
+
         for vx, vy in route_path.via_positions:
             from_layer, to_layer = _tg.via_layer_pair_py(
                 vx, vy, seg_xs, seg_ys, seg_layers

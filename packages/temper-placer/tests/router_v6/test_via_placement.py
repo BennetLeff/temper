@@ -161,6 +161,101 @@ class TestViaLayerSpanFromSegments:
         assert len(vias) >= 1
 
 
+class TestSingleLayerPathNeverGetsAVia:
+    """FIXED 2026-08-17 (docs/evidence/2026-08-17-via-dangling-25-real-
+    defects.md): the committed board's 25 real `via_dangling` DRC findings
+    all traced back to this exact shape -- a `RoutePath3D` whose own
+    `segments` never leave a single copper layer, but whose stale
+    `via_positions` still names a point (almost always the path's own last
+    point, matching `via_segment_index` with no differing-layer successor).
+    `via_layer_pair_py` has no genuine transition to derive there and falls
+    back to a hardcoded ("F.Cu", "B.Cu") pair (via_clearance.rs), which is
+    never correct for a net whose entire board-wide copper sits on one
+    layer -- the resulting via is connected on at most one of its two
+    spanned layers by construction, KiCad's `via_dangling` warning. A
+    single-layer path needs zero vias; `_place_vias_for_path` must not
+    place one for it, regardless of what `via_positions` claims.
+    """
+
+    def test_stray_via_position_on_single_layer_path_emits_no_via(self):
+        """The exact defect shape: via_positions names the path's own last
+        point (no successor segment for via_layer_pair_py to derive a real
+        transition from), but every segment is on B.Cu -- the fallback
+        would previously fabricate an F.Cu/B.Cu via with nothing on F.Cu
+        anywhere in the net."""
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[
+                (0.0, 0.0, "B.Cu"),
+                (5.0, 0.0, "B.Cu"),
+                (10.0, 0.0, "B.Cu"),
+            ],
+            via_positions=[(10.0, 0.0)],
+            path_length=10.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert vias == []
+
+    def test_mismatched_via_position_on_single_layer_path_emits_no_via(self):
+        """Same shape, but via_positions doesn't exactly match any segment
+        point at all (the other via_segment_index miss case)."""
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[
+                (0.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "F.Cu"),
+                (10.0, 0.0, "F.Cu"),
+            ],
+            via_positions=[(4.9999, 0.0)],
+            path_length=10.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert vias == []
+
+    def test_genuine_layer_transition_still_gets_a_via(self):
+        """Regression guard: a path that DOES change layers must still get
+        a via -- this fix must not suppress real transitions."""
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[
+                (0.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "B.Cu"),
+                (10.0, 0.0, "B.Cu"),
+            ],
+            via_positions=[(5.0, 0.0)],
+            path_length=10.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert len(vias) == 1
+        assert vias[0].from_layer == "F.Cu"
+        assert vias[0].to_layer == "B.Cu"
+
+    def test_no_segments_emits_no_via(self):
+        """Degenerate case: an empty segments list has no layer to derive
+        anything from -- must not emit a via either."""
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[],
+            via_positions=[(5.0, 0.0)],
+            path_length=0.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert vias == []
+
+
 class TestPerNetViaSizing:
     """U4: place_vias must resolve per-netclass via_diameter/via_drill."""
 
