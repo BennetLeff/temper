@@ -844,6 +844,133 @@ REGISTRY: tuple[Fact, ...] = (
             "shape this project's history is full of."
         ),
     ),
+    # -------------------------------------------------------------------
+    # hb-gnd classification: elec/domain_manifest.yaml (PR #1145) declares
+    # this net HV (the half-bridge low-side switch's return conductor --
+    # power_loop.q_low.E in elec/src/modules.ato:379 -- ~-170V relative to
+    # signal ground, one CT-primary-winding, not a galvanic isolator, from
+    # the already-declared HV net DC_BUS_RTN). Verified independently
+    # against elec/src/main.ato's own topology (dc_bus_minus/DC_BUS_RTN is
+    # ~-170V from power_return, the doubler midpoint main.ato's own
+    # comment calls "signal ground") -- the manifest's trace is correct,
+    # not merely asserted. See docs/evidence/2026-08-17-hb-gnd-design-
+    # rules-classification-blast-radius.md.
+    #
+    # Three homes previously disagreed (a fourth instance of "one fact,
+    # many homes, drifting", on top of the three PR #1322's evidence doc
+    # already found in netclass_constraints.py/gates.py):
+    #   1. elec/domain_manifest.yaml's HV domain list -- always correct.
+    #   2. router_v6.clearance_check._classify_net_class (Python + Rust
+    #      backends) -- correct since #1145/#1174 both merged (PR #1300
+    #      fixed a STALE TEST asserting the pre-#1145 "GND" answer; the
+    #      code was already right).
+    #   3. core.design_rules.TEMPER_NET_ASSIGNMENTS -- had NO entry for
+    #      hb-gnd at all (confirmed live: scripts/check_hv_netclass_
+    #      coverage.py PROPERTY 1 flagged it, a currently-red, CI-blocking
+    #      violation). FIXED by this changeset ("HighVoltage", matching
+    #      DC_BUS_RTN's existing entry).
+    #   4. pcb/temper.kicad_pro's net_settings.netclass_assignments -- the
+    #      file kicad-cli's DRC actually reads. Still has NO entry for
+    #      hb-gnd (falls to KiCad's "Default" 0.2mm/no-creepage class on
+    #      the real fab-authoritative DRC path -- weaker than even a
+    #      generic LV class). scripts/check_hv_netclass_coverage.py
+    #      PROPERTY 3 already flags this, independently of fact #3 above.
+    #      LEFT RED, NOT FIXED HERE: measured impact of syncing this entry
+    #      is 28 newly-surfaced clearance/creepage violations against 18
+    #      distinct LV/SELV nets physically close to hb-gnd's routed
+    #      copper (WDT_KICK x8, +3V3, I_SENSE, RTD_SDI, i2c_sda_ui,
+    #      thermal.j_fan-p1, etc. -- see the evidence doc) -- real,
+    #      previously-invisible exposure that needs routing/placement
+    #      remediation (moving copper), which this task's hard rules
+    #      forbid an agent from doing unilaterally. Registered as a KNOWN
+    #      TOOL ERROR (missing citation, not a wrong value) so it cannot
+    #      silently regress further AND so it stays visible until an
+    #      owner authorizes the board-write + remediation.
+    #
+    # Two facts, split by vocabulary (mirrors why check_hv_netclass_
+    # coverage.py keeps PROPERTY 1 and PROPERTY 3 separate -- different
+    # homes spell the same verdict differently: domain-manifest/
+    # clearance_check use "HV", design_rules.py/kicad_pro use the class
+    # name "HighVoltage"). Fixing TEMPER_NET_ASSIGNMENTS without also
+    # touching the pinned oracle (_design_rules_py_oracle.py,
+    # scripts/oracle_hashes.json) intentionally leaves
+    # test_design_rules_rust_differential.py::test_module_constants_
+    # identical / test_create_temper_design_rules_identical RED -- per
+    # this task's hard rule against re-pinning oracle hashes. That is a
+    # separate, deliberate, evidenced act for a future PR, not silently
+    # avoided by leaving the classification wrong.
+    # -------------------------------------------------------------------
+    Fact(
+        name="hb_gnd_hv_domain_membership",
+        category="net-name",
+        authoritative_value="hb-gnd",
+        value_kind="str",
+        authoritative_source=(
+            "elec/domain_manifest.yaml's HV domain list (PR #1145, "
+            "netlist-traced) is the SSOT for domain membership. "
+            "packages/temper-placer/tests/router_v6/test_clearance_check.py"
+            "'s corrected assertion (PR #1300) is the primary consumer "
+            "proof that the classifier agrees. Both patterns require the "
+            "literal 'HV' verdict to appear at all for the match to "
+            "succeed -- a regression to a weaker class (e.g. the pre-#1300 "
+            "stale 'GND' assertion) makes the pattern fail to match "
+            "entirely (TOOL ERROR), not silently compare a wrong value."
+        ),
+        homes=(
+            FactSite(
+                file="elec/domain_manifest.yaml",
+                description="HV domain nets list entry",
+                pattern=r"(?:^|\n)\s*-\s*(hb-gnd)\b",
+                scope_anchor=r"\n  HV:\n",
+                scope_lines=320,
+            ),
+            FactSite(
+                file="packages/temper-placer/tests/router_v6/test_clearance_check.py",
+                description=(
+                    "test_hyphenated_hb_gnd_and_vdd_nets_classify_correctly's "
+                    "corrected assertion (PR #1300)"
+                ),
+                pattern=r'_classify_net_class\("(hb-gnd)"\)\s*==\s*"HV"',
+            ),
+        ),
+    ),
+    Fact(
+        name="hb_gnd_temper_net_assignment_class",
+        category="net-name",
+        authoritative_value="HighVoltage",
+        value_kind="str",
+        authoritative_source=(
+            "core.design_rules.TEMPER_NET_ASSIGNMENTS['DC_BUS_RTN'] == "
+            "'HighVoltage' is the existing precedent for the same physical "
+            "node one CT-primary-winding away; hb-gnd now carries the "
+            "matching explicit entry (this changeset). pcb/temper.kicad_pro"
+            "'s net_settings.netclass_assignments is the file kicad-cli's "
+            "DRC actually reads and is the propagation target "
+            "scripts/sync_kicad_netclass_assignments.py exists for."
+        ),
+        homes=(
+            FactSite(
+                file=(
+                    "packages/temper-placer/src/temper_placer/core/"
+                    "design_rules.py"
+                ),
+                description="TEMPER_NET_ASSIGNMENTS['hb-gnd']",
+                pattern=r'"hb-gnd":\s*"([^"]+)"',
+            ),
+            FactSite(
+                file="pcb/temper.kicad_pro",
+                description="net_settings.netclass_assignments['hb-gnd'] (MISSING)",
+                pattern=r'"hb-gnd":\s*"([^"]+)"',
+            ),
+        ),
+        notes=(
+            "The kicad_pro home is a KNOWN TOOL ERROR (no entry exists "
+            "yet), deliberately not fixed here -- see the block comment "
+            "above this entry for the measured 28-violation/18-net "
+            "propagation impact and why applying it needs an owner "
+            "decision plus routing remediation, not a mechanical sync."
+        ),
+    ),
 )
 
 # ---------------------------------------------------------------------------

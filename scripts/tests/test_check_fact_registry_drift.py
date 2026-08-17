@@ -625,3 +625,56 @@ class TestRealRegistryExtendedFamilies:
             assert r.found_value == (
                 'creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0'
             )
+
+    def test_hb_gnd_hv_domain_membership_is_clean_regression_guard(self):
+        """docs/evidence/2026-08-17-hb-gnd-design-rules-classification-
+        blast-radius.md: elec/domain_manifest.yaml's HV domain list and
+        the corrected clearance_check test (PR #1300) already agreed
+        hb-gnd is HV before this changeset -- this pins that agreement so
+        it cannot silently regress (e.g. back to the pre-#1300 stale
+        'GND' assertion, which would make the pattern fail to match at
+        all, not merely compare a wrong value)."""
+        repo_root = find_repo_root()
+        results = check.run(repo_root)
+        domain_results = [
+            r for r in results if r.fact == "hb_gnd_hv_domain_membership"
+        ]
+        assert len(domain_results) == 2  # 1 fact x 2 homes
+        for r in domain_results:
+            assert r.error is None, f"{r.site.file}: {r.error}"
+            assert r.matches is True
+            assert r.found_value == "hb-gnd"
+
+    def test_hb_gnd_temper_net_assignment_is_fixed_but_kicad_pro_sync_is_known_red(
+        self,
+    ):
+        """This changeset added the missing 'hb-gnd': 'HighVoltage' entry
+        to core.design_rules.TEMPER_NET_ASSIGNMENTS (previously absent --
+        scripts/check_hv_netclass_coverage.py PROPERTY 1 flagged it as a
+        currently-red, CI-blocking violation). pcb/temper.kicad_pro's
+        net_settings.netclass_assignments -- the file kicad-cli's DRC
+        actually reads (PROPERTY 3) -- is deliberately NOT synced here:
+        the evidence doc measures a 28-violation/18-net propagation
+        impact that needs an owner decision plus routing remediation, not
+        a mechanical sync. This test pins BOTH halves: the fix that
+        landed, and the honest red that didn't, so neither can silently
+        change without this test being updated."""
+        repo_root = find_repo_root()
+        results = check.run(repo_root)
+        by_key = {(r.fact, r.site.file): r for r in results}
+
+        fixed = by_key[
+            (
+                "hb_gnd_temper_net_assignment_class",
+                "packages/temper-placer/src/temper_placer/core/design_rules.py",
+            )
+        ]
+        assert fixed.error is None
+        assert fixed.matches is True
+        assert fixed.found_value == "HighVoltage"
+
+        still_red = by_key[
+            ("hb_gnd_temper_net_assignment_class", "pcb/temper.kicad_pro")
+        ]
+        assert still_red.error is not None
+        assert "did not match" in still_red.error
