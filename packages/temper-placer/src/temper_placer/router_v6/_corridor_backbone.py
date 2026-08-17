@@ -71,7 +71,7 @@ from shapely import contains, points
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
-from temper_placer.router_v6.astar_core import _astar_search
+from temper_placer.router_v6.astar_core import _astar_search, _via_span_layers
 from temper_placer.router_v6.corridor_erosion import corridor_mask_for_net
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
@@ -313,10 +313,23 @@ def routed_segments_obstacle(
         m = _VIA_RE.search(line)
         if m:
             x, y, size, layers_str, net_num = m.groups()
-            if layer not in layers_str:
-                continue
             name = net_number_to_name.get(int(net_num), "")
             if not name or name == exclude_net:
+                continue
+            # 2026-08-16 via-span pierce semantics: a via's barrel blocks
+            # every copper layer between its declared pair, not just the
+            # two endpoint layers. A through via "F.Cu" "B.Cu" previously
+            # matched only F.Cu/B.Cu queries, so an In3.Cu/In4.Cu query
+            # missed its barrel entirely -- the same via-vs-inner-track
+            # blind spot astar_core._via_span_layers exists to close for
+            # the A* (the +3V3 power-island drop vias shorting In3.Cu/
+            # In4.Cu tracks, measured 2026-08-16). Blind/buried pairs
+            # still span exactly their declared layers.
+            pair_layers = layers_str.replace('"', "").split()
+            if len(pair_layers) == 2:
+                if layer not in _via_span_layers(pair_layers[0], pair_layers[1], {layer}):
+                    continue
+            elif layer not in layers_str:
                 continue
             geoms.append(
                 Point(float(x), float(y)).buffer(

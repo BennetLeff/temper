@@ -616,6 +616,24 @@ def generate_power_islands_blocks(
         other_copper_bcu = _collect_other_net_copper(
             pcb, net_name, "B.Cu", OTHER_NET_CLEARANCE_MM
         )
+        # 2026-08-16 via-span clearance (island half): the drop vias this
+        # generator emits are THROUGH vias ("F.Cu" "B.Cu") whose barrel
+        # physically pierces In3.Cu/In4.Cu as well -- but the via-avoid
+        # search below only ever consulted F.Cu/B.Cu copper. Measured on
+        # the 2026-08-16 via-span route: 8 residual shorting_items, ALL
+        # "+3V3 via on F.Cu - B.Cu vs track on In3.Cu/In4.Cu" (rtd_pan /
+        # i2c_scl_ui / safety.fault_or-y2), i.e. exactly the inner-layer
+        # barrel class the A* via-placement fix (astar_core.
+        # _via_placement_halo_free) closed for A*-placed vias -- this
+        # emitter places vias outside the A*, so it needs the same
+        # pierce-layer awareness itself. Mirrors the gnd plane generator's
+        # In3.Cu/In4.Cu handling (#1261, fix/route-to-100-percent).
+        other_copper_in3 = _collect_other_net_copper(
+            pcb, net_name, "In3.Cu", OTHER_NET_CLEARANCE_MM
+        )
+        other_copper_in4 = _collect_other_net_copper(
+            pcb, net_name, "In4.Cu", OTHER_NET_CLEARANCE_MM
+        )
         # The route's own F.Cu/B.Cu copper (in-memory segment strings,
         # invisible to the stripped board file this generator re-parses)
         # must also be avoided -- see
@@ -637,13 +655,29 @@ def generate_power_islands_blocks(
             segments, net_name, "B.Cu", num_to_name,
             _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
         )
+        # Inner pierced layers of the through via (see the other_copper_in3/
+        # in4 comment above): this route's own In3.Cu/In4.Cu segments are
+        # invisible to the stripped board file, so they must be parsed from
+        # the in-memory segment strings exactly like the F.Cu/B.Cu ones.
+        routed_in3_avoid = routed_segments_obstacle(
+            segments, net_name, "In3.Cu", num_to_name,
+            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        )
+        routed_in4_avoid = routed_segments_obstacle(
+            segments, net_name, "In4.Cu", num_to_name,
+            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        )
         via_avoid_parts = [
             g
             for g in (
                 other_copper_fcu,
                 other_copper_bcu,
+                other_copper_in3,
+                other_copper_in4,
                 routed_fcu_avoid,
                 routed_bcu_avoid,
+                routed_in3_avoid,
+                routed_in4_avoid,
                 *run_new_fcu_copper,
                 *run_new_bcu_copper,
             )
