@@ -61,12 +61,12 @@ class TestResolveComponentNetClass:
         comp = MockComp(
             "Q2",
             [
-                MockPin("1", "GATE_H"),  # Signal
-                MockPin("2", "DC_BUS-"),  # HighVoltage
-                MockPin("3", "SW_NODE"),  # Signal
+                MockPin("1", "GATE_H"),  # GateDriveHV (safety_category HV)
+                MockPin("2", "DC_BUS-"),  # HighVoltage (safety_category HV)
+                MockPin("3", "SW_NODE"),  # HighVoltage (safety_category HV)
             ],
         )
-        result = _resolve_component_net_class(comp, None)
+        result = _resolve_component_net_class(comp, None, rules.design_rules)
         assert result == "HighVoltage", (
             f"Expected HighVoltage (max severity across all pins), got {result}"
         )
@@ -94,7 +94,12 @@ class TestResolveComponentNetClass:
                 MockPin("2", "SPI_MOSI"),
             ],
         )
-        result = _resolve_component_net_class(comp, None)
+        # Neither net has a TEMPER_NET_ASSIGNMENTS entry nor matches any
+        # pattern-cascade tier, so get_rules_for_net() falls through to its
+        # own "Default" class -- normalized to "Signal" here (see
+        # _resolve_component_net_class's docstring) to keep this generic-LV
+        # bucket reachable in netclass_rules.yaml's class_pairs table.
+        result = _resolve_component_net_class(comp, None, rules.design_rules)
         assert result == "Signal"
 
 

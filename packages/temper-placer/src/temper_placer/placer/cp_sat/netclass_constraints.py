@@ -12,47 +12,80 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Map classify_net_type() return values to DesignRules net class names
-_NET_TYPE_TO_CLASS = {
-    "ground": "GND",
-    "power": "Power",
-    "hv": "HighVoltage",
-    "signal": "Signal",
-}
-
-# Severity ordering for when a component has pins on multiple net classes.
-# Highest rank wins: HighVoltage > Power > GND > Signal.
-_SEVERITY_RANK = {"HighVoltage": 4, "Power": 3, "GND": 2, "Signal": 1}
+# Severity ordering for when a component has pins on multiple net classes:
+# pick the most restrictive one to represent the whole component. Ranked by
+# ``NetClassRules.safety_category`` (AC > HV > LV > unclassified), the same
+# three-tier field the safety SSOT already carries on every class (see
+# ``core/design_rules.py``'s ``TEMPER_NET_CLASSES``/``netclass_rules.yaml``);
+# ties within a category are broken by the class's own ``clearance`` value
+# (both already-existing NetClassRules fields, not a new figure).
+_SAFETY_CATEGORY_RANK: dict[str | None, int] = {"AC": 3, "HV": 2, "LV": 1, "iso": 1}
 
 
-def _resolve_component_net_class(comp, _netlist) -> str | None:
+def _resolve_component_net_class(comp, _netlist, design_rules: DesignRules) -> str | None:
     """Determine the net class for a component from its connected nets.
 
-    Iterates ALL pins, classifies each connected net, and returns the
-    highest-severity net class across all pins.  Returns None only when
-    the component has no pins at all.
+    Iterates ALL pins, classifies each connected net via
+    ``design_rules.get_rules_for_net()`` -- the same authoritative,
+    manifest/kicad_pro-backed classifier (``TEMPER_NET_ASSIGNMENTS``, per-net
+    override -> explicit class -> ground/power/gate-HV/gate-SELV/high-current
+    pattern cascade -> Default) every other consumer of ``DesignRules``
+    already uses (router_v6, DRU generation, ``scripts/check_hv_netclass_
+    coverage.py``) -- and returns the highest-severity net class across all
+    pins.  Returns None only when the component has no pins at all.
+
+    FIXED (docs/evidence/2026-08-17-netclass-classifier-manifest-and-
+    ieccreepagegate-liveness.md): previously classified via
+    ``core.net_classification.classify_net_type()``, a plain net-NAME
+    keyword heuristic covering 4 coarse buckets (ground/power/hv/signal).
+    That heuristic misclassified K1's mains-connected relay-contact nets
+    (``power_in.ntc-no``, ``w1_2``) as "signal" -- the exact same bucket
+    J1's SELV RTD nets fall into -- because neither net name contains an
+    HV-sounding keyword, even though ``elec/domain_manifest.yaml`` (and
+    ``pcb/temper.kicad_pro``'s netclass_assignments, corrected in #1279)
+    both correctly declare them HV. A same-bucket pair is skipped entirely
+    by ``generate_netclass_separated_constraints`` (``ca == cb: continue``),
+    so this generated ZERO separation constraint for the exact pair that
+    proved unroutable (J1 sits 4.0-5.3mm from K1's HV contacts against the
+    12.6mm PD3 requirement). ``design_rules.get_rules_for_net()`` resolves
+    both nets from the same ``TEMPER_NET_ASSIGNMENTS`` table
+    ``pcb/temper.kicad_pro``'s netclass_assignments already agrees with,
+    not from spelling.
+
+    A ``get_rules_for_net()`` name of "Default" (its own fallback tier for
+    any net with no per-net override/assignment and no pattern-cascade
+    match) is normalized to "Signal" here -- ``netclass_rules.yaml``'s
+    ``class_pairs`` table (e.g. ``HighVoltage-Signal: 6.0mm``) and this
+    module's own pre-fix behaviour both assume "Signal" is the generic-LV
+    catch-all bucket; "Default" is a distinct class_pairs key that no entry
+    lists. Leaving unclassified LV nets as "Default" would silently drop
+    their cross-class separation from every applicable ``class_pairs``
+    override (6.0mm for HV-adjacent cases) down to
+    ``max(HighVoltage.clearance, Default.clearance)`` = 2.0mm -- a
+    loosening this fix must not introduce.
 
     Uses ``component.pins[i].net`` (Pin objects on the Component) rather
     than ``netlist.nets[].pins[].component`` (tuples in the Net parser
     output) — the Net.pins path is tuple data and lacks a ``.component``
     attribute.
     """
-    from temper_placer.core.net_classification import classify_net_type
-
     pins = getattr(comp, "pins", [])
     if not pins:
         return None
 
     best_class = None
-    best_rank = -1
+    best_rank: tuple[int, float] = (-1, -1.0)
 
     for pin in pins:
         net_name = getattr(pin, "net", "")
         if not net_name:
             continue
-        net_type = classify_net_type(net_name)
-        net_class = _NET_TYPE_TO_CLASS.get(net_type, "Signal")
-        rank = _SEVERITY_RANK.get(net_class, 0)
+        rules = design_rules.get_rules_for_net(net_name)
+        net_class = "Signal" if rules.name == "Default" else rules.name
+        rank = (
+            _SAFETY_CATEGORY_RANK.get(getattr(rules, "safety_category", None), 0),
+            float(getattr(rules, "clearance", 0.0) or 0.0),
+        )
         if rank > best_rank:
             best_rank = rank
             best_class = net_class
@@ -88,7 +121,7 @@ def generate_netclass_separated_constraints(
     # Build component -> net_class map
     comp_classes: dict[str, str] = {}
     for comp in components:
-        nc = _resolve_component_net_class(comp, netlist)
+        nc = _resolve_component_net_class(comp, netlist, design_rules)
         if nc:
             comp_classes[getattr(comp, "ref", str(comp))] = nc
 
