@@ -255,14 +255,21 @@ class TestNetNameBoundaries:
             ("AC_N", True),
             ("HV_BUS", True),
             ("HV_GATE", True),
-            # AC/HV immediately followed by non-word char
-            ("AC-", False),  # hyphen is not [\d_] nor end
+            # AC/HV immediately followed by non-word char. `-` was stale
+            # here: FIXED 2026-08-13 (URGENT, "Family C" of the
+            # hyphen-boundary net-classification defect, see
+            # creepage_check.py's top-of-file bug-history note and
+            # creepage_check.rs::hv_word_boundary_hyphen_flips_and_stays_
+            # bounded, which pins `assert!(is_high_voltage_net("AC-"))`)
+            # -- `-` is now an equivalent word-boundary character to `_`,
+            # so "AC-" is a genuine bounded match, not a non-match.
+            ("AC-", True),
             ("AC.", False),
             ("AC:", False),
         ],
     )
     def test_ac_hv_punctuation_boundaries(self, net_name: str, expected: bool):
-        """AC/HV followed by non-digit, non-underscore, non-end should not match."""
+        """AC/HV followed by `.`/`:` should not match; `-` (like `_`) does."""
         assert _is_high_voltage_net(net_name) is expected
 
 
