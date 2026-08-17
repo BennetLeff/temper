@@ -385,9 +385,47 @@ def test_selv_line_nets_stay_selv_after_hyphen_widening():
 
 
 def test_hyphenated_hb_gnd_and_vdd_nets_classify_correctly():
-    """The board-confirmed, intended flips from the hyphen-boundary fix
-    (matching PR #1145's and PR #1162's own findings for these exact net
-    names in the sibling matcher families)."""
-    assert _classify_net_class("hb-gnd") == "GND"
+    """The board-confirmed, intended outcomes for these three hyphenated
+    nets once both the Family C hyphen-boundary fix (PR #1174/#1175) and
+    the manifest HV declaration (PR #1145) are in effect.
+
+    CORRECTED 2026-08-17 (was asserting ``"GND"`` for ``hb-gnd``, failing
+    on main with ``assert 'HV' == 'GND'``). See
+    docs/evidence/2026-08-17-hb-gnd-classification-stale-test.md for the
+    full investigation. Summary: this assertion was written against PR
+    #1174's own branch state, where -- per that PR's own evidence doc
+    (docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md
+    Sec 2, item 1) -- ``hb-gnd`` "is not yet manifest-declared on this base
+    branch (that is PR #1145's own, separate, not-yet-merged change)", so
+    the hyphen-boundary widening alone flipped it ``SIGNAL`` -> ``GND`` via
+    the ``GND`` keyword cascade. PR #1145 (commit ``72d4a083d``) and PR
+    #1174 (commit ``bb3d99d1``) landed on main **10 seconds apart** in the
+    same merge wave; PR #1145 declared ``hb-gnd`` under
+    ``elec/domain_manifest.yaml``'s ``HV`` domain -- a well-sourced, direct
+    trace of the compiled netlist showing it is the half-bridge low-side
+    switch's return conductor, ~-170V relative to signal ground, one CT
+    primary winding (milliohms, not a galvanic isolator) away from the
+    already-declared HV net ``DC_BUS_RTN``. It is genuinely HV despite its
+    GND-shaped name.
+
+    ``_classify_net_class`` checks manifest membership
+    (``_load_manifest_hv_net_names()``) *before* the keyword cascade (see
+    the function body above) -- so once #1145 was merged, ``hb-gnd``
+    unconditionally classifies ``"HV"`` regardless of the hyphen-boundary
+    GND-keyword fix, and has done so on every commit of main since. This
+    is the safety-correct outcome: classifying a net that sits at HV
+    potential as ``GND`` would apply the weak default clearance (0.127mm)
+    instead of the IEC 60335-1 PD3 reinforced figure (12.6mm) to a
+    mains-referenced net -- confirmed live on both the ``python`` and the
+    production ``rust`` (``backend="auto"``) clearance backends, which
+    both correctly flag a close ``hb-gnd``/``gnd`` pair at 12.6mm required
+    clearance, not 0.127mm.
+
+    ``hb.gate_hs-vdd``/``hb.gate_ls-vdd`` are unaffected by this
+    correction: neither is manifest-declared, so both still flip
+    ``SIGNAL`` -> ``POWER`` via the hyphen-boundary VDD-keyword fix exactly
+    as originally measured.
+    """
+    assert _classify_net_class("hb-gnd") == "HV"
     assert _classify_net_class("hb.gate_hs-vdd") == "POWER"
     assert _classify_net_class("hb.gate_ls-vdd") == "POWER"
