@@ -228,8 +228,14 @@ def _extract_design_rules(
     # the correct figure (kicad_pro's Default track_width, the same file's
     # min_track_width, and core/design_rules.py all say 0.2).
     default_trace_width = 0.2
-    default_via_diameter = 0.8
-    default_via_drill = 0.4
+    # 2026-08-16: 0.8/0.4 -> 0.9/0.3 (annular ring 0.3mm vs the board's
+    # min_via_annular_width 0.254mm). Deliberate re-pin: the router emitted
+    # 0.8/0.4 (0.2mm ring) for every unassigned net, producing all 68
+    # annular_width DRC errors on the 2026-08-16 route. The fix widens the
+    # via (the conservative direction); see docs/evidence/2026-08-16-via-
+    # span-clearance-and-fab-rules.md Sec 2a.
+    default_via_diameter = 0.9
+    default_via_drill = 0.3
 
     if hasattr(ki_board, "setup") and ki_board.setup:
         setup = ki_board.setup
