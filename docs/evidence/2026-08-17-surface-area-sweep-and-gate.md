@@ -419,6 +419,63 @@ Both corrections follow directly from this task's own method requirement
 ("liveness must be established by tracing call sites and CI wiring, never by
 naming") applied to a prior pass's own conclusions, not just to fresh code.
 
+### A correction to THIS document's own `explainability/decision.py` verdict — the restore's rationale does not survive one more hop
+
+Commit `c360bd267` restored the whole `explainability/` package (after an
+earlier commit in this same session, by a different concurrent agent working
+this same worktree, had deleted it) on the stated grounds that
+`packages/temper-orchestration/src/explainability.rs:168` — `PyModule::import(py,
+"temper_placer.explainability.decision")` — is "a real cross-extension call ...
+Deleting decision.py would have broken this production path." **Re-traced one
+hop further, live against the current tree, and this does not hold:**
+
+That `PyModule::import` sits inside `enum_member()` (`explainability.rs:167`),
+which has exactly two call sites, both inside `Decision::new`'s `#[new]`
+constructor (lines 330/334), firing only when `Decision(...)` is constructed
+with `phase=None` or `decision_type=None`. So the call is reachable **only if
+`temper_orchestration.Decision` (the Rust pyclass, registered
+`explainability.rs` → `lib.rs:472` `m.add_class::<explainability::Decision>()`)
+is ever constructed anywhere.**
+
+```
+$ grep -rn "temper_orchestration.Decision\|temper_orchestration::Decision\|_to\.Decision(\|_orch\.Decision(\|explainability::Decision" \
+    packages --include='*.py' --include='*.rs' | grep -v "explainability.rs\|test_"
+packages/temper-orchestration/src/lib.rs:472:    m.add_class::<explainability::Decision>()?;
+packages/temper-orchestration/src/lib.rs:473:    m.add_class::<explainability::DecisionTrace>()?;
+```
+
+**Zero construction sites, anywhere, in production Python or Rust.** The
+pyclass is registered (available to be built) but nothing ever builds one —
+this is precisely the shape `check_unwired_kernels.py` exists to catch
+(a `wrap_pyfunction!`/`add_class::<>` registration with no caller), except
+this specific case is invisible to that gate's coarse AST scan because
+`temper_placer/explainability/decision.py` **also** defines a class literally
+named `Decision` — the bare identifier `Decision` appears constantly in
+ordinary, non-test Python source for the unrelated, live, same-named
+`core.decision`/`explainability.decision` classes, so the gate's
+name-presence check is satisfied by pure coincidence, not by anyone calling
+the Rust pyclass. `enum_member`'s `py.import` therefore never executes on any
+real code path today. This is the handoff's own §12 lesson recurring inside
+this task's own work: **the restore's verification stopped at "a `py.import`
+call exists," which is blind to whether the function containing it is ever
+reached** — the same blind spot, one layer removed, that made PR #1302 wrongly
+call `router_v6/placement_legalization.py` dead (there: a real call existed
+and the scan didn't look for it; here: a real call exists and the scan didn't
+check whether it's ever *reached*).
+
+**Not re-deleted this pass.** Two independent agents sharing this worktree
+have now each reverted the other's `explainability/` deletion once already
+(see the INCIDENT section, and `.orphaned-python-module-inventory`'s history);
+a third flip risks the same churn without a clear stopping rule, and this
+document's job is to leave the owner a correct, traceable record rather than
+win the argument by out-committing a concurrent peer. **Recommendation for
+whoever picks this up next**: `explainability/decision.py` belongs in the
+same dead-cluster deletion as its six siblings (§2b), not in the "kept" list.
+Verify by re-running the grep above (it is exactly reproducible) before
+acting, since liveness claims in this repo — including this document's own —
+do not survive being inherited without re-verification, which is the whole
+point of the method section above.
+
 ### Deletions executed this pass
 
 | Area | Files | LOC | Notes |
