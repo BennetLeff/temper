@@ -123,54 +123,6 @@ def compute_quality_score(
     )
 
 
-def _compute_placement_score(metrics: PlacementMetrics) -> float:
-    """
-    Compute placement quality score (0-100) — Rust kernel.
-    """
-    return _tqo.placement_score_py(
-        metrics.overlap_count,
-        metrics.boundary_violations,
-        metrics.hv_lv_violations,
-        metrics.keepout_violations,
-        metrics.clearance_violations,
-        metrics.zone_violations,
-        metrics.total_wirelength,
-        getattr(metrics, "avg_net_length", 0.0),
-    )
-
-
-def _compute_drc_score(drc_result: DrcResult) -> float:
-    """
-    Compute DRC quality score (0-100) — Rust kernel.
-    """
-    return _tqo.drc_score_py(drc_result.error_count, drc_result.warning_count)
-
-
-def _compute_routing_score(
-    result: VerificationResult, placement_metrics: PlacementMetrics
-) -> float:
-    """
-    Compute routing quality score (0-100).
-    """
-    score = 0.0
-    # Completion rate: 70 points max
-    score += result.completion_rate * 70
-
-    # Wirelength ratio: 20 points max
-    if result.total_wirelength > 0 and placement_metrics.total_wirelength > 0:
-        wl_ratio = result.total_wirelength / placement_metrics.total_wirelength
-        wl_ratio = max(1.0, min(2.0, wl_ratio))
-        wl_score = 20 * (2.0 - wl_ratio)
-        score += wl_score
-
-    # Via count: 10 points max
-    if result.total_vias <= 50:
-        via_score = 10 * (1.0 - result.total_vias / 50)
-        score += via_score
-
-    return max(0.0, min(100.0, score))
-
-
 def interpret_score(score: float) -> str:
     """Human-readable interpretation — Rust kernel."""
     return _tqo.interpret_score_py(score)

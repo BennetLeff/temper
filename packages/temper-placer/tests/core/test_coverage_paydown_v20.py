@@ -43,12 +43,6 @@ from temper_placer.io.kicad_exporter import (
     path_to_vias,
     snap_to_nearest_pad,
 )
-from temper_placer.metrics.physics import (
-    measure_emi,
-    measure_geometric,
-    measure_routability,
-    measure_thermal,
-)
 from temper_placer.metrics.quality import (
     congestion_score,
     connectivity_clustering_score,
@@ -686,42 +680,6 @@ class TestMetrics:
         st = _placement([("Q1", 10.0, 10.0), ("C1", 50.0, 50.0)])
         score = connectivity_clustering_score(st, nl, _QualityContext())
         assert 0.0 <= score <= 1.0
-
-    def test_measure_geometric(self):
-        comps = [
-            Component(ref="Q1", footprint="TO-247", bounds=(16, 21), net_class="HighVoltage"),
-            Component(ref="C1", footprint="0805", bounds=(2, 1.2)),
-        ]
-        nl = Netlist(components=comps, nets=[])
-        st = _placement([("Q1", 10.0, 10.0), ("C1", 50.0, 50.0)])
-        metrics = measure_geometric(st, nl, _board())
-        assert metrics.overlap_count == 0
-
-    def test_measure_emi_empty_and_loop(self):
-        st = _placement([("Q1", 0.0, 0.0), ("C1", 10.0, 0.0), ("C2", 10.0, 10.0)])
-        nl = _netlist("Q1", "C1", "C2")
-        assert measure_emi(st, nl, None) is not None
-        assert measure_emi(st, nl, []) is not None
-        emi = measure_emi(st, nl, [["Q1", "C1", "C2"]])
-        assert emi.total_loop_area_mm2 > 0
-
-    def test_measure_routability(self):
-        st = _placement([("Q1", 10.0, 10.0), ("C1", 50.0, 50.0)])
-        nl = _netlist("Q1", "C1")
-        metrics = measure_routability(st, nl, _board())
-        assert 0.0 <= metrics.completion_pct <= 100.0
-
-    def test_measure_thermal_empty_and_loaded(self):
-        st = _placement([("Q1", 10.0, 10.0)])
-        nl = _netlist("Q1")
-        empty = measure_thermal(st, nl, _board())
-        # Empty power_dissipation short-circuits: the kernel is never called
-        # and the ambient temperature is returned as the max junction temp.
-        # Default ambient is the 60 °C design-limit (ENVIRONMENTAL_SPEC.md
-        # derating zero-power point; thermal decision 2026-08-15 §6.4).
-        assert empty.max_junction_temp_c == 60.0
-        loaded = measure_thermal(st, nl, _board(), power_dissipation={"Q1": 5.0})
-        assert loaded.max_junction_temp_c > 0.0
 
 
 # ---------------------------------------------------------------------------

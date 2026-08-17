@@ -96,6 +96,7 @@ on:
       - '.github/required-checks.json'
       - '.loc-allowlist.txt'
       - '.unwired-kernel-inventory'
+      - '.orphaned-python-module-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -203,6 +204,7 @@ on:
       - '.github/required-checks.json'
       - '.loc-allowlist.txt'
       - '.unwired-kernel-inventory'
+      - '.orphaned-python-module-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -2995,6 +2997,20 @@ jobs:
       - name: No unwired Rust kernels (shim-rewiring gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_unwired_kernels.py
+
+      # 2026-08-17: the mirror-image gap to the gate just above. That one
+      # catches a Rust kernel with no Python caller; this one catches a whole
+      # Python MODULE with no caller at all -- a shim whose last production
+      # importer was deleted, a stage that lost its wiring, a spike that was
+      # never adopted. docs/evidence/2026-08-17-python-deprecation-spike.md
+      # (PR #1302) found this shape by hand across several package trees in
+      # one pass (metrics/physics.py orphaned since 2026-07-10 when its sole
+      # caller was deleted; a 1,984 LOC router_v6/constraints_* cluster; more)
+      # with no gate watching for it. Parses only .py/.rs source text -- no
+      # built extensions needed -- so it runs unconditionally here too.
+      - name: No orphaned Python modules (dead-module gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_orphaned_python_modules.py
 
       # 2026-08-13: `temper-geometry` had two independent `#[pyfunction] pub
       # fn kw_boundary_match_py` definitions (via_clearance.rs and
