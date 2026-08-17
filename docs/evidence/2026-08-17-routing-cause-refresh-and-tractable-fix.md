@@ -309,4 +309,141 @@ the current recommended recipe), from `pcb/temper.kicad_pcb`
 `.kicad_dru` propagated via `copy_kicad_project_sidecar`, matching this
 project's own `run_drc` convention).
 
-(Filled in as the corrected determinism pair finishes routing.)
+Two independent runs of the fully-fixed code (obstacle-grid stamp +
+Power/gnd exclusion, §5 and §7) produced **byte-identical output**
+(`sha256 7858b572524c6109d52cda90d0a2e81a0b0b7aca4118c1c892e9e263b79731ee`,
+both files, `diff` returns 0 lines) -- determinism holds.
+
+### Connectivity
+
+| | baseline (`6ac8b1ca...`, committed) | M6c (fixed) | delta |
+|---|---|---|---|
+| fully pad-connected (audit) | 63/139 | **60/139** | **-3** |
+| genuine multi-pad (`pad_count>1`) | 36/139 | **33/139** | **-3** |
+| partial (real copper, not all pads) | 7 | **18** | **+11** |
+| zero-copper failed | 60 | 49 | -11 |
+| zone-dependent (unchanged, M2b) | 9 | 9 | 0 |
+
+**Net-level**: 3 nets lost full connectivity (`fb`, `i2c_sda_ui`,
+`rtd_pan.r_low_top-inn` -- none in the target M3 class, none HV/safety);
+0 nets gained full connectivity; 11 nets moved from zero copper to real,
+honestly-reported partial copper (`I_SENSE`, `WDT_RESET_N`, `bias`, `en`,
+`fb`, `inb`, `io0`, `safety-line`, `safety-line-1`,
+`safety.thermal.comp-inp`, `safety.uvlo_logic.mon-ina_p` -- 5 of these are
+from the task-named 17-net class, confirming the mechanism; the other 6
+are from the M1/M3-other-shapes buckets the mechanism generalizes to,
+per §2's ranking).
+
+**Why 0 of the 17 reached full connectivity**: this fix only makes the
+search *resilient* to one bad hop (skip and continue from the last real
+anchor) -- it never retries the skipped pad via an alternate path. Every
+one of the 17 still has at least one permanently unreachable pad under
+this fix; converting them to fully connected needs the retry-against-any-
+already-reached-point generalization this task also wrote for the (dead,
+for this board) Prim-tree executor (`terminal_tree_execution.py`), ported
+to the live serial-chain driver -- not attempted this pass, flagged as
+the next step (§8).
+
+### DRC (no-refill / `--refill-zones`)
+
+| category | baseline no-refill | M6c no-refill | baseline refill | M6c refill |
+|---|---|---|---|---|
+| clearance | 224 | 228 (+4) | 225 | 229 (+4) |
+| copper_edge_clearance | 12 | 15 (+3) | 12 | 15 (+3) |
+| courtyards_overlap | 1 | 1 | 1 | 1 |
+| creepage | **100** | **100 (+0)** | 121 | 121 (+0) |
+| drill_out_of_range | 6 | 6 | 6 | 6 |
+| hole_clearance | 26 | 22 (-4) | 26 | 22 (-4) |
+| shorting_items | 53 | 56 (+3) | 53 | 56 (+3) |
+| solder_mask_bridge | 15 | 15 | 15 | 15 |
+| track_dangling | 0 | **11 (new)** | 0 | 11 (new) |
+| track_width | 120 | 185 (+65) | 120 | 185 (+65) |
+| tracks_crossing | 8 | 12 (+4) | 8 | 12 (+4) |
+| via_dangling | 106 | 105 (-1) | 23 | 23 (0) |
+| **total** | **1086** | **1171 (+85)** | 1025 | 1111 (+86) |
+
+**Creepage held exactly flat (100 -> 100, 121 -> 121 with refill)**: no
+new HV<->LV or safety-line separation violation anywhere -- the single
+most safety-relevant category this board has is untouched.
+
+**Root cause of the +85, chased, not assumed**: 167 of the 185 (no-refill)
+`track_width` violations are on `+3V3` alone (up from 100 pre-existing on
+the same net at baseline) -- but `+3V3` is one of the
+`_M6C_EXCLUDED_PARTIAL_NETS` (§7): this fix writes **zero** new geometry
+for it. Item-level inspection confirms the width-violating segments are
+the *pour/plane MST-stitch generator's own* narrow via-drop-avoidance
+stubs (`_power_islands.py`), a pre-existing defect (100 already present
+at baseline) that this fix never touches directly -- but the extra
+congestion from this fix's OTHER, legitimate 11-net partial copper
+demonstrably pushes that generator into more narrow-stub fallbacks (100
+-> 167 on `+3V3` alone). This is the same "more real copper -> less free
+space -> other nets/mechanisms get squeezed" pattern this project has
+measured repeatedly (#1267's creepage-halo tightening, PR #1301's
+clearance-ring fix) -- a genuine, indirect, congestion-driven side effect,
+not a defect in the fix's own logic. **The 11 `track_dangling` violations
+are new and directly attributable to this fix**: tiny (0.06-0.17mm)
+same-net stub fragments at the boundary between two independently-searched
+hops in the skip-resilient chain -- real, but minor (same-net, not a
+cross-net short, well under any creepage/clearance figure), and a concrete
+follow-up target (§8).
+
+## 7. Verdict: a real, working, generalizable mechanism -- not a clean win, reported honestly
+
+Per this task's own hard rule ("a connectivity gain that adds DRC
+violations is not a gain -- report both"): **this is not a clean win.**
+On the board's two primary metrics it moves in opposite directions from
+the two different framings:
+
+- **On "how many nets are fully, honestly connected"**: worse (-3, 63 -> 60).
+- **On "how much real, honestly-reported copper exists for nets that used
+  to have none"**: better (+11 nets moved off zero-copper).
+- **On aggregate DRC**: worse (+85 no-refill, +86 refill), concentrated in
+  one already-known, pre-existing defect getting proportionally worse
+  under more congestion, plus a small new same-net-only defect class.
+  Zero new creepage/cross-net-separation violations.
+
+This matches the project's own established shape for a fail-closed/
+correctness-driven change (#1259/#1261/#1267/PR #1301 all trade
+connectivity or DRC one way for correctness the other way), but unlike
+those, this trade is not obviously net-positive by inspection -- it is
+reported here as **measured, not merged, and not recommended for the
+board file** without either (a) fixing the `track_dangling` stub-boundary
+issue and re-measuring whether the `track_width` congestion effect
+shrinks once that's cleaner, or (b) an owner decision that 11 more nets
+with real (if partial) copper is worth 3 fewer fully-connected nets and
++85 mostly-indirect DRC. **`pcb/temper.kicad_pcb` was never written by
+this task** -- every number above is a scratch-route measurement, exactly
+per the hard rule against modifying the board file without reporting
+first.
+
+The mechanism itself -- serial waypoint-chain skip-resilience
+(`_astar_nlayer.py`) + writing safe partial geometry to the board with a
+correct obstacle-grid stamp (`routing_results.py`,
+`_stamp_route_into_every_family`) + excluding the known pour-vs-trace
+Power/gnd nets from that write (`_M6C_EXCLUDED_PARTIAL_NETS`) -- is real,
+tested (58/58 relevant router_v6 unit tests + property tests pass, plus
+the full 6872-test router_v6 suite with every pre-existing failure
+individually re-confirmed unrelated, §4), and deterministic (§6). It is
+left on this branch, uncommitted to the board, for the next agent or the
+owner to either extend (§8) or explicitly accept the trade.
+
+## 8. What's left
+
+1. **`track_dangling` (11, new)**: same-net micro-stubs at skip-chain hop
+   boundaries. Likely fixable by having `_astar_route_nlayer` snap the
+   next hop's search start to the EXACT previous `goal_world` float
+   (rather than relying on `append_grid_path_point`'s tolerance-merge
+   across two independently quantized searches) -- not attempted this
+   pass.
+2. **Retry-against-any-reached-point** (not just skip-and-continue) for
+   the serial chain, porting the `_attach_candidates` idea already written
+   for `terminal_tree_execution.py` (dead code for this board, but the
+   algorithm generalizes) into `_astar_nlayer.py`'s live driver -- this is
+   what would be needed to convert any of the 17 to FULL connectivity,
+   not just partial.
+3. **M1 (22 nets)** and **M2+M2b (9 nets, needs a zone-fill pass)** and
+   **M4 (11 nets)** from §2's ranking remain untouched -- each is a
+   separate mechanism, out of scope for this pass.
+4. **12 unattributed `connected -> failed` regressions** (§2) still need
+   per-net A*-trace instrumentation to distinguish M6 congestion from
+   A*-ordering effects, per Phase 2's own §8.
