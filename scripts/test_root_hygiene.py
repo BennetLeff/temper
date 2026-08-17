@@ -14,7 +14,12 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 # Per-category allowlists.  Key is a suffix (e.g. "*.json") or an exact
 # root name (e.g. "/10A").  Value is a frozenset of permitted root files.
 _PER_GLOB_ALLOWLIST: dict[str, frozenset[str]] = {
-    "*.py": frozenset(),
+    # conftest.py is the standard pytest convention, not a stray script --
+    # pytest auto-discovers it by directory position, so it cannot be moved
+    # to scripts/ (the "*.py" category's usual destination) without silently
+    # changing which tests see its fixtures. Real false positive, not
+    # tolerated clutter (2026-08-07, PR #726/a56390f6 added it).
+    "*.py": frozenset({"conftest.py"}),
     "*.kicad_pcb": frozenset(),
     "*.kicad_pro": frozenset(),
     "*-drc.json": frozenset(),
