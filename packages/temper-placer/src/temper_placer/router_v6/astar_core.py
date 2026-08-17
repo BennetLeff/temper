@@ -123,32 +123,6 @@ def _via_span_layers(
     return [layer for layer in VIA_SPAN_LAYER_ORDER[lo : hi + 1] if layer in grid_layers]
 
 
-_HALO_DEBUG_LIMIT = 100000
-_halo_debug_count = [0]
-
-
-def _halo_debug_peek(from_layer, to_layer, x, y, via_diameter, trace_width, net_id, radius_mm):
-    """TEMPORARY diagnostic (2026-08-16): log via-halo checks near the
-    residual-short coordinates so the route log shows which path placed
-    the offending vias. Removed before merge."""
-    if _halo_debug_count[0] >= _HALO_DEBUG_LIMIT:
-        return
-    if abs(x - 97.45) < 0.05 and abs(y - 247.25) < 0.05:
-        _halo_debug_count[0] += 1
-        print(
-            f"HALO-CHECK rtd-short: ({x:.3f},{y:.3f}) {from_layer}->{to_layer} "
-            f"v_d={via_diameter} W={trace_width} R={radius_mm} net={net_id}",
-            flush=True,
-        )
-    if abs(x - 102.5) < 0.05 and abs(y - 237.0) < 0.05:
-        _halo_debug_count[0] += 1
-        print(
-            f"HALO-CHECK rtd-j1: ({x:.3f},{y:.3f}) {from_layer}->{to_layer} "
-            f"v_d={via_diameter} W={trace_width} R={radius_mm} net={net_id}",
-            flush=True,
-        )
-
-
 def _via_placement_halo_free(
     grids: dict,
     x_world: float,
@@ -176,8 +150,6 @@ def _via_placement_halo_free(
     copper) legitimately sit inside the halo.
     """
     radius_mm = max(0.0, via_diameter / 2.0 - trace_width / 2.0)
-    _halo_debug_peek(from_layer, to_layer, x_world, y_world, via_diameter, trace_width, net_id, radius_mm)
-    _dbg_short_coord = abs(x_world - 97.45) < 0.05 and abs(y_world - 247.25) < 0.05
     for layer in _via_span_layers(from_layer, to_layer, set(grids.keys())):
         grid = grids.get(layer)
         if grid is None:
@@ -186,11 +158,6 @@ def _via_placement_halo_free(
         if not in_bounds(gx, gy, grid.width_cells, grid.height_cells):
             return False
         center_val = grid.grid[gy, gx]
-        if _dbg_short_coord:
-            print(
-                f"  HALO {layer}: center cell ({gx},{gy}) val={center_val}",
-                flush=True,
-            )
         if center_val != 0 and center_val != net_id:
             return False
         if radius_mm > 0.0:

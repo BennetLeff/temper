@@ -615,8 +615,6 @@ def _attempt_pad_layer_landing(
     pad_layer_start = _pad_layer_at_point(pads, x0, y0, tolerance_mm)
     if pad_layer_start is not None and pad_layer_start != layer0:
         if _landing_via_free(x0, y0, pad_layer_start, layer0):
-            if abs(x0 - 102.5) < 0.5 and abs(y0 - 237.0) < 0.5:
-                print(f"LANDING-VIA-INSERT: ({x0:.3f},{y0:.3f}) {layer0}->{pad_layer_start} net={net_name}", flush=True)
             segments.insert(0, (x0, y0, pad_layer_start))
             via_positions.insert(0, (x0, y0))
             changed = True
@@ -1072,7 +1070,6 @@ def run_astar_pathfinding_nlayer(
     fixtures, and every pre-existing unit test) keeps a single identity
     family over the caller's grids -- see ``_build_width_families``.
     """
-    print("PATHFINDING: N-LAYER PATH ACTIVE", flush=True)
     if not grids:
         raise ValueError("No occupancy grids available for N-layer A* pathfinding")
     if design_rules is None:
@@ -1328,12 +1325,6 @@ def run_astar_pathfinding_nlayer(
                 for px, py, _r, layer in (pad_centers_per_net.get(net_name) or [])
                 if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer
             ]
-            if net_name in ("rtd_force_n", "discharge.k_dis1-coil2"):
-                print(
-                    f"VIA-RAW {net_name}: via_positions={route_path.via_positions} "
-                    f"tht_pads={tht_pad_positions}",
-                    flush=True,
-                )
             if tht_pad_positions or len(route_path.via_positions) != len(
                 {(round(vx, 4), round(vy, 4)) for vx, vy in route_path.via_positions}
             ):
@@ -1356,12 +1347,6 @@ def run_astar_pathfinding_nlayer(
                         continue
                     kept_vias.append((vx, vy))
                 if len(kept_vias) != len(route_path.via_positions):
-                    if net_name in ("rtd_force_n", "discharge.k_dis1-coil2"):
-                        print(
-                            f"VIA-FILTER {net_name}: {len(route_path.via_positions)} -> {len(kept_vias)} "
-                            f"tht_pads={len(tht_pad_positions)}",
-                            flush=True,
-                        )
                     route_path = RoutePath3D(
                         net_name=route_path.net_name,
                         segments=route_path.segments,
