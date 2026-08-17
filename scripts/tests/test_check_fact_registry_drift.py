@@ -583,19 +583,45 @@ class TestRealRegistryExtendedFamilies:
             assert r.error is not None
             assert "did not match" in r.error
 
-    def test_hv_lv_separation_gate_threshold_is_known_red(self):
-        """LEFT RED PER THE HARD RULES (never change a creepage threshold;
-        also sibling-owned territory this session). Both gates.py sites
-        (PhysicsGate._CREEPAGE_MIN_MM and IECCreepageGate's inline
-        Violation(...) literal) hardcode 6.0mm against the board's actual
-        enforced 12.6mm PD3 figure."""
+    def test_hv_lv_separation_gate_threshold_is_now_clean(self):
+        """UPDATED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-
+        pairs-gap.md, merging PR #1322 into this registry): this fact WAS
+        known red -- both gates.py sites (PhysicsGate._CREEPAGE_MIN_MM and
+        IECCreepageGate's inline Violation(...) literal) hardcoded 6.0mm
+        against the board's actual enforced 12.6mm PD3 figure. PR #1322
+        fixed both: `_CREEPAGE_MIN_MM` was confirmed dead and deleted (no
+        site left to compare -- this fact now has a single home, the
+        genuinely-literal `isolation_constants.MIN_BARRIER_WIDTH_MM`), and
+        IECCreepageGate's inline literal now reads the SSOT-derived
+        `HV_LV_CREEPAGE_MM` constant instead of hardcoding a number. See
+        `test_hv_lv_creepage_derivation_parity_is_clean` below for the
+        companion fact verifying gates.py's and generate_kicad_dru.py's
+        derivations of that constant stay in lockstep."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         threshold_results = [
             r for r in results if r.fact == "hv_lv_separation_gate_threshold_mm"
         ]
-        assert len(threshold_results) == 2
+        assert len(threshold_results) == 1
         for r in threshold_results:
             assert r.error is None
-            assert r.matches is False
-            assert r.found_value == pytest.approx(6.0)
+            assert r.matches is True
+            assert r.found_value == pytest.approx(12.6)
+
+    def test_hv_lv_creepage_derivation_parity_is_clean(self):
+        """NEW 2026-08-17, added alongside the fix above: gates.py's
+        HV_LV_CREEPAGE_MM and generate_kicad_dru.py's HV_CREEPAGE_PD3_MM
+        must invoke creepage_table_lookup with byte-identical arguments, or
+        the two enforcement points can silently diverge again."""
+        repo_root = find_repo_root()
+        results = check.run(repo_root)
+        parity_results = [
+            r for r in results if r.fact == "hv_lv_creepage_derivation_parity"
+        ]
+        assert len(parity_results) == 2
+        for r in parity_results:
+            assert r.error is None
+            assert r.matches is True
+            assert r.found_value == (
+                'creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0'
+            )

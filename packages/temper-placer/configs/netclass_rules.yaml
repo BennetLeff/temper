@@ -361,3 +361,69 @@ class_pairs:
   HighVoltageSignal-GND: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-GND, carried over with the current-tier carve-out"}
   HighVoltageSignal-Power: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-Power, carried over with the current-tier carve-out"}
   HighVoltageSignal-FinePitch: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-FinePitch, carried over with the current-tier carve-out"}
+
+  # ADDED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-pairs-gap.md).
+  # GateDriveHV/GateDriveSELV were split from the single "GateDrive" class on
+  # 2026-07-28 (PR #434, commit 81f3c69a5) -- the SAME commit that closed
+  # HighVoltageIsolated's identical gap (0 class_pairs rows) by adding its
+  # 4 "-to-LV" rows below at the established 6.0mm convention. GateDriveHV/
+  # GateDriveSELV never got the matching treatment: checked, "GateDrive"
+  # (the undifferentiated pre-split class) ALSO had zero class_pairs rows
+  # before 81f3c69a5, so this is not a value the split commit deliberately
+  # dropped -- it is an omission that predates the split and was simply
+  # never carried forward when every sibling HV-domain class (ACMains,
+  # HighVoltage, HighVoltageTank, HighVoltageIsolated, HighVoltageSignal)
+  # received its own rows on introduction.
+  #
+  # This gap was DORMANT until 2026-08-17 (PR #1322): netclass_constraints.py
+  # classified nets via a 4-bucket name-keyword heuristic that could never
+  # resolve a component to "GateDriveHV"/"GateDriveSELV" at all, so these
+  # rows were never looked up in production. Switching that classifier to
+  # design_rules.get_rules_for_net() (matching every other DesignRules
+  # consumer) makes the gap live for the first time: 33+ real cross-domain
+  # component pairs on the board fall through to the unprotected
+  # max(class_a.clearance, class_b.clearance) default (as low as 0.25mm)
+  # instead of this file's established 6.0mm cross-domain figure.
+  #
+  # Rows added below exactly mirror the existing convention used for every
+  # other HV-domain class (see HighVoltageIsolated/-Tank/-Signal blocks
+  # above): the SAME 6.0mm figure, the SAME "UNSOURCED legacy... placer-
+  # feasibility model only" caveat (see the ACMains/HighVoltage block
+  # comments at the top of this table), applied to whichever side of each
+  # pair is the LV-category class. GateDriveHV (safety_category HV) gets
+  # rows against the 4 standard LV siblings (FinePitch/GND/Power/Signal)
+  # plus GateDriveSELV itself (safety_category LV, the SELV side of U7's own
+  # isolation barrier). GateDriveSELV (safety_category LV) symmetrically
+  # gets rows FROM the other 4 non-ACMains-anchored HV-domain sources that
+  # already carry a "-to-LV" block (HighVoltage/HighVoltageTank/
+  # HighVoltageIsolated/HighVoltageSignal) plus ACMains itself (mirroring
+  # ACMains's own explicit -Signal/-GND/-Power/-FinePitch rows). No
+  # GateDriveHV-ACMains / GateDriveHV-{HighVoltage,HighVoltageTank,
+  # HighVoltageIsolated,HighVoltageSignal} row is added, deliberately
+  # mirroring this file's own existing choice not to protect same-broader-
+  # HV-domain sub-class pairs (e.g. no HighVoltage-HighVoltageTank row
+  # exists either) -- "the same-domain figure is the DRU's business" per
+  # the HighVoltageIsolated block's own comment above.
+  #
+  # Verified (docs/evidence/2026-08-17-gatedrive-class-pairs-gap.md): a live,
+  # whole-board pairwise comparison of every one of the real board's 168
+  # components' SEPARATED constraints, old (pre-#1322) classifier vs new
+  # classifier + these 10 rows, found ZERO pairs where a genuinely
+  # cross-domain (HV/AC-vs-LV) separation figure decreased relative to main
+  # before #1322. All ~2,483 pairs whose figure did change are same-
+  # broader-HV-domain sub-class corrections (both sides already HV/AC, or
+  # both already LV), the same category PR #1322's own evidence doc
+  # documents for its other 102 non-GateDrive pairs. J1<->K1 (the pair that
+  # motivated PR #1322) resolves HighVoltage-Signal (6.0mm, an existing row,
+  # untouched by this change) -- these 10 new rows are not the ones J1/K1
+  # uses. No existing class_pairs value was read, only added to.
+  GateDriveHV-FinePitch: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Same figure as every other HV-domain-to-LV row in this table; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveHV-GND: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Same figure as every other HV-domain-to-LV row in this table; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveHV-Power: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Same figure as every other HV-domain-to-LV row in this table; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveHV-Signal: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Same figure as every other HV-domain-to-LV row in this table; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveHV-GateDriveSELV: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm -- GateDriveHV is the HV/secondary side of U7's reinforced isolation barrier, GateDriveSELV the SELV/primary side (elec/domain_manifest.yaml); same figure as every other HV-domain-to-LV row in this table. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  ACMains-GateDriveSELV: {clearance: 6.0, because: "UNSOURCED legacy 6.0mm (debunked 'Table 16 working isolation at 400V' citation; 6.0mm is in no recovered table) -- placer-feasibility model only. Mirrors ACMains's own -Signal/-GND/-Power/-FinePitch rows; completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-HighVoltage: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltage-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-HighVoltageTank: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltageTank-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-HighVoltageIsolated: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltageIsolated-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}
+  GateDriveSELV-HighVoltageSignal: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — same figure as HighVoltageSignal-Signal above. Completes the GateDriveHV/GateDriveSELV split's missing class_pairs rows (see block comment above)."}

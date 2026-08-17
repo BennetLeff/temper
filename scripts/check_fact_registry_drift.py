@@ -307,6 +307,109 @@ REGISTRY: tuple[Fact, ...] = (
             "surface (see module docstring)."
         ),
     ),
+    Fact(
+        name="gatedrive_class_pairs_completeness",
+        category="netclass-class-pairs",
+        authoritative_value=6.0,
+        value_kind="float",
+        authoritative_source=(
+            "packages/temper-placer/configs/netclass_rules.yaml's own "
+            "established convention: every other HV-domain class "
+            "(ACMains/HighVoltage/HighVoltageTank/HighVoltageIsolated/"
+            "HighVoltageSignal) carries class_pairs rows to its LV "
+            "neighbours at this SAME 6.0mm figure (PR #1226, 'label 6.0mm "
+            "legacy family UNSOURCED' -- an explicitly documented, "
+            "deliberately-conservative placer-feasibility figure, NOT a "
+            "fab-authoritative safety value; see that file's own header "
+            "comment). See docs/evidence/2026-08-17-gatedrive-class-pairs-"
+            "gap.md."
+        ),
+        homes=(
+            # GateDriveHV/GateDriveSELV were split from the single
+            # "GateDrive" class on 2026-07-28 (PR #434) but never received
+            # class_pairs rows (unlike their sibling HighVoltageIsolated,
+            # closed in the SAME commit). Dormant until PR #1322 switched
+            # netclass_constraints.py's classifier to the manifest-backed
+            # design_rules.get_rules_for_net() -- the only caller that can
+            # actually resolve a component to these two class names -- at
+            # which point 33+ real cross-domain component pairs on the
+            # board silently fell through to a weaker
+            # max(class_a.clearance, class_b.clearance) default (as low as
+            # 0.25mm) instead of this 6.0mm figure. Each home below is one
+            # of the 10 rows added to close that gap
+            # (docs/evidence/2026-08-17-gatedrive-class-pairs-gap.md); if
+            # any is deleted, this gate's pattern match fails (TOOL ERROR,
+            # exit 5) rather than silently reporting clean, and if any
+            # value is edited away from 6.0mm without also updating this
+            # registry, the gate reports a VIOLATION (exit 3). Either way:
+            # a future missing/changed GateDrive class_pairs row is a gate
+            # failure, not a silent weakening.
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-FinePitch",
+                pattern=r"GateDriveHV-FinePitch:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-GND",
+                pattern=r"GateDriveHV-GND:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-Power",
+                pattern=r"GateDriveHV-Power:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-Signal",
+                pattern=r"GateDriveHV-Signal:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-GateDriveSELV",
+                pattern=r"GateDriveHV-GateDriveSELV:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs ACMains-GateDriveSELV",
+                pattern=r"ACMains-GateDriveSELV:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltage",
+                pattern=r"GateDriveSELV-HighVoltage:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltageTank",
+                pattern=r"GateDriveSELV-HighVoltageTank:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltageIsolated",
+                pattern=r"GateDriveSELV-HighVoltageIsolated:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltageSignal",
+                pattern=r"GateDriveSELV-HighVoltageSignal:\s*\{clearance:\s*([\d.]+)",
+            ),
+        ),
+        notes=(
+            "FIXED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-"
+            "pairs-gap.md): added, not derived from the DRU-generated SSOT "
+            "(pair_clearance.generated.yaml/pair_creepage.generated.yaml) "
+            "-- class_pairs is a deliberate, separate, looser "
+            "placer-feasibility model (PR #1226), and deriving from the "
+            "DRU tables would silently substitute the real 12.6mm PD3 "
+            "figures, an uncoordinated safety-value change with a large, "
+            "unverified connectivity cost (see PR #1321's measured "
+            "63/139->50/139 full-reroute cost from doing exactly that). "
+            "Verified pairwise against the real board: zero genuine "
+            "cross-domain (HV/AC vs LV) regressions relative to main "
+            "before PR #1322."
+        ),
+    ),
     # -------------------------------------------------------------------
     # 2026-08-17 (session 2) extension -- docs/evidence/2026-08-17-fact-
     # registry-drift-gate-extension.md. Motivated directly by the incident
@@ -611,46 +714,53 @@ REGISTRY: tuple[Fact, ...] = (
         notes="See gate_hs_net_current_rating_a's notes.",
     ),
     # -------------------------------------------------------------------
-    # HV<->LV separation gate threshold: gates.py hardcodes 6.0mm in TWO
-    # places (PhysicsGate._CREEPAGE_MIN_MM, and inline literals inside
-    # IECCreepageGate.check()'s Violation(...) construction) for a check
-    # both classes document as enforcing the board's HV<->LV creepage
-    # separation. The board's actual enforced figure (the real
-    # `kicad-cli pcb drc` `creepage` constraint scripts/generate_kicad_dru.
-    # py emits, and packages/temper-placer/src/temper_placer/core/
-    # isolation_constants.py's MIN_BARRIER_WIDTH_MM, which
-    # generate_kicad_dru.py's own comment says "must remain aligned with")
-    # is 12.6mm (PD3 reinforced, IEC 60335-1 Table 17 row iv x2 per cl.
-    # 29.2.3 -- docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md +
-    # PR #1224/#1229). scripts/check_creepage_clearance_drift.py's own AST
-    # sweep ALREADY discovers PhysicsGate._CREEPAGE_MIN_MM (confirmed by
-    # running it: reported under "FLAGGED (needs human classification)",
-    # unspecified tier) but does NOT discover the IECCreepageGate inline
-    # literals at all (they are keyword arguments inside a Violation(...)
-    # call, not a named assignment its AST collector's `_handle_assign`
-    # walk reaches) -- a genuine gap this registry closes by force-
-    # comparing both sites against the same explicit authority, not merely
-    # flagging them for human triage.
+    # HV<->LV separation gate threshold. UPDATED 2026-08-17 (merge of PR
+    # #1322, docs/evidence/2026-08-17-netclass-classifier-manifest-and-
+    # ieccreepagegate-liveness.md): this fact family previously described
+    # gates.py hardcoding 6.0mm in TWO places (PhysicsGate._CREEPAGE_MIN_MM,
+    # and an inline literal inside IECCreepageGate.check()'s Violation(...)
+    # construction), "KNOWN RED, NOT FIXED". PR #1322 fixed both:
+    # `_CREEPAGE_MIN_MM` was confirmed dead (zero read sites anywhere in the
+    # file, a stale duplicate despite its own "SSOT -- do not duplicate"
+    # comment) and DELETED rather than repaired -- there is no longer a site
+    # here to compare. `IECCreepageGate.check()`'s `context={"required_mm":
+    # ...}` no longer holds a literal; it now reads the module constant
+    # `HV_LV_CREEPAGE_MM`, itself computed from the SAME safety-SSOT lookup
+    # `scripts/generate_kicad_dru.py`'s `HV_CREEPAGE_PD3_MM` uses (IEC
+    # 60335-1 Table 17 row iv, >250-400V, material group IIIa/IIIb, PD3
+    # basic 6.3mm x2 per cl.29.2.3 reinforced = 12.6mm --
+    # docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md + PR
+    # #1224/#1229), rather than a second, independently-hardcoded number.
     #
-    # LEFT RED, NOT FIXED, PER THE HARD RULES: "NEVER change a clearance,
-    # creepage, copper-weight, or DRU threshold." IECCreepageGate +
-    # DeltaMapper are also explicitly a sibling agent's territory this
-    # session (netclass_constraints.py + IECCreepageGate + DeltaMapper).
-    # OPEN FINDING for that sibling/the owner: DeltaMapper.to_delta() reads
-    # `violation.threshold` directly from the Violation IECCreepageGate
-    # constructs (packages/temper-placer/src/temper_placer/placer/cp_sat/
-    # delta_mapper.py line ~153, `min_dist = violation.threshold`), so the
-    # stale 6.0mm doesn't just mislabel a report -- it sets the actual
-    # HV<->LV placement-feedback separation distance the CP-SAT solver is
-    # asked to enforce, 6.6mm short of the board's own declared PD3 bar.
-    # There is also a genuine interpretive question this agent does NOT
-    # resolve: IECCreepageGate filters kicad-cli DRC `rule == "clearance"`
-    # errors (not the `creepage` rule type scripts/generate_kicad_dru.py
-    # emits) and calls the result "creepage" -- whether this gate SHOULD
-    # track the 12.6mm creepage figure, a different clearance figure, or
-    # is itself measuring the wrong DRC rule type entirely is exactly the
-    # kind of judgment call item 6 says to leave red with a precise
-    # decision recorded, not resolve by fiat.
+    # Both `HV_LV_CREEPAGE_MM` and `HV_CREEPAGE_PD3_MM` are now DERIVED
+    # expressions (a Rust SSOT call), not literals, so neither can be
+    # regex-captured as a numeric value the way the old hardcoded 6.0mm
+    # could. This registry cannot execute Python/Rust to prove the two
+    # derived values are equal, so it proves the next-best, fully static
+    # thing instead: the two sites invoke `creepage_table_lookup` with
+    # byte-identical arguments (PD level, material group, voltage band,
+    # table) and the identical `* 2.0` reinforced-insulation multiplier --
+    # which structurally guarantees an identical computed result (same
+    # function, same inputs) without evaluating either call. See the
+    # separate str-valued fact `hv_lv_creepage_derivation_parity` below.
+    # `packages/temper-placer/src/temper_placer/core/isolation_constants.
+    # py`'s `MIN_BARRIER_WIDTH_MM` remains a genuine literal (12.6, unlike
+    # gates.py/generate_kicad_dru.py) and is kept as this fact's one
+    # float-comparable home.
+    #
+    # STILL AN OPEN FINDING, not resolved by this merge and not this
+    # agent's to resolve unilaterally (a sibling's territory per the
+    # original note): DeltaMapper.to_delta() reads `violation.threshold`
+    # directly from the Violation IECCreepageGate constructs
+    # (packages/temper-placer/src/temper_placer/placer/cp_sat/
+    # delta_mapper.py, `min_dist = violation.threshold`) -- now correctly
+    # 12.6mm end-to-end per PR #1322's own verification, so the specific
+    # leak this note originally warned about (a stale 6.0mm reaching
+    # DeltaMapper) is FIXED. The separate interpretive question -- whether
+    # IECCreepageGate filtering kicad-cli DRC `rule == "clearance"` errors
+    # (not the `creepage` rule type scripts/generate_kicad_dru.py emits)
+    # and calling the result "creepage" is the right DRC rule type to
+    # track -- remains open, a judgment call, not resolved here.
     # -------------------------------------------------------------------
     Fact(
         name="hv_lv_separation_gate_threshold_mm",
@@ -669,28 +779,69 @@ REGISTRY: tuple[Fact, ...] = (
         ),
         homes=(
             FactSite(
-                file="packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
-                description="PhysicsGate._CREEPAGE_MIN_MM class constant",
-                pattern=r"_CREEPAGE_MIN_MM:\s*float\s*=\s*([\d.]+)",
-            ),
-            FactSite(
-                file="packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
-                description=(
-                    "IECCreepageGate.check() inline Violation(...) "
-                    "context={'required_mm': ...} literal"
-                ),
-                pattern=r'"required_mm":\s*([\d.]+),',
-                scope_anchor=r"class IECCreepageGate\(Gate\):",
-                scope_lines=90,
+                file="packages/temper-placer/src/temper_placer/core/isolation_constants.py",
+                description="MIN_BARRIER_WIDTH_MM literal",
+                pattern=r"MIN_BARRIER_WIDTH_MM\s*=\s*([\d.]+)",
             ),
         ),
         notes=(
-            "KNOWN RED, NOT FIXED (hard rule: never change a creepage "
-            "threshold; IECCreepageGate/DeltaMapper are also sibling-"
-            "owned territory this session). Open finding recorded above "
-            "this entry -- both the DeltaMapper leak and the clearance-"
-            "vs-creepage rule-type ambiguity need an explicit owner/"
-            "sibling decision, not a mechanical value edit."
+            "FIXED 2026-08-17 by PR #1322 (merged in): both gates.py sites "
+            "this fact originally tracked as hardcoded-6.0mm are gone -- "
+            "_CREEPAGE_MIN_MM deleted as confirmed-dead code, and "
+            "IECCreepageGate's inline literal replaced with a reference to "
+            "HV_LV_CREEPAGE_MM, an SSOT-derived (not hardcoded) constant. "
+            "See the block comment above and the companion "
+            "hv_lv_creepage_derivation_parity fact below, which verifies "
+            "gates.py and generate_kicad_dru.py derive that constant "
+            "identically."
+        ),
+    ),
+    Fact(
+        name="hv_lv_creepage_derivation_parity",
+        category="gate-threshold",
+        authoritative_value=(
+            'creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0'
+        ),
+        value_kind="str",
+        authoritative_source=(
+            "scripts/generate_kicad_dru.py's HV_CREEPAGE_PD3_MM -- the "
+            "fab-authoritative derivation; packages/temper-placer/src/"
+            "temper_placer/placer/cp_sat/gates.py's HV_LV_CREEPAGE_MM "
+            "(added by PR #1322) must invoke the identical SSOT lookup "
+            "with identical arguments, or the two enforcement points can "
+            "silently diverge again the way the hardcoded 6.0mm/12.6mm "
+            "figures did before."
+        ),
+        homes=(
+            FactSite(
+                file="scripts/generate_kicad_dru.py",
+                description="HV_CREEPAGE_PD3_MM derivation call",
+                pattern=(
+                    r"HV_CREEPAGE_PD3_MM\s*=\s*_tdb\."
+                    r'(creepage_table_lookup\([^)]*\)\.value_mm\(\)\s*\*\s*[\d.]+)'
+                ),
+            ),
+            FactSite(
+                file="packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
+                description="HV_LV_CREEPAGE_MM derivation call",
+                pattern=(
+                    r"HV_LV_CREEPAGE_MM:\s*float\s*=\s*\(\s*\n\s*_tdb\."
+                    r'(creepage_table_lookup\([^)]*\)\.value_mm\(\)\s*\*\s*[\d.]+)'
+                ),
+            ),
+        ),
+        notes=(
+            "NEW 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-"
+            "pairs-gap.md), added when merging PR #1322's gates.py rewrite "
+            "into this registry. Structural parity, not a value re-"
+            "derivation: both sites call the same Rust SafetyValue lookup "
+            "with the same PD level, material group, voltage band, table, "
+            "and reinforced-insulation multiplier, which is the strongest "
+            "static guarantee obtainable without executing the Rust "
+            "kernel. If either site's call is edited without the other, "
+            "this fact fails (VIOLATION or TOOL ERROR), catching the "
+            "divergence before it repeats the fabricated/mismatched-figure "
+            "shape this project's history is full of."
         ),
     ),
 )
