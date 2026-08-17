@@ -96,6 +96,58 @@ def _build_validator_input(input_pcb: Path) -> dict | None:
     return {"placement": placement, "voltage_domains": voltage_domains}
 
 
+def _build_domain_clearance_constraints(validator_input: dict | None, all_refs: set) -> list:
+    """Build the full-board IEC 60335 PD3 domain-clearance SEPARATED
+    constraint set from the same real-board placement + voltage-domain map
+    ``validator_input`` already loads for the post-solve audit.
+
+    Per docs/evidence/2026-08-17-placer-creepage-constraint-spike.md: this
+    generator (``placer.cp_sat.domain_clearance.generate_domain_clearance_constraints``)
+    already carries the correct 12.6mm PD3 figure and the correct classifier
+    (``elec/domain_manifest.yaml`` via the same ``load_real_board_placement``
+    loader ``_build_validator_input`` above already calls) but, before this,
+    was wired into exactly one caller: ``cli/repair_commands.py``'s narrow
+    single/few-component ``repair-unplaced`` command. It was never part of
+    the constraint set the main ``optimize`` command (``--loop`` or
+    ``--no-loop``) solves against, so PD3 creepage/clearance was enforced
+    only as a post-hoc, already-routed-board DRC verdict -- discovered net
+    by net, after the router had already spent time on nets that could
+    never legally connect (the J1/K1 case the spike documents).
+
+    Returns [] -- logging nothing extra beyond what ``_build_validator_input``
+    already logged -- when ``validator_input`` is unavailable (the same skip
+    condition), so an absent real-board input leaves ``extra_constraints``
+    unchanged: additive, no behavior change, matching every other optional
+    solve input in this module.
+
+    ``all_refs`` MUST be every component ref in the netlist being solved,
+    not a subset scoped to a currently-diagnosed violation -- the spike
+    (§6, citing docs/evidence/2026-07-30-copper-aware-domain-resolve.md §2)
+    measured scoping to only known-violating pairs as unsound: it left every
+    other pair unconstrained and CP-SAT was then free to drift previously-
+    compliant components elsewhere on the board while satisfying the
+    explicit subset, regressing total REQ-SAFE-01 violations 76->217-265 on
+    a comparable board state. The full classified cross-domain pair set is
+    encoded on every solve for exactly this reason.
+    """
+    if validator_input is None:
+        return []
+
+    from temper_placer.placer.cp_sat.domain_clearance import (
+        generate_domain_clearance_constraints,
+    )
+
+    constraints = generate_domain_clearance_constraints(
+        validator_input["placement"], validator_input["voltage_domains"], all_refs
+    )
+    console.print(
+        f"  [cyan]Domain-clearance (IEC 60335 PD3) armed[/]: "
+        f"{len(constraints)} constraint(s) over {len(all_refs)} component(s) "
+        "(full classified cross-domain pair set, not violation-scoped)"
+    )
+    return constraints
+
+
 def _print_validator_audit(result: object, indent: str = "  ") -> None:
     """Surface the validator post-solve audit buckets when a solve carried
     ``validator_input`` (additive reporting; absent audit = no output)."""

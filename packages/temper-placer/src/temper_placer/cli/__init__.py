@@ -15,6 +15,7 @@ from temper_placer.profiling.cli import profile
 from ._io import console
 from ._optimize_audit import (
     _build_body_collision_input,
+    _build_domain_clearance_constraints,
     _build_validator_input,
     _maybe_surface_unsat,
     _print_body_collision_audit,
@@ -421,6 +422,21 @@ def optimize(
             # (inputs unavailable -> logged skip) leaves the loop
             # byte-identical to pre-wiring; see body_collision.py.
             body_collision_input = _build_body_collision_input(input_pcb)
+            # IEC 60335 PD3 domain-clearance/creepage HARD constraints
+            # (docs/evidence/2026-08-17-placer-creepage-constraint-spike.md,
+            # docs/evidence/2026-08-17-domain-clearance-placement-wiring.md):
+            # the full classified cross-domain pair set, built from the same
+            # real-board placement/voltage-domain map validator_input above
+            # already loaded. Empty when validator_input is unavailable
+            # (byte-identical to pre-wiring). Encoded into the SAME
+            # constraint list the courtyard/netclass generators already
+            # populate, so the CP-SAT model is free to relocate or report
+            # infeasible on a domain-crossing pair -- not just detect one
+            # after routing.
+            all_refs = {component.ref for component in netlist.components}
+            pcl_constraints = pcl_constraints + _build_domain_clearance_constraints(
+                validator_input, all_refs
+            )
 
             loop_result = loop_runner.run(
                 netlist=netlist,
@@ -616,6 +632,17 @@ def optimize(
             # same way validator_input is above; None (inputs unavailable ->
             # logged skip) leaves the solve byte-identical to pre-wiring.
             body_collision_input = _build_body_collision_input(input_pcb)
+
+            # IEC 60335 PD3 domain-clearance/creepage HARD constraints (see
+            # docs/evidence/2026-08-17-placer-creepage-constraint-spike.md,
+            # docs/evidence/2026-08-17-domain-clearance-placement-wiring.md).
+            # Same construction as the --loop branch above: full classified
+            # cross-domain pair set, additive into extra_constraints, empty
+            # (byte-identical) when validator_input is unavailable.
+            all_refs = {component.ref for component in netlist.components}
+            pcl_constraints = pcl_constraints + _build_domain_clearance_constraints(
+                validator_input, all_refs
+            )
 
             # Warm-start: seed solver with deterministic pipeline positions.
             hint_positions = None
