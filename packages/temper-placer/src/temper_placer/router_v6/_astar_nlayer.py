@@ -831,7 +831,11 @@ def _family_halo_layers(
                 target_layers = routable_layers
             else:
                 target_layers = {pin.layer} & routable_layers
-            for layer in target_layers:
+            # `target_layers` is a set: iterate a stable order (layer name)
+            # rather than the set's PYTHONHASHSEED-dependent iteration order
+            # (scripts/check_hash_order_determinism.py). Each layer's list
+            # gets exactly one append per pin either way -- no behavior change.
+            for layer in sorted(target_layers):
                 per_layer[layer].append((pin.net, marshalled[0], marshalled[1]))
 
     # Escape vias (through-hole: every routable layer).
@@ -847,7 +851,9 @@ def _family_halo_layers(
             marshalled = _halo_poly(creep, via_poly)
             if marshalled is None:
                 continue
-            for layer in routable_layers:
+            # `routable_layers` is a set: iterate a stable order (see the
+            # pad loop above; scripts/check_hash_order_determinism.py).
+            for layer in sorted(routable_layers):
                 per_layer[layer].append((net_name, marshalled[0], marshalled[1]))
 
     # Pre-existing vias (through-hole: every routable layer).
@@ -865,7 +871,9 @@ def _family_halo_layers(
         marshalled = _halo_poly(creep, via_poly)
         if marshalled is None:
             continue
-        for layer in routable_layers:
+        # `routable_layers` is a set: iterate a stable order (see the pad
+        # loop above; scripts/check_hash_order_determinism.py).
+        for layer in sorted(routable_layers):
             per_layer[layer].append((via_net, marshalled[0], marshalled[1]))
 
     # Pre-routed tracks (their declared layer only).
@@ -913,7 +921,9 @@ def _family_halo_layers(
         if marshalled is None:
             continue
         zone_layers = zone.layers if hasattr(zone, "layers") else ["F.Cu"]
-        for layer in set(zone_layers) & routable_layers:
+        # `set(zone_layers) & routable_layers` is a set: iterate a stable
+        # order (see the pad loop above; scripts/check_hash_order_determinism.py).
+        for layer in sorted(set(zone_layers) & routable_layers):
             per_layer[layer].append((net_names[0] if net_names else "", marshalled[0], marshalled[1]))
 
     return {layer: entries for layer, entries in per_layer.items() if entries}
