@@ -505,7 +505,15 @@
       "power_in.bypass_relay-coil1": "Power",
       "power_in.bypass_relay-coil2": "Power",
       "safety.ovp.comp-inp": "Default",
-      "safety.uvlo_logic-line": "Default"
+      "safety.uvlo_logic-line": "Default",
+      "discharge.k_dis1-no": "HighVoltageSignal",
+      "discharge.k_dis2-no": "HighVoltageSignal",
+      "discharge.r_dis1a-p2": "HighVoltageSignal",
+      "discharge.r_dis2a-p2": "HighVoltageSignal",
+      "discharge.r_snub1-p2": "HighVoltageSignal",
+      "discharge.r_snub2-p2": "HighVoltageSignal",
+      "hb-gnd": "HighVoltage",
+      "input": "HighVoltageSignal"
     },
     "netclass_patterns": [
       {

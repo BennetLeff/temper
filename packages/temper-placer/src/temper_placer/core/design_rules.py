@@ -575,6 +575,51 @@ TEMPER_NET_ASSIGNMENTS = {
     # are HV-bus-referenced contacts, open when the relay is de-energized).
     "discharge.k_dis1-nc": "HighVoltageSignal",  # k_dis1 contacts group (HV bus)
     "discharge.k_dis2-nc": "HighVoltageSignal",  # k_dis2 contacts group (HV bus)
+    # ADDED 2026-08-16 (docs/evidence/2026-08-16-hv-netclass-assignment-fix.md):
+    # the remaining HV-domain nets from elec/domain_manifest.yaml that were
+    # still absent from this table (and from pcb/temper.kicad_pro's
+    # netclass_assignments) -- the same +170V_BUS-style false-negative shape:
+    # DRC read them as Default/LV and charged 12.6mm cross-class creepage
+    # against their HV neighbours. All eight traced in the manifest's own
+    # comments; classes chosen to mirror their closest already-declared
+    # analogue (current tier, not voltage tier -- the same re-scoping rule
+    # as the 2026-08-13 HighVoltageSignal move).
+    # k_dis1/k_dis2 NO contacts: the SAME physical contact bank as the
+    # already-declared NC contacts above (COM/NO/NC are one switch
+    # mechanism, one domain) -- manifest's own reasoning, applied to pin 3.
+    "discharge.k_dis1-no": "HighVoltageSignal",  # K2.3 NO contact, same bank as NC
+    "discharge.k_dis2-no": "HighVoltageSignal",  # K3.3 NO contact, same bank as NC
+    # bleed-string mid-nodes (half-bus-1/2): both string ends are
+    # already-declared HV (+170V_BUS/PWR_RTN, PWR_RTN/DC_BUS_RTN), so every
+    # interior node is HV; current is the same ~20mA bleed tier as the
+    # k_dis1-nc/k_dis2-nc entries above.
+    "discharge.r_dis1a-p2": "HighVoltageSignal",  # half-bus-1 bleed string mid-node
+    "discharge.r_dis2a-p2": "HighVoltageSignal",  # half-bus-2 bleed string mid-node
+    # snubber mid-nodes (RC snubbers bridging K2/K3's own NC-COM contact
+    # gaps): both ends already-declared HV (k_dis1.NC/k_dis1.COM,
+    # k_dis2.NC/DC_BUS_RTN).
+    "discharge.r_snub1-p2": "HighVoltageSignal",  # K2 NC-COM snubber mid-node
+    "discharge.r_snub2-p2": "HighVoltageSignal",  # K3 NC-COM snubber mid-node
+    # ADDED 2026-08-16, same evidence doc: hb-gnd is the compiled net name
+    # atopile assigned to hb.dc_bus.hv_minus (main.ato: hb.dc_bus.hv_minus ~
+    # safety.ocp2_bus_in) -- the half-bridge low-side switch's return
+    # conductor, one CT primary winding away from the already-declared
+    # DC_BUS_RTN at the same ~-170V potential (manifest's own tracing).
+    # Classed HighVoltage (the bus/tank current tier) because it carries
+    # the full low-side switch return current, not a mA-scale signal --
+    # unlike every other net this entry adds. The "gnd" spelling is why it
+    # escaped every pattern-based classifier (hyphen is not a word-boundary
+    # delimiter for is_ground_net) -- hence the explicit entry here.
+    "hb-gnd": "HighVoltage",  # hb.dc_bus.hv_minus = DC_BUS_RTN analogue
+    # ADDED 2026-08-16, same evidence doc: "input" is the UCC21550's raw
+    # low-side driver-output pin, ONE gate resistor (rg_on, 2.2ohm) upstream
+    # of the already-declared HV net GATE_LS (modules.ato:423) -- the exact
+    # structural analogue of hb.power_loop.q_high-g above (that net is
+    # GATE_HS's downstream post-resistor sibling; this is GATE_LS's upstream
+    # pre-resistor sibling). Floats on DC_BUS_RTN via driver.VSSB. Same
+    # mA-scale gate-drive current tier -> HighVoltageSignal, mirroring
+    # hb.power_loop.q_high-g's own 2026-08-13 re-scope.
+    "input": "HighVoltageSignal",  # UCC21550 LS driver output, pre-rg_on
     # RE-SCOPED 2026-08-13, same evidence doc: Q_high's gate current is
     # mA-scale gate-drive current, not bus/tank current -- moved to
     # "HighVoltageSignal".
