@@ -848,7 +848,22 @@ class PhysicsGate(Gate):
     _CREEPAGE_MIN_MM: float = 6.0
 
     _IGBT_REFS: tuple[str, str] = ("Q1", "Q2")
-    _GATE_NETS: tuple[str, str] = ("GATE_H", "GATE_L")
+    # Real-board net names -- corrected 2026-08-17. The real board's
+    # driver-output nets are "GATE_HS"/"GATE_LS", not "GATE_H"/"GATE_L";
+    # see configs/gate_driver_constraints.yaml's own comment ("was
+    # 'GATE_H' -- real board net") and
+    # docs/evidence/2026-08-17-gate-drive-loop-inductance-check.md. With
+    # the stale names, physics.gate_drive's measurement functions would
+    # never find a routed trace on either net and sub-check 2 would
+    # remain permanently UNMEASURED even after the module was
+    # implemented -- the same "wired to the wrong name" failure mode as
+    # the missing module itself. NOTE: _IGBT_REFS above is a separate,
+    # pre-existing staleness (Q1/Q2 are unrelated small-signal
+    # transistors on the real board, not the half-bridge switches -- see
+    # the same evidence doc) that belongs to sub-check 3 (thermal vias)
+    # and is out of this fix's scope; physics.gate_drive does not use
+    # _IGBT_REFS.
+    _GATE_NETS: tuple[str, str] = ("GATE_HS", "GATE_LS")
 
     # ------------------------------------------------------------------
     # check
