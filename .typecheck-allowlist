@@ -35,7 +35,7 @@ packages/temper-placer/src/temper_placer/io/dsn_exporter.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
 packages/temper-placer/src/temper_placer/pipeline/derivation.py 6
 packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_core.py 2
-packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_core.py 63
+packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_core.py 10
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_gates.py 8
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_stability.py 12
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py 1
@@ -48,7 +48,7 @@ packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/onside.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py 1
 packages/temper-placer/src/temper_placer/regression/physics_oracle.py 2
-packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py 17
+packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py 11
 packages/temper-placer/src/temper_placer/validation/drc_result.py 1
 packages/temper-placer/src/temper_placer/validation/mfem_compare.py 2
 packages/temper-placer/src/temper_placer/validation/mfem_gate.py 4
@@ -58,7 +58,7 @@ packages/temper-placer/src/temper_placer/validation/mfem_mesh.py 3
 packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py 6
 packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py 8
 packages/temper-placer/src/temper_placer/router_v6/constraint_model.py 13
-packages/temper-placer/src/temper_placer/router_v6/net_batching.py 9
+packages/temper-placer/src/temper_placer/router_v6/net_batching.py 3
 packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py 1
 packages/temper-placer/src/temper_placer/explainability/traced_loss.py 1
 packages/temper-placer/src/temper_placer/heuristics/topological_init.py 1
