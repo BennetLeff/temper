@@ -123,6 +123,32 @@ def _via_span_layers(
     return [layer for layer in VIA_SPAN_LAYER_ORDER[lo : hi + 1] if layer in grid_layers]
 
 
+_HALO_DEBUG_LIMIT = 200
+_halo_debug_count = [0]
+
+
+def _halo_debug_peek(from_layer, to_layer, x, y, via_diameter, trace_width, net_id, radius_mm):
+    """TEMPORARY diagnostic (2026-08-16): log the first few via-halo checks
+    near the residual-short coordinates so the route log shows which path
+    placed the offending vias. Removed before merge."""
+    if _halo_debug_count[0] >= _HALO_DEBUG_LIMIT:
+        return
+    if abs(x - 22.35) < 0.5 and abs(y - 122.45) < 0.5:
+        _halo_debug_count[0] += 1
+        print(
+            f"HALO-CHECK coil2-area: ({x:.3f},{y:.3f}) {from_layer}->{to_layer} "
+            f"v_d={via_diameter} W={trace_width} R={radius_mm} net={net_id}",
+            flush=True,
+        )
+    if abs(x - 102.5) < 0.5 and abs(y - 237.0) < 0.5:
+        _halo_debug_count[0] += 1
+        print(
+            f"HALO-CHECK rtd_j1-area: ({x:.3f},{y:.3f}) {from_layer}->{to_layer} "
+            f"v_d={via_diameter} W={trace_width} R={radius_mm} net={net_id}",
+            flush=True,
+        )
+
+
 def _via_placement_halo_free(
     grids: dict,
     x_world: float,
@@ -150,6 +176,7 @@ def _via_placement_halo_free(
     copper) legitimately sit inside the halo.
     """
     radius_mm = max(0.0, via_diameter / 2.0 - trace_width / 2.0)
+    _halo_debug_peek(from_layer, to_layer, x_world, y_world, via_diameter, trace_width, net_id, radius_mm)
     for layer in _via_span_layers(from_layer, to_layer, set(grids.keys())):
         grid = grids.get(layer)
         if grid is None:

@@ -150,8 +150,14 @@ def _extract_design_rules(
     #                         it.
     # See docs/evidence/2026-08-12-clearance-congestion-band.md.
     default_trace_width = 0.2
-    default_via_diameter = 0.8
-    default_via_drill = 0.4
+    # 2026-08-16: 0.8/0.4 -> 0.9/0.3 (annular ring 0.3mm). The 0.8/0.4
+    # pair's 0.2mm ring violated the board's own min_via_annular_width
+    # (0.254mm in pcb/temper.kicad_pro design_settings) for every
+    # net with no explicit netclass assignment -- the 68 annular_width
+    # DRC errors on the 2026-08-16 route. 0.9/0.3 matches core/
+    # design_rules.py's default and the kicad_pro Default class.
+    default_via_diameter = 0.9
+    default_via_drill = 0.3
 
     manual_classes = {}
     if pcb_content:

@@ -113,6 +113,7 @@ def run_astar_pathfinding(
     enable_pair_clearance: bool = True,
 ) -> PathfindingResult:
     """Run A* or Theta* pathfinding to generate routing paths."""
+    print("PATHFINDING: LEGACY run_astar_pathfinding ACTIVE", flush=True)
     if design_rules is None:
         design_rules = DesignRules()
     if tree_3d_fallback_max_iter <= 0:
