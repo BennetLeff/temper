@@ -2,7 +2,6 @@
 # Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1184 temper-N7-cap4 # new over-cap file
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1210 temper-N8-drc-sweep # grew from 1198: #1223 ampacity fix wired StackupGate net-currents (+12); prior entry documented 1035 -> 1198 (IECCreepageGate net-name fix + verification comment)
-packages/temper-placer/src/temper_placer/validation/results/battery_run.py 1003 temper-N7-cap6 # new over-cap file (999 -> 1003, keyword-API repair comment)
 packages/temper-placer/src/temper_placer/regression/drc_ratchet.py 1194 temper-N9-cap1 # 2026-08-12 hygiene paydown: unlisted-and-over-cap, never previously recorded; DrcRatchet noise-headroom + provenance logic accreted across #1023/#1027/#1041
 packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py 1111 temper-N9-cap2 # 2026-08-12 hygiene paydown: unlisted-and-over-cap, never previously recorded; router_v6 -> temper-orchestration Stage adapter marshalling (Rust Orchestration Engine plan 2026-08-09-001)
 packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py 1142 temper-N9-cap3 # 2026-08-12 hygiene paydown: unlisted-and-over-cap, never previously recorded; corridor-aware A* + creepage/via-collision handling accreted across #1033/#1052
