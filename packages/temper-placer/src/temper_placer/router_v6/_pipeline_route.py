@@ -64,7 +64,7 @@ from temper_placer.router_v6.topology_extraction import (
 )
 from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
 from temper_placer.router_v6.trace_width_assignment import assign_trace_widths
-from temper_placer.router_v6.via_placement import place_vias
+from temper_placer.router_v6.via_placement import drop_redundant_vias, place_vias
 
 
 def _select_sat_nets(self, pcb: ParsedPCB) -> list[str] | None:
@@ -1042,6 +1042,15 @@ def _run_stage5(
         pcb.design_rules.default_via_drill_mm,
         design_rules=pcb.design_rules,
     )
+    # FIXED 2026-08-17 (docs/evidence/2026-08-17-blind-via-annular-floor-
+    # fix.md): a DIFFERENT root cause than the annular-ring floor, sharing
+    # only a coincidental origin (the newer via-emitting code paths this
+    # module and the N-layer pathfinder cover) -- a via placed at the
+    # exact same point as another via on the same net, or on top of an
+    # existing PTH/THT pad of its own net, whose plating already provides
+    # every layer transition the via would. Connectivity-neutral to drop
+    # (see drop_redundant_vias' own docstring).
+    via_placement.vias = drop_redundant_vias(via_placement.vias, pcb)
 
     if self.verbose:
         print("  4.4: Assigning trace widths...")

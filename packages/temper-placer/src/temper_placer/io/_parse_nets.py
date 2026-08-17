@@ -150,8 +150,37 @@ def _extract_design_rules(
     #                         it.
     # See docs/evidence/2026-08-12-clearance-congestion-band.md.
     default_trace_width = 0.2
-    default_via_diameter = 0.8
-    default_via_drill = 0.4
+    # FIXED 2026-08-17 (docs/evidence/2026-08-17-blind-via-annular-floor-
+    # fix.md): 0.8/0.4 gave a 0.2mm annular ring, below JLCPCB's 2oz PTH
+    # annular-ring floor (0.254mm). This is the vestigial fallback
+    # `parse_kicad_pcb_v6` -> `place_vias()` actually uses at runtime for
+    # every net `net_class_assignments` doesn't cover (this function's
+    # `manual_classes` loop never fires on this project's board -- modern
+    # KiCad `.kicad_pcb` files carry no embedded `(net_class ...)` blocks,
+    # so `net_class_assignments` stays permanently empty and EVERY net
+    # placed via `via_placement.place_vias(pcb.design_rules.
+    # default_via_diameter_mm, pcb.design_rules.default_via_drill_mm, ...)`
+    # falls straight through to this default). Root-caused directly against
+    # the committed board: all 56 `annular_width` (and the 17
+    # `holes_co_located` sharing the same via) violations from PR #1312's
+    # copper regeneration are vias with size 0.8000/drill 0.4000 exactly --
+    # none of the netclass tables' via pairs (already raised to a uniform
+    # 0.3mm ring on 2026-08-13, see `core/design_rules.py` and
+    # `configs/netclass_rules.yaml`) produce that pair. Raised to 0.9/0.3,
+    # matching the SAME board-wide 0.3mm-ring convention every other
+    # SSOT's "Signal"/default via pair already carries
+    # (`core/design_rules.py` TEMPER_NET_CLASSES["Signal"],
+    # `router_v6/stage0_data.py` DesignRules.default_via_diameter_mm/
+    # default_via_drill_mm, `configs/netclass_rules.yaml`'s Signal/
+    # HighSpeed classes) -- not a new figure, just this one un-migrated
+    # copy of it. Lockstep-corrected in the oracle
+    # (`tests/io/_parse_engine_py_oracle/_parse_nets.py`) per that file's
+    # own "DELIBERATE DIVERGENCE" precedent (the 0.25->0.20
+    # default_trace_width fix above): the oracle pins the migration
+    # contract, not the pre-fix value, so a real bug fix has to land on
+    # both sides together.
+    default_via_diameter = 0.9
+    default_via_drill = 0.3
 
     manual_classes = {}
     if pcb_content:

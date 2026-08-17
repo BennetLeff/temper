@@ -129,6 +129,34 @@ type RouteEmission = (
 /// let via = temper_orchestration::Via::new(0.3, 0.3, "F.Cu", "In3.Cu", 0.6, 0.3);
 /// let _ = via.from_layer;
 /// ```
+/// The board's fabrication floor for a plated via's annular ring
+/// (`(diameter - drill) / 2`): JLCPCB's 2oz-copper PTH minimum, matching
+/// `net_settings.min_via_annular_width` in `temper.kicad_pro` and the
+/// `annular_width` rule `scripts/generate_kicad_dru.py` emits from it.
+///
+/// **Do not change this value to make a check pass.** It is a fabrication
+/// constraint from the board house, not a tunable — the same floor PR
+/// #1159/#1173 raised every net-class via pair in `core/design_rules.py` /
+/// `configs/netclass_rules.yaml` to meet at the board level. This constant
+/// exists so `Via::new` can enforce that SAME floor at the point every via
+/// is actually constructed, closing the gap those two PRs left: they fixed
+/// the netclass *tables*, not the router's own via emission, which is how
+/// PR #1312's copper regeneration still produced 56 sub-floor vias from a
+/// stale, un-migrated default three call-frames upstream of `Via::new`
+/// (`io/_parse_nets.py::_extract_design_rules`'s `default_via_diameter`/
+/// `default_via_drill`, root-caused and fixed separately). See
+/// `docs/evidence/2026-08-17-blind-via-annular-floor-fix.md`.
+const MIN_ANNULAR_RING_MM: f64 = 0.254;
+
+/// The ring width `Via::new` enlarges a sub-floor pad TO, not the bare
+/// `MIN_ANNULAR_RING_MM` floor itself — floating-point-exact compliance at
+/// a boundary is fragile, and every net-class via pair already fixed
+/// board-wide (PR #1159/#1173) converged on this same 0.3mm-ring
+/// convention (drill unchanged, pad = drill + 2 x 0.3mm). Matching it here
+/// means a via `Via::new` has to correct looks identical to one the
+/// project's own netclass tables would have produced directly.
+const ANNULAR_RING_TARGET_MM: f64 = 0.3;
+
 pub struct Via {
     x: f64,
     y: f64,
@@ -140,6 +168,18 @@ pub struct Via {
 
 impl Via {
     /// Construct a via — fields set here, type computed at emit time.
+    ///
+    /// The annular ring floor is enforced HERE, not as a later filter: if
+    /// `diameter`/`drill` would produce a ring below the board's 0.254mm
+    /// fabrication floor (`MIN_ANNULAR_RING_MM`), the pad diameter is
+    /// enlarged to the board-wide 0.3mm-ring convention (`drill` is left
+    /// untouched — this is a pad-geometry correction, not a current-
+    /// capacity change, matching every prior fix of this exact defect
+    /// shape). No caller of `Via::new`, present or future, can construct a
+    /// `Via` that cannot be fabricated — the same "make bad states
+    /// unrepresentable" shape as this crate's other four type-system
+    /// guards (`ClearanceHalo`, `NetRouteResult::Connected`, `DrcCount`,
+    /// `WorldPosition`).
     pub fn new(
         x: f64,
         y: f64,
@@ -148,6 +188,11 @@ impl Via {
         diameter: f64,
         drill: f64,
     ) -> Self {
+        let diameter = if diameter - drill < 2.0 * MIN_ANNULAR_RING_MM {
+            drill + 2.0 * ANNULAR_RING_TARGET_MM
+        } else {
+            diameter
+        };
         Self {
             x,
             y,
@@ -1607,19 +1652,25 @@ pub(crate) mod tests {
     // are structurally absent from the wasm registry (same as every
     // python-gated test in this crate); the pure classification pins above
     // run everywhere.
+    // NOTE 2026-08-17: these three emission pins use 0.9/0.3 (a 0.3mm ring,
+    // already at the board-wide annular-ring convention) rather than the
+    // pre-existing 0.6/0.3 (a 0.15mm ring, below the fab floor) so they
+    // keep testing ONLY type-token emission, unperturbed by the new
+    // annular-floor clamp in `Via::new` -- that clamp has its own
+    // dedicated tests below (`via_new_enforces_annular_floor_*`).
     #[cfg(feature = "python")]
     #[cfg_attr(test, test)]
     fn emit_s_expr_full_stack_pair_has_no_type_token() {
         Python::initialize();
         Python::attach(|py| {
-            let via = Via::new(0.3, 0.3, "F.Cu", "B.Cu", 0.6, 0.3);
+            let via = Via::new(0.3, 0.3, "F.Cu", "B.Cu", 0.9, 0.3);
             let got = match via.emit_s_expr(py, 5, "tstamp-00000000-0000-5000-8000-000000000000") {
                 Ok(s) => s,
                 Err(e) => panic!("emit_s_expr failed: {e}"),
             };
             assert_eq!(
                 got,
-                "  (via (at 0.3000 0.3000) (size 0.6000) (drill 0.3000) \
+                "  (via (at 0.3000 0.3000) (size 0.9000) (drill 0.3000) \
                  (layers \"F.Cu\" \"B.Cu\") (net 5) \
                  (tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"
             );
@@ -1631,7 +1682,7 @@ pub(crate) mod tests {
     fn emit_s_expr_outer_to_inner_emits_blind_token() {
         Python::initialize();
         Python::attach(|py| {
-            let via = Via::new(2.5, 0.0, "F.Cu", "In3.Cu", 0.6, 0.3);
+            let via = Via::new(2.5, 0.0, "F.Cu", "In3.Cu", 0.9, 0.3);
             let got = match via.emit_s_expr(py, 7, "tstamp-00000000-0000-5000-8000-000000000000") {
                 Ok(s) => s,
                 Err(e) => panic!("emit_s_expr failed: {e}"),
@@ -1647,7 +1698,7 @@ pub(crate) mod tests {
     fn emit_s_expr_inner_to_inner_emits_buried_token() {
         Python::initialize();
         Python::attach(|py| {
-            let via = Via::new(2.5, 0.0, "In1.Cu", "In3.Cu", 0.6, 0.3);
+            let via = Via::new(2.5, 0.0, "In1.Cu", "In3.Cu", 0.9, 0.3);
             let got = match via.emit_s_expr(py, 7, "tstamp-00000000-0000-5000-8000-000000000000") {
                 Ok(s) => s,
                 Err(e) => panic!("emit_s_expr failed: {e}"),
@@ -1655,6 +1706,73 @@ pub(crate) mod tests {
             assert!(got.starts_with("  (via buried (at 2.5000 0.0000)"), "got: {got}");
             assert!(got.contains("(layers \"In1.Cu\" \"In3.Cu\")"));
             assert!(got.ends_with("(tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"));
+        })
+    }
+
+    // --- Annular-ring floor enforcement (Via::new) -------------------------
+    // Root cause: docs/evidence/2026-08-17-blind-via-annular-floor-fix.md.
+    // PR #1312's copper regeneration produced 56 vias at exactly (size
+    // 0.8000) (drill 0.4000) -- a 0.2mm ring, below the board's 0.254mm
+    // fab floor -- because a stale upstream default fed `Via::new` a
+    // sub-floor pair directly. These tests pin that `Via::new` itself now
+    // makes that state unconstructable, independent of whether every
+    // upstream caller is fixed.
+
+    #[cfg_attr(test, test)]
+    fn via_new_enforces_annular_floor_on_the_exact_regressed_pair() {
+        // The exact (diameter, drill) pair measured on all 56 regressed
+        // vias on the committed board (0.8/0.4 -> 0.2mm ring).
+        let via = Via::new(0.0, 0.0, "F.Cu", "In3.Cu", 0.8, 0.4);
+        let ring = (via.diameter - via.drill) / 2.0;
+        assert!(
+            ring >= MIN_ANNULAR_RING_MM,
+            "ring {ring} below the {MIN_ANNULAR_RING_MM}mm fab floor"
+        );
+        // Drill (current-carrying capacity) must be untouched -- only the
+        // pad is corrected.
+        assert_eq!(via.drill, 0.4);
+        assert_eq!(via.diameter, 0.4 + 2.0 * ANNULAR_RING_TARGET_MM);
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_new_leaves_a_compliant_pair_untouched() {
+        // A pair already at (or above) the board-wide 0.3mm-ring
+        // convention must pass through byte-identical -- the clamp must
+        // not perturb vias that were never broken.
+        let via = Via::new(0.0, 0.0, "F.Cu", "B.Cu", 1.1, 0.5);
+        assert_eq!(via.diameter, 1.1);
+        assert_eq!(via.drill, 0.5);
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_new_leaves_a_pair_exactly_at_the_floor_untouched() {
+        // Exactly at MIN_ANNULAR_RING_MM (not the 0.3mm target) must still
+        // pass -- the clamp is a floor, not a forced re-snap to the target
+        // for every via that already satisfies the DRC rule.
+        let drill = 0.3;
+        let diameter = drill + 2.0 * MIN_ANNULAR_RING_MM;
+        let via = Via::new(0.0, 0.0, "F.Cu", "B.Cu", diameter, drill);
+        assert_eq!(via.diameter, diameter);
+        assert_eq!(via.drill, drill);
+    }
+
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn emit_s_expr_reflects_the_annular_floor_clamp() {
+        // End-to-end: a via constructed with the exact regressed pair must
+        // EMIT a floor-compliant size -- the guard cannot be bypassed by
+        // going straight to emission.
+        Python::initialize();
+        Python::attach(|py| {
+            let via = Via::new(1.0, 1.0, "F.Cu", "In2.Cu", 0.8, 0.4);
+            let got = match via.emit_s_expr(py, 9, "tstamp-00000000-0000-5000-8000-000000000000") {
+                Ok(s) => s,
+                Err(e) => panic!("emit_s_expr failed: {e}"),
+            };
+            assert!(
+                got.contains("(size 1.0000) (drill 0.4000)"),
+                "got: {got}"
+            );
         })
     }
 
@@ -1676,6 +1794,10 @@ pub(crate) mod tests {
         #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_full_stack_pair_has_no_type_token", emit_s_expr_full_stack_pair_has_no_type_token),
         #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_outer_to_inner_emits_blind_token", emit_s_expr_outer_to_inner_emits_blind_token),
         #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_inner_to_inner_emits_buried_token", emit_s_expr_inner_to_inner_emits_buried_token),
+        ("pipeline_route::tests::via_new_enforces_annular_floor_on_the_exact_regressed_pair", via_new_enforces_annular_floor_on_the_exact_regressed_pair),
+        ("pipeline_route::tests::via_new_leaves_a_compliant_pair_untouched", via_new_leaves_a_compliant_pair_untouched),
+        ("pipeline_route::tests::via_new_leaves_a_pair_exactly_at_the_floor_untouched", via_new_leaves_a_pair_exactly_at_the_floor_untouched),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_reflects_the_annular_floor_clamp", emit_s_expr_reflects_the_annular_floor_clamp),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

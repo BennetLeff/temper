@@ -12,6 +12,16 @@
 # both sides or the differential starts asserting the defect (same precedent as
 # the 0.25 -> 0.20 default_trace_width correction below). See that function's
 # comment and extract_nets_pure in parse_engine.rs for the full rationale.
+#
+# DELIBERATE DIVERGENCE 2026-08-17 (docs/evidence/2026-08-17-blind-via-
+# annular-floor-fix.md): `default_via_diameter`/`default_via_drill` 0.8/0.4 ->
+# 0.9/0.3, in lockstep with the shim (`io/_parse_nets.py`). Same precedent as
+# the 0.25 -> 0.20 default_trace_width correction: this oracle pins the
+# migration contract, not the value, so the real bug fix (0.8/0.4 gave a
+# 0.2mm annular ring, below JLCPCB's 2oz PTH floor of 0.254mm -- root-caused
+# to exactly 56 vias on the committed board) has to land on both sides
+# together or the differential starts asserting the defect instead of
+# catching a regression.
 
 """Internal: net, net class, safety classification, and design rules extraction."""
 
@@ -228,8 +238,15 @@ def _extract_design_rules(
     # the correct figure (kicad_pro's Default track_width, the same file's
     # min_track_width, and core/design_rules.py all say 0.2).
     default_trace_width = 0.2
-    default_via_diameter = 0.8
-    default_via_drill = 0.4
+    # 0.8/0.4 -> 0.9/0.3 on 2026-08-17, in lockstep with the shim -- see the
+    # "DELIBERATE DIVERGENCE 2026-08-17" module header note above. The inner
+    # `getattr(..., 0.8)`/`getattr(..., 0.4)` fallbacks below are left
+    # untouched: they sit behind `setup.defaults`, which kiutils 1.4.8 never
+    # exposes, so that branch never fired in the oracle either (see this
+    # function's own docstring in the shim) -- verbatim dead pre-migration
+    # code, not a second copy of the live value.
+    default_via_diameter = 0.9
+    default_via_drill = 0.3
 
     if hasattr(ki_board, "setup") and ki_board.setup:
         setup = ki_board.setup

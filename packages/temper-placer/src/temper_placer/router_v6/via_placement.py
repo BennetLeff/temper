@@ -43,6 +43,70 @@ class ViaPlacement:
         return [v for v in self.vias if v.net_name == net_name]
 
 
+def drop_redundant_vias(
+    vias: list[Via],
+    pcb: Any,
+    *,
+    tolerance_mm: float = 0.02,
+) -> list[Via]:
+    """Drop vias that duplicate a hole already at that exact point for the
+    SAME net -- either another via this function already kept, or an
+    existing PTH/THT pad.
+
+    Root cause: docs/evidence/2026-08-17-blind-via-annular-floor-fix.md's
+    ``holes_co_located`` finding (17 violations, unrelated to the
+    annular-ring-floor defect fixed alongside this -- ``Via::new``'s
+    annular clamp only changes pad DIAMETER, never via POSITION, so it
+    cannot touch this class). Two concrete shapes measured directly on a
+    fresh route of this board's own committed geometry:
+
+    * The N-layer A* pathfinder (``_astar_nlayer.py``) emits more than one
+      ``via_positions`` waypoint for the SAME net at the SAME point (e.g.
+      ``safety.ocp2-line``, ``sw``, ``ina``, ``rtd_pan.r_low_top-inn``,
+      ``OCP2_VREF_2V5``) -- two vias stacked on each other, a real,
+      fabricatable-but-pointless duplicate hole.
+    * A via lands exactly on an existing PTH/THT pad of its OWN net (e.g.
+      the via at C7's own PTH pad 1 on ``discharge.r_snub1-p2``, or J1's
+      RTD-sense pads) -- redundant, not incorrect: a THT/PTH pad is
+      already plated through every layer its hole passes, so a via at the
+      identical point adds no reachable copper the pad does not already
+      provide.
+
+    Removing either is connectivity-neutral by construction (the
+    kept/pre-existing hole already provides every electrical path the
+    dropped via would), so this is safe to apply unconditionally rather
+    than needing a case-by-case judgment call. Quantized to
+    ``tolerance_mm`` (matches
+    ``pad_connectivity_audit.audit_pcb_file``'s own default) rather than
+    exact float equality, since the two colliding points are not always
+    computed by the identical code path.
+    """
+    from temper_placer.core.pin_geometry import pin_world_position
+
+    def _key(pos: tuple[float, float]) -> tuple[int, int]:
+        return (round(pos[0] / tolerance_mm), round(pos[1] / tolerance_mm))
+
+    pth_positions_by_net: dict[str, set[tuple[int, int]]] = {}
+    for comp in getattr(pcb, "components", None) or []:
+        for pin in getattr(comp, "pins", None) or []:
+            net = getattr(pin, "net", None)
+            if not net or not getattr(pin, "is_pth", False):
+                continue
+            pos = pin_world_position(pin, comp)
+            pth_positions_by_net.setdefault(net, set()).add(_key(pos))
+
+    seen_by_net: dict[str, set[tuple[int, int]]] = {}
+    kept: list[Via] = []
+    for via in vias:
+        key = _key(via.position)
+        seen = seen_by_net.setdefault(via.net_name, set())
+        if key in pth_positions_by_net.get(via.net_name, ()) or key in seen:
+            continue
+        seen.add(key)
+        kept.append(via)
+    return kept
+
+
 def place_vias(
     pathfinding_result: PathfindingResult,
     via_diameter: float = 0.6,
