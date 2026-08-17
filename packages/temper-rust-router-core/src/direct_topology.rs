@@ -343,6 +343,19 @@ impl Ord for ReverseKey {
 /// capacity before contentious ones, mirroring the net-batching path's
 /// priorities.
 pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> DirectSolveResult {
+    // `std::time::Instant::now()` panics ("time not implemented on this
+    // platform") on wasm32-unknown-unknown -- there is no host clock import
+    // in a bare wasm32-unknown-unknown module, unlike wasi or a browser/
+    // Worker embedding. `wall_ms` is diagnostic-only (surfaced to Python as
+    // `solver_time_ms`/`cpu_solve_time_ms` for logging; no caller makes a
+    // routing or correctness decision on it -- see `temper-rust-router/src/
+    // lib.rs`), so on wasm32 it is reported as 0.0 rather than measured.
+    // This mirrors `temper-geometry::bottleneck_geometry`'s existing
+    // wasm32-clock-avoidance idiom (lazy timestamp acquisition) for the same
+    // reason: the wasm tier runs this crate's tests, and an unconditional
+    // clock read would trap every one of them regardless of what the test
+    // actually exercises.
+    #[cfg(not(target_arch = "wasm32"))]
     let t0 = std::time::Instant::now();
 
     let mut graph = Graph::default();
@@ -468,7 +481,10 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
             total_channel_refs,
             total_edges: graph.edges.len(),
             total_nodes: graph.nodes.len(),
+            #[cfg(not(target_arch = "wasm32"))]
             wall_ms: t0.elapsed().as_secs_f64() * 1000.0,
+            #[cfg(target_arch = "wasm32")]
+            wall_ms: 0.0,
         },
     }
 }
