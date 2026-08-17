@@ -29,6 +29,7 @@ from enum import Enum
 
 import numpy as np
 import temper_geometry as _tg
+from shapely.geometry import MultiPolygon, Polygon as _ShapelyPolygon
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -453,7 +454,22 @@ def build_occupancy_grid(
         # Caller-provided pre-eroded free area (creepage-aware family
         # path) -- use as-is; the grid frame above still comes from
         # routing_space.available_area, so layout is identical to the
-        # uniform-erosion path.
+        # uniform-erosion path.  The carve that produced it (available_area
+        # minus per-class annuli) can leave zero-area LineString/Point
+        # artifacts where two buffer boundaries touch; GEOS's difference
+        # does not discard them.  They rasterize to nothing (no interior),
+        # so dropping them is safe and keeps `_area_rings`'s polygon-only
+        # contract.
+        if not isinstance(check_area, (_ShapelyPolygon, MultiPolygon)):
+            parts = [
+                part
+                for part in getattr(check_area, "geoms", [check_area])
+                if isinstance(part, (_ShapelyPolygon, MultiPolygon))
+            ]
+            if parts:
+                check_area = MultiPolygon(parts) if len(parts) > 1 else parts[0]
+            else:
+                check_area = MultiPolygon()
         if check_area.is_empty:
             logger.warning(
                 "C-space carve emptied layer %s: no trace of this width "
