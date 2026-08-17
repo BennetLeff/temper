@@ -19,9 +19,9 @@ import pytest
 from temper_placer.router_v6._astar_nlayer import (
     _astar_route_nlayer,
     _build_width_families,
+    _family_signature,
     _family_static_inflation,
     _land_route_on_pad_layers,
-    _width_family_signature,
     run_astar_pathfinding_nlayer,
     select_routing_grids_nlayer,
 )
@@ -29,7 +29,7 @@ from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
-from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
 
 _SIZE = 21
 _CELL = 0.5
@@ -455,16 +455,17 @@ def _make_box_routing_space(layer: str, side_mm: float):
 def test_width_family_signature_floors_clearance_and_merges():
     # Default 0.2/0.2 stays as-is; FinePitch's declared 0.1mm is below the
     # DRC's 0.2mm track-involving floor and must be floored; HighVoltage
-    # passes through untouched.
-    assert _width_family_signature(_make_rule("Default", 0.2, 0.2)) == (0.2, 0.2)
-    assert _width_family_signature(_make_rule("FinePitch", 0.127, 0.1)) == (0.127, 0.2)
-    assert _width_family_signature(_make_rule("HighVoltage", 5.0, 2.0)) == (5.0, 2.0)
+    # passes through untouched. The third element is the netclass whose
+    # pair-creepage behavior the family carries.
+    assert _family_signature(_make_rule("Default", 0.2, 0.2)) == (0.2, 0.2, "Default")
+    assert _family_signature(_make_rule("FinePitch", 0.127, 0.1)) == (0.127, 0.2, "FinePitch")
+    assert _family_signature(_make_rule("HighVoltage", 5.0, 2.0)) == (5.0, 2.0, "HighVoltage")
 
 
 def test_family_static_inflation_is_half_width_plus_clearance():
-    assert _family_static_inflation((0.2, 0.2)) == 0.3  # 0.1 + 0.2
-    assert _family_static_inflation((5.0, 2.0)) == 4.5  # 2.5 + 2.0
-    assert _family_static_inflation((0.127, 0.2)) == 0.2635  # floored clearance
+    assert _family_static_inflation((0.2, 0.2, "Default")) == 0.3  # 0.1 + 0.2
+    assert _family_static_inflation((5.0, 2.0, "HighVoltage")) == 4.5  # 2.5 + 2.0
+    assert _family_static_inflation((0.127, 0.2, "FinePitch")) == 0.2635  # floored clearance
 
 
 def test_build_width_families_erodes_static_layer_per_width():
@@ -475,11 +476,14 @@ def test_build_width_families_erodes_static_layer_per_width():
     base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
     rules = _make_width_aware_design_rules()
 
-    families, family_of_net = _build_width_families(base, rs, ["NARROW", "WIDE"], rules)
+    families, family_of_net, _halos = _build_width_families(base, rs, ["NARROW", "WIDE"], rules)
 
-    assert family_of_net == {"NARROW": (0.2, 0.2), "WIDE": (5.0, 2.0)}
-    narrow = families[(0.2, 0.2)]["F.Cu"]
-    wide = families[(5.0, 2.0)]["F.Cu"]
+    assert family_of_net == {
+        "NARROW": (0.2, 0.2, "Default"),
+        "WIDE": (5.0, 2.0, "HighVoltage"),
+    }
+    narrow = families[(0.2, 0.2, "Default")]["F.Cu"]
+    wide = families[(5.0, 2.0, "HighVoltage")]["F.Cu"]
     assert (narrow.origin, narrow.cell_size, narrow.width_cells, narrow.height_cells) == (
         wide.origin,
         wide.cell_size,
@@ -500,8 +504,10 @@ def test_build_width_families_without_routing_spaces_is_identity():
     routing_spaces -- the caller's grids must be reused as-is."""
     base = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
     rules = _make_width_aware_design_rules()
-    families, family_of_net = _build_width_families(base, None, ["NARROW", "WIDE"], rules)
-    assert families[(0.2, 0.2)] is base, "single identity family must BE the caller's dict"
+    families, family_of_net, _halos = _build_width_families(base, None, ["NARROW", "WIDE"], rules)
+    assert (
+        families[(0.2, 0.2, "Default")] is base
+    ), "single identity family must BE the caller's dict"
 
 
 def _min_centerline_distance(path_a, path_b) -> float:
@@ -517,11 +523,11 @@ def _min_centerline_distance(path_a, path_b) -> float:
 def test_wide_net_cannot_cross_narrow_net_width_aware_halo():
     """NARROW (0.2mm, Default) routes first down x=20; WIDE (5.0mm,
     HighVoltage) then tries to cross at y=20 on the same single layer.
-    The width-aware C-space stamps NARROW into WIDE's family at
-    0.1 + max(0.2, 2.0) + 2.5 = 4.6mm radius -- a 9.2mm blocked band with
-    no detour room on a 40mm board -- so WIDE declines honestly. The old
-    flat 0.2mm stamp (0.3mm radius) let WIDE cross straight through and
-    short against NARROW's copper."""
+    The width/creepage-aware C-space stamps NARROW into WIDE's family at
+    0.1 + max(0.2, 2.0, 12.6) + 2.5 = 15.1mm radius -- a 30.2mm blocked
+    band with no detour room on a 40mm board -- so WIDE declines honestly.
+    The old flat 0.2mm stamp (0.3mm radius) let WIDE cross straight
+    through and short against NARROW's copper."""
     side = 40.0
     rs = {"F.Cu": _make_box_routing_space("F.Cu", side)}
     base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
@@ -592,14 +598,17 @@ def test_narrow_net_stamp_radius_differs_between_families(monkeypatch):
     # of THIS test is the stamp NARROW left in both families regardless.
     assert "WIDE" in result.failed_nets
 
-    # NARROW (0.2mm/0.2mm, via 0.9) was stamped into BOTH live families:
-    #   own family   (0.2, 0.2): clearance max(0.2,0.2) + 0.1 = 0.3
-    #   wide family  (5.0, 2.0): clearance max(0.2,2.0) + 2.5 = 4.5
-    # and the rasteriser adds w_N/2 = 0.1, so radii are 0.4mm / 4.6mm.
+    # NARROW (0.2mm/0.2mm, via 0.9, class Default/LV) was stamped into BOTH
+    # live families. The pair-creepage table resolves creepage(Default,
+    # HighVoltage) = 12.6mm (the DRU's HV<->LV reinforced bar), so:
+    #   own family   (0.2, 0.2, Default):  max(0.2,0.2,0.0) + 0.1 = 0.3
+    #   wide family  (5.0, 2.0, HighVoltage): max(0.2,2.0,12.6) + 2.5 = 15.1
+    # and the rasteriser adds w_N/2 = 0.1, so radii are 0.4mm / 15.2mm --
+    # the creepage term (not just the width) is what blocks WIDE now.
     narrow_stamps = [c for c in calls if c[0] == 0.2]
     assert len(narrow_stamps) == 2, f"NARROW stamped {len(narrow_stamps)} family/ies, want 2"
     clearances = sorted(round(c[1], 6) for c in narrow_stamps)
-    assert clearances == [0.3, 4.5], f"per-family stamp clearances {clearances} != [0.3, 4.5]"
+    assert clearances == [0.3, 15.1], f"per-family stamp clearances {clearances} != [0.3, 15.1]"
     assert all(c[2] == 0.9 for c in narrow_stamps), "NARROW's via_diameter 0.9 must be used"
 
 
@@ -640,3 +649,203 @@ def test_mark_route_blocked_via_diameter_default_preserves_legacy_behavior():
     gx, gy = grid.world_to_grid(3.0, 3.0)
     assert grid.grid[gy, gx + 1] == 3, "0.5mm <= 0.5mm radius must be blocked (legacy behavior)"
     assert grid.grid[gy, gx + 2] == 0
+
+
+# ---------------------------------------------------------------------------
+# 7. Creepage-aware C-space (2026-08-16): the obstacle map now reserves the
+#    DRU's pair CREEPAGE (12.6mm HV<->LV PD3 reinforced, 10.0mm tank
+#    functional) around foreign obstacles and in routed-copper stamps, not
+#    just the 0.2mm clearance floor -- so an HV track can no longer thread
+#    0.2mm from an LV pad. See docs/evidence/2026-08-16-creepage-aware-
+#    cspace.md and router_v6/pair_creepage.py.
+# ---------------------------------------------------------------------------
+
+
+def _make_creepage_design_rules() -> DesignRules:
+    return DesignRules(
+        net_classes={
+            "Default": _make_rule("Default", 0.2, 0.2),
+            "HighVoltage": _make_rule("HighVoltage", 5.0, 2.0, via=1.2),
+            "Signal": _make_rule("Signal", 0.2, 0.15),
+        },
+        net_class_assignments={
+            "NARROW": "Default",
+            "WIDE": "HighVoltage",
+            "SIG": "Signal",
+            "LV_NET": "Signal",
+            "HV_PAD_NET": "HighVoltage",
+        },
+        default_clearance_mm=0.2,
+        default_trace_width_mm=0.2,
+    )
+
+
+def _make_mini_pcb(design_rules: DesignRules) -> ParsedPCB:
+    """A two-pad board: an HV pad and an LV pad 6mm apart (well inside the
+    12.6mm creepage bar, so the LV net must keep clear of the HV pad)."""
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Component, Net, Pin
+    from temper_placer.router_v6.stage0_data import ParsedPCB, StackupInfo, LayerInfo
+
+    comp = Component(
+        ref="U1",
+        footprint="TEST",
+        bounds=(4.0, 4.0),
+        pins=[
+            Pin(name="1", number="1", position=(10.0, 10.0), net="HV_PAD_NET",
+                width=1.0, height=1.0),
+            Pin(name="2", number="2", position=(16.0, 10.0), net="LV_NET",
+                width=1.0, height=1.0),
+        ],
+        initial_position=(0.0, 0.0),
+        initial_rotation_quadrant=0,
+    )
+    nets = [
+        Net(name="HV_PAD_NET", pins=[("U1", "1")]),
+        Net(name="LV_NET", pins=[("U1", "2")]),
+    ]
+    board = Board(width=40.0, height=40.0, origin=(0.0, 0.0))
+    stackup = StackupInfo(
+        layers=[LayerInfo(index=0, name="F.Cu", layer_type="signal", thickness_um=35)],
+        total_thickness_mm=1.6,
+        layer_count=1,
+    )
+    return ParsedPCB(
+        components=[comp],
+        nets=nets,
+        zones=[],
+        board=board,
+        design_rules=design_rules,
+        stackup=stackup,
+        source_path=__file__,
+    )
+
+
+def test_pair_creepage_table_resolves_dru_pairs():
+    """The generated pair table carries the DRU's own creepage figures: an
+    HV<->LV pair grades 12.6mm (PD3 reinforced), HV<->tank 10.0mm (PD3
+    functional), LV<->LV and same-HV pairs 0.0 (no creepage rule)."""
+    from temper_placer.router_v6.pair_creepage import default_creepage_table
+
+    table = default_creepage_table()
+    assert table.required("HighVoltage", "Signal") == 12.6
+    assert table.required("Signal", "HighVoltage") == 12.6  # symmetric
+    assert table.required("HighVoltage", "Default") == 12.6
+    assert table.required("ACMains", "HighVoltageIsolated") == 12.6
+    assert table.required("HighVoltageTank", "HighVoltage") == 10.0
+    assert table.required("HighVoltageTank", "HighVoltageSignal") == 10.0
+    assert table.required("Signal", "Power") == 0.0  # LV<->LV: no creepage rule
+    assert table.required("HighVoltage", "HighVoltage") == 0.0
+    assert table.required("HighVoltage", "GateDriveHV") == 0.0
+    assert table.required("GateDriveHV", "Signal") == 0.0
+    assert table.self_creepage("HighVoltageTank") == 10.0
+
+
+def test_creepage_halos_stamped_around_foreign_pads_only():
+    """The LV family's grid gets an HV pad's 12.6mm creepage halo; the
+    halo is stamped around the HV pad for an LV searching net, while the
+    LV net's own pad stays free. The HV family gets the symmetric halo."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    side = 40.0
+    rs = {"F.Cu": _make_box_routing_space("F.Cu", side)}
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_creepage_design_rules()
+    pcb = _make_mini_pcb(rules)
+
+    families, family_of_net, halos = _build_width_families(
+        base, rs, ["NARROW", "WIDE"], rules, pcb=pcb, escape_vias_map={}
+    )
+
+    # HV pad at (10,10); LV pad at (16,10). In the LV (Default) family the
+    # HV pad's halo carries 12.6mm; in the HV (HighVoltage) family the LV
+    # pad's halo carries 12.6mm. Both must be present in the per-family
+    # halo lists.
+    lv_family = families[(0.2, 0.2, "Default")]
+    hv_family = families[(5.0, 2.0, "HighVoltage")]
+
+    lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
+    lv_halo_nets = {n for n, _o, _h in lv_halos}
+    assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"
+    assert "LV_NET" not in lv_halo_nets, "same-class pads must not halo themselves"
+
+    hv_halos = halos[(5.0, 2.0, "HighVoltage")]["F.Cu"]
+    hv_halo_nets = {n for n, _o, _h in hv_halos}
+    assert "LV_NET" in hv_halo_nets, "LV pad must halo an HV searching net"
+    assert "HV_PAD_NET" not in hv_halo_nets, "own-class pad must not be haloed"
+
+    # The halo radius must reach the pair creepage: HV pad (1.0mm square,
+    # half-extent 0.5) + W/2 + C + 12.6. In the LV family W/2+C = 0.3, so a
+    # cell 12.5mm to the right of the pad center is inside the halo but a
+    # cell 13.5mm away is outside. (Buffer uses quad_segs=4, so check with
+    # margin either side of the boundary.)
+    grid = lv_family["F.Cu"]
+    _nl._stamp_foreign_creepage_halos("NARROW", {"F.Cu": grid}, {"F.Cu": lv_halos})
+
+    inside = grid.world_to_grid(10.0 + 12.5, 10.0)
+    outside = grid.world_to_grid(10.0 + 14.5, 10.0)
+    assert grid.is_blocked(*inside), "cell 12.5mm from HV pad must be blocked in LV family"
+    assert grid.is_free(*outside), "cell 14.5mm from HV pad must stay free in LV family"
+
+    # The searching net's OWN pads are not haloed: a cell right beside the
+    # LV pad (own to LV_NET, foreign to NARROW) is... NARROW has no pads on
+    # this board, so check the pad itself is still static (-1) and that the
+    # LV pad's surroundings carry no halo ring beyond the 0.2mm erosion.
+    lv_pad_cell = grid.world_to_grid(16.0, 10.0)
+    assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
+
+
+def test_creepage_halo_blocks_lv_net_from_hv_pad():
+    """End-to-end: the LV net must not route within the HV pad's 12.6mm
+    creepage halo. With an HV pad at (10,10) and an LV track crossing at
+    x=20, the halo leaves no legal path on a 40mm single-layer board, so
+    the LV net declines honestly (control: it routes when the HV pad's net
+    is absent from the halos)."""
+    side = 40.0
+    rs = {"F.Cu": _make_box_routing_space("F.Cu", side)}
+    base = {"F.Cu": build_occupancy_grid(rs["F.Cu"], inflation_mm=0.1)}
+    rules = _make_creepage_design_rules()
+    pcb = _make_mini_pcb(rules)
+
+    # LV net from (4, 10) to (36, 10) -- passes 6mm from the HV pad at
+    # (10,10) (14mm centerline minus 0.5 half-pad) if the halo were absent.
+    sig_ch = ChannelPath(
+        "SIG", ["CH1"], [(4.0, 10.0), (36.0, 10.0)], 32.0, preferred_layer="F.Cu"
+    )
+    channel_mapping = ChannelMapping(channel_paths={"SIG": sig_ch})
+    result = run_astar_pathfinding_nlayer(
+        channel_mapping,
+        base,
+        design_rules=rules,
+        max_iter=400_000,
+        routing_spaces=rs,
+        pcb=pcb,
+        escape_vias_map={},
+    )
+    if "SIG" in result.routed_paths:
+        # If it routed at all, it must have gone around -- every segment
+        # keeps >= 12.6mm edge-to-edge from the HV pad center (pad
+        # half-extent 0.5, plus the family's W/2+C 0.3, plus 12.6 creepage
+        # = 13.4mm centerline).
+        for sx, sy, _layer in result.routed_paths["SIG"].segments:
+            dist = ((sx - 10.0) ** 2 + (sy - 10.0) ** 2) ** 0.5
+            assert dist >= 12.5, f"SIG routed {dist:.2f}mm from HV pad -- inside creepage halo"
+    else:
+        assert "SIG" in result.failed_nets, "SIG must decline honestly, never fabricate"
+
+    # Control: with the HV pad's net removed from the assignment map (so it
+    # resolves to Default/LV), the HV pad's halo vanishes and SIG routes
+    # straight through -- proving the decline above is the creepage halo.
+    rules_lv = _make_creepage_design_rules()
+    rules_lv.net_class_assignments["HV_PAD_NET"] = "Signal"
+    pcb_lv = _make_mini_pcb(rules_lv)
+    control = run_astar_pathfinding_nlayer(
+        channel_mapping,
+        base,
+        design_rules=rules_lv,
+        max_iter=400_000,
+        routing_spaces=rs,
+        pcb=pcb_lv,
+        escape_vias_map={},
+    )
+    assert "SIG" in control.routed_paths, "control (no creepage halo) must route SIG"
