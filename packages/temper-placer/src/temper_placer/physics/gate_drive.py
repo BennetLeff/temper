@@ -203,7 +203,20 @@ def _walk_forward(
         if switch is not None:
             return forward_nets, switch
 
-        extended = False
+        # Extend by exactly one hop per outer iteration: evaluate every
+        # candidate against a snapshot of forward_nets taken BEFORE any of
+        # this iteration's extensions are applied. Mutating forward_nets
+        # in place while scanning components would let a second passive
+        # (e.g. a gate-to-return pulldown resistor sitting on the
+        # device-side net) chain onto the first hop's newly-added net in
+        # the same pass, before the switch check ever re-runs against the
+        # intermediate state -- silently pulling the return-path net into
+        # the "go" side. Re-checking for the switch between every single
+        # hop is what lets the walk stop at the real switch instead of
+        # wandering onto its return-path pulldown.
+        current_nets = frozenset(forward_nets)
+        new_nets: set[str] = set()
+        newly_visited: set[str] = set()
         for component in netlist.components:
             if component.ref in visited_components:
                 continue
@@ -214,15 +227,17 @@ def _walk_forward(
             pin_nets = {p.net for p in component.pins if p.net}
             if len(pin_nets) != 2:
                 continue
-            overlap = pin_nets & forward_nets
+            overlap = pin_nets & current_nets
             if len(overlap) == 1:
-                new_net = next(iter(pin_nets - forward_nets))
-                forward_nets.add(new_net)
-                visited_components.add(component.ref)
-                extended = True
+                new_net = next(iter(pin_nets - current_nets))
+                new_nets.add(new_net)
+                newly_visited.add(component.ref)
 
-        if not extended:
+        if not new_nets:
             return None
+
+        forward_nets |= new_nets
+        visited_components |= newly_visited
 
     return None
 
