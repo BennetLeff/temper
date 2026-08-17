@@ -518,36 +518,33 @@ REGISTRY: tuple[Fact, ...] = (
         ),
     ),
     # -------------------------------------------------------------------
-    # NEW DIVERGENCE found by this sweep, NOT fixed here (left red -- see
-    # the task's item 6 and the notes below): the per-net expected-current
-    # table PhysicsGate's sibling gate, StackupGate, uses for its IPC-2221B
-    # ampacity check (and the Rust kernel it's differentially compared
-    # against) was NEVER updated from 'GATE_H'/'GATE_L' to 'GATE_HS'/
-    # 'GATE_LS' -- unlike PhysicsGate._GATE_NETS above, which PR #1310 DID
-    # fix. Traced effect (static analysis, not yet runtime-verified --
-    # this repo's pyo3 extension is not built in this worktree): a real
-    # net named "GATE_HS" is looked up via
-    # StackupGate._resolve_net_current("GATE_HS") ->
-    # `_DEFAULT_NET_CURRENTS.get("GATE_HS", 0.1)` exact-match MISSES (only
-    # "GATE_H" is a key) -> falls to the Python exact-match default 0.1A,
-    # even though temper_drc_rs.get_net_current("GATE_HS") (case-
-    # insensitive SUBSTRING match) WOULD find it via the "GATE_H" key
-    # (0.1 != 2.0 diverge -> _resolve_net_current's own documented dispatch
-    # rule keeps the Python exact-table answer, i.e. the WRONG one, 0.1A)
-    # -- so the real board's GATE_HS/GATE_LS nets get the ampacity gate's
-    # unlisted-signal-net default (0.1A) instead of their intended 2.0A
-    # gate-drive citation. These two facts are registered as TOOL ERRORS
-    # (the pattern searches for a "GATE_HS"/"GATE_LS" table entry that does
-    # not exist at either site), matching this gate's own stated design:
-    # "never conflate a structurally-missing site with 0 violations."
-    # NOT fixed here: correcting `_DEFAULT_NET_CURRENTS`/`net_currents()`
-    # ripples into router_v6/trace_width_assignment.py's current-derivation
-    # cascade (`_resolve_current_a`'s specific-citation-vs-keyword-fallback
-    # branch), which this agent has not exhaustively verified end to end
-    # (no pyo3 build available in this worktree to run the differential/
-    # property suite) -- exactly the "verification blind on the axis that
-    # matters" failure mode HANDOFF-2026-08-17.md SS12 warns about. Left as
-    # an open finding for an agent that can run the full test suite.
+    # FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-ampacity-key-
+    # rename-fix.md). Originally registered as a TOOL ERROR by PR #1320
+    # (docs/evidence/2026-08-17-fact-registry-drift-gate-extension.md
+    # SS3.3) and deliberately left unfixed there: the per-net expected-
+    # current table StackupGate uses for its IPC-2221B ampacity check (and
+    # the Rust kernel it's differentially compared against) was never
+    # updated from 'GATE_H'/'GATE_L' to 'GATE_HS'/'GATE_LS' -- unlike
+    # PhysicsGate._GATE_NETS above, which PR #1310 DID fix. Traced effect,
+    # confirmed both statically and by running this gate script itself
+    # (which went from reporting a TOOL ERROR at both homes to CLEAN once
+    # the keys were added, with no other fact's state affected): a real
+    # net named "GATE_HS" looked up via
+    # StackupGate._resolve_net_current("GATE_HS") used to exact-match-MISS
+    # in `_DEFAULT_NET_CURRENTS` (only "GATE_H" was a key) and fall to the
+    # 0.1A default, even though temper_drc_rs.get_net_current("GATE_HS")'s
+    # case-insensitive SUBSTRING match found 2.0A via the stale "GATE_H"
+    # key -- the disagreement made `_resolve_net_current`'s own documented
+    # dispatch rule keep the WRONG (Python exact-table) answer, 0.1A.
+    # Separately verified: the production trace-WIDTH-ASSIGNMENT path
+    # (router_v6/trace_width_assignment.py's `_resolve_current_a`) calls
+    # `temper_drc_rs.get_net_current` directly (not through this Python
+    # table), so it already resolved "GATE_HS"/"GATE_LS" to 2.0A via the
+    # same substring coincidence -- the bug this fact guards was confined
+    # to the DRC-gate CHECK (which is itself only reachable via
+    # `--all-gates`, not the default CI-run gate list), not to what sized
+    # the board's copper. See the evidence doc for the full trace and the
+    # measured before/after DRC and trace-width consequence.
     # -------------------------------------------------------------------
     Fact(
         name="gate_hs_net_current_rating_a",
@@ -580,10 +577,10 @@ REGISTRY: tuple[Fact, ...] = (
             ),
         ),
         notes=(
-            "KNOWN RED (TOOL ERROR, not VIOLATION -- the key does not "
-            "exist at either site yet). See the block comment above this "
-            "entry for the full traced effect and why the fix is left to "
-            "an agent that can run the differential/property test suite."
+            "FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-"
+            "ampacity-key-rename-fix.md) -- now CLEAN at both homes. "
+            "See the block comment above this entry for the full traced "
+            "effect and the measured consequence."
         ),
     ),
     Fact(

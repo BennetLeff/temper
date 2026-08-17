@@ -372,8 +372,12 @@ class StackupGate(Gate):
         # tests/placer/cp_sat/test_net_currents_rust_differential.py.
         "AC_L": 15.0,
         "AC_N": 15.0,
-        "GATE_H": 2.0,
-        "GATE_L": 2.0,
+        # FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-ampacity-
+        # key-rename-fix.md, PR #1320 SS3.3): real board nets are
+        # "GATE_HS"/"GATE_LS" (pcb/temper.kicad_pcb), not "GATE_H"/"GATE_L".
+        # Rating unchanged -- only the key. Lockstep w/ ipc.rs net_currents().
+        "GATE_HS": 2.0,
+        "GATE_LS": 2.0,
         "+3V3": 0.5,
         "+5V": 0.5,
         "+15V": 0.2,
