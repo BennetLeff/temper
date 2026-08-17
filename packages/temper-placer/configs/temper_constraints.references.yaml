@@ -117,12 +117,26 @@ authority:
 # references any of the ten. Every alias/unresolved-component board ref
 # above is therefore verified unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+# Re-pinned 2026-08-16 (investigate/board-redesign-evaluation, this PR): STALE
+# again -- pcb/temper.kicad_pcb changed by (a) the left-edge outline
+# enlargement x 20 -> 8 (both corners of the simple-rectangle Edge.Cuts
+# gr_poly) and (b) THREE footprint position-only moves (R5, U7, C23 -- the
+# group move clearing 24 PD3-creepage net-pairs, see
+# docs/evidence/2026-08-16-board-enlargement-left-column-redesign.md).
+# `(footprint ` count (168) and `Sheetpath` occurrence count (168) are
+# unchanged, and the Sheetpath->Reference map is identical before/after
+# (same footprints, same sheetpaths, same refs -- only their `(at ...)`
+# lines moved, plus the outline polygon, which no alias references). No
+# alias/unresolved-component entry references R5, U7, or C23. Every
+# alias/unresolved-component board ref above is therefore verified
+# unaffected. The source export (elec/exports/temper.design-input.v1.json)
+# is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: e94614759e39be429e3b987b858ba3d3e3f3449c
+  measured_at_commit: ce82b74b4963f5e8ee660e6d01edea33d23ff46d
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 72e14ab4602b7414a31459b8e0eb8ce3324e0d49e561ae8566f9173d1e6bc3f6
+      sha256: 9c1f4a37b03c6433275704c3bed917f7ff16877c762f0aa8d37cc6858d7c16dd
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
