@@ -71,6 +71,7 @@ nothing about the 69 of 110 nets that carry no net class at all.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 import yaml
@@ -137,6 +138,24 @@ def load_pair_clearance_table(path: Path | str | None = None) -> PairClearanceTa
         pairs[(class_a, class_b)] = float(value)
         pairs[(class_b, class_a)] = float(value)
     return PairClearanceTable(pairs=pairs, classes=classes)
+
+
+@lru_cache(maxsize=4)
+def _cached_table(path: str | None) -> PairClearanceTable:
+    return load_pair_clearance_table(path)
+
+
+def default_clearance_table() -> PairClearanceTable:
+    """The generated table, parsed once per process.
+
+    Mirrors ``pair_creepage.default_creepage_table`` -- same cache shape, same
+    process-lifetime scope. Added for the N-layer A* halo restamp (2026-08-17,
+    see ``_astar_nlayer._family_halo_layers``): that call site rebuilds its
+    halo set once per family per route, so an uncached
+    ``load_pair_clearance_table()`` call there would re-read and re-parse this
+    YAML on every family build.
+    """
+    return _cached_table(None)
 
 
 @dataclass(frozen=True)
