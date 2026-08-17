@@ -216,7 +216,7 @@ class TestNetPadPositions:
             bounds=(10.0, 10.0),
             pins=_k2_like_component().pins,
             initial_position=(100.0, 100.0),
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
         )
         net = Net(name="discharge.k_dis1-no", pins=[("K2", "3"), ("K2", "3")])
         positions = net_pad_positions(net, {"K2": comp})
@@ -237,7 +237,7 @@ class TestNetPadPositions:
             bounds=(1.0, 1.0),
             pins=pins,
             initial_position=(5.0, 6.0),
-            initial_rotation=0,
+            initial_rotation_quadrant=0,
         )
         net = Net(name="N", pins=[("X", "99")])
         positions = net_pad_positions(net, {"X": comp})
