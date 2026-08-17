@@ -407,6 +407,24 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_duplicate_predicates.py
+  purpose: 'CI gate: fail when a NEW independent copy of a registered-as-consolidated predicate
+    (scripts/duplicate_predicate_registry.py''s CONSOLIDATED_FAMILIES) appears in its family''s
+    scan_paths. Closes the 2026-08-13 defect-multiplier finding that the same logic (pad resolution,
+    net-name boundary matching, footprint bounds, rotation units) was independently reimplemented
+    in several places, turning one defect into N. AST-scans for a definition of any family''s
+    def_names whose body does not call the family''s delegate_call_name -- a brand-new copy or a
+    regression back to an inline reimplementation, either way a hard failure.'
+  owner: pipeline
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - duplicate_predicate_registry
+  - pathlib
+  - sys
 - path: check_erc_off_grid_consequence.py
   purpose: 'Classify ERC endpoint_off_grid warnings (163 of 498 on pcb/temper.kicad_sch as of 2026-08-07)
     by electrical consequence: cross-checks each off-grid pin''s actual schematic net (kicadxml export,
@@ -1144,6 +1162,27 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_pyo3_duplicate_registration.py
+  purpose: 'CI gate: fail closed when two different Rust functions register the same Python-visible
+    pyo3 name into the same #[pymodule]. pyo3''s PyModule::add_function is a plain setattr -- it never
+    raises, warns, or prints when a name is bound twice, so the later registration silently wins and
+    the earlier implementation becomes permanently unreachable dead code with its own passing unit
+    tests. Closes the 2026-08-13 finding that temper-geometry had two independent kw_boundary_match_py
+    definitions (via_clearance.rs, trace_width_assignment.rs) both wrap_pyfunction!''d into the same
+    module -- invisible to cargo build/test, check_stale_extensions.py, and check_unwired_kernels.py
+    (whose registered_symbols() scan uses dict.setdefault() and so never notices a second registration
+    exists).'
+  owner: bennet
+  last_run: '2026-08-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - check_stale_extensions
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_refdes_identity_stability.py
   purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal
     (e.g. "U3", "K1") instead of instance_path, and cross-checks real-board-bound ones against the current
@@ -1656,6 +1695,23 @@ scripts:
   - pathlib
   - sys
   - temper_placer.io.kicad_parser
+- path: duplicate_predicate_registry.py
+  purpose: 'SSOT for which cross-file duplication is accidental (consolidated, must not regrow a copy,
+    scanned by check_duplicate_predicates.py) vs. deliberate (a pinned oracle or an intentional
+    independent cross-check, must stay duplicated). Two registries kept apart: CONSOLIDATED_FAMILIES
+    (accidental duplication already fixed onto one SSOT implementation) and OPEN_FINDINGS (duplication
+    identified but not yet consolidated). Closes the 2026-08-13 defect-multiplier-duplication finding
+    (docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md).'
+  owner: pipeline
+  last_run: '2026-08-13'
+  category: keep
+  disposition: library
+  imports:
+  - __future__
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
 - path: extract_corpus_baselines.py
   purpose: Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)
   owner: pipeline
