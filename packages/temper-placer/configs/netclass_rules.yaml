@@ -125,7 +125,18 @@ classes:
   HighVoltageSignal:
     clearance: 2.0
     trace_width: 0.5
-    via_diameter: 0.8
+    # via_diameter RAISED 0.8 -> 1.0mm 2026-08-17
+    # (docs/evidence/2026-08-17-blind-via-annular-floor-fix.md): 0.8mm/0.4mm
+    # gave a 0.2mm annular ring, below JLCPCB's 2oz PTH annular-ring floor
+    # (0.254mm) -- this class was missed by the 2026-08-13 board-wide
+    # 0.3mm-ring sweep (every sibling class above already carries a "RAISED
+    # ... 2026-08-13" note; this one never got one). Matches
+    # core/design_rules.py's TEMPER_NET_CLASSES["HighVoltageSignal"], which
+    # WAS fixed on 2026-08-13 (1.0/0.4) -- this file had silently drifted
+    # from that SSOT ever since. Drill unchanged (0.4mm, current-carrying
+    # capacity unaffected) -- pure pad-geometry fix, same convention as
+    # every other class in this file.
+    via_diameter: 1.0
     via_drill: 0.4
     # creepage_mm 6.0 inherited from HighVoltage: UNSOURCED legacy figure
     # (flagged 2026-08-15) -- see HighVoltage's note above.
