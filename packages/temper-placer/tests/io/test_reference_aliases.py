@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from temper_placer.io.reference_aliases import load_reference_alias_manifest
+from temper_io_types import load_reference_alias_manifest
 
 ROOT = Path(__file__).parents[2]
 MANIFEST = ROOT / "configs" / "temper_constraints.references.yaml"
