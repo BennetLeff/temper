@@ -85,7 +85,7 @@ def test_committed_board_violates_every_pair(chains, netlist):
     """The predicate must reject the board it was written to reject."""
     pairs = resolve_chain_pairs(chains, netlist.components)
     positions = {c.ref: tuple(c.initial_position) for c in netlist.components}
-    rotations = {c.ref: int(c.initial_rotation) for c in netlist.components}
+    rotations = {c.ref: int(c.initial_rotation_quadrant) for c in netlist.components}
     sizes = {c.ref: (float(c.bounds[0]), float(c.bounds[1])) for c in netlist.components}
 
     viols = check_chain_colocation(pairs, positions, rotations, sizes)

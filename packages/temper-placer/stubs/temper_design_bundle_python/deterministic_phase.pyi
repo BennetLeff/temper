@@ -63,3 +63,22 @@ def min_distance_to_polygon_py(
     y: float,
     polygon: list[tuple[float, float]],
 ) -> float: ...
+
+
+def footprint_radius_py(
+    bounds: tuple[float, float] | None,
+    slot_spacing: float,
+) -> float: ...
+
+
+def reserve_slots_py(
+    center: tuple[float, float],
+    radius: float,
+    all_slots: list[tuple[float, float]],
+) -> list[tuple[float, float]]: ...
+
+
+def distance_py(
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+) -> float: ...

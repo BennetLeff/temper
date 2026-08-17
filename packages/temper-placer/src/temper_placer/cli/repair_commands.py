@@ -190,7 +190,10 @@ def _frozen_positions(
     *clamp_warnings* (when given) rather than applied silently.
     """
     out: dict[str, tuple[float, float, int]] = {}
-    for ref in refs:
+    # `refs` is a set: iterate a stable order (ref name) rather than the
+    # set's PYTHONHASHSEED-dependent iteration order, since that order
+    # becomes this dict's insertion order (scripts/check_hash_order_determinism.py).
+    for ref in sorted(refs):
         comp = comp_by_ref[ref]
         if comp.initial_position is None:
             raise click.ClickException(
@@ -702,15 +705,22 @@ def repair_unplaced(
         return
 
     _print_solve_header("Real kicad-cli DRC verification (pads vs. copper, not courtyards)")
+    # Aliased on import: the `--run-drc/--no-run-drc` CLI flag above binds to
+    # a same-named local `run_drc: bool`, so importing the *function*
+    # `run_drc` under its own name would shadow that parameter -- it works
+    # at runtime (the boolean's only remaining use, the early-return above,
+    # already ran), but it reads as a type error to mypy (which infers one
+    # static type per local name across the function) and to a human
+    # skimming the diff.
     from temper_placer.validation._drc_api import (
         DrcRunnerError,
         copy_kicad_project_sidecar,
-        run_drc,
+        run_drc as run_kicad_drc,
     )
 
     try:
         copy_kicad_project_sidecar(output, input_pcb)
-        drc_result = run_drc(output)
+        drc_result = run_kicad_drc(output)
     except DrcRunnerError as exc:
         console.print(f"  [red]DRC could not run:[/] {exc}")
         sys.exit(2)

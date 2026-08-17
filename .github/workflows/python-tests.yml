@@ -2891,19 +2891,18 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_script_sunset.py
 
-      # Still genuinely failing, verified 2026-08-07: `uv run pytest
-      # scripts/test_root_hygiene.py` -> 1 failed. Root-level `conftest.py`
-      # (added by #726, a56390f6) trips the `*.py` category, whose
-      # allowlist is empty by design (scripts/test_root_hygiene.py's
-      # _PER_GLOB_ALLOWLIST) -- but conftest.py at the repo root is the
-      # standard pytest convention, not a stray script, so this is a real
-      # false positive rather than actual root clutter. Tolerated until the
-      # allowlist is fixed to permit conftest.py explicitly (a one-line
-      # change to _PER_GLOB_ALLOWLIST["*.py"]); removable once that lands.
+      # Fixed 2026-08-17 (was tolerated via continue-on-error since
+      # 2026-08-07): root-level `conftest.py` (added by #726, a56390f6)
+      # tripped the `*.py` category's empty-by-design allowlist even though
+      # it is the standard pytest convention, not a stray script --
+      # pytest auto-discovers conftest.py by directory position, so it
+      # cannot be moved to scripts/ (the category's usual remedy) without
+      # silently changing which tests see its fixtures.
+      # scripts/test_root_hygiene.py's _PER_GLOB_ALLOWLIST["*.py"] now
+      # allows it explicitly, so this step hard-gates again.
       - name: Root artifact hygiene check
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
-        continue-on-error: true
 
       - name: Import boundary enforcement
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
