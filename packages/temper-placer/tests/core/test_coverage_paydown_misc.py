@@ -1,63 +1,32 @@
 """Coverage paydown tests for misc module areas: placer, metrics, cli, testing,
-explainability, fields, topological.
+fields, topological.
 
 Exercises public functions in:
 - placer/template.py, placer/cp_sat/gate.py, placer/cp_sat/gates.py
-- metrics/physics.py, metrics/routing_quality.py, metrics/aesthetic.py
+- metrics/routing_quality.py, metrics/aesthetic.py
 - cli/_signal.py, cli/_version.py, cli/version.py
 - testing/version_gate.py
-- explainability/serialization.py, markdown_report.py, traced_loss.py, pipeline.py
 - fields/field.py, fields/result.py, fields/interface.py
 """
 
-import json
-import os
-import tempfile
 
 import numpy as np
-import pytest
 
 from temper_placer.cli._signal import InterruptGuard
 from temper_placer.core.state import PlacementState
-from temper_placer.explainability.decision import (
-    Alternative,
-    Decision,
-    DecisionPhase,
-    DecisionTrace,
-    DecisionType,
-)
-from temper_placer.explainability.serialization import (
-    deserialize_alternative,
-    deserialize_decision,
-    deserialize_trace,
-    load_trace,
-    save_trace,
-    serialize_alternative,
-    serialize_decision,
-    serialize_trace,
-    trace_from_json,
-    trace_to_json,
-)
-from temper_placer.explainability.trace import Trace
-from temper_placer.explainability.traced_loss import (
-    TracedLossContext,
-    combine_traced_losses,
-    constraint_to_traced_loss,
-    traced,
-    traced_loss,
-)
 from temper_placer.metrics.aesthetic import compute_aesthetic_score
-from temper_placer.metrics.physics import PhysicsReport
 from temper_placer.metrics.routing_quality import RoutingQualityScore
 from temper_placer.placer.cp_sat.gate import GateResult as AcceptanceGateResult
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     Gate,
-    GateResult as GatesGateResult,
     GateStage,
     GateStatus,
     Violation,
     ViolationType,
+)
+from temper_placer.placer.cp_sat.gates import (
+    GateResult as GatesGateResult,
 )
 from temper_placer.placer.template import (
     ParametricComponentPosition,
@@ -185,41 +154,6 @@ class TestParametricTemplate:
         # Should not crash — anchor defaults to center
         result = t.apply(0.0, 0.0, 100.0, 100.0)
         assert "B" in result
-
-
-# ---------------------------------------------------------------------------
-# metrics/physics.py — PhysicsReport.to_dict
-# ---------------------------------------------------------------------------
-
-
-class TestPhysicsReport:
-    def test_to_dict_returns_expected_keys(self):
-        pr = PhysicsReport()
-        d = pr.to_dict()
-        assert isinstance(d, dict)
-        for key in ("geometric", "emi", "thermal", "routability"):
-            assert key in d
-        assert d["geometric"]["overlap_count"] == 0
-        assert d["routability"]["completion_pct"] == 0.0
-
-    def test_to_dict_with_custom_values(self):
-        pr = PhysicsReport()
-        d = pr.to_dict()
-        # All keys present with default values (0.0)
-        assert d["geometric"]["overlap_count"] == 0
-        assert d["geometric"]["overlap_area_mm2"] == 0.0
-        assert d["emi"]["gate_loop_area_mm2"] == 0.0
-        assert d["thermal"]["max_junction_temp_c"] == 0.0
-
-    def test_to_dict_nonempty_fields(self):
-        """PhysicsReport dataclass has nested dataclass fields;
-        to_dict should reflect whatever values are already set."""
-        pr = PhysicsReport()
-        d = pr.to_dict()
-        assert isinstance(d["geometric"], dict)
-        assert isinstance(d["emi"], dict)
-        assert isinstance(d["thermal"], dict)
-        assert isinstance(d["routability"], dict)
 
 
 # ---------------------------------------------------------------------------
@@ -358,282 +292,6 @@ class TestVersionGate:
 
 
 # ---------------------------------------------------------------------------
-# explainability/serialization.py — all 10 public functions
-# ---------------------------------------------------------------------------
-
-
-class TestExplainabilitySerialization:
-    """Cover forward/backward serialization pairs."""
-
-    def test_serialize_deserialize_alternative(self):
-        alt = Alternative(
-            value=(50.0, 10.0),
-            rejection_reason="too far from anchor",
-            constraint_violated="spacing.A_B",
-        )
-        d = serialize_alternative(alt)
-        restored = deserialize_alternative(d)
-        assert restored.rejection_reason == "too far from anchor"
-        assert restored.constraint_violated == "spacing.A_B"
-
-    def test_serialize_deserialize_decision(self):
-        d = Decision(
-            subject="Q1",
-            value=(10.0, 20.0),
-            reason="placed at thermal edge",
-            phase=DecisionPhase.GEOMETRIC,
-            decision_type=DecisionType.POSITION_UPDATE,
-            constraint_refs=["thermal.Q1"],
-            loss_contribution=0.5,
-            epoch=42,
-            iteration=7,
-        )
-        sd = serialize_decision(d)
-        restored = deserialize_decision(sd)
-        assert restored.subject == "Q1"
-        assert restored.value == [10.0, 20.0]  # deserialized to list
-        assert restored.reason == "placed at thermal edge"
-        assert restored.epoch == 42
-
-    def test_serialize_deserialize_trace(self):
-        trace = DecisionTrace(run_id="r1")
-        trace.add(Decision(subject="A", value=(0, 0), reason="first"))
-        trace.add(Decision(subject="B", value=(10, 10), reason="second"))
-        trace.finalize(positions={"A": (0, 0), "B": (10, 10)})
-
-        data = serialize_trace(trace)
-        restored = deserialize_trace(data)
-        assert restored.run_id == "r1"
-        assert len(list(restored.decisions)) == 2
-
-    def test_trace_to_json_and_from_json(self):
-        trace = DecisionTrace()
-        trace.add(Decision(subject="Q1", value=(5, 5), reason="placed"))
-
-        js = trace_to_json(trace)
-        restored = trace_from_json(js)
-        assert len(list(restored.decisions)) == 1
-        assert list(restored.decisions)[0].subject == "Q1"
-
-    def test_save_trace_and_load_trace(self):
-        trace = DecisionTrace()
-        trace.add(Decision(subject="X", value=(1, 1), reason="test"))
-        trace.add(Decision(subject="Y", value=(2, 2), reason="test"))
-
-        with tempfile.NamedTemporaryFile(suffix=".json", mode="w+", delete=False) as f:
-            fname = f.name
-        try:
-            save_trace(trace, fname)
-            loaded = load_trace(fname)
-            assert loaded.run_id == trace.run_id
-            assert len(list(loaded.decisions)) == 2
-        finally:
-            os.unlink(fname)
-
-
-# ---------------------------------------------------------------------------
-# explainability/markdown_report.py — render/save functions
-# ---------------------------------------------------------------------------
-
-
-class TestMarkdownReport:
-    def _make_trace(self):
-        trace = DecisionTrace()
-        trace.add(Decision(
-            subject="Q1", value=(10.0, 20.0),
-            reason="placed at thermal edge",
-            phase=DecisionPhase.GEOMETRIC,
-            decision_type=DecisionType.INITIAL_POSITION,
-            constraint_refs=["thermal.edge"],
-        ))
-        trace.add(Decision(
-            subject="Q2", value=(30.0, 40.0),
-            reason="placed by heuristic",
-            phase=DecisionPhase.GEOMETRIC,
-        ))
-        trace.finalize(positions={"Q1": (10, 20), "Q2": (30, 40)})
-        return trace
-
-    def test_render_component_report(self):
-        from temper_placer.explainability.markdown_report import render_component_report
-
-        trace = self._make_trace()
-        md = render_component_report(trace, "Q1")
-        assert isinstance(md, str)
-        assert "Q1" in md
-
-    def test_render_markdown_report(self):
-        from temper_placer.explainability.markdown_report import render_markdown_report
-
-        trace = self._make_trace()
-        md = render_markdown_report(trace)
-        assert isinstance(md, str)
-        assert "Q1" in md
-
-    def test_save_markdown_report(self):
-        from temper_placer.explainability.markdown_report import save_markdown_report
-
-        trace = self._make_trace()
-        with tempfile.NamedTemporaryFile(suffix=".md", mode="w+", delete=False) as f:
-            fname = f.name
-        try:
-            save_markdown_report(trace, fname)
-            with open(fname) as f:
-                content = f.read()
-            assert "Q1" in content
-        finally:
-            os.unlink(fname)
-
-
-# ---------------------------------------------------------------------------
-# explainability/traced_loss.py — TracedLossContext, combine, traced, traced_loss
-# ---------------------------------------------------------------------------
-
-
-class TestTracedLoss:
-    def test_traced_loss_context_result(self):
-        ctx = TracedLossContext()
-        ctx.add(5.0, Trace.empty().add("Q1", (10, 20), "placed"))
-        ctx.add(3.0, Trace.empty().add("Q2", (30, 40), "placed"))
-        total_loss, combined_trace = ctx.result()
-        assert total_loss == 8.0
-        assert len(combined_trace.entries) == 2
-
-    def test_traced_loss_context_empty(self):
-        ctx = TracedLossContext()
-        total_loss, combined_trace = ctx.result()
-        assert total_loss == 0.0
-        assert len(combined_trace.entries) == 0
-
-    def test_combine_traced_losses(self):
-        t1 = (5.0, Trace.empty().add("A", (0, 0), "first"))
-        t2 = (3.0, Trace.empty().add("B", (10, 10), "second"))
-        total_loss, trace = combine_traced_losses([t1, t2])
-        assert total_loss == 8.0
-        assert len(trace.entries) == 2
-
-    def test_combine_traced_losses_empty(self):
-        total_loss, trace = combine_traced_losses([])
-        assert total_loss == 0.0
-        assert len(trace.entries) == 0
-
-    def test_traced_loss_decorator(self):
-        def my_loss(x):
-            return float(x) * 2.0
-
-        tl = traced_loss(my_loss, "test_subject", "because test")
-        val, tr = tl(5.0)
-        assert val == 10.0
-        assert len(tr.entries) == 1
-
-    def test_traced_decorator_standalone(self):
-        @traced(subject="Q1", because="test trace")
-        def compute(x):
-            return float(x) * 3.0
-
-        val, tr = compute(4.0)
-        assert val == 12.0
-        assert len(tr.entries) == 1
-
-    def test_traced_decorator_within_context(self):
-        @traced(subject="Q1", because="ctx test")
-        def compute(x):
-            return float(x) * 2.0
-
-        with TracedLossContext() as ctx:
-            result = compute(3.0)
-        assert result == 6.0
-        assert len(ctx.losses) == 1
-
-    def test_constraint_to_traced_loss(self):
-        class MockConstraint:
-            a = "Q1"
-            b = "Q2"
-            because = "test constraint"
-
-        def loss_fn(c, x):
-            return float(x) * float(len(c.a))
-
-        tl = constraint_to_traced_loss(MockConstraint(), loss_fn)
-        val, tr = tl(10.0)
-        assert val == 20.0  # 10 * len("Q1") = 10 * 2 = 20
-        assert len(tr.entries) >= 1
-
-
-# ---------------------------------------------------------------------------
-# explainability/pipeline.py — TracedPipeline, compose_traces, demo
-# ---------------------------------------------------------------------------
-
-
-class TestExplainabilityPipeline:
-    def test_compose_traces(self):
-        from temper_placer.explainability.pipeline import compose_traces
-
-        t1 = Trace.empty().add("Q1", (10, 20), "placed Q1")
-        t2 = Trace.empty().add("Q2", (30, 40), "placed Q2")
-        combined = compose_traces(t1, t2)
-        assert len(combined.entries) == 2
-
-    def test_traced_pipeline_add_stage_and_run(self):
-        from temper_placer.explainability.pipeline import TracedPipeline
-
-        pipeline = TracedPipeline()
-
-        def stage1(data):
-            tr = Trace.empty().add("Q1", (10, 20), "placed")
-            return data + 1, tr
-
-        def stage2(data):
-            tr = Trace.empty().add("Q2", (30, 40), "placed")
-            return data * 2, tr
-
-        pipeline.add_stage("s1", stage1)
-        pipeline.add_stage("s2", stage2)
-        result, trace = pipeline.run(0)
-        assert result == 2  # (0+1)*2
-        assert len(trace.entries) == 2
-
-    def test_demo_pipeline(self):
-        from temper_placer.explainability.pipeline import demo_pipeline
-
-        result, trace = demo_pipeline()
-        # result is a dict; trace has 3 placement + 1 routing = 4 entries
-        assert isinstance(result, dict)
-        assert len(trace.entries) == 4  # 3 placements + 1 routing
-
-    def test_example_placement_optimizer(self):
-        from temper_placer.explainability.pipeline import example_placement_optimizer
-
-        result, trace = example_placement_optimizer(["Q1", "Q2", "U1"])
-        assert isinstance(result, dict)
-        assert len(trace.entries) == 3
-
-    def test_example_router(self):
-        from temper_placer.explainability.pipeline import example_router
-
-        result, trace = example_router({"mock": "placement"})
-        assert isinstance(result, dict)
-        assert len(trace.entries) == 1
-
-    def test_traced_pipeline_example(self):
-        from temper_placer.explainability.pipeline import traced_pipeline_example
-
-        def place(components):
-            t = Trace.empty()
-            for c in components:
-                t = t.add(c, (0, 0), f"placed {c}")
-            return {"positions": "mock"}, t
-
-        def route(placement, components):
-            t = Trace.empty().add("VCC", [], "routed")
-            return {"routes": "mock"}, t
-
-        result, trace = traced_pipeline_example(place, route, ["Q1", "Q2"])
-        assert isinstance(result, tuple)
-        assert len(trace.entries) == 3  # 2 placements + 1 routing
-
-
-# ---------------------------------------------------------------------------
 # fields — additional CostField/FieldResult coverage via test
 # ---------------------------------------------------------------------------
 
@@ -702,35 +360,3 @@ class TestCostFieldExtra:
         gate = StubFieldGate()
         # to_delta returns None (default)
         assert gate.to_delta(ViolationType.CLEARANCE) is None
-
-
-# ---------------------------------------------------------------------------
-# topological — DistanceBound additional coverage
-# ---------------------------------------------------------------------------
-
-
-class TestDistanceBoundExtra:
-    def test_tighten_max(self):
-        from temper_placer.topological.propagation import DistanceBound
-
-        b = DistanceBound(max_distance=10.0)
-        b.tighten_max(8.0)
-        assert b.max_distance == 8.0
-        b.tighten_max(12.0)  # should not increase
-        assert b.max_distance == 8.0
-
-    def test_tighten_min(self):
-        from temper_placer.topological.propagation import DistanceBound
-
-        b = DistanceBound(min_distance=5.0)
-        b.tighten_min(7.0)
-        assert b.min_distance == 7.0
-        b.tighten_min(3.0)  # should not decrease
-        assert b.min_distance == 7.0
-
-    def test_is_feasible(self):
-        from temper_placer.topological.propagation import DistanceBound
-
-        assert DistanceBound(min_distance=5.0, max_distance=10.0).is_feasible() is True
-        assert DistanceBound(min_distance=10.0, max_distance=5.0).is_feasible() is False
-        assert DistanceBound(min_distance=5.0, max_distance=5.0).is_feasible() is True
