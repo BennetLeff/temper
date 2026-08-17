@@ -263,6 +263,109 @@ REGISTRY: tuple[Fact, ...] = (
             "surface (see module docstring)."
         ),
     ),
+    Fact(
+        name="gatedrive_class_pairs_completeness",
+        category="netclass-class-pairs",
+        authoritative_value=6.0,
+        value_kind="float",
+        authoritative_source=(
+            "packages/temper-placer/configs/netclass_rules.yaml's own "
+            "established convention: every other HV-domain class "
+            "(ACMains/HighVoltage/HighVoltageTank/HighVoltageIsolated/"
+            "HighVoltageSignal) carries class_pairs rows to its LV "
+            "neighbours at this SAME 6.0mm figure (PR #1226, 'label 6.0mm "
+            "legacy family UNSOURCED' -- an explicitly documented, "
+            "deliberately-conservative placer-feasibility figure, NOT a "
+            "fab-authoritative safety value; see that file's own header "
+            "comment). See docs/evidence/2026-08-17-gatedrive-class-pairs-"
+            "gap.md."
+        ),
+        homes=(
+            # GateDriveHV/GateDriveSELV were split from the single
+            # "GateDrive" class on 2026-07-28 (PR #434) but never received
+            # class_pairs rows (unlike their sibling HighVoltageIsolated,
+            # closed in the SAME commit). Dormant until PR #1322 switched
+            # netclass_constraints.py's classifier to the manifest-backed
+            # design_rules.get_rules_for_net() -- the only caller that can
+            # actually resolve a component to these two class names -- at
+            # which point 33+ real cross-domain component pairs on the
+            # board silently fell through to a weaker
+            # max(class_a.clearance, class_b.clearance) default (as low as
+            # 0.25mm) instead of this 6.0mm figure. Each home below is one
+            # of the 10 rows added to close that gap
+            # (docs/evidence/2026-08-17-gatedrive-class-pairs-gap.md); if
+            # any is deleted, this gate's pattern match fails (TOOL ERROR,
+            # exit 5) rather than silently reporting clean, and if any
+            # value is edited away from 6.0mm without also updating this
+            # registry, the gate reports a VIOLATION (exit 3). Either way:
+            # a future missing/changed GateDrive class_pairs row is a gate
+            # failure, not a silent weakening.
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-FinePitch",
+                pattern=r"GateDriveHV-FinePitch:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-GND",
+                pattern=r"GateDriveHV-GND:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-Power",
+                pattern=r"GateDriveHV-Power:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-Signal",
+                pattern=r"GateDriveHV-Signal:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveHV-GateDriveSELV",
+                pattern=r"GateDriveHV-GateDriveSELV:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs ACMains-GateDriveSELV",
+                pattern=r"ACMains-GateDriveSELV:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltage",
+                pattern=r"GateDriveSELV-HighVoltage:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltageTank",
+                pattern=r"GateDriveSELV-HighVoltageTank:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltageIsolated",
+                pattern=r"GateDriveSELV-HighVoltageIsolated:\s*\{clearance:\s*([\d.]+)",
+            ),
+            FactSite(
+                file="packages/temper-placer/configs/netclass_rules.yaml",
+                description="class_pairs GateDriveSELV-HighVoltageSignal",
+                pattern=r"GateDriveSELV-HighVoltageSignal:\s*\{clearance:\s*([\d.]+)",
+            ),
+        ),
+        notes=(
+            "FIXED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-"
+            "pairs-gap.md): added, not derived from the DRU-generated SSOT "
+            "(pair_clearance.generated.yaml/pair_creepage.generated.yaml) "
+            "-- class_pairs is a deliberate, separate, looser "
+            "placer-feasibility model (PR #1226), and deriving from the "
+            "DRU tables would silently substitute the real 12.6mm PD3 "
+            "figures, an uncoordinated safety-value change with a large, "
+            "unverified connectivity cost (see PR #1321's measured "
+            "63/139->50/139 full-reroute cost from doing exactly that). "
+            "Verified pairwise against the real board: zero genuine "
+            "cross-domain (HV/AC vs LV) regressions relative to main "
+            "before PR #1322."
+        ),
+    ),
 )
 
 
