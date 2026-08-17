@@ -626,7 +626,7 @@ def optimize(
             loop_aliases: dict[str, str] = {}
             manifest_path = config.with_suffix(".references.yaml")
             if manifest_path.exists():
-                from temper_placer.io.reference_aliases import load_reference_alias_manifest
+                from temper_io_types import load_reference_alias_manifest
 
                 manifest = load_reference_alias_manifest(
                     manifest_path,
@@ -808,7 +808,8 @@ def optimize(
             loop_aliases = {}
             manifest_path = config.with_suffix(".references.yaml")
             if manifest_path.exists():
-                from temper_placer.io.reference_aliases import load_reference_alias_manifest
+                from temper_io_types import load_reference_alias_manifest
+
                 from temper_placer.placer.cp_sat.encoder import _resolve_loop_components
 
                 loop_names = _resolve_loop_components(netlist)

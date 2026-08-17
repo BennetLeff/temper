@@ -1,10 +1,12 @@
 """Property-based + metamorphic tests for the Rust reference-alias loader.
 
 Wave 4, Phase 3, candidate 5 (plan ``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``,
-R1c/R1d). These properties exercise the migrated
-``temper_placer.io.reference_aliases`` module (a pure-delegation re-export of
-the ``temper_io_types`` pyclasses); error/value parity against the pinned
-oracle is asserted separately by ``test_reference_aliases_rust_differential.py``.
+R1c/R1d). These properties exercise the migrated ``temper_io_types``
+pyclasses directly (the former ``temper_placer.io.reference_aliases``
+pure-delegation re-export was deleted; production call sites import
+``temper_io_types`` directly — see ``cli/__init__.py``); error/value parity
+against the pinned oracle is asserted separately by
+``test_reference_aliases_rust_differential.py``.
 
 Properties:
 
