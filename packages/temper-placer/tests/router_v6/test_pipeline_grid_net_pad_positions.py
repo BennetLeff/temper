@@ -169,7 +169,7 @@ def _relay_with_duplicated_contact_pad(ref: str) -> Component:
         bounds=(29.9, 13.6),
         pins=pins,
         initial_position=(0.0, 0.0),
-        initial_rotation=0,
+        initial_rotation_quadrant=0,
     )
 
 
