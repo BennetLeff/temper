@@ -128,6 +128,7 @@ from temper_placer.router_v6.occupancy_grid import (
     _area_rings,
     build_occupancy_grid,
 )
+from temper_placer.router_v6.pair_clearance import default_clearance_table
 from temper_placer.router_v6.pair_creepage import default_creepage_table, net_class_of
 from temper_placer.router_v6.stage0_data import DesignRules
 
@@ -672,13 +673,56 @@ def _land_route_on_pad_layers(
 #     (no track<->track/via shorts or creepage violations), and the
 #     separation no longer depends on which of a pair routed first;
 #   * the searching net's own class's static pads additionally reserve
-#     creepage(class, pad_class) -- stamped per-net as -1 (see
-#     `_stamp_foreign_creepage_halos`) so the creepage halo is charged
+#     max(creepage(class, pad_class), clearance(class, pad_class)) -- stamped
+#     per-net as -1 (see `_stamp_foreign_pair_halos`) so the halo is charged
 #     against FOREIGN pads only: the pad's own net keeps its pads
 #     enterable through the existing `_unblock_net_pads` mechanism
 #     (which clears only -1 cells within the pad + W/2 + C), and the
 #     -1 halo is never cleared by it (it sits outside that radius), so
 #     no per-net halo can be accidentally routed through.
+#
+# Root cause being fixed (clearance, 2026-08-17): `_unblock_net_pads`
+# clears EVERY -1 cell inside the routing net's own pad circles
+# (radius + W/2 + C), including whatever slice of a FOREIGN pad's own
+# clearance-erosion ring happens to fall inside that circle -- e.g. an
+# adjacent same-footprint pad at 0.95mm pitch. Before this fix, the only
+# thing re-stamped into that hole was the creepage halo above, and
+# `_family_halo_layers` SKIPPED any pair with `creepage == 0` entirely (the
+# `if creep <= 0.0: continue` guard) -- so same-class/low-voltage pairs,
+# which are exactly the ones with no creepage requirement at all, got no
+# halo restored: nothing stopped a later net's track or via from routing
+# straight through a foreign pad inside that pad's own required CLEARANCE
+# distance. Measured as 132 clearance DRC violations (docs/evidence/
+# 2026-08-16-via-span-clearance-and-clearance-family.md), attributed there
+# to this exact mechanism ("unblock-clipped foreign rings").
+#
+# The naive fix -- restamp every foreign obstacle at the family's own
+# static erosion `W/2 + C` (i.e. call `_halo_poly` unconditionally with the
+# EXISTING `base_inflation`) -- was tried and rejected: `C` is the
+# SEARCHING net's own declared clearance (e.g. 1.0mm for the Power family),
+# not the DRC pair figure between the searching class and the foreign
+# obstacle's class (0.2-0.5mm for most pairs per
+# configs/pair_clearance.generated.yaml). Re-stamping at `C` reintroduces
+# the over-broad halo the creepage fix's own docstring above already
+# guards against for the STATIC layer (a Power-family search charging every
+# foreign pad 1.0mm even where the DRU allows 0.2mm) -- verified to
+# collapse connectivity on this board's 0.95mm-pitch same-footprint pads
+# (the evidence doc above, "why the obvious fix is architectural").
+#
+# The fix actually applied: `_family_halo_layers` now looks up BOTH the
+# creepage table AND `configs/pair_clearance.generated.yaml` (via
+# `pair_clearance.default_clearance_table`) for every obstacle, and
+# contributes a halo entry whenever `max(creepage, clearance) > 0` --
+# effectively always, since the clearance table's floor is RULE 10's
+# 0.2mm. The ring radius uses only the searching net's own HALF-WIDTH
+# (`W/2`, legitimate: A* tests the centerline, so the routed copper's own
+# extent must clear the obstacle regardless of class) plus
+# `max(creepage(class_F, class), clearance(class_F, class))` -- the actual
+# DRC pair figure, never the searching net's own family clearance `C`.
+# This is provably never LOOSER than what DRC requires (it stamps exactly
+# the pair figure) and never as tight as the rejected naive fix (it never
+# charges a class's own declared clearance against a foreign pair that
+# doesn't need it).
 #
 # Each net searches the family matching its own rule; routed copper is
 # stamped into EVERY family at that family's radius (the same per-family
@@ -708,25 +752,30 @@ def _family_static_inflation(signature: tuple[float, float, str]) -> float:
     return round(width / 2.0 + clearance, 9)
 
 
-def _stamp_foreign_creepage_halos(
+def _stamp_foreign_pair_halos(
     net_name: str,
     grids: dict[str, OccupancyGrid],
     halos: dict[str, list[tuple[str, list, list]]],
 ) -> None:
-    """Re-block the creepage halos around every FOREIGN pad/via/track/zone.
+    """Re-block the creepage+clearance halos around every FOREIGN obstacle.
 
     ``_unblock_net_pads`` clears the -1 cells inside the routing net's own
     pad circles (radius + W/2 + C) -- and, on a dense board, whatever part
-    of a foreign pad's much larger creepage halo happens to fall inside
-    that circle. That leaves a hole through which the routing net could
-    approach a foreign pad inside its required creepage distance, exactly
-    the violation class this module exists to prevent. This re-stamps the
-    full halo (pad extent + W/2 + C + pair creepage) of every obstacle NOT
-    owned by the routing net, restricted to cells that are currently free
-    (0): cells already blocked (-1) or already owned by a routed net stay
-    untouched, and the routing net's own pads -- cleared to 0 by the
-    unblock -- stay free unless a foreign halo genuinely covers them (in
-    which case the honest answer is that the pad cannot be reached).
+    of a foreign pad's own required-separation ring happens to fall inside
+    that circle (e.g. an adjacent same-footprint pad at 0.95mm pitch). That
+    leaves a hole through which the routing net could approach a foreign
+    pad inside its required creepage OR clearance distance, exactly the
+    violation classes this module exists to prevent (2026-08-16 for
+    creepage, 2026-08-17 for clearance -- see the module-level comment
+    above ``_family_signature`` for why the clearance halo radius must be
+    the DRC PAIR figure, never the searching net's own family clearance).
+    This re-stamps the full halo (obstacle extent + W/2 +
+    max(pair creepage, pair clearance)) of every obstacle NOT owned by the
+    routing net, restricted to cells that are currently free (0): cells
+    already blocked (-1) or already owned by a routed net stay untouched,
+    and the routing net's own pads -- cleared to 0 by the unblock -- stay
+    free unless a foreign halo genuinely covers them (in which case the
+    honest answer is that the pad cannot be reached).
 
     ``halos`` is the per-layer ``[(net_name, outer_rings, holes)]`` list
     ``_build_width_families`` precomputed for this family (empty for
@@ -763,28 +812,64 @@ def _family_halo_layers(
     pcb,
     escape_vias_map: dict[str, list[tuple[float, float, float]]] | None,
 ) -> dict[str, list[tuple[str, list, list]]]:
-    """Per-layer creepage-halo polygons for one family, pre-marshalled.
+    """Per-layer creepage+clearance-halo polygons for one family, pre-marshalled.
 
     Each entry is ``(net_name, outer_rings, holes)`` ready for
     ``temper_geometry.rasterize_area_polygons_py`` (see
-    ``_stamp_foreign_creepage_halos``). Sources mirror
+    ``_stamp_foreign_pair_halos``). Sources mirror
     ``obstacle_map.build_obstacle_map``'s obstacle inventory -- pads, escape
     vias, pre-existing vias, pre-routed tracks and net-eligible zones -- so
     the A* reserves the same copper the static layer already blocks, plus
-    the pair creepage the DRC grades between this family's class and the
-    obstacle's net class. A zero-creepage pair contributes no entry: the
-    grid's W/2 + C erosion already reserves that obstacle.
+    ``max(pair creepage, pair clearance)`` between this family's class and
+    the obstacle's net class -- the two DRC pair tables
+    (``configs/pair_creepage.generated.yaml`` and
+    ``configs/pair_clearance.generated.yaml``, both regenerated from
+    ``pcb/temper.kicad_dru`` by ``scripts/generate_kicad_dru.py``, so this is
+    the same figure kicad-cli's DRC grades, not a restatement of it).
+
+    The ring radius is ``family_width/2 + max(creepage, clearance)`` --
+    deliberately NOT the family's own static erosion
+    (``_family_static_inflation``, ``W/2 + C`` where ``C`` is the SEARCHING
+    net's own declared clearance). Using the searching net's own class
+    clearance here was tried and rejected (see the module comment above
+    ``_family_signature``): it over-approximates the true pair figure for
+    cross-class pairs (Power's 1.0mm charged against a pair the DRU grades
+    at 0.2mm) and measurably collapses connectivity at this board's
+    close-pitch same-footprint pads. Every pair contributes an entry --
+    including creepage-0 pairs, which the pre-2026-08-17 version of this
+    function skipped entirely (the exact "unblock-clipped ring" clearance
+    defect, docs/evidence/2026-08-16-via-span-clearance-and-clearance-
+    family.md) -- because the clearance table's own floor
+    (``pair_clearance.PairClearanceTable.default_clearance_mm`` = RULE 10's
+    0.2mm) means ``max(creepage, clearance)`` is virtually never zero.
     """
     from temper_placer.core.pin_geometry import pin_world_position
     from shapely.geometry import Polygon
 
-    table = default_creepage_table()
-    _w, _c, family_class = family_signature
-    base_inflation = _family_static_inflation(family_signature)
+    creepage_table = default_creepage_table()
+    clearance_table = default_clearance_table()
+    family_width, _c, family_class = family_signature
+    # Deliberately NOT `_family_static_inflation` (W/2 + the SEARCHING net's
+    # own family clearance): see the module comment above `_family_signature`
+    # and this function's own docstring for why that over-approximates the
+    # true DRC pair figure and was rejected. Only the searching net's own
+    # half-width is legitimate here -- A* tests the centerline, so the
+    # routed copper's own extent must clear the obstacle regardless of
+    # class -- the required SEPARATION comes from `_pair_requirement` below.
+    half_width = family_width / 2.0
     routable_layers = set(layer_grids)
 
+    def _pair_requirement(obstacle_class: str) -> float:
+        """`max(pair creepage, pair clearance)` between this family's class
+        and `obstacle_class` -- the actual DRC figure for this specific
+        pair, never the searching net's own declared clearance."""
+        return max(
+            creepage_table.required(family_class, obstacle_class),
+            clearance_table.required(family_class, obstacle_class),
+        )
+
     def _halo_poly(radius_mm: float, base_poly) -> list | None:
-        total = base_inflation + radius_mm
+        total = half_width + radius_mm
         if total <= 0.0:
             return None
         buffered = base_poly.buffer(total, quad_segs=4)
@@ -811,10 +896,10 @@ def _family_halo_layers(
             px, py = pin_world_position(pin, comp)
             pad_poly = _create_pad_polygon(pin, px, py, angle)
             pad_class = net_class_of(pin.net, design_rules)
-            creep = table.required(family_class, pad_class)
-            if creep <= 0.0:
+            required = _pair_requirement(pad_class)
+            if required <= 0.0:
                 continue
-            marshalled = _halo_poly(creep, pad_poly)
+            marshalled = _halo_poly(required, pad_poly)
             if marshalled is None:
                 continue
             if pin.layer in ["All", "all"] or "*.Cu" in pin.layer or "Through" in pin.layer:
@@ -827,14 +912,14 @@ def _family_halo_layers(
     # Escape vias (through-hole: every routable layer).
     for net_name, vias in (escape_vias_map or {}).items():
         via_class = net_class_of(net_name, design_rules)
-        creep = table.required(family_class, via_class)
-        if creep <= 0.0:
+        required = _pair_requirement(via_class)
+        if required <= 0.0:
             continue
         for vx, vy, diameter in vias:
             via_poly = Polygon(
                 _circle_buffer_ring(vx, vy, diameter / 2.0, 8)
             )
-            marshalled = _halo_poly(creep, via_poly)
+            marshalled = _halo_poly(required, via_poly)
             if marshalled is None:
                 continue
             for layer in routable_layers:
@@ -846,13 +931,13 @@ def _family_halo_layers(
         if not via_net:
             continue
         via_class = net_class_of(via_net, design_rules)
-        creep = table.required(family_class, via_class)
-        if creep <= 0.0:
+        required = _pair_requirement(via_class)
+        if required <= 0.0:
             continue
         via_poly = Polygon(
             _circle_buffer_ring(via.position[0], via.position[1], via.diameter / 2.0, 8)
         )
-        marshalled = _halo_poly(creep, via_poly)
+        marshalled = _halo_poly(required, via_poly)
         if marshalled is None:
             continue
         for layer in routable_layers:
@@ -864,14 +949,14 @@ def _family_halo_layers(
         if not track_net or track.layer not in routable_layers:
             continue
         track_class = net_class_of(track_net, design_rules)
-        creep = table.required(family_class, track_class)
-        if creep <= 0.0:
+        required = _pair_requirement(track_class)
+        if required <= 0.0:
             continue
         from shapely.geometry import LineString
 
         line = LineString([track.start, track.end])
         line_poly = line.buffer(track.width / 2.0, cap_style=1)
-        marshalled = _halo_poly(creep, line_poly)
+        marshalled = _halo_poly(required, line_poly)
         if marshalled is None:
             continue
         per_layer[track.layer].append((track_net, marshalled[0], marshalled[1]))
@@ -887,11 +972,11 @@ def _family_halo_layers(
         net_names = [n for n in (getattr(zone, "net_classes", None) or []) if n]
         if net_names and not any(_zone_layers_for_net(n) for n in net_names):
             continue
-        zone_creep = max(
-            (table.required(family_class, net_class_of(n, design_rules)) for n in net_names),
+        zone_required = max(
+            (_pair_requirement(net_class_of(n, design_rules)) for n in net_names),
             default=0.0,
         )
-        if zone_creep <= 0.0:
+        if zone_required <= 0.0:
             continue
         try:
             zone_poly = Polygon(zone.polygon)
@@ -899,7 +984,7 @@ def _family_halo_layers(
                 zone_poly = zone_poly.buffer(0)
         except Exception:
             continue
-        marshalled = _halo_poly(zone_creep, zone_poly)
+        marshalled = _halo_poly(zone_required, zone_poly)
         if marshalled is None:
             continue
         zone_layers = zone.layers if hasattr(zone, "layers") else ["F.Cu"]
@@ -909,13 +994,13 @@ def _family_halo_layers(
     return {layer: entries for layer, entries in per_layer.items() if entries}
 
 
-def _build_creepage_halos(
+def _build_pair_halos(
     families: dict[tuple[float, float, str], dict[str, OccupancyGrid]],
     design_rules: DesignRules,
     pcb,
     escape_vias_map: dict[str, list[tuple[float, float, float]]] | None,
 ) -> dict[tuple[float, float, str], dict[str, list[tuple[str, list, list]]]]:
-    """Precompute each family's per-layer creepage-halo polygon lists."""
+    """Precompute each family's per-layer creepage+clearance-halo polygon lists."""
     halos: dict[tuple[float, float, str], dict[str, list[tuple[str, list, list]]]] = {}
     for signature, layer_grids in families.items():
         halos[signature] = _family_halo_layers(
@@ -970,7 +1055,7 @@ def _build_width_families(
             for layer in grids
             if layer in routing_spaces
         }
-    family_halos = _build_creepage_halos(families, design_rules, pcb, escape_vias_map) if pcb else {}
+    family_halos = _build_pair_halos(families, design_rules, pcb, escape_vias_map) if pcb else {}
     return families, family_of_net, family_halos
 
 
@@ -1091,7 +1176,7 @@ def run_astar_pathfinding_nlayer(
         # The unblock must punch through that leftover ring too, or a tank
         # net could never reach its own pads after another tank net routed.
         # The over-wide circle's clips into foreign halos are re-blocked by
-        # _stamp_foreign_creepage_halos immediately below.
+        # _stamp_foreign_pair_halos immediately below.
         self_creepage = default_creepage_table().self_creepage(family_key[2])
         unblock_inflation = family_inflation + self_creepage
         primary_grid_for_budget = active_grids.get(channel_path.preferred_layer) or next(
@@ -1155,14 +1240,15 @@ def run_astar_pathfinding_nlayer(
             existing_vias_map=existing_vias_per_net,
         )
 
-        # Creepage-aware C-space (2026-08-16): the unblock above cleared the
-        # -1 cells inside this net's own pad circles -- including whatever
-        # part of a foreign pad's much larger creepage halo fell inside
-        # them. Re-stamp the foreign halos so this net cannot route through
-        # another net's required creepage distance (see
-        # _stamp_foreign_creepage_halos). No-op for synthetic fixtures
+        # Creepage+clearance-aware C-space (2026-08-16 creepage, 2026-08-17
+        # clearance): the unblock above cleared the -1 cells inside this
+        # net's own pad circles -- including whatever part of a foreign
+        # pad's own required-separation halo fell inside them. Re-stamp the
+        # foreign halos so this net cannot route through another net's
+        # required creepage OR clearance distance (see
+        # _stamp_foreign_pair_halos). No-op for synthetic fixtures
         # (family_halos empty).
-        _stamp_foreign_creepage_halos(net_name, active_grids, family_halos.get(family_key, {}))
+        _stamp_foreign_pair_halos(net_name, active_grids, family_halos.get(family_key, {}))
 
         route_path, fb = _astar_route_nlayer(
             net_name,
