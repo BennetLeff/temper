@@ -326,6 +326,7 @@ temper_placer/testing/quarantine.py::quarantine_summary  # TODO: temper-xxx
 temper_placer/testing/version_gate.py::check_git_ancestry  # TODO: temper-xxx
 temper_placer/validation/_drc_api.py::is_kicad_cli_available  # TODO: temper-xxx
 temper_placer/validation/_drc_api.py::run_drc  # TODO: temper-xxx
+temper_placer/validation/_drc_api.py::DrcCountInfo.is_honest  # TODO: temper-xxx
 temper_placer/validation/drc_fence.py::DRCFence.check  # TODO: temper-xxx
 temper_placer/validation/drc_oracle.py::DRCOracle.evaluate  # TODO: temper-xxx
 temper_placer/validation/drc_oracle.py::DRCOracle.evaluate_placement  # TODO: temper-xxx
