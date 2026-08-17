@@ -1092,12 +1092,48 @@ def test_randomized_via_layer_pair_parity():
         segs, vias = _random_path3d(rng)
         oracle = _via_tuples(_oracle_place_vias_for_path("N", _make_path3d(segs, vias), 0.6, 0.3))
         shim = _via_tuples(_place_vias_for_path("N", _make_path3d(segs, vias), 0.6, 0.3))
-        assert sig(oracle) == sig(shim)
+        # Deliberate divergence, re-pinned 2026-08-16 (docs/evidence/
+        # 2026-08-16-hv-netclass-assignment-fix.md): the live
+        # _place_vias_for_path dedupes by (position, unordered layer pair)
+        # -- the pathfinder's via_positions can repeat a transition point,
+        # and N byte-identical vias at one position trip KiCad's
+        # holes_co_located while one via carries the identical electrical
+        # function. The frozen oracle above is NOT edited (verbatim at the
+        # pin); the parity claim is now "live == frozen reference after the
+        # documented dedupe" -- the conservative-divergence proof: the ONLY
+        # difference between oracle and shim across the sweep may be
+        # duplicate-via count, never position, layer pair, size or net.
+        # `deduped == oracle` (set equality) and `shim == deduped` (exact
+        # order) are both asserted, so the divergence is proven exactly the
+        # dedupe, no more.
+        deduped = _dedupe_via_tuples(oracle)
+        assert set(deduped) == set(oracle), "dedupe must only remove duplicates"
+        assert sig(deduped) == sig(shim)
         seg_xs = [s[0] for s in segs]
         seg_ys = [s[1] for s in segs]
         seg_layers = [s[2] for s in segs]
-        for (vx, vy), via in zip(vias, shim):
+        # Iterate the shim's OWN (deduped) via list -- the input
+        # via_positions may contain duplicates the shim collapsed, so a
+        # positional zip with the input would misalign after any dedupe.
+        for via in shim:
+            vx, vy = via[0]
             assert sig(fn(vx, vy, seg_xs, seg_ys, seg_layers)) == sig((via[1], via[2]))
+
+
+def _dedupe_via_tuples(via_tuples):
+    """Mirror via_placement._place_vias_for_path's 2026-08-16 dedupe key
+    (position rounded to 4dp, unordered layer pair) over the frozen
+    oracle's output. Defined here rather than in the oracle block so the
+    oracle stays a verbatim copy of the pin."""
+    seen: set[tuple[float, float, frozenset[str]]] = set()
+    out = []
+    for (x, y), from_layer, to_layer, diameter, drill, net_name in via_tuples:
+        key = (round(x, 4), round(y, 4), frozenset((from_layer, to_layer)))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(((x, y), from_layer, to_layer, diameter, drill, net_name))
+    return out
 
 
 def test_randomized_clearance_engine_parity():
