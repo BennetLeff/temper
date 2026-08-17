@@ -2,6 +2,24 @@
 
 # `isolated_copper` under `--refill-zones`: characterization and the #1257 verdict (2026-08-17)
 
+> **Correction (same day, before this doc's first publication settled).**
+> This document originally stated the fix "was simply never applied to the
+> checked-in board... because the only pipeline that would do so (a full
+> `route_pcb` run) has been OOM-killed on every attempt" and left applying
+> it as blocked/future work. That claim was **stale** -- inherited from
+> historical evidence docs (#1257's own PR body, the handoff §6) describing
+> OOM events that predate PR #1264 (`272fbe36c`, 2026-08-16 16:06:46,
+> *after* #1257 at 12:10:07), which made Stage 3's **default** path a
+> structural no-op (builds no SAT model at all). A live full-route attempt
+> on current main, reported in §8 below, **completed twice with no OOM**
+> (wall 329-336s, peak RSS 900-950 MB) and both outputs measured **0**
+> `isolated_copper` under `--refill-zones` -- not via a synthetic seam
+> splice this time, but from a genuinely, end-to-end freshly-routed board.
+> §8 has the full live measurement; the rest of this document (characterization,
+> the #1257 verdict, the structural check) is unchanged and still holds.
+> Only the "what remains" framing changes: applying the fix is not blocked
+> by memory anymore.
+
 **Task**: handoff `docs/HANDOFF-2026-08-17.md` §9 item 7 / §3 mechanism 4,
 following on from `docs/evidence/2026-08-17-refill-zones-drc-runner-gap-
 measurement.md` (PR #1298, `evidence/refill-zones-drc-gap-measurement`),
@@ -28,12 +46,25 @@ Rust-generated outlines (never applied to the committed file); #1298's
 outlines, filled as-is. Both numbers are correct measurements of what they
 each measured. Re-running the fix's own regeneration path against *today's*
 board (post-#1279 placement, which #1257 predates) reproduces 0
-`isolated_copper` again, 3/3 runs -- the fix still works. Nothing in
-`zone_generator.rs` needed changing. What is broken is that the committed
-board has never been updated with the fix's output, because the only
-pipeline that would do so (a full `route_pcb` run) has been OOM-killed on
-every attempt since before #1257 landed -- an infrastructure gap outside
-this task's lane, not a zone-generation defect.
+`isolated_copper` again -- confirmed two ways (§4's synthetic seam splice,
+3/3 runs, and §8's genuine end-to-end full route, 2/2 runs). Nothing in
+`zone_generator.rs` needed changing.
+
+**Applying the fix to the committed board is no longer memory-blocked.**
+This document originally concluded the committed board could not receive
+the fix because the only pipeline that would apply it (`route_pcb`, full
+route) OOM-killed on every attempt. That was true historically but is
+**stale as of PR #1264** (2026-08-16, hours after #1257): Stage 3's
+default path is now a structural no-op that builds no SAT model, and a
+live full-route attempt on current main (§8) completed twice with no OOM,
+peak RSS under 1 GB, and **0 `isolated_copper`** on the genuinely-routed
+output. What remains before the owner could actually replace
+`pcb/temper.kicad_pcb` is not a memory blocker -- it is that a fresh
+`route_pcb()` run changes routing completion, not just zones (§8's runs
+measured 37/106 nets / 61/139 pads, materially different from whatever the
+committed board's own routing state is), so swapping the board file is a
+much bigger decision than "apply the zone fix" and still needs explicit
+owner authorization regardless of memory.
 
 ---
 
@@ -302,40 +333,54 @@ the same board, and the fix's own roster still measures 0 today."**
 
 **Nothing needed changing in `packages/temper-geometry/src/zone_generator.rs`.**
 It already produces 0 `isolated_copper` when its output is actually used,
-confirmed by 3 fresh runs against today's board (sec 4), on top of #1257's
-own verification. There is no code defect in this task's lane to fix.
+confirmed four independent ways: #1257's own original verification, this
+task's synthetic seam splice (sec 4, 3/3 runs), and -- per sec 8, added
+after the coordinator flagged this document's original OOM claim as
+possibly stale -- **two genuine, end-to-end full-route runs on current
+main with no synthetic splice at all.** There is no code defect in this
+task's lane to fix.
 
-**What remains is applying the existing, working fix to the committed
-board** -- which this task does NOT do, because:
+**Applying the existing, working fix to the committed board is no longer
+memory-blocked** (sec 8 supersedes the "OOM-killed on every attempt" claim
+this section originally made -- that claim was itself stale, inherited
+from evidence written before PR #1264 landed). This task still does NOT
+apply it, because:
 
-- It requires either (a) a full `route_pcb()` run reaching its emission
-  phase, which is blocked by the pre-existing Stage-3 SAT OOM (not a zone
-  generation/pour defect, out of this task's lane and already tracked
-  elsewhere: handoff §6, §9 item 8), or (b) a scoped zone-only
-  regeneration applied to the committed file, which touches
-  `_zone_pour_stitch.py`/`_adapter_convert.py` composition -- the sibling
-  agent's stitching lane -- and would modify `pcb/temper.kicad_pcb`, which
-  this task is barred from doing without explicit owner authorization.
+- A full `route_pcb()` run that would actually produce a board fit to
+  replace the committed file changes far more than zones -- sec 8's two
+  live runs measured 37/106 nets / 61/139 pads fully pad-connected, a
+  routing-completion figure with no established relationship to whatever
+  the committed board's own (different, already-routed) state represents.
+  Deciding whether a fresh route's *overall* result is acceptable to ship
+  is an owner decision an order of magnitude larger than "regenerate
+  zones," and out of this task's lane (zone generation/pour) regardless of
+  memory.
+- `pcb/temper.kicad_pcb` was not modified by this task (sha256 verified
+  unchanged, sec 0 and sec 9 below) -- every full-route output in sec 8
+  was written to a scratch path outside the repo.
 - Adding an `isolated_copper` ceiling entry to `power_pcb_dataset/
   drc_ceiling.json` (even at the honestly-measured 109-114) would be a
   ratchet raise from an implicit 0, requiring an owner `Ceiling-Approval:`
   trailer this task does not have. Not done.
-- `pcb/temper.kicad_pcb` was not modified (sha256 verified unchanged,
-  sec 0 and sec 7 below).
 
-**Recommendation to the owner** (not authorized by this task): once the
-Stage-3 OOM is resolved (or a scoped zone-regeneration path is built and
-reviewed), re-emitting zones onto the committed board and re-measuring
-with `--refill-zones` should produce 0 `isolated_copper` per this
-document's sec 4 -- the fix is ready and does not need further zone-
-generation work. Until then, the honest state is: the committed board, if
-fabricated and its zones filled exactly as committed, would produce
-109-114 genuine isolated-copper fragments, 47% of them on HV-domain nets
-including the mains line itself (`ac_l`) -- a real defect, already fixed
-in code, not yet applied to the artifact that would actually be
+**Recommendation to the owner** (not authorized by this task): the
+zone-generation fix is ready, live-verified, and does not need further
+work in this lane. The remaining decision is entirely about routing
+completion, not zones: either (a) accept a fresh full `route_pcb()` run's
+overall result (sec 8) as the new committed board -- which would also
+bring the zone fix along for free -- or (b) build a scoped zone-only
+regeneration that re-emits zones onto the committed board's *existing*
+copper without re-routing everything else, which touches
+`_zone_pour_stitch.py`/`_adapter_convert.py` composition (the sibling
+agent's stitching lane, not this one). Until one of those lands, the
+honest state is: the committed board, if fabricated and its zones filled
+exactly as committed, would produce 109-114 genuine isolated-copper
+fragments, 47% of them on HV-domain nets including the mains line itself
+(`ac_l`) -- a real defect, already fixed in code, verified fixable in
+practice (sec 8), not yet applied to the artifact that would actually be
 fabricated.
 
-## 7. Board integrity (final check)
+## 7. Board integrity (final check, pre-correction)
 
 `pcb/temper.kicad_pcb` sha256:
 `9c1f4a37b03c6433275704c3bed917f7ff16877c762f0aa8d37cc6858d7c16dd` --
@@ -345,3 +390,108 @@ used from `/tmp/.../scratchpad/`, adaptations of the repo's own committed,
 unmodified `docs/evidence/2026-08-16-zone-pour-refill-verify.py`, matching
 the convention PR #1298 itself used for its clearance re-measurement
 script).
+
+## 8. Correction: live full-route verification on current main (the OOM claim was stale)
+
+The coordinator flagged that this document's original "blocked by
+Stage-3 OOM" conclusion might be inherited from historical evidence
+written before PR #1260/#1264 landed, and asked for a live attempt against
+current main rather than another reading of old evidence docs. It was
+right to ask -- the claim was stale. Verified as follows.
+
+### 8.1 Why the claim was stale: call-site check
+
+`_run_stage3` (`packages/temper-placer/src/temper_placer/router_v6/
+_pipeline_route.py:421`) checks, in order: `use_net_batching` (from
+`enable_net_batching`, default `False`), `self.enable_bundling` (default
+`False`, dataclass default in `_pipeline_core.py`), and
+`TEMPER_STAGE3_FORCE_SAT` (an env var, unset by default). When all three
+are false/unset -- i.e. every default invocation, including
+`scripts/route_board.py` with no flags -- Stage 3 returns an empty
+`Stage3Output` immediately: **"Stage 3: Topological routing... SKIPPED
+(SAT structurally vacuous; Stage 4 A* routes directly)"**. No CNF model is
+built. This is PR #1264 (`272fbe36c`, 2026-08-16 16:06:46 -0600), which
+landed **after** #1257 (`c261907bc`, 12:10:07 the same day) but **before**
+#1298/this task (2026-08-17). `scripts/route_board.py --help`'s own
+`--net-batching` text confirms this in the committed script: *"the
+monolithic path no longer OOMs -- Stage 3's default is the direct
+capacity-aware topology solver... which builds no SAT model at all."* The
+only reachable OOM path is `--net-batching`/`enable_bundling`/the env
+escape hatch -- none of which this task, or a default `route_board.py`
+invocation, uses.
+
+### 8.2 Live attempt
+
+`free -g` before starting: 52 GB available (five sibling agents active,
+2-4 GB immediately free, ~48 GB reclaimable buff/cache -- healthy margin
+per the handoff's memory-check rule).
+
+```
+.venv/bin/python scripts/route_board.py \
+  --pcb pcb/temper.kicad_pcb \
+  --output <scratch path, NOT pcb/temper.kicad_pcb>
+```
+
+Default flags only (no `--net-batching`, no pruning, no nlayer spike).
+RSS polled every 5s via `ps -o rss=` on the live PID (bounded loops inside
+single tool calls, not an unbounded wait). Run twice, independently:
+
+| run | wall time | peak RSS | result |
+|---|---|---|---|
+| 1 | 329.4 s | ~950 MB | completed, no OOM |
+| 2 | 335.5 s | 935.7 MB | completed, no OOM |
+
+Both: **37/106 nets (Stage 4 A*)**, **61/139 nets fully pad-connected**,
+segments=4748, vias=185, zones=142 -- byte-identical result figures across
+both runs. Peak RSS in both runs stayed under 1 GB, matching the handoff's
+"~8-11 min and ~1 GB uninstrumented" full-route figure exactly. **No OOM
+on either run.** Neither run wrote to `pcb/temper.kicad_pcb` -- both wrote
+to scratch paths under `/tmp/.../scratchpad/full_route_live/`.
+
+(A third run was attempted for a triple-replicate but was killed by this
+task's own tool-call timeout mid-run, not by OOM -- `free -g` immediately
+after showed 51 GB available and no route_board process remained. Not
+counted as a failure; two clean completions is the reported result.)
+
+### 8.3 Zone structure of the genuinely-routed output
+
+Unlike sec 3-4's committed-board/seam-splice measurements, this output's
+142 zones were produced by the real, unmodified, end-to-end production
+seam (`_emit_zone_pours` **and** `_ground_plane.py`'s gnd/power-island
+path both ran, not just one of them as in sec 4.1's scoped seam). Parsing
+the output: **140 zones with 1 polygon (no hole), 1 zone with 11 polygons
+(1 exterior + 10 holes), 1 zone with 7 polygons (1 exterior + 6 holes)** --
+real, hole-carrying zones produced by the Rust generator in genuine
+production use, not a synthetic test.
+
+### 8.4 DRC on the genuinely-routed output
+
+`kicad-cli pcb drc --refill-zones --format json` (DRU regenerated live,
+same protocol as sec 1), against both scratch outputs independently:
+
+| run | isolated_copper | total violations |
+|---|---|---|
+| 1 | **0** | 1096 |
+| 2 | **0** | 1096 (identical breakdown) |
+
+**0 isolated_copper, deterministic across both genuinely-routed boards.**
+This is the strongest confirmation in this document: not a scratch splice
+of regenerated zones onto old copper, but zones produced by an actual,
+complete, unmodified `route_pcb()` run on current main, filled by KiCad's
+real fill engine. The other categories in this table (`clearance` 177,
+`shorting_items` 31, `creepage` 141, etc.) are **not** comparable to the
+committed board's ceiling or to sec 3-4's numbers -- this is a materially
+different, far-less-complete routing state (37/106 vs whatever the
+committed board's own routing represents), consistent with sec 6's point
+that swapping the board file is a routing-completion decision, not a
+zone-generation one.
+
+## 9. Board integrity (final check)
+
+`pcb/temper.kicad_pcb` sha256:
+`9c1f4a37b03c6433275704c3bed917f7ff16877c762f0aa8d37cc6858d7c16dd` --
+unchanged from sec 0 and sec 7, verified again after sec 8's two live
+full-route runs. `power_pcb_dataset/drc_ceiling.json` not edited. No `.py`
+or `.rs` files in the repo tree were edited. All full-route and DRC output
+in sec 8 was written to `/tmp/.../scratchpad/full_route_live/`, never to
+the repo tree.
