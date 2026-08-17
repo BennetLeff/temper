@@ -202,6 +202,75 @@ class DrcResult:
     warnings: list[DrcWarning] = field(default_factory=list)
 
 
+@dataclass
+class DrcCountInfo:
+    """A DRC violation count classified against KiCad's reporting caps.
+
+    KiCad's DRC engine truncates per-category violation reports at
+    ``ERROR_LIMIT`` (199) or ``EXTENDED_ERROR_LIMIT`` (499) —
+    GUI list-widget constants inherited by kicad-cli
+    (``pcbnew/drc/drc_engine.cpp``; see
+    ``docs/evidence/2026-08-12-dru-rule-precedence.md`` sec 4). A count at
+    exactly its category's cap is a **saturation floor** (the true count is
+    ``>= count``), NOT a count. ``is_capped`` records that distinction;
+    ``display`` renders it so a reader can never mistake a floor for a
+    count.
+
+    Per-category caps (the ``category`` parameter to
+    :func:`drc_count_from_kicad` is load-bearing): ``clearance`` /
+    ``unconnected_items`` cap at 499; ``creepage`` is empirically uncapped
+    (its provider bypasses the limit — a 20 mm creepage rule reports 3,311);
+    every other category caps at 199.
+    """
+
+    count: int
+    is_capped: bool
+    display: str
+
+    @property
+    def is_honest(self) -> bool:
+        """True when this count is not saturated — it is the true count."""
+        return not self.is_capped
+
+
+def drc_count_from_kicad(count: int, category: str) -> DrcCountInfo:
+    """Classify a raw kicad-cli DRC violation count against KiCad's
+    per-category reporting caps.
+
+    The classification kernel runs in ``temper_drc_rs.drc_count_from_kicad``
+    (``drc_count.rs`` — the single source of truth for the cap table);
+    this is a delegation shim following the same pattern as the
+    validation-glue shims above.
+    """
+    import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+    raw_count, is_capped, display = _tdrc.drc_count_from_kicad(count, category)
+    return DrcCountInfo(count=raw_count, is_capped=is_capped, display=display)
+
+
+def classify_counts(counts: dict[str, int]) -> dict[str, DrcCountInfo]:
+    """Classify a ``{rule: raw_count}`` dict (e.g. a
+    ``violations_by_type``-style breakdown) against KiCad's reporting caps.
+
+    Every value is passed through :func:`drc_count_from_kicad`, so a
+    saturated category carries ``is_capped=True`` and a ``display`` string
+    that reads as a floor — callers that would trust the raw number must
+    first look at ``is_capped``. Categories that do not cap (``creepage``)
+    are never flagged.
+    """
+    return {rule: drc_count_from_kicad(count, rule) for rule, count in counts.items()}
+
+
+def drc_cap_for(category: str) -> int | None:
+    """The reporting cap for a kicad-cli violation *type*, or None for
+    categories known not to cap (e.g. ``creepage``). Mirrors
+    ``scripts/measure_uncapped_drc.py::cap_for``, single-sourced in Rust.
+    """
+    import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
+
+    return _tdrc.drc_cap_for(category)
+
+
 def is_kicad_cli_available() -> bool:
     """
     Check if kicad-cli is available in PATH.

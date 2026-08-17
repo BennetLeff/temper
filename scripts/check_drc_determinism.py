@@ -104,6 +104,8 @@ def measure(pcb_path: Path, samples: int, *, inject: str = INJECT_NONE) -> list[
 
 
 def analyse(runs: list[dict], *, blind_nets: bool = True) -> list[dict]:
+    from temper_placer.validation._drc_api import drc_cap_for
+
     categories = sorted({category for run in runs for category in run})
     report = []
     for category in categories:
@@ -117,6 +119,17 @@ def analyse(runs: list[dict], *, blind_nets: bool = True) -> list[dict]:
             )
             for run in runs
         )
+        # Cap-saturation annotation: a measured count at exactly its
+        # category's KiCad reporting cap (ERROR_LIMIT 199 /
+        # EXTENDED_ERROR_LIMIT 499 -- see temper_drc_rs.drc_count) is a
+        # FLOOR, not a count. "Reproducible" for such a category means
+        # "reproducibly saturated", which is a different (and weaker)
+        # statement than "the truth is known" -- the caller must not read a
+        # stable 199 as "exactly 199 violations". The "W:" prefix the
+        # warning arm uses is a display convention, not a violation type.
+        bare_category = category[2:] if category.startswith("W:") else category
+        cap = drc_cap_for(bare_category)
+        at_cap = cap is not None and any(c == cap for c in counts)
         report.append(
             {
                 "category": category,
@@ -124,6 +137,7 @@ def analyse(runs: list[dict], *, blind_nets: bool = True) -> list[dict]:
                 "count_stable": len(counts) == 1,
                 "set_stable": len(digests) == 1,
                 "digests": dict(digests),
+                "at_cap": at_cap,
             }
         )
     return report
@@ -151,7 +165,10 @@ def render(report: list[dict], runs: list[dict]) -> bool:
         verdict = "stable" if row["set_stable"] else "UNSTABLE"
         if not row["count_stable"] or not row["set_stable"]:
             unstable.append(row["category"])
-        print(f"{row['category']:26s} {str(row['counts']):30s} {verdict:>10s}")
+        counts_cell = str(row["counts"])
+        if row["at_cap"]:
+            counts_cell += "  [at cap — floor, not a count]"
+        print(f"{row['category']:26s} {counts_cell:30s} {verdict:>10s}")
     if unstable:
         print(f"\nNOT REPRODUCIBLE: {', '.join(unstable)}")
     else:

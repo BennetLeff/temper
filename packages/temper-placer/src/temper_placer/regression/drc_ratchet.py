@@ -293,6 +293,17 @@ class DrcRatchetResult:
     kicad_cli_version_running: str | None = None
     kicad_cli_version_expected: str | None = None
     kicad_cli_version_mismatch: bool = False
+    # Per-type categories whose measured count saturates KiCad's reporting
+    # cap (ERROR_LIMIT 199 / EXTENDED_ERROR_LIMIT 499): the ceiling
+    # comparison for such a category compares a FLOOR ("true count >= N"),
+    # not a count, so a pass there is inconclusive — the true count can
+    # exceed the ceiling without the raw number ever crossing it. Values
+    # are ``DrcCount.display()`` strings ("199 (CAPPED — true count >=
+    # 199)"). Error categories in ``capped_error_categories``, warning
+    # categories in ``capped_warning_categories``. Only populated by the
+    # kicad-cli backend (the rust backend supplies no per-type breakdown).
+    capped_error_categories: dict[str, str] = field(default_factory=dict)
+    capped_warning_categories: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -615,12 +626,18 @@ class DrcRatchet:
         # never be treated as an all-clear.
         current_by_type: dict[str, int] | None = None
         current_warnings_by_type: dict[str, int] | None = None
+        # Saturated-at-cap categories, populated only by the kicad-cli
+        # backend (which supplies a per-type breakdown): a count at exactly
+        # its category's KiCad reporting cap is a FLOOR, not a count (see
+        # DrcRatchetResult.capped_error_categories).
+        capped_error_categories: dict[str, str] = {}
+        capped_warning_categories: dict[str, str] = {}
 
         try:
             if self.backend == "rust":
                 current_errors, current_warnings = self._run_rust_drc(pcb_path)
             elif self.backend == "kicad-cli":
-                from temper_placer.validation._drc_api import run_drc
+                from temper_placer.validation._drc_api import classify_counts, run_drc
 
                 drc_result = run_drc(pcb_path)
                 current_errors = drc_result.error_count
@@ -643,6 +660,29 @@ class DrcRatchet:
                         current_warnings_by_type[rule] = (
                             current_warnings_by_type.get(rule, 0) + 1
                         )
+
+                # Cap-saturation detection: a per-type count at exactly its
+                # category's KiCad reporting cap is a FLOOR, not a count --
+                # the true count is >= N, so a ceiling comparison on the raw
+                # number is inconclusive (the true count can exceed the
+                # ceiling while the capped reading never crosses it).
+                # Classify every per-type count through DrcCount (Rust
+                # kernel) and surface the saturated ones on the result;
+                # the ceiling comparison itself still runs on the raw
+                # counts (the pinned kernel contract) -- see
+                # DrcRatchetResult.capped_error_categories.
+                capped_error_categories = {
+                    rule: info.display
+                    for rule, info in classify_counts(current_by_type).items()
+                    if info.is_capped
+                }
+                capped_warning_categories = {}
+                if current_warnings_by_type is not None:
+                    capped_warning_categories = {
+                        rule: info.display
+                        for rule, info in classify_counts(current_warnings_by_type).items()
+                        if info.is_capped
+                    }
             else:
                 return DrcRatchetResult(
                     passed=False,
@@ -766,6 +806,8 @@ class DrcRatchet:
             kicad_cli_version_running=ratchet_dict["kicad_cli_version_running"],
             kicad_cli_version_expected=ratchet_dict["kicad_cli_version_expected"],
             kicad_cli_version_mismatch=ratchet_dict["kicad_cli_version_mismatch"],
+            capped_error_categories=capped_error_categories,
+            capped_warning_categories=capped_warning_categories,
         )
 
     def find_ceiling_raises(

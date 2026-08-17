@@ -105,6 +105,14 @@ pub mod drc_oracle;
 pub mod ipc;
 #[cfg(feature = "python")]
 pub mod ipc_pyo3;
+// Crate-fold 3 (2026-08-15): DrcCount — a violation count that knows
+// whether it's capped at KiCad's ERROR_LIMIT/EXTENDED_ERROR_LIMIT reporting
+// caps or honest (drc_count.rs, pure data, unconditional like ipc.rs so it
+// survives a --no-default-features wasm32 build; drc_count_pyo3.rs is the
+// thin pyo3 surface).
+pub mod drc_count;
+#[cfg(feature = "python")]
+pub mod drc_count_pyo3;
 // Wave 4 — validation-glue kernels (port-inventory entry-5 cluster):
 // _drc_api.py parsing, scheduler.py decision logic, validation_gates.py
 // gate decisions.
@@ -519,6 +527,9 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Crate-fold 3 (2026-08-09) — IPC-2221/2152 current-capacity and
     // trace-width kernels (from temper-ipc).
     crate::ipc_pyo3::register(m)?;
+    // Crate-fold 3 (2026-08-15) — DrcCount cap-classification kernels
+    // (drc_count.rs pure logic; this pyo3 surface).
+    crate::drc_count_pyo3::register(m)?;
     // Wave 4 — validation-glue kernels (port-inventory entry-5 cluster):
     // _drc_api.py parsing, scheduler.py decisions, validation_gates.py gates.
     crate::validation_glue::register(m)?;
