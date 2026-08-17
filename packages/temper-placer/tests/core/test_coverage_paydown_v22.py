@@ -348,7 +348,24 @@ class TestGateChecks:
 
 class TestNetclassSeparatedConstraints:
     def test_generate_cross_class_constraints(self):
-        from temper_placer.core.design_rules import DesignRules
+        # FIXED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-
+        # manifest-and-ieccreepagegate-liveness.md): a bare `DesignRules()`
+        # has empty `net_classes`/`net_class_assignments`/`class_pairs`.
+        # That was harmless pre-fix, because `_resolve_component_net_class`
+        # classified nets via the standalone `classify_net_type()` keyword
+        # heuristic and never consulted `design_rules` at all. Post-fix,
+        # classification goes through `design_rules.get_rules_for_net()` --
+        # the whole point of the fix is that it IS authoritative,
+        # design_rules-sourced data (manifest/kicad_pro-backed
+        # `TEMPER_NET_ASSIGNMENTS`), so an empty `DesignRules()` now
+        # resolves every net to "Default" (no classes to match) and the
+        # cross-class pair this test exercises silently disappears (both
+        # sides fall to the same bucket). `create_temper_design_rules()`
+        # populates the real table, matching every other test in this
+        # module/suite and the function's real caller
+        # (`_encoder_core.encode_constraints`, which always passes
+        # `netclass_rules_data.design_rules`, never a bare `DesignRules()`).
+        from temper_placer.core.design_rules import create_temper_design_rules
         from temper_placer.core.netlist import Component, Netlist, Pin
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
@@ -366,7 +383,7 @@ class TestNetclassSeparatedConstraints:
         )
         netlist = Netlist(components=[q1, u1])
         constraints = generate_netclass_separated_constraints(
-            netlist, [q1, u1], DesignRules()
+            netlist, [q1, u1], create_temper_design_rules()
         )
         assert len(constraints) == 1
         assert {constraints[0].a, constraints[0].b} == {"Q1", "U1"}
