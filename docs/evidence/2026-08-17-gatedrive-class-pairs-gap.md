@@ -9,7 +9,10 @@ real committed board, not estimated. -->
 
 # `class_pairs` has zero rows for `GateDriveHV`/`GateDriveSELV` — closing the gap PR #1322 activated
 
-STATUS: in progress, committing incrementally per the working-pattern rule.
+STATUS: complete. `class_pairs` gap closed (§3), verified pairwise on the
+real board with zero regressions (§4), registered in the fact-drift gate
+(§7), and reconciled against `origin/main`'s independent PR #1320 registry
+extension after a merge (§8).
 
 Builds on PR #1322 (`fix/netclass-classifier-and-creepage-gate`,
 `docs/evidence/2026-08-17-netclass-classifier-manifest-and-ieccreepagegate-liveness.md`).
@@ -223,19 +226,101 @@ unchanged.
 
 ## 7. Registered in `scripts/check_fact_registry_drift.py`
 
-(next: add a fact entry asserting `class_pairs` carries a row for every
-{ACMains,HighVoltage,HighVoltageTank,HighVoltageIsolated,HighVoltageSignal,
-GateDriveHV,GateDriveSELV} × {FinePitch,GND,Power,Signal} + the
-GateDriveHV↔GateDriveSELV / ACMains↔HighVoltage-family completeness this doc
-derived, so a future class addition that skips class_pairs rows is a gate
-failure, not a silent weakening. Also register the `hb-gnd` two-homes
-divergence (§6).)
+Added `Fact("gatedrive_class_pairs_completeness", authoritative_value=6.0,
+value_kind="float")` with 10 homes, one per new row, each a `FactSite`
+pointing at that row's literal `netclass_rules.yaml` line. If a future edit
+deletes one of the 10 rows, that home's regex no longer matches → the gate's
+`_extract()` reports a `TOOL ERROR` (exit 5, "the site drifted structurally
+... never conflated with 0 violations" per this gate's own design). If the
+value is edited away from 6.0mm, it's a `VIOLATION` (exit 3). Either way: a
+future missing/changed GateDrive `class_pairs` row is now a gate failure,
+not a silent weakening. Verified live (`scripts/check_fact_registry_drift.py`
+run against the real repo): all 10 homes report `OK`.
+
+`HighCurrent`/`HighSpeed` (§6, adjacent gap, not fixed) were NOT registered
+here — registering an invariant for rows that don't exist yet and whose
+correct values haven't been derived would either be vacuous or require
+inventing a figure, both of which the hard rules forbid. Flagged in this
+doc instead; a future agent closing that gap should add the matching fact
+alongside the fix, not before it.
+
+`hb-gnd`'s two-homes divergence (§6) was investigated for registration but
+NOT added: `elec/domain_manifest.yaml` declares it HV via an explicit list
+entry (a literal, regex-able site), but `core/design_rules.py`'s
+`TEMPER_NET_ASSIGNMENTS`/pattern-cascade resolves it to `GND` via emergent
+behaviour (a generic ground-keyword substring test with no net-name-specific
+line to point a `FactSite` at — confirmed by grep: `TEMPER_NET_ASSIGNMENTS`
+has an explicit `"gnd": "Power"` entry but no `"hb-gnd"` entry at all, so
+its `GND` classification is NOT a literal declaration this static,
+non-executing regex gate can honestly cite). Representing this divergence
+correctly would require either executing the Python classifier (out of
+scope for this gate's design) or pointing at the general keyword-cascade
+logic (which would not actually prove the *specific* `hb-gnd` outcome).
+Left as a documented, un-mechanized flag rather than a low-quality forced
+entry — a real registration is future work, ideally alongside whoever
+reconciles `TEMPER_NET_ASSIGNMENTS` with the manifest (§6).
+
+## 8. Reconciling with `origin/main`'s independent PR #1320 registry extension
+
+This branch (built on PR #1322, `fix/netclass-classifier-and-creepage-gate`)
+was cut from a `main` commit (`caec25d61`) that predates PR #1320's own
+extension of `check_fact_registry_drift.py` (2 facts/6 sites → 35 facts/76
+site checks). Merging `origin/main` (tip `69ffdce08` at merge time) to pick
+that up produced a genuine, substantive conflict, not just a textual one:
+PR #1320 added a `hv_lv_separation_gate_threshold_mm` fact asserting gates.py
+hardcoded a stale 6.0mm creepage figure in two places
+(`PhysicsGate._CREEPAGE_MIN_MM`, and an inline literal inside
+`IECCreepageGate.check()`'s `Violation(...)` construction) — explicitly
+"KNOWN RED, NOT FIXED" in its own notes. **PR #1322 (already on this branch)
+fixed exactly that**, deleting the confirmed-dead `_CREEPAGE_MIN_MM` and
+replacing the inline literal with a reference to the new SSOT-derived
+`HV_LV_CREEPAGE_MM` constant. Merging naively would have left the merged
+registry's fact pointed at two code sites that no longer exist in their old
+form, silently degrading into `TOOL ERROR`s that misrepresent the situation
+(they'd read as "site drifted structurally, cannot trust the scan," when
+the true story is "this was fixed by a different agent's PR, for a good
+reason, mid-flight").
+
+Resolved by: removing the dead `_CREEPAGE_MIN_MM` home, keeping
+`isolation_constants.py`'s genuinely-literal `MIN_BARRIER_WIDTH_MM = 12.6`
+as the fact's one remaining float home (now `OK`, matching), and adding a
+companion fact `hv_lv_creepage_derivation_parity` (`value_kind="str"`,
+already supported by PR #1320's own extension) that verifies gates.py's
+`HV_LV_CREEPAGE_MM` and `generate_kicad_dru.py`'s `HV_CREEPAGE_PD3_MM` call
+`creepage_table_lookup` with byte-identical arguments — the strongest
+static guarantee obtainable that the two derivations agree, without
+executing the Rust SSOT lookup. Updated the one pre-existing test this broke
+(`test_hv_lv_separation_gate_threshold_is_known_red` →
+`test_hv_lv_separation_gate_threshold_is_now_clean`, plus a new
+`test_hv_lv_creepage_derivation_parity_is_clean`) to assert the new,
+correct, verified-live state rather than delete or weaken the check.
+
+Post-merge, live-verified: `scripts/check_fact_registry_drift.py` exits 5
+(TOOL ERROR) — but this is **pre-existing and unrelated**, from PR #1320's
+own `gate_hs_net_current_rating_a`/`gate_ls_net_current_rating_a` facts
+(the handoff's own §15b "20x gate-drive ampacity under-spec" finding,
+`GATE_H`/`GATE_L` vs `GATE_HS`/`GATE_LS` key mismatch, deliberately left red
+pending its own measured PR). All of my own facts (`gatedrive_class_pairs_
+completeness`, `hv_lv_separation_gate_threshold_mm`,
+`hv_lv_creepage_derivation_parity`) report `OK`/clean.
+`scripts/tests/test_check_fact_registry_drift.py`: 26/26 pass.
+`pcb/temper.kicad_pcb` sha256 verified unchanged before and after the merge.
+The whole-board pairwise verification (§4) was re-run against the merged
+tree and reproduces identically: 0 genuine cross-domain regressions, J1↔K1
+still 6.0mm.
 
 ## Files touched
 
 - `packages/temper-placer/configs/netclass_rules.yaml` — 10 new
   `class_pairs` rows, purely additive.
-- `scripts/check_fact_registry_drift.py` — (pending) new fact(s).
+- `scripts/check_fact_registry_drift.py` — added
+  `gatedrive_class_pairs_completeness` (10 homes) and
+  `hv_lv_creepage_derivation_parity` (2 homes, new); updated
+  `hv_lv_separation_gate_threshold_mm` (2 homes → 1, reflecting PR #1322's
+  fix, merge-conflict resolution, §8).
+- `scripts/tests/test_check_fact_registry_drift.py` — updated the one test
+  the merge broke to assert the new, correct, verified state; added one new
+  test for the new fact.
 
 ## Files read, not touched
 
@@ -246,5 +331,8 @@ divergence (§6).)
   `pair_creepage.generated.yaml` — read to confirm they are the SEPARATE,
   fab-authoritative DRU tables, not the right derivation source for
   `class_pairs` (§1)
+- `packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py` — read
+  to confirm PR #1322's `HV_LV_CREEPAGE_MM`/`IECCreepageGate` changes,
+  reconciled against in §8; not modified further by this work.
 - `docs/evidence/2026-08-15-safety-constant-census.md`,
   `docs/evidence/2026-08-17-netclass-classifier-manifest-and-ieccreepagegate-liveness.md`
