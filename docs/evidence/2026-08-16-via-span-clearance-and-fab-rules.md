@@ -154,6 +154,7 @@ re-routes legally or declines honestly; no shorting copper ships.
 | 222f2f302 | `_parse_nets.py` default via 0.9/0.3 (the real annular source) + THT tolerance 0.2 | annular 69->0, holes 48->36 |
 | 9365b2a15 | `routed_paths` re-assigned AFTER the via filter (emission was unfiltered) | holes 36->0 |
 | 0b064fab7 | unblock guard: never free another net's pad/via copper (the last short: rtd_force_n via at U8 overlapping the adjacent gnd pad) | shorting 1->0 |
+| ec8134372 | re-pin the `_parse_engine` differential oracle to the new default via 0.9/0.3 (PR #1198 convention: deliberate behaviour change, conservative direction, re-pin with evidence) | parse_engine differential suite green |
 
 ## 6. Notes / pre-existing, unrelated
 
@@ -164,3 +165,24 @@ re-routes legally or declines honestly; no shorting copper ships.
   fit); the property test `test_3d_fallback_legality_uses_each_netclass_
   via_envelope` needed the ACMains trace width threaded into
   `_route_segment_3d` (the disc radius depends on the real W).
+- Pre-existing failures confirmed on `origin/main` by direct comparison
+  (base worktree): test_power_islands, test_topology_copper_audit,
+  test_u2_stackup_role_ssot, test_pipeline_grid_net_pad_positions
+  (`Component(initial_rotation=...)` API drift), test_netclass_loader
+  (citation-text pin), test_fab_body_extraction, test_finepitch
+  (kicad7 footprint dir), the deterministic digest pins, and the
+  networkx-API tests (bundle_analyzer / channel_skeleton fixtures).
+  One hypothesis property test
+  (`test_m1_power_of_two_scaling_is_exactly_equivariant`) fails only
+  when the worktree's hypothesis DB happens to contain a subnormal-float
+  (5e-324) example — a latent exactness edge case in the untouched
+  `point_to_segment_distance` kernel, not a regression (passes with
+  fixed seeds 0/1 and on base with a fresh DB).
+- The `_parse_engine` differential oracle was re-pinned to the new
+  default via 0.9/0.3 (commit ec8134372) — the pinned oracle is the
+  reference for the old behaviour; the fix widens the via, the
+  conservative direction (PR #1198 re-pin convention).
+- drill_out_of_range (12 on route4) is the FinePitch 0.8/0.2 class's
+  drill below the board's min — out of this task's scope (the task
+  listed annular 68 / holes 60 / dangling 44), documented here for the
+  record.
