@@ -129,16 +129,41 @@ same trade this repo's obstacle-map work keeps making. Two placement
 passes (#1269, #1279) each moved 10+ components specifically to clear
 PD3 creepage violations, and the 89/139 doc's own §3 already documented
 that the *first* such move (#1248, the board 89/139 itself sits on)
-caused a 21-net churn versus its predecessor. It would be surprising if
-#1269+#1279 (two more such moves) did *not* also perturb connectivity by
-a comparable amount.
+caused a 21-net churn versus its predecessor.
 
-**This fully accounts for the direction of the 89→61 move** (28 nets)
-without needing any metric-definition difference: the router got
-measurably more honest about clearance/creepage between the two
-measurements, at a connectivity cost consistent with every other
-fail-closed fix measured in this project, compounded by two placement
-passes each documented to cause double-digit net churn.
+**Update — placement's specific contribution is weaker evidence than
+this paragraph originally claimed.** A follow-up measurement
+(`docs/evidence/2026-08-17-pr1299-placement-connectivity-cost.md`,
+requested by the coordinator to test this attribution directly) routed
+the board with a materially smaller, also DRC-motivated placement
+perturbation (PR #1299's 5 moves, ≤2mm each, vs #1269/#1279's 10+
+components each) and found it **gains** 2 nets net (6/139 churned, 4 up
+/ 2 down), not a cost. That result is consistent with either "placement
+churn is proportional to footprint and #1269/#1279's larger moves simply
+landed on the unlucky side" or "placement is closer to connectivity-
+neutral in general and the drop is dominated by #1259/#1261/#1267
+instead" — it does not distinguish the two, and this task did not
+re-route the board at the literal `#1269`/`#1279` pre-move positions to
+settle it directly. **The obstacle-halo-tightening commits
+(#1259/#1261/#1267) remain the better-evidenced part of this section's
+causal case** — each is independently documented (PR #1301's own
+measured −3, the #1267 commit message's own before/after, the capstone
+doc's OVP-zone-refusal finding) to trade connectivity for correctness on
+its own, with no placement confound needed. Placement should be read as
+"changed something, not proven costly by itself," not as a confirmed
+co-driver of the 89→61 drop.
+
+**This accounts for the direction of the 89→61 move** (28 nets) without
+needing any metric-definition difference: the router got measurably more
+honest about clearance/creepage between the two measurements, at a
+connectivity cost consistent with every other fail-closed fix measured
+in this project. The two intervening placement passes (#1269, #1279)
+also changed the board's geometry in that window and are documented
+elsewhere to cause double-digit net churn on this board (#1248's own
+move: ~21 nets), but — per the update above — this task's own follow-up
+measurement shows placement churn is not reliably *negative*, so
+placement is reported as a contributing confound whose net sign is
+unconfirmed, not as an established co-driver of the drop's direction.
 
 ## 4. The route-recipe axis is a second, independent variable — and it flipped
 
