@@ -12,7 +12,12 @@ re-confirmed while executing (e.g. `test_requirement_matrix_values_pinned`
 does not exist anywhere in the tree — grepped directly, zero hits, matching
 the spike's own "UNVERIFIED, flagged rather than assumed" note).
 
-Commits: `0201767f8` (stage 1), `511f91be8` (stage 2).
+Commits (original, pre-rebase): `0201767f8` (stage 1), `511f91be8` (stage 2).
+Rebased onto main `23af9b29c` (PR #1323) after PR #1324 went CONFLICTING;
+final commits on `feat/rust-port-domain-clearance-netclass`: `e9c1773a9`
+(stage 1, unchanged by the rebase), `4bee6ac3a` (stage 2, adapted to
+#1323's classifier fix), `83e10069d` (rebase follow-up: oracle re-pin +
+differential fix). See §Rebase below.
 
 ## Stage 1 — finish `domain_clearance.py`, single-source the safety matrix
 
@@ -212,19 +217,101 @@ divergence. The one real finding was the stale PD2-vs-PD3 doc comment in
 one; the underlying values were already correct on both sides before this
 port touched anything.
 
+## Rebase onto main PR #1323 — classifier fix, not a refactor
+
+PR #1324 (opened from the original 3 commits above) went CONFLICTING when
+main PR #1323 (`23af9b29c`) merged, touching the same file:
+`netclass_constraints.py`. #1323 is a **safety fix**, not cosmetic: the old
+`_resolve_component_net_class` classified via `core.net_classification.
+classify_net_type()` — a net-NAME keyword heuristic — which put K1's HV
+relay-contact nets (`power_in.ntc-no`, `w1_1`, `w1_2`) in the same
+"signal" bucket as J1's SELV RTD nets, so `ca == cb: continue` silently
+dropped the ONE separation constraint that mattered — the pair later
+proved unroutable. #1323 replaced it with `design_rules.
+get_rules_for_net()`, the same `TEMPER_NET_ASSIGNMENTS`-backed classifier
+every other `DesignRules` consumer already uses, and completed 10
+`class_pairs` rows (`GateDriveHV`/`GateDriveSELV`) the fix newly activated.
+
+**Rebase mechanics.** `git rebase origin/main` conflicted only in
+`netclass_constraints.py` (design-bundle/drc-rs/oracle-hashes/docs files
+from stage 1 applied cleanly). Resolution: kept #1323's classifier
+entirely (`_SAFETY_CATEGORY_RANK`, `design_rules.get_rules_for_net()`
+calls, `_pin_class_infos` — a new shared memoization helper, since
+`get_rules_for_net` is a live pyclass method needing the GIL and cannot be
+ported to a pure Rust kernel without threading a `DesignRules` reference
+across the FFI boundary, out of this stage's scope); re-shaped `netclass.rs`
+to receive pre-resolved `(net_class, safety_category, clearance)` triples
+per pin instead of raw net names, and do the severity-rank reduction over
+that data (`safety_category_rank`, mirroring `_SAFETY_CATEGORY_RANK`
+exactly) instead of the old `classify_net_type`-based `severity_rank`. The
+O(n²) pairing walk, `existing_constraints` suppression, and `class_pairs`
+lookup are structurally unchanged from the original stage-2 port. Removed
+the now-unused `temper-io-types` dependency from `temper-orchestration`'s
+`Cargo.toml` (added only for the old `classify_net_type` call).
+
+**Oracle re-pinned — deliberate, documented, same discipline PR #1307
+used for its own corrected divergence.** `_netclass_constraints_py_oracle.py`
+was pinned earlier in this session as a verbatim copy of the file *before*
+#1323 landed. After rebasing onto #1323, that pin encoded the SUPERSEDED,
+unsafe classifier. Continuing to differentially assert against it would
+mean one of two wrong outcomes: the Rust port faithfully reproduces a
+safety defect Python already fixed, or the comparison is silently
+disabled. Neither is acceptable, so the oracle was re-pinned to #1323's
+own committed `netclass_constraints.py` (byte-diffed against
+`git show 23af9b29c:...` to confirm exact match before committing) — the
+correct pre-Rust-port baseline. This re-pin touches only an oracle created
+in *this same session* (`18432f31...` → `f06e0e95...`), not one of the
+pre-existing ~187 pinned oracles; `scripts/oracle_hashes.json` stays at
+169 total entries throughout (confirmed via `git diff`).
+
+**J1↔K1 verified end-to-end, post-rebase, on the real board** (script run
+directly against `pcb/temper.kicad_pcb`, not a mock fixture): J1 resolves
+to `Signal`, K1 to `HighVoltage`, `generate_netclass_separated_constraints`
+emits exactly one `J1↔K1` `SeparatedConstraint` at **6.0mm** — on both the
+Rust-ported path and the re-pinned oracle, with an identical total
+constraint count (8978) on both sides. Matches #1323's own evidence doc
+measurement (0mm absent → 6.0mm) exactly.
+
+**Test counts, post-rebase:**
+
+| Suite | Result |
+|---|---|
+| `cargo test` `temper-orchestration` (`--lib`) | 1170/1170 (1 known-flaky test in `marshal.rs`, unrelated file, untouched by any commit here — fails only under parallel execution, passes in isolation and on re-run) |
+| `cargo clippy -D warnings` `temper-orchestration` | clean |
+| `pytest test_netclass_constraints.py` | 8/8 (main's own #1323 assertions, unmodified) |
+| `pytest test_netclass_constraints_rust_differential.py` | 22/22 (13 orchestration scenarios incl. the completed `GateDriveHV`/`GateDriveSELV` `class_pairs` rows + a direct J1/K1-style end-to-end check, 7 classification scenarios incl. the defect-shape check, 60-example property test) |
+| `pytest packages/temper-placer/tests/requirements/` (stage 1, re-verified) | 881/881 (+25 pre-existing skips) — unaffected by the rebase |
+| `pytest test_e2e_netclass_ssot.py` | 4/5 (1 pre-existing failure — `netclass_rules.yaml` citation text, `git diff` confirms untouched by any commit in this branch) |
+| `pytest test_physics_gate.py` | 6 failures in this environment, all `IECCreepageGate` tests needing a resolvable `.kicad_pro` sidecar — entirely inside #1323's own `gates.py`/test file, `git diff` confirms zero commits in this branch touch either file |
+| `scripts/check_oracle_hashes.py` | 169/169 OK |
+
+**PR update.** Pushed the rebased history (force-with-lease, since rebase
+rewrites commit SHAs) to `feat/rust-port-domain-clearance-netclass`;
+`gh pr view 1324` confirms `mergeable: MERGEABLE` (was `CONFLICTING`
+before the push).
+
 ## What "done" means — checklist
 
 - Rust implementation + thin pyo3 binding: yes, both stages, wired and
   proven live by call-site tracing + direct `hasattr`/import checks, not
-  by naming.
+  by naming. Re-verified live post-rebase via the direct J1/K1 real-board
+  script run (§Rebase above).
 - Python that is now dead is deleted, not left as a shim: the 32-line
-  `IEC60335_REQUIREMENTS` literal and the 110-line netclass pairing loop
-  are both gone from their Python files, replaced by thin marshalling +
-  FFI calls — not commented out, not `# TODO: remove`.
-- Differential oracle created for each port: yes, 2 new oracles, 24 new
-  tests total, zero existing oracles touched or re-pinned.
-- Full test suites pass: yes, exact counts above; the 2 failures present
-  are pre-existing, independently confirmed unrelated via `git diff`.
-- Stage 2 was not deferred — the coordination risk named in the task
-  (a sibling mid-edit on the same file) did not materialize (checked via
-  `git log --all` before starting), so both stages landed.
+  `IEC60335_REQUIREMENTS` literal and the netclass pairing loop are both
+  gone from their Python files, replaced by thin marshalling + FFI calls —
+  not commented out, not `# TODO: remove`.
+- Differential oracle created for each port: yes, 2 new oracles, 25 tests
+  total across both (5 matrix + 22 netclass, +2 net after the rebase's
+  J1/K1 addition and classification-shape additions). Zero *pre-existing*
+  oracles touched; the netclass oracle (created this session) was
+  deliberately re-pinned once, post-rebase, to track main's safety fix —
+  documented above, not silent.
+- Full test suites pass: yes, exact counts above; every failure present
+  (3 distinct pre-existing issues across both the original work and the
+  rebase) is independently confirmed unrelated via `git diff` against the
+  specific files each touches.
+- Stage 2 was not deferred — the coordination risk named in the original
+  task (a sibling mid-edit on the same file) did not materialize before
+  the rebase (checked via `git log --all`), and the actual conflict that
+  DID arrive (main's own #1323, merged after this work started) was
+  resolved by rebasing onto the corrected classifier, not fighting it.
