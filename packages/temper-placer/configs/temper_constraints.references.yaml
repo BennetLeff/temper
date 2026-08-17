@@ -106,23 +106,23 @@ authority:
 # alias/unresolved-component board ref above is therefore verified
 # unaffected. The source export (elec/exports/temper.design-input.v1.json)
 # is untouched -- hash unchanged.
-# Re-pinned 2026-08-16 (fix/placement-reconciliation, commit dcc96d099):
-# STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving FIVE
-# footprints (position-only, same pattern as the prior pins): K1/RT1/U1/U2
-# into the PR #1244 power_in.ntc-no cluster + C7 to (112, 218, 90) clear of
-# the pocket. `(footprint ` count (168) and `Sheetpath` occurrence count
-# (168) are unchanged, and the Sheetpath->Reference map is identical
-# before/after (same footprints, same sheetpaths, same refs -- only their
-# `(at ...)` lines moved). No alias/unresolved-component entry references
-# any of the five. Every alias/unresolved-component board ref above is
-# therefore verified unaffected. The source export
+# Re-pinned 2026-08-16 (fix/placement-pass-creepage-clearance, commit 7596f4c7):
+# STALE again -- pcb/temper.kicad_pcb changed, but ONLY by moving TEN
+# footprints (position-only, same pattern as the prior pins): U14, C16,
+# C36, C20, SW1, U10, R53, R60, R6, R50 -- the placement pass clearing 16
+# PD3-creepage net-pairs. `(footprint ` count (168) and `Sheetpath`
+# occurrence count (168) are unchanged, and the Sheetpath->Reference map is
+# identical before/after (same footprints, same sheetpaths, same refs --
+# only their `(at ...)` lines moved). No alias/unresolved-component entry
+# references any of the ten. Every alias/unresolved-component board ref
+# above is therefore verified unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: dcc96d0995d0429971bcf487f4219b51916b6e2a
+  measured_at_commit: 7596f4c7e03bac3109364f398974a15715dda675
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: ddb96f9e03abdcbb0aa40523b45c07413bc694309417628907780e3d19527ef2
+      sha256: 72e14ab4602b7414a31459b8e0eb8ce3324e0d49e561ae8566f9173d1e6bc3f6
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
