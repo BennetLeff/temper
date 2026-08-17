@@ -1,7 +1,9 @@
 # Via-span clearance: A* + plane emitters, and the clearance-family attribution (2026-08-16)
 
-<!-- provenance: commit=f1d73c1bc dirty=false (numbers from the three routed boards below;
-     final verification route f2 in flight at commit time) -->
+<!-- provenance: commit=54fd7a369 dirty=false; measured on main-before-route.kicad_pcb
+     (main @ 593d9ab24), fix-after-route.kicad_pcb (d5308c535) and
+     fix2-after-route.kicad_pcb (d5308c535+62612972e), kicad-cli 10.0.5,
+     PD3 DRU regenerated at 593d9ab24, run_drc --all-track-errors protocol. -->
 
 ## Summary
 
@@ -56,15 +58,32 @@ PTH).
 
 | metric | BEFORE (main) | AFTER (Fix 1) | AFTER2 (both) | delta (main→AFTER2) |
 |---|---|---|---|---|
-| shorting_items | 40 | 35 | (route in flight) | ... |
-| clearance (raw ATE read) | 229 | 133 | ... | -96 |
-| creepage | 144-145 | 143-144 | ... | ~0 |
-| annular_width | 46 | 18 | ... | -28 |
-| track_width | 122 | 122 | ... | 0 |
-| fully-connected nets (audit) | 53/139 | 41/139 | ... | -12 (fail-closed declines) |
+| shorting_items | 40 | 35 | **27** | **-13** |
+| clearance (raw ATE read) | 229 | 133 | **132** | **-97** |
+| creepage | 144-145 | 143-144 | 143-144 | ~0 |
+| annular_width | 46 | 18 | 18 | -28 |
+| track_width | 122 | 122 | 128 | ~0 |
+| fully-connected nets (audit) | 53/139 | 41/139 | 41/139 | -12 (fail-closed declines) |
+
+Shorting by pair type:
+
+| pair type | BEFORE | AFTER | AFTER2 |
+|---|---|---|---|
+| Track↔Track | 15 | 15 | 15 |
+| Pad↔Track | 12 | 12 | 12 |
+| Track↔Via (incl. blind) | 13 | 8 | **0** |
+
+**Every via-involving short is eliminated** (13 → 8 → 0): Fix 1 closes the
+A*-placed class, Fix 2-code closes the power-island emitter class. The
+residual 27 shorts (Track↔Track 15 + Pad↔Track 12) are the unblock-clipped-
+ring class (§4) + emitter micro-segments — same root cause as the residual
+clearance.
+
+Clearance by pair type (AFTER2, 132 total): Pad↔Pad 34, Pad↔Via 24,
+Via↔Via 24, Track↔Via 18, Pad↔Track 14, Track↔Track 9, PTH-pad↔Track 9.
 
 Fix 1 clears the A*-placed via-involving items: shorts Track↔Via 13→8,
-clearance via-involving 161→67 (of 229→133). Fix 2-code targets the
+clearance via-involving 161→67 (of 229→133). Fix 2-code clears the
 remaining 8 via shorts (all +3V3 power-island through vias vs In3.Cu/In4.Cu
 tracks — the +3V3 net is zone-eligible and A*-excluded, so its vias come
 from `_power_islands.py`, which never received the pierce-layer check).
@@ -113,15 +132,18 @@ main (verified in the main worktree), zero new failures.
   In3.Cu track through a +3V3 pad whose via IS emitted in the baseline must
   now be skipped/offset fail-closed (verified red on the pre-fix code).
 
-## Fix 2-measure — the clearance family (133 after Fix 1)
+## Fix 2-measure — the clearance family (132 after both fixes)
 
-AFTER (Fix 1) clearance by pair type (133 total): Pad↔Pad 34, Via↔Via 24,
-Pad↔Via 22, Track↔Via 21, Pad↔Track 14, Track↔Track 9, PTH-pad↔Track 9.
+AFTER2 clearance by pair type (132 total): Pad↔Pad 34, Pad↔Via 24,
+Via↔Via 24, Track↔Via 18, Pad↔Track 14, Track↔Track 9, PTH-pad↔Track 9.
+(The brief's "~132 remaining" figure from the cspace doc matches: 133/132
+on both after boards — Fix 1/Fix 2-code clear the via SHORT class and the
+via-placement clearance, while the ring-clipped clearance class persists.)
 Attribution:
 
 | class | count | owner |
 |---|---|---|
-| unblock-clipped foreign rings (creepage-0 pairs) | ~90 (67 via-involving + 14 pad↔track + 9 track↔track) | routing C-space (this doc's root cause) |
+| unblock-clipped foreign rings (creepage-0 pairs) | ~89 (66 via-involving + 14 pad↔track + 9 track↔track) | routing C-space (this doc's root cause) |
 | static pad↔pad | 34 | placement / netclass classification (agent 94's doc: R15×R18 classification question, U9/U8 same-footprint pairs) |
 | PTH-pad stub items | ~9 | emitter micro-segments |
 
