@@ -24,7 +24,7 @@ with an empty channel sequence before the pipeline's fallback fires).
 
 from __future__ import annotations
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 
 from temper_placer.core.netlist import Component, Net, Pin

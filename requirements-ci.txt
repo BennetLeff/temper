@@ -63,8 +63,6 @@ mypy-extensions==1.1.0
     # via mypy
 narwhals==2.24.0
     # via plotly
-networkx==3.6.1
-    # via temper-placer
 numpy==2.4.6
     # via
     #   ortools

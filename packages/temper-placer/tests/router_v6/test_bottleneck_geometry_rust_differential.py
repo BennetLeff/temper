@@ -306,7 +306,7 @@ def _oracle_build_capacitated_graph(
             graph construction. Callers should catch this and surface
             an ``aborted_timeout`` ``BottleneckGeometry``.
     """
-    import networkx as nx
+    import tests.graph_fixtures as nx
 
     del board_state  # reserved for future zone-based exclusion
 
@@ -659,7 +659,7 @@ def _graph_from_rust_kernel(
 ) -> Any:
     """Build the nx.DiGraph from the Rust kernel's (nodes, edges) exactly
     as the module's ``_build_capacitated_graph`` wrapper does."""
-    import networkx as nx
+    import tests.graph_fixtures as nx
 
     nodes, edges = _build_capacitated_graph_rust(
         grid, source_cells, sink_cells, net_class_rules, pad_net_classes, current_net_class
@@ -853,7 +853,7 @@ def _mincut_pair(
     nx_nonreachable) on the SAME graph, or None on the aborted path (empty
     graph / pad not in node set — production returns aborted_no_sink there
     and never calls a flow function)."""
-    import networkx as nx
+    import tests.graph_fixtures as nx
 
     nodes, edges = _build_capacitated_graph_rust(
         grid, source_cells, sink_cells, net_class_rules, pad_net_classes, current_net_class

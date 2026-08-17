@@ -14,7 +14,7 @@ geometry was never the obstacle; this naming contract was.
 
 from __future__ import annotations
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import pytest
 from temper_placer.router_v6.constraint_model import canonical_channel_edges
 

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import random
 
-import networkx as nx
+import tests.graph_fixtures as nx
 
 import temper_design_bundle_python as _tdb
 

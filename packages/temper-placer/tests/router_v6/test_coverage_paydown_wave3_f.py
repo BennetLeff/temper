@@ -1029,7 +1029,7 @@ def test_bottleneck_analysis_worst_bottleneck():
 
 def test_channel_skeleton_properties():
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-    import networkx as nx
+    import tests.graph_fixtures as nx
 
     g = nx.Graph()
     g.add_node("A")
@@ -1047,7 +1047,7 @@ def test_channel_skeleton_properties():
 
 def test_channel_skeleton_single_node():
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-    import networkx as nx
+    import tests.graph_fixtures as nx
 
     g = nx.Graph()
     g.add_node("A")
@@ -1063,7 +1063,7 @@ def test_channel_skeleton_single_node():
 
 def test_channel_skeleton_disconnected():
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-    import networkx as nx
+    import tests.graph_fixtures as nx
 
     g = nx.Graph()
     g.add_node("A")

@@ -44,7 +44,7 @@ import math
 import random
 from types import SimpleNamespace
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import numpy as np
 import pytest
 import shapely

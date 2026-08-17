@@ -33,7 +33,7 @@ import subprocess
 import sys
 import textwrap
 
-import networkx as nx
+import tests.graph_fixtures as nx
 import numpy as np
 import pytest
 
