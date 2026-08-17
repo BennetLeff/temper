@@ -7,6 +7,20 @@
 - **PCB**: KiCad design with temper-placer optimizer
 - **Language**: C (firmware), Python + Rust (placer)
 
+**Rust is preferred over Python, and the placer is actively migrating off
+Python.** New logic goes in Rust with a thin pyo3 binding, following the
+existing pattern. Do not introduce a new Python single-source-of-truth; if
+you find yourself writing one, the Rust crate it belongs in already exists.
+Two consequences that catch people:
+
+*   Many `*.py` files in the placer are already pure-delegation shims whose
+    every function calls a Rust pyfunction. Editing one because it "looks
+    like the implementation" changes nothing. Check for a Rust owner first.
+*   pyo3 module registration order matters: a later `add_function` silently
+    shadows an earlier one of the same name, with no error. Two duplicate
+    `kw_boundary_match_py` registrations shipped this way and one of them
+    was dead for its entire lifetime.
+
 **Key areas:**
 - `firmware/` - ESP32-S3 control code
 - `packages/temper-placer/` - CP-SAT PCB placement optimizer with Rust geometry/DRC crates
@@ -792,6 +806,25 @@ Two corollaries:
 *   **Leave the main checkout on `main`.** If you did work there, return it
     when done. A shared checkout parked on a feature branch silently
     changes what the next agent measures.
+
+**Your own worktree means *yours*, not merely "not the main checkout."**
+Run `git worktree list` and confirm the directory is yours before your
+first write. Reusing a directory another agent is already in is the same
+failure as sharing the main checkout, and it is the more common one: in a
+single session on 2026-08-14, seven collisions occurred, including three
+separate agents working in one `.claude/worktrees/agent-*` directory —
+one agent's commits landed on another's branch, and a third's uncommitted
+edits sat in the same tree while HEAD was moved out from under them twice.
+
+If you discover foreign work in your tree:
+
+*   **Do not `git checkout`, `restore`, `reset`, or revert it.** Copy your
+    own files out and rebranch. Reverting someone else's uncommitted work
+    is unrecoverable, and `git stash` is forbidden repo-wide.
+*   **Check what your branch is stacked on.** A branch created inside a
+    shared worktree inherits whatever was checked out there. Cherry-pick
+    the commit you need onto a clean base rather than carrying three
+    commits belonging to two other agents into your PR.
 
 ### Never Background a Long Run and Wait For It
 
