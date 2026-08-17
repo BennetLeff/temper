@@ -21,6 +21,37 @@ Two consequences that catch people:
     `kw_boundary_match_py` registrations shipped this way and one of them
     was dead for its entire lifetime.
 
+### When Rust and Python disagree
+
+**Standing rule: fix the Rust until it is definitely correct, then deprecate
+and delete the Python.** Never reconcile by adjusting Rust to match Python,
+and never leave both in place "in agreement" — two homes that agree today
+drift tomorrow, and this repo has the scars to prove it.
+
+"Definitely correct" means correct *by construction*, not correct by
+coincidence. The distinction is not academic:
+
+> `temper_drc_rs::ipc::net_currents()` returned the right ampacity for
+> `GATE_HS` only because its lookup used a **substring** match and the stale
+> key `GATE_H` happens to be a literal prefix. Python's exact match missed the
+> same key and returned the 0.1A default — a 20× disagreement on a safety
+> value. Rust's answer was right; its *mechanism* was wrong, and would equally
+> have matched `XGATE_HSY`. Renaming the key without tightening the lookup
+> would have preserved the coincidence.
+
+So the sequence is: **make Rust right → prove it against Python with a
+differential oracle → delete the Python → keep the oracle.** The ~187 pinned
+`_*_py_oracle.py` files exist to make that deletion safe; adding a new oracle
+for newly-ported code is correct and expected. Re-pinning an *existing* one is
+a separate, deliberately-committed act requiring evidence first.
+
+**A differential test only proves what you feed it.** The Rust/Python
+ampacity divergence above survived a genuinely-running differential test
+because that test's input was `"Gate_H"` — a net name absent from this board.
+Both sides looked it up, both agreed, green. When you write or trust a
+differential, check that its inputs are values the production system actually
+sees.
+
 **Key areas:**
 - `firmware/` - ESP32-S3 control code
 - `packages/temper-placer/` - CP-SAT PCB placement optimizer with Rust geometry/DRC crates
