@@ -432,9 +432,22 @@ either for time (small, clean items) or because they need a disposition
 decision first (oracle-entangled items, explicitly flagged rather than acted
 on per this task's own caution about deletion risk):
 
-**Clean, no oracle blocker — ready to delete in a follow-up PR:**
-- `core/graph.py` (127 LOC) — JAX-era `NetlistGraph`, zero non-test importers; dedicated test file `test_graph.py` only.
-- `core/power_topology.py` (256 LOC) — `TemperPowerTopology`; only production "reference" is a code *comment*, not an import. Test footprint entangled with `test_core_graph_cluster_{rust_differential,pbt}.py` — needs those large mutation-test files edited, not just deleted.
+**Deleted in a follow-up commit this same session** (`35e3f914a`, after this
+doc's tables above were first written — updating here rather than rewriting
+the tables in place):
+- `core/graph.py` (127 LOC) — JAX-era `NetlistGraph`, zero non-test importers; dedicated test file `test_graph.py` only. **DELETED.**
+- `core/power_topology.py` (256 LOC) — `TemperPowerTopology`; only production "reference" was a code *comment*, not an import. Test footprint was entangled with `test_core_graph_cluster_{rust_differential,pbt}.py`; both files (and `test_power_topology.py`) removed alongside it since both dead modules shared that test cluster. **DELETED.**
+- `deterministic/geometry/grid_utils.py` (62 LOC) — found independently of this doc's original sweep pass; `bridge.rs`'s own comment names it and `via_placement.py` as the two intended callers, but `via_placement.py` does not in fact call it (confirmed by direct grep). Test footprint (`test_grid_utils_pbt.py`, `test_grid_utils_rust_differential.py`) removed alongside it; oracle (`_grid_utils_py_oracle.py`, self-contained verbatim copy) untouched. **DELETED.**
+
+All three: cascading Rust-kernel consequences (`graph_clique_expand_py`,
+`graph_batch_concat_py`, `power_delivery_strategy_py`,
+`power_required_trace_width_py`, `power_trace_width_py`, `add_endpoint_nudge`,
+`snap_to_grid` all lost their only caller) ledgered `[ORPHANED-DELETE]` in
+`.unwired-kernel-inventory`; `check_unwired_kernels.py` and
+`check_orphaned_python_modules.py` both verified green after. Board sha256
+unchanged throughout.
+
+**Still clean, no oracle blocker — ready to delete in a follow-up PR:**
 - `physics/parameter_bounds.py` (432 LOC) — thermal L2-soundness bounds, written for a `helps_battery.py` integration that was never wired. Clean dedicated tests.
 - `pcl/unsat_compiler.py` (186 LOC) — UNSAT-core→PCL compiler, tested, never called.
 - `requirements/validators/_geometry.py` (119 LOC, the `src/` copy) — superseded; its original callers (`layout_review`/`switching_nodes`/`bypass_caps`/`pick_and_place`) no longer exist in `src/` (they survive only as the unwired `tests/requirements/validators/` cluster flagged above, which is a *different* file of the same name and must not be confused with it).
@@ -453,6 +466,16 @@ on per this task's own caution about deletion risk):
 - `tests/requirements/validators/{layout,layout_review,markings,prefab,switching_nodes}.py` (~3,288 LOC) — real, unwired, safety-adjacent requirement-validator logic. Owner decision: wire into a real test/CI check, or make a deliberate, documented call to retire it. Not touched.
 
 **Rust crates**: all 15 checked (`cargo check --all-features` forced fresh, `cargo clippy` spot-checked on 3) — **zero `dead_code`/`unused` warnings, zero orphaned `.rs` files** (440 files traced from each crate's `lib.rs` via its `mod` graph). No Rust deletions this pass; the surface is clean by both checks available. Any further Rust dead code would have to be the live-reachable-but-functionally-inert shape (e.g. a flag always false), which needs the same call-site-tracing method as Part A and was out of this pass's time budget.
+
+**Caveat on "zero dead_code warnings" found during a final re-check**: 102
+`#[allow(dead_code)]` attributes exist across 30 `.rs` files under
+`packages/*/src`. Each one is precisely a place where the compiler's own
+dead-code lint would otherwise have fired and was pre-emptively silenced —
+exactly the "checks silenced" mechanism (handoff §3, mechanism 3), not
+verified clean by "zero warnings" alone. None were individually triaged this
+pass (would need per-attribute justification-or-removal, out of the time
+available); flagged here as a real, uncharacterized residual rather than
+folded into the "clean" claim above.
 
 ### The gate — what it is, where it runs, proof it's non-vacuous
 
