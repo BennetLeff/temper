@@ -999,6 +999,7 @@ name = "temper-orchestration"
 version = "0.1.0"
 dependencies = [
  "temper-data-model",
+ "temper-geometry",
 ]
 
 [[package]]
