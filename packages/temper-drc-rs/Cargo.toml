@@ -45,6 +45,17 @@ temper-geometry = { path = "../temper-geometry", optional = true, default-featur
 # Shared PyO3 dict extraction utilities (used from board_py_bridge).
 # Optional + gated behind `python` to keep wasm32 pyo3-free.
 temper-py-bridge = { path = "../temper-py-bridge", optional = true }
+# req_safe_01.rs's requirement matrix (`requirement_matrix()`) is the single
+# source for the 6-row IEC60335_REQUIREMENTS/MATRIX_ROWS table (2026-08-17
+# placer constraint/clearance Rust-port stage 1 -- see
+# docs/evidence/2026-08-17-domain-clearance-netclass-rust-port-stages-1-2.md).
+# req_safe_01.rs is itself `#[cfg(feature = "python")]`-gated (see lib.rs),
+# so this is optional + re-enabled under `python` only, mirroring
+# temper-geometry above -- zero wasm32 impact. temper-design-bundle's own
+# default features are empty (no pyo3), so `default-features = false` here
+# pulls no pyo3 transitively even if this crate's `python` feature were ever
+# built with default features disabled elsewhere.
+temper-design-bundle = { path = "../temper-design-bundle", optional = true, default-features = false }
 # `thermal_relief._is_power_net` is a `re.compile(..., re.IGNORECASE)`
 # word-boundary search. Only `is_match` is used, so the automaton and
 # CPython's backtracker agree by construction (match *existence* is
@@ -64,7 +75,7 @@ thiserror = "1"
 # `[tool.maturin] features` in pyproject.toml -- default features are not
 # the mechanism that build relies on.
 default = []
-python = ["dep:pyo3", "dep:temper-geometry", "dep:temper-py-bridge"]
+python = ["dep:pyo3", "dep:temper-geometry", "dep:temper-py-bridge", "dep:temper-design-bundle"]
 # Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
 # and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
 # call each test function by index.  Off by default; never enabled for the
