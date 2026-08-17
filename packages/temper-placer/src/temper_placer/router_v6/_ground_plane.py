@@ -492,16 +492,19 @@ def _find_via_drop_point(
     small local ring search around it.
 
     ``pour_region`` (optional): the union of this run's OWN zone-fill
-    outlines (exterior minus holes). When given, pour-INSIDE points are
-    preferred (pass 1: pad_pos then ring, requiring the via footprint to
-    sit inside the filled region, so the via's barrel actually touches the
-    plane copper after fill -- measured 2026-08-16: vias placed against
-    the ~9.5mm keepout alone land up to 12.6mm from HV copper, i.e.
-    OUTSIDE the creepage-carved fill, and touch no plane at all). If no
-    pour-inside point exists, pass 2 falls back to the keepout-clear-only
-    behaviour (a via outside the pour can still be joined by the F.Cu MST
-    backbone, so connectivity never regresses -- the plane just does not
-    add to it).
+    outlines (exterior minus holes). When given, the via MUST sit inside
+    the filled region (pass 1: pad_pos then ring, requiring the via
+    footprint to sit inside the filled region, so the via's barrel
+    actually touches the plane copper after fill -- measured 2026-08-16:
+    vias placed against the ~9.5mm keepout alone land up to 12.6mm from
+    HV copper, i.e. OUTSIDE the creepage-carved fill, and touch no plane
+    at all). There is deliberately NO keepout-clear-only fallback: a via
+    outside the pour touches no plane copper on any layer, so it dangles
+    on every layer but the F.Cu backbone -- measured as 19 via_dangling
+    warnings on the 2026-08-16 capstone route. The pad keeps its F.Cu MST
+    backbone connection whether the via is emitted or skipped, so the
+    skip costs no connectivity the fallback via would have provided --
+    it only removes a DRC violation.
 
     Returns ``(point, needs_stub)``: ``needs_stub`` is True when the
     returned point is not *pad_pos* itself, telling the caller to emit a
@@ -549,6 +552,13 @@ def _find_via_drop_point(
         found = _search(require_pour=True)
         if found[0] is not None:
             return found
+        # Deliberately NO keepout-only fallback (2026-08-16): a via
+        # outside the pour touches no plane copper on any layer -- it
+        # dangles on every layer but the F.Cu backbone (19 via_dangling
+        # warnings measured on the 2026-08-16 capstone route). The pad
+        # keeps its F.Cu MST backbone connection either way, so skipping
+        # costs no connectivity the fallback via would have provided.
+        return None, False
     return _search(require_pour=False)
 
 
@@ -1114,8 +1124,9 @@ def generate_ground_plane_blocks(
                 "generate_ground_plane_content: no clear via drop point "
                 "found near gnd pad at (%.4f, %.4f) (pad centre and every "
                 "ring-search offset conflict with an existing hole/HV "
-                "keepout/other net's copper) -- skipping this via rather "
-                "than emitting a known-colliding one.",
+                "keepout/other net's copper, or no pour-inside point in "
+                "the carved In1.Cu fill) -- skipping this via rather than "
+                "emitting a known-colliding or plane-less (dangling) one.",
                 x,
                 y,
             )

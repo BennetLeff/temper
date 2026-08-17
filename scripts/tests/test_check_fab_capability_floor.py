@@ -113,6 +113,50 @@ def test_p2_catches_a_sub_floor_net_class_via_template(monkeypatch, capsys):
     assert "FakeClass" in out
 
 
+def test_p2b_catches_the_highvoltagesignal_drift(tmp_path, monkeypatch, capsys):
+    """The EXACT defect shape this property was added for: HighVoltageSignal
+    at 0.8/0.4 (0.2mm ring) in netclass_rules.yaml -- the file the router
+    consumes -- while TEMPER_NET_CLASSES (P2's home) already had the
+    correct 1.0/0.4. P2 alone was green for months while the router kept
+    emitting sub-floor vias (69 annular_width errors per route)."""
+    yaml_path = tmp_path / "netclass_rules.yaml"
+    yaml_path.write_text(
+        textwrap.dedent(
+            """
+            classes:
+              HighVoltageSignal:
+                via_diameter: 0.8
+                via_drill: 0.4
+              HighVoltage:
+                via_diameter: 1.2
+                via_drill: 0.6
+            """
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        gate, "yaml_net_class_via_rings", lambda: gate.yaml_net_class_via_rings()
+    )
+    # Re-point the function's path resolution at the fixture. yaml_net_class_via_rings
+    # resolves via REPO_ROOT; simplest is to monkeypatch the whole function.
+    import yaml
+
+    def _rings():
+        data = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+        out = {}
+        for name, body in data["classes"].items():
+            dia, drill = float(body["via_diameter"]), float(body["via_drill"])
+            out[name] = (dia, drill, (dia - drill) / 2.0)
+        return out
+
+    monkeypatch.setattr(gate, "yaml_net_class_via_rings", _rings)
+    assert gate.run() == 1
+    out = capsys.readouterr().out
+    assert "P2b" in out
+    assert "HighVoltageSignal" in out
+    assert "0.8" in out
+
+
 def test_p3_catches_a_sub_floor_generator_constant(tmp_path, monkeypatch, capsys):
     """The EXACT pre-fix shape of router_v6/_ground_plane.py and
     _power_islands.py: VIA_SIZE_MM = 0.8, VIA_DRILL_MM = 0.4 (ring 0.2mm)."""

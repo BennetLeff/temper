@@ -45,6 +45,15 @@ P2  Every ``TEMPER_NET_CLASSES`` entry's ``via_diameter``/``via_drill``
     pair (``core/design_rules.py``) yields a ring at or above the floor --
     the router's own net-class via-sizing table must not reintroduce a
     sub-floor family even if none is currently routed.
+P2b Every ``netclass_rules.yaml`` class's ``via_diameter``/``via_drill``
+    pair (``packages/temper-placer/configs/netclass_rules.yaml`` -- the
+    file ``router_v6`` actually consumes at route time) yields a ring at
+    or above the floor. This is a separate table from P2 because the two
+    files drifted once already in exactly this gate's direction: the
+    2026-08-13 fab-floor sweep fixed ``TEMPER_NET_CLASSES`` to a 0.3mm
+    ring everywhere but ``netclass_rules.yaml``'s ``HighVoltageSignal``
+    stayed 0.8/0.4 (0.2mm ring) -- a green P2 with a router emitting 69
+    sub-floor vias per route. Both homes must pass.
 P3  ``router_v6/_ground_plane.py`` and ``router_v6/_power_islands.py``'s
     ``VIA_SIZE_MM``/``VIA_DRILL_MM`` constants (the two confirmed literal
     generators of the board's larger via family) yield a ring at or above
@@ -229,6 +238,55 @@ def net_class_via_rings() -> dict[str, tuple[float, float, float]]:
     return out
 
 
+def yaml_net_class_via_rings() -> dict[str, tuple[float, float, float]]:
+    """Return ``{class_name: (via_diameter, via_drill, ring)}`` for every
+    class in ``packages/temper-placer/configs/netclass_rules.yaml`` -- the
+    file ``router_v6`` actually consumes at route time (loaded via
+    ``io/netclass_loader.py`` -> ``temper-design-bundle``'s
+    ``load_netclass_rules``), as opposed to ``TEMPER_NET_CLASSES`` in
+    ``core/design_rules.py`` which P2's ``net_class_via_rings`` reads.
+
+    Why this is a separate table and not folded into
+    ``net_class_via_rings``: the two files drifted once already, in exactly
+    the direction this gate exists to catch -- ``HighVoltageSignal``
+    (created 2026-08-13 by the same commit that swept every OTHER class
+    to a 0.3mm annular ring) carried ``0.8/0.4`` (0.2mm ring, below the
+    0.254mm floor) in netclass_rules.yaml and kicad_pro while
+    ``TEMPER_NET_CLASSES`` already had the correct ``1.0/0.4``. P2 checked
+    only the design_rules.py home, so the router kept emitting sub-floor
+    vias for months (69 annular_width errors on the 2026-08-16 capstone
+    route, all 0.8/0.4 HighVoltageSignal vias) with a green gate. The
+    router's real via sizing comes from THIS file, so this gate must read
+    it or it is checking the wrong home (handoff mechanism 1: one fact,
+    many homes)."""
+    path = REPO_ROOT / "packages" / "temper-placer" / "configs" / "netclass_rules.yaml"
+    if not path.is_file():
+        raise GateError(f"{path} not found")
+    import yaml
+
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as e:
+        raise GateError(f"{path} is not valid YAML: {e}") from e
+    classes = data.get("classes") if isinstance(data, dict) else None
+    if not isinstance(classes, dict) or not classes:
+        raise GateError(f"{path} has no non-empty 'classes' mapping")
+
+    out: dict[str, tuple[float, float, float]] = {}
+    for name, body in classes.items():
+        if not isinstance(body, dict):
+            continue
+        dia = body.get("via_diameter")
+        drill = body.get("via_drill")
+        if dia is None or drill is None:
+            continue
+        dia, drill = float(dia), float(drill)
+        out[str(name)] = (dia, drill, (dia - drill) / 2.0)
+    if not out:
+        raise GateError(f"{path}: no class carries both via_diameter and via_drill")
+    return out
+
+
 # ---------------------------------------------------------------------------
 # P3: router_v6 generator constants
 # ---------------------------------------------------------------------------
@@ -356,6 +414,31 @@ def run() -> int:
             )
     else:
         print(f"  P2 OK  {len(nc_rings)} net-class via template(s), all >= {ring_floor}mm ring")
+
+    # P2b: netclass_rules.yaml -- the file the ROUTER actually consumes at
+    # route time (io/netclass_loader.py). See yaml_net_class_via_rings'
+    # docstring for why this is a separate table: P2 alone checked only
+    # design_rules.py and let HighVoltageSignal's sub-floor 0.8/0.4 slip
+    # through for months while the router kept emitting it.
+    try:
+        yaml_rings = yaml_net_class_via_rings()
+    except GateError as e:
+        print(f"MISSING/MALFORMED INPUT: {e}")
+        return 2
+    yaml_below = {n: v for n, v in yaml_rings.items() if v[2] < ring_floor - _TOL}
+    if yaml_below:
+        for name, (dia, drill, ring) in sorted(yaml_below.items()):
+            failures.append(
+                f"P2b: netclass_rules.yaml class {name!r} "
+                f"via_diameter={dia}mm/via_drill={drill}mm gives ring "
+                f"{ring:.4f}mm, below the {ring_floor}mm fab floor (the file "
+                "the router consumes at route time)"
+            )
+    else:
+        print(
+            f"  P2b OK  {len(yaml_rings)} netclass_rules.yaml via "
+            f"template(s), all >= {ring_floor}mm ring"
+        )
 
     # P3
     try:

@@ -24,9 +24,66 @@ from temper_placer.router_v6._ground_plane import (
     generate_ground_plane_content,
     mst_edges,
 )
+from temper_placer.router_v6._ground_plane import _find_via_drop_point  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PRODUCTION_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+
+class TestFindViaDropPointPourStrict:
+    """2026-08-16 fab-rule fix: with a pour_region known, a via must sit
+    INSIDE it -- a via outside the pour touches no plane copper and
+    dangles (via_dangling DRC warnings, 19 measured on the capstone
+    route). There is deliberately no keepout-clear-only fallback."""
+
+    def _board(self):
+        return Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])
+
+    def test_pour_inside_point_is_used(self):
+        pour = Polygon([(10, 10), (90, 10), (90, 90), (10, 90)])
+        pt, needs_stub = _find_via_drop_point(
+            (50.0, 50.0),
+            existing_holes=[],
+            via_radius_mm=0.5,
+            keepout=None,
+            other_copper=None,
+            board_polygon=self._board(),
+            pour_region=pour,
+        )
+        assert pt == (50.0, 50.0)
+        assert needs_stub is False
+
+    def test_no_fallback_outside_pour(self):
+        """The exact pre-fix defect shape: pad_pos and every ring offset
+        sit outside the pour (a keepout-carved fill). Pre-fix this
+        returned a keepout-clear point that dangled; post-fix it must
+        return (None, False) so the caller skips the via."""
+        pour = Polygon([(0, 0), (20, 0), (20, 20), (0, 20)])  # small corner region
+        pt, needs_stub = _find_via_drop_point(
+            (80.0, 80.0),  # far outside the pour, inside the board
+            existing_holes=[],
+            via_radius_mm=0.5,
+            keepout=None,
+            other_copper=None,
+            board_polygon=self._board(),
+            pour_region=pour,
+        )
+        assert pt is None
+        assert needs_stub is False
+
+    def test_no_pour_region_keeps_old_behavior(self):
+        """Without a pour_region the keepout-clear search still runs (the
+        pour requirement is only meaningful when a pour exists)."""
+        pt, needs_stub = _find_via_drop_point(
+            (80.0, 80.0),
+            existing_holes=[],
+            via_radius_mm=0.5,
+            keepout=None,
+            other_copper=None,
+            board_polygon=self._board(),
+            pour_region=None,
+        )
+        assert pt == (80.0, 80.0)
 
 
 class TestMstEdges:

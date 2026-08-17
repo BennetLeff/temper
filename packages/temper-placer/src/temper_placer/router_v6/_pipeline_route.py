@@ -64,7 +64,7 @@ from temper_placer.router_v6.topology_extraction import (
 )
 from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
 from temper_placer.router_v6.trace_width_assignment import assign_trace_widths
-from temper_placer.router_v6.via_placement import place_vias
+from temper_placer.router_v6.via_placement import place_vias, tht_holes_from_pcb
 
 
 def _select_sat_nets(self, pcb: ParsedPCB) -> list[str] | None:
@@ -1041,6 +1041,12 @@ def _run_stage5(
         pcb.design_rules.default_via_diameter_mm,
         pcb.design_rules.default_via_drill_mm,
         design_rules=pcb.design_rules,
+        # THT pad holes per net: skip vias whose position falls inside one
+        # of their own net's through-hole pads (the pad's plated hole
+        # already connects every layer; KiCad DRC flags the coincident
+        # holes as holes_co_located -- 12 measured on the 2026-08-16
+        # capstone route).
+        tht_holes_per_net=tht_holes_from_pcb(pcb),
     )
 
     if self.verbose:

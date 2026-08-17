@@ -161,6 +161,125 @@ class TestViaLayerSpanFromSegments:
         assert len(vias) >= 1
 
 
+class TestViaDedupeAndThtSkip:
+    """2026-08-16 fab-rule fixes: stacked duplicate vias (holes_co_located)
+    and vias dropped inside their own net's THT pad holes."""
+
+    def test_duplicate_via_positions_collapse_to_one_via(self):
+        """The exact shape measured on the capstone route: three identical
+        via_positions at one (x, y) -> ONE via, not three (KiCad DRC flags
+        every coincident drilled hole pair as holes_co_located)."""
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[
+                (0.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "In3.Cu"),
+                (5.0, 0.0, "F.Cu"),
+                (10.0, 0.0, "F.Cu"),
+            ],
+            via_positions=[(5.0, 0.0), (5.0, 0.0), (5.0, 0.0)],
+            path_length=10.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.8, via_drill=0.4)
+        assert len(vias) == 1
+        assert vias[0].position == (5.0, 0.0)
+
+    def test_distinct_positions_are_not_collapsed(self):
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[
+                (0.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "F.Cu"),
+                (5.0, 0.0, "B.Cu"),
+                (10.0, 0.0, "B.Cu"),
+                (10.0, 0.0, "F.Cu"),
+                (15.0, 0.0, "F.Cu"),
+            ],
+            via_positions=[(5.0, 0.0), (10.0, 0.0)],
+            path_length=15.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert len(vias) == 2
+
+    def test_via_inside_own_tht_pad_hole_is_skipped(self):
+        """A via at the exact center of a same-net THT pad hole is
+        redundant (the plated hole already spans every layer) and trips
+        holes_co_located -- it must be skipped when tht_holes is given."""
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[(0, 0, "F.Cu"), (5, 0, "F.Cu"), (5, 0, "B.Cu"), (10, 0, "B.Cu")],
+            via_positions=[(5.0, 0.0)],
+            path_length=10.0,
+        )
+        # THT pad hole of radius 0.5mm (drill 1.0mm) centered at (5, 0)
+        vias = _place_vias_for_path(
+            "TEST", path, via_diameter=0.6, via_drill=0.3, tht_holes=[(5.0, 0.0, 0.5)]
+        )
+        assert vias == []
+
+    def test_via_outside_tht_hole_is_kept(self):
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[(0, 0, "F.Cu"), (5, 0, "F.Cu"), (5, 0, "B.Cu"), (10, 0, "B.Cu")],
+            via_positions=[(5.0, 0.0)],
+            path_length=10.0,
+        )
+        # Hole centered 10mm away -- via unaffected.
+        vias = _place_vias_for_path(
+            "TEST", path, via_diameter=0.6, via_drill=0.3, tht_holes=[(15.0, 0.0, 0.5)]
+        )
+        assert len(vias) == 1
+
+    def test_tht_holes_from_pcb_collects_only_pth_pins(self):
+        """tht_holes_from_pcb must read is_pth + drill.diameter and skip
+        SMD pins and pins with no drill geometry."""
+        from temper_placer.router_v6.via_placement import tht_holes_from_pcb
+
+        class _Drill:
+            diameter = 1.0
+
+        class _Pin:
+            def __init__(self, net, is_pth, drill=None):
+                self.net = net
+                self.is_pth = is_pth
+                self.drill = drill
+                self.position = (0.0, 0.0)  # unused by pin_world_position stub below
+
+        class _Comp:
+            pins = [
+                _Pin("GND", True, _Drill()),
+                _Pin("SIG", False, _Drill()),
+                _Pin("NODRILL", True, None),
+                _Pin("", True, _Drill()),
+            ]
+
+        class _Pcb:
+            components = [_Comp()]
+
+        import temper_placer.core.pin_geometry as pg
+
+        orig = pg.pin_world_position
+        pg.pin_world_position = lambda pin, comp: (pin.position[0], pin.position[1])
+        try:
+            holes = tht_holes_from_pcb(_Pcb())
+        finally:
+            pg.pin_world_position = orig
+        assert holes == {"GND": [(0.0, 0.0, 0.5)]}
+
+
 class TestPerNetViaSizing:
     """U4: place_vias must resolve per-netclass via_diameter/via_drill."""
 

@@ -50,12 +50,23 @@ def place_vias(
     net_class_assignments: dict[str, str] | None = None,
     net_class_rules: dict | None = None,
     design_rules: Any = None,
+    tht_holes_per_net: dict[str, list[tuple[float, float, float]]] | None = None,
 ) -> ViaPlacement:
     """
     Place vias for layer transitions in routed paths.
 
     When *design_rules* is provided (U4 pipeline wiring), per-netclass
     sizing is resolved from the board's netclass assignments and rules.
+
+    *tht_holes_per_net* (optional): ``{net_name: [(x, y, drill_radius)]}``
+    for every through-hole pad's drilled hole on the board. When given,
+    a via whose position falls inside one of its own net's THT pad holes
+    is skipped -- the pad's plated through-hole already connects every
+    copper layer it lists, so a via there is redundant, and KiCad's DRC
+    flags the coincident drilled holes as ``holes_co_located`` (measured
+    2026-08-16: 12 such vias on the routed board). Skipping is
+    fail-closed: the via adds no connection the pad does not already
+    provide, so connectivity cannot regress.
     """
     if design_rules is not None:
         net_class_assignments = getattr(design_rules, "net_class_assignments", None)
@@ -70,7 +81,15 @@ def place_vias(
                 rules = net_class_rules.get(nc_name, {})
                 dia = getattr(rules, "via_diameter_mm", via_diameter)
                 drill = getattr(rules, "via_drill_mm", via_drill)
-        vias.extend(_place_vias_for_path(net_name, route_path, dia, drill))
+        vias.extend(
+            _place_vias_for_path(
+                net_name,
+                route_path,
+                dia,
+                drill,
+                tht_holes=tht_holes_per_net.get(net_name) if tht_holes_per_net else None,
+            )
+        )
     for net_name, geometry in getattr(pathfinding_result, "tree_routes", {}).items():
         dia, drill = via_diameter, via_drill
         if net_class_assignments and net_class_rules:
@@ -80,9 +99,45 @@ def place_vias(
                 dia = getattr(rules, "via_diameter_mm", via_diameter)
                 drill = getattr(rules, "via_drill_mm", via_drill)
         for branch in geometry.branches:
-            vias.extend(_place_vias_for_path(net_name, branch.path, dia, drill))
+            vias.extend(
+                _place_vias_for_path(
+                    net_name,
+                    branch.path,
+                    dia,
+                    drill,
+                    tht_holes=tht_holes_per_net.get(net_name) if tht_holes_per_net else None,
+                )
+            )
 
     return ViaPlacement(vias=vias)
+
+
+def tht_holes_from_pcb(pcb: Any) -> dict[str, list[tuple[float, float, float]]]:
+    """Return ``{net_name: [(x, y, drill_radius)]}`` for every through-hole
+    pad's drilled hole on the board, in world coordinates.
+
+    Mirrors ``_ground_plane.py``'s own hole collection (same ``is_pth`` /
+    ``drill.diameter`` / ``pin_world_position`` reads) so the two via
+    emitters cannot drift about what counts as an existing drilled hole.
+    A pin with no drill diameter is skipped (its hole geometry is
+    unknown); a pin with no net is skipped (nothing to route to).
+    """
+    from temper_placer.core.pin_geometry import pin_world_position
+
+    out: dict[str, list[tuple[float, float, float]]] = {}
+    for comp in getattr(pcb, "components", []):
+        for pin in getattr(comp, "pins", []):
+            if not pin.net:
+                continue
+            if not getattr(pin, "is_pth", False):
+                continue
+            drill = getattr(pin, "drill", None)
+            diameter = getattr(drill, "diameter", None) if drill is not None else None
+            if not diameter:
+                continue
+            pos = pin_world_position(pin, comp)
+            out.setdefault(pin.net, []).append((pos[0], pos[1], float(diameter) / 2.0))
+    return out
 
 
 def _place_vias_for_path(
@@ -90,6 +145,7 @@ def _place_vias_for_path(
     route_path,
     via_diameter: float,
     via_drill: float,
+    tht_holes: list[tuple[float, float, float]] | None = None,
 ) -> list[Via]:
     """
     Place vias for a single routed path.
@@ -99,6 +155,9 @@ def _place_vias_for_path(
         route_path: RoutePath from pathfinding
         via_diameter: Via diameter
         via_drill: Drill diameter
+        tht_holes: Optional list of (x, y, drill_radius) for this net's
+            own THT pad holes; vias whose position falls inside one are
+            skipped (the pad's plated hole already spans every layer).
 
     Returns:
         List of vias for this path
@@ -117,10 +176,36 @@ def _place_vias_for_path(
         seg_xs = [s[0] for s in segs]
         seg_ys = [s[1] for s in segs]
         seg_layers = [s[2] for s in segs]
+        # Dedupe by (position, unordered layer pair) -- measured 2026-08-16:
+        # the pathfinder's via_positions can contain the SAME (x, y) several
+        # times (consecutive waypoint segments anchoring at a shared point,
+        # or a 3D search doubling a transition), which emitted N identical
+        # vias at one position. KiCad DRC flags every coincident drilled
+        # hole pair as holes_co_located (12 stacked positions / 25 vias on
+        # the 2026-08-16 capstone route). One via carries the identical
+        # electrical function; the extras are pure DRC debt.
+        seen: set[tuple[float, float, frozenset[str]]] = set()
         for vx, vy in route_path.via_positions:
             from_layer, to_layer = _tg.via_layer_pair_py(
                 vx, vy, seg_xs, seg_ys, seg_layers
             )
+            key = (round(vx, 4), round(vy, 4), frozenset((from_layer, to_layer)))
+            if key in seen:
+                continue
+            seen.add(key)
+            # Skip a via dropped inside one of this net's own THT pad
+            # holes: the pad's plated through-hole already connects every
+            # layer, so the via adds nothing, and KiCad DRC flags the
+            # coincident holes as holes_co_located (12 measured on the
+            # 2026-08-16 capstone route).
+            if tht_holes:
+                skip = False
+                for hx, hy, hr in tht_holes:
+                    if (vx - hx) ** 2 + (vy - hy) ** 2 <= hr * hr:
+                        skip = True
+                        break
+                if skip:
+                    continue
             vias.append(
                 Via(
                     position=(vx, vy),

@@ -125,7 +125,17 @@ classes:
   HighVoltageSignal:
     clearance: 2.0
     trace_width: 0.5
-    via_diameter: 0.8
+    # via_diameter RAISED 0.8 -> 1.0mm 2026-08-16 (docs/evidence/
+    # 2026-08-16-hv-netclass-assignment-fix.md): 0.8/0.4 gave a 0.2mm
+    # annular ring, below the board's min_via_annular_width (0.254mm) --
+    # every via this class emitted on the routed board was an
+    # annular_width DRC error (69 on the 2026-08-16 capstone route). The
+    # 2026-08-13 fab-floor sweep fixed every other class to a 0.3mm ring
+    # but missed this one (created by that same commit, values never
+    # checked). 1.0/0.4 gives 0.3mm, matches core/design_rules.py's
+    # TEMPER_NET_CLASSES HighVoltageSignal (which already had 1.0/0.4 --
+    # the two homes had drifted) and GateDriveHV's exact values.
+    via_diameter: 1.0
     via_drill: 0.4
     # creepage_mm 6.0 inherited from HighVoltage: UNSOURCED legacy figure
     # (flagged 2026-08-15) -- see HighVoltage's note above.
