@@ -29,7 +29,8 @@ from enum import Enum
 
 import numpy as np
 import temper_geometry as _tg
-from shapely.geometry import MultiPolygon, Polygon as _ShapelyPolygon
+from shapely.geometry import MultiPolygon
+from shapely.geometry import Polygon as _ShapelyPolygon
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState

@@ -120,10 +120,10 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupanc
 from temper_placer.router_v6.stage0_data import DesignRules
 
 if TYPE_CHECKING:
+    from shapely.geometry import MultiPolygon
+
     from temper_placer.router_v6.channel_mapping import ChannelMapping
     from temper_placer.router_v6.routing_space import RoutingSpace
-
-    from shapely.geometry import MultiPolygon
 
 logger = logging.getLogger(__name__)
 
@@ -720,7 +720,7 @@ def _build_width_families(
     routing_spaces: dict[str, RoutingSpace] | None,
     routable_nets: list[str],
     design_rules: DesignRules,
-    class_obstacles: dict[str, dict[str | None, "MultiPolygon"]] | None = None,
+    class_obstacles: dict[str, dict[str | None, MultiPolygon]] | None = None,
     creepage_table: object | None = None,
 ) -> tuple[
     dict[tuple[float, float, str], dict[str, OccupancyGrid]],
@@ -787,9 +787,9 @@ def _build_width_families(
 
 
 def _build_creepage_aware_grid(
-    routing_space: "RoutingSpace",
+    routing_space: RoutingSpace,
     signature: tuple[float, float, str],
-    layer_class_obstacles: dict[str | None, "MultiPolygon"],
+    layer_class_obstacles: dict[str | None, MultiPolygon],
     creepage_table: object,
     base_inflation: float,
 ) -> OccupancyGrid:
