@@ -213,6 +213,48 @@ domain-clearance solve is new work, outside this task's scope, and is the
 natural next step for whoever picks this up (see "What was left undone"
 below).
 
+## Addendum: minimal-disruption variant (coordinator follow-up, IN PROGRESS)
+
+The full-board reshuffle above cost 63/139 -> 50/139 connectivity because
+`solve_placement`'s objective had nothing preferring the current,
+router-tuned layout. Per coordinator direction: re-running the identical
+12.6mm PD3 constraint set (`generate_domain_clearance_constraints`, full
+classified pair set, same 11,623 constraints -- never scoped to
+known-violators) but this time with `solve_placement`'s existing
+minimum-displacement repair primitives:
+
+- `minimize_displacement_to = {ref: current_position}` for **every**
+  component (not a hand-picked subset -- which refs need to move is exactly
+  what the solve should discover), weight 1, objective = minimize summed
+  Manhattan displacement.
+- **No** `fixed_positions` (nothing hard-frozen) and **no**
+  `max_displacement_mm` cap -- an artificial bound could manufacture a false
+  "infeasible" for a pair that genuinely needs a larger move; the objective
+  alone supplies the pressure to keep moves small, and if J1/K1 truly needs
+  a big move, that must show up as a big move, not a forced-infeasible.
+- Same `hint_positions` warm start from current board coordinates.
+- `timeout_ms=900_000` (15 min).
+
+Driver script: `/tmp/claude-1000/-home-bennet-Desktop-temper/8d670d58-2e7c-42ad-b59f-ca4e3fccd905/scratchpad/creepage-constraint/resolve_minimal_disruption.py`
+(per this task's instruction, large driver scripts live under `/tmp`, not
+the worktree). Launched detached (`nohup ... &`, pid 2250762 / CP-SAT worker
+2250765), log at
+`/tmp/claude-1000/-home-bennet-Desktop-temper/8d670d58-2e7c-42ad-b59f-ca4e3fccd905/scratchpad/creepage-constraint/resolve_minimal_disruption.log`.
+**Started 2026-08-17 16:46 local, still running as of this commit** (a real
+Manhattan-sum minimization objective over 11,623 hard constraints and 168
+components is a materially harder search than the feasibility-only solve
+that returned `optimal` in 94.7s -- CP-SAT must explore to reduce/prove the
+objective bound, not merely find any one feasible point). Machine is under
+memory pressure from sibling agents (two ~13-18GB pytest runs, several
+concurrent routes); this solve's own worker process is a modest ~440MB RSS
+and is not itself the pressure source. Being polled in bounded chunks;
+results (moved-component count, max/median displacement, whether J1/K1
+holds, connectivity/DRC after a fresh route) will be added to this file as
+they land -- not fabricated or estimated ahead of the actual solve
+terminating. `pcb/temper.kicad_pcb` sha256 verified unchanged
+(`6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1`) at this
+checkpoint.
+
 ## What was left undone
 
 - **A minimal-disruption variant was not attempted.** `solve_placement`
