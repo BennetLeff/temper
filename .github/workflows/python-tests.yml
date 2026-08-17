@@ -2074,11 +2074,18 @@ jobs:
       # scripts/tests/test_check_fact_registry_drift.py for the pinned-red
       # regression proof, and this gate's own module docstring for the
       # exact coordinated fix that would un-red it.
+      # 2026-08-17 (session 2): extended with 5 more fact families (via-
+      # geometry defaults, per-netclass via diameter/drill, gate-drive net
+      # names, gate-drive net-current citations, HV<->LV separation gate
+      # threshold). See docs/evidence/2026-08-17-fact-registry-drift-gate-
+      # extension.md. Exit state changed VIOLATION(3) -> TOOL ERROR(5): two
+      # new facts (gate_hs/ls_net_current_rating_a) are missing citations,
+      # not wrong values -- still RED BY DESIGN, same convention as above.
       - name: Fact registry drift gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_fact_registry_drift.py -v --tb=short
 
-      - name: Fact registry drift gate (mains_voltage_v / pollution_degree)
+      - name: Fact registry drift gate (mains_voltage_v / pollution_degree / via-geometry / gate-drive net names / HV-LV separation threshold)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_fact_registry_drift.py
 
