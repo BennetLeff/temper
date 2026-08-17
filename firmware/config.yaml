@@ -245,6 +245,16 @@ runaway:
 #   - IGBT_SHORT_CURRENT_THRESHOLD and FAULT_STATE_MAX_TEMP_C were hardcoded
 #     literals with the same lack of citation; they are single-sourced here so
 #     the whole interlock family has one home instead of four.
+#
+# OCP-02 DE-SCOPED 2026-08-16 (see docs/evidence/2026-08-16-ocp02-descope-
+# implementation.md and docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md):
+# there is intentionally NO OCP-02 interlock in this file, and there never was
+# one. OCP-02 (secondary over-current, T2/C37/R65) was always a hardware
+# comparator path (TLV3201 -> fault_or3.B1) -- the ESP32 only ever sees
+# I_SENSE from OCP-01's CT -- and it is de-scoped (DNF) because its CST3015
+# cannot reach the 12.6mm PD3 reinforced creepage bar in any placement. Do not
+# add an OCP-02 interlock here: the firmware has no OCP-02 fault path by
+# design, and inventing one would imply a sensing channel that is not fielded.
 interlocks:
   - c_symbol: OVER_TEMP_THRESHOLD
     value: 80.0

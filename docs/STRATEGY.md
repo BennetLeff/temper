@@ -230,7 +230,7 @@ writing, zero of 22 have been measured.**
 | Gate | Description | Reference |
 |------|-------------|-----------|
 | OCP-01 | Primary OCP 45-55A **peak**, <1µs | `FUNCTIONAL_TEST_CRITERIA.md` §2.1 |
-| OCP-02 | Secondary OCP 55-65A **peak**, <5µs | §2.1 |
+| OCP-02 | Secondary OCP 55-65A **peak**, <5µs — **DE-SCOPED 2026-08-16 (DNF)**; no fielded sensing path (CST3015 cannot reach 12.6mm PD3 reinforced; not clause-mandated; see `docs/evidence/2026-08-16-ocp02-descope-implementation.md`) | §2.1 (line stays, unmet) |
 | OVP-01 | DC Bus OVP 390-410V, hysteresis 10-20V | §2.2 |
 | THM-01 | Heatsink NTC 85°C trip / 70°C recovery, shutdown | §2.3 |
 | THM-02 | Coil NTC 120°C trip / 100°C recovery, shutdown | §2.3 |

@@ -48,6 +48,15 @@
 | **Primary OCP** | 50A Peak | **45 - 55 A** | **< 1 µs** |
 | **Secondary OCP** | 60A Peak | **55 - 65 A** | **< 5 µs** |
 
+> **Secondary OCP (OCP-02) status 2026-08-16: DE-SCOPED (DNF) — line retained as-written, unmet.**
+> No fielded sensing path exists: the OCP-02 CT (CST3015, T2) cannot reach the 12.6mm PD3
+> reinforced-creepage bar in any placement, no alternative mechanism clears it (verified with
+> datasheet figures in `docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md`), and no IEC 60335-1
+> clause mandates a secondary OCP channel. The line is kept so the acceptance gap stays visible —
+> re-scoping or deleting it is an owner decision (`docs/evidence/2026-08-16-ocp02-descope-
+> implementation.md` §4). OCP-01 remains the primary protection (50.1A hardware comparator + 40A
+> firmware layer, `firmware/config.yaml` `OVER_CURRENT_THRESHOLD`).
+
 **Basis (clarified 2026-07-26):** Trip Threshold is on the same basis as
 Setting — instantaneous/peak current, not RMS. Two independent analyses
 (`docs/evidence/2026-07-26-ocp01-vs-full-power-current.md`,
