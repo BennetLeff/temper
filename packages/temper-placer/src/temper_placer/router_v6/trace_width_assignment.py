@@ -262,6 +262,12 @@ def assign_trace_widths(
         )
         # Layer-aware physics first (PR #1195): IPC-2221B minimum from the
         # net's real current, copper weight, and internal-vs-external role.
+        # Explicit annotation: without it, mypy infers `width`'s type from
+        # this branch's non-Optional `TraceWidth` return alone, then flags
+        # the `else` branch below (which legitimately assigns the Optional
+        # `_netclass_trace_width` result, handled by the `if width is None`
+        # right after it) as an incompatible reassignment.
+        width: TraceWidth | None
         if stackup is not None:
             width = _determine_trace_width_layer_aware(
                 net_name,
