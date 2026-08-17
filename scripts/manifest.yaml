@@ -467,6 +467,29 @@ scripts:
   - rich.console
   - subprocess
   - sys
+- path: check_fact_registry_drift.py
+  purpose: 'Scalar fact-drift gate (2026-08-17 fact-deduplication audit): an explicit
+    registry of non-creepage/clearance facts (currently SafetySpec mains_voltage_v /
+    pollution_degree) declared in more than one place must agree across homes, or the
+    gate fails closed. Currently RED BY DESIGN on origin/main: the correct values
+    (120.0 / PD3) are unambiguous, but two homes are pinned-oracle-entangled
+    (tests/core/_design_rules_py_oracle.py, tests/core/_specification_py_oracle.py) --
+    fixing requires one coordinated PR with a deliberate oracle re-pin, not a
+    mechanical edit here. See the module docstring for the full investigation and
+    docs/evidence/2026-08-17-fact-dedup-inventory-and-gate.md.'
+  owner: bennet
+  last_run: '2026-08-17'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_fab_capability_floor.py
   purpose: 'CI gate: board via geometry and the "Via hole clearance" DRU rule must
     never fall below JLCPCB''s published 2oz-multilayer manufacturability floor
