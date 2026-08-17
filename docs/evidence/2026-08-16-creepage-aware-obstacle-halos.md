@@ -130,3 +130,33 @@ Both routes: `scripts/route_board.py --net-batching --batch-size 10`, board
   them. DRC: same generated DRU sidecar for both.
 - No `pcb/temper.kicad_pcb` touched; no DRC ceiling touched; no check
   weakened.
+
+## 6. CI status (pre-existing red trunk, not introduced here)
+
+The branch inherits a red `main`: the six failing jobs on this PR's run
+(Fast Gates, Required Python Tests, Core Tests, Invariant tests router_v6
+group 3, Repo Hygiene & Import Gates) fail **identically on main's own
+python-tests.yml run at the same commit** (`8504c7a73`), with these causes,
+none touched by this change:
+
+- Fast Gates: WASM family-map step — CI arg-surface bug
+  (`gen_wasm_test_registry.py` rejects `--check --crate` as a usage error);
+  LOC-cap — `_astar_nlayer.py` was already 1033 lines (> 1000 cap) on main
+  and the other seven over-cap files are main's; type-check —
+  `cli/repair_commands.py` (untouched here).
+- Core Tests: `test_pad_identity.py` fixture API drift (`initial_rotation`),
+  `test_tank_creepage.py` — the documented tank↔bus PD3 shortfall
+  (handoff §3 "live lead flagged but unverified"), all pre-existing.
+- Invariant group 3: `test_clearance_check.py` hyphenated net-class drift
+  (`'HV' == 'GND'`), pre-existing.
+- Repo Hygiene: Vulture STALE baseline entries in `cli/__init__.py`,
+  script-manifest entries — all pre-existing.
+
+The one lint issue this change DID introduce (ruff I001 import-sort in the
+four touched files) was fixed in `91034902b`; the ruff step is
+`continue-on-error` in CI regardless. `import_linter_gate.py` passes (5
+kept, 0 broken). Per the repo's own policy, the LOC-cap gate is fixed by
+decomposition, not allowlist growth, and the allowlist strict-shrink rule
+forbids adding `_astar_nlayer.py` without a paired removal — the file was
+already over cap on main, so this change adds no new failure class.
+
