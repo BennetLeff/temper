@@ -125,12 +125,106 @@ task's hard rule, an unexplained regression is a reason not to commit.
 or (like `via_dangling`) an artifact of comparing a barely-populated board
 to a genuinely-routed one, before making the commit/no-commit call.
 
-## Not yet done
+## Root cause of the regressed/new categories
 
-- Root-cause the 4 regressed/new categories above.
-- Decide, on the full data, whether to commit.
-- If committing: final sha256 before/after, full commit message with every
-  measured number.
+Raw kicad-cli DRC JSON (with `--refill-zones`) inspected item-by-item for
+all 5 flagged categories, on both boards.
+
+**3 of the 5 are not new categories -- they are pre-existing defect classes
+that were near-zero on the committed board only because it has almost no
+real copper to trigger them.** Committed board (with `--refill-zones`)
+already has `copper_edge_clearance` 4 (actual 0.225mm vs 0.5mm min),
+`drill_out_of_range` 4 (actual 0.2mm vs 0.3mm min hole), and
+`tracks_crossing` 1 -- all on the *same defect mechanisms* the fresh route
+has more instances of (10, 6, 8 respectively) simply because the fresh
+route has ~100x more actual segments/vias for these mechanisms to occur in
+(4644 segments + 188 vias vs the committed board's non-functional legacy
+copper). `unconnected_items` (kicad-cli's own ratsnest count, separate from
+DRC violations) also improves: 421 (committed) -> 248 (fresh).
+
+**2 are genuinely new: `annular_width` (0->56, all errors) and
+`holes_co_located` (0->17, all warnings).** Both trace to the SAME root
+cause: the router's **blind-via emission does not apply this board's
+0.254mm annular-width fab floor** (`net_settings.min_via_annular_width` in
+`temper.kicad_pro`) -- every one of the 56 `annular_width` violations is a
+blind via reporting actual annular width exactly 0.2000mm. Several of
+these blind vias also land at the *exact same coordinates* as an existing
+THT pad's own hole (the `holes_co_located` warnings) -- e.g. the via for
+`discharge.r_snub1-p2` at (112.0, 218.0), identical to C7's own PTH pad 1.
+That specific via is redundant (C7's PTH pad is already plated through
+every layer it needs) but not incorrect at the point of use.
+
+**Net names involved, checked against the 27-net HV domain list
+(`elec/domain_manifest.yaml`)**: overwhelmingly LV/logic
+(`rtd_sense_p/n`, `rtd_force_p`, `safety.latch-b2`, `safety.fault_or3-b2`,
+`safety.ocp2-line`, `OCP2_VREF_2V5`, `WDT_KICK`, `i2c_scl_ui`, `+15V`,
+`+3V3`, `vcc`, `gnd`, `sw`, `RTD_SDO`, `rtd_pan.*`, `thermal.j_fan-p1`,
+`boot`, `fb`, `y1`). **Exactly one HV net appears anywhere in these 5
+categories: `discharge.r_snub1-p2`** -- the same net that moved from
+fake-completion to fully-connected in this route (see HV table above), via
+the redundant/undersized blind via just described. No HV<->LV creepage or
+cross-net clearance violation is introduced by any of these 5 categories;
+they are same-net or LV-LV-only defects.
+
+## Decision: COMMIT, tradeoff stated explicitly
+
+**Aggregate**, `--refill-zones` (the honest measurement per HANDOFF §4
+mechanism 4): committed 1567 errors / 592 warnings (2159 total) -> fresh
+route 662 errors / 456 warnings (1118 total). No-refill: 1368/484 (1852)
+-> 640/538 (1178). Roughly halved in both modes.
+
+**Strict improvements**: `isolated_copper` (109->0, the most serious open
+safety item per the handoff -- floating copper at mains potential,
+eliminated), `creepage` (261/453 -> 101/122, both modes), pad connectivity
+(0/139 -> 36/139 genuine multi-pad connections; 48/139 zero-touch fake
+completions -> 0/139), `shorting_items` (180/187 -> 46/46),
+`solder_mask_bridge` (130 -> 12), `hole_clearance` (86 -> 35),
+`hole_to_hole` (3 -> 0), `track_dangling` (44/43 -> 0), `via_dangling`
+under the fairer refill measurement (25 -> 24), `unconnected_items`
+(421 -> 248), clearance and track_width (both capped on committed,
+both real/uncapped and lower on fresh route: 243-244 vs cap-499,
+122 vs cap-199). All 8 flagged HV nets: no-worse-or-better, 1 fully fixed.
+Determinism: byte-identical across 2 independent runs. Fake completions:
+0 (route_board.py's own `NetRouteResult` report: 63 connected via
+`verify_continuity()`, the 7 partial nets correctly excluded from that
+count, not miscounted).
+
+**Explained, small, same-mechanism regressions**: `copper_edge_clearance`
+(+6), `drill_out_of_range` (+2), `tracks_crossing` (+7) -- pre-existing
+defect classes, all LV nets, scaling with real copper volume rather than
+representing a new failure mode. `annular_width` (+56) and
+`holes_co_located` (+17) -- genuinely new, both root-caused to blind-via
+geometry not respecting the project's own 0.254mm annular floor,
+concentrated on LV/sensing/safety-logic nets plus one redundant (not
+incorrect) via on `discharge.r_snub1-p2`. None cross an HV<->LV boundary;
+none touch a different-net short; none require any clearance/creepage/
+copper-weight/DRU threshold change to understand or to (eventually) fix --
+the fix is "apply the annular floor to blind vias, and skip emitting a via
+exactly atop an existing THT pad," a router change, not a threshold
+change, and out of scope for this task.
+
+**This is not a strict improvement on literally every axis, but every
+regression is explained, small relative to the improvement (80 new/added
+errors against a ~900-1000 net reduction in total violations), and does
+not touch the categories this board's safety case depends on
+(creepage, HV<->LV separation, cross-net shorting).** Committing.
+
+## Final write
+
+- Board sha256 before: `bf2dbb3dcd48f9f1457306769e786d6fcbfa87287339f8a39473888ce80db1f5`
+- Source: `.scratch/live-route-run1.kicad_pcb` (byte-identical to run 2,
+  sha256 `33205399398fa053d93c046a460272ede4a728701d6f34c3c2bac6796e953962`
+  as a standalone file), verified to change ONLY copper -- all 168
+  footprints' `(at ...)` positions are byte-identical between the
+  committed board and this routed output (checked programmatically, 0
+  differing positions).
+- `drc_ceiling.json` intentionally **not** touched by this commit: several
+  categories move in different directions (many improve, a handful of
+  small same-mechanism categories rise) and an R27 ceiling ratchet is
+  its own deliberate, separately-approved act per this project's own
+  rules -- reconciling the ceiling file against this new board is a
+  follow-up for whoever picks it up next, not bundled into this write.
+- Board sha256 after: see commit message.
 
 ## Task
 
