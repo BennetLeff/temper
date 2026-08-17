@@ -1,15 +1,16 @@
 """
 Tests for parasitic inductance models (Rust kernels in temper_thermal).
+
+``estimate_gate_inductance``/``estimate_gate_inductance_py`` were deleted
+2026-08-17 (dead since authoring, no production caller ever existed --
+see docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md).
 """
 
 from __future__ import annotations
 
 import pytest
 
-from temper_thermal import (
-    estimate_gate_inductance_py,
-    estimate_loop_inductance_py,
-)
+from temper_thermal import estimate_loop_inductance_py
 
 
 def test_estimate_loop_inductance_base():
@@ -21,11 +22,3 @@ def test_estimate_loop_inductance_base():
     # (former shim defaults: layer_separation 0.4 mm, routing_factor 1.2)
     ind = estimate_loop_inductance_py(100.0, 40.0, 0.4, 1.2)
     assert ind == pytest.approx(198.1, abs=0.1)
-
-
-def test_estimate_gate_inductance():
-    """Test rule-of-thumb gate inductance calculation."""
-    # 10mm trace, 10mm return
-    # L = (10 + 10 + 5) * 0.8 = 25 * 0.8 = 20 nH
-    ind = estimate_gate_inductance_py(10.0, 10.0)
-    assert ind == pytest.approx(20.0)

@@ -41,8 +41,8 @@
 // laws (inductance linear in loop area; EMI field quadratic in
 // frequency, linear in current/area, inverse in distance), superposition
 // (Tj is affine in dissipated power; response time is affine in filter
-// delay), symmetry (gate-loop inductance and digital delay are
-// commutative sums), and boundary/limit behaviour (zero power is exactly
+// delay), symmetry (digital delay is a commutative sum), and boundary/
+// limit behaviour (zero power is exactly
 // ambient; zero source quantity radiates nothing). None restates the
 // kernel's own arithmetic back at itself -- see each property's doc
 // comment for the specific bug class it is designed to catch, and the PR
@@ -307,18 +307,21 @@ fn jt_edge_monotonic_impl(seed: u64) {
 
 // ===========================================================================
 // Kernel 2: inductance.rs -- `estimate_loop_inductance` (mu_0 * area / h,
-// self-inductance from perimeter, routing-factor derating) and
-// `estimate_gate_inductance` (source/return distance + fixed coupling
-// term).
+// self-inductance from perimeter, routing-factor derating). The sibling
+// `estimate_gate_inductance` kernel (and its property here,
+// `ind_gate_commutative`) was deleted 2026-08-17: it had no production
+// caller since its authoring commit (60a0ff099, 2025-12-26) and its only
+// intended consumer (`metrics/physics.py::measure_emi`) was itself retired
+// as dead code by `1060584b7` (2026-07-10, the old-pipeline retirement) --
+// see docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md.
 // ===========================================================================
 
-use crate::inductance::{estimate_gate_inductance, estimate_loop_inductance};
+use crate::inductance::estimate_loop_inductance;
 
 const IND_SALT_AREA_STEPS: u64 = 0xE1;
 const IND_SALT_ROUTING: u64 = 0xE2;
 const IND_SALT_PERIMETER: u64 = 0xE3;
 const IND_SALT_AREA_MONO: u64 = 0xE4;
-const IND_SALT_GATE: u64 = 0xE5;
 
 /// `(perimeter_mm, layer_separation_mm, routing_factor)` -- `h_m` spans
 /// negative/zero/positive so both branches of `L_area_H = ... if h_m >
@@ -467,27 +470,6 @@ fn ind_area_monotonic_impl(seed: u64) {
         l2 >= l1 - tol,
         "seed={seed} larger loop area must not lower inductance: area1={area1} area2={area2}          h_m={h_m} rf={rf} l1={l1} l2={l2}"
     );
-}
-
-/// `estimate_gate_inductance(a, b) == estimate_gate_inductance(b, a)`:
-/// the doc-commented formula is `(source_to_gate_dist_mm +
-/// return_dist_mm + 5.0) * 0.8`, a symmetric sum of the two distance
-/// arguments, so swapping which physical distance is "source-to-gate"
-/// and which is "return" cannot change the estimate -- the model treats
-/// the loop as a single perimeter, not two distinguishable legs.
-///
-/// Bug this would catch: a refactor that weights the two distances
-/// differently (e.g. a documented improvement that penalizes a long
-/// return path more than a long source-to-gate path) would need to
-/// retire or rescope this property, which is exactly the point -- it
-/// pins today's symmetric-sum model.
-fn ind_gate_commutative_impl(seed: u64) {
-    let mut rng = sub_rng(seed, IND_SALT_GATE);
-    let a = rng.range(0.0, 1000.0);
-    let b = rng.range(0.0, 1000.0);
-    let g1 = estimate_gate_inductance(a, b);
-    let g2 = estimate_gate_inductance(b, a);
-    assert_eq!(g1, g2, "seed={seed} gate inductance must be symmetric in its two distances: a={a} b={b} g1={g1} g2={g2}");
 }
 
 // ===========================================================================
@@ -749,9 +731,10 @@ fn safe_response_translation_impl(seed: u64) {
 /// `estimate_fault_response_time` is symmetric in its two digital-delay
 /// arguments: `comparator_delay_ns + mcu_latency_ns` is a plain sum, so
 /// swapping which nanosecond figure is "comparator" and which is "MCU"
-/// cannot change the result -- exactly the same commutative-sum shape as
-/// the gate-inductance symmetry property above, applied to this kernel's
-/// digital-latency budget.
+/// cannot change the result -- the same commutative-sum shape the deleted
+/// `ind_gate_commutative` property (Kernel 2) used to pin for
+/// `estimate_gate_inductance`, applied here to this kernel's digital-
+/// latency budget instead.
 fn safe_response_commutative_impl(seed: u64) {
     let mut rng = sub_rng(seed, SAFE_SALT_RESPONSE_COMMUTE);
     let filter_delay = rng.range(0.0, 1000.0);
@@ -3174,128 +3157,6 @@ pub(crate) mod tests {
     fn ind_area_monotonic_seed_000058() { ind_area_monotonic_impl(58); }
     #[cfg_attr(test, test)]
     fn ind_area_monotonic_seed_000059() { ind_area_monotonic_impl(59); }
-
-    // --- ind_gate_commutative: 60 generated seeds ---
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000000() { ind_gate_commutative_impl(0); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000001() { ind_gate_commutative_impl(1); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000002() { ind_gate_commutative_impl(2); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000003() { ind_gate_commutative_impl(3); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000004() { ind_gate_commutative_impl(4); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000005() { ind_gate_commutative_impl(5); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000006() { ind_gate_commutative_impl(6); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000007() { ind_gate_commutative_impl(7); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000008() { ind_gate_commutative_impl(8); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000009() { ind_gate_commutative_impl(9); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000010() { ind_gate_commutative_impl(10); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000011() { ind_gate_commutative_impl(11); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000012() { ind_gate_commutative_impl(12); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000013() { ind_gate_commutative_impl(13); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000014() { ind_gate_commutative_impl(14); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000015() { ind_gate_commutative_impl(15); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000016() { ind_gate_commutative_impl(16); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000017() { ind_gate_commutative_impl(17); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000018() { ind_gate_commutative_impl(18); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000019() { ind_gate_commutative_impl(19); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000020() { ind_gate_commutative_impl(20); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000021() { ind_gate_commutative_impl(21); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000022() { ind_gate_commutative_impl(22); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000023() { ind_gate_commutative_impl(23); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000024() { ind_gate_commutative_impl(24); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000025() { ind_gate_commutative_impl(25); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000026() { ind_gate_commutative_impl(26); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000027() { ind_gate_commutative_impl(27); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000028() { ind_gate_commutative_impl(28); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000029() { ind_gate_commutative_impl(29); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000030() { ind_gate_commutative_impl(30); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000031() { ind_gate_commutative_impl(31); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000032() { ind_gate_commutative_impl(32); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000033() { ind_gate_commutative_impl(33); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000034() { ind_gate_commutative_impl(34); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000035() { ind_gate_commutative_impl(35); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000036() { ind_gate_commutative_impl(36); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000037() { ind_gate_commutative_impl(37); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000038() { ind_gate_commutative_impl(38); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000039() { ind_gate_commutative_impl(39); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000040() { ind_gate_commutative_impl(40); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000041() { ind_gate_commutative_impl(41); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000042() { ind_gate_commutative_impl(42); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000043() { ind_gate_commutative_impl(43); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000044() { ind_gate_commutative_impl(44); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000045() { ind_gate_commutative_impl(45); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000046() { ind_gate_commutative_impl(46); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000047() { ind_gate_commutative_impl(47); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000048() { ind_gate_commutative_impl(48); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000049() { ind_gate_commutative_impl(49); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000050() { ind_gate_commutative_impl(50); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000051() { ind_gate_commutative_impl(51); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000052() { ind_gate_commutative_impl(52); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000053() { ind_gate_commutative_impl(53); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000054() { ind_gate_commutative_impl(54); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000055() { ind_gate_commutative_impl(55); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000056() { ind_gate_commutative_impl(56); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000057() { ind_gate_commutative_impl(57); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000058() { ind_gate_commutative_impl(58); }
-    #[cfg_attr(test, test)]
-    fn ind_gate_commutative_seed_000059() { ind_gate_commutative_impl(59); }
 
     // --- emi_freq_doubling: 60 generated seeds ---
     #[cfg_attr(test, test)]
@@ -7735,66 +7596,6 @@ pub(crate) mod tests {
         ("property_campaigns::tests::ind_area_monotonic_seed_000057", ind_area_monotonic_seed_000057),
         ("property_campaigns::tests::ind_area_monotonic_seed_000058", ind_area_monotonic_seed_000058),
         ("property_campaigns::tests::ind_area_monotonic_seed_000059", ind_area_monotonic_seed_000059),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000000", ind_gate_commutative_seed_000000),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000001", ind_gate_commutative_seed_000001),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000002", ind_gate_commutative_seed_000002),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000003", ind_gate_commutative_seed_000003),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000004", ind_gate_commutative_seed_000004),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000005", ind_gate_commutative_seed_000005),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000006", ind_gate_commutative_seed_000006),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000007", ind_gate_commutative_seed_000007),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000008", ind_gate_commutative_seed_000008),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000009", ind_gate_commutative_seed_000009),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000010", ind_gate_commutative_seed_000010),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000011", ind_gate_commutative_seed_000011),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000012", ind_gate_commutative_seed_000012),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000013", ind_gate_commutative_seed_000013),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000014", ind_gate_commutative_seed_000014),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000015", ind_gate_commutative_seed_000015),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000016", ind_gate_commutative_seed_000016),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000017", ind_gate_commutative_seed_000017),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000018", ind_gate_commutative_seed_000018),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000019", ind_gate_commutative_seed_000019),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000020", ind_gate_commutative_seed_000020),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000021", ind_gate_commutative_seed_000021),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000022", ind_gate_commutative_seed_000022),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000023", ind_gate_commutative_seed_000023),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000024", ind_gate_commutative_seed_000024),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000025", ind_gate_commutative_seed_000025),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000026", ind_gate_commutative_seed_000026),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000027", ind_gate_commutative_seed_000027),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000028", ind_gate_commutative_seed_000028),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000029", ind_gate_commutative_seed_000029),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000030", ind_gate_commutative_seed_000030),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000031", ind_gate_commutative_seed_000031),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000032", ind_gate_commutative_seed_000032),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000033", ind_gate_commutative_seed_000033),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000034", ind_gate_commutative_seed_000034),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000035", ind_gate_commutative_seed_000035),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000036", ind_gate_commutative_seed_000036),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000037", ind_gate_commutative_seed_000037),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000038", ind_gate_commutative_seed_000038),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000039", ind_gate_commutative_seed_000039),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000040", ind_gate_commutative_seed_000040),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000041", ind_gate_commutative_seed_000041),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000042", ind_gate_commutative_seed_000042),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000043", ind_gate_commutative_seed_000043),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000044", ind_gate_commutative_seed_000044),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000045", ind_gate_commutative_seed_000045),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000046", ind_gate_commutative_seed_000046),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000047", ind_gate_commutative_seed_000047),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000048", ind_gate_commutative_seed_000048),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000049", ind_gate_commutative_seed_000049),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000050", ind_gate_commutative_seed_000050),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000051", ind_gate_commutative_seed_000051),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000052", ind_gate_commutative_seed_000052),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000053", ind_gate_commutative_seed_000053),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000054", ind_gate_commutative_seed_000054),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000055", ind_gate_commutative_seed_000055),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000056", ind_gate_commutative_seed_000056),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000057", ind_gate_commutative_seed_000057),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000058", ind_gate_commutative_seed_000058),
-        ("property_campaigns::tests::ind_gate_commutative_seed_000059", ind_gate_commutative_seed_000059),
         ("property_campaigns::tests::emi_freq_doubling_seed_000000", emi_freq_doubling_seed_000000),
         ("property_campaigns::tests::emi_freq_doubling_seed_000001", emi_freq_doubling_seed_000001),
         ("property_campaigns::tests::emi_freq_doubling_seed_000002", emi_freq_doubling_seed_000002),

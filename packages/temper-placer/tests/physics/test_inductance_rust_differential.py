@@ -1,4 +1,4 @@
-"""Differential tests: temper-thermal Rust parasitic-loop-inductance kernels
+"""Differential tests: temper-thermal Rust parasitic-loop-inductance kernel
 vs the pure-Python reference (temper_placer/physics/inductance.py, Wave 4
 Phase A #4).
 
@@ -9,10 +9,14 @@ semantics, including the exact f64 operation order: ``MU_0 = 4 * math.pi
 h_m) if h_m > 0 else 0`` conditional area term, ``L_area_H * 1e9``,
 ``perimeter_mm * 0.2``, and the final ``(L_area_nH * 0.5 + L_self_nH) *
 routing_factor`` with the parenthesized sum evaluated before the
-multiply; ``estimate_gate_inductance`` is the ``(a + b + 5.0) * 0.8``
-left-to-right chain).  Any change to the Rust kernels
+multiply).  Any change to the Rust kernel
 (packages/temper-thermal/src/inductance.rs) or the Python delegation that
 disagrees with the oracle fails here, bit-exactly.
+
+``estimate_gate_inductance``/``estimate_gate_inductance_py`` (and this
+file's matching oracle/pins) were deleted 2026-08-17: the kernel had no
+production caller for its entire lifetime (see
+docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md).
 
 Bit-exactness notes (Wave 4 catalog):
 
@@ -48,10 +52,7 @@ import struct
 import pytest
 import temper_thermal as _tt
 
-from temper_thermal import (
-    estimate_gate_inductance_py,
-    estimate_loop_inductance_py,
-)
+from temper_thermal import estimate_loop_inductance_py
 
 # ---------------------------------------------------------------------------
 # Oracle (pre-migration implementation, verbatim)
@@ -87,17 +88,6 @@ def _oracle_estimate_loop_inductance(
     L_total_nH = (L_area_nH * 0.5 + L_self_nH) * routing_factor
 
     return float(L_total_nH)
-
-
-def _oracle_estimate_gate_inductance(
-    source_to_gate_dist_mm: float,
-    return_dist_mm: float,
-) -> float:
-    """Verbatim pre-migration gate-drive loop inductance estimator (nH)."""
-    # Assuming tight coupling (back-to-back or over ground plane)
-    perimeter = source_to_gate_dist_mm + return_dist_mm + 5.0  # +5mm for internal
-    # Rough rule of thumb: 0.8 nH/mm for PCB loops over ground plane
-    return perimeter * 0.8
 
 
 # ---------------------------------------------------------------------------
@@ -140,29 +130,12 @@ def test_direct_loop_inductance_bit_exact(seed):
         )
 
 
-@pytest.mark.parametrize("seed", range(15))
-def test_direct_gate_inductance_bit_exact(seed):
-    """Rust gate-drive kernel == oracle, bit-exact, over random distances."""
-    rng = random.Random(1000 + seed)
-    for _ in range(40):
-        a = rng.choice([10.0, 0.0, rng.uniform(0.0, 50.0)])
-        b = rng.choice([10.0, 0.0, rng.uniform(0.0, 50.0)])
-        expected = _oracle_estimate_gate_inductance(a, b)
-        got = _tt.estimate_gate_inductance_py(a, b)
-        assert got == expected, (
-            f"gate L mismatch (a={a!r} b={b!r}): "
-            f"rust={got!r} ({_bits(got)}) oracle={expected!r} ({_bits(expected)})"
-        )
-
-
 def test_direct_known_values():
     """Hand-computed values (exact f64 in both implementations)."""
     # 100 mm², 40 mm perimeter, 0.4 mm height: L_area = 314 nH
     # (μ₀·100e-6/0.4e-3 = 1.2566e-6·1e-4/4e-4 = 3.14e-7 H = 314 nH),
     # L_self = 8 nH → L_total = (157 + 8) * 1.2 = 198 nH.
     assert _tt.estimate_loop_inductance_py(100.0, 40.0, 0.4, 1.2) == pytest.approx(198.0, abs=0.1)
-    # Gate drive: (10 + 10 + 5) * 0.8 = 20.0 exactly.
-    assert _tt.estimate_gate_inductance_py(10.0, 10.0) == 20.0
 
 
 def test_direct_mu0_chain_bit_exact():
@@ -221,10 +194,6 @@ def test_direct_nan_inf_semantics():
     exp = _oracle_estimate_loop_inductance(float("nan"), 10.0, 1.0, 1.2)
     got = _tt.estimate_loop_inductance_py(float("nan"), 10.0, 1.0, 1.2)
     assert math.isnan(exp) and math.isnan(got), f"nan area: rust={got!r} oracle={exp!r}"
-    # Gate drive with NaN distance propagates identically.
-    exp = _oracle_estimate_gate_inductance(float("nan"), 10.0)
-    got = _tt.estimate_gate_inductance_py(float("nan"), 10.0)
-    assert math.isnan(exp) and math.isnan(got), f"nan gate: rust={got!r} oracle={exp!r}"
 
 
 def test_direct_zero_height_edge():
@@ -253,20 +222,6 @@ def test_module_level_loop_inductance_bit_exact(seed):
         assert got == expected, (
             f"delegation mismatch (area={area!r} perim={perim!r} h={h!r} "
             f"rf={rf!r}): rust={got!r} oracle={expected!r}"
-        )
-
-
-@pytest.mark.parametrize("seed", range(5))
-def test_module_level_gate_inductance_bit_exact(seed):
-    """estimate_gate_inductance (Rust pyo3) == oracle, bit-exact."""
-    rng = random.Random(3000 + seed)
-    for _ in range(25):
-        a = rng.uniform(0.0, 50.0)
-        b = rng.uniform(0.0, 50.0)
-        expected = _oracle_estimate_gate_inductance(a, b)
-        got = estimate_gate_inductance_py(a, b)
-        assert got == expected, (
-            f"gate delegation mismatch (a={a!r} b={b!r}): rust={got!r} oracle={expected!r}"
         )
 
 

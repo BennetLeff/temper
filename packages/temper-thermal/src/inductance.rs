@@ -2,8 +2,32 @@
 //!
 //! Ports the pure scalar arithmetic of
 //! `temper_placer/physics/inductance.py` (the `estimate_loop_inductance`
-//! and `estimate_gate_inductance` estimators) to Rust.  The Python
-//! module keeps its public API and delegates the arithmetic here.
+//! estimator) to Rust.  The Python module keeps its public API and
+//! delegates the arithmetic here.
+//!
+//! ## `estimate_gate_inductance` — deleted 2026-08-17
+//!
+//! A sibling estimator, `estimate_gate_inductance(source_to_gate_dist_mm,
+//! return_dist_mm)`, lived here from this crate's original Python source
+//! (`60a0ff099`, 2025-12-26) through the Wave 4 Rust port. It had no
+//! production caller for its entire lifetime: its only intended consumer,
+//! `metrics/physics.py::measure_emi`'s `i == 0` "gate drive" loop branch,
+//! called the generic `estimate_loop_inductance` instead (a bug present
+//! from the same authoring commit — never fixed, never exercised).
+//! `measure_emi` itself, and the `PipelineOrchestrator` that called it,
+//! were deleted as dead code by `1060584b7` (2026-07-10, "retire the old
+//! iterative pipeline"), a deliberate, verified refactor unrelated to this
+//! kernel. The board's actual (separately incomplete) gate-drive-loop
+//! physics check is `placer/cp_sat/gates.py::PhysicsGate`'s sub-check 2,
+//! which measures routed trace geometry via
+//! `physics.gate_drive.gate_drive_loop_area`/`gate_drive_spacing` — a
+//! module that does not exist anywhere in this repo, so that check is
+//! permanently `UNMEASURED` today regardless of this estimator. Neither
+//! formula is applied to the gate-drive loop in production; see
+//! `docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md` for
+//! the full trace. Deleted rather than wired: wiring it into still-dead
+//! `measure_emi` would satisfy the unwired-kernel gate's coarse AST-
+//! reference check without restoring any live behavior.
 //!
 //! ## Bit-exactness discipline (Wave 4 catalog entries)
 //!
@@ -26,8 +50,7 @@
 //!   `perimeter_mm * 0.2` are single multiplies; the final
 //!   `(L_area_nH * 0.5 + L_self_nH) * routing_factor` keeps the
 //!   parenthesized sum evaluated BEFORE the multiply by `routing_factor`
-//!   — no reassociation, no fusing.  `estimate_gate_inductance` is the
-//!   left-to-right `(a + b) + 5.0` add chain, then `* 0.8`.
+//!   — no reassociation, no fusing.
 //! - **B8 (denormal underflow):** the crate keeps default IEEE semantics
 //!   (no fast-math, no FTZ/DAZ, no `mul_add` fusion); a denormal-band
 //!   differential case pins that `mu_0 * area_m2` in the denormal range
@@ -99,26 +122,6 @@ pub fn estimate_loop_inductance(
     (l_area_nh * 0.5 + l_self_nh) * routing_factor
 }
 
-/// Estimate gate-drive loop inductance (nH) from source/return distances.
-///
-/// Mirrors `estimate_gate_inductance`'s arithmetic verbatim: the
-/// left-to-right add chain `(source_to_gate_dist_mm + return_dist_mm) +
-/// 5.0`, then `* 0.8` (B7).
-///
-/// # Arguments
-///
-/// * `source_to_gate_dist_mm` — driver-output-to-gate distance (mm).
-/// * `return_dist_mm` — source-to-driver-ground return distance (mm).
-///
-/// # Returns
-///
-/// Estimated gate-drive loop inductance in nanohenries.
-pub fn estimate_gate_inductance(source_to_gate_dist_mm: f64, return_dist_mm: f64) -> f64 {
-    // perimeter = source_to_gate_dist_mm + return_dist_mm + 5.0 (+5 mm
-    // for internal coupling), then * 0.8 nH/mm (B7: left-to-right adds).
-    (source_to_gate_dist_mm + return_dist_mm + 5.0) * 0.8
-}
-
 /// pyo3 bridge for [`estimate_loop_inductance`].
 #[cfg(feature = "python")]
 #[pyfunction]
@@ -136,20 +139,6 @@ pub fn estimate_loop_inductance_py(
             layer_separation_mm,
             routing_factor,
         )
-    })
-    .map_err(temper_py_bridge::panic_to_err)
-}
-
-/// pyo3 bridge for [`estimate_gate_inductance`].
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (source_to_gate_dist_mm, return_dist_mm))]
-pub fn estimate_gate_inductance_py(
-    source_to_gate_dist_mm: f64,
-    return_dist_mm: f64,
-) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| {
-        estimate_gate_inductance(source_to_gate_dist_mm, return_dist_mm)
     })
     .map_err(temper_py_bridge::panic_to_err)
 }
@@ -189,27 +178,6 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
-    fn gate_inductance_known_value() {
-        // (10 + 10 + 5) * 0.8 = 20.0 exactly.
-        assert_eq!(estimate_gate_inductance(10.0, 10.0), 20.0);
-    }
-
-    #[cfg_attr(test, test)]
-    fn gate_inductance_zero_distances() {
-        // (0 + 0 + 5.0) * 0.8 = 4.0 (the +5 mm internal coupling term).
-        assert_eq!(estimate_gate_inductance(0.0, 0.0), 4.0);
-    }
-
-    #[cfg_attr(test, test)]
-    fn gate_inductance_op_order() {
-        // The add chain is (a + b) + 5.0, then * 0.8 — pin the exact
-        // chain so a reassociation (e.g. (a + 5.0) + b) cannot slip in.
-        let a = 0.12345678901234567;
-        let b = 987.6543210987654;
-        assert_eq!(estimate_gate_inductance(a, b), (a + b + 5.0) * 0.8);
-    }
-
-    #[cfg_attr(test, test)]
     fn mu0_chain_matches_named_constant() {
         // 4 * math.pi * 1e-7 with Rust's PI is the same double as the
         // CPython oracle's chain (B2 extension: named constant is
@@ -233,9 +201,6 @@ pub(crate) mod tests {
         ("inductance::tests::loop_inductance_zero_height_is_self_only", loop_inductance_zero_height_is_self_only),
         ("inductance::tests::loop_inductance_nan_h_selects_zero_arm", loop_inductance_nan_h_selects_zero_arm),
         ("inductance::tests::loop_inductance_zero_routing_factor_is_exactly_zero", loop_inductance_zero_routing_factor_is_exactly_zero),
-        ("inductance::tests::gate_inductance_known_value", gate_inductance_known_value),
-        ("inductance::tests::gate_inductance_zero_distances", gate_inductance_zero_distances),
-        ("inductance::tests::gate_inductance_op_order", gate_inductance_op_order),
         ("inductance::tests::mu0_chain_matches_named_constant", mu0_chain_matches_named_constant),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---

@@ -1,13 +1,18 @@
-"""Property-based tests for the Rust parasitic-loop-inductance kernels
-(``temper_thermal.estimate_loop_inductance_py`` /
-``temper_thermal.estimate_gate_inductance_py``, Wave 4 Phase A #4 —
+"""Property-based tests for the Rust parasitic-loop-inductance kernel
+(``temper_thermal.estimate_loop_inductance_py``, Wave 4 Phase A #4 —
 migration of ``temper_placer/physics/inductance.py``).
 
-The kernels are pure closed-form f64 arithmetic over a two-branch
-structure (the ``h_m > 0`` conditional area term of the loop estimator,
-plus the fixed chains of both estimators).  Every property below is a
-direct statement about correctly-rounded IEEE-754 operations, and each
-is vacuity-guarded (its docstring says why a constant / degenerate
+The sibling gate-drive estimator (``estimate_gate_inductance_py``) and
+this file's matching P3/M5 properties were deleted 2026-08-17: the kernel
+had no production caller for its entire lifetime (see
+docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md). The P/M
+numbering below intentionally keeps its remaining gaps (P3, M5) rather
+than renumbering, so this deletion is visible in a diff instead of erased.
+
+The kernel is pure closed-form f64 arithmetic over a two-branch
+structure (the ``h_m > 0`` conditional area term).  Every property below
+is a direct statement about correctly-rounded IEEE-754 operations, and
+each is vacuity-guarded (its docstring says why a constant / degenerate
 implementation fails it).
 
 Exactness notes:
@@ -49,17 +54,11 @@ _perim = st.floats(min_value=1e-3, max_value=500.0, allow_nan=False, allow_infin
 # denormal-band B8 parity itself is pinned in the differential suite.
 _h = st.floats(min_value=1e-6, max_value=3.0, allow_nan=False, allow_infinity=False)
 _rf = st.floats(min_value=0.5, max_value=4.0, allow_nan=False, allow_infinity=False)
-_dist = st.floats(min_value=0.0, max_value=50.0, allow_nan=False, allow_infinity=False)
 
 
 def _l(area, perim, h, rf):
     """Loop kernel call (direct pyfunction, the migrated surface)."""
     return _tt.estimate_loop_inductance_py(area, perim, h, rf)
-
-
-def _g(a, b):
-    """Gate kernel call (direct pyfunction, the migrated surface)."""
-    return _tt.estimate_gate_inductance_py(a, b)
 
 
 # ---------------------------------------------------------------------------
@@ -98,17 +97,6 @@ def test_loop_closed_form_bit_exact(area, perim, h, rf):
     expected = (l_area_nh * 0.5 + l_self_nh) * rf
     got = _l(area, perim, h, rf)
     assert got == expected, f"loop closed-form: rust={got!r} python={expected!r}"
-
-
-@settings(max_examples=MAX_EXAMPLES, deadline=None)
-@given(a=_dist, b=_dist)
-def test_gate_closed_form_bit_exact(a, b):
-    """P3 — gate estimator closed form, bit-exact:
-    L == (a + b + 5.0) * 0.8.  A kernel that omits the +5.0 internal
-    coupling term or the 0.8 nH/mm factor fails."""
-    got = _g(a, b)
-    expected = (a + b + 5.0) * 0.8
-    assert got == expected, f"gate closed-form: rust={got!r} python={expected!r}"
 
 
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
@@ -230,20 +218,6 @@ def test_mr4_area_up_height_down_monotone(perim, h, rf, area1, delta):
     assert l_hi >= l_lo, f"L(A2,h2)={l_hi!r} < L(A1,h1)={l_lo!r}"
 
 
-@settings(max_examples=MAX_EXAMPLES, deadline=None)
-@given(
-    b=_dist,
-    a1=st.floats(min_value=0.0, max_value=25.0, allow_nan=False, allow_infinity=False),
-    delta=st.floats(min_value=1e-3, max_value=25.0, allow_nan=False, allow_infinity=False),
-)
-def test_mr5_gate_monotone_in_source_distance(b, a1, delta):
-    """M5 — exact gate-estimator monotonicity: L(a2, b) >= L(a1, b) for
-    a2 >= a1 (the add chain and the *0.8 multiply are monotone, and IEEE
-    rounding preserves the order)."""
-    a2 = a1 + delta
-    assert _g(a2, b) >= _g(a1, b), f"gate L({a2}) < gate L({a1})"
-
-
 def test_pbt_smoke_deterministic_seed():
     """The PBT strategies are non-vacuous in aggregate: a quick seeded
     sweep over the property inputs must produce strictly more than one
@@ -275,13 +249,6 @@ def _restore_kernel():
     _tt.estimate_loop_inductance_py = original
 
 
-@pytest.fixture
-def _restore_gate_kernel():
-    original = _tt.estimate_gate_inductance_py
-    yield
-    _tt.estimate_gate_inductance_py = original
-
-
 def test_p1_fails_for_constant_kernel(_restore_kernel) -> None:
     """A constant kernel (0.0) cannot be non-negative AND rich (P1)."""
     _tt.estimate_loop_inductance_py = lambda *_a, **_k: 0.0
@@ -300,14 +267,6 @@ def test_p2_fails_for_missing_half_factor(_restore_kernel) -> None:
     )
     with pytest.raises(AssertionError):
         test_loop_closed_form_bit_exact.hypothesis.inner_test(100.0, 40.0, 0.4, 1.2)
-
-
-def test_p3_fails_for_gate_missing_coupling_term(_restore_gate_kernel) -> None:
-    """A gate kernel that omits the +5.0 internal coupling term
-    (L = (a + b) * 0.8) breaks the closed form (P3)."""
-    _tt.estimate_gate_inductance_py = lambda a, b: (a + b) * 0.8
-    with pytest.raises(AssertionError):
-        test_gate_closed_form_bit_exact.hypothesis.inner_test(10.0, 10.0)
 
 
 def test_p4_fails_for_unconditional_area_term(_restore_kernel) -> None:
