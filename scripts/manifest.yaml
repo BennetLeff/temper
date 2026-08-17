@@ -1002,6 +1002,30 @@ scripts:
   - json
   - pathlib
   - sys
+- path: check_orphaned_python_modules.py
+  purpose: 'CI gate: mirror image of check_unwired_kernels.py. That gate fails when a Rust kernel is
+    registered but no Python code calls it; this one fails when a whole Python module under packages/*/src
+    has zero importers anywhere -- Python (absolute/relative import, importlib.import_module) or Rust
+    (py.import/PyModule::import runtime calls, invisible to a Python-only scan) or a [project.scripts]
+    console-script target. 2026-08-17: docs/evidence/2026-08-17-python-deprecation-spike.md (PR #1302)
+    found this shape by hand across several package trees (metrics/physics.py orphaned since its sole
+    caller was deleted 2026-07-10; a 1,984 LOC router_v6/constraints_* mutually-referencing dead cluster;
+    more) with nothing gating it. Shrink-only ledger in .orphaned-python-module-inventory; NEW_ORPHANED
+    and STALE_ENTRY both fail. Documents its own blind spots (mutually-referencing dead clusters invisible
+    by construction; computed/dynamic import targets; getattr-with-a-computed-name) rather than claiming
+    completeness.'
+  owner: pipeline
+  last_run: '2026-08-17'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - pathlib
+  - re
+  - sys
+  - tomllib
 - path: check_pad_identity_ambiguity.py
   purpose: 'CI gate: structural, component-level complement to check_net_pin_identity_pad_correspondence.py
     (PR #1177''s net-accounting gate). Fails when a footprint IN USE on the board declares more than one
