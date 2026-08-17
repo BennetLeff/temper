@@ -37,8 +37,8 @@ class NetClassRules(BaseModel):
     # Lower value emits earlier in DRU trace-width section
     dru_priority: int = 0
 
-    # Via pad diameter in mm (for single vias)
-    via_diameter: float = 0.6
+    # Via pad diameter in mm (for single vias). RAISED 0.6 -> 0.9 2026-08-16: 0.6/0.3 gave a 0.15mm annular ring, below the 0.254mm fab floor -- this is the loader fallback default for classes that omit via_diameter (docs/evidence/2026-08-16-hv-netclass-assignment-fix.md).
+    via_diameter: float = 0.9
 
     # Via drill diameter in mm (for single vias)
     via_drill: float = 0.3

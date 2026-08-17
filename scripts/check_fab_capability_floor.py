@@ -54,6 +54,13 @@ P2b Every ``netclass_rules.yaml`` class's ``via_diameter``/``via_drill``
     ring everywhere but ``netclass_rules.yaml``'s ``HighVoltageSignal``
     stayed 0.8/0.4 (0.2mm ring) -- a green P2 with a router emitting 69
     sub-floor vias per route. Both homes must pass.
+P2c ``io/_parse_nets.py``'s ``default_via_diameter``/``default_via_drill``
+    literals (the defaults ``parse_kicad_pcb`` bakes into
+    ``pcb.design_rules``, which the route's via placement reads for
+    unclassified nets) yield a ring at or above the floor. Missed by the
+    same 2026-08-13 sweep: it stayed 0.8/0.4 (0.2mm ring) and produced
+    34 annular_width violations on the 2026-08-16 fab-fixed route, all
+    blind vias on nets with no netclass assignment.
 P3  ``router_v6/_ground_plane.py`` and ``router_v6/_power_islands.py``'s
     ``VIA_SIZE_MM``/``VIA_DRILL_MM`` constants (the two confirmed literal
     generators of the board's larger via family) yield a ring at or above
@@ -337,6 +344,46 @@ def generator_constant_rings() -> dict[str, tuple[float, float, float]]:
 # ---------------------------------------------------------------------------
 
 
+def parse_nets_via_defaults() -> dict[str, tuple[float, float, float]]:
+    """AST-scan ``io/_parse_nets.py``'s module-level
+    ``default_via_diameter``/``default_via_drill`` numeric literals -- the
+    defaults ``parse_kicad_pcb`` bakes into ``pcb.design_rules``, which
+    the route's via placement reads for nets with no netclass assignment.
+    AST, not import (same rationale as ``generator_constant_rings``: the
+    module pulls in the whole parse stack). Missed by the 2026-08-13
+    sweep: stayed 0.8/0.4 (0.2mm ring) and produced 34 annular_width
+    violations on the 2026-08-16 fab-fixed route."""
+    path = REPO_ROOT / "packages" / "temper-placer" / "src" / "temper_placer" / "io" / "_parse_nets.py"
+    if not path.is_file():
+        raise GateError(f"{path} not found")
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    size_val: float | None = None
+    drill_val: float | None = None
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign):
+            continue
+        if not (
+            isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, (int, float))
+            and not isinstance(node.value.value, bool)
+        ):
+            continue
+        for target in node.targets:
+            if not isinstance(target, ast.Name):
+                continue
+            if target.id == "default_via_diameter":
+                size_val = float(node.value.value)
+            elif target.id == "default_via_drill":
+                drill_val = float(node.value.value)
+    if size_val is None or drill_val is None:
+        raise GateError(
+            f"{path} has no module-level default_via_diameter/"
+            "default_via_drill numeric-literal assignment -- gate cannot "
+            "verify this parser's via defaults"
+        )
+    return {"_parse_nets_default": (size_val, drill_val, (size_val - drill_val) / 2.0)}
+
+
 def dru_via_hole_clearance_constant() -> float:
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
     try:
@@ -438,6 +485,28 @@ def run() -> int:
         print(
             f"  P2b OK  {len(yaml_rings)} netclass_rules.yaml via "
             f"template(s), all >= {ring_floor}mm ring"
+        )
+
+    # P2c: io/_parse_nets.py's defaults -- the values parse_kicad_pcb bakes
+    # into pcb.design_rules, which the route's via placement reads for
+    # unclassified nets. See parse_nets_via_defaults' docstring.
+    try:
+        parse_defaults = parse_nets_via_defaults()
+    except GateError as e:
+        print(f"MISSING/MALFORMED INPUT: {e}")
+        return 2
+    parse_below = {n: v for n, v in parse_defaults.items() if v[2] < ring_floor - _TOL}
+    if parse_below:
+        for name, (dia, drill, ring) in sorted(parse_below.items()):
+            failures.append(
+                f"P2c: {name} via_diameter={dia}mm/via_drill={drill}mm "
+                f"gives ring {ring:.4f}mm, below the {ring_floor}mm fab "
+                "floor (io/_parse_nets.py's pcb.design_rules defaults)"
+            )
+    else:
+        print(
+            f"  P2c OK  {len(parse_defaults)} io/_parse_nets.py default(s), "
+            "all >= " + f"{ring_floor}mm ring"
         )
 
     # P3

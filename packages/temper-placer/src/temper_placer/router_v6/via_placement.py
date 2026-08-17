@@ -45,7 +45,10 @@ class ViaPlacement:
 
 def place_vias(
     pathfinding_result: PathfindingResult,
-    via_diameter: float = 0.6,
+    # Defaults 0.9/0.3 (raised 0.6/0.3 -> 0.9/0.3 2026-08-16, fab annular-
+    # ring floor; 0.6/0.3 gave a 0.15mm ring). Production call sites pass
+    # explicit values; these are the direct-caller fallback.
+    via_diameter: float = 0.9,
     via_drill: float = 0.3,
     net_class_assignments: dict[str, str] | None = None,
     net_class_rules: dict | None = None,

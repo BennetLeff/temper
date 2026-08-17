@@ -150,8 +150,17 @@ def _extract_design_rules(
     #                         it.
     # See docs/evidence/2026-08-12-clearance-congestion-band.md.
     default_trace_width = 0.2
-    default_via_diameter = 0.8
-    default_via_drill = 0.4
+    # RAISED 0.8/0.4 -> 0.9/0.3 2026-08-16 (docs/evidence/2026-08-16-hv-
+    # netclass-assignment-fix.md): 0.8/0.4 gave a 0.2mm annular ring,
+    # below the board's min_via_annular_width 0.254 -- and this is the
+    # default `pcb.design_rules` the ROUTE's via placement actually reads
+    # for unclassified nets (34 annular_width violations on the 2026-08-16
+    # fab-fixed route, all blind vias on unassigned nets). The 2026-08-13
+    # fab-floor sweep raised every OTHER default home to 0.9/0.3 (0.3mm
+    # ring) but missed this one. 0.9/0.3 matches core/design_rules.py's
+    # create_temper_design_rules default and ClearanceMatrix.
+    default_via_diameter = 0.9
+    default_via_drill = 0.3
 
     manual_classes = {}
     if pcb_content:

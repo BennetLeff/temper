@@ -157,6 +157,44 @@ def test_p2b_catches_the_highvoltagesignal_drift(tmp_path, monkeypatch, capsys):
     assert "0.8" in out
 
 
+def test_p2c_catches_the_parse_nets_default_drift(tmp_path, monkeypatch, capsys):
+    """The exact defect shape P2c was added for: io/_parse_nets.py's
+    default_via_diameter/default_via_drill at 0.8/0.4 (0.2mm ring) -- the
+    defaults parse_kicad_pcb bakes into pcb.design_rules, which the
+    route's via placement reads for unclassified nets (34 annular_width
+    violations on the 2026-08-16 fab-fixed route)."""
+    src = tmp_path / "io"
+    src.mkdir(parents=True)
+    bad = src / "_parse_nets.py"
+    bad.write_text(
+        "default_via_diameter = 0.8\ndefault_via_drill = 0.4\n", encoding="utf-8"
+    )
+
+    # Re-point the parser's path resolution at the fixture without touching
+    # REPO_ROOT (which P1/P2/P4 also resolve against).
+    def _rings():
+        text = bad.read_text(encoding="utf-8")
+        import ast as _ast
+
+        tree = _ast.parse(text)
+        size_val = drill_val = None
+        for node in _ast.walk(tree):
+            if isinstance(node, _ast.Assign) and isinstance(node.value, _ast.Constant):
+                for target in node.targets:
+                    if isinstance(target, _ast.Name):
+                        if target.id == "default_via_diameter":
+                            size_val = float(node.value.value)
+                        elif target.id == "default_via_drill":
+                            drill_val = float(node.value.value)
+        return {"_parse_nets_default": (size_val, drill_val, (size_val - drill_val) / 2.0)}
+
+    monkeypatch.setattr(gate, "parse_nets_via_defaults", _rings)
+    assert gate.run() == 1
+    out = capsys.readouterr().out
+    assert "P2c" in out
+    assert "0.8" in out
+
+
 def test_p3_catches_a_sub_floor_generator_constant(tmp_path, monkeypatch, capsys):
     """The EXACT pre-fix shape of router_v6/_ground_plane.py and
     _power_islands.py: VIA_SIZE_MM = 0.8, VIA_DRILL_MM = 0.4 (ring 0.2mm)."""

@@ -219,7 +219,7 @@ pub struct NetClassRules {
     pub clearance_mm: f64,
     /// Lower value emits earlier in DRU trace-width section
     pub dru_priority: i32,
-    /// Via pad diameter in mm (for single vias)
+    /// Via pad diameter in mm (for single vias). RAISED 0.6 -> 0.9 2026-08-16: 0.6/0.3 gave a 0.15mm annular ring, below the 0.254mm fab floor -- this is the loader fallback default for classes that omit via_diameter (docs/evidence/2026-08-16-hv-netclass-assignment-fix.md).
     pub via_diameter: f64,
     /// Via drill diameter in mm (for single vias)
     pub via_drill: f64,
@@ -254,7 +254,7 @@ impl Default for NetClassRules {
             trace_width_mm: 0.0_f64,
             clearance_mm: 0.0_f64,
             dru_priority: 0_i32,
-            via_diameter: 0.6_f64,
+            via_diameter: 0.9_f64,
             via_drill: 0.3_f64,
             via_template: None,
             creepage_mm: 0.0_f64,
