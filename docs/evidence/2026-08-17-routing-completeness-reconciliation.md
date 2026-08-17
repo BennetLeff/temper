@@ -200,50 +200,95 @@ possibility) — it is a single metric, on a single kind of object
 router genuinely changed, and the newer number is the one that reflects
 `main` as it stands today.
 
-## 6. What "measured live by you" means here, and its limit
+## 6. Independent re-measurement (closes this section's original gap)
 
-This reconciliation is source-and-log based, not a fresh route run: every
-number cited is independently reproducible from files on `main` (route
-recipe help text, the two evidence docs' own worktree/board provenance
-headers, `git log` ordering) without executing anything. That is enough
-to establish *reconciliation* (same metric, different dated inputs, fully
-attributable) and to identify 61/139 as the current authoritative figure
-via **PR #1301's own live run**, made hours before this task on `main`'s
-actual current tip by another agent, with the identical
-`pad_connectivity_audit` tool.
+**Update, same task, after a successful isolated `.venv` build in a fresh
+worktree** (`agent-routing-completeness-recon`, `make venv-isolate`
+succeeded on retry — see below for what went wrong the first two times):
+a from-scratch route of `pcb/temper.kicad_pcb` at this worktree's tip
+(`fa067a952`), default recipe (no `--net-batching`), identical
+`pad_connectivity_audit` tool, wall time 327.8s, measured:
 
-What this does NOT provide: an *independent* re-measurement by this task
-of the exact current tip. A first attempt to build this worktree's own
-isolated `.venv` (per the hard rule against rebuilding pyo3 into the
-shared repo `.venv`) hit a transient cargo dep-info race against the
-shared `target-shared/` build cache (contended by ~20+ concurrent
-sibling builds) and, on retry, nearly resolved to the **shared** repo
-`.venv` due to a `VIRTUAL_ENV`/cwd mismatch — caught and killed before
-any install happened into it (no shared-venv corruption occurred; the
-build had not progressed past the file-lock-wait stage). Given the
-disk headroom (28 GB free of 938 GB, 97% used) and 20+ concurrent
-sibling builds already contending for the same shared target dir, a
-further isolated-venv attempt is deferred to Phase 2/3 rather than
-retried immediately, in favor of committing this reconciliation first
-(see the coordinator note: an idle turn with zero commits gets a fresh
-worktree reclaimed with no salvage — this doc is being committed
-immediately after being written, before any further build attempt).
+```
+fully_connected: 61/139
+fake_completion: 8   honest_gap: 70
+NetRouteResult: connected=61 partial=8 zone_dependent=9 failed=61 of 139
+```
+
+**Exact agreement with PR #1301's BEFORE figure (61/139), independently
+reproduced by a different agent, different worktree, same commit.** This
+is strong corroboration: two independent runs of the direct
+capacity-aware topology solver (which is not perfectly deterministic
+run-to-run per its own docs — see the `docs/evidence/2026-08-12-board-
+recipe-reproducibility.md` churn note cited in `route_board.py`) landed
+on the identical net count, and the `NetRouteResult` (Rust, type-enforced
+`verify_continuity`) verdict of 61 connected exactly matches the audit's
+61 fully-connected count — the two independently-implemented checkers
+agree exactly on this run too, same as they did on the 89/139 run cited
+in §1. §7's "current true value" answer is now upgraded from "most
+recent live measurement by a peer agent" to **independently reproduced
+by this task**.
+
+Full per-net breakdown (`fully_connected_nets` / `partial` /
+`zone_dependent` / `failed`) is carried into
+`docs/evidence/2026-08-17-unrouted-nets-rootcause-update.md` (this
+task's Phase 2 doc) rather than duplicated here.
+
+**Board sha256 reverified unchanged after this route**:
+`9c1f4a37b03c6433275704c3bed917f7ff16877c762f0aa8d37cc6858d7c16dd` — the
+route reads `pcb/temper.kicad_pcb`, strips its copper into a *temp file*
+copy, and writes routed output only to `.scratch/live-route.kicad_pcb`,
+never back to the tracked path (`scripts/route_board.py`'s
+`route_once()`, confirmed by source read before running it).
+
+### What went wrong on the way here (reported, not hidden)
+
+Two earlier attempts in a different, since-abandoned worktree failed:
+1. `make venv-isolate` hit `maturin failed: Both VIRTUAL_ENV and
+   CONDA_PREFIX are set` — the shell's inherited `CONDA_PREFIX` (from
+   `~/miniconda3`, unrelated to this project) confused maturin's venv
+   detection.
+2. Retrying with `CONDA_PREFIX` unset but `VIRTUAL_ENV` manually exported
+   to an absolute worktree path **nearly resolved to the shared repo
+   `.venv`** instead (`Found CPython 3.12 at
+   /home/bennet/Desktop/temper/.venv/bin/python` — the *shared* checkout,
+   forbidden by the hard rule against rebuilding pyo3 into it). Root
+   cause: this harness's Bash tool does **not** persist working-directory
+   state between tool calls the way its own description implies —
+   `pwd` silently resets to `/home/bennet/Desktop/temper` (the shared
+   checkout) between calls even when a prior call `cd`'d elsewhere,
+   so a `VIRTUAL_ENV` set relative to an assumed-persistent cwd pointed
+   at the wrong tree. **Caught before any install happened** (`maturin`
+   was still waiting on the shared build-directory file lock, not yet
+   linking); the shared `.venv` was not touched. That worktree had also
+   accumulated no commits at the time and was reclaimed by the
+   coordinator between turns — a second, harder lesson in why "commit
+   immediately, every step" is a hard rule here, not a suggestion.
+3. **Fix, applied in a fresh worktree**: every subsequent shell command
+   uses one single `cd /path/to/worktree && ... && make ...` invocation
+   (never relying on cwd persisting from a previous call), and never
+   manually exports `VIRTUAL_ENV` — only `unset CONDA_PREFIX` before
+   `make venv-isolate`, letting `uv`/`maturin` auto-detect the venv
+   relative to the (correctly-set, single-command) cwd. This built
+   cleanly against the worktree's own `.venv` end to end.
 
 ## 7. Summary answers to the four Phase 1 questions
 
 1. **What each number measures**: identically — `fully_connected /
    audited` nets from `pad_connectivity_audit.audit_pcb_file()`, "audited"
    = pad-bearing nets (139), not pads.
-2. **Which is authoritative**: 61/139 (PR #1301's BEFORE), as the most
-   recent measurement on `main`'s actual tip with the current recipe.
+2. **Which is authoritative**: 61/139, independently reproduced twice
+   (PR #1301 and this task, §6) on `main`'s actual tip with the current
+   recipe.
    89/139 is not wrong, just seven commits and two placement passes
    stale. They are not "answering different questions" — they're the
    same question asked seven commits apart, and connectivity moved.
 3. **Current true value**: **61/139 (43.9%)** on `main` as of `e81196c87`
-   /`fa067a952`, default recipe, measured by PR #1301
-   2026-08-17. Drops to **58/139 (41.7%)** if PR #1301's per-pair
-   clearance-halo fix is applied (unmerged; trades 3 nets for 37 fewer
-   real clearance violations).
+   /`fa067a952`, default recipe — measured by PR #1301 2026-08-17 AND
+   independently reproduced by this task (§6), exact agreement. Drops to
+   **58/139 (41.7%)** if PR #1301's per-pair clearance-halo fix is
+   applied (unmerged; trades 3 nets for 37 fewer real clearance
+   violations).
 4. **Is `pad_connectivity_audit.py` trustworthy**: yes — unchanged since
    its 3-defect fix (#1200/#1245), used identically on both sides of this
    comparison, and independently cross-validated against the Rust
