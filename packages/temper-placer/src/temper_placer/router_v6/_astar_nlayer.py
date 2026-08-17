@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """Spike prototype: N-layer, via-aware A* pathfinding.
 
 **Status: prototype, not production.** Branch ``spike/nlayer-via-astar``,
@@ -103,6 +102,7 @@ from temper_placer.router_v6._routing_reports import (
     _forced_segment_decline,
 )
 from temper_placer.router_v6.astar_core import (
+    RoutePath,
     RoutePath3D,
     _route_segment_3d,
     append_exact_terminal_point,
@@ -271,7 +271,17 @@ def _astar_route_nlayer(
         return None, 0
 
     preferred_layer = getattr(channel_path, "preferred_layer", None)
-    primary_grid = grids.get(preferred_layer) or next(iter(grids.values()))
+    # `channel_path` is untyped (ChannelPath in production, various
+    # attribute-bag fixtures in tests), so `preferred_layer` is
+    # `Any | None` to mypy even though it is a layer-name string whenever
+    # present. Narrow with isinstance rather than passing it straight to
+    # dict.get(): behaviorally identical (dict.get(None) or any
+    # non-matching key already just fell through to the `or` fallback
+    # below), but makes the str-keyed lookup explicit instead of relying
+    # on grids.get() silently accepting a non-str key.
+    primary_grid = (
+        grids.get(preferred_layer) if isinstance(preferred_layer, str) else None
+    ) or next(iter(grids.values()))
     other_grids = [g for name, g in grids.items() if name != primary_grid.layer_name]
 
     # The route's own start/end anchor layer: the net's real pad layer when
@@ -1014,7 +1024,13 @@ def run_astar_pathfinding_nlayer(
     if design_rules is None:
         design_rules = DesignRules()
 
-    routed_paths: dict[str, RoutePath3D] = {}
+    # Typed as the PathfindingResult field's declared union (dict is
+    # invariant in its value type, so a narrower dict[str, RoutePath3D]
+    # here would not be assignable to routed_paths=... below even though
+    # every value actually stored is a RoutePath3D) -- not a behavior
+    # change, just matching the widened annotation PathfindingResult
+    # already declares.
+    routed_paths: dict[str, RoutePath | RoutePath3D] = {}
     failed_nets_set: set[str] = set()
     failure_reports: dict[str, RoutingFailureReport] = {}
     blocker_history: dict[str, set[str]] = {}
@@ -1030,7 +1046,7 @@ def run_astar_pathfinding_nlayer(
     # built from ``routed_paths``/``routed`` completions) and NEVER counted
     # toward ``success_count`` (which sums only ``routed_paths``/
     # ``tree_routes``) -- a diagnostic record, not a second copper channel.
-    partial_paths: dict[str, RoutePath3D] = {}
+    partial_paths: dict[str, RoutePath | RoutePath3D] = {}
     # Visibility counter (this task's "make the disagreement visible"
     # requirement): how many net endpoints had a netclass-SSOT
     # ``preferred_layer`` that disagreed with the net's own real pad layer,
