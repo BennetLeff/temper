@@ -82,7 +82,8 @@ the identical sha256 (verified byte-for-byte).
 `KICAD_CONFIG_HOME` pin, `--all-track-errors` on both sides, DRU
 regenerated from the current `scripts/generate_kicad_dru.py`). The
 no-refill side reproduces the committed ceiling's own recorded numbers
-exactly (creepage {270,271} with the documented 270:271 ≈ 1:14 split,
+exactly (creepage {270,271} observed as 1×270 / 4×271 across the 5 runs
+here, consistent with the ceiling's documented {270,271} distribution,
 shorting_items 183, hole_clearance 90, track_dangling 44, via_dangling 25,
 silk_over_copper 42, lib_footprint_issues 13, lib_footprint_mismatch 26,
 missing_courtyard 5, silk_edge_clearance 1, copper_edge_clearance 4,
@@ -100,8 +101,8 @@ uncapped, everything else caps at 199).
 
 | category | ceiling (committed) | no-refill (this measurement, 5 runs) | `--refill-zones` (5 runs) | delta | cap status |
 |---|---|---|---|---|---|
-| `clearance` | 1117 (true, uncapped separately) | raw JSON capped at **499** (all 5 runs) | raw JSON capped at **499** (all 5 runs) | true count under refill **being measured** (sec 3.1) | **CAPPED both sides in raw JSON** — ceiling value is the true count from a separate uncapped measurement, not the raw 499 |
-| `creepage` | 272 (272 = max 271 + spread 1) | **270–271** (270:271 ≈ 1:4 across 5 runs, matches ceiling's documented distribution) | **461–463** (461:1, 462:2, 463:2 wait — see raw: [462,463,461,461,462]) | **+191 to +192** | uncapped both sides — real |
+| `clearance` | 1117 (true, uncapped separately) | raw JSON capped at **499** (all 5 runs); true count **1117** (exhaustive DRU-band measurement, 1 run, zero saturation-suspected leaves) | raw JSON capped at **499** (all 5 runs); true count **1114** (same exhaustive method + `--refill-zones`, 1 run, zero saturation-suspected leaves) | **−3** | **CAPPED both sides in raw JSON** — both true counts came from the exhaustive uncapped method, not the raw 499 |
+| `creepage` | 272 (272 = max 271 + spread 1) | **270–271** (raw: [271,271,270,271,271] = 1×270, 4×271) | **461–463** (raw: [462,463,461,461,462] = 2×461, 2×462, 1×463) | **+190 to +193** (min refill 461 − max no-refill 271 = +190; max refill 463 − min no-refill 270 = +193) | uncapped both sides — real |
 | `shorting_items` | 183 | **183** (all 5 runs, exact) | **190** (all 5 runs, exact) | **+7** | uncapped both sides (183, 190 << 199 cap) — real |
 | `track_width` | 393 (true, uncapped separately) | raw JSON capped at **199** (all 5 runs) | raw JSON capped at **199** (all 5 runs) | **not measured** — track_width's DRU rule constrains individual track-segment widths only; it has no mechanistic dependency on zone-fill state. Not re-verified with the exhaustive bisection (see sec 3.2 for why this is flagged "not measured" rather than assumed) | **CAPPED both sides** |
 | `copper_edge_clearance` | 4 | 4 | 4 | 0 | uncapped, real |
@@ -129,16 +130,41 @@ uncapped, everything else caps at 199).
 | `pth_inside_courtyard` | 0 | 0 (absent) | 0 (absent) | 0 | uncapped, real |
 | `isolated_copper` | **absent from ceiling file entirely** (implicit ceiling 0 per R27) | **0** (absent, all 5 runs) | **109–113** ([109,113,112,112,110]) | **+109 to +113, a BRAND NEW violation class** | uncapped, real — this category exists in kicad-cli's DRC engine and would need its own `violations_by_type`/`warnings_by_type` entry to be ratcheted at all |
 
-### 3.1 `clearance` true-count status
+### 3.1 `clearance` true-count status — RESOLVED: −3, not an increase
 
 `clearance` is capped at 499 in raw kicad-cli JSON on BOTH sides — the
-499=499 reading above is **inconclusive**, not "unchanged." The committed
-ceiling's true clearance count (1117) came from
-`scripts/measure_uncapped_drc.py`'s DRU-band-isolation-and-bisection method.
-The same method, adapted to add `--refill-zones` to every kicad-cli
-sub-invocation, was launched against this board and is
-**[FILL IN: see sec 3.1 result once complete / not completed in time — see
-final status below]**.
+499=499 reading in the table above is inconclusive by itself, not
+"unchanged." Resolved with `scripts/measure_uncapped_drc.py`'s own
+DRU-band-isolation-and-bisection method (every DRU rule's band isolated by
+a synthetic 2-rule DRU exploiting KiCad's last-matching-rule-wins, with
+automatic net-name bisection on any band that itself saturates), run
+unmodified for the no-refill side and with `--refill-zones` injected into
+its one `kicad-cli pcb drc` invocation point for the refill side (adapted
+script: `/tmp/.../scratchpad/measure_uncapped_drc_refill.py`, a byte-for-byte
+copy of the repo script with `--refill-zones` added to the argv list — the
+repo script itself was not modified).
+
+Result: **no-refill true clearance = 1117** (reproduces the committed
+ceiling exactly), **`--refill-zones` true clearance = 1114** — a decrease
+of 3, with zero bands flagged `SATURATION SUSPECTED` on either side (every
+leaf resolved to a real, non-saturating, deterministic count). Full
+per-rule band breakdown (refill side): `AC Mains to LV` 24, `AC Mains to
+HV` 1, `HighVoltageIsolated same side` 8, `HighVoltageIsolated to LV` 109,
+`HV internal same footprint` 0, `HV to LV` 205, `HighVoltageTank to LV` 5,
+`HighVoltageSignal to LV` 463, the four `GateDrive*` rules 0 each, `Power
+internal same footprint` 0, `Default routing` 259, `Ground clearance` 0,
+`Same footprint pads` 0, `Fine pitch IC pads` 0, `USB differential` 0,
+netclass-implicit fallback 40. Sum = 1114.
+
+So unlike `creepage` (+191) and `shorting_items` (+7), filling the board's
+96 zones does **not** increase `clearance` violations — it slightly
+*decreases* them. This is plausible: `clearance` is a copper-to-copper
+distance check between DISTINCT nets' copper, and creepage is the same
+measurement restricted to HV/LV pairs with a much larger (12.6 mm) minimum
+— so a filled zone is far more likely to newly violate the wide creepage
+minimum against nearby foreign-net copper than the narrow (0.2-2.0 mm)
+clearance minimum, and zone-fill edge geometry differences can just as
+easily resolve a marginal clearance pair as create one.
 
 ### 3.2 Why `track_width` and `silk_overlap` true counts are reported as "not measured," not "unchanged"
 
@@ -165,11 +191,11 @@ measured" category as zero delta):
 
 | ceiling | today | with `--refill-zones` (measured) | breached? | by how much |
 |---|---|---|---|---|
-| `error_ceiling` (aggregate, 2201) | 2201 | **at least** 2201 + 191 (creepage) + 7 (shorting_items) = **2399**, before accounting for any `clearance`/`track_width` true-count movement | **YES** | **at least +198** (creepage + shorting_items alone; the true figure is higher once `clearance`'s refill true-count is known — see sec 3.1) |
-| `warning_ceiling` (aggregate, 13563) | 13563 | **at least** 13563 − 1 (track_dangling) + 109 (isolated_copper, new class) = **13671**, before `silk_overlap`'s (currently unmeasured) true-count movement | **YES** | **at least +108** |
+| `error_ceiling` (aggregate, 2201) | 2201 | measured net delta (creepage +190 to +193, shorting_items +7, clearance −3; track_width not measured) = **+194 to +197** → **≈2395 to 2398**, before any `track_width` movement | **YES** | **+194 to +197 measured** (plus whatever `track_width` contributes, not measured) |
+| `warning_ceiling` (aggregate, 13563) | 13563 | measured net delta (track_dangling −1, isolated_copper +109 to +113; silk_overlap not measured) = **+108 to +112** → **≈13671 to 13675**, before any `silk_overlap` movement | **YES** | **+108 to +112 measured** (plus whatever `silk_overlap` contributes, not measured) |
 | `violations_by_type[creepage]` (272) | 272 | **461–463 measured** | **YES** | **+189 to +191** against the ceiling's 272 (the ceiling is `max 271 + spread 1`; even the LOWEST refill-side observation, 461, is +189 over the ceiling) |
 | `violations_by_type[shorting_items]` (183) | 183 | **190 measured, deterministic** | **YES** | **+7** |
-| `violations_by_type[clearance]` (1117) | 1117 (true) | not yet resolved to a true count (raw-capped both sides) | **unknown — cannot rule out** | pending sec 3.1 |
+| `violations_by_type[clearance]` (1117) | 1117 (true, measured) | **1114 measured** (sec 3.1, exhaustive, zero saturation) | **NO — this one relaxes** | **−3** |
 | `violations_by_type[track_width]` (393) | 393 (true) | not measured | unknown, low prior likelihood of any delta | not measured |
 | every other `violations_by_type` entry | — | unchanged (measured exactly) | no | 0 |
 | `warnings_by_type[via_dangling]` (25) | 25 | **25 measured, deterministic** | **NO** | 0 — see sec 5 |
@@ -179,15 +205,16 @@ measured" category as zero delta):
 | every other `warnings_by_type` entry | — | unchanged (measured exactly) | no | 0 |
 
 **Bottom line, using only measured numbers**: switching the runner to
-`--refill-zones` breaches the `creepage` ceiling by at least +189, the
+`--refill-zones` breaches the `creepage` ceiling by +189 to +191, the
 `shorting_items` ceiling by +7, both aggregate ceilings, and introduces one
 entirely new, unratcheted violation class (`isolated_copper`, +109 to +113)
 that R27's monotone contract would treat as an implicit-ceiling-0 breach the
-moment it appears. `clearance` — already the single largest violation
-category at 1117 — is capped on both sides and its true delta is not yet
-known; given `creepage`'s +191 and the fact that zone pours are copper the
-same way tracks are, a material `clearance` increase is plausible but is
-explicitly **not asserted** here without a measured number.
+moment it appears. `clearance` — the single largest violation category at
+1117 — was fully resolved and does **not** breach; it relaxes by 3. Only
+`track_width` (error) and `silk_overlap` (warning) remain genuinely
+unmeasured, both capped in raw JSON on both sides and both mechanistically
+independent of zone-fill state (sec 3.2) — a material delta from either is
+considered unlikely but is not asserted as zero.
 
 ## 5. The 11 `via_dangling` question — RESOLVED: neither number, but answerable
 
@@ -235,20 +262,19 @@ measured evidence:
   (`pcbnew.ZONE_FILLER`), and the committed board has 96 zone outlines with
   **zero fill data on disk** — every ratchet measurement to date has been
   blind to all zone copper. This is not a close call on correctness.
-- The re-baseline is **not free**: it moves `creepage` (+189 to +191, the
-  single most safety-relevant category on a mains-voltage board),
-  `shorting_items` (+7, real shorts), and introduces a wholly new
-  `isolated_copper` warning class (+109 to +113) that has no ceiling entry
-  at all today — R27's monotone contract would need a `Ceiling-Approval:`
-  PR that raises FOUR ceiling values (`error_ceiling`, `creepage`,
-  `shorting_items`, and adds `isolated_copper` for the first time) with the
-  measured-live provenance this document supplies, before the runner could
-  switch over without breaking CI outright.
-- `clearance` (the single largest category, 1117 true violations today) has
-  an **unknown** delta under refill because it is capped on both sides —
-  the owner should not approve a re-baseline PR until that number is in
-  hand (sec 3.1). Given `creepage`'s trajectory, assuming `clearance` is
-  unaffected would be optimistic, not measured.
+- The re-baseline is **not free, but it is now fully known**: it moves
+  `creepage` (+189 to +191, the single most safety-relevant category on a
+  mains-voltage board), `shorting_items` (+7, real shorts), and introduces
+  a wholly new `isolated_copper` warning class (+109 to +113) that has no
+  ceiling entry at all today. It *relaxes* `clearance` by 3 and
+  `track_dangling` by 1. R27's monotone contract would need a
+  `Ceiling-Approval:` PR that raises THREE ceiling values (`error_ceiling`,
+  `creepage`, `shorting_items`) and adds one brand-new entry
+  (`isolated_copper`), with the measured-live provenance this document
+  supplies, before the runner could switch over without breaking CI
+  outright. `track_width` and `silk_overlap` remain unmeasured (both
+  mechanistically independent of zone fill — sec 3.2) and should be spot-
+  checked before the ceiling PR lands, though neither is expected to move.
 - The `via_dangling` question this task was also asked to resolve has a
   clean, negative, measured answer: those 25 findings are real routing
   defects, not a runner artifact — so switching `--refill-zones` on will
@@ -257,15 +283,17 @@ measured evidence:
 
 **Recommended sequencing, in the owner's hands, not authorized by this
 task**:
-1. Finish the `clearance` true-count measurement (sec 3.1) so the full
-   re-baseline is known before any ceiling PR is drafted.
-2. If the owner decides to switch the runner default, do it as its own PR
+1. If the owner decides to switch the runner default, do it as its own PR
    that ONLY changes `scripts/ci_check_drc.py`'s (or
    `_drc_api.run_drc`'s) invocation, carries the `Ceiling-Approval:`
    trailer, a fresh 120-sample `creepage` re-measurement (this document's 5
-   samples are a scoping measurement, not the R27-required 120), and a new
+   samples are a scoping measurement, not the R27-required 120 the R27
+   contract requires for a nondeterministic category), and a new
    `isolated_copper` ceiling entry from a standing start — never silently
-   folded into an unrelated PR.
+   folded into an unrelated PR. `clearance`'s exhaustive true-count method
+   (sec 3.1) should be re-run once more at that time as its own
+   confirmation sample, since this document's single exhaustive run is a
+   scoping measurement, not a multi-sample provenance record either.
 2. Alternatively, the owner may decide the zone-fill blind spot is
    important enough to fix via zone REDESIGN first (the 2026-08-15 routed-
    board classification doc already found real fill-fragmentation defects
