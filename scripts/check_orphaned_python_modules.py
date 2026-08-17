@@ -136,8 +136,22 @@ def src_roots() -> list[Path]:
     return sorted(p for p in REPO_ROOT.glob("packages/*/src") if p.is_dir())
 
 
-def all_python_files() -> list[Path]:
-    """Every .py file worth scanning FOR references (production + tests)."""
+def _is_test_path(rel: str) -> bool:
+    return "/tests/" in rel or "/test_" in rel or rel.startswith("test_")
+
+
+def all_python_files(*, production_only: bool) -> list[Path]:
+    """.py files worth scanning FOR references.
+
+    `production_only=True` mirrors `check_unwired_kernels.py`'s own
+    `production_references()` test-path exclusion exactly, for the same
+    reason: a module imported only by its own test suite is a DIFFERENT,
+    narrower finding (differential/fixture-only -- see PR #1302's
+    `io/footprint_library.py`) than one with zero importers anywhere, and this
+    repo's established ledger convention (`.unwired-kernel-inventory`'s many
+    "KEPT ... differential-only" entries) treats that distinction as
+    real and worth a human decision, not silence.
+    """
     out: list[Path] = []
     for root_name in ("packages", "scripts", "tools"):
         base = REPO_ROOT / root_name
@@ -146,6 +160,8 @@ def all_python_files() -> list[Path]:
         for py in base.rglob("*.py"):
             p = str(py)
             if "/.venv/" in p or "/target/" in p:
+                continue
+            if production_only and _is_test_path(p):
                 continue
             out.append(py)
     return out
@@ -269,7 +285,10 @@ def load_inventory() -> dict[str, str]:
 
 def write_inventory(orphaned: dict[str, str], previous: dict[str, str]) -> None:
     lines = [
-        "# Production Python modules with zero importers anywhere.",
+        "# Production Python modules with zero PRODUCTION importers anywhere",
+        "# (packages/*/src, scripts/, tools/, excluding tests -- test-only",
+        "# references do not count, matching check_unwired_kernels.py's own",
+        "# production_references() convention).",
         "#",
         "# Shrink-only. A new entry is a hard failure -- wire the module, delete",
         "# it, or add it here WITH A REASON. An entry that becomes referenced is",
@@ -286,6 +305,17 @@ def write_inventory(orphaned: dict[str, str], previous: dict[str, str]) -> None:
     INVENTORY.write_text("\n".join(lines) + "\n")
 
 
+def _scan(*, production_only: bool) -> tuple[set[str], list[str]]:
+    referenced: set[str] = set()
+    unparseable: list[str] = []
+    for py in all_python_files(production_only=production_only):
+        refs, ok = imports_in_file(py)
+        referenced |= refs
+        if not ok:
+            unparseable.append(str(py.relative_to(REPO_ROOT)))
+    return referenced, unparseable
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -300,30 +330,29 @@ def main() -> int:
               "vacuously).", file=sys.stderr)
         return 2
 
-    all_referenced: set[str] = set()
-    unparseable: list[str] = []
-    for py in all_python_files():
-        refs, ok = imports_in_file(py)
-        all_referenced |= refs
-        if not ok:
-            unparseable.append(str(py.relative_to(REPO_ROOT)))
-    all_referenced |= rust_references()
-    all_referenced |= console_script_targets()
+    prod_referenced, unparseable = _scan(production_only=True)
+    test_referenced, _ = _scan(production_only=False)
+    test_referenced |= prod_referenced
+    non_python = rust_references() | console_script_targets()
+    prod_referenced |= non_python
+    test_referenced |= non_python
 
     if unparseable:
-        print(f"WARN: {len(unparseable)} file(s) did not parse and were "
-              f"skipped as an import SOURCE (they can still be a valid "
+        print(f"WARN: {len(unparseable)} production file(s) did not parse and "
+              f"were skipped as an import SOURCE (they can still be a valid "
               f"import TARGET): {', '.join(unparseable[:5])}", file=sys.stderr)
 
     orphaned = {mod: str(path.relative_to(REPO_ROOT))
-                for mod, path in modules.items() if mod not in all_referenced}
+                for mod, path in modules.items() if mod not in prod_referenced}
+    test_only = sorted(mod for mod in orphaned if mod in test_referenced)
 
     ledger = load_inventory()
 
     if args.write_inventory:
         write_inventory(orphaned, ledger)
         print(f"wrote {INVENTORY.name}: {len(orphaned)} orphaned module(s) "
-              f"of {len(modules)} candidate(s)")
+              f"of {len(modules)} candidate(s) "
+              f"({len(test_only)} of those are test-only, not zero-everywhere)")
         return 0
 
     new = sorted(set(orphaned) - set(ledger))
@@ -331,22 +360,30 @@ def main() -> int:
 
     if not new and not stale:
         print(f"OK: {len(modules)} candidate module(s); "
-              f"{len(orphaned)} orphaned, all ledgered.")
+              f"{len(orphaned)} orphaned (0 production importers), all ledgered.")
+        if test_only:
+            print(f"INFO: {len(test_only)} of those are referenced by TESTS only "
+                  f"(not zero-everywhere) -- not a hard fail, listed for triage:")
+            for mod in test_only:
+                print(f"  TEST-ONLY   {mod}  ({orphaned[mod]})")
         return 0
 
     print("FAIL: orphaned-python-module gate\n")
     for mod in new:
+        tag = "TEST-ONLY, zero production importers" if mod in test_only else "zero importers on ANY surface"
         print(f"NEW_ORPHANED   {mod}  ({orphaned[mod]})")
-        print("               zero importers found (Python or Rust py.import).")
+        print(f"               {tag} (Python or Rust py.import).")
     for mod in stale:
         print(f"STALE_ENTRY    {mod} is now referenced -- record the fix")
     print()
     if new:
-        print("A module with zero importers anywhere is dead weight or a "
-              "silent regression (its last caller was deleted without "
-              "deleting it). Delete the module, wire a real caller, or add "
-              "it to the ledger with a reason (e.g. a deliberately staged "
-              "future-phase module).")
+        print("A module with zero PRODUCTION importers is a shim, stage, or "
+              "spike that lost its last production caller -- whether or not a "
+              "stale test still imports it (a test-only caller means "
+              "differential/fixture-only, a real but narrower finding, not a "
+              "clean bill of health). Delete the module (and its now-orphaned "
+              "tests), wire a real caller, or add it to the ledger with a "
+              "reason (e.g. deliberately kept differential-only).")
     if stale:
         print("STALE_ENTRY means the module was wired back up (or deleted and "
               "the ledger not updated): rerun with --write-inventory and "
