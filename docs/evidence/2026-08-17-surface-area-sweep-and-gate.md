@@ -534,6 +534,48 @@ pass (would need per-attribute justification-or-removal, out of the time
 available); flagged here as a real, uncharacterized residual rather than
 folded into the "clean" claim above.
 
+**A second, independent Rust sweep (manual symbol-frequency, not `cargo
+check`) found what the compiler pass above structurally cannot**: `pub`
+items are exempt from rustc's `dead_code` lint in a library crate (they count
+as public API surface whether or not anything in-repo calls them), so a
+clean `cargo check`/`clippy` run is not evidence a `pub fn`/`pub struct` is
+actually used. A disk-constrained (98% full shared machine) manual pass —
+extract every `pub fn`/`struct`/`enum`/`trait`/`const` definition (2,446
+symbols, 450 non-test files, ~320K LOC), whole-word-count each across the
+workspace, individually read every symbol with ≤1 total occurrence (its own
+definition) to exclude pyo3-boundary items (that's `check_unwired_kernels.py`'s
+job, not this one) — found **16 confirmed-dead Rust items with zero non-test,
+non-pyo3-boundary callers anywhere**:
+
+| Symbol | Kind | Location |
+|---|---|---|
+| `IntoInternal` | trait | `temper-rust-router-core/src/types.rs:255` |
+| `SatClause` | struct | `temper-rust-router-core/src/types.rs:89` |
+| `LatticePair` | struct | `temper-constraint-compiler/src/type_lattice.rs:46` |
+| `TypeLattice::from_metadata` | fn | `temper-constraint-compiler/src/type_lattice.rs:104` (dead duplicate of `::new`) |
+| `bridge_bundle_manifest` | fn | `temper-rust-router/src/types_py_bridge.rs:103` |
+| `host_math::log` | fn | `temper-design-bundle/src/host_math.rs:125` (superseded by `py_log`) |
+| `BoundaryViolation::has_violation`/`::max_violation`/`::total_violation` | methods | `temper-geometry/src/constraints.rs:9,13,20` (wrapper reads raw fields instead) |
+| `ValidBounds::clamp_point` | method | `temper-geometry/src/constraints.rs:33` |
+| `BoardState::electrical_count`/`::components_for_net`/`::net_class_for_ref` | methods | `temper-drc-rs/src/board.rs:505,515,522` |
+| `extract_i32` | fn | `temper-drc-rs/src/board_py_bridge.rs:61` |
+| `fab_preset_names` | fn | `temper-io-types/src/placer_core/manufacturing.rs:119` (pyo3 wrapper hardcodes the 3 preset names instead) |
+| `Classification::is_bus_cap` | method | `temper-rust-router-core/src/loop_extractor/classify.rs:31` |
+| `pattern_source` | fn | `temper-io-types/src/placer_core/netclass.rs:218` — **its own doc comment claims live callers ("docs, differential harnesses... keep compiling") that do not exist**, a live instance of handoff mechanism 5 (stale ground truth) |
+| `push_tier1` | fn | `temper-constraint-compiler/src/provenance.rs:72` |
+| `SnapError::py_exception_name` | method | `temper-geometry/src/grid_utils.rs:71` (sibling `py_exception_message` is used) |
+| `resolve_positions` (+ `type NameIndex`) | fn/type | `temper-placer/temper-constraints/src/constraints.rs:161` — not registered in `lib.rs`'s `#[pymodule]` |
+| `Watchdog::eager_var_count` | field | `temper-rust-router-core/src/watchdog.rs:48` — write-only (set once, never read) |
+| `FromPyDict`/`ToPyDict` derive macros | proc-macro feature | `temper-py-bridge-derive/src/lib.rs:94,202`, re-exported `temper-py-bridge/src/lib.rs:60` — defined, tested (34 tests), never `#[derive(...)]`'d onto any struct anywhere in the workspace |
+
+None deleted this pass (Rust dead-code deletion was out of the time
+remaining after the Python sweep + gate work; these are compiler-adjacent,
+not safety-relevant, but still real). Flagged as an owner/follow-up worklist,
+same discipline as the Python §2b/§2c lists above. Ambiguous items explicitly
+NOT included above (deferred-but-planned stubs, test-support-only helpers,
+deliberate forward-compat serde fields) are documented in the sweep's own
+notes and left alone.
+
 ### The gate — what it is, where it runs, proof it's non-vacuous
 
 `scripts/check_orphaned_python_modules.py` — the mirror image of the
