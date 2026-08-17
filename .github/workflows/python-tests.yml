@@ -2045,6 +2045,41 @@ jobs:
         # human decision that would un-red it.
         run: uv run python scripts/check_creepage_clearance_drift.py
 
+      # 2026-08-17 fact-deduplication audit (docs/evidence/2026-08-17-fact-
+      # dedup-inventory-and-gate.md): scalar facts other than creepage/
+      # clearance (the gate directly above) also drift across homes --
+      # concretely, this board's mains voltage and pollution degree
+      # (SafetySpec). Full investigation in
+      # scripts/check_fact_registry_drift.py's module docstring.
+      #
+      # RED BY DESIGN, same convention and same job as the gate directly
+      # above: mains_voltage_v/pollution_degree are unambiguously 120.0/3
+      # (REQ-SYS-01, the 2026-08-15 PD2->PD3 decision -- NOT a judgment
+      # call), but two of the homes are pinned-oracle-entangled
+      # (tests/core/_design_rules_py_oracle.py,
+      # tests/core/_specification_py_oracle.py) and a third
+      # (test_specification.py::test_safety_spec_defaults) is a live
+      # instance of handoff Sec 11 (a passing CI test asserting the wrong
+      # value). Fixing requires one coordinated PR with a deliberate oracle
+      # re-pin, which this gate must not perform by fiat. Deliberately kept
+      # in this job (board-provenance-requirements-gates), not in the
+      # required Cross-Source Consistency Gates job -- same reasoning as
+      # the sibling gate above: this job is NOT in required_contexts, so
+      # the red does not wedge every PR in the repo over an already-decided
+      # value blocked only by ceremony, but it still runs on every push/PR
+      # touching relevant paths and is NOT continue-on-error'd, so it fails
+      # loudly and stays visible. See TestRealRegistryKnownState in
+      # scripts/tests/test_check_fact_registry_drift.py for the pinned-red
+      # regression proof, and this gate's own module docstring for the
+      # exact coordinated fix that would un-red it.
+      - name: Fact registry drift gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_fact_registry_drift.py -v --tb=short
+
+      - name: Fact registry drift gate (mains_voltage_v / pollution_degree)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_fact_registry_drift.py
+
       # ---- MUTATING: writes pcb/*.kicad_sch, must stay last ----
       # Removed 2026-08-07: dead weight. The stated reason ("make netlist
       # (atopile) invokes kicad-cli in container") is stale -- commit
