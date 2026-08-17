@@ -747,10 +747,28 @@ def test_via_layer_pair_matches_oracle_path3d():
     for segs, vias in cases:
         oracle = _via_tuples(_oracle_place_vias_for_path("N", _make_path3d(segs, vias), 0.6, 0.3))
         shim = _via_tuples(_place_vias_for_path("N", _make_path3d(segs, vias), 0.6, 0.3))
+        seg_layers = [s[2] for s in segs]
+        if len(set(seg_layers)) <= 1:
+            # KNOWN, DELIBERATE DIVERGENCE (docs/evidence/2026-08-17-via-
+            # dangling-25-real-defects.md): a path whose own segments never
+            # leave a single layer has no genuine transition for
+            # via_layer_pair_py to derive here -- the oracle (verbatim
+            # pre-fix behaviour) still fabricates the ("F.Cu", "B.Cu")
+            # fallback via unconditionally; the shim now refuses to place
+            # any via for such a path (this was the exact mechanism behind
+            # all 25 real via_dangling DRC findings on the committed
+            # board). Assert the oracle DID take the fallback (so this
+            # branch is only exercised by the cases it is meant for) and
+            # that the shim is empty, rather than silently skipping the
+            # comparison.
+            assert oracle and oracle[0][1:3] == ("F.Cu", "B.Cu"), (
+                f"single-layer case did not exercise the oracle fallback: {oracle}"
+            )
+            assert shim == [], f"shim should place no via for a single-layer path: {shim}"
+            continue
         assert sig(oracle) == sig(shim), f"shim diverged: {oracle} vs {shim}"
         seg_xs = [s[0] for s in segs]
         seg_ys = [s[1] for s in segs]
-        seg_layers = [s[2] for s in segs]
         for (vx, vy), via in zip(vias, shim):
             assert sig(fn(vx, vy, seg_xs, seg_ys, seg_layers)) == sig(
                 (via[1], via[2])
@@ -1088,16 +1106,35 @@ def _random_path3d(rng: random.Random):
 def test_randomized_via_layer_pair_parity():
     fn = _rust("via_layer_pair_py")
     rng = random.Random(0x51AC1E4A)
+    single_layer_cases_seen = 0
     for _ in range(300):
         segs, vias = _random_path3d(rng)
         oracle = _via_tuples(_oracle_place_vias_for_path("N", _make_path3d(segs, vias), 0.6, 0.3))
         shim = _via_tuples(_place_vias_for_path("N", _make_path3d(segs, vias), 0.6, 0.3))
+        seg_layers = [s[2] for s in segs]
+        if len(set(seg_layers)) <= 1:
+            # Same deliberate divergence as test_via_layer_pair_matches_oracle_path3d
+            # above: a single-layer path gets zero vias from the shim now,
+            # regardless of what the pre-fix oracle's fallback would have
+            # fabricated. Not a parity break -- the exhaustive-sweep proof
+            # this repo's oracle discipline requires before a deliberate
+            # divergence is accepted (docs/evidence/2026-08-17-via-dangling-
+            # 25-real-defects.md): every one of 300 randomized cases lands
+            # in exactly this one, narrow, documented bucket.
+            single_layer_cases_seen += 1
+            assert shim == [], f"shim should place no via for a single-layer path: {shim}"
+            continue
         assert sig(oracle) == sig(shim)
         seg_xs = [s[0] for s in segs]
         seg_ys = [s[1] for s in segs]
-        seg_layers = [s[2] for s in segs]
         for (vx, vy), via in zip(vias, shim):
             assert sig(fn(vx, vy, seg_xs, seg_ys, seg_layers)) == sig((via[1], via[2]))
+    # Sanity: the random generator (up to 8 segments, 4 possible layers per
+    # segment, 70% chance of a fresh random layer each step) must actually
+    # exercise BOTH branches across 300 draws, or this test would not be
+    # proving anything about either one.
+    assert single_layer_cases_seen > 0
+    assert single_layer_cases_seen < 300
 
 
 def test_randomized_clearance_engine_parity():
