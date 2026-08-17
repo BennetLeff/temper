@@ -225,3 +225,124 @@ class TestNoiseHeadroomGuardWiring:
 
         assert exit_code == 0
         assert "PASS: noise-headroom guard" in out
+
+
+class TestCapSaturationGuardWiring:
+    """``main()`` must fail loudly (exit 4) whenever a DRC category count
+    saturates KiCad's reporting cap (ERROR_LIMIT 199 / EXTENDED_ERROR_LIMIT
+    499): a capped count is a FLOOR (true count >= N), not a count, so the
+    ceiling comparison on it is inconclusive -- the true count can exceed
+    the ceiling while the capped reading never crosses it. Two independent
+    surfaces, both must be caught:
+
+    * the *measured* counts (``DrcRatchetResult.capped_error_categories`` /
+      ``capped_warning_categories``, populated by the kicad-cli backend's
+      cap classification), and
+    * the committed *ceiling file* itself -- a ceiling value at its
+      category's cap protects nothing ("do not ratchet a saturated
+      number"; the de-saturation correction in PR #1178 raised ceilings to
+      true counts for exactly this reason).
+
+    ``DrcRatchet.check`` is monkeypatched in every test here so these are
+    pure wiring tests; the classification itself (DrcCount, the per-category
+    cap table) is exercised in ``temper-drc-rs``'s Rust proptest suite and
+    through ``temper_placer.validation._drc_api`` shim tests.
+    """
+
+    @staticmethod
+    def _write_ceiling(tmp_path: Path, *, by_type: dict) -> None:
+        ceiling_dir = tmp_path / "power_pcb_dataset"
+        ceiling_dir.mkdir(parents=True, exist_ok=True)
+        (ceiling_dir / "drc_ceiling.json").write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 1000,
+                            "warning_ceiling": 0,
+                            "violations_by_type": by_type,
+                        }
+                    ]
+                }
+            )
+        )
+
+    @staticmethod
+    def _stub_check(monkeypatch, result) -> None:
+        ci_check_drc._setup_path(Path(__file__).resolve().parents[2])
+        from temper_placer.regression.drc_ratchet import DrcRatchet
+
+        monkeypatch.setattr(DrcRatchet, "check", lambda self, repo_root: [result])
+
+    def test_measured_capped_count_sets_exit_code_4(self, monkeypatch, tmp_path, capsys):
+        """A measured track_width count at exactly 199 (its ERROR_LIMIT) is
+        a floor -- even when the ceiling comparison itself passes, the
+        result must be inconclusive and the gate must say so."""
+        self._write_ceiling(tmp_path, by_type={"track_width": 300})
+        from temper_placer.regression.drc_ratchet import DrcRatchetResult
+
+        self._stub_check(
+            monkeypatch,
+            DrcRatchetResult(
+                passed=True,
+                board_id="b",
+                message="ok",
+                capped_error_categories={"track_width": "199 (CAPPED — true count >= 199)"},
+            ),
+        )
+        monkeypatch.setattr(sys, "argv", ["ci_check_drc.py", "--backend", "rust"])
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: tmp_path)
+
+        exit_code = ci_check_drc.main()
+        out = capsys.readouterr().out
+
+        assert exit_code == 4
+        assert "cap-saturation guard" in out
+        assert "track_width" in out
+        assert "CAPPED — true count >= 199" in out
+
+    def test_saturated_ceiling_value_sets_exit_code_4(self, monkeypatch, tmp_path, capsys):
+        """A committed ceiling at its category's cap protects nothing: the
+        ratchet would compare the current count against a floor. Must fail
+        loudly, independently of what the per-board check measured."""
+        self._write_ceiling(tmp_path, by_type={"track_width": 199})
+        from temper_placer.regression.drc_ratchet import DrcRatchetResult
+
+        self._stub_check(
+            monkeypatch,
+            DrcRatchetResult(passed=True, board_id="b", message="ok"),
+        )
+        monkeypatch.setattr(sys, "argv", ["ci_check_drc.py", "--backend", "rust"])
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: tmp_path)
+
+        exit_code = ci_check_drc.main()
+        out = capsys.readouterr().out
+
+        assert exit_code == 4
+        assert "cap-saturation guard" in out
+        assert "track_width" in out
+
+    def test_uncapped_categories_never_trip_the_guard(self, monkeypatch, tmp_path, capsys):
+        """creepage at 199 is a real count (its provider bypasses the cap)
+        and clearance at 199 is below ITS cap -- neither may trip exit 4."""
+        self._write_ceiling(
+            tmp_path, by_type={"creepage": 199, "clearance": 199}
+        )
+        from temper_placer.regression.drc_ratchet import DrcRatchetResult
+
+        self._stub_check(
+            monkeypatch,
+            DrcRatchetResult(
+                passed=True, board_id="b", message="ok", capped_error_categories={}
+            ),
+        )
+        monkeypatch.setattr(sys, "argv", ["ci_check_drc.py", "--backend", "rust"])
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: tmp_path)
+
+        exit_code = ci_check_drc.main()
+        out = capsys.readouterr().out
+
+        assert exit_code == 0
+        assert "PASS: cap-saturation guard" in out

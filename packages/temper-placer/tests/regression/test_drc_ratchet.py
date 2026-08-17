@@ -837,6 +837,137 @@ class TestCategorySourceLabeling:
         assert "source: kicad-cli" in r.message
 
 
+class TestCapSaturationDetection:
+    """`_check_board` must surface every per-type count that saturates
+    KiCad's reporting cap (ERROR_LIMIT 199 / EXTENDED_ERROR_LIMIT 499) on
+    the result, so the caller never mistakes a FLOOR ("true count >= N")
+    for a count. See temper_drc_rs.drc_count (DrcCount) and
+    docs/evidence/2026-08-12-dru-rule-precedence.md sec 4 for the cap
+    table; the ceiling comparison itself still runs on the raw count (the
+    pinned kernel contract), the capped flag rides alongside it.
+    """
+
+    def _check(self, tmp_path, by_type, current, monkeypatch, error_ceiling=1000):
+        """Drive _check_board with a stubbed kicad-cli backend (errors only)."""
+        import temper_placer.validation._drc_api as drc_api
+
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": error_ceiling,
+                            "warning_ceiling": 1000,
+                            "violations_by_type": by_type,
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        errors = [
+            type("E", (), {"rule": rule})()
+            for rule, n in current.items()
+            for _ in range(n)
+        ]
+        result_obj = type(
+            "R",
+            (),
+            {"error_count": len(errors), "warning_count": 0, "errors": errors},
+        )()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        return ratchet._check_board("b", pcb, ratchet.entries["b"])
+
+    def test_count_at_its_own_cap_is_flagged_capped(self, tmp_path, monkeypatch):
+        """track_width at exactly 199 (its ERROR_LIMIT) must be surfaced as
+        capped -- the ratchet pass below the ceiling is then inconclusive,
+        but the flag must be present regardless of pass/fail."""
+        r = self._check(
+            tmp_path, {"track_width": 300}, {"track_width": 199}, monkeypatch
+        )
+        assert r.passed, r.message
+        assert r.capped_error_categories == {
+            "track_width": "199 (CAPPED — true count >= 199)"
+        }
+        assert r.capped_warning_categories == {}
+
+    def test_clearance_at_its_extended_cap_is_flagged(self, tmp_path, monkeypatch):
+        """clearance caps at EXTENDED_ERROR_LIMIT (499), not 199."""
+        r = self._check(tmp_path, {"clearance": 600}, {"clearance": 499}, monkeypatch)
+        assert r.capped_error_categories == {
+            "clearance": "499 (CAPPED — true count >= 499)"
+        }
+
+    def test_clearance_at_199_is_not_capped(self, tmp_path, monkeypatch):
+        """199 is BELOW clearance's 499 cap: honest. The naive
+        '199 or 499 always means capped' rule would flag this -- the
+        category-aware cap table is the point of DrcCount."""
+        r = self._check(tmp_path, {"clearance": 200}, {"clearance": 199}, monkeypatch)
+        assert r.capped_error_categories == {}
+        assert r.capped_warning_categories == {}
+
+    def test_creepage_at_199_is_not_capped(self, tmp_path, monkeypatch):
+        """creepage's provider bypasses the limit entirely -- 199 is a real
+        count, and must not be surfaced as a floor."""
+        r = self._check(tmp_path, {"creepage": 300}, {"creepage": 199}, monkeypatch)
+        assert r.capped_error_categories == {}
+
+    def test_above_cap_is_not_capped(self, tmp_path, monkeypatch):
+        """A count strictly above a cap cannot be a saturation reading (the
+        engine never prints past it) -- honest."""
+        r = self._check(tmp_path, {"track_width": 300}, {"track_width": 200}, monkeypatch)
+        assert r.capped_error_categories == {}
+
+    def test_warnings_at_cap_are_flagged(self, tmp_path, monkeypatch):
+        """The warnings side is classified the same way: silk_overlap at
+        199 is a floor, not a count."""
+        import temper_placer.validation._drc_api as drc_api
+
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 100,
+                            "warning_ceiling": 1000,
+                            "warnings_by_type": {"silk_overlap": 13407},
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        warnings = [type("W", (), {"rule": "silk_overlap"})() for _ in range(199)]
+        result_obj = type(
+            "R",
+            (),
+            {
+                "error_count": 0,
+                "warning_count": len(warnings),
+                "errors": [],
+                "warnings": warnings,
+            },
+        )()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        r = ratchet._check_board("b", pcb, ratchet.entries["b"])
+        assert r.capped_warning_categories == {
+            "silk_overlap": "199 (CAPPED — true count >= 199)"
+        }
+        assert r.capped_error_categories == {}
+
+
 class TestNoiseHeadroomGuard:
     """`_check_board` runs `run_drc` exactly ONCE per CI invocation and
     compares that lone sample straight against the ceiling. That is only
