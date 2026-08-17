@@ -63,8 +63,16 @@ class _OracleSafetySpec:
     Follows IEC 60335-1 for clearance and creepage requirements.
     """
 
-    mains_voltage_v: float = 230.0
-    pollution_degree: int = 2
+    # RE-PINNED 2026-08-17: defaults now mirror the corrected Rust
+    # SafetySpec -- mains_voltage_v = 120.0 (this design is a US 120V RMS
+    # +-10% appliance; docs/specs/REQUIREMENTS.md REQ-SYS-01,
+    # elec/src/main.ato's own v_ac_nominal = 120V assert) and
+    # pollution_degree = 3 (PD3 is the enforced degree; the as-built board
+    # is forced-air vented with no sealed compartment; 2026-08-15
+    # data-driven decision, docs/evidence/2026-08-15-pd2-pd3-data-driven-
+    # decision.md). See docs/evidence/2026-08-17-safetyspec-default-repin.md.
+    mains_voltage_v: float = 120.0
+    pollution_degree: int = 3
 
 
 @dataclass

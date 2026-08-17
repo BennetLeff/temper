@@ -33,7 +33,24 @@ And the pollution degree this board enforces is **PD3** (2026-08-15,
 "PD3 governs (12.6mm reinforced, 10.0mm tank)").
 
 Despite both being unambiguously decided, THREE other declaration sites
-still carry the pre-decision values and have never been updated:
+carried the pre-decision values and had never been updated. As of
+2026-08-17, ONE of the three is fixed:
+
+  - ``packages/temper-design-bundle/src/specification_contracts.rs`` -- the
+    Rust ``SafetySpec`` pyclass's own ``#[new]`` default was
+    ``mains_voltage_v: opt_or(py, mains_voltage_v, 230.0_f64)``,
+    ``pollution_degree: opt_or(py, pollution_degree, 2_i64)``. **FIXED**:
+    now defaults to 120.0/3. Its pinned oracle
+    (``tests/core/_specification_py_oracle.py``) was re-pinned in the same
+    change (exhaustive-divergence evidence: the full
+    ``test_specification.py`` + ``test_specification_rust_differential.py``
+    suite -- 27 tests -- passes with exactly one expected assertion change,
+    ``test_safety_spec_defaults``, corrected alongside; no production code
+    constructs ``SafetySpec()`` bare, confirmed by a repo-wide grep, so this
+    was a latent-trap default, not a live divergence). See
+    ``docs/evidence/2026-08-17-safetyspec-default-repin.md``.
+
+  Still open, both left deliberately red:
 
   - ``packages/temper-placer/configs/pcb_spec.yaml`` -- ``safety:
     mains_voltage_v: 230.0`` / ``pollution_degree: 2``. Feeds
@@ -51,22 +68,12 @@ still carry the pre-decision values and have never been updated:
     (cosmetic passthrough). This exact site was already identified stale by
     the 2026-08-14 correction above and deliberately left unfixed pending an
     owner ("should be reconciled to 120V by whoever owns that config").
-  - ``packages/temper-design-bundle/src/specification_contracts.rs`` -- the
-    Rust ``SafetySpec`` pyclass's own ``#[new]`` default:
-    ``mains_voltage_v: opt_or(py, mains_voltage_v, 230.0_f64)``,
-    ``pollution_degree: opt_or(py, pollution_degree, 2_i64)``. Python's own
-    ``SafetySpec`` (``temper_placer.core.specification``) is a bare
-    re-export of this Rust pyclass (``SafetySpec = _tdb.specification_
-    contracts.SafetySpec``) -- there is no independent Python default to
-    also fix; this Rust default IS the only runtime default in the whole
-    system.
 
-Why this gate does not fix these itself
+Why this gate does not fix these two itself
 ------------------------------------------
 The correct VALUES are not in question (120.0 / PD3) -- this is NOT a
 judgment call like the drift gate's own open ``[clearance/reinforced]``
-family. What blocks a mechanical fix is that both the ``design_rules.py``
-and ``specification_contracts.rs`` sites are pinned-oracle-entangled:
+family. What blocks a mechanical fix of the remaining two sites:
 
   - ``design_rules.py``'s ACMains ``voltage_v=240.0`` is differentially
     compared, field-for-field, against the PINNED oracle
@@ -75,32 +82,24 @@ and ``specification_contracts.rs`` sites are pinned-oracle-entangled:
     for the matching class). Changing production without the oracle would
     fail ``test_design_rules_field_parity.py``/``test_design_rules_rust_
     differential.py``; changing the oracle requires the separate, deliberate
-    re-pin ceremony this repo's own rules reserve for oracle changes.
-  - ``specification_contracts.rs``'s Rust default is differentially compared
-    against the PINNED oracle ``tests/core/_specification_py_oracle.py``
-    (also hash-pinned; ``mains_voltage_v: float = 230.0`` /
-    ``pollution_degree: int = 2``) AND is asserted directly by
-    ``tests/core/test_specification.py::test_safety_spec_defaults`` --
-    itself a live instance of handoff Sec 11's thesis ("a running,
-    CI-required test asserted a wrong safety value"): it asserts
-    ``s.mains_voltage_v == pytest.approx(230.0)`` under the docstring
-    "SafetySpec default values match IEC 60335-1 typical consumer
-    appliance" -- a generic justification, not one that is true of this
-    specific 120V design.
+    re-pin ceremony this repo's own rules reserve for oracle changes -- not
+    yet done for this site (only ``_specification_py_oracle.py`` has been,
+    above).
   - ``pcb_spec.yaml`` itself is NOT oracle-pinned and could be edited
     directly, but its value flows into the SAME oracle-compared derivation
     surface (``_physics_oracle_py_oracle.py`` defaults to loading this exact
     file when no explicit spec path is given), so fixing it in isolation,
     without also verifying the physics-oracle differential surface end to
     end, risks silently breaking a pinned comparison this gate has not
-    exhaustively swept. Left for the same coordinated fix.
+    exhaustively swept.
 
 So: this is a MECHANIZED, VERIFIED, currently-failing gate, deliberately
-left red. Un-redding it requires one coordinated PR that (1) updates all
-three production sites to 120.0/3, (2) re-pins both affected oracles per
-the standing oracle re-pin ceremony with the required exhaustive-divergence
-evidence, and (3) fixes ``test_safety_spec_defaults`` and ``test_load_pcb_
-spec_yaml_has_safety`` to assert the corrected values. That is a deliberate,
+left red for these two remaining sites. Un-redding it fully requires a
+coordinated PR that (1) updates both remaining production sites to
+120.0/3, (2) re-pins ``_design_rules_py_oracle.py`` per the standing oracle
+re-pin ceremony with the required exhaustive-divergence evidence, after
+first sweeping ``pcb_spec.yaml``'s physics-oracle derivation surface, and
+(3) fixes any correspondingly-affected tests. That remains a deliberate,
 attributed, single act -- explicitly NOT something this gate, or the agent
 that wrote it, may do by fiat.
 
@@ -223,11 +222,15 @@ REGISTRY: tuple[Fact, ...] = (
             ),
         ),
         notes=(
-            "KNOWN RED (see module docstring): design_rules.py and "
-            "specification_contracts.rs are pinned-oracle-entangled; "
-            "pcb_spec.yaml shares their derivation surface. Fixing requires "
-            "a coordinated PR with an oracle re-pin, not a mechanical edit "
-            "here."
+            "PARTIALLY FIXED 2026-08-17: specification_contracts.rs's "
+            "SafetySpec default corrected to 120.0/PD3 and its oracle "
+            "(_specification_py_oracle.py) re-pinned -- see "
+            "docs/evidence/2026-08-17-safetyspec-default-repin.md. "
+            "design_rules.py remains pinned-oracle-entangled "
+            "(_design_rules_py_oracle.py) and pcb_spec.yaml's fix was ruled "
+            "out of scope pending a full differential-suite sweep of its "
+            "derivation surface (pipeline/derivation.py's hv_lv_isolation_mm) "
+            "-- both still KNOWN RED, see module docstring."
         ),
     ),
     Fact(
@@ -252,9 +255,12 @@ REGISTRY: tuple[Fact, ...] = (
             ),
         ),
         notes=(
-            "KNOWN RED (see module docstring): both homes are "
-            "pinned-oracle-entangled (same SafetySpec sites as "
-            "mains_voltage_v). Same coordinated-fix requirement."
+            "PARTIALLY FIXED 2026-08-17: specification_contracts.rs's "
+            "SafetySpec default corrected to 120.0/PD3 and its oracle "
+            "re-pinned -- see docs/evidence/2026-08-17-safetyspec-default-"
+            "repin.md. pcb_spec.yaml remains KNOWN RED, ruled out of scope "
+            "pending a full differential-suite sweep of its derivation "
+            "surface (see module docstring)."
         ),
     ),
 )

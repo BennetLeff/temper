@@ -27,10 +27,30 @@ def test_load_pcb_spec_yaml_name():
 
 
 def test_safety_spec_defaults():
-    """SafetySpec default values match IEC 60335-1 typical consumer appliance."""
+    """SafetySpec defaults are 120.0V RMS / PD3 -- this design's OWN declared
+    authority, not a generic "typical consumer appliance" figure.
+
+    120V: docs/specs/REQUIREMENTS.md REQ-SYS-01 ("AC Input Voltage: 120V RMS
+    +-10%, US residential mains"); elec/src/main.ato's own
+    ``v_ac_nominal = 120V`` with ``assert v_ac_nominal within 100V to 130V``
+    (NEMA 5-15 tolerance); docs/hardware/VOLTAGE_DOUBLER_DESIGN.md -- the
+    voltage doubler exists specifically so this appliance needs no 240V
+    input. PD3: the 2026-08-15 data-driven decision
+    (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md; PR
+    #1224/#1229) -- the as-built board is forced-air vented with no sealed
+    compartment, so PD3 (not the PD2 the struct previously defaulted to)
+    governs. Corrected 2026-08-17 from a stale 230.0/PD2 default that this
+    test had been asserting -- see
+    docs/evidence/2026-08-17-fact-dedup-inventory-and-gate.md and
+    docs/evidence/2026-08-17-safetyspec-default-repin.md. No production code
+    constructs ``SafetySpec()`` bare (production always passes explicit
+    config loaded from YAML), so the stale default was a latent trap rather
+    than a live divergence -- but a running test asserting the wrong value
+    would have failed anyone who corrected it.
+    """
     s = SafetySpec()
-    assert s.mains_voltage_v == pytest.approx(230.0)
-    assert s.pollution_degree == 2
+    assert s.mains_voltage_v == pytest.approx(120.0)
+    assert s.pollution_degree == 3
 
 
 def test_safety_spec_custom_values():

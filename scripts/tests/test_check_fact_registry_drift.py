@@ -169,7 +169,15 @@ class TestRealRegistryKnownState:
     finding. See check_fact_registry_drift.py's module docstring for the
     full investigation and why this is deliberately NOT fixed by editing
     the registry or the sites -- see docs/evidence/2026-08-17-fact-dedup-
-    inventory-and-gate.md."""
+    inventory-and-gate.md.
+
+    2026-08-17 UPDATE: specification_contracts.rs's SafetySpec default was
+    corrected to 120.0/PD3 and its oracle re-pinned (docs/evidence/
+    2026-08-17-safetyspec-default-repin.md) -- removed from known_red
+    below, per this class's own instruction ("if this test ever fails
+    because a site now MATCHES... update this pin"). pcb_spec.yaml and
+    design_rules.py remain open, still pinned-oracle-entangled /
+    derivation-surface-unswept respectively."""
 
     def test_registry_is_non_empty(self):
         assert len(check.REGISTRY) >= 2
@@ -185,6 +193,24 @@ class TestRealRegistryKnownState:
             "with REQ-SYS-01 (120V) -- if this now fails, either the .ato "
             "changed or REQ-SYS-01 changed; re-verify authoritative_value."
         )
+
+    def test_specification_contracts_rs_now_agrees_with_authority(self):
+        """2026-08-17: specification_contracts.rs's SafetySpec default was
+        corrected to 120.0/PD3 (docs/evidence/2026-08-17-safetyspec-default-
+        repin.md). Positive confirmation, not just an absence from
+        known_red below -- if this ever fails, the site regressed back
+        toward the stale 230.0/PD2 default."""
+        repo_root = find_repo_root()
+        results = check.run(repo_root)
+        by_key = {(r.fact, r.site.file): r for r in results}
+        rs_file = "packages/temper-design-bundle/src/specification_contracts.rs"
+        for fact_name in ("mains_voltage_v", "pollution_degree"):
+            r = by_key[(fact_name, rs_file)]
+            assert r.error is None
+            assert r.matches is True, (
+                f"{fact_name} at {rs_file} no longer matches the "
+                "authoritative value -- SafetySpec's default regressed."
+            )
 
     def test_known_divergent_sites_are_still_divergent(self):
         # This is an EXPECTED-RED pin, not a normal regression guard: it
@@ -203,15 +229,7 @@ class TestRealRegistryKnownState:
                 "mains_voltage_v",
                 "packages/temper-placer/src/temper_placer/core/design_rules.py",
             ),
-            (
-                "mains_voltage_v",
-                "packages/temper-design-bundle/src/specification_contracts.rs",
-            ),
             ("pollution_degree", "packages/temper-placer/configs/pcb_spec.yaml"),
-            (
-                "pollution_degree",
-                "packages/temper-design-bundle/src/specification_contracts.rs",
-            ),
         ]
         for key in known_red:
             r = by_key[key]

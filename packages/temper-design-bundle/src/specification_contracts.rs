@@ -403,6 +403,24 @@ impl SignalIntegritySpec {
 /// `SafetySpec` in `temper_placer/core/specification.py`).
 ///
 /// Follows IEC 60335-1 for clearance and creepage requirements.
+///
+/// Defaults: **120.0 V RMS / PD3**, corrected 2026-08-17
+/// (`docs/evidence/2026-08-17-fact-dedup-inventory-and-gate.md`,
+/// `docs/evidence/2026-08-17-safetyspec-default-repin.md`) from the prior,
+/// pre-decision 230.0/PD2. This design is a US 120V RMS ±10% appliance
+/// (`docs/specs/REQUIREMENTS.md` REQ-SYS-01; `elec/src/main.ato`'s own
+/// `v_ac_nominal = 120V` + `assert ... within 100V to 130V`;
+/// `docs/hardware/VOLTAGE_DOUBLER_DESIGN.md` — the doubler exists
+/// specifically so no 240V input is needed). PD3 is the enforced
+/// pollution degree (2026-08-15 data-driven decision,
+/// `docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md`; PR
+/// #1224/#1229): the as-built board is forced-air vented with no sealed
+/// compartment. **No production code constructs `SafetySpec()` bare** —
+/// production always passes explicit config loaded from YAML
+/// (`temper_placer.core.specification._load_pcb_specification`) — so this
+/// default was a latent trap, not a live divergence; the DRU/keepout gates
+/// enforce PD3 independent of this struct. Never widen it back toward a
+/// less conservative pollution degree to make a test pass.
 #[pyclass(dict, name = "SafetySpec", module = "temper_design_bundle_python.specification_contracts")]
 #[derive(Debug)]
 pub struct SafetySpec {
@@ -431,8 +449,10 @@ impl SafetySpec {
         pollution_degree: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<Self> {
         Ok(Self {
-            mains_voltage_v: opt_or(py, mains_voltage_v, 230.0_f64)?,
-            pollution_degree: opt_or(py, pollution_degree, 2_i64)?,
+            // 120.0 / PD3 — see the struct doc comment above for the
+            // authority and the 2026-08-17 correction from 230.0/PD2.
+            mains_voltage_v: opt_or(py, mains_voltage_v, 120.0_f64)?,
+            pollution_degree: opt_or(py, pollution_degree, 3_i64)?,
         })
     }
 

@@ -96,7 +96,30 @@ _PINNED = {
     # the "DELIBERATE DEVIATION" comment at its call site for the full
     # argument. The Rust port applies the identical sort so the two arms
     # never diverge.
-    "_via_validation_run_py_oracle.py": "7dc872f0c07048db02cc3413153b9722b4b4d9b093c09572d182d189f5b67883",
+    # RE-PINNED 2026-08-17: a5da999cb (PR #1148, 2026-08-15) fixed a real
+    # determinism defect -- `plane_vias_removed` was appended in `state.vias`'
+    # frozenset iteration order (PYTHONHASHSEED-salted via Via's string net/
+    # layers fields) and printed unsorted, so an otherwise byte-identical run's
+    # "Removed plane vias (first 5)" diagnostic varied across processes. The
+    # fix sorts by entry VALUES (net, position, layers, connected-count --
+    # plain tuple comparison, never repr/hash) in BOTH arms identically
+    # (oracle: `sorted(plane_vias_removed)[:5]`; Rust:
+    # `via_validation_stage.rs`'s `plane_vias_removed.sort()?`).
+    # `scripts/oracle_hashes.json`'s whole-file entry for this oracle was
+    # correctly advanced in the same commit; only this test-local digest was
+    # dropped by a squash/merge that lost part of the commit's stated diff
+    # (it also dropped the two tests the commit message claimed to add).
+    # Independently reproduced here (not merely trusted from the commit
+    # message or a prior agent's document): an 8-via fixture (the existing
+    # 1-via tests below can't exercise a 5-item-truncated sort at all) run as
+    # a fresh interpreter process per seed, PYTHONHASHSEED 0-9 + 42 + 987654321
+    # + 424242 + 13579 (14 seeds) -- both arms byte-identical at every seed,
+    # and a positive control (the sort reverted on a scratch copy, then
+    # discarded) produces 3 DISTINCT hashes across 3 seeds, proving the
+    # fixture genuinely exercises the ordering rather than being vacuously
+    # insensitive to it. See docs/evidence/2026-08-17-oracle-repin-1-
+    # via-validation-plane-vias-sort.md for the full reproduction.
+    "_via_validation_run_py_oracle.py": "1fe2a9bf90d2e3a122d6b56247391382bf1c2334ebed43ef2c3cad3dbb807e90",
     "_drc_sweep_run_py_oracle.py": "4d0c2ecae0e66fcffb5f4ee9016d856898bce59f64d0892b73d5e22004208596",
     "_drc_validation_run_py_oracle.py": "b384e46ca944de80c3a98d66ddc69908ab0406b1e6733865e3bc5681c6feba6b",
     "_connectivity_validation_run_py_oracle.py": "318c7418406d644e9229e9839fd61b2566e973c1cda1e3e2ab7e51757b841dda",
