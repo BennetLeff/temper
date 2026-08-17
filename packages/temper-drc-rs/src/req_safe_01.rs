@@ -31,15 +31,24 @@
 //     inside Rust; `domain_to_str` extracts `.value` when the object has it
 //     and falls back to `str()` otherwise (the `verify_iec60335_compliance`
 //     overrides path passes plain strings).
-//   - `IEC60335_REQUIREMENTS` (the tuple-keyed matrix) stays Python data in
-//     the shim; `req_safe_01_requirement_matrix` returns the string-keyed
-//     view. The 6 requirement rows are pinned by
-//     `test_requirement_matrix_values_pinned`.
+//   - `IEC60335_REQUIREMENTS` (the tuple-keyed matrix) — SINGLE-SOURCED
+//     2026-08-17 (placer constraint/clearance Rust-port stage 1; see
+//     docs/evidence/2026-08-17-domain-clearance-netclass-rust-port-stages-1-2.md).
+//     Both this crate's 6 requirement rows AND the Python
+//     `IEC60335_REQUIREMENTS` dict used to be hand-duplicated copies,
+//     nominally kept in sync by a `test_requirement_matrix_values_pinned`
+//     that does not actually exist anywhere in the tree (confirmed by grep
+//     at port time). They now both read from
+//     `temper_design_bundle::safety_value::requirement_matrix()` — this
+//     crate directly (see `matrix_rows()` below), the Python
+//     `domain_clearance.py::_matrix_rows()` view indirectly, through
+//     `req_safe_01_requirement_matrix()`.
 
 use std::collections::{HashMap, HashSet};
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
+use temper_design_bundle::safety_value::requirement_matrix;
 
 use crate::pyfmt;
 
@@ -1090,42 +1099,31 @@ pub fn req_safe_01_check_creepage_path(
     })
 }
 
-/// The 6 IEC60335_REQUIREMENTS rows, in dict insertion order.
+/// The 6 IEC60335_REQUIREMENTS rows, in dict insertion order, as flat
+/// `(domain_a, domain_b, insulation, min_clearance_mm, min_creepage_mm,
+/// design_value_mm)` tuples.
 ///
-/// Value provenance (2026-08-15 safety-assertion audit; see
-/// docs/evidence/2026-07-28-creepage-determination-brainstorm.md for the
-/// recovered CITED-PRIMARY tables):
-///
-/// - `min_creepage_mm` for the HV<->SELV/ISOLATED rows (4.0 basic / 8.0
-///   reinforced) traces to Table 17 row iv (>250-400 V), Material Group
-///   IIIa/IIIb, PD2, plus clause 29.2.3 (reinforced = 2x basic) -- the
-///   currently-ENFORCED PD2 figure per the owner's sealed-compartment
-///   decision (docs/evidence/2026-07-30-pd2-enclosure-decision.md); the
-///   PD3 fallback is 6.3/12.6.
-/// - `min_clearance_mm` (3.0 basic / 6.0 reinforced) is **UNSOURCED**: it
-///   is not a Table 16 value (Table 16's value set is {0.5, 1.5, 3.0, 5.5,
-///   8.0, 11.0}) and the legacy "Table 16 working isolation at 400V"
-///   citation is debunked (Table 16 is keyed to rated impulse voltage, has
-///   no 400V row). Non-binding on a flat board (creepage >= clearance via
-///   IEC 60664-1 cl. 5.1.2 -- the 12.6mm PD3-enforced creepage floor
-///   dominates), but must
-///   be re-sourced before reliance. Corrected value candidates exist
-///   (2.0mm reinforced via cl. 29.1.3 + cl. 29.1 soldering adder --
-///   `scripts/generate_kicad_dru.py`'s HV_INTERNAL_CLEARANCE_MM) but are
-///   NOT substituted here; that is a separate, attributed decision.
-/// - `min_creepage_mm` for the LV_CONTROL<->LV_CONTROL FUNCTIONAL row
-///   (1.8) traces to Table 18 row i (<=50 V), Material Group IIIa/IIIb,
-///   PD3 (the as-built governing pollution degree per the 2026-08-11 PD2/PD3
-///   decision). CORRECTED 2026-08-15 from the known-low 1.0 pin, which the
-///   code itself conceded was under even Table 18's PD2 value of 1.1.
-const MATRIX_ROWS: [(&str, &str, &str, f64, f64, f64); 6] = [
-    ("MAINS", "LV_CONTROL", "basic", 3.0, 6.3, 8.3),
-    ("MAINS", "LV_CONTROL", "reinforced", 6.0, 12.6, 14.6),
-    ("DC_BUS", "LV_CONTROL", "basic", 3.0, 6.3, 8.3),
-    ("DC_BUS", "LV_CONTROL", "reinforced", 6.0, 12.6, 14.6),
-    ("MAINS", "ISOLATED", "reinforced", 6.0, 12.6, 14.6),
-    ("LV_CONTROL", "LV_CONTROL", "functional", 0.5, 1.8, 2.0),
-];
+/// SINGLE-SOURCED 2026-08-17 (placer constraint/clearance Rust-port stage
+/// 1; see `docs/evidence/2026-08-17-domain-clearance-netclass-rust-port-
+/// stages-1-2.md`). This used to be a hand-maintained `const` copy of the
+/// same 6 rows the Python `IEC60335_REQUIREMENTS` dict also carried; both
+/// are now flattened from `temper_design_bundle::safety_value::
+/// requirement_matrix()`, which carries the full per-cell provenance (see
+/// that function's doc comment for the value-by-value sourcing: creepage
+/// cells trace to recovered Table 17/18 cells, clearance cells are carried
+/// forward UNSOURCED exactly as before -- no value changed by this
+/// consolidation).
+fn matrix_rows() -> [(&'static str, &'static str, &'static str, f64, f64, f64); 6] {
+    let rows = requirement_matrix();
+    [
+        (rows[0].domain_a, rows[0].domain_b, rows[0].insulation, rows[0].clearance_mm, rows[0].creepage.value_mm(), rows[0].design_value_mm),
+        (rows[1].domain_a, rows[1].domain_b, rows[1].insulation, rows[1].clearance_mm, rows[1].creepage.value_mm(), rows[1].design_value_mm),
+        (rows[2].domain_a, rows[2].domain_b, rows[2].insulation, rows[2].clearance_mm, rows[2].creepage.value_mm(), rows[2].design_value_mm),
+        (rows[3].domain_a, rows[3].domain_b, rows[3].insulation, rows[3].clearance_mm, rows[3].creepage.value_mm(), rows[3].design_value_mm),
+        (rows[4].domain_a, rows[4].domain_b, rows[4].insulation, rows[4].clearance_mm, rows[4].creepage.value_mm(), rows[4].design_value_mm),
+        (rows[5].domain_a, rows[5].domain_b, rows[5].insulation, rows[5].clearance_mm, rows[5].creepage.value_mm(), rows[5].design_value_mm),
+    ]
+}
 
 /// `verify_iec60335_compliance(placement, voltage_domains)` — full matrix
 /// walk with one shared copper model.
@@ -1144,7 +1142,7 @@ pub fn req_safe_01_verify_iec60335(
         let rows = PyList::empty(py);
         let mut warnings: Vec<String> = Vec::new();
 
-        for (da, db, ins, min_clr, min_crp, _design) in MATRIX_ROWS {
+        for (da, db, ins, min_clr, min_crp, _design) in matrix_rows() {
             let clearance = check_distance_internal(
                 py,
                 placement,
@@ -1231,11 +1229,14 @@ pub fn req_safe_01_verify_iec60335(
 }
 
 /// `get_requirement_matrix()` — string-keyed view of IEC60335_REQUIREMENTS.
+/// This is `domain_clearance.py::_matrix_rows()`'s single source (stage 1
+/// wiring; see the module-level doc comment above) — Python no longer
+/// carries its own copy of the matrix data.
 #[pyfunction]
 pub fn req_safe_01_requirement_matrix(py: Python<'_>) -> PyResult<Py<PyDict>> {
     catch(|| {
         let out = PyDict::new(py);
-        for (da, db, ins, min_clr, min_crp, design) in MATRIX_ROWS {
+        for (da, db, ins, min_clr, min_crp, design) in matrix_rows() {
             let key = PyTuple::new(py, [da, db, ins])?;
             let req = PyDict::new(py);
             req.set_item("min_clearance_mm", min_clr)?;

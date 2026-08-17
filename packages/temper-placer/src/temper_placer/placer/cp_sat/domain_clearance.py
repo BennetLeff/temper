@@ -244,10 +244,20 @@ def _matrix_rows() -> list[tuple[str, str, str, float, float, float]]:
     """The IEC60335_REQUIREMENTS matrix marshalled into the flat row shape
     ``temper-orchestration``'s ``clearance`` module consumes: ``(domain_a.value,
     domain_b.value, insulation_type.value, min_clearance_mm, min_creepage_mm,
-    design_value_mm)``. The matrix stays the Python SSOT; the marshalling
-    happens once per call, in dict order (the generator's reason dedup is
-    order-sensitive only within a pair, and the emitted constraint order is
-    the sorted canonical pair order either way).
+    design_value_mm)``. The marshalling happens once per call, in dict order
+    (the generator's reason dedup is order-sensitive only within a pair, and
+    the emitted constraint order is the sorted canonical pair order either
+    way).
+
+    SINGLE-SOURCED 2026-08-17 (placer constraint/clearance Rust-port stage
+    1): ``IEC60335_REQUIREMENTS`` is no longer a hand-written Python
+    literal -- ``requirements.validators.clearance`` now builds it from
+    ``temper_drc_rs``'s ``req_safe_01_requirement_matrix()``, itself a flat
+    view of ``temper_design_bundle::safety_value::requirement_matrix()``
+    (the actual single source of the 6 rows, Rust). This function's own
+    marshalling is unchanged; only where the numbers it marshals originate
+    from moved. See docs/evidence/2026-08-17-domain-clearance-netclass-
+    rust-port-stages-1-2.md.
     """
     return [
         (

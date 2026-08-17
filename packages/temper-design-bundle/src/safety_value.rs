@@ -1098,6 +1098,130 @@ pub fn legacy_creepage_table() -> [SafetyValue; 5] {
 }
 
 // ---------------------------------------------------------------------------
+// REQ-SAFE-01 / placer requirement matrix — single-sourced 2026-08-17
+// (placer constraint/clearance Rust-port stage 1;
+// docs/evidence/2026-08-17-domain-clearance-netclass-rust-port-stages-1-2.md,
+// spec docs/evidence/2026-08-17-placer-constraint-rust-port-spike.md).
+// ---------------------------------------------------------------------------
+//
+// Before this change the same 6 (domain_a, domain_b, insulation) rows were
+// hand-duplicated in two places: the Python `IEC60335_REQUIREMENTS` dict
+// (`temper_placer/requirements/validators/clearance.py`) and this crate's
+// sibling `temper-drc-rs::req_safe_01::MATRIX_ROWS` const, nominally kept in
+// sync by `test_requirement_matrix_values_pinned` — a test named in
+// comments in BOTH files that does not actually exist anywhere in the tree
+// (grepped at port time: zero hits; `git grep` confirms). [`requirement_matrix`]
+// below is now the one array: `req_safe_01::req_safe_01_requirement_matrix()`
+// (the pyo3 accessor) and `domain_clearance.py::_matrix_rows()` both read
+// from it, directly or through that accessor.
+//
+// Every value below is byte-identical to the pre-port
+// `MATRIX_ROWS`/`IEC60335_REQUIREMENTS` (hard rule: never change a
+// clearance/creepage value; this consolidation moves zero figures). Creepage
+// cells reuse this module's own recovered Table 17 (basic cell, doubled per
+// cl. 29.2.3 for the reinforced rows) / Table 18 (functional row i) cells —
+// real, already-encoded `SafetyValue` provenance, not re-derived here.
+// Clearance cells are carried forward **UNSOURCED**, exactly as the
+// pre-port Python comment documented (not a Table 16 value — Table 16's
+// value set is {0.5, 1.5, 3.0, 5.5, 8.0, 11.0} but is keyed by rated impulse
+// voltage, not by the domain pairs here; see
+// `docs/evidence/2026-07-28-creepage-determination-brainstorm.md` §4). This
+// port does not manufacture a false `RecoveredPrimary`/`Derived` provenance
+// for them (the "never invent or reconstruct a standards value" rule) —
+// they stay plain `f64`, not `SafetyValue`, so the type itself signals "no
+// standards chain attached" instead of asserting one that would be false.
+// `design_value_mm` is an as-built target dimension that
+// `req_safe_01_verify_iec60335` never reads (only clearance/creepage feed
+// the validator); also carried forward as plain `f64` for the same reason.
+
+/// One row of the placer's IEC 60335 domain-clearance/creepage requirement
+/// matrix. See the module note above for why `clearance_mm`/
+/// `design_value_mm` are plain `f64` while `creepage` is a full
+/// [`SafetyValue`].
+#[derive(Debug, Clone)]
+pub struct RequirementRow {
+    pub domain_a: &'static str,
+    pub domain_b: &'static str,
+    pub insulation: &'static str,
+    /// UNSOURCED — not a Table 16 citation (see module note above).
+    pub clearance_mm: f64,
+    pub creepage: SafetyValue,
+    /// As-built target; not a standards citation, not read by the validator.
+    pub design_value_mm: f64,
+}
+
+/// The 6-row placer requirement matrix, single-sourced. Not `const` because
+/// it reuses the existing non-const `t17_cell`/`table_18_lookup` accessors —
+/// matches [`legacy_creepage_table`]'s existing plain-fn pattern in this
+/// same file.
+pub fn requirement_matrix() -> [RequirementRow; 6] {
+    let basic_400v_pd3 =
+        t17_cell(PollutionDegree::PD3, MaterialGroup::IIIaOrIIIb, VoltageRange::Gt250Le400);
+    let reinforced_400v_pd3 = reinforced_creepage_400v_pd3();
+    let functional_50v_pd3 = match table_18_lookup(
+        PollutionDegree::PD3,
+        MaterialGroup::IIIaOrIIIb,
+        VoltageRange::UpTo50,
+    ) {
+        Some(v) => v.clone(),
+        None => panic!(
+            "internal error: Table 18 const table missing cell for (PD3, IIIa/IIIb, <=50V)"
+        ),
+    };
+
+    [
+        RequirementRow {
+            domain_a: "MAINS",
+            domain_b: "LV_CONTROL",
+            insulation: "basic",
+            clearance_mm: 3.0,
+            creepage: basic_400v_pd3.clone(),
+            design_value_mm: 8.3,
+        },
+        RequirementRow {
+            domain_a: "MAINS",
+            domain_b: "LV_CONTROL",
+            insulation: "reinforced",
+            clearance_mm: 6.0,
+            creepage: reinforced_400v_pd3.clone(),
+            design_value_mm: 14.6,
+        },
+        RequirementRow {
+            domain_a: "DC_BUS",
+            domain_b: "LV_CONTROL",
+            insulation: "basic",
+            clearance_mm: 3.0,
+            creepage: basic_400v_pd3,
+            design_value_mm: 8.3,
+        },
+        RequirementRow {
+            domain_a: "DC_BUS",
+            domain_b: "LV_CONTROL",
+            insulation: "reinforced",
+            clearance_mm: 6.0,
+            creepage: reinforced_400v_pd3.clone(),
+            design_value_mm: 14.6,
+        },
+        RequirementRow {
+            domain_a: "MAINS",
+            domain_b: "ISOLATED",
+            insulation: "reinforced",
+            clearance_mm: 6.0,
+            creepage: reinforced_400v_pd3,
+            design_value_mm: 14.6,
+        },
+        RequirementRow {
+            domain_a: "LV_CONTROL",
+            domain_b: "LV_CONTROL",
+            insulation: "functional",
+            clearance_mm: 0.5,
+            creepage: functional_50v_pd3,
+            design_value_mm: 2.0,
+        },
+    ]
+}
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
@@ -1354,6 +1478,36 @@ pub(crate) mod tests {
         assert!(MaterialGroup::from_str("IV").is_err());
     }
 
+    #[cfg_attr(test, test)]
+    fn requirement_matrix_matches_pre_port_values_exactly() {
+        // Pins the single-sourced matrix against the pre-port
+        // MATRIX_ROWS/IEC60335_REQUIREMENTS values byte-for-byte (2026-08-17
+        // placer constraint/clearance Rust-port stage 1). Any failure here
+        // means a value moved -- stop and report, do not "fix" this test.
+        let rows = requirement_matrix();
+        let expected: [(&str, &str, &str, f64, f64, f64); 6] = [
+            ("MAINS", "LV_CONTROL", "basic", 3.0, 6.3, 8.3),
+            ("MAINS", "LV_CONTROL", "reinforced", 6.0, 12.6, 14.6),
+            ("DC_BUS", "LV_CONTROL", "basic", 3.0, 6.3, 8.3),
+            ("DC_BUS", "LV_CONTROL", "reinforced", 6.0, 12.6, 14.6),
+            ("MAINS", "ISOLATED", "reinforced", 6.0, 12.6, 14.6),
+            ("LV_CONTROL", "LV_CONTROL", "functional", 0.5, 1.8, 2.0),
+        ];
+        assert_eq!(rows.len(), expected.len());
+        for (row, (da, db, ins, clr, crp, design)) in rows.iter().zip(expected.iter()) {
+            assert_eq!(row.domain_a, *da);
+            assert_eq!(row.domain_b, *db);
+            assert_eq!(row.insulation, *ins);
+            assert_eq!(row.clearance_mm, *clr);
+            assert_eq!(row.creepage.value_mm(), *crp);
+            assert_eq!(row.design_value_mm, *design);
+            // Creepage carries real standards provenance, never fabricated
+            // or unobtainable, for every row.
+            assert!(!row.creepage.is_fabricated());
+            assert!(!row.creepage.is_unobtainable());
+        }
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1373,6 +1527,7 @@ pub(crate) mod tests {
         ("safety_value::tests::table_17_and_18_lookup_find_every_defined_bracket", table_17_and_18_lookup_find_every_defined_bracket),
         ("safety_value::tests::voltage_range_parsing_round_trips", voltage_range_parsing_round_trips),
         ("safety_value::tests::material_group_parsing_merges_iiia_and_iiib", material_group_parsing_merges_iiia_and_iiib),
+        ("safety_value::tests::requirement_matrix_matches_pre_port_values_exactly", requirement_matrix_matches_pre_port_values_exactly),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
