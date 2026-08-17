@@ -1199,7 +1199,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 103e59ae) (tstamp f013576c-1851-5e87-ee46-6b29e93306e9)
-    (at 21.24 74.69 90)
+    (at 9.24 79.69 90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C23")
@@ -5390,7 +5390,7 @@
 
   (footprint "Resistor_SMD:R_2512_6332Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 816dac77) (tstamp d0668875-f03c-9cb0-5155-dd5d8c974d24)
-    (at 28.23 67.74000000000001 180)
+    (at 16.23 72.74000000000001 180)
     (descr "Resistor SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R5")
@@ -8044,7 +8044,7 @@
 
   (footprint "Diode_SMD:D_SMA" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 6185227f) (tstamp 9016f60f-ef80-2bff-356a-b8fd07bd6c5a)
-    (at 22.25 69.31 90)
+    (at 10.25 74.31 90)
     (descr "Diode SMA (DO-214AC)")
     (tags "Diode SMA (DO-214AC)")
     (property "Reference" "U7")
@@ -8231,10 +8231,10 @@
 
   (gr_poly
     (pts
-      (xy 20 20)
+      (xy 8 20)
       (xy 172 20)
       (xy 172 254)
-      (xy 20 254)
+      (xy 8 254)
     ) (layer "Edge.Cuts") (width 0.1))
 
   (segment (start 76.4725 203.5) (end 76.45 203.55) (width 0.25) (layer "F.Cu") (net 140) (tstamp e08784af-a064-4576-af71-d028f11c00dc))

@@ -6,14 +6,18 @@
      PR #1209) and incorporates the Question A sharpening from
      docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md (PR #1262). No standards value is
      invented or reconstructed: every figure cites its source. No pcb/temper.kicad_pcb or
-     enforced safety constant was touched (board hash ddb96f9e… unchanged). -->
+     enforced safety constant was touched (board hash ddb96f9e… unchanged).
+     UPDATED 2026-08-16 (investigate/board-redesign-evaluation): §6 corrected to the current
+     board's actual designator state (U6 = UCC21550 gate driver, U7 = SMA bootstrap diode;
+     verified against the board file by footprint/nets), board hash line refreshed, and
+     T1/T2/U7 -> T1/T2/U6 re-labelled throughout. No Question A/B figure changed. -->
 
 # Certification-lab inquiry — Temper induction cooktop (IEC 60335-1): two standards-interpretation questions
 
 **Date:** 2026-08-16
 **To:** Certification test house / IEC 60335-1 (as read through IEC 60335-2-6) reviewing body
 **From:** Temper induction-cooktop development project
-**Subject:** (1) PD3 island-slot creepage credit for the isolation-barrier components T1/T2/U7;
+**Subject:** (1) PD3 island-slot creepage credit for the isolation-barrier components T1/T2/U6;
 (2) IEC 60664-4 applicability at the 44–50 kHz tank frequency
 
 ---
@@ -37,7 +41,7 @@ specific normative text and a certification determination applying it.
 | Max output power | 1.8 kW |
 | Tank operating frequency | 44–50 kHz (PLL-controlled series-resonant tank; `PLL_MIN_FREQ_HZ 44000` / `PLL_MAX_FREQ_HZ 50000` in firmware, mirrored in the schematic) |
 | Overvoltage category | **OVC II** (IEC 60335-1 cl. 29.1: "Appliances are in overvoltage category II") |
-| Key components | IKW40N120H3 IGBTs (1200 V / 40 A) ×2; UCC21550 isolated gate driver (see §6 for the U6/U7 designator note); Coilcraft CST3015 current-sense transformers (T1, T2); galvanic isolation across T1/T2/U7 |
+| Key components | IKW40N120H3 IGBTs (1200 V / 40 A) ×2; UCC21550 isolated gate driver (see §6 for the U6/U7 designator note); Coilcraft CST3015 current-sense transformers (T1, T2); galvanic isolation across T1/T2/U6 |
 | Governing creepage figures | **PD3 reinforced 12.6 mm** (>250–400 V, Table 17 row iv, material group IIIa/IIIb); tank functional **10.0 mm** (Table 18 row vi, >500–800 V) |
 
 ## 3. What we need from you
@@ -61,10 +65,10 @@ part's package/pin geometry, not a layout defect:
 |---|---:|---:|
 | T1 | Coilcraft CST3015-100ED current-sense transformer | 9.100 mm | −3.500 mm |
 | T2 | Coilcraft CST3015-100ED (same part; OCP-02 CT — see note in §6) | 9.100 mm | −3.500 mm |
-| U7* | TI UCC21550BDWKR isolated gate driver | 8.100 mm | −4.500 mm |
+| U6* | TI UCC21550BDWKR isolated gate driver | 8.100 mm | −4.500 mm |
 
-\* *Designator per §6 — this is the UCC21550, called U6 on the measurement branch and U7 on our
-current board.*
+\* *Designator per §6 — this is the UCC21550, named U6 on the measurement branch and on the
+current board (an earlier board lineage and the older documents in this package call it U7).*
 
 No replacement part clears the requirement: an exhaustive search across Coilcraft, TDK, and other
 manufacturers for a 1:100, ≥50 A-sensed current-sense transformer with better PCB creepage found
@@ -160,11 +164,16 @@ shortfall at power-frequency figures alone.
 ## 6. Board-state note — read before cross-referencing (designator collision)
 
 Reference designator **U6** names the UCC21550 gate driver in the branch lineage our Question A
-geometry was measured on, but **on `main` today U6 is a different, unrelated IGBT** (TO-247-3,
-`hb.power_loop.q_low`), and the gate driver is **U7**. Every "U6" in older documents means the gate
-driver per the branch its figures were measured on — never the IGBT. The parts Question A refers
-to are, unambiguously: **Coilcraft CST3015-100ED current-sense transformers (T1, T2)** and the
-**TI UCC21550BDWKR gate driver (U6 on the measurement branch / U7 on our current board)**.
+geometry was measured on, and **on the current board U6 is still the UCC21550 gate driver**
+(verified against the shipped board file by footprint and nets — `GATE_HS`, `SHUTDOWN`,
+`hb.gate_hs.driver-p1-1`, `+15V_LS`, SOIC-16 DWK land pattern). **U7 on the current board is a
+different part: the SMA bootstrap diode** (`hb.gate_hs.driver-p1-1`/`+15V_LS`, `Diode_SMD:D_SMA`),
+not the gate driver — an earlier board lineage carried an IGBT as U6 and the gate driver as U7,
+and that older assignment is what some documents in this package were written against. Every "U6"
+in older documents means the gate driver per the branch its figures were measured on — never an
+IGBT. The parts Question A refers to are, unambiguously, identified by part number: **Coilcraft
+CST3015-100ED current-sense transformers (T1, T2)** and the **TI UCC21550BDWKR gate driver
+(U6 on the measurement branch and on the current board)**.
 
 Additional state notes, so nothing in this letter is misread:
 
@@ -174,7 +183,12 @@ Additional state notes, so nothing in this letter is misread:
 - **Question B's figures were measured against board sha256 `6928b7c8…`; Question A's against
   `b7d865b7…`** (a resync/renumber lineage). The two board states are not interchangeable. We will
   supply the exact board file revision matching any geometry we ask you to review.
-- Board revision currently on `main`: sha256 `ddb96f9e…` (the ZCD-removal lineage).
+- Board revision shipped with this inquiry: sha256 `9c1f4a37…` (this PR's board — `main` at
+  `593d9ab2` plus the left-edge outline enlargement + R5/U7/C23 placement moves of
+  `docs/evidence/2026-08-16-board-enlargement-left-column-redesign.md`; the immediately prior
+  `main` board was `72e14ab4…`, and the ZCD-removal lineage was `ddb96f9e…`). None of these
+  changes touch T1, T2, or the U6 gate driver — the Question A geometry is positionally
+  unchanged on the shipped board.
 
 ## 7. Attachments and where the full detail lives
 
