@@ -29,6 +29,12 @@ violations: C22×R26, C6×U1) remain genuinely infeasible as a placement nudge**
 and with harder data reinforcing, the finding in
 `docs/evidence/2026-08-16-board-enlargement-left-column-redesign.md` (PR #1279).
 
+**Addendum (same day):** the first version of this document reported the combined
+verification's `clearance` category as "499→499, +0, no category increased" — a capped
+raw-JSON reading that cannot distinguish "flat" from "substantially worse." Sec 2.2.1 now
+measures the true, uncapped count directly (1117→1114, a decrease). The "zero-regression"
+claim above was correct, but was not yet earned when first written; it is now.
+
 ---
 
 ## 0. Correction to the "12" figure, and the two named worst cases
@@ -112,19 +118,77 @@ in every case) and do not interact with it or each other.
 
 | category | baseline (committed board) | all-5-moves | delta |
 |---|---:|---:|---:|
-| creepage | 271 | 261 | **−10** |
-| clearance | 499 (capped/noisy — see Sec 5.2) | 499 | +0 |
+| creepage | 271 (raw JSON, uncapped — empirically this category never saturates on this board) | 261 | **−10** |
+| clearance | raw JSON capped at **499** both sides — see Sec 2.2.1 for the true, uncapped count | raw JSON capped at **499** | raw JSON: +0 (**uninformative — see below**) |
 | hole_clearance | 90 | 86 | **−4** (bonus — U27 relief) |
 | shorting_items | 183 | 180 | **−3** (bonus — U27 relief) |
 | solder_mask_bridge | 133 | 130 | **−3** (bonus — U27 relief) |
 | courtyards_overlap | 1 | 1 | +0 |
 | every other category | — | — | +0 |
-| **TOTAL** | **1870** | **1850** | **−20** |
+| **TOTAL (raw JSON)** | **1870** | **1850** | **−20 (raw JSON only — see Sec 2.2.1 for the corrected total)** |
 
-Reproduced twice (identical 1850/261/499 both times — see Sec 6). No category increased.
-The 3 "bonus" reductions (hole_clearance, shorting_items, solder_mask_bridge) come from
-relieving U27's own local congestion when it moves 1mm away from K3 — not required by
-this task, but confirm the move is a net board improvement, not a narrow point fix.
+Reproduced twice (identical 1850/261/499 both times — see Sec 6). Every category above
+except `clearance` is a real, uncapped count on this board (`clearance`/`unconnected_items`
+cap at kicad-cli's `EXTENDED_ERROR_LIMIT` 499; everything else caps at `ERROR_LIMIT` 199;
+`creepage` is empirically uncapped — cap table per `packages/temper-drc-rs/src/drc_count.rs`,
+cross-checked against `docs/evidence/2026-08-17-refill-zones-drc-runner-gap-measurement.md`).
+`hole_clearance` (90/86), `shorting_items` (183/180), and `solder_mask_bridge` (133/130) are
+all well under their 199 cap on both sides, so their deltas are real. The 3 "bonus"
+reductions come from relieving U27's own local congestion when it moves 1mm away from K3 —
+not required by this task, but confirm the move is a net board improvement outside creepage.
+
+**`clearance` at 499=499 is NOT evidence of "no change."** 499 is `EXTENDED_ERROR_LIMIT`, a
+saturation cap — the entire reason `DrcCount::honest_count()` returns a `Result` rather than
+a bare integer is that a capped value cannot be read as a real count. Both sides landing on
+the identical cap is consistent with clearance staying flat, and equally consistent with it
+getting substantially worse — the raw JSON cannot tell those apart. This is resolved directly
+in Sec 2.2.1, not asserted from the capped reading.
+
+#### 2.2.1 True, uncapped `clearance` count — resolved: −3, not an increase
+
+Measured with `scripts/measure_uncapped_drc.py`'s own exhaustive DRU-band-isolation-and-
+bisection method (unmodified — the same instrument
+`docs/evidence/2026-08-17-refill-zones-drc-runner-gap-measurement.md` used to establish the
+1117 baseline this document's Sec 5.2 already cited but had not yet re-run against the
+moved board). Every DRU rule's band is isolated by a synthetic 2-rule DRU exploiting KiCad's
+last-matching-rule-wins, with automatic net-name bisection on any band that itself saturates;
+a band landing exactly on `ERROR_LIMIT`/`EXTENDED_ERROR_LIMIT` is flagged
+`SATURATION SUSPECTED` rather than trusted. Invoked via
+`UNCAPPED_DRC_REPO_ROOT=<scratch fakeroot>/pcb/... scripts/measure_uncapped_drc.py
+dru-category clearance --dru-file pcb/temper.kicad_dru --scratch-dir <scratch>` — the script
+itself was not modified; `UNCAPPED_DRC_REPO_ROOT` (a variable the script already reads,
+default `REPO_ROOT`) was pointed at a throwaway directory under `/tmp` containing a copy of
+`pcb/temper.kicad_pro`/`fp-lib-table`/`libs/` plus either the committed
+`pcb/temper.kicad_pcb` byte-for-byte (baseline) or the all-5-moves scratch board from Sec 2
+(combo) as `pcb/temper.kicad_pcb` — `pcb/temper.kicad_pcb` in this worktree was never opened
+for writing by this measurement.
+
+| board | true clearance | zero `SATURATION SUSPECTED` bands? | reproduced |
+|---|---:|---|---|
+| baseline (committed, sha256 `9c1f4a37…`) | **1117** | yes | matches the sibling doc's 1117 exactly |
+| all-5-moves | **1114** | yes | 2/2 runs identical (1114, 1114) |
+
+**Delta: −3, a decrease.** Per-rule band breakdown, baseline → all-5-moves (only rules that
+moved are non-trivial; all 12 other rules are 0 on both sides or unchanged):
+`AC Mains to LV` 24→23 (−1), `HighVoltageIsolated same side` 8→9 (+1), `Default routing`
+260→258 (−2), `netclass-implicit fallback` 40→39 (−1); unchanged: `AC Mains to HV` 1,
+`HV to LV` 207, `HighVoltageTank to LV` 5, `HighVoltageSignal to LV` 463,
+`HighVoltageIsolated to LV` 109, all four `GateDrive*` rules 0, `HV internal same footprint`
+0, `Power internal same footprint` 0, `Ground clearance` 0, `Same footprint pads` 0,
+`Fine pitch IC pads` 0, `USB differential` 0. Sum (all-5-moves band values):
+23+1+9+109+0+207+5+463+0+0+0+0+0+258+0+0+0+0+39 = 1114.
+
+**Honest conclusion: the true clearance count does not increase from these 5 moves — it
+decreases by 3, alongside the 9 creepage violations cleared.** This is plausible for the same
+reason the refill-zones doc gives for its own clearance decrease: these are small (≤2.06mm)
+translations of already-isolated SMD/THT pads, and a move that increases separation from one
+neighbour by design (to clear a 12.6mm creepage bar) does not preferentially decrease
+separation from a *different* neighbour at the much narrower 0.2–2.0mm clearance floor — if
+anything the opposite is slightly more likely, and the exhaustive measurement confirms that
+here. **No category in the combined verification increases** once `clearance` is read
+correctly (uncapped) instead of at its saturated raw-JSON value — revising the Sec 2.2
+"No category increased" claim, which was asserted from the capped reading and should not
+have been.
 
 Creepage went from 14 violations touching the 7 named pairs down to 5 (all in the two
 infeasible pairs), i.e. **9 individual violations cleared** by these 5 moves — the
@@ -157,8 +221,13 @@ live `kicad-cli` DRC before being reported as a fix, not just the geometric scre
   (`docs/evidence/2026-08-04-drc-measurement-determinism.md`). Every accepted candidate's
   delta in this document exceeds that noise band by a wide margin (creepage deltas of
   −1 to −10, deterministic across repeats) except one +1 clearance blip (R51's move,
-  499→500 on a single run) that reproduced as 499 on a second run — inside the observed
-  noise band, not a real regression.
+  499→500 on a single run, raw JSON) that reproduced as 499 on a second run — inside the
+  observed noise band. **This blip is a symptom, not the actual finding**: the raw
+  `clearance` reading is capped at 499 on every run, on both boards, regardless of noise —
+  a saturated value carries no information about the true count whether or not it also
+  jitters near the cap. The two effects are separate and both point the same way (raw
+  `clearance` cannot be trusted), which is exactly why Sec 2.2.1 measures the true,
+  uncapped count directly instead of reasoning from the raw JSON reading at all.
 
 ---
 
@@ -272,6 +341,23 @@ involves a THT rect pad with `remove_unused_layers` as the geometrically-modeled
 but is worth a follow-up note for anyone extending this geometric tool to THT-heavy areas
 of the board.
 
+### 5.3 Uncapped `clearance` (authoritative for the one category that saturates on both sides)
+
+Live `kicad-cli` JSON (Sec 5.2) is authoritative for every category except `clearance`,
+which is capped at `EXTENDED_ERROR_LIMIT=499` on both the baseline and every candidate
+board measured in this document — a capped value read as a count is exactly the failure
+mode `DrcCount::honest_count()` (`packages/temper-drc-rs/src/drc_count.rs`) was built to
+make unrepresentable. For `clearance` specifically, Sec 2.2.1 uses
+`scripts/measure_uncapped_drc.py dru-category clearance` (unmodified script; a scratch
+`UNCAPPED_DRC_REPO_ROOT` fakeroot substitutes the candidate board) — the same exhaustive
+DRU-band-isolation-and-bisection instrument
+`docs/evidence/2026-08-17-refill-zones-drc-runner-gap-measurement.md` used to establish
+the 1117 baseline this document originally cited without re-running against the moved
+board. No other category in this document's tables reads at or near its cap (`hole_clearance`
+90/86, `shorting_items` 183/180, `solder_mask_bridge` 133/130 are all ≤86% of their 199
+cap; `creepage` is empirically uncapped), so `clearance` is the only category that needed
+this treatment.
+
 ---
 
 ## 6. Board integrity check
@@ -294,7 +380,13 @@ text substitution, never a write to the tracked file.
 - **14** individual PD3 creepage violations, live-measured, across the 7 flagged pairs
   (not 12 — Sec 0).
 - **9 violations (5 of 7 pairs) have a verified, zero-regression, ≤2.06mm placement nudge**:
-  C22×U16, C1×U9, C1×C6, C20×R51, K3×U27.
+  C22×U16, C1×U9, C1×C6, C20×R51, K3×U27. "Zero-regression" here means what it should:
+  every one of the 19 DRC categories this document checked is flat or improved, *including*
+  `clearance`, whose true uncapped count (Sec 2.2.1) was measured directly rather than read
+  off a saturated raw-JSON value — it decreases by 3 (1117→1114), it does not increase. This
+  is a real finding, not an assumption: a set of ≤2.06mm component moves plausibly *could*
+  have traded creepage clearance for pad-pad clearance violations elsewhere, and that
+  possibility was closed by measurement, not by omission.
 - **5 violations (2 of 7 pairs) remain genuinely infeasible as a placement nudge**:
   C22×R26 (3), C6×U1 (2). Both were re-searched over a much wider envelope (±30mm) than
   the original 0.25mm-grid local search that first flagged them, using a courtyard- AND
