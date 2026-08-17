@@ -118,7 +118,7 @@ authority:
 # above is therefore verified unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: 7596f4c7e03bac3109364f398974a15715dda675
+  measured_at_commit: e94614759e39be429e3b987b858ba3d3e3f3449c
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
