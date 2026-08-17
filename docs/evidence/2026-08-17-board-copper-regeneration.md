@@ -226,6 +226,109 @@ not touch the categories this board's safety case depends on
   follow-up for whoever picks it up next, not bundled into this write.
 - Board sha256 after: see commit message.
 
+## Addendum: coordinator cross-check reconciliation (post-commit)
+
+A coordinator's independent DRC comparison (`kicad-cli`, `--severity-all`,
+no `--refill-zones` mentioned) flagged `via_dangling` +81 (25->106) as a
+regression absent from this doc's decision ledger, and could not reproduce
+`annular_width` (0->56) at all. Both are now reconciled with root cause,
+not assertion.
+
+### `annular_width`: a measurement-methodology gap, not a board discrepancy
+
+Reproduced directly: running `kicad-cli pcb drc --severity-all` against a
+scratch copy of the SAME routed board (`live-route-run1.kicad_pcb`) but
+**without** a resolvable `.kicad_pro`/`.kicad_dru` sidecar next to it
+reproduces the coordinator's exact numbers --
+`via_dangling=106, holes_co_located=17, copper_edge_clearance=10,
+tracks_crossing=5, drill_out_of_range=6` -- and **`annular_width` is
+absent from the report entirely**, not present-as-zero. This is exactly
+the failure mode `temper_placer.validation._drc_api.DrcProjectContextError`'s
+own docstring documents by name: "a missing/unresolvable project ... 
+silently drops ... the project's custom `<stem>.kicad_dru` rules ...
+and the project's `rule_severities` overrides (`missing_courtyard`,
+`annular_width`) ... entirely absent from the report rather than reported
+as zero violations" (measured there at 4->0 for exactly this category).
+This project's own DRC runner (`run_drc`) refuses to measure without a
+resolvable project for exactly this reason; this doc's own measurements
+used `copy_kicad_project_sidecar` throughout and never hit this gap.
+`clearance` (156 vs this doc's 243-499) and `shorting_items` (108 vs
+this doc's 46-180) are separately explained by the coordinator's run
+apparently also omitting `--all-track-errors`, which `_drc_api.run_drc`'s
+own inline comment documents as necessary for exactly these two
+categories' completeness and determinism (measured historically on this
+repo: clearance 337->499, shorting_items ~160->199 when added). Every
+category the coordinator reported that is NOT project- or
+all-track-errors-sensitive (`via_dangling`, `holes_co_located`,
+`copper_edge_clearance`, `drill_out_of_range`) matches this doc's own
+numbers exactly once the same flags are dropped -- i.e. the two
+measurements are not in conflict; they used different, now-identified,
+flag sets. **`annular_width` 0->56 stands as measured in this doc.**
+
+### `via_dangling` +81 (no-refill): root cause, real mechanism, not PR #1307's
+
+Item-level inspection of the raw kicad-cli JSON (not just counts):
+
+- **No-refill, 106 violations, on exactly 5 nets: `gnd` (62), `+3V3`
+  (29), `vcc` (9), `+15V` (4), `V_BUS_SENSE` (2). Zero HV-domain nets.**
+- **With `--refill-zones` (this doc's primary measurement), 24 violations,
+  same 5 nets, same proportions: `gnd` (14), `vcc` (5), `+15V` (3),
+  `+3V3` (1), `V_BUS_SENSE` (1).** Committed board: 25 (both modes,
+  unaffected by refill -- its zones carry no real fill data to begin
+  with). **24 < 25: via_dangling is a marginal IMPROVEMENT under the
+  honest measurement, not the regression it first appeared to be.**
+- **Root cause, NOT PR #1307's mechanism.** PR #1307
+  (`via_placement.py::_place_vias_for_path`, merged onto main before this
+  route ran) fixed single-layer *routed paths* fabricating a hardcoded
+  `("F.Cu","B.Cu")` via with no genuine layer transition. These 106/24
+  vias come from an entirely different code path -- the ground-plane
+  (`_ground_plane.py::generate_ground_plane_content`, gnd) and
+  power-island (`_power_islands.py::generate_power_islands_content`,
+  `+3V3`/`vcc`/`+15V`/`V_BUS_SENSE`) generators, which compute a
+  minimum-spanning-tree of via drop points to stitch each rail's pads
+  into its dedicated inner-layer plane. Both modules log the exact
+  mechanism live during this route (`route_run1.log`): "no clear via
+  drop point found ... skipping this via" and "N MST edge(s) crossed the
+  HV keepout or another net's existing copper ... dropped rather than
+  routed through it" -- 72 gnd / 23 `+3V3` / 10 `vcc` / 6 `+15V` / 3
+  `V_BUS_SENSE` edges dropped, the same order of magnitude and same net
+  ranking as the dangling-via counts. This is the router's established,
+  deliberate fail-closed behaviour (never route through a foreign net's
+  copper or the HV keepout) applied to a new code path
+  (ground-plane/power-island stitching) that PR #1307 never touched --
+  a *sibling* instance of "fail-closed leaves an orphan," not a
+  reappearance of the fixed defect, and not evidence PR #1307 regressed.
+- **No-refill overstates the real count by ~3.4x (106 vs 24) for the same
+  reason `isolated_copper` and `creepage` do**: these vias sit inside the
+  new gnd/+3V3 zone pours, which `kicad-cli` only evaluates for
+  connectivity when actually filled. This is not a novel excuse invented
+  for this category -- it is the same, already-documented mechanism this
+  project's own `--refill-zones` gap analysis
+  (`docs/evidence/2026-08-17-refill-zones-drc-runner-gap-measurement.md`)
+  established for other categories, now confirmed to apply here too by
+  the exact 82-violation drop matching "no-refill minus refill."
+- **Sibling agent's independent 106 (re-measuring PR #1301) is not in
+  conflict** -- it corroborates this doc's own no-refill number exactly
+  (both are the same real, reproducible no-refill measurement); the
+  disagreement was about which of the two numbers (106 raw vs 24 honest)
+  belongs in the decision ledger, not about either number being wrong.
+
+### Re-decision
+
+Re-affirming, with `via_dangling` now shown with its root cause and both
+measurements rather than only the refill figure: **via_dangling is a net
+improvement (25->24) under this project's own established "refill-zones
+is the honest measurement" doctrine**, concentrated entirely on 4 LV
+rails plus one LV-adjacent sense net, mechanism identified and
+attributable to a specific, already-fail-closed router code path, zero
+HV nets involved. This does not change the commit decision -- it
+strengthens it, since the one category that looked like the largest
+unexplained regression turns out, on full investigation, not to be a
+regression under the honest measurement at all. Nothing else changes:
+the board stays committed at
+`33205399398fa053d93c046a460272ede4a728701d6f34c3c2bac6796e953962`, no
+further write was made, `drc_ceiling.json` remains untouched.
+
 ## Task
 
 Per `docs/HANDOFF-2026-08-17.md` and
