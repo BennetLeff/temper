@@ -33,7 +33,7 @@ class PinWire:
 class ComponentWire:
     ref: str
     initial_position: tuple[float, float] | None
-    initial_rotation: int | None
+    initial_rotation_quadrant: int | None
     initial_side: int | None
     pins: list[PinWire]
 
@@ -41,7 +41,7 @@ class ComponentWire:
         self,
         ref: str,
         initial_position: tuple[float, float] | None = ...,
-        initial_rotation: int | None = ...,
+        initial_rotation_quadrant: int | None = ...,
         initial_side: int | None = ...,
         pins: list[PinWire] | None = ...,
     ) -> None: ...
