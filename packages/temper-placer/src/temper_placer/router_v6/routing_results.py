@@ -64,6 +64,21 @@ class RoutingResults:
         When ``connectivity`` is populated (U3+), success requires a
         ``ROUTED`` or ``PLANE_CONNECTED`` disposition.  Falls back to the
         pre-U3 path-count logic when connectivity is ``None``.
+
+        M6c (2026-08-17): since ``compile_routing_results`` started also
+        exporting safe-but-partial routes into ``compiled_routes`` (so the
+        writer and this module's own internal DRC-adjacent checks see
+        real, already-computed copper that used to be discarded outright
+        -- see ``routing_results.compile_routing_results``'s own comment),
+        raw membership in ``compiled_routes`` no longer implies a net
+        reached every one of its pads. The fallback here excludes any
+        entry whose own path still carries ``forced_segment_count > 0``
+        (the exact flag a partial/incomplete route always carries) so
+        this pre-U3 count keeps meaning "genuinely complete," not merely
+        "has a compiled route" -- the connectivity-populated branch above
+        (the production path) was never affected: it always came from
+        ``verify_continuity()`` against real pads, never from bucket
+        membership.
         """
         if self.connectivity is not None:
             return sum(
@@ -71,7 +86,12 @@ class RoutingResults:
                 for nc in self.connectivity.values()
                 if nc.disposition in (NetDisposition.ROUTED, NetDisposition.PLANE_CONNECTED)
             )
-        return len(self.compiled_routes) + len(self.tree_routes) + self.plane_net_count
+        complete_compiled = sum(
+            1
+            for route in self.compiled_routes.values()
+            if getattr(getattr(route, "path", None), "forced_segment_count", 0) == 0
+        )
+        return complete_compiled + len(self.tree_routes) + self.plane_net_count
 
     @property
     def failure_count(self) -> int:
@@ -162,13 +182,35 @@ def compile_routing_results(
 
     for net_name, route_path in pathfinding_result.partial_paths.items():
         width = width_assignment.get_width(net_name) or 0.127
-        partial_routes[net_name] = CompiledRoute(
+        partial_route = CompiledRoute(
             net_name=net_name,
             path=route_path,
             width_mm=width,
             vias=via_placement.get_vias_for_net(net_name),
             matched_length_mm=None,
         )
+        partial_routes[net_name] = partial_route
+        # M6c (2026-08-17): every entry here already passed
+        # ``_has_safe_partial_geometry`` at the point ``attempt_route``
+        # populated ``pathfinding_result.partial_paths`` -- real,
+        # A*-searched copper reaching SOME (not all) of this net's pads,
+        # never a forced/fabricated edge. Previously this geometry was
+        # kept ONLY as a diagnostic (``partial_routes``, read by nothing
+        # downstream -- see ``_astar_nlayer.py``'s own docstring history)
+        # and discarded from the actual board. Also exporting it into
+        # ``compiled_routes`` makes the exporter (``_adapter_convert.py``)
+        # and this module's own internal clearance/creepage/annular-ring/
+        # acid-trap checks (which all iterate ``compiled_routes``) see it
+        # too -- more real copper to check, not less. This does NOT
+        # change which nets count as connected: ``success_count`` and
+        # every ``NetRouteResult`` in production come from
+        # ``verify_continuity()`` against the net's own pads (U3
+        # ``connectivity``), which reads the real emitted geometry, not
+        # which result bucket produced it -- a net with copper reaching
+        # only some of its pads is correctly reported ``partial``/
+        # ``INCOMPLETE`` either way. This only stops discarding safe,
+        # already-computed copper that used to be thrown away outright.
+        compiled_routes[net_name] = partial_route
 
     for net_name, geometry in pathfinding_result.tree_routes.items():
         # U3: connectivity-filtered — incomplete nets go to partial, not success.
