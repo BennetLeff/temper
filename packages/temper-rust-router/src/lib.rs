@@ -341,6 +341,12 @@ mod py {
     /// `unrouted_nets`, `post_condition_violations` (empty = clean; the
     /// caller must raise on non-empty, mirroring `audit_result`'s
     /// contract), and measurement keys.
+    /// A skeleton edge crossing the FFI boundary: `(layer, u, v, capacity)`,
+    /// matching `solve_topology_direct_py`'s `edges` parameter doc below.
+    /// Named per clippy's own `type_complexity` remedy (factor the type
+    /// into a `type` definition) rather than suppressing the lint.
+    type SkeletonEdge = (String, (f64, f64), (f64, f64), f64);
+
     #[pyfunction]
     #[pyo3(signature = (net_names, pads_by_net, widths_by_net, edges))]
     fn solve_topology_direct_py(
@@ -348,7 +354,7 @@ mod py {
         net_names: Vec<String>,
         pads_by_net: Vec<Vec<(f64, f64)>>,
         widths_by_net: Vec<f64>,
-        edges: Vec<(String, (f64, f64), (f64, f64), f64)>,
+        edges: Vec<SkeletonEdge>,
     ) -> PyResult<Py<PyDict>> {
         use temper_rust_router_core::direct_topology::{
             solve_topology_direct, DirectEdge, DirectNet,
