@@ -406,7 +406,11 @@ def _worst_case_copper_context(
     stackup's own worst-case (thinnest) declared layer instead of guessing.
     """
     candidates = []
-    for layer_name in layers:
+    # `layers` is a frozenset: iterate a stable order (layer name) rather
+    # than the set's PYTHONHASHSEED-dependent iteration order, which would
+    # otherwise leak into `candidates`' insertion order before the sort below
+    # (scripts/check_hash_order_determinism.py).
+    for layer_name in sorted(layers):
         oz = _copper_weight_oz(layer_name, stackup)
         if oz is not None:
             internal = layer_name not in _EXTERNAL_COPPER_LAYERS

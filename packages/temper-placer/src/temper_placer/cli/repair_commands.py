@@ -190,7 +190,10 @@ def _frozen_positions(
     *clamp_warnings* (when given) rather than applied silently.
     """
     out: dict[str, tuple[float, float, int]] = {}
-    for ref in refs:
+    # `refs` is a set: iterate a stable order (ref name) rather than the
+    # set's PYTHONHASHSEED-dependent iteration order, since that order
+    # becomes this dict's insertion order (scripts/check_hash_order_determinism.py).
+    for ref in sorted(refs):
         comp = comp_by_ref[ref]
         if comp.initial_position is None:
             raise click.ClickException(
