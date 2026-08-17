@@ -522,22 +522,6 @@ def _path_length_3d(segments: list[tuple[float, float, str]]) -> float:
 # via anywhere in the net.
 FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED = "pad_layer_landing_blocked"
 
-# TEMPORARY diagnostic (2026-08-17, M6b investigation) -- prints per-net
-# waypoint/failure detail for the "enable_all_pad_tree made 17 nets fail
-# closed at 0-of-N" class named in the coordinator's brief, to establish
-# WHERE in the waypoint chain the decline happens before proposing a fix.
-# Remove before landing.
-_DEBUG_M6B_NETS = frozenset(
-    {
-        "+15V_LS", "discharge.k_dis1-nc", "discharge.k_dis2-nc", "en",
-        "hb.gate_hs.driver-p1-1", "hb.gate_hs.driver-p2",
-        "hb.power_loop.q_high-g", "io0", "safety-line", "safety-line-1",
-        "safety.ocp.comp-inn", "safety.ovp-line", "safety.ovp.comp-inp",
-        "safety.thermal.comp-inp", "safety.uvlo_logic-line",
-        "safety.uvlo_logic.mon-outa", "y",
-    }
-)
-
 
 def _pad_layer_at_point(
     pads: list[tuple[float, float, float, str]],
@@ -1305,22 +1289,25 @@ def run_astar_pathfinding_nlayer(
 
         if route_path:
             if route_path.forced_segment_count > 0:
-                if net_name in _DEBUG_M6B_NETS:
-                    print(
-                        f"      [M6B-DEBUG] {net_name}: waypoints={len(channel_path.waypoints)} "
-                        f"failed_idx={route_path.failed_waypoint_indices} "
-                        f"segments={len(route_path.segments)} vias={len(route_path.via_positions)} "
-                        f"safe_partial={_has_safe_partial_geometry(route_path)}",
-                        flush=True,
-                    )
                 # Same partial-route preservation as the landing-blocked
-                # path above, for the OTHER net-level decline shape
-                # (Tier 1-3 all failed partway through a multi-waypoint
-                # chain): keep whatever prefix of real, A*-searched geometry
-                # was computed before the failure, as a diagnostic only --
-                # _has_safe_partial_geometry rejects a forced/fabricated
-                # edge, matching the exact gate _astar_reconstruct.py's
-                # tree-route path already uses for this same shape.
+                # path above, for the OTHER net-level decline shape (Tier
+                # 1-3 failed on one or more hops of a multi-waypoint chain,
+                # M6c: possibly not the first -- see _astar_route_nlayer's
+                # own skip-resilience docstring). Keeps whatever real,
+                # A*-searched geometry was computed for the hops that DID
+                # succeed -- _has_safe_partial_geometry rejects a forced/
+                # fabricated edge, matching the exact gate
+                # _astar_reconstruct.py's tree-route path already uses for
+                # this same shape. M6c (2026-08-17): this geometry is no
+                # longer diagnostic-only -- compile_routing_results also
+                # exports it into compiled_routes (the writer), so a net
+                # that reaches SOME but not all of its pads gets that real
+                # copper on the board instead of losing it outright. The
+                # net is still never counted a success here: this function
+                # still returns a decline (`_forced_segment_decline`
+                # below) for it, and success_count/NetRouteResult are
+                # governed by verify_continuity() against the net's real
+                # pads either way.
                 if _has_safe_partial_geometry(route_path):
                     partial_paths[net_name] = route_path
                 return _forced_segment_decline([], congestion_region())
