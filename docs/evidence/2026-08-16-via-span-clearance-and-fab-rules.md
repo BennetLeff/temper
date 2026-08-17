@@ -122,15 +122,48 @@ This is a measurement-environment artefact, documented, not papered over.
 
 ## 5. Results
 
-[filled in after the fixed route completes]
+Two fixed routes measured (each ~40 min wall, `--net-batching --batch-size 10`,
+worktree venv; `kicad-cli 10.0.5`, `run_drc` protocol with `--all-track-errors`):
 
-| metric | v3 (pre-fix) | fixed route |
-|---|---|---|
-| shorting_items | 11 | TBD |
-| annular_width | 68 | TBD |
-| holes_co_located | 60 | TBD |
-| via_dangling | 44 | TBD |
-| drill_out_of_range | 20 | TBD (out of scope) |
+| metric | v3 (pre-fix) | fixed r1 | fixed r2 (routed_paths fix) |
+|---|---|---|---|
+| shorting_items | 11 | 3 | **1** |
+| annular_width | 68 | 69 (0.8/0.4 still emitted) | **0** |
+| holes_co_located | 60 | 48 | **TBD** |
+| via_dangling | 44 | 20 | **TBD** |
+| drill_out_of_range | 20 | 18 | **18** (out of scope) |
+| pad connectivity | 88/139 | 87/139 | **TBD** |
+
+- annular_width 0: the real source was `io/_parse_nets.py`'s hardcoded
+  default 0.8/0.4 (0.2mm ring) for nets with no netclass assignment —
+  the YAML HighVoltageSignal alignment alone was not sufficient (those
+  nets are not in the YAML's assignments at all). The default is now
+  0.9/0.3 (0.3mm ring), matching core/design_rules.py and the kicad_pro
+  Default class.
+- shorting 11 -> 1: the via-span checks refuse the coil2 via at
+  (22.35, 122.45) (its F.Cu barrel overlaps D2's coil1 pad — DRC-measured
+  short in v3); coil2 now declines honestly (unrouted) rather than
+  emitting the short. The last short is a net-classification gap: the
+  router treats rtd_force_n as Signal (0.2mm clearance) because the
+  netclass_rules.yaml assignments omit it, so its via at (97.45, 247.25)
+  under-reserves against U8's gnd pad that the DRC's FinePitch/GND
+  clearance grades — the same under-classification family
+  docs/evidence/2026-08-16-route-to-100-stitch-cspace-and-power-width.md
+  Sec 6 already flagged for owner decision. The via-span mechanism works;
+  it needs the right clearance input.
+- holes_co_located 60 -> 48 -> (r2 TBD): the first fixed route's filter
+  removed the THT-pad vias from the grid STAMP but NOT from the emission
+  — `routed_paths[net_name]` was assigned before the filter, so
+  place_vias() still emitted them. Fixed by re-assigning after the
+  filter (commit 9365b2a15).
+- via_dangling 44 -> 20 -> (r2 TBD): the orphan fix (offset via whose
+  stub is blocked is skipped fail-closed) removed ~24. The residual are
+  pad-centre/with-stub gnd drop vias whose plane-side connection is
+  invisible to every DRC run in this repo (no board here ever has filled
+  zones — even the committed board has zero `filled_polygon` blocks);
+  measured: with `--refill-zones` the v3 board's count drops 44 -> 13,
+  and the orphan fix removes the 13's class. Measurement-environment
+  artefact, documented, not papered over.
 
 ## 6. Notes / pre-existing, unrelated
 

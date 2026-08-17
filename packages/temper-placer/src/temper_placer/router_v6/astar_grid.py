@@ -116,8 +116,43 @@ def _unblock_net_pads(
     """
     Temporarily unblock pads for the given net.
     Returns restoration data: list of (grid, [(x, y, old_val)]).
+
+    2026-08-16 foreign-copper guard: an unblock circle is the pad's
+    radius PLUS its C-space inflation, so in a dense package (U8 at
+    0.635mm pitch, measured via the rtd_force_n-vs-gnd-pad shorting item
+    on the 2026-08-16 fixed route) the circle overlaps the NEXT pad's
+    copper and previously freed the neighbour's static cells too -- a via
+    then dropped at its own pad's edge passed the clearance check while
+    its barrel overlapped the neighbour pad. Cells inside ANY OTHER net's
+    pad or via copper are now never unblocked (they stay -1), so the
+    via-span clearance check sees them as the obstacles they are.
     """
     restoration_data = []
+
+    # Per-grid set of grid cells inside another net's pad/via copper
+    # (circumscribed circles -- the pads' actual shapes are subsets).
+    foreign_cells: dict[str, set[tuple[int, int]]] = {}
+    for layer, grid in grids.items():
+        cells: set[tuple[int, int]] = set()
+        for other_net, pads in (pad_info or {}).items():
+            if other_net == net_name:
+                continue
+            for px, py, radius, p_layer in pads:
+                if not (p_layer in ("All", "all") or "*.Cu" in p_layer
+                        or "Through" in p_layer or p_layer == layer):
+                    continue
+                _stamp_circle(cells, grid, px, py, radius)
+        for other_net, vias in (escape_vias_map or {}).items():
+            if other_net == net_name:
+                continue
+            for vx, vy, diameter in vias:
+                _stamp_circle(cells, grid, vx, vy, diameter / 2.0)
+        for other_net, vias in (existing_vias_map or {}).items():
+            if other_net == net_name:
+                continue
+            for vx, vy, diameter in vias:
+                _stamp_circle(cells, grid, vx, vy, diameter / 2.0)
+        foreign_cells[layer] = cells
 
     # Helper to unblock a circular region on given grids
     def unblock_circle(cx_world, cy_world, radius_mm, target_grids):
@@ -133,9 +168,14 @@ def _unblock_net_pads(
 
             saved_cells = []
             effective_unblock_radius = radius_mm + inflation_mm - 0.01
+            layer_foreign = foreign_cells.get(grid.layer_name, ())
 
             for y in range(y_start, y_end):
                 for x in range(x_start, x_end):
+                    if (x, y) in layer_foreign:
+                        # Another net's copper -- never unblockable (see
+                        # the function docstring).
+                        continue
                     val = grid.grid[y, x]
                     if val == -1:  # Only unblock static obstacles
                         wx, wy = grid.grid_to_world(x, y)
@@ -177,6 +217,28 @@ def _unblock_net_pads(
             unblock_circle(vx, vy, diameter / 2.0, target_grids)
 
     return restoration_data
+
+
+def _stamp_circle(
+    cells: set[tuple[int, int]],
+    grid,
+    cx_world: float,
+    cy_world: float,
+    radius_mm: float,
+) -> None:
+    """Add every grid cell whose centre lies inside the circle
+    ``(cx_world, cy_world, radius_mm)`` to ``cells`` (used by
+    ``_unblock_net_pads``'s foreign-copper guard)."""
+    if radius_mm <= 0.0:
+        return
+    gx, gy = grid.world_to_grid(cx_world, cy_world)
+    rad = int(np.ceil(radius_mm / grid.cell_size)) + 1
+    r2 = radius_mm * radius_mm + 1e-9
+    for y in range(max(0, gy - rad), min(grid.height_cells, gy + rad + 1)):
+        for x in range(max(0, gx - rad), min(grid.width_cells, gx + rad + 1)):
+            wx, wy = grid.grid_to_world(x, y)
+            if (wx - cx_world) ** 2 + (wy - cy_world) ** 2 <= r2:
+                cells.add((x, y))
 
 
 def _restore_net_pads(restoration_data):
