@@ -34,6 +34,13 @@ pyo3 = { version = "0.29", features = ["py-clone"], optional = true }
 # `wasm32-unknown-unknown` tier too; the `Marshal` impls that USE it are
 # the `#[cfg(feature = "python")]`-gated parts (see `netlist_owned.rs`).
 temper-data-model = { path = "../temper-data-model" }
+# WorldPosition (2026-08-16): the pad world-position type with the
+# kernel-only constructor. `run_collect_pad_positions` uses it instead of
+# calling back into the Python `temper_geometry.pin_world_position_at_py`
+# kernel, so the rotation/side math runs in-crate and the "naive
+# comp_pos + pin_pos" bug is unrepresentable at the call site. Pure Rust,
+# unconditional (like temper-data-model), so the wasm32 tier is unaffected.
+temper-geometry = { path = "../temper-geometry" }
 
 [features]
 default = ["python"]

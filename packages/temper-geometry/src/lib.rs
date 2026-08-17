@@ -346,6 +346,20 @@ pub mod layer_identity;
 // (this file's prior tail) so appends cannot rewrite a parallel agent's
 // lines.
 pub mod clearance_halo;
+// WorldPosition (2026-08-16): a pad's board-frame position, constructible
+// ONLY by the rotation kernel (`pin_world_position_kernel`) — private
+// fields, no From<(f64,f64)>, no struct literal. Exists because the
+// "naive comp_pos + pin_pos without rotation" bug hit three times this
+// session (zone-stitch swap shorts, zone hulls at wrong coordinates, the
+// run_collect_pad_positions rotation omission); each fix was "call the
+// kernel", and nothing prevented the next caller from reintroducing the
+// naive sum. Pure Rust, no pyo3 dependency in the type itself (the pyo3
+// binding is `#[cfg(feature = "python")]` beside it), so it is
+// unconditional like `units`/`clearance_halo` above. Declared after
+// `clearance_halo` (this file's prior tail) so appends cannot rewrite a
+// parallel agent's lines.
+pub mod world_position;
+pub use world_position::WorldPosition;
 // wasm32 has no OS RNG; getrandom will not compile there without a source.
 // See this module's doc comment for why the source fails instead of quietly
 // substituting a deterministic PRNG.
@@ -384,6 +398,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::trace_width_assignment::register(m)?;
     crate::dense_package_detection::register(m)?;
     crate::core_graph_geometry::register(m)?;
+    crate::world_position::register(m)?;
     crate::via_clearance::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
