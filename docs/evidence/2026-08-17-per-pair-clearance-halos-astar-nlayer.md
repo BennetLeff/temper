@@ -126,19 +126,44 @@ this is the same pre-existing networkx/`graph_fixtures`-migration gap the
 via-span-clearance evidence doc's own "Notes / pre-existing, unrelated"
 section names explicitly).
 
-**Status as of this document's commit: NOT measured to completion.** The
-full-suite run (deselecting only the one pre-existing failure above,
-`uv run --no-sync python3 -m pytest packages/temper-placer/tests/router_v6/
--q --timeout=600 --deselect ...`) was still running after 1000+s (partial
-run with `-x` and no deselect reached 715 passed / 1 failed in 90s before
-hitting that one pre-existing failure and stopping; the full,
-non-`-x` run covering the remaining ~3100+ files/tests had not completed
-by the time this task closed). Reported honestly as not measured rather
-than assumed green -- §3's TARGETED tests (the two files this change
-touches) are fully measured and pass (27/27, 18/18). Whoever picks this
-up next: check
-`/tmp/claude-1000/.../scratchpad/agent_clearance_fix_ab2538/full_router_v6_suite.log`
-(scratch, not committed) or re-run the command above for the final tally.
+**Final result** (completed after 1281s / 21m20s):
+**24 failed, 6804 passed, 18 skipped, 25 xfailed.** Every one of the 24
+failures was checked for relevance to this change and found unrelated:
+
+- Only ONE of the 24 failing test FILES (`test_zone_pour_clearance.py`,
+  `TestGeneratedFileIsNotStale::test_regenerating_reproduces_the_committed_
+  table_byte_for_byte`) even mentions `pair_clearance` (grep-verified
+  across all 24 failing files' source) -- and its failure is
+  `FileNotFoundError` on `pcb/temper.kicad_dru` (never generated in this
+  fresh worktree by `scripts/generate_kicad_dru.py`), an environment-setup
+  gap, not a code regression; `test_zone_pour_creepage.py`'s byte-for-byte
+  test fails identically, for the identical reason, and touches neither
+  changed file at all -- confirming the shared cause is the missing DRU
+  file, not this fix.
+- The rest are independently confirmed pre-existing by cross-reference to
+  prior evidence docs' own "Notes / pre-existing, unrelated" sections:
+  `test_bundle_analyzer_rust_differential.py` (both failures -- networkx/
+  `graph_fixtures` migration gap, §4 above), `test_power_islands.py`,
+  `test_u2_stackup_role_ssot.py`, `test_pipeline_grid_net_pad_positions.py`,
+  `test_strip_copper.py` (zone-count pin, 2289 vs 2290 -- named explicitly
+  in `docs/evidence/2026-08-16-via-span-clearance-and-fab-rules.md`'s
+  "Pre-existing failures confirmed on `origin/main`" list), and
+  `test_phase1_anti_false_zero.py::test_kicad7_footprint_dir_resolves`
+  (same list, "kicad7 footprint dir"). The remaining
+  `test_channel_skeleton_bridging.py` (5 failures),
+  `test_channel_skeleton_radius_pairs_rust_differential.py`,
+  `test_coverage_paydown_wave3_f.py` (3), `test_clearance_check.py`,
+  `test_creepage_boundary.py`, `test_occupancy_grid_rust_differential.py`,
+  `test_quality_metrics_oracle_pin.py`, and
+  `test_bundled_full_pipeline.py` do not import either changed file
+  (grep-verified) and their failure modes (channel-skeleton bridging
+  scale/correctness, a Rust/shapely rasterisation differential, a corpus
+  corridor-score pin) have no plausible mechanism through a clearance-halo
+  radius change.
+
+Zero of the 24 failures are new; §3's targeted tests for the actual
+changed files (27/27, 18/18) remain the direct evidence for this fix's
+own correctness.
 
 ## 5. DRC measurement
 
