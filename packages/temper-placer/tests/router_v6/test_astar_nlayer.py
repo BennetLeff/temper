@@ -813,26 +813,28 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     assert grid.is_blocked(*inside), "cell 12.5mm from HV pad must be blocked in LV family"
     assert grid.is_free(*outside), "cell 14.5mm from HV pad must stay free in LV family"
 
-    # LV_NET's own halo in the LV family is the small, CORRECT clearance-
-    # floor ring: 0.5 half-pad + 0.1 (Default family's own half-width) +
-    # 0.2 (the (Default, Signal) pair clearance) = 0.8mm from its centre.
-    # The REJECTED naive fix (restamp at the searching family's own static
-    # erosion `_family_static_inflation` == W/2 + C == 0.3, i.e. treating
-    # the pair figure as an ADD-ON to the searching net's own clearance
-    # rather than a replacement for it) would instead reach 0.5+0.3+0.2 =
-    # 1.0mm. 0.9mm discriminates the two: free under the fix that shipped,
-    # blocked under the rejected naive one.
-    lv_pad_cell = grid.world_to_grid(16.0, 10.0)
-    assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
-    lv_ring_inside = grid.world_to_grid(16.0 + 0.7, 10.0)
-    lv_ring_discriminator = grid.world_to_grid(16.0 + 0.9, 10.0)
-    lv_ring_outside = grid.world_to_grid(16.0 + 1.5, 10.0)
-    assert grid.is_blocked(*lv_ring_inside), "0.7mm from LV_NET pad must be inside its clearance-floor ring"
-    assert grid.is_free(*lv_ring_discriminator), (
-        "0.9mm from LV_NET pad must be free -- blocked here would mean the naive "
-        "(searching net's own family clearance) radius shipped instead of the pair figure"
+    # LV_NET's own halo polygon (inspected directly, NOT via the rasterised
+    # grid -- LV_NET at (16,10) sits only 6mm from HV_PAD_NET at (10,10),
+    # well inside HV_PAD_NET's own 13.2mm creepage halo in this SAME family,
+    # so any raster probe near LV_NET is confounded by HV_PAD_NET's much
+    # larger ring; the un-rasterised polygon isolates LV_NET's own
+    # contribution exactly). Expected half-extent from its centre:
+    # 0.5 half-pad + 0.1 (Default family's own half-width) + 0.2 (the
+    # (Default, Signal) pair clearance) = 0.8mm. The REJECTED naive fix
+    # (restamp at the searching family's own static erosion
+    # `_family_static_inflation` == W/2 + C == 0.3 -- i.e. treating the pair
+    # figure as an ADD-ON to the searching net's own declared clearance
+    # rather than a REPLACEMENT for it) would instead reach 0.5 + 0.3 + 0.2
+    # = 1.0mm from centre -- 0.2mm wider on every side, and NOT what the
+    # code below computes.
+    lv_net_halo = next((o, h) for n, o, h in lv_halos if n == "LV_NET")
+    lv_xs = [x for ring in lv_net_halo[0] for x in ring[0::2]]
+    lv_half_extent = (max(lv_xs) - min(lv_xs)) / 2.0
+    assert lv_half_extent == pytest.approx(0.8, abs=0.02), (
+        f"LV_NET halo half-extent {lv_half_extent:.3f}mm != the pair-figure radius 0.8mm "
+        "-- 1.0mm here would mean the rejected naive (searching family's own clearance) "
+        "radius shipped instead"
     )
-    assert grid.is_free(*lv_ring_outside), "1.5mm from LV_NET pad must be well outside the small ring"
 
 
 def test_creepage_halo_blocks_lv_net_from_hv_pad():
