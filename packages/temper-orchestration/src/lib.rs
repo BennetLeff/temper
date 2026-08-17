@@ -411,6 +411,14 @@ pub use phased_component_assignment_validator_stage::phased_validator_hv;
 pub use placement_validation_stage::PlacementValidationStage;
 #[cfg(feature = "python")]
 pub use pipeline_route::PipelineRouteStage;
+// The emission `Via` (private layer pair + `emit_s_expr` as the only
+// sexpr-producing API) is re-exported so its `compile_fail` doctest — the
+// structural guarantee that the blind/buried/through type token cannot be
+// bypassed — is reachable from an external crate. Unconditional (the
+// struct itself is pure Rust, pyo3-free): CI's doctest step runs
+// `cargo test --doc --no-default-features`, so a python-gated re-export
+// would make the guarantee decorative there.
+pub use pipeline_route::Via;
 #[cfg(feature = "python")]
 pub use power_plane_stage::PowerPlaneStage;
 pub use preflight_stage::PreflightStage;

@@ -93,17 +93,177 @@ const TSTAMP_NAMESPACE: [u8; 16] = [
 ];
 
 /// One marshalled compiled route for the emission core
-/// `(net_name, path_length, path_points, width, net_num, vias, pad_count)`;
-/// vias are `(x, y, diameter, drill, from_layer, to_layer)`.
+/// `(net_name, path_length, path_points, width, net_num, vias, pad_count)`.
+///
+/// Vias are [`Via`] values whose layer pair is **private**: the KiCad via
+/// type token (`blind`/`buried`/through) is computed inside
+/// [`Via::emit_s_expr`] at emission time, so a via cannot be emitted
+/// without the correct type.
 type RouteEmission = (
     String,
     f64,
     Vec<(f64, f64, String)>,
     f64,
     i64,
-    Vec<(f64, f64, f64, f64, String, String)>,
+    Vec<Via>,
     usize,
 );
+
+/// A via ready for KiCad sexpr emission.
+///
+/// The type token (`blind`/`buried`/through) is computed from the layer
+/// pair at emission time — you cannot emit a via without the correct type.
+/// Every field is private: the only way to turn a `Via` into KiCad's
+/// `(via ...)` s-expression is [`Via::emit_s_expr`], which ALWAYS computes
+/// the token from the layer pair first. There is no free function and no
+/// public field access a caller could use to format the sexpr without it
+/// (the pre-fix router did exactly that: raw `(via (at ...))` strings with
+/// no token, which KiCad's parser defaults to THROUGH — see
+/// `docs/evidence/2026-08-15-via-type-emission-fix.md`).
+///
+/// ```compile_fail
+/// // Every field is private to `pipeline_route` — there is no way to read
+/// // the layer pair (or any other field) and format the s-expression
+/// // yourself. The only sexpr-producing API is `Via::emit_s_expr`, which
+/// // computes the type token internally. This must not compile:
+/// let via = temper_orchestration::Via::new(0.3, 0.3, "F.Cu", "In3.Cu", 0.6, 0.3);
+/// let _ = via.from_layer;
+/// ```
+pub struct Via {
+    x: f64,
+    y: f64,
+    from_layer: String,
+    to_layer: String,
+    diameter: f64,
+    drill: f64,
+}
+
+impl Via {
+    /// Construct a via — fields set here, type computed at emit time.
+    pub fn new(
+        x: f64,
+        y: f64,
+        from_layer: &str,
+        to_layer: &str,
+        diameter: f64,
+        drill: f64,
+    ) -> Self {
+        Self {
+            x,
+            y,
+            from_layer: String::from(from_layer),
+            to_layer: String::from(to_layer),
+            diameter,
+            drill,
+        }
+    }
+
+    /// KiCad via type token for this via's layer pair, or `None` for
+    /// through.
+    ///
+    /// KiCad's canonical copper layer names fix the outer layers as `F.Cu`
+    /// and `B.Cu` on every board, so the full-stack pair is always
+    /// `F.Cu`/`B.Cu`:
+    ///
+    /// * `F.Cu` <-> `B.Cu` -> through (no token emitted; KiCad's format
+    ///   default is through)
+    /// * exactly one outer layer -> `blind` (outer <-> inner)
+    /// * two inner layers -> `buried` (inner <-> inner)
+    /// * same layer on both ends -> through (degenerate; unchanged from the
+    ///   pre-fix emission, which emitted no token for every pair)
+    ///
+    /// A same-layer "via" is nonsense and should not occur (the router
+    /// derives pairs from real layer transitions), but the classification
+    /// must be total: keeping the no-token emission for it is the
+    /// conservative choice, exactly what the pre-fix writer produced.
+    fn via_type_token(&self) -> Option<&'static str> {
+        const OUTER_LAYERS: [&str; 2] = ["F.Cu", "B.Cu"];
+        // Degenerate same-layer pair (should not occur -- the router
+        // derives pairs from real layer transitions): keep the pre-fix
+        // emission (no token), which is also the conservative KiCad
+        // default.
+        if self.from_layer == self.to_layer {
+            return None;
+        }
+        let is_outer = |layer: &str| OUTER_LAYERS.contains(&layer);
+        match (is_outer(&self.from_layer), is_outer(&self.to_layer)) {
+            (true, true) => None,
+            (false, false) => Some("buried"),
+            _ => Some("blind"),
+        }
+    }
+
+    /// Emit the KiCad sexpr for this via. The type token is ALWAYS
+    /// computed from the layer pair — you cannot emit without it.
+    ///
+    /// `net_num` and `tstamp` are the route-level values the emission core
+    /// assigns (the shared deterministic counter), matching the oracle
+    /// byte-for-byte. Floats are rendered via CPython `"{:.4f}"`
+    /// (`py_fmt4`), the crate's bit-exactness convention.
+    #[cfg(feature = "python")]
+    pub fn emit_s_expr(
+        &self,
+        py: Python<'_>,
+        net_num: i64,
+        tstamp: &str,
+    ) -> PyResult<String> {
+        let token = self.via_type_token();
+        let head = match token {
+            Some(token) => format!("  (via {token} (at"),
+            None => "  (via (at".to_string(),
+        };
+        Ok(format!(
+            "{} {} {}) (size {}) (drill {}) (layers \"{}\" \"{}\") (net {}) (tstamp \"{}\"))",
+            head,
+            py_fmt4(py, self.x)?,
+            py_fmt4(py, self.y)?,
+            py_fmt4(py, self.diameter)?,
+            py_fmt4(py, self.drill)?,
+            self.from_layer,
+            self.to_layer,
+            net_num,
+            tstamp,
+        ))
+    }
+}
+
+/// pyo3 boundary conversions: the marshalled `RouteEmission` payload
+/// round-trips through Python between `run_build_route_payload` and
+/// `run_write_route_segments` (the shim holds it as a Python tuple), so
+/// `Via` must convert to/from the `(x, y, diameter, drill, from_layer,
+/// to_layer)` 6-tuple the payload wire-format uses. The layer pair stays
+/// private — these conversions build a `Via`, they never expose the fields
+/// or emit a sexpr.
+#[cfg(feature = "python")]
+impl<'py> pyo3::IntoPyObject<'py> for Via {
+    type Target = PyAny;
+    type Output = Bound<'py, PyAny>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Ok((
+            self.x,
+            self.y,
+            self.diameter,
+            self.drill,
+            self.from_layer,
+            self.to_layer,
+        )
+            .into_pyobject(py)?
+            .into_any())
+    }
+}
+
+#[cfg(feature = "python")]
+impl<'a, 'py> pyo3::FromPyObject<'a, 'py> for Via {
+    type Error = PyErr;
+
+    fn extract(obj: pyo3::Borrowed<'a, 'py, PyAny>) -> Result<Self, Self::Error> {
+        let (x, y, diameter, drill, from_layer, to_layer): (f64, f64, f64, f64, String, String) =
+            obj.extract()?;
+        Ok(Via::new(x, y, &from_layer, &to_layer, diameter, drill))
+    }
+}
 
 // ---------------------------------------------------------------------------
 // RFC 3174 SHA-1 (hand-rolled: the crate adds no digest dependency; the
@@ -606,27 +766,17 @@ fn emit_route(
     // defaults the via to VIATYPE::THROUGH and the via pierces every copper
     // layer regardless of the declared pair -- measured as 16 phantom DRC
     // shorts on layers outside the declared pair on the router's own output
-    // (docs/evidence/2026-08-15-via-type-emission-fix.md). See
-    // `via_type_token` for the classification rule; the oracle file
-    // `_adapter_convert_py_oracle.py` mirrors this byte-for-byte.
-    for (vx, vy, diameter, drill, from_layer, to_layer) in vias {
+    // (docs/evidence/2026-08-15-via-type-emission-fix.md).
+    //
+    // The type token is computed inside `Via::emit_s_expr` from the via's
+    // private layer pair at emission time -- there is no other way to turn
+    // a `Via` into a sexpr (fields are private, no free function exists),
+    // so a via cannot be emitted without the correct type. The oracle file
+    // `_adapter_convert_py_oracle.py` mirrors the emitted bytes
+    // byte-for-byte.
+    for via in vias {
         let seg_id = next_tstamp_internal(counter)?;
-        let via_head = match via_type_token(from_layer, to_layer) {
-            Some(token) => format!("  (via {} (at", token),
-            None => "  (via (at".to_string(),
-        };
-        segments.push(format!(
-            "{} {} {}) (size {}) (drill {}) (layers \"{}\" \"{}\") (net {}) (tstamp \"{}\"))",
-            via_head,
-            py_fmt4(py, *vx)?,
-            py_fmt4(py, *vy)?,
-            py_fmt4(py, *diameter)?,
-            py_fmt4(py, *drill)?,
-            from_layer,
-            to_layer,
-            net_num,
-            seg_id,
-        ));
+        segments.push(via.emit_s_expr(py, *net_num, &seg_id)?);
     }
     Ok(())
 }
@@ -637,39 +787,6 @@ fn emit_route(
 /// to route every rendered float through CPython).
 fn py_fmt4(py: Python<'_>, f: f64) -> PyResult<String> {
     d6_util::py_format(py, "{:.4f}", &[f.into_pyobject(py)?.into_any()])?.extract()
-}
-
-/// KiCad via type token for a declared layer pair, or `None` for through.
-///
-/// KiCad's canonical copper layer names fix the outer layers as `F.Cu` and
-/// `B.Cu` on every board, so the full-stack pair is always `F.Cu`/`B.Cu`:
-///
-/// * `F.Cu` <-> `B.Cu` -> through (no token emitted; KiCad's format
-///   default is through)
-/// * exactly one outer layer -> `blind` (outer <-> inner)
-/// * two inner layers -> `buried` (inner <-> inner)
-/// * same layer on both ends -> through (degenerate; unchanged from the
-///   pre-fix emission, which emitted no token for every pair)
-///
-/// A same-layer "via" is nonsense and should not occur (the router derives
-/// pairs from real layer transitions), but the classification must be total:
-/// keeping the no-token emission for it is the conservative choice, exactly
-/// what the pre-fix writer produced.
-#[cfg(any(feature = "python", test))]
-fn via_type_token(from_layer: &str, to_layer: &str) -> Option<&'static str> {
-    const OUTER_LAYERS: [&str; 2] = ["F.Cu", "B.Cu"];
-    // Degenerate same-layer pair (should not occur -- the router derives
-    // pairs from real layer transitions): keep the pre-fix emission (no
-    // token), which is also the conservative KiCad default.
-    if from_layer == to_layer {
-        return None;
-    }
-    let is_outer = |layer: &str| OUTER_LAYERS.contains(&layer);
-    match (is_outer(from_layer), is_outer(to_layer)) {
-        (true, true) => None,
-        (false, false) => Some("buried"),
-        _ => Some("blind"),
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1131,9 +1248,11 @@ pub fn run_build_route_payload(
     }
 
     // `for via in getattr(compiled_route, "vias", []): vx, vy = via.position;
-    // (vx, vy, via.diameter, via.drill, via.from_layer, via.to_layer)`
+    // (vx, vy, via.diameter, via.drill, via.from_layer, via.to_layer)` --
+    // marshalled into a `Via` (private fields; the type token is computed
+    // at emission time, see `Via::emit_s_expr`).
     let default_empty_list = PyList::empty(py).into_any();
-    let mut vias: Vec<(f64, f64, f64, f64, String, String)> = Vec::new();
+    let mut vias: Vec<Via> = Vec::new();
     for via in getattr_or(py, compiled_route, "vias", &default_empty_list)?.try_iter()? {
         let via = via?;
         let pos = via.getattr("position")?;
@@ -1143,7 +1262,7 @@ pub fn run_build_route_payload(
         let drill: f64 = via.getattr("drill")?.extract()?;
         let from_layer: String = via.getattr("from_layer")?.extract()?;
         let to_layer: String = via.getattr("to_layer")?.extract()?;
-        vias.push((vx, vy, diameter, drill, from_layer, to_layer));
+        vias.push(Via::new(vx, vy, &from_layer, &to_layer, diameter, drill));
     }
 
     Ok((net_name, path_length, path_points, width, net_num, vias, pads_len))
@@ -1345,7 +1464,7 @@ impl Stage<BoardState> for PipelineRouteStage {
     }
     fn run(&self, state: BoardState) -> Result<BoardState, StageError> {
         stage_guard("pipeline_route", || {
-            Python::attach(|py| {
+        Python::attach(|py| {
                 if let Some(p) = &self.payload {
                     let p = p.bind(py);
                     let routes = p.get_item(0)?.extract::<Vec<RouteEmission>>()?;
@@ -1461,25 +1580,82 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn via_type_token_full_stack_pair_is_through() {
-        assert_eq!(via_type_token("F.Cu", "B.Cu"), None);
-        assert_eq!(via_type_token("B.Cu", "F.Cu"), None);
+        assert_eq!(Via::new(0.0, 0.0, "F.Cu", "B.Cu", 0.6, 0.3).via_type_token(), None);
+        assert_eq!(Via::new(0.0, 0.0, "B.Cu", "F.Cu", 0.6, 0.3).via_type_token(), None);
         // Degenerate same-layer pair keeps the pre-fix (no-token) emission.
-        assert_eq!(via_type_token("F.Cu", "F.Cu"), None);
-        assert_eq!(via_type_token("In2.Cu", "In2.Cu"), None);
+        assert_eq!(Via::new(0.0, 0.0, "F.Cu", "F.Cu", 0.6, 0.3).via_type_token(), None);
+        assert_eq!(Via::new(0.0, 0.0, "In2.Cu", "In2.Cu", 0.6, 0.3).via_type_token(), None);
     }
 
     #[cfg_attr(test, test)]
     fn via_type_token_outer_to_inner_is_blind() {
-        assert_eq!(via_type_token("F.Cu", "In3.Cu"), Some("blind"));
-        assert_eq!(via_type_token("In3.Cu", "F.Cu"), Some("blind"));
-        assert_eq!(via_type_token("B.Cu", "In4.Cu"), Some("blind"));
-        assert_eq!(via_type_token("In4.Cu", "B.Cu"), Some("blind"));
+        assert_eq!(Via::new(0.0, 0.0, "F.Cu", "In3.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
+        assert_eq!(Via::new(0.0, 0.0, "In3.Cu", "F.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
+        assert_eq!(Via::new(0.0, 0.0, "B.Cu", "In4.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
+        assert_eq!(Via::new(0.0, 0.0, "In4.Cu", "B.Cu", 0.6, 0.3).via_type_token(), Some("blind"));
     }
 
     #[cfg_attr(test, test)]
     fn via_type_token_inner_to_inner_is_buried() {
-        assert_eq!(via_type_token("In1.Cu", "In3.Cu"), Some("buried"));
-        assert_eq!(via_type_token("In3.Cu", "In1.Cu"), Some("buried"));
+        assert_eq!(Via::new(0.0, 0.0, "In1.Cu", "In3.Cu", 0.6, 0.3).via_type_token(), Some("buried"));
+        assert_eq!(Via::new(0.0, 0.0, "In3.Cu", "In1.Cu", 0.6, 0.3).via_type_token(), Some("buried"));
+    }
+
+    // Emission-level pins: `Via::emit_s_expr` is python-gated (it renders
+    // floats through CPython `"{:.4f}"`), so these attach a live
+    // interpreter and pin the exact sexpr bytes for each pair class. They
+    // are structurally absent from the wasm registry (same as every
+    // python-gated test in this crate); the pure classification pins above
+    // run everywhere.
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn emit_s_expr_full_stack_pair_has_no_type_token() {
+        Python::initialize();
+        Python::attach(|py| {
+            let via = Via::new(0.3, 0.3, "F.Cu", "B.Cu", 0.6, 0.3);
+            let got = match via.emit_s_expr(py, 5, "tstamp-00000000-0000-5000-8000-000000000000") {
+                Ok(s) => s,
+                Err(e) => panic!("emit_s_expr failed: {e}"),
+            };
+            assert_eq!(
+                got,
+                "  (via (at 0.3000 0.3000) (size 0.6000) (drill 0.3000) \
+                 (layers \"F.Cu\" \"B.Cu\") (net 5) \
+                 (tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"
+            );
+        })
+    }
+
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn emit_s_expr_outer_to_inner_emits_blind_token() {
+        Python::initialize();
+        Python::attach(|py| {
+            let via = Via::new(2.5, 0.0, "F.Cu", "In3.Cu", 0.6, 0.3);
+            let got = match via.emit_s_expr(py, 7, "tstamp-00000000-0000-5000-8000-000000000000") {
+                Ok(s) => s,
+                Err(e) => panic!("emit_s_expr failed: {e}"),
+            };
+            assert!(got.starts_with("  (via blind (at 2.5000 0.0000)"), "got: {got}");
+            assert!(got.contains("(layers \"F.Cu\" \"In3.Cu\")"));
+            assert!(got.ends_with("(tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"));
+        })
+    }
+
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn emit_s_expr_inner_to_inner_emits_buried_token() {
+        Python::initialize();
+        Python::attach(|py| {
+            let via = Via::new(2.5, 0.0, "In1.Cu", "In3.Cu", 0.6, 0.3);
+            let got = match via.emit_s_expr(py, 7, "tstamp-00000000-0000-5000-8000-000000000000") {
+                Ok(s) => s,
+                Err(e) => panic!("emit_s_expr failed: {e}"),
+            };
+            assert!(got.starts_with("  (via buried (at 2.5000 0.0000)"), "got: {got}");
+            assert!(got.contains("(layers \"In1.Cu\" \"In3.Cu\")"));
+            assert!(got.ends_with("(tstamp \"tstamp-00000000-0000-5000-8000-000000000000\"))"));
+        })
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
@@ -1497,6 +1673,9 @@ pub(crate) mod tests {
         ("pipeline_route::tests::via_type_token_full_stack_pair_is_through", via_type_token_full_stack_pair_is_through),
         ("pipeline_route::tests::via_type_token_outer_to_inner_is_blind", via_type_token_outer_to_inner_is_blind),
         ("pipeline_route::tests::via_type_token_inner_to_inner_is_buried", via_type_token_inner_to_inner_is_buried),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_full_stack_pair_has_no_type_token", emit_s_expr_full_stack_pair_has_no_type_token),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_outer_to_inner_emits_blind_token", emit_s_expr_outer_to_inner_emits_blind_token),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_inner_to_inner_emits_buried_token", emit_s_expr_inner_to_inner_emits_buried_token),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
