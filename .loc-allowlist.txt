@@ -1,6 +1,6 @@
 # Temper LOC cap allowlist -- shrinks monotonically (R3).
 # Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1184 temper-N7-cap4 # new over-cap file
-packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1210 temper-N8-drc-sweep # grew from 1198: #1223 ampacity fix wired StackupGate net-currents (+12); prior entry documented 1035 -> 1198 (IECCreepageGate net-name fix + verification comment)
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1101 temper-N8-drc-sweep # 2026-08-17: paydown 1285 -> 1101 (QualityGate/ErcGate split to _quality_erc_gates.py, LOC cap); prior baseline 1210 documented 1198 -> 1210 (#1223 ampacity fix wired StackupGate net-currents, +12)
 packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py 1111 temper-N9-cap2 # 2026-08-12 hygiene paydown: unlisted-and-over-cap, never previously recorded; router_v6 -> temper-orchestration Stage adapter marshalling (Rust Orchestration Engine plan 2026-08-09-001)
 packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py 1142 temper-N9-cap3 # 2026-08-12 hygiene paydown: unlisted-and-over-cap, never previously recorded; corridor-aware A* + creepage/via-collision handling accreted across #1033/#1052
