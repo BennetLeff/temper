@@ -146,6 +146,7 @@ from pathlib import Path
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
+from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 from temper_placer.router_v6._ground_plane import (
     _collect_hv_copper_geometry,
     _collect_other_net_copper,
@@ -189,7 +190,32 @@ BACKBONE_LAYER = "F.Cu"
 # via_diameter in core/design_rules.py).
 VIA_SIZE_MM = 1.0
 VIA_DRILL_MM = 0.4
-STITCH_TRACE_WIDTH_MM = 0.3
+
+# RAISED 0.3 -> Power netclass trace_width (1.0mm) 2026-08-17 (pour-stitch
+# track_width root-cause fix,
+# docs/evidence/2026-08-17-pour-stitch-defect-rootcause-and-m6c-reeval.md):
+# every net in POWER_ISLAND_NETS ("+3V3", "vcc", "+15V", "V_BUS_SENSE") is
+# classified "Power" in pcb/temper.kicad_pro, and the emitted DRU carries a
+# "Power trace width" rule at min 1.0mm (design_rules.py
+# TEMPER_NET_CLASSES["Power"].trace_width). This module's own comment
+# above (VIA_SIZE_MM) claimed this constant was "identical" to
+# _ground_plane.py's STITCH_TRACE_WIDTH_MM -- that was already false by
+# the time it was written: _ground_plane.py's was raised 0.4 -> 1.0mm on
+# 2026-08-16 for the exact same defect class on GND (216/747 track_width
+# violations, that module's own STITCH_TRACE_WIDTH_MM comment), and this
+# constant was never brought along. At 0.3mm every stitch/via-drop segment
+# this generator emits for a Power-class net is, by construction, a real
+# track_width DRC violation -- measured ~100 pre-existing on +3V3 alone at
+# the committed board, worsening under router congestion as the MST
+# generator falls back to more narrow-stub segments (see evidence doc
+# above for the full before/after). Derived from TEMPER_NET_CLASSES rather
+# than a second hardcoded literal, since a hardcoded copy silently
+# drifting from its own netclass SSOT is exactly the failure being fixed.
+# The corridor mask's erosion (compute_corridor_mask uses this same
+# constant) and the inter-net blocked-check radius both widen
+# correspondingly -- this is the same single-knob relationship
+# _ground_plane.py's identical fix already established.
+STITCH_TRACE_WIDTH_MM = TEMPER_NET_CLASSES["Power"].trace_width
 
 BOARD_EDGE_MARGIN_MM = 1.0
 OTHER_NET_CLEARANCE_MM = 0.05
