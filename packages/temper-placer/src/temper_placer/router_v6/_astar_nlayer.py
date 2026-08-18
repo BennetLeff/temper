@@ -1150,6 +1150,39 @@ def run_astar_pathfinding_nlayer(
     per_path_latency_ms: dict[str, float] = {}
     fallback_count = 0
 
+    def _stamp_route_into_every_family(route_path, net_rule, net_id: int) -> None:
+        """Width/creepage-aware obstacle stamp (2026-08-16): the routed
+        net's own real width (not the flat 0.2mm board default) into EVERY
+        family at that family's searching-net radius, so any net searched
+        AFTER this one sees this copper as a real obstacle.
+
+        M6c (2026-08-17): factored out of the full-success branch so a
+        safe-but-partial route (some hops reached, `forced_segment_count >
+        0`) can call it too. Before this factor-out, ``compile_routing_
+        results`` writing partial geometry onto the board (M6c's other
+        half) without this stamp meant every net ordered after a partial
+        one never saw its real copper as an obstacle -- measured directly:
+        clearance and shorting_items both hit their kicad-cli report caps
+        (499/199) and tracks_crossing rose 8 -> 341 on a real board route
+        before this fix. Partial geometry is exactly as real as complete
+        geometry from the perspective of "does the next net need to avoid
+        it" -- the ONLY thing that makes it partial is that it doesn't
+        reach every one of ITS OWN pads, which is unrelated to whether
+        other nets must route around it.
+        """
+        creepage_table = default_creepage_table()
+        for _fam_key, _fam_grids in families.items():
+            _fam_w, _fam_c, _fam_class = _fam_key
+            pair_creepage = creepage_table.required(net_rule.name, _fam_class)
+            _mark_route_blocked(
+                route_path,
+                _fam_grids,
+                trace_width=net_rule.trace_width_mm,
+                clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage) + _fam_w / 2.0,
+                net_id=net_id,
+                via_diameter=net_rule.via_diameter_mm,
+            )
+
     def attempt_route(net_name: str):
         nonlocal fallback_count, layer_divergence_count
         channel_path = channel_mapping.channel_paths[net_name]
@@ -1323,6 +1356,17 @@ def run_astar_pathfinding_nlayer(
                 # tree-route path already uses for this same shape.
                 if _has_safe_partial_geometry(route_path):
                     partial_paths[net_name] = route_path
+                    # M6c: this geometry is now written to the board (see
+                    # compile_routing_results), so every OTHER net must see
+                    # it as an obstacle too -- same stamp the full-success
+                    # path always applied. Without this, a net ordered
+                    # after this one would freely route across/through
+                    # real copper that simply doesn't happen to be this
+                    # net's own pad. Measured directly: omitting this stamp
+                    # produced clearance/shorting_items hitting their
+                    # kicad-cli report caps (499/199) and tracks_crossing
+                    # 8 -> 341 on a real board route.
+                    _stamp_route_into_every_family(route_path, net_rule, net_id)
                 return _forced_segment_decline([], congestion_region())
             routed_paths[net_name] = route_path
             # Width/creepage-aware stamp (2026-08-16): the routed net's own
@@ -1338,19 +1382,7 @@ def run_astar_pathfinding_nlayer(
             # the creepage term is what keeps an HV track 12.6mm from an LV
             # net's copper instead of 0.2mm (the DRC-graded bar, resolved
             # from the DRU by router_v6/pair_creepage).
-            creepage_table = default_creepage_table()
-            for _fam_key, _fam_grids in families.items():
-                _fam_w, _fam_c, _fam_class = _fam_key
-                pair_creepage = creepage_table.required(net_rule.name, _fam_class)
-                _mark_route_blocked(
-                    route_path,
-                    _fam_grids,
-                    trace_width=net_rule.trace_width_mm,
-                    clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage)
-                    + _fam_w / 2.0,
-                    net_id=net_id,
-                    via_diameter=net_rule.via_diameter_mm,
-                )
+            _stamp_route_into_every_family(route_path, net_rule, net_id)
             return True, "", [], None, None
 
         if landing_blocked:
