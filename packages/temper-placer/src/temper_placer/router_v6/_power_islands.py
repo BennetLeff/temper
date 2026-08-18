@@ -146,6 +146,7 @@ from pathlib import Path
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
+from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 from temper_placer.router_v6._ground_plane import (
     _collect_hv_copper_geometry,
     _collect_other_net_copper,
@@ -189,7 +190,32 @@ BACKBONE_LAYER = "F.Cu"
 # via_diameter in core/design_rules.py).
 VIA_SIZE_MM = 1.0
 VIA_DRILL_MM = 0.4
-STITCH_TRACE_WIDTH_MM = 0.3
+
+# RAISED 0.3 -> Power netclass trace_width (1.0mm) 2026-08-17 (pour-stitch
+# track_width root-cause fix,
+# docs/evidence/2026-08-17-pour-stitch-defect-rootcause-and-m6c-reeval.md):
+# every net in POWER_ISLAND_NETS ("+3V3", "vcc", "+15V", "V_BUS_SENSE") is
+# classified "Power" in pcb/temper.kicad_pro, and the emitted DRU carries a
+# "Power trace width" rule at min 1.0mm (design_rules.py
+# TEMPER_NET_CLASSES["Power"].trace_width). This module's own comment
+# above (VIA_SIZE_MM) claimed this constant was "identical" to
+# _ground_plane.py's STITCH_TRACE_WIDTH_MM -- that was already false by
+# the time it was written: _ground_plane.py's was raised 0.4 -> 1.0mm on
+# 2026-08-16 for the exact same defect class on GND (216/747 track_width
+# violations, that module's own STITCH_TRACE_WIDTH_MM comment), and this
+# constant was never brought along. At 0.3mm every stitch/via-drop segment
+# this generator emits for a Power-class net is, by construction, a real
+# track_width DRC violation -- measured ~100 pre-existing on +3V3 alone at
+# the committed board, worsening under router congestion as the MST
+# generator falls back to more narrow-stub segments (see evidence doc
+# above for the full before/after). Derived from TEMPER_NET_CLASSES rather
+# than a second hardcoded literal, since a hardcoded copy silently
+# drifting from its own netclass SSOT is exactly the failure being fixed.
+# The corridor mask's erosion (compute_corridor_mask uses this same
+# constant) and the inter-net blocked-check radius both widen
+# correspondingly -- this is the same single-knob relationship
+# _ground_plane.py's identical fix already established.
+STITCH_TRACE_WIDTH_MM = TEMPER_NET_CLASSES["Power"].trace_width
 
 BOARD_EDGE_MARGIN_MM = 1.0
 OTHER_NET_CLEARANCE_MM = 0.05
@@ -699,11 +725,38 @@ def generate_power_islands_blocks(
             this_rail_vias.append(Point(vx, vy).buffer(via_radius_mm + OTHER_NET_CLEARANCE_MM, quad_segs=8))
             if needs_stub:
                 via_offset_count += 1
-                new_blocks.append(
-                    f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
-                    f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'
-                    f" (net {net_num}) (tstamp \"{_next_tstamp()}\"))"
+                # RAISED 2026-08-17 (stitch-congestion root-cause fix, see
+                # the MST-backbone `_blocked` comment below for the full
+                # mechanism): this stub is real STITCH_TRACE_WIDTH_MM-wide
+                # F.Cu copper from the pad straight to the offset via, and
+                # was never checked against anything -- the via-drop search
+                # only clears the via's OWN footprint, not the straight
+                # line joining it back to the pad. `_ground_plane.py`'s
+                # identical stub already gates on exactly this
+                # (2026-08-16, "fix/route-to-100-percent"); this one,
+                # cloned earlier, never did. Gate with the same
+                # buffered-footprint check, reusing `via_avoid_copper`
+                # (already comprehensive: pre-existing other-net copper,
+                # this run's routed segments, and every earlier power rail's
+                # own new copper). A blocked stub is skipped fail-closed --
+                # the via stays; the pad just isn't stub-joined, a labelled
+                # connectivity cost on this net, not a short.
+                stub_footprint = LineString([(x, y), (vx, vy)]).buffer(
+                    STITCH_TRACE_WIDTH_MM / 2.0
                 )
+                stub_blocked = (
+                    keepout_established and stub_footprint.intersects(keepout)
+                ) or (
+                    via_avoid_copper is not None
+                    and not via_avoid_copper.is_empty
+                    and stub_footprint.intersects(via_avoid_copper)
+                )
+                if not stub_blocked:
+                    new_blocks.append(
+                        f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
+                        f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'
+                        f" (net {net_num}) (tstamp \"{_next_tstamp()}\"))"
+                    )
 
         edges = mst_edges(positions)
 
@@ -783,12 +836,49 @@ def generate_power_islands_blocks(
 
         run_this_rail_backbone: list[Polygon] = []
 
+        # RAISED 2026-08-17 (stitch-congestion root-cause fix,
+        # docs/evidence/2026-08-17-stitch-congestion-rootcause-and-fix.md):
+        # this fallback used to test a ZERO-WIDTH line against obstacle
+        # polygons that only carry the FOREIGN copper's own half-width +
+        # OTHER_NET_CLEARANCE_MM -- correct for a point probe, wrong for a
+        # STITCH_TRACE_WIDTH_MM-wide segment (under-buffers by exactly this
+        # segment's own half-width, i.e. by 0.5mm at today's 1.0mm width,
+        # vs. 0.15mm at the old 0.3mm width the check was never wrong
+        # enough to catch). It ALSO never checked `other_copper_fcu_backbone`
+        # (every OTHER net's pre-existing board copper, real per-net-class-
+        # pair clearance) or `routed_fcu_backbone` (this run's own Stage
+        # 3/4-routed copper + the gnd plane, same clearance convention) --
+        # both already computed above for the primary corridor-aware A*
+        # pass but never wired into this legacy fallback, so a straight-
+        # line/one-bend-detour edge could be drawn directly through a
+        # signal net's freshly-routed track with zero awareness it was
+        # there. This is `_ground_plane.py`'s own `_blocked` fix
+        # (2026-08-16, "fix/route-to-100-percent") applied here for the
+        # first time -- that module's fallback got exactly this
+        # combination (buffered test footprint + foreign-copper checks)
+        # and this one, cloned from an earlier version, never did.
+        # Measured (see evidence doc): 108/130 of the +77 shorting_items
+        # regression from the 0.3->1.0mm stitch-width fix (PR #1329) is on
+        # +3V3 alone -- the rail with by far the most MST edges, hence the
+        # most fallback usage, hence the most exposure to exactly this gap.
         def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
-            line = LineString([p1, p2])
-            if keepout_established and line.intersects(keepout):
+            footprint = LineString([p1, p2]).buffer(STITCH_TRACE_WIDTH_MM / 2.0)
+            if keepout_established and footprint.intersects(keepout):
+                return True
+            if (
+                other_copper_fcu_backbone is not None
+                and not other_copper_fcu_backbone.is_empty
+                and footprint.intersects(other_copper_fcu_backbone)
+            ):
+                return True
+            if (
+                routed_fcu_backbone is not None
+                and not routed_fcu_backbone.is_empty
+                and footprint.intersects(routed_fcu_backbone)
+            ):
                 return True
             for g in run_new_fcu_copper:
-                if line.intersects(g):
+                if footprint.intersects(g):
                     return True
             return False
 

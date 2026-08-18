@@ -13,6 +13,7 @@ import tempfile
 from pathlib import Path
 
 from temper_placer.placer.cp_sat.gates import (
+    HV_LV_CREEPAGE_MM,
     BoardState,
     Gate,
     GateResult,
@@ -216,7 +217,12 @@ def test_creepage_violation_hv_to_lv(monkeypatch):
     assert len(result.violations) == 1
     v = result.violations[0]
     assert v.type is ViolationType.CREEPAGE
-    assert v.threshold == 6.0
+    # FIXED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-
+    # manifest-and-ieccreepagegate-liveness.md): was a stale, uncited
+    # hardcoded 6.0mm; now read from the same PD3 safety SSOT lookup
+    # scripts/generate_kicad_dru.py's HV_CREEPAGE_ENFORCED_MM uses (12.6mm
+    # as of this writing).
+    assert v.threshold == HV_LV_CREEPAGE_MM
     assert "DC_BUS+" in v.nets
 
 

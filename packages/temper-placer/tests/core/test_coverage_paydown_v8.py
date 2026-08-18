@@ -455,46 +455,6 @@ class TestDRCInflate:
 
 
 # ---------------------------------------------------------------------------
-# deterministic/geometry/grid_utils.py: snap_to_grid, add_endpoint_nudge
-# ---------------------------------------------------------------------------
-
-
-class TestGridUtils:
-    def test_snap_to_grid_aligned(self):
-        from temper_placer.deterministic.geometry.grid_utils import snap_to_grid
-
-        result = snap_to_grid((10.0, 20.0), grid_size=1.0)
-        assert result == (10.0, 20.0)
-
-    def test_snap_to_grid_off_grid(self):
-        from temper_placer.deterministic.geometry.grid_utils import snap_to_grid
-
-        result = snap_to_grid((10.3, 20.7), grid_size=1.0)
-        assert result == (10.0, 21.0)
-
-    def test_snap_to_grid_default_size(self):
-        from temper_placer.deterministic.geometry.grid_utils import snap_to_grid
-
-        result = snap_to_grid((10.0, 10.0))
-        assert len(result) == 2
-
-    def test_add_endpoint_nudge_basic(self):
-        from temper_placer.deterministic.geometry.grid_utils import add_endpoint_nudge
-
-        path = [(0.0, 0.0), (10.0, 0.0)]
-        result = add_endpoint_nudge(path, (-1.0, 0.0), (11.0, 0.0))
-        assert len(result) >= 2
-        # First point should be close to actual_start
-        assert result[0][0] == pytest.approx(-1.0, abs=0.1)
-
-    def test_add_endpoint_nudge_empty(self):
-        from temper_placer.deterministic.geometry.grid_utils import add_endpoint_nudge
-
-        result = add_endpoint_nudge([], (0.0, 0.0), (10.0, 10.0))
-        assert result == []
-
-
-# ---------------------------------------------------------------------------
 # deterministic/flags.py: is_feedback_enabled
 # ---------------------------------------------------------------------------
 

@@ -125,17 +125,52 @@ class TestGroupMembership:
         other = other_hv_refs(netlist, tank_refs)
         assert not (other & tank_refs), "tank refs leaked into the other-HV group"
         # Not vacuous: real HV components (the discharge relay net) present.
-        assert {"K2", "R12", "R19"} <= other
+        #
+        # R12 was asserted here from 2026-08-12 (ad8498f7d) until 2026-08-18 and
+        # was wrong from the day it was written -- this assertion has never
+        # passed. R12 is `discharge.r_gate` (pcb/temper.kicad_pcb Sheetpath;
+        # elec/src/modules.ato `ctrl ~ r_gate.p1` / `r_gate.p2 ~ q_dis_drv.G`):
+        # the gate resistor between the MCU GPIO and a gnd-referenced
+        # logic-level FET. Its only two nets are DISCHARGE_CTRL and
+        # discharge.q_dis_drv-g. DISCHARGE_CTRL is *affirmatively declared SELV*
+        # -- elec/domain_manifest.yaml lists it under `SELV: nets:` (:457) and
+        # in the SELV-only board_interface (:76) -- and neither net has ever
+        # appeared in TEMPER_NET_ASSIGNMENTS in the repo's history
+        # (`git log -S` on design_rules.py returns zero commits for both).
+        # R12 is therefore correctly absent from the HV group; excluding a SELV
+        # gate resistor from HV<->HV functional creepage is right, not a gap.
+        #
+        # R7 replaces it at equal strength: R7 is on discharge.k_dis1-nc, which
+        # IS HighVoltageSignal, so it is genuinely HV *and* actually on the
+        # discharge relay net this comment names -- which R12 (the discharge
+        # *control* net) never was. Verified against the committed board
+        # 2026-08-18: Group B = 45 refs, K2/R7/R19 all present.
+        expected_hv = {"K2", "R7", "R19"}
+        assert expected_hv <= other, (
+            f"expected HV refs missing from the other-HV group: "
+            f"{sorted(expected_hv - other)} -- re-derive against the board "
+            f"before editing this expectation"
+        )
 
     def test_pair_count_matches_measured_board(self):
         netlist = _real_netlist()
         pairs = tank_creepage_pairs(netlist)
         # Re-derived 2026-08-15: 4 tank refs x 45 other-HV refs = 180. The
         # pin moved from 4 * 42 when the 2026-08-13 HighVoltageSignal
-        # carve-out added K2/R7/R12/R19/R23/U8 to Group B (module docstring,
+        # carve-out grew Group B by three (module docstring,
         # "_HV_EQUIVALENT_CLASSES" comment) -- same pair population rule,
         # larger membership. 42 was stale since that day; the test's
         # count-pin failure on main predates this change.
+        #
+        # Corrected 2026-08-18: this comment previously named the added refs as
+        # "K2/R7/R12/R19/R23/U8". That list of six never reconciled with its own
+        # +3 arithmetic, and two of the six are not in Group B at all -- measured
+        # against the committed board, R12 (SELV, see the note in
+        # test_other_hv_refs_excludes_tank_refs) and U8 (`rtd_pan.adc`, the RTD
+        # ADC: RTD_*/gnd/vcc/sclk/sdi/sdo, entirely SELV) are both absent, while
+        # K2/R7/R19/R23 are present. The same wrong six-ref list appears in
+        # docs/evidence/2026-08-15-tank-bus-creepage-test-structural-fix.md:86.
+        # The 45 count itself is measured and correct; only the prose was wrong.
         assert len(pairs) == 4 * 45, (
             f"got {len(pairs)} pairs -- re-derive against the new board if "
             f"this is an intentional board change"

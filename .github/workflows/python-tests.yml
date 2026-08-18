@@ -94,8 +94,8 @@ on:
       - '.github/workflows/python-tests.yml'
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
-      - '.loc-allowlist.txt'
       - '.unwired-kernel-inventory'
+      - '.orphaned-python-module-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -201,8 +201,8 @@ on:
       - '.github/workflows/python-tests.yml'
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
-      - '.loc-allowlist.txt'
       - '.unwired-kernel-inventory'
+      - '.orphaned-python-module-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -1323,6 +1323,142 @@ jobs:
           cargo clippy --manifest-path packages/temper-geometry/Cargo.toml \
             --no-default-features --all-targets -- -D warnings
 
+      # ---- WASM32 EXECUTE guard, ALL TWELVE TIERS (added 2026-08-17, the
+      # incident this closes) --------------------------------------------
+      #
+      # THE GAP. The step immediately above only ever covered two of the wasm
+      # tier's twelve crates (temper-drc-rs, temper-geometry), and even for
+      # those two it only ever ran `cargo build` -- a link check, not an
+      # execution. `cargo build` does not compile `#[cfg(test)]` code at all,
+      # so it could not have caught the 2026-08-17 incident regardless of
+      # which crate it targeted: #1260's direct capacity-aware topology
+      # solver added a `#[test]` in
+      # packages/temper-rust-router-core/src/direct_topology.rs that calls
+      # `std::time::Instant::now()`, which panics at RUNTIME on
+      # wasm32-unknown-unknown ("time not implemented on this platform") --
+      # only visible once the compiled registry is actually EXECUTED. Ten of
+      # the twelve tiers (everything except drc-rs/geometry) got zero
+      # wasm32 attention of any kind on the PR path, and temper-rust-router-core
+      # was one of them. The break rode two failed
+      # `wasm-tier-deploy.yml` runs (31989435749 at 02:54, exit 101 in
+      # `scripts/stage_wasm_families.sh`; 31993444375 at 04:08, failing in
+      # "Census + smoke-run") before `wasm-tier-nightly.yml` (31997559157,
+      # 05:20) finally named it -- see
+      # docs/evidence/2026-08-17-deploy-failure-alerting-and-pr-wasm32-coverage.md.
+      #
+      # THE FIX. Build AND RUN every tier's wasm32 registry here, on every PR
+      # that triggers this job -- the exact same
+      # "cargo build --features <tier> --manifest-path
+      # packages/temper-wasm-test-runner/Cargo.toml" + "node
+      # tools/wasm/run_wasm_tests.mjs" pair wasm-tier-nightly.yml's
+      # "Build + run every tier's wasm32 registry" step and
+      # wasm-tier-deploy.yml's "Census + smoke-run" step already run, moved
+      # forward from post-merge (nightly, up to 24h later) and pre-deploy
+      # (operator-triggered, no fixed cadence) to pre-merge. TOPOLOGY-DRIVEN,
+      # not a hardcoded pair: the matrix comes from
+      # tools/wasm/wasm_tier_topology.json via tools/wasm/tier_topology.mjs,
+      # the same file every other consumer reads, so a tier added there gets
+      # this guard for free -- the exact "hardcoded to two crates while ten
+      # others got none" defect this step exists to retire cannot recur one
+      # tier at a time.
+      #
+      # WHY THIS RUNS EVEN THOUGH temper-rust-router-core IS CURRENTLY BROKEN.
+      # As of this commit, main's `direct_topology.rs` still panics on
+      # wasm32 (PR #1296, `fix/wasm-tier-router-core-instant-panic`, fixes it
+      # and is in flight but not yet merged -- this change does not touch
+      # that crate or that PR). That means THIS STEP IS EXPECTED TO FAIL on
+      # every PR until #1296 lands, for the honest reason that the substrate
+      # really is broken. Softening this step (skipping router-core,
+      # continue-on-error, or otherwise) to keep it green would be exactly
+      # the "make a check pass by weakening it" move this repo's own
+      # operating rules forbid, and it would silently recreate the very gap
+      # this step exists to close for the one crate that just proved the gap
+      # real. `Rust Checks` is already red on main independently of this
+      # change (a pre-existing `very complex type` clippy error in
+      # temper-rust-router, unrelated to this incident), so this addition
+      # does not newly block anything that was not already blocked; it will
+      # go green on its own the moment #1296 merges, with no further edit
+      # needed here.
+      - uses: actions/setup-node@v7
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        with:
+          node-version: '22'
+
+      - name: WASM32 build + EXECUTE every wasm-tier registry (topology-driven, all 12 tiers)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          # POSIX sh (dash), same constraint as the step above -- no
+          # `set -o pipefail`, no `$'\t'`, no `[[ ]]`.
+          set -eu
+          node -e '
+            import("./tools/wasm/tier_topology.mjs").then(({ loadTopology, tierFlagSuffix }) => {
+              for (const t of loadTopology().tiers) {
+                console.log([t.crate, tierFlagSuffix(t.crate), t.cargo_features, t.staged_module, t.expected_failures].join("\t"));
+              }
+            }).catch((e) => { console.error(e.message); process.exit(1); });
+          ' > /tmp/pr_wasm_arms.tsv
+          # An empty matrix would make the loop below a no-op that reports a
+          # green guard having built and run nothing.
+          test -s /tmp/pr_wasm_arms.tsv
+          echo "wasm32 arms (all tiers, from tools/wasm/wasm_tier_topology.json):"
+          cat /tmp/pr_wasm_arms.tsv
+          # This job's container (.github/docker/ci.Dockerfile) sets
+          # CARGO_TARGET_DIR=/_temper-target unconditionally, which OVERRIDES
+          # .cargo/config.toml's relative `target-shared` -- the path every
+          # OTHER wasm-tier workflow (wasm-tier-deploy.yml, wasm-tier-
+          # nightly.yml) hardcodes, because none of them run inside this
+          # container. Hardcoding `target-shared` here would `cp` a
+          # nonexistent path on every iteration and this whole guard would
+          # fail on its first tier, for a reason unrelated to wasm32 at all --
+          # exactly the "looks right, silently never runs" failure mode this
+          # repo's own operating rules warn about. Resolved at run time so it
+          # is correct in this container AND if this step is ever copied to a
+          # bare-runner workflow where CARGO_TARGET_DIR is unset.
+          TARGET_DIR="${CARGO_TARGET_DIR:-target-shared}"
+          echo "cargo target dir: ${TARGET_DIR}"
+          failed=""
+          ran=0
+          while IFS=$(printf '\t') read -r crate suffix features staged manifest; do
+            echo "=== wasm32 build+run: ${crate} (--features ${features}) ==="
+            # Same failure-isolation shape as the two nightly/deploy loops
+            # this step mirrors: every tier writes the SAME output filename,
+            # so a failed build must not fall through to the copy (it would
+            # stage the PREVIOUS tier's module under this tier's name and run
+            # it against this tier's manifest -- a page of orphan exclusions
+            # whose stated cause is the wrong crate). `< /dev/null` on every
+            # child so nothing in the loop can consume the rest of
+            # /tmp/pr_wasm_arms.tsv and end the loop early after one tier.
+            if cargo build --release --target wasm32-unknown-unknown --no-default-features \
+                 --features "${features}" \
+                 --manifest-path packages/temper-wasm-test-runner/Cargo.toml < /dev/null; then
+              cp "${TARGET_DIR}/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm" \
+                 "/tmp/${staged}"
+              # run_wasm_tests.mjs EXECUTES every test under Node and exits
+              # non-zero on an unexpected failure, an unexpected PASS, an
+              # orphan exclusion, or a vacuous registry -- not a census, a
+              # real run. This is the step that would have caught the
+              # 2026-08-17 Instant::now() panic before merge: `cargo build`
+              # alone cannot, because it never compiles `#[cfg(test)]` code.
+              node tools/wasm/run_wasm_tests.mjs "/tmp/${staged}" \
+                --expected-failures "${manifest}" \
+                --json "/tmp/pr_wasm_local_${suffix}.json" < /dev/null \
+                || failed="${failed} ${crate}(run)"
+            else
+              failed="${failed} ${crate}(build)"
+            fi
+            ran=$((ran + 1))
+          done < /tmp/pr_wasm_arms.tsv
+          expected="$(wc -l < /tmp/pr_wasm_arms.tsv)"
+          if [ "${ran}" != "${expected}" ]; then
+            echo "::error::Built/ran ${ran} of ${expected} wasm32 tiers — the loop ended early, so some tier got neither a build nor an execute verdict here."
+            exit 1
+          fi
+          if [ -n "${failed}" ]; then
+            echo "::error::wasm32 build or execution failed for:${failed}. run_wasm_tests.mjs exits non-zero on an unexpected failure, an unexpected PASS, an orphan exclusion, or a vacuous registry -- see its output above for which. A failure here is the wasm32 substrate genuinely broken for this commit, the same class of break that reached wasm-tier-deploy.yml silently on 2026-08-17 (docs/evidence/2026-08-17-deploy-failure-alerting-and-pr-wasm32-coverage.md)."
+            exit 1
+          fi
+          echo "all ${ran} wasm32 tiers build AND execute cleanly"
+
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
   # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
   # they share the `make netlist` setup and belong together.
@@ -1908,6 +2044,48 @@ jobs:
         # fail loudly. See the block above for the exact family and the
         # human decision that would un-red it.
         run: uv run python scripts/check_creepage_clearance_drift.py
+
+      # 2026-08-17 fact-deduplication audit (docs/evidence/2026-08-17-fact-
+      # dedup-inventory-and-gate.md): scalar facts other than creepage/
+      # clearance (the gate directly above) also drift across homes --
+      # concretely, this board's mains voltage and pollution degree
+      # (SafetySpec). Full investigation in
+      # scripts/check_fact_registry_drift.py's module docstring.
+      #
+      # RED BY DESIGN, same convention and same job as the gate directly
+      # above: mains_voltage_v/pollution_degree are unambiguously 120.0/3
+      # (REQ-SYS-01, the 2026-08-15 PD2->PD3 decision -- NOT a judgment
+      # call), but two of the homes are pinned-oracle-entangled
+      # (tests/core/_design_rules_py_oracle.py,
+      # tests/core/_specification_py_oracle.py) and a third
+      # (test_specification.py::test_safety_spec_defaults) is a live
+      # instance of handoff Sec 11 (a passing CI test asserting the wrong
+      # value). Fixing requires one coordinated PR with a deliberate oracle
+      # re-pin, which this gate must not perform by fiat. Deliberately kept
+      # in this job (board-provenance-requirements-gates), not in the
+      # required Cross-Source Consistency Gates job -- same reasoning as
+      # the sibling gate above: this job is NOT in required_contexts, so
+      # the red does not wedge every PR in the repo over an already-decided
+      # value blocked only by ceremony, but it still runs on every push/PR
+      # touching relevant paths and is NOT continue-on-error'd, so it fails
+      # loudly and stays visible. See TestRealRegistryKnownState in
+      # scripts/tests/test_check_fact_registry_drift.py for the pinned-red
+      # regression proof, and this gate's own module docstring for the
+      # exact coordinated fix that would un-red it.
+      # 2026-08-17 (session 2): extended with 5 more fact families (via-
+      # geometry defaults, per-netclass via diameter/drill, gate-drive net
+      # names, gate-drive net-current citations, HV<->LV separation gate
+      # threshold). See docs/evidence/2026-08-17-fact-registry-drift-gate-
+      # extension.md. Exit state changed VIOLATION(3) -> TOOL ERROR(5): two
+      # new facts (gate_hs/ls_net_current_rating_a) are missing citations,
+      # not wrong values -- still RED BY DESIGN, same convention as above.
+      - name: Fact registry drift gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_fact_registry_drift.py -v --tb=short
+
+      - name: Fact registry drift gate (mains_voltage_v / pollution_degree / via-geometry / gate-drive net names / HV-LV separation threshold)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_fact_registry_drift.py
 
       # ---- MUTATING: writes pcb/*.kicad_sch, must stay last ----
       # Removed 2026-08-07: dead weight. The stated reason ("make netlist
@@ -2825,6 +3003,20 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_unwired_kernels.py
 
+      # 2026-08-17: the mirror-image gap to the gate just above. That one
+      # catches a Rust kernel with no Python caller; this one catches a whole
+      # Python MODULE with no caller at all -- a shim whose last production
+      # importer was deleted, a stage that lost its wiring, a spike that was
+      # never adopted. docs/evidence/2026-08-17-python-deprecation-spike.md
+      # (PR #1302) found this shape by hand across several package trees in
+      # one pass (metrics/physics.py orphaned since 2026-07-10 when its sole
+      # caller was deleted; a 1,984 LOC router_v6/constraints_* cluster; more)
+      # with no gate watching for it. Parses only .py/.rs source text -- no
+      # built extensions needed -- so it runs unconditionally here too.
+      - name: No orphaned Python modules (dead-module gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_orphaned_python_modules.py
+
       # 2026-08-13: `temper-geometry` had two independent `#[pyfunction] pub
       # fn kw_boundary_match_py` definitions (via_clearance.rs and
       # trace_width_assignment.rs) both wrap_pyfunction!'d into the same
@@ -2891,19 +3083,18 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_script_sunset.py
 
-      # Still genuinely failing, verified 2026-08-07: `uv run pytest
-      # scripts/test_root_hygiene.py` -> 1 failed. Root-level `conftest.py`
-      # (added by #726, a56390f6) trips the `*.py` category, whose
-      # allowlist is empty by design (scripts/test_root_hygiene.py's
-      # _PER_GLOB_ALLOWLIST) -- but conftest.py at the repo root is the
-      # standard pytest convention, not a stray script, so this is a real
-      # false positive rather than actual root clutter. Tolerated until the
-      # allowlist is fixed to permit conftest.py explicitly (a one-line
-      # change to _PER_GLOB_ALLOWLIST["*.py"]); removable once that lands.
+      # Fixed 2026-08-17 (was tolerated via continue-on-error since
+      # 2026-08-07): root-level `conftest.py` (added by #726, a56390f6)
+      # tripped the `*.py` category's empty-by-design allowlist even though
+      # it is the standard pytest convention, not a stray script --
+      # pytest auto-discovers conftest.py by directory position, so it
+      # cannot be moved to scripts/ (the category's usual remedy) without
+      # silently changing which tests see its fixtures.
+      # scripts/test_root_hygiene.py's _PER_GLOB_ALLOWLIST["*.py"] now
+      # allows it explicitly, so this step hard-gates again.
       - name: Root artifact hygiene check
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
-        continue-on-error: true
 
       - name: Import boundary enforcement
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -3982,7 +4173,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
+          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_nlayer.py tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_pair_clearance.py tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
 
@@ -4399,9 +4590,11 @@ jobs:
         id: setup
         run: echo "environment ready"
 
-      - name: LOC cap gate
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run python tools/loc_cap_check.py
+      # The "LOC cap gate" step ran here until 2026-08-18. Retired by owner
+      # decision, not erosion -- see docs/adr/2026-08-18-retire-loc-cap-gate.md.
+      # Its value was as a prioritizer for the Python->Rust migration, and that
+      # role is now served by a measured port list. `fast-gates` therefore
+      # merges three gate steps, not four.
 
       # Unit tests for the generator itself -- includes an anti-vacuity check
       # that mutates DIRECTORY_PURPOSE for one real, currently-described

@@ -255,42 +255,42 @@ class ClearanceResult:
 # determination. Raising this row makes placement constraints stricter --
 # pairs at 1.0-1.8mm creepage that previously passed now correctly fail.
 #
-# The matrix data lives here (Python) and is mirrored in
-# ``temper-drc-rs/src/req_safe_01.rs``'s ``MATRIX_ROWS`` (pinned together by
-# ``test_requirement_matrix_values_pinned``); the tuple-keyed rows below are
-# consumed directly by the CP-SAT encoder.
-IEC60335_REQUIREMENTS = {
-    (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
-        "min_clearance_mm": 3.0,
-        "min_creepage_mm": 6.3,
-        "design_value_mm": 8.3,
-    },
-    (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.REINFORCED): {
-        "min_clearance_mm": 6.0,
-        "min_creepage_mm": 12.6,
-        "design_value_mm": 14.6,
-    },
-    (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
-        "min_clearance_mm": 3.0,
-        "min_creepage_mm": 6.3,
-        "design_value_mm": 8.3,
-    },
-    (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.REINFORCED): {
-        "min_clearance_mm": 6.0,
-        "min_creepage_mm": 12.6,
-        "design_value_mm": 14.6,
-    },
-    (VoltageDomain.MAINS, VoltageDomain.ISOLATED, InsulationType.REINFORCED): {
-        "min_clearance_mm": 6.0,
-        "min_creepage_mm": 12.6,
-        "design_value_mm": 14.6,
-    },
-    (VoltageDomain.LV_CONTROL, VoltageDomain.LV_CONTROL, InsulationType.FUNCTIONAL): {
-        "min_clearance_mm": 0.5,
-        "min_creepage_mm": 1.8,
-        "design_value_mm": 2.0,
-    },
-}
+# SINGLE-SOURCED 2026-08-17 (placer constraint/clearance Rust-port stage 1;
+# see docs/evidence/2026-08-17-domain-clearance-netclass-rust-port-stages-1-2.md,
+# spec docs/evidence/2026-08-17-placer-constraint-rust-port-spike.md).
+#
+# Before this change the 6 rows below were a hand-written Python literal,
+# hand-duplicated against ``temper-drc-rs/src/req_safe_01.rs``'s own
+# ``MATRIX_ROWS`` const -- nominally kept in sync by
+# ``test_requirement_matrix_values_pinned``, a test named in comments in
+# BOTH files that does not actually exist anywhere in the tree (grepped at
+# port time: zero hits). The ONE array of literal numbers now lives in
+# ``packages/temper-design-bundle/src/safety_value.rs``'s
+# ``requirement_matrix()`` (SafetyValue-typed, full per-cell provenance);
+# this dict is built from it at import time via
+# ``req_safe_01_requirement_matrix()`` (the pyo3 accessor,
+# ``req_safe_01.rs``'s ``matrix_rows()`` flattens the same source for its
+# own Rust-side consumers). The dict's shape/keys/insertion-order are
+# unchanged -- every one of this module's own consumers, plus
+# ``domain_clearance.py``'s ``_matrix_rows()`` and
+# ``router_v6/_clearance_family_py_oracle.py``'s live import, keep working
+# without their own edits. Values are byte-identical to the pre-port
+# literal (hard rule: never change a clearance/creepage value; this
+# consolidation moves zero figures -- see the Rust function's doc comment
+# for exactly which cells trace to recovered Table 17/18 rows vs. which
+# stay flagged UNSOURCED).
+def _build_iec60335_requirements() -> dict[
+    tuple[VoltageDomain, VoltageDomain, InsulationType], dict[str, float]
+]:
+    return {
+        (VoltageDomain(domain_a), VoltageDomain(domain_b), InsulationType(insulation)): dict(
+            requirements
+        )
+        for (domain_a, domain_b, insulation), requirements in _rust.req_safe_01_requirement_matrix().items()
+    }
+
+
+IEC60335_REQUIREMENTS = _build_iec60335_requirements()
 
 
 def _domain_str(domain: VoltageDomain | str) -> str:

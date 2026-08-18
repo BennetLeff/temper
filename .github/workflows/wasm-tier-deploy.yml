@@ -635,3 +635,82 @@ jobs:
             /tmp/freshness_postdeploy.json
           retention-days: 30
           if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # Fail loudly on a failed deploy (2026-08-17 incident, task candidate 1).
+  #
+  # THE GAP THIS CLOSES. "A failed deploy leaves the previous bytes live and
+  # nothing fails loudly" — 2026-08-17's deploy runs 31989435749 (02:54,
+  # `scripts/stage_wasm_families.sh` exit 101) and 31993444375 (04:08, "Census
+  # + smoke-run") both went red in the Actions tab and NOTHING ELSE happened:
+  # no alert, no issue, no signal reaching anyone who was not actively watching
+  # the Actions tab. The tier served stale bytes for ~2.5 hours until
+  # wasm-tier-nightly.yml's independent R5.1 check caught it at 05:20
+  # (31997559157) — see docs/evidence/2026-08-17-deploy-failure-alerting-and-
+  # pr-wasm32-coverage.md.
+  #
+  # A red run in the Actions tab was demonstrably not enough — trunk-health.yml
+  # was built on exactly this same lesson for a different gate ("main went red
+  # twice in one hour... neither was noticed for hours") and this job mirrors
+  # its issue-filing pattern: one deduplicated tracking issue per open
+  # incident, a comment appended (not a duplicate filed) on repeat failures,
+  # closed by a human once the tier is healthy again.
+  #
+  # Deliberately a SEPARATE job rather than a step inside `deploy`: `deploy`'s
+  # body is long, heavily narrated, and already proven correct; adding
+  # `issues: write` and a `gh issue` call to a new downstream job is a small,
+  # independently reviewable diff that cannot perturb `deploy`'s own step
+  # ordering, `if:` conditions or concurrency group. `needs: [gate, deploy]`
+  # with `if: needs.deploy.result == 'failure'` fires exactly when `deploy` ran
+  # and failed — NOT when `gate` skipped it (`should_deploy=false`, a
+  # superseded push, not a failure) and NOT when `deploy` is skipped for the
+  # same reason (a skipped job's result is `skipped`, not `failure`).
+  report-deploy-failure:
+    name: Report deploy failure (fail loudly)
+    needs: [gate, deploy]
+    if: ${{ needs.deploy.result == 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: File or refresh a tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BODY="$(printf '%s\n' \
+            "wasm-tier-deploy.yml's \`deploy\` job failed." \
+            "" \
+            "- run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            "- commit: \`${GITHUB_SHA}\`" \
+            "- trigger: \`${GITHUB_EVENT_NAME}\`" \
+            "" \
+            "**The deployed WASM tier may now be stale relative to this commit.** A failed" \
+            "deploy leaves the previously-deployed bytes live — this job does not roll" \
+            "anything back or mark the tier stale on Cloudflare's side, it only reports." \
+            "" \
+            "- wasm-tier-staleness-watch.yml re-checks the deployed corpus against the" \
+            "  last verified build every 30 minutes and will file its own" \
+            "  \`wasm-tier-stale\` issue if the deployed Workers are actually out of date." \
+            "- wasm-tier-nightly.yml's R5.1 check re-verifies nightly regardless." \
+            "- To redeploy once the underlying failure is fixed:" \
+            "  \`gh workflow run wasm-tier-deploy.yml\`." \
+            "" \
+            "See the run's log (linked above) for which step failed and why." \
+            "" \
+            "Close this issue once a deploy succeeds again; this job will file a new one" \
+            "if a deploy fails again.")"
+          EXISTING=$(gh issue list --label wasm-tier-deploy-failure --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "${EXISTING}" ]; then
+            echo "wasm-tier-deploy-failure issue #${EXISTING} is already open; adding a comment instead of filing a duplicate."
+            gh issue comment "${EXISTING}" --body "${BODY}"
+            exit 0
+          fi
+          gh label create wasm-tier-deploy-failure --color B60205 \
+            --description "wasm-tier-deploy.yml's deploy job failed; the tier may be serving stale bytes" 2>/dev/null || true
+          gh issue create --label wasm-tier-deploy-failure \
+            --title "WASM tier deploy failed: tier may be serving stale bytes" \
+            --body "${BODY}"

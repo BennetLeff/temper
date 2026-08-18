@@ -138,34 +138,6 @@ CONSOLIDATED_FAMILIES: tuple[ConsolidatedFamily, ...] = (
         consolidated_on="2026-08-13",
     ),
     ConsolidatedFamily(
-        name="hv_keyword_boundary_match",
-        # The word-boundary regex shape (?:^|_)kw(?:$|[\d_]) for HV/net-class
-        # keyword classification (PR #1162/#1174's family) has THREE live,
-        # already-delegating production homes -- clearance_engine.py's
-        # `_kw_boundary_match` (the first Python wrapper onto this kernel),
-        # creepage_check.py's `_is_high_voltage_net` (delegates to a
-        # DIFFERENT Rust pyfunction, `is_high_voltage_net_py`, that
-        # implements the same word-boundary contract with its own keyword
-        # set), and clearance_check.py's `_is_hv_keyword_match` (the 4th
-        # copy, independently hand-typed until this PR). Only the last one
-        # is registered here as a scan target: it is the one that was an
-        # independent reimplementation until now, so it is the one that can
-        # regress. The other two use different local function names and
-        # were already delegating before this PR -- not re-registered under
-        # this family to avoid a single scan trying to enforce two different
-        # delegate-call-names; a future family could split this out if a
-        # generic multi-target scan is worth building.
-        ssot="temper_geometry:kw_boundary_match_py",
-        ssot_file="packages/temper-geometry/src/via_clearance.rs",
-        def_names=("_is_hv_keyword_match",),
-        delegate_call_name="kw_boundary_match_py",
-        scan_paths=(
-            "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
-        ),
-        evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
-        consolidated_on="2026-08-13",
-    ),
-    ConsolidatedFamily(
         name="thermal_fdm_point_to_segment_distance",
         # There is no delegating shim to require here — the dead copy was
         # deleted outright (no live call site existed to redirect; see the
@@ -366,6 +338,66 @@ OPEN_FINDINGS: tuple[OpenFinding, ...] = (
             "should be the first follow-up, not deprioritized."
         ),
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
+    ),
+    OpenFinding(
+        name="hv_keyword_boundary_match (deliberately re-diverged, registry was stale)",
+        sites=(
+            "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py:857 "
+            "(_is_hv_keyword_match -- boundary is (?:^|[_-])kw(?:$|[\\d_-]), BOTH "
+            "'_' and '-' are boundary characters)",
+            "packages/temper-geometry/src/via_clearance.rs:208 (kw_boundary_match_py, "
+            "via word_bounded at :168 -- boundary is (?:^|_)kw(?:$|[\\d_]), '_' ONLY, "
+            "'-' is never a boundary character)",
+            "packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py:144 "
+            "(_kw_boundary_match -- thin delegate to kw_boundary_match_py above, so it "
+            "inherits the '_'-only boundary)",
+        ),
+        diverged=True,
+        why_not_fixed=(
+            "2026-08-17 (agent/priority1-gate-inductance, PR #1304 follow-up): "
+            "check_duplicate_predicates.py had a live violation "
+            "(hv_keyword_boundary_match) asserting clearance_check.py's "
+            "_is_hv_keyword_match must delegate to kw_boundary_match_py. Investigated: "
+            "the registry entry was consolidated 2026-08-13, but a SAME-DAY fix "
+            "(the 'Family C' hyphen-boundary defect -- clearance_check.py:7's own "
+            "bug-history docstring) deliberately RE-diverged it, and the registry was "
+            "never reconciled afterward. Both sides are independently correct, "
+            "deliberate, and already documented in their own module docstrings, not a "
+            "fresh editorial call: (1) _is_hv_keyword_match MUST use the wider "
+            "'_'/'-' boundary -- 85 of 162 real net names on the production board mix "
+            "'-' and '_' as word separators (atopile's compiled net names), and every "
+            "one was invisible to the '_'-only boundary whenever the matching keyword "
+            "sat on the hyphen side (a real under-classification defect, the dangerous "
+            "direction for HV/LV creepage rule selection -- fixed by widening, with the "
+            "resulting 14-net SELV over-match caught and mitigated by "
+            "_SELV_LINE_NET_OVERRIDES, checked first). (2) kw_boundary_match_py MUST "
+            "stay '_'-only -- clearance_engine.py:50's own 'Bug history (2026-08-13), "
+            "URGENT -- audited, deliberately NOT widened' docstring records that this "
+            "kernel's only callers (_kw_boundary_match, _net_class_to_voltage_class) "
+            "receive already-classified short net-CLASS labels ('HV', 'Signal', ...) "
+            "produced by clearance_check._classify_net_class, never raw hyphenated net "
+            "NAMES directly -- board-wide simulation of all 162 real net names "
+            "confirmed zero live exposure through this narrower path, and widening it "
+            "would break test_via_clearance_tier2_rust_differential.py's byte-verbatim "
+            "oracle pin (_ORACLE_PIN_SHA = 'f1ffc013') with no documented safe update "
+            "path. RESOLVED (registry only, no logic touched): removed the "
+            "hv_keyword_boundary_match ConsolidatedFamily -- clearance_check.py's copy "
+            "is a deliberate, permanent, DIFFERENT-contract implementation, not an "
+            "accidental reimplementation of the same predicate that regressed away "
+            "from delegating, so 'must call kw_boundary_match_py' was never the right "
+            "check for it. Recorded here instead so the divergence stays visible. If a "
+            "single shared implementation is ever wanted, that is a genuine new safety "
+            "call for a human owner: widening kw_boundary_match_py needs the oracle-pin "
+            "update this fix did not have a safe path for, and narrowing "
+            "_is_hv_keyword_match back down would reintroduce the confirmed Family C "
+            "under-classification on real board net names -- neither side should move "
+            "without that decision being made explicitly, not as a side effect of a "
+            "registry-consolidation gate."
+        ),
+        evidence=(
+            "docs/evidence/2026-08-13-hyphen-boundary-clearance-creepage-defect.md; "
+            "docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md"
+        ),
     ),
     OpenFinding(
         name="load_allowlist (CI gate config loaders)",

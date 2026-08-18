@@ -56,14 +56,21 @@ _NET_ALPHABET = [
     "PWM_H_2",  # gate-SELV tier
     "COIL_2",  # high-current tier (underscore boundary, pre-existing)
     "TEST-COIL1",  # high-current tier via the 2026-08-13 hyphen-boundary fix
-    "hb-gnd",  # the 2026-08-13 hyphen-boundary fix -> GND (real, still
-    # unassigned net -- see PR #1145 / docs/evidence/
-    # 2026-08-13-hyphen-boundary-netclass-defect.md; NOT
-    # "discharge.k_dis1-coil1" any more, which now carries an explicit
-    # TEMPER_NET_ASSIGNMENTS entry (Tier 2) added by this same fix and so
-    # would legitimately disagree with `_predict_class`'s pattern-tiers-only
-    # prediction -- see `test_p3_fails_for_plain_substring` below for
-    # where that net's role moved to)
+    "TEST-GND",  # ground-pattern tier via the 2026-08-13 hyphen-boundary fix.
+    # CHANGED 2026-08-17 (docs/evidence/2026-08-17-hb-gnd-design-rules-
+    # classification-blast-radius.md): this alphabet used to carry the real
+    # net "hb-gnd" here (the 2026-08-13 hyphen-boundary fix -> GND). That
+    # net now carries an explicit TEMPER_NET_ASSIGNMENTS entry
+    # ("HighVoltage" -- elec/domain_manifest.yaml/PR #1145 and
+    # router_v6.clearance_check._classify_net_class/PR #1300 both already
+    # agreed hb-gnd is genuinely HV, ~-170V, one CT-primary-winding from
+    # DC_BUS_RTN; TEMPER_NET_ASSIGNMENTS was the one home still missing it),
+    # so it now legitimately disagrees with `_predict_class`'s
+    # pattern-tiers-only prediction -- the exact same shape that moved
+    # "discharge.k_dis1-coil1" out of this alphabet on 2026-08-13 (see
+    # `test_p3_fails_for_plain_substring` below). "TEST-GND" is a synthetic,
+    # never-assigned name that isolates the identical hyphen-boundary
+    # ground-pattern property without being perturbed by the new override.
     "NET_X9",  # Default catch-all
 ]
 

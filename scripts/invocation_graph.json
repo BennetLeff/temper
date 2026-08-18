@@ -463,5 +463,8 @@
   ],
   "write_extension_stamps.py": [
     ".github/workflows/python-tests.yml"
+  ],
+  "check_fact_registry_drift.py": [
+    ".github/workflows/python-tests.yml"
   ]
 }

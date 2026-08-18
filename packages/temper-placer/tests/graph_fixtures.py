@@ -121,23 +121,50 @@ class EdgeView:
         self._G = G
 
     def __call__(self, nbunch=None, data=False, *, default=None, keys=False):
-        return self._edge_iter(data, default, keys)
+        return self._edge_iter(data, default, keys, nbunch)
 
     def data(self, data=True, default=None, nbunch=None, keys=False):
-        return self._edge_iter(data, default, keys)
+        return self._edge_iter(data, default, keys, nbunch)
 
     def __iter__(self):
-        return self._edge_iter(False, None, self._G._multigraph)
+        return self._edge_iter(False, None, self._G._multigraph, None)
 
     def __len__(self):
         return self._G.number_of_edges()
 
-    def _edge_iter(self, data, default, keys):
+    def _nbunch_nodes(self, nbunch):
+        """Normalize ``nbunch`` to a node-id set, or ``None`` meaning "no
+        restriction" -- mirrors nx's ``Graph.nbunch_iter`` for the shapes
+        this test suite passes: a bare node id (restricts to edges FROM that
+        node) or an iterable of node ids. A single node not present in the
+        graph, or an iterable containing none that are, yields no edges --
+        nx never raises for that, it is simply empty. This is the piece a
+        raw ``adj.items()`` walk (the pre-fix state) silently dropped: a
+        caller passing ``nbunch`` got every edge in the graph back, not just
+        the ones incident to the nodes it asked for.
+        """
+        if nbunch is None:
+            return None
+        nodes = self._G._node
+        try:
+            if nbunch in nodes:
+                return {nbunch}
+        except TypeError:
+            pass  # unhashable (e.g. a list) -- fall through to iteration
+        try:
+            return {n for n in nbunch if n in nodes}
+        except TypeError:
+            return set()
+
+    def _edge_iter(self, data, default, keys, nbunch=None):
         G = self._G
         adj = G._adj
+        restrict = self._nbunch_nodes(nbunch)
         if G._multigraph:
             if keys:
                 for u, vdict in adj.items():
+                    if restrict is not None and u not in restrict:
+                        continue
                     for v, keydict in vdict.items():
                         for k, attrs in keydict.items():
                             if data is False:
@@ -148,6 +175,8 @@ class EdgeView:
                                 yield (u, v, k, attrs.get(data, default))
             else:
                 for u, vdict in adj.items():
+                    if restrict is not None and u not in restrict:
+                        continue
                     for v, keydict in vdict.items():
                         for k, attrs in keydict.items():
                             if data is False:
@@ -158,6 +187,8 @@ class EdgeView:
                                 yield (u, v, attrs.get(data, default))
         elif G._directed:
             for n, nbrs in adj.items():
+                if restrict is not None and n not in restrict:
+                    continue
                 for nbr in nbrs:
                     if data is False:
                         yield (n, nbr)
@@ -168,6 +199,14 @@ class EdgeView:
         else:
             seen = {}
             for n, nbrs in adj.items():
+                # A node excluded by `restrict` is never marked `seen`: it
+                # is never visited as an outer node in real nx's restricted
+                # iteration either, and marking it here would wrongly
+                # suppress a later included node's edge back to it (e.g.
+                # `edges(nbunch=only_the_second_endpoint)` would emit
+                # nothing for that edge instead of one entry).
+                if restrict is not None and n not in restrict:
+                    continue
                 for nbr in nbrs:
                     if nbr not in seen:
                         if data is False:
@@ -248,6 +287,47 @@ class Graph:
 
     def has_edge(self, u, v) -> bool:
         return u in self._adj and v in self._adj[u]
+
+    def size(self, weight=None):
+        """Real nx ``Graph.size``: edge count, or the summed ``weight``
+        attribute across edges when given (each edge counted once).
+        """
+        if weight is None:
+            return self.number_of_edges()
+        return sum(attrs.get(weight, 1) for _u, _v, attrs in self.edges(data=True))
+
+    def edges_with_data(self) -> list[tuple]:
+        """``SkeletonGraph``-parity convenience: the Rust pyclass's
+        ``edges_with_data()`` method, called by ``bundle_analyzer.py``'s
+        ``_compute_median_edge_length`` (``skeleton.graph.edges_with_data()``,
+        annotated ``# type: ignore[attr-defined]`` there since it is not on
+        real nx's ``Graph``). Same shape as ``list(self.edges(data=True))``.
+        """
+        return list(self.edges(data=True))
+
+    def connected_components(self) -> list[set]:
+        """List (not generator) form of the module-level
+        :func:`connected_components`, matching the Rust ``SkeletonGraph``
+        pyclass this fixture also stands in for -- see this module's
+        docstring ("an input-builder ... stand-in for the Rust
+        SkeletonGraph/PathGraph pyclasses"). ``channel_skeleton.py``'s
+        ``_ensure_skeleton_connectivity`` (the production caller this
+        fixture is built to feed) calls ``G.connected_components()`` as a
+        METHOD and immediately does ``len(components)`` /
+        ``enumerate(components)`` on the result, which real networkx's
+        free-function generator does not support directly. Real networkx
+        itself has no such method on ``Graph`` -- this exists only for
+        parity with the production Rust type, not as nx-compatibility.
+        """
+        return list(connected_components(self))
+
+    def is_connected(self) -> bool:
+        """Method form of the module-level :func:`is_connected`, for the
+        same ``SkeletonGraph``-parity reason as :meth:`connected_components`
+        above -- ``channel_skeleton.py``'s ``ChannelSkeleton.is_connected``
+        property calls ``self.graph.is_connected()``.
+        """
+        return is_connected(self)
 
     def add_node(self, n, **attr):
         if n not in self._node:

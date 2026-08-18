@@ -1,0 +1,253 @@
+name: WASM Tier Staleness Watch (standalone R5.1, no cargo)
+
+# Closes the 2026-08-17 incident's actual gap: docs/evidence/2026-08-17-deploy-
+# failure-alerting-and-pr-wasm32-coverage.md.
+#
+# THE GAP THIS CLOSES. wasm-tier-deploy.yml already runs the R5.1
+# deployed-vs-built freshness check (tools/wasm/check_deployed_freshness.mjs)
+# immediately after every SUCCESSFUL deploy, and wasm-tier-nightly.yml runs the
+# same check once a night regardless of deploy outcome. Neither covers the
+# actual 2026-08-17 window: deploy run 31989435749 (02:54) failed in
+# `scripts/stage_wasm_families.sh` before reaching the deploy step at all
+# (wasm32 build failure, exit 101); the scheduled retry, 31993444375 (04:08),
+# failed in "Census + smoke-run" -- also before deploying. Neither run ever
+# reached its own R5.1 check, because that check only runs after a deploy that
+# got far enough to attempt uploading. The deployed tier sat on whatever it was
+# already serving -- unrelated to this incident, but STALE relative to main --
+# for ~2.5 hours, caught only by wasm-tier-nightly.yml's 04:40 run (31997559157)
+# an independent, unrelated invocation of the SAME check that this workflow's
+# deploy-triggered sibling could not run because the deploy it would have
+# followed never got that far.
+#
+# THE FIX: run the SAME check (tools/wasm/check_deployed_freshness.mjs) on ITS
+# OWN schedule, decoupled from whether a deploy was ever attempted. This is
+# candidate 2 from the assigning task, taken literally: "a cheap standalone
+# check". It is the R5.1 comparison and only that: no `cargo`, no wasm32 build,
+# no HTTP fan-out over every test (that is sweep_multi_worker.mjs's job, and
+# it is NOT run here — see "what this deliberately does not do" below). It
+# costs one GitHub API call, one artifact download, and 19 `/health` GETs
+# (tools/wasm/wasm_tier_topology.json's Cloudflare script count) — the same
+# order of cost wasm-tier-pr.yml's own freshness step already measured at
+# "~20s of wall time and ZERO cargo" (that file's header).
+#
+# WHERE THE "EXPECTED" COUNT COMES FROM, since this workflow does no build of
+# its own: the same place wasm-tier-pr.yml's freshness check already gets it
+# from — the most recent SUCCESSFUL wasm-tier-nightly.yml run's own
+# local-sweep-r19 artifact (built from THAT run's commit). This is not a
+# weaker check than the nightly's; it is a DIFFERENT one, exactly as
+# wasm-tier-pr.yml's header already argues for the identical mechanism:
+#
+#   the nightly proves        deployed corpus == built(BASELINE_SHA)
+#   this workflow proves      deployed corpus == the same counts, right now,
+#                             on ITS OWN cadence, independent of whether a
+#                             deploy or a nightly run happened in between
+#
+# A consequence worth stating plainly: if the nightly itself has been failing
+# for several days (so BASELINE_SHA is stale), this workflow's baseline is
+# exactly as stale — it inherits the nightly's own currency, it does not
+# improve on it. What it adds is CADENCE: the same comparison, run every 30
+# minutes instead of once a day, so a silent multi-hour drift (today's
+# incident) is caught in under an hour instead of after the fact. It composes
+# with, and does not replace, wasm-tier-nightly.yml's own from-scratch rebuild.
+#
+# WHAT THIS WORKFLOW DELIBERATELY DOES NOT DO:
+# - No `cargo`, no wasm32 build — the "expected" count comes from the last
+#   successful nightly's own build, never rebuilt here. A tier's true current
+#   count can only be established by compiling the commit under test; this
+#   workflow answers "does the deployed corpus still match what we last PROVED
+#   it should be", not "does it match HEAD" — the same scope limitation
+#   wasm-tier-pr.yml's freshness step already carries and documents.
+# - No deployed-Worker TEST sweep (sweep_multi_worker.mjs) — that is a much
+#   larger, per-test HTTP fan-out (PR #971's cost finding) and answers a
+#   different question ("do the tests pass"), already covered by
+#   wasm-tier-nightly.yml nightly and wasm-tier-pr.yml per touched PR. Running
+#   it here every 30 minutes would reproduce the exact cost blowup #971 fixed,
+#   for a question this workflow is not trying to answer.
+# - Never deploys a Worker, never invokes `wrangler`, never reads CF_TOKEN —
+#   matches wasm-tier-nightly.yml's own hard prohibition; this workflow only
+#   reads public `/health` endpoints and the GitHub API.
+# - Never becomes a required PR check — this reports on the deployed tier's
+#   current state, not on any commit or pull request, so there is nothing for
+#   it to gate.
+
+# no-pr-trigger: this workflow reports on the currently DEPLOYED Cloudflare
+# Workers' freshness, which has no relationship to any one pull request's
+# content — matches wasm-tier-nightly.yml's and trunk-health.yml's own
+# no-pr-trigger reasoning.
+on:
+  schedule:
+    # Every 30 minutes. Cheap (no cargo, ~19 HTTP GETs + a few `gh api` calls
+    # per run — see the header's cost accounting), so a 30-minute cadence
+    # bounds the silent-staleness window this workflow exists to close at
+    # under an hour, versus the ~24h the nightly alone provides and the ~2.5h
+    # this incident happened to be caught in by luck of the schedule.
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Only the newest check matters; a superseded run answers a question that
+  # is about to be re-asked in under 30 minutes anyway.
+  group: wasm-tier-staleness-watch
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    name: Deployed-corpus freshness (R5.1), standalone cadence
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      # ------------------------------------------------------------------
+      # 1. The freshness baseline — identical mechanism to
+      #    wasm-tier-pr.yml's "Resolve freshness baseline" step. See that
+      #    file's own comment for why "no successful nightly run" fails
+      #    loudly here too, rather than skipping: a freshness check with an
+      #    unknown expected value is the vacuous gate this whole control
+      #    exists to rule out.
+      # ------------------------------------------------------------------
+      - name: Resolve freshness baseline (last green wasm-tier-nightly)
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method GET \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/wasm-tier-nightly.yml/runs" \
+            -f status=success -f branch=main -f per_page=1 \
+            > /tmp/baseline_runs.json
+          RUN_ID="$(jq -r '.workflow_runs[0].id // empty' /tmp/baseline_runs.json)"
+          RUN_SHA="$(jq -r '.workflow_runs[0].head_sha // empty' /tmp/baseline_runs.json)"
+          RUN_AT="$(jq -r '.workflow_runs[0].created_at // empty' /tmp/baseline_runs.json)"
+          if [ -z "${RUN_ID}" ]; then
+            echo "::error::No successful wasm-tier-nightly.yml run on main to anchor the deployed corpus to. Without one there is no built test count for any tier, so this check would have nothing to compare the deployed Workers against."
+            exit 1
+          fi
+          {
+            echo "run_id=${RUN_ID}"
+            echo "sha=${RUN_SHA}"
+            echo "created_at=${RUN_AT}"
+          } >> "$GITHUB_OUTPUT"
+          echo "BASELINE_RUN_ID=${RUN_ID}" >> "$GITHUB_ENV"
+          echo "BASELINE_SHA=${RUN_SHA}" >> "$GITHUB_ENV"
+          echo "BASELINE_AT=${RUN_AT}" >> "$GITHUB_ENV"
+          echo "baseline nightly run: ${RUN_ID} (commit ${RUN_SHA}, ${RUN_AT})"
+
+      - name: Download the baseline freshness census
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! gh run download "${BASELINE_RUN_ID}" \
+                --name "wasm-tier-nightly-worker-${BASELINE_RUN_ID}" \
+                --dir /tmp/baseline; then
+            echo "::error::Could not download wasm-tier-nightly-worker-${BASELINE_RUN_ID} from run ${BASELINE_RUN_ID}. That artifact carries the per-tier built counts this check compares the deployed Workers against; without it there is no expected value. Most likely it aged out (30-day retention)."
+            exit 1
+          fi
+          test -s /tmp/baseline/freshness.json
+          echo "baseline census (from run ${BASELINE_RUN_ID}, commit ${BASELINE_SHA}):"
+          cat /tmp/baseline/freshness.json
+
+      # ------------------------------------------------------------------
+      # 2. The check itself — same tool, same topology-driven flag
+      #    generation as wasm-tier-deploy.yml's post-deploy verify and
+      #    wasm-tier-nightly.yml's own R5.1 step. No tier can be skipped: the
+      #    checker exits 2 naming any tier it was given no count for.
+      # ------------------------------------------------------------------
+      - name: Deployed-corpus freshness (R5.1) — fails on count OR content-hash mismatch
+        id: freshness
+        run: |
+          set -euo pipefail
+          cat > /tmp/expected_counts.cjs <<'NODE'
+          const fs = require("node:fs");
+          const TOPOLOGY = require("node:url").pathToFileURL(
+            require("node:path").resolve("tools/wasm/tier_topology.mjs"),
+          ).href;
+          import(TOPOLOGY)
+            .then(({ loadTopology, tierFlagSuffix }) => {
+              const baseline = JSON.parse(fs.readFileSync("/tmp/baseline/freshness.json", "utf8"));
+              const byCrate = new Map((baseline.tiers || []).map((t) => [t.crate, t.built_count]));
+              const args = [];
+              for (const tier of loadTopology().tiers) {
+                const n = byCrate.get(tier.crate);
+                if (typeof n !== "number") {
+                  console.error(`::error::The baseline nightly census has no built count for tier ${tier.crate}.`);
+                  process.exit(2);
+                }
+                args.push(`--expected-count-${tierFlagSuffix(tier.crate)}`, String(n));
+              }
+              console.log(args.join(" "));
+            })
+            .catch((e) => {
+              console.error(`::error::${e.message}`);
+              process.exit(2);
+            });
+          NODE
+          COUNT_ARGS="$(node /tmp/expected_counts.cjs)"
+          echo "expected counts (from nightly ${BASELINE_RUN_ID} @ ${BASELINE_SHA}): ${COUNT_ARGS}"
+          # shellcheck disable=SC2086
+          node tools/wasm/check_deployed_freshness.mjs ${COUNT_ARGS} --json /tmp/freshness.json
+
+      - name: Write job summary
+        if: ${{ !cancelled() }}
+        run: |
+          {
+            echo "### WASM tier staleness watch (standalone, every 30 minutes)"
+            echo ""
+            echo "- baseline: nightly run [\`${BASELINE_RUN_ID:-unresolved}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${BASELINE_RUN_ID:-0}) at \`${BASELINE_SHA:-unresolved}\` (${BASELINE_AT:-unresolved})"
+            echo ""
+            echo '```'
+            cat /tmp/freshness.json 2>/dev/null || echo "(freshness census not produced — see the failed step above)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ------------------------------------------------------------------
+      # Fail loudly (task candidate 1). A stale tier that nobody is told
+      # about is exactly the 2026-08-17 incident's structural gap restated:
+      # "a failed deploy leaves the previous bytes live and nothing fails
+      # loudly." This job going red in the Actions tab is not enough on its
+      # own — see trunk-health.yml's own header for the precedent this
+      # mirrors ("a red run in the Actions tab was not enough... both
+      # breakages sat unnoticed") — so it also files or refreshes one
+      # tracking issue rather than a silent red X.
+      # ------------------------------------------------------------------
+      - name: Report staleness (fail loudly — dedupe against an existing open issue)
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BODY="$(printf '%s\n' \
+            "The deployed WASM tier failed its standalone staleness check (R5.1)." \
+            "" \
+            "- run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            "- baseline nightly run: ${BASELINE_RUN_ID:-unresolved} at \`${BASELINE_SHA:-unresolved}\` (${BASELINE_AT:-unresolved})" \
+            "- checked at: $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            "" \
+            "Every wasm-tier verdict computed against the deployed Workers right now is reporting on a corpus that does not match what the last successful nightly proved — the same 'green over a stale subset' shape as the 2026-08-07..2026-08-10 and 2026-08-17 incidents (docs/evidence/2026-08-17-deploy-failure-alerting-and-pr-wasm32-coverage.md)." \
+            "" \
+            "FIX: redeploy — \`gh workflow run wasm-tier-deploy.yml\` — then re-run this workflow (\`gh workflow run wasm-tier-staleness-watch.yml\`) to confirm. This workflow re-checks automatically every 30 minutes regardless." \
+            "" \
+            "Close this issue once this workflow is green again; it will file a new one if the tier goes stale again.")"
+          EXISTING=$(gh issue list --label wasm-tier-stale --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "${EXISTING}" ]; then
+            echo "wasm-tier-stale issue #${EXISTING} is already open; adding a comment instead of filing a duplicate."
+            gh issue comment "${EXISTING}" --body "${BODY}"
+            exit 0
+          fi
+          gh label create wasm-tier-stale --color B60205 \
+            --description "the deployed WASM tier does not match the last verified-fresh build" 2>/dev/null || true
+          gh issue create --label wasm-tier-stale \
+            --title "WASM tier is stale: deployed Workers do not match the last verified build" \
+            --body "${BODY}"

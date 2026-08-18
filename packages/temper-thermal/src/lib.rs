@@ -106,7 +106,6 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(device_power::single_device_power_py, m)?)?;
     m.add_function(wrap_pyfunction!(junction_temp::estimate_junction_temp_py, m)?)?;
     m.add_function(wrap_pyfunction!(inductance::estimate_loop_inductance_py, m)?)?;
-    m.add_function(wrap_pyfunction!(inductance::estimate_gate_inductance_py, m)?)?;
     m.add_function(wrap_pyfunction!(
         thermal_potential::thermal_potential_build_grid_py,
         m

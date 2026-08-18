@@ -141,6 +141,9 @@ ignore = [
 # they carry the lint profile of the code they pin, not of new code.
 "tests/pcl/_*_py_oracle.py" = ["UP007"]
 "**/validation/results/battery_run.py" = ["SIM105", "B025"]  # intentional suppress
+# The try/except/pass this suppresses moved to _battery_smoke_test.py (LOC
+# cap split, 2026-08-17); same code, same rationale, ignore follows it.
+"**/validation/results/_battery_smoke_test.py" = ["SIM105"]
 "**/physics/copper_coverage.py" = ["SIM102"]  # clearer as-is
 "**/placer/cp_sat/feedback.py" = ["SIM102"]
 # The feedback.py pin oracle carries the same SIM102 as the source it pins

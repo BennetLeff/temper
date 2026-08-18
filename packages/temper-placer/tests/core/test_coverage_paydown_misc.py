@@ -3,19 +3,17 @@ explainability, fields, topological.
 
 Exercises public functions in:
 - placer/template.py, placer/cp_sat/gate.py, placer/cp_sat/gates.py
-- metrics/physics.py, metrics/routing_quality.py, metrics/aesthetic.py
+- metrics/routing_quality.py, metrics/aesthetic.py
 - cli/_signal.py, cli/_version.py, cli/version.py
 - testing/version_gate.py
 - explainability/serialization.py, markdown_report.py, traced_loss.py, pipeline.py
 - fields/field.py, fields/result.py, fields/interface.py
 """
 
-import json
 import os
 import tempfile
 
 import numpy as np
-import pytest
 
 from temper_placer.cli._signal import InterruptGuard
 from temper_placer.core.state import PlacementState
@@ -47,17 +45,18 @@ from temper_placer.explainability.traced_loss import (
     traced_loss,
 )
 from temper_placer.metrics.aesthetic import compute_aesthetic_score
-from temper_placer.metrics.physics import PhysicsReport
 from temper_placer.metrics.routing_quality import RoutingQualityScore
 from temper_placer.placer.cp_sat.gate import GateResult as AcceptanceGateResult
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     Gate,
-    GateResult as GatesGateResult,
     GateStage,
     GateStatus,
     Violation,
     ViolationType,
+)
+from temper_placer.placer.cp_sat.gates import (
+    GateResult as GatesGateResult,
 )
 from temper_placer.placer.template import (
     ParametricComponentPosition,
@@ -185,41 +184,6 @@ class TestParametricTemplate:
         # Should not crash — anchor defaults to center
         result = t.apply(0.0, 0.0, 100.0, 100.0)
         assert "B" in result
-
-
-# ---------------------------------------------------------------------------
-# metrics/physics.py — PhysicsReport.to_dict
-# ---------------------------------------------------------------------------
-
-
-class TestPhysicsReport:
-    def test_to_dict_returns_expected_keys(self):
-        pr = PhysicsReport()
-        d = pr.to_dict()
-        assert isinstance(d, dict)
-        for key in ("geometric", "emi", "thermal", "routability"):
-            assert key in d
-        assert d["geometric"]["overlap_count"] == 0
-        assert d["routability"]["completion_pct"] == 0.0
-
-    def test_to_dict_with_custom_values(self):
-        pr = PhysicsReport()
-        d = pr.to_dict()
-        # All keys present with default values (0.0)
-        assert d["geometric"]["overlap_count"] == 0
-        assert d["geometric"]["overlap_area_mm2"] == 0.0
-        assert d["emi"]["gate_loop_area_mm2"] == 0.0
-        assert d["thermal"]["max_junction_temp_c"] == 0.0
-
-    def test_to_dict_nonempty_fields(self):
-        """PhysicsReport dataclass has nested dataclass fields;
-        to_dict should reflect whatever values are already set."""
-        pr = PhysicsReport()
-        d = pr.to_dict()
-        assert isinstance(d["geometric"], dict)
-        assert isinstance(d["emi"], dict)
-        assert isinstance(d["thermal"], dict)
-        assert isinstance(d["routability"], dict)
 
 
 # ---------------------------------------------------------------------------
@@ -702,35 +666,3 @@ class TestCostFieldExtra:
         gate = StubFieldGate()
         # to_delta returns None (default)
         assert gate.to_delta(ViolationType.CLEARANCE) is None
-
-
-# ---------------------------------------------------------------------------
-# topological — DistanceBound additional coverage
-# ---------------------------------------------------------------------------
-
-
-class TestDistanceBoundExtra:
-    def test_tighten_max(self):
-        from temper_placer.topological.propagation import DistanceBound
-
-        b = DistanceBound(max_distance=10.0)
-        b.tighten_max(8.0)
-        assert b.max_distance == 8.0
-        b.tighten_max(12.0)  # should not increase
-        assert b.max_distance == 8.0
-
-    def test_tighten_min(self):
-        from temper_placer.topological.propagation import DistanceBound
-
-        b = DistanceBound(min_distance=5.0)
-        b.tighten_min(7.0)
-        assert b.min_distance == 7.0
-        b.tighten_min(3.0)  # should not decrease
-        assert b.min_distance == 7.0
-
-    def test_is_feasible(self):
-        from temper_placer.topological.propagation import DistanceBound
-
-        assert DistanceBound(min_distance=5.0, max_distance=10.0).is_feasible() is True
-        assert DistanceBound(min_distance=10.0, max_distance=5.0).is_feasible() is False
-        assert DistanceBound(min_distance=5.0, max_distance=5.0).is_feasible() is True

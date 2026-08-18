@@ -71,7 +71,7 @@ class Component:
     zone: str | None
     fixed: bool
     initial_position: tuple[float, float] | None
-    initial_rotation: int | None
+    initial_rotation_quadrant: int | None
     initial_side: int | None
     attributes: dict[str, str]
     tags: frozenset[Any]
@@ -87,7 +87,7 @@ class Component:
         zone: str | None = ...,
         fixed: bool = ...,
         initial_position: tuple[float, float] | None = ...,
-        initial_rotation: int | None = ...,
+        initial_rotation_quadrant: int | None = ...,
         initial_side: int | None = ...,
         attributes: dict[str, str] | None = ...,
         tags: frozenset[Any] | None = ...,

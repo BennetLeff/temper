@@ -372,8 +372,12 @@ class StackupGate(Gate):
         # tests/placer/cp_sat/test_net_currents_rust_differential.py.
         "AC_L": 15.0,
         "AC_N": 15.0,
-        "GATE_H": 2.0,
-        "GATE_L": 2.0,
+        # FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-ampacity-
+        # key-rename-fix.md, PR #1320 SS3.3): real board nets are
+        # "GATE_HS"/"GATE_LS" (pcb/temper.kicad_pcb), not "GATE_H"/"GATE_L".
+        # Rating unchanged -- only the key. Lockstep w/ ipc.rs net_currents().
+        "GATE_HS": 2.0,
+        "GATE_LS": 2.0,
         "+3V3": 0.5,
         "+5V": 0.5,
         "+15V": 0.2,
@@ -718,9 +722,26 @@ def _ipc2152_forward(
 # ------------------------------------------------------------------
 # W3/U4: IEC Creepage Gate — kicad-cli DRC clearance HV ↔ LV
 # ------------------------------------------------------------------
-# @req(2026-07-08-005, R4): verify 6mm creepage via kicad-cli DRC
-# on the routed board, filtering clearance violations between HV
-# and LV net classes.  kicad-cli failure → UNMEASURED.
+# @req(2026-07-08-005, R4): verify reinforced-insulation HV/LV creepage
+# (HV_LV_CREEPAGE_MM below, read from the safety SSOT -- not a hardcoded
+# figure) via kicad-cli DRC on the routed board, filtering clearance
+# violations between HV and LV net classes.  kicad-cli failure → UNMEASURED.
+
+# FIXED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-manifest-
+# and-ieccreepagegate-liveness.md): this gate hardcoded a flat 6.0mm
+# HV<->LV creepage threshold with no citation. 6.0mm is not a value in any
+# recovered IEC 60335-1 table (Table 16/17/18 -- see the identical, earlier
+# finding for `core/design_rules.py`'s old ACMains/HighVoltage
+# `creepage_mm` fields), and it is superseded by this project's own PD3
+# SSOT decision (handoff §2, PR #1219/#1224): 12.6mm reinforced, HV/LV,
+# >250-400V, pollution degree 3. Reading it from the SAME recovered-Table-17
+# lookup `scripts/generate_kicad_dru.py`'s `HV_CREEPAGE_ENFORCED_MM` already
+# uses (PD3, material group IIIa/IIIb, >250-400V, Table 17, doubled for
+# reinforced insulation per cl. 29.2) rather than hardcoding a second copy
+# of the number keeps this gate from drifting from the DRU generator again.
+HV_LV_CREEPAGE_MM: float = (
+    _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
+)
 
 _HV_NET_PATTERNS: frozenset[str] = frozenset(
     {
@@ -736,12 +757,33 @@ _HV_NET_PATTERNS: frozenset[str] = frozenset(
 
 
 def _is_hv_net(name: str) -> bool:
-    """Check whether *name* is a known HV net in the half-bridge design."""
+    """Check whether *name* is a known HV net in the half-bridge design.
+
+    KNOWN GAP, flagged not fixed (2026-08-17, same evidence doc as
+    ``HV_LV_CREEPAGE_MM`` above): this is a local, hardcoded 7-name
+    frozenset -- a fourth, independently-maintained "is this net HV"
+    classifier alongside ``core/net_classification.classify_net_type``
+    (fixed in ``netclass_constraints.py``, same evidence doc),
+    ``core/design_rules.py``'s ``TEMPER_NET_ASSIGNMENTS``/pattern cascade,
+    and ``elec/domain_manifest.yaml``. It does not include K1's HV
+    relay-contact nets (``power_in.ntc-no``, ``w1_1``, ``w1_2``) -- the
+    same net set whose misclassification in ``netclass_constraints.py``
+    produced the J1/K1 unroutable placement this task investigates. A DRC
+    clearance violation naming one of those three nets would silently NOT
+    be recognized as an HV↔LV crossing by this gate. Left as-is: reconciling
+    this gate's net classification with the authoritative
+    ``DesignRules.get_rules_for_net()`` source is a materially larger change
+    (this function has no ``DesignRules`` instance available today) than
+    this task's assigned scope (the threshold value + the gate's
+    liveness/DeltaMapper leak) and was not attempted here.
+    """
     return name in _HV_NET_PATTERNS
 
 
 class IECCreepageGate(Gate):
-    """ROUTING-stage gate: verifies 6 mm creepage between HV and LV nets.
+    """ROUTING-stage gate: verifies reinforced HV/LV creepage
+    (``HV_LV_CREEPAGE_MM``, read from the safety SSOT -- 12.6mm PD3 as of
+    this writing, not a hardcoded figure) between HV and LV nets.
 
     Runs ``kicad-cli pcb drc`` on the routed board, filtering clearance
     violations that cross HV ↔ LV net classes.  Returns ``CLEAN`` when
@@ -800,10 +842,10 @@ class IECCreepageGate(Gate):
                     Violation(
                         type=ViolationType.CREEPAGE,
                         nets=tuple(set(hv_nets + lv_nets)),
-                        severity=6.0,  # placeholder — actual clearance in message
-                        threshold=6.0,
+                        severity=HV_LV_CREEPAGE_MM,  # placeholder — actual clearance in message
+                        threshold=HV_LV_CREEPAGE_MM,
                         description=err.message,
-                        context={"required_mm": 6.0, "rule": err.rule},
+                        context={"required_mm": HV_LV_CREEPAGE_MM, "rule": err.rule},
                     )
                 )
 
@@ -829,7 +871,9 @@ class PhysicsGate(Gate):
     1. Commutation-loop area ≤ 2000 mm²
     2. Gate-drive loop area ≤ 500 mm² + trace spacing ≤ 2 mm
     3. Thermal via count ≥ 9 per IGBT + B.Cu pour ≥ footprint area
-    4. Creepage ≥ 6 mm between HV and LV nets
+    4. Creepage ≥ ``HV_LV_CREEPAGE_MM`` between HV and LV nets (delegates to
+       ``IECCreepageGate.check()`` below, which is the sub-check's actual
+       implementation)
 
     Any sub-check that cannot measure ⇒ ``UNMEASURED`` (fail-closed).
     """
@@ -845,10 +889,34 @@ class PhysicsGate(Gate):
     _GATE_DRIVE_LOOP_MAX_MM2: float = 500.0
     _GATE_DRIVE_SPACING_MAX_MM: float = 2.0
     _THERMAL_VIA_MIN_COUNT: int = 9
-    _CREEPAGE_MIN_MM: float = 6.0
+    # REMOVED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-
+    # manifest-and-ieccreepagegate-liveness.md): a dead, unused
+    # `_CREEPAGE_MIN_MM: float = 6.0` constant lived here, labelled
+    # "SSOT -- do not duplicate" while being an actual duplicate of
+    # IECCreepageGate's own (also stale, now fixed) hardcoded 6.0mm --
+    # confirmed by grep, it had zero read sites in this file; sub-check 4
+    # below has always gotten its real threshold from
+    # `IECCreepageGate.check()`'s own `HV_LV_CREEPAGE_MM`, never from this
+    # constant. Deleting a genuinely dead, misleading duplicate rather than
+    # updating a number nothing reads.
 
     _IGBT_REFS: tuple[str, str] = ("Q1", "Q2")
-    _GATE_NETS: tuple[str, str] = ("GATE_H", "GATE_L")
+    # Real-board net names -- corrected 2026-08-17. The real board's
+    # driver-output nets are "GATE_HS"/"GATE_LS", not "GATE_H"/"GATE_L";
+    # see configs/gate_driver_constraints.yaml's own comment ("was
+    # 'GATE_H' -- real board net") and
+    # docs/evidence/2026-08-17-gate-drive-loop-inductance-check.md. With
+    # the stale names, physics.gate_drive's measurement functions would
+    # never find a routed trace on either net and sub-check 2 would
+    # remain permanently UNMEASURED even after the module was
+    # implemented -- the same "wired to the wrong name" failure mode as
+    # the missing module itself. NOTE: _IGBT_REFS above is a separate,
+    # pre-existing staleness (Q1/Q2 are unrelated small-signal
+    # transistors on the real board, not the half-bridge switches -- see
+    # the same evidence doc) that belongs to sub-check 3 (thermal vias)
+    # and is out of this fix's scope; physics.gate_drive does not use
+    # _IGBT_REFS.
+    _GATE_NETS: tuple[str, str] = ("GATE_HS", "GATE_LS")
 
     # ------------------------------------------------------------------
     # check
@@ -1065,207 +1133,6 @@ class PhysicsGate(Gate):
     # to_delta delegates to DeltaMapper via Gate base class.
 
 
-# ------------------------------------------------------------------
-# W4: QualityGate — measurement-only post-route quality checks
-# ------------------------------------------------------------------
-# @req(2026-07-08-006, R5): post-route slop-linter detection of hairpin
-# turns, zigzag patterns, isolated vias, and single-net detours.
-# @req(2026-07-08-006, R6): gate contract conformance — three-state
-# check(), to_delta() for corrective deltas.
-
-
-class QualityGate(Gate):
-    """ROUTING-stage gate: post-route slop-linting quality checks.
-
-    Runs the AI-slop linter on the routed PCB and surfaces detected
-    artifacts.  Each artifact class maps to a ``SLOP`` violation.
-    ``UNMEASURED`` is returned when the routed PCB is missing or the
-    linter raises an exception (fail-closed per the gate contract).
-
-    ``to_delta`` maps ``SLOP`` violations to ``KeepoutConstraint`` deltas;
-    ``VIA_COUNT`` and ``OCTILINEAR`` violations return ``None``.
-    """
-
-    stage = GateStage.ROUTING
-    name = "quality"
-
-    def check(self, state: BoardState) -> GateResult:
-        pcb = state.routed_pcb_path
-        if not pcb or not Path(pcb).exists():
-            return GateResult(
-                GateStatus.UNMEASURED,
-                error_message="No routed PCB available for quality check",
-            )
-
-        try:
-            from temper_quality_oracle import slop_lint_all_py as lint_all
-
-            artifacts = lint_all(pcb)
-        except ImportError as exc:
-            return GateResult(
-                GateStatus.UNMEASURED,
-                error_message=f"slop_linter import failed: {exc}",
-            )
-        except Exception as exc:
-            return GateResult(
-                GateStatus.UNMEASURED,
-                error_message=f"slop_linter measurement failed: {exc}",
-            )
-
-        if not artifacts:
-            return GateResult(GateStatus.CLEAN)
-
-        # Group artifacts by type for compact violations.
-        by_type: dict[str, list[dict]] = {}
-        for a in artifacts:
-            by_type.setdefault(a["type"], []).append(a)
-
-        violations: list[Violation] = []
-        for artifact_type, items in by_type.items():
-            violations.append(
-                Violation(
-                    type=ViolationType.SLOP,
-                    nets=tuple({a.get("net_name", "?") for a in items}),
-                    severity=float(len(items)),
-                    threshold=0.0,
-                    description=(
-                        f"Slop linter found {len(items)} "
-                        f"{artifact_type.replace('_', ' ')} artifact(s)"
-                    ),
-                    context={
-                        "artifact_type": artifact_type,
-                        "artifacts": items,
-                    },
-                )
-            )
-
-        return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
-
-    # to_delta delegates to DeltaMapper via Gate base class.
-
-
-# ------------------------------------------------------------------
-# U2 / plan 2026-07-23-001: ErcGate — runs kicad-cli pcb erc
-# ------------------------------------------------------------------
-# @req(2026-07-23-001, R2): kicad-cli pcb erc code path on the
-# routed temper board, mirroring DrcGate's two-tier
-# CLEAN/VIOLATIONS/UNMEASURED shape. Reuses
-# _resolve_kicad_footprint_dir() for fail-closed behaviour
-# (per PR #330's pattern).
-
-
-class ErcGate(Gate):
-    """ROUTING-stage gate: runs KiCad ERC on the routed board.
-
-    Invokes ``kicad-cli pcb erc``, parses the JSON output, and returns
-    a three-state result: ``CLEAN`` (zero violations), ``VIOLATIONS``
-    (N violations with a plain count), or ``UNMEASURED`` when kicad-cli
-    is unavailable or the PCB is missing (fail-closed — never a false
-    ``CLEAN``).
-
-    ERC checks are electrical (unconnected pins, conflicting outputs,
-    missing power flags, etc.) — they operate on the netlist embedded
-    in the PCB and do not depend on the routed geometry.  The gate
-    therefore targets the routed board directly after stage-4 geometric
-    realization, not the placement-only PCB.
-    """
-
-    stage = GateStage.ROUTING
-    name = "erc"
-
-    def check(self, state: BoardState) -> GateResult:
-        pcb_path = state.routed_pcb_path
-        if not pcb_path or not Path(pcb_path).exists():
-            return GateResult(
-                GateStatus.UNMEASURED,
-                error_message="No PCB available for ERC",
-            )
-
-        fp_dir = _resolve_kicad_footprint_dir()
-        if fp_dir is None:
-            return GateResult(
-                GateStatus.UNMEASURED,
-                error_message=(
-                    "KiCad footprint library directory not found. "
-                    "Set KICAD7_FOOTPRINT_DIR env var or install "
-                    "kicad-footprints."
-                ),
-            )
-
-        erc_out = Path(tempfile.mktemp(suffix=".json"))
-        try:
-            try:
-                result = subprocess.run(
-                    [
-                        "kicad-cli",
-                        "pcb",
-                        "erc",
-                        "--format",
-                        "json",
-                        "-o",
-                        str(erc_out),
-                        str(pcb_path),
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                    env={
-                        **os.environ,
-                        "KICAD7_FOOTPRINT_DIR": str(fp_dir),
-                    },
-                )
-            except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
-                return GateResult(
-                    GateStatus.UNMEASURED,
-                    error_message=f"kicad-cli unavailable: {exc}",
-                )
-
-            if result.returncode != 0:
-                return GateResult(
-                    GateStatus.UNMEASURED,
-                    error_message=(f"kicad-cli exit {result.returncode}: {result.stderr[:200]}"),
-                )
-
-            if not erc_out.exists():
-                return GateResult(
-                    GateStatus.UNMEASURED,
-                    error_message="kicad-cli produced no ERC output file",
-                )
-
-            data = json.loads(erc_out.read_text())
-
-            # ERC output uses either ``violations`` or ``items`` (KiCad
-            # version-dependent).  Both are lists of dicts with at least
-            # ``type`` and ``description``.
-            erc_items: list[dict] = []
-            for key in ("violations", "items"):
-                candidates = data.get(key)
-                if isinstance(candidates, list):
-                    erc_items.extend(candidates)
-
-            if not erc_items:
-                return GateResult(GateStatus.CLEAN)
-
-            violations: list[Violation] = []
-            for item in erc_items:
-                vtype = item.get("type", "erc_other")
-                violations.append(
-                    Violation(
-                        type=_map_violation_type(vtype),
-                        description=item.get("description", item.get("message", "")),
-                        severity=1.0,
-                        context={"raw": item, "erc_type": vtype},
-                    )
-                )
-
-            if violations:
-                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
-            return GateResult(GateStatus.CLEAN)
-        finally:
-            with contextlib.suppress(OSError):
-                os.unlink(erc_out)
-
-
 _VIOLATION_TYPE_MAP = {
     "clearance": ViolationType.CLEARANCE,
     "unrouted": ViolationType.UNROUTED,
@@ -1283,3 +1150,20 @@ def _map_violation_type(kicad_type: str) -> ViolationType:
     violation) while preserving the raw type in the Violation ``context``.
     """
     return _VIOLATION_TYPE_MAP.get(kicad_type, ViolationType.CLEARANCE)
+
+
+# ------------------------------------------------------------------
+# QualityGate / ErcGate — split out (LOC cap, R3) into
+# _quality_erc_gates.py. Re-exported here so every existing caller
+# (`from temper_placer.placer.cp_sat.gates import QualityGate, ErcGate`)
+# is unaffected. Imported LAST, after _map_violation_type /
+# _resolve_kicad_footprint_dir / the Gate contract types above are all
+# defined -- _quality_erc_gates.py imports those from this module at ITS
+# module scope, so this import must not run until they exist, or the
+# (otherwise-safe) circular import would fail.
+from temper_placer.placer.cp_sat._quality_erc_gates import (  # noqa: E402
+    ErcGate as ErcGate,
+)
+from temper_placer.placer.cp_sat._quality_erc_gates import (
+    QualityGate as QualityGate,
+)

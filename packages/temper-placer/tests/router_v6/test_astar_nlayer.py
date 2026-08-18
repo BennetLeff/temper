@@ -685,7 +685,7 @@ def _make_mini_pcb(design_rules: DesignRules) -> ParsedPCB:
     12.6mm creepage bar, so the LV net must keep clear of the HV pad)."""
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Component, Net, Pin
-    from temper_placer.router_v6.stage0_data import ParsedPCB, StackupInfo, LayerInfo
+    from temper_placer.router_v6.stage0_data import LayerInfo, ParsedPCB, StackupInfo
 
     comp = Component(
         ref="U1",
@@ -892,3 +892,74 @@ def test_creepage_halo_blocks_lv_net_from_hv_pad():
         escape_vias_map={},
     )
     assert "SIG" in control.routed_paths, "control (no creepage halo) must route SIG"
+
+
+# ---------------------------------------------------------------------------
+# TierTally: per-tier segment accounting by classification (2026-08-18).
+# ---------------------------------------------------------------------------
+
+
+def test_tier_tally_counts_every_segment_exactly_once():
+    """The tally is exhaustive: attempts == number of segments attempted.
+
+    This is the property that makes the counters trustworthy. The failure
+    mode being designed out is ``mst_edges_fallback_count``'s
+    ``len(edges) - astar_routed_count``, which reported edges A* *failed* to
+    route as edges the fallback *landed*. Here every segment increments
+    exactly one classification at the point its outcome is decided, and
+    ``attempts`` is an explicit sum of the four -- so a segment that fell
+    through every branch would show up as a missing count, not as a silent
+    reassignment into another bucket.
+    """
+    from temper_placer.router_v6._astar_nlayer import TierTally, _astar_route_nlayer
+
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    waypoints = [(1.0, 1.0), (5.0, 5.0), (8.0, 8.0)]
+    channel_path = type("CP", (), {"waypoints": waypoints, "preferred_layer": "F.Cu"})()
+
+    tally = TierTally()
+    result, _fb = _astar_route_nlayer("NET1", channel_path, grids, net_id=1, tally=tally)
+
+    assert result is not None
+    assert tally.attempts == len(waypoints) - 1, (
+        f"tally counted {tally.attempts} segments for {len(waypoints) - 1} attempted: "
+        f"{tally.as_dict()}"
+    )
+    assert tally.resolved + tally.declined == tally.attempts
+    # An open grid routes on the preferred layer without ever reaching Tier 3.
+    assert tally.primary_2d == len(waypoints) - 1
+    assert tally.nlayer_via_3d_calls == 0
+
+
+def test_tier_tally_records_declines_rather_than_inferring_them():
+    """A fully blocked board must *record* declines, not leave a hole."""
+    from temper_placer.router_v6._astar_nlayer import TierTally, _astar_route_nlayer
+
+    grids = {"F.Cu": _blocked_grid("F.Cu"), "B.Cu": _blocked_grid("B.Cu")}
+    waypoints = [(1.0, 1.0), (5.0, 5.0)]
+    channel_path = type("CP", (), {"waypoints": waypoints, "preferred_layer": "F.Cu"})()
+
+    tally = TierTally()
+    _astar_route_nlayer(
+        "NET1", channel_path, grids, net_id=1, allow_forced_segments=False, tally=tally
+    )
+
+    assert tally.declined == 1, tally.as_dict()
+    assert tally.resolved == 0
+    assert tally.attempts == 1
+    # Tier 3 was reached and invoked, even though it resolved nothing --
+    # the gap between calls and successes is the measurement that matters.
+    assert tally.nlayer_via_3d_calls == 1
+    assert tally.nlayer_via_3d == 0
+
+
+def test_tier_tally_merge_is_additive():
+    from temper_placer.router_v6._astar_nlayer import SegmentTier, TierTally
+
+    a, b = TierTally(), TierTally()
+    a.record(SegmentTier.PRIMARY_2D)
+    b.record(SegmentTier.DECLINED)
+    b.record(SegmentTier.ALTERNATE_2D)
+    a.merge(b)
+    assert a.as_dict()["attempts"] == 3
+    assert a.primary_2d == 1 and a.alternate_2d == 1 and a.declined == 1

@@ -10,13 +10,16 @@ Python modules keep their public APIs and delegate the arithmetic to
 "Per-device power kernel — induction non-applicability note" and
 "Junction-temperature kernel — induction non-applicability note"
 sections below.  Also updated 2026-08-02: `inductance::estimate_loop_inductance`
-and `inductance::estimate_gate_inductance` added (Wave 4 Phase A #4 —
-migration of `temper_placer/physics/inductance.py` to Rust; the Python
-module keeps its public API and delegates to
-`temper_thermal.estimate_loop_inductance_py` /
-`temper_thermal.estimate_gate_inductance_py`).  See the
+added (Wave 4 Phase A #4 — migration of `temper_placer/physics/inductance.py`
+to Rust; the Python module keeps its public API and delegates to
+`temper_thermal.estimate_loop_inductance_py`).  See the
 "Parasitic-loop-inductance kernels — induction non-applicability note"
-section below.
+section below. Updated 2026-08-17: the sibling `inductance::estimate_gate_inductance`
+kernel (added the same day as the loop estimator) was **deleted** — it had
+no production caller for its entire lifetime, and its only intended
+consumer (`metrics/physics.py::measure_emi`) was itself retired as dead
+code on 2026-07-10. See
+`docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md`.
 
 U6 of the Python→Rust migration roadmap (docs/plans/2026-07-23-003),
 porting the assembly hot loops of
@@ -190,16 +193,13 @@ convention to the routing-quality and per-device-power notes).
   pins, both saturation ranges, both B5 NaN pins, zero-power, and the
   B7 product-before-add op-order pin.
 
-## Parasitic-loop-inductance kernels — induction non-applicability note
+## Parasitic-loop-inductance kernel — induction non-applicability note
 
 `inductance::estimate_loop_inductance(loop_area_mm2, perimeter_mm,
-layer_separation_mm, routing_factor) -> f64` and
-`inductance::estimate_gate_inductance(source_to_gate_dist_mm,
-return_dist_mm) -> f64` (Wave 4 Phase A #4 — migration of
-`temper_placer/physics/inductance.py`) are **closed-form, loop-free and
-recursion-free functions of their scalar inputs**.  The loop estimator
-has exactly one branch (the `h_m > 0` conditional area term); the gate
-estimator has none:
+layer_separation_mm, routing_factor) -> f64` (Wave 4 Phase A #4 —
+migration of `temper_placer/physics/inductance.py`) is a **closed-form,
+loop-free and recursion-free function of its scalar inputs**, with
+exactly one branch (the `h_m > 0` conditional area term):
 
 ```text
 loop:  MU_0       = 4 * math.pi * 1e-7                      (three-op chain)
@@ -209,8 +209,13 @@ loop:  MU_0       = 4 * math.pi * 1e-7                      (three-op chain)
        L_area_nH  = L_area_H * 1e9
        L_self_nH  = perimeter_mm * 0.2
        L_total    = (L_area_nH * 0.5 + L_self_nH) * routing_factor
-gate:  L          = (source_to_gate_dist_mm + return_dist_mm + 5.0) * 0.8
 ```
+
+The sibling `inductance::estimate_gate_inductance(source_to_gate_dist_mm,
+return_dist_mm) -> f64` kernel that lived alongside this one was deleted
+2026-08-17 (no production caller for its entire lifetime — see
+`docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md`); this
+section no longer describes it.
 
 There is no iteration, no induction variable, and no data structure
 whose size varies with the input — each kernel performs exactly the
@@ -246,9 +251,7 @@ junction-temperature notes).
      h_m` chain; `L_area_H * 1e9` and `perimeter_mm * 0.2` are single
      multiplies; the final `(L_area_nH * 0.5 + L_self_nH) *
      routing_factor` keeps the parenthesized sum evaluated BEFORE the
-     multiply by `routing_factor`; the gate estimator is the
-     left-to-right `(a + b) + 5.0` add chain then `* 0.8`.  No
-     reassociation, no fusing (**B7**).
+     multiply by `routing_factor`.  No reassociation, no fusing (**B7**).
    - **B8 (denormal underflow):** default IEEE semantics (no fast-math,
      no FTZ/DAZ, no `mul_add` fusion); a denormal-band differential case
      pins `mu_0 * area_m2` for a 1e-300 mm² loop area (≈1.26e-312,
@@ -267,34 +270,40 @@ junction-temperature notes).
    use no Python `max`/`min`.
 
 4. **R24 physics discipline (G8): N/A — not a CP-SAT constraint
-   surface.** These kernels are analysis estimators consumed by the
-   EMI measurement path (`metrics/physics.py::measure_emi`), not
-   CP-SAT constraints that gate on a physics quantity; the R24 gates
+   surface.** This kernel is an analysis estimator, not a CP-SAT
+   constraint that gates on a physics quantity; the R24 gates
    (Chebyshev soundness proof, BMC-exhaustive validation on small N,
    post-solve audit recompute) do not apply.  The bit-exactness pins
    above are the applicable correctness contract.
+   **Correction, 2026-08-17:** this note previously said the kernel
+   (and its now-deleted `estimate_gate_inductance` sibling) was
+   "consumed by the EMI measurement path (`metrics/physics.py::
+   measure_emi`)". That was stale: `measure_emi`'s only caller,
+   `PipelineOrchestrator`, was deleted as dead code by `1060584b7`
+   (2026-07-10); `measure_emi` and this whole module have had zero
+   production callers since. See
+   `docs/evidence/2026-08-17-gate-inductance-and-unwired-kernels.md`.
 
 ### Empirical verification
 
-- **Differential (G2):** `test_inductance_rust_differential.py` — 40
-  randomized-seed direct kernel pins across 25+15 seeds (loop + gate,
-  with the h <= 0 degenerate arm), hand-computed known values, the
-  `mu_0` named-constant chain pin, the denormal band, NaN/inf parity,
-  the zero-height branch flip, and module-level delegation pins with
-  defaults — all `==` bit-exact.
-- **PBT (G4):** `test_inductance_rust_pbt.py` — 6 non-vacuous
-  properties (P1 non-negativity/richness, P2 loop closed form, P3 gate
-  closed form, P4 zero-height degeneracy, P5/P6 monotonicity in area
-  and perimeter) each vacuity-guarded by a `test_pN_fails_for_<mutant>`
-  mutation test (constant kernel, missing 0.5 factor, missing +5.0
-  coupling term, unconditional area term, decreasing-in-area and
-  decreasing-in-perimeter kernels), plus 5 metamorphic relations (M1/M3
-  bit-exact power-of-two scales, M2 zero-routing-factor degeneracy,
-  M4/M5 exact monotone comparisons) and a determinism/richness smoke
-  test.
+- **Differential (G2):** `test_inductance_rust_differential.py` — 25
+  randomized-seed direct kernel pins (with the h <= 0 degenerate arm),
+  hand-computed known values, the `mu_0` named-constant chain pin, the
+  denormal band, NaN/inf parity, the zero-height branch flip, and
+  module-level delegation pins with defaults — all `==` bit-exact.
+- **PBT (G4):** `test_inductance_rust_pbt.py` — 5 non-vacuous
+  properties (P1 non-negativity/richness, P2 loop closed form, P4
+  zero-height degeneracy, P5/P6 monotonicity in area and perimeter;
+  P3/M5 were the deleted gate-estimator properties and are
+  intentionally not renumbered) each vacuity-guarded by a
+  `test_pN_fails_for_<mutant>` mutation test (constant kernel, missing
+  0.5 factor, unconditional area term, decreasing-in-area and
+  decreasing-in-perimeter kernels), plus 4 metamorphic relations (M1/M3
+  bit-exact power-of-two scales, M2 zero-routing-factor degeneracy, M4
+  exact monotone comparison) and a determinism/richness smoke test.
 - **Rust unit tests:** `inductance.rs` `#[cfg(test)]` — known values,
-  zero-height/NaN-h arm selection, zero-routing-factor degeneracy, gate
-  op-order pin, and the `mu_0` named-constant chain pin.
+  zero-height/NaN-h arm selection, zero-routing-factor degeneracy, and
+  the `mu_0` named-constant chain pin.
 
 ## Base Case: 1×1 Grid
 

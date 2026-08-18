@@ -77,6 +77,8 @@ import re
 from enum import Enum
 from pathlib import Path
 
+import temper_geometry as _tg
+
 __all__ = [
     "ENGINE_SUPPORTED_SIGNAL_LAYERS",
     "ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED",
@@ -180,7 +182,21 @@ class LayerRole(Enum):
 # grid regardless of what tier 1's preferred layer was -- so it is left
 # alone here; see the router-nlayer-routing evidence doc for the full
 # argument.
-ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED: tuple[str, ...] = ("F.Cu", "In3.Cu", "In4.Cu", "B.Cu")
+#
+# Read from the Rust kernel (`temper_geometry::layer_identity::
+# engine_supported_signal_layer_names_py`, the single Rust-side copy of
+# `ENGINE_SUPPORTED_SIGNAL_LAYER_NAMES`) rather than re-declaring the same
+# four names a second time here -- that kernel's own docstring already says
+# "`board_layer_roles.py` should read this rather than hold its own
+# `tuple[str, ...]` literal" (scripts/check_unwired_kernels.py flagged it
+# as registered with no production caller until this call site closed the
+# gap). This is exactly the class of drift this module's own docstring
+# exists to close: two independent hand-maintained copies of "what can the
+# router actually route on today" silently disagreeing after the next
+# capability change.
+ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED: tuple[str, ...] = tuple(
+    _tg.engine_supported_signal_layer_names()
+)
 ENGINE_SUPPORTED_SIGNAL_LAYERS: frozenset[str] = frozenset(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
 
 # Matches one `(layers ...)` entry: an ordinal, a quoted KiCad layer name,

@@ -18,6 +18,8 @@ pub mod terminal_planning;
 // the crate's three pure kernels and stay unconditional; see
 // `scripts/gen_wasm_test_registry.py --crate temper-rust-router --census`.
 #[cfg(feature = "python")]
+pub mod astar_nlayer;
+#[cfg(feature = "python")]
 pub mod loop_extractor;
 #[cfg(feature = "python")]
 pub mod net_batching;
@@ -341,6 +343,12 @@ mod py {
     /// `unrouted_nets`, `post_condition_violations` (empty = clean; the
     /// caller must raise on non-empty, mirroring `audit_result`'s
     /// contract), and measurement keys.
+    /// A skeleton edge crossing the FFI boundary: `(layer, u, v, capacity)`,
+    /// matching `solve_topology_direct_py`'s `edges` parameter doc below.
+    /// Named per clippy's own `type_complexity` remedy (factor the type
+    /// into a `type` definition) rather than suppressing the lint.
+    type SkeletonEdge = (String, (f64, f64), (f64, f64), f64);
+
     #[pyfunction]
     #[pyo3(signature = (net_names, pads_by_net, widths_by_net, edges))]
     fn solve_topology_direct_py(
@@ -348,7 +356,7 @@ mod py {
         net_names: Vec<String>,
         pads_by_net: Vec<Vec<(f64, f64)>>,
         widths_by_net: Vec<f64>,
-        edges: Vec<(String, (f64, f64), (f64, f64), f64)>,
+        edges: Vec<SkeletonEdge>,
     ) -> PyResult<Py<PyDict>> {
         use temper_rust_router_core::direct_topology::{
             solve_topology_direct, DirectEdge, DirectNet,
@@ -547,6 +555,8 @@ mod py {
         crate::terminal_planning::register(m)?;
         // Wave-4: the router_v6 Theta* cluster (_astar_theta_star).
         crate::theta_star::register(m)?;
+        // Tier-3 N-layer via-aware A* (_astar_search_3d / _route_segment_3d).
+        crate::astar_nlayer::register(m)?;
 
         // Phase E E5 (Rust Orchestration Engine plan 2026-08-09-001): the
         // net-batching batch-loop orchestration primitives.

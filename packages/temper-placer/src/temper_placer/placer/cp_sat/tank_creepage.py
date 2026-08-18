@@ -289,9 +289,13 @@ def _hv_net_names(net_class_map: dict[str, str] | None = None) -> frozenset[str]
     ``TEMPER_NET_ASSIGNMENTS`` (or a caller-supplied override map, for
     tests)."""
     if net_class_map is None:
-        from temper_placer.core.design_rules import (
-            TEMPER_NET_ASSIGNMENTS as net_class_map,  # noqa: N806
-        )
+        # A plain assignment (not `import X as net_class_map`) so mypy's
+        # flow analysis actually narrows `net_class_map` to non-None for
+        # the `return` below -- narrowing does not reliably follow an
+        # aliased import, only an ordinary assignment target.
+        from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+
+        net_class_map = TEMPER_NET_ASSIGNMENTS
 
     return frozenset(net for net, cls in net_class_map.items() if cls in _HV_EQUIVALENT_CLASSES)
 
@@ -447,6 +451,16 @@ def _pad_world_spec(
     dx, dy = _tg.rotate_local_to_world_py(
         pin.position[0], pin.position[1], math.radians(q * 90)
     )
+    if comp.initial_position is None:
+        # Fail loudly with the offending ref rather than a bare "NoneType is
+        # not iterable" TypeError two lines down -- pad world coordinates
+        # for a creepage/clearance check are meaningless for an unplaced
+        # component, so this must never be silently defaulted (e.g. to
+        # (0, 0), which would understate the creepage distance).
+        raise ValueError(
+            f"_pad_world_spec: component {comp.ref!r} has no initial_position "
+            "-- pad world coordinates require a placed component"
+        )
     cx, cy = comp.initial_position
     rotation_rad = math.radians(q * 90) + math.radians(float(pin.pad_rotation_deg or 0.0))
     return (pin.width, pin.height, pin.shape, cx + dx, cy + dy, rotation_rad, pin.roundrect_ratio)

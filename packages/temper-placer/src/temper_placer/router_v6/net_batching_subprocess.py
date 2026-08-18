@@ -1,7 +1,8 @@
 """Subprocess-per-batch boundary for :mod:`temper_placer.router_v6.net_batching`.
 
 Split out of ``net_batching.py`` on 2026-08-14 to bring that module back
-under its LOC-cap allowlist baseline (``.loc-allowlist.txt``) after
+under its then-enforced LOC-cap allowlist baseline (the N6 LOC cap gate,
+retired 2026-08-18; see ``docs/adr/2026-08-18-retire-loc-cap-gate.md``) after
 ``#1073`` (``d5eb7adde``) legitimately grew it past the recorded baseline
 while fixing a real production defect (the constraint audit not running on
 the net-batching path) -- see that commit and

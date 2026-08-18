@@ -1143,3 +1143,72 @@ jobs:
             /tmp/r19_worker_*.json
           retention-days: 30
           if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # Fail loudly on a red nightly (2026-08-17 incident, task candidate 1).
+  #
+  # Before this job, a red wasm-tier-nightly.yml run had NO consumer at all —
+  # grep this file pre-2026-08-17 for `issues: write` or `gh issue`: zero
+  # hits. Run 31997559157 (2026-08-17 05:20) caught the actual staleness
+  # incident (stale temper-drc-rs and temper-geometry module shas, 37 missing
+  # temper-geometry tests) and reported it correctly, in full, in its own job
+  # summary and annotations — and nothing routed that finding to a human
+  # faster than "whoever next opens the Actions tab". See docs/evidence/
+  # 2026-08-17-deploy-failure-alerting-and-pr-wasm32-coverage.md.
+  #
+  # Mirrors wasm-tier-deploy.yml's `report-deploy-failure` job (added the same
+  # day, same reasoning) and trunk-health.yml's issue-filing precedent: one
+  # deduplicated tracking issue, refreshed with a comment on repeat failures,
+  # closed by a human once the nightly is green again.
+  #
+  # `needs: [local-sweep-r19, worker-dispatch-r19]` with `if: always()`
+  # (NOT the default "skip if a dependency failed") so this job's own
+  # condition is the only gate — it must run and inspect both results even
+  # when the first one failed, for the same reason worker-dispatch-r19 itself
+  # already uses `if: ${{ !cancelled() }}` rather than the default: these two
+  # jobs check independent things, and a failure in one must not suppress
+  # reporting on the other.
+  report-nightly-failure:
+    name: Report nightly failure (fail loudly)
+    needs: [local-sweep-r19, worker-dispatch-r19]
+    if: ${{ always() && (needs['local-sweep-r19'].result == 'failure' || needs['worker-dispatch-r19'].result == 'failure') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: File or refresh a tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BODY="$(printf '%s\n' \
+            "wasm-tier-nightly.yml went red." \
+            "" \
+            "- run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            "- commit: \`${GITHUB_SHA}\`" \
+            "- local-sweep-r19: \`${{ needs['local-sweep-r19'].result }}\`" \
+            "- worker-dispatch-r19: \`${{ needs['worker-dispatch-r19'].result }}\`" \
+            "" \
+            "This is the R19 native/wasm32 agreement and R5.1 deployed-corpus staleness" \
+            "check — the instrument that caught the 2026-08-11 clock-bug incident (test" \
+            "count unchanged, only the module sha differed) and the 2026-08-17 deploy" \
+            "incident (stale temper-drc-rs / temper-geometry modules, 37 missing tests)." \
+            "A red run here means one of those checks found something real; see the" \
+            "run's job summary (linked above) for which tier and which check." \
+            "" \
+            "Close this issue once wasm-tier-nightly.yml is green again; this job will" \
+            "file a new one if it goes red again.")"
+          EXISTING=$(gh issue list --label wasm-tier-nightly-failure --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "${EXISTING}" ]; then
+            echo "wasm-tier-nightly-failure issue #${EXISTING} is already open; adding a comment instead of filing a duplicate."
+            gh issue comment "${EXISTING}" --body "${BODY}"
+            exit 0
+          fi
+          gh label create wasm-tier-nightly-failure --color B60205 \
+            --description "wasm-tier-nightly.yml (R19 agreement / R5.1 staleness) went red" 2>/dev/null || true
+          gh issue create --label wasm-tier-nightly-failure \
+            --title "WASM tier nightly is red: R19/R5.1 found something" \
+            --body "${BODY}"

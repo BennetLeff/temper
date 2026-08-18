@@ -7,6 +7,51 @@
 - **PCB**: KiCad design with temper-placer optimizer
 - **Language**: C (firmware), Python + Rust (placer)
 
+**Rust is preferred over Python, and the placer is actively migrating off
+Python.** New logic goes in Rust with a thin pyo3 binding, following the
+existing pattern. Do not introduce a new Python single-source-of-truth; if
+you find yourself writing one, the Rust crate it belongs in already exists.
+Two consequences that catch people:
+
+*   Many `*.py` files in the placer are already pure-delegation shims whose
+    every function calls a Rust pyfunction. Editing one because it "looks
+    like the implementation" changes nothing. Check for a Rust owner first.
+*   pyo3 module registration order matters: a later `add_function` silently
+    shadows an earlier one of the same name, with no error. Two duplicate
+    `kw_boundary_match_py` registrations shipped this way and one of them
+    was dead for its entire lifetime.
+
+### When Rust and Python disagree
+
+**Standing rule: fix the Rust until it is definitely correct, then deprecate
+and delete the Python.** Never reconcile by adjusting Rust to match Python,
+and never leave both in place "in agreement" — two homes that agree today
+drift tomorrow, and this repo has the scars to prove it.
+
+"Definitely correct" means correct *by construction*, not correct by
+coincidence. The distinction is not academic:
+
+> `temper_drc_rs::ipc::net_currents()` returned the right ampacity for
+> `GATE_HS` only because its lookup used a **substring** match and the stale
+> key `GATE_H` happens to be a literal prefix. Python's exact match missed the
+> same key and returned the 0.1A default — a 20× disagreement on a safety
+> value. Rust's answer was right; its *mechanism* was wrong, and would equally
+> have matched `XGATE_HSY`. Renaming the key without tightening the lookup
+> would have preserved the coincidence.
+
+So the sequence is: **make Rust right → prove it against Python with a
+differential oracle → delete the Python → keep the oracle.** The ~187 pinned
+`_*_py_oracle.py` files exist to make that deletion safe; adding a new oracle
+for newly-ported code is correct and expected. Re-pinning an *existing* one is
+a separate, deliberately-committed act requiring evidence first.
+
+**A differential test only proves what you feed it.** The Rust/Python
+ampacity divergence above survived a genuinely-running differential test
+because that test's input was `"Gate_H"` — a net name absent from this board.
+Both sides looked it up, both agreed, green. When you write or trust a
+differential, check that its inputs are values the production system actually
+sees.
+
 **Key areas:**
 - `firmware/` - ESP32-S3 control code
 - `packages/temper-placer/` - CP-SAT PCB placement optimizer with Rust geometry/DRC crates
@@ -631,6 +676,89 @@ which is exactly what makes (3) silent: the staleness gate has no way to
 know it is comparing against the wrong checkout's sources in the first
 place.
 
+### Ad-hoc DRC harnesses: copy the library table, not just the sidecars
+
+2026-08-18. A DRC scratch harness that copies only `temper.kicad_pcb` and
+`temper.kicad_pro` — and points `KICAD_CONFIG_HOME` at an empty directory —
+silently fails to resolve **every footprint on the board**.
+
+The symptom is distinctive and worth memorising: **`lib_footprint_issues`
+reads exactly the board's total footprint count** (168 here), and
+**`lib_footprint_mismatch` reads 0**. A number equal to 100% of the
+population is a resolution failure, not a census. The second reading is the
+tell for the first — a footprint that never resolved cannot register as
+*mismatched* against a library it never found, so the pair is corrupted in
+opposite directions at once.
+
+Measured, three controlled runs on the same board:
+
+```
+fp-lib-table + libs/   KICAD_CONFIG_HOME    lib_footprint_issues
+       no                    empty                  168
+      yes                    empty                  165
+      yes                   seeded                   13   <- the truth
+```
+
+`KICAD10_FOOTPRINT_DIR` is **not** an OS environment variable. It is defined
+inside `kicad_common.json`, under `KICAD_CONFIG_HOME`.
+
+**`_drc_api._single_threaded_kicad_env` already does this correctly.** The
+production path has never been wrong. Ad-hoc harnesses copied its
+thread-pinning and not its environment construction — so mirror the whole
+function, or better, call it.
+
+Cost: this artifact was reported and repeated for hours as "the largest
+unexplained DRC regression" and blocked a ceiling re-baseline, when the
+stored ceiling of 13 had been correct the entire time.
+
+**The deltas survived, the absolutes did not.** Because the error is constant
+across a before/after pair, category *deltas* measured this way remain valid;
+only *totals* are inflated. If you inherit a DRC total from a document, check
+how it was measured before trusting it.
+
+### The fifth mode: the shared venv reads *main*, not your worktree
+
+2026-08-17. The four modes above are all "a worktree poisons the venv."
+**The complementary mode is the venv silently serving you the wrong code,
+and it needs no poisoning at all — it is the healthy, correct state of a
+shared venv.**
+
+The shared `.venv`'s `temper_placer` is editable-installed against the
+**main checkout**:
+
+```
+$ .venv/bin/python -c "import temper_placer; print(temper_placer.__file__)"
+/home/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/__init__.py
+```
+
+So a worktree agent that edits Python and then runs
+`.venv/bin/python scripts/route_board.py` **measures `main`'s code, not its
+own change.** Nothing errors. The route succeeds. The numbers come back
+confident and wrong.
+
+This cost a real round trip: an agent fixing the pour-stitch
+`track_width` defect measured **197 violations still present after its
+fix**, and would have reported a regression. The tell was that every
+violation still read `"actual 0.3000 mm"` — the literal value the fix had
+just removed. Code that no longer exists cannot produce violations; the
+measurement was of `main`.
+
+**Two defences, in order of preference:**
+
+1. **`make venv-isolate` in your worktree.** The worktree gets its own
+   `.venv` and the question disappears. This is what the "check for a Rust
+   owner / no shared-venv rebuild" rules already push you toward, and it
+   fixes reads as well as writes.
+2. **If you must use the shared venv, verify what you are importing before
+   you believe a number** — `python -c "import temper_placer; print(...__file__)"`
+   and confirm the path is your worktree. A `sys.path` override wrapper
+   works, but is easy to get subtly wrong.
+
+**The generalizable rule: when a measurement contradicts a change you just
+made, suspect the measurement before the change.** Ask what the number
+would look like if your edit were not in effect at all — here, "identical
+to before" was exactly the observed result, and that is the signature.
+
 **`scripts/check_venv_integrity.py` closes (3).** It asserts every
 editable-install `.pth` file and every `direct_url.json` in the checked
 venv's site-packages resolves under the expected repo root — not into a
@@ -792,6 +920,25 @@ Two corollaries:
 *   **Leave the main checkout on `main`.** If you did work there, return it
     when done. A shared checkout parked on a feature branch silently
     changes what the next agent measures.
+
+**Your own worktree means *yours*, not merely "not the main checkout."**
+Run `git worktree list` and confirm the directory is yours before your
+first write. Reusing a directory another agent is already in is the same
+failure as sharing the main checkout, and it is the more common one: in a
+single session on 2026-08-14, seven collisions occurred, including three
+separate agents working in one `.claude/worktrees/agent-*` directory —
+one agent's commits landed on another's branch, and a third's uncommitted
+edits sat in the same tree while HEAD was moved out from under them twice.
+
+If you discover foreign work in your tree:
+
+*   **Do not `git checkout`, `restore`, `reset`, or revert it.** Copy your
+    own files out and rebranch. Reverting someone else's uncommitted work
+    is unrecoverable, and `git stash` is forbidden repo-wide.
+*   **Check what your branch is stacked on.** A branch created inside a
+    shared worktree inherits whatever was checked out there. Cherry-pick
+    the commit you need onto a clean base rather than carrying three
+    commits belonging to two other agents into your PR.
 
 ### Never Background a Long Run and Wait For It
 

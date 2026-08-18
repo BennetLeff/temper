@@ -262,6 +262,12 @@ def assign_trace_widths(
         )
         # Layer-aware physics first (PR #1195): IPC-2221B minimum from the
         # net's real current, copper weight, and internal-vs-external role.
+        # Explicit annotation: without it, mypy infers `width`'s type from
+        # this branch's non-Optional `TraceWidth` return alone, then flags
+        # the `else` branch below (which legitimately assigns the Optional
+        # `_netclass_trace_width` result, handled by the `if width is None`
+        # right after it) as an incompatible reassignment.
+        width: TraceWidth | None
         if stackup is not None:
             width = _determine_trace_width_layer_aware(
                 net_name,
@@ -406,7 +412,11 @@ def _worst_case_copper_context(
     stackup's own worst-case (thinnest) declared layer instead of guessing.
     """
     candidates = []
-    for layer_name in layers:
+    # `layers` is a frozenset: iterate a stable order (layer name) rather
+    # than the set's PYTHONHASHSEED-dependent iteration order, which would
+    # otherwise leak into `candidates`' insertion order before the sort below
+    # (scripts/check_hash_order_determinism.py).
+    for layer_name in sorted(layers):
         oz = _copper_weight_oz(layer_name, stackup)
         if oz is not None:
             internal = layer_name not in _EXTERNAL_COPPER_LAYERS

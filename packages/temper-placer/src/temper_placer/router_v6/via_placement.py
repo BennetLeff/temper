@@ -43,6 +43,70 @@ class ViaPlacement:
         return [v for v in self.vias if v.net_name == net_name]
 
 
+def drop_redundant_vias(
+    vias: list[Via],
+    pcb: Any,
+    *,
+    tolerance_mm: float = 0.02,
+) -> list[Via]:
+    """Drop vias that duplicate a hole already at that exact point for the
+    SAME net -- either another via this function already kept, or an
+    existing PTH/THT pad.
+
+    Root cause: docs/evidence/2026-08-17-blind-via-annular-floor-fix.md's
+    ``holes_co_located`` finding (17 violations, unrelated to the
+    annular-ring-floor defect fixed alongside this -- ``Via::new``'s
+    annular clamp only changes pad DIAMETER, never via POSITION, so it
+    cannot touch this class). Two concrete shapes measured directly on a
+    fresh route of this board's own committed geometry:
+
+    * The N-layer A* pathfinder (``_astar_nlayer.py``) emits more than one
+      ``via_positions`` waypoint for the SAME net at the SAME point (e.g.
+      ``safety.ocp2-line``, ``sw``, ``ina``, ``rtd_pan.r_low_top-inn``,
+      ``OCP2_VREF_2V5``) -- two vias stacked on each other, a real,
+      fabricatable-but-pointless duplicate hole.
+    * A via lands exactly on an existing PTH/THT pad of its OWN net (e.g.
+      the via at C7's own PTH pad 1 on ``discharge.r_snub1-p2``, or J1's
+      RTD-sense pads) -- redundant, not incorrect: a THT/PTH pad is
+      already plated through every layer its hole passes, so a via at the
+      identical point adds no reachable copper the pad does not already
+      provide.
+
+    Removing either is connectivity-neutral by construction (the
+    kept/pre-existing hole already provides every electrical path the
+    dropped via would), so this is safe to apply unconditionally rather
+    than needing a case-by-case judgment call. Quantized to
+    ``tolerance_mm`` (matches
+    ``pad_connectivity_audit.audit_pcb_file``'s own default) rather than
+    exact float equality, since the two colliding points are not always
+    computed by the identical code path.
+    """
+    from temper_placer.core.pin_geometry import pin_world_position
+
+    def _key(pos: tuple[float, float]) -> tuple[int, int]:
+        return (round(pos[0] / tolerance_mm), round(pos[1] / tolerance_mm))
+
+    pth_positions_by_net: dict[str, set[tuple[int, int]]] = {}
+    for comp in getattr(pcb, "components", None) or []:
+        for pin in getattr(comp, "pins", None) or []:
+            net = getattr(pin, "net", None)
+            if not net or not getattr(pin, "is_pth", False):
+                continue
+            pos = pin_world_position(pin, comp)
+            pth_positions_by_net.setdefault(net, set()).add(_key(pos))
+
+    seen_by_net: dict[str, set[tuple[int, int]]] = {}
+    kept: list[Via] = []
+    for via in vias:
+        key = _key(via.position)
+        seen = seen_by_net.setdefault(via.net_name, set())
+        if key in pth_positions_by_net.get(via.net_name, ()) or key in seen:
+            continue
+        seen.add(key)
+        kept.append(via)
+    return kept
+
+
 def place_vias(
     pathfinding_result: PathfindingResult,
     via_diameter: float = 0.6,
@@ -117,6 +181,34 @@ def _place_vias_for_path(
         seg_xs = [s[0] for s in segs]
         seg_ys = [s[1] for s in segs]
         seg_layers = [s[2] for s in segs]
+
+        # FIXED 2026-08-17 (docs/evidence/2026-08-17-via-dangling-25-real-
+        # defects.md): a route whose OWN emitted segments never leave a
+        # single copper layer cannot have a genuine layer-transition point
+        # for `via_layer_pair_py` to derive -- `via_segment_index` either
+        # finds no matching segment, or matches one with no differing-layer
+        # successor (e.g. the path's own terminal point), and in EITHER
+        # case falls back to the hardcoded ("F.Cu", "B.Cu") pair
+        # (via_clearance.rs::via_layer_pair). That fallback fabricates a
+        # full through-via with no basis in the route's actual geometry:
+        # since the whole net never puts copper on the "other" layer
+        # anywhere on the board, the via ends up with real copper touching
+        # it on at most one of its two spanned layers by construction --
+        # KiCad's `via_dangling` warning ("Via is not connected or
+        # connected on only one layer"), not by any downstream routing
+        # mistake but because this function asked for a via that could
+        # never have had a purpose. Measured directly on the committed
+        # board (`pcb/temper.kicad_pcb`): all 25 `via_dangling` findings
+        # belong to nets whose entire routed copper sits on exactly one
+        # external layer, and every stray `via_positions` entry on those
+        # nets is 21-230mm from the net's own nearest pad (never a
+        # pad-landing via) -- i.e. mid-route debris from a stale pathfinder
+        # waypoint, not a real transition. A single-layer path needs zero
+        # vias; skip via placement for it entirely rather than emit one
+        # from a fallback that cannot be right for it.
+        if len(set(seg_layers)) <= 1:
+            return vias
+
         for vx, vy in route_path.via_positions:
             from_layer, to_layer = _tg.via_layer_pair_py(
                 vx, vy, seg_xs, seg_ys, seg_layers
