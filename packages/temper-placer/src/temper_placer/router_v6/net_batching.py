@@ -175,8 +175,9 @@ from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differen
 # The subprocess-per-batch boundary (multiprocessing driver: spawn a fresh
 # child per batch/singleton-retry, project/pickle the static-across-the-run
 # inputs, distinguish crash from UNSAT) lives in net_batching_subprocess.py
-# -- split out 2026-08-14 to bring this module back under its LOC-cap
-# allowlist baseline (.loc-allowlist.txt) after #1073 legitimately grew it
+# -- split out 2026-08-14 to bring this module back under its then-enforced
+# LOC-cap allowlist baseline (the N6 LOC cap gate, retired 2026-08-18; see
+# docs/adr/2026-08-18-retire-loc-cap-gate.md) after #1073 legitimately grew it
 # past that baseline fixing a real defect (see that module's docstring for
 # the full provenance). Re-exported here so both `net_batching.X` attribute
 # access and `from temper_placer.router_v6.net_batching import X` keep
