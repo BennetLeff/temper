@@ -3177,6 +3177,37 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_duplicate_predicates.py
 
+      # 2026-08-18: the sibling shape check_duplicate_predicates.py does
+      # NOT cover. That gate catches a NEW independent copy of an
+      # ALREADY-consolidated predicate; check_fact_registry_drift.py (a
+      # different, non-required job -- see board-provenance-requirements-
+      # gates above) catches a scalar FACT disagreeing across homes.
+      # Neither catches "one file cloned from another, on purpose, then
+      # a fix landed in one twin and never propagated to the other" --
+      # exactly what hit _power_islands.py/_ground_plane.py three
+      # separate times in one day (2026-08-17): STITCH_TRACE_WIDTH_MM
+      # 0.3-vs-1.0mm (a Fact, not this gate's job), a false "identical"
+      # code comment (no AST for prose, not mechanically checkable), and
+      # _blocked()/the via-drop stub missing an entire foreign-copper
+      # collision check _ground_plane.py had already been fixed to
+      # include -- +77 shorting_items once stitch width reached spec
+      # (PR #1329's regression, fixed by PR #1332,
+      # docs/evidence/2026-08-17-stitch-congestion-rootcause-and-fix.md).
+      # scripts/clone_drift_registry.py registers 8 function pairs
+      # (the _power_islands/_ground_plane twins; zone_pour_clearance.py's
+      # self-documented "Twin" zone_pour_creepage.py; a 5-file
+      # s-expression mini-parser family this gate's own discovery sweep
+      # found under scripts/*.py) at a measured normalized-AST-similarity
+      # floor each. Parses only .py source text (no built extensions
+      # needed), so it runs unconditionally like the two gates above.
+      - name: Clone-drift gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_clone_drift.py -v --tb=short
+
+      - name: Clone-drift gate (registered function-pair similarity floors)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_clone_drift.py
+
       # Constraint mutation suite (plan 2026-08-02-006, R32): every CP-SAT
       # constraint encoding must carry a non-empty, triaged kill set in
       # power_pcb_dataset/constraint_kill_sets.yaml. Fixed 2026-08-11
