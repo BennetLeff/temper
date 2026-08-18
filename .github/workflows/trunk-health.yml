@@ -97,8 +97,10 @@ jobs:
           run_gate "Generated repo state (derived artifacts vs sources)" \
             python3 scripts/gen_repo_state.py --check
 
-          run_gate "LOC cap gate" \
-            python3 tools/loc_cap_check.py
+          # The "LOC cap gate" ran here until 2026-08-18. Retired by owner
+          # decision, not erosion -- see docs/adr/2026-08-18-retire-loc-cap-gate.md.
+          # Its value was as a prioritizer for the Python->Rust migration, and
+          # that role is now served by a measured port list.
 
           # Added 2026-08-03 after this canary missed a third trunk breakage it
           # could have caught: three workflows had a push trigger with no
