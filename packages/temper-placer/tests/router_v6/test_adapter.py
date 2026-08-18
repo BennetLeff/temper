@@ -2076,20 +2076,32 @@ class TestRoutingResultForcedSegments:
 class TestHVACForcedSegmentFailClosed:
     """R1/R2: no net class -- including HV/AC -- may silently forced-segment.
 
-    ``test_hv_net_name_excluded_from_astar_by_should_route`` and
-    ``test_ac_net_name_excluded_from_astar_by_should_route`` use canonical
-    HV/AC net names (``SW_NODE``, ``AC_L``). Those names are themselves
-    excluded from A* entirely by ``_should_route()``'s HV pattern matching
-    (handled by zone pours instead), so they never reach
-    ``_allow_forced_segments`` and prove name-pattern exclusion, not gate
-    behavior -- kept as real coverage of that exclusion, correctly labeled.
-    The two tests below them use non-excluded net names that carry an
-    HV/AC ``safety_category`` via ``design_rules`` instead, so they
-    genuinely drive execution into the gate.
+    ``test_hv_net_name_reaches_astar_and_fails_closed`` and
+    ``test_ac_net_name_reaches_astar_and_fails_closed`` use canonical
+    HV/AC net names (``SW_NODE``, ``AC_L``).
+
+    UPDATED 2026-08-18 (``_net_policy.py``'s ``_should_route``, CHANGED
+    2026-08-18; ``docs/evidence/2026-08-18-astar-for-zone-eligible-nets.md``):
+    until that change those two names were excluded from A* entirely by
+    ``_should_route()``'s zone-eligibility branch ("handled by zone pours
+    instead"), so they never reached ``_allow_forced_segments`` and these
+    two tests asserted only that exclusion -- ``assert name not in
+    result.failure_reports``. The zone-eligibility exclusion has been
+    removed (its premise, that the pour is these nets' conductive path,
+    was measured false), so ``SW_NODE``/``AC_L`` now genuinely enter A*,
+    genuinely fail to cross this fixture's wall, and must fail CLOSED.
+    Both tests are therefore strengthened rather than relaxed: instead of
+    "this net never reached the gate", each now asserts the gate's actual
+    R1/R2 contract for an HV/AC name -- no route fabricated, the net
+    reported as failed, and the failure attributed to
+    ``forced_segment_fail_closed`` rather than papered over with a raw
+    unchecked segment. The two tests below them use non-excluded net
+    names that carry an HV/AC ``safety_category`` via ``design_rules``,
+    and are unchanged.
     """
 
-    def test_hv_net_name_excluded_from_astar_by_should_route(self):
-        """Canonical HV net names never reach A* at all (zone pours handle them)."""
+    def test_hv_net_name_reaches_astar_and_fails_closed(self):
+        """A canonical HV net name with no legal path fails closed, never forced."""
         import numpy as np
 
         from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
@@ -2132,21 +2144,25 @@ class TestHVACForcedSegmentFailClosed:
             max_iter=10_000,
         )
 
-        # HV net is excluded from A* routing by _should_route (handled by zone pours)
+        # The wall is impassable, so no legal path exists. R1/R2: the net
+        # must be reported failed, NOT rescued with a forced segment.
         assert "SW_NODE" not in result.routed_paths, (
-            "HV-class net must not succeed via A*"
+            "HV-class net must not succeed via A* through an impassable wall"
         )
-        # U1: _should_route's name-based exclusion is a routing-strategy
-        # decision, not a "declined net" in R3/R4's sense -- it must not
-        # produce a failure_reports entry (that would misrepresent a
-        # zone-pour-handled net as a prover decline).
-        assert "SW_NODE" not in (result.failure_reports or {}), (
-            "A net excluded by _should_route is not a decline and must not "
-            "appear in failure_reports"
+        assert "SW_NODE" in result.failed_nets, (
+            "SW_NODE now reaches A* (_should_route's zone-eligibility "
+            "exclusion was removed 2026-08-18) and must be reported as a "
+            "genuine failure, not silently absent from both lists"
+        )
+        report = (result.failure_reports or {}).get("SW_NODE")
+        assert report is not None, "a failed net must carry a failure report"
+        assert report.rule_id == "forced_segment_fail_closed", (
+            "the failure must be attributed to the fail-closed forced-segment "
+            f"gate, not fabricated copper -- got rule_id={report.rule_id!r}"
         )
 
-    def test_ac_net_name_excluded_from_astar_by_should_route(self):
-        """Canonical AC net names never reach A* at all (zone pours handle them)."""
+    def test_ac_net_name_reaches_astar_and_fails_closed(self):
+        """A canonical AC net name with no legal path fails closed, never forced."""
         import numpy as np
 
         from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
@@ -2186,11 +2202,18 @@ class TestHVACForcedSegmentFailClosed:
             max_iter=10_000,
         )
 
-        # AC net is excluded from A* routing by _should_route (handled by zone pours)
+        # Same contract as the HV case above: impassable wall -> honest
+        # failure attributed to the fail-closed gate, never a forced segment.
         assert "AC_L" not in result.routed_paths
-        assert "AC_L" not in (result.failure_reports or {}), (
-            "A net excluded by _should_route is not a decline and must not "
-            "appear in failure_reports"
+        assert "AC_L" in result.failed_nets, (
+            "AC_L now reaches A* (_should_route's zone-eligibility exclusion "
+            "was removed 2026-08-18) and must be reported as a genuine failure"
+        )
+        report = (result.failure_reports or {}).get("AC_L")
+        assert report is not None, "a failed net must carry a failure report"
+        assert report.rule_id == "forced_segment_fail_closed", (
+            "the failure must be attributed to the fail-closed forced-segment "
+            f"gate, not fabricated copper -- got rule_id={report.rule_id!r}"
         )
 
     def test_hv_class_net_with_routable_name_fails_closed_via_gate(self):

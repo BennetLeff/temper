@@ -338,15 +338,28 @@ def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets(
     remaining correctly zone-ineligible per the netclass SSOT
     (`_zone_layers_for_net` returns ``[]``).
 
-    `PWR_RTN` is the ONE exception the R4 pour-derivation fix (2026-08-07,
-    `docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md`) created
-    on purpose: `GND` declares ``plane_preferred`` and `PWR_RTN` is its
-    only member with committed zones on the board, so
-    `_zone_layers_for_net("PWR_RTN")` is now
+    `PWR_RTN` used to be the ONE exception, per the R4 pour-derivation fix
+    (2026-08-07, `docs/plans/2026-07-29-001-fix-pour-derivation-rule-plan.md`):
+    `GND` declares ``plane_preferred`` and `PWR_RTN` is its only member
+    with committed zones on the board, so
+    `_zone_layers_for_net("PWR_RTN")` is
     ``["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"]`` (widened 2026-08-13 alongside
-    `ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED`) and its A* exclusion is
-    correct (the zone covers it). It is deliberately NOT in the
-    A*-must-route list below.
+    `ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED`), and on that basis it was
+    excluded from A* on the premise that "the zone covers it".
+
+    UPDATED 2026-08-18 (`_net_policy.py`'s `_should_route`, CHANGED
+    2026-08-18; `docs/evidence/2026-08-18-astar-for-zone-eligible-nets.md`
+    and `docs/evidence/2026-08-18-zone-pour-fragmentation-rootcause.md`):
+    that premise was measured false. `PWR_RTN`'s pour fragments into 26
+    disjoint islands across its 15 pads and stays fragmented under
+    `--refill-zones`, and a creepage-aware pad-to-pad MST stitcher bridges
+    none of them -- so excluding it from A* left it with no conductive
+    path from EITHER mechanism, which is precisely the orphaning this test
+    exists to forbid. `PWR_RTN` therefore MOVES INTO the must-route list
+    below, exactly as this test's own previous wording said it must if its
+    exclusion ever stopped being justified. Its zone eligibility is
+    unchanged and is still asserted (it now gets both mechanisms, not
+    neither); the pass/fail bar here is raised, not lowered.
     """
     from temper_placer.router_v6._net_policy import _should_route
     from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
@@ -364,18 +377,31 @@ def test_real_policy_predicates_no_longer_orphan_the_measured_power_ground_nets(
             "be updated to match, not just this assertion"
         )
 
-    # PWR_RTN: plane_preferred + committed board zones -> zone-covered, so
-    # its A* exclusion is correct (the zone produces the copper).
+    # PWR_RTN: plane_preferred + committed board zones -> still zone-
+    # eligible, AND (2026-08-18) also A*-eligible, because the pour alone
+    # was measured not to connect it. Both mechanisms, not neither.
     assert _zone_layers_for_net("PWR_RTN") == ["F.Cu", "In3.Cu", "In4.Cu", "B.Cu"], (
         "PWR_RTN's plane_preferred zone eligibility must persist (R4); "
         "regressing it back to [] would re-orphan it exactly as this test "
         "guards against"
     )
-    assert not _should_route("PWR_RTN"), (
-        "PWR_RTN is zone-covered (plane_preferred + committed zones), so "
-        "its exclusion from A* is correct -- if it lost zone eligibility "
-        "it must move back into the A*-routed list above"
+    assert _should_route("PWR_RTN"), (
+        "PWR_RTN must be A*-eligible: its pour fragments into disjoint "
+        "islands that no stitcher can bridge (measured, see this test's "
+        "docstring), so excluding it from A* orphans it from both "
+        "copper-producing mechanisms -- the exact defect this test guards"
     )
+
+    # And the general invariant this test really encodes: NO net may be
+    # excluded from A* while also being uncovered by a pour. Stated
+    # directly rather than only as a per-net roll-call, so a future
+    # policy or SSOT change cannot re-open the orphaning hole for a net
+    # nobody thought to list here.
+    for name in [*orphaned_by_policy, "PWR_RTN", "SW_NODE", "ac_n", "+170V_BUS"]:
+        assert _should_route(name) or _zone_layers_for_net(name), (
+            f"{name!r} is excluded from A* AND has no zone pour -- it would "
+            "get copper from neither mechanism"
+        )
 
     # And the audit agrees: with real copper present for these nets (as the
     # production run now provides -- see

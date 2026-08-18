@@ -19,12 +19,22 @@ _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
 
 def _should_route(net_name: str) -> bool:
-    """Return True if net should be routed by A* (signal nets only).
+    """Return True if net should be routed by A*.
 
-    Power, ground, and HV nets are excluded from A* *only when a zone pour
-    will actually cover them* -- checked against ``_zone_layers_for_net()``,
-    the netclass SSOT's real pour-eligibility gate
-    (``NetClassRules.routing_strategy == "plane_required"``).
+    As of 2026-08-18 the only exclusions are ``_CONTINUITY_EXEMPT_NETS``
+    (one net, an unresolved router memory blowup -- see below) and the
+    ``_SKIP_NET_PREFIXES`` no-connect/test-point families. Zone-pour
+    eligibility no longer excludes anything: see the CHANGED 2026-08-18
+    note in the body for the measurements that retired that rule.
+
+    HISTORICAL (the two fixes this function accumulated, kept because each
+    records a premise that turned out to be false and how it was
+    measured):
+
+    Power, ground, and HV nets used to be excluded from A* *only when a
+    zone pour will actually cover them* -- checked against
+    ``_zone_layers_for_net()``, the netclass SSOT's real pour-eligibility
+    gate (``NetClassRules.routing_strategy == "plane_required"``).
 
     FIXED 2026-08-08 (topology_copper_audit.py / the investigation this
     closes): this used to exclude every net matching the Power/GND/HV name
@@ -51,10 +61,11 @@ def _should_route(net_name: str) -> bool:
     -verdict pour on F.Cu/B.Cu is what walls those layers off from all other
     routing). Routing them via A* instead is strictly better than the
     current zero-copper state and matches Task 3's own recommendation
-    ("Power/GateDrive/GND should route as traces by default"). Any
-    Power/GND/HV net the SSOT *does* grant zone eligibility to (e.g.
-    ``SW_NODE``, ``DC_BUS_RTN``, ``ac_l``, ``ac_n``) is unaffected and stays
-    excluded from A*, since a pour genuinely covers it.
+    ("Power/GateDrive/GND should route as traces by default"). That fix
+    left Power/GND/HV nets the SSOT *does* grant zone eligibility to (e.g.
+    ``SW_NODE``, ``DC_BUS_RTN``, ``ac_l``, ``ac_n``) still excluded from
+    A*, "since a pour genuinely covers it" -- the premise the 2026-08-18
+    change below retired on measured evidence.
     """
     from temper_placer.router_v6._zone_pour_stitch import _CONTINUITY_EXEMPT_NETS
 
@@ -89,20 +100,39 @@ def _should_route(net_name: str) -> bool:
     if net_name in _CONTINUITY_EXEMPT_NETS:
         return False
 
-    from temper_placer.router_v6.net_classification import (
-        is_ground_net,
-        is_hv_net,
-        is_power_net,
-    )
-
-    if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
-        from temper_placer.router_v6._zone_pour_stitch import _zone_layers_for_net
-
-        if _zone_layers_for_net(net_name):
-            return False
-        # Not zone-pour-eligible per the SSOT: fall through so A* attempts
-        # this net instead of orphaning it from both copper-producing
-        # mechanisms (the bug this fixes).
+    # CHANGED 2026-08-18 (docs/evidence/2026-08-18-astar-for-zone-eligible-nets.md):
+    # the zone-eligibility exclusion that used to live here is REMOVED. It
+    # read:
+    #
+    #     if is_power_net(n) or is_ground_net(n) or is_hv_net(n):
+    #         if _zone_layers_for_net(n):
+    #             return False
+    #
+    # i.e. "a net the SSOT grants a pour to needs no trace, because the
+    # pour is its conductive path." Three independent 2026-08-17/18
+    # investigations measured that premise false for every net it applied
+    # to on this board: the pours fragment into disjoint islands (19 for
+    # `+170V_BUS`'s 11 pads, 26 for `PWR_RTN`'s 15) and stay fragmented
+    # under `--refill-zones`, and a creepage-aware pad-to-pad MST stitcher
+    # bridges none of them (48 of 51 candidate edges blocked by the
+    # creepage gate, the 3 survivors redundant with the pour) --
+    # docs/evidence/2026-08-18-zone-pour-fragmentation-rootcause.md. A net
+    # excluded here therefore got no conductive path from EITHER mechanism.
+    #
+    # Removing the exclusion lets A* -- which detours around obstacles,
+    # unlike a straight-line stitch edge -- attempt these nets in addition
+    # to their pour. See the evidence doc for the measured outcome; this
+    # gate deliberately does not decide whether any given net succeeds,
+    # only that it is allowed to be tried.
+    #
+    # `is_power_net`/`is_ground_net`/`is_hv_net` are no longer consulted
+    # here at all: with the zone branch gone they had no effect on the
+    # return value. `_CONTINUITY_EXEMPT_NETS` above is the one remaining
+    # net-scoped exclusion and is NOT relaxed -- routing
+    # `power_in.ntc-no` through A* exhausts an 8GB cap and aborts rather
+    # than returning a route-or-fail verdict (a router robustness gap
+    # documented 2026-08-14), so it stays excluded and stays measured as
+    # such.
     return not any(net_name.startswith(p) for p in _SKIP_NET_PREFIXES)
 
 
