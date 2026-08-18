@@ -138,6 +138,21 @@ getrandom = { version = "0.2", features = ["custom"] }
 
 [dev-dependencies]
 proptest = "1"
+# tests/compile_fail.rs: enforces that this crate's type-system guards
+# (WorldPosition, Layer, RotationQuadrant, NetRouteResult::Connected,
+# ClearanceHalo) fail to compile FOR THE STATED REASON, by diffing full rustc
+# stderr against checked-in .stderr expectations.
+#
+# The `compile_fail` doctests these supplement assert only that a snippet does
+# not compile -- never why. Measured on rustc 1.97.1: a doctest annotated with
+# the WRONG error code (E0433 against an actual E0451) passes, and a doctest
+# whose body fails only because of a typo passes identically. Both are vacuous.
+# trybuild makes the error identity part of the assertion.
+#
+# Dev-dependency only: never in the Python extension build, never on wasm32
+# (trybuild shells out to cargo and needs a host toolchain, so this test is
+# native-only by construction -- the same as the doctests it backs).
+trybuild = "1.0.120"
 
 [profile.release]
 panic = "unwind"

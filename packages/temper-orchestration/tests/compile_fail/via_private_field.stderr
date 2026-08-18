@@ -1,0 +1,5 @@
+error[E0616]: field `from_layer` of struct `Via` is private
+  --> tests/compile_fail/via_private_field.rs:14:17
+   |
+14 |     let _ = via.from_layer;
+   |                 ^^^^^^^^^^ private field

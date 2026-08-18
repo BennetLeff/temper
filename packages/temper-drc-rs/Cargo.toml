@@ -113,6 +113,12 @@ panic = "unwind"
 
 [dev-dependencies]
 proptest = "1"
+# tests/compile_fail.rs: enforces DrcCount's private-field guard (a saturated
+# count cannot be laundered into an "honest" one) fails to compile for the
+# stated reason (E0451). This guard had NO compile_fail doctest at all before
+# 2026-08-18 despite being cited as one of the project's type-system guards.
+# Dev-dependency only; native-only by construction.
+trybuild = "1.0.120"
 
 [lints.clippy]
 unwrap_used = "deny"

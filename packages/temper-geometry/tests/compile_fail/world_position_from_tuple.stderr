@@ -1,0 +1,7 @@
+error[E0277]: the trait bound `WorldPosition: From<({float}, {float})>` is not satisfied
+  --> tests/compile_fail/world_position_from_tuple.rs:10:59
+   |
+10 |     let _bad: temper_geometry::WorldPosition = (1.0, 2.0).into();
+   |                                                           ^^^^ the trait `From<({float}, {float})>` is not implemented for `WorldPosition`
+   |
+   = note: required for `({float}, {float})` to implement `Into<WorldPosition>`

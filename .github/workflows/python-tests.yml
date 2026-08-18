@@ -1297,6 +1297,54 @@ jobs:
             cargo test --doc --no-default-features --manifest-path "$manifest"
           done
 
+      # The step above proves each `compile_fail` doctest does not compile. It
+      # does NOT prove WHY -- and that gap is not theoretical. Measured on
+      # rustc 1.97.1, 2026-08-18, against this repo:
+      #
+      #   * `world_position.rs`'s private-field guard is really E0451.
+      #     Annotating it ```compile_fail,E0433``` -- a flatly wrong code --
+      #     still passed. rustdoc on stable does not enforce the annotation.
+      #   * Replacing that guard's body with a TYPO (`WrldPositionTYPO { .. }`),
+      #     which deletes all contact with the guard, also still passed.
+      #
+      # So a future edit that breaks a guard while leaving the snippet failing
+      # for some other reason is invisible to `cargo test --doc`. Every one of
+      # these guards protects a mains-board invariant (clearance halos, routing
+      # completion, DRC counting, coordinate-space confusion, via annular ring,
+      # copper stackup identity, pad identity), and they have been cited
+      # repeatedly as evidence those invariants hold.
+      #
+      # `trybuild` compiles each case and diffs the FULL rustc stderr against a
+      # checked-in `.stderr`, so the error code, message and span are all part
+      # of the assertion. Removing a guard fails the test; changing WHICH error
+      # fires fails the test with a visible diff. Both directions are verified
+      # per guard -- see docs/evidence/2026-08-18-compile-fail-guard-enforcement.md.
+      #
+      # This runs in the SAME job as the doctests (`rust-checks`), whose context
+      # "Rust Checks (cargo check + clippy)" is a required check -- so it is
+      # gated on the PR path, not merely present. `--no-default-features`
+      # matches the doctest step: it keeps pyo3's `extension-module` out of the
+      # link, the same hazard documented above. The doctests are deliberately
+      # KEPT as the rendered documentation; this step is the enforcement.
+      #
+      # If a case's expectation needs regenerating after an intentional guard
+      # change, run TRYBUILD=overwrite locally and READ THE DIFF -- a `.stderr`
+      # that no longer names the expected error code means the guard moved, not
+      # that the expectation was stale. Never regenerate to turn a red test
+      # green without understanding which error replaced which.
+      - name: Type-system guard enforcement (trybuild compile_fail)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          set -eu
+          for manifest in \
+                       packages/temper-design-bundle/Cargo.toml \
+                       packages/temper-drc-rs/Cargo.toml \
+                       packages/temper-geometry/Cargo.toml \
+                       packages/temper-orchestration/Cargo.toml; do
+            echo "=== trybuild compile_fail $manifest ==="
+            cargo test --test compile_fail --no-default-features --manifest-path "$manifest"
+          done
+
       # Same gap, same fix, one crate over: temper-geometry's `#[cfg(test)]`
       # modules ran nowhere. CI tested only temper-design-bundle and
       # temper-orchestration, and on 2026-08-06 the escape_via kernel made
