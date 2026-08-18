@@ -602,6 +602,92 @@ def _carve_outline(
 
 
 
+def _mst_edges(positions: list[tuple[float, float]]) -> list[tuple[int, int]]:
+    """Euclidean minimum spanning tree over *positions*, Prim's O(n^2).
+
+    Extracted, unchanged, from ``_stitch_pads_to_each_other``'s inline MST
+    fallback (2026-08-14) so it can be exercised standalone -- board-scale
+    pad counts are never more than a handful, so O(n^2) is simple,
+    deterministic, and needs no external dependency at this size. A
+    reasonable STARTING GUESS, not a DRC-verified result on its own; see
+    ``_gate_filter_edges`` for the check that makes it safe to emit.
+
+    Deterministic tie-break: ties are broken by iterating ``in_tree`` in
+    insertion order and ``remaining`` in ascending original-index order,
+    keeping the FIRST edge found (strict ``<``). ``positions[0]`` is always
+    the tree's root.
+    """
+    remaining = list(range(1, len(positions)))
+    in_tree = [0]
+    edges: list[tuple[int, int]] = []
+    while remaining:
+        best = None
+        best_d2 = float("inf")
+        for i in in_tree:
+            xi, yi = positions[i]
+            for j in remaining:
+                xj, yj = positions[j]
+                d2 = (xj - xi) ** 2 + (yj - yi) ** 2
+                if d2 < best_d2:
+                    best_d2 = d2
+                    best = (i, j)
+        assert best is not None
+        edges.append(best)
+        in_tree.append(best[1])
+        remaining.remove(best[1])
+    return edges
+
+
+def _gate_filter_edges(
+    positions: list[tuple[float, float]],
+    edges: list[tuple[int, int]],
+    obstacle_records: list[tuple[int, float, float, float, float, float, float]],
+    stitch_width_mm: float,
+) -> tuple[list[tuple[int, int]], int]:
+    """Drop every edge whose buffered footprint intersects the obstacle union.
+
+    Extracted, unchanged, from ``_stitch_pads_to_each_other``'s inline
+    C-space gate (2026-08-16). ``obstacle_records`` is the same
+    ``collect_zone_obstacle_records`` flat-record convention the Rust zone
+    carve (``pour_outline_py``) consumes -- each item already buffered by
+    its own pair-resolved ``max(clearance, creepage)`` separation, so this
+    gate is creepage-aware for HV pairs by construction, not merely
+    clearance-aware: there is no separate "is this pair HV" branch here to
+    drift out of step with the carve's own figure.
+
+    Returns ``(kept_edges, skipped_count)``. A skipped edge is dropped
+    fail-closed -- never emitted as a known-shorting/creeping straight
+    line.
+    """
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    geoms: list = []
+    for kind, x, y, a, b, w, separation in obstacle_records:
+        if kind == 0:  # Pad
+            geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
+        elif kind == 1:  # Track
+            geoms.append(LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8))
+        else:  # Via
+            geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
+    obstacle_union = unary_union(geoms) if geoms else None
+
+    kept: list[tuple[int, int]] = []
+    skipped = 0
+    for i, j in edges:
+        xi, yi = positions[i]
+        xj, yj = positions[j]
+        if obstacle_union is not None and not obstacle_union.is_empty:
+            footprint = LineString([(xi, yi), (xj, yj)]).buffer(
+                stitch_width_mm / 2.0, quad_segs=8
+            )
+            if footprint.intersects(obstacle_union):
+                skipped += 1
+                continue
+        kept.append((i, j))
+    return kept, skipped
+
+
 def _stitch_pads_to_each_other(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
@@ -706,8 +792,6 @@ def _stitch_pads_to_each_other(
     """
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
     from temper_placer.router_v6._adapter_convert import _next_tstamp
-    from shapely.geometry import LineString, Point
-    from shapely.ops import unary_union
 
     _STITCH_LAYER = "In3.Cu"
 
@@ -745,28 +829,7 @@ def _stitch_pads_to_each_other(
                 if ia != ib:
                     edges.append((ia, ib))
         else:
-            # Minimum spanning tree over the (tiny -- board-scale pad
-            # counts, never more than a handful) pad set, O(n^2) Prim's:
-            # simple, deterministic, no external dependency needed at this
-            # size. A reasonable STARTING GUESS, not a DRC-verified result
-            # -- see this dict's own docstring above.
-            remaining = list(range(1, len(positions)))
-            in_tree = [0]
-            while remaining:
-                best = None
-                best_d2 = float("inf")
-                for i in in_tree:
-                    xi, yi = positions[i]
-                    for j in remaining:
-                        xj, yj = positions[j]
-                        d2 = (xj - xi) ** 2 + (yj - yi) ** 2
-                        if d2 < best_d2:
-                            best_d2 = d2
-                            best = (i, j)
-                assert best is not None
-                edges.append(best)
-                in_tree.append(best[1])
-                remaining.remove(best[1])
+            edges = _mst_edges(positions)
 
         via_dropped: set[int] = set()
         stitch_width = _stitch_width_for_net(net_name)
@@ -775,9 +838,9 @@ def _stitch_pads_to_each_other(
         # each item buffered by its own max(clearance, creepage) pair
         # separation -- the same per-pair obstacle records the zone carve
         # consumes (see _stitch_isolated_pads for the identical gate on
-        # F.Cu). Built once per net; an edge whose buffered footprint
-        # intersects it is skipped, fail-closed.
-        obstacle_union: Any = None
+        # F.Cu). An edge whose buffered footprint intersects it is skipped,
+        # fail-closed.
+        obstacle_records: list = []
         if pcb is not None:
             from temper_placer.router_v6.zone_pour_clearance import (
                 collect_zone_obstacle_records,
@@ -787,7 +850,7 @@ def _stitch_pads_to_each_other(
                 default_creepage_table,
             )
 
-            records = collect_zone_obstacle_records(
+            obstacle_records = collect_zone_obstacle_records(
                 net_name,
                 _STITCH_LAYER,
                 pcb=pcb,
@@ -796,30 +859,13 @@ def _stitch_pads_to_each_other(
                 clearance_table=default_table(),
                 creepage_table=default_creepage_table(),
             )
-            geoms: list = []
-            for kind, x, y, a, b, w, separation in records:
-                if kind == 0:  # Pad
-                    geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
-                elif kind == 1:  # Track
-                    geoms.append(
-                        LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8)
-                    )
-                else:  # Via
-                    geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
-            if geoms:
-                obstacle_union = unary_union(geoms)
 
-        skipped = 0
+        total_edges = len(edges)
+        edges, skipped = _gate_filter_edges(positions, edges, obstacle_records, stitch_width)
+
         for i, j in edges:
             xi, yi = positions[i]
             xj, yj = positions[j]
-            if obstacle_union is not None and not obstacle_union.is_empty:
-                footprint = LineString([(xi, yi), (xj, yj)]).buffer(
-                    stitch_width / 2.0, quad_segs=8
-                )
-                if footprint.intersects(obstacle_union):
-                    skipped += 1
-                    continue
             for idx, (px, py) in ((i, (xi, yi)), (j, (xj, yj))):
                 if idx in via_dropped:
                     continue
@@ -853,7 +899,7 @@ def _stitch_pads_to_each_other(
                 "through a foreign obstacle. The net's pads may rely on "
                 "the zone itself for continuity.",
                 skipped,
-                len(edges),
+                total_edges,
                 net_name,
                 _STITCH_LAYER,
                 stitch_width,
