@@ -60,6 +60,31 @@ narrowing the boundary back down -- narrowing would silently reintroduce
 the hyphen-boundary defect for the next hyphenated COIL-adjacent net. See
 docs/evidence/2026-08-13-hyphen-boundary-netclass-defect.md.
 
+RE-PINNED 2026-08-18 (owner-authorized, hb-gnd HV classification):
+``design_rules.py`` gained ``TEMPER_NET_ASSIGNMENTS["hb-gnd"] =
+"HighVoltage"`` on 2026-08-17; this oracle kept the pre-change snapshot,
+so ``test_module_constants_identical`` correctly reported that the live
+semantics had moved. ``hb-gnd`` is the half-bridge low-side switch's
+return conductor (``power_loop.q_low.E``, ``elec/src/modules.ato:379``),
+~-170V relative to ``PWR_RTN``, declared HV under
+``elec/domain_manifest.yaml`` and netlist-traced independently from the
+``.ato`` topology rather than trusted from the manifest's own trace. It
+had NO entry in this table at all, so it fell through to KiCad's
+"Default" 0.2mm class on the real kicad-cli DRC path -- weaker than even
+a generic LV class. Note this is the same net named in the 2026-08-13
+hyphen-boundary note above: that fix made the Tier-4 cascade *see*
+hyphenated nets, and this entry gives ``hb-gnd`` an explicit Tier-2
+assignment that wins over the cascade outright.
+
+Measured after the live-table fix (not inferred): ``hb-gnd`` resolves
+class=HighVoltage, clearance=2.0mm, creepage=6.0mm -- identical to
+``DC_BUS_RTN`` and ``+170V_BUS``, with ``gnd`` correctly unaffected at
+class=Power, 0.5mm/0.0mm. Isolated before/after DRC evidence (8 false
+violations cleared against hb-gnd's own HV domain-mates, 28 genuine ones
+surfaced against 18 LV/SELV nets) is in
+``docs/evidence/2026-08-17-hb-gnd-design-rules-classification-blast-radius.md``.
+Re-pinned for this ONE entry only; no other entry changed.
+
 DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
@@ -617,6 +642,23 @@ TEMPER_NET_ASSIGNMENTS = {
     # creepage -- see scripts/check_hv_netclass_coverage.py.
     "+170V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
+    # ADDED 2026-08-18 by deliberate owner-authorized re-pin, tracking the
+    # same-dated addition to the live table in
+    # temper_placer/core/design_rules.py. `hb-gnd` is the half-bridge
+    # low-side switch's return conductor (power_loop.q_low.E,
+    # elec/src/modules.ato:379), ~-170V relative to PWR_RTN, declared HV
+    # under elec/domain_manifest.yaml and netlist-traced independently from
+    # the .ato topology rather than trusted from the manifest. It had no
+    # entry in this table at all, so it fell through to KiCad's "Default"
+    # 0.2mm class -- weaker than even a generic LV class -- on the real
+    # kicad-cli DRC path. Measured resolution after the live-table fix:
+    # class=HighVoltage, clearance=2.0mm, creepage=6.0mm, identical to its
+    # HV domain-mates above. Isolated before/after DRC evidence (8 false
+    # violations cleared against its own HV domain-mates, 28 genuine ones
+    # surfaced against 18 LV/SELV nets) is in
+    # docs/evidence/2026-08-17-hb-gnd-design-rules-classification-blast-
+    # radius.md.
+    "hb-gnd": "HighVoltage",
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
