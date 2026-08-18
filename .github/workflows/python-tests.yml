@@ -94,7 +94,6 @@ on:
       - '.github/workflows/python-tests.yml'
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
-      - '.loc-allowlist.txt'
       - '.unwired-kernel-inventory'
       - '.orphaned-python-module-inventory'
       - 'scripts/deadcode-baseline.py'
@@ -202,7 +201,6 @@ on:
       - '.github/workflows/python-tests.yml'
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
-      - '.loc-allowlist.txt'
       - '.unwired-kernel-inventory'
       - '.orphaned-python-module-inventory'
       - 'scripts/deadcode-baseline.py'
@@ -4592,9 +4590,11 @@ jobs:
         id: setup
         run: echo "environment ready"
 
-      - name: LOC cap gate
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run python tools/loc_cap_check.py
+      # The "LOC cap gate" step ran here until 2026-08-18. Retired by owner
+      # decision, not erosion -- see docs/adr/2026-08-18-retire-loc-cap-gate.md.
+      # Its value was as a prioritizer for the Python->Rust migration, and that
+      # role is now served by a measured port list. `fast-gates` therefore
+      # merges three gate steps, not four.
 
       # Unit tests for the generator itself -- includes an anti-vacuity check
       # that mutates DIRECTORY_PURPOSE for one real, currently-described
