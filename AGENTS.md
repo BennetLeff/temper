@@ -676,6 +676,46 @@ which is exactly what makes (3) silent: the staleness gate has no way to
 know it is comparing against the wrong checkout's sources in the first
 place.
 
+### Ad-hoc DRC harnesses: copy the library table, not just the sidecars
+
+2026-08-18. A DRC scratch harness that copies only `temper.kicad_pcb` and
+`temper.kicad_pro` — and points `KICAD_CONFIG_HOME` at an empty directory —
+silently fails to resolve **every footprint on the board**.
+
+The symptom is distinctive and worth memorising: **`lib_footprint_issues`
+reads exactly the board's total footprint count** (168 here), and
+**`lib_footprint_mismatch` reads 0**. A number equal to 100% of the
+population is a resolution failure, not a census. The second reading is the
+tell for the first — a footprint that never resolved cannot register as
+*mismatched* against a library it never found, so the pair is corrupted in
+opposite directions at once.
+
+Measured, three controlled runs on the same board:
+
+```
+fp-lib-table + libs/   KICAD_CONFIG_HOME    lib_footprint_issues
+       no                    empty                  168
+      yes                    empty                  165
+      yes                   seeded                   13   <- the truth
+```
+
+`KICAD10_FOOTPRINT_DIR` is **not** an OS environment variable. It is defined
+inside `kicad_common.json`, under `KICAD_CONFIG_HOME`.
+
+**`_drc_api._single_threaded_kicad_env` already does this correctly.** The
+production path has never been wrong. Ad-hoc harnesses copied its
+thread-pinning and not its environment construction — so mirror the whole
+function, or better, call it.
+
+Cost: this artifact was reported and repeated for hours as "the largest
+unexplained DRC regression" and blocked a ceiling re-baseline, when the
+stored ceiling of 13 had been correct the entire time.
+
+**The deltas survived, the absolutes did not.** Because the error is constant
+across a before/after pair, category *deltas* measured this way remain valid;
+only *totals* are inflated. If you inherit a DRC total from a document, check
+how it was measured before trusting it.
+
 ### The fifth mode: the shared venv reads *main*, not your worktree
 
 2026-08-17. The four modes above are all "a worktree poisons the venv."
