@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import time
 from collections import deque
 
@@ -168,7 +169,11 @@ def run_astar_pathfinding(
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
-    net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
+    net_order = _compute_net_order(
+        channel_mapping,
+        bottleneck_widths=bottleneck_widths,
+        design_rules=design_rules,
+    )
     routable_nets = [n for n in net_order if _should_route(n)]
 
     if target_nets:
@@ -603,6 +608,38 @@ def run_astar_pathfinding(
         record_failure(net_name, "rip_up_limit", [], None)
 
     log_los_bb_stats()
+
+    # EXPERIMENT INSTRUMENTATION (2026-08-18): per-net failure detail --
+    # reason, rule_id and attempted_ripups -- to a JSON file when
+    # ``TEMPER_ROUTE_FAILURE_DUMP`` names one. ``attempted_ripups`` is
+    # otherwise reachable only through ``print_failure_analysis``, which
+    # ``scripts/route_board.py`` does not call, so the "did ordering change
+    # the rip-up behaviour?" question could not be answered from a normal
+    # route at all. Writes nothing when the variable is unset.
+    _fail_dump = os.environ.get("TEMPER_ROUTE_FAILURE_DUMP", "").strip()
+    if _fail_dump:
+        import json as _json
+
+        with open(_fail_dump, "w", encoding="utf-8") as _fh:
+            _json.dump(
+                {
+                    "routed": sorted(routed_paths),
+                    "routable_nets_in_order": routable_nets,
+                    "failures": {
+                        name: {
+                            "reason": r.failure_reason,
+                            "rule_id": r.rule_id,
+                            "attempted_ripups": r.attempted_ripups,
+                            "blocking_nets": sorted(r.blocking_nets),
+                            "pin_count": r.pin_count,
+                        }
+                        for name, r in sorted(failure_reports.items())
+                    },
+                    "ripup_counts": {k: v for k, v in sorted(ripup_counts.items()) if v},
+                },
+                _fh,
+                indent=2,
+            )
 
     return PathfindingResult(
         routed_paths=routed_paths,

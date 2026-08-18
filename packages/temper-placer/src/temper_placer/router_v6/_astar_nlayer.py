@@ -114,6 +114,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -1204,7 +1205,7 @@ def run_astar_pathfinding_nlayer(
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
-    net_order = _compute_net_order(channel_mapping)
+    net_order = _compute_net_order(channel_mapping, design_rules=design_rules)
     routable_nets = [n for n in net_order if _should_route(n)]
     if target_nets:
         target_set = set(target_nets)
@@ -1504,6 +1505,46 @@ def run_astar_pathfinding_nlayer(
         if not success:
             failed_nets_set.add(net_name)
             record_failure(net_name, reason, region, rule_id=rule_id)
+
+    # EXPERIMENT INSTRUMENTATION (2026-08-18): per-net failure detail to a
+    # JSON file when ``TEMPER_ROUTE_FAILURE_DUMP`` names one; writes nothing
+    # when unset. This is the path the production board actually takes --
+    # ``_pipeline_route._run_stage4`` selects it whenever more than two
+    # routable layers exist, which is always true here, so the flag
+    # ``enable_nlayer_astar_spike`` is NOT what gates it.
+    #
+    # Note for anyone reading ``attempted_ripups`` out of this dump: this
+    # function's ``record_failure`` hardcodes it to 0 (see above) and the
+    # routing loop is a single pass over ``routable_nets`` with no reroute
+    # queue and no rip-up step. A net reported with 0 attempted rip-ups on
+    # this path has NOT been measured as failing to displace committed
+    # copper -- the mechanism that would record such an attempt does not
+    # exist here. Only ``_astar_reconstruct.run_astar_pathfinding`` (the
+    # legacy <=2-grid path, not used by this board) maintains real counts.
+    _fail_dump = os.environ.get("TEMPER_ROUTE_FAILURE_DUMP", "").strip()
+    if _fail_dump:
+        import json as _json
+
+        with open(_fail_dump, "w", encoding="utf-8") as _fh:
+            _json.dump(
+                {
+                    "path": "nlayer",
+                    "ripups_are_hardcoded_zero": True,
+                    "routed": sorted(routed_paths),
+                    "routable_nets_in_order": routable_nets,
+                    "failures": {
+                        name: {
+                            "reason": r.failure_reason,
+                            "rule_id": r.rule_id,
+                            "attempted_ripups": r.attempted_ripups,
+                            "pin_count": r.pin_count,
+                        }
+                        for name, r in sorted(failure_reports.items())
+                    },
+                },
+                _fh,
+                indent=2,
+            )
 
     return PathfindingResult(
         routed_paths=routed_paths,
