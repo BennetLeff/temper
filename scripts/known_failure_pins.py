@@ -59,9 +59,13 @@ Anti-suppression design (why this cannot become an xfail list)
    exceeds ``MAX_PIN_LIFETIME_DAYS`` (no permanent waivers), if an
    ``issue`` link is dangling, or if a pinned nodeid no longer resolves to
    a real test (a pin cannot outlive the test it was written for). This is
-   the same shape as ``tools/loc_cap_check.py``'s allowlist ratchet
-   (baseline + required justification + stale-entry detection), applied to
-   failure *reasons* instead of line counts.
+   the same shape as the repo's established allowlist-ratchet pattern
+   (committed baseline + required justification + stale-entry detection),
+   applied to failure *reasons* instead of line counts. ``.hash-order-inventory``
+   (``scripts/check_hash_order_determinism.py``) and ``deadcode-baseline.py``
+   (``scripts/vulture_gate.py``) are the live instances of that shape; the
+   LOC-cap gate was a fourth until it was retired on 2026-08-18 (see
+   ``docs/adr/2026-08-18-retire-loc-cap-gate.md``).
 
 Registry format (``known-failure-pins.yaml``, repo root)
 ----------------------------------------------------------

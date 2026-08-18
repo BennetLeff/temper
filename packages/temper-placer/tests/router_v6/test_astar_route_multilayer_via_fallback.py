@@ -50,7 +50,12 @@ from hypothesis import strategies as st
 
 import temper_placer.router_v6._astar_search as astar_search_mod
 import temper_placer.router_v6.astar_pathfinding as astar_pathfinding_mod
-from temper_placer.router_v6.astar_core import _route_segment_3d as _real_route_segment_3d
+# Tier 3 is Rust-backed since the astar_nlayer port; these call sites
+# import the replacement under the pre-migration names so the tests
+# keep asserting the same behaviour against the shipping engine.
+from temper_placer.router_v6.astar_nlayer_rust import (
+    route_segment_3d_rust as _real_route_segment_3d,
+)
 from temper_placer.router_v6.channel_mapping import ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
