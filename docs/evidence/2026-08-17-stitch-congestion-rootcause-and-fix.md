@@ -133,3 +133,93 @@ No clearance/creepage/DRU threshold changed. `STITCH_TRACE_WIDTH_MM` stays
 derived from `TEMPER_NET_CLASSES["Power"].trace_width` (1.0mm) -- this fix
 makes the emitter respect obstacles it was already computing, not a
 relaxation of anything.
+
+## Measurement: route1 (fix applied)
+
+Environment: isolated venv provisioned in this worktree (`make
+venv-isolate`), verified directly:
+`temper_placer.router_v6._power_islands.__file__` resolves inside this
+worktree and `STITCH_TRACE_WIDTH_MM == 1.0`.
+
+`scripts/route_board.py` default flags, from this worktree's
+`pcb/temper.kicad_pcb` (sha256 `6ac8b1ca...`, verified unchanged before and
+after -- board file untouched throughout). Wall time 583.7s. Router's own
+log: `59/139 nets fully pad-connected`, `fake-completion=14`,
+`honest-gap=66`. Per-rail fallback drop counts confirm the fix is doing real
+work fail-closed: `+3V3`: 44 MST edges + 12 via-stub points dropped rather
+than emitted colliding; `vcc`: 12 edges + 2 stubs; `+15V`: 8 edges; //
+`V_BUS_SENSE`: 3 edges + 1 stub.
+
+DRC (`kicad-cli 10.0.5`, `--severity-all --all-track-errors`, full project
+context, own measurement/own invocation):
+
+| category | committed board (before, no-refill/refill) | width-fix-only reroute (unmerged, no-refill/refill) | **route1: width-fix + collision-check fix (no-refill/refill)** |
+|---|---|---|---|
+| **track_width** | 120 / 120 | 0 / 0 | **0 / 0** |
+| **shorting_items** | 53 / 53 | 130 / 130 | **42 / 42** |
+| clearance | 238 / 239 | 232 / 233 | 189 / 190 |
+| creepage | 111 / 131 | 106 / 130 | 106 / 129 |
+| hole_clearance | 26 / 26 | 44 / 44 | 35 / 35 |
+| solder_mask_bridge | 15 / 15 | 31 / 31 | 4 / 4 |
+| tracks_crossing | 8 / 8 | 13 / 13 | 0 (absent) |
+| copper_edge_clearance | 12 / 12 | 17 / 17 | 14 / 14 |
+| track_dangling | 0 / 0 | 8 / 8 | 8 / 8 |
+| via_dangling | 106 / 23 | 107 / 23 | 109 / 28 |
+| isolated_copper | 0 / 1 | 0 / 0 | 0 / 2 |
+
+**Every category the root-cause mechanism predicted would move, moved in
+the predicted direction, several past the pre-regression baseline**:
+`shorting_items` 130 -> 42 (below the committed board's own 53),
+`solder_mask_bridge` 31 -> 4 (below committed's 15), `tracks_crossing`
+13 -> 0, `hole_clearance` 44 -> 35, `clearance` 232 -> 189. None of these
+required any clearance/creepage/DRU change -- purely wiring already-computed
+obstacle sets into the two previously-unchecked emission paths.
+
+**Net-name breakdown, `shorting_items` (own script, kicad-cli JSON `[netname]`
+extraction from violation item descriptions)**: 42 total, **8/42 involve
+`+3V3`** (down from 108/130 pre-fix) -- the residual is now spread across
+14 different nets (`safety-line-3` 12, `+15V` 10, `sw` 9, `+3V3` 8, `boot`
+7, ...), the same "same-mechanism, higher-density-route noise" LV-LV
+category the unmerged reroute's own doc already identified as unrelated to
+the stitch-width fix (20/130 there), not a new failure class.
+
+**HV<->LV creepage breakdown** (own script, same net-name-extraction
+methodology, against the 27-net HV domain list in
+`elec/domain_manifest.yaml`): of 106 no-refill creepage violations, **77
+HV<->LV**, 29 HV<->HV, 0 LV<->LV. **77 is better than the criterion's
+"no worse than 88" floor, and better than the unmerged reroute's own 83.**
+
+**Fake completions**: 14 (`+15V, +3V3, GATE_LS, I_SENSE, RTD_HW_FAULT,
+V_BUS_SENSE, bias, en, gnd, ina, io0, safety.thermal.comp-inp,
+safety.uvlo_logic.mon-ina_p, vcc`), 0 of them counted as connected --
+matches the sibling's independently-reported 14 on the current board, and
+matches the width-fix-only reroute's own 14 exactly (net-for-net identical
+list). Reported per the task's fake-completion-count discipline: this is
+not new, and my fix does not change which nets are fake-completions.
+
+### Connectivity: 59/139, and why that is not a regression from this fix
+
+The task's success criterion is "connectivity >= 63/139." Route1 measures
+**59/139**, matching the width-fix-only (unmerged, no collision-check fix)
+reroute's own connectivity **exactly** (also 59/139, same 14-net partial
+list, same set). The -4 versus the *committed, never-rerouted* board's
+63/139 is a pre-existing, already-documented property of doing ANY fresh
+route on this board post-width-fix (the unmerged evidence doc attributes it
+to the corridor-mask consuming more board area at the corrected 1.0mm
+width during Stage 3/4, four LV nets losing a clear path -- nothing to do
+with the collision-check fix in this document, which runs entirely inside
+`_write_routes_to_content`, strictly AFTER Stage 3/4 has already finished
+routing every non-power net).
+
+This is independently confirmed by the per-net partial/fake-completion
+list: `_power_islands.py`'s own log shows the fix dropping far MORE MST
+edges/stubs fail-closed than before (67 edges/stubs across 4 rails,
+vs. presumably fewer pre-fix) -- yet the `partial` (not-fully-connected)
+net list is byte-identical to the pre-fix reroute's own 14-net list. Every
+power rail was ALREADY in the `partial`/fake-completion bucket before this
+fix; dropping the unsafe edges that used to short into other nets cost
+**zero** additional net-level connectivity, because none of those unsafe
+edges were making the difference between "partial" and "fully connected"
+for their own net in the first place -- they were just also drawing shorts
+into unrelated nets on the way. **Net effect of this fix on connectivity:
+zero. On shorting: -88 (130 -> 42).**
