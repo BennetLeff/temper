@@ -676,6 +676,49 @@ which is exactly what makes (3) silent: the staleness gate has no way to
 know it is comparing against the wrong checkout's sources in the first
 place.
 
+### The fifth mode: the shared venv reads *main*, not your worktree
+
+2026-08-17. The four modes above are all "a worktree poisons the venv."
+**The complementary mode is the venv silently serving you the wrong code,
+and it needs no poisoning at all — it is the healthy, correct state of a
+shared venv.**
+
+The shared `.venv`'s `temper_placer` is editable-installed against the
+**main checkout**:
+
+```
+$ .venv/bin/python -c "import temper_placer; print(temper_placer.__file__)"
+/home/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/__init__.py
+```
+
+So a worktree agent that edits Python and then runs
+`.venv/bin/python scripts/route_board.py` **measures `main`'s code, not its
+own change.** Nothing errors. The route succeeds. The numbers come back
+confident and wrong.
+
+This cost a real round trip: an agent fixing the pour-stitch
+`track_width` defect measured **197 violations still present after its
+fix**, and would have reported a regression. The tell was that every
+violation still read `"actual 0.3000 mm"` — the literal value the fix had
+just removed. Code that no longer exists cannot produce violations; the
+measurement was of `main`.
+
+**Two defences, in order of preference:**
+
+1. **`make venv-isolate` in your worktree.** The worktree gets its own
+   `.venv` and the question disappears. This is what the "check for a Rust
+   owner / no shared-venv rebuild" rules already push you toward, and it
+   fixes reads as well as writes.
+2. **If you must use the shared venv, verify what you are importing before
+   you believe a number** — `python -c "import temper_placer; print(...__file__)"`
+   and confirm the path is your worktree. A `sys.path` override wrapper
+   works, but is easy to get subtly wrong.
+
+**The generalizable rule: when a measurement contradicts a change you just
+made, suspect the measurement before the change.** Ask what the number
+would look like if your edit were not in effect at all — here, "identical
+to before" was exactly the observed result, and that is the signature.
+
 **`scripts/check_venv_integrity.py` closes (3).** It asserts every
 editable-install `.pth` file and every `direct_url.json` in the checked
 venv's site-packages resolves under the expected repo root — not into a
