@@ -28,6 +28,50 @@ and delete the Python.** Never reconcile by adjusting Rust to match Python,
 and never leave both in place "in agreement" — two homes that agree today
 drift tomorrow, and this repo has the scars to prove it.
 
+**Standing directive (owner, 2026-08-18): always migrate Python to Rust.**
+"A GEOS/shapely boundary" is **not** by itself a sufficient reason to decline
+a port. Several JUSTIFIED-KEEP entries were written against a *bit-exact
+differential* bar, and that bar is the wrong instrument for emitted geometry.
+Two facts about this codebase:
+
+1. **GEOS's own answer is an approximation.** `Point.buffer(r, quad_segs=16)`
+   yields a **64-gon**, measured to agree with the closed-form 64-gon on all
+   64 vertices (worst radius error 1.07e-14 mm). The `_ground_plane.py`
+   keepout is a union of **109 polygonal approximations of circles**, and its
+   868-of-907 "irreproducible" vertices are arc-arc intersections *between
+   those 64-gons*. Matching them bit-for-bit preserves a discretisation
+   artifact, not a physical quantity.
+2. **A property guarantee is stronger than equality here, and we already ship
+   one.** `temper-geometry`'s `ClearanceHalo` guarantees
+   `halo ⊇ disc(center, radius + clearance)` — every edge exactly at
+   `radius + clearance`, every vertex at most `eps` *outside* the disc, so the
+   minimum distance is `≥ clearance` **regardless of `eps`**. `eps` becomes a
+   cost knob (extra board area claimed), never a correctness risk. The
+   `ConservativeSuperset` ZST marker's only constructor runs that containment
+   check and its field is private, so the halo **cannot exist** unless the
+   check passed. Matching GEOS would faithfully reproduce a GEOS bug;
+   `halo ⊇ required` cannot be satisfied by anything unsafe.
+
+So for emitted geometry, prefer **construct-and-prove-conservative** over
+**reproduce-byte-for-byte**. Port it, carry a `ConservativeSuperset`-style
+guarantee enforced at construction, verify with property tests, and report a
+measured DRC before/after so the differences can be judged. Differences are
+expected; *unsafe* differences are the thing forbidden.
+
+Where bit-exactness **is** still load-bearing: search and classification, where
+two answers can both be legal and only equality reveals a behaviour change.
+The Tier-3 f32 mutation guard is the canonical case — rounding the heuristic to
+f32 moves `+170V_BUS` from `In3.Cu` to `B.Cu`, both routes legal, so
+invariant-level testing passes it silently. Keep equality there. Do not extend
+it to pour outlines.
+
+Prefer pure-Rust geometry over the `geos` crate: `rustsat-cadical` already
+cannot cross `wasm32-unknown-unknown`, and adding a second C++ dependency
+would put more of the codebase beyond the WASM test tier. Note also that the
+keepout is *specifically* a union of discs — general polygon boolean ops are
+overkill for it, and a direct disc-union construction is both narrower work
+and more accurate than the 64-gon union it replaces.
+
 "Definitely correct" means correct *by construction*, not correct by
 coincidence. The distinction is not academic:
 
