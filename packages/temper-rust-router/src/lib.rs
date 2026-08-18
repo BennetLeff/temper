@@ -18,6 +18,8 @@ pub mod terminal_planning;
 // the crate's three pure kernels and stay unconditional; see
 // `scripts/gen_wasm_test_registry.py --crate temper-rust-router --census`.
 #[cfg(feature = "python")]
+pub mod astar_nlayer;
+#[cfg(feature = "python")]
 pub mod loop_extractor;
 #[cfg(feature = "python")]
 pub mod net_batching;
@@ -553,6 +555,8 @@ mod py {
         crate::terminal_planning::register(m)?;
         // Wave-4: the router_v6 Theta* cluster (_astar_theta_star).
         crate::theta_star::register(m)?;
+        // Tier-3 N-layer via-aware A* (_astar_search_3d / _route_segment_3d).
+        crate::astar_nlayer::register(m)?;
 
         // Phase E E5 (Rust Orchestration Engine plan 2026-08-09-001): the
         // net-batching batch-loop orchestration primitives.
