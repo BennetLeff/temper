@@ -24,15 +24,26 @@ area computation.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Protocol
 
 import numpy as np
 
+logger = logging.getLogger(__name__)
+
 
 class MeasurementError(Exception):
-    """Raised when area measurement cannot be performed."""
+    """Raised when area measurement cannot be performed.
+
+    Signals a *measurement precondition* failure -- an unparseable board,
+    a loop extractor that threw, a geometry kernel that threw. It is
+    deliberately distinct from a ``None`` return, which means "this
+    board's topology genuinely offers nothing to measure". Collapsing the
+    two (the pre-2026-08-18 behaviour) made a broken dependency
+    indistinguishable from a clean result at the call site.
+    """
 
 
 class _TraceLike(Protocol):
@@ -54,24 +65,39 @@ def commutation_loop_area(routed_pcb_path: Path) -> float | None:
         from temper_placer.core.loop import LoopType
         from temper_placer.core.loop_extractor import auto_extract_loops
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-    except ImportError:
-        return None
+    except ImportError as e:  # pragma: no cover - broken install
+        raise ImportError(
+            "temper_placer.core.loop / core.loop_extractor / io.kicad_parser "
+            "are required to measure the commutation loop and could not be "
+            "imported. This is a broken temper-placer install, not an "
+            "optional feature -- reinstall with: uv sync"
+        ) from e
 
     try:
         result = parse_kicad_pcb(routed_pcb_path)
-    except Exception:
-        return None
+    except Exception as e:
+        raise MeasurementError(
+            f"commutation-loop: could not parse board {routed_pcb_path}: {e}"
+        ) from e
 
     netlist = result.netlist
     trace_data: list[_TraceLike] = list(result.traces)
 
     try:
         loops = auto_extract_loops(netlist)
-    except Exception:
-        return None
+    except Exception as e:
+        raise MeasurementError(
+            f"commutation-loop: loop extraction failed: {e}"
+        ) from e
 
     comm_loops = loops.get_loops_by_type(LoopType.COMMUTATION)
     if not comm_loops:
+        logger.warning(
+            "commutation-loop: UNMEASURED -- auto_extract_loops found no "
+            "COMMUTATION loop on this board (%d loop(s) of any type). See "
+            "docs/evidence/2026-08-11-loop-area-cycle-basis-order-spike.md.",
+            len(getattr(loops, "loops", ()) or ()),
+        )
         return None
 
     loop = comm_loops[0]
@@ -138,10 +164,27 @@ def _convex_hull_area(points: list[tuple[float, float]]) -> float:
     from the kernel rather than raising, matching this function's
     pre-migration ``except Exception: return 0.0`` fallback exactly.
     """
-    import temper_geometry
+    try:
+        import temper_geometry
+    except ImportError as e:  # pragma: no cover - broken build
+        raise ImportError(
+            "The temper_geometry Rust extension is required for "
+            "commutation-loop area measurement and is not built. A missing "
+            "extension is a broken build, not an optional mode -- build it "
+            "with: make extensions"
+        ) from e
 
     flat: list[float] = [c for p in points for c in (float(p[0]), float(p[1]))]
+    # Was `except Exception: return 0.0`. On a loop-AREA check 0.0 is not a
+    # neutral value -- it is the most-passing value possible (the caller
+    # compares `area > 2000 mm2`), so a throwing kernel silently reported a
+    # perfect board. Degenerate inputs (<3 points, collinear, duplicate)
+    # still return 0.0 from *inside* the kernel without raising, so this
+    # only re-routes genuine kernel failures.
     try:
         return float(temper_geometry.convex_hull_area_py(flat))
-    except Exception:
-        return 0.0
+    except Exception as e:
+        raise MeasurementError(
+            f"commutation-loop: convex_hull_area_py failed on "
+            f"{len(points)} points: {e}"
+        ) from e
