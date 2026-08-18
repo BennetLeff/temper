@@ -109,6 +109,12 @@ class PathfindingResult:
     # doesn't populate it (e.g. the production 2-grid pipeline, which has no
     # equivalent per-endpoint pad-layer lookup yet).
     layer_divergence_count: int = 0
+    # 2026-08-18: per-tier segment accounting from the N-layer cascade
+    # (router_v6/_astar_nlayer.TierTally.as_dict). Every entry is
+    # incremented at the point its outcome is decided -- no count is
+    # derived by subtracting one counter from another. Empty for callers
+    # that do not run the N-layer cascade (e.g. the legacy 2-grid path).
+    tier_tally: dict[str, int] = field(default_factory=dict)
 
     @property
     def success_count(self) -> int:
