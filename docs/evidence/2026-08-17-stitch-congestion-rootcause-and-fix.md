@@ -5,7 +5,7 @@ date: 2026-08-17
 module: temper-placer
 tags: [router, zone-stitch, power-islands, c-space, drc, shorting_items]
 problem_type: drc-defect
-status: in-progress
+status: done
 ---
 
 # Root-causing the stitch-width congestion regression
@@ -223,3 +223,108 @@ edges were making the difference between "partial" and "fully connected"
 for their own net in the first place -- they were just also drawing shorts
 into unrelated nets on the way. **Net effect of this fix on connectivity:
 zero. On shorting: -88 (130 -> 42).**
+
+## Determinism: route2, two byte-identical routes
+
+Immediately after route1, a second full `scripts/route_board.py` run,
+identical flags, same committed board (sha256 verified `6ac8b1ca...`
+before and after -- unchanged, this task never wrote `pcb/temper.kicad_pcb`).
+Wall 548.3s (vs route1's 583.7s -- normal sibling-contention variance, both
+in the same range as this project's own prior measurements).
+
+- **Output byte-identical**: both `route1.kicad_pcb` and `route2.kicad_pcb`
+  sha256 `cb5184eae9fea94c4b7b3c68c553ce97923a0d8f9af9d0fbb87442ab593c39b3`.
+- Router log connectivity summary identical: 59 connected, 9 zone-dependent,
+  14 partial, 57 failed of 139, same partial-net list, same fake-completion
+  list (14), same per-rail fallback-drop counts (44/12/8/3 edges,
+  12/2/0/1 stubs for +3V3/vcc/+15V/V_BUS_SENSE).
+- **DRC on route2 reproduces route1 EXACTLY, every category, both refill
+  modes** -- including `creepage` (106/129 both runs). The coordinator
+  flagged that creepage carries a documented ~0.8% nondeterministic
+  minority state, invisible below ~35 samples; at n=2 here it happened to
+  land identical, consistent with (not proof against) that known noise
+  floor -- not a claim of creepage determinism beyond what was measured.
+
+**Non-determinism is not a finding here; the route (and this fix's effect
+on it) is reproducible.**
+
+## Full ledger vs. the stated success criteria
+
+| Criterion | Target | Measured (route1 = route2) | Verdict |
+|---|---|---|---|
+| `track_width` | stays 0 | absent (0) in both refill modes | **MET** |
+| `shorting_items` | back to ~=53, or understood residual | **42** (both refill modes) | **MET, better than target** |
+| connectivity | >= 63/139, ideally better | 59/139 | **SHORTFALL vs. the stated number -- see below; ZERO regression from this fix specifically** |
+| HV<->LV creepage | no worse than 88 (unmerged reached 83) | **77** | **MET, better than target and better than the unmerged reroute** |
+| determinism | two byte-identical routes | confirmed, sha256 `cb5184eae9...` both runs, DRC identical both runs | **MET** |
+| fake completions | reported explicitly before/after | **14**, both runs, 0 counted as connected, matches sibling's independently-reported 14 | **MET (reported)** |
+
+**On the connectivity shortfall, stated plainly**: 59/139 is below the
+63/139 floor in the criteria. It is not, however, a regression this fix
+introduced -- it is IDENTICAL to the connectivity of the width-fix-only
+reroute this task started from (also 59/139, same partial-net set), and the
+per-net evidence above shows this fix's own effect on connectivity is
+exactly zero (it only removes unsafe copper that was never load-bearing for
+any net's own connectivity verdict). The 63/139 figure is the *committed,
+never-rerouted* board's count; every fresh route measured on this board
+since the width fix landed -- with or without this task's collision-check
+fix -- lands at 59/139, a Stage 3/4 A* corridor-mask side effect of the
+1.0mm width correction itself (documented in the unmerged reroute's own
+evidence doc), not something this document's fix causes or could fix
+within its stated scope (`_power_islands.py`/`_ground_plane.py`/the
+pour-stitch emission path, which runs strictly after Stage 3/4 completes).
+Closing that specific gap would need Stage 3/4-side work (outside this
+task's owned files) or acceptance that a corrected-width fresh route
+costs 4 nets versus the stale committed artifact -- an owner-level tradeoff
+question, not a defect in this fix.
+
+## Fake-completion counts, before and after (explicit, per task discipline)
+
+- Committed board (never rerouted): connectivity 63/139, per the handoff's
+  own repeatedly-confirmed figure (not independently re-measured in this
+  document, since it requires no route at all).
+- Width-fix-only reroute (unmerged, direct predecessor): 59/139 connected,
+  **14** fake-completions.
+- **route1/route2 (this fix)**: 59/139 connected, **14** fake-completions,
+  net-for-net identical list to the predecessor.
+
+No fake completion is ever counted as "connected" in any of these
+measurements -- `NetRouteResult::Connected` is sourced from
+`verify_continuity()` only, per the type-system guarantee; the 14 partial
+nets are excluded from the 59 tally in both the router's own log and the
+independent `pad_connectivity_audit` cross-check.
+
+## Residual `shorting_items` (42): same pre-existing LV-LV congestion noise
+## the predecessor doc already characterized, not new
+
+Net-name breakdown of the 42 remaining shorting_items (own script, kicad-cli
+JSON `[netname]` extraction): `safety-line-3` 12, `+15V` 10, `sw` 9, `+3V3`
+8, `boot` 7, `safety.fault_or3-y2` 6, `OCP2_VREF_2V5` 4,
+`thermal.j_fan-p1` 4, `vcc` 4, `fb` 3, `rtd_pan.high_window-out` 3,
+`safety.fault_any_or-a2` 2, `PWM_LS` 2, `rtd_force_p` 2, `gnd` 2. `+3V3`
+involvement: **8/42** (down from 108/130 pre-fix). This net-name set
+substantially overlaps the predecessor evidence doc's own "20/130 LV-LV-only
+... same-mechanism, higher-density-route noise" category (`sw`, `fb`,
+`boot`, `OCP2_VREF_2V5`, `rtd_*`, `thermal.j_fan-p1`, `safety.*`) --
+consistent with this being the SAME pre-existing congestion class, now the
+dominant remainder because the Power-netclass-caused shorts this fix
+targets are gone, not a new failure mode this fix introduced. Not
+independently root-caused further in this task (out of the stated scope --
+`_power_islands.py`/`_ground_plane.py`/pour-stitch emission -- these are
+generic Stage 3/4 LV-signal-routing collisions, not power-island/
+ground-plane emission-path defects).
+
+## Summary answer to the task's central question
+
+**Does the router's obstacle map / C-space know about stitch geometry at
+its actual emitted width?** For the PRIMARY corridor-aware A* backbone pass
+and for via-drop placement: yes, correctly, already. For two SPECIFIC,
+narrower emission paths inside `_power_islands.py` -- the legacy
+keepout-only MST fallback and the via-drop stub segment -- no: not at any
+width, not against any obstacle at all (not even the HV keepout, for the
+stub). **This was not "the board lacks room."** The same board, same
+placement, same Stage 3/4 output routes cleanly around correctly-checked
+1.0mm-wide power geometry; the +77 regression was a pre-existing,
+zero-collision-check code path that the old 0.3mm width had been
+accidentally too narrow to expose. Fixing the check (not the width, not
+any threshold) resolves the congestion.
