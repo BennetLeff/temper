@@ -487,6 +487,68 @@ TEMPER_NET_ASSIGNMENTS = {
     # creepage -- see scripts/check_hv_netclass_coverage.py.
     "+170V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
+    # ADDED 2026-08-17 (hb-gnd TEMPER_NET_ASSIGNMENTS blast-radius
+    # investigation; see docs/evidence/2026-08-17-hb-gnd-design-rules-
+    # classification-blast-radius.md). `hb-gnd` is declared HV under
+    # elec/domain_manifest.yaml (PR #1145, netlist-traced: the half-bridge
+    # low-side switch's return conductor -- power_loop.q_low.E in
+    # elec/src/modules.ato:379 -- one CT-primary-winding, a few milliohms,
+    # not a galvanic isolator, from the already-declared HV net
+    # `DC_BUS_RTN`, ~-170V relative to power_return/PWR_RTN -- which
+    # elec/src/main.ato's own comment calls "signal ground" -- confirmed
+    # independently from the .ato topology, not merely trusted from the
+    # manifest's own trace), and `router_v6.clearance_check.
+    # _classify_net_class` already returns "HV" for it on both the Python
+    # and Rust backends (PR #1300). This table had NO entry for it at
+    # all -- confirmed live, `scripts/check_hv_netclass_coverage.py`
+    # PROPERTY 1/3 both flagged `hb-gnd` as a currently-red, CI-blocking
+    # violation: unclassified here AND absent from pcb/temper.kicad_pro's
+    # real netclass_assignments (falls to KiCad's "Default" 0.2mm class on
+    # the actual kicad-cli DRC path -- weaker than even a generic LV
+    # class). This entry fixes PROPERTY 1 only; PROPERTY 3 (the kicad_pro
+    # sync) is deliberately left red -- see the evidence doc.
+    #
+    # Measured DRC impact of JUST this table entry, isolated (before vs.
+    # after, real committed board, kicad-cli 10.0.5, --severity-all
+    # --all-track-errors, both with and without --refill-zones -- see the
+    # evidence doc for the full methodology): a scratch pcb/temper.
+    # kicad_pro copy with ONLY "hb-gnd": "HighVoltage" synced in (isolated
+    # from every other pre-existing sync-script gap) clears 8 FALSE
+    # clearance+creepage violations against hb-gnd's own HV domain-mates
+    # (DC_BUS_RTN, PWR_RTN, +170V_BUS, SW_NODE, w1_1, the gate-driver
+    # isolated rails -- hb-gnd was being misread as the LV side of a
+    # same-domain pair) but surfaces 28 NEW, genuine violations against 18
+    # distinct LV/SELV nets physically close to hb-gnd's routed copper
+    # (WDT_KICK x8, +3V3, I_SENSE, RTD_SDI/RTD_HW_FAULT, i2c_sda_ui,
+    # thermal.j_fan-p1, discharge.r_dis2a-p2, safety.ovp.r_adc_top1-p2,
+    # etc. -- actual distances as tight as 0.65-0.88mm against a 2.0mm/
+    # 12.6mm PD3 requirement). Net: +25 total DRC violations (1086->1111
+    # no-refill, 1024->1050 refill), 100% in the clearance/creepage
+    # categories, ALL previously-invisible real exposure, not new
+    # false-positives. Direction is strictly stricter and the classifier
+    # source-of-truth correction is genuinely safety-improving; syncing it
+    # into pcb/temper.kicad_pro for real (so kicad-cli's DRC actually
+    # enforces it) is a SEPARATE, NOT-taken step here -- it requires
+    # routing/placement remediation (moving copper) this task's hard rules
+    # forbid an agent from doing unilaterally, so it is reported, not
+    # applied. Not the PWR_RTN/CGND reservation (handoff §9 item 6): this
+    # is a small net (6 pads) gaining a missing explicit assignment, not a
+    # reclassification of an existing large-copper/zone-poured net, and
+    # scripts/sync_kicad_netclass_assignments.py's own PROTECTED_NETS
+    # (PWR_RTN, CGND) is untouched by this change.
+    #
+    # KNOWN CONSEQUENCE, LEFT RED, NOT FIXED (forbidden to re-pin a pinned
+    # oracle per this task's hard rules): this entry makes
+    # tests/core/_design_rules_py_oracle.py's frozen TEMPER_NET_ASSIGNMENTS
+    # snapshot (content-hash pinned in scripts/oracle_hashes.json) diverge
+    # from this live table, so test_design_rules_rust_differential.py::
+    # test_module_constants_identical / test_create_temper_design_rules_
+    # identical now fail. The oracle FILE itself is untouched (`scripts/
+    # check_oracle_hashes.py` still reports 167/167 byte-identical to its
+    # pin) -- only the differential-parity comparison is red. Reconciling
+    # requires the standing oracle re-pin ceremony (exhaustive-divergence
+    # evidence, a deliberate committed act) as separate follow-up work.
+    "hb-gnd": "HighVoltage",
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
