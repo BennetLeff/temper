@@ -16,12 +16,20 @@ reference.
 
 from __future__ import annotations
 
+import ast
 import random
+import subprocess
 
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.astar_core import _astar_search as _astar_search_py
+# The oracle is a PINNED, frozen copy (tests/router_v6/_astar_search_py_oracle.py,
+# registered in scripts/oracle_hashes.json).  It is deliberately NOT
+# `temper_placer.router_v6.astar_core._astar_search`: importing the live src
+# function would make the proof and its subject the same object, so any future
+# edit to src would silently move the reference this differential is measured
+# against.  See the oracle module's own docstring for the full rationale.
+import tests.router_v6._astar_search_py_oracle as ORACLE
 from temper_placer.router_v6.astar_core_rust import (
     _astar_search_rust,
     _line_of_sight_rust,
@@ -265,6 +273,54 @@ def _search_rust_net(
     )
 
 
+_ORACLE_PIN_SHA = "9019da63fe1f8cfccb98c53fafbbf0a8537ee7a6"
+_ORACLE_NAMES = ("octile_distance", "in_bounds", "_astar_search", "_heuristic")
+
+
+def _segments_from_source(src: str, names: tuple[str, ...]) -> dict[str, str]:
+    tree = ast.parse(src)
+    lines = src.splitlines()
+    out: dict[str, str] = {}
+    for node in tree.body:
+        nm = getattr(node, "name", None)
+        if nm in names:
+            decos = getattr(node, "decorator_list", [])
+            start = (min(d.lineno for d in decos) if decos else node.lineno) - 1
+            out[nm] = "\n".join(lines[start : node.end_lineno])
+    return out
+
+
+def test_oracle_is_verbatim_copy() -> None:
+    """Every definition in the pinned oracle is character-identical to the pin.
+
+    Without this, `_astar_search_py_oracle.py` could be edited into agreement
+    with whatever the Rust kernel currently does and every assertion below
+    would still pass while proving nothing.
+    """
+    rel = "packages/temper-placer/src/temper_placer/router_v6/astar_core.py"
+    try:
+        src = subprocess.run(
+            ["git", "show", f"{_ORACLE_PIN_SHA}:{rel}"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):  # pragma: no cover
+        pytest.skip(f"pinned commit {_ORACLE_PIN_SHA} not present in this clone")
+
+    original = _segments_from_source(src, _ORACLE_NAMES)
+    with open(ORACLE.__file__, encoding="utf-8") as fh:
+        copied = _segments_from_source(fh.read(), _ORACLE_NAMES)
+
+    for name in _ORACLE_NAMES:
+        assert name in copied, f"{name} missing from the oracle module"
+        assert name in original, f"{name} missing from astar_core.py at the pin"
+        assert copied[name] == original[name], (
+            f"astar_core.py::{name} in the oracle is NOT verbatim -- "
+            f"the pin is broken and this differential proves nothing"
+        )
+
+
 def _search_py_oracle(
     start: tuple[int, int],
     goal: tuple[int, int],
@@ -272,8 +328,8 @@ def _search_py_oracle(
     net_id: int,
     corridor_mask: np.ndarray | None = None,
 ) -> list | None:
-    """Call the pure-Python _astar_search as the reference oracle."""
-    return _astar_search_py(
+    """Call the pinned pure-Python _astar_search as the reference oracle."""
+    return ORACLE._astar_search(
         start, goal, grid, net_id=net_id, corridor_mask=corridor_mask
     )
 

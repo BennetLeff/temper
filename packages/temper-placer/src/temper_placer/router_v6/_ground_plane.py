@@ -60,6 +60,8 @@ import math
 from pathlib import Path
 
 from shapely.geometry import LineString, Point, Polygon
+from temper_orchestration import BackboneEdgeTally as _BackboneEdgeTally
+from temper_orchestration import ViaDropTally as _ViaDropTally
 
 logger = logging.getLogger(__name__)
 
@@ -611,9 +613,20 @@ class GroundPlaneResult:
         via_unresolved_conflict_count: int = 0,
         mst_edges_astar_routed_count: int = 0,
         mst_edges_fallback_count: int = 0,
+        mst_edges_attempted_count: int = 0,
+        mst_edges_dropped_count: int = 0,
+        mst_edges_skipped_already_joined_count: int = 0,
     ) -> None:
         self.pad_count = pad_count
+        # Vias actually emitted (centre + offset drop points), counted off the
+        # per-drop-point classification. Was
+        # `len(positions) - skipped_through_hole - unresolved_conflict`.
         self.drop_via_count = drop_via_count
+        # Backbone edges that actually PUT COPPER on the board, by any
+        # mechanism (A* + straight + one-bend). Was
+        # `len(edges) - crossed_keepout`, which counted "global MST edges not
+        # dropped" -- a set that includes edges skipped as already-joined (no
+        # copper) and excludes the component-local A* edges (copper).
         self.mst_edge_count = mst_edge_count
         self.zone_polygon_count = zone_polygon_count
         self.keepout_established = keepout_established
@@ -638,16 +651,40 @@ class GroundPlaneResult:
         # MST backbone's keepout detour; reported honestly rather than
         # emitting a known-colliding via.
         self.via_unresolved_conflict_count = via_unresolved_conflict_count
-        # MST edges that got a real, corridor-clean A* path (avoiding
-        # both the HV keepout AND other nets' existing F.Cu copper) vs.
-        # edges where no window (up to the whole board) found one, so
-        # this edge fell back to the prior keepout-only straight-line/
-        # one-bend-detour behaviour -- see _corridor_backbone.py's
-        # module docstring for why this is a hybrid, not a full
-        # replacement, and _blocked's `crossed_keepout`/`rerouted`
-        # counts below for the fallback's own internal breakdown.
+        # Backbone edge outcomes. Every one of these is COUNTED from a
+        # per-edge classification (temper_orchestration.BackboneEdgeTally),
+        # never derived by subtracting one count from another.
+        #
+        # Until 2026-08-18 `mst_edges_fallback_count` was
+        # `len(edges) - mst_edges_astar_routed_count`, i.e. it assumed every
+        # edge A* did not route was landed by the fallback. On `gnd` that
+        # reported 86 "fallback" edges when 3 actually landed and 83 were
+        # dropped, so `astar=1, fallback=86` against `attempted=87` read as
+        # "all 87 handled" when only 4 landed. See
+        # temper-orchestration/src/backbone_edge_outcome.rs.
+        #
+        # Edges that got a real, corridor-clean A* path (avoiding both the HV
+        # keepout AND other nets' existing F.Cu copper) -- see
+        # _corridor_backbone.py's module docstring for why this is a hybrid,
+        # not a full replacement.
         self.mst_edges_astar_routed_count = mst_edges_astar_routed_count
+        # Edges LANDED by the keepout-only fallback (straight line + one-bend
+        # detour). Landed, not "everything A* missed".
         self.mst_edges_fallback_count = mst_edges_fallback_count
+        # Every edge decision made, across both the component-local A* edge
+        # set and the global MST edge list. Counted, not inferred.
+        self.mst_edges_attempted_count = mst_edges_attempted_count
+        # Edges dropped rather than routed (crossed the keepout / other copper
+        # with no clear one-bend waypoint). Previously ABSENT from this class
+        # entirely, while the _power_islands.py twin reported it -- the clone
+        # pair had drifted in both directions.
+        self.mst_edges_dropped_count = mst_edges_dropped_count
+        # Edges not drawn because their endpoints were already joined by an
+        # earlier A* edge. Neither a landing nor a failure; conflating it with
+        # either is its own misreport.
+        self.mst_edges_skipped_already_joined_count = (
+            mst_edges_skipped_already_joined_count
+        )
 
     def __repr__(self) -> str:  # pragma: no cover - trivial
         return (
@@ -661,8 +698,12 @@ class GroundPlaneResult:
             f"via_skipped_through_hole={self.via_skipped_through_hole_count}, "
             f"via_offset={self.via_offset_count}, "
             f"via_unresolved_conflict={self.via_unresolved_conflict_count}, "
+            f"mst_edges_attempted={self.mst_edges_attempted_count}, "
             f"mst_edges_astar_routed={self.mst_edges_astar_routed_count}, "
-            f"mst_edges_fallback={self.mst_edges_fallback_count})"
+            f"mst_edges_fallback={self.mst_edges_fallback_count}, "
+            f"mst_edges_skipped_already_joined="
+            f"{self.mst_edges_skipped_already_joined_count}, "
+            f"mst_edges_dropped={self.mst_edges_dropped_count})"
         )
 
 
@@ -1089,6 +1130,13 @@ def generate_ground_plane_blocks(
     # position first, then a small local offset search; if the offset
     # differs from the pad position a same-net stub segment joins them so
     # connectivity is unaffected.
+    # Every candidate drop point is classified into exactly one ViaDropOutcome
+    # as it is decided (temper_orchestration.ViaDropTally). The placed-via
+    # total is then COUNTED off those outcomes rather than obtained as
+    # `len(positions) - skipped_through_hole - unresolved_conflict`, which is
+    # the double-subtraction the twin in _power_islands.py used -- see the
+    # Rust module's docstring for why a subtraction-derived total hides bugs.
+    via_tally = _ViaDropTally()
     via_skipped_through_hole = 0
     via_offset_count = 0
     via_unresolved_conflict = 0
@@ -1097,6 +1145,7 @@ def generate_ground_plane_blocks(
         key = (round(x, 3), round(y, 3))
         if through_hole_positions.get(key, False):
             via_skipped_through_hole += 1
+            via_tally.record_skipped_through_hole()
             continue
 
         drop_point, needs_stub = _find_via_drop_point(
@@ -1110,6 +1159,7 @@ def generate_ground_plane_blocks(
         )
         if drop_point is None:
             via_unresolved_conflict += 1
+            via_tally.record_unresolved_conflict()
             logger.warning(
                 "generate_ground_plane_content: no clear via drop point "
                 "found near gnd pad at (%.4f, %.4f) (pad centre and every "
@@ -1134,6 +1184,14 @@ def generate_ground_plane_blocks(
         # (KiCad's "PTH hole to hole" DRU rule is unconditional, not
         # exempted for same-net holes).
         existing_holes.append((vx, vy, via_radius_mm))
+        # The via is emitted either way; `needs_stub` only distinguishes an
+        # offset drop point (which additionally wants a stub back to the pad)
+        # from one landed on the pad centre. A blocked stub below does NOT
+        # un-place the via, so the outcome is recorded here, not after it.
+        if needs_stub:
+            via_tally.record_placed_offset()
+        else:
+            via_tally.record_placed_at_centre()
         if needs_stub:
             via_offset_count += 1
             # The stub itself is real 1.0mm-wide F.Cu copper and was not
@@ -1344,11 +1402,19 @@ def generate_ground_plane_blocks(
     # Emit every component-local A*-routed edge unconditionally -- these
     # are additional real connectivity beyond (and not necessarily a
     # subset of) the global Euclidean MST's own edge list.
-    astar_routed_count = 0
+    # Every edge decision -- across BOTH collections (the component-local
+    # A*-routed edges and the global MST edge list) -- is classified into
+    # exactly one BackboneEdgeOutcome. Every reported figure is then derived
+    # by matching over those outcomes; nothing is obtained by subtracting one
+    # count from another. See temper-orchestration's backbone_edge_outcome.rs
+    # for the measured misreport this replaces (87 attempted / 4 landed being
+    # reported as astar=1, fallback=86).
+    edge_tally = _BackboneEdgeTally()
+
     for (_i, _j), astar_path in astar_routed_edges.items():
         for a, b in zip(astar_path, astar_path[1:]):
             _emit_segment(a, b)
-        astar_routed_count += 1
+        edge_tally.record_routed_astar()
 
     crossed_keepout = 0
     rerouted = 0
@@ -1357,12 +1423,15 @@ def generate_ground_plane_blocks(
             # Already joined by a component-local A*-clean edge (or a
             # chain of them) -- drawing this global-MST edge too would
             # only add collision risk for zero connectivity benefit.
+            # NOT a landing and NOT a drop: its own outcome variant.
+            edge_tally.record_skipped_already_joined()
             continue
 
         p1, p2 = gnd_positions[i], gnd_positions[j]
         if not _blocked(p1, p2):
             _emit_segment(p1, p2)
             connectivity_uf.union(i, j)
+            edge_tally.record_landed_straight()
             continue
 
         # Bounded one-bend detour: try routing p1 -> waypoint -> p2 through
@@ -1398,8 +1467,10 @@ def generate_ground_plane_blocks(
         if found:
             rerouted += 1
             connectivity_uf.union(i, j)
+            edge_tally.record_landed_one_bend()
         else:
             crossed_keepout += 1
+            edge_tally.record_dropped_crossed_keepout()
     if crossed_keepout:
         logger.warning(
             "generate_ground_plane_content: %d MST edge(s) crossed the HV "
@@ -1418,22 +1489,30 @@ def generate_ground_plane_blocks(
             rerouted,
         )
 
+    # Every count below is read off a tally that classified each edge / drop
+    # point exactly once. `check_partition()` raises if the recorded outcomes
+    # do not sum to the attempted total, so a miscount is a hard failure here
+    # rather than a plausible-looking number in a report.
+    edge_tally.check_partition()
+    via_tally.check_partition()
+
     result = GroundPlaneResult(
         pad_count=len(gnd_positions),
-        drop_via_count=len(gnd_positions)
-        - via_skipped_through_hole
-        - via_unresolved_conflict,
-        mst_edge_count=len(edges) - crossed_keepout,
+        drop_via_count=via_tally.placed_total,
+        mst_edge_count=edge_tally.landed_total,
         zone_polygon_count=len(pour_zone_rings),
         keepout_established=keepout_established,
         keepout_area_mm2=keepout.area if keepout_established else 0.0,
         pour_area_mm2=pour_area_mm2,
         keepout_zone_count=keepout_zone_count,
-        via_skipped_through_hole_count=via_skipped_through_hole,
-        via_offset_count=via_offset_count,
-        via_unresolved_conflict_count=via_unresolved_conflict,
-        mst_edges_astar_routed_count=astar_routed_count,
-        mst_edges_fallback_count=len(edges) - astar_routed_count,
+        via_skipped_through_hole_count=via_tally.skipped_through_hole,
+        via_offset_count=via_tally.placed_offset,
+        via_unresolved_conflict_count=via_tally.unresolved_conflict,
+        mst_edges_attempted_count=edge_tally.attempted,
+        mst_edges_astar_routed_count=edge_tally.routed_astar,
+        mst_edges_fallback_count=edge_tally.landed_fallback,
+        mst_edges_skipped_already_joined_count=edge_tally.skipped_already_joined,
+        mst_edges_dropped_count=edge_tally.dropped_total,
     )
     return new_blocks, result
 

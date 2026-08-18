@@ -334,11 +334,13 @@ def route_pcb(
             ``ModelBuilder(net_filter=...)``). Ignored when
             ``enable_net_batching`` is set (batching takes priority in
             ``_run_stage3``).
-        enable_nlayer_astar_spike: Opt into the N-layer, via-aware A*
-            pathfinding spike prototype (``_astar_nlayer.py``) instead of
-            the production 2-layer-capped path. Default False -- see
-            ``RouterV6Pipeline.__init__``'s docstring for the full
-            rationale.
+        enable_nlayer_astar_spike: FORCE the N-layer, via-aware A* driver
+            (``_astar_nlayer.py``) on a board with two or fewer routable
+            signal layers. It does NOT gate that driver in production --
+            with more than two routable signal grids (today's board has
+            four) Stage 4 selects it regardless of this flag. See
+            ``RouterV6Pipeline.__init__``'s docstring and
+            ``_pipeline_route._resolve_routing_mode``.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and

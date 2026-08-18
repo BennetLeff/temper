@@ -1,11 +1,43 @@
-"""Spike prototype: N-layer, via-aware A* pathfinding.
+"""N-layer, via-aware A* pathfinding -- the live Stage 4 routing driver.
 
-**Status: prototype, not production.** Branch ``spike/nlayer-via-astar``,
-spun up to answer a design question, not to replace the production A*
-path. See ``docs/evidence/2026-08-08-nlayer-via-astar-spike.md`` for the
-full writeup (why, what was measured, and the honest assessment).
+**Status: production. This module routes every net on the board.**
 
-**The gap this closes.** Two independent places in the production router
+That is worth stating plainly because it was wrong here for a long time:
+this docstring used to read *"Spike prototype: N-layer, via-aware A*
+pathfinding. Status: prototype, not production."* It began life that way on
+branch ``spike/nlayer-via-astar``, but it has been the live driver since the
+6-layer stackup landed, and the stale header sent more than one reader
+looking for the "real" router somewhere else. Corrected 2026-08-18.
+
+**How it is reached.** ``_pipeline_route._run_stage4`` selects this module
+whenever more than two routable *signal* layers are available (see
+``_resolve_routing_mode`` there, which logs the decision and its reason).
+Today's production board declares four -- F.Cu, In3.Cu, In4.Cu, B.Cu -- so
+the N-layer path is taken unconditionally on every production route. The
+opt-in ``enable_nlayer_astar_spike`` flag only *additionally* forces this
+module on a board with two or fewer signal layers; it is not what selects
+this module in production, and clearing it changes nothing there.
+
+**Which code actually searches.** The 3-tier cascade in
+``_astar_route_nlayer`` does not use one implementation throughout:
+
+- **Tier 1** (same-layer search on the preferred layer) and **Tier 2**
+  (whole-segment detour onto each other available layer) both go through
+  ``_astar_search._segment_search`` -> ``_dispatch_search`` ->
+  ``astar_core_rust._astar_search_rust``, i.e. **the Rust kernel**
+  (``temper_rust_router_core::astar::astar_kernel_3d``). Since 2026-08-18
+  a missing extension raises ``AstarExtensionUnavailableError`` here rather
+  than silently degrading to a non-equivalent Python search.
+- **Tier 3** (the full via-aware 3D search across every grid) calls
+  ``astar_core._route_segment_3d`` / ``_astar_search_3d``, which are
+  **still pure Python**. There is no Rust equivalent yet; a port into
+  ``temper-rust-router-core/src/astar_nlayer.rs`` is in progress. Tier 3 is
+  therefore the one remaining Python search on the live routing path.
+
+So "does this board route through Rust or Python?" has a per-tier answer,
+not a per-module one: Tiers 1-2 Rust, Tier 3 Python.
+
+**The gap this module closes.** Two independent places in the former router
 cap pathfinding at exactly two layers:
 
 - ``_pipeline_route.select_routing_grids`` always returns a
@@ -27,7 +59,7 @@ it is just used only as a last-resort *third tier* inside
 ``_astar_route_multilayer``, itself fed at most 2 grids no matter how many
 exist. ``astar_grid._mark_route_blocked`` / ``_unmark_route_blocked`` /
 ``_identify_blocking_nets`` are likewise already ``dict``-of-arbitrary-size
-callers, not 2-capped. So this prototype is a plumbing generalization, not
+callers, not 2-capped. So this module is a plumbing generalization, not
 a new search algorithm: it re-threads the already-N-layer-capable core
 through call sites that were artificially narrowed to 2 above it.
 
@@ -50,17 +82,17 @@ through call sites that were artificially narrowed to 2 above it.
    ``run_astar_pathfinding``'s per-net driver loop to call the above with
    an N-grid dict instead of a 2-grid pair.
 
-**Deliberately out of scope for this spike** (see the evidence doc for
-why each is safe to omit for a feasibility measurement, not a claim they
-are unimportant):
+**Deliberately not wired into this driver** (each was scoped out when this
+was a feasibility measurement and has stayed out since; see the evidence
+doc for why each is safe to omit, not a claim they are unimportant):
 
 - The experimental all-pad-tree terminal expansion
   (``enable_all_pad_tree`` / ``terminal_tree_execution.py``) -- disabled
   by default in production; not exercised here.
 - The congestion-tensor history-cost term and thermal cost field -- the
-  production ``_run_stage4`` call this spike is compared against does not
-  pass either (net-batching production runs use neither), so omitting
-  them does not change comparability.
+  legacy ``_run_stage4`` path this module was originally compared against
+  does not pass either (net-batching production runs use neither), so
+  omitting them did not change comparability.
 - The rip-up-and-reroute queue in ``run_astar_pathfinding``'s
   ``attempt_route``. Traced end-to-end (see the evidence doc): under the
   current, unconditional ``_allow_forced_segments() -> False`` fail-closed
@@ -70,10 +102,10 @@ are unimportant):
   forced-segment decline *before* reaching the loop that would act on
   those ripped IDs (the loop only runs on a *clean* success, where
   ``ripped_ids`` is always ``[]``). So the rip-up-and-reroute mechanism is
-  currently dead code under production policy -- dropping it from this
-  prototype is a verified equivalence, not an uncontrolled simplification.
+  currently dead code under production policy -- omitting it from this
+  driver is a verified equivalence, not an uncontrolled simplification.
   Restated: if ``_allow_forced_segments`` is ever made conditional again,
-  this prototype's parity claim would need re-checking; it does not hold
+  this module's parity claim would need re-checking; it does not hold
   in general, only under today's policy.
 """
 

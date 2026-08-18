@@ -18,13 +18,19 @@ below is the direct Rust dispatch.
 Public API
 ----------
 - :func:`_astar_search_rust` is the Python-callable dispatch entry.
-  It resolves the backend via :func:`_select_astar_backend` and runs
-  the Rust kernel through :func:`_astar_search_rust_kernel`, falling
-  back to the pure-Python
-  :func:`temper_placer.router_v6.astar_core._astar_search` only when
-  ``temper_rust_router`` cannot be imported (broken/stale extension
-  environment).  The path is returned as a list of ``(col, row)``
-  tuples matching the ``astar_core`` return shape.
+  It asserts the extension is present via
+  :func:`_require_astar_extension` and runs the Rust kernel through
+  :func:`_astar_search_rust_kernel`.  The path is returned as a list of
+  ``(col, row)`` tuples matching the ``astar_core`` return shape.
+
+  **There is no Python fallback** (removed 2026-08-18).  A missing
+  ``temper_rust_router`` raises
+  :class:`AstarExtensionUnavailableError` immediately instead of
+  silently routing with a non-equivalent implementation -- see
+  :func:`_require_astar_extension` for the measured differences and why
+  failing open was unsafe on a mains-voltage board.  The pure-Python
+  reference survives only as the frozen differential oracle at
+  ``packages/temper-placer/tests/router_v6/_astar_search_py_oracle.py``.
 
 - :func:`_line_of_sight_rust` is the Rust-backed Bresenham LOS check
   used by the Theta* family; the retired JIT LOS kernel had the same
@@ -73,22 +79,71 @@ def reset_route_profile_stats() -> None:
     _route_profile_stats.reset()
 
 
-def _select_astar_backend() -> str:
-    """Probe the A* backend.
+class AstarExtensionUnavailableError(RuntimeError):
+    """``temper_rust_router`` could not be imported.
 
-    The Rust kernel (``temper-rust-router``) is the sole A* backend
-    since cleanup C1; the ``TEMPER_ASTAR_BACKEND`` override was removed
-    with the JIT fallback.  Returns ``"rust"`` when the extension
-    imports, ``"python"`` when it does not (the pure-Python reference
-    is the only remaining fallback).  Read per call so tests can assert
-    the extension is actually engaged.
+    This is a hard environment failure, never a condition to route around.
+    See :func:`_require_astar_extension` for why there is no fallback.
+    """
+
+
+def _require_astar_extension() -> None:
+    """Assert the Rust A* kernel is importable, or raise.
+
+    **Fail closed, never fail open.**  Until 2026-08-18 this function's
+    predecessor (``_select_astar_backend``) caught ``ImportError`` and
+    returned ``"python"``, and :func:`_astar_search_rust` then quietly ran
+    ``astar_core._astar_search`` instead.  That fallback was *not*
+    behaviour-equivalent, which is precisely what made it dangerous:
+
+    * the Rust kernel accumulates ``g_score`` in **f32** and casts its
+      octile heuristic f64->f32; the Python reference works in **f64**;
+    * the Rust kernel maintains a closed set, the Python reference
+      re-expands already-settled cells;
+    * tie-breaking differs structurally -- Python's ``heapq`` orders on
+      ``(priority, (x, y))`` and so breaks ties lexicographically by cell,
+      the Rust binary heap breaks them by heap-array position;
+    * the Rust kernel carries congestion and thermal cost terms that the
+      Python signature does not even accept, so those fields were silently
+      dropped on the fallback path.
+
+    The consequence was that a broken or stale extension did not fail.  It
+    laid **different copper on an IEC 60335-1 mains board**, with nothing in
+    the routed output naming which implementation produced it.  Several
+    wrong conclusions were drawn from routing runs before this was noticed.
+
+    A missing extension is an environment fault with exactly one correct
+    response: stop.  Run ``make extensions`` (or ``make venv-isolate`` in a
+    fresh worktree).
     """
     try:
         import temper_rust_router  # noqa: F401
+    except ImportError as exc:  # pragma: no cover - environment fault
+        raise AstarExtensionUnavailableError(
+            "temper_rust_router (the Rust A* kernel) could not be imported, "
+            "so the router cannot run. There is deliberately NO pure-Python "
+            "fallback: the Python reference is not behaviour-equivalent "
+            "(f64 vs the kernel's f32, no closed set, different tie-breaking, "
+            "no congestion/thermal terms), so falling back would silently "
+            "emit different copper on a mains-voltage board. "
+            "Fix the environment: `make extensions` rebuilds every pyo3 "
+            "crate; `make extensions-check` reports staleness; "
+            "`make venv-isolate` provisions a worktree-local .venv. "
+            f"Underlying import error: {exc}"
+        ) from exc
 
-        return "rust"
-    except ImportError:
-        return "python"
+
+def _select_astar_backend() -> str:
+    """Return the resolved A* backend name.
+
+    Always ``"rust"`` -- there is no other backend.  Retained because the
+    differential and LOS suites assert on it to prove the extension is
+    genuinely engaged; it now raises
+    :class:`AstarExtensionUnavailableError` rather than reporting
+    ``"python"``.
+    """
+    _require_astar_extension()
+    return "rust"
 
 
 def _astar_search_rust_kernel(
@@ -253,10 +308,11 @@ def _astar_search_rust(
 
     The Rust kernel (``temper-rust-router``) is the sole A* backend
     since cleanup C1 (2026-07-31); the JIT kernel and the
-    ``TEMPER_ASTAR_BACKEND`` override were removed.  Falls through to
-    the pure-Python :func:`temper_placer.router_v6.astar_core._astar_search`
-    only if the extension cannot be imported.  No caller sees an
-    ImportError.
+    ``TEMPER_ASTAR_BACKEND`` override were removed.  Since 2026-08-18
+    there is no fallback either: if the extension cannot be imported this
+    raises :class:`AstarExtensionUnavailableError` rather than routing
+    with a different implementation.  Callers DO see that failure, by
+    design -- it is an environment fault, not a routing condition.
 
     S8 (same-net wiring): ``net_id`` and ``corridor_mask`` are forwarded
     to the Rust kernel.  When ``net_id >= 0``, the raw occupancy grid
@@ -282,31 +338,23 @@ def _astar_search_rust(
     """
     t0_total = time.perf_counter()
 
-    if _select_astar_backend() == "rust":
-        result = _astar_search_rust_kernel(
-            start,
-            goal,
-            grid,
-            neighbor_tensor=neighbor_tensor,
-            max_iterations=max_iterations,
-            congestion_flat=congestion_flat,
-            congestion_weight=congestion_weight,
-            max_congestion_cost=max_congestion_cost,
-            thermal_flat=thermal_flat,
-            thermal_weight=thermal_weight,
-            net_id=net_id,
-            corridor_mask=corridor_mask,
-        )
-        _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
-        return result
+    # Fail closed: a missing extension raises here rather than degrading to
+    # a non-equivalent Python implementation.  See _require_astar_extension.
+    _require_astar_extension()
 
-    # Graceful degrade: temper_rust_router missing/stale.  The pure-Python
-    # reference cannot honor congestion/thermal fields; that matches the
-    # pre-cleanup JIT-missing fallback contract.
-    t0 = time.perf_counter()
-    from temper_placer.router_v6.astar_core import _astar_search
-
-    result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor, net_id=net_id, corridor_mask=corridor_mask)
-    _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
+    result = _astar_search_rust_kernel(
+        start,
+        goal,
+        grid,
+        neighbor_tensor=neighbor_tensor,
+        max_iterations=max_iterations,
+        congestion_flat=congestion_flat,
+        congestion_weight=congestion_weight,
+        max_congestion_cost=max_congestion_cost,
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
+        net_id=net_id,
+        corridor_mask=corridor_mask,
+    )
     _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
     return result

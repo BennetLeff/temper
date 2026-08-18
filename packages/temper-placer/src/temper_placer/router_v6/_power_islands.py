@@ -145,6 +145,8 @@ from pathlib import Path
 
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
+from temper_orchestration import BackboneEdgeTally as _BackboneEdgeTally
+from temper_orchestration import ViaDropTally as _ViaDropTally
 
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 from temper_placer.router_v6._ground_plane import (
@@ -277,10 +279,16 @@ class PowerIslandResult:
         mst_edges_dropped_count: int = 0,
         mst_edges_astar_routed_count: int = 0,
         mst_edges_fallback_count: int = 0,
+        mst_edges_attempted_count: int = 0,
+        mst_edges_skipped_already_joined_count: int = 0,
     ) -> None:
         self.net_name = net_name
         self.pad_count = pad_count
+        # Vias actually emitted -- counted, not `len(positions)` minus two
+        # skip counts. See temper-orchestration/src/backbone_edge_outcome.rs.
         self.drop_via_count = drop_via_count
+        # Backbone edges that actually put copper on the board (A* + straight
+        # + one-bend). Was `len(edges) - crossed_keepout`.
         self.mst_edge_count = mst_edge_count
         self.zone_polygon_count = zone_polygon_count
         self.pour_area_mm2 = pour_area_mm2
@@ -289,7 +297,16 @@ class PowerIslandResult:
         self.via_unresolved_conflict_count = via_unresolved_conflict_count
         self.mst_edges_dropped_count = mst_edges_dropped_count
         self.mst_edges_astar_routed_count = mst_edges_astar_routed_count
+        # Edges LANDED by the keepout-only fallback. Was
+        # `len(edges) - astar_routed_count`, which reported every edge A*
+        # missed as though the fallback had landed it.
         self.mst_edges_fallback_count = mst_edges_fallback_count
+        # Every edge decision made, counted.
+        self.mst_edges_attempted_count = mst_edges_attempted_count
+        # Edges not drawn because their endpoints were already joined.
+        self.mst_edges_skipped_already_joined_count = (
+            mst_edges_skipped_already_joined_count
+        )
 
     def __repr__(self) -> str:  # pragma: no cover - trivial
         return (
@@ -300,9 +317,12 @@ class PowerIslandResult:
             f"via_skipped_through_hole={self.via_skipped_through_hole_count}, "
             f"via_offset={self.via_offset_count}, "
             f"via_unresolved_conflict={self.via_unresolved_conflict_count}, "
+            f"mst_edges_attempted={self.mst_edges_attempted_count}, "
             f"mst_edges_dropped={self.mst_edges_dropped_count}, "
             f"mst_edges_astar_routed={self.mst_edges_astar_routed_count}, "
-            f"mst_edges_fallback={self.mst_edges_fallback_count})"
+            f"mst_edges_fallback={self.mst_edges_fallback_count}, "
+            f"mst_edges_skipped_already_joined="
+            f"{self.mst_edges_skipped_already_joined_count})"
         )
 
 
@@ -681,6 +701,12 @@ def generate_power_islands_blocks(
 
         existing_holes = _existing_drilled_holes(pcb, net_name) + list(run_new_holes)
 
+        # Per-drop-point classification -- see the twin in _ground_plane.py and
+        # temper-orchestration/src/backbone_edge_outcome.rs. The placed-via
+        # total is counted off these outcomes, replacing the DOUBLE
+        # subtraction `len(positions) - skipped_through_hole -
+        # unresolved_conflict` that stood here.
+        via_tally = _ViaDropTally()
         via_skipped_through_hole = 0
         via_offset_count = 0
         via_unresolved_conflict = 0
@@ -691,6 +717,7 @@ def generate_power_islands_blocks(
             key = (round(x, 3), round(y, 3))
             if through_hole_positions.get(key, False):
                 via_skipped_through_hole += 1
+                via_tally.record_skipped_through_hole()
                 continue
 
             drop_point, needs_stub = _find_via_drop_point(
@@ -704,6 +731,7 @@ def generate_power_islands_blocks(
             )
             if drop_point is None:
                 via_unresolved_conflict += 1
+                via_tally.record_unresolved_conflict()
                 logger.warning(
                     "generate_power_islands_content(%s): no clear via drop "
                     "point found near pad at (%.4f, %.4f) -- skipping this "
@@ -723,6 +751,12 @@ def generate_power_islands_blocks(
             existing_holes.append((vx, vy, via_radius_mm))
             run_new_holes.append((vx, vy, via_radius_mm))
             this_rail_vias.append(Point(vx, vy).buffer(via_radius_mm + OTHER_NET_CLEARANCE_MM, quad_segs=8))
+            # The via is emitted either way; a blocked stub below does not
+            # un-place it, so the outcome is recorded here.
+            if needs_stub:
+                via_tally.record_placed_offset()
+            else:
+                via_tally.record_placed_at_centre()
             if needs_stub:
                 via_offset_count += 1
                 # RAISED 2026-08-17 (stitch-congestion root-cause fix, see
@@ -885,11 +919,16 @@ def generate_power_islands_blocks(
         # Emit every component-local A*-routed edge unconditionally --
         # additional real connectivity beyond (not necessarily a subset
         # of) the global Euclidean MST's own edge list.
-        astar_routed_count = 0
+        # Per-edge classification across BOTH collections -- identical shape to
+        # the _ground_plane.py twin. Replaces
+        # `mst_edges_fallback_count = len(edges) - astar_routed_count` and
+        # `mst_edge_count = len(edges) - crossed_keepout`.
+        edge_tally = _BackboneEdgeTally()
+
         for (_i, _j), astar_path in astar_routed_edges.items():
             for a, b in zip(astar_path, astar_path[1:]):
                 run_this_rail_backbone.append(_emit_segment(a, b))
-            astar_routed_count += 1
+            edge_tally.record_routed_astar()
 
         crossed_keepout = 0
         rerouted = 0
@@ -898,13 +937,15 @@ def generate_power_islands_blocks(
                 # Already joined by a component-local A*-clean edge (or a
                 # chain of them) -- drawing this global-MST edge too
                 # would only add collision risk for zero connectivity
-                # benefit.
+                # benefit. Neither a landing nor a drop.
+                edge_tally.record_skipped_already_joined()
                 continue
 
             p1, p2 = positions[i], positions[j]
             if not _blocked(p1, p2):
                 run_this_rail_backbone.append(_emit_segment(p1, p2))
                 connectivity_uf.union(i, j)
+                edge_tally.record_landed_straight()
                 continue
 
             candidates = sorted(
@@ -927,8 +968,10 @@ def generate_power_islands_blocks(
             if found:
                 rerouted += 1
                 connectivity_uf.union(i, j)
+                edge_tally.record_landed_one_bend()
             else:
                 crossed_keepout += 1
+                edge_tally.record_dropped_crossed_keepout()
 
         if crossed_keepout:
             logger.warning(
@@ -946,19 +989,25 @@ def generate_power_islands_blocks(
         run_new_fcu_copper.extend(run_this_rail_backbone)
         run_new_bcu_copper.extend(this_rail_vias)
 
+        # Raises if the recorded outcomes do not sum to the attempted total.
+        edge_tally.check_partition()
+        via_tally.check_partition()
+
         results[net_name] = PowerIslandResult(
             net_name=net_name,
             pad_count=len(positions),
-            drop_via_count=len(positions) - via_skipped_through_hole - via_unresolved_conflict,
-            mst_edge_count=len(edges) - crossed_keepout,
+            drop_via_count=via_tally.placed_total,
+            mst_edge_count=edge_tally.landed_total,
             zone_polygon_count=len(zone_polys),
             pour_area_mm2=pour_area_mm2,
-            via_skipped_through_hole_count=via_skipped_through_hole,
-            via_offset_count=via_offset_count,
-            via_unresolved_conflict_count=via_unresolved_conflict,
-            mst_edges_dropped_count=crossed_keepout,
-            mst_edges_astar_routed_count=astar_routed_count,
-            mst_edges_fallback_count=len(edges) - astar_routed_count,
+            via_skipped_through_hole_count=via_tally.skipped_through_hole,
+            via_offset_count=via_tally.placed_offset,
+            via_unresolved_conflict_count=via_tally.unresolved_conflict,
+            mst_edges_attempted_count=edge_tally.attempted,
+            mst_edges_dropped_count=edge_tally.dropped_total,
+            mst_edges_astar_routed_count=edge_tally.routed_astar,
+            mst_edges_fallback_count=edge_tally.landed_fallback,
+            mst_edges_skipped_already_joined_count=edge_tally.skipped_already_joined,
         )
 
     return new_blocks, results

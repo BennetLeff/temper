@@ -27,7 +27,7 @@ from __future__ import annotations
 import logging
 import os
 from collections import defaultdict
-from typing import Any, cast
+from typing import Any, NamedTuple, cast
 
 import temper_orchestration as _to
 
@@ -811,6 +811,90 @@ def select_routing_grids(
     return _to.run_select_routing_grids(occupancy_grids)
 
 
+ROUTING_MODE_NLAYER = "nlayer"
+ROUTING_MODE_TWO_GRID = "two-grid"
+
+
+class RoutingModeDecision(NamedTuple):
+    """Which Stage 4 driver routes this board, and why.
+
+    Exists so the answer is a *named, logged* value rather than something a
+    reader has to re-derive from a boolean expression.  ``mode`` is one of
+    :data:`ROUTING_MODE_NLAYER` / :data:`ROUTING_MODE_TWO_GRID`, ``driver``
+    names the function that will actually run, and ``reason`` says which
+    input decided it.
+    """
+
+    mode: str
+    driver: str
+    reason: str
+
+
+def _resolve_routing_mode(
+    available_grids: dict[str, OccupancyGrid],
+    *,
+    force_nlayer: bool,
+) -> RoutingModeDecision:
+    """Decide which Stage 4 routing driver runs, explicitly.
+
+    This used to be a bare expression::
+
+        use_nlayer = self.enable_nlayer_astar_spike or len(available_grids) > 2
+
+    which read as though ``enable_nlayer_astar_spike`` were the control.  It
+    is not, and has not been since PR #1178's 6-layer stackup: today's board
+    exposes four routable *signal* layers, so ``len(available_grids) > 2`` is
+    permanently true and the second term decides every production route on
+    its own.  The flag defaults to ``False`` everywhere it is constructed, so
+    a reader who checked only the flag concluded the N-layer driver was dark
+    -- a conclusion drawn, and acted on, more than once.
+
+    ``force_nlayer`` (the flag) is kept rather than retired because it still
+    has one real, non-redundant effect: it selects the N-layer driver on a
+    board with **two or fewer** routable signal layers, where the layer count
+    would otherwise choose the legacy 2-grid path.  That is a genuine
+    capability (``scripts/route_board.py --nlayer-astar-spike`` uses it), so
+    retiring it would remove function, not just a misleading name.  What is
+    fixed here is the *ambiguity*: the decision is now named, the reason is
+    recorded, and the caller logs both.
+
+    The flag's ``..._spike`` name is now inaccurate -- the N-layer driver is
+    production, not a spike -- but renaming it is a public-API change across
+    ``route_pcb()``, ``_adapter_convert.py`` and the CLI, so it is left for a
+    dedicated rename rather than smuggled in here.
+    """
+    grid_count = len(available_grids)
+    if grid_count > 2:
+        return RoutingModeDecision(
+            mode=ROUTING_MODE_NLAYER,
+            driver="_astar_nlayer.run_astar_pathfinding_nlayer",
+            reason=(
+                f"{grid_count} routable signal grids available (>2), so the "
+                f"N-layer driver is selected by layer count; the "
+                f"enable_nlayer_astar_spike flag (={force_nlayer}) is not "
+                f"what decided this"
+            ),
+        )
+    if force_nlayer:
+        return RoutingModeDecision(
+            mode=ROUTING_MODE_NLAYER,
+            driver="_astar_nlayer.run_astar_pathfinding_nlayer",
+            reason=(
+                f"only {grid_count} routable signal grid(s) available, but "
+                f"enable_nlayer_astar_spike=True forced the N-layer driver"
+            ),
+        )
+    return RoutingModeDecision(
+        mode=ROUTING_MODE_TWO_GRID,
+        driver="astar_pathfinding.run_astar_pathfinding",
+        reason=(
+            f"only {grid_count} routable signal grid(s) available and "
+            f"enable_nlayer_astar_spike=False, so the legacy 2-grid-capped "
+            f"driver is selected"
+        ),
+    )
+
+
 def _run_stage4(
     self,
     pcb: ParsedPCB,
@@ -933,16 +1017,20 @@ def _run_stage4(
         # pre-existing behavior for boards outside the production shape.
         available_grids = all_grids
 
-    use_nlayer = self.enable_nlayer_astar_spike or len(available_grids) > 2
+    routing_mode = _resolve_routing_mode(
+        available_grids, force_nlayer=self.enable_nlayer_astar_spike
+    )
+    logging.getLogger(__name__).info(
+        "Stage 4 routing mode: %s (%s) -- driver=%s, routable signal grids=%d %s",
+        routing_mode.mode,
+        routing_mode.reason,
+        routing_mode.driver,
+        len(available_grids),
+        sorted(available_grids),
+    )
+    use_nlayer = routing_mode.mode == ROUTING_MODE_NLAYER
 
     if pathfinding_result is None and use_nlayer:
-        # Routes through _astar_nlayer.py's N-layer, via-aware
-        # generalization (see docs/evidence/2026-08-08-nlayer-via-astar-spike.md
-        # for its original spike writeup) instead of the legacy
-        # 2-grid-capped path below. Triggered automatically whenever more
-        # than 2 routable signal layers are available -- not just behind
-        # the opt-in ``enable_nlayer_astar_spike`` flag, which callers may
-        # still set explicitly to force this path on a 2-layer board.
         from temper_placer.router_v6._astar_nlayer import (
             run_astar_pathfinding_nlayer,
             select_routing_grids_nlayer,

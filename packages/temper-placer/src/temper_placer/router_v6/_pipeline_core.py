@@ -284,18 +284,28 @@ class RouterV6Pipeline:
                 per batch, corroborated by a MEASURED 2.6M-variable model
                 that already survived construction under an 8GB
                 ``ulimit -v`` cap on this same skeleton).
-            enable_nlayer_astar_spike: Opt into the N-layer, via-aware A*
-                pathfinding SPIKE PROTOTYPE (``_astar_nlayer.py``,
-                ``spike/nlayer-via-astar`` branch) instead of the
-                production ``run_astar_pathfinding`` (which is hardcoded
-                to at most 2 layers -- see ``select_routing_grids`` and
-                ``run_astar_pathfinding``'s ``alternate_grid`` singular
-                parameter). Default False -- production behavior
-                completely unchanged. See
-                ``docs/evidence/2026-08-08-nlayer-via-astar-spike.md`` for
-                what this buys, what it doesn't, and why it is not wired
-                in as the default. Not combined with
-                ``enable_all_pad_tree`` -- the spike's driver does not
+            enable_nlayer_astar_spike: FORCE the N-layer, via-aware A*
+                driver (``_astar_nlayer.py``) on a board with **two or
+                fewer** routable signal layers.
+
+                **This flag does not control which driver production
+                uses, and leaving it False does not keep the N-layer
+                driver out of a production route.** Stage 4 selects the
+                N-layer driver whenever more than two routable signal
+                grids exist (``_pipeline_route._resolve_routing_mode``),
+                which today's 4-signal-layer board always satisfies. So
+                on the production board the N-layer driver runs with this
+                flag at its ``False`` default; the flag only adds the
+                *sub*-3-layer case. Reading it as an on/off switch for
+                the N-layer path is the misreading it has repeatedly
+                caused -- ``_run_stage4`` now logs the resolved mode and
+                the reason it was chosen, which is the authoritative
+                answer.
+
+                The ``..._spike`` name is historical; ``_astar_nlayer.py``
+                is production, not a spike. Renaming is a public-API
+                change and is deliberately deferred. Not combined with
+                ``enable_all_pad_tree`` -- the N-layer driver does not
                 implement the experimental all-terminal-tree path (see
                 ``_astar_nlayer.py``'s module docstring).
         """
@@ -337,8 +347,10 @@ class RouterV6Pipeline:
         # `#871` net-batching prototype (see net_batching.py)
         self.enable_net_batching = enable_net_batching
         self.net_batch_size = net_batch_size
-        # Spike prototype opt-in (see enable_nlayer_astar_spike's docstring
-        # above). Default False -- production behavior unchanged.
+        # Forces the N-layer driver on a <=2-signal-layer board only (see
+        # enable_nlayer_astar_spike's docstring above). It does NOT gate the
+        # N-layer driver in production: with >2 routable signal grids
+        # _resolve_routing_mode selects that driver regardless of this flag.
         self.enable_nlayer_astar_spike = enable_nlayer_astar_spike
         self.last_batch_results: list[Any] = []
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).

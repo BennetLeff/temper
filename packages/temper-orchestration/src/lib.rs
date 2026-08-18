@@ -190,6 +190,11 @@
 // that catch is what runs).
 mod board_state;
 mod apply_placements_stage;
+// 2026-08-18: outcome sum types for the `_ground_plane.py`/`_power_islands.py`
+// plane-backbone generators. Public so the `compile_fail` doctests on
+// `BackboneEdgeCounts` / `ViaDropCounts` -- which prove a subtraction-derived
+// count set cannot be constructed -- are reachable by `cargo test --doc`.
+pub mod backbone_edge_outcome;
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
 mod component_assignment_stage;
@@ -466,6 +471,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(feasibility::derive_si_max_placement_dist, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::mains_voltage_to_class_code, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::extract_min_clearance, m)?)?;
+    m.add_class::<backbone_edge_outcome::PyBackboneEdgeTally>()?;
+    m.add_class::<backbone_edge_outcome::PyViaDropTally>()?;
     m.add_class::<convergence::ConvergenceChecker>()?;
     m.add_class::<convergence::ConvergenceCriteria>()?;
     m.add_class::<convergence::ConvergenceState>()?;

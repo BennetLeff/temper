@@ -86,8 +86,9 @@ def _dispatch_search(
             enable_congestion_derivative=enable_congestion_derivative,
         )
     # 2D plain A*.  Delegate to the Rust-backed kernel
-    # (astar_core_rust._astar_search_rust, cleanup C1).  Falls through
-    # to the pure-Python _astar_search when the extension is missing.
+    # (astar_core_rust._astar_search_rust, cleanup C1).  There is no
+    # Python fallback: a missing extension raises
+    # AstarExtensionUnavailableError (2026-08-18, fail closed).
     #
     # S8 (same-net wiring): net_id and corridor_mask are threaded
     # through.  When net_id >= 0, the Rust kernel receives the raw
