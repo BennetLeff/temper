@@ -1,9 +1,42 @@
-"""Spike prototype: N-layer, via-aware A* pathfinding.
+"""N-layer, via-aware A* pathfinding -- the production Stage-4 router.
 
-**Status: prototype, not production.** Branch ``spike/nlayer-via-astar``,
-spun up to answer a design question, not to replace the production A*
-path. See ``docs/evidence/2026-08-08-nlayer-via-astar-spike.md`` for the
-full writeup (why, what was measured, and the honest assessment).
+**Status: PRODUCTION. This module routes every net on the board.**
+
+It began as a spike (branch ``spike/nlayer-via-astar``, writeup in
+``docs/evidence/2026-08-08-nlayer-via-astar-spike.md``) and its docstring
+claimed "prototype, not production" long after that stopped being true.
+Corrected 2026-08-18. The gate is ``_pipeline_route.py``::
+
+    use_nlayer = self.enable_nlayer_astar_spike or len(available_grids) > 2
+
+``enable_nlayer_astar_spike`` still defaults ``False``, but that is an
+``or``, and the second term has been permanently true since the 6-layer
+stackup landed: ``pcb/temper.kicad_pcb`` declares ``F.Cu``, ``In3.Cu``,
+``In4.Cu`` and ``B.Cu`` as signal layers (``In1.Cu``/``In2.Cu`` are power
+planes and never receive an occupancy grid), so ``available_grids`` is 4.
+Nothing has to opt in; this is the only path a production route takes.
+
+Measured on that board 2026-08-18 (route from scratch, 105 nets, 126
+segment attempts -- see ``TierTally`` below, which makes these counters
+permanent rather than something the next person re-derives by hand):
+
+===========================  =====  ======
+tier                         count  share
+===========================  =====  ======
+1 preferred-layer 2D             26  20.6%
+2 alternate-layer 2D             30  23.8%
+3 N-layer via-aware 3D            0   0.0%
+4 declined (fail-closed)         70  55.6%
+===========================  =====  ======
+
+Tier 1 resolving one segment in five is worth knowing: the cascade's whole
+premise is that the cheap same-layer search suffices in the common case,
+and on this board it does not. Tier 3 resolved **nothing** across 70
+invocations while consuming 232s of the 455s route -- measured to be
+budget starvation, not geometry (its 200k-iteration cap explores ~1.2% of
+a 4-layer, 1680x2380 state space; the same segments resolve at 1M-4M).
+Raising that budget is deliberately NOT done here: it changes which nets
+route, so it needs its own before/after.
 
 **The gap this closes.** Two independent places in the production router
 cap pathfinding at exactly two layers:
