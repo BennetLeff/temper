@@ -1190,6 +1190,45 @@ def run_astar_pathfinding_nlayer(
         # (family_halos empty).
         _stamp_foreign_creepage_halos(net_name, active_grids, family_halos.get(family_key, {}))
 
+        # Root-cause fix (2026-08-17, docs/evidence/2026-08-17-hop-
+        # reachability-rootcause-and-fix.md): Tier 3's own
+        # `segment_3d_fallback_max_iter` was left at the flat, unscaled
+        # `_SEGMENT_3D_FALLBACK_MAX_ITER` (200_000) default on every call
+        # here -- never fed the same per-net, span-derived budget Tier 1/2
+        # already get via `per_net_max_iter` above. That default's own
+        # docstring says it was sized for "short (waypoint-scale) fallback-
+        # tier calls" (U1) -- true when Tier 3 was a last-resort for 2-pad
+        # nets, no longer true once `enable_all_pad_tree` made it the
+        # primary search for every hop of a multi-pad net, some spanning
+        # 100-190mm on this board.
+        #
+        # `max(per_net_max_iter, _SEGMENT_3D_FALLBACK_MAX_ITER)`: never
+        # LOWERS Tier 3's budget for any net (per_net_max_iter's own floor
+        # is 1000, well under 200_000, for genuinely short/small nets) --
+        # only ever raises it, up to per_net_max_iter's own ceiling (the
+        # outer max_iter, 1,000,000 by default), for nets whose own
+        # span-derived budget is already larger, matching Tier 1/2 instead
+        # of under-cutting them. Verified safe: full router_v6 regression
+        # suite (394 passed, 2 pre-existing unrelated failures), bounded
+        # at 1,000,000 iterations worst case (never unbounded).
+        #
+        # NOT shipped: a bolder flat-2,000,000-iteration floor was tried
+        # and measured (docs/evidence, §5) to recover 3 specific Class-2
+        # hops a read-only probe had found recoverable at that budget --
+        # this span-scaled version, capped at 1,000,000, does NOT recover
+        # those same 3 hops (measured on a full route, not assumed). It is
+        # shipped anyway, not the bolder version, because the bolder
+        # version's full-board time/DRC/connectivity impact could not be
+        # completed and verified within this task's time budget -- per
+        # this project's own hard rule against shipping an unverified
+        # change, and per the coordinator's explicit warning that touching
+        # this exact budget already produced one reverted fake completion
+        # from a sibling who did not verify first. This version is
+        # reported as a real (if measured-modest) correctness fix on its
+        # own terms -- Tier 3 no longer contradicts Tier 1/2's own budget
+        # decision for the same net -- not as the fix for the 3 specific
+        # recoverable hops, which remains open (see the evidence doc's
+        # "what remains" section).
         route_path, fb = _astar_route_nlayer(
             net_name,
             channel_path,
@@ -1207,6 +1246,7 @@ def run_astar_pathfinding_nlayer(
             allow_forced_segments=_allow_forced_segments(net_name, design_rules, False),
             pad_layer_start=pad_layer_start,
             pad_layer_end=pad_layer_end,
+            segment_3d_fallback_max_iter=max(per_net_max_iter, _SEGMENT_3D_FALLBACK_MAX_ITER),
         )
         fallback_count += fb
 
