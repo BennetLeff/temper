@@ -54,3 +54,82 @@ board sha256 `6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1`
 
 (To be continued in this same file, appended incrementally as measurements
 land.)
+
+## Root cause: NOT "the board lacks room" -- an unchecked emission path that
+## widening merely exposed
+
+**The hypothesis in the brief -- does the obstacle map / C-space know about
+stitch geometry at its actual emitted width -- resolved to a sharper, more
+specific answer than "no."** The PRIMARY corridor-aware A* backbone pass
+(`_corridor_backbone.py`, wired into `_power_islands.py` since 2026-08-12)
+*does* know: `compute_corridor_mask(grid, STITCH_TRACE_WIDTH_MM)` erodes free
+space by the emitted trace's own half-width, composed correctly with the
+pre-buffered per-net-class-pair clearance already baked into the obstacle
+polygons (`collect_other_net_copper_by_pairwise_clearance`,
+`routed_segments_obstacle`) -- this is real, width-aware, and correct. So is
+via-drop placement (`_find_via_drop_point`, buffers the candidate footprint
+by the via's own radius before testing).
+
+**Two OTHER emission paths inside `_power_islands.py`, both real F.Cu copper
+this generator writes, had NO collision check against foreign copper at
+all:**
+
+1. **The MST-backbone fallback** (`_blocked()`, used when the primary A*
+   pass cannot find a corridor-clean path for an MST edge -- "a measured,
+   genuine fraction," per the module's own docstring). It tested a
+   **zero-width** candidate line against only the HV keepout and this run's
+   own earlier power-rail copper (`run_new_fcu_copper`) -- never against
+   `other_copper_fcu_backbone` (every OTHER net's pre-existing board copper)
+   or `routed_fcu_backbone` (this run's own Stage 3/4-routed copper + the
+   gnd plane), both of which were already computed in the same function, in
+   scope, for the primary A* pass, and simply never wired into the fallback.
+2. **The via-drop stub segment** (emitted when `_find_via_drop_point` has to
+   offset the via from the pad centre -- `needs_stub`): a straight
+   `STITCH_TRACE_WIDTH_MM`-wide segment from the pad to the via, with **zero
+   collision check of any kind**. The via-drop search only clears the via's
+   own footprint; the straight line joining it back to the pad was never
+   checked against anything.
+
+**This defect was always there.** It predates PR #1329 entirely -- at
+0.3mm, an unchecked line is narrow enough that it usually (not always: this
+generator's own docstring already logged occasional "crossed_keepout"
+counts) missed foreign copper by luck of geometry. Widening to 1.0mm (3.3x)
+did not create a new collision risk; it removed the accidental margin that
+had been silently absorbing an always-broken check. **This is the "unchecked
+emission path" framing, not "the board lacks room"**: the same board, same
+placement, same other-net routes pass DRC cleanly once these two paths are
+actually made to check what they were already computing -- no pipeline
+reorder, no reservation of stitch corridors ahead of Stage 3/4, and no
+placement/pour-topology change was needed.
+
+**This is also not a new failure mode for this codebase.** `_ground_plane.py`
+hit and fixed the *identical* pattern for `gnd` one day earlier (2026-08-16,
+"fix/route-to-100-percent" -- see that module's own `_blocked` and stub-gate
+comments): buffer the candidate line by its own half-width, then check it
+against the real per-net-pair-clearance foreign-copper obstacle sets
+already computed for the A* pass. `_power_islands.py`'s copies of both
+functions were cloned from an *earlier* version of `_ground_plane.py`,
+before that fix landed, and never received it -- a second instance of this
+project's own §5-cataloged "stale ground truth" mechanism, this time as a
+stale COPY of a since-fixed sibling function rather than a stale comment or
+test.
+
+### Fix (commit `4da46bac2`, `_power_islands.py` only)
+
+1. `_blocked()`: buffer the candidate `LineString` by
+   `STITCH_TRACE_WIDTH_MM / 2.0` before any intersection test (so the check
+   represents the real copper footprint, not a zero-width probe), and add
+   `other_copper_fcu_backbone` / `routed_fcu_backbone` as additional blocked
+   regions -- both already computed, in scope, for the primary A* pass;
+   reused, not re-derived.
+2. Via-drop stub emission: gate it with the same buffered-footprint check
+   against `keepout` and `via_avoid_copper` (already comprehensive: other
+   nets' pre-existing copper, this run's routed segments, and every earlier
+   power rail's own new copper this run). A blocked stub is skipped
+   fail-closed -- the via still lands; the pad simply is not stub-joined to
+   it, a labelled connectivity cost on that one pad, never a short.
+
+No clearance/creepage/DRU threshold changed. `STITCH_TRACE_WIDTH_MM` stays
+derived from `TEMPER_NET_CLASSES["Power"].trace_width` (1.0mm) -- this fix
+makes the emitter respect obstacles it was already computing, not a
+relaxation of anything.
