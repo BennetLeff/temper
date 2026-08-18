@@ -204,7 +204,7 @@ PAIRED_FUNCTIONS: tuple[ClonePair, ...] = (
         qualname_a="generate_ground_plane_blocks._blocked",
         file_b="packages/temper-placer/src/temper_placer/router_v6/_power_islands.py",
         qualname_b="generate_power_islands_blocks._blocked",
-        # Live similarity measured 2026-08-18 post-#1332-fix: 0.877.
+        # Live similarity measured 2026-08-18 post-#1332-fix: 0.880.
         # Floor set with a small tolerance below that so ordinary
         # unrelated edits (a renamed local, an added comment feeding a
         # DIFFERENT constant into the same shape) do not false-positive,
@@ -243,7 +243,7 @@ PAIRED_FUNCTIONS: tuple[ClonePair, ...] = (
         qualname_a="generate_ground_plane_blocks._emit_segment",
         file_b="packages/temper-placer/src/temper_placer/router_v6/_power_islands.py",
         qualname_b="generate_power_islands_blocks._emit_segment",
-        # Live similarity measured 2026-08-18: 0.883.
+        # Live similarity measured 2026-08-18: 0.879.
         min_similarity=0.80,
         evidence=(
             "Same incident and fix as power_islands_ground_plane_blocked "
@@ -268,7 +268,7 @@ PAIRED_FUNCTIONS: tuple[ClonePair, ...] = (
         qualname_a="ZonePourClearanceTable.required",
         file_b="packages/temper-placer/src/temper_placer/router_v6/zone_pour_creepage.py",
         qualname_b="ZonePourCreepageTable.required",
-        # Live similarity measured 2026-08-18: 0.949.
+        # Live similarity measured 2026-08-18: 0.951.
         min_similarity=0.85,
         evidence=(
             "zone_pour_creepage.py's OWN module docstring says it "
@@ -306,6 +306,112 @@ PAIRED_FUNCTIONS: tuple[ClonePair, ...] = (
         ),
         paired_on="2026-08-18",
     ),
+    # -----------------------------------------------------------------
+    # scripts/*.py s-expression mini-parser family. Found by this
+    # module's own discovery sweep (scripts/find_clone_pairs.py,
+    # 2026-08-18): FIVE scripts each carry an independent copy of a
+    # ``_sexp``/``_children``/``_field`` KiCad-file s-expr parser, and
+    # THREE of them also carry an independent copy of
+    # ``check_netlist_freshness``. None delegates to any of the others --
+    # this is exactly the "same predicate, N independent homes" shape
+    # ``check_duplicate_predicates.py`` exists for, EXCEPT no SSOT has
+    # ever been consolidated (there is no shared implementation any of
+    # these could be registered as delegating to), so it does not fit
+    # that gate's ``ConsolidatedFamily`` shape either -- it fits this
+    # module's "prove the twins have not drifted apart" shape instead.
+    # Two genuinely different sub-families exist, confirmed by full-body
+    # comparison (NOT merely this gate's own structural score -- read
+    # with a plain diff): ``check_copper_net_consistency.py``/
+    # ``check_domain_partition.py``/``check_footprint_drift.py`` all
+    # raise their own ``GateError`` on malformed input (a CI-gate
+    # convention: a parse failure IS a gate failure); ``gen_pcb_skeleton.
+    # py``/``gen_schematics.py`` both raise plain ``ValueError`` (neither
+    # is a gate script). That IS a real, structural divergence this
+    # gate's OWN mechanism now catches (measured 1.000 -> 0.992
+    # similarity once the call-target-preserving refinement below was
+    # added -- see ``normalize_function_ast``'s docstring) -- reported
+    # here, in the module's own docstring, and in
+    # docs/evidence/2026-08-18-clone-drift-gate.md, but DELIBERATELY NOT
+    # registered as a ClonePair: the two exception types are each correct
+    # for their own script's contract, so there is no floor that would
+    # both accept this AND still catch a real accidental divergence
+    # inside either sub-family. Only same-contract sub-families are
+    # registered below, each at floor=1.0 (byte-identical logic modulo
+    # comments/docstrings -- no known reason for ANY drift within a
+    # sub-family, so any drift at all is worth a human's attention).
+    # -----------------------------------------------------------------
+    ClonePair(
+        name="sexp_parser_domain_partition_vs_copper_net_consistency",
+        file_a="scripts/check_copper_net_consistency.py",
+        qualname_a="_sexp",
+        file_b="scripts/check_domain_partition.py",
+        qualname_b="_sexp",
+        min_similarity=1.0,
+        evidence="scripts/find_clone_pairs.py discovery sweep, 2026-08-18.",
+        notes=(
+            "Both raise GateError (same CI-gate contract). Byte-identical "
+            "logic (docstrings/comments differ, structure does not). No "
+            "known reason to diverge -- floor is exact."
+        ),
+        paired_on="2026-08-18",
+    ),
+    ClonePair(
+        name="sexp_parser_footprint_drift_vs_copper_net_consistency",
+        file_a="scripts/check_copper_net_consistency.py",
+        qualname_a="_sexp",
+        file_b="scripts/check_footprint_drift.py",
+        qualname_b="_sexp",
+        min_similarity=1.0,
+        evidence="scripts/find_clone_pairs.py discovery sweep, 2026-08-18.",
+        notes="Same GateError sub-family as the entry above. Floor is exact.",
+        paired_on="2026-08-18",
+    ),
+    ClonePair(
+        name="check_netlist_freshness_domain_partition_vs_copper_net_consistency",
+        file_a="scripts/check_copper_net_consistency.py",
+        qualname_a="check_netlist_freshness",
+        file_b="scripts/check_domain_partition.py",
+        qualname_b="check_netlist_freshness",
+        min_similarity=1.0,
+        evidence="scripts/find_clone_pairs.py discovery sweep, 2026-08-18.",
+        notes=(
+            "Both docstrings independently cite the SAME 2026-07-2[89] "
+            "stale-netlist-cache incident with different CI run IDs "
+            "quoted -- prose only, structure (content-then-mtime "
+            "freshness check via check_freshness()) is identical. Floor "
+            "is exact."
+        ),
+        paired_on="2026-08-18",
+    ),
+    ClonePair(
+        name="check_netlist_freshness_footprint_drift_vs_copper_net_consistency",
+        file_a="scripts/check_copper_net_consistency.py",
+        qualname_a="check_netlist_freshness",
+        file_b="scripts/check_footprint_drift.py",
+        qualname_b="check_netlist_freshness",
+        min_similarity=1.0,
+        evidence="scripts/find_clone_pairs.py discovery sweep, 2026-08-18.",
+        notes="Same sub-family as the entry above. Floor is exact.",
+        paired_on="2026-08-18",
+    ),
+    ClonePair(
+        name="sexp_parser_gen_pcb_skeleton_vs_gen_schematics",
+        file_a="scripts/gen_pcb_skeleton.py",
+        qualname_a="_sexp",
+        file_b="scripts/gen_schematics.py",
+        qualname_b="_sexp",
+        min_similarity=1.0,
+        evidence="scripts/find_clone_pairs.py discovery sweep, 2026-08-18.",
+        notes=(
+            "The ValueError sub-family (see the block comment above this "
+            "group) -- both non-gate generator scripts, both raise "
+            "ValueError, byte-identical to each other. Floor is exact. "
+            "NOT compared against the GateError trio above -- see the "
+            "block comment for why that cross-family gap is reported, not "
+            "gated."
+        ),
+        paired_on="2026-08-18",
+    ),
 )
 
 
@@ -316,26 +422,54 @@ PAIRED_FUNCTIONS: tuple[ClonePair, ...] = (
 
 def normalize_function_ast(node: ast.AST) -> str:
     """Structural skeleton of a function body: AST node-type tokens with
-    every ``Name``/``Attribute``/``Constant``/``arg`` LEAF collapsed to a
-    type-tagged placeholder, so a variable rename, a different string/
-    numeric literal, or a different attribute base does not count as
-    drift, but control-flow shape (branch count, boolean composition,
-    which functions are CALLED, loop/comprehension shape) does. Mirrors
+    every plain-variable ``Name``/``Constant``/``arg`` LEAF collapsed to a
+    type-tagged placeholder, so a variable rename or a different string/
+    numeric literal does not count as drift, but control-flow shape
+    (branch count, boolean composition, loop/comprehension shape) AND
+    "WHICH FUNCTION IS CALLED" both do. Mirrors
     ``check_geometry_primitive_duplication.py``'s "structural, not
     textual" choice, generalized from one fixed function shape to
     arbitrary function pairs.
+
+    A ``Call``'s target is preserved, not collapsed, whether it is a bare
+    name (``GateError(...)``) or an attribute (``footprint.intersects(...)``)
+    -- catches the case "two clones raise/call a DIFFERENT thing at the
+    same structural position" (e.g. ``raise GateError(...)`` in one twin
+    vs ``raise ValueError(...)`` in the other -- a real divergence found
+    by this module's own discovery sweep between the ``check_*.py`` s-exp
+    parser family and ``gen_pcb_skeleton.py``'s copy), which a naive
+    "every Name collapses" rule would be structurally blind to (a Call's
+    ``func`` is itself a bare ``Name`` node, identical in shape to any
+    other variable reference). A Name used anywhere else (an argument, a
+    condition, an assignment target) still collapses -- only the
+    call-target position is name-sensitive.
     """
     tokens: list[str] = []
 
     def visit(n: ast.AST) -> None:
+        if isinstance(n, ast.Call):
+            tokens.append("Call")
+            if isinstance(n.func, ast.Name):
+                tokens.append("TARGET." + n.func.id)
+            elif isinstance(n.func, ast.Attribute):
+                tokens.append("TARGET." + n.func.attr)
+                visit(n.func.value)
+            else:
+                visit(n.func)
+            for a in n.args:
+                visit(a)
+            for kw in n.keywords:
+                if kw.value is not None:
+                    visit(kw.value)
+            return
         if isinstance(n, ast.Name):
             tokens.append("NAME")
             return
         if isinstance(n, ast.Attribute):
-            # The attribute NAME itself is structurally meaningful (a call
-            # to `.intersects(...)` vs `.contains(...)` is a real
-            # behavioural difference, not a rename) -- only the object
-            # expression it hangs off collapses.
+            # Non-call attribute access (`.attr` read, not `.attr(...)`
+            # called) -- still structurally meaningful (reading
+            # `.is_empty` vs `.area` is a real difference), object
+            # expression it hangs off collapses per the general rule.
             tokens.append("ATTR." + n.attr)
             visit(n.value)
             return
