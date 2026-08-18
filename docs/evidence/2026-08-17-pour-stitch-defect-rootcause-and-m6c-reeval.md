@@ -84,17 +84,40 @@ fallback segment (line ~704) this generator emits for these nets -- so
 every segment it has ever written is, by construction, below the DRU floor
 for its own net's class.
 
-**This is the same defect class `_ground_plane.py` already hit and fixed**,
-one day earlier in-repo history (2026-08-16, "full-route agent,
-fix/route-to-100-percent"): that module's own `STITCH_TRACE_WIDTH_MM` was
-raised 0.4 -> 1.0mm after measuring 216/747 track_width violations from the
-identical mismatch against GND's 1.0mm DRU floor. `_power_islands.py`'s own
-comment on its neighboring `VIA_SIZE_MM` constant claimed its
-`STITCH_TRACE_WIDTH_MM` was "identical" to `_ground_plane.py`'s -- **that
-claim was already false when written** (0.3 vs 1.0mm) and stayed false for
-a full day of subsequent commits. One more instance of this project's own
-named failure mode, "one fact, many homes, drifting" (handoff §3.1): the
-fix landed in one home and never propagated to its sibling.
+### 2a. The finding underneath the finding: a comment asserted a relationship that did not hold
+
+**This defect survived a full day in-repo not because nobody had fixed the
+class before, but because a comment said it had already been checked and
+was fine.** `_ground_plane.py` hit and fixed this *exact* defect class for
+`gnd` one day earlier (2026-08-16, "full-route agent,
+fix/route-to-100-percent"): its own `STITCH_TRACE_WIDTH_MM` was raised
+0.4 -> 1.0mm after measuring 216/747 `track_width` violations from the
+identical mismatch against GND's 1.0mm DRU floor -- see that module's own
+comment (`_ground_plane.py` ~line 91-104), which documents the root cause,
+the measurement, and the fix in detail.
+
+`_power_islands.py`'s comment on its neighboring `VIA_SIZE_MM` constant
+(the line directly above the old `STITCH_TRACE_WIDTH_MM = 0.3`) said:
+
+> "the same board-wide 0.3mm-ring convention applied to every
+> `TEMPER_NET_CLASSES` `via_diameter`... and to `_power_islands.py`'s
+> identical constant below."
+
+**"Identical" was false when that sentence was written** (`_ground_plane.py`
+was already at 1.0mm by then; `_power_islands.py` stayed at 0.3mm) and
+stayed false for a full day of subsequent commits, undetected. Nobody who
+read that comment had a reason to go check the sibling file's actual
+value -- the comment's job was to make the two constants' relationship
+legible, and it asserted the opposite of the truth. This is the same
+failure class the project's own handoff catalogues as mechanism 5 ("stale
+ground truth" -- "comments asserting superseded figures") and is arguably
+worse than a stale *test*: a stale assertion with no executable form
+cannot fail CI, cannot be caught by `pytest`, and reads exactly as
+authoritative as a true one. **A comment that asserts a cross-file
+invariant is a claim with zero enforcement** -- the fix here removes the
+possibility of re-drifting by deriving the value from the shared SSOT
+(`TEMPER_NET_CLASSES["Power"].trace_width`, §3) instead of stating a
+"these should match" comment a second time.
 
 ## 3. Fix (independent of M6c, `_power_islands.py` only)
 
@@ -120,9 +143,44 @@ already documented as stale in the M6c evidence doc's own regression table
 (§4, `test_power_islands.py::...measurably_improve_connectivity`). The
 second test (`test_rails_do_not_overlap_on_shared_layer`) passes.
 
-## 4. Full-route standalone measurement: fix applied, no M6c
+## 4. A measurement bug caught before being reported: the shared `.venv`'s `temper_placer` resolves to the MAIN checkout, not this worktree
 
-`scripts/route_board.py` default recipe, from `pcb/temper.kicad_pcb`
-(unmodified, sha verified), fresh process, this commit's code (Phase 1 fix
-only, no M6c). Result pending -- route in progress, see §5 for the
-determinism/DRC table once complete.
+The first full-route "after-fix" attempt measured `track_width: 197` (UP
+from 120, not down) -- every single one of the 197 violations' own
+description still read `"actual 0.3000 mm"`. That is the tell: if the fix
+had been in effect, no violation could report `0.3000mm` at all (the
+constant no longer exists in the source). **The route never used this
+worktree's fix.**
+
+Root cause: this repo's shared `.venv`
+(`/home/bennet/Desktop/temper/.venv`) has `temper_placer` `pip install -e`'d
+against `_editable_impl_temper_placer.pth`, which points at
+`/home/bennet/Desktop/temper/packages/temper-placer/src` -- **the main
+checkout, not this worktree** (`.claude/worktrees/agent-ae9876aa8752c1a79/packages/...`).
+Invoking `scripts/route_board.py` from this worktree's own copy of the
+script still resolves `import temper_placer` through that stale editable
+pointer, because nothing in `route_board.py` or the shared venv's
+`sys.path` favors this worktree's source over site-packages'. This is a
+silent instrument failure of exactly the kind handoff §12 names: a
+verification that looks complete (a real full route ran, real DRC was
+measured) but is blind on the one axis that mattered here (which source
+tree actually executed).
+
+**Not a violation of "no pyo3 rebuilds into the shared venv"** -- no
+extension was rebuilt, and the fix is pure Python; the corrective is a
+`sys.path` override (`packages/*/src` from this worktree, inserted ahead
+of site-packages), applied via a small wrapper
+(`route_via_worktree.py`) that `exec`s `route_board.py` after the
+override, verified by a direct import check
+(`temper_placer.router_v6._power_islands.STITCH_TRACE_WIDTH_MM == 1.0`,
+confirmed resolving to this worktree's own file path) **before** re-running
+the route. The invalid 197/60-of-139 result above is discarded and not
+used anywhere in this document's conclusions.
+
+## 5. Full-route standalone measurement: fix applied, no M6c (corrected methodology)
+
+`scripts/route_board.py` default recipe (via the worktree-forcing wrapper,
+§4), from this worktree's `pcb/temper.kicad_pcb` (sha256 verified
+`6ac8b1ca...` before running), fresh process, this commit's code (Phase 1
+fix only, no M6c). Result pending -- route in progress, see §6 for the
+DRC table once complete.
