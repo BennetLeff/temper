@@ -296,7 +296,7 @@ def _astar_route_nlayer(
     effective_end_layer = (
         pad_layer_end if pad_layer_end and pad_layer_end in grids else primary_grid.layer_name
     )
-    last_segment_index = len(waypoints) - 2
+    last_waypoint_index = len(waypoints) - 1
 
     detailed_segments: list[tuple[float, float, str]] = []
     via_positions: list[tuple[float, float]] = []
@@ -304,9 +304,34 @@ def _astar_route_nlayer(
     failed_waypoint_indices: list[int] = []
     fallback_count = 0
 
-    for i in range(len(waypoints) - 1):
-        start_world = waypoints[i]
-        goal_world = waypoints[i + 1]
+    # M6c (2026-08-17, "enable_all_pad_tree made 17 nets fail closed at
+    # 0-of-N instead of silently shipping 2-of-N" -- see the coordinator's
+    # brief and docs/evidence/2026-08-17-routing-cause-refresh-and-tractable-fix.md):
+    # ``waypoints`` is a SERIAL chain over this net's pads
+    # (``expand_channel_path_terminals``/``run_expand_all_pad_tree``), not a
+    # graph -- the original loop walked it as a hard sequence and declined
+    # the ENTIRE net, discarding every pad already reached, the moment one
+    # hop had no legal path under any tier. Measured live on this board: 12
+    # of the 17 nets in this class fail on their very FIRST hop (an empty
+    # prefix, so nothing was even lost) but the other 5 already had 235-1347
+    # segments of real, safely-searched copper in flight when the early
+    # return threw it away. This generalizes the loop so an unreachable
+    # waypoint is skipped (not fatal) and the search resumes from the LAST
+    # anchor actually reached -- not the nominal next list entry -- exactly
+    # the resilience ``terminal_tree_execution.py``'s U2 already gives a
+    # Prim-planned tree, applied to this serial chain instead. A skipped hop
+    # still lands in ``failed_waypoint_indices`` (the net is never claimed
+    # ``forced_segment_count == 0`` / fully reached unless every waypoint
+    # was), and no forced/fabricated geometry is ever emitted for it -- only
+    # real, A*-searched segments ever appear in ``detailed_segments``.
+    current_anchor = waypoints[0]
+
+    for target_index in range(1, len(waypoints)):
+        start_world = current_anchor
+        goal_world = waypoints[target_index]
+        is_first_emitted = not detailed_segments
+        is_last_target = target_index == last_waypoint_index
+        emit_index = 0 if is_first_emitted else 1
 
         # Tier 1: same-layer search on the preferred/primary layer.
         segment_path, grid_used, fb = _segment_search(
@@ -328,8 +353,9 @@ def _astar_route_nlayer(
             tolerance = grid_quantization_tolerance(grid_used.cell_size)
             _emit_2d_segment(
                 detailed_segments, segment_path, grid_used, primary_grid.layer_name,
-                tolerance, i, start_world, goal_world,
+                tolerance, emit_index, start_world, goal_world,
             )
+            current_anchor = goal_world
             continue
 
         # Tier 2: whole-segment detour on every OTHER available layer.
@@ -370,16 +396,16 @@ def _astar_route_nlayer(
             # "F.Cu")``) -- the point is already correctly landed the
             # moment alt_layer IS the pad's real layer, so there is nothing
             # left to correct.
-            start_anchor_layer = effective_start_layer if i == 0 else primary_grid.layer_name
+            start_anchor_layer = effective_start_layer if is_first_emitted else primary_grid.layer_name
             if start_anchor_layer != alt_layer:
-                if i == 0:
+                if is_first_emitted:
                     detailed_segments.append((start_world[0], start_world[1], start_anchor_layer))
                 # Real via (layer change at identical x, y) -- never merged
                 # by append_grid_path_point/append_exact_terminal_point,
                 # which only ever collapse same-layer near-duplicates.
                 detailed_segments.append((start_world[0], start_world[1], alt_layer))
                 via_positions.append(start_world)
-            elif i == 0:
+            elif is_first_emitted:
                 # First segment, but the pad's own real layer already IS
                 # this segment's alt_layer -- nothing to anchor to, just
                 # begin directly on alt_layer.
@@ -396,19 +422,20 @@ def _astar_route_nlayer(
             # real layer instead (see this function's docstring on
             # effective_end_layer). Same same-layer guard as the start
             # anchor above.
-            end_anchor_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+            end_anchor_layer = effective_end_layer if is_last_target else primary_grid.layer_name
             if end_anchor_layer != alt_layer:
                 detailed_segments.append((goal_world[0], goal_world[1], end_anchor_layer))
                 via_positions.append(goal_world)
             routed_on_alt = True
             break
         if routed_on_alt:
+            current_anchor = goal_world
             continue
 
         # Tier 3: full N-layer via-aware 3D search across every grid.
         net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
-        tier3_start_layer = effective_start_layer if i == 0 else primary_grid.layer_name
-        tier3_goal_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+        tier3_start_layer = effective_start_layer if is_first_emitted else primary_grid.layer_name
+        tier3_goal_layer = effective_end_layer if is_last_target else primary_grid.layer_name
         result_3d = _route_segment_3d(
             start_world,
             goal_world,
@@ -427,30 +454,37 @@ def _astar_route_nlayer(
         if result_3d is not None:
             world_path_3d, via_positions_3d = result_3d
             via_positions.extend(via_positions_3d)
-            if i == 0:
+            if is_first_emitted:
                 detailed_segments.append(world_path_3d[0])
             detailed_segments.extend(world_path_3d[1:])
+            current_anchor = goal_world
             continue
 
+        failed_waypoint_indices.append(target_index)
+
         if not allow_forced_segments:
-            failed_waypoint_indices.append(i + 1)
-            path_length = _path_length_3d(detailed_segments)
-            return RoutePath3D(
-                net_name=net_name,
-                segments=detailed_segments,
-                via_positions=via_positions,
-                path_length=path_length,
-                via_count=len(via_positions),
-                forced_segment_count=1,
-                failed_waypoint_indices=failed_waypoint_indices,
-            ), fallback_count
+            # M6c: skip this one unreachable pad and keep going -- do NOT
+            # advance ``current_anchor``, so the next iteration retries from
+            # the last point genuinely reached. Never emits forced/
+            # fabricated geometry; ``detailed_segments`` stays 100% real.
+            continue
 
         forced_segments += 1
-        failed_waypoint_indices.append(i + 1)
-        if i == 0:
+        if is_first_emitted:
             detailed_segments.append((start_world[0], start_world[1], effective_start_layer))
-        forced_end_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+        forced_end_layer = effective_end_layer if is_last_target else primary_grid.layer_name
         detailed_segments.append((goal_world[0], goal_world[1], forced_end_layer))
+        current_anchor = goal_world
+
+    if not allow_forced_segments:
+        # Every entry in failed_waypoint_indices is a genuinely-skipped pad
+        # (M6c), never a fabricated one -- forced_segments itself stays 0
+        # under this policy (no caller-visible "forced" edge exists), but
+        # callers key their partial/complete classification off THIS field
+        # being nonzero, not off failed_waypoint_indices, so it must still
+        # report "not every pad was reached" the same way a single early
+        # decline always has.
+        forced_segments = len(failed_waypoint_indices)
 
     path_length = _path_length_3d(detailed_segments)
     return RoutePath3D(
@@ -487,6 +521,22 @@ def _path_length_3d(segments: list[tuple[float, float, str]]) -> float:
 # sits exactly on the pad's (x, y), on a layer that pad has no copper on, no
 # via anywhere in the net.
 FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED = "pad_layer_landing_blocked"
+
+# TEMPORARY diagnostic (2026-08-17, M6b investigation) -- prints per-net
+# waypoint/failure detail for the "enable_all_pad_tree made 17 nets fail
+# closed at 0-of-N" class named in the coordinator's brief, to establish
+# WHERE in the waypoint chain the decline happens before proposing a fix.
+# Remove before landing.
+_DEBUG_M6B_NETS = frozenset(
+    {
+        "+15V_LS", "discharge.k_dis1-nc", "discharge.k_dis2-nc", "en",
+        "hb.gate_hs.driver-p1-1", "hb.gate_hs.driver-p2",
+        "hb.power_loop.q_high-g", "io0", "safety-line", "safety-line-1",
+        "safety.ocp.comp-inn", "safety.ovp-line", "safety.ovp.comp-inp",
+        "safety.thermal.comp-inp", "safety.uvlo_logic-line",
+        "safety.uvlo_logic.mon-outa", "y",
+    }
+)
 
 
 def _pad_layer_at_point(
@@ -1100,6 +1150,39 @@ def run_astar_pathfinding_nlayer(
     per_path_latency_ms: dict[str, float] = {}
     fallback_count = 0
 
+    def _stamp_route_into_every_family(route_path, net_rule, net_id: int) -> None:
+        """Width/creepage-aware obstacle stamp (2026-08-16): the routed
+        net's own real width (not the flat 0.2mm board default) into EVERY
+        family at that family's searching-net radius, so any net searched
+        AFTER this one sees this copper as a real obstacle.
+
+        M6c (2026-08-17): factored out of the full-success branch so a
+        safe-but-partial route (some hops reached, `forced_segment_count >
+        0`) can call it too. Before this factor-out, ``compile_routing_
+        results`` writing partial geometry onto the board (M6c's other
+        half) without this stamp meant every net ordered after a partial
+        one never saw its real copper as an obstacle -- measured directly:
+        clearance and shorting_items both hit their kicad-cli report caps
+        (499/199) and tracks_crossing rose 8 -> 341 on a real board route
+        before this fix. Partial geometry is exactly as real as complete
+        geometry from the perspective of "does the next net need to avoid
+        it" -- the ONLY thing that makes it partial is that it doesn't
+        reach every one of ITS OWN pads, which is unrelated to whether
+        other nets must route around it.
+        """
+        creepage_table = default_creepage_table()
+        for _fam_key, _fam_grids in families.items():
+            _fam_w, _fam_c, _fam_class = _fam_key
+            pair_creepage = creepage_table.required(net_rule.name, _fam_class)
+            _mark_route_blocked(
+                route_path,
+                _fam_grids,
+                trace_width=net_rule.trace_width_mm,
+                clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage) + _fam_w / 2.0,
+                net_id=net_id,
+                via_diameter=net_rule.via_diameter_mm,
+            )
+
     def attempt_route(net_name: str):
         nonlocal fallback_count, layer_divergence_count
         channel_path = channel_mapping.channel_paths[net_name]
@@ -1255,6 +1338,14 @@ def run_astar_pathfinding_nlayer(
 
         if route_path:
             if route_path.forced_segment_count > 0:
+                if net_name in _DEBUG_M6B_NETS:
+                    print(
+                        f"      [M6B-DEBUG] {net_name}: waypoints={len(channel_path.waypoints)} "
+                        f"failed_idx={route_path.failed_waypoint_indices} "
+                        f"segments={len(route_path.segments)} vias={len(route_path.via_positions)} "
+                        f"safe_partial={_has_safe_partial_geometry(route_path)}",
+                        flush=True,
+                    )
                 # Same partial-route preservation as the landing-blocked
                 # path above, for the OTHER net-level decline shape
                 # (Tier 1-3 all failed partway through a multi-waypoint
@@ -1265,6 +1356,17 @@ def run_astar_pathfinding_nlayer(
                 # tree-route path already uses for this same shape.
                 if _has_safe_partial_geometry(route_path):
                     partial_paths[net_name] = route_path
+                    # M6c: this geometry is now written to the board (see
+                    # compile_routing_results), so every OTHER net must see
+                    # it as an obstacle too -- same stamp the full-success
+                    # path always applied. Without this, a net ordered
+                    # after this one would freely route across/through
+                    # real copper that simply doesn't happen to be this
+                    # net's own pad. Measured directly: omitting this stamp
+                    # produced clearance/shorting_items hitting their
+                    # kicad-cli report caps (499/199) and tracks_crossing
+                    # 8 -> 341 on a real board route.
+                    _stamp_route_into_every_family(route_path, net_rule, net_id)
                 return _forced_segment_decline([], congestion_region())
             routed_paths[net_name] = route_path
             # Width/creepage-aware stamp (2026-08-16): the routed net's own
@@ -1280,19 +1382,7 @@ def run_astar_pathfinding_nlayer(
             # the creepage term is what keeps an HV track 12.6mm from an LV
             # net's copper instead of 0.2mm (the DRC-graded bar, resolved
             # from the DRU by router_v6/pair_creepage).
-            creepage_table = default_creepage_table()
-            for _fam_key, _fam_grids in families.items():
-                _fam_w, _fam_c, _fam_class = _fam_key
-                pair_creepage = creepage_table.required(net_rule.name, _fam_class)
-                _mark_route_blocked(
-                    route_path,
-                    _fam_grids,
-                    trace_width=net_rule.trace_width_mm,
-                    clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage)
-                    + _fam_w / 2.0,
-                    net_id=net_id,
-                    via_diameter=net_rule.via_diameter_mm,
-                )
+            _stamp_route_into_every_family(route_path, net_rule, net_id)
             return True, "", [], None, None
 
         if landing_blocked:
