@@ -392,6 +392,73 @@ pub struct PourResult {
 ///
 /// Returns multiple disjoint outlines when the carve splits the region;
 /// an outline may carry holes when a keepout sits fully inside it.
+/// Snap every ring vertex to [`SNAP_GRID_MM`] and close the ring.
+///
+/// Shared by [`build_keepout_union`] and any other caller that must feed a
+/// ring to `geo`'s sweep-line `BooleanOps` -- see `SNAP_GRID_MM`'s doc
+/// comment for why this is required before every boolean op, not merely
+/// convenient.
+fn snap_ring(pts: &[Point]) -> Vec<Point> {
+    let mut out: Vec<Point> = Vec::with_capacity(pts.len());
+    for p in pts {
+        let q = Point::new(
+            (p.x / SNAP_GRID_MM).round() * SNAP_GRID_MM,
+            (p.y / SNAP_GRID_MM).round() * SNAP_GRID_MM,
+        );
+        if out.last() != Some(&q) {
+            out.push(q);
+        }
+    }
+    // Close the ring: if the snapped ring's first/last differ, append
+    // the first point so geo sees a closed polygon.  (geo's polygon
+    // ring handling tolerates an open ring, but a closed one is the
+    // unambiguous form.)
+    if out.len() > 1 && out[0] != out[out.len() - 1] {
+        out.push(out[0]);
+    }
+    out
+}
+
+/// Union every obstacle's halo polygon into one keepout `MultiPolygon`.
+///
+/// Extracted from [`pour_outline`] so [`stitch_mst_with_gate`] can build the
+/// IDENTICAL keepout (same halo construction, same snap grid, same
+/// incremental-fold union order) that the carve itself consults -- a stitch
+/// edge and a pour outline must agree on what counts as foreign copper, or
+/// a stitch could legally cross ground the carve itself would have refused
+/// to enter.
+///
+/// Union incrementally (fold), not in one giant `MultiPolygon::union`: geo
+/// 0.28's sweep-line `BooleanOps` panics ("unable to compare active
+/// segments!" / "segment not found in active-vec-set") when hundreds of
+/// overlapping halos are unioned at once (measured on the production board:
+/// every zone-eligible net panicked with 500+ obstacles). A fold keeps each
+/// sweep's active-set small enough to stay total. The result is
+/// order-independent (union is commutative) up to floating-point snap
+/// effects, and the final polygon set is the same; deterministic per run.
+fn build_keepout_union(obstacles: &[ZoneObstacle]) -> MultiPolygon<f64> {
+    let halos: Vec<GeoPolygon<f64>> = obstacles
+        .iter()
+        .map(|o| {
+            let poly = o.halo_polygon();
+            let snapped = snap_ring(
+                &poly
+                    .exterior()
+                    .coords()
+                    .map(|c| Point::new(c.x, c.y))
+                    .collect::<Vec<_>>(),
+            );
+            let ring: Vec<Coord<f64>> = snapped.iter().map(|p| Coord { x: p.x, y: p.y }).collect();
+            GeoPolygon::new(ring.into(), vec![])
+        })
+        .collect();
+    let mut keepout: MultiPolygon<f64> = MultiPolygon::new(vec![]);
+    for halo in &halos {
+        keepout = keepout.union(&MultiPolygon::new(vec![halo.clone()]));
+    }
+    keepout
+}
+
 pub fn pour_outline(
     region: &[Point],
     own_pads: &[Point],
@@ -404,59 +471,12 @@ pub fn pour_outline(
     // FIRST -- geo 0.28's sweep-line BooleanOps panics on floating-point
     // near-coincident collinear edges (measured on the production board
     // with 500+ overlapping halos; see SNAP_GRID_MM's doc comment).
-    let snap = |pts: &[Point]| -> Vec<Point> {
-        let mut out: Vec<Point> = Vec::with_capacity(pts.len());
-        for p in pts {
-            let q = Point::new(
-                (p.x / SNAP_GRID_MM).round() * SNAP_GRID_MM,
-                (p.y / SNAP_GRID_MM).round() * SNAP_GRID_MM,
-            );
-            if out.last() != Some(&q) {
-                out.push(q);
-            }
-        }
-        // Close the ring: if the snapped ring's first/last differ, append
-        // the first point so geo sees a closed polygon.  (geo's polygon
-        // ring handling tolerates an open ring, but a closed one is the
-        // unambiguous form.)
-        if out.len() > 1 && out[0] != out[out.len() - 1] {
-            out.push(out[0]);
-        }
-        out
-    };
-    let halos: Vec<GeoPolygon<f64>> = obstacles
-        .iter()
-        .map(|o| {
-            let poly = o.halo_polygon();
-            let snapped = snap(
-                &poly
-                    .exterior()
-                    .coords()
-                    .map(|c| Point::new(c.x, c.y))
-                    .collect::<Vec<_>>(),
-            );
-            let ring: Vec<Coord<f64>> = snapped.iter().map(|p| Coord { x: p.x, y: p.y }).collect();
-            GeoPolygon::new(ring.into(), vec![])
-        })
-        .collect();
-    // Union incrementally (fold), not in one giant MultiPolygon::union:
-    // geo 0.28's sweep-line BooleanOps panics
-    // ("unable to compare active segments!" / "segment not found in
-    // active-vec-set") when hundreds of overlapping halos are unioned at
-    // once (measured on the production board: every zone-eligible net
-    // panicked with 500+ obstacles).  A fold keeps each sweep's active-set
-    // small enough to stay total.  The result is order-independent (union
-    // is commutative) up to floating-point snap effects, and the final
-    // polygon set is the same; deterministic per run.
-    let mut keepout: MultiPolygon<f64> = MultiPolygon::new(vec![]);
-    for halo in &halos {
-        keepout = keepout.union(&MultiPolygon::new(vec![halo.clone()]));
-    }
+    let keepout = build_keepout_union(obstacles);
     let keepout_area_mm2: f64 = keepout.iter().map(|p| p.unsigned_area()).sum();
 
     // 2. Carve.  The region ring is snapped/deduped the same way so the
     // difference's sweep sees the same total ordering.
-    let region_snapped = snap(region);
+    let region_snapped = snap_ring(region);
     let region_geo = MultiPolygon::new(vec![ring_to_geo_polygon(&region_snapped)]);
     let carved = region_geo.difference(&keepout);
 
@@ -564,6 +584,142 @@ fn normalize_ring(pts: &[Point], want_ccw: bool) -> Vec<Point> {
         ring.reverse();
     }
     ring
+}
+
+// ===========================================================================
+// Cross-fragment pad-to-pad stitching (case 3: legitimate islands, nothing
+// joins them)
+// ===========================================================================
+//
+// Root-cause (docs/evidence/2026-08-18-zone-pour-fragmentation-rootcause.md):
+// for every non-`GND`/`ACMains`-class net whose pads are not one of the
+// hand-listed `_CONTINUITY_EXEMPT_NETS`, `zone_emission.py::compute_zones_for_net`
+// Ward-clusters the net's pads into several small, spatially disjoint
+// per-component hulls (measured: 5-13 clusters for `+170V_BUS`/`DC_BUS_RTN`/
+// `PWR_RTN`/`SW_NODE`/`tank.c_tank1-p2`/`w1_1`/`w1_2`) BEFORE the carve in
+// [`pour_outline`] ever runs -- so even a carve that removes nothing still
+// leaves N disconnected regions, one per cluster, times up to 4 layers.
+// `_net_policy.py::_should_route` excludes every zone-eligible net from A*
+// entirely, so for these nets the pour is the ONLY conductive path -- no
+// routed trace ever supplements it. A general MST pad-to-pad stitcher
+// already existed in Python (`_zone_pour_stitch.py::_stitch_pads_to_each_other`,
+// added 2026-08-14 and creepage-aware-C-space-gated 2026-08-16) but was
+// hardcoded to run for exactly one net (`power_in.ntc-no`) and never
+// generalised. This is that stitcher's geometry core, ported to Rust so the
+// fix can be applied to every zone-eligible net through one call site
+// instead of a second hand-maintained Python copy.
+
+/// Euclidean minimum spanning tree over `positions`, Prim's algorithm,
+/// O(n^2) (board-scale net pad counts are never more than a few dozen).
+///
+/// Deterministic tie-break MATCHES the Python reference this replaces
+/// (`_zone_pour_stitch.py::_stitch_pads_to_each_other`'s inline MST, prior
+/// to this port): ties are broken by iterating `in_tree` in insertion order
+/// and `remaining` in ascending original-index order, keeping the FIRST
+/// edge found under strict `<` comparison -- never resolved by `<=`, which
+/// would keep the LAST. `positions[0]` is always the tree's root, exactly
+/// as the Python reference's `in_tree = [0]` fixes it.
+pub fn mst_edges(positions: &[Point]) -> Vec<(usize, usize)> {
+    let n = positions.len();
+    if n <= 1 {
+        return Vec::new();
+    }
+    let mut in_tree: Vec<usize> = vec![0];
+    let mut remaining: Vec<usize> = (1..n).collect();
+    let mut edges = Vec::with_capacity(n - 1);
+    while !remaining.is_empty() {
+        let mut best: Option<(usize, usize)> = None;
+        let mut best_d2 = f64::INFINITY;
+        for &i in &in_tree {
+            let (xi, yi) = (positions[i].x, positions[i].y);
+            for &j in &remaining {
+                let (xj, yj) = (positions[j].x, positions[j].y);
+                let d2 = (xj - xi) * (xj - xi) + (yj - yi) * (yj - yi);
+                if d2 < best_d2 {
+                    best_d2 = d2;
+                    best = Some((i, j));
+                }
+            }
+        }
+        let (i, j) = best.expect("remaining is non-empty, so a best edge always exists");
+        edges.push((i, j));
+        in_tree.push(j);
+        remaining.retain(|&x| x != j);
+    }
+    edges
+}
+
+/// Result of [`stitch_mst_with_gate`]: the MST edges that survived the
+/// creepage-aware C-space gate, plus how many were fail-closed skipped.
+#[derive(Debug, Clone)]
+pub struct StitchResult {
+    /// Surviving edges, as `(index, index)` pairs into the input `positions`.
+    pub edges: Vec<(usize, usize)>,
+    /// Edges dropped because their buffered footprint crossed foreign
+    /// copper -- fail-closed, never emitted as a known-shorting/creeping
+    /// straight line.
+    pub skipped: usize,
+}
+
+/// Compute a net's own-pad MST, then drop every edge whose buffered
+/// footprint (half of `stitch_width_mm` -- the edge carries no additional
+/// separation of its own; `obstacles`' halos already carry the full
+/// per-pair `max(clearance, creepage)` separation, identically to
+/// [`pour_outline`]'s carve) intersects the SAME keepout union the carve
+/// itself would refuse to enter.
+///
+/// This is [`ZoneObstacle`]-typed, so a creepage-vs-clearance mistake is
+/// impossible by construction: whatever `clearance_mm` the caller resolved
+/// per obstacle (the Python caller resolves `max(clearance, creepage)` via
+/// `collect_zone_obstacle_records`, mirroring [`pour_outline`]'s own
+/// caller) is exactly what widens the halo here, with no separate,
+/// independently-maintained "is this pair HV" branch to drift out of step.
+///
+/// A pad whose only MST edge is skipped is left unstitched by this call --
+/// honest, not silently "fixed" by falling back to an unsafe edge. The
+/// caller (Python orchestration) reports skips via the same
+/// `logger.warning` convention `_stitch_isolated_pads` already uses.
+pub fn stitch_mst_with_gate(
+    positions: &[Point],
+    obstacles: &[ZoneObstacle],
+    stitch_width_mm: f64,
+) -> StitchResult {
+    let mst = mst_edges(positions);
+    if mst.is_empty() {
+        return StitchResult { edges: Vec::new(), skipped: 0 };
+    }
+    let keepout = build_keepout_union(obstacles);
+    if keepout.0.is_empty() {
+        return StitchResult { edges: mst, skipped: 0 };
+    }
+    let mut kept = Vec::with_capacity(mst.len());
+    let mut skipped = 0usize;
+    for (i, j) in mst {
+        use crate::clearance_halo::ClearanceHalo;
+        let footprint = ClearanceHalo::from_track_with_segments(
+            geo::Point::new(positions[i].x, positions[i].y),
+            geo::Point::new(positions[j].x, positions[j].y),
+            stitch_width_mm,
+            0.0,
+            HALO_SEGMENTS,
+        );
+        let fp_ring: Vec<Coord<f64>> = footprint
+            .polygon()
+            .exterior()
+            .coords()
+            .map(|c| Coord { x: c.x, y: c.y })
+            .collect();
+        let fp_poly = GeoPolygon::new(fp_ring.into(), vec![]);
+        let fp_multi = MultiPolygon::new(vec![fp_poly]);
+        let overlap = fp_multi.intersection(&keepout);
+        let blocked = overlap.iter().any(|p| p.unsigned_area() > 0.0);
+        if blocked {
+            skipped += 1;
+            continue;
+        }
+        kept.push((i, j));
+    }
+    StitchResult { edges: kept, skipped }
 }
 
 // ===========================================================================
@@ -706,10 +862,70 @@ pub fn pour_outline_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// Pyo3 wrapper: compute a net's own-pad MST, dropped to only the edges
+/// whose buffered footprint clears every foreign obstacle.
+///
+/// Argument layout mirrors [`pour_outline_py`] exactly (same `obstacles`
+/// flat-record convention) so a caller building one obstacle list can feed
+/// it to either function unchanged.
+///
+/// * `positions`: `Vec<(f64, f64)>` -- the net's own pad positions, in the
+///   SAME order the caller wants edge indices reported against.
+/// * `obstacles`: see [`pour_outline_py`]'s docstring for the `(kind, x, y,
+///   a, b, w, clearance)` convention. `clearance` here must already be the
+///   pair's resolved `max(clearance_mm, creepage_mm)` -- this function has
+///   no netclass/creepage-table access of its own and trusts the caller's
+///   figure completely, exactly as `pour_outline_py` does.
+/// * `stitch_width_mm`: the emitted segment's own copper width (netclass
+///   `trace_width`, resolved by the caller).
+///
+/// Returns `(edges, skipped)`: `edges` is a list of `(i, j)` index pairs
+/// into `positions` (0-based) for every MST edge that cleared the gate,
+/// in MST-discovery order; `skipped` is how many were dropped fail-closed.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (positions, obstacles, stitch_width_mm))]
+pub fn stitch_mst_with_gate_py(
+    positions: Vec<(f64, f64)>,
+    obstacles: Vec<(u8, f64, f64, f64, f64, f64, f64)>,
+    stitch_width_mm: f64,
+) -> PyResult<(Vec<(usize, usize)>, usize)> {
+    temper_py_bridge::catch_unwind(|| {
+        let pts: Vec<Point> = positions.iter().map(|(x, y)| Point::new(*x, *y)).collect();
+        let obs: Vec<ZoneObstacle> = obstacles
+            .iter()
+            .map(|(kind, x, y, a, b, w, clearance)| match kind {
+                0 => ZoneObstacle::Pad {
+                    position: Point::new(*x, *y),
+                    half_w: *a,
+                    half_h: *b,
+                    rotation_rad: 0.0,
+                    clearance_mm: *clearance,
+                },
+                1 => ZoneObstacle::Track {
+                    start: Point::new(*x, *y),
+                    end: Point::new(*a, *b),
+                    width_mm: *w,
+                    clearance_mm: *clearance,
+                },
+                _ => ZoneObstacle::Via {
+                    position: Point::new(*x, *y),
+                    diameter_mm: *a,
+                    clearance_mm: *clearance,
+                },
+            })
+            .collect();
+        let res = stitch_mst_with_gate(&pts, &obs, stitch_width_mm);
+        (res.edges, res.skipped)
+    })
+    .map_err(temper_py_bridge::panic_to_err)
+}
+
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pour_outline_py, m)?)?;
     m.add_function(wrap_pyfunction!(emit_zone_outline_s_expr_py, m)?)?;
+    m.add_function(wrap_pyfunction!(stitch_mst_with_gate_py, m)?)?;
     Ok(())
 }
 
@@ -945,6 +1161,84 @@ pub(crate) mod tests {
         assert!((area - expected).abs() < 0.5, "disc area {area} vs {expected}");
     }
 
+    #[cfg_attr(test, test)]
+    fn mst_edges_connects_a_line_of_four_points_root_first() {
+        // Points already in ascending-distance chain order: MST must be a
+        // straight chain, rooted at index 0 (Python reference: in_tree =
+        // [0]), with no cross-jumps.
+        let pts = vec![
+            Point::new(0.0, 0.0),
+            Point::new(1.0, 0.0),
+            Point::new(2.0, 0.0),
+            Point::new(3.0, 0.0),
+        ];
+        let edges = mst_edges(&pts);
+        assert_eq!(edges, vec![(0, 1), (1, 2), (2, 3)]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn mst_edges_tie_break_keeps_first_found() {
+        // Two points at IDENTICAL distance from the root (indices 1 and 2
+        // both at distance 1.0 from index 0): Python's strict `<` keeps
+        // whichever is found FIRST under `for i in in_tree: for j in
+        // remaining`, i.e. the lower index. Confirms this Rust port did not
+        // silently switch to `<=` (which would keep the LAST).
+        let pts = vec![
+            Point::new(0.0, 0.0),
+            Point::new(1.0, 0.0),
+            Point::new(0.0, 1.0),
+        ];
+        let edges = mst_edges(&pts);
+        assert_eq!(edges[0], (0, 1), "tie-break must keep the first-found (lower index) edge");
+    }
+
+    #[cfg_attr(test, test)]
+    fn mst_edges_trivial_cases() {
+        assert_eq!(mst_edges(&[]), Vec::<(usize, usize)>::new());
+        assert_eq!(mst_edges(&[Point::new(0.0, 0.0)]), Vec::<(usize, usize)>::new());
+    }
+
+    #[cfg_attr(test, test)]
+    fn stitch_gate_keeps_edge_with_no_obstacles() {
+        let pts = vec![Point::new(0.0, 0.0), Point::new(10.0, 0.0)];
+        let res = stitch_mst_with_gate(&pts, &[], 0.2);
+        assert_eq!(res.edges, vec![(0, 1)]);
+        assert_eq!(res.skipped, 0);
+    }
+
+    #[cfg_attr(test, test)]
+    fn stitch_gate_skips_edge_blocked_by_foreign_pad() {
+        // A foreign pad sits directly on the straight line between the two
+        // stitch points, buffered well past the line's own half-width --
+        // the edge must be fail-closed dropped, not emitted through it.
+        let pts = vec![Point::new(0.0, 0.0), Point::new(10.0, 0.0)];
+        let blocker = ZoneObstacle::Pad {
+            position: Point::new(5.0, 0.0),
+            half_w: 0.5,
+            half_h: 0.5,
+            rotation_rad: 0.0,
+            clearance_mm: 12.6, // PD3 reinforced creepage -- easily spans the 0.2mm-wide line.
+        };
+        let res = stitch_mst_with_gate(&pts, &[blocker], 0.2);
+        assert!(res.edges.is_empty(), "blocked edge must not be emitted");
+        assert_eq!(res.skipped, 1);
+    }
+
+    #[cfg_attr(test, test)]
+    fn stitch_gate_keeps_edge_that_clears_a_distant_obstacle() {
+        let pts = vec![Point::new(0.0, 0.0), Point::new(10.0, 0.0)];
+        let far = ZoneObstacle::Pad {
+            position: Point::new(5.0, 50.0),
+            half_w: 0.5,
+            half_h: 0.5,
+            rotation_rad: 0.0,
+            clearance_mm: 12.6,
+        };
+        let res = stitch_mst_with_gate(&pts, &[far], 0.2);
+        assert_eq!(res.edges, vec![(0, 1)]);
+        assert_eq!(res.skipped, 0);
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -959,6 +1253,12 @@ pub(crate) mod tests {
         ("zone_generator::tests::emit_with_holes_has_one_polygon_element_per_ring", emit_with_holes_has_one_polygon_element_per_ring),
         ("zone_generator::tests::capsule_halo_has_positive_area", capsule_halo_has_positive_area),
         ("zone_generator::tests::disc_halo_area", disc_halo_area),
+        ("zone_generator::tests::mst_edges_connects_a_line_of_four_points_root_first", mst_edges_connects_a_line_of_four_points_root_first),
+        ("zone_generator::tests::mst_edges_tie_break_keeps_first_found", mst_edges_tie_break_keeps_first_found),
+        ("zone_generator::tests::mst_edges_trivial_cases", mst_edges_trivial_cases),
+        ("zone_generator::tests::stitch_gate_keeps_edge_with_no_obstacles", stitch_gate_keeps_edge_with_no_obstacles),
+        ("zone_generator::tests::stitch_gate_skips_edge_blocked_by_foreign_pad", stitch_gate_skips_edge_blocked_by_foreign_pad),
+        ("zone_generator::tests::stitch_gate_keeps_edge_that_clears_a_distant_obstacle", stitch_gate_keeps_edge_that_clears_a_distant_obstacle),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
