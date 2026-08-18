@@ -24,11 +24,20 @@ classes below extend the same two-sided proof pattern
 ``TestRealRegistryExtendedFamilies`` pins each new family's real-repo
 state, mirroring ``TestRealRegistryKnownState``. The overall real-repo exit
 state changed from VIOLATION (3) to TOOL ERROR (5) as part of this
-extension -- the two new ``gate_h*_net_current_rating_a`` facts are
+extension -- the two new ``gate_h*_net_current_rating_a`` facts were
 deliberately-red TOOL ERRORS (a citation that was never added, not merely a
 wrong value), and tool-error takes priority in the gate's own exit-code
-selection. ``test_gate_exits_tool_error_on_the_real_repo`` (renamed from
-``test_gate_exits_violation_on_the_real_repo``) pins this.
+selection.
+
+2026-08-17 (later, same day): docs/evidence/2026-08-17-gate-drive-ampacity-
+key-rename-fix.md closed that TOOL ERROR window -- ``StackupGate.
+_DEFAULT_NET_CURRENTS`` and ``ipc.rs``'s ``net_currents()`` both gained the
+missing ``"GATE_HS"``/``"GATE_LS"`` keys, so both citations now resolve.
+Exit state is back to VIOLATION (3) (the pre-existing, unrelated
+``mains_voltage_v``/``pollution_degree``/``default_via_diameter_mm``/
+``hv_lv_separation_gate_threshold_mm`` reds are untouched by this fix).
+``test_gate_exits_violation_on_the_real_repo`` (renamed back from
+``test_gate_exits_tool_error_on_the_real_repo``) pins this.
 """
 
 from __future__ import annotations
@@ -255,23 +264,25 @@ class TestRealRegistryKnownState:
                 "not, something silently changed the registry or the site."
             )
 
-    def test_gate_exits_tool_error_on_the_real_repo(self):
-        """RENAMED 2026-08-17 (session 2) from
-        ``test_gate_exits_violation_on_the_real_repo``. Both are still true
-        of the real repo (has_violation stays True -- mains_voltage_v/
-        pollution_degree/default_via_diameter_mm/hv_lv_separation_gate_
-        threshold_mm are all still red), but has_tool_error is now ALSO
-        True: gate_hs_net_current_rating_a / gate_ls_net_current_rating_a
-        (see TestRealRegistryExtendedFamilies below) are missing citations,
-        not wrong values, and this gate's own exit-code selection gives
-        tool_error priority over violation (see main()). If this ever goes
-        back to has_tool_error=False, verify it is because those two
-        citations were genuinely added (see their Fact notes) and not
-        because a pattern silently stopped matching."""
+    def test_gate_exits_violation_on_the_real_repo(self):
+        """RENAMED 2026-08-17 (session 2, then again same day): the
+        gate_hs_net_current_rating_a / gate_ls_net_current_rating_a TOOL
+        ERROR window (see TestRealRegistryExtendedFamilies below) is now
+        CLOSED -- docs/evidence/2026-08-17-gate-drive-ampacity-key-rename-
+        fix.md added the missing "GATE_HS"/"GATE_LS" keys to both
+        StackupGate._DEFAULT_NET_CURRENTS and ipc.rs's net_currents(), so
+        both citations now resolve and match. has_tool_error is back to
+        False. has_violation stays True: mains_voltage_v/pollution_degree/
+        default_via_diameter_mm/hv_lv_separation_gate_threshold_mm are
+        still red, unrelated pre-existing findings this fix does not
+        touch. If has_tool_error ever goes back to True, verify it is a
+        genuine new missing-citation site and not a regression of this
+        fix (e.g. a pattern silently stopping to match after further
+        edits to either table)."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         has_violation, has_tool_error = check._print_report(results)
-        assert has_tool_error is True
+        assert has_tool_error is False
         assert has_violation is True
 
 
@@ -562,15 +573,18 @@ class TestRealRegistryExtendedFamilies:
             assert r.error is None
             assert r.matches is True
 
-    def test_gate_net_current_citations_are_known_tool_errors(self):
-        """NEW divergence found by this changeset's sweep: unlike
+    def test_gate_net_current_citations_agree_regression_guard(self):
+        """RENAMED 2026-08-17 (later, same day) from
+        ``test_gate_net_current_citations_are_known_tool_errors``. The
+        divergence this changeset's earlier sweep found -- unlike
         _GATE_NETS above, StackupGate._DEFAULT_NET_CURRENTS and
-        temper_drc_rs::ipc::net_currents() were NEVER updated from
-        'GATE_H'/'GATE_L' to 'GATE_HS'/'GATE_LS' -- so the real board's
-        gate-drive nets get the ampacity gate's default 0.1A instead of
-        their intended 2.0A citation. Registered as TOOL ERRORS (missing
-        citation, not a wrong value) -- pinned red here, deliberately not
-        fixed by this changeset (see the Fact's own notes for why)."""
+        temper_drc_rs::ipc::net_currents() were never updated from
+        'GATE_H'/'GATE_L' to 'GATE_HS'/'GATE_LS' -- is now FIXED
+        (docs/evidence/2026-08-17-gate-drive-ampacity-key-rename-fix.md).
+        Per the task's coordination instruction ("register the invariant
+        anyway so it cannot silently return"), this pins the fix as green,
+        the same pattern ``test_gate_drive_net_names_agree_regression_
+        guard`` above uses for PR #1310's earlier _GATE_NETS fix."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         current_results = [
@@ -580,8 +594,8 @@ class TestRealRegistryExtendedFamilies:
         ]
         assert len(current_results) == 4  # 2 facts x 2 homes
         for r in current_results:
-            assert r.error is not None
-            assert "did not match" in r.error
+            assert r.error is None
+            assert r.matches is True
 
     def test_hv_lv_separation_gate_threshold_is_now_clean(self):
         """UPDATED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-

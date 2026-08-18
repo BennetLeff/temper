@@ -79,7 +79,10 @@ def test_clean_signal_nets_in_spec():
                 compiled_routes={
                     "SIG1": _FakeRoute("SIG1", width_mm=0.3, layer="F.Cu"),
                     # 2A external, 1 oz: IPC-2221B minimum is 0.786mm.
-                    "GATE_H": _FakeRoute("GATE_H", width_mm=1.0, layer="F.Cu"),
+                    # 2026-08-17: "GATE_HS" (real board net, not the stale
+                    # non-existent "GATE_H") -- see docs/evidence/2026-08-17-
+                    # gate-drive-ampacity-key-rename-fix.md.
+                    "GATE_HS": _FakeRoute("GATE_HS", width_mm=1.0, layer="F.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -148,7 +151,9 @@ def test_adequate_width_no_violation():
             routing=_FakeRoutingResult(
                 compiled_routes={
                     # 2A external, 1 oz: IPC-2221B minimum is 0.786mm.
-                    "GATE_H": _FakeRoute("GATE_H", width_mm=1.0, layer="F.Cu"),
+                    # "GATE_HS" (real board net) -- see docs/evidence/
+                    # 2026-08-17-gate-drive-ampacity-key-rename-fix.md.
+                    "GATE_HS": _FakeRoute("GATE_HS", width_mm=1.0, layer="F.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -300,7 +305,7 @@ def test_copper_weight_resolved_from_stackup():
         board=board,
         routing=_FakeRoutingResult(
             compiled_routes={
-                "GATE_H": _FakeRoute("GATE_H", width_mm=0.5, layer="F.Cu"),
+                "GATE_HS": _FakeRoute("GATE_HS", width_mm=0.5, layer="F.Cu"),
             },
             unrouted_nets=[],
         ),
@@ -334,7 +339,7 @@ def test_copper_weight_stackup_missing_uses_role_aware_fallback():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "GATE_H": _FakeRoute("GATE_H", width_mm=0.5, layer="F.Cu"),
+                    "GATE_HS": _FakeRoute("GATE_HS", width_mm=0.5, layer="F.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -346,7 +351,7 @@ def test_copper_weight_stackup_missing_uses_role_aware_fallback():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "GATE_H": _FakeRoute("GATE_H", width_mm=0.5, layer="In3.Cu"),
+                    "GATE_HS": _FakeRoute("GATE_HS", width_mm=0.5, layer="In3.Cu"),
                 },
                 unrouted_nets=[],
             )

@@ -77,7 +77,11 @@ def test_unknown_nets_agree_on_default():
         "dc_bus+",
         "ac_l",
         "+3v3",
-        "Gate_H",
+        # GATE_HS/GATE_LS: fixed 2026-08-17 (docs/evidence/2026-08-17-gate-
+        # drive-ampacity-key-rename-fix.md). The table key used to be the
+        # stale "GATE_H" (a non-existent board net); this case-variant now
+        # tests the real board net "GATE_HS".
+        "gate_hs",
         # Substring-supersets that are real/plausible net names for this board.
         "/DC_BUS+",  # KiCad hierarchical net form
         "Net-(C1-Pad1)-DC_BUS+",
@@ -117,7 +121,35 @@ def test_gate_behavior_unchanged_from_pre_wiring():
     assert gate._resolve_net_current("DC_BUS+") == 16.0
     assert gate._resolve_net_current("AC_N") == 15.0
     assert gate._resolve_net_current("+15V") == 0.2
-    assert gate._resolve_net_current("GATE_L") == 2.0
+    # GATE_LS (the board's real low-side gate-drive net), not the pre-fix
+    # "GATE_L" literal -- see test_gate_current_rename_fix_2026_08_17 below
+    # for the behavioral change this specific rename produced.
+    assert gate._resolve_net_current("GATE_LS") == 2.0
+
+
+def test_gate_current_rename_fix_2026_08_17():
+    """Pins the exact behavioral change from
+    docs/evidence/2026-08-17-gate-drive-ampacity-key-rename-fix.md.
+
+    Before the fix, `_DEFAULT_NET_CURRENTS` keyed on "GATE_H"/"GATE_L" --
+    net names that do not exist on this board (the real nets are
+    "GATE_HS"/"GATE_LS", verified against pcb/temper.kicad_pcb). The real
+    nets fell through to the 0.1A unlisted-signal-net default for this
+    DRC-gate CHECK. After the fix, the real net names resolve to their
+    correct 2.0A gate-drive citation, and the old (bogus, non-board)
+    "GATE_H"/"GATE_L" literals -- which used to resolve to 2.0A only by
+    virtue of being a table key, never because they were real nets --
+    now correctly fall to the same 0.1A default as any other unknown net,
+    since they are not real board nets and were never entitled to a
+    citation.
+    """
+    gate = StackupGate()
+    # The real board nets: now resolve correctly.
+    assert gate._resolve_net_current("GATE_HS") == 2.0
+    assert gate._resolve_net_current("GATE_LS") == 2.0
+    # The bogus pre-fix literals: no longer accidentally privileged.
+    assert gate._resolve_net_current("GATE_H") == StackupGate._DEFAULT_CURRENT
+    assert gate._resolve_net_current("GATE_L") == StackupGate._DEFAULT_CURRENT
 
 
 # ---------------------------------------------------------------------------
