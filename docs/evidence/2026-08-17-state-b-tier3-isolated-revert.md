@@ -215,4 +215,146 @@ missing from A when compared to B except precisely these 8. This is the
 cleanest possible confirmation shape: M6c's presence adds exactly 8 fake
 completions on top of a 6-net floor that exists **with or without M6c**.
 
-Findings continue in the next commit (verdict + mechanism).
+**Cross-check against the hop-reachability doc's own 17-net "0-of-N"
+class** (`_DEBUG_M6B_NETS` in `_astar_nlayer.py`: `+15V_LS,
+discharge.k_dis1-nc, discharge.k_dis2-nc, en, hb.gate_hs.driver-p1-1,
+hb.gate_hs.driver-p2, hb.power_loop.q_high-g, io0, safety-line,
+safety-line-1, safety.ocp.comp-inn, safety.ovp-line, safety.ovp.comp-inp,
+safety.thermal.comp-inp, safety.uvlo_logic-line,
+safety.uvlo_logic.mon-outa, y`): **3 of the 8 disappearing nets --
+`en`, `io0`, `safety.thermal.comp-inp` -- are exact-name matches** to that
+independently-instrumented class, and a 4th (`safety.uvlo_logic.mon-ina_p`)
+is the same functional pin group as that class's
+`safety.uvlo_logic-line`/`safety.uvlo_logic.mon-outa`. This is not a
+coincidental overlap: it is the same mechanism, confirmed from two
+independent directions (per-hop instrumentation in one document, exact
+net-identity diffing in this one).
+
+## 7. Mechanism, read directly from the code (not inferred)
+
+`_astar_route_nlayer` walks a net's pads as a **serial waypoint chain**
+(`expand_channel_path_terminals`/`run_expand_all_pad_tree`), one hop
+(`waypoints[i] -> waypoints[i+1]`) at a time. The two code paths differ
+in exactly one place: what happens when a hop's Tier 1/2/3 search all
+decline and `allow_forced_segments` is `False` (the production policy for
+every net in this class).
+
+**Non-M6c (state B, reverted code, `_astar_nlayer.py` current HEAD)**:
+the loop is a plain `for i in range(len(waypoints) - 1)`. The instant one
+hop fails, the function **returns immediately** with whatever
+`detailed_segments` had already been accumulated from the hops *before*
+the failing one -- nothing from *after* is ever attempted. If the
+**first** hop is the one that fails (the dominant sub-case in the
+hop-reachability doc's own per-hop instrumentation: "12 of the 17 nets in
+this class fail on their very first hop"), `detailed_segments` is still
+empty at that point, so the net returns with **zero geometry** -- a clean
+"failed" net (`has_any_copper == False`), not a fake completion.
+
+**M6c (state A, restored code)**: the loop tracks a `current_anchor`
+instead of a fixed index and, on a hop failure with
+`allow_forced_segments=False`, **does not return** -- it `continue`s the
+loop without advancing `current_anchor`, so the *next* iteration retries
+from the same last-known-good point to the *next* waypoint in the chain.
+A net whose first hop fails therefore still gets a chance at hop
+`waypoints[0] -> waypoints[2]`, `waypoints[0] -> waypoints[3]`, etc. When
+one of those later attempts succeeds, real A*-searched segments land in
+`detailed_segments` -- satisfying `_has_safe_partial_geometry` (`len(points)
+>= 2 and path_length > 0.0`, shared, unchanged code) -- and the net is
+preserved in `partial_paths`, later written to the board as real copper
+for the pads it DID reach. `forced_segments = len(failed_waypoint_indices)`
+at the end of the full loop correctly marks the net as not-fully-routed,
+so `NetRouteResult::Connected` is never (and was never claimed to be)
+falsely set for these nets -- `verify_continuity()` still gates it, and
+the guarantee's letter holds.
+
+**But the fake-completion metric being measured in this task is not "was
+Connected falsely claimed" -- it is `pad_connectivity_audit`'s
+`is_fake_completion = has_any_copper and not fully_connected`, i.e. "does
+this net now have copper that a naive glance would read as progress, when
+it isn't actually finished."** M6c's entire purpose was to convert some of
+these first-hop failures from "zero geometry, clean fail" into "some
+geometry, still incomplete" -- and that conversion is *exactly* the shape
+this metric flags. M6c doesn't fabricate a false `Connected`; it
+fabricates the *intermediate* state the original 62-fake-completion
+incident (and this project's entire type-guard discipline) exists to
+catch: copper on a mains-adjacent or safety-relevant rail that looks like
+partial progress but is an open circuit exactly as much as zero copper
+would be. `GATE_LS`'s persistence in *both* A and B (unaffected by M6c)
+confirms this is not the only source of that shape in the router --
+the `landing_blocked` path (`_astar_nlayer.py` ~line 1213) preserves
+partial geometry through an entirely separate, M6c-independent mechanism
+-- but M6c is a *second*, additive source of exactly the same hazard, and
+it accounts for 8 of the 14 nets in this specific measurement.
+
+## 8. Verdict
+
+**State B = 6**, matching the task brief's pre-registered interpretation
+for this outcome exactly:
+
+> **The M6c revert caused the improvement.** M6c was producing 8 fake
+> completions despite its verified design intent. Root-caused (§7): M6c's
+> stated guarantee -- `NetRouteResult::Connected` only ever comes from
+> `verify_continuity()` -- **held** (never falsely set for any of these
+> nets, both before and after this session's revert). But that guarantee
+> is narrower than the safety property the project actually needs. M6c's
+> skip-and-resume waypoint logic converts some nets that would otherwise
+> **cleanly fail with zero copper** into nets that get **partial copper**
+> for whichever hops happened to succeed after a skipped failure -- and a
+> net with real, DRC-legal copper that still doesn't join every pad is
+> indistinguishable, to any downstream consumer that isn't specifically
+> auditing `is_fake_completion`, from a genuinely-progressing route. This
+> is the same shape the original 62-fake-completion incident was about:
+> *presence of copper is not evidence of connectedness*, and M6c
+> mechanically manufactures more copper-without-connectedness than the
+> code it replaced, for exactly the nets whose first waypoint hop has no
+> legal path (12 of the 17-net "0-of-N" class, per the hop-reachability
+> doc's own per-hop instrumentation).
+
+**The Tier-3 fix's measured contribution to this metric in this
+measurement: zero.** State B's fresh route (Tier 3 absent) is byte-
+identical, modulo one blank line, to state D's committed board (Tier 3
+present) -- the two states could not be closer. This is independently
+consistent with the hop-reachability doc's own §6 finding that "none of
+the 3 hops the read-only probe found recoverable... were recovered" by
+the shipped (capped-at-1,000,000, span-proportional) version of the fix
+in the cases it targeted, and that three attempted full-route
+verifications of the fix alone were killed before completion without
+ever producing a connectivity/fake-completion number. This document is
+the first to actually complete that measurement, and the answer is: on
+this board, in this exact code state, the Tier-3 fix changes nothing
+about which nets route, how many pads connect, or how many fake
+completions occur. It remains real and safe on its own terms (bounded,
+span-proportional, cannot fabricate a completion by construction, per
+that doc's §6) -- it simply had no opportunity to matter for the specific
+hops this board's routing order happens to present it with.
+
+## 9. Connectivity, reported alongside (not confused with fake-completion)
+
+| state | connectivity | fake-completion | fake-completion nets |
+|---|---|---|---|
+| A (M6c present, Tier 3 absent) | 59/139 | 14 | +15V, +3V3, GATE_LS, I_SENSE, RTD_HW_FAULT, V_BUS_SENSE, bias, en, gnd, ina, io0, safety.thermal.comp-inp, safety.uvlo_logic.mon-ina_p, vcc |
+| B (M6c reverted, Tier 3 absent) | 60/139 | 6 | +15V, +3V3, GATE_LS, V_BUS_SENSE, gnd, vcc |
+| D (M6c reverted, Tier 3 landed, = current main) | 60/139 | 6 | +15V, +3V3, GATE_LS, V_BUS_SENSE, gnd, vcc |
+
+State C (M6c present, Tier 3 landed) was **not measured** -- with B
+already decisive and reproducing D almost byte-for-byte, and this
+session's time/disk budget already having produced two independent
+double-route measurements (4 full routes total, ~35 minutes of route
+time), C would only confirm what B and the Tier-3-absent/-present
+byte-identical comparison already show unambiguously: Tier 3 is inert for
+this board's current failure set. Flagged here explicitly rather than
+silently skipped, per the brief's own instruction to say so rather than
+half-do it.
+
+## 10. Board integrity
+
+`pcb/temper.kicad_pcb` sha256
+`26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b`
+verified unchanged at every checkpoint in this document (before the code
+edit, after the code edit, after both state-B routes, after restoring and
+routing state A's diagnostic code, and after reverting that diagnostic
+code back out). All routing output went to `/tmp` scratch paths only. No
+board was committed. The worktree's final code state is state B (the
+diagnostic M6c-restoration commit `8fa3bf1dc` was reverted by
+`c847255cc`; `git diff 7979a0ee1^ HEAD` for all four M6c files is empty,
+confirming the working tree matches pre-M6c, pre-Tier-3 source exactly).
