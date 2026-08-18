@@ -842,16 +842,49 @@ jobs:
       # the migration wave landed with the drift this gate records (see
       # tests/validation/test_ci_test_file_registration.py and
       # docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md).
-      # pytest_guard floors the collection at the 1092 tests counted on
-      # 2026-08-09 with this exact 16-file invocation (`-m "not slow"`,
-      # all passing), so a silently-shrunk suite fails instead of passing
-      # vacuously. The core/ and metrics/ members are also swept by other
-      # jobs' directory arguments; they get the pinned floor here regardless.
+      # pytest_guard floors the collection so a silently-shrunk suite fails
+      # instead of passing vacuously. The core/ and metrics/ members are also
+      # swept by other jobs' directory arguments; they get the pinned floor
+      # here regardless.
+      #
+      # FLOOR ACCOUNTING (owner-authorised ratchet adjustment, 2026-08-18).
+      # The previous value, 1092, had become unsatisfiable -- not because the
+      # suite regressed, but because files it counted no longer exist:
+      #
+      #   1092   counted 2026-08-09 at 5494f2a6d with this exact 16-file
+      #          invocation, all passing.
+      #   -  2   23707c9f9 (Spike S6, 2026-08-11) deleted spectral.py.
+      #   = 1090  the most a verbatim restore of the deleted files could reach.
+      #   - 22   35e3f914a (PR #1314, 2026-08-17) deleted core/graph.py and
+      #          core/power_topology.py, which were genuinely dead, and their
+      #          tests with them.
+      #   = 1068  MEASURED 2026-08-18 on this 16-file list; identical with and
+      #          without `-m "not slow"`, so the marker does not move it.
+      #   +  0   hypergraph-cluster audit (this PR). The audit found the
+      #          cluster has no production consumer, but it moves THIS floor by
+      #          zero: no tests/core/test_hypergraph*.py file is a member of
+      #          the 16-file list below. The cluster was left in place -- see
+      #          the PR body for the call-chain evidence -- so the delta would
+      #          be zero either way.
+      #
+      # CAVEAT, deliberately recorded rather than papered over: two of the
+      # sixteen files below --
+      #     tests/core/test_core_graph_cluster_rust_differential.py
+      #     tests/core/test_core_graph_cluster_pbt.py
+      # -- do not exist on main. 35e3f914a deleted them as collateral while
+      # removing the two dead modules; they covered SEVEN modules, five of
+      # them live. Until PR #1351 (branch fix/restore-lost-test-coverage)
+      # restores them, this step cannot collect at all and fails on the
+      # missing paths, whatever the floor says. 1068 is the measured count
+      # WITH those two files restored, which is the tree this floor is for.
+      # Lowering the floor is therefore NOT what makes this step green, and
+      # was not done to make anything pass; it records the true reachable
+      # count so the next person inherits the derivation, not a bare integer.
       - name: Run Wave-4 round-2 differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 1092 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 1068 --
           tests/heuristics/test_heuristics_rust_differential.py
           tests/heuristics/test_heuristics_pbt.py
           tests/router_v6/test_spatial_drc_cluster_rust_differential.py
@@ -2611,6 +2644,45 @@ jobs:
       - name: Oracle content-hash gate (differential foundation drift detection)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_oracle_hashes.py
+
+      # Inline-oracle content-hash gate (2026-08-18).
+      #
+      # The gate above can only see oracles that live in their own
+      # _*_py_oracle.py file. Most of this repo's oracles are NOT files --
+      # they are inline blocks pasted directly into a
+      # test_*_rust_differential.py -- sometimes under an oracle naming
+      # convention (_oracle_*, _Oracle*, _ref_*, _scipy_*), sometimes under
+      # the pre-migration code's ORIGINAL names inside a banner-delimited
+      # region (DRCOracle, Violation, CompilationTarget ...). On the tree
+      # this landed against that is 841 pins across 152 files -- 821 block
+      # pins plus 20 whole-file pins for the oracle modules that live in a
+      # *_oracle/ DIRECTORY, which the _*_py_oracle.py file-glob cannot
+      # match either. None of it was visible to oracle_hashes.json.
+      #
+      # That blind spot was not theoretical: 35e3f914a (PR #1314) deleted
+      # tests/core/test_core_graph_cluster_rust_differential.py, destroying
+      # 13 pinned inline oracles. The file-based check ran, correctly found
+      # nothing, and reported success -- the gate passed because it could
+      # not see the thing it protects, and PR #1348 later had to reconstruct
+      # one of those oracles (_oracle_coo_matmul) by hand from git history.
+      #
+      # This gate discovers the blocks structurally, pins each block's own
+      # source text (not the whole file, so unrelated edits in the same file
+      # do not force a re-pin), and fails on DRIFTED / DELETED /
+      # UNREGISTERED. Regeneration is the authoring PR's job
+      # (scripts/update_inline_oracle_hashes.py), in the same PR -- the same
+      # keep-in-sync convention as the file-based registry above.
+      #
+      # The replay of 35e3f914a is asserted in the gate's own tests
+      # (TestHistoricalReplay), so the gate cannot regress into passing on
+      # the very commit that motivated it.
+      - name: Inline-oracle content-hash gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_inline_oracles.py -v --tb=short
+
+      - name: Inline-oracle content-hash gate (oracle blocks inside test files)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_inline_oracles.py
 
       - name: MPN fabrication gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
