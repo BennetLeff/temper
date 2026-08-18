@@ -628,7 +628,14 @@ pub fn mst_edges(positions: &[Point]) -> Vec<(usize, usize)> {
     let mut remaining: Vec<usize> = (1..n).collect();
     let mut edges = Vec::with_capacity(n - 1);
     while !remaining.is_empty() {
-        let mut best: Option<(usize, usize)> = None;
+        // `in_tree` always contains index 0 and `remaining` is non-empty
+        // here, so `(in_tree[0], remaining[0])` is always a valid
+        // candidate the loop below is guaranteed to visit and compare
+        // (best_d2 starts at +inf, so it is always accepted on first
+        // comparison) -- avoids an `Option`/`.expect()` for a "None" case
+        // that can never actually occur, per this crate's `expect_used =
+        // "deny"` lint.
+        let mut best = (in_tree[0], remaining[0]);
         let mut best_d2 = f64::INFINITY;
         for &i in &in_tree {
             let (xi, yi) = (positions[i].x, positions[i].y);
@@ -637,11 +644,11 @@ pub fn mst_edges(positions: &[Point]) -> Vec<(usize, usize)> {
                 let d2 = (xj - xi) * (xj - xi) + (yj - yi) * (yj - yi);
                 if d2 < best_d2 {
                     best_d2 = d2;
-                    best = Some((i, j));
+                    best = (i, j);
                 }
             }
         }
-        let (i, j) = best.expect("remaining is non-empty, so a best edge always exists");
+        let (i, j) = best;
         edges.push((i, j));
         in_tree.push(j);
         remaining.retain(|&x| x != j);
@@ -686,7 +693,10 @@ pub fn stitch_mst_with_gate(
 ) -> StitchResult {
     let mst = mst_edges(positions);
     if mst.is_empty() {
-        return StitchResult { edges: Vec::new(), skipped: 0 };
+        return StitchResult {
+            edges: Vec::new(),
+            skipped: 0,
+        };
     }
     gate_edges(positions, &mst, obstacles, stitch_width_mm)
 }
@@ -704,11 +714,17 @@ pub fn gate_edges(
     stitch_width_mm: f64,
 ) -> StitchResult {
     if edges.is_empty() {
-        return StitchResult { edges: Vec::new(), skipped: 0 };
+        return StitchResult {
+            edges: Vec::new(),
+            skipped: 0,
+        };
     }
     let keepout = build_keepout_union(obstacles);
     if keepout.0.is_empty() {
-        return StitchResult { edges: edges.to_vec(), skipped: 0 };
+        return StitchResult {
+            edges: edges.to_vec(),
+            skipped: 0,
+        };
     }
     let mut kept = Vec::with_capacity(edges.len());
     let mut skipped = 0usize;
@@ -737,7 +753,10 @@ pub fn gate_edges(
         }
         kept.push((i, j));
     }
-    StitchResult { edges: kept, skipped }
+    StitchResult {
+        edges: kept,
+        skipped,
+    }
 }
 
 // ===========================================================================
@@ -1243,13 +1262,20 @@ pub(crate) mod tests {
             Point::new(0.0, 1.0),
         ];
         let edges = mst_edges(&pts);
-        assert_eq!(edges[0], (0, 1), "tie-break must keep the first-found (lower index) edge");
+        assert_eq!(
+            edges[0],
+            (0, 1),
+            "tie-break must keep the first-found (lower index) edge"
+        );
     }
 
     #[cfg_attr(test, test)]
     fn mst_edges_trivial_cases() {
         assert_eq!(mst_edges(&[]), Vec::<(usize, usize)>::new());
-        assert_eq!(mst_edges(&[Point::new(0.0, 0.0)]), Vec::<(usize, usize)>::new());
+        assert_eq!(
+            mst_edges(&[Point::new(0.0, 0.0)]),
+            Vec::<(usize, usize)>::new()
+        );
     }
 
     #[cfg_attr(test, test)]

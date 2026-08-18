@@ -26,13 +26,12 @@ Three things this suite verifies:
 
 from __future__ import annotations
 
-import math
 import random
 
 import pytest
+import temper_geometry as _tg
 
 import tests.router_v6._stitch_mst_with_gate_py_oracle as ORACLE
-import temper_geometry as _tg
 
 PINNED_COMMIT = "9a55b56be95f985098c4cb9c0abfc4569a79dcad"
 PINNED_FILE = "packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py"
