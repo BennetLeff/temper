@@ -252,6 +252,167 @@ def test_real_board_cross_layer_segments_are_bit_identical(board_grids):
     )
 
 
+def test_bit_exactness_is_load_bearing_on_a_170v_net(board_grids):
+    """Pins the exact real-board case that proves f64 parity is not pedantry.
+
+    THIS IS THE REASON THIS SUITE ASSERTS BIT PATTERNS RATHER THAN INVARIANTS.
+
+    The Tier-3 Rust kernel was deliberately mutated during review by routing
+    its heuristic through f32 -- precisely what the shipped 2D kernel
+    (``temper_rust_router_core::astar::astar_kernel_3d``) does, and the exact
+    reason that kernel's own differential
+    (``test_astar_kernel_rust_differential.test_same_net_bit_exact_vs_oracle``)
+    can only assert invariants. With that one-line change, this segment's
+    emitted copper moved to a **different layer**:
+
+        case: net ``+170V_BUS``  (77.89, 166.0125) -> (104.03, 193.8525)
+              anchored F.Cu -> In3.Cu
+        f64 (correct):  path point 127 lands on 'In3.Cu'
+        f32 (mutated):  path point 127 lands on 'B.Cu'
+
+    Both routes are legal: connected, on-grid, respecting occupancy. An
+    invariant-level differential passes the mutation without a murmur. What
+    actually changed is which layer a **170 V** net's copper sits on -- a
+    creepage- and clearance-relevant fact on a mains board, decided by a
+    rounding mode.
+
+    So this test is not "the port works" (the sweeps above cover that). It is
+    the regression guard for the specific reintroduction that motivated the
+    stricter standard: narrow the arithmetic anywhere in the Tier-3 kernel and
+    this case diverges from the pinned oracle.
+    """
+    grids, pads = board_grids
+    net = "+170V_BUS"
+    assert net in pads, f"{net} is no longer on the board; re-pin this case"
+
+    start, goal = (77.89, 166.01250000000002), (104.03, 193.8525)
+    py, rs, g_py, g_rs = _run_pair(
+        grids, pads, net, start, goal, "F.Cu", "In3.Cu", net_id=17
+    )
+    _assert_identical(py, rs, g_py, g_rs, f"170V-pin net={net}")
+
+    assert py is not None, (
+        "the pinned 170V case no longer routes at all -- it can no longer "
+        "witness the f32/f64 layer divergence, so re-pin it against a case "
+        "that does rather than leaving a guard that guards nothing"
+    )
+    # The divergence showed up as a layer change, so assert the layer
+    # sequence explicitly and not merely 'the paths matched'.
+    py_layers = [p[2] for p in py[0]]
+    rs_layers = [p[2] for p in rs[0]]
+    assert py_layers == rs_layers, "layer sequence diverged"
+    assert set(py_layers) <= set(grids), f"unexpected layer in {set(py_layers)}"
+
+
+def test_cell_level_search_matches_oracle(board_grids):
+    """The raw cell-level entry point agrees with the oracle too.
+
+    ``astar_search_3d_rust`` is the replacement for callers that work in grid
+    cells rather than world millimetres (the pre-migration
+    ``astar_core._astar_search_3d``). It shares the kernel with
+    ``route_segment_3d_rust`` but has its own marshalling and its own
+    ``RouteNode3D`` round-trip, so it needs its own evidence rather than
+    inheriting the world-coordinate wrapper's.
+    """
+    from temper_placer.router_v6.astar_core import RouteNode3D
+    from temper_placer.router_v6.astar_nlayer_rust import astar_search_3d_rust
+
+    grids, pads = board_grids
+    cases = _segment_cases(pads, grids)
+    layers = list(grids)
+
+    checked = routed = 0
+    for n, idx in enumerate(range(0, len(cases), 24)):
+        net, start, goal, _sl, _gl = cases[idx]
+        sample = grids[layers[0]]
+        sx, sy = sample.world_to_grid(*start)
+        gx, gy = sample.world_to_grid(*goal)
+        sl = layers[n % len(layers)]
+        gl = layers[(n + 1) % len(layers)]
+
+        g_py = _prepared(grids, pads, net)
+        g_rs = _prepared(grids, pads, net)
+        net_id = (idx % 100) + 1
+
+        py = oracle._astar_search_3d(
+            RouteNode3D(sx, sy, sl), RouteNode3D(gx, gy, gl), g_py,
+            net_id=net_id, max_iter=_MAX_ITER,
+        )
+        rs = astar_search_3d_rust(
+            RouteNode3D(sx, sy, sl), RouteNode3D(gx, gy, gl), g_rs,
+            net_id=net_id, max_iter=_MAX_ITER,
+        )
+        ctx = f"cell{idx} net={net} {sl}->{gl}"
+        if py is None or rs is None:
+            assert py is None and rs is None, f"{ctx}: found/not-found disagreement"
+            checked += 1
+            continue
+
+        py_nodes, py_vias = py
+        rs_nodes, rs_vias = rs
+        assert [(n_.x, n_.y, n_.layer) for n_ in py_nodes] == [
+            (n_.x, n_.y, n_.layer) for n_ in rs_nodes
+        ], f"{ctx}: cell path diverged"
+        assert py_vias == rs_vias, f"{ctx}: via cells diverged"
+        assert _grid_fingerprint(g_py) == _grid_fingerprint(g_rs), (
+            f"{ctx}: grids diverged after via marking"
+        )
+        checked += 1
+        routed += 1
+
+    assert checked >= 10, f"cell-level differential covered only {checked} cases"
+    assert routed > 0, "no cell-level case routed -- differential is vacuous"
+
+
+def test_layers_with_different_frames_match(board_grids):
+    """Layers whose grids differ in size/origin/cell size still agree.
+
+    The real board cannot witness this: every layer's grid is built from one
+    board outline, so they all share a frame, and a Rust port that collapsed
+    the per-layer frame to the sample grid's would pass every other test in
+    this module. The Python it replaces does *not* collapse them --
+    ``OccupancyGrid.is_free`` bounds-checks against each grid's own
+    dimensions, and ``_route_segment_3d`` converts each bulk path node with
+    ``grids[node.layer].grid_to_world(...)``, its own layer's frame.
+
+    So this case is deliberately synthetic. It is the one place in this suite
+    where that is the right call: it covers a degree of freedom the
+    production board holds fixed, and a differential only proves what it is
+    fed.
+    """
+    import numpy as np
+
+    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+
+    # Three layers, three different frames: differing cell counts, origins
+    # and cell sizes. Names chosen so lexicographic rank != insertion order,
+    # exercising the tie-break mapping too.
+    grids = {
+        "F.Cu": OccupancyGrid("F.Cu", np.zeros((40, 30), dtype=np.int8), (0.0, 0.0), 0.5, 30, 40),
+        "In3.Cu": OccupancyGrid(
+            "In3.Cu", np.zeros((25, 25), dtype=np.int8), (1.0, -2.0), 0.25, 25, 25
+        ),
+        "B.Cu": OccupancyGrid("B.Cu", np.zeros((50, 20), dtype=np.int8), (-3.0, 4.0), 1.0, 20, 50),
+    }
+    # Wall off F.Cu so the search is forced through another layer's frame.
+    grids["F.Cu"].grid[:, 10] = -1
+
+    start, goal = (1.0, 1.0), (6.0, 8.0)
+    routed = 0
+    for sl, gl in (("F.Cu", "F.Cu"), ("F.Cu", "In3.Cu"), ("B.Cu", "In3.Cu")):
+        g_py = {k: copy.deepcopy(v) for k, v in grids.items()}
+        g_rs = {k: copy.deepcopy(v) for k, v in grids.items()}
+        py = oracle._route_segment_3d(start, goal, sl, gl, g_py, net_id=3, max_iter=50_000)
+        rs = route_segment_3d_rust(start, goal, sl, gl, g_rs, net_id=3, max_iter=50_000)
+        _assert_identical(py, rs, g_py, g_rs, f"mixed-frame {sl}->{gl}")
+        routed += py is not None
+    assert routed > 0, (
+        "no mixed-frame case produced a path, so this test would agree "
+        "trivially even if the per-layer frame were collapsed to the sample "
+        "grid's -- the exact divergence it exists to catch"
+    )
+
+
 def test_max_iter_bail_matches(board_grids):
     """A budget exhaustion must be reported identically by both engines."""
     grids, pads = board_grids

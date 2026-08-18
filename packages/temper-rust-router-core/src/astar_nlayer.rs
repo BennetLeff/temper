@@ -88,7 +88,17 @@ pub const SAME_LAYER_DELTAS: [(i64, i64); 8] = [
     (-1, -1),
 ];
 
-/// One layer's occupancy plane.
+/// One layer's occupancy plane, carrying its **own** coordinate frame.
+///
+/// Per-layer `width`/`height`/`origin`/`cell_size` are not redundant: the
+/// Python this ports consults each grid's own frame in two places —
+/// `OccupancyGrid.is_free` bounds-checks against that grid's own dimensions,
+/// and `_route_segment_3d`'s bulk path conversion calls
+/// `grids[node.layer].grid_to_world(...)`, i.e. the node's own layer, not the
+/// sample grid's. Production grids all share a frame (they are built from one
+/// board outline), so a uniform-frame shortcut would pass the real-board
+/// differential while silently diverging on any board or fixture whose layers
+/// differ. The frame is therefore per-layer here, as it is in the Python.
 pub struct LayerGrid<'a> {
     /// Rank of this layer's name in the lexicographically sorted name list —
     /// the heap tie-breaker standing in for Python's layer-name comparison.
@@ -97,6 +107,8 @@ pub struct LayerGrid<'a> {
     pub cells: &'a [i8],
     pub width: i64,
     pub height: i64,
+    pub origin: (f64, f64),
+    pub cell_size: f64,
 }
 
 impl LayerGrid<'_> {
@@ -406,10 +418,18 @@ pub struct RouteSegment3dOutput {
 
 /// Port of `astar_core._route_segment_3d`.
 ///
-/// `origin`/`cell_size` come from the *sample* grid — Python takes
-/// `next(iter(grids.values()))` for every coordinate conversion, including the
-/// grid-to-world step for path nodes on other layers, so a single frame is
-/// correct here as long as the caller passes that same sample grid's frame.
+/// Coordinate frames follow the Python exactly, and they are **not** all the
+/// same frame:
+///
+/// * `world_to_grid` for the two terminals, the quantization tolerance, and
+///   the via world positions all use the *sample* grid — Python's
+///   `next(iter(grids.values()))`, i.e. `grids[0]` here.
+/// * the bulk path's `grid_to_world` uses **each node's own layer**
+///   (`grids[node.layer]` in the Python), not the sample grid.
+///
+/// These coincide on the production board because every layer's grid is built
+/// from the same board outline, which is exactly why a uniform-frame shortcut
+/// would pass the real-board differential and still be wrong in general.
 #[expect(
     clippy::too_many_arguments,
     reason = "mirrors the Python signature 1:1; a config struct would obscure the parity mapping"
@@ -423,8 +443,6 @@ pub fn route_segment_3d(
     available_layers: &[usize],
     via_cost: f64,
     max_iter: Option<u64>,
-    origin: (f64, f64),
-    cell_size: f64,
 ) -> RouteSegment3dOutput {
     let empty = RouteSegment3dOutput {
         world_path: Vec::new(),
@@ -436,6 +454,10 @@ pub fn route_segment_3d(
     if grids.is_empty() {
         return empty;
     }
+
+    // The "sample grid": Python's `next(iter(grids.values()))`.
+    let sample = &grids[0];
+    let (origin, cell_size) = (sample.origin, sample.cell_size);
 
     let (sgx, sgy) = world_to_grid(start_world.0, start_world.1, origin, cell_size);
     let (ggx, ggy) = world_to_grid(goal_world.0, goal_world.1, origin, cell_size);
@@ -465,7 +487,10 @@ pub fn route_segment_3d(
     if !out.path.is_empty() {
         world_path.push((start_world.0, start_world.1, start_layer));
         for &(cx, cy, cl) in &out.path {
-            let (wx, wy) = grid_to_world(cx, cy, origin, cell_size);
+            // Each node converts through ITS OWN layer's frame, mirroring the
+            // Python's `grids[node.layer].grid_to_world(...)`.
+            let g = &grids[cl];
+            let (wx, wy) = grid_to_world(cx, cy, g.origin, g.cell_size);
             append_grid_path_point(&mut world_path, (wx, wy, cl), tolerance);
         }
         append_exact_terminal_point(
@@ -508,6 +533,8 @@ pub(crate) mod tests {
                 cells: p,
                 width: w,
                 height: h,
+                origin: (0.0, 0.0),
+                cell_size: 1.0,
             })
             .collect()
     }
