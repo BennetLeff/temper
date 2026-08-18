@@ -19,12 +19,14 @@ from temper_placer.router_v6._astar_theta_star import (
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
-    _route_segment_3d,
     append_exact_terminal_point,
     append_grid_path_point,
     grid_quantization_tolerance,
 )
 from temper_placer.router_v6.astar_grid import _identify_blocking_nets
+from temper_placer.router_v6.astar_nlayer_rust import (
+    route_segment_3d_rust as _route_segment_3d,
+)
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
 

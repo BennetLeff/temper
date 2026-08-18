@@ -91,8 +91,10 @@ The detector finds this class throughout the tree, not only at the six known
 sites. Those are pre-existing, they are real (audited one by one -- see the PR
 that introduced this file), and fixing forty of them in the PR that fixes two
 would be unreviewable. They are therefore recorded in ``.hash-order-inventory``
-and the gate is a **ratchet**, on the model of ``tools/loc_cap_check.py`` and
-``scripts/vulture_gate.py``:
+and the gate is a **ratchet**, on the model of ``scripts/vulture_gate.py``'s
+``deadcode-baseline.py`` (the LOC-cap gate was a third instance of this shape
+until it was retired on 2026-08-18 -- see
+``docs/adr/2026-08-18-retire-loc-cap-gate.md``):
 
   * a site not in the inventory FAILS -- this is the whole point, and it is what
     catches code that does not exist yet;

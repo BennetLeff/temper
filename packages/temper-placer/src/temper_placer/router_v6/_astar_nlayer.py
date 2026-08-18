@@ -1,41 +1,64 @@
-"""N-layer, via-aware A* pathfinding -- the live Stage 4 routing driver.
+"""N-layer, via-aware A* pathfinding -- the production Stage-4 router.
 
-**Status: production. This module routes every net on the board.**
+**Status: PRODUCTION. This module routes every net on the board.**
 
-That is worth stating plainly because it was wrong here for a long time:
-this docstring used to read *"Spike prototype: N-layer, via-aware A*
-pathfinding. Status: prototype, not production."* It began life that way on
-branch ``spike/nlayer-via-astar``, but it has been the live driver since the
-6-layer stackup landed, and the stale header sent more than one reader
-looking for the "real" router somewhere else. Corrected 2026-08-18.
+It began as a spike (branch ``spike/nlayer-via-astar``, writeup in
+``docs/evidence/2026-08-08-nlayer-via-astar-spike.md``) and its docstring
+claimed "prototype, not production" long after that stopped being true.
+Corrected 2026-08-18. The gate is ``_pipeline_route.py``::
 
-**How it is reached.** ``_pipeline_route._run_stage4`` selects this module
-whenever more than two routable *signal* layers are available (see
-``_resolve_routing_mode`` there, which logs the decision and its reason).
-Today's production board declares four -- F.Cu, In3.Cu, In4.Cu, B.Cu -- so
-the N-layer path is taken unconditionally on every production route. The
-opt-in ``enable_nlayer_astar_spike`` flag only *additionally* forces this
-module on a board with two or fewer signal layers; it is not what selects
-this module in production, and clearing it changes nothing there.
+    use_nlayer = self.enable_nlayer_astar_spike or len(available_grids) > 2
 
-**Which code actually searches.** The 3-tier cascade in
-``_astar_route_nlayer`` does not use one implementation throughout:
+``enable_nlayer_astar_spike`` still defaults ``False``, but that is an
+``or``, and the second term has been permanently true since the 6-layer
+stackup landed: ``pcb/temper.kicad_pcb`` declares ``F.Cu``, ``In3.Cu``,
+``In4.Cu`` and ``B.Cu`` as signal layers (``In1.Cu``/``In2.Cu`` are power
+planes and never receive an occupancy grid), so ``available_grids`` is 4.
+Nothing has to opt in; this is the only path a production route takes.
+
+Measured on that board 2026-08-18 (route from scratch, 105 nets, 126
+segment attempts -- see ``TierTally`` below, which makes these counters
+permanent rather than something the next person re-derives by hand):
+
+===========================  =====  ======
+tier                         count  share
+===========================  =====  ======
+1 preferred-layer 2D             26  20.6%
+2 alternate-layer 2D             30  23.8%
+3 N-layer via-aware 3D            0   0.0%
+4 declined (fail-closed)         70  55.6%
+===========================  =====  ======
+
+Tier 1 resolving one segment in five is worth knowing: the cascade's whole
+premise is that the cheap same-layer search suffices in the common case,
+and on this board it does not. Tier 3 resolved **nothing** across 70
+invocations while consuming 232s of the 455s route -- measured to be
+budget starvation, not geometry (its 200k-iteration cap explores ~1.2% of
+a 4-layer, 1680x2380 state space; the same segments resolve at 1M-4M).
+Raising that budget is deliberately NOT done here: it changes which nets
+route, so it needs its own before/after.
+
+**Which code actually searches.** Every tier of the cascade in
+``_astar_route_nlayer`` now runs in Rust:
 
 - **Tier 1** (same-layer search on the preferred layer) and **Tier 2**
   (whole-segment detour onto each other available layer) both go through
   ``_astar_search._segment_search`` -> ``_dispatch_search`` ->
-  ``astar_core_rust._astar_search_rust``, i.e. **the Rust kernel**
-  (``temper_rust_router_core::astar::astar_kernel_3d``). Since 2026-08-18
-  a missing extension raises ``AstarExtensionUnavailableError`` here rather
-  than silently degrading to a non-equivalent Python search.
-- **Tier 3** (the full via-aware 3D search across every grid) calls
-  ``astar_core._route_segment_3d`` / ``_astar_search_3d``, which are
-  **still pure Python**. There is no Rust equivalent yet; a port into
-  ``temper-rust-router-core/src/astar_nlayer.rs`` is in progress. Tier 3 is
-  therefore the one remaining Python search on the live routing path.
+  ``astar_core_rust._astar_search_rust``, i.e. the Rust kernel
+  (``temper_rust_router_core::astar::astar_kernel_3d``). Since 2026-08-18 a
+  missing extension raises ``AstarExtensionUnavailableError`` here rather
+  than silently degrading to a non-equivalent Python search: there is no
+  Python fallback left on this path, and its absence is a hard error.
+- **Tier 3** (the full via-aware 3D search across every grid) goes through
+  ``astar_nlayer_rust.route_segment_3d_rust``, imported below as
+  ``_route_segment_3d``. The Python ``astar_core._astar_search_3d`` /
+  ``_route_segment_3d`` that it replaced were deleted when the port landed,
+  so the name in this module refers to the Rust entry point, not to a
+  surviving Python search.
 
-So "does this board route through Rust or Python?" has a per-tier answer,
-not a per-module one: Tiers 1-2 Rust, Tier 3 Python.
+So "does this board route through Rust or Python?" no longer has a per-tier
+answer: all three tiers are Rust, and a missing extension declines the route
+rather than quietly changing which algorithm runs.
 
 **The gap this module closes.** Two independent places in the former router
 cap pathfinding at exactly two layers:
@@ -114,6 +137,8 @@ from __future__ import annotations
 import logging
 import math
 import time
+from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -136,7 +161,6 @@ from temper_placer.router_v6._routing_reports import (
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
-    _route_segment_3d,
     append_exact_terminal_point,
     append_grid_path_point,
     grid_quantization_tolerance,
@@ -148,6 +172,9 @@ from temper_placer.router_v6.astar_grid import (
     _mark_route_blocked,
     _restore_net_pads,
     _unblock_net_pads,
+)
+from temper_placer.router_v6.astar_nlayer_rust import (
+    route_segment_3d_rust as _route_segment_3d,
 )
 from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
 from temper_placer.router_v6.net_classification import classify_net_type
@@ -170,9 +197,85 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "SegmentTier",
+    "TierTally",
     "select_routing_grids_nlayer",
     "run_astar_pathfinding_nlayer",
 ]
+
+
+class SegmentTier(Enum):
+    """Which tier of the cascade resolved one waypoint segment.
+
+    Exhaustive: ``_astar_route_nlayer`` records exactly one of these per
+    segment attempt, at the point the outcome is decided. There is no
+    "other" bucket and no count is ever inferred by subtracting one
+    counter from another -- the failure mode that let
+    ``mst_edges_fallback_count`` report edges A* *failed* to route as edges
+    the fallback *landed* (``len(edges) - astar_routed_count``).
+    """
+
+    #: Cheap same-layer 2D search on the preferred/primary layer (Tier 1).
+    PRIMARY_2D = "primary_2d"
+    #: Whole-segment 2D detour on some other layer (Tier 2).
+    ALTERNATE_2D = "alternate_2d"
+    #: Full N-layer via-aware 3D search across every grid (Tier 3).
+    NLAYER_VIA_3D = "nlayer_via_3d"
+    #: No tier resolved it -- forced-segment / fail-closed decline (Tier 4).
+    DECLINED = "declined"
+
+
+@dataclass
+class TierTally:
+    """Per-tier segment counts, incremented by classification.
+
+    Measured on the production board 2026-08-18 (route-from-scratch, 105
+    nets, 126 segment attempts): Tier 1 resolved 20.6%, Tier 2 23.8%, Tier
+    3 **0%** across 70 invocations, and 55.6% declined -- while Tier 3
+    consumed 232s of the 455s route. Those numbers came from a throwaway
+    monkeypatch harness; this type exists so they are observable from a
+    normal run instead of being re-derived by the next person who wonders.
+    """
+
+    primary_2d: int = 0
+    alternate_2d: int = 0
+    nlayer_via_3d: int = 0
+    declined: int = 0
+    #: Tier-3 invocations, whether or not they resolved the segment. Kept
+    #: separately from ``nlayer_via_3d`` because the interesting quantity is
+    #: the gap between the two (70 calls, 0 successes).
+    nlayer_via_3d_calls: int = 0
+
+    def record(self, tier: SegmentTier) -> None:
+        setattr(self, tier.value, getattr(self, tier.value) + 1)
+
+    @property
+    def attempts(self) -> int:
+        """Total segment attempts -- an explicit sum, never a subtraction."""
+        return self.primary_2d + self.alternate_2d + self.nlayer_via_3d + self.declined
+
+    @property
+    def resolved(self) -> int:
+        """Segments some tier resolved -- again an explicit sum."""
+        return self.primary_2d + self.alternate_2d + self.nlayer_via_3d
+
+    def merge(self, other: TierTally) -> None:
+        self.primary_2d += other.primary_2d
+        self.alternate_2d += other.alternate_2d
+        self.nlayer_via_3d += other.nlayer_via_3d
+        self.declined += other.declined
+        self.nlayer_via_3d_calls += other.nlayer_via_3d_calls
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "primary_2d": self.primary_2d,
+            "alternate_2d": self.alternate_2d,
+            "nlayer_via_3d": self.nlayer_via_3d,
+            "declined": self.declined,
+            "nlayer_via_3d_calls": self.nlayer_via_3d_calls,
+            "attempts": self.attempts,
+            "resolved": self.resolved,
+        }
 
 
 def select_routing_grids_nlayer(
@@ -241,6 +344,7 @@ def _astar_route_nlayer(
     segment_3d_fallback_max_iter: int = _SEGMENT_3D_FALLBACK_MAX_ITER,
     pad_layer_start: str | None = None,
     pad_layer_end: str | None = None,
+    tally: TierTally | None = None,
 ) -> tuple[RoutePath3D | None, int]:
     """Route one net's waypoint chain across an arbitrary number of layers.
 
@@ -362,6 +466,8 @@ def _astar_route_nlayer(
                 detailed_segments, segment_path, grid_used, primary_grid.layer_name,
                 tolerance, i, start_world, goal_world,
             )
+            if tally is not None:
+                tally.record(SegmentTier.PRIMARY_2D)
             continue
 
         # Tier 2: whole-segment detour on every OTHER available layer.
@@ -435,6 +541,8 @@ def _astar_route_nlayer(
             routed_on_alt = True
             break
         if routed_on_alt:
+            if tally is not None:
+                tally.record(SegmentTier.ALTERNATE_2D)
             continue
 
         # Tier 3: full N-layer via-aware 3D search across every grid.
@@ -456,7 +564,11 @@ def _astar_route_nlayer(
             net_id=net_id,
             max_iter=segment_3d_fallback_max_iter,
         )
+        if tally is not None:
+            tally.nlayer_via_3d_calls += 1
         if result_3d is not None:
+            if tally is not None:
+                tally.record(SegmentTier.NLAYER_VIA_3D)
             world_path_3d, via_positions_3d = result_3d
             via_positions.extend(via_positions_3d)
             if i == 0:
@@ -465,6 +577,8 @@ def _astar_route_nlayer(
             continue
 
         if not allow_forced_segments:
+            if tally is not None:
+                tally.record(SegmentTier.DECLINED)
             failed_waypoint_indices.append(i + 1)
             path_length = _path_length_3d(detailed_segments)
             return RoutePath3D(
@@ -477,6 +591,8 @@ def _astar_route_nlayer(
                 failed_waypoint_indices=failed_waypoint_indices,
             ), fallback_count
 
+        if tally is not None:
+            tally.record(SegmentTier.DECLINED)
         forced_segments += 1
         failed_waypoint_indices.append(i + 1)
         if i == 0:
@@ -817,8 +933,9 @@ def _family_halo_layers(
     obstacle's net class. A zero-creepage pair contributes no entry: the
     grid's W/2 + C erosion already reserves that obstacle.
     """
-    from temper_placer.core.pin_geometry import pin_world_position
     from shapely.geometry import Polygon
+
+    from temper_placer.core.pin_geometry import pin_world_position
 
     table = default_creepage_table()
     _w, _c, family_class = family_signature
@@ -1131,6 +1248,10 @@ def run_astar_pathfinding_nlayer(
 
     per_path_latency_ms: dict[str, float] = {}
     fallback_count = 0
+    # Per-tier segment accounting, incremented by classification inside
+    # _astar_route_nlayer (see TierTally). Observability only -- never
+    # folded into success/failure counts.
+    tier_tally = TierTally()
 
     def attempt_route(net_name: str):
         nonlocal fallback_count, layer_divergence_count
@@ -1279,6 +1400,7 @@ def run_astar_pathfinding_nlayer(
             pad_layer_start=pad_layer_start,
             pad_layer_end=pad_layer_end,
             segment_3d_fallback_max_iter=max(per_net_max_iter, _SEGMENT_3D_FALLBACK_MAX_ITER),
+            tally=tier_tally,
         )
         fallback_count += fb
 
@@ -1414,4 +1536,5 @@ def run_astar_pathfinding_nlayer(
         coarse_to_fine_fallbacks=fallback_count,
         partial_paths=partial_paths,
         layer_divergence_count=layer_divergence_count,
+        tier_tally=tier_tally.as_dict(),
     )
