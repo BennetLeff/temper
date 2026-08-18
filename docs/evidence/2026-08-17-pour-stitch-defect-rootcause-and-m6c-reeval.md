@@ -181,6 +181,64 @@ used anywhere in this document's conclusions.
 
 `scripts/route_board.py` default recipe (via the worktree-forcing wrapper,
 §4), from this worktree's `pcb/temper.kicad_pcb` (sha256 verified
-`6ac8b1ca...` before running), fresh process, this commit's code (Phase 1
-fix only, no M6c). Result pending -- route in progress, see §6 for the
-DRC table once complete.
+`6ac8b1ca...` before AND after running -- board file untouched). Also
+re-verified via a throwaway pytest sanity test (deleted immediately after)
+that pytest's own `pythonpath = ["src"]` ini option (unlike a bare script
+invocation) already correctly resolves `temper_placer` to this worktree --
+so `test_power_islands.py`'s result in §3 needed no correction.
+
+**Connectivity**: 63/139 nets fully pad-connected (`NetRouteResult`:
+63 connected, 9 zone-dependent, 7 partial, 60 failed), matching the M6c
+evidence doc's own independently-measured baseline (63/139) exactly. **The
+fix costs zero connectivity** -- the corridor-mask/blocked-radius widening
+that comes from deriving the correct 1.0mm width did not measurably change
+which nets complete.
+
+**DRC, `kicad-cli 10.0.5`, `--severity-all --all-track-errors`, full
+project context**:
+
+| category | no-refill | `--refill-zones` |
+|---|---|---|
+| clearance | 245 | 246 |
+| creepage | **100** | **121** |
+| shorting_items | 96 | 96 |
+| hole_clearance | 33 | 33 |
+| solder_mask_bridge | 31 | 31 |
+| copper_edge_clearance | 13 | 13 |
+| tracks_crossing | 8 | 8 |
+| drill_out_of_range | 6 | 6 |
+| courtyards_overlap | 1 | 1 |
+| **track_width** | **0** | **0** |
+| silk_overlap | 199 [CAPPED] | 199 [CAPPED] |
+| lib_footprint_issues | 168 | 168 |
+| via_dangling | 106 | 23 |
+| silk_over_copper | 42 | 42 |
+| missing_courtyard | 5 | 5 |
+| silk_edge_clearance | 1 | 1 |
+| **total** | **1054** | **993** |
+
+**The headline prediction is confirmed exactly**: `track_width` goes
+**120 -> 0**, not "down" -- the coordinator's own prediction, and the
+direct consequence of the root cause being complete (§2: 120/120 of the
+category was this one defect, and this generator was the only source of
+any of it). Creepage held exactly flat (100/121, matching the
+`--refill-zones` baseline too) -- no new HV/LV separation violation.
+
+**This total is NOT a clean "fix-only" delta against the 1086/1025
+baseline** and is not reported as one: the baseline (§1) is the
+already-committed, already-routed board measured as-is (no fresh route),
+while this measurement is a **full fresh `route_board.py` pass** that also
+newly routes ~9 previously-unrouted nets (63/139 vs the committed board's
+own audited 63/139 -- coincidentally equal in count, not the same net
+set) and regenerates every zone/pour from scratch. `clearance`
+(224->245), `shorting_items` (53->96), `hole_clearance` (26->33), and
+`solder_mask_bridge` (15->31) all moved for reasons entirely orthogonal to
+this fix -- new copper from a fresh route, not the stitch-width change.
+`track_width` is the one category this document isolates cleanly, because
+it was independently shown (§2) to be 100% attributable to the one fixed
+constant, and it lands exactly where that attribution predicts. A fully
+isolated fix-only delta (same fresh route, old vs new width, all else
+equal) was not run a second time given the cost of an ~5-6 minute route
+and the unambiguous track_width evidence already in hand; Phase 2's
+determinism pair (§6) uses this same corrected board as its own baseline,
+so the M6c comparison in §6 is apples-to-apples regardless.
