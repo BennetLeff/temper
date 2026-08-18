@@ -343,6 +343,10 @@ class TestRealRegistry:
     def test_registry_is_non_empty(self):
         assert len(registry.PAIRED_FUNCTIONS) >= 3
 
+    def test_completion_rate_pair_is_registered(self):
+        names = {p.name for p in registry.PAIRED_FUNCTIONS}
+        assert "router_v6_completion_rate" in names
+
     def test_registry_names_are_unique(self):
         names = [p.name for p in registry.PAIRED_FUNCTIONS]
         assert len(names) == len(set(names))

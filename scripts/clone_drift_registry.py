@@ -412,6 +412,36 @@ PAIRED_FUNCTIONS: tuple[ClonePair, ...] = (
         ),
         paired_on="2026-08-18",
     ),
+    ClonePair(
+        name="router_v6_completion_rate",
+        file_a="packages/temper-placer/src/temper_placer/router_v6/_pipeline_types.py",
+        qualname_a="RouterV6Result.completion_rate",
+        file_b="packages/temper-placer/src/temper_placer/router_v6/_routing_reports.py",
+        qualname_b="PathfindingResult.completion_rate",
+        # Live similarity measured 2026-08-18: 0.836 (ternary vs if/return
+        # for the identical zero-guard is the whole gap -- both compute
+        # success_count / (success_count + failure_count), guarded
+        # identically against total == 0).
+        min_similarity=0.75,
+        evidence=(
+            "scripts/find_clone_pairs.py discovery sweep, 2026-08-18: two "
+            "independent `success_count / total` completion-rate "
+            "properties, both zero-division-guarded, on two different "
+            "router_v6 result dataclasses."
+        ),
+        notes=(
+            "Currently CLEAN (both correct, both guarded) -- registered as "
+            "a plain regression guard, not a currently-red finding. Unlike "
+            "the _blocked()/zone_pour pairs above, this one has no known "
+            "PERMANENT structural reason to differ (a ternary vs an "
+            "if/return is a style choice, not a contract difference) -- if "
+            "a future edit fixes a real bug in ONE of these zero-guards "
+            "(e.g. changing `> 0`/`== 0` to something creepage/clearance-"
+            "adjacent were it ever extended to weight nets differently) and "
+            "not the other, this floor should catch it."
+        ),
+        paired_on="2026-08-18",
+    ),
 )
 
 
