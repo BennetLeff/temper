@@ -1418,6 +1418,27 @@ def generate_ground_plane_blocks(
             rerouted,
         )
 
+    # SUMMARY (2026-08-18, power-island/ground-plane backbone-failure
+    # root-cause coordination): always logged (not gated on
+    # crossed_keepout>0) -- the per-net attempted-vs-landed ratio was
+    # already computed (GroundPlaneResult's own fields) but never
+    # surfaced anywhere production reads. `_power_islands.py` has the
+    # identical gap for +3V3/vcc/+15V/V_BUS_SENSE -- see that module's
+    # own twin summary line, added alongside this one (clone-drift
+    # coordination: fix/report both sides of this pair).
+    logger.warning(
+        "generate_ground_plane_content: backbone summary -- %d pad(s), "
+        "%d MST edge(s) attempted, %d landed via corridor-aware A* (real, "
+        "collision-free multi-hop paths), %d landed via the keepout-only "
+        "straight-line/one-bend-detour fallback, %d DROPPED entirely (0 "
+        "backbone connectivity between those two endpoints on this run).",
+        len(gnd_positions),
+        len(edges),
+        astar_routed_count,
+        rerouted,
+        crossed_keepout,
+    )
+
     result = GroundPlaneResult(
         pad_count=len(gnd_positions),
         drop_via_count=len(gnd_positions)

@@ -812,6 +812,78 @@ def generate_power_islands_blocks(
         )
         backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
+        # DIAGNOSTIC (2026-08-18, vcc/V_BUS_SENSE zero-backbone root-cause
+        # task): attribute how many of this rail's OWN pad positions land
+        # in the corridor mask's largest component vs. their own singleton/
+        # small component -- distinguishes "genuinely fragmented corridor"
+        # from "a search-strategy near-miss" per _corridor_backbone.py's
+        # own documented mechanism. Cheap (reuses the mask already
+        # computed for the real A* pass, no extra grid build), logged at
+        # INFO so it is visible without extra logging config. Left in
+        # permanently -- this is exactly the per-rail visibility
+        # PowerIslandResult's other counters already provide, extended to
+        # the one dimension (corridor fragmentation) that was previously
+        # invisible.
+        from temper_placer.router_v6._corridor_backbone import (
+            _NEAREST_LABEL_SEARCH_RADIUS_CELLS,
+            _connected_components_8,
+        )
+
+        _labels = _connected_components_8(backbone_corridor_mask)
+
+        def _nearest_label(cx: int, cy: int) -> int:
+            # Exact copy of corridor_aware_spanning_edges's own growing-
+            # radius search (same radius constant) -- a raw exact-cell
+            # lookup alone underrepresents real reachability, since that
+            # function tolerates a via/pad landing just outside the mask
+            # (see its own docstring, "52 of 86 positions" measured gap).
+            if _labels[cy, cx] != 0:
+                return int(_labels[cy, cx])
+            h, w = _labels.shape
+            for r in range(1, _NEAREST_LABEL_SEARCH_RADIUS_CELLS + 1):
+                x0, x1 = max(0, cx - r), min(w, cx + r + 1)
+                y0, y1 = max(0, cy - r), min(h, cy + r + 1)
+                window = _labels[y0:y1, x0:x1]
+                nonzero = window[window != 0]
+                if nonzero.size:
+                    return int(nonzero[0])
+            return 0
+
+        _own_component_ids: list[int] = []
+        _own_component_sizes: list[int] = []
+        for _x, _y in positions:
+            _cx, _cy = backbone_grid.world_to_grid(_x, _y)
+            if 0 <= _cx < backbone_grid.width_cells and 0 <= _cy < backbone_grid.height_cells:
+                _lbl = _nearest_label(_cx, _cy)
+            else:
+                _lbl = 0
+            _own_component_ids.append(_lbl)
+            _own_component_sizes.append(int((_labels == _lbl).sum()) if _lbl != 0 else 0)
+        _unreachable_positions = sum(1 for lbl in _own_component_ids if lbl == 0)
+        _distinct_components = len({lbl for lbl in _own_component_ids if lbl != 0})
+        logger.warning(
+            "generate_power_islands_content(%s): corridor-mask reachability "
+            "(WITH the %d-cell/%0.1fmm growing nearest-label search, matching "
+            "corridor_aware_spanning_edges's own tolerance) for this rail's "
+            "%d own positions -- component id per position: %s, sizes (cells): "
+            "%s -- %d position(s) totally unreachable (no labelled cell within "
+            "the growing search at all) and the reachable positions split "
+            "across %d DISTINCT components (only same-component pairs are ever "
+            "attempted by the MST-within-component A* pass) at %.2fmm width, "
+            "given keepout + other-net copper + %d earlier-rail obstacle "
+            "polygon(s) this run.",
+            net_name,
+            _NEAREST_LABEL_SEARCH_RADIUS_CELLS,
+            _NEAREST_LABEL_SEARCH_RADIUS_CELLS * backbone_grid.cell_size,
+            len(positions),
+            _own_component_ids,
+            _own_component_sizes,
+            _unreachable_positions,
+            _distinct_components,
+            STITCH_TRACE_WIDTH_MM,
+            len(prior_rail_backbone_obstacles),
+        )
+
         # Component-aware (see _corridor_backbone.py / _ground_plane.py's
         # own docstrings for the measured reason a blind per-Euclidean-
         # MST-edge attempt undersells this): a Euclidean MST WITHIN each
@@ -861,24 +933,42 @@ def generate_power_islands_blocks(
         # regression from the 0.3->1.0mm stitch-width fix (PR #1329) is on
         # +3V3 alone -- the rail with by far the most MST edges, hence the
         # most fallback usage, hence the most exposure to exactly this gap.
+        # DIAGNOSTIC (2026-08-18): attribute WHICH obstacle category is
+        # responsible when _blocked() rejects a candidate line -- reported
+        # per-rail below (mirrors the corridor-mask component-size
+        # diagnostic above). Does not change _blocked()'s decision in any
+        # way (same checks, same order, same fail-closed semantics) --
+        # purely observational, first-match-wins classification for
+        # visibility into why an edge failed, not a new gate.
+        _block_reason_counts: dict[str, int] = {
+            "keepout": 0,
+            "other_net_preexisting_copper": 0,
+            "this_run_routed_signal_or_gnd_copper": 0,
+            "earlier_rail_this_run": 0,
+        }
+
         def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
             footprint = LineString([p1, p2]).buffer(STITCH_TRACE_WIDTH_MM / 2.0)
             if keepout_established and footprint.intersects(keepout):
+                _block_reason_counts["keepout"] += 1
                 return True
             if (
                 other_copper_fcu_backbone is not None
                 and not other_copper_fcu_backbone.is_empty
                 and footprint.intersects(other_copper_fcu_backbone)
             ):
+                _block_reason_counts["other_net_preexisting_copper"] += 1
                 return True
             if (
                 routed_fcu_backbone is not None
                 and not routed_fcu_backbone.is_empty
                 and footprint.intersects(routed_fcu_backbone)
             ):
+                _block_reason_counts["this_run_routed_signal_or_gnd_copper"] += 1
                 return True
             for g in run_new_fcu_copper:
                 if footprint.intersects(g):
+                    _block_reason_counts["earlier_rail_this_run"] += 1
                     return True
             return False
 
@@ -936,11 +1026,39 @@ def generate_power_islands_blocks(
                 "the HV keepout or another rail's new F.Cu copper and could "
                 "not be rerouted (%d rerouted via one-bend detour). Dropped "
                 "rather than routed through it -- the backbone may be a "
-                "forest, not a single tree.",
+                "forest, not a single tree. Fallback _blocked() reject "
+                "attribution (first-match-wins, counts intersection TESTS "
+                "not unique edges -- one edge/candidate can trip multiple "
+                "reasons across its p1/p2 sub-tests): %s.",
                 net_name,
                 crossed_keepout,
                 rerouted,
+                _block_reason_counts,
             )
+
+        # SUMMARY (2026-08-18, vcc/V_BUS_SENSE zero-backbone root-cause
+        # task): always logged (not gated on crossed_keepout>0) -- the
+        # per-rail attempted-vs-landed ratio is exactly the number this
+        # generator was already computing (PowerIslandResult's own
+        # fields) but never surfacing anywhere production reads; the
+        # caller (`_adapter_convert.route_pcb`) discards the per-net
+        # results dict entirely (`_island_reports`, underscore-prefixed).
+        # `_ground_plane.py` has the identical gap for gnd -- see that
+        # module's own new summary line, added alongside this one.
+        logger.warning(
+            "generate_power_islands_content(%s): backbone summary -- "
+            "%d pad(s), %d MST edge(s) attempted, %d landed via corridor-"
+            "aware A* (real, collision-free multi-hop paths), %d landed "
+            "via the keepout-only straight-line/one-bend-detour fallback, "
+            "%d DROPPED entirely (0 backbone connectivity between those "
+            "two endpoints on this run).",
+            net_name,
+            len(positions),
+            len(edges),
+            astar_routed_count,
+            rerouted,
+            crossed_keepout,
+        )
 
         run_new_fcu_copper.extend(this_rail_vias)
         run_new_fcu_copper.extend(run_this_rail_backbone)
