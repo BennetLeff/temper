@@ -360,6 +360,19 @@ pub mod clearance_halo;
 // parallel agent's lines.
 pub mod world_position;
 pub use world_position::WorldPosition;
+// DiscUnionKeepout (2026-08-18): the pure-Rust replacement for
+// router_v6/_ground_plane.py's shapely/GEOS HV-SELV keepout -- a direct
+// union-of-discs boundary construction (arc intervals + CCW arc chaining),
+// no polygon boolean engine and no `geos` crate. Carries a
+// ConservativeSuperset-style guarantee in the `clearance_halo` idiom: the
+// outline field is private and the only constructor proves every required
+// disc is contained (centre inside, no emitted edge within the required
+// radius) before the value can exist. Pure Rust with a `#[cfg(feature =
+// "python")]` binding beside it, so the module itself is unconditional like
+// `clearance_halo`/`world_position` above. Declared after `world_position`
+// (this file's prior tail) so appends cannot rewrite a parallel agent's
+// lines.
+pub mod disc_union_keepout;
 // wasm32 has no OS RNG; getrandom will not compile there without a source.
 // See this module's doc comment for why the source fails instead of quietly
 // substituting a deterministic PRNG.
@@ -388,6 +401,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
     crate::zone_generator::register(m)?;
+    crate::disc_union_keepout::register(m)?;
     crate::channel_skeleton::register(m)?;
     crate::hierarchical_clustering::register(m)?;
     crate::geometry_kernels::register(m)?;

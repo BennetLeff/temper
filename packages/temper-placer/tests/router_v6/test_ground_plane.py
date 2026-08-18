@@ -21,7 +21,10 @@ from shapely.geometry import Point, Polygon
 
 from temper_placer.router_v6._ground_plane import (
     compute_hv_selv_keepout,
+    disc_union,
     generate_ground_plane_content,
+    hv_copper_discs,
+    hv_pad_centre_discs,
     mst_edges,
 )
 
@@ -103,6 +106,130 @@ class TestComputeHvSelvKeepout:
         assert miny >= -1e-6
         assert maxx <= 50 + 1e-6
         assert maxy <= 50 + 1e-6
+
+
+class TestDiscUnionKeepoutIsConservative:
+    """The keepout may change shape; it may never SHRINK.
+
+    ``disc_union`` is the Rust disc-union generator that replaced shapely's
+    ``Point.buffer(r, quad_segs=16)`` + ``unary_union``. Its guarantee is
+    enforced in Rust at construction (the value cannot exist unless every
+    required disc is proved contained). These tests hold the guarantee at the
+    Python boundary too, against the exact construction that was deleted --
+    a keepout that shrinks is a clearance reduction by another route.
+    """
+
+    @staticmethod
+    def _shapely_reference(discs):
+        """The deleted construction, kept ONLY as a test reference: shapely's
+        inscribed 64-gon per disc, unioned. Never called from production."""
+        from shapely.ops import unary_union
+
+        return unary_union(
+            [Point(x, y).buffer(r, quad_segs=16) for (x, y, r) in discs]
+        )
+
+    def test_keepout_contains_every_disc_it_was_asked_for(self):
+        discs = [
+            (10.0, 10.0, 14.1),
+            (24.0, 12.0, 14.1),
+            (10.0, 30.0, 14.1),
+            (80.0, 80.0, 6.0),
+        ]
+        keepout = disc_union(discs)
+        assert keepout is not None
+        assert keepout.is_valid
+        for x, y, r in discs:
+            # Boundary-to-centre distance >= the required radius is exactly
+            # "the whole disc is inside" for a connected region containing the
+            # centre.
+            assert keepout.contains(Point(x, y))
+            assert keepout.boundary.distance(Point(x, y)) >= r
+
+    def test_keepout_is_nowhere_smaller_than_the_shapely_64_gon_it_replaced(self):
+        discs = [
+            (10.0, 10.0, 14.1),
+            (24.0, 12.0, 14.1),
+            (10.0, 30.0, 14.1),
+            (17.0, 21.0, 9.4),
+        ]
+        new = disc_union(discs)
+        old = self._shapely_reference(discs)
+        assert new is not None
+        # Every point of the old keepout is still in the new one.
+        assert old.difference(new).is_empty
+        assert new.area >= old.area
+
+    def test_the_shapely_reference_really_does_under_cover(self):
+        """Anti-vacuity for the test above: the reference it is compared
+        against genuinely falls short of the discs, so "new contains old" is
+        not a comparison between two already-correct shapes."""
+        discs = [(10.0, 10.0, 14.1)]
+        old = self._shapely_reference(discs)
+        shortfall = 14.1 - old.boundary.distance(Point(10.0, 10.0))
+        # r*(1 - cos(pi/64)) for r = 14.1 mm.
+        assert shortfall == pytest.approx(1.698e-2, rel=0.05)
+        assert shortfall > 0.0
+
+    def test_empty_disc_list_is_none_not_an_empty_keepout(self):
+        assert disc_union([]) is None
+
+    def test_deterministic_regardless_of_input_order(self):
+        discs = [
+            (10.0, 10.0, 14.1),
+            (24.0, 12.0, 14.1),
+            (10.0, 30.0, 14.1),
+        ]
+        a = disc_union(discs)
+        b = disc_union(list(reversed(discs)))
+        assert a is not None and b is not None
+        assert a.equals_exact(b, 0.0)
+
+
+@pytest.mark.skipif(
+    not PRODUCTION_BOARD.is_file(), reason="production board not present in this checkout"
+)
+class TestKeepoutOnProductionBoard:
+    """The same guarantee, on the geometry that actually ships."""
+
+    @staticmethod
+    def _production_discs():
+        from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+        from temper_placer.placer.cp_sat.isolation_barrier import (
+            DEFAULT_CORRIDOR_WIDTH_MM,
+            load_domain_manifest_nets,
+        )
+        from temper_placer.router_v6.pad_connectivity_audit import _pads_by_net
+
+        pcb = parse_kicad_pcb_v6(PRODUCTION_BOARD)
+        pads_by_net = _pads_by_net(pcb)
+        hv_nets, _ = load_domain_manifest_nets(REPO_ROOT / "elec" / "domain_manifest.yaml")
+        hv_positions = [
+            pad.position for n in sorted(hv_nets) for pad in pads_by_net.get(n, [])
+        ]
+        return hv_pad_centre_discs(hv_positions, DEFAULT_CORRIDOR_WIDTH_MM) + hv_copper_discs(
+            pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM
+        )
+
+    def test_every_required_disc_is_covered_on_the_real_board(self):
+        discs = self._production_discs()
+        assert len(discs) > 100
+        keepout = disc_union(discs)
+        assert keepout is not None
+        assert keepout.is_valid
+        for x, y, r in discs:
+            assert keepout.contains(Point(x, y))
+            assert keepout.boundary.distance(Point(x, y)) >= r
+
+    def test_real_board_keepout_is_nowhere_smaller_than_the_old_one(self):
+        from shapely.ops import unary_union
+
+        discs = self._production_discs()
+        new = disc_union(discs)
+        old = unary_union([Point(x, y).buffer(r, quad_segs=16) for (x, y, r) in discs])
+        assert new is not None
+        lost = old.difference(new)
+        assert lost.is_empty, f"the new keepout lost {lost.area} mm2 of coverage"
 
 
 @pytest.mark.skipif(

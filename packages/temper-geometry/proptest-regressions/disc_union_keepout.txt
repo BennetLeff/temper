@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 2b9ee3db415bfd4058ff8e465cede0b0db1994e92dda741bdf109f39333026d5 # shrinks to discs = [Disc { center: Point { x: -22.217857602367825, y: 22.015610382387 }, radius: 3.8383888430648607 }, Disc { center: Point { x: 0.0, y: 0.0 }, radius: 18.615073370956324 }, Disc { center: Point { x: -5.78032934323817, y: 18.82317452607848 }, radius: 12.892320821899654 }]

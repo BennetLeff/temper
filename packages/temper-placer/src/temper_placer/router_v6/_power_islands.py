@@ -148,13 +148,14 @@ from shapely.ops import unary_union
 
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 from temper_placer.router_v6._ground_plane import (
-    _collect_hv_copper_geometry,
     _collect_other_net_copper,
     _dedupe_positions,
     _emit_keepout_zone_s_expr,
     _existing_drilled_holes,
     _find_via_drop_point,
-    compute_hv_selv_keepout,
+    disc_union,
+    hv_copper_discs,
+    hv_pad_centre_discs,
     mst_edges,
 )
 
@@ -388,16 +389,21 @@ def generate_power_islands_blocks(
         for pad in pads_by_net.get(net_name, []):
             hv_positions.append(pad.position)
 
-    keepout_pads = compute_hv_selv_keepout(
-        hv_positions, [], board_polygon, DEFAULT_CORRIDOR_WIDTH_MM
-    )
-    hv_extra = _collect_hv_copper_geometry(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
-    keepout_parts = [g for g in (keepout_pads, hv_extra) if g is not None]
+    # The SHARED keepout primitive, identical to _ground_plane.py's (this
+    # module is its twin and they must not drift): one Rust disc union over
+    # the HV pad centres plus the HV pads' real half-extents and vias, then
+    # clipped to the board. See _ground_plane.disc_union for why this is not
+    # bit-identical to the shapely `buffer(quad_segs=16)` + `unary_union` it
+    # replaced, and why the difference is strictly in the safe direction.
+    keepout_discs = hv_pad_centre_discs(
+        hv_positions, DEFAULT_CORRIDOR_WIDTH_MM
+    ) + hv_copper_discs(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
     keepout: Polygon | None = None
-    if keepout_parts:
-        merged = unary_union(keepout_parts).intersection(board_polygon)
-        if not merged.is_empty:
-            keepout = merged
+    merged = disc_union(keepout_discs)
+    if merged is not None:
+        clipped = merged.intersection(board_polygon)
+        if not clipped.is_empty:
+            keepout = clipped
     keepout_established = keepout is not None
 
     plane_region_base = board_polygon.buffer(-BOARD_EDGE_MARGIN_MM)

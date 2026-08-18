@@ -41,7 +41,6 @@ def main() -> int:
     import temper_geometry as _tg
     from shapely.geometry import Point as ShapelyPoint
     from shapely.geometry import Polygon
-    from shapely.ops import unary_union
 
     from temper_io_types import strip_existing_copper
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
@@ -50,8 +49,9 @@ def main() -> int:
         load_domain_manifest_nets,
     )
     from temper_placer.router_v6._ground_plane import (
-        _collect_hv_copper_geometry,
-        compute_hv_selv_keepout,
+        disc_union,
+        hv_copper_discs,
+        hv_pad_centre_discs,
     )
     from temper_placer.router_v6.pad_connectivity_audit import ALL_LAYERS, _pads_by_net
     from temper_placer.router_v6.routing_space import _get_board_polygon
@@ -85,12 +85,18 @@ def main() -> int:
         for pad in pads_by_net.get(net_name, [])
     ]
     board_polygon = _get_board_polygon(pcb)
-    keepout_pads = compute_hv_selv_keepout(
-        hv_positions, [], board_polygon, DEFAULT_CORRIDOR_WIDTH_MM
+    # Re-pointed 2026-08-18 at the Rust disc-union keepout the production
+    # modules now use (the shapely buffer+unary_union path this script was
+    # written against is gone). Same discs, same radii; the union is exact
+    # arcs instead of 64-gons, so the numbers below can differ slightly --
+    # only ever by the keepout being larger.
+    keepout_discs = hv_pad_centre_discs(
+        hv_positions, DEFAULT_CORRIDOR_WIDTH_MM
+    ) + hv_copper_discs(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
+    merged_keepout = disc_union(keepout_discs)
+    keepout = (
+        merged_keepout.intersection(board_polygon) if merged_keepout is not None else None
     )
-    hv_extra = _collect_hv_copper_geometry(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
-    keepout_parts = [g for g in (keepout_pads, hv_extra) if g is not None]
-    keepout = unary_union(keepout_parts).intersection(board_polygon) if keepout_parts else None
     plane_region = board_polygon.buffer(-EDGE_MARGIN_MM)
     if keepout is not None and not keepout.is_empty:
         plane_region = plane_region.difference(keepout)

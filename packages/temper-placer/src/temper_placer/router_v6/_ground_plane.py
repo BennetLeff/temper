@@ -50,6 +50,17 @@ separates this board's HV/SELV pads (28-32% misclassified at best).
 HV-domain pad -- see that function's docstring for the full before/after
 and why the per-pad construction is the more robust one for this board's
 real, locally-interleaved geometry.
+
+**The disc union is Rust, not shapely.** Every term of this keepout is a
+disc, so the union is built directly from circle-circle intersection arcs
+by ``temper_geometry.disc_union_keepout_py``
+(``packages/temper-geometry/src/disc_union_keepout.rs``) -- no polygon
+boolean engine, no GEOS. The Rust generator will not return a keepout that
+under-covers any disc it was asked for: its only constructor proves
+containment first. The shapely ``Point.buffer(r, quad_segs=16)`` +
+``unary_union`` path it replaced emitted a 64-gon *inscribed* in each
+circle, under-covering by 1.69e-2mm at this module's 14.1mm radius. See
+``disc_union``'s docstring.
 """
 
 from __future__ import annotations
@@ -112,6 +123,22 @@ KEEPOUT_EXTRA_MARGIN_MM = 1.0
 # Margin the plane polygon itself is kept off the physical board edge.
 BOARD_EDGE_MARGIN_MM = 1.0
 
+# Polygonal-approximation budget for the Rust disc-union keepout generator
+# (temper_geometry.disc_union_keepout_py). NOT a clearance, and deliberately
+# not tunable per call site: it is the amount of EXTRA board area the emitted
+# keepout is allowed to claim beyond the true circle, and the generator's own
+# construction guarantee (keepout CONTAINS every required disc, proved before
+# the value can exist) holds for every positive value of it. Smaller = tighter
+# and more vertices; larger = looser and fewer. It can never make the keepout
+# smaller than required, which is the only direction that would matter.
+#
+# 0.01mm is chosen against the thing it replaces: shapely's
+# `buffer(r, quad_segs=16)` is a 64-gon INSCRIBED in the circle, whose edges
+# fall 1.69e-2mm SHORT of the required radius at this module's 14.1mm keepout
+# radius. 0.01mm of outward slack costs less area than that inscribed 64-gon
+# was already losing, in the safe direction rather than the unsafe one.
+KEEPOUT_APPROX_EPSILON_MM = 0.01
+
 # --- DRC-cost fix constants (docs/evidence measured against this board,
 # 2026-08-11: the +32 creepage/+77 hole_clearance/+32 tracks_crossing/+122
 # clearance deltas from the first version of this module) --------------------
@@ -156,6 +183,9 @@ __all__ = [
     "PLANE_LAYER",
     "GroundPlaneResult",
     "compute_hv_selv_keepout",
+    "disc_union",
+    "hv_copper_discs",
+    "hv_pad_centre_discs",
     "generate_ground_plane_blocks",
     "generate_ground_plane_content",
     "mst_edges",
@@ -230,6 +260,61 @@ def mst_edges(positions: list[tuple[float, float]]) -> list[tuple[int, int]]:
     return edges
 
 
+def disc_union(discs: list[tuple[float, float, float]]) -> Polygon | None:
+    """Union ``[(x, y, radius), ...]`` into one polygon, in Rust.
+
+    The single keepout primitive this module and its twin
+    (``_power_islands.py``) share. Every keepout input here is a **disc** --
+    an HV pad centre buffered by the corridor width, an HV pad's real
+    half-extent, an HV via -- so this is a union of discs, not a general
+    polygon boolean, and ``temper_geometry.disc_union_keepout_py`` builds it
+    directly from the circle-circle intersection arcs (see
+    ``packages/temper-geometry/src/disc_union_keepout.rs``).
+
+    **This replaced ``shapely``'s ``Point.buffer(r, quad_segs=16)`` +
+    ``unary_union``, and it is deliberately not bit-identical to it.**
+    ``buffer(quad_segs=16)`` emits a 64-gon *inscribed* in the circle: its
+    edges sit at ``r*cos(pi/64)``, so at this module's production radius
+    (13.1 + 1.0 = 14.1mm) the old keepout under-covered the disc it was
+    asked for by 1.69e-2mm, everywhere -- the same inscribed-polygon undercut
+    ``clearance_halo.rs`` records as a measured bug. Measured across all 222
+    discs of the real board's keepout on 2026-08-18, the worst under-coverage
+    was 2.259e-2mm (on an 18.757mm HV pad half-extent disc); the Rust
+    generator's was 0.0mm. The Rust generator's
+    output is instead guaranteed, *at construction*, to CONTAIN every
+    required disc: its only constructor proves that each disc centre is
+    inside the emitted region and that no emitted edge comes within the
+    required radius of it, and refuses to return a keepout otherwise. The
+    new keepout is therefore a strict superset of the old one, point for
+    point -- it can only ever claim more board area, never less.
+
+    Returns ``None`` for an empty disc list, matching
+    ``compute_hv_selv_keepout``'s "cannot establish a keepout" contract.
+    """
+    if not discs:
+        return None
+
+    from shapely.geometry import MultiPolygon
+    from shapely.geometry import Polygon as _ShapelyPolygon
+    from temper_geometry import disc_union_keepout_py
+
+    pieces = [
+        _ShapelyPolygon(rings[0], rings[1:])
+        for rings in disc_union_keepout_py(discs, KEEPOUT_APPROX_EPSILON_MM)
+    ]
+    if not pieces:
+        return None
+    return pieces[0] if len(pieces) == 1 else MultiPolygon(pieces)
+
+
+def hv_pad_centre_discs(
+    hv_positions: list[tuple[float, float]], corridor_width_mm: float
+) -> list[tuple[float, float, float]]:
+    """``[(x, y, radius), ...]`` for the HV pad-CENTRE term of the keepout."""
+    radius = corridor_width_mm + KEEPOUT_EXTRA_MARGIN_MM
+    return [(float(x), float(y), radius) for x, y in hv_positions]
+
+
 def compute_hv_selv_keepout(
     hv_positions: list[tuple[float, float]],
     selv_positions: list[tuple[float, float]],
@@ -238,6 +323,18 @@ def compute_hv_selv_keepout(
 ) -> Polygon | None:
     """Build a keepout region as the union of a ``corridor_width_mm``-radius
     buffer around every HV-domain pad.
+
+    **Scope, as of 2026-08-18.** This is the named entry point for the
+    pad-CENTRE term alone. Both production call sites (this module's
+    ``generate_ground_plane_content`` and its twin
+    ``_power_islands.generate_power_islands_blocks``) now build the whole
+    keepout in ONE ``disc_union`` call over ``hv_pad_centre_discs`` +
+    ``hv_copper_discs``, because unioning the two terms separately and
+    merging the polygons afterwards needed a third, general polygon union
+    that a union of discs does not. This function is the same primitive with
+    the same radii -- not a second implementation -- kept because it is the
+    documented public name for "the pad-centre keepout" and is what the
+    evidence trail and tests measure.
 
     **This function's first implementation tried a single global band**
     (whichever axis separates the HV and SELV pad clusters' *bounding
@@ -275,26 +372,28 @@ def compute_hv_selv_keepout(
     if not hv_positions:
         return None
 
-    from shapely.geometry import Point
-    from shapely.ops import unary_union
-
-    radius = corridor_width_mm + KEEPOUT_EXTRA_MARGIN_MM
-    discs = [Point(x, y).buffer(radius, quad_segs=16) for x, y in hv_positions]
-    keepout = unary_union(discs)
+    keepout = disc_union(hv_pad_centre_discs(hv_positions, corridor_width_mm))
+    if keepout is None:
+        return None
     clipped = keepout.intersection(board_polygon)
     if clipped.is_empty:
         return None
     return clipped
 
 
-def _collect_hv_copper_geometry(
+def hv_copper_discs(
     pcb, hv_nets: frozenset[str], corridor_width_mm: float
-) -> Polygon | None:
-    """Union of every HV-net PAD (real half-extent, not a point) and VIA
-    already on the board, each buffered by ``corridor_width_mm`` (already
-    carries a 0.5mm cushion over the bare 8.0mm creepage minimum -- see
-    ``DEFAULT_CORRIDOR_WIDTH_MM``'s own docstring -- so no additional
-    margin is stacked on top here).
+) -> list[tuple[float, float, float]]:
+    """``[(x, y, radius), ...]`` for every HV-net PAD (real half-extent, not
+    a point) and VIA already on the board, each buffered by
+    ``corridor_width_mm`` (already carries a 0.5mm cushion over the bare
+    8.0mm creepage minimum -- see ``DEFAULT_CORRIDOR_WIDTH_MM``'s own
+    docstring -- so no additional margin is stacked on top here).
+
+    Returns the DISCS, not a polygon: the caller unions them together with
+    ``hv_pad_centre_discs``' in a single ``disc_union`` call, so there is
+    exactly one union for the whole keepout instead of three (two per-term
+    unions plus a shapely ``unary_union`` to merge them).
 
     ``compute_hv_selv_keepout`` alone only buffers HV PAD *centres* --
     measured against this board (2026-08-11), 25 creepage violations
@@ -303,20 +402,18 @@ def _collect_hv_copper_geometry(
     U6's ``DC_BUS_RTN`` pad, C26's ``SW_NODE`` pad, ...) -- a pad-centre
     buffer alone under-covers a large pad by exactly the distance from
     its centre to its own furthest corner. This function is unioned into
-    that keepout at the call site so a single ``keepout`` polygon governs
-    the pour clip, the MST backbone detour, and the drop-via placement
-    check alike -- one source of truth, not a second, easy-to-drift
-    computation. HV tracks and existing HV zones were both tried here too
+    These discs join that keepout's at the call site so a single
+    ``keepout`` polygon governs the pour clip, the MST backbone detour, and
+    the drop-via placement check alike -- one source of truth, not a second,
+    easy-to-drift computation. HV tracks and existing HV zones were both tried here too
     and both reverted -- see the two comments at this function's call
     site in ``generate_ground_plane_content`` for the measured reasons
     (tracks: real but too dense, collapses MST routability; zones: the
     board's own declared zone outlines are not real fill geometry).
     """
-    from shapely.ops import unary_union
-
     from temper_placer.core.pin_geometry import pin_world_position
 
-    geoms: list = []
+    geoms: list[tuple[float, float, float]] = []
 
     for comp in getattr(pcb, "components", []):
         for pin in getattr(comp, "pins", []):
@@ -329,13 +426,17 @@ def _collect_hv_copper_geometry(
             # contain the pad's real extent before the creepage radius
             # is added on top of it.
             pad_radius = math.hypot(pin.width / 2.0, pin.height / 2.0)
-            geoms.append(Point(pos).buffer(pad_radius + corridor_width_mm, quad_segs=16))
+            geoms.append((float(pos[0]), float(pos[1]), pad_radius + corridor_width_mm))
 
     for via in getattr(pcb, "vias", []):
         if via.net not in hv_nets:
             continue
         geoms.append(
-            Point(via.position).buffer(via.diameter / 2.0 + corridor_width_mm, quad_segs=16)
+            (
+                float(via.position[0]),
+                float(via.position[1]),
+                via.diameter / 2.0 + corridor_width_mm,
+            )
         )
 
     # Existing HV *tracks* deliberately NOT included here either, for a
@@ -381,9 +482,7 @@ def _collect_hv_copper_geometry(
     # trail): a residual creepage violation directly against an existing
     # HV zone's real fill, near but not at an HV pad/track/via, is
     # possible and not covered by this function.
-    if not geoms:
-        return None
-    return unary_union(geoms)
+    return geoms
 
 
 def _collect_other_net_copper(
@@ -770,43 +869,40 @@ def generate_ground_plane_blocks(
             p.layer == ALL_LAYERS
         )
 
-    hv_nets, selv_nets = load_domain_manifest_nets(domain_manifest_path)
+    hv_nets, _selv_nets = load_domain_manifest_nets(domain_manifest_path)
     hv_positions: list[tuple[float, float]] = []
     for net_name in sorted(hv_nets):
         for pad in pads_by_net.get(net_name, []):
             hv_positions.append(pad.position)
-    # SELV cluster for the keepout gap measurement includes gnd's own
-    # pads plus every other declared-SELV net's pads -- the empirical
-    # "where does the SELV footprint actually sit" question, not just
-    # gnd alone (a keepout sized only to gnd's own pads could be
-    # narrower than the real SELV/HV divide and cut it close).
-    selv_positions: list[tuple[float, float]] = list(gnd_positions)
-    for net_name in sorted(selv_nets):
-        if net_name == GND_NET_NAME:
-            continue
-        for pad in pads_by_net.get(net_name, []):
-            selv_positions.append(pad.position)
+    # The SELV pad cluster used to be collected here and handed to
+    # compute_hv_selv_keepout. It was already dead by the time this module
+    # landed -- that function's own docstring records that the global
+    # separating-band construction which needed it measured NO positive gap
+    # on either axis of this board and was removed, and every version since
+    # has opened with `del selv_positions`. Collecting it here only to
+    # discard it inside the callee is the kind of "still looks load-bearing"
+    # residue that makes a keepout change hard to reason about, so it goes
+    # with the rest of the replaced code. `compute_hv_selv_keepout` keeps
+    # the parameter for call-site stability (see its docstring).
 
     board_polygon = _get_board_polygon(pcb)
 
-    keepout_pads = compute_hv_selv_keepout(
-        hv_positions, selv_positions, board_polygon, DEFAULT_CORRIDOR_WIDTH_MM
-    )
-    # Extend the pad-centre-only keepout with real HV pad half-extents
-    # (not just their centres) plus every HV via already on the board
-    # (see _collect_hv_copper_geometry's docstring for the measured bug
-    # this closes, and for why HV tracks/zones were tried and reverted).
-    # One union, so the pour clip, MST detour, and via placement below
-    # all see the exact same keepout.
-    hv_extra = _collect_hv_copper_geometry(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
-    keepout_parts = [g for g in (keepout_pads, hv_extra) if g is not None]
+    # ONE disc union for the whole keepout: the HV pad CENTRES buffered by
+    # the corridor width, plus real HV pad half-extents (not just their
+    # centres) and every HV via already on the board -- see
+    # hv_copper_discs' docstring for the measured bug that second term
+    # closes, and for why HV tracks/zones were tried and reverted. One
+    # union, so the pour clip, MST detour, and via placement below all see
+    # the exact same keepout.
+    keepout_discs = hv_pad_centre_discs(
+        hv_positions, DEFAULT_CORRIDOR_WIDTH_MM
+    ) + hv_copper_discs(pcb, hv_nets, DEFAULT_CORRIDOR_WIDTH_MM)
     keepout: Polygon | None = None
-    if keepout_parts:
-        from shapely.ops import unary_union
-
-        merged = unary_union(keepout_parts).intersection(board_polygon)
-        if not merged.is_empty:
-            keepout = merged
+    merged = disc_union(keepout_discs)
+    if merged is not None:
+        clipped = merged.intersection(board_polygon)
+        if not clipped.is_empty:
+            keepout = clipped
     keepout_established = keepout is not None
 
     # Board-edge margin, applied the same way _clip_to_board's callers
