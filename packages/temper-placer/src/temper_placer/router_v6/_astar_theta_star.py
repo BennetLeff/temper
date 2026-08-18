@@ -3,7 +3,8 @@ Router V6: any-angle A* search (Theta* / Lazy Theta*) and their shared
 line-of-sight primitive.
 
 Part of temper-N6-U6 decomposition -- split from astar_core.py to bring
-that module back under the repo's 1000-line cap (``tools/loc_cap_check.py``).
+that module back under the repo's then-enforced 1000-line cap (the N6 LOC cap
+gate, retired 2026-08-18; see ``docs/adr/2026-08-18-retire-loc-cap-gate.md``).
 Theta* and Lazy Theta* both delegate their any-angle shortcut decision to
 the Rust-backed LOS kernel (``_line_of_sight_rust``, proven bit-identical
 to the retired JIT kernel and PBT-equal to the pure-Python reference),

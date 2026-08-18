@@ -13,7 +13,6 @@
     ".github/workflows/python-tests.yml",
     ".github/workflows/required-checks.yml",
     ".github/required-checks.json",
-    ".loc-allowlist.txt",
     ".unwired-kernel-inventory",
     ".orphaned-python-module-inventory",
     "scripts/deadcode-baseline.py",
