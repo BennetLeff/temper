@@ -57,7 +57,9 @@ def _tdb():
 
 _ORACLE_PIN_SHA = "edc19ffa9492ef4a752c48289242088de6b4fbd1"
 _ORACLE_REL = "packages/temper-placer/src/temper_placer/core/hypergraph.py"
-_ORACLE_NAMES: tuple[str, ...] = ("Coo",)# ============================================================================
+_ORACLE_NAMES: tuple[str, ...] = ("Coo",)
+
+# ============================================================================
 # Oracle block — verbatim copy of `temper_placer/core/hypergraph.py`'s
 # `Coo.__matmul__` (origin/main @ edc19ffa, pre-migration). DO NOT EDIT.
 # ============================================================================
@@ -117,12 +119,22 @@ def _make_coo(row, col, data, shape):
 
 def test_oracle_verbatim():
     """The oracle block is byte-identical to the accepted verbatim pin in
-    `test_core_graph_cluster_rust_differential.py` (the same pre-migration
-    `Coo.__matmul__` semantics, hand-copied with a DO NOT EDIT comment per the
-    repo's oracle-block convention)."""
+    `_hypergraph_coo_py_oracle.py` (the same pre-migration `Coo.__matmul__`
+    semantics, hand-copied with a DO NOT EDIT comment per the repo's
+    oracle-block convention).
+
+    The accepted pin used to live inline in
+    `test_core_graph_cluster_rust_differential.py`; that file was deleted on
+    2026-08-17 by the surface-area sweep (`35e3f914a`, merged as `caec25d6` /
+    #1314) as collateral to removing `core/graph.py` and `core/power_topology.py`.
+    The pin was moved verbatim into a registered `_*_py_oracle.py` file so it is
+    covered by `scripts/check_oracle_hashes.py` -- the sweep checked that
+    registry and correctly found nothing, because an inline oracle block is
+    invisible to it. Same bytes, now guarded by the hash gate as well as by
+    this test."""
     import inspect  # noqa: PLC0415
 
-    from tests.core.test_core_graph_cluster_rust_differential import (  # noqa: PLC0415
+    from tests.core._hypergraph_coo_py_oracle import (  # noqa: PLC0415
         _oracle_coo_matmul as _accepted_oracle,
     )
 

@@ -8,6 +8,7 @@
 //! Many nested if-let chains use || conditions not supported in let-chains.
 
 pub mod astar;
+pub mod astar_nlayer;
 pub mod audit;
 #[cfg(feature = "sat")]
 pub mod bmc;
