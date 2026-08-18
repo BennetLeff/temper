@@ -72,7 +72,7 @@ numpy==2.3.5
     #   temper-placer
 ortools==9.15.6755
     # via temper-placer
-packaging==25.0
+packaging==26.3
     # via
     #   plotly
     #   pytest
