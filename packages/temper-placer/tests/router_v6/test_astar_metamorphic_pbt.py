@@ -865,7 +865,10 @@ def _make_multi_layer_grid(
 @settings(max_examples=50, deadline=30000)
 def test_3d_path_cells_free(gsp):
     """3D MR8: every cell in 3D path is free on its layer."""
-    from temper_placer.router_v6.astar_core import RouteNode3D, _astar_search_3d
+    from temper_placer.router_v6.astar_core import RouteNode3D
+    from temper_placer.router_v6.astar_nlayer_rust import (
+        astar_search_3d_rust as _astar_search_3d,
+    )
 
     grid_2d, start_2d, goal_2d = gsp
     layers = ("F.Cu", "B.Cu")
@@ -894,7 +897,10 @@ def test_3d_path_cells_free(gsp):
 @settings(max_examples=50, deadline=30000)
 def test_3d_no_redundant_same_layer_nodes(gsp):
     """3D MR9: consecutive cells on same layer must not be identical."""
-    from temper_placer.router_v6.astar_core import RouteNode3D, _astar_search_3d
+    from temper_placer.router_v6.astar_core import RouteNode3D
+    from temper_placer.router_v6.astar_nlayer_rust import (
+        astar_search_3d_rust as _astar_search_3d,
+    )
 
     grid_2d, start_2d, goal_2d = gsp
     layers = ("F.Cu", "B.Cu")
