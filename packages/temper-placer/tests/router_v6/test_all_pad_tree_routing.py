@@ -266,7 +266,34 @@ def test_partial_tree_geometry_never_claims_the_unreachable_terminal(terminal_co
     assert _audit(points, partial.coordinates).disposition is NetDisposition.INCOMPLETE
 
 
-def test_partial_tree_geometry_is_excluded_from_routing_results_and_writer_input():
+def test_partial_tree_geometry_reaches_the_writer_but_never_counts_as_success():
+    """M6c (2026-08-17, docs/evidence/2026-08-17-routing-cause-refresh-and-tractable-fix.md).
+
+    Before this fix, ANY net-level decline discarded 100% of that net's
+    geometry from the writer -- including real, safely-searched copper for
+    pads already reached before the failure. Measured on the production
+    board: 17 multi-pad nets went from a real (if partial) 2-of-N
+    connection to a total 0-of-N failure once ``enable_all_pad_tree``
+    started enforcing the harder all-terminal constraint (#1245), because
+    every partial completion, however much real copper it had, was
+    discarded here.
+
+    ``pathfinding_result.partial_paths`` only ever contains entries that
+    already passed ``_has_safe_partial_geometry`` (real A*-searched
+    segments, never a forced/direct edge -- see ``_astar_nlayer.py``'s
+    ``attempt_route``) -- R3's actual prohibition is on a *forced/direct
+    writer segment for the unreachable terminal itself*, and on counting
+    an incomplete net as a success. Neither changes here: the unreachable
+    terminal still gets no geometry at all (see
+    ``test_partial_tree_geometry_never_claims_the_unreachable_terminal``
+    just above), and ``success_count``/``NetRouteResult`` in production
+    are governed by ``verify_continuity()`` against the net's real pads
+    (U3 ``connectivity``), not by which result bucket produced the
+    geometry -- a net that does not reach every pad is still reported
+    ``INCOMPLETE``/``partial`` either way (the connectivity-driven
+    ``success_count`` fallback path here, with ``connectivity=None``, is
+    the pre-U3 shape and is exercised directly below).
+    """
     partial = RoutePath("SIG", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
     result = PathfindingResult(
         routed_paths={},
@@ -276,7 +303,21 @@ def test_partial_tree_geometry_is_excluded_from_routing_results_and_writer_input
 
     compiled = compile_routing_results(result, TraceWidthAssignment({}), ViaPlacement([]))
 
-    assert compiled.get_route("SIG") is None
+    # The real, safely-searched geometry now reaches compiled_routes (so
+    # the exporter and this module's own internal clearance/creepage/
+    # annular-ring checks -- which all iterate compiled_routes -- see it),
+    # and is still visible in partial_routes for diagnostics.
+    assert compiled.get_route("SIG") is not None
+    assert compiled.get_route("SIG").path is partial
+    assert compiled.partial_routes["SIG"].path is partial
+    # But it is NEVER counted as a success: with connectivity=None, the
+    # pre-U3 fallback now excludes any compiled_routes entry whose path
+    # still carries forced_segment_count > 0 (RoutingResults.success_count),
+    # so raw presence in compiled_routes no longer implies completeness.
+    # Production always populates ``connectivity`` (U3+), so the
+    # authoritative count is verify_continuity()-driven and is unaffected
+    # either way -- covered by test_success_count_matches_connectivity_dispositions
+    # in test_truthful_completion.py.
     assert compiled.success_count == 0
     assert compiled.failure_count == 1
 

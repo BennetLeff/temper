@@ -139,6 +139,54 @@ def _describe_layer_failure(
     )
 
 
+#: Bound on how many already-connected terminals ``execute_terminal_tree``
+#: will try as an alternate attachment point for one target, beyond the
+#: originally Prim-planned source. Keeps the M6b retry (below) from turning
+#: one genuinely infeasible target into O(terminal_count) full A* searches
+#: on a large net; 5 was chosen as "more than enough to escape a single bad
+#: root/edge choice" while staying well under the per-net A* budget this
+#: module has no visibility into (``max_iter`` is a per-*edge* ceiling, not
+#: a per-net one).
+_MAX_ALTERNATE_ATTACH_CANDIDATES = 5
+
+
+def _attach_candidates(
+    edge: TerminalTreeEdge,
+    connected: set[PadIdentity],
+    terminals: dict[PadIdentity, TreeTerminal],
+) -> list[PadIdentity]:
+    """Order the already-connected terminals worth trying as ``edge``'s source.
+
+    The Prim-planned ``edge.source`` goes first when it is itself connected
+    (preserves the original plan's choice, and its priority, whenever it is
+    viable). Every other candidate is a terminal *already joined to this
+    net's growing copper component* — attaching to one still produces one
+    single connected graph, unlike attaching to an unconnected terminal,
+    which would just plant a second, disjoint island (see the module
+    docstring: fully_connected requires one component, not merely "some
+    copper touching this pad somewhere").
+
+    Ordering among the alternates is by Manhattan distance to the target,
+    nearest first (a router preference, not a correctness requirement),
+    with ``PadIdentity``'s own total order (``order=True``) breaking exact
+    ties — never Python set/dict iteration order, so two runs over the same
+    board produce byte-identical candidate lists.
+    """
+    target = terminals[edge.target]
+    alternates = [pid for pid in connected if pid != edge.source]
+
+    def _key(pid: PadIdentity) -> tuple[float, PadIdentity]:
+        t = terminals[pid]
+        dist = abs(t.center.x - target.center.x) + abs(t.center.y - target.center.y)
+        return (dist, pid)
+
+    alternates.sort(key=_key)
+    ordered = list(alternates[:_MAX_ALTERNATE_ATTACH_CANDIDATES])
+    if edge.source in connected:
+        ordered.insert(0, edge.source)
+    return ordered
+
+
 def execute_terminal_tree(
     plan: TerminalTreePlan,
     pads: list[TreeTerminal] | tuple[TreeTerminal, ...],
@@ -154,10 +202,35 @@ def execute_terminal_tree(
 
     U2: subtree-aware resilience.  Tracks which terminals are *actually*
     connected to the root (via successfully routed edges), not just
-    planned-connected.  An edge whose source is not in the connected set
-    is skipped (it descended from an earlier failure).  After all edges
-    are attempted, ``verify_net_connectivity`` determines the final
-    disposition — the executor itself never fabricates a verdict.
+    planned-connected.
+
+    U3 (M6b, 2026-08-17): **any-connected-point retry.**  U2 alone still
+    anchors every edge to its single Prim-planned ``source`` — if that one
+    edge fails (congestion, a foreign clearance/creepage halo, anything
+    short of "no legal path exists at all"), the target is permanently
+    unreachable for the rest of this call, and if the plan happens to be a
+    chain (root -> t1 -> t2 -> ...) rather than a star, one failed edge
+    silently drops every terminal downstream of it too — measured on this
+    board as **17 nets going from a real, if partial, 2-of-N connection
+    (pre-#1245) to a total 0-of-N failure** once ``enable_all_pad_tree``
+    started enforcing the harder all-terminal constraint. The module's own
+    original docstring already named the correct fix ("later A* work can
+    attach to any legal copper point in the existing component, not [only]
+    changing the plan contract") — this is that: when the planned source
+    fails (or was itself never reached), retry the same target against
+    every *other* already-connected terminal, nearest first
+    (``_attach_candidates``), before giving up on it. Multiple passes over
+    ``plan.edges`` let a target that only became reachable because a
+    *later*-planned edge connected first still be picked up, bounded by
+    ``len(terminals)`` (each successful pass connects >=1 new terminal, so
+    it terminates).
+
+    Correctness is unchanged: every attempt is still the same
+    ``allow_forced_segments=False`` A* call this module always made — this
+    widens which already-real copper a target may legally attach to, it
+    never lowers what counts as a legal attachment. ``verify_net_connectivity``
+    remains the sole authority for ``ROUTED`` vs ``INCOMPLETE`` — the
+    executor itself never fabricates a verdict.
 
     ``mark_sink`` (2026-08-12, per-net-pair clearance): when given, it is
     called as ``mark_sink(layer, coordinates)`` for each completed branch
@@ -178,55 +251,77 @@ def execute_terminal_tree(
     routable_layers = frozenset(grids)
     terminals: dict[PadIdentity, TreeTerminal] = {pad.identity: pad for pad in pads}
     completed: list[tuple[TerminalTreeEdge, RoutePath]] = []
-    failed: list[TerminalTreeEdge] = []
     failure_reasons: dict[TerminalTreeEdge, str] = {}
     connected: set[PadIdentity] = {plan.root}
 
-    for edge in plan.edges:
-        source = terminals[edge.source]
-        target = terminals[edge.target]
+    pending = list(plan.edges)
+    progressed = True
+    while pending and progressed:
+        progressed = False
+        still_pending: list[TerminalTreeEdge] = []
+        for edge in pending:
+            if edge.target in connected:
+                # Reached via a different candidate source earlier in this
+                # same pass (or a prior pass) -- not a failure, just done.
+                progressed = True
+                continue
 
-        # U2: skip edges whose source was never reached.
-        if edge.source not in connected:
-            continue
+            target = terminals[edge.target]
+            last_reason: str | None = None
+            succeeded = False
+            for source_id in _attach_candidates(edge, connected, terminals):
+                source = terminals[source_id]
+                route_layer = _pick_route_layer(
+                    source, target, single_grid_layer, routable_layers
+                )
+                if route_layer is None:
+                    last_reason = _describe_layer_failure(
+                        source, target, single_grid_layer, routable_layers
+                    )
+                    continue
 
-        route_layer = _pick_route_layer(source, target, single_grid_layer, routable_layers)
-        if route_layer is None:
-            failed.append(edge)
-            failure_reasons[edge] = _describe_layer_failure(
-                source, target, single_grid_layer, routable_layers
-            )
-            continue
+                active_grid = grids[route_layer]
+                path, _fallback_count = _astar_route(
+                    edge.target.net,
+                    ChannelPath(
+                        net_name=edge.target.net,
+                        channel_sequence=[],
+                        waypoints=[
+                            (source.center.x, source.center.y),
+                            (target.center.x, target.center.y),
+                        ],
+                        total_length=0.0,
+                        preferred_layer=route_layer,
+                    ),
+                    active_grid,
+                    max_iter=max_iter,
+                    allow_forced_segments=False,
+                    net_id=net_id,
+                )
+                if path is None or path.forced_segment_count:
+                    last_reason = "no_legal_path"
+                    continue
 
-        active_grid = grids[route_layer]
-        path, _fallback_count = _astar_route(
-            edge.source.net,
-            ChannelPath(
-                net_name=edge.source.net,
-                channel_sequence=[],
-                waypoints=[
-                    (source.center.x, source.center.y),
-                    (target.center.x, target.center.y),
-                ],
-                total_length=0.0,
-                preferred_layer=route_layer,
-            ),
-            active_grid,
-            max_iter=max_iter,
-            allow_forced_segments=False,
-            net_id=net_id,
-        )
-        if path is None or path.forced_segment_count:
-            failed.append(edge)
-            continue
+                completed.append((TerminalTreeEdge(source_id, edge.target), path))
+                connected.add(edge.target)
+                if net_id >= 0:
+                    if mark_sink is None:
+                        active_grid.mark_path_blocked(
+                            path.coordinates, trace_width, clearance, net_id
+                        )
+                    else:
+                        mark_sink(route_layer, path.coordinates)
+                succeeded = True
+                progressed = True
+                break
 
-        completed.append((edge, path))
-        connected.add(edge.target)
-        if net_id >= 0:
-            if mark_sink is None:
-                active_grid.mark_path_blocked(path.coordinates, trace_width, clearance, net_id)
-            else:
-                mark_sink(route_layer, path.coordinates)
+            if not succeeded:
+                still_pending.append(edge)
+                if last_reason is not None:
+                    failure_reasons[edge] = last_reason
+        pending = still_pending
+
+    failed = pending
 
     disposition = (
         NetDisposition.ROUTED if len(connected) == len(terminals) else NetDisposition.INCOMPLETE
