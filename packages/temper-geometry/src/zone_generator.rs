@@ -688,13 +688,31 @@ pub fn stitch_mst_with_gate(
     if mst.is_empty() {
         return StitchResult { edges: Vec::new(), skipped: 0 };
     }
+    gate_edges(positions, &mst, obstacles, stitch_width_mm)
+}
+
+/// Drop every `(i, j)` edge (indices into `positions`) whose buffered
+/// footprint intersects the obstacle keepout -- the gate half of
+/// [`stitch_mst_with_gate`], factored out so a caller with its OWN edge
+/// list (not an MST) -- e.g. a small, hand-verified, empirically-checked
+/// edge set for one specific net -- gets the identical creepage-aware
+/// check without going through MST computation at all.
+pub fn gate_edges(
+    positions: &[Point],
+    edges: &[(usize, usize)],
+    obstacles: &[ZoneObstacle],
+    stitch_width_mm: f64,
+) -> StitchResult {
+    if edges.is_empty() {
+        return StitchResult { edges: Vec::new(), skipped: 0 };
+    }
     let keepout = build_keepout_union(obstacles);
     if keepout.0.is_empty() {
-        return StitchResult { edges: mst, skipped: 0 };
+        return StitchResult { edges: edges.to_vec(), skipped: 0 };
     }
-    let mut kept = Vec::with_capacity(mst.len());
+    let mut kept = Vec::with_capacity(edges.len());
     let mut skipped = 0usize;
-    for (i, j) in mst {
+    for &(i, j) in edges {
         use crate::clearance_halo::ClearanceHalo;
         let footprint = ClearanceHalo::from_track_with_segments(
             geo::Point::new(positions[i].x, positions[i].y),
@@ -892,33 +910,68 @@ pub fn stitch_mst_with_gate_py(
 ) -> PyResult<(Vec<(usize, usize)>, usize)> {
     temper_py_bridge::catch_unwind(|| {
         let pts: Vec<Point> = positions.iter().map(|(x, y)| Point::new(*x, *y)).collect();
-        let obs: Vec<ZoneObstacle> = obstacles
-            .iter()
-            .map(|(kind, x, y, a, b, w, clearance)| match kind {
-                0 => ZoneObstacle::Pad {
-                    position: Point::new(*x, *y),
-                    half_w: *a,
-                    half_h: *b,
-                    rotation_rad: 0.0,
-                    clearance_mm: *clearance,
-                },
-                1 => ZoneObstacle::Track {
-                    start: Point::new(*x, *y),
-                    end: Point::new(*a, *b),
-                    width_mm: *w,
-                    clearance_mm: *clearance,
-                },
-                _ => ZoneObstacle::Via {
-                    position: Point::new(*x, *y),
-                    diameter_mm: *a,
-                    clearance_mm: *clearance,
-                },
-            })
-            .collect();
+        let obs = parse_obstacle_records(&obstacles);
         let res = stitch_mst_with_gate(&pts, &obs, stitch_width_mm);
         (res.edges, res.skipped)
     })
     .map_err(temper_py_bridge::panic_to_err)
+}
+
+/// Pyo3 wrapper: gate a CALLER-SUPPLIED edge list (no MST computation) --
+/// see [`gate_edges`]. For a small, fixed, empirically-verified edge set
+/// (e.g. one specific net's hand-checked connectors) that should get the
+/// identical creepage-aware check `stitch_mst_with_gate_py` applies to its
+/// own MST, without paying for or depending on MST computation at all.
+///
+/// * `edges`: `Vec<(usize, usize)>` -- index pairs into `positions`.
+/// Other arguments and the return convention match
+/// [`stitch_mst_with_gate_py`] exactly.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (positions, edges, obstacles, stitch_width_mm))]
+pub fn gate_edges_py(
+    positions: Vec<(f64, f64)>,
+    edges: Vec<(usize, usize)>,
+    obstacles: Vec<(u8, f64, f64, f64, f64, f64, f64)>,
+    stitch_width_mm: f64,
+) -> PyResult<(Vec<(usize, usize)>, usize)> {
+    temper_py_bridge::catch_unwind(|| {
+        let pts: Vec<Point> = positions.iter().map(|(x, y)| Point::new(*x, *y)).collect();
+        let obs = parse_obstacle_records(&obstacles);
+        let res = gate_edges(&pts, &edges, &obs, stitch_width_mm);
+        (res.edges, res.skipped)
+    })
+    .map_err(temper_py_bridge::panic_to_err)
+}
+
+/// Shared flat-record parser for [`pour_outline_py`], [`stitch_mst_with_gate_py`],
+/// and [`gate_edges_py`] -- see [`pour_outline_py`]'s docstring for the
+/// `(kind, x, y, a, b, w, clearance)` convention.
+#[cfg(feature = "python")]
+fn parse_obstacle_records(obstacles: &[(u8, f64, f64, f64, f64, f64, f64)]) -> Vec<ZoneObstacle> {
+    obstacles
+        .iter()
+        .map(|(kind, x, y, a, b, w, clearance)| match kind {
+            0 => ZoneObstacle::Pad {
+                position: Point::new(*x, *y),
+                half_w: *a,
+                half_h: *b,
+                rotation_rad: 0.0,
+                clearance_mm: *clearance,
+            },
+            1 => ZoneObstacle::Track {
+                start: Point::new(*x, *y),
+                end: Point::new(*a, *b),
+                width_mm: *w,
+                clearance_mm: *clearance,
+            },
+            _ => ZoneObstacle::Via {
+                position: Point::new(*x, *y),
+                diameter_mm: *a,
+                clearance_mm: *clearance,
+            },
+        })
+        .collect()
 }
 
 #[cfg(feature = "python")]
@@ -926,6 +979,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pour_outline_py, m)?)?;
     m.add_function(wrap_pyfunction!(emit_zone_outline_s_expr_py, m)?)?;
     m.add_function(wrap_pyfunction!(stitch_mst_with_gate_py, m)?)?;
+    m.add_function(wrap_pyfunction!(gate_edges_py, m)?)?;
     Ok(())
 }
 

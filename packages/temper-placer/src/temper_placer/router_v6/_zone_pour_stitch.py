@@ -602,92 +602,6 @@ def _carve_outline(
 
 
 
-def _mst_edges(positions: list[tuple[float, float]]) -> list[tuple[int, int]]:
-    """Euclidean minimum spanning tree over *positions*, Prim's O(n^2).
-
-    Extracted, unchanged, from ``_stitch_pads_to_each_other``'s inline MST
-    fallback (2026-08-14) so it can be exercised standalone -- board-scale
-    pad counts are never more than a handful, so O(n^2) is simple,
-    deterministic, and needs no external dependency at this size. A
-    reasonable STARTING GUESS, not a DRC-verified result on its own; see
-    ``_gate_filter_edges`` for the check that makes it safe to emit.
-
-    Deterministic tie-break: ties are broken by iterating ``in_tree`` in
-    insertion order and ``remaining`` in ascending original-index order,
-    keeping the FIRST edge found (strict ``<``). ``positions[0]`` is always
-    the tree's root.
-    """
-    remaining = list(range(1, len(positions)))
-    in_tree = [0]
-    edges: list[tuple[int, int]] = []
-    while remaining:
-        best = None
-        best_d2 = float("inf")
-        for i in in_tree:
-            xi, yi = positions[i]
-            for j in remaining:
-                xj, yj = positions[j]
-                d2 = (xj - xi) ** 2 + (yj - yi) ** 2
-                if d2 < best_d2:
-                    best_d2 = d2
-                    best = (i, j)
-        assert best is not None
-        edges.append(best)
-        in_tree.append(best[1])
-        remaining.remove(best[1])
-    return edges
-
-
-def _gate_filter_edges(
-    positions: list[tuple[float, float]],
-    edges: list[tuple[int, int]],
-    obstacle_records: list[tuple[int, float, float, float, float, float, float]],
-    stitch_width_mm: float,
-) -> tuple[list[tuple[int, int]], int]:
-    """Drop every edge whose buffered footprint intersects the obstacle union.
-
-    Extracted, unchanged, from ``_stitch_pads_to_each_other``'s inline
-    C-space gate (2026-08-16). ``obstacle_records`` is the same
-    ``collect_zone_obstacle_records`` flat-record convention the Rust zone
-    carve (``pour_outline_py``) consumes -- each item already buffered by
-    its own pair-resolved ``max(clearance, creepage)`` separation, so this
-    gate is creepage-aware for HV pairs by construction, not merely
-    clearance-aware: there is no separate "is this pair HV" branch here to
-    drift out of step with the carve's own figure.
-
-    Returns ``(kept_edges, skipped_count)``. A skipped edge is dropped
-    fail-closed -- never emitted as a known-shorting/creeping straight
-    line.
-    """
-    from shapely.geometry import LineString, Point
-    from shapely.ops import unary_union
-
-    geoms: list = []
-    for kind, x, y, a, b, w, separation in obstacle_records:
-        if kind == 0:  # Pad
-            geoms.append(Point(x, y).buffer(math.hypot(a, b) + separation, quad_segs=8))
-        elif kind == 1:  # Track
-            geoms.append(LineString([(x, y), (a, b)]).buffer(w / 2.0 + separation, quad_segs=8))
-        else:  # Via
-            geoms.append(Point(x, y).buffer(a / 2.0 + separation, quad_segs=8))
-    obstacle_union = unary_union(geoms) if geoms else None
-
-    kept: list[tuple[int, int]] = []
-    skipped = 0
-    for i, j in edges:
-        xi, yi = positions[i]
-        xj, yj = positions[j]
-        if obstacle_union is not None and not obstacle_union.is_empty:
-            footprint = LineString([(xi, yi), (xj, yj)]).buffer(
-                stitch_width_mm / 2.0, quad_segs=8
-            )
-            if footprint.intersects(obstacle_union):
-                skipped += 1
-                continue
-        kept.append((i, j))
-    return kept, skipped
-
-
 def _stitch_pads_to_each_other(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
@@ -799,7 +713,24 @@ def _stitch_pads_to_each_other(
         tstamp_counter = [0]
 
     for net_name, positions in pad_positions.items():
-        if net_name not in _CONTINUITY_EXEMPT_NETS:
+        # GENERALISED 2026-08-18 (docs/evidence/2026-08-18-zone-pour-
+        # fragmentation-rootcause.md): this used to run for
+        # `_CONTINUITY_EXEMPT_NETS` (`power_in.ntc-no`) ONLY, even though
+        # the mechanism it exists to fix -- a net's own pads landing in
+        # several spatially disjoint pour fragments with nothing joining
+        # them -- is not unique to that one net. `zone_emission.py`
+        # Ward-clusters every non-`GND`/`ACMains`-class net's pads into
+        # several small per-component hulls (5-13 clusters measured for
+        # `+170V_BUS`/`DC_BUS_RTN`/`PWR_RTN`/`SW_NODE`/`tank.c_tank1-p2`/
+        # `w1_1`/`w1_2`), and `_net_policy.py::_should_route` excludes
+        # every zone-eligible net from A* entirely -- so for EVERY net this
+        # function is now eligible for, the pour is the ONLY conductive
+        # path, exactly the premise that made this mechanism necessary for
+        # `power_in.ntc-no` in the first place. Eligibility now matches
+        # `_stitch_isolated_pads`'s own gate (`_zone_layers_for_net`) for
+        # symmetry -- every net that gets a zone pour also gets a chance at
+        # a pad-to-pad topological backstop.
+        if not _zone_layers_for_net(net_name):
             continue
         net_num = net_name_to_number.get(net_name, 0)
         if net_num <= 0 or len(positions) <= 1:
@@ -811,12 +742,15 @@ def _stitch_pads_to_each_other(
         via_drill = rules.via_drill if rules else 0.4
 
         verified = _CONTINUITY_EXEMPT_NET_VERIFIED_EDGES.get(net_name)
-        edges: list[tuple[int, int]] = []
+        verified_edges: list[tuple[int, int]] = []
         if verified is not None:
-            # Match each verified (pos_a, pos_b) pair back to indices in
-            # *this call's* positions list by nearest point (not list
-            # order/index -- pad_positions' own construction order is not
-            # this function's contract to depend on).
+            # Empirically-verified edges (currently only `power_in.ntc-no`)
+            # bypass the general MST guess entirely -- these were already
+            # DRC-measured clean against real neighbouring copper (see this
+            # dict's own docstring). They still pass through the SAME
+            # C-space gate below: a verified edge was checked against the
+            # board state AT THE TIME it was verified, not against
+            # whatever copper this specific run's `pcb`/`segments` carry.
             def _nearest_idx(target: tuple[float, float]) -> int:
                 return min(
                     range(len(positions)),
@@ -827,19 +761,25 @@ def _stitch_pads_to_each_other(
             for pa, pb in verified:
                 ia, ib = _nearest_idx(pa), _nearest_idx(pb)
                 if ia != ib:
-                    edges.append((ia, ib))
-        else:
-            edges = _mst_edges(positions)
+                    verified_edges.append((ia, ib))
 
         via_dropped: set[int] = set()
         stitch_width = _stitch_width_for_net(net_name)
 
-        # C-space gate (2026-08-16): foreign copper on the stitch layer,
-        # each item buffered by its own max(clearance, creepage) pair
-        # separation -- the same per-pair obstacle records the zone carve
-        # consumes (see _stitch_isolated_pads for the identical gate on
-        # F.Cu). An edge whose buffered footprint intersects it is skipped,
-        # fail-closed.
+        # C-space gate (2026-08-16, generalised 2026-08-18): foreign copper
+        # on the stitch layer, each item buffered by its own
+        # max(clearance, creepage) pair separation -- the same per-pair
+        # obstacle records the zone carve (`pour_outline_py`) consumes (see
+        # `_stitch_isolated_pads` for the identical gate on F.Cu). An edge
+        # whose buffered footprint intersects it is skipped, fail-closed.
+        # This is creepage-aware for HV pairs BY CONSTRUCTION: the
+        # separation baked into each obstacle record already carries
+        # `max(clearance, creepage)` (`collect_zone_obstacle_records`), and
+        # both the MST computation and the gate now run through the same
+        # `ZoneObstacle`-typed Rust core (`zone_generator.rs::
+        # stitch_mst_with_gate`) the carve itself uses -- there is no
+        # separate, independently-maintained "is this pair HV" branch here
+        # to drift out of step with the carve's own figure.
         obstacle_records: list = []
         if pcb is not None:
             from temper_placer.router_v6.zone_pour_clearance import (
@@ -860,8 +800,41 @@ def _stitch_pads_to_each_other(
                 creepage_table=default_creepage_table(),
             )
 
-        total_edges = len(edges)
-        edges, skipped = _gate_filter_edges(positions, edges, obstacle_records, stitch_width)
+        if verified is not None:
+            # Small, fixed, hand-verified list -- no MST to compute, just
+            # the identical creepage-aware gate (temper_geometry.
+            # gate_edges_py, zone_generator.rs::gate_edges).
+            total_edges = len(verified_edges)
+            edges, skipped = _tg.gate_edges_py(
+                positions, verified_edges, obstacle_records, stitch_width
+            )
+            edges = list(edges)
+        else:
+            # General case: MST + C-space gate, both computed in Rust
+            # (temper_geometry.stitch_mst_with_gate_py, zone_generator.rs)
+            # in one call -- the Python `_mst_edges`/`_gate_filter_edges`
+            # pair this replaces stays only as the pinned differential
+            # oracle (tests/router_v6/_stitch_mst_with_gate_py_oracle.py).
+            kept, skipped = _tg.stitch_mst_with_gate_py(positions, obstacle_records, stitch_width)
+            edges = list(kept)
+            total_edges = len(edges) + skipped
+
+        # Pads that already have copper on the stitch layer (THT pads, or
+        # any pad whose declared layer set includes it) need no new via --
+        # adding one would be redundant same-net copper, not a clearance
+        # conflict, but is pointless geometry. SMD pads confined to F.Cu/
+        # B.Cu need a via to reach `_STITCH_LAYER` at all. Resolved from
+        # the real per-pad layer data (`_own_pads_on_layer`, the same
+        # THT/SMD distinction `_emit_zone_pours` uses for island
+        # classification) rather than a hand-maintained per-net position
+        # list -- generalises correctly to every net this function now
+        # runs for, not just `power_in.ntc-no`'s one SMD pad.
+        on_stitch_layer = {
+            (round(x, 4), round(y, 4))
+            for x, y in _own_pads_on_layer(
+                net_name, _STITCH_LAYER, pcb=pcb, fallback_positions=positions
+            )
+        }
 
         for i, j in edges:
             xi, yi = positions[i]
@@ -870,10 +843,7 @@ def _stitch_pads_to_each_other(
                 if idx in via_dropped:
                     continue
                 via_dropped.add(idx)
-                needs_via = (net_name, (round(px, 4), round(py, 4))) in {
-                    (n, (round(x, 4), round(y, 4)))
-                    for n, (x, y) in _CONTINUITY_EXEMPT_NET_SMD_PAD_POSITIONS
-                }
+                needs_via = (round(px, 4), round(py, 4)) not in on_stitch_layer
                 if not needs_via:
                     continue
                 segments.append(

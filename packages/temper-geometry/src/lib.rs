@@ -167,7 +167,9 @@ pub mod zone_pour;
 // (wasm32-safe) with a thin pyo3 surface under the `python` feature.
 pub mod zone_generator;
 #[cfg(feature = "python")]
-pub use zone_generator::{emit_zone_outline_s_expr_py, pour_outline_py, stitch_mst_with_gate_py};
+pub use zone_generator::{
+    emit_zone_outline_s_expr_py, gate_edges_py, pour_outline_py, stitch_mst_with_gate_py,
+};
 // router_v6/zone_emission.py's `_cluster_positions`: Ward-linkage
 // hierarchical clustering + flat-cut, replacing
 // scipy.cluster.hierarchy.linkage/fcluster/pdist. See this module's own doc
