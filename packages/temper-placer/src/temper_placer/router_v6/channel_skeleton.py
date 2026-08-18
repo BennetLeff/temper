@@ -130,8 +130,6 @@ def extract_channel_skeleton(
 
     # **OPTION F FIX**: Add component pad positions as anchor nodes
     if pcb and hasattr(pcb, "components") and G.number_of_nodes() > 0:
-        import math
-
         # Extract all pad positions
         pad_positions = []
         for comp in pcb.components:
@@ -150,33 +148,54 @@ def extract_channel_skeleton(
                     abs_pos = pin_world_position(pin, comp)
                     pad_positions.append(abs_pos)
 
-        # Add pads as anchor nodes, connected to nearest skeleton node
+        # Add pads as anchor nodes, connected to nearest skeleton node.
+        #
+        # The dedup scan and the nearest-node scan that used to be written
+        # out here now run in Rust
+        # (``temper_geometry.pad_anchor_plan_py``, see
+        # ``packages/temper-geometry/src/channel_skeleton.rs``). They were
+        # the single largest line-item in a full production route: a
+        # cProfile (301.04s wall, board digest ``6d4e17337bcf2633``, 4553
+        # segments) charged 22.3s of SELF time to this function -- the
+        # ``for node in skeleton_nodes`` loop, inline here and so attributed
+        # here -- plus 15.2s to the ``any(...)`` dedup generator over
+        # **97,412,627** evaluations. Both were brute-force
+        # O(pads x skeleton_nodes) sweeps over Python coordinate tuples, and
+        # this board's outer layers carry ~41k skeleton nodes each.
+        #
+        # ``pad_anchor_plan_py`` is a verbatim transcription of those two
+        # loops, deliberately still brute force: it is an argmin over
+        # distances, and the Python resolves ties to the earliest node in
+        # ``skeleton_nodes`` order via a strict ``<``, which a spatial
+        # index's own tie-breaking would not reproduce. See that module's
+        # comment for the full list of preserved behaviours -- including
+        # that ``skeleton_nodes`` is a snapshot (pads anchored earlier are
+        # invisible to later pads) and that a duplicated pad position still
+        # contributes its own ``total_length`` increment.
         skeleton_nodes = list(G.nodes)
         pads_added = 0
 
-        for pad_pos in pad_positions:
-            # Skip if pad already exists in skeleton (within 0.1mm)
-            if any(
-                abs(pad_pos[0] - n[0]) < 0.1 and abs(pad_pos[1] - n[1]) < 0.1
-                for n in skeleton_nodes
-            ):
-                continue
+        pads_arr = np.ascontiguousarray(pad_positions, dtype=np.float64)
+        nodes_arr = np.ascontiguousarray(skeleton_nodes, dtype=np.float64)
+        plan = _tg.pad_anchor_plan_py(
+            pads_arr.tobytes(),
+            len(pad_positions),
+            nodes_arr.tobytes(),
+            len(skeleton_nodes),
+            0.1,  # dedup half-width (mm) -- literal from the pinned Python
+            50.0,  # "only connect if within 50mm" -- literal from the pinned Python
+        )
 
-            # Find nearest skeleton node
-            nearest_node = None
-            min_dist = float("inf")
-            for node in skeleton_nodes:
-                dist = math.sqrt((pad_pos[0] - node[0]) ** 2 + (pad_pos[1] - node[1]) ** 2)
-                if dist < min_dist:
-                    min_dist = dist
-                    nearest_node = node
-
-            # Add pad as new node with edge to nearest skeleton node
-            if nearest_node and min_dist < 50.0:  # Only connect if within 50mm
-                G.add_node(pad_pos, pos=pad_pos)
-                G.add_edge(pad_pos, nearest_node, weight=min_dist)
-                total_length += min_dist
-                pads_added += 1
+        # Replay the plan in pad order. The order is part of the contract:
+        # float addition is not associative, so ``total_length`` must
+        # accumulate in exactly the original sequence.
+        for pad_idx, node_idx, min_dist in plan:
+            pad_pos = pad_positions[pad_idx]
+            nearest_node = skeleton_nodes[node_idx]
+            G.add_node(pad_pos, pos=pad_pos)
+            G.add_edge(pad_pos, nearest_node, weight=min_dist)
+            total_length += min_dist
+            pads_added += 1
 
         if pads_added > 0:
             pass
