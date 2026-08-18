@@ -207,14 +207,27 @@ if any reappear in `git ls-files` or are referenced outside `docs/`.
 - **Stale-entry enforcement:** N/A (denylist is fixed — no entry is expected to
   be removed; the guard is an invariant, not a shrinking allowlist).
 
-### N6: LOC Cap Gate (`tools/loc_cap_check.py`)
+### N6: LOC Cap Gate (`tools/loc_cap_check.py`) — RETIRED 2026-08-18
 
-Prevents any source `.py`/`.c` file from exceeding 1000 lines without an
-allowlist entry. The gate also enforces that allowlisted files do not grow
-beyond their baseline and that the allowlist only ever shrinks.
+> **This gate no longer exists.** It was retired by explicit owner decision on
+> 2026-08-18: the cap's value was as a prioritizer for the Python→Rust
+> migration, and that role is now served by a measured port list. Across 14
+> sampled commits every allowlist movement was an upward cap bump and zero were
+> downward — a gate the team had decided not to act on, which trains everyone
+> to merge past red. The script, its allowlist and both CI invocations are gone.
+> Rationale and consequences: `docs/adr/2026-08-18-retire-loc-cap-gate.md`.
+>
+> The entry below is kept as a description of the *pattern*, which remains the
+> repo's convention and is still live in `scripts/vulture_gate.py` (N9),
+> `scripts/check_hash_order_determinism.py` and `scripts/known_failure_pins.py`.
+> Retiring this instance relaxed no other gate and moved no threshold.
+
+Prevented any source `.py`/`.c` file from exceeding 1000 lines without an
+allowlist entry. The gate also enforced that allowlisted files did not grow
+beyond their baseline and that the allowlist only ever shrank.
 
 - **Gate:** Standalone script `tools/loc_cap_check.py`, invoked as a separate
-  `loc-cap` CI job.
+  `loc-cap` CI job (later a step of the merged `fast-gates` job).
 - **Baseline:** `.loc-allowlist.txt` — 16 entries at landing (15 `.py` + 1
   `.c`), each with `path`, `baseline_lines`, `ticket_id`, and description.
 - **New-violation block:** Four violation classes: UNLISTED_OVER_CAP (file over
