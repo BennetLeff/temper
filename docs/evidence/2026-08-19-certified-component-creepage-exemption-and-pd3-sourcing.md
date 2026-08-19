@@ -331,10 +331,64 @@ produce new shorts plus a courtyard collision with C27
 (`docs/evidence/2026-08-13-pd3-land-k1-c6.md`). **Footprint growth: significant,
 and it is the binding problem.** This one needs re-placement, not re-sourcing.
 
-### 5.2 T1 / T2 — no compliant part found, in-tree or in this session's search
+### 5.2 U6 — the part's own datasheet settles two questions at once
 
-*(filled in below from this session's independent search)*
+Retrieved this session from TI's UCC21550 datasheet, **§5.6 Insulation
+Specifications** (`https://www.ti.com/lit/ds/symlink/ucc21550.pdf`):
 
-### 5.3 U6 — package-geometry ceiling
+| parameter | test condition (verbatim) | value |
+|---|---|---|
+| **CPG External Creepage** | "Shortest terminal-to-terminal distance **across the package surface**" | **> 8 mm** |
+| CLR External clearance | "Shortest terminal-to-terminal distance through air" | > 8 mm |
+| DTI | Minimum internal gap | > 17 µm |
+| CTI | IEC 60112 | > 600 V |
+| Material Group | per IEC 60664-1 | **I** |
+| **Pollution degree** | — | **2** |
+| VIOWM max isolation working voltage | AC sine, TDDB | 1500 V rms / 2121 V DC |
+| VISO withstand (UL 1577) | 5000 V rms, 60 s | 5000 V rms |
 
-*(filled in below from this session's independent search)*
+**Two things follow, and they point in opposite directions.**
+
+*The working-voltage prong passes.* VIOWM 1500 V rms / 2121 V DC amply covers
+the ~340 V bus and the ~170 V DC / 344 V pk excursions at U6's barrier. The
+certification is real and the voltage is covered. This is the one part where
+that whole chain is clean — and it still does not earn the exemption, because
+of §1.
+
+*The pollution-degree prong fails, on the vendor's own paper.* **The UCC21550's
+insulation specification is stated at pollution degree 2.** This board is PD3.
+The brief's hypothesis — that these footprints were selected against PD2 — is
+confirmed here in the vendor's own table, not inferred. The part offers > 8 mm,
+which is the PD2 reinforced figure, and 8 mm is precisely where the corridor
+sweep found the feasibility cliff.
+
+### 5.2a The proposed slot rescue does not deliver physical compliance at U6
+
+This needs saying plainly, because a slot is already proposed in-tree
+(`docs/evidence/2026-08-13-hv-creepage-slot-rescue-t1-t2-u6.md`: a
+7.30 × 17.00 mm slot raising U6's figure "from the measured baseline 8.100mm to
+14.85mm nominal / 14.11mm worst-case").
+
+Creepage is **min(path across the package surface, path across the PCB
+surface)**. A slot milled in the board lengthens only the second term. TI defines
+CPG as the shortest terminal-to-terminal distance *across the package surface*,
+and specifies it at **> 8 mm**. That path runs over the plastic body and is
+entirely unaffected by anything done to the laminate underneath it.
+
+So the slot raises the **board-path measurement** to 14.85 mm while the
+**governing physical creepage stays at the package term, > 8 mm**. The in-tree
+slot analysis measures only the board path and does not carry a package-path
+term at all.
+
+**A slot at U6 would make the pad-to-pad DRC pass without raising the actual
+creepage of the barrier.** That is the failure mode this project explicitly
+guards against, and it should not be adopted at U6 on the strength of the
+current analysis. The same objection applies to the proposed T1 slot, whose part
+(CST3015-100ED) likewise states only ≥ 8 mm creepage/clearance.
+
+This does not mean slots are never legitimate — IEC 60664-1 cl. 4.2 groove
+credit is real, and the widths proposed (7.30 mm, 8.0 mm) comfortably exceed both
+the PD3 groove minimum X = 1.5 mm and JLCPCB's 1.0 mm non-plated slot floor
+(`docs/hardware/FAB_CAPABILITY.md` §1 row 5d). It means a slot only helps where
+the **package** path is already adequate and the **board** path is the binding
+term. At U6 and T1 it is the package path that binds, so the slot does not help.
