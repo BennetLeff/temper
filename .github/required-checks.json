@@ -59,6 +59,8 @@
     "pcb/temper.kicad_pcb.source-digest",
     "scripts/check_hv_netclass_coverage.py",
     "scripts/tests/test_check_hv_netclass_coverage.py",
+    "scripts/sync_kicad_netclass_assignments.py",
+    "scripts/tests/test_sync_kicad_netclass_assignments.py",
     "pcb/temper.kicad_pro",
     "firmware/components/control/pll_control.h",
     ".net-classification-allowlist",
