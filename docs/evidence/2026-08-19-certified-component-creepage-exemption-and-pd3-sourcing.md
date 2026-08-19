@@ -662,8 +662,8 @@ get to use.
 
 | ref | live? | exemption | part sourced? | remaining blocker |
 |---|---|---|---|---|
-| C6 | yes | no | **yes** — TDK B81123C1562M000, measured **20.10 mm** | board resync only; re-check the 8–15 % touch-current margin |
-| K1 | yes | no | **yes** — TE Schrack RT33K012, measured **17.80 mm** | **does not fit at K1's site**; needs re-placement/reroute |
+| C6 | yes | no | **yes, but** — TDK B81123C1562M000, measured **20.10 mm** | **0 stock until 2027-01-20**; the stocked 2.2 nF/15 mm fallback only clears with a shrunk pad (0–0.4 mm margin) |
+| K1 | yes | no | **yes** — TE Schrack RT33K012, measured **17.80 mm**, 1,197 in stock | **does not fit at K1's site**; needs re-placement/reroute (body is smaller, so no area pressure) |
 | U6 | yes | no | **no isolated gate driver reaches it** (ceiling ~8–8.5 mm); slot rescue is illusory (§5.2a) | route exists — TI **ISO7741 in DUW/DWW-16, CPG > 21.2 mm** — but it is a gate-drive topology change and a large footprint |
 | T1 | yes | no | **no compliant drop-in exists** (§5.3a) | needs a change of sensing mechanism (aperture CT) or lab adjudication |
 | T2 | **no — DNF** | no | n/a | de-scoped 2026-08-16; still trips the geometric gate |
@@ -675,13 +675,22 @@ get to use.
    substitution to functional insulation, and this barrier is reinforced.
    `MIN_BARRIER_WIDTH_MM` = 12.6 stands, unchanged by this work.
 
-2. **C6 and K1 are already solved on paper.** Both replacement parts are
-   certified, orderable, and independently re-measured this session at 20.10 mm
-   and 17.80 mm. What is missing is board work: a footprint resync for C6, and a
-   genuine re-placement for K1, which currently collides with routing that was
-   laid through space the incumbent Omron footprint left copper-free.
+2. **K1 is solved on paper and needs board work only.** RT33K012 is certified,
+   stocked (1,197 units), independently re-measured at 17.80 mm, and physically
+   *smaller* than the part it replaces. The only blocker is re-placement/reroute
+   at its site.
 
-3. **U6 and T1 have no part-level fix, and the slot does not substitute for
+3. **C6 needs a procurement decision before any board work.** The specified
+   5.6 nF part has the best geometry and **no stock until 2027-01-20**. The
+   stocked 2.2 nF/15 mm alternatives keep the design value but clear 12.6 mm only
+   with a deliberately tightened land pattern, at 0.0–0.4 mm margin — and the
+   repo already recorded the same part as a "false solve" at stock pad size.
+   Pick: wait for stock and sign off the 2.5× capacitance change against touch
+   current, or accept a near-zero-margin land pattern. **Do not let the second
+   option be chosen implicitly by someone shrinking a pad to make the DRC go
+   green.**
+
+4. **U6 and T1 have no part-level fix, and the slot does not substitute for
    one.** §5.2a is the load-bearing finding: milling the laminate raises the
    board path only, while the package path — > 8 mm for the UCC21550, ≥ 8 mm
    claimed for the CST3015 — continues to govern. Adopting the slot would move
@@ -690,7 +699,7 @@ get to use.
    secondary-side driver per switch, reported at > 14.5 mm) is a **topology
    change**, and it is the honest shape of the fix.
 
-4. **Two determinations must go to the certification lab, and both can only
+5. **Two determinations must go to the certification lab, and both can only
    raise the bar.** IEC 60664-4 Table 2 governs alongside Table 17 wherever
    working voltage is periodic above 30 kHz — which is T1, T2 and U6 at
    44–50 kHz — and IEC 60664-4 is not obtainable. And `tank-out`'s peak working
