@@ -495,3 +495,155 @@ def test_all_new_violation_types_defined():
     assert ViolationType.THERMAL
     assert ViolationType.CREEPAGE
     assert ViolationType.VIA_COUNT
+
+
+# =========================================================================
+# _is_hv_net: manifest-backed HV recognition
+#
+# ADDED 2026-08-19 (docs/evidence/2026-08-19-is-hv-net-blast-radius.md).
+# Every assertion below FAILS on the pre-fix `_is_hv_net`, whose body was
+# `return name in _HV_NET_PATTERNS` -- a 7-name frozenset, 6 of whose names
+# do not exist on this board at all.
+# =========================================================================
+
+
+def _manifest_hv_nets() -> frozenset[str]:
+    """The HV domain declared by ``elec/domain_manifest.yaml``.
+
+    Read here with the repo's own loader rather than a hardcoded list, so
+    this test cannot drift from the manifest the production code reads.
+    """
+    from temper_placer.router_v6.clearance_check import _load_manifest_hv_net_names
+
+    return _load_manifest_hv_net_names()
+
+
+def test_is_hv_net_recognises_every_manifest_hv_net():
+    """The gate must recognise every net the project declares HV-domain.
+
+    Pre-fix this recognised exactly one of them (``SW_NODE``); the mains
+    conductors (``ac_l``/``ac_n``), the rectified DC bus (``+170V_BUS``,
+    ``DC_BUS_RTN``), the half-bridge return (``hb-gnd``) and the resonant
+    tank (``tank-out``, ``tank.c_tank1-p2``) were all invisible to it, so a
+    DRC clearance violation naming one of them was classified as the LV
+    side of the pair and the HV<->LV crossing was never reported.
+    """
+    from temper_placer.placer.cp_sat.gates import _is_hv_net
+
+    hv_nets = _manifest_hv_nets()
+    assert hv_nets, "domain manifest HV domain must be non-empty for this test to mean anything"
+    missed = sorted(n for n in hv_nets if not _is_hv_net(n))
+    assert missed == [], f"manifest-declared HV nets not recognised by the gate: {missed}"
+
+
+def test_is_hv_net_recognises_the_five_highest_energy_nets():
+    """Named-and-shamed regression pins for the specific nets that motivated
+    this fix -- the rectified DC bus, the half-bridge return, and the
+    resonant tank. All five are on the committed board; none matches any
+    entry of the old 7-name frozenset."""
+    from temper_placer.placer.cp_sat.gates import _HV_NET_PATTERNS, _is_hv_net
+
+    for net in ("+170V_BUS", "DC_BUS_RTN", "hb-gnd", "tank-out", "tank.c_tank1-p2"):
+        assert net not in _HV_NET_PATTERNS, (
+            f"{net!r} unexpectedly in the legacy frozenset -- this test's premise is stale"
+        )
+        assert _is_hv_net(net) is True, net
+
+
+def test_is_hv_net_recognises_lowercase_mains_conductors():
+    """``ac_l``/``ac_n`` are how this board actually spells the mains input.
+
+    The old frozenset carried only the uppercase ``AC_L``/``AC_N``, neither
+    of which appears as a net name in ``pcb/temper.kicad_pcb``.
+    """
+    from temper_placer.placer.cp_sat.gates import _is_hv_net
+
+    for net in ("ac_l", "ac_n", "AC_L", "AC_N"):
+        assert _is_hv_net(net) is True, net
+
+
+def test_is_hv_net_does_not_flag_declared_selv_nets():
+    """Widening must not turn the gate into an everything-is-HV classifier.
+
+    Anti-vacuity companion to the three tests above: no net that
+    ``elec/domain_manifest.yaml`` declares SELV may be classified HV. This
+    is the assertion that would catch a "fix" that simply returned True.
+    """
+    import yaml
+
+    from temper_placer.placer.cp_sat.gates import _is_hv_net
+
+    manifest = None
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / "elec" / "domain_manifest.yaml"
+        if candidate.is_file():
+            manifest = candidate
+            break
+    assert manifest is not None, "elec/domain_manifest.yaml not found"
+    selv = yaml.safe_load(manifest.read_text(encoding="utf-8"))["domains"]["SELV"]["nets"]
+    assert selv, "SELV domain must be non-empty for this test to mean anything"
+    false_hv = sorted(n for n in selv if _is_hv_net(n))
+    assert false_hv == [], f"declared-SELV nets misclassified as HV: {false_hv}"
+
+
+def test_is_hv_net_never_narrows_the_legacy_set():
+    """Every name the old frozenset recognised must still be recognised.
+
+    Four of those names (``DC_BUS+``, ``DC_BUS-``, ``SW_NODE_DC+``,
+    ``SW_NODE_DC-``) are absent from both the board and the manifest, so
+    they survive only because the frozenset is still consulted first. This
+    pins "this change only ever widens".
+    """
+    from temper_placer.placer.cp_sat.gates import _HV_NET_PATTERNS, _is_hv_net
+
+    for net in sorted(_HV_NET_PATTERNS):
+        assert _is_hv_net(net) is True, net
+
+
+def test_creepage_gate_reports_hv_to_lv_for_a_real_board_net_pair(monkeypatch):
+    """End-to-end through ``IECCreepageGate.check()``, not just the predicate.
+
+    ``+170V_BUS`` vs an SELV net is the shape the gate exists to catch. Pre-fix
+    this returned CLEAN, because ``+170V_BUS`` was classified as the LV side.
+    """
+    from temper_placer.placer.cp_sat.gates import IECCreepageGate
+    from temper_placer.validation._drc_api import copy_kicad_project_sidecar
+
+    pcb = _write_pcb("creepage_real_board_nets")
+    # `run_drc` refuses to DRC a board with no resolvable `.kicad_pro`
+    # sidecar (such a DRC silently drops entire categories, creepage among
+    # them). `copy_kicad_project_sidecar` is the SUPPORTED way to give a
+    # scratch copy one -- not a suppression of that check. The six
+    # pre-existing `test_creepage_*` cases above do not do this and are
+    # therefore UNMEASURED on origin/main as well as here; that scaffolding
+    # gap is pre-existing and out of this change's scope.
+    _repo_root = next(
+        p for p in Path(__file__).resolve().parents if (p / "pcb" / "temper.kicad_pro").is_file()
+    )
+    copy_kicad_project_sidecar(pcb, _repo_root / "pcb" / "temper.kicad_pcb")
+    payload = {
+        "violations": [
+            _clearance_violation(
+                items=[
+                    {"description": "Track [+170V_BUS] on F.Cu"},
+                    {"description": "Track [WDT_KICK] on F.Cu"},
+                ],
+                description="Clearance: +170V_BUS to WDT_KICK, actual 0.65mm",
+            ),
+        ],
+    }
+    monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
+    monkeypatch.setattr(
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
+        lambda: True,
+    )
+    try:
+        result = IECCreepageGate().check(BoardState(routed_pcb_path=pcb))
+    finally:
+        pcb.unlink(missing_ok=True)
+        pcb.with_suffix(".kicad_pro").unlink(missing_ok=True)
+        pcb.with_suffix(".kicad_dru").unlink(missing_ok=True)
+
+    assert result.status is GateStatus.VIOLATIONS
+    assert "+170V_BUS" in result.violations[0].nets
+    assert result.violations[0].threshold == HV_LV_CREEPAGE_MM
