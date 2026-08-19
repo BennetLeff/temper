@@ -2903,6 +2903,49 @@ scripts:
   - __future__
   - argparse
   - pathlib
+- path: check_placement_pair_creepage.py
+  purpose: 'Read-only pairwise placement check: does the CURRENT placement (pad geometry
+    only -- no routing, no DRC run) already violate the board''s own generated pairwise
+    clearance/creepage SSOT? Loads the same configs/pair_clearance.generated.yaml +
+    pair_creepage.generated.yaml that router_v6''s N-layer A* obstacle halos consume,
+    resolves net classes through core.design_rules.create_temper_design_rules().get_class_for_net(),
+    and uses the canonical rotation-aware core.pin_geometry helpers, so the reported
+    gap (center_distance - both circumscribing radii) is a CONSERVATIVE under-estimate
+    of true edge-to-edge separation -- fail-closed, it cannot miss a real violation.
+    Prototype for docs/evidence/2026-08-17-placer-creepage-constraint-spike.md, which
+    references this file by path in its header, its section 3 and its artifact list;
+    docs/evidence/2026-08-17-netclass-classifier-manifest-and-ieccreepagegate-liveness.md:55
+    cites it too. It was never unreferenced, only unmanifested -- which is why
+    check_manifest_gate.py was RED on main until this entry was added. NOT CI-wired,
+    deliberately, for now: measured 2026-08-18 against pcb/temper.kicad_pcb sha256
+    26981fea2dbc425f... it reports 242 violating pad-pairs / 86 component-ref pairs
+    out of 136,503 checked -- 234 creepage (232 of them against the 12.6mm PD3
+    reinforced barrier; 183 short by more than 1mm beyond any circumscribing-circle
+    modelling error; 189 of 523 net-bearing pads and 77 of 168 refs involved) and 8
+    clearance (2 with a negative gap: L2/R59 -0.76mm, R5/U7 -0.12mm). Those are a
+    known open design state, not a regression: the placer enforces PD3 nowhere in its
+    default path (see the spike doc''s mechanism table). Promoting this to a required
+    CI gate is a board-owner decision that must follow those violations being worked
+    down -- and must NOT be wired behind continue-on-error or a fresh ratchet ceiling,
+    which would recreate exactly the permanently-green-over-a-red-board defect this
+    script''s own exit code carried until 2026-08-18, when it still ended in a bare
+    `return 0` and reported SUCCESS while printing 242 violations.'
+  owner: board-safety
+  last_run: '2026-08-18'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - hashlib
+  - pathlib
+  - sys
+  - temper_placer.core.design_rules
+  - temper_placer.core.pin_geometry
+  - temper_placer.io.kicad_parser
+  - temper_placer.router_v6.pair_clearance
+  - temper_placer.router_v6.pair_creepage
 - path: check_landed_board_shape.py
   purpose: 'Hard gate on a placed-and-routed board before it may be landed as pcb/temper.kicad_pcb
     -- anti-#1049 invariant (segments > 0 AND zones > 0 AND footprints == 168, absolute)

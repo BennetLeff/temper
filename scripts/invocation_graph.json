@@ -74,6 +74,9 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
   ],
+  "check_fact_registry_drift.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
   ],
@@ -178,6 +181,7 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
   ],
+  "check_placement_pair_creepage.py": [],
   "check_plane_condemnation_quantifier.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -462,9 +466,6 @@
     "Makefile"
   ],
   "write_extension_stamps.py": [
-    ".github/workflows/python-tests.yml"
-  ],
-  "check_fact_registry_drift.py": [
     ".github/workflows/python-tests.yml"
   ]
 }

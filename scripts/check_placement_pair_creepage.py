@@ -229,6 +229,31 @@ def main() -> int:
             f"{v.net_a} / {v.net_b}"
         )
 
+    # ------------------------------------------------------------------
+    # Exit status. Until 2026-08-18 this function ended in a bare
+    # ``return 0``: the script printed 242 violating pad-pairs on
+    # pcb/temper.kicad_pcb and reported SUCCESS to its caller. A file named
+    # ``check_*`` whose exit code cannot express "I found something" is not
+    # a check -- it is a report wearing a check's name, and wiring it into
+    # CI in that state would have produced a permanently-green job over a
+    # board with 232 PD3 creepage violations. That is the same defect class
+    # as physics/gate_drive.py never executing.
+    #
+    # The verdict is over ALL violations, deliberately not the ``--refs``
+    # subset: that flag filters what is PRINTED, never what is checked, so
+    # narrowing the report can never narrow the verdict.
+    # ------------------------------------------------------------------
+    if violations:
+        print()
+        print(
+            f"RESULT: FAIL -- {len(violations)} violating pad-pair(s) across "
+            f"{len(by_pair)} component-ref pair(s). The reported gap is a "
+            f"conservative under-estimate (circumscribing-circle model), so "
+            f"every row here is a lower bound on the true shortfall."
+        )
+        return 1
+    print()
+    print("RESULT: PASS -- no pad pair is below its generated pairwise requirement.")
     return 0
 
 
