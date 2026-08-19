@@ -578,8 +578,8 @@ get to use.
 |---|---|---|---|---|
 | C6 | yes | no | **yes** — TDK B81123C1562M000, measured **20.10 mm** | board resync only; re-check the 8–15 % touch-current margin |
 | K1 | yes | no | **yes** — TE Schrack RT33K012, measured **17.80 mm** | **does not fit at K1's site**; needs re-placement/reroute |
-| U6 | yes | no | **no** — package ceiling; slot rescue is illusory (§5.2a) | needs a topology change, not a part swap |
-| T1 | yes | no | **no** — none found at this ratio/current class | needs a topology change or lab adjudication |
+| U6 | yes | no | **no isolated gate driver reaches it** (ceiling ~8–8.5 mm); slot rescue is illusory (§5.2a) | route exists — TI **ISO7741 in DUW/DWW-16, CPG > 21.2 mm** — but it is a gate-drive topology change and a large footprint |
+| T1 | yes | no | **no compliant drop-in exists** (§5.3a) | needs a change of sensing mechanism (aperture CT) or lab adjudication |
 | T2 | **no — DNF** | no | n/a | de-scoped 2026-08-16; still trips the geometric gate |
 
 ## 7. What the owner has to decide
