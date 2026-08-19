@@ -8,9 +8,12 @@ for ~125 symbols) was collapsed; consumers import those symbols from
 - the ``ROTATION_*`` constants (static data),
 - ``compute_pairwise_distances`` — the re-export the pinned validation
   oracles (``tests/validation/_geometric_py_oracle.py`` and
-  ``_validation_metrics_py_oracle.py``) import from this package,
-- the ``drc_inflate`` / ``kicad_transform`` submodule re-exports, and
+  ``_validation_metrics_py_oracle.py``) import from this package, and
 - ``sdf_gradient`` — takes a Python callable and cannot be ported to Rust.
+
+The ``drc_inflate`` / ``kicad_transform`` submodule re-exports were removed
+in Phase 1.4 (2026-08-19): zero importers referenced those names through
+this package (consumers use the submodule paths directly).
 """
 
 from __future__ import annotations
@@ -50,26 +53,6 @@ ROTATION_MATRICES = (
 # ---------------------------------------------------------------------------
 
 compute_pairwise_distances = _tg.compute_pairwise_distances
-
-# DRC inflate
-from temper_placer.geometry.drc_inflate import (  # noqa: E402, F401
-    compute_drc_proxy_score,
-    compute_inflated_half_dims_from_bounds,
-    inflate_pad_polygon,
-    precompute_from_pad_polygons,
-    precompute_inflated_dims,
-)
-
-# KiCad footprint-child rotation convention (the sanctioned R(-theta)
-# implementation -- see the module's own docstring)
-from temper_placer.geometry.kicad_transform import (  # noqa: E402, F401
-    place_local_to_world,
-    rotate_local_to_world,
-    rotate_local_to_world_deg,
-    rotate_world_to_local,
-    rotate_world_to_local_deg,
-    shapely_rotation_angle_deg,
-)
 
 # ---------------------------------------------------------------------------
 # sdf_gradient — kept as Python wrapper since Rust can't take a callable

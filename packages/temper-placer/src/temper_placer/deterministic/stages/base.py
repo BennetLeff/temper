@@ -14,12 +14,17 @@ subclass it and rely on its exact ABC surface:
   stage4_orchestrator,bottleneck_analysis,grid_prep_stage,routing_space}.py`` --
   15 modules subclass ``Stage``),
 - ``adapters/deterministic_adapter.py`` (the ``_WrappedDeterministicStage``
-  protocol-compat wrapper),
-- the public re-export seams ``temper_placer.deterministic`` and
-  ``temper_placer.deterministic.stages`` (``Stage`` in ``__all__``), and
+  protocol-compat wrapper), and
 - the D1-D7 Python stage shims, which keep ``class XStage(Stage)`` so
   ``isinstance(stage, Stage)`` and the ABC contract properties keep working
   for the ``DeterministicPipeline`` runner.
+
+Shim-debt cleanup 2026-08-19 (Phase 1.4): the ``Stage`` re-export seams on
+``temper_placer.deterministic`` and ``temper_placer.deterministic.stages``
+were removed -- an AST-verified zero importer count on both (nobody imports
+``Stage`` from either package seam; consumers use ``.stages.base`` or the
+``stages`` module directly). ``Stage`` itself stays (the router_v6 stage
+classes and the remaining shims above subclass it).
 
 The class surface below is therefore unchanged from the pre-migration module
 (the ABC + the four defaulted contract properties + ``run``); only this
