@@ -4,6 +4,25 @@ Builds a boolean tensor once at the start of an A* pass so the inner
 loop's neighbor-validity check is a single bit read instead of an
 inlined bounds + numpy + occupancy check.
 
+RUST-BACKED. ``build_neighbor_validity_tensor_2d`` is a thin shim over
+``temper_geometry.build_neighbor_validity_tensor_2d_py``
+(``packages/temper-geometry/src/neighbor_validity.rs``). The previous numpy
+implementation -- eight full-grid slice assignments, one per direction, each
+writing a stride-8 destination and materialising its own ``dst == 0``
+temporary -- is pinned verbatim as the differential oracle at
+``packages/temper-placer/tests/router_v6/_neighbor_validity_py_oracle.py``
+and is compared against bit-for-bit by
+``test_neighbor_validity_rust_differential.py``, including on this board's
+real 2380x1680 routing grid.
+
+Measured on a full production route (752 calls): 8.81 s -> 7.09 s, and the
+routed board is BYTE-IDENTICAL either way
+(``8a8c97e0115145fb7c6d8fdad8c4462c8e3b0e2125e640714cf323950c12a965``).
+The remaining cost is dominated by materialising the ~32 MB tensor itself,
+which no port can remove -- eliminating it needs the caller-side change
+sized in ``docs/evidence/2026-08-11-astar-ffi-marshalling-cost.md`` §6
+(pass the raw occupancy grid and check validity inline during expansion).
+
 Shapes
 -----
 2D (single layer): ``(rows, cols, 8)`` — for ``_astar_search`` and
@@ -27,6 +46,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+import temper_geometry as _tg
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
@@ -76,27 +96,30 @@ def build_neighbor_validity_tensor_2d(
         (raises IndexError); A* code is expected to stay within
         the 0..7 range.
     """
-    rows = grid.height_cells
-    cols = grid.width_cells
-    tensor = np.zeros((rows, cols, 8), dtype=np.bool_)
+    rows = int(grid.height_cells)
+    cols = int(grid.width_cells)
 
-    arr = grid.grid
-    for dir_idx, (dx, dy) in enumerate(DIRS_8):
-        r_src_lo = max(0, -dy)
-        r_src_hi = min(rows, rows - dy)
-        c_src_lo = max(0, -dx)
-        c_src_hi = min(cols, cols - dx)
-        if r_src_lo >= r_src_hi or c_src_lo >= c_src_hi:
-            continue
-        dst = arr[r_src_lo + dy : r_src_hi + dy, c_src_lo + dx : c_src_hi + dx]
-        dst_free = dst == 0
-        if corridor_mask is not None:
-            dst_in_corridor = corridor_mask[
-                r_src_lo + dy : r_src_hi + dy, c_src_lo + dx : c_src_hi + dx
-            ]
-            dst_free = dst_free & dst_in_corridor
-        tensor[r_src_lo:r_src_hi, c_src_lo:c_src_hi, dir_idx] = dst_free
+    # The tensor is allocated HERE and filled in place by Rust through the
+    # buffer protocol -- the same zero-copy shape `mark_path_rect_into_grid_py`
+    # already uses for the write direction (see the module doc). `np.empty` is
+    # safe because the kernel assigns EVERY entry, including the border cells
+    # whose destination is out of bounds; the previous numpy implementation
+    # relied on `np.zeros` for those, so this is the one place the port must
+    # not be taken on faith -- `test_neighbor_validity_rust_differential.py`
+    # compares against the pinned oracle on the production board's own grids,
+    # border included.
+    tensor = np.empty((rows, cols, 8), dtype=np.bool_)
+    if rows == 0 or cols == 0:
+        return tensor
 
+    arr = np.ascontiguousarray(grid.grid, dtype=np.int8)
+    mask_u8 = None
+    if corridor_mask is not None:
+        mask_u8 = np.ascontiguousarray(corridor_mask, dtype=np.bool_).view(np.uint8)
+
+    _tg.build_neighbor_validity_tensor_2d_py(
+        arr, rows, cols, tensor.view(np.uint8), mask_u8
+    )
     return tensor
 
 

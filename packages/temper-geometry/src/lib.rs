@@ -168,6 +168,14 @@ pub mod zone_pour;
 pub mod zone_generator;
 #[cfg(feature = "python")]
 pub use zone_generator::{emit_zone_outline_s_expr_py, pour_outline_py};
+// router_v6/neighbor_validity.py's `build_neighbor_validity_tensor_2d`: the
+// (rows, cols, 8) A* neighbour-validity tensor.  Pure-Rust core (wasm32-safe)
+// with a thin pyo3 surface under the `python` feature, same shape as
+// zone_generator above.  The pinned Python oracle is
+// packages/temper-placer/tests/router_v6/_neighbor_validity_py_oracle.py.
+pub mod neighbor_validity;
+#[cfg(feature = "python")]
+pub use neighbor_validity::build_neighbor_validity_tensor_2d_py;
 // router_v6/zone_emission.py's `_cluster_positions`: Ward-linkage
 // hierarchical clustering + flat-cut, replacing
 // scipy.cluster.hierarchy.linkage/fcluster/pdist. See this module's own doc
@@ -387,6 +395,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
+    crate::neighbor_validity::register(m)?;
     crate::zone_generator::register(m)?;
     crate::channel_skeleton::register(m)?;
     crate::hierarchical_clustering::register(m)?;
