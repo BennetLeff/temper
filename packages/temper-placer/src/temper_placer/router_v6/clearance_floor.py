@@ -35,9 +35,16 @@ edge-to-edge gap two same-width traces actually end up with is
 
     gap = (ceil((w/2 + c) / cell) + 1) * cell - w
 
-which is a **step function of c**, not ``c`` itself. Measured against the
-real kernel (``tests/router_v6/test_clearance_floor.py`` probes it, it is
-not asserted from this docstring):
+which is a **step function of c**, not ``c`` itself. The rows below were
+measured against the real kernel when this module was written, and this
+docstring is their ONLY home: an earlier version of this paragraph cited
+``tests/router_v6/test_clearance_floor.py`` as probing them, but that file
+has never existed on any branch (``git log --all --diff-filter=A`` for it
+is empty) and no test anywhere in the tree calls any function in this
+module. ``scripts/check_router_clearance_floor.py`` does not close the gap
+either -- its P1-P5 compare four *constants* and AST-scan for literal
+``default_clearance_mm`` writes; it never calls ``blocking_clearance_mm``.
+Treat the rows as unpinned prose, not as assertions:
 
     w=0.25 c=0.15 -> expansion 3 -> pitch 0.40mm -> gap 0.1500  (FAILS 0.2)
     w=0.25 c=0.20 -> expansion 4 -> pitch 0.50mm -> gap 0.2500
@@ -67,6 +74,36 @@ What this module provides
 rasteriser so the emitted geometry clears ``DEFAULT_ROUTING_CLEARANCE_MM``
 with the fewest lattice steps, never below the net class's own declared
 clearance where that is stricter.
+
+REACHABILITY, MEASURED 2026-08-18 (read this before extending anything here)
+---------------------------------------------------------------------------
+On the production recipe (``scripts/route_board.py`` defaults, this board),
+**every function in this module is called zero times**; the only live symbol
+is the constant ``DEFAULT_ROUTING_CLEARANCE_MM``, read by
+``_astar_nlayer._family_signature``. Two independent gates close, both of
+them upstream of this file:
+
+* Stage 4 takes ``_astar_nlayer.run_astar_pathfinding_nlayer`` whenever the
+  board has more than two routable signal layers (``_pipeline_route.py``'s
+  ``use_nlayer``), and this board has four. The legacy
+  ``_astar_reconstruct.run_astar_pathfinding``, which holds every
+  ``effective_blocking_clearance`` call site, does not run.
+* Those call sites are additionally behind ``if profile_grids is None``,
+  i.e. ``enable_pair_clearance=False`` -- a keyword no caller in the repo
+  passes.
+
+And the correction this module computes is *obsolete*, not merely unreached:
+it compensates for a missing neighbour half-width in the single-grid stamp
+(``radius = w_self/2 + c``), and both live stamping paths now add that term
+directly (``_astar_nlayer.py``'s ``max(cl_F, C, creepage) + W_fam/2`` and
+``pair_clearance.stamp_clearance_mm``'s ``max(required, cl) + w_search/2``).
+With the two-sided radius the lattice rounding over-reserves rather than
+under-reserving, so there is nothing left to correct -- while this module's
+own same-width assumption still under-reserves mixed-width pairs (352
+measured, ``docs/evidence/2026-08-12-clearance-floor-reland.md`` sec 5).
+
+Full measurement, including the reproduced 4553/169/151 ``6d4e1733`` route:
+``docs/evidence/2026-08-18-no-rust-ledger-clearance-floor-and-topology-copper-audit.md``.
 """
 
 from __future__ import annotations

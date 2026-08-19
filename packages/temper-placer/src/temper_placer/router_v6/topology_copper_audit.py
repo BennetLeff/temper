@@ -55,6 +55,29 @@ This module gives that divergence a name and a shape so it can be reported
 alongside the topology-level trace (instead of only discoverable by
 independently re-parsing input and output boards, as this investigation had
 to) and asserted against in tests.
+
+REACHABILITY, MEASURED 2026-08-18 -- the audit itself no longer fires
+---------------------------------------------------------------------
+On the production recipe (``scripts/route_board.py`` defaults, this board,
+4553 segments emitted), ``audit_topology_vs_copper``, ``nets_with_copper``,
+``nets_carrying_copper`` and ``is_self_referential_net`` were each called
+**zero** times; only ``net_number_to_name_map`` (5 calls, from
+``_ground_plane``, ``_power_islands`` and ``pad_connectivity_audit``'s
+``_parse_segments_and_vias``/``_parse_zones``) and the private
+``_extract_top_level_blocks`` are live.
+
+The mechanism is ``route_board.py``'s guard
+``if content and result.topology_solved_nets:``. Since the 2026-08-16
+SAT-vacuity fix the default, non-batched Stage 3 is a structural no-op that
+claims no topology, so ``topology_solved_nets`` is ``[]`` and the audit is
+skipped silently -- an anti-vacuity gate made vacuous by the very quantity
+it was written to cross-check. It runs only under ``--net-batching``, a
+non-default CLI branch. ``test_full_pipeline_run_surfaces_the_same_unexplained_gap``
+does not catch this: it asserts ``topology_solved_nets == []`` and then
+checks ``unexplained_gap == []`` over the resulting empty outcome set.
+
+Fixing that is a ``route_board.py``/Stage-3 change, not a change here.
+Measurement: ``docs/evidence/2026-08-18-no-rust-ledger-clearance-floor-and-topology-copper-audit.md``.
 """
 
 from __future__ import annotations
