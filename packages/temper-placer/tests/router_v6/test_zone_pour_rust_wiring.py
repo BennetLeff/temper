@@ -332,3 +332,63 @@ class TestZoneToZoneCreepageIsCarved:
             f"a clearance-governed pair was carved apart to {gap:.4f}mm -- the "
             "carve must not remove copper the filler already governs"
         )
+
+
+class TestTheCarveLandsOnTheRequiredSideOfTheLine:
+    """The carve must not end up INSIDE the separation it was asked for.
+
+    ``zone_generator.rs`` snaps every ring vertex to a 0.001mm grid before
+    its polygon boolean (geo 0.28's sweep-line panics without it), and the
+    snap can move a halo vertex inward. Measured on the routed production
+    board before ``CARVE_SNAP_COMPENSATION_MM``: seven pour outlines at
+    12.5997-12.5999mm against the 12.6mm reinforced requirement.
+
+    Sub-micron, and physically far inside etch tolerance -- but KiCad's
+    creepage DRC compares against 12.6mm exactly, so it reports them, and
+    the barrier is the one number on this board that is not allowed to be
+    approximately right.
+    """
+
+    def test_a_reinforced_pour_clears_the_full_12_6mm(self):
+        from shapely.geometry import Point, Polygon
+        from shapely.ops import unary_union
+
+        from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+        from temper_placer.router_v6.zone_pour_creepage import default_creepage_table
+
+        assert default_creepage_table().required("ACMains", "Power", "Pad") == 12.6
+
+        # A +3V3 (Power/SELV) pad inside a large ac_l (mains) hull: the
+        # reinforced pair, the same shape as the production board's
+        # `ac_n` pour against the SELV vias that sit inside it.
+        pad_xy = (50.0, 50.0)
+        pcb = _pcb_with_pad("+3V3", pad_xy)
+        segments: list[str] = []
+        _emit_zone_pours(
+            {"ac_l": [(50.0, 20.0), (80.0, 50.0), (50.0, 80.0), (20.0, 50.0)]},
+            segments,
+            {"ac_l": 1, "+3V3": 2},
+            pcb=pcb,
+        )
+        polys = []
+        for block in _zone_blocks(segments):
+            # F.Cu only: the fixture's +3V3 pad is SMD on F.Cu, so it is
+            # correctly NOT an obstacle on the inner layers, and those
+            # pours are legitimately uncarved.
+            if '(layer "F.Cu")' not in block:
+                continue
+            rings = _rings(block)
+            if not rings or len(rings[0]) < 3:
+                continue
+            poly = Polygon(rings[0], [r for r in rings[1:] if len(r) >= 3])
+            polys.append(poly if poly.is_valid else poly.buffer(0))
+        assert polys, "expected an ac_l pour"
+        pour = unary_union(polys)
+        # The pad is 2.0x2.0mm, so its own half-diagonal reach is
+        # hypot(1,1); the carve uses that same convention.
+        pad_reach = (1.0**2 + 1.0**2) ** 0.5
+        gap = pour.distance(Point(*pad_xy)) - pad_reach
+        assert gap >= MIN_BARRIER_WIDTH_MM, (
+            f"mains pour emitted {gap:.4f}mm from a SELV pad, "
+            f"needs {MIN_BARRIER_WIDTH_MM}mm"
+        )

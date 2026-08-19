@@ -88,6 +88,33 @@ _DEFAULT_CONFIG_PATH = (
 #: The item kinds the generated table is keyed by.
 OTHER_TYPES = ("Track", "Pad", "Via", "Zone")
 
+#: Added to every pair separation handed to the Rust carve, to cancel the
+#: coordinate snap the carve applies to its own input.
+#:
+#: ``temper-geometry/src/zone_generator.rs`` snaps every ring vertex to
+#: ``SNAP_GRID_MM = 0.001`` before the polygon boolean (it has to: geo 0.28's
+#: sweep-line boolean panics on the near-coincident collinear edges that
+#: hundreds of overlapping halos produce). The snap can move a halo vertex
+#: INWARD by up to half a grid cell, so a halo built at exactly the required
+#: separation can leave the carved outline short of it.
+#:
+#: Measured on the routed production board before this compensation: seven
+#: pour outlines sat at 12.5997-12.5999mm against the 12.6mm reinforced
+#: requirement -- deficits of 0.0001-0.0003mm, every one bounded by half the
+#: grid cell, exactly as that mechanism predicts. Growing each separation by
+#: a full grid cell puts the post-snap edge on the required side with a cell
+#: to spare.
+#:
+#: This only ever ADDS separation. It is 1/12600 of the reinforced barrier
+#: and cannot mask a real violation, which is millimetres: the two that
+#: survive it on this board are 10.06mm deficits.
+#:
+#: It lives here, not in the Rust, because the Rust's own discretization
+#: compensation (``halo_radius_inflate``) is pinned by area assertions in
+#: ``zone_generator.rs``'s tests, and because this is the one point all three
+#: pour emitters (``_emit_zone_pours``, ``_ground_plane``, ``_power_islands``)
+#: resolve their separations through.
+CARVE_SNAP_COMPENSATION_MM = 0.001
 
 
 def kicad_class_name(router_class: str) -> str:
@@ -394,7 +421,7 @@ def collect_zone_obstacle_records(
         clearance = clearance_table.required(zone_class, other_class, item_type)
         if creepage_table is not None:
             clearance = max(clearance, creepage_table.required(zone_class, other_class, item_type))
-        return clearance
+        return clearance + CARVE_SNAP_COMPENSATION_MM
 
     records: list = []
 
