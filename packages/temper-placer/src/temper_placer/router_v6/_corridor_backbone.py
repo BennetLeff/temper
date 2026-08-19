@@ -250,8 +250,15 @@ def collect_other_net_copper_by_pairwise_clearance(
             )
         )
 
+    # Span-aware, not endpoint-literal: a through-via declaring
+    # ``("F.Cu", "B.Cu")`` is copper on every layer in between, so it must
+    # be an obstacle for a backbone routed on an INNER layer too. See
+    # ``zone_pour_clearance._via_is_on_layer``'s docstring for the measured
+    # blind spot this closes (no via was ever an obstacle on In1.Cu/In2.Cu).
+    from temper_placer.router_v6.zone_pour_clearance import _via_is_on_layer
+
     for via in getattr(pcb, "vias", []):
-        if via.net == exclude_net or layer not in getattr(via, "layers", ()):
+        if via.net == exclude_net or not _via_is_on_layer(getattr(via, "layers", ()), layer):
             continue
         geoms.append(
             Point(via.position).buffer(via.diameter / 2.0 + _pairwise(via.net), quad_segs=8)
@@ -288,7 +295,11 @@ def routed_segments_obstacle(
     copper that will be on the layer. Mirrors
     ``collect_other_net_copper_by_pairwise_clearance``'s conventions.
     """
-    from temper_placer.router_v6.zone_pour_clearance import _SEGMENT_RE, _VIA_RE
+    from temper_placer.router_v6.zone_pour_clearance import (
+        _SEGMENT_RE,
+        _VIA_RE,
+        _via_is_on_layer,
+    )
 
     geoms: list = []
 
@@ -313,7 +324,10 @@ def routed_segments_obstacle(
         m = _VIA_RE.search(line)
         if m:
             x, y, size, layers_str, net_num = m.groups()
-            if layer not in layers_str:
+            # Span-aware (2026-08-19): a substring test against the
+            # declared endpoint pair misses every layer a through-via
+            # actually pierces. See `zone_pour_clearance._via_is_on_layer`.
+            if not _via_is_on_layer(tuple(layers_str.replace('"', "").split()), layer):
                 continue
             name = net_number_to_name.get(int(net_num), "")
             if not name or name == exclude_net:

@@ -65,10 +65,17 @@ logger = logging.getLogger(__name__)
 
 GND_NET_NAME = "gnd"
 PLANE_LAYER = "In1.Cu"
-# See the MST-backbone emission site below for why this is F.Cu, not
-# PLANE_LAYER -- pad_connectivity_audit.py models a via's reach literally
-# from its own declared `layers` tuple, not from stackup position.
-BACKBONE_LAYER = "F.Cu"
+# CHANGED 2026-08-19 (F.Cu -> PLANE_LAYER). See the MST-backbone emission
+# site below for the full before/after; in short, the F.Cu choice rested
+# on a `pad_connectivity_audit.py` limitation that was fixed five days
+# after this module landed, and keeping the backbone on the board's most
+# congested layer was what reduced it to a 53-component forest.
+BACKBONE_LAYER = PLANE_LAYER
+# The pad-to-offset-via stub is NOT on BACKBONE_LAYER: it exists to join a
+# gnd pad to the drop via that had to move off the pad centre, and the pad
+# is on F.Cu. A stub on an inner layer would touch neither. The via itself
+# (a through-via) carries the join down to BACKBONE_LAYER.
+STUB_LAYER = "F.Cu"
 
 # RAISED size 0.8 -> 1.0mm 2026-08-13
 # (docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1,
@@ -428,8 +435,20 @@ def _collect_other_net_copper(
             )
         )
 
+    # A via barrel is a cylinder: it is copper on every layer between its
+    # declared endpoints, not only on the two it names. ``layer in
+    # via.layers`` -- what this used to test -- is False for EVERY via on
+    # this board when *layer* is an inner layer, because every via here is
+    # a standard through-via declaring only ``("F.Cu", "B.Cu")``. That was
+    # invisible while this function was only ever called for F.Cu/B.Cu;
+    # it stops being invisible the moment a caller asks about In1.Cu (the
+    # gnd plane's own layer, where 101 foreign-net vias sit inside the
+    # pour outline). ``_via_is_on_layer`` is the span-aware SSOT for this
+    # exact question -- see its docstring.
+    from temper_placer.router_v6.zone_pour_clearance import _via_is_on_layer
+
     for via in getattr(pcb, "vias", []):
-        if via.net == exclude_net or layer not in getattr(via, "layers", ()):
+        if via.net == exclude_net or not _via_is_on_layer(getattr(via, "layers", ()), layer):
             continue
         geoms.append(Point(via.position).buffer(via.diameter / 2.0 + clearance_mm, quad_segs=8))
 
@@ -855,13 +874,23 @@ def generate_ground_plane_blocks(
     gnd_own_clearance = net_clearance.get(GND_NET_NAME, default_clearance)
 
     emitted_avoid_copper: Polygon | None = None
-    emitted_fcu_copper: Polygon | None = None
+    # This run's own other-net copper that reaches BACKBONE_LAYER -- the
+    # obstacle set for the MST backbone's A* corridor. With the backbone on
+    # In1.Cu this is via barrels only (no route emits a track there), which
+    # is precisely why the via test below is span-aware rather than a
+    # literal ``"F.Cu" in via_layers`` membership check.
+    emitted_backbone_layer_copper: Polygon | None = None
     emitted_holes: list[tuple[float, float, float]] = []
     if segments:
-        from temper_placer.router_v6.zone_pour_clearance import _SEGMENT_RE, _VIA_RE
+        from temper_placer.router_v6.zone_pour_clearance import (
+            _SEGMENT_RE,
+            _VIA_RE,
+            _copper_stack_index,
+            _via_is_on_layer,
+        )
 
         emitted_geoms: list = []
-        emitted_fcu_geoms: list = []
+        emitted_backbone_layer_geoms: list = []
         for line in segments:
             match = _SEGMENT_RE.search(line)
             if match:
@@ -870,7 +899,14 @@ def generate_ground_plane_blocks(
                 if not other or other == GND_NET_NAME:
                     continue
                 layer = seg_layer
-                if layer not in ("F.Cu", "B.Cu", "In3.Cu", "In4.Cu"):
+                # Any COPPER layer counts. This list used to name only the
+                # four router-signal layers, which silently excluded
+                # In1.Cu/In2.Cu -- harmless while nothing emitted copper
+                # there, and wrong the moment something does (this module's
+                # own backbone now does). ``emitted_geoms`` feeds the
+                # drop-via avoid set, and a through-via's barrel meets
+                # copper on every layer it passes, plane layers included.
+                if _copper_stack_index(layer) is None:
                     continue
                 pair_clr = max(
                     gnd_own_clearance,
@@ -880,8 +916,8 @@ def generate_ground_plane_blocks(
                     [(float(x0), float(y0)), (float(x1), float(y1))]
                 ).buffer(float(width) / 2.0 + pair_clr, quad_segs=8)
                 emitted_geoms.append(geom)
-                if layer == "F.Cu":
-                    emitted_fcu_geoms.append(geom)
+                if layer == BACKBONE_LAYER:
+                    emitted_backbone_layer_geoms.append(geom)
                 continue
             match = _VIA_RE.search(line)
             if match:
@@ -897,8 +933,8 @@ def generate_ground_plane_blocks(
                     float(size) / 2.0 + pair_clr, quad_segs=8
                 )
                 emitted_geoms.append(geom)
-                if "F.Cu" in via_layers.replace('"', "").split():
-                    emitted_fcu_geoms.append(geom)
+                if _via_is_on_layer(tuple(via_layers.replace('"', "").split()), BACKBONE_LAYER):
+                    emitted_backbone_layer_geoms.append(geom)
                 emitted_holes.append((float(x), float(y), float(size) / 2.0))
         if emitted_geoms:
             from shapely.ops import unary_union as _unary_union_emitted
@@ -907,10 +943,10 @@ def generate_ground_plane_blocks(
             via_avoid_parts.append(emitted_avoid_copper)
             if len(via_avoid_parts) > 1:
                 via_avoid_copper = _unary_union_via(via_avoid_parts)
-        if emitted_fcu_geoms:
+        if emitted_backbone_layer_geoms:
             from shapely.ops import unary_union as _unary_union_emitted
 
-            emitted_fcu_copper = _unary_union_emitted(emitted_fcu_geoms)
+            emitted_backbone_layer_copper = _unary_union_emitted(emitted_backbone_layer_geoms)
 
     existing_holes = _existing_drilled_holes(pcb, GND_NET_NAME)
     # Emitted vias' drills are real holes the drop-via search must respect
@@ -1093,10 +1129,36 @@ def generate_ground_plane_blocks(
     via_offset_count = 0
     via_unresolved_conflict = 0
     via_radius_mm = VIA_SIZE_MM / 2.0
+    # The nodes the MST backbone will actually span, in the order they are
+    # established here. NOT ``gnd_positions``: the backbone runs on
+    # BACKBONE_LAYER (In1.Cu), and an In1.Cu point only reaches this net's
+    # copper where a PLATED BARREL passes through it. A gnd pad is F.Cu
+    # copper, not In1.Cu copper -- so a backbone endpoint parked on a bare
+    # pad position is floating metal on the plane layer, joined to nothing.
+    # Measured directly, this was the entire reason the first In1.Cu
+    # backbone attempt barely moved connectivity (5 -> 7 of 88 pads
+    # despite 204 In1.Cu segments): 45 of 66 drop vias are OFFSET from
+    # their pad, and every backbone edge terminating at those 45 pad
+    # positions ended on bare In1.Cu. Only three kinds of point are real
+    # nodes on this layer, and this list holds exactly those:
+    #   * a through-hole gnd pad -- its own plated hole spans every copper
+    #     layer it lists, so the pad position IS an In1.Cu node;
+    #   * the drop point of a via this loop emits (a through-via);
+    # and nothing else. A pad whose via was skipped fail-closed
+    # (via_unresolved_conflict) contributes NO node -- there is no
+    # conductor joining it to this layer, so spanning to it would emit
+    # copper that cannot carry its current.
+    #
+    # On F.Cu (where this backbone used to run) the distinction did not
+    # exist, because a pad position on F.Cu is the pad's own copper. That
+    # is the one respect in which the old layer choice was load-bearing,
+    # and it is a property of the node set, not of the layer.
+    backbone_positions: list[tuple[float, float]] = []
     for x, y in gnd_positions:
         key = (round(x, 3), round(y, 3))
         if through_hole_positions.get(key, False):
             via_skipped_through_hole += 1
+            backbone_positions.append((x, y))
             continue
 
         drop_point, needs_stub = _find_via_drop_point(
@@ -1122,6 +1184,7 @@ def generate_ground_plane_blocks(
             continue
 
         vx, vy = drop_point
+        backbone_positions.append((vx, vy))
         new_blocks.append(
             f'  (via (at {vx:.4f} {vy:.4f}) (size {VIA_SIZE_MM:.4f}) '
             f'(drill {VIA_DRILL_MM:.4f}) (layers "F.Cu" "B.Cu") '
@@ -1161,42 +1224,60 @@ def generate_ground_plane_blocks(
                 continue
             new_blocks.append(
                 f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
-                f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'
+                f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{STUB_LAYER}")'
                 f" (net {gnd_net_num}) (tstamp \"{_next_tstamp()}\"))"
             )
 
     # MST backbone joining every drop via -- see mst_edges() docstring for
     # why this is necessary in addition to the zone.
     #
-    # LAYER CHOICE, measured not assumed: a first version of this function
-    # put these segments on In1.Cu (the plane layer itself -- the
-    # geometrically obvious choice). Measured against
-    # ``pad_connectivity_audit.check_net_pad_connectivity``: it never
-    # joined a single extra pad. Root cause, read directly in that
-    # function (``pad_connectivity_audit.py`` lines ~190-194): a via only
-    # unions nodes for the layers *literally present* in its own
-    # ``via.layers`` tuple -- ``("F.Cu", "B.Cu")`` for a standard KiCad
-    # through-via, which is what every via already on this board uses and
-    # what this module's drop vias use (see above). KiCad's own real
-    # electrical semantics treat a through-via as contacting every copper
-    # layer it physically spans, including In1.Cu, without listing it --
-    # but this audit tool models a via's reach literally from its
-    # ``layers`` tuple, not from stackup position, so an In1.Cu segment
-    # never unions with an F.Cu/B.Cu via at the same point in this tool's
-    # graph, even though the real board electrically joins them. This is
-    # a genuine gap in ``pad_connectivity_audit.py`` (it would equally
-    # miss a through-via's real contact with In1.Cu for *any* net, not
-    # just this one) worth its own fix, out of this module's scope.
-    # Widening the via's own ``layers`` tuple to a non-standard 3-entry
-    # list to work around it was considered and rejected: KiCad's file
-    # format uses exactly two layer names per via (the span's endpoints)
-    # regardless of via type, and a 3-entry list is not a form kicad-cli
-    # is known to accept -- correctness against the real DRC/fab tool
-    # matters more than satisfying one internal audit script. Using
-    # ``BACKBONE_LAYER`` (F.Cu, already one of the via's two declared
-    # layers) instead is the fix that keeps the file standard *and* makes
-    # the real connectivity legible to the audit tool.
-    edges = mst_edges(gnd_positions)
+    # LAYER CHOICE, measured not assumed -- and REVISED 2026-08-19 back to
+    # PLANE_LAYER (In1.Cu). The history matters, because the reason this
+    # was ever F.Cu no longer exists:
+    #
+    # The original note here (written with this module, ce4c132d6,
+    # 2026-08-11) recorded that In1.Cu backbone segments "never joined a
+    # single extra pad", root-caused to ``pad_connectivity_audit.py``
+    # unioning a via's graph nodes only for the layers *literally present*
+    # in its ``via.layers`` tuple -- ``("F.Cu", "B.Cu")`` for the standard
+    # through-vias this module drops -- so an In1.Cu segment could never
+    # meet an F.Cu/B.Cu via in that tool's graph. That was true when it
+    # was written. It stopped being true five days later: ``dabbeaf73``
+    # (2026-08-16) taught ``_parse_segments_and_vias`` KiCad's real via
+    # typing -- an untyped ``(via ...)`` is a THROUGH via and is now
+    # parsed as ``layers=()``, the ``CopperVia`` convention for "spans
+    # every layer the checker knows about" -- so a through-via now unions
+    # across the whole layer universe, In1.Cu included, exactly as the
+    # physical board does. Nobody revisited this constant, and the
+    # workaround outlived its cause.
+    #
+    # Keeping the backbone on F.Cu was not free. F.Cu carries 652 routed
+    # segments and this module's own HV keepout covers 27499 mm^2 of the
+    # board, so the corridor left for a 1.0mm gnd backbone is almost
+    # nothing: measured on the committed board, 83 of 87 MST edges were
+    # dropped fail-closed ("crossed the HV keepout or another net's
+    # existing copper"), 1 got a corridor-clean A* path, and gnd's 61 drop
+    # vias landed in 53 disconnected components -- 5 of 88 pads connected.
+    # In1.Cu, by contrast, carries zero copper of any kind (that is this
+    # module's whole premise), so the same A* runs against the HV keepout
+    # and the foreign VIA BARRELS alone.
+    #
+    # Those barrels are the prerequisite, not a follow-up: 101 foreign-net
+    # vias sit inside this pour's own outline, and until 2026-08-19
+    # ``_via_is_on_layer`` short-circuited to False for In1.Cu/In2.Cu
+    # (it indexed the ROUTER's signal-layer list, which excludes the two
+    # declared-power layers), so no via was ever an obstacle here. Putting
+    # copper on this layer without fixing that would have routed 1.0mm gnd
+    # traces straight through other nets' via barrels. That predicate now
+    # measures the span on the board's copper stack, and both
+    # ``_collect_other_net_copper`` and
+    # ``collect_other_net_copper_by_pairwise_clearance`` route their via
+    # test through it, so ``other_copper_plane_backbone`` below really does
+    # contain all 101.
+    #
+    # The pad-to-via stubs stay on ``STUB_LAYER`` (F.Cu) -- a gnd pad is
+    # F.Cu copper, and the through-via is what carries the join down.
+    edges = mst_edges(backbone_positions)
 
     def _emit_segment(p1: tuple[float, float], p2: tuple[float, float]) -> None:
         new_blocks.append(
@@ -1236,16 +1317,36 @@ def generate_ground_plane_blocks(
     # kicad-cli itself resolves netclasses from. (net_clearance /
     # default_clearance / gnd_own_clearance are resolved ABOVE, in the
     # emitted-copper block, so both consumers share one resolution.)
-    other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
-        pcb, GND_NET_NAME, "F.Cu", net_clearance, gnd_own_clearance, default_clearance
+    #
+    # Built for BACKBONE_LAYER, not F.Cu (2026-08-19): the backbone now
+    # lands on In1.Cu, so the copper it has to avoid is the copper on
+    # In1.Cu -- which is exactly the foreign via barrels passing through
+    # it, since no track on this board is on In1.Cu. That set is non-empty
+    # only because `_via_is_on_layer` now measures a via's span on the
+    # board's copper stack; see the MST-layer-choice note below.
+    other_copper_plane_backbone = collect_other_net_copper_by_pairwise_clearance(
+        pcb, GND_NET_NAME, BACKBONE_LAYER, net_clearance, gnd_own_clearance, default_clearance
     )
-    # Union in this route's own emitted other-net F.Cu copper (parsed
-    # above): the A* corridor must also route around the tracks this very
-    # run placed on F.Cu, not only the pre-existing board copper.
-    backbone_obstacles: list[Polygon | None] = [keepout, other_copper_fcu_backbone]
-    if emitted_fcu_copper is not None:
-        backbone_obstacles.append(emitted_fcu_copper)
-    backbone_grid = build_obstacle_grid(board_polygon, backbone_obstacles)
+    # Union in this route's own emitted other-net copper that reaches
+    # BACKBONE_LAYER (parsed above): the A* corridor must also route around
+    # the vias this very run placed, not only the pre-existing board copper.
+    backbone_obstacles: list[Polygon | None] = [keepout, other_copper_plane_backbone]
+    if emitted_backbone_layer_copper is not None:
+        backbone_obstacles.append(emitted_backbone_layer_copper)
+    # The grid's free space is the board inset by BOARD_EDGE_MARGIN_MM, not
+    # the raw outline. `plane_region` (the pour) has always used the inset;
+    # the backbone grid did not, and while the backbone lived on F.Cu that
+    # never showed, because F.Cu's own routed copper kept it away from the
+    # edge anyway. On In1.Cu -- an empty layer -- A* will happily hug the
+    # board outline: measured on the first In1.Cu route, 4 new
+    # `copper_edge_clearance` violations, all "Track [gnd] on In1.Cu".
+    # Reusing this module's own edge constant (1.0mm) rather than the DRU's
+    # 0.5mm manufacturing floor keeps one knob for "how far this plane's
+    # copper stays off the edge" and is the more conservative of the two.
+    backbone_region = board_polygon.buffer(-BOARD_EDGE_MARGIN_MM)
+    if backbone_region.is_empty:
+        backbone_region = board_polygon
+    backbone_grid = build_obstacle_grid(backbone_region, backbone_obstacles)
     backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
     # Component-aware, not Euclidean-MST-topology-locked: attempting A*
@@ -1265,7 +1366,7 @@ def generate_ground_plane_blocks(
     # pieces. See _corridor_backbone.py's own docstring for the full
     # measurement.
     astar_routed_edges = corridor_aware_spanning_edges(
-        gnd_positions, backbone_grid, backbone_corridor_mask, mst_edges
+        backbone_positions, backbone_grid, backbone_corridor_mask, mst_edges
     )
     # Union-Find seeded with the component-local A* edges: the fallback
     # loop below must skip any GLOBAL MST edge whose endpoints are
@@ -1291,7 +1392,7 @@ def generate_ground_plane_blocks(
     # not close.
     # UPDATED 2026-08-16 (fix/route-to-100-percent): the fallback now
     # ALSO avoids other nets' existing F.Cu copper, not just the HV
-    # keepout. ``other_copper_fcu_backbone`` (the per-pair-clearance-
+    # keepout. ``other_copper_plane_backbone`` (the per-pair-clearance-
     # buffered foreign-copper union computed above for the A* obstacle
     # grid -- reused, not re-derived) is now a second blocked-region
     # input, so a straight fallback edge that would cross another net's
@@ -1327,18 +1428,24 @@ def generate_ground_plane_blocks(
         # into that same buffer, a real shorting_items violation the
         # zero-width check could not see.
         footprint = LineString([p1, p2]).buffer(STITCH_TRACE_WIDTH_MM / 2.0)
+        # Same board-edge inset the A* grid uses -- the straight-line
+        # fallback bypasses that grid entirely, so without this a fallback
+        # edge can still run off the inset region and land a
+        # copper_edge_clearance violation.
+        if not backbone_region.covers(footprint):
+            return True
         if keepout_established and footprint.intersects(keepout):
             return True
         if (
-            other_copper_fcu_backbone is not None
-            and not other_copper_fcu_backbone.is_empty
-            and footprint.intersects(other_copper_fcu_backbone)
+            other_copper_plane_backbone is not None
+            and not other_copper_plane_backbone.is_empty
+            and footprint.intersects(other_copper_plane_backbone)
         ):
             return True
         return (
-            emitted_fcu_copper is not None
-            and not emitted_fcu_copper.is_empty
-            and footprint.intersects(emitted_fcu_copper)
+            emitted_backbone_layer_copper is not None
+            and not emitted_backbone_layer_copper.is_empty
+            and footprint.intersects(emitted_backbone_layer_copper)
         )
 
     # Emit every component-local A*-routed edge unconditionally -- these
@@ -1359,7 +1466,7 @@ def generate_ground_plane_blocks(
             # only add collision risk for zero connectivity benefit.
             continue
 
-        p1, p2 = gnd_positions[i], gnd_positions[j]
+        p1, p2 = backbone_positions[i], backbone_positions[j]
         if not _blocked(p1, p2):
             _emit_segment(p1, p2)
             connectivity_uf.union(i, j)
@@ -1381,15 +1488,15 @@ def generate_ground_plane_blocks(
         # wider pad+via HV keepout's shape is reachable this way) without
         # touching any of the actual safety-relevant geometry.
         candidates = sorted(
-            (k for k in range(len(gnd_positions)) if k != i and k != j),
+            (k for k in range(len(backbone_positions)) if k != i and k != j),
             key=lambda k: (
-                (gnd_positions[k][0] - p1[0]) ** 2 + (gnd_positions[k][1] - p1[1]) ** 2
-                + (gnd_positions[k][0] - p2[0]) ** 2 + (gnd_positions[k][1] - p2[1]) ** 2
+                (backbone_positions[k][0] - p1[0]) ** 2 + (backbone_positions[k][1] - p1[1]) ** 2
+                + (backbone_positions[k][0] - p2[0]) ** 2 + (backbone_positions[k][1] - p2[1]) ** 2
             ),
         )[:200]
         found = False
         for k in candidates:
-            w = gnd_positions[k]
+            w = backbone_positions[k]
             if not _blocked(p1, w) and not _blocked(w, p2):
                 _emit_segment(p1, w)
                 _emit_segment(w, p2)

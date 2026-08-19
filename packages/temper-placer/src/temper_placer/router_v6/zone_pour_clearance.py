@@ -181,8 +181,23 @@ _SEGMENT_RE = re.compile(
     r"\(segment \(start ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\)"
     r" \(width ([\d.]+)\) \(layer \"([^\"]+)\"\) \(net (\d+)\)"
 )
+# The optional ``blind``/``buried``/``micro`` token is KiCad's via TYPE, a
+# bareword sitting between ``(via`` and ``(at`` (pcb_io_kicad_sexpr_parser
+# .cpp parsePCB_VIA); absent means THROUGH. It is non-capturing so every
+# existing caller's 5-group unpacking is unchanged.
+#
+# It used not to be matched at all, which meant this regex silently skipped
+# EVERY typed via in an in-memory segment list -- 37 of them on a production
+# route, all ``blind`` F.Cu->In3.Cu / F.Cu->In4.Cu. That was invisible while
+# the only consumers asked about F.Cu/B.Cu, and became load-bearing the
+# moment `_ground_plane.py` began routing its backbone on In1.Cu: a blind
+# F.Cu->In3.Cu barrel passes straight THROUGH In1.Cu, so a via this regex
+# cannot see is a via the backbone will happily be routed across.  Measured
+# on the first In1.Cu route before this fix: 12 new `shorting_items`, every
+# one of them "Blind via [...] on F.Cu - In3.Cu" against "Track [gnd] on
+# In1.Cu", plus the same vias' drills missing from the drop-via hole set.
 _VIA_RE = re.compile(
-    r"\(via \(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\) \(drill [\d.]+\)"
+    r"\(via (?:(?:blind|buried|micro) )?\(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\) \(drill [\d.]+\)"
     r" \(layers ([^)]*)\) \(net (\d+)\)"
 )
 
@@ -489,6 +504,31 @@ def _via_is_on_layer(via_layers, layer: str) -> bool:
     ``via_layers`` is a tuple of layer names (``("F.Cu", "B.Cu")`` for a
     through via).  Returns False for a via that names only one layer or
     whose span does not include *layer*.
+
+    **The span is measured on the BOARD's copper stack, not the router's
+    signal-layer list** (fixed 2026-08-19).  This test used to index into
+    ``ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED`` -- ``(F.Cu, In3.Cu, In4.Cu,
+    B.Cu)``, the set of layers the A* engine is allowed to *route* on --
+    and returned ``False`` outright for any name outside it.  ``In1.Cu``
+    and ``In2.Cu`` are declared ``power`` in ``pcb/temper.kicad_pcb`` and
+    are therefore absent from that tuple, so **no via was ever an obstacle
+    on the two power-plane layers**: measured on the committed board, 101
+    foreign-net vias sat inside the ``gnd`` In1.Cu pour outline and 80
+    inside the ``+3V3`` In2.Cu outline, all invisible to every caller of
+    this predicate.  That was harmless only while those layers carried no
+    copper.  A via's barrel is a physical cylinder; whether the *router*
+    may place a trace on the layer it passes through has nothing to do
+    with whether the copper is there.  The span is now computed from the
+    KiCad copper-layer ordinal encoded in the layer NAME (``F.Cu`` = 0,
+    ``In<k>.Cu`` = k, ``B.Cu`` = 31 -- the file format's own numbering,
+    see the ``(layers (0 "F.Cu" signal) (1 "In1.Cu" power) ...)`` block),
+    which is board-independent and role-independent by construction.
+
+    Behaviour on the previously-covered layers is unchanged: for any via
+    whose declared endpoints bracket F.Cu/In3.Cu/In4.Cu/B.Cu, both the old
+    and new orderings agree (the relative order of those four names is the
+    same in either indexing).  The only new ``True`` results are on
+    ``In1.Cu``/``In2.Cu`` and for spans that genuinely cross them.
     """
     if not via_layers:
         # No declared layers -- cannot establish a span; treat as absent
@@ -500,14 +540,38 @@ def _via_is_on_layer(via_layers, layer: str) -> bool:
     # Span test: does *layer* sit between the via's declared endpoints?
     # Only copper layers participate in a via span; a via with a single
     # declared layer is a blind/buried via on exactly that layer.
-    from temper_placer.core.board_layer_roles import ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED
+    idx = _copper_stack_index(layer)
+    if idx is None:
+        return False
+    spanned = [i for i in (_copper_stack_index(name) for name in via_layers) if i is not None]
+    if not spanned:
+        return False
+    return min(spanned) <= idx <= max(spanned)
 
-    ordered = list(ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED)
-    if layer not in ordered:
-        return False
-    idx = ordered.index(layer)
-    layer_idx = [i for i, name in enumerate(ordered) if name in via_layers]
-    if not layer_idx:
-        return False
-    lo, hi = min(layer_idx), max(layer_idx)
-    return lo <= idx <= hi
+
+# ``F.Cu`` is copper ordinal 0, ``B.Cu`` is 31, and inner copper layers are
+# ``In1.Cu``..``In30.Cu`` at ordinals 1..30 -- KiCad's own fixed numbering
+# for the copper stack (``pcb/temper.kicad_pcb``'s ``(layers ...)`` block
+# carries exactly these ordinals, out of physical order in the file:
+# ``(0 "F.Cu" signal) (3 "In3.Cu" signal) (1 "In1.Cu" power) ...``).  The
+# ordinal, not the file's declaration order and not any role annotation, is
+# the physical stack position a via barrel travels through -- which is why
+# ``_via_is_on_layer`` derives its span from this and not from
+# ``Stackup.layer_names()`` (that returns file order: F.Cu, In3.Cu, In1.Cu,
+# In2.Cu, In4.Cu, B.Cu) or from any router-capability set.
+_INNER_COPPER_LAYER_RE = re.compile(r"^In(\d{1,2})\.Cu$")
+
+
+def _copper_stack_index(layer: str) -> int | None:
+    """KiCad copper-layer ordinal for *layer*, or ``None`` if it is not a
+    copper layer name (silkscreen, mask, user layers -- a via barrel does
+    not exist on those)."""
+    if layer == "F.Cu":
+        return 0
+    if layer == "B.Cu":
+        return 31
+    match = _INNER_COPPER_LAYER_RE.match(layer)
+    if match is None:
+        return None
+    ordinal = int(match.group(1))
+    return ordinal if 1 <= ordinal <= 30 else None
