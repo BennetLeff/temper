@@ -40,8 +40,17 @@
 // this repo's own Wave 4 dispatch-readiness notes measured elsewhere, e.g.
 // `docs/evidence/2026-08-07-channel-skeleton-triage-no-port.md`) and
 // `ChannelSkeletonStage`/`validate_channel_skeleton` (pipeline `Stage` /
-// `@register_validator` wiring, plus the pad-anchoring dict/list
-// bookkeeping in `extract_channel_skeleton`).
+// `@register_validator` wiring).
+//
+// 2026-08-18 CORRECTION: this list used to end "...plus the pad-anchoring
+// dict/list bookkeeping in `extract_channel_skeleton`". That was wrong on
+// cost and the claim has been retracted -- the pad anchoring's two nested
+// scans were 73.4s of pure Python on this board, the largest single
+// line-item in the route, and they now live in `pad_anchor_plan` below. The
+// list/dict handling around them really was bookkeeping; the two
+// O(pads x nodes) sweeps in the middle were not, and describing the block
+// by its outer layer is how they went unexamined through three triage
+// passes.
 //
 // `simplify_tolerance` is accepted for signature parity with the Python
 // caller but is a documented no-op: the 2026-08-04 spike (§8) measured that
@@ -241,6 +250,216 @@ pub fn extract_medial_axis(
     all
 }
 
+
+// ===========================================================================
+// Pad anchoring (`extract_channel_skeleton`'s "OPTION F FIX" block)
+// ===========================================================================
+//
+// This block was explicitly declared out of scope by the medial-axis port
+// above ("STAYS IN PYTHON ... the pad-anchoring dict/list bookkeeping in
+// `extract_channel_skeleton`"), and by `_channel_skeleton_py_oracle.py`'s
+// docstring, on the grounds that it is orchestration rather than compute.
+//
+// That was wrong on cost. A cProfile of a full production route (301.04s
+// wall, board digest `6d4e17337bcf2633`, 4553 segments) attributes:
+//
+//   channel_skeleton.py:56  `extract_channel_skeleton`  22.3s SELF, 6 calls
+//   channel_skeleton.py:159 `<genexpr>`                 15.2s, 97,412,627 calls
+//
+// The self time is the `for node in skeleton_nodes` nearest-node scan,
+// which is written inline in `extract_channel_skeleton` and so is charged
+// to it rather than to a callee. The genexpr is the `any(...)` pad-dedup
+// scan. Both are brute-force O(pads x skeleton_nodes) sweeps over Python
+// coordinate tuples, and this board's outer layers carry ~41k skeleton
+// nodes each. The "bookkeeping" description fit the list/dict handling
+// around them and missed the two nested scans in the middle -- together the
+// largest single line-item in the whole route.
+//
+//
+// Measured on this board after the port (isolated harness, same real
+// routing spaces, both arms fed the identical node snapshot):
+//
+//   layer     nodes    pads    Python      Rust   speedup   anchored
+//   B.Cu      77833     523     9.67s     1.131s      9x        488
+//   F.Cu     115513     523    22.76s     1.716s     13x        494
+//   In1.Cu    32694     523     4.65s     0.488s     10x        503
+//   In2.Cu    32694     523     4.98s     0.491s     10x        503
+//   In3.Cu    76413     523    15.16s     1.153s     13x        478
+//   In4.Cu    80051     523    16.20s     1.167s     14x        488
+//   TOTAL                      73.42s     6.145s     12x
+//
+// 67.3s removed, bit-exact on every layer. Note this is roughly DOUBLE the
+// 37.5s the cProfile attributed (22.3s self + 15.2s genexpr): the profiled
+// run's board digest was `6d4e17337bcf2633`, and this tree's skeletons carry
+// more nodes than that run's genexpr count of 97,412,627 implies (523 pads x
+// 415,198 total nodes is ~217M comparisons here). The measured figure is the
+// one to trust for this tree; the profile's is not wrong, it is a different
+// board state.
+//
+// The remaining 6.1s is almost entirely the two `host_math::pow` calls per
+// comparison (~434M libm calls): the price of bit-exactness, paid
+// deliberately. A provably-safe prune exists -- `dist >= sqrt(pow(dx,2))
+// >= |dx|(1 - 2^-51)`, so a candidate with `|dx|` comfortably above the
+// running minimum can be rejected without evaluating `pow` at all -- and is
+// left undone here rather than bundled into a migration whose entire value
+// is that the answer did not change.
+//
+// Fidelity: verbatim transcription, deliberately NOT a rewrite
+// --------------------------------------------------------------
+// This is search-and-classification code (which node is nearest?), not an
+// emitted pour outline, so two different answers can both be "legal" and
+// only equality reveals a change. The obvious optimisation -- put the nodes
+// in the `rstar` R*-tree this crate already uses in `radius_pairs.rs` and
+// ask it for nearest neighbours -- is NOT taken, because a tree's notion of
+// "nearest" is its own distance metric with its own tie-breaking, and the
+// Python being replaced resolves ties to the EARLIEST node in
+// `skeleton_nodes` order via a strict `<`. A brute-force transcription is
+// bit-exact by construction and still removes ~37s of the 301s route; a
+// tree would buy a fraction of a second more and put the tie-break at risk.
+// Deliberate non-optimisation, not an oversight.
+//
+// Points of behaviour preserved on purpose (each one is load-bearing):
+//
+//   * `skeleton_nodes` is snapshotted BEFORE the pad loop. Pads anchored
+//     earlier in the loop are invisible to later dedup checks and later
+//     nearest-node searches. Hence `nodes` here is a fixed slice that this
+//     function never appends to.
+//   * The dedup predicate is a strict axis-aligned BOX test
+//     (`abs(dx) < 0.1 and abs(dy) < 0.1`), not a radius test. A pad
+//     0.14mm away diagonally is NOT deduped.
+//   * `any(...)` short-circuits, but the dedup result is the only thing
+//     that escapes it, so evaluating it fused with the nearest-node scan
+//     (one pass over `nodes` instead of two) is observationally identical.
+//     The fused pass is why this is one loop below and two in the Python.
+//   * The nearest search uses strict `<`, so the EARLIEST index wins a tie.
+//   * A pad that duplicates an earlier pad's position still yields its own
+//     record, so the caller still does its own `total_length += min_dist`
+//     and `pads_added += 1` even though the graph dedupes the node and
+//     edge away. That double-count is reproduced, not fixed.
+//
+// Float exactness: `**` is libm `pow`, and it is NOT `d * d` here
+// ------------------------------------------------------------------
+// The Python is `math.sqrt((pad[0] - node[0]) ** 2 + (pad[1] - node[1]) ** 2)`.
+// `**` on CPython floats is libm `pow` (see `host_math`'s module doc), so
+// this resolves both squarings through `host_math::pow` rather than writing
+// the arithmetically-obvious `d * d`.
+//
+// This is not a stylistic point. `pow(d, 2.0) != d * d` on ordinary board
+// coordinates -- MEASURED, not assumed. `d = 98.07985406973864` gives
+// `9619.657774341229` from `pow` and `9619.657774341227` from the
+// multiplication, one ulp apart, and CPython reproduces the `pow` answer
+// exactly because CPython's `**` IS this libm `pow`. See
+// `multiplication_is_not_a_valid_substitute_for_pow_at_board_scale`.
+//
+// One ulp is enough. This is an argmin over distances, so a last-bit
+// difference can flip a near tie and re-anchor a pad to a DIFFERENT
+// skeleton node -- another answer that is equally "legal" and that only
+// bit-equality would ever expose. The plausible-looking argument for the
+// multiplication ("glibc's pow is correctly rounded, and `d * d` is by
+// definition the correctly rounded product, so they must agree") is exactly
+// the correct-by-coincidence reasoning AGENTS.md's `net_currents()` story
+// warns about, and here it is simply false.
+//
+// `math.sqrt` is a genuinely different case and IS lowered to `f64::sqrt`:
+// IEEE-754 REQUIRES `sqrt` to be correctly rounded, so every conforming
+// implementation returns the same bits. `pow` carries no such requirement --
+// and CPython's `math.sqrt(s)` and `s ** 0.5` are therefore NOT the same
+// function. They disagree at `s = 55489.646545994874` (`235.5624047805483`
+// vs `235.56240478054826`). Both spellings appear in this module, reading
+// from two different lines of the same Python file: `sample_ring`
+// transcribes `** 0.5` and uses `host_math::pow(_, 0.5)`; `pad_anchor_plan`
+// transcribes `math.sqrt` and uses `f64::sqrt`. See
+// `math_sqrt_and_pow_half_are_not_interchangeable`.
+//
+// Note the comparison must stay on the `sqrt` value, not on the squared
+// sum: `sqrt` is monotonic but rounds, so two distinct sums can collapse to
+// one distance. Ranking by the squared sum would then break a tie the
+// Python resolves by index order. See `argmin_ranks_on_the_rounded_sqrt`.
+
+/// One pad that should be anchored into the skeleton graph.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PadAnchor {
+    /// Index into the `pads` slice.
+    pub pad_index: usize,
+    /// Index into the `nodes` slice of the winning nearest skeleton node.
+    pub node_index: usize,
+    /// `math.sqrt(...)` distance between them, to be used verbatim as the
+    /// new edge's `weight` and added to `total_length`.
+    pub dist: f64,
+}
+
+/// Decide which pads get anchored, and to which skeleton node.
+///
+/// Transcribes the pad-anchoring scan of `extract_channel_skeleton`
+/// (`channel_skeleton.py:153-179` at the pinned commit). Returns one record
+/// per pad that survives the dedup check AND lands within `max_connect` of
+/// some node, in pad order -- the caller replays them in that order so its
+/// `total_length` accumulates in exactly the original sequence (float
+/// addition is not associative, so the order is part of the contract).
+///
+/// `dedup_tol` is the Python's literal `0.1` and `max_connect` its literal
+/// `50.0`; they are parameters here only so the differential harness can
+/// prove the port over the same constants the caller passes, never to
+/// permit a caller to widen them.
+pub fn pad_anchor_plan(
+    pads: &[Point],
+    nodes: &[Point],
+    dedup_tol: f64,
+    max_connect: f64,
+) -> Vec<PadAnchor> {
+    let mut out: Vec<PadAnchor> = Vec::new();
+
+    for (pad_index, pad) in pads.iter().enumerate() {
+        // Fused dedup + nearest pass. `deduped` reproduces the `any(...)`
+        // generator; `nearest`/`min_dist` reproduce the scan that follows
+        // it. Fusing is safe because the Python discards the nearest-node
+        // result whenever the dedup fired, and computing it anyway has no
+        // other observable effect.
+        let mut deduped = false;
+        let mut nearest: Option<usize> = None;
+        let mut min_dist = f64::INFINITY;
+
+        for (i, node) in nodes.iter().enumerate() {
+            let dx = pad.x - node.x;
+            let dy = pad.y - node.y;
+
+            if !deduped && dx.abs() < dedup_tol && dy.abs() < dedup_tol {
+                deduped = true;
+            }
+
+            // CPython: `math.sqrt((dx) ** 2 + (dy) ** 2)` -- libm `pow`
+            // twice, then libm `sqrt`. See this section's module comment
+            // for why `dx * dx` is not written here.
+            let dist = (host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0)).sqrt();
+            if dist < min_dist {
+                min_dist = dist;
+                nearest = Some(i);
+            }
+        }
+
+        if deduped {
+            continue;
+        }
+
+        // CPython: `if nearest_node and min_dist < 50.0`. `nearest_node` is
+        // a 2-tuple, and a non-empty tuple is always truthy, so the guard
+        // is `is not None` in every reachable case -- including the pad at
+        // the origin, where `(0.0, 0.0)` would be falsy only if it were a
+        // number rather than a tuple.
+        if let Some(node_index) = nearest
+            && min_dist < max_connect
+        {
+            out.push(PadAnchor {
+                pad_index,
+                node_index,
+                dist: min_dist,
+            });
+        }
+    }
+
+    out
+}
+
 // ===========================================================================
 // pyo3 boundary
 // ===========================================================================
@@ -307,10 +526,83 @@ pub fn extract_medial_axis_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// Decode `n` interleaved little-endian `(x, y)` `f64` pairs.
+///
+/// Mirrors `radius_pairs_transform`'s bytes-in convention
+/// (`numpy.ascontiguousarray(a, dtype=np.float64).tobytes()`), which exists
+/// so a 41k-node coordinate array crosses the boundary as one buffer copy
+/// instead of 41k tuple unpacks. That matters here: the caller passes the
+/// full skeleton node set once per layer, six times per route.
+#[cfg(feature = "python")]
+fn points_from_le_bytes(bytes: &[u8], n: usize) -> Vec<Point> {
+    let mut pts = Vec::with_capacity(n);
+    for i in 0..n {
+        let base = i * 16;
+        let mut xb = [0u8; 8];
+        let mut yb = [0u8; 8];
+        xb.copy_from_slice(&bytes[base..base + 8]);
+        yb.copy_from_slice(&bytes[base + 8..base + 16]);
+        pts.push(Point::new(f64::from_le_bytes(xb), f64::from_le_bytes(yb)));
+    }
+    pts
+}
+
+/// pyo3 boundary for [`pad_anchor_plan`].
+///
+/// `pads_bytes` / `nodes_bytes` are `n_pads` / `n_nodes` interleaved
+/// `(x, y)` `f64` pairs as raw little-endian bytes. Returns
+/// `[(pad_index, node_index, dist), ...]` in pad order -- a plain list of
+/// tuples rather than a byte buffer because the result is one entry per
+/// ANCHORED pad (hundreds), not per candidate comparison (10^8), so the
+/// per-item marshalling cost is irrelevant on this side and the caller
+/// needs to index back into its own Python list of coordinate tuples
+/// anyway (the graph is keyed by the ORIGINAL tuple objects).
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (pads_bytes, n_pads, nodes_bytes, n_nodes, dedup_tol, max_connect))]
+pub fn pad_anchor_plan_py(
+    pads_bytes: Vec<u8>,
+    n_pads: usize,
+    nodes_bytes: Vec<u8>,
+    n_nodes: usize,
+    dedup_tol: f64,
+    max_connect: f64,
+) -> PyResult<Vec<(usize, usize, f64)>> {
+    // Checked, not `debug_assert`ed. The buffer and its count are independent
+    // arguments, so a caller CAN pass a correct array with a stale count --
+    // it is a real boundary condition, not a can't-happen. Left unchecked, a
+    // short buffer indexes past the end of the slice and panics inside
+    // `catch_unwind`, reaching Python as an opaque failure instead of as
+    // "your count does not match your array".
+    for (label, len, n) in [
+        ("pads", pads_bytes.len(), n_pads),
+        ("nodes", nodes_bytes.len(), n_nodes),
+    ] {
+        if len != n * 16 {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "pad_anchor_plan_py: {label}_bytes is {len} bytes but \
+                 n_{label} = {n} implies {} (two f64 per point)",
+                n * 16
+            )));
+        }
+    }
+
+    temper_py_bridge::catch_unwind(|| {
+        let pads = points_from_le_bytes(&pads_bytes, n_pads);
+        let nodes = points_from_le_bytes(&nodes_bytes, n_nodes);
+        pad_anchor_plan(&pads, &nodes, dedup_tol, max_connect)
+            .into_iter()
+            .map(|a| (a.pad_index, a.node_index, a.dist))
+            .collect()
+    })
+    .map_err(temper_py_bridge::panic_to_err)
+}
+
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(extract_medial_axis_single_py, m)?)?;
     m.add_function(wrap_pyfunction!(extract_medial_axis_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_anchor_plan_py, m)?)?;
     Ok(())
 }
 
@@ -375,6 +667,232 @@ pub(crate) mod tests {
                 "skeleton segment midpoint fell inside the hole: {mid:?}"
             );
         }
+    }
+
+    // --- pad anchoring -----------------------------------------------
+
+    fn pt(x: f64, y: f64) -> Point {
+        Point::new(x, y)
+    }
+
+    /// The dedup predicate is a strict axis-aligned BOX, not a radius: a pad
+    /// 0.09mm off in BOTH axes is 0.127mm away and still deduped, while a
+    /// pad 0.11mm off in one axis alone is not. Getting this wrong would
+    /// silently change which pads get anchor nodes at all.
+    #[cfg_attr(test, test)]
+    fn dedup_is_a_box_not_a_radius() {
+        let nodes = vec![pt(0.0, 0.0)];
+        // Diagonal 0.09/0.09 -> Euclidean 0.1273mm, still inside the box.
+        assert!(pad_anchor_plan(&[pt(0.09, 0.09)], &nodes, 0.1, 50.0).is_empty());
+        // 0.11 on one axis alone -> outside the box despite being closer in
+        // one coordinate than the diagonal case above.
+        assert_eq!(pad_anchor_plan(&[pt(0.11, 0.0)], &nodes, 0.1, 50.0).len(), 1);
+        // Exactly on the boundary: `<` is strict, so 0.1 does NOT dedup.
+        assert_eq!(pad_anchor_plan(&[pt(0.1, 0.0)], &nodes, 0.1, 50.0).len(), 1);
+    }
+
+    /// Ties resolve to the EARLIEST node, because the Python's comparison is
+    /// a strict `<` against the running minimum. Two nodes equidistant from
+    /// the pad must therefore always yield the lower index, whichever order
+    /// a spatial index would have visited them in.
+    #[cfg_attr(test, test)]
+    fn ties_resolve_to_the_earliest_node() {
+        let pad = pt(0.0, 0.0);
+        let a = pt(3.0, 0.0);
+        let b = pt(-3.0, 0.0);
+        let forward = pad_anchor_plan(&[pad], &[a, b], 0.1, 50.0);
+        assert_eq!(forward.len(), 1);
+        assert_eq!(forward[0].node_index, 0);
+        // Same geometry, reversed node order: the winner must follow the
+        // ORDER, not the coordinates.
+        let reversed = pad_anchor_plan(&[pad], &[b, a], 0.1, 50.0);
+        assert_eq!(reversed[0].node_index, 0);
+        assert_eq!(forward[0].dist, reversed[0].dist);
+    }
+
+    /// `max_connect` is a strict `<` too, and it drops the pad entirely
+    /// rather than anchoring it to something far away.
+    #[cfg_attr(test, test)]
+    fn pads_beyond_max_connect_are_dropped() {
+        let nodes = vec![pt(50.0, 0.0)];
+        assert!(pad_anchor_plan(&[pt(0.0, 0.0)], &nodes, 0.1, 50.0).is_empty());
+        assert_eq!(
+            pad_anchor_plan(&[pt(0.000001, 0.0)], &nodes, 0.1, 50.0).len(),
+            1
+        );
+    }
+
+    /// The node snapshot is fixed for the whole pad sweep: a pad anchored
+    /// early must not become a dedup target or a nearest-node candidate for
+    /// a later pad. Two pads at the SAME position therefore both produce a
+    /// record -- which is what makes the caller's `total_length` double-count
+    /// them, faithfully to the Python.
+    #[cfg_attr(test, test)]
+    fn duplicate_pads_each_produce_their_own_record() {
+        let nodes = vec![pt(5.0, 0.0)];
+        let plan = pad_anchor_plan(&[pt(0.0, 0.0), pt(0.0, 0.0)], &nodes, 0.1, 50.0);
+        assert_eq!(plan.len(), 2);
+        assert_eq!(plan[0].pad_index, 0);
+        assert_eq!(plan[1].pad_index, 1);
+        assert_eq!(plan[0].dist, plan[1].dist);
+    }
+
+    /// Ranking must happen on the ROUNDED `sqrt` value, not on the squared
+    /// sum. `sqrt` is monotonic but it rounds, so distinct sums can collapse
+    /// onto one `f64` distance; ranking by the sum would then split a tie
+    /// that the Python resolves by index order. This searches for a real
+    /// collapsing pair and asserts the earliest index still wins.
+    #[cfg_attr(test, test)]
+    fn argmin_ranks_on_the_rounded_sqrt() {
+        // Find two squared sums s_hi > s_lo whose sqrt rounds identically.
+        let mut found = false;
+        let mut s_lo = 0.0f64;
+        let mut s_hi = 0.0f64;
+        let mut base = 1.0f64;
+        for _ in 0..64 {
+            let up = f64::from_bits(base.to_bits() + 1);
+            if base.sqrt() == up.sqrt() {
+                s_lo = base;
+                s_hi = up;
+                found = true;
+                break;
+            }
+            base = f64::from_bits(base.to_bits() + 1);
+        }
+        assert!(found, "no sqrt-collapsing adjacent pair found near 1.0");
+        assert!(s_hi > s_lo);
+        assert_eq!(s_lo.sqrt(), s_hi.sqrt());
+        // Place the LARGER squared distance first. Ranking by the squared
+        // sum would pick index 1; ranking by the rounded sqrt keeps index 0,
+        // which is what the Python does.
+        let pad = pt(0.0, 0.0);
+        let nodes = vec![pt(s_hi.sqrt(), 0.0), pt(s_lo.sqrt(), 0.0)];
+        let plan = pad_anchor_plan(&[pad], &nodes, 0.1, 50.0);
+        assert_eq!(plan.len(), 1);
+        assert_eq!(
+            plan[0].node_index, 0,
+            "argmin fell through to the squared sum and broke the tie the \
+             wrong way"
+        );
+    }
+
+    /// **`d * d` is NOT a valid substitute for `d ** 2`, and this test is the
+    /// counterexample.**
+    ///
+    /// The tempting simplification in `pad_anchor_plan` is to write
+    /// `dx * dx` instead of `host_math::pow(dx, 2.0)`, on the reasoning that
+    /// `d * d` is the correctly rounded product and a correctly rounded
+    /// `pow` must return the same bits. glibc's `pow` is *nearly* correctly
+    /// rounded, and the reasoning fails: this search finds a disagreement
+    /// within a few hundred thousand samples of ordinary board coordinates
+    /// (millimetres in +/-200mm), and CPython reproduces it exactly, because
+    /// CPython's `**` IS this same libm `pow`:
+    ///
+    /// ```text
+    /// >>> d = 98.07985406973864
+    /// >>> d ** 2
+    /// 9619.657774341229          # 0x40C2C5426BEB74DD
+    /// >>> d * d
+    /// 9619.657774341227          # 0x40C2C5426BEB74DC
+    /// ```
+    ///
+    /// One ulp. In an argmin over distances that is enough to flip a near
+    /// tie and re-anchor a pad to a different skeleton node -- a different,
+    /// still-"legal" answer that only bit-equality would ever reveal. Hence
+    /// the kernel calls `host_math::pow`.
+    ///
+    /// The test asserts a counterexample EXISTS rather than pinning one
+    /// specific value, so it keeps its meaning on a libm whose rounding
+    /// differs from this host's. If some future libm really is correctly
+    /// rounded and this test fails, the kernel is still correct -- only this
+    /// justification would need rewriting.
+    #[cfg_attr(test, test)]
+    fn multiplication_is_not_a_valid_substitute_for_pow_at_board_scale() {
+        // The pinned counterexample from this host, checked first so a
+        // regression names a concrete value rather than "search found none".
+        let known = 98.07985406973864_f64;
+        assert_ne!(
+            host_math::pow(known, 2.0).to_bits(),
+            (known * known).to_bits(),
+            "the pinned counterexample stopped disagreeing; re-derive it \
+             before trusting `d * d` anywhere on this path"
+        );
+
+        // ...and an independent search over the coordinate domain, so the
+        // claim does not rest on one pinned constant.
+        let mut disagreements = 0usize;
+        let mut state: u64 = 0x2026_0818_C0FF_EE01;
+        for _ in 0..200_000 {
+            state = state
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            let unit = (state >> 11) as f64 / (1u64 << 53) as f64;
+            let d = unit * 400.0 - 200.0;
+            if host_math::pow(d, 2.0).to_bits() != (d * d).to_bits() {
+                disagreements += 1;
+            }
+        }
+        assert!(
+            disagreements > 0,
+            "no pow/multiply disagreement found in 200k board-scale samples"
+        );
+    }
+
+    /// **`math.sqrt(s)` and `s ** 0.5` are DIFFERENT functions in CPython,
+    /// and this file depends on both readings being kept straight.**
+    ///
+    /// IEEE-754 requires `sqrt` to be correctly rounded; it says no such
+    /// thing about `pow`. So `math.sqrt` lowers to `f64::sqrt`, while
+    /// `** 0.5` must lower to `host_math::pow(_, 0.5)` -- and they disagree
+    /// on real board-scale values:
+    ///
+    /// ```text
+    /// >>> s = 55489.646545994874
+    /// >>> math.sqrt(s)
+    /// 235.5624047805483          # what pad anchoring computes
+    /// >>> s ** 0.5
+    /// 235.56240478054826         # what boundary sampling computes
+    /// ```
+    ///
+    /// Both spellings live in THIS module, reading from two different lines
+    /// of the same Python file:
+    ///
+    /// * `sample_ring` transcribes `dist = (dx**2 + dy**2) ** 0.5` and so
+    ///   correctly uses `host_math::pow(..., 0.5)`.
+    /// * `pad_anchor_plan` transcribes
+    ///   `math.sqrt((dx) ** 2 + (dy) ** 2)` and so correctly uses
+    ///   `.sqrt()` -- while STILL routing the two squarings through
+    ///   `host_math::pow`, because those are `**`.
+    ///
+    /// Swapping either one for the other is a silent last-ulp change. This
+    /// test exists so that "just use sqrt everywhere, it is the same thing"
+    /// has a standing counterexample.
+    #[cfg_attr(test, test)]
+    fn math_sqrt_and_pow_half_are_not_interchangeable() {
+        let known = 55489.646545994874_f64;
+        assert_ne!(
+            known.sqrt().to_bits(),
+            host_math::pow(known, 0.5).to_bits(),
+            "the pinned sqrt/pow(_,0.5) counterexample stopped disagreeing; \
+             re-derive it before treating the two spellings as one"
+        );
+
+        let mut disagreements = 0usize;
+        let mut state: u64 = 0x5EED_2026_0818_0001;
+        for _ in 0..200_000 {
+            state = state
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            let unit = (state >> 11) as f64 / (1u64 << 53) as f64;
+            let s = unit * 160_000.0; // squared board-scale distances
+            if s.sqrt().to_bits() != host_math::pow(s, 0.5).to_bits() {
+                disagreements += 1;
+            }
+        }
+        assert!(
+            disagreements > 0,
+            "no sqrt / pow(_, 0.5) disagreement found in 200k samples"
+        );
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
