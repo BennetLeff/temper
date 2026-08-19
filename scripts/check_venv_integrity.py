@@ -100,6 +100,20 @@ scan -- reported as a GATE ERROR (exit 5), never folded into "0
 violations, PASSED" (see docs/METHODOLOGY.md Sec 4/5, and
 ``check_stale_extensions.py``'s identical backstop for `discover_crates`).
 
+Advisory (mode 5 -- WARNING only, never changes the exit code)
+----------------------------------------------------------------------
+2026-08-17: even a *healthy* shared venv is a hazard. The shared
+``.venv`` is editable-installed against the main checkout, so a worktree
+agent importing from it measures ``main``'s code, not its own change --
+nothing errors, numbers come back confident and wrong
+(``docs/evidence/2026-08-17-shared-venv-serves-main-code.md``). When this
+gate runs from a git worktree (not the main checkout) against a venv that
+resolves under the main checkout (or ``VIRTUAL_ENV`` points there), it
+prints a WARNING suggesting ``make venv-isolate``. Purely informational:
+the identity scan's verdict and exit code are unchanged. See also
+``docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`` for the four
+poisoning modes this gate's identity scan does catch.
+
 Exit codes (mirrors ``check_stale_extensions.py`` deliberately -- same
 job, same reader, same convention):
   0 - PASSED: every checkable path resolves under the expected repo root.
@@ -117,6 +131,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import urllib.parse
@@ -291,6 +306,67 @@ def _is_relative_to(path: Path, other: Path) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Mode-5 advisory: shared venv serves the wrong checkout
+# ---------------------------------------------------------------------------
+
+
+def find_cwd_worktree(cwd: Path, all_worktrees: list[Path]) -> Path | None:
+    """The most specific registered git worktree containing *cwd*, or None.
+
+    Worktrees may nest (e.g. ``.claude/worktrees/agent-X`` inside the main
+    checkout), so the longest matching prefix wins rather than the first.
+    All inputs must already be resolved.
+    """
+    cwd = cwd.resolve()
+    matches = [w for w in all_worktrees if cwd == w or _is_relative_to(cwd, w)]
+    if not matches:
+        return None
+    return max(matches, key=lambda p: len(p.parts))
+
+
+def mode5_warning(
+    venv_root: Path,
+    main_root: Path,
+    cwd_worktree: Path | None,
+    *,
+    active_venv: Path | None = None,
+) -> str | None:
+    """Mode-5 advisory (2026-08-17): is a shared venv serving the wrong code?
+
+    The shared ``.venv`` is editable-installed against the **main checkout**,
+    so a worktree agent importing from it measures ``main``'s code, not its
+    own change. Returns a WARNING string when the venv being checked (or
+    ``VIRTUAL_ENV``) resolves under the main checkout while the current
+    working directory is a *different* git worktree -- suggesting
+    ``make venv-isolate``. Returns None otherwise.
+
+    Advisory only: the caller must NOT change the exit code on it. All
+    path inputs must already be resolved (``cwd_worktree`` comes from
+    ``find_cwd_worktree``; ``main_root`` is the first entry of
+    ``git worktree list --porcelain``, which git guarantees is the main
+    worktree).
+    """
+    if cwd_worktree is None or cwd_worktree == main_root:
+        return None  # not in a worktree, or in the main checkout itself
+
+    candidates = [venv_root.resolve()]
+    if active_venv is not None:
+        candidates.append(active_venv.resolve())
+    for venv in dict.fromkeys(candidates):  # dedupe, preserve order
+        if _is_relative_to(venv, main_root) and not _is_relative_to(venv, cwd_worktree):
+            return (
+                f"WARNING: {venv} is the SHARED venv of the main checkout "
+                f"({main_root}), and the current working directory is a "
+                f"different git worktree ({cwd_worktree}). Editable-install "
+                "imports will resolve to MAIN's code, not this worktree's. "
+                "Run `make venv-isolate` here to get an isolated .venv, or "
+                "verify imports manually: python -c \"import temper_placer; "
+                "print(temper_placer.__file__)\""
+            )
+    return None
+
+
+# ---------------------------------------------------------------------------
 # Site-packages discovery
 # ---------------------------------------------------------------------------
 
@@ -429,6 +505,10 @@ def main() -> int:
 
     try:
         report = run(venv_root, repo_root)
+        all_worktrees = find_worktree_roots(repo_root)
+        cwd_worktree = find_cwd_worktree(Path.cwd(), all_worktrees)
+        active_venv = Path(os.environ["VIRTUAL_ENV"]) if os.environ.get("VIRTUAL_ENV") else None
+        mode5 = mode5_warning(venv_root, all_worktrees[0], cwd_worktree, active_venv=active_venv)
     except GateError as exc:
         print("=== VENV-INTEGRITY GATE ERROR ===", file=sys.stderr)
         print(f"Reason: {exc}", file=sys.stderr)
@@ -452,6 +532,8 @@ def main() -> int:
         f"  other registered worktrees excluded: {len(report.other_worktrees)}\n"
         f"  entries checked: {len(report.entries)}  violations: {len(violations)}"
     )
+    if mode5:
+        print(f"\n{mode5}\n")
     for e in report.entries:
         marker = "OK" if e.verdict.ok else "VIOLATION"
         print(f"  [{marker}] {e.kind} {e.source.name}: {e.raw!r} -- {e.verdict.detail}")
