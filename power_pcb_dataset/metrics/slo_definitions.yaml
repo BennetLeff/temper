@@ -1,3 +1,19 @@
+# Pipeline SLOs, evaluated by `scripts/pipeline_metrics.py slo` via
+# `scripts/slo_evaluator.py`.
+#
+# The top-level keys under `stages:` are matched against a record's `stage`
+# field, EXACTLY. `slo_evaluator.evaluate_all` does no stage aliasing and no
+# metric-to-stage inference: an SLO keyed on a stage no record carries silently
+# reports `insufficient_data, n=0, violated=False` forever. That is how all
+# three `block`-severity SLOs here spent their entire lifetime never evaluating
+# a single record -- they were keyed on `routing`/`drc`/`placement`, while the
+# only producer (`metrics_recorder.record_closure_result`) writes ONE record per
+# run with `stage: "closure"` carrying every metric.
+#
+# So: an SLO belongs under the stage whose records actually carry the metric,
+# and it may only be moved there when the closure record's value IS the quantity
+# the SLO names. Where it is not, the SLO stays put and stays unevaluated --
+# an honestly-absent gate, not a re-pointed one measuring the wrong thing.
 slo_version: 1
 stages:
   closure:
@@ -6,23 +22,61 @@ stages:
       threshold: 600000
       window: 5
       severity: warn
-  placement:
-    - metric: wall_time_ms
-      type: max
-      threshold: 120000
+
+    # MOVED from `routing:` (2026-08-19). `closure.metrics.completion_pct` is
+    # written from `ClosureResult.router_completion_pct`, which is the router's
+    # completion and nothing else -- the same quantity this SLO always named.
+    # Threshold, type, window and severity are unchanged.
+    #
+    # Polarity check, which is why THIS one is safe to enable: the metric is
+    # `type: min`, so a run that produced no routing result records 0.0 and
+    # reports VIOLATED. Missing measurement fails red. Compare `drc_errors`
+    # below, where missing measurement would fail green.
+    - metric: completion_pct
+      type: min
+      threshold: 95.0
       window: 5
-      severity: warn
+      severity: block
+
+  # NOT moved to `closure:`. `closure.metrics.wall_time_ms` is the wall clock of
+  # the WHOLE closure run (parse + placement + routing + DRC, ~42s observed),
+  # not routing alone; pointing a 120s routing budget at it would be comparing a
+  # threshold to a different quantity. Routing-only timing would come from
+  # `metrics_recorder.record_stage_timing(stage="routing", ...)`, which has no
+  # non-test caller anywhere in the repo. Until something emits it, this SLO
+  # honestly reports `insufficient_data` rather than measuring the wrong number.
   routing:
     - metric: wall_time_ms
       type: p95
       threshold: 120000
       window: 10
       severity: block
-    - metric: completion_pct
-      type: min
-      threshold: 95.0
+
+  # NOT moved to `closure:`. Same reason as `routing/wall_time_ms`: no
+  # placement-only timing is recorded by any caller.
+  placement:
+    - metric: wall_time_ms
+      type: max
+      threshold: 120000
       window: 5
-      severity: block
+      severity: warn
+
+  # DELIBERATELY NOT moved to `closure:`, even though `closure.metrics` does
+  # carry a `drc_errors` key. Moving it would manufacture a FALSE GREEN.
+  #
+  # All 135 recorded runs carry `drc_errors: 0` AND `drc_warnings: 0`, on a
+  # board whose `power_pcb_dataset/drc_ceiling.json` error ceiling is 90. Zero
+  # errors and zero warnings together is not a clean board; it is DRC never
+  # having executed (kicad-cli absent -> the Step 4 `try` block warns and leaves
+  # both counts at their 0 defaults). `ClosureResult.drc_measured` distinguishes
+  # "DRC ran and found nothing" from "DRC never ran" -- and it is NOT among the
+  # keys `record_closure_result` writes, so the series cannot distinguish them
+  # either. A `type: max, threshold: 0` SLO over those records would report `ok`
+  # on 135 runs that never measured anything.
+  #
+  # A gate that never runs is bad; a blocking gate that reports PASS over
+  # unmeasured data is worse. This one stays unevaluated until
+  # `drc_measured` is recorded and the evaluator can require it.
   drc:
     - metric: drc_errors
       type: max
