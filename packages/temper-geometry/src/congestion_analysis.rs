@@ -67,12 +67,17 @@ use crate::congestion::{ceil_to_int, cpython_max, cpython_min, cpython_min2, int
 use crate::host_math;
 
 /// `geometry.kicad_transform.rotate_local_to_world` -- R(-theta), via the
-/// host libm (see module doc's B1 note). Op order and grouping match the
-/// reference exactly: no reassociation, no `mul_add` fusion.
+/// host libm (see module doc's B1 note).
+///
+/// Delegates to `kicad_transform::rotate_local_to_world` rather than
+/// re-typing the formula. Bit-identical by construction: that function
+/// resolves cos/sin through `pad_geometry::math_cos_sin`, which is the
+/// same `dlsym(RTLD_DEFAULT, "cos"/"sin")` lookup with the same
+/// `f64::cos`/`f64::sin` fallback that `host_math::cos`/`sin` performs --
+/// literally the same function pointer -- and the two expressions are in
+/// the same op order and grouping (no reassociation, no `mul_add`).
 fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let c = host_math::cos(theta_rad);
-    let s = host_math::sin(theta_rad);
-    (x * c + y * s, -x * s + y * c)
+    crate::kicad_transform::rotate_local_to_world(x, y, theta_rad)
 }
 
 /// `core.pin_geometry._normalize_rotation`'s integer-index branch.
