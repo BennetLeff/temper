@@ -890,6 +890,58 @@ def _run_stage4(
             weight=self.thermal_weight,
         )
 
+    # ------------------------------------------------------------------
+    # UNFINISHED WIRING, NOT VESTIGIAL -- do not "tidy" either way.
+    # (verified 2026-08-18; see the branch selection immediately below)
+    #
+    # The four Stage-4 micro-stages (GridPrep / NetPrep / Route /
+    # ResultAggregate) do NOT run here. Only the *static*
+    # ``assemble_pathfinding_result`` is called, and it is
+    # ``getattr(state, "pathfinding_result", None)`` over a frozen
+    # BoardState whose ``pathfinding_result`` field defaults to None and
+    # is not among the kwargs below. So it returns None unconditionally,
+    # and one of the two ``pathfinding_result is None`` branches below
+    # always does the real routing. ``Stage4Orchestrator.run()`` has no
+    # caller in src/ or scripts/.
+    #
+    # Why this is UNFINISHED rather than dead: the BoardState built here
+    # *is* the U9 cost-field seam. ``route_stage.py``'s U8 block reads
+    # ``state.thermal_field`` and forwards it to the A* kernel as
+    # ``thermal_flat``/``thermal_weight``; that is the only consumer of
+    # the ``thermal_field=`` kwarg below, and it is precisely what the
+    # comment there means by "U9 will set a non-zero state.thermal_field".
+    # The parity tests carry the same marker ("U7 will fix: needs
+    # BoardState with Stage 2 outputs", test_stage4_monolith_parity.py).
+    #
+    # Consequence today: none. No caller in src/ or scripts/ passes
+    # ``thermal_flat`` to RouterV6Pipeline, so ``thermal_field`` is None
+    # here regardless (the cp_sat ``_loop_routing`` path threads a real
+    # field, but it does not come through this function). The moment a
+    # caller does pass one, it will be silently dropped -- neither
+    # ``run_astar_pathfinding_nlayer`` nor ``run_astar_pathfinding`` below
+    # is handed thermal_flat/thermal_weight, though both accept them.
+    # That is the bug this note exists to make visible.
+    #
+    # Do NOT "finish" it by calling ``orchestrated.run(state)``: that path
+    # is strictly less capable than the branches below and would not
+    # reproduce the committed board. GridPrepStage builds all-zero
+    # 2000x2000 occupancy grids at origin (0,0) -- no obstacles, not the
+    # Stage-2 grids -- and RouteStage is 2-grid (F.Cu/B.Cu) while
+    # production routes the 4 declared signal layers through
+    # ``_astar_nlayer``. Inside RouteStage the ``order_nets`` branch also
+    # cannot open: it is gated on ``state.loops``, which is assigned
+    # nowhere in src/, and its ``_lex_order`` result is discarded anyway.
+    #
+    # Nor is deleting it a simple dead-code cleanup. Nothing exercises
+    # ``orch.run()`` anywhere, tests included: test_stage4_golden_parity.py
+    # and test_stage4_monolith_parity.py do call it, but both open with a
+    # module-level ``pytest.skip(..., allow_module_level=True)`` reading
+    # "scaffold-only; see plan 2026-06-23-001 U7 for the rewrite". So the
+    # entire Stage-4 strangler -- orchestrator, four micro-stages, and
+    # their parity tests -- is scaffolding parked on that plan. Removing
+    # it is a decision about whether plan 2026-06-23-001 U7 is still
+    # wanted, which belongs to that plan's owner, not to a passing edit.
+    # ------------------------------------------------------------------
     orchestrated = Stage4Orchestrator(verbose=self.verbose)
     state = BoardState(
         _parsed_pcb=pcb,

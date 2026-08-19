@@ -87,7 +87,7 @@ trip margin is anchored to. Values are resolved by
 
 | Device | Rjc (K/W) | Rch (K/W) | Rha (K/W) | Source |
 |---|---|---|---|---|
-| IKW40N120H3 IGBT (Q1/Q2 legacy, U4/U5/U6 current board) | **0.31** | 0.20 | 0.45 | Rjc: datasheet recovery §1.2 (`components/IKW40N120H3/IKW40N120H3_Documentation.md` lines 78-79); Rch: committed TIM/Sil-Pad figure (`docs/guides/THERMAL_DESIGN_GUIDE.md` §3.1); Rha: HS1 Wakefield-Vette 392-120AB with fan (same source; decision doc §3.2 commits 0.45) |
+| IKW40N120H3 IGBT (Q1/Q2 legacy, U4/U5 current board) | **0.31** | 0.20 | 0.45 | Rjc: datasheet recovery §1.2 (`components/IKW40N120H3/IKW40N120H3_Documentation.md` lines 78-79); Rch: committed TIM/Sil-Pad figure (`docs/guides/THERMAL_DESIGN_GUIDE.md` §3.1); Rha: HS1 Wakefield-Vette 392-120AB with fan (same source; decision doc §3.2 commits 0.45) |
 | TO-220 rectifiers on HS1 (U1/U2) | 0.60 **placeholder** | 0.20 | 0.45 | Rjc: TO-220 package-class placeholder — **no recovered datasheet**; Rch/Rha: shared HS1 figures |
 | Everything else | 0.60 | 0.25 | 1.0 | **Placeholder** — the legacy flat stand-ins, kept with an explicit "not measured" comment |
 

@@ -36,10 +36,10 @@
 //! The per-device resistance table is keyed by the device's **stable
 //! identity** (value string, then footprint class) — deliberately NOT by
 //! designator. Designators are not stable across branches (handoff
-//! 2026-08-15 §6): "U6" is the UCC21550 gate driver on several branches
-//! and a different, unrelated IGBT on others, and Q1/Q2 name the
-//! half-bridge IGBTs in the legacy analysis while SOT-23 parts hold those
-//! designators on the current board. [`thermal_resistance_for`] keeps the
+//! 2026-08-15 §6): "U6" is the UCC21550 gate driver on this board, and
+//! named a half-bridge IGBT before the ZCD-removal renumber; Q1/Q2 name
+//! the half-bridge IGBTs in the legacy analysis while SOT-23 parts hold
+//! those designators on the current board. [`thermal_resistance_for`] keeps the
 //! refdes-based API the analysis calls, but the refdes → identity map is
 //! an explicit, documented compatibility layer; the resistance values
 //! themselves are attached to the device, not the designator.
@@ -168,15 +168,30 @@ pub fn thermal_resistance_for_device(value: &str, footprint: &str) -> ThermalRes
 /// from the stable identity, never from the designator itself.
 fn refdes_identity(refdes: &str) -> (&'static str, &'static str) {
     match refdes {
-        // IKW40N120H3 TO-247 IGBTs. Current board: U4 (hb.power_loop.q_high),
-        // U5 (hb.power_loop.q_low). Q1/Q2 are the LEGACY analysis refs for
-        // the same half-bridge devices — the SOT-23 parts that hold those
-        // designators on the current board are not the power devices.
-        // U6 names q_low on OTHER branches (where the gate driver is U7);
-        // on the current board U6 is the SOIC16W_Isolated gate driver, and
-        // this entry exists only so cross-branch analysis resolves the
-        // legacy name to the same stackup (matches the pre-move table).
-        "Q1" | "Q2" | "U4" | "U5" | "U6" => {
+        // IKW40N120H3 TO-247 IGBTs. Current board: U4
+        // (hb.power_loop.q_high), U5 (hb.power_loop.q_low) — the only
+        // TO-247 parts on it. Q1/Q2 are the LEGACY analysis refs for the
+        // same half-bridge devices; the SOT-23 AO3400A parts that hold
+        // those designators on the current board are not the power
+        // devices, so those two entries are a compatibility alias for
+        // pre-renumber analyses, not a claim about today's Q1/Q2.
+        //
+        // U6 was in this arm until 2026-08-18 and was WRONG. U6 is the
+        // isolated gate driver, not an IGBT: pcb/half_bridge.kicad_sch
+        // :828-830 and elec/src/components.ato:27-49 agree on
+        // UCC21550BDWKR / "lib:SOIC16W_Isolated" / hb.gate_hs.driver.
+        // The entry was residue of a board snapshot 11 minutes stale —
+        // the pre-move Python dict (1213c3e50, #1243, 18:27) was written
+        // while q_low was U6, and the ZCD-removal renumber (96db2ccde,
+        // 18:38) shifted every later U ref down a slot (U5->U4 q_high,
+        // U6->U5 q_low, U7->U6 driver). Resolving the gate driver to the
+        // IGBT stackup understated its path as 0.96 K/W against the 1.85
+        // K/W placeholder — non-conservative, the one direction a thermal
+        // limit must never err. Cross-branch analysis does not need the
+        // alias: thermal_resistance_for_device() already keys on the
+        // board's own (value, footprint), which IS branch-stable, and is
+        // what this module's header prescribes.
+        "Q1" | "Q2" | "U4" | "U5" => {
             ("IKW40N120H3", "Package_TO_SOT_THT:TO-247-3_Vertical")
         }
         // TO-220 rectifiers on the shared HS1 heatsink (BOM.md:542
@@ -290,12 +305,17 @@ pub(crate) mod tests {
         assert_eq!(PLACEHOLDER_RJC_RCH_RHA, (0.6, 0.25, 1.0));
     }
 
-    /// The refdes-based lookup is byte-identical to the pre-move Python
-    /// dict `THERMAL_RESISTANCE_BY_REF` (every entry + the fallback).
+    /// The refdes-based lookup matches the pre-move Python dict
+    /// `THERMAL_RESISTANCE_BY_REF` (every entry + the fallback), with the
+    /// one deliberate correction that "U6" now resolves to the placeholder
+    /// rather than the IGBT stackup — it is this board's gate driver.
     #[cfg_attr(test, test)]
     fn refdes_lookup_matches_python_table() {
-        // Datasheet-recovered IKW40N120H3 entries.
-        for refdes in ["Q1", "Q2", "U4", "U5", "U6"] {
+        // Datasheet-recovered IKW40N120H3 entries. "U6" is deliberately
+        // absent: it is the UCC21550 gate driver on this board, not an
+        // IGBT — see refdes_identity(). It is asserted as a placeholder
+        // below instead, so this test now pins the CORRECTED table.
+        for refdes in ["Q1", "Q2", "U4", "U5"] {
             let tr = thermal_resistance_for(refdes);
             assert_eq!((tr.rjc, tr.rch, tr.rha), (0.31, 0.20, 0.45), "ref {refdes}");
             assert!(!tr.source.contains("placeholder"));
@@ -306,7 +326,7 @@ pub(crate) mod tests {
             assert_eq!((tr.rjc, tr.rch, tr.rha), (0.60, 0.20, 0.45), "ref {refdes}");
         }
         // Every other ref resolves to the flat legacy placeholder.
-        for refdes in ["U3", "U7", "R1", "C1", "NTC_HS", "L1", ""] {
+        for refdes in ["U3", "U6", "U7", "R1", "C1", "NTC_HS", "L1", ""] {
             let tr = thermal_resistance_for(refdes);
             assert_eq!((tr.rjc, tr.rch, tr.rha), (0.6, 0.25, 1.0), "ref {refdes}");
             assert!(tr.source.contains("placeholder — no recovered datasheet"));

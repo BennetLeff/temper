@@ -1800,7 +1800,7 @@ scripts:
 - path: full_pipeline_profile.py
   purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
   owner: router-v6-closure-rate
-  last_run: '2026-06-23'
+  last_run: '2026-08-18'
   category: keep
   disposition: utility
   imports:

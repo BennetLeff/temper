@@ -334,8 +334,8 @@ class TestRustVsOracleFixtures:
 
 def test_real_production_board_parity() -> None:
     """The strongest fixture is the real committed board: both implementations
-    must agree byte-for-byte on pcb/temper.kicad_pcb (2290 segments + 48 vias
-    + 96 zones)."""
+    must agree byte-for-byte on pcb/temper.kicad_pcb (4553 segments + 169 vias
+    + 151 zones)."""
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[4]

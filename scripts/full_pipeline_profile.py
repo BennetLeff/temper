@@ -16,9 +16,23 @@ Output:
 - /tmp/full_pipeline_profile.json  — machine-readable summary
 
 Usage:
-    PYTHONPATH=packages/temper-placer/src \\
-    /Users/bennet/Desktop/temper/.venv/bin/python3 \\
-    scripts/full_pipeline_profile.py
+    uv run --no-sync python scripts/full_pipeline_profile.py
+
+What this does and does NOT measure (read before quoting a number):
+
+- By default (``PROFILE_CANONICAL`` unset) it bypasses the strategy
+  registry and drives ``RouterV6Pipeline`` directly with smoke-equivalent
+  flags. That configuration routes the LEGACY 2-grid path
+  (``_astar_route_with_ripup``), not the N-layer path
+  (``_astar_route_nlayer``) that the production/closure route takes on
+  this board. Its completion rate is therefore NOT the production closure
+  figure and must never be quoted as one. Check
+  ``instrumentation_fired`` in the JSON to see which seam actually ran.
+- ``PROFILE_CANONICAL=1`` runs the real ``router_v6_full`` strategy.
+- ``PROFILE_MAX_ITER`` caps per-A* iterations (default 100000); a low cap
+  manufactures failures that are cap artifacts, not routing failures.
+- The run aborts rather than publishing figures if no instrumented seam
+  was entered -- see :func:`assert_instrumentation_fired`.
 """
 from __future__ import annotations
 
@@ -34,7 +48,14 @@ import time
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path("/Users/bennet/Desktop/temper/.worktrees/feat/router-v6-closure-rate-90-percent")
+# Resolve from this file, not from one author's 2026-06 macOS worktree.
+# The hardcoded "/Users/bennet/Desktop/temper/.worktrees/feat/
+# router-v6-closure-rate-90-percent" this replaced exists on no machine
+# that runs this repo today, so PCB_PATH resolved to a missing board and
+# the script died in parse before reaching any of its instrumentation.
+# NOTE: branch agent/vacuous-gates-orphan-scripts makes this identical
+# edit; the conflict is textual only.
+REPO_ROOT = Path(__file__).resolve().parents[1]
 PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 LOG_PATH = Path("/tmp/full_pipeline_profile.log")
 PSTATS_PATH = Path("/tmp/full_pipeline_profile.pstats")
@@ -63,23 +84,52 @@ def setup_logging(verbose: bool) -> None:
 
 
 def instrument_router() -> dict[str, Any]:
-    """Wrap the router's A* pathfinding with per-net timing/call counters.
+    """Wrap the router's A* seams with per-net timing/call counters.
 
-    Returns a dict that the caller reads after the run.  The wrapping
-    is non-invasive: we monkey-patch ``astar_core_rust._astar_search_rust``
-    (and ``astar_pathfinding._dispatch_search``) to record:
+    2026-08-18 REPAIR. As written on 2026-06-23 this function measured
+    NOTHING, in three independent ways, and reported plausible-looking
+    zeros for it:
 
-    - net name (via the per-net wrapper)
-    - aggregate A* call count, total/mean/max wall time
-    - count of calls that hit the iteration cap
-    - effective iter cap (logged once for sanity)
+    1. It patched ``astar_pathfinding._astar_route_with_ripup``.
+       ``astar_pathfinding`` became a pure re-export shim; the real
+       function lives in ``_astar_search`` and its only production caller
+       (``_astar_reconstruct``) binds it via ``from ... import`` at import
+       time. Rebinding the shim's attribute moves nothing, so
+       ``net_calls`` / ``net_time_ms`` / ``net_iters_cap`` were always
+       ``{}`` -- and were still written to the JSON as if measured.
+    2. Even reached, the wrapper unpacked two values from a function that
+       returns three (``path, ripped_ids, fallback_count``) -- proof it had
+       not run since that third value was added.
+    3. On this board the production route is the N-layer path
+       (>2 routable signal layers), which routes each net through
+       ``_astar_nlayer._astar_route_nlayer`` and never calls
+       ``_astar_route_with_ripup`` at all.
 
-    Cheap-running counters are used in the hot path: the previous
-    per-call dict-append added measurable Python overhead to the
-    1M-iter-cap full run.
+    It also set ``astar_pathfinding._astar_search_rust``, a name that
+    module does not have and nothing reads, and its kernel wrapper
+    declared a fixed signature that rejects the ``net_id`` /
+    ``corridor_mask`` / ``thermal_flat`` / ``thermal_weight`` kwargs the
+    live call site passes.
+
+    The wrappers below are therefore signature- and return-agnostic
+    (``*args, **kwargs``, no unpacking), and patch the bindings production
+    actually reads:
+
+    - ``astar_core_rust._astar_search_rust`` -- aggregate A* counters.
+      This one binds because the call site re-imports it per call
+      (function-local import in ``_astar_search``).
+    - ``_astar_nlayer._astar_route_nlayer`` -- per-net attribution on the
+      N-layer path (called by module-global name at _astar_nlayer.py:1363).
+    - ``_astar_reconstruct._astar_route_with_ripup`` -- per-net attribution
+      on the legacy 2-grid path.
+
+    Call :func:`assert_instrumentation_fired` after the run: it raises if
+    no counter moved, so this script can never again report a number for a
+    seam it did not touch.
     """
+    from temper_placer.router_v6 import _astar_nlayer as anl
+    from temper_placer.router_v6 import _astar_reconstruct as arec
     from temper_placer.router_v6 import astar_core_rust as acn
-    from temper_placer.router_v6 import astar_pathfinding as ap
 
     stats: dict[str, Any] = {
         # Cheap running counters for the A* hot path
@@ -88,41 +138,30 @@ def instrument_router() -> dict[str, Any]:
         "a_star_max_ms": 0.0,
         "a_star_min_ms": float("inf"),
         "a_star_cap_hits": 0,
-        "iter_cap": 10_000_000,  # raised to 10M for the full run
         "iter_cap_logged": False,
-        # Per-net attribution from the ripup wrapper
+        # Per-net attribution
         "net_calls": {},
         "net_time_ms": {},
         "net_iters_cap": {},
+        # Which patch points actually fired (the anti-vacuity record).
+        "patched": [],
+        "fired": {},
     }
 
     _orig_search = acn._astar_search_rust
 
-    def _wrapped_search(
-        start, goal, grid, neighbor_tensor=None,
-        max_iterations=1_000_000, congestion_flat=None,
-        congestion_weight=1.0, max_congestion_cost=100.0,
-    ):
+    def _wrapped_search(*args, **kwargs):
         t0 = time.perf_counter()
-        path = _orig_search(
-            start, goal, grid, neighbor_tensor=neighbor_tensor,
-            max_iterations=max_iterations,
-            congestion_flat=congestion_flat,
-            congestion_weight=congestion_weight,
-            max_congestion_cost=max_congestion_cost,
-        )
+        path = _orig_search(*args, **kwargs)
         dt_ms = (time.perf_counter() - t0) * 1000.0
         hit_cap = (path is None or len(path) == 0)
-        # Sanity log the iter cap once so we know the production
-        # run actually saw the cap we intended (and not the kernel
-        # default of 1M).
         if not stats["iter_cap_logged"]:
             stats["iter_cap_logged"] = True
             logging.info(
-                "A* kernel max_iterations=%d (congestion_weight=%.3f)",
-                max_iterations, congestion_weight,
+                "A* kernel max_iterations=%s (congestion_weight=%s)",
+                kwargs.get("max_iterations", "<default>"),
+                kwargs.get("congestion_weight", "<default>"),
             )
-        # Cheap-running counters
         stats["a_star_call_count"] += 1
         stats["a_star_total_ms"] += dt_ms
         if dt_ms > stats["a_star_max_ms"]:
@@ -131,35 +170,77 @@ def instrument_router() -> dict[str, Any]:
             stats["a_star_min_ms"] = dt_ms
         if hit_cap:
             stats["a_star_cap_hits"] += 1
+        stats["fired"]["_astar_search_rust"] = (
+            stats["fired"].get("_astar_search_rust", 0) + 1
+        )
         return path
 
     acn._astar_search_rust = _wrapped_search
-    ap._astar_search_rust = _wrapped_search
+    stats["patched"].append("astar_core_rust._astar_search_rust")
 
-    # Now wrap the per-net loop in run_astar_pathfinding so we can
-    # attribute A* calls to a net name.  We do this by monkey-patching
-    # the inner helper that does the per-net iteration.
-    _orig_route_with_ripup = ap._astar_route_with_ripup
+    def _make_per_net_wrapper(orig, label):
+        """Time one net's routing call without touching its return shape."""
 
-    def _wrapped_route_with_ripup(*args, **kwargs):
-        net_name = kwargs.get("net_name") or (args[0] if args else "??")
-        # The pathfinding code does the A* inside _astar_search_rust;
-        # we just need to time the per-net total.
-        t0 = time.perf_counter()
-        result, ripped_ids = _orig_route_with_ripup(*args, **kwargs)
-        dt_ms = (time.perf_counter() - t0) * 1000.0
-        stats["net_calls"][net_name] = stats["net_calls"].get(net_name, 0) + 1
-        stats["net_time_ms"][net_name] = (
-            stats["net_time_ms"].get(net_name, 0.0) + dt_ms
-        )
-        if result is None:
-            stats["net_iters_cap"][net_name] = (
-                stats["net_iters_cap"].get(net_name, 0) + 1
+        def _wrapped(*args, **kwargs):
+            net_name = kwargs.get("net_name") or (args[0] if args else "??")
+            t0 = time.perf_counter()
+            out = orig(*args, **kwargs)
+            dt_ms = (time.perf_counter() - t0) * 1000.0
+            stats["net_calls"][net_name] = stats["net_calls"].get(net_name, 0) + 1
+            stats["net_time_ms"][net_name] = (
+                stats["net_time_ms"].get(net_name, 0.0) + dt_ms
             )
-        return result, ripped_ids
+            # First element of the returned tuple is the route path on both
+            # seams; None means the net did not close on this attempt.
+            route = out[0] if isinstance(out, tuple) and out else out
+            if route is None:
+                stats["net_iters_cap"][net_name] = (
+                    stats["net_iters_cap"].get(net_name, 0) + 1
+                )
+            stats["fired"][label] = stats["fired"].get(label, 0) + 1
+            return out
 
-    ap._astar_route_with_ripup = _wrapped_route_with_ripup
+        return _wrapped
+
+    anl._astar_route_nlayer = _make_per_net_wrapper(
+        anl._astar_route_nlayer, "_astar_route_nlayer"
+    )
+    stats["patched"].append("_astar_nlayer._astar_route_nlayer")
+
+    arec._astar_route_with_ripup = _make_per_net_wrapper(
+        arec._astar_route_with_ripup, "_astar_route_with_ripup"
+    )
+    stats["patched"].append("_astar_reconstruct._astar_route_with_ripup")
+
     return stats
+
+
+def assert_instrumentation_fired(stats: dict[str, Any]) -> None:
+    """Refuse to report numbers for seams that were never entered.
+
+    A profiler that prints plausible figures while measuring nothing is
+    worse than no profiler: this script did exactly that between
+    2026-06-23 and 2026-08-18. Every counter below is expected to move on
+    any real route; if none did, the patch points have drifted again and
+    the output must not be believed.
+    """
+    if not stats["fired"]:
+        raise RuntimeError(
+            "instrumentation measured NOTHING -- none of the patched seams "
+            f"({', '.join(stats['patched'])}) was entered. The router's "
+            "internals have moved again; re-point instrument_router() "
+            "before trusting any number this script prints."
+        )
+    if not stats["net_calls"]:
+        raise RuntimeError(
+            "per-net attribution is empty while the A* kernel ran "
+            f"({stats['a_star_call_count']} calls) -- the per-net seam has "
+            "drifted. Fix it rather than reporting aggregate-only numbers."
+        )
+    logging.info(
+        "instrumentation self-check OK: %s",
+        ", ".join(f"{k}={v}" for k, v in sorted(stats["fired"].items())),
+    )
 
 
 def run_full_pipeline(profile: bool) -> dict[str, Any]:
@@ -185,7 +266,6 @@ def run_full_pipeline(profile: bool) -> dict[str, Any]:
 
     # 2. Instrument router (per-net logging + A* call recording)
     a_star_stats = instrument_router()
-    a_star_stats["iter_cap"] = 1_000_000  # uncap for the full run
 
     # 3. Channel analysis (Stage 2) + placement.channels.json
     t0 = time.perf_counter()
@@ -274,17 +354,21 @@ def run_full_pipeline(profile: bool) -> dict[str, Any]:
         # The RouterV6Pipeline's run() doesn't expose a max_iter
         # arg; we wrap the kernel to apply the cap.
         from temper_placer.router_v6 import astar_core_rust as acn
-        from temper_placer.router_v6 import astar_pathfinding as ap
         _cap = max_iter
         if max_iter < 10_000_000:
             _orig = acn._astar_search_rust
-            def _cap_search(start, goal, grid, neighbor_tensor=None,
-                            max_iterations=1_000_000, **kw):
-                return _orig(start, goal, grid,
-                             neighbor_tensor=neighbor_tensor,
-                             max_iterations=_cap, **kw)
+            def _cap_search(*args, **kw):
+                # Signature-agnostic: the kernel also takes net_id /
+                # corridor_mask / thermal_flat / thermal_weight, and the
+                # live call site passes them. The previous fixed signature
+                # here (and in the instrumentation wrapper) would have
+                # raised TypeError on the first call.
+                kw["max_iterations"] = _cap
+                return _orig(*args, **kw)
             acn._astar_search_rust = _cap_search
-            ap._astar_search_rust = _cap_search
+            # NOTE: astar_pathfinding has no _astar_search_rust attribute
+            # and nothing reads one; the old `ap._astar_search_rust = ...`
+            # here only created a name that never fired.
         router_out = pipeline.run(PCB_PATH, pcb_override=parsed)
         class _RR:
             completion_rate = router_out.completion_rate
@@ -310,7 +394,11 @@ def run_full_pipeline(profile: bool) -> dict[str, Any]:
         out["pstats_top_40"] = s.getvalue()
         logging.info("cProfile written to %s", PSTATS_PATH)
 
-    # 7. A* call stats — already in the running counters, just copy out
+    # 7. A* call stats — already in the running counters, just copy out.
+    # Refuse to publish them if no patched seam was entered.
+    assert_instrumentation_fired(a_star_stats)
+    out["instrumentation_fired"] = dict(a_star_stats["fired"])
+    out["instrumentation_patched"] = list(a_star_stats["patched"])
     out["a_star_call_count"] = a_star_stats["a_star_call_count"]
     out["a_star_total_ms"] = a_star_stats["a_star_total_ms"]
     out["a_star_cap_hits"] = a_star_stats["a_star_cap_hits"]

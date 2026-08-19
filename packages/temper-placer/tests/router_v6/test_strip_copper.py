@@ -139,13 +139,31 @@ class TestStripExistingCopper:
 
     def test_matches_real_production_board_zone_count(self):
         """Integration-level regression guard against the real committed
-        board: pcb/temper.kicad_pcb is known (measured) to carry 2290
-        segments, 48 vias, and 96 zones = 2434 committed copper blocks.
+        board: pcb/temper.kicad_pcb is known (measured) to carry 4553
+        segments, 169 vias, and 151 zones = 4873 committed copper blocks.
         This does not modify the file -- read-only.
 
-        Was 2338 segments until the 48 zero-length ones (start == end, one
-        per via) were removed as degenerate geometry; the writer no longer
-        emits them. 2338 - 48 = 2290.
+        These three constants are hand-maintained mirrors of the committed
+        board; they must be updated in the same commit as any deliberate
+        re-route. Provenance of the current values:
+
+        - 2290 / 48 / 96 held from 556ccf4f0 (2026-07-27, the first
+          committed route) through aec4bf1f8 (2026-08-17). Was 2338
+          segments until the 48 zero-length ones (start == end, one per
+          via) were removed as degenerate geometry; the writer no longer
+          emits them. 2338 - 48 = 2290.
+        - 23b5daf8d (#1312) regenerated the board's copper, which had not
+          changed since 556ccf4f0 while placement moved 46 times:
+          isolated_copper 109 -> 0, 0 -> 36 genuine multi-pad connections.
+          96 -> 143 zones.
+        - 342e1bd08 (#1333) landed both stitch fixes (#1329 / #1332):
+          track_width violations 120 -> 0. 143 -> 151 zones.
+
+        The expectation went stale rather than the board going wrong: each
+        of those re-routes was deliberate and evidence-backed, and
+        4553/169/151 is the reproduced routing baseline. It stayed stale
+        because this file is registered _PASSING_LOCALLY and is wired into
+        no CI job -- see tests/validation/test_ci_test_file_registration.py.
         """
         from pathlib import Path
 
@@ -153,13 +171,13 @@ class TestStripExistingCopper:
         pcb_path = repo_root / "pcb" / "temper.kicad_pcb"
         content = pcb_path.read_text(encoding="utf-8")
 
-        assert content.count("(zone ") == 96, (
+        assert content.count("(zone ") == 151, (
             "pcb/temper.kicad_pcb's committed zone count changed -- update "
             "this regression guard's expectation if that was intentional."
         )
 
         cleaned, n = strip_existing_copper(content)
-        assert n == 2290 + 48 + 96
+        assert n == 4553 + 169 + 151
         assert "(zone " not in cleaned
         assert "(segment " not in cleaned
         assert "(via " not in cleaned
