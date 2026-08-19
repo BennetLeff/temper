@@ -103,7 +103,9 @@ class TestPipelineMetricsRecordToDict:
         d = record.to_dict()
         assert d["drc_delta"] == 2
         assert d["board"] == "test"
-        assert d["schema_version"] == 2
+        # v3: ``completion_pct`` became a percent (was a fraction in v1/v2);
+        # see CURRENT_SCHEMA_VERSION in metrics_recorder.py.
+        assert d["schema_version"] == 3
 
     def test_to_dict_without_drc_delta(self):
         from temper_placer.regression.metrics_recorder import (

@@ -178,6 +178,11 @@ class ClosureResult:
     board_id: str
     benders_iterations: int = 0
     benders_cuts: int = 0
+    # PERCENT in [0.0, 100.0], NOT a fraction. Matches the
+    # ``unit: "percent"`` declaration for the derived ``completion_pct``
+    # metric in ``regression/metrics_schema.yaml`` and the ``{:.1}%``
+    # rendering in ``temper_drc_rs.closure_summary``. Producers reading a
+    # fractional ``completion_rate`` MUST scale by 100 before assigning.
     router_completion_pct: float = 0.0
     drc_errors: int = 0
     drc_warnings: int = 0
@@ -363,7 +368,24 @@ class ClosureTest:
                     ),
                 ),
             )
-            router_completion_pct = getattr(routing_result.data, "completion_rate", 0.0)
+            # UNIT BOUNDARY. ``RoutingResult.completion_rate`` is a
+            # FRACTION in [0.0, 1.0]; ``router_completion_pct`` is a
+            # PERCENT in [0.0, 100.0]. Every consumer of this field
+            # already assumes percent -- ``regression/metrics_schema.yaml``
+            # declares the derived ``completion_pct`` metric as
+            # ``unit: "percent", max: 100.0``; ``temper_drc_rs.closure_summary``
+            # renders it as ``{:.1}%`` with no scaling; the SM1 gate
+            # (tests/closure/test_router_completion.py) compares it to 90
+            # and the routing SLO to 95.0. Stamping the raw fraction here
+            # understated every reported completion by 100x: a 90%-routed
+            # board printed "Router completion: 0.9%". Scale at the seam,
+            # exactly as scripts/route_board.py:377 and
+            # scripts/full_pipeline_profile.py:297 already do.
+            # 0.0 (the "no routing result" default) scales to 0.0, so the
+            # ``<= 0`` zero-results assertion in validate() is unchanged.
+            router_completion_pct = (
+                float(getattr(routing_result.data, "completion_rate", 0.0)) * 100.0
+            )
             stages_exercised += 1
 
             # U4: Surface ``BottleneckGeometry.message`` strings from
