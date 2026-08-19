@@ -181,9 +181,19 @@ _SEGMENT_RE = re.compile(
     r"\(segment \(start ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\)"
     r" \(width ([\d.]+)\) \(layer \"([^\"]+)\"\) \(net (\d+)\)"
 )
+#: A KiCad via line carries an OPTIONAL type token between ``(via`` and
+#: ``(at``: ``blind``, ``buried`` or ``micro``.  The emitter writes it for
+#: every via whose declared layer pair is not the full copper stack (see
+#: ``_via_type_token`` in ``_adapter_convert``/``pipeline_route.rs``), so a
+#: pattern anchored on the literal ``(via (at `` matches ONLY through vias.
+#: Measured on the committed board: 132 of 169 vias are through and 37 are
+#: blind, and every one of those 37 was invisible to the pour carve --
+#: buried copper a mains pour was never carved back from.  The token is
+#: matched as a non-capturing group so the group numbering (and therefore
+#: every unpack site below) is unchanged.
 _VIA_RE = re.compile(
-    r"\(via \(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\) \(drill [\d.]+\)"
-    r" \(layers ([^)]*)\) \(net (\d+)\)"
+    r"\(via (?:(?:blind|buried|micro) )?\(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\)"
+    r" \(drill [\d.]+\) \(layers ([^)]*)\) \(net (\d+)\)"
 )
 
 
@@ -269,7 +279,7 @@ def pair_clearance_keepout(
         )
 
     for via in getattr(pcb, "vias", []) or []:
-        if via.net == zone_net or layer not in getattr(via, "layers", ()):
+        if via.net == zone_net or not _via_is_on_layer(getattr(via, "layers", ()), layer):
             continue
         geoms.append(
             Point(via.position).buffer(
@@ -295,7 +305,7 @@ def pair_clearance_keepout(
         match = _VIA_RE.search(line)
         if match:
             x, y, size, via_layers, net_num = match.groups()
-            if layer not in via_layers:
+            if not _via_is_on_layer(tuple(via_layers.replace('"', "").split()), layer):
                 continue
             other = names.get(int(net_num), "")
             if not other or other == zone_net:

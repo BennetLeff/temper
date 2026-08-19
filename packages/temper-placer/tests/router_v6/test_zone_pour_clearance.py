@@ -207,3 +207,95 @@ class TestKicadTreatsZoneToPadClearanceDifferently:
         for class_a in table.classes:
             for class_b in table.classes:
                 assert (class_a, class_b, "Pad") in table.values
+
+
+class TestBlindAndBuriedViasAreCarvedAgainst:
+    """A via's type token must not hide it from the pour carve.
+
+    ``_via_type_token`` (``_adapter_convert`` / ``pipeline_route.rs``) writes
+    ``blind``/``buried``/``micro`` between ``(via`` and ``(at`` for every via
+    whose declared layer pair is not the full copper stack. Measured on the
+    committed ``pcb/temper.kicad_pcb``: 37 of 169 vias carry such a token, and
+    a pattern anchored on the literal ``(via (at `` skipped every one of them
+    -- foreign copper a mains pour was never carved back from.
+
+    Both obstacle collectors are exercised: the shapely keepout
+    (``pair_clearance_keepout``) and the record collector the Rust generator
+    consumes (``collect_zone_obstacle_records``).
+    """
+
+    @staticmethod
+    def _via_line(token: str, layers: str, net: int) -> str:
+        head = f"  (via {token} (at" if token else "  (via (at"
+        return (
+            f"{head} 0.0000 0.0000) (size 0.8000) (drill 0.4000)"
+            f" (layers {layers}) (net {net}) (tstamp \"v\"))"
+        )
+
+    @pytest.mark.parametrize(
+        ("token", "layers"),
+        [
+            ("", '"F.Cu" "B.Cu"'),
+            ("blind", '"F.Cu" "In3.Cu"'),
+            ("buried", '"In3.Cu" "In4.Cu"'),
+            ("micro", '"In3.Cu" "In4.Cu"'),
+        ],
+    )
+    def test_every_via_type_reaches_the_keepout(self, token, layers):
+        from types import SimpleNamespace
+
+        keepout = pair_clearance_keepout(
+            "ac_l",
+            "In3.Cu",
+            pcb=SimpleNamespace(components=[], tracks=[], vias=[]),
+            segments=[self._via_line(token, layers, 2)],
+            net_number_to_name={1: "ac_l", 2: "SW_NODE"},
+            table=default_table(),
+        )
+        assert keepout is not None, f"a {token or 'through'} via was not carved against"
+        # SW_NODE is HighVoltage: 3.0mm from a 0.8mm via -> 3.4mm radius.
+        assert keepout.contains(Point(3.3, 0.0))
+        assert not keepout.contains(Point(3.5, 0.0))
+
+    @pytest.mark.parametrize(
+        ("token", "layers"),
+        [
+            ("", '"F.Cu" "B.Cu"'),
+            ("blind", '"F.Cu" "In3.Cu"'),
+            ("buried", '"In3.Cu" "In4.Cu"'),
+            ("micro", '"In3.Cu" "In4.Cu"'),
+        ],
+    )
+    def test_every_via_type_reaches_the_obstacle_records(self, token, layers):
+        from types import SimpleNamespace
+
+        from temper_placer.router_v6.zone_pour_clearance import (
+            collect_zone_obstacle_records,
+        )
+
+        records = collect_zone_obstacle_records(
+            "ac_l",
+            "In3.Cu",
+            pcb=SimpleNamespace(components=[], tracks=[], vias=[]),
+            segments=[self._via_line(token, layers, 2)],
+            net_number_to_name={1: "ac_l", 2: "SW_NODE"},
+            clearance_table=default_table(),
+        )
+        assert [r[0] for r in records] == [2], (
+            f"a {token or 'through'} via produced no Via obstacle record"
+        )
+
+    def test_the_committed_board_has_blind_vias_this_pattern_must_match(self):
+        """Anti-vacuity: the fixtures above are not a hypothetical shape."""
+        import re
+
+        from temper_placer.router_v6.zone_pour_clearance import _VIA_RE
+
+        board = (REPO_ROOT / "pcb" / "temper.kicad_pcb").read_text(encoding="utf-8")
+        typed = [
+            line
+            for line in board.splitlines()
+            if re.match(r"\s*\(via (?:blind|buried|micro) ", line)
+        ]
+        assert typed, "the board no longer has typed vias -- re-derive this test"
+        assert all(_VIA_RE.search(line) for line in typed)
