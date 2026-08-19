@@ -66,6 +66,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+import shapely
 import temper_geometry as _tg
 from shapely import contains, points
 from shapely.geometry import LineString, Point, Polygon
@@ -395,6 +396,40 @@ def build_obstacle_grid(
     flat_y = yy_world.ravel()
     pts = points(flat_x, flat_y)
 
+    # PERF (no semantic change): both rasterization predicates below test ONE
+    # large polygon against every cell centre on the board, and `shapely`
+    # only consults a spatial index if the left geometry has been prepared.
+    # Unprepared, every one of those ~10^5-10^6 point tests re-walks the
+    # polygon's whole edge list -- and `merged` is a union of the HV keepout,
+    # every foreign net's copper and every prior rail's copper, i.e. tens of
+    # thousands of vertices.
+    #
+    # This is the `channel_skeleton._bridge_validity_mask` pattern (prepare +
+    # vectorized ufunc) that this function's own docstring already says it
+    # mirrors, and it is by far the largest single shapely cost on a full
+    # production route. Measured on pcb/temper.kicad_pcb, 2026-08-18, with
+    # only these two `prepare` calls added and nothing else changed:
+    #
+    #   build_obstacle_grid (5 calls)   44.19s -> 1.99s cumulative
+    #   shapely.contains (6681 calls)   43.80s -> 1.41s  (~31x)
+    #   all shapely, share of profile   23.0%  -> 6.4%
+    #   full route, wall clock          222.9s -> 176.4s (mean of 2 runs/arm)
+    #
+    # The routed board is BYTE-IDENTICAL either way (sha256 6d4e1733...), the
+    # `contains` CALL COUNT is unchanged at 6681, pad connectivity is
+    # unchanged at 60/139, and the DRC violation set is unchanged. That is the
+    # point: `prepare` mutates the geometry in place to attach an index and
+    # changes no answer -- a prepared predicate is the same predicate.
+    #
+    # Note the two obvious-looking neighbours are NOT worth the same
+    # treatment, measured rather than assumed: the scalar `contains` loop in
+    # `_ground_plane._find_via_drop_point` accounts for 6182 of those 6681
+    # calls but only 0.61s of the 43.80s, and hoisting `prepare` there (plus
+    # into both `_blocked` helpers, `_zone_pour_stitch` and
+    # `channel_widths._rasterize_boundary_mask`) measured zero change. Call
+    # count is not cost here; one vectorized call against a million points
+    # dwarfs six thousand scalar ones.
+    shapely.prepare(board_polygon)
     inside_board = contains(board_polygon, pts).reshape(height_cells, width_cells)
     grid_arr = np.where(inside_board, 0, -1).astype(np.int8)
 
@@ -402,6 +437,7 @@ def build_obstacle_grid(
     if real_obstacles:
         merged = unary_union(real_obstacles)
         if not merged.is_empty:
+            shapely.prepare(merged)
             blocked = contains(merged, pts).reshape(height_cells, width_cells)
             grid_arr[blocked] = -1
 
