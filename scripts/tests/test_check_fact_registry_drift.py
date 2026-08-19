@@ -584,7 +584,23 @@ class TestRealRegistryExtendedFamilies:
         Per the task's coordination instruction ("register the invariant
         anyway so it cannot silently return"), this pins the fix as green,
         the same pattern ``test_gate_drive_net_names_agree_regression_
-        guard`` above uses for PR #1310's earlier _GATE_NETS fix."""
+        guard`` above uses for PR #1310's earlier _GATE_NETS fix.
+
+        UPDATED (net-current SSOT consolidation): 4 site-results -> 2.
+        These facts used to have TWO homes each, the second being
+        ``StackupGate._DEFAULT_NET_CURRENTS``. That second home has been
+        DELETED, not renamed: it was a hand-kept duplicate of
+        ``temper_drc_rs::ipc::net_currents()`` whose exact, case-sensitive
+        lookup missed the board's lowercase ``ac_l``/``ac_n`` entirely, and
+        whose documented dispatch rule then discarded the Rust kernel's
+        correct 15.0 A in favour of its own 0.1 A default.
+
+        The two-home structure was itself the defect -- AGENTS.md's standing
+        rule is to fix the Rust and delete the Python rather than leave both
+        "in agreement" -- so pinning a count of 2 homes would pin the shape
+        that caused this. What replaces the second home as a guarantee is
+        ``scripts/check_net_current_coverage.py``, which proves the single
+        surviving table covers every real HV-domain board net."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         current_results = [
@@ -592,10 +608,14 @@ class TestRealRegistryExtendedFamilies:
             for r in results
             if r.fact in ("gate_hs_net_current_rating_a", "gate_ls_net_current_rating_a")
         ]
-        assert len(current_results) == 4  # 2 facts x 2 homes
+        assert len(current_results) == 2  # 2 facts x 1 (single-SSOT) home
         for r in current_results:
             assert r.error is None
             assert r.matches is True
+        # The deleted duplicate must not come back as a registered home.
+        assert not any(
+            "gates.py" in r.site.file for r in current_results
+        ), "the Python duplicate ampacity table is deleted; it must not be re-registered"
 
     def test_hv_lv_separation_gate_threshold_is_now_clean(self):
         """UPDATED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-
