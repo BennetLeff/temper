@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Venv-identity CI gate: is this ``.venv`` actually built from THIS repo root?
 
-Motivating incident (2026-08-11, see AGENTS.md "Worktree .venv: shared vs.
-isolated" and the follow-up section this gate's own PR added). The shared
-``.venv`` at the main checkout was found with its editable-install pointers
-rewritten to an *agent's git worktree* rather than the main checkout:
+Motivating incident (2026-08-11): the shared ``.venv`` at the main
+checkout was found with its editable-install pointers rewritten to an
+*agent's git worktree* rather than the main checkout:
 
     _editable_impl_temper_placer.pth      -> .claude/worktrees/agent-ab1dbe8162fa0fbae
     _editable_impl_temper_workflow.pth    -> .claude/worktrees/agent-ab1dbe8162fa0fbae
@@ -12,23 +11,14 @@ rewritten to an *agent's git worktree* rather than the main checkout:
 
 Cause: ``maturin develop --active`` run from a worktree writes into
 whatever venv is currently *active* (``VIRTUAL_ENV``), not into a venv
-scoped to the worktree it was run from. When that active venv is the
-shared one, the rewrite lands there. Every measurement taken in that
-window ran against the worktree's code, not ``main`` -- and nothing
-indicated it. Imports succeed; numbers come back confident and wrong.
-
-Four distinct silent-staleness modes were confirmed the same day (see
-AGENTS.md "Worktree .venv" section for the full writeup of all four):
-
-  1. ``maturin`` fails outright if ``VIRTUAL_ENV`` and ``CONDA_PREFIX`` are
-     both set.
-  2. plain ``uv run maturin develop`` from a worktree targets a
-     *per-worktree* venv and no-ops against the shared one.
-  3. ``maturin develop --active`` from a worktree **rewrites shared venv
-     pointers** -- the incident this gate exists to catch.
-  4. ``maturin develop`` can report "Installed" without replacing the
-     ``.so`` -- ``check_stale_extensions.py``'s territory, not this
-     gate's; see the cross-reference below.
+scoped to the worktree it was run from. Every measurement taken in that
+window ran against the worktree's code, not ``main`` -- imports succeed,
+numbers come back confident and wrong. Four silent-staleness modes were
+confirmed the same day; the full narrative is
+``docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`` (mode 4 --
+``maturin develop`` reporting "Installed" while leaving the ``.so``
+untouched -- is ``check_stale_extensions.py``'s territory, not this
+gate's).
 
 This gate closes (3): it asserts every editable-install ``.pth`` file and
 every ``direct_url.json`` in the venv's site-packages resolves to a path
