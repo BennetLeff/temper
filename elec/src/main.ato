@@ -793,6 +793,22 @@ module Top:
     # instruction).
     hb.dc_bus.hv_minus ~ safety.ocp2_bus_in
     safety.ocp2_bus_out ~ dc_bus_minus
+    # The half-bridge's third bus node -- the doubler MIDPOINT -- was never
+    # wired at this level.  `HighVoltageBus` has always carried `gnd_ref`,
+    # and `hb.dc_bus.gnd_ref` sat as an unconnected compiled net.
+    #
+    # It has to be connected now (2026-08-19, docs/evidence/
+    # 2026-08-19-hf-bypass-commutation-loop.md): the 47 kHz commutation
+    # loops of this stage close through the midpoint, because the tank
+    # returns there (`ct_sense.primary_out ~ power_return`, below), and
+    # `HalfBridge.c_hf_hi_*` / `c_hf_lo_*` -- the bypass that spans those
+    # loops -- shunt hv_plus -> gnd_ref and gnd_ref -> hv_minus.
+    #
+    # This adds NO new domain crossing: `+170V_BUS`, `PWR_RTN` and
+    # `DC_BUS_RTN` are all already declared HV in elec/domain_manifest.yaml,
+    # and `power_return` is `power_in.dc_bus.gnd_ref` (see below), so this
+    # merges hb's midpoint into an existing HV net rather than creating one.
+    hb.dc_bus.gnd_ref ~ power_return
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
     hb.power_3v3.vcc ~ vcc_3v3

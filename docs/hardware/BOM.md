@@ -25,7 +25,8 @@
 | C_VCCI2 | Driver VCCI Bypass (bulk) | GRM188R71C105KA12D | Murata | 1 | 0603 | 1µF 10% X7R 16V |
 | C_VDDA | Driver VDDA (HS) Bypass | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — 15V rail, DC-bias derating flag, see note |
 | C_VDDB | Driver VDDB (LS) Bypass | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — 15V rail, DC-bias derating flag, see note |
-| C_DC_HF | DC Bus HF Decoupling | B32671L6474K000 | TDK/EPCOS | 1 | THT Film 18x11mm | 470nF 10% 630V PP — at the bridge, across HV+/HV- |
+| C_DC_HF | Rail-to-Rail Film (NOT the commutation bypass) | B32671L6474K000 | TDK/EPCOS | 1 | THT Film 18x11mm | 470nF 10% 630V PP — across HV+/HV-. Spans NEITHER commutation loop; carries 0.7-0.9% of the 47kHz current. See docs/evidence/2026-08-19-hf-bypass-commutation-loop.md |
+| C_HF_HI_A, C_HF_HI_B, C_HF_LO_A, C_HF_LO_B | Commutation-Loop HF Bypass | MKP1848C71250JY5 | Vishay Roederstein | 4 | THT Film box 45.0x45.0x57.5mm, 4-pin P1=52.5mm/P2=20.3mm — **land pattern NOT yet drawn** | 120µF ±5% 500VDC MKP DC-Link, I_RMS 19A (ESR valid 10-50kHz, doc 26015). 2 in parallel per half-bus (240µF/half): one bank HV+→midpoint, one midpoint→HV−, both at the bridge. See docs/evidence/2026-08-19-hf-bypass-commutation-loop.md |
 
 > **`D_BOOT` corrected 2026-07-26.** Previously `UJ3D1210TS` (SiC Schottky, TO-220, 1200V/10A) — a different device class entirely for what is a small bootstrap-recharge diode. Source (`components.ato:262-273`) uses `ES1J`, a 600V/1A SMA ultrafast rectifier sized to the boot-cap recharge pulse, not the main power path.
 >
@@ -602,6 +603,7 @@ Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, t
 | UCC21550BDWKR | 4-8 weeks | - |
 | CST3015-100ED | Verify stock | CST3015 family variants — board re-layout already required regardless, see §4.3 |
 | EKMQ251VSN182MA50S (×4) | Verify stock | Physically large snap-in electrolytics; confirm before layout freeze |
+| MKP1848C71250JY5 (×4) | Verify stock | Real and fully spelled in Vishay's own ordering table (doc 26015), but DigiKey/Mouser stock NOT confirmed 2026-08-19. 45×45×57.5mm, 150g each — confirm before layout freeze |
 | 0031.2510 (F1_HOLDER) | 12-week mfr. lead time (DigiKey), 83 units on hand | New line 2026-07-26 — order early; footprint not yet drawn, see §1.2 |
 | B32922C3224M289 (C_X2) | Not flagged long-lead (28,179 units at DigiKey) | New footprint required before fab (box-style MKP, 15mm pitch) — not a stock risk, a layout task, see §1.2 |
 

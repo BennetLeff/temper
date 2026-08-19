@@ -344,7 +344,31 @@ module HalfBridge:
     gate_hs.driver.VDDB ~ c_vddb.p1
     c_vddb.p2 ~ gate_hs.driver.VSSB
 
-    # DC bus HF bypass: film cap across HV+/HV- near the bridge
+    # Rail-to-rail film cap across HV+/HV-.
+    #
+    # RENAMED IN INTENT, NOT REWIRED, 2026-08-19 (docs/evidence/
+    # 2026-08-19-hf-bypass-commutation-loop.md).  This part used to be
+    # described as "the DC bus HF bypass".  It is not one, and it never was:
+    #
+    #   The 47 kHz commutation loops of this stage are
+    #       Q_high on: hv_plus -> Q_high -> switch_node -> tank -> MIDPOINT
+    #                  -> C_BUS1/1B -> hv_plus
+    #       Q_low  on: MIDPOINT -> tank -> switch_node -> Q_low -> hv_minus
+    #                  -> C_BUS2/2B -> MIDPOINT
+    #   because main.ato returns the tank to `power_return`, which IS the
+    #   doubler midpoint (power_in.dc_bus.gnd_ref).  A capacitor wired
+    #   hv_plus -> hv_minus spans NEITHER loop.  It reaches the midpoint only
+    #   in series with the opposite half-bank, and at 0.47 uF it presents
+    #   7.20 ohm at 47 kHz against a ~25-90 mohm half-bank branch: measured
+    #   share of the loop current 0.7-0.9 %, and the residual effect on the
+    #   electrolytics is +0.6 %, i.e. very slightly ADVERSE, not neutral.
+    #
+    # KEPT, deliberately: it still does the differential-mode rail-to-rail
+    # job at the MHz-scale IGBT commutation ringing frequencies that this
+    # 47 kHz analysis does not model, and removing it would renumber every
+    # later "C" designator against a board this change may not touch (same
+    # hazard the ResonantTank.inductor_conn "R30" comment documents).
+    # It is NOT the commutation-loop bypass.  c_hf_hi_* / c_hf_lo_* below are.
     c_dc_hf = new Capacitor
     c_dc_hf.value = 470nF +/- 10%
     c_dc_hf.dielectric = "PP"
@@ -353,7 +377,129 @@ module HalfBridge:
     c_dc_hf.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
     dc_bus.hv_plus ~ c_dc_hf.p1
     c_dc_hf.p2 ~ dc_bus.hv_minus
-    
+
+    # =======================================================================
+    # COMMUTATION-LOOP HF BYPASS -- one film bank across EACH half-bus,
+    # at the bridge.  Added 2026-08-19.
+    # Derivation, sweeps and every datasheet quotation:
+    #   docs/evidence/2026-08-19-hf-bypass-commutation-loop.md  (+ .py)
+    #
+    # WHY TWO BANKS AND NOT ONE.  The two commutation loops close through
+    # DIFFERENT half-banks (see c_dc_hf's comment above), so they need
+    # separate shunts: hv_plus -> gnd_ref for the Q_high loop and
+    # gnd_ref -> hv_minus for the Q_low loop.  `gnd_ref` is the doubler
+    # midpoint; main.ato ties it to `power_return`.
+    #
+    # WHY 240 uF PER HALF-BUS AND NOT 1 uF.  This is the part of the design
+    # that is easy to get badly wrong.  The shunt is in parallel with
+    # [electrolytic ESR + the inductance of the run back to the bulk bank],
+    # so with Z_e = R_e + jwL_e and Z_f = -j/(wC):
+    #
+    #     I_elec / I_no_bypass = (1/wC) / |R_e + j(wL_e - 1/wC)|
+    #
+    # which is BELOW ONE only when  C > 2/(w^2 * L_e).  Under that threshold
+    # the shunt and the feed inductance are a series-resonant loop and the
+    # electrolytic ripple current is AMPLIFIED, not reduced.  For the
+    # 60-265 nH feed-inductance bracket this board's geometry supports, the
+    # threshold at the bottom of the PLL band (44 kHz) is 99-436 uF.  A
+    # "generous" 40 uF DC-link film would make the electrolytic current
+    # 1.19x-2.73x WORSE across that bracket.  240 uF per half-bus is chosen
+    # so that the ratio stays below 1.0 at EVERY feed inductance from 10 nH
+    # to 265 nH, i.e. so the fix cannot be turned harmful by a later
+    # placement pass.  Do not reduce this value without re-running the .py.
+    #
+    # PART.  [datasheet] Vishay Roederstein MKP1848C DC-Link, document 26015
+    # rev. 09-Aug-2023, read this session:
+    #   MKP1848C71250JY5 -- 120 uF +/-5%, U_NDC(85 C) = 500 V, 4 pins,
+    #   P1 = 52.5 mm / P2 = 20.3 mm, case 45.0 x 45.0 x 57.5 mm, 150 g,
+    #   I_RMS = 19 A, ESR = 2.5 mohm, I_PEAK = 1200 A, dV/dt = 10 V/us.
+    #   Footnote (3): the ESR figure is declared valid "at f = 10 kHz to
+    #   50 kHz for P = 52.5 mm" -- i.e. ACROSS the whole 44-50 kHz PLL band,
+    #   which is why this family was chosen over parts whose only published
+    #   ripple figure is at 100/120 Hz.  Footnote (2): I_RMS is specified at
+    #   +85 C ambient with dt = +15 C, so it needs no ambient derating for a
+    #   part sitting next to the IGBTs.
+    #   Self-inductance: "< 1 nH per mm of lead spacing" -> < 52.5 nH.  That
+    #   is an UPPER BOUND; no typical is published, so the evidence doc
+    #   brackets it 20-52.5 nH and reports the worst corner.
+    #
+    # LOADING.  Each capacitor carries 12.9-14.6 A rms at 44-50 kHz at the
+    # declared 1800 W point (harmonic-resolved, worst corner, tank current
+    # 35.4-40 A from docs/evidence/2026-08-19-input-stage-power-ceiling.md).
+    # Against 19 A that is 1.30x-1.47x margin.  NOT bounded by the datasheet:
+    # the 2nd harmonic of the gated switch current lands at 88-100 kHz, above
+    # the 50 kHz ESR-validity limit for this pitch.  Bench-verify before fab.
+    #
+    # WHAT THIS DOES NOT FIX.  It removes 31-94 % of the 47 kHz current from
+    # C_BUS1/1B/2/2B and moves the ripple ceiling from 146 W to 194-488 W.
+    # It does NOT reach 1800 W and cannot: with the 47 kHz term removed
+    # ENTIRELY the ceiling stops at 490 W, where the 60 Hz doubler-recharge
+    # term binds instead.  A partial fix, bounded.
+    #
+    # FOOTPRINT IS NOT DRAWN.  "temper:C_Box_W45.0mm_H45.0mm_L57.5mm_
+    # P52.50x20.30mm_4pin" does not exist in pcb/libs/lib.pretty yet, exactly
+    # like the CT1/CST3015 and the FUP fuseholder land patterns this design
+    # already carries as pre-fab gaps.  pcb/temper.kicad_pcb is out of scope
+    # for this change; the required land pattern is specified in the evidence
+    # doc, section "Physical placement".
+    #
+    # DESIGNATORS ARE PINNED (C42-C45), same reason as
+    # ResonantTank.inductor_conn's "R30": atopile assigns designators
+    # POSITIONALLY per prefix, and letting these four fall into the "C" pool
+    # renumbers the capacitors that pcb/temper.kicad_pcb already places.
+    v_half_bus_worst: voltage = 191V  # sqrt(2) x constraints.ato ACMains v_max 135V
+
+    c_hf_hi_a = new Capacitor
+    c_hf_hi_a.designator = "C42"
+    c_hf_hi_a.value = 120uF +/- 5%
+    c_hf_hi_a.dielectric = "PP"
+    c_hf_hi_a.voltage_rating = 500V
+    c_hf_hi_a.mpn = "MKP1848C71250JY5"
+    c_hf_hi_a.footprint = "temper:C_Box_W45.0mm_H45.0mm_L57.5mm_P52.50x20.30mm_4pin"
+
+    c_hf_hi_b = new Capacitor
+    c_hf_hi_b.designator = "C43"
+    c_hf_hi_b.value = 120uF +/- 5%
+    c_hf_hi_b.dielectric = "PP"
+    c_hf_hi_b.voltage_rating = 500V
+    c_hf_hi_b.mpn = "MKP1848C71250JY5"
+    c_hf_hi_b.footprint = "temper:C_Box_W45.0mm_H45.0mm_L57.5mm_P52.50x20.30mm_4pin"
+
+    c_hf_lo_a = new Capacitor
+    c_hf_lo_a.designator = "C44"
+    c_hf_lo_a.value = 120uF +/- 5%
+    c_hf_lo_a.dielectric = "PP"
+    c_hf_lo_a.voltage_rating = 500V
+    c_hf_lo_a.mpn = "MKP1848C71250JY5"
+    c_hf_lo_a.footprint = "temper:C_Box_W45.0mm_H45.0mm_L57.5mm_P52.50x20.30mm_4pin"
+
+    c_hf_lo_b = new Capacitor
+    c_hf_lo_b.designator = "C45"
+    c_hf_lo_b.value = 120uF +/- 5%
+    c_hf_lo_b.dielectric = "PP"
+    c_hf_lo_b.voltage_rating = 500V
+    c_hf_lo_b.mpn = "MKP1848C71250JY5"
+    c_hf_lo_b.footprint = "temper:C_Box_W45.0mm_H45.0mm_L57.5mm_P52.50x20.30mm_4pin"
+
+    # Voltage derating, same 1.25x bar the bus electrolytics and bleeders use
+    # (PowerInput, temper-ofq.2).  500 V vs 191 V x 1.25 = 239 V.
+    assert c_hf_hi_a.voltage_rating >= v_half_bus_worst * 1.25
+    assert c_hf_hi_b.voltage_rating >= v_half_bus_worst * 1.25
+    assert c_hf_lo_a.voltage_rating >= v_half_bus_worst * 1.25
+    assert c_hf_lo_b.voltage_rating >= v_half_bus_worst * 1.25
+
+    # Upper commutation loop: hv_plus -> gnd_ref (the doubler midpoint)
+    dc_bus.hv_plus ~ c_hf_hi_a.p1
+    c_hf_hi_a.p2 ~ dc_bus.gnd_ref
+    dc_bus.hv_plus ~ c_hf_hi_b.p1
+    c_hf_hi_b.p2 ~ dc_bus.gnd_ref
+    # Lower commutation loop: gnd_ref -> hv_minus
+    dc_bus.gnd_ref ~ c_hf_lo_a.p1
+    c_hf_lo_a.p2 ~ dc_bus.hv_minus
+    dc_bus.gnd_ref ~ c_hf_lo_b.p1
+    c_hf_lo_b.p2 ~ dc_bus.hv_minus
+
+
     # IGBT timing
     t_igbt_turn_off: time = 245ns
     t_dead_time_required: time = 300ns
