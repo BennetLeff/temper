@@ -33,17 +33,13 @@ itself account for kicad-cli's documented run-to-run noise on a handful of
 categories (``drc_ceiling.json``'s own ``nondeterministic_error_types``
 block, populated by the file's 120-sample re-measurement protocol; see
 AGENTS.md's "Board Change -> DRC Ceiling Re-measurement" section). Single-
-sampling is safe only as long as every such category's ceiling headroom
-(``ceiling - observed max``) is at least as wide as its own measured
-spread (``observed max - observed min``) -- otherwise a single fresh
-sample can land outside the historically-observed range from noise alone,
-failing a board that never regressed. ``DrcRatchet.check_noise_headroom()``
-checks that invariant against the already-committed ceiling data (no extra
-DRC run, negligible added time) and this script fails loudly -- rather
-than silently continuing to assume the single sample is representative --
-the moment it does not hold for some category. See
-``packages/temper-placer/src/temper_placer/regression/drc_ratchet.py``'s
-``NoiseHeadroomViolation`` docstring for the full reasoning.
+sampling is safe only when the noise-headroom invariant holds: see
+``temper_placer.regression.drc_ratchet.NoiseHeadroomViolation`` for the
+invariant and its proof. ``DrcRatchet.check_noise_headroom()`` checks that
+invariant against the already-committed ceiling data (no extra DRC run,
+negligible added time) and this script fails loudly -- rather than
+silently continuing to assume the single sample is representative -- the
+moment it does not hold for some category.
 """
 
 import argparse

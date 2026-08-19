@@ -108,14 +108,11 @@ prior ceiling move). **`clearance` is not the only such category any more --
 Check `nondeterministic_error_types` in the CURRENT record, not this
 sentence, for which categories apply today.
 
-**The headroom you pick is not free to choose -- it must satisfy
-`ceiling - max(observed) >= max(observed) - min(observed)`
-(`scripts/ci_check_drc.py`'s noise-headroom guard,
-`DrcRatchet.check_noise_headroom`).** A blind `max + 1` is only correct
-when the measured spread is 1; if a category visits 3 distinct values (a
-spread of 2), `max + 1` gives 1 unit of headroom against a 2-unit spread and
-the guard fails -- correctly, since a single future CI sample can then land
-above the ceiling from noise alone. This is not hypothetical: every
+**The headroom you pick is not free to choose: it must satisfy the
+noise-headroom invariant
+(`ceiling - max(observed) >= max(observed) - min(observed)`).** See
+`temper_placer.regression.drc_ratchet.NoiseHeadroomViolation` for the
+invariant and its proof. This is not hypothetical: every
 `creepage` record from 2026-08-02 through 2026-08-11 (6 consecutive
 re-measurements) carried exactly this bug, because each one copied `+ 1`
 forward without checking it against the guard. Run
