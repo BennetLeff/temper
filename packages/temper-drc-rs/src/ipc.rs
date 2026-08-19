@@ -118,8 +118,13 @@ pub fn net_currents() -> &'static HashMap<String, f64> {
         map.insert("AC_L".into(), AC_MAINS_CURRENT_A);
         map.insert("AC_N".into(), AC_MAINS_CURRENT_A);
         map.insert("SW_NODE".into(), 16.0);
-        map.insert("GATE_H".into(), 2.0);
-        map.insert("GATE_L".into(), 2.0);
+        // FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-ampacity-
+        // key-rename-fix.md, PR #1320 SS3.3): real board nets are
+        // "GATE_HS"/"GATE_LS" (pcb/temper.kicad_pcb), not "GATE_H"/"GATE_L".
+        // Rating unchanged -- only the key. Lockstep w/ gates.py's
+        // StackupGate._DEFAULT_NET_CURRENTS.
+        map.insert("GATE_HS".into(), 2.0);
+        map.insert("GATE_LS".into(), 2.0);
         map.insert("+3V3".into(), 0.5);
         map.insert("+5V".into(), 0.5);
         map.insert("+15V".into(), 0.2);

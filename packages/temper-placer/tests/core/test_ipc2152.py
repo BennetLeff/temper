@@ -144,15 +144,18 @@ class TestNetCurrents:
         assert get_net_current("AC_L") == 15.0
         assert get_net_current("AC_N") == 15.0
         assert get_net_current("SW_NODE") == 16.0
-        assert get_net_current("GATE_H") == 2.0
-        assert get_net_current("GATE_L") == 2.0
+        # GATE_HS/GATE_LS: the board's real gate-drive net names (fixed
+        # 2026-08-17, docs/evidence/2026-08-17-gate-drive-ampacity-key-
+        # rename-fix.md -- bare "GATE_H"/"GATE_L" are not real board nets).
+        assert get_net_current("GATE_HS") == 2.0
+        assert get_net_current("GATE_LS") == 2.0
         assert get_net_current("+3V3") == 0.5
         assert get_net_current("+5V") == 0.5
         assert get_net_current("+15V") == 0.2
 
     def test_case_insensitive(self):
         assert get_net_current("dc_bus+") == 16.0
-        assert get_net_current("Gate_H") == 2.0
+        assert get_net_current("gate_hs") == 2.0
 
     def test_substring_match(self):
         assert get_net_current("Net-(C1-Pad1)-DC_BUS+") == 16.0

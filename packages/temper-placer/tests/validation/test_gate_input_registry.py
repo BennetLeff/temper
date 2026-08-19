@@ -276,9 +276,9 @@ def test_every_invoked_ci_gate_script_is_registered(registry):
     registered = {s.script for s in registry.ci_scripts}
     missing = invoked - registered
     assert not missing, (
-        "CI gate script(s) invoked in python-tests.yml are absent from the "
-        "registry survey: {sorted(missing)} — add them (covered or as a "
-        "documented non-covered case) to gate_input_registry._CI_SCRIPT_SURVEY"
+        f"CI gate script(s) invoked in python-tests.yml are absent from the "
+        f"registry survey: {sorted(missing)} — add them (covered or as a "
+        f"documented non-covered case) to gate_input_registry._CI_SCRIPT_SURVEY"
     )
 
 

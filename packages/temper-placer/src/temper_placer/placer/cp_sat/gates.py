@@ -372,8 +372,12 @@ class StackupGate(Gate):
         # tests/placer/cp_sat/test_net_currents_rust_differential.py.
         "AC_L": 15.0,
         "AC_N": 15.0,
-        "GATE_H": 2.0,
-        "GATE_L": 2.0,
+        # FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-ampacity-
+        # key-rename-fix.md, PR #1320 SS3.3): real board nets are
+        # "GATE_HS"/"GATE_LS" (pcb/temper.kicad_pcb), not "GATE_H"/"GATE_L".
+        # Rating unchanged -- only the key. Lockstep w/ ipc.rs net_currents().
+        "GATE_HS": 2.0,
+        "GATE_LS": 2.0,
         "+3V3": 0.5,
         "+5V": 0.5,
         "+15V": 0.2,
@@ -718,9 +722,26 @@ def _ipc2152_forward(
 # ------------------------------------------------------------------
 # W3/U4: IEC Creepage Gate — kicad-cli DRC clearance HV ↔ LV
 # ------------------------------------------------------------------
-# @req(2026-07-08-005, R4): verify 6mm creepage via kicad-cli DRC
-# on the routed board, filtering clearance violations between HV
-# and LV net classes.  kicad-cli failure → UNMEASURED.
+# @req(2026-07-08-005, R4): verify reinforced-insulation HV/LV creepage
+# (HV_LV_CREEPAGE_MM below, read from the safety SSOT -- not a hardcoded
+# figure) via kicad-cli DRC on the routed board, filtering clearance
+# violations between HV and LV net classes.  kicad-cli failure → UNMEASURED.
+
+# FIXED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-manifest-
+# and-ieccreepagegate-liveness.md): this gate hardcoded a flat 6.0mm
+# HV<->LV creepage threshold with no citation. 6.0mm is not a value in any
+# recovered IEC 60335-1 table (Table 16/17/18 -- see the identical, earlier
+# finding for `core/design_rules.py`'s old ACMains/HighVoltage
+# `creepage_mm` fields), and it is superseded by this project's own PD3
+# SSOT decision (handoff §2, PR #1219/#1224): 12.6mm reinforced, HV/LV,
+# >250-400V, pollution degree 3. Reading it from the SAME recovered-Table-17
+# lookup `scripts/generate_kicad_dru.py`'s `HV_CREEPAGE_ENFORCED_MM` already
+# uses (PD3, material group IIIa/IIIb, >250-400V, Table 17, doubled for
+# reinforced insulation per cl. 29.2) rather than hardcoding a second copy
+# of the number keeps this gate from drifting from the DRU generator again.
+HV_LV_CREEPAGE_MM: float = (
+    _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
+)
 
 _HV_NET_PATTERNS: frozenset[str] = frozenset(
     {
@@ -736,12 +757,33 @@ _HV_NET_PATTERNS: frozenset[str] = frozenset(
 
 
 def _is_hv_net(name: str) -> bool:
-    """Check whether *name* is a known HV net in the half-bridge design."""
+    """Check whether *name* is a known HV net in the half-bridge design.
+
+    KNOWN GAP, flagged not fixed (2026-08-17, same evidence doc as
+    ``HV_LV_CREEPAGE_MM`` above): this is a local, hardcoded 7-name
+    frozenset -- a fourth, independently-maintained "is this net HV"
+    classifier alongside ``core/net_classification.classify_net_type``
+    (fixed in ``netclass_constraints.py``, same evidence doc),
+    ``core/design_rules.py``'s ``TEMPER_NET_ASSIGNMENTS``/pattern cascade,
+    and ``elec/domain_manifest.yaml``. It does not include K1's HV
+    relay-contact nets (``power_in.ntc-no``, ``w1_1``, ``w1_2``) -- the
+    same net set whose misclassification in ``netclass_constraints.py``
+    produced the J1/K1 unroutable placement this task investigates. A DRC
+    clearance violation naming one of those three nets would silently NOT
+    be recognized as an HV↔LV crossing by this gate. Left as-is: reconciling
+    this gate's net classification with the authoritative
+    ``DesignRules.get_rules_for_net()`` source is a materially larger change
+    (this function has no ``DesignRules`` instance available today) than
+    this task's assigned scope (the threshold value + the gate's
+    liveness/DeltaMapper leak) and was not attempted here.
+    """
     return name in _HV_NET_PATTERNS
 
 
 class IECCreepageGate(Gate):
-    """ROUTING-stage gate: verifies 6 mm creepage between HV and LV nets.
+    """ROUTING-stage gate: verifies reinforced HV/LV creepage
+    (``HV_LV_CREEPAGE_MM``, read from the safety SSOT -- 12.6mm PD3 as of
+    this writing, not a hardcoded figure) between HV and LV nets.
 
     Runs ``kicad-cli pcb drc`` on the routed board, filtering clearance
     violations that cross HV ↔ LV net classes.  Returns ``CLEAN`` when
@@ -800,10 +842,10 @@ class IECCreepageGate(Gate):
                     Violation(
                         type=ViolationType.CREEPAGE,
                         nets=tuple(set(hv_nets + lv_nets)),
-                        severity=6.0,  # placeholder — actual clearance in message
-                        threshold=6.0,
+                        severity=HV_LV_CREEPAGE_MM,  # placeholder — actual clearance in message
+                        threshold=HV_LV_CREEPAGE_MM,
                         description=err.message,
-                        context={"required_mm": 6.0, "rule": err.rule},
+                        context={"required_mm": HV_LV_CREEPAGE_MM, "rule": err.rule},
                     )
                 )
 
@@ -829,7 +871,9 @@ class PhysicsGate(Gate):
     1. Commutation-loop area ≤ 2000 mm²
     2. Gate-drive loop area ≤ 500 mm² + trace spacing ≤ 2 mm
     3. Thermal via count ≥ 9 per IGBT + B.Cu pour ≥ footprint area
-    4. Creepage ≥ 6 mm between HV and LV nets
+    4. Creepage ≥ ``HV_LV_CREEPAGE_MM`` between HV and LV nets (delegates to
+       ``IECCreepageGate.check()`` below, which is the sub-check's actual
+       implementation)
 
     Any sub-check that cannot measure ⇒ ``UNMEASURED`` (fail-closed).
     """
@@ -845,7 +889,16 @@ class PhysicsGate(Gate):
     _GATE_DRIVE_LOOP_MAX_MM2: float = 500.0
     _GATE_DRIVE_SPACING_MAX_MM: float = 2.0
     _THERMAL_VIA_MIN_COUNT: int = 9
-    _CREEPAGE_MIN_MM: float = 6.0
+    # REMOVED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-
+    # manifest-and-ieccreepagegate-liveness.md): a dead, unused
+    # `_CREEPAGE_MIN_MM: float = 6.0` constant lived here, labelled
+    # "SSOT -- do not duplicate" while being an actual duplicate of
+    # IECCreepageGate's own (also stale, now fixed) hardcoded 6.0mm --
+    # confirmed by grep, it had zero read sites in this file; sub-check 4
+    # below has always gotten its real threshold from
+    # `IECCreepageGate.check()`'s own `HV_LV_CREEPAGE_MM`, never from this
+    # constant. Deleting a genuinely dead, misleading duplicate rather than
+    # updating a number nothing reads.
 
     _IGBT_REFS: tuple[str, str] = ("Q1", "Q2")
     # Real-board net names -- corrected 2026-08-17. The real board's

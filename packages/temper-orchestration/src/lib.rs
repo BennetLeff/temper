@@ -193,6 +193,11 @@ mod apply_placements_stage;
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
 mod component_assignment_stage;
+// 2026-08-17 placer constraint/clearance Rust-port stage 2: the
+// `netclass_constraints.py` cross-class SEPARATED constraint orchestration
+// (O(n^2) pairing loop, severity-rank component classification,
+// class-pair-override lookup). See netclass.rs's own header comment.
+pub(crate) mod netclass;
 mod config_attach_stage;
 mod connectivity_validation_stage;
 mod convergence;
@@ -516,6 +521,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(clearance::keepaway_constraints_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance::intra_footprint_conflicts_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance::audit_domain_clearance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(netclass::netclass_resolve_component_class_py, m)?)?;
+    m.add_function(wrap_pyfunction!(netclass::netclass_separated_constraints_py, m)?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_channel_mapping, m)?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_fallback_channel_path, m)?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_validated_two_pad_terminals, m)?)?;

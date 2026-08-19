@@ -21,6 +21,37 @@ Two consequences that catch people:
     `kw_boundary_match_py` registrations shipped this way and one of them
     was dead for its entire lifetime.
 
+### When Rust and Python disagree
+
+**Standing rule: fix the Rust until it is definitely correct, then deprecate
+and delete the Python.** Never reconcile by adjusting Rust to match Python,
+and never leave both in place "in agreement" — two homes that agree today
+drift tomorrow, and this repo has the scars to prove it.
+
+"Definitely correct" means correct *by construction*, not correct by
+coincidence. The distinction is not academic:
+
+> `temper_drc_rs::ipc::net_currents()` returned the right ampacity for
+> `GATE_HS` only because its lookup used a **substring** match and the stale
+> key `GATE_H` happens to be a literal prefix. Python's exact match missed the
+> same key and returned the 0.1A default — a 20× disagreement on a safety
+> value. Rust's answer was right; its *mechanism* was wrong, and would equally
+> have matched `XGATE_HSY`. Renaming the key without tightening the lookup
+> would have preserved the coincidence.
+
+So the sequence is: **make Rust right → prove it against Python with a
+differential oracle → delete the Python → keep the oracle.** The ~187 pinned
+`_*_py_oracle.py` files exist to make that deletion safe; adding a new oracle
+for newly-ported code is correct and expected. Re-pinning an *existing* one is
+a separate, deliberately-committed act requiring evidence first.
+
+**A differential test only proves what you feed it.** The Rust/Python
+ampacity divergence above survived a genuinely-running differential test
+because that test's input was `"Gate_H"` — a net name absent from this board.
+Both sides looked it up, both agreed, green. When you write or trust a
+differential, check that its inputs are values the production system actually
+sees.
+
 **Key areas:**
 - `firmware/` - ESP32-S3 control code
 - `packages/temper-placer/` - CP-SAT PCB placement optimizer with Rust geometry/DRC crates
@@ -218,6 +249,87 @@ incident writeup and design rationale, including the alternatives
 considered and rejected (re-anchoring freshness on the commit SHA instead
 of content; silently downgrading a dangling commit to `"UNKNOWN"` instead
 of failing on it).
+
+## Measurement Instruments That Lie — read before trusting any number
+
+Every one of these produced a wrong conclusion that someone acted on. They are
+recorded here because agents kept re-deriving them from scratch, one session at
+a time.
+
+**A number from a mis-set-up instrument is indistinguishable from a real
+result.** In a single day these manufactured five phantom test failures, one
+invalid baseline, a regression that never existed, and two hypotheses that sent
+whole investigations down dead ends.
+
+### DRC / kicad-cli
+
+* **`pcb/temper.kicad_dru` is gitignored and generated.** Without regenerating
+  it (`scripts/generate_kicad_dru.py`), **creepage reads 0** and clearance
+  reads a different count entirely. Regenerate before any DRC run. It also
+  regenerates to a different byte size than any committed copy.
+* **`_drc_api.run_drc(Path)` is necessary but NOT sufficient** — the *board
+  file* needs an `fp-lib-table` sibling. Without one,
+  `lib_footprint_issues` reads exactly the board's footprint count (168) and
+  `lib_footprint_mismatch` reads 0, **even through the correct API**. With
+  `pcb/fp-lib-table` beside it: 168 -> 16, mismatch -> 25. That 168/0 pair is
+  the signature; if you see it, your harness is wrong, not the board.
+* **kicad-cli saturation caps**: `ERROR_LIMIT` = 199, `EXTENDED_ERROR_LIMIT` =
+  499. A count of **exactly** 199 or 499 is a cap, not a count.
+* **kicad-cli is nondeterministic run-to-run.** Run 3x and intersect. Observed
+  spreads: creepage {105,106,107}, total {777,778}, and `shorting_items` rows
+  whose net order swaps (`nets A and B` vs `nets B and A`) — normalize before
+  diffing or you will "find" changes that are not there.
+* **kicad-cli reports one creepage violation per NET PAIR, not per pad pair.**
+  Clearing one pair unmasks another that was hidden behind it. Expect new rows
+  between parts you did not touch, and do not attribute them to your change
+  without checking. `DrcResult` exposes `.error_count`/`.warning_count`/
+  `.errors`/`.warnings` (not `.counts`); `DrcError` exposes `.rule`/`.nets`/
+  `.message`/`.items`. **Diff the violation SETS, not the counts.**
+
+### Build / environment
+
+* **`make extensions` fails hard when `CONDA_PREFIX` is set** — maturin refuses
+  when it coexists with `VIRTUAL_ENV`. Use `env -u CONDA_PREFIX`. A silent
+  failure here left an extension unbuilt and manufactured **5 phantom test
+  failures** that read as real creepage regressions.
+* **A stale `.so` fails loudly, not subtly**: `AttributeError: module
+  'temper_rust_router' has no attribute '...'`. `scripts/check_stale_extensions.py`
+  reports which crates are stale. Any PR that changes a pyo3 boundary leaves
+  every unrebuilt checkout broken, including CI's typecheck stubs.
+* **`scripts/check_venv_integrity.py` false-positives from worktrees nested
+  under `.claude/worktrees/`** — `classify_path` lets `other_worktrees` win
+  because the main checkout is a string prefix. It reports all editable
+  installs as violations while printing paths that are correct.
+
+### Test harness
+
+* **Set pytest timeouts above 1200s for full-route tests.**
+  `test_route_pcb_production_board` needs ~1193s; a 900s cap manufactured a
+  "20th failure" that could not have passed on any branch.
+* **Hypothesis replays counterexamples from its example DB.** A test that fails
+  only on your branch may be replaying a stored case. Clear the DB before
+  concluding you caused it — and if the counterexample is real, it deserves its
+  own ticket rather than being written off as flake.
+
+### Figures that look measured and are not
+
+* **`attempted_ripups` is a hardcoded literal** (`_astar_nlayer.py`
+  `record_failure`), on a single-pass loop with no rip-up mechanism. Every net
+  reports 0. It is not evidence about displacement of committed copper.
+* **`RouteProfileStats.python_time_ms` is structurally always 0.0** since the
+  Python search path was removed — and is still published as
+  `maze_router_python_ms`.
+* **A 16-character digest prefix is not a 64-character claim.** Compare full
+  digests programmatically. Note also that after a **squash** merge the branch
+  SHA is never an ancestor of `main` — that is expected, not lost work.
+
+### The general rule
+
+**When a measurement contradicts a change you just made, suspect the
+measurement before the change.** And when relaying someone else's number,
+check whether it was measured or inherited — several figures that circulated
+for a full day ("271 calls per route", "attempted_ripups == 0", "the 200k
+budget cap") turned out to have no committed measurement behind them.
 
 ## Import Boundary Check
 
@@ -644,6 +756,89 @@ case:
 which is exactly what makes (3) silent: the staleness gate has no way to
 know it is comparing against the wrong checkout's sources in the first
 place.
+
+### Ad-hoc DRC harnesses: copy the library table, not just the sidecars
+
+2026-08-18. A DRC scratch harness that copies only `temper.kicad_pcb` and
+`temper.kicad_pro` — and points `KICAD_CONFIG_HOME` at an empty directory —
+silently fails to resolve **every footprint on the board**.
+
+The symptom is distinctive and worth memorising: **`lib_footprint_issues`
+reads exactly the board's total footprint count** (168 here), and
+**`lib_footprint_mismatch` reads 0**. A number equal to 100% of the
+population is a resolution failure, not a census. The second reading is the
+tell for the first — a footprint that never resolved cannot register as
+*mismatched* against a library it never found, so the pair is corrupted in
+opposite directions at once.
+
+Measured, three controlled runs on the same board:
+
+```
+fp-lib-table + libs/   KICAD_CONFIG_HOME    lib_footprint_issues
+       no                    empty                  168
+      yes                    empty                  165
+      yes                   seeded                   13   <- the truth
+```
+
+`KICAD10_FOOTPRINT_DIR` is **not** an OS environment variable. It is defined
+inside `kicad_common.json`, under `KICAD_CONFIG_HOME`.
+
+**`_drc_api._single_threaded_kicad_env` already does this correctly.** The
+production path has never been wrong. Ad-hoc harnesses copied its
+thread-pinning and not its environment construction — so mirror the whole
+function, or better, call it.
+
+Cost: this artifact was reported and repeated for hours as "the largest
+unexplained DRC regression" and blocked a ceiling re-baseline, when the
+stored ceiling of 13 had been correct the entire time.
+
+**The deltas survived, the absolutes did not.** Because the error is constant
+across a before/after pair, category *deltas* measured this way remain valid;
+only *totals* are inflated. If you inherit a DRC total from a document, check
+how it was measured before trusting it.
+
+### The fifth mode: the shared venv reads *main*, not your worktree
+
+2026-08-17. The four modes above are all "a worktree poisons the venv."
+**The complementary mode is the venv silently serving you the wrong code,
+and it needs no poisoning at all — it is the healthy, correct state of a
+shared venv.**
+
+The shared `.venv`'s `temper_placer` is editable-installed against the
+**main checkout**:
+
+```
+$ .venv/bin/python -c "import temper_placer; print(temper_placer.__file__)"
+/home/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/__init__.py
+```
+
+So a worktree agent that edits Python and then runs
+`.venv/bin/python scripts/route_board.py` **measures `main`'s code, not its
+own change.** Nothing errors. The route succeeds. The numbers come back
+confident and wrong.
+
+This cost a real round trip: an agent fixing the pour-stitch
+`track_width` defect measured **197 violations still present after its
+fix**, and would have reported a regression. The tell was that every
+violation still read `"actual 0.3000 mm"` — the literal value the fix had
+just removed. Code that no longer exists cannot produce violations; the
+measurement was of `main`.
+
+**Two defences, in order of preference:**
+
+1. **`make venv-isolate` in your worktree.** The worktree gets its own
+   `.venv` and the question disappears. This is what the "check for a Rust
+   owner / no shared-venv rebuild" rules already push you toward, and it
+   fixes reads as well as writes.
+2. **If you must use the shared venv, verify what you are importing before
+   you believe a number** — `python -c "import temper_placer; print(...__file__)"`
+   and confirm the path is your worktree. A `sys.path` override wrapper
+   works, but is easy to get subtly wrong.
+
+**The generalizable rule: when a measurement contradicts a change you just
+made, suspect the measurement before the change.** Ask what the number
+would look like if your edit were not in effect at all — here, "identical
+to before" was exactly the observed result, and that is the signature.
 
 **`scripts/check_venv_integrity.py` closes (3).** It asserts every
 editable-install `.pth` file and every `direct_url.json` in the checked
