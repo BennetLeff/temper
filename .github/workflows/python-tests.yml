@@ -890,6 +890,7 @@ jobs:
           tests/router_v6/test_constraint_model_rust_differential.py
           tests/router_v6/test_constraint_model_pbt.py
           tests/router_v6/test_channel_mapping_rust_differential.py
+          tests/router_v6/test_channel_skeleton_pad_anchor_rust_differential.py
           tests/router_v6/test_channel_mapping_pbt.py
           tests/requirements/validators/test_geometry_rust_differential.py
           tests/requirements/validators/test_geometry_pbt.py
@@ -3088,6 +3089,39 @@ jobs:
       - name: No orphaned Python modules (dead-module gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_orphaned_python_modules.py
+
+      # 2026-08-18: the two gates above are each half of a question neither
+      # of them asks. `check_unwired_kernels.py` asks "does anything call
+      # this Rust symbol?"; `check_orphaned_python_modules.py` asks "does
+      # anything import this Python module?". Both answer YES for a Rust
+      # file that shares a Python module's NAME while implementing a
+      # different one -- and that exact confusion happened four times in one
+      # session on 2026-08-18: `astar_kernel_3d` (a 2D kernel) read as
+      # covering the N-layer Python; `courtyard_check_stage.rs` read as
+      # covering `core/courtyard.py` when it ports
+      # `deterministic/stages/courtyard_check.py`; `hypergraph_factory.rs`
+      # read as covering `core/hypergraph.py` when it ports
+      # `extraction/hypergraph_factory.py`; `net_ordering.rs` read as
+      # covering the router's ordering when the live A* path runs
+      # pure-Python `_astar_ordering.py`. In every case a Python module
+      # everyone believed was ported kept running, and no gate said
+      # anything. This one asks about the PAIRING, decided by call-path
+      # reachability rather than filenames, and carries a `--self-test` that
+      # fails if it ever stops flagging those four. Source-text scan only --
+      # no built extensions needed.
+      - name: Rust coverage illusions (name-is-not-coverage gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          uv run python scripts/check_rust_coverage_illusions.py --self-test
+          uv run python scripts/check_rust_coverage_illusions.py
+          # The gate's own anti-vacuity suite, run here rather than left to a
+          # directory sweep: its mutation test (seed a real call from the
+          # Python module to the namesake, the finding must vanish) is what
+          # proves the verdict comes from the call graph and not from
+          # filenames. A gate whose only evidence is "it ran" is the thing
+          # this repo keeps getting burned by.
+          uv run python -m pytest -q \
+            packages/temper-placer/tests/scripts/test_rust_coverage_illusion_gate.py
 
       # 2026-08-13: `temper-geometry` had two independent `#[pyfunction] pub
       # fn kw_boundary_match_py` definitions (via_clearance.rs and
