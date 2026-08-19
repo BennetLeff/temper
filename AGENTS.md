@@ -279,6 +279,40 @@ whole investigations down dead ends.
   spreads: creepage {105,106,107}, total {777,778}, and `shorting_items` rows
   whose net order swaps (`nets A and B` vs `nets B and A`) — normalize before
   diffing or you will "find" changes that are not there.
+* **kicad-cli's DRC JSON has TEN top-level keys; `_parse_drc_json` read ONE.**
+  Fixed 2026-08-19. `violations` was parsed; `unconnected_items` — **339
+  entries on the committed board, every one `severity: error`** — was dropped
+  on the floor, along with `schematic_parity`, `ignored_checks` and
+  `included_severities`. The board's true error count is **718**, not the 379
+  every ratchet, every `drc_ceiling.json` ceiling and every evidence doc in
+  this repo has ever recorded. Nothing crashed; the number was just smaller
+  than the truth, which is indistinguishable from a good result. The full key
+  registry now lives in `_drc_api` (`_VIOLATION_ARRAY_KEYS` /
+  `_METADATA_KEYS`) and an unrecognized top-level key raises
+  `DrcReportSchemaError` instead of being silently dropped. Same blindness was
+  fixed in `scripts/compare_drc_reports.py` and
+  `scripts/measure_uncapped_drc.py`; `scripts/tests/test_drc_report_array_keys.py`
+  now pins all three readers to one list. **If you inherit a DRC number dated
+  before 2026-08-19, it is missing its connectivity errors.**
+* **An empty category is not a clean category.** `run_drc` does not pass
+  kicad-cli's `--schematic-parity` flag, so `schematic_parity` is emitted as
+  `[]` on every report this repo produces — because the check never ran, not
+  because the board passes. Separately, kicad-cli **ignores four checks
+  outright** on this board (`track_not_centered_on_via`,
+  `tuning_profile_track_geometries`, `footprint_filters_mismatch`,
+  `footprint_type_mismatch`); they too report nothing. `DrcResult` now carries
+  `ignored_checks`/`included_severities` so "not measured" can be told from
+  "zero".
+* **kicad-cli SYNTHESIZES item uuids — never key a DRC diff on them.** The
+  board file carries exactly **10** `(uuid ...)` tokens; a single DRC report
+  references **825** distinct item uuids, of which only **291** recur across
+  three runs of the byte-identical board. Measured on `26981fea…`, three runs
+  intersected: keyed on uuid the board reads **310 stable / 1398 unstable**
+  (violations) and **49 / 870** (unconnected_items); keyed on
+  `_drc_api.drc_violation_key` it reads **776 / 0** and **339 / 0** — fully
+  deterministic. Use `drc_violation_key`; it also normalizes the
+  `shorting_items` net-order swap below (without that normalization the same
+  board reads 774/4 instead of 776/0).
 * **kicad-cli reports one creepage violation per NET PAIR, not per pad pair.**
   Clearing one pair unmasks another that was hidden behind it. Expect new rows
   between parts you did not touch, and do not attribute them to your change
