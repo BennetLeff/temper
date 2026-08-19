@@ -381,6 +381,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.drc_ceiling
   - _lib.repo
   - argparse
   - json
@@ -758,6 +759,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.drc_ceiling
   - _lib.gate_allowlist
   - _lib.github_summary
   - _lib.measurement_provenance
@@ -1667,6 +1669,7 @@ scripts:
   category: keep
   disposition: ci-gate
   imports:
+  - _lib.drc_ceiling
   - argparse
   - pathlib
   - sys

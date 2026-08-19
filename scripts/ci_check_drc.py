@@ -50,6 +50,8 @@ import argparse
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 
 def _find_repo_root() -> Path:
     p = Path.cwd()
@@ -124,10 +126,16 @@ def main() -> int:
         print("DRC: SKIPPED (ceiling file not found)")
         return 0
 
+    from _lib.drc_ceiling import load_ceiling
+
     from temper_placer.regression.drc_ratchet import DrcRatchet
 
     ratchet = DrcRatchet(ceiling_path, backend=args.backend)
-    ratchet.load()
+    # The shared loader is the single read+parse entry point for
+    # drc_ceiling.json across the three CI gates (see _lib/drc_ceiling.py);
+    # load_data constructs the same DrcCeilingEntry dataclasses
+    # DrcRatchet.load() always built, from the already-parsed dict.
+    ratchet.load_data(load_ceiling(ceiling_path))
 
     if not ratchet.entries:
         print("DRC: SKIPPED (no boards in ceiling)")

@@ -439,6 +439,21 @@ class DrcRatchet:
         with open(self.ceiling_path) as f:
             data = json.load(f)
 
+        self.load_data(data)
+
+    def load_data(self, data: dict) -> None:
+        """Populate ``self.entries`` from an already-parsed ceiling dict.
+
+        *data* is the raw ``drc_ceiling.json`` JSON structure (a ``dict``
+        with a ``"boards"`` list) -- the same structure ``load()`` produces
+        from the file, and the same structure
+        ``scripts/_lib/drc_ceiling.load_ceiling`` returns for the scripts
+        that read the file through the shared loader (e.g.
+        ``scripts/ci_check_drc.py``). Exists so a caller that already holds
+        the parsed dict does not read the file twice; ``load()`` is a thin
+        read+parse wrapper that delegates here, and the entry construction
+        is byte-identical either way.
+        """
         for entry in data.get("boards", []):
             board_id = entry["board_id"]
             provenance = entry.get("provenance") or {}
