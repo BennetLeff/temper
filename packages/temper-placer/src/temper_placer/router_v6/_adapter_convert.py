@@ -655,10 +655,10 @@ def _write_routes_to_content(
                 if s_layer != e_layer or (sx == ex and sy == ey):
                     # A layer change between consecutive points is a via
                     # crossing, not a same-layer copper run -- KiCad segments
-                    # are single-layer. Via emission for tree-routed nets
-                    # isn't wired yet (pre-existing gap; the vias loop below
-                    # is skipped for this branch by the `continue`), so this
-                    # point-pair is dropped rather than drawn incorrectly.
+                    # are single-layer, so this point-pair is never a
+                    # `(segment ...)`. The via that carries it across the
+                    # layer boundary is emitted below, from the route's own
+                    # `vias` list (see the block after this loop).
                     # Coincident points are dropped for the same reason as in
                     # the path branch below: a start == end track is copper
                     # joining a node to itself, carrying no connectivity but
@@ -670,6 +670,62 @@ def _write_routes_to_content(
                     f' (width {tree_width:.4f}) (layer "{s_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
+
+            # FIXED 2026-08-19: via emission for tree-routed nets.
+            #
+            # The loop above drops every layer-changing point-pair, because a
+            # KiCad `(segment ...)` is single-layer and cannot represent one.
+            # Until now nothing replaced them, so a tree route lost its
+            # connection at EVERY layer transition: measured on this board's
+            # own regenerated copper, `gnd`'s 82 emitted segments sat in 81
+            # disconnected components and `+3V3`'s 98 in 47, and the three
+            # tree-routed nets accounted for 132 of the board's 339
+            # `unconnected_items` (gnd 84, +3V3 47, GATE_LS 1).
+            #
+            # The vias themselves were never missing -- only their emission.
+            # `via_placement.place_vias` already walks
+            # `PathfindingResult.tree_routes`' branches and derives each
+            # via's layer pair from the actual segments either side of the
+            # transition (`_place_vias_for_path` -> `via_layer_pair_py`);
+            # `_pipeline_route._run_stage5` already runs them through
+            # `drop_redundant_vias` (co-located duplicates and vias landing
+            # on their own net's PTH/THT pad, whose plating already spans
+            # every layer); `compile_routing_results` already hangs the
+            # result on `CompiledTreeRoute.vias`, which the fake compiled
+            # route above copies; and `clearance_check` / `annular_ring_check`
+            # already evaluate `route.vias` for tree routes, so these vias
+            # are geometry the router's own DRC model has been checking all
+            # along. The only missing step was writing them to the file.
+            #
+            # Emission goes through the SAME Rust core the serial-path
+            # branch uses (`run_build_route_payload` -> `run_write_route_
+            # segments`), not a hand-rolled `(via ...)` f-string: that core
+            # renders vias exclusively via `Via::emit_s_expr`, which computes
+            # the blind/buried/through type token from the layer pair (an
+            # untyped via is parsed by KiCad as THROUGH regardless of its
+            # declared pair -- docs/evidence/2026-08-15-via-type-emission-
+            # fix.md) and enforces `Via::new`'s 0.254mm annular floor. It
+            # also keeps these vias inside the single deterministic tstamp
+            # sequence.
+            #
+            # `via_only_path` carries `path_length=0.0` and the pad count is
+            # passed as 0, so the payload's `path_length > 0 and pad_count
+            # >= 2` guard cannot fire and no `(segment ...)` can be produced
+            # here -- the branch geometry above is the sole source of this
+            # net's track copper. The via loop in the emission core sits
+            # OUTSIDE that guard (documented there), which is what makes a
+            # via-only payload the supported way to ask for exactly this.
+            via_only_path = SimpleNamespace(path_length=0.0, coordinates=[])
+            segments.extend(
+                _to.run_write_route_segments(
+                    [
+                        _to.run_build_route_payload(
+                            via_only_path, compiled_route, net_name, net_num, 0
+                        )
+                    ],
+                    tstamp_counter,
+                )
+            )
             continue
 
         # Phase E E6: the chamfer (`_chamfer_path_points`) stays Python
