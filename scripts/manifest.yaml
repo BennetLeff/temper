@@ -1108,6 +1108,21 @@ scripts:
   - re
   - sys
   - tomllib
+- path: check_placement_pair_creepage.py
+  purpose: 'Placement-time pad-pair creepage measurement (standalone prototype):
+    for every HV/SELV pad pair, compare the placement''s pad-to-pad distance against
+    the pair''s DRU-resolved requirement, before any copper exists. Uses production
+    SSOT tables and geometry helpers; skips same-net and same-component pairs; its
+    circle model is conservative. NOT wired into CI: it currently reports 242 violating
+    pad-pairs (232 against the 12.6mm PD3 barrier) on the committed board, which is
+    a known open design state -- the placer enforces PD3 nowhere by default. Promoting
+    it to a gate is a board-owner decision; the only ways to make it green today are
+    continue-on-error or a fresh ratchet ceiling, both of which rebuild the defect.
+    Known gap: no layer comparison, inert here because all 523 pads are F.Cu or PTH.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: manual-tool
 - path: check_pad_identity_ambiguity.py
   purpose: 'CI gate: structural, component-level complement to check_net_pin_identity_pad_correspondence.py
     (PR #1177''s net-accounting gate). Fails when a footprint IN USE on the board declares more than one
