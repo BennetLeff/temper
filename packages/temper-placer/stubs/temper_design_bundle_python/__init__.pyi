@@ -923,3 +923,10 @@ def pcl_parse_board_side(side_value: str) -> BoardSide: ...
 
 
 def pcl_parse_edge_type(edge_value: str) -> EdgeType: ...
+
+# ADDED 2026-08-18: exists in the extension, called from
+# placer/cp_sat/gates.py:743, never declared here. Same cause and same fix as
+# the two temper_orchestration additions -- verified PRESENT at runtime first.
+def creepage_table_lookup(
+    pd: int, material_group: str, voltage_range: str, table: str
+) -> Any: ...
