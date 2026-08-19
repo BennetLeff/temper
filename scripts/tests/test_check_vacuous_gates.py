@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_vacuous_gates import (  # noqa: E402
     find_all_tautology_violations,
+    find_all_violations,
     find_packages_scope_files,
     find_tautology_scope_files,
     find_tautology_violations,
@@ -523,3 +524,266 @@ class TestExistingAllDetectorUnaffected:
             """,
         )
         assert find_violations(f) == []
+
+
+# ---------------------------------------------------------------------------
+# short-circuit non-empty guard: `<nonempty(root)> and all(... for x in root)`
+# ---------------------------------------------------------------------------
+
+
+class TestShortCircuitGuard:
+    """`X and all(...)` cannot reach the vacuous-empty case: `and`
+    short-circuits, so the `all()` only runs when X was truthy.
+
+    Added 2026-08-18. Three of the six findings on `main` were correct code
+    written this way (pad_connectivity_audit.py,
+    check_geometry_primitive_duplication.py,
+    check_netclass_map_board_correspondence.py) -- the short-circuit form is
+    the idiomatic guard when the result is an expression rather than a
+    statement, and the gate could not see it.
+
+    The tests below come in pairs: every recognized shape has a companion
+    proving the SAME shape still fires once the guard is removed or made
+    unsound, so this cannot silently become a blanket exemption for `and`.
+    """
+
+    # --- recognized (guarded) -------------------------------------------
+    def test_bool_call_guard(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def audit(unreached):
+                return bool(unreached) and all(reachable(p) for p in unreached)
+            """,
+        )
+        assert find_violations(f) == []
+
+    def test_bare_truthiness_guard(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def pick(nc):
+                if nc and all(isinstance(v, str) for v in nc.values()):
+                    return nc
+                return None
+            """,
+        )
+        assert find_violations(f) == []
+
+    def test_len_ge_positive_constant_guard(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return len(parts) >= 5 and all(p.endswith("f64") for p in parts)
+            """,
+        )
+        assert find_violations(f) == []
+
+    def test_len_gt_zero_guard(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return len(parts) > 0 and all(p.ok for p in parts)
+            """,
+        )
+        assert find_violations(f) == []
+
+    def test_len_ne_zero_guard(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return len(parts) != 0 and all(p.ok for p in parts)
+            """,
+        )
+        assert find_violations(f) == []
+
+    def test_mirrored_len_comparison_guard(self, tmp_path):
+        """`0 < len(items)` reads the same as `len(items) > 0`."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return 0 < len(parts) and all(p.ok for p in parts)
+            """,
+        )
+        assert find_violations(f) == []
+
+    def test_guard_two_operands_to_the_left(self, tmp_path):
+        """The non-empty test need not be adjacent, only earlier."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def pick(nc):
+                return isinstance(nc, dict) and nc and all(ok(v) for v in nc.values())
+            """,
+        )
+        assert find_violations(f) == []
+
+    # --- NOT recognized (still violations) -------------------------------
+    def test_and_without_any_nonempty_test_still_fires(self, tmp_path):
+        """A bare `and` is not a guard. This is the shape that would turn
+        the change above into a blanket exemption if it were mishandled."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def audit(flag, unreached):
+                return flag and all(reachable(p) for p in unreached)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+    def test_nonempty_test_on_a_different_collection_still_fires(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def audit(other, unreached):
+                return bool(other) and all(reachable(p) for p in unreached)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+    def test_len_ge_zero_is_not_a_guard(self, tmp_path):
+        """`len(x) >= 0` is true for the empty collection -- it proves
+        nothing and must not suppress the finding."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return len(parts) >= 0 and all(p.ok for p in parts)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+    def test_len_eq_zero_is_not_a_guard(self, tmp_path):
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return len(parts) == 0 and all(p.ok for p in parts)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+    def test_len_ne_nonzero_is_not_a_guard(self, tmp_path):
+        """`len(x) != 3` is satisfied by the empty collection."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def sig(parts):
+                return len(parts) != 3 and all(p.ok for p in parts)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+    def test_or_chain_is_not_a_guard(self, tmp_path):
+        """In `X or all(...)` the `all()` runs precisely when X was FALSY,
+        so a non-empty test to the left proves the opposite of a guard."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def audit(unreached):
+                return bool(unreached) or all(reachable(p) for p in unreached)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+    def test_nonempty_test_to_the_RIGHT_is_not_a_guard(self, tmp_path):
+        """Operands after the `all()` have not been evaluated when it runs."""
+        f = _write(
+            tmp_path,
+            "m.py",
+            """
+            def audit(unreached):
+                return all(reachable(p) for p in unreached) and bool(unreached)
+            """,
+        )
+        assert len(find_violations(f)) == 1
+
+
+# ---------------------------------------------------------------------------
+# byte-frozen oracle exclusion (scripts/oracle_hashes.json)
+# ---------------------------------------------------------------------------
+
+
+class TestFrozenOracleExclusion:
+    """Files pinned in `scripts/oracle_hashes.json` are byte-frozen by
+    `check_oracle_hashes.py`; the remedy this gate demands (edit the file)
+    is forbidden for them. Excluded -- but strictly from the registry, so
+    the exclusion cannot be hand-extended and cannot go stale."""
+
+    def _repo(self, tmp_path: Path, registry_body: str | None) -> Path:
+        (tmp_path / "packages" / "p" / "tests").mkdir(parents=True)
+        (tmp_path / "scripts").mkdir()
+        oracle = tmp_path / "packages" / "p" / "tests" / "_x_py_oracle.py"
+        oracle.write_text(
+            textwrap.dedent(
+                """
+                def kernel(items):
+                    return all(i.ok for i in items)
+                """
+            )
+        )
+        if registry_body is not None:
+            (tmp_path / "scripts" / "oracle_hashes.json").write_text(registry_body)
+        return tmp_path
+
+    def test_registered_oracle_is_excluded(self, tmp_path):
+        root = self._repo(
+            tmp_path,
+            '{"version": 1, "algo": "sha256", "files":'
+            ' {"packages/p/tests/_x_py_oracle.py": "00"}}',
+        )
+        results, _ = find_all_violations(root / "packages", None, root)
+        assert results == {}
+
+    def test_unregistered_oracle_is_still_scanned(self, tmp_path):
+        """The exclusion is registry-derived, not filename-derived: an
+        oracle-looking file with no registry entry is NOT exempt (and
+        check_oracle_hashes.py fails it as UNREGISTERED separately)."""
+        root = self._repo(tmp_path, '{"version": 1, "algo": "sha256", "files": {}}')
+        results, _ = find_all_violations(root / "packages", None, root)
+        assert len(results) == 1
+
+    def test_missing_registry_fails_open_and_scans_everything(self, tmp_path):
+        root = self._repo(tmp_path, None)
+        results, _ = find_all_violations(root / "packages", None, root)
+        assert len(results) == 1
+
+    def test_corrupt_registry_fails_open_and_scans_everything(self, tmp_path):
+        root = self._repo(tmp_path, "{not json")
+        results, _ = find_all_violations(root / "packages", None, root)
+        assert len(results) == 1
+
+    def test_non_oracle_files_are_never_excluded(self, tmp_path):
+        root = self._repo(
+            tmp_path,
+            '{"version": 1, "algo": "sha256", "files":'
+            ' {"packages/p/tests/_x_py_oracle.py": "00"}}',
+        )
+        (root / "packages" / "p" / "tests" / "helper.py").write_text(
+            textwrap.dedent(
+                """
+                def check(items):
+                    return all(i.ok for i in items)
+                """
+            )
+        )
+        results, _ = find_all_violations(root / "packages", None, root)
+        assert len(results) == 1
+        assert all("helper.py" in k for k in results)

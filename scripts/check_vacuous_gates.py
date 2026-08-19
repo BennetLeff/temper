@@ -225,11 +225,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
 import ast
+import json
 import re
 
 from rich.console import Console
+from rich.markup import escape as _rich_escape
 
 console = Console()
+
+
+def _esc(text: str) -> str:
+    """Escape rich console markup in quoted SOURCE text.
+
+    Source lines routinely contain ``[...]`` -- a subscript, a list
+    literal, a type parameter -- and rich reads those as style tags and
+    DELETES them from the rendered output. Measured on 2026-08-18: this
+    gate reported its own finding in
+    ``_quality_metrics_py_oracle.py`` as ``all(dirs != dirs for j in ...)``
+    when the actual source reads ``all(dirs[j] != dirs[j + 1] for j in ...)``
+    -- i.e. the checker rendered correct code as a self-comparison bug that
+    does not exist in the file. A checker that misquotes the line it is
+    accusing sends the reader after a phantom (AGENTS.md, "Measurement
+    Instruments That Lie").
+    """
+    return _rich_escape(text)
 
 # Only all() is vacuous. any() over an empty collection is already
 # fail-closed (returns False) -- see module docstring.
@@ -292,6 +311,79 @@ def find_scope_files(packages_dir: Path, scripts_dir: Path | None = None) -> lis
     if scripts_dir is not None:
         results.extend(find_scripts_scope_files(scripts_dir))
     return results
+
+
+# ---------------------------------------------------------------------------
+# byte-frozen oracles: the one exclusion this gate cannot fix by reporting
+# ---------------------------------------------------------------------------
+
+ORACLE_REGISTRY_REL = "scripts/oracle_hashes.json"
+
+
+def frozen_oracle_paths(repo_root: Path) -> set[Path]:
+    """Resolved paths of every file byte-frozen by ``scripts/oracle_hashes.json``.
+
+    Why these are excluded from BOTH detectors
+    ------------------------------------------
+    Each ``_*_py_oracle.py`` is a VERBATIM pin of a pre-migration Python
+    implementation, and ``scripts/check_oracle_hashes.py`` fails CI the
+    moment one drifts by a single byte -- because the Wave-4 differential
+    suites compare the Rust kernels against *whatever the oracle now says*,
+    so an edit silently redefines the reference and the differentials keep
+    passing against the wrong target (issues #754 P2-2, #758).
+
+    That makes the remedy this gate demands -- "fix it; don't accumulate an
+    exception file" -- unavailable for these files by construction: the
+    only way to satisfy this gate on a frozen oracle is to re-pin its hash,
+    which is precisely the act the oracle gate exists to prevent. A finding
+    with no permitted remediation is not a check, it is a permanent red
+    that gets routed around. And an oracle is not a live gate or validator
+    in the first place: it is a frozen historical copy whose only job is to
+    be *compared against*. Nothing calls it in production.
+
+    This is NOT the hand-maintained allowlist the module docstring rejects.
+    It is derived from a registry that another gate already machine-checks
+    in both directions: ``check_oracle_hashes.py`` fails on an oracle file
+    with no registry entry (UNREGISTERED) and on a registry entry with no
+    file (DELETED). So this exclusion cannot rot -- an oracle removed from
+    the registry is scanned again automatically, and a new oracle cannot be
+    added without appearing here.
+
+    Fail-open is deliberate and is the safe direction here: if the registry
+    is missing or unreadable we exclude nothing and scan everything, which
+    can only produce MORE findings, never fewer.
+
+    Concrete case this covers as of 2026-08-18 (the only one in the repo):
+    ``packages/temper-placer/tests/router_v6/_quality_metrics_py_oracle.py``
+    line 308, ``all(dirs[j] != dirs[j + 1] for j in range(len(dirs) - 1))``.
+    It is non-vacuous by construction -- ``dirs`` is derived from
+    ``window = turns[start : start + 3]`` inside ``range(len(turns) - 3 + 1)``,
+    so it is always exactly 3 elements and the range always has 2 -- but
+    proving that needs a slice-width prover, not a syntactic heuristic.
+    """
+    registry = repo_root / ORACLE_REGISTRY_REL
+    try:
+        data = json.loads(registry.read_text(encoding="utf-8"))
+        files = data["files"]
+        if not isinstance(files, dict):
+            return set()
+    except (OSError, ValueError, KeyError, TypeError):
+        return set()
+    out: set[Path] = set()
+    for rel in files:
+        try:
+            out.add((repo_root / rel).resolve())
+        except (OSError, ValueError):
+            continue
+    return out
+
+
+def _drop_frozen_oracles(files: list[Path], repo_root: Path) -> list[Path]:
+    """Filter ``files`` down to the ones this gate can actually act on."""
+    frozen = frozen_oracle_paths(repo_root)
+    if not frozen:
+        return files
+    return [f for f in files if f.resolve() not in frozen]
 
 
 # ---------------------------------------------------------------------------
@@ -386,6 +478,141 @@ def _sibling_guard(enclosing_stmt: ast.stmt | None, root: str) -> bool:
     return bool(re.search(rf"not\s+{re.escape(root)}\b", text))
 
 
+def _is_nonempty_test(node: ast.expr, root: str) -> bool:
+    """True if evaluating *node* to a truthy value proves *root* non-empty.
+
+    Recognized shapes (``root`` compared after the same
+    ``.values()``/``.keys()``/``.items()`` stripping ``_root_expr`` applies,
+    so ``nc`` guards ``all(... for v in nc.values())``):
+
+    * bare truthiness -- ``items``
+    * ``bool(items)``
+    * ``len(items)`` compared against a constant in a way that excludes 0:
+      ``> N`` (N >= 0), ``>= N`` (N >= 1), ``== N`` (N >= 1), ``!= 0``,
+      and the mirrored forms (``N < len(items)`` etc.)
+
+    Anything else returns False -- this must stay a *proof*, not a guess.
+    A shape that merely correlates with non-emptiness would turn the gate
+    from conservative into unsound, which is the one failure mode a
+    vacuity checker cannot afford.
+    """
+    if not root:
+        return False
+
+    def _matches_root(n: ast.expr) -> bool:
+        return _STRIP_SUFFIX_RE.sub("", ast.unparse(n)) == root
+
+    # bare truthiness: `items and all(...)`
+    if isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)) and _matches_root(node):
+        return True
+
+    # `bool(items) and all(...)`
+    if (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "bool"
+        and len(node.args) == 1
+        and _matches_root(node.args[0])
+    ):
+        return True
+
+    # `len(items) <cmp> <const>` (or the mirrored `<const> <cmp> len(items)`)
+    if not (isinstance(node, ast.Compare) and len(node.ops) == 1):
+        return False
+
+    def _is_len_of_root(n: ast.expr) -> bool:
+        return (
+            isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Name)
+            and n.func.id == "len"
+            and len(n.args) == 1
+            and _matches_root(n.args[0])
+        )
+
+    left, op, right = node.left, node.ops[0], node.comparators[0]
+    if _is_len_of_root(left) and isinstance(right, ast.Constant):
+        bound, mirrored = right.value, False
+    elif _is_len_of_root(right) and isinstance(left, ast.Constant):
+        bound, mirrored = left.value, True
+    else:
+        return False
+    if not isinstance(bound, int) or isinstance(bound, bool):
+        return False
+
+    # Normalize the mirrored form so `op` always reads left-to-right as
+    # `len(root) <op> bound`.
+    if mirrored:
+        op = {
+            ast.Lt: ast.Gt,
+            ast.LtE: ast.GtE,
+            ast.Gt: ast.Lt,
+            ast.GtE: ast.LtE,
+        }.get(type(op), type(op))()
+
+    if isinstance(op, ast.Gt):
+        return bound >= 0
+    if isinstance(op, ast.GtE):
+        return bound >= 1
+    if isinstance(op, ast.Eq):
+        return bound >= 1
+    if isinstance(op, ast.NotEq):
+        return bound == 0
+    return False
+
+
+def _short_circuit_guard(
+    call: ast.Call, parents: dict[ast.AST, ast.AST], root: str
+) -> bool:
+    """True if the ``all()`` call sits to the RIGHT of a non-empty test on
+    *root* inside an enclosing ``and`` chain.
+
+    ``bool(unreached) and all(f(p) for p in unreached)`` is guarded by
+    construction: Python's ``and`` short-circuits, so the ``all()`` is only
+    ever evaluated when the left operand was truthy -- i.e. when
+    ``unreached`` was non-empty. The vacuous-empty case cannot be reached.
+
+    This was a real blind spot, not a theoretical one: the short-circuit
+    form is the *idiomatic* way to write the guard when the result is an
+    expression rather than a statement, and 3 of the 6 findings on
+    ``main`` at 2026-08-18 were correct code written this way
+    (``pad_connectivity_audit.py``, ``check_geometry_primitive_duplication.py``,
+    ``check_netclass_map_board_correspondence.py``). ``_sibling_guard``
+    above only ever matched a literal ``not <root>`` substring anywhere in
+    the enclosing statement, so none of them registered.
+
+    Soundness: we walk from the call up through its ancestors; whenever an
+    ancestor is a ``BoolOp(And)``, any operand strictly to the LEFT of the
+    branch we came from must have evaluated truthy for evaluation to have
+    reached us. If such an operand is a non-empty test on *root*
+    (``_is_nonempty_test``), *root* was non-empty at that moment. Walking
+    up more than one level is still sound for the same reason -- what sits
+    between does not change the fact that the left operand was evaluated
+    truthy first. (Like every other guard in this file this assumes *root*
+    is not mutated to empty in between; that caveat is shared with
+    ``_preceding_guard`` and is not new here.)
+
+    Deliberately NOT recognized: ``or`` chains (a left operand being
+    *falsy* proves nothing about non-emptiness), and operands to the RIGHT
+    of the call (never evaluated before it).
+    """
+    if not root:
+        return False
+    node: ast.AST = call
+    while node in parents:
+        parent = parents[node]
+        if isinstance(parent, ast.BoolOp) and isinstance(parent.op, ast.And):
+            try:
+                idx = parent.values.index(node)  # type: ignore[arg-type]
+            except ValueError:
+                idx = -1
+            if idx > 0 and any(
+                _is_nonempty_test(v, root) for v in parent.values[:idx]
+            ):
+                return True
+        node = parent
+    return False
+
+
 def find_violations(py_file: Path) -> list[tuple[int, str]]:
     """Return ``[(lineno, snippet), ...]`` of unguarded all() calls."""
     try:
@@ -436,6 +663,8 @@ def find_violations(py_file: Path) -> list[tuple[int, str]]:
         if _preceding_guard(lines, scope_start, node.lineno, root):
             continue
         if _sibling_guard(enclosing_stmt(node), root):
+            continue
+        if _short_circuit_guard(node, parents, root):
             continue
 
         snippet = lines[node.lineno - 1].strip() if node.lineno <= len(lines) else ""
@@ -693,7 +922,9 @@ def find_all_tautology_violations(
     """Scan every tautology-scope file. Same ``(results, files_scanned)``
     contract as ``find_all_violations`` (see its docstring)."""
     results: dict[str, tuple[int, str, str]] = {}
-    scope_files = find_tautology_scope_files(packages_dir, scripts_dir)
+    scope_files = _drop_frozen_oracles(
+        find_tautology_scope_files(packages_dir, scripts_dir), repo_root
+    )
     for py_file in scope_files:
         rel = _rel_str(py_file, repo_root)
         for lineno, snippet, kind in find_tautology_violations(py_file):
@@ -721,7 +952,9 @@ def find_all_violations(
     nothing).
     """
     results: dict[str, tuple[int, str]] = {}
-    scope_files = find_scope_files(packages_dir, scripts_dir)
+    scope_files = _drop_frozen_oracles(
+        find_scope_files(packages_dir, scripts_dir), repo_root
+    )
     for py_file in scope_files:
         rel = _rel_str(py_file, repo_root)
         for lineno, snippet in find_violations(py_file):
@@ -778,14 +1011,25 @@ def main() -> None:
         packages_dir, scripts_dir, repo_root
     )
 
+    # The excluded count is part of the denominator, not a footnote: a gate
+    # that silently shrinks what it scans is indistinguishable from one that
+    # scanned nothing (docs/evidence/2026-07-27-gate-subset-blindness-audit.md).
+    n_frozen = len(frozen_oracle_paths(repo_root))
+    frozen_note = (
+        f" Excluded {n_frozen} byte-frozen oracle file(s) registered in"
+        f" {ORACLE_REGISTRY_REL} (see frozen_oracle_paths)."
+        if n_frozen
+        else f" Excluded 0 files: no readable oracle registry at {ORACLE_REGISTRY_REL}."
+    )
     denominator = (
         f"Scanned {files_scanned} file(s) in scope"
         f" ({packages_dir}/*/src + */tests, {scripts_dir or '<disabled>'}/*.py)."
+        f"{frozen_note}"
     )
     taut_denominator = (
         f"Scanned {taut_files_scanned} file(s) in tautology scope"
         f" ({packages_dir}/*/src + */tests (incl. test-named files),"
-        f" {scripts_dir or '<disabled>'}/**/*.py)."
+        f" {scripts_dir or '<disabled>'}/**/*.py).{frozen_note}"
     )
 
     if files_scanned == 0 or taut_files_scanned == 0:
@@ -801,7 +1045,7 @@ def main() -> None:
         for key in sorted(violations):
             lineno, snippet = violations[key]
             console.print(
-                f"[red]FAIL: {key} — unguarded aggregation: {snippet!r}."
+                f"[red]FAIL: {key} — unguarded aggregation: {_esc(snippet)!r}."
                 f" all() over an empty collection is vacuously True;"
                 f" assert non-empty (or a per-item None check) before"
                 f" aggregating.[/]"
@@ -810,7 +1054,7 @@ def main() -> None:
     if taut_violations:
         for key in sorted(taut_violations):
             lineno, snippet, kind = taut_violations[key]
-            message = _TAUTOLOGY_MESSAGES[kind].format(snippet=snippet)
+            message = _TAUTOLOGY_MESSAGES[kind].format(snippet=_esc(snippet))
             console.print(f"[red]FAIL: {key} — {message}[/]")
 
     total = len(violations) + len(taut_violations)

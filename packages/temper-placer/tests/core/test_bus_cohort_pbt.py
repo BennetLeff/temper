@@ -169,7 +169,14 @@ def test_p4_fails_for_swapped_check_order_kernel():
 def test_p5_nets_identity_and_append_persists(name, nets, extra):
     """The nets getter is identity-preserving, and in-place append persists."""
     bus = BusCohortConstraint(name=name, nets=nets)
-    assert bus.nets is bus.nets
+    # Two SEPARATE getter invocations: `nets` is a pyo3 property, so each
+    # attribute read calls into Rust. Binding both reads to distinct names
+    # is what makes the identity check observable -- `bus.nets is bus.nets`
+    # inside one expression is indistinguishable, to a reader or a linter,
+    # from the always-true `X is X` shape (check_vacuous_gates.py #3).
+    first_read = bus.nets
+    second_read = bus.nets
+    assert first_read is second_read
     before = bus.signal_count
     bus.nets.append(extra)
     assert extra in bus.nets

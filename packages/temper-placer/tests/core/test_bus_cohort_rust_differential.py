@@ -252,8 +252,24 @@ class TestBusCohortReprEqHash:
 
 class TestBusCohortNetsAndSignalCount:
     def test_nets_getter_identity(self):
+        """The `nets` getter returns the SAME list object on every read.
+
+        Two separate attribute reads = two separate pyo3 getter calls; a
+        getter that rebuilt the list would hand back distinct objects and
+        in-place `.append()` would silently not persist. Asserted through
+        two named reads (not `prod.nets is prod.nets`, which is the
+        always-true `X is X` shape a reader cannot distinguish from a real
+        check -- check_vacuous_gates.py #3), plus the observable
+        consequence: a mutation through the first handle is visible on a
+        third, fresh read.
+        """
         prod = BusCohortConstraint("X", ["a", "b"])
-        assert prod.nets is prod.nets
+        first_read = prod.nets
+        second_read = prod.nets
+        assert first_read is second_read
+        first_read.append("c")
+        assert prod.nets == ["a", "b", "c"]
+        assert prod.signal_count == 3
 
     def test_nets_append_persists(self):
         prod = BusCohortConstraint("SPI_BUS", ["a"])

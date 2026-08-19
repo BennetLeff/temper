@@ -250,20 +250,47 @@ class TestNetGraph:
         assert _graph_fields(prod) == _graph_fields(oracle)
 
     def test_edges_identity(self):
-        """edges getter returns the SAME Python object (not a copy)."""
+        """edges getter returns the SAME Python object (not a copy).
+
+        `edges` is a pyo3 property, so each attribute read is a distinct
+        Rust getter call. The identity is asserted between two NAMED reads
+        rather than as `prod.edges is prod.edges`: the latter is the
+        always-true `X is X` shape (check_vacuous_gates.py #3) and is
+        indistinguishable, to a reader or a linter, from an assertion that
+        checks nothing. The observable consequence -- a mutation through
+        the first handle is visible on a later, fresh read -- is asserted
+        too, so a copying getter fails on behaviour and not only on `is`.
+        """
         prod = NetGraph("NET1")
-        assert prod.edges is prod.edges  # identity
+        first_read = prod.edges
+        second_read = prod.edges
+        assert first_read is second_read
+        edge = SubNetEdge("A.1", "B.1")
+        first_read.append(edge)
+        assert prod.edges == [edge]
         # Default factory creates a fresh list per instance
         prod2 = NetGraph("NET2")
         assert prod.edges is not prod2.edges  # not shared
+        assert prod2.edges == []
 
     def test_star_nodes_identity(self):
-        """star_nodes getter returns the SAME Python set (not a copy)."""
+        """star_nodes getter returns the SAME Python set (not a copy).
+
+        Same construction as `test_edges_identity` above, and for the same
+        reason: two named reads instead of the always-true `X is X` shape,
+        plus the mutation-visibility consequence that a copying getter
+        would fail.
+        """
         prod = NetGraph("NET1")
-        assert prod.star_nodes is prod.star_nodes  # identity
+        first_read = prod.star_nodes
+        second_read = prod.star_nodes
+        assert first_read is second_read
+        first_read.add("PIN1")
+        assert prod.star_nodes == {"PIN1"}
         # Default factory creates a fresh set per instance
         prod2 = NetGraph("NET2")
         assert prod.star_nodes is not prod2.star_nodes  # not shared
+        assert prod2.star_nodes == set()
 
     def test_edges_append_mutates_in_place(self):
         prod = NetGraph("NET1")

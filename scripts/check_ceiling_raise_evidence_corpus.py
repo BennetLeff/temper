@@ -89,6 +89,23 @@ EXIT_GATE_ERROR = 2
 
 BOARD_REL_PATH = "pcb/temper.kicad_pcb"
 
+# Every class `run_corpus` is contracted to exercise, in order. This is the
+# corpus manifest, not a description of it: `run_corpus` verifies the
+# verdicts it actually produced against this tuple before aggregating them.
+#
+# Without it the aggregation is `all(v[1] for v in verdicts)`, which is
+# vacuously True over an empty list -- a corpus that silently stopped
+# building verdicts (an early return, a deleted class, a refactor that
+# dropped an append) would report a clean PASS having measured nothing.
+# That is the exact failure class this file exists to catch in the ceiling
+# gate, so it must not be the failure class of the file itself.
+EXPECTED_CORPUS_CLASSES = (
+    "no-op-control",
+    "fully-evidenced-raise-control",
+    "no-march-entry",
+    "dangling-commit",
+)
+
 
 class GateError(RuntimeError):
     pass
@@ -221,6 +238,23 @@ def run_corpus(repo_root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
         else f"uncovered/gate-error -- detected={detected} problems={problems!r}",
     ))
 
+    # Anti-vacuity: pin the corpus population BEFORE aggregating it. An
+    # `all()` over an empty (or silently shortened) verdict list is
+    # vacuously True -- see EXPECTED_CORPUS_CLASSES.
+    produced = tuple(v[0] for v in verdicts)
+    # `not verdicts` is subsumed by the population comparison (an empty
+    # tuple can never equal a 4-element manifest); it is written out anyway
+    # so the non-empty precondition of the all() below is explicit at the
+    # point of use rather than inferable only from the constant's length.
+    if not verdicts or produced != EXPECTED_CORPUS_CLASSES:
+        raise GateError(
+            "corpus population changed: ran "
+            f"{produced!r} but EXPECTED_CORPUS_CLASSES declares "
+            f"{EXPECTED_CORPUS_CLASSES!r}. Update the manifest in the same "
+            "change that adds or removes a class -- a corpus that reports "
+            "PASS while exercising fewer classes than it claims is the "
+            "defect this gate exists to detect."
+        )
     overall_ok = all(v[1] for v in verdicts)
     return overall_ok, verdicts
 
