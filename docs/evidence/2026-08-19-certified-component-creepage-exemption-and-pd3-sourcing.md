@@ -707,3 +707,152 @@ get to use.
    570.5 V rms; above 500 V rms, T1's reinforced requirement becomes **20.0 mm**,
    not 12.6 mm. Neither can be settled in-tree, and neither is an argument for
    relaxing anything.
+
+---
+
+## 8. Second independent vendor sweep — corrections, ceilings, and one datasheet trap
+
+A second sourcing sweep (21 CT datasheets, ~20 gate-driver families) returned
+after the sections above were written. It corrects two facts and hardens three
+conclusions. Load-bearing claims re-verified by me directly.
+
+### 8.1 Correction: U6 is a **DWK-14**, not a SOIC16W
+
+The brief and the footprint filename both say `SOIC16W_Isolated`. The land
+pattern at `pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod` has **14 pads,
+numbered 1–11 and 14–16** — verified by direct count. That is TI's **DWK**
+(14-pin wide-body SOIC: the DW-16 lead frame with positions 12/13 omitted), which
+matches `UCC21550BDWKR`. The filename is misleading; nothing else changes.
+
+### 8.2 The 8.1 mm is TI's own HV land-pattern maximum — there is no headroom
+
+Verified by me in the UCC21550 datasheet's land-pattern drawing (4224374/A), which
+publishes two options side by side, four times over:
+
+```
+        IPC-7351 NOMINAL              HV / ISOLATION OPTION
+   7.3 mm CLEARANCE/CREEPAGE       8.1 mm CLEARANCE/CREEPAGE
+```
+
+**The board is already on the HV/ISOLATION land.** The measured 8.1000 mm is not
+an accident of layout — it is the maximum TI publishes for this package, chosen
+deliberately to match the package's own > 8 mm CPG. This independently confirms
+§5.2a: TI sized the land to the package's capability, so lengthening the board
+path past it (by slot or otherwise) buys nothing the package can support.
+
+### 8.3 Datasheet trap — do not buy ISO5852S on its stated 14.5 mm
+
+TI's **ISO5852S** datasheet (SLLSEQ0C) §7.6 states **CLR = 14.5 mm and
+CPG = 14.5 mm**. Taken at face value that clears 12.6 mm and looks like the
+answer. It is not achievable at the pins, and the same document contradicts it:
+
+- package **DW0016B** body is 10.1–10.5 mm × 7.4–7.6 mm, lead span
+  9.97–10.63 mm — a 14.5 mm terminal-to-terminal path is geometrically impossible
+  on a part whose widest dimension is 10.63 mm;
+- the land-pattern page of the *same* datasheet states **8.1 mm
+  CLEARANCE/CREEPAGE** for the HV/ISOLATION option, identical to UCC21550 (same
+  DW0016B family).
+
+**Treat the 14.5 mm as a datasheet error.** Recorded here so nobody re-finds it
+and specifies it. This is exactly why every figure in this document is tied to a
+package geometry rather than a single quoted number.
+
+### 8.4 Isolated gate driver ceiling — 10.0 mm, and not a drop-in
+
+| part | package | creepage | cert / PD |
+|---|---|---:|---|
+| **Broadcom HCNW3120** | DIP-8 widebody 400 mil | **10.0 mm** | UL 1577 E55361, 5000 V rms; DIN EN 60747-5-5; **PD2** |
+| **Vishay VOW3120** | DIP-8 **and** SMD-8 widebody 400 mil (option 7) | **≥ 10 mm** | UL 1577 5300 V rms; **PD2**; no UL file no. in PDF |
+| PI SIC1181KQ / SIC1182KQ | eSOP-R16B | 9.5 mm | UL 1577; VDE 0884-17 reinforced **pending** |
+| Broadcom HCPL-316J | SO-16 | 8.3 mm | UL 1577 E55361; **PD2** |
+| TI UCC21550 (incumbent) | DWK-14 | > 8 mm | UL 1577 5000 V rms; VDE 0884-17 reinforced; **PD2** |
+
+**Maximum in the category is 10.0 mm; maximum in any surface-mount package is
+9.5 mm. Nothing reaches 12.6 mm.** And the 10 mm parts are not substitutes: they
+are **single-channel LED-input optocouplers**, so a half-bridge needs two plus LED
+drive and a second isolated supply; propagation delay is **0.25 µs typ / 0.5 µs
+max against the UCC21550's 33 ns**, which would force dead time to ~1 µs at
+44–50 kHz; peak drive drops to 2.5 A against a gate demand already near 6.8 A;
+and there is **no dead-time interlock and no DIS pin**, so the existing shutdown
+path would have to be rebuilt. All of that cost still lands 2.6 mm short.
+
+### 8.5 CT category — the negative result, quantified
+
+**21 CT datasheets read end-to-end. Three state a creepage distance in mm; two
+assert compliance qualitatively with no number; sixteen give only a
+dielectric-withstand voltage and no creepage at all.** Roughly **1 in 7** CT
+datasheets quantifies creepage. Talema's entire 28-page CT catalog returns **zero
+hits** for "creepage" or "clearance" across all pages.
+
+The largest creepage verified in any CT PDF is **9.2 mm** (ICE Components CT09) —
+on a **6 A** part, ~10× below the current requirement. The incumbent's own 8 mm
+claim is *below* the board's as-built 9.1 mm, confirming it is a floor rather than
+a measured terminal-to-terminal figure.
+
+Best remaining lead, **vendor-listing only — do not put on a PO**: Pulse
+**PAS6322** series, marketed by Digi-Key as "10 mm extended creepage", 50 A,
+20 kHz–1 MHz. **Datasheet not retrieved** (Pulse's server refused connection on
+three attempts). Even on its own claimed numbers it fails both bars (10 mm < 12.6;
+50 A < the 60 A window).
+
+Aperture-primary parts that *do* fit the band and current: **Talema AS-406**
+(1:500, 65 A) and **AS-407** (1:500, 80 A), 20 kHz–200 kHz. Both state **no
+creepage figure and carry no agency file number** — only "Meets VDE norms". And
+the size flag matters: **AS-406 is 30.0 mm tall against the CST3015's 15.2 mm**,
+roughly double, on a board already only just placeable.
+
+**Procurement risk on the incumbent:** Digi-Key returns **zero results** for
+`CST3015-100ED` and for `CST3015`. Current stock for the part actually fitted is
+**not established**.
+
+### 8.6 Pollution degree 2 is universal across isolator certificates
+
+Every IEC 60747-17 / VDE 0884 / DIN EN 60747-5-5 certificate read across both
+sweeps — TI, Power Integrations, Broadcom, Vishay — states **Pollution Degree 2**.
+Not one isolator certificate encountered is scoped to PD3. This generalises §5.4
+well beyond the three datasheets I read myself: a hypothetical 12.6 mm isolator
+would still carry a certificate whose own stated precondition this board does not
+meet. Notably the **one** part in this whole exercise rated at **IEC 60664-1
+pollution degree 3** is the TE Schrack RT33K012 relay (§5.1).
+
+### 8.7 Two suggestions from the sweep that are declined here
+
+**(a) Re-opening the PD3 determination.** The sweep observes that if a PD2
+compartment prerequisite could be earned, "the industry-standard 8 mm becomes the
+bar and the incumbent parts pass on their existing geometry." **Declined.**
+`MIN_BARRIER_WIDTH_MM` = 12.6 is immutable for this work and PD3 governs per
+`docs/evidence/2026-08-12-pollution-degree-resolution.md`. Recorded only so the
+suggestion is visible and explicitly refused rather than quietly acted on. Note
+also that the sweep's supporting point — that candidate parts are material group I
+(CTI > 600) rather than IIIa/IIIb — does not move the figure, as the sweep itself
+concedes: **Table 17's row is selected by the *board's* material group, not the
+component's.**
+
+**(b) The slot as "the only mechanism available".** The sweep endorses the
+in-tree slot rescue. **§5.2a stands unchanged**, and §8.2 strengthens it: the slot
+lengthens only the board path, while TI's CPG is defined across the *package
+surface* at > 8 mm and TI's own HV land is sized to exactly that. The sweep did
+not carry a package-path term. A slot at U6 or T1 would move the DRC number
+without moving the hazard.
+
+### 8.8 Caveats carried forward from the sweep
+
+- The session's WebSearch budget (200/200) was exhausted early, so later retrieval
+  was direct-URL only. **"None found" means "not found in the vendors reached."**
+- CT vendors never reached at all: **Bourns** (incl. PCS020), **TDK/EPCOS**,
+  **Murata**, **Triad**, **Signal Transformer**, **Amveco/Eaton**, and Coilcraft's
+  own CS4xxxV / CST1211 / CSE / SCS families.
+- Gate-driver families not retrieved: Broadcom ACNW3190/ACPL-32JT/352J/339J,
+  Skyworks Si823x/827x/828x, onsemi (403), Toshiba TLP5214/351/358, Renesas, ADI
+  ADuM4135/4136/4121 (timeouts).
+- **ISO7741U (the §5.2b recommendation) needs vendor confirmation before
+  commitment**: TI marks it a **preview** product, stock could not be confirmed,
+  the §5.6 table says **DUW** while the §8 text says **DWW**, and the DUW
+  mechanical drawing is absent from the retrieved PDF — so **package body
+  dimensions are NOT VERIFIED**. Given §8.3, do not commit without TI confirming
+  the package drawing directly.
+- **A further consequence of the ISO7741 route, not previously stated:** moving
+  the barrier to a digital isolator means the HV-side gate-driver bias supply must
+  then cross the barrier too. That relocates the ≥ 12.6 mm requirement onto an
+  isolation transformer rather than eliminating it. The topology change is larger
+  than §5.2b implied.
