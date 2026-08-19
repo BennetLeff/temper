@@ -20,6 +20,7 @@ import pytest
 from shapely.geometry import Point, Polygon
 
 from temper_placer.router_v6._ground_plane import (
+    _find_via_drop_point,
     compute_hv_selv_keepout,
     generate_ground_plane_content,
     mst_edges,
@@ -243,3 +244,67 @@ class TestGenerateGroundPlaneOnRealBoard:
         baseline_zone_count = PRODUCTION_BOARD.read_text().count("\n  (zone ")
         new_zone_count = new_content.count("\n  (zone ")
         assert new_zone_count > baseline_zone_count
+
+
+class TestViaDropPointFailsClosedOutsideThePour:
+    """A stitching via that cannot sit inside its own net's pour is not
+    emitted at all.
+
+    Regression guard for the 2026-08-18 `via_dangling` finding
+    (docs/evidence/2026-08-18-via-dangling-111-plane-stitch-fallback.md).
+    `_find_via_drop_point` used to fall back to a pour-unconstrained
+    second search, on the assumption that "a via outside the pour can
+    still be joined by the F.Cu MST backbone". Measured false: 20 of the
+    committed board's plane-stitch vias came from that fallback, and 10
+    of the 28 `via_dangling` findings that survive `--refill-zones` touch
+    no copper of their own net on ANY layer. A via that reaches neither
+    the plane it exists to stitch nor anything else is a drilled hole
+    connected to nothing -- skip it, the same fail-closed answer this
+    function already gives when no clear point exists at all.
+    """
+
+    BOARD = Polygon([(0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0)])
+
+    def _call(self, pad_pos, pour_region):
+        return _find_via_drop_point(
+            pad_pos,
+            existing_holes=[],
+            via_radius_mm=0.5,
+            keepout=None,
+            other_copper=None,
+            board_polygon=self.BOARD,
+            pour_region=pour_region,
+        )
+
+    def test_pad_inside_the_pour_still_gets_its_via_at_the_pad(self):
+        pour = Polygon([(10.0, 10.0), (40.0, 10.0), (40.0, 40.0), (10.0, 40.0)])
+        point, needs_stub = self._call((25.0, 25.0), pour)
+        assert point == (25.0, 25.0)
+        assert needs_stub is False
+
+    def test_pad_outside_the_pour_gets_NO_via_rather_than_a_fallback_one(self):
+        # The pad sits far outside the pour, and no ring-search offset can
+        # reach it -- previously this returned a pour-unconstrained point.
+        pour = Polygon([(10.0, 10.0), (40.0, 10.0), (40.0, 40.0), (10.0, 40.0)])
+        point, needs_stub = self._call((80.0, 80.0), pour)
+        assert point is None, (
+            "a via outside its own net's pour reaches no plane copper -- "
+            "it must be skipped, not emitted from a fallback search"
+        )
+        assert needs_stub is False
+
+    def test_pad_just_outside_the_pour_is_offset_INTO_it_not_dropped(self):
+        # Guard against over-correcting: the ring search must still be
+        # allowed to nudge a near-edge pad into the pour.
+        pour = Polygon([(10.0, 10.0), (40.0, 10.0), (40.0, 40.0), (10.0, 40.0)])
+        point, needs_stub = self._call((10.2, 25.0), pour)
+        assert point is not None
+        assert needs_stub is True
+        assert pour.contains(Point(point).buffer(0.5, quad_segs=12))
+
+    def test_no_pour_region_keeps_the_unconstrained_behaviour(self):
+        # Callers that have no pour to honour (fixtures, keepout-only
+        # runs) are unaffected by the fail-closed rule.
+        point, needs_stub = self._call((80.0, 80.0), None)
+        assert point == (80.0, 80.0)
+        assert needs_stub is False
