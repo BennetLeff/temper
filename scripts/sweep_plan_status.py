@@ -15,7 +15,10 @@ import re
 import subprocess
 from collections import Counter
 
-REPO = pathlib.Path("/Users/bennet/Desktop/temper")
+# Resolve from this file. The hardcoded "/Users/bennet/Desktop/temper"
+# this replaced does not exist here, so PLANS.glob("*.md") yielded
+# nothing and every run was a silent no-op that still exited 0.
+REPO = pathlib.Path(__file__).resolve().parents[1]
 PLANS = REPO / "docs" / "plans"
 SWEEP_DATE = "2026-07-25"
 

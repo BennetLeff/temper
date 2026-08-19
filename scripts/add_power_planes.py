@@ -94,7 +94,7 @@ def add_unified_gnd_plane(input_pcb: Path, output_pcb: Path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python add_power_planes_v5.py <input.kicad_pcb> [output.kicad_pcb]")
+        print("Usage: python add_power_planes.py <input.kicad_pcb> [output.kicad_pcb]")
         sys.exit(1)
 
     inp = Path(sys.argv[1])

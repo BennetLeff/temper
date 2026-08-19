@@ -34,6 +34,8 @@
     ".physics-provenance-allowlist",
     "scripts/check_physics_provenance.py",
     "scripts/check_vacuous_gates.py",
+    "scripts/verify_proofs.py",
+    "packages/temper-rust-router-core/PROOFS.toml",
     "scripts/check_derived_doc_drift.py",
     "scripts/derived_doc_gates.yaml",
     "scripts/tests/test_check_derived_doc_drift.py",

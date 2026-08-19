@@ -1798,9 +1798,20 @@ scripts:
   imports:
   - sys
 - path: full_pipeline_profile.py
-  purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
+  purpose: 'Full closure-test profile with per-net A* logging; surfaces the actual
+    SM1 baseline on temper.kicad_pcb. Manual profiler, deliberately not CI-wired.
+    2026-08-18: REPO_ROOT was the hardcoded absolute path
+    /Users/bennet/Desktop/temper/.worktrees/feat/router-v6-closure-rate-90-percent
+    -- a macOS worktree that exists on no machine running this repo -- so PCB_PATH
+    resolved to a missing board and the script could not run anywhere. Now resolved
+    from __file__. KNOWN REMAINING DEFECT, not fixed here: it monkeypatches
+    astar_pathfinding._astar_route_with_ripup / ._astar_search_rust, but
+    astar_pathfinding.py is now a re-export shim (the real def is in
+    _astar_search.py), so patching the shim global does not affect in-module
+    callers and the per-net instrumentation is probably silently inert. Verify that
+    before trusting any per-net number this script prints.'
   owner: router-v6-closure-rate
-  last_run: '2026-06-23'
+  last_run: '2026-08-18'
   category: keep
   disposition: utility
   imports:
@@ -2339,9 +2350,12 @@ scripts:
   - sys
   - typing
 - path: profile_router_v6_sampling.py
-  purpose: Profile router_v6 on a small subset of nets for sampling analysis
+  purpose: 'Profile router_v6 on a small subset of nets for sampling analysis.
+    Manual profiler, deliberately not CI-wired. 2026-08-18: REPO_ROOT was the same
+    dead hardcoded macOS worktree path as full_pipeline_profile.py, so the script
+    could not run on any current checkout; now resolved from __file__.'
   owner: router-v6-closure-rate
-  last_run: '2026-06-23'
+  last_run: '2026-08-18'
   category: keep
   disposition: utility
   imports:
@@ -2513,9 +2527,18 @@ scripts:
   - __future__
   - math
 - path: sweep_plan_status.py
-  purpose: One-shot supersession sweep of docs/plans/ frontmatter status (2026-07-25); see docs/plans/README.md
+  purpose: 'One-shot supersession sweep of docs/plans/ frontmatter status
+    (2026-07-25); see docs/plans/README.md. 2026-08-18: REPO was the hardcoded
+    absolute path /Users/bennet/Desktop/temper, which does not exist here, so
+    PLANS.glob("*.md") matched nothing and every invocation was a silent no-op that
+    still exited 0. Now resolved from __file__. READ THIS BEFORE RUNNING IT: the
+    script is dry-run by default and only writes under --write, but it carries a
+    frozen SWEEP_DATE = 2026-07-25 and a hardcoded 4-entry SUPERSEDED dict that is a
+    snapshot of one day''s triage -- a --write run today would re-stamp plan
+    frontmatter with that stale date and that stale classification. It is a
+    historical one-shot, not a maintained tool.'
   owner: bennet
-  last_run: '2026-07-25'
+  last_run: '2026-08-18'
   category: keep
   disposition: utility
   imports:
@@ -2631,9 +2654,22 @@ scripts:
   - pathlib
   - re
 - path: verify_proofs.py
-  purpose: Verify PROOFS.toml completeness — CI gate
+  purpose: 'Verify PROOFS.toml completeness -- CI gate. As of 2026-08-18 this
+    label is finally TRUE. packages/temper-rust-router-core/src/combinator/proofs.rs:13
+    has asserted in a doc comment that "CI enforces PROOFS.toml completeness via
+    scripts/verify_proofs.py" since the file was created (2026-06-28, fbfc0c850)
+    while no workflow ever invoked it, and this manifest carried disposition:
+    ci-gate for a gate no job ran -- flagged in docs/evidence/2026-08-11-gate-vacuity-audit.md
+    (Finding 5) and docs/brainstorms/2026-08-12-referential-integrity-options.md:253.
+    Worse, the gate was broken: PROOFS.toml stayed in packages/temper-rust-router/
+    when the combinator/encoding sources moved to packages/temper-rust-router-core/
+    in the crate split, so all 11 entries resolved to nonexistent files and a run
+    exited 1 with 11 "file not found" errors -- measured 2026-08-18. Fixed by moving
+    PROOFS.toml alongside the crate it describes and repointing the script; now
+    PASSES, and is invoked by the "PROOFS.toml completeness gate" step in
+    .github/workflows/python-tests.yml with entries in .github/required-checks.json.'
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-18'
   category: keep
   disposition: ci-gate
   imports:
@@ -2789,11 +2825,27 @@ scripts:
   - typing
   - yaml
 - path: check_corpus_specificity.py
-  purpose: Corpus specificity run (STRATEGY.md build order step 5)
+  purpose: 'Corpus specificity run (STRATEGY.md build order step 5). DISPOSITION
+    CORRECTED 2026-08-18 from ci-gate to utility: the ci-gate label was false --
+    no .github/workflows/*.yml step invokes this script, it is absent from
+    .github/required-checks.json, and its only importer
+    (scripts/tests/test_corpus_specificity.py) is not collected either, since
+    pyproject.toml testpaths covers packages/*/tests and elec/validation but not
+    scripts/tests. Already flagged as unreachable in
+    docs/evidence/2026-08-11-phase3-mutation-state-of-play.md:109 and
+    docs/evidence/2026-08-12-gate-vacuity-structural-prevention.md:229; the label
+    stayed anyway. Not wired here because it is RED, correctly and fail-closed:
+    measured 2026-08-18 it exits 1 with "2/5 boards have a board_containment
+    finding, 2/5 could not be checked (NOT counted as clean)" -- the two
+    uncheckable boards (minimal, rp2040_designguide) and bitaxe_ultra/piantor_right
+    lack the .kicad_pro sidecar _drc_api refuses to DRC without, because a missing
+    project silently drops the custom DRU creepage rules. Promoting it to a real
+    ci-gate requires adding those sidecars to the third-party corpus boards, not
+    relabelling this field.'
   owner: bennet
-  last_run: '2026-08-08'
+  last_run: '2026-08-18'
   category: keep
-  disposition: ci-gate
+  disposition: utility
   imports:
   - __future__
   - dataclasses

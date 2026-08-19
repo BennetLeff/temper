@@ -115,6 +115,8 @@ on:
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
+      - 'scripts/verify_proofs.py'
+      - 'packages/temper-rust-router-core/PROOFS.toml'
       - 'scripts/check_derived_doc_drift.py'
       - 'scripts/derived_doc_gates.yaml'
       - 'scripts/tests/test_check_derived_doc_drift.py'
@@ -222,6 +224,8 @@ on:
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
+      - 'scripts/verify_proofs.py'
+      - 'packages/temper-rust-router-core/PROOFS.toml'
       - 'scripts/check_derived_doc_drift.py'
       - 'scripts/derived_doc_gates.yaml'
       - 'scripts/tests/test_check_derived_doc_drift.py'
@@ -1675,6 +1679,19 @@ jobs:
       - name: Anti-vacuous-truth gate (gates/validators)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_vacuous_gates.py
+
+      # PROOFS.toml completeness. temper-rust-router-core's
+      # src/combinator/proofs.rs has asserted, in a doc comment, that "CI
+      # enforces PROOFS.toml completeness via scripts/verify_proofs.py"
+      # since 2026-06-28 -- while no workflow anywhere invoked it. The claim
+      # was false for the file's entire lifetime, and the gate had itself
+      # been broken since the crate split (PROOFS.toml stayed in
+      # temper-rust-router while every source it names moved to
+      # temper-rust-router-core; all 11 entries resolved to missing files).
+      # This step is what makes that sentence true.
+      - name: PROOFS.toml completeness gate (constraint combinator)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/verify_proofs.py
 
       # Static half of the protected-measurement-artifact gate. Closes the
       # 2026-08-04 incident: `test_update_baseline_yaml` in

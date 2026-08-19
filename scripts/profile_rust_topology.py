@@ -43,7 +43,7 @@ def run_closure_test(pcb_path: str) -> dict | None:
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python scripts/profile_rust_vs_python_topology.py <pcb_path>")
+        print("Usage: python scripts/profile_rust_topology.py <pcb_path>")
         sys.exit(1)
 
     pcb_path = sys.argv[1]

@@ -57,7 +57,14 @@ def test_function_exists(file_path: Path, test_name: str) -> bool:
 
 def main() -> int:
     repo_root = find_repo_root()
-    proofs_toml_path = repo_root / "packages" / "temper-rust-router" / "PROOFS.toml"
+    # PROOFS.toml lives with the crate it describes. Every path inside it is
+    # resolved relative to `proofs_toml_path.parent`, so the two must not
+    # drift apart -- and they did: the combinator/encoding sources moved to
+    # `temper-rust-router-core` in the crate split while this path stayed on
+    # `temper-rust-router`, and all 11 entries had been resolving to
+    # nonexistent files ever since. Nothing noticed, because nothing ran this
+    # script (see the CI wiring added alongside this fix).
+    proofs_toml_path = repo_root / "packages" / "temper-rust-router-core" / "PROOFS.toml"
 
     if not proofs_toml_path.exists():
         print(f"ERROR: PROOFS.toml not found at {proofs_toml_path}")

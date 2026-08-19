@@ -17,7 +17,7 @@ Output:
 
 Usage:
     PYTHONPATH=packages/temper-placer/src \\
-    /Users/bennet/Desktop/temper/.venv/bin/python3 \\
+    uv run python \\
     scripts/full_pipeline_profile.py
 """
 from __future__ import annotations
@@ -34,7 +34,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path("/Users/bennet/Desktop/temper/.worktrees/feat/router-v6-closure-rate-90-percent")
+# Resolve from this file, not from one author's 2026-06 macOS worktree.
+# The hardcoded "/Users/bennet/Desktop/temper/.worktrees/feat/
+# router-v6-closure-rate-90-percent" this replaced does not exist on any
+# machine that runs this repo today, so PCB_PATH below resolved to a
+# missing board and the profiler could not run at all.
+REPO_ROOT = Path(__file__).resolve().parents[1]
 PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 LOG_PATH = Path("/tmp/full_pipeline_profile.log")
 PSTATS_PATH = Path("/tmp/full_pipeline_profile.pstats")

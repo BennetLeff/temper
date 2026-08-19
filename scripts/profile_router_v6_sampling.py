@@ -9,7 +9,7 @@ Rust kernel so a single stuck net can't blow the time budget.
 
 Usage (from the repo root):
     PYTHONPATH=packages/temper-placer/src \
-    /Users/bennet/Desktop/temper/.venv/bin/python3 \
+    uv run python \
     scripts/profile_router_v6_sampling.py [N] [--output PATH]
 
 Default N is 4 (the 4 lowest-cost easy nets).
@@ -24,7 +24,9 @@ import sys
 import time
 from pathlib import Path
 
-REPO_ROOT = Path("/Users/bennet/Desktop/temper/.worktrees/feat/router-v6-closure-rate-90-percent")
+# Resolve from this file -- see full_pipeline_profile.py for the same fix
+# and the same dead absolute macOS worktree path it replaced.
+REPO_ROOT = Path(__file__).resolve().parents[1]
 PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
 
