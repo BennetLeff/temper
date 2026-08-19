@@ -874,7 +874,8 @@ def _emit_zone_pours(
     design_rules: Any = None,  # noqa: ARG001
     tstamp_counter: list[int] | None = None,
     pcb: Any = None,
-) -> None:
+    stitch: bool = True,
+) -> dict[str, list[tuple[tuple[float, float], ...]]]:
     """Emit filled-copper zone geometry for all zone-eligible nets.
 
     WIRED 2026-08-16: the outline for every zone is computed by the Rust
@@ -900,6 +901,21 @@ def _emit_zone_pours(
     clipping and carves against nothing -- callers that don't have a
     ``ParsedPCB`` handy (e.g. unit tests constructing pad positions
     directly) are unaffected.
+
+    ``stitch``: whether to run the two pad-stitch passes
+    (``_stitch_isolated_pads`` / ``_stitch_pads_to_each_other``) before
+    returning.  Both CONSUME the outlines this function just computed and
+    both PRODUCE copper, so a caller that needs those outlines carved
+    against copper the stitches would otherwise precede must run them
+    itself, after every other copper producer, via
+    :func:`_emit_pour_stitches` -- see that function's docstring and the
+    ordering argument in ``_adapter_convert._write_routes_to_content``.
+    Defaults to ``True`` so every existing call site (including the pinned
+    ``_adapter_convert_py_oracle``) keeps its behavior verbatim.
+
+    Returns the per-net emitted outlines (``{net_name: [ring, ...]}``),
+    which is what :func:`_emit_pour_stitches` needs when a caller defers
+    stitching.
     """
     from temper_placer.core.design_rules import (
         TEMPER_NET_ASSIGNMENTS,
@@ -1135,11 +1151,42 @@ def _emit_zone_pours(
                 except ValueError:
                     pass
 
+    if stitch:
+        _emit_pour_stitches(
+            pad_positions,
+            segments,
+            net_name_to_number,
+            zone_points_by_net,
+            tstamp_counter=tstamp_counter,
+            pcb=pcb,
+        )
+    return zone_points_by_net
+
+
+def _emit_pour_stitches(
+    pad_positions: dict[str, list[tuple[float, float]]],
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    zone_points: dict[str, list[tuple[tuple[float, float], ...]]],
+    *,
+    tstamp_counter: list[int] | None = None,
+    pcb: Any = None,
+) -> None:
+    """The two pad-stitch passes, as one step a caller can order.
+
+    Split out of :func:`_emit_zone_pours` so the pipeline can be ordered by
+    its real dependency graph rather than by which function happened to own
+    the code. Stitching is the ONLY step here that both consumes pour
+    outlines and produces copper; keeping it inside the pour emitter forced
+    every later copper producer to run after the pours, which is precisely
+    what starved the carve's obstacle set. Everything else
+    :func:`_emit_zone_pours` does produces zones only.
+    """
     _stitch_isolated_pads(
         pad_positions,
         segments,
         net_name_to_number,
-        zone_points_by_net,
+        zone_points,
         tstamp_counter=tstamp_counter,
         pcb=pcb,
     )

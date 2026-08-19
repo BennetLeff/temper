@@ -31,6 +31,7 @@ from temper_placer.router_v6._adapter_types import (
 # are load-bearing, not vestigial.
 from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
     _chamfer_path_points,
+    _emit_pour_stitches,
     _emit_zone_pours,
     _stitch_isolated_pads,
     _zone_layers_for_net,
@@ -700,14 +701,56 @@ def _write_routes_to_content(
 
     if getattr(result, "enable_zone_pours", False):
         pcb_content, _ = strip_existing_zones(pcb_content)  # R7: replace, don't append
-        _emit_zone_pours(
-            pad_positions,
-            segments,
-            net_name_to_number,
-            design_rules=design_rules,
-            tstamp_counter=tstamp_counter,
-            pcb=pcb,
-        )
+
+        # ORDER IS THE SAFETY PROPERTY HERE (2026-08-19).
+        #
+        # `segments` is an append-only list and every producer below carves
+        # its own geometry against "whatever is in `segments` when I run".
+        # Until this change the order was:
+        #
+        #     routes -> zone pours (+ stitches) -> gnd plane -> power islands
+        #
+        # so the pour carve -- the ONLY place the reinforced 12.6mm PD3
+        # barrier can live, because a KiCad zone carries one scalar
+        # `(clearance ...)` and the filler enforces clearance, never creepage
+        # -- ran while two thirds of the board's copper did not exist yet.
+        # Measured on the committed `pcb/temper.kicad_pcb`: 52 of 169 vias
+        # precede the first zone block and 117 follow it, so the carve could
+        # see at most 52 (and, before the `_VIA_RE` fix, at most 15). One
+        # consequence was a gnd drop via sitting INSIDE the `ac_n` mains-
+        # neutral pour outline on B.Cu at 0.0000mm.
+        #
+        # The dependency graph, read off the code rather than the call order:
+        #
+        #   gnd plane      consumes routed copper; produces zone+vias+segments
+        #   power islands  consumes routed copper + gnd plane; produces likewise
+        #   pour outlines  consume ALL copper;      produce zones only
+        #   pad stitches   consume pour outlines;   produce segments+vias
+        #
+        # That is acyclic, and the order below is its topological sort. The
+        # old order broke a cycle that only LOOKED cyclic: neither
+        # `_ground_plane` nor `_power_islands` parses zone polygons at all
+        # (see `_ground_plane.mst_edges`' docstring -- "it does not parse
+        # zone polygons, by design"), so they never needed the pours; they
+        # only needed the stitch SEGMENTS, and stitching is separable from
+        # pour emission (`_emit_pour_stitches`).
+        #
+        # What the reorder costs: the gnd plane and the power islands no
+        # longer see the pad stitches, because the stitches no longer exist
+        # when they run. That is the right way round. The stitch is the one
+        # producer here that is fail-closed by construction -- it already
+        # refuses to emit any segment whose buffered footprint hits foreign
+        # copper -- so moving it last gives it the COMPLETE board to check
+        # against, and lands the avoidance duty on the party that can
+        # discharge it by not emitting. Previously the duty was inverted: the
+        # stitch was gated against a third of a board while the plane had to
+        # dodge stitch copper it could not always dodge.
+        #
+        # The alternative -- keep the order and feed the later vias back into
+        # the carve -- needs a second pass over the pours anyway, since those
+        # vias do not exist at the first pass. It buys nothing this does not,
+        # and leaves the emitter's order still disagreeing with its own
+        # dependency graph.
 
         # M4: gnd's dedicated In1.Cu ground plane. gnd -- the board's
         # largest net (88 pads) -- is mapped to the "Power" netclass
@@ -719,9 +762,12 @@ def _write_routes_to_content(
         # keepout + drop vias + MST backbone on In1.Cu; it was a
         # standalone spike (scripts/generate_ground_plane.py) with no
         # production caller until being wired in here. The blocks are
-        # appended AFTER the R7 strip + pour pass above so the In1.Cu
-        # zones survive, and tstamp_counter is threaded so the plane's
-        # tstamps continue this run's deterministic sequence.
+        # appended AFTER the R7 strip above so the In1.Cu zones survive,
+        # and tstamp_counter is threaded so the plane's tstamps continue
+        # this run's deterministic sequence.  They are appended BEFORE the
+        # pour pass (2026-08-19) so the plane's drop vias and MST backbone
+        # are obstacles the pour carve can see -- see the ordering argument
+        # above.
         gnd_source = getattr(pcb, "source_path", None) if pcb is not None else None
         # Only boards that actually declare a gnd net get the plane --
         # synthetic fixtures without one are skipped (the generator itself
@@ -757,7 +803,9 @@ def _write_routes_to_content(
         # sanctioned _ground_plane.py precedent for an inner-layer pour
         # that never goes through _zone_layers_for_net, per
         # _power_islands.py's own module docstring. The blocks are
-        # appended after the gnd plane so In2.Cu zones survive.
+        # appended after the gnd plane so In2.Cu zones survive, and before
+        # the pour pass so each rail's drop vias are carved against -- see
+        # the ordering argument above.
         if gnd_source is not None and any(
             n in net_name_to_number for n in ("+3V3", "vcc", "+15V")
         ):
@@ -775,6 +823,34 @@ def _write_routes_to_content(
                 segments=segments,
             )
             segments.extend(island_blocks)
+
+        # The pour outlines LAST among the copper-carving steps: `segments`
+        # now holds every routed track and via, the gnd plane's zone, drop
+        # vias and backbone, and the power islands' zones and drop vias, so
+        # `collect_zone_obstacle_records` sees the board the pours will
+        # actually share rather than the third of it that existed before.
+        zone_points_by_net = _emit_zone_pours(
+            pad_positions,
+            segments,
+            net_name_to_number,
+            design_rules=design_rules,
+            tstamp_counter=tstamp_counter,
+            pcb=pcb,
+            stitch=False,
+        )
+
+        # The pad stitches last of all: they are the only step that both
+        # reads the pour outlines and writes copper, and their C-space gate
+        # is fail-closed, so running them here checks every proposed segment
+        # against the complete board instead of a partial one.
+        _emit_pour_stitches(
+            pad_positions,
+            segments,
+            net_name_to_number,
+            zone_points_by_net,
+            tstamp_counter=tstamp_counter,
+            pcb=pcb,
+        )
 
     if not segments:
         return pcb_content, pad_positions
