@@ -392,3 +392,40 @@ the PD3 groove minimum X = 1.5 mm and JLCPCB's 1.0 mm non-plated slot floor
 (`docs/hardware/FAB_CAPABILITY.md` §1 row 5d). It means a slot only helps where
 the **package** path is already adequate and the **board** path is the binding
 term. At U6 and T1 it is the package path that binds, so the slot does not help.
+
+### 5.3 T1 / T2 — the incumbent, re-verified from the vendor's own datasheet
+
+Coilcraft **Document 1608-1**, retrieved and text-extracted this session
+(`https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf`).
+Verbatim, the two isolation bullets:
+
+> "5000 Vrms, one minute isolation (hipot) between windings."
+>
+> "**Designed to meet** reinforced insulation, at least 8 mm creepage/clearance"
+
+CST3015-100ED row: 1:100, 3.20 mH, DCR 0.0001 Ω pri / 1.54 Ω sec, frequency range
+**0.78 – >1000 kHz**, volt-time product 638 V-µs, **sensed current 88 A**,
+terminating resistance 1 Ω. Body 23.0 × 30.0 mm.
+
+**No agency file or recognition number appears anywhere in the document.** A
+full scan of all 112 extracted lines for UL/CSA/VDE/TÜV file patterns, and for
+the words "recognized", "approved", "certified", "listed", returns only
+Coilcraft's own high-risk-application disclaimer. This independently confirms the
+in-tree register's reading.
+
+Note the wording carefully: **"Designed to meet"** is a design intent statement,
+not a certification, and **"at least 8 mm"** is below 12.6 mm regardless. So for
+T1 and T2:
+
+- the exemption fails on clause scope (§1), *and*
+- there is no certificate to invoke even if it did not, *and*
+- the part's own claimed figure is short of the requirement anyway.
+
+Three independent reasons, any one of which is sufficient.
+
+**T2 is already de-scoped and is not a live sourcing problem.** It sits at
+`(100.0, 300.0)` in `pcb/temper.kicad_pcb` — off the board outline — and
+`docs/hardware/BOM.md` §4.4 marks OCP-02's T2/R65/C37 **DNF: "do not populate,
+do not place, do not cost"** as of 2026-08-16. T2 still trips the geometric
+measurement because the footprint is still in the netlist, but it is not a part
+that will be bought or fitted. **The live CT problem is T1 only.**
