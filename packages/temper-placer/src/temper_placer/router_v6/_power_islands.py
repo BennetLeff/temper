@@ -663,6 +663,35 @@ def generate_power_islands_blocks(
             segments, net_name, "B.Cu", num_to_name,
             _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
         )
+        # In1.Cu too (2026-08-19): this rail's drop vias are THROUGH vias,
+        # so their barrels pass through the gnd plane's layer -- and as of
+        # the _ground_plane.py backbone-layer fix that layer now carries
+        # real 1.0mm gnd copper, emitted into *segments* by the caller
+        # immediately before this generator runs. Without this term a
+        # +3V3/vcc/+15V via could be dropped straight onto the gnd
+        # backbone, which is a short, not a clearance nibble. (This
+        # rail's own PLANE_LAYER, In2.Cu, is covered by the per-rail zone
+        # separation below, not here.)
+        # ...and the same for every OTHER copper layer this rail's THROUGH
+        # vias pass through. A drop via's barrel is copper on all six; the
+        # avoid set used to cover only F.Cu/B.Cu, so a via could be dropped
+        # straight onto a routed In3.Cu/In4.Cu track (measured: "Track
+        # [OCP2_VREF_2V5] on In4.Cu" vs "Via [+3V3]", and 5 more of that
+        # exact shape). `_ground_plane.py` already gets this right for its
+        # own drop vias -- its `emitted_geoms` spans every copper layer --
+        # so this brings the sibling generator up to the same standard
+        # rather than inventing a new rule. In1.Cu is in the list because
+        # the gnd plane's backbone now lands there, In2.Cu is this rail's
+        # own layer and is handled by the inter-rail zone separation.
+        routed_inner_avoid = [
+            routed_segments_obstacle(
+                segments, net_name, other_layer, num_to_name,
+                _net_clearance,
+                _net_clearance.get(net_name, _default_clearance),
+                _default_clearance,
+            )
+            for other_layer in ("In1.Cu", "In3.Cu", "In4.Cu")
+        ]
         via_avoid_parts = [
             g
             for g in (
@@ -670,6 +699,7 @@ def generate_power_islands_blocks(
                 other_copper_bcu,
                 routed_fcu_avoid,
                 routed_bcu_avoid,
+                *routed_inner_avoid,
                 *run_new_fcu_copper,
                 *run_new_bcu_copper,
             )
