@@ -446,14 +446,14 @@ pub fn pad_anchor_plan(
         // is `is not None` in every reachable case -- including the pad at
         // the origin, where `(0.0, 0.0)` would be falsy only if it were a
         // number rather than a tuple.
-        if let Some(node_index) = nearest {
-            if min_dist < max_connect {
-                out.push(PadAnchor {
-                    pad_index,
-                    node_index,
-                    dist: min_dist,
-                });
-            }
+        if let Some(node_index) = nearest
+            && min_dist < max_connect
+        {
+            out.push(PadAnchor {
+                pad_index,
+                node_index,
+                dist: min_dist,
+            });
         }
     }
 
