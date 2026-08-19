@@ -14,6 +14,7 @@ from pathlib import Path
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+from temper_placer.core.enclosure_declaration import resolve_declaration
 
 # The Rust SafetyValue SSOT (packages/temper-design-bundle/src/safety_value.rs):
 # every safety constant below is a *lookup* into the recovered IEC 60335-1
@@ -140,16 +141,35 @@ HV_CREEPAGE_PD3_MM = _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17"
 #     proof this is a genuine path-around-obstacles solver, not a relabeled
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
-# WHICH FIGURE TO EMIT: PD3 is the enforced production target (the
-# 2026-08-15 data-driven decision: PD3 governs the as-built, forced-air-
-# vented, compartment-less board; see docs/evidence/2026-08-15-pd2-pd3-
-# data-driven-decision.md), and it must remain aligned with
-# check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM. Both enforcement
-# points therefore emit/enforce 12.6mm. The PD2 constant is retained as an
-# explicit fallback so a future mechanical reclassification (a built, real
-# sealed compartment) changes both points together rather than silently
-# carrying the PD3 number.
-HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
+# WHICH FIGURE TO EMIT -- DERIVED, NOT SELECTED BY HAND.
+#
+# This used to read `HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM`: a
+# hand-written alias, with the comment above it carrying the reasoning. Two
+# enforcement points then each named PD3 independently (this file and
+# isolation_constants.py's `MIN_BARRIER_WIDTH_MM = 12.6`), with nothing
+# connecting either to the physical state that earns the classification --
+# so a future mechanical reclassification could move one and not the other,
+# in either direction, silently.
+#
+# The pollution degree now comes from `elec/enclosure_manifest.yaml`, a
+# declared, dated, commit-anchored claim about the enclosure, evaluated by
+# `packages/temper-design-bundle/src/enclosure.rs` (IEC 60335-2-6 cl. 29.2
+# Addition: PD2 is a conditional exception requiring a sealed, gasketed
+# compartment kept outside the forced-air path; PD3 otherwise). As declared
+# today that is PD3 and this line emits 12.6mm -- unchanged.
+#
+# `_ENCLOSURE` is resolved once here and reused for the tank figure below, so
+# a single file read backs both selections and they cannot disagree. A
+# missing, stale or unbacked declaration raises out of this import: this
+# generator must never emit a safety figure chosen by a fallback.
+# `scripts/check_enclosure_declaration.py` cross-checks that every consumer
+# of the classification -- this constant included -- agrees with it.
+_ENCLOSURE = resolve_declaration()
+_ENCLOSURE_POLLUTION_DEGREE = f"PD{_ENCLOSURE.pollution_degree}"
+HV_CREEPAGE_ENFORCED_MM = {
+    "PD2": HV_CREEPAGE_PD2_MM,
+    "PD3": HV_CREEPAGE_PD3_MM,
+}[_ENCLOSURE_POLLUTION_DEGREE]
 
 # RULE 10's floor: the clearance every track-involving pair must hold when no
 # stricter, more specific rule matches. This is the bar 503 of the heatsink
@@ -310,10 +330,14 @@ HV_TANK_CREEPAGE_PD3_MM = _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">500-800",
 # participates in the [creepage/functional] family); this file's constants
 # remain lookups and are unaffected.
 #
-# ENFORCED DEGREE (2026-08-15): PD3 -- the as-built, decision-documented bar
-# (docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md). PD2 remains a
-# declared fallback.
-_TANK_POLLUTION_DEGREE = "PD3"
+# ENFORCED DEGREE: derived, not written. Was the literal `"PD3"` with the
+# 2026-08-15 decision cited in a comment; it is now the SAME pollution degree
+# `HV_CREEPAGE_ENFORCED_MM` above selects with, read from
+# `elec/enclosure_manifest.yaml`. The tank bar and the cross-barrier bar are
+# two figures at one classification, and a board cannot be PD3 for one and
+# PD2 for the other -- sharing `_ENCLOSURE_POLLUTION_DEGREE` makes that
+# structurally impossible rather than a thing two comments have to agree on.
+_TANK_POLLUTION_DEGREE = _ENCLOSURE_POLLUTION_DEGREE
 HV_TANK_CREEPAGE_ENFORCED_MM = {
     "PD2": HV_TANK_CREEPAGE_PD2_MM,
     "PD3": HV_TANK_CREEPAGE_PD3_MM,

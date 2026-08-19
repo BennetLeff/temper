@@ -1,0 +1,163 @@
+# Enclosure declaration -- the physical facts that select this board's
+# pollution degree, and therefore its reinforced HV<->SELV creepage.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# The pollution-degree classification sets the reinforced mains<->SELV
+# creepage requirement, which is the single most consequential safety number
+# in this design. Until this file existed that number was a literal
+# (`MIN_BARRIER_WIDTH_MM = 12.6`), the alternative (8.0 mm, PD2) lived in a
+# docstring, and the reasoning lived in an evidence document that can go
+# stale. Nothing connected the three, so every investigation re-derived the
+# argument and some got it wrong; the stated precondition ("verified before
+# release") had no mechanism behind it; and the physical state and the number
+# could drift apart in either direction -- build the compartment and nothing
+# loosened, remove it and nothing re-tightened.
+#
+# This file is the affirmative, machine-readable claim the number is now
+# computed FROM. It follows the shape of `elec/domain_manifest.yaml`: every
+# entry is an explicit claim written by hand and checked by a gate, never a
+# default, an inference, or something implied by a name.
+#
+# WHAT THIS FILE CANNOT DO -- read this before quoting anything below
+# -------------------------------------------------------------------
+# **No gate makes a physical enclosure real.** Everything here is a *claim*.
+# The mechanism around it (`packages/temper-design-bundle/src/enclosure.rs`,
+# `scripts/check_enclosure_declaration.py`) can ensure the claim is explicit,
+# internally consistent, anchored to a resolvable commit, unchanged since the
+# verification that backs it, and that every enforcement point in the tree
+# agrees with the number it implies. It cannot observe a cover, a gasket, or
+# an airflow path. **The sealing itself is a manufacturing and QA matter**, and
+# a declaration here is not a substitute for the physical inspection recorded
+# in `docs/ENVIRONMENTAL_SPEC.md` Sec 3.1 / `docs/ASSEMBLY_GUIDE.md` Phase 4.2.
+# A mechanism that implied more assurance than it provides would be worse than
+# none, so the gate prints this same paragraph on every run.
+#
+# HOW THE NUMBER IS DERIVED FROM WHAT IS BELOW
+# ---------------------------------------------
+#   enclosure:                       (the facts declared here)
+#     -> pollution_degree_for()      IEC 60335-2-6 cl. 29.2 Addition: PD2 is a
+#                                    conditional exception requiring a sealed
+#                                    compartment; PD3 is the default for
+#                                    cooking appliances. PD2 is selected only
+#                                    when sealed AND gasketed AND
+#                                    outside_forced_air_path all hold.
+#     -> table_17_lookup(pd, IIIa/IIIb, ">250-400")
+#                                    recovered IEC 60335-1 Table 17 row iv
+#                                    (packages/temper-design-bundle/src/
+#                                    safety_value.rs -- CITED-PRIMARY, not
+#                                    reconstructed)
+#     -> x2 per cl. 29.2.3           "creepage distances of reinforced
+#                                    insulation shall be at least double those
+#                                    specified for basic insulation"
+#     -> MIN_BARRIER_WIDTH_MM        (temper_placer.core.isolation_constants)
+#
+# As declared below this evaluates to PD3 -> 6.3 mm basic -> **12.6 mm**
+# reinforced. That is the enforced production classification and this file
+# does not change it; what changed is that it is now derived and checked
+# rather than asserted. The PD2 arm of the same function evaluates to 8.0 mm
+# and is reachable ONLY by changing the facts below, re-verifying them, and
+# updating `declared_state_sha256` -- it is not a second number written down
+# anywhere.
+#
+# IEC 60664-1 Annex L and IEC 60664-4 are paywalled and NOT OBTAINABLE in this
+# repository. Nothing in this derivation depends on them. Do not reconstruct a
+# standards value to fill that gap.
+#
+# TO CHANGE THIS DECLARATION
+# --------------------------
+#   1. Physically verify the enclosure. Record the check as a dated evidence
+#      document under `docs/evidence/`.
+#   2. Edit the `enclosure:` facts below.
+#   3. Recompute the digest and paste it into `declared_state_sha256`:
+#        uv run python scripts/check_enclosure_declaration.py --print-digest
+#      (Editing a fact without this makes the declaration STALE and every gate
+#      that reads it fails closed -- that is the point.)
+#   4. Set `verification:` to the new date, author, method, artifacts, and the
+#      commit the check was performed against. The commit must RESOLVE in this
+#      repository, not merely look like a SHA.
+#   5. Expect the derived creepage figure to move, and expect
+#      `scripts/check_enclosure_declaration.py` to fail until every
+#      enforcement point in the tree has been moved with it. That failure is
+#      the mechanism working.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# The declared physical facts.
+#
+# These three booleans are the ENTIRE input to the classification. No other
+# field is permitted here: notably, the pollution degree itself is NOT
+# declared -- declaring the answer alongside the evidence for it is exactly
+# the "two numbers in tension" defect this file replaces, and the schema
+# rejects the key outright rather than trusting a reader to notice.
+# ---------------------------------------------------------------------------
+enclosure:
+  # Is the PCB in a compartment closed against ingress of conductive dust and
+  # condensation?
+  #
+  # FALSE. `docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md` Sec 137:
+  # "the board is forced-air vented with no cover/gasket/partition". No cover,
+  # gasket, partition or inspection geometry is committed anywhere in the
+  # tree; `pcb/temper.kicad_pcb`'s only `Edge.Cuts` polygon is a plain
+  # rectangle with zero compartment provisions. The sealed compartment exists
+  # solely as a prescriptive release requirement in
+  # `docs/ENVIRONMENTAL_SPEC.md` Sec 3.1 and `docs/ASSEMBLY_GUIDE.md` Phase
+  # 4.2 -- an intention, which is not a fact.
+  sealed: false
+
+  # Is that compartment's closure gasketed -- a seal, not merely a lid?
+  #
+  # FALSE, and vacuously so while `sealed` is false. Kept as an independent
+  # field rather than folded into `sealed` because the PD2 exception names
+  # both conditions, and a future compartment could plausibly be built with a
+  # cover and no gasket. A single merged boolean would let that case claim
+  # the exception silently.
+  gasketed: false
+
+  # Is the compartment kept OUT of the coil/heatsink forced-air path?
+  #
+  # FALSE. `docs/CHASSIS_AIRFLOW_DESIGN.md`: bottom intake -> 80 mm fan ->
+  # IGBT-heatsink duct -> rear exhaust, routed across the same cavity the PCB
+  # occupies. The fan is off-board on leadwires. This is the condition that
+  # makes the PD2 route not merely unbuilt but thermally counterproductive:
+  # sealing the PCB compartment removes the airflow the thermal budgets count
+  # on (`docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md` Sec 152-162).
+  outside_forced_air_path: false
+
+# ---------------------------------------------------------------------------
+# The verification behind the facts above.
+#
+# `declared_state_sha256` is the load-bearing field. It is the digest of the
+# canonical form of the `enclosure:` block that was verified -- so editing a
+# fact without re-verifying it is detected as STALE rather than silently
+# honoured. This mirrors `scripts/check_measurement_provenance.py`'s rule that
+# a measurement's primary, authoritative identity is a content hash and a
+# commit SHA is advisory: a SHA is not stable under history rewriting, a
+# content hash is independent of the git object model entirely.
+#
+# `measured_at_commit` must RESOLVE, not merely be 40 hex characters. The
+# ceiling corpus is the cautionary tale here: its "fully-evidenced" control
+# used `measured_at_commit = "0" * 40`, which the ratchet rejects as
+# unresolvable, so the control never ran and half of R9 was dead for months.
+# ---------------------------------------------------------------------------
+verification:
+  verified_on: "2026-08-15"
+  verified_by: "temper PD2-vs-PD3 data-driven decision (PR #1224)"
+  method: >-
+    Documentary and geometric inspection of the committed design against the
+    PD2 exception's own preconditions: pcb/temper.kicad_pcb's Edge.Cuts
+    polygon set (a plain rectangle, no compartment or vent provisions),
+    docs/CHASSIS_AIRFLOW_DESIGN.md's duct routing relative to the PCB cavity,
+    and a tree-wide search for any committed cover, gasket, partition or
+    inspection geometry (none found). NOT a physical inspection of built
+    hardware -- see this file's header on what this mechanism cannot do.
+  measured_at_commit: "a2f3aaa648d5a5204134f0e36cb34072149c1b46"
+  artifacts:
+    - "docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md"
+    - "docs/evidence/2026-08-01-pd2-enclosure-legitimacy.md"
+    - "docs/evidence/2026-08-11-pd2-decision-record.md"
+  # sha256 of the canonical form of the `enclosure:` block above, as verified
+  # on the date named. Recompute with:
+  #   uv run python scripts/check_enclosure_declaration.py --print-digest
+  declared_state_sha256: "9a605e82ece71bc6947c5398ee11554c4eebc53e3a215a7fcabf904a50e6c2d3"

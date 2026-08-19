@@ -216,6 +216,13 @@ pub(crate) mod pcl;
 // with no pyo3 dependency. The pyo3 surface inside the module is itself
 // `#[cfg(feature = "python")]`-gated.
 pub mod safety_value;
+// Enclosure declaration -> pollution degree -> reinforced HV<->SELV creepage.
+// The classification that sets this board's most consequential safety number,
+// derived from a declared, dated, commit-anchored physical claim instead of
+// written as a literal (see enclosure.rs's module docstring). NOT gated on
+// `python` for the same reasons as safety_value above: the rule and the
+// schema are pure data + logic, the pyo3 surface inside is gated.
+pub mod enclosure;
 mod serialize;
 mod sexpr;
 
@@ -518,6 +525,13 @@ mod python {
         // Safety-critical values with provenance: the recovered
         // IEC 60335-1 Table 16/17/18 lookups (see safety_value.rs).
         crate::safety_value::register(module)?;
+        // Enclosure declaration -> pollution degree -> barrier creepage
+        // (see enclosure.rs). Registered AFTER safety_value deliberately:
+        // the two modules share no function names, and pyo3 silently lets a
+        // later `add_function` shadow an earlier one of the same name (see
+        // AGENTS.md), so the ordering is pinned by
+        // `test_enclosure_pyo3_registration_is_not_shadowed`.
+        crate::enclosure::register(module)?;
         Ok(())
     }
 }

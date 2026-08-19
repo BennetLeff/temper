@@ -741,9 +741,30 @@ REGISTRY: tuple[Fact, ...] = (
     # function, same inputs) without evaluating either call. See the
     # separate str-valued fact `hv_lv_creepage_derivation_parity` below.
     # `packages/temper-placer/src/temper_placer/core/isolation_constants.
-    # py`'s `MIN_BARRIER_WIDTH_MM` remains a genuine literal (12.6, unlike
-    # gates.py/generate_kicad_dru.py) and is kept as this fact's one
+    # py`'s `MIN_BARRIER_WIDTH_MM` used to be a genuine literal (12.6,
+    # unlike gates.py/generate_kicad_dru.py) and was this fact's one
     # float-comparable home.
+    #
+    # CHANGED: it is no longer a literal. It is now derived, on every
+    # import, from `elec/enclosure_manifest.yaml` -- a declared, dated,
+    # commit-anchored claim about the enclosure -- through the SAME
+    # recovered Table 17 lookup the two homes above use, with the pollution
+    # degree selected by the declaration instead of written down three
+    # times. See `packages/temper-design-bundle/src/enclosure.rs`.
+    #
+    # This fact's float-comparable home MOVED rather than disappearing: it
+    # is now the pinned expected value in
+    # `scripts/tests/test_check_enclosure_declaration.py`, which asserts
+    # that the derivation actually reaches 12.6. That is a strictly
+    # stronger pin than the old one -- the literal proved only that
+    # someone typed 12.6, whereas this pin sits beside an executing test
+    # of the chain that produces it -- but it is worth being explicit that
+    # the thing being statically compared is now a test's expectation, not
+    # a production constant. The production constant is checked at its
+    # true home by `scripts/check_enclosure_declaration.py`, which reads
+    # all five enforcement points LIVE and fails if any disagrees with the
+    # declaration; a static regex cannot do that once the value is
+    # computed, which is exactly why that gate exists.
     #
     # STILL AN OPEN FINDING, not resolved by this merge and not this
     # agent's to resolve unilaterally (a sibling's territory per the
@@ -776,12 +797,26 @@ REGISTRY: tuple[Fact, ...] = (
         ),
         homes=(
             FactSite(
-                file="packages/temper-placer/src/temper_placer/core/isolation_constants.py",
-                description="MIN_BARRIER_WIDTH_MM literal",
-                pattern=r"MIN_BARRIER_WIDTH_MM\s*=\s*([\d.]+)",
+                file="scripts/tests/test_check_enclosure_declaration.py",
+                description=(
+                    "pinned expected value of the enclosure-derived barrier "
+                    "width (replaces isolation_constants.py's former literal)"
+                ),
+                pattern=r"barrier_width_mm == ([\d.]+)",
+                scope_anchor=r"def test_derived_figure_is_exactly_12_6",
+                scope_lines=12,
             ),
         ),
         notes=(
+            "HOME MOVED (this change): isolation_constants.py's "
+            "MIN_BARRIER_WIDTH_MM is no longer a literal -- it is derived "
+            "from elec/enclosure_manifest.yaml through the recovered "
+            "Table 17 lookup, so the old regex has nothing to match. The "
+            "float-comparable pin moved to the derivation test rather than "
+            "being dropped; see the block comment above for why that is a "
+            "stronger pin and what took over checking the production "
+            "constant (scripts/check_enclosure_declaration.py, five live "
+            "enforcement points). "
             "FIXED 2026-08-17 by PR #1322 (merged in): both gates.py sites "
             "this fact originally tracked as hardcoded-6.0mm are gone -- "
             "_CREEPAGE_MIN_MM deleted as confirmed-dead code, and "

@@ -65,14 +65,36 @@ for the same voltage/pollution class, and a PCB keepout enforces surface
 distance directly (both sides of the gap are literally board surface), so
 the creepage figure is the binding one for sizing a physical keepout.
 MIN_BARRIER_WIDTH_MM is therefore **12.6mm** for the enforced PD3
-classification (the 2026-08-15 data-driven decision -- the as-built board
-is forced-air vented with no cover/gasket/partition, so PD3/12.6mm
-governs; see docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md).
-The PD2 8.0mm figure remains the documented fallback should a sealed,
-gasketed PCB compartment outside the coil/heatsink airflow path ever be
-built and verified. Never shrink the barrier to match this
-repo's existing (looser) 6.0mm netclass figure -- see the plan's hard rule
-against weakening a safety distance to get a green gate.
+classification.
+
+WHERE THAT CLASSIFICATION NOW COMES FROM (changed; read before editing this
+paragraph). PD3-vs-PD2 used to be settled in prose here, with the figure
+written as a literal in ``isolation_constants.py`` and the 8.0mm PD2
+alternative named alongside it as a "documented fallback should a sealed,
+gasketed PCB compartment ... ever be built and verified". Nothing connected
+the three, and "verified" had no mechanism behind it. Both are now derived:
+
+  ``elec/enclosure_manifest.yaml`` declares the enclosure's physical facts
+  (sealed / gasketed / outside the forced-air path) with a dated, commit-
+  anchored verification and a content digest that makes an unverified edit
+  detectable; ``packages/temper-design-bundle/src/enclosure.rs`` turns those
+  facts into a pollution degree (IEC 60335-2-6 cl. 29.2 Addition -- PD2 is a
+  conditional exception, PD3 the default) and looks the requirement up in
+  the recovered IEC 60335-1 Table 17 row iv, doubled per cl. 29.2.3.
+
+As declared today that chain yields PD3 -> 6.3mm basic -> 12.6mm reinforced,
+i.e. exactly the figure this section always cited. The 8.0mm PD2 arm is no
+longer written anywhere as a second number: it is the other branch of the
+same function, reachable only by changing the declared facts, re-verifying
+them, and updating the declaration's digest.
+``scripts/check_enclosure_declaration.py`` enforces all of that and
+cross-checks that this gate, the DRU emitter, the CP-SAT corridor and
+``gates.HV_LV_CREEPAGE_MM`` all see the identical figure.
+
+Never shrink the barrier to match this repo's existing (looser) 6.0mm
+netclass figure -- see the plan's hard rule against weakening a safety
+distance to get a green gate -- and never re-introduce a literal here or in
+``isolation_constants.py`` to route around a broken declaration.
 
 What this checks
 -----------------
@@ -175,10 +197,14 @@ BARRIER_ZONE_NAME = "MAINS_SELV_ISOLATION_BARRIER"
 # (imported above) so packages/temper-placer's own CP-SAT corridor-width
 # constraint (isolation_barrier.py) can derive DEFAULT_CORRIDOR_WIDTH_MM
 # from it directly instead of restating the figure -- see that module's own
-# comment. This module remains the derivation's home: full IEC 60335-1
-# rationale and UNVERIFIED-at-primary caveat are in the "Which clearance
-# figure" section of THIS docstring above. Never shrink the constant to make
-# the gate pass (plan hard rule).
+# comment. The narrative derivation and the UNVERIFIED-at-primary caveat
+# remain in the "Which clearance figure" section of THIS docstring above,
+# but the value's *authority* is no longer prose anywhere: it is computed
+# from elec/enclosure_manifest.yaml through the recovered Table 17 (see
+# packages/temper-design-bundle/src/enclosure.rs), and
+# scripts/check_enclosure_declaration.py checks that this module's imported
+# value still equals what the declaration derives. Never shrink the constant
+# to make the gate pass (plan hard rule).
 
 _COPPER_LAYER_TYPE = "signal"
 

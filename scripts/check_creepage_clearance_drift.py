@@ -12,6 +12,27 @@ this gate cross-checked them:
     truth (``HighVoltage.creepage``, ``HV_to_LV.min_creepage``, ...).
   - ``scripts/check_isolation_keepout.py`` -- ``MIN_BARRIER_WIDTH_MM``, the
     physical keepout-width gate.
+
+    SCOPE CHANGE, recorded so a future reader does not mistake it for a
+    regression: ``temper_placer.core.isolation_constants``'s
+    ``MIN_BARRIER_WIDTH_MM`` is no longer a literal. It is derived, on every
+    import, from ``elec/enclosure_manifest.yaml`` (the declared enclosure)
+    through the recovered IEC 60335-1 Table 17 -- see
+    ``packages/temper-design-bundle/src/enclosure.rs``. This gate resolves
+    literals only, so that declaration now lands in the UNRESOLVED bucket
+    instead of the ``[creepage/reinforced]`` comparable family, which
+    therefore has 9 members here rather than 10.
+
+    That is a real, measured loss of sensitivity **for this one
+    declaration**, and it is compensated deliberately rather than ignored:
+    ``scripts/check_enclosure_declaration.py`` imports and compares the
+    **live** value at all five enforcement points (this constant, the CP-SAT
+    corridor, ``gates.HV_LV_CREEPAGE_MM``, the DRU emitter, and the keepout
+    gate) against the declaration-derived figure -- a stronger check than a
+    static literal comparison, and one a regex structurally cannot perform
+    once the value is computed. Do not "restore" the literal to get the
+    member back; that would reinstate the classification-drift defect the
+    derivation exists to close.
   - ``scripts/generate_kicad_dru.py`` -- the emitted KiCad DRC rule text
     (``HV_CREEPAGE_*_MM``).
   - ``packages/temper-placer/configs/pcl/temper_production.yaml`` -- the

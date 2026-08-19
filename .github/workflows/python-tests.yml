@@ -132,6 +132,12 @@ on:
       - 'firmware/tools/**'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'elec/enclosure_manifest.yaml'
+      - 'scripts/check_enclosure_declaration.py'
+      - 'scripts/tests/test_check_enclosure_declaration.py'
+      - 'packages/temper-design-bundle/src/enclosure.rs'
+      - 'packages/temper-placer/src/temper_placer/core/enclosure_declaration.py'
+      - 'packages/temper-placer/src/temper_placer/core/isolation_constants.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
@@ -239,6 +245,12 @@ on:
       - 'firmware/tools/**'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'elec/enclosure_manifest.yaml'
+      - 'scripts/check_enclosure_declaration.py'
+      - 'scripts/tests/test_check_enclosure_declaration.py'
+      - 'packages/temper-design-bundle/src/enclosure.rs'
+      - 'packages/temper-placer/src/temper_placer/core/enclosure_declaration.py'
+      - 'packages/temper-placer/src/temper_placer/core/isolation_constants.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
@@ -1675,6 +1687,51 @@ jobs:
       - name: Anti-vacuous-truth gate (gates/validators)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_vacuous_gates.py
+
+      # --- Enclosure-declaration gate (this board's pollution degree) ---
+      # The classification that sets the reinforced HV<->SELV creepage
+      # requirement used to be a literal (MIN_BARRIER_WIDTH_MM = 12.6) with
+      # the alternative in a docstring and the reasoning in an evidence doc
+      # that can go stale. It is now DERIVED from elec/enclosure_manifest.yaml
+      # -- a declared, dated, commit-anchored claim -- through the recovered
+      # IEC 60335-1 Table 17 (packages/temper-design-bundle/src/enclosure.rs).
+      #
+      # BLOCKING from the start, deliberately. A gate nothing invokes is this
+      # project's most-repeated defect: TEMPER_REQUIRE_RUST_DRC is set in nine
+      # CI places and read by nothing, sync_kicad_netclass_assignments.py
+      # appears in no workflow, and check_placement_pair_creepage.py had no
+      # manifest entry and broke the manifest gate for everyone. This gate is
+      # green on the current tree (PD3, 12.6 mm, five agreeing enforcement
+      # points), so there is no red window to justify continue-on-error and
+      # none is used.
+      #
+      # It fails closed on: a missing/unparseable/placeholder declaration, a
+      # STALE one (facts edited after the verification digest backing them),
+      # an unresolvable verification commit, and any enforcement point that
+      # disagrees with the derived figure. PD2 is unselectable without
+      # resolvable evidence.
+      #
+      # NOTE the honest limit, which the gate itself prints on every run: no
+      # gate makes a physical enclosure real. This checks a CLAIM. Sealing is
+      # a manufacturing and QA matter.
+      #
+      # fetch-depth matters here: the commit-resolvability check uses
+      # check_evidence_provenance.verify_commits_exist, which REFUSES to run
+      # against a shallow clone (exit 5, gate error) rather than reporting
+      # every historical SHA as fabricated. This job
+      # (board-provenance-requirements-gates) checks out with fetch-depth: 0
+      # for the evidence-provenance and DRC-ceiling gates above, and already
+      # builds the pyo3 extensions this gate imports -- which is why the gate
+      # lives here rather than beside the PD2 compartment gate in
+      # consistency-gates, whose checkout is shallow and would make this gate
+      # fail closed (exit 5) on every run.
+      - name: Enclosure-declaration gate tests (anti-vacuity demonstrations)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_enclosure_declaration.py -v --tb=short
+
+      - name: Enclosure-declaration gate (pollution degree -> barrier creepage)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_enclosure_declaration.py
 
       # Static half of the protected-measurement-artifact gate. Closes the
       # 2026-08-04 incident: `test_update_baseline_yaml` in

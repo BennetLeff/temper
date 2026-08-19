@@ -1167,6 +1167,35 @@ scripts:
   - sys
   - typing
   - yaml
+- path: check_enclosure_declaration.py
+  purpose: 'CI gate: the pollution-degree classification -- which sets the reinforced HV<->SELV creepage
+    requirement, the most consequential safety number in this design -- must be DERIVED from a declared,
+    dated, commit-anchored enclosure claim (elec/enclosure_manifest.yaml), never written as a literal.
+    Fails closed on a missing, unparseable, placeholder, STALE (facts edited after the verification digest
+    that backs them), or -- for a PD2 claim -- unresolvably-anchored declaration, and cross-checks that
+    all five live enforcement points (isolation_constants.MIN_BARRIER_WIDTH_MM, the CP-SAT corridor,
+    gates.HV_LV_CREEPAGE_MM, the KiCad DRU emitter, and the isolation-keepout gate) agree with the figure
+    it derives. PD2 is unselectable without resolvable evidence. Prints, on every run, the limit of what
+    this proves: no gate makes a physical enclosure real -- sealing is a manufacturing and QA matter.
+    Rule and derivation live in packages/temper-design-bundle/src/enclosure.rs; --print-digest recomputes
+    declared_state_sha256 as part of recording a real re-verification.'
+  owner: bennet
+  last_run: '2026-08-19'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_evidence_provenance
+  - dataclasses
+  - importlib
+  - pathlib
+  - sys
+  - temper_design_bundle_python
+  - temper_placer.core.enclosure_declaration
+  - yaml
 - path: check_pd2_compartment_evidence.py
   purpose: 'CI gate: if the tree currently claims PD2/8.0mm reinforced creepage (generate_kicad_dru.py
     HV_CREEPAGE_ENFORCED_MM), a compartment-evidence artifact (docs/specs/pd2_compartment_evidence.yaml)

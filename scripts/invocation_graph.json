@@ -67,12 +67,18 @@
   "check_drc_determinism.py": [
     "packages/temper-placer/src/temper_placer/validation/_drc_api.py"
   ],
+  "check_enclosure_declaration.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_erc_off_grid_consequence.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_evidence_provenance.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
+  ],
+  "check_fact_registry_drift.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
@@ -462,9 +468,6 @@
     "Makefile"
   ],
   "write_extension_stamps.py": [
-    ".github/workflows/python-tests.yml"
-  ],
-  "check_fact_registry_drift.py": [
     ".github/workflows/python-tests.yml"
   ]
 }
