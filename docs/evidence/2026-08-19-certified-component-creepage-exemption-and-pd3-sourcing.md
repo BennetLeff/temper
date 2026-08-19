@@ -664,8 +664,8 @@ get to use.
 |---|---|---|---|---|
 | C6 | yes | no | **yes, but** — TDK B81123C1562M000, measured **20.10 mm** | **0 stock until 2027-01-20**; the stocked 2.2 nF/15 mm fallback only clears with a shrunk pad (0–0.4 mm margin) |
 | K1 | yes | no | **yes** — TE Schrack RT33K012, measured **17.80 mm**, 1,197 in stock | **does not fit at K1's site**; needs re-placement/reroute (body is smaller, so no area pressure) |
-| U6 | yes | no | **no isolated gate driver reaches it** (ceiling ~8–8.5 mm); slot rescue is illusory (§5.2a) | route exists — TI **ISO7741 in DUW/DWW-16, CPG > 21.2 mm** — but it is a gate-drive topology change and a large footprint |
-| T1 | yes | no | **no compliant drop-in exists** (§5.3a) | needs a change of sensing mechanism (aperture CT) or lab adjudication |
+| U6 (DWK-14) | yes | no | **no isolated gate driver reaches it** — verified ceiling **10.0 mm**, 9.5 mm in SMD (§8.4); slot rescue is illusory (§5.2a, §8.2) | candidate route — TI **ISO7741U, DUW-16, CPG > 21.2 mm** — but preview-status, package drawing unverified, and it relocates the barrier onto a bias transformer (§8.8) |
+| T1 | yes | no | **no compliant drop-in exists** — verified CT ceiling **9.2 mm**, on a 6 A part (§8.5) | needs a change of sensing mechanism (aperture CT, ~2× taller) or lab adjudication |
 | T2 | **no — DNF** | no | n/a | de-scoped 2026-08-16; still trips the geometric gate |
 
 ## 7. What the owner has to decide
@@ -696,8 +696,11 @@ get to use.
    claimed for the CST3015 — continues to govern. Adopting the slot would move
    the DRC number without moving the hazard. The in-tree route already
    identified for U6 (a discrete certified digital isolator plus a local
-   secondary-side driver per switch, reported at > 14.5 mm) is a **topology
-   change**, and it is the honest shape of the fix.
+   secondary-side driver per switch) is a **topology change**, and it is the
+   honest shape of the fix — but see §8.8: it also pushes the ≥ 12.6 mm
+   requirement onto the HV-side bias transformer, so it relocates the problem as
+   much as it solves it. Verified category ceilings are **10.0 mm** for gate
+   drivers and **9.2 mm** for CTs; neither category has a compliant part.
 
 5. **Two determinations must go to the certification lab, and both can only
    raise the bar.** IEC 60664-4 Table 2 governs alongside Table 17 wherever
