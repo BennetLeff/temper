@@ -96,6 +96,7 @@ on:
       - '.github/required-checks.json'
       - '.unwired-kernel-inventory'
       - '.orphaned-python-module-inventory'
+      - '.ato-assertion-vacuity-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -203,6 +204,7 @@ on:
       - '.github/required-checks.json'
       - '.unwired-kernel-inventory'
       - '.orphaned-python-module-inventory'
+      - '.ato-assertion-vacuity-inventory'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -2294,6 +2296,23 @@ jobs:
       # real violation/clean verdict and a real exit code; only this CI
       # step's `continue-on-error` prevents that verdict from failing the
       # build while the underlying config/source defects remain unfixed.
+
+      - name: .ato assertion vacuity gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_ato_assertion_vacuity.py -v --tb=short
+
+      - name: .ato assertion vacuity gate (assertions that cannot fail)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Reports every assertion in elec/**/*.ato whose truth value cannot
+        # change under perturbation of the quantities it constrains -- the
+        # 2026-08-17 defect class (PowerInput's current assertions against the
+        # DECLARED 15A; main.ato's p_output_max pinned to its own band edge).
+        # Existing findings are recorded in the shrink-only ledger
+        # .ato-assertion-vacuity-inventory; a NEW or EDITED vacuous assertion
+        # fails here, and so does a ledger entry that stopped firing without
+        # being removed. Never `continue-on-error`: a gate that cannot run
+        # must exit non-zero.
+        run: uv run python scripts/check_ato_assertion_vacuity.py
 
       - name: PCL config <-> board correspondence gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

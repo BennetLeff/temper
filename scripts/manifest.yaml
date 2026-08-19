@@ -145,6 +145,28 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: check_ato_assertion_vacuity.py
+  purpose: 'CI gate: find electrical assertions in elec/**/*.ato that cannot fail. Parses the .ato sources
+    directly (no atopile install needed), elaborates each assertion''s dependency closure, classifies every
+    terminal quantity as CIRCUIT (a part value that drives behaviour) / RATING (a datasheet limit) / SPEC
+    (a hand-typed constant), then perturbs each leaf across 1e-6..1e6 and reports the assertions whose
+    outcome never changes. Catches the 2026-08-17 defect class: PowerInput checking fuse/CMC current
+    ratings against the DECLARED 15A rather than the ~27A the doubler draws, and main.ato''s p_output_max
+    pinned to the unreachable end of its own within-band. Shrink-only ledger in .ato-assertion-vacuity-inventory;
+    fails closed on scope evaporation, an unclassifiable component attribute, or an unresolvable reference.'
+  owner: bennet
+  last_run: '2026-08-19'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.ato_model
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - sys
+  - typing
 - path: check_board_containment.py
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
