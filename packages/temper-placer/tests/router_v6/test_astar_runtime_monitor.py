@@ -295,3 +295,136 @@ def test_monitor_lazy_theta_star_path_completeness_ok():
         assert path is not None
     path_violations = [v for v in state.violations if v.invariant == "path_completeness"]
     assert len(path_violations) == 0
+
+
+# ---------------------------------------------------------------------------
+# Observation must not substitute (2026-08-18)
+# ---------------------------------------------------------------------------
+#
+# Until this date, both any-angle entry points read
+# ``get_monitor_state() is None`` and ran a *pure-Python* search whenever a
+# monitor was active. Measured on an empty 10x10 grid before the fix:
+# monitor inactive -> 2 Rust kernel calls / 0 Python; inside
+# ``astar_monitor()`` -> 0 Rust / 1 ``_astar_search_theta_star_python`` /
+# 1 ``_astar_search_lazy_theta_star_python``. Every number taken under the
+# monitor therefore described different code than a production run.
+
+
+def _count_theta_kernel_calls(fn, *args, **kwargs):
+    """Run ``fn`` and return ``(result, rust_kernel_call_count)``."""
+    import temper_placer.router_v6._astar_theta_star as ats
+
+    original = ats._theta_star_search_rust_kernel
+    calls = [0]
+
+    def counting(*a, **k):
+        calls[0] += 1
+        return original(*a, **k)
+
+    ats._theta_star_search_rust_kernel = counting
+    try:
+        return fn(*args, **kwargs), calls[0]
+    finally:
+        ats._theta_star_search_rust_kernel = original
+
+
+@pytest.mark.parametrize("variant", ["theta_star", "lazy_theta_star"])
+@pytest.mark.parametrize("blocked", [False, True])
+def test_monitor_does_not_substitute_the_implementation(variant, blocked):
+    """The Rust kernel runs whether or not a monitor is watching.
+
+    Both halves must report exactly one kernel call. A zero on the
+    monitored half is the original defect: the monitor swapped in a
+    different implementation, so anything measured under it (time, call
+    counts, profiler output) was about code production never runs.
+    """
+    from temper_placer.router_v6._astar_theta_star import (
+        _astar_search_lazy_theta_star,
+        _astar_search_theta_star,
+    )
+
+    search = (
+        _astar_search_theta_star if variant == "theta_star" else (_astar_search_lazy_theta_star)
+    )
+    grid = _make_grid(10, 10, {(5, y) for y in range(9)} | {(5, 5)} if blocked else None)
+
+    unobserved, unobserved_calls = _count_theta_kernel_calls(search, grid, (0, 0), (9, 9), net_id=0)
+
+    # The monitor's own f-cost check is not an invariant of Lazy Theta*
+    # (see test_monitor_lazy_theta_star_obstacle_grid), and __exit__ turns
+    # violations into pytest.fail under PYTEST_CURRENT_TEST -- so the
+    # context is exited before asserting, and a fired check is tolerated.
+    # The sentinel makes a *skipped body* (rather than a fired check on
+    # exit) fail loudly instead of silently passing the assertion below.
+    observed, observed_calls = object(), -1
+    try:
+        with astar_monitor():
+            observed, observed_calls = _count_theta_kernel_calls(
+                search, grid, (0, 0), (9, 9), net_id=0
+            )
+    except pytest.fail.Exception as exc:  # pragma: no cover -- variant-dependent
+        assert "f_cost_monotonicity" in str(exc), exc
+
+    assert unobserved_calls == 1, (
+        f"{variant}: expected exactly 1 Rust kernel call with no monitor, got {unobserved_calls}"
+    )
+    assert observed_calls == 1, (
+        f"{variant}: the Rust kernel must still run under astar_monitor(); "
+        f"got {observed_calls} kernel calls. Observing must never substitute "
+        "the implementation."
+    )
+    assert observed == unobserved, (
+        f"{variant}: path differed between the observed and unobserved runs"
+    )
+
+
+def test_no_pure_python_any_angle_search_survives_in_src():
+    """The substituted-in Python searches are gone, not merely bypassed.
+
+    Leaving them importable would keep "which implementation routed this?"
+    answerable only by reading a branch. The frozen verbatim copies live
+    in ``tests/router_v6/test_astar_cluster_rust_differential.py``
+    (``_oracle_astar_search_theta_star`` /
+    ``_oracle_astar_search_lazy_theta_star``), which is what pins the Rust
+    kernel -- so the proof is intact and is no longer the same object as
+    its subject.
+    """
+    import temper_placer.router_v6._astar_theta_star as ats
+
+    for name in (
+        "_astar_search_theta_star_python",
+        "_astar_search_lazy_theta_star_python",
+    ):
+        assert not hasattr(ats, name), (
+            f"{name} is reachable again. If a Python any-angle search is "
+            "genuinely needed, it must be selected explicitly and logged -- "
+            "never implicitly on a monitor-state check."
+        )
+
+
+def test_theta_star_fails_closed_when_the_extension_is_missing():
+    """A missing extension raises; it never routes with something else.
+
+    Same contract as the 2D kernel: a missing ``temper_rust_router`` is a
+    broken build, not a runtime mode.
+    """
+    import builtins
+
+    from temper_placer.router_v6._astar_theta_star import (
+        ThetaStarExtensionUnavailableError,
+        _require_theta_star_extension,
+    )
+
+    real_import = builtins.__import__
+
+    def refuse(name, *args, **kwargs):
+        if name == "temper_rust_router":
+            raise ImportError("simulated missing extension")
+        return real_import(name, *args, **kwargs)
+
+    builtins.__import__ = refuse
+    try:
+        with pytest.raises(ThetaStarExtensionUnavailableError):
+            _require_theta_star_extension()
+    finally:
+        builtins.__import__ = real_import

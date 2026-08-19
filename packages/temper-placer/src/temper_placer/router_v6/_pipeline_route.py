@@ -27,7 +27,7 @@ from __future__ import annotations
 import logging
 import os
 from collections import defaultdict
-from typing import Any, cast
+from typing import Any, NamedTuple, cast
 
 import temper_orchestration as _to
 
@@ -890,6 +890,41 @@ def _run_stage4(
             weight=self.thermal_weight,
         )
 
+    # Name the search that is about to run, out loud, once per route.
+    # Which any-angle variant Stage 4 uses used to be an *incidental*
+    # consequence of which entry point constructed the pipeline (route_pcb
+    # forced both flags False; RouterV6Pipeline defaulted both True; the
+    # router_v6_full stage adapters passed both True). Reconciled
+    # 2026-08-18 -- and logged so a future divergence shows up in the run
+    # log instead of being inferred from source three files away.
+    _any_angle = _resolve_any_angle_search(
+        self.enable_theta_star,
+        self.enable_lazy_theta_star,
+        thermal_field is not None,
+        self.congestion_weight,
+    )
+    logging.getLogger(__name__).info(
+        "Stage 4 search: mode=%s kernel=%s reason=%s%s",
+        _any_angle.mode,
+        _any_angle.kernel,
+        _any_angle.reason,
+        (
+            ""
+            if not _any_angle.dropped_inputs
+            else "  DROPPED INPUTS: " + ", ".join(_any_angle.dropped_inputs)
+        ),
+    )
+    if self.verbose:
+        print(
+            f"  4.2a: search mode={_any_angle.mode} kernel={_any_angle.kernel} "
+            f"({_any_angle.reason})"
+            + (
+                ""
+                if not _any_angle.dropped_inputs
+                else "  DROPPED INPUTS: " + ", ".join(_any_angle.dropped_inputs)
+            )
+        )
+
     orchestrated = Stage4Orchestrator(verbose=self.verbose)
     state = BoardState(
         _parsed_pcb=pcb,
@@ -995,6 +1030,92 @@ def _run_stage4(
         )
 
     return self._run_stage5(pcb, stage2, pathfinding_result)
+
+
+class AnyAngleSearchDecision(NamedTuple):
+    """Which 2D search Stage 4 resolved to, and why.
+
+    Named rather than derived at each call site so the answer to "which
+    search routed this board?" is one logged record, not an inference over
+    ``_astar_search._dispatch_search``'s branch order.
+    """
+
+    mode: str
+    kernel: str
+    reason: str
+    dropped_inputs: tuple[str, ...]
+
+
+#: Cost inputs that ``_astar_search._dispatch_search`` forwards to the
+#: plain-2D-A* arm and silently drops on the Theta*/Lazy-Theta* arms. Read
+#: off that function directly: the any-angle arms are called with
+#: ``(grid, start, goal, net_id, max_iter, enable_congestion_derivative)``
+#: and nothing else.
+#:
+#: ``corridor_mask`` belongs to this list too, but is decided per segment
+#: inside ``_astar_nlayer``, not by a pipeline-level flag, so Stage 4 start
+#: cannot know whether one will be supplied -- it is documented here and in
+#: ``_segment_search``'s docstring ("Not consulted by ... the
+#: Theta*/Lazy-Theta* search variants, which have no corridor support")
+#: rather than reported per run.
+_DROPPED_BY_ANY_ANGLE_THERMAL = "thermal_flat/thermal_weight"
+_DROPPED_BY_ANY_ANGLE_CONGESTION = "congestion_tensor"
+
+
+def _resolve_any_angle_search(
+    enable_theta_star: bool,
+    enable_lazy_theta_star: bool,
+    has_thermal_field: bool,
+    congestion_weight: float,
+) -> AnyAngleSearchDecision:
+    """Resolve the Stage 4 2D search variant from the pipeline's flags.
+
+    Mirrors ``_astar_search._dispatch_search``'s branch order exactly --
+    ``use_lazy_theta_star`` is tested FIRST, so ``enable_theta_star`` is
+    unobservable whenever the lazy flag is also set. That precedence is
+    why the old ``RouterV6Pipeline`` True/True default meant "Lazy Theta*,
+    always" and made ``enable_theta_star`` a flag no caller could turn off
+    on its own.
+
+    ``dropped_inputs`` is only populated for inputs the caller actually
+    supplied, so it never warns about a field that is off anyway.
+    """
+    dropped: tuple[str, ...] = ()
+    if enable_lazy_theta_star or enable_theta_star:
+        supplied = []
+        if has_thermal_field:
+            supplied.append(_DROPPED_BY_ANY_ANGLE_THERMAL)
+        if congestion_weight:
+            supplied.append(_DROPPED_BY_ANY_ANGLE_CONGESTION)
+        dropped = tuple(supplied)
+
+    if enable_lazy_theta_star:
+        return AnyAngleSearchDecision(
+            mode="lazy_theta_star",
+            kernel="temper_rust_router.theta_star_search_py(lazy=True)",
+            reason=(
+                "enable_lazy_theta_star=True"
+                + (" (preempts enable_theta_star=True)" if enable_theta_star else "")
+            ),
+            dropped_inputs=dropped,
+        )
+    if enable_theta_star:
+        return AnyAngleSearchDecision(
+            mode="theta_star",
+            kernel="temper_rust_router.theta_star_search_py(lazy=False)",
+            reason="enable_theta_star=True, enable_lazy_theta_star=False",
+            dropped_inputs=dropped,
+        )
+    return AnyAngleSearchDecision(
+        mode="plain_2d_astar",
+        kernel="temper_rust_router.astar_kernel_3d_py",
+        reason=(
+            "both any-angle flags False -- the production setting "
+            "(route_pcb since 2026-06-23; RouterV6Pipeline default and the "
+            "router_v6_full stage adapters reconciled to it 2026-08-18)"
+        ),
+        dropped_inputs=(),
+    )
 
 
 def _routable_signal_layers_for_pcb(pcb: ParsedPCB) -> frozenset[str]:

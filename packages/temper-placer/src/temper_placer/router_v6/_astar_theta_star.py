@@ -5,35 +5,131 @@ line-of-sight primitive.
 Part of temper-N6-U6 decomposition -- split from astar_core.py to bring
 that module back under the repo's then-enforced 1000-line cap (the N6 LOC cap
 gate, retired 2026-08-18; see ``docs/adr/2026-08-18-retire-loc-cap-gate.md``).
-Theta* and Lazy Theta* both delegate their any-angle shortcut decision to
-the Rust-backed LOS kernel (``_line_of_sight_rust``, proven bit-identical
-to the retired JIT kernel and PBT-equal to the pure-Python reference),
-falling back to ``_line_of_sight`` if the extension is missing, and share
-the congestion-derivative early-abort constants below, so all three live
-together here rather than splitting the line-of-sight check away from its
-only two callers.
+
+**One implementation, always.**  ``_astar_search_theta_star`` and
+``_astar_search_lazy_theta_star`` run the Rust kernel
+(``temper_rust_router.theta_star_search_py``) unconditionally, and
+``_line_of_sight_dispatch`` runs ``line_of_sight_py`` unconditionally.  A
+missing/stale extension raises
+:class:`ThetaStarExtensionUnavailableError` -- it is a broken build, not a
+runtime mode (same contract as the 2D kernel; see the module docstring of
+``astar_core_rust``).
+
+Two switches were removed on 2026-08-18 because both made "which code
+routed this board?" unanswerable:
+
+1. **The runtime monitor used to substitute the implementation.**  Both
+   entry points read ``get_monitor_state() is None`` and, when a monitor
+   was active, ran a *pure-Python* search instead of the Rust kernel.
+   Measured on an empty 10x10 grid: monitor inactive -> 2 Rust kernel
+   calls / 0 Python; inside ``astar_monitor()`` -> 0 Rust / 1
+   ``_astar_search_theta_star_python`` / 1
+   ``_astar_search_lazy_theta_star_python``.  So every number taken under
+   the monitor described different code than a production run, and the act
+   of measuring was what changed it.
+
+   The monitor did not need that substitution.  The non-lazy Python
+   reference contained **no monitor calls at all** -- substituting it
+   observed nothing.  The lazy reference's single ``record_pop`` fed the
+   f-cost-monotonicity check, which is not an invariant of Lazy Theta* in
+   the first place: this repo's own
+   ``test_monitor_lazy_theta_star_obstacle_grid`` documents that "Lazy
+   Theta* naturally produces non-monotonic f-costs on obstacle grids ...
+   The monitor should detect this", and wraps the call in
+   ``try/except pytest.fail.Exception`` precisely because the check is
+   expected to fire.  Monitoring now observes and never substitutes.
+
+2. **Silent ``ImportError`` fallbacks** at the LOS dispatch and at both
+   search entry points.  See ``_require_theta_star_extension``.
+
+The two pure-Python search references that those switches reached are
+deleted with this change (verified unreachable: nothing in ``packages/``,
+``scripts/`` or ``benchmarks/`` referenced
+``_astar_search_theta_star_python`` /
+``_astar_search_lazy_theta_star_python`` outside this file).  They survive
+as frozen, hermetic verbatim copies inside the differential suite
+(``tests/router_v6/test_astar_cluster_rust_differential.py``:
+``_oracle_astar_search_theta_star`` / ``_oracle_astar_search_lazy_theta_star``),
+which is what pins the Rust kernel -- so the proof is untouched and the
+proof and its subject are no longer the same object.
+
+``_line_of_sight`` (the pure-Python Bresenham reference, with its
+bounding-box shortcut and the ``_LOS_BB_*`` counters) is **kept**: it is
+still reachable as the reference oracle for four test modules
+(``test_los_rust_correctness``, ``test_los_bb_shortcut``,
+``test_astar_metamorphic_pbt``, ``test_astar_perf_regression``).  It is no
+longer on any production path -- see ``log_los_bb_stats``.
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-from temper_placer.router_v6.astar_core import _SAME_LAYER_DELTAS, in_bounds
-from temper_placer.router_v6.astar_monitor import get_monitor_state
+from temper_placer.router_v6.astar_core import in_bounds
+
+
+class ThetaStarExtensionUnavailableError(RuntimeError):
+    """``temper_rust_router`` is missing or stale.
+
+    Raised instead of silently substituting a pure-Python search.  This
+    mirrors the 2D kernel's contract: a missing extension is a **broken
+    build**, not a runtime mode.
+
+    The three ``except ImportError: -> pure Python`` fallbacks this
+    replaces (the LOS dispatch and both search entry points) were unsafe
+    for the same reason the 2D one was: nothing named which
+    implementation had run, so a broken build laid copper on a
+    mains-voltage board under a different algorithm and reported success.
+    Recovery is ``make extensions`` (see AGENTS.md, "Build /
+    environment"), never a fallback.
+    """
+
 
 _LOS_BB_HITS: list[int] = [0]
 _LOS_BB_FALLS_THROUGH: list[int] = [0]
 
 
+def _require_theta_star_extension():
+    """Import ``temper_rust_router`` or fail closed.
+
+    The single place this module turns "the extension is missing" into an
+    error rather than into a *different algorithm*.  Verified 2026-08-18
+    that no production caller can reach a pure-Python any-angle search:
+    ``_astar_search._dispatch_search`` is the only src caller of either
+    entry point, and it now has exactly one arm per variant.
+    """
+    try:
+        import temper_rust_router as _trr
+    except ImportError as exc:  # pragma: no cover -- extension missing/stale
+        raise ThetaStarExtensionUnavailableError(
+            "temper_rust_router.theta_star_search_py is unavailable, so the "
+            "any-angle (Theta*/Lazy Theta*) search cannot run. Rebuild the "
+            "extension (`make extensions`, and see "
+            "`scripts/check_stale_extensions.py`); there is deliberately no "
+            "pure-Python fallback."
+        ) from exc
+    return _trr
+
+
 def _line_of_sight_dispatch(p1, p2, grid, net_id: int) -> bool:
-    """Bresenham LOS via the Rust kernel (cleanup C1), falling back to
-    the pure-Python reference if ``temper_rust_router`` is missing."""
+    """Bresenham LOS via the Rust kernel (cleanup C1).
+
+    **Fails closed.**  Until 2026-08-18 this caught ``ImportError`` and
+    fell through to ``_line_of_sight``; a stale extension therefore
+    silently swapped the any-angle shortcut decision for a different
+    implementation with nothing in the output naming which one ran.
+    """
     from temper_placer.router_v6.astar_core_rust import _line_of_sight_rust
 
     try:
         return _line_of_sight_rust(p1, p2, grid, net_id)
-    except ImportError:  # pragma: no cover -- extension missing/stale
-        return _line_of_sight(p1, p2, grid, net_id)
+    except ImportError as exc:  # pragma: no cover -- extension missing/stale
+        raise ThetaStarExtensionUnavailableError(
+            "temper_rust_router.line_of_sight_py is unavailable, so the "
+            "any-angle line-of-sight check cannot run. Rebuild the "
+            "extension (`make extensions`); there is deliberately no "
+            "pure-Python fallback."
+        ) from exc
 
 
 def reset_los_bb_stats() -> None:
@@ -46,13 +142,28 @@ def get_los_bb_stats() -> tuple[int, int]:
 
 
 def log_los_bb_stats() -> None:
+    """Report the bounding-box shortcut counters.
+
+    These count calls into ``_line_of_sight`` (the pure-Python reference)
+    only.  Production line-of-sight goes through
+    ``_line_of_sight_dispatch`` -> the Rust ``line_of_sight_py`` kernel,
+    which keeps no such counter, so on a production route this
+    unconditionally reports zero.  ``_astar_reconstruct`` still calls it;
+    the "not measured here" wording below exists so that zero is not read
+    as "the shortcut never fired".
+    """
     hits, falls = get_los_bb_stats()
     total = hits + falls
     if total > 0:
         rate = hits / total * 100
         print(f"LOS BB shortcut: {hits} hits / {total} total = {rate:.1f}% skip rate")
     else:
-        print("LOS BB shortcut: no calls recorded")
+        print(
+            "LOS BB shortcut: no calls recorded -- the pure-Python "
+            "_line_of_sight reference did not run (production LOS is the "
+            "Rust line_of_sight_py kernel, which keeps no BB counter). "
+            "This is not evidence the shortcut never fires."
+        )
 
 
 def _line_of_sight(
@@ -131,305 +242,11 @@ _CONGESTION_GROWTH_THRESHOLD: int = 5
 _CONGESTION_PLATEAU_STRIKES: int = 3
 
 
-def _astar_search_lazy_theta_star_python(
-    grid,
-    start_grid: tuple[int, int],
-    goal_grid: tuple[int, int],
-    net_id: int,
-    came_from_init: dict | None = None,
-    max_iter: int | None = None,
-    enable_congestion_derivative: bool = True,
-) -> list[tuple[int, int]] | None:
-    """
-    Lazy Theta* pathfinding (pure-Python reference).
-
-    Optimizes Theta* by delaying the line-of-sight check until a node is expanded.
-    This significantly reduces the number of geometric checks.
-
-    Args:
-        grid: Occupancy grid
-        start_grid: Start position (grid coordinates)
-        goal_grid: Goal position (grid coordinates)
-        net_id: Net ID for unblocking own cells
-        came_from_init: Optional initial came_from for warm-starting
-        max_iter: Maximum node expansions before returning None (safety net).
-            Default ``None`` = unlimited (backward-compatible).
-        enable_congestion_derivative: When True, abort search early if
-            frontier growth plateaus (fewer than 5 new cells per 1000
-            expansions for 3 consecutive windows). Default True.
-
-    Returns:
-        Path as list of (x, y) grid cells, or None if no path
-    """
-    import math
-    from heapq import heappop, heappush
-
-    los_fn = _line_of_sight_dispatch
-
-    # Priority queue: (f_score, counter, current_pos)
-    counter = 0
-    open_set: list = []
-    heappush(open_set, (0.0, counter, start_grid))
-
-    came_from = came_from_init.copy() if came_from_init else {}
-    g_score = {start_grid: 0.0}
-    closed_set = set()
-
-    # Congestion derivative tracking
-    _g_score_size_prev: int = 1  # start cell
-    _plateau_count: int = 0
-
-    def euclidean_dist(p1, p2):
-        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
-
-    def reconstruct_path(current):
-        path = [current]
-        while current in came_from:
-            current = came_from[current]
-            # Handle start node case (came_from[start] not in came_from)
-            if current == start_grid:
-                break
-            path.append(current)
-        path.reverse()
-        return path
-
-    while open_set:
-        f_cost, _, current = heappop(open_set)
-
-        if current in closed_set:
-            continue
-
-        # LAZY CHECK: Validate LOS only when expanding
-        parent = came_from.get(current)
-
-        # Runtime monitor: f-cost monotonicity for Lazy Theta*
-        _mon_lazy = get_monitor_state()
-        if _mon_lazy is not None:
-            _mon_lazy.record_pop(current, float(f_cost))
-        if parent and not los_fn(parent, current, grid, net_id):
-            # LOS Failed.
-            # Standard Lazy Theta* strategy: find a valid parent from closed neighbors
-            # This is "Vertex A adjustment" from the paper.
-            # However, since we populate using optimistic parents, the 'current'
-            # node might not have a valid parent in the closed set that reaches it
-            # directly via LOS.
-            # Simplified strategy: If LOS from parent fails, treat it as an A* node
-            # (but we didn't store the A* parent).
-            # Re-evaluate parent from neighbors in closed set.
-
-            best_parent = None
-            best_g = float("inf")
-
-            # Check 8-connected neighbors
-            cx, cy = current
-            for dx, dy in _SAME_LAYER_DELTAS:
-                nx, ny = cx + dx, cy + dy
-                neighbor = (nx, ny)
-
-                if neighbor in closed_set and neighbor in g_score:
-                    # Cost is just distance (1 or 1.414)
-                    step_cost = euclidean_dist(neighbor, current)
-                    new_g = g_score[neighbor] + step_cost
-                    if new_g < best_g:
-                        best_g = new_g
-                        best_parent = neighbor
-
-            if best_parent:
-                came_from[current] = best_parent
-                g_score[current] = best_g
-                # Continue expansion with corrected parent
-            else:
-                # Should not happen if we reached 'current'
-                continue
-
-        if current == goal_grid:
-            return reconstruct_path(current)
-
-        closed_set.add(current)
-
-        if max_iter is not None and len(closed_set) >= max_iter:
-            return None
-
-        if enable_congestion_derivative and len(closed_set) % _CONGESTION_CHECK_INTERVAL == 0:
-            new_cells = len(g_score) - _g_score_size_prev
-            if new_cells < _CONGESTION_GROWTH_THRESHOLD:
-                _plateau_count += 1
-                if _plateau_count >= _CONGESTION_PLATEAU_STRIKES:
-                    return None
-            else:
-                _plateau_count = 0
-            _g_score_size_prev = len(g_score)
-
-        # Get 8-connected neighbors
-        cx, cy = current
-        neighbors = []
-        for dx, dy in _SAME_LAYER_DELTAS:
-            nx, ny = cx + dx, cy + dy
-            if in_bounds(nx, ny, grid.width_cells, grid.height_cells):
-                cell_value = grid.grid[ny, nx]
-                if cell_value == 0 or cell_value == net_id:
-                    neighbors.append((nx, ny))
-
-        for neighbor in neighbors:
-            if neighbor in closed_set:
-                continue
-
-            # LAZY OPTIMIZATION: Always assume LOS from parent(current) to neighbor
-            # This makes the "parent" pointer jump multiple steps.
-            # parent(neighbor) = parent(current)
-
-            grandparent = came_from.get(current)
-
-            # Path 1: Optimistic (grandparent -> neighbor)
-            if grandparent:
-                tentative_g_lazy = g_score[grandparent] + euclidean_dist(grandparent, neighbor)
-                path_source_lazy = grandparent
-            else:
-                # Start node has no parent
-                tentative_g_lazy = float("inf")
-                path_source_lazy = None
-
-            # Path 2: A* (current -> neighbor) - always valid if adjacent
-            tentative_g_astar = g_score[current] + euclidean_dist(current, neighbor)
-
-            # Choose best (usually optimistic)
-            # Standard Lazy Theta* typically just picks the optimistic one if better.
-            # But we must ensure g-values are consistent.
-
-            if grandparent and tentative_g_lazy < tentative_g_astar:
-                tentative_g = tentative_g_lazy
-                path_source = path_source_lazy
-            else:
-                tentative_g = tentative_g_astar
-                path_source = current
-
-            if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                came_from[neighbor] = path_source
-                g_score[neighbor] = tentative_g
-                f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
-                counter += 1
-                heappush(open_set, (f_score, counter, neighbor))
-
-    return None
-
-
-def _astar_search_theta_star_python(
-    grid,
-    start_grid: tuple[int, int],
-    goal_grid: tuple[int, int],
-    net_id: int,
-    came_from_init: dict | None = None,
-    max_iter: int | None = None,
-    enable_congestion_derivative: bool = True,
-) -> list[tuple[int, int]] | None:
-    """
-    Theta* pathfinding with any-angle paths (pure-Python reference).
-
-    Key difference from A*: When expanding a neighbor, checks if parent
-    of current has line-of-sight to neighbor. If yes, connects parent
-    directly to neighbor (skipping current), creating diagonal shortcuts.
-
-    Args:
-        grid: Occupancy grid
-        start_grid: Start position (grid coordinates)
-        goal_grid: Goal position (grid coordinates)
-        net_id: Net ID for unblocking own cells
-        came_from_init: Optional initial came_from for warm-starting
-        max_iter: Maximum node expansions before returning None (safety net).
-            Default ``None`` = unlimited (backward-compatible).
-        enable_congestion_derivative: When True, abort search early if
-            frontier growth plateaus (fewer than 5 new cells per 1000
-            expansions for 3 consecutive windows). Default True.
-
-    Returns:
-        Path as list of (x, y) grid cells, or None if no path
-    """
-    import math
-    from heapq import heappop, heappush
-
-    los_fn = _line_of_sight_dispatch
-
-    # Priority queue: (f_score, counter, current_pos)
-    counter = 0
-    open_set: list = []
-    heappush(open_set, (0.0, counter, start_grid))
-
-    came_from = came_from_init.copy() if came_from_init else {}
-    g_score = {start_grid: 0.0}
-    closed_set = set()
-
-    # Congestion derivative tracking
-    _g_score_size_prev: int = 1  # start cell
-    _plateau_count: int = 0
-
-    def euclidean_dist(p1, p2):
-        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
-
-    def reconstruct_path(current):
-        path = [current]
-        while current in came_from:
-            current = came_from[current]
-            path.append(current)
-        path.reverse()
-        return path
-
-    while open_set:
-        _, _, current = heappop(open_set)
-
-        if current in closed_set:
-            continue
-
-        if current == goal_grid:
-            return reconstruct_path(current)
-
-        closed_set.add(current)
-
-        if max_iter is not None and len(closed_set) >= max_iter:
-            return None
-
-        if enable_congestion_derivative and len(closed_set) % _CONGESTION_CHECK_INTERVAL == 0:
-            new_cells = len(g_score) - _g_score_size_prev
-            if new_cells < _CONGESTION_GROWTH_THRESHOLD:
-                _plateau_count += 1
-                if _plateau_count >= _CONGESTION_PLATEAU_STRIKES:
-                    return None
-            else:
-                _plateau_count = 0
-            _g_score_size_prev = len(g_score)
-
-        # Get 8-connected neighbors
-        cx, cy = current
-        neighbors = []
-        for dx, dy in _SAME_LAYER_DELTAS:
-            nx, ny = cx + dx, cy + dy
-            if in_bounds(nx, ny, grid.width_cells, grid.height_cells):
-                cell_value = grid.grid[ny, nx]
-                if cell_value == 0 or cell_value == net_id:
-                    neighbors.append((nx, ny))
-
-        for neighbor in neighbors:
-            if neighbor in closed_set:
-                continue
-
-            # THETA* OPTIMIZATION: Check line-of-sight from parent
-            parent = came_from.get(current)
-            if parent and los_fn(parent, neighbor, grid, net_id):
-                # Path 2: parent -> neighbor (shortcut)
-                tentative_g = g_score[parent] + euclidean_dist(parent, neighbor)
-                path_source = parent
-            else:
-                # Path 1: current -> neighbor (standard A*)
-                tentative_g = g_score[current] + euclidean_dist(current, neighbor)
-                path_source = current
-
-            if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                came_from[neighbor] = path_source
-                g_score[neighbor] = tentative_g
-                f_score = tentative_g + euclidean_dist(neighbor, goal_grid)
-                counter += 1
-                heappush(open_set, (f_score, counter, neighbor))
-
-    return None  # No path found
+# The congestion-derivative early-abort parameters above are the Rust
+# kernel's, not a Python path's: ``theta_star_search_py`` implements the
+# same "<5 new cells per 1000 expansions for 3 consecutive windows -> give
+# up" rule. They stay here because they are the documented tuning surface
+# and ``benchmarks/congestion_derivative_bench.py`` imports them by name.
 
 
 # ---------------------------------------------------------------------------
@@ -438,11 +255,13 @@ def _astar_search_theta_star_python(
 # The public names below delegate to the Rust kernel
 # (``temper_rust_router.theta_star_search_py``, proven bit-identical to the
 # pure-Python reference by the differential suite
-# ``tests/router_v6/test_astar_cluster_rust_differential.py``), falling back
-# to the pure-Python reference when the extension is missing/stale.  An
-# active runtime monitor keeps the search in Python so the monitor's
-# frontier-pop observations remain real (``get_monitor_state() is not None``
-# is the same probe the LOS dispatch already uses).
+# ``tests/router_v6/test_astar_cluster_rust_differential.py``).
+#
+# They take NO branch on anything.  Not on whether the extension imported,
+# and not on whether anyone is watching: the monitor gate and the
+# ImportError fallbacks that used to live here are gone (module docstring).
+# Whatever runs here is the only thing that can run here, which is the
+# whole point -- a measurement of this path is a measurement of production.
 # ---------------------------------------------------------------------------
 
 
@@ -458,11 +277,11 @@ def _theta_star_search_rust_kernel(
 ) -> list[tuple[int, int]] | None:
     """Run the Rust Theta* kernel (``theta_star_search_py``).
 
-    Raises ``ImportError`` when ``temper_rust_router`` is missing so the
-    caller can fall back to the pure-Python reference — the same contract
-    as ``_line_of_sight_dispatch`` above.
+    Raises :class:`ThetaStarExtensionUnavailableError` when
+    ``temper_rust_router`` is missing — there is no caller-side fallback,
+    by design (see the class docstring).
     """
-    import temper_rust_router as _trr
+    _trr = _require_theta_star_extension()
 
     grid_contig = np.ascontiguousarray(grid.grid, dtype=np.int8)
     height, width = grid_contig.shape
@@ -502,25 +321,10 @@ def _astar_search_lazy_theta_star(
 ) -> list[tuple[int, int]] | None:
     """Lazy Theta* pathfinding (Rust-backed).
 
-    Delegates to the Rust kernel when the extension is available and the
-    runtime monitor is not active; otherwise falls back to the pure-Python
-    reference (``_astar_search_lazy_theta_star_python``).
+    Always the Rust kernel. Activating ``astar_monitor()`` around this call
+    observes it; it does not change it.
     """
-    if get_monitor_state() is None:
-        try:
-            return _theta_star_search_rust_kernel(
-                grid,
-                start_grid,
-                goal_grid,
-                net_id,
-                came_from_init,
-                max_iter,
-                enable_congestion_derivative,
-                lazy=True,
-            )
-        except ImportError:  # pragma: no cover -- extension missing/stale
-            pass
-    return _astar_search_lazy_theta_star_python(
+    return _theta_star_search_rust_kernel(
         grid,
         start_grid,
         goal_grid,
@@ -528,6 +332,7 @@ def _astar_search_lazy_theta_star(
         came_from_init,
         max_iter,
         enable_congestion_derivative,
+        lazy=True,
     )
 
 
@@ -542,25 +347,10 @@ def _astar_search_theta_star(
 ) -> list[tuple[int, int]] | None:
     """Theta* pathfinding with any-angle paths (Rust-backed).
 
-    Delegates to the Rust kernel when the extension is available and the
-    runtime monitor is not active; otherwise falls back to the pure-Python
-    reference (``_astar_search_theta_star_python``).
+    Always the Rust kernel. Activating ``astar_monitor()`` around this call
+    observes it; it does not change it.
     """
-    if get_monitor_state() is None:
-        try:
-            return _theta_star_search_rust_kernel(
-                grid,
-                start_grid,
-                goal_grid,
-                net_id,
-                came_from_init,
-                max_iter,
-                enable_congestion_derivative,
-                lazy=False,
-            )
-        except ImportError:  # pragma: no cover -- extension missing/stale
-            pass
-    return _astar_search_theta_star_python(
+    return _theta_star_search_rust_kernel(
         grid,
         start_grid,
         goal_grid,
@@ -568,4 +358,5 @@ def _astar_search_theta_star(
         came_from_init,
         max_iter,
         enable_congestion_derivative,
+        lazy=False,
     )

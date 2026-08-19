@@ -507,6 +507,51 @@ def route_pcb(
             # path: plain 2D A* via the Rust kernel, no
             # smoothing.
             #
+            # NOTE 2026-08-18 -- THE FIRST TWO BULLETS NO LONGER HOLD,
+            # RE-MEASURED. Both premises expired: Theta*/Lazy Theta* are
+            # Rust-backed since the Wave-4 migration (they are not "a
+            # Python A*"), and _astar_search._dispatch_search does pass
+            # max_iter to both (there is no missing iter cap). The 24-net
+            # smoke subset those figures came from is also not today's
+            # 139-net, 6-layer board.
+            #
+            # Re-measured on the CURRENT board by routing it through
+            # RouterV6Pipeline twice from identical stripped input, once
+            # per setting (deterministic: the False arm reproduced
+            # bit-identically across two runs):
+            #
+            #   flags        pad-connected  fake-completion  segments
+            #   -----------  -------------  ---------------  --------
+            #   both False       61/139           0            4500
+            #   both True        94/139           4            3260
+            #
+            # Pad connectivity is the PRIMARY metric (see
+            # scripts/route_board.audit_pad_connectivity). Any-angle ON
+            # lands +33 genuinely pad-connected nets on FEWER segments;
+            # even discounting all four fake-completions it is 90 vs 61.
+            # So on today's board the any-angle setting is the BETTER one,
+            # and this call site -- the production entry point -- is
+            # running the worse configuration.
+            #
+            # These flags are deliberately NOT flipped here: doing so
+            # changes the committed routed board (sha256 6d4e1733...),
+            # which is a board-level decision needing its own
+            # DRC/creepage review on a mains-voltage design, not a side
+            # effect of a measurement-integrity cleanup. What IS fixed is
+            # that the divergence is no longer silent --
+            # _pipeline_route._resolve_any_angle_search names and logs the
+            # resolved search once per route, and the test named
+            # `test_entry_points_disagree_on_any_angle_search_and_that_is_pinned`
+            # (tests/router_v6/test_wave1_easy_wins.py) pins the
+            # divergence WITH these numbers, so the next reader neither
+            # inherits the stale verdict above nor "reconciles" the two
+            # sides blindly.
+            #
+            # The third bullet still holds, and is now stronger:
+            # enable_smoothing is not merely a no-op, it is INERT --
+            # self.enable_smoothing is assigned in
+            # RouterV6Pipeline.__init__ and read by nothing in packages/.
+            #
             # NOTE 2026-06-24: ``max_iter=500_000`` is the
             # path-quality sweet spot on temper.kicad_pcb.  The
             # kernel default of 1M explores further but lands
