@@ -541,6 +541,14 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pipeline_route::run_collect_pad_positions, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_build_route_payload, m)?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_build_routing_result, m)?)?;
+    // The via annular-ring fab floor `Via::new` enforces at construction
+    // (PR #1316), exported so Python-side callers and tests DERIVE the
+    // corrected pad geometry instead of restating the numbers. Restating
+    // them is what left eight `router_v6` tests pinned to the pre-floor
+    // 0.6mm pad, passing or failing according to how recently the reader
+    // had rebuilt this extension rather than according to the code.
+    m.add("MIN_ANNULAR_RING_MM", pipeline_route::MIN_ANNULAR_RING_MM)?;
+    m.add("ANNULAR_RING_TARGET_MM", pipeline_route::ANNULAR_RING_TARGET_MM)?;
     // Phase C residual (append-only per the U4 dispatch): the pipeline
     // contract tail — dag_types / dag / bottleneck / metrics.
     m.add_class::<dag_types::StageResult>()?;

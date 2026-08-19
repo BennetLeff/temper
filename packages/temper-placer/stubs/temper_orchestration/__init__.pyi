@@ -319,3 +319,9 @@ class RegressionReporter:
 # was written.
 def netclass_resolve_component_class_py(pin_infos: Any) -> Any: ...
 def netclass_separated_constraints_py(*args: Any, **kwargs: Any) -> Any: ...
+
+# The via annular-ring fabrication floor `Via::new` (pipeline_route.rs)
+# enforces at construction, exported so Python derives the corrected pad
+# geometry instead of restating it. See `lib.rs`'s `#[pymodule]`.
+MIN_ANNULAR_RING_MM: float
+ANNULAR_RING_TARGET_MM: float

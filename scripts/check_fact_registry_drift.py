@@ -172,6 +172,29 @@ mismatch put 56 vias below the JLCPCB annular-ring fab floor for 4 days):
 
 The mechanism itself grew ``value_kind="str"`` support (previously float/
 int only), used for the two net-name-valued families above.
+
+2026-08-18 addition
+-------------------
+  - ``min_via_annular_ring_mm`` -- the annular-ring fab FLOOR itself (as
+    opposed to the via pad/drill pairs above, which are the values chosen
+    to clear it). Registered because PR #1316 gave the fact a second home
+    the same week: ``Via::new`` (temper-orchestration) now enforces the
+    floor at construction, so the crate carries its own copy of a number
+    ``pcb/temper.kicad_pro`` already declared at DRC severity ``error``.
+    CLEAN in both homes.
+
+    Motivation is the same failure shape this gate exists for, caught one
+    step earlier: that Rust change ALSO left eight ``router_v6`` tests
+    holding the pre-floor 0.6mm via pad, with nothing connecting the two
+    sides. Because the constant lives in a compiled extension, those
+    eight passed or failed according to when the reader last ran
+    ``maturin develop`` -- a suite whose verdict tracked build state, not
+    code state, which cost several agents a session. The tests were
+    repaired to DERIVE the geometry from the crate (the constant is now
+    exported as ``temper_orchestration.MIN_ANNULAR_RING_MM``); this fact
+    is the mechanical half of that link and
+    ``packages/temper-placer/tests/router_v6/
+    test_via_annular_floor_guard.py`` is the behavioural half.
 """
 
 from __future__ import annotations
@@ -560,6 +583,62 @@ REGISTRY: tuple[Fact, ...] = (
             "included so the pair is checked together and so a future "
             "drill-only drift (independent of the known-red diameter "
             "divergence) cannot hide next to it."
+        ),
+    ),
+    # -------------------------------------------------------------------
+    # The annular-ring fabrication FLOOR itself (as opposed to the via
+    # pad/drill pairs above, which are the values chosen to CLEAR it).
+    #
+    # 968d1a33d (PR #1316) gave this fact a second home: `Via::new`
+    # (temper-orchestration) now enforces the floor at construction, so
+    # the crate carries its own copy of a number the board file already
+    # declared. Two homes, no link -- precisely the shape this gate
+    # exists for, and precisely the shape that had just cost this project
+    # 56 unfabricable vias. Registered the day the second home appeared,
+    # rather than the day they drift.
+    # -------------------------------------------------------------------
+    Fact(
+        name="min_via_annular_ring_mm",
+        category="via-geometry",
+        authoritative_value=0.254,
+        value_kind="float",
+        authoritative_source=(
+            "pcb/temper.kicad_pro board.design_settings.rules."
+            "min_via_annular_width = 0.254, enforced by KiCad DRC at "
+            "severity 'error' (board.design_settings.rule_severities."
+            "annular_width) -- i.e. the board does not fabricate below "
+            "it. Sourced from JLCPCB's 2oz-copper PTH minimum per "
+            "docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md, "
+            "the same floor the 2026-08-13 board-wide sweep raised every "
+            "net-class via pair (default_via_diameter_mm above) to clear. "
+            "It is a fabricator constraint, not a tunable: a mismatch "
+            "here is fixed by correcting whichever home moved, never by "
+            "lowering the floor."
+        ),
+        homes=(
+            FactSite(
+                file="pcb/temper.kicad_pro",
+                description="board DRC rule min_via_annular_width (the fab SSOT)",
+                pattern=r'"min_via_annular_width":\s*([\d.]+)',
+            ),
+            FactSite(
+                file="packages/temper-orchestration/src/pipeline_route.rs",
+                description="Via::new's construction-time annular floor (PR #1316)",
+                pattern=r"pub const MIN_ANNULAR_RING_MM: f64 = ([\d.]+);",
+            ),
+        ),
+        notes=(
+            "Expected CLEAN. Registered 2026-08-18 alongside the repair of "
+            "the eight router_v6 tests that PR #1316 left holding the "
+            "pre-floor 0.6mm via pad. Those eight rotted because a Rust "
+            "behaviour change had no link to the Python side; this entry "
+            "is the mechanical half of the link (the Rust constant is now "
+            "also exported to Python as "
+            "temper_orchestration.MIN_ANNULAR_RING_MM, and "
+            "packages/temper-placer/tests/router_v6/"
+            "test_via_annular_floor_guard.py pins the behaviour). Note "
+            "this gate reads pcb/temper.kicad_pro, NOT the board file "
+            "pcb/temper.kicad_pcb."
         ),
     ),
     # -------------------------------------------------------------------

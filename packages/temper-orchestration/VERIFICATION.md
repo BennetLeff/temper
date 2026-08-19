@@ -2819,6 +2819,34 @@ source and the `connectivity_preflight` call-back stay Python; the
 `DrcViolation` / `CongestionRegion` dataclass construction stays Python (the
 kernel returns plain tuples — the D4 `StageDRCFailure` precedent).
 
+**DELIBERATE DIVERGENCE — the via annular-ring fab floor (PR #1316,
+968d1a33d).** The bit-identical parity claimed above holds for every
+observable EXCEPT one: `Via::new` enlarges a via pad whose annular ring
+`(diameter - drill) / 2` falls below the board's 0.254mm fabrication floor
+(`MIN_ANNULAR_RING_MM`, `pcb/temper.kicad_pro`'s
+`board.design_settings.rules.min_via_annular_width` at DRC severity
+`error`). The pre-migration oracles predate that floor and must stay
+verbatim, so they do not clamp. This is behaviour the port ADDS on
+purpose — the "make bad states unrepresentable" guard that closed PR
+#1312's 56 sub-floor vias — not a porting defect.
+
+The consequence for anyone reading a via-shaped diff between the two arms:
+**a differential fixture must feed a floor-COMPLIANT pad**, or it will
+report the crate's deliberate correction as a divergence. Eight
+`router_v6` tests did exactly that for a day (five here, two in
+`test_pipeline_route_rust_differential.py`, one in
+`test_via_output_writer.py`), and because the constant lives in a compiled
+extension they passed or failed according to when the reader last ran
+`maturin develop` rather than according to the code. They now DERIVE their
+pad geometry from the crate via
+`tests/router_v6/_via_annular_floor.py::floor_compliant_via()`, reading
+the floor through the `temper_orchestration.MIN_ANNULAR_RING_MM` /
+`ANNULAR_RING_TARGET_MM` exports added for that purpose. The clamp itself
+is pinned separately, Python-side, by
+`tests/router_v6/test_via_annular_floor_guard.py`, and the Rust constant
+is pinned to the board's own DRC setting by
+`scripts/check_fact_registry_drift.py`'s `min_via_annular_ring_mm` fact.
+
 ### Empirical verification (U-H)
 
 - **Differential suite**: `test_adapter_convert_marshal_rust_differential.py`
