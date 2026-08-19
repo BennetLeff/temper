@@ -97,13 +97,20 @@ def test_clean_signal_nets_in_spec():
 
 
 def test_violation_undersized_high_current():
-    """A 16A net with thin trace → CURRENT_DENSITY violation."""
+    """A 22.5A net with a thin trace -> CURRENT_DENSITY violation.
+
+    Fixture net changed from the ghost name "DC_BUS+" to the REAL board net
+    "+170V_BUS". The ghost name is not a conductor on this board, so this
+    test used to exercise a lookup path production never takes -- the exact
+    flaw AGENTS.md records ("a differential test only proves what you feed
+    it ... that test's input was a net name absent from this board").
+    """
     gate = StackupGate()
     result = gate.check(
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.3, layer="F.Cu"),
+                    "+170V_BUS": _FakeRoute("+170V_BUS", width_mm=0.3, layer="F.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -113,7 +120,7 @@ def test_violation_undersized_high_current():
     assert len(result.violations) >= 1
     v = result.violations[0]
     assert v.type is ViolationType.CURRENT_DENSITY
-    assert v.nets == ("DC_BUS+",)
+    assert v.nets == ("+170V_BUS",)
     assert v.severity == 0.3  # actual width
     assert v.threshold > 0.3  # minimum should be larger
 
@@ -224,7 +231,7 @@ def test_to_delta_current_density_returns_none():
     gate = StackupGate()
     v = Violation(
         type=ViolationType.CURRENT_DENSITY,
-        nets=("DC_BUS+",),
+        nets=("+170V_BUS",),
         severity=0.3,
         threshold=2.5,
     )
@@ -269,7 +276,7 @@ def test_internal_layer_detection():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.5, layer="In2.Cu"),
+                    "+170V_BUS": _FakeRoute("+170V_BUS", width_mm=0.5, layer="In2.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -375,7 +382,7 @@ def test_in3_in4_detected_as_internal():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.5, layer="In3.Cu"),
+                    "+170V_BUS": _FakeRoute("+170V_BUS", width_mm=0.5, layer="In3.Cu"),
                 },
                 unrouted_nets=[],
             )
@@ -430,7 +437,7 @@ def test_in3_in4_detected_as_internal():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.5, layer="In3.Cu"),
+                    "+170V_BUS": _FakeRoute("+170V_BUS", width_mm=0.5, layer="In3.Cu"),
                 },
                 unrouted_nets=[],
             )

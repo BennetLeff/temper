@@ -7,7 +7,62 @@ use crate::types::{NetClass, NetClassification, Netlist};
 
 const GROUND_PATTERNS: &[&str] = &["GND", "PGND", "CGND", "AGND", "DGND", "VSS"];
 const POWER_PATTERNS: &[&str] = &["+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS"];
-const HV_PATTERNS: &[&str] = &["AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"];
+
+/// Exact HV-domain net names from `elec/domain_manifest.yaml`'s `HV` domain
+/// -- this project's hand-reviewed, netlist-traced SSOT for which
+/// conductors are mains/HV.
+///
+/// FIXED (net-current/classification reconciliation): `HV_PATTERNS` used to
+/// be `["AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"]`. Only
+/// `SW_NODE` is a net on this board. The board spells its mains nets
+/// `ac_l`/`ac_n` and its bus nets `+170V_BUS`/`DC_BUS_RTN`; `PE`,
+/// `DC_BUS+` and `DC_BUS-` name no conductor at all. Measured consequence:
+/// `+170V_BUS` (the live 170V DC bus), `DC_BUS_RTN`, `PWR_RTN` (the
+/// doubler midpoint), `tank-out`, `tank.c_tank1-p2` (the resonant tank,
+/// 570 Vrms), `w1_1`/`w1_2` (the CMC line windings) and `hb-gnd` all
+/// classified as `NetClass::Signal` -- the fallback at the bottom of the
+/// precedence chain -- on a mains-powered board.
+///
+/// Matched EXACTLY (case-insensitively), not by substring: `PE` as a plain
+/// `contains` test is precisely the unanchored shape
+/// `scripts/check_net_classification.py` exists to catch, and which this
+/// repo has now fixed five separate times in other files
+/// (docs/evidence/2026-07-27-net-classification-gate.md).
+const HV_EXACT_NETS: &[&str] = &[
+    "ac_l",
+    "ac_n",
+    "+170V_BUS",
+    "DC_BUS_RTN",
+    "PWR_RTN",
+    "w1_1",
+    "w1_2",
+    "+15V_LS",
+    "SW_NODE",
+    "GATE_HS",
+    "GATE_LS",
+    "tank-out",
+    "tank.c_tank1-p2",
+    "power_in.ntc-no",
+    "hb-gnd",
+    "hb.power_loop.q_high-g",
+    "hb.gate_hs.driver-p1-1",
+    "hb.gate_hs.driver-p2",
+    "input",
+    "discharge.k_dis1-nc",
+    "discharge.k_dis2-nc",
+    "discharge.k_dis1-no",
+    "discharge.k_dis2-no",
+    "discharge.r_dis1a-p2",
+    "discharge.r_dis2a-p2",
+    "discharge.r_snub1-p2",
+    "discharge.r_snub2-p2",
+];
+
+/// Legacy HV name fragments, kept for net names this crate may see from
+/// boards OTHER than `pcb/temper.kicad_pcb` (fixtures, the DFM corpus).
+/// `PE` is deliberately NOT carried over: as a bare substring it matched
+/// any name containing those two letters.
+const HV_PATTERNS: &[&str] = &["AC_L", "AC_N", "DC_BUS+", "DC_BUS-", "SW_NODE"];
 const DIFFERENTIAL_PATTERNS: &[&str] = &["DIFF", "USB_D", "LVDS", "ETH_"];
 const HIGH_CURRENT_PATTERNS: &[&str] = &["HC_", "HIGH_CURRENT", "PWR_RAIL", "BUS_BAR"];
 const GATE_DRIVE_PATTERNS: &[&str] = &["GATE", "DRV", "DRIVE"];
@@ -23,6 +78,14 @@ fn matches_any(upper: &str, patterns: &[&str]) -> bool {
 pub(crate) fn classify_net_name(name: &str) -> NetClass {
     // Uppercase once per net name, not once per pattern group below.
     let upper = name.to_uppercase();
+    // The manifest's exact HV net list wins over every keyword rule below.
+    // Checked FIRST, above Ground, because several real HV-domain nets are
+    // spelled in ways the keyword rules misread: `hb-gnd` contains "GND"
+    // (it is the half-bridge low-side RETURN, ~-170V to signal ground, not
+    // a ground net), and `+15V_LS` contains "+15V".
+    if HV_EXACT_NETS.iter().any(|n| n.eq_ignore_ascii_case(name)) {
+        return NetClass::HighVoltage;
+    }
     if matches_any(&upper, GROUND_PATTERNS) {
         NetClass::Ground
     } else if matches_any(&upper, POWER_PATTERNS) {
@@ -84,6 +147,52 @@ pub(crate) mod tests {
         assert_eq!(classify_net_name("GATE_H"), NetClass::GateDrive);
         assert_eq!(classify_net_name("DRV_LO"), NetClass::GateDrive);
         assert_eq!(classify_net_name("DRIVE_A"), NetClass::GateDrive);
+    }
+
+    /// REGRESSION GUARD. Every one of these is a REAL net on
+    /// `pcb/temper.kicad_pcb` that classified as `NetClass::Signal` before
+    /// the HV list was keyed on the domain manifest instead of a ghost
+    /// vocabulary -- on a mains-powered board.
+    #[cfg_attr(test, test)]
+    fn test_real_board_hv_nets_are_not_signal() {
+        for net in [
+            "+170V_BUS",
+            "DC_BUS_RTN",
+            "PWR_RTN",
+            "tank-out",
+            "tank.c_tank1-p2",
+            "w1_1",
+            "w1_2",
+            "hb-gnd",
+            "power_in.ntc-no",
+            "ac_l",
+            "ac_n",
+        ] {
+            assert_eq!(
+                classify_net_name(net),
+                NetClass::HighVoltage,
+                "real HV-domain board net {net} must not classify as Signal"
+            );
+        }
+    }
+
+    /// `hb-gnd` contains "GND" and `+15V_LS` contains "+15V", so the
+    /// keyword rules would claim them for Ground/Power. The manifest's
+    /// exact list is checked first precisely so it wins.
+    #[cfg_attr(test, test)]
+    fn test_hv_exact_list_beats_misleading_keywords() {
+        assert_eq!(classify_net_name("hb-gnd"), NetClass::HighVoltage);
+        assert_eq!(classify_net_name("+15V_LS"), NetClass::HighVoltage);
+        // A genuine ground net is still Ground.
+        assert_eq!(classify_net_name("gnd"), NetClass::Ground);
+    }
+
+    /// "PE" was a plain-substring HV pattern -- the unanchored shape
+    /// scripts/check_net_classification.py exists to catch. It is gone.
+    #[cfg_attr(test, test)]
+    fn test_bare_pe_substring_no_longer_forces_high_voltage() {
+        assert_ne!(classify_net_name("SPEED_SENSE"), NetClass::HighVoltage);
+        assert_ne!(classify_net_name("TYPE_SEL"), NetClass::HighVoltage);
     }
 
     #[cfg_attr(test, test)]

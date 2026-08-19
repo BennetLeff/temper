@@ -12,12 +12,16 @@ source are documented in docs/hardware/TRACE_WIDTH_CALCULATIONS.md §2.
 """
 
 from temper_drc_rs import (  # noqa: F401 — re-export
+    AC_MAINS_CURRENT_A,
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
+    RATED_OUTPUT_POWER_W,
     TRACE_TEMP_RISE_C,
     get_net_current,
     ipc2152_current_capacity,
     ipc2152_min_width_mm,
+    tank_bus_rms_current_a,
+    try_net_design_current_a,
 )
 
 

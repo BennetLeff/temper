@@ -357,32 +357,34 @@ class StackupGate(Gate):
     name = "stackup"
 
     # ------------------------------------------------------------------
-    # Per-net expected currents (A) — inline until U3's net_currents.yaml lands.
-    # Sources: plan R3 table + inferred defaults for unlisted nets.
+    # Per-net expected currents (A).
+    #
+    # DELETED (this change): `_DEFAULT_NET_CURRENTS`, a second, hand-kept
+    # copy of `temper_drc_rs::ipc::net_currents()`, and `_DEFAULT_CURRENT`,
+    # its silent 0.1A fall-through. Both are gone; this gate now reads the
+    # single Rust SSOT and fails closed. AGENTS.md's standing rule ("fix the
+    # Rust until it is definitely correct, then deprecate and delete the
+    # Python ... never leave both in place 'in agreement'") applies exactly:
+    # the two homes had ALREADY drifted, and the drift was silent and
+    # safety-relevant.
+    #
+    # What the duplicate cost, measured on this board before deletion:
+    # its lookup was EXACT and case-SENSITIVE while the board spells its
+    # mains nets `ac_l`/`ac_n` in lower case, so `AC_L`/`AC_N` never
+    # matched. `_resolve_net_current`'s documented dispatch then PREFERRED
+    # this table's 0.1A over the Rust kernel's correct 15.0A whenever the
+    # two disagreed -- i.e. the disagreement was resolved in favour of the
+    # wrong answer, by design. Eight of the nine power nets checked
+    # (`ac_l`, `ac_n`, `+170V_BUS`, `DC_BUS_RTN`, `PWR_RTN`, `tank-out`,
+    # `w1_1`, `power_in.ntc-no`) resolved to 0.1A here; only `SW_NODE` was
+    # right. The 2026-08-17 `GATE_H`->`GATE_HS` fix was the same defect in
+    # this same table, caught once and not generalised.
+    #
+    # The promised `net_currents.yaml` this comment used to defer to never
+    # landed; the Rust table is the SSOT instead, and
+    # `scripts/check_net_current_coverage.py` now proves it covers every
+    # HV-domain net on the real board.
     # ------------------------------------------------------------------
-    _DEFAULT_NET_CURRENTS: dict[str, float] = {
-        "DC_BUS+": 16.0,
-        "SW_NODE": 16.0,
-        # 15.0A, not 10.0A: SSOT is `elec/src/constraints.ato:11`
-        # (`ACMainsConstraints.i_max = 15A`), corroborated by
-        # `docs/specs/NET_CLASS_SPECIFICATION.md` SS3.6 ("Current Rating: 15A
-        # (1800W @ 120V)"). Kept in lockstep with
-        # `temper_drc_rs::ipc::net_currents()`'s `AC_MAINS_CURRENT_A`, which
-        # this table mirrors -- see
-        # tests/placer/cp_sat/test_net_currents_rust_differential.py.
-        "AC_L": 15.0,
-        "AC_N": 15.0,
-        # FIXED 2026-08-17 (docs/evidence/2026-08-17-gate-drive-ampacity-
-        # key-rename-fix.md, PR #1320 SS3.3): real board nets are
-        # "GATE_HS"/"GATE_LS" (pcb/temper.kicad_pcb), not "GATE_H"/"GATE_L".
-        # Rating unchanged -- only the key. Lockstep w/ ipc.rs net_currents().
-        "GATE_HS": 2.0,
-        "GATE_LS": 2.0,
-        "+3V3": 0.5,
-        "+5V": 0.5,
-        "+15V": 0.2,
-    }
-    _DEFAULT_CURRENT = 0.1  # A for nets not in the table
 
     # FIXED 2026-08-14 (docs/hardware/TRACE_WIDTH_CALCULATIONS.md SS1 vs
     # this repo's prior uncited 10.0 default -- see
@@ -398,26 +400,26 @@ class StackupGate(Gate):
     # Per-net expected current resolution
     # ------------------------------------------------------------------
 
-    def _resolve_net_current(self, net_name: str) -> float:
-        """Resolve expected current for *net_name*.
+    def _resolve_net_current(self, net_name: str) -> float | None:
+        """The declared design current for *net_name*, or ``None`` if this
+        net has no declared entry.
 
-        Delegates to the ``temper_ipc`` Rust kernel (``get_net_current``)
-        where the kernel's case-insensitive-SUBSTRING lookup agrees with this
-        exact-match table (the 9 known keys, and genuinely unknown nets where
-        both fall back to ``0.1``); the Python exact table stays the
-        authority where the semantics diverge -- case variants
-        (``"dc_bus+"``) and substring-supersets that are real/plausible net
-        names for this board (``"/DC_BUS+"``, ``"SW_NODE_DC+"``,
-        ``"+3V3_SENSE"``). The divergence is pinned and documented by
-        ``tests/placer/cp_sat/test_net_currents_rust_differential.py``.
+        FAIL-CLOSED. There is exactly one authority --
+        ``temper_drc_rs::ipc::net_currents()`` -- and no permissive default:
+        a net with no entry returns ``None``, which callers must treat as
+        "cannot check this conductor", never as "this conductor is a signal
+        trace". The previous implementation returned ``0.1`` for both cases,
+        which is precisely why an unsized 22.5 A DC bus and a GPIO were
+        indistinguishable here.
+
+        ``scripts/check_net_current_coverage.py`` makes ``None`` unreachable
+        for every net ``elec/domain_manifest.yaml`` declares HV-domain, so a
+        ``None`` from this method means either a genuine signal net or a new
+        board net nobody has sized yet -- and the caller reports which.
         """
-        from temper_placer.core.ipc2152 import get_net_current
+        from temper_placer.core.ipc2152 import try_net_design_current_a
 
-        current_a = self._DEFAULT_NET_CURRENTS.get(net_name, self._DEFAULT_CURRENT)
-        rust_current = get_net_current(net_name)
-        if rust_current == current_a:
-            return rust_current
-        return current_a
+        return try_net_design_current_a(net_name)
 
     # ------------------------------------------------------------------
     # Check
@@ -502,6 +504,55 @@ class StackupGate(Gate):
         width_mm = _extract_trace_width(route)
         if width_mm is None or width_mm <= 0.0:
             return None  # no width to check
+
+        if current_a is None:
+            from temper_placer.router_v6.clearance_check import (  # noqa: PLC0415
+                _load_manifest_hv_net_names,
+            )
+
+            if net_name not in _load_manifest_hv_net_names():
+                # AFFIRMATIVELY signal-tier, not a silent fall-through: this
+                # net is absent from `elec/domain_manifest.yaml`'s HV domain,
+                # the hand-reviewed SSOT for which conductors are
+                # mains/HV. `scripts/check_net_current_coverage.py` PROPERTY 1
+                # makes every HV-domain net resolve, so reaching this line
+                # means the manifest positively says this is not a power
+                # conductor -- a decision with an owner, not an omission.
+                #
+                # Scoped this way deliberately. Failing closed on ALL 162
+                # board nets would fire on the ~126 genuine GPIO/SPI/I2C
+                # signal nets and make the gate useless, which is not "the
+                # truth becoming visible" -- those nets really are signal
+                # nets. The safety domain is the right boundary, and it is
+                # the same one check_hv_netclass_coverage.py PROPERTY 1 draws.
+                current_a = _tdrc.DEFAULT_SIGNAL_CURRENT
+            else:
+                # FAIL CLOSED. An undeclared HV-domain conductor is an
+                # UNSIZED mains/DC-bus conductor, and this gate must not
+                # silently pass copper it cannot check. Unreachable while the
+                # coverage gate is green -- this is the backstop for when it
+                # is not.
+                return Violation(
+                    type=ViolationType.CURRENT_DENSITY,
+                    nets=(net_name,),
+                    severity=width_mm,
+                    threshold=width_mm,
+                    description=(
+                        f"HV-domain net {net_name} has no declared design "
+                        f"current in temper_drc_rs::ipc::net_currents(), so "
+                        f"its {width_mm:.3f}mm of copper cannot be checked "
+                        f"for ampacity. Refusing to assume a signal-level "
+                        f"current. Add a cited entry for this net, or waive "
+                        f"it in scripts/net_current_waivers.yaml with a "
+                        f"reason."
+                    ),
+                    context={
+                        "current_a": None,
+                        "trace_width_mm": width_mm,
+                        "min_width_mm": None,
+                        "undeclared_hv_net_current": True,
+                    },
+                )
 
         internal = _is_internal_net(net_name, route)
         copper_oz = _resolve_copper_oz(route, state)

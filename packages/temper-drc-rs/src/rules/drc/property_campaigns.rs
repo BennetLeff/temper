@@ -79,7 +79,10 @@
 // layer `F.CrtYd`/`B.CrtYd`. No `pcb/temper.kicad_pcb` byte was written.
 
 use crate::board::{BoardSide, Component, ComponentRef, NetClassName, PackageType};
-use crate::ipc::{calculate_min_trace_width, estimate_trace_current, get_net_current};
+use crate::ipc::{
+    calculate_min_trace_width, estimate_trace_current, net_design_current_a,
+    try_net_design_current_a,
+};
 use crate::pymath::{py_hypot, py_max, py_min, py_round_to_int};
 use crate::validation_kernels::{
     infer_package_type, issue_fingerprint, min_hv_lv_trace_clearance, tht_hole_collisions,
@@ -921,13 +924,25 @@ pub(crate) fn ipc_p8_trace_width_round_trip_impl(seed: u64) {
     );
 }
 
-/// P9. `get_net_current` always returns a non-negative value.
+/// P9. Net-current resolution is fail-closed and strictly positive when it
+/// resolves at all. Mirrors `ipc::proptests::p9_net_current_non_negative`,
+/// including its strengthening: the old `>= 0.0` form was satisfied by the
+/// silent 0.1A fall-through for every input, so it held vacuously over
+/// exactly the arbitrary names this generator produces.
 #[allow(dead_code)] // reachable only via tests::WASM_TESTS
 pub(crate) fn ipc_p9_net_current_non_negative_impl(seed: u64) {
     let mut rng = SplitMix64::new(seed);
     let name = ipc_gen_net_name(&mut rng);
-    let cur = get_net_current(&name);
-    assert!(cur >= 0.0, "net current should be >= 0 for '{name}', got {cur} (seed={seed})");
+    match try_net_design_current_a(&name) {
+        Some(cur) => assert!(
+            cur > 0.0,
+            "declared net current must be > 0 for '{name}', got {cur} (seed={seed})"
+        ),
+        None => assert!(
+            net_design_current_a(&name).is_err(),
+            "unresolved net '{name}' must produce an error, not a default (seed={seed})"
+        ),
+    }
 }
 
 // ===========================================================================

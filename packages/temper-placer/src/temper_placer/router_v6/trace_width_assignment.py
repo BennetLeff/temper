@@ -472,10 +472,24 @@ def _resolve_current_a(
     which stays on the pure fabrication-floor `default_width` unchanged
     (this function is never consulted for it).
     """
-    specific = _tdrc.get_net_current(net_name)
-    if specific != _tdrc.DEFAULT_SIGNAL_CURRENT:
+    # FAIL-CLOSED lookup. This used to be
+    # `specific = get_net_current(net); if specific != DEFAULT_SIGNAL_CURRENT`
+    # -- i.e. the 0.1A default doubled as the "not in the table" sentinel, so
+    # a power net nobody had entered was indistinguishable from a declared
+    # signal net and fell through to the keyword cascade below. Measured on
+    # this board before the fix: `DC_BUS_RTN`, `PWR_RTN`, `tank-out`,
+    # `tank.c_tank1-p2`, `w1_1`, `w1_2` and `hb-gnd` all reached this point
+    # unmatched, matched no keyword either, and returned None -- the plain
+    # 0.127mm fabrication floor. `+170V_BUS` fared no better in kind: it
+    # matched only the `startswith("+")` power bucket, sizing the 22.5A RMS
+    # DC bus from the legacy 0.508mm power-width constant's implied 3.268A.
+    # `try_net_design_current_a` now returns None ONLY for a net with no
+    # declared entry, which is a distinct and reportable condition.
+    specific = _tdrc.try_net_design_current_a(net_name)
+    if specific is not None:
         return specific, (
-            f"measured/cited current {specific:.4g}A (temper_drc_rs.get_net_current)"
+            f"declared design current {specific:.4g}A "
+            f"(temper_drc_rs.net_currents, fail-closed exact lookup)"
         )
 
     upper = net_name.upper()

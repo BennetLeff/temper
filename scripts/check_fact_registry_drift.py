@@ -663,20 +663,26 @@ REGISTRY: tuple[Fact, ...] = (
             "value comparison) so a missing citation reports as a TOOL "
             "ERROR, not a false CLEAN."
         ),
+        # HOME REMOVED (net-current SSOT consolidation): the gates.py home
+        # was `StackupGate._DEFAULT_NET_CURRENTS`, a second hand-kept copy of
+        # this table. It has been DELETED, not renamed -- `_resolve_net_current`
+        # now reads the Rust table directly. Registering a home that no longer
+        # exists would report a permanent TOOL ERROR for a file that is
+        # deliberately, correctly empty of this fact. The single remaining
+        # home below is the SSOT, which is the point of the consolidation.
+        # `scripts/check_net_current_coverage.py` is what now guarantees this
+        # table covers every real HV-domain board net.
         homes=(
-            FactSite(
-                file="packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
-                description="StackupGate._DEFAULT_NET_CURRENTS 'GATE_HS' key (MISSING)",
-                pattern=r'"(GATE_HS)":\s*[\d.]+,',
-                scope_anchor=r"_DEFAULT_NET_CURRENTS:\s*dict\[str, float\]\s*=\s*\{",
-                scope_lines=20,
-            ),
             FactSite(
                 file="packages/temper-drc-rs/src/ipc.rs",
                 description="net_currents() 'GATE_HS' map key (MISSING)",
                 pattern=r'map\.insert\("(GATE_HS)"\.into\(\),',
                 scope_anchor=r"pub fn net_currents\(\)",
-                scope_lines=25,
+                # WIDENED 20 -> 200: the table is now grouped into commented
+                # current tiers (tank/bus, AC-mains line, gate drive, bias,
+                # bleed), so the gate-drive entries sit further from the fn
+                # anchor than the old flat 12-entry list did.
+                scope_lines=200,
             ),
         ),
         notes=(
@@ -692,20 +698,14 @@ REGISTRY: tuple[Fact, ...] = (
         authoritative_value="GATE_LS",
         value_kind="str",
         authoritative_source="Same as gate_hs_net_current_rating_a above.",
+        # gates.py home removed -- see gate_hs_net_current_rating_a above.
         homes=(
-            FactSite(
-                file="packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
-                description="StackupGate._DEFAULT_NET_CURRENTS 'GATE_LS' key (MISSING)",
-                pattern=r'"(GATE_LS)":\s*[\d.]+,',
-                scope_anchor=r"_DEFAULT_NET_CURRENTS:\s*dict\[str, float\]\s*=\s*\{",
-                scope_lines=20,
-            ),
             FactSite(
                 file="packages/temper-drc-rs/src/ipc.rs",
                 description="net_currents() 'GATE_LS' map key (MISSING)",
                 pattern=r'map\.insert\("(GATE_LS)"\.into\(\),',
                 scope_anchor=r"pub fn net_currents\(\)",
-                scope_lines=25,
+                scope_lines=200,
             ),
         ),
         notes="See gate_hs_net_current_rating_a's notes.",

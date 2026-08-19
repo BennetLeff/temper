@@ -13,6 +13,7 @@ from temper_placer.core.ipc2152 import (
     ipc2152_internal_width,
     ipc2152_min_width,
     ipc2152_min_width_mm,
+    try_net_design_current_a,
 )
 
 # ---------------------------------------------------------------------------
@@ -139,31 +140,75 @@ class TestIpc2152CurrentCapacity:
 
 
 class TestNetCurrents:
+    """Net-current resolution, rewritten for the fail-closed exact lookup.
+
+    These tests used to assert the OLD semantics: case-insensitive SUBSTRING
+    matching with a 0.1 A fall-through for anything unmatched. Both are gone.
+    The substring walk answered from whichever unrelated net name happened to
+    share a fragment (and, iterating a HashMap, non-deterministically so when
+    two keys matched), and the fall-through made an undeclared 22.5 A DC bus
+    indistinguishable from a declared signal net.
+
+    Note what the old fixtures were made of: ``DC_BUS+``, ``AC_L``, ``AC_N``,
+    ``+5V`` -- four names, none of which is a net on ``pcb/temper.kicad_pcb``.
+    The board spells them ``+170V_BUS``/``DC_BUS_RTN``, ``ac_l``/``ac_n``, and
+    has no ``+5V``. Every assertion below now uses a real board net.
+    """
+
     def test_known_nets(self):
-        assert get_net_current("DC_BUS+") == 16.0
-        assert get_net_current("AC_L") == 15.0
-        assert get_net_current("AC_N") == 15.0
-        assert get_net_current("SW_NODE") == 16.0
-        # GATE_HS/GATE_LS: the board's real gate-drive net names (fixed
-        # 2026-08-17, docs/evidence/2026-08-17-gate-drive-ampacity-key-
-        # rename-fix.md -- bare "GATE_H"/"GATE_L" are not real board nets).
+        # Tank/DC-bus tier, derived from the declared output rating.
+        assert get_net_current("+170V_BUS") == 22.5
+        assert get_net_current("DC_BUS_RTN") == 22.5
+        assert get_net_current("SW_NODE") == 22.5
+        assert get_net_current("PWR_RTN") == 22.5
+        assert get_net_current("tank-out") == 22.5
+        # AC-mains series line tier, at the declared branch-circuit limit.
+        assert get_net_current("ac_l") == 15.0
+        assert get_net_current("ac_n") == 15.0
+        assert get_net_current("w1_1") == 15.0
+        assert get_net_current("w1_2") == 15.0
+        assert get_net_current("power_in.ntc-no") == 15.0
+        # Gate drive.
         assert get_net_current("GATE_HS") == 2.0
         assert get_net_current("GATE_LS") == 2.0
-        assert get_net_current("+3V3") == 0.5
-        assert get_net_current("+5V") == 0.5
-        assert get_net_current("+15V") == 0.2
+        # SELV supply rails, at TRACE_WIDTH_CALCULATIONS.md S4's own figures.
+        assert get_net_current("+3V3") == 1.0
+        assert get_net_current("+15V") == 0.5
 
     def test_case_insensitive(self):
-        assert get_net_current("dc_bus+") == 16.0
+        """Case-insensitive EXACT equality -- so a document spelling
+        ``AC_L`` resolves the board's ``ac_l`` -- never containment."""
+        assert get_net_current("AC_L") == get_net_current("ac_l")
+        assert get_net_current("dc_bus_rtn") == get_net_current("DC_BUS_RTN")
         assert get_net_current("gate_hs") == 2.0
 
     def test_substring_match(self):
-        assert get_net_current("Net-(C1-Pad1)-DC_BUS+") == 16.0
-        assert get_net_current("/DC_BUS+") == 16.0
+        """REGRESSION GUARD: substring containment must NOT resolve.
+
+        ``Net-(C1-Pad1)-DC_BUS+`` and ``/DC_BUS+`` used to resolve to 16.0 A
+        by containing the ghost key ``DC_BUS+``. Neither is a net on this
+        board, and the key they matched names no conductor either.
+        """
+        for name in ("Net-(C1-Pad1)-DC_BUS+", "/DC_BUS+", "+3V3_SENSE", "XGATE_HSY"):
+            assert try_net_design_current_a(name) is None
+            with pytest.raises(KeyError):
+                get_net_current(name)
 
     def test_default_signal(self):
-        assert get_net_current("SOME_RANDOM_NET") == DEFAULT_SIGNAL_CURRENT
-        assert get_net_current("") == DEFAULT_SIGNAL_CURRENT
+        """FAIL-CLOSED: no permissive default for an unknown net."""
+        assert try_net_design_current_a("SOME_RANDOM_NET") is None
+        assert try_net_design_current_a("") is None
+        with pytest.raises(KeyError):
+            get_net_current("SOME_RANDOM_NET")
+        # DEFAULT_SIGNAL_CURRENT still exists as a value a caller may apply
+        # to a net it has affirmatively established is signal-level -- it is
+        # simply no longer reachable as a fall-through.
+        assert DEFAULT_SIGNAL_CURRENT == 0.1
+
+    def test_ghost_keys_are_gone(self):
+        """The superseded schematic vocabulary resolves to nothing."""
+        for ghost in ("DC_BUS+", "DC_BUS-", "+5V", "GATE_H", "GATE_L"):
+            assert try_net_design_current_a(ghost) is None
 
     def test_table_coverage(self):
         for net in NET_CURRENTS:
@@ -252,6 +297,9 @@ class TestIpc2152Integration:
         assert w > 3.0  # mains traces are wide (though usually pours)
 
     def test_supply_rails_finite(self):
-        for net in ["+3V3", "+5V", "+15V"]:
+        # "+5V" removed: it is not a net on pcb/temper.kicad_pcb and its
+        # net_currents() key has been deleted as a ghost. The board's SELV
+        # supply rails are "+3V3" and "+15V".
+        for net in ["+3V3", "+15V"]:
             w = ipc2152_min_width(net, NET_CURRENTS[net], layer="F.Cu")
             assert 0 < w < 2.0, f"{net} width {w} out of expected range"
