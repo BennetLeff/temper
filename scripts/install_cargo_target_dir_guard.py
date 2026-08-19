@@ -76,6 +76,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _lib.cargo_target import (  # noqa: E402
+    EXTENSION_MODULE_FEATURE,
+    EXTENSION_TARGET_SUFFIX,
+    SHARED_TARGET_BASENAME,
+)
+
 MARKER = "temper cargo-target-dir guard (scripts/install_cargo_target_dir_guard.py)"
 
 
@@ -136,17 +144,57 @@ def wrapper_source(real_cargo: Path, canonical_root: Path) -> str:
 # scripts/install_cargo_target_dir_guard.py's module docstring for why
 # this exists and why sourcing-based guidance alone was not enough.
 #
+# It does TWO things, for two different incidents:
+#
+#   1. Shares the build cache across all worktrees (the disk incidents:
+#      51 GB, then 36.6 GB, then ~74 GB across 99 worktrees).
+#   2. Partitions extension-module builds into a SEPARATE shared dir
+#      ("{SHARED_TARGET_BASENAME}{EXTENSION_TARGET_SUFFIX}"). A target dir holds one uplifted
+#      artifact per (crate, profile), NOT keyed on features -- so a plain
+#      `cargo build` and a maturin `--features {EXTENSION_MODULE_FEATURE}`
+#      build fight over one `release/lib<crate>.so`, and the loser installs
+#      a .so with no PyInit_. Measured 2026-08-18: the flip costs ~95 ms
+#      and prints no `Compiling` line. Both dirs stay SHARED across
+#      worktrees, so the cache benefit is fully preserved; what is split is
+#      only the collision. See scripts/_lib/cargo_target.py.
+#
 # Reinstall/refresh: uv run python scripts/install_cargo_target_dir_guard.py
 set -u
+
+# Does this invocation enable the extension-module feature? Scanning the
+# whole argv (rather than parsing --features) covers `--features X`,
+# `--features=X` and comma-separated lists identically, which is what cargo
+# itself accepts and what maturin's exact spelling is free to change.
+_temper_is_ext_build=0
+for _temper_arg in "$@"; do
+    case "$_temper_arg" in
+        *{EXTENSION_MODULE_FEATURE}*) _temper_is_ext_build=1; break ;;
+    esac
+done
 
 if [ -z "${{CARGO_TARGET_DIR:-}}" ]; then
     if common_dir="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
         repo_root="$(dirname "$common_dir")"
         if [ "$repo_root" = "{canonical_root}" ]; then
-            export CARGO_TARGET_DIR="$repo_root/target-shared"
+            export CARGO_TARGET_DIR="$repo_root/{SHARED_TARGET_BASENAME}"
         fi
     fi
 fi
+
+# Applied even to an explicitly-set CARGO_TARGET_DIR, and deliberately so:
+# the partition is a CORRECTNESS property, not a preference. Anyone who
+# sourced scripts/cargo_shared_env.sh, or runs under `make`, arrives here
+# with the base dir already exported -- respecting that verbatim would put
+# the extension build straight back into the colliding directory. The
+# suffix is idempotent, so a caller that already resolved the pyext dir
+# (the Makefile's maturin recipes do) is not double-suffixed.
+if [ "$_temper_is_ext_build" = "1" ] && [ -n "${{CARGO_TARGET_DIR:-}}" ]; then
+    case "$CARGO_TARGET_DIR" in
+        *{EXTENSION_TARGET_SUFFIX}) : ;;
+        *) export CARGO_TARGET_DIR="$CARGO_TARGET_DIR{EXTENSION_TARGET_SUFFIX}" ;;
+    esac
+fi
+unset _temper_is_ext_build _temper_arg
 
 exec "{real_cargo}" "$@"
 """

@@ -185,6 +185,39 @@ stamped it is believed, and a hand-edited stamp is believed. That is why
 not already consider fresh -- running the writer can never launder a
 stale artifact into a fresh one.
 
+Design decision: when the mtime FALLBACK is itself the vulnerability
+--------------------------------------------------------------------------
+The fallback above is safe against a *false positive* (a cached artifact
+reported stale). It is not safe against a *false negative*, and 2026-08-17
+produced one: ``uv`` reverted an extension a session had just built,
+restoring an older ``.so`` from its wheel cache **by hard link, with the
+cached file's mtime preserved**. The reverted artifact hashes differently
+from the one that was stamped, so its content key does not match any stamp
+beside it -- ``read_artifact_stamp`` returns None and the gate silently
+drops to the mtime comparison. If the cache entry's preserved mtime is
+newer than the checkout's source mtimes (the normal case: sources are
+stamped at ``git checkout`` time, wheels are cached later), the mtime rule
+reports **fresh**, and the gate certifies a binary built from code nobody
+has on disk.
+
+Note the shape: the stamp mechanism did not fail, and neither did the mtime
+rule on its own terms. The hole is the *silent downgrade* between them. A
+missing stamp is indistinguishable from "installed by a path that predates
+stamps" -- which is why falling back is right by default -- and from "the
+stamped artifact was swapped out from under us", which is an incident.
+
+``TEMPER_REQUIRE_EXTENSION_STAMPS`` / ``--require-stamps`` closes it by
+refusing the downgrade: any crate whose verdict came from the mtime
+fallback is a VIOLATION rather than a pass, so "no stamp" must be fixed by
+building (which stamps) instead of being silently tolerated. It is
+deliberately a flag and not the default, for exactly the reason the
+fallback exists: every artifact built before stamps landed, and every
+contributor's tree mid-migration, is legitimately unstamped. Turn it on
+where a build *just ran* and a stamp is therefore guaranteed -- ``make
+extensions`` does, and CI does after its ``write_extension_stamps.py``
+step. In those contexts an unstamped crate is not a legacy artifact; it is
+an artifact that appeared without a build, which is the incident.
+
 The "is staleness fatal here" signal
 --------------------------------------
 STALE (module present but built from an older revision of its own
@@ -217,13 +250,16 @@ Exit codes:
       is fresh, or the only issues are MISSING crates and
       TEMPER_REQUIRE_FRESH_EXTENSIONS is not set.
   3 - VIOLATION: at least one crate's installed extension module is
-      STALE, or (when TEMPER_REQUIRE_FRESH_EXTENSIONS is set) MISSING.
+      STALE, UNLOADABLE, (when TEMPER_REQUIRE_FRESH_EXTENSIONS is set)
+      MISSING, or (when TEMPER_REQUIRE_EXTENSION_STAMPS is set) decided
+      by the mtime fallback instead of a build stamp.
   5 - GATE ERROR: zero crates discovered, or a per-crate freshness
       computation failed -- never conflated with "0 violations".
 
 Usage:
   uv run python scripts/check_stale_extensions.py
   TEMPER_REQUIRE_FRESH_EXTENSIONS=1 uv run python scripts/check_stale_extensions.py
+  uv run python scripts/check_stale_extensions.py --require-stamps
 
 Build side (writes the stamps this gate reads):
   uv run python scripts/write_extension_stamps.py
@@ -735,12 +771,34 @@ def run(repo_root: Path) -> Report:
     return Report(crates_discovered=len(crates), results=results)
 
 
+def _env_flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes"}
+
+
 def _required() -> bool:
-    return os.environ.get("TEMPER_REQUIRE_FRESH_EXTENSIONS", "").strip().lower() in {
-        "1",
-        "true",
-        "yes",
-    }
+    return _env_flag("TEMPER_REQUIRE_FRESH_EXTENSIONS")
+
+
+def _require_stamps() -> bool:
+    return _env_flag("TEMPER_REQUIRE_EXTENSION_STAMPS")
+
+
+def unstamped_results(report: Report) -> list[CrateResult]:
+    """Crates whose verdict came from the mtime fallback, not a stamp.
+
+    Only crates the gate actually rendered a freshness verdict on can be
+    "unstamped": MISSING has no artifact to stamp, UNLOADABLE is already
+    fatal for a stronger reason, and a tool error means no verdict at all.
+    A STALE-by-mtime crate is likewise excluded -- it is already a
+    violation, and reporting it twice under two headings would overstate
+    the count.
+
+    See the module docstring's "when the mtime FALLBACK is itself the
+    vulnerability": under ``--require-stamps`` these are violations
+    because a build just ran, so a missing stamp means the artifact
+    arrived without one -- the uv-cache-revert signature.
+    """
+    return [r for r in report.results if r.status.state == "fresh" and r.status.method == "mtime"]
 
 
 _MARKER = {
@@ -759,12 +817,13 @@ def group_by_state(report: Report) -> dict[str, list[CrateResult]]:
     return by_state
 
 
-def decide_exit_code(report: Report, required: bool) -> int:
+def decide_exit_code(report: Report, required: bool, require_stamps: bool = False) -> int:
     """Pure decision function, isolated from I/O for unit testing.
 
-    tool errors > STALE (always fatal) > MISSING (fatal only if
-    *required*) > PASSED. See module docstring "The 'is staleness fatal
-    here' signal" for why STALE is never gated by *required*.
+    tool errors > STALE (always fatal) > UNLOADABLE (always fatal) >
+    MISSING (fatal only if *required*) > UNSTAMPED (fatal only if
+    *require_stamps*) > PASSED. See module docstring "The 'is staleness
+    fatal here' signal" for why STALE is never gated by *required*.
     """
     by_state = group_by_state(report)
     if by_state.get("error"):
@@ -780,6 +839,11 @@ def decide_exit_code(report: Report, required: bool) -> int:
     if by_state.get("unloadable"):
         return EXIT_VIOLATION
     if by_state.get("missing") and required:
+        return EXIT_VIOLATION
+    # Last, because it is the weakest claim: the artifact looks fresh, but
+    # only by the rule a uv cache-revert can fool. Ordered after MISSING so
+    # a caller reading the exit code alone still sees the strongest reason.
+    if require_stamps and unstamped_results(report):
         return EXIT_VIOLATION
     return EXIT_OK
 
@@ -801,6 +865,19 @@ def main() -> int:
             "TEMPER_REQUIRE_FRESH_EXTENSIONS and never affects the gate's own exit codes."
         ),
     )
+    parser.add_argument(
+        "--require-stamps",
+        action="store_true",
+        help=(
+            "Treat a crate decided by the mtime FALLBACK (no build stamp beside its "
+            "installed artifact) as a VIOLATION rather than a pass. Use wherever a "
+            "build just ran and a stamp is therefore guaranteed -- `make extensions` "
+            "and CI after write_extension_stamps.py. Closes the uv-cache-revert hole "
+            "in which a swapped-in .so orphans its stamp and silently drops the gate "
+            "to a comparison its preserved mtime can pass. Also settable via "
+            "TEMPER_REQUIRE_EXTENSION_STAMPS=1."
+        ),
+    )
     args = parser.parse_args()
     repo_root = args.repo_root or find_repo_root()
 
@@ -815,6 +892,7 @@ def main() -> int:
         return EXIT_OK
 
     required = _required()
+    require_stamps = args.require_stamps or _require_stamps()
 
     gh = get_github_summary_path()
 
@@ -847,10 +925,12 @@ def main() -> int:
         "(every discovered crate is checked; the denominator is never a subset)."
     )
     by_content = [r for r in report.results if r.status.method == "content"]
+    unstamped = unstamped_results(report)
     print(
         f"  fresh={len(fresh)} stale={len(stale)} unloadable={len(unloadable)} "
         f"missing={len(missing)} tool-errors={len(errors)}  "
-        f"TEMPER_REQUIRE_FRESH_EXTENSIONS={'1 (strict)' if required else '0 (lenient)'}"
+        f"TEMPER_REQUIRE_FRESH_EXTENSIONS={'1 (strict)' if required else '0 (lenient)'} "
+        f"TEMPER_REQUIRE_EXTENSION_STAMPS={'1 (strict)' if require_stamps else '0 (lenient)'}"
     )
     print(
         f"  decided by content hash: {len(by_content)}; by mtime fallback "
@@ -858,7 +938,10 @@ def main() -> int:
         f"{len(report.results) - len(by_content) - len(missing) - len(unloadable)}"
     )
     for r in report.results:
-        print(f"  [{_MARKER[r.status.state]}] {r.crate.name}: {r.status.detail}")
+        marker = _MARKER[r.status.state]
+        if require_stamps and r in unstamped:
+            marker = "UNSTAMPED"
+        print(f"  [{marker}] {r.crate.name}: {r.status.detail}")
 
     if gh:
         with open(gh, "a") as f:
@@ -872,10 +955,12 @@ def main() -> int:
                 f"- Missing: {len(missing)}\n"
                 f"- Tool errors: {len(errors)}\n"
                 f"- Decided by content hash: {len(by_content)}\n"
+                f"- Unstamped (mtime fallback): {len(unstamped)}\n"
                 f"- TEMPER_REQUIRE_FRESH_EXTENSIONS: {required}\n"
+                f"- TEMPER_REQUIRE_EXTENSION_STAMPS: {require_stamps}\n"
             )
 
-    exit_code = decide_exit_code(report, required)
+    exit_code = decide_exit_code(report, required, require_stamps)
 
     if errors:
         print(
@@ -888,9 +973,28 @@ def main() -> int:
             f"\nFAILED -- {len(stale)} stale extension(s)"
             + (f", {len(unloadable)} unloadable extension(s)" if unloadable else "")
             + (f", {len(missing)} missing extension(s) (required)" if required and missing else "")
+            + (
+                f", {len(unstamped)} unstamped extension(s) (--require-stamps)"
+                if require_stamps and unstamped
+                else ""
+            )
             + ".",
             file=sys.stderr,
         )
+        if require_stamps and unstamped:
+            print(
+                "\nUNSTAMPED means the artifact carries no build stamp, so this gate "
+                "fell back to comparing mtimes -- the comparison a uv wheel-cache "
+                "revert defeats by restoring an older .so with its cached mtime "
+                "preserved. Because --require-stamps says a build just ran, 'no stamp' "
+                "here is not a legacy artifact: it is an artifact that appeared "
+                "without the build that should have stamped it. Rebuild and re-stamp:\n"
+                "  make extensions        # builds, then writes stamps, then re-checks\n"
+                "or, if the build is known good, stamp it explicitly:\n"
+                "  uv run --no-sync python scripts/write_extension_stamps.py\n"
+                "Crate(s): " + ", ".join(r.crate.name for r in unstamped),
+                file=sys.stderr,
+            )
     else:
         if missing:
             print(

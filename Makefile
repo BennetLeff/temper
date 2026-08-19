@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs
+.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs cargo-uplift-check scratchpad
 
 # Show help for workflow commands
 help:
@@ -28,6 +28,8 @@ help:
 	@echo "  make venv-integrity-check - Assert THIS venv's editable installs point at THIS repo root, not a worktree/other checkout"
 	@echo "  make cargo-target-dir-guard - Install/refresh the ~/.local/bin/cargo wrapper so direct cargo/maturin calls can't cold-build a private target-shared"
 	@echo "  make check-worktree-target-dirs [CLEAN=1] - Fail if any worktree has its own private target-shared/ (CLEAN=1 also deletes CACHEDIR.TAG-verified ones)"
+	@echo "  make cargo-uplift-check [CLEAN=1] - Fail if the shared cargo cache holds a cdylib with no PyInit_ (CLEAN=1 evicts it)"
+	@echo "  make scratchpad      - Print THIS worktree's private scratchpad dir (SP=\$$(make -s scratchpad))"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -223,17 +225,41 @@ test-fast:
 # temper-constraints" step) -- without it, its abi3 build fails against a
 # newer CPython than the abi3-forward-compat table in the pinned pyo3
 # version already knows about.
+#
+# The three steps around the build loop are not decoration -- each closes a
+# way this target used to report success while installing something broken:
+#
+#   BEFORE  `check_cargo_uplift_poisoning.py --clean` evicts any cdylib in the
+#           extension target dir that exports no PyInit_. Building on top of a
+#           poisoned cache is how maturin "succeeds" in 0.0Xs and installs an
+#           unimportable .so; this is the documented `cargo clean -p` fix,
+#           applied automatically instead of after someone loses a day.
+#   AFTER   `write_extension_stamps.py` records what each artifact was built
+#           from (it refuses to stamp anything the gate does not already call
+#           fresh, so it cannot launder a bad build).
+#   AFTER   the gate itself, with --require-stamps, so this target FAILS
+#           rather than printing "Done." over a stale, unloadable, or
+#           silently-reverted extension. A build command that exits 0 while
+#           leaving a broken artifact installed is the exact instrument-that-
+#           lies shape this repo keeps paying for.
 extensions:
 	@echo "Rebuilding pyo3/maturin extension crates (crate list from 'scripts/check_stale_extensions.py --list-crates')..."
+	@echo "--- pre-flight: evicting any poisoned cdylib from $(CARGO_TARGET_DIR_PYEXT) ---"
+	@uv run --no-sync python3 scripts/check_cargo_uplift_poisoning.py \
+		--target-dir "$(CARGO_TARGET_DIR_PYEXT)" --clean
 	@uv run --no-sync python3 scripts/check_stale_extensions.py --list-crates | while read -r crate_name manifest_path; do \
 		echo "--- $$crate_name ($$manifest_path) ---"; \
 		if [ "$$crate_name" = "temper-constraints" ]; then \
-			PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
+			CARGO_TARGET_DIR="$(CARGO_TARGET_DIR_PYEXT)" PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
 		else \
-			uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
+			CARGO_TARGET_DIR="$(CARGO_TARGET_DIR_PYEXT)" uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
 		fi; \
 	done
-	@echo "Done. Run 'make extensions-check' to verify every crate is now fresh."
+	@echo "--- recording build stamps ---"
+	@uv run --no-sync python3 scripts/write_extension_stamps.py
+	@echo "--- verifying every installed extension is loadable, fresh and stamped ---"
+	@uv run --no-sync python3 scripts/check_stale_extensions.py --require-stamps
+	@echo "Done -- every crate built, stamped, and verified importable."
 
 # Report-only: same gate CI runs, without rebuilding anything. Pair with
 # `make extensions` as "check, then fix".
@@ -472,6 +498,31 @@ regen-check:
 CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse --path-format=absolute --git-common-dir)")/target-shared
 export CARGO_TARGET_DIR
 
+# Extension-module builds get their OWN shared target dir, and must not use
+# the one above. A cargo target directory holds exactly one uplifted artifact
+# per (crate, profile) -- `release/lib<crate>.so` -- and that path is NOT
+# keyed on the feature set. So a plain `cargo build` and a maturin
+# `--features pyo3/extension-module` build fight over one file, and whichever
+# ran last wins. Measured 2026-08-18 on temper-geometry, one dir, alternating:
+# 5,966,640 bytes with PyInit_temper_geometry x2, then 527,152 bytes with x0,
+# each flip taking ~95 ms and printing NO `Compiling` line (cargo re-hardlinks
+# a cached artifact of the other feature set; it does not recompile). That is
+# the mechanism behind "maturin reported success but installed a .so with no
+# PyInit_" -- one agent's `cargo build` swapping the artifact another agent's
+# maturin was about to copy.
+#
+# Both dirs stay SHARED across every worktree, so the cross-worktree cache the
+# three disk incidents paid for is fully preserved; what is no longer shared
+# is only the colliding uplift path. Cost is that deps common to both
+# configurations compile twice (measured: 179M plain + 246M pyext for
+# temper-geometry alone, warm registry).
+#
+# scripts/_lib/cargo_target.py is the single definition of this derivation;
+# the `cargo` PATH wrapper applies the same suffix for direct/maturin calls
+# that never go through make, and scripts/tests/test_cargo_target_partition.py
+# asserts all three agree.
+CARGO_TARGET_DIR_PYEXT := $(CARGO_TARGET_DIR)-pyext
+
 # Backstop for cargo/maturin invoked DIRECTLY (not through make), where the
 # above export doesn't help: `source scripts/cargo_shared_env.sh` only
 # protects the invocations made in the SAME shell process as the `source`.
@@ -501,6 +552,28 @@ cargo-target-dir-guard:
 # CACHEDIR.TAG safety predicate (see scripts/check_no_worktree_target_dirs.py).
 check-worktree-target-dirs:
 	@python3 scripts/check_no_worktree_target_dirs.py $(if $(filter 1,$(CLEAN)),--clean,)
+
+# Is the SHARED cargo cache currently holding a cdylib that exports no
+# PyInit_? That is the state in which the next `maturin develop` reports
+# success in 0.0Xs and installs an unimportable .so. `make cargo-uplift-check
+# CLEAN=1` also evicts the poisoned artifacts (`cargo clean -p`, per crate --
+# never a blanket clean of a directory the whole fleet shares).
+#
+# Distinct from `make extensions-check`, which inspects what is INSTALLED in
+# site-packages. This inspects what the next build will DRAW FROM. Neither
+# implies the other: the cache can be poisoned while the installed artifact
+# is still fine, and vice versa.
+cargo-uplift-check:
+	@uv run --no-sync python3 scripts/check_cargo_uplift_poisoning.py \
+		--target-dir "$(CARGO_TARGET_DIR_PYEXT)" $(if $(filter 1,$(CLEAN)),--clean,)
+
+# Print (creating if needed) THIS worktree's private scratchpad directory.
+# Agent scratch files collided across ~90 worktrees: `analyze.py`,
+# `after.json` and `prof.py` were silently overwritten, once by a profiler
+# pointed at a DIFFERENT worktree -- which produces plausible, wrong numbers
+# rather than an error. Use it as:  SP=$$(make -s scratchpad)
+scratchpad:
+	@uv run --no-sync python3 scripts/agent_scratchpad.py --path
 
 venv-isolate: cargo-target-dir-guard
 	@echo "Provisioning this worktree's own .venv (uv sync --all-packages)..."

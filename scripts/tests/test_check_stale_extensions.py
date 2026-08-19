@@ -62,6 +62,7 @@ from check_stale_extensions import (  # noqa: E402
     run,
     stamp_file_for,
     stamp_key_path,
+    unstamped_results,
 )
 from write_extension_stamps import main as write_extension_stamps_main  # noqa: E402
 
@@ -998,3 +999,193 @@ class TestUnloadableArtifact:
         """The symbol check must not short-circuit the freshness verdict."""
         crate = self._installed(tmp_path, monkeypatch, native_bytes=None)
         assert check_module(crate).state == "fresh"
+
+
+# ---------------------------------------------------------------------------
+# TestRequireStamps
+# ---------------------------------------------------------------------------
+
+
+class TestRequireStamps:
+    """The mtime FALLBACK is itself a vulnerability, and this is the case.
+
+    2026-08-17: `uv` reverted an extension a session had just built,
+    restoring an older `.so` from its wheel cache by hard link **with the
+    cached entry's mtime preserved**. The swapped-in bytes hash differently
+    from the stamped ones, so no stamp is found for them and the gate
+    silently drops to the mtime comparison -- which the preserved mtime
+    passes, because a wheel cached after `git checkout` is newer than the
+    checkout-stamped sources.
+
+    Neither half malfunctioned. The hole is the *silent downgrade* between
+    them: "no stamp" is indistinguishable from "predates stamps" (benign,
+    and why the fallback exists) and "was swapped out from under us" (the
+    incident). `--require-stamps` refuses the downgrade wherever a build
+    just ran and a stamp is therefore guaranteed.
+
+    `test_uv_cache_revert_*` is the falsifier pair: the first asserts the
+    old rule really does pass the reverted artifact (a guard that passed on
+    the code motivating it would be worth nothing), the second that the new
+    flag catches it.
+    """
+
+    def _reverted_by_uv_cache(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> Crate:
+        """Install a stamped artifact, then revert it the way uv does.
+
+        Timeline mirrors the incident: sources dated at checkout (2 days
+        ago), an honest build an hour ago that wrote a stamp, then a cache
+        entry from 30 minutes ago restored over it. Every mtime here is
+        NEWER than every source mtime, so the fallback cannot fail on
+        timestamps -- which is precisely the trap.
+        """
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now - 2 * 86400)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages",
+            "fake_crate_ext",
+            native_mtime=now - 3600,
+            native_bytes=b"\x00PyInit_fake_crate_ext\x00" + b"BUILT-FROM-CURRENT-SOURCE" * 64,
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        artifact = _resolve_native_artifact("fake_crate_ext", Path(init_py))
+
+        # The honest build stamps what it just installed.
+        sources = crate_source_files(crate)
+        write_stamp(stamp_key_path(artifact), sources, digest_root(sources))
+        assert check_module(crate).method == "content", (
+            "precondition: the stamped build must be decided by content hash"
+        )
+
+        # uv restores an OLDER wheel's .so, preserving the cache entry's mtime.
+        cache_mtime = now - 1800
+        artifact.write_bytes(b"\x00PyInit_fake_crate_ext\x00" + b"BUILT-FROM-STALE-SOURCE" * 64)
+        os.utime(artifact, (cache_mtime, cache_mtime))
+        assert read_artifact_stamp(artifact) is None, (
+            "precondition: the reverted bytes must orphan the stamp -- that "
+            "orphaning is the mechanism under test"
+        )
+        return crate
+
+    def test_uv_cache_revert_is_reported_fresh_by_the_mtime_fallback(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The falsifier: without the flag, the gate certifies the revert.
+
+        If this ever starts failing, the fallback stopped being foolable and
+        --require-stamps is no longer load-bearing for this incident -- do
+        not "fix" this test, re-derive whether the flag is still needed.
+        """
+        crate = self._reverted_by_uv_cache(tmp_path, monkeypatch)
+        status = check_module(crate)
+        assert status.state == "fresh" and status.method == "mtime", (
+            f"expected the reverted artifact to slip through as mtime-fresh, "
+            f"got state={status.state!r} method={status.method!r}"
+        )
+        report = Report(crates_discovered=1, results=[CrateResult(crate, status)])
+        assert decide_exit_code(report, required=True, require_stamps=False) == EXIT_OK
+
+    def test_uv_cache_revert_is_caught_when_stamps_are_required(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The guard: same artifact, same mtimes, now a violation."""
+        crate = self._reverted_by_uv_cache(tmp_path, monkeypatch)
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert decide_exit_code(report, required=True, require_stamps=True) == EXIT_VIOLATION
+
+    def test_stamped_crate_passes_under_require_stamps(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The flag must not fire on the state it is asking builds to reach.
+
+        A guard that fails on a correctly-stamped build would be turned off
+        within a day, which is the same outcome as not having it.
+        """
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now - 100)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages", "fake_crate_ext", native_mtime=now
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        artifact = _resolve_native_artifact("fake_crate_ext", Path(init_py))
+        sources = crate_source_files(crate)
+        write_stamp(stamp_key_path(artifact), sources, digest_root(sources))
+
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert decide_exit_code(report, required=True, require_stamps=True) == EXIT_OK
+
+    def test_missing_crate_is_not_counted_as_unstamped(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A crate with no artifact has nothing to stamp.
+
+        Folding MISSING into UNSTAMPED would make --require-stamps a second,
+        differently-spelled TEMPER_REQUIRE_FRESH_EXTENSIONS and would fire on
+        every contributor lacking a Rust toolchain.
+        """
+        crate = _crate_with_source(tmp_path, source_mtime=time.time() - 100)
+        monkeypatch.setattr(importlib.util, "find_spec", lambda name: None)
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert unstamped_results(report) == []
+        assert decide_exit_code(report, required=False, require_stamps=True) == EXIT_OK
+
+    def test_unloadable_crate_is_not_counted_as_unstamped(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """UNLOADABLE is already fatal for a stronger reason.
+
+        Double-reporting it would inflate the unstamped count and point the
+        reader at "run write_extension_stamps.py" -- which would stamp
+        nothing, because the writer refuses non-fresh crates.
+        """
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now - 100)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages",
+            "fake_crate_ext",
+            native_mtime=now,
+            native_bytes=b"\x00" * 4096,
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert unstamped_results(report) == []
+
+    def test_flag_defaults_off_so_legacy_trees_keep_working(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """require_stamps defaults to False in the decision function.
+
+        Pins the migration contract from the module docstring: an unstamped
+        artifact is the normal state of every tree built before stamps
+        landed, so the default must not fail on it.
+        """
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now - 100)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages", "fake_crate_ext", native_mtime=now
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert unstamped_results(report), "precondition: this crate is mtime-decided"
+        assert decide_exit_code(report, required=True) == EXIT_OK

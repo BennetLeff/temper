@@ -2976,3 +2976,49 @@ scripts:
   category: keep
   disposition: utility
   imports: []
+- path: agent_scratchpad.py
+  purpose: "Per-worktree scratchpad directory with an ownership marker: isolates agent
+    scratch files by construction (one directory per worktree, keyed on a hash of the
+    worktree path) and detects the residual case a derivation cannot prevent -- a
+    scratchpad reached by a stale or copy-pasted absolute path belonging to a different
+    worktree. Closes the 2026-08-18 collision incident in which sessions overwrote each
+    other's analyze.py/after.json/prof.py, once with a profiler pointed at a different
+    checkout."
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - datetime
+  - hashlib
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
+- path: check_cargo_uplift_poisoning.py
+  purpose: "Fails if the shared cargo target directory holds a pyo3 cdylib exporting no
+    PyInit_<module>. A target dir keeps ONE uplifted artifact per (crate, profile), not
+    keyed on features, so a plain `cargo build` and a maturin
+    --features pyo3/extension-module build collide on release/lib<crate>.so -- measured
+    2026-08-18 flipping temper-geometry between 5,966,640 bytes with the symbol and
+    527,152 without, in ~95 ms with no `Compiling` line. Complements
+    check_stale_extensions.py: that gate inspects what was INSTALLED, this one inspects
+    what the next build will DRAW FROM."
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.cargo_target
+  - _lib.repo
+  - argparse
+  - check_stale_extensions
+  - dataclasses
+  - pathlib
+  - subprocess
+  - sys

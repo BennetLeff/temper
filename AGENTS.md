@@ -301,6 +301,84 @@ whole investigations down dead ends.
   because the main checkout is a string prefix. It reports all editable
   installs as violations while printing paths that are correct.
 
+### Cross-worktree contamination — the shared resources, and their guards
+
+**2026-08-18.** Three shared resources leaked between worktrees on the same
+day. Each produced a wrong number that read as a real result; none produced
+an error. One agent reported the board at **5250 segments / 302 vias** where
+four others measured **4553 / 169 on the same commit**, and that
+unreproducible run became the evidence for a "porting the remaining Python
+buys 1.2%" conclusion.
+
+The shape they share is worth naming, because the next shared resource will
+have it too: **an isolated measurement and a contaminated one are the same
+data type.** Both are numbers. Neither carries provenance. The only defence
+is to make contamination structurally impossible, or to make the instrument
+refuse to answer when it cannot tell.
+
+| Shared resource | Leak | Guard |
+|---|---|---|
+| `CARGO_TARGET_DIR` (one dir, ~90 worktrees) | a plain `cargo build` re-uplifts a PyInit-less cdylib over the one another agent's maturin is copying | partitioned target dirs + `make cargo-uplift-check` |
+| the installed `.so` in a shared `.venv` | `uv` restores an older cached wheel by hard link, **mtime preserved**, orphaning its build stamp | `check_stale_extensions.py --require-stamps` |
+| the scratchpad directory | agents pick the same filenames; files silently replaced, one profiler repointed at a *different worktree* | `scripts/agent_scratchpad.py` (per-worktree, owner-marked) |
+
+**1. The cargo target dir was poisoning builds in ~95 ms, silently.** Full
+mechanism and measurements in "Rebuilding pyo3/maturin Rust Extensions"
+above. The short version: one uplift path per (crate, profile), not keyed on
+features, so `cargo build` and maturin overwrite each other's artifact with
+no `Compiling` line and no error. Now partitioned — extension builds go to
+`target-shared-pyext`, everything else to `target-shared`, **both still
+shared across every worktree**, so the cross-worktree cache is intact and
+only the collision is gone.
+
+**2. A build stamp that is missing is not the same as a build stamp that
+matches — and the gate used to treat them alike.** `uv` reverted an
+extension mid-session, restoring an older `.so` from its wheel cache *by
+hard link with the cached entry's mtime preserved*. The swapped-in bytes
+hash differently from the stamped ones, so no stamp is found for them and
+`check_stale_extensions.py` silently drops to its mtime comparison — which
+the preserved mtime **passes**, because a wheel cached after `git checkout`
+is newer than the checkout-stamped sources.
+
+Neither half malfunctioned. The hole is the *silent downgrade* between them:
+"no stamp" is indistinguishable from "predates stamps" (benign, and the
+reason the fallback exists) and from "was swapped out from under us" (an
+incident). Demonstrated end-to-end: the reverted artifact is reported
+`state='fresh' method='mtime'`, exit 0. With `--require-stamps`, exit 3.
+
+Use it wherever a build just ran, so a stamp is guaranteed:
+
+```bash
+uv run --no-sync python scripts/check_stale_extensions.py --require-stamps
+```
+
+`make extensions` now does this automatically, and no longer prints "Done."
+over a stale, unloadable or reverted extension — it fails.
+
+**3. The scratchpad was shared, and the filenames are not random.** Agents
+write `analyze.py`, `after.json`, `prof.py` — so collisions are the default,
+not bad luck. A clobbered `analyze.py` that crashes costs a minute; the
+clobbered `prof.py` **pointed at a different worktree** ran fine and
+profiled the wrong checkout. Nothing in the output distinguishes it from the
+measurement that was intended.
+
+```bash
+SP=$(make -s scratchpad)      # this worktree's own directory, created on demand
+make scratchpad               # same thing; --check verifies ownership
+```
+
+Each worktree gets a directory keyed on a hash of its own path, so two
+worktrees *cannot* resolve to the same one. An owner marker catches what the
+derivation cannot: a scratchpad reached by a stale `SP=` from an earlier
+session or an absolute path copied out of another agent's notes. Do not
+carry an `SP=` value between sessions — re-derive it.
+
+**The rule this generalises to:** before believing a number, ask which
+shared resource it passed through, and whether anything would have told you
+if another worktree had touched it. In all three cases the answer was
+"nothing would have", and in all three the failure was silent by
+construction — a success message, a fresh mtime, a file that still parses.
+
 ### Test harness
 
 * **Set pytest timeouts above 1200s for full-route tests.**
@@ -608,6 +686,69 @@ the target directory, so concurrent builds in different worktrees serialise
 instead of running in parallel. That is still far cheaper than each doing a
 cold build — after the first, the rest are incremental.
 
+### Two shared target dirs, split by feature set (2026-08-18)
+
+Sharing one directory across worktrees fixed the disk problem and created a
+correctness one. A cargo target dir holds **one uplifted artifact per (crate,
+profile)** — `release/lib<crate>.so` — and that path is **not keyed on the
+feature set**. For a pyo3 crate the two feature sets produce incompatible
+binaries at that one path:
+
+* `--features python,pyo3/extension-module` (maturin) — exports
+  `PyInit_<module>`, links no libpython, importable by CPython.
+* no features (plain `cargo build`) — exports no `PyInit_`, and is not an
+  importable extension module at all.
+
+Measured on `temper-geometry`: 5,966,640 B with the symbol, 527,152 B
+without, flipping in **~95 ms with no `Compiling` line** once both variants
+are cached. So the fix is a partition:
+
+```
+target-shared         cargo build / check / clippy / test        (shared by all worktrees)
+target-shared-pyext   anything with --features pyo3/extension-module   (shared by all worktrees)
+```
+
+**Both remain shared across every worktree.** The split is by *feature set*,
+never by worktree — a per-worktree split is exactly the private-cache
+mechanism behind the 51 GB / 36.6 GB / ~74 GB incidents. What is no longer
+shared is the colliding uplift path, which was never a cache benefit.
+
+Cost, measured for `temper-geometry` alone with a warm registry: 179 MB in
+the plain dir plus 246 MB in the pyext dir, i.e. deps common to both
+configurations compile twice. The first extension build after this lands is
+a cold build **once, for the whole fleet**, not once per worktree.
+
+Three mechanisms implement the derivation, because each covers a path the
+others cannot reach — the `cargo` PATH wrapper (direct calls in any shell),
+the Makefile's `CARGO_TARGET_DIR_PYEXT` (make recipes and CI, where no
+wrapper is installed), and `scripts/_lib/cargo_target.py` (the gates).
+`scripts/tests/test_cargo_target_partition.py` *executes* the wrapper and
+compares it against the Python derivation across the whole argv matrix, so
+the triplication cannot drift silently.
+
+**Rollout:** the wrapper is a host-level install. Refresh it once with
+
+```bash
+make cargo-target-dir-guard          # or: python3 scripts/install_cargo_target_dir_guard.py
+python3 scripts/install_cargo_target_dir_guard.py --check
+```
+
+Until it is refreshed, `--check` reports STALE and extension builds keep
+sharing the old directory — the pre-existing behaviour, no worse. The
+discriminator is `pyo3/extension-module`, which every one of the repo's 10
+pyo3 crates declares in `[tool.maturin] features` (verified), and which
+maturin passes through to cargo on the command line — captured live:
+
+```
+cargo rustc --profile release --features python --features pyo3/extension-module \
+     --message-format json-render-diagnostics --manifest-path .../Cargo.toml \
+     --lib --crate-type cdylib
+```
+
+Note `--features python` **alone** does not divert: `python` still links
+libpython, and `cargo test --features python` is a normal workflow here.
+Only `extension-module` produces the incompatible cdylib.
+
 ## Rebuilding pyo3/maturin Rust Extensions
 
 This repo has 10 pyo3/maturin extension crates under `packages/`. A merge
@@ -646,24 +787,58 @@ predated the commit adding it. Run the gate *before* you believe a number,
 not after a result surprises you. Absence of a symbol is not evidence of a
 missing feature.
 
-**A poisoned cargo cache defeats the rebuild silently.** `cargo check` and
-clippy compile these crates *without* their `python` feature. maturin will
-reuse such an artifact, report success, and install a `.so` with no
-`PyInit_<crate>` symbol — `import <crate>` then fails with "dynamic module
-does not define module export function", and the freshness gate is happy
-because the file's mtime is new. The tell is maturin printing
-`Finished ... in 0.0Xs` with **no `Compiling <crate>` line**, usually
-alongside a `Couldn't find the symbol PyInit_<crate>` warning. Fix:
+**A poisoned cargo cache defeats the rebuild silently.** maturin will reuse
+an artifact built without the crate's extension-module features, report
+success, and install a `.so` with no `PyInit_<crate>` symbol — `import
+<crate>` then fails with "dynamic module does not define module export
+function", and the freshness gate is happy because the file's mtime is new.
+The tell is maturin printing `Finished ... in 0.0Xs` with **no `Compiling
+<crate>` line**, usually alongside a `Couldn't find the symbol
+PyInit_<crate>` warning.
 
-```bash
-source scripts/cargo_shared_env.sh   # so -p cleans the SHARED target dir
-cargo clean -p <crate>
+**Corrected 2026-08-18 — the cause is not `cargo check`/clippy.** This
+paragraph previously blamed those two. Measured directly, they are
+innocent: `cargo check`, `cargo clippy`, `cargo clippy --all-targets` and
+`cargo test` all leave the uplifted `.so` **untouched**, because none of
+them produces a cdylib. The poisoner is a plain **`cargo build`** without
+`--features pyo3/extension-module`. The distinction is operational, not
+pedantic: avoiding `cargo check` costs you the cheap command and leaves the
+expensive one still poisoning the cache.
+
+The mechanism is an *uplift-path collision*, not a corrupt build. A cargo
+target directory holds exactly one uplifted artifact per (crate, profile) —
+`<target>/release/lib<crate>.so` — and **that path is not keyed on the
+feature set**. Two feature sets therefore fight over one file. Measured on
+`temper-geometry`, real cargo and real maturin, one target dir, alternating:
+
+```
+after maturin  (--features python,pyo3/extension-module)   5,966,640 B   PyInit_ x2
+after cargo build (no features)                              527,152 B   PyInit_ x0
 ```
 
-then rebuild and confirm a real `Compiling <crate>` line appears. Note this
-is a cargo-cache problem, not a maturin-invocation problem: the
-`--manifest-path` form above reads `[tool.maturin] features` correctly from
-any working directory.
+In the steady state — both variants already cached, which is the normal
+condition of a cache shared by ~90 worktrees — **each flip costs ~95 ms and
+prints no `Compiling` line at all**, only `Finished \`release\` profile
+[optimized] target(s) in 0.05s`. Cargo is not recompiling; it is
+re-hardlinking a cached artifact of the other feature set over the shared
+path (`release/lib<crate>.so` and `release/deps/lib<crate>.so` are the same
+inode). So one agent's `cargo build` silently swaps the artifact another
+agent's maturin is about to copy into site-packages.
+
+**This is now structurally prevented, not just detectable** — extension
+builds use a separate shared target dir (`target-shared-pyext`); see
+"Shared cargo build cache" below. If you are on a host whose `cargo` wrapper
+predates that change, or you hit it anyway:
+
+```bash
+make cargo-uplift-check CLEAN=1     # detects and evicts, per crate
+```
+
+or by hand, `cargo clean -p <crate> --target-dir <the pyext dir>`; then
+rebuild and confirm a real `Compiling <crate>` line appears. Note this is a
+cargo-cache problem, not a maturin-invocation problem: the `--manifest-path`
+form above reads `[tool.maturin] features` correctly from any working
+directory.
 
 ### Worktree `.venv`: shared vs. isolated
 
