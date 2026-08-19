@@ -86,17 +86,23 @@ class RouteStage(Stage):
             thermal_flat = cost_field_input.cost_flat
             thermal_weight = cost_field_input.weight
 
-        # U8: lexicographic net ordering via order_nets()
-        # ensures EMI/critical/thermal-sensitive nets route first
-        # through a clean congestion tensor and un-congested
-        # thermal field.  The call is placed here so the ordering
-        # is computed alongside the thermal field injection.
-        netlist = getattr(pcb, "netlist", None)
-        loops = getattr(state, "loops", None)
-        if netlist is not None and loops is not None:
-            from temper_placer.router_v6.net_ordering import order_nets
-
-            _lex_order = order_nets(netlist, loops)
+        # U8's lexicographic net ordering was computed here and discarded:
+        # ``_lex_order = order_nets(netlist, loops)`` was the only reference
+        # to ``_lex_order`` in this module (single Store, zero Loads), and
+        # ``order_nets`` is a pure marshalling shim over
+        # ``temper_rust_router.order_nets_py`` -- a total-order comparator
+        # with no side effect on ``netlist`` or ``loops``. The block was
+        # also unreachable twice over: ``Stage4Orchestrator.run()`` (the
+        # only thing that would call ``RouteStage.run``) has no caller in
+        # ``src/`` or ``scripts/`` -- ``_pipeline_route.py`` constructs the
+        # orchestrator and then calls only the static
+        # ``assemble_pathfinding_result`` -- and ``BoardState.loops``
+        # defaults to ``None`` and is never assigned anywhere in ``src/``,
+        # so the ``loops is not None`` guard could not open even if the
+        # stage did run. Removed; ``router_v6/net_ordering.py`` keeps its
+        # production importer in ``router_v6/verifier.py``. Net ordering on
+        # the live A* path goes through ``router_v6/_astar_ordering.py``
+        # (see scripts/check_rust_coverage_illusions.py's fourth incident).
 
         result = run_astar_pathfinding(
             channel_mapping=channel_mapping,
