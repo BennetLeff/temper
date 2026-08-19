@@ -322,6 +322,22 @@ whole investigations down dead ends.
 * **A 16-character digest prefix is not a 64-character claim.** Compare full
   digests programmatically. Note also that after a **squash** merge the branch
   SHA is never an ancestor of `main` — that is expected, not lost work.
+* **The shared `.venv` is reverted by any concurrent `uv sync`.** Multiple
+  agents running in parallel worktrees share one `.venv`. A second agent's
+  `uv sync` silently reinstalls the packages out from under a run already in
+  progress. Measured consequences on 2026-08-19: one suite reported **63
+  failures that did not exist**, one left the venv genuinely un-importable,
+  and one routing baseline came back **5250/302/152** against a digest that
+  five independent runs put at **4553/169/151**. Critically, **`cargo clean
+  -p` does not recover it** — only `touch`ing a source file forces the real
+  recompile. Run `make venv-isolate` under `env -u CONDA_PREFIX` at the start
+  of any session that will quote a number, not after the first result looks
+  wrong.
+* **`check_stale_extensions.py` passing is necessary, not sufficient.** It
+  reported `stale=0` against a `.so` that was missing a function its own Rust
+  source registers — the freshness check compares timestamps, not exported
+  symbols. If a measurement depends on a specific pyo3 function, verify that
+  symbol is present in the loaded module before trusting the run.
 
 ### The general rule
 
