@@ -816,19 +816,59 @@ module PowerInput:
     d1 = new MUR1560
     d2 = new MUR1560
     
+    # RIPPLE-CURRENT RESELECTION 2026-08-19
+    # (docs/evidence/2026-08-19-bus-capacitance-selection.md).
+    #
+    # WAS: EKMQ251VSN182MA50S (Chemi-Con KMQ, 2.70 Arms @105C/120Hz). Three
+    # committed analyses now agree that part fails its own ripple rating in
+    # this design -- 2026-07-26-bus-capacitor-ripple.md (4.2-5.8x),
+    # 2026-08-19-input-stage-power-ceiling.md (4.64-4.87x, by time-domain
+    # simulation), and the selection doc above, which re-runs it against the
+    # SUPERSEDED tank current (22.5 Arms -- NOT the OCP TRIP level of 35.4 A
+    # that the first two used; see main.ato:624-625, which labels 35.4 A
+    # "i_ocp_trip_rms", and docs/evidence/2026-08-15-ocp-threshold-
+    # decision.md Sec 2, which supersedes it).
+    #
+    # NOW: Nichicon LGW2E182MELC50. IDENTICAL 1800uF / 250V / D35x50 snap-in
+    # -- same footprint, same netlist, ZERO PCB change -- but 4050 mA vs
+    # 2700 mA rms at 105C/120Hz, and 3000 h endurance vs 2000 h. Ratings read
+    # directly from Nichicon CAT.8100N (e-lgw.pdf) this session, not
+    # second-hand: 250V (2E) row "1800 | 35 x 50 | 4050 | LGW2E182MELC50",
+    # tolerance +/-20%, tan d <= 0.15 @120Hz/20C, category range -40 to
+    # +105C, endurance 3000 h at 105C AT RATED RIPPLE CURRENT. Its
+    # frequency-coefficient table for the 200/250V group publishes a 60 Hz
+    # column outright (0.85) -- the KMQ table does not, which is why both
+    # predecessors had to interpolate it -- and runs to "50k or more"
+    # (10k = 1.45, 50k = 1.50).
+    #
+    # THIS IS THE ZERO-BOARD-CHANGE MOVE, NOT THE FULL FIX. It lifts the
+    # bank's ceiling from 277-491 W to 513-771 W, where the range spans
+    # "the HF bypass on branch fix/hf-bypass-commutation-loop lands" (high
+    # end) or does not (low end). The bank is still the binding constraint
+    # there. The RECOMMENDED bank -- 6x LGW2E471MELB25 per half-bus, 12
+    # total, 470uF/250V D30x25, 2200 mA each -- reaches 1012-1314 W and
+    # retires the bank as the binding constraint in BOTH cases, at which
+    # point D1/D2's 30 A I_FRM binds instead (396-704 W deliverable). That
+    # bank needs a different footprint and a placement/creepage rework,
+    # specified in Sec 10 of the evidence doc and DELIBERATELY NOT APPLIED
+    # HERE: pcb/temper.kicad_pcb was not touched, and adding 8 unplaced
+    # parts would put source and board out of correspondence. Human decision.
+    #
+    # Capacitance is UNCHANGED at 1800uF x2 = 3600uF/half, deliberately.
+    # Inside the legal window (FFPC floor ~460uF/half at 950 W; film-bypass
+    # ripple-voltage floor ~550uF/half; BusDischarge ceiling 3793uF/half)
+    # the LF ripple current varies by under 2%. Capacitance VALUE is not the
+    # lever; parallel count and per-unit rating are. Evidence doc Sec 5.
     c_bus1 = new CapPolarized
     c_bus1.value = 1800uF
     c_bus1.voltage_rating = 250V
-    # Chemi-Con KMQ 250V snap-in, largest of the series (CAT E1001E, verified
-    # 2026-07-16). Two in parallel per half-bus replace the fictional
-    # 3300uF/250V EKZE part; 2x 2.7Arms@120Hz ripple rating per half.
-    c_bus1.mpn = "EKMQ251VSN182MA50S"
+    c_bus1.mpn = "LGW2E182MELC50"
     c_bus1.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     c_bus2 = new CapPolarized
     c_bus2.value = 1800uF
     c_bus2.voltage_rating = 250V
-    c_bus2.mpn = "EKMQ251VSN182MA50S"
+    c_bus2.mpn = "LGW2E182MELC50"
     c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
 
     # Parallel partners: 2x 1800uF per half-bus = 3600uF (>= the original
@@ -837,12 +877,12 @@ module PowerInput:
     c_bus1b = new CapPolarized
     c_bus1b.value = 1800uF
     c_bus1b.voltage_rating = 250V
-    c_bus1b.mpn = "EKMQ251VSN182MA50S"
+    c_bus1b.mpn = "LGW2E182MELC50"
     c_bus1b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     c_bus2b = new CapPolarized
     c_bus2b.value = 1800uF
     c_bus2b.voltage_rating = 250V
-    c_bus2b.mpn = "EKMQ251VSN182MA50S"
+    c_bus2b.mpn = "LGW2E182MELC50"
     c_bus2b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     r_bleed1 = new Resistor

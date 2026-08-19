@@ -54,7 +54,7 @@
 | R_RLY_GATE_PD | Relay Driver Gate Pulldown | CRCW0805100KFKEA | Vishay | 1 | 0805 | 100kΩ 5% 0.125W |
 | D_RLY_FLYBACK | Relay Coil Flyback Diode | SS14 | - | 1 | SMA | 40V 1A Schottky |
 | D1, D2 | Ultrafast Rectifier | MUR1560G | ON Semiconductor | 2 | TO-220 | 15A 600V 35ns |
-| C_BUS1, C_BUS1B, C_BUS2, C_BUS2B | Bus Capacitors | EKMQ251VSN182MA50S | United Chemi-Con | 4 | Radial Snap-In 35mm | 1800µF 250V 105°C — 2 in parallel per half-bus (3600µF/half) |
+| C_BUS1, C_BUS1B, C_BUS2, C_BUS2B | Bus Capacitors | LGW2E182MELC50 | Nichicon | 4 | Radial Snap-In 35mm | 1800µF 250V 105°C — 2 in parallel per half-bus (3600µF/half). **Reselected 2026-08-19** from EKMQ251VSN182MA50S: identical D35×50 snap-in footprint and value, so no PCB change, but **4050 mA** rms @105°C/120 Hz vs 2700 mA and 3000 h vs 2000 h endurance. Ratings read from Nichicon CAT.8100N. The incumbent fails its own ripple rating; see `docs/evidence/2026-08-19-bus-capacitance-selection.md`. Zero-board-change move, not the full fix — the recommended 6×`LGW2E471MELB25`/half bank needs placement rework and is NOT applied. |
 | R_BLEED1, R_BLEED2 | Bleeder Resistors | CRGP2512F22K | TE Connectivity | 2 | 2512 | 22kΩ 1% 2W — τ≈79s per half-bus, backstop for the active discharge in §1.3 |
 | Y_CAP_PE | PE Bonding Cap (Y1) | B81123C1562M000 | TDK | 1 | THT Radial Box, **22.5mm lead spacing** (L26.5×W7.0×H16.0mm) | 5.6nF 20% Y1 500VAC — doubler midpoint to PE. PD3 value/MPN swap 2026-08-13, see note |
 
