@@ -249,9 +249,24 @@ DEFAULT_DOMAIN_MANIFEST_PATH = Path("elec/domain_manifest.yaml")
 POWER_ISLAND_NETS: tuple[str, ...] = ("+3V3", "vcc", "+15V", "V_BUS_SENSE")
 
 
+def rail_zone_priorities(nets: tuple[str, ...]) -> dict[str, int]:
+    """KiCad zone priority per rail -- DISTINCT, and in *nets* order.
+
+    Every rail pours on the same layer (:data:`PLANE_LAYER`), so two rails
+    at one priority leave KiCad's fill order between them unspecified: it
+    falls out of the C++ filler's own iteration, not out of anything this
+    module writes. *nets* is already this module's seniority order (largest
+    pad count first; every later rail avoids every earlier rail's new
+    copper), so the priority makes that order explicit to the filler --
+    the rail other rails already yield to also wins the fill.
+    """
+    return {name: len(nets) - index for index, name in enumerate(nets)}
+
+
 __all__ = [
     "PLANE_LAYER",
     "POWER_ISLAND_NETS",
+    "rail_zone_priorities",
     "PowerIslandResult",
     "generate_power_islands_blocks",
     "generate_power_islands_content",
@@ -439,6 +454,26 @@ def generate_power_islands_blocks(
 
     results: dict[str, PowerIslandResult] = {}
 
+    # ZONE PRIORITY MUST BE DISTINCT PER RAIL (2026-08-19).
+    #
+    # Every rail's pour was emitted at priority 0. KiCad fills in descending
+    # priority and gives contested copper to whoever filled first; between
+    # two EQUAL-priority zones on one layer that order is unspecified, and
+    # every rail here pours on the same layer (In2.Cu). Measured across 6
+    # `kicad-cli pcb drc --refill-zones --save-board` runs of the routed
+    # production board, after the same defect was closed in
+    # `_zone_pour_stitch._emit_zone_pours`: the ONLY fill buckets still
+    # moving run to run were In2.Cu -- +3V3 6216.76..6222.69 mm^2, vcc
+    # 274.21..278.30, +15V 41.37..44.58 -- because `+15V`/`+3V3` sit 0.3992mm
+    # apart and `+3V3`/`vcc` 0.3995mm apart against a 0.5mm clearance, so the
+    # filler's mutual back-off is decided by whichever it reached first.
+    #
+    # `nets` is already this module's documented seniority order (largest pad
+    # count first; every later rail avoids every earlier rail's new copper),
+    # so the priority simply makes that order explicit to the filler: the
+    # rail that other rails already yield to also wins the fill.
+    rail_priority = rail_zone_priorities(nets)
+
     for net_name in nets:
         net_num = name_to_num.get(net_name)
         if net_num is None:
@@ -597,7 +632,7 @@ def generate_power_islands_blocks(
                             exterior,
                             holes,
                             0.25,
-                            0,
+                            rail_priority[net_name],
                             0.25,
                         )
                     )

@@ -141,3 +141,41 @@ class TestGeneratePowerIslandsOnRealBoard:
                             f"{nets[i]!r} and {nets[j]!r} zones overlap by "
                             f"{overlap:.4f}mm^2 on {PLANE_LAYER}"
                         )
+
+
+class TestRailZonePrioritiesAreDistinct:
+    """Every rail pours on the same layer, so equal priority leaves KiCad's
+    fill order between them unspecified.
+
+    Measured across 6 `kicad-cli pcb drc --refill-zones --save-board` runs of
+    the routed production board, with every rail still at priority 0: the
+    In2.Cu rails were the ONLY fill buckets whose area still moved run to run
+    (+3V3 6216.76..6222.69 mm^2, vcc 274.21..278.30, +15V 41.37..44.58).
+    `+15V`/`+3V3` sit 0.3992mm apart and `+3V3`/`vcc` 0.3995mm apart against
+    a 0.5mm clearance, so the filler's mutual back-off was decided by
+    whichever zone it happened to reach first.
+    """
+
+    def test_every_rail_gets_its_own_priority(self):
+        from temper_placer.router_v6._power_islands import (
+            POWER_ISLAND_NETS,
+            rail_zone_priorities,
+        )
+
+        priorities = rail_zone_priorities(POWER_ISLAND_NETS)
+        assert set(priorities) == set(POWER_ISLAND_NETS)
+        assert len(set(priorities.values())) == len(POWER_ISLAND_NETS)
+
+    def test_priority_follows_the_modules_own_seniority_order(self):
+        """`nets` is ordered largest-pad-count-first and every later rail
+        already avoids every earlier rail's copper; the fill must agree."""
+        from temper_placer.router_v6._power_islands import (
+            POWER_ISLAND_NETS,
+            rail_zone_priorities,
+        )
+
+        priorities = rail_zone_priorities(POWER_ISLAND_NETS)
+        ordered = [priorities[n] for n in POWER_ISLAND_NETS]
+        assert ordered == sorted(ordered, reverse=True), (
+            f"rail priority must descend with seniority, got {dict(zip(POWER_ISLAND_NETS, ordered))}"
+        )
