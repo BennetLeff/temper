@@ -1083,6 +1083,36 @@ scripts:
   - json
   - pathlib
   - sys
+- path: check_rust_coverage_illusions.py
+  purpose: 'CI gate: a Rust module that SHARES a Python module''s NAME is not a Rust module that IMPLEMENTS
+    it. check_unwired_kernels.py asks "does anything call this Rust symbol?" and check_orphaned_python_modules.py
+    asks "does anything import this Python module?"; both answer YES for a Rust file named after one Python
+    module while porting a different one, so neither could see the four 2026-08-18 incidents: astar_kernel_3d
+    (a 2D kernel, the _3d inherited from a retired JIT kernel) read as covering the N-layer Python; courtyard_check_stage.rs
+    read as covering core/courtyard.py when it ports deterministic/stages/courtyard_check.py; hypergraph_factory.rs
+    read as covering core/hypergraph.py when it ports extraction/hypergraph_factory.py; net_ordering.rs
+    read as covering the router''s ordering when the live A* path runs pure-Python _astar_ordering.py. This
+    gate asks about the PAIRING and decides it by call-path reachability -- a Rust file implements a Python
+    module only if that module references, in code, a symbol the Rust file owns (ownership followed through
+    pub fn definitions and the <name>_py boundary convention, not through the wrap_pyfunction! site, which
+    would collapse every crate onto its lib.rs). Name overlap is used only to choose what to report on.
+    Shrink-only ledger in .rust-coverage-illusion-inventory; NEW_ILLUSION and STALE_ENTRY both fail. --self-test
+    asserts all four motivating incidents are still flagged, against the ANALYSIS rather than the ledger,
+    so parking them in the ledger cannot silence the demonstration.'
+  owner: pipeline
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - collections
+  - json
+  - pathlib
+  - re
+  - sys
+  - tomllib
 - path: check_orphaned_python_modules.py
   purpose: 'CI gate: mirror image of check_unwired_kernels.py. That gate fails when a Rust kernel is
     registered but no Python code calls it; this one fails when a whole Python module under packages/*/src
