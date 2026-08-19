@@ -18,11 +18,11 @@
 //!   mod`/`mod` declaration in `lib.rs`), plus every `#[pyfunction]`/
 //!   `#[pymodule]` item declared directly in `lib.rs` itself
 //!   (`solve_topology_rust`, `audit_result`, `classify_component_rs`,
-//!   `parse_capacitance_rs`, `astar_kernel_3d_py`, `line_of_sight_py`,
+//!   `parse_capacitance_rs`, `astar_kernel_2d_py`, `line_of_sight_py`,
 //!   the `#[pymodule] fn temper_rust_router`).  None of these have
 //!   `#[test]` of their own that exercises anything beyond the pyo3
 //!   boundary itself -- the pure kernels underneath
-//!   (`classify_component_py`/`parse_capacitance_py`/`astar_kernel_3d`/
+//!   (`classify_component_py`/`parse_capacitance_py`/`astar_kernel_2d`/
 //!   etc.) already live in the registered `temper-rust-router-core`.
 //! * `mod proptests` in `lib.rs` (`f32s_from_le_bytes`'s round-trip
 //!   properties) uses a dev-dependency, which is not linked into the

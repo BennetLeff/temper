@@ -1,4 +1,11 @@
-//! A* kernel — U5 port of the retired JIT A* kernel (`_astar_kernel_3d`).
+//! **2D** A* kernel — U5 port of the retired JIT A* kernel (`_astar_kernel_3d`).
+//!
+//! `astar_kernel_2d` searches an 8-connected grid addressed by `rows`/`cols`
+//! only. It has no layer axis and no via move; the state is a single cell
+//! index. The retired JIT kernel it ports was called `_astar_kernel_3d`, and
+//! that inherited `_3d` suffix survived on the Rust port until it had misled
+//! four separate readers into recording this file as N-layer coverage it does
+//! not provide. The layer-aware search is the sibling [`crate::astar_nlayer`].
 //!
 //! Faithful mirror of the retired JIT kernel: same binary-heap sift logic
 //! (strict `<` in sift-down, `<=` break in sift-up), same 8-connected
@@ -57,7 +64,7 @@ fn octile_heuristic_f32(dx: i64, dy: i64) -> f32 {
     (hi + HEURISTIC_OCTILE_DIAG * lo) as f32
 }
 
-pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
+pub fn astar_kernel_2d(input: &AstarInput) -> AstarOutput {
     const INF: f32 = 1.0e30;
     let n_cells = input.rows * input.cols;
     let use_congestion = input.congestion.is_some() && input.congestion_weight > 0.0;
@@ -296,7 +303,7 @@ pub(crate) mod tests {
     fn test_finds_path_on_open_grid() {
         let validity = make_validity(5, 5, &[]);
         let input = input_for(5, 5, &validity, 0, 24);
-        let out = astar_kernel_3d(&input);
+        let out = astar_kernel_2d(&input);
         assert!(!out.path.is_empty());
         assert_eq!(*out.path.first().unwrap(), 0);
         assert_eq!(*out.path.last().unwrap(), 24);
@@ -306,7 +313,7 @@ pub(crate) mod tests {
     fn test_path_is_connected_and_acyclic() {
         let validity = make_validity(8, 8, &[]);
         let input = input_for(8, 8, &validity, 0, 63);
-        let out = astar_kernel_3d(&input);
+        let out = astar_kernel_2d(&input);
         let mut seen = std::collections::HashSet::new();
         for w in out.path.windows(2) {
             let (a, b) = (w[0], w[1]);
@@ -325,7 +332,7 @@ pub(crate) mod tests {
             validity[d] = 0;
         }
         let input = input_for(4, 4, &validity, 0, 15);
-        let out = astar_kernel_3d(&input);
+        let out = astar_kernel_2d(&input);
         assert!(out.path.is_empty());
     }
 
@@ -334,7 +341,7 @@ pub(crate) mod tests {
         let validity = make_validity(30, 30, &[]);
         let mut input = input_for(30, 30, &validity, 0, 899);
         input.max_iterations = 10;
-        let out = astar_kernel_3d(&input);
+        let out = astar_kernel_2d(&input);
         assert!(out.path.is_empty());
         assert!(out.iterations <= 10);
     }
@@ -349,8 +356,8 @@ pub(crate) mod tests {
         cong[4 * 9 + 5] = 500.0;
         let mut input = input_for(9, 9, &validity, 0, 80);
         input.congestion = Some(&cong);
-        let with_cong = astar_kernel_3d(&input);
-        let plain = astar_kernel_3d(&input_for(9, 9, &validity, 0, 80));
+        let with_cong = astar_kernel_2d(&input);
+        let plain = astar_kernel_2d(&input_for(9, 9, &validity, 0, 80));
         assert!(!with_cong.path.is_empty());
         assert_eq!(*with_cong.path.first().unwrap(), 0);
         assert_eq!(*with_cong.path.last().unwrap(), 80);

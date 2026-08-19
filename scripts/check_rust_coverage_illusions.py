@@ -9,10 +9,12 @@ name while the live Python path ran somewhere else entirely. Every one was
 mistaken for coverage that did not exist -- repeatedly, and including by the
 agent coordinating the work:
 
-1. ``packages/temper-rust-router-core/src/astar.rs::astar_kernel_3d`` is,
-   despite the name, a **2D** 8-connected grid kernel; the ``_3d`` suffix is
-   inherited from a retired JIT kernel. Its own sibling says so
-   (``astar_nlayer.rs:4-7``). The N-layer path stayed Python until #1346, and
+1. ``packages/temper-rust-router-core/src/astar.rs`` held a kernel named
+   ``astar_kernel_3d`` that is, despite the name, a **2D** 8-connected grid
+   kernel; the ``_3d`` suffix was inherited from a retired JIT kernel. Its own
+   sibling said so (``astar_nlayer.rs:4-7``). RESOLVED by renaming the symbol
+   to ``astar_kernel_2d`` (pyo3 boundary ``astar_kernel_2d_py``); the pairing
+   below is still flagged because the *Python* side is unchanged. The N-layer path stayed Python until #1346, and
    ``router_v6/astar_core.py`` -- still live, called by
    ``_corridor_backbone.py:523`` for the ground-plane and power-island
    backbones -- calls no Rust at all.
@@ -30,7 +32,7 @@ agent coordinating the work:
    ``_lex_order`` and never reads it.)
 
 Existing gates could not see any of this. ``check_unwired_kernels.py`` asks
-"is this Rust symbol called by anything?" -- ``astar_kernel_3d_py``,
+"is this Rust symbol called by anything?" -- ``astar_kernel_2d_py``,
 ``run_courtyard_check``, the ``HypergraphFactory`` pyclass and ``order_nets_py``
 are all called by *something*, so all four pass. ``check_orphaned_python_modules.py``
 asks "is this Python module imported by anything?" -- all four Python modules
@@ -324,13 +326,21 @@ def reachable_modules(modules: dict[str, Path]) -> tuple[set[str], list[str]]:
     """Breadth-first closure of the import graph from the production entry points."""
     eps, trace = entry_points(modules)
     seen: set[str] = set()
-    queue: deque[str] = deque(eps)
+    # `eps` and `imports_of` are SETS, so their iteration order varies with
+    # PYTHONHASHSEED. That matters here because the walk-up below breaks only
+    # on a candidate that is `not in seen` -- so whether an ancestor package
+    # gets enqueued depends on VISIT ORDER. Measured on an unchanged tree,
+    # this gate reported 362 or 363 production-reachable modules depending on
+    # the seed alone. A shrink-only gate that hard-fails on NEW_ILLUSION and
+    # STALE_ENTRY cannot have a seed-dependent denominator; sorting both
+    # iterations pins the traversal without changing its semantics.
+    queue: deque[str] = deque(sorted(eps))
     while queue:
         dotted = queue.popleft()
         if dotted in seen or dotted not in modules:
             continue
         seen.add(dotted)
-        for imp in imports_of(modules[dotted], dotted):
+        for imp in sorted(imports_of(modules[dotted], dotted)):
             cand = imp
             while cand:
                 if cand in modules and cand not in seen:
@@ -356,7 +366,7 @@ def rust_registrations() -> dict[str, set[str]]:
     """``.rs`` file (repo-relative) -> the Python-visible symbols it OWNS.
 
     "Owns" is not "registers", and the difference is the whole gate. Most
-    crates centralise registration in ``lib.rs``: ``astar_kernel_3d_py`` and
+    crates centralise registration in ``lib.rs``: ``astar_kernel_2d_py`` and
     ``run_courtyard_check`` are both ``wrap_pyfunction!``'d from a ``lib.rs``
     while living in ``astar.rs`` and ``courtyard_check_stage.rs``. Attributing
     a symbol to its registration site collapses every crate onto its
@@ -369,8 +379,8 @@ def rust_registrations() -> dict[str, set[str]]:
       * declares the kernel it wraps. This repo's pyo3 convention is
         ``<name>_py`` for the boundary and ``<name>`` for the implementation
         -- often in a different crate entirely
-        (``astar_kernel_3d_py`` in ``temper-rust-router/src/lib.rs`` wraps
-        ``astar_kernel_3d`` in ``temper-rust-router-core/src/astar.rs``).
+        (``astar_kernel_2d_py`` in ``temper-rust-router/src/lib.rs`` wraps
+        ``astar_kernel_2d`` in ``temper-rust-router-core/src/astar.rs``).
         Following that one hop is what makes ``astar.rs`` visible as
         ``astar_core.py``'s namesake.
     """
@@ -393,6 +403,14 @@ def rust_registrations() -> dict[str, set[str]]:
     for rel, text in sources:
         renames.update(_renames_in(text, PYCLASS_NAME, r"pub\s+struct\s+"))
         renames.update(_renames_in(text, PYFUNCTION_NAME, r"pub\s+fn\s+"))
+        # `#[pyfunction]` + a SEPARATE `#[pyo3(name = "...")]` line is the
+        # dominant rename form in this repo (51 symbols across 15 files, vs 8
+        # using the inline `#[pyfunction(name = ...)]` form above). PYO3_NAME
+        # was compiled but never applied, so every one of those symbols was
+        # indexed under its RUST name, no Python caller could ever match it,
+        # and the file was reported both as "called by nobody" and as an
+        # uncalled namesake of the very module that calls it every run.
+        renames.update(_renames_in(text, PYO3_NAME, r"pub\s+fn\s+"))
         for m in RUST_DEF.finditer(text):
             declared_in.setdefault(m.group(1), set()).add(rel)
 
@@ -637,8 +655,9 @@ KNOWN_INCIDENTS: tuple[tuple[str, str, str], ...] = (
     (
         "temper_placer.router_v6.astar_core",
         "packages/temper-rust-router-core/src/astar.rs",
-        "astar_kernel_3d is a 2D kernel; astar_core.py's _astar_search is live "
-        "pure Python called from _corridor_backbone.py:523",
+        "astar.rs's kernel (renamed astar_kernel_3d -> astar_kernel_2d) is 2D; "
+        "astar_core.py's _astar_search is live pure Python called from "
+        "_corridor_backbone.py:523",
     ),
     (
         "temper_placer.core.courtyard",

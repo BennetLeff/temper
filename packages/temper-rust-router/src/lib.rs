@@ -38,7 +38,7 @@ mod types_py_bridge;
 #[cfg(feature = "wasm-registry")]
 pub mod wasm_test_registry;
 
-/// The little-endian f32 decode shared by [`py::astar_kernel_3d_py`]'s
+/// The little-endian f32 decode shared by [`py::astar_kernel_2d_py`]'s
 /// congestion/thermal buffers and `proptests` below.  Stays outside `py`
 /// (unlike every other item past this point) because it has zero pyo3
 /// coupling and is the thing `proptests` actually exercises.
@@ -120,7 +120,7 @@ mod proptests {
 // `--no-default-features` (`wasm32`) build --
 // `scripts/gen_wasm_test_registry.py --crate temper-rust-router --census`
 // prints the full module census.  `classify_component_py`/
-// `parse_capacitance_py`/`astar_kernel_3d`/etc. -- the pure kernels these
+// `parse_capacitance_py`/`astar_kernel_2d`/etc. -- the pure kernels these
 // wrappers call -- already live in the registered `temper-rust-router-core`;
 // nothing pure is lost by gating this module away as a whole.
 #[cfg(feature = "python")]
@@ -542,7 +542,7 @@ mod py {
         m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
         m.add_function(wrap_pyfunction!(classify_component_rs, m)?)?;
         m.add_function(wrap_pyfunction!(parse_capacitance_rs, m)?)?;
-        m.add_function(wrap_pyfunction!(astar_kernel_3d_py, m)?)?;
+        m.add_function(wrap_pyfunction!(astar_kernel_2d_py, m)?)?;
         m.add_function(wrap_pyfunction!(line_of_sight_py, m)?)?;
 
         // Wave-4 Phase B: the router_v6/net_ordering kernels.
@@ -586,7 +586,7 @@ mod py {
         clippy::too_many_arguments,
         reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
     )]
-    fn astar_kernel_3d_py(
+    fn astar_kernel_2d_py(
         start_idx: i64,
         goal_idx: i64,
         rows: usize,
@@ -607,7 +607,7 @@ mod py {
         let thermal = thermal_bytes.map(|b| crate::f32s_from_le_bytes(&b, n_cells));
         // SAFETY: grid_bytes / corridor_mask_bytes are Vec<u8> owned by
         // this frame; the AstarInput borrows them for the duration of
-        // astar_kernel_3d and they are dropped when this frame returns.
+        // astar_kernel_2d and they are dropped when this frame returns.
         let grid_slice: Option<&[i8]> = grid_bytes.as_ref().map(|b| {
             // Reinterpret the u8 bytes as i8 — both are single-byte, no
             // alignment issues, and the source is a contiguous Vec<u8>.
@@ -616,7 +616,7 @@ mod py {
             unsafe { std::slice::from_raw_parts(b.as_ptr() as *const i8, b.len()) }
         });
         let corridor_slice: Option<&[u8]> = corridor_mask_bytes.as_deref();
-        let out = temper_rust_router_core::astar::astar_kernel_3d(&AstarInput {
+        let out = temper_rust_router_core::astar::astar_kernel_2d(&AstarInput {
             start_idx,
             goal_idx,
             rows,

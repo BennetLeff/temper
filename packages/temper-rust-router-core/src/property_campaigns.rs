@@ -2,7 +2,7 @@
 // `temper-rust-router-core` kernels: the geographic pruning predicate
 // (`pruning::is_candidate_edge`), the constraint rewrite/simplification
 // fixpoint (`combinator::rewrite::rewrite`), the grid A* pathfinder
-// (`astar::astar_kernel_3d`), the SAT-CNF encoder (`encoding::encode_to_cnf`),
+// (`astar::astar_kernel_2d`), the SAT-CNF encoder (`encoding::encode_to_cnf`),
 // and the CPython-compatible capacitance-unit parser
 // (`loop_extractor::classify_py::parse_capacitance_py`).
 //
@@ -662,11 +662,11 @@ pub(crate) fn rw_conflict_order_independent_impl(seed: u64) {
 }
 
 // ===========================================================================
-// Kernel 3: astar.rs -- `astar_kernel_3d`, the 8-connected grid A* used for
+// Kernel 3: astar.rs -- `astar_kernel_2d`, the 8-connected grid A* used for
 // congestion/thermal-aware routing.
 // ===========================================================================
 
-use crate::astar::{astar_kernel_3d, AstarInput};
+use crate::astar::{astar_kernel_2d, AstarInput};
 
 /// Generous relative to any grid this module generates (<=10x10=100 cells),
 /// so no property below can be confounded by hitting the iteration cap --
@@ -727,7 +727,7 @@ fn as_input<'a>(rows: usize, cols: usize, validity: &'a [u8], start: i64, goal: 
     }
 }
 
-/// `astar_kernel_3d`'s documented 8-connected neighbor order (module doc:
+/// `astar_kernel_2d`'s documented 8-connected neighbor order (module doc:
 /// "E, SE, S, SW, W, NW, N, NE"), as a `(dcol, drow) -> direction index`
 /// lookup independent of the kernel's own internal `match` -- this is the
 /// crate's committed external contract (the module doc states the order
@@ -748,7 +748,7 @@ fn as_direction_index(dcol: i64, drow: i64) -> Option<usize> {
     }
 }
 
-/// `astar_kernel_3d` must be stable under re-running: calling it twice on
+/// `astar_kernel_2d` must be stable under re-running: calling it twice on
 /// byte-identical input must produce a byte-identical `AstarOutput`. There
 /// is no hidden state, clock, or entropy in its signature, so this is a
 /// direct claim, not an assumption -- and it is the same "stable under
@@ -763,15 +763,15 @@ fn as_direction_index(dcol: i64, drow: i64) -> Option<usize> {
 pub(crate) fn as_determinism_impl(seed: u64) {
     let (rows, cols, validity, start, goal, _blocked) = as_gen_base(seed);
     let input = as_input(rows, cols, &validity, start, goal);
-    let out1 = astar_kernel_3d(&input);
-    let out2 = astar_kernel_3d(&input);
+    let out1 = astar_kernel_2d(&input);
+    let out2 = astar_kernel_2d(&input);
     assert_eq!(
         out1.path, out2.path,
-        "astar_kernel_3d returned different paths for the same input: seed={seed}"
+        "astar_kernel_2d returned different paths for the same input: seed={seed}"
     );
     assert_eq!(
         out1.iterations, out2.iterations,
-        "astar_kernel_3d returned different iteration counts for the same input: seed={seed}"
+        "astar_kernel_2d returned different iteration counts for the same input: seed={seed}"
     );
 }
 
@@ -781,7 +781,7 @@ pub(crate) fn as_determinism_impl(seed: u64) {
 /// (checked via the kernel's own documented, fixed direction table --
 /// [`as_direction_index`] -- not by re-deriving costs or re-running the
 /// search), stays in-bounds, and never revisits a cell. This is checked
-/// independently of `astar_kernel_3d`'s own heap/cost machinery.
+/// independently of `astar_kernel_2d`'s own heap/cost machinery.
 ///
 /// Bug this would catch: an off-by-one in the neighbor delta table (e.g.
 /// swapping the SE/SW deltas), a validity index computed from the wrong
@@ -790,7 +790,7 @@ pub(crate) fn as_determinism_impl(seed: u64) {
 pub(crate) fn as_path_validity_impl(seed: u64) {
     let (rows, cols, validity, start, goal, _blocked) = as_gen_base(seed);
     let input = as_input(rows, cols, &validity, start, goal);
-    let out = astar_kernel_3d(&input);
+    let out = astar_kernel_2d(&input);
     if out.path.is_empty() {
         return;
     }
@@ -836,7 +836,7 @@ pub(crate) fn as_path_validity_impl(seed: u64) {
 /// Reachability is monotonic in the validity tensor: if a path exists under
 /// `validity`, one must still exist under any strict superset `validity'`
 /// (every bit set in `validity` also set in `validity'`) with the same
-/// grid/start/goal, because the graph `astar_kernel_3d` searches is a
+/// grid/start/goal, because the graph `astar_kernel_2d` searches is a
 /// literal subgraph of the one it searches under `validity'` -- the exact
 /// same path is still available, so a complete search (generous
 /// `max_iterations`, see [`AS_MAX_ITERATIONS`]) cannot fail to find *a*
@@ -850,7 +850,7 @@ pub(crate) fn as_path_validity_impl(seed: u64) {
 pub(crate) fn as_monotonic_reachability_impl(seed: u64) {
     let (rows, cols, validity, start, goal, blocked) = as_gen_base(seed);
     let base_input = as_input(rows, cols, &validity, start, goal);
-    let base_out = astar_kernel_3d(&base_input);
+    let base_out = astar_kernel_2d(&base_input);
     if base_out.path.is_empty() {
         return;
     }
@@ -867,10 +867,10 @@ pub(crate) fn as_monotonic_reachability_impl(seed: u64) {
     }
 
     let wider_input = as_input(rows, cols, &wider_validity, start, goal);
-    let wider_out = astar_kernel_3d(&wider_input);
+    let wider_out = astar_kernel_2d(&wider_input);
     assert!(
         !wider_out.path.is_empty(),
-        "astar_kernel_3d lost reachability after obstacles were only REMOVED (a strict \
+        "astar_kernel_2d lost reachability after obstacles were only REMOVED (a strict \
          superset of valid moves): seed={seed} start={start} goal={goal} rows={rows} \
          cols={cols}"
     );

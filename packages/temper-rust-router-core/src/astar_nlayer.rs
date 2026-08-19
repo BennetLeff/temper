@@ -2,7 +2,7 @@
 //! and `_route_segment_3d` (router_v6 Tier 3).
 //!
 //! This is a **sibling** of [`crate::astar`], not a replacement. That module's
-//! `astar_kernel_3d` is, despite its name, a **2D** 8-connected grid kernel
+//! `astar_kernel_2d` is, despite its name, a **2D** 8-connected grid kernel
 //! (the `_3d` suffix is inherited from the retired JIT kernel); it is the live
 //! primary search under Tiers 1 and 2 of `_astar_nlayer._astar_route_nlayer`
 //! and its semantics are deliberately untouched here. This module supplies the
@@ -12,7 +12,7 @@
 //!
 //! # Bit-exact f64 parity
 //!
-//! Unlike `astar_kernel_3d` — which computes in `f32` and is validated against
+//! Unlike `astar_kernel_2d` — which computes in `f32` and is validated against
 //! its Python oracle on *invariants* only, because the f64→f32 heuristic cast
 //! can reorder heap ties — this kernel is held to **bit-exact f64 parity** with
 //! `_astar_search_3d`. Nothing here forces a narrower type, and this is the
@@ -49,7 +49,7 @@
 //!
 //! * **The closed set.** `_astar_search_3d` has none and may re-expand a node;
 //!   adding one would be an optimisation that changes which entries are popped,
-//!   so it is omitted to preserve parity. (`astar_kernel_3d` *does* have one —
+//!   so it is omitted to preserve parity. (`astar_kernel_2d` *does* have one —
 //!   another reason these are separate kernels.)
 //! * **Via marking.** Python marks vias onto every grid inside
 //!   `_astar_search_3d` before returning. That mutation is performed by the

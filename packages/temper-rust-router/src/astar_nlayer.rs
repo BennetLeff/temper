@@ -4,7 +4,7 @@
 //!
 //! Occupancy planes cross the FFI as one concatenated little-endian int8 blob
 //! of `n_layers * height * width` bytes, layer-major. That mirrors the byte
-//! convention `astar_kernel_3d_py` / `line_of_sight_py` already use (this repo
+//! convention `astar_kernel_2d_py` / `line_of_sight_py` already use (this repo
 //! has no `numpy` crate, so there is no zero-copy array path to follow), while
 //! keeping it to a single buffer per call rather than one per layer.
 //!
@@ -32,7 +32,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 ///
 /// SAFETY: reinterprets the `u8` blob as `i8` — both single-byte, no alignment
 /// concern, and the blob is a contiguous `Vec` owned by the caller's frame.
-/// Same pattern `astar_kernel_3d_py`'s `grid_bytes` uses.
+/// Same pattern `astar_kernel_2d_py`'s `grid_bytes` uses.
 #[allow(clippy::too_many_arguments)]
 fn decode_planes<'a>(
     planes: &'a [u8],
