@@ -57,6 +57,7 @@ from __future__ import annotations
 import heapq
 import logging
 import math
+from collections.abc import Callable
 from pathlib import Path
 
 from shapely.geometry import LineString, Point, Polygon
@@ -504,6 +505,7 @@ def _find_via_drop_point(
     other_copper: Polygon | None,
     board_polygon: Polygon,
     pour_region: Polygon | None = None,
+    stub_clear: Callable[[tuple[float, float], tuple[float, float]], bool] | None = None,
 ) -> tuple[tuple[float, float] | None, bool]:
     """Find a point to drop a via that clears every existing hole (by
     ``MIN_HOLE_EDGE_GAP_MM``, edge to edge), the HV keepout, other nets'
@@ -521,6 +523,75 @@ def _find_via_drop_point(
     behaviour (a via outside the pour can still be joined by the F.Cu MST
     backbone, so connectivity never regresses -- the plane just does not
     add to it).
+
+    ``stub_clear`` (optional, 2026-08-19): ``(pad_pos, candidate) -> bool``,
+    True when the caller can actually draw the pad-to-via stub for that
+    candidate. **This is the ordering fix.** Without it this search picked
+    a via position on its own criteria (hole / HV keepout / foreign copper
+    / pour containment, all of the VIA'S OWN footprint), the caller
+    emitted the via, and only THEN tested the stub -- so a candidate whose
+    stub was blocked still won the search and still got a via. Measured on
+    the 2026-08-19 In1.Cu backbone route (a71765efe): of gnd's 45 offset
+    drop vias only 11 kept their stub, and 56 of 88 gnd pads ended with no
+    conductor of any kind at the pad.
+
+    Passing this predicate makes the ring search PREFER a candidate whose
+    stub can be drawn, falling back to the first otherwise-legal
+    candidate only when no such candidate exists. It relaxes no test: the
+    caller's stub check is unchanged and still fail-closed, it has simply
+    also run inside the search, before the via position is committed.
+
+    Two measured facts fix this as a preference rather than a hard gate,
+    and both contradict the obvious design -- record them here so the
+    obvious design is not re-attempted:
+
+    **1. Declining the via is NOT free, because the via is not useless.**
+    "A via whose stub was dropped has copper on neither side" is false on
+    this board. Measured on the a71765efe route: of gnd's 61 drop vias,
+    56 carry an In1.Cu backbone segment and only 4 touch no copper at
+    all. A stub-less via still joins the plane to itself; it just does
+    not join its own pad. A variant of this function that returned
+    ``None`` in that case declined 31 of 61 gnd vias and moved
+    ``unconnected_items`` 304 -> 318 (gnd's own share 48 -> 62) while
+    rescuing zero pads -- the In1.Cu backbone fell from 294 segments to
+    196 and gnd's copper fragmented. Hence the fallback.
+
+    **2. No search can rescue a blocked stub, and this is provable, not
+    just unmeasured.** The stub is buffered by
+    ``STITCH_TRACE_WIDTH_MM / 2`` (0.5mm) and the via by
+    ``VIA_SIZE_MM / 2`` (0.5mm), and the stub's own line starts AT the
+    pad centre -- so the stub footprint always CONTAINS the via footprint
+    the pad centre would have had. A drawable stub therefore implies a
+    copper-clear pad centre, for every candidate, at every radius, on
+    every bearing. Contrapositive: once the pad centre is blocked by
+    copper (rather than by a drilled hole or by falling outside the
+    pour), every stub out of that pad is blocked too, and no amount of
+    extra ring radii, finer angular steps, bent stubs or A* changes it.
+    Measured against that proof on the production route: for all 31 gnd
+    pads whose stub was dropped, a 360-bearing x 0.3-3.0mm sweep found
+    zero drawable stubs -- ``maxreach = 0.00mm`` in every direction on
+    every one of them. At a hypothetical 0.25mm stub width, 15 of the
+    same 31 open up. The binding constraint is the stub's WIDTH, not the
+    search.
+
+    So this predicate's real value is correctness of ordering, not a
+    number: a candidate that can be joined to its pad is now always
+    preferred to one that cannot, which is what the caller wanted all
+    along. On this board that preference changes nothing -- the routed
+    output is byte-identical to a71765efe's -- because the set it prefers
+    from is empty exactly where it matters.
+
+    **Where the pads actually are, for whoever picks this up next.** Of
+    the 31 gnd pads with a dropped stub, re-running the same sweep against
+    F.Cu copper ALONE (rather than the production obstacle set, which is
+    every layer's foreign copper unioned together) opens 8 of them at the
+    full 1.0mm width. The stub is F.Cu-only copper; the other 23 are
+    blocked by F.Cu itself, so for those F.Cu really is full. Two levers
+    exist and neither is a search: make the stub's obstacle set match the
+    layer the stub is on (worth 8), or narrow the stub (worth 15 at
+    0.25mm). Both were deliberately left alone here -- the first is a
+    fail-closed test and this change is not permitted to weaken one, the
+    second is an ampacity decision.
 
     Returns ``(point, needs_stub)``: ``needs_stub`` is True when the
     returned point is not *pad_pos* itself, telling the caller to emit a
@@ -551,8 +622,18 @@ def _find_via_drop_point(
         return True
 
     def _search(*, require_pour: bool) -> tuple[tuple[float, float] | None, bool]:
+        # pad_pos itself needs no stub (the via lands ON the pad), so
+        # stub_clear does not gate it -- only the offset candidates.
         if _clear(pad_pos, require_pour=require_pour):
             return pad_pos, False
+        # Radius-major: the shortest usable offset wins, so the stub that
+        # has to be drawn is the shortest one available. Every candidate
+        # at radius r on bearing theta has a stub that is exactly the
+        # radial segment of length r on that bearing, so a bearing blocked
+        # near the pad is blocked at every radius -- which is why the
+        # ANGULAR resolution, not the radius list, is the lever that finds
+        # a drawable stub (see VIA_OFFSET_RING_STEPS).
+        fallback: tuple[float, float] | None = None
         for radius in VIA_OFFSET_RING_RADII_MM:
             for i in range(VIA_OFFSET_RING_STEPS):
                 angle = 2.0 * math.pi * i / VIA_OFFSET_RING_STEPS
@@ -560,9 +641,17 @@ def _find_via_drop_point(
                     pad_pos[0] + radius * math.cos(angle),
                     pad_pos[1] + radius * math.sin(angle),
                 )
-                if _clear(cand, require_pour=require_pour):
+                if not _clear(cand, require_pour=require_pour):
+                    continue
+                if stub_clear is None or stub_clear(pad_pos, cand):
                     return cand, True
-        return None, False
+                # Legal for the via's own footprint, but the pad cannot be
+                # joined to it. Keep looking for one that CAN be joined --
+                # but remember this, because a via here is not worthless
+                # (see the fallback note below).
+                if fallback is None:
+                    fallback = cand
+        return (fallback, True) if fallback is not None else (None, False)
 
     if pour_region is not None:
         found = _search(require_pour=True)
@@ -628,6 +717,7 @@ class GroundPlaneResult:
         via_skipped_through_hole_count: int = 0,
         via_offset_count: int = 0,
         via_unresolved_conflict_count: int = 0,
+        via_offset_stub_dropped_count: int = 0,
         mst_edges_astar_routed_count: int = 0,
         mst_edges_fallback_count: int = 0,
     ) -> None:
@@ -657,6 +747,18 @@ class GroundPlaneResult:
         # MST backbone's keepout detour; reported honestly rather than
         # emitting a known-colliding via.
         self.via_unresolved_conflict_count = via_unresolved_conflict_count
+        # Offset drop vias that WERE emitted but whose pad-to-via stub
+        # could not be drawn: the via joins the In1.Cu plane, the pad
+        # does not join the via. Counted separately from
+        # via_unresolved_conflict_count because they redirect to
+        # different work -- that one means the DRILL has nowhere to go
+        # (holes / HV keepout / outside the pour), this one means F.Cu
+        # copper reaches the pad CENTRE, which by _find_via_drop_point's
+        # stub-width proof makes the pad unreachable by ANY stub at
+        # STITCH_TRACE_WIDTH_MM, from any via position, on any bearing.
+        # Summing them into one 'skipped' would hide exactly the
+        # distinction that says which lever to pull.
+        self.via_offset_stub_dropped_count = via_offset_stub_dropped_count
         # MST edges that got a real, corridor-clean A* path (avoiding
         # both the HV keepout AND other nets' existing F.Cu copper) vs.
         # edges where no window (up to the whole board) found one, so
@@ -680,6 +782,7 @@ class GroundPlaneResult:
             f"via_skipped_through_hole={self.via_skipped_through_hole_count}, "
             f"via_offset={self.via_offset_count}, "
             f"via_unresolved_conflict={self.via_unresolved_conflict_count}, "
+            f"via_offset_stub_dropped={self.via_offset_stub_dropped_count}, "
             f"mst_edges_astar_routed={self.mst_edges_astar_routed_count}, "
             f"mst_edges_fallback={self.mst_edges_fallback_count})"
         )
@@ -1125,10 +1228,75 @@ def generate_ground_plane_blocks(
     # position first, then a small local offset search; if the offset
     # differs from the pad position a same-net stub segment joins them so
     # connectivity is unaffected.
+    #
+    # ORDERING FIX (2026-08-19). "Connectivity is unaffected" was an
+    # assumption, and on this board it was false. The stub is real
+    # STITCH_TRACE_WIDTH_MM-wide F.Cu copper and the drop-point search
+    # only ever cleared the VIA'S OWN footprint, so the stub was tested
+    # after the fact and dropped when blocked. On congested F.Cu only 11
+    # of ~45 offset stubs survived -- and a via whose stub was dropped has
+    # copper on NEITHER side of the join, so it is simultaneously a
+    # via_dangling finding and an unconnected_items finding: the same
+    # physical non-connection, counted twice. Measured on a71765efe: 53 of
+    # 88 gnd pads had no conductor at the pad at all, and 63 dangling vias
+    # remained.
+    #
+    # The predicate below is now passed INTO the ring search, so a
+    # candidate whose stub cannot be drawn is passed over in favour of one
+    # whose stub can. Nothing about the test itself changed -- it is the
+    # same buffered-footprint intersects test against the same keepout and
+    # the same foreign-copper union, and it is still fail-closed. Only its
+    # position in the ordering changed.
+    #
+    # MEASURED OUTCOME, so nobody re-litigates this: on this board the
+    # reordering changes nothing, and that is the finding. All 31 of the
+    # dropped stubs are unrescuable BY CONSTRUCTION, not by bad luck --
+    # the stub's half-width equals the via's radius, so a drawable stub
+    # implies a copper-clear pad centre, and every one of these 31 pads
+    # has foreign copper reaching its centre. A 360-bearing x 0.3-3.0mm
+    # sweep confirms it: maxreach = 0.00mm on all 31. See
+    # _find_via_drop_point's ``stub_clear`` docs for the argument and the
+    # numbers. The lever that WOULD move these pads is the stub's 1.0mm
+    # width (15 of the 31 open up at 0.25mm), which is an ampacity
+    # decision and is deliberately not made here.
     via_skipped_through_hole = 0
     via_offset_count = 0
     via_unresolved_conflict = 0
+    via_offset_stub_dropped = 0
     via_radius_mm = VIA_SIZE_MM / 2.0
+
+    # `prep`ared copies: the stub predicate runs up to
+    # len(VIA_OFFSET_RING_RADII_MM) * VIA_OFFSET_RING_STEPS times per pad
+    # instead of once, against unions with hundreds of parts. Preparing
+    # them builds the STRtree index once and makes each `intersects` a
+    # bounded query. Same geometry, same answers -- purely how the same
+    # predicate is evaluated.
+    from shapely.prepared import prep as _prep
+
+    _prep_keepout = _prep(keepout) if keepout_established and keepout is not None else None
+    _prep_via_avoid = (
+        _prep(via_avoid_copper)
+        if via_avoid_copper is not None and not via_avoid_copper.is_empty
+        else None
+    )
+
+    def _stub_blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
+        """Is the pad-to-via stub undrawable between these two points?
+
+        The stub is real STITCH_TRACE_WIDTH_MM-wide copper, so the line is
+        buffered by its own half-width before the intersects test -- the
+        same discipline (and the same reason) as the MST backbone's own
+        ``_blocked``. Fail-closed: anything this returns True for is never
+        emitted.
+        """
+        footprint = LineString([p1, p2]).buffer(STITCH_TRACE_WIDTH_MM / 2.0)
+        if _prep_keepout is not None and _prep_keepout.intersects(footprint):
+            return True
+        return _prep_via_avoid is not None and _prep_via_avoid.intersects(footprint)
+
+    def _stub_drawable(pad_pt: tuple[float, float], via_pt: tuple[float, float]) -> bool:
+        return not _stub_blocked(pad_pt, via_pt)
+
     # The nodes the MST backbone will actually span, in the order they are
     # established here. NOT ``gnd_positions``: the backbone runs on
     # BACKBONE_LAYER (In1.Cu), and an In1.Cu point only reaches this net's
@@ -1169,6 +1337,7 @@ def generate_ground_plane_blocks(
             other_copper=via_avoid_copper,
             board_polygon=board_polygon,
             pour_region=pour_region,
+            stub_clear=_stub_drawable,
         )
         if drop_point is None:
             via_unresolved_conflict += 1
@@ -1199,34 +1368,52 @@ def generate_ground_plane_blocks(
         existing_holes.append((vx, vy, via_radius_mm))
         if needs_stub:
             via_offset_count += 1
-            # The stub itself is real 1.0mm-wide F.Cu copper and was not
-            # covered by the via-drop point search (which only clears the
-            # via's own footprint): measured (2026-08-16 route v2), 6 of
-            # the residual 18 shorting_items were gnd stubs running from a
-            # pad to its offset via straight across an adjacent other-net
-            # pad (rtd_force_p/rtd_sense_p on U8, io0 on SW2, s1, refin_n,
-            # vcc) that the via ring search dodged but the stub line did
-            # not. Gate the stub with the same buffered-footprint check as
-            # the backbone fallback; a blocked stub is skipped fail-closed
-            # (the via stays; the pad just isn't stub-joined, a labelled
-            # connectivity cost on this net).
-            stub_footprint = LineString([(x, y), (vx, vy)]).buffer(
-                STITCH_TRACE_WIDTH_MM / 2.0
-            )
-            stub_blocked = (
-                keepout_established and stub_footprint.intersects(keepout)
-            ) or (
-                via_avoid_copper is not None
-                and not via_avoid_copper.is_empty
-                and stub_footprint.intersects(via_avoid_copper)
-            )
-            if stub_blocked:
+            # The stub is real 1.0mm-wide F.Cu copper and this gate is
+            # unchanged and still fail-closed: measured (2026-08-16 route
+            # v2), 6 of the residual 18 shorting_items were gnd stubs
+            # running from a pad to its offset via straight across an
+            # adjacent other-net pad (rtd_force_p/rtd_sense_p on U8, io0
+            # on SW2, s1, refin_n, vcc) that the via ring search dodged
+            # but the stub line did not.
+            #
+            # What changed is that the SAME predicate now also ran inside
+            # the drop-point search, as ``stub_clear``. So reaching here
+            # with a blocked stub no longer means "nobody looked" -- it
+            # means the search found no joinable candidate at all for this
+            # pad and fell back to a legal-but-unjoinable one. See
+            # _find_via_drop_point's ``stub_clear`` notes for the proof
+            # that no search can do better once F.Cu copper reaches the
+            # pad centre, and for why falling back beats declining. The
+            # via still joins the In1.Cu plane; the unjoined pad is the
+            # labelled, counted cost.
+            if _stub_blocked((x, y), (vx, vy)):
+                via_offset_stub_dropped += 1
                 continue
             new_blocks.append(
                 f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
                 f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{STUB_LAYER}")'
                 f" (net {gnd_net_num}) (tstamp \"{_next_tstamp()}\"))"
             )
+
+    # One line that says what the drop-via pass actually achieved, since
+    # the production caller (_adapter_convert) discards GroundPlaneResult.
+    # Every gnd pad is accounted for by exactly one of these outcomes.
+    logger.warning(
+        "generate_ground_plane_content: %d gnd pad position(s) -> %d drop "
+        "via(s), of which %d are offset from their pad; %d of those offsets "
+        "got a stub back to the pad and %d could not (F.Cu copper reaches "
+        "the pad centre, so no stub can leave it at %.2fmm width -- those "
+        "vias join the plane but not their pad). %d through-hole pad(s) "
+        "needed no via; %d pad(s) had no clear drill point at all.",
+        len(gnd_positions),
+        len(backbone_positions) - via_skipped_through_hole,
+        via_offset_count,
+        via_offset_count - via_offset_stub_dropped,
+        via_offset_stub_dropped,
+        STITCH_TRACE_WIDTH_MM,
+        via_skipped_through_hole,
+        via_unresolved_conflict,
+    )
 
     # MST backbone joining every drop via -- see mst_edges() docstring for
     # why this is necessary in addition to the zone.
@@ -1539,6 +1726,7 @@ def generate_ground_plane_blocks(
         via_skipped_through_hole_count=via_skipped_through_hole,
         via_offset_count=via_offset_count,
         via_unresolved_conflict_count=via_unresolved_conflict,
+        via_offset_stub_dropped_count=via_offset_stub_dropped,
         mst_edges_astar_routed_count=astar_routed_count,
         mst_edges_fallback_count=len(edges) - astar_routed_count,
     )

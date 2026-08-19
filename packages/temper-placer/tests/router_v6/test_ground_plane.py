@@ -20,6 +20,7 @@ import pytest
 from shapely.geometry import Point, Polygon
 
 from temper_placer.router_v6._ground_plane import (
+    _find_via_drop_point,
     compute_hv_selv_keepout,
     generate_ground_plane_content,
     mst_edges,
@@ -103,6 +104,106 @@ class TestComputeHvSelvKeepout:
         assert miny >= -1e-6
         assert maxx <= 50 + 1e-6
         assert maxy <= 50 + 1e-6
+
+
+class TestFindViaDropPointIsStubAware:
+    """The drop-point ring search must PREFER a candidate whose pad-to-via
+    stub can actually be drawn, rather than picking a position on the
+    via's own criteria and leaving the caller to discard the stub
+    afterwards.
+
+    That ordering was the defect. These cases are pure geometry -- no
+    board, no router -- so they pin the ORDERING itself, not this board's
+    particular congestion. What the reordering is worth on the production
+    board is a separate, measured question (see this module's
+    ``stub_clear`` docstring: on that board it is worth nothing, because
+    the stub's half-width equals the via's radius and so a drawable stub
+    requires a copper-clear pad centre, which none of the affected pads
+    have).
+    """
+
+    BOARD = Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])
+    PAD = (50.0, 50.0)
+    VIA_R = 0.5
+
+    def _find(self, other_copper, stub_clear):
+        return _find_via_drop_point(
+            self.PAD,
+            existing_holes=[],
+            via_radius_mm=self.VIA_R,
+            keepout=None,
+            other_copper=other_copper,
+            board_polygon=self.BOARD,
+            pour_region=None,
+            stub_clear=stub_clear,
+        )
+
+    def test_blocked_pad_centre_falls_back_to_an_offset_as_before(self):
+        # A blob covering the pad centre forces the ring search. With no
+        # stub predicate this is the pre-fix behaviour, kept intact.
+        blob = Point(self.PAD).buffer(0.2)
+        point, needs_stub = self._find(blob, None)
+        assert point is not None
+        assert needs_stub is True
+
+    def test_candidate_with_undrawable_stub_is_passed_over(self):
+        # Same geometry, but only westward candidates have a drawable
+        # stub. The search must return a WESTERN candidate -- not the
+        # first geometrically clear one it happened to reach.
+        blob = Point(self.PAD).buffer(0.2)
+
+        def stub_clear(pad, cand):
+            return cand[0] < pad[0]
+
+        point, needs_stub = self._find(blob, stub_clear)
+        assert point is not None
+        assert needs_stub is True
+        assert stub_clear(self.PAD, point), (
+            "the search returned a candidate whose stub cannot be drawn "
+            "even though a drawable one existed -- this is exactly the "
+            "ordering defect the predicate exists to fix"
+        )
+
+        # Anti-vacuity: the pre-fix search really does pick a rejected
+        # candidate on this same geometry, so the assertion above is not
+        # trivially satisfied.
+        unguarded, _ = self._find(blob, None)
+        assert unguarded is not None
+        assert not stub_clear(self.PAD, unguarded)
+
+    def test_falls_back_to_a_legal_via_when_no_stub_is_drawable(self):
+        # A stub-less via is NOT worthless -- it still joins the plane to
+        # itself. Measured on the production route, 56 of gnd's 61 drop
+        # vias carry an In1.Cu backbone segment and only 4 touch no copper
+        # at all; a variant that returned None here declined 31 of those
+        # 61 vias and moved unconnected_items 304 -> 318 while rescuing
+        # zero pads. So the predicate RANKS candidates, it does not veto
+        # the pass.
+        blob = Point(self.PAD).buffer(0.2)
+        point, needs_stub = self._find(blob, lambda _pad, _cand: False)
+        assert point is not None
+        assert needs_stub is True
+        # ...and it is the same point the unguarded search picks, so the
+        # fallback costs nothing against the prior behaviour.
+        assert point == self._find(blob, None)[0]
+
+    def test_returns_nothing_when_no_candidate_is_even_legal(self):
+        # The pre-existing fail-closed path is untouched: when the via's
+        # OWN footprint has nowhere legal to go, there is still no via.
+        everywhere = Point(self.PAD).buffer(10.0)
+        point, needs_stub = self._find(everywhere, None)
+        assert point is None
+        assert needs_stub is False
+        # Same with the predicate attached -- it must never manufacture a
+        # candidate the geometry rejected.
+        assert self._find(everywhere, lambda _pad, _cand: True)[0] is None
+
+    def test_pad_centre_itself_is_never_gated_by_the_stub_predicate(self):
+        # A via ON the pad needs no stub at all, so a predicate that
+        # rejects everything must not stop it being used.
+        point, needs_stub = self._find(None, lambda _pad, _cand: False)
+        assert point == self.PAD
+        assert needs_stub is False
 
 
 @pytest.mark.skipif(
@@ -224,11 +325,23 @@ class TestGenerateGroundPlaneOnRealBoard:
         # and a via whose only candidate drop points all conflict with
         # an existing hole/keepout/other net's copper is skipped rather
         # than emitted colliding (via_unresolved_conflict_count).
+        #
+        # ``via_offset_stub_dropped_count`` deliberately does NOT appear in
+        # this identity (2026-08-19): those vias ARE emitted. They join the
+        # In1.Cu plane but not their own pad, because F.Cu copper reaches
+        # the pad centre and no stub can leave it at STITCH_TRACE_WIDTH_MM.
+        # Subtracting them was tried and is wrong in the way that matters:
+        # the variant that declined those vias outright moved
+        # unconnected_items 304 -> 318 on a full route, because a stub-less
+        # via is still real plane copper.
         assert result.drop_via_count == (
             result.pad_count
             - result.via_skipped_through_hole_count
             - result.via_unresolved_conflict_count
         )
+        # A dropped stub must still be counted somewhere, or the honest
+        # cost vanishes from the report.
+        assert 0 <= result.via_offset_stub_dropped_count <= result.via_offset_count
         assert 0 < result.drop_via_count <= result.pad_count
         assert result.zone_polygon_count > 0
         assert result.pour_area_mm2 > 0
