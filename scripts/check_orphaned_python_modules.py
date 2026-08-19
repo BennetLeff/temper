@@ -101,8 +101,26 @@ EXCLUDED_NAME_PATTERNS = (
     "conftest.py",
 )
 
+# Matching on the RECEIVER (`py.import(...)`) under-detects, and the miss is
+# silent and in the dangerous direction -- it reports a live module as
+# orphaned. pyo3 call chains get rustfmt-wrapped, so the receiver routinely
+# ends up on the previous line and the call site reads:
+#
+#     let module = py
+#         .import("temper_placer.io.isolation_slot_geometry")?
+#
+# which is exactly `zone_aware_slot_generation_stage.rs:258` -- a real
+# runtime Rust->Python import of a module this ledger listed as orphaned
+# (found 2026-08-19, see docs/evidence/2026-08-19-decomposition-map.md).
+# Match the `import(...)` / `import_bound(...)` CALL instead, keeping BOTH
+# separators (`py.import(...)` and `PyModule::import(py, ...)`) and the
+# optional `py,` first argument the associated-function form carries.
+#
+# Over-matching is the safe direction here: a spurious hit reports a module as
+# referenced, which at worst leaves a dead module unledgered. Under-matching
+# reports a LIVE module as orphaned, which is how live code gets deleted.
 RUST_PY_IMPORT = re.compile(
-    r'(?:py\.import|PyModule::import(?:_bound)?\(py,?)\s*\(\s*"([A-Za-z_][A-Za-z0-9_.]*)"'
+    r'(?:\.|::)import(?:_bound)?\(\s*(?:py\s*,\s*)?"([A-Za-z_][A-Za-z0-9_.]*)"'
 )
 
 
