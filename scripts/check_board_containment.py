@@ -99,6 +99,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -244,14 +245,97 @@ def load_board(board_path: Path):
         raise GateError(f"could not parse {board_path}: {exc}") from exc
 
 
+# Edge.Cuts items that carry no outline geometry. Anything on Edge.Cuts
+# that is neither handled below nor named here raises, rather than being
+# skipped: silently dropping a primitive is how this gate came to read a
+# whole board's outline as "open" (see extract_outline's SHAPE-TYPE BLIND
+# SPOT note).
+_EDGE_ANNOTATION_TYPES = frozenset({"GrText", "GrTextBox"})
+
+# Segment-join tolerance, in mm.
+#
+# KiCad stores board coordinates as integer NANOMETRES; 1e-6 mm is exactly
+# one internal unit, so a file can legitimately carry a one-unit seam where
+# two segments are meant to meet. The previous value WAS 1e-6 mm, which put
+# the comparison exactly on that quantum -- and float64 lost:
+# power_pcb_dataset/corpus/piantor_right/keyboard_pcb.kicad_pcb joins at
+# y=113.600001 vs y=113.6, whose difference evaluates to
+# 1.0000000116860974e-06, i.e. 1.17e-14 mm ABOVE a tolerance meant to
+# admit it. That single rejected join opened the 40-segment main outline,
+# and (before the fail-closed change in _rings_from_segments) the gate
+# silently substituted the largest ring that DID close -- a 0.8 x 12.2 mm
+# internal milled slot -- then reported all 310 pads on a 138.8 x 89.8 mm
+# keyboard as "outside the board".
+#
+# 1e-3 mm = 1 micrometre = 1000 KiCad internal units, and is still 100x
+# below the finest feature any PCB process in this project's fab envelope
+# can hold (0.1 mm minimum trace/space, docs/evidence/2026-08-13-jlcpcb-
+# fab-capability-envelope.md). It cannot merge two outline vertices that
+# are genuinely distinct, and it is not a design rule -- it is a
+# file-parsing seam tolerance.
+_JOIN_TOL_MM = 1e-3
+
+
+def _rect_ring(item) -> list[tuple[float, float]]:
+    """The four corners of a ``gr_rect``.
+
+    SHAPE-TYPE BLIND SPOT, fixed 2026-08-18. ``GrRect`` exposes ``start``
+    and ``end`` just like ``GrLine`` does, so the old ``start``/``end``
+    fallback turned an entire rectangular board outline into ONE straight
+    segment along its diagonal -- a 2-point chain, which can never close.
+    Both ``power_pcb_dataset/corpus/temper`` (``(gr_rect (start 0 0)
+    (end 100 150))``, line 544) and ``power_pcb_dataset/corpus/minimal``
+    (line 94, written by pcbnew itself) carry their whole outline as a
+    single ``gr_rect``, and both were reported as having an open outline.
+    This is the mirror image of the already-documented parser gap in
+    docs/solutions/logic-errors/polygon-edge-cuts-parser-invisible-bbox-
+    2026-07-15.md, where a different parser handled ``gr_rect``/``gr_line``
+    and dropped ``gr_poly``.
+    """
+    x0, y0 = item.start.X, item.start.Y
+    x1, y1 = item.end.X, item.end.Y
+    return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+
+
+def _circle_ring(item, facets: int = 64) -> list[tuple[float, float]]:
+    """A ``gr_circle`` outline as a polygon ring.
+
+    ``GrCircle`` has ``center``/``end`` and NO ``start``, so the old
+    fallback dropped it entirely and silently. A round board would have
+    read as having no outline at all.
+    """
+    cx, cy = item.center.X, item.center.Y
+    radius = math.hypot(item.end.X - cx, item.end.Y - cy)
+    if radius <= 0:
+        return []
+    return [
+        (cx + radius * math.cos(2 * math.pi * i / facets),
+         cy + radius * math.sin(2 * math.pi * i / facets))
+        for i in range(facets)
+    ]
+
+
 def extract_outline(board):
     """The board outline polygon from the Edge.Cuts layer.
 
-    Handles the canonical case (a single ``gr_poly`` on Edge.Cuts, which is
-    what ``pcb/temper.kicad_pcb`` carries) and falls back to assembling
-    ``gr_line`` segments into a ring. Fails closed if neither yields a
-    polygon with area -- a board whose outline cannot be determined must
-    never be reported as "everything is inside it".
+    Handles ``gr_poly`` (what ``pcb/temper.kicad_pcb`` carries), ``gr_rect``
+    and ``gr_circle`` as closed shapes in their own right, and assembles
+    everything else that exposes ``start``/``end`` (``gr_line``, and
+    ``gr_arc`` by its chord -- see the LIMITATION note) into closed rings.
+    The largest resulting polygon is the outline. Fails closed if nothing
+    yields a polygon with area -- a board whose outline cannot be determined
+    must never be reported as "everything is inside it".
+
+    LIMITATION, known and deliberately not fixed here: ``gr_arc`` is
+    reduced to the straight chord between its endpoints; the ``mid`` bulge
+    is discarded. On a convex corner fillet the chord cuts INSIDE the true
+    edge, so the outline is under-measured and the gate can only
+    over-report, never under-report. On a CONCAVE arc the polarity flips
+    and it could under-report; no board in this repo or in
+    ``power_pcb_dataset/corpus/`` has one today (checked 2026-08-18).
+    ``power_pcb_dataset/corpus/rp2040_designguide`` parses only because its
+    four 2.54 mm corner arcs' chords happen to meet its four ``gr_line``
+    endpoints exactly -- that is luck, not support.
     """
     Polygon, _box, _rotate, _translate = _require_shapely()
 
@@ -260,26 +344,50 @@ def extract_outline(board):
     for item in board.graphicItems:
         if getattr(item, "layer", None) != EDGE_LAYER:
             continue
+        kind = type(item).__name__
         coords = getattr(item, "coordinates", None)
         if coords:
             pts = [(p.X, p.Y) for p in coords]
             if len(pts) >= 3:
                 polys.append(Polygon(pts))
             continue
+        if kind == "GrRect":
+            polys.append(Polygon(_rect_ring(item)))
+            continue
+        if kind == "GrCircle":
+            ring = _circle_ring(item)
+            if len(ring) >= 3:
+                polys.append(Polygon(ring))
+            continue
+        if kind in _EDGE_ANNOTATION_TYPES:
+            continue
         start = getattr(item, "start", None)
         end = getattr(item, "end", None)
         if start is not None and end is not None:
             segments.append(((start.X, start.Y), (end.X, end.Y)))
+            continue
+        raise GateError(
+            f"unhandled {EDGE_LAYER} primitive {kind!r}: this gate does not "
+            "know how to turn it into outline geometry, and refusing is the "
+            "only safe answer -- an Edge.Cuts item skipped silently is an "
+            "outline read smaller than the real board, which reports real "
+            "copper as off-board (or, if it was the whole outline, reports "
+            "the board as having none). Teach extract_outline the shape, or "
+            "name it in _EDGE_ANNOTATION_TYPES if it is annotation."
+        )
 
-    if polys:
-        outline = max(polys, key=lambda p: p.area)
-    elif segments:
-        outline = _ring_from_segments(segments, Polygon)
-    else:
+    candidates = list(polys)
+    if segments:
+        # Both sources are pooled rather than `polys or segments`: a board
+        # whose outline is gr_line segments and whose internal slots are
+        # gr_rect would otherwise have had the SLOTS win outright.
+        candidates.extend(_rings_from_segments(segments, Polygon))
+    if not candidates:
         raise GateError(
             f"no {EDGE_LAYER} outline found on the board -- the board's "
             "extent is undetermined, so containment cannot be checked"
         )
+    outline = max(candidates, key=lambda p: p.area)
 
     if not outline.is_valid:
         outline = outline.buffer(0)
@@ -291,10 +399,22 @@ def extract_outline(board):
     return outline
 
 
-def _ring_from_segments(segments, Polygon):
-    """Assemble gr_line segments into the largest closed ring found."""
+def _rings_from_segments(segments, Polygon):
+    """Every closed ring the Edge.Cuts segments form.
+
+    FAIL-CLOSED ON AN OPEN CONTOUR, changed 2026-08-18. This used to return
+    the largest ring that closed and raise only when NOTHING closed. That
+    made "the board's main outline did not close" a non-event whenever any
+    smaller contour did: on
+    ``power_pcb_dataset/corpus/piantor_right/keyboard_pcb.kicad_pcb`` the
+    40-segment outline (9604.3 mm^2) failed to close over a 1 nm seam and a
+    9.8 mm^2 milled slot silently became "the board", so the gate reported
+    310 of 310 pads outside it and the corpus specificity run recorded that
+    as a single ``<no Reference>`` finding. An outline that cannot be
+    assembled is a gate error, never a smaller board.
+    """
     remaining = list(segments)
-    best = None
+    rings = []
     while remaining:
         chain = list(remaining.pop(0))
         progressed = True
@@ -315,19 +435,63 @@ def _ring_from_segments(segments, Polygon):
                 progressed = True
                 break
         if len(chain) >= 4 and _close(chain[0], chain[-1]):
-            poly = Polygon(chain)
-            if best is None or poly.area > best.area:
-                best = poly
-    if best is None:
+            rings.append(Polygon(chain))
+            continue
         raise GateError(
             f"{EDGE_LAYER} segments do not form a closed outline -- "
-            "containment cannot be checked against an open outline"
+            "containment cannot be checked against an open outline. An "
+            f"open contour of {len(chain)} point(s) runs from {chain[0]} to "
+            f"{chain[-1]} (gap "
+            f"{abs(chain[0][0] - chain[-1][0]):.9f}, "
+            f"{abs(chain[0][1] - chain[-1][1]):.9f} mm; join tolerance "
+            f"{_JOIN_TOL_MM} mm)."
         )
-    return best
+    return rings
 
 
-def _close(a, b, tol: float = 1e-6) -> bool:
+def _close(a, b, tol: float = _JOIN_TOL_MM) -> bool:
     return abs(a[0] - b[0]) <= tol and abs(a[1] - b[1]) <= tol
+
+
+def _pad_copper(pad, box, half_x: float, half_y: float):
+    """The pad's copper in its own frame, by KiCad pad shape.
+
+    Only the two shapes whose true outline is SMALLER than their bounding
+    box in a way that matters are modelled exactly -- ``circle`` and
+    ``oval``. Everything else (``rect``, ``roundrect``, ``trapezoid``,
+    ``custom``) keeps the bounding box, which over-states copper and is
+    therefore fail-closed: it can raise a false alarm, never miss real
+    copper.
+
+    Why ``circle`` had to be fixed (measured 2026-08-18). Modelling a
+    circular pad as its circumscribing square adds ~21% phantom area, all
+    of it in four corners the pad does not have. On
+    ``power_pcb_dataset/corpus/bitaxe_ultra`` that produced FOUR false
+    positives -- H7/H8/H9/H10, the corner ``MountingHole_3mm_Pad_Via``
+    parts, whose 6 mm annular ring sits inside the rounded board corner
+    while the square stand-in's corner pokes past it. Per pad: 0.96-1.23
+    mm^2 reported outside as a square, 0.000000 mm^2 (``covers`` True) as
+    the real circle. docs/evidence/2026-08-07-fault-injection-coverage-
+    number.md:111-120 hypothesised these were real annular-ring overhang
+    and left it "not resolved to certainty"; they are not, and it is.
+    """
+    shape = (getattr(pad, "shape", None) or "").lower()
+    if shape == "circle":
+        from shapely.geometry import Point
+
+        # max, not min: a well-formed circle pad has size.X == size.Y, and
+        # on a malformed one the larger radius is the fail-closed choice.
+        return Point(0.0, 0.0).buffer(max(half_x, half_y), quad_segs=64)
+    if shape == "oval":
+        from shapely.geometry import LineString
+
+        # A KiCad oval is a stadium: radius is the SHORT half-axis, swept
+        # along the long one. This is exact, not an approximation.
+        radius = min(half_x, half_y)
+        reach_x, reach_y = half_x - radius, half_y - radius
+        spine = LineString([(-reach_x, -reach_y), (reach_x, reach_y)])
+        return spine.buffer(radius, quad_segs=64)
+    return box(-half_x, -half_y, half_x, half_y)
 
 
 def _pad_polygons(footprint, box, rotate, translate, place, shapely_angle):
@@ -336,7 +500,8 @@ def _pad_polygons(footprint, box, rotate, translate, place, shapely_angle):
     A pad's ``size`` is its extent in the pad's own frame; its effective
     board rotation is its own ``angle`` when KiCad wrote one (KiCad stores
     the pad angle already composed with the footprint's) and the
-    footprint's rotation otherwise.
+    footprint's rotation otherwise. The shape within that extent comes from
+    ``_pad_copper``.
     """
     fp_angle = footprint.position.angle or 0.0
     for pad in footprint.pads:
@@ -347,7 +512,7 @@ def _pad_polygons(footprint, box, rotate, translate, place, shapely_angle):
         half_x, half_y = pad.size.X / 2.0, pad.size.Y / 2.0
         if half_x <= 0 or half_y <= 0:
             continue
-        rect = box(-half_x, -half_y, half_x, half_y)
+        rect = _pad_copper(pad, box, half_x, half_y)
         rect = rotate(rect, shapely_angle(angle), origin=(0, 0))
         ax, ay = place(
             pad.position.X,
@@ -357,6 +522,32 @@ def _pad_polygons(footprint, box, rotate, translate, place, shapely_angle):
             fp_angle,
         )
         yield pad.number, translate(rect, ax, ay), (ax, ay)
+
+
+def _footprint_ref(footprint) -> str:
+    """The footprint's reference designator, from either KiCad encoding.
+
+    KiCad 9 writes ``(property "Reference" "R1" ...)``; KiCad <= 8 writes
+    ``(fp_text reference "R1" ...)``. Reading only the first made EVERY
+    footprint on a KiCad-8-era board anonymous: measured 2026-08-18,
+    ``power_pcb_dataset/corpus/bitaxe_ultra`` has 0 ``property "Reference"``
+    and 137 ``fp_text reference``, ``piantor_right`` 0 and 36. Because
+    ``ContainmentReport.refs_outside()`` returns a SET, all 310 of
+    piantor_right's violations then collapsed into the single string
+    ``<no Reference>`` -- which is how a whole-board failure was recorded in
+    docs/evidence/2026-08-07-fault-injection-coverage-number.md:109 as "1
+    containment finding". A gate that cannot name what it flags cannot be
+    triaged, and undercounts itself.
+    """
+    ref = (footprint.properties or {}).get("Reference")
+    if ref:
+        return ref
+    for item in footprint.graphicItems or []:
+        if getattr(item, "type", None) == "reference":
+            text = getattr(item, "text", None)
+            if text:
+                return text
+    return "<no Reference>"
 
 
 def analyze_board(board_path: Path) -> ContainmentReport:
@@ -380,7 +571,7 @@ def analyze_board(board_path: Path) -> ContainmentReport:
 
     for footprint in board.footprints:
         props = footprint.properties or {}
-        ref = props.get("Reference") or "<no Reference>"
+        ref = _footprint_ref(footprint)
         sheetpath = props.get("Sheetpath")
 
         pad_polys = list(_pad_polygons(footprint, box, rotate, translate, place, shapely_angle))

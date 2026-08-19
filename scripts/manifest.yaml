@@ -149,15 +149,43 @@ scripts:
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
     covered -- DRC counts FALL when a component leaves the board, so no count-delta can detect it. Fails
-    closed (exit 2) on a missing/unparseable board or an undeterminable outline.'
+    closed (exit 2) on a missing/unparseable board or an undeterminable outline. FOUR GEOMETRY DEFECTS
+    FIXED 2026-08-18, all surfaced by running check_corpus_specificity.py (its false-positive oracle) for
+    the first time, and all false POSITIVES -- the gate was calling real boards broken: (1) SHAPE-TYPE
+    BLIND SPOT -- only gr_poly and "anything with start/end, as a straight segment" were understood, so a
+    gr_rect outline became its own DIAGONAL (a 2-point chain that can never close) and a gr_circle outline
+    was dropped entirely; both corpus temper and corpus minimal state their whole outline as one gr_rect
+    and both read as "open outline". Mirror image of the already-documented parser gap in
+    docs/solutions/logic-errors/polygon-edge-cuts-parser-invisible-bbox-2026-07-15.md. An unrecognised
+    Edge.Cuts primitive now raises instead of being skipped. (2) The segment assembler kept the largest
+    ring that CLOSED and erred only if none did, so when piantor_right''s 40-segment outline failed to
+    close, a 0.8x12.2mm internal milled slot silently became "the board" and all 310 pads read as outside
+    it; an open contour is now a gate error. (3) The join tolerance was 1e-6 mm -- exactly KiCad''s 1 nm
+    internal unit -- so closure depended on float64 rounding at the coordinate''s magnitude
+    (abs(113.600001-113.6) == 1.0000000116860974e-06 > 1e-6, which is what rejected piantor_right; the
+    same seam at 100.0 would have been admitted). Now 1e-3 mm, 1000 internal units and still 100x below
+    the 0.1mm fab minimum: a file-parsing seam tolerance, not a design rule. (4) Every pad was modelled as
+    its bounding BOX, so bitaxe_ultra''s four 6mm circular mounting-hole rings poked phantom square corners
+    past a rounded board corner (0.96-1.23 mm2 each); circle and oval pads are now exact, everything else
+    keeps the box (over-states copper = fail-closed). Also: reference designators are now read from
+    fp_text reference as well as property "Reference", because KiCad<=8 boards use the former and every
+    violation on them was named "<no Reference>" -- which, through the set-valued refs_outside(), is how
+    310 violations were logged as "1 finding" in
+    docs/evidence/2026-08-07-fault-injection-coverage-number.md:109. VERDICT ON pcb/temper.kicad_pcb IS
+    BYTE-IDENTICAL BEFORE AND AFTER (8 violations: T2/R65/C37, the deliberately staged-off-board OCP-02
+    DNF parts, docs/evidence/2026-08-16-ocp02-descope-decision.md:19) -- this change fixed false
+    positives, it did not relax the gate. NOTE, unrelated and NOT fixed here: this gate is RED on main
+    over those 8 violations and 3 of its own tests assert the committed board is clean; that is a real
+    open board-state question, not a tooling one.'
   owner: bennet
-  last_run: '2026-08-04'
+  last_run: '2026-08-18'
   category: keep
   disposition: ci-gate
   imports:
   - __future__
   - argparse
   - dataclasses
+  - math
   - pathlib
   - sys
 - path: check_board_defect_corpus.py
@@ -205,9 +233,20 @@ scripts:
   purpose: 'BOM<->source reconciliation CI gate (R14): parses docs/hardware/BOM.md component tables and
     elec/src/*.ato physical-component instantiations, matches by normalized designator, and reports costed-with-no-circuit,
     wired-but-uncosted, and same-designator-different-MPN findings. Heuristic string-identity matching
-    (documented limitation, no built netlist involved); see the module docstring.'
+    (documented limitation, no built netlist involved); see the module docstring. 2026-08-18: this gate
+    had been exiting 3 (VIOLATION) on main. Both findings were real, previously-untriaged BOM-side
+    drift, and both were fixed by supplying the missing BOM.md content -- NOT by allowlisting, and with
+    no elec/src or board file touched: j_rtd1 (modules.ato:2064, the PT100 pan-probe connector, wired
+    2026-08-07 in ebb8aff20 and placed on pcb/temper.kicad_pcb 2026-08-15 in 96db2ccde, yet never
+    costed) and tp_ocp2_fault (modules.ato:3364, a bom_exclude test point wired 2026-07-26, and the
+    reason BOM.md section 10.2''s "source instantiates exactly 3" headline count had been false since).
+    Now PASSES: 0 findings across 162 BOM rows / 168 source instantiations. SCOPE NOTE so its silence is
+    not over-read: this gate compares docs/hardware/BOM.md against elec/src/*.ato ONLY. Board-vs-source
+    drift -- e.g. the K1 -> Schrack RT33K012 and C6 -> TDK B81123C1562M000 replacements the schematic
+    specifies and the board has not taken -- is check_netlist_board_reconciliation.py''s domain, and a
+    green result here says nothing about it.'
   owner: bennet
-  last_run: '2026-08-07'
+  last_run: '2026-08-18'
   category: keep
   disposition: ci-gate
   imports:
@@ -2757,9 +2796,32 @@ scripts:
   - pathlib
   - sys
 - path: check_ceiling_raise_evidence_corpus.py
-  purpose: DRC-ceiling-raise-evidence fault-injection corpus (STRATEGY.md build order)
+  purpose: 'DRC-ceiling-raise-evidence fault-injection corpus (STRATEGY.md build order
+    step 4): 2 controls + 3 one-field injection classes run against the REAL
+    DrcRatchet.find_ceiling_raises / validate_raise_evidence. 2026-08-18: this entry''s
+    ci-gate label was FALSE -- scripts/invocation_graph.json recorded the caller list
+    as literally [], no workflow step and no collected test ran it (scripts/tests/ is
+    outside pyproject.toml testpaths). It is now TRUE: wired as the "Ceiling-raise-evidence
+    fault-injection corpus (R27 evidence contract)" step (plus its unit tests) in
+    .github/workflows/python-tests.yml''s board-provenance-requirements-gates job,
+    immediately after check_drc_ceiling_approval.py, with entries in
+    .github/required-checks.json. That job is the one that checks out fetch-depth: 0,
+    which this gate needs -- validate_raise_evidence resolves measured_at_commit
+    through check_evidence_provenance.verify_commits_exist, which refuses to run
+    against a shallow clone. TWO DEFECTS FIXED in the same change, both in the corpus
+    and neither in the gate it exercises: (1) the "fully-evidenced" control seeded
+    measured_at_commit = "0"*40, which the ratchet correctly rejects as unresolvable,
+    so the control FAILED on pristine main and the specificity half of R9 had never
+    been exercised -- the seed now resolves HEAD at run time (a hardcoded historical
+    SHA was rejected: it is unresolvable in a shallow clone); (2) the dangling-commit
+    class also corrupted the input hash and asserted on the resulting STALE-measurement
+    problem, so it never tested dangling commits at all -- its docstring''s claim that
+    validate_raise_evidence checks only SHA shape was stale, the resolvability check
+    had since landed. Each injection class now mutates exactly ONE field and asserts
+    the gate reports exactly ONE problem, so a verdict is attributable to the dimension
+    it names. Measured 2026-08-18: PASS, 5/5 covered.'
   owner: bennet
-  last_run: '2026-08-08'
+  last_run: '2026-08-18'
   category: keep
   disposition: ci-gate
   imports:
@@ -2767,6 +2829,8 @@ scripts:
   - copy
   - hashlib
   - pathlib
+  - re
+  - subprocess
   - sys
   - typing
 - path: check_component_defect_corpus.py
@@ -2804,9 +2868,29 @@ scripts:
   - typing
   - yaml
 - path: check_corpus_specificity.py
-  purpose: Corpus specificity run (STRATEGY.md build order step 5)
+  purpose: 'Corpus specificity run (STRATEGY.md build order step 5): the FALSE-POSITIVE oracle for
+    check_board_containment.py -- is that gate silent on five independently-designed real boards
+    (power_pcb_dataset/corpus/) it was never tuned against? The ci-gate label here was FALSE from
+    2026-08-08 until 2026-08-18: no workflow step invoked it, it was absent from
+    .github/required-checks.json, and its only importer (scripts/tests/test_corpus_specificity.py) is not
+    collected either since pyproject.toml testpaths covers packages/*/tests and elec/validation but not
+    scripts/tests. Flagged unreachable in docs/evidence/2026-08-11-phase3-mutation-state-of-play.md:109
+    and docs/evidence/2026-08-12-gate-vacuity-structural-prevention.md:229; the label stayed anyway. It is
+    now TRUE -- wired as the "Corpus specificity run" step (plus its unit tests) in the
+    board-provenance-requirements-gates job of .github/workflows/python-tests.yml, immediately after the
+    containment gate it audits. Running it for the first time is what found the four
+    check_board_containment.py false positives fixed the same day (see that entry): it was red on 4 of 5
+    boards and every one was the gate misreading a valid board, not a bad board. Now 0 findings across all
+    5 boards with all 5 checked. THE MISSING .kicad_pro SIDECARS ARE A SEPARATE, NON-BLOCKING FACT: all
+    FIVE corpus boards lack one (not four), so the DRC-context column of this report is empty for every
+    board -- but specificity_ok reads only the containment results, so it never caused the failure. No
+    sidecar is fabricated here: a .kicad_pro carries the custom DRU rules, and three of these boards are
+    third-party designs this project''s creepage/track-width rules were never written for, so handing them
+    a default or temper-derived project would manufacture a number that looks measured and is not. Which
+    rule set a foreign board should be DRC''d under is an explicit decision, not a side effect of filling
+    a column. The summary now states the measured/total count so an empty column cannot read as zeros.'
   owner: bennet
-  last_run: '2026-08-08'
+  last_run: '2026-08-18'
   category: keep
   disposition: ci-gate
   imports:

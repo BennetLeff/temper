@@ -115,7 +115,36 @@ consistent with ordinary corner mounting-hole pads whose copper annular ring sli
 the panel edge on those two third-party boards -- plausibly a real (if minor) property of those
 reference designs, not a demonstrated bug in the gate. This was not chased further to a definitive
 answer; reported exactly as measured rather than rounded to a clean "0% false positive" the
-evidence does not support. `clearance`/`courtyard`/`hole-to-hole`'s own failure signal is
+evidence does not support.
+
+> **RESOLVED 2026-08-18 -- all four results above were false positives of `check_board_containment.py`.
+> The hypothesis in the paragraph above ("plausibly a real property of those reference designs") is
+> wrong, and the piantor_right row is off by a factor of 310.** Measured:
+>
+> * `temper` / `minimal` "open Edge.Cuts outline": both state their entire outline as a single
+>   `gr_rect`. The parser understood only `gr_poly` and "anything with `start`/`end`, as a straight
+>   segment", so a rectangle became its own **diagonal** -- a 2-point chain that can never close.
+>   `minimal_board.kicad_pcb` was written by pcbnew itself; nothing about it is open.
+> * `bitaxe_ultra` 4 findings: `H7`/`H8`/`H9`/`H10`, the corner `MountingHole_3mm_Pad_Via` parts.
+>   Their annular ring **does not** overhang. Every pad was modelled as its bounding **box**, so the
+>   circular 6mm ring's phantom square corners poked past the board's rounded corner: 0.96-1.23 mm^2
+>   outside as a square, **0.000000 mm^2 (`covers` True) as the real circle**.
+> * `piantor_right` "1 containment finding": it was **310 of 310 pads**, across all 36 footprints.
+>   Two compounding bugs. The 40-segment outline (9604.3 mm^2) failed to close over a **one
+>   nanometre** seam -- `abs(113.600001 - 113.6)` evaluates to `1.0000000116860974e-06`, which
+>   float64 puts 1.17e-14 mm above a tolerance of exactly `1e-6` mm -- and the assembler, which kept
+>   "the largest ring that closed" rather than erroring, then silently substituted a **0.8 x 12.2 mm
+>   internal milled slot** as "the board". The count collapsed to "1" because `refs_outside()` is a
+>   SET and every ref on that board read as `<no Reference>`: KiCad<=8 stores designators as
+>   `fp_text reference`, which the gate did not read (piantor_right: 0 `property "Reference"`, 36
+>   `fp_text reference`; bitaxe_ultra: 0 and 137).
+>
+> All four fixed in `scripts/check_board_containment.py`; `scripts/check_corpus_specificity.py` now
+> reports 0 findings across all 5 boards with all 5 checked, and reports violation COUNTS rather than
+> only the collapsed ref set. That gate's verdict on `pcb/temper.kicad_pcb` is byte-identical before
+> and after the fix (8 violations -- the deliberately staged-off-board OCP-02 DNF parts T2/R65/C37).
+> This is the specificity oracle doing exactly its job: every one of these was the gate misreading a
+> valid board, which is what a false-positive oracle exists to find. `clearance`/`courtyard`/`hole-to-hole`'s own failure signal is
 per-specific-ref identity, which cannot be meaningfully evaluated against a foreign board's
 different ref set -- their raw DRC category counts are reported as context only, never asserted;
 `mpn_fabrication_gate.py` and `DrcRatchet.validate_raise_evidence` are not applicable to this

@@ -29,7 +29,9 @@
   "check_bom_source_reconciliation.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "check_ceiling_raise_evidence_corpus.py": [],
+  "check_ceiling_raise_evidence_corpus.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_component_defect_corpus.py": [],
   "check_copper_net_consistency.py": [
     ".github/workflows/python-tests.yml",
@@ -40,7 +42,9 @@
   "check_corpus_fixture_realboard_divergence.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "check_corpus_specificity.py": [],
+  "check_corpus_specificity.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],

@@ -53,6 +53,61 @@ What this script checks per board, and why each is scoped the way it is:
     ``check_ceiling_raise_evidence_corpus.py`` (``no-op-control`` /
     ``fully-evidenced-raise-control``, both asserted zero-problems).
 
+WHAT THIS ORACLE ACTUALLY CAUGHT (2026-08-18)
+=============================================
+
+It worked. Run for the first time since it was written, it was RED on 4 of
+5 boards -- and every one of those was a false positive of
+``check_board_containment.py``, not a property of the boards:
+
+  * ``temper`` and ``minimal`` read as "Edge.Cuts segments do not form a
+    closed outline". Both state their entire outline as a single
+    ``gr_rect``, which the parser -- understanding only ``gr_poly`` and
+    "anything with start/end, as a straight segment" -- reduced to the
+    rectangle's DIAGONAL. A 2-point chain can never close. (``minimal`` was
+    written by pcbnew itself; nothing is open.)
+  * ``piantor_right`` reported 310 of its 310 pads outside the board. Its
+    40-segment outline failed to close over a ONE NANOMETRE seam
+    (y=113.600001 vs y=113.6, which float64 puts 1.17e-14 mm above a 1e-6
+    tolerance), and the assembler then silently substituted the largest
+    ring that DID close -- a 0.8 x 12.2 mm internal milled slot -- as "the
+    board".
+  * ``bitaxe_ultra`` reported its four corner mounting holes. Their 6 mm
+    circular annular rings were modelled as 6x6 SQUARES, and the phantom
+    corners poked past the board's rounded corner. As real circles the
+    copper is inside by ``covers``.
+
+All four are fixed in ``check_board_containment.py``; this run is now
+0 findings across all 5 boards, all 5 checked. That gate's verdict on
+``pcb/temper.kicad_pcb`` is byte-identical before and after (8 violations,
+the deliberately staged-off-board OCP-02 parts T2/R65/C37).
+
+Also corrected there: every violation on a KiCad<=8-authored board was
+named ``<no Reference>``, because only ``property "Reference"`` was read
+and those boards use ``fp_text reference``. Combined with ``refs_outside()``
+being a set, that is how piantor_right's 310 violations were recorded as
+"1 containment finding" in
+``docs/evidence/2026-08-07-fault-injection-coverage-number.md``:109.
+
+THE MISSING .kicad_pro SIDECARS -- NOT FABRICATED, DELIBERATELY
+================================================================
+
+All FIVE corpus boards (not four) lack the ``.kicad_pro`` sidecar
+``_drc_api.run_drc`` refuses to run without, so the DRC-context column of
+this report is empty for every board. That does NOT cause this gate's
+verdict: ``specificity_ok`` reads only the containment results, and the DRC
+half is explicitly context, per the scoping above.
+
+No sidecars are supplied here. A ``.kicad_pro`` is what carries the custom
+DRU rules, and three of these boards are third-party designs
+(``rp2040_designguide``, ``bitaxe_ultra``, ``piantor_right``) that this
+project's creepage/track-width rules were never written for. Handing them a
+default or a temper-derived project would produce a number that looks
+measured and is not -- the exact failure class AGENTS.md's "Measurement
+Instruments That Lie" section exists for. Which rule set a foreign board
+should be DRC'd under is a decision to make explicitly, not a side effect of
+making a column non-empty.
+
 Exit codes:
   0 - pass: zero containment false positives across all five boards
   1 - a containment false positive was found (named in the output)
@@ -97,6 +152,15 @@ class BoardResult:
     board_id: str
     pcb_path: str
     containment_refs_outside: list[str] = field(default_factory=list)
+    # Counted separately from the ref list on purpose. refs_outside() is a
+    # SET, so N violations across M footprints collapse to M strings -- and
+    # when a board's designators cannot be read at all they collapse to the
+    # single string "<no Reference>". That is how 310 violations on
+    # piantor_right were recorded as "1 containment finding" in
+    # docs/evidence/2026-08-07-fault-injection-coverage-number.md:109. A
+    # specificity oracle that under-counts its own findings is measuring
+    # something other than what it reports.
+    containment_violations: int = 0
     containment_error: str | None = None
     drc_counts: dict[str, int] | None = None
     drc_error: str | None = None
@@ -149,12 +213,14 @@ def run_specificity(repo_root: Path) -> tuple[bool, list[BoardResult]]:
         try:
             report = check_board_containment.analyze_board(pcb_path)
             refs_outside = sorted(report.refs_outside())
+            n_violations = len(report.violations)
             containment_error = None
         except check_board_containment.GateError as exc:
             # An inability to CHECK is not evidence of cleanliness -- must
             # never be silently folded into "0 false positives" (the exact
             # anti-vacuity failure mode METHODOLOGY.md Sec. 4 warns against).
             refs_outside = []
+            n_violations = 0
             containment_error = f"containment gate error (NOT checked, NOT counted as clean): {exc}"
 
         try:
@@ -171,6 +237,7 @@ def run_specificity(repo_root: Path) -> tuple[bool, list[BoardResult]]:
                 board_id=board_id,
                 pcb_path=pcb_rel,
                 containment_refs_outside=refs_outside,
+                containment_violations=n_violations,
                 containment_error=containment_error,
                 drc_counts=counts,
                 drc_error=drc_error,
@@ -206,7 +273,10 @@ def _print_report(ok: bool, results: list[BoardResult]) -> None:
             status = "clean"
         print(f"  [{status}] {r.board_id} ({r.pcb_path})")
         if r.containment_checked:
-            print(f"      board_containment refs outside outline: {r.containment_refs_outside or 'none'}")
+            print(
+                f"      board_containment: {r.containment_violations} violation(s) "
+                f"across refs {r.containment_refs_outside or 'none'}"
+            )
         else:
             print(f"      board_containment: {r.containment_error}")
         if r.drc_counts is not None:
@@ -220,6 +290,21 @@ def _print_report(ok: bool, results: list[BoardResult]) -> None:
     n_clean = sum(1 for r in results if r.containment_checked and not r.containment_refs_outside)
     n_findings = sum(1 for r in results if r.containment_checked and r.containment_refs_outside)
     n_unchecked = n_boards - n_checked
+    n_drc_measured = sum(1 for r in results if r.drc_counts is not None)
+    if n_drc_measured < n_boards:
+        # Context-only, and deliberately NOT folded into the pass/fail
+        # decision -- but stated once, in the summary, because a per-board
+        # error line repeated N times reads as noise rather than as "the
+        # DRC column of this report is empty". Measured 2026-08-18: 0 of 5,
+        # because no corpus board has the .kicad_pro sidecar _drc_api
+        # requires. See this module's docstring for why that is not
+        # silently papered over with a fabricated default project.
+        print(
+            f"\n  NOTE (context only, does not affect the verdict): DRC "
+            f"context measured for {n_drc_measured}/{n_boards} board(s); "
+            f"{n_boards - n_drc_measured} could not be measured -- the "
+            "reported DRC categories below that count are absent, not zero."
+        )
     if ok:
         print(
             f"\nCorpus specificity: PASS -- 0 board_containment findings across "

@@ -172,6 +172,13 @@ on:
       - '.measurement-provenance-allowlist'
       - 'scripts/check_measurement_provenance.py'
       - 'scripts/tests/test_check_measurement_provenance.py'
+      - 'scripts/check_ceiling_raise_evidence_corpus.py'
+      - 'scripts/tests/test_ceiling_raise_evidence_corpus.py'
+      - 'scripts/check_corpus_specificity.py'
+      - 'scripts/tests/test_corpus_specificity.py'
+      - 'scripts/check_board_containment.py'
+      - 'scripts/tests/test_check_board_containment.py'
+      - 'power_pcb_dataset/corpus/**'
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'scripts/check_test_baseline_writes.py'
@@ -279,6 +286,13 @@ on:
       - '.measurement-provenance-allowlist'
       - 'scripts/check_measurement_provenance.py'
       - 'scripts/tests/test_check_measurement_provenance.py'
+      - 'scripts/check_ceiling_raise_evidence_corpus.py'
+      - 'scripts/tests/test_ceiling_raise_evidence_corpus.py'
+      - 'scripts/check_corpus_specificity.py'
+      - 'scripts/tests/test_corpus_specificity.py'
+      - 'scripts/check_board_containment.py'
+      - 'scripts/tests/test_check_board_containment.py'
+      - 'power_pcb_dataset/corpus/**'
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'scripts/check_test_baseline_writes.py'
@@ -1756,6 +1770,42 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_drc_ceiling_approval.py
 
+      # Ceiling-raise-evidence fault-injection corpus (STRATEGY.md build
+      # order step 4) -- the sensitivity/specificity proof for the gate
+      # directly above. It exercises the REAL
+      # DrcRatchet.find_ceiling_raises / validate_raise_evidence against
+      # synthetic in-memory ceiling dicts; power_pcb_dataset/drc_ceiling.json
+      # is never read or written, and pcb/temper.kicad_pcb is read-only
+      # (hashed, to seed the control's provenance).
+      #
+      # WIRED 2026-08-18. scripts/manifest.yaml carried
+      # `disposition: ci-gate` for this script since it was written while
+      # scripts/invocation_graph.json recorded its caller list as literally
+      # `[]` -- no workflow, no test, nothing. The same false-label class
+      # as verify_proofs.py (a doc comment claiming CI enforcement since
+      # 2026-06-28 with no workflow ever running it) and
+      # check_corpus_specificity.py.
+      #
+      # It was ALSO red: its "fully-evidenced" control seeded
+      # measured_at_commit = "0"*40, which the ratchet correctly rejects as
+      # unresolvable, so the control could not pass and the specificity half
+      # of R9 had never been exercised. Both repaired in the same change --
+      # see the script's module docstring. Never `continue-on-error`: exit 2
+      # means the corpus could not run (no git, unreadable board), which is
+      # not a pass.
+      #
+      # This job checks out with fetch-depth: 0, which this gate requires:
+      # validate_raise_evidence resolves measured_at_commit through
+      # check_evidence_provenance.verify_commits_exist, which refuses to run
+      # against a shallow clone rather than call every historical SHA fake.
+      - name: Ceiling-raise-evidence corpus unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_ceiling_raise_evidence_corpus.py -v --tb=short
+
+      - name: Ceiling-raise-evidence fault-injection corpus (R27 evidence contract)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_ceiling_raise_evidence_corpus.py
+
       # ---- from board-gates ----
       - name: Run electronics validation tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -2127,6 +2177,42 @@ jobs:
         # docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md.
         # Never `continue-on-error`: exit 2 means the gate could not run.
         run: uv run python scripts/check_board_containment.py
+
+      # Corpus specificity run (STRATEGY.md build order step 5) -- the
+      # FALSE-POSITIVE oracle for the containment gate directly above.
+      # Step 4's corpora measure sensitivity (does an owning gate fire on a
+      # seeded defect); this asks the other half of R9: is that gate silent
+      # on five independently-designed real boards it was never tuned
+      # against (power_pcb_dataset/corpus/)?
+      #
+      # WIRED 2026-08-18. scripts/manifest.yaml claimed `disposition:
+      # ci-gate` for it since 2026-08-08 while scripts/invocation_graph.json
+      # recorded its callers as `[]`; its one importer,
+      # scripts/tests/test_corpus_specificity.py, is not collected either
+      # (pyproject.toml testpaths does not cover scripts/tests). Flagged as
+      # unreachable in docs/evidence/2026-08-11-phase3-mutation-state-of-
+      # play.md:109 and docs/evidence/2026-08-12-gate-vacuity-structural-
+      # prevention.md:229; the label stayed anyway.
+      #
+      # Running it for the first time is what found the four
+      # check_board_containment.py false positives fixed in this same
+      # change (gr_rect outlines read as their diagonal; a 1 nm seam
+      # rejected and an internal slot silently substituted for the board;
+      # circular pads modelled as squares). It is now 0 findings across all
+      # 5 boards with all 5 checked -- which is the only state in which it
+      # is worth wiring, and the state it must be held at.
+      #
+      # Needs kicad-cli (same constraint as check_board_defect_corpus.py
+      # above, which this job already satisfies). Never `continue-on-error`:
+      # exit 2 means the oracle could not run, and an oracle that cannot run
+      # is not a pass.
+      - name: Corpus specificity unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_corpus_specificity.py -v --tb=short
+
+      - name: Corpus specificity run (containment false-positive oracle, 5 known-good boards)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_corpus_specificity.py
 
       - name: Board-defect mutation corpus (R38)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
