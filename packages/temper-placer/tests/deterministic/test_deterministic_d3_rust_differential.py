@@ -45,6 +45,8 @@ from pathlib import Path
 
 import pytest
 
+import temper_orchestration as _to
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
@@ -822,9 +824,6 @@ def test_grid_stage_chain_identical() -> None:
         slot_generation as _shim_slot_generation,
     )
     from temper_placer.deterministic.stages import (
-        zone_assignment as _shim_zone_assignment,
-    )
-    from temper_placer.deterministic.stages import (
         zone_geometry as _shim_zone_geometry,
     )
 
@@ -853,9 +852,11 @@ def test_grid_stage_chain_identical() -> None:
         nets.append(Net(net, [(ref, "1")], net_class=nc))
     netlist = Netlist(components=comps, nets=nets)
 
-    def chain(shim_zg, shim_za, shim_sg, shim_cg):
+    def chain(shim_zg, shim_sg, shim_cg, za_run=None):
         state = shim_zg.ZoneGeometryStage().run(BoardState(board=board, netlist=netlist))
-        state = shim_za.ZoneAssignmentStage().run(state)
+        # Shim-debt cleanup 2026-08-19: the zone_assignment shim module was
+        # deleted; the port arm drives the pyfunction directly.
+        state = za_run(state) if za_run is not None else _orc_zone_assignment.ZoneAssignmentStage().run(state)
         state = shim_sg.SlotGenerationStage(slot_spacing_mm=7.5).run(state)
         return shim_cg.ClearanceGridStage(
             cell_size_mm=0.5,
@@ -869,7 +870,9 @@ def test_grid_stage_chain_identical() -> None:
             pad_sizes={},
         ).run(state)
 
-    orc_state = chain(_orc_zone_geometry, _orc_zone_assignment, _orc_slot_generation, _orc_grid_stage)
-    port_state = chain(_shim_zone_geometry, _shim_zone_assignment, _shim_slot_generation, _shim_grid_stage)
+    orc_state = chain(_orc_zone_geometry, _orc_slot_generation, _orc_grid_stage)
+    port_state = chain(
+        _shim_zone_geometry, _shim_slot_generation, _shim_grid_stage, za_run=_to.run_zone_assignment
+    )
     assert {z.name for z in port_state.zones} == {"HV", "Power", "Signal", "MCU"}
     assert _grid_canon(orc_state.grid) == _grid_canon(port_state.grid)

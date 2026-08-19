@@ -1,5 +1,6 @@
-from .apply_placements import ApplyPlacementsStage
-from .base import Stage
+import temper_orchestration as _to
+
+from .base import RustFunctionStage, Stage
 from .clearance_grid import ClearanceGridStage
 from .component_assignment import ComponentAssignmentStage
 from .connectivity_validation import (
@@ -24,9 +25,38 @@ from .power_plane import TEMPER_PLANE_LAYERS, TEMPER_PLANE_NETS, PowerPlaneStage
 from .setup import DRCOracleSetupStage, NetClassSetupStage, SetupStage
 from .slot_generation import SlotGenerationStage
 from .via_validation import ViaDeduplicationStage, ViaValidationStage
-from .zone_assignment import ZoneAssignmentStage
 from .zone_aware_slot_generation import RoutingChannelAwareSlotStage, ZoneAwareSlotGenerationStage
 from .zone_geometry import ZoneGeometryStage
+
+
+class ApplyPlacementsStage(RustFunctionStage):
+    """Apply placements from BoardState to Component.initial_position.
+
+    Shim-debt cleanup (2026-08-19): the one-line shim module
+    ``stages/apply_placements.py`` was deleted; the run orchestration is
+    ``temper-orchestration``'s ``ApplyPlacementsStage`` (Phase D D7),
+    reached through ``temper_orchestration.run_apply_placements``. This
+    class survives by name because the pinned U-E pipeline oracle and the
+    ``temper-orchestration`` stage factory construct it with no arguments.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("apply_placements", _to.run_apply_placements)
+
+
+class ZoneAssignmentStage(RustFunctionStage):
+    """Assign components to zones based on net classes and component types.
+
+    Shim-debt cleanup (2026-08-19): the one-line shim module
+    ``stages/zone_assignment.py`` was deleted; the run orchestration is
+    ``temper-orchestration``'s ``ZoneAssignmentStage`` (Phase D D2), reached
+    through ``temper_orchestration.run_zone_assignment``. This class
+    survives by name because the pinned U-E pipeline oracle and the
+    ``temper-orchestration`` stage factory construct it with no arguments.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("zone_assignment", _to.run_zone_assignment)
 
 __all__ = [
     "Stage",

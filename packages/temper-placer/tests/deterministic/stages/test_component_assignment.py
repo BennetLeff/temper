@@ -8,7 +8,7 @@ from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.component_assignment import ComponentAssignmentStage
 from temper_placer.deterministic.stages.slot_generation import SlotGenerationStage
-from temper_placer.deterministic.stages.zone_assignment import ZoneAssignmentStage
+import temper_orchestration as _to
 from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
 from temper_placer.deterministic.state import BoardState
 
@@ -38,7 +38,7 @@ def test_all_components_assigned():
 
     # Pipeline: zones -> assignment -> slots -> component assignment
     state = ZoneGeometryStage().run(initial_state)
-    state = ZoneAssignmentStage().run(state)
+    state = _to.run_zone_assignment(state)
     state = SlotGenerationStage(slot_spacing_mm=5.0).run(state)
     state = ComponentAssignmentStage().run(state)
 
@@ -85,7 +85,7 @@ def test_no_overlapping_assignments():
 
     # Pipeline
     state = ZoneGeometryStage().run(initial_state)
-    state = ZoneAssignmentStage().run(state)
+    state = _to.run_zone_assignment(state)
     state = SlotGenerationStage(slot_spacing_mm=5.0).run(state)
     state = ComponentAssignmentStage().run(state)
 
@@ -120,7 +120,7 @@ def test_assignment_is_deterministic():
     def run_pipeline():
         state = BoardState(board=board, netlist=netlist)
         state = ZoneGeometryStage().run(state)
-        state = ZoneAssignmentStage().run(state)
+        state = _to.run_zone_assignment(state)
         state = SlotGenerationStage(slot_spacing_mm=5.0).run(state)
         state = ComponentAssignmentStage().run(state)
         return dict(state.placements)
