@@ -413,6 +413,63 @@ the PD3 groove minimum X = 1.5 mm and JLCPCB's 1.0 mm non-plated slot floor
 the **package** path is already adequate and the **board** path is the binding
 term. At U6 and T1 it is the package path that binds, so the slot does not help.
 
+### 5.2b The one datasheet-verified route past the U6 ceiling — and it is a topology change
+
+**No isolated gate driver reaches 12.6 mm.** The in-tree survey found every
+reinforced gate-driver IC and every optocoupler plateauing at 7–8.5 mm, and the
+UCC21550's own > 8 mm CPG (§5.2) is representative. That is a lead-frame and
+package-geometry ceiling, not a die limitation.
+
+**A wide-body digital isolator does reach it, comfortably.** Retrieved this
+session from TI's ISO7740/ISO7741/ISO7742 datasheet (SLLSEP4K), **§5.6 Insulation
+Specifications**, which tabulates three packages side by side:
+
+| parameter | DW-16 | **DUW-16** | DBQ-16 |
+|---|---:|---:|---:|
+| CLR external clearance | > 8 mm | **> 21.2 mm** | > 3.7 mm |
+| **CPG external creepage** ("shortest terminal-to-terminal distance across the package surface") | > 8 mm | **> 21.2 mm** | > 3.7 mm |
+| CTI | > 600 V | > 600 V | > 600 V |
+| Material group | I | I | I |
+| Pollution degree | 2 | 2 | 2 |
+| VIOWM max working isolation voltage | 1500 V rms / 2121 V DC | 1500 V rms / 2121 V DC | 400 V rms / 566 V DC |
+| VIOTM max transient | 8000 V pk | 8000 V pk | 4242 V pk |
+
+TI's §8 application text states the intent directly:
+
+> "The DWW package provides wider creepage and clearance without the need for two
+> isolators in series or an extra isolated power supply"
+
+(TI uses **DUW** as the package code and **DWW** as the orderable suffix for the
+same wide-body part; the in-tree candidate `ISO7741FQDWWRQ1` is this package.)
+
+**> 21.2 mm clears 12.6 mm outright, and also clears the 20.0 mm figure** that
+would apply if `tank-out`-class working voltages ever pushed a barrier into
+Table 17 row vi. This is the one candidate in the whole exercise with genuine
+headroom rather than a thin margin.
+
+Three caveats, stated plainly:
+
+1. **It is not a gate driver.** ISO7741 is a 4-channel digital isolator. Using it
+   means moving the barrier upstream of the driver and putting a non-isolated
+   gate-driver IC on the secondary side of each switch — the topology change the
+   in-tree analysis already identified. The design already has a
+   `hv_minus`-referenced 15 V rail and a bootstrap for the high side, so the
+   supply architecture is not starting from zero, but this is a redesign of the
+   gate-drive chain, not a part swap. Dead-time generation (currently the
+   UCC21550's `DT` pin, 34 kΩ → 305.4 ns) and the `DIS` safety-shutdown path
+   would both need re-homing.
+2. **Footprint growth is large and it is the placement risk.** A > 21.2 mm
+   terminal-to-terminal span means the land pattern is at least 21.2 mm across
+   the barrier, against U6's current 8.1 mm. **This is the candidate most likely
+   to disturb the placer's currently-`optimal` inter-component result** — it is
+   roughly 2.6× the current pin-row separation, plus a second driver package per
+   switch. Flagged explicitly, as requested.
+3. **The datasheet still states pollution degree 2**, as the UCC21550 does. That
+   does not undermine the candidate here, because the argument is *geometric*
+   (> 21.2 mm of actual terminal-to-terminal surface path against a 12.6 mm PD3
+   requirement), not a certification-credit argument. Per §1 no certificate is
+   being invoked.
+
 ### 5.3 T1 / T2 — the incumbent, re-verified from the vendor's own datasheet
 
 Coilcraft **Document 1608-1**, retrieved and text-extracted this session
