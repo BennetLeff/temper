@@ -46,8 +46,7 @@ scripts:
   - time
   - typing
 - path: bench_rust_constraints.py
-  purpose: Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation
-    wall-clock performance
+  purpose: 'Benchmark temper_constraints Rust loss functions (compute_*_loss_py) with N-run mean/median/stdev statistics; --ci is warn-only (no workflow caller)'
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -61,7 +60,7 @@ scripts:
   - sys
   - time
 - path: bench_rust_geometry.py
-  purpose: Benchmark Rust-backed geometry functions vs pure-Python equivalents
+  purpose: 'Benchmark temper_geometry Rust functions vs inline pure-Python equivalents, with numerical-agreement verification (no workflow caller)'
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -2269,7 +2268,7 @@ scripts:
   - typing
   - yaml
 - path: pipeline_metrics.py
-  purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
+  purpose: 'pipeline_metrics.jsonl time-series recorder/analyzer (record/trend/list subcommands); CI-invoked by metrics-record, firmware-perf-record, health-digest, metrics-trend-check'
   owner: pipeline
   last_run: '2026-08-19'
   category: keep
@@ -2282,7 +2281,7 @@ scripts:
   - pathlib
   - sys
 - path: pipeline_report.py
-  purpose: Generate self-contained static HTML pipeline report (R7, R8)
+  purpose: 'Render a self-contained static HTML report from pipeline_metrics.jsonl + pipeline_execution.json (R7, R8); CI-invoked by metrics-record.yml'
   owner: pipeline
   last_run: '2026-08-19'
   category: keep
@@ -2293,7 +2292,7 @@ scripts:
   - pathlib
   - sys
 - path: pr_perf_compare.py
-  purpose: Compare PR performance metrics against main-branch JSONL baseline
+  purpose: 'Wave-4 performance A/B HARD GATE over perf_ab benchmark NDJSON: per-benchmark noise margins, fails closed on regression (pr-perf-check.yml)'
   owner: pipeline
   last_run: '2026-08-19'
   category: keep
@@ -2308,7 +2307,7 @@ scripts:
   - sys
   - typing
 - path: pr_scorecard.py
-  purpose: 'PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table'
+  purpose: 'Informational per-stage scorecard comparing two pipeline_metrics.jsonl files (wall-time delta + DRC drift); always exit 0 (pr-pipeline-scorecard.yml)'
   owner: pipeline
   last_run: '2026-08-19'
   category: keep
@@ -2377,7 +2376,7 @@ scripts:
   - pathlib
   - sys
 - path: reconcile_metrics.py
-  purpose: Reconcile pipeline metrics across multiple runs
+  purpose: 'Merge artifact .ndjson metrics into the committed pipeline_metrics.jsonl, dedup by (git_commit, module, stage); CI-invoked by metrics-reconcile.yml'
   owner: pipeline
   last_run: '2026-08-19'
   category: keep
