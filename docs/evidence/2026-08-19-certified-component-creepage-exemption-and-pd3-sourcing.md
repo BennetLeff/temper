@@ -507,6 +507,49 @@ do not place, do not cost"** as of 2026-08-16. T2 still trips the geometric
 measurement because the footprint is still in the netlist, but it is not a part
 that will be bought or fitted. **The live CT problem is T1 only.**
 
+### 5.3a T1 — no compliant drop-in exists; the fix is a change of sensing mechanism
+
+**Stated plainly, as the brief asked: no commercially available current-sense
+transformer meets this requirement while remaining a drop-in.** The exhaustive
+survey is in-tree at `docs/evidence/2026-07-30-pd3-part-selection-k1-c6-t1.md`
+§3, whose figures are datasheet-cited. I did not re-run it — this session's web
+search budget was exhausted before I reached this category, which I record here
+rather than papering over. What I *did* independently verify is the incumbent
+(§5.3). The survey's own results:
+
+| part | primary↔secondary creepage (datasheet) | sensed current | verdict |
+|---|---|---|---|
+| Coilcraft CST3015-100ED (incumbent) | "at least 8 mm" | 88 A | short of 12.6 mm |
+| Coilcraft CST1211 | 9 mm creepage / 8 mm clearance | 28 A max | short, and under the 50 A trip |
+| Coilcraft CS4100V-01L | **3 mm** | 35 A max | far short |
+| TDK B78419A | ≥ 6 mm | ~30 A | short |
+
+The requirement that disqualifies most alternatives is not creepage at all: T1's
+burden and OCP-01 comparator are built around **1:100** and the trip sits at
+**50.1 A**, so a replacement must sense meaningfully above 50 A or the core
+saturates and the OCP trips late or never. Higher hipot ratings do **not** track
+with more PCB creepage — CS4100V-01L has 3750 V rms hipot with 3 mm creepage.
+That is the same lesson as the relay case: an internal withstand rating and an
+external pad-to-pad distance are different numbers.
+
+**But it is not a physics ceiling.** The survey's §3.5 follow-up found that
+aperture/toroid CTs (Talema ASM, ICE Components CT07/CT08/CT10) have **no primary
+PCB pin at all** — the primary is whatever wire or bus bar the designer threads
+through the core bore. For those parts the primary-to-secondary pad-to-pad
+distance stops being a component constant and becomes a board-layout choice,
+which dissolves this specific failure mode by construction.
+
+The cost is real and should not be understated: those parts are ratio-mismatched
+by orders of magnitude (ASM ≈ 1:163 000 effective, CT07 1:1000, CT08 1:1200), so
+adopting one means redesigning the turns ratio, the burden resistor and the
+OCP-01 comparator reference divider together. The ICE parts additionally carry
+**no third-party insulation certificate** — only manufacturer hipot testing and a
+UL-94V-0 flammability mark, which is a clause-30.2 materials rating, not
+clause-29 insulation coordination.
+
+**So T1's honest disposition is: change the sensing mechanism, or send it to the
+lab.** It is not a part-substitution problem and no purchase order fixes it.
+
 ### 5.4 Why every incumbent lands on 8 mm — the PD2 cliff, confirmed in three vendors' own numbers
 
 The brief's hypothesis was that 8 mm is the industry-standard reinforced-isolation
