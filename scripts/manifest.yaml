@@ -1337,7 +1337,8 @@ scripts:
   - re
   - sys
 - path: check_script_sunset.py
-  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
+  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock; skips keep-WARNING for scripts
+    referenced by .github/workflows/ jobs (stale invocation graph cannot manufacture false positives)'
   owner: pipeline
   last_run: '2026-08-19'
   category: keep
@@ -1347,6 +1348,7 @@ scripts:
   - datetime
   - json
   - pathlib
+  - re
   - sys
 - path: check_sil_coverage.py
   purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
