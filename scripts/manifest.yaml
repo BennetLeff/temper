@@ -1,10 +1,10 @@
 _meta:
-  last_audit_date: '2026-08-05'
-  total_scripts: 119
+  last_audit_date: '2026-08-19'
+  total_scripts: 173
   counts:
-    keep: 115
-    ticket: 0
-  ticket_scripts_deleted: 40
+    keep: 160
+    ticket: 13
+  ticket_scripts_deleted: 43
 scripts:
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
@@ -35,7 +35,7 @@ scripts:
   purpose: 'A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb'
   owner: router-v6-closure-rate
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -71,31 +71,6 @@ scripts:
   - statistics
   - temper_geometry
   - time
-- path: bless_baselines.py
-  purpose: Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-  imports:
-  - argparse
-  - json
-  - pathlib
-  - subprocess
-  - sys
-  - typing
-  - yaml
-- path: bmc_adoption_gate.py
-  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - ast
-  - pathlib
-  - sys
 - path: board_defect_mutator.py
   purpose: 'Board-defect mutation corpus (R38, plan 2026-08-02-024): deterministic seeded transforms that
     produce a mutated copy of pcb/temper.kicad_pcb for each defect class (component off-board, pad short,
@@ -119,7 +94,7 @@ scripts:
   purpose: Calibrate DRC violation ceiling for Rust DRC engine
   owner: pipeline
   last_run: '2026-06-30'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - argparse
@@ -1731,7 +1706,7 @@ scripts:
   purpose: Compare DRC reports across runs (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - dataclasses
@@ -1781,7 +1756,7 @@ scripts:
   purpose: Debug differential pair path (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - pathlib
@@ -1804,19 +1779,11 @@ scripts:
   - dataclasses
   - pathlib
   - sys
-- path: extract_corpus_baselines.py
-  purpose: Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-  imports:
-  - sys
 - path: full_pipeline_profile.py
   purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2357,7 +2324,7 @@ scripts:
   purpose: Profile router_v6 on a small subset of nets for sampling analysis
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2372,7 +2339,7 @@ scripts:
   purpose: Compare Rust vs Python SAT solver backend performance on closure test
   owner: unassigned
   last_run: '2026-06-28'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2478,7 +2445,7 @@ scripts:
   purpose: Run iterative feedback loop (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - argparse
@@ -2511,7 +2478,7 @@ scripts:
   purpose: SLO definition schema and evaluation engine
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2522,7 +2489,7 @@ scripts:
   purpose: Western Electric SPC rules — pure Python, no external stats dependency
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2625,7 +2592,7 @@ scripts:
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: ci-gate
   imports:
   - __future__
@@ -2638,7 +2605,7 @@ scripts:
   purpose: Validate footprint assignments (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - argparse
@@ -2649,7 +2616,7 @@ scripts:
   purpose: Verify PROOFS.toml completeness — CI gate
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: ci-gate
   imports:
   - __future__
