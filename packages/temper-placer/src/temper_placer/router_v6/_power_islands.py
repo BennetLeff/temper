@@ -136,6 +136,33 @@ than silently skipped):**
   partial result, reported per-rail via
   ``PowerIslandResult.mst_edges_astar_routed_count`` /
   ``mst_edges_fallback_count``.
+- **UPDATED 2026-08-19**: the MST backbone is no longer on ``F.Cu`` at
+  all. It is on ``PLANE_LAYER`` (``In2.Cu``), the layer the pours are on,
+  so "every other net's/rail's existing F.Cu copper" above now reads as
+  "every other net's/rail's copper reaching ``In2.Cu``" -- which on this
+  board is foreign THROUGH-VIA BARRELS, the gnd plane's own drop vias,
+  and the other three rails. See ``BACKBONE_LAYER``'s comment for why the
+  F.Cu choice was a workaround for a ``pad_connectivity_audit.py``
+  limitation that no longer exists, and the MST-backbone emission site for
+  the per-rail cost of leaving it. Consequences recorded here because
+  they change this module's shape, not just a constant:
+
+  * ``generate_power_islands_blocks`` is now a **two-pass** loop. Pass 1
+    computes all four rails' zone footprints; pass 2 places their vias and
+    routes their backbones. With the backbone on the shared plane, a rail
+    must clear the pours of rails that come AFTER it in priority order,
+    and in a single pass those pours do not exist yet. Priority ordering
+    alone cannot fix that -- whichever rail routes first is blind to all
+    the rest. Full rationale at the pass-1 loop head.
+  * The backbone spans **barrel positions**, not pad positions. On F.Cu a
+    pad position is the pad's own copper; on ``In2.Cu`` it is bare metal,
+    reached only where a plated barrel passes through. ``_ground_plane.py``
+    measured the difference on ``In1.Cu`` the day before: pad positions
+    gave 204 plane segments and moved connectivity 5 -> 7 of 88 pads;
+    barrel positions moved it to 16 and cut that net's copper from 54
+    components to 8.
+  * ``STUB_LAYER`` (``F.Cu``) is now separate from ``BACKBONE_LAYER``: the
+    pad-to-offset-via stub must stay on the pad's own layer.
 """
 
 from __future__ import annotations
@@ -161,13 +188,34 @@ from temper_placer.router_v6._ground_plane import (
 logger = logging.getLogger(__name__)
 
 PLANE_LAYER = "In2.Cu"
-# Same reasoning as _ground_plane.py's BACKBONE_LAYER choice: a via only
-# unions pad_connectivity_audit's graph nodes for the layers *literally
-# present* in its own ``via.layers`` tuple (a real, documented gap in that
-# tool -- see _ground_plane.py's MST-layer-choice comment), so the
-# backbone must land on a layer the via's own ``(layers "F.Cu" "B.Cu")``
-# tuple already names, not on PLANE_LAYER itself.
-BACKBONE_LAYER = "F.Cu"
+# CHANGED 2026-08-19 (F.Cu -> PLANE_LAYER), mirroring the identical fix
+# `_ground_plane.py` took the day before (a71765efe). The comment this
+# replaced read:
+#
+#   "a via only unions pad_connectivity_audit's graph nodes for the layers
+#    *literally present* in its own ``via.layers`` tuple ... so the
+#    backbone must land on a layer the via's own ``(layers "F.Cu" "B.Cu")``
+#    tuple already names, not on PLANE_LAYER itself."
+#
+# That was true when it was written (ce4c132d6, 2026-08-11) and stopped
+# being true five days later: ``dabbeaf73`` (2026-08-16) taught
+# ``pad_connectivity_audit._parse_segments_and_vias`` KiCad's real via
+# typing, so an untyped ``(via ...)`` is now parsed as a THROUGH via
+# (``layers=()``, the ``CopperVia`` convention for "spans every layer the
+# checker knows about") and unions across the whole stack, In2.Cu
+# included -- exactly as the physical board does. Nobody revisited this
+# constant, so the workaround outlived its cause here just as it did in
+# the sibling module. See the MST-backbone emission site below for the
+# measured cost of leaving it (all four rails' backbones were competing
+# for corridor space on F.Cu, the board's most congested layer, against
+# 652 routed segments and a 27499 mm^2 HV keepout: 43/49 +3V3 edges and
+# 100% of vcc's, +15V's and V_BUS_SENSE's were dropped fail-closed).
+BACKBONE_LAYER = PLANE_LAYER
+# The pad-to-offset-via stub is NOT on BACKBONE_LAYER: it exists to join a
+# rail pad to the drop via that had to move off the pad centre, and the
+# pad is on F.Cu. A stub on an inner layer would touch neither. The via
+# itself (a through-via) carries the join down to BACKBONE_LAYER.
+STUB_LAYER = "F.Cu"
 
 # NOTE: the comment this replaced claimed this matched design_rules.py's
 # Power netclass via convention "0.8/0.4mm exactly" -- that was already
@@ -237,6 +285,21 @@ OTHER_NET_CLEARANCE_MM = 0.05
 # netclass clearance (design_rules.py: 0.25mm) with a small margin so a
 # KiCad zone-fill pass (which itself adds clearance beyond a bare
 # polygon-vs-polygon touch) has room to work with.
+#
+# DEMOTED TO A FLOOR, 2026-08-19. The "design_rules.py: 0.25mm" the
+# sentence above cites is stale: ``TEMPER_NET_CLASSES["Power"].clearance``
+# is 0.5mm today, and so is ``pcb/temper.kicad_pro``'s ``Power`` class --
+# the value kicad-cli's own DRC enforces, and the one every rail here
+# resolves to (all four are explicitly assigned ``Power`` in
+# ``netclass_assignments``). 0.4mm was therefore BELOW the rule it claimed
+# to implement.
+#
+# Rather than re-tune this literal (which would drift again the next time
+# the netclass moves), every inter-rail separation in this module now
+# takes ``max(this floor, _inter_rail_gap_mm(...))`` -- the pair clearance
+# read from the .kicad_pro SSOT. This constant survives only as a lower
+# bound, so a board whose netclass demanded LESS than 0.4mm would still
+# get 0.4mm. It can no longer be the binding value on this board.
 INTER_RAIL_CLEARANCE_MM = 0.4
 
 DEFAULT_DOMAIN_MANIFEST_PATH = Path("elec/domain_manifest.yaml")
@@ -256,6 +319,43 @@ __all__ = [
     "generate_power_islands_blocks",
     "generate_power_islands_content",
 ]
+
+
+def _inter_rail_gap_mm(
+    net_a: str,
+    net_b: str,
+    net_clearance: dict[str, float],
+    default_clearance: float,
+) -> float:
+    """Edge-to-edge copper gap kicad-cli's DRC will require between
+    *net_a*'s and *net_b*'s copper on a shared layer.
+
+    KiCad resolves a pair's clearance as the MAX of the two nets' own
+    netclass clearances (falling back to the ``Default`` class for a net
+    with no assignment), which is the same convention
+    ``_corridor_backbone.collect_other_net_copper_by_pairwise_clearance``
+    already uses for foreign copper. Derived from
+    ``resolve_netclass_clearances`` -- i.e. from ``pcb/temper.kicad_pro``,
+    the file kicad-cli itself reads -- rather than from a module-local
+    literal, precisely because the module-local literal
+    (``INTER_RAIL_CLEARANCE_MM``) had already drifted below the class it
+    claimed to mirror; that constant is now only a lower bound, and every
+    caller here takes ``max(floor, this)``. See its own comment.
+
+    Not a creepage figure and deliberately not compared against one: all
+    four ``POWER_ISLAND_NETS`` are SELV/LV (``elec/domain_manifest.yaml``
+    declares ``V_BUS_SENSE`` SELV explicitly, and ``design_rules.py``
+    gives the ``Power`` class ``safety_category="LV"``), so rail-to-rail
+    is ordinary electrical clearance. The reinforced 12.6mm barrier
+    between any of these and the HV domain is enforced separately and
+    unchanged, by the ``compute_hv_selv_keepout`` region every one of
+    this module's obstacle sets already carries.
+    """
+    return max(
+        net_clearance.get(net_a, default_clearance),
+        net_clearance.get(net_b, default_clearance),
+        default_clearance,
+    )
 
 
 class PowerIslandResult:
@@ -434,10 +534,75 @@ def generate_power_islands_blocks(
     # of that an EARLIER rail in this same run just added.
     other_rail_zone_region: Polygon | None = None  # In2.Cu, this run only
     run_new_holes: list[tuple[float, float, float]] = []  # any layer, this run
-    run_new_fcu_copper: list[Polygon] = []  # vias + backbone, F.Cu, this run
-    run_new_bcu_copper: list[Polygon] = []  # vias, B.Cu, this run
+    run_new_fcu_copper: list[Polygon] = []  # via barrels + stubs, F.Cu, this run
+    run_new_bcu_copper: list[Polygon] = []  # via barrels, B.Cu, this run
+    # NEW 2026-08-19: via barrels + BACKBONE segments on PLANE_LAYER. The
+    # backbone used to live on F.Cu and was accumulated into
+    # ``run_new_fcu_copper``; it is now real In2.Cu copper and belongs in
+    # the accumulator every later rail's In2.Cu geometry is kept clear of.
+    run_new_plane_copper: list[Polygon] = []  # via barrels + backbone, In2.Cu
 
     results: dict[str, PowerIslandResult] = {}
+
+    # ---------------------------------------------------------------
+    # INTER-RAIL SEPARATION ON A SHARED PLANE -- the one geometry problem
+    # `_ground_plane.py` never had to solve, and the reason this generator
+    # is now a TWO-PASS loop rather than the single pass it was.
+    #
+    # In1.Cu carries exactly one net, so gnd's backbone could be routed
+    # the moment gnd's own pour existed. In2.Cu carries four, and moving
+    # this module's backbone onto it means +3V3's backbone is now copper
+    # on the same layer as vcc's pour, +15V's pour and V_BUS_SENSE's pour.
+    # A 1.0mm +3V3 trace crossing the vcc pour is not a clearance nibble;
+    # it is a rail-to-rail short.
+    #
+    # The scheme is PRIORITY ORDERING (the option this module already
+    # chose for its zones, extended to the plane's conductors) plus the
+    # pass split that ordering alone cannot supply:
+    #
+    #   Pass 1 -- every rail's ZONE footprint, in POWER_ISLAND_NETS order
+    #     (pad-count descending). Rail N's pour region excludes every
+    #     EARLIER rail's pour, buffered by the real pair clearance (see
+    #     the clip site: 0.5mm here, up from a flat 0.4mm that was below
+    #     the Power netclass). The four footprints come out pairwise
+    #     disjoint at the gap kicad-cli enforces. This pass emits no via
+    #     and no track, so it depends on nothing a later pass produces.
+    #
+    #   Pass 2 -- every rail's DROP VIAS and BACKBONE, same order. Rail
+    #     N's obstacle set now contains all THREE other rails' finished
+    #     pours, not just the earlier ones, because pass 1 has already
+    #     run to completion. Plus every EARLIER rail's In2.Cu vias and
+    #     backbone (``run_new_plane_copper``), which is what keeps two
+    #     rails' conductors apart in the gaps BETWEEN pours.
+    #
+    # Why the split is load-bearing and not cosmetic: in the old single
+    # pass, when +3V3 (first) routed, vcc/+15V/V_BUS_SENSE had no pour
+    # geometry yet -- they did not exist to avoid. That was harmless while
+    # the backbone was on F.Cu and the pours were on In2.Cu. Move the
+    # backbone to In2.Cu without splitting the pass and the highest-
+    # priority rail, the one with the most edges, routes straight across
+    # the three pours that have not been computed yet. Ordering cannot fix
+    # that on its own: whichever rail goes first is blind to all the rest.
+    #
+    # Why priority ordering rather than a Voronoi/nearest-pour partition
+    # of the free plane area: the guarantee needed here is mutual
+    # separation, and sequential accumulation already gives it in full --
+    # rail N avoids every other rail's pour AND every earlier rail's
+    # conductors, and every later rail avoids N's, so no ordered pair is
+    # unchecked. A territory partition would additionally guarantee
+    # FAIRNESS (a high-priority rail cannot wall a low-priority one out of
+    # a corridor), which is a routing-quality property, not a safety one,
+    # and would introduce a second, independently-wrong-able notion of
+    # where a rail is allowed to be. Not paid for here; if the per-rail
+    # numbers show a starved low-priority rail it is visible directly in
+    # ``mst_edges_dropped_count``.
+    #
+    # Determinism: pass 1 is a pure function of the board and the fixed
+    # ``nets`` order; pass 2 consumes pass 1's completed output and the
+    # same fixed order. No set iteration, no dict-order dependence, no
+    # geometry keyed on anything but that order.
+    # ---------------------------------------------------------------
+    rail_state: list[dict] = []
 
     for net_name in nets:
         net_num = name_to_num.get(net_name)
@@ -523,8 +688,56 @@ def generate_power_islands_blocks(
         )
         plane_region = plane_region_base
         if other_rail_zone_region is not None:
+            # RAISED 2026-08-19 from the bare INTER_RAIL_CLEARANCE_MM
+            # (0.4mm) to the larger of that floor and the pair clearance
+            # kicad-cli will actually enforce -- 0.5mm for any Power/Power
+            # pair on this board, since all four rails are explicitly
+            # assigned ``Power`` in ``pcb/temper.kicad_pro``. This is a
+            # RAISE toward the SSOT, never a relaxation: the constant is
+            # kept as a floor, so a board whose netclass demanded LESS
+            # than 0.4mm would still get 0.4mm here.
+            #
+            # This clip DOES bind -- measured, in-process, by forcing the
+            # gap to each value and comparing the emitted pours:
+            #
+            #   clip    +3V3<->vcc   +3V3<->+15V   vcc<->+15V   vcc area   +15V area
+            #   0.4mm     0.3995mm      0.3993mm     0.3995mm   284.42     53.73
+            #   0.5mm     0.4994mm      0.4991mm     0.4994mm   278.37     49.27
+            #
+            # (the ~0.0006mm shortfall is shapely's polygonal approximation
+            # of the buffer arc, not a rule violation.) So at 0.4mm three
+            # of the six rail pairs really did sit 0.1mm inside the 0.5mm
+            # Power/Power clearance kicad-cli enforces. That is the defect
+            # this fixes, and it is a fix to the POUR, independent of the
+            # backbone work around it.
+            #
+            # Honest scope, because the first version of this comment
+            # claimed more and the claim was falsified: this raise was
+            # ALSO hypothesised to recover the drop vias the three small
+            # rails lose once the plane carries conductors (vcc 2 -> 7
+            # unresolved, +15V 4 -> 7, V_BUS_SENSE 1 -> 3; +15V down to
+            # zero copper objects of its own). It does not. A full
+            # `route_board.py` regeneration with the clip at 0.5mm
+            # produced a BYTE-IDENTICAL board to the same run at 0.4mm
+            # (sha256 697bad89...), so on this board the raise costs
+            # nothing and recovers nothing in the production artefact.
+            # Those vias are lost to a different new obstacle -- the
+            # earlier rails' own In2.Cu conductors, +3V3's 227-segment
+            # backbone chief among them -- which is the price of priority
+            # ordering, not of this gap. See the pass-1 loop head for why
+            # that price was accepted rather than partitioned away, and
+            # `PowerIslandResult.via_unresolved_conflict_count` for where
+            # it shows up per rail.
+            _zone_clip_gap_mm = INTER_RAIL_CLEARANCE_MM
+            for _prior in rail_state:
+                _zone_clip_gap_mm = max(
+                    _zone_clip_gap_mm,
+                    _inter_rail_gap_mm(
+                        net_name, _prior["net_name"], _net_clearance, _default_clearance
+                    ),
+                )
             plane_region = plane_region.difference(
-                other_rail_zone_region.buffer(INTER_RAIL_CLEARANCE_MM)
+                other_rail_zone_region.buffer(_zone_clip_gap_mm)
             )
 
         zone_polys: list[Polygon] = []
@@ -626,6 +839,58 @@ def generate_power_islands_blocks(
             if not merged_pour.is_empty:
                 pour_region = merged_pour
 
+        rail_state.append(
+            {
+                "net_name": net_name,
+                "net_num": net_num,
+                "positions": positions,
+                "through_hole_positions": through_hole_positions,
+                "pour_region": pour_region,
+                "zone_polys": zone_polys,
+                "pour_area_mm2": pour_area_mm2,
+            }
+        )
+
+    # =================== PASS 2: vias + backbone ===================
+    # Every rail's pour footprint now exists, so a rail routing here can
+    # be held clear of ALL the others', not just the ones that happened to
+    # precede it. See the pass-split rationale above the pass-1 loop.
+    for _rail_index, _rail in enumerate(rail_state):
+        net_name = _rail["net_name"]
+        net_num = _rail["net_num"]
+        positions = _rail["positions"]
+        through_hole_positions = _rail["through_hole_positions"]
+        pour_region = _rail["pour_region"]
+
+        # Every OTHER rail's finished In2.Cu pour, buffered by the gap
+        # kicad-cli will actually demand between this rail and that one
+        # (0.5mm for any Power/Power pair on this board -- see
+        # `_inter_rail_gap_mm`; the same figure the pass-1 zone clip now
+        # uses, so a via sitting inside its own pour is automatically
+        # clear of the neighbour rather than caught between two
+        # constraints that disagreed by 0.1mm). This is the obstacle that
+        # did not and could not exist while this generator was a single pass, and it
+        # is what stops +3V3's backbone -- 49 MST edges over the widest
+        # span on the board -- from crossing the vcc/+15V/V_BUS_SENSE
+        # pours it now shares a layer with.
+        _other_rail_pours = [
+            (_o["pour_region"], _o["net_name"])
+            for _k, _o in enumerate(rail_state)
+            if _k != _rail_index and _o["pour_region"] is not None
+        ]
+        other_rail_plane_zone_avoid: Polygon | None = None
+        if _other_rail_pours:
+            other_rail_plane_zone_avoid = unary_union(
+                [
+                    _poly.buffer(
+                        _inter_rail_gap_mm(
+                            net_name, _other_name, _net_clearance, _default_clearance
+                        )
+                    )
+                    for _poly, _other_name in _other_rail_pours
+                ]
+            )
+
         # --- Drop vias + MST backbone. Vias: keepout + this run's own
         # prior new copper + OTHER nets' pre-existing F.Cu/B.Cu copper
         # are all hard obstacles for the per-point via-placement search
@@ -681,8 +946,17 @@ def generate_power_islands_blocks(
         # own drop vias -- its `emitted_geoms` spans every copper layer --
         # so this brings the sibling generator up to the same standard
         # rather than inventing a new rule. In1.Cu is in the list because
-        # the gnd plane's backbone now lands there, In2.Cu is this rail's
-        # own layer and is handled by the inter-rail zone separation.
+        # the gnd plane's backbone now lands there.
+        #
+        # In2.Cu joined the list 2026-08-19. The line this replaced read
+        # "In2.Cu is this rail's own layer and is handled by the
+        # inter-rail zone separation" -- true only while the zone was the
+        # ONLY thing this generator put on In2.Cu. It now also puts a
+        # backbone there, and anything the CALLER routed onto In2.Cu is
+        # equally real copper a through-via barrel would pierce. This term
+        # covers the caller-supplied case; sibling rails' own backbones
+        # this same run are in `new_blocks`, not `segments`, and are
+        # covered by `run_new_plane_copper` below.
         routed_inner_avoid = [
             routed_segments_obstacle(
                 segments, net_name, other_layer, num_to_name,
@@ -690,8 +964,15 @@ def generate_power_islands_blocks(
                 _net_clearance.get(net_name, _default_clearance),
                 _default_clearance,
             )
-            for other_layer in ("In1.Cu", "In3.Cu", "In4.Cu")
+            for other_layer in ("In1.Cu", PLANE_LAYER, "In3.Cu", "In4.Cu")
         ]
+        # Kept at the pre-2026-08-19 composition ON PURPOSE: this union is
+        # ALSO the gate for the F.Cu pad-to-via stub below, and the two
+        # new In2.Cu terms (other rails' pours, earlier rails' plane
+        # conductors) are not obstacles for a track on F.Cu. Folding a
+        # whole rail-sized In2.Cu pour into the stub's gate would block
+        # nearly every stub on the board for a collision that does not
+        # exist. The via search gets the wider set below.
         via_avoid_parts = [
             g
             for g in (
@@ -708,6 +989,25 @@ def generate_power_islands_blocks(
         via_avoid_copper: Polygon | None = (
             unary_union(via_avoid_parts) if via_avoid_parts else None
         )
+        # The drop via is a THROUGH via: its barrel is copper on In2.Cu
+        # too, so it must clear every other rail's pour and every earlier
+        # rail's plane conductors as well as everything above. Strictly a
+        # superset of `via_avoid_copper` -- this can only move a via or
+        # skip it fail-closed, never place one the narrower set refused.
+        via_plane_avoid_parts = [
+            g
+            for g in (
+                other_rail_plane_zone_avoid,
+                *run_new_plane_copper,
+            )
+            if g is not None
+        ]
+        via_avoid_copper_all_layers: Polygon | None = via_avoid_copper
+        if via_plane_avoid_parts:
+            via_avoid_copper_all_layers = unary_union(
+                ([via_avoid_copper] if via_avoid_copper is not None else [])
+                + via_plane_avoid_parts
+            )
 
         existing_holes = _existing_drilled_holes(pcb, net_name) + list(run_new_holes)
 
@@ -716,11 +1016,41 @@ def generate_power_islands_blocks(
         via_unresolved_conflict = 0
         via_radius_mm = VIA_SIZE_MM / 2.0
         this_rail_vias: list[Polygon] = []
+        this_rail_stubs: list[Polygon] = []
+        # The nodes the MST backbone will actually span, in the order they
+        # are established here. NOT ``positions``: the backbone now runs on
+        # BACKBONE_LAYER (In2.Cu), and an In2.Cu point only reaches this
+        # rail's copper where a PLATED BARREL passes through it. A rail pad
+        # is F.Cu copper, not In2.Cu copper -- a backbone endpoint parked
+        # on a bare pad position is floating metal on the plane layer,
+        # joined to nothing.
+        #
+        # `_ground_plane.py` measured exactly this on In1.Cu the day
+        # before: spanning PAD positions put 204 segments on the plane and
+        # moved connectivity 5 -> 7 of 88 pads; spanning BARREL positions
+        # moved it to 16 and cut gnd's copper from 54 components to 8. The
+        # premise transfers because the cause does -- the drop-via search
+        # here offsets a via off its pad for the same reasons (occupied
+        # hole, foreign copper, keepout, and additionally this module's
+        # `pour_region` constraint), and `via_offset_count` reports how
+        # often per rail.
+        #
+        # Exactly two kinds of point are real nodes on this layer:
+        #   * a through-hole rail pad -- its own plated hole spans every
+        #     copper layer it lists, so the pad position IS an In2.Cu node
+        #     (this is the ``via_skipped_through_hole`` branch);
+        #   * the drop point of a via this loop emits (a through-via).
+        # A pad whose via was skipped fail-closed (``via_unresolved_
+        # conflict``) contributes NO node: no conductor joins it to this
+        # layer, so spanning to it would emit copper that cannot carry its
+        # current.
+        backbone_positions: list[tuple[float, float]] = []
 
         for x, y in positions:
             key = (round(x, 3), round(y, 3))
             if through_hole_positions.get(key, False):
                 via_skipped_through_hole += 1
+                backbone_positions.append((x, y))
                 continue
 
             drop_point, needs_stub = _find_via_drop_point(
@@ -728,7 +1058,7 @@ def generate_power_islands_blocks(
                 existing_holes=existing_holes,
                 via_radius_mm=via_radius_mm,
                 keepout=keepout if keepout_established else None,
-                other_copper=via_avoid_copper,
+                other_copper=via_avoid_copper_all_layers,
                 board_polygon=board_polygon,
                 pour_region=pour_region,
             )
@@ -753,6 +1083,7 @@ def generate_power_islands_blocks(
             existing_holes.append((vx, vy, via_radius_mm))
             run_new_holes.append((vx, vy, via_radius_mm))
             this_rail_vias.append(Point(vx, vy).buffer(via_radius_mm + OTHER_NET_CLEARANCE_MM, quad_segs=8))
+            backbone_positions.append((vx, vy))
             if needs_stub:
                 via_offset_count += 1
                 # RAISED 2026-08-17 (stitch-congestion root-cause fix, see
@@ -782,28 +1113,79 @@ def generate_power_islands_blocks(
                     and stub_footprint.intersects(via_avoid_copper)
                 )
                 if not stub_blocked:
+                    # STUB_LAYER, not BACKBONE_LAYER (2026-08-19). These
+                    # two constants were the same string until the
+                    # backbone moved to In2.Cu; the stub must stay on the
+                    # PAD's layer or it joins neither the pad nor the via.
                     new_blocks.append(
                         f"  (segment (start {x:.4f} {y:.4f}) (end {vx:.4f} {vy:.4f})"
-                        f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{BACKBONE_LAYER}")'
+                        f' (width {STITCH_TRACE_WIDTH_MM:.4f}) (layer "{STUB_LAYER}")'
                         f" (net {net_num}) (tstamp \"{_next_tstamp()}\"))"
                     )
+                    # Accumulate the stub as this rail's F.Cu copper. It
+                    # never was before -- only vias and (then-F.Cu)
+                    # backbone segments went into `run_new_fcu_copper` --
+                    # so a later rail's via could be dropped on an earlier
+                    # rail's stub. That gap was masked while the F.Cu
+                    # backbone dominated the accumulator; with the
+                    # backbone gone from F.Cu the stubs are most of what
+                    # this generator still puts there, so the omission
+                    # would now be the whole of it.
+                    this_rail_stubs.append(
+                        LineString([(x, y), (vx, vy)]).buffer(
+                            STITCH_TRACE_WIDTH_MM / 2.0 + OTHER_NET_CLEARANCE_MM,
+                            quad_segs=8,
+                        )
+                    )
 
-        edges = mst_edges(positions)
+        edges = mst_edges(backbone_positions)
 
         # --- Corridor-aware A* pass (see _corridor_backbone.py's module
         # docstring): try a real, collision-avoiding path for every MST
-        # edge first, over a grid that blocks the HV keepout, every
-        # OTHER net's existing F.Cu copper (other_copper_fcu, already
-        # computed above for via placement), AND every earlier rail's
-        # new copper this same run (run_new_fcu_copper) -- the one
-        # power-islands-specific obstacle _ground_plane.py never has
-        # (In1.Cu carries exactly one net; In2.Cu carries four, each
-        # needing to stay off the others' F.Cu backbone too). The
-        # keepout-only `_blocked`/one-bend-detour loop below is the
-        # fallback for edges this cannot solve (a measured, genuine
-        # physical disconnection for a real fraction of edges -- see
-        # that module's docstring), so connectivity per rail can only
-        # improve edge-by-edge, never regress below the prior behaviour.
+        # edge first, over a grid that blocks the HV keepout and every
+        # other net's copper ON BACKBONE_LAYER. The keepout-only
+        # `_blocked`/one-bend-detour loop below is the fallback for edges
+        # this cannot solve (a measured, genuine physical disconnection
+        # for a real fraction of edges -- see that module's docstring), so
+        # connectivity per rail can only improve edge-by-edge, never
+        # regress below the prior behaviour.
+        #
+        # LAYER CHOICE, measured not assumed -- REVISED 2026-08-19 to
+        # PLANE_LAYER (In2.Cu), for the reason recorded at BACKBONE_LAYER
+        # (the `pad_connectivity_audit` limitation this module worked
+        # around was fixed by dabbeaf73 five days after this module
+        # landed). Keeping it on F.Cu was not free. F.Cu carries 652
+        # routed segments and this module's own HV keepout covers
+        # 27499 mm^2, so four separate 1.0mm rail backbones were competing
+        # for whatever corridor was left, each also treating the previous
+        # rails' F.Cu copper as an obstacle. Measured from this
+        # generator's own per-run log output on the committed board:
+        #
+        #   net           pads  backbone edges dropped  pads attached
+        #   +3V3           50   43 of 49                23/50
+        #   vcc            13   12 of 12 (all)           6/13
+        #   +15V           10    9 of 9  (all)           3/10
+        #   V_BUS_SENSE     4    3 of 3  (all)           0/4
+        #
+        # -- 74 of the board's 304 remaining unconnected edges, and In2.Cu
+        # carrying zero copper of any kind. On In2.Cu the same A* runs
+        # against the HV keepout, the foreign VIA BARRELS, and the other
+        # three rails, instead of against the whole front-side route.
+        #
+        # Those barrels are a prerequisite, not a follow-up: 80 foreign-net
+        # vias sit inside the +3V3 In2.Cu outline, and until 2026-08-19
+        # `_via_is_on_layer` short-circuited to False for In1.Cu/In2.Cu
+        # (it indexed the ROUTER's signal-layer list, which excludes both
+        # declared-power layers), so no via was ever an obstacle here.
+        # Putting copper on this layer without that fix would have routed
+        # 1.0mm rail traces straight through other nets' via barrels.
+        # `a71765efe` fixed it; both `_collect_other_net_copper` and
+        # `collect_other_net_copper_by_pairwise_clearance` now route their
+        # via test through it, so the sets built below really do contain
+        # those 80.
+        #
+        # The pad-to-via stubs stay on STUB_LAYER (F.Cu) -- a rail pad is
+        # F.Cu copper, and the through-via carries the join down.
         from temper_placer.core.topology import UnionFind
         from temper_placer.router_v6._corridor_backbone import (
             build_obstacle_grid,
@@ -816,30 +1198,71 @@ def generate_power_islands_blocks(
         # NOT other_copper_fcu (built above at OTHER_NET_CLEARANCE_MM
         # =0.05mm for via placement); see
         # _corridor_backbone.resolve_netclass_clearances's docstring.
-        # run_new_fcu_copper (earlier rails' new copper this run) is
-        # additionally buffered by INTER_RAIL_CLEARANCE_MM here -- those
-        # polygons already carry ~0.05mm from their own construction
-        # (_emit_segment/this_rail_vias), so this brings their effective
-        # standoff up near the same ballpark as the real Power-class
-        # pairwise clearance without re-deriving them from raw geometry.
+        #
+        # Built for BACKBONE_LAYER, not F.Cu (2026-08-19). The copper this
+        # backbone has to avoid is the copper on the layer it is on, which
+        # on In2.Cu is the foreign via barrels passing through it plus
+        # whatever this run put there -- no pre-existing track on this
+        # board is on In2.Cu.
         this_net_own_clearance = _net_clearance.get(net_name, _default_clearance)
-        other_copper_fcu_backbone = collect_other_net_copper_by_pairwise_clearance(
-            pcb, net_name, "F.Cu", _net_clearance, this_net_own_clearance, _default_clearance
+        other_copper_plane_backbone = collect_other_net_copper_by_pairwise_clearance(
+            pcb, net_name, BACKBONE_LAYER, _net_clearance, this_net_own_clearance,
+            _default_clearance,
         )
-        # The route's own F.Cu copper (and the earlier gnd plane, which is
-        # part of *segments* by now) is an obstacle for the backbone search
-        # too -- see routed_segments_obstacle's docstring.
-        routed_fcu_backbone = routed_segments_obstacle(
-            segments, net_name, "F.Cu", num_to_name,
+        # The route's own copper reaching BACKBONE_LAYER (the gnd plane's
+        # blocks are part of *segments* by now, and its drop vias are
+        # through-vias whose barrels pierce In2.Cu) -- see
+        # routed_segments_obstacle's docstring.
+        routed_plane_backbone = routed_segments_obstacle(
+            segments, net_name, BACKBONE_LAYER, num_to_name,
             _net_clearance, this_net_own_clearance, _default_clearance,
         )
-        prior_rail_backbone_obstacles = [
-            g.buffer(INTER_RAIL_CLEARANCE_MM) for g in run_new_fcu_copper
-        ]
-        backbone_grid = build_obstacle_grid(
-            board_polygon,
-            [keepout, other_copper_fcu_backbone, routed_fcu_backbone, *prior_rail_backbone_obstacles],
+        # Every EARLIER rail's own In2.Cu conductors this same run (via
+        # barrels + backbone), buffered up to the real Power/Power pair
+        # clearance. Those polygons already carry OTHER_NET_CLEARANCE_MM
+        # (0.05mm) from their own construction in `_emit_segment` /
+        # `this_rail_vias`, so the extra buffer is the remainder needed to
+        # reach the pair's required gap -- derived from the .kicad_pro
+        # SSOT rather than from the module-local 0.4mm literal, which is
+        # below it. Together with `other_rail_plane_zone_avoid` (all three
+        # OTHER rails' pours, available because pass 1 finished) this is
+        # the complete inter-rail obstacle set on the shared plane.
+        _prior_rail_gap_mm = max(
+            (
+                _inter_rail_gap_mm(
+                    net_name, _o["net_name"], _net_clearance, _default_clearance
+                )
+                for _k, _o in enumerate(rail_state)
+                if _k != _rail_index
+            ),
+            default=this_net_own_clearance,
         )
+        prior_rail_backbone_obstacles = [
+            g.buffer(max(_prior_rail_gap_mm - OTHER_NET_CLEARANCE_MM, 0.0))
+            for g in run_new_plane_copper
+        ]
+        # The grid's free space is the board inset by BOARD_EDGE_MARGIN_MM,
+        # not the raw outline -- the same inset `plane_region_base` (the
+        # pour) has always used. While the backbone lived on F.Cu this
+        # never showed, because F.Cu's own routed copper kept it away from
+        # the edge anyway; on a near-empty plane layer A* will happily hug
+        # the board outline (`_ground_plane.py` measured 4 new
+        # copper_edge_clearance violations, "Track [gnd] on In1.Cu", from
+        # exactly this). Reusing this module's own edge constant rather
+        # than the DRU's 0.5mm manufacturing floor keeps one knob for "how
+        # far this plane's copper stays off the edge" and is the more
+        # conservative of the two.
+        backbone_region = board_polygon.buffer(-BOARD_EDGE_MARGIN_MM)
+        if backbone_region.is_empty:
+            backbone_region = board_polygon
+        backbone_obstacles = [
+            keepout,
+            other_copper_plane_backbone,
+            routed_plane_backbone,
+            other_rail_plane_zone_avoid,
+            *prior_rail_backbone_obstacles,
+        ]
+        backbone_grid = build_obstacle_grid(backbone_region, backbone_obstacles)
         backbone_corridor_mask = compute_corridor_mask(backbone_grid, STITCH_TRACE_WIDTH_MM)
 
         # Component-aware (see _corridor_backbone.py / _ground_plane.py's
@@ -848,7 +1271,7 @@ def generate_power_islands_blocks(
         # of the corridor mask's own connected components, not the
         # global MST's own (possibly corridor-infeasible) edge list.
         astar_routed_edges = corridor_aware_spanning_edges(
-            positions, backbone_grid, backbone_corridor_mask, mst_edges
+            backbone_positions, backbone_grid, backbone_corridor_mask, mst_edges
         )
         connectivity_uf = UnionFind()
         for i, j in astar_routed_edges:
@@ -891,23 +1314,44 @@ def generate_power_islands_blocks(
         # regression from the 0.3->1.0mm stitch-width fix (PR #1329) is on
         # +3V3 alone -- the rail with by far the most MST edges, hence the
         # most fallback usage, hence the most exposure to exactly this gap.
+        #
+        # RETARGETED 2026-08-19 to BACKBONE_LAYER: every obstacle named
+        # here is now the In2.Cu set the A* grid above was built from, so
+        # the fallback and the primary pass agree on what "blocked" means
+        # on the layer the segment is actually emitted on. That includes
+        # the two new inter-rail terms -- the other three rails' pours and
+        # every earlier rail's plane conductors -- which is what makes the
+        # fallback safe on a shared plane. Without them a dropped-to-
+        # fallback +3V3 edge would be drawn straight across the vcc pour.
         def _blocked(p1: tuple[float, float], p2: tuple[float, float]) -> bool:
             footprint = LineString([p1, p2]).buffer(STITCH_TRACE_WIDTH_MM / 2.0)
+            # Same board-edge inset the A* grid uses -- this fallback
+            # bypasses that grid entirely, so without this a fallback edge
+            # can still run off the inset region and land a
+            # copper_edge_clearance violation.
+            if not backbone_region.covers(footprint):
+                return True
             if keepout_established and footprint.intersects(keepout):
                 return True
             if (
-                other_copper_fcu_backbone is not None
-                and not other_copper_fcu_backbone.is_empty
-                and footprint.intersects(other_copper_fcu_backbone)
+                other_copper_plane_backbone is not None
+                and not other_copper_plane_backbone.is_empty
+                and footprint.intersects(other_copper_plane_backbone)
             ):
                 return True
             if (
-                routed_fcu_backbone is not None
-                and not routed_fcu_backbone.is_empty
-                and footprint.intersects(routed_fcu_backbone)
+                routed_plane_backbone is not None
+                and not routed_plane_backbone.is_empty
+                and footprint.intersects(routed_plane_backbone)
             ):
                 return True
-            for g in run_new_fcu_copper:
+            if (
+                other_rail_plane_zone_avoid is not None
+                and not other_rail_plane_zone_avoid.is_empty
+                and footprint.intersects(other_rail_plane_zone_avoid)
+            ):
+                return True
+            for g in prior_rail_backbone_obstacles:
                 if footprint.intersects(g):
                     return True
             return False
@@ -931,24 +1375,24 @@ def generate_power_islands_blocks(
                 # benefit.
                 continue
 
-            p1, p2 = positions[i], positions[j]
+            p1, p2 = backbone_positions[i], backbone_positions[j]
             if not _blocked(p1, p2):
                 run_this_rail_backbone.append(_emit_segment(p1, p2))
                 connectivity_uf.union(i, j)
                 continue
 
             candidates = sorted(
-                (k for k in range(len(positions)) if k != i and k != j),
+                (k for k in range(len(backbone_positions)) if k != i and k != j),
                 key=lambda k: (
-                    (positions[k][0] - p1[0]) ** 2
-                    + (positions[k][1] - p1[1]) ** 2
-                    + (positions[k][0] - p2[0]) ** 2
-                    + (positions[k][1] - p2[1]) ** 2
+                    (backbone_positions[k][0] - p1[0]) ** 2
+                    + (backbone_positions[k][1] - p1[1]) ** 2
+                    + (backbone_positions[k][0] - p2[0]) ** 2
+                    + (backbone_positions[k][1] - p2[1]) ** 2
                 ),
             )[:200]
             found = False
             for k in candidates:
-                w = positions[k]
+                w = backbone_positions[k]
                 if not _blocked(p1, w) and not _blocked(w, p2):
                     run_this_rail_backbone.append(_emit_segment(p1, w))
                     run_this_rail_backbone.append(_emit_segment(w, p2))
@@ -963,26 +1407,37 @@ def generate_power_islands_blocks(
         if crossed_keepout:
             logger.warning(
                 "generate_power_islands_content(%s): %d MST edge(s) crossed "
-                "the HV keepout or another rail's new F.Cu copper and could "
-                "not be rerouted (%d rerouted via one-bend detour). Dropped "
-                "rather than routed through it -- the backbone may be a "
-                "forest, not a single tree.",
+                "the HV keepout, another rail's %s pour or conductors, or a "
+                "foreign net's copper on %s, and could not be rerouted "
+                "(%d rerouted via one-bend detour). Dropped rather than "
+                "routed through it -- the backbone may be a forest, not a "
+                "single tree.",
                 net_name,
                 crossed_keepout,
+                PLANE_LAYER,
+                BACKBONE_LAYER,
                 rerouted,
             )
 
+        # Accumulate this rail's new copper per LAYER, so a later rail
+        # avoids each piece on the layer it is actually on. Through-via
+        # barrels are on every copper layer and so appear in all three;
+        # the F.Cu pad stubs are F.Cu only; the backbone is In2.Cu only
+        # (it used to be F.Cu, which is why `run_new_fcu_copper` used to
+        # receive it).
         run_new_fcu_copper.extend(this_rail_vias)
-        run_new_fcu_copper.extend(run_this_rail_backbone)
+        run_new_fcu_copper.extend(this_rail_stubs)
         run_new_bcu_copper.extend(this_rail_vias)
+        run_new_plane_copper.extend(this_rail_vias)
+        run_new_plane_copper.extend(run_this_rail_backbone)
 
         results[net_name] = PowerIslandResult(
             net_name=net_name,
             pad_count=len(positions),
             drop_via_count=len(positions) - via_skipped_through_hole - via_unresolved_conflict,
             mst_edge_count=len(edges) - crossed_keepout,
-            zone_polygon_count=len(zone_polys),
-            pour_area_mm2=pour_area_mm2,
+            zone_polygon_count=len(_rail["zone_polys"]),
+            pour_area_mm2=_rail["pour_area_mm2"],
             via_skipped_through_hole_count=via_skipped_through_hole,
             via_offset_count=via_offset_count,
             via_unresolved_conflict_count=via_unresolved_conflict,
