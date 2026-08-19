@@ -28,7 +28,7 @@ Per component, with the certification chain verified independently anyway:
 
 | ref | part (as sourced) | certification chain | exemption verdict |
 |---|---|---|---|
-| C6 | TDK **B81123C1562M000** Y1 500 VAC | **complete** — IEC 60384-14 Y1, ENEC-05495, UL E97863 | **does not apply** (cl. 24.1: functional only) |
+| C6 | TDK **B81123C1562M000** Y1 500 VAC | **series-level only** — see §2 note; part-specific certificate numbers not verified this session | **does not apply** (cl. 24.1: functional only) |
 | K1 | TE Schrack **RT33K012** | **complete** — IEC 61810-1, VDE 40007571 | **does not apply** (cl. 24.1: functional only) |
 | U6 | TI **UCC21550BDWKR** | **complete** — UL FPPT2.E181974, VDE, CQC, 5 kVrms reinforced | **does not apply** (cl. 24.1: functional only) |
 | T1 | Coilcraft **CST3015-100ED** | **FAILS AT STEP 1 — no agency recognition at all** | **does not apply**, twice over |
@@ -203,10 +203,24 @@ manufacturer datasheet fetched directly.
 
 | ref | agency + file | standard | certified rating | covers this application? |
 |---|---|---|---|---|
-| C6 (TDK B81123C1562M000) | ENEC-05495; UL E97863; CSA E60348-14 | IEC 60384-14 Class Y1 | Y1 **500 VAC** | **Yes** — 500 VAC exceeds the ≥250 VAC line-to-ground need |
+| C6 (TDK B81123C1562M000) | **see note below** | IEC 60384-14 Class Y1 | Y1 **500 VAC** | **Yes on voltage** — 500 VAC exceeds the ≥250 VAC line-to-ground need |
 | K1 (TE Schrack RT33K012) | VDE **40007571** | EN/IEC 61810-1 | 20 A UL508 / 16 A IEC, 277 VAC | **Yes** for the contact duty |
 | U6 (TI UCC21550BDWKR) | UL **FPPT2.E181974**, cert **20160516-E181974**; VDE; CQC **CQC16001155011**; CSA **70097761** | IEC 60747-5-5 / UL 1577 | 5 kVrms **reinforced** | **Yes** on voltage |
 | T1, T2 (Coilcraft CST3015-100ED) | **none** | — | — | **No — there is no certificate** |
+
+**C6 certification note — stated precisely, not rounded up.** The in-tree record
+carries agency certificate numbers (ENEC-05495, UL E97863) for the **sibling**
+part `B81123C1222M000` (2.2 nF), recorded in
+`docs/evidence/2026-07-30-pd3-board-expansion-measurement.md`, **not** for the
+5.6 nF `B81123C1562M000` actually specified. What is verified for the specified
+MPN is: Active/orderable (DigiKey `495-1653-ND`), 5600 pF, 500 VAC, 22.50 mm lead
+spacing, AEC-Q200 — from a direct product-page fetch recorded in
+`docs/evidence/2026-08-13-pd3-land-k1-c6.md`. Both parts are in TDK's B81123
+film-Y1 family and the approvals are almost certainly series-wide, **but that is
+an inference, not a document I read.** Before purchase, the B81123 datasheet's
+approvals table should be checked against this exact ordering code. This does not
+affect the verdict — the exemption fails on clause scope regardless — but it is
+an open item for the BOM, not a closed one.
 
 **T1/T2 detail.** Coilcraft's own `cst3015.pdf` states 5000 Vrms/1 min isolation
 and ≥8 mm creepage/clearance as **design/test specifications only**; no UL, CSA,
@@ -330,6 +344,12 @@ were routed through space a real THT relay occupies; all four cardinal rotations
 produce new shorts plus a courtyard collision with C27
 (`docs/evidence/2026-08-13-pd3-land-k1-c6.md`). **Footprint growth: significant,
 and it is the binding problem.** This one needs re-placement, not re-sourcing.
+
+**And they interact.** `docs/hardware/BOM.md` records that landing both new
+footprints together "does introduce one new courtyard collision between the two
+new footprints specifically" — C6 alone is clean, K1 alone fails, and the pair
+adds a third problem neither has alone. The board work here is a single
+re-placement exercise covering both parts, not two independent resyncs.
 
 ### 5.2 U6 — the part's own datasheet settles two questions at once
 
