@@ -403,10 +403,10 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
     This is the literal "test that fails if a net reports solved but emits
     no copper without a recorded legitimate reason" the investigation asked
     for, run against a real (if small) board rather than only synthetic
-    content. It is marked ``slow`` (~60-90s: full skeleton/grid/A* pipeline)
-    rather than run on every commit, matching this repo's convention for
-    tests that invoke the real router (see ``pytest.ini``/``pyproject.toml``
-    ``slow`` marker).
+    content. It is marked ``slow`` (~60-90s default phase + ~35-40s batched
+    phase below: full skeleton/grid/A* pipeline, twice) rather than run on
+    every commit, matching this repo's convention for tests that invoke the
+    real router (see ``pytest.ini``/``pyproject.toml`` ``slow`` marker).
 
     FIXED 2026-08-08 (was ``xfail(strict=True)``, converted to a normal
     passing assertion now that the underlying gap is closed): this used to
@@ -421,6 +421,32 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
     ``pcb/temper.kicad_pcb`` (``--net-batching --batch-size 10``): all six
     of the previously-orphaned nets (``+15V``, ``+3V3``, ``PWR_RTN``,
     ``V_BUS_SENSE``, ``gnd``, ``vcc``) now carry explicit copper.
+
+    EXTENDED 2026-08-19: the assertion below this docstring used to stop at
+    ``result.topology_solved_nets == []`` and then check
+    ``audit.unexplained_gap == []`` *over that same empty set* -- true by
+    construction (``audit_topology_vs_copper`` iterates
+    ``topology_solved_nets``; zero inputs makes zero outcomes), so the test
+    passed without the audit's own per-net classification logic
+    (has_explicit_copper / has_zone_copper / self-referential / policy-note)
+    ever running on a real board (see
+    docs/evidence/2026-08-18-no-rust-ledger-clearance-floor-and-topology-
+    copper-audit.md Sec 2). The empty-set phase is kept below (it still
+    pins a real, useful invariant: the default recipe's Stage 3 no-op), and
+    a second phase is added with ``enable_net_batching=True``, which DOES
+    make Stage 3 claim topology -- MEASURED: 25 topology-solved nets,
+    reproduced identically across two independent runs (~36-38s wall each,
+    this worktree, ``check_stale_extensions.py`` 10/10 fresh immediately
+    before). Unsilencing the audit this way surfaces a REAL, currently-open
+    finding rather than a clean pass: 8 of the 25 are unexplained
+    (AC_L/AC_N/CGND/DC_BUS+/DC_BUS-/SW_NODE are zone-pour-eligible
+    HV/ACMains nets whose zone-pour didn't cover them on this small
+    fixture; SPI_CLK/SPI_MISO are genuine Stage 4 A* failures,
+    "no_legal_path"). Per this task's own instruction not to suppress a
+    real finding by weakening the check, this is pinned as the CURRENT
+    measured state, not asserted as correct -- a change in this set is a
+    real signal (fixed a gap, or introduced/renamed one) and should be
+    investigated, not silently re-pinned.
     """
     if not FIXTURE_33.exists():
         pytest.skip(f"fixture board not found: {FIXTURE_33}")
@@ -449,6 +475,9 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
         tmp.write(cleaned)
         route_src = Path(tmp.name)
 
+    # `route_pcb()` only reads `parsed_stub.source_path` off disk and never
+    # writes back to it, so the same cleaned board is reused, unmodified,
+    # for both phases below.
     parsed_stub = type(
         "ParsedStub", (), {"source_path": route_src, "nets": netlist.nets}
     )()
@@ -482,4 +511,51 @@ def test_full_pipeline_run_surfaces_the_same_unexplained_gap():
         f"reason: {audit.unexplained_gap} -- see this module's docstring "
         "for the known power/ground _should_route/_zone_layers_for_net "
         "policy-mismatch root cause"
+    )
+
+    # --- Phase 2: a REAL non-empty topology-solved population -----------
+    # `enable_net_batching=True` is what makes Stage 3 claim topology at
+    # all on this recipe (see the vacuity-fix comment above) -- this is
+    # the literal "give it a non-empty claim set" the investigation asked
+    # for, run against `audit_topology_vs_copper`'s real, unmocked
+    # classification logic (not the synthetic-content tests above).
+    result_batched = route_pcb(
+        parsed_stub, {}, design_rules=rules.design_rules, enable_net_batching=True
+    )
+    assert result_batched.routed_pcb_content
+
+    assert result_batched.topology_solved_nets, (
+        "net-batching's Stage 3 driver is expected to claim topology for "
+        "at least one net on this fixture -- an empty result here would "
+        "make the population below vacuous again, the exact defect this "
+        "phase exists to avoid"
+    )
+
+    audit_batched = audit_topology_vs_copper(
+        result_batched.topology_solved_nets, result_batched.routed_pcb_content, net_pins
+    )
+
+    # MEASURED (this worktree, two independent runs, identical both times):
+    # 25 topology-solved nets, 16 carrying copper, 1 legitimate no-copper
+    # net, and these 8 UNEXPLAINED. This is NOT asserting the pipeline is
+    # correct -- it is a real, open gap (see the docstring above) pinned so
+    # a change in it is caught rather than silently re-measured away. If
+    # you are here because this assertion failed: check whether the set
+    # shrank (something got fixed -- update this list with a citation) or
+    # changed shape (something regressed or moved -- do not just re-pin
+    # without understanding which).
+    assert audit_batched.unexplained_gap == [
+        "AC_L",
+        "AC_N",
+        "CGND",
+        "DC_BUS+",
+        "DC_BUS-",
+        "SPI_CLK",
+        "SPI_MISO",
+        "SW_NODE",
+    ], (
+        "topology-solved nets with no copper and no recorded legitimate "
+        f"reason changed from the pinned measurement: {audit_batched.unexplained_gap} "
+        "-- see this test's docstring (2026-08-19 EXTENDED) for what was "
+        "measured and why it is pinned rather than asserted clean"
     )

@@ -242,9 +242,37 @@ def route_once(
     # This is the check that makes net_batching's "N/110 nets fell back"
     # trace line (topology-only) unable to read fully green while nets
     # silently emit no copper: the two are now reported side by side.
+    #
+    # MUST report unconditionally -- either the real audit or an explicit
+    # skip line -- never silence. The old gate here was
+    # `if content and result.topology_solved_nets:`, which reads identically
+    # to "audited, no gaps" whether the audit ran at all. Since the
+    # 2026-08-16 SAT-vacuity fix (docs/evidence/2026-08-16-sat-vacuity-noop-
+    # vs-direct-solver.md), the default, non-batched Stage 3 is a structural
+    # no-op and ALWAYS reports `topology_solved_nets == []`, so that gate
+    # made the audit run zero times on the default recipe -- the same
+    # recipe `make route` (Makefile) and
+    # `.github/workflows/board-regeneration.yml` both use -- with nothing in
+    # the output distinguishing "audited, found nothing wrong" from "never
+    # ran". See docs/evidence/2026-08-18-no-rust-ledger-clearance-floor-and-
+    # topology-copper-audit.md Sec 2.
     copper_audit_report = ""
     unexplained_copper_gap: list[str] = []
-    if content and result.topology_solved_nets:
+    if not content:
+        copper_audit_report = (
+            "[copper-audit] skipped: no routed content was emitted -- "
+            "nothing to cross-check topology against"
+        )
+    elif not result.topology_solved_nets:
+        copper_audit_report = (
+            "[copper-audit] skipped: Stage 3 reported no topology-solved "
+            "nets. This is the default recipe's normal state post-2026-08-16 "
+            "SAT-vacuity fix (the default, non-batched Stage 3 driver is a "
+            "structural no-op and always claims zero topology) -- pass "
+            "--net-batching to exercise Stage 3's topology claim and this "
+            "audit against it."
+        )
+    else:
         from temper_placer.router_v6.topology_copper_audit import audit_topology_vs_copper
 
         net_pins = {n.name: list(n.pins) for n in netlist.nets}
