@@ -107,6 +107,32 @@ class _LoopCoreMixin:
             # body_collision.py's module docstring for what this guards
             # against.
             solver_kwargs["body_collision_input"] = self._body_collision_input
+        # ---- Opt-in HARD safety constraint families (2026-08-19) ----------
+        # These three `solve_placement` kwargs were reachable ONLY from
+        # `temper optimize --no-loop` (tank_creepage), `repair-unplaced`
+        # (isolation_barrier), or from nothing at all in `src/`
+        # (heatsink_colocation). `--loop` is the DEFAULT and is what both
+        # scripts/run_clean_flow.sh and scripts/run_physics_flow.sh run, so
+        # every shipping placement solve was produced with all three dark --
+        # not merely unset but UNREACHABLE: `run()` had no parameter to
+        # carry them and this dict had no key to forward them through.
+        # Wired in exactly the shape `validator_input` /
+        # `body_collision_input` above already established (instance state
+        # set by `run()`, forwarded only when supplied), because the Rust
+        # loop calls `_call_solver` back with a FIXED kwarg set -- per-round
+        # solver arguments must travel as instance state, not parameters.
+        # None (the default) keeps a solve byte-identical to pre-wiring.
+        if getattr(self, "_tank_creepage", None):
+            solver_kwargs["tank_creepage"] = self._tank_creepage
+        if getattr(self, "_isolation_barrier", None):
+            solver_kwargs["isolation_barrier"] = self._isolation_barrier
+        # Rotation index 0 is a legitimate value AND falsy, so this one
+        # tests `is not None` rather than truthiness -- the getattr-truthy
+        # idiom the four kwargs above use would silently drop
+        # `heatsink_colocation=0` (the "both IGBTs at 0 degrees" request)
+        # and leave the constraint dark exactly as it is today.
+        if getattr(self, "_heatsink_colocation", None) is not None:
+            solver_kwargs["heatsink_colocation"] = self._heatsink_colocation
         return solver(**solver_kwargs)
 
     def run(
@@ -125,6 +151,9 @@ class _LoopCoreMixin:
         source_pcb_path: Path | None = None,
         validator_input: dict | None = None,
         body_collision_input: dict | None = None,
+        tank_creepage: dict | None = None,
+        isolation_barrier: dict | None = None,
+        heatsink_colocation: int | None = None,
     ) -> LoopResult:
         """Run the full place-route loop.
 
@@ -157,6 +186,30 @@ class _LoopCoreMixin:
                 each feasible solved placement (see ``body_collision.py``).
                 ``None`` (the default) keeps every round byte-identical to
                 pre-wiring.
+            tank_creepage: Optional kwargs forwarded to every round's
+                ``solve_placement(tank_creepage=...)`` -- the tank-node
+                functional-creepage HARD constraint (``tank_creepage.py``,
+                #1089). ``None`` (the default) leaves it dark, which is
+                what every ``--loop`` solve did before 2026-08-19.
+            isolation_barrier: Optional kwargs forwarded to every round's
+                ``solve_placement(isolation_barrier=...)`` -- the
+                mains<->SELV physical isolation-barrier HARD constraint
+                (``isolation_barrier.py``). ``None`` (the default) leaves
+                it dark.
+            heatsink_colocation: Optional common rotation index (0-3)
+                forwarded to every round's
+                ``solve_placement(heatsink_colocation=...)`` -- the shared
+                heatsink co-location HARD constraint for every group in
+                ``heatsink_colocation.HEATSINK_GROUPS`` (#1082). ``None``
+                (the default) leaves it dark; ``0`` is a real request and
+                is forwarded, not swallowed.
+
+            **On all three:** they are per-round SOLVER arguments, so they
+            travel to ``_call_solver`` as instance state rather than being
+            threaded through the Rust loop's fixed call-back signature --
+            the same mechanism ``validator_input`` uses. See
+            ``_call_solver``'s own comment for why they were previously
+            unreachable from this entry point rather than merely unset.
 
         Returns:
             LoopResult with success status, placement, and routing.
@@ -173,6 +226,9 @@ class _LoopCoreMixin:
         self._loop_aliases = loop_aliases
         self._validator_input = validator_input
         self._body_collision_input = body_collision_input
+        self._tank_creepage = tank_creepage
+        self._isolation_barrier = isolation_barrier
+        self._heatsink_colocation = heatsink_colocation
         self._netclass_rules = load_netclass_rules()
         if self._netclass_rules is not None:
             self.classifier.design_rules = self._netclass_rules.design_rules

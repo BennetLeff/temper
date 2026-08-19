@@ -133,12 +133,170 @@ def _resolve_component_net_class(comp, _netlist, design_rules: DesignRules) -> s
     return _to.netclass_resolve_component_class_py(pin_infos)
 
 
+def _dru_resolved_pair_overrides(
+    legacy_overrides: list[tuple[str, str, float | None, str]],
+    class_clearance: dict[str, float],
+) -> list[tuple[str, str, float | None, str]]:
+    """Raise every cross-class pair figure onto the DRU-resolved requirement.
+
+    **What was wrong.** The only separation family live on every production
+    solve was this module's, and its figures came from
+    ``netclass_rules.yaml``'s ``class_pairs`` table, whose own ``because``
+    strings read *"UNSOURCED legacy 6.0mm (debunked 'Table 16 working
+    isolation at 400V' citation; 6.0mm is in no recovered table)"*. That
+    table caps at **6.0mm** for every HV-domain-to-LV pair, while
+    ``pcb/temper.kicad_dru`` -- the surface kicad-cli actually grades the
+    board against -- requires **12.6mm** creepage for the same pairs (PD3
+    reinforced, IEC 60335-1 cl. 29.2.3 x Table 17 row iv, doubled; see
+    ``scripts/generate_kicad_dru.py``'s ``HV_CREEPAGE_ENFORCED_MM`` and
+    ``docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md``). The
+    placer was therefore under-constrained by 6.6mm on every HV<->SELV
+    pair it was asked to place, and no amount of routing effort can rescue
+    a placement that was never required to be compliant.
+
+    **Where the numbers come from.** ``configs/pair_clearance.generated.yaml``
+    and ``configs/pair_creepage.generated.yaml``, both emitted by
+    ``scripts/generate_kicad_dru.py`` by evaluating the rules it just wrote
+    into ``pcb/temper.kicad_dru`` under KiCad's own last-matching-rule-wins
+    precedence. They are what ``kicad-cli pcb drc`` enforces, not a
+    hand-copied restatement of it -- the same reason
+    ``router_v6.pair_clearance`` (this repo's only prior consumer of them,
+    for the A* obstacle halos) chose them over ``class_pairs``, in that
+    module's own words: *"not netclass_rules.yaml's class_pairs, whose own
+    comments record that its 6.0mm HV figures are legacy, not
+    primary-cited"*. Wiring the placer to the same two files makes the
+    solver decide against the table it will be judged by, and closes the
+    "one fact, two homes" gap between placement and DRC by construction
+    rather than by anyone remembering to sync them.
+
+    **Why the pair figure is ``max(clearance, creepage)``.** They are two
+    different physical quantities graded by two separate kicad-cli
+    constraints on the same pair, and a placement must satisfy both, so the
+    binding requirement is the larger. This is the identical combination
+    ``router_v6.pair_creepage``'s own module docstring prescribes for the
+    obstacle map (*"the caller takes max(clearance, creepage)"*), reused
+    rather than re-derived.
+
+    **Why this RAISES rather than substitutes -- load-bearing.** For
+    HV<->SELV pairs the DRU is far stricter (12.6mm vs 6.0mm) and it wins.
+    But for a few SAME-DOMAIN pairs the DRU is deliberately *looser* than
+    the legacy table: ``ACMains|HighVoltage`` resolves to 3.0mm clearance
+    with no creepage rule at all, against ``class_pairs``' 6.0mm.
+    ``netclass_rules.yaml``'s own comment explains that asymmetry -- its
+    table "stays conservative for same-domain neighbours" while "the
+    fab-authoritative KiCad DRC rule ... applies the reduced, cited 2.0mm
+    same-side figure". Substituting the DRU figure wholesale would
+    therefore *weaken* the placement model on those pairs, which is not a
+    thing this change is entitled to do: lowering a separation figure is a
+    separately-attributed safety decision, not a side effect of re-sourcing
+    a different one. So the returned figure is
+    ``max(legacy, dru_clearance, dru_creepage, per-class fallback)`` -- the
+    result is >= today's on EVERY pair, and strictly greater on exactly the
+    pairs the DRU grades harder.
+
+    ``class_clearance`` is folded into the max for the same
+    never-weaken reason: the kernel uses an override verbatim when one
+    matches, so an override below ``max(class_a.clearance,
+    class_b.clearance)`` would silently drop that pair *below* the figure
+    it gets today with no override at all.
+
+    Class-name translation: the generated tables are keyed by KiCad net-class
+    names, this module's classes by ``netclass_rules.yaml`` names; the two
+    differ only by ``GND`` -> ``Ground``, mapped through
+    ``kicad_class_name`` rather than restated here.
+
+    Returns the override list in the same ``(key_a, key_b, clearance,
+    because)`` shape the kernel already consumes -- no Rust change is
+    needed, because this only changes what the existing lookup table
+    *contains*.
+    """
+    # Both tables live in router_v6 because the A* obstacle map was their
+    # first consumer; neither is router-specific (they are DRU projections).
+    # Direct submodule imports, permitted: neither module is listed in
+    # .importlinter's `router-v6-public-interface-only` forbidden set.
+    from temper_placer.router_v6.pair_clearance import (
+        kicad_class_name,
+        load_pair_clearance_table,
+    )
+    from temper_placer.router_v6.pair_creepage import load_pair_creepage_table
+
+    clearance_table = load_pair_clearance_table()
+    creepage_table = load_pair_creepage_table()
+
+    # Index the legacy overrides by their unordered class pair so a DRU
+    # figure can be merged onto an existing row instead of shadowing it.
+    # The kernel scans this list in order and breaks on the FIRST key match,
+    # so a duplicate key would make the later row dead.
+    merged: dict[tuple[str, str], tuple[float | None, str]] = {}
+    order: list[tuple[str, str]] = []
+    for key_a, key_b, clearance, because in legacy_overrides:
+        pair_key = (key_a, key_b) if key_a <= key_b else (key_b, key_a)
+        if pair_key not in merged:
+            order.append(pair_key)
+        merged[pair_key] = (clearance, because)
+
+    # Every unordered pair of declared classes, not just the ones the legacy
+    # table happened to name. `class_pairs` names only a handful of this
+    # board's live classes, so an HV<->LV pair it simply omits would keep
+    # falling through to `max(class_a.clearance, class_b.clearance)` -- 2.0mm
+    # for HighVoltage<->Signal -- while the DRU grades it at 12.6mm. The
+    # omissions are exactly where the model was weakest.
+    declared = sorted(class_clearance)
+    for i, class_a in enumerate(declared):
+        for class_b in declared[i + 1 :]:
+            pair_key = (class_a, class_b)
+            if pair_key not in merged:
+                order.append(pair_key)
+                merged[pair_key] = (None, "")
+
+    out: list[tuple[str, str, float | None, str]] = []
+    for pair_key in order:
+        class_a, class_b = pair_key
+        legacy_clearance, legacy_because = merged[pair_key]
+
+        kicad_a = kicad_class_name(class_a)
+        kicad_b = kicad_class_name(class_b)
+        dru_clearance = clearance_table.required(kicad_a, kicad_b)
+        dru_creepage = creepage_table.required(kicad_a, kicad_b)
+        dru = max(dru_clearance, dru_creepage)
+
+        # The figure the kernel would have used with NO override at all.
+        # Folding it in is what makes this function incapable of lowering
+        # any pair below today's behaviour.
+        fallback = max(class_clearance.get(class_a, 0.0), class_clearance.get(class_b, 0.0))
+        floor = max(legacy_clearance or 0.0, fallback)
+        resolved = max(floor, dru)
+
+        if resolved <= 0.0:
+            continue
+
+        if dru > floor:
+            binding = "creepage" if dru_creepage >= dru_clearance else "clearance"
+            because = (
+                f"DRU-resolved {binding} {class_a}<->{class_b} at {resolved}mm "
+                f"(pcb/temper.kicad_dru via scripts/generate_kicad_dru.py: "
+                f"clearance {dru_clearance}mm, creepage {dru_creepage}mm; the "
+                f"figure kicad-cli grades this pair by). Raised from the "
+                f"placer-side {floor}mm"
+                + (f" -- previously: {legacy_because}" if legacy_because else "")
+            )
+        elif legacy_because:
+            because = legacy_because
+        else:
+            because = f"Netclass clearance {class_a}<->{class_b} at {resolved}mm"
+
+        out.append((class_a, class_b, resolved, because))
+
+    return out
+
+
 def generate_netclass_separated_constraints(
     _netlist,
     components: list,
     design_rules: DesignRules,
     existing_constraints: list | None = None,
     touch_refs: set[str] | None = None,
+    dru_resolved_pairs: bool = False,
 ) -> list[SeparatedConstraint]:
     """Generate SEPARATED constraints for cross-class component-net pairs.
 
@@ -158,6 +316,17 @@ def generate_netclass_separated_constraints(
             (typically larger, e.g. 6mm) cross-class clearance turn every
             solve spuriously infeasible. ``None`` (default): unrestricted,
             identical to prior behaviour for every existing caller.
+        dru_resolved_pairs: when True, every cross-class pair figure is
+            RAISED to the fab-authoritative ``pcb/temper.kicad_dru``
+            requirement before encoding -- see
+            :func:`_dru_resolved_pair_overrides` for the derivation, the
+            source files, and the proof that it can only raise. Set by the
+            production encoder (``_encoder_core.encode_constraints``).
+            ``False`` (the default) preserves this function's pinned
+            pre-Rust-port behaviour byte-for-byte, which is what the
+            oracle differential asserts against; see the call site's own
+            comment for why that default is load-bearing rather than
+            timid.
 
     Marshalling (2026-08-17 stage 2 port, rebased onto #1323): this function
     resolves every component's pins through the live ``design_rules``
@@ -234,6 +403,28 @@ def generate_netclass_separated_constraints(
         cls: design_rules.get_rules_for_net("", net_class=cls).clearance
         for cls in design_rules.net_classes
     }
+
+    # DRU-RESOLVED PAIR FIGURES (2026-08-19), opt-in per call. Every override
+    # built above is RAISED to the fab-authoritative figure before it reaches
+    # the kernel; see `_dru_resolved_pair_overrides` for the full argument and
+    # for why this is a strict raise (max) rather than a substitution.
+    #
+    # OPT-IN, and deliberately so. This function is pinned by a
+    # Rust-vs-Python differential against `tests/pcl/
+    # _netclass_constraints_py_oracle.py`, a VERBATIM pre-port snapshot that
+    # has no such step and must not be re-pinned to acquire one (AGENTS.md:
+    # re-pinning an existing oracle is a separate, evidence-first act). With
+    # the default `dru_resolved_pairs=False` this function's behaviour is
+    # byte-identical to that oracle, so the differential keeps asserting
+    # exactly what it was written to assert -- that the Rust kernel did not
+    # change the port's semantics. The production caller
+    # (`_encoder_core.encode_constraints`) passes True, and
+    # `TestDruResolvedPairs` pins THAT path's figures directly.
+    if dru_resolved_pairs:
+        class_pair_overrides = _dru_resolved_pair_overrides(
+            class_pair_overrides,
+            class_clearance,
+        )
 
     # Deterministic iteration (the hash-order gate): sorted so
     # PYTHONHASHSEED cannot leak into the marshalled list. The Rust side

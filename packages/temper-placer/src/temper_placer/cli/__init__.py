@@ -324,6 +324,9 @@ def optimize(
             from temper_placer.io.config_loader import load_constraints
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
+            from temper_placer.placer.cp_sat.tank_creepage import (
+                DEFAULT_TANK_CREEPAGE_MM,
+            )
 
             parse_result = parse_kicad_pcb(input_pcb)
             netlist = parse_result.netlist
@@ -436,6 +439,17 @@ def optimize(
                 source_pcb_path=input_pcb,
                 validator_input=validator_input,
                 body_collision_input=body_collision_input,
+                # Tank-node functional creepage (#1089), brought to parity
+                # with the --no-loop branch below (2026-08-19). PR #1109
+                # enabled this "on the production solve" but wired it into
+                # the --no-loop branch ONLY; --loop is the DEFAULT and is
+                # what both scripts/run_clean_flow.sh and
+                # scripts/run_physics_flow.sh actually run, so no shipping
+                # placement has ever carried it. Same constant, same PD3
+                # derivation, and the same COMPONENT-BOX caveat documented
+                # at the --no-loop call site: it bounds footprint-to-
+                # footprint separation, never pad-to-routed-track creepage.
+                tank_creepage={"margin_mm": DEFAULT_TANK_CREEPAGE_MM},
             )
 
             # Surface UNSAT core from CP-SAT placement result.
