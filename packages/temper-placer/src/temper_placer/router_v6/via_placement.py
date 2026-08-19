@@ -167,7 +167,7 @@ def _place_vias_for_path(
     Returns:
         List of vias for this path
     """
-    vias = []
+    vias: list[Via] = []
 
     # If RoutePath3D, use explicit via_positions from pathfinder.
     # U3: derive from_layer/to_layer from the actual segment layers on
