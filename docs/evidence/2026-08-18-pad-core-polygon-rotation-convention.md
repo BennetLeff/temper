@@ -293,9 +293,28 @@ Two distinct build hazards were hit, both silent-by-default.
    line and a 1m05s build, then rebuilding the three dependent crates the
    touch had just made stale.
 
-A broken `.so` fails **loud** (`ImportError: dynamic module does not define
-module export function`), never silently — so no measurement in this document
-was taken through one. Every number here was re-measured with
+3. **The installed `.so` silently reverted to the pre-fix build.** Mid-session,
+   `.venv/.../temper_geometry.cpython-312-*.so` was found back at its
+   `20:46:47` mtime — the wheel built during `make venv-isolate`, i.e. the
+   **pre-fix** kernel — with a hardlink count of 2, while the post-fix build
+   had been installed and verified an hour earlier. A targeted re-run in that
+   window reported **48 failures**, including
+   `check_pad_core_polygon_oracle`'s own `test_all_sites_pass_on_this_tree`:
+   post-fix Python against a pre-fix kernel, which is not a state any commit
+   describes. `maturin develop --release` restored it (real `Compiling` line)
+   and the same selection then reported **3623 passed / 3 failed**, the 3
+   being the pre-existing `check_board_containment` board-content failures
+   that reproduce on `origin/main`.
+   This is the failure mode `AGENTS.md` already records for the *shared*
+   `.venv`, occurring here in a worktree with its **own** `.venv` — most
+   plausibly a cached-wheel reinstall from a concurrent process on this host.
+   **Re-verify `make extensions-check` immediately before every measurement
+   you intend to report, not once per session.**
+
+A `.so` with no `PyInit` fails **loud** (`ImportError: dynamic module does not
+define module export function`), and the reverted-kernel case above was caught
+by this change's own gate — so no measurement in this document was taken
+through either. Every number here was re-measured with
 `make extensions-check` reporting `PASSED -- 10/10 extension module(s) fresh`
 and `import temper_geometry` verified live.
 

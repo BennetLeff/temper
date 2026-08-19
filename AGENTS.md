@@ -366,6 +366,19 @@ whole investigations down dead ends.
   Use `make extensions` / `maturin develop`, not bare `cargo build`, in these
   crates — and **run `make extensions-check` between the edit and the
   measurement**, not merely after the build command claims success.
+* **An installed extension can silently REVERT to an older cached wheel, in a
+  worktree with its own `.venv`.** Observed 2026-08-18: an hour after a
+  verified `make extensions-check` PASS, `temper_geometry`'s `.so` was back at
+  the mtime of the wheel built during `make venv-isolate` (link count 2 — a
+  hardlink into a cache another process rewrote). The result was post-fix
+  Python running against a pre-fix Rust kernel — a state no commit describes —
+  and it manufactured **48 phantom failures**, including the change's own gate
+  self-test. After `maturin develop --release` the same selection reported
+  3623 passed / 3 failed (all 3 pre-existing on `origin/main`).
+  This is the same class as the shared-`.venv` poisoning below, but `venv-
+  isolate` does NOT immunise against it. **Re-verify `make extensions-check`
+  immediately before every measurement you intend to report — not once per
+  session** — and treat a sudden broad failure as a suspect instrument first.
 
 ### The general rule
 
