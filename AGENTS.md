@@ -143,7 +143,10 @@ Then, in `power_pcb_dataset/drc_ceiling.json`:
 - Update `provenance` (commit, branch, dirty, input hash, tool version).
 - Append a new `_march` entry naming what changed and why, attributing every
   per-type delta to a specific cause (which component, which commit) rather
-  than reporting only the aggregate.
+  than reporting only the aggregate. Entries use the standardized structured
+  format (`{"date": ..., "cause": "...", "per_type_delta": {...}}`, see the
+  file's own `_goal` header) -- the `cause` field is the attribution and
+  must be non-empty.
 - If any per-type or aggregate ceiling would RISE, the commit needs a
   `Ceiling-Approval:` trailer (enforced by
   `scripts/check_drc_ceiling_approval.py`) -- a rise is legitimate only for
