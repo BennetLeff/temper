@@ -40,12 +40,13 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 3462 eligible tests, in a stable order.  Each entry is
+/// All 3469 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-router-core")] crate::astar::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-router-core")] crate::astar_nlayer::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-router-core")] crate::astar_search2d::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-router-core")] crate::audit::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-router-core")] crate::combinator::integration::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-router-core")] crate::combinator::lower::tests::WASM_TESTS,

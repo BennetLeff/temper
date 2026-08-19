@@ -9,6 +9,7 @@
 
 pub mod astar;
 pub mod astar_nlayer;
+pub mod astar_search2d;
 pub mod audit;
 #[cfg(feature = "sat")]
 pub mod bmc;

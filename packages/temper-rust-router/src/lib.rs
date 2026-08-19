@@ -20,6 +20,8 @@ pub mod terminal_planning;
 #[cfg(feature = "python")]
 pub mod astar_nlayer;
 #[cfg(feature = "python")]
+pub mod astar_search2d;
+#[cfg(feature = "python")]
 pub mod loop_extractor;
 #[cfg(feature = "python")]
 pub mod net_batching;
@@ -557,6 +559,10 @@ mod py {
         crate::theta_star::register(m)?;
         // Tier-3 N-layer via-aware A* (_astar_search_3d / _route_segment_3d).
         crate::astar_nlayer::register(m)?;
+        // Faithful f64 port of astar_core._astar_search (the corridor-backbone
+        // search).  A SEPARATE kernel from astar_kernel_3d_py above, which is
+        // f32, closed-set, and has no DIAGONAL_COST_FACTOR.
+        crate::astar_search2d::register(m)?;
 
         // Phase E E5 (Rust Orchestration Engine plan 2026-08-09-001): the
         // net-batching batch-loop orchestration primitives.

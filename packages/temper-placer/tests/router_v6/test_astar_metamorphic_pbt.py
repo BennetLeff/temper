@@ -26,7 +26,15 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core import _astar_search, octile_distance
+from temper_placer.router_v6.astar_core import octile_distance
+# `_astar_search` moved to Rust on 2026-08-18
+# (`temper_rust_router_core::astar_search2d`). This suite holds the RUST
+# kernel -- the live implementation -- to its properties; the pre-port
+# Python is pinned at `_astar_core_py_oracle.py` and is what
+# `test_astar_search2d_rust_differential.py` compares against.
+from temper_placer.router_v6.astar_search2d_rust import (
+    _astar_search_2d_rust as _astar_search,
+)
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from tests.router_v6.astar_oracle_utils import (
     DIJKSTRA_MAX_CELLS,

@@ -21,7 +21,10 @@ import random
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.astar_core import _astar_search as _astar_search_py
+# The pure-Python `_astar_search` was deleted when it was ported to Rust
+# (2026-08-18); its pre-port text is pinned verbatim in the oracle below,
+# which is what this suite has always meant by "the Python reference".
+from tests.router_v6._astar_core_py_oracle import _astar_search as _astar_search_py
 from temper_placer.router_v6.astar_core_rust import (
     _astar_search_rust,
     _line_of_sight_rust,
