@@ -222,6 +222,21 @@ GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py",
     "scripts/check_isolation_keepout.py",
     "scripts/check_pad_orientation.py",
+    # Added 2026-08-18. This file was NOT in the original 12: it was created
+    # on 2026-07-29 (8302756d3), the same day the sweep fixed them, from a
+    # SUPERSEDED evidence doc that still called the sign an open question. It
+    # typed its own `_rotate_plus_theta` and used it as the primary
+    # measurement AND as the filter for its violation list, so it reported
+    # the wrong violation SET for three weeks -- a K1/C6 evaluation read
+    # 155 -> 235 violations under R(+theta) against 122 -> 92 under the real
+    # convention, i.e. the tool argued against a correct change. Fixed to
+    # delegate to kicad_transform; guarded here so it cannot re-type the
+    # formula, and registered in check_pad_world_position_oracle.py's
+    # REGISTRY so its RESULT is checked against pcbnew, which this
+    # syntactic lint cannot do (a correctly-typed R(+theta) is
+    # syntactically indistinguishable from a correctly-typed R(-theta) --
+    # that is exactly why this file needed a second, behavioural gate).
+    "scripts/measure_cross_domain_creepage.py",
 )
 
 # (file, function name) pairs inside a guarded file that are exempt --
@@ -251,6 +266,20 @@ EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
         # ``_cos_sin`` still contains only ``math.cos``/``math.sin`` and no
         # rel/abs arithmetic.
         ("packages/temper-placer/src/temper_placer/placer/template.py", "_cos_sin"),
+        # measure_cross_domain_creepage.py::_local_points_of_graphic_item --
+        # samples _ARC_APPROX_POINTS evenly-spaced points on an FpCircle's
+        # boundary (`cx + r*cos(2*pi*k/N)`, `cy + r*sin(...)`) to feed a
+        # convex hull. The angle is a loop index over a FULL circle, never a
+        # footprint's orientation, and the emitted point SET is identical
+        # under either rotation sign -- it is a circle. This is a different
+        # computation from the local-offset-relative-to-parent-origin
+        # pattern the gate exists to catch. Re-checking this exemption means
+        # confirming the function still only samples closed circles and
+        # still applies no footprint/pad angle.
+        (
+            "scripts/measure_cross_domain_creepage.py",
+            "_local_points_of_graphic_item",
+        ),
         # router_v6/connectivity.py::_to_pad_coordinates -- an exemption
         # entry briefly existed here (added 2026-08-13, removed 2026-08-14)
         # on the theory that this test-only helper's `R(-rotation)`

@@ -964,6 +964,35 @@ scripts:
   - pathlib
   - sys
   - tempfile
+- path: check_pad_world_position_oracle.py
+  purpose: 'CI gate: resolve every registered pad-world-position implementation by import
+    and call it, requiring each to agree with scripts/kicad_pad_rotation_oracle.py (pcbnew,
+    KiCad''s own placement engine) on a pinned, provably-discriminating probe corpus. The
+    behavioural counterpart to check_no_raw_rotation_trig.py, which is syntactic and so
+    cannot distinguish a correctly-typed R(+theta) from a correctly-typed R(-theta) --
+    the gap measure_cross_domain_creepage.py fell through for three weeks while reporting
+    the wrong violation SET'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.path_setup
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - enum
+  - hashlib
+  - importlib
+  - json
+  - math
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
 - path: check_no_raw_rotation_trig.py
   purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
     footprint-child rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md)
