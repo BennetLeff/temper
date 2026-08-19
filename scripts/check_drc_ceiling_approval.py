@@ -131,6 +131,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _lib.drc_ceiling import (  # noqa: E402
     CEILING_RELPATH as CEILING_RELPATH_DEFAULT,
+)
+from _lib.drc_ceiling import (
     load_ceiling,
     parse_ceiling_text,
 )
