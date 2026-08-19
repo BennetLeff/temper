@@ -8,6 +8,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from temper_placer.router_v6._zone_pour_stitch import _ZONE_PRIORITY_CLASS_STRIDE
 from temper_placer.router_v6.adapter import (
     RoutingResult,
     _apply_placements_to_pcb,
@@ -1423,8 +1424,59 @@ class TestPriorityInversion:
         ac_max = max(priorities_by_net["AC_L"])
         hv_max = max(priorities_by_net["SW_NODE"])
         assert ac_max > hv_max, f"ACMains ({ac_max}) should be > HighVoltage ({hv_max})"
-        assert ac_max == 80
-        assert hv_max == 70
+        # The class figure (ACMains dru=10 -> 80, HighVoltage dru=20 -> 70) is
+        # now the HIGH digits of the emitted priority, with the low digits
+        # carrying a per-net tiebreak so two nets of the same class can never
+        # collide (2026-08-19; see `_emit_zone_pours`' priority block). One
+        # net per class here, so both land on their band's first slot.
+        assert ac_max == 80 * _ZONE_PRIORITY_CLASS_STRIDE
+        assert hv_max == 70 * _ZONE_PRIORITY_CLASS_STRIDE
+
+    def test_two_nets_of_one_class_never_share_a_priority(self):
+        """The defect: KiCad's fill order between two equal-priority zones on
+        one layer is unspecified, so whichever the C++ filler happens to reach
+        first claims the contested copper. Measured on the committed board,
+        `+170V_BUS` and `hb-gnd` -- both HighVoltage, both priority 70 --
+        contested 186.3 mm^2 on B.Cu and swapped it between runs.
+        """
+        import re
+
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result(
+            ["SW_NODE", "DC_BUS_RTN", "PWR_RTN"],
+            {},
+        )
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "SW_NODE") (net 2 "DC_BUS_RTN")'
+            ' (net 3 "PWR_RTN"))'
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+
+        priorities_by_net: dict[str, set[int]] = {}
+        for m in re.finditer(
+            r'\(net_name "([^"]+)"\).*?\(priority (\d+)\)',
+            output,
+            re.DOTALL,
+        ):
+            priorities_by_net.setdefault(m.group(1), set()).add(int(m.group(2)))
+
+        assert set(priorities_by_net) == {"SW_NODE", "DC_BUS_RTN", "PWR_RTN"}
+        # Every net emits ONE priority (all its layers agree) ...
+        assert all(len(v) == 1 for v in priorities_by_net.values())
+        # ... and no two nets share one.
+        singles = {net: next(iter(v)) for net, v in priorities_by_net.items()}
+        assert len(set(singles.values())) == 3, singles
+        # The tiebreak is the net name, not dict/emission order, so it is
+        # stable across runs and across PYTHONHASHSEED.
+        assert (
+            singles["DC_BUS_RTN"] < singles["PWR_RTN"] < singles["SW_NODE"]
+        ), singles
+        # All three stay inside their class band.
+        band = 70 * _ZONE_PRIORITY_CLASS_STRIDE
+        assert all(band <= p < band + _ZONE_PRIORITY_CLASS_STRIDE for p in singles.values())
 
 
 class TestStitchIsolatedPads:

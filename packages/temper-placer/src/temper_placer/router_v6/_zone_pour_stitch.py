@@ -554,6 +554,13 @@ def _stitch_isolated_pads(
 
 
 
+#: Stride between two adjacent zone-priority CLASS bands, and therefore the
+#: number of pour nets one class can hold before the bands would touch. The
+#: emitter widens it if a class ever holds more (see ``_emit_zone_pours``);
+#: the constant is the legible floor, not a cap.
+_ZONE_PRIORITY_CLASS_STRIDE = 100
+
+
 #: A carved fragment smaller than this is not copper anyone can use -- it is a
 #: sliver left where the keepout nearly severed the hull. KiCad's own zone
 #: filler drops islands below `min_thickness` (0.25mm) wide for the same
@@ -1008,11 +1015,64 @@ def _emit_zone_pours(
         (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
         default=90,
     )
-    zone_priority: dict[str, int] = {}
-    for nc in zone_netclasses:
+
+    # ZONE PRIORITY IS PER NET, NOT PER CLASS (2026-08-19).
+    #
+    # What used to be here keyed the priority by net CLASS:
+    #
+    #     zone_priority[nc] = _MAX_DRU_PRIORITY - rules.dru_priority
+    #
+    # so every net in a class emitted zones at the same number. KiCad fills
+    # zones in descending priority and gives the contested region to whoever
+    # filled first; between two EQUAL-priority zones on the same layer the
+    # order is unspecified -- it falls out of the C++ filler's own iteration,
+    # not out of anything this emitter writes. Measured on the committed
+    # board: 11 cross-net overlapping same-layer pour pairs, 6 of them at
+    # equal priority, the two largest being `+170V_BUS` <-> `hb-gnd` (both
+    # HighVoltage, both priority 70) contesting 186.3 mm^2 on B.Cu and
+    # 170.2 mm^2 on In3.Cu. Across 6 fills under varied PYTHONHASHSEED those
+    # two were the two largest unstable buckets and moved in anti-phase
+    # (B.Cu `+170V_BUS` 471.85 <-> 923.79 mm^2 while `hb-gnd` went
+    # 365.45 <-> 96.06) -- i.e. the fill of the +170V DC bus was a coin flip.
+    #
+    # The fix is to remove the ambiguity, not to seed anything: the
+    # nondeterminism lives inside KiCad's filler and this emitter cannot
+    # reach it. Priority becomes a TOTAL order over pour nets:
+    #
+    #   * the class figure still leads, so the safety intent is unchanged --
+    #     a mains pour still outranks an HV pour still outranks a tank pour;
+    #   * within a class, nets are ranked by name, a stable key that does not
+    #     depend on dict iteration, pad counts, or emission order.
+    #
+    # The class figure is multiplied by a stride wider than any class's pour
+    # count, so a tiebreak can never lift a net past the class above it. The
+    # stride floor is a constant for legibility (mains 80 -> 8000..8099); it
+    # widens automatically rather than wrapping if a class ever outgrows it.
+    zone_pour_nets = [
+        net_name
+        for net_name, positions in pad_positions.items()
+        if positions
+        and net_name_to_number.get(net_name, 0) > 0
+        and [
+            layer
+            for layer in _zone_layers_for_net(net_name)
+            if real_layer_names is None or layer in real_layer_names
+        ]
+    ]
+    nets_by_class: dict[str, list[str]] = {}
+    for net_name in sorted(zone_pour_nets):
+        nets_by_class.setdefault(TEMPER_NET_ASSIGNMENTS.get(net_name, ""), []).append(net_name)
+    stride = max(
+        _ZONE_PRIORITY_CLASS_STRIDE,
+        max((len(v) for v in nets_by_class.values()), default=0) + 1,
+    )
+    zone_priority_by_net: dict[str, int] = {}
+    for nc, class_nets in nets_by_class.items():
         rules = TEMPER_NET_CLASSES.get(nc)
         dru_p = rules.dru_priority if rules else 0
-        zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
+        class_priority = _MAX_DRU_PRIORITY - dru_p
+        for rank, net_name in enumerate(class_nets):
+            zone_priority_by_net[net_name] = class_priority * stride + rank
 
     zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
     zone_layer_by_net: dict[str, str] = {}
@@ -1026,7 +1086,7 @@ def _emit_zone_pours(
         if net_num > 0 and positions:
             nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
             eff_clearance = effective_clearance.get(nc, 0.3)
-            prio = zone_priority.get(nc, 0)
+            prio = zone_priority_by_net.get(net_name, 0)
             exempt = nc in _CONTINUITY_EXEMPT_CLASSES or net_name in _CONTINUITY_EXEMPT_NETS
 
             for layer in zone_layers:
