@@ -429,3 +429,46 @@ Three independent reasons, any one of which is sufficient.
 do not place, do not cost"** as of 2026-08-16. T2 still trips the geometric
 measurement because the footprint is still in the netlist, but it is not a part
 that will be bought or fitted. **The live CT problem is T1 only.**
+
+---
+
+## 6. Where this leaves each part
+
+| ref | live? | exemption | part sourced? | remaining blocker |
+|---|---|---|---|---|
+| C6 | yes | no | **yes** — TDK B81123C1562M000, measured **20.10 mm** | board resync only; re-check the 8–15 % touch-current margin |
+| K1 | yes | no | **yes** — TE Schrack RT33K012, measured **17.80 mm** | **does not fit at K1's site**; needs re-placement/reroute |
+| U6 | yes | no | **no** — package ceiling; slot rescue is illusory (§5.2a) | needs a topology change, not a part swap |
+| T1 | yes | no | **no** — none found at this ratio/current class | needs a topology change or lab adjudication |
+| T2 | **no — DNF** | no | n/a | de-scoped 2026-08-16; still trips the geometric gate |
+
+## 7. What the owner has to decide
+
+1. **The exemption is closed.** Do not add a certification carve-out to any DRC
+   rule. IEC 60335-1 cl. 24.1 scopes the component-standard creepage
+   substitution to functional insulation, and this barrier is reinforced.
+   `MIN_BARRIER_WIDTH_MM` = 12.6 stands, unchanged by this work.
+
+2. **C6 and K1 are already solved on paper.** Both replacement parts are
+   certified, orderable, and independently re-measured this session at 20.10 mm
+   and 17.80 mm. What is missing is board work: a footprint resync for C6, and a
+   genuine re-placement for K1, which currently collides with routing that was
+   laid through space the incumbent Omron footprint left copper-free.
+
+3. **U6 and T1 have no part-level fix, and the slot does not substitute for
+   one.** §5.2a is the load-bearing finding: milling the laminate raises the
+   board path only, while the package path — > 8 mm for the UCC21550, ≥ 8 mm
+   claimed for the CST3015 — continues to govern. Adopting the slot would move
+   the DRC number without moving the hazard. The in-tree route already
+   identified for U6 (a discrete certified digital isolator plus a local
+   secondary-side driver per switch, reported at > 14.5 mm) is a **topology
+   change**, and it is the honest shape of the fix.
+
+4. **Two determinations must go to the certification lab, and both can only
+   raise the bar.** IEC 60664-4 Table 2 governs alongside Table 17 wherever
+   working voltage is periodic above 30 kHz — which is T1, T2 and U6 at
+   44–50 kHz — and IEC 60664-4 is not obtainable. And `tank-out`'s peak working
+   voltage has never been derived, with the adjacent node at 923.7 V pk /
+   570.5 V rms; above 500 V rms, T1's reinforced requirement becomes **20.0 mm**,
+   not 12.6 mm. Neither can be settled in-tree, and neither is an argument for
+   relaxing anything.
