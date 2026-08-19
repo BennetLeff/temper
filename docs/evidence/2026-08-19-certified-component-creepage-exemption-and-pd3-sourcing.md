@@ -323,7 +323,65 @@ used by the isolator-package-maxima script — not taken from the footprint `des
 
 Both reproduce the in-tree figures exactly.
 
-**C6 — datasheet-verified, no open blocker.** 22.50 mm lead pitch, body
+**C6 — the specified part is not currently buyable.** Digi-Key, checked
+2026-08-19: `B81123C1562M000` (495-1653-ND) shows **0 in stock, 630 estimated
+2027-01-20**, $1.88/1. The geometry is the best of any candidate, but the part is
+effectively unavailable for ~17 months. This is the single most actionable
+procurement finding in this document and it was not previously recorded in-tree.
+
+**The 2.2 nF / 15.00 mm alternatives keep the design value but are marginal, and
+the repo has already rejected one of them once.** Two Y1 500 VAC parts at 15.00 mm
+±0.4 mm pitch, 0.8 mm leads, both datasheet-verified this session:
+
+| part | value | approvals | Digi-Key stock 2026-08-19 |
+|---|---|---|---|
+| TDK **B81123C1222M000** | 2.2 nF ±20% | ENEC-05495, UL/CSA E97863 | **198,828**, Active |
+| KEMET **P295BJ222M500A** | 2.2 nF ±20% | IMQ CA08.00252, UL/CSA E73869, CQC16001145222 | listed, quantity not retrieved |
+
+`docs/evidence/2026-07-29-pd3-part-selection-verification.md` carries a
+superseding note calling `B81123C1222M000` a **"false solve"** — at 15.00 ±0.4 mm
+the worst-case gap is **12.2 mm, below 12.6 mm**. That figure assumes the KiCad
+**stock 2.4 mm pad**. The arithmetic is pad-diameter-dependent:
+
+| pad diameter | worst-case gap (pitch 14.6 mm) | verdict |
+|---|---:|---|
+| 2.4 mm (KiCad stock, as used by C1) | 12.200 mm | **fails** — this is the recorded false solve |
+| 2.0 mm (what C6's land uses today) | 12.600 mm | passes with **exactly zero margin** |
+| 1.6 mm (still 0.4 mm annular ring on a 0.8 mm lead) | 13.000 mm | passes, +0.4 mm |
+
+So the "false solve" verdict is correct *at stock pad size* and escapable only by
+deliberately tightening the land pattern. **A part that clears a reinforced-safety
+limit by 0.0 mm, and only because the pad was shrunk to make it, is not a solve I
+would put on a mains BOM** — that is the shape of a check being fitted to a part
+rather than a part to the check. The 1.6 mm option is defensible on annular ring
+but still carries +0.4 mm against a limit that §4 argues may not even be the final
+figure.
+
+**Neither Y-capacitor datasheet states a creepage figure at all.** Seven safety-cap
+datasheets were fetched (TDK B81123, KEMET P295, Vishay VY1, Murata DE1/DE2,
+Songtian CD, Suntan TS22); **every one gives lead pitch only** and none contains
+the word "creepage". Lead pitch is a package dimension. It must not be recorded as
+a datasheet creepage figure — the same hipot-vs-creepage conflation §5.3a flags
+for the CT category.
+
+**Ceramic-disc Y1 cannot reach 12.6 mm at any capacitance**, confirming the
+in-tree survey: disc Y1 tops out at 12.5 mm ±1.0 mm nominal pitch (Vishay VY1),
+below the bar before tolerance is even applied. Only film/paper box construction
+goes wider. The incumbent `VY1222M47Y5UQ6TV0` measures 9.500 mm worst case.
+
+**The owner's actual choice at C6** is therefore: (a) 5.6 nF at 22.50 mm — real
+geometric margin (19.7 mm worst case / 20.1 mm nominal), but unbuyable until
+2027 and needs the 2.5× capacitance change signed off against touch current; or
+(b) 2.2 nF at 15.00 mm — stocked in volume, keeps the design value and its
+leakage budget, but only clears with a tightened land pattern and ~0–0.4 mm
+margin. Neither is free.
+
+*(Geometry note: my nominal measurement of the 22.50 mm land pattern is
+**20.1000 mm**; the 19.700 mm figure above is the same part at worst-case pitch
+tolerance. Both clear 12.6 mm comfortably; they differ only in whether pitch
+tolerance is applied.)*
+
+**C6 physical detail.** 22.50 mm lead pitch, body
 26.5 × 7.0 × 16.0 mm. Not a drop-in: needs the new land pattern. Capacitance was
 raised 2.2 nF → 5.6 nF because film-Y1 lead pitch is tied to capacitance; the
 binding electrical constraint is touch current, and in-tree arithmetic puts it at
@@ -342,8 +400,36 @@ already retuned 39 Ω → 91 Ω in-tree to suit the different coil resistance.
 contact pins are Faston tabs drawn on F.Fab with *zero PCB copper*, so traces
 were routed through space a real THT relay occupies; all four cardinal rotations
 produce new shorts plus a courtyard collision with C27
-(`docs/evidence/2026-08-13-pd3-land-k1-c6.md`). **Footprint growth: significant,
-and it is the binding problem.** This one needs re-placement, not re-sourcing.
+(`docs/evidence/2026-08-13-pd3-land-k1-c6.md`).
+
+**Correction on footprint growth — the replacement body is smaller, not bigger.**
+RT33K012 body is **29.0 × 12.7 × 15.7 mm** (TE drawing S0272-BC) against the
+G4A-E's **30.5 × 16 × 23.5 mm** — smaller in all three dimensions, and 14 g.
+What is wider is the *pad field* (17.8 mm coil-to-contact against 8.0 mm), which
+is the entire point. So K1 exerts **no new area pressure on placement**; the
+blocker is purely that the incumbent Omron footprint declared its contact pins as
+F.Fab tabs with no copper, and traces were routed through the space a real THT
+relay body occupies. This is a routing-clearance problem at one site, not a
+board-density problem.
+
+Stock: Digi-Key **PB2347-ND, 1,197 in stock**, $7.03/1, Active (2026-08-19).
+
+**Relay category ceiling, for the record.** No relay datasheet from any vendor
+surveyed states a coil-to-contact creepage ≥ 12.6 mm. The category maximum found
+is **11.0 mm** (Panasonic HE-S / AHES3191, "Between Form A contact and coil —
+Min. 11.0 mm"), and that same datasheet's *certified* IEC 61810-1 figure is only
+**5.5 / 8.0 mm** — so the 11.0 mm construction number buys nothing a test house
+would credit. The mainstream cluster (Omron G2RL, Finder 40/62/34, Panasonic
+HE/JW) sits at exactly **8 mm**, the PD2 figure again (§5.4). The incumbent Omron
+G4A is the worst of the set at **6.4 mm creepage / 3.2 mm clearance**.
+
+**RT33K012 wins on land pattern, not on its internal rating.** TE's datasheet
+states "Clearance/creepage between contact and coil ≥ 10/10 mm" and — unlike the
+ICs in §5.4 — rates the part at **IEC 60664-1 pollution degree 3, material group
+IIIa, reinforced, rated insulation voltage 250 V** (VDE 40007571, UL E214025,
+cCSAus 1142018). Its 10 mm internal figure is still under 12.6 mm; what clears
+the requirement is the **17.8 mm pad-to-pad span** of its land pattern, which is
+the measurement that actually governs (§1.4).
 
 **And they interact.** `docs/hardware/BOM.md` records that landing both new
 footprints together "does introduce one new courtyard collision between the two
