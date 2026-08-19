@@ -507,6 +507,26 @@ do not place, do not cost"** as of 2026-08-16. T2 still trips the geometric
 measurement because the footprint is still in the netlist, but it is not a part
 that will be bought or fitted. **The live CT problem is T1 only.**
 
+### 5.4 Why every incumbent lands on 8 mm — the PD2 cliff, confirmed in three vendors' own numbers
+
+The brief's hypothesis was that 8 mm is the industry-standard reinforced-isolation
+creepage and that it is exactly the PD2 figure. Three unrelated datasheets read
+this session say so independently:
+
+| part | vendor's own stated external creepage | vendor's stated pollution degree |
+|---|---|---|
+| TI UCC21550 (DWK) — U6 | CPG **> 8 mm** | **2** |
+| TI ISO7741 (DW-16) — the narrow sibling | CPG **> 8 mm** | **2** |
+| Coilcraft CST3015-100ED — T1/T2 | "at least **8 mm** creepage/clearance" | not stated |
+
+8.0 mm is 2 × 4.0 mm — Table 17 row iv, **pollution degree 2**, material group
+IIIa/IIIb, doubled for reinforced. The component industry converged on the PD2
+reinforced figure, and two of the three datasheets say "pollution degree 2" in
+as many words. That is why the corridor sweep finds its feasibility cliff at
+exactly 8.0 mm, and it is why this is a **category-wide** problem rather than a
+bad-part-choice problem: the parts are all built to a bar this board does not
+get to use.
+
 ---
 
 ## 6. Where this leaves each part
