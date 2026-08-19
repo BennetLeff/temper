@@ -569,6 +569,63 @@ _ZONE_PRIORITY_CLASS_STRIDE = 100
 _MIN_CARVED_AREA_MM2 = 0.25 * 0.25
 
 
+def _carve_rings(
+    rings,
+    keepout,
+    own_pads: list[tuple[float, float]] | None,
+) -> list[tuple[list, list]]:
+    """Subtract *keepout* from an exterior+holes ring set, HOLE-PRESERVING.
+
+    :func:`_carve_outline` (the legacy single-ring carve) drops interior
+    holes, which is exactly the defect the Rust generator was wired in to
+    fix -- an HV pad buried inside a hull has to punch a hole in the
+    OUTLINE or the fill fractures into thin rings. So this cannot reuse it.
+
+    *own_pads*, when given, applies the same PadsOnly island policy the
+    Rust generator applied before the subtraction: a fragment the carve
+    separates from every pad of its own net is padless copper on a
+    signal/HV/mains pour, which is isolated-copper liability rather than
+    plane continuity. ``None`` keeps every fragment (the KeepAll policy the
+    GND-class return planes use).
+
+    Returns ``[(exterior, holes), ...]``, one entry per surviving piece.
+    """
+    from shapely.geometry import Point, Polygon
+
+    exterior, holes = rings[0], rings[1:]
+    if len(exterior) < 3:
+        return []
+    poly = Polygon(exterior, [h for h in holes if len(h) >= 3])
+    if not poly.is_valid:
+        poly = poly.buffer(0)
+    carved = poly.difference(keepout)
+    if carved.is_empty:
+        return []
+    pieces = list(carved.geoms) if hasattr(carved, "geoms") else [carved]
+    pad_points = [Point(x, y) for x, y in (own_pads or [])]
+    out: list[tuple[list, list]] = []
+    for piece in pieces:
+        if not hasattr(piece, "exterior") or piece.is_empty:
+            continue
+        if piece.area < _MIN_CARVED_AREA_MM2:
+            continue
+        if own_pads is not None and not any(piece.intersects(pt) for pt in pad_points):
+            continue
+
+        def _ring(coords) -> list:
+            pts = [(float(x), float(y)) for x, y in coords]
+            if len(pts) > 1 and pts[0] == pts[-1]:
+                pts.pop()
+            return pts
+
+        piece_exterior = _ring(piece.exterior.coords)
+        if len(piece_exterior) < 3:
+            continue
+        piece_holes = [r for r in (_ring(h.coords) for h in piece.interiors) if len(r) >= 3]
+        out.append((piece_exterior, piece_holes))
+    return out
+
+
 def _carve_outline(
     points: tuple[tuple[float, float], ...],
     keepout,
@@ -1074,6 +1131,91 @@ def _emit_zone_pours(
         for rank, net_name in enumerate(class_nets):
             zone_priority_by_net[net_name] = class_priority * stride + rank
 
+    # ZONE-VS-ZONE, FOR CREEPAGE ONLY (2026-08-19).
+    #
+    # `collect_zone_obstacle_records` deliberately excludes other pours from
+    # the obstacle set, and the reason recorded there was stale. Re-measured:
+    # KiCad's filler enforces zone-to-zone CLEARANCE -- it clips a
+    # lower-priority pour back off a higher-priority one -- and never checks
+    # CREEPAGE. So the exclusion is right for clearance-governed pairs (all
+    # 45 under-separated cross-net same-layer pairs on the committed board,
+    # at 0.5/2.0/3.0mm, every one with a creepage figure of 0.0) and wrong
+    # for creepage-governed ones, which nothing on the board holds.
+    #
+    # This board has 13 such pairs sharing a layer -- HighVoltageTank vs
+    # HighVoltage, 10.0mm creepage against a 2.0mm clearance -- and they pass
+    # today by 0.3561mm (closest pair 10.3561mm). That margin is luck: no
+    # code puts it there and nothing would notice it closing.
+    #
+    # Each pour is carved against every OTHER net's UNCARVED hull, not
+    # against the already-carved result, so the outcome does not depend on
+    # which net was emitted first -- the order-dependence objection the old
+    # note raised against carving here (PR #1112) does not apply to a
+    # symmetric carve. Both sides of a creepage pair back off, which is also
+    # the right shape for an isolation corridor.
+    from temper_placer.router_v6.zone_pour_creepage import (
+        default_creepage_table as _default_creepage_table,
+    )
+
+    creepage_table_for_zones = _default_creepage_table()
+    _zds_cache: dict[tuple[str, str], list] = {}
+
+    def _zone_definitions(net_name: str, layer: str) -> list:
+        key = (net_name, layer)
+        if key not in _zds_cache:
+            nc_local = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+            exempt_local = (
+                nc_local in _CONTINUITY_EXEMPT_CLASSES or net_name in _CONTINUITY_EXEMPT_NETS
+            )
+            try:
+                margin_local, _ = _zone_params_for_net(net_name)
+                _zds_cache[key] = compute_zones_for_net(
+                    net_name,
+                    net_name_to_number.get(net_name, 0),
+                    pad_positions.get(net_name, []),
+                    layer=layer,
+                    margin=margin_local,
+                    cluster=not exempt_local,
+                    board_polygon=board_polygon,
+                )
+            except ValueError:
+                _zds_cache[key] = []
+        return _zds_cache[key]
+
+    def _creepage_zone_keepout(zone_net: str, layer: str):
+        """Union of the other nets' hulls on *layer*, each grown by the pair
+        creepage figure -- but only for pairs whose creepage EXCEEDS their
+        clearance. A pair the filler already governs contributes nothing, so
+        this never removes copper KiCad is correct about.
+        """
+        from shapely.geometry import Polygon
+        from shapely.ops import unary_union
+
+        zone_class = TEMPER_NET_ASSIGNMENTS.get(zone_net, "") or "Default"
+        geoms: list = []
+        for other_net in zone_pour_nets:
+            if other_net == zone_net:
+                continue
+            other_class = TEMPER_NET_ASSIGNMENTS.get(other_net, "") or "Default"
+            required_clearance = max(
+                clearance_table.required(zone_class, other_class, "Zone"),
+                clearance_table.required(other_class, zone_class, "Zone"),
+            )
+            required_creepage = max(
+                creepage_table_for_zones.required(zone_class, other_class, "Zone"),
+                creepage_table_for_zones.required(other_class, zone_class, "Zone"),
+            )
+            if required_creepage <= required_clearance:
+                continue
+            for zd in _zone_definitions(other_net, layer):
+                hull = Polygon(list(zd.points))
+                if not hull.is_valid:
+                    hull = hull.buffer(0)
+                if hull.is_empty:
+                    continue
+                geoms.append(hull.buffer(required_creepage, quad_segs=8))
+        return unary_union(geoms) if geoms else None
+
     zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
     zone_layer_by_net: dict[str, str] = {}
     for net_name, positions in pad_positions.items():
@@ -1087,21 +1229,15 @@ def _emit_zone_pours(
             nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
             eff_clearance = effective_clearance.get(nc, 0.3)
             prio = zone_priority_by_net.get(net_name, 0)
-            exempt = nc in _CONTINUITY_EXEMPT_CLASSES or net_name in _CONTINUITY_EXEMPT_NETS
+            # (the cluster/continuity-exempt decision moved into
+            # `_zone_definitions`, which is where compute_zones_for_net is
+            # now called from -- once per (net, layer), memoized, because the
+            # creepage keepout below needs other nets' hulls too.)
 
             for layer in zone_layers:
                 zone_layer_by_net.setdefault(net_name, layer)
                 try:
-                    margin, _clearance = _zone_params_for_net(net_name)
-                    zds = compute_zones_for_net(
-                        net_name,
-                        net_num,
-                        positions,
-                        layer=layer,
-                        margin=margin,
-                        cluster=not exempt,
-                        board_polygon=board_polygon,
-                    )
+                    zds = _zone_definitions(net_name, layer)
                     # WIRED 2026-08-16 (docs/evidence/2026-08-16-zone-pour-
                     # rust-generator.md): the outline carve moved from the
                     # Python shapely keepout+difference (`pair_clearance_keepout`
@@ -1182,6 +1318,11 @@ def _emit_zone_pours(
                     # layer; the only pads that exist everywhere are THT.
                     if not own_pads_on_layer:
                         continue
+                    # The zone-vs-zone creepage term (see the block above
+                    # `_creepage_zone_keepout`). `None` -- no creepage-governed
+                    # pour pair on this layer -- leaves the Rust generator's
+                    # rings untouched, byte for byte.
+                    zone_keepout = _creepage_zone_keepout(net_name, layer)
                     for zd in zds:
                         pour_zones = _tg.pour_outline_py(
                             list(zd.points),
@@ -1191,23 +1332,30 @@ def _emit_zone_pours(
                             pads_only,
                         )
                         for zone_rings in pour_zones:
-                            exterior = zone_rings[0]
-                            holes = zone_rings[1:]
-                            if len(exterior) < 3:
-                                continue
-                            segments.append(
-                                _tg.emit_zone_outline_s_expr_py(
-                                    zd.net_number,
-                                    zd.net_name,
-                                    zd.layer,
-                                    exterior,
-                                    holes,
-                                    eff_clearance,
-                                    prio,
-                                    zd.min_thickness,
+                            if zone_keepout is None:
+                                pieces = [(zone_rings[0], list(zone_rings[1:]))]
+                            else:
+                                pieces = _carve_rings(
+                                    zone_rings,
+                                    zone_keepout,
+                                    own_pads_on_layer if pads_only else None,
                                 )
-                            )
-                            zone_points_by_net.setdefault(net_name, []).append(tuple(exterior))
+                            for exterior, holes in pieces:
+                                if len(exterior) < 3:
+                                    continue
+                                segments.append(
+                                    _tg.emit_zone_outline_s_expr_py(
+                                        zd.net_number,
+                                        zd.net_name,
+                                        zd.layer,
+                                        exterior,
+                                        holes,
+                                        eff_clearance,
+                                        prio,
+                                        zd.min_thickness,
+                                    )
+                                )
+                                zone_points_by_net.setdefault(net_name, []).append(tuple(exterior))
                 except ValueError:
                     pass
 

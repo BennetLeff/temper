@@ -89,6 +89,7 @@ _DEFAULT_CONFIG_PATH = (
 OTHER_TYPES = ("Track", "Pad", "Via", "Zone")
 
 
+
 def kicad_class_name(router_class: str) -> str:
     """Translate a router-side net-class name into the generated table's key."""
     return _ROUTER_TO_KICAD_CLASS.get(router_class or UNASSIGNED_NETCLASS, router_class)
@@ -229,12 +230,23 @@ def pair_clearance_keepout(
       ``_ground_plane._collect_other_net_copper`` already uses.
     * ``segments`` -- the tracks and vias THIS route just emitted, which are
       not on ``pcb`` yet. Parsed from the strings the emitter itself produced.
-    * **Other zones are not carved against.** KiCad resolves zone-to-zone
-      overlap by zone priority at fill time and the measurement in
-      docs/evidence/2026-08-13-zone-pour-safety-clearances.md finds no
-      zone-to-zone violation at any local clearance; carving here would
-      instead make the result depend on which net's pour was emitted first,
-      which is exactly the order-dependence PR #1112 removed from the A*.
+    * **Other zones are not carved against**, and the reason has been
+      re-measured (2026-08-19) because the one recorded here was stale.
+      KiCad's filler enforces CLEARANCE between zones -- a lower-priority
+      pour is clipped back off a higher-priority one -- and never checks
+      CREEPAGE. So the omission is safe exactly while every cross-net pour
+      pair that shares a layer is governed by its clearance figure. Measured
+      on the committed board: all 45 under-separated cross-net same-layer
+      pour pairs are clearance-governed (0.5 / 2.0 / 3.0 mm), every one of
+      them with a creepage figure of 0.0 -- same-domain pairs the DRU
+      declares no creepage rule for. Not one is creepage-governed, so
+      carving here would remove copper the filler is already correct about.
+      What is NOT covered, and would have to be: a REINFORCED pour pair
+      (12.6 mm creepage, 2.0 mm clearance) sharing a layer. This board has
+      none only because the mains/HV pours live on F.Cu/In3.Cu/In4.Cu/B.Cu
+      while the GND and Power planes live on In1.Cu/In2.Cu --
+      a layer-assignment accident, not a guarantee. It is pinned as one by
+      ``test_zone_pour_clearance.py::TestZoneToZoneIsLeftToTheFiller``.
 
     Returns ``None`` when nothing needs carving.
     """
@@ -360,8 +372,9 @@ def collect_zone_obstacle_records(
 
     Mirrors :func:`pair_clearance_keepout`'s geometry walk exactly (same
     sources: ``pcb`` pads/tracks/vias + ``segments`` emitted this route;
-    same "other zones are not carved against" decision -- KiCad resolves
-    zone-to-zone overlap by priority at fill time).  The difference is
+    same "other zones are not carved against" decision -- see that
+    function's docstring for the re-measured reason and for the one case
+    it does NOT cover).  The difference is
     per-item separation: ``max(clearance_table.required(...),
     creepage_table.required(...))`` -- the DRU clearance figure for the
     pair unless the DRU creepage rule governs it harder (HV-vs-LV: 12.6mm

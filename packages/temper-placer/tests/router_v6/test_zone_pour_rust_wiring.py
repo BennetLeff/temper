@@ -200,3 +200,135 @@ class TestRustGeneratorIsWiredIntoEmission:
             "same-net pad must not appear as an obstacle; "
             "polygon counts: " + str([_polygon_count(b) for b in blocks])
         )
+
+
+class TestZoneToZoneCreepageIsCarved:
+    """Zone-vs-zone was the one obstacle class the carve never covered.
+
+    The reason recorded in ``pair_clearance_keepout``'s docstring was that
+    KiCad resolves zone overlap by priority at fill time. Re-measured
+    2026-08-19: the filler enforces zone-to-zone CLEARANCE and never
+    CREEPAGE, so that reason holds only for clearance-governed pairs. On
+    the committed board all 45 under-separated cross-net same-layer pour
+    pairs are clearance-governed (0.5/2.0/3.0mm, creepage 0.0), but 13
+    creepage-governed pairs also share layers -- HighVoltageTank vs
+    HighVoltage, 10.0mm creepage against a 2.0mm clearance -- and they pass
+    by 0.3561mm that no code puts there.
+
+    These two tests are the pair that matters: the carve must bite on a
+    creepage-governed pair, and must NOT bite on a clearance-governed one
+    (removing copper the filler is already correct about is a real cost).
+    """
+
+    @staticmethod
+    def _pcb_with_pads(pads: dict[str, list[tuple[float, float]]], layer: str = "F.Cu"):
+        from temper_placer.core.netlist import Component, Pin
+
+        components = []
+        for idx, (net, positions) in enumerate(sorted(pads.items())):
+            for jdx, pos in enumerate(positions):
+                components.append(
+                    Component(
+                        ref=f"U{idx}_{jdx}",
+                        footprint="0805",
+                        bounds=(2.0, 1.25),
+                        initial_position=pos,
+                        pins=[
+                            Pin(
+                                name="1",
+                                number="1",
+                                position=(0.0, 0.0),
+                                net=net,
+                                width=1.0,
+                                height=1.0,
+                                layer=layer,
+                            )
+                        ],
+                    )
+                )
+        board = SimpleNamespace(
+            outline_polygon=((0.0, 0.0), (140.0, 0.0), (140.0, 140.0), (0.0, 140.0)),
+            get_bounds_array=lambda: (0.0, 0.0, 140.0, 140.0),
+        )
+        return SimpleNamespace(components=components, tracks=[], vias=[], board=board)
+
+    @staticmethod
+    def _min_gap(segments: list[str], net_a: str, net_b: str, layer: str = "F.Cu") -> float:
+        from shapely.geometry import Polygon
+        from shapely.ops import unary_union
+
+        def _union(net: str):
+            polys = []
+            for block in _zone_blocks(segments):
+                m = NET_RE.search(block)
+                if not m or m.group(1) != net:
+                    continue
+                if f'(layer "{layer}")' not in block:
+                    continue
+                rings = _rings(block)
+                if not rings or len(rings[0]) < 3:
+                    continue
+                poly = Polygon(rings[0], [r for r in rings[1:] if len(r) >= 3])
+                polys.append(poly if poly.is_valid else poly.buffer(0))
+            return unary_union(polys) if polys else None
+
+        ua, ub = _union(net_a), _union(net_b)
+        assert ua is not None and not ua.is_empty, f"no {net_a} pour emitted"
+        assert ub is not None and not ub.is_empty, f"no {net_b} pour emitted"
+        return ua.distance(ub)
+
+    # Two squares whose hulls sit ~5mm apart -- closer than the 10.0mm
+    # HighVoltageTank-vs-HighVoltage creepage figure, and closer than the
+    # 2.0mm HighVoltage-vs-HighVoltage clearance figure is wide.
+    _A = [(30.0, 30.0), (45.0, 30.0), (45.0, 45.0), (30.0, 45.0)]
+    _B = [(50.0, 30.0), (65.0, 30.0), (65.0, 45.0), (50.0, 45.0)]
+
+    def test_a_creepage_governed_pair_is_pushed_apart(self):
+        """`tank.c_tank1-p2` is HighVoltageTank, `w1_1` is HighVoltage:
+        clearance 2.0mm, creepage 10.0mm. Nothing but the outline can hold
+        the 10.0mm, because the filler never checks creepage."""
+        from temper_placer.router_v6.zone_pour_clearance import default_table
+        from temper_placer.router_v6.zone_pour_creepage import (
+            default_creepage_table as _creep,
+        )
+
+        assert default_table().required("HighVoltageTank", "HighVoltage", "Zone") == 2.0
+        assert _creep().required("HighVoltageTank", "HighVoltage", "Zone") == 10.0
+
+        pads = {"tank.c_tank1-p2": self._A, "w1_1": self._B}
+        segments: list[str] = []
+        _emit_zone_pours(
+            pads,
+            segments,
+            {"tank.c_tank1-p2": 1, "w1_1": 2},
+            pcb=self._pcb_with_pads(pads),
+        )
+        gap = self._min_gap(segments, "tank.c_tank1-p2", "w1_1")
+        assert gap >= 10.0 - 1e-6, (
+            f"creepage-governed pour pair emitted {gap:.4f}mm apart, needs 10.0mm"
+        )
+
+    def test_a_clearance_governed_pair_is_left_to_the_filler(self):
+        """`+170V_BUS` and `hb-gnd` are both HighVoltage: 2.0mm clearance,
+        0.0mm creepage. KiCad's filler clips the lower-priority pour back
+        off the higher-priority one, so carving here would only destroy
+        copper. The outlines must be left overlapping/touching."""
+        from temper_placer.router_v6.zone_pour_creepage import (
+            default_creepage_table as _creep,
+        )
+
+        assert _creep().required("HighVoltage", "HighVoltage", "Zone") == 0.0
+
+        pads = {"+170V_BUS": self._A, "hb-gnd": self._B}
+        segments: list[str] = []
+        _emit_zone_pours(
+            pads,
+            segments,
+            {"+170V_BUS": 1, "hb-gnd": 2},
+            pcb=self._pcb_with_pads(pads),
+        )
+        gap = self._min_gap(segments, "+170V_BUS", "hb-gnd")
+        assert gap < 10.0, (
+            f"a clearance-governed pair was carved apart to {gap:.4f}mm -- the "
+            "carve must not remove copper the filler already governs"
+        )
