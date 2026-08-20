@@ -338,6 +338,16 @@ whole investigations down dead ends.
   source registers — the freshness check compares timestamps, not exported
   symbols. If a measurement depends on a specific pyo3 function, verify that
   symbol is present in the loaded module before trusting the run.
+* **A plain `cargo test` can poison the shared build directory for every
+  worktree.** Running `cargo test` on `temper-orchestration` compiles
+  `temper-geometry` **without its `python` feature**, and that artifact
+  overwrites the shared `target-shared` copy every other worktree links
+  against — leaving `check_stale_extensions.py` reporting `[UNLOADABLE] ...
+  exports no PyInit_temper_geometry`. Recovery needs `cargo clean -p
+  temper-geometry` **plus** a rebuild under a private `CARGO_TARGET_DIR`;
+  rebuilding in the shared directory alone re-poisons it. Prefer `cargo test
+  -p <crate> --features python`, or build under a private target dir when
+  testing a crate that another crate re-exports to Python.
 
 ### The general rule
 
