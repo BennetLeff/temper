@@ -559,6 +559,87 @@ mod py_bridge {
         })
     }
 
+    /// `_write_tracks.write_routes_to_pcb`'s per-segment construction: the
+    /// parsed s-expression tree that kiutils' `Segment.from_sexpr` consumes
+    /// (`(segment (start x y) (end x y) (width w) (layer L) (net N) (tstamp
+    /// T))`). Rust owns the content; kiutils' own `to_sexpr` does the
+    /// serialisation (B1 — floats are carried as values, so the int-coercion
+    /// of a text round-trip can never change the emitted bytes).
+    #[pyfunction]
+    pub fn segment_sexpr_py(
+        py: Python<'_>,
+        start_x: f64,
+        start_y: f64,
+        end_x: f64,
+        end_y: f64,
+        width: f64,
+        layer: &str,
+        net: i64,
+        tstamp: &str,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut segment: Vec<Bound<'_, PyAny>> =
+                vec!["segment".into_pyobject(py)?.into_any()];
+            segment.push(node(
+                py,
+                "start",
+                vec![
+                    start_x.into_pyobject(py)?.into_any(),
+                    start_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            segment.push(node(
+                py,
+                "end",
+                vec![
+                    end_x.into_pyobject(py)?.into_any(),
+                    end_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            segment.push(node(py, "width", vec![width.into_pyobject(py)?.into_any()])?);
+            segment.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            segment.push(node(py, "net", vec![net.into_pyobject(py)?.into_any()])?);
+            segment.push(node(py, "tstamp", vec![tstamp.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, segment)?.unbind())
+        })
+    }
+
+    /// `_write_tracks.write_routes_to_pcb`'s per-via construction: the
+    /// parsed s-expression tree that kiutils' `Via.from_sexpr` consumes
+    /// (`(via (at x y) (size s) (drill d) (layers L1 L2) (net N) (tstamp
+    /// T))`). See [`segment_sexpr_py`] for the float rationale.
+    #[pyfunction]
+    pub fn via_sexpr_py(
+        py: Python<'_>,
+        x: f64,
+        y: f64,
+        size: f64,
+        drill: f64,
+        layers: Vec<String>,
+        net: i64,
+        tstamp: &str,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut via: Vec<Bound<'_, PyAny>> = vec!["via".into_pyobject(py)?.into_any()];
+            via.push(node(
+                py,
+                "at",
+                vec![x.into_pyobject(py)?.into_any(), y.into_pyobject(py)?.into_any()],
+            )?);
+            via.push(node(py, "size", vec![size.into_pyobject(py)?.into_any()])?);
+            via.push(node(py, "drill", vec![drill.into_pyobject(py)?.into_any()])?);
+            let mut layers_node: Vec<Bound<'_, PyAny>> =
+                vec!["layers".into_pyobject(py)?.into_any()];
+            for layer in layers {
+                layers_node.push(layer.into_pyobject(py)?.into_any());
+            }
+            via.push(PyList::new(py, layers_node)?.into_any());
+            via.push(node(py, "net", vec![net.into_pyobject(py)?.into_any()])?);
+            via.push(node(py, "tstamp", vec![tstamp.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, via)?.unbind())
+        })
+    }
+
     /// `float(index) * 90.0` — rotation index to degrees.
     #[pyfunction]
     pub fn rotation_index_to_degrees_py(index: i64) -> PyResult<f64> {
@@ -590,6 +671,8 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(zone_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(gr_rect_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(gr_text_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(segment_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(via_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(rotation_index_to_degrees_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(placement_coordinate_py, &sub)?)?;
         module.add_submodule(&sub)
