@@ -157,6 +157,37 @@ const MIN_ANNULAR_RING_MM: f64 = 0.254;
 /// project's own netclass tables would have produced directly.
 const ANNULAR_RING_TARGET_MM: f64 = 0.3;
 
+/// The board's declared minimum DRILLED-HOLE DIAMETER for a plated
+/// through-hole: `board.design_settings.rules.min_through_hole_diameter`
+/// in `pcb/temper.kicad_pro`. This is a hole SIZE, not a spacing and not a
+/// ring width — kicad-cli checks it as its built-in `drill_out_of_range`
+/// rule and reports it in exactly those words ("Hole size out of range
+/// (min hole 0.3000 mm; actual 0.2000 mm)").
+///
+/// **Do not change this value to make a check pass**, and in particular do
+/// not lower it to 0.2mm to "match" the geometry below. It is the board's
+/// own declared limit; the fix direction is to emit conforming holes.
+/// (JLCPCB's published multilayer minimum drill is looser still — 0.15mm,
+/// `docs/hardware/FAB_CAPABILITY.md` §1 row 2b / §5 `min_drill_mm` — so
+/// this 0.3mm figure is the repo's own, stricter design minimum and it is
+/// the binding one. Nothing on this board needs a hole below it: the
+/// smallest through-hole component pad drill measured on the real board is
+/// 0.70mm, §6.2 of `docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md`.)
+///
+/// Why this guard exists, and why it is here rather than only in the
+/// net-class tables: the 2026-08-13 annular-ring sweep
+/// (`docs/evidence/2026-08-13-via-annular-ring-floor-fix.md` §3) raised
+/// every net-class via PAD "drill unchanged in every case", which left
+/// `TEMPER_NET_CLASSES["FinePitch"]` / `netclass_rules.yaml` declaring a
+/// 0.2mm drill — legal on its ring (0.8/0.2 is a 0.3mm ring) and illegal
+/// on its hole size. That same document's own 130-sample table records the
+/// consequence it did not fix: `drill_out_of_range: min=4 max=4`. A
+/// net-class edit alone would repeat the 2026-08-17 lesson (a stale
+/// upstream default three call-frames above `Via::new` reintroduced
+/// sub-floor geometry the table fix had already "fixed"), so the floor is
+/// enforced at the point every router-emitted via is constructed.
+const MIN_THROUGH_HOLE_DIAMETER_MM: f64 = 0.3;
+
 pub struct Via {
     x: f64,
     y: f64,
@@ -169,14 +200,34 @@ pub struct Via {
 impl Via {
     /// Construct a via — fields set here, type computed at emit time.
     ///
-    /// The annular ring floor is enforced HERE, not as a later filter: if
-    /// `diameter`/`drill` would produce a ring below the board's 0.254mm
-    /// fabrication floor (`MIN_ANNULAR_RING_MM`), the pad diameter is
-    /// enlarged to the board-wide 0.3mm-ring convention (`drill` is left
-    /// untouched — this is a pad-geometry correction, not a current-
-    /// capacity change, matching every prior fix of this exact defect
-    /// shape). No caller of `Via::new`, present or future, can construct a
-    /// `Via` that cannot be fabricated — the same "make bad states
+    /// TWO board-rule floors are enforced HERE, not as a later filter, and
+    /// the ORDER between them is load-bearing:
+    ///
+    /// 1. **Hole size** (`MIN_THROUGH_HOLE_DIAMETER_MM`). A drill below the
+    ///    board's declared minimum is raised to it. This is the one place
+    ///    this type ever enlarges a drill, and it only ever enlarges: a
+    ///    caller asking for a bigger hole than the minimum keeps it.
+    /// 2. **Annular ring** (`MIN_ANNULAR_RING_MM`). If the resulting
+    ///    `diameter`/`drill` pair would produce a ring below the board's
+    ///    0.254mm fabrication floor, the pad diameter is enlarged to the
+    ///    board-wide 0.3mm-ring convention.
+    ///
+    /// Raising a drill SHRINKS the ring for a fixed pad, so the two are
+    /// coupled and (1) must run before (2). The real case this decides:
+    /// `FinePitch`'s 0.8mm/0.2mm pair is a compliant 0.3mm ring and an
+    /// illegal 0.2mm hole. Clamping the hole alone yields 0.8/0.3 — a
+    /// 0.25mm ring, now below the annular floor. Running the ring clamp
+    /// second re-pads it to 0.9/0.3, which is byte-identical to what
+    /// `Signal`/`HighSpeed`/`kicad_pro`'s `Default` class already declare
+    /// directly. Running them in the other order would emit that 0.25mm
+    /// ring and trade a `drill_out_of_range` for an `annular_width`.
+    ///
+    /// Neither clamp can ever lower a figure: both are one-sided `if
+    /// below-floor` raises, and a NaN input compares false and passes
+    /// through unchanged (identical to the pre-2026-08-19 behaviour).
+    ///
+    /// No caller of `Via::new`, present or future, can construct a `Via`
+    /// that cannot be fabricated — the same "make bad states
     /// unrepresentable" shape as this crate's other four type-system
     /// guards (`ClearanceHalo`, `NetRouteResult::Connected`, `DrcCount`,
     /// `WorldPosition`).
@@ -188,6 +239,13 @@ impl Via {
         diameter: f64,
         drill: f64,
     ) -> Self {
+        // (1) hole size, BEFORE (2) — see the ordering argument above.
+        let drill = if drill < MIN_THROUGH_HOLE_DIAMETER_MM {
+            MIN_THROUGH_HOLE_DIAMETER_MM
+        } else {
+            drill
+        };
+        // (2) annular ring.
         let diameter = if diameter - drill < 2.0 * MIN_ANNULAR_RING_MM {
             drill + 2.0 * ANNULAR_RING_TARGET_MM
         } else {
@@ -1776,6 +1834,103 @@ pub(crate) mod tests {
         })
     }
 
+    // --- Hole-size floor enforcement (Via::new) ----------------------------
+    // Root cause: the 2026-08-13 annular-ring sweep raised every net-class
+    // via PAD and left every DRILL alone, so
+    // `TEMPER_NET_CLASSES["FinePitch"]` still declares 0.8mm/0.2mm -- a
+    // compliant 0.3mm ring around a hole 0.1mm below the board's own
+    // `min_through_hole_diameter` (0.3mm, pcb/temper.kicad_pro). Measured
+    // on a fresh route of the committed board: 6 vias at drill 0.2000mm on
+    // nets RTD_SDI / RTD_CS_N / RTD_SDO (all FinePitch), and kicad-cli
+    // reports exactly 6 `drill_out_of_range`. These tests pin that
+    // `Via::new` makes that state unconstructable.
+
+    #[cfg_attr(test, test)]
+    fn via_new_enforces_hole_size_floor_on_the_exact_finepitch_pair() {
+        // The exact (diameter, drill) pair `TEMPER_NET_CLASSES["FinePitch"]`
+        // declares and the router emitted 6 times on the committed board.
+        let via = Via::new(0.0, 0.0, "F.Cu", "B.Cu", 0.8, 0.2);
+        assert_eq!(via.drill, MIN_THROUGH_HOLE_DIAMETER_MM);
+        // ...and the ring clamp must have run AFTER the hole clamp, so the
+        // pad grew too. 0.8/0.3 would be a 0.25mm ring -- sub-floor.
+        assert_eq!(via.diameter, 0.3 + 2.0 * ANNULAR_RING_TARGET_MM);
+        let ring = (via.diameter - via.drill) / 2.0;
+        assert!(
+            ring >= MIN_ANNULAR_RING_MM,
+            "ring {ring} below the {MIN_ANNULAR_RING_MM}mm fab floor"
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_new_hole_floor_never_shrinks_a_drill() {
+        // Every larger drill on this board's net-class tables (0.4, 0.5,
+        // 0.6) must pass through untouched -- the clamp is a floor, never a
+        // re-snap, and must not quietly reduce a hole's current-carrying
+        // capacity.
+        for (dia, drill) in [(1.0_f64, 0.4_f64), (1.1, 0.5), (1.2, 0.6)] {
+            let via = Via::new(0.0, 0.0, "F.Cu", "B.Cu", dia, drill);
+            assert_eq!(via.drill, drill, "drill {drill} was modified");
+            assert_eq!(via.diameter, dia, "diameter {dia} was modified");
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_new_leaves_a_drill_exactly_at_the_hole_floor_untouched() {
+        // Exactly at the declared minimum passes -- `min_through_hole_
+        // diameter` is inclusive (kicad-cli fires only strictly below it),
+        // so the guard must not gratuitously perturb the 0.9/0.3 family
+        // that is already the board's most common via.
+        let via = Via::new(0.0, 0.0, "F.Cu", "B.Cu", 0.9, MIN_THROUGH_HOLE_DIAMETER_MM);
+        assert_eq!(via.drill, MIN_THROUGH_HOLE_DIAMETER_MM);
+        assert_eq!(via.diameter, 0.9);
+    }
+
+    #[cfg_attr(test, test)]
+    fn via_new_output_always_satisfies_both_floors() {
+        // Swept property: over every combination of a sub-floor, at-floor
+        // and above-floor drill with a pad from far-too-small to generous,
+        // the CONSTRUCTED via satisfies both board rules simultaneously.
+        // This is the invariant the two clamps exist to establish, and it
+        // is what the ordering between them is required for.
+        for drill in [0.05_f64, 0.1, 0.2, 0.25, 0.2999, 0.3, 0.4, 0.5, 0.6, 1.0] {
+            for diameter in [0.05_f64, 0.2, 0.4, 0.8, 0.85, 0.9, 1.0, 1.2, 2.0] {
+                let via = Via::new(0.0, 0.0, "F.Cu", "B.Cu", diameter, drill);
+                assert!(
+                    via.drill >= MIN_THROUGH_HOLE_DIAMETER_MM,
+                    "({diameter}, {drill}) -> drill {} below hole floor",
+                    via.drill
+                );
+                let ring = (via.diameter - via.drill) / 2.0;
+                assert!(
+                    ring >= MIN_ANNULAR_RING_MM,
+                    "({diameter}, {drill}) -> ring {ring} below annular floor"
+                );
+                assert!(
+                    via.drill >= drill,
+                    "({diameter}, {drill}) -> drill was SHRUNK to {}",
+                    via.drill
+                );
+            }
+        }
+    }
+
+    #[cfg(feature = "python")]
+    #[cfg_attr(test, test)]
+    fn emit_s_expr_reflects_the_hole_size_floor_clamp() {
+        // End-to-end: the guard cannot be bypassed by going straight to
+        // emission. These are the exact bytes that replace the six
+        // `(size 0.8000) (drill 0.2000)` vias on the routed board.
+        Python::initialize();
+        Python::attach(|py| {
+            let via = Via::new(1.0, 1.0, "F.Cu", "In3.Cu", 0.8, 0.2);
+            let got = match via.emit_s_expr(py, 9, "tstamp-00000000-0000-5000-8000-000000000000") {
+                Ok(s) => s,
+                Err(e) => panic!("emit_s_expr failed: {e}"),
+            };
+            assert!(got.contains("(size 0.9000) (drill 0.3000)"), "got: {got}");
+        })
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1798,6 +1953,11 @@ pub(crate) mod tests {
         ("pipeline_route::tests::via_new_leaves_a_compliant_pair_untouched", via_new_leaves_a_compliant_pair_untouched),
         ("pipeline_route::tests::via_new_leaves_a_pair_exactly_at_the_floor_untouched", via_new_leaves_a_pair_exactly_at_the_floor_untouched),
         #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_reflects_the_annular_floor_clamp", emit_s_expr_reflects_the_annular_floor_clamp),
+        ("pipeline_route::tests::via_new_enforces_hole_size_floor_on_the_exact_finepitch_pair", via_new_enforces_hole_size_floor_on_the_exact_finepitch_pair),
+        ("pipeline_route::tests::via_new_hole_floor_never_shrinks_a_drill", via_new_hole_floor_never_shrinks_a_drill),
+        ("pipeline_route::tests::via_new_leaves_a_drill_exactly_at_the_hole_floor_untouched", via_new_leaves_a_drill_exactly_at_the_hole_floor_untouched),
+        ("pipeline_route::tests::via_new_output_always_satisfies_both_floors", via_new_output_always_satisfies_both_floors),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_reflects_the_hole_size_floor_clamp", emit_s_expr_reflects_the_hole_size_floor_clamp),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
