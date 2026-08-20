@@ -2963,3 +2963,15 @@ scripts:
   category: keep
   disposition: utility
   imports: []
+- path: _placement_subprocess.py
+  purpose: "CP-SAT placement subprocess for the temper Rust driver (Option E): parses the board, loads constraints, calls solve_placement(), writes the result JSON -- the irreducible-Python solver boundary the binary orchestrates"
+  owner: rust-driver
+  last_run: "2026-08-20"
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - json
+  - sys
