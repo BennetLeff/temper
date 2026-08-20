@@ -10,7 +10,7 @@ worktree `.claude/worktrees/agent-gen-dedup-2` on
 (measured at `f20400709`, board `pcb/temper.kicad_pcb` unchanged since).
 **Fix commit:** `306a39255d64968913f7e1b7f31d591d91f6d2b2` "fix(placer): dedupe
 domain-clearance constraints to one per unordered pair".
-**Measurement script:** `docs/evidence/domain_dedup_measure.py` (committed alongside this doc).
+**Measurement script:** `docs/evidence/scripts/domain_dedup_measure.py` (committed alongside this doc).
 
 ## The wart
 
@@ -70,7 +70,7 @@ and no new pair gained it.
 
 ## Measurement (production board, `make netlist` output at digest `860d86cca5c1…`)
 
-`uv run --no-sync python docs/evidence/domain_dedup_measure.py`:
+`uv run --no-sync python docs/evidence/scripts/domain_dedup_measure.py`:
 
 | metric | before (reconstructed pre-fix) | after (fixed generator) |
 |---|---:|---:|
