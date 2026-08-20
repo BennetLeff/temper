@@ -52,7 +52,7 @@ Python LOC removed: 262 (175 + 87 oracle files).
   failures on `origin/main` (netclass creepage config `6.3 < PD3 10.0`), unrelated
   to this change (the diff touches none of the design-rules config).
 
-## Skipped (8 oracles) — reasons, for the next batch
+## Skipped (9 oracles) — reasons, for the next batch
 
 Retirement bar met for all (each unchanged since creation), but the
 FREEZE model requires a golden-vector test that is plain Rust data calling
