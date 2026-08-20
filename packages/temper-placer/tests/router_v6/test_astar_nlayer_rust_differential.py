@@ -479,3 +479,162 @@ def test_oracle_is_verbatim_copy():
         "oracle drifted from its pinned extraction -- the differential would be "
         "comparing Rust against a redefined reference"
     )
+
+
+# --------------------------------------------------------------------------
+# Tier-3 blocked-goal precheck (`astar_nlayer_rust._goal_is_unreachable`)
+# --------------------------------------------------------------------------
+#
+# Measured on the model-E placement, 2026-08-20: 27 of Tier 3's 54 dispatches
+# name a goal cell that is blocked, and each burns its full `max_iter` budget
+# before declining -- 3.83 s of Tier 3's 7.94 s. The precheck declines them up
+# front. It must be a pure short-circuit: identical return value, less wall
+# time. These tests pin both halves of that claim.
+
+
+def _walled_grids():
+    """Three synthetic layers, all cells free, ready for a caller to wall off."""
+    import numpy as np
+
+    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+
+    return {
+        name: OccupancyGrid(name, np.zeros((40, 40), dtype=np.int8), (0.0, 0.0), 0.5, 40, 40)
+        for name in ("F.Cu", "In3.Cu", "B.Cu")
+    }
+
+
+def test_blocked_goal_declines_identically_to_oracle():
+    """A blocked goal cell declines in both engines, on every layer pairing.
+
+    The oracle can only enqueue the goal key via a same-layer move guarded by
+    ``grids[goal_layer].is_free(gx, gy)`` or a via transition guarded by the
+    *same* test on the *same* cell, so a blocked goal is unsatisfiable at any
+    budget. The precheck must therefore agree with the oracle exactly.
+    """
+    goal_world = (10.0, 10.0)
+    start_world = (2.0, 2.0)
+
+    for gl in ("F.Cu", "In3.Cu", "B.Cu"):
+        g_py, g_rs = _walled_grids(), _walled_grids()
+        gx, gy = g_py[gl].world_to_grid(*goal_world)
+        # Block the goal cell on the goal layer only -- the rest of the board
+        # stays open, so the segment is otherwise trivially routable and the
+        # decline is attributable to this cell alone.
+        for g in (g_py, g_rs):
+            g[gl].grid[gy, gx] = -1
+
+        py = oracle._route_segment_3d(
+            start_world, goal_world, "F.Cu", gl, g_py, net_id=5, max_iter=50_000
+        )
+        rs = route_segment_3d_rust(
+            start_world, goal_world, "F.Cu", gl, g_rs, net_id=5, max_iter=50_000
+        )
+        assert py is None, f"oracle unexpectedly routed to a blocked goal on {gl}"
+        _assert_identical(py, rs, g_py, g_rs, f"blocked-goal {gl}")
+
+        # And the same segment DOES route once the cell is freed, so the
+        # decline above is caused by the blocked cell and not by the fixture.
+        g_py2, g_rs2 = _walled_grids(), _walled_grids()
+        open_py = oracle._route_segment_3d(
+            start_world, goal_world, "F.Cu", gl, g_py2, net_id=5, max_iter=50_000
+        )
+        open_rs = route_segment_3d_rust(
+            start_world, goal_world, "F.Cu", gl, g_rs2, net_id=5, max_iter=50_000
+        )
+        assert open_py is not None, f"control case did not route on {gl} -- test is vacuous"
+        _assert_identical(open_py, open_rs, g_py2, g_rs2, f"open-goal control {gl}")
+
+
+def test_blocked_goal_never_reaches_the_kernel(monkeypatch):
+    """The precheck short-circuits *before* the FFI call, not after.
+
+    This is the whole point of the change: the 27 unsatisfiable dispatches
+    must stop costing a full ``max_iter`` sweep. Asserting on the return value
+    alone would pass even if the kernel still ran, so assert the kernel is not
+    entered at all.
+    """
+    import temper_rust_router as _trr
+
+    def _explode(*_args, **_kwargs):  # pragma: no cover - must not be called
+        raise AssertionError("kernel entered for a provably unsatisfiable goal")
+
+    monkeypatch.setattr(_trr, "route_segment_3d_py", _explode)
+
+    grids = _walled_grids()
+    gx, gy = grids["F.Cu"].world_to_grid(10.0, 10.0)
+    grids["F.Cu"].grid[gy, gx] = -1
+
+    assert (
+        route_segment_3d_rust(
+            (2.0, 2.0), (10.0, 10.0), "F.Cu", "F.Cu", grids, net_id=5, max_iter=50_000
+        )
+        is None
+    )
+
+
+def test_degenerate_blocked_terminal_still_reports_found():
+    """start == goal on a blocked cell must still succeed -- the naive fix's bug.
+
+    ``_astar_search_3d`` seeds the start node into the frontier
+    unconditionally, with no ``is_free`` test, so a segment whose two
+    terminals quantise to the same cell on the same layer returns *found*
+    even when that cell is blocked. An unguarded "goal is blocked -> decline"
+    precheck would turn those into declines: a behaviour change, and a
+    regression. The ``start != goal`` guard exists for this case, and this
+    test is what holds it in place.
+    """
+    same = (10.0, 10.0)
+    g_py, g_rs = _walled_grids(), _walled_grids()
+    gx, gy = g_py["F.Cu"].world_to_grid(*same)
+    for g in (g_py, g_rs):
+        g["F.Cu"].grid[gy, gx] = -1
+
+    py = oracle._route_segment_3d(same, same, "F.Cu", "F.Cu", g_py, net_id=5, max_iter=50_000)
+    rs = route_segment_3d_rust(same, same, "F.Cu", "F.Cu", g_rs, net_id=5, max_iter=50_000)
+
+    assert py is not None, (
+        "oracle declined a degenerate same-cell segment -- the premise this "
+        "guard rests on no longer holds; re-derive it before trusting the guard"
+    )
+    _assert_identical(py, rs, g_py, g_rs, "degenerate blocked terminal")
+
+
+def test_cell_level_entry_point_honours_the_same_precheck():
+    """``astar_search_3d_rust`` gets the precheck too, with the same guard."""
+    from temper_placer.router_v6.astar_core import RouteNode3D
+    from temper_placer.router_v6.astar_nlayer_rust import astar_search_3d_rust
+
+    g_py, g_rs = _walled_grids(), _walled_grids()
+    for g in (g_py, g_rs):
+        g["In3.Cu"].grid[20, 20] = -1
+
+    py = oracle._astar_search_3d(
+        RouteNode3D(4, 4, "F.Cu"),
+        RouteNode3D(20, 20, "In3.Cu"),
+        g_py,
+        net_id=5,
+        max_iter=50_000,
+    )
+    rs = astar_search_3d_rust(
+        RouteNode3D(4, 4, "F.Cu"),
+        RouteNode3D(20, 20, "In3.Cu"),
+        g_rs,
+        net_id=5,
+        max_iter=50_000,
+    )
+    assert py is None and rs is None, f"blocked-goal disagreement: {py!r} / {rs!r}"
+
+    # Degenerate guard applies here as well.
+    g_py2, g_rs2 = _walled_grids(), _walled_grids()
+    for g in (g_py2, g_rs2):
+        g["F.Cu"].grid[7, 7] = -1
+    py2 = oracle._astar_search_3d(
+        RouteNode3D(7, 7, "F.Cu"), RouteNode3D(7, 7, "F.Cu"), g_py2, net_id=5, max_iter=50_000
+    )
+    rs2 = astar_search_3d_rust(
+        RouteNode3D(7, 7, "F.Cu"), RouteNode3D(7, 7, "F.Cu"), g_rs2, net_id=5, max_iter=50_000
+    )
+    assert py2 is not None and rs2 is not None, (
+        f"degenerate same-cell terminal must still report found: {py2!r} / {rs2!r}"
+    )

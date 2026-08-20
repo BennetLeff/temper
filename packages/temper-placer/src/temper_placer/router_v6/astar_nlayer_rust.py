@@ -104,6 +104,46 @@ def _mark_vias(via_cells, grids, sample, via_diameter, clearance, net_id) -> Non
             layer_grid.mark_via_blocked(via_wx, via_wy, via_diameter, clearance, net_id)
 
 
+def _goal_is_unreachable(start_cell, start_layer, goal_cell, goal_layer, grids) -> bool:
+    """True when the goal cell is provably unreachable, so the search can be skipped.
+
+    This is a *pure short-circuit*: it returns True only in cases where the
+    kernel -- and the pinned oracle it is held bit-exact to
+    (``tests/router_v6/_astar_nlayer_py_oracle.py``) -- would itself have
+    returned "not found" after exhausting the frontier or burning ``max_iter``.
+    The returned value is unchanged; only the wall time is.
+
+    Why it is sound. In ``_astar_search_3d`` the goal key
+    ``(gx, gy, goal_layer)`` can enter ``came_from``/``cost_so_far`` by exactly
+    two routes, and **both** test the same cell on the same grid:
+
+    * a same-layer 8-connected move onto it, guarded by
+      ``grids[goal_layer].is_free(gx, gy)``; and
+    * a via transition onto it from ``(gx, gy, other_layer)``, guarded by
+      ``other_grid.is_free(x, y)`` where ``other_grid`` *is*
+      ``grids[goal_layer]`` and ``(x, y)`` *is* ``(gx, gy)``.
+
+    So if ``grids[goal_layer].is_free(gx, gy)`` is False the goal is never
+    pushed, ``current_key == goal_key`` never fires, and the search returns
+    None. ``OccupancyGrid.is_free`` is also False out of bounds, so this
+    covers the out-of-bounds goal terminal by the same argument.
+
+    Why the ``start == goal`` guard is load-bearing. The start node is seeded
+    into the frontier **unconditionally** -- ``heappush(frontier, (0, (start.x,
+    start.y, start.layer)))`` -- with no ``is_free`` test. A degenerate segment
+    whose start and goal are the same cell on the same layer therefore returns
+    *found* today even when that cell is blocked. Short-circuiting it would be
+    a real behaviour change, and a regression. Hence: only decline when the two
+    terminals differ.
+
+    Occupancy is stable across the call: ``mark_via_blocked`` runs only after
+    the goal is reached, so nothing can free the goal cell mid-search.
+    """
+    if (start_cell[0], start_cell[1], start_layer) == (goal_cell[0], goal_cell[1], goal_layer):
+        return False
+    return not grids[goal_layer].is_free(goal_cell[0], goal_cell[1])
+
+
 def astar_search_3d_rust(
     start,
     goal,
@@ -125,6 +165,12 @@ def astar_search_3d_rust(
     from temper_placer.router_v6.astar_core import RouteNode3D
 
     if start.layer not in grids or goal.layer not in grids:
+        return None
+
+    # Blocked/out-of-bounds goal terminal: provably unsatisfiable, and skipping
+    # it also skips `_marshal`'s full-stackup plane copy. See
+    # `_goal_is_unreachable`.
+    if _goal_is_unreachable((start.x, start.y), start.layer, (goal.x, goal.y), goal.layer, grids):
         return None
 
     layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
@@ -177,6 +223,20 @@ def route_segment_3d_rust(
     # `_astar_search_3d` returned None (hence `_route_segment_3d` too) when
     # either terminal named a layer with no grid.
     if start_layer not in grids or goal_layer not in grids:
+        return None
+
+    # Blocked/out-of-bounds goal terminal: provably unsatisfiable, and skipping
+    # it also skips `_marshal`'s full-stackup plane copy. The conversion uses
+    # the same `next(iter(grids.values()))` sample grid the oracle's
+    # `_route_segment_3d` uses for both terminals. See `_goal_is_unreachable`.
+    _sample = next(iter(grids.values()))
+    if _goal_is_unreachable(
+        _sample.world_to_grid(start_world[0], start_world[1]),
+        start_layer,
+        _sample.world_to_grid(goal_world[0], goal_world[1]),
+        goal_layer,
+        grids,
+    ):
         return None
 
     # Layer index order = `grids` iteration order, so index 0's frame is the

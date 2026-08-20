@@ -13,13 +13,27 @@ jobs:
     container: espressif/idf:release-v5.3
     steps:
       - uses: actions/checkout@v7
+      # `idf.py` reaches PATH only through the image's ENTRYPOINT
+      # (/opt/esp/entrypoint.sh, whose last two lines are
+      # `. $IDF_PATH/export.sh` then `exec "$@"`). GitHub Actions runs
+      # `container:` jobs with the entrypoint overridden and executes each
+      # step via `docker exec`, so the entrypoint never runs and a bare
+      # `idf.py build` fails with `idf.py: command not found`. Source the
+      # export script explicitly. IDF_PATH is set in the image's own Env, so
+      # it is present without the entrypoint.
       - name: Build firmware
         working-directory: firmware
-        run: idf.py build
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py build
+      # firmware/CMakeLists.txt declares `project(induction_cooker)`, so
+      # ESP-IDF emits build/induction_cooker.bin. `temper.bin` is never
+      # produced by any step and appears nowhere else in the repo.
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v3
         with:
-          files: firmware/build/temper.bin
+          files: firmware/build/induction_cooker.bin
 
   wheel:
     runs-on: ubuntu-latest

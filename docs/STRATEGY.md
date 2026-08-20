@@ -26,9 +26,11 @@ churns by design.
 
 **The critical path is now verification integrity and one design decision —
 not design completion, and not tooling.** Design work that v3.0 called
-undone is done. What remains is: OCP-02 has no implementing circuit and is
+undone is done. What remains is: ~~OCP-02 has no implementing circuit and is
 blocked on a sensing-domain decision (an INA240 at `DC_BUS_RTN` would see
-~170 V common-mode against a -4..+80 V rating); the DRC ceiling's own
+~170 V common-mode against a -4..+80 V rating)~~ — **stale, corrected
+2026-08-20: OCP-02 was wired 2026-08-07 and then de-scoped 2026-08-16; see the
+correction under "Still genuinely open" below**; the DRC ceiling's own
 provenance record doesn't anchor to a real commit; two DRC gate classes
 (clearance, courtyard) are vacuous; creepage is computed but not plumbed into
 the router's own constraint model; and `enable_geographic_pruning` is
@@ -47,7 +49,7 @@ only, on uncalibrated models (`calibrated: false` throughout
 |---|---|---|---|
 | OVP-01 | fail-open, senses half-bus, "can never trip" | **Fixed 2026-07-27 18:19**, commit `75a708a8` — re-referenced `comp.INN` to `REF2025`'s fixed 2.5 V output; simulated worst-case trip 196.11–203.81 V (inside the 195–205 V window) including tempco at ΔT=60°C | `elec/src/modules.ato:2132-2400`, `docs/evidence/2026-07-27-ovp01-ref2025-implementation.md` |
 | Isolation barrier | shorted by the star-point ground join | **Fixed**, commit `6976ef44` (2026-07-26) — `power_return ~ gnd` removed; SELV `gnd` now bonds directly to `pe` instead of the doubler-midpoint net that shorted the AuxSupply IRM-10-15's 4.2 kVAC barrier | `elec/src/main.ato:714,754`, `docs/hardware/SELV_ISOLATION_REDESIGN.md` |
-| Fault tree | full; UVL-02 and OCP-02 can't reach the latch | **Fixed 2026-07-27** for UVL-02 — `fault_or3` gate added, `uvlo_logic.fault.line ~ fault_or3.A1` reaches `latch.A1`. **OCP-02 still unwired** — no upstream circuit exists to connect (see below) | `elec/src/modules.ato:3151-3159`, `docs/evidence/2026-07-27-fault-tree-capacity-expansion.md` |
+| Fault tree | full; UVL-02 and OCP-02 can't reach the latch | **Fixed 2026-07-27** for UVL-02 — `fault_or3` gate added, `uvlo_logic.fault.line ~ fault_or3.A1` reaches `latch.A1`. ~~**OCP-02 still unwired** — no upstream circuit exists to connect (see below)~~ **Corrected 2026-08-20: OCP-02 was wired 2026-08-07** — `ocp2.fault.line ~ fault_or3.B1` (`modules.ato:3314`) | `elec/src/modules.ato:3151-3159`, `:3217`, `:3314`, `docs/evidence/2026-07-27-fault-tree-capacity-expansion.md` |
 | DESAT | "does not exist," 19 BOM lines cost it | Formally **DE-SCOPED 2026-07-26** (BOM rev 1.4) — the 19 lines are removed, not just unpaid-for; residual risk (shoot-through, gate-drive loss) accepted in writing, next-revision item | `docs/hardware/DESAT_DECISION_BRIEF.md`, `BOM.md:341-355,559` |
 | `temper:CST3015` footprint | "must be drawn before fabrication" | **Drawn 2026-07-26.** Every footprint referenced in `elec/src` resolves against `pcb/libs/temper.pretty/` | `pcb/libs/temper.pretty/CST3015.kicad_mod`, `elec/src/components.ato:146,155` |
 | Board routing | "carries no routing: 0 segments, 0 vias, 0 zones" | **Routed.** `pcb/temper.kicad_pcb` measures 2,290 segments, 48 vias, 96 zones, 169 footprints (direct count, this pass) | count directly from `pcb/temper.kicad_pcb` |
@@ -57,12 +59,45 @@ only, on uncalibrated models (`calibrated: false` throughout
 
 **Still genuinely open — do not read any of the above as "board is ready":**
 
-- **OCP-02** has no implementing circuit at all (verified by inspection:
+- ~~**OCP-02** has no implementing circuit at all (verified by inspection:
   exactly one `OCPComparator` instance exists, and it is OCP-01's). It is
   blocked on a sensing-domain decision: an INA240 across a `DC_BUS_RTN` shunt
   would see roughly 170 V common-mode against the part's -4..+80 V rating.
   This is the one open *design* decision left; everything else in this
-  section is verification-layer work.
+  section is verification-layer work.~~
+
+  > **Correction, 2026-08-20 — every clause above is stale.** Struck rather
+  > than deleted, per this document's correct-forward practice.
+  >
+  > 1. *"No implementing circuit at all"* is **false**.
+  >    `elec/src/modules.ato:3217` instantiates `ocp2 = new
+  >    SecondaryOCPComparator  # OCP-02`, and `:3314` wires its fault line
+  >    into the latch: `ocp2.fault.line ~ fault_or3.B1  # OCP-02, WIRED
+  >    2026-08-07 (Option A)`. See also `elec/src/main.ato:760` (*"OCP-02 IS
+  >    WIRED IN (2026-08-07, Option A -- second current transformer)"*).
+  > 2. *"Exactly one `OCPComparator` instance exists"* is literally true and
+  >    **misleading**: OCP-02 is implemented by a different module,
+  >    `SecondaryOCPComparator` (`modules.ato:2636`), so a grep for the
+  >    OCP-01 class was never going to find it. That is how this bullet
+  >    survived thirteen days after the circuit landed.
+  > 3. The **sensing-domain decision was made, and the blocker it names no
+  >    longer applies.** `modules.ato:3208-3216` records it: the shunt+INA240
+  >    front end could not be instantiated for exactly the ~170 V
+  >    common-mode reason given above, so Option A uses a **second current
+  >    transformer** instead — magnetically isolated, no common-mode
+  >    dependency. See `docs/hardware/OCP02_DECISION_BRIEF.md`.
+  >
+  > **What is actually open is a different question.** OCP-02 was
+  > subsequently **DE-SCOPED 2026-08-16 (DNF)** — not for want of a circuit,
+  > but for want of a fielded sensing path: see the protection-gate table
+  > below, which is the current status of record. And that de-scope's
+  > *stated* technical premise ("its CST3015 cannot reach the 12.6 mm PD3
+  > reinforced bar") is itself now disputed — T2's governing pairing is
+  > `DC_BUS↔SELV` = 8.0 mm, which its settled 9.100 mm span clears. The
+  > de-scope does **not** auto-reinstate: its timing ground (up to 10.64 µs
+  > latency vs OCP-01's <1 µs), its core-reset/flux-walking ground, and its
+  > "not clause-mandated" ground are all untouched by that. **Nobody has
+  > re-decided it, and it needs an owner.**
 - The router's internal creepage plumbing is still incomplete: `creepage_mm`
   is a voltage-table lookup in the standalone `clearance_engine.py`, but the
   CP-SAT constraint model the router actually solves against
@@ -94,8 +129,12 @@ only, on uncalibrated models (`calibrated: false` throughout
 1. **The critical path moved from "design" to "verification integrity plus
    one decision."** OCP-01, THM-01, THM-02, OVP-01, DESAT, the isolation
    barrier, the fault tree, and the CST3015 footprint are all fixed or
-   resolved. OCP-02 is the one remaining protection-circuit gap, and it is a
-   sensing-domain decision, not an unstarted design. Everything else blocking
+   resolved. ~~OCP-02 is the one remaining protection-circuit gap, and it is a
+   sensing-domain decision, not an unstarted design.~~ **Stale, corrected
+   2026-08-20:** the sensing domain was decided (Option A, second CT) and the
+   circuit wired on 2026-08-07; OCP-02 was then de-scoped 2026-08-16 on a
+   premise that is now itself disputed. See the correction under "Still
+   genuinely open" above. Everything else blocking
    a signable board is now provenance and gate-vacuity work: an unanchored
    `drc_ceiling.json`, a hardcoded creepage constant, vacuous clearance/
    courtyard gates, and a pruning feature the router never actually reaches.
@@ -118,13 +157,21 @@ only, on uncalibrated models (`calibrated: false` throughout
 
 1. ~~**Design review of the protection chain**~~ — **done 2026-07-25**, and
    ~~its outstanding items~~ — **OVP-01, DESAT, and the CST3015 footprint are
-   now resolved** (table above). OCP-02 remains: its sensing-domain decision
-   needs an owner.
+   now resolved** (table above). ~~OCP-02 remains: its sensing-domain decision
+   needs an owner.~~ **Corrected 2026-08-20:** the sensing-domain decision was
+   made 2026-08-07 (Option A, second CT). What needs an owner now is the
+   2026-08-16 de-scope, whose stated technical premise no longer holds.
 2. ~~**Reconcile the BOM against the source**~~ — **done 2026-07-26** (BOM
    rev 1.5, full class-by-class reconciliation against `elec/src/*.ato`,
    component count matches source exactly at 155).
-3. **Decide OCP-02's sensing domain.** This is the one remaining protection
-   circuit gap and is a design/procurement decision, not a coding task.
+3. ~~**Decide OCP-02's sensing domain.**~~ **Superseded 2026-08-20 — decided
+   2026-08-07** (Option A, a second current transformer; circuit instantiated
+   at `elec/src/modules.ato:3217` and wired at `:3314`). **Re-decide the
+   2026-08-16 OCP-02 de-scope instead:** its sole stated technical premise
+   (*"its CST3015 cannot reach the 12.6 mm PD3 reinforced"*) is void — T2's
+   governing pairing is `DC_BUS↔SELV` = 8.0 mm and its settled span is
+   9.100 mm. The de-scope's other grounds (timing, core reset/flux walking,
+   not clause-mandated) are untouched, so this is a decision, not a revert.
 4. **Anchor `drc_ceiling.json`'s provenance and close the vacuous gates**
    (creepage plumbing, clearance/courtyard, `enable_geographic_pruning`
    reachability) — this is what actually stands between "simulated as
