@@ -1,0 +1,258 @@
+* tank-out winding voltage: V(tank-out) across the CST3015-100ED primary.
+*
+* PURPOSE. `tank-out` is the two-pad net between the litz coil's far
+* terminal (R30 pad 2) and T1's primary input (T1 pad 1). It is separated
+* from `PWR_RTN` by exactly one thing: a single turn of the CST3015-100ED
+* primary (elec/src/main.ato:823-824, `tank.out ~ ct_sense.primary_in` /
+* `ct_sense.primary_out ~ power_return`). Its working voltage decides
+* whether T1's primary<->secondary crossing is MAINS<->SELV (4.8 mm, T1
+* passes at 9.100 mm) or SELV<->TANK (>=20.0 mm, T1 fails). The repository
+* has never computed it: simulation/harness/nets/zvs_margin_sweep.cir:330
+* returns the coil DIRECTLY to node 0 --
+*
+*     X_PAN tank_mid2 0 PANLOAD_TRANSFORMER ...
+*
+* -- so no `tank-out` node exists in that deck at all, and every voltage
+* figure the repository quotes for "the tank node" is measured at
+* `tank.c_tank1-p2`, a DIFFERENT four-pad net on the far side of the coil.
+* This deck adds the CST3015 primary as an explicit element so that
+* `tank-out` becomes a real node, and measures it.
+*
+* CALIBRATED: false. No bench measurement of this node exists. This deck is
+* a SIMULATION and must never be read as a measurement. Its output does not
+* reclassify `tank-out`: elec/insulation_manifest.yaml keeps that net TANK
+* and check_insulation_pairings.py keeps failing closed until a real
+* measurement lands (see elec/tank_out_working_voltage.yaml).
+*
+* ============================================================================
+* WHAT IS COPIED READ-ONLY, WHAT IS DATASHEET, WHAT IS BRACKETED
+* ============================================================================
+* The half-bridge, gate drive, tank and pan model below are copied verbatim
+* from simulation/harness/nets/zvs_margin_sweep.cir (committed), including
+* its .options block, so that this deck reproduces that deck's tank current
+* before anything is read off the new node. The ONLY topological change is
+* that X_PAN's B terminal returns to `tank_out` instead of node 0, with the
+* CT primary bridging `tank_out` to node 0.
+*
+* CST3015-100ED, from the datasheet extract committed at
+* elec/src/components.ato:124-158 (Coilcraft Document 1608-1 rev 09/08/25):
+*   - turns ratio        1:100          components.ato:131  -> N below
+*   - primary DCR        0.0001 ohm     components.ato:134  -> RP_DCR
+*   - secondary DCR      1.54 ohm       components.ato:134  -> RS_DCR
+*   - volt-time product  638 V-us       components.ato:133  (checked, not an input)
+*   - frequency range    0.78 kHz to >1 MHz  components.ato:132
+* Burden and filter, from elec/src/modules.ato (CurrentSensing):
+*   - r_burden           4.99 ohm       modules.ato:1703    -> R_BURDEN
+*   - c_filter           100 nF C0G     modules.ato:1727    -> C_FILTER
+*   - bias divider       2 x 10k to 3.3V / gnd, modules.ato:1737-1745
+* Secondary wiring, modules.ato:1730-1734: ct.S1 ~ r_burden.p1 ~
+* i_sense.line ~ c_filter.p1; ct.S2 ~ r_burden.p2 ~ c_filter.p2 ~
+* i_sense.reference; main.ato:832 `ct_sense.i_sense.reference ~ gnd`.
+*
+* BRACKETED -- NOT PUBLISHED ANYWHERE IN THIS REPOSITORY:
+*   L_MAG_P  primary-referred magnetising inductance
+*   L_LEAK_P primary leakage inductance
+* Neither appears in the committed datasheet extract, in any file under
+* datasheets/ (there is no CST3015 PDF in this repository), or in
+* elec/src/**. They are therefore SWEPT, not chosen, by
+* run_tank_out_winding_voltage.py, and the worst case over the whole
+* bracket is what gets reported. Nothing here is tuned to make the answer
+* come out a particular way. See that script for each bracket's rationale
+* and endpoints.
+*
+* NOT USED, and this is deliberate: simulation/models/current_transformer.sub
+* declares LM = 10 mH as a PRIMARY-side magnetising inductance
+* (current_transformer.sub:49, `L_mag pri_int pri_n {LM}`). Referred through
+* this part's own 1:100 ratio that would imply a 100 H secondary, which is
+* not a physical figure for a 23x30 mm SMT part; and zvs_margin_sweep.cir's
+* own header already records that inserting that subckt into a
+* voltage-driven resonant loop "would swamp the resonant behavior this deck
+* exists to measure". Read as a SECONDARY-referred figure (10 mH secondary
+* -> 1 uH primary-referred) it lands inside this deck's L_MAG_P bracket, and
+* it is cited there only as a weak in-repo anchor, never as a datasheet
+* value.
+*
+* ============================================================================
+* CT MODEL FORM
+* ============================================================================
+* Explicit T-model with the leakage broken out as its own element, so that
+* the swept L_LEAK_P is the actual series leakage and is not confounded with
+* the coupling coefficient:
+*
+*   tank_out --[RP_DCR]-- n_pa --[L_LEAK_P]-- n_pb --[L_PRI = L_MAG_P]-- 0
+*                                                        |  K_CT ~ 1
+*                                       0 --[L_SEC = L_MAG_P*N^2]-- n_sa
+*                                                                    |
+*                                            n_sa --[RS_DCR]-- n_s1 (= S1)
+*                                            n_s1 --[R_BURDEN]-- 0
+*                                            n_s1 --[C_FILTER]-- 0
+*                                            n_s1 --[bias divider]
+*
+* K_CT is set to 0.999999 rather than 1.0 because ngspice's mutual-inductance
+* solver goes singular at exactly unity coupling (verified empirically here:
+* "singular matrix" at k=1). The residual leakage that introduces is
+* L_MAG_P*(1-K_CT^2) = 2e-6 * L_MAG_P, i.e. ~4 pH at the bracket's midpoint
+* -- four orders of magnitude below the smallest L_LEAK_P swept, so the
+* explicit element remains the sole controlling leakage term.
+*
+* The magnetising branch appears in PARALLEL with the burden referred through
+* the ratio, as seen from the primary pads, so its contribution to V(tank_out)
+* is bounded above by the referred burden itself: as L_MAG_P -> infinity the
+* parallel combination tends to (R_BURDEN||C_FILTER + RS_DCR)/N^2, and as
+* L_MAG_P falls the combination gets SMALLER, not larger. The worst case over
+* the L_MAG_P bracket is therefore its top end (the ideal-CT limit), which is
+* why the bracket does not need an upper bound justified from a datasheet
+* this repository does not hold. L_LEAK_P is the genuinely open axis: it adds
+* in SERIES and its contribution grows without bound with the value assumed.
+
+.include ../../models/IKW40N120H3.lib
+.include ../../models/pan_load.sub
+
+* --- Sourced from elec/ (read-only, identical to zvs_margin_sweep.cir) ---
+.param V_HALF   = 170
+.param RG       = 2.2
+.param RGS      = 2200
+.param T_DEAD   = 305.4n
+.param VGS_HS_OFF = -5.1
+.param VGS_HS_ON  = 9.9
+.param VGS_LS_OFF = 0
+.param VGS_LS_ON  = 15
+.param C_TANK   = 300n
+
+* --- Pan model, cast_iron preset as committed (zvs_margin_sweep.cir:290-299) ---
+.param PAN_L1     = 88u
+.param PAN_L2     = 97.13u
+.param PAN_RCOIL  = 0.1
+.param PAN_K      = 0.6136
+.param PAN_RPAN   = 10
+
+* --- Operating point. 46.6 kHz is the committed 1800 W point for the
+*     as-built 88 uH / 300 nF tank (docs/evidence/2026-07-28-coil-selection-
+*     research.md Sec 4.2: f_sw @1800 W = 46.60 kHz, I_tank 22.5 A rms /
+*     31.9 A peak, R_eff 3.55 ohm). Overridden by the harness. ---
+.param F_SW     = 46.6k
+
+* --- CST3015-100ED, datasheet (components.ato:124-158) ---
+.param N        = 100
+.param RP_DCR   = 0.0001
+.param RS_DCR   = 1.54
+
+* --- CurrentSensing secondary network (modules.ato) ---
+.param R_BURDEN = 4.99
+.param C_FILTER = 100n
+.param R_BIAS   = 10k
+.param V_BIAS   = 3.3
+
+* --- BRACKETED, unpublished. Overridden by the harness; these defaults are
+*     the bracket midpoints and carry no more authority than any other
+*     point in the sweep. ---
+.param L_MAG_P  = 2u
+.param L_LEAK_P = 20n
+
+.param K_CT     = 0.999999
+.param L_SEC_H  = 'L_MAG_P*N*N'
+
+* --- Simulation control ---
+.param N_CYCLES = 40
+.param PERIOD   = '1/F_SW'
+.param TD_LS    = 'PERIOD/2'
+.param ON_WIDTH = 'PERIOD/2 - T_DEAD'
+.param TSTOP    = 'N_CYCLES*PERIOD'
+.param T_LAST0  = '(N_CYCLES-1)*PERIOD'
+.param T_PREV0  = '(N_CYCLES-2)*PERIOD'
+
+* --- DC bus (split doubler, +/-170V about node 0 = PWR_RTN = gnd = pe) ---
+V_HVP hvp 0 DC {V_HALF}
+V_HVN hvn 0 DC {-V_HALF}
+
+* --- Half bridge ---
+X_QH hvp g_hs sw IKW40N120H3
+X_QL sw g_ls hvn IKW40N120H3
+
+VG_HS g_hs_drv sw PULSE({VGS_HS_OFF} {VGS_HS_ON} 0 1n 1n {ON_WIDTH} {PERIOD})
+RG_HS g_hs_drv g_hs {RG}
+RGS_HS g_hs sw {RGS}
+
+VG_LS g_ls_drv hvn PULSE({VGS_LS_OFF} {VGS_LS_ON} {TD_LS} 1n 1n {ON_WIDTH} {PERIOD})
+RG_LS g_ls_drv g_ls {RG}
+RGS_LS g_ls hvn {RGS}
+
+* --- Resonant tank. IDENTICAL to zvs_margin_sweep.cir EXCEPT that X_PAN's
+*     B terminal now returns to `tank_out` instead of node 0. ---
+C_TANK sw tank_mid {C_TANK}
+V_ISENSE tank_mid tank_mid2 DC 0
+X_PAN tank_mid2 tank_out PANLOAD_TRANSFORMER L1={PAN_L1} L2={PAN_L2} K={PAN_K} RPAN={PAN_RPAN} RCOIL={PAN_RCOIL}
+
+* --- CST3015-100ED primary: the single turn between `tank-out` and PWR_RTN ---
+RP_DCR_E tank_out n_pa {RP_DCR}
+L_PLEAK  n_pa     n_pb {L_LEAK_P}
+L_PRI    n_pb     0    {L_MAG_P}
+
+* --- CST3015-100ED secondary + CurrentSensing burden network ---
+L_SEC    0    n_sa {L_SEC_H}
+K_CT     L_PRI L_SEC {K_CT}
+RS_DCR_E n_sa n_s1 {RS_DCR}
+R_BURD   n_s1 0    {R_BURDEN}
+C_FILT   n_s1 0    {C_FILTER}
+R_BIAS_T n_s1 n_v33 {R_BIAS}
+R_BIAS_B n_s1 0     {R_BIAS}
+V_33     n_v33 0 DC {V_BIAS}
+
+* Numerical-stability options -- copied verbatim from zvs_margin_sweep.cir,
+* NOT retuned for this deck. See that deck's header for why each is set.
+.options reltol=1e-3 abstol=1e-9 vntol=1e-6 itl4=500 gmin=1e-9
+
+.tran 5n {TSTOP}
+
+* ============================================================================
+* SANITY ANCHOR -- must reproduce the committed tank current before any
+* voltage on the new node means anything. Committed operating point:
+* 22.5 A rms / 31.9 A peak at 1800 W (first-harmonic solve,
+* docs/evidence/2026-08-15-ocp-threshold-decision.md Sec 2 /
+* docs/evidence/2026-07-28-coil-selection-research.md Sec 4.2). The ngspice
+* harness is separately recorded as running a few percent off that solve
+* (coil-selection-research Sec 4.1 cross-check table: -3.1 % rms / -1.2 %
+* peak). 35.4-40 A is the SUPERSEDED OCP trip level, NOT an operating
+* current, and must not be used as an anchor here.
+* ============================================================================
+.meas tran i_tank_rms_last RMS i(V_ISENSE) FROM={T_LAST0} TO={TSTOP}
+.meas tran i_tank_pk_last  MAX i(V_ISENSE) FROM={T_LAST0} TO={TSTOP}
+.meas tran i_tank_rms_prev RMS i(V_ISENSE) FROM={T_PREV0} TO={T_LAST0}
+.meas tran i_pan_rms_last  RMS v.x_pan.v_short#branch FROM={T_LAST0} TO={TSTOP}
+
+* ============================================================================
+* THE DELIVERABLE -- V(tank-out) referred to PWR_RTN (node 0).
+* IEC 60664-1 cl. 3.2.1.1 specifies the long-term R.M.S. working voltage for
+* creepage, not the peak, so v_tankout_rms_last is the figure of record;
+* the peak/min are reported alongside only to show the waveform shape.
+* ============================================================================
+.meas tran v_tankout_rms_last RMS V(tank_out) FROM={T_LAST0} TO={TSTOP}
+.meas tran v_tankout_rms_prev RMS V(tank_out) FROM={T_PREV0} TO={T_LAST0}
+.meas tran v_tankout_max_last MAX V(tank_out) FROM={T_LAST0} TO={TSTOP}
+.meas tran v_tankout_min_last MIN V(tank_out) FROM={T_LAST0} TO={TSTOP}
+
+* Decomposition: how much of V(tank-out) is core-coupled (and therefore
+* subject to the 638 V-us volt-time rating) versus leakage + DCR (which is
+* NOT core flux and is NOT bounded by that rating -- see the harness).
+.meas tran v_core_rms_last  RMS V(n_pb) FROM={T_LAST0} TO={TSTOP}
+.meas tran v_core_max_last  MAX V(n_pb) FROM={T_LAST0} TO={TSTOP}
+.meas tran v_leak_rms_last  RMS PAR('V(tank_out)-V(n_pb)') FROM={T_LAST0} TO={TSTOP}
+
+* Burden voltage -- cross-check that the modelled CT still reads current
+* correctly (modules.ato:1718 asserts 2.4-2.6 V at the 50 A trip, i.e.
+* 4.99 ohm x I/100; at the operating current this should be ~I_rms/100*4.99
+* less the C_FILTER shunt).
+.meas tran v_burden_rms_last RMS V(n_s1) FROM={T_LAST0} TO={TSTOP}
+
+* Switch-node and tank-cap swing -- cross-check against zvs_margin_sweep.cir
+* to confirm the CT insertion did not perturb the tank.
+.meas tran v_sw_max        MAX V(sw) FROM={T_LAST0} TO={TSTOP}
+.meas tran v_ctank_max_last MAX PAR('V(sw)-V(tank_mid)') FROM={T_LAST0} TO={TSTOP}
+
+.control
+set noaskquit
+run
+quit
+.endc
+
+.end

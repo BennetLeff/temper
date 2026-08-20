@@ -1,0 +1,212 @@
+# `tank-out` working-voltage declaration -- the one bench measurement that
+# decides whether this board has a component blocker at all.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# `tank-out` is a TWO-PAD net: the litz coil's far terminal (R30 pad 2) and
+# T1's primary input (T1 pad 1). Nothing else touches it. It is separated from
+# `PWR_RTN` by exactly one thing -- a single turn of the CST3015-100ED primary
+# (`elec/src/main.ato:823-824`). Which insulation group it belongs to decides
+# T1's fate, and the two answers are not close:
+#
+#   `tank-out` is TANK   -> SELV<->TANK  -> >=20.0 mm, NOT DETERMINABLE
+#                           T1 stands off 9.100 mm and FAILS by >=10.9 mm.
+#                           No commercially available current transformer
+#                           clears it; the category tops out at 9.2 mm.
+#   `tank-out` is MAINS  -> MAINS<->SELV -> 4.8 mm
+#                           T1 PASSES at 9.100 mm with 4.3 mm of margin, and
+#                           every isolation component on the board is
+#                           compliant.
+#
+# Seen inside T1's own footprint, its two primary pads sit at IDENTICAL
+# 9.100 mm from the secondary. pad2 (`PWR_RTN`) <-> pad3 passes at 4.8 mm
+# required; pad1 (`tank-out`) <-> pad4 fails at >=20.0 mm. Same package, same
+# copper, same distance, opposite verdicts -- decided entirely by which side of
+# the sense winding the group boundary was drawn.
+#
+# The repository has never measured the quantity that draws that boundary. It
+# has never simulated it either until recently: `simulation/harness/nets/
+# zvs_margin_sweep.cir:330` returns the coil DIRECTLY to node 0, so no
+# `tank-out` node exists in that deck at all, and all 20 places the 570.5 Vrms
+# figure appears measure `tank.c_tank1-p2` -- a DIFFERENT net, with 4 pads, on
+# the far side of the coil. `tank-out` appears 4 times in that document and
+# never carries a voltage.
+#
+# This file is the affirmative, machine-readable claim that the number will be
+# computed FROM, once someone takes it on the bench.
+#
+# THIS FILE IS DELIBERATELY EMPTY, AND THAT IS THE MECHANISM WORKING
+# ------------------------------------------------------------------
+# Every field below is `null`. `scripts/check_tank_out_declaration.py`
+# therefore exits 6 (NO MEASUREMENT) on every run, and will keep doing so
+# until a human takes the measurement and fills this in.
+#
+# **Do not pre-populate this file with a simulated value.** A simulation is
+# not a measurement, and the entire point of this mechanism is that it cannot
+# be satisfied by an assumption. There IS a simulation of this node --
+# `simulation/harness/nets/tank_out_winding_voltage.cir` plus
+# `simulation/harness/run_tank_out_winding_voltage.py`, which adds the CST3015
+# primary as an explicit element so the node exists and sweeps the two
+# parameters the datasheet extract does not publish. It is informative and it
+# is NOT admissible here. Its own header says so, and so does this one.
+#
+# WHAT THE SIMULATION SAYS, AND WHY IT IS NOT ENOUGH
+# ---------------------------------------------------
+# It says the winding drop is dominated not by the reflected burden (which the
+# prior analytical work correctly bounds at tens of millivolts) but by the
+# primary's LEAKAGE REACTANCE, which no document in this repository bounds at
+# all. Over a deliberately over-wide leakage bracket the simulated result
+# spans ~41 mV to ~1.4 V r.m.s.; it crosses 1 V only above ~94 nH of primary
+# leakage, which is ~13x the geometric estimate of the primary bar's own
+# partial inductance. Every physical estimate available says the real part is
+# far below that. None of them is evidence, because this repository holds no
+# CST3015 datasheet and a geometric estimate is not a measurement.
+#
+# So the simulation does not settle the classification. What it does is turn an
+# unbounded unknown into one sharp, falsifiable number for the bench to beat.
+# See `docs/hardware/BENCH-tank-out-winding-voltage.md`.
+#
+# WHAT THIS FILE CANNOT DO -- read this before quoting anything below
+# -------------------------------------------------------------------
+# **No gate makes a measurement real.** Everything here is a *claim*. The
+# mechanism around it can ensure the claim is explicit, internally consistent,
+# anchored to a resolvable commit, unchanged since the verification that backs
+# it, taken under an operating condition that is actually recorded, and
+# consistent with what `elec/insulation_manifest.yaml` declares. It cannot
+# observe an oscilloscope. It cannot tell a differential probe from an
+# earth-referenced one, and it cannot tell a correct reading from one taken
+# with the wrong probe on a floating mains-referenced bus -- which is a
+# destructive and dangerous mistake, not merely a wrong number. The procedure
+# is the safeguard there, not this file.
+#
+# HOW THE CONSEQUENCE IS DERIVED FROM WHAT IS BELOW
+# --------------------------------------------------
+#   measurement.v_tank_out_to_pwr_rtn_vrms   (the fact declared here)
+#     -> composed against `PWR_RTN`'s DECLARED 120.0 V r.m.s. to earth
+#        (elec/insulation_manifest.yaml, MAINS group, on the IEC 60335-1
+#        cl. 29.2 neutral-NOTE basis -- no earth credit is taken for the
+#        neutral connection), by the same r.m.s. composition that manifest
+#        already uses for DC_BUS<->SELV:  sqrt(120^2 + v^2)
+#     -> IEC 60335-1 Table 17 row selection
+#     -> the group `tank-out` belongs to in elec/insulation_manifest.yaml
+#
+#   Row ii covers >50-125 V. The composition stays inside it for any winding
+#   drop up to sqrt(125^2 - 120^2) = 35.0 V exactly. That 35.0 V is arithmetic
+#   from the row boundary, NOT a reconstructed standards value.
+#
+#   The second threshold, 1.0 V, is this PROJECT'S OWN falsification criterion,
+#   published in advance at `docs/evidence/2026-08-19-t1-sense-node-
+#   relocation.md` Sec 5: *"If this exceeds ~1 V, Sec 3 is wrong and the TANK
+#   classification should stand."* It is not a standards clause and is not
+#   presented as one. Between 1.0 V and 35.0 V the gate reports CONTESTED and
+#   still fails: the row would not move, but the project's own stated
+#   prediction would have been falsified, and a human must reconcile that
+#   rather than have a script quietly pick the convenient branch.
+#
+# THIS FILE DOES NOT RECLASSIFY ANYTHING BY ITSELF
+# -------------------------------------------------
+# Filling it in does not move `tank-out` between groups.
+# `elec/insulation_manifest.yaml` remains the single place group membership is
+# declared, and moving a net there is a separate, deliberate, human edit with
+# its own digest and its own verification block. What this file's gate does is
+# make the two disagree loudly if the measurement and the classification ever
+# stop matching -- in EITHER direction. A measurement that supports MAINS while
+# the manifest still says TANK is reported as an unconsumed result; a manifest
+# that says MAINS with no measurement behind it is reported as unsupported.
+#
+# IEC 60664-4 is paywalled and NOT OBTAINABLE in this repository. Nothing in
+# this derivation depends on it. Note that IEC 60664-1 Annex L, long recorded
+# here as unobtainable, IS present in the BIS adoption and was recovered at
+# commit 0cbc04248 -- check before assuming a document is unavailable.
+#
+# TO FILL THIS IN
+# ---------------
+#   1. Take the measurement. Follow
+#      `docs/hardware/BENCH-tank-out-winding-voltage.md` exactly -- in
+#      particular its probe requirement, which is a shock, arc and
+#      equipment-destruction hazard, not a data-quality note.
+#   2. Record it as a dated evidence document under `docs/evidence/`, with the
+#      scope captures attached.
+#   3. Fill in the `measurement:` facts below.
+#   4. Recompute the digest and paste it into `declared_state_sha256`:
+#        uv run python scripts/check_tank_out_declaration.py --print-digest
+#      (Editing a fact without this makes the declaration STALE and the gate
+#      fails closed -- that is the point.)
+#   5. Fill in `verification:`. `measured_at_commit` must RESOLVE in this
+#      repository, not merely look like a SHA.
+#   6. Expect the gate to tell you the derived consequence, and expect it to
+#      keep failing until `elec/insulation_manifest.yaml` has been moved to
+#      agree with it. That failure is the mechanism working.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# The measured facts.
+#
+# Every field is REQUIRED and every field is currently null. The gate fails
+# closed on any null. Do not delete a field to make it pass; the schema
+# rejects a missing key exactly as it rejects a null one.
+#
+# The voltages are LONG-TERM R.M.S. -- that is the quantity IEC 60664-1
+# cl. 3.2.1.1 specifies for creepage. NOT peak, NOT peak-to-peak, NOT a
+# cycle-averaged mean. A scope's own Vrms readout over a windowed capture is
+# acceptable only under the conditions the bench procedure sets out; read it
+# before trusting the number your instrument prints.
+# ---------------------------------------------------------------------------
+measurement:
+  # T1 pad 1 (`tank-out`) referred to T1 pad 2 (`PWR_RTN`) -- i.e. the drop
+  # across the CST3015-100ED primary's single turn. Differential probe or
+  # fully isolated scope ONLY.
+  v_tank_out_to_pwr_rtn_vrms: null
+
+  # T1 pad 1 (`tank-out`) referred to PROTECTIVE EARTH. This is a separate
+  # measurement, not a derivation from the one above, and it is the one that
+  # will read hundreds of volts of mains-referenced common mode. It exists
+  # because `PWR_RTN`'s own 120 V to earth is a DECLARATION on the cl. 29.2
+  # neutral-NOTE basis, never itself measured; recording both makes that
+  # declaration falsifiable too.
+  v_tank_out_to_earth_vrms: null
+
+  # The operating condition. A winding drop is meaningless without the current
+  # that produced it, and this quantity is linear in tank current.
+  operating_power_w: null
+  tank_current_arms: null
+  f_switching_hz: null
+  pan_description: null
+
+  # The instrument. Recorded because the failure mode this measurement is most
+  # exposed to is instrumental, not physical: insufficient bandwidth rolls off
+  # a 47 kHz square-edged waveform and UNDER-reports r.m.s., biasing the result
+  # toward the convenient answer.
+  probe_model: null
+  probe_is_differential_or_isolated: null
+  probe_bandwidth_hz: null
+  probe_attenuation_ratio: null
+  scope_model: null
+  scope_bandwidth_hz: null
+
+# ---------------------------------------------------------------------------
+# The verification behind the facts above.
+#
+# Same shape as `elec/enclosure_manifest.yaml`'s and
+# `elec/insulation_manifest.yaml`'s, deliberately.
+#
+# `declared_state_sha256` is the load-bearing field: the digest of the
+# canonical form of the `measurement:` block that was verified, so editing a
+# fact without re-verifying it is detected as STALE rather than silently
+# honoured. This mirrors `scripts/check_measurement_provenance.py`'s rule that
+# a measurement's primary, authoritative identity is a content hash and a
+# commit SHA is advisory.
+#
+# `measured_at_commit` must RESOLVE, not merely be 40 hex characters. The
+# ceiling corpus is the cautionary tale: its "fully-evidenced" control used
+# `measured_at_commit = "0" * 40`, which the ratchet rejects as unresolvable,
+# so the control never ran and half of R9 was dead for months.
+# ---------------------------------------------------------------------------
+verification:
+  verified_on: null
+  verified_by: null
+  method: null
+  measured_at_commit: null
+  artifacts: []
+  declared_state_sha256: null
