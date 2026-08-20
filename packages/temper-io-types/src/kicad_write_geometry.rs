@@ -678,6 +678,39 @@ mod py_bridge {
         })
     }
 
+    /// `_kicad_exporter.add_segments_to_board` / `add_vias_to_board`'s
+    /// net-code lookup (the first `for net in board.nets` loop in each):
+    ///
+    /// ```python
+    /// net_code = 0  # Default to unconnected
+    /// for net in board.nets:
+    ///     if net.name == seg.net:
+    ///         net_code = net.number
+    ///         break
+    /// ```
+    ///
+    /// First match wins; no match yields 0 (unconnected). `net.name` /
+    /// `net.number` are read through the Python object protocol (the D5
+    /// duck-typed boundary) — a missing `name` attribute propagates, exactly
+    /// as the Python loop would.
+    #[pyfunction]
+    pub fn find_net_code_py(
+        py: Python<'_>,
+        nets: &Bound<'_, PyAny>,
+        net_name: &str,
+    ) -> PyResult<i64> {
+        catch_panic(|| {
+            for net in nets.try_iter()? {
+                let net = net?;
+                let name = net.getattr("name")?;
+                if name.eq(net_name)? {
+                    return py_index(&net.getattr("number")?);
+                }
+            }
+            Ok(0)
+        })
+    }
+
     /// `float(index) * 90.0` — rotation index to degrees.
     #[pyfunction]
     pub fn rotation_index_to_degrees_py(index: i64) -> PyResult<f64> {
@@ -712,6 +745,7 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(segment_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(via_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(gr_line_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(find_net_code_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(rotation_index_to_degrees_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(placement_coordinate_py, &sub)?)?;
         module.add_submodule(&sub)

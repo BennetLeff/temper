@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 import temper_geometry as _tg
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
-from kiutils.items.common import Position
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.geometry_types import Track as GeoTrack
 from temper_placer.core.geometry_types import Via as GeoVia
@@ -318,21 +318,17 @@ def add_segments_to_board(
     added_count = 0
 
     for seg in segments:
-        # Find net code (KiCad uses numeric net IDs)
-        net_code = 0  # Default to unconnected
-        for net in board.nets:
-            if net.name == seg.net:
-                net_code = net.number
-                break
+        # Find net code (KiCad uses numeric net IDs) — the lookup runs in
+        # Rust (find_net_code_py); see the module docstring.
+        net_code = _GEOM.find_net_code_py(board.nets, seg.net)
 
-        # Create segment using kiutils
-        kicad_seg = Segment(
-            start=Position(X=seg.start[0], Y=seg.start[1]),
-            end=Position(X=seg.end[0], Y=seg.end[1]),
-            width=seg.width,
-            layer=seg.layer,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        # Create segment using kiutils — the content is constructed in Rust
+        # (segment_sexpr_py) and materialised through kiutils' own parser.
+        kicad_seg = Segment.from_sexpr(
+            _GEOM.segment_sexpr_py(
+                seg.start[0], seg.start[1], seg.end[0], seg.end[1],
+                seg.width, seg.layer, net_code, str(uuid.uuid4()),
+            )
         )
 
         board.traceItems.append(kicad_seg)
@@ -359,21 +355,16 @@ def add_vias_to_board(
     added_count = 0
 
     for via in vias:
-        # Find net code
-        net_code = 0
-        for net in board.nets:
-            if net.name == via.net:
-                net_code = net.number
-                break
+        # Find net code — the lookup runs in Rust (find_net_code_py).
+        net_code = _GEOM.find_net_code_py(board.nets, via.net)
 
-        # Create via using kiutils
-        kicad_via = Via(
-            position=Position(X=via.position[0], Y=via.position[1]),
-            size=via.size,
-            drill=via.drill,
-            layers=via.layers,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        # Create via using kiutils — the content is constructed in Rust
+        # (via_sexpr_py) and materialised through kiutils' own parser.
+        kicad_via = Via.from_sexpr(
+            _GEOM.via_sexpr_py(
+                via.position[0], via.position[1],
+                via.size, via.drill, list(via.layers), net_code, str(uuid.uuid4()),
+            )
         )
 
         board.traceItems.append(kicad_via)
@@ -682,39 +673,30 @@ def export_from_geometry(
     total_segments = 0
     total_vias = 0
 
-    # Helper to find net code
-    def get_net_code(net_name: str) -> int:
-        for n in board.nets:
-            if n.name == net_name:
-                return n.number
-        return 0
-
-    # Add tracks
+    # Add tracks — the net-code lookup and the item content run in Rust
+    # (find_net_code_py / segment_sexpr_py / via_sexpr_py); see the module
+    # docstring.
     for track in tracks:
         layer_name = layer_map.get(track.layer, "F.Cu")
-        net_code = get_net_code(track.net)
+        net_code = _GEOM.find_net_code_py(board.nets, track.net)
 
-        segment = Segment(
-            start=Position(X=track.start.x, Y=track.start.y),
-            end=Position(X=track.end.x, Y=track.end.y),
-            width=track.width,
-            layer=layer_name,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        segment = Segment.from_sexpr(
+            _GEOM.segment_sexpr_py(
+                track.start.x, track.start.y, track.end.x, track.end.y,
+                track.width, layer_name, net_code, str(uuid.uuid4()),
+            )
         )
         board.traceItems.append(segment)
         total_segments += 1
 
     # Add vias
     for via in vias:
-        net_code = get_net_code(via.net)
-        kicad_via = Via(
-            position=Position(X=via.center.x, Y=via.center.y),
-            size=via.diameter,
-            drill=via.drill,
-            layers=["F.Cu", "B.Cu"],  # Default through
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        net_code = _GEOM.find_net_code_py(board.nets, via.net)
+        kicad_via = Via.from_sexpr(
+            _GEOM.via_sexpr_py(
+                via.center.x, via.center.y,
+                via.diameter, via.drill, ["F.Cu", "B.Cu"], net_code, str(uuid.uuid4()),
+            )
         )
         board.traceItems.append(kicad_via)
         total_vias += 1
