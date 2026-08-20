@@ -88,8 +88,6 @@ from tests.router_v6._congestion_cases import (
     DEMAND_SUPPLY_PAIRS,
     NET_BBOXES,
     ROUTING_RESULT_CASES,
-    SUGGESTION_POSITIONS,
-    SUGGESTION_REGIONS,
     random_demand_supply,
     random_net_bboxes,
 )
@@ -125,10 +123,6 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     # routing_demand.py
     "routing_demand_estimate_py",
     "routing_demand_complexity_py",
-    # placement_suggestions.py
-    "placement_suggestions_generate_py",
-    "placement_find_affected_py",
-    "placement_suggested_position_py",
 )
 
 
@@ -158,13 +152,6 @@ _ORACLE_SOURCES: dict[str, tuple[str, ...]] = {
         "_classify_congestion",
     ),
     "routing_demand.py": ("RoutingDemand", "estimate_routing_demand"),
-    "placement_suggestions.py": (
-        "PlacementSuggestion",
-        "PlacementSuggestions",
-        "generate_placement_suggestions",
-        "_find_affected_components",
-        "_calculate_suggested_position",
-    ),
 }
 
 
@@ -196,33 +183,6 @@ def _assert_same(label: str, oracle_fn, symbol: str, rust_fn):
     fn = _rust(symbol)  # RED until Phase B lands
     b = _capture(lambda: rust_fn(fn))
     assert sig(a) == sig(b), f"{label}: oracle={a!r} rust={b!r}"
-
-
-def _region(case: tuple):
-    cx, cy, radius, severity, failed, score = case
-    return ORACLE.CongestedRegion(
-        center=(cx, cy),
-        radius=radius,
-        severity=ORACLE.CongestionSeverity(severity)
-        if severity in {s.value for s in ORACLE.CongestionSeverity}
-        else _FakeSeverity(severity),
-        failed_net_count=failed,
-        bottleneck_score=score,
-    )
-
-
-class _FakeSeverity:
-    """A severity whose ``.value`` is not one of the five enum members.
-
-    ``_calculate_suggested_position`` looks the value up in a dict with a
-    ``.get(severity, 3.0)`` default, so an unknown severity is a reachable
-    input, and the corpus carries one.
-    """
-
-    __slots__ = ("value",)
-
-    def __init__(self, value: str) -> None:
-        self.value = value
 
 
 # ---------------------------------------------------------------------------
@@ -1068,90 +1028,6 @@ def test_routing_complexity_bit_exact(avg, routable):
     )
 
 
-# ---------------------------------------------------------------------------
-# placement_suggestions.py
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("case", SUGGESTION_REGIONS)
-def test_generate_placement_suggestions_bit_exact(case):
-    def _oracle():
-        cm = ORACLE.CongestionMap(regions=[_region(case)])
-        out = ORACLE.generate_placement_suggestions(cm, dict(SUGGESTION_POSITIONS))
-        return [
-            (s.component_id, s.current_position, s.suggested_position, s.reason, s.priority)
-            for s in out.suggestions
-        ]
-
-    _assert_same(
-        f"generate_placement_suggestions{case}",
-        _oracle,
-        "placement_suggestions_generate_py",
-        lambda fn: fn(case, dict(SUGGESTION_POSITIONS)),
-    )
-
-
-def test_generate_placement_suggestions_with_no_positions():
-    """``component_positions=None`` -> the ``{}`` default -> no suggestions."""
-    cm = ORACLE.CongestionMap(regions=[_region(SUGGESTION_REGIONS[4])])
-    _assert_same(
-        "generate_placement_suggestions(no positions)",
-        lambda: ORACLE.generate_placement_suggestions(cm, None).suggestions,
-        "placement_suggestions_generate_py",
-        lambda fn: fn(SUGGESTION_REGIONS[4], None),
-    )
-
-
-def test_generate_placement_suggestions_over_many_regions():
-    """Several regions at once: the suggestion list's ORDER is the contract."""
-    cm = ORACLE.CongestionMap(regions=[_region(c) for c in SUGGESTION_REGIONS])
-    _assert_same(
-        "generate_placement_suggestions(all regions)",
-        # Signs the SAME 5-tuple as test_generate_placement_suggestions_bit_exact.
-        # `current_position` was missing here and nowhere else; because `sig()`
-        # is arity-carrying, that made the two call sites demand different
-        # return shapes from one Rust function.  It is also the only check that
-        # a suggestion carries the position it was computed FROM once more than
-        # one region contributes, which is exactly what this test is for.
-        lambda: [
-            (
-                s.component_id,
-                s.current_position,
-                s.suggested_position,
-                s.reason,
-                s.priority,
-            )
-            for s in ORACLE.generate_placement_suggestions(
-                cm, dict(SUGGESTION_POSITIONS)
-            ).suggestions
-        ],
-        "placement_suggestions_generate_py",
-        lambda fn: fn(list(SUGGESTION_REGIONS), dict(SUGGESTION_POSITIONS)),
-    )
-
-
-@pytest.mark.parametrize("case", SUGGESTION_REGIONS)
-def test_find_affected_components_bit_exact(case):
-    region = _region(case)
-    _assert_same(
-        f"_find_affected_components{case}",
-        lambda: ORACLE._find_affected_components(region, dict(SUGGESTION_POSITIONS)),
-        "placement_find_affected_py",
-        lambda fn: fn(case, dict(SUGGESTION_POSITIONS)),
-    )
-
-
-@pytest.mark.parametrize("pos_name,pos", sorted(SUGGESTION_POSITIONS.items()))
-@pytest.mark.parametrize("severity", ["critical", "high", "medium", "low", "none", "UNKNOWN"])
-def test_calculate_suggested_position_bit_exact(pos_name, pos, severity):
-    _assert_same(
-        f"_calculate_suggested_position({pos_name}, {severity})",
-        lambda: ORACLE._calculate_suggested_position(pos, (50.0, 50.0), severity),
-        "placement_suggested_position_py",
-        lambda fn: fn(pos, (50.0, 50.0), severity),
-    )
-
-
 def test_trap_three_way_max_semantics():
     """numpy, CPython and Rust disagree three ways on ``max`` with NaN.
 
@@ -1185,61 +1061,7 @@ def test_trap_three_way_max_semantics():
 
 
 
-def test_trap_pow_form_is_not_hypot_or_sqrt():
-    """``(dx**2 + dy**2) ** 0.5`` is three distinct spellings of a distance.
-
-    B7.  Used by ``_find_affected_components`` and
-    ``_calculate_suggested_position``.
-    """
-    rng = random.Random(7)
-    n = 20000
-    vs_hypot = 0
-    vs_sqrt = 0
-    for _ in range(n):
-        dx = rng.uniform(-1e3, 1e3)
-        dy = rng.uniform(-1e3, 1e3)
-        pow_form = (dx**2 + dy**2) ** 0.5
-        if pow_form != math.hypot(dx, dy):
-            vs_hypot += 1
-        if pow_form != math.sqrt(dx * dx + dy * dy):
-            vs_sqrt += 1
-    assert vs_hypot / n > 0.10, f"pow-form vs hypot disagreed on only {vs_hypot}/{n}"
-    assert vs_sqrt > 0, "pow-form vs sqrt(x*x + y*y) agreed everywhere"
 
 
-def test_trap_format_2f_is_round_half_even():
-    """``f"{x:.2f}"`` rounds the exact binary value half-to-EVEN (B3).
-
-    ``generate_placement_suggestions`` embeds this in ``reason``, a compared
-    field.  A Rust mirror spelled ``(x * 100.0).round() / 100.0`` produces
-    ``0.13`` where CPython produces ``0.12``, because ``f64::round`` is
-    half-away-from-zero while both ``format`` and CPython's ``round`` are
-    half-to-even.
-    """
-    assert f"{0.125:.2f}" == "0.12"
-    assert f"{0.135:.2f}" == "0.14"
-    assert f"{2.675:.2f}" == "2.67"
-    assert f"{0.005:.2f}" == "0.01"
-    assert f"{0.015:.2f}" == "0.01"
-
-    def _rust_round(x: float) -> float:
-        """``f64::round`` -- half away from zero, per the Rust reference."""
-        return math.floor(x + 0.5) if x >= 0.0 else math.ceil(x - 0.5)
-
-    # The naive Rust construction disagrees with the format spec on exactly
-    # those exactly-representable .xx5 values whose lower neighbour is EVEN
-    # (12.5 -> 12 half-even vs 13 half-away; 37.5 -> 38 either way).
-    disagreements = [
-        v
-        for v in (0.125, 0.375, 0.625, 0.875)
-        if _rust_round(v * 100.0) / 100.0 != float(f"{v:.2f}")
-    ]
-    assert disagreements == [0.125, 0.625], (
-        f"expected 0.125 and 0.625 to diverge and 0.375/0.875 not to, got {disagreements}"
-    )
-    # CPython's own `round` agrees with `format` (both half-to-even), which is
-    # why grepping for `round(` does NOT find this class -- the divergence is
-    # entirely on the Rust side.
-    assert round(0.125 * 100.0) / 100.0 == float(f"{0.125:.2f}")
 
 

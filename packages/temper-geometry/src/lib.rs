@@ -35,15 +35,14 @@ pub mod congestion;
 #[cfg(feature = "python")]
 pub mod congestion_analysis;
 // Shared CPython-exact OverflowError construction for the `pow_operator`
-// overflow guard duplicated in escape_via.rs and placement_suggestions.rs.
+// overflow guard duplicated in escape_via.rs (and formerly in
+// placement_suggestions.rs, deleted 2026-08-20).
 #[cfg(feature = "python")]
 mod py_errors;
 #[cfg(feature = "python")]
 pub mod escape_via;
 #[cfg(feature = "python")]
 pub mod routing_demand;
-#[cfg(feature = "python")]
-pub mod placement_suggestions;
 pub mod clearance_geometry;
 pub mod spice_estimators;
 #[cfg(feature = "python")]
@@ -378,7 +377,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::congestion_analysis::register(m)?;
     crate::escape_via::register(m)?;
     crate::routing_demand::register(m)?;
-    crate::placement_suggestions::register(m)?;
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
     crate::zone_generator::register(m)?;
