@@ -405,6 +405,13 @@ add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)
 add_test(NAME integration_tests COMMAND test_integration_only)
+# The NTC conversion pins the thermistor constants against the schematic part
+# (NTCALUG01A104GA, 100k/B4190). It was previously built but never registered
+# here, so a wrong-part conversion went unnoticed. Note that
+# test_adc_guard_only, test_fan_guard_only, test_coil_guard_only and
+# test_pwm_guard_only are still unregistered -- all four build and pass today,
+# but registering them is out of scope for this change.
+add_test(NAME ntc_guard_tests COMMAND test_ntc_guard_only)
 
 # ============================================================================
 # Custom targets

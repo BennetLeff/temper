@@ -22,7 +22,13 @@
 # strictly worse than this honest link failure. Implement them against real
 # hardware or leave them here.
 #
-# At the time of writing: 34 distinct symbols, 141 undefined references.
+# At the time of writing: 33 distinct symbols, 133 undefined references.
+#
+# History (shrink only):
+#   34 symbols / 141 refs -- initial ledger.
+#   33 symbols / 133 refs -- get_time_ms implemented in firmware/main/main.c
+#                            over esp_timer_get_time(). See the comment there
+#                            for why it is NOT routed through HAL_TIME_MS().
 
 button_is_pressed
 button_set_enabled
@@ -37,7 +43,6 @@ eeprom_log_fault
 fan_set_auto_mode
 fan_set_speed
 g_config
-get_time_ms
 is_fan_running
 led_set_pattern
 peripherals_enter_low_power
