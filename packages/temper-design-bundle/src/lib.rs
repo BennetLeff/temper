@@ -150,8 +150,7 @@ mod config_loader;
 #[cfg(feature = "python")]
 mod reference_loader;
 
-#[cfg(feature = "python")]
-mod parse_engine;
+pub(crate) mod parse_engine;
 #[cfg(feature = "python")]
 mod hypergraph_factory;
 
@@ -250,6 +249,14 @@ pub use kicad_pcb::extract_footprint_references;
 pub use model::*;
 pub use netlist::extract_component_references;
 pub use pcl::{PclDocument, PclInputConstraint};
+// Non-pyo3 parse-core entry point + the raw board model it returns. The
+// pyo3 wrapper (`parse_kicad_pcb_impl`) calls the same `parse_kicad_document`;
+// exposing it here lets the `temper` binary and other non-Python consumers
+// parse a `.kicad_pcb` without an interpreter. `RawBoard` and its constituent
+// types are pub so the returned value is fully inspectable; they are the
+// faithful kiutils-model shapes, not a stable long-term API (the CLI driver
+// consumes them read-only).
+pub use parse_engine::{parse_board_summary, parse_kicad_document, BoardSummary, RawBoard};
 
 /// Constructs the canonical boundary from already-read source documents.
 pub fn build_bundle(
