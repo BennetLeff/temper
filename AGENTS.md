@@ -393,108 +393,57 @@ See `docs/plans/2026-06-22-021-feat-script-triage-sunset-plan.md`.
 
 ## Git Stash Guard
 
-**Never use `git stash`, in any form, in this repo.** This repo runs 60+
-concurrent agent worktrees against one shared `.git` directory, and the
-stash stack is repo-global — it is not per-worktree. A `git stash pop` run
-from your worktree can apply *another session's* stashed changes into your
-working tree, and a `git stash drop`/`clear` can destroy another session's
-unrecovered work. This has already happened more than once; the stash list
-currently sits 80+ entries deep, including rescue records from prior
-incidents. Asking politely does not hold at this concurrency: an agent used
-`git stash` anyway on 2026-07-28 despite an explicit brief prohibition, and
-avoided data loss only by luck (its push/pop happened to balance).
+**Never use `git stash`, in any form, in this repo.** The stash stack is
+repo-global, not per-worktree — with 60+ concurrent agent worktrees, a
+`git stash pop` can apply *another session's* changes into your tree, and a
+`stash drop`/`clear` can destroy another session's unrecovered work. This
+has happened (2026-07-28, with real cross-session damage); see
+`docs/evidence/2026-07-28-git-stash-guard-incidents.md`.
 
 **Enforcement**: `scripts/git-hooks/reference-transaction`, installed into
-the shared `.git/hooks/` directory by `scripts/install_git_stash_guard.py`,
-blocks `git stash` / `git stash push` / `git stash push -u` / `git stash
-save` / `git stash clear` outright (exit 128, `fatal: ref updates aborted by
-hook`). This is a real, tested block — verified to fire under
-non-interactive, direct `git` invocation, from every worktree sharing this
-repo's `.git` directory, without relying on any shell alias or `PATH` trick
-(a git hook is invoked by the `git` binary itself, regardless of what
-invoked `git`).
-
-It is installed into this repo's live shared `.git/hooks/` (not just tested
-in a throwaway repo — that distinction mattered: the mechanism existed,
-documented and tested, for two weeks before anyone actually ran the
-installer against the real `.git`, during which three more agents used
-`git stash` in a single session with the hook doing nothing). `make
-worktree` (the standard way new worktrees are created, see
-`docs/solutions/best-practices/per-workstream-worktree-2026-07-31.md`) now
-runs `scripts/install_git_stash_guard.py` on every invocation, so the guard
-reinstalls itself — idempotently, a no-op if already current — every time a
-worktree is created, and cannot silently go missing from a fresh clone or a
-`.git/hooks/` wiped by other tooling. To check or (re)install by hand:
+the shared `.git/hooks/` by `scripts/install_git_stash_guard.py`, blocks
+`git stash` / `stash push` / `stash push -u` / `stash save` / `stash clear`
+outright (exit 128, `fatal: ref updates aborted by hook`). `make worktree`
+reinstalls it on every invocation; to check or (re)install by hand:
 
 ```bash
 python3 scripts/install_git_stash_guard.py --check   # report only
 python3 scripts/install_git_stash_guard.py            # install/update
 ```
 
-**Known, tested gap — read before assuming full coverage**: the hook
-*cannot* block `git stash apply`, because `apply` never performs a ref
-transaction (no hook of any kind fires for it). It also cannot reliably
-block `git stash pop` / `git stash drop <entry>` except in the edge case
-where the entry being removed is the *only* one left on the stack — with
-80+ existing entries, dropping/popping any one of them rewrites the reflog
-directly, bypassing the hookable ref-transaction API entirely. **Do not
-treat the hook as covering `apply`, `pop`, or `drop` of existing stack
-entries — the prohibition on those remains a policy rule, not an enforced
-one.** See the comments at the top of
-`scripts/git-hooks/reference-transaction` for the full empirical writeup
-(what was tested, in a throwaway `/tmp` repo, and what the results were);
-`scripts/tests/test_git_stash_guard.py` (`TestBlocksRealStashOperations`,
-`TestDocumentedGaps`) pins every one of `stash` / `push` / `push -u` /
-`save` / `clear` / `apply` / `pop` / `drop` against the real hook so any
-future git version that changes this behaviour fails a test, not silently
-changes the security posture.
+**Known, tested gap — read before assuming coverage**: the hook *cannot*
+block `git stash apply` (it never performs a ref transaction), and cannot
+reliably block `git stash pop` / `git stash drop <entry>` of existing
+entries (the reflog rewrite bypasses the hookable API). **The prohibition
+on `apply`/`pop`/`drop` is a policy rule, not an enforced one.** Even in
+the one case where dropping *is* blocked (the last remaining entry), the
+reflog is rewritten before the hook fires, so `git stash list` goes empty
+regardless — read the block as "the data was not destroyed", not "the
+stack looks untouched". Empirical writeup: comments atop
+`scripts/git-hooks/reference-transaction`; design rationale and ruled-out
+alternatives: `docs/solutions/best-practices/git-stash-guard-mechanism-and-gaps-2026-08-19.md`.
 
-Even in the one case where dropping *is* blocked (removing the last
-remaining entry), git rewrites `refs/stash`'s reflog before the hook is
-consulted, so `git stash list` goes empty regardless of the block — the
-underlying commit is not deleted (`refs/stash` itself is unchanged and the
-object stays resolvable/reachable) but it becomes invisible to the normal
-stash UI. Do not read "hook fired" as "the stack looks untouched" for this
-one case; it means "the data was not destroyed," which is not the same
-thing.
+**Detector (defense in depth for the gap)**: `uv run python
+scripts/check_stash_stack_gate.py` snapshots the stash reflog and flags
+additions/removals since the last run. Not a CI gate — run it manually or
+on a timer against the dev machine. Baseline:
+`<git-common-dir>/stash-guard-snapshot.json`.
 
-**Detector (defense in depth for the gap above)**:
-`uv run python scripts/check_stash_stack_gate.py` snapshots the stash
-reflog and diffs it against the last snapshot, flagging any addition or
-disappearance since the last run. It is not a CI gate (CI runners don't
-share this `.git` directory) — run it manually, on a timer, or from a
-`/loop` against the actual dev machine. A baseline snapshot now exists at
-`<git-common-dir>/stash-guard-snapshot.json`; this script stays alongside
-the hook rather than being superseded by it, because it is the only thing
-that sees `apply`/`pop`/`drop` activity the hook structurally cannot block.
-
-**Bypass** (for a human, working alone, in a clean single-worktree
-context — not the concurrent-agent failure mode this guards against):
+**Bypass** (human, working alone, in a clean single-worktree context — not
+the concurrent-agent failure mode):
 
 ```bash
 ALLOW_GIT_STASH=1 git stash push -m "..."
 ```
 
 **Safe alternative** (the underlying need — comparing with/without your
-changes — is real and not disabled, just routed elsewhere):
+changes — routed elsewhere):
 
 ```bash
 git worktree add ../scratch-<name> -b scratch/<name>   # isolated copy
 git branch wip/<name> && git commit -am wip             # scratch branch
 git diff > /tmp/patch.diff                               # patch file, git apply later
 ```
-
-**What was ruled out and why** (see the PR that introduced this section for
-the full test transcript): a `pre-commit` hook never fires for stash (it's
-not a commit operation). A shell alias/function shadowing `git stash` only
-protects interactive shells that source it, and agents invoke `git`
-directly. A `git config alias.stash=...` override was tested empirically
-and does **not** work — this git version resolves built-in commands
-(`stash`, `status`, `log`, ...) before consulting aliases, so an alias can
-never shadow an existing subcommand, only add a new one. A `PATH` wrapper
-earlier than the real `git` was not pursued: it requires modifying the
-user's shell environment (not something a repo-scoped fix should assume or
-require) and offers no more coverage than the hook already provides.
 
 ## Building and Running Firmware Tests
 
@@ -539,74 +488,36 @@ artifacts are evidence, not output, and it refuses rather than laundering them:
 `~/.local/bin/cargo` (ahead of `~/.cargo/bin` on PATH) that fixes
 `CARGO_TARGET_DIR` for **every** cargo/maturin invocation on this host, from
 any worktree, in any shell — no sourcing, no remembering. `make worktree`
-and `make venv-isolate` install/refresh it automatically. If you're setting
-up a worktree by hand (`git worktree add`, not `make worktree`), run it
-once:
+and `make venv-isolate` install/refresh it automatically. Setting up a
+worktree by hand (`git worktree add`, not `make worktree`)? Run it once:
 
 ```bash
 python3 scripts/install_cargo_target_dir_guard.py
 ```
 
 It is scoped to this repo only (checked via `git rev-parse
---git-common-dir`) and never touches other cargo projects on the host, and
-it respects an explicitly-set `CARGO_TARGET_DIR` rather than overriding it.
-See `scripts/install_cargo_target_dir_guard.py`'s module docstring for the
-full mechanism and `scripts/check_no_worktree_target_dirs.py` (`make
-check-worktree-target-dirs`, `CLEAN=1` to also delete violations that pass
-a `CACHEDIR.TAG` safety check) for the gate that catches anything that
-still slips through — e.g. a worktree that existed before the guard was
-installed.
+--git-common-dir`), never touches other cargo projects on the host, and
+respects an explicitly-set `CARGO_TARGET_DIR`. See the script's module
+docstring for the mechanism, and `scripts/check_no_worktree_target_dirs.py`
+(`make check-worktree-target-dirs`, `CLEAN=1` to also delete violations
+that pass a `CACHEDIR.TAG` safety check) for the gate that catches anything
+that still slips through.
 
-**Why this replaced "source `scripts/cargo_shared_env.sh` once per shell"
-(2026-08-13):** that guidance was correct for a persistent interactive
-shell but not for how agents actually invoke commands. Agent tool-calling
-harnesses start a *fresh shell process per tool call* — shell state,
-including exported env vars, does not persist between calls. Sourcing the
-script in one call has zero effect on a `cargo build` issued in the next
-call, which is the overwhelmingly common pattern. This was confirmed
-directly while investigating the 2026-08-12 recurrence: exporting
-`CARGO_TARGET_DIR` in one shell and checking it in a fresh one showed it
-unset, and a bare `cargo metadata` run from a worktree with the var unset
-resolved `target_directory` to that worktree's own private
-`target-shared` — reproducing the incident mechanism live. The
-`source`-based guidance is still correct and still works for a genuinely
-persistent interactive shell (it's what the wrapper itself uses
-internally), but it is no longer the primary defense.
+**Why this is needed, and why the `source scripts/cargo_shared_env.sh`-
+once-per-shell guidance was replaced (2026-08-13):** agent tool-calling
+harnesses start a *fresh shell process per tool call*, so shell state —
+including exported env vars — does not persist between calls. Without the
+wrapper, `.cargo/config.toml`'s *relative* `build.target-dir = target-shared`
+resolves per-worktree (every worktree has its own tracked copy of the
+config), so each worktree cold-compiles all 10 pyo3 crates into its own
+`target-shared`. Recurrences: 51 GB (2026-07-28), 36.6 GB across 25 caches
+(2026-08-06), ~74 GB across 99 worktrees (2026-08-11/12) — see
+`docs/evidence/2026-08-13-cargo-target-dir-shell-convention-failure.md` and
+`docs/solutions/best-practices/shared-cargo-target-dir-guard-2026-08-19.md`.
 
-**The "anything run through `make` already exports the same value" claim
-was verified and holds**: `CARGO_TARGET_DIR` is computed and exported at
-the top of the Makefile itself
-(`CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse
---path-format=absolute --git-common-dir)")/target-shared`), recomputed
-fresh on every `make` invocation regardless of the calling shell's prior
-state, and inherited by every recipe command as a normal OS environment
-variable. `make extensions`, `make build`, etc. were never the gap — direct
-`cargo`/`maturin` calls outside `make` were.
-
-Why it matters underneath all of this: `.cargo/config.toml` sets
-`build.target-dir` to the *relative* path `target-shared`. Cargo resolves a
-relative `target-dir` against the config file's own directory, and every
-git worktree gets its own tracked **copy** of that file — so, absent the
-guard above, each worktree lands on its own `target-shared` and compiles
-all 10 pyo3 crates from cold. `CARGO_TARGET_DIR` overrides `build.target-dir`
-and can hold an absolute path, which is why the sharing is done there
-rather than in the config (a hardcoded absolute path in the tracked config
-would also break CI, whose checkout lives at a different absolute path).
-
-This is not hypothetical. It caused a 51 GB incident, recurred on
-2026-08-06 (25 private caches totalling 36.6 GB, the disk at 98%, 16 GB
-reclaimed by hand), and recurred again on 2026-08-11/12 at ~74 GB across 99
-worktrees despite the documented `source`-based remedy being in every agent
-brief — which is why enforcement moved from a shell convention to a PATH
-wrapper plus a standing gate. Agent worktrees are the main source, because
-they are created outside a persistent shell's lifetime and run `cargo
-test` / `cargo build` / `cargo clippy` / `maturin develop` directly, one
-tool call at a time.
-
-The trade-off is deliberate and unchanged: cargo takes an exclusive lock on
-the target directory, so concurrent builds in different worktrees serialise
-instead of running in parallel. That is still far cheaper than each doing a
-cold build — after the first, the rest are incremental.
+Trade-off, deliberate: cargo takes an exclusive lock on the target
+directory, so concurrent builds in different worktrees serialise instead of
+running in parallel — still far cheaper than each doing a cold build.
 
 ## Rebuilding pyo3/maturin Rust Extensions
 
@@ -637,14 +548,13 @@ After `make extensions`, `uv run --no-sync python
 scripts/check_stale_extensions.py` should report 0 STALE.
 
 **A stale `.so` does not just fail — it lies.** Believing a measurement
-taken against one is the expensive mistake, not the rebuild. In one
-session `tests/deterministic` reported 76 failures of which 72 were stale
-extensions and only 4 were real; separately, an agent reported
-`temper_orchestration.RouterPipeline` as "missing — a pre-existing repo
-defect" when the symbol was simply absent from an installed `.so` that
-predated the commit adding it. Run the gate *before* you believe a number,
-not after a result surprises you. Absence of a symbol is not evidence of a
-missing feature.
+taken against one is the expensive mistake, not the rebuild (two real
+instances — 72 of 76 "deterministic" failures were stale extensions, and a
+"missing" `RouterPipeline` was an `.so` that predated the commit adding the
+symbol — are in
+`docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`). Run the gate
+*before* you believe a number, not after a result surprises you. Absence of
+a symbol is not evidence of a missing feature.
 
 **A poisoned cargo cache defeats the rebuild silently.** `cargo check` and
 clippy compile these crates *without* their `python` feature. maturin will
@@ -667,95 +577,60 @@ any working directory.
 
 ### Worktree `.venv`: shared vs. isolated
 
-Multiple agent worktrees historically pointed `UV_PROJECT_ENVIRONMENT` at
-the main checkout's already-synced `.venv` to save disk/build time. This
-was the dominant infrastructure cost in this repo on 2026-07-28 (see
-`docs/solutions/best-practices/shared-mutable-state-dominant-cost-multi-agent-repo-2026-07-28.md`):
-a concurrent session's `uv sync` (or a bare `uv run`'s implicit auto-sync)
-can silently revert an extension a *different* worktree just built, and
-`check_stale_extensions.py`'s old mtime comparison false-positived on
-every fresh `git checkout -b` regardless of real staleness.
+`make venv-isolate` gives a worktree its own `.venv`, immune to *any* other
+checkout's `uv sync`/`uv run` — at a measured cost of ~700 MB disk and ~85s
+wall time with a warm `uv`/cargo cache (the shared `target-shared` means
+the Rust half compiles incrementally even into a brand-new venv — see
+`docs/evidence/2026-07-28-worktree-env-isolation.md` for the measurement).
+**Run it once, at the start of any session that will build or test Rust
+extensions.**
 
-Two independent fixes, addressing two independent hazards:
+**Not the default for every worktree unconditionally.** At fleet scale
+(dozens of agent worktrees at once, low double-digit GB free), isolating
+every one is the same disk-multiplication hazard that has already exhausted
+disk twice. Isolate the worktrees that are actually building or testing
+Rust extensions; everywhere else rely on the content-hash freshness gate
+(`scripts/check_stale_extensions.py`, unconditional, zero downside). Why a
+shared `.venv` is the historical default, what it cost, and the two
+independent fixes (content-hash stamps + opt-in isolation):
+`docs/solutions/best-practices/shared-mutable-state-dominant-cost-multi-agent-repo-2026-07-28.md`.
 
-1. **The gate no longer trusts mtimes when a build stamp is present.**
-   `scripts/write_extension_stamps.py` records a content-hash of each
-   crate's sources beside its installed `.so`; `check_stale_extensions.py`
-   compares against that first and only falls back to mtime when no stamp
-   exists. This makes a *shared* `.venv` safe against the checkout-mtime
-   false positive — it does **not** protect against a concurrent session's
-   build genuinely evicting yours; that is a different failure mode (see
-   `scripts/_lib/freshness.py`, and
-   `docs/solutions/best-practices/green-rust-tests-are-not-evidence-the-extension-was-rebuilt-2026-07-27.md`).
-2. **`make venv-isolate` gives a worktree its own `.venv`**, immune to
-   *any* other checkout's `uv sync`/`uv run`, at a measured cost of
-   ~700 MB disk and ~85s wall time with a warm `uv`/cargo cache (the
-   shared `target-shared` Cargo build directory from `.cargo/config.toml`
-   means the Rust half compiles incrementally even into a brand-new venv
-   — see `docs/evidence/2026-07-28-worktree-env-isolation.md` for the
-   measurement). Run it once, at the start of any session that will build
-   or test Rust extensions.
+### A worktree can silently poison the venv it builds into
 
-**This is not the default for every worktree unconditionally.** At fleet
-scale (dozens of agent worktrees existing at once, low double-digit GB
-free) giving every one its own copy regardless of whether it does active
-build/test work is the same disk-multiplication hazard that has already
-exhausted disk twice. Isolate the worktrees that are actually building or
-testing Rust extensions; rely on the content-hash gate (unconditional,
-zero downside) everywhere else.
-
-### Four ways a worktree silently poisons the venv it's building into
-
-2026-08-11 incident: the shared `.venv` was found with its editable-install
-pointers rewritten to **an agent's git worktree** rather than the main
-checkout —
-
-```
-_editable_impl_temper_placer.pth      -> .claude/worktrees/agent-ab1dbe8162fa0fbae
-_editable_impl_temper_workflow.pth    -> .claude/worktrees/agent-ab1dbe8162fa0fbae
-__editable__.temper_rust_router_core  -> .claude/worktrees/agent-ab1dbe8162fa0fbae
-```
-
-Every measurement taken against that venv in that window ran against the
-worktree's code, not `main` — and nothing indicated it: imports succeed,
-numbers come back confident and wrong. Confirmed the same day: four
-distinct silent-staleness modes, all reachable from an ordinary worktree
-session running `maturin`/`uv` directly instead of through `make`. A
-developer or agent will actually hit one of these, not a contrived edge
-case:
+2026-08-11 incident: the shared `.venv`'s editable-install pointers were
+found rewritten to **an agent's git worktree** rather than the main
+checkout, so every measurement in that window ran against the worktree's
+code — imports succeed, numbers come back confident and wrong (full
+narrative: `docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`).
+Four distinct silent-staleness modes, all reachable from an ordinary
+worktree session running `maturin`/`uv` directly instead of through `make`:
 
 1. **`maturin` refuses outright if `VIRTUAL_ENV` and `CONDA_PREFIX` are
-   both set** — a loud failure, the safe end of this list. Unset whichever
+   both set** — a loud failure, the safe end of the list. Unset whichever
    you are not using before invoking `maturin` directly.
 2. **Plain `uv run maturin develop` from a worktree targets a *per-worktree*
    venv and no-ops against the shared one.** If `UV_PROJECT_ENVIRONMENT`
    is not pointed at the shared `.venv` (or the worktree has its own via
-   `make venv-isolate`), the build "succeeds" into a venv nobody is
-   importing from — a silent no-op, not a hijack, but just as misleading:
-   the shared venv's extension is untouched and still stale.
-3. **`maturin develop --active` run from a worktree rewrites the SHARED
-   venv's editable pointers** — this incident. `--active` targets whatever
-   venv is currently *active* (`VIRTUAL_ENV`), not one scoped to the
-   worktree it ran from; when that active venv is the shared one, every
-   subsequent `import` from *any* worktree — including the main checkout —
-   silently resolves into the worktree that ran the command, until someone
-   notices or rebuilds. This is the mode `scripts/check_venv_integrity.py`
-   (below) exists to catch.
+   `make venv-isolate`), the build "succeeds" into a venv nobody imports
+   from — the shared venv's extension is untouched and still stale.
+3. **`maturin develop --active` from a worktree rewrites the SHARED venv's
+   editable pointers** — the incident. `--active` targets whatever venv is
+   currently *active* (`VIRTUAL_ENV`), not one scoped to the worktree it
+   ran from. Every subsequent `import` from *any* worktree — including the
+   main checkout — silently resolves into the worktree that ran the
+   command. This is the mode `scripts/check_venv_integrity.py` exists to
+   catch.
 4. **`maturin develop` can report "Installed" while leaving the `.so`
    untouched** — five rebuilds exited 0 in a row while the artifact stayed
-   dated a day behind the source that had changed underneath it. This is
-   `scripts/check_stale_extensions.py`'s territory (its own module
-   docstring covers this exact incident in depth), not this section's —
-   named here only because it is the fourth mode in the same day's
-   confirmed set, and because it is the reason "the build tool said
-   success" is never trusted anywhere in this repo's gates.
+   dated a day behind the source that changed underneath it. This is
+   `scripts/check_stale_extensions.py`'s territory; it is why "the build
+   tool said success" is never trusted anywhere in this repo's gates.
 
-**`scripts/check_stale_extensions.py` catches (4)'s mtime symptom but not
-(3)'s redirection** — a hijacked-but-not-yet-rebuilt venv still imports a
-`.so` that is content-fresh *relative to the worktree it was built from*,
-which is exactly what makes (3) silent: the staleness gate has no way to
-know it is comparing against the wrong checkout's sources in the first
-place.
+**`check_stale_extensions.py` catches (4)'s mtime symptom but not (3)'s
+redirection** — a hijacked-but-not-yet-rebuilt venv still imports a `.so`
+that is content-fresh *relative to the worktree it was built from*, which
+is exactly what makes (3) silent: the staleness gate has no way to know it
+is comparing against the wrong checkout's sources in the first place.
 
 ### Ad-hoc DRC harnesses: copy the library table, not just the sidecars
 
@@ -800,36 +675,20 @@ how it was measured before trusting it.
 ### The fifth mode: the shared venv reads *main*, not your worktree
 
 2026-08-17. The four modes above are all "a worktree poisons the venv."
-**The complementary mode is the venv silently serving you the wrong code,
-and it needs no poisoning at all — it is the healthy, correct state of a
-shared venv.**
-
-The shared `.venv`'s `temper_placer` is editable-installed against the
-**main checkout**:
-
-```
-$ .venv/bin/python -c "import temper_placer; print(temper_placer.__file__)"
-/home/bennet/Desktop/temper/packages/temper-placer/src/temper_placer/__init__.py
-```
-
-So a worktree agent that edits Python and then runs
-`.venv/bin/python scripts/route_board.py` **measures `main`'s code, not its
-own change.** Nothing errors. The route succeeds. The numbers come back
-confident and wrong.
-
-This cost a real round trip: an agent fixing the pour-stitch
-`track_width` defect measured **197 violations still present after its
-fix**, and would have reported a regression. The tell was that every
-violation still read `"actual 0.3000 mm"` — the literal value the fix had
-just removed. Code that no longer exists cannot produce violations; the
-measurement was of `main`.
+**The complementary mode needs no poisoning at all — the healthy, correct
+state of a shared venv is the hazard.** The shared `.venv`'s `temper_placer`
+is editable-installed against the **main checkout**, so a worktree agent
+that edits Python and then runs `.venv/bin/python scripts/route_board.py`
+**measures `main`'s code, not its own change.** Nothing errors; the numbers
+come back confident and wrong (a real round trip: an agent "fixed" the
+pour-stitch `track_width` defect and still measured 197 violations, every
+one reading the literal value the fix had just removed — see
+`docs/evidence/2026-08-17-shared-venv-serves-main-code.md`).
 
 **Two defences, in order of preference:**
 
 1. **`make venv-isolate` in your worktree.** The worktree gets its own
-   `.venv` and the question disappears. This is what the "check for a Rust
-   owner / no shared-venv rebuild" rules already push you toward, and it
-   fixes reads as well as writes.
+   `.venv` and the question disappears — it fixes reads as well as writes.
 2. **If you must use the shared venv, verify what you are importing before
    you believe a number** — `python -c "import temper_placer; print(...__file__)"`
    and confirm the path is your worktree. A `sys.path` override wrapper
@@ -840,29 +699,28 @@ made, suspect the measurement before the change.** Ask what the number
 would look like if your edit were not in effect at all — here, "identical
 to before" was exactly the observed result, and that is the signature.
 
-**`scripts/check_venv_integrity.py` closes (3).** It asserts every
+**`scripts/check_venv_integrity.py` closes mode 3.** It asserts every
 editable-install `.pth` file and every `direct_url.json` in the checked
 venv's site-packages resolves under the expected repo root — not into a
-different registered git worktree (`git worktree list`, so this covers
-`.claude/worktrees/agent-*` and any other worktree location, not a
-hardcoded path) and not into an unrelated checkout entirely. Fast,
-deterministic, local-only (one `git worktree list --porcelain`, no
-network). Run it any time a shared venv's trustworthiness is in doubt:
+different registered git worktree (`git worktree list --porcelain`, so this
+covers `.claude/worktrees/agent-*` and any other worktree location) and not
+into an unrelated checkout entirely. Fast, deterministic, local-only (one
+`git worktree list --porcelain`, no network). Run it any time a shared
+venv's trustworthiness is in doubt:
 
 ```bash
 .venv/bin/python scripts/check_venv_integrity.py     # or: make venv-integrity-check
 ```
 
-It is a **separate** gate from `check_stale_extensions.py` rather than a
-mode folded into it, deliberately: the two answer different questions on
-different axes (venv *identity*, scanned from installed site-packages, vs.
-per-crate artifact *freshness*, scanned from `packages/` source) and the
-identity question is logically prior — a freshness verdict computed
-against a hijacked venv is meaningless, not merely stale. CI runs it in
-the `test` job (`python-tests.yml`), immediately before the staleness gate
-it protects the meaning of. See the script's own module docstring for the
-full argument and the exit-code convention (mirrors
-`check_stale_extensions.py`'s 0/3/5 on purpose — same job, same reader).
+It is a **separate** gate from `check_stale_extensions.py` deliberately:
+the two answer different questions on different axes (venv *identity*,
+scanned from installed site-packages, vs. per-crate artifact *freshness*,
+scanned from `packages/` source) and identity is logically prior — a
+freshness verdict computed against a hijacked venv is meaningless. CI runs
+it in the `test` job (`python-tests.yml`), immediately before the staleness
+gate it protects the meaning of. Exit codes mirror `check_stale_extensions.py`'s
+0/3/5 on purpose; the five-mode catalog and gate-ordering rationale:
+`docs/solutions/best-practices/shared-venv-silent-staleness-modes-2026-08-19.md`.
 
 ## Documentation & Context Maintenance
 
