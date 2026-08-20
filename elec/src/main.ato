@@ -56,6 +56,16 @@ module Top:
     v_bus_max = 340V
     v_bus_abs_max = 400V
     v_ac_nominal = 120V
+    # DEAD DECLARATION, FLAGGED 2026-08-20, NOT DELETED HERE. Nothing in
+    # this repo reads `power_max` -- not the firmware, not the placer, not
+    # any gate; it is a second, independent copy of the same 1800 figure
+    # that `p_output_max` further down carries, and it carries the same
+    # units error (1800 is the branch circuit's VOLT-AMPERES, not
+    # deliverable output watts -- see the block at p_output_max). It is
+    # left in place because docs/evidence/2026-07-26-ovp-crossing-
+    # resolution.md and 2026-07-26-bom-blocker-resolution.md both cite
+    # this line by name, and silently removing a figure two evidence
+    # documents point at is worse than recording that it is wrong.
     power_max = 1800W
 
     # `i_peak_max = 25A` USED TO BE DECLARED HERE, and asserted immediately

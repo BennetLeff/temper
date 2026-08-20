@@ -634,12 +634,23 @@ module ResonantTank:
     # against 20.7A rms from this repo's own ngspice harness, x ~1.11
     # margin. UNRESOLVED AND RECORDED, NOT FIXED HERE: the corresponding
     # PEAK is 28.7-31.9A, which is above BOTH `LitzPad_15A`'s declared
-    # 15A pad rating (footprints.ato) and Top.i_peak_max / Highvoltage-
-    # Constraints.i_max = 25A. Both were already exceeded by the
-    # PREVIOUS 150uH model's own committed 28.71A peak -- this
-    # declaration surfaces the conflict, it does not create it, and
-    # raising either rating to match is exactly the move that must not be
-    # made without a thermal/geometry basis. See the evidence doc Sec 6.
+    # 15A pad rating (footprints.ato) and HighVoltageConstraints.i_max =
+    # 25A. Both were already exceeded by the PREVIOUS 150uH model's own
+    # committed 28.71A peak -- this declaration surfaces the conflict, it
+    # does not create it, and raising either rating to match is exactly
+    # the move that must not be made without a thermal/geometry basis.
+    # See the evidence doc Sec 6.
+    #
+    # NO LONGER ONLY PROSE (2026-08-20). Until then the conflict lived in
+    # this comment and nowhere the toolchain could see: main.ato declared
+    # `i_peak_max = 25A` and asserted it against the same 25A. main.ato
+    # now DERIVES the peak from this coil's `value` and c_tank1/2/3's,
+    # and asserts it against HighVoltageConstraints.i_max -- see the
+    # "TANK PEAK CURRENT, DERIVED FROM THE TANK" block there. It comes
+    # out 29.96A nominal (24.5-37.8A over this part's +/-10%), inside the
+    # 28.7-31.9A band recorded above, and the assertion is undecidable
+    # rather than passing. That is the conflict becoming visible; it is
+    # still not fixed, and `Top.i_peak_max` no longer exists.
     #
     # DESIGNATOR PINNED TO "R30" ON PURPOSE, AND IT IS WRONG ON PURPOSE.
     # An inductor's designator prefix is "L", and atopile assigns this part
