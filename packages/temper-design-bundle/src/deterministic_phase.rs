@@ -5,9 +5,7 @@
 //!
 //! | Python module | Rust function(s) |
 //! |---|---|
-//! | `deterministic/stages/_phase_rotation.py` | [`effective_ghost_pad_radius`] |
-//! | `deterministic/stages/_phase_zones.py` | [`compute_wirelength`] |
-//! | `deterministic/stages/_phase_validation.py` | [`find_critical_bottleneck_violations`] |
+//! | `deterministic/stages/_phase_core.py` | [`effective_ghost_pad_radius`] (formerly `_phase_rotation.py`), [`compute_wirelength`] (formerly `_phase_zones.py`), [`find_critical_bottleneck_violations`] (formerly `_phase_validation.py`); the four `_phase_*` mixin modules were collapsed into `_phase_core.py` 2026-08-20 |
 //! | `deterministic/stages/zone_aware_slot_generation.py` | [`point_in_polygon`], [`slot_intersects_iso`], [`min_distance_to_polygon`] (over temper-geometry's canonical point-to-segment kernel, issue #987) |
 //!
 //! The pre-migration implementations are pinned VERBATIM as the differential
@@ -65,7 +63,8 @@ fn guard<R>(body: impl FnOnce() -> PyResult<R>) -> PyResult<R> {
 }
 
 // ---------------------------------------------------------------------------
-// _phase_rotation.py — effective_ghost_pad_radius (U2 isolation-slot kernel)
+// _phase_core.py (merged from _phase_rotation.py 2026-08-20) —
+// effective_ghost_pad_radius (U2 isolation-slot kernel)
 // ---------------------------------------------------------------------------
 
 /// `_PhaseHVMixin._effective_ghost_pad_radius` — the U2 isolation-slot
@@ -135,7 +134,8 @@ pub fn effective_ghost_pad_radius_py(
 }
 
 // ---------------------------------------------------------------------------
-// _phase_zones.py — compute_wirelength (HPWL)
+// _phase_core.py (merged from _phase_zones.py 2026-08-20) —
+// compute_wirelength (HPWL)
 // ---------------------------------------------------------------------------
 
 /// CPython `min(iterable)` as a fold: the FIRST minimal element wins on ties,
@@ -259,7 +259,8 @@ pub fn compute_wirelength_py<'py>(
 }
 
 // ---------------------------------------------------------------------------
-// _phase_validation.py — find_critical_bottleneck_violations
+// _phase_core.py (merged from _phase_validation.py 2026-08-20) —
+// find_critical_bottleneck_violations
 // ---------------------------------------------------------------------------
 
 /// CPython `int(math.floor((x_mm * 1000.0) / cell_um))`, with `math.floor`'s
