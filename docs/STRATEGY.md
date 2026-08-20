@@ -90,14 +90,31 @@ only, on uncalibrated models (`calibrated: false` throughout
   > **What is actually open is a different question.** OCP-02 was
   > subsequently **DE-SCOPED 2026-08-16 (DNF)** — not for want of a circuit,
   > but for want of a fielded sensing path: see the protection-gate table
-  > below, which is the current status of record. And that de-scope's
-  > *stated* technical premise ("its CST3015 cannot reach the 12.6 mm PD3
-  > reinforced bar") is itself now disputed — T2's governing pairing is
-  > `DC_BUS↔SELV` = 8.0 mm, which its settled 9.100 mm span clears. The
-  > de-scope does **not** auto-reinstate: its timing ground (up to 10.64 µs
-  > latency vs OCP-01's <1 µs), its core-reset/flux-walking ground, and its
-  > "not clause-mandated" ground are all untouched by that. **Nobody has
-  > re-decided it, and it needs an owner.**
+  > below, which is the current status of record.
+  >
+  > **That de-scope's stated premise is contingent, not yet void — read this
+  > carefully before acting on it.** The premise is *"its CST3015 cannot
+  > reach the 12.6 mm PD3 reinforced bar."* Two of its three inputs have
+  > moved, and one has not:
+  >
+  > - T2's span is **settled at 9.100 mm** (the earlier 7.800 mm was a shear
+  >   artifact of a non-rigid transform, not a distance).
+  > - Under a **per-pairing** creepage derivation T2's governing pairing is
+  >   `DC_BUS↔SELV` = **8.0 mm**, which 9.100 mm clears by 1.1 mm.
+  > - **But that derivation is not adopted.** On `main` today the governing
+  >   figure is still the single flat `MIN_BARRIER_WIDTH_MM = 12.6`
+  >   (`packages/temper-placer/src/temper_placer/core/isolation_constants.py:47`),
+  >   and the per-pairing gate `scripts/check_insulation_pairings.py` does
+  >   not exist here at all — it is unmerged. **Against 12.6 mm, 9.100 mm
+  >   does not clear, and the premise as written still holds.**
+  >
+  > So this is **blocked on the per-pairing decision**, not ready to
+  > re-decide. And even if that decision lands, the de-scope does **not**
+  > auto-reinstate: its timing ground (up to 10.64 µs latency vs OCP-01's
+  > <1 µs), its core-reset/flux-walking ground (no simulation of the gated
+  > waveform exists), and its "not clause-mandated" ground are all untouched
+  > by any creepage figure. **Do not treat a per-pairing merge as
+  > reinstating OCP-02.**
 - The router's internal creepage plumbing is still incomplete: `creepage_mm`
   is a voltage-table lookup in the standalone `clearance_engine.py`, but the
   CP-SAT constraint model the router actually solves against

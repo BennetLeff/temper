@@ -385,7 +385,10 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
         "because that is a workflow-side change out of scope for the pull "
         "that fixed the content bug."
     ),
-    "router_v6/test_astar_nlayer.py": _PASSING_LOCALLY_2026_08_09,
+    # `router_v6/test_astar_nlayer.py` was pruned 2026-08-20: it is named
+    # directly by the "router_v6 group 3" job, so tracking it here as
+    # uncovered was stale and `test_no_stale_tracked_entries` failed on it.
+    # Removing an exemption, not adding one.
     "router_v6/test_bundled_capacity_constraints.py": _PASSING_LOCALLY_2026_08_09,
     "router_v6/test_bundled_full_pipeline.py": _PASSING_LOCALLY_2026_08_09,
     "router_v6/test_channel_mapping_terminal_validation.py": (
@@ -530,18 +533,13 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "the same run -- maintenance debt in the corpus, not a Rust-port "
         "regression. temper-NNN. Do not wire in un-deselected -- see doc §4.2."
     ),
-    "manufacturing/test_tolerances_pbt.py": (
-        "FAILING (2026-08-07 full-tree triage): "
-        "test_p3_clearance_monotonic_in_nominal -- Hypothesis-found float64 "
-        "boundary case: c1=1.0000000000000002e-06 and c2=1e-06 differ by one "
-        "ULP, but worst_case_min = nominal_value - tolerance_minus with "
-        "tolerance_minus~0.15 (5 orders of magnitude larger than the ULP gap), "
-        "so the subtraction rounds both to the identical float and the "
-        "property's strict '>' assertion cannot hold -- inherent to float64 "
-        "arithmetic at this scale disparity, not a bug in analyze_clearance "
-        "itself. Reproducible, not seed-flaky. temper-NNN. Do not wire in "
-        "un-deselected -- see doc §4.3."
-    ),
+    # `manufacturing/test_tolerances_pbt.py` was pruned 2026-08-20, together
+    # with `test_tolerances.py` and `test_tolerances_rust_differential.py` in
+    # the baseline snapshot: all three were deleted from disk by `eb2261e31`
+    # ("delete 66 orphaned Rust pyo3 kernels + 7 paired oracles", #1411), which
+    # removed the manufacturing tolerances kernel they covered but left their
+    # exemptions behind. `test_no_stale_tracked_entries` failed on them.
+    # Removing exemptions for files that no longer exist, not adding any.
     "constraints/test_reporter_properties.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "explainability/test_decision_extra.py": (
         "PASSING (2026-08-09 triage): supplemental 'extra' suite for the "
