@@ -640,6 +640,44 @@ mod py_bridge {
         })
     }
 
+    /// `_write_board.add_isolation_slots_to_pcb`'s per-slot construction: the
+    /// parsed s-expression tree that kiutils' `GrLine.from_sexpr` consumes
+    /// (`(gr_line (start x y) (end x y) (layer L) (width W))`). See
+    /// [`segment_sexpr_py`] for the float rationale.
+    #[pyfunction]
+    pub fn gr_line_sexpr_py(
+        py: Python<'_>,
+        start_x: f64,
+        start_y: f64,
+        end_x: f64,
+        end_y: f64,
+        layer: &str,
+        width: f64,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut gr_line: Vec<Bound<'_, PyAny>> = vec!["gr_line".into_pyobject(py)?.into_any()];
+            gr_line.push(node(
+                py,
+                "start",
+                vec![
+                    start_x.into_pyobject(py)?.into_any(),
+                    start_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_line.push(node(
+                py,
+                "end",
+                vec![
+                    end_x.into_pyobject(py)?.into_any(),
+                    end_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_line.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            gr_line.push(node(py, "width", vec![width.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, gr_line)?.unbind())
+        })
+    }
+
     /// `float(index) * 90.0` — rotation index to degrees.
     #[pyfunction]
     pub fn rotation_index_to_degrees_py(index: i64) -> PyResult<f64> {
@@ -673,6 +711,7 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(gr_text_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(segment_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(via_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(gr_line_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(rotation_index_to_degrees_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(placement_coordinate_py, &sub)?)?;
         module.add_submodule(&sub)
