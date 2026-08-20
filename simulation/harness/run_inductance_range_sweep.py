@@ -88,9 +88,13 @@ PAN_PRESETS_BY_NAME = {n: (k, r, l2, s) for n, k, r, l2, s in base.PAN_PRESETS}
 # against the declared 150nF; see docs/evidence/2026-07-28-tank-cap-and-
 # isolator-footprints.md. The 1600V figure below is unchanged, and is now
 # the part's actual rating rather than contradicting it -- both lines declare
-# `voltage_rating = 1600V`; modules.ato also declares a design intent
-# `v_tank_peak = 400V` with `assert c_tank1.voltage_rating >= v_tank_peak
-# * 1.43` i.e. a committed 572V design floor against a 1600V-rated part).
+# `voltage_rating = 1600V`. UPDATED 2026-08-20: modules.ato still declares
+# `v_tank_peak = 400V` as a reference figure, but the assertion named here
+# -- `assert c_tank1.voltage_rating >= v_tank_peak * 1.43`, a committed
+# 572V floor -- no longer exists. ResonantTank now derives the floor from
+# its own L and C bank instead (866V), and main.ato checks all three caps
+# against the operating-point stress; the 572V figure was 1.5x below the
+# derived one and could not be moved by any component change.)
 # Quoted here only for the margin comparison printed in the evidence JSON.
 C_TANK_RATED_V = 1600.0  # elec/src/modules.ato:483/490 c_tank1/c_tank2.voltage_rating
 

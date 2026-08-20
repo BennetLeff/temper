@@ -29,7 +29,6 @@ NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::c_tank_total within 150nF to 600nF 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::eta_min >= 0.85 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_line within 59Hz to 61Hz 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_pll_tracking_min < f_pll_tracking_max 1
-NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_resonant_nominal within 20kHz to 35kHz 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_switching <= f_pll_tracking_max 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_switching >= f_pll_tracking_min 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::f_switching within 20kHz to 100kHz 1
@@ -46,7 +45,6 @@ NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::power_in.d1.voltage_rating >= v_bus_
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::power_in.d2.voltage_rating >= v_bus_max * 1.5 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_ambient_max within 313.15K to 333.15K 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_dt_sw > t_igbt_off + 50ns 1
-NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_mcu_boot < t_soft_start_delay 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_thermal_trip < thermal_constraints.igbt_derate_temp 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::t_wdt_timeout > t_fault_response_max * 10 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::tank.c_tank1.voltage_rating >= 1000V 1
@@ -56,8 +54,6 @@ NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_max <= 400V 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_max <= constraints.v_max 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_nominal within 280V to 380V 1
 NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_bus_ripple_max < v_bus_nominal * 0.1 1
-NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_ovp_trip < v_cap_max 1
-NO_CIRCUIT_COUPLING|elec/src/main.ato::Top::v_ovp_trip > v_bus_max 1
 NO_CIRCUIT_COUPLING|elec/src/modules.ato::AuxSupply::c_in_bulk.voltage_rating >= 170V * 1.25 1
 NO_CIRCUIT_COUPLING|elec/src/modules.ato::AuxSupply::power_out.voltage within 15V +/- 10% 1
 NO_CIRCUIT_COUPLING|elec/src/modules.ato::BusDischarge::c_snub1.voltage_rating >= v_bus_half * 2 1
@@ -81,9 +77,6 @@ NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_high.voltage_rating >= co
 NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_low.current_rating >= constraints.i_max 1
 NO_CIRCUIT_COUPLING|elec/src/modules.ato::PowerLoop::q_low.voltage_rating >= constraints.v_max 1
 NO_CIRCUIT_COUPLING|elec/src/modules.ato::RTDSensing::power.voltage within 3.3V +/- 10% 1
-NO_CIRCUIT_COUPLING|elec/src/modules.ato::ResonantTank::c_tank1.voltage_rating >= v_tank_peak * 1.43 1
-NO_CIRCUIT_COUPLING|elec/src/modules.ato::ResonantTank::c_tank2.voltage_rating >= v_tank_peak * 1.43 1
-NO_CIRCUIT_COUPLING|elec/src/modules.ato::ResonantTank::c_tank3.voltage_rating >= v_tank_peak * 1.43 1
 TAUTOLOGY|elec/src/main.ato::Top::p_output_max within 1500W to 1800W 1
 VIOLATED|elec/src/main.ato::Top::p_output_max within 1500W to 1800W 1
 VIOLATED|elec/src/modules.ato::GateDriveHS::driver.i_source_peak >= i_gate_peak_demand 1

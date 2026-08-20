@@ -84,6 +84,29 @@ module PowerLoop:
     q_low.current_rating = 40A
     
     # Verify ratings against constraints (temper-ofq.6)
+    #
+    # THESE FOUR CANNOT FAIL, AND THAT IS RECORDED RATHER THAN PAPERED
+    # OVER (2026-08-20, .ato-assertion-vacuity paydown review). They are
+    # the ground-truth shape the vacuity gate was built to find: two
+    # datasheet ratings against two hand-typed numbers in constraints.ato
+    # (HighVoltageConstraints v_max = 400V, i_max = 25A), with no
+    # component value anywhere in the closure.
+    #
+    # WHY THEY ARE NOT DERIVED HERE. There is nothing in PowerLoop to
+    # derive from: this module contains exactly two IGBTs and no passives.
+    # Both stresses come from the tank, which lives in a different module
+    # and whose operating frequency lives in main.ato.
+    #
+    # WHY THEY ARE NOT DELETED EITHER. main.ato now carries STRICTLY
+    # STRONGER derived versions of all four -- `voltage_rating >=
+    # v_bus_max * 1.5` (510V, above this 400V) and the squared
+    # `current_rating^2 >= i_tank_peak_sq * 1.5^2` (44.9A required at the
+    # derived tank peak, well above this 25A, and currently INDETERMINATE
+    # rather than passing). So these four are dominated, not load-bearing,
+    # but removing a passing safety assertion to make a ledger shrink is
+    # not a trade this repo makes. They stay, ledgered, as the honest
+    # record that the module-local check is decorative and the real one is
+    # in main.ato.
     assert q_high.voltage_rating >= constraints.v_max
     assert q_high.current_rating >= constraints.i_max
     assert q_low.voltage_rating >= constraints.v_max
@@ -169,6 +192,27 @@ module GateDriveHS:
     rgs.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     # Power assertion: gate resistor must handle average dissipation (temper-ip1.3)
+    #
+    # LEFT DECLARATIVE, AND THE REASON IS PHYSICS (2026-08-20,
+    # .ato-assertion-vacuity paydown review). Total gate-loop dissipation
+    # is Q_G * V_drive * f_sw and is INDEPENDENT of the loop resistance --
+    # the energy is set by the charge moved, not by what it moves through.
+    # What rg_on takes is a SHARE of that, rg_on/(R_driver + rg_on +
+    # R_g,int), and neither the UCC21550's output resistance nor the
+    # IKW40N120H3's internal gate resistance is declared on either
+    # component. Writing the split needs a number that would have to be
+    # invented, and an assertion built on an invented datasheet value is
+    # worse than one that cannot fail.
+    #
+    # WHAT THE NUMBER ACTUALLY IS, for the reader: the repo's own
+    # components/IKW40N120H3/IKW40N120H3_Documentation.md gives Q_G =
+    # 185nC, so the whole loop dissipates 185nC * 15V * 47kHz = 0.130W,
+    # and in the current-limited regime this module already establishes
+    # (i_gate_peak_demand 6.8A against the driver's 4A) rg_on's share is
+    # i_source_peak * Q_G * rg_on * f_sw = 0.077W. Against the part's
+    # 0.5W rating with the 1.5x here, either figure passes with room. So
+    # the 0.25W placeholder is not hiding a defect -- it is simply not
+    # measuring anything, and both real figures are below it.
     p_rg_avg: power = 0.25W
     assert rg_on.power_rating >= p_rg_avg * 1.5
     
@@ -251,6 +295,11 @@ module GateDriveLS:
     rgs.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     # Power assertion (temper-ip1.3)
+    # Same declarative-on-purpose case as GateDriveHS's copy above, with
+    # one extra reason: this module has no `driver` instance at all (it is
+    # fed from HalfBridge's shared UCC21550 channel B), so even the
+    # current-limited form written out in that comment is not expressible
+    # here.
     p_rg_avg: power = 0.25W
     assert rg_on.power_rating >= p_rg_avg * 1.5
     
@@ -481,6 +530,20 @@ module HalfBridge:
     power_15v_ls.vcc ~ gate_hs.driver.VDDB
     power_15v_ls.gnd ~ dc_bus.hv_minus  # Referenced to hv_minus, NOT logic gnd
     power_15v_ls.voltage = 15V
+    # LEFT DECLARATIVE (2026-08-20, .ato-assertion-vacuity paydown
+    # review): both sides are datasheet-fixed -- the IRM-10-15's potted
+    # 15V and the UCC21550's 25V VDDA-VSSA maximum -- with no component
+    # value between them.
+    #
+    # BUT THE QUANTITY IS WRONG, AND THAT IS REPORTED NOT FIXED. What
+    # v_cc_sec_max limits is VDDA-VSSA, and GateDriveHS's negative-bias
+    # zener holds VSSA 5.1V BELOW the emitter while VDDA sits a bootstrap
+    # diode drop below the 15V rail. The real secondary-side differential
+    # is therefore about 15 - 0.7 + 5.1 = 19.4V, not 15V: margin to the
+    # 25V limit is 5.6V, not the 10V this line implies. Writing that
+    # correctly needs the ES1J's forward voltage, which is not declared on
+    # the component and must not be invented, so it is left for the
+    # gate-drive owner.
     assert power_15v_ls.voltage <= gate_hs.driver.v_cc_sec_max
     # VSSB connected above to dc_bus.hv_minus
 
@@ -577,10 +640,27 @@ module ResonantTank:
     c_tank3.mpn = "942C16P1K-F"  # same part as c_tank1; the three are in parallel for 300nF total
     c_tank3.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
 
+    # v_tank_peak IS KEPT AS A DECLARATION AND IS NO LONGER WHAT THE
+    # CAPACITOR RATINGS ARE CHECKED AGAINST (2026-08-20, .ato-assertion-
+    # vacuity paydown). Three other committed artefacts cite this line by
+    # file and value -- packages/temper-placer/src/temper_placer/core/
+    # design_rules.py, its pinned _design_rules_py_oracle.py, and
+    # elec/domain_manifest.yaml -- so deleting it would strand them; it
+    # stays, as a declared reference figure, and the assertions move to a
+    # bound derived from the tank's own L and C. See "TANK CAPACITOR
+    # VOLTAGE STRESS" below, after inductor_conn is declared.
+    #
+    # WHY IT HAD TO MOVE. `c_tankN.voltage_rating >= v_tank_peak * 1.43`
+    # was three ratings compared against one hand-typed 400V: no value on
+    # this board could falsify it, and 400V is not what this tank
+    # produces. design_rules.py's own comment on the `tank.c_tank1-p2`
+    # net records the measured figure as 497.8 V pk at the 44 kHz PLL
+    # floor, "rising to 923.7 V pk / 570.5 Vrms at the worst
+    # OCP-01-passing corner" -- i.e. the declared 400V understates the
+    # measured stress by 1.24x at the nominal corner and 2.3x at the
+    # worst one, and the assertion that was supposed to catch that could
+    # not see either number.
     v_tank_peak: voltage = 400V
-    assert c_tank1.voltage_rating >= v_tank_peak * 1.43
-    assert c_tank2.voltage_rating >= v_tank_peak * 1.43
-    assert c_tank3.voltage_rating >= v_tank_peak * 1.43
 
     # THE RESONANT TANK COIL. Declared as an `Inductor` 2026-07-29
     # (docs/evidence/2026-07-29-tank-coil-specification.md); it was
@@ -678,6 +758,60 @@ module ResonantTank:
     inductor_conn.dcr = 0.1ohm
     inductor_conn.mpn = "CUSTOM_LITZ_COIL"
     inductor_conn.footprint = "LitzPad_15A"
+
+    # ===================================================================
+    # TANK CAPACITOR VOLTAGE STRESS, DERIVED FROM THIS TANK'S OWN L AND C
+    # (2026-08-20, .ato-assertion-vacuity paydown -- replaces the three
+    # `>= v_tank_peak * 1.43` checks against the declared 400V above)
+    # ===================================================================
+    #
+    # In a series LC tank the capacitor voltage is I_peak * X_C, and at
+    # the tank's own resonance X_C = X_L = sqrt(L/C). That identity is
+    # what makes this expressible HERE, with no frequency term: the
+    # operating frequency lives in main.ato and deliberately is not
+    # mirrored into this file (see the tank block there), but sqrt(L/C)
+    # needs neither it nor the pan model.
+    #
+    # AND IT IS AN UPPER BOUND ON X_C, not an approximation of it. X_C
+    # falls monotonically with frequency, so for any operating point at
+    # or above the unloaded resonance -- 30.98 kHz here, against the
+    # 47 kHz this design runs at -- sqrt(L/C) = 17.13 ohm exceeds the
+    # true X_C of 11.29 ohm. Using it makes the derived stress
+    # conservative in the direction that matters.
+    #
+    # WHY THE SQUARES: the .ato assertion grammar has no sqrt, so this is
+    # written as V^2 and every consumer is squared on both sides, exactly
+    # as main.ato's i_tank_peak_sq block does and for the same reason.
+    # Squaring is monotone on non-negative quantities.
+    #
+    #   V_C_peak^2 = I_peak^2 * L / C_bank
+    #
+    # THE CURRENT BASIS, STATED PLAINLY. I_peak comes from THIS module's
+    # own declared coil ceiling, inductor_conn.current_rating = 25 A rms
+    # (an RMS thermal requirement this design imposes -- see that
+    # declaration's comment), converted to a sinusoidal peak by the
+    # factor 2 on the square. That gives 35.36 A peak and
+    # V_C_peak = 605.5 V nominal, 1.51x the 400V this block used to
+    # declare, and the derived bound 605.5 * 1.43 = 866 V is likewise
+    # 1.51x the 572 V floor it replaces. Deriving RAISES the bound here;
+    # it does not lower it.
+    #
+    # WHAT THIS STILL DOES NOT COVER, RECORDED NOT FIXED. 25 A rms is the
+    # coil's declared ceiling, not the worst current this tank can be
+    # driven to. main.ato's derived tank peak spans 24.5-37.8 A over the
+    # coil's +/-10%, so its high corner is above the 35.36 A used here,
+    # and design_rules.py records 923.7 V pk at the worst
+    # OCP-01-passing corner -- above this envelope. Against the 1600 V
+    # CDE 942C16P1K-F parts even that corner clears 1.43x derating
+    # (1320.9 V), so nothing here is violated; the gap is that this
+    # module cannot see either corner, and the assertion says so rather
+    # than implying it is the worst case.
+    c_tank_bank: capacitance = c_tank1.value + c_tank2.value + c_tank3.value
+    i_tank_peak_rated_sq = inductor_conn.current_rating * inductor_conn.current_rating * 2
+    v_tank_cap_peak_sq = i_tank_peak_rated_sq * inductor_conn.value / c_tank_bank
+    assert c_tank1.voltage_rating * c_tank1.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
+    assert c_tank2.voltage_rating * c_tank2.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
+    assert c_tank3.voltage_rating * c_tank3.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
 
     in ~ c_tank1.p1
     in ~ c_tank2.p1
@@ -991,6 +1125,28 @@ module PowerInput:
     p_bleed_actual: power = v_bus_half * v_bus_half / r_bleed1.value  # 170V x 170V / 22kΩ ≈ 1.31W
     
     # Voltage derating check (temper-ofq.2)
+    #
+    # LEFT DECLARATIVE ON PURPOSE (2026-08-20, .ato-assertion-vacuity
+    # paydown review). These four -- two bleeders and two bus caps -- sit
+    # on DIODE-CLAMPED nodes, and that is a topological fact no component
+    # value on this board can change. In the doubler below, d1 charges
+    # c_bus1 (hv_plus to gnd_ref) on positive half-cycles and d2 charges
+    # c_bus2 (gnd_ref to hv_minus) on negative ones; each half is pinned
+    # to the LINE PEAK by its own diode. r_bleed1 and r_bleed2 are single
+    # resistors each across their own clamped half -- they are NOT a
+    # divider, unlike BusDischarge's r_dis strings, which is why that
+    # module's four voltage assertions could be derived from a resistor
+    # ratio and these cannot.
+    #
+    # WHAT THIS DOES HIDE, REPORTED NOT FIXED: v_bus_half = 170V is the
+    # NOMINAL-line figure (120V x sqrt(2) = 169.7V). The stress these four
+    # must survive is at HIGH line -- ACMainsConstraints.v_max = 135V
+    # gives 190.9V, so the required rating is 190.9 x 1.25 = 238.6V, not
+    # the 212.5V written here, against the parts' 250V. Real margin 4.8%,
+    # apparent margin 17.6%. Changing v_bus_half is an electrical decision
+    # that also moves p_bleed_actual and BusDischarge's copy of the same
+    # constant, so it is reported to the power-stage owner rather than
+    # made here.
     assert r_bleed1.voltage_rating >= v_bus_half * 1.25
     assert r_bleed2.voltage_rating >= v_bus_half * 1.25
     
@@ -1486,7 +1642,17 @@ module BusDischarge:
     assert r_dis2a.power_rating >= p_dis_resistor * 2
     assert r_dis2b.power_rating >= p_dis_resistor * 2
 
-    # Snubber caps must hold the full half-bus with 2x margin
+    # Snubber caps must hold the full half-bus with 2x margin.
+    #
+    # LEFT DECLARATIVE ON PURPOSE (2026-08-20, .ato-assertion-vacuity
+    # paydown review), and for a different reason than the four voltage
+    # assertions below it, which ARE derived. Each snubber is a series
+    # R-C across an open NC-COM contact gap. In DC steady state the
+    # capacitor blocks and holds the ENTIRE half-bus while its resistor
+    # holds essentially nothing; on contact closure the resistor sees the
+    # cap's charge voltage. Neither share is a function of r_snub.value or
+    # c_snub.value -- there is no divider here, only a blocking element
+    # and a discharge path -- so a derived form would be a restatement.
     assert c_snub1.voltage_rating >= v_bus_half * 2
     assert c_snub2.voltage_rating >= v_bus_half * 2
     assert r_snub1.voltage_rating >= v_bus_half * 2
@@ -1783,7 +1949,16 @@ module AuxSupply:
     
     enable.line ~ power_in.vcc  # Always on when input present
     
-    # Verify output voltage
+    # Verify output voltage.
+    #
+    # LEFT DECLARATIVE ON PURPOSE (2026-08-20, .ato-assertion-vacuity
+    # paydown review). The conversion is done by `psu`, a Mean Well
+    # IRM-10-15 ENCAPSULATED module: its 15V output is fixed inside the
+    # potting, with no feedback divider on this board to read. Contrast
+    # BuckConverter3V3, whose output IS derived (v_out_calculated from
+    # r_fb_top/r_fb_bot) precisely because its divider is on this board.
+    # The same applies to c_in_bulk below: it sits on the diode-clamped
+    # half-bus, so 170V is a topological figure, not a derivable one.
     assert power_out.voltage within 15V +/- 10%
     
     # Power budget assertion: must supply gate driver + relay + MCU + safety logic
@@ -3666,6 +3841,17 @@ module MCU:
     runaway_cut = new ElectricLogic
     
     # Assertions
+    #
+    # LEFT DECLARATIVE ON PURPOSE (2026-08-20, .ato-assertion-vacuity
+    # paydown review). This is the CONSUMER side of a two-sided contract:
+    # a declaration of what this module requires of its rail. The
+    # DELIVERED side is derived and asserted where the divider lives --
+    # BuckConverter3V3's `v_out_calculated` from r_fb_top/r_fb_bot,
+    # checked against the same 3.135-3.465V window. atopile's `~`
+    # connects nets, not attribute values, so a sibling module cannot read
+    # that derivation; restating it here would be a mirror, which is the
+    # defect class this paydown removes rather than adds. RTDSensing's
+    # `power.voltage within 3.3V +/- 10%` is the same case.
     assert power.voltage within 3.3V +/- 5%
     
     # Boot timing assertions

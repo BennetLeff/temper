@@ -297,6 +297,27 @@ module Top:
     # to 50.05kHz, i.e. marginally ABOVE the ceiling, so a low-tolerance
     # coil trades full power, not ZVS. That is the correct direction to
     # fail, and widening the ceiling to recover it is a separate decision.
+    #
+    # THESE ARE LEFT DECLARATIVE ON PURPOSE, AND THE REASON IS MECHANICAL,
+    # NOT ELECTRICAL (2026-08-20, .ato-assertion-vacuity paydown review).
+    # `f_switching`, `f_pll_tracking_min` and `f_pll_tracking_max` -- and
+    # `l_tank_assumed`, `c_tank_total`, `l_pan_loaded_ratio`,
+    # `l_tank_tolerance`, `c_tank_tolerance` further down -- are the eight
+    # names scripts/check_pll_range_consistency.py REGEX-PARSES out of this
+    # file, matched as `<name>: <type> = <number><unit>` and failing closed
+    # if any is missing or unparseable (ATO_DECLARATION_NAMES and
+    # ATO_PHYSICS_NAMES there). Rewriting any of them as a derived
+    # expression makes that gate error out -- and that gate is what
+    # cross-checks these three against the firmware's own PLL_MIN_FREQ_HZ /
+    # PLL_MAX_FREQ_HZ / PLL_DEFAULT_FREQ_HZ, and the other five against
+    # modules.ato's coil and capacitor bank and against the coil acceptance
+    # threshold in docs/hardware/TANK_COIL_SPECIFICATION.md. Eight checks,
+    # none of which the .ato assertion grammar can express.
+    #
+    # So these eight ARE tied to the circuit; the coupling lives in Python
+    # rather than in an `assert` the vacuity gate can see. Trading eight
+    # working cross-file checks for eight in-language ones would be a net
+    # loss of coverage. Recorded so the next reader does not "fix" it.
     f_pll_tracking_min: frequency = 44kHz
     f_pll_tracking_max: frequency = 50kHz
     assert f_pll_tracking_min < f_pll_tracking_max
@@ -339,8 +360,28 @@ module Top:
     # c_tank_total change without it. Recorded as a known gap rather than
     # closed here (evidence doc Sec 7); the honest fix is a seventh check,
     # not a comment.
+    #
+    # THE ASSERTION ON THIS LINE HAS MOVED AND IS NOW DERIVED (2026-08-20,
+    # .ato-assertion-vacuity paydown), which closes the "known gap"
+    # recorded three paragraphs up. `assert f_resonant_nominal within
+    # 20kHz to 35kHz` compared one hand-typed 31kHz against two hand-typed
+    # band edges: no coil and no capacitor on this board could falsify it,
+    # which is exactly the drift this comment predicted ("This mirror can
+    # therefore drift if l_tank_assumed or c_tank_total change without
+    # it"). The honest fix the comment asked for was "a seventh check";
+    # what it gets instead is the band asserted on the resonance COMPUTED
+    # from tank.inductor_conn.value and the c_tank1/2/3 bank, plus a
+    # consistency assertion pinning this declared mirror to that
+    # computation. Both live in the tank-derivation block further down --
+    # search "UNLOADED RESONANCE, DERIVED FROM THE TANK" -- because they
+    # need the `tank` instance, which is declared after this line.
+    #
+    # The declaration itself STAYS: simulation/harness/run_zvs_sweep.py
+    # mirrors it as F_RESONANT_DECLARED_HZ and cites this line, and
+    # firmware/components/control/pll_control.c names it in prose.
+    # Deleting it would strand both; asserting it against the derived
+    # value is what stops it drifting from them.
     f_resonant_nominal: frequency = 31kHz
-    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range, UNLOADED
 
     # THE COIL'S UNLOADED INDUCTANCE. 150uH -> 88uH, 2026-07-29
     # (docs/evidence/2026-07-29-tank-coil-specification.md). The variable
@@ -688,6 +729,72 @@ module Top:
     z_tank_sq = r_tank_eq * r_tank_eq + x_tank_net * x_tank_net
     i_tank_peak_sq = v_hb_fund_peak * v_hb_fund_peak / z_tank_sq
 
+    # --- UNLOADED RESONANCE, DERIVED FROM THE TANK ---
+    # The check that moved here from `f_resonant_nominal` at the top of
+    # this file, where it read `assert f_resonant_nominal within 20kHz to
+    # 35kHz` -- 31kHz against two literals, with the coil and the
+    # capacitor bank appearing nowhere in it.
+    #
+    #   f_res^2 = 1 / ((2*pi)^2 * L * C)
+    #
+    # squared for the same reason i_tank_peak_sq is (no sqrt in the
+    # grammar), and the band edges squared with it. This is the UNLOADED
+    # resonance -- L with no pan on the coil -- which is what the 20-35kHz
+    # band has always meant; the LOADED resonance is a different quantity
+    # and scripts/check_pll_range_consistency.py owns it.
+    #
+    # 30 975 Hz nominal, 29.5-32.7 kHz over the coil's declared +/-10%,
+    # inside the band at both ends. Note what sets that interval: the
+    # three tank capacitors are declared with NO tolerance at all
+    # (`c_tank1.value = 100nF`), so the whole spread here is the coil's.
+    # ResonantTank's own comment states the CDE 942C parts are K = +/-10%
+    # and calls that a "TOLERANCE REGRESSION, DELIBERATELY NOT PAPERED
+    # OVER" -- but the +/-10% is not in the declaration, so nothing in
+    # this file can see it. REPORTED, NOT CHANGED HERE: adding it widens
+    # this interval to 28.2-34.4 kHz and widens every other tank-derived
+    # interval in this block with it.
+    f_res_band_lo: frequency = 20kHz
+    f_res_band_hi: frequency = 35kHz
+    f_res_unloaded_sq = 1 / (two_pi * two_pi * tank.inductor_conn.value * c_tank_bank)
+    # Written as two comparisons rather than one `within`: atopile's
+    # `within <lo> to <hi>` takes NUMERIC LITERALS for its bounds, not
+    # expressions, so a derived band has to be spelled out. (Confirmed by
+    # `ato build`, not assumed -- the first draft of this line used
+    # `within` and failed to parse.)
+    assert f_res_unloaded_sq >= f_res_band_lo * f_res_band_lo
+    assert f_res_unloaded_sq <= f_res_band_hi * f_res_band_hi
+
+    # And the declared mirror must agree with what the parts actually do.
+    # This is the "seventh check" the f_resonant_nominal comment at the top
+    # of this file asked for, written in-language instead of in Python.
+    #
+    # IT IS DELIBERATELY NOT WRITTEN AGAINST f_res_unloaded_sq ABOVE, and
+    # the reason is worth recording because the first draft got it wrong.
+    # f_res_unloaded_sq carries the coil's +/-10%, so comparing a single
+    # declared point against it -- even with a generous +/-10% window --
+    # is undecidable by construction: `961e6 <= [959.5e6, 1171e6]` holds
+    # at most of the interval and not all of it, and atopile (correctly)
+    # calls that FAILED. Widening the window until it passed would have
+    # been tuning a bound to keep a check green, which is exactly the move
+    # this paydown exists to undo.
+    #
+    # So the mirror is checked against a TOLERANCE-FREE derivation:
+    # l_tank_assumed (an exact declared 88uH) with c_tank_bank (the three
+    # capacitors' declared values, exact, and CIRCUIT-coupled -- re-source
+    # any of them and this moves). That gives an exact 959.46e6 Hz^2
+    # against the declared 31kHz's 961e6, a 0.16% gap that is purely the
+    # rounding of 30975Hz to 31kHz. The +/-2% window is 12x that rounding
+    # and still has teeth for the drift it exists to catch: the historical
+    # 25kHz declaration against this same tank is 625e6 Hz^2, off by -35%.
+    #
+    # The coil side of the mirror is not re-checked here because
+    # scripts/check_pll_range_consistency.py check 7 already pins
+    # l_tank_assumed to modules.ato's inductor_conn.value, and check 6
+    # pins c_tank_total to this same capacitor bank.
+    f_res_mirror_sq = 1 / (two_pi * two_pi * l_tank_assumed * c_tank_bank)
+    assert f_resonant_nominal * f_resonant_nominal >= f_res_mirror_sq * 0.98
+    assert f_resonant_nominal * f_resonant_nominal <= f_res_mirror_sq * 1.02
+
     # THE CHECK THAT MOVED HERE FROM THE TOP OF THIS FILE, where it read
     # `assert i_peak_max <= constraints.i_max` -- 25A <= 25A, a tie between
     # two hand-typed 25s. EXPECTED NOT TO PASS CLEANLY: the nominal derived
@@ -706,6 +813,23 @@ module Top:
     # ===========================================================================
 
     # IGBT Voltage Margin (>= 1.5x operating voltage)
+    #
+    # THE VOLTAGE-RATING FAMILY IN THIS SECTION IS LEFT DECLARATIVE ON
+    # PURPOSE (2026-08-20, .ato-assertion-vacuity paydown review): these
+    # two, the bootstrap diode below, the two bus-cap checks and the two
+    # rectifier-diode checks all measure a node whose voltage is set by
+    # TOPOLOGY, not by any value on this board. The switch node is clamped
+    # between the rails by the IGBTs' antiparallel diodes; the two doubler
+    # halves are each clamped to the line peak by d1 and d2; the bootstrap
+    # diode's reverse stress is the full bus by construction. Change any
+    # capacitor, resistor or inductor in this design and not one of those
+    # numbers moves. The one voltage stress here that IS value-dependent
+    # -- the tank capacitor's -- is derived, twice, and asserted below.
+    #
+    # The remaining exposure is turn-off overshoot from power-loop stray
+    # inductance, which is a LAYOUT quantity (docs/evidence has the
+    # measured loop areas) and is not expressible from component values
+    # either. Recorded, not derived.
     assert hb.power_loop.q_high.voltage_rating >= v_bus_max * 1.5
     assert hb.power_loop.q_low.voltage_rating >= v_bus_max * 1.5
 
@@ -748,8 +872,19 @@ module Top:
     # 1600V CDE 942C16P1K-F parts with ResonantTank's 1.43 derating this
     # passes with 3.3x margin -- and unlike the 1000V floor above it now
     # MOVES: shrink the bank and both the current and the reactance rise.
+    #
+    # c_tank2 AND c_tank3 ADDED 2026-08-20: this block checked only
+    # c_tank1, so two of the three parallel capacitors -- which see
+    # exactly the same node voltage -- had no operating-point stress
+    # check at all here. They are not redundant with ResonantTank's own
+    # three derived checks: those are an sqrt(L/C) envelope at the coil's
+    # declared 25 A rms ceiling, this is the stress at THIS file's
+    # operating frequency and derived tank current. The two bases differ
+    # and both should hold.
     v_tank_cap_peak_sq = i_tank_peak_sq * x_tank_c * x_tank_c
     assert tank.c_tank1.voltage_rating * tank.c_tank1.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
+    assert tank.c_tank2.voltage_rating * tank.c_tank2.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
+    assert tank.c_tank3.voltage_rating * tank.c_tank3.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
     
     # Bus capacitor voltage rating
     assert power_in.c_bus1.voltage_rating >= v_bus_max * 0.7
@@ -816,10 +951,56 @@ module Top:
     # RMS-equivalent trip must clear the continuous device rating.
     assert i_ocp_trip_rms < hb.power_loop.q_high.current_rating
     
-    # OVP must trip before bus capacitor ratings exceeded
-    # Bus caps rated 250V each, in series = 500V total
-    # OVP trips at 390V
-    v_ovp_trip: voltage = 390V
+    # OVP must trip before bus capacitor ratings exceeded, and above the
+    # normal operating bus so it does not nuisance-trip.
+    # Bus caps rated 250V each, in series = 500V total.
+    #
+    # DERIVED FROM THE OVP COMPARATOR'S OWN DIVIDER, NOT DECLARED
+    # (2026-08-20, .ato-assertion-vacuity paydown). These two lines used
+    # to read against `v_ovp_trip: voltage = 390V`, a hand-typed number
+    # with the comment "OVP trips at 390V" above it. Nothing on this
+    # board could move it: re-sourcing r_div_bot, dropping one of the
+    # three top resistors, or changing r_hyst would all move the real
+    # trip point and leave both assertions comparing an unchanged 390 to
+    # an unchanged 500 and 340. Same defect, same shape, and the same
+    # fix as the OCP chain immediately above.
+    #
+    # THE 390 WAS ALSO WRONG, WHICH IS THE POINT. OVPComparator's own
+    # comment block already carries the closed form and the arithmetic:
+    #     N       = 1 + Rtop/r_div_bot     = 1 + 1290k/16.9k = 77.331
+    #     V_trip  = Vref * (N + Rtop/r_hyst)
+    #             = 2.5 * (77.331 + 1290k/487k) = 199.95 V
+    # on the SENSED node, which is the upper half-bus. That is 399.9 V
+    # on the same series-cap basis `v_cap_max` and `v_bus_max` are
+    # written on -- 10 V above the 390 that was declared here, and the
+    # declaration was never checked against it.
+    #
+    # 2.5V stays a literal for the reason OVPComparator's own assertion
+    # gives: it is REF2025's fixed VREF output, an ElectricSignal net
+    # with no component field to read a magnitude from. The three top
+    # resistors are summed rather than written as 1290k for the same
+    # reason the ADC divider below them is: losing one of the three is a
+    # single-fault case this check must be able to see.
+    #
+    # THE x2 IS AN ASSUMPTION AND IT IS STATED, NOT HIDDEN. The
+    # comparator senses dc_bus_plus against gnd, i.e. the UPPER half-bus
+    # only (safety.dc_bus.line ~ dc_bus_plus in the connections below).
+    # Doubling to a full-bus figure is exact only while the midpoint is
+    # balanced, which the doubler's two clamping diodes and the matched
+    # 22k bleeders enforce in normal operation. RECORDED, NOT FIXED: a
+    # midpoint imbalance overvolts ONE bus capacitor while the total
+    # stays inside v_cap_max, and no OVP on this board can see that --
+    # there is no lower-half sense at all. That is a protection-coverage
+    # gap for the safety owner, not a bound to be adjusted here.
+    #
+    # Over the declared tolerances (+/-1% on the three top resistors,
+    # +/-0.1% on r_div_bot and r_hyst) the derived trip spans
+    # 395.6-404.3 V full-bus. Both assertions hold across that whole
+    # interval: 404.3 < 500, and 395.6 > 340.
+    v_ovp_ref: voltage = 2.5V
+    r_ovp_div_top: resistance = safety.ovp.r_div_top1.value + safety.ovp.r_div_top2.value + safety.ovp.r_div_top3.value
+    v_ovp_trip_half: voltage = v_ovp_ref * (1 + r_ovp_div_top / safety.ovp.r_div_bot.value + r_ovp_div_top / safety.ovp.r_hyst.value)
+    v_ovp_trip: voltage = v_ovp_trip_half * 2
     v_cap_max: voltage = 500V  # Series combination
     assert v_ovp_trip < v_cap_max
     assert v_ovp_trip > v_bus_max  # But after normal operation
@@ -827,6 +1008,18 @@ module Top:
     # Thermal protection must trip before component limits
     # IGBT max junction: 150°C, derate at 125°C
     # Thermal comparator set for 85°C ambient
+    #
+    # LEFT DECLARATIVE, AND THE REASON IS THE GRAMMAR (2026-08-20,
+    # .ato-assertion-vacuity paydown review). The trip temperature IS set
+    # by circuit values -- ThermalComparator's ntc / r_ntc_fixed divider
+    # against its comparator reference -- but recovering a TEMPERATURE
+    # from a resistance ratio requires the Beta or Steinhart-Hart
+    # relation, i.e. a logarithm. The .ato assertion grammar has +, -, *
+    # and / and nothing else; it has no sqrt (which is why the tank
+    # quantities in this file are all written squared) and a fortiori no
+    # ln. There is no squaring trick for this one: a monotone rewrite
+    # would have to move the log to the other side, and the other side is
+    # a temperature constant in kelvin.
     t_thermal_trip: temperature = 358.15K
     assert t_thermal_trip < thermal_constraints.igbt_derate_temp
     
@@ -841,9 +1034,20 @@ module Top:
     # System-level timing verification
     # ===========================================================================
     
-    # MCU boot time must complete before any safety-critical operation
-    # MCU boots in ~14ms (per EN RC delay), relay engages after ~500ms
-    t_mcu_boot: time = 14ms
+    # MCU boot time must complete before any safety-critical operation.
+    # Relay engages after ~500ms.
+    #
+    # READ FROM THE EN RC ITSELF, NOT MIRRORED (2026-08-20, .ato-
+    # assertion-vacuity paydown). This line used to be `14ms` with the
+    # comment "MCU boots in ~14ms (per EN RC delay)" -- a hand-copy of a
+    # number the MCU module already DERIVES from its own parts:
+    #     MCU.t_boot_rc    = r_en.value * c_en.value
+    #     MCU.t_boot_delay = t_boot_rc * 1.4
+    # Both are asserted there (9-11ms and 13-15ms) against the real
+    # resistor and capacitor, so the derivation exists and this file was
+    # simply not using it. Re-sourcing r_en or c_en moved the real boot
+    # delay and left this 14ms, and the interlock built on it, unchanged.
+    t_mcu_boot: time = mcu.t_boot_delay
     t_soft_start_delay: time = 500ms  # Time before relay bypass
     assert t_mcu_boot < t_soft_start_delay  # MCU ready before power stage
     
@@ -852,10 +1056,34 @@ module Top:
     # Software configured: 300ns (in MCPWM registers)
     # IGBT turn-off: 245ns
     # Total margin: 300 - 245 = 55ns (>50ns minimum margin)
-    t_dt_hw_nominal: time = 305.4ns
+    # t_dt_hw_nominal READS THE HALF-BRIDGE'S DERIVED DEAD TIME (2026-08-20,
+    # .ato-assertion-vacuity paydown) instead of hand-copying 305.4ns from
+    # the comment above. HalfBridge already solves it from dt_res.value via
+    # the UCC21550's own t_DT(ns) = 8.6*R_DT(kohm) + 13, so the number
+    # existed; this file was restating it.
+    t_dt_hw_nominal: time = hb.t_dead_time
     t_dt_sw: time = 300ns
     t_igbt_off: time = 245ns
     assert t_dt_sw > t_igbt_off + 50ns  # Software dead-time provides margin
+    # AND THE HARDWARE DEAD TIME IS THE ONE THAT HAS TO CLEAR IT. The
+    # UCC21550's RDT-programmed dead time is a floor the driver enforces on
+    # its own outputs; the 300ns MCPWM register value above is a request
+    # the driver will not honour below that floor. Nothing in this design
+    # asserted the hardware figure against the IGBT's turn-off time at all
+    # -- the only dead-time assertion was on the software constant, and the
+    # only assertion on the hardware constant was HalfBridge's 300-310ns
+    # band, which says nothing about whether the IGBT has finished turning
+    # off. This closes that gap, and it is circuit-coupled: dt_res.value is
+    # in the closure.
+    #
+    # IT IS TIGHT, AND THAT IS THE FINDING. HalfBridge's derived interval
+    # is [302.5, 308.3]ns over dt_res's +/-1% alone. Against
+    # 245 + 50 = 295ns the worst corner leaves 7.5ns -- 2.5% margin on a
+    # 1200V half-bridge shoot-through guard, before any of the IC-corner or
+    # temperature variation HalfBridge's own comment warns about
+    # ("Scope verification required -- corner model may fall below 300ns")
+    # is applied. Not narrowed, not widened; made visible.
+    assert t_dt_hw_nominal > t_igbt_off + 50ns
     
     # ===========================================================================
     # POWER CONNECTIONS

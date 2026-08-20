@@ -404,9 +404,16 @@ X_PAN tank_mid2 0 PANLOAD_TRANSFORMER L1={PAN_L1} L2={PAN_L2} K={PAN_K} RPAN={PA
 
 * Tank capacitor voltage swing, last cycle -- added 2026-07-27
 * (docs/evidence/2026-07-27-zvs-operating-point.md) to check the knock-on
-* question of whether c_tank1/c_tank2's 1600V rating (modules.ato,
-* asserted >= v_tank_peak*1.43 = 572V against a DECLARED 400V design
-* figure, not a simulated one) still holds once f_switching is raised.
+* question of whether c_tank1/c_tank2's 1600V rating (modules.ato) still
+* holds once f_switching is raised. UPDATED 2026-08-20: the assertion
+* this used to name, `>= v_tank_peak*1.43 = 572V against a DECLARED 400V
+* design figure`, no longer exists. ResonantTank now derives the stress
+* from its own L and C -- I_peak^2 * L / C_bank at the coil's declared
+* 25A rms ceiling, 605.5V nominal, a 866V floor after the same 1.43
+* derating -- and main.ato separately checks all three caps against the
+* operating-point stress. Both are simulated-adjacent rather than
+* declared, so this measurement is now a cross-check of two derivations
+* instead of a check on a hand-typed number.
 * C_TANK sits between `sw` and `tank_mid` (see the topology comment
 * above), so the voltage ACROSS it is V(sw)-V(tank_mid), not V(sw) alone
 * (v_sw_max/min above are the switch-node's own swing against ground/hvn,
