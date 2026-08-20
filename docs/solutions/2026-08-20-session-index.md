@@ -60,13 +60,18 @@ discrepancies rather than repeated:
    states a bracket, **1530–1656 W**, not a point value, and the honestly
    derived figure using the design's actual simulated power factor is
    **1015 W** (`docs/solutions/logic-errors/power-stage-1800w-rating-unreachable-2026-08-20.md`).
-3. **"Roughly 280 W" bus-capacitor-ripple ceiling**, and **"I verified
-   ZBNC18-13's C4 = 8UF/275ACV myself from the filing"** — neither
-   reproduces. The real ripple ceiling is **146 W** (bracket 133–158 W,
-   rising to 194–488 W after a separate HF-bypass fix); the FCC-filing
-   verification claim is contradicted by the repo's own record, which
-   states the filing retrieval failed (HTTP 403) and labels the ZBNC18-13
-   finding second-hand and unverified
+3. **"Roughly 280 W, bound by bus-capacitor ripple"**, and **"I verified
+   ZBNC18-13's C4 = 8UF/275ACV myself from the filing"** — neither reproduces
+   as stated. The as-built ripple ceiling is **146 W** (bracket 133–158 W);
+   an intermediate **277 W** figure exists once a superseded tank-current
+   anchor is corrected, which is close to "~280 W" but is not the chain's
+   endpoint — the chronologically last branch on this question
+   (`analysis/bus-capacitance-selection`) shows a correctly sized capacitor
+   bank removes the bus bank as the binding constraint entirely, at which
+   point the rectifier diodes bind instead, at **396–704 W (central
+   609 W)**. The FCC-filing verification claim is contradicted by the
+   repo's own record, which states the filing retrieval failed (HTTP 403)
+   and labels the ZBNC18-13 finding second-hand and unverified
    (`docs/solutions/logic-errors/power-stage-1800w-rating-unreachable-2026-08-20.md`).
 
 One claim from the original session summary — that `check_placement_roundtrip`

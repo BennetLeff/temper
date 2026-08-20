@@ -282,7 +282,8 @@ commit's diff or evidence file (`git show`, read-only; `pcb/temper.kicad_pcb`
 untouched throughout — this section is `.ato`/documentation only and does
 not touch the board file). `eta_min`, `p_output_max`'s derivation, and
 `c_bus1.value` were additionally confirmed live in this worktree's checked-
-out files. The two discrepancies in "Discrepancies against the session's
+out files. The three discrepancies in "Discrepancies against the session's
 own prior summary" above were found by direct search (`git log --all -S`)
-and are reported as not reproducing, per this task's instruction to record
+and are reported as not reproducing (or, for the second, as a real but
+superseded intermediate figure), per this task's instruction to record
 rather than silently correct or omit a figure that does not check out.
