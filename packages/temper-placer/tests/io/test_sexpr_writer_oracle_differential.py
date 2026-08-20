@@ -33,6 +33,8 @@ import temper_design_bundle_python as _tdb
 
 from tests.io._sexpr_writer_py_oracle import (
     KIUTILS_MINIMAL_BOARD_SEXPR,
+)
+from tests.io._sexpr_writer_py_oracle import (
     board_to_sexpr as _oracle_board_to_sexpr,
 )
 
