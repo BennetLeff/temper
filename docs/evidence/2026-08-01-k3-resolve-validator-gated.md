@@ -209,14 +209,14 @@ recorded ceiling hash — measurements are on the committed board).
 
 ## 7. Files
 
-- `docs/evidence/k3_resolve_gated_solve.py` — Run A (production caller,
+- `docs/evidence/scripts/k3_resolve_gated_solve.py` — Run A (production caller,
   repair loop) measurement; `k3_resolve_gated_solve_summary.json` (output).
-- `docs/evidence/k3_resolve_gated_variantB.py` — Run B (exact wall-spike
+- `docs/evidence/scripts/k3_resolve_gated_variantB.py` — Run B (exact wall-spike
   variant, `validator_input` wired) measurement;
   `k3_resolve_gated_variantB_summary.json` (output incl. full placement).
-- `docs/evidence/k3_resolve_gated_gates.py` — REQ-SAFE-01 re-run,
+- `docs/evidence/scripts/k3_resolve_gated_gates.py` — REQ-SAFE-01 re-run,
   courtyard-overlap proxy (sanity), fixed-copper audit, 4 consistency gates.
-- `docs/evidence/k3_resolve_gated_drc.py` — kicad-cli DRC baseline +
+- `docs/evidence/scripts/k3_resolve_gated_drc.py` — kicad-cli DRC baseline +
   candidate (N=5) on a /tmp copy of the board.
 
 ## 8. Reproduction
@@ -224,9 +224,9 @@ recorded ceiling hash — measurements are on the committed board).
 ```bash
 make netlist && make extensions
 cd packages/temper-placer   # for fixture import resolution
-uv run --no-sync python ../docs/evidence/k3_resolve_gated_variantB.py   # Run B solve
-uv run --no-sync python ../docs/evidence/k3_resolve_gated_gates.py      # validator + consistency gates
-uv run --no-sync python ../docs/evidence/k3_resolve_gated_drc.py        # kicad-cli DRC baseline + candidate
+uv run --no-sync python ../docs/evidence/scripts/k3_resolve_gated_variantB.py   # Run B solve
+uv run --no-sync python ../docs/evidence/scripts/k3_resolve_gated_gates.py      # validator + consistency gates
+uv run --no-sync python ../docs/evidence/scripts/k3_resolve_gated_drc.py        # kicad-cli DRC baseline + candidate
 # expected: status=feasible; C27 -> (28.62, 222.0); hard=[], gaps=[],
 # intra=3 (K3); courtyards_overlap 11->10; shorting_items 199-200 -> 198
 ```
