@@ -152,6 +152,8 @@ mod reference_loader;
 
 pub(crate) mod parse_engine;
 #[cfg(feature = "python")]
+mod sexpr_writer;
+#[cfg(feature = "python")]
 mod hypergraph_factory;
 
 #[cfg(feature = "python")]
