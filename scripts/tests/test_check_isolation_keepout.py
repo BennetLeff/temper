@@ -97,10 +97,29 @@ def _valid_keepout_settings() -> KeepoutSettings:
     )
 
 
+# DERIVED, NOT A LITERAL (2026-08-19). This used to be a hardcoded
+# `(43.0, 57.0)` -- 14mm, with the comment "clears the 12.6mm PD3 minimum".
+# When `MIN_BARRIER_WIDTH_MM` became a per-pairing derivation and moved to
+# 20.0mm (the resonant-tank crossing, Table 17 row vi x2), this fixture
+# silently stopped clearing it and two "correct barrier passes" tests failed.
+#
+# The fix is to widen the FIXTURE, never the requirement. A test board that
+# is supposed to model a compliant barrier has to be at least as wide as the
+# barrier the code requires, whatever that is; pinning it to a literal made a
+# legitimate tightening look like a broken test. The 0.7mm per side is the
+# same margin the old literal carried (14.0 - 12.6 = 1.4, halved).
+_BARRIER_CENTRE_X = 50.0
+_BARRIER_MARGIN_MM = 0.7
+_DEFAULT_BARRIER_X = (
+    _BARRIER_CENTRE_X - (MIN_BARRIER_WIDTH_MM / 2.0 + _BARRIER_MARGIN_MM),
+    _BARRIER_CENTRE_X + (MIN_BARRIER_WIDTH_MM / 2.0 + _BARRIER_MARGIN_MM),
+)
+
+
 def build_board(
     *,
     barrier_layers: list[str] | None = ALL_COPPER_LAYER_NAMES,
-    barrier_x: tuple[float, float] = (43.0, 57.0),  # 14mm wide -- clears the 12.6mm PD3 minimum
+    barrier_x: tuple[float, float] = _DEFAULT_BARRIER_X,
     barrier_y: tuple[float, float] = (0.0, 100.0),
     keepout_settings: KeepoutSettings | None = None,
     include_barrier: bool = True,
@@ -276,7 +295,8 @@ class TestKeepoutSettings:
 
 class TestWidth:
     def test_barrier_narrower_than_minimum(self, tmp_path: Path) -> None:
-        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, needs 12.6mm
+        # 2mm, against a requirement derived per pairing (20.0mm today).
+        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))
         manifest_path = write_manifest(tmp_path)
         state, report = run(board_path, manifest_path)
         assert state == "violation"
@@ -444,6 +464,19 @@ class TestFarSideCrossing:
 
 
 class TestPass:
+    def test_fixture_barrier_still_fits_the_fixture_board(self) -> None:
+        """Guard on the guard: `build_board`'s default barrier is derived
+        from `MIN_BARRIER_WIDTH_MM`, which is itself derived from the
+        declared per-pairing working voltages and can rise again. If it ever
+        exceeds what the 100x100mm fixture board can hold between its HV
+        footprint at x=20 and its SELV footprint at x=80, every "correct
+        barrier" test below would start failing for a fixture-geometry
+        reason that looks exactly like a real regression."""
+        lo, hi = _DEFAULT_BARRIER_X
+        assert hi - lo == pytest.approx(MIN_BARRIER_WIDTH_MM + 2 * _BARRIER_MARGIN_MM)
+        assert lo > 20.0, f"barrier ({lo}..{hi}) would swallow the HV footprint at x=20"
+        assert hi < 80.0, f"barrier ({lo}..{hi}) would swallow the SELV footprint at x=80"
+
     def test_fully_correct_barrier_passes(self, tmp_path: Path) -> None:
         board_path = write_board(tmp_path, build_board())
         manifest_path = write_manifest(tmp_path)

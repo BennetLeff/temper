@@ -216,6 +216,13 @@ pub(crate) mod pcl;
 // with no pyo3 dependency. The pyo3 surface inside the module is itself
 // `#[cfg(feature = "python")]`-gated.
 pub mod safety_value;
+// Per-pairing insulation coordination: declared working voltages -> Table
+// 17/18 row -> required creepage, or an explicit "not determinable" for the
+// 47 kHz crossings that sit above IEC 60664-1's 30 kHz scope ceiling (see
+// insulation.rs's module docstring). NOT gated on `python` for the same
+// reasons as safety_value above: the rule and the schema are pure data +
+// logic, and the pyo3 surface inside is itself gated.
+pub mod insulation;
 mod serialize;
 mod sexpr;
 
@@ -518,6 +525,13 @@ mod python {
         // Safety-critical values with provenance: the recovered
         // IEC 60335-1 Table 16/17/18 lookups (see safety_value.rs).
         crate::safety_value::register(module)?;
+        // Per-pairing insulation coordination (see insulation.rs).
+        // Registered AFTER safety_value deliberately: the two modules share
+        // no function names, and pyo3 silently lets a later `add_function`
+        // shadow an earlier one of the same name (see AGENTS.md), so the
+        // ordering is pinned by
+        // `test_insulation_pyo3_registration_is_not_shadowed`.
+        crate::insulation::register(module)?;
         Ok(())
     }
 }

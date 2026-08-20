@@ -762,83 +762,122 @@ REGISTRY: tuple[Fact, ...] = (
     Fact(
         name="hv_lv_separation_gate_threshold_mm",
         category="gate-threshold",
-        authoritative_value=12.6,
-        value_kind="float",
+        # RETARGETED 2026-08-19. This fact used to pin the LITERAL 12.6 in
+        # isolation_constants.MIN_BARRIER_WIDTH_MM. That literal is gone, and
+        # its absence is the fix, not a regression:
+        # docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md
+        # (commit 0cbc04248) established from primary text that ONE SCALAR
+        # across a 27-net HV domain and a 35-net SELV domain is the defect,
+        # not its value. 12.6mm is Table 17 row **iv** (>250-400V) and NO
+        # pairing this design has lands in row iv -- the mains crossing is
+        # row ii (4.8mm), the DC-bus crossing row iii (8.0mm), the resonant
+        # tank crossing row vi (>=20.0mm, and NOT DETERMINABLE at 47kHz).
+        #
+        # A value fact cannot express "there is no single value", so this now
+        # pins the DERIVATION SITE instead: MIN_BARRIER_WIDTH_MM must be a
+        # call, not a number. Re-introducing any literal there makes this
+        # pattern fail to match, which this gate reports as a TOOL ERROR --
+        # deliberately louder than a value mismatch, because a re-literalised
+        # safety constant is a structural regression, not a drift.
+        authoritative_value="_barrier_floor_mm()",
+        value_kind="str",
         authoritative_source=(
-            "scripts/generate_kicad_dru.py's HV_CREEPAGE_ENFORCED_MM = "
-            "HV_CREEPAGE_PD3_MM (IEC 60335-1 Table 17 row iv, >250-400V, "
-            "material group IIIa/IIIb, PD3 basic 6.3mm x2 per cl.29.2.3 "
-            "reinforced = 12.6mm), matching "
             "packages/temper-placer/src/temper_placer/core/"
-            "isolation_constants.py's MIN_BARRIER_WIDTH_MM = 12.6. See "
-            "docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md + PR "
-            "#1224/#1229."
+            "isolation_constants.py's MIN_BARRIER_WIDTH_MM must be DERIVED "
+            "from elec/insulation_manifest.yaml through "
+            "temper_placer.core.insulation_coordination.barrier_floor_mm() "
+            "-- the worst enforceable floor over every declared "
+            "barrier-crossing pairing (today: SELV<->TANK, 570.5Vrms, "
+            "Table 17 row vi x2 = 20.0mm, NOT DETERMINABLE at 47kHz). The "
+            "rule lives in packages/temper-design-bundle/src/insulation.rs. "
+            "See docs/evidence/2026-08-19-table-17-row-determination-hv-"
+            "selv.md and docs/evidence/2026-08-19-per-pairing-creepage-"
+            "implementation.md."
         ),
         homes=(
             FactSite(
                 file="packages/temper-placer/src/temper_placer/core/isolation_constants.py",
-                description="MIN_BARRIER_WIDTH_MM literal",
-                pattern=r"MIN_BARRIER_WIDTH_MM\s*=\s*([\d.]+)",
+                description="MIN_BARRIER_WIDTH_MM derivation call (must NOT be a literal)",
+                pattern=r"MIN_BARRIER_WIDTH_MM:\s*float\s*=\s*(_barrier_floor_mm\(\))",
             ),
         ),
         notes=(
-            "FIXED 2026-08-17 by PR #1322 (merged in): both gates.py sites "
-            "this fact originally tracked as hardcoded-6.0mm are gone -- "
-            "_CREEPAGE_MIN_MM deleted as confirmed-dead code, and "
-            "IECCreepageGate's inline literal replaced with a reference to "
-            "HV_LV_CREEPAGE_MM, an SSOT-derived (not hardcoded) constant. "
-            "See the block comment above and the companion "
-            "hv_lv_creepage_derivation_parity fact below, which verifies "
-            "gates.py and generate_kicad_dru.py derive that constant "
-            "identically."
+            "History: PR #1320 added this fact pinning gates.py's two "
+            "hardcoded 6.0mm sites; PR #1322 removed both and left the "
+            "genuinely-literal isolation_constants.MIN_BARRIER_WIDTH_MM = "
+            "12.6 as the sole home; 2026-08-19 removed that literal too, "
+            "because a single scalar across the whole barrier was itself "
+            "the defect. This fact now pins the derivation call. NOTE, "
+            "because it changes what a green result means here: a green "
+            "result no longer asserts that the barrier requirement is "
+            "SATISFIED or even KNOWN. The barrier's worst crossings run at "
+            "47 kHz, above IEC 60664-1's 30 kHz scope ceiling, and their "
+            "requirement is NOT DETERMINABLE; "
+            "isolation_constants.MIN_BARRIER_WIDTH_IS_DETERMINATE is False "
+            "and scripts/check_insulation_pairings.py is the gate that "
+            "reports it."
         ),
     ),
     Fact(
         name="hv_lv_creepage_derivation_parity",
         category="gate-threshold",
-        authoritative_value=(
-            'creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0'
-        ),
+        # RETARGETED 2026-08-19, same reason as the fact above. This used to
+        # assert that gates.py's HV_LV_CREEPAGE_MM and
+        # generate_kicad_dru.py's HV_CREEPAGE_PD3_MM invoked
+        # `creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17") * 2` with
+        # byte-identical arguments. Both call sites are gone: ">250-400" is
+        # Table 17 row iv, the row the 2026-08-19 determination showed no
+        # pairing on this board reaches, and gates.py no longer holds a
+        # module-level threshold at all.
+        #
+        # The parity that matters now is structural in the same way but one
+        # level up: both enforcement points must resolve their figures
+        # through the SAME per-pairing mechanism, so neither can grow a
+        # private table again. The captured value is the module path itself.
+        authoritative_value="temper_placer.core.insulation_coordination",
         value_kind="str",
         authoritative_source=(
-            "scripts/generate_kicad_dru.py's HV_CREEPAGE_PD3_MM -- the "
-            "fab-authoritative derivation; packages/temper-placer/src/"
-            "temper_placer/placer/cp_sat/gates.py's HV_LV_CREEPAGE_MM "
-            "(added by PR #1322) must invoke the identical SSOT lookup "
-            "with identical arguments, or the two enforcement points can "
-            "silently diverge again the way the hardcoded 6.0mm/12.6mm "
-            "figures did before."
+            "elec/insulation_manifest.yaml -> "
+            "packages/temper-design-bundle/src/insulation.rs -> "
+            "temper_placer.core.insulation_coordination is the single "
+            "derivation path for every per-pairing creepage figure on this "
+            "board. scripts/generate_kicad_dru.py (the fab-authoritative "
+            "KiCad DRU emitter) and "
+            "packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py "
+            "(the routing-stage IECCreepageGate) must both go through it, or "
+            "the two can silently diverge again the way the hardcoded "
+            "6.0mm/12.6mm figures did before."
         ),
         homes=(
             FactSite(
                 file="scripts/generate_kicad_dru.py",
-                description="HV_CREEPAGE_PD3_MM derivation call",
-                pattern=(
-                    r"HV_CREEPAGE_PD3_MM\s*=\s*_tdb\."
-                    r'(creepage_table_lookup\([^)]*\)\.value_mm\(\)\s*\*\s*[\d.]+)'
-                ),
+                description="per-pairing creepage import (DRU emitter)",
+                pattern=r"from (temper_placer\.core\.insulation_coordination) import",
             ),
             FactSite(
                 file="packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
-                description="HV_LV_CREEPAGE_MM derivation call",
+                description="per-pairing creepage import (IECCreepageGate)",
                 pattern=(
-                    r"HV_LV_CREEPAGE_MM:\s*float\s*=\s*\(\s*\n\s*_tdb\."
-                    r'(creepage_table_lookup\([^)]*\)\.value_mm\(\)\s*\*\s*[\d.]+)'
+                    r"import (temper_placer\.core\.insulation_coordination) "
+                    r"as _insulation"
                 ),
             ),
         ),
         notes=(
-            "NEW 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-"
-            "pairs-gap.md), added when merging PR #1322's gates.py rewrite "
-            "into this registry. Structural parity, not a value re-"
-            "derivation: both sites call the same Rust SafetyValue lookup "
-            "with the same PD level, material group, voltage band, table, "
-            "and reinforced-insulation multiplier, which is the strongest "
-            "static guarantee obtainable without executing the Rust "
-            "kernel. If either site's call is edited without the other, "
-            "this fact fails (VIOLATION or TOOL ERROR), catching the "
-            "divergence before it repeats the fabricated/mismatched-figure "
-            "shape this project's history is full of."
+            "Added 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-"
+            "pairs-gap.md) as a byte-identical-arguments check on two "
+            "creepage_table_lookup calls; RETARGETED 2026-08-19 when the "
+            "single scalar was replaced by the per-pairing mechanism "
+            "(docs/evidence/2026-08-19-per-pairing-creepage-"
+            "implementation.md). Structural parity, not a value re-"
+            "derivation: it asserts only that both enforcement points reach "
+            "their figures through the one derivation path, which is the "
+            "strongest static guarantee obtainable without executing the "
+            "Rust kernel. If either site grows a private table or a literal, "
+            "its import disappears, the pattern fails to match, and this "
+            "fact reports a TOOL ERROR -- catching the divergence before it "
+            "repeats the fabricated/mismatched-figure shape this project's "
+            "history is full of."
         ),
     ),
     # -------------------------------------------------------------------

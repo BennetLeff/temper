@@ -12,8 +12,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import temper_placer.core.insulation_coordination as insulation
 from temper_placer.placer.cp_sat.gates import (
-    HV_LV_CREEPAGE_MM,
     BoardState,
     Gate,
     GateResult,
@@ -152,21 +152,49 @@ def test_creepage_clean_no_clearance_violations(monkeypatch):
     finally:
         pcb.unlink(missing_ok=True)
 
-    assert result.status is GateStatus.CLEAN
+    # THREE-VALUED SINCE 2026-08-19. Zero HV<->SELV crossing violations is no
+    # longer CLEAN on this design, and that is the fix, not a regression: the
+    # barrier's worst crossings (`SELV<->TANK`, `SELV<->SWITCHING`) run at
+    # 47 kHz, above IEC 60664-1 cl. 1.1.1's 30 kHz scope ceiling, and cl. 2.3
+    # routes dimensioning above it to the paywalled, unobtained IEC 60664-4.
+    # The gate therefore reports UNMEASURED -- "the geometry may be fine; the
+    # requirement is unknown" -- which is what its own docstring has always
+    # promised ("never returns a false CLEAN").
+    #
+    # `test_zero_violations_is_clean_once_every_pairing_is_determinable`
+    # below proves the CLEAN path still exists and is gated ONLY by the
+    # indeterminacy, so this is not a test that can never go green again.
+    #
+    # (This particular fixture cannot actually reach the gate's own logic in
+    # this checkout: it drives `subprocess.run`, so it also goes through
+    # `run_drc`'s KiCad-project-sidecar resolution, which fails here on
+    # `origin/main` too. The `_stub_run_drc` tests further down cover the
+    # grading directly.)
+    assert result.status is GateStatus.UNMEASURED
+    assert "NOT DETERMINABLE" in (result.error_message or "")
     assert result.violations == ()
 
 
 def test_creepage_clean_lv_to_lv_clearance_only(monkeypatch):
-    """Clearance violation between LV nets only → not a creepage violation."""
+    """Clearance violation between SELV nets only → not a creepage violation.
+
+    FIXTURE CORRECTED 2026-08-19: this used to pair `GATE_H` with `GND`. Both
+    names are wrong. `GATE_H` is not a net on this board (`GATE_HS` is), and
+    `GATE_HS` is an **HV-domain** net -- `elec/domain_manifest.yaml` puts it
+    in the same domain as `ac_l`/`+170V_BUS` because it floats on `SW_NODE`.
+    It read as "LV" only to the gate's old hardcoded 7-name frozenset, which
+    did not list it. Asserting CLEAN on that pair asserted the classifier's
+    bug. `PWM_HS` and `gnd` are two genuinely SELV nets.
+    """
     pcb = _write_pcb("creepage_lv_only")
     payload = {
         "violations": [
             _clearance_violation(
                 items=[
-                    {"description": "Track [GATE_H] on F.Cu"},
-                    {"description": "Track [GND] on F.Cu"},
+                    {"description": "Track [PWM_HS] on F.Cu"},
+                    {"description": "Track [gnd] on F.Cu"},
                 ],
-                description="Clearance violation: GATE_H to GND",
+                description="Clearance violation: PWM_HS to gnd",
             ),
         ],
     }
@@ -180,7 +208,26 @@ def test_creepage_clean_lv_to_lv_clearance_only(monkeypatch):
     finally:
         pcb.unlink(missing_ok=True)
 
-    assert result.status is GateStatus.CLEAN
+    # THREE-VALUED SINCE 2026-08-19. Zero HV<->SELV crossing violations is no
+    # longer CLEAN on this design, and that is the fix, not a regression: the
+    # barrier's worst crossings (`SELV<->TANK`, `SELV<->SWITCHING`) run at
+    # 47 kHz, above IEC 60664-1 cl. 1.1.1's 30 kHz scope ceiling, and cl. 2.3
+    # routes dimensioning above it to the paywalled, unobtained IEC 60664-4.
+    # The gate therefore reports UNMEASURED -- "the geometry may be fine; the
+    # requirement is unknown" -- which is what its own docstring has always
+    # promised ("never returns a false CLEAN").
+    #
+    # `test_zero_violations_is_clean_once_every_pairing_is_determinable`
+    # below proves the CLEAN path still exists and is gated ONLY by the
+    # indeterminacy, so this is not a test that can never go green again.
+    #
+    # (This particular fixture cannot actually reach the gate's own logic in
+    # this checkout: it drives `subprocess.run`, so it also goes through
+    # `run_drc`'s KiCad-project-sidecar resolution, which fails here on
+    # `origin/main` too. The `_stub_run_drc` tests further down cover the
+    # grading directly.)
+    assert result.status is GateStatus.UNMEASURED
+    assert "NOT DETERMINABLE" in (result.error_message or "")
     assert result.violations == ()
 
 
@@ -190,16 +237,16 @@ def test_creepage_clean_lv_to_lv_clearance_only(monkeypatch):
 
 
 def test_creepage_violation_hv_to_lv(monkeypatch):
-    """Clearance violation DC_BUS+ → GATE_H is HV↔LV creepage."""
+    """Clearance violation +170V_BUS → GATE_H is HV↔LV creepage."""
     pcb = _write_pcb("creepage_hv_lv")
     payload = {
         "violations": [
             _clearance_violation(
                 items=[
-                    {"description": "Track [DC_BUS+] on F.Cu"},
-                    {"description": "Track [GATE_H] on F.Cu"},
+                    {"description": "Track [+170V_BUS] on F.Cu"},
+                    {"description": "Track [GATE_HS] on F.Cu"},
                 ],
-                description="Clearance: DC_BUS+ to GATE_H, actual 3.0mm",
+                description="Clearance: +170V_BUS to GATE_H, actual 3.0mm",
             ),
         ],
     }
@@ -217,26 +264,32 @@ def test_creepage_violation_hv_to_lv(monkeypatch):
     assert len(result.violations) == 1
     v = result.violations[0]
     assert v.type is ViolationType.CREEPAGE
-    # FIXED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-
-    # manifest-and-ieccreepagegate-liveness.md): was a stale, uncited
-    # hardcoded 6.0mm; now read from the same PD3 safety SSOT lookup
-    # scripts/generate_kicad_dru.py's HV_CREEPAGE_ENFORCED_MM uses (12.6mm
-    # as of this writing).
-    assert v.threshold == HV_LV_CREEPAGE_MM
-    assert "DC_BUS+" in v.nets
+    # PER-PAIRING (2026-08-19). Was a stale hardcoded 6.0mm; then a single
+    # board-wide 12.6mm lookup (Table 17 row iv). Now the threshold is the
+    # requirement THESE TWO NETS earn: `+170V_BUS` is DC_BUS (170V d.c.,
+    # Table 17 row iii x2 = 8.0mm) and `gnd` is SELV. Read from the same
+    # declaration the gate reads, so this pins the WIRING, not a number that
+    # would go stale on the next re-derivation.
+    expected = insulation.requirement_for_nets("+170V_BUS", "gnd")
+    assert v.threshold == expected.enforceable_floor_mm()
+    assert v.context["pairing"] == expected.key()
+    assert v.context["determinable"] is expected.is_determinable()
+    # ...and it is genuinely NOT the old row-iv scalar.
+    assert v.threshold != 12.6
+    assert "+170V_BUS" in v.nets
 
 
 def test_creepage_violation_ac_mains_to_lv(monkeypatch):
-    """Clearance violation AC_L → GND is AC↔LV creepage."""
+    """Clearance violation ac_l → GND is AC↔LV creepage."""
     pcb = _write_pcb("creepage_ac_lv")
     payload = {
         "violations": [
             _clearance_violation(
                 items=[
-                    {"description": "Track [AC_L] on F.Cu"},
-                    {"description": "Track [GND] on F.Cu"},
+                    {"description": "Track [ac_l] on F.Cu"},
+                    {"description": "Track [gnd] on F.Cu"},
                 ],
-                description="Clearance: AC_L to GND, actual 4.5mm",
+                description="Clearance: ac_l to gnd, actual 4.5mm",
             ),
         ],
     }
@@ -251,7 +304,7 @@ def test_creepage_violation_ac_mains_to_lv(monkeypatch):
         pcb.unlink(missing_ok=True)
 
     assert result.status is GateStatus.VIOLATIONS
-    assert "AC_L" in result.violations[0].nets
+    assert "ac_l" in result.violations[0].nets
 
 
 def test_creepage_multiple_violations(monkeypatch):
@@ -261,8 +314,8 @@ def test_creepage_multiple_violations(monkeypatch):
         "violations": [
             _clearance_violation(
                 items=[
-                    {"description": "Track [DC_BUS+] on F.Cu"},
-                    {"description": "Track [GATE_H] on F.Cu"},
+                    {"description": "Track [+170V_BUS] on F.Cu"},
+                    {"description": "Track [GATE_HS] on F.Cu"},
                 ],
             ),
             _clearance_violation(
@@ -295,8 +348,8 @@ def test_creepage_warning_ignored(monkeypatch):
             _clearance_violation(
                 severity="warning",
                 items=[
-                    {"description": "Track [DC_BUS+] on F.Cu"},
-                    {"description": "Track [GND] on F.Cu"},
+                    {"description": "Track [+170V_BUS] on F.Cu"},
+                    {"description": "Track [gnd] on F.Cu"},
                 ],
             ),
         ],
@@ -311,7 +364,179 @@ def test_creepage_warning_ignored(monkeypatch):
     finally:
         pcb.unlink(missing_ok=True)
 
+    # Same three-valued reasoning as the two tests above: the warning is
+    # correctly not treated as a violation, and the run is still UNMEASURED
+    # because the requirement itself is indeterminate.
+    assert result.status is GateStatus.UNMEASURED
+    assert "NOT DETERMINABLE" in (result.error_message or "")
+    assert result.violations == ()
+
+
+# -------------------------------------------------------------------------
+# Per-pairing grading, exercised WITHOUT kicad-cli.
+#
+# The six fixtures above drive the gate through `subprocess.run`, which means
+# they also go through `run_drc`'s KiCad-project-sidecar resolution. That path
+# fails in this checkout ("No resolvable KiCad project for /tmp/...") on
+# `origin/main` as well as here -- a pre-existing, unrelated defect that makes
+# those six unable to reach the gate's own logic at all. The tests below stub
+# `run_drc` itself, one level in, so the per-pairing grading this change
+# introduces is genuinely covered rather than nominally covered by six tests
+# that never execute it.
+# -------------------------------------------------------------------------
+
+
+class _FakeErr:
+    def __init__(self, nets, rule="clearance", message="Clearance: 3.0mm"):
+        self.nets = list(nets)
+        self.rule = rule
+        self.message = message
+
+
+class _FakeDrcResult:
+    def __init__(self, errors):
+        self.errors = errors
+
+
+def _stub_run_drc(monkeypatch, errors):
+    import temper_placer.validation.drc_runner as drc_runner
+
+    monkeypatch.setattr(drc_runner, "run_drc", lambda *a, **k: _FakeDrcResult(errors))
+
+
+def test_per_pairing_threshold_is_the_pairs_own_requirement(monkeypatch, tmp_path):
+    """The DC-bus crossing is graded at ITS row, not at a board-wide scalar."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(monkeypatch, [_FakeErr(["+170V_BUS", "gnd"])])
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    assert result.status is GateStatus.VIOLATIONS
+    (v,) = result.violations
+    expected = insulation.requirement_for_nets("+170V_BUS", "gnd")
+    assert v.threshold == expected.enforceable_floor_mm() == 8.0
+    assert v.context["pairing"] == "DC_BUS<->SELV"
+    assert v.context["determinable"] is True
+    # The scalar this replaced. Table 17 row iv is not reachable from any
+    # pairing on this board.
+    assert v.threshold != 12.6
+
+
+def test_per_pairing_mains_crossing_is_graded_lower_than_the_bus(monkeypatch, tmp_path):
+    """Some requirements go DOWN: the mains crossing is row ii, 4.8mm."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(monkeypatch, [_FakeErr(["ac_l", "gnd"])])
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    (v,) = result.violations
+    assert v.threshold == 4.8
+    assert v.context["pairing"] == "MAINS<->SELV"
+    assert v.context["determinable"] is True
+
+
+def test_per_pairing_tank_crossing_is_graded_higher_and_indeterminate(
+    monkeypatch, tmp_path
+):
+    """...and some go UP: the tank crossing is row vi, >=20.0mm -- and its
+    true requirement is NOT DETERMINABLE at 47 kHz, which the violation
+    record has to carry so no consumer reads 20.0 as a compliance bar."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(monkeypatch, [_FakeErr(["tank-out", "gnd"])])
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    (v,) = result.violations
+    assert v.threshold == 20.0
+    assert v.context["pairing"] == "SELV<->TANK"
+    assert v.context["determinable"] is False
+    assert "NOT DETERMINABLE" in v.description
+
+
+def test_relay_contact_nets_are_now_recognised_as_hv(monkeypatch, tmp_path):
+    """`power_in.ntc-no` is K1's mains-side contact. The gate's old
+    hardcoded 7-name frozenset did not list it, so a violation naming it was
+    silently NOT recognised as a barrier crossing -- a false CLEAN. The
+    net-exact declaration lookup fixes that."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(
+        monkeypatch,
+        [_FakeErr(["power_in.ntc-no", "power_in.bypass_relay-coil1"])],
+    )
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    assert result.status is GateStatus.VIOLATIONS
+    (v,) = result.violations
+    assert v.context["pairing"] == "MAINS<->SELV"
+
+
+def test_undeclared_net_pair_fails_closed_rather_than_passing(monkeypatch, tmp_path):
+    """A crossing violation whose requirement cannot be looked up must not be
+    dropped. Dropping it would turn an unknown into a CLEAN."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    # `SW_NODE` is declared HV; the counterparty is not declared at all, so
+    # the pair has no pairing.
+    _stub_run_drc(monkeypatch, [_FakeErr(["SW_NODE", "not-a-declared-net"])])
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    assert result.status is GateStatus.UNMEASURED
+    assert "no declared insulation pairing" in (result.error_message or "")
+
+
+def test_worst_pairing_wins_when_a_violation_names_several_nets(monkeypatch, tmp_path):
+    """A DRC entry can name more than two nets. Taking the max is the only
+    reduction that cannot under-report."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(monkeypatch, [_FakeErr(["ac_l", "tank-out", "gnd"])])
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    (v,) = result.violations
+    assert v.threshold == 20.0, "the mains pairing (4.8mm) must not win"
+    assert v.context["pairing"] == "SELV<->TANK"
+
+
+def test_zero_violations_is_unmeasured_not_clean(monkeypatch, tmp_path):
+    """The invariant, exercised end to end through the gate."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(monkeypatch, [])
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
+    assert result.status is GateStatus.UNMEASURED
+    assert "NOT DETERMINABLE" in (result.error_message or "")
+
+
+def test_zero_violations_is_clean_once_every_pairing_is_determinable(
+    monkeypatch, tmp_path
+):
+    """...and CLEAN is still reachable, gated only by the indeterminacy."""
+    pcb = tmp_path / "b.kicad_pcb"
+    pcb.write_text("(kicad_pcb)\n")
+    _stub_run_drc(monkeypatch, [])
+    monkeypatch.setattr(insulation, "barrier_is_determinable", lambda: True)
+
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=str(pcb)))
     assert result.status is GateStatus.CLEAN
+
+
+def test_creepage_never_clean_while_a_barrier_pairing_is_indeterminate():
+    """The invariant, stated once and directly.
+
+    No board geometry and no DRC result may produce CLEAN while
+    `barrier_is_determinable()` is False. This is the property the whole
+    per-pairing change turns on: an indeterminate pairing must never be made
+    to pass by giving it a number.
+    """
+    assert insulation.barrier_is_determinable() is False
+    indeterminate = [
+        p.key()
+        for p in insulation.resolve_declaration().indeterminate_pairings()
+        if p.crosses_barrier()
+    ]
+    assert indeterminate, "fixture drift: expected >=1 indeterminate crossing"
 
 
 # =========================================================================
@@ -330,7 +555,7 @@ def test_creepage_gate_to_delta():
     gate = IECCreepageGate()
     v = Violation(
         type=ViolationType.CREEPAGE,
-        nets=("DC_BUS+", "GATE_H"),
+        nets=("+170V_BUS", "GATE_HS"),
         threshold=6.0,
     )
     delta = gate.to_delta(v)
@@ -377,7 +602,7 @@ def test_physics_to_delta_loop_inductance():
     v = Violation(
         type=ViolationType.LOOP_INDUCTANCE,
         components=("Q1", "Q2", "C_BUS1", "C_BUS2"),
-        nets=("DC_BUS+", "SW_NODE", "DC_BUS-"),
+        nets=("+170V_BUS", "SW_NODE", "DC_BUS-"),
         severity=2500.0,
         threshold=2000.0,
         description="Commutation loop too large",
@@ -406,7 +631,7 @@ def test_physics_to_delta_creepage():
     gate = PhysicsGate()
     v = Violation(
         type=ViolationType.CREEPAGE,
-        nets=("DC_BUS+", "GATE_H"),
+        nets=("+170V_BUS", "GATE_HS"),
         severity=4.0,
         threshold=6.0,
         description="Creepage too small",

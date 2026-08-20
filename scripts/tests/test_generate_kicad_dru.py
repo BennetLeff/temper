@@ -39,9 +39,15 @@ four independent fail-opens on a live mains-connected board:
 
 PD2-vs-PD3 note: the 2026-08-15 data-driven decision
 (``docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md``) enforces
-PD3, so ``HV_CREEPAGE_ENFORCED_MM`` is pinned to ``HV_CREEPAGE_PD3_MM``
-(12.6mm), mirroring ``scripts/check_isolation_keepout.py``'s current
-``MIN_BARRIER_WIDTH_MM`` (also 12.6mm/PD3). The PD3 enforcement is the
+PD3. UPDATED 2026-08-19: ``HV_CREEPAGE_ENFORCED_MM`` is no longer the figure
+any rule emits -- it survives only as the pollution-degree selector. Each
+"<HV class> to LV" rule now carries the requirement its own worst member
+pairing earns (``gen.hv_to_lv_creepage_mm(cls)``), derived from
+``elec/insulation_manifest.yaml``: ACMains 4.8mm, HighVoltage 20.0mm,
+HighVoltageTank 20.0mm, HighVoltageSignal 8.0mm, HighVoltageIsolated 8.0mm.
+``scripts/check_isolation_keepout.py``'s ``MIN_BARRIER_WIDTH_MM`` is 20.0mm --
+the worst crossing, because one physical barrier cannot discriminate per
+class. The PD3 enforcement is the
 governing bar for the as-built, forced-air-vented, compartment-less
 board; the PD2 figure remains the documented fallback should the sealed
 compartment ever be built and verified. Retargeting to PD2 would have to
@@ -154,7 +160,8 @@ class TestHighVoltageIsolatedRulesEmitted:
         # class of rule as RULE 2/RULE 4, so it now carries the same
         # generator-wide creepage constraint they do.
         assert (
-            f"(constraint creepage (min {gen.fmt_mm(gen.HV_CREEPAGE_ENFORCED_MM)}))"
+            "(constraint creepage (min "
+            f"{gen.fmt_mm(gen.hv_to_lv_creepage_mm('HighVoltageIsolated'))}))"
             in block
         )
 
@@ -766,12 +773,18 @@ class TestCreepageConstraintEmitted:
     def test_ac_mains_to_lv_rule_emits_creepage_constraint(self) -> None:
         block = _rule_block(gen.generate_dru(), "AC Mains to LV")
         assert "(constraint clearance (min 6.0mm))" in block
-        assert f"(constraint creepage (min {gen.fmt_mm(gen.HV_CREEPAGE_ENFORCED_MM)}))" in block
+        assert (
+            "(constraint creepage (min "
+            f"{gen.fmt_mm(gen.hv_to_lv_creepage_mm('ACMains'))}))"
+        ) in block
 
     def test_hv_to_lv_rule_emits_creepage_constraint(self) -> None:
         block = _rule_block(gen.generate_dru(), "HV to LV")
         assert "(constraint clearance (min 2.0mm))" in block
-        assert f"(constraint creepage (min {gen.fmt_mm(gen.HV_CREEPAGE_ENFORCED_MM)}))" in block
+        assert (
+            "(constraint creepage (min "
+            f"{gen.fmt_mm(gen.hv_to_lv_creepage_mm('HighVoltage'))}))"
+        ) in block
 
     def test_header_documents_creepage_is_now_enforced(self) -> None:
         content = gen.generate_dru()
@@ -863,7 +876,11 @@ class TestCreepageDrcFalsifier:
         """The exact 'HV to LV' rule block generate_dru() emits today,
         applied wholesale (not a hand-picked substitute), must produce a
         real creepage violation for a HighVoltage<->Default pad pair whose
-        straight-line gap is well below HV_CREEPAGE_ENFORCED_MM (12.6mm)."""
+        straight-line gap is well below the HighVoltage class's own derived
+        per-pairing figure (20.0mm today -- the resonant-tank crossing, which
+        `tank-out`'s membership of the HighVoltage netclass makes the worst
+        member of that class; see docs/evidence/2026-08-19-per-pairing-
+        creepage-implementation.md)."""
         gap_mm = 3.0
         pcb_path = self._fixture(tmp_path, gap_mm)
         content = gen.generate_dru()
@@ -871,10 +888,10 @@ class TestCreepageDrcFalsifier:
         creepage = [v for v in violations if v["type"] == "creepage"]
         assert len(creepage) >= 1, (
             f"expected the {gap_mm}mm cross-domain gap to FAIL the emitted "
-            f"{gen.HV_CREEPAGE_ENFORCED_MM}mm creepage constraint; got no "
+            f"{gen.hv_to_lv_creepage_mm('HighVoltage')}mm creepage constraint; got no "
             f"creepage violations -- the emitted rule may not be binding"
         )
-        expected_value_str = f"{gen.HV_CREEPAGE_ENFORCED_MM:.4f}"
+        expected_value_str = f"{gen.hv_to_lv_creepage_mm('HighVoltage'):.4f}"
         assert any(expected_value_str in v["description"] for v in creepage), (
             f"expected a creepage violation citing the {expected_value_str}mm "
             f"threshold; got {[v['description'] for v in creepage]!r}"
@@ -884,16 +901,16 @@ class TestCreepageDrcFalsifier:
         self, tmp_path: Path
     ) -> None:
         """Control: a pad pair far enough apart to clear
-        HV_CREEPAGE_ENFORCED_MM should NOT produce a creepage violation --
+        the HighVoltage class's derived figure should NOT produce a creepage violation --
         proves the rule discriminates on distance rather than always firing."""
-        gap_mm = gen.HV_CREEPAGE_ENFORCED_MM + 5.0
+        gap_mm = gen.hv_to_lv_creepage_mm("HighVoltage") + 5.0
         pcb_path = self._fixture(tmp_path, gap_mm)
         content = gen.generate_dru()
         violations = _run_drc(pcb_path, content)
         creepage = [v for v in violations if v["type"] == "creepage"]
         assert creepage == [], (
             f"expected a {gap_mm}mm gap (past the "
-            f"{gen.HV_CREEPAGE_ENFORCED_MM}mm enforced figure) to PASS; got "
+            f"{gen.hv_to_lv_creepage_mm('HighVoltage')}mm derived figure) to PASS; got "
             f"{creepage!r}"
         )
 
@@ -989,8 +1006,31 @@ class TestRulePrecedence:
             "A.Type == 'Track' || B.Type == 'Track'",
             {"clearance": 0.2},
         )
-        assert rules["AC Mains to LV"][1] == {"clearance": 6.0, "creepage": 12.6}
-        assert rules["HV to LV"][1] == {"clearance": 2.0, "creepage": 12.6}
+        # PER-PAIRING (2026-08-19): these two rules no longer carry the same
+        # creepage figure. ACMains's nets are all 120V mains -- Table 17 row
+        # ii x2 = 4.8mm. HighVoltage's nets span the 170V d.c. bus AND
+        # `tank-out` at 570.5Vrms, and a net-class rule must take its WORST
+        # member, so it is row vi x2 = 20.0mm. 12.6mm was row iv, which no
+        # pairing on this board reaches. Read from the generator rather than
+        # restated, so this test pins the SHAPE (per-class, both directions
+        # moved) and cannot go stale against a re-derivation.
+        assert rules["AC Mains to LV"][1] == {
+            "clearance": 6.0,
+            "creepage": gen.hv_to_lv_creepage_mm("ACMains"),
+        }
+        assert rules["HV to LV"][1] == {
+            "clearance": 2.0,
+            "creepage": gen.hv_to_lv_creepage_mm("HighVoltage"),
+        }
+        # ...and they are genuinely different now: a regression that
+        # collapsed them back onto one scalar would pass the two asserts
+        # above while re-introducing exactly the defect this replaced.
+        assert gen.hv_to_lv_creepage_mm("ACMains") < gen.hv_to_lv_creepage_mm(
+            "HighVoltage"
+        )
+        # Neither is the old row-iv scalar.
+        assert gen.hv_to_lv_creepage_mm("ACMains") != 12.6
+        assert gen.hv_to_lv_creepage_mm("HighVoltage") != 12.6
 
     def test_unanalysable_condition_fails_closed(self) -> None:
         """A condition the analyser cannot model must raise, not be skipped:

@@ -154,7 +154,26 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
-from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM  # noqa: E402
+from temper_placer.core.isolation_constants import (  # noqa: E402
+    MIN_BARRIER_WIDTH_IS_DETERMINATE,
+    MIN_BARRIER_WIDTH_MM,
+)
+from temper_placer.core.insulation_coordination import (  # noqa: E402
+    barrier_floor_mm,
+    limitation as insulation_limitation,
+    resolve_declaration as resolve_insulation_declaration,
+)
+
+# EXIT CODE FOR AN INDETERMINABLE REQUIREMENT (added 2026-08-19).
+# Distinct from EXIT_VIOLATION (the geometry is short) and from
+# EXIT_GATE_ERROR (the gate could not run): the geometry may be fine and
+# the gate ran perfectly, and the requirement is still unknown, because
+# the barrier's worst crossings run at 47 kHz -- above IEC 60664-1
+# cl. 1.1.1's 30 kHz scope ceiling, with cl. 2.3 routing dimensioning to
+# the paywalled, unobtained IEC 60664-4. A gate that reports "cannot
+# determine" is correct here; one that silently prints PASSED against a
+# lower bound is not. NEVER resolve this by giving the pairing a number.
+EXIT_INDETERMINATE = 6
 from temper_placer.core.pad_geometry import pad_bounding_radius  # noqa: E402
 from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg  # noqa: E402
 
@@ -851,9 +870,60 @@ def _print_report(state: str, report: Report, board_path: Path, manifest_path: P
         f"Keepout zones found on board (any name): {report.keepout_zones_found_total}."
     )
     print(f"Barrier zone {'FOUND' if report.barrier_found else 'NOT FOUND'} (name={BARRIER_ZONE_NAME!r}).")
-    print(f"Required minimum barrier width: {MIN_BARRIER_WIDTH_MM}mm (REINFORCED creepage; see module docstring).")
+    resolution = resolve_insulation_declaration()
+    governing = resolution.barrier_governing_pairing()
+    print(
+        f"Required minimum barrier width: {MIN_BARRIER_WIDTH_MM}mm "
+        f"(REINFORCED creepage, DERIVED per pairing -- the WORST barrier "
+        f"crossing, {governing.key()} at "
+        f"{governing.working_voltage_vrms()}Vrms; see module docstring)."
+    )
+    for pairing in resolution.pairings():
+        if not pairing.crosses_barrier():
+            continue
+        mark = "" if pairing.is_determinable() else "   <-- NOT DETERMINABLE"
+        req = (
+            f"{pairing.requirement_mm():.1f}mm"
+            if pairing.is_determinable()
+            else f">={pairing.enforceable_floor_mm():.1f}mm (lower bound)"
+        )
+        print(
+            f"    {pairing.key():24} {pairing.working_voltage_vrms():7.1f}Vrms "
+            f"@{pairing.frequency_hz():>7.0f}Hz  {pairing.table()} "
+            f"{pairing.voltage_range():>10}  {req:>26}{mark}"
+        )
+    if not MIN_BARRIER_WIDTH_IS_DETERMINATE:
+        print(
+            "\n*** THE BARRIER'S REQUIREMENT IS NOT DETERMINABLE. ***\n"
+            f"{barrier_floor_mm()}mm is a PROVEN LOWER BOUND, not the "
+            "requirement. Clearing it is NOT compliance.\n"
+            f"{insulation_limitation()}"
+        )
 
     gh = get_github_summary_path()
+
+    if state == "clean" and not MIN_BARRIER_WIDTH_IS_DETERMINATE:
+        # The geometry clears the proven lower bound and the gate ran
+        # perfectly -- and that is still not a pass, because nobody has read
+        # the standard that sets the real number. Reporting PASSED here would
+        # be exactly the failure this whole change exists to remove: making an
+        # indeterminate pairing pass by giving it a number.
+        indet = [p.key() for p in resolution.indeterminate_pairings() if p.crosses_barrier()]
+        msg = (
+            f"INDETERMINATE -- barrier keepout {BARRIER_ZONE_NAME!r} clears the "
+            f"{MIN_BARRIER_WIDTH_MM}mm proven lower bound on all "
+            f"{len(report.copper_layers)} copper layer(s) with 0 intrusions, but "
+            f"the requirement it must clear is NOT DETERMINABLE for "
+            f"{len(indet)} barrier-crossing pairing(s): {', '.join(indet)}. "
+            "This is NOT a pass. It cannot be closed by moving copper -- only "
+            "by obtaining IEC 60664-4 (or the UL/CSA 6th Ed. >30 kHz creepage "
+            "text) and re-deriving. Never resolve it by choosing a number."
+        )
+        print(f"\n{msg}")
+        if gh:
+            with open(gh, "a") as f:
+                f.write(f"### Isolation Keepout Gate -- INDETERMINATE\n{msg}\n")
+        return
 
     if state == "clean":
         msg = (
@@ -919,6 +989,10 @@ def main() -> None:
 
     if state == "violation":
         sys.exit(EXIT_VIOLATION)
+    if not MIN_BARRIER_WIDTH_IS_DETERMINATE:
+        # Fail closed: a clean geometry against an unknown requirement is not
+        # a passing board. See EXIT_INDETERMINATE's comment.
+        sys.exit(EXIT_INDETERMINATE)
     sys.exit(EXIT_OK)
 
 

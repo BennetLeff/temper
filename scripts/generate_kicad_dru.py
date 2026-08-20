@@ -13,7 +13,14 @@ from pathlib import Path
 
 import temper_design_bundle_python as _tdb
 
-from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+from temper_placer.core.design_rules import (
+    TEMPER_NET_ASSIGNMENTS,
+    TEMPER_NET_CLASSES,
+)
+from temper_placer.core.insulation_coordination import (
+    ENFORCED_POLLUTION_DEGREE,
+    requirement_for_class_to_domain,
+)
 
 # The Rust SafetyValue SSOT (packages/temper-design-bundle/src/safety_value.rs):
 # every safety constant below is a *lookup* into the recovered IEC 60335-1
@@ -140,16 +147,30 @@ HV_CREEPAGE_PD3_MM = _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17"
 #     proof this is a genuine path-around-obstacles solver, not a relabeled
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
-# WHICH FIGURE TO EMIT: PD3 is the enforced production target (the
-# 2026-08-15 data-driven decision: PD3 governs the as-built, forced-air-
-# vented, compartment-less board; see docs/evidence/2026-08-15-pd2-pd3-
-# data-driven-decision.md), and it must remain aligned with
-# check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM. Both enforcement
-# points therefore emit/enforce 12.6mm. The PD2 constant is retained as an
-# explicit fallback so a future mechanical reclassification (a built, real
-# sealed compartment) changes both points together rather than silently
-# carrying the PD3 number.
+# NO LONGER THE FIGURE ANY RULE EMITS (2026-08-19). This assignment's
+# remaining -- and only -- job is to be this repository's POLLUTION-DEGREE
+# SELECTOR: `scripts/check_pd2_compartment_evidence.py` regexes exactly this
+# line (`HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD[23]_MM`) to tell whether the
+# tree is claiming PD2 or PD3, and `scripts/check_insulation_pairings.py`
+# cross-checks it against `insulation_coordination.ENFORCED_POLLUTION_DEGREE`.
+#
+# The creepage figures the rules emit are now DERIVED PER PAIRING -- see
+# HV_TO_LV_CREEPAGE above. 12.6mm was Table 17 row iv, and no pairing this
+# design actually has lands in row iv: the bus crossing is row iii (8.0mm),
+# the mains crossing row ii (4.8mm), and the tank crossing row vi (>=20.0mm,
+# not determinable). Do not re-point any rule at this constant.
 HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
+
+# Fail closed if the two PD selectors disagree. They are two literals in two
+# languages describing one physical classification; a silent divergence would
+# put the DRU and the derived per-pairing figures on different table columns.
+if ENFORCED_POLLUTION_DEGREE != 3:
+    raise RuntimeError(
+        "pollution-degree selectors disagree: this file selects "
+        "HV_CREEPAGE_PD3_MM (PD3) while "
+        "temper_placer.core.insulation_coordination.ENFORCED_POLLUTION_DEGREE "
+        f"is {ENFORCED_POLLUTION_DEGREE}. Change both together or neither."
+    )
 
 # RULE 10's floor: the clearance every track-involving pair must hold when no
 # stricter, more specific rule matches. This is the bar 503 of the heatsink
@@ -337,6 +358,121 @@ HV_TANK_CLASS = "HighVoltageTank"
 # scripts/check_hv_netclass_coverage.py PROPERTY 2 fails closed if any
 # declared class is added here without a positive NetClass == rule.
 HV_SIGNAL_CLASS = "HighVoltageSignal"
+
+# ---------------------------------------------------------------------------
+# PER-PAIRING REINFORCED CREEPAGE (REPLACED THE SCALAR, 2026-08-19)
+# ---------------------------------------------------------------------------
+# Every "<HV class> to LV" rule below used to emit ONE figure,
+# HV_CREEPAGE_ENFORCED_MM = 12.6mm -- IEC 60335-1 Table 17 row **iv**
+# (>250-400V), PD3, doubled -- for every HV class against every LV class.
+#
+# docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md (commit
+# 0cbc04248) established from primary text that THE SINGLE SCALAR IS THE
+# DEFECT, NOT ITS VALUE. Row iv suits a 230V design; this is a 120V design
+# whose doubler midpoint is Y-cap coupled to PE, so +170V_BUS is a +/-170V
+# HALF-bus, and IEC 60664-1 cl. 3.2.1.1 dimensions creepage on "the long-term
+# r.m.s. value" (170V dc with 120Vrms superimposed = 208.1Vrms -> row iii).
+# The scalar was SIMULTANEOUSLY too generous for the bus crossing (8.0mm) and
+# too small for the resonant-tank crossing (>=20.0mm).
+#
+# Each rule's figure is now DERIVED, per net class, from
+# `elec/insulation_manifest.yaml`'s declared per-pairing working voltages
+# through `packages/temper-design-bundle/src/insulation.rs`. The reduction
+# from "net pairing" to "net class" is a `max` over every member net pair --
+# net class is a COARSER partition than the insulation grouping (e.g.
+# TEMPER_NET_ASSIGNMENTS puts PWR_RTN at 120V and +170V_BUS at 170V dc and
+# tank-out at 570.5Vrms ALL in `HighVoltage`), and KiCad's rule language has
+# no notion of safety domain, so a class rule must take its worst member. That
+# is conservative by construction: no pairing ends up below its own figure.
+#
+# WHAT "NOT DETERMINABLE" EMITS, AND WHY IT IS NOT A COMPLIANCE CLAIM.
+# This board switches at 47kHz, above IEC 60664-1 cl. 1.1.1's 30kHz scope
+# ceiling; cl. 2.3 routes dimensioning above it to IEC 60664-4, which is
+# paywalled and was NOT obtained. Every class whose members touch the switch
+# node or the tank therefore has NO determinable requirement. This file emits
+# that class's PROVEN LOWER BOUND (the <=30kHz table figure), because a
+# constraint that is known to be necessary is better than no constraint at
+# all -- but a board that satisfies this .dru is NOT thereby compliant on
+# those pairs. `scripts/check_insulation_pairings.py` is the gate that reports
+# the indeterminacy, and it exits non-zero for it; a DRC pass must never be
+# read as closing it. Each affected rule below says so in its own comment.
+_LV_DOMAIN = "SELV"
+
+
+def _hv_class_creepage(hv_class: str):
+    """The reinforced creepage this HV net class owes the whole SELV domain.
+
+    Returns the `NetClassRequirement` (floor, determinability, governing
+    pairing, members). Raises rather than returning a default if the class has
+    no declared net: a rule emitted at a figure nobody derived is exactly the
+    fabricated safety value this whole mechanism exists to remove.
+    """
+    req = requirement_for_class_to_domain(
+        hv_class, _LV_DOMAIN, TEMPER_NET_ASSIGNMENTS
+    )
+    if req is None:
+        raise RuntimeError(
+            f"net class {hv_class!r} has no net declared in "
+            "elec/insulation_manifest.yaml, so no creepage requirement can be "
+            "derived for it and none is assumed. Declare its nets (and their "
+            "pairings) there, or remove the rule that references it. See "
+            "packages/temper-design-bundle/src/insulation.rs."
+        )
+    return req
+
+
+# The five HV-side classes that carry a "to LV" reinforced-creepage rule
+# (RULES 2, 4, 4b, 4c, 4d). GateDriveHV deliberately absent: it has no "to LV"
+# rule in this generator at all -- a pre-existing, separately-tracked gap
+# (docs/evidence/2026-08-17-netclass-classifier-manifest-and-
+# ieccreepagegate-liveness.md), not something this change introduces or
+# closes.
+HV_TO_LV_CREEPAGE = {
+    name: _hv_class_creepage(name)
+    for name in (
+        "ACMains",
+        "HighVoltage",
+        HV_TANK_CLASS,
+        HV_SIGNAL_CLASS,
+        "HighVoltageIsolated",
+    )
+}
+
+
+def hv_to_lv_creepage_mm(hv_class: str) -> float:
+    """The figure to EMIT for `hv_class` against LV: its enforceable floor."""
+    return HV_TO_LV_CREEPAGE[hv_class].floor_mm
+
+
+def hv_to_lv_creepage_note(hv_class: str) -> list[str]:
+    """The provenance comment lines that must accompany that figure."""
+    req = HV_TO_LV_CREEPAGE[hv_class]
+    lines = [
+        f"# DERIVED, per pairing: {hv_class} <-> SELV domain."
+        f" Governing pairing {req.governing_pairing},"
+        f" over {{{', '.join(req.member_pairings)}}}.",
+    ]
+    if req.determinable:
+        lines.append(
+            f"# Requirement {req.floor_mm}mm, determinable from the recovered"
+            " tables at PD"
+            f"{ENFORCED_POLLUTION_DEGREE}, material group IIIa/IIIb."
+        )
+    else:
+        lines.append(
+            f"# NOT DETERMINABLE. {req.floor_mm}mm is a PROVEN LOWER BOUND"
+            " only -- at least one member pairing runs at 47kHz, above"
+        )
+        lines.append(
+            "# IEC 60664-1 cl. 1.1.1's 30kHz scope ceiling, and cl. 2.3 routes"
+            " dimensioning to IEC 60664-4 (paywalled, NOT obtained)."
+        )
+        lines.append(
+            "# A board that satisfies this constraint is NOT thereby compliant"
+            " on those pairs. See scripts/check_insulation_pairings.py."
+        )
+    return lines
+
 
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
@@ -750,28 +886,38 @@ def generate_dru() -> str:
     lines.append("# `creepage` constraint (confirmed against kicad-source-mirror @ 10.0.4 and")
     lines.append("# empirically -- see docs/evidence/2026-07-28-drc-creepage-constraint.md). RULES")
     lines.append(
-        f"# 2 and 4 below enforce {fmt_mm(HV_CREEPAGE_ENFORCED_MM)} reinforced creepage across the"
+        "# 2, 4, 4b, 4c and 4d below enforce PER-PAIRING reinforced creepage across the"
     )
-    lines.append("# AC-Mains/HighVoltage <-> everything-else boundary, in addition to their")
-    lines.append("# existing clearance figures. The enforced figure is PD3 (12.6mm) -- the")
-    lines.append("# as-built, decision-documented bar (docs/evidence/2026-08-15-pd2-pd3-data-")
-    lines.append("# driven-decision.md: the board is forced-air vented with no sealed")
-    lines.append("# compartment, so PD3 governs per IEC 60335-2-6 cl. 29.2 Addition). PD2")
-    lines.append("# (8.0mm) is retained as the fallback should the compartment ever be built;")
-    lines.append("# see the source comment on HV_CREEPAGE_ENFORCED_MM for the")
-    lines.append("# selection rule and")
+    lines.append("# HV <-> everything-else boundary, in addition to their existing clearance")
+    lines.append("# figures. THE FIGURE IS NO LONGER ONE SCALAR (2026-08-19): each HV net")
+    lines.append("# class carries the requirement its own worst member pairing earns, derived")
+    lines.append("# from elec/insulation_manifest.yaml's declared per-pairing working voltages")
+    lines.append("# through packages/temper-design-bundle/src/insulation.rs. As emitted today:")
+    for _cls in ("ACMains", "HighVoltage", HV_TANK_CLASS, HV_SIGNAL_CLASS, "HighVoltageIsolated"):
+        _req = HV_TO_LV_CREEPAGE[_cls]
+        _tag = "" if _req.determinable else "  <-- LOWER BOUND ONLY, NOT DETERMINABLE"
+        lines.append(f"#   {_cls:20} {fmt_mm(_req.floor_mm):>8}   ({_req.governing_pairing}){_tag}")
+    lines.append("# 12.6mm -- Table 17 row iv, the figure every one of these rules used to")
+    lines.append("# carry -- is NOT reachable from any pairing this design actually has. The")
+    lines.append("# bus crossing is row iii (8.0mm), the mains crossing row ii (4.8mm), and")
+    lines.append("# the tank crossing row vi (>=20.0mm). See docs/evidence/2026-08-19-table-17-")
+    lines.append("# row-determination-hv-selv.md.")
+    lines.append("#")
+    lines.append("# NOT DETERMINABLE means NOT COMPLIANT-BY-DRC. This board switches at 47kHz,")
+    lines.append("# above IEC 60664-1 cl. 1.1.1's 30kHz scope ceiling; cl. 2.3 routes")
+    lines.append("# dimensioning above it to IEC 60664-4, which is paywalled and was not")
+    lines.append("# obtained. The figures marked above are proven lower bounds, and a clean")
+    lines.append("# DRC run against them closes nothing on those pairs. The gate that reports")
+    lines.append("# this is scripts/check_insulation_pairings.py, and it exits non-zero.")
+    lines.append("#")
     lines.append("# `scripts/check_isolation_keepout.py` remains the")
     lines.append("# other, independent creepage enforcement point on this board (a conservative")
     lines.append("# straight-line-corridor sufficient bound, not a surface-path measure); this")
-    lines.append("# generator's new rules are the fab-authoritative KiCad DRC path. The keepout")
-    lines.append("# gate's own MIN_BARRIER_WIDTH_MM is ALSO 12.6mm/PD3 (fixed alongside this")
-    lines.append("# file's own PD3 switch, PR #1229, same day as the text above first went in;")
-    lines.append("# this comment used to say 'still PD2-pinned, a separate follow-up' -- that")
-    lines.append("# was true only briefly and is corrected here, 2026-08-17, to match the")
-    lines.append("# already-correct statement earlier in this file, at HV_CREEPAGE_ENFORCED_MM's")
-    lines.append("# own comment). Both enforcement points emit/enforce 12.6mm. See")
-    lines.append("# docs/evidence/2026-07-28-creepage-determination-brainstorm.md for the full")
-    lines.append("# clause-cited derivation.")
+    lines.append("# generator's rules are the fab-authoritative KiCad DRC path. That gate's own")
+    lines.append("# MIN_BARRIER_WIDTH_MM is now 20.0mm -- the WORST crossing, because one")
+    lines.append("# physical barrier is governed by its worst pairing, where these rules can")
+    lines.append("# discriminate per class. The two figures differ on purpose and are derived")
+    lines.append("# from the same declaration.")
     lines.append("#")
     lines.append("# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap (see RULE")
     lines.append("# 5 below); this is a package-geometry fact, not something this script or a")
@@ -977,6 +1123,8 @@ def generate_dru() -> str:
         " GateDriveHV note above records. RULE 3 keeps handling it."
     )
     lines.append(_SEP)
+    for _line in hv_to_lv_creepage_note('ACMains'):
+        lines.append(_line)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
@@ -987,7 +1135,9 @@ def generate_dru() -> str:
         " && B.NetClass != 'GateDriveHV'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
-    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(
+        f"   (constraint creepage (min {fmt_mm(hv_to_lv_creepage_mm('ACMains'))}))"
+    )
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
@@ -1088,6 +1238,8 @@ def generate_dru() -> str:
         f' "{HV_SIGNAL_CLASS} to LV" rule below for this class\'s real'
         " protection."
     )
+    for _line in hv_to_lv_creepage_note('HighVoltage'):
+        lines.append(_line)
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
@@ -1099,7 +1251,9 @@ def generate_dru() -> str:
         " && B.NetClass != 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
-    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(
+        f"   (constraint creepage (min {fmt_mm(hv_to_lv_creepage_mm('HighVoltage'))}))"
+    )
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
@@ -1132,6 +1286,8 @@ def generate_dru() -> str:
         " SAME treatment the pair already got before this change."
     )
     lines.append(_SEP)
+    for _line in hv_to_lv_creepage_note(HV_TANK_CLASS):
+        lines.append(_line)
     lines.append(f'(rule "{HV_TANK_CLASS} to LV"')
     lines.append(
         f"   (condition \"A.NetClass == '{HV_TANK_CLASS}'"
@@ -1143,7 +1299,9 @@ def generate_dru() -> str:
         " && B.NetClass != 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
-    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(
+        f"   (constraint creepage (min {fmt_mm(hv_to_lv_creepage_mm(HV_TANK_CLASS))}))"
+    )
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
@@ -1168,6 +1326,8 @@ def generate_dru() -> str:
         "# it to this class must not silently drop that coverage."
     )
     lines.append(_SEP)
+    for _line in hv_to_lv_creepage_note(HV_SIGNAL_CLASS):
+        lines.append(_line)
     lines.append(f'(rule "{HV_SIGNAL_CLASS} to LV"')
     lines.append(
         f"   (condition \"A.NetClass == '{HV_SIGNAL_CLASS}'"
@@ -1179,7 +1339,9 @@ def generate_dru() -> str:
         " && B.NetClass != 'HighVoltageIsolated'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
-    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(
+        f"   (constraint creepage (min {fmt_mm(hv_to_lv_creepage_mm(HV_SIGNAL_CLASS))}))"
+    )
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
@@ -1271,6 +1433,8 @@ def generate_dru() -> str:
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(")")
     lines.append("")
+    for _line in hv_to_lv_creepage_note('HighVoltageIsolated'):
+        lines.append(_line)
     lines.append('(rule "HighVoltageIsolated to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
@@ -1282,7 +1446,9 @@ def generate_dru() -> str:
         " && B.NetClass != 'GateDriveHV'\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
-    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
+    lines.append(
+        f"   (constraint creepage (min {fmt_mm(hv_to_lv_creepage_mm('HighVoltageIsolated'))}))"
+    )
     lines.append(")")
     lines.append("")
     lines.append(_SEP)

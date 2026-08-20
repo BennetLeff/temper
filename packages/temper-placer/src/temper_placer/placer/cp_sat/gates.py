@@ -722,74 +722,102 @@ def _ipc2152_forward(
 # ------------------------------------------------------------------
 # W3/U4: IEC Creepage Gate — kicad-cli DRC clearance HV ↔ LV
 # ------------------------------------------------------------------
-# @req(2026-07-08-005, R4): verify reinforced-insulation HV/LV creepage
-# (HV_LV_CREEPAGE_MM below, read from the safety SSOT -- not a hardcoded
-# figure) via kicad-cli DRC on the routed board, filtering clearance
-# violations between HV and LV net classes.  kicad-cli failure → UNMEASURED.
+# @req(2026-07-08-005, R4): verify reinforced-insulation HV/SELV creepage
+# via kicad-cli DRC on the routed board, filtering clearance violations that
+# cross the HV <-> SELV boundary and grading each against ITS OWN declared
+# pairing (see below).  kicad-cli failure -> UNMEASURED; an indeterminable
+# requirement -> UNMEASURED, never CLEAN.
 
-# FIXED 2026-08-17 (docs/evidence/2026-08-17-netclass-classifier-manifest-
-# and-ieccreepagegate-liveness.md): this gate hardcoded a flat 6.0mm
-# HV<->LV creepage threshold with no citation. 6.0mm is not a value in any
-# recovered IEC 60335-1 table (Table 16/17/18 -- see the identical, earlier
-# finding for `core/design_rules.py`'s old ACMains/HighVoltage
-# `creepage_mm` fields), and it is superseded by this project's own PD3
-# SSOT decision (handoff §2, PR #1219/#1224): 12.6mm reinforced, HV/LV,
-# >250-400V, pollution degree 3. Reading it from the SAME recovered-Table-17
-# lookup `scripts/generate_kicad_dru.py`'s `HV_CREEPAGE_ENFORCED_MM` already
-# uses (PD3, material group IIIa/IIIb, >250-400V, Table 17, doubled for
-# reinforced insulation per cl. 29.2) rather than hardcoding a second copy
-# of the number keeps this gate from drifting from the DRU generator again.
-HV_LV_CREEPAGE_MM: float = (
-    _tdb.creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0
-)
-
-_HV_NET_PATTERNS: frozenset[str] = frozenset(
-    {
-        "DC_BUS+",
-        "DC_BUS-",
-        "SW_NODE",
-        "SW_NODE_DC+",
-        "SW_NODE_DC-",
-        "AC_L",
-        "AC_N",
-    }
-)
+# PER-PAIRING, NOT ONE SCALAR (2026-08-19).
+#
+# History, because two prior fixes here were partial. This gate originally
+# hardcoded a flat 6.0mm HV<->LV creepage threshold with no citation. On
+# 2026-08-17 that was replaced by a lookup into the recovered Table 17 --
+# `creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17") * 2` = 12.6mm --
+# which removed the fabrication but kept the shape: ONE figure for every
+# HV<->LV pair on the board.
+#
+# `docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md` (commit
+# 0cbc04248) established from primary text that the shape is the defect.
+# ">250-400" is Table 17 row **iv**, and NO pairing this design actually has
+# lands in row iv: the mains crossing is row ii (4.8mm), the DC-bus crossing
+# row iii (8.0mm), and the resonant-tank crossing row vi (>=20.0mm). The
+# scalar was simultaneously ~1.6x too generous for the bus and at least ~1.6x
+# too small for the tank.
+#
+# Each violation is now graded against ITS OWN pairing, looked up by the net
+# names KiCad already puts in the violation record, through
+# `temper_placer.core.insulation_coordination`. There is no module-level
+# threshold constant here any more, deliberately: a single number in this
+# module is the thing that kept regrowing.
+#
+# THREE-VALUED. The board switches at 47kHz, above IEC 60664-1 cl. 1.1.1's
+# 30kHz scope ceiling; cl. 2.3 routes dimensioning above it to IEC 60664-4,
+# paywalled and not obtained. For a pairing that touches the switch node or
+# the tank there is NO determinable requirement -- only a proven lower bound.
+# This gate therefore CANNOT return CLEAN while any barrier-crossing pairing
+# is indeterminate: it returns UNMEASURED with the reason, which is the
+# honest answer ("the geometry may be fine; the requirement is unknown") and
+# is what this gate's own docstring already promises ("never returns a false
+# CLEAN"). Never resolve it by choosing a number.
+import temper_placer.core.insulation_coordination as _insulation
 
 
 def _is_hv_net(name: str) -> bool:
-    """Check whether *name* is a known HV net in the half-bridge design.
+    """Whether *name* is a declared HV-domain net.
 
-    KNOWN GAP, flagged not fixed (2026-08-17, same evidence doc as
-    ``HV_LV_CREEPAGE_MM`` above): this is a local, hardcoded 7-name
-    frozenset -- a fourth, independently-maintained "is this net HV"
-    classifier alongside ``core/net_classification.classify_net_type``
-    (fixed in ``netclass_constraints.py``, same evidence doc),
-    ``core/design_rules.py``'s ``TEMPER_NET_ASSIGNMENTS``/pattern cascade,
-    and ``elec/domain_manifest.yaml``. It does not include K1's HV
-    relay-contact nets (``power_in.ntc-no``, ``w1_1``, ``w1_2``) -- the
-    same net set whose misclassification in ``netclass_constraints.py``
-    produced the J1/K1 unroutable placement this task investigates. A DRC
-    clearance violation naming one of those three nets would silently NOT
-    be recognized as an HV↔LV crossing by this gate. Left as-is: reconciling
-    this gate's net classification with the authoritative
-    ``DesignRules.get_rules_for_net()`` source is a materially larger change
-    (this function has no ``DesignRules`` instance available today) than
-    this task's assigned scope (the threshold value + the gate's
-    liveness/DeltaMapper leak) and was not attempted here.
+    FIXED 2026-08-19. This used to be a local, hardcoded 7-name frozenset --
+    a fourth, independently-maintained "is this net HV" classifier alongside
+    ``core/net_classification.classify_net_type``, ``core/design_rules.py``'s
+    ``TEMPER_NET_ASSIGNMENTS`` cascade, and ``elec/domain_manifest.yaml``. It
+    omitted K1's HV relay-contact nets (``power_in.ntc-no``, ``w1_1``,
+    ``w1_2``), so a DRC clearance violation naming one of those was silently
+    NOT recognised as an HV<->LV crossing by this gate.
+
+    It now asks the insulation declaration, which is net-exact and whose
+    membership is proved against ``elec/domain_manifest.yaml`` on every CI run
+    by ``scripts/check_insulation_pairings.py``. An undeclared net answers
+    ``False`` here -- it is not silently treated as HV -- but it also cannot
+    be silently treated as SELV, because ``_pairing_for`` below refuses to
+    grade a pair it cannot look up and the gate reports that as UNMEASURED
+    rather than CLEAN.
     """
-    return name in _HV_NET_PATTERNS
+    return _insulation.net_domain(name) == "HV"
+
+
+def _worst_pairing(hv_nets: list[str], lv_nets: list[str]):
+    """The strictest declared pairing among every (HV, LV) net pair given.
+
+    Returns ``None`` when no pair could be looked up at all -- the caller
+    fails the whole gate closed on that, rather than silently dropping the
+    violation.
+    """
+    worst = None
+    for hv in hv_nets:
+        for lv in lv_nets:
+            try:
+                pairing = _insulation.requirement_for_nets(hv, lv)
+            except _insulation.InsulationDeclarationError:
+                continue
+            if worst is None or pairing.enforceable_floor_mm() > worst.enforceable_floor_mm():
+                worst = pairing
+    return worst
 
 
 class IECCreepageGate(Gate):
-    """ROUTING-stage gate: verifies reinforced HV/LV creepage
-    (``HV_LV_CREEPAGE_MM``, read from the safety SSOT -- 12.6mm PD3 as of
-    this writing, not a hardcoded figure) between HV and LV nets.
+    """ROUTING-stage gate: verifies reinforced HV/LV creepage between HV and
+    LV nets, **per pairing** -- each violation graded against the requirement
+    its own two nets earn, derived from ``elec/insulation_manifest.yaml``.
 
-    Runs ``kicad-cli pcb drc`` on the routed board, filtering clearance
-    violations that cross HV ↔ LV net classes.  Returns ``CLEAN`` when
-    there are zero such violations, ``VIOLATIONS`` when at least one is
-    found, and ``UNMEASURED`` when kicad-cli fails or the routed PCB is
-    missing (never returns a false ``CLEAN``).
+    Runs ``kicad-cli pcb drc`` on the routed board and filters clearance
+    violations that cross the HV <-> SELV boundary.  Returns ``VIOLATIONS``
+    when at least one crossing violation is found; ``UNMEASURED`` when
+    kicad-cli fails, the routed PCB is missing, a violating pair's requirement
+    cannot be looked up, **or any barrier-crossing pairing's requirement is
+    not determinable** (the 47 kHz crossings -- see the block comment above);
+    and ``CLEAN`` only when there are zero crossing violations AND every
+    barrier-crossing pairing has a determinable requirement.  Never returns a
+    false ``CLEAN``.
     """
 
     stage = GateStage.ROUTING
@@ -837,20 +865,87 @@ class IECCreepageGate(Gate):
             hv_nets = [n for n in entry_names if _is_hv_net(n)]
             lv_nets = [n for n in entry_names if not _is_hv_net(n) and n and not n[0].isdigit()]
 
-            if hv_nets and lv_nets:
-                violations.append(
-                    Violation(
-                        type=ViolationType.CREEPAGE,
-                        nets=tuple(set(hv_nets + lv_nets)),
-                        severity=HV_LV_CREEPAGE_MM,  # placeholder — actual clearance in message
-                        threshold=HV_LV_CREEPAGE_MM,
-                        description=err.message,
-                        context={"required_mm": HV_LV_CREEPAGE_MM, "rule": err.rule},
-                    )
+            if not (hv_nets and lv_nets):
+                continue
+
+            # Grade against the WORST pairing among the crossing net pairs in
+            # this violation, not against a board-wide scalar. A violation can
+            # name more than two nets; taking the max is the only reduction
+            # that cannot under-report.
+            pairing = _worst_pairing(hv_nets, lv_nets)
+            if pairing is None:
+                # A crossing violation whose requirement cannot be looked up
+                # is not a CLEAN result and is not a graded violation either.
+                # Fail closed on the whole gate rather than dropping the pair.
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=(
+                        "HV<->LV clearance violation on nets "
+                        f"{sorted(set(hv_nets + lv_nets))!r} has no declared "
+                        "insulation pairing, so no requirement could be "
+                        "derived for it and none is assumed. Declare the nets "
+                        "in elec/insulation_manifest.yaml "
+                        "(scripts/check_insulation_pairings.py proves the "
+                        "coverage)."
+                    ),
                 )
+            required = pairing.enforceable_floor_mm()
+            violations.append(
+                Violation(
+                    type=ViolationType.CREEPAGE,
+                    nets=tuple(set(hv_nets + lv_nets)),
+                    severity=required,  # placeholder — actual clearance in message
+                    threshold=required,
+                    description=(
+                        f"{err.message} [pairing {pairing.key()}, "
+                        f"{pairing.working_voltage_vrms()}Vrms, "
+                        f"{pairing.insulation()}, {pairing.table()} "
+                        f"{pairing.voltage_range()}, "
+                        + (
+                            f"required {required}mm]"
+                            if pairing.is_determinable()
+                            else f"required NOT DETERMINABLE, lower bound {required}mm]"
+                        )
+                    ),
+                    context={
+                        "required_mm": required,
+                        "rule": err.rule,
+                        "pairing": pairing.key(),
+                        "determinable": pairing.is_determinable(),
+                    },
+                )
+            )
 
         if violations:
             return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
+
+        # Zero violations is still not CLEAN while the requirement itself is
+        # unknown. See the block comment above `_is_hv_net`.
+        try:
+            determinable = _insulation.barrier_is_determinable()
+        except Exception as exc:  # noqa: BLE001 - fail closed on any loader error
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"insulation declaration unreadable: {exc}",
+            )
+        if not determinable:
+            indet = [
+                p.key()
+                for p in _insulation.resolve_declaration().indeterminate_pairings()
+                if p.crosses_barrier()
+            ]
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=(
+                    "zero HV<->LV clearance violations, but the requirement is "
+                    f"NOT DETERMINABLE for {len(indet)} barrier-crossing "
+                    f"pairing(s): {', '.join(indet)}. These run at 47 kHz, "
+                    "above IEC 60664-1 cl. 1.1.1's 30 kHz scope ceiling; "
+                    "cl. 2.3 routes dimensioning to IEC 60664-4, which is "
+                    "paywalled and was not obtained. This is NOT a pass and "
+                    "cannot be closed by moving copper."
+                ),
+            )
         return GateResult(GateStatus.CLEAN)
 
     # to_delta delegates to DeltaMapper via Gate base class.
@@ -871,7 +966,7 @@ class PhysicsGate(Gate):
     1. Commutation-loop area ≤ 2000 mm²
     2. Gate-drive loop area ≤ 500 mm² + trace spacing ≤ 2 mm
     3. Thermal via count ≥ 9 per IGBT + B.Cu pour ≥ footprint area
-    4. Creepage ≥ ``HV_LV_CREEPAGE_MM`` between HV and LV nets (delegates to
+    4. Per-pairing creepage between HV and SELV nets (delegates to
        ``IECCreepageGate.check()`` below, which is the sub-check's actual
        implementation)
 
@@ -896,7 +991,7 @@ class PhysicsGate(Gate):
     # IECCreepageGate's own (also stale, now fixed) hardcoded 6.0mm --
     # confirmed by grep, it had zero read sites in this file; sub-check 4
     # below has always gotten its real threshold from
-    # `IECCreepageGate.check()`'s own `HV_LV_CREEPAGE_MM`, never from this
+    # `IECCreepageGate.check()`'s own per-pairing lookup, never from this
     # constant. Deleting a genuinely dead, misleading duplicate rather than
     # updating a number nothing reads.
 
