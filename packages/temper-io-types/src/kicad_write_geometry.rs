@@ -37,6 +37,13 @@
 //     the same judgement `dsn_exporter.rs` records for `pin_world_position`.
 //     The reduction (order-sensitive `min`/`max` — B5, and the `abs_x - w/2`
 //     operation order — B7) is ported.
+//   * `zone_sexpr` — the `_write_zones.write_zones_to_pcb` per-zone
+//     construction as the parsed s-expression tree kiutils' `Zone.from_sexpr`
+//     consumes. Rust owns the semantic content (net/index, layer, tstamp,
+//     polygon points, the implicit hatch/clearance/min_thickness defaults);
+//     kiutils' own `to_sexpr` does the final serialisation, so float rendering
+//     and quoting are never reimplemented (B1). Pinned byte-identical by
+//     `tests/io/test_write_zones_rust_differential.py`.
 //   * `build_net_name_to_index_map` / `resolve_net_index` — the net-name →
 //     index mapping shared by `_write_zones.build_net_name_to_index_map` (and
 //     inlined in `_write_tracks.write_routes_to_pcb`) plus the two index
@@ -51,7 +58,8 @@
 // The zone tstamp (`write_zones_to_pcb`'s `uuid.uuid4()`) is NOT touched: it
 // is random in the pre-migration code, so determinizing it would be a behaviour
 // change no bit-identical differential could pin, and the zone writer has no
-// live caller. Recorded, not silently changed.
+// live caller. `zone_sexpr` therefore takes the tstamp as a parameter —
+// recorded, not silently changed.
 
 // Only `stable_tstamp` (below, `#[cfg(feature = "python")]`) hashes anything,
 // so with `--no-default-features` -- the wasm32 configuration -- this import
@@ -130,7 +138,7 @@ mod py_bridge {
     use super::*;
     use pyo3::exceptions::PyAttributeError;
     use pyo3::prelude::*;
-    use pyo3::types::{PyBool, PyDict, PyTuple};
+    use pyo3::types::{PyBool, PyDict, PyList, PyTuple};
     use temper_py_bridge::catch_panic;
 
     /// Python `float(obj)` — exact CPython `float()` semantics (works on ints,
@@ -357,6 +365,102 @@ mod py_bridge {
         catch_panic(|| Ok(component_bounds_pure(fp_x, fp_y, &world_pads)))
     }
 
+    /// `_write_zones.write_zones_to_pcb`'s per-zone construction: the parsed
+    /// s-expression tree that kiutils' `Zone.from_sexpr` consumes, mirroring
+    /// `Zone(netName=..., net=..., layers=[...], tstamp=...,
+    /// polygons=[ZonePolygon(coordinates=[...])], minThickness=0.254)`
+    /// field-for-field (every other field at its dataclass default).
+    ///
+    /// Rust owns the zone's semantic content — the net name/index, layer,
+    /// tstamp, polygon points and the implicit defaults (hatch none/0.0,
+    /// clearance/min_thickness 0.254) — as a `list` structure; the Python
+    /// shim materialises it with `Zone.from_sexpr` and kiutils' own
+    /// `to_sexpr` does the final serialisation, so float rendering and
+    /// quoting are never reimplemented in Rust (B1 discipline). The
+    /// differential pins `Zone.from_sexpr(rust).to_sexpr()` byte-identical
+    /// to the oracle's `Zone(...).to_sexpr()`.
+    #[pyfunction]
+    pub fn zone_sexpr_py(
+        py: Python<'_>,
+        net_name: &str,
+        net: i64,
+        layer: &str,
+        tstamp: &str,
+        points: Vec<(f64, f64)>,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut zone: Vec<Bound<'_, PyAny>> = Vec::new();
+            zone.push("zone".into_pyobject(py)?.into_any());
+
+            let net_item: Vec<Bound<'_, PyAny>> = vec![
+                "net".into_pyobject(py)?.into_any(),
+                net.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, net_item)?.into_any());
+
+            let net_name_item: Vec<Bound<'_, PyAny>> = vec![
+                "net_name".into_pyobject(py)?.into_any(),
+                net_name.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, net_name_item)?.into_any());
+
+            let layer_item: Vec<Bound<'_, PyAny>> = vec![
+                "layer".into_pyobject(py)?.into_any(),
+                layer.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, layer_item)?.into_any());
+
+            let tstamp_item: Vec<Bound<'_, PyAny>> = vec![
+                "tstamp".into_pyobject(py)?.into_any(),
+                tstamp.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, tstamp_item)?.into_any());
+
+            let hatch_item: Vec<Bound<'_, PyAny>> = vec![
+                "hatch".into_pyobject(py)?.into_any(),
+                "none".into_pyobject(py)?.into_any(),
+                0.0f64.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, hatch_item)?.into_any());
+
+            let connect_item: Vec<Bound<'_, PyAny>> = vec![
+                "connect_pads".into_pyobject(py)?.into_any(),
+                PyList::new(
+                    py,
+                    [
+                        "clearance".into_pyobject(py)?.into_any(),
+                        0.254f64.into_pyobject(py)?.into_any(),
+                    ],
+                )?
+                .into_any(),
+            ];
+            zone.push(PyList::new(py, connect_item)?.into_any());
+
+            let min_thickness_item: Vec<Bound<'_, PyAny>> = vec![
+                "min_thickness".into_pyobject(py)?.into_any(),
+                0.254f64.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, min_thickness_item)?.into_any());
+
+            let mut pts: Vec<Bound<'_, PyAny>> = vec!["pts".into_pyobject(py)?.into_any()];
+            for (x, y) in points {
+                let xy: Vec<Bound<'_, PyAny>> = vec![
+                    "xy".into_pyobject(py)?.into_any(),
+                    x.into_pyobject(py)?.into_any(),
+                    y.into_pyobject(py)?.into_any(),
+                ];
+                pts.push(PyList::new(py, xy)?.into_any());
+            }
+            let polygon_item: Vec<Bound<'_, PyAny>> = vec![
+                "polygon".into_pyobject(py)?.into_any(),
+                PyList::new(py, pts)?.into_any(),
+            ];
+            zone.push(PyList::new(py, polygon_item)?.into_any());
+
+            Ok(PyList::new(py, zone)?.unbind())
+        })
+    }
+
     /// `float(index) * 90.0` — rotation index to degrees.
     #[pyfunction]
     pub fn rotation_index_to_degrees_py(index: i64) -> PyResult<f64> {
@@ -385,6 +489,7 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(resolve_net_index_default_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(build_net_name_to_index_map_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(component_bounds_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(zone_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(rotation_index_to_degrees_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(placement_coordinate_py, &sub)?)?;
         module.add_submodule(&sub)
