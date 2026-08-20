@@ -220,6 +220,36 @@ DEFAULT_ROUTING_CLEARANCE_MM = 0.2
 VIA_HOLE_CLEARANCE_MM = 0.28
 
 # ---------------------------------------------------------------------------
+# "PTH hole to hole" (kicad-cli's `hole_to_hole` constraint) floor.
+#
+# NAMED, NOT CHANGED, 2026-08-19. The value below is the literal that the
+# `(rule "PTH hole to hole")` emitter has always written; it is lifted to a
+# module constant ONLY so a second consumer can read the enforced figure
+# instead of re-typing it. `generate_dru()`'s output is byte-identical
+# before and after this refactor (asserted by the caller that introduced it).
+#
+# The second consumer is the CP-SAT placer
+# (`placer/cp_sat/hole_geometry.py`), which now constrains inter-component
+# drilled-hole separation. That module MUST NOT carry its own copy of this
+# number: a placer that solved against a looser figure than the DRU enforces
+# would emit placements the DRC then rejects, and a placer that carried its
+# own figure could drift away from the enforced one silently.
+#
+# Note this is STRICTER than `pcb/temper.kicad_pro`'s board-setup
+# `min_hole_to_hole` (0.3mm). KiCad applies the stricter of the two, so 0.5mm
+# is the figure actually enforced on this board; the placer takes the max of
+# the two for the same fail-closed reason.
+#
+# NO FABRICATOR FIGURE EXISTS IN-TREE FOR THIS DIMENSION. Neither
+# docs/hardware/FAB_CAPABILITY.md nor
+# docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md quotes a JLCPCB
+# minimum hole-to-hole spacing (their sourced hole rows are 2a annular ring,
+# 2b min drill diameter and 2c hole-to-COPPER). 0.5mm is this repo's own
+# pre-existing design figure, and it is not claimed here to be traceable to
+# JLCPCB.
+PTH_HOLE_TO_HOLE_MM = 0.5
+
+# ---------------------------------------------------------------------------
 # HV<->HV FUNCTIONAL creepage at the resonant-tank node (ADDED 2026-08-12).
 #
 # The three creepage constraints above (RULES 2, 4, 4b) all require ONE SIDE to
@@ -1845,7 +1875,7 @@ def generate_dru() -> str:
     lines.append(")")
     lines.append("")
     lines.append('(rule "PTH hole to hole"')
-    lines.append("   (constraint hole_to_hole (min 0.5mm))")
+    lines.append(f"   (constraint hole_to_hole (min {fmt_mm(PTH_HOLE_TO_HOLE_MM)}))")
     lines.append(")")
     lines.append("")
 

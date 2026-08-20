@@ -128,6 +128,12 @@ class CpSatPlacementResult:
     # Populated only when solve_placement(tank_creepage=...) was passed;
     # see tank_creepage.py::TankCreepageReport.
     tank_creepage_report: object | None = None
+    # Populated only when solve_placement(hole_geometry=...) was passed; see
+    # hole_geometry.py::HoleGeometryReport. Carries the enforced hole figures
+    # WITH their provenance, the number of inter-component pairs constrained,
+    # and any intra-footprint hole-to-hole violation (which no placement can
+    # fix, so it is reported rather than constrained).
+    hole_geometry_report: object | None = None
     # Populated only when solve_placement(body_collision_input=...) was
     # passed; see body_collision.py::BodyCollisionAuditResult. A NEW or
     # WORSENED F.Fab body collision raises inside solve_placement rather
@@ -203,6 +209,7 @@ def solve_placement(
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
     tank_creepage: dict | None = None,
+    hole_geometry: dict | None = None,
     heatsink_colocation: int | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
@@ -284,6 +291,30 @@ def solve_placement(
             posted at the same point in the sequence (after every
             component is registered). The resulting report is attached to
             ``CpSatPlacementResult.tank_creepage_report``.
+        hole_geometry: Optional kwargs forwarded to
+            ``hole_geometry.add_hole_geometry_to_model`` (minus
+            ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
+            function supplies) -- e.g. ``{}`` for the tree-resolved figures,
+            or ``{"enforce_hole_to_edge": False}`` to post only family A.
+            When given, registers TWO HARD constraint families over real
+            through-hole pad geometry: inter-component hole-to-hole, and
+            hole-to-board-edge. Before this existed the model constrained
+            component boxes and (for isolators) barrier-axis pad copper, but
+            nothing about a drilled hole -- so a solve could satisfy every box
+            constraint and still return a placement whose through-hole pads
+            drilled into each other or off the board.
+
+            Every figure it posts is READ from ``pcb/temper.kicad_dru`` and
+            ``pcb/temper.kicad_pro`` at call time; it authors none of them,
+            and a caller-supplied figure that would RELAX either is refused
+            with ``ValueError`` rather than honoured. Intra-footprint hole
+            pairs are reported, never constrained -- no placement can move a
+            footprint's own pads relative to each other, so posting that
+            constraint would make the model spuriously infeasible for
+            something placement does not control. Same opt-in shape as
+            ``isolation_barrier`` above, posted at the same point in the
+            sequence. The resulting report is attached to
+            ``CpSatPlacementResult.hole_geometry_report``.
         heatsink_colocation: Optional common rotation index (0-3). When
             given, registers the shared-heatsink co-location HARD
             constraint for every group in
@@ -532,6 +563,28 @@ def solve_placement(
             model_wrapper,
             netlist,
             **tank_creepage,
+        )
+
+    # Drilled-hole geometry (opt-in): inter-component hole-to-hole and
+    # hole-to-board-edge. Same placement in the sequence and same reason as
+    # the barrier above -- it calls model_wrapper.get_component() for every
+    # ref carrying a through-hole pad, so every component must already be
+    # registered, and it posts directly to the model.
+    #
+    # Every figure it posts is READ from pcb/temper.kicad_dru and
+    # pcb/temper.kicad_pro at call time; see hole_geometry.py's module
+    # docstring for why it authors none of them and refuses a caller-supplied
+    # figure that would relax either.
+    hole_geometry_report = None
+    if hole_geometry is not None:
+        from temper_placer.placer.cp_sat.hole_geometry import add_hole_geometry_to_model
+
+        hole_geometry_report = add_hole_geometry_to_model(
+            model_wrapper,
+            netlist,
+            board_w_mm=board_w,
+            board_h_mm=board_h,
+            **hole_geometry,
         )
 
     # Shared-heatsink co-location (opt-in). Same placement in the sequence
@@ -965,6 +1018,7 @@ def solve_placement(
         isolation_barrier_report=isolation_barrier_report,
         validator_audit=validator_audit,
         tank_creepage_report=tank_creepage_report,
+        hole_geometry_report=hole_geometry_report,
         body_collision_audit=body_collision_audit,
     )
 
