@@ -80,8 +80,15 @@ with `4907/149/152` and `5912/186/124` segments/vias/zones, `282`/`251`
 |---|---:|---:|
 | pads unreached, all >=2-pad nets | **325** | **281** |
 | …restricted to nets that emitted copper | **134** | **144** |
-| …of those, on the three/four PLANE nets (`gnd`, `+3V3`, `+15V`, `vcc`, `V_BUS_SENSE`) | 133 | 132 |
+| …of those, on PLANE/pour nets | 133 | 132 |
 | **…on ordinary routed nets — this fix's population** | **1** | **12** |
+
+The plane/pour rows are `gnd` 76 + `+3V3` 42 + `vcc` 12 + `V_BUS_SENSE` 3 = 133
+on the committed placement, and `gnd` 77 + `+3V3` 46 + `+15V` 9 = 132 on
+model-E. `V_BUS_SENSE` moves between the two buckets and that is not
+bookkeeping: on the committed placement it has no A\* route at all (its copper
+is `_power_islands.py` rails, `terminus_pts = 0`), while on model-E the router
+does route it, so its unlanded pads become this fix's business there.
 
 The 12 on model-E are exactly the 12 intermediate pads the residual diagnosis
 predicted and measured (`GATE_LS`, `RTD_HW_FAULT`, `V_BUS_SENSE`, `bias`,
@@ -281,7 +288,36 @@ Routed board digests (sha256):
 
 Counterfactual (gates off, NOT shipped): model-E `183c767307683e82…`.
 
-## 6. Hard-rule compliance
+## 6. Tests
+
+Six regression tests added to `tests/router_v6/test_astar_nlayer.py`, one per
+load-bearing property: the interior landing itself, the there-and-back
+insertion (asserted by comparing every same-layer copper run before and
+after), the derived layer pair through `via_layer_pair_py`, the pad-centre
+placement, the redundancy skip, the footprint gate, the cleared-cell
+distrust, the drill floor, and the two negative cases (an interior block is
+not a decline; a terminus block still is).
+
+| suite | result |
+|---|---|
+| `test_astar_nlayer.py` | **40 passed** |
+| `test_astar_nlayer_rust_differential.py` (the pinned f64-parity contract) | **passed** |
+| `test_all_pad_connectivity.py`, `test_pad_connectivity_audit.py`, `test_board_layer_roles.py` | **passed** |
+| first 246 tests of the full `router_v6` suite | 246 passed, 1 failure |
+
+**Two pre-existing failures, both proven pre-existing rather than assumed.**
+`test_ci_test_file_registration.py`'s three cases were re-run with this
+change's two files reverted to `f0ef0e089` and fail identically there (their
+complaint lists 12 test files this change never touched).
+`test_adapter_convert_marshal_rust_differential.py::test_build_route_payload_zero_length_path`
+asserts a via pair of `(0.6, 0.3)` that `Via::new`'s annular clamp corrects
+to `(0.9, 0.3)`; it is in the marshalling path, which this change does not
+touch. The full `router_v6` suite was left running and had not finished at
+report time — it stalls for a long time inside
+`test_channel_skeleton_pad_anchor_rust_differential.py`, which is unrelated
+to this change.
+
+## 7. Hard-rule compliance
 
 * `pcb/temper.kicad_pcb` never opened for writing; sha256
   `26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b` verified
