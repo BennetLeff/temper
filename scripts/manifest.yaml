@@ -1,15 +1,15 @@
 _meta:
-  last_audit_date: '2026-08-05'
-  total_scripts: 119
+  last_audit_date: '2026-08-19'
+  total_scripts: 173
   counts:
-    keep: 115
-    ticket: 0
-  ticket_scripts_deleted: 40
+    keep: 160
+    ticket: 13
+  ticket_scripts_deleted: 43
 scripts:
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -35,7 +35,7 @@ scripts:
   purpose: 'A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb'
   owner: router-v6-closure-rate
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -46,8 +46,7 @@ scripts:
   - time
   - typing
 - path: bench_rust_constraints.py
-  purpose: Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation
-    wall-clock performance
+  purpose: 'Benchmark temper_constraints Rust loss functions (compute_*_loss_py) with N-run mean/median/stdev statistics; --ci is warn-only (no workflow caller)'
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -61,7 +60,7 @@ scripts:
   - sys
   - time
 - path: bench_rust_geometry.py
-  purpose: Benchmark Rust-backed geometry functions vs pure-Python equivalents
+  purpose: 'Benchmark temper_geometry Rust functions vs inline pure-Python equivalents, with numerical-agreement verification (no workflow caller)'
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -71,31 +70,6 @@ scripts:
   - statistics
   - temper_geometry
   - time
-- path: bless_baselines.py
-  purpose: Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-  imports:
-  - argparse
-  - json
-  - pathlib
-  - subprocess
-  - sys
-  - typing
-  - yaml
-- path: bmc_adoption_gate.py
-  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - ast
-  - pathlib
-  - sys
 - path: board_defect_mutator.py
   purpose: 'Board-defect mutation corpus (R38, plan 2026-08-02-024): deterministic seeded transforms that
     produce a mutated copy of pcb/temper.kicad_pcb for each defect class (component off-board, pad short,
@@ -119,7 +93,7 @@ scripts:
   purpose: Calibrate DRC violation ceiling for Rust DRC engine
   owner: pipeline
   last_run: '2026-06-30'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - argparse
@@ -258,7 +232,7 @@ scripts:
 - path: check_coverage_gate.py
   purpose: 'Coverage gate: fail CI on zero-coverage public functions'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -517,7 +491,7 @@ scripts:
 - path: check_fault_list_consistency.py
   purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
   owner: firmware
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -738,7 +712,7 @@ scripts:
 - path: check_manifest_gate.py
   purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1301,7 +1275,7 @@ scripts:
 - path: check_regression.py
   purpose: Functional regression check (called by Makefile)
   owner: unassigned
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: shell-invoked
   imports:
@@ -1363,9 +1337,10 @@ scripts:
   - re
   - sys
 - path: check_script_sunset.py
-  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
+  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock; skips keep-WARNING for scripts
+    referenced by .github/workflows/ jobs (stale invocation graph cannot manufacture false positives)'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1373,6 +1348,7 @@ scripts:
   - datetime
   - json
   - pathlib
+  - re
   - sys
 - path: check_sil_coverage.py
   purpose: 'CI gate: SIL fault-injection coverage over (fault class, origin state) -- fails on any pair
@@ -1551,7 +1527,7 @@ scripts:
 - path: check_typecheck_gate.py
   purpose: Type-check gate with per-file monotonic-shrink allowlist baseline
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1663,7 +1639,7 @@ scripts:
 - path: ci_check_drc.py
   purpose: 'CI entry point: DRC ratchet check'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1692,7 +1668,7 @@ scripts:
 - path: ci_closure_test.py
   purpose: 'CI entry point: closure test (Benders -> Router -> DRC)'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1704,7 +1680,7 @@ scripts:
   purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined
     fixture, verifies the production board once it exists'
   owner: bennet
-  last_run: '2026-07-15'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1731,7 +1707,7 @@ scripts:
   purpose: Compare DRC reports across runs (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - dataclasses
@@ -1781,7 +1757,7 @@ scripts:
   purpose: Debug differential pair path (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - pathlib
@@ -1804,19 +1780,11 @@ scripts:
   - dataclasses
   - pathlib
   - sys
-- path: extract_corpus_baselines.py
-  purpose: Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-  imports:
-  - sys
 - path: full_pipeline_profile.py
   purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -1854,7 +1822,7 @@ scripts:
 - path: gen_architecture_poster.py
   purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
   owner: pipeline
-  last_run: '2026-07-13'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -1937,7 +1905,7 @@ scripts:
     from default.csv (default.net's libsource is footprint-aliased); --check is the schematic-drift CI
     gate
   owner: bennet
-  last_run: '2026-07-15'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1973,7 +1941,7 @@ scripts:
 - path: generate_kicad_dru.py
   purpose: Generate KiCad design rules from config (used by temper-drc tests)
   owner: unassigned
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -1982,7 +1950,7 @@ scripts:
 - path: human_reference_compare.py
   purpose: Generate human-reference PR comment comparing optimizer metrics to human placement
   owner: pipeline
-  last_run: '2026-07-01'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -1993,7 +1961,7 @@ scripts:
 - path: import_linter_gate.py
   purpose: Import boundary enforcement CI gate wrapper
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2084,7 +2052,7 @@ scripts:
   purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
     repo'
   owner: unassigned
-  last_run: '2026-07-20'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2302,9 +2270,9 @@ scripts:
   - typing
   - yaml
 - path: pipeline_metrics.py
-  purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
+  purpose: 'pipeline_metrics.jsonl time-series recorder/analyzer (record/trend/list subcommands); CI-invoked by metrics-record, firmware-perf-record, health-digest, metrics-trend-check'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2315,9 +2283,9 @@ scripts:
   - pathlib
   - sys
 - path: pipeline_report.py
-  purpose: Generate self-contained static HTML pipeline report (R7, R8)
+  purpose: 'Render a self-contained static HTML report from pipeline_metrics.jsonl + pipeline_execution.json (R7, R8); CI-invoked by metrics-record.yml'
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2326,9 +2294,9 @@ scripts:
   - pathlib
   - sys
 - path: pr_perf_compare.py
-  purpose: Compare PR performance metrics against main-branch JSONL baseline
+  purpose: 'Wave-4 performance A/B HARD GATE over perf_ab benchmark NDJSON: per-benchmark noise margins, fails closed on regression (pr-perf-check.yml)'
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2341,9 +2309,9 @@ scripts:
   - sys
   - typing
 - path: pr_scorecard.py
-  purpose: 'PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table'
+  purpose: 'Informational per-stage scorecard comparing two pipeline_metrics.jsonl files (wall-time delta + DRC drift); always exit 0 (pr-pipeline-scorecard.yml)'
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2357,7 +2325,7 @@ scripts:
   purpose: Profile router_v6 on a small subset of nets for sampling analysis
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2372,7 +2340,7 @@ scripts:
   purpose: Compare Rust vs Python SAT solver backend performance on closure test
   owner: unassigned
   last_run: '2026-06-28'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2400,7 +2368,7 @@ scripts:
 - path: quarantine_report.py
   purpose: Report on dead-letter quarantine status and taxonomy distribution (CI gate)
   owner: pipeline
-  last_run: '2026-06-30'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2410,9 +2378,9 @@ scripts:
   - pathlib
   - sys
 - path: reconcile_metrics.py
-  purpose: Reconcile pipeline metrics across multiple runs
+  purpose: 'Merge artifact .ndjson metrics into the committed pipeline_metrics.jsonl, dedup by (git_commit, module, stage); CI-invoked by metrics-reconcile.yml'
   owner: pipeline
-  last_run: '2026-06-29'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2478,7 +2446,7 @@ scripts:
   purpose: Run iterative feedback loop (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - argparse
@@ -2497,7 +2465,7 @@ scripts:
 - path: scan_external_corpus.py
   purpose: Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers
   owner: pipeline
-  last_run: '2026-06-30'
+  last_run: '2026-08-19'
   category: keep
   disposition: utility
   imports:
@@ -2511,7 +2479,7 @@ scripts:
   purpose: SLO definition schema and evaluation engine
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2522,7 +2490,7 @@ scripts:
   purpose: Western Electric SPC rules — pure Python, no external stats dependency
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: utility
   imports:
   - __future__
@@ -2559,7 +2527,7 @@ scripts:
 - path: test_root_hygiene.py
   purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
   owner: pipeline
-  last_run: '2026-07-13'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2568,7 +2536,7 @@ scripts:
 - path: trace_invocations.py
   purpose: Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/ references
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
@@ -2625,7 +2593,7 @@ scripts:
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: ci-gate
   imports:
   - __future__
@@ -2638,7 +2606,7 @@ scripts:
   purpose: Validate footprint assignments (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
-  category: keep
+  category: ticket
   disposition: shell-invoked
   imports:
   - argparse
@@ -2649,7 +2617,7 @@ scripts:
   purpose: Verify PROOFS.toml completeness — CI gate
   owner: pipeline
   last_run: '2026-06-29'
-  category: keep
+  category: ticket
   disposition: ci-gate
   imports:
   - __future__
@@ -2676,7 +2644,7 @@ scripts:
 - path: vulture_gate.py
   purpose: 'Vulture dead-code CI gate: diff wrapper with baseline allowlist'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-19'
   category: keep
   disposition: ci-gate
   imports:
