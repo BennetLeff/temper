@@ -59,7 +59,6 @@ use crate::drc_constraints_geometry::{
     drc_segment_length_py, drc_segment_midpoint_py, drc_segment_to_rotated_rect_distance_py,
     drc_segment_to_segment_distance_py, drc_segments_intersect_py,
 };
-use crate::grid_utils::{add_endpoint_nudge_py, snap_to_grid_py};
 use crate::via_placement::{
     is_via_position_valid_py, place_via_with_clearance_py, via_distance_py,
 };
@@ -1583,9 +1582,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(drc_segment_midpoint_py, m)?)?;
 
     // deterministic leaf geometry (Wave 4, Phase 5, first slice):
-    // deterministic/geometry/grid_utils.py and via_placement.py compute.
-    m.add_function(wrap_pyfunction!(snap_to_grid_py, m)?)?;
-    m.add_function(wrap_pyfunction!(add_endpoint_nudge_py, m)?)?;
+    // via_placement.py compute.
     m.add_function(wrap_pyfunction!(via_distance_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_via_position_valid_py, m)?)?;
     m.add_function(wrap_pyfunction!(place_via_with_clearance_py, m)?)?;

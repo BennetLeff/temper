@@ -103,8 +103,6 @@ pub use occupancy_raster::{
 };
 pub mod host_math;
 pub mod grid_utils;
-#[cfg(feature = "python")]
-pub use grid_utils::{add_endpoint_nudge_py, snap_to_grid_py};
 pub mod via_placement;
 #[cfg(feature = "python")]
 pub use via_placement::{is_via_position_valid_py, place_via_with_clearance_py, via_distance_py};
