@@ -28,7 +28,7 @@
 
 use pyo3::exceptions::{PyOverflowError, PyTypeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyAnyMethods, PyInt, PyList, PyString, PyStringMethods, PyTuple};
+use pyo3::types::{PyAnyMethods, PyInt, PyString, PyStringMethods, PyTuple};
 use pyo3::IntoPyObject;
 
 use crate::dfm::{self, DfmError, PyNum};

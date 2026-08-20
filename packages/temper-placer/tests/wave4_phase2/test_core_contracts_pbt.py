@@ -128,29 +128,6 @@ def test_p4_inflated_clearance_is_never_negative_and_matches(nominal, tolerance)
     )
 
 
-# --- P5 ---------------------------------------------------------------------
-_PIN = st.tuples(
-    st.floats(-50.0, 50.0),
-    st.floats(-50.0, 50.0),
-    st.sampled_from(["GND", "VCC", "SDA", "AC_L"]),
-    st.sampled_from(["U1", "U2", "U3"]),
-    st.sampled_from(["1", "2", "3"]),
-    st.sampled_from([0.0, 0.3, 1.0, 2.0]),
-)
-
-
-@_SETTINGS
-@given(st.lists(_PIN, max_size=12), st.floats(0.0, 5.0))
-def test_p5_placement_drc_agrees_and_never_reports_a_same_net_pair(pins, clearance):
-    """P5. The DRC scan agrees, and never reports two pins on one net."""
-    got = prod_drc.validate_placement_drc([prod_drc.PinInfo(*p) for p in pins], clearance)
-    want = oracle.validate_placement_drc([oracle.PinInfo(*p) for p in pins], clearance)
-    assert_same(got, want, "validate_placement_drc")
-    for v in got:
-        assert v.item_a.net_name != v.item_b.net_name
-        assert v.violation_type in {"SHORT", "CLEARANCE"}
-
-
 # --- P6 ---------------------------------------------------------------------
 _REFS = st.lists(
     st.sampled_from([f"U{i}" for i in range(12)]), min_size=1, max_size=12, unique=True

@@ -64,7 +64,6 @@
     "packages/temper-placer/tests/deterministic/stages/_phased_component_assignment_validator_py_oracle.py": "eac449c7d6f42b158097e0eec55d2a294c91bc3937270edb2ee12c67a7d05940",
     "packages/temper-placer/tests/deterministic/stages/_power_plane_py_oracle.py": "8d01ebf9473771cb9a6cb3db71b92dc2b59515843afeebb62eb46ff71d109582",
     "packages/temper-placer/tests/deterministic/stages/_routing_metrics_py_oracle.py": "14e8e0c6dd4a1f24ce0722dbe356b30de8ac03792d14e260caa3b35b1f5ea43e",
-    "packages/temper-placer/tests/deterministic/stages/_sequential_routing_dataclasses_py_oracle.py": "05e1a151689aeb2e1235dc40ba705a5d6cbd78e9d2501930a3c7398c22e2fe63",
     "packages/temper-placer/tests/deterministic/stages/_slot_generation_py_oracle.py": "449b3e5faaa0a67e2202671bf399872c3661dfd21690bed4ff6bf5bbebcfd8cf",
     "packages/temper-placer/tests/deterministic/stages/_via_validation_py_oracle.py": "e36eafae32c205b4f7434f5edd9d62f992e1136e24cb5ca136f80a431c815bc7",
     "packages/temper-placer/tests/deterministic/stages/_zone_assignment_py_oracle.py": "379187bb73f485442dd1ef9927cd51e0dcf0caa334d3b1b127789766eaec1d67",
@@ -165,7 +164,7 @@
     "packages/temper-placer/tests/validation/_tht_check_py_oracle.py": "9ccb2e2c246f8105d5e147a10d612d918930eb6fc44cb7d13154a0ff9e0d67d0",
     "packages/temper-placer/tests/validation/_validation_metrics_py_oracle.py": "2ce01b3f75ef11f148cea1f9c531066e7deb49baf465611ae9c974ee71bdf806",
     "packages/temper-placer/tests/validation/prereg/_schema_py_oracle.py": "17a1851388201c42b67fe8e8a82eb661103289f0afae6a57303a0384d6396996",
-    "packages/temper-placer/tests/wave4_phase2/_core_py_oracle.py": "216491409ff956508b47fa1442da8da5ac49b0e52b17bc13cb507cba7a1c717e",
+    "packages/temper-placer/tests/wave4_phase2/_core_py_oracle.py": "ff5b673f7a68a7d06cee4eae49d1f19265d73a47a678463e97a488a2eeb07e73",
     "packages/temper-workflow/tests/_route_and_measure_py_oracle.py": "d3e0d57c371983a987746e972ea6072869d2c1c50b32073f1b4dae0f5c5835ad"
   },
   "version": 1

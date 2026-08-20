@@ -613,13 +613,6 @@ pub fn hypergraph_coo_matvec_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn normalize_rotation_index_py(index: i64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| normalize_rotation_index(index))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
 pub fn pin_world_position_kernel_py(
     px: f64,
     py: f64,
@@ -675,7 +668,6 @@ pub fn pad_radius_py(width: f64, height: f64) -> PyResult<f64> {
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(hypergraph_coo_matvec_py, m)?)?;
-    m.add_function(wrap_pyfunction!(normalize_rotation_index_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_position_kernel_py, m)?)?;
     // Wave 4 fan-out: pin_geometry.py orchestration pyfunctions (shim replacement)
     m.add_function(wrap_pyfunction!(normalize_rotation_py, m)?)?;
