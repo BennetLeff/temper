@@ -95,16 +95,39 @@ class RustFunctionStage(Stage):
     one shim class per stage. The Rust pyfunction is the single source of
     truth; the adapter only preserves the ``Stage`` ABC surface (``name``,
     ``invariants``, ``last_modified_regions``) the pipeline runner relies on.
+
+    Shim-debt cleanup (2026-08-20): the adapter was extended with
+    ``*fn_args`` / ``**fn_kwargs`` so stages whose shims threaded constructor
+    state into ``run`` (``config_attach``, ``net_ordering``, ``setup``,
+    ``zone_geometry``, ``slot_generation``, ``drc_sweep``,
+    ``via_validation``) can collapse onto it too: the per-class
+    ``__init__`` stores the constructor state exactly as the old shim did
+    and forwards it as the pyfunction's extra positional/keyword arguments.
+    ``run`` remains a single shared implementation -- the constructor state
+    never appears in stage-run bytecode.
     """
 
-    def __init__(self, name: str, fn: Callable[[BoardState], BoardState]) -> None:
+    def __init__(
+        self,
+        name: str,
+        fn: Callable[..., BoardState],
+        *fn_args: object,
+        **fn_kwargs: object,
+    ) -> None:
         self._name = name
         self._fn = fn
+        self._fn_args = fn_args
+        self._fn_kwargs = fn_kwargs
 
     @property
     def name(self) -> str:
         return self._name
 
     def run(self, state: BoardState) -> BoardState:
-        """Forward ``run`` straight to the Rust pyfunction (FFI)."""
-        return self._fn(state)
+        """Forward ``run`` straight to the Rust pyfunction (FFI).
+
+        The pyfunction's extra constructor-state arguments (positional
+        ``*fn_args`` and keyword ``**fn_kwargs``) follow the ``state`` the
+        pipeline runner passes in.
+        """
+        return self._fn(state, *self._fn_args, **self._fn_kwargs)

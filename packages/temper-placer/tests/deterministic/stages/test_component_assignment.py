@@ -4,12 +4,12 @@ Unit tests for ComponentAssignmentStage.
 Tests greedy wirelength-based assignment of components to slots.
 """
 
+import temper_orchestration as _to
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.deterministic.stages import SlotGenerationStage, ZoneGeometryStage
 from temper_placer.deterministic.stages.component_assignment import ComponentAssignmentStage
-from temper_placer.deterministic.stages.slot_generation import SlotGenerationStage
-import temper_orchestration as _to
-from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
 from temper_placer.deterministic.state import BoardState
 
 

@@ -44,20 +44,18 @@ import hashlib
 from pathlib import Path
 
 import pytest
-
 import temper_orchestration as _to
-
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
-from temper_placer.deterministic.stages import _grid_fence as _shim_fence
-from temper_placer.deterministic.stages import _grid_hv as _shim_hv
-from temper_placer.deterministic.stages import _grid_stage as _shim_grid_stage
-from temper_placer.io.config_loader import HVExclusionZone
-
 import tests.deterministic._grid_fence_py_oracle as _orc_fence
 import tests.deterministic._grid_hv_py_oracle as _orc_hv
 import tests.deterministic._grid_stage_py_oracle as _orc_grid_stage
+
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.deterministic.stages import _grid_fence as _shim_fence
+from temper_placer.deterministic.stages import _grid_hv as _shim_hv
+from temper_placer.deterministic.stages import _grid_stage as _shim_grid_stage
+from temper_placer.deterministic.state import BoardState
+from temper_placer.io.config_loader import HVExclusionZone
 
 # ---------------------------------------------------------------------------
 # Oracle body pinning (G1)
@@ -820,16 +818,16 @@ def test_grid_stage_chain_identical() -> None:
     """zone_geometry -> zone_assignment -> slot_generation -> clearance_grid
     on both arms; the chained state matches field-for-field and the grids
     match bit-exactly."""
-    from temper_placer.deterministic.stages import (
-        slot_generation as _shim_slot_generation,
-    )
-    from temper_placer.deterministic.stages import (
-        zone_geometry as _shim_zone_geometry,
-    )
-
     import tests.deterministic._slot_generation_py_oracle as _orc_slot_generation
     import tests.deterministic._zone_assignment_py_oracle as _orc_zone_assignment
     import tests.deterministic._zone_geometry_py_oracle as _orc_zone_geometry
+
+    from temper_placer.deterministic.stages import (
+        SlotGenerationStage as _shim_slot_generation,
+    )
+    from temper_placer.deterministic.stages import (
+        ZoneGeometryStage as _shim_zone_geometry,
+    )
 
     board = Board(width=120.5, height=80.0)
     refs = ("Q1", "C1", "U_MCU1", "R1")
@@ -853,11 +851,17 @@ def test_grid_stage_chain_identical() -> None:
     netlist = Netlist(components=comps, nets=nets)
 
     def chain(shim_zg, shim_sg, shim_cg, za_run=None):
-        state = shim_zg.ZoneGeometryStage().run(BoardState(board=board, netlist=netlist))
+        # Shim-debt cleanup 2026-08-20: the D2 stage classes were collapsed
+        # onto the RustFunctionStage adapter in `stages/__init__.py`, so the
+        # port arm passes the CLASSES while the oracle arm passes its pinned
+        # modules (each defining its own pre-migration class).
+        zg_cls = shim_zg if isinstance(shim_zg, type) else shim_zg.ZoneGeometryStage
+        sg_cls = shim_sg if isinstance(shim_sg, type) else shim_sg.SlotGenerationStage
+        state = zg_cls().run(BoardState(board=board, netlist=netlist))
         # Shim-debt cleanup 2026-08-19: the zone_assignment shim module was
         # deleted; the port arm drives the pyfunction directly.
         state = za_run(state) if za_run is not None else _orc_zone_assignment.ZoneAssignmentStage().run(state)
-        state = shim_sg.SlotGenerationStage(slot_spacing_mm=7.5).run(state)
+        state = sg_cls(slot_spacing_mm=7.5).run(state)
         return shim_cg.ClearanceGridStage(
             cell_size_mm=0.5,
             layer_count=2,
