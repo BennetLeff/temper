@@ -28,6 +28,8 @@
 #include "driver/mcpwm_prelude.h"
 #include "esp_timer.h"
 #include "esp_log.h"
+/* IRAM_ATTR, used on the pwm_edge_cb/zcd_edge_cb capture ISRs below. */
+#include "esp_attr.h"
 static const char *TAG = "pll_control";
 #endif
 

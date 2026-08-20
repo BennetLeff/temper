@@ -109,7 +109,7 @@ def test_esp32_spi_configuration_meets_max31865_cs_timing_at_five_mhz() -> None:
     """
 
     source = (
-        Path(__file__).resolve().parents[4] / "firmware/components/hal/esp32/hal_spi_esp32.c"
+        Path(__file__).resolve().parents[4] / "firmware/components/temper_hal/esp32/hal_spi_esp32.c"
     ).read_text(encoding="utf-8")
     assert "#define MAX31865_CS_SETUP_CYCLES 2" in source
     assert "#define MAX31865_CS_HOLD_CYCLES  1" in source

@@ -298,6 +298,27 @@ scripts:
   - rich.console
   - sys
   - yaml
+- path: check_firmware_link.py
+  purpose: 'Firmware link ratchet: assert the ESP32-S3 image configures and compiles, that no component
+    directory is silently dropped for want of a CMakeLists.txt, that no simulation symbol is defined in
+    the built objects, and that the set of undefined link symbols matches .firmware-link-inventory
+    exactly (shrink-only, on the .hash-order-inventory model). The firmware has never linked -- 34
+    symbols including read_dc_bus_current and read_heatsink_temperature are declared and called but
+    defined nowhere -- so the gate pins the SHAPE of that failure rather than trying to make it green.
+    Wired into .github/workflows/firmware-tests.yml as the non-required job "Firmware Build (ESP32-S3
+    link ratchet)"; see that job comment for what would make it blocking.'
+  owner: bennet
+  last_run: '2026-08-20'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
 - path: check_doc_path_citations.py
   purpose: 'Doc-path citation gate (spike proof, docs/brainstorms/2026-08-12-referential-integrity-options.md):
     fail when a docs/plans/*.md or docs/evidence/*.md path cited in a comment/docstring/doc does not

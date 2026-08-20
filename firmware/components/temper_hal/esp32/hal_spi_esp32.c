@@ -46,7 +46,7 @@ static hal_status_t esp32_spi_bus_init(hal_spi_bus_t bus, const hal_spi_config_t
     }
     
     if (s_bus_initialized[bus]) {
-        ESP_LOGW(TAG, "SPI bus %d already initialized", bus);
+        ESP_LOGW(TAG, "SPI bus %d already initialized", (int)bus);
         return HAL_ERROR_BUSY;
     }
     
@@ -66,12 +66,12 @@ static hal_status_t esp32_spi_bus_init(hal_spi_bus_t bus, const hal_spi_config_t
     /* Initialize bus with DMA (channel auto-allocated in ESP-IDF v5) */
     esp_err_t err = spi_bus_initialize(host, &bus_cfg, SPI_DMA_CH_AUTO);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize SPI bus %d: %s", bus, esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to initialize SPI bus %d: %s", (int)bus, esp_err_to_name(err));
         return HAL_ERROR;
     }
     
     s_bus_initialized[bus] = true;
-    ESP_LOGI(TAG, "SPI bus %d initialized (host=%d)", bus, host);
+    ESP_LOGI(TAG, "SPI bus %d initialized (host=%d)", (int)bus, host);
     return HAL_OK;
 }
 
@@ -123,7 +123,7 @@ static hal_status_t esp32_spi_device_add(hal_spi_bus_t bus, const hal_spi_config
     s_devices[slot].in_use = true;
     *device = (hal_spi_device_t)&s_devices[slot];
     
-    ESP_LOGI(TAG, "SPI device added on bus %d, CS pin %d", bus, config->pin_cs);
+    ESP_LOGI(TAG, "SPI device added on bus %d, CS pin %d", (int)bus, (int)config->pin_cs);
     return HAL_OK;
 }
 
@@ -275,7 +275,7 @@ static hal_status_t esp32_spi_bus_deinit(hal_spi_bus_t bus)
     }
     
     s_bus_initialized[bus] = false;
-    ESP_LOGI(TAG, "SPI bus %d deinitialized", bus);
+    ESP_LOGI(TAG, "SPI bus %d deinitialized", (int)bus);
     return HAL_OK;
 }
 

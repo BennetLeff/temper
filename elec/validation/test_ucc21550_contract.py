@@ -14,7 +14,7 @@ MODULES_RAW = (ROOT / "elec/src/modules.ato").read_text()
 # Use MODULES_RAW where a comment is genuinely the thing under test.
 MODULES = re.sub(r"#.*", "", MODULES_RAW)
 MAIN = (ROOT / "elec/src/main.ato").read_text()
-PINS = (ROOT / "firmware/components/hal/include/temper_pins.h").read_text()
+PINS = (ROOT / "firmware/components/temper_hal/include/temper_pins.h").read_text()
 
 
 def test_control_and_gate_supplies_are_separate() -> None:

@@ -18,6 +18,8 @@ on:
       - 'scripts/check_state_machine_model.py'
       - 'scripts/check_firmware_invariants.py'
       - 'scripts/check_sil_coverage.py'
+      - 'scripts/check_firmware_link.py'
+      - '.firmware-link-inventory'
       - 'state-machine-crosscheck-allowlist.yaml'
       - '.github/workflows/firmware-tests.yml'
   pull_request:
@@ -30,6 +32,8 @@ on:
       - 'scripts/check_state_machine_model.py'
       - 'scripts/check_firmware_invariants.py'
       - 'scripts/check_sil_coverage.py'
+      - 'scripts/check_firmware_link.py'
+      - '.firmware-link-inventory'
       - 'state-machine-crosscheck-allowlist.yaml'
       - '.github/workflows/firmware-tests.yml'
 
@@ -169,3 +173,106 @@ jobs:
       # rather than folded into the CMake/CTest build above.
       - name: SIL fault-injection coverage gate
         run: python3 scripts/check_sil_coverage.py
+
+  # ---------------------------------------------------------------------------
+  # Firmware BUILD gate (added 2026-08-20).
+  #
+  # Until this job existed, no PR or push CI had ever compiled this firmware.
+  # `idf.py build` appeared in exactly two workflows: release-artifacts.yml
+  # (`release: published` only) and firmware-perf-record.yml (needs a
+  # `[self-hosted, esp32]` runner its own header says was never provisioned).
+  # The `test` job above is thorough about the state machine and the fault
+  # tables, but every one of its steps is a host-side python/cmake check -- none
+  # of them cross-compiles for the ESP32-S3, so five independently fatal
+  # build-system defects and four silently-excluded components accumulated
+  # without a single red check. Two of the excluded components were `safety` and
+  # `control`.
+  #
+  # WHY THIS IS NOT A PLAIN "does it build" JOB, AND WHY IT IS GREEN TODAY:
+  # the firmware genuinely does not link. There is no sensor/peripheral
+  # implementation layer, so 34 symbols -- including read_dc_bus_current and
+  # read_heatsink_temperature, which the IGBT short-circuit, over-current and
+  # thermal trips dispatch on -- are declared and called but defined nowhere.
+  # Stubbing them would silently fabricate protection and is strictly worse than
+  # the honest link failure. So this job asserts the SHAPE of the failure
+  # instead: the tree must configure and compile cleanly, and the undefined
+  # symbol set must match .firmware-link-inventory exactly. New symbol -> red.
+  # Symbol fixed without updating the ledger -> red. Anything failing before the
+  # linker -> red. A component silently dropped for want of a CMakeLists.txt ->
+  # red. Same shrink-only ratchet shape as .hash-order-inventory.
+  #
+  # That is deliberate. A gate that ships red gets switched off -- this repo has
+  # several tripwires that died exactly that way, including one that called
+  # itself "the CI tripwire against future drift" and was never invoked. This
+  # one is green on a correct tree, so it has no reason to be disabled, and the
+  # undefined-symbol count is printed to the job summary on every run whatever
+  # the verdict.
+  #
+  # NOT YET BLOCKING: "Firmware Build (ESP32-S3 link ratchet)" is deliberately
+  # absent from .github/required-checks.json's `required_contexts`. To make it
+  # blocking, follow the same fix-then-require sequencing that file's
+  # _gate_vacuity_survey_note documents for the other four contexts:
+  #   1. confirm this job is green across ~15 consecutive main runs
+  #      (`gh run list --workflow=firmware-tests.yml --branch=main`);
+  #   2. add "Firmware Build (ESP32-S3 link ratchet)" to `required_contexts`
+  #      AND give it a `context_triggers` entry mirroring this workflow's paths
+  #      list -- both, in the same PR. Adding the context without the trigger
+  #      entry wedges every PR that matches the manifest's global trigger_paths
+  #      but none of this workflow's own paths: the check-run is never created,
+  #      so it reads as "missing" rather than "skipped" and the aggregator polls
+  #      until timeout.
+  # Nothing about the job needs to change for that; it is a manifest edit.
+  build:
+    name: Firmware Build (ESP32-S3 link ratchet)
+    runs-on: ubuntu-latest
+    # Pinned to the same image release-artifacts.yml uses, so this gate and the
+    # artifact build cannot diverge in toolchain.
+    container: espressif/idf:release-v5.3
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark checkout safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # firmware/CMakeLists.txt regenerates config.h and transition_table.h at
+      # configure time. Without jinja2 it warns and silently falls back to the
+      # committed copies, which would make this job build something other than
+      # what config.yaml says. The `test` job above is what gates drift between
+      # them; this just makes sure codegen actually runs here.
+      - name: Install codegen dependencies
+        run: pip install -r firmware/tools/requirements.txt
+
+      # The image adds idf.py to PATH from its ENTRYPOINT, which GitHub Actions
+      # bypasses for `container:` jobs (steps run via docker exec). export.sh
+      # must therefore be sourced explicitly in every step that calls idf.py.
+      - name: Build firmware for ESP32-S3
+        working-directory: firmware
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          # The build is EXPECTED to stop at the link today; the verdict belongs
+          # to the ratchet step below, which hard-fails on any drift in either
+          # direction. `set +e` here is not masking a check -- it hands the
+          # decision to the gate rather than reddening this job for the one
+          # outcome the ledger says is currently correct. The exit code is
+          # echoed either way, and a pre-link failure is a hard FAIL in the gate.
+          set +e
+          set -o pipefail
+          idf.py build 2>&1 | tee "$RUNNER_TEMP/idf-build.log"
+          echo "idf.py build exit code: ${PIPESTATUS[0]}"
+
+      # The real gate. Prints the distinct-symbol and total-reference counts to
+      # the job summary on every run, then ratchets. Also asserts that no
+      # simulation symbol (safety.c's sim_state / *_sim_*, guarded by
+      # `#ifndef ESP_PLATFORM`) is DEFINED in any built object -- linking a
+      # simulated sensor read into a production cooktop image is the worst
+      # outcome available here, so it is checked rather than assumed.
+      - name: Firmware link ratchet
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          python3 scripts/check_firmware_link.py \
+            --log "$RUNNER_TEMP/idf-build.log" \
+            --check-sim-symbols firmware/build

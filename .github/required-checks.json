@@ -448,6 +448,8 @@
       "scripts/check_state_machine_model.py",
       "scripts/check_firmware_invariants.py",
       "scripts/check_sil_coverage.py",
+      "scripts/check_firmware_link.py",
+      ".firmware-link-inventory",
       "state-machine-crosscheck-allowlist.yaml",
       ".github/workflows/firmware-tests.yml"
     ]

@@ -11,6 +11,13 @@
 #include <string.h>
 #include <stdio.h>
 
+/* ESP_LOGI/ESP_LOGW are used below inside #ifdef ESP_PLATFORM blocks but the
+ * header declaring them was never included, so every one of those call sites
+ * was an implicit declaration (-Werror=implicit-function-declaration). */
+#ifdef ESP_PLATFORM
+#include "esp_log.h"
+#endif
+
 /* Default configuration for thermal mass estimation */
 #define THERMAL_MASS_TEST_POWER_DEFAULT    500.0f   /**< 500W test pulse */
 #define THERMAL_MASS_TEST_DURATION_DEFAULT 5000     /**< 5 second test */
