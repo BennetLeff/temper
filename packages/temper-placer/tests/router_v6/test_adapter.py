@@ -1235,6 +1235,124 @@ class TestRoutePcbGeographicPruningWiring:
         assert result is not None
 
 
+class TestThermalFieldThreading:
+    """``route_pcb(thermal_flat=..., thermal_weight=...)`` must reach the
+    A* pathfinding arm that actually routes.
+
+    The defect this pins (2026-08-20): ``_pipeline_route._run_stage4``
+    accepted the U8/U9 thermal field on ``RouterV6Pipeline`` and used it
+    only to build the ``thermal_field`` handed to ``BoardState`` --
+    but ``Stage4Orchestrator.assemble_pathfinding_result`` just reads the
+    (always-``None``) ``state.pathfinding_result`` off that freshly built
+    state, so nothing ever consulted it. The two arms that do the real
+    routing -- ``run_astar_pathfinding_nlayer`` and
+    ``run_astar_pathfinding`` -- have both accepted ``thermal_flat`` /
+    ``thermal_weight`` since U8, and neither was handed them. The first
+    caller to wire thermal-aware routing would have got a silent no-op.
+
+    Same shape as ``TestGeographicPruningThreading`` above: a real,
+    unmocked ``route_pcb`` run over ``tests/fixtures/minimal_board.kicad_pcb``
+    with only the pathfinding entry point spied on.
+
+    The spy deliberately delegates with the field NEUTRALISED
+    (``thermal_flat=None``, ``thermal_weight=0.0``). What is under test is
+    the parameter journey, which is fully observed in ``captured``; sizing
+    a real ``(rows*cols,)`` field for a grid whose dimensions are only
+    known inside the pipeline would add nothing to that and would make the
+    test depend on the kernel's cost model instead of on the wiring.
+    """
+
+    @staticmethod
+    def _minimal_board_parsed():
+        from pathlib import Path
+
+        fixture_dir = Path(__file__).resolve().parents[1] / "fixtures"
+        pcb_path = fixture_dir / "minimal_board.kicad_pcb"
+        assert pcb_path.exists(), f"fixture missing: {pcb_path}"
+        return type("ParsedPCB", (), {"source_path": str(pcb_path)})()
+
+    @staticmethod
+    def _spy(module, name, captured):
+        real = getattr(module, name)
+
+        def spy(*args, **kwargs):
+            captured.update(kwargs)
+            kwargs["thermal_flat"] = None
+            kwargs["thermal_weight"] = 0.0
+            return real(*args, **kwargs)
+
+        return umock.patch.object(module, name, spy)
+
+    def test_thermal_field_reaches_legacy_two_grid_arm(self):
+        import numpy as np
+
+        from temper_placer.router_v6 import astar_pathfinding
+
+        field = np.zeros(16, dtype=np.float32)
+        captured: dict = {}
+        with self._spy(astar_pathfinding, "run_astar_pathfinding", captured):
+            result = route_pcb(
+                self._minimal_board_parsed(),
+                {},
+                thermal_flat=field,
+                thermal_weight=2.5,
+            )
+
+        assert result is not None
+        assert captured, "run_astar_pathfinding was never called"
+        assert captured.get("thermal_flat") is field, (
+            "route_pcb(thermal_flat=...) must reach run_astar_pathfinding -- "
+            f"got {captured.get('thermal_flat')!r}"
+        )
+        assert captured.get("thermal_weight") == 2.5, (
+            "route_pcb(thermal_weight=...) must reach run_astar_pathfinding -- "
+            f"got {captured.get('thermal_weight')!r}"
+        )
+
+    def test_thermal_field_reaches_nlayer_arm(self):
+        import numpy as np
+
+        from temper_placer.router_v6 import _astar_nlayer
+
+        field = np.zeros(16, dtype=np.float32)
+        captured: dict = {}
+        with self._spy(_astar_nlayer, "run_astar_pathfinding_nlayer", captured):
+            result = route_pcb(
+                self._minimal_board_parsed(),
+                {},
+                thermal_flat=field,
+                thermal_weight=2.5,
+                enable_nlayer_astar_spike=True,
+            )
+
+        assert result is not None
+        assert captured, "run_astar_pathfinding_nlayer was never called"
+        assert captured.get("thermal_flat") is field, (
+            "route_pcb(thermal_flat=...) must reach run_astar_pathfinding_nlayer "
+            f"-- got {captured.get('thermal_flat')!r}"
+        )
+        assert captured.get("thermal_weight") == 2.5, (
+            "route_pcb(thermal_weight=...) must reach "
+            f"run_astar_pathfinding_nlayer -- got {captured.get('thermal_weight')!r}"
+        )
+
+    def test_field_off_default_threads_through_as_none(self):
+        """The behaviour-preservation half: every caller in the tree today
+        omits the field, and it must arrive at the search arm as exactly
+        the ``None`` / ``0.0`` the arm already defaults to -- so wiring the
+        parameters through cannot have changed any existing route."""
+        from temper_placer.router_v6 import astar_pathfinding
+
+        captured: dict = {}
+        with self._spy(astar_pathfinding, "run_astar_pathfinding", captured):
+            result = route_pcb(self._minimal_board_parsed(), {})
+
+        assert result is not None
+        assert captured, "run_astar_pathfinding was never called"
+        assert captured.get("thermal_flat") is None
+        assert captured.get("thermal_weight") == 0.0
+
+
 class TestZonesReplacedNotAppended:
     """U3 (R7): a board's stored zones must be replaced by the regenerated
     set, not left to coexist alongside it. Without this, any (zone ...)

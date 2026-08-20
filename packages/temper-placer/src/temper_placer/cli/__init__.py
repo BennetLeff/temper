@@ -743,9 +743,25 @@ def optimize(
                     ref: cp_result.rotations.get(ref, 0) * 90.0
                     for ref in cp_result.positions
                 }
+                # The write above added `board_origin` to every placement,
+                # because the solve ran in the normalized frame that
+                # parse_kicad_pcb(normalize=True) produced -- so the written
+                # file's `(at X Y)` fields are in ABSOLUTE file coordinates.
+                # The oracle re-parses that file (KTD4), so it must be given
+                # the model positions in the same frame; its `positions`
+                # docstring says exactly that ("in the same coordinate frame
+                # the writer wrote (file coordinates)"). Handing it the raw
+                # normalized `cp_result.positions` made it report a
+                # board.origin-sized `footprint_anchor`/`pad_position`
+                # mismatch for every component on any board whose Edge.Cuts
+                # origin is not (0, 0) -- i.e. every real board.
+                rt_positions = {
+                    ref: (pos[0] + board.origin[0], pos[1] + board.origin[1])
+                    for ref, pos in cp_result.positions.items()
+                }
                 rt_result = check_placement_roundtrip(
                     output,
-                    cp_result.positions,
+                    rt_positions,
                     rt_rotations,
                     netlist.components,
                 )

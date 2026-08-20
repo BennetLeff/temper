@@ -972,6 +972,32 @@ def _run_stage4(
             # its static layer by width/2 + clearance instead of the flat
             # 0.1mm default) -- see _astar_nlayer.py's family helpers.
             routing_spaces=stage2.routing_spaces,
+            # U8/U9 thermal field. ``self.thermal_flat`` /
+            # ``self.thermal_weight`` reach this module from
+            # ``route_pcb(thermal_flat=..., thermal_weight=...)`` via
+            # ``RouterV6Pipeline.__init__``, but before 2026-08-20 the only
+            # thing done with them here was building the ``thermal_field``
+            # handed to ``BoardState`` -- and ``Stage4Orchestrator.
+            # assemble_pathfinding_result`` merely reads the (always-None)
+            # ``state.pathfinding_result`` off a freshly constructed
+            # ``BoardState``, so that field was never consulted by any
+            # search. Both real routing arms below have accepted these two
+            # parameters all along; neither was handed them, so the first
+            # caller to wire thermal-aware routing would have got a silent
+            # no-op. Forwarding them is behaviour-preserving for every
+            # caller in the tree today: the only path that can supply a
+            # field is ``PlaceRouteLoop`` -> ``_route_placement`` ->
+            # ``route_pcb`` (the Rust loop body,
+            # ``temper-orchestration/src/cpsat_loop.rs``, sets the two
+            # route kwargs only when ``field_active``, i.e. only when a
+            # ``field_compute_fn`` was supplied), and BOTH production
+            # constructions -- ``cli/__init__.py``'s ``PlaceRouteLoop()``
+            # and ``scripts/``'s -- take the ``field_compute_fn=None`` /
+            # ``thermal_weight=0.0`` defaults. So ``None`` / ``0.0``
+            # arrive here, and both arms' own defaults are the identical
+            # ``None`` / ``0.0``.
+            thermal_flat=self.thermal_flat,
+            thermal_weight=self.thermal_weight,
         )
     elif pathfinding_result is None:
         fcu_grid, bcu_grid = select_routing_grids(available_grids)
@@ -992,6 +1018,11 @@ def _run_stage4(
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,
             enforce_all_pad_tree=self.enable_all_pad_tree,
+            # Same U8/U9 thermal-field forwarding as the N-layer arm above
+            # -- see that call's comment for why this was a silent no-op
+            # and why adding it changes nothing for today's callers.
+            thermal_flat=self.thermal_flat,
+            thermal_weight=self.thermal_weight,
         )
 
     return self._run_stage5(pcb, stage2, pathfinding_result)

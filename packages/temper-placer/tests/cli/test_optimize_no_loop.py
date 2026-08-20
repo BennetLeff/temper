@@ -231,6 +231,109 @@ def test_no_loop_round_trip_oracle_runs_and_passes(
     assert "Round-trip oracle: round-trip PASS" in result.output
 
 
+def test_no_loop_round_trip_oracle_is_given_file_frame_positions(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    """The oracle must be handed the model positions in FILE coordinates.
+
+    ``--no-loop`` solves against ``parse_kicad_pcb(..., normalize=True)``
+    output, so ``cp_result.positions`` is origin-relative, and the write
+    adds ``board.origin`` back (``write_placements_to_pcb(board_origin=)``)
+    to land in the template's absolute frame. ``check_placement_roundtrip``
+    re-parses that written FILE (KTD4) and its ``positions`` argument is
+    documented as being "in the same coordinate frame the writer wrote
+    (file coordinates)" -- so it must be given the origin-corrected
+    positions, not the raw normalized ones.
+
+    Handing it the raw normalized dict made it report a
+    ``board.origin``-sized ``footprint_anchor`` mismatch for every
+    component and ``pad_position`` mismatch for every pad, on any board
+    whose Edge.Cuts origin is not (0, 0) -- i.e. every real board.
+    Measured on ``pcb/temper.kicad_pcb`` (origin (8, 20) mm): 689
+    mismatches (168 ``footprint_anchor`` + 521 ``pad_position``), every
+    single ``pad_position`` displaced by exactly (8.0, 20.0).
+
+    The second half of this test is the anti-vacuity half: it feeds the
+    same written file the raw normalized frame and asserts the oracle
+    really does reject it, so a future regression cannot make the first
+    half pass by making the oracle blind instead of by keeping the frame
+    right.
+    """
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.validation import placement_roundtrip as pr
+
+    origin = parse_kicad_pcb(MINIMAL_PCB).board.origin
+    assert (float(origin[0]), float(origin[1])) != (0.0, 0.0), (
+        "fixture must have a non-(0,0) Edge.Cuts origin or this test is "
+        f"vacuous -- got {origin!r}"
+    )
+
+    mock_result = CpSatPlacementResult(
+        status="optimal",
+        positions={"R1": (10.0, 20.0)},
+        rotations={"R1": 1},
+        placed_refs=["R1"],
+        solve_time_ms=10.0,
+        objective_value=0.0,
+    )
+
+    real_check = pr.check_placement_roundtrip
+    captured: dict = {}
+
+    def spy(path, positions, rotations=None, components=None, **kwargs):
+        captured["path"] = Path(path)
+        captured["positions"] = dict(positions)
+        captured["rotations"] = dict(rotations or {})
+        captured["components"] = list(components or [])
+        result = real_check(path, positions, rotations, components, **kwargs)
+        captured["result"] = result
+        return result
+
+    out = tmp_path / "placed.kicad_pcb"
+    with mock.patch(
+        "temper_placer.placer.cp_sat.encoder.solve_placement",
+        return_value=mock_result,
+    ), mock.patch.object(pr, "check_placement_roundtrip", spy):
+        result = runner.invoke(cli_main, _base_args(out))
+
+    assert result.exit_code == 0, f"CLI failed:\n{result.output}"
+    assert captured, "the round-trip oracle was never called"
+    assert captured["positions"] == {
+        "R1": (10.0 + origin[0], 20.0 + origin[1])
+    }, (
+        "the oracle must be given board.origin-corrected (file-frame) "
+        f"positions -- got {captured['positions']!r} for a solve at "
+        f"(10.0, 20.0) on a board with origin {origin!r}"
+    )
+    assert captured["result"].passed, captured["result"].summary
+
+    # Anti-vacuity: the pre-fix argument (the raw normalized frame) really
+    # is rejected by this same oracle on this same written file.
+    stale = real_check(
+        captured["path"],
+        {"R1": (10.0, 20.0)},
+        captured["rotations"],
+        captured["components"],
+    )
+    assert not stale.passed, (
+        "the oracle must reject normalized-frame positions against an "
+        "absolute-frame file; if it does not, the check above proves nothing"
+    )
+    assert {m.kind for m in stale.mismatches} == {
+        "footprint_anchor",
+        "pad_position",
+    }
+    for m in stale.mismatches:
+        if m.kind != "pad_position":
+            continue
+        assert (
+            round(m.actual[0] - m.expected[0], 6),
+            round(m.actual[1] - m.expected[1], 6),
+        ) == (float(origin[0]), float(origin[1])), (
+            f"expected every pad displaced by exactly board.origin, got {m}"
+        )
+
+
 def test_no_loop_round_trip_mismatch_fails_command(
     runner: CliRunner, tmp_path: Path
 ) -> None:
