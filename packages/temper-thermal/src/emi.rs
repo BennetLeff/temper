@@ -36,8 +36,6 @@
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use pyo3::types::{PyAny, PyString};
-#[cfg(feature = "python")]
-use temper_py_bridge;
 
 use crate::hostmath;
 
@@ -85,22 +83,6 @@ pub fn predict_radiated_emissions(
 pub fn check_emi_compliance(field_strength_dbuv: f64, standard: &str) -> bool {
     let limit = if standard == "CISPR32_CLASS_A" { 50.0 } else { 40.0 };
     field_strength_dbuv <= limit
-}
-
-/// pyo3 bridge for [`predict_radiated_emissions`].
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (loop_area_mm2, current_peak_a, frequency_mhz, distance_m))]
-pub fn predict_radiated_emissions_py(
-    loop_area_mm2: f64,
-    current_peak_a: f64,
-    frequency_mhz: f64,
-    distance_m: f64,
-) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| {
-        predict_radiated_emissions(loop_area_mm2, current_peak_a, frequency_mhz, distance_m)
-    })
-    .map_err(temper_py_bridge::panic_to_err)
 }
 
 /// pyo3 bridge for [`check_emi_compliance`].
