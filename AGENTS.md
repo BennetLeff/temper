@@ -563,17 +563,42 @@ reuse such an artifact, report success, and install a `.so` with no
 does not define module export function", and the freshness gate is happy
 because the file's mtime is new. The tell is maturin printing
 `Finished ... in 0.0Xs` with **no `Compiling <crate>` line**, usually
-alongside a `Couldn't find the symbol PyInit_<crate>` warning. Fix:
+alongside a `Couldn't find the symbol PyInit_<crate>` warning.
+`check_stale_extensions.py` reports this as **`[FEATURE-GATE]`** and prints
+the recovery below verbatim, per crate — you should not have to remember it.
+
+**`cargo clean -p` alone is not the fix**, and a session lost hours finding
+that out: cleaning and then rebuilding *in the shared `target-shared`* races
+every other worktree on the host, any one of which re-poisons the entry with
+a plain `cargo test`/`cargo check` mid-rebuild. Both steps:
 
 ```bash
-source scripts/cargo_shared_env.sh   # so -p cleans the SHARED target dir
-cargo clean -p <crate>
+# 1. evict the poisoned entry from the SHARED target dir
+CARGO_TARGET_DIR="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/target-shared" \
+  cargo clean -p <crate>
+# 2. rebuild under a PRIVATE target dir nobody else writes to
+CARGO_TARGET_DIR="$(mktemp -d)" uv run --no-sync maturin develop \
+  --release --manifest-path packages/<crate>/Cargo.toml
 ```
 
-then rebuild and confirm a real `Compiling <crate>` line appears. Note this
-is a cargo-cache problem, not a maturin-invocation problem: the
-`--manifest-path` form above reads `[tool.maturin] features` correctly from
-any working directory.
+then confirm a real `Compiling <crate>` line appears. Note this is a
+cargo-cache problem, not a maturin-invocation problem: the `--manifest-path`
+form above reads `[tool.maturin] features` correctly from any working
+directory. **Stop re-creating it**: run crate tests as `cargo test -p <crate>
+--features python`, or under a private `CARGO_TARGET_DIR`. A plain `cargo
+test` on any crate that *depends* on `<crate>` compiles it without `python`
+and overwrites the shared copy every worktree links against — that is the
+whole mechanism.
+
+**Freshness is not the same question as "does the symbol exist".** Since
+2026-08-20 the gate also derives, from each crate's own `#[pymodule]`
+registration walk, the set of symbols the artifact must export, loads the
+built `.so` in a child process, and reports any registered name that is
+absent (`[MISSING-SYMBOLS]`, always fatal). That closes the case where the
+gate said `stale=0` — correctly, by timestamp — against a `.so` missing a
+function its source registers. A `PASSED` line now names the number of
+symbols compared; if that number is not in the low thousands, the check
+itself has broken.
 
 ### Worktree `.venv`: shared vs. isolated
 

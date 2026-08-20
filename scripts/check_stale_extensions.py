@@ -201,19 +201,91 @@ MISSING (module not importable at all) is softer, controlled by
     because CI is the place a missing accelerator's absence should never
     be silent.
 
+Design decision: symbols, because freshness is not the question anyone asks
+--------------------------------------------------------------------------
+Everything above answers "was this artifact rebuilt from these sources?".
+That is not the question an agent asks before trusting a measurement, which
+is "does this ``.so`` contain the function I am about to call?" -- and the
+two answers came apart four separate times in one session, every time with
+this gate green (AGENTS.md, "Measurement Instruments That Lie"):
+
+  1. ``stale=0`` against a ``.so`` missing a function its own Rust source
+     registers. Cost: ``is_hv_net("hb-gnd")`` read ``False`` where the
+     rebuilt artifact reads ``True``, and an agent worked from that for
+     hours.
+  2. A plain ``cargo test`` on ``temper-orchestration`` compiles
+     ``temper-geometry`` WITHOUT its ``python`` feature; the resulting
+     artifact overwrites the shared ``target-shared`` copy every worktree
+     links against, and maturin then reuses it and reports success.
+  3. ``temper_geometry`` unimportable (no ``PyInit``) while the gate said
+     fresh 10/10; ``make extensions`` did not fix it.
+  4. Fresh 10/10 AND all ten modules importing cleanly, while
+     ``temper_design_bundle_python`` lacked
+     ``resolve_insulation_declaration``. Found only because someone
+     happened to call the missing function.
+
+(3) grew the ``PyInit`` byte scan below in #1132. (1), (2) and (4) need the
+artifact's actual symbol table compared against what its Rust source
+registers, which is what ``scripts/_lib/pyo3_symbols.py`` derives and
+``check_symbols`` below enforces. The expected set is DERIVED from the
+``#[pymodule]`` registration walk on every run -- a checked-in list would be
+the same defect one level up and would go stale exactly the way the
+timestamps did.
+
+Two states come out of it:
+
+  SYMBOLS   -- the module imports, and ``dir()`` is missing at least one
+               name its own source registers. Always fatal: a
+               present-but-incomplete module is precisely the shape that
+               produced a wrong number nobody questioned.
+  FEATURE-GATE -- the artifact has no module init function at all AND the
+               crate builds its pyo3 surface behind a Cargo feature. This
+               is case (2), named rather than folded into a generic
+               "unloadable", because it is the failure that poisons every
+               worktree on the host at once and its remedy is different
+               from (and larger than) "rebuild".
+
+What the symbol check CANNOT see, stated so nobody assumes otherwise
+--------------------------------------------------------------------
+  - **A changed function BODY.** Same name, same arity, different answer.
+    Only the freshness half (stamp/mtime) can see that, which is exactly
+    why the timestamp check is added to rather than replaced.
+  - **A changed SIGNATURE.** ``dir()`` reports a name, not its arity or
+    types; pyo3 does not reliably publish ``__text_signature__`` for these
+    builds, so an argument added in Rust and absent from the artifact is
+    invisible here. It surfaces as a ``TypeError`` at call time, loudly,
+    which is the failure mode this gate is least worried about.
+  - **Methods on a registered ``#[pyclass]``.** The class is checked for
+    presence; its ``#[pymethods]`` are not. A class that gained a method
+    in Rust and lost it in the artifact still passes.
+  - **A poisoned SHARED target directory that has not been installed
+    yet.** This gate only ever inspects what is installed in the current
+    environment. ``target-shared`` can be holding a feature-less
+    ``temper-geometry`` for every other worktree on the host, and until
+    someone's ``maturin develop`` copies it into a ``.venv`` nothing here
+    can know. That is a property of the machine, not of this environment.
+  - **Whether the ``.so`` was built from THIS repo at all.** The content
+    stamp answers that only when a stamp is present.
+  - **Registrations whose name is computed at runtime** (``m.add(name,
+    ...)`` with a non-literal). They are skipped, not guessed.
+
 Anti-vacuous-truth backstop (always fatal, regardless of the flag above):
-zero crates discovered, or any crate whose own freshness could not be
-determined (e.g. its ``src/`` directory vanished), is a TOOL ERROR, never
-folded into "0 violations".
+zero crates discovered, any crate whose own freshness could not be
+determined (e.g. its ``src/`` directory vanished), or any crate whose
+expected-symbol set comes out EMPTY (every crate here is a pyo3 cdylib; a
+crate that registers nothing means the extractor broke, not that the crate
+is trivially correct) is a TOOL ERROR, never folded into "0 violations".
 
 Exit codes:
   0 - PASSED (or WARN on missing-but-not-required): every checked crate
-      is fresh, or the only issues are MISSING crates and
-      TEMPER_REQUIRE_FRESH_EXTENSIONS is not set.
+      is fresh and exports every symbol it registers, or the only issues
+      are MISSING crates and TEMPER_REQUIRE_FRESH_EXTENSIONS is not set.
   3 - VIOLATION: at least one crate's installed extension module is
-      STALE, or (when TEMPER_REQUIRE_FRESH_EXTENSIONS is set) MISSING.
-  5 - GATE ERROR: zero crates discovered, or a per-crate freshness
-      computation failed -- never conflated with "0 violations".
+      STALE, UNLOADABLE, FEATURE-GATE poisoned, missing registered
+      SYMBOLS, or (when TEMPER_REQUIRE_FRESH_EXTENSIONS is set) MISSING.
+  5 - GATE ERROR: zero crates discovered, a per-crate freshness
+      computation failed, or a crate yielded no expected symbols -- never
+      conflated with "0 violations".
 
 Usage:
   uv run python scripts/check_stale_extensions.py
@@ -228,7 +300,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.util
+import json
 import os
+import subprocess
 import sys
 import tomllib
 from dataclasses import dataclass, field
@@ -244,6 +318,11 @@ from _lib.freshness import (  # noqa: E402
     stamp_path_for,
 )
 from _lib.github_summary import get_github_summary_path  # noqa: E402
+from _lib.pyo3_symbols import (  # noqa: E402
+    Extraction,
+    extract_expected_symbols,
+    load_crate_toml,
+)
 from _lib.repo import find_repo_root  # noqa: E402
 
 EXIT_OK = 0
@@ -560,23 +639,232 @@ def read_artifact_stamp(artifact: Path) -> str | None:
     return read_stamp(key)
 
 
+# ---------------------------------------------------------------------------
+# Symbol verification -- see the module docstring's "Design decision: symbols"
+# ---------------------------------------------------------------------------
+
+#: Loads ONE built artifact in a child process and reports what it exposes.
+#:
+#: A child process, not an import here, for three reasons that are all real in
+#: this repo: (a) this gate must stay side-effect-free in its own interpreter
+#: -- ``find_spec`` is used everywhere above precisely so that running the gate
+#: never executes module-level code; (b) a broken ``.so`` can abort or
+#: segfault the process that dlopens it, and a gate that dies is worse than a
+#: gate that reports; (c) loading ten unrelated Rust extensions into one
+#: interpreter risks cross-module interference that has nothing to do with the
+#: question being asked.
+#:
+#: The artifact is loaded BY PATH rather than by import name. Every crate here
+#: ships maturin's mixed layout, whose ``__init__.py`` does ``from .<mod>
+#: import *`` -- and ``import *`` silently drops any name starting with an
+#: underscore. Loading the ``.so`` itself asks the artifact what it contains,
+#: which is the question, instead of asking the wrapper what it chose to
+#: re-export.
+#:
+#: Child modules attached with ``add_submodule`` are walked one level deep,
+#: because that is where ``temper_design_bundle_python.board_contracts.Board``
+#: and 19 other contract groups live.
+_LOADER_SOURCE = r"""
+import importlib.util, json, sys
+
+name, path = sys.argv[1], sys.argv[2]
+try:
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"no loader for {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+except BaseException as exc:  # noqa: BLE001 -- reporting, not handling
+    print(json.dumps({"ok": False, "error": f"{type(exc).__name__}: {exc}"}))
+else:
+    found = {}
+
+    def walk(obj, prefix, depth):
+        for attr in dir(obj):
+            found[prefix + attr] = True
+            if depth <= 0:
+                continue
+            child = getattr(obj, attr, None)
+            if type(child).__name__ == "module":
+                walk(child, prefix + attr + ".", depth - 1)
+
+    walk(module, "", 1)
+    print(json.dumps({"ok": True, "symbols": sorted(found)}))
+"""
+
+#: A child that has not answered in this long is not going to. Generous:
+#: the slowest artifact here loads in well under a second.
+_LOADER_TIMEOUT_S = 120
+
+
+@dataclass(frozen=True)
+class LoadResult:
+    ok: bool
+    symbols: frozenset[str] = frozenset()
+    error: str = ""
+
+
+def load_artifact_symbols(module_name: str, artifact: Path, cwd: Path) -> LoadResult:
+    """Names the built *artifact* actually exposes, via a child process."""
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-c", _LOADER_SOURCE, module_name, str(artifact)],
+            capture_output=True,
+            text=True,
+            cwd=str(cwd),
+            timeout=_LOADER_TIMEOUT_S,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        return LoadResult(False, error=f"could not run the loader subprocess: {exc!r}")
+
+    if proc.returncode < 0:
+        return LoadResult(
+            False,
+            error=(
+                f"loading the artifact killed the interpreter with signal "
+                f"{-proc.returncode} -- the .so is not merely stale, it is corrupt"
+            ),
+        )
+    try:
+        payload = json.loads(proc.stdout)
+    except (ValueError, TypeError):
+        tail = (proc.stderr or proc.stdout or "").strip()[-400:]
+        return LoadResult(False, error=f"loader produced no verdict (exit {proc.returncode}): {tail}")
+    if not payload.get("ok"):
+        return LoadResult(False, error=str(payload.get("error", "unknown import failure")))
+    return LoadResult(True, symbols=frozenset(payload.get("symbols", ())))
+
+
+def _gates_python_behind_a_feature(pyproject: dict) -> bool:
+    """Does this crate's pyo3 surface sit behind a Cargo feature?
+
+    True for every crate in this repo: ``[tool.maturin] features`` names a
+    feature of the crate itself (``python``). That is exactly the
+    precondition for failure mode (2) -- a build of the same crate WITHOUT
+    that feature produces a cdylib with no module init at all, and cargo will
+    happily leave it in the shared target directory for maturin to reuse.
+    """
+    features = pyproject.get("tool", {}).get("maturin", {}).get("features", [])
+    return any("/" not in f for f in features)
+
+
+def _feature_gate_remedy(crate: Crate) -> str:
+    """The recovery that actually works, spelled out.
+
+    ``cargo clean -p`` alone is NOT it, and an agent lost hours discovering
+    that: cleaning the shared ``target-shared`` and rebuilding there races
+    every other worktree on the host, any one of which re-poisons the entry
+    with a plain ``cargo test``/``cargo check`` mid-rebuild. The rebuild has
+    to happen somewhere nobody else writes.
+    """
+    return (
+        f"REMEDY (both steps -- the first alone is not enough):\n"
+        f"      1. cargo clean -p {crate.name}   # in the SHARED target dir, to\n"
+        f"         evict the poisoned entry:\n"
+        f"           CARGO_TARGET_DIR=\"$(dirname \"$(git rev-parse "
+        f"--path-format=absolute --git-common-dir)\")/target-shared\" \\\n"
+        f"             cargo clean -p {crate.name}\n"
+        f"      2. rebuild under a PRIVATE target dir, so a concurrent "
+        f"`cargo test`\n"
+        f"         or `cargo check` from another worktree cannot re-poison the\n"
+        f"         artifact between the clean and the install:\n"
+        f"           CARGO_TARGET_DIR=\"$(mktemp -d)\" uv run --no-sync maturin "
+        f"develop \\\n"
+        f"             --release --manifest-path {crate.cargo_toml}\n"
+        f"      Confirm a real `Compiling {crate.name}` line appears; a build that\n"
+        f"      prints only `Finished ... in 0.0Xs` reused the poisoned artifact.\n"
+        f"      Then stop re-creating it: run crate tests as `cargo test -p "
+        f"{crate.name} --features python`\n"
+        f"      (or under a private CARGO_TARGET_DIR). A plain `cargo test` on any\n"
+        f"      crate that depends on {crate.name} compiles it WITHOUT `python` and\n"
+        f"      overwrites the shared copy every worktree on this host links against."
+    )
+
+
+@dataclass
+class SymbolVerdict:
+    """Outcome of comparing a built artifact against its Rust source."""
+
+    expected: int = 0
+    inferred: int = 0
+    unresolved_cfgs: tuple[str, ...] = ()
+    missing: tuple[str, ...] = ()
+    origins: dict[str, str] = field(default_factory=dict)
+
+    def summary(self) -> str:
+        parts = [f"{self.expected} registered symbol(s) checked"]
+        if self.inferred:
+            parts.append(f"{self.inferred} name(s) inferred from macro-generated items")
+        if self.unresolved_cfgs:
+            parts.append(f"{len(self.unresolved_cfgs)} undecidable cfg(s) not demanded")
+        return "; ".join(parts)
+
+
+def check_symbols(crate: Crate, artifact: Path, sources: list[Path], repo_root: Path):
+    """Compare *artifact*'s real symbol table against what its source registers.
+
+    Returns ``(verdict, load_result, extraction)``. Raises :class:`GateError`
+    when the expected set comes out empty -- see the anti-vacuity backstop in
+    the module docstring.
+    """
+    extraction: Extraction = extract_expected_symbols(
+        crate.root,
+        sources,
+        load_crate_toml(crate.pyproject),
+        load_crate_toml(crate.cargo_toml),
+        crate.module_name,
+    )
+    if not extraction.symbols:
+        raise GateError(
+            f"{crate.name}: derived ZERO expected symbols from "
+            f"{extraction.files_scanned} Rust source file(s)"
+            + (
+                f" (entry point `{extraction.entry_point}`)"
+                if extraction.entry_point
+                else " -- no `#[pymodule]` function was found at all"
+            )
+            + ". Every crate this gate discovers is a pyo3 cdylib, so an empty "
+            "expectation means scripts/_lib/pyo3_symbols.py stopped "
+            "understanding this crate's source, not that the crate exports "
+            "nothing. Failing closed: a symbol check with nothing in it is "
+            "the vacuous pass this gate exists to prevent."
+        )
+
+    load = load_artifact_symbols(crate.module_name, artifact, repo_root)
+    verdict = SymbolVerdict(
+        expected=len(extraction.symbols),
+        inferred=extraction.inferred_count,
+        unresolved_cfgs=tuple(extraction.unresolved_cfgs),
+    )
+    if not load.ok:
+        return verdict, load, extraction
+
+    missing = sorted(n for n in extraction.symbols if n not in load.symbols)
+    verdict.missing = tuple(missing)
+    verdict.origins = {n: extraction.symbols[n].origin for n in missing}
+    return verdict, load, extraction
+
+
 @dataclass
 class ModuleStatus:
-    state: str  # "fresh" | "stale" | "unloadable" | "missing" | "error"
+    state: str  # "fresh" | "stale" | "symbols" | "feature-gate" | "unloadable" | "missing" | "error"
     detail: str
     artifact: Path | None = None
     artifact_mtime: float | None = None
     method: str = "mtime"  # "content" once a stamp decided it
+    symbols: SymbolVerdict | None = None
 
 
 def _fmt(ts: float) -> str:
     return datetime.fromtimestamp(ts).isoformat(timespec="seconds")
 
 
-def check_module(crate: Crate) -> ModuleStatus:
+def check_module(crate: Crate, repo_root: Path | None = None) -> ModuleStatus:
     """Never trusts any build tool's stdout (see module docstring) --
-    independently locates and stats the real installed artifact.
+    independently locates and stats the real installed artifact, then asks
+    the artifact itself which symbols it contains.
     """
+    repo_root = repo_root or find_repo_root()
     try:
         spec = importlib.util.find_spec(crate.module_name)
     except (ImportError, ModuleNotFoundError, ValueError, AttributeError, TypeError) as exc:
@@ -609,18 +897,29 @@ def check_module(crate: Crate) -> ModuleStatus:
     # failures were that one broken module. Freshness answers "was it
     # rebuilt?"; this answers "is what got installed loadable?".
     if _exports_init_symbol(crate.module_name, artifact) is False:
+        gated = _gates_python_behind_a_feature(load_crate_toml(crate.pyproject))
         return ModuleStatus(
-            "unloadable",
+            "feature-gate" if gated else "unloadable",
             f"{crate.module_name}: installed artifact {artifact} exports no "
             f"PyInit_{crate.module_name} -- it cannot be imported, regardless "
-            f"of how recently it was built. This is the signature of a cargo "
-            f"cache holding an artifact compiled WITHOUT the crate's `python` "
-            f"feature (left by `cargo check`/clippy), which maturin then "
-            f"reuses and reports as a successful build. Fix with: "
-            f"`source scripts/cargo_shared_env.sh && cargo clean -p "
-            f"{crate.name}` then rebuild, confirming a real `Compiling "
-            f"{crate.name}` line appears (a build that prints only "
-            f"`Finished ... in 0.0Xs` reused the poisoned artifact).",
+            f"of how recently it was built."
+            + (
+                f"\n      DIAGNOSIS: FEATURE-GATE POISONED TARGET DIR. "
+                f"{crate.name} builds its pyo3 surface behind a Cargo feature "
+                f"(`[tool.maturin] features` in {crate.pyproject.name}), and this "
+                f"artifact was compiled WITHOUT it -- so the `#[pymodule]` never "
+                f"existed in this binary. Nothing about the build was reported as "
+                f"failing: cargo left the feature-less cdylib in the shared target "
+                f"directory and maturin reused it.\n      "
+                + _feature_gate_remedy(crate)
+                if gated
+                else " The crate declares no Cargo feature for its pyo3 surface, so "
+                "this is not the feature-gate case -- the artifact is malformed or "
+                "was built for a different module name. Rebuild with `uv run "
+                f"--no-sync maturin develop --release --manifest-path "
+                f"{crate.cargo_toml}` and read the build output."
+            ),
+            artifact=artifact,
         )
 
     try:
@@ -629,7 +928,96 @@ def check_module(crate: Crate) -> ModuleStatus:
         return ModuleStatus("error", str(exc))
 
     artifact_mtime = artifact.stat().st_mtime
+    freshness = _freshness_status(crate, artifact, sources, artifact_mtime)
+    if freshness.state == "error":
+        return freshness
 
+    # The symbol comparison runs even when freshness is satisfied -- that is
+    # the whole point. It is ADDITIVE to the timestamp/stamp check above, not
+    # a replacement: source-newer-than-artifact is a real condition symbols
+    # cannot see (a rebuild that changes only a function BODY leaves the
+    # symbol set identical), and a missing symbol is a real condition
+    # timestamps cannot see (cases 1 and 4 in the module docstring).
+    try:
+        verdict, load, _extraction = check_symbols(crate, artifact, sources, repo_root)
+    except GateError as exc:
+        return ModuleStatus(
+            "error",
+            str(exc),
+            artifact=artifact,
+            artifact_mtime=artifact_mtime,
+            method=freshness.method,
+        )
+
+    if not load.ok:
+        gated = _gates_python_behind_a_feature(load_crate_toml(crate.pyproject))
+        looks_feature_gated = gated and "does not define module export function" in load.error
+        return ModuleStatus(
+            "feature-gate" if looks_feature_gated else "unloadable",
+            f"{crate.module_name}: installed artifact {artifact} could not be "
+            f"loaded -- {load.error}"
+            + (
+                f"\n      DIAGNOSIS: FEATURE-GATE POISONED TARGET DIR. The binary "
+                f"has no module init function, which is what a build of "
+                f"{crate.name} WITHOUT its `python` feature produces.\n      "
+                + _feature_gate_remedy(crate)
+                if looks_feature_gated
+                else f"\n      Rebuild with `uv run --no-sync maturin develop "
+                f"--release --manifest-path {crate.cargo_toml}` and read the build "
+                f"output; freshness ({freshness.state}) is not the issue here."
+            ),
+            artifact=artifact,
+            artifact_mtime=artifact_mtime,
+            method=freshness.method,
+            symbols=verdict,
+        )
+
+    freshness.symbols = verdict
+    if verdict.missing:
+        shown = ", ".join(
+            f"{name} (registered at {verdict.origins.get(name, '?')})"
+            for name in verdict.missing[:10]
+        )
+        overflow = "" if len(verdict.missing) <= 10 else f", and {len(verdict.missing) - 10} more"
+        detail = (
+            f"{crate.module_name}: installed artifact {artifact} is MISSING "
+            f"{len(verdict.missing)} of the {verdict.expected} symbol(s) its own "
+            f"Rust source registers -- {shown}{overflow}."
+            f"\n      The freshness check said {freshness.state.upper()} for this "
+            f"same artifact, which is exactly the disagreement this check exists "
+            f"to surface: a timestamp says a file was written, not what is in it."
+            f"\n      REMEDY: rebuild the crate and confirm a real `Compiling "
+            f"{crate.name}` line appears --\n"
+            f"        CARGO_TARGET_DIR=\"$(mktemp -d)\" uv run --no-sync maturin "
+            f"develop --release --manifest-path {crate.cargo_toml}\n"
+            f"      A private CARGO_TARGET_DIR is deliberate: rebuilding into the "
+            f"shared target-shared can reuse (or re-acquire) the very artifact that "
+            f"is wrong. If the symbols are still absent after a real recompile, the "
+            f"registration is behind a Cargo feature this build does not enable."
+        )
+        if freshness.state == "stale":
+            # Do not hide the staleness -- it is the same rebuild either way,
+            # but the two findings are independent evidence and both are said.
+            freshness.detail = f"{freshness.detail}\n      ALSO: {detail}"
+            return freshness
+        return ModuleStatus(
+            "symbols",
+            detail,
+            artifact=artifact,
+            artifact_mtime=artifact_mtime,
+            method=freshness.method,
+            symbols=verdict,
+        )
+
+    if freshness.state == "fresh":
+        freshness.detail = f"{freshness.detail}; {verdict.summary()}, all present"
+    return freshness
+
+
+def _freshness_status(
+    crate: Crate, artifact: Path, sources: list[Path], artifact_mtime: float
+) -> ModuleStatus:
+    """Was this artifact built from these sources? (stamp, else mtime)"""
     # Content comparison when a stamp is present: authoritative, mtimes
     # never consulted. That is what lets a cached/baked artifact whose
     # sources were merely re-checked-out be trusted.
@@ -725,7 +1113,7 @@ def run(repo_root: Path) -> Report:
             "crate has been removed from the repo; either way this must "
             "not report success (see docs/METHODOLOGY.md Sec 4/5)."
         )
-    results = [CrateResult(crate=c, status=check_module(c)) for c in crates]
+    results = [CrateResult(crate=c, status=check_module(c, repo_root)) for c in crates]
     return Report(crates_discovered=len(crates), results=results)
 
 
@@ -740,10 +1128,17 @@ def _required() -> bool:
 _MARKER = {
     "fresh": "OK",
     "stale": "STALE",
+    "symbols": "MISSING-SYMBOLS",
+    "feature-gate": "FEATURE-GATE",
     "unloadable": "UNLOADABLE",
     "missing": "MISSING",
     "error": "ERROR",
 }
+
+#: Every state that is a violation regardless of
+#: TEMPER_REQUIRE_FRESH_EXTENSIONS. "built, but wrong" is never a legitimate
+#: local state the way "not built here" is.
+_ALWAYS_FATAL_STATES = ("stale", "symbols", "feature-gate", "unloadable")
 
 
 def group_by_state(report: Report) -> dict[str, list[CrateResult]]:
@@ -756,22 +1151,21 @@ def group_by_state(report: Report) -> dict[str, list[CrateResult]]:
 def decide_exit_code(report: Report, required: bool) -> int:
     """Pure decision function, isolated from I/O for unit testing.
 
-    tool errors > STALE (always fatal) > MISSING (fatal only if
-    *required*) > PASSED. See module docstring "The 'is staleness fatal
-    here' signal" for why STALE is never gated by *required*.
+    tool errors > "built, but wrong" (always fatal) > MISSING (fatal only
+    if *required*) > PASSED. See module docstring "The 'is staleness fatal
+    here' signal" for why STALE is never gated by *required*; the same
+    reasoning covers MISSING-SYMBOLS, FEATURE-GATE and UNLOADABLE. An
+    artifact that exports no init function cannot be imported by anyone, and
+    one that is missing a registered symbol produces a wrong ANSWER rather
+    than an error, so there is no environment in which tolerating either
+    yields a meaningful test result -- they produce phantom failures instead
+    (21 of 32, measured 2026-08-13). MISSING is gated by *required* because
+    "not built here" is a legitimate local state; "built, but wrong" is not.
     """
     by_state = group_by_state(report)
     if by_state.get("error"):
         return EXIT_TOOL_ERROR
-    if by_state.get("stale"):
-        return EXIT_VIOLATION
-    # Always fatal, never gated by *required* -- same reasoning as STALE. An
-    # artifact that exports no init function cannot be imported by anyone,
-    # so there is no environment in which tolerating it yields a meaningful
-    # test result; it produces phantom failures instead (21 of 32, measured
-    # 2026-08-13). MISSING is gated by *required* because "not built here"
-    # is a legitimate local state; "built, but unloadable" never is.
-    if by_state.get("unloadable"):
+    if any(by_state.get(state) for state in _ALWAYS_FATAL_STATES):
         return EXIT_VIOLATION
     if by_state.get("missing") and required:
         return EXIT_VIOLATION
@@ -831,9 +1225,16 @@ def main() -> int:
     by_state = group_by_state(report)
     fresh = by_state.get("fresh", [])
     stale = by_state.get("stale", [])
+    symbol_gaps = by_state.get("symbols", [])
+    feature_gated = by_state.get("feature-gate", [])
     missing = by_state.get("missing", [])
     unloadable = by_state.get("unloadable", [])
     errors = by_state.get("error", [])
+
+    checked = [r for r in report.results if r.status.symbols is not None]
+    symbols_checked = sum(r.status.symbols.expected for r in checked)
+    inferred = sum(r.status.symbols.inferred for r in checked)
+    undecidable = sum(len(r.status.symbols.unresolved_cfgs) for r in checked)
 
     print(
         f"Stale-extension gate -- {report.crates_discovered} pyo3/maturin "
@@ -842,14 +1243,28 @@ def main() -> int:
     )
     by_content = [r for r in report.results if r.status.method == "content"]
     print(
-        f"  fresh={len(fresh)} stale={len(stale)} unloadable={len(unloadable)} "
+        f"  fresh={len(fresh)} stale={len(stale)} missing-symbols={len(symbol_gaps)} "
+        f"feature-gate={len(feature_gated)} unloadable={len(unloadable)} "
         f"missing={len(missing)} tool-errors={len(errors)}  "
         f"TEMPER_REQUIRE_FRESH_EXTENSIONS={'1 (strict)' if required else '0 (lenient)'}"
     )
     print(
         f"  decided by content hash: {len(by_content)}; by mtime fallback "
         f"(no build stamp): "
-        f"{len(report.results) - len(by_content) - len(missing) - len(unloadable)}"
+        f"{len(report.results) - len(by_content) - len(missing) - len(unloadable) - len(feature_gated)}"
+    )
+    # Printed unconditionally, including on a clean run: a symbol check whose
+    # denominator quietly went to zero would otherwise look exactly like a
+    # symbol check that passed.
+    print(
+        f"  symbols compared against Rust source: {symbols_checked} registered "
+        f"name(s) across {len(checked)} loadable artifact(s)"
+        + (f"; {inferred} name(s) inferred from macro-generated items" if inferred else "")
+        + (
+            f"; {undecidable} cfg predicate(s) undecidable and therefore NOT demanded"
+            if undecidable
+            else ""
+        )
     )
     for r in report.results:
         print(f"  [{_MARKER[r.status.state]}] {r.crate.name}: {r.status.detail}")
@@ -862,10 +1277,13 @@ def main() -> int:
                 f"- Checked: {len(report.results)}\n"
                 f"- Fresh: {len(fresh)}\n"
                 f"- Stale: {len(stale)}\n"
-                f"- Unloadable (no init symbol): {len(unloadable)}\n"
+                f"- Missing registered symbols: {len(symbol_gaps)}\n"
+                f"- Feature-gate poisoned (no module init): {len(feature_gated)}\n"
+                f"- Unloadable: {len(unloadable)}\n"
                 f"- Missing: {len(missing)}\n"
                 f"- Tool errors: {len(errors)}\n"
                 f"- Decided by content hash: {len(by_content)}\n"
+                f"- Registered symbols compared: {symbols_checked}\n"
                 f"- TEMPER_REQUIRE_FRESH_EXTENSIONS: {required}\n"
             )
 
@@ -878,13 +1296,18 @@ def main() -> int:
             file=sys.stderr,
         )
     elif exit_code == EXIT_VIOLATION:
-        print(
-            f"\nFAILED -- {len(stale)} stale extension(s)"
-            + (f", {len(unloadable)} unloadable extension(s)" if unloadable else "")
-            + (f", {len(missing)} missing extension(s) (required)" if required and missing else "")
-            + ".",
-            file=sys.stderr,
-        )
+        reasons = [
+            f"{len(stale)} stale extension(s)",
+            *([f"{len(symbol_gaps)} extension(s) missing registered symbols"] if symbol_gaps else []),
+            *([f"{len(feature_gated)} feature-gate poisoned extension(s)"] if feature_gated else []),
+            *([f"{len(unloadable)} unloadable extension(s)"] if unloadable else []),
+            *(
+                [f"{len(missing)} missing extension(s) (required)"]
+                if required and missing
+                else []
+            ),
+        ]
+        print("\nFAILED -- " + ", ".join(reasons) + ".", file=sys.stderr)
     else:
         if missing:
             print(
@@ -892,7 +1315,11 @@ def main() -> int:
                 "failing because TEMPER_REQUIRE_FRESH_EXTENSIONS is unset (local "
                 "dev: not every accelerator is assumed built). CI sets this."
             )
-        print(f"\nPASSED -- {len(fresh)}/{report.crates_discovered} extension module(s) fresh.")
+        print(
+            f"\nPASSED -- {len(fresh)}/{report.crates_discovered} extension module(s) "
+            f"fresh, and every one of {symbols_checked} registered symbol(s) is "
+            f"present in the artifact that claims it."
+        )
 
     return exit_code
 

@@ -9,7 +9,7 @@ See docs/evidence/2026-07-27-stale-extension-gate.md for that write-up
 (mirrors the convention in test_check_undeclared_imports.py's own
 docstring for the same reason).
 
-Four groups here, matching that same file's structure:
+Groups here, matching that same file's structure:
 
 1. `TestDiscovery` -- discover_crates() correctly identifies pyo3/maturin
    extension crates and correctly rejects near-miss decoys (rlib-only,
@@ -23,8 +23,24 @@ Four groups here, matching that same file's structure:
    wrapper to the real .so" behavior that is this gate's core defense
    against the historical incident's exact failure shape.
 4. `TestAntiVacuity` -- run() fails closed on zero discovered crates;
-   decide_exit_code()'s pure exit-code matrix (tool-error > STALE always
-   fatal > MISSING fatal only when required > PASSED).
+   decide_exit_code()'s pure exit-code matrix (tool-error > "built, but
+   wrong" always fatal > MISSING fatal only when required > PASSED).
+5. `TestContentStamp` / `TestStampWriter` -- the cases where content
+   hashing and mtime disagree.
+6. `TestUnloadableArtifact` -- a brand-new `.so` with no init symbol,
+   including the FEATURE-GATE diagnosis and its negative control.
+7. `TestSymbolExtraction` -- the DERIVATION of the expected symbol set
+   from Rust source: renames, feature gates (both directions),
+   `cfg_attr`, submodules, `macro_rules!`-generated items, masking of
+   comments and string literals, and never starting the walk from a path
+   dependency's own `#[pymodule]`. Each shape here was found by running
+   the derivation against all ten real crates and reconciling it symbol
+   by symbol with what the built artifacts actually export.
+8. `TestSymbolFalsifiability` -- proof the symbol check can go red:
+   same crate, same timestamps, one symbol removed from the installed
+   artifact, verdict flips. Every red comes with the green control that
+   shows the fixture was not simply broken. These load a REAL module in
+   the gate's real subprocess loader; nothing is stubbed.
 """
 
 from __future__ import annotations
@@ -40,7 +56,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import check_stale_extensions as gate_module  # noqa: E402
 from _lib.freshness import write_stamp  # noqa: E402
+from _lib.pyo3_symbols import extract_expected_symbols, load_crate_toml  # noqa: E402
 from check_stale_extensions import (  # noqa: E402
     EXIT_OK,
     EXIT_TOOL_ERROR,
@@ -48,6 +66,7 @@ from check_stale_extensions import (  # noqa: E402
     Crate,
     CrateResult,
     GateError,
+    LoadResult,
     ModuleStatus,
     Report,
     _resolve_native_artifact,
@@ -66,10 +85,82 @@ from check_stale_extensions import (  # noqa: E402
 from write_extension_stamps import main as write_extension_stamps_main  # noqa: E402
 
 
+@pytest.fixture
+def loadable_artifact(monkeypatch: pytest.MonkeyPatch):
+    """Stand in for loading a real compiled artifact.
+
+    The synthetic ``.so`` files below are a handful of bytes, so nothing can
+    dlopen them. Tests about FRESHNESS should not be blocked on that, and
+    they were never loading anything before this change either -- they
+    monkeypatch ``find_spec`` for the same reason. The symbol check's own
+    end-to-end behaviour is proved separately, against artifacts that really
+    are loaded, in ``TestSymbolFalsifiability``.
+    """
+
+    def _fake(module_name: str, artifact: Path, cwd: Path) -> LoadResult:
+        return LoadResult(True, symbols=frozenset(_REGISTERED_SYMBOLS))
+
+    monkeypatch.setattr(gate_module, "load_artifact_symbols", _fake)
+    return _fake
+
+
 def _write(path: Path, text: str = "") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(textwrap.dedent(text))
     return path
+
+
+#: What every synthetic crate's `#[pymodule]` registers, and therefore what
+#: its installed artifact is required to expose. Two functions and a class,
+#: because those are three different registration forms
+#: (`wrap_pyfunction!`, `wrap_pyfunction!` with a rename, `add_class::<>`)
+#: and the gate resolves each one differently.
+_REGISTERED_SYMBOLS = ("alpha", "renamed_beta", "Gamma")
+
+
+def _lib_rs(module_name: str) -> str:
+    """A realistic pyo3 `lib.rs` registering :data:`_REGISTERED_SYMBOLS`.
+
+    The synthetic crates used to carry ``// minimal``. That was fine while
+    the gate only stat()ed files, but a gate that derives expected symbols
+    from source needs source that actually registers some -- and a fixture
+    with nothing to register would make every symbol assertion below
+    vacuously true, which is the failure this whole change exists to stop.
+    """
+    return f"""\
+use pyo3::prelude::*;
+
+#[pyfunction]
+fn alpha(x: f64) -> f64 {{
+    x
+}}
+
+/// Renamed on the way out, so the gate must read the attribute rather than
+/// assume the Rust identifier is the Python name.
+#[pyfunction]
+#[pyo3(name = "renamed_beta")]
+fn beta_rs(x: f64) -> f64 {{
+    x
+}}
+
+/// Declared but never registered: NOT a module attribute, and demanding it
+/// would be a false positive.
+#[pyfunction]
+fn never_registered(x: f64) -> f64 {{
+    x
+}}
+
+#[pyclass]
+struct Gamma {{}}
+
+#[pymodule]
+fn {module_name}(m: &Bound<'_, PyModule>) -> PyResult<()> {{
+    m.add_function(wrap_pyfunction!(alpha, m)?)?;
+    m.add_function(wrap_pyfunction!(beta_rs, m)?)?;
+    m.add_class::<Gamma>()?;
+    Ok(())
+}}
+"""
 
 
 def _make_pyo3_crate(
@@ -80,8 +171,16 @@ def _make_pyo3_crate(
     crate_type: str = '["cdylib", "rlib"]',
     with_pyo3_dep: bool = True,
     build_backend: str = "maturin",
+    maturin_features: str = '["python", "pyo3/extension-module"]',
+    lib_rs: str | None = None,
 ) -> Path:
-    """Write a minimal pyo3-shaped crate tree at *root* and return it."""
+    """Write a minimal pyo3-shaped crate tree at *root* and return it.
+
+    *maturin_features* defaults to the shape every real crate in this repo
+    uses -- an own-crate ``python`` feature plus the pyo3 passthrough --
+    because that own-crate feature is the precondition for the FEATURE-GATE
+    diagnosis, and a fixture that omitted it would never exercise it.
+    """
     deps = 'pyo3 = { version = "0.29", features = ["extension-module"] }\n' if with_pyo3_dep else ""
     _write(
         root / "Cargo.toml",
@@ -112,11 +211,11 @@ def _make_pyo3_crate(
         version = "0.1.0"
 
         [tool.maturin]
-        features = ["pyo3/extension-module"]
+        features = {maturin_features}
         {module_line}
         """,
     )
-    _write(root / "src" / "lib.rs", "// minimal\n")
+    _write(root / "src" / "lib.rs", lib_rs or _lib_rs((module_name or package_name).replace("-", "_")))
     return root
 
 
@@ -360,6 +459,7 @@ class TestSourceFreshness:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.usefixtures("loadable_artifact")
 class TestModuleStatus:
     """Reconstructs the shape of the 2026-07-27 incident (installed .so
     older than its crate's source) as a controlled fixture, plus the
@@ -583,6 +683,7 @@ class TestListCrates:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.usefixtures("loadable_artifact")
 class TestContentStamp:
     """The cases where content and mtime DISAGREE, which is the whole
     reason the stamp exists.
@@ -670,7 +771,10 @@ class TestContentStamp:
         )
         self._stamp(crate, artifact)
 
-        (crate.root / "src" / "lib.rs").write_text("// a symbol the .so does not contain\n")
+        # A real source change that leaves the registered symbol set alone,
+        # so this test measures the freshness verdict and nothing else.
+        lib_rs = crate.root / "src" / "lib.rs"
+        lib_rs.write_text(lib_rs.read_text() + "\n// an edit made after the build\n")
 
         status = check_module(crate)
         assert status.state == "stale"
@@ -697,7 +801,8 @@ class TestContentStamp:
         )
         self._stamp(crate, artifact)
 
-        (crate.root / "src" / "lib.rs").write_text("// edited, then back-dated\n")
+        lib_rs = crate.root / "src" / "lib.rs"
+        lib_rs.write_text(lib_rs.read_text() + "\n// edited, then back-dated\n")
         past = now - 100_000
         for src in crate_source_files(crate):
             os.utime(src, (past, past))
@@ -803,6 +908,7 @@ class TestContentStamp:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.usefixtures("loadable_artifact")
 class TestStampWriter:
     """A stamp is authoritative, so writing one next to an artifact that
     was not just built from those sources would permanently mask exactly
@@ -907,6 +1013,7 @@ class TestStampWriter:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.usefixtures("loadable_artifact")
 class TestUnloadableArtifact:
     """A `.so` can be brand-new AND unimportable at the same time.
 
@@ -947,20 +1054,78 @@ class TestUnloadableArtifact:
         )
         return crate
 
-    def test_artifact_without_init_symbol_is_unloadable_not_fresh(
+    def test_artifact_without_init_symbol_is_named_as_the_feature_gate_case(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """The regression itself: newer-than-sources, but no init symbol."""
+        """The regression itself: newer-than-sources, but no init symbol.
+
+        The crate declares its pyo3 surface behind an own-crate Cargo
+        feature (as all ten real ones do), which makes this the FEATURE-GATE
+        case specifically -- the one that poisons every worktree on the host
+        at once -- and not a generic "unloadable".
+        """
         crate = self._installed(tmp_path, monkeypatch, native_bytes=b"\x00" * 4096)
         status = check_module(crate)
-        assert status.state == "unloadable", (
-            f"an artifact exporting no PyInit_ must never be reported "
-            f"{status.state!r} -- it cannot be imported at all: {status.detail}"
+        assert status.state == "feature-gate", (
+            f"an artifact exporting no PyInit_ from a feature-gated crate must "
+            f"be named as the feature-gate case, not reported {status.state!r}: "
+            f"{status.detail}"
         )
+        assert "FEATURE-GATE POISONED TARGET DIR" in status.detail
         assert "cargo clean -p" in status.detail, (
             "the finding must name the fix; a bare 'unloadable' sends the "
             "reader back to the same dead end this gate exists to short-circuit"
         )
+        assert "CARGO_TARGET_DIR=\"$(mktemp -d)\"" in status.detail, (
+            "`cargo clean -p` ALONE is not the recovery -- rebuilding in the "
+            "shared target dir races every other worktree and re-poisons it. "
+            "The output must say to rebuild under a private target dir, "
+            "because an agent already lost hours finding that out by hand."
+        )
+        assert "--features python" in status.detail, (
+            "the output must also say how to stop re-creating the state, or "
+            "the same worktree will re-poison the shared dir tomorrow"
+        )
+
+    def test_no_own_feature_means_it_is_not_diagnosed_as_the_feature_gate_case(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The named diagnosis must be earned, not printed on everything.
+
+        A crate whose ``[tool.maturin] features`` names only a dependency's
+        feature has no own-crate gate to have been dropped, so the same
+        symptom gets the generic (and honestly weaker) verdict instead.
+        """
+        now = time.time()
+        root = tmp_path / "packages" / "no-feature-crate"
+        _make_pyo3_crate(
+            root,
+            package_name="no-feature-crate",
+            module_name="no_feature_ext",
+            maturin_features='["pyo3/extension-module"]',
+        )
+        crate = Crate(
+            name="no-feature-crate",
+            root=root,
+            module_name="no_feature_ext",
+            pyproject=root / "pyproject.toml",
+            cargo_toml=root / "Cargo.toml",
+        )
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages",
+            "no_feature_ext",
+            native_mtime=now,
+            native_bytes=b"\x00" * 4096,
+        )
+        fake_spec = importlib.util.spec_from_file_location("no_feature_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "no_feature_ext" else None,
+        )
+        status = check_module(crate)
+        assert status.state == "unloadable"
+        assert "FEATURE-GATE POISONED TARGET DIR" not in status.detail
 
     def test_unloadable_is_fatal_even_when_not_required(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -998,3 +1163,488 @@ class TestUnloadableArtifact:
         """The symbol check must not short-circuit the freshness verdict."""
         crate = self._installed(tmp_path, monkeypatch, native_bytes=None)
         assert check_module(crate).state == "fresh"
+
+
+# ---------------------------------------------------------------------------
+# TestSymbolExtraction
+# ---------------------------------------------------------------------------
+
+
+def _extract(root: Path, module_name: str):
+    """Run the derivation over a synthetic crate, the way the gate does."""
+    crate = Crate(
+        name=root.name,
+        root=root,
+        module_name=module_name,
+        pyproject=root / "pyproject.toml",
+        cargo_toml=root / "Cargo.toml",
+    )
+    return extract_expected_symbols(
+        crate.root,
+        crate_source_files(crate),
+        load_crate_toml(crate.pyproject),
+        load_crate_toml(crate.cargo_toml),
+        crate.module_name,
+    )
+
+
+class TestSymbolExtraction:
+    """The expected set is DERIVED, so its derivation is the thing to pin.
+
+    A hand-maintained list of expected symbols would be the same defect one
+    level up -- it goes stale exactly the way the timestamps did. These
+    tests pin the source shapes that actually occur in `packages/`, each of
+    which was found by running the derivation against all ten real crates
+    and reconciling it, symbol by symbol, with what the built artifacts
+    really export.
+    """
+
+    def _crate(self, tmp_path: Path, lib_rs: str, *, module_name: str = "ext", **kwargs) -> Path:
+        root = tmp_path / "packages" / "c"
+        return _make_pyo3_crate(
+            root, package_name="c", module_name=module_name, lib_rs=lib_rs, **kwargs
+        )
+
+    def test_registered_functions_and_classes_are_expected(self, tmp_path: Path) -> None:
+        root = self._crate(tmp_path, _lib_rs("ext"))
+        result = _extract(root, "ext")
+        assert set(result.symbols) == set(_REGISTERED_SYMBOLS)
+
+    def test_pyo3_rename_is_honored(self, tmp_path: Path) -> None:
+        """`#[pyo3(name = "...")]` is the exported name -- 54 items in this
+        repo use it, and assuming the Rust identifier would flag every one."""
+        root = self._crate(tmp_path, _lib_rs("ext"))
+        result = _extract(root, "ext")
+        assert "renamed_beta" in result.symbols
+        assert "beta_rs" not in result.symbols
+
+    def test_declared_but_unregistered_pyfunction_is_not_expected(
+        self, tmp_path: Path
+    ) -> None:
+        """911 `#[pyfunction]` items exist in packages/, 774 are registered.
+        Demanding the difference would be 137 false positives, which is how
+        a gate gets switched off instead of fixed."""
+        root = self._crate(tmp_path, _lib_rs("ext"))
+        assert "never_registered" not in _extract(root, "ext").symbols
+
+    def test_disabled_feature_gate_excludes_the_item(self, tmp_path: Path) -> None:
+        """An item behind a feature this build does not enable is not in the
+        artifact and must not be demanded of it."""
+        lib_rs = """\
+use pyo3::prelude::*;
+
+#[pyfunction]
+fn always_here() -> f64 { 1.0 }
+
+#[cfg(feature = "extras")]
+#[pyfunction]
+fn only_with_extras() -> f64 { 2.0 }
+
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(always_here, m)?)?;
+    m.add_function(wrap_pyfunction!(only_with_extras, m)?)?;
+    Ok(())
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        assert set(_extract(root, "ext").symbols) == {"always_here"}
+
+    def test_enabled_feature_gate_includes_the_item(self, tmp_path: Path) -> None:
+        """Control for the test above: same shape, feature turned on.
+
+        Without this pair, "excluded because the feature is off" is
+        indistinguishable from "excluded because the parser gave up".
+        """
+        lib_rs = """\
+use pyo3::prelude::*;
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn gated_on_python() -> f64 { 2.0 }
+
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(gated_on_python, m)?)?;
+    Ok(())
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        assert set(_extract(root, "ext").symbols) == {"gated_on_python"}
+
+    def test_cfg_attr_pyfunction_is_recognised(self, tmp_path: Path) -> None:
+        """`#[cfg_attr(feature = "python", pyfunction)]` -- 17 sites in this
+        repo, all of them wasm-compatibility shims."""
+        lib_rs = """\
+use pyo3::prelude::*;
+
+#[cfg_attr(feature = "python", pyfunction)]
+pub fn compare_stage(a: f64) -> f64 { a }
+
+#[cfg_attr(feature = "absent", pyfunction)]
+pub fn not_built(a: f64) -> f64 { a }
+
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(compare_stage, m)?)?;
+    m.add_function(wrap_pyfunction!(not_built, m)?)?;
+    Ok(())
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        assert set(_extract(root, "ext").symbols) == {"compare_stage"}
+
+    def test_submodule_symbols_carry_their_dotted_path(self, tmp_path: Path) -> None:
+        """`add_submodule` puts the name one level down.
+
+        temper-design-bundle does this 20 times; treating those as top-level
+        names produced 122 phantom "missing" symbols against a known-good
+        build while this was being written.
+        """
+        lib_rs = """\
+use pyo3::prelude::*;
+
+#[pyfunction]
+fn nested_fn() -> f64 { 1.0 }
+
+#[pyclass]
+struct NestedClass {}
+
+#[pymodule]
+fn ext(module: &Bound<'_, PyModule>) -> PyResult<()> {
+    let py = module.py();
+    let sub = PyModule::new(py, "contracts")?;
+    sub.add_function(wrap_pyfunction!(nested_fn, &sub)?)?;
+    sub.add_class::<NestedClass>()?;
+    module.add_submodule(&sub)
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        assert set(_extract(root, "ext").symbols) == {
+            "contracts",
+            "contracts.nested_fn",
+            "contracts.NestedClass",
+        }
+
+    def test_string_literal_module_attributes_are_expected(self, tmp_path: Path) -> None:
+        """`m.add("BUILD_PROFILE", ...)` is a module attribute like any other."""
+        lib_rs = """\
+use pyo3::prelude::*;
+
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add("BUILD_PROFILE", "release")?;
+    Ok(())
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        assert "BUILD_PROFILE" in _extract(root, "ext").symbols
+
+    def test_registration_is_followed_through_helper_functions(
+        self, tmp_path: Path
+    ) -> None:
+        """`crate::foo::register(m)` -- how nine of the ten real crates
+        register nearly everything they export."""
+        root = self._crate(
+            tmp_path,
+            """\
+use pyo3::prelude::*;
+
+mod kernels;
+
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    crate::kernels::register(m)?;
+    Ok(())
+}
+""",
+        )
+        _write(
+            root / "src" / "kernels.rs",
+            """\
+use pyo3::prelude::*;
+
+#[pyfunction]
+pub fn from_a_helper() -> f64 { 1.0 }
+
+pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(from_a_helper, m)?)?;
+    Ok(())
+}
+""",
+        )
+        assert set(_extract(root, "ext").symbols) == {"from_a_helper"}
+
+    def test_macro_generated_pyfunction_is_expected_and_flagged_inferred(
+        self, tmp_path: Path
+    ) -> None:
+        """`netclass_fn!(is_hv_net, ...)` expands to a `#[pyfunction]` that
+        no source scan can see as an item.
+
+        Dropping it would silently un-check `is_hv_net` -- the very symbol
+        whose stale answer (`is_hv_net("hb-gnd") == False`) sent an agent
+        down a wrong path for hours. So the default name is demanded, and
+        the assumption is counted rather than hidden.
+        """
+        lib_rs = """\
+use pyo3::prelude::*;
+
+macro_rules! netclass_fn {
+    ($py_name:ident) => {
+        #[pyfunction]
+        pub fn $py_name(name: &str) -> bool { name.is_empty() }
+    };
+}
+
+netclass_fn!(is_hv_net);
+
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(is_hv_net, m)?)?;
+    Ok(())
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        result = _extract(root, "ext")
+        assert "is_hv_net" in result.symbols
+        assert result.symbols["is_hv_net"].inferred
+        assert result.inferred_count == 1
+
+    def test_comments_and_strings_cannot_manufacture_symbols(
+        self, tmp_path: Path
+    ) -> None:
+        """Registration-looking text inside a comment or a string literal is
+        not registration. Without masking, a doc comment showing example
+        usage would add a symbol nothing exports."""
+        lib_rs = """\
+use pyo3::prelude::*;
+
+#[pyfunction]
+fn real_one() -> f64 { 1.0 }
+
+/// Example: m.add_function(wrap_pyfunction!(from_a_doc_comment, m)?)?;
+#[pymodule]
+fn ext(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    let _ = "m.add_function(wrap_pyfunction!(from_a_string, m)?)?;";
+    m.add_function(wrap_pyfunction!(real_one, m)?)?;
+    Ok(())
+}
+"""
+        root = self._crate(tmp_path, lib_rs)
+        assert set(_extract(root, "ext").symbols) == {"real_one"}
+
+    def test_another_crates_pymodule_is_never_the_entry_point(
+        self, tmp_path: Path
+    ) -> None:
+        """A crate's source set includes its local path dependencies, and
+        several of those are pyo3 crates with their own `#[pymodule]`.
+
+        Measured while writing this: temper-orchestration resolved to
+        temper_geometry's entry point and reported two phantom missing
+        classes.
+        """
+        root = self._crate(tmp_path, _lib_rs("ext"))
+        dep = tmp_path / "packages" / "dep"
+        _make_pyo3_crate(dep, package_name="dep", module_name="dep_ext")
+        (root / "Cargo.toml").write_text(
+            (root / "Cargo.toml").read_text() + '\ndep = { path = "../dep" }\n'
+        )
+        result = _extract(root, "ext")
+        assert result.entry_point == "ext"
+        assert set(result.symbols) == set(_REGISTERED_SYMBOLS)
+
+
+# ---------------------------------------------------------------------------
+# TestSymbolFalsifiability
+# ---------------------------------------------------------------------------
+
+
+def _install_loadable_module(
+    site_packages: Path, module_name: str, provides, mtime: float
+) -> Path:
+    """Install a module the gate's loader really loads.
+
+    No compiled `.so`: `_resolve_native_artifact` falls back to the package
+    `__init__.py` when no native sibling exists, and that file is a real
+    module the subprocess loader executes and introspects for real. So these
+    tests exercise the ENTIRE path -- derive expectations from Rust source,
+    load the installed artifact, diff -- with nothing stubbed. Breaking the
+    symbol set here is a one-line change to *provides*, which is exactly the
+    mutation a freshness gate has to be able to detect.
+    """
+    pkg_dir = site_packages / module_name
+    pkg_dir.mkdir(parents=True, exist_ok=True)
+    init_py = pkg_dir / "__init__.py"
+    body = "\n".join(
+        f"class {name}:\n    pass" if name[0].isupper() else f"def {name}():\n    return None"
+        for name in provides
+    )
+    init_py.write_text(body + "\n")
+    os.utime(init_py, (mtime, mtime))
+    return init_py
+
+
+class TestSymbolFalsifiability:
+    """Can this gate go red? Proved, not asserted.
+
+    A freshness gate that cannot detect staleness is the joke writing
+    itself. This repo already carries a vacuity gate
+    (`gate/ato-assertion-vacuity`) that exists because 74 of 86 electrical
+    assertions could not fail, so every check below comes with the control
+    that proves the red was caused by the mutation and not by the fixture.
+    """
+
+    def _setup(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, provides) -> Crate:
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now - 3600)
+        init_py = _install_loadable_module(
+            tmp_path / "site-packages", "fake_crate_ext", provides, mtime=now
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        return crate
+
+    def test_green_when_the_artifact_provides_every_registered_symbol(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The control. Without it, the red below proves nothing."""
+        crate = self._setup(tmp_path, monkeypatch, _REGISTERED_SYMBOLS)
+        status = check_module(crate)
+        assert status.state == "fresh", status.detail
+        assert status.symbols is not None
+        assert status.symbols.expected == len(_REGISTERED_SYMBOLS)
+        assert status.symbols.missing == ()
+
+    def test_breaking_the_symbol_set_flips_the_verdict(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """THE falsifier: same crate, same timestamps, one symbol removed
+        from the installed artifact -- and the verdict must flip."""
+        crate = self._setup(tmp_path, monkeypatch, _REGISTERED_SYMBOLS)
+        assert check_module(crate).state == "fresh"
+
+        init_py = tmp_path / "site-packages" / "fake_crate_ext" / "__init__.py"
+        mtime = init_py.stat().st_mtime
+        _install_loadable_module(
+            tmp_path / "site-packages",
+            "fake_crate_ext",
+            [s for s in _REGISTERED_SYMBOLS if s != "Gamma"],
+            mtime=mtime,
+        )
+
+        status = check_module(crate)
+        assert status.state == "symbols", (
+            f"removing a registered symbol from the installed artifact left "
+            f"the gate reporting {status.state!r} -- a freshness gate that "
+            f"cannot detect this is the joke writing itself: {status.detail}"
+        )
+        assert status.symbols is not None
+        assert status.symbols.missing == ("Gamma",)
+        assert "Gamma" in status.detail
+        assert "lib.rs" in status.detail, "the finding must say where the symbol is registered"
+
+    def test_the_timestamp_check_alone_calls_the_broken_artifact_fresh(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Pins WHY the symbol check had to be added, not merely that it
+        works: on this exact filesystem state the timestamp comparison --
+        the entire pre-existing gate -- says the artifact is fine.
+        """
+        crate = self._setup(
+            tmp_path, monkeypatch, [s for s in _REGISTERED_SYMBOLS if s != "Gamma"]
+        )
+        artifact = tmp_path / "site-packages" / "fake_crate_ext" / "__init__.py"
+        newest_mtime, _newest = newest_source_mtime(crate)
+        assert artifact.stat().st_mtime > newest_mtime, (
+            "the fixture must be one the mtime rule passes, or this proves nothing"
+        )
+        assert check_module(crate).state == "symbols"
+
+    def test_missing_symbols_are_fatal_even_when_not_required(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Never softened by TEMPER_REQUIRE_FRESH_EXTENSIONS.
+
+        "Not built here" is a legitimate local state; "built, and quietly
+        answering with a symbol table that does not match its source" is not
+        -- it returns a wrong ANSWER rather than an error, which is the
+        failure mode nobody notices.
+        """
+        crate = self._setup(
+            tmp_path, monkeypatch, [s for s in _REGISTERED_SYMBOLS if s != "alpha"]
+        )
+        report = Report(crates_discovered=1, results=[CrateResult(crate, check_module(crate))])
+        assert decide_exit_code(report, required=False) == EXIT_VIOLATION
+        assert decide_exit_code(report, required=True) == EXIT_VIOLATION
+
+    def test_stale_and_symbol_gap_report_both_findings(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Two independent pieces of evidence; neither hides the other."""
+        now = time.time()
+        crate = _crate_with_source(tmp_path, source_mtime=now)
+        init_py = _install_loadable_module(
+            tmp_path / "site-packages",
+            "fake_crate_ext",
+            [s for s in _REGISTERED_SYMBOLS if s != "Gamma"],
+            mtime=now - 86400,
+        )
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        status = check_module(crate)
+        assert status.state == "stale"
+        assert "predates" in status.detail
+        assert "Gamma" in status.detail
+
+    def test_extra_symbols_in_the_artifact_are_not_a_violation(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """One-directional on purpose.
+
+        A real artifact carries `__doc__`, `__loader__`, pyo3 bookkeeping,
+        and anything a newer source registers that this checkout predates.
+        Failing on extras would make the gate fire on every legitimate
+        artifact, which is how a gate gets disabled.
+        """
+        crate = self._setup(tmp_path, monkeypatch, [*_REGISTERED_SYMBOLS, "an_extra_symbol"])
+        assert check_module(crate).state == "fresh"
+
+    def test_zero_expected_symbols_is_a_tool_error_not_a_pass(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The anti-vacuity backstop for the symbol check itself.
+
+        If the derivation ever stops understanding a crate's source, the
+        expected set silently empties and every artifact trivially satisfies
+        it -- a symbol check with nothing in it, reporting PASSED. That must
+        be a tool error, exactly as zero-crates-discovered already is.
+        """
+        crate = self._setup(tmp_path, monkeypatch, _REGISTERED_SYMBOLS)
+        (crate.root / "src" / "lib.rs").write_text("// no pymodule at all\n")
+        status = check_module(crate)
+        assert status.state == "error"
+        assert "ZERO expected symbols" in status.detail
+        report = Report(crates_discovered=1, results=[CrateResult(crate, status)])
+        assert decide_exit_code(report, required=False) == EXIT_TOOL_ERROR
+
+    def test_a_corrupt_artifact_is_reported_not_crashed_on(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Loading happens in a child process precisely so that a broken
+        artifact produces a verdict instead of taking the gate down."""
+        crate = self._setup(tmp_path, monkeypatch, _REGISTERED_SYMBOLS)
+        init_py = tmp_path / "site-packages" / "fake_crate_ext" / "__init__.py"
+        mtime = init_py.stat().st_mtime
+        init_py.write_text("this is not valid python(\n")
+        os.utime(init_py, (mtime, mtime))
+        status = check_module(crate)
+        assert status.state == "unloadable"
+        assert "could not be loaded" in status.detail
