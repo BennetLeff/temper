@@ -14,12 +14,17 @@ subclass it and rely on its exact ABC surface:
   stage4_orchestrator,bottleneck_analysis,grid_prep_stage,routing_space}.py`` --
   15 modules subclass ``Stage``),
 - ``adapters/deterministic_adapter.py`` (the ``_WrappedDeterministicStage``
-  protocol-compat wrapper),
-- the public re-export seams ``temper_placer.deterministic`` and
-  ``temper_placer.deterministic.stages`` (``Stage`` in ``__all__``), and
+  protocol-compat wrapper), and
 - the D1-D7 Python stage shims, which keep ``class XStage(Stage)`` so
   ``isinstance(stage, Stage)`` and the ABC contract properties keep working
   for the ``DeterministicPipeline`` runner.
+
+Shim-debt cleanup 2026-08-19 (Phase 1.4): the ``Stage`` re-export seams on
+``temper_placer.deterministic`` and ``temper_placer.deterministic.stages``
+were removed -- an AST-verified zero importer count on both (nobody imports
+``Stage`` from either package seam; consumers use ``.stages.base`` or the
+``stages`` module directly). ``Stage`` itself stays (the router_v6 stage
+classes and the remaining shims above subclass it).
 
 The class surface below is therefore unchanged from the pre-migration module
 (the ABC + the four defaulted contract properties + ``run``); only this
@@ -29,6 +34,7 @@ header records the D7 retirement decision and its evidence.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from ..state import BoardState
@@ -74,3 +80,31 @@ class Stage(ABC):
     def run(self, state: BoardState) -> BoardState:
         """Execute stage and return new state."""
         pass
+
+
+class RustFunctionStage(Stage):
+    """Generic pipeline stage whose ``run`` forwards to a Rust pyfunction.
+
+    Shim-debt cleanup (2026-08-19): the per-stage one-line shim modules
+    (``deterministic/stages/zone_assignment.py`` and
+    ``deterministic/stages/apply_placements.py``) were deleted. The stage
+    class names that survive in ``stages/__init__.py`` (the pinned U-E
+    pipeline oracle and the ``temper-orchestration`` stage factory construct
+    them by name) are now this adapter parameterized with the
+    ``temper-orchestration`` pyfunction -- one generic adapter instead of
+    one shim class per stage. The Rust pyfunction is the single source of
+    truth; the adapter only preserves the ``Stage`` ABC surface (``name``,
+    ``invariants``, ``last_modified_regions``) the pipeline runner relies on.
+    """
+
+    def __init__(self, name: str, fn: Callable[[BoardState], BoardState]) -> None:
+        self._name = name
+        self._fn = fn
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def run(self, state: BoardState) -> BoardState:
+        """Forward ``run`` straight to the Rust pyfunction (FFI)."""
+        return self._fn(state)

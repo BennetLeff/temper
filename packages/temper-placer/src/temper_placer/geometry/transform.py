@@ -1,42 +1,25 @@
 """
 Rotation transforms — Rust-backed via temper_geometry.
 
-This module provides rotation operations for PCB component orientations.
-All functions delegate to the temper_geometry Rust crate which uses
-radians for rotation representation.
+Shim-debt cleanup (2026-08-19): the pure re-export lines (``x = _tg.x`` for
+the rotation-matrix / pin-transform / batch kernels) were collapsed —
+importers import those symbols from ``temper_geometry`` directly. This
+module keeps only:
+
+- ``get_rotated_bounds``: the re-export the pinned validation oracles
+  (``tests/validation/_geometric_py_oracle.py`` and
+  ``_validation_metrics_py_oracle.py``) import from this module path, and
+- the rotation one-hot helpers whose default-arg logic stays Python-side
+  (``n_angles=4`` / ``allowed=None`` are not Rust pyfunction defaults).
 """
 
 import temper_geometry as _tg
 
 # =============================================================================
-# Rotation Matrices and Core Rotation
-# =============================================================================
-
-get_rotation_matrix = _tg.get_rotation_matrix
-rotate_point = _tg.rotate_point
-rotate_points = _tg.rotate_points
-
-# =============================================================================
-# Rectangle and Bounds Rotation
+# Pinned-oracle re-export (required by tests/validation/_*_py_oracle.py)
 # =============================================================================
 
 get_rotated_bounds = _tg.get_rotated_bounds
-rotate_rectangle_corners = _tg.rotate_rectangle_corners
-get_rotated_aabb = _tg.get_rotated_aabb
-
-# =============================================================================
-# Pin Position Transforms
-# =============================================================================
-
-transform_pin_position = _tg.transform_pin_position
-transform_pin_positions = _tg.transform_pin_positions
-
-# =============================================================================
-# Batch Operations
-# =============================================================================
-
-batch_get_rotated_bounds = _tg.batch_get_rotated_bounds
-batch_rotate_points = _tg.batch_rotate_points
 
 # =============================================================================
 # Utility Functions (non-collapsible: have Python-side default logic)
@@ -99,12 +82,3 @@ def onehot_to_rotation_radians(onehot, allowed_rad=None):
     if allowed_rad is None:
         allowed_rad = [0.0, 1.5707963267948966, 3.141592653589793, 4.71238898038469]
     return _tg.onehot_to_rotation_radians(onehot, allowed_rad)
-
-
-# =============================================================================
-# Gumbel-Softmax Sampling
-# =============================================================================
-
-gumbel_softmax = _tg.gumbel_softmax
-sample_rotation = _tg.sample_rotation
-sample_rotation_batch = _tg.sample_rotation_batch

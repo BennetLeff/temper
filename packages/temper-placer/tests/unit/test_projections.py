@@ -17,7 +17,7 @@ coordinates and return (x, y) tuples.
 
 import pytest
 
-from temper_placer.geometry import (
+from temper_geometry import (
     identity_projection,
     project_onto_board,
     project_onto_edge_strip,

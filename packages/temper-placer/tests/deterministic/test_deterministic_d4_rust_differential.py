@@ -674,9 +674,6 @@ def test_assignment_chain_identical() -> None:
         slot_generation as _shim_slot_generation,
     )
     from temper_placer.deterministic.stages import (
-        zone_assignment as _shim_zone_assignment,
-    )
-    from temper_placer.deterministic.stages import (
         zone_geometry as _shim_zone_geometry,
     )
 
@@ -702,19 +699,21 @@ def test_assignment_chain_identical() -> None:
     netlist = Netlist(components=comps, nets=nets)
     board = Board(width=120.5, height=80.0)
 
-    def chain(zg, za, sg, ca):
+    def chain(zg, sg, ca, za_run=None):
         state = zg.ZoneGeometryStage().run(BoardState(board=board, netlist=netlist))
-        state = za.ZoneAssignmentStage().run(state)
+        # Shim-debt cleanup 2026-08-19: the zone_assignment shim module was
+        # deleted; the port arm drives the pyfunction directly.
+        state = za_run(state) if za_run is not None else _orc_zone_assignment.ZoneAssignmentStage().run(state)
         state = sg.SlotGenerationStage(slot_spacing_mm=7.5).run(state)
         return ca.ComponentAssignmentStage(slot_spacing=7.5).run(state)
 
     orc_state = chain(
-        _orc_zone_geometry, _orc_zone_assignment, _orc_slot_generation,
+        _orc_zone_geometry, _orc_slot_generation,
         _orc_component_assignment,
     )
     port_state = chain(
-        _shim_zone_geometry, _shim_zone_assignment, _shim_slot_generation,
-        _shim_component_assignment,
+        _shim_zone_geometry, _shim_slot_generation,
+        _shim_component_assignment, za_run=_to.run_zone_assignment,
     )
     assert _placement_canon(port_state.placements) == _placement_canon(
         orc_state.placements

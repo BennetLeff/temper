@@ -5,10 +5,12 @@ Rust Orchestration Engine plan 2026-08-09-001, Phase D batch D2: the
 orchestration of ``deterministic/stages/{zone_geometry,zone_assignment,
 slot_generation}.py`` moves to ``temper-orchestration`` as ``Stage<BoardState>``
 implementors (``ZoneGeometryStage`` + ``ZoneAssignmentStage`` +
-``SlotGenerationStage``); the Python modules keep their public API and
-become thin FFI delegations. The pre-migration implementations are pinned
-VERBATIM as the oracles (``tests/deterministic/_*_py_oracle.py``,
-content-hash-pinned below).
+``SlotGenerationStage``). Shim-debt cleanup (2026-08-19): the one-line shim
+module ``stages/zone_assignment.py`` was deleted -- the zone-assignment arm
+of this differential now drives the ``temper_orchestration.run_zone_assignment``
+pyfunction (the production path) directly against the oracle. The
+pre-migration implementations are pinned VERBATIM as the oracles
+(``tests/deterministic/_*_py_oracle.py``, content-hash-pinned below).
 
 Both arms are driven with IDENTICAL BoardState inputs and stage constructor
 args; every observable field of the resulting BoardState is compared:
@@ -47,7 +49,6 @@ from temper_placer.core.board import Board, Zone as CopperZone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages import slot_generation as _shim_slot_generation
-from temper_placer.deterministic.stages import zone_assignment as _shim_zone_assignment
 from temper_placer.deterministic.stages import zone_geometry as _shim_zone_geometry
 
 import tests.deterministic._slot_generation_py_oracle as _orc_slot_generation
@@ -81,13 +82,20 @@ def test_oracle_bodies_match_pinned_digests() -> None:
 def test_oracle_and_port_are_different_implementations() -> None:
     """Anti-vacuity: the shims must delegate to the Rust pyfunctions."""
     assert _shim_zone_geometry.ZoneGeometryStage is not _orc_zone_geometry.ZoneGeometryStage
-    assert _shim_zone_assignment.ZoneAssignmentStage is not _orc_zone_assignment.ZoneAssignmentStage
     assert _shim_slot_generation.SlotGenerationStage is not _orc_slot_generation.SlotGenerationStage
     # The shims' run() bodies call the temper_orchestration pyfunctions --
     # the Rust port -- by bytecode name.
     assert "run_zone_geometry" in _shim_zone_geometry.ZoneGeometryStage.run.__code__.co_names
-    assert "run_zone_assignment" in _shim_zone_assignment.ZoneAssignmentStage.run.__code__.co_names
     assert "run_slot_generation" in _shim_slot_generation.SlotGenerationStage.run.__code__.co_names
+    # The zone-assignment shim module was deleted (shim-debt cleanup
+    # 2026-08-19): the production path is the pyfunction directly, and the
+    # oracle's class must NOT resolve to it (a differential whose oracle
+    # grew a Rust call proves nothing).
+    assert callable(_to.run_zone_assignment)
+    assert (
+        "run_zone_assignment"
+        not in _orc_zone_assignment.ZoneAssignmentStage.run.__code__.co_names
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -265,7 +273,7 @@ def test_zone_geometry_empty_config_uses_default_layout() -> None:
 def test_zone_assignment_no_netlist_guard() -> None:
     state = BoardState()
     orc = _orc_zone_assignment.ZoneAssignmentStage().run(state)
-    port = _shim_zone_assignment.ZoneAssignmentStage().run(state)
+    port = _to.run_zone_assignment(state)
     assert orc is state
     assert port is state
     assert orc.component_zone_map == port.component_zone_map == frozenset()
@@ -274,7 +282,7 @@ def test_zone_assignment_no_netlist_guard() -> None:
 def test_zone_assignment_mixed_netlist() -> None:
     state = BoardState(netlist=_netlist(*_MIXED_REFS))
     orc = _orc_zone_assignment.ZoneAssignmentStage().run(state)
-    port = _shim_zone_assignment.ZoneAssignmentStage().run(state)
+    port = _to.run_zone_assignment(state)
     assert _canon(orc.component_zone_map) == _canon(port.component_zone_map)
     assert dict(port.component_zone_map) == {
         "Q1": "HV",
@@ -300,7 +308,7 @@ def test_zone_assignment_priority_mcu_prefix_beats_hv_net() -> None:
         )
     )
     orc = _orc_zone_assignment.ZoneAssignmentStage().run(state)
-    port = _shim_zone_assignment.ZoneAssignmentStage().run(state)
+    port = _to.run_zone_assignment(state)
     assert _canon(orc.component_zone_map) == _canon(port.component_zone_map)
     assert dict(port.component_zone_map) == {"U_MCU1": "MCU"}
 
@@ -308,7 +316,7 @@ def test_zone_assignment_priority_mcu_prefix_beats_hv_net() -> None:
 def test_zone_assignment_empty_netlist() -> None:
     state = BoardState(netlist=_netlist())
     orc = _orc_zone_assignment.ZoneAssignmentStage().run(state)
-    port = _shim_zone_assignment.ZoneAssignmentStage().run(state)
+    port = _to.run_zone_assignment(state)
     assert _canon(orc.component_zone_map) == _canon(port.component_zone_map)
     assert port.component_zone_map == frozenset()
 
@@ -407,7 +415,7 @@ def test_zone_stage_chain_identical() -> None:
     orc_state = _orc_slot_generation.SlotGenerationStage(slot_spacing_mm=7.5).run(orc_state)
 
     port_state = _shim_zone_geometry.ZoneGeometryStage().run(BoardState(board=board))
-    port_state = _shim_zone_assignment.ZoneAssignmentStage().run(
+    port_state = _to.run_zone_assignment(
         _dataclass_replace(port_state, netlist=_netlist(*_MIXED_REFS))
     )
     port_state = _shim_slot_generation.SlotGenerationStage(slot_spacing_mm=7.5).run(port_state)

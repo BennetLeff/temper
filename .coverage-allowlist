@@ -58,8 +58,6 @@ temper_placer/deterministic/feedback/zone_adjuster.py::ZoneAdjuster.compute_adju
 temper_placer/deterministic/instrumentation.py::InstrumentedStage.run  # TODO: temper-xxx
 temper_placer/deterministic/instrumentation.py::instrument_pipeline  # TODO: temper-xxx
 temper_placer/deterministic/instrumentation.py::run_with_trace_log  # TODO: temper-xxx
-temper_placer/deterministic/stages/apply_placements.py::ApplyPlacementsStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/apply_placements.py::ApplyPlacementsStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/component_assignment.py::ComponentAssignmentStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/component_assignment.py::ComponentAssignmentStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/config_attach.py::ConfigAttachStage.name  # TODO: temper-xxx
@@ -100,8 +98,6 @@ temper_placer/deterministic/stages/via_validation.py::ViaDeduplicationStage.name
 temper_placer/deterministic/stages/via_validation.py::ViaDeduplicationStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/via_validation.py::ViaValidationStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/via_validation.py::ViaValidationStage.run  # TODO: temper-xxx
-temper_placer/deterministic/stages/zone_assignment.py::ZoneAssignmentStage.name  # TODO: temper-xxx
-temper_placer/deterministic/stages/zone_assignment.py::ZoneAssignmentStage.run  # TODO: temper-xxx
 temper_placer/deterministic/stages/zone_aware_slot_generation.py::RoutingChannelAwareSlotStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/zone_aware_slot_generation.py::ZoneAwareSlotGenerationStage.name  # TODO: temper-xxx
 temper_placer/deterministic/stages/zone_aware_slot_generation.py::ZoneAwareSlotGenerationStage.run  # TODO: temper-xxx

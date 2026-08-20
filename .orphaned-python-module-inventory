@@ -23,7 +23,8 @@ temper_placer.explainability.pipeline	orphaned at time of recording; no reason g
 temper_placer.explainability.serialization	orphaned at time of recording; no reason given
 temper_placer.explainability.traced_loss	orphaned at time of recording; no reason given
 temper_placer.extraction.hypergraph_factory	orphaned at time of recording; no reason given
-temper_placer.geometry.sdf	orphaned at time of recording; no reason given
+temper_placer.geometry.sdf	kept alive for sdf_to_mask/sdf_to_penalty/sdf_gradient (Python-side scalar wrapping + callable-taking); test-only importers
+temper_placer.geometry.transform	kept alive for get_rotated_bounds re-export required by the pinned validation oracles (tests/validation/_geometric_py_oracle.py, _validation_metrics_py_oracle.py) + the rotation one-hot default-arg wrappers; test-only importers
 temper_placer.heuristics.mcu_subsystem	orphaned at time of recording; no reason given
 temper_placer.heuristics.power_stage	orphaned at time of recording; no reason given
 temper_placer.io.isolation_slot_geometry	orphaned at time of recording; no reason given
