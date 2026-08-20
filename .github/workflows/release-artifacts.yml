@@ -13,9 +13,40 @@ jobs:
     container: espressif/idf:release-v5.3
     steps:
       - uses: actions/checkout@v7
+
+      - name: Mark checkout safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # firmware/CMakeLists.txt regenerates config.h and transition_table.h at
+      # configure time, and without jinja2 it warns and silently falls back to
+      # the committed copies. For a released binary that would mean shipping an
+      # image built from something other than what config.yaml says.
+      - name: Install codegen dependencies
+        run: pip install -r firmware/tools/requirements.txt
+
+      # `run: idf.py build` does not work here, and did not before this change.
+      # The image puts idf.py on PATH from its ENTRYPOINT (/opt/esp/entrypoint.sh),
+      # but GitHub Actions bypasses the ENTRYPOINT for `container:` jobs -- it
+      # creates the container with `--entrypoint tail` and runs each step via
+      # `docker exec`. The image's own ENV PATH does not include $IDF_PATH/tools,
+      # so a bare `idf.py` exits 127 "command not found". Verified against
+      # espressif/idf:release-v5.3 by reproducing that exact invocation.
+      # export.sh must therefore be sourced explicitly in every step calling
+      # idf.py. Same pattern as the gate job in firmware-tests.yml.
+      #
+      # NOTE: this step is currently EXPECTED to fail, at the link, not at the
+      # toolchain -- the production firmware still has undefined symbols for
+      # peripherals that are not implemented (docs/FIRMWARE_LINK_TRIAGE.md, and
+      # the ratchet in .firmware-link-inventory). So no temper.bin is produced
+      # and this job reddens on release until those are resolved. That is the
+      # honest state; the fix here is only so it fails for the real reason
+      # instead of for a missing command.
       - name: Build firmware
         working-directory: firmware
-        run: idf.py build
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py build
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v3
         with:
