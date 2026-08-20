@@ -75,12 +75,18 @@
 
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
+#[cfg(feature = "python")]
 use pyo3::IntoPyObjectExt;
 
+#[cfg(feature = "python")]
 use crate::board_contracts::Board;
+#[cfg(feature = "python")]
 use crate::netlist_contracts::{dataclass_eq, dataclass_repr, repr_of, unhashable, Netlist};
 
 // ===========================================================================
@@ -88,7 +94,7 @@ use crate::netlist_contracts::{dataclass_eq, dataclass_repr, repr_of, unhashable
 // ===========================================================================
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum KiAtom {
+pub enum KiAtom {
     Str(String),
     Int(i64),
     Float(f64),
@@ -100,7 +106,7 @@ pub(crate) enum KiAtom {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum KiNode {
+pub enum KiNode {
     Atom(KiAtom),
     List(Vec<KiNode>),
 }
@@ -298,7 +304,7 @@ fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
 // ===========================================================================
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) enum Num {
+pub enum Num {
     I(i64),
     F(f64),
 }
@@ -470,7 +476,7 @@ fn py_round(x: f64) -> f64 {
 // ===========================================================================
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawPos {
+pub struct RawPos {
     pub x: Num,
     pub y: Num,
     pub angle: Option<Num>,
@@ -490,7 +496,7 @@ impl RawPos {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawDrill {
+pub struct RawDrill {
     pub oval: bool,
     /// The token at `exp[1]` (or `exp[2]` for oval) -- a number, or the raw
     /// offset list when a drill carries only `(offset ...)` (kiutils quirk).
@@ -500,7 +506,7 @@ pub(crate) struct RawDrill {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawPad {
+pub struct RawPad {
     pub number: String,
     pub shape: String,
     pub position: RawPos,
@@ -512,7 +518,7 @@ pub(crate) struct RawPad {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum RawFpItem {
+pub enum RawFpItem {
     Text { text: String, layer: String },
     Line { start: RawPos, end: RawPos, layer: String },
     Rect { start: RawPos, end: RawPos, layer: String },
@@ -540,7 +546,7 @@ impl RawFpItem {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawFootprint {
+pub struct RawFootprint {
     pub position: RawPos,
     pub layer: String,
     pub locked: bool,
@@ -552,7 +558,7 @@ pub(crate) struct RawFootprint {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum RawGrItem {
+pub enum RawGrItem {
     Line { start: RawPos, end: RawPos, layer: String },
     Rect { start: RawPos, end: RawPos, layer: String },
     Circle { center: RawPos, end: RawPos, layer: String },
@@ -578,7 +584,7 @@ pub(crate) enum RawGrItem {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawZone {
+pub struct RawZone {
     pub name: Option<String>,
     pub net_name: Option<String>,
     pub layers: Vec<String>,
@@ -586,13 +592,13 @@ pub(crate) struct RawZone {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawNet {
+pub struct RawNet {
     pub number: Num,
     pub name: String,
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum RawTraceItem {
+pub enum RawTraceItem {
     Segment { start: RawPos, end: RawPos, width: Num, layer: String, net: Num },
     Via { position: RawPos, size: Num, drill: Num, layers: Vec<String>, net: Num },
     // `mid` is faithful to kiutils' Arc; the trace extraction reads only
@@ -607,7 +613,7 @@ pub(crate) enum RawTraceItem {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawStackupLayer {
+pub struct RawStackupLayer {
     pub name: String,
     pub layer_type: String,
     pub thickness: Option<Num>,
@@ -617,7 +623,7 @@ pub(crate) struct RawStackupLayer {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawBoard {
+pub struct RawBoard {
     pub graphic_items: Vec<RawGrItem>,
     pub footprints: Vec<RawFootprint>,
     pub zones: Vec<RawZone>,
@@ -655,6 +661,7 @@ pub(crate) struct RawBoard {
 }
 
 /// Clone an owned handle to the same underlying Python object (NOT a copy).
+#[cfg(feature = "python")]
 fn same(py: Python<'_>, obj: &Py<PyAny>) -> Py<PyAny> {
     obj.clone_ref(py)
 }
@@ -1384,7 +1391,12 @@ fn raw_board_from_tree(root: &[KiNode], errors: &mut Vec<String>) -> RawBoard {
 /// Parse `content` and validate that it is a single `(kicad_pcb ...)` document
 /// (mirrors kiutils' `from_sexpr` rejecting any other root: empty input,
 /// bare atoms, or a different top-level keyword all raise).
-fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
+///
+/// Public, non-pyo3 entry point: the core is pure Rust (the pyo3 wrapper
+/// `parse_kicad_pcb_impl` calls this same function). Exposed so the
+/// `temper` binary and other non-Python consumers can parse a `.kicad_pcb`
+/// without an interpreter in the process.
+pub fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
     let tree = parse_ki_document(content)?;
     let items: &[KiNode] = match tree.as_slice() {
         [KiNode::List(inner)] => inner.as_slice(),
@@ -2231,6 +2243,7 @@ struct NetClassRaw {
 // 6. pyo3: dataclass pyclasses for the parse output (_kicad_types.py)
 // ===========================================================================
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct TraceData {
@@ -2246,6 +2259,7 @@ pub struct TraceData {
     pub net: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl TraceData {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2259,6 +2273,7 @@ impl TraceData {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl TraceData {
     #[new]
     #[pyo3(signature = (start, end, width, layer, net=None))]
@@ -2308,6 +2323,7 @@ impl TraceData {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct PadData {
@@ -2331,6 +2347,7 @@ pub struct PadData {
     pub component_ref: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl PadData {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2348,6 +2365,7 @@ impl PadData {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl PadData {
     #[new]
     #[pyo3(signature = (position, size, shape, drill=None, rotation=None, layer=None, number=None, net=None, component_ref=None))]
@@ -2425,6 +2443,7 @@ impl PadData {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct ViaData {
@@ -2440,6 +2459,7 @@ pub struct ViaData {
     pub layers: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl ViaData {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2453,6 +2473,7 @@ impl ViaData {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl ViaData {
     #[new]
     #[pyo3(signature = (position, diameter, drill, net=None, layers=None))]
@@ -2508,6 +2529,7 @@ impl ViaData {
 /// kiutils' `DrillDefinition` dataclass, reproduced as a pyclass so pads with
 /// a `(drill ...)` token carry the same object shape (and repr) into
 /// `Pin.drill` / `PadData.drill`.
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct DrillDefinition {
@@ -2521,6 +2543,7 @@ pub struct DrillDefinition {
     pub offset: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl DrillDefinition {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2533,6 +2556,7 @@ impl DrillDefinition {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl DrillDefinition {
     #[new]
     #[pyo3(signature = (oval=None, diameter=None, width=None, offset=None))]
@@ -2590,6 +2614,7 @@ impl DrillDefinition {
 
 /// kiutils' `Position` dataclass, reproduced so `DrillDefinition.offset`
 /// reprs identically (`Position(X=..., Y=..., angle=None, unlocked=False)`).
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct Position {
@@ -2604,6 +2629,7 @@ pub struct Position {
     pub unlocked: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Position {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2616,6 +2642,7 @@ impl Position {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl Position {
     #[new]
     #[pyo3(signature = (x=None, y=None, angle=None, unlocked=None))]
@@ -2671,6 +2698,7 @@ impl Position {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct ParseResult {
@@ -2696,6 +2724,7 @@ pub struct ParseResult {
     pub pads: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl ParseResult {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2710,6 +2739,7 @@ impl ParseResult {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl ParseResult {
     #[new]
     #[pyo3(signature = (netlist, board, warnings, traces=None, vias=None, pads=None))]
@@ -2780,6 +2810,7 @@ impl ParseResult {
 // 7. pyfunctions
 // ===========================================================================
 
+#[cfg(feature = "python")]
 fn num_to_py(py: Python<'_>, v: Num) -> PyResult<Py<PyAny>> {
     match v {
         Num::I(i) => i.into_py_any(py),
@@ -2787,6 +2818,7 @@ fn num_to_py(py: Python<'_>, v: Num) -> PyResult<Py<PyAny>> {
     }
 }
 
+#[cfg(feature = "python")]
 fn atom_to_py(py: Python<'_>, atom: &KiAtom) -> PyResult<Py<PyAny>> {
     match atom {
         KiAtom::Str(s) | KiAtom::Bare(s) => s.clone().into_py_any(py),
@@ -2802,6 +2834,7 @@ fn atom_to_py(py: Python<'_>, atom: &KiAtom) -> PyResult<Py<PyAny>> {
     }
 }
 
+#[cfg(feature = "python")]
 fn node_to_py(py: Python<'_>, node: &KiNode) -> PyResult<Py<PyAny>> {
     match node {
         KiNode::Atom(a) => atom_to_py(py, a),
@@ -2815,6 +2848,7 @@ fn node_to_py(py: Python<'_>, node: &KiNode) -> PyResult<Py<PyAny>> {
     }
 }
 
+#[cfg(feature = "python")]
 fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<DrillDefinition>();
     let oval: Py<PyAny> = drill.oval.into_py_any(py)?;
@@ -2850,6 +2884,7 @@ fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny
 }
 
 /// Construct a `Board` pyclass from the pure extraction result.
+#[cfg(feature = "python")]
 fn build_board(
     py: Python<'_>,
     raw: &RawBoard,
@@ -2934,6 +2969,7 @@ fn build_board(
 
 /// Construct the contract pyclasses (Component/Pin/Net/Netlist) from the
 /// pure extraction outputs.
+#[cfg(feature = "python")]
 fn build_netlist(
     py: Python<'_>,
     components: &[CompOut],
@@ -3034,6 +3070,7 @@ fn build_netlist(
         .extract::<Py<Netlist>>()?)
 }
 
+#[cfg(feature = "python")]
 fn build_trace_data(py: Python<'_>, t: &TraceOut) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<TraceData>();
     let start = PyTuple::new(py, [num_to_py(py, t.start.0)?, num_to_py(py, t.start.1)?])?;
@@ -3046,6 +3083,7 @@ fn build_trace_data(py: Python<'_>, t: &TraceOut) -> PyResult<Py<PyAny>> {
     cls.call((start, end, width, t.layer.clone(), net), None)?.unbind().into_py_any(py)
 }
 
+#[cfg(feature = "python")]
 fn build_via_data(py: Python<'_>, v: &ViaOut) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<ViaData>();
     let pos = PyTuple::new(py, [num_to_py(py, v.position.0)?, num_to_py(py, v.position.1)?])?;
@@ -3059,6 +3097,7 @@ fn build_via_data(py: Python<'_>, v: &ViaOut) -> PyResult<Py<PyAny>> {
     cls.call((pos, diameter, drill, net, layers), None)?.unbind().into_py_any(py)
 }
 
+#[cfg(feature = "python")]
 fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<PadData>();
     let pos = PyTuple::new(py, [p.position.0, p.position.1])?;
@@ -3101,6 +3140,7 @@ fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
 /// skip-on-miss -- matches this table's own documented historical-alias
 /// convention: some keys intentionally name nets absent from the current
 /// board), not the `_strict` variant, which would hard-error on those.
+#[cfg(feature = "python")]
 fn parse_kicad_pcb_impl(
     py: Python<'_>,
     pcb_content: &str,
@@ -3152,6 +3192,7 @@ fn parse_kicad_pcb_impl(
     build_parse_result(py, netlist, board, warnings, trace_objs, via_objs, pad_objs)
 }
 
+#[cfg(feature = "python")]
 fn build_parse_result(
     py: Python<'_>,
     netlist: Py<Netlist>,
@@ -3171,6 +3212,7 @@ fn build_parse_result(
         .into_py_any(py)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction(signature = (pcb_content, normalize=true, net_class_mapping=None))]
 fn parse_kicad_pcb(
     py: Python<'_>,
@@ -3189,6 +3231,7 @@ fn parse_kicad_pcb(
 /// Returns:
 ///     Dict mapping component reference to position info:
 ///     ``{"U1": {"x": 50.5, "y": 75.25, "rotation": 90.0}, ...}``
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let positions = extract_footprint_positions_pure(content);
@@ -3210,6 +3253,7 @@ fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyA
 /// adversarial token strings (caret, adjacent quotes, backslash-quote runs,
 /// ``+5``, CRLF) so the "kiutils-exact" claim is asserted as written, not
 /// just on the corpus.
+#[cfg(feature = "python")]
 #[pyfunction]
 fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let tree = parse_ki_document(content).map_err(PyValueError::new_err)?;
@@ -3221,6 +3265,7 @@ fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     node_to_py(py, first)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_net_classes(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let classes = extract_net_classes_pure(content);
@@ -3243,6 +3288,7 @@ fn extract_net_classes(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
 /// Raw stackup + plane-relevant zone data for the v6 stackup assembly (the
 /// assembly itself stays Python: it targets router_v6.stage0_data dataclasses
 /// and reads the netclass SSOT via `_is_plane_required_net`).
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_stackup_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
@@ -3304,6 +3350,7 @@ fn extract_stackup_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
 /// Board dimensions + pad sizes + raw courtyard inputs for kicad_metadata.
 /// The courtyard POLYGONS are computed by the Python shim's shapely step
 /// (GEOS is not reimplementable bit-exactly in Rust; see module docs).
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
@@ -3504,6 +3551,7 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
 // 8. registration
 // ===========================================================================
 
+#[cfg(feature = "python")]
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let sub = PyModule::new(module.py(), "parse_engine")?;
     sub.add_class::<TraceData>()?;
