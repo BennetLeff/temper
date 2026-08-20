@@ -399,7 +399,14 @@ same interpreter before being attributed.
 | `scripts/check_creepage_clearance_drift.py` | exit 3 (`clearance/reinforced` family) | **exit 3, same family** | identical; the `creepage/reinforced` family lost its `MIN_BARRIER_WIDTH_MM` member because that literal is gone |
 | `scripts/tests/test_check_pd2_compartment_evidence.py` | 2 fail | **same 2 fail** | pre-existing: its `_PD2_CONST_RE` expects a numeric literal, but `HV_CREEPAGE_PD2_MM` has been a `creepage_table_lookup` call since before this change |
 | `packages/temper-placer/tests/.../test_physics_gate.py` | 6 fail (`No resolvable KiCad project`, sidecar), 15 pass | **same 6 fail, 24 pass** | pre-existing environment defect; 8 new tests added that stub `run_drc` one level in, so the per-pairing grading is genuinely covered |
+| `packages/temper-placer/tests/placer/cp_sat/test_tank_creepage.py` | 6 fail, 21 pass | **6 fail, 21 pass** | identical, same six |
+| `packages/temper-placer/tests/core/` (3 178 tests) | 2 fail (`test_design_rules_rust_differential`) | **same 2 fail, 3 170 pass** | pre-existing Rust/Python `net_class_assignments` divergence |
+| `packages/temper-placer/tests/placer/cp_sat/` (`-k isolation_barrier or gates or physics or netclass`) | — | **8 fail, 140 pass** | all 8 are the pre-existing physics-gate/tank-creepage sets above |
+| `scripts/check_vacuous_gates.py` | exit 1 | **exit 1** | identical |
+| `scripts/check_hv_netclass_coverage.py` | exit 3 | **exit 3** | identical |
 | `scripts/check_manifest_gate.py` | pass | **pass** | new gate registered |
+| `cargo test -p temper-design-bundle --lib` | 31 pass | **53 pass** | 22 new `insulation::` tests; also builds under `--no-default-features` (wasm tier) and `--features wasm-test-registry` |
+| `ruff check` on every changed Python file | clean | **clean** | — |
 | **`scripts/check_insulation_pairings.py`** (new) | n/a | **exit 6, INDETERMINATE** | the finding itself |
 | `scripts/check_isolation_keepout.py` | exit 3 (barrier zone absent) | **exit 3 (barrier zone absent)** | unchanged; the board still has no barrier keepout at all |
 
