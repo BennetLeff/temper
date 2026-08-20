@@ -550,30 +550,6 @@ pub fn pin_world_radius_py(pin: &Bound<'_, PyAny>) -> PyResult<f64> {
 // =============================================================================
 
 #[cfg(feature = "python")]
-fn validate_node_flats(node_flats: &[Vec<f64>]) -> PyResult<()> {
-    for flat in node_flats {
-        if flat.len() % 3 != 0 {
-            return Err(PyValueError::new_err(
-                "node flat length must be divisible by 3",
-            ));
-        }
-    }
-    Ok(())
-}
-
-#[cfg(feature = "python")]
-fn validate_edge_flats(edge_flats: &[Vec<i64>]) -> PyResult<()> {
-    for flat in edge_flats {
-        if flat.len() % 2 != 0 {
-            return Err(PyValueError::new_err(
-                "edge flat length must be divisible by 2",
-            ));
-        }
-    }
-    Ok(())
-}
-
-#[cfg(feature = "python")]
 fn validate_matvec(row: &[i64], col: &[i64], data: &[f64], other: &[f64]) -> PyResult<()> {
     if row.len() != data.len() || col.len() != data.len() {
         return Err(PyValueError::new_err("row/col/data length mismatch"));
@@ -605,21 +581,6 @@ pub fn graph_clique_expand_py(
 ) -> PyResult<(Vec<i64>, Vec<i64>, Vec<f64>)> {
     temper_py_bridge::catch_unwind(|| graph_clique_expand(&net_indices, &net_weights))
         .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn graph_batch_concat_py(
-    node_flats: Vec<Vec<f64>>,
-    edge_flats: Vec<Vec<i64>>,
-    weight_flats: Vec<Vec<f64>>,
-) -> PyResult<(Vec<f64>, Vec<i64>, Vec<f64>)> {
-    temper_py_bridge::catch_unwind(|| {
-        validate_node_flats(&node_flats)?;
-        validate_edge_flats(&edge_flats)?;
-        Ok(graph_batch_concat(&node_flats, &edge_flats, &weight_flats))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
 }
 
 /// `Coo @ other` — sparse matrix-vector product.
@@ -713,8 +674,6 @@ pub fn pad_radius_py(width: f64, height: f64) -> PyResult<f64> {
 /// Register this cluster's kernels with the `temper_geometry` module.
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(graph_clique_expand_py, m)?)?;
-    m.add_function(wrap_pyfunction!(graph_batch_concat_py, m)?)?;
     m.add_function(wrap_pyfunction!(hypergraph_coo_matvec_py, m)?)?;
     m.add_function(wrap_pyfunction!(normalize_rotation_index_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_position_kernel_py, m)?)?;
