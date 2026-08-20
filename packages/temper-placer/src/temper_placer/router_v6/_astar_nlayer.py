@@ -615,6 +615,36 @@ def _path_length_3d(segments: list[tuple[float, float, str]]) -> float:
 FAILURE_REASON_PAD_LAYER_LANDING_BLOCKED = "pad_layer_landing_blocked"
 
 
+def _pad_at_point(
+    pads: list[tuple[float, float, float, str]],
+    x: float,
+    y: float,
+    tolerance_mm: float = 0.05,
+) -> tuple[int, str] | None:
+    """``(pad_index, pad_layer)`` for the net's own pad at world point
+    ``(x, y)``, or ``None`` when no pad of this net's own ``pads`` list
+    matches, or the matching pad is THT/``ALL_LAYERS`` (layer containing
+    ``"All"``/``"*.Cu"``/``"Through"`` -- a via lands on every layer
+    already, so there is no single "wrong layer" to report for a
+    through-hole pad, and dropping one on top of a plated barrel is exactly
+    the redundancy ``via_placement.drop_redundant_vias`` exists to remove).
+
+    The index matters only to ``_attempt_pad_layer_landing``'s
+    intermediate-pad pass, which must land each pad at most ONCE even when
+    the route's emitted point list revisits that pad's (x, y) -- a chained
+    multi-pad route emits the junction pad's coordinate twice (end of one
+    hop, start of the next), and two stacked vias at one point is the
+    duplicate-hole shape ``drop_redundant_vias`` was written for.
+    """
+    for idx, (px, py, _radius, layer) in enumerate(pads):
+        if abs(px - x) > tolerance_mm or abs(py - y) > tolerance_mm:
+            continue
+        if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer:
+            return None  # THT: nothing to correct
+        return idx, layer
+    return None
+
+
 def _pad_layer_at_point(
     pads: list[tuple[float, float, float, str]],
     x: float,
@@ -632,15 +662,12 @@ def _pad_layer_at_point(
     primary_grid / route-boundary-anchor selection fix, docs/evidence/
     2026-08-14-router-primary-grid-selection-fix.md) -- one lookup, two
     call sites, so they cannot silently drift out of agreement about what
-    "this net's own pad layer at this point" means.
+    "this net's own pad layer at this point" means. Thin projection of
+    ``_pad_at_point`` so the index-aware and layer-only lookups cannot
+    drift apart either.
     """
-    for px, py, _radius, layer in pads:
-        if abs(px - x) > tolerance_mm or abs(py - y) > tolerance_mm:
-            continue
-        if layer in ("All", "all") or "*.Cu" in layer or "Through" in layer:
-            return None  # THT: nothing to correct
-        return layer
-    return None
+    hit = _pad_at_point(pads, x, y, tolerance_mm)
+    return None if hit is None else hit[1]
 
 
 def _attempt_pad_layer_landing(
@@ -649,11 +676,16 @@ def _attempt_pad_layer_landing(
     pad_centers_per_net: dict[str, list[tuple[float, float, float, str]]],
     grids: dict[str, OccupancyGrid],
     tolerance_mm: float = 0.05,
+    *,
+    static_occupancy: dict[tuple[str, int, int], int] | None = None,
+    via_footprint_radius_mm: float = 0.0,
+    via_drill_mm: float = 0.0,
+    min_hole_diameter_mm: float = 0.0,
 ) -> tuple[RoutePath3D, tuple[str, ...]]:
-    """Core landing-via attempt: insert a via at whichever of the route's
-    own first/last emitted points sits exactly on a net pad's (x, y) but on
-    a layer that pad has no copper on -- the exact defect this module's
-    docstring above measures. Returns ``(attempted_route, blocked_ends)``.
+    """Core landing-via attempt: insert a via wherever an emitted point of
+    the route sits exactly on one of this net's pads' (x, y) but on a layer
+    that pad has no copper on -- the exact defect this module's docstring
+    above measures. Returns ``(attempted_route, blocked_ends)``.
 
     ``attempted_route`` always carries a landing via for every terminus
     whose pad-layer correction succeeded (or was unnecessary), and is left
@@ -669,6 +701,90 @@ def _attempt_pad_layer_landing(
     legitimately computed, rather than discarding it outright -- see
     ``run_astar_pathfinding_nlayer``'s ``partial_paths`` handling) has
     something concrete to record.
+
+    **INTERMEDIATE PADS (2026-08-20 fix, docs/evidence/
+    2026-08-20-multipad-landing-vias.md).** This function used to inspect
+    ONLY ``segments[0]`` and ``segments[-1]``, so a multi-pad net routed as
+    a chain pad1 -> pad2 -> pad3 got a landing via at its two termini and
+    nowhere else: the copper passed straight over pad2 on the wrong layer,
+    pad2 stayed electrically isolated, and -- because ``blocked_ends`` was
+    empty -- the net was still reported ``routed``. Measured on the
+    compliant (model-E) placement: 15/16 terminus pads connected, 1/12
+    intermediate pads connected, and all 8 of the "fake completions" the
+    2026-08-20 residual diagnosis found had exactly ``pads_connected == 2``
+    regardless of how many pads the net actually has. The scan below now
+    covers every emitted point, not just the two ends.
+
+    Three properties of the interior insertion, each load-bearing:
+
+    * **It goes THERE AND BACK, never one-way.** The writer
+      (``temper_orchestration.run_write_route_segments``) skips a
+      consecutive point pair whose layers differ -- that pair IS the via,
+      not a track. Inserting the pad-layer point alone would therefore
+      delete the copper run from this point to the next one on the path's
+      own layer, breaking the route in half to land one pad. Returning to
+      the path's layer immediately leaves that run intact:
+      ``(prev -> pad_layer)`` and ``(pad_layer -> path_layer)`` are both
+      skipped as layer changes, and the following ``(path_layer -> next)``
+      pair is emitted exactly as before.
+    * **The via goes on the pad's own centre**, with a sub-tolerance bridge
+      on the path's layer when the emitted point is not already exactly
+      there (a Tier-3 hop terminates on a grid CELL centre, up to
+      ``tolerance_mm`` off the pad). An offset via overlaps its pad but is
+      not the same node to any point-graph connectivity check and cannot be
+      deduplicated against a co-located PTH pad -- both measured, see the
+      inline note at the insertion site.
+    * **It inserts at the FIRST occurrence** of the pad's (x, y).
+      ``temper_geometry.via_layer_pair_py`` derives the via's layer pair
+      from the FIRST emitted point matching the via's position and that
+      point's immediate successor. A chained route emits the junction pad's
+      coordinate twice, so inserting after the second occurrence would make
+      the successor of the first occurrence a same-layer duplicate and
+      derive the degenerate pair ``(L, L)``. Inserting at the first
+      occurrence derives ``(path_layer, pad_layer)`` -- the real transition.
+    * **It is additive, never a new decline.** A blocked interior landing
+      leaves the route byte-for-byte as it is today for that pad and is
+      NOT added to ``blocked_ends``. The terminus decline exists because a
+      route ENDING on a pad's (x, y) on the wrong layer is copper claiming
+      to reach a pad it does not reach; a route merely PASSING OVER an
+      interior pad makes no such claim, and declining the whole net would
+      throw away the copper that does join the pads it does join. So this
+      pass can only ever add pads to a net's connected group, never remove
+      a net that routes today. Blocked interior landings are logged, not
+      silently dropped.
+
+    The terminus test is the same fail-closed single-cell ``_layer_free_at``
+    it has always been, and it is checked BEFORE the via is committed -- the
+    ordering ``fix/stub-aware-via-drop`` (00cd4e356) had to correct in
+    ``_ground_plane.py``, where the stub was validated only after the via
+    had been placed. There is no stub to validate here: the landing via sits
+    exactly ON the pad centre, so its "stub" is zero-length and reachability
+    reduces to occupancy at the pad itself.
+
+    **An interior landing is held to a stricter test than a terminus**, and
+    measurement is why. A single free CELL is a test sized for a 0.2mm
+    trace, not for a 0.9mm via. Run against the model-E placement with only
+    the cell test, the interior pass emitted 6 new vias and kicad-cli
+    attributed **15 violations to 4 of them** by name -- 9 `clearance`,
+    3 `drill_out_of_range`, 1 `hole_to_hole`, 1 `shorting_items`,
+    1 `hole_clearance`. A via that closes a connection by violating a
+    clearance is not a fix. ``static_occupancy`` and
+    ``via_footprint_radius_mm`` (both optional, both supplied by
+    ``run_astar_pathfinding_nlayer``'s driver) turn the test into a
+    footprint one:
+
+    * ``via_footprint_radius_mm`` -- every grid cell the via's own pad
+      covers must be free, not just the centre one.
+    * ``static_occupancy`` -- ``(layer, gx, gy) -> pre-unblock value`` for
+      the cells ``_unblock_net_pads`` cleared for THIS net. Those cells read
+      0 now, but a cell inside this net's pad circle can have been cleared
+      while carrying a NEIGHBOURING net's static copper (0.5mm-pitch parts
+      put a foreign pad well inside a 0.55mm unblock radius) -- which is
+      exactly where the measured `clearance` violations came from. A cleared
+      cell counts as free only when it also lies within one of this net's
+      OWN pads' physical radius; anywhere else it is treated as still
+      blocked. Without the map the check degrades to the plain cell test,
+      which is what every unit test and every non-production caller gets.
     """
     pads = pad_centers_per_net.get(net_name) or []
     if not pads or not route_path.segments:
@@ -681,32 +797,229 @@ def _attempt_pad_layer_landing(
         gx, gy = grid.world_to_grid(x, y)
         return grid.is_free(gx, gy)
 
+    def _own_pad_copper(wx: float, wy: float) -> bool:
+        """Inside one of this net's own pads' physical footprint -- the only
+        place a cleared-by-unblock cell may be trusted as free."""
+        for px, py, radius, _layer in pads:
+            if (wx - px) ** 2 + (wy - py) ** 2 <= radius * radius:
+                return True
+        return False
+
+    def _via_footprint_free_on_every_layer(x: float, y: float) -> bool:
+        """Every cell the via's pad covers, on EVERY copper layer.
+
+        Not just the two layers the derived pair names. ``via_layer_pair_py``
+        returns ``("F.Cu", "B.Cu")`` for a landing whose path layer is an
+        outer layer, and that pair is a THROUGH via: KiCad's format default,
+        and ``Via::emit_s_expr`` emits no blind/buried token for it, so the
+        barrel pierces every copper layer in the stack. Checking only the
+        named pair is how the first footprint-aware version still let
+        `vbias`, `bias` and `RTD_HW_FAULT` through with 9 `clearance`
+        findings between them -- the offending copper was on an inner layer
+        the via passes through and the check never looked at.
+        """
+        return all(_via_footprint_free_on(x, y, name) for name in grids)
+
+    def _via_footprint_free_on(x: float, y: float, layer: str) -> bool:
+        """Every cell the via's pad covers on ``layer`` is genuinely free."""
+        grid = grids.get(layer)
+        if grid is None:
+            return False
+        if via_footprint_radius_mm <= 0.0:
+            gx, gy = grid.world_to_grid(x, y)
+            return grid.is_free(gx, gy)
+        reach = int(math.ceil(via_footprint_radius_mm / grid.cell_size))
+        cx, cy = grid.world_to_grid(x, y)
+        r2 = via_footprint_radius_mm * via_footprint_radius_mm
+        for gy in range(cy - reach, cy + reach + 1):
+            for gx in range(cx - reach, cx + reach + 1):
+                wx, wy = grid.grid_to_world(gx, gy)
+                if (wx - x) ** 2 + (wy - y) ** 2 > r2:
+                    continue
+                if not grid.is_free(gx, gy):
+                    return False
+                if static_occupancy is None:
+                    continue
+                was = static_occupancy.get((layer, gx, gy))
+                if was is not None and was != 0 and not _own_pad_copper(wx, wy):
+                    # Cleared by this net's pad unblock, but the copper that
+                    # was there is not this net's own pad -- a neighbour's.
+                    return False
+        return True
+
     segments = list(route_path.segments)
     via_positions = list(route_path.via_positions)
     changed = False
     blocked: list[str] = []
+    # Pads this call has already decided about (landed, or found blocked).
+    # A pad's (x, y) can appear at several emitted points; the decision is a
+    # property of the pad's own grid cell, so it is the same at every one of
+    # them, and acting twice would stack two vias at one point.
+    handled: set[int] = set()
 
     x0, y0, layer0 = segments[0]
-    pad_layer_start = _pad_layer_at_point(pads, x0, y0, tolerance_mm)
-    if pad_layer_start is not None and pad_layer_start != layer0:
-        if _layer_free_at(x0, y0, pad_layer_start):
-            segments.insert(0, (x0, y0, pad_layer_start))
+    start_hit = _pad_at_point(pads, x0, y0, tolerance_mm)
+    if start_hit is not None and start_hit[1] != layer0:
+        handled.add(start_hit[0])
+        if _layer_free_at(x0, y0, start_hit[1]):
+            segments.insert(0, (x0, y0, start_hit[1]))
             via_positions.insert(0, (x0, y0))
             changed = True
         else:
             blocked.append("start")
+    elif start_hit is not None:
+        handled.add(start_hit[0])
 
     # segments[-1] may have shifted if the start insertion happened above --
     # index from the end, not a stale pre-insertion offset.
     xn, yn, layern = segments[-1]
-    pad_layer_end = _pad_layer_at_point(pads, xn, yn, tolerance_mm)
-    if pad_layer_end is not None and pad_layer_end != layern:
-        if _layer_free_at(xn, yn, pad_layer_end):
-            segments.append((xn, yn, pad_layer_end))
+    end_hit = _pad_at_point(pads, xn, yn, tolerance_mm)
+    if end_hit is not None and end_hit[0] not in handled and end_hit[1] != layern:
+        handled.add(end_hit[0])
+        if _layer_free_at(xn, yn, end_hit[1]):
+            segments.append((xn, yn, end_hit[1]))
             via_positions.append((xn, yn))
             changed = True
         else:
             blocked.append("end")
+    elif end_hit is not None:
+        handled.add(end_hit[0])
+
+    # Interior pass. `segments` may already carry the two terminus
+    # insertions, so index 0 and index -1 are re-derived from the CURRENT
+    # list and skipped: whatever sits there has been decided above.
+    #
+    # First, the pads this route ALREADY lands, anywhere along its length:
+    # any emitted point that sits on a pad AND is on that pad's own layer.
+    # A route can cross the same pad twice -- once on the path's working
+    # layer and once, after some other transition, on the pad's own layer --
+    # and in that case the pad is already electrically joined and a landing
+    # via would be redundant copper: an extra hole, an extra annular ring to
+    # clear, and (because a via is stamped as an obstacle on EVERY layer)
+    # extra blocking against every net routed after this one. Measured on
+    # the model-E placement: without this pre-pass the interior scan emitted
+    # 23 vias, of which several went to nets that were already fully
+    # pad-connected (`inb`, `io0`, `power_in.bypass_relay-coil2`, ...) --
+    # pure cost, no connectivity.
+    already_landed: set[int] = set()
+    for point in segments:
+        landed_hit = _pad_at_point(pads, point[0], point[1], tolerance_mm)
+        if landed_hit is not None and landed_hit[1] == point[2]:
+            already_landed.add(landed_hit[0])
+
+    # A landing via that cannot be DRILLED is not a landing. This board's
+    # `FinePitch` class specifies `via_drill_mm = 0.2`, below the board
+    # setup's own 0.3mm minimum hole -- kicad-cli reports every such via as
+    # `drill_out_of_range` ("board setup constraints min hole 0.3000 mm;
+    # actual 0.2000 mm"), and it did so for 3 of the 4 interior landings the
+    # unconstrained version of this pass emitted on the model-E placement.
+    # That is a pre-existing defect of the netclass table (the clamp
+    # `fix/via-hole-size-floor` @ 9e7f27d2d adds at `Via::new` is the fix
+    # for it board-wide, and is NOT in this branch); this pass must not
+    # ADD to it to make a connectivity counter move. No threshold is
+    # changed or reasoned around here -- the via is simply declined.
+    drill_below_floor = (
+        via_drill_mm > 0.0
+        and min_hole_diameter_mm > 0.0
+        and via_drill_mm < min_hole_diameter_mm
+    )
+    if drill_below_floor:
+        logger.info(
+            "net %r: interior pad landing declined -- this net's class drills "
+            "%.4fmm vias, below the board's %.4fmm minimum hole. A via that "
+            "cannot be fabricated is not a landing.",
+            net_name,
+            via_drill_mm,
+            min_hole_diameter_mm,
+        )
+
+    interior_blocked = 0
+    if len(segments) > 2 and not drill_below_floor:
+        landed_interior: list[tuple[float, float, str, str]] = []
+        rebuilt: list[tuple[float, float, str]] = []
+        last_index = len(segments) - 1
+        for index, point in enumerate(segments):
+            rebuilt.append(point)
+            if index == 0 or index == last_index:
+                continue
+            px_, py_, point_layer = point
+            hit = _pad_at_point(pads, px_, py_, tolerance_mm)
+            if hit is None:
+                continue
+            pad_index, pad_layer = hit
+            if (
+                pad_index in handled
+                or pad_index in already_landed
+                or pad_layer == point_layer
+            ):
+                handled.add(pad_index)
+                continue
+            handled.add(pad_index)
+            # The via goes on the PAD'S OWN CENTRE, not on the emitted
+            # point. The two are within ``tolerance_mm`` but not equal: a
+            # Tier-3 hop's terminal is the grid CELL centre
+            # (``_route_segment_3d`` returns ``grid_to_world`` points and,
+            # unlike the Tier-1/2 path, never appends the exact waypoint),
+            # so an interior junction typically sits ~0.05mm off the pad it
+            # is the junction FOR. Measured on the committed placement: the
+            # first version of this pass put GATE_LS's via at
+            # (57.0500, 223.0500) for a pad at (57.0025, 223.1000) -- a via
+            # that overlaps its pad but is not concentric with it, is not
+            # the same node to any point-graph connectivity check
+            # (``pad_connectivity_audit`` buckets at 0.02mm), and cannot be
+            # deduplicated against a co-located PTH pad by
+            # ``via_placement.drop_redundant_vias`` (same 0.02mm bucket).
+            # GATE_LS stayed 2/3 connected. Landing ON the pad centre fixes
+            # all three at once.
+            pad_x, pad_y = pads[pad_index][0], pads[pad_index][1]
+            # Fail-closed on BOTH layers the insertion puts copper on, and
+            # before anything is committed (the ordering
+            # ``fix/stub-aware-via-drop`` had to correct elsewhere): the
+            # pad's own layer carries the via's landing, the path's layer
+            # carries the sub-0.05mm bridge from the emitted point to the
+            # pad centre.
+            if not _via_footprint_free_on_every_layer(pad_x, pad_y):
+                interior_blocked += 1
+                continue
+            exact = abs(pad_x - px_) < 1e-4 and abs(pad_y - py_) < 1e-4
+            if not exact:
+                # Bridge onto the pad centre on the path's own layer first,
+                # so that this point -- not the emitted one -- is the FIRST
+                # point ``via_layer_pair_py`` matches for a via at the pad
+                # centre, and its successor is the pad-layer point.
+                rebuilt.append((pad_x, pad_y, point_layer))
+            # There-and-back: the via, then straight back onto the path's
+            # own layer so the copper run continues (see docstring).
+            rebuilt.append((pad_x, pad_y, pad_layer))
+            rebuilt.append((pad_x, pad_y, point_layer))
+            via_positions.append((pad_x, pad_y))
+            landed_interior.append((pad_x, pad_y, point_layer, pad_layer))
+            changed = True
+        if landed_interior:
+            segments = rebuilt
+            logger.info(
+                "net %r: landed %d intermediate pad(s) with a via: %s",
+                net_name,
+                len(landed_interior),
+                ", ".join(
+                    f"({x:.4f}, {y:.4f}) {from_layer}->{to_layer}"
+                    for x, y, from_layer, to_layer in landed_interior
+                ),
+            )
+    if interior_blocked:
+        # Never folded into ``blocked_ends`` -- see the docstring: an
+        # interior landing that cannot be placed leaves the route exactly as
+        # it would have been before this pass existed, so it must not turn a
+        # net that routes today into a decline. Reported so the residual is
+        # visible rather than silent.
+        logger.info(
+            "net %r: %d intermediate pad(s) could not be landed -- the pad's "
+            "own layer is not free at the pad centre (claimed by an "
+            "earlier-routed net or by a static obstacle). The net keeps the "
+            "copper it has; those pads stay unconnected.",
+            net_name,
+            interior_blocked,
+        )
 
     if not changed:
         return route_path, tuple(blocked)
@@ -730,19 +1043,24 @@ def _land_route_on_pad_layers(
     grids: dict[str, OccupancyGrid],
     tolerance_mm: float = 0.05,
 ) -> RoutePath3D | None:
-    """Insert a landing via wherever the route's own first/last emitted
-    point sits exactly on a net pad's (x, y) but on a layer that pad has no
-    copper on -- the exact defect this module's docstring above measures.
+    """Insert a landing via wherever an emitted point of the route sits
+    exactly on a net pad's (x, y) but on a layer that pad has no copper on
+    -- the exact defect this module's docstring above measures. Since
+    2026-08-20 that includes the route's INTERMEDIATE pads, not only its
+    two termini; see ``_attempt_pad_layer_landing`` for why the interior
+    insertion is a there-and-back pair and why an interior landing that
+    cannot be placed is not a decline.
 
-    A no-op (returns ``route_path`` unchanged) whenever both route termini
-    already land on their pad's real layer -- true for the large majority
-    of nets, and for every existing ``_astar_nlayer``/``run_astar_pathfinding_nlayer``
-    unit test, none of which pass ``pcb=`` (so ``pad_centers_per_net`` is
-    always empty there and this function is never reached by them).
+    A no-op (returns ``route_path`` unchanged) whenever every pad the route
+    passes over already sits on that point's own layer -- true for the large
+    majority of nets, and for every existing ``_astar_nlayer``/
+    ``run_astar_pathfinding_nlayer`` unit test, none of which pass ``pcb=``
+    (so ``pad_centers_per_net`` is always empty there and this function is
+    never reached by them).
 
-    Fails closed (returns ``None``) when the pad's own layer is not free at
-    that exact point (already claimed by an earlier-routed net) -- this
-    function must never write copper that then collides with something
+    Fails closed (returns ``None``) when a TERMINUS pad's own layer is not
+    free at that exact point (already claimed by an earlier-routed net) --
+    this function must never write copper that then collides with something
     else's copper to make a completion counter look better; a net this
     happens to belongs in ``failed_nets``, not ``routed_paths``.
 
@@ -1391,8 +1709,41 @@ def run_astar_pathfinding_nlayer(
             # after restoration would see every never-traversed pad cell
             # reset back to -1 and fail every landing closed, not just the
             # genuine collisions.
+            # The pre-unblock static value of every cell _unblock_net_pads
+            # cleared for THIS net, so an interior landing via's footprint
+            # test can tell "free" from "cleared for us but carrying a
+            # NEIGHBOUR's copper" -- the measured source of the `clearance`
+            # violations the first, cell-only version of the interior pass
+            # produced. Built here because `restoration` is the driver's
+            # own value and is consumed by _restore_net_pads below.
+            static_occupancy = {
+                (grid.layer_name, cx, cy): old
+                for grid, cells in restoration
+                for cx, cy, old in cells
+            }
             attempted, blocked_ends = _attempt_pad_layer_landing(
-                net_name, route_path, pad_centers_per_net, active_grids
+                net_name,
+                route_path,
+                pad_centers_per_net,
+                active_grids,
+                static_occupancy=static_occupancy,
+                via_footprint_radius_mm=(
+                    (net_rule.via_diameter_mm / 2.0 + (net_rule.clearance_mm or 0.0))
+                    if net_rule is not None and getattr(net_rule, "via_diameter_mm", None)
+                    else 0.0
+                ),
+                via_drill_mm=(
+                    getattr(net_rule, "via_drill_mm", 0.0) or 0.0
+                    if net_rule is not None
+                    else 0.0
+                ),
+                # The board's own certified-fabricable hole: the default via
+                # drill declared in board setup (0.3mm here, matching
+                # temper.kicad_pro's `min_through_hole_diameter`). Read, not
+                # chosen, and never adjusted.
+                min_hole_diameter_mm=getattr(design_rules, "default_via_drill_mm", 0.0)
+                if design_rules is not None
+                else 0.0,
             )
             if blocked_ends:
                 # Task 2: net-level decline stays net-level (this net's

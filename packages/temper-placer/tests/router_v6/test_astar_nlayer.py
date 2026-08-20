@@ -21,6 +21,7 @@ from temper_placer.router_v6._astar_nlayer import (
     _build_width_families,
     _family_signature,
     _family_static_inflation,
+    _attempt_pad_layer_landing,
     _land_route_on_pad_layers,
     run_astar_pathfinding_nlayer,
     select_routing_grids_nlayer,
@@ -368,6 +369,294 @@ def test_land_route_on_pad_layers_leaves_tht_pads_alone():
     pads = {"NET1": [(2.0, 2.0, 0.5, "All"), (8.0, 8.0, 0.5, "All")]}
     result = _land_route_on_pad_layers("NET1", route, pads, grids)
     assert result is route, "a THT/ALL_LAYERS pad has no 'wrong layer' -- nothing to land"
+
+
+# ---------------------------------------------------------------------------
+# 5b. Intermediate-pad landing (2026-08-20). The pass above used to inspect
+#     only segments[0] and segments[-1], so a multi-pad net routed as a chain
+#     pad1 -> pad2 -> pad3 got a landing via at its two termini and nowhere
+#     else -- copper passed over pad2 on the wrong layer, pad2 stayed
+#     isolated, and the net was still reported `routed` (measured: 15/16
+#     terminus pads connected vs 1/12 intermediate pads).
+# ---------------------------------------------------------------------------
+
+
+def _chain_route(mid_layer: str = "B.Cu") -> RoutePath3D:
+    """pad1 -> pad2 -> pad3 chained on one layer, pad2 in the middle."""
+    return RoutePath3D(
+        net_name="NET1",
+        segments=[
+            (2.0, 2.0, mid_layer),
+            (5.0, 5.0, mid_layer),
+            (5.0, 5.0, mid_layer),  # the junction pad, emitted twice
+            (8.0, 8.0, mid_layer),
+        ],
+        via_positions=[],
+        path_length=12.0,
+    )
+
+
+_CHAIN_PADS = {
+    "NET1": [
+        (2.0, 2.0, 0.5, "B.Cu"),
+        (5.0, 5.0, 0.5, "F.Cu"),  # the intermediate pad, on the OTHER layer
+        (8.0, 8.0, 0.5, "B.Cu"),
+    ]
+}
+
+
+def test_intermediate_pad_gets_a_landing_via():
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    result = _land_route_on_pad_layers("NET1", _chain_route(), _CHAIN_PADS, grids)
+    assert result is not None
+    assert (5.0, 5.0) in result.via_positions, (
+        "the intermediate pad's landing via is the whole point -- before the "
+        "2026-08-20 fix only segments[0] and segments[-1] were ever inspected"
+    )
+    assert result.segments.count((5.0, 5.0, "F.Cu")) == 1, (
+        "exactly one landing point on the pad's own layer, not one per "
+        "occurrence of the junction coordinate"
+    )
+
+
+def test_intermediate_landing_inserts_a_there_and_back_pair_so_copper_is_not_broken():
+    """The writer skips a consecutive point pair whose layers differ (that
+    pair IS the via). Inserting the pad-layer point ALONE would therefore
+    delete the copper run from the pad to the next point on the path's own
+    layer -- breaking the route in half to land one pad."""
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    result = _land_route_on_pad_layers("NET1", _chain_route(), _CHAIN_PADS, grids)
+    assert result is not None
+    i = result.segments.index((5.0, 5.0, "F.Cu"))
+    assert result.segments[i - 1] == (5.0, 5.0, "B.Cu")
+    assert result.segments[i + 1] == (5.0, 5.0, "B.Cu"), (
+        "must return to the path's own layer immediately after the via"
+    )
+    # Every same-layer copper run of the original route survives.
+    def runs(path):
+        return [
+            (a[0], a[1], b[0], b[1], a[2])
+            for a, b in zip(path.segments, path.segments[1:])
+            if a[2] == b[2] and (a[0], a[1]) != (b[0], b[1])
+        ]
+
+    assert runs(result) == runs(_chain_route())
+
+
+def test_intermediate_landing_via_derives_the_real_layer_pair():
+    """``via_layer_pair_py`` reads the FIRST emitted point matching the via's
+    position and that point's immediate successor. A chained route emits the
+    junction pad's coordinate twice, so inserting after the SECOND occurrence
+    would derive the degenerate same-layer pair."""
+    import temper_geometry as _tg
+
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    result = _land_route_on_pad_layers("NET1", _chain_route(), _CHAIN_PADS, grids)
+    assert result is not None
+    xs = [s[0] for s in result.segments]
+    ys = [s[1] for s in result.segments]
+    layers = [s[2] for s in result.segments]
+    assert _tg.via_layer_pair_py(5.0, 5.0, xs, ys, layers) == ("B.Cu", "F.Cu")
+
+
+def test_no_landing_via_for_an_intermediate_pad_the_route_already_lands():
+    """A route can cross the same pad twice -- once on its working layer and
+    once, after some other transition, on the pad's own layer. The pad is
+    already joined there, so a landing via would be redundant copper: an
+    extra hole, an extra ring to clear, and extra blocking against every net
+    routed after this one (a via is stamped on EVERY layer)."""
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[
+            (2.0, 2.0, "B.Cu"),
+            (5.0, 5.0, "B.Cu"),  # crosses the pad on the WRONG layer here
+            (6.0, 6.0, "B.Cu"),
+            (6.0, 6.0, "F.Cu"),  # ...and transitions for its own reasons
+            (5.0, 5.0, "F.Cu"),  # ...then crosses the pad on its OWN layer
+            (8.0, 8.0, "F.Cu"),
+        ],
+        via_positions=[(6.0, 6.0)],
+        path_length=20.0,
+    )
+    pads = {
+        "NET1": [
+            (2.0, 2.0, 0.5, "B.Cu"),
+            (5.0, 5.0, 0.5, "F.Cu"),
+            (8.0, 8.0, 0.5, "F.Cu"),
+        ]
+    }
+    result = _land_route_on_pad_layers("NET1", route, pads, grids)
+    assert result is route, "already landed -- nothing to add"
+
+
+def test_intermediate_landing_via_sits_on_the_pad_centre_not_the_emitted_point():
+    """A Tier-3 hop terminates on the grid CELL centre, so an interior
+    junction sits up to ``tolerance_mm`` off the pad it is the junction for.
+    Measured on the committed placement: GATE_LS's first landing via came out
+    at (57.0500, 223.0500) for a pad at (57.0025, 223.1000) -- overlapping the
+    pad but not concentric, not the same node to a point-graph connectivity
+    check, and not deduplicable against a co-located PTH pad. The via must
+    land on the pad."""
+    import temper_geometry as _tg
+
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[
+            (2.0, 2.0, "B.Cu"),
+            (5.04, 4.96, "B.Cu"),  # grid-quantized, 0.04/0.04 off the pad
+            (8.0, 8.0, "B.Cu"),
+        ],
+        via_positions=[],
+        path_length=12.0,
+    )
+    result = _land_route_on_pad_layers("NET1", route, _CHAIN_PADS, grids)
+    assert result is not None
+    assert (5.0, 5.0) in result.via_positions, "the via lands on the pad centre"
+    assert (5.04, 4.96) not in result.via_positions
+    xs = [s[0] for s in result.segments]
+    ys = [s[1] for s in result.segments]
+    layers = [s[2] for s in result.segments]
+    assert _tg.via_layer_pair_py(5.0, 5.0, xs, ys, layers) == ("B.Cu", "F.Cu")
+    # The sub-tolerance bridge from the emitted point onto the pad centre is
+    # real, same-layer copper -- the route is not left dangling short of it.
+    i = result.segments.index((5.0, 5.0, "B.Cu"))
+    assert result.segments[i - 1] == (5.04, 4.96, "B.Cu")
+
+
+def test_blocked_intermediate_landing_is_not_a_net_level_decline():
+    """A route merely PASSING OVER an interior pad makes no claim to reach
+    it, so an unplaceable interior landing must leave the net's real copper
+    alone rather than throw the whole route away -- unlike a terminus, whose
+    copper does end on the pad's (x, y)."""
+    f_grid = _open_grid("F.Cu")
+    gx, gy = f_grid.world_to_grid(5.0, 5.0)
+    f_grid.grid[gy, gx] = 7  # claimed by a different, earlier-routed net
+    grids = {"F.Cu": f_grid, "B.Cu": _open_grid("B.Cu")}
+    route = _chain_route()
+    attempted, blocked = _attempt_pad_layer_landing("NET1", route, _CHAIN_PADS, grids)
+    assert blocked == (), "an interior block is not a terminus block"
+    assert attempted is route, "no via placed, and the route is left untouched"
+    assert (5.0, 5.0) not in attempted.via_positions, (
+        "never emit a via onto a cell another net's copper already claims"
+    )
+
+
+def test_interior_landing_checks_the_whole_via_footprint_not_one_cell():
+    """A single free CELL is a test sized for a 0.2mm trace, not a 0.9mm via.
+    Measured on the model-E placement: with the cell-only test the interior
+    pass emitted 6 vias and kicad-cli attributed 15 violations to 4 of them
+    by name (9 clearance, 3 drill_out_of_range, 1 hole_to_hole, 1
+    shorting_items, 1 hole_clearance)."""
+    f_grid = _open_grid("F.Cu")
+    cx, cy = f_grid.world_to_grid(5.0, 5.0)
+    # Centre cell free, the neighbouring cell claimed by another net --
+    # inside the via's own pad, outside the single centre cell.
+    f_grid.grid[cy, cx + 1] = 7
+    grids = {"F.Cu": f_grid, "B.Cu": _open_grid("B.Cu")}
+    assert f_grid.is_free(cx, cy), "the cell-only test would pass here"
+    assert _land_route_on_pad_layers("NET1", _chain_route(), _CHAIN_PADS, grids) is not None
+
+    attempted, blocked = _attempt_pad_layer_landing(
+        "NET1", _chain_route(), _CHAIN_PADS, grids, via_footprint_radius_mm=1.0
+    )
+    assert blocked == ()
+    assert (5.0, 5.0) not in (attempted.via_positions or ()), (
+        "the via's own pad covers the claimed cell -- must not be placed"
+    )
+
+
+def test_interior_landing_distrusts_a_cell_cleared_for_a_neighbours_copper():
+    """``_unblock_net_pads`` clears every static cell inside this net's pad
+    circle -- including a NEIGHBOURING net's pad copper that falls inside it
+    (0.5mm-pitch parts put one well inside a 0.55mm unblock radius). Such a
+    cell reads 0 but is not free for a via."""
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    f_grid = grids["F.Cu"]
+    cx, cy = f_grid.world_to_grid(5.0, 5.0)
+    # (cx + 1, cy) is 0.79mm from the pad centre -- inside a 1.0mm via pad,
+    # outside this net's own 0.5mm pad radius, so copper there is a
+    # neighbour's and the cell only reads free because the unblock cleared it.
+    attempted, blocked = _attempt_pad_layer_landing(
+        "NET1",
+        _chain_route(),
+        _CHAIN_PADS,
+        grids,
+        static_occupancy={("F.Cu", cx + 1, cy): -1},
+        via_footprint_radius_mm=1.0,
+    )
+    assert blocked == ()
+    assert (5.0, 5.0) not in (attempted.via_positions or ())
+
+    # The centre cell is 0.35mm from the pad centre -- inside this net's OWN
+    # pad copper, so a cell cleared there is genuinely free for a via.
+    attempted2, _ = _attempt_pad_layer_landing(
+        "NET1",
+        _chain_route(),
+        _CHAIN_PADS,
+        grids,
+        static_occupancy={("F.Cu", cx, cy): -1},
+        via_footprint_radius_mm=1.0,
+    )
+    assert (5.0, 5.0) in (attempted2.via_positions or ())
+
+
+def test_interior_landing_declines_a_via_that_cannot_be_drilled():
+    """This board's `FinePitch` class specifies a 0.2mm via drill, below the
+    board setup's own 0.3mm minimum hole -- kicad-cli reported every such via
+    as `drill_out_of_range`, for 3 of the 4 interior landings the
+    unconstrained pass emitted on model-E. A via that cannot be fabricated is
+    not a landing."""
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    attempted, blocked = _attempt_pad_layer_landing(
+        "NET1",
+        _chain_route(),
+        _CHAIN_PADS,
+        grids,
+        via_drill_mm=0.2,
+        min_hole_diameter_mm=0.3,
+    )
+    assert blocked == ()
+    assert (5.0, 5.0) not in (attempted.via_positions or ())
+
+    # At or above the floor it lands as usual.
+    attempted2, _ = _attempt_pad_layer_landing(
+        "NET1",
+        _chain_route(),
+        _CHAIN_PADS,
+        grids,
+        via_drill_mm=0.3,
+        min_hole_diameter_mm=0.3,
+    )
+    assert (5.0, 5.0) in (attempted2.via_positions or ())
+
+
+def test_terminus_landing_still_fails_closed_with_an_intermediate_pad_present():
+    """The interior pass must not weaken the terminus contract."""
+    b_grid = _open_grid("B.Cu")
+    gx, gy = b_grid.world_to_grid(2.0, 2.0)
+    b_grid.grid[gy, gx] = 7
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": b_grid}
+    route = RoutePath3D(
+        net_name="NET1",
+        segments=[
+            (2.0, 2.0, "F.Cu"),
+            (5.0, 5.0, "F.Cu"),
+            (5.0, 5.0, "F.Cu"),
+            (8.0, 8.0, "F.Cu"),
+        ],
+        via_positions=[],
+        path_length=12.0,
+    )
+    pads = {
+        "NET1": [
+            (2.0, 2.0, 0.5, "B.Cu"),  # terminus pad, its own layer is claimed
+            (5.0, 5.0, 0.5, "B.Cu"),
+            (8.0, 8.0, 0.5, "F.Cu"),
+        ]
+    }
+    assert _land_route_on_pad_layers("NET1", route, pads, grids) is None
 
 
 def test_run_astar_pathfinding_nlayer_lands_a_route_forced_onto_the_wrong_layer(monkeypatch):
