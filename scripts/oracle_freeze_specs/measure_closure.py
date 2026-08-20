@@ -68,7 +68,6 @@ from _lib.oracle_freeze import (  # noqa: E402
     FreezeSpec,
     NonVacuityCheck,
     SplitMix64,
-    rust_f64_literal,
 )
 
 _PLACER_TESTS_ROOT = Path(__file__).resolve().parent.parent.parent / "packages" / "temper-placer"
