@@ -9,6 +9,12 @@
 //! |---|---|
 //! | `validate_schema` | `SchemaValidator.validate` — the two-pass check (unknown-field sweep, then min/max/zero_is_valid range checks) |
 //!
+//! Oracle retired 2026-08-20 (FREEZE, batch 1): the differential against
+//! `_schema_validator_py_oracle.py` is replaced by the frozen golden-vector
+//! corpus in this file's own `frozen_tests` module (see
+//! `scripts/oracle_freeze_specs/schema_validator.py` for provenance; the
+//! oracle file itself is deleted and can be revived from git history only).
+//!
 //! Design boundaries (argued in-source; see
 //! `packages/temper-design-bundle/VERIFICATION.md`):
 //!

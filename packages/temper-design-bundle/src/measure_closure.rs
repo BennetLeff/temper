@@ -8,6 +8,12 @@
 //! |---|---|
 //! | `compute_drc_clearance_pass_pct` | the `drc_clearance_pass_pct` three-branch rule in `measure_closure` |
 //!
+//! Oracle retired 2026-08-20 (FREEZE, batch 1): the differential against
+//! `_measure_closure_py_oracle.py` is replaced by the frozen golden-vector
+//! corpus in this file's own `frozen_tests` module (see
+//! `scripts/oracle_freeze_specs/measure_closure.py` for provenance; the
+//! oracle file itself is deleted and can be revived from git history only).
+//!
 //! Design boundaries (argued in-source; see
 //! `packages/temper-design-bundle/VERIFICATION.md`):
 //!
