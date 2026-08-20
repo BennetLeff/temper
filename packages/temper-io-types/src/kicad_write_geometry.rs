@@ -167,6 +167,18 @@ mod py_bridge {
         map.get_item(key)
     }
 
+    /// `[key, vals...]` — a single node of a kiutils parsed s-expression
+    /// tree (the `list` form the `from_sexpr` constructors consume).
+    fn node<'py>(
+        py: Python<'py>,
+        key: &str,
+        vals: Vec<Bound<'py, PyAny>>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let mut items: Vec<Bound<'py, PyAny>> = vec![key.into_pyobject(py)?.into_any()];
+        items.extend(vals);
+        Ok(PyList::new(py, items)?.into_any())
+    }
+
     /// `_resolve_net_index`: `net and net in map` — a truthiness-guarded
     /// lookup that returns 0 for falsy or unknown nets.
     fn resolve_net_index(net: &Bound<'_, PyAny>, map: &Bound<'_, PyDict>) -> PyResult<i64> {
@@ -461,6 +473,92 @@ mod py_bridge {
         })
     }
 
+    /// `_write_modules.add_bounding_boxes_to_pcb`'s per-rect construction: the
+    /// parsed s-expression tree that kiutils' `GrRect.from_sexpr` consumes
+    /// (`(gr_rect (start x y) (end x y) (layer L) (width W))`). Rust owns the
+    /// content; kiutils' own `to_sexpr` does the serialisation (B1 — floats
+    /// are carried as values, so the int-coercion of a text round-trip can
+    /// never change the emitted bytes).
+    #[pyfunction]
+    pub fn gr_rect_sexpr_py(
+        py: Python<'_>,
+        x_min: f64,
+        y_min: f64,
+        x_max: f64,
+        y_max: f64,
+        layer: &str,
+        width: f64,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut gr_rect: Vec<Bound<'_, PyAny>> = vec!["gr_rect".into_pyobject(py)?.into_any()];
+            gr_rect.push(node(
+                py,
+                "start",
+                vec![
+                    x_min.into_pyobject(py)?.into_any(),
+                    y_min.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_rect.push(node(
+                py,
+                "end",
+                vec![
+                    x_max.into_pyobject(py)?.into_any(),
+                    y_max.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_rect.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            gr_rect.push(node(py, "width", vec![width.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, gr_rect)?.unbind())
+        })
+    }
+
+    /// `_write_modules.add_silkscreen_labels`'s per-text construction: the
+    /// parsed s-expression tree that kiutils' `GrText.from_sexpr` consumes
+    /// (`(gr_text "T" (at x y) (layer L) (effects (font (size 1.0 1.0))))`).
+    /// The `effects` node reproduces the dataclass default `Font(size=1.0,
+    /// 1.0)` that `to_sexpr` emits. See [`gr_rect_sexpr_py`] for the float
+    /// rationale.
+    #[pyfunction]
+    pub fn gr_text_sexpr_py(
+        py: Python<'_>,
+        text: &str,
+        x: f64,
+        y: f64,
+        layer: &str,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut gr_text: Vec<Bound<'_, PyAny>> = vec![
+                "gr_text".into_pyobject(py)?.into_any(),
+                text.into_pyobject(py)?.into_any(),
+            ];
+            gr_text.push(node(
+                py,
+                "at",
+                vec![x.into_pyobject(py)?.into_any(), y.into_pyobject(py)?.into_any()],
+            )?);
+            gr_text.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            let effects = node(
+                py,
+                "effects",
+                vec![node(
+                    py,
+                    "font",
+                    vec![node(
+                        py,
+                        "size",
+                        vec![
+                            1.0f64.into_pyobject(py)?.into_any(),
+                            1.0f64.into_pyobject(py)?.into_any(),
+                        ],
+                    )?],
+                )?],
+            )?;
+            gr_text.push(effects);
+            Ok(PyList::new(py, gr_text)?.unbind())
+        })
+    }
+
     /// `float(index) * 90.0` — rotation index to degrees.
     #[pyfunction]
     pub fn rotation_index_to_degrees_py(index: i64) -> PyResult<f64> {
@@ -490,6 +588,8 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(build_net_name_to_index_map_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(component_bounds_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(zone_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(gr_rect_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(gr_text_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(rotation_index_to_degrees_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(placement_coordinate_py, &sub)?)?;
         module.add_submodule(&sub)

@@ -27,6 +27,10 @@
 //!     through the Python object protocol — the D5 duck-typed boundary — so
 //!     it works on kiutils `Footprint` objects and on the raw parsed objects
 //!     alike, exactly as the Python original did.
+//!   * `footprint_value_py` — the parallel `Value`-property reader from
+//!     `_write_modules.add_silkscreen_labels`: same duck-typed read, but for
+//!     `"Value"` and WITHOUT the dict-branch truthiness guard (the caller's
+//!     `if add_values and value:` filters).
 //!
 //! NOT ported: the `_parse_modules.py::_get_footprint_reference` twin. That
 //! is a different function with different semantics (silk/fab-layer text
@@ -318,6 +322,74 @@ pub fn get_footprint_reference_py(
     })
 }
 
+/// `_write_modules.add_silkscreen_labels`'s value extraction (lines 199-207):
+/// the `Value`-property read, parallel to [`get_footprint_reference_py`] but
+/// for `"Value"` and WITHOUT the dict-branch truthiness guard:
+///
+/// ```python
+/// value = None
+/// props = getattr(fp, "properties", {})
+/// if isinstance(props, dict):
+///     value = props.get("Value")
+/// elif isinstance(props, list):
+///     for prop in props:
+///         if hasattr(prop, "key") and prop.key == "Value":
+///             value = getattr(prop, "value", None)
+///             break
+/// ```
+///
+/// The dict branch returns the raw value (an empty string is returned, not
+/// skipped — the caller's `if add_values and value:` does the filtering);
+/// the list branch breaks on the first `key == "Value"` match even when its
+/// `value` attribute is missing (`getattr(prop, "value", None)` → None).
+/// `hasattr`/`getattr` swallow only `AttributeError` on CPython 3.12
+/// (bpo-45522) — see [`py_hasattr`].
+#[pyfunction]
+pub fn footprint_value_py(
+    py: Python<'_>,
+    fp: &Bound<'_, PyAny>,
+) -> PyResult<Option<Py<PyAny>>> {
+    catch_panic(|| {
+        // props = getattr(fp, "properties", {}) — AttributeError-only default.
+        let props = match fp.getattr("properties") {
+            Ok(p) => p,
+            Err(e) if e.is_instance_of::<PyAttributeError>(py) => PyDict::new(py).into_any(),
+            Err(e) => return Err(e),
+        };
+
+        if props.is_instance_of::<PyDict>() {
+            let props = props.cast::<PyDict>()?;
+            // No truthiness guard — `value = props.get("Value")`.
+            return Ok(props.get_item("Value")?.map(|v| v.unbind()));
+        }
+
+        if props.is_instance_of::<PyList>() {
+            let props = props.cast::<PyList>()?;
+            for prop in props.try_iter()? {
+                let prop = prop?;
+                if py_hasattr(&prop, "key", py)? {
+                    let key = prop.getattr("key")?;
+                    if key.eq("Value")? {
+                        // getattr(prop, "value", None) — AttributeError-only
+                        // default; any other exception propagates. The
+                        // `break` is implicit: this branch returns.
+                        let value = match prop.getattr("value") {
+                            Ok(v) => v,
+                            Err(e) if e.is_instance_of::<PyAttributeError>(py) => {
+                                return Ok(None);
+                            }
+                            Err(e) => return Err(e),
+                        };
+                        return Ok(Some(value.unbind()));
+                    }
+                }
+            }
+        }
+
+        Ok(None)
+    })
+}
+
 /// Registered as the `write_types` submodule
 /// (`temper_io_types.write_types`), following the established per-domain
 /// submodule convention (`kicad_write_geometry`, ...).
@@ -329,5 +401,6 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_class::<PyPlacementUpdate>()?;
     sub.add_class::<PyIsolationSlotResult>()?;
     sub.add_function(wrap_pyfunction!(get_footprint_reference_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(footprint_value_py, &sub)?)?;
     module.add_submodule(&sub)
 }
