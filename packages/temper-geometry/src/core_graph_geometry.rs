@@ -200,40 +200,6 @@ pub fn pin_world_position_kernel(px: f64, py: f64, side: i64, rotation_rad: f64,
 }
 
 // =============================================================================
-// power_topology.py — trace-width arithmetic + delivery-strategy thresholds
-// =============================================================================
-
-/// `max_current_a * 0.15 + 0.1` — the oracle's `required_trace_width`
-/// expression verbatim (B7 grouping).
-pub fn power_required_trace_width(max_current_a: f64) -> f64 {
-    max_current_a * 0.15 + 0.1
-}
-
-/// IPC-2221 `trace_width`: `base = I * 0.15 + 0.1`; for copper_weight_oz != 1.0,
-/// `base / (oz ** 0.625)` where `** 0.625` is libm `pow` via host_math (B1/B13).
-pub fn power_trace_width(max_current_a: f64, copper_weight_oz: f64) -> f64 {
-    let base = max_current_a * 0.15 + 0.1;
-    if copper_weight_oz == 1.0 {
-        base
-    } else {
-        base / host_math::pow(copper_weight_oz, 0.625)
-    }
-}
-
-/// `delivery_strategy` thresholds: `>= 3.0` PLANE, `>= 1.0` WIDE_TRACE, else
-/// STANDARD_TRACE. Returns the enum ordinal: 0=PLANE, 1=WIDE_TRACE,
-/// 2=STANDARD_TRACE (the Python shim maps back to `PowerDeliveryStrategy`).
-pub fn power_delivery_strategy(max_current_a: f64) -> i64 {
-    if max_current_a >= 3.0 {
-        0
-    } else if max_current_a >= 1.0 {
-        1
-    } else {
-        2
-    }
-}
-
-// =============================================================================
 // topology.py — TopologicalGraph.get_clusters (union-find components)
 // =============================================================================
 
@@ -707,27 +673,6 @@ pub fn pin_world_position_kernel_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn power_required_trace_width_py(max_current_a: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| power_required_trace_width(max_current_a))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn power_trace_width_py(max_current_a: f64, copper_weight_oz: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| power_trace_width(max_current_a, copper_weight_oz))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn power_delivery_strategy_py(max_current_a: f64) -> PyResult<i64> {
-    temper_py_bridge::catch_unwind(|| power_delivery_strategy(max_current_a))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
 pub fn topology_connected_components_py(
     nodes: Vec<String>,
     edge_a: Vec<String>,
@@ -778,9 +723,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pin_world_position_at_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_layer_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_radius_py, m)?)?;
-    m.add_function(wrap_pyfunction!(power_required_trace_width_py, m)?)?;
-    m.add_function(wrap_pyfunction!(power_trace_width_py, m)?)?;
-    m.add_function(wrap_pyfunction!(power_delivery_strategy_py, m)?)?;
     m.add_function(wrap_pyfunction!(topology_connected_components_py, m)?)?;
     m.add_function(wrap_pyfunction!(courtyard_global_points_py, m)?)?;
     m.add_function(wrap_pyfunction!(point_distance_py, m)?)?;
@@ -895,20 +837,6 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
-    fn power_topology_arithmetic() {
-        assert_eq!(power_required_trace_width(1.0), 0.25);
-        assert_eq!(power_trace_width(1.0, 1.0), 0.25);
-        // 1oz shortcut: exact equality, not a tolerance
-        let thick = power_trace_width(2.0, 2.0);
-        let expected = (2.0 * 0.15 + 0.1) / (2.0_f64.powf(0.625));
-        assert_eq!(thick, expected);
-        assert_eq!(power_delivery_strategy(5.0), 0);
-        assert_eq!(power_delivery_strategy(1.0), 1);
-        assert_eq!(power_delivery_strategy(0.999), 2);
-        assert_eq!(power_delivery_strategy(3.0), 0);
-    }
-
-    #[cfg_attr(test, test)]
     fn topology_components_partition_and_order() {
         let nodes = vec!["a".into(), "b".into(), "c".into(), "d".into()];
         let ea = vec!["a".into(), "c".into()];
@@ -984,7 +912,6 @@ pub(crate) mod tests {
         ("core_graph_geometry::tests::coo_matvec_negative_col_wraps", coo_matvec_negative_col_wraps),
         ("core_graph_geometry::tests::normalize_rotation_index_quadrants", normalize_rotation_index_quadrants),
         ("core_graph_geometry::tests::pin_world_position_quadrant_anchors", pin_world_position_quadrant_anchors),
-        ("core_graph_geometry::tests::power_topology_arithmetic", power_topology_arithmetic),
         ("core_graph_geometry::tests::topology_components_partition_and_order", topology_components_partition_and_order),
         ("core_graph_geometry::tests::topology_components_single_group_all", topology_components_single_group_all),
         ("core_graph_geometry::tests::topology_components_isolated", topology_components_isolated),
