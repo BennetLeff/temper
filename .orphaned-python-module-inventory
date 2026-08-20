@@ -17,6 +17,8 @@ temper_placer.cli._signal	orphaned at time of recording; no reason given
 temper_placer.cli._version	orphaned at time of recording; no reason given
 temper_placer.deterministic.instrumentation	orphaned at time of recording; no reason given
 temper_placer.deterministic.seed_filter	orphaned at time of recording; no reason given
+temper_placer.deterministic.stages.config_attach	import-path re-export of ConfigAttachStage kept for the pinned VERBATIM pipeline oracle (tests/deterministic/_deterministic_pipeline_py_oracle.py imports the class from this module path inside its pinned body); test-only importers, deliberately differential-only
+temper_placer.deterministic.stages.slot_generation	import-path re-export of SlotGenerationStage kept for the pinned VERBATIM zone-aware oracle (tests/deterministic/_zone_aware_slot_generation_run_py_oracle.py imports and SUBCLASSES the class from this module path inside its pinned body); test-only importers, deliberately differential-only
 temper_placer.explainability.logger	orphaned at time of recording; no reason given
 temper_placer.explainability.markdown_report	orphaned at time of recording; no reason given
 temper_placer.explainability.pipeline	orphaned at time of recording; no reason given
