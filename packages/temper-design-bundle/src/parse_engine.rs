@@ -3608,6 +3608,15 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(tokenize, &sub)?)?;
+    // Wave 4 Phase 3 (formats/IO): the S-expression writer -- the inverse
+    // of this module's tokenizer (see sexpr_writer.rs). parse -> write ->
+    // parse is the identity on the KiNode tree, so these functions are the
+    // kiutils-free board-serialization surface.
+    sub.add_function(wrap_pyfunction!(crate::sexpr_writer::write_board_sexpr_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::embed_title_block_comment_py,
+        &sub
+    )?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }
