@@ -331,6 +331,20 @@ def encode_constraints(
             netclass_rules_data.design_rules,
             existing_constraints=constraints,
             touch_refs=auto_pairwise_touch_refs,
+            # 2026-08-19: decide against the table the board is GRADED by.
+            # This is the one separation family live on every production
+            # solve, and until now it capped at netclass_rules.yaml's
+            # `class_pairs` 6.0mm -- a figure whose own `because` string
+            # reads "UNSOURCED legacy 6.0mm (debunked 'Table 16 working
+            # isolation at 400V' citation)". pcb/temper.kicad_dru grades the
+            # same HV<->SELV pairs at 12.6mm (PD3 reinforced), so placement
+            # was under-constrained by 6.6mm on every one of them and no
+            # router could rescue the result. `dru_resolved_pairs` raises
+            # each pair onto max(clearance, creepage) from the generated
+            # DRU projections; it is a strict raise (proof in
+            # `_dru_resolved_pair_overrides`), so nothing this encoder
+            # previously enforced is relaxed.
+            dru_resolved_pairs=True,
         )
         constraints = list(constraints) + auto_constraints
 

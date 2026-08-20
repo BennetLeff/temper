@@ -13,6 +13,7 @@ Tests for the closed-loop place->route controller including:
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass, field
 from unittest import mock
 
@@ -485,3 +486,129 @@ def test_call_solver_forwards_reference_aliases(basic_netlist, basic_board):
 
     assert received.get("reference_aliases") == {"C_BUS1": "C2"}
     assert received.get("loop_aliases") == {"legacy_loop": "commutation_loop"}
+
+
+# ---------------------------------------------------------------------------
+# Opt-in HARD safety constraint families reach the solver on the --loop path
+# ---------------------------------------------------------------------------
+
+
+def _recording_loop():
+    """A PlaceRouteLoop whose solver records the kwargs it was called with."""
+    from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
+
+    received: dict = {}
+
+    def recording_solver(**kwargs):
+        received.update(kwargs)
+        return CpSatPlacementResult(
+            positions=np.zeros((3, 2), dtype=np.float32),
+            rotations=np.zeros(3, dtype=np.int32),
+            placed_refs=["Q1", "Q2", "C_BUS1"],
+            status="feasible",
+        )
+
+    return PlaceRouteLoop(_placement_solver=recording_solver), received
+
+
+def test_call_solver_forwards_the_three_safety_constraint_families(
+    basic_netlist, basic_board
+):
+    """tank_creepage / isolation_barrier / heatsink_colocation reach the solver.
+
+    REGRESSION PIN. All three were reachable only from ``temper optimize
+    --no-loop`` (tank_creepage), ``repair-unplaced`` (isolation_barrier), or
+    nothing at all (heatsink_colocation), while ``--loop`` is the DEFAULT and
+    is what both flow scripts run. They were not merely unset: ``run()`` had
+    no parameter to carry them and ``_call_solver``'s ``solver_kwargs`` had
+    no key to forward them, so no shipping placement could ever have carried
+    them. This test fails if that plumbing is removed again.
+    """
+    loop, received = _recording_loop()
+    loop._tank_creepage = {"margin_mm": 10.0}
+    loop._isolation_barrier = {"corridor_width_mm": 13.1}
+    loop._heatsink_colocation = 2
+
+    loop._call_solver(
+        netlist=basic_netlist,
+        board=basic_board,
+        extra_constraints=[],
+        timeout_ms=100,
+        seed=42,
+    )
+
+    assert received.get("tank_creepage") == {"margin_mm": 10.0}
+    assert received.get("isolation_barrier") == {"corridor_width_mm": 13.1}
+    assert received.get("heatsink_colocation") == 2
+
+
+def test_call_solver_forwards_heatsink_rotation_zero(basic_netlist, basic_board):
+    """Rotation index 0 is a real request, not an absent one.
+
+    ``heatsink_colocation`` is an int rotation index in 0..3, so the
+    ``getattr(self, ..., None)``-truthy idiom the other forwarded kwargs use
+    would silently drop ``0`` -- the "both IGBTs at 0 degrees" request --
+    and leave the constraint dark exactly as it was before it was wired.
+    """
+    loop, received = _recording_loop()
+    loop._heatsink_colocation = 0
+
+    loop._call_solver(
+        netlist=basic_netlist,
+        board=basic_board,
+        extra_constraints=[],
+        timeout_ms=100,
+        seed=42,
+    )
+
+    assert "heatsink_colocation" in received, (
+        "rotation index 0 was dropped -- a falsy-but-valid value must still "
+        "reach the solver"
+    )
+    assert received["heatsink_colocation"] == 0
+
+
+def test_run_threads_the_three_families_from_its_own_signature(
+    basic_netlist, basic_board
+):
+    """``run(tank_creepage=...)`` reaches ``_call_solver``.
+
+    The instance-state hop is required because the Rust loop calls
+    ``_call_solver`` back with a fixed kwarg set; this pins that
+    ``run()``'s parameters actually land on that state.
+    """
+    loop, received = _recording_loop()
+
+    # The CP-SAT solve is the first thing a round does, so `received` is
+    # populated before the loop goes on to route. Routing this stub placement
+    # (three refs at the origin, no nets) is expected to fail and is not what
+    # this test is about; the assertions are on the solver boundary.
+    with contextlib.suppress(Exception):  # downstream routing, deliberately ignored
+        loop.run(
+            basic_netlist,
+            basic_board,
+            seed=42,
+            tank_creepage={"margin_mm": 10.0},
+            heatsink_colocation=1,
+        )
+
+    assert received, "the solver was never called -- the test proves nothing"
+    assert received.get("tank_creepage") == {"margin_mm": 10.0}
+    assert received.get("heatsink_colocation") == 1
+
+
+def test_absent_families_keep_the_solve_byte_identical(basic_netlist, basic_board):
+    """The default must add no kwarg at all, not ``None``.
+
+    A forwarded ``None`` would still be a signature change for any injected
+    or mocked solver; the documented contract is that an unset family leaves
+    the call exactly as it was before the wiring landed.
+    """
+    loop, received = _recording_loop()
+
+    with contextlib.suppress(Exception):  # downstream routing, deliberately ignored
+        loop.run(basic_netlist, basic_board, seed=42)
+
+    assert received, "the solver was never called -- the test proves nothing"
+    for key in ("tank_creepage", "isolation_barrier", "heatsink_colocation"):
+        assert key not in received, f"{key} forwarded when it was never requested"

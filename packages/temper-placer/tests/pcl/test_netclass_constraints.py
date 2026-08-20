@@ -240,3 +240,93 @@ class TestExistingConstraintSkip:
             "an existing SeparatedConstraint on a pair should still suppress "
             "the auto-generated netclass clearance for that pair"
         )
+
+
+class TestDruResolvedPairs:
+    """`dru_resolved_pairs=True` -- the figures the production encoder uses.
+
+    `_encoder_core.encode_constraints` passes this flag on every full-board
+    solve, so these are the separations the shipping placer actually
+    enforces. The default-False path is pinned separately by the
+    Rust-vs-Python oracle differential
+    (`test_netclass_constraints_rust_differential.py`), which is why these
+    live in their own class rather than editing the assertions above: both
+    behaviours are real and both are pinned.
+    """
+
+    def test_hv_to_signal_is_raised_to_the_dru_pd3_figure(self, rules):
+        """The headline: 6.0mm -> 12.6mm on an HV<->SELV pair.
+
+        6.0mm is `netclass_rules.yaml`'s `class_pairs` figure, whose own
+        `because` string calls itself "UNSOURCED legacy". 12.6mm is what
+        `pcb/temper.kicad_dru` grades the same pair by (PD3 reinforced).
+        """
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            generate_netclass_separated_constraints,
+        )
+
+        c1, n1 = _make_mock_component("U1", "DC_BUS+")  # HighVoltage
+        c2, n2 = _make_mock_component("U2", "SPI_CLK")  # Signal
+
+        class MockNetlist:
+            nets = [n1, n2]
+
+        legacy = generate_netclass_separated_constraints(
+            MockNetlist(), [c1, c2], rules.design_rules
+        )
+        assert legacy[0].min_distance_mm == 6.0
+
+        dru = generate_netclass_separated_constraints(
+            MockNetlist(), [c1, c2], rules.design_rules, dru_resolved_pairs=True
+        )
+        assert dru[0].min_distance_mm == 12.6
+        assert "kicad_dru" in dru[0].because
+
+    def test_raise_is_monotone_over_every_declared_class_pair(self, rules):
+        """No pair may come out lower than it goes in.
+
+        The DRU is deliberately LOOSER than `class_pairs` on some
+        same-domain pairs (ACMains<->HighVoltage: 3.0mm vs 6.0mm), so a
+        naive substitution would weaken the placement model there.
+        `_dru_resolved_pair_overrides` takes a max against both the legacy
+        figure and the per-class fallback; this asserts that property
+        directly over the real config's full class universe rather than
+        trusting the implementation comment.
+        """
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            _dru_resolved_pair_overrides,
+        )
+
+        design_rules = rules.design_rules
+        class_clearance = {
+            cls: design_rules.get_rules_for_net("", net_class=cls).clearance
+            for cls in design_rules.net_classes
+        }
+        legacy_overrides = [
+            (key[0], key[1], value.get("clearance"), str(value.get("because", "")))
+            for key, value in (getattr(design_rules, "class_pairs", {}) or {}).items()
+            if isinstance(key, tuple) and len(key) == 2 and isinstance(value, dict)
+        ]
+
+        resolved = _dru_resolved_pair_overrides(legacy_overrides, class_clearance)
+        by_pair = {(a, b): mm for a, b, mm, _ in resolved}
+
+        # Every legacy override survives at >= its own figure.
+        for key_a, key_b, clearance, _ in legacy_overrides:
+            if clearance is None:
+                continue
+            pair = (key_a, key_b) if key_a <= key_b else (key_b, key_a)
+            assert by_pair[pair] >= clearance, (
+                f"{pair} weakened: {clearance}mm -> {by_pair[pair]}mm"
+            )
+
+        # And every emitted pair clears the no-override fallback it would
+        # otherwise have received.
+        for (class_a, class_b), mm in by_pair.items():
+            fallback = max(
+                class_clearance.get(class_a, 0.0), class_clearance.get(class_b, 0.0)
+            )
+            assert mm >= fallback, f"({class_a},{class_b}) below fallback {fallback}mm"
+
+        # The specific same-domain pair that motivates the max().
+        assert by_pair[("ACMains", "HighVoltage")] == 6.0
