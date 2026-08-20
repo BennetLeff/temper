@@ -74,6 +74,9 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
   ],
+  "check_fact_registry_drift.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
   ],
@@ -102,6 +105,9 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/design_rules.py",
     "packages/temper-placer/tests/core/_design_rules_py_oracle.py"
+  ],
+  "check_insulation_pairings.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
@@ -462,9 +468,6 @@
     "Makefile"
   ],
   "write_extension_stamps.py": [
-    ".github/workflows/python-tests.yml"
-  ],
-  "check_fact_registry_drift.py": [
     ".github/workflows/python-tests.yml"
   ]
 }

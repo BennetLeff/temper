@@ -132,6 +132,10 @@ on:
       - 'firmware/tools/**'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'scripts/check_insulation_pairings.py'
+      - 'elec/insulation_manifest.yaml'
+      - 'packages/temper-design-bundle/src/insulation.rs'
+      - 'packages/temper-placer/src/temper_placer/core/insulation_coordination.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
@@ -239,6 +243,10 @@ on:
       - 'firmware/tools/**'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'scripts/check_insulation_pairings.py'
+      - 'elec/insulation_manifest.yaml'
+      - 'packages/temper-design-bundle/src/insulation.rs'
+      - 'packages/temper-placer/src/temper_placer/core/insulation_coordination.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
@@ -1955,11 +1963,43 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_isolation_keepout.py -v --tb=short
 
+      # PER-PAIRING INSULATION-COORDINATION GATE -- ADDED 2026-08-19.
+      #
+      # THIS GATE IS EXPECTED TO BE RED, AND THAT IS ITS POINT. Read this
+      # before touching it.
+      #
+      # docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md
+      # established from primary text that this board's worst HV<->SELV
+      # crossings -- the resonant tank and the switch node -- run at 47 kHz,
+      # ABOVE IEC 60664-1 cl. 1.1.1's declared 30 kHz scope ceiling. cl. 2.3
+      # routes dimensioning above that ceiling to IEC 60664-4, which is
+      # paywalled and was not obtained. Those pairings therefore have NO
+      # DETERMINABLE CREEPAGE REQUIREMENT, and this gate exits 6 to say so.
+      #
+      # There are exactly two honest ways to turn it green:
+      #   1. obtain IEC 60664-4 (or the UL/CSA 6th Ed. >30 kHz creepage text,
+      #      which the Intertek SUN records as already written into these same
+      #      clauses) and re-derive; or
+      #   2. change the design so nothing above 30 kHz faces SELV.
+      #
+      # Applying a <=30 kHz number to a >30 kHz pairing is NOT one of them. It
+      # is exactly how `MIN_BARRIER_WIDTH_MM = 12.6` came to be enforced
+      # against a crossing needing at least 20.0 mm. Never `continue-on-error`
+      # this step, never `|| true` it, and never "fix" it by choosing a number
+      # for an indeterminate pairing.
+      - name: Per-pairing insulation-coordination gate (EXPECTED RED -- see comment)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_insulation_pairings.py
+
       - name: Physical mains<->SELV isolation-barrier gate
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # Fail-closed: verifies a dedicated keepout region (not just
         # declarations/after-the-fact clearance checks) spans every copper
-        # layer, is >=8.0mm wide throughout, bisects the board into HV/SELV
+        # layer, is at least MIN_BARRIER_WIDTH_MM wide throughout (DERIVED
+        # per pairing since 2026-08-19: 20.0mm today, the resonant-tank
+        # crossing, and a LOWER BOUND rather than a requirement -- the
+        # gate exits 6 for that, see the step above), bisects the board
+        # into HV/SELV
         # sides, and that no real copper intrudes -- pcb/temper.kicad_pcb
         # has zero keepout zones today (docs/evidence/
         # 2026-07-28-isolation-keepout.md). Never `continue-on-error`: a

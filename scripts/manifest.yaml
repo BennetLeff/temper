@@ -1167,6 +1167,36 @@ scripts:
   - sys
   - typing
   - yaml
+- path: check_insulation_pairings.py
+  purpose: 'CI gate: every creepage requirement on this board must be DERIVED per PAIRING from a declared,
+    dated, digest-anchored working voltage (elec/insulation_manifest.yaml -> packages/temper-design-bundle/src/insulation.rs),
+    never written as a scalar. Replaces MIN_BARRIER_WIDTH_MM = 12.6, which docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md
+    showed was Table 17 row iv -- a row no pairing on this board reaches, simultaneously ~1.6x too
+    generous for the DC-bus crossing (row iii, 8.0mm) and at least ~1.6x too small for the resonant-tank
+    crossing (row vi, >=20.0mm). Fails closed on a missing, unparseable, placeholder or STALE declaration,
+    on coverage that does not match elec/domain_manifest.yaml exactly in both directions, on disagreeing
+    pollution-degree selectors, and on any enforcement point that has drifted from its derived figure.
+    Exits EXIT_INDETERMINATE (6) while any pairing has NO determinable requirement -- the 47kHz switch-node
+    and tank crossings, above IEC 60664-1 cl. 1.1.1''"'"'s 30kHz scope ceiling, routed by cl. 2.3 to the paywalled
+    IEC 60664-4. NEVER make this gate pass by giving an indeterminate pairing a number. --print-digest
+    recomputes declared_state_sha256 as part of recording a real re-verification.'
+  owner: bennet
+  last_run: '2026-08-19'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - argparse
+  - generate_kicad_dru
+  - importlib
+  - pathlib
+  - sys
+  - temper_design_bundle_python
+  - temper_placer.core.insulation_coordination
+  - temper_placer.core.isolation_constants
+  - temper_placer.placer.cp_sat.isolation_barrier
+  - yaml
 - path: check_pd2_compartment_evidence.py
   purpose: 'CI gate: if the tree currently claims PD2/8.0mm reinforced creepage (generate_kicad_dru.py
     HV_CREEPAGE_ENFORCED_MM), a compartment-evidence artifact (docs/specs/pd2_compartment_evidence.yaml)

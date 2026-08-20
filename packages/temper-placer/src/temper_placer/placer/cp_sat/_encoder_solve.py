@@ -31,6 +31,63 @@ logger = logging.getLogger(__name__)
 # only the arithmetic moves to Rust (``courtyard_clearance_mm``).
 MASK_EXPANSION_MM = 0.1
 
+#: ``SeparatedConstraint.id`` prefixes whose SAT the REQ-SAFE-01 validator
+#: post-solve audit is entitled to treat as a *claim* about validator
+#: cleanliness -- i.e. the families for which a validator violation on a
+#: covered pair, in a feasible/optimal solve, proves the ENCODING is unsound
+#: rather than merely proving the pair was never constrained.
+#:
+#: **This filter attributes blame; it does not restrict what is examined.**
+#: The validator always runs over the whole placement. Every violation it
+#: reports is bucketed: a pair covered here becomes a HARD failure (raises);
+#: a pair not covered here becomes a *coverage gap* (reported on the result).
+#: Widening this tuple therefore converts gaps into raises, and widening it
+#: wrongly would blame the encoder for a distance it never undertook to
+#: enforce.
+#:
+#: Included, because both families are whole-component box separations posted
+#: at a margin taken from the SAME IEC matrix the validator measures against,
+#: and both carry the identical Chebyshev containment soundness proof
+#: (``domain_clearance.py``'s module docstring, BMC-exhaustively tested):
+#:
+#: * ``domain_clearance_``       -- ``generate_domain_clearance_constraints``
+#: * ``keepaway_unclassified_``  -- ``generate_unclassified_hv_keepaway_constraints``,
+#:   at ``MAX_IEC_MARGIN_MM``. Added 2026-08-19; that generator's own
+#:   docstring already anticipated it ("so the R24 post-solve audit (which
+#:   filters on ``domain_clearance_``) can be extended to them the same way
+#:   if desired"), and its Soundness paragraph states the contract is
+#:   "identical". A validator violation on such a pair in a feasible solve is
+#:   exactly as much an encoding bug as one on a ``domain_clearance_`` pair.
+#:
+#: Deliberately EXCLUDED, and this is the load-bearing half:
+#:
+#: * ``netclass_autogen_`` -- posted at the netclass pair figure. Since
+#:   2026-08-19 that figure is raised onto the DRU-resolved requirement
+#:   (``netclass_constraints._dru_resolved_pair_overrides``), which for
+#:   HV<->SELV pairs is 12.6mm and therefore >= the validator's own bar --
+#:   but it is resolved through a DIFFERENT classifier (KiCad net class, via
+#:   ``pcb/temper.kicad_dru``) than the validator's (``VoltageDomain``, via
+#:   ``elec/domain_manifest.yaml``), over a different pair set, and on
+#:   same-domain pairs it is deliberately far looser (0.2-6.0mm). Its SAT is
+#:   consequently not a statement about the REQ-SAFE-01 margin for any
+#:   particular pair, so a violation on a netclass-covered pair is not
+#:   evidence of an unsound encoding. Treating it as one would raise on pairs
+#:   the encoder correctly never claimed.
+#: * ``courtyard_``/``sep_`` -- the uniform tau (mask-expansion) constraint
+#:   and hand-authored PCL separations. Same argument, more starkly: tau is
+#:   an assembly figure with no voltage content at all.
+#:
+#: **Note on why this set is empty on today's production path**, which is a
+#: property of the CALLERS, not of this filter: nothing in ``solve_placement``
+#: generates either included family. ``generate_domain_clearance_constraints``
+#: and ``generate_unclassified_hv_keepaway_constraints`` are called only from
+#: ``cli/repair_commands.py``'s ``repair-unplaced``. So on ``temper optimize``
+#: (either branch) every real violation lands in the coverage-gap bucket and
+#: the audit cannot raise -- correctly, since the solve genuinely made no
+#: REQ-SAFE-01 claim. Widening this tuple cannot fix that; only a caller that
+#: actually posts those constraints can.
+REQ_SAFE_01_COVERED_ID_PREFIXES = ("domain_clearance_", "keepaway_unclassified_")
+
 
 # ---------------------------------------------------------------------------
 # Solver result
@@ -783,14 +840,15 @@ def solve_placement(
                 "'voltage_domains' -- a silent skip would leave the solve "
                 "unaudited against the REQ-SAFE-01 gate"
             )
-        # The solve's domain-clearance constraint set is the pair coverage
-        # the classification needs. Other SeparatedConstraints (courtyard,
-        # netclass, keepaway) are not the validator-audit's concern -- the
-        # REQ-SAFE-01 validator only pairs domain-classified components.
+        # The solve's IEC-margin constraint set is the pair coverage the
+        # classification needs; see REQ_SAFE_01_COVERED_ID_PREFIXES for what
+        # belongs in it, what does not, and why this filter is a
+        # blame-attribution boundary rather than a scope restriction.
         domain_constraints = [
             c
             for c in constraint_objects
-            if isinstance(c, SeparatedConstraint) and c.id.startswith("domain_clearance_")
+            if isinstance(c, SeparatedConstraint)
+            and c.id.startswith(REQ_SAFE_01_COVERED_ID_PREFIXES)
         ]
         validator_audit = audit_domain_clearance_validator(
             domain_constraints,

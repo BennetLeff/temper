@@ -49,20 +49,20 @@ classes:
 # zone_class|other_class: {Track: mm, Pad: mm, Via: mm, Zone: mm}
 pairs:
   ACMains|ACMains: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  ACMains|Default: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  ACMains|FinePitch: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  ACMains|Default: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  ACMains|FinePitch: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   ACMains|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  ACMains|GateDriveSELV: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  ACMains|Ground: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  ACMains|HighCurrent: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  ACMains|HighSpeed: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  ACMains|GateDriveSELV: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  ACMains|Ground: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  ACMains|HighCurrent: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  ACMains|HighSpeed: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   ACMains|HighVoltage: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  ACMains|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  ACMains|HighVoltageIsolated: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   ACMains|HighVoltageSignal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   ACMains|HighVoltageTank: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  ACMains|Power: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  ACMains|Signal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Default|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  ACMains|Power: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  ACMains|Signal: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  Default|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   Default|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Default|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Default|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -70,13 +70,13 @@ pairs:
   Default|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Default|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Default|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  Default|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Default|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Default|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Default|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  Default|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  Default|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Default|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Default|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   Default|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Default|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  FinePitch|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  FinePitch|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   FinePitch|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   FinePitch|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   FinePitch|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -84,10 +84,10 @@ pairs:
   FinePitch|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   FinePitch|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   FinePitch|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  FinePitch|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  FinePitch|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  FinePitch|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  FinePitch|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  FinePitch|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  FinePitch|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  FinePitch|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  FinePitch|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   FinePitch|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   FinePitch|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveHV|ACMains: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -104,7 +104,7 @@ pairs:
   GateDriveHV|HighVoltageTank: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveHV|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveHV|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  GateDriveSELV|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  GateDriveSELV|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   GateDriveSELV|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveSELV|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveSELV|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -112,13 +112,13 @@ pairs:
   GateDriveSELV|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveSELV|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveSELV|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  GateDriveSELV|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  GateDriveSELV|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  GateDriveSELV|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  GateDriveSELV|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  GateDriveSELV|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  GateDriveSELV|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  GateDriveSELV|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  GateDriveSELV|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   GateDriveSELV|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   GateDriveSELV|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  Ground|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  Ground|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   Ground|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Ground|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Ground|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -126,13 +126,13 @@ pairs:
   Ground|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Ground|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Ground|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  Ground|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Ground|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Ground|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Ground|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  Ground|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  Ground|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Ground|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Ground|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   Ground|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Ground|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighCurrent|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighCurrent|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   HighCurrent|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighCurrent|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighCurrent|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -140,13 +140,13 @@ pairs:
   HighCurrent|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighCurrent|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighCurrent|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighCurrent|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighCurrent|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighCurrent|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighCurrent|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighCurrent|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighCurrent|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighCurrent|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighCurrent|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   HighCurrent|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighCurrent|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighSpeed|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighSpeed|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   HighSpeed|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighSpeed|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighSpeed|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -154,69 +154,69 @@ pairs:
   HighSpeed|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighSpeed|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighSpeed|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighSpeed|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighSpeed|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighSpeed|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighSpeed|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighSpeed|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighSpeed|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighSpeed|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighSpeed|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   HighSpeed|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighSpeed|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltage|ACMains: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltage|Default: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltage|FinePitch: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltage|Default: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltage|FinePitch: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   HighVoltage|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltage|GateDriveSELV: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltage|Ground: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltage|HighCurrent: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltage|HighSpeed: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltage|GateDriveSELV: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltage|Ground: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltage|HighCurrent: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltage|HighSpeed: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   HighVoltage|HighVoltage: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltage|HighVoltageIsolated: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltage|HighVoltageSignal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltage|HighVoltageTank: {Track: 10.0, Pad: 10.0, Via: 10.0, Zone: 10.0}
-  HighVoltage|Power: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltage|Signal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|Default: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|FinePitch: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltage|Power: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltage|Signal: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltageIsolated|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
+  HighVoltageIsolated|Default: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageIsolated|FinePitch: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
   HighVoltageIsolated|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltageIsolated|GateDriveSELV: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|Ground: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|HighCurrent: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|HighSpeed: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageIsolated|GateDriveSELV: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageIsolated|Ground: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageIsolated|HighCurrent: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageIsolated|HighSpeed: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
   HighVoltageIsolated|HighVoltage: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageIsolated|HighVoltageIsolated: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageIsolated|HighVoltageSignal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageIsolated|HighVoltageTank: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltageIsolated|Power: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageIsolated|Signal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageIsolated|Power: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageIsolated|Signal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
   HighVoltageSignal|ACMains: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltageSignal|Default: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageSignal|FinePitch: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageSignal|Default: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageSignal|FinePitch: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
   HighVoltageSignal|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltageSignal|GateDriveSELV: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageSignal|Ground: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageSignal|HighCurrent: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageSignal|HighSpeed: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageSignal|GateDriveSELV: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageSignal|Ground: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageSignal|HighCurrent: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageSignal|HighSpeed: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
   HighVoltageSignal|HighVoltage: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageSignal|HighVoltageIsolated: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageSignal|HighVoltageSignal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageSignal|HighVoltageTank: {Track: 10.0, Pad: 10.0, Via: 10.0, Zone: 10.0}
-  HighVoltageSignal|Power: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageSignal|Signal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageSignal|Power: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  HighVoltageSignal|Signal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
   HighVoltageTank|ACMains: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltageTank|Default: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageTank|FinePitch: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageTank|Default: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltageTank|FinePitch: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   HighVoltageTank|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  HighVoltageTank|GateDriveSELV: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageTank|Ground: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageTank|HighCurrent: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageTank|HighSpeed: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageTank|GateDriveSELV: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltageTank|Ground: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltageTank|HighCurrent: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltageTank|HighSpeed: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   HighVoltageTank|HighVoltage: {Track: 10.0, Pad: 10.0, Via: 10.0, Zone: 10.0}
   HighVoltageTank|HighVoltageIsolated: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   HighVoltageTank|HighVoltageSignal: {Track: 10.0, Pad: 10.0, Via: 10.0, Zone: 10.0}
   HighVoltageTank|HighVoltageTank: {Track: 10.0, Pad: 10.0, Via: 10.0, Zone: 10.0}
-  HighVoltageTank|Power: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  HighVoltageTank|Signal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Power|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  HighVoltageTank|Power: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  HighVoltageTank|Signal: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  Power|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   Power|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Power|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Power|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -224,13 +224,13 @@ pairs:
   Power|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Power|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Power|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  Power|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Power|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Power|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Power|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  Power|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  Power|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Power|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Power|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   Power|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Power|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  Signal|ACMains: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  Signal|ACMains: {Track: 4.8, Pad: 4.8, Via: 4.8, Zone: 4.8}
   Signal|Default: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Signal|FinePitch: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Signal|GateDriveHV: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
@@ -238,9 +238,9 @@ pairs:
   Signal|Ground: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Signal|HighCurrent: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Signal|HighSpeed: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
-  Signal|HighVoltage: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Signal|HighVoltageIsolated: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Signal|HighVoltageSignal: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
-  Signal|HighVoltageTank: {Track: 12.6, Pad: 12.6, Via: 12.6, Zone: 12.6}
+  Signal|HighVoltage: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
+  Signal|HighVoltageIsolated: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Signal|HighVoltageSignal: {Track: 8.0, Pad: 8.0, Via: 8.0, Zone: 8.0}
+  Signal|HighVoltageTank: {Track: 20.0, Pad: 20.0, Via: 20.0, Zone: 20.0}
   Signal|Power: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}
   Signal|Signal: {Track: 0.0, Pad: 0.0, Via: 0.0, Zone: 0.0}

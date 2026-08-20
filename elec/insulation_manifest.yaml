@@ -1,0 +1,446 @@
+# Insulation-coordination declaration: per-pairing working voltages.
+#
+# WHAT THIS FILE IS
+# -----------------
+# The declared facts from which this board's creepage requirements are
+# DERIVED. It contains no requirement, no millimetre figure and no table row:
+# those are computed from what is written here by
+# `packages/temper-design-bundle/src/insulation.rs` (the rule), reached from
+# Python through `temper_placer.core.insulation_coordination` (the loader).
+# Read `insulation.rs`'s module docstring before changing anything here.
+#
+# WHY IT EXISTS
+# -------------
+# Until 2026-08-19 the mains<->SELV creepage requirement was ONE SCALAR --
+# `MIN_BARRIER_WIDTH_MM = 12.6` -- applied across a 27-net HV domain and a
+# 35-net SELV domain. `docs/evidence/2026-08-19-table-17-row-determination-
+# hv-selv.md` (commit 0cbc04248) established from primary text that the single
+# scalar is the defect, not its value: 12.6 mm is Table 17 row **iv**
+# (>250-400 V), which suits a 230 V design. This is a 120 V design whose
+# doubler midpoint is Y-cap coupled to PE, so `+170V_BUS` is a +/-170 V
+# HALF-bus. The scalar is simultaneously ~1.6x too generous for the DC-bus
+# crossing and at least ~1.6x too small for the resonant-tank crossing.
+#
+# THE GROUND RULE, inherited verbatim from `elec/domain_manifest.yaml`:
+# every net name below is an EXACT, LITERAL compiled net name taken from
+# elec/src / elec/build/default.net -- never a pattern, prefix, or
+# naming-convention guess. This design's net names have lied ("+340V_BUS"
+# named the node that is actually the ~170 V half-bus), so nothing here may be
+# inferred from how a net is spelled.
+#
+# WHAT IS DECLARED AND WHAT IS DERIVED
+# ------------------------------------
+#   DECLARED here : group membership, each group's rated frequency, and each
+#                   PAIRING's long-term r.m.s. working voltage, each with a
+#                   cited basis.
+#   DERIVED there : the insulation class (cross-domain -> reinforced,
+#                   same-domain -> functional, cl. 3.3.5), the Table 17/18
+#                   row, the x2 for reinforced (cl. 29.2.3), the required
+#                   creepage -- or an explicit NOT DETERMINABLE.
+#
+# Working voltage is declared PER PAIRING, not per net, because cl. 3.1.3
+# defines it as the voltage "to which the part under consideration is
+# subjected" -- a property of a pair. `+170V_BUS` is 170 V against SELV and
+# 340 V against `DC_BUS_RTN`; no per-net number expresses both.
+#
+# THE 47 kHz GAP -- READ THIS BEFORE QUOTING ANY NUMBER DERIVED FROM THIS FILE
+# ---------------------------------------------------------------------------
+# IEC 60664-1 cl. 1.1.1 scopes that document to "rated frequencies up to
+# 30 kHz"; cl. 2.3 in full: "Information on the dimensioning for frequencies
+# above 30 kHz is given in IEC 60664-4." This board switches at 47 kHz
+# (elec/src/main.ato:134). Every pairing below whose frequency_hz exceeds
+# 30000 therefore has **NO DETERMINABLE REQUIREMENT** -- IEC 60664-4 is
+# paywalled and was not obtained, and nothing in this repository reconstructs
+# a value from it. Those pairings resolve to a proven LOWER BOUND from the
+# <=30 kHz tables and an explicitly unobtainable requirement. Clearing the
+# lower bound is NOT compliance.
+#
+# HOW TO CHANGE THIS FILE
+# -----------------------
+# Editing any declared fact invalidates `verification.declared_state_sha256`
+# and every consumer fails closed until it is re-verified and the digest
+# updated. That is the point. To record a real re-verification:
+#   1. change the facts,
+#   2. re-check them against elec/src (the basis strings say how each was
+#      checked),
+#   3. run `python scripts/check_insulation_pairings.py --print-digest`,
+#   4. paste the digest and update verified_on / verified_by / method /
+#      measured_at_commit / artifacts.
+# Do NOT update the digest without step 2. A digest is a claim that someone
+# looked.
+
+schema_version: 1
+
+# ---------------------------------------------------------------------------
+# Net groups
+# ---------------------------------------------------------------------------
+# Every net of elec/domain_manifest.yaml's HV (27) and SELV (35) domains
+# appears in exactly one group. `scripts/check_insulation_pairings.py` proves
+# that correspondence against the other manifest and fails closed on any net
+# that is in one and not the other -- so a net added to the design cannot
+# quietly acquire a requirement, or quietly acquire none.
+groups:
+
+  MAINS:
+    domain: HV
+    frequency_hz: 60.0
+    basis: >-
+      Mains-referenced nets: the 120 V/60 Hz supply, the CMC line-side
+      winding taps, the rectified node feeding the doubler, and the doubler
+      midpoint. `PWR_RTN` is included at MAINS rather than at 0 V because
+      IEC 60335-1 cl. 29.2's NOTE forbids taking credit for a neutral
+      connection: "The working voltage for parts connected to the neutral are
+      the same as for parts connected to the phase" (page-verified,
+      docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md sec 2.1).
+      `PWR_RTN` is hard-connected to neutral via CMC winding 2
+      (elec/src/modules.ato:917) and only Y-cap coupled to PE
+      (elec/src/modules.ato:932, whose own comment says "without a DC
+      short") -- so it is a neutral node, not an earth node.
+      `power_in.ntc-no` is the bypass relay's NO contact wired to the NTC and
+      the bridge anode (elec/src/modules.ato:700-704), declared by
+      elec/domain_manifest.yaml as "unambiguously mains-referenced".
+      60 Hz is the design's rated supply frequency.
+    nets:
+      - ac_l
+      - ac_n
+      - PWR_RTN
+      - w1_1
+      - w1_2
+      - power_in.ntc-no
+
+  DC_BUS:
+    domain: HV
+    frequency_hz: 0.0
+    basis: >-
+      The rectified d.c. bus rails and every net galvanically tied to one of
+      them through a resistor, a snubber or a relay contact: the bleeder and
+      snubber taps and the discharge relays' contact groups, all of which sit
+      at or between the rails. `hb-gnd` is atopile's compiled name for
+      `hb.dc_bus.hv_minus` (elec/domain_manifest.yaml:367-381, traced to
+      compiled net code 39), i.e. the negative rail itself. frequency_hz is
+      0 because these are d.c. rails: the switching current flows in the
+      half-bridge loop, and the rails' potential against earth is set by the
+      doubler, not by the switch node. Nets that FLOAT on the switch node are
+      in SWITCHING below, not here.
+    nets:
+      - "+170V_BUS"
+      - DC_BUS_RTN
+      - hb-gnd
+      - discharge.k_dis1-nc
+      - discharge.k_dis2-nc
+      - discharge.k_dis1-no
+      - discharge.k_dis2-no
+      - discharge.r_dis1a-p2
+      - discharge.r_dis2a-p2
+      - discharge.r_snub1-p2
+      - discharge.r_snub2-p2
+
+  SWITCHING:
+    domain: HV
+    frequency_hz: 47000.0
+    basis: >-
+      Every net that floats on, or is driven at, the half-bridge switching
+      rate: the switch node, both gate outputs, the floating bootstrap supply
+      nets, the low-side driver rail and the gate-resistor upstream node
+      `input` (elec/domain_manifest.yaml:271-284: "Floats on DC_BUS_RTN via
+      driver.VSSB ... same potential as hb-gnd and GATE_LS"). 47 kHz is
+      `f_switching` at elec/src/main.ato:134, asserted within a 20-100 kHz
+      band. `+15V_LS` is listed here rather than with the d.c. rails because
+      docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md sec 6.1
+      pairing 6 names it explicitly among the switching-rate nets; grouping it
+      with the rails would make its pairings determinable, which is the
+      direction this declaration must not move in on its own authority.
+      Because 47 kHz is above IEC 60664-1 cl. 1.1.1's 30 kHz scope ceiling,
+      every pairing involving this group is NOT DETERMINABLE.
+    nets:
+      - SW_NODE
+      - GATE_HS
+      - GATE_LS
+      - "+15V_LS"
+      - input
+      - hb.power_loop.q_high-g
+      - hb.gate_hs.driver-p1-1
+      - hb.gate_hs.driver-p2
+
+  TANK:
+    domain: HV
+    frequency_hz: 47000.0
+    basis: >-
+      The resonant tank's two measured nets. Same 47 kHz switching rate as
+      SWITCHING, and therefore also outside IEC 60664-1's scope, but held as
+      its own group because its working voltage is an order of magnitude
+      apart: 570.5 V r.m.s. / 923.7 V peak, measured with ngspice-42 against
+      the committed simulation/harness/nets/zvs_margin_sweep.cir at the worst
+      OCP-01-passing corner (L -10%, C -10%, 48 kHz) --
+      docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 2.3/3.2. This is
+      the only net pair on this board measured above 500 V r.m.s. against
+      another net. cl. 3.1.3 NOTE 2 ("working voltage takes into account
+      resonant voltages") is what makes the resonant swing, not the 340 V
+      bus, the number the tables are indexed by.
+    nets:
+      - tank-out
+      - tank.c_tank1-p2
+
+  SELV:
+    domain: SELV
+    frequency_hz: 0.0
+    basis: >-
+      The whole SELV domain as elec/domain_manifest.yaml declares it, all 35
+      nets. `gnd ~ pe` (elec/src/main.ato:753) hard-bonds SELV ground to
+      protective earth, so every HV<->SELV pairing below is physically an
+      HV<->earth pairing. The highest rail in this group is +15 V, so its
+      internal (functional) pairing sits in the <=50 V row. frequency_hz is 0:
+      no net here carries the switching potential -- the gate driver's
+      primary-side pins are GNDI-referenced (elec/domain_manifest.yaml, U7
+      primary group) and are SELV by declaration.
+    nets:
+      - gnd
+      - "+15V"
+      - "+3V3"
+      - usb_dn
+      - usb_dp
+      - i2c_sda_ui
+      - i2c_scl_ui
+      - RTD_SCK
+      - RTD_SDO
+      - RTD_SDI
+      - RTD_CS_N
+      - RTD_DRDY
+      - RTD_HW_FAULT
+      - rtd_force_p
+      - rtd_force_n
+      - rtd_sense_p
+      - rtd_sense_n
+      - WDT_KICK
+      - WDT_RESET_N
+      - SHUTDOWN
+      - RELAY_CTRL
+      - DISCHARGE_CTRL
+      - V_BUS_SENSE
+      - PWM_HS
+      - PWM_LS
+      - safety.ocp2-line
+      - safety.uvlo_logic-line
+      - discharge.k_dis1-coil1
+      - discharge.k_dis1-coil2
+      - discharge.k_dis2-coil1
+      - power_in.bypass_relay-coil1
+      - power_in.bypass_relay-coil2
+      - safety.ovp.comp-inp
+      - I_SENSE
+      - s1
+
+# ---------------------------------------------------------------------------
+# Pairings
+# ---------------------------------------------------------------------------
+# EVERY unordered pair of groups, INCLUDING self-pairs (15 for 5 groups). A
+# missing entry is a hard error, never a default: an undeclared pairing has no
+# requirement, and defaulting one would be inventing a safety value.
+#
+# `working_voltage_vrms` is the LONG-TERM R.M.S. VALUE of the voltage existing
+# across the pairing -- IEC 60664-1 cl. 3.2.1.1: "the basis for the
+# determination of a creepage distance is the long-term r.m.s. value of the
+# voltage existing across it". A d.c. rail's r.m.s. value is its d.c. value.
+# The PEAK basis is deliberately NOT used: 60664-1 names the peak quantity
+# separately (cl. 1.3.6) and routes it to clearance and pollution degree, not
+# to the creepage table. Using peak is exactly what produced the 12.6 mm
+# row-iv fossil.
+pairings:
+
+  # --- cross-barrier (derived: REINFORCED, Table 17 x2) --------------------
+
+  - a: MAINS
+    b: SELV
+    working_voltage_vrms: 120.0
+    basis: >-
+      Rated supply voltage, 120 V r.m.s. against earth (SELV is PE-bonded).
+      Table 17 NOTE 3 -- verbatim, with its leading qualifier restored:
+      "EXCEPT FOR CIRCUITS ON THE SECONDARY SIDE OF AN ISOLATING TRANSFORMER,
+      the working voltage is considered to be not less than the rated voltage
+      of the appliance" -- sets a floor equal to this same 120 V, so it is
+      confirmed non-interacting with the 125 V row boundary either way
+      (docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md sec 5).
+      This is pairings 1 and 2 of that document's sec 6.1 table.
+
+  - a: DC_BUS
+    b: SELV
+    working_voltage_vrms: 170.0
+    basis: >-
+      170.0 V d.c., the HALF-bus. Verified naming-independently:
+      elec/src/modules.ato:821,877 sets `c_bus1.voltage_rating = 250V` under
+      `assert c_bus1.voltage_rating >= v_bus_half * 1.25` -- 250 >= 212.5
+      passes, 250 >= 425 would not. The most aggressive reading available
+      (apply cl. 29.2's neutral NOTE, refuse the midpoint any earth credit,
+      and stack the 120 V r.m.s. mains on top of the 170 V d.c.) composes to
+      sqrt(170^2 + 120^2) = 208.1 V r.m.s., which is inside the SAME row as
+      170 V, with 42 V of headroom to the boundary. Only a PEAK basis
+      (170 + 169.7 = 339.7) reaches the next row up, and cl. 3.2.1.1 excludes
+      the peak basis for creepage. 170.0 is declared rather than 208.1
+      because 208.1 is the INFERRED composition, not a measurement; the row
+      is the same either way, and declaring the measured quantity keeps the
+      inference visible here instead of baked into a number. Pairings 3 and 4
+      of the determination's sec 6.1 table.
+
+  - a: SELV
+    b: SWITCHING
+    working_voltage_vrms: 170.0
+    basis: >-
+      The switch node and the gate-drive nets swing across the half-bus, so
+      the same 170 V class as DC_BUS<->SELV -- but at 47 kHz, which puts the
+      pairing above IEC 60664-1 cl. 1.1.1's 30 kHz scope ceiling and routes
+      dimensioning to the unobtainable IEC 60664-4 (cl. 2.3). The declared
+      voltage therefore selects a proven LOWER BOUND only; it is NOT the
+      requirement, and the resolver marks this pairing NOT DETERMINABLE.
+      Pairing 6 of the determination's sec 6.1 table, which names no floor;
+      the floor derived here comes from applying the SAME method the same
+      document applies to its pairing 7, and is labelled as a bound
+      throughout.
+
+  - a: SELV
+    b: TANK
+    working_voltage_vrms: 570.5
+    basis: >-
+      570.5 V r.m.s., carried forward from
+      docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 2.3/3.2
+      (ngspice-42, worst OCP-01-passing corner). MEASUREMENT GAP, stated
+      because it is load-bearing: that figure is measured tank-to-BUS, and
+      the tank<->SELV working voltage has NEVER been measured in this
+      repository. The determination's own INFERRED bound for this pairing is
+      sqrt(570.5^2 + 170^2) ~= 595.3 V r.m.s. against earth, which is the
+      SAME table row, so the row does not move -- but the number is inferred
+      and the measurement is cheap. At 47 kHz this pairing is also above the
+      scope ceiling: NOT DETERMINABLE, floor only. Pairing 7 of the
+      determination's sec 6.1 table (">=20.0 mm, true value not
+      determinable").
+
+  # --- same-domain HV (derived: FUNCTIONAL, Table 18 undoubled) -----------
+
+  - a: DC_BUS
+    b: MAINS
+    working_voltage_vrms: 340.0
+    basis: >-
+      The mains line is clamped between the two bus rails by the doubler
+      diodes, so the largest potential difference between any MAINS net and
+      any DC_BUS net is the rail-to-rail envelope, 340 V d.c. Declared at the
+      envelope rather than at the smaller instantaneous difference because
+      this is a group-to-group pairing and must bound every member pair.
+
+  - a: DC_BUS
+    b: DC_BUS
+    working_voltage_vrms: 340.0
+    basis: >-
+      Rail to rail, 2 x 170 V d.c. = 340 V. This is pairing 5 of the
+      determination's sec 6.1 table, and its correction is one of CATEGORY,
+      not of number: HV<->HV rail-to-rail is FUNCTIONAL insulation (cl. 3.3.5
+      -- "insulation between conductive parts of different potential which is
+      necessary only for the proper functioning of the appliance"), so it
+      takes Table 18 UNDOUBLED. It was never a 12.6 mm obligation.
+
+  - a: MAINS
+    b: MAINS
+    working_voltage_vrms: 120.0
+    basis: >-
+      Line to neutral, 120 V r.m.s. Functional insulation within the mains
+      group.
+
+  - a: MAINS
+    b: SWITCHING
+    working_voltage_vrms: 340.0
+    basis: >-
+      Same rail-to-rail envelope as DC_BUS<->MAINS: the switch node swings
+      between the rails and the mains line is clamped between them. At
+      47 kHz: NOT DETERMINABLE, floor only.
+
+  - a: DC_BUS
+    b: SWITCHING
+    working_voltage_vrms: 340.0
+    basis: >-
+      The switch node swings the full rail-to-rail envelope against whichever
+      rail it is not currently clamped to, so 340 V. At 47 kHz: NOT
+      DETERMINABLE, floor only.
+
+  - a: SWITCHING
+    b: SWITCHING
+    working_voltage_vrms: 340.0
+    basis: >-
+      High-side and low-side gate-drive nets are separated by the full
+      rail-to-rail envelope when the opposite switch is on, so 340 V. At
+      47 kHz: NOT DETERMINABLE, floor only.
+
+  - a: MAINS
+    b: TANK
+    working_voltage_vrms: 570.5
+    basis: >-
+      The tank's measured 570.5 V r.m.s. swing dominates any mains-side
+      contribution; declared at the tank figure because a group pairing must
+      bound every member pair. At 47 kHz: NOT DETERMINABLE, floor only.
+
+  - a: DC_BUS
+    b: TANK
+    working_voltage_vrms: 570.5
+    basis: >-
+      This is the pairing the 570.5 V r.m.s. figure was actually MEASURED for
+      -- tank cap<->coil junction against the d.c. bus rails, ngspice-42,
+      docs/evidence/2026-08-12-hv-clearance-adequacy.md sec 2.3/3.2. Pairing
+      8 of the determination's sec 6.1 table. That table records it as
+      Table 18 row v = 10.0 mm without marking it indeterminate; this
+      declaration treats it as NOT DETERMINABLE with a 10.0 mm floor,
+      because the same document's own sec 6.2 says "every net that floats on
+      the switch node or the tank" is above the 30 kHz ceiling, and the tank
+      is the tank. The stricter, self-consistent reading is taken
+      deliberately -- see the implementation report for this deviation.
+
+  - a: SWITCHING
+    b: TANK
+    working_voltage_vrms: 570.5
+    basis: >-
+      Tank swing against the switching nets. At 47 kHz: NOT DETERMINABLE,
+      floor only.
+
+  - a: TANK
+    b: TANK
+    working_voltage_vrms: 570.5
+    basis: >-
+      `tank-out` against `tank.c_tank1-p2` -- the two ends of the resonant
+      element, the pair the 570.5 V r.m.s. measurement characterises. At
+      47 kHz: NOT DETERMINABLE, floor only.
+
+  # --- same-domain SELV (derived: FUNCTIONAL, Table 18 undoubled) ---------
+
+  - a: SELV
+    b: SELV
+    working_voltage_vrms: 15.0
+    basis: >-
+      The highest rail in the SELV domain is +15 V (elec/domain_manifest.yaml
+      board_interface: gnd, +15V, +3V3 and logic signals). Functional
+      insulation inside one SELV circuit.
+
+# ---------------------------------------------------------------------------
+# Verification
+# ---------------------------------------------------------------------------
+# Same shape as elec/enclosure_manifest.yaml's, deliberately. `
+# declared_state_sha256` covers the parsed groups + pairings above (including
+# every `basis`, because the justification of a safety number is part of the
+# claim) -- not the file bytes, so comments and formatting are free to change.
+verification:
+  verified_on: "2026-08-19"
+  verified_by: "Claude Opus 5 (1M context), acting on the standards determination at 0cbc04248"
+  method: >-
+    Group membership cross-read net-by-net against elec/domain_manifest.yaml's
+    HV (27 nets) and SELV (35 nets) declarations; the correspondence is
+    re-proved on every run by scripts/check_insulation_pairings.py, which
+    fails closed on any net present in one manifest and absent from the other.
+    Working voltages and their bases taken from the primary-text determination
+    at commit 0cbc04248 (docs/evidence/2026-08-19-table-17-row-determination-
+    hv-selv.md sec 6.1) and, for the tank, from the ngspice-42 measurement it
+    cites. Topology claims (PWR_RTN's neutral connection and Y-cap-only PE
+    coupling, the half-bus voltage-rating assertion, f_switching = 47 kHz,
+    gnd ~ pe) re-read directly from elec/src at the line numbers quoted in
+    each basis. No standards value was reconstructed; the 47 kHz pairings
+    carry no requirement at all.
+  measured_at_commit: "0cbc04248d772cc3dfb66799f519d3a2a45a6de1"
+  artifacts:
+    - docs/evidence/2026-08-19-table-17-row-determination-hv-selv.md
+    - docs/evidence/2026-08-12-hv-clearance-adequacy.md
+    - docs/evidence/2026-08-19-per-pairing-creepage-implementation.md
+  declared_state_sha256: "7c04ca0d7b07762fa115a29e9c2070dd0cb06b25a8525780a3d36cd37b5ea632"

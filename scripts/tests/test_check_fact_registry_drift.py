@@ -597,20 +597,22 @@ class TestRealRegistryExtendedFamilies:
             assert r.error is None
             assert r.matches is True
 
-    def test_hv_lv_separation_gate_threshold_is_now_clean(self):
-        """UPDATED 2026-08-17 (docs/evidence/2026-08-17-gatedrive-class-
-        pairs-gap.md, merging PR #1322 into this registry): this fact WAS
-        known red -- both gates.py sites (PhysicsGate._CREEPAGE_MIN_MM and
-        IECCreepageGate's inline Violation(...) literal) hardcoded 6.0mm
-        against the board's actual enforced 12.6mm PD3 figure. PR #1322
-        fixed both: `_CREEPAGE_MIN_MM` was confirmed dead and deleted (no
-        site left to compare -- this fact now has a single home, the
-        genuinely-literal `isolation_constants.MIN_BARRIER_WIDTH_MM`), and
-        IECCreepageGate's inline literal now reads the SSOT-derived
-        `HV_LV_CREEPAGE_MM` constant instead of hardcoding a number. See
-        `test_hv_lv_creepage_derivation_parity_is_clean` below for the
-        companion fact verifying gates.py's and generate_kicad_dru.py's
-        derivations of that constant stay in lockstep."""
+    def test_hv_lv_separation_barrier_width_is_derived_not_a_literal(self):
+        """UPDATED 2026-08-19 (docs/evidence/2026-08-19-per-pairing-creepage-
+        implementation.md). This fact used to assert the LITERAL 12.6 in
+        `isolation_constants.MIN_BARRIER_WIDTH_MM`. That literal is gone, and
+        its absence is the fix: docs/evidence/2026-08-19-table-17-row-
+        determination-hv-selv.md established from primary text that ONE
+        SCALAR across a 27-net HV domain and a 35-net SELV domain is the
+        defect, not its value -- 12.6mm is Table 17 row iv and no pairing on
+        this board lands in row iv.
+
+        The fact now pins the DERIVATION SITE: `MIN_BARRIER_WIDTH_MM` must be
+        a call, not a number. This test is therefore a structural
+        regression guard against re-literalising a safety constant, NOT an
+        assertion that the barrier is compliant -- the barrier's worst
+        crossings run at 47 kHz and their requirement is not determinable
+        at all (see `MIN_BARRIER_WIDTH_IS_DETERMINATE`)."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         threshold_results = [
@@ -620,13 +622,19 @@ class TestRealRegistryExtendedFamilies:
         for r in threshold_results:
             assert r.error is None
             assert r.matches is True
-            assert r.found_value == pytest.approx(12.6)
+            assert r.found_value == "_barrier_floor_mm()"
 
     def test_hv_lv_creepage_derivation_parity_is_clean(self):
-        """NEW 2026-08-17, added alongside the fix above: gates.py's
-        HV_LV_CREEPAGE_MM and generate_kicad_dru.py's HV_CREEPAGE_PD3_MM
-        must invoke creepage_table_lookup with byte-identical arguments, or
-        the two enforcement points can silently diverge again."""
+        """UPDATED 2026-08-19. Was: gates.py's HV_LV_CREEPAGE_MM and
+        generate_kicad_dru.py's HV_CREEPAGE_PD3_MM must invoke
+        creepage_table_lookup with byte-identical arguments. Both call sites
+        are gone -- ">250-400" is Table 17 row iv, which no pairing on this
+        board reaches, and gates.py holds no module-level threshold any more.
+
+        Now: both enforcement points must reach their per-pairing figures
+        through the ONE derivation path
+        (`temper_placer.core.insulation_coordination`), so neither can grow a
+        private table or literal again."""
         repo_root = find_repo_root()
         results = check.run(repo_root)
         parity_results = [
@@ -634,11 +642,9 @@ class TestRealRegistryExtendedFamilies:
         ]
         assert len(parity_results) == 2
         for r in parity_results:
-            assert r.error is None
+            assert r.error is None, f"{r.site.file}: {r.error}"
             assert r.matches is True
-            assert r.found_value == (
-                'creepage_table_lookup(3, "IIIa/IIIb", ">250-400", "17").value_mm() * 2.0'
-            )
+            assert r.found_value == "temper_placer.core.insulation_coordination"
 
     def test_hb_gnd_hv_domain_membership_is_clean_regression_guard(self):
         """docs/evidence/2026-08-17-hb-gnd-design-rules-classification-
