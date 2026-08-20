@@ -109,11 +109,6 @@ mod hypergraph_contracts;
 #[cfg(feature = "python")]
 mod loop_extraction_contracts;
 
-// Wave 4 fan-out core-contracts migration: stackup pyclasses + impedance
-// kernel (temper_placer/core/stackup.py).
-#[cfg(feature = "python")]
-mod stackup_contracts;
-
 // Wave C core-contracts migration: geometry_types pyclasses
 // (Point, Track, Via, Pad) — see geometry_types_contracts.rs.
 #[cfg(feature = "python")]
@@ -157,8 +152,6 @@ mod reference_loader;
 
 #[cfg(feature = "python")]
 mod parse_engine;
-#[cfg(feature = "python")]
-mod manufacturing_tolerances;
 #[cfg(feature = "python")]
 mod hypergraph_factory;
 
@@ -404,7 +397,6 @@ mod python {
         crate::differential_pair_contracts::register(module)?;
         crate::bus_cohort_contracts::register(module)?;
         crate::decision_contracts::register(module)?;
-        crate::stackup_contracts::register(module)?;
         crate::geometry_types_contracts::register(module)?;
         crate::topology_extraction_contracts::register(module)?;
         crate::channel_skeleton_contracts::register(module)?;
@@ -456,11 +448,6 @@ mod python {
             module
         )?)?;
         crate::parse_engine::register(module)?;
-
-        // Wave 4 Phase 4 leftovers slice: the manufacturing tolerance model
-        // ported from temper_placer/manufacturing/tolerances.py (see
-        // manufacturing_tolerances.rs).
-        crate::manufacturing_tolerances::register(module)?;
 
         // Wave 4 Phase 4 leftovers slice: the hypergraph factory ported
         // from temper_placer/extraction/hypergraph_factory.py (see
