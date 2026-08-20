@@ -112,6 +112,26 @@ KEEPOUT_EXTRA_MARGIN_MM = 1.0
 # Margin the plane polygon itself is kept off the physical board edge.
 BOARD_EDGE_MARGIN_MM = 1.0
 
+# Minimum copper-to-board-edge clearance this board's DRC actually
+# enforces, applied to the DROP VIAS this module places (see
+# `_find_via_drop_point`). Distinct from `BOARD_EDGE_MARGIN_MM` above,
+# which is this module's own, more conservative pour-shrink convention:
+# 0.5mm is the hard rule, not a convention.
+#
+# NOT a new threshold -- the same number the board already declares:
+#   * `pcb/temper.kicad_pro` -> net_settings rules
+#     "min_copper_edge_clearance": 0.5, with rule_severities
+#     "copper_edge_clearance": "error"
+#   * `placer/cp_sat/_encoder_solve.py` -> COPPER_EDGE_CLEARANCE_MM = 0.5,
+#     the placer's own C2 board-bounds margin (function-local there, so it
+#     cannot be imported; re-declared here rather than duplicated silently)
+#
+# Before this constant existed, `_find_via_drop_point` tested the bare
+# `board_polygon.contains(footprint)` -- a 0.0mm margin, i.e. a via disc
+# was allowed to sit flush against the outline. The pour and the vias of
+# the SAME module therefore disagreed about the board edge.
+COPPER_EDGE_CLEARANCE_MM = 0.5
+
 # --- DRC-cost fix constants (docs/evidence measured against this board,
 # 2026-08-11: the +32 creepage/+77 hole_clearance/+32 tracks_crossing/+122
 # clearance deltas from the first version of this module) --------------------
@@ -488,8 +508,9 @@ def _find_via_drop_point(
 ) -> tuple[tuple[float, float] | None, bool]:
     """Find a point to drop a via that clears every existing hole (by
     ``MIN_HOLE_EDGE_GAP_MM``, edge to edge), the HV keepout, other nets'
-    copper, and the board outline -- trying *pad_pos* itself first, then a
-    small local ring search around it.
+    copper, and the board outline held off by ``COPPER_EDGE_CLEARANCE_MM``
+    -- trying *pad_pos* itself first, then a small local ring search
+    around it.
 
     ``pour_region`` (optional): the union of this run's OWN zone-fill
     outlines (exterior minus holes). When given, pour-INSIDE points are
@@ -513,10 +534,25 @@ def _find_via_drop_point(
     MST backbone's keepout detour).
     """
 
+    # The board outline, shrunk by the copper-to-edge clearance the board's
+    # own DRC enforces (`COPPER_EDGE_CLEARANCE_MM`). Computed once, outside
+    # `_clear`, because `_clear` runs once per ring-search candidate.
+    #
+    # `buffer(-m)` on a board outline can return an empty geometry or a
+    # MultiPolygon for a board narrower than 2m or a pinched one; both are
+    # handled by `contains` returning False for every candidate, which the
+    # caller already treats as "no clear point" and fails closed on.
+    board_region = board_polygon.buffer(-COPPER_EDGE_CLEARANCE_MM)
+
     def _clear(pt: tuple[float, float], *, require_pour: bool) -> bool:
         p = Point(pt)
         footprint = p.buffer(via_radius_mm, quad_segs=12)
-        if not board_polygon.contains(footprint):
+        # Edge clearance is checked on BOTH passes, not just the
+        # `require_pour=True` one: the `require_pour=False` fallback below
+        # skips the `pour_region` containment test entirely, and
+        # `pour_region` was the only thing indirectly keeping a via off the
+        # outline on the first pass.
+        if not board_region.contains(footprint):
             return False
         if keepout is not None and footprint.intersects(keepout):
             return False

@@ -107,6 +107,58 @@ _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains"})
 # applies directly, not by analogy.
 _CONTINUITY_EXEMPT_NETS = frozenset({"power_in.ntc-no"})
 
+# --- Annular-ring fabricability floor for this module's OWN via emission ---
+#
+# `_stitch_pads_to_each_other` writes its stitch vias as raw s-expression
+# TEXT (see the `(via ...)` f-string in that function). That text never
+# passes through the Rust `Via::new` constructor, which is where every
+# other via-emitting path in this repo has its annular ring clamped
+# (`packages/temper-orchestration/src/pipeline_route.rs`'s
+# `MIN_ANNULAR_RING_MM`/`ANNULAR_RING_TARGET_MM`). So the floor has to be
+# enforced HERE too, at this module's own emission point, or this path
+# silently bypasses it.
+#
+# NOT a new threshold. 0.254mm is the number this board already declares
+# in three places, all agreeing:
+#   * `pcb/temper.kicad_pro`            -> "min_via_annular_width": 0.254
+#   * `docs/hardware/FAB_CAPABILITY.md` -> min_annular_ring_mm: 0.254
+#                                          (JLCPCB 2oz PTH, sec.1 row 2a)
+#   * `pipeline_route.rs`               -> MIN_ANNULAR_RING_MM = 0.254
+_MIN_ANNULAR_RING_MM = 0.254
+
+# The ring width a sub-floor pad is enlarged TO -- deliberately the target,
+# not the bare floor, because float-exact compliance at a boundary is
+# fragile. Mirrors `pipeline_route.rs`'s `ANNULAR_RING_TARGET_MM` and every
+# entry in `TEMPER_NET_CLASSES` (all 13 classes are exactly
+# drill + 2 x 0.3mm today -- verified, not assumed).
+_ANNULAR_RING_TARGET_MM = 0.3
+
+
+def _annular_ring_clamped_pad(via_diameter: float, via_drill: float) -> float:
+    """Return *via_diameter*, enlarged if its ring is below the board's
+    fabrication floor.
+
+    Only the PAD grows. ``via_drill`` is returned to the caller untouched,
+    which is what makes this correction independent of the separate open
+    question about which of the board's two hole-size numbers
+    (``via_drill=0.2`` in the netclass table vs ``min_through_hole_diameter:
+    0.3`` in ``pcb/temper.kicad_pro``) is the real drill floor: this
+    function never needs to know. Same "pad-geometry correction, not a
+    current-capacity change" discipline as `Via::new` and as every prior
+    fix of this defect shape (PR #1159/#1173).
+
+    Today's only ``_CONTINUITY_EXEMPT_NETS`` member (``power_in.ntc-no``)
+    resolves to ``HighVoltage`` (1.2mm/0.6mm, a 0.3mm ring), so this clamp
+    is a no-op on the current board -- it exists to catch the netclass
+    LOOKUP MISS, whose ``0.8``/``0.4`` fallback pair is a 0.2mm ring, i.e.
+    below the floor. That miss becomes reachable the moment a
+    continuity-exempt net is added without a netclass assignment.
+    """
+    if via_diameter - via_drill < 2.0 * _MIN_ANNULAR_RING_MM:
+        return via_drill + 2.0 * _ANNULAR_RING_TARGET_MM
+    return via_diameter
+
+
 # ADDED 2026-08-14, same evidence doc as _CONTINUITY_EXEMPT_NETS: which of
 # a continuity-exempt net's own pads are SMD (no existing drilled hole,
 # copper confined to the pad's own declared layer -- needs an explicit via
@@ -725,6 +777,13 @@ def _stitch_pads_to_each_other(
         rules = TEMPER_NET_CLASSES.get(nc)
         via_size = rules.via_diameter if rules else 0.8
         via_drill = rules.via_drill if rules else 0.4
+        # This function emits its vias as raw s-expression text below, so
+        # they never reach the Rust `Via::new` constructor where the
+        # board's annular-ring floor is otherwise enforced. Clamp here
+        # instead -- covers both the netclass-lookup MISS above (the
+        # 0.8/0.4 fallback is a 0.2mm ring, below the 0.254mm floor) and
+        # any future netclass entry that regresses below it.
+        via_size = _annular_ring_clamped_pad(via_size, via_drill)
 
         verified = _CONTINUITY_EXEMPT_NET_VERIFIED_EDGES.get(net_name)
         edges: list[tuple[int, int]] = []
