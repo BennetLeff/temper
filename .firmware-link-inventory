@@ -1,0 +1,60 @@
+# Undefined symbols in the ESP32-S3 firmware image. See
+# scripts/check_firmware_link.py for what this file is and why it is a ratchet
+# rather than a suppression list.
+#
+# Format: one linker symbol name per line, sorted.
+# Regenerate with: python3 scripts/check_firmware_link.py --log <build.log> --write-ledger
+#
+# The production firmware has never linked. These symbols are declared and
+# called but defined nowhere in the repo -- there is no peripheral/sensor
+# implementation layer. This ledger is expected to SHRINK, one symbol at a
+# time, as that layer is genuinely implemented.
+#
+# A symbol here that no longer fires is a FAILURE, not a pass: delete its line
+# in the same commit that implements it. A symbol NOT here is also a failure.
+#
+# DO NOT shrink this ledger by stubbing. Four of these entries --
+# read_dc_bus_current, read_heatsink_temperature, is_fan_running and
+# read_rtd_resistance -- are the sensor reads that the IGBT short-circuit,
+# over-current, thermal and fan-failure trips dispatch on
+# (firmware/main/state_machine.c, firmware/components/safety/safety.c). A stub
+# returning a safe-looking constant would silently fabricate protection and is
+# strictly worse than this honest link failure. Implement them against real
+# hardware or leave them here.
+#
+# At the time of writing: 34 distinct symbols, 141 undefined references.
+
+button_is_pressed
+button_set_enabled
+buzzer_beep
+buzzer_beep_continuous
+buzzer_stop
+display_show_fault
+display_show_message
+display_update_countdown
+display_update_temperature
+eeprom_log_fault
+fan_set_auto_mode
+fan_set_speed
+g_config
+get_time_ms
+is_fan_running
+led_set_pattern
+peripherals_enter_low_power
+peripherals_exit_low_power
+peripherals_init
+power_enable
+power_set_level
+pwm_disable_all
+pwm_set_duty_cycle
+read_dc_bus_current
+read_heatsink_temperature
+read_pan_temperature
+read_rtd_resistance
+test_adc_calibration
+test_display_communication
+test_eeprom_read
+test_fan_operation
+test_hardware_comparators
+test_pwm_generation
+test_rtd_sensor
