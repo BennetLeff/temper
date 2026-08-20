@@ -154,14 +154,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
+from temper_placer.core.insulation_coordination import (  # noqa: E402
+    barrier_floor_mm,
+)
+from temper_placer.core.insulation_coordination import (
+    limitation as insulation_limitation,
+)
+from temper_placer.core.insulation_coordination import (
+    resolve_declaration as resolve_insulation_declaration,
+)
 from temper_placer.core.isolation_constants import (  # noqa: E402
     MIN_BARRIER_WIDTH_IS_DETERMINATE,
     MIN_BARRIER_WIDTH_MM,
-)
-from temper_placer.core.insulation_coordination import (  # noqa: E402
-    barrier_floor_mm,
-    limitation as insulation_limitation,
-    resolve_declaration as resolve_insulation_declaration,
 )
 
 # EXIT CODE FOR AN INDETERMINABLE REQUIREMENT (added 2026-08-19).

@@ -153,6 +153,7 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv[1:])
 
     import temper_design_bundle_python as tdb
+
     from temper_placer.core import insulation_coordination as ic
 
     path = ic.DECLARATION_PATH if args.declaration is None else args.declaration
@@ -325,7 +326,7 @@ def main(argv: list[str]) -> int:
         print(f"\nFAILED -- {len(problems)} disagreement(s)")
         if gh:
             with open(gh, "a") as f:
-                f.write(f"### Insulation Pairings Gate -- FAILED\n")
+                f.write("### Insulation Pairings Gate -- FAILED\n")
                 for line in problems:
                     f.write(f"- {line}\n")
         return EXIT_DISAGREEMENT
