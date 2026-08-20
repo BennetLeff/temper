@@ -10,6 +10,14 @@ module HighVoltageConstraints:
 module ACMainsConstraints:
     v_max = 135V
     i_max = 15A
+    # NOMINAL line voltage, as distinct from v_max above (which is
+    # "120V + margin" and is the insulation-rating figure). Added
+    # 2026-08-20 so PowerInput can DERIVE the line current this topology
+    # draws rather than compare its series elements against i_max -- see
+    # the "WHAT THIS STAGE ACTUALLY DRAWS" block in modules.ato.
+    # The current a rating check must clear is worst at the LOW line
+    # voltage, so the nominal, not v_max, is the right divisor.
+    v_ac_nominal = 120V
 
 module GateDriveConstraints:
     i_max = 4A

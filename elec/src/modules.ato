@@ -172,8 +172,32 @@ module GateDriveHS:
     p_rg_avg: power = 0.25W
     assert rg_on.power_rating >= p_rg_avg * 1.5
     
-    # Verify gate drive current within constraint (temper-ofq.6)
-    assert driver.i_source_peak >= constraints.i_max
+    # Verify the driver can actually source what the gate loop demands.
+    #
+    # DERIVED FROM rg_on.value, NOT DECLARED (2026-08-20, .ato-assertion-
+    # vacuity paydown). This assertion used to read
+    #     assert driver.i_source_peak >= constraints.i_max
+    # i.e. 4A >= 4A -- GateDriveConstraints.i_max is itself the number
+    # 4A copied off this driver's datasheet, so the check compared the
+    # UCC21550's rating against a restatement of the UCC21550's rating.
+    # It passed by an exact tie, with zero derating, and no gate resistor
+    # value could ever have moved either side of it.
+    #
+    # The demand is Ohm's law over the turn-on loop, and the comment above
+    # rg_on has stated the answer in prose since the resistor was chosen:
+    # "Rg = 2.2Ω: 15V/2.2Ω ≈ 6.8A peak demand, UCC21550 limits to 4A
+    # source." That prose is now the assertion.
+    #
+    # v_gate_drive is VDDA-VSSA, the secondary-side gate supply rail
+    # (power_15v_ls, 15V, set in HalfBridge). CONSERVATIVE: the real
+    # turn-on swing is larger, because neg_bias_zener holds VSSA 5.1V
+    # BELOW the emitter, so the gate actually traverses -5.1V -> +15V and
+    # the first-instant demand is 20.1V/2.2Ω = 9.1A. 15V is used here to
+    # keep this derivation directly comparable to the committed prose
+    # figure above; the true number is worse, not better.
+    v_gate_drive: voltage = 15V
+    i_gate_peak_demand: current = v_gate_drive / rg_on.value
+    assert driver.i_source_peak >= i_gate_peak_demand
     
     # Connections
     driver.OUTA ~ rg_on.p1
@@ -280,7 +304,29 @@ module HalfBridge:
     # t_dead_time per TI UCC21550 datasheet: t_DT(ns) ≈ 8.6 × R_DT(kΩ) + 13
     # With R_DT = 34kΩ: t_DT ≈ 8.6 × 34 + 13 ≈ 305.4ns (nominal)
     # Scope verification required — corner model may fall below 300ns
-    t_dead_time: time = 305.4ns
+    #
+    # DERIVED FROM dt_res.value, NOT DECLARED (2026-08-20, .ato-assertion-
+    # vacuity paydown). Until this change `t_dead_time` was the literal
+    # 305.4ns and the assertion below compared it against a band that
+    # literal already sat inside, so the ONE component that sets dead time
+    # on this half-bridge -- dt_res, ten lines above -- appeared nowhere in
+    # the check. Re-sourcing dt_res to the adjacent E96 value 34.8k (a
+    # plausible substitution: same package, same 1% family) gives
+    # 8.6*34.8+13 = 312.3ns and would have left this assertion passing
+    # unchanged. Dead time is shoot-through protection on a 1200V IGBT
+    # half-bridge at full bus; a check on it that does not read the
+    # programming resistor is not a check.
+    #
+    # The TI expression is transcribed verbatim from the datasheet
+    # (t_DT(ns) = 8.6 * R_DT(kohm) + 13); `dt_res.value / 1kohm` is the
+    # dimensionless kohm count it takes as its argument.
+    #
+    # WHAT THAT EXPOSES: dt_res's own +/-1% tolerance is +/-2.92ns, so the
+    # derived interval is [302.5, 308.3]ns against a [300, 310]ns band --
+    # the resistor tolerance alone consumes 58% of the margin this
+    # assertion allows, before the IC/temperature variation the comment
+    # above already warns about is applied. Recorded, not narrowed.
+    t_dead_time: time = 8.6ns * (dt_res.value / 1kohm) + 13ns
     assert t_dead_time within 300ns to 310ns
     
     # UCC21550 bypass capacitors
@@ -641,7 +687,52 @@ module PowerInput:
     # Always verify bus voltage with a meter before servicing.
 
     constraints = new ACMainsConstraints
-    
+
+    # ==========================================================================
+    # WHAT THIS STAGE ACTUALLY DRAWS  (2026-08-20, .ato-assertion-vacuity
+    # paydown -- the ground-truth case the vacuity gate was built to find)
+    # ==========================================================================
+    # Every series element in the AC path used to be checked against
+    # `constraints.i_max`, i.e. the DECLARED 15A branch rating. That number
+    # is the rating of the wall circuit, not a property of this topology,
+    # so `fuse.current_rating >= constraints.i_max` and
+    # `cmc.current_rating >= constraints.i_max` were both true and neither
+    # could be falsified by anything the input stage does.
+    #
+    # This is a Delon (half-wave cascade) voltage DOUBLER -- a capacitor-
+    # input rectifier. Its line current is not P/V; it is a narrow recharge
+    # pulse whose rms is far above the real-power-equivalent current.
+    # docs/evidence/2026-08-19-input-stage-power-ceiling.md (branch
+    # analysis/input-stage-power-ceiling, commit fe9cf6752) simulates this
+    # exact topology in the time domain and reports, at the declared 1800W:
+    #
+    #   case             R_series   P_in     I_line rms   I_line pk   crest
+    #   stiffest-line    76 mOhm    1957 W   28.81 A      83.2 A      2.89
+    #   central          265 mOhm   2000 W   26.61 A      65.0 A      2.44
+    #   softest-line     455 mOhm   2118 W   27.32 A      60.3 A      2.21
+    #
+    # and states the relation used below: "The rms line current is 1.6-1.8x
+    # the real-power-equivalent current" (Sec 1). Across a 20x sweep of
+    # series resistance the rms only moves 30.74 -> 25.69 A, so this is not
+    # a knife-edge estimate -- every point in that sweep is 1.7-2.0x the
+    # declared 15A.
+    #
+    # k_line_rms = 1.73 is the WORST (stiffest-line) of the three bracket
+    # cases, which is the one a rating check must be sized against.
+    #
+    # NOT CIRCUIT-COUPLED, AND THAT IS THE HONEST ANSWER HERE: no component
+    # value in this file determines the line current. The conduction angle
+    # that sets it is an arccos of the bus droop over the line peak, which
+    # the .ato assertion grammar cannot express, and the quantities that do
+    # move it (output power, efficiency, branch voltage) are all design
+    # constants. Deriving it from the rated power at least makes it the
+    # RIGHT number, and makes the assertions below fail as they should.
+    p_output_rated: power = 1800W    # the declared top-level output, main.ato
+    eta_design: dimensionless = 0.90 # main.ato eta_min bracket, central case
+    i_line_real_equiv: current = (p_output_rated / eta_design) / constraints.v_ac_nominal
+    k_line_rms: dimensionless = 1.73
+    i_line_rms_max: current = i_line_real_equiv * k_line_rms
+
     dc_bus = new HighVoltageBus
     
     signal ac_l
@@ -660,7 +751,16 @@ module PowerInput:
     # VERIFIED 2026-07-16: 0034.3128 is the 12.5A FST variant — under the 15A
     # branch load. 0034.3129 is the 16A time-lag 5x20 sibling (same footprint).
     fuse.mpn = "0034.3129"
-    assert fuse.current_rating >= constraints.i_max
+    # WAS `assert fuse.current_rating >= constraints.i_max` (16A >= 15A).
+    # True, un-falsifiable, and measuring the wrong current -- see the
+    # "WHAT THIS STAGE ACTUALLY DRAWS" block at the top of this module.
+    # Now compared against the 28.8A rms this doubler draws at the declared
+    # 1800W. THIS ASSERTION IS EXPECTED TO FAIL. It is not weakened, and
+    # the fuse is not up-rated to silence it: a fuse that clears the real
+    # load current here is a >30A fuse, which cannot be fitted to a 15A
+    # branch circuit at all. The finding is that the ARCHITECTURE, not the
+    # fuse, is out of budget (evidence doc Sec 0, ladder rows 5-7).
+    assert fuse.current_rating >= i_line_rms_max
     assert fuse.voltage_rating >= constraints.v_max
     # OPEN QUESTION (2026-07-26, not resolved by this pass): 16A/250V on a
     # 15A continuous branch load (1800W / 120V, main.ato constraints.i_max)
@@ -745,8 +845,13 @@ module PowerInput:
     # drawing. Ratings, MPN verification history and datasheet link live on
     # the component definition in components.ato.
     cmc = new CommonModeChoke
-    assert cmc.current_rating >= constraints.i_max
-    
+    # WAS `assert cmc.current_rating >= constraints.i_max` (16A >= 15A) --
+    # the second half of the ground-truth pair. The TDK B82726S2163N030 is
+    # rated 16A "referred to 50Hz, T_R +60C"; the winding carries the full
+    # line current, so the 28.8A derived above is what it must clear.
+    # EXPECTED TO FAIL. Recorded, not relaxed.
+    assert cmc.current_rating >= i_line_rms_max
+
     ntc = new NTC_Inrush
     ntc.resistance_cold = 10ohm
     ntc.current_rating = 15A
@@ -768,6 +873,15 @@ module PowerInput:
     bypass_relay.contact_current = 20A
     bypass_relay.mpn = "RT33K012"
     bypass_relay.footprint = "temper:Relay_SPST_Schrack-RT33K012"
+    # NEW ASSERTION 2026-08-20. K1 shorts out the inrush NTC once the bus
+    # is charged, so from that moment it carries the ENTIRE line current
+    # continuously -- and until now nothing in this design asserted
+    # anything about that. Its contact is 20A UL508 / 16A IEC; the derived
+    # draw is 28.8A rms. EXPECTED TO FAIL, and it is the same finding as
+    # the fuse and the choke: evidence-doc ladder row 8 puts K1's UL508
+    # contact at a 1319W output ceiling, itself above the branch circuit's
+    # own 955W, so no relay re-selection reaches 1800W either.
+    assert bypass_relay.contact_current >= i_line_rms_max
 
     # Coil driver: RELAY_CTRL (3.3V GPIO) cannot drive the 75mA/12V coil directly.
     q_relay_drv = new MOSFET_N
@@ -1367,11 +1481,34 @@ module BusDischarge:
     assert r_snub1.voltage_rating >= v_bus_half * 2
     assert r_snub2.voltage_rating >= v_bus_half * 2
 
-    # Voltage: each resistor sees half of a 170V half-bus; 25% margin
-    assert r_dis1a.voltage_rating >= v_bus_half * 0.625
-    assert r_dis1b.voltage_rating >= v_bus_half * 0.625
-    assert r_dis2a.voltage_rating >= v_bus_half * 0.625
-    assert r_dis2b.voltage_rating >= v_bus_half * 0.625
+    # Voltage: each resistor sees its OWN SHARE of the half-bus, and the
+    # share is a divider ratio between the two resistors of its string --
+    # not a fixed 0.5.
+    #
+    # DERIVED, NOT DECLARED (2026-08-20, .ato-assertion-vacuity paydown).
+    # These four assertions used to read `>= v_bus_half * 0.625`, where
+    # 0.625 = 0.5 (assumed perfectly equal split) x 1.25 (margin). The 0.5
+    # was an assumption about the two resistors being equal, hard-coded
+    # into the check that was supposed to be testing them: re-sourcing
+    # r_dis1b to 1k while leaving r_dis1a at 3.9k puts 138V across r_dis1a
+    # -- essentially all of its 139V rating -- and the old assertion would
+    # have gone on comparing 139V against an unchanged 106V. The string is
+    # HV-domain and it sits directly across an energized half-bus with a
+    # stuck relay contact, so an unbalanced string is exactly the failure
+    # this check exists for. Same discipline p_dis_resistor above already
+    # applies, and for the same stated reason.
+    #
+    # Both strings still pass: at the declared +/-5% the worst share the
+    # checker can construct is 55.3% of 170V = 94.0V, x1.25 = 117.4V
+    # against a 139V rating.
+    v_dis1a_share: voltage = v_bus_half * (r_dis1a.value / (r_dis1a.value + r_dis1b.value))
+    v_dis1b_share: voltage = v_bus_half * (r_dis1b.value / (r_dis1a.value + r_dis1b.value))
+    v_dis2a_share: voltage = v_bus_half * (r_dis2a.value / (r_dis2a.value + r_dis2b.value))
+    v_dis2b_share: voltage = v_bus_half * (r_dis2b.value / (r_dis2a.value + r_dis2b.value))
+    assert r_dis1a.voltage_rating >= v_dis1a_share * 1.25
+    assert r_dis1b.voltage_rating >= v_dis1b_share * 1.25
+    assert r_dis2a.voltage_rating >= v_dis2a_share * 1.25
+    assert r_dis2b.voltage_rating >= v_dis2b_share * 1.25
 
     # --- Connections ---
     # Half-bus 1 string: hv_plus -> 3.9k -> 3.9k -> NC contact -> mid
@@ -1437,7 +1574,9 @@ module BuckConverter3V3:
 
     power_in = new ElectricPower
     power_out = new ElectricPower
-    power_out.voltage = 3.3V
+    # power_out.voltage is DERIVED from the feedback divider; the
+    # derivation sits with r_fb_top/r_fb_bot below, where those values are
+    # in scope.
     enable = new ElectricLogic
     enable.reference ~ power_in.gnd
 
@@ -1497,6 +1636,25 @@ module BuckConverter3V3:
     r_fb_bot.mpn = "RC0603FR-0722K1L"
     r_fb_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
 
+    # DERIVED FROM THE FEEDBACK DIVIDER, NOT DECLARED (2026-08-20,
+    # .ato-assertion-vacuity paydown). This used to be the literal 3.3V,
+    # and `assert power_out.voltage within 3.3V +/- 5%` below therefore
+    # compared 3.3V against a band centred on 3.3V -- a restatement, not a
+    # test. What actually sets this converter's output is r_fb_top /
+    # r_fb_bot through the LMR51430's 0.6V feedback reference; that
+    # arithmetic already existed one assertion further down as
+    # `v_out_calculated` but only ever checked ITSELF, never the rail this
+    # interface advertises to MCU, RTDSensing and the rest of the 3V3
+    # domain. Pointing the interface at the equation makes a feedback
+    # resistor re-source move the declared rail.
+    #
+    # v_fb = 0.6V is LMR51430's internal reference (TI datasheet Sec
+    # 9.2.2.2, Eq. 9), a fixed IC property with no component field to read
+    # it from -- same treatment OVPComparator gives its 2.5V VREF.
+    v_fb: voltage = 0.6V
+    v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
+    power_out.voltage = v_out_calculated
+
     power_in.vcc ~ buck.VIN
     power_in.vcc ~ c_in.p1
     c_in.p2 ~ power_in.gnd
@@ -1527,9 +1685,10 @@ module BuckConverter3V3:
 
     assert power_out.voltage within 3.3V +/- 5%
 
-    # Equation verification (TI datasheet Section 9.2.2.2, Equation 9)
-    v_fb: voltage = 0.6V
-    v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
+    # Equation verification (TI datasheet Section 9.2.2.2, Equation 9).
+    # v_fb / v_out_calculated now live with r_fb_top/r_fb_bot above and
+    # also drive power_out.voltage, so this check and the interface
+    # contract cannot disagree.
     assert v_out_calculated within 3.135V to 3.465V
 
 module PowerManagement:
@@ -1650,9 +1809,19 @@ module ThermalSystem:
     r_fan_drop.mpn = "RSF100JB-73-39R"
     r_fan_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 
-    # Worst case: 87mA max fan current -> 0.30W in the dropper
+    # Worst case: 87mA max fan current -> 0.30W in the dropper.
+    #
+    # DERIVED, NOT DECLARED (2026-08-20, .ato-assertion-vacuity paydown):
+    # this line used to read `i_fan_max * i_fan_max * 39ohm`, with the 39
+    # hand-copied from r_fan_drop.value three lines above. The assertion
+    # below therefore could not fail for any resistor value -- re-sourcing
+    # the dropper to 100R would have raised the real dissipation to 0.76W
+    # (1.51W after the x2 derating factor, over a 1W part) while this
+    # assertion carried on comparing the 1W rating against an unchanged
+    # 0.30W. Reading r_fan_drop.value makes the resistor's own value the
+    # thing under test.
     i_fan_max: current = 87mA
-    p_drop_max: power = i_fan_max * i_fan_max * 39ohm
+    p_drop_max: power = i_fan_max * i_fan_max * r_fan_drop.value
     assert r_fan_drop.power_rating >= p_drop_max * 2
 
     power_15v.vcc ~ r_fan_drop.p1
@@ -2440,7 +2609,26 @@ module OVPComparator:
     c_adc_filter.p2 ~ power.gnd
 
     # Verify ADC range: 3x169k + 10k = 517k total, 170V * 10k/517k = 3.29V
-    v_adc_max: voltage = 170V * (10kohm / (3 * 169kohm + 10kohm))
+    #
+    # DERIVED, NOT DECLARED (2026-08-20, .ato-assertion-vacuity paydown).
+    # This line used to hand-copy "10kohm" and "169kohm" out of the four
+    # resistor declarations above, so the assertion re-stated a literal and
+    # could not fail: re-sourcing r_adc_bot to 12k, or dropping one of the
+    # three top resistors, would leave this check passing on the old
+    # arithmetic. It now reads the component values, exactly as the
+    # protective-impedance divider assertion above it already does.
+    #
+    # WHAT THAT EXPOSES, RECORDED NOT FIXED: written symbolically the
+    # divider is a tolerance interval, not a point. At the declared +/-1%
+    # on all four resistors the worst corner (r_adc_bot high, all three
+    # top resistors low) is 170V * 10.10k / 511.03k = 3.360V, i.e. 60mV
+    # ABOVE the 3.3V rail this assertion checks -- and that is at the
+    # NOMINAL 170V half-bus, before any high-line or pre-OVP excursion.
+    # The nominal-only arithmetic this line used to carry (3.288V) had
+    # 12mV of margin and hid that. The assertion is left as written; the
+    # fix is a divider re-ratio or a clamp, and that is the ADC owner's
+    # call, not a bound to be widened here.
+    v_adc_max: voltage = 170V * (r_adc_bot.value / (r_adc_top1.value + r_adc_top2.value + r_adc_top3.value + r_adc_bot.value))
     assert v_adc_max <= 3.3V
 
 module ThermalComparator:

@@ -26,6 +26,7 @@ import SafetyInterlock from "modules.ato"
 import ThermalSystem from "modules.ato"
 import MCU from "modules.ato"
 import HighVoltageConstraints from "constraints.ato"
+import ACMainsConstraints from "constraints.ato"
 import ThermalZonesConstraints from "constraints.ato"
 
 # Footprint imports for FAC
@@ -43,22 +44,42 @@ module Top:
 
     constraints = new HighVoltageConstraints
     thermal_constraints = new ThermalZonesConstraints
+    # The branch circuit this product plugs into. Instantiated here
+    # 2026-08-20 so the top-level power budget can be derived from the
+    # branch's own volt-ampere capacity instead of restating 1800 as a
+    # literal -- see the p_output_max block below. Same module PowerInput
+    # already instantiates for its own series-element ratings.
+    ac_constraints = new ACMainsConstraints
 
     
     # --- System Operating Conditions ---
     v_bus_max = 340V
     v_bus_abs_max = 400V
-    i_peak_max = 25A
     v_ac_nominal = 120V
     power_max = 1800W
-    
+
+    # `i_peak_max = 25A` USED TO BE DECLARED HERE, and asserted immediately
+    # below as `assert i_peak_max <= constraints.i_max`. Both sides were
+    # 25A -- HighVoltageConstraints.i_max is the same number -- so the
+    # check passed by an exact tie with zero derating and no component in
+    # the design could move either side of it. Meanwhile modules.ato's
+    # ResonantTank comment has recorded, since 2026-07-29, that the real
+    # tank peak is 28.7-31.9A, i.e. ABOVE this "limit", marked
+    # "UNRESOLVED AND RECORDED, NOT FIXED HERE".
+    #
+    # The declaration is gone and the check has MOVED, not been dropped:
+    # `i_tank_peak_sq` in the SAFETY ASSERTIONS section below derives the
+    # peak from the tank's own L and C and asserts it against
+    # constraints.i_max there. It has to live there because it reads
+    # f_switching, l_pan_loaded_ratio and the `tank` instance, all
+    # declared later in this file.
+
     # --- Operating Envelope Assertions (temper-ofq.4) ---
     assert v_ac_nominal within 100V to 130V  # NEMA 5-15 tolerance
-    
+
     # Verify against constraints (temper-ofq.6)
     assert v_bus_max <= constraints.v_max
-    assert i_peak_max <= constraints.i_max
-    
+
     f_line: frequency = 60Hz
     assert f_line within 59Hz to 61Hz  # US grid tolerance
     
@@ -491,14 +512,55 @@ module Top:
     t_ambient_min: temperature = 273.15K  # 0°C
     assert t_ambient_max within 313.15K to 333.15K  # 40°C to 60°C
     
-    p_output_max: power = 1800W
+    eta_min: dimensionless = 0.90
+    assert eta_min >= 0.85  # Minimum efficiency target
+
+    # ==========================================================================
+    # 1800 W IS A UNITS ERROR, AND THIS IS WHERE IT LIVED  (2026-08-20)
+    # ==========================================================================
+    # This read `p_output_max: power = 1800W` followed by
+    # `assert p_output_max within 1500W to 1800W  # 15A circuit limit`:
+    # a declared value pinned to the unreachable end of the band its own
+    # assertion pretends to constrain it inside. It passed, permanently.
+    #
+    # The comment on that assertion names the real quantity. 1800 is the
+    # VOLT-AMPERE capacity of a 15 A / 120 V branch circuit -- it is a
+    # rated INPUT figure, which is how the whole commercial 120 V induction
+    # segment quotes it (docs/evidence/2026-08-19-commercial-120v-1800w-
+    # architecture.md, branch analysis/commercial-1800w-architecture). It
+    # was written here as an OUTPUT power.
+    #
+    #     P_out = V * I * PF * eta
+    #
+    # so 1800 W OUT of an 1800 VA branch requires PF x eta = 1.000: unity
+    # power factor AND lossless conversion, simultaneously. This design is
+    # a capacitor-input voltage doubler with no PFC; docs/evidence/
+    # 2026-08-19-input-stage-power-ceiling.md (branch analysis/input-stage-
+    # power-ceiling, fe9cf6752) simulates it at PF 0.60-0.76 and this file
+    # declares eta_min = 0.90 immediately below. Even at PERFECT power
+    # factor the ceiling is 1530 W (eta 0.85) to 1656 W (eta 0.92).
+    #
+    # So p_output_max is now DERIVED from the branch it runs on rather than
+    # typed, and it keeps the same name and the same assertion band because
+    # the band is the design intent and the design intent is what fails.
+    # NOTHING READS THIS FIELD -- it has no consumer in the firmware, the
+    # placer, or any gate -- so the only thing it has ever done is pass its
+    # own assertion. It now fails it, which is the first useful thing it
+    # has done.
+    #
+    # THIS ASSERTION IS EXPECTED TO FAIL, at 1015 W against a 1500 W floor.
+    # The floor is not lowered: 1500 W is a product decision, and the
+    # finding is that this architecture cannot meet it on this branch
+    # circuit. The fix space is PFC, a 240 V/20 A supply, or a lower rated
+    # output -- all of them decisions, none of them an edit to this line.
+    pf_input: dimensionless = 0.6265   # P/(V*I) at the central bracket case
+    p_branch_va: power = ac_constraints.i_max * ac_constraints.v_ac_nominal
+    p_output_max: power = p_branch_va * pf_input * eta_min
     assert p_output_max within 1500W to 1800W  # 15A circuit limit
-    
+
     p_standby_max: power = 1W
     assert p_standby_max < 5W  # Energy Star standby
     
-    eta_min: dimensionless = 0.90
-    assert eta_min >= 0.85  # Minimum efficiency target
     
     # --- Power Rails ---
     signal gnd          # SELV control-domain ground. Floated from
@@ -569,25 +631,115 @@ module Top:
     thermal = new ThermalSystem
     
     # ===========================================================================
+    # TANK PEAK CURRENT, DERIVED FROM THE TANK  (2026-08-20)
+    # ===========================================================================
+    # Everything downstream of here that used to compare a rating against
+    # the DECLARED 25A peak now compares it against the peak this L and
+    # this C actually produce at this bus voltage and this switching
+    # frequency. First-harmonic (FHA) solve of the series-resonant tank:
+    #
+    #   V1_peak = (2/pi) * V_bus            half-bridge fundamental
+    #   X_L     = 2*pi*f_sw * L_unloaded * l_pan_loaded_ratio
+    #   X_C     = 1 / (2*pi*f_sw * C_tank)
+    #   I_peak  = V1_peak / sqrt(R_eq^2 + (X_L - X_C)^2)
+    #
+    # WHY THE SQUARES. The .ato assertion grammar has no sqrt, so the
+    # magnitude of a complex impedance cannot be written directly. It is
+    # written as I_peak^2 instead, and every assertion that consumes it is
+    # squared on both sides. Squaring is monotone on non-negative
+    # quantities, so `a <= b` and `a^2 <= b^2` are the same statement here;
+    # the units are A^2 on both sides and the checker verifies that.
+    #
+    # THIS IS CROSS-CHECKED AGAINST TWO COMMITTED, INDEPENDENTLY-PRODUCED
+    # NUMBERS, which is the only reason a hand-written FHA solve is
+    # allowed to carry a safety assertion:
+    #   * I_peak nominal comes out 29.96A, inside the 28.7-31.9A band
+    #     modules.ato ResonantTank records from this repo's own ngspice
+    #     harness and the coil-selection first-harmonic solve.
+    #   * The implied tank-capacitor peak, I_peak * X_C = 338V, matches the
+    #     "234 Vrms / 331 V peak" that ResonantTank's capacitor block
+    #     records from a separate calculation.
+    #
+    # r_tank_eq is the ONE input here that is not read from a component.
+    # It is the pan's reflected resistance plus the coil's AC resistance:
+    # 3.04ohm reflected (from simulation/harness/run_zvs_sweep.py's
+    # cast_iron/stainless preset, K=0.6136, RPAN=10ohm, L2=97.13uH,
+    # evaluated at 47kHz) + 0.34ohm coil AC resistance at 40kHz (the figure
+    # ResonantTank's inductor block already carries). It is a load
+    # property, not a component this board can change, so no component
+    # value can or should determine it.
+    two_pi: dimensionless = 6.28318531
+    r_tank_eq: resistance = 3.38ohm
+    v_hb_fund_peak: voltage = v_bus_nominal * 0.63661977   # 2/pi
+    c_tank_bank: capacitance = tank.c_tank1.value + tank.c_tank2.value + tank.c_tank3.value
+    x_tank_l: resistance = two_pi * f_switching * tank.inductor_conn.value * l_pan_loaded_ratio
+    x_tank_c: resistance = 1 / (two_pi * f_switching * c_tank_bank)
+    x_tank_net: resistance = x_tank_l - x_tank_c
+    z_tank_sq = r_tank_eq * r_tank_eq + x_tank_net * x_tank_net
+    i_tank_peak_sq = v_hb_fund_peak * v_hb_fund_peak / z_tank_sq
+
+    # THE CHECK THAT MOVED HERE FROM THE TOP OF THIS FILE, where it read
+    # `assert i_peak_max <= constraints.i_max` -- 25A <= 25A, a tie between
+    # two hand-typed 25s. EXPECTED NOT TO PASS CLEANLY: the nominal derived
+    # peak is 29.96A against a 25A HV-domain limit, and over the coil's
+    # declared +/-10% the peak spans 24.5-37.8A. This is the conflict
+    # modules.ato ResonantTank has carried in prose since 2026-07-29;
+    # asserting it is what makes the toolchain see it. The bound is NOT
+    # raised to 32A to make it green -- constraints.i_max is also what the
+    # HV net class, its trace widths and LitzPad_15A's pad rating are sized
+    # against, and moving it is a copper/thermal decision, not an edit.
+    assert i_tank_peak_sq <= constraints.i_max * constraints.i_max
+
+    # ===========================================================================
     # SAFETY ASSERTIONS
     # These must pass at compile-time to ensure design safety margins
     # ===========================================================================
-    
+
     # IGBT Voltage Margin (>= 1.5x operating voltage)
     assert hb.power_loop.q_high.voltage_rating >= v_bus_max * 1.5
     assert hb.power_loop.q_low.voltage_rating >= v_bus_max * 1.5
-    
-    # IGBT Current Margin (>= 1.5x peak current)
-    assert hb.power_loop.q_high.current_rating >= i_peak_max * 1.5
-    assert hb.power_loop.q_low.current_rating >= i_peak_max * 1.5
-    
+
+    # IGBT Current Margin (>= 1.5x peak current).
+    # Squared form of `q.current_rating >= i_tank_peak * 1.5`; see the
+    # WHY THE SQUARES note above. Was `>= i_peak_max * 1.5` against the
+    # declared 25A, i.e. 40A >= 37.5A -- true, and un-falsifiable by any
+    # change to the tank. At the derived peak the requirement is
+    # 29.96 * 1.5 = 44.9A against IKW40N120H3's 40A rating. EXPECTED TO
+    # FAIL. Note the basis question this surfaces but does not settle:
+    # 40A is I_C continuous at 100C, and comparing a PEAK against a
+    # continuous rating may itself be the wrong comparison -- the same
+    # basis error already fixed once for i_ocp_trip below. That is the
+    # power-stage owner's call; this change only stops the check from
+    # measuring a number nobody could move.
+    assert hb.power_loop.q_high.current_rating * hb.power_loop.q_high.current_rating >= i_tank_peak_sq * 1.5 * 1.5
+    assert hb.power_loop.q_low.current_rating * hb.power_loop.q_low.current_rating >= i_tank_peak_sq * 1.5 * 1.5
+
     # Bootstrap Diode Rating (must withstand full bus voltage)
     assert hb.gate_hs.boot_diode.voltage_rating >= v_bus_max
     
     # Resonant Tank Capacitor Voltage (>= 2x bus for resonant overshoot)
-    # Using 1000V minimum per design decision
+    # Using 1000V minimum per design decision.
+    # These two stay as a flat design floor and are LEFT DECLARATIVE on
+    # purpose: 1000V is a procurement rule ("no tank cap below 1000V goes
+    # on this board"), not a derived stress, and it is stricter than any
+    # stress this tank produces. Replacing it with a derived bound would
+    # LOWER it, which is the one thing a vacuity paydown must not do.
     assert tank.c_tank1.voltage_rating >= 1000V
     assert tank.c_tank2.voltage_rating >= 1000V
+
+    # The derived stress is checked separately, and it is checked here
+    # rather than in ResonantTank because the tank's operating frequency
+    # lives in this file (see the FHA block above; mirroring f_switching
+    # into modules.ato without a cross-checking gate is exactly the drift
+    # this repo has been bitten by before).
+    #   V_C_peak = I_peak * X_C, squared for the same reason I_peak is.
+    # Nominal 338V, matching the "234 Vrms / 331 V peak" that ResonantTank's
+    # own capacitor block records from a separate calculation. Against the
+    # 1600V CDE 942C16P1K-F parts with ResonantTank's 1.43 derating this
+    # passes with 3.3x margin -- and unlike the 1000V floor above it now
+    # MOVES: shrink the bank and both the current and the reactance rise.
+    v_tank_cap_peak_sq = i_tank_peak_sq * x_tank_c * x_tank_c
+    assert tank.c_tank1.voltage_rating * tank.c_tank1.voltage_rating >= v_tank_cap_peak_sq * 1.43 * 1.43
     
     # Bus capacitor voltage rating
     assert power_in.c_bus1.voltage_rating >= v_bus_max * 0.7
@@ -621,8 +773,32 @@ module Top:
     # trip against a continuous rating was the wrong comparison regardless --
     # at the true 50.1A peak it would fail 50.1 < 40 while the design is
     # actually sound, because 50.1A peak is 35.4A RMS.
-    i_ocp_trip_peak: current = 50.1A          # 2.500V / 4.99R * 100
-    i_ocp_trip_rms: current = 35.4A           # peak / sqrt(2), sinusoidal tank
+    # DERIVED FROM THE PROTECTION CHAIN'S OWN RESISTORS, NOT DECLARED
+    # (2026-08-20, .ato-assertion-vacuity paydown). These two lines used to
+    # be the literals 50.1A and 35.4A with the arithmetic in a trailing
+    # comment -- "2.500V / 4.99R * 100" -- which is exactly the shape that
+    # went stale once before: the comment three paragraphs up records that
+    # the previous 37.6A figure "was stale after the burden was corrected
+    # to 4.99R". A trip threshold written as a literal goes stale silently
+    # the next time anyone re-sources r_burden or the reference divider.
+    #
+    # The chain, read from the parts that implement it:
+    #   comparator reference = 3.3V * r_ref_bot/(r_ref_top + r_ref_bot)
+    #                          (safety.ocp, TLV3201 INN divider)
+    #   trip primary current = reference / r_burden * CT turns ratio
+    #                          (ct_sense, Coilcraft CST3015-100ED, 1:100)
+    # 3.3V stays a literal for the same reason OVPComparator's assertion
+    # gives: the rail is an ElectricPower net with no component field to
+    # read a magnitude from.
+    #
+    # Nominal comes out 49.95A, which is the figure OCPComparator's own
+    # docstring reports for this resistor set; over +/-1% on all three
+    # resistors the derived interval is 49.2-50.7A, inside the 48.77-51.16A
+    # the docstring quotes with tempco folded in as well. Both stay inside
+    # the OCP-01 45-55A window.
+    v_ocp_ref: voltage = 3.3V * (safety.ocp.r_ref_bot.value / (safety.ocp.r_ref_top.value + safety.ocp.r_ref_bot.value))
+    i_ocp_trip_peak: current = v_ocp_ref / ct_sense.r_burden.value * ct_sense.ct.turns_ratio
+    i_ocp_trip_rms: current = i_ocp_trip_peak * 0.70710678   # peak / sqrt(2), sinusoidal tank
     i_igbt_soa_limit: current = 60A
 
     # Peak trip must clear the pulsed SOA limit.

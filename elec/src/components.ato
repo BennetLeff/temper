@@ -114,7 +114,7 @@ component CST2010_100L:
     footprint = "temper:CST2010"
     mpn = "CST2010-100L"
     manufacturer = "Coilcraft"
-    ratio = 100
+    turns_ratio = 100
 
     signal P1 ~ pin 1
     signal P2 ~ pin 2
@@ -155,7 +155,7 @@ component CST3015_100E:
     footprint = "temper:CST3015"
     mpn = "CST3015-100ED"
     manufacturer = "Coilcraft"
-    ratio = 100
+    turns_ratio = 100
 
     signal P1 ~ pin 1
     signal P2 ~ pin 2
