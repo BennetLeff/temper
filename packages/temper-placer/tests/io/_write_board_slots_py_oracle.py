@@ -2,11 +2,13 @@
 ``temper_placer/io/_write_board.py`` at origin/main ``5e528b8aa`` (the
 Wave-4 Phase-3 formats/IO migration base).
 
-The sibling oracle ``_write_board_py_oracle.py`` pins the two GEOMETRY
-kernels of ``_write_board.py`` (reorient_pad_angle, preserve_rotation_offset)
-and is itself a frozen pin — this file pins the additional per-slot GrLine
-construction from ``add_isolation_slots_to_pcb`` as a separate, second
-oracle so neither pin ever needs editing. This function is a
+The sibling oracle ``_write_board_py_oracle.py`` (which pinned the two
+GEOMETRY kernels of ``_write_board.py`` — reorient_pad_angle,
+preserve_rotation_offset) was RETIRED by FREEZE on 2026-08-20: its golden
+vectors now live in ``write_board_geometry.rs``'s own ``#[cfg(test)]``
+corpus. This file pins the additional per-slot GrLine construction from
+``add_isolation_slots_to_pcb`` as a separate oracle, so neither pin ever
+needs editing. This function is a
 STATEMENT-FOR-STATEMENT extraction of the construction embedded in
 ``add_isolation_slots_to_pcb``'s loop (lines 487-492), with the originating
 line range cited. DO NOT "improve", reformat, or keep it in sync with the

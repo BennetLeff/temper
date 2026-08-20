@@ -12,8 +12,8 @@ position mutation, save) remains the documented JUSTIFIED-KEEP boundary — see
 The Rust kernel returns the parsed s-expression tree kiutils' `GrLine.from_sexpr`
 consumes; the oracle constructs the kiutils dataclass directly (verbatim pin,
 ``_write_board_slots_py_oracle.py``, origin/main ``5e528b8aa`` — a separate
-file because the sibling ``_write_board_py_oracle.py`` is itself a frozen
-pin). Both arms serialise through kiutils' OWN `to_sexpr`.
+file because the sibling ``_write_board_py_oracle.py`` was retired by FREEZE
+on 2026-08-20). Both arms serialise through kiutils' OWN `to_sexpr`.
 
 RED before GREEN: this file is written and committed BEFORE the kernel is
 registered into the built extension, so every test here fails at collection.
