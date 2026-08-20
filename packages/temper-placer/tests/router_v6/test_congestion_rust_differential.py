@@ -31,9 +31,6 @@ first two, sometimes within five files of each other, and
 ``test_trap_three_way_max_semantics`` measures all three side by side (B12,
 B5).
 
-``np.sum`` is a **pairwise** reduction, not a left fold.  Measured here on
-the corpus's own grids (:func:`test_trap_np_sum_is_not_a_left_fold`).
-
 ``(dx**2 + dy**2) ** 0.5`` is two libm ``pow`` calls, and disagrees with
 ``math.hypot`` on ~17% of random pairs and with ``sqrt(dx*dx + dy*dy)`` on
 ~0.3% (:func:`test_trap_pow_form_is_not_hypot_or_sqrt`) (B7).
@@ -41,10 +38,6 @@ the corpus's own grids (:func:`test_trap_np_sum_is_not_a_left_fold`).
 ``format(x, '.2f')`` rounds the exact binary value **half to even**:
 ``0.125`` renders ``'0.12'``.  That string is a compared dataclass field
 (:func:`test_trap_format_2f_is_round_half_even`) (B3).
-
-``CongestionHeatmap.get_hotspots`` returns tuples mixing Python ``float``
-with ``numpy.float32``.  ``==`` cannot see that; ``sig()`` can
-(:func:`test_trap_hotspot_tuples_leak_float32`).
 
 Defects repaired since the first pin
 ------------------------------------
@@ -81,7 +74,6 @@ from tests.router_v6._congestion_builders import (
     build_grid,
     build_netlist,
     build_parsed_pcb,
-    build_router_stub,
     build_routing_results,
 )
 from tests.router_v6._congestion_cases import (
@@ -89,16 +81,11 @@ from tests.router_v6._congestion_cases import (
     BENCH_ANALYZE_DESIGNS,
     BENCH_BOARD_GRIDS,
     BENCH_DEMAND_SUPPLY_PAIRS,
-    BENCH_HEATMAP_ROUTERS,
     BENCH_NET_BBOXES,
     BENCH_ROUTING_RESULT_CASES,
     BOARD_GRIDS,
-    DAMPING_CASES,
     DEMAND_PCBS,
     DEMAND_SUPPLY_PAIRS,
-    HEATMAP_QUERIES,
-    HEATMAP_ROUTERS,
-    HOTSPOT_THRESHOLDS,
     NET_BBOXES,
     ROUTING_RESULT_CASES,
     SUGGESTION_POSITIONS,
@@ -142,16 +129,6 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "placement_suggestions_generate_py",
     "placement_find_affected_py",
     "placement_suggested_position_py",
-    # congestion_heatmap.py
-    "congestion_heatmap_from_router_py",
-    "congestion_heatmap_at_py",
-    "congestion_heatmap_total_py",
-    "congestion_heatmap_hotspots_py",
-    # apply_suggestions.py
-    "apply_suggestions_damped_py",
-    "apply_damped_position_py",
-    "apply_total_movement_py",
-    "apply_update_positions_py",
 )
 
 
@@ -187,14 +164,6 @@ _ORACLE_SOURCES: dict[str, tuple[str, ...]] = {
         "generate_placement_suggestions",
         "_find_affected_components",
         "_calculate_suggested_position",
-    ),
-    "congestion_heatmap.py": ("CongestionHeatmap",),
-    "apply_suggestions.py": (
-        "AppliedAdjustment",
-        "AdjustmentResult",
-        "apply_suggestions_with_damping",
-        "_calculate_damped_position",
-        "update_component_positions",
     ),
 }
 
@@ -354,14 +323,12 @@ def test_bench_corpus_is_covered_by_differential():
         missing = [b for b in bench if b not in full]
         assert not missing, f"BENCH_{name} rows absent from {name}: {missing}"
     assert all(d in ANALYZE_DESIGNS for d in BENCH_ANALYZE_DESIGNS)
-    assert all(h in HEATMAP_ROUTERS for h in BENCH_HEATMAP_ROUTERS)
     for bench, name in (
         (BENCH_BOARD_GRIDS, "BOARD_GRIDS"),
         (BENCH_DEMAND_SUPPLY_PAIRS, "DEMAND_SUPPLY_PAIRS"),
         (BENCH_NET_BBOXES, "NET_BBOXES"),
         (BENCH_ROUTING_RESULT_CASES, "ROUTING_RESULT_CASES"),
         (BENCH_ANALYZE_DESIGNS, "ANALYZE_DESIGNS"),
-        (BENCH_HEATMAP_ROUTERS, "HEATMAP_ROUTERS"),
     ):
         assert bench, f"BENCH_{name} is empty -- a vacuous containment assertion"
 
@@ -1185,242 +1152,6 @@ def test_calculate_suggested_position_bit_exact(pos_name, pos, severity):
     )
 
 
-# ---------------------------------------------------------------------------
-# congestion_heatmap.py
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("case", HEATMAP_ROUTERS, ids=lambda c: c[0])
-def test_heatmap_from_router_bit_exact(case):
-    def _oracle():
-        hm = ORACLE.CongestionHeatmap.from_router(build_router_stub(case))
-        return (hm.grid, hm.cell_size, hm.origin)
-
-    _assert_same(
-        f"from_router[{case[0]}]",
-        _oracle,
-        "congestion_heatmap_from_router_py",
-        lambda fn: fn(*case[1:]),
-    )
-
-
-@pytest.mark.parametrize("case", HEATMAP_ROUTERS, ids=lambda c: c[0])
-def test_heatmap_total_congestion_bit_exact(case):
-    _assert_same(
-        f"get_total_congestion[{case[0]}]",
-        lambda: ORACLE.CongestionHeatmap.from_router(
-            build_router_stub(case)
-        ).get_total_congestion(),
-        "congestion_heatmap_total_py",
-        lambda fn: fn(*case[1:]),
-    )
-
-
-@pytest.mark.parametrize("case", HEATMAP_ROUTERS, ids=lambda c: c[0])
-@pytest.mark.parametrize("query", HEATMAP_QUERIES)
-def test_heatmap_congestion_at_bit_exact(case, query):
-    x, y = query
-    _assert_same(
-        f"get_congestion_at[{case[0]}]{query}",
-        lambda: ORACLE.CongestionHeatmap.from_router(build_router_stub(case)).get_congestion_at(
-            x, y
-        ),
-        "congestion_heatmap_at_py",
-        lambda fn: fn(case[1:], x, y),
-    )
-
-
-@pytest.mark.parametrize("case", HEATMAP_ROUTERS, ids=lambda c: c[0])
-@pytest.mark.parametrize("threshold,max_count", HOTSPOT_THRESHOLDS)
-def test_heatmap_hotspots_bit_exact(case, threshold, max_count):
-    _assert_same(
-        f"get_hotspots[{case[0]}](t={threshold}, n={max_count})",
-        lambda: ORACLE.CongestionHeatmap.from_router(build_router_stub(case)).get_hotspots(
-            threshold, max_count
-        ),
-        "congestion_heatmap_hotspots_py",
-        lambda fn: fn(case[1:], threshold, max_count),
-    )
-
-
-# ---------------------------------------------------------------------------
-# apply_suggestions.py
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("damping,threshold", DAMPING_CASES)
-def test_apply_suggestions_with_damping_bit_exact(damping, threshold):
-    def _oracle():
-        cm = ORACLE.CongestionMap(regions=[_region(c) for c in SUGGESTION_REGIONS])
-        suggestions = ORACLE.generate_placement_suggestions(cm, dict(SUGGESTION_POSITIONS))
-        out = ORACLE.apply_suggestions_with_damping(
-            suggestions, dict(SUGGESTION_POSITIONS), damping, threshold
-        )
-        return (
-            [
-                (
-                    a.component_id,
-                    a.original_position,
-                    a.suggested_position,
-                    a.applied_position,
-                    a.damping_factor,
-                )
-                for a in out.adjustments
-            ],
-            out.adjustment_count,
-            out.total_movement,
-        )
-
-    _assert_same(
-        f"apply_suggestions_with_damping(damping={damping}, threshold={threshold})",
-        _oracle,
-        "apply_suggestions_damped_py",
-        lambda fn: fn(list(SUGGESTION_REGIONS), dict(SUGGESTION_POSITIONS), damping, threshold),
-    )
-
-
-def test_apply_suggestions_with_missing_component():
-    """A suggestion whose component is absent from ``current_positions``
-    is skipped by the ``if current_pos is None: continue`` guard."""
-    cm = ORACLE.CongestionMap(regions=[_region(c) for c in SUGGESTION_REGIONS])
-    suggestions = ORACLE.generate_placement_suggestions(cm, dict(SUGGESTION_POSITIONS))
-    partial = {"NEAR": SUGGESTION_POSITIONS["NEAR"]}
-    def _oracle():
-        # Signs the SAME 3-tuple as test_apply_suggestions_with_damping_bit_exact.
-        # The id-only projection signed strictly less than its sibling, and
-        # `sig()` is arity-carrying, so the two call sites demanded different
-        # return shapes from one Rust function -- undispatchable here, because
-        # they differ ONLY in the size of the positions dict (12 vs 1).
-        # It also could not see `total_movement`, which is where the
-        # `(dx ** 2 + dy ** 2) ** 0.5` libm-`pow` trap actually bites.  The
-        # `if current_pos is None: continue` guard this test exists for stays
-        # fully visible in the adjustment list.
-        out = ORACLE.apply_suggestions_with_damping(suggestions, partial, 0.5, 0.5)
-        return (
-            [
-                (
-                    a.component_id,
-                    a.original_position,
-                    a.suggested_position,
-                    a.applied_position,
-                    a.damping_factor,
-                )
-                for a in out.adjustments
-            ],
-            out.adjustment_count,
-            out.total_movement,
-        )
-
-    _assert_same(
-        "apply_suggestions_with_damping(partial positions)",
-        _oracle,
-        "apply_suggestions_damped_py",
-        lambda fn: fn(list(SUGGESTION_REGIONS), partial, 0.5, 0.5),
-    )
-
-
-@pytest.mark.parametrize(
-    "current,suggested,damping",
-    [
-        ((0.0, 0.0), (10.0, 10.0), 0.0),
-        ((0.0, 0.0), (10.0, 10.0), 0.5),
-        ((0.0, 0.0), (10.0, 10.0), 1.0),
-        ((0.0, 0.0), (10.0, 10.0), 2.0),
-        ((0.0, 0.0), (10.0, 10.0), -1.0),
-        ((1e16, 0.0), (1e16 + 2.0, 0.0), 0.5),  # catastrophic cancellation
-        ((0.0, 0.0), (float("inf"), 0.0), 0.0),  # inf * 0.0 -> NaN
-        ((float("nan"), 0.0), (1.0, 1.0), 0.5),
-        ((-0.0, -0.0), (0.0, 0.0), 0.5),
-        ((0.0, 0.0), (5e-324, 5e-324), 0.5),  # denormal band
-    ],
-)
-def test_calculate_damped_position_bit_exact(current, suggested, damping):
-    _assert_same(
-        f"_calculate_damped_position({current}, {suggested}, {damping})",
-        lambda: ORACLE._calculate_damped_position(current, suggested, damping),
-        "apply_damped_position_py",
-        lambda fn: fn(current, suggested, damping),
-    )
-
-
-@pytest.mark.parametrize(
-    "moves",
-    [
-        [],
-        [((0.0, 0.0), (3.0, 4.0))],
-        [((0.0, 0.0), (3.0, 4.0)), ((0.0, 0.0), (5.0, 12.0))],
-        [((0.0, 0.0), (0.1, 0.2))] * 100,  # accumulation ORDER matters (B7)
-        [((0.0, 0.0), (float("nan"), 0.0))],
-        [((0.0, 0.0), (float("inf"), 0.0)), ((0.0, 0.0), (1.0, 1.0))],
-        [((0.0, 0.0), (1e200, 1e200))],  # (dx**2 + dy**2) overflows
-        [((0.0, 0.0), (5e-324, 5e-324))],
-    ],
-)
-def test_total_movement_bit_exact(moves):
-    def _oracle():
-        adjustments = [
-            ORACLE.AppliedAdjustment(
-                component_id=f"C{i}",
-                original_position=o,
-                suggested_position=a,
-                applied_position=a,
-                damping_factor=1.0,
-            )
-            for i, (o, a) in enumerate(moves)
-        ]
-        return ORACLE.AdjustmentResult(adjustments=adjustments).total_movement
-
-    _assert_same(
-        f"total_movement({len(moves)} moves)",
-        _oracle,
-        "apply_total_movement_py",
-        lambda fn: fn(moves),
-    )
-
-
-@pytest.mark.parametrize(
-    "positions,applied",
-    [
-        ({}, []),
-        ({"A": (1.0, 1.0)}, []),
-        ({"A": (1.0, 1.0)}, [("A", (2.0, 2.0))]),
-        ({"A": (1.0, 1.0)}, [("B", (2.0, 2.0))]),  # a key not in the input
-        ({"A": (1.0, 1.0)}, [("A", (2.0, 2.0)), ("A", (3.0, 3.0))]),  # last write wins
-        ({"A": (1.0, 1.0), "B": (0.0, 0.0)}, [("B", (9.0, 9.0))]),
-    ],
-)
-def test_update_component_positions_bit_exact(positions, applied):
-    def _oracle():
-        result = ORACLE.AdjustmentResult(
-            adjustments=[
-                ORACLE.AppliedAdjustment(
-                    component_id=cid,
-                    original_position=(0.0, 0.0),
-                    suggested_position=pos,
-                    applied_position=pos,
-                    damping_factor=1.0,
-                )
-                for cid, pos in applied
-            ]
-        )
-        updated = ORACLE.update_component_positions(dict(positions), result)
-        # dict ITERATION ORDER is part of the value -- sig() does not sort it
-        return updated
-
-    _assert_same(
-        f"update_component_positions({positions}, {applied})",
-        _oracle,
-        "apply_update_positions_py",
-        lambda fn: fn(dict(positions), applied),
-    )
-
-
-# ---------------------------------------------------------------------------
-# Traps: measured, in this file, so the numbers in the oracle header are
-# reproducible rather than asserted from memory.
-# ---------------------------------------------------------------------------
-
-
 def test_trap_three_way_max_semantics():
     """numpy, CPython and Rust disagree three ways on ``max`` with NaN.
 
@@ -1452,45 +1183,13 @@ def test_trap_three_way_max_semantics():
     assert math.copysign(1.0, max(-0.0, 0.0)) == -1.0
 
 
-def test_trap_np_sum_is_not_a_left_fold():
-    """``np.sum`` is a pairwise reduction; ``iter().sum()`` is not (B7).
-
-    ``get_total_congestion`` is ``float(np.sum(self.grid))``.  A Rust mirror
-    spelled ``grid.iter().sum::<f32>()`` accumulates left to right and
-    diverges in the last bits.
-
-    **Honestly bounded.**  numpy's pairwise reduction only splits above its
-    128-element blocking threshold, and *below* it numpy still unrolls by 8,
-    which is itself not a left fold -- but on a small, smooth grid the two
-    can coincide.  So the divergence is asserted on a grid large enough for
-    the mechanism to be forced (``512`` f32 cells, built here), and the
-    corpus's own grids are *measured and reported* rather than asserted:
-    they are 3x3 to 5x5, which is why they are not the right witness.
-    """
-    rng = random.Random(19)
-    values = np.array([rng.uniform(0.0, 1.0) for _ in range(512)], dtype=np.float32)
-    left_fold = np.float32(0.0)
-    for v in values:
-        left_fold = np.float32(left_fold + v)
-    assert float(np.sum(values)) != float(left_fold), (
-        "np.sum agreed with a left fold over 512 random f32 cells -- either "
-        "numpy changed its reduction or this witness stopped discriminating"
-    )
-
-    # ... and the same construction over the corpus, reported not asserted.
-    corpus_checked = 0
-    for case in HEATMAP_ROUTERS:
-        hm = ORACLE.CongestionHeatmap.from_router(build_router_stub(case))
-        if np.isfinite(hm.grid).all():
-            corpus_checked += 1
-    assert corpus_checked >= 3, "the corpus no longer has finite heatmap grids"
 
 
 def test_trap_pow_form_is_not_hypot_or_sqrt():
     """``(dx**2 + dy**2) ** 0.5`` is three distinct spellings of a distance.
 
-    B7.  Used by ``_find_affected_components``,
-    ``_calculate_suggested_position`` and ``AdjustmentResult.total_movement``.
+    B7.  Used by ``_find_affected_components`` and
+    ``_calculate_suggested_position``.
     """
     rng = random.Random(7)
     n = 20000
@@ -1544,21 +1243,3 @@ def test_trap_format_2f_is_round_half_even():
     assert round(0.125 * 100.0) / 100.0 == float(f"{0.125:.2f}")
 
 
-def test_trap_hotspot_tuples_leak_float32():
-    """``get_hotspots`` mixes ``float`` with ``numpy.float32`` in one tuple.
-
-    ``==`` cannot see the difference; ``sig()`` records the concrete type
-    name at every leaf, which is why the differential compares signatures
-    rather than values.
-    """
-    case = next(c for c in HEATMAP_ROUTERS if c[0] == "ramp")
-    hm = ORACLE.CongestionHeatmap.from_router(build_router_stub(case))
-    spots = hm.get_hotspots(threshold=0.0, max_count=3)
-    assert spots, "the corpus's 'ramp' case no longer produces hotspots"
-    x, y, val = spots[0]
-    assert type(x) is float
-    assert type(y) is float
-    assert type(val) is np.float32
-    # the discrimination the differential relies on
-    assert sig(val) != sig(float(val))
-    assert val == float(val)  # ... while `==` says they are the same
