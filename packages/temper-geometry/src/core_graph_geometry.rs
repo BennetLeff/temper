@@ -573,16 +573,6 @@ fn validate_matvec(row: &[i64], col: &[i64], data: &[f64], other: &[f64]) -> PyR
     Ok(())
 }
 
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn graph_clique_expand_py(
-    net_indices: Vec<Vec<i64>>,
-    net_weights: Vec<f64>,
-) -> PyResult<(Vec<i64>, Vec<i64>, Vec<f64>)> {
-    temper_py_bridge::catch_unwind(|| graph_clique_expand(&net_indices, &net_weights))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
 /// `Coo @ other` — sparse matrix-vector product.
 ///
 /// Wave-4 marshalling migration: pyo3's ``extract`` already handles numpy

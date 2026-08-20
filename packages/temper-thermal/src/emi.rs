@@ -3,7 +3,10 @@
 //! Ports the pure scalar arithmetic of
 //! `temper_placer/physics/emi.py` (`predict_radiated_emissions`,
 //! `check_emi_compliance`) to Rust.  The Python module keeps its public
-//! API and delegates the arithmetic here.
+//! API and delegates the arithmetic here.  The pyo3 bridges were deleted
+//! 2026-08-20 with the orphaned emi kernel cluster (the `physics/emi.py`
+//! delegation shim was deleted 2026-08-15); the pure kernels remain,
+//! exercised by the crate's unit tests and property campaigns.
 //!
 //! ## Bit-exactness discipline (Wave 4 catalog entries)
 //!
@@ -31,11 +34,6 @@
 //! constraints that gate on a physics quantity; the applicable
 //! correctness contract is bit-exact parity (R1a), recorded in
 //! VERIFICATION.md.
-
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use pyo3::types::{PyAny, PyString};
 
 use crate::hostmath;
 
@@ -83,30 +81,6 @@ pub fn predict_radiated_emissions(
 pub fn check_emi_compliance(field_strength_dbuv: f64, standard: &str) -> bool {
     let limit = if standard == "CISPR32_CLASS_A" { 50.0 } else { 40.0 };
     field_strength_dbuv <= limit
-}
-
-/// pyo3 bridge for [`check_emi_compliance`].
-///
-/// `standard` is accepted as any Python object: the reference compares
-/// `standard == "CISPR32_CLASS_A"` at the Python level, so ANY object
-/// (None, ints, lists, ...) is accepted and falls to the 40.0
-/// else-branch unless it equals the string.  The previous `String`
-/// extraction raised TypeError for non-str (pass 2 P2); `Bound<PyAny>`
-/// `eq` reproduces the reference's duck-typed comparison (including a
-/// custom `__eq__` on the standard object, via full rich-compare
-/// semantics).
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (field_strength_dbuv, standard))]
-pub fn check_emi_compliance_py(
-    py: Python<'_>,
-    field_strength_dbuv: f64,
-    standard: Bound<'_, PyAny>,
-) -> PyResult<bool> {
-    use pyo3::types::PyAnyMethods;
-    let is_class_a = standard.eq(PyString::new(py, "CISPR32_CLASS_A"))?;
-    let limit = if is_class_a { 50.0 } else { 40.0 };
-    Ok(field_strength_dbuv <= limit)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

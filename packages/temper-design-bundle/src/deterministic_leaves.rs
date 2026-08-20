@@ -14,13 +14,14 @@
 //! Home-crate decision: `temper-design-bundle` hosts the placements /
 //! component-math kernels (component_assignment, layer_assignment,
 //! power_plane, fine_pitch_escape, phased_component_assignment_validator's
-//! slot-grid kernels) and the leaf data contracts (sequential_routing_dataclasses
-//! `DiffPairConfig`), because they bind onto this crate's
-//! contract pyclasses (`Netlist`/`Component`/`LayerAssignment`) — the same
-//! rationale #762 recorded for `deterministic_stages.rs`. DRC-check stages
-//! (courtyard_check / drc_sweep / drc_validation / placement_validation) land
-//! in `temper-drc-rs`; GEOS/shapely- and router_v6-bound stages are recorded
-//! R3-style in `VERIFICATION.md`.
+//! slot-grid kernels) and the leaf data contracts (the `LayerAssignment`
+//! pyclass; the `DiffPairConfig` pyclass was deleted 2026-08-20 with the
+//! orphaned sequential-routing dataclass cluster), because they bind onto
+//! this crate's contract pyclasses (`Netlist`/`Component`/`LayerAssignment`)
+//! — the same rationale #762 recorded for `deterministic_stages.rs`.
+//! DRC-check stages (courtyard_check / drc_sweep / drc_validation /
+//! placement_validation) land in `temper-drc-rs`; GEOS/shapely- and
+//! router_v6-bound stages are recorded R3-style in `VERIFICATION.md`.
 
 use std::collections::{HashMap, HashSet};
 use std::panic::AssertUnwindSafe;

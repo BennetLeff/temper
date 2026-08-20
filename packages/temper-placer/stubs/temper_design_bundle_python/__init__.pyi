@@ -718,29 +718,6 @@ class LayerAssignment:
     def is_plane(self) -> Any: ...
 
 
-class DiffPairConfig:
-    """`frozen`-dataclass-equivalent pyo3 pyclass."""
-
-    def __init__(
-        self,
-        net_pos: Any,
-        net_neg: Any,
-        spacing_mm: Any = None,
-        coupling_tolerance_mm: Any = None,
-        max_skew_mm: Any = None,
-    ) -> None: ...
-    @property
-    def net_pos(self) -> Any: ...
-    @property
-    def net_neg(self) -> Any: ...
-    @property
-    def spacing_mm(self) -> Any: ...
-    @property
-    def coupling_tolerance_mm(self) -> Any: ...
-    @property
-    def max_skew_mm(self) -> Any: ...
-
-
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 2 "contracts-as-pyo3-pyclasses" — pcl_tags.rs. The tag
 # expression algebra (`TagRef`/`TagAnd`/`TagOr`/`TagNot`/`ComponentRef`) and
