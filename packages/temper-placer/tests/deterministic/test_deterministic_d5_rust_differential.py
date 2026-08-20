@@ -597,10 +597,10 @@ def test_phased_chain_from_d2_slots() -> None:
     import tests.deterministic._zone_geometry_py_oracle as _orc_zone_geometry
 
     from temper_placer.deterministic.stages import (
-        slot_generation as _shim_slot_generation,
+        SlotGenerationStage as _shim_slot_generation,
     )
     from temper_placer.deterministic.stages import (
-        zone_geometry as _shim_zone_geometry,
+        ZoneGeometryStage as _shim_zone_geometry,
     )
 
     netlist = _netlist()
@@ -609,11 +609,17 @@ def test_phased_chain_from_d2_slots() -> None:
     c.placement_priority = {"auto": {"method": "auto"}}
 
     def chain(zg, sg, ph_cls, za_run=None):
-        state = zg.ZoneGeometryStage().run(BoardState(board=board, netlist=netlist))
+        # Shim-debt cleanup 2026-08-20: the D2 stage classes were collapsed
+        # onto the RustFunctionStage adapter in `stages/__init__.py`, so the
+        # port arm passes the CLASSES while the oracle arm passes its pinned
+        # modules (each defining its own pre-migration class).
+        zg_cls = zg if isinstance(zg, type) else zg.ZoneGeometryStage
+        sg_cls = sg if isinstance(sg, type) else sg.SlotGenerationStage
+        state = zg_cls().run(BoardState(board=board, netlist=netlist))
         # Shim-debt cleanup 2026-08-19: the zone_assignment shim module was
         # deleted; the port arm drives the pyfunction directly.
         state = za_run(state) if za_run is not None else _orc_zone_assignment.ZoneAssignmentStage().run(state)
-        state = sg.SlotGenerationStage(slot_spacing_mm=7.5).run(state)
+        state = sg_cls(slot_spacing_mm=7.5).run(state)
         return ph_cls(c).run(state)
 
     orc_state = chain(

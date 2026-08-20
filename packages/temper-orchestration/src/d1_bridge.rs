@@ -5,11 +5,13 @@
 // The three D1 stages (`ConfigAttachStage`, `NetOrderingStage`,
 // `DrcOracleSetupStage` + `NetClassSetupStage`) are `Stage<BoardState>`
 // implementors operating on the Rust phased `BoardState`. Their Python
-// shims (`deterministic/stages/{config_attach,net_ordering,setup}.py`) stay
-// thin: `run(state)` crosses the FFI once per stage through a pyfunction,
-// which builds the Rust `BoardState` from the Python dataclass here, runs
-// the stage, and writes only the changed fields back via
-// `dataclasses.replace`.
+// shims were collapsed onto the generic `RustFunctionStage` adapter
+// (shim-debt cleanup 2026-08-20: `deterministic/stages/{net_ordering,
+// setup}.py` deleted; `config_attach.py` kept only as an import-path
+// re-export for the pinned pipeline oracle): `run(state)` crosses the FFI
+// once per stage through a pyfunction, which builds the Rust `BoardState`
+// from the Python dataclass here, runs the stage, and writes only the
+// changed fields back via `dataclasses.replace`.
 //
 // The conversion is a pure Py<PyAny> pass-through (D2: fields are NOT
 // tightened speculatively); the owned fields are `net_order`
