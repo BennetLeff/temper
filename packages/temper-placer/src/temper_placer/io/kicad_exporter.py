@@ -617,15 +617,19 @@ def export_board_state(
 
     # Provenance header (plan 2026-07-15-001, unit U5). Skipped, not faked,
     # when the netlist isn't available -- this export path also runs against
-    # boards/fixtures unrelated to this project's real netlist.
+    # boards/fixtures unrelated to this project's real netlist. The embed
+    # is the Rust text kernel (provenance.py: parse -> mutate KiNode tree ->
+    # serialize), so the final write goes through the Rust S-expression
+    # writer instead of kiutils' Board.to_file.
     resolved_netlist_path = netlist_path or Path("elec/build/default.net")
     if resolved_netlist_path.exists():
         from temper_placer.io.provenance import compute_provenance, embed_provenance
 
         provenance = compute_provenance(template_pcb, resolved_netlist_path, config_path)
-        embed_provenance(board, provenance)
-
-    board.to_file(str(output_pcb))
+        board_text = embed_provenance(board.to_sexpr(), provenance)
+    else:
+        board_text = board.to_sexpr()
+    output_pcb.write_text(board_text)
 
     # Automatically fill zones if requested
     if auto_fill_zones:
