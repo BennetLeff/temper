@@ -6,8 +6,8 @@ orchestration of ``deterministic/stages/zone_aware_slot_generation.py`` (the
 ``ZoneAwareSlotGenerationStage`` run: ``_isolation_filter`` / K4 reclaim,
 ``_get_copper_zones``, the per-zone slot walk with copper + isolation-cutout
 filtering, the writes) and of the phased-component-assignment mixins
-(``_phase_core.py`` + ``_phase_zones.py`` + ``_phase_rotation.py`` +
-``_phase_validation.py``; the ``PhasedComponentAssignmentStage`` run: the
+(``_phase_core.py`` -- the four mixins collapsed into one module 2026-08-20;
+the ``PhasedComponentAssignmentStage`` run: the
 state guards, ``compiler.validate``, the design-rules attach, the phase
 dispatch, the template/proximity/optimize placement methods, the HV
 ghost-pad reservation and the ``frozenset`` writes) move to
