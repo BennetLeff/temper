@@ -150,7 +150,7 @@ mod config_loader;
 #[cfg(feature = "python")]
 mod reference_loader;
 
-mod parse_engine;
+pub(crate) mod parse_engine;
 #[cfg(feature = "python")]
 mod hypergraph_factory;
 
@@ -256,7 +256,7 @@ pub use pcl::{PclDocument, PclInputConstraint};
 // types are pub so the returned value is fully inspectable; they are the
 // faithful kiutils-model shapes, not a stable long-term API (the CLI driver
 // consumes them read-only).
-pub use parse_engine::{parse_kicad_document, RawBoard};
+pub use parse_engine::{parse_board_summary, parse_kicad_document, BoardSummary, RawBoard};
 
 /// Constructs the canonical boundary from already-read source documents.
 pub fn build_bundle(
