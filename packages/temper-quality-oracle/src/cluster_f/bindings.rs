@@ -26,9 +26,7 @@ use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyFloat, PyInt, PyList, PyString, PyTuple};
 
-use super::board::{
-    Board, Component, Num, ParseView, Point, Trace, TraceRecord, Via, load_traces_by_net, pf,
-};
+use super::board::{Board, Component, Num, ParseView, Point, Trace, Via};
 use super::slop_linter::{self, Finding};
 use super::via_count;
 
@@ -253,83 +251,6 @@ fn findings_to_list<'py>(py: Python<'py>, findings: &[Finding]) -> PyResult<Boun
 // ---------------------------------------------------------------------------
 
 #[pyfunction]
-pub fn slop_distance_mm_py(ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
-    slop_linter::distance_mm((ax, ay), (bx, by))
-}
-
-/// `_vector`, evaluated on the Python operands.
-///
-/// `_vector((0, 0), (3, 4))` is `(3, 4)` — two *ints*. Extracting to `f64`
-/// first would return `(3.0, 4.0)`, which `sig()` separates.
-#[pyfunction]
-pub fn slop_vector_py<'py>(
-    ax: &Bound<'py, PyAny>,
-    ay: &Bound<'py, PyAny>,
-    bx: &Bound<'py, PyAny>,
-    by: &Bound<'py, PyAny>,
-) -> PyResult<(Py<PyAny>, Py<PyAny>)> {
-    Ok((bx.sub(ax)?.unbind(), by.sub(ay)?.unbind()))
-}
-
-#[pyfunction]
-#[allow(clippy::too_many_arguments)]
-pub fn slop_angle_between_py(
-    i0x: f64,
-    i0y: f64,
-    i1x: f64,
-    i1y: f64,
-    o0x: f64,
-    o0y: f64,
-    o1x: f64,
-    o1y: f64,
-) -> f64 {
-    slop_linter::angle_between(((i0x, i0y), (i1x, i1y)), ((o0x, o0y), (o1x, o1y)))
-}
-
-/// `_order_traces` over bare `(sx, sy, ex, ey)` segments, returning the
-/// ordered `(start, end)` pairs — including which segments were reversed.
-#[pyfunction]
-pub fn slop_order_traces_py(
-    segments: Vec<(f64, f64, f64, f64)>,
-) -> Vec<((f64, f64), (f64, f64))> {
-    let records: Vec<TraceRecord> = segments
-        .iter()
-        .map(|&(sx, sy, ex, ey)| TraceRecord {
-            start: (Num::Float(sx), Num::Float(sy)),
-            end: (Num::Float(ex), Num::Float(ey)),
-            width: Num::Float(0.25),
-            layer: "F.Cu".to_string(),
-        })
-        .collect();
-    slop_linter::order_traces(&records)
-        .into_iter()
-        .map(|t| (pf(t.start), pf(t.end)))
-        .collect()
-}
-
-#[pyfunction]
-pub fn slop_load_traces_by_net_py<'py>(
-    py: Python<'py>,
-    source: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyDict>> {
-    let view = build_view(py, source)?;
-    let out = PyDict::new(py);
-    for (net, records) in load_traces_by_net(&view) {
-        let items = PyList::empty(py);
-        for r in records {
-            let d = PyDict::new(py);
-            d.set_item("start", point_to_py(py, r.start)?)?;
-            d.set_item("end", point_to_py(py, r.end)?)?;
-            d.set_item("width", num_to_py(py, r.width)?)?;
-            d.set_item("layer", r.layer)?;
-            items.append(d)?;
-        }
-        out.set_item(net, items)?;
-    }
-    Ok(out)
-}
-
-#[pyfunction]
 pub fn slop_lint_hairpin_turns_py<'py>(
     py: Python<'py>,
     source: &Bound<'py, PyAny>,
@@ -434,11 +355,6 @@ pub fn via_count_classify_vias_py(
 
 /// Register every cluster-F export on the extension module.
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(slop_distance_mm_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_vector_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_angle_between_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_order_traces_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_load_traces_by_net_py, m)?)?;
     m.add_function(wrap_pyfunction!(slop_lint_hairpin_turns_py, m)?)?;
     m.add_function(wrap_pyfunction!(slop_lint_zigzag_patterns_py, m)?)?;
     m.add_function(wrap_pyfunction!(slop_lint_isolated_vias_py, m)?)?;

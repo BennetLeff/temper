@@ -37,10 +37,8 @@ itself non-deterministic, so no 1-ulp band is claimed for any of them.
 
 Traps this suite's corpus is built around (catalog §2)
 ------------------------------------------------------
-* **B4** -- ``_distance_mm`` and ``_angle_between`` use CPython's Dekker
-  ``math.hypot``, not libm ``hypot`` and not ``sqrt(dx*dx + dy*dy)``.
-* **B5** -- ``_angle_between``'s ``max(-1.0, min(1.0, ...))`` and
-  ``_is_via_near_board_edge``'s **variadic** ``min`` over four distances.
+* **B5** -- ``_is_via_near_board_edge``'s **variadic** ``min`` over four
+  distances.
 * **B3** -- the ``:.1f``/``:.2f`` ``description`` strings round half-to-even.
 * **B7** -- ``sum()`` order in ``lint_single_net_detours``; the grouped
   ``3.0 * (track_width + min_clearance)`` threshold.
@@ -59,16 +57,10 @@ import pytest
 import tests.router_v6._quality_metrics_fixtures as FX
 import tests.router_v6._quality_metrics_py_oracle as ORACLE
 from tests.router_v6._quality_metrics_cases import (
-    ANGLE_CASES,
     BBOX_CASES,
     CORPUS_BOARDS,
-    DISTANCE_PAIRS,
     EDGE_MARGIN_CASES,
-    ORDER_TRACE_SETS,
     SCENARIOS,
-    random_angle_cases,
-    random_distance_pairs,
-    random_trace_set,
 )
 from tests.router_v6._signature import sig
 
@@ -89,11 +81,6 @@ except ImportError as exc:  # pragma: no cover
 #: ``<module>_<function>_py`` convention used by the landed differentials.
 REQUIRED_RUST_SYMBOLS = (
     # metrics/slop_linter
-    "slop_distance_mm_py",
-    "slop_vector_py",
-    "slop_angle_between_py",
-    "slop_order_traces_py",
-    "slop_load_traces_by_net_py",
     "slop_lint_hairpin_turns_py",
     "slop_lint_zigzag_patterns_py",
     "slop_lint_isolated_vias_py",
@@ -142,77 +129,6 @@ def test_rust_symbols_exist() -> None:
     )
     missing = [n for n in REQUIRED_RUST_SYMBOLS if not hasattr(_rs, n)]
     assert not missing, f"temper_quality_oracle is missing {missing}"
-
-
-# ---------------------------------------------------------------------------
-# slop_linter — scalar geometry helpers
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("case", DISTANCE_PAIRS, ids=range(len(DISTANCE_PAIRS)))
-def test_distance_mm_bit_exact(case) -> None:
-    ax, ay, bx, by = case
-    expected = ORACLE._distance_mm((ax, ay), (bx, by))
-    assert sig(rust("slop_distance_mm_py")(ax, ay, bx, by)) == sig(expected)
-
-
-@pytest.mark.parametrize("case", DISTANCE_PAIRS, ids=range(len(DISTANCE_PAIRS)))
-def test_vector_bit_exact(case) -> None:
-    ax, ay, bx, by = case
-    expected = ORACLE._vector((ax, ay), (bx, by))
-    assert sig(rust("slop_vector_py")(ax, ay, bx, by)) == sig(expected)
-
-
-@pytest.mark.parametrize("case", ANGLE_CASES, ids=range(len(ANGLE_CASES)))
-def test_angle_between_bit_exact(case) -> None:
-    expected = ORACLE._angle_between(
-        ((case[0], case[1]), (case[2], case[3])),
-        ((case[4], case[5]), (case[6], case[7])),
-    )
-    assert sig(rust("slop_angle_between_py")(*case)) == sig(expected)
-
-
-def test_distance_mm_random_sweep() -> None:
-    fn = rust("slop_distance_mm_py")
-    for ax, ay, bx, by in random_distance_pairs(2000):
-        assert sig(fn(ax, ay, bx, by)) == sig(ORACLE._distance_mm((ax, ay), (bx, by)))
-
-
-def test_angle_between_random_sweep() -> None:
-    fn = rust("slop_angle_between_py")
-    for case in random_angle_cases(2000):
-        expected = ORACLE._angle_between(
-            ((case[0], case[1]), (case[2], case[3])),
-            ((case[4], case[5]), (case[6], case[7])),
-        )
-        assert sig(fn(*case)) == sig(expected)
-
-
-# ---------------------------------------------------------------------------
-# slop_linter — _order_traces (insertion-order dependent)
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("name,segments", ORDER_TRACE_SETS, ids=[n for n, _ in ORDER_TRACE_SETS])
-def test_order_traces_bit_exact(name: str, segments) -> None:
-    """Ordering is a value here, not a presentation detail.
-
-    ``_order_traces`` is greedy over the input list and breaks ties by earliest
-    index, so a Rust port that iterates a different way produces a different
-    (still plausible) chain.  The signature comparison covers the full ordered
-    sequence, including which segments were reversed.
-    """
-    expected = ORACLE._order_traces(FX.as_trace_dicts(segments))
-    got = rust("slop_order_traces_py")(list(segments))
-    assert sig([(t["start"], t["end"]) for t in expected]) == sig(got)
-
-
-def test_order_traces_random_sweep() -> None:
-    fn = rust("slop_order_traces_py")
-    for n in (2, 3, 5, 8, 13, 21, 34):
-        segments = random_trace_set(n)
-        expected = ORACLE._order_traces(FX.as_trace_dicts(segments))
-        assert sig([(t["start"], t["end"]) for t in expected]) == sig(fn(list(segments)))
 
 
 # ---------------------------------------------------------------------------

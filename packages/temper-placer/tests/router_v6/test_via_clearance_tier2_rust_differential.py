@@ -91,9 +91,6 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "kw_boundary_match_py",
     "net_class_to_voltage_class_py",
     "grid_to_world_py",
-    "extract_vias_py",
-    "compute_path_length_py",
-    "count_vias_in_path_py",
     "is_collinear_py",
     "simplify_path_py",
     "estimate_segment_count_py",
@@ -503,85 +500,6 @@ def _oracle_grid_to_world(
     return (x, y)
 
 
-def _oracle_extract_vias(cells: list[GridCell]) -> list[int]:
-    """Find indices where layer transitions occur.
-
-    A via is required when consecutive cells are on different layers.
-
-    Args:
-        cells: Ordered list of grid cells forming a path
-
-    Returns:
-        List of cell indices where vias are needed
-
-    Example:
-        >>> cells = [
-        ...     GridCell(0, 0, 0),
-        ...     GridCell(1, 0, 0),
-        ...     GridCell(1, 0, 1),  # Via here
-        ...     GridCell(2, 0, 1),
-        ... ]
-        >>> extract_vias(cells)
-        [2]  # Via at index 2 (transition from layer 0 to 1)
-    """
-    via_indices = []
-    for i in range(1, len(cells)):
-        if cells[i].layer != cells[i - 1].layer:
-            via_indices.append(i)
-    return via_indices
-
-
-def _oracle_compute_path_length(cells: list[GridCell], cell_size: float) -> float:
-    """Calculate total path length in mm (Manhattan distance).
-
-    Args:
-        cells: Ordered list of grid cells forming a path
-        cell_size: Grid cell size in mm
-
-    Returns:
-        Total path length in mm
-
-    Example:
-        >>> cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-        >>> compute_path_length(cells, cell_size=0.5)
-        1.0  # 2 steps * 0.5mm
-    """
-    if len(cells) < 2:
-        return 0.0
-
-    total_length = 0.0
-    for i in range(1, len(cells)):
-        # Manhattan distance between consecutive cells
-        dx = abs(cells[i].x - cells[i - 1].x)
-        dy = abs(cells[i].y - cells[i - 1].y)
-        # Layer change doesn't add physical length (via is at same x,y)
-        total_length += (dx + dy) * cell_size
-
-    return total_length
-
-
-def _oracle_count_vias_in_path(cells: list[GridCell]) -> int:
-    """Count the number of layer transitions (vias) in a path.
-
-    Args:
-        cells: Ordered list of grid cells forming a path
-
-    Returns:
-        Number of vias needed
-
-    Example:
-        >>> cells = [
-        ...     GridCell(0, 0, 0),  # L0
-        ...     GridCell(1, 0, 1),  # L1 - via 1
-        ...     GridCell(2, 0, 1),
-        ...     GridCell(3, 0, 0),  # L0 - via 2
-        ... ]
-        >>> count_vias_in_path(cells)
-        2
-    """
-    return len(extract_vias(cells))
-
-
 # -- path_simplify.py --------------------------------------------------------
 # Reused verbatim oracle: tests/router_v6/_path_simplify_py_oracle.py (the
 # pinned 550cab2a extraction).  `PS_ORACLE.is_collinear` / `.simplify_path` /
@@ -595,7 +513,6 @@ _get_adjacent_layer = _oracle_get_adjacent_layer
 calculate_safety_distances = _oracle_calculate_safety_distances
 _kw_boundary_match = _oracle_kw_boundary_match
 _net_class_to_voltage_class = _oracle_net_class_to_voltage_class
-extract_vias = _oracle_extract_vias
 
 # ===========================================================================
 # G1 evidence: the oracles are verbatim pins
@@ -623,9 +540,6 @@ _ORACLE_SOURCES = (
         "packages/temper-placer/src/temper_placer/router_v6/grid_converter.py",
         (
             ("_oracle_grid_to_world", "grid_to_world"),
-            ("_oracle_extract_vias", "extract_vias"),
-            ("_oracle_compute_path_length", "compute_path_length"),
-            ("_oracle_count_vias_in_path", "count_vias_in_path"),
         ),
     ),
 )
@@ -955,51 +869,8 @@ def test_grid_to_world_oracle_parity():
         assert sig(o) == sig(got), (cell, origin, size)
 
 
-def test_extract_vias_and_count_oracle_parity():
-    fn = _rust("extract_vias_py")
-    cnt = _rust("count_vias_in_path_py")
-    cases = [
-        [ShimGridCell(0, 0, 0), ShimGridCell(1, 0, 0), ShimGridCell(1, 0, 1), ShimGridCell(2, 0, 1)],
-        [],
-        [ShimGridCell(5, 5, 0)],
-        [ShimGridCell(0, 0, 0), ShimGridCell(1, 0, 0)],
-        [ShimGridCell(0, 0, i) for i in range(6)],
-        [ShimGridCell(0, 0, 0), ShimGridCell(1, 0, 1), ShimGridCell(2, 0, 0), ShimGridCell(3, 0, 2)],
-    ]
-    for cells in cases:
-        o = _oracle_extract_vias(cells)
-        got = fn([c.layer for c in cells])
-        assert sig(o) == sig(list(got)), cells
-        assert sig(_oracle_count_vias_in_path(cells)) == sig(cnt([c.layer for c in cells])), cells
 
 
-def test_compute_path_length_oracle_parity():
-    fn = _rust("compute_path_length_py")
-    cases = [
-        ([ShimGridCell(0, 0, 0), ShimGridCell(1, 0, 0), ShimGridCell(2, 0, 0)], 0.5),
-        ([ShimGridCell(0, 0, 0), ShimGridCell(0, 0, 1)], 0.5),  # layer change adds no length
-        ([], 1.0),
-        ([ShimGridCell(5, 5, 0)], 0.5),
-        ([ShimGridCell(0, 0, 0), ShimGridCell(-3, 4, 0)], 0.1),
-        (
-            [
-                ShimGridCell(0, 0, 0),
-                ShimGridCell(1, 1, 0),
-                ShimGridCell(1, 2, 0),
-                ShimGridCell(4, 2, 0),
-            ],
-            0.25,
-        ),
-    ]
-    for cells, size in cases:
-        o = _oracle_compute_path_length(cells, size)
-        got = fn([c.x for c in cells], [c.y for c in cells], size)
-        assert sig(o) == sig(got), (cells, size)
-
-
-# ===========================================================================
-# path_simplify.py (re-homed kernels vs the pinned oracle)
-# ===========================================================================
 
 
 def _cell_wire(c: ShimGridCell) -> tuple[int, int, int]:
@@ -1181,9 +1052,6 @@ def test_randomized_clearance_engine_parity():
 
 def test_randomized_grid_and_path_parity():
     fn_gtw = _rust("grid_to_world_py")
-    fn_ev = _rust("extract_vias_py")
-    fn_pl = _rust("compute_path_length_py")
-    fn_cnt = _rust("count_vias_in_path_py")
     fn_simp = _rust("simplify_path_py")
     fn_est = _rust("estimate_segment_count_py")
     rng = random.Random(0x6E1D)
@@ -1199,15 +1067,6 @@ def test_randomized_grid_and_path_parity():
             assert sig(_oracle_grid_to_world(cell, origin, size)) == sig(
                 fn_gtw(cell.x, cell.y, origin[0], origin[1], size)
             )
-        assert sig(_oracle_extract_vias(cells)) == sig(
-            list(fn_ev([c.layer for c in cells]))
-        )
-        assert sig(_oracle_compute_path_length(cells, size)) == sig(
-            fn_pl([c.x for c in cells], [c.y for c in cells], size)
-        )
-        assert sig(_oracle_count_vias_in_path(cells)) == sig(
-            fn_cnt([c.layer for c in cells])
-        )
         wire = [_cell_wire(c) for c in cells]
         assert sig(PS_ORACLE.simplify_path(cells)) == sig(
             [ShimGridCell(*t) for t in fn_simp(wire)]

@@ -83,12 +83,6 @@ pub mod quarantine;
 // documents), so the module cannot exist without the interpreter.
 #[cfg(feature = "python")]
 pub mod reference_aliases;
-// Wholly a pyo3 surface: every entry point takes the optimiser's Python
-// result objects and reads their attributes across the boundary (`str()`,
-// `.get(k, default)`, `history[-1]`), by design — see the module doc.
-#[cfg(feature = "python")]
-pub mod report;
-
 pub mod stackup_validator;
 
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
@@ -186,26 +180,6 @@ mod pymodule_def {
         // Wave-4 Phase 2 contract layer.
         crate::placer_core::pybridge::register(m)?;
 
-        // Wave 4 Phase 5 — report surface (report.rs).
-        m.add_function(wrap_pyfunction!(crate::report::report_format_text, m)?)?;
-        m.add_function(wrap_pyfunction!(crate::report::report_format_json_data, m)?)?;
-        m.add_function(wrap_pyfunction!(crate::report::report_format_html, m)?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::report::report_calculate_benchmark_result,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::report::report_benchmark_json_data,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::report::report_generate_summary,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::report::report_extract_key_metrics,
-            m
-        )?)?;
         // Wave 4 Phase 5 — explainability surface (explain.rs).
         m.add_function(wrap_pyfunction!(crate::explain::explain_trace_why, m)?)?;
         m.add_function(wrap_pyfunction!(

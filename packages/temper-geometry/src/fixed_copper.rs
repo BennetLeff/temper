@@ -912,45 +912,6 @@ pub fn fixed_copper_other_pad_item_geom_py(
     other_pad_item_geom(lx, ly, hw, hh, rot_idx, cx, cy, margin)
 }
 
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn fixed_copper_point_rect_distance_py(p: (f64, f64), rect: Rect) -> f64 {
-    point_rect_distance(p.0, p.1, rect)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn fixed_copper_point_segment_distance_py(p: (f64, f64), a: (f64, f64), b: (f64, f64)) -> f64 {
-    point_segment_distance(p.0, p.1, a.0, a.1, b.0, b.1)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn fixed_copper_segments_intersect_py(
-    a0: (f64, f64),
-    a1: (f64, f64),
-    b0: (f64, f64),
-    b1: (f64, f64),
-) -> bool {
-    segments_intersect(a0, a1, b0, b1)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn fixed_copper_rect_segment_distance_py(
-    rect: Rect,
-    a: (f64, f64),
-    b: (f64, f64),
-) -> f64 {
-    rect_segment_distance(rect, a, b)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn fixed_copper_rect_rect_gap_py(ra: Rect, rb: Rect) -> f64 {
-    rect_rect_gap(ra, rb)
-}
-
 /// `exact_clearance_mm` dispatch. Exactly one of the kind-specific
 /// argument groups is populated per `kind`; the Python shim (which reads
 /// `item.kind`/`item.exact`) is responsible for that, exactly mirroring
@@ -1016,11 +977,6 @@ pub fn register(m: &Bound<'_, pyo3::types::PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fixed_copper_via_item_geom_py, m)?)?;
     m.add_function(wrap_pyfunction!(fixed_copper_zone_item_rect_py, m)?)?;
     m.add_function(wrap_pyfunction!(fixed_copper_other_pad_item_geom_py, m)?)?;
-    m.add_function(wrap_pyfunction!(fixed_copper_point_rect_distance_py, m)?)?;
-    m.add_function(wrap_pyfunction!(fixed_copper_point_segment_distance_py, m)?)?;
-    m.add_function(wrap_pyfunction!(fixed_copper_segments_intersect_py, m)?)?;
-    m.add_function(wrap_pyfunction!(fixed_copper_rect_segment_distance_py, m)?)?;
-    m.add_function(wrap_pyfunction!(fixed_copper_rect_rect_gap_py, m)?)?;
     m.add_function(wrap_pyfunction!(fixed_copper_exact_clearance_mm_py, m)?)?;
     Ok(())
 }
