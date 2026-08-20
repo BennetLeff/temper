@@ -84,6 +84,12 @@ pub mod quarantine;
 #[cfg(feature = "python")]
 pub mod reference_aliases;
 pub mod stackup_validator;
+// Wave-4 Phase-3 write engine: the `_write_types.py` result dataclasses and
+// `_get_footprint_reference` helper. Wholly a pyo3 surface (see the module
+// docstring) — no wasm32 consumer, so it is gated exactly like
+// `reference_aliases`/`explain`.
+#[cfg(feature = "python")]
+pub mod write_types;
 
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
 // so an added `python` gate here would silently exclude the registry and the
@@ -260,6 +266,10 @@ mod pymodule_def {
 
         // Wave 4 — kicad-write geometry kernels (io/_write_* + placement_exporter).
         crate::kicad_write_geometry::register(m)?;
+
+        // Wave 4 Phase 3 — write-result types + _get_footprint_reference
+        // (io/_write_types.py).
+        crate::write_types::register(m)?;
 
         // Wave 4 Phase 3 tail — DSN format utilities (from temper-dsn).
         crate::dsn_pyo3::register(m)?;

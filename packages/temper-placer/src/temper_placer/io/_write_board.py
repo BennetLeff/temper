@@ -9,6 +9,7 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.gritems import GrLine
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
@@ -483,12 +484,14 @@ def add_isolation_slots_to_pcb(
 
         # Create GrLine on Edge.Cuts layer
         # Width of the line = slot width (routed slot)
+        # The line's content is constructed in Rust (gr_line_sexpr_py) and
+        # materialised through kiutils' own parser — see the module
+        # docstring.
         try:
-            slot_line = GrLine(
-                start=Position(X=abs_start_x, Y=abs_start_y),
-                end=Position(X=abs_end_x, Y=abs_end_y),
-                layer="Edge.Cuts",
-                width=slot.width_mm,
+            slot_line = GrLine.from_sexpr(
+                _GEOM.gr_line_sexpr_py(
+                    abs_start_x, abs_start_y, abs_end_x, abs_end_y, "Edge.Cuts", slot.width_mm
+                )
             )
             ki_board.graphicItems.append(slot_line)
             slots_added += 1
