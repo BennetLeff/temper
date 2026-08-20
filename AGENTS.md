@@ -29,15 +29,10 @@ and never leave both in place "in agreement" — two homes that agree today
 drift tomorrow, and this repo has the scars to prove it.
 
 "Definitely correct" means correct *by construction*, not correct by
-coincidence. The distinction is not academic:
-
-> `temper_drc_rs::ipc::net_currents()` returned the right ampacity for
-> `GATE_HS` only because its lookup used a **substring** match and the stale
-> key `GATE_H` happens to be a literal prefix. Python's exact match missed the
-> same key and returned the 0.1A default — a 20× disagreement on a safety
-> value. Rust's answer was right; its *mechanism* was wrong, and would equally
-> have matched `XGATE_HSY`. Renaming the key without tightening the lookup
-> would have preserved the coincidence.
+coincidence — the `GATE_HS` ampacity incident (Rust's substring lookup
+returned the right value only because the stale key `GATE_H` was a literal
+prefix, and would equally have matched `XGATE_HSY`) is in
+`docs/evidence/2026-08-17-gate-drive-ampacity-key-rename-fix.md`.
 
 So the sequence is: **make Rust right → prove it against Python with a
 differential oracle → delete the Python → keep the oracle.** The ~187 pinned
@@ -48,9 +43,8 @@ a separate, deliberately-committed act requiring evidence first.
 **A differential test only proves what you feed it.** The Rust/Python
 ampacity divergence above survived a genuinely-running differential test
 because that test's input was `"Gate_H"` — a net name absent from this board.
-Both sides looked it up, both agreed, green. When you write or trust a
-differential, check that its inputs are values the production system actually
-sees.
+When you write or trust a differential, check that its inputs are values the
+production system actually sees.
 
 **Key areas:**
 - `firmware/` - ESP32-S3 control code
@@ -93,10 +87,11 @@ same manifest via `firmware/test/gen_transition_table.py`. After manifest edits:
 `pcb/temper.kicad_pcb` with a content-hash `provenance` block
 (`scripts/check_measurement_provenance.py`). **Any PR that touches
 `pcb/temper.kicad_pcb` must re-measure and update `drc_ceiling.json` in the
-*same* PR, not as a follow-up.** The re-measurement is logically part of the
-board change, exactly like the firmware codegen steps above are part of
-their manifest edits -- it is not a separable chore for someone else to
-notice later.
+*same* PR, not as a follow-up** — the re-measurement is logically part of
+the board change, exactly like the firmware codegen steps above are part of
+their manifest edits. Why same-PR is load-bearing (and why branch
+protection does not enforce it):
+`docs/solutions/best-practices/drc-ceiling-same-pr-discipline-2026-08-19.md`.
 
 Re-measure with the same tool, flags, and sample count every prior entry in
 the file's own `_march` log used (read that log before touching a number --
@@ -170,158 +165,90 @@ still matching `pcb/temper.kicad_pcb`'s current content. A raise that
 fails any of these is an unapproved raise, mechanically. Existing `_march`
 entries and records are grandfathered; the contract applies to new raises.
 
-**Why this must land in the same PR, not after**: `check_measurement_provenance.py`
-fails closed the moment the board's content hash no longer matches this
-file's recorded hash -- it already catches an unpaired board change, on the
-board-changing PR itself, before merge. It does not, by itself, stop that
-PR from merging. As of 2026-08-07, `main` **does** have branch-protection
-required status checks (`gh api repos/<org>/<repo>/branches/main/protection`
--> `required_status_checks.contexts: ["Required Python Tests"]`; this
-superseded the earlier "no branch protection at all" state this section
-used to cite) -- but `Required Python Tests` is an aggregator
-(`.github/workflows/required-checks.yml`, driven by
-`.github/required-checks.json`) polling a fixed, named list of contexts,
-and `Board, Provenance & Requirements Gates` -- the job this file's
-provenance and DRC-ceiling checks run in -- is **not** one of them (see
-`required_contexts` in `.github/required-checks.json`). So the conclusion
-is unchanged, for a sharper reason than before: it is not that nothing
-blocks the merge button, it is that the specific gate this section depends
-on is not wired into what does. A red run of this job still does not block
-merging. Landing the re-measurement inside the same commit is what
-actually prevents the gap (there is no red window to begin with); a
-separate follow-up PR only repeats the pattern this section exists to
-stop, and depends on a person or agent remembering to open it before the
-board moves again. See `docs/evidence/2026-07-30-drc-ceiling-remeasurement-cascade.md`.
-The durable fix is adding `Board, Provenance & Requirements Gates` to
-`required_contexts` in `.github/required-checks.json` (a maintainer call --
-it changes what blocks every PR, not just DRC-adjacent ones -- not applied
-by this section).
+**Why same-PR, not after**: the provenance check fails closed the moment
+the board's content hash drifts, but a red run of the `Board, Provenance &
+Requirements Gates` job does **not** block merging — it is not among
+`required_contexts` in `.github/required-checks.json` (as of 2026-08-07;
+adding it is a maintainer call). Landing the re-measurement in the same
+commit is what actually prevents the gap. Full analysis:
+`docs/solutions/best-practices/drc-ceiling-same-pr-discipline-2026-08-19.md`;
+the cascade it prevents:
+`docs/evidence/2026-07-30-drc-ceiling-remeasurement-cascade.md`.
 
-**Identity: what a measurement is anchored to, and why a squash merge must
-not be able to orphan it.** 2026-08-07 incident:
-`drc_ceiling.json`'s `provenance.measured_at_commit` was
-`3410ee4e1fe8c3a5cce13b9262585016a06fce8d` -- a commit absent from this
-repository's object store entirely (`git cat-file -t` fails on it).
-Root cause, confirmed against `git log -p` and the GitHub API: the PR that
-recorded it (#602, branch `feat/k3-swap-and-board-write`) named a
-mid-development branch commit as the measurement anchor; that branch was
-rebased more than once before merging (its own commit trailers say
-"re-point wave-2 provenance to post-rebase HEAD"), and the squash/rebase
-orphaned the original commit object before the PR landed. Neither existing
-check would have caught it: `validate_provenance_shape` only checks that
-`measured_at_commit` is 40 lowercase hex characters or `"UNKNOWN"` --
-shape, not existence -- and `DrcRatchet.validate_raise_evidence`'s commit
-check (`_SHA256_HEX_RE.fullmatch`) is the same regex-only check despite its
-error message claiming otherwise, and it only runs when a ceiling *raise*
-is being approved, not on every re-measurement.
-
-The fix (`scripts/check_measurement_provenance.py`, 2026-08-07): a
-measurement's **primary, authoritative identity is the content hash**
-already recorded at `provenance.inputs[].sha256` -- this was already true
-in design (the module docstring's "informational, never the thing
-compared" language predates this incident) but was not fully true in
-enforcement. `measured_at_commit` is **advisory** -- useful for a human
-tracing which run produced a number -- but is now also **verified for
-resolvability whenever it is not `"UNKNOWN"`**, via
-`check_evidence_provenance.verify_commits_exist` (the same
-`git cat-file --batch-check` mechanism that already closed this exact hole
-for `docs/evidence/*`, reused rather than reimplemented). A commit SHA was
-rejected as the *primary* identity outright, not merely deprioritized: it
-is not stable under history rewriting by construction (squash merge,
-rebase, `git gc` pruning an unreachable object), while a raw content hash
-of the file bytes is independent of git object model, mtimes, or commit
-topology entirely -- the only signal that directly answers "is this the
-same content" regardless of how the repository's history around it
-changed. A **dangling** `measured_at_commit` (well-formed but unresolvable)
-is now treated as a hard failure -- worse than an honest `"UNKNOWN"`,
-because it claims traceability it does not have while looking exactly like
-a record that does. A `dirty: true` record is now also a hard failure on
-every provenanced record, not only on a ceiling raise: an unnamed
-uncommitted change at measurement time could have influenced the result
-without ever appearing in `inputs`, which the content-hash check cannot
-see. All three of these are checked unconditionally by
-`check_measurement_provenance.py` on every PR that touches a registered
-measurement artifact -- not only on a ceiling raise -- so a bad record now
-fails closed on the PR that writes it, the same "same-PR" discipline this
-section already requires of the re-measurement itself. See
-`scripts/check_measurement_provenance.py`'s module docstring for the full
-incident writeup and design rationale, including the alternatives
-considered and rejected (re-anchoring freshness on the commit SHA instead
-of content; silently downgrading a dangling commit to `"UNKNOWN"` instead
-of failing on it).
+**Provenance identity**: a measurement's primary, authoritative identity
+is the content hash at `provenance.inputs[].sha256`; `measured_at_commit`
+is advisory but must resolve when not `"UNKNOWN"` (a dangling commit is a
+hard failure — worse than an honest `"UNKNOWN"`), and `dirty: true` is a
+hard failure on every provenanced record, not only on a raise. All three
+are checked unconditionally by `check_measurement_provenance.py` on every
+PR that touches a registered measurement artifact. Full 2026-08-07
+incident and design rationale (why a commit SHA cannot be the primary
+identity):
+`docs/evidence/2026-08-07-drc-ceiling-provenance-identity-incident.md`.
 
 ## Measurement Instruments That Lie — read before trusting any number
 
-Every one of these produced a wrong conclusion that someone acted on. They are
-recorded here because agents kept re-deriving them from scratch, one session at
-a time.
+Every one of these produced a wrong conclusion that someone acted on. Full
+incident narratives and measured numbers:
+`docs/evidence/2026-08-19-measurement-instruments-that-lie.md`.
 
 **A number from a mis-set-up instrument is indistinguishable from a real
 result.** In a single day these manufactured five phantom test failures, one
-invalid baseline, a regression that never existed, and two hypotheses that sent
-whole investigations down dead ends.
+invalid baseline, a regression that never existed, and two hypotheses that
+sent whole investigations down dead ends.
 
 ### DRC / kicad-cli
 
-* **`pcb/temper.kicad_dru` is gitignored and generated.** Without regenerating
-  it (`scripts/generate_kicad_dru.py`), **creepage reads 0** and clearance
-  reads a different count entirely. Regenerate before any DRC run. It also
-  regenerates to a different byte size than any committed copy.
-* **`_drc_api.run_drc(Path)` is necessary but NOT sufficient** — the *board
-  file* needs an `fp-lib-table` sibling. Without one,
-  `lib_footprint_issues` reads exactly the board's footprint count (168) and
-  `lib_footprint_mismatch` reads 0, **even through the correct API**. With
-  `pcb/fp-lib-table` beside it: 168 -> 16, mismatch -> 25. That 168/0 pair is
-  the signature; if you see it, your harness is wrong, not the board.
-* **kicad-cli saturation caps**: `ERROR_LIMIT` = 199, `EXTENDED_ERROR_LIMIT` =
-  499. A count of **exactly** 199 or 499 is a cap, not a count.
-* **kicad-cli is nondeterministic run-to-run.** Run 3x and intersect. Observed
-  spreads: creepage {105,106,107}, total {777,778}, and `shorting_items` rows
-  whose net order swaps (`nets A and B` vs `nets B and A`) — normalize before
-  diffing or you will "find" changes that are not there.
-* **kicad-cli reports one creepage violation per NET PAIR, not per pad pair.**
-  Clearing one pair unmasks another that was hidden behind it. Expect new rows
-  between parts you did not touch, and do not attribute them to your change
-  without checking. `DrcResult` exposes `.error_count`/`.warning_count`/
-  `.errors`/`.warnings` (not `.counts`); `DrcError` exposes `.rule`/`.nets`/
-  `.message`/`.items`. **Diff the violation SETS, not the counts.**
+* **Regenerate `pcb/temper.kicad_dru`** (`scripts/generate_kicad_dru.py`)
+  before any DRC run — it is gitignored/generated; without it creepage
+  reads 0 and clearance reads a different count.
+* **`_drc_api.run_drc()` is necessary but NOT sufficient** — the board
+  needs an `fp-lib-table` sibling. Signature: `lib_footprint_issues` ==
+  board footprint count (168) with `lib_footprint_mismatch` == 0 — that
+  pair is a resolution failure, not a census.
+* **kicad-cli caps**: a count of exactly 199 or 499 is a cap, not a count.
+* **kicad-cli is nondeterministic run-to-run** — run 3x and intersect;
+  normalize net-order swaps before diffing.
+* **Creepage reports per NET PAIR, not pad pair** — clearing one unmasks
+  another; diff violation SETS, not counts (`DrcResult.errors`/`.warnings`,
+  `DrcError.rule`/`.nets`/`.items`).
+* **Ad-hoc DRC harnesses must copy the library table** (`fp-lib-table` +
+  libs/, and a seeded `KICAD_CONFIG_HOME`), not just the board sidecars —
+  same 168/0 signature above. `_drc_api._single_threaded_kicad_env` already
+  does this correctly: mirror it, or call it. Category *deltas* survive a
+  constant harness error; absolutes do not.
 
 ### Build / environment
 
-* **`make extensions` fails hard when `CONDA_PREFIX` is set** — maturin refuses
-  when it coexists with `VIRTUAL_ENV`. Use `env -u CONDA_PREFIX`. A silent
-  failure here left an extension unbuilt and manufactured **5 phantom test
-  failures** that read as real creepage regressions.
+* **`make extensions` fails hard when `CONDA_PREFIX` is set** — maturin
+  refuses when it coexists with `VIRTUAL_ENV`. Use `env -u CONDA_PREFIX`.
 * **A stale `.so` fails loudly, not subtly**: `AttributeError: module
-  'temper_rust_router' has no attribute '...'`. `scripts/check_stale_extensions.py`
-  reports which crates are stale. Any PR that changes a pyo3 boundary leaves
-  every unrebuilt checkout broken, including CI's typecheck stubs.
-* **`scripts/check_venv_integrity.py` false-positives from worktrees nested
-  under `.claude/worktrees/`** — `classify_path` lets `other_worktrees` win
-  because the main checkout is a string prefix. It reports all editable
-  installs as violations while printing paths that are correct.
+  'temper_rust_router' has no attribute '...'`. Run
+  `scripts/check_stale_extensions.py` before trusting any number; any PR
+  that changes a pyo3 boundary leaves every unrebuilt checkout broken.
+* **`check_venv_integrity.py` false-positives** on worktrees nested under
+  `.claude/worktrees/` (`classify_path` prefix bug) — check the printed
+  paths before acting on a violation report.
 
 ### Test harness
 
-* **Set pytest timeouts above 1200s for full-route tests.**
+* **Set pytest timeouts above 1200s for full-route tests** —
   `test_route_pcb_production_board` needs ~1193s; a 900s cap manufactured a
-  "20th failure" that could not have passed on any branch.
-* **Hypothesis replays counterexamples from its example DB.** A test that fails
-  only on your branch may be replaying a stored case. Clear the DB before
-  concluding you caused it — and if the counterexample is real, it deserves its
-  own ticket rather than being written off as flake.
+  phantom "20th failure".
+* **Hypothesis replays counterexamples from its example DB** — a failure
+  only on your branch may be a stored replay; clear the DB before
+  concluding you caused it. A real counterexample deserves its own ticket,
+  not a flake write-off.
 
 ### Figures that look measured and are not
 
-* **`attempted_ripups` is a hardcoded literal** (`_astar_nlayer.py`
-  `record_failure`), on a single-pass loop with no rip-up mechanism. Every net
-  reports 0. It is not evidence about displacement of committed copper.
-* **`RouteProfileStats.python_time_ms` is structurally always 0.0** since the
-  Python search path was removed — and is still published as
-  `maze_router_python_ms`.
-* **A 16-character digest prefix is not a 64-character claim.** Compare full
-  digests programmatically. Note also that after a **squash** merge the branch
-  SHA is never an ancestor of `main` — that is expected, not lost work.
+* **`attempted_ripups` is a hardcoded literal** (every net reports 0) — not
+  evidence about displacement of committed copper.
+* **`RouteProfileStats.python_time_ms` is structurally always 0.0** — still
+  published as `maze_router_python_ms`.
+* **A 16-character digest prefix is not a 64-character claim** — compare
+  full digests programmatically; after a squash merge the branch SHA is
+  never an ancestor of `main` (expected, not lost work).
 
 ### The general rule
 
@@ -463,10 +390,7 @@ make regen-check   # report only -- what CI's gates will see
 Several committed files are *generated* from source: `README.md`'s package and
 plan counts, `scripts/oracle_hashes.json`, the wasm test registry. When one
 drifts behind a change, the gate that polices it fails on `main` **after** the
-merge, and every open PR inherits the red. That happened four times on
-2026-08-06 — README counts after a merge run, the oracle registry after the
-gate landed, the workspace package count after a crate was added, and the
-oracle registry again after five oracles were added.
+merge, and every open PR inherits the red (happened four times on 2026-08-06).
 
 `make regen` deliberately does **not** regenerate everything. Two of these
 artifacts are evidence, not output, and it refuses rather than laundering them:
@@ -503,15 +427,14 @@ docstring for the mechanism, and `scripts/check_no_worktree_target_dirs.py`
 that pass a `CACHEDIR.TAG` safety check) for the gate that catches anything
 that still slips through.
 
-**Why this is needed, and why the `source scripts/cargo_shared_env.sh`-
-once-per-shell guidance was replaced (2026-08-13):** agent tool-calling
-harnesses start a *fresh shell process per tool call*, so shell state —
-including exported env vars — does not persist between calls. Without the
-wrapper, `.cargo/config.toml`'s *relative* `build.target-dir = target-shared`
-resolves per-worktree (every worktree has its own tracked copy of the
-config), so each worktree cold-compiles all 10 pyo3 crates into its own
-`target-shared`. Recurrences: 51 GB (2026-07-28), 36.6 GB across 25 caches
-(2026-08-06), ~74 GB across 99 worktrees (2026-08-11/12) — see
+**Why the wrapper, not a shell convention (2026-08-13):** agent
+tool-calling harnesses start a *fresh shell process per tool call*, so
+shell state — including exported env vars — does not persist between calls;
+without the wrapper, `.cargo/config.toml`'s *relative*
+`build.target-dir = target-shared` resolves per-worktree and each worktree
+cold-compiles all 10 pyo3 crates into its own `target-shared`. Recurrences:
+51 GB (2026-07-28), 36.6 GB across 25 caches (2026-08-06), ~74 GB across 99
+worktrees (2026-08-11/12) — see
 `docs/evidence/2026-08-13-cargo-target-dir-shell-convention-failure.md` and
 `docs/solutions/best-practices/shared-cargo-target-dir-guard-2026-08-19.md`.
 
@@ -547,14 +470,10 @@ built (this bit a session in practice before this target existed).
 After `make extensions`, `uv run --no-sync python
 scripts/check_stale_extensions.py` should report 0 STALE.
 
-**A stale `.so` does not just fail — it lies.** Believing a measurement
-taken against one is the expensive mistake, not the rebuild (two real
-instances — 72 of 76 "deterministic" failures were stale extensions, and a
-"missing" `RouterPipeline` was an `.so` that predated the commit adding the
-symbol — are in
-`docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`). Run the gate
-*before* you believe a number, not after a result surprises you. Absence of
-a symbol is not evidence of a missing feature.
+**A stale `.so` does not just fail — it lies.** Run the gate *before* you
+believe a number, not after a result surprises you. Absence of a symbol is
+not evidence of a missing feature (two real instances:
+`docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`).
 
 **A poisoned cargo cache defeats the rebuild silently.** `cargo check` and
 clippy compile these crates *without* their `python` feature. maturin will
@@ -579,148 +498,67 @@ any working directory.
 
 `make venv-isolate` gives a worktree its own `.venv`, immune to *any* other
 checkout's `uv sync`/`uv run` — at a measured cost of ~700 MB disk and ~85s
-wall time with a warm `uv`/cargo cache (the shared `target-shared` means
-the Rust half compiles incrementally even into a brand-new venv — see
-`docs/evidence/2026-07-28-worktree-env-isolation.md` for the measurement).
+wall time with a warm `uv`/cargo cache (`docs/evidence/2026-07-28-worktree-env-isolation.md`).
 **Run it once, at the start of any session that will build or test Rust
 extensions.**
 
 **Not the default for every worktree unconditionally.** At fleet scale
-(dozens of agent worktrees at once, low double-digit GB free), isolating
-every one is the same disk-multiplication hazard that has already exhausted
-disk twice. Isolate the worktrees that are actually building or testing
-Rust extensions; everywhere else rely on the content-hash freshness gate
+(dozens of agent worktrees, low double-digit GB free), isolating every one
+is the same disk-multiplication hazard that has already exhausted disk
+twice. Isolate the worktrees actually building or testing Rust extensions;
+everywhere else rely on the content-hash freshness gate
 (`scripts/check_stale_extensions.py`, unconditional, zero downside). Why a
 shared `.venv` is the historical default, what it cost, and the two
 independent fixes (content-hash stamps + opt-in isolation):
 `docs/solutions/best-practices/shared-mutable-state-dominant-cost-multi-agent-repo-2026-07-28.md`.
 
-### A worktree can silently poison the venv it builds into
+### The venv can be the wrong tree in five distinct ways
 
-2026-08-11 incident: the shared `.venv`'s editable-install pointers were
-found rewritten to **an agent's git worktree** rather than the main
-checkout, so every measurement in that window ran against the worktree's
-code — imports succeed, numbers come back confident and wrong (full
-narrative: `docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`).
-Four distinct silent-staleness modes, all reachable from an ordinary
-worktree session running `maturin`/`uv` directly instead of through `make`:
+Four 2026-08-11 modes where a worktree poisons the shared venv it builds
+into, plus a 2026-08-17 fifth mode where the *healthy* shared venv reads
+`main` instead of your worktree. Full narratives:
+`docs/evidence/2026-08-11-worktree-poisons-shared-venv.md`,
+`docs/evidence/2026-08-17-shared-venv-serves-main-code.md`, and the
+five-mode catalog with gate-ordering rationale:
+`docs/solutions/best-practices/shared-venv-silent-staleness-modes-2026-08-19.md`.
 
 1. **`maturin` refuses outright if `VIRTUAL_ENV` and `CONDA_PREFIX` are
    both set** — a loud failure, the safe end of the list. Unset whichever
    you are not using before invoking `maturin` directly.
 2. **Plain `uv run maturin develop` from a worktree targets a *per-worktree*
-   venv and no-ops against the shared one.** If `UV_PROJECT_ENVIRONMENT`
-   is not pointed at the shared `.venv` (or the worktree has its own via
+   venv and no-ops against the shared one** — unless `UV_PROJECT_ENVIRONMENT`
+   points at the shared `.venv` (or the worktree has its own via
    `make venv-isolate`), the build "succeeds" into a venv nobody imports
-   from — the shared venv's extension is untouched and still stale.
+   from; the shared extension stays stale.
 3. **`maturin develop --active` from a worktree rewrites the SHARED venv's
-   editable pointers** — the incident. `--active` targets whatever venv is
-   currently *active* (`VIRTUAL_ENV`), not one scoped to the worktree it
-   ran from. Every subsequent `import` from *any* worktree — including the
-   main checkout — silently resolves into the worktree that ran the
-   command. This is the mode `scripts/check_venv_integrity.py` exists to
-   catch.
+   editable pointers** — `--active` targets whatever venv is *active*
+   (`VIRTUAL_ENV`), not one scoped to the worktree it ran from, so every
+   subsequent `import` from *any* worktree silently resolves into the
+   worktree that ran the command. Closed by `scripts/check_venv_integrity.py`
+   (venv *identity*: asserts every editable-install `.pth`/`direct_url.json`
+   resolves under the expected repo root — fast, deterministic, local-only):
+   ```bash
+   .venv/bin/python scripts/check_venv_integrity.py   # or: make venv-integrity-check
+   ```
 4. **`maturin develop` can report "Installed" while leaving the `.so`
    untouched** — five rebuilds exited 0 in a row while the artifact stayed
-   dated a day behind the source that changed underneath it. This is
-   `scripts/check_stale_extensions.py`'s territory; it is why "the build
-   tool said success" is never trusted anywhere in this repo's gates.
-
-**`check_stale_extensions.py` catches (4)'s mtime symptom but not (3)'s
-redirection** — a hijacked-but-not-yet-rebuilt venv still imports a `.so`
-that is content-fresh *relative to the worktree it was built from*, which
-is exactly what makes (3) silent: the staleness gate has no way to know it
-is comparing against the wrong checkout's sources in the first place.
-
-### Ad-hoc DRC harnesses: copy the library table, not just the sidecars
-
-2026-08-18. A DRC scratch harness that copies only `temper.kicad_pcb` and
-`temper.kicad_pro` — and points `KICAD_CONFIG_HOME` at an empty directory —
-silently fails to resolve **every footprint on the board**.
-
-The symptom is distinctive and worth memorising: **`lib_footprint_issues`
-reads exactly the board's total footprint count** (168 here), and
-**`lib_footprint_mismatch` reads 0**. A number equal to 100% of the
-population is a resolution failure, not a census. The second reading is the
-tell for the first — a footprint that never resolved cannot register as
-*mismatched* against a library it never found, so the pair is corrupted in
-opposite directions at once.
-
-Measured, three controlled runs on the same board:
-
-```
-fp-lib-table + libs/   KICAD_CONFIG_HOME    lib_footprint_issues
-       no                    empty                  168
-      yes                    empty                  165
-      yes                   seeded                   13   <- the truth
-```
-
-`KICAD10_FOOTPRINT_DIR` is **not** an OS environment variable. It is defined
-inside `kicad_common.json`, under `KICAD_CONFIG_HOME`.
-
-**`_drc_api._single_threaded_kicad_env` already does this correctly.** The
-production path has never been wrong. Ad-hoc harnesses copied its
-thread-pinning and not its environment construction — so mirror the whole
-function, or better, call it.
-
-Cost: this artifact was reported and repeated for hours as "the largest
-unexplained DRC regression" and blocked a ceiling re-baseline, when the
-stored ceiling of 13 had been correct the entire time.
-
-**The deltas survived, the absolutes did not.** Because the error is constant
-across a before/after pair, category *deltas* measured this way remain valid;
-only *totals* are inflated. If you inherit a DRC total from a document, check
-how it was measured before trusting it.
-
-### The fifth mode: the shared venv reads *main*, not your worktree
-
-2026-08-17. The four modes above are all "a worktree poisons the venv."
-**The complementary mode needs no poisoning at all — the healthy, correct
-state of a shared venv is the hazard.** The shared `.venv`'s `temper_placer`
-is editable-installed against the **main checkout**, so a worktree agent
-that edits Python and then runs `.venv/bin/python scripts/route_board.py`
-**measures `main`'s code, not its own change.** Nothing errors; the numbers
-come back confident and wrong (a real round trip: an agent "fixed" the
-pour-stitch `track_width` defect and still measured 197 violations, every
-one reading the literal value the fix had just removed — see
-`docs/evidence/2026-08-17-shared-venv-serves-main-code.md`).
-
-**Two defences, in order of preference:**
-
-1. **`make venv-isolate` in your worktree.** The worktree gets its own
-   `.venv` and the question disappears — it fixes reads as well as writes.
-2. **If you must use the shared venv, verify what you are importing before
-   you believe a number** — `python -c "import temper_placer; print(...__file__)"`
-   and confirm the path is your worktree. A `sys.path` override wrapper
-   works, but is easy to get subtly wrong.
+   dated a day behind the source. Caught by `scripts/check_stale_extensions.py`
+   (per-crate artifact *freshness*); it catches this mtime symptom but not
+   mode 3's redirection — identity is logically prior, which is why the two
+   are separate gates (CI runs identity first, then freshness).
+5. **The shared venv reads `main`, not your worktree** — its `temper_placer`
+   is editable-installed against the main checkout, so a worktree agent that
+   edits Python and runs `.venv/bin/python scripts/route_board.py` measures
+   `main`'s code, not its own change. Defences, in order of preference:
+   (1) `make venv-isolate` in your worktree — fixes reads as well as writes;
+   (2) if you must use the shared venv, verify what you import before you
+   believe a number — `python -c "import temper_placer; print(temper_placer.__file__)"`
+   and confirm the path is your worktree.
 
 **The generalizable rule: when a measurement contradicts a change you just
 made, suspect the measurement before the change.** Ask what the number
-would look like if your edit were not in effect at all — here, "identical
-to before" was exactly the observed result, and that is the signature.
-
-**`scripts/check_venv_integrity.py` closes mode 3.** It asserts every
-editable-install `.pth` file and every `direct_url.json` in the checked
-venv's site-packages resolves under the expected repo root — not into a
-different registered git worktree (`git worktree list --porcelain`, so this
-covers `.claude/worktrees/agent-*` and any other worktree location) and not
-into an unrelated checkout entirely. Fast, deterministic, local-only (one
-`git worktree list --porcelain`, no network). Run it any time a shared
-venv's trustworthiness is in doubt:
-
-```bash
-.venv/bin/python scripts/check_venv_integrity.py     # or: make venv-integrity-check
-```
-
-It is a **separate** gate from `check_stale_extensions.py` deliberately:
-the two answer different questions on different axes (venv *identity*,
-scanned from installed site-packages, vs. per-crate artifact *freshness*,
-scanned from `packages/` source) and identity is logically prior — a
-freshness verdict computed against a hijacked venv is meaningless. CI runs
-it in the `test` job (`python-tests.yml`), immediately before the staleness
-gate it protects the meaning of. Exit codes mirror `check_stale_extensions.py`'s
-0/3/5 on purpose; the five-mode catalog and gate-ordering rationale:
-`docs/solutions/best-practices/shared-venv-silent-staleness-modes-2026-08-19.md`.
+would look like if your edit were not in effect at all — "identical to
+before" was exactly the observed result, and that is the signature.
 
 ## Documentation & Context Maintenance
 
@@ -786,12 +624,8 @@ itself doesn't resolve (typo, or you need to `git fetch` first).
 
 This exists because it kept not happening: four confirmed cases in one day
 of an agent measuring in a stale worktree and reporting the result as
-current state — a "broken" crate that builds fine one commit later, a
-fault-tree survey that was correct for a tree that no longer exists, two
-agents that started work from commits several patches behind the branch tip
-they thought they were on. See `docs/METHODOLOGY.md` Sec 5 ("a measurement
-carries the commit it was taken at, or it is not a measurement") and
-`docs/evidence/2026-07-26-measurement-provenance.md`. Every dispatch that
+current state (see `docs/METHODOLOGY.md` Sec 5 and
+`docs/evidence/2026-07-26-measurement-provenance.md`). Every dispatch that
 names a base commit or branch should have the receiving agent run this
 before doing anything else.
 
@@ -822,19 +656,15 @@ This exists because the failure mode is loud and expensive: an agent
 dispatched with a citation to
 `docs/evidence/2026-08-12-hvlv-candidate-board-measurement.md` searched its
 own worktree, found nothing, and reported the citation as **fabricated** --
-refusing the task on the grounds that its dispatcher had invented the
-evidence. The document was real, merged as #1053 (`d8062c6e6`), and its
-worktree was cut exactly one commit earlier. The agent was right to refuse
-the underlying action for other reasons, but its stated reason was false,
-and a false accusation of fabrication is worse than a missing file: it
-discredits real prior work and invites re-doing it.
+the doc was real, merged as #1053 (`d8062c6e6`), and the worktree was cut
+exactly one commit earlier. A false accusation of fabrication is worse than
+a missing file: it discredits real prior work and invites re-doing it.
 
-Note the asymmetry with the Base-Commit Assertion above. That rule catches
-you *measuring* stale state. This one catches you *reasoning* from stale
-state -- the assertion can pass (you are exactly on the base you were
-given) while the base itself is behind the tip that has the file you were
-sent to read. `git fetch` costs a second; concluding fabrication costs a
-session.
+Note the asymmetry with the Base-Commit Assertion above: that rule catches
+you *measuring* stale state; this one catches you *reasoning* from stale
+state — the assertion can pass while the base itself is behind the tip that
+has the file you were sent to read. `git fetch` costs a second; concluding
+fabrication costs a session.
 
 ### Never Work Directly in the Main Checkout
 
@@ -846,10 +676,9 @@ git worktree add <path> -b <branch> origin/main
 
 The main checkout is shared. When two agents use it concurrently, one
 switching branches silently discards the other's uncommitted edits -- no
-error, no conflict, no warning. This is not hypothetical: in one session an
-agent lost a completed, user-requested `AGENTS.md` edit this way, and a
-second agent independently hit the same thing mid-task, discovering it only
-because `git reflog` showed branch switches it had not made.
+error, no conflict, no warning (in one session an agent lost a completed,
+user-requested `AGENTS.md` edit this way; a second discovered branch
+switches in the reflog it had not made).
 
 Two corollaries:
 
@@ -862,12 +691,11 @@ Two corollaries:
 
 **Your own worktree means *yours*, not merely "not the main checkout."**
 Run `git worktree list` and confirm the directory is yours before your
-first write. Reusing a directory another agent is already in is the same
-failure as sharing the main checkout, and it is the more common one: in a
-single session on 2026-08-14, seven collisions occurred, including three
-separate agents working in one `.claude/worktrees/agent-*` directory —
-one agent's commits landed on another's branch, and a third's uncommitted
-edits sat in the same tree while HEAD was moved out from under them twice.
+first write — reusing another agent's directory is the more common failure
+(on 2026-08-14, seven collisions in one session, including three agents in
+one `.claude/worktrees/agent-*` directory: commits landed on another's
+branch, and a third's uncommitted edits sat in the tree while HEAD moved
+under them twice).
 
 If you discover foreign work in your tree:
 
@@ -885,15 +713,10 @@ Long pipeline stages -- `route_board.py` (~250-400 s), a full placement
 solve, a `cargo build` of the workspace -- must be run **in the foreground**,
 or launched and then polled by reading their log/output file directly.
 
-Do not background one and stop, expecting to be woken. Nothing wakes you.
-Four dispatched agents did this in a single session; one did it twice after
-being told explicitly that nothing would wake it. Each burned its remaining
-budget parked on a notification that does not exist, and two of them had
-already finished the work they were sent to do.
-
-The instinct is reasonable -- backgrounding a 6-minute job and yielding is
-what you would do if something *would* wake you. It won't. Treat "I'll wait
-for the background task" as a bug in your own plan.
+Do not background one and stop, expecting to be woken. Nothing wakes you —
+four dispatched agents did this in a single session; one did it twice after
+being told explicitly. Treat "I'll wait for the background task" as a bug
+in your own plan.
 
 Two consequences worth stating separately:
 
@@ -983,100 +806,36 @@ will now trigger HV/LV separation checks.
 
 ## Coverage Gate
 
-### Scope (Phase 2)
+The coverage gate applies to all public functions in `temper_placer/`
+except `_constraint_types/` and `profiling/` (permanently excluded via
+`[tool.coverage.run] omit` in `pyproject.toml`). Full spec — scope,
+allowlist format, `--init` workflow, shrink rule, paydown cadence:
+`docs/solutions/best-practices/coverage-gate-spec-2026-08-19.md`.
 
-The coverage gate currently applies to all public functions in `temper_placer/`
-except `_constraint_types/` (pydantic `BaseModel` types — hand-written, R7-resolved JUSTIFIED-KEEP 2026-08-11) and `profiling/` (production
-diagnostics). These subpackages are permanently excluded via `[tool.coverage.run]
-omit` in `pyproject.toml` and `--cov-config` in CI. The gate catches public
-functions (module-level `def` not prefixed with `_`, and methods of public classes
-not prefixed with `_`) whose body has **zero executed lines** during the test suite.
-
-### How It Works (Phase 2 — Inline Coverage)
-
-1. CI runs `uv run pytest tests/core/ -v --tb=short --maxfail=10
-   --cov=temper_placer --cov-report=json --cov-report=term
-   --cov-config=../../pyproject.toml` in `packages/temper-placer/`, producing
-   `coverage.json` as a side effect during normal test execution. No separate
-   pytest invocation.
-2. `scripts/check_coverage_gate.py` reads `coverage.json`, AST-parses each source
-   file to identify public functions, and checks coverage for each.
-3. Any zero-coverage public function **not on the allowlist** (`.coverage-allowlist`)
-   fails CI.
-4. The CI gate step is currently **warn-only** (`continue-on-error: true`) until
-   the Phase 1 paydown prerequisite is met. Once met, a follow-on PR removes
-   `continue-on-error` and the gate becomes a hard CI block.
-
-### Phase 1 Paydown Prerequisite
-
-Phase 2's hard-fail gate is gated on the Phase 1 allowlist (entries for
-`temper_placer/core/`) having shrunk by >=50% from the initial 193 entries.
-Current count is tracked in the `.coverage-allowlist` header. The gate step
-uses `continue-on-error: true` with a warning annotation providing context
-until the prerequisite is verified and the guard is removed.
-
-### `--init` Workflow (for new phases)
-
-When expanding scope to new modules:
-1. Add the new module paths to `source` in `[tool.coverage.run]` in
-   `pyproject.toml` and add `omit` patterns for excluded subpackages.
-2. Run `uv run pytest tests/core/ --cov=<new.scope> --cov-report=json
-   --cov-config=../../pyproject.toml` from `packages/temper-placer/` to
-   generate `coverage.json`.
-3. Run `python scripts/check_coverage_gate.py --init --coverage-json
-   /path/to/coverage.json --allowlist .coverage-allowlist`. The `--init` mode
-   preserves existing allowlist entries; new entries are appended with
-   `# TODO: temper-xxx` placeholders.
-4. Review the output: remove stale entries (now have coverage), replace
-   `# TODO: temper-xxx` placeholders with real ticket IDs.
-5. Commit the updated allowlist.
-
-### `--init` for Phase 2
-
-`--init` appends new entries for modules outside `temper_placer/core/`.
-Existing entries are preserved. Real ticket IDs replace `# TODO: temper-xxx`
-placeholders before commit. `_constraint_types/` and `profiling/` are
-permanently excluded via `[tool.coverage.run] omit`.
-
-### Excluded Subpackages
-
-- `temper_placer/_constraint_types/` — pydantic `BaseModel` constraint types (hand-written, not generated — R7 resolution 2026-08-11: JUSTIFIED-KEEP, see `docs/evidence/2026-08-11-r7-constraint-types-resolution.md`).
-- `temper_placer/profiling/` — production diagnostics, wall-clock instrumentation.
-These are excluded via `omit = ["*/_constraint_types/*", "*/profiling/*"]`
-in `[tool.coverage.run]` (root `pyproject.toml`) and via
-`--cov-config=../../pyproject.toml` in CI.
-
-### Allowlist Format (`.coverage-allowlist`)
-
-```
-temper_placer/core/<module>.py::function_or_Class.method  # TODO: temper-xxx
-```
-
-- One entry per line. `#` starts a comment.
-- Every entry **must** have a `# TODO: temper-xxx` trailing comment (either a
-  real ticket ID or the `temper-xxx` placeholder for initial baseline).
-- The file lives at repo root, visible alongside `pyproject.toml`.
-
-### Monotonic-Shrink Rule
-
-- **Removals**: An allowlist entry may only be removed when the same PR either
-  adds a test exercising the function OR deletes the function from source.
-  `--check-shrink` enforces this.
-- **Additions**: A new entry must include a `# TODO: temper-xxx` ticket reference.
-  Placeholder `temper-xxx` is accepted for initial bulk population only; real
-  tickets are required for subsequent additions.
-- This ensures the allowlist shrinks over time — it is not a backdoor for
-  ignoring uncovered code.
-
-### Paydown Cadence
-
-- Phase advancement (e.g., expanding scope from `temper_placer/` to `temper-drc`,
-  `temper-tools`, `temper-workflow` for Phase 3) is gated on 50% allowlist entry
-  paydown.
-- Recommended cadence: quarterly hardening sprint focused on writing tests for
-  allowlisted functions and removing entries.
-- An allowlist entry that now has coverage triggers a `WARNING` in CI (stale
-  entry) — not a failure.
+**Key rules:**
+* A public function (module-level `def` or public-class method, no `_`
+  prefix) with **zero executed lines** during the test suite fails the gate
+  unless it is on the allowlist (`.coverage-allowlist`, repo root).
+* The gate is currently **warn-only** (`continue-on-error: true`) until the
+  Phase 1 allowlist (entries for `temper_placer/core/`) shrinks >=50% from
+  the initial 193 entries (count tracked in the `.coverage-allowlist`
+  header); a follow-on PR then removes `continue-on-error` and the gate
+  becomes a hard CI block.
+* **Monotonic shrink**: an allowlist entry may only be removed when the
+  same PR adds a test exercising the function OR deletes it from source
+  (`--check-shrink` enforces this); additions need a real `# TODO:
+  temper-xxx` ticket reference (placeholder only for initial bulk
+  population). Stale entries (now covered) are WARNINGs, not failures.
+* **Phase advancement** (expanding scope, e.g. Phase 3) is gated on 50%
+  allowlist paydown; recommended cadence is a quarterly hardening sprint.
+* **New phases**: run `check_coverage_gate.py --init --coverage-json
+  <path> --allowlist .coverage-allowlist` (preserves existing entries,
+  appends new ones with `temper-xxx` placeholders); review, replace
+  placeholders with real ticket IDs, commit.
+* **Escape hatch**: there is no env-var override — the allowlist IS the
+  recorded justification (a reviewer sees additions/removals in `git
+  diff`). Emergency skip means editing the CI step config
+  (`python-tests.yml`) directly.
 
 ## Documented Solutions
 
@@ -1084,13 +843,6 @@ temper_placer/core/<module>.py::function_or_Class.method  # TODO: temper-xxx
 architecture patterns, workflow issues), organized by category with YAML
 frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or
 debugging in documented areas.
-
-### Escape Hatch
-
-There is no env-var override to skip the gate. The allowlist **is** the recorded
-justification — a reviewer sees allowlist additions/removals in `git diff`. To
-skip the gate temporarily in an emergency, the CI step configuration
-(`python-tests.yml`) can be modified directly.
 
 ## General Coding Principles
 
