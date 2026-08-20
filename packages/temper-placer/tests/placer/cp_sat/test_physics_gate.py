@@ -401,7 +401,10 @@ class _FakeDrcResult:
 def _stub_run_drc(monkeypatch, errors):
     import temper_placer.validation.drc_runner as drc_runner
 
-    monkeypatch.setattr(drc_runner, "run_drc", lambda *a, **k: _FakeDrcResult(errors))
+    def fake_run_drc(*_args, **_kwargs):
+        return _FakeDrcResult(errors)
+
+    monkeypatch.setattr(drc_runner, "run_drc", fake_run_drc)
 
 
 def test_per_pairing_threshold_is_the_pairs_own_requirement(monkeypatch, tmp_path):
