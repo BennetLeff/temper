@@ -116,7 +116,10 @@ from typing import TYPE_CHECKING
 import temper_geometry as _tg
 import temper_orchestration as _to
 
-from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+from temper_placer.core.isolation_constants import (
+    MIN_BARRIER_WIDTH_IS_DETERMINATE,
+    MIN_BARRIER_WIDTH_MM,
+)
 from temper_placer.core.pad_geometry import shape_code
 
 if TYPE_CHECKING:
@@ -127,6 +130,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "DEFAULT_CORRIDOR_WIDTH_MM",
+    "MIN_BARRIER_WIDTH_IS_DETERMINATE",
     "DomainPartition",
     "IsolatorFeasibility",
     "IsolationBarrierReport",
@@ -149,6 +153,37 @@ __all__ = [
 # duplicated literal -- see docs/solutions/design-patterns/derived-constant-
 # in-prose-drifts-make-the-gate-emit-it-2026-07-29.md.
 DEFAULT_CORRIDOR_WIDTH_MM = MIN_BARRIER_WIDTH_MM + 0.5
+
+# WHAT MOVED UNDER THIS CONSTANT ON 2026-08-19, and why nothing here changed.
+#
+# `MIN_BARRIER_WIDTH_MM` stopped being the literal 12.6 (Table 17 row iv,
+# doubled) and became a DERIVED per-pairing figure: the worst enforceable
+# floor over every HV<->SELV pairing declared in
+# `elec/insulation_manifest.yaml`. That is the resonant-tank crossing, so the
+# corridor moved 13.1mm -> 20.5mm without a line changing here. This is
+# exactly what the "computed, not restated" note above was for.
+#
+# TWO THINGS A CALLER OF THIS MODULE MUST KNOW.
+#
+# 1. THE CORRIDOR IS A LOWER BOUND, NOT A REQUIREMENT.
+#    `MIN_BARRIER_WIDTH_IS_DETERMINATE` is False: the tank and switch-node
+#    crossings run at 47 kHz, above IEC 60664-1 cl. 1.1.1's 30 kHz scope
+#    ceiling, and cl. 2.3 routes dimensioning above it to IEC 60664-4, which
+#    is paywalled and was not obtained. A placement that fits this corridor is
+#    NOT thereby compliant. This module cannot express that -- CP-SAT takes a
+#    number -- so it takes the proven bound and the flag is re-exported for
+#    any caller that reports a verdict. Never resolve the indeterminacy by
+#    choosing a number.
+#
+# 2. THIS WILL MAKE THE SOLVE HARDER, AND THAT IS THE HONEST RESULT.
+#    `docs/evidence/2026-08-19-placer-constraint-wiring-and-unsat-core.md`
+#    measured the barrier constraint as INFEASIBLE at 12.6mm and at 13.1mm on
+#    the committed floorplan. It is not less infeasible at 20.5mm. Widening
+#    the corridor did not create that infeasibility and narrowing it does not
+#    fix it: the barrier's worst crossing needs at least 20.0mm and five
+#    isolation-bridging packages offer between 8.0 and 12.8mm of copper-to-
+#    copper separation at ANY placement. Do NOT lower this figure to make a
+#    solve terminate.
 
 
 # ---------------------------------------------------------------------------
