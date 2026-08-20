@@ -241,75 +241,6 @@ fn dfm_board_bounds_py(
     Ok(PyTuple::new(py, items)?.into_any().unbind())
 }
 
-#[pyfunction]
-fn dfm_rect_polygon_py(
-    py: Python<'_>,
-    x_min: &Bound<'_, PyAny>,
-    y_min: &Bound<'_, PyAny>,
-    x_max: &Bound<'_, PyAny>,
-    y_max: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyAny>> {
-    let corners = dfm::rect_polygon(
-        extract_pynum(x_min)?,
-        extract_pynum(y_min)?,
-        extract_pynum(x_max)?,
-        extract_pynum(y_max)?,
-    );
-    let mut out: Vec<Py<PyAny>> = Vec::with_capacity(4);
-    for (a, b) in corners {
-        let pair = PyTuple::new(py, [pynum_into_py(py, a)?, pynum_into_py(py, b)?])?;
-        out.push(pair.into_any().unbind());
-    }
-    Ok(PyList::new(py, out)?.into_any().unbind())
-}
-
-#[pyfunction]
-fn dfm_power_pour_bounds_py(
-    py: Python<'_>,
-    x_min: &Bound<'_, PyAny>,
-    y_min: &Bound<'_, PyAny>,
-    x_max: &Bound<'_, PyAny>,
-    y_max: &Bound<'_, PyAny>,
-    n_domains: usize,
-    isolation_gap_mm: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyAny>> {
-    let pours = dfm::power_pour_bounds(
-        extract_pynum(x_min)?,
-        extract_pynum(y_min)?,
-        extract_pynum(x_max)?,
-        extract_pynum(y_max)?,
-        n_domains,
-        extract_pynum(isolation_gap_mm)?,
-    )
-    .map_err(|e| to_pyerr(py, e))?;
-
-    let mut out: Vec<Py<PyAny>> = Vec::with_capacity(pours.len());
-    for (sx_min, py_min, sx_max, py_max) in pours {
-        let bounds = PyTuple::new(
-            py,
-            [
-                pynum_into_py(py, PyNum::Float(sx_min))?,
-                pynum_into_py(py, py_min)?,
-                pynum_into_py(py, PyNum::Float(sx_max))?,
-                pynum_into_py(py, py_max)?,
-            ],
-        )?;
-        out.push(bounds.into_any().unbind());
-    }
-    Ok(PyList::new(py, out)?.into_any().unbind())
-}
-
-#[pyfunction]
-fn dfm_thermal_via_positions_py(
-    py: Python<'_>,
-    center_x: f64,
-    center_y: f64,
-    count: i64,
-    pitch_mm: f64,
-) -> PyResult<Vec<(f64, f64)>> {
-    dfm::thermal_via_positions(center_x, center_y, count, pitch_mm).map_err(|e| to_pyerr(py, e))
-}
-
 // ===========================================================================
 // copper_balance
 // ===========================================================================
@@ -349,26 +280,6 @@ fn dfm_segment_run_copper_area_py(
         .collect::<PyResult<_>>()?;
     dfm::segment_run_copper_area(&seg_xs, &seg_ys, &layers, layer_name, width_mm)
         .map_err(|e| to_pyerr(py, e))
-}
-
-// ===========================================================================
-// via_placement
-// ===========================================================================
-
-#[pyfunction]
-fn dfm_via_segment_index_py(
-    py: Python<'_>,
-    via_x: f64,
-    via_y: f64,
-    seg_xs: Vec<f64>,
-    seg_ys: Vec<f64>,
-) -> PyResult<Option<usize>> {
-    dfm::via_segment_index(via_x, via_y, &seg_xs, &seg_ys).map_err(|e| to_pyerr(py, e))
-}
-
-#[pyfunction]
-fn dfm_adjacent_layer_py(layer_name: &str) -> Option<&'static str> {
-    dfm::adjacent_layer(layer_name)
 }
 
 // ===========================================================================
@@ -451,14 +362,9 @@ pub fn register(m: &Bound<'_, pyo3::types::PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(dfm_calculate_angle_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_classify_severity_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_board_bounds_py, m)?)?;
-    m.add_function(wrap_pyfunction!(dfm_rect_polygon_py, m)?)?;
-    m.add_function(wrap_pyfunction!(dfm_power_pour_bounds_py, m)?)?;
-    m.add_function(wrap_pyfunction!(dfm_thermal_via_positions_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_via_annular_area_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_layer_is_between_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_segment_run_copper_area_py, m)?)?;
-    m.add_function(wrap_pyfunction!(dfm_via_segment_index_py, m)?)?;
-    m.add_function(wrap_pyfunction!(dfm_adjacent_layer_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_check_annular_ring_py, m)?)?;
     m.add_function(wrap_pyfunction!(dfm_via_teardrop_py, m)?)?;
     Ok(())
