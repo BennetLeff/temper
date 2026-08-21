@@ -680,6 +680,12 @@ mod py_bridge {
     /// T))`). Rust owns the content; kiutils' own `to_sexpr` does the
     /// serialisation (B1 — floats are carried as values, so the int-coercion
     /// of a text round-trip can never change the emitted bytes).
+    // The argument list mirrors the Python-side signature this pyfunction
+    // replaces, one KiCad `(segment ...)` field per parameter. Bundling them
+    // into a struct to satisfy the 7-argument default would change the call
+    // shape at the pyo3 boundary -- i.e. change the Python API -- to silence a
+    // style lint about a flat list of primitives.
+    #[allow(clippy::too_many_arguments)]
     #[pyfunction]
     pub fn segment_sexpr_py(
         py: Python<'_>,
@@ -723,6 +729,9 @@ mod py_bridge {
     /// parsed s-expression tree that kiutils' `Via.from_sexpr` consumes
     /// (`(via (at x y) (size s) (drill d) (layers L1 L2) (net N) (tstamp
     /// T))`). See [`segment_sexpr_py`] for the float rationale.
+    // Same rationale as `segment_sexpr_py` above: one KiCad `(via ...)` field
+    // per parameter, matching the Python signature it replaces.
+    #[allow(clippy::too_many_arguments)]
     #[pyfunction]
     pub fn via_sexpr_py(
         py: Python<'_>,
@@ -810,7 +819,11 @@ mod py_bridge {
     /// as the Python loop would.
     #[pyfunction]
     pub fn find_net_code_py(
-        py: Python<'_>,
+        // Unused: this function reaches the interpreter only through the
+        // already-bound `nets`, never through the GIL token. Kept in the
+        // signature (as `_py`) rather than removed, so the parameter list stays
+        // uniform with every other pyfunction in this module.
+        _py: Python<'_>,
         nets: &Bound<'_, PyAny>,
         net_name: &str,
     ) -> PyResult<i64> {
