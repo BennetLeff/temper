@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -209,6 +210,16 @@ def _parse_fp_lib_table(table_path: Path) -> dict[str, Path]:
     ):
         name = m.group(1)
         uri = m.group(2).replace("${KIPRJMOD}", str(table_path.parent))
+        # pcb/fp-lib-table's stock-library rows are written against
+        # ${KICAD10_FOOTPRINT_DIR}, but only ${KIPRJMOD} was ever substituted, so
+        # every stock library resolved to a literal "${KICAD10_FOOTPRINT_DIR}/..."
+        # path that cannot exist. resolve_footprint() then raised "Library
+        # directory does not exist ... Run tools/setup_kicad_env.py", which points
+        # at the hermetic-clone workflow rather than the unexpanded variable --
+        # so the real cause was hidden behind a plausible-looking remedy.
+        # expandvars leaves unset variables untouched, so the error text is
+        # unchanged when the variable genuinely is not configured.
+        uri = os.path.expandvars(uri)
         entries[name] = Path(uri)
     return entries
 
