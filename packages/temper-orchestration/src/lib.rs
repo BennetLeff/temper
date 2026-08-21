@@ -190,6 +190,10 @@
 // that catch is what runs).
 mod board_state;
 mod apply_placements_stage;
+// Option-E subprocess serialization (2026-08-21): `NativeBoardState` <->
+// JSON for the Rust CLI driver's per-stage Python subprocesses. Ungated
+// (pure serde, no pyo3) so the wasm tier and the CLI both compile it.
+pub mod state_ser;
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
 mod component_assignment_stage;
