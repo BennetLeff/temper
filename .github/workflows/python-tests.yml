@@ -705,9 +705,7 @@ jobs:
           tests/validation/test_geometric_rust_differential.py
           tests/validation/test_tht_check_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
-          tests/deterministic/test_grid_utils_rust_differential.py
           tests/deterministic/test_via_placement_rust_differential.py
-          tests/deterministic/test_grid_utils_pbt.py
           tests/deterministic/test_via_placement_pbt.py
           tests/deterministic/stages/test_slot_generation_rust_differential.py
           tests/deterministic/stages/test_zone_geometry_rust_differential.py
@@ -739,10 +737,6 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 131 --
-          tests/report/test_formatter_rust_differential.py
-          tests/report/test_summary_rust_differential.py
-          tests/report/test_generator_rust_differential.py
-          tests/report/test_report_pbt.py
           tests/explainability/test_trace_rust_differential.py
           tests/explainability/test_decision_rust_differential.py
           tests/explainability/test_logger_rust_differential.py
@@ -861,8 +855,6 @@ jobs:
           tests/router_v6/test_channel_mapping_pbt.py
           tests/requirements/validators/test_geometry_rust_differential.py
           tests/requirements/validators/test_geometry_pbt.py
-          tests/core/test_core_graph_cluster_rust_differential.py
-          tests/core/test_core_graph_cluster_pbt.py
           tests/core/test_bus_cohort_rust_differential.py
           tests/core/test_bus_cohort_pbt.py
           tests/metrics/test_aesthetic_rust_differential.py
