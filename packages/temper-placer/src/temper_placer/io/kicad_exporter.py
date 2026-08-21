@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import uuid
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import temper_geometry as _tg
@@ -102,11 +103,12 @@ def extract_pad_centers(board_text: str) -> dict[str, list[tuple[float, float]]]
     return _tdb.parse_engine.extract_pad_centers_py(board_text)
 
 
-def _net_map(board_text: str) -> dict[str, int]:
-    """{net_name: net_index} from the board text — Rust kernel wrapper."""
+def _net_map(board_text: str) -> list:
+    """Net objects for find_net_code_py — [{name, number}] from the board text."""
     import temper_design_bundle_python as _tdb
 
-    return _tdb.parse_engine.extract_net_map_from_text_py(board_text)
+    raw = _tdb.parse_engine.extract_net_map_from_text_py(board_text)
+    return [SimpleNamespace(name=name, number=number) for name, number in raw.items()]
 
 
 def _append_items(board_text: str, item_sexprs: list) -> str:
