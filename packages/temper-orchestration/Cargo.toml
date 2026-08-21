@@ -41,6 +41,12 @@ temper-data-model = { path = "../temper-data-model" }
 # comp_pos + pin_pos" bug is unrepresentable at the call site. Pure Rust,
 # unconditional (like temper-data-model), so the wasm32 tier is unaffected.
 temper-geometry = { path = "../temper-geometry" }
+# Option-E subprocess serialization (`state_ser.rs`): the NativeBoardState
+# <-> JSON codec for the Rust CLI driver's per-stage Python subprocesses.
+# Pure Rust, unconditional (like temper-data-model), so the wasm32 tier is
+# unaffected.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [features]
 default = ["python"]
