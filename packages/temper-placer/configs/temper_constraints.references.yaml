@@ -149,12 +149,25 @@ authority:
 # mapping is unchanged. Every alias/unresolved-component board ref above is
 # therefore verified unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+# Re-pinned 2026-08-21 (fix/footprint-drift-c6-k1, PR #1424): STALE --
+# pcb/temper.kicad_pcb changed by exactly two footprint-body corrections:
+# C6 from a 10mm-pitch disc cap to the specified 22.5mm-pitch film cap
+# (rot 90) and K1 from phantom #250 Faston tabs to the Schrack RT33K012's
+# real THT contacts (the elec/-declared parts the board never received).
+# Footprint count (168) and Sheetpath occurrence count (168) are unchanged,
+# and the Sheetpath->Reference map is IDENTICAL before/after (diffed
+# programmatically across all 168 footprints) -- a footprint swap changes
+# pad geometry, not identity. C6 is itself aliased below (Y1: C6,
+# power_in.y_cap_pe) and resolves by ref designator, not position or pad
+# geometry, so every alias/unresolved-component board ref above is verified
+# unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: 167ddb0a922094119ccfd9c2175fe02d9fccb1e0
+  measured_at_commit: ec7b04267f7206255cce48e4096299c5957bcf03
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b
+      sha256: 3ae31c44db4553b1c2bf40722a20203db16cbc0f5c36529637c497169ac62f29
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
