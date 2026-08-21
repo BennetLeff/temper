@@ -374,7 +374,11 @@ impl Num {
     }
 
     /// `float(x)`.
-    fn to_f64(self) -> f64 {
+    ///
+    /// Public: `RawBoard`'s constituent types are deliberately inspectable
+    /// by non-Python consumers (`temper-cli` reads footprint positions), and
+    /// every coordinate field is a `Num`.
+    pub fn to_f64(self) -> f64 {
         self.as_f64()
     }
 }

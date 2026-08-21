@@ -423,6 +423,26 @@ def stage_fn(stage_name: str):
     return fn
 
 
+# Constructor-state defaults mirroring what the deterministic stage adapters
+# (``deterministic/stages/__init__.py``) thread into the same pyfunctions --
+# the real pipeline constructs these stages with exactly these values, so a
+# subprocess run without explicit --arg extras matches production behavior.
+# Stages NOT listed here either need nothing (run_<name>(state)) or need
+# state that does not survive the JSON boundary yet (a config block, a
+# parsed-pads list, a live Stage instance) -- those fail loudly instead.
+DEFAULT_STAGE_ARGS = {
+    "track_deduplication": [0.05],
+    "short_circuit_detection": [0.1],
+    "via_deduplication": [0.05],
+    "via_validation": [0.1, True],
+    # The validation stages' constructor defaults (fail-on-violations off --
+    # the pipeline's fence threading decides severity, the stage only
+    # reports).
+    "drc_validation": [False, 0],
+    "connectivity_validation": [False],
+}
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--stage", required=True, help="pipeline stage name")
@@ -438,7 +458,8 @@ def main(argv=None) -> int:
         return 2
 
     try:
-        extra = [json.loads(a) for a in args.arg]
+        extra = [json.loads(a) for a in args.arg] if args.arg \
+            else DEFAULT_STAGE_ARGS.get(args.stage, [])
     except json.JSONDecodeError as e:
         print(f"_stage_subprocess: bad --arg JSON: {e}", file=sys.stderr)
         return 2
@@ -451,17 +472,36 @@ def main(argv=None) -> int:
         return 1
 
     try:
-        out_state = fn(state, *extra)
+        result = fn(state, *extra)
     except Exception as e:  # noqa: BLE001 -- the boundary reports ANY stage failure
         print(f"_stage_subprocess: [{args.stage}] stage failed: "
               f"{type(e).__name__}: {e}", file=sys.stderr)
         return 1
 
-    fields = {f.name for f in dataclasses.fields(out_state)}
+    # The D6 validation pyfunctions surface their raise decision as a
+    # ``(state, message)`` tuple (the Python shims raise on a non-None
+    # message); every other stage returns the state directly.
+    message = None
+    if isinstance(result, tuple) and len(result) == 2:
+        out_state, message = result
+    else:
+        out_state = result
+
+    try:
+        fields = {f.name for f in dataclasses.fields(out_state)}
+    except TypeError:
+        print(f"_stage_subprocess: [{args.stage}] stage returned an unexpected "
+              f"{type(out_state).__name__} (not a BoardState)", file=sys.stderr)
+        return 1
     missing = {"net_order"} - fields
     if missing:
         print(f"_stage_subprocess: [{args.stage}] stage returned an unexpected "
               f"object (missing fields {sorted(missing)})", file=sys.stderr)
+        return 1
+
+    if message is not None:
+        print(f"_stage_subprocess: [{args.stage}] stage reported: {message}",
+              file=sys.stderr)
         return 1
 
     try:
