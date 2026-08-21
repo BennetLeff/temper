@@ -3361,6 +3361,74 @@ fn extract_board_outline_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>
     out.into_any().unbind().into_py_any(py)
 }
 
+/// Extract Edge.Cuts ring structure from raw `.kicad_pcb` text for
+/// ``real_board._board_surface_geometry``: polygons become rings directly,
+/// rectangles become their four-corner rings, and every other Edge.Cuts
+/// item (lines, arcs, circles, texts) is counted as unrecognized -- the
+/// same classification the pre-migration kiutils reader applied
+/// (`coordinates` attr → ring; `GrRect` start/end → ring; else
+/// unrecognized). Returns ``(rings, item_count, unrecognized)``.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_edge_cuts_rings_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    let rings = PyList::empty(py);
+    let mut item_count = 0i64;
+    let mut unrecognized = 0i64;
+    for item in &raw.graphic_items {
+        if g_layer(item) != "Edge.Cuts" {
+            continue;
+        }
+        item_count += 1;
+        match item {
+            RawGrItem::Poly { coords, .. } => {
+                let ring = PyList::empty(py);
+                for p in coords {
+                    ring.append((p.x.to_f64(), p.y.to_f64()))?;
+                }
+                rings.append(ring)?;
+            }
+            RawGrItem::Rect { start, end, .. } => {
+                let (x0, y0) = (start.x.to_f64(), start.y.to_f64());
+                let (x1, y1) = (end.x.to_f64(), end.y.to_f64());
+                rings.append((
+                    (x0, y0),
+                    (x1, y0),
+                    (x1, y1),
+                    (x0, y1),
+                ))?;
+            }
+            _ => {
+                unrecognized += 1;
+            }
+        }
+    }
+    let out = PyDict::new(py);
+    out.set_item("rings", rings)?;
+    out.set_item("item_count", item_count)?;
+    out.set_item("unrecognized", unrecognized)?;
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Extract the copper layer names declared in a `.kicad_pcb` document's
+/// ``(layers ...)`` block — every layer name ending in ``.Cu``, in
+/// declaration order. Backs `zone_manager`'s 4-layer stackup validation
+/// on the text path (the pre-migration code ran
+/// `kicad_exporter._validate_4_layer_output` on the kiutils Board object;
+/// the check's warn/raise semantics live in Python, this only supplies
+/// the names).
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_copper_layer_names_py(content: &str) -> PyResult<Vec<String>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    Ok(raw
+        .layers
+        .iter()
+        .filter(|name| name.ends_with(".Cu"))
+        .cloned()
+        .collect())
+}
+
 /// Strip trace items (segments, vias, arcs) from a `.kicad_pcb` document
 /// tree, optionally removing zones and/or zone fills. Returns a tuple
 /// ``(new_text, traces_removed, vias_removed, zones_removed)``.
@@ -3690,8 +3758,37 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     out.set_item("pad_bbox_inputs", pad_bbox)?;
 
     // raw courtyard inputs: {ref: [{"kind": ..., ...}]}
-    let courtyards = PyDict::new(py);
-    for fp in &raw.footprints {
+    let courtyards = fp_shape_inputs(
+        py,
+        &raw.footprints,
+        &["F.CrtYd", "B.CrtYd"],
+    )?;
+    out.set_item("courtyard_inputs", courtyards)?;
+
+    // raw F.Fab/B.Fab body inputs: same shape schema as courtyard_inputs,
+    // different source layers. Backs io/fab_body_extraction.py (the
+    // pre-migration kiutils-based reader; see that module's docstring for
+    // the validation history of this consolidation).
+    let fab_bodies = fp_shape_inputs(py, &raw.footprints, &["F.Fab", "B.Fab"])?;
+    out.set_item("fab_body_inputs", fab_bodies)?;
+
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Per-footprint graphic-item shapes on the given layers, in the
+/// ``{ref: [{"kind": ..., ...}]}`` schema
+/// ``kicad_metadata._courtyard_points_from_raw`` consumes. One
+/// serialization switch shared by the courtyard extraction
+/// (``F.CrtYd``/``B.CrtYd``) and the fab-body extraction
+/// (``F.Fab``/``B.Fab``).
+#[cfg(feature = "python")]
+fn fp_shape_inputs(
+    py: Python<'_>,
+    footprints: &[crate::parse_engine::RawFootprint],
+    layers: &[&str],
+) -> PyResult<Py<PyDict>> {
+    let out = PyDict::new(py);
+    for fp in footprints {
         let r#ref = fp.properties.iter().find(|(k, _)| k == "Reference").map(|(_, v)| v.clone()).unwrap_or_default();
         if r#ref.is_empty() {
             continue;
@@ -3699,7 +3796,7 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
         let mut shapes: Vec<Py<PyAny>> = Vec::new();
         for item in &fp.graphic_items {
             let layer = item.layer();
-            if layer != "F.CrtYd" && layer != "B.CrtYd" {
+            if !layers.contains(&layer) {
                 continue;
             }
             let shape = PyDict::new(py);
@@ -3733,14 +3830,18 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
                     shape.set_item("mid", PyTuple::new(py, [num_to_py(py, mid.x)?, num_to_py(py, mid.y)?])?)?;
                     shape.set_item("end", PyTuple::new(py, [num_to_py(py, end.x)?, num_to_py(py, end.y)?])?)?;
                 }
-                RawFpItem::Text { .. } | RawFpItem::TextBox { .. } | RawFpItem::Curve { .. } => {}
+                RawFpItem::Text { .. } | RawFpItem::TextBox { .. } | RawFpItem::Curve { .. } => {
+                    // No body-outline contribution -- matches the kiutils
+                    // reader's skip list (fab_body_extraction pre-migration)
+                    // and keeps empty dicts out of the emitted schema.
+                    continue;
+                }
             }
             shapes.push(shape.into_any().unbind());
         }
-        courtyards.set_item(r#ref, PyList::new(py, shapes.iter().map(|s| s.bind(py)))?)?;
+        out.set_item(r#ref, PyList::new(py, shapes.iter().map(|s| s.bind(py)))?)?;
     }
-    out.set_item("courtyard_inputs", courtyards)?;
-    out.into_any().unbind().into_py_any(py)
+    Ok(out.unbind())
 }
 
 // ===========================================================================
@@ -3760,6 +3861,8 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_footprint_positions, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_footprint_info_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_board_outline_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_copper_layer_names_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_edge_cuts_rings_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(strip_trace_items_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;

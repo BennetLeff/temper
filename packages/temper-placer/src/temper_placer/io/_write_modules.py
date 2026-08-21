@@ -10,10 +10,10 @@ reduction (``component_bounds_py``) stay in Python/Rust as before.
 """
 
 from __future__ import annotations
-from typing import Any
 
 import math
 from pathlib import Path
+from typing import Any
 
 import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
