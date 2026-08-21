@@ -355,7 +355,16 @@ def check_phase3_compliance(
 
 def run_lint_imports(config_path: str) -> tuple[int, str]:
     """Run import-linter and return (exit_code, combined stdout+stderr)."""
-    args = ["uv", "run", "lint-imports", "--config", config_path]
+    # --no-sync is load-bearing: a bare `uv run` re-syncs the project venv
+    # from uv.lock BEFORE running, and uv's hardlink installer reinstalls
+    # every path-dependency wheel from its cache — silently replacing the
+    # freshly `maturin develop`-built extension `.so`s with the lockfile's
+    # (origin/main) builds. Observed 2026-08-20: running this gate reverted
+    # a just-built `temper_io_types` extension mid-session (same inode as
+    # the uv cache entry, mtime restored to the uv-sync build), while the
+    # gate itself reported PASS. The extensions the gate's sibling
+    # `check_stale_extensions.py` guards are exactly what the sync undoes.
+    args = ["uv", "run", "--no-sync", "lint-imports", "--config", config_path]
     result = subprocess.run(
         args,
         capture_output=True,

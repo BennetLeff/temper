@@ -57,7 +57,7 @@ board is validator-clean.
    regenerated netlist: 1=COM/DC_BUS_RTN, 2=coil1, 3=NO, 4=NC, 5=coil2
    (shares the `discharge.k_dis1-coil2` node — the two relay coils are
    wired in series; there is no separate `k_dis2-coil2` net record).
-   Mechanized by `docs/evidence/k3_swap_embed_footprint.py`.
+   Mechanized by `docs/evidence/scripts/k3_swap_embed_footprint.py`.
 
 Consistency gates after the swap: copper_net_consistency 0 violations /
 footprint_drift 0 / domain_partition 0 crossings / pad_orientation PASS.
@@ -318,26 +318,26 @@ the 202 ceiling — no new copper-short defect.
 
 ## 7. Files
 
-- `docs/evidence/k3_swap_embed_footprint.py` — K3 footprint embed-swap.
-- `docs/evidence/k3_swap_board_write_solve.py` /
+- `docs/evidence/scripts/k3_swap_embed_footprint.py` — K3 footprint embed-swap.
+- `docs/evidence/scripts/k3_swap_board_write_solve.py` /
   `k3_swap_board_write_solve_summary.json` — Run A (production caller),
   reported not written.
-- `docs/evidence/k3_swap_board_write_variantB.py` /
+- `docs/evidence/scripts/k3_swap_board_write_variantB.py` /
   `k3_swap_board_write_variantB_summary.json` — Run B (the written
   candidate).
-- `docs/evidence/k3_swap_board_write_apply.py` — board write + round-trip
+- `docs/evidence/scripts/k3_swap_board_write_apply.py` — board write + round-trip
   + REQ-SAFE-01 verification.
-- `docs/evidence/k3_swap_board_write_drc.py` /
+- `docs/evidence/scripts/k3_swap_board_write_drc.py` /
   `k3_swap_board_write_drc_summary.json` — 120-sample ceiling protocol.
 
 ## 8. Reproduction
 
 ```bash
 make netlist && make extensions
-uv run --no-sync python docs/evidence/k3_swap_board_write_variantB.py   # Run B solve
-uv run --no-sync python docs/evidence/k3_swap_board_write_apply.py     # write + verify
+uv run --no-sync python docs/evidence/scripts/k3_swap_board_write_variantB.py   # Run B solve
+uv run --no-sync python docs/evidence/scripts/k3_swap_board_write_apply.py     # write + verify
 export PYTHONPATH="$(pwd)/packages/temper-placer/src:$(pwd)/scripts"
-.venv/bin/python docs/evidence/k3_swap_board_write_drc.py              # 120-sample ceiling
+.venv/bin/python docs/evidence/scripts/k3_swap_board_write_drc.py              # 120-sample ceiling
 # expected: status=feasible; C27 -> (28.62, 222.0) ON-BOARD; K3 ->
 # (43.12, 17.92) rot 90; hard=0 intra=0 gaps=0; REQ-SAFE-01 = 0/0;
 # error_ceiling 1356 -> 1267; warning_ceiling 425 -> 472 (Ceiling-Approval)

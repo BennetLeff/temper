@@ -4,7 +4,7 @@ explainability, fields, topological.
 Exercises public functions in:
 - placer/template.py, placer/cp_sat/gate.py, placer/cp_sat/gates.py
 - metrics/routing_quality.py, metrics/aesthetic.py
-- cli/_signal.py, cli/_version.py, cli/version.py
+- cli/version.py
 - testing/version_gate.py
 - explainability/serialization.py, markdown_report.py, traced_loss.py, pipeline.py
 - fields/field.py, fields/result.py, fields/interface.py
@@ -15,7 +15,6 @@ import tempfile
 
 import numpy as np
 
-from temper_placer.cli._signal import InterruptGuard
 from temper_placer.core.state import PlacementState
 from temper_placer.explainability.decision import (
     Alternative,
@@ -251,34 +250,7 @@ class TestAestheticScore:
 
 
 # ---------------------------------------------------------------------------
-# cli/_signal.py — InterruptGuard.restore
-# ---------------------------------------------------------------------------
-
-
-class TestInterruptGuard:
-    def test_restore_after_enter(self):
-        """restore() resets the signal handler after a context block."""
-        import signal
-
-        # Save the current handler
-        orig = signal.getsignal(signal.SIGINT)
-
-        with InterruptGuard() as guard:
-            # Within the context, handler should be different
-            pass
-
-        # After exit, handler should be restored
-        assert signal.getsignal(signal.SIGINT) is orig or callable(signal.getsignal(signal.SIGINT))
-
-    def test_restore_idempotent(self):
-        """Calling restore twice is safe."""
-        guard = InterruptGuard()
-        guard.restore()  # no-op when _original is None
-        guard.restore()  # still no-op
-
-
-# ---------------------------------------------------------------------------
-# cli/_version.py and cli/version.py — version commands
+# cli/version.py — version command
 # ---------------------------------------------------------------------------
 
 
@@ -286,14 +258,9 @@ class TestVersionCommands:
     def test_version_command_runs(self):
         from click.testing import CliRunner
 
-        from temper_placer.cli._version import version as _version_cmd
         from temper_placer.cli.version import version as version_cmd
 
         runner = CliRunner()
-        result1 = runner.invoke(_version_cmd)
-        assert result1.exit_code == 0
-        assert "temper-placer" in result1.output
-
         result2 = runner.invoke(version_cmd)
         assert result2.exit_code == 0
         assert "temper-placer" in result2.output

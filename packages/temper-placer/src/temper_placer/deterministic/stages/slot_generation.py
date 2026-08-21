@@ -1,42 +1,20 @@
-"""Slot generation for the deterministic placement pipeline.
+"""SlotGenerationStage -- import-path shim for the collapsed adapter.
 
-The stage orchestration is implemented in Rust (``temper-orchestration``'s
-``SlotGenerationStage``, Phase D batch D2 of the Rust Orchestration Engine
-plan 2026-08-09-001): it reads ``zones`` from the state and delegates the
-slot-grid walk to the already-Rust leaf kernel (``temper_design_bundle_python
-.deterministic_stages.generate_slots_for_zone`` — the Wave-4 Phase-5
-first-slice migration). This module keeps the public API (the
-``SlotGenerationStage`` Stage subclass, its constructor and ``name``) and
-delegates ``run`` across the FFI once per stage call. The differential
-oracle for the pre-migration implementation is pinned VERBATIM in
-``tests/deterministic/_slot_generation_py_oracle.py``.
+Shim-debt cleanup (2026-08-20): the ``SlotGenerationStage`` class (its
+constructor state, its ``run`` and the ``_generate_slots_for_zone``
+delegation helper) moved to ``stages/__init__.py`` as a
+:class:`~stages.base.RustFunctionStage` parameterized adapter over
+``temper_orchestration.run_slot_generation`` (Phase D batch D2 of the Rust
+Orchestration Engine plan 2026-08-09-001).
+
+This module survives ONLY because the pinned VERBATIM zone-aware oracle
+(``tests/deterministic/_zone_aware_slot_generation_run_py_oracle.py``)
+imports ``SlotGenerationStage`` from this module path and SUBCLASSES it --
+the oracle bytes cannot be edited, so the path must keep resolving. It is
+a one-line re-export of the adapter class; it carries no constructor state
+and no ``run`` implementation of its own.
 """
 
-import temper_design_bundle_python as _tdb
-import temper_orchestration as _to
+from temper_placer.deterministic.stages import SlotGenerationStage
 
-from ..state import BoardState
-from .base import Stage
-
-
-class SlotGenerationStage(Stage):
-    def __init__(self, slot_spacing_mm: float = 5.0):
-        self.slot_spacing_mm = slot_spacing_mm
-
-    @property
-    def name(self) -> str:
-        return "slot_generation"
-
-    def run(self, state: BoardState) -> BoardState:
-        return _to.run_slot_generation(state, self.slot_spacing_mm)
-
-    def _generate_slots_for_zone(self, zone, spacing: float) -> list[tuple[float, float]]:
-        """Generate a regular grid of placement slots within a zone.
-
-        Kept as a delegation helper: ``ZoneAwareSlotGenerationStage``
-        subclasses ``SlotGenerationStage`` and calls this method directly
-        from its own ``run`` (bypassing this stage's ``run``)."""
-        (x_min, y_min), (x_max, y_max) = zone.bounds
-        return list(
-            _tdb.deterministic_stages.generate_slots_for_zone(x_min, y_min, x_max, y_max, spacing)
-        )
+__all__ = ["SlotGenerationStage"]

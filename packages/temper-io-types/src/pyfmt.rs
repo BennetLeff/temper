@@ -1,5 +1,5 @@
-// CPython float-formatting seams for the Wave-4 Phase-5 report /
-// explainability migrations.
+// CPython float-formatting seams and shared pyo3 helpers for the Wave-4
+// Phase-5 report / explainability migrations.
 //
 // Python's `f"{x:.Nf}"` is round-half-even fixed-point decimal formatting
 // with `nan`/`inf`/`-inf` rendered lowercase (CPython's float formatting
@@ -12,9 +12,35 @@
 //
 // The report formatter uses `:.1f`/`:.2f`/`:.3f`, the benchmark generator
 // uses `:.0f`/`:.1f`/`:.2f`, the summary uses `:.1f`/`:.3f`, and the
-// markdown renderer uses `:.1f`/`:.2f`/`:.4f` — every site goes through
+// markdown renderer uses `:.1f`/`.2f`/`.4f` — every site goes through
 // this module so a NaN/inf that reaches any of them renders identically to
 // CPython.
+//
+// The `to_f64`/`py_str`/`iter_items` helpers were moved here when the
+// report surface (previously `report.rs`) was deleted as an orphaned kernel
+// cluster (2026-08-20); they are the shared seam the explainability
+// migration still uses.
+
+use pyo3::prelude::*;
+
+/// Python `float(obj)`.
+pub fn to_f64(obj: &Bound<'_, PyAny>) -> PyResult<f64> {
+    obj.call_method0("__float__")?.extract::<f64>()
+}
+
+/// Python `str(obj)`.
+pub fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
+    Ok(obj.str()?.to_string())
+}
+
+/// Iterate a Python iterable's items.
+pub fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> {
+    let mut out = Vec::new();
+    for item in obj.try_iter()? {
+        out.push(item?);
+    }
+    Ok(out)
+}
 
 /// CPython `f"{x:.0f}"`.
 pub fn py_float_fmt_0(x: f64) -> String {

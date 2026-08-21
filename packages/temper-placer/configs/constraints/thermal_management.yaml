@@ -46,7 +46,7 @@ constraints:
   # and an 87.2mm separation bound that IS derived from HS1's published
   # length. It posts to both solver backends through wire types both
   # already register, and is exercised against the real board by
-  # docs/evidence/2026-08-12-heatsink-colocation-pumpkin-run.py.
+  # docs/evidence/scripts/2026-08-12-heatsink-colocation-pumpkin-run.py.
   #
   # `on_side` is NOT carried across. The mechanical documentation says the
   # opposite of "heatsink at a board edge": HS1 is a ~1kg chassis part,

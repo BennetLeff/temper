@@ -14,11 +14,11 @@ wrappers take flat scalar coordinates / flat vertex lists.
 
 import numpy as np
 
-from temper_placer.geometry import (
+from temper_geometry import (
     check_clearance_violation,
     component_overlap_amount,
 )
-from temper_placer.geometry import (
+from temper_geometry import (
     point_in_polygon_soft,
     point_in_polygon_winding,
     polygon_area,
@@ -29,7 +29,7 @@ from temper_placer.geometry import (
 )
 
 # Import geometry functions
-from temper_placer.geometry import (
+from temper_geometry import (
     distance_to_rect_edge,
     distance_to_specific_edge,
     point_distance,
@@ -38,13 +38,13 @@ from temper_placer.geometry import (
     rect_area,
     rect_center,
 )
-from temper_placer.geometry.sdf import (
+from temper_geometry import (
     sdf_circle,
     sdf_intersection,
     sdf_rectangle,
     sdf_union,
 )
-from temper_placer.geometry import (
+from temper_geometry import (
     hpwl_smooth,
     smooth_abs,
     smooth_max,
@@ -53,10 +53,9 @@ from temper_placer.geometry import (
     smooth_min_pair,
     smooth_relu,
 )
+from temper_geometry import get_rotation_matrix, rotate_point
 from temper_placer.geometry.transform import (
-    get_rotation_matrix,
     onehot_to_rotation_degrees,
-    rotate_point,
     rotation_index_to_onehot,
 )
 

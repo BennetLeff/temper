@@ -1,9 +1,8 @@
 """Tests for IPC-2152 inverse ampacity calculator (core/ipc2152.py)."""
 
 import pytest
-from temper_design_bundle_python import jlc04161h_7628
 
-from temper_placer.core.board import LayerStackup
+from temper_placer.core.board import Layer, LayerStackup
 from temper_placer.core.ipc2152 import (
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
@@ -214,12 +213,28 @@ class TestIpc2152MinWidth:
         assert w == pytest.approx(0.302, abs=0.005)  # 1oz inner
 
     def test_with_jlc_stackup_outer(self):
-        stackup = jlc04161h_7628()
+        # JLC04161H-7628 copper weights: 1oz outer / 0.5oz inner (the
+        # deleted jlc04161h_7628() factory's data, kept via LayerStackup).
+        stackup = LayerStackup(
+            layers=(
+                Layer("F.Cu", "signal", copper_weight=1.0),
+                Layer("In1.Cu", "plane", copper_weight=0.5),
+                Layer("In2.Cu", "plane", copper_weight=0.5),
+                Layer("B.Cu", "signal", copper_weight=1.0),
+            )
+        )
         w = ipc2152_min_width("+3V3", 0.5, layer="F.Cu", stackup=stackup)
         assert w == pytest.approx(0.1160, abs=0.002)  # 1oz outer
 
     def test_with_jlc_stackup_inner(self):
-        stackup = jlc04161h_7628()
+        stackup = LayerStackup(
+            layers=(
+                Layer("F.Cu", "signal", copper_weight=1.0),
+                Layer("In1.Cu", "plane", copper_weight=0.5),
+                Layer("In2.Cu", "plane", copper_weight=0.5),
+                Layer("B.Cu", "signal", copper_weight=1.0),
+            )
+        )
         w = ipc2152_min_width("+3V3", 0.5, layer="In1.Cu", stackup=stackup)
         assert w == pytest.approx(0.604, abs=0.01)  # 0.5oz inner -> wider
 
