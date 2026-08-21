@@ -56,6 +56,12 @@ class Pin:
     ) -> None: ...
     @property
     def mask_expansion(self) -> float: ...
+    @property
+    def is_copper(self) -> bool: ...
+    # Injected by the KiCad parse path (never a dataclass field): the pad's own
+    # `(layers ...)` tokens, verbatim. Absent on a hand-constructed `Pin`, which
+    # is why `is_copper` falls back to classifying `layer`.
+    declared_pad_layers: tuple[str, ...]
 
 class Component:
     # Installed at import time by `temper_placer.core._contract_dataclass_compat`

@@ -344,6 +344,36 @@ impl Pin {
         })
     }
 
+    /// Does this pad place COPPER?
+    ///
+    /// The predicate every copper-distance census must filter on -- clearance,
+    /// creepage, HV<->SELV and HV<->HV pad-pair censuses, obstacle rasterising,
+    /// anything that asks "how far is this copper from that copper".
+    ///
+    /// **`Pin.layer` cannot answer this and must not be used for it.** `layer`
+    /// means "which single copper layer, or `all` for through-hole", and when a
+    /// pad declares NO copper layer at all it falls back to the literal string
+    /// `"F.Cu"` (`parse_engine.rs`, `extract_components_pure`). That fallback is
+    /// pinned byte-for-byte by `tests/io/_parse_engine_py_oracle/_parse_modules.py`
+    /// (`layer = copper_layers[0] if copper_layers else "F.Cu"`), so it cannot be
+    /// corrected without re-pinning an oracle; `is_copper` routes around it
+    /// instead, reading the pad's own `(layers ...)` set that the parse engine
+    /// injects as `declared_pad_layers`.
+    ///
+    /// On `pcb/temper.kicad_pcb` the two pads this separates are `K1.13` and
+    /// `K1.14` -- `(layers "F.Fab")`, the Omron G4A-1A-E's Faston tabs, which
+    /// place no copper but do carry mains nets, and which `layer` reports as
+    /// `"F.Cu"`.
+    ///
+    /// For a `Pin` built by hand (no injected `declared_pad_layers`) this falls
+    /// back to classifying `layer`, so `Pin(..., layer="F.Cu")` is copper and
+    /// `Pin(..., layer="F.Fab")` is not.
+    #[getter]
+    fn is_copper(slf: &Bound<'_, Self>) -> PyResult<bool> {
+        let layer = slf.borrow().layer.clone_ref(slf.py());
+        crate::parse_engine::pad_object_is_copper(slf.as_any(), &layer)
+    }
+
     /// Recommended solder mask expansion for this pin.
     ///
     /// Oracle: `return 0.15 if self.is_pth else 0.1`. `is_pth` is tested for

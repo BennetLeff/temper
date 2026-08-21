@@ -1749,6 +1749,17 @@ fn extract_components_pure(raw: &RawBoard, board_origin: (f64, f64)) -> Vec<Comp
             let local_y = pad.position.y;
             let pad_layers = if pad.layers.is_empty() { vec!["F.Cu".to_string()] } else { pad.layers.clone() };
             let is_through_hole = pad_layers.iter().any(|l| l.contains("*.Cu") || l == "*.Cu");
+            // `layer` keeps its pinned meaning ("which single copper layer, or
+            // `all` for through-hole") INCLUDING its historical
+            // `unwrap_or("F.Cu")` fallback, because that fallback is pinned
+            // byte-for-byte by `tests/io/_parse_engine_py_oracle/_parse_modules.py`
+            // (`layer = copper_layers[0] if copper_layers else "F.Cu"`) and by
+            // `tests/core/_netlist_py_oracle.py`'s field list. That fallback is
+            // the defect: a pad declaring only `(layers "F.Fab")` places NO
+            // copper, and reporting `F.Cu` for it puts a fabrication-documentation
+            // marker into copper-distance censuses. The fallback is NOT the source
+            // of truth any more -- `is_copper` below is, and it is derived from the
+            // pad's own declared `(layers ...)` rather than from `layer`.
             let layer = if is_through_hole {
                 "all".to_string()
             } else {
@@ -1776,6 +1787,7 @@ fn extract_components_pure(raw: &RawBoard, board_origin: (f64, f64)) -> Vec<Comp
             let pad_rotation_deg = (pad_abs_rotation_deg.sub(&rot_deg)).to_f64().rem_euclid(360.0);
             let net_name = pad.net.as_ref().map(|(_n, name)| name.clone());
             raw_pins.push(RawPinOut {
+                declared_layers: pad_layers.clone(),
                 name: pad.number.clone(),
                 number: pad.number.clone(),
                 // `p["position"][0] - center_offset_x` -- the oracle subtracts
@@ -1837,6 +1849,11 @@ enum NumOrDrill {
 
 #[derive(Clone, Debug)]
 struct RawPinOut {
+    /// The pad's own `(layers ...)` tokens, VERBATIM (or `["F.Cu"]` when the
+    /// pad declares none at all -- the historical kiutils default, kept so a
+    /// layer-less pad is not silently reclassified). This is the ground truth
+    /// `layer` throws away; see `is_copper`.
+    declared_layers: Vec<String>,
     name: String,
     number: String,
     position: (Num, Num),
@@ -1865,6 +1882,31 @@ struct CompOut {
     sheetpath: Option<String>,
 }
 
+/// Does this `(layers ...)` token from a pad name a layer that places COPPER?
+///
+/// KiCad writes a pad's layer set as bare or quoted tokens. Every token that
+/// puts copper down ends in `.Cu`:
+///
+/// * `F.Cu` / `B.Cu` / `In1.Cu` ... -- one explicit copper layer
+/// * `*.Cu`                        -- the through-hole wildcard, every copper layer
+/// * `F&B.Cu`                      -- both outer copper layers (edge/castellated pads)
+///
+/// Everything else a pad may declare is non-copper: `*.Mask`, `F.Mask`,
+/// `F.Paste`, `B.Paste`, `F.SilkS`, `F.Fab`, `Edge.Cuts`, `User.*`. A pad whose
+/// whole declared set is non-copper places no copper at all -- it is a
+/// fabrication/assembly marker with pad-shaped geometry, and it has no
+/// insulation distance to anything, so it must never enter a copper-distance
+/// (clearance/creepage) census. `pcb/temper.kicad_pcb` has exactly two:
+/// `K1` pads `13` and `14`, `(layers "F.Fab")`, the Omron G4A-1A-E's #250
+/// Faston quick-connect tabs, which that footprint's own `descr` states have
+/// "zero PCB copper connection on this variant".
+///
+/// Substring matching is deliberately avoided: `contains(".Cu")` would also
+/// accept a hypothetical `Foo.Cutout`.
+pub(crate) fn layer_token_is_copper(token: &str) -> bool {
+    token.ends_with(".Cu")
+}
+
 /// Port of `_extract_pads_from_pcb` from `_parse_modules.py`.
 fn extract_pads_pure(raw: &RawBoard) -> Vec<PadOut> {
     let mut pads: Vec<PadOut> = Vec::new();
@@ -1884,8 +1926,11 @@ fn extract_pads_pure(raw: &RawBoard) -> Vec<PadOut> {
                 _ => Num::F(0.0),
             };
             let layer = pad.layers.first().cloned().unwrap_or_else(|| "F.Cu".to_string());
+            let declared_layers =
+                if pad.layers.is_empty() { vec!["F.Cu".to_string()] } else { pad.layers.clone() };
             let net_name = pad.net.as_ref().map(|(_n, name)| name.clone());
             pads.push(PadOut {
+                declared_layers,
                 position: (abs_x, abs_y),
                 size: (pad.size.x, pad.size.y),
                 shape: if pad.shape.is_empty() { "rect".to_string() } else { pad.shape.clone() },
@@ -1903,6 +1948,10 @@ fn extract_pads_pure(raw: &RawBoard) -> Vec<PadOut> {
 
 #[derive(Clone, Debug)]
 struct PadOut {
+    /// See `RawPinOut::declared_layers`. `PadOut::layer` keeps its pinned
+    /// meaning -- the FIRST declared token, whatever it is -- which is lossy
+    /// for any multi-layer pad.
+    declared_layers: Vec<String>,
     position: (f64, f64),
     size: (Num, Num),
     shape: String,
@@ -2365,6 +2414,32 @@ impl TraceData {
     }
 }
 
+/// `is_copper` for a pad pyclass: read the injected `declared_pad_layers` if the
+/// parse engine set one, else fall back to the single `layer` string.
+///
+/// The fallback exists so a pad object built by hand (tests, the placer's
+/// synthetic boards) still answers sensibly. It is NOT sufficient for a parsed
+/// pad, which is exactly why the parse engine injects the declared set.
+#[cfg(feature = "python")]
+pub(crate) fn pad_object_is_copper(
+    obj: &Bound<'_, PyAny>,
+    fallback_layer: &Py<PyAny>,
+) -> PyResult<bool> {
+    let py = obj.py();
+    if let Ok(declared) = obj.getattr("declared_pad_layers") {
+        let tokens: Vec<String> = declared.extract()?;
+        return Ok(tokens.iter().any(|t| layer_token_is_copper(t)));
+    }
+    let layer = fallback_layer.bind(py);
+    let Ok(text) = layer.extract::<String>() else {
+        // A non-string `layer` cannot be classified; refuse to guess "copper".
+        return Ok(false);
+    };
+    // `"all"` is this parser's own spelling for the through-hole wildcard
+    // `*.Cu` (see `extract_components_pure`), so it is copper.
+    Ok(text == "all" || layer_token_is_copper(&text))
+}
+
 #[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
@@ -2478,6 +2553,16 @@ impl PadData {
         dataclass_eq(py, &slf.get_type(), other, &lhs, |o| {
             Ok(o.cast::<Self>()?.borrow().fields(py))
         })
+    }
+
+    /// Does this pad place copper?
+    ///
+    /// Reads the injected `declared_pad_layers` (the pad's own `(layers ...)`)
+    /// when the parse engine supplied it, and falls back to `layer` for a
+    /// hand-constructed `PadData`. See `layer_token_is_copper`.
+    #[getter]
+    fn is_copper(slf: &Bound<'_, Self>) -> PyResult<bool> {
+        pad_object_is_copper(slf.as_any(), &slf.borrow().layer)
     }
 
     fn __hash__(&self) -> PyResult<isize> {
@@ -3037,26 +3122,48 @@ fn build_netlist(
             let width_py = num_to_py(py, p.width)?;
             let height_py = num_to_py(py, p.height)?;
             let ratio_py = num_to_py(py, p.roundrect_ratio)?;
-            pin_objs.push(
-                pin_cls.call(
-                    (
-                        p.name.clone(),
-                        p.number.clone(),
-                        pos,
-                        net_py,
-                        width_py,
-                        height_py,
-                        p.shape.clone(),
-                        p.layer.clone(),
-                        drill_py,
-                        p.is_pth,
-                        ratio_py,
-                        p.pad_rotation_deg,
-                    ),
-                    None,
-                )?
-                .unbind(),
-            );
+            let pin_obj = pin_cls.call(
+                (
+                    p.name.clone(),
+                    p.number.clone(),
+                    pos,
+                    net_py,
+                    width_py,
+                    height_py,
+                    p.shape.clone(),
+                    p.layer.clone(),
+                    drill_py,
+                    p.is_pth,
+                    ratio_py,
+                    p.pad_rotation_deg,
+                ),
+                None,
+            )?;
+            // The pad's own `(layers ...)`, verbatim, injected onto the
+            // pyclass's `__dict__` rather than added as a dataclass field.
+            //
+            // WHY INJECTED AND NOT A FIELD. `Pin`'s field list is pinned
+            // field-for-field by TWO oracles this migration may not re-pin:
+            // `tests/core/_netlist_py_oracle.py` (asserted name-by-name,
+            // default-by-default, in `test_netlist_rust_differential.py`) and
+            // `tests/io/_parse_engine_py_oracle/` (bit-exact output parity in
+            // `test_parse_engine_rust_differential.py`). Adding a 13th field
+            // would break both. Injection is the mechanism this pyclass was
+            // ALREADY given `dict` for -- see the `#[pyclass(dict, ...)]`
+            // comment on `Pin` in `netlist_contracts.rs`, which documents the
+            // KiCad parse path injecting `board.traces` the same way -- so
+            // `__repr__`, `__eq__`, `dataclasses.fields()` and both
+            // differentials are untouched by construction.
+            //
+            // `Pin.is_copper` reads this. It is the ONLY correct source for
+            // "does this pad place copper": `Pin.layer` cannot answer, because
+            // its pinned `unwrap_or("F.Cu")` fallback reports a copper layer
+            // for a pad that declares none.
+            pin_obj.setattr(
+                "declared_pad_layers",
+                PyTuple::new(py, p.declared_layers.iter().map(|s| s.as_str()))?,
+            )?;
+            pin_objs.push(pin_obj.unbind());
         }
         let bounds = PyTuple::new(py, [c.bounds.0, c.bounds.1])?;
         let pins_list = PyList::new(py, pin_objs.iter().map(|p| p.bind(py)))?;
@@ -3157,12 +3264,18 @@ fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
         Some(s) => s.clone().into_py_any(py)?,
         None => py.None(),
     };
-    cls.call(
+    let obj = cls.call(
         (pos, size, p.shape.clone(), drill, rotation, p.layer.clone(), p.number.clone(), net, comp_ref),
         None,
-    )?
-    .unbind()
-    .into_py_any(py)
+    )?;
+    // Same injection as `Pin` above, for the same reason -- `PadData.layer` is
+    // the FIRST declared token only, so it cannot answer "does this pad place
+    // copper" for a pad whose copper layer is not listed first.
+    obj.setattr(
+        "declared_pad_layers",
+        PyTuple::new(py, p.declared_layers.iter().map(|s| s.as_str()))?,
+    )?;
+    obj.unbind().into_py_any(py)
 }
 
 /// The full `parse_kicad_pcb` engine: text in, ParseResult pyclass out.
@@ -3677,6 +3790,7 @@ pub(crate) mod tests {
     fn extract_nets_pure_keeps_single_pad_nets() {
         fn pin(name: &str, net: &str) -> RawPinOut {
             RawPinOut {
+                declared_layers: vec!["F.Cu".to_string()],
                 name: name.to_string(),
                 number: name.to_string(),
                 position: (Num::F(0.0), Num::F(0.0)),

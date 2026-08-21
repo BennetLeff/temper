@@ -545,7 +545,24 @@ def tank_bus_pour_contained_pads(
 
 def _pin_layers(pin: Pin) -> frozenset[str]:
     """Layers a pin's copper occupies: both faces for a THT pad, else its
-    declared layer."""
+    declared layer -- and NOTHING for a pad that places no copper at all.
+
+    The empty case is not hypothetical. A pad whose own ``(layers ...)`` names
+    only fabrication or assembly layers (``F.Fab``, ``*.Mask``, ``F.Paste``,
+    ``F.SilkS``) puts no copper on the board, but ``Pin.layer`` reports
+    ``"F.Cu"`` for it -- a pinned parser fallback that cannot be corrected in
+    place (see ``Pin.is_copper``'s docstring). Reading ``pin.layer`` alone
+    therefore claimed copper on a layer where there is none. ``pcb/temper.kicad_pcb``
+    has two such pads, ``K1.13``/``K1.14``; neither is a tank-node pad, so this
+    correction moves no figure on the committed board -- it stops the next
+    non-copper pad from entering a copper measurement.
+
+    Returning an empty set is a REFUSAL TO MEASURE, not a pass: the caller's
+    ``if not layers: continue`` skips a pad that has no copper to be near a
+    pour, which is the only honest answer. It never suppresses a real pad.
+    """
+    if not pin.is_copper:
+        return frozenset()
     if pin.is_pth or pin.layer == "all":
         return frozenset({"F.Cu", "B.Cu"})
     return frozenset({pin.layer})

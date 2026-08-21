@@ -57,6 +57,10 @@ class PadData:
         net: str | None = ...,
         component_ref: str | None = ...,
     ) -> None: ...
+    @property
+    def is_copper(self) -> bool: ...
+    # See `netlist_contracts.Pin.declared_pad_layers`.
+    declared_pad_layers: tuple[str, ...]
 
 
 class ViaData:
