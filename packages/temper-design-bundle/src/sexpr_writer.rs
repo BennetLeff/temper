@@ -60,10 +60,263 @@
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
 
 use crate::parse_engine::{
     parse_ki_document, shortest_digits, KiAtom, KiNode,
 };
+
+/// Find the `(at ...)` sub-node within a list of KiNodes (footprint or pad
+/// children). Returns the index and a mutable reference to the at-list.
+fn find_at_node_mut(items: &mut [KiNode]) -> Option<usize> {
+    for (i, item) in items.iter().enumerate() {
+        if let KiNode::List(sub) = item {
+            if matches!(
+                sub.first(),
+                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "at"
+            ) {
+                return Some(i);
+            }
+        }
+    }
+    None
+}
+
+/// Find the `(property "Reference" "ref")` sub-node within a footprint's
+/// children. Returns the reference string.
+fn find_reference(items: &[KiNode]) -> Option<String> {
+    for item in items {
+        let KiNode::List(sub) = item else { continue };
+        let head = match sub.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "property" => b.as_str(),
+            _ => continue,
+        };
+        let _ = head;
+        // (property "Reference" "R1") — index 1 is key, index 2 is value
+        if let Some(KiNode::Atom(KiAtom::Str(key))) = sub.get(1) {
+            if key == "Reference" {
+                if let Some(KiNode::Atom(KiAtom::Str(val))) = sub.get(2) {
+                    return Some(val.clone());
+                }
+            }
+        }
+    }
+    None
+}
+
+/// Read the angle from an `(at X Y [angle])` node. Returns 0.0 if absent.
+fn read_at_angle(at_items: &[KiNode]) -> f64 {
+    if at_items.len() >= 4 {
+        if let Some(KiNode::Atom(a)) = at_items.get(3) {
+            return match a {
+                KiAtom::Int(v) => *v as f64,
+                KiAtom::Float(v) => *v,
+                _ => 0.0,
+            };
+        }
+    }
+    0.0
+}
+
+/// Convert an f64 to a KiAtom, using Int for integral values (matching
+/// the tokenizer's integral-decimal-collapse behavior).
+fn num_to_atom(v: f64) -> KiAtom {
+    if v == v.trunc() && v >= i64::MIN as f64 && v < i64::MAX as f64 {
+        KiAtom::Int(v as i64)
+    } else {
+        KiAtom::Float(v)
+    }
+}
+
+/// Update an `(at X Y [angle])` node's X, Y, and angle values.
+fn update_at_node(at_items: &mut Vec<KiNode>, x: f64, y: f64, angle: f64) {
+    // Set X (index 1) and Y (index 2)
+    if at_items.len() >= 3 {
+        at_items[1] = KiNode::Atom(num_to_atom(x));
+        at_items[2] = KiNode::Atom(num_to_atom(y));
+    }
+    // Set angle (index 3): update if present, append if not
+    if at_items.len() >= 4 {
+        at_items[3] = KiNode::Atom(num_to_atom(angle));
+    } else {
+        at_items.push(KiNode::Atom(num_to_atom(angle)));
+    }
+}
+
+/// Update a pad's angle within its `(at lx ly [angle])` sub-node.
+fn update_pad_angle(pad_items: &mut [KiNode], new_angle: f64) {
+    // Find the (at ...) sub-node within the pad
+    if let Some(idx) = find_at_node_mut(pad_items) {
+        let KiNode::List(at_items) = &mut pad_items[idx] else {
+            return;
+        };
+        // If angle is present (index 3), update it; else append
+        if at_items.len() >= 4 {
+            at_items[3] = KiNode::Atom(num_to_atom(new_angle));
+        } else {
+            at_items.push(KiNode::Atom(num_to_atom(new_angle)));
+        }
+    }
+}
+
+/// Read a pad's angle from its `(at lx ly [angle])` sub-node.
+fn read_pad_angle(pad_items: &[KiNode]) -> f64 {
+    for item in pad_items {
+        let KiNode::List(sub) = item else { continue };
+        let head = match sub.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "at" => b.as_str(),
+            _ => continue,
+        };
+        let _ = head;
+        return read_at_angle(sub);
+    }
+    0.0
+}
+
+/// Reorient pad angles: new_pad_angle = old_pad_angle + delta.
+/// Uses the same logic as `reorient_pad_angles_py`.
+fn reorient_pad_angle(old_angle: f64, delta: f64) -> f64 {
+    let new_angle = old_angle + delta;
+    // Normalize to [0, 360)
+    let normalized = new_angle.rem_euclid(360.0);
+    // If the result is a whole number, render as int (matches the Rust
+    // writer's integral-decimal collapse)
+    if normalized == normalized.trunc() {
+        normalized
+    } else {
+        normalized
+    }
+}
+
+/// Parse raw `.kicad_pcb` text, update footprint positions and pad angles
+/// for the given placements, and serialize the mutated tree back to text.
+///
+/// Each placement is a tuple ``(ref, x, y, new_angle)``. For each footprint
+/// matching `ref`, the `(at X Y angle)` node is updated, and every pad's
+/// angle is reoriented by `new_angle - old_angle` (preserving each pad's
+/// intrinsic orientation relative to its parent). Fails closed if the
+/// document is not a valid `(kicad_pcb ...)` list.
+#[pyfunction]
+pub fn update_footprint_positions_py(
+    content: &str,
+    placements: Vec<(String, f64, f64, f64)>,
+) -> PyResult<String> {
+    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let root = nodes.first_mut().ok_or_else(|| {
+        PyValueError::new_err("empty document — no root node")
+    })?;
+    let KiNode::List(root_items) = root else {
+        return Err(PyValueError::new_err("document root is not a list"));
+    };
+
+    for item in root_items.iter_mut() {
+        let KiNode::List(fp_items) = item else { continue };
+        let head = match fp_items.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "footprint" => b.as_str(),
+            _ => continue,
+        };
+        let _ = head;
+
+        // Find the reference for this footprint
+        let ref_str = match find_reference(fp_items) {
+            Some(r) => r,
+            None => continue,
+        };
+
+        // Check if this footprint has a placement
+        let placement = placements.iter().find(|(r, _, _, _)| *r == ref_str);
+        let Some((_, new_x, new_y, new_angle)) = placement else {
+            continue;
+        };
+        let new_x = *new_x;
+        let new_y = *new_y;
+        let new_angle = *new_angle;
+
+        // Find and update the (at ...) node, reading the old angle
+        let at_idx = match find_at_node_mut(fp_items) {
+            Some(i) => i,
+            None => continue,
+        };
+
+        // Read old angle before mutating
+        let old_angle = {
+            let KiNode::List(at_items) = &fp_items[at_idx] else { continue };
+            read_at_angle(at_items)
+        };
+
+        let delta = new_angle - old_angle;
+
+        // Update the at node
+        if let KiNode::List(at_items) = &mut fp_items[at_idx] {
+            update_at_node(at_items, new_x, new_y, new_angle);
+        }
+
+        // Reorient pad angles if delta is not a multiple of 360
+        if delta.rem_euclid(360.0) != 0.0 {
+            for fp_item in fp_items.iter_mut() {
+                let KiNode::List(pad_items) = fp_item else { continue };
+                let is_pad = matches!(
+                    pad_items.first(),
+                    Some(KiNode::Atom(KiAtom::Bare(b))) if b == "pad"
+                );
+                if !is_pad {
+                    continue;
+                }
+                let old_pad_angle = read_pad_angle(pad_items);
+                let new_pad_angle = reorient_pad_angle(old_pad_angle, delta);
+                update_pad_angle(pad_items, new_pad_angle);
+            }
+        }
+    }
+
+    Ok(write_board_document(&nodes))
+}
+
+/// A Python nested list (as produced by ``zone_sexpr_py``,
+/// ``segment_sexpr_py`` etc.) → s-expression text.
+///
+/// The Bare/Str distinction uses a keyword heuristic: a string matching
+/// ``^[a-z_][a-z0-9_]*$`` is emitted bare (unquoted), matching every
+/// keyword token (``zone``, ``net``, ``layer``, ``none``, etc.); all
+/// other strings are quoted (net names, layer names, UUIDs). This mirrors
+/// kiutils' own ``Sexpr`` vs bare-token convention as observed in the
+/// production board corpus.
+fn py_sexpr_to_text(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<String> {
+    use pyo3::types::PyList;
+
+    // Try list first (most common for nested structures)
+    if obj.is_instance_of::<PyList>() {
+        let parts: Vec<String> = obj.try_iter()?
+            .map(|item| py_sexpr_to_text(py, &item?))
+            .collect::<PyResult<_>>()?;
+        Ok(format!("({})", parts.join(" ")))
+    } else if let Ok(b) = obj.extract::<bool>() {
+        Ok(if b { "true".to_string() } else { "false".to_string() })
+    } else if let Ok(i) = obj.extract::<i64>() {
+        Ok(i.to_string())
+    } else if let Ok(f) = obj.extract::<f64>() {
+        Ok(render_float(f))
+    } else if let Ok(s) = obj.extract::<String>() {
+        if is_keyword_token(&s) {
+            Ok(s)
+        } else {
+            Ok(render_str(&s))
+        }
+    } else {
+        Ok(obj.str()?.to_string())
+    }
+}
+
+fn is_keyword_token(s: &str) -> bool {
+    if s.is_empty() {
+        return false;
+    }
+    let bytes = s.as_bytes();
+    if !bytes[0].is_ascii_lowercase() && bytes[0] != b'_' {
+        return false;
+    }
+    bytes[1..].iter().all(|&b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'_')
+}
 
 /// Render a single atom to its source token text.
 fn render_atom(atom: &KiAtom) -> String {
@@ -313,6 +566,98 @@ pub(crate) fn embed_title_block_comment(
 pub fn write_board_sexpr_py(content: &str) -> PyResult<String> {
     let nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
     Ok(write_board_document(&nodes))
+}
+
+/// Parse raw `.kicad_pcb` text, append one or more s-expression items
+/// (as Python nested lists — the output of ``zone_sexpr_py``,
+/// ``segment_sexpr_py`` etc.) to the root ``(kicad_pcb ...)`` list, and
+/// serialize the mutated tree back to text. Each item is a Python list
+/// like ``["zone", ["net", 2], ...]``. Items are appended before the
+/// root's closing paren — where KiCad expects new items.
+/// Fails closed (ValueError) if the board text fails to parse, or if
+/// the document root is not a ``(kicad_pcb ...)`` list.
+#[pyfunction]
+pub fn append_items_to_board_py(
+    py: Python<'_>,
+    content: &str,
+    item_sexprs: Vec<Py<PyAny>>,
+) -> PyResult<String> {
+    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let root = nodes.first_mut().ok_or_else(|| {
+        PyValueError::new_err("empty document — no root node")
+    })?;
+    let KiNode::List(root_items) = root else {
+        return Err(PyValueError::new_err(
+            "document root is not a list",
+        ));
+    };
+    let root_is_pcb = matches!(
+        root_items.first(),
+        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb"
+    );
+    if !root_is_pcb {
+        return Err(PyValueError::new_err(
+            "document root is not a (kicad_pcb ...) list",
+        ));
+    };
+    for item_obj in &item_sexprs {
+        let item_text = py_sexpr_to_text(py, item_obj.bind(py))?;
+        let item_nodes =
+            parse_ki_document(&item_text).map_err(PyValueError::new_err)?;
+        for item_node in item_nodes {
+            root_items.push(item_node);
+        }
+    }
+    Ok(write_board_document(&nodes))
+}
+
+/// Parse raw `.kicad_pcb` text and extract the `{net_name: net_index}`
+/// mapping from all `(net N "name")` entries in the root list.
+/// Returns a Python dict. Fails closed (ValueError) if the text is not
+/// parseable.
+#[pyfunction]
+pub fn extract_net_map_from_text_py(
+    py: Python<'_>,
+    content: &str,
+) -> PyResult<Py<PyAny>> {
+    use pyo3::types::PyDict;
+    let nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let out = PyDict::new(py);
+    for node in &nodes {
+        let KiNode::List(items) = node else { continue };
+        let head = match items.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb" => b.as_str(),
+            _ => continue,
+        };
+        let _ = head; // confirmed root
+        for child in items {
+            let KiNode::List(sub) = child else { continue };
+            let first = match sub.first() {
+                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "net" => b.as_str(),
+                _ => continue,
+            };
+            let _ = first;
+            // (net N "name") — N is the index, "name" is the net name
+            let Some(KiNode::Atom(num_atom)) = sub.get(1) else {
+                continue;
+            };
+            let Some(KiNode::Atom(name_atom)) = sub.get(2) else {
+                continue;
+            };
+            let num_val: i64 = match num_atom {
+                KiAtom::Int(v) => *v,
+                KiAtom::Float(v) => *v as i64,
+                _ => continue,
+            };
+            let name_val: &str = match name_atom {
+                KiAtom::Str(s) => s.as_str(),
+                KiAtom::Bare(s) => s.as_str(),
+                _ => continue,
+            };
+            out.set_item(name_val, num_val)?;
+        }
+    }
+    Ok(out.into_any().unbind())
 }
 
 /// Parse raw `.kicad_pcb` text, set title-block comment `slot` to `text`
