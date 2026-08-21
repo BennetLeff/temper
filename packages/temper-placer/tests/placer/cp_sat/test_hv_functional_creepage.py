@@ -293,6 +293,75 @@ class TestIntraPackage:
             ]
 
 
+class TestOrToolsEncoding:
+    """``add_hv_functional_creepage_to_model`` posts a real, BINDING
+    constraint -- pin-and-solve, not just "did it raise".
+
+    Same shape as ``test_tank_creepage.py::TestOrToolsEncoding``, which is
+    the established way this repo proves a family is not a no-op.
+    """
+
+    def _model(self):
+        from temper_placer.placer.cp_sat.model import CpSatModel
+
+        model = CpSatModel(units_per_mm=100)
+        for ref in ("A", "B"):
+            model.add_component(
+                ref,
+                x_start_val=0,
+                y_start_val=0,
+                width=model.mm_to_units(2.0),
+                height=model.mm_to_units(2.0),
+            )
+            model.add_rotation(ref, is_polarized=True)
+        return model
+
+    def _nl(self):
+        return _netlist(_comp("A", [BUS_A]), _comp("B", [BUS_B]))
+
+    def test_rejects_components_pinned_closer_than_the_derived_figure(self):
+        from ortools.sat.python import cp_model
+
+        from temper_placer.placer.cp_sat.hv_functional_creepage import (
+            add_hv_functional_creepage_to_model,
+        )
+
+        model = self._model()
+        report = add_hv_functional_creepage_to_model(model, self._nl())
+        floor = requirement_for_nets(BUS_A, BUS_B).enforceable_floor_mm()
+        assert report.separations["DC_BUS<->DC_BUS"].floor_mm == floor
+
+        a, b = model.get_component("A"), model.get_component("B")
+        # Same point: a 0 mm gap, well under the derived figure.
+        for var, mm in ((a.x_center, 50.0), (a.y_center, 50.0),
+                        (b.x_center, 50.0), (b.y_center, 50.0)):
+            model.model_ref.Add(var == model.mm_to_units(mm))
+        assert cp_model.CpSolver().Solve(model.model_ref) == cp_model.INFEASIBLE
+
+    def test_accepts_components_pinned_beyond_the_derived_figure(self):
+        from ortools.sat.python import cp_model
+
+        from temper_placer.placer.cp_sat.hv_functional_creepage import (
+            add_hv_functional_creepage_to_model,
+        )
+
+        model = self._model()
+        add_hv_functional_creepage_to_model(model, self._nl())
+        floor = requirement_for_nets(BUS_A, BUS_B).enforceable_floor_mm()
+
+        a, b = model.get_component("A"), model.get_component("B")
+        # Bodies are 2 mm wide, so centres this far apart leave an
+        # edge-to-edge gap of `floor + 2` -- comfortably clear. Derived from
+        # the figure rather than typed, so a re-derivation moves it for free.
+        for var, mm in ((a.x_center, 20.0), (a.y_center, 20.0),
+                        (b.x_center, 20.0 + floor + 4.0), (b.y_center, 20.0)):
+            model.model_ref.Add(var == model.mm_to_units(mm))
+        assert cp_model.CpSolver().Solve(model.model_ref) in (
+            cp_model.OPTIMAL,
+            cp_model.FEASIBLE,
+        )
+
+
 class TestAntiVacuity:
     def test_component_hv_nets_reads_the_declaration_not_a_net_class(self):
         nl = _netlist(_comp("A", [BUS_A, SELV]), _comp("S", [SELV]))

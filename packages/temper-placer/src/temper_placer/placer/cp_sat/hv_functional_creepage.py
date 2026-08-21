@@ -64,7 +64,7 @@ SEVEN OF THE TEN ARE NOT DETERMINATE 5.0 / 10.0 mm
 of its two groups' (``insulation.rs``: ``fa.frequency_hz.max(fb.frequency_hz)``),
 so any HV<->HV pairing touching either group is above IEC 60664-1 cl. 1.1.1's
 30 kHz scope ceiling, and cl. 2.3 routes dimensioning above it to
-IEC 60664-4 -- paywalled, not obtained. For those six the resolver answers
+IEC 60664-4 -- paywalled, not obtained. For those seven the resolver answers
 ``requirement_mm() -> nan`` and ``grade(x) -> "INDETERMINATE"`` at any
 distance, never ``"PASS"``.
 

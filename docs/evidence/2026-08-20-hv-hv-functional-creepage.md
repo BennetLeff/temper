@@ -1,3 +1,4 @@
+<!-- provenance: commit=6bffbf4a72f03ae89cc48e85b1555d5fa1fd562d dirty=false -->
 <!-- provenance: branch hvhv/functional-pairings, base origin/analysis/ovp-pads-under-model-e
      (cbdf42bee), which is itself a descendant of origin/feat/per-pairing-creepage-derivation
      (bd39eb10a) and origin/analysis/per-pairing-placer-solve (30edd0a93). Branched from
@@ -58,11 +59,14 @@ the worst shortfall goes **0.521 mm → 4.090 mm**.
 **Three of the introduced pairs are below 2.0 mm, and all three carry one pad:
 `R4.2` = `PWR_RTN`.** Named in §4.
 
-**Feasibility: pricing HV↔HV does not, on its own, break the placer.** With no
-barrier, the model solves `optimal` 168/168 in 40.8 s — 5.1 s more than the same
-model with HV↔HV free. The barrier's `{T1, T2}` infeasibility is unchanged by
-it. §5 has the re-solved ladder, every row a proven verdict or an explicit
-timeout.
+**Feasibility, re-solved (§5): pricing HV↔HV does not, on its own, break the
+placer** — with no barrier the model is `optimal` 168/168 in 40.8 s, 5.1 s more
+than with HV↔HV free, so every derived figure is simultaneously satisfiable.
+**It does not worsen the barrier either** — `B` and `B+` are both `infeasible`
+in the same 24 s. **But whether `{T1, T2}` still suffices is UNDECIDED**: row
+`E+` came back `unknown` at 600 s cold and `unknown` again at 2 400 s
+warm-started. That is a timeout, not a verdict, and this report does not
+convert it into one in either direction.
 
 **Seven of the ten HV↔HV pairings have NO determinable requirement.** Everything
 that depends on them is a proven lower bound, not compliance.
@@ -139,6 +143,38 @@ by `test_every_47khz_pairing_is_indeterminate_with_a_floor` and
 * **Same-net pairs are skipped.** Two pads at the same potential have no
   insulation between them to dimension.
 * **Scope: 27 declared HV nets, 4 groups, 107 copper HV pads, 5 386 pairs.**
+
+### 2.0 Independent cross-check of the geometry
+
+Nine census distances were recomputed by a **separate** program that reads
+`pcb/temper.kicad_pcb` with its own regex parser, applies the settled
+convention from first principles (`R(-THETA)` on the local offset, the pad's
+`(at … ANGLE)` taken as absolute, exactly as the file writes it) and measures
+with Shapely `polygon.distance()` — sharing no code with
+`pad_geometry`/`pad_world` beyond the standard library and Shapely:
+
+| pair | independent | census | Δ |
+|---|---:|---:|---:|
+| `R30.1 ↔ R30.2` | 5.0000 | 5.000 | 0.0000 |
+| `C22.1 ↔ C22.2` | 0.6500 | 0.650 | 0.0000 |
+| `C23.1 ↔ C23.2` | 0.6500 | 0.650 | 0.0000 |
+| `K3.1 ↔ K3.3` | 3.0400 | 3.040 | 0.0000 |
+| `K2.4 ↔ K2.1` | 3.0400 | 3.040 | 0.0000 |
+| `R4.1 ↔ R4.2` | 4.7000 | 4.700 | 0.0000 |
+| `K1.13 ↔ K1.14` | 0.0000 | 0.000 | 0.0000 |
+| `R5.1 ↔ R9.2` | 4.3767 | 4.479 | −0.1023 |
+| `C17.2 ↔ R30.1` | 0.7421 | 0.790 | −0.0479 |
+
+(`K1.13 ↔ K1.14` appears here as a *geometry* check only — both cross-checks
+agree the two rectangles abut. §2.1 is why that abutment is not a violation.)
+
+**Exact agreement on all seven circle/oval/rect pairs.** The two that differ
+are the two roundrect pairs, and they differ in the only direction they can:
+the cross-check models a roundrect as a full rectangle, which is *more* copper
+than the real pad, so it must report a *smaller* gap. Both deltas are inside
+the corner radius. Nothing here is convention-sensitive — a wrong composition
+would move figures by millimetres, as the 19 640-of-25 833 correction shows,
+not by a corner radius.
 
 ### 2.1 A correction found while measuring: two pads on this board are not copper
 
@@ -273,7 +309,80 @@ The full list of 22 introduced and 30 resolved pairs is reproduced by
 
 ## 5. Feasibility, re-solved
 
-_(filled in below from the re-solve; see §5.1)_
+The `{T1, T2}` UNSAT core of `2026-08-19-per-pairing-placer-solve.md` was
+computed with HV↔HV charged **0.0 mm**. Adding a real cost inside the HV pocket
+may change it, so it was **re-solved**, not reasoned about.
+
+Real board, 168 components, 164 × 234 mm, seed 42, DRU-resolved netclass +
+tank creepage in every row. `hv_functional_creepage` contributes **1 127
+component-pair constraints over 48 HV components**.
+
+| # | model | HV↔HV | verdict | time | placed |
+|---|---|---|---|---:|---:|
+| **A** | no barrier | free | **`optimal`** | 35.7 s | 168/168 |
+| **A+** | no barrier | **priced** | **`optimal`** | 40.8 s | 168/168 |
+| **B** | + per-pairing barrier, all 8 isolators | free | **`infeasible`** | 24.4 s | — |
+| **B+** | + per-pairing barrier, all 8 isolators | **priced** | **`infeasible`** | 24.5 s | — |
+| **E** | barrier, `{T1,T2}` relaxed | free | **`optimal`** | 38.6 s | 168/168 |
+| **E+** | barrier, `{T1,T2}` relaxed | **priced** | **`unknown`** (undecided) | 600 s / 2 400 s | — |
+
+**Answer 1 — pricing HV↔HV does not, on its own, break the placer.** Row A+ is
+`optimal` 168/168, 5.1 s slower than row A. A board that satisfies every
+derived HV↔HV figure *simultaneously* exists; the committed one is simply not
+it (§3).
+
+**Answer 2 — it does not rescue the barrier either, and does not change B's
+verdict.** B and B+ are both `infeasible`, in the same 24 s. `T1`'s and `T2`'s
+intra-package shortfalls against `SELV<->TANK` and `DC_BUS<->SELV` are
+untouched by anything happening inside the HV pocket, exactly as expected of
+two shortfalls no placement can move.
+
+### 5.1 Row E+ — the row that decides whether the core changed
+
+The first ladder gave E+ **`unknown` at 600 s**. An `unknown` is a *timeout*:
+no proof in either direction. Reporting it as "the core grew" would be
+manufacturing a result from a slow solve, so it was re-run with a 2 400 s
+budget, twice — once warm-started from row A+'s placement (which already
+satisfies every HV↔HV figure, leaving the barrier as the only thing the search
+must additionally satisfy) and once cold. A `hint_positions` warm start feeds
+`CpModel.AddHint()`: it changes the order CP-SAT searches in and adds, removes
+or weakens no constraint, so it cannot turn an infeasible model feasible.
+
+| E+ attempt | budget | verdict |
+|---|---:|---|
+| cold, first ladder | 600 s | **`unknown`** |
+| warm-started from A+ | 2 400 s | **`unknown`** (2 400.7 s) |
+
+**RESULT: E+ IS UNDECIDED. It is reported as undecided.**
+
+An `unknown` is not `infeasible`. Two attempts totalling 50 minutes of solver
+time — the second warm-started from a placement that already satisfies every
+HV↔HV figure, i.e. a strictly better-informed search — produced no proof in
+either direction. **Nothing here shows the `{T1, T2}` core grew, and nothing
+here shows it did not.** Any statement that pricing HV↔HV breaks (or preserves)
+row E's feasibility would be manufactured from a slow solve, and this document
+declines to make one.
+
+**What IS proven, and it is not nothing:**
+
+* Row **A+** is `optimal` in 40.8 s. **Every derived HV↔HV figure is
+  simultaneously satisfiable on this board** — the requirement is not
+  self-contradictory, and the committed placement is simply not a witness.
+* Row **B+** is `infeasible` in 24.5 s, the same verdict and the same time as
+  **B**. The barrier's infeasibility is **not** caused or worsened by HV↔HV
+  pricing.
+* Row **E** is `optimal` in 38.6 s with HV↔HV free; row **E+** is undecided at
+  2 400 s with it priced. So pricing HV↔HV changes row E's *tractability* by at
+  least two orders of magnitude in solver time. **Tractability is not
+  feasibility**, and the distinction is the whole point of this subsection.
+
+The ablation that would recompute the core per isolator **did not run**: the
+harness gates it on E+ being SAT, precisely so that a core is never assembled
+out of undecided rows. Deciding E+ needs a longer budget, a stronger
+formulation, or an infeasibility proof by other means — `--timeout-ms` on
+`2026-08-20-hv-hv-functional-core-resolve.py` is the cheap first thing to try,
+and it prints both a hinted and a cold attempt so a disagreement between them
+would itself be visible.
 
 ## 6. What this cannot fix
 
@@ -348,10 +457,13 @@ off it and report "pass" for a 47 kHz pairing. Not touched here; recorded.
 
 | suite / gate | result |
 |---|---|
-| `test_hv_functional_creepage.py` (new, 20 tests) | **20 passed** |
+| `test_hv_functional_creepage.py` (new, 22 tests) | **22 passed** |
 | `test_pad_world_rotation_invariance.py` (cherry-picked) | **83 passed** |
-| `test_isolation_barrier*.py` + `test_loop.py` | **unchanged** |
+| `test_isolation_barrier.py` + `test_isolation_barrier_per_pairing.py` | **59 passed** |
+| `packages/temper-placer/tests/geometry` (whole tree) | **2 677 passed, 4 skipped** |
+| `scripts/check_evidence_provenance.py` | all five new files stamped and passing (gate red overall: **222 pre-existing** violations, was 227) |
 | `test_tank_creepage.py` | **6 failed — PRE-EXISTING**, see below |
+| `test_body_collision.py` | **1 failed — PRE-EXISTING**, see below |
 | `scripts/check_oracle_hashes.py` | 172/172 byte-identical |
 | `scripts/check_insulation_pairings.py` | INDETERMINATE — the finding itself, unchanged |
 | `ruff check` on every changed file | clean |
@@ -365,6 +477,15 @@ governing 10.0; `HighVoltageTank.creepage_mm = 6.3`; the DRU selecting PD2);
 two are pour-containment expectations. They are the family
 `2026-08-18-tank-creepage-11-reds-diagnosis.md` already triages.
 
+`test_body_collision.py::TestProductionBoardAllowlistCoverage::test_real_board_is_clean_against_the_real_allowlist`
+was proven pre-existing the same way — the base's whole
+`packages/temper-placer/src` checked out into this tree, test re-run, **same
+single failure**. It asserts 6 allowlisted F.Fab body-overlap pairs and the
+board now yields **1 allowlisted, 0 violations**; neither `body_collision.py`
+nor `core/fab_body.py` was touched by the cherry-pick or by this branch, and
+neither reads the pad-world composition. Recorded, not fixed and not
+re-baselined — the allowlist is a ratchet.
+
 ## 10. Reproduce
 
 ```bash
@@ -377,6 +498,10 @@ python docs/evidence/2026-08-20-hv-hv-functional-census.py \
 # §3 control -- the unfiltered number, for comparison with a census
 # that did not exclude the two F.Fab pads
 python docs/evidence/2026-08-20-hv-hv-functional-census.py --include-non-copper
+
+# §2.0 -- the independent geometry cross-check (shares no code with
+# pad_world / pad_geometry / kicad_parser)
+python docs/evidence/2026-08-20-hv-hv-geometry-independent-check.py
 
 # §5 -- the feasibility ladder (6 solves)
 python docs/evidence/2026-08-20-hv-hv-functional-placer-solve.py

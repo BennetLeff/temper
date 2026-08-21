@@ -1,3 +1,4 @@
+# provenance: commit=6bffbf4a72f03ae89cc48e85b1555d5fa1fd562d dirty=false
 """Resolve row E+ -- the one row the first ladder left ``unknown``.
 
 ``2026-08-20-hv-hv-functional-placer-solve.py`` proved five of its six rows and
