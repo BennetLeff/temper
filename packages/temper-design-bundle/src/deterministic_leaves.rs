@@ -1633,6 +1633,10 @@ fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64),
             },
         ];
 
+        // Frozen-fixture shape: the tuple nesting mirrors the oracle's
+        // own return type exactly, which is the point of a frozen case --
+        // a `type` alias here would hide the very shape the freeze pins.
+        #[allow(clippy::type_complexity)]
         struct FrozenIndexCase {
             slots: &'static [(f64, f64)],
             spacing: f64,
@@ -2017,6 +2021,8 @@ fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64),
             }
             for case in FROZEN_INDEX_GOLDEN {
                 let got = build_slot_index(case.slots, case.spacing);
+                // Same frozen shape as FrozenIndexCase::expected above.
+                #[allow(clippy::type_complexity)]
                 let want: Vec<((i64, i64), Vec<(f64, f64)>)> = case.expected
                     .iter().map(|&(k, v)| (k, v.to_vec())).collect();
                 assert_eq!(got, want, "index tags={:?}", case.tags);

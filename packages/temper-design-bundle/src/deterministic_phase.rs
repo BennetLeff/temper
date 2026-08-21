@@ -1467,6 +1467,10 @@ mod tests {
             },
         ];
 
+        // Frozen-fixture shape: the tuple nesting mirrors the oracle's
+        // own return type exactly, which is the point of a frozen case --
+        // a `type` alias here would hide the very shape the freeze pins.
+        #[allow(clippy::type_complexity)]
         struct FrozenIsoCase {
             slot: (f64, f64),
             aabbs: &'static [((f64, f64), (f64, f64))],
