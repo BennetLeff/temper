@@ -10,7 +10,8 @@ board, and fix it in the conservative direction.
 every survivor in the safe direction (Rust blocks where GEOS frees). The cause
 was a lossy index round trip, not a tolerance or an interval convention. Exact
 0/0 parity on the pre-#1312 board is preserved. The routed board loses
-8 segments (4553 → 4545) and holds vias/zones at 169/151.
+8 segments (4553 → 4545), holds vias/zones at 169/151, and **loses no
+connectivity at all** — every connectivity metric is identical.
 
 ## 1. The measurement
 
@@ -199,19 +200,52 @@ boundary, a scale at which "which side" carries no DRC meaning.
 ## 7. Routed-board consequence
 
 `scripts/route_board.py --net-batching --batch-size 10`, board `26981fea`
-(unmodified — verified before and after; output written to a scratch path):
+(unmodified — verified before and after; output written to scratch paths). Both
+arms were run in this worktree on the same pipeline, differing only in which
+`occupancy_raster.rs` was compiled in:
 
-| | segments | vias | zones | pad-connected | fake-completion |
-|---|---|---|---|---|---|
-| committed route (baseline) | 4553 | 169 | 151 | — | — |
-| post-fix | 4545 | 169 | 151 | 60/139 | 6 |
+| | segments | vias | zones | pad-connected | fake-completion | honest-gap | routed board sha256 |
+|---|---|---|---|---|---|---|---|
+| committed route (stated baseline) | 4553 | 169 | 151 | — | — | — | `6d4e17337b…` |
+| **pre-fix** | 4553 | 169 | 151 | 60/139 | 6 | 73 | `6d4e17337b…` |
+| **post-fix** | 4545 | 169 | 151 | 60/139 | 6 | 73 | `636e037bd9…` |
+
+**The pre-fix arm reproduces the committed route byte-for-byte** (digest
+`6d4e17337bcf2633fb256f3da4d6fe981c91123827eff715a2c8aa870d195981`), so the
+post-fix delta is attributable to this change alone and to nothing else in the
+pipeline.
 
 The fix nets 940 fewer free cells out of 23,990,400 (3,020 newly blocked, 2,080
-newly freed). The routed board loses **8 segments**, holds vias and zones
-exactly, and the router does not lose a net to it. A board that routes 8 fewer
-segments but never at less than clearance distance is the better board.
+newly freed). The cost is **8 segments**. Vias and zones are held exactly, and
+**every connectivity metric is identical**: 34/105 nets, 60/139 pad-connected,
+fake-completion 6, honest-gap 73, and the same NetRouteResult split (60
+connected, 9 zone-dependent, 6 partial, 64 failed). Connectivity did not fall.
 
-## 8. Reproducing
+Read plainly: the router was using 8 segments' worth of cells that sit exactly
+on the C-space clearance boundary, and it did not need them to connect anything
+it was already connecting.
+
+## 8. Test-suite effect: none
+
+`pytest packages/temper-placer/tests/router_v6` (6,227 passed) reports **17
+failures, all of them pre-existing on `origin/main`** — each was re-run against
+a rebuild of the *unmodified* kernel and fails identically there:
+
+- 7 (`test_adapter_convert_marshal_rust_differential` ×5,
+  `test_pipeline_route_rust_differential` ×2) are the catalogued via-diameter
+  drift from `968d1a33d` (#1316): the Python oracle returns 0.6, production's
+  annular floor returns 0.9.
+- 10 more (`test_u2_stackup_role_ssot` ×3, the two `zone_pour_*` staleness
+  gates, `test_power_islands`, `test_strip_copper`, `test_via_output_writer`,
+  `test_quality_metrics_oracle_pin[piantor_right]`,
+  `test_phase1_anti_false_zero::test_kicad7_footprint_dir_resolves`) are
+  unrelated pre-existing reds.
+
+The 30 synthetic parity tests in the differential all still pass unchanged, as
+do all 8,549 `temper-geometry` Rust tests; the crate is clippy-clean under
+`-D warnings --all-targets`.
+
+## 9. Reproducing
 
 ```bash
 make venv-isolate                       # under: env -u CONDA_PREFIX
@@ -236,7 +270,7 @@ before and after every measurement above. The 2026-08-15 comparison board is
 `git show 6285d6889:pcb/temper.kicad_pcb` =
 `077d4b6993c2708ea8d32572300f2964d2e0fb1634f903f5736b3a6eb38f2fda`.
 
-## 9. What the differential now asserts
+## 10. What the differential now asserts
 
 The old assertion (`np.array_equal`, aborting on the first failing layer) is
 not satisfiable in f64 for the reason in §6, and was only ever true by the
