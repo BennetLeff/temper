@@ -109,7 +109,7 @@ correction log). The default `route_board.py` invocation passes
 ## 2. Skeleton sizes measured on the current board
 
 Stage 2 run directly (probe committed as
-`docs/evidence/2026-08-15-stage2-skeleton-probe.py`), plus the
+`docs/evidence/scripts/2026-08-15-stage2-skeleton-probe.py`), plus the
 ground-truth measurement from the real route's own mem-trace (below):
 
 | measurement | F.Cu | B.Cu | In1.Cu | In2.Cu | **total edges** | raw vars @110 nets |
@@ -235,10 +235,10 @@ real but a separate solver/encoding project (08-12-004's "Option 4").
   / PCL / EXIT, `solve_topology_rust` ENTER/EXIT,
   `_build_clause_origin` done (`_pipeline_route.py`,
   `constraint_model.py`). Off by default.
-- `docs/evidence/2026-08-15-stage3-rss-watchdog.py`: external
+- `docs/evidence/scripts/2026-08-15-stage3-rss-watchdog.py`: external
   `/proc/<pid>/status` VmRSS/VmHWM sampler that spawns the command and
   logs samples (used for the batched route run below).
-- `docs/evidence/2026-08-15-stage2-skeleton-probe.py`: Stage 2 + full/
+- `docs/evidence/scripts/2026-08-15-stage2-skeleton-probe.py`: Stage 2 + full/
   single-net ModelBuilder controlled experiment (Section 2/3).
 
 ## 7. `power_in.ntc-no` ampacity (handoff §8 item 6)

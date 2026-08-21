@@ -1,7 +1,7 @@
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.deterministic import DeterministicPipeline
-from temper_placer.deterministic.stages.setup import DRCOracleSetupStage
+from temper_placer.deterministic.stages import DRCOracleSetupStage
 from temper_placer.deterministic.state import BoardState
 
 

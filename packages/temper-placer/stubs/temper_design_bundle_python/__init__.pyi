@@ -653,87 +653,6 @@ def load_loop_collection(
 
 
 # ---------------------------------------------------------------------------
-# Wave 4 Phase 4 leftovers slice: manufacturing tolerance model ported from
-# temper_placer/manufacturing/tolerances.py (manufacturing_tolerances.rs).
-# Plain Python Enums: str(member) is "CopperWeight.HALF_OZ" (NOT the bare
-# value); members are hashable/eq and usable as dict keys; `Cls(value)`
-# constructs a fresh instance (documented deviation: Python Enum returns the
-# cached singleton). The dict fields are real Python dicts keyed by the
-# enum members.
-# ---------------------------------------------------------------------------
-
-
-class CopperWeight:
-    HALF_OZ: CopperWeight
-    ONE_OZ: CopperWeight
-    TWO_OZ: CopperWeight
-
-    def __init__(self, value: float) -> None: ...
-    @property
-    def name(self) -> str: ...
-    @property
-    def value(self) -> float: ...
-
-
-class LayerType:
-    OUTER: LayerType
-    INNER: LayerType
-
-    def __init__(self, value: str) -> None: ...
-    @property
-    def name(self) -> str: ...
-    @property
-    def value(self) -> str: ...
-
-
-class ToleranceTable:
-    etch_tolerance: dict[CopperWeight, float]
-    registration: dict[LayerType, float]
-    solder_mask_registration: float
-
-    def __init__(
-        self,
-        etch_tolerance: dict[CopperWeight, float] | None = None,
-        registration: dict[LayerType, float] | None = None,
-        solder_mask_registration: float = 0.075,
-    ) -> None: ...
-
-
-class FeatureTolerance:
-    feature_type: str
-    nominal_value: float
-    tolerance_plus: float
-    tolerance_minus: float
-    worst_case_min: float
-    worst_case_max: float
-
-    def __init__(
-        self,
-        feature_type: str,
-        nominal_value: float,
-        tolerance_plus: float,
-        tolerance_minus: float,
-        worst_case_min: float,
-        worst_case_max: float,
-    ) -> None: ...
-
-
-class ToleranceAnalyzer:
-    table: ToleranceTable
-
-    def __init__(self, table: ToleranceTable | None = None) -> None: ...
-
-    def analyze_clearance(
-        self,
-        clearance_mm: float,
-        copper_weight: CopperWeight,
-        layer_type: LayerType,
-    ) -> FeatureTolerance: ...
-
-    def analyze_trace(self, width_mm: float, copper_weight: CopperWeight) -> FeatureTolerance: ...
-
-
-# ---------------------------------------------------------------------------
 # Wave 4 Phase 4 leftovers — extraction/hypergraph_factory.py migration.
 # The Rust builder computes the filtering/classification/ordering; the
 # Python shim class (temper_placer.extraction.hypergraph_factory) owns the
@@ -797,29 +716,6 @@ class LayerAssignment:
     def allow_layer_change(self) -> Any: ...
     @property
     def is_plane(self) -> Any: ...
-
-
-class DiffPairConfig:
-    """`frozen`-dataclass-equivalent pyo3 pyclass."""
-
-    def __init__(
-        self,
-        net_pos: Any,
-        net_neg: Any,
-        spacing_mm: Any = None,
-        coupling_tolerance_mm: Any = None,
-        max_skew_mm: Any = None,
-    ) -> None: ...
-    @property
-    def net_pos(self) -> Any: ...
-    @property
-    def net_neg(self) -> Any: ...
-    @property
-    def spacing_mm(self) -> Any: ...
-    @property
-    def coupling_tolerance_mm(self) -> Any: ...
-    @property
-    def max_skew_mm(self) -> Any: ...
 
 
 # ---------------------------------------------------------------------------

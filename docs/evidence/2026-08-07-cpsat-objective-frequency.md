@@ -14,10 +14,10 @@ doc answers the four questions that determine whether that failure matters:
 how often production actually posts an objective, what the 5s budget
 protects, how long Pumpkin actually needs, and what the R2 verdict is. **No
 call site was migrated, no solver behavior changed.** Companion code:
-`docs/evidence/2026-08-07-cpsat-objective-frequency-instrument.py` (dynamic
+`docs/evidence/scripts/2026-08-07-cpsat-objective-frequency-instrument.py` (dynamic
 call-site instrumentation) +
 `docs/evidence/2026-08-07-cpsat-objective-frequency-instrument-summary.json`
-(its raw output), `docs/evidence/2026-08-07-pumpkin-time-to-optimum.py`
+(its raw output), `docs/evidence/scripts/2026-08-07-pumpkin-time-to-optimum.py`
 (timeout sweep) + `docs/evidence/2026-08-07-pumpkin-time-to-optimum-summary.json`
 (its raw output).
 
@@ -117,7 +117,7 @@ re-place, but every round goes through the same objective-free
 
 ### 1.3 Whole-CI-suite instrumentation: why it shows a different number, and why that number is the wrong lens
 
-`docs/evidence/2026-08-07-cpsat-objective-frequency-instrument.py`
+`docs/evidence/scripts/2026-08-07-cpsat-objective-frequency-instrument.py`
 monkeypatches all three name-bindings a caller can resolve `solve_placement`
 through (`_encoder_solve.solve_placement`, `encoder.solve_placement`, and
 the `cp_sat` package's own re-export — all three needed because `encoder.py`
@@ -167,7 +167,7 @@ record, ever).
 **Nothing traceable.** The 5s figure appears in exactly two places in this
 repository, both written by the same 2026-08-07 evidence work: `docs/evidence/
 2026-08-07-cpsat-equivalence-harness.py:883` and
-`docs/evidence/2026-08-07-pumpkin-equivalence-run.py:177`, both as the
+`docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py:177`, both as the
 literal `timeout_ms = 30_000 if model.name == "full-board" else 5_000` with
 no comment tying it to any production constant, CI budget, or R2 margin —
 it is the harness author's own choice of a "fast enough to sweep 3 seeds x 3
@@ -332,12 +332,12 @@ unmeasured variable blocking it.**
 ```
 # Objective-frequency census (Sec 1.2/1.3):
 cd packages/temper-placer
-uv run --no-sync python ../../docs/evidence/2026-08-07-cpsat-objective-frequency-instrument.py
+uv run --no-sync python ../../docs/evidence/scripts/2026-08-07-cpsat-objective-frequency-instrument.py
 
 # Time-to-optimum sweep (Sec 3):
 (cd docs/evidence/2026-08-07-pumpkin-engine && cargo build --release)
 cd packages/temper-placer
-uv run --no-sync python ../../docs/evidence/2026-08-07-pumpkin-time-to-optimum.py
+uv run --no-sync python ../../docs/evidence/scripts/2026-08-07-pumpkin-time-to-optimum.py
 ```
 
 Both need the built Rust pyo3 extensions (`make extensions` from the repo

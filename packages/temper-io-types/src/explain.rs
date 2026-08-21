@@ -21,8 +21,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 
-use crate::pyfmt::{py_float_fmt_1, py_float_fmt_2, py_float_fmt_4};
-use crate::report::{iter_items, py_str, to_f64};
+use crate::pyfmt::{iter_items, py_float_fmt_1, py_float_fmt_2, py_float_fmt_4, py_str, to_f64};
 
 /// `seq[i]` — Python-level `__getitem__`, matching the oracle's indexing
 /// (`new[0]` / `old[1]` / `pos[0]`), so ANY indexable sequence works:
