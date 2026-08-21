@@ -3782,6 +3782,10 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
         crate::sexpr_writer::extract_net_map_from_text_py,
         &sub
     )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::update_footprint_positions_py,
+        &sub
+    )?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }
