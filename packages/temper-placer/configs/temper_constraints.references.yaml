@@ -131,12 +131,30 @@ authority:
 # alias/unresolved-component board ref above is therefore verified
 # unaffected. The source export (elec/exports/temper.design-input.v1.json)
 # is untouched -- hash unchanged.
+# Re-pinned 2026-08-21 (chore/drc-ceiling-remeasure-1407, issue #1407): STALE
+# again -- pcb/temper.kicad_pcb changed by five commits since the prior record
+# (ce82b74b4, board 9c1f4a37): #1299 (aec4bf1f8, 5 placement moves -- C1/C22/
+# C6/R51/U27, 9 PD3 creepage violations cleared), #1312 (23b5daf8d, regenerate
+# board copper), #1316 (968d1a33d, enforce 0.254mm annular floor + drop
+# co-located same-net vias), #1333 (342e1bd08, re-route), #1334 (11a7e7c52,
+# revert M6c + Tier 3 budget). Only #1299 moved footprints (position-only,
+# same pattern as all prior pins): `(footprint ` count (168) and `Sheetpath`
+# occurrence count (168) are unchanged, and the Sheetpath->Reference map is
+# identical before/after (same footprints, same sheetpaths, same refs -- only
+# their `(at ...)` lines moved). The other four commits changed only copper/
+# tracks/vias, not any `(footprint ...)` block. No alias/unresolved-component
+# entry references C1 or C22 or R51. C6 (aliased as Y1: C6, power_in.y_cap_pe)
+# and U27 (aliased as U_MCU: U27, mcu.mcu) DID move, but position-only -- the
+# alias resolves by ref designator, not position, and the Sheetpath->Reference
+# mapping is unchanged. Every alias/unresolved-component board ref above is
+# therefore verified unaffected. The source export
+# (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
 provenance:
-  measured_at_commit: ce82b74b4963f5e8ee660e6d01edea33d23ff46d
+  measured_at_commit: 167ddb0a922094119ccfd9c2175fe02d9fccb1e0
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 9c1f4a37b03c6433275704c3bed917f7ff16877c762f0aa8d37cc6858d7c16dd
+      sha256: 26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}

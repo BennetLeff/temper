@@ -43,7 +43,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 6942 eligible tests, in a stable order.  Each entry is
+/// All 6944 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -53,6 +53,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn_exporter::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn_exporter::property_campaigns::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn_types::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-io-types")] crate::dsn_types::frozen_dsn_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::export_types::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::footprint_spec::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::golden_diff::tests::WASM_TESTS,

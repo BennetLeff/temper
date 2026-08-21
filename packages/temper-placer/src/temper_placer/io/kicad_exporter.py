@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 import temper_geometry as _tg
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
-from kiutils.items.common import Position
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.geometry_types import Track as GeoTrack
 from temper_placer.core.geometry_types import Via as GeoVia
@@ -31,6 +31,27 @@ if TYPE_CHECKING:
     # (mypy `name-defined`), long ruff-`noqa: F821`-suppressed and therefore
     # invisible to lint -- mypy is the first gate that actually checks it.
     from temper_placer.deterministic.state import BoardState
+
+
+def _serialize_board(board) -> str:
+    """Final board serialization: kiutils object -> text -> Rust writer.
+
+    Wave 4 Phase 3 (formats/IO): the Rust S-expression writer
+    (``temper_design_bundle_python.parse_engine.write_board_sexpr_py``)
+    re-serializes kiutils' ``Board.to_sexpr()`` output from the token tree.
+    Re-parse parity is the contract (``sexpr_writer.rs``: parse -> write ->
+    parse is the identity on the tree), so the written file is semantically
+    identical to kiutils' own ``to_sexpr`` while the serializer itself is
+    Rust. Fails closed (ValueError) if kiutils ever emits text the Rust
+    tokenizer cannot parse -- it never writes half a board.
+
+    This is the production wiring of the writer kernel (the
+    unwired-kernel-inventory gate counts a module registered with pyo3 as
+    unwired until a non-test caller invokes it).
+    """
+    import temper_design_bundle_python as _tdb
+
+    return _tdb.parse_engine.write_board_sexpr_py(board.to_sexpr())
 
 # Layer mapping from grid layer index to KiCad layer name.
 # The canonical Temper board is 4-layer. 2-layer is not a production
@@ -318,21 +339,17 @@ def add_segments_to_board(
     added_count = 0
 
     for seg in segments:
-        # Find net code (KiCad uses numeric net IDs)
-        net_code = 0  # Default to unconnected
-        for net in board.nets:
-            if net.name == seg.net:
-                net_code = net.number
-                break
+        # Find net code (KiCad uses numeric net IDs) — the lookup runs in
+        # Rust (find_net_code_py); see the module docstring.
+        net_code = _GEOM.find_net_code_py(board.nets, seg.net)
 
-        # Create segment using kiutils
-        kicad_seg = Segment(
-            start=Position(X=seg.start[0], Y=seg.start[1]),
-            end=Position(X=seg.end[0], Y=seg.end[1]),
-            width=seg.width,
-            layer=seg.layer,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        # Create segment using kiutils — the content is constructed in Rust
+        # (segment_sexpr_py) and materialised through kiutils' own parser.
+        kicad_seg = Segment.from_sexpr(
+            _GEOM.segment_sexpr_py(
+                seg.start[0], seg.start[1], seg.end[0], seg.end[1],
+                seg.width, seg.layer, net_code, str(uuid.uuid4()),
+            )
         )
 
         board.traceItems.append(kicad_seg)
@@ -359,21 +376,16 @@ def add_vias_to_board(
     added_count = 0
 
     for via in vias:
-        # Find net code
-        net_code = 0
-        for net in board.nets:
-            if net.name == via.net:
-                net_code = net.number
-                break
+        # Find net code — the lookup runs in Rust (find_net_code_py).
+        net_code = _GEOM.find_net_code_py(board.nets, via.net)
 
-        # Create via using kiutils
-        kicad_via = Via(
-            position=Position(X=via.position[0], Y=via.position[1]),
-            size=via.size,
-            drill=via.drill,
-            layers=via.layers,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        # Create via using kiutils — the content is constructed in Rust
+        # (via_sexpr_py) and materialised through kiutils' own parser.
+        kicad_via = Via.from_sexpr(
+            _GEOM.via_sexpr_py(
+                via.position[0], via.position[1],
+                via.size, via.drill, list(via.layers), net_code, str(uuid.uuid4()),
+            )
         )
 
         board.traceItems.append(kicad_via)
@@ -519,7 +531,7 @@ def export_routed_pcb(
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
     _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    output_pcb.write_text(_serialize_board(board))
 
     # Automatically fill zones if requested (temper-x8jz)
     if auto_fill_zones:
@@ -626,15 +638,17 @@ def export_board_state(
 
     # Provenance header (plan 2026-07-15-001, unit U5). Skipped, not faked,
     # when the netlist isn't available -- this export path also runs against
-    # boards/fixtures unrelated to this project's real netlist.
+    # boards/fixtures unrelated to this project's real netlist. The embed
+    # is the Rust text kernel (provenance.py: parse -> mutate KiNode tree ->
+    # serialize), applied to the Rust-serialized board text.
+    board_text = _serialize_board(board)
     resolved_netlist_path = netlist_path or Path("elec/build/default.net")
     if resolved_netlist_path.exists():
         from temper_placer.io.provenance import compute_provenance, embed_provenance
 
         provenance = compute_provenance(template_pcb, resolved_netlist_path, config_path)
-        embed_provenance(board, provenance)
-
-    board.to_file(str(output_pcb))
+        board_text = embed_provenance(board_text, provenance)
+    output_pcb.write_text(board_text)
 
     # Automatically fill zones if requested
     if auto_fill_zones:
@@ -682,46 +696,37 @@ def export_from_geometry(
     total_segments = 0
     total_vias = 0
 
-    # Helper to find net code
-    def get_net_code(net_name: str) -> int:
-        for n in board.nets:
-            if n.name == net_name:
-                return n.number
-        return 0
-
-    # Add tracks
+    # Add tracks — the net-code lookup and the item content run in Rust
+    # (find_net_code_py / segment_sexpr_py / via_sexpr_py); see the module
+    # docstring.
     for track in tracks:
         layer_name = layer_map.get(track.layer, "F.Cu")
-        net_code = get_net_code(track.net)
+        net_code = _GEOM.find_net_code_py(board.nets, track.net)
 
-        segment = Segment(
-            start=Position(X=track.start.x, Y=track.start.y),
-            end=Position(X=track.end.x, Y=track.end.y),
-            width=track.width,
-            layer=layer_name,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        segment = Segment.from_sexpr(
+            _GEOM.segment_sexpr_py(
+                track.start.x, track.start.y, track.end.x, track.end.y,
+                track.width, layer_name, net_code, str(uuid.uuid4()),
+            )
         )
         board.traceItems.append(segment)
         total_segments += 1
 
     # Add vias
     for via in vias:
-        net_code = get_net_code(via.net)
-        kicad_via = Via(
-            position=Position(X=via.center.x, Y=via.center.y),
-            size=via.diameter,
-            drill=via.drill,
-            layers=["F.Cu", "B.Cu"],  # Default through
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        net_code = _GEOM.find_net_code_py(board.nets, via.net)
+        kicad_via = Via.from_sexpr(
+            _GEOM.via_sexpr_py(
+                via.center.x, via.center.y,
+                via.diameter, via.drill, ["F.Cu", "B.Cu"], net_code, str(uuid.uuid4()),
+            )
         )
         board.traceItems.append(kicad_via)
         total_vias += 1
 
     # Write output
     _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    output_pcb.write_text(_serialize_board(board))
 
     return ExportResult(
         output_path=output_pcb,

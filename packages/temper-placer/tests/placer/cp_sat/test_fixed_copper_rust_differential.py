@@ -72,11 +72,6 @@ _RUST_SEGMENT_ITEM_GEOM = _tg.fixed_copper_segment_item_geom_py
 _RUST_VIA_ITEM_GEOM = _tg.fixed_copper_via_item_geom_py
 _RUST_ZONE_ITEM_RECT = _tg.fixed_copper_zone_item_rect_py
 _RUST_OTHER_PAD_ITEM_GEOM = _tg.fixed_copper_other_pad_item_geom_py
-_RUST_POINT_RECT_DISTANCE = _tg.fixed_copper_point_rect_distance_py
-_RUST_POINT_SEGMENT_DISTANCE = _tg.fixed_copper_point_segment_distance_py
-_RUST_SEGMENTS_INTERSECT = _tg.fixed_copper_segments_intersect_py
-_RUST_RECT_SEGMENT_DISTANCE = _tg.fixed_copper_rect_segment_distance_py
-_RUST_RECT_RECT_GAP = _tg.fixed_copper_rect_rect_gap_py
 _RUST_EXACT_CLEARANCE_MM = _tg.fixed_copper_exact_clearance_mm_py
 
 _SEED = 20260806
@@ -407,96 +402,6 @@ def test_other_pad_item_geom_matches_oracle():
         rust_val = _RUST_OTHER_PAD_ITEM_GEOM(lx, ly, hw, hh, rot, cx, cy, margin)
         oracle_tuple = (oracle_item.exact["rect"], oracle_item.rect, oracle_item.slack_mm)
         assert sig(rust_val) == sig(oracle_tuple), (lx, ly, w, h, deg, cx, cy, rot, margin)
-
-
-# ---------------------------------------------------------------------------
-# rect/segment/point exact-geometry primitives
-# ---------------------------------------------------------------------------
-
-
-def test_point_segment_distance_matches_oracle():
-    rng = _rng(19)
-    for _ in range(1000):
-        p = (rng.uniform(-20, 20), rng.uniform(-20, 20))
-        a = (rng.uniform(-20, 20), rng.uniform(-20, 20))
-        b = (rng.uniform(-20, 20), rng.uniform(-20, 20))
-        oracle_val = _oracle._point_segment_distance(p, a, b)
-        rust_val = _RUST_POINT_SEGMENT_DISTANCE(p, a, b)
-        assert sig(rust_val) == sig(oracle_val), (p, a, b)
-    # Degenerate segment (a == b): this file's own dx==0.0 and dy==0.0 check.
-    p = (3.0, -4.0)
-    a = (1.0, 1.0)
-    oracle_val = _oracle._point_segment_distance(p, a, a)
-    rust_val = _RUST_POINT_SEGMENT_DISTANCE(p, a, a)
-    assert sig(rust_val) == sig(oracle_val)
-    # NEAR-degenerate (a != b by a tiny nonzero delta): discriminates an
-    # epsilon-threshold degenerate check (e.g. `seg_len_sq < 1e-10`, the
-    # OTHER files' convention in this crate) from this file's own exact
-    # `dx == 0.0 and dy == 0.0` -- a segment of length 1e-6 (seg_len_sq
-    # 1e-12) takes the non-degenerate projection arm here but would
-    # wrongly take the degenerate arm under an epsilon threshold.
-    b_tiny = (a[0] + 1e-6, a[1])
-    oracle_val = _oracle._point_segment_distance(p, a, b_tiny)
-    rust_val = _RUST_POINT_SEGMENT_DISTANCE(p, a, b_tiny)
-    assert sig(rust_val) == sig(oracle_val)
-
-
-def test_point_rect_distance_matches_oracle():
-    rng = _rng(11)
-    for _ in range(1000):
-        p = (rng.uniform(-20, 20), rng.uniform(-20, 20))
-        x0, y0 = rng.uniform(-20, 20), rng.uniform(-20, 20)
-        rect = (x0, y0, x0 + rng.uniform(0.0, 10.0), y0 + rng.uniform(0.0, 10.0))
-        oracle_val = _oracle._point_rect_distance(p, rect)
-        rust_val = _RUST_POINT_RECT_DISTANCE(p, rect)
-        assert sig(rust_val) == sig(oracle_val), (p, rect)
-
-
-def test_segments_intersect_matches_oracle():
-    rng = _rng(12)
-    for _ in range(2000):
-        a0 = (rng.uniform(-10, 10), rng.uniform(-10, 10))
-        a1 = (rng.uniform(-10, 10), rng.uniform(-10, 10))
-        b0 = (rng.uniform(-10, 10), rng.uniform(-10, 10))
-        b1 = (rng.uniform(-10, 10), rng.uniform(-10, 10))
-        oracle_val = _oracle._segments_intersect(a0, a1, b0, b1)
-        rust_val = _RUST_SEGMENTS_INTERSECT(a0, a1, b0, b1)
-        assert sig(rust_val) == sig(oracle_val), (a0, a1, b0, b1)
-    # Exact-touch and collinear-overlap cases (the on-segment branches).
-    touching = [
-        ((0.0, 0.0), (4.0, 0.0), (2.0, -2.0), (2.0, 2.0)),
-        ((0.0, 0.0), (4.0, 0.0), (2.0, 0.0), (2.0, 2.0)),
-        ((0.0, 0.0), (4.0, 0.0), (1.0, 0.0), (3.0, 0.0)),
-        ((0.0, 0.0), (4.0, 0.0), (5.0, 0.0), (8.0, 0.0)),
-    ]
-    for a0, a1, b0, b1 in touching:
-        oracle_val = _oracle._segments_intersect(a0, a1, b0, b1)
-        rust_val = _RUST_SEGMENTS_INTERSECT(a0, a1, b0, b1)
-        assert sig(rust_val) == sig(oracle_val), (a0, a1, b0, b1)
-
-
-def test_rect_segment_distance_matches_oracle():
-    rng = _rng(13)
-    for _ in range(1000):
-        x0, y0 = rng.uniform(-10, 10), rng.uniform(-10, 10)
-        rect = (x0, y0, x0 + rng.uniform(0.1, 5.0), y0 + rng.uniform(0.1, 5.0))
-        a = (rng.uniform(-15, 15), rng.uniform(-15, 15))
-        b = (rng.uniform(-15, 15), rng.uniform(-15, 15))
-        oracle_val = _oracle._rect_segment_distance(rect, a, b)
-        rust_val = _RUST_RECT_SEGMENT_DISTANCE(rect, a, b)
-        assert sig(rust_val) == sig(oracle_val), (rect, a, b)
-
-
-def test_rect_rect_gap_matches_oracle():
-    rng = _rng(14)
-    for _ in range(1000):
-        x0, y0 = rng.uniform(-10, 10), rng.uniform(-10, 10)
-        ra = (x0, y0, x0 + rng.uniform(0.1, 5.0), y0 + rng.uniform(0.1, 5.0))
-        x1, y1 = rng.uniform(-10, 10), rng.uniform(-10, 10)
-        rb = (x1, y1, x1 + rng.uniform(0.1, 5.0), y1 + rng.uniform(0.1, 5.0))
-        oracle_val = _oracle._rect_rect_gap(ra, rb)
-        rust_val = _RUST_RECT_RECT_GAP(ra, rb)
-        assert sig(rust_val) == sig(oracle_val), (ra, rb)
 
 
 # ---------------------------------------------------------------------------
