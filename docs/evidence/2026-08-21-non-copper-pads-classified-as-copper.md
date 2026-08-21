@@ -280,3 +280,93 @@ evidence-first change and is deliberately not bundled here.
   2 × `test_design_rules_rust_differential`) and 6 in
   `tests/placer/cp_sat/test_tank_creepage.py`. Identical lists before and
   after.
+
+## 10. Set-level proof that nothing was newly revealed, and the two that were
+
+Section 7 argues monotonicity. This section *measures* it: the full
+below-figure **row sets** are compared, not just their counts.
+
+```
+HV<->SELV (25 833-pair census)     unfiltered 35 rows   filtered 33 rows
+  ONLY when phantoms included:  K1.14 J1.1 MAINS<->SELV 4.0500
+                                K1.14 J1.2 MAINS<->SELV 4.1831
+  ONLY after the fix:           (none)
+
+HV<->HV (5 596-pair census)        unfiltered 70 rows   filtered 69 rows
+  ONLY when phantoms included:  K1.13 K1.14 0.000
+  ONLY after the fix:           (none)
+```
+
+Every surviving row keeps a byte-identical measured distance (the comparison
+key includes it). **No pair anywhere goes from clear to below.**
+
+What *is* revealed is the true nearest neighbour, where a phantom had been
+standing in front of a real pad. Exactly two of the fourteen
+closest-pair-per-pairing entries move; the other twelve are byte-identical:
+
+| pairing | closest, phantoms in | closest, corrected | effect |
+|---|---|---|---|
+| `MAINS<->SELV` (fig 4.80, determinable) | `K1.14<->J1.1` **4.0500** | `U1.2<->C6.2` **4.7652** | a REAL pair surfaces, still below its figure by **0.0348 mm** -- it was ranked 35th of 35, now 1st of 1 |
+| `MAINS<->MAINS` (fig 2.20, determinable) | `K1.13<->K1.14` **0.000**, 1 below | `RT1.1<->RT1.2` **5.500**, 0 below | the pairing's only determinate failure was the phantom pair |
+
+`U1.2<->C6.2` is not a new violation -- `d01134515` already graded it a genuine
+one. What changes is that it is now *the* worst determinate mains shortfall on
+this board, no longer outranked by a fabrication marker.
+
+Checked and found neutral: `io/real_board.py`'s `_copper_reach_mm` for `K1` is
+**14.4283 mm either way** -- the NPTH mounting pads at (+-11, +-6.25) dominate,
+so the phantoms never inflated that bound.
+
+## 11. Full pre-existing-failure baseline
+
+Every red below was re-run against an extension built from **unmodified
+`origin/main`** in this same tree, then again with the fix, and the lists are
+identical. Recorded here so nobody re-derives them.
+
+`tests/io` + `tests/core` (8):
+
+```
+test_fab_body_extraction.py::TestMeasuredBodyOverlapMatchesPR1158::test_real_body_collisions_match_measured_baseline
+test_finepitch_production_board.py::TestKicadFootprintLibrary::test_kicad7_footprint_dir_exists
+test_finepitch_production_board.py::TestKicadFootprintLibrary::test_kicad7_footprint_dir_contains_footprints
+test_kicad_metadata_board_dimensions.py::test_real_board_dimensions_match_corrected_outline
+test_netclass_loader.py::TestNetclassLoader::test_class_pairs_loaded
+test_netclass_loader.py::TestGateDriveSplit::test_every_class_pairs_entry_for_one_half_has_an_equivalent_for_the_other
+test_design_rules_rust_differential.py::test_module_constants_identical
+test_design_rules_rust_differential.py::test_create_temper_design_rules_identical
+```
+
+`tests/placer/cp_sat/test_tank_creepage.py` (6): the two
+`TestTankBusCopperMetric` cases and all four `TestTankBusEnforcement` cases.
+These are the ones `_pin_layers` could plausibly have moved; they did not.
+
+Real-board golden/connectivity reds (6):
+
+```
+placer/cp_sat/test_regression_drc.py::test_golden_board_drc_regression
+placer/cp_sat/test_regression_drc.py::test_production_board_drc_regression
+placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression
+router_v6/test_strip_copper.py::TestStripExistingCopper::test_matches_real_production_board_zone_count
+router_v6/test_ground_plane.py::...::test_gnd_plane_improves_real_board_pad_connectivity
+router_v6/test_power_islands.py::...::test_power_islands_are_expressible_and_measurably_improve_connectivity
+```
+
+FLAKY, NOT BASELINED EITHER WAY:
+`tests/geometry/test_geometry_pbt.py::test_polygon_area_translation_invariant`
+failed on the `main` baseline and on one earlier sweep, and PASSED on the
+final post-fix run of the same selection. It is a Hypothesis property test
+with a shared example database (falsifying example `dx=91813, dy=93559`,
+|delta| = 1.04e-06 -- float cancellation under large translation). It
+exercises polygon area in `temper-geometry`, a crate this change does not
+touch at all (`git diff origin/main --name-only | grep geometry` is empty), so
+it cannot be caused here -- but it is reported as flaky rather than claimed
+green.
+
+NOT RUN TO COMPLETION: the full `tests/placer` + `tests/router_v6` sweep
+(6000+ cases) was killed by its own wall-clock timeout twice before printing a
+summary. Its per-file progress showed the same 6 `test_tank_creepage` F's and
+3 `test_regression_drc` F's baselined above, and the router subsets most
+exposed to pad-layer reads were run to completion separately
+(`-k "obstacle or pad or terminal or connectivity"`: 445 passed, 2 failed,
+both baselined above; `tests/geometry` + `tests/requirements`: 3474 passed).
+**The full sweep is a gap, and it is labelled as one rather than claimed.**
