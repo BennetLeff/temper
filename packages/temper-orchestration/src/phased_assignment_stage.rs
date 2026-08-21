@@ -1,8 +1,8 @@
 // The D5 `PhasedAssignmentStage` of the Rust Orchestration Engine plan
 // (2026-08-09-001, Phase D batch D5): a `Stage<BoardState>` implementor
 // mirroring the `PhasedComponentAssignmentStage` orchestration that lives in
-// the D5 `_phase_*` mixins (`deterministic/stages/_phase_core.py` +
-// `_phase_zones.py` + `_phase_rotation.py` + `_phase_validation.py`).
+// the D5 `_phase_*` mixins (`deterministic/stages/_phase_core.py` -- the four
+// mixins collapsed into one module 2026-08-20).
 //
 // The whole run() orchestration moves to Rust: the identity-preserving state
 // guards, the `compiler.validate` warning loop, the U3 design-rules attach,

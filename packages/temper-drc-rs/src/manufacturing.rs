@@ -16,7 +16,9 @@
 //!
 //! **No field here is presented as fabricator-verified.** The four axes
 //! that carry non-placeholder numbers are reproduced from `FabPreset`
-//! (`temper-io-types`) and `ToleranceTable` (`temper-design-bundle`) —
+//! (`temper-io-types`) and the pre-migration tolerances implementation
+//! (formerly pinned as `ToleranceTable` in `temper-design-bundle`, deleted
+//! 2026-08-20 with the orphaned tolerances kernel cluster) —
 //! differential-testing artifacts ported from a pre-migration Python
 //! implementation for parity, not sourced from a real fabricator capability
 //! sheet (see [`VALUE_SOURCES`] and the module-level "Value sourcing"
@@ -30,12 +32,12 @@
 //! and neither is the right *dependency* for a wasm32 tier-dispatch type
 //! (plan D2.2):
 //!
-//! - `packages/temper-design-bundle/src/manufacturing_tolerances.rs`'s
-//!   `ToleranceTable` is a `#[pyclass]` carrying unconditional `use
-//!   pyo3::prelude::*` and `Py<PyAny>` dict fields
-//!   (`etch_tolerance`, `registration`), and the whole module is gated
-//!   `#[cfg(feature = "python")]` at that crate's `lib.rs`. It is
-//!   structurally absent from any `wasm32-unknown-unknown
+//! - `packages/temper-design-bundle/src/manufacturing_tolerances.rs`
+//!   (deleted 2026-08-20) previously held `ToleranceTable` as a
+//!   `#[pyclass]` carrying unconditional `use pyo3::prelude::*` and
+//!   `Py<PyAny>` dict fields (`etch_tolerance`, `registration`), and the
+//!   whole module was gated `#[cfg(feature = "python")]` at that crate's
+//!   `lib.rs`. It was structurally absent from any `wasm32-unknown-unknown
 //!   --no-default-features` build — not a candidate to depend on or
 //!   retrofit here (that retrofit is explicitly out of this plan's scope).
 //! - `packages/temper-io-types/src/placer_core/manufacturing.rs`'s
@@ -94,7 +96,7 @@
 //! | `layer_registration_mm` | `FabPreset` (differential-testing artifact) |
 //! | `drill_tolerance_mm` | `FabPreset` (differential-testing artifact) |
 //! | `copper_thickness_variation_mm` | **TBD, needs maintainer** — no source in-repo (U2/O2) |
-//! | `solder_mask_registration_mm` | `ToleranceTable` (differential-testing artifact) |
+//! | `solder_mask_registration_mm` | pre-migration tolerances impl (formerly `ToleranceTable`, deleted 2026-08-20) |
 //!
 //! [`VALUE_SOURCES`] is the same table, machine-checkable (see
 //! `value_sources_cover_every_axis` below) so it cannot silently drift from
@@ -108,8 +110,10 @@
 ///
 /// Field shape and the four non-placeholder defaults are seeded from
 /// `FabPreset` (`packages/temper-io-types/src/placer_core/manufacturing.rs`);
-/// `solder_mask_registration_mm`'s default is seeded from `ToleranceTable`
-/// (`packages/temper-design-bundle/src/manufacturing_tolerances.rs:363`).
+/// `solder_mask_registration_mm`'s default reproduces the pre-migration
+/// tolerances implementation's dataclass default (0.075) — the
+/// `ToleranceTable` pyclass that used to carry it was deleted 2026-08-20
+/// with the orphaned tolerances kernel cluster.
 /// Neither source is fabricator-verified — see the module docs.
 #[derive(Clone, Debug, PartialEq)]
 pub struct FabricationEnvelope {
@@ -161,15 +165,16 @@ pub struct FabricationEnvelope {
 
     /// Solder-mask-to-copper registration tolerance: how far a solder-mask
     /// opening can drift from the pad it is meant to expose. **Unit: mm.**
-    /// The one axis `FabPreset` lacks that `ToleranceTable` has (default
-    /// `0.075`, `manufacturing_tolerances.rs:363`).
+    /// The one axis `FabPreset` lacks that the pre-migration tolerances
+    /// dataclass had (default `0.075`; the `ToleranceTable` pyclass that
+    /// carried it was deleted 2026-08-20).
     pub solder_mask_registration_mm: f64,
 }
 
 impl Default for FabricationEnvelope {
     /// The four `FabPreset`-sourced axes take `FabPreset::default()`'s
-    /// values verbatim; `solder_mask_registration_mm` takes
-    /// `ToleranceTable`'s dataclass default (`0.075`);
+    /// values verbatim; `solder_mask_registration_mm` takes the
+    /// pre-migration tolerances dataclass default (`0.075`);
     /// `copper_thickness_variation_mm` is `None` (TBD, needs maintainer —
     /// no source exists in-repo; see U2/O2). None of these values are
     /// fabricator-verified.
@@ -246,9 +251,10 @@ pub enum ValueSource {
     /// not independently confirmed against a real PCB fabricator's
     /// capability sheet.
     FabPresetDerived,
-    /// Reproduced from `ToleranceTable`'s dataclass default
-    /// (`temper-design-bundle`), same differential-testing caveat as
-    /// `FabPresetDerived`.
+    /// Reproduced from the pre-migration tolerances dataclass's default
+    /// (`0.075`, formerly carried by `ToleranceTable` in
+    /// `temper-design-bundle`, deleted 2026-08-20), same
+    /// differential-testing caveat as `FabPresetDerived`.
     ToleranceTableDerived,
     /// No source anywhere in the repo. The field carries a placeholder
     /// (`None`), not an invented value; see U2 / Outstanding Question O2.

@@ -299,8 +299,8 @@ CaDiCaL solves carry any real memory cost at all, and both this spike's packed-c
 representation (§1) and the dead-aux-name fix (§2) apply identically per-batch, at the
 same measured bytes/clause and bytes/aux-var ratios. **This plan's requirements (R1–R2 in
 particular) should therefore be verified once more, cheaply, against whatever batch size
-that plan lands on** — reusing the same probes (`docs/evidence/2026-08-12-cnf-repr-probe-isolated.rs`,
-`docs/evidence/2026-08-12-cadical-memory-probe.rs`), swapping `NETS=110`/`K=17` for
+that plan lands on** — reusing the same probes (`docs/evidence/scripts/2026-08-12-cnf-repr-probe-isolated.rs`,
+`docs/evidence/scripts/2026-08-12-cadical-memory-probe.rs`), swapping `NETS=110`/`K=17` for
 `NETS=B`/the new K, rather than re-deriving from scratch. No number in this document
 should be read as "safe at any batch size" — it is scoped to the monolithic (`n=110`)
 shape as stated.
@@ -427,12 +427,12 @@ stronger, unsupported claim.
 
 ## Sources / Research
 
-- MEASURED this task: `docs/evidence/2026-08-12-cnf-repr-probe-common.rs`,
-  `docs/evidence/2026-08-12-cnf-repr-probe-lumped.rs` (whole-`encode_to_cnf`-call
+- MEASURED this task: `docs/evidence/scripts/2026-08-12-cnf-repr-probe-common.rs`,
+  `docs/evidence/scripts/2026-08-12-cnf-repr-probe-lumped.rs` (whole-`encode_to_cnf`-call
   context number, and the confound writeup above),
-  `docs/evidence/2026-08-12-cnf-repr-probe-isolated.rs` (§1's clean cold-start A/C
-  comparison), `docs/evidence/2026-08-12-cadical-memory-probe.rs` (§3),
-  `docs/evidence/2026-08-12-varnames-waste-probe.rs` (§2),
+  `docs/evidence/scripts/2026-08-12-cnf-repr-probe-isolated.rs` (§1's clean cold-start A/C
+  comparison), `docs/evidence/scripts/2026-08-12-cadical-memory-probe.rs` (§3),
+  `docs/evidence/scripts/2026-08-12-varnames-waste-probe.rs` (§2),
   `docs/evidence/2026-08-12-cnf-probe-Cargo.toml.txt` (exact dependency pins:
   `rustsat`/`rustsat-cadical` 0.7.5, matching `packages/temper-rust-router-core/Cargo.lock`).
 - CITED, not re-derived: `docs/plans/2026-08-12-002-feat-router-orchestration-rust-plan.md`
