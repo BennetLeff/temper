@@ -60,10 +60,57 @@
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
 
 use crate::parse_engine::{
-    parse_ki_document, shortest_digits, KiAtom, KiNode,
+    parse_ki_document, shortest_digits, KiAtom, KiNode, Num,
 };
+
+/// A Python nested list (as produced by ``zone_sexpr_py``,
+/// ``segment_sexpr_py`` etc.) → s-expression text.
+///
+/// The Bare/Str distinction uses a keyword heuristic: a string matching
+/// ``^[a-z_][a-z0-9_]*$`` is emitted bare (unquoted), matching every
+/// keyword token (``zone``, ``net``, ``layer``, ``none``, etc.); all
+/// other strings are quoted (net names, layer names, UUIDs). This mirrors
+/// kiutils' own ``Sexpr`` vs bare-token convention as observed in the
+/// production board corpus.
+fn py_sexpr_to_text(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<String> {
+    use pyo3::types::PyList;
+
+    // Try list first (most common for nested structures)
+    if obj.is_instance_of::<PyList>() {
+        let parts: Vec<String> = obj.try_iter()?
+            .map(|item| py_sexpr_to_text(py, &item?))
+            .collect::<PyResult<_>>()?;
+        Ok(format!("({})", parts.join(" ")))
+    } else if let Ok(b) = obj.extract::<bool>() {
+        Ok(if b { "true".to_string() } else { "false".to_string() })
+    } else if let Ok(i) = obj.extract::<i64>() {
+        Ok(i.to_string())
+    } else if let Ok(f) = obj.extract::<f64>() {
+        Ok(render_float(f))
+    } else if let Ok(s) = obj.extract::<String>() {
+        if is_keyword_token(&s) {
+            Ok(s)
+        } else {
+            Ok(render_str(&s))
+        }
+    } else {
+        Ok(obj.str()?.to_string())
+    }
+}
+
+fn is_keyword_token(s: &str) -> bool {
+    if s.is_empty() {
+        return false;
+    }
+    let bytes = s.as_bytes();
+    if !bytes[0].is_ascii_lowercase() && bytes[0] != b'_' {
+        return false;
+    }
+    bytes[1..].iter().all(|&b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'_')
+}
 
 /// Render a single atom to its source token text.
 fn render_atom(atom: &KiAtom) -> String {
@@ -313,6 +360,98 @@ pub(crate) fn embed_title_block_comment(
 pub fn write_board_sexpr_py(content: &str) -> PyResult<String> {
     let nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
     Ok(write_board_document(&nodes))
+}
+
+/// Parse raw `.kicad_pcb` text, append one or more s-expression items
+/// (as Python nested lists — the output of ``zone_sexpr_py``,
+/// ``segment_sexpr_py`` etc.) to the root ``(kicad_pcb ...)`` list, and
+/// serialize the mutated tree back to text. Each item is a Python list
+/// like ``["zone", ["net", 2], ...]``. Items are appended before the
+/// root's closing paren — where KiCad expects new items.
+/// Fails closed (ValueError) if the board text fails to parse, or if
+/// the document root is not a ``(kicad_pcb ...)`` list.
+#[pyfunction]
+pub fn append_items_to_board_py(
+    py: Python<'_>,
+    content: &str,
+    item_sexprs: Vec<Py<PyAny>>,
+) -> PyResult<String> {
+    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let root = nodes.first_mut().ok_or_else(|| {
+        PyValueError::new_err("empty document — no root node")
+    })?;
+    let KiNode::List(root_items) = root else {
+        return Err(PyValueError::new_err(
+            "document root is not a list",
+        ));
+    };
+    let root_is_pcb = matches!(
+        root_items.first(),
+        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb"
+    );
+    if !root_is_pcb {
+        return Err(PyValueError::new_err(
+            "document root is not a (kicad_pcb ...) list",
+        ));
+    };
+    for item_obj in &item_sexprs {
+        let item_text = py_sexpr_to_text(py, item_obj.bind(py))?;
+        let item_nodes =
+            parse_ki_document(&item_text).map_err(PyValueError::new_err)?;
+        for item_node in item_nodes {
+            root_items.push(item_node);
+        }
+    }
+    Ok(write_board_document(&nodes))
+}
+
+/// Parse raw `.kicad_pcb` text and extract the `{net_name: net_index}`
+/// mapping from all `(net N "name")` entries in the root list.
+/// Returns a Python dict. Fails closed (ValueError) if the text is not
+/// parseable.
+#[pyfunction]
+pub fn extract_net_map_from_text_py(
+    py: Python<'_>,
+    content: &str,
+) -> PyResult<Py<PyAny>> {
+    use pyo3::types::PyDict;
+    let nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let out = PyDict::new(py);
+    for node in &nodes {
+        let KiNode::List(items) = node else { continue };
+        let head = match items.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb" => b.as_str(),
+            _ => continue,
+        };
+        let _ = head; // confirmed root
+        for child in items {
+            let KiNode::List(sub) = child else { continue };
+            let first = match sub.first() {
+                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "net" => b.as_str(),
+                _ => continue,
+            };
+            let _ = first;
+            // (net N "name") — N is the index, "name" is the net name
+            let Some(KiNode::Atom(num_atom)) = sub.get(1) else {
+                continue;
+            };
+            let Some(KiNode::Atom(name_atom)) = sub.get(2) else {
+                continue;
+            };
+            let num_val: i64 = match num_atom {
+                KiAtom::Int(v) => *v,
+                KiAtom::Float(v) => *v as i64,
+                _ => continue,
+            };
+            let name_val: &str = match name_atom {
+                KiAtom::Str(s) => s.as_str(),
+                KiAtom::Bare(s) => s.as_str(),
+                _ => continue,
+            };
+            out.set_item(name_val, num_val)?;
+        }
+    }
+    Ok(out.into_any().unbind())
 }
 
 /// Parse raw `.kicad_pcb` text, set title-block comment `slot` to `text`

@@ -3617,6 +3617,14 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
         crate::sexpr_writer::embed_title_block_comment_py,
         &sub
     )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::append_items_to_board_py,
+        &sub
+    )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::extract_net_map_from_text_py,
+        &sub
+    )?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }
