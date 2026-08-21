@@ -100,6 +100,24 @@ same-net segment endpoints and via centres already on the board --
 corners 10/10. Every figure this script printed before that change was
 computed on the wrong convention and must not be cited.
 
+What that correction did to this board, measured (2026-08-20), so a reader
+who meets an older number knows to distrust it:
+
+  cross-domain pairs examined                      25833
+  figures that MOVED                               19640
+  below 12.6mm under the superseded R(+theta)        155
+  below 12.6mm under the canonical R(-theta)         122
+    of which NEWLY below (the unsafe direction)       34
+    no longer below (they were false alarms)          67
+
+The three worst previously-published "violations" were all artifacts:
+``C22.1 <-> C6.2`` 0.0328 (actually 19.7722), ``R7.2 <-> R29.1`` 0.3175
+(actually 45.0317), ``C22.2 <-> C6.2`` 0.3511 (actually 18.2252). The real
+closest cross-domain pair on this board is ``C22.1 <-> R26.2`` at 3.5781mm.
+The largest newly-revealed shortfalls are ``U1.2 <-> C6.2`` at 4.7652mm (was
+reported as 24.5588) and ``U1.1 <-> C6.2`` at 7.1253mm (was 25.1844). No
+threshold was moved to absorb any of this.
+
 The both-conventions machinery is kept (disable with
 ``--no-rotation-sensitivity-check``) but its roles are now reversed: the
 ``alt`` recomputation reports what the SUPERSEDED ``R(+theta)`` primary
