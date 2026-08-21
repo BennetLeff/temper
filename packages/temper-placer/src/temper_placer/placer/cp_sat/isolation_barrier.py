@@ -346,7 +346,28 @@ def compute_pad_groups(
     (pre-rotation) frame, in mm (``io/_parse_modules.py`` builds it by
     recentring every pad on the footprint's own pad-bounding-box centre --
     the recentring point does not matter here, only pairwise pad-to-pad
-    distances do, which recentring does not change).
+    distances do, which recentring does not change). Working in the local
+    frame is why this function needs no world placement at all, and hence
+    why ``temper_placer.geometry.pad_world`` is deliberately NOT used here.
+
+    **KNOWN GAP: ``Pin.pad_rotation_deg`` is dropped.** The ``Pad`` record
+    below carries no rotation field, so a pad's own intrinsic angle never
+    reaches ``Pad.axis_radius()``; ``_best_rotation_for_barrier`` supplies
+    only ``rot_value * pi/2``. That is a real omission, not a deliberate
+    simplification like ``_axis_gap``'s "unrotated by contract".
+
+    Its cost on ``pcb/temper.kicad_pcb`` today is **exactly 0.0 mm**,
+    measured rather than assumed: every pad on this board carries a
+    footprint-relative ``pad_rotation_deg`` of 0 or 180 (486 and 39 pads)
+    or is rotationally symmetric at 90 (2 pads), and 0/180 are symmetries
+    of every axis-aligned KiCad pad shape -- so honouring the angle changes
+    no world axis half-extent, on any pad, on either axis. Closing the gap
+    properly means widening the pad tuple that crosses into
+    ``temper-geometry``'s ``barrier_axis_gap_py`` /
+    ``best_rotation_for_barrier_py``, which their differential suites pin
+    by arity; that is a Rust ABI change with zero measured benefit on this
+    board, so it is recorded here rather than done quietly. A board that
+    ever places a pad at a non-symmetric intrinsic angle makes it live.
 
     Each pad's real declared shape (``Pin.shape``/``width``/``height``/
     ``roundrect_ratio``) is carried through uninterpreted -- the exact,

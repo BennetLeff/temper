@@ -435,22 +435,18 @@ def _pad_world_spec(
     """One pin as ``pad_pair_distance``'s pad tuple in BOARD coordinates.
 
     ``(width, height, shape, cx, cy, rotation_rad, roundrect_ratio)``.
-    World center = local pin position rotated by the component's quadrant
-    rotation, added to the component center; rotation is the quadrant plus
-    the pad's own intrinsic rotation. Bit-identical to the production
-    REQ-SAFE-01 pad parser (verified against
-    ``temper_drc_rs.req_safe_01_component_pads`` on the real board -- both
-    use ``temper_geometry.rotate_local_to_world_py``, see
+    The composition itself -- world centre AND world body angle -- is
+    ``temper_placer.geometry.pad_world``'s, so this site cannot drift from
+    the rest of the repo the way four independent hand-written copies of it
+    already have. Bit-identical to the production REQ-SAFE-01 pad parser
+    (verified against ``temper_drc_rs.req_safe_01_component_pads`` on the
+    real board -- both compose ``R(-theta)`` on the position with
+    ``comp_rot + pad_rotation_deg`` on the body, see
     ``requirements/validators/_copper.py::_rotate``).
     """
-    import math
-
-    import temper_geometry as _tg
+    from temper_placer.geometry.pad_world import pad_pair_spec
 
     q = int(comp.initial_rotation_quadrant or 0)
-    dx, dy = _tg.rotate_local_to_world_py(
-        pin.position[0], pin.position[1], math.radians(q * 90)
-    )
     if comp.initial_position is None:
         # Fail loudly with the offending ref rather than a bare "NoneType is
         # not iterable" TypeError two lines down -- pad world coordinates
@@ -462,8 +458,18 @@ def _pad_world_spec(
             "-- pad world coordinates require a placed component"
         )
     cx, cy = comp.initial_position
-    rotation_rad = math.radians(q * 90) + math.radians(float(pin.pad_rotation_deg or 0.0))
-    return (pin.width, pin.height, pin.shape, cx + dx, cy + dy, rotation_rad, pin.roundrect_ratio)
+    return pad_pair_spec(
+        pin.width,
+        pin.height,
+        pin.shape,
+        pin.position[0],
+        pin.position[1],
+        cx,
+        cy,
+        q * 90.0,
+        pin.pad_rotation_deg,
+        pin.roundrect_ratio,
+    )
 
 
 def _bus_net_pad_specs(netlist: Netlist, bus_net: str) -> list[tuple]:

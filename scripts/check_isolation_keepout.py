@@ -180,6 +180,7 @@ from temper_placer.core.isolation_constants import (  # noqa: E402
 EXIT_INDETERMINATE = 6
 from temper_placer.core.pad_geometry import pad_bounding_radius  # noqa: E402
 from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg  # noqa: E402
+from temper_placer.geometry.pad_world import pad_world_center  # noqa: E402
 
 REPO_ROOT = find_repo_root()
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
@@ -350,7 +351,14 @@ class BoardData:
 def _rotate(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
     """KiCad's footprint-child rotation (y-down board frame) -- see
     ``temper_placer.geometry.kicad_transform``'s module docstring for the
-    confirming evidence."""
+    confirming evidence.
+
+    This gate's own pad loading now uses
+    ``temper_placer.geometry.pad_world.pad_world_center``, which composes
+    this rotation with the footprint origin in one call. The bare helper is
+    kept because three ``docs/evidence/scripts/`` analyses import it by
+    name; new code should use ``pad_world_center`` instead.
+    """
     return rotate_local_to_world_deg(x, y, angle_deg or 0.0)
 
 
@@ -420,8 +428,10 @@ def load_board(board_path: Path) -> BoardData:
             lx, ly = pad.position.X, pad.position.Y
             if flipped:
                 lx = -lx
-            dx, dy = _rotate(lx, ly, fangle)
-            ax, ay = fx + dx, fy + dy
+            # The single sanctioned local-offset -> board-centre composition
+            # (``temper_placer.geometry.pad_world``). ``lx`` is already
+            # mirrored above for a back-side footprint.
+            ax, ay = pad_world_center(lx, ly, fx, fy, fangle or 0.0)
             layers = _expand_copper_layers(pad.layers or [], copper_layers_ordered)
             # Exact, shape-aware bounding-circle radius: a safety intrusion
             # check must never UNDER-approximate a pad's physical extent
