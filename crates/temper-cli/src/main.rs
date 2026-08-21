@@ -100,6 +100,20 @@ enum Command {
         #[arg(long)]
         pcb: PathBuf,
     },
+
+    /// Print the D1→D7 deterministic pipeline stage order.
+    ///
+    /// Runs entirely in Rust via `temper_orchestration::drc_aware_stage_order`
+    /// — the 23-stage sequencing order, the same table the Python
+    /// `DeterministicPipeline` uses (now ungated from pyo3).
+    PipelineOrder {
+        /// Use the zone-aware slot-generation stage (default: true).
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        zone_aware: bool,
+        /// Use the phased component-assignment stage (default: true).
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        phased: bool,
+    },
 }
 
 fn main() -> ExitCode {
@@ -109,6 +123,7 @@ fn main() -> ExitCode {
         Command::Route { pcb, output } => route(&pcb, &output),
         Command::Place { pcb, constraints, output_json } => place(&pcb, &constraints, &output_json),
         Command::Drc { pcb } => drc(&pcb),
+        Command::PipelineOrder { zone_aware, phased } => pipeline_order(zone_aware, phased),
     }
 }
 
@@ -230,6 +245,21 @@ fn run_in_repo(repo: &Path, program: &[String], args: &[&str]) -> ExitCode {
     }
 }
 
+/// `temper pipeline-order`: print the D1→D7 stage sequence from Rust.
+///
+/// This proves the Rust CLI driver can access the orchestration crate's
+/// ungated types (`drc_aware_stage_order`, `PipelineRunner`,
+/// `NativeBoardState`, `Stage`/`StageError`) without a Python interpreter.
+fn pipeline_order(zone_aware: bool, phased: bool) -> ExitCode {
+    let stages = temper_orchestration::drc_aware_stage_order(zone_aware, phased);
+    println!("D1→D7 stage order ({} stages, zone_aware={}, phased={})",
+             stages.len(), zone_aware, phased);
+    for (i, s) in stages.iter().enumerate() {
+        println!("  D{:>2}  {}", i + 1, s);
+    }
+    ExitCode::SUCCESS
+}
+
 /// `temper route`: parse the board in Rust (fail fast on malformed input),
 /// then hand routing to `scripts/route_board.py`.
 fn route(pcb: &Path, output: &Path) -> ExitCode {
@@ -252,6 +282,14 @@ fn route(pcb: &Path, output: &Path) -> ExitCode {
     if let Err(e) = temper_design_bundle::parse_kicad_document(&text) {
         eprintln!("temper: {} is not a parseable .kicad_pcb: {e}", pcb.display());
         return ExitCode::FAILURE;
+    }
+    // Print the Rust-computed D1→D7 stage order — the driver now knows the
+    // sequencing (from temper-orchestration, no pyo3); the leaf compute still
+    // runs as a Python subprocess until each stage is ported.
+    let stages = temper_orchestration::drc_aware_stage_order(true, true);
+    println!("temper: D1→D7 stage order ({} stages):", stages.len());
+    for (i, s) in stages.iter().enumerate() {
+        println!("  D{:>2}  {}", i + 1, s);
     }
     let script = repo.join("scripts").join("route_board.py");
     let script = script.to_string_lossy().into_owned();
