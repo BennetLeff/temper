@@ -169,7 +169,7 @@ production emission seam instead: `_emit_zone_pours` fed the real
 parsed board, the emitted 64 zone blocks spliced into a COPY of
 `pcb/temper.kicad_pcb` (R7 strip + replace, same as the route path),
 then `kicad-cli pcb drc --refill-zones` (10.0.5) on the copy --
-`docs/evidence/2026-08-16-zone-pour-refill-verify.py`.
+`docs/evidence/scripts/2026-08-16-zone-pour-refill-verify.py`.
 
 Measured (kicad-cli 10.0.5, --refill-zones, --severity-all):
 
@@ -193,7 +193,7 @@ every layer it passes, not just its 2 named endpoints); and
 layer-honest own pads (an F.Cu-only SMD net must not pour on In3.Cu --
 19 measured isolated-copper findings).
 
-Seam-level claims (docs/evidence/2026-08-16-zone-pour-seam-verify.py):
+Seam-level claims (docs/evidence/scripts/2026-08-16-zone-pour-seam-verify.py):
 64 zones across 43 net/layer pairs; gnd In1.Cu plane present (separate
 `_ground_plane.py` path, #1245); ntc-no F.Cu = 0 zones (honest 0/4 PD3
 failure, was 47+ islands) while its THT pads get the design-doc-B2
@@ -220,11 +220,11 @@ sparse-inner-layer zones; creepage table HV-vs-LV = 12.6mm live.
   wiring into `main()`.
 - `packages/temper-placer/tests/router_v6/test_zone_pour_creepage.py`,
   `test_zone_pour_rust_wiring.py` -- NEW tests.
-- `docs/evidence/2026-08-16-zone-pour-route-verify.py` -- route
+- `docs/evidence/scripts/2026-08-16-zone-pour-route-verify.py` -- route
   verification harness (read-only; the full route was OOM-killed, see
   2.2 -- the seam + refill harnesses are the executed verification).
-- `docs/evidence/2026-08-16-zone-pour-seam-verify.py`,
-  `docs/evidence/2026-08-16-zone-pour-refill-verify.py` -- executed
+- `docs/evidence/scripts/2026-08-16-zone-pour-seam-verify.py`,
+  `docs/evidence/scripts/2026-08-16-zone-pour-refill-verify.py` -- executed
   verification harnesses (read-only).
 
 `pcb/temper.kicad_pcb` untouched (sha256 unchanged from origin/main).

@@ -1,9 +1,13 @@
 """Internal: zone output functions and net name mapping.
 
 Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels:
-the net-name → index map build and the zones writer's index resolution. The
-kiutils board I/O stays here (KiCad-format boundary); note the zone ``tstamp``
-is still ``uuid.uuid4()`` in the pre-migration code and is deliberately NOT
+the net-name → index map build, the zones writer's index resolution, and the
+per-zone s-expression construction (``zone_sexpr_py`` — Rust owns the zone's
+semantic content; ``Zone.from_sexpr`` materialises the object and kiutils'
+own ``to_sexpr`` serialises it, so float rendering and quoting are never
+reimplemented). The kiutils board I/O stays here (KiCad-format boundary —
+documented JUSTIFIED-KEEP); note the zone ``tstamp`` is still
+``uuid.uuid4()`` in the pre-migration code and is deliberately NOT
 determinized here — that would be a behaviour change no bit-identical
 differential could pin (see ``kicad_write_geometry.rs``'s module docstring).
 """
@@ -13,6 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
+from kiutils.items.zones import Zone
 from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.io._write_types import WriteResult
@@ -68,9 +73,6 @@ def write_zones_to_pcb(
     Returns:
         WriteResult.
     """
-    from kiutils.items.common import Position
-    from kiutils.items.zones import Zone, ZonePolygon
-
     warnings: list[str] = []
     zones_added = 0
 
@@ -95,14 +97,21 @@ def write_zones_to_pcb(
         try:
             import uuid
 
-            zone = Zone(
-                netName=net_name,
-                net=net_index,
-                layers=[layer],
-                tstamp=str(uuid.uuid4()),
-                polygons=[ZonePolygon(coordinates=[Position(p[0], p[1]) for p in pts])],
-                # Default fill settings
-                minThickness=0.254,
+            # The zone's content is constructed in Rust (zone_sexpr_py) and
+            # materialised through kiutils' own parser — see the module
+            # docstring. Points are coerced to float by the kernel; an
+            # int-valued caller point round-trips as `(xy 1.0 2.0)` instead of
+            # `(xy 1 2)` — a byte change in a KiCad-equivalent token on a
+            # function with no live caller (production polygon points are
+            # floats), recorded here rather than silently relied on.
+            zone = Zone.from_sexpr(
+                _GEOM.zone_sexpr_py(
+                    net_name,
+                    net_index,
+                    layer,
+                    str(uuid.uuid4()),
+                    [(p[0], p[1]) for p in pts],
+                )
             )
             ki_board.zones.append(zone)
             zones_added += 1

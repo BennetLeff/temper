@@ -75,12 +75,18 @@
 
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList, PyTuple};
+#[cfg(feature = "python")]
 use pyo3::IntoPyObjectExt;
 
+#[cfg(feature = "python")]
 use crate::board_contracts::Board;
+#[cfg(feature = "python")]
 use crate::netlist_contracts::{dataclass_eq, dataclass_repr, repr_of, unhashable, Netlist};
 
 // ===========================================================================
@@ -88,7 +94,7 @@ use crate::netlist_contracts::{dataclass_eq, dataclass_repr, repr_of, unhashable
 // ===========================================================================
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum KiAtom {
+pub enum KiAtom {
     Str(String),
     Int(i64),
     Float(f64),
@@ -100,7 +106,7 @@ pub(crate) enum KiAtom {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum KiNode {
+pub enum KiNode {
     Atom(KiAtom),
     List(Vec<KiNode>),
 }
@@ -182,7 +188,7 @@ fn classify_number(word: &str, next_is_space_or_paren: bool) -> Option<KiAtom> {
 /// Returns `Err` on unbalanced parentheses (kiutils raises `AssertionError` /
 /// `IndexError` there; we raise a typed error instead -- both sides raise on
 /// malformed input, which is all the differential requires).
-fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
+pub(crate) fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
     let bytes = input.as_bytes();
     let mut i = 0usize;
     let mut stack: Vec<Vec<KiNode>> = vec![Vec::new()];
@@ -298,7 +304,7 @@ fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
 // ===========================================================================
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) enum Num {
+pub enum Num {
     I(i64),
     F(f64),
 }
@@ -382,6 +388,29 @@ fn num_to_string(v: Num) -> String {
     }
 }
 
+/// Shortest round-trip decimal digits of a finite, non-zero `v`, as
+/// `(negative, digits, exponent)` where the represented value is
+/// `digits[0].digits[1..] * 10^exponent` (the digit string carries no
+/// decimal point; `format!("{v:e}")`'s mantissa/exponent are split and the
+/// dot stripped). Shared by CPython-exact `py_repr_f64` (fixed-notation for
+/// `1e-4 <= |v| < 1e16`, scientific otherwise) and the S-expression writer's
+/// always-fixed rendering (see `sexpr_writer.rs` -- a scientific token is
+/// NOT a kiutils number token and would re-parse as a bare string, breaking
+/// write round-trip parity).
+pub(crate) fn shortest_digits(v: f64) -> Result<(bool, String, i32), String> {
+    let s = format!("{v:e}");
+    let (mant, exp) = s
+        .split_once('e')
+        .ok_or_else(|| format!("format e produced no exponent for {v}"))?;
+    let exp: i32 = exp.parse().map_err(|_| format!("format e produced a non-numeric exponent for {v}"))?;
+    let (neg, mant) = match mant.strip_prefix('-') {
+        Some(rest) => (true, rest),
+        None => (false, mant),
+    };
+    let digits: String = mant.chars().filter(|c| *c != '.').collect();
+    Ok((neg, digits, exp))
+}
+
 /// CPython's `repr()`/`str()` of a float: shortest round-trip digits, fixed
 /// notation for `1e-4 <= |v| < 1e16` (with a mandatory `.0` on integral
 /// values), scientific otherwise (`1e-05`, `1e+16`), exponent zero-padded to
@@ -396,16 +425,7 @@ fn py_repr_f64(v: f64) -> Result<String, String> {
     if v == 0.0 {
         return Ok(if v.is_sign_negative() { "-0.0".to_string() } else { "0.0".to_string() });
     }
-    let s = format!("{v:e}");
-    let (mant, exp) = s
-        .split_once('e')
-        .ok_or_else(|| format!("format e produced no exponent for {v}"))?;
-    let exp: i32 = exp.parse().map_err(|_| format!("format e produced a non-numeric exponent for {v}"))?;
-    let (neg, mant) = match mant.strip_prefix('-') {
-        Some(rest) => (true, rest),
-        None => (false, mant),
-    };
-    let digits: String = mant.chars().filter(|c| *c != '.').collect();
+    let (neg, digits, exp) = shortest_digits(v)?;
     let mut out = String::new();
     if neg {
         out.push('-');
@@ -470,7 +490,7 @@ fn py_round(x: f64) -> f64 {
 // ===========================================================================
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawPos {
+pub struct RawPos {
     pub x: Num,
     pub y: Num,
     pub angle: Option<Num>,
@@ -490,7 +510,7 @@ impl RawPos {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawDrill {
+pub struct RawDrill {
     pub oval: bool,
     /// The token at `exp[1]` (or `exp[2]` for oval) -- a number, or the raw
     /// offset list when a drill carries only `(offset ...)` (kiutils quirk).
@@ -500,7 +520,7 @@ pub(crate) struct RawDrill {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawPad {
+pub struct RawPad {
     pub number: String,
     pub shape: String,
     pub position: RawPos,
@@ -512,7 +532,7 @@ pub(crate) struct RawPad {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum RawFpItem {
+pub enum RawFpItem {
     Text { text: String, layer: String },
     Line { start: RawPos, end: RawPos, layer: String },
     Rect { start: RawPos, end: RawPos, layer: String },
@@ -540,7 +560,7 @@ impl RawFpItem {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawFootprint {
+pub struct RawFootprint {
     pub position: RawPos,
     pub layer: String,
     pub locked: bool,
@@ -552,7 +572,7 @@ pub(crate) struct RawFootprint {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum RawGrItem {
+pub enum RawGrItem {
     Line { start: RawPos, end: RawPos, layer: String },
     Rect { start: RawPos, end: RawPos, layer: String },
     Circle { center: RawPos, end: RawPos, layer: String },
@@ -578,7 +598,7 @@ pub(crate) enum RawGrItem {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawZone {
+pub struct RawZone {
     pub name: Option<String>,
     pub net_name: Option<String>,
     pub layers: Vec<String>,
@@ -586,13 +606,13 @@ pub(crate) struct RawZone {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawNet {
+pub struct RawNet {
     pub number: Num,
     pub name: String,
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum RawTraceItem {
+pub enum RawTraceItem {
     Segment { start: RawPos, end: RawPos, width: Num, layer: String, net: Num },
     Via { position: RawPos, size: Num, drill: Num, layers: Vec<String>, net: Num },
     // `mid` is faithful to kiutils' Arc; the trace extraction reads only
@@ -607,7 +627,7 @@ pub(crate) enum RawTraceItem {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawStackupLayer {
+pub struct RawStackupLayer {
     pub name: String,
     pub layer_type: String,
     pub thickness: Option<Num>,
@@ -617,7 +637,7 @@ pub(crate) struct RawStackupLayer {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct RawBoard {
+pub struct RawBoard {
     pub graphic_items: Vec<RawGrItem>,
     pub footprints: Vec<RawFootprint>,
     pub zones: Vec<RawZone>,
@@ -655,6 +675,7 @@ pub(crate) struct RawBoard {
 }
 
 /// Clone an owned handle to the same underlying Python object (NOT a copy).
+#[cfg(feature = "python")]
 fn same(py: Python<'_>, obj: &Py<PyAny>) -> Py<PyAny> {
     obj.clone_ref(py)
 }
@@ -1384,7 +1405,12 @@ fn raw_board_from_tree(root: &[KiNode], errors: &mut Vec<String>) -> RawBoard {
 /// Parse `content` and validate that it is a single `(kicad_pcb ...)` document
 /// (mirrors kiutils' `from_sexpr` rejecting any other root: empty input,
 /// bare atoms, or a different top-level keyword all raise).
-fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
+///
+/// Public, non-pyo3 entry point: the core is pure Rust (the pyo3 wrapper
+/// `parse_kicad_pcb_impl` calls this same function). Exposed so the
+/// `temper` binary and other non-Python consumers can parse a `.kicad_pcb`
+/// without an interpreter in the process.
+pub fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
     let tree = parse_ki_document(content)?;
     let items: &[KiNode] = match tree.as_slice() {
         [KiNode::List(inner)] => inner.as_slice(),
@@ -1407,6 +1433,34 @@ fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
         return Err(err.clone());
     }
     Ok(raw)
+}
+
+/// Compact, JSON-serializable parse summary for driver/tooling consumers
+/// (the `temper parse` subcommand): Edge.Cuts board dimensions plus the
+/// component/net/layer counts. Uses the same private Edge.Cuts bounding-box
+/// extraction the pyo3 path uses, so the CLI does not reimplement board
+/// geometry.
+#[derive(Clone, Debug, serde::Serialize)]
+pub struct BoardSummary {
+    pub width_mm: Option<f64>,
+    pub height_mm: Option<f64>,
+    pub component_count: usize,
+    pub net_count: usize,
+    pub layer_count: usize,
+}
+
+/// Parse `content` and return a compact summary (dimensions + counts).
+/// Same fail-closed contract as [`parse_kicad_document`].
+pub fn parse_board_summary(content: &str) -> Result<BoardSummary, String> {
+    let raw = parse_kicad_document(content)?;
+    let (w, h, _origin) = extract_board_geometry_pure(&raw);
+    Ok(BoardSummary {
+        width_mm: w.map(|n| n.as_f64()),
+        height_mm: h.map(|n| n.as_f64()),
+        component_count: raw.footprints.len(),
+        net_count: raw.nets.len(),
+        layer_count: raw.layers.len(),
+    })
 }
 
 // ===========================================================================
@@ -2231,6 +2285,7 @@ struct NetClassRaw {
 // 6. pyo3: dataclass pyclasses for the parse output (_kicad_types.py)
 // ===========================================================================
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct TraceData {
@@ -2246,6 +2301,7 @@ pub struct TraceData {
     pub net: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl TraceData {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2259,6 +2315,7 @@ impl TraceData {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl TraceData {
     #[new]
     #[pyo3(signature = (start, end, width, layer, net=None))]
@@ -2308,6 +2365,7 @@ impl TraceData {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct PadData {
@@ -2331,6 +2389,7 @@ pub struct PadData {
     pub component_ref: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl PadData {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2348,6 +2407,7 @@ impl PadData {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl PadData {
     #[new]
     #[pyo3(signature = (position, size, shape, drill=None, rotation=None, layer=None, number=None, net=None, component_ref=None))]
@@ -2425,6 +2485,7 @@ impl PadData {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct ViaData {
@@ -2440,6 +2501,7 @@ pub struct ViaData {
     pub layers: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl ViaData {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2453,6 +2515,7 @@ impl ViaData {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl ViaData {
     #[new]
     #[pyo3(signature = (position, diameter, drill, net=None, layers=None))]
@@ -2508,6 +2571,7 @@ impl ViaData {
 /// kiutils' `DrillDefinition` dataclass, reproduced as a pyclass so pads with
 /// a `(drill ...)` token carry the same object shape (and repr) into
 /// `Pin.drill` / `PadData.drill`.
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct DrillDefinition {
@@ -2521,6 +2585,7 @@ pub struct DrillDefinition {
     pub offset: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl DrillDefinition {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2533,6 +2598,7 @@ impl DrillDefinition {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl DrillDefinition {
     #[new]
     #[pyo3(signature = (oval=None, diameter=None, width=None, offset=None))]
@@ -2590,6 +2656,7 @@ impl DrillDefinition {
 
 /// kiutils' `Position` dataclass, reproduced so `DrillDefinition.offset`
 /// reprs identically (`Position(X=..., Y=..., angle=None, unlocked=False)`).
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct Position {
@@ -2604,6 +2671,7 @@ pub struct Position {
     pub unlocked: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl Position {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2616,6 +2684,7 @@ impl Position {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl Position {
     #[new]
     #[pyo3(signature = (x=None, y=None, angle=None, unlocked=None))]
@@ -2671,6 +2740,7 @@ impl Position {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct ParseResult {
@@ -2696,6 +2766,7 @@ pub struct ParseResult {
     pub pads: Py<PyAny>,
 }
 
+#[cfg(feature = "python")]
 impl ParseResult {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
@@ -2710,6 +2781,7 @@ impl ParseResult {
 }
 
 #[pymethods]
+#[cfg(feature = "python")]
 impl ParseResult {
     #[new]
     #[pyo3(signature = (netlist, board, warnings, traces=None, vias=None, pads=None))]
@@ -2780,6 +2852,7 @@ impl ParseResult {
 // 7. pyfunctions
 // ===========================================================================
 
+#[cfg(feature = "python")]
 fn num_to_py(py: Python<'_>, v: Num) -> PyResult<Py<PyAny>> {
     match v {
         Num::I(i) => i.into_py_any(py),
@@ -2787,6 +2860,7 @@ fn num_to_py(py: Python<'_>, v: Num) -> PyResult<Py<PyAny>> {
     }
 }
 
+#[cfg(feature = "python")]
 fn atom_to_py(py: Python<'_>, atom: &KiAtom) -> PyResult<Py<PyAny>> {
     match atom {
         KiAtom::Str(s) | KiAtom::Bare(s) => s.clone().into_py_any(py),
@@ -2802,6 +2876,7 @@ fn atom_to_py(py: Python<'_>, atom: &KiAtom) -> PyResult<Py<PyAny>> {
     }
 }
 
+#[cfg(feature = "python")]
 fn node_to_py(py: Python<'_>, node: &KiNode) -> PyResult<Py<PyAny>> {
     match node {
         KiNode::Atom(a) => atom_to_py(py, a),
@@ -2815,6 +2890,7 @@ fn node_to_py(py: Python<'_>, node: &KiNode) -> PyResult<Py<PyAny>> {
     }
 }
 
+#[cfg(feature = "python")]
 fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<DrillDefinition>();
     let oval: Py<PyAny> = drill.oval.into_py_any(py)?;
@@ -2850,6 +2926,7 @@ fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny
 }
 
 /// Construct a `Board` pyclass from the pure extraction result.
+#[cfg(feature = "python")]
 fn build_board(
     py: Python<'_>,
     raw: &RawBoard,
@@ -2934,6 +3011,7 @@ fn build_board(
 
 /// Construct the contract pyclasses (Component/Pin/Net/Netlist) from the
 /// pure extraction outputs.
+#[cfg(feature = "python")]
 fn build_netlist(
     py: Python<'_>,
     components: &[CompOut],
@@ -3034,6 +3112,7 @@ fn build_netlist(
         .extract::<Py<Netlist>>()?)
 }
 
+#[cfg(feature = "python")]
 fn build_trace_data(py: Python<'_>, t: &TraceOut) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<TraceData>();
     let start = PyTuple::new(py, [num_to_py(py, t.start.0)?, num_to_py(py, t.start.1)?])?;
@@ -3046,6 +3125,7 @@ fn build_trace_data(py: Python<'_>, t: &TraceOut) -> PyResult<Py<PyAny>> {
     cls.call((start, end, width, t.layer.clone(), net), None)?.unbind().into_py_any(py)
 }
 
+#[cfg(feature = "python")]
 fn build_via_data(py: Python<'_>, v: &ViaOut) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<ViaData>();
     let pos = PyTuple::new(py, [num_to_py(py, v.position.0)?, num_to_py(py, v.position.1)?])?;
@@ -3059,6 +3139,7 @@ fn build_via_data(py: Python<'_>, v: &ViaOut) -> PyResult<Py<PyAny>> {
     cls.call((pos, diameter, drill, net, layers), None)?.unbind().into_py_any(py)
 }
 
+#[cfg(feature = "python")]
 fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<PadData>();
     let pos = PyTuple::new(py, [p.position.0, p.position.1])?;
@@ -3101,6 +3182,7 @@ fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
 /// skip-on-miss -- matches this table's own documented historical-alias
 /// convention: some keys intentionally name nets absent from the current
 /// board), not the `_strict` variant, which would hard-error on those.
+#[cfg(feature = "python")]
 fn parse_kicad_pcb_impl(
     py: Python<'_>,
     pcb_content: &str,
@@ -3152,6 +3234,7 @@ fn parse_kicad_pcb_impl(
     build_parse_result(py, netlist, board, warnings, trace_objs, via_objs, pad_objs)
 }
 
+#[cfg(feature = "python")]
 fn build_parse_result(
     py: Python<'_>,
     netlist: Py<Netlist>,
@@ -3171,6 +3254,7 @@ fn build_parse_result(
         .into_py_any(py)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction(signature = (pcb_content, normalize=true, net_class_mapping=None))]
 fn parse_kicad_pcb(
     py: Python<'_>,
@@ -3189,6 +3273,7 @@ fn parse_kicad_pcb(
 /// Returns:
 ///     Dict mapping component reference to position info:
 ///     ``{"U1": {"x": 50.5, "y": 75.25, "rotation": 90.0}, ...}``
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let positions = extract_footprint_positions_pure(content);
@@ -3210,6 +3295,7 @@ fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyA
 /// adversarial token strings (caret, adjacent quotes, backslash-quote runs,
 /// ``+5``, CRLF) so the "kiutils-exact" claim is asserted as written, not
 /// just on the corpus.
+#[cfg(feature = "python")]
 #[pyfunction]
 fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let tree = parse_ki_document(content).map_err(PyValueError::new_err)?;
@@ -3221,6 +3307,7 @@ fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     node_to_py(py, first)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_net_classes(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let classes = extract_net_classes_pure(content);
@@ -3243,6 +3330,7 @@ fn extract_net_classes(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
 /// Raw stackup + plane-relevant zone data for the v6 stackup assembly (the
 /// assembly itself stays Python: it targets router_v6.stage0_data dataclasses
 /// and reads the netclass SSOT via `_is_plane_required_net`).
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_stackup_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
@@ -3304,6 +3392,7 @@ fn extract_stackup_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
 /// Board dimensions + pad sizes + raw courtyard inputs for kicad_metadata.
 /// The courtyard POLYGONS are computed by the Python shim's shapely step
 /// (GEOS is not reimplementable bit-exactly in Rust; see module docs).
+#[cfg(feature = "python")]
 #[pyfunction]
 fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
@@ -3504,6 +3593,7 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
 // 8. registration
 // ===========================================================================
 
+#[cfg(feature = "python")]
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let sub = PyModule::new(module.py(), "parse_engine")?;
     sub.add_class::<TraceData>()?;
@@ -3518,14 +3608,23 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(tokenize, &sub)?)?;
+    // Wave 4 Phase 3 (formats/IO): the S-expression writer -- the inverse
+    // of this module's tokenizer (see sexpr_writer.rs). parse -> write ->
+    // parse is the identity on the KiNode tree, so these functions are the
+    // kiutils-free board-serialization surface.
+    sub.add_function(wrap_pyfunction!(crate::sexpr_writer::write_board_sexpr_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::embed_title_block_comment_py,
+        &sub
+    )?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }
 
 
-#[cfg(test)]
-#[allow(clippy::expect_used)]
-mod tests {
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod tests {
     use super::*;
 
     /// kiutils' num grammar: a decimal token whose float value is integral
@@ -3533,7 +3632,7 @@ mod tests {
     /// silently flip the branch (regression for `2i64.pow(63)` overflowing
     /// to i64::MIN in release, which turned every integral decimal into a
     /// float).
-    #[test]
+    #[cfg_attr(test, test)]
     fn decimal_integral_token_is_int() {
         let tree = parse_ki_document(
             r#"(pad "1" thru_hole circle (at 10 20 90.0) (size 3.0 3.0) (drill 1.5))"#,
@@ -3574,7 +3673,7 @@ mod tests {
     /// its net class assignment (DRC/DRU/safety) and must resolve in
     /// `Netlist.apply_net_class_mapping_strict`; routing excludes it via
     /// `_routable_net_names`, not by erasing it from the registry.
-    #[test]
+    #[cfg_attr(test, test)]
     fn extract_nets_pure_keeps_single_pad_nets() {
         fn pin(name: &str, net: &str) -> RawPinOut {
             RawPinOut {
@@ -3629,7 +3728,7 @@ mod tests {
     /// do NOT -- `has_valid` was never set, `gfx_bounds` came back `None`,
     /// and (with no pads either) the function returned the bare (2.0, 2.0)
     /// fallback instead of a box covering the circle.
-    #[test]
+    #[cfg_attr(test, test)]
     fn circle_only_courtyard_produces_circle_bounds() {
         let fp = RawFootprint {
             position: RawPos::origin(),
@@ -3668,7 +3767,7 @@ mod tests {
     /// on the order of 30mm x 19mm, NOT the 35.5mm the part actually
     /// occupies. This is the C2xC3 collision root cause quoted directly
     /// from the real board.
-    #[test]
+    #[cfg_attr(test, test)]
     fn real_cp_radial_d35_courtyard_matches_kicad_diameter() {
         let fp = RawFootprint {
             position: RawPos::origin(),
@@ -3732,7 +3831,7 @@ mod tests {
     /// courtyard/fab geometry is an `fp_poly` must have its vertices
     /// included in bounds. `Poly` fell into the same `_ => {}` catch-all
     /// as `Circle` (dropped silently, `has_valid` never set).
-    #[test]
+    #[cfg_attr(test, test)]
     fn poly_only_fab_outline_produces_poly_bounds() {
         let fp = RawFootprint {
             position: RawPos::origin(),
@@ -3757,7 +3856,7 @@ mod tests {
     /// contributor; with no other geometry and no pads this falls through
     /// to the `(2.0, 2.0)` empty-footprint default, same as it would if the
     /// item were absent entirely.
-    #[test]
+    #[cfg_attr(test, test)]
     fn empty_poly_does_not_fake_valid_bounds() {
         let fp = RawFootprint {
             position: RawPos::origin(),
@@ -3773,4 +3872,19 @@ mod tests {
         assert!((width - 2.0).abs() < 1e-9, "width={width}, expected 2.0 fallback");
         assert!((height - 2.0).abs() < 1e-9, "height={height}, expected 2.0 fallback");
     }
+
+    // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
+    /// Every `#[test]` in this module, as a callable the `wasm32`
+    /// entry point can invoke by index.  Generated because these
+    /// functions are private to this module and unreachable from
+    /// anywhere a registry could otherwise live.
+    pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("parse_engine::tests::decimal_integral_token_is_int", decimal_integral_token_is_int),
+        ("parse_engine::tests::extract_nets_pure_keeps_single_pad_nets", extract_nets_pure_keeps_single_pad_nets),
+        ("parse_engine::tests::circle_only_courtyard_produces_circle_bounds", circle_only_courtyard_produces_circle_bounds),
+        ("parse_engine::tests::real_cp_radial_d35_courtyard_matches_kicad_diameter", real_cp_radial_d35_courtyard_matches_kicad_diameter),
+        ("parse_engine::tests::poly_only_fab_outline_produces_poly_bounds", poly_only_fab_outline_produces_poly_bounds),
+        ("parse_engine::tests::empty_poly_does_not_fake_valid_bounds", empty_poly_does_not_fake_valid_bounds),
+    ];
+    // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

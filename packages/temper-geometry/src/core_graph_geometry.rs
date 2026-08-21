@@ -200,40 +200,6 @@ pub fn pin_world_position_kernel(px: f64, py: f64, side: i64, rotation_rad: f64,
 }
 
 // =============================================================================
-// power_topology.py — trace-width arithmetic + delivery-strategy thresholds
-// =============================================================================
-
-/// `max_current_a * 0.15 + 0.1` — the oracle's `required_trace_width`
-/// expression verbatim (B7 grouping).
-pub fn power_required_trace_width(max_current_a: f64) -> f64 {
-    max_current_a * 0.15 + 0.1
-}
-
-/// IPC-2221 `trace_width`: `base = I * 0.15 + 0.1`; for copper_weight_oz != 1.0,
-/// `base / (oz ** 0.625)` where `** 0.625` is libm `pow` via host_math (B1/B13).
-pub fn power_trace_width(max_current_a: f64, copper_weight_oz: f64) -> f64 {
-    let base = max_current_a * 0.15 + 0.1;
-    if copper_weight_oz == 1.0 {
-        base
-    } else {
-        base / host_math::pow(copper_weight_oz, 0.625)
-    }
-}
-
-/// `delivery_strategy` thresholds: `>= 3.0` PLANE, `>= 1.0` WIDE_TRACE, else
-/// STANDARD_TRACE. Returns the enum ordinal: 0=PLANE, 1=WIDE_TRACE,
-/// 2=STANDARD_TRACE (the Python shim maps back to `PowerDeliveryStrategy`).
-pub fn power_delivery_strategy(max_current_a: f64) -> i64 {
-    if max_current_a >= 3.0 {
-        0
-    } else if max_current_a >= 1.0 {
-        1
-    } else {
-        2
-    }
-}
-
-// =============================================================================
 // topology.py — TopologicalGraph.get_clusters (union-find components)
 // =============================================================================
 
@@ -584,30 +550,6 @@ pub fn pin_world_radius_py(pin: &Bound<'_, PyAny>) -> PyResult<f64> {
 // =============================================================================
 
 #[cfg(feature = "python")]
-fn validate_node_flats(node_flats: &[Vec<f64>]) -> PyResult<()> {
-    for flat in node_flats {
-        if flat.len() % 3 != 0 {
-            return Err(PyValueError::new_err(
-                "node flat length must be divisible by 3",
-            ));
-        }
-    }
-    Ok(())
-}
-
-#[cfg(feature = "python")]
-fn validate_edge_flats(edge_flats: &[Vec<i64>]) -> PyResult<()> {
-    for flat in edge_flats {
-        if flat.len() % 2 != 0 {
-            return Err(PyValueError::new_err(
-                "edge flat length must be divisible by 2",
-            ));
-        }
-    }
-    Ok(())
-}
-
-#[cfg(feature = "python")]
 fn validate_matvec(row: &[i64], col: &[i64], data: &[f64], other: &[f64]) -> PyResult<()> {
     if row.len() != data.len() || col.len() != data.len() {
         return Err(PyValueError::new_err("row/col/data length mismatch"));
@@ -629,31 +571,6 @@ fn validate_matvec(row: &[i64], col: &[i64], data: &[f64], other: &[f64]) -> PyR
         }
     }
     Ok(())
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn graph_clique_expand_py(
-    net_indices: Vec<Vec<i64>>,
-    net_weights: Vec<f64>,
-) -> PyResult<(Vec<i64>, Vec<i64>, Vec<f64>)> {
-    temper_py_bridge::catch_unwind(|| graph_clique_expand(&net_indices, &net_weights))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn graph_batch_concat_py(
-    node_flats: Vec<Vec<f64>>,
-    edge_flats: Vec<Vec<i64>>,
-    weight_flats: Vec<Vec<f64>>,
-) -> PyResult<(Vec<f64>, Vec<i64>, Vec<f64>)> {
-    temper_py_bridge::catch_unwind(|| {
-        validate_node_flats(&node_flats)?;
-        validate_edge_flats(&edge_flats)?;
-        Ok(graph_batch_concat(&node_flats, &edge_flats, &weight_flats))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
 }
 
 /// `Coo @ other` — sparse matrix-vector product.
@@ -686,13 +603,6 @@ pub fn hypergraph_coo_matvec_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn normalize_rotation_index_py(index: i64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| normalize_rotation_index(index))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
 pub fn pin_world_position_kernel_py(
     px: f64,
     py: f64,
@@ -702,27 +612,6 @@ pub fn pin_world_position_kernel_py(
     cy: f64,
 ) -> PyResult<(f64, f64)> {
     temper_py_bridge::catch_unwind(|| pin_world_position_kernel(px, py, side, rotation_rad, cx, cy))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn power_required_trace_width_py(max_current_a: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| power_required_trace_width(max_current_a))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn power_trace_width_py(max_current_a: f64, copper_weight_oz: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| power_trace_width(max_current_a, copper_weight_oz))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn power_delivery_strategy_py(max_current_a: f64) -> PyResult<i64> {
-    temper_py_bridge::catch_unwind(|| power_delivery_strategy(max_current_a))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
@@ -768,19 +657,13 @@ pub fn pad_radius_py(width: f64, height: f64) -> PyResult<f64> {
 /// Register this cluster's kernels with the `temper_geometry` module.
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(graph_clique_expand_py, m)?)?;
-    m.add_function(wrap_pyfunction!(graph_batch_concat_py, m)?)?;
     m.add_function(wrap_pyfunction!(hypergraph_coo_matvec_py, m)?)?;
-    m.add_function(wrap_pyfunction!(normalize_rotation_index_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_position_kernel_py, m)?)?;
     // Wave 4 fan-out: pin_geometry.py orchestration pyfunctions (shim replacement)
     m.add_function(wrap_pyfunction!(normalize_rotation_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_position_at_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_layer_py, m)?)?;
     m.add_function(wrap_pyfunction!(pin_world_radius_py, m)?)?;
-    m.add_function(wrap_pyfunction!(power_required_trace_width_py, m)?)?;
-    m.add_function(wrap_pyfunction!(power_trace_width_py, m)?)?;
-    m.add_function(wrap_pyfunction!(power_delivery_strategy_py, m)?)?;
     m.add_function(wrap_pyfunction!(topology_connected_components_py, m)?)?;
     m.add_function(wrap_pyfunction!(courtyard_global_points_py, m)?)?;
     m.add_function(wrap_pyfunction!(point_distance_py, m)?)?;
@@ -895,20 +778,6 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
-    fn power_topology_arithmetic() {
-        assert_eq!(power_required_trace_width(1.0), 0.25);
-        assert_eq!(power_trace_width(1.0, 1.0), 0.25);
-        // 1oz shortcut: exact equality, not a tolerance
-        let thick = power_trace_width(2.0, 2.0);
-        let expected = (2.0 * 0.15 + 0.1) / (2.0_f64.powf(0.625));
-        assert_eq!(thick, expected);
-        assert_eq!(power_delivery_strategy(5.0), 0);
-        assert_eq!(power_delivery_strategy(1.0), 1);
-        assert_eq!(power_delivery_strategy(0.999), 2);
-        assert_eq!(power_delivery_strategy(3.0), 0);
-    }
-
-    #[cfg_attr(test, test)]
     fn topology_components_partition_and_order() {
         let nodes = vec!["a".into(), "b".into(), "c".into(), "d".into()];
         let ea = vec!["a".into(), "c".into()];
@@ -984,7 +853,6 @@ pub(crate) mod tests {
         ("core_graph_geometry::tests::coo_matvec_negative_col_wraps", coo_matvec_negative_col_wraps),
         ("core_graph_geometry::tests::normalize_rotation_index_quadrants", normalize_rotation_index_quadrants),
         ("core_graph_geometry::tests::pin_world_position_quadrant_anchors", pin_world_position_quadrant_anchors),
-        ("core_graph_geometry::tests::power_topology_arithmetic", power_topology_arithmetic),
         ("core_graph_geometry::tests::topology_components_partition_and_order", topology_components_partition_and_order),
         ("core_graph_geometry::tests::topology_components_single_group_all", topology_components_single_group_all),
         ("core_graph_geometry::tests::topology_components_isolated", topology_components_isolated),

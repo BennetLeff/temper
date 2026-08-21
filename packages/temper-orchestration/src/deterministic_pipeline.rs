@@ -507,9 +507,11 @@ pub(crate) fn build_drc_aware_python_stages(
     let mut stages: Vec<Py<PyAny>> = Vec::new();
 
     // D1 setup: config attach + net class mapping early. (`ConfigAttachStage`
-    // is not re-exported from `stages/__init__.py`; import its module.)
+    // was re-exported from `stages/__init__.py` in the shim-debt cleanup of
+    // 2026-08-20 -- the `stages/config_attach.py` module now re-exports the
+    // adapter class, so construct it from the package like every other stage.)
     stages.push(
-        py.import("temper_placer.deterministic.stages.config_attach")?
+        stages_mod
             .getattr("ConfigAttachStage")?
             .call1((config.clone(),))?
             .into_any()

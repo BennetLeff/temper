@@ -77,7 +77,7 @@ actually blocks a solved X placement is a solver outcome, below.)
 
 ## Solver matrix (measured 2026-08-01)
 
-Runs: `docs/evidence/2026-08-01-isolation-barrier-corridor-feasibility.py`
+Runs: `docs/evidence/scripts/2026-08-01-isolation-barrier-corridor-feasibility.py`
 (`uv run --no-sync python`, hint warm-start, per-cell caching); solver
 seed 0, 4 workers. Time budget 900 s/cell; a cell exceeding it is
 `unknown`, never reported as feasible.
@@ -140,7 +140,7 @@ feasible in ≥1 orientation (as-is or K3-relaxed, K3-delta quantified).
   forwarded through the `isolation_barrier` dict.
 - Stage-2 budget: existing `max_displacement_mm` + `minimize_displacement_to`
   bounded-repair machinery — no encoder addition.
-- Runners: `docs/evidence/2026-08-01-isolation-barrier-corridor-feasibility.py`
+- Runners: `docs/evidence/scripts/2026-08-01-isolation-barrier-corridor-feasibility.py`
   (matrix, hints, caching) and results JSON
   `docs/evidence/2026-08-01-isolation-barrier-corridor-feasibility.json`.
 - Tests: `tests/placer/cp_sat/test_isolation_barrier.py` 38 passed
@@ -185,5 +185,5 @@ plan (2026-08-01-003) Option 2. Second finding: the geometric minimum-drift
 position is not solver-feasible in X, so the probe must search corridor
 position, not trust the geometric optimum.
 
-Runs: `docs/evidence/2026-08-01-isolation-barrier-budget-sweep.py`,
+Runs: `docs/evidence/scripts/2026-08-01-isolation-barrier-budget-sweep.py`,
 results `docs/evidence/2026-08-01-isolation-barrier-budget-sweep.json`.

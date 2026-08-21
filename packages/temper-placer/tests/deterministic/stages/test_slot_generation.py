@@ -5,8 +5,7 @@ Tests grid-based slot generation within each zone with 5mm spacing.
 """
 
 from temper_placer.core.board import Board
-from temper_placer.deterministic.stages.slot_generation import SlotGenerationStage
-from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
+from temper_placer.deterministic.stages import SlotGenerationStage, ZoneGeometryStage
 from temper_placer.deterministic.state import BoardState
 
 
