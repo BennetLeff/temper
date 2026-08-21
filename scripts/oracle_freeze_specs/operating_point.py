@@ -333,7 +333,7 @@ def render_rust(results: list[tuple[FreezeCase, object]]) -> str:
     L.append("        const FROZEN_GRID_N: usize = 11;")
     grid_vals = grid_cases[0][1] if grid_cases else []
     grid_rs = ", ".join(rust_f64_literal(float(v)) for v in grid_vals)
-    L.append(f"        const FROZEN_GRID_EXPECTED: &[(f64)] = &[{grid_rs}];")
+    L.append(f"        const FROZEN_GRID_EXPECTED: &[f64] = &[{grid_rs}];")
     L.append("")
 
     # Test functions

@@ -1351,7 +1351,7 @@ pub(crate) mod tests {
         ];
 
         const FROZEN_GRID_N: usize = 11;
-        const FROZEN_GRID_EXPECTED: &[(f64)] = &[f64::from_bits(0x3FB999999999999A_u64), f64::from_bits(0x3FC999999999999A_u64), f64::from_bits(0x3FD3333333333333_u64), f64::from_bits(0x3FD999999999999A_u64), f64::from_bits(0x3FE0000000000000_u64), f64::from_bits(0x3FE3333333333333_u64), f64::from_bits(0x3FE6666666666666_u64), f64::from_bits(0x3FE999999999999A_u64), f64::from_bits(0x3FECCCCCCCCCCCCD_u64)];
+        const FROZEN_GRID_EXPECTED: &[f64] = &[f64::from_bits(0x3FB999999999999A_u64), f64::from_bits(0x3FC999999999999A_u64), f64::from_bits(0x3FD3333333333333_u64), f64::from_bits(0x3FD999999999999A_u64), f64::from_bits(0x3FE0000000000000_u64), f64::from_bits(0x3FE3333333333333_u64), f64::from_bits(0x3FE6666666666666_u64), f64::from_bits(0x3FE999999999999A_u64), f64::from_bits(0x3FECCCCCCCCCCCCD_u64)];
 
         #[cfg_attr(test, test)]
         fn frozen_l_eff_matches_golden_corpus() {
