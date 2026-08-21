@@ -462,7 +462,21 @@ jobs:
       TEMPER_REQUIRE_RUST_DRC: "1"
 
     steps:
+      # fetch-depth: 0 is load-bearing here, not hygiene. Several oracle-freeze
+      # tests assert a live oracle is byte-identical to a PINNED COMMIT and
+      # reach for it with `git cat-file -e <sha>`. Under the default shallow
+      # clone that object is absent, so the test takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch --
+      # in CI, silently, on every run. Measured on run 32493295419: the Wave-4
+      # round-2 gate COLLECTED 1029 but EXECUTED 1024, with all four
+      # `test_oracle_is_verbatim_copy[...]` params skipped. A guard that always
+      # skips is a guard that never runs -- the same vacuity the pytest_guard
+      # floors exist to catch, one level further down. The
+      # `board-provenance-requirements-gates`, `changes` and `fast-gates` jobs
+      # already set this.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # Container runs as root; workspace is owned by the runner user. Without
       # this, every `git` call in a later `run:` step exits 128 on "dubious
@@ -3910,7 +3924,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4018,7 +4042,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4156,7 +4190,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4246,7 +4290,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4338,7 +4392,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
