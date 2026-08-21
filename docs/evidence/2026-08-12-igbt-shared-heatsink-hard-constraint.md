@@ -145,7 +145,7 @@ the probe isolates the constraint instead: a two-component model, no
 barrier, no netclass/courtyard base, pinned to the committed rotations.
 The only difference between the two solves is this constraint.
 
-Pumpkin (`docs/evidence/2026-08-12-heatsink-colocation-pumpkin-run.py --isolate`):
+Pumpkin (`docs/evidence/scripts/2026-08-12-heatsink-colocation-pumpkin-run.py --isolate`):
 
 ```
 committed rotations, WITHOUT heatsink constraint            -> optimal

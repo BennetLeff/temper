@@ -1,6 +1,6 @@
 """
-Coverage paydown v3 — deterministic modules (grid_utils, InstrumentedStage,
-BottleneckMap, load_bottleneck_map, load_guard_config, snap_to_grid, etc.).
+Coverage paydown v3 — deterministic modules (InstrumentedStage,
+BottleneckMap, load_bottleneck_map, load_guard_config, etc.).
 
 Tests functions still on the coverage allowlist that existing suites
 (differential, PBT, oracle) don't exercise directly.

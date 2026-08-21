@@ -91,7 +91,7 @@ No zone regeneration -- this fills the board's own 96 on-disk zone
 outlines exactly as KiCad's fill engine would. 3 runs.
 
 **B. Rust-regenerated-zone measurement** -- reproduces PR #1257's own
-verification protocol (`docs/evidence/2026-08-16-zone-pour-refill-verify.py`,
+verification protocol (`docs/evidence/scripts/2026-08-16-zone-pour-refill-verify.py`,
 committed, read-only, unmodified by this task, re-run as-is against today's
 board): call the production seam `_emit_zone_pours` (the function
 `route_pcb()` invokes during a full route's emission phase) against the
@@ -101,7 +101,7 @@ via `temper_io_types.strip_existing_zones`), then
 `kicad-cli pcb drc --refill-zones --format json` on that scratch copy. 3
 runs. (Harness: `/tmp/.../scratchpad/refill_verify_today.py`, a
 byte-for-byte adaptation of the repo's own
-`docs/evidence/2026-08-16-zone-pour-refill-verify.py` with JSON output and
+`docs/evidence/scripts/2026-08-16-zone-pour-refill-verify.py` with JSON output and
 a net/layer breakdown added -- the repo script itself is untouched.)
 
 Neither measurement writes `pcb/temper.kicad_pcb`.
@@ -387,7 +387,7 @@ fabricated.
 unchanged from sec 0. `power_pcb_dataset/drc_ceiling.json` not edited.
 No `.py` files in the repo tree were edited (two scratch harnesses were
 used from `/tmp/.../scratchpad/`, adaptations of the repo's own committed,
-unmodified `docs/evidence/2026-08-16-zone-pour-refill-verify.py`, matching
+unmodified `docs/evidence/scripts/2026-08-16-zone-pour-refill-verify.py`, matching
 the convention PR #1298 itself used for its clearance re-measurement
 script).
 

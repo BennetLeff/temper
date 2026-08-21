@@ -34,6 +34,46 @@ class TestDrcRatchet:
         assert entry.error_ceiling == 3042
         assert entry.warning_ceiling == 0
 
+    def test_load_data_parses_pre_parsed_dict(self, tmp_path: Path):
+        """load_data(data) -- the shared-loader entry point used by
+        scripts/ci_check_drc.py -- must construct exactly the entries
+        load() constructs from the file (the consolidation's equivalence
+        claim, pinned directly rather than trusted)."""
+        payload = {
+            "boards": [
+                {
+                    "board_id": "temper",
+                    "path": "pcb/temper.kicad_pcb",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 5,
+                    "violations_by_type": {"clearance": 50},
+                    "warnings_by_type": {"silk_overlap": 2},
+                    "nondeterministic_error_types": {
+                        "clearance": {"observed": [49, 50, 51], "samples": 120}
+                    },
+                    "provenance": {"tool_versions": {"kicad-cli": "10.0.5"}},
+                    "category_source": "kicad-cli",
+                }
+            ]
+        }
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(json.dumps(payload))
+
+        from_file = DrcRatchet(ceiling_path)
+        from_file.load()
+        from_dict = DrcRatchet(ceiling_path)
+        from_dict.load_data(payload)
+
+        assert from_dict.entries == from_file.entries
+        entry = from_dict.entries["temper"]
+        assert entry.error_ceiling == 100
+        assert entry.warning_ceiling == 5
+        assert entry.violations_by_type == {"clearance": 50}
+        assert entry.warnings_by_type == {"silk_overlap": 2}
+        assert entry.tool_versions == {"kicad-cli": "10.0.5"}
+        assert entry.category_source == "kicad-cli"
+        assert entry.nondeterministic_error_types["clearance"]["samples"] == 120
+
     def test_check_missing_pcb(self, tmp_path: Path):
         ceiling_path = tmp_path / "drc_ceiling.json"
         ceiling_path.write_text(
