@@ -486,7 +486,7 @@
       "PWM_LS": "GateDriveSELV",
       "vcc": "Power",
       "V_BUS_SENSE": "Power",
-      "gnd": "GND",
+      "gnd": "Power",
       "usb_dn": "Differential",
       "usb_dp": "Differential",
       "i2c_scl_ui": "Default",
@@ -506,7 +506,11 @@
       "power_in.bypass_relay-coil2": "Power",
       "safety.ovp.comp-inp": "Default",
       "safety.uvlo_logic-line": "Default",
-      "hb-gnd": "HighVoltage"
+      "hb-gnd": "HighVoltage",
+      "safety.ovp.r_div_top1-p2": "HighVoltage",
+      "safety.ovp.r_div_top2-p2": "HighVoltage",
+      "safety.ovp.r_adc_top1-p2": "HighVoltage",
+      "safety.ovp.r_adc_top2-p2": "HighVoltage"
     },
     "netclass_patterns": [
       {

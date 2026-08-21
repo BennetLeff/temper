@@ -139,6 +139,9 @@ on:
       - 'pcb/temper.kicad_pcb'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
+      - 'scripts/sync_kicad_netclass_assignments.py'
+      - 'scripts/tests/test_sync_kicad_netclass_assignments.py'
+      - 'packages/temper-placer/src/temper_placer/core/design_rules.py'
       - 'pcb/temper.kicad_pro'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -246,6 +249,9 @@ on:
       - 'pcb/temper.kicad_pcb'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
+      - 'scripts/sync_kicad_netclass_assignments.py'
+      - 'scripts/tests/test_sync_kicad_netclass_assignments.py'
+      - 'packages/temper-placer/src/temper_placer/core/design_rules.py'
       - 'pcb/temper.kicad_pro'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -2474,6 +2480,36 @@ jobs:
         # HighVoltage case -- a value question, not a correspondence one,
         # so it does not block this gate).
         run: uv run python scripts/check_netclass_class_param_correspondence.py
+
+      # --- Net -> net-class assignment sync (the OTHER half of Gate 6) ---
+      # Gate 6 above compares each CLASS's own parameter values. This one
+      # compares which NET maps to which class: pcb/temper.kicad_pro's
+      # net_settings.netclass_assignments (what kicad-cli's DRC reads, and
+      # what every netclass-keyed rule in pcb/temper.kicad_dru is written
+      # against) is DERIVED from TEMPER_NET_ASSIGNMENTS in design_rules.py.
+      #
+      # scripts/manifest.yaml has called `--check` "the CI tripwire against
+      # future drift" since PR #1025, and it has never been true: grep the
+      # workflows and the script's name appears only inside Gate 6's own
+      # comment above. Wiring it here makes the claim true. Consequences of
+      # its absence, both found 2026-08-20: the four OVP-01 protective-
+      # divider mid-chain nodes (safety.ovp.r_{div,adc}_top{1,2}-p2) had
+      # been HighVoltage in design_rules.py since 2026-08-13 and absent
+      # from kicad_pro throughout, so kicad-cli held conductors that reach
+      # full +170V_BUS under IEC 60335-1 cl. 8.1.4's required single fault
+      # to the Default class's 0.2mm with no creepage rule at all; and
+      # `gnd` disagreed between the two tables the whole time.
+      #
+      # Never `continue-on-error`: a gate that cannot run must exit
+      # non-zero.
+
+      - name: Net-class assignment sync gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_sync_kicad_netclass_assignments.py -v --tb=short
+
+      - name: Net-class assignment sync gate (kicad_pro derived from design_rules.py)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/sync_kicad_netclass_assignments.py --check
 
 
       # --- Stackup <-> trace-width-derivation copper-weight gate (docs/evidence/

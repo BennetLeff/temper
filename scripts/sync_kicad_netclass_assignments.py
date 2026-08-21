@@ -37,16 +37,43 @@ PWR_RTN is structurally protected, not just by convention
 (and its alias ``CGND``) as a fifth net in this exact defect shape, left as
 an explicit, open, human decision because of its order-of-magnitude larger
 blast radius (a return net with far more copper than every net this script
-touches, combined). Both map, via ``TEMPER_NET_ASSIGNMENTS``, to the
-``"GND"`` class -- and ``pcb/temper.kicad_pro`` has no ``"Ground"`` (or any
-other) declared netclass corresponding to it, so this script's own
-"target class must be a class ``kicad_pro`` actually declares" rule already
-excludes them structurally, without needing a special-cased net-name
-blocklist. ``PROTECTED_NET_CLASSES`` below is defense in depth for exactly
-this net: if ``design_rules.py`` or ``kicad_pro`` ever changes shape such
-that ``GND`` *would* resolve to a declared class, this script still refuses
-to touch ``PWR_RTN``/``CGND`` rather than silently picking up the
-order-of-magnitude change that gate's docstring reserves for a human.
+touches, combined). ``PROTECTED_NETS`` below names both, and
+``compute_target_assignments`` drops them unconditionally: whatever class
+``TEMPER_NET_ASSIGNMENTS`` gives them, and whether or not
+``pcb/temper.kicad_pro`` declares that class, this script will not write
+them.
+
+That protection used to lean on a second, structural mechanism -- "target
+class must be a class ``kicad_pro`` actually declares", which held while
+both nets mapped to ``"GND"`` and ``kicad_pro`` declared no such class.
+Neither half of that is true any more: ``kicad_pro`` declared ``GND`` on
+2026-08-12 (docs/evidence/2026-08-12-gnd-class-decision.md) and
+``TEMPER_NET_ASSIGNMENTS`` now maps ``PWR_RTN`` to ``"HighVoltage"``. The
+structural backstop is gone; ``PROTECTED_NETS`` is now the mechanism, not
+the belt on top of it, and ``_verify_protected_unchanged`` re-checks the
+rendered text before any write so a bug in the diff/edit path cannot slip
+one through unnoticed.
+
+Why the reservation is per-net, not file-wide
+---------------------------------------------
+This script used to react to "a protected net's class is now declared" by
+``exit 5``-ing before computing any diff at all -- refusing the whole file
+over one reserved decision. That is a strictly larger refusal than the one
+``check_hv_netclass_coverage.py`` reserves, and it had a cost nobody
+measured: from the moment ``kicad_pro`` declared ``GND``, *every* pending
+assignment this script derives became unwritable, including four OVP
+protective-divider nets (``safety.ovp.r_{div,adc}_top{1,2}-p2``) that
+``TEMPER_NET_ASSIGNMENTS`` maps to ``HighVoltage`` and that consequently
+sat at KiCad's ``Default`` 0.2mm -- outside every netclass-keyed clearance
+and creepage rule in ``pcb/temper.kicad_dru`` -- while reaching full
+``+170V_BUS`` under the single fault IEC 60335-1 cl. 8.1.4 requires be
+assumed (docs/evidence/2026-08-13-ovp01-midchain-single-fault-creepage.md).
+The blocked write was collateral damage from an unrelated reservation.
+
+The reservation itself is unchanged in force -- ``PWR_RTN`` and ``CGND``
+are still never written, and the condition is still reported loudly, on
+stderr, on every run. Only its *blast radius* is narrowed: a reserved net
+now blocks itself and nothing else.
 
 Usage
 -----
@@ -78,10 +105,12 @@ sys.path.insert(0, str(REPO_ROOT / "packages" / "temper-placer" / "src"))
 
 from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS  # noqa: E402
 
-# Nets this script will never touch, even if their design_rules.py class
-# were ever to resolve to a declared kicad_pro netclass in the future. See
-# module docstring -- this is defense in depth on top of the structural
-# "GND has no declared kicad_pro class" protection that holds today.
+# Nets this script will never touch, whatever class design_rules.py gives
+# them and whether or not kicad_pro declares that class. See module
+# docstring: the structural "GND has no declared kicad_pro class" backstop
+# this used to sit on top of no longer exists, so this set is now the
+# mechanism rather than defense in depth, and `_verify_protected_unchanged`
+# re-checks it against the rendered text before any write.
 PROTECTED_NETS: frozenset[str] = frozenset({"PWR_RTN", "CGND"})
 
 NETCLASS_ASSIGNMENTS_KEY = '"netclass_assignments": {'
@@ -115,6 +144,48 @@ def compute_target_assignments(declared_classes: set[str]) -> dict[str, str]:
             continue
         targets[net] = cls
     return targets
+
+
+def compute_reserved(declared_classes: set[str]) -> list[tuple[str, str]]:
+    """Return [(net, ssot_class)] for every PROTECTED_NETS member whose
+    ``TEMPER_NET_ASSIGNMENTS`` class is a class ``kicad_pro`` actually
+    declares -- i.e. every net that *could* be written today and is
+    deliberately not being written, pending the human decision
+    ``check_hv_netclass_coverage.py``'s docstring reserves.
+
+    This is a report, not a gate. It exists so the reservation stays
+    visible on every run instead of becoming an unremarked silence -- but
+    it deliberately does not block the nets it does not name. See the
+    module docstring's "Why the reservation is per-net" section.
+    """
+    reserved: list[tuple[str, str]] = []
+    for net in sorted(PROTECTED_NETS):
+        cls = TEMPER_NET_ASSIGNMENTS.get(net)
+        if cls is not None and cls in declared_classes:
+            reserved.append((net, cls))
+    return reserved
+
+
+def _verify_protected_unchanged(before_text: str, after_text: str) -> None:
+    """Raise SyncError if any PROTECTED_NETS entry's assignment differs
+    between *before_text* and *after_text*.
+
+    ``compute_target_assignments`` already excludes protected nets, so this
+    can only fire on a bug in the diff or text-edit path (e.g. a regex that
+    matched more than its own key). It runs on the rendered text, after the
+    edit and before the write, so a protected net cannot be added,
+    retargeted, or removed by this script even by accident.
+    """
+    before = load_current_assignments(before_text)
+    after = load_current_assignments(after_text)
+    for net in sorted(PROTECTED_NETS):
+        if before.get(net) != after.get(net):
+            raise SyncError(
+                f"refusing to write: protected net {net!r} would change from "
+                f"{before.get(net)!r} to {after.get(net)!r}. PROTECTED_NETS is "
+                "reserved for an explicit human decision (see module "
+                "docstring); a sync that moves one is a bug, not an update."
+            )
 
 
 def compute_diff(
@@ -240,20 +311,47 @@ def main() -> int:
     current = load_current_assignments(text)
     targets = compute_target_assignments(declared_classes)
 
-    for protected in PROTECTED_NETS:
-        cls = TEMPER_NET_ASSIGNMENTS.get(protected)
-        if cls in declared_classes:
-            print(
-                f"ERROR: {protected!r} (protected) now resolves to a declared "
-                f"kicad_pro netclass ({cls!r}) -- this script refuses to "
-                "proceed rather than silently pick it up. See module "
-                "docstring; this is the PWR_RTN/CGND reclassification the "
-                "task explicitly reserves for a human decision.",
-                file=sys.stderr,
-            )
-            return 5
+    # The PWR_RTN/CGND reservation, reported per-net and never silently.
+    # This used to `return 5` here, before any diff was computed, which
+    # refused the whole file over one reserved decision and left every
+    # unrelated pending assignment unwritable (see module docstring). The
+    # refusal is unchanged in force -- these nets are excluded from
+    # `targets` above and re-checked against the rendered text below -- but
+    # it now blocks only itself.
+    for protected, cls in compute_reserved(declared_classes):
+        on_file = current.get(protected)
+        state = (
+            "AGREES ALREADY, nothing pending"
+            if on_file == cls
+            else f"PENDING: would become {cls!r}"
+        )
+        print(
+            f"RESERVED: {protected!r} -> {cls!r} in TEMPER_NET_ASSIGNMENTS, a "
+            f"class pcb/temper.kicad_pro declares; on file it is {on_file!r} "
+            f"({state}). NOT written, now or ever, by this script: "
+            "PWR_RTN/CGND reclassification is an explicit human decision "
+            "reserved by scripts/check_hv_netclass_coverage.py's docstring "
+            "(an order-of-magnitude larger blast radius than any net this "
+            "script does write). This reservation covers these nets only -- "
+            "every other net is synced normally.",
+            file=sys.stderr,
+        )
 
     missing, mismatched = compute_diff(current, targets)
+
+    # Fail closed: a protected net must never reach the write path. It
+    # cannot, via compute_target_assignments -- assert it anyway rather
+    # than trust that at a distance.
+    touched = {net for net, _ in missing} | {net for net, _, _ in mismatched}
+    leaked = sorted(touched & PROTECTED_NETS)
+    if leaked:
+        print(
+            f"ERROR: protected net(s) {leaked} reached the sync diff -- "
+            "compute_target_assignments should have excluded them. Refusing "
+            "to proceed.",
+            file=sys.stderr,
+        )
+        return 5
 
     if not missing and not mismatched:
         print(
@@ -279,6 +377,15 @@ def main() -> int:
         json.loads(new_text)
     except json.JSONDecodeError as exc:
         print(f"ERROR: sync produced invalid JSON, aborting write: {exc}", file=sys.stderr)
+        return 5
+
+    # Last gate before the write: prove on the rendered text that no
+    # protected net moved. Nothing above should be able to move one; this
+    # is what makes "narrower refusal" a narrowing rather than a loosening.
+    try:
+        _verify_protected_unchanged(text, new_text)
+    except SyncError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
         return 5
 
     args.kicad_pro.write_text(new_text, encoding="utf-8")

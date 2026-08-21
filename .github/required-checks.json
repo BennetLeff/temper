@@ -58,6 +58,9 @@
     "pcb/temper.kicad_pcb",
     "scripts/check_hv_netclass_coverage.py",
     "scripts/tests/test_check_hv_netclass_coverage.py",
+    "scripts/sync_kicad_netclass_assignments.py",
+    "scripts/tests/test_sync_kicad_netclass_assignments.py",
+    "packages/temper-placer/src/temper_placer/core/design_rules.py",
     "pcb/temper.kicad_pro",
     "firmware/components/control/pll_control.h",
     ".net-classification-allowlist",
@@ -177,7 +180,10 @@
         "scripts/check_oracle_hashes.py",
         "scripts/update_oracle_hashes.py",
         "scripts/oracle_hashes.json",
-        "scripts/tests/test_check_oracle_hashes.py"
+        "scripts/tests/test_check_oracle_hashes.py",
+        "scripts/sync_kicad_netclass_assignments.py",
+        "scripts/tests/test_sync_kicad_netclass_assignments.py",
+        "packages/temper-placer/src/temper_placer/core/design_rules.py"
       ]
     },
     "Repo Hygiene & Import Gates": {

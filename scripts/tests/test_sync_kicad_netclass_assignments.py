@@ -8,6 +8,11 @@ Groups:
   TestComputeTargetAssignments -- PROTECTED_NETS (PWR_RTN/CGND) are never
     included even if their class were to resolve to a declared kicad_pro
     netclass; only classes kicad_pro actually declares are targeted.
+  TestComputeReserved -- the PWR_RTN/CGND reservation is reported per-net
+    and is a report, not a gate: it never perturbs what else is synced.
+  TestVerifyProtectedUnchanged -- the fail-closed pre-write guard rejects
+    any rendered text in which a protected net was added, retargeted or
+    removed.
   TestComputeDiff -- missing vs mismatched classification is correct and
     an already-agreeing entry produces neither.
   TestApplySync -- the surgical text edit produces valid JSON, corrects
@@ -16,11 +21,14 @@ Groups:
     historical stray-blank-line regression), and touches nothing outside
     the netclass_assignments block.
   TestCLI -- --check exits 1 on drift and 0 once synced (idempotent);
-    --write applies the fix and is idempotent; PWR_RTN/CGND are refused
-    even under a synthetic kicad_pro that declares a "GND" class.
+    --write applies the fix and is idempotent; PWR_RTN/CGND are never
+    written, never retargeted, and always reported, under a synthetic
+    kicad_pro that declares every class they map to -- and one reserved
+    net does not block any unrelated write.
   TestRealRepoInvariant -- the actual checked-in pcb/temper.kicad_pro
-    never regresses relative to TEMPER_NET_ASSIGNMENTS once this fix
-    lands (skipped/xfail-documented until the sync itself is committed).
+    never regresses relative to TEMPER_NET_ASSIGNMENTS, carries no
+    protected net this script could have added, and holds the four OVP-01
+    protective-divider nodes at HighVoltage.
 """
 
 from __future__ import annotations
@@ -81,6 +89,61 @@ class TestComputeTargetAssignments:
         targets = sync.compute_target_assignments(declared)
         assert targets.get("ac_l") == "ACMains"
         assert targets.get("SW_NODE") == "HighVoltage"
+
+
+class TestComputeReserved:
+    def test_reports_protected_nets_whose_class_is_declared(self):
+        declared = {"GND", "HighVoltage", "Power"}
+        reserved = dict(sync.compute_reserved(declared))
+        assert set(reserved) == set(sync.PROTECTED_NETS)
+        for net, cls in reserved.items():
+            assert cls == sync.TEMPER_NET_ASSIGNMENTS[net]
+
+    def test_reports_nothing_when_no_protected_class_is_declared(self):
+        # A protected net whose class kicad_pro does not declare was never
+        # writable in the first place, so there is nothing to report.
+        declared = {"FinePitch", "Differential"}
+        assert sync.compute_reserved(declared) == []
+
+    def test_is_a_report_not_a_gate(self):
+        # compute_reserved must not perturb what the sync is authorized to
+        # write -- the reservation covers its own nets and nothing else.
+        declared = {"GND", "HighVoltage", "Power", "ACMains", "FinePitch"}
+        targets = sync.compute_target_assignments(declared)
+        assert sync.compute_reserved(declared)  # non-vacuous
+        assert targets, "unrelated nets must still be targeted"
+        assert not (set(targets) & set(sync.PROTECTED_NETS))
+
+
+class TestVerifyProtectedUnchanged:
+    """`_verify_protected_unchanged` is the fail-closed guard that makes the
+    narrowed refusal a narrowing rather than a loosening: whatever the diff
+    and text-edit path do, a protected net's assignment must be identical
+    before and after, or nothing is written at all.
+    """
+
+    def test_passes_when_protected_nets_are_untouched(self):
+        before = _make_kicad_pro(["Power", "GND"], {"PWR_RTN": "GND", "vcc": "Power"})
+        after = _make_kicad_pro(["Power", "GND"], {"PWR_RTN": "GND", "vcc": "Power", "x": "Power"})
+        sync._verify_protected_unchanged(before, after)  # must not raise
+
+    def test_raises_when_a_protected_net_would_be_added(self):
+        before = _make_kicad_pro(["Power", "GND"], {"vcc": "Power"})
+        after = _make_kicad_pro(["Power", "GND"], {"vcc": "Power", "CGND": "GND"})
+        with pytest.raises(sync.SyncError, match="CGND"):
+            sync._verify_protected_unchanged(before, after)
+
+    def test_raises_when_a_protected_net_would_be_retargeted(self):
+        before = _make_kicad_pro(["Power", "GND"], {"PWR_RTN": "Power"})
+        after = _make_kicad_pro(["Power", "GND"], {"PWR_RTN": "GND"})
+        with pytest.raises(sync.SyncError, match="PWR_RTN"):
+            sync._verify_protected_unchanged(before, after)
+
+    def test_raises_when_a_protected_net_would_be_removed(self):
+        before = _make_kicad_pro(["Power", "GND"], {"PWR_RTN": "GND"})
+        after = _make_kicad_pro(["Power", "GND"], {})
+        with pytest.raises(sync.SyncError, match="PWR_RTN"):
+            sync._verify_protected_unchanged(before, after)
 
 
 class TestComputeDiff:
@@ -212,15 +275,103 @@ class TestCLI:
         assert r2.returncode == 0
         assert pro_path.read_text() == after_first
 
-    def test_protected_net_refused_even_if_gnd_class_declared(self, tmp_path):
-        # If kicad_pro ever declares a "Ground"-equivalent class matching
-        # TEMPER_NET_ASSIGNMENTS's "GND" class name exactly, the script
-        # must still refuse rather than silently pick up PWR_RTN/CGND.
-        declared = ["Default", "GND"]
+    def test_protected_nets_never_written_even_when_their_class_is_declared(self, tmp_path):
+        # The core refusal, stated at the level that matters: with every
+        # class TEMPER_NET_ASSIGNMENTS gives PWR_RTN and CGND declared, a
+        # full --write must still leave BOTH absent from the file. This is
+        # the load-bearing property; the exit code is not.
+        declared = [
+            "Default", "Power", "HighVoltage", "GND", "GateDriveHV",
+            "GateDriveSELV", "HighVoltageIsolated", "ACMains", "FinePitch",
+            "Differential", "HighVoltageSignal", "HighVoltageTank",
+        ]
+        # Pinned by name, not read from PROTECTED_NETS: a test that walks
+        # the very set it is guarding passes vacuously the moment that set
+        # is emptied, which is exactly the regression it must catch.
+        assert sync.PROTECTED_NETS == frozenset({"PWR_RTN", "CGND"}), (
+            "the reserved set changed -- PWR_RTN/CGND unwritability is a "
+            "deliberate, load-bearing refusal; narrowing it needs a human"
+        )
+        for net in ("PWR_RTN", "CGND"):
+            assert sync.TEMPER_NET_ASSIGNMENTS[net] in declared, (
+                f"test is vacuous unless {net!r}'s class is declared here"
+            )
+        pro_path = self._write_pro(tmp_path, declared, {})
+
+        write = self._run(["--write", "--kicad-pro", str(pro_path)])
+        assert write.returncode == 0, write.stderr
+
+        na = json.loads(pro_path.read_text())["net_settings"]["netclass_assignments"]
+        for net in ("PWR_RTN", "CGND"):
+            assert net not in na, (
+                f"{net!r} was written despite being in PROTECTED_NETS -- the "
+                "PWR_RTN/CGND reservation has been breached"
+            )
+        # ...while the rest of the sync did land, which is the whole point
+        # of narrowing the refusal from file-wide to per-net.
+        assert na.get("SW_NODE") == "HighVoltage"
+        assert na.get("safety.ovp.r_adc_top1-p2") == "HighVoltage"
+
+    def test_protected_net_already_on_file_is_never_retargeted(self, tmp_path):
+        # The other half of "unwritable": a protected net that IS already
+        # in the file, carrying a class that disagrees with the SSOT, must
+        # be left exactly as found -- the reserved reclassification is
+        # precisely the change this script must not make.
+        declared = [
+            "Default", "Power", "HighVoltage", "GND", "ACMains", "FinePitch",
+            "GateDriveHV", "GateDriveSELV", "HighVoltageIsolated",
+        ]
+        assert sync.TEMPER_NET_ASSIGNMENTS["PWR_RTN"] != "Default"
+        pro_path = self._write_pro(tmp_path, declared, {"PWR_RTN": "Default", "CGND": "Default"})
+
+        write = self._run(["--write", "--kicad-pro", str(pro_path)])
+        assert write.returncode == 0, write.stderr
+
+        na = json.loads(pro_path.read_text())["net_settings"]["netclass_assignments"]
+        assert na["PWR_RTN"] == "Default"
+        assert na["CGND"] == "Default"
+
+    def test_reservation_is_reported_loudly_on_every_run(self, tmp_path):
+        # Narrowing the refusal must not make it silent: whenever a
+        # protected net's class is declared, every run says so on stderr.
+        declared = ["Default", "GND", "HighVoltage"]
         pro_path = self._write_pro(tmp_path, declared, {})
         result = self._run(["--check", "--kicad-pro", str(pro_path)])
-        assert result.returncode == 5
-        assert "PWR_RTN" in result.stderr or "protected" in result.stderr.lower()
+        assert "RESERVED" in result.stderr
+        assert "PWR_RTN" in result.stderr
+        assert "CGND" in result.stderr
+
+    def test_one_reserved_net_does_not_block_unrelated_writes(self, tmp_path):
+        # The regression this change exists to prevent. Between 2026-08-12
+        # (kicad_pro declared "GND") and this fix, main() returned 5 before
+        # computing any diff whenever a protected net's class was declared
+        # -- so ONE reserved decision made EVERY pending assignment
+        # unwritable, including four OVP protective-divider nets sitting at
+        # KiCad's Default 0.2mm while reaching full +170V_BUS under
+        # IEC 60335-1 cl. 8.1.4's required single fault.
+        declared = [
+            "Default", "Power", "HighVoltage", "GND", "ACMains", "FinePitch",
+            "GateDriveHV", "GateDriveSELV", "HighVoltageIsolated",
+        ]
+        assert sync.compute_reserved(set(declared)), (
+            "test is vacuous unless at least one protected net's class is declared"
+        )
+        pro_path = self._write_pro(tmp_path, declared, {})
+
+        check = self._run(["--check", "--kicad-pro", str(pro_path)])
+        assert check.returncode == 1, (
+            "a reserved net must not turn real, writable drift into a "
+            f"different exit code: {check.stdout}\n{check.stderr}"
+        )
+        write = self._run(["--write", "--kicad-pro", str(pro_path)])
+        assert write.returncode == 0, write.stderr
+
+        na = json.loads(pro_path.read_text())["net_settings"]["netclass_assignments"]
+        for net in (
+            "safety.ovp.r_div_top1-p2", "safety.ovp.r_div_top2-p2",
+            "safety.ovp.r_adc_top1-p2", "safety.ovp.r_adc_top2-p2",
+        ):
+            assert na.get(net) == "HighVoltage", f"{net!r} still blocked"
 
     def test_missing_kicad_pro_file_fails_closed(self, tmp_path):
         result = self._run(["--check", "--kicad-pro", str(tmp_path / "nonexistent.kicad_pro")])
@@ -276,8 +427,57 @@ class TestRealRepoInvariant:
         targets = sync.compute_target_assignments(declared)
         assert "PWR_RTN" not in targets
         assert "CGND" not in targets
-        assert sync.TEMPER_NET_ASSIGNMENTS.get("PWR_RTN") == "GND"
-        assert sync.TEMPER_NET_ASSIGNMENTS.get("CGND") == "GND"
+
+        # Both protected nets' SSOT classes are DECLARED classes today --
+        # PWR_RTN's is "HighVoltage" (commit 322cbf5b0, #1092, 2026-08-12,
+        # no longer "GND" as this assertion originally pinned) and CGND's
+        # is "GND", declared the same day. That is what makes the
+        # PROTECTED_NETS guard the only thing standing between this script
+        # and the reserved reclassification, so assert the stronger,
+        # currently-live property rather than either net's specific class:
+        # whatever they map to is resolvable, and they are excluded anyway.
+        reserved = dict(sync.compute_reserved(declared))
+        assert set(reserved) == set(sync.PROTECTED_NETS), (
+            "both protected nets are expected to be resolvable-but-reserved "
+            f"today; compute_reserved reported {reserved}"
+        )
+        for net, cls in reserved.items():
+            assert cls in declared
+            assert net not in targets
+
+    def test_real_kicad_pro_carries_no_protected_net_the_sync_could_have_added(self):
+        # End-to-end on the real file: CGND must be absent (this script has
+        # never written it and must never start), and PWR_RTN must carry
+        # whatever a human put there, not whatever this script would.
+        real_pro = REPO_ROOT / "pcb" / "temper.kicad_pro"
+        current = sync.load_current_assignments(real_pro.read_text(encoding="utf-8"))
+        assert "CGND" not in current
+        assert sync.compute_diff(current, sync.compute_target_assignments(
+            sync.load_declared_classes(real_pro.read_text(encoding="utf-8"))
+        )) == ([], []), "real file must be fully synced for this assertion to mean anything"
+        assert "PWR_RTN" not in sync.compute_target_assignments(
+            sync.load_declared_classes(real_pro.read_text(encoding="utf-8"))
+        )
+
+    def test_four_ovp_nets_resolve_to_highvoltage_on_the_real_file(self):
+        # The defect this change closes: the four OVP-01 protective-divider
+        # mid-chain nodes have been HighVoltage in TEMPER_NET_ASSIGNMENTS
+        # since 2026-08-13 but were absent from pcb/temper.kicad_pro -- the
+        # file kicad-cli's DRC actually reads -- so they resolved to
+        # Default (0.2mm clearance, no creepage rule at all) while reaching
+        # full +170V_BUS under IEC 60335-1 cl. 8.1.4's required single
+        # fault. See docs/evidence/2026-08-13-ovp01-midchain-single-fault-
+        # creepage.md.
+        real_pro = REPO_ROOT / "pcb" / "temper.kicad_pro"
+        current = sync.load_current_assignments(real_pro.read_text(encoding="utf-8"))
+        for net in (
+            "safety.ovp.r_div_top1-p2", "safety.ovp.r_div_top2-p2",
+            "safety.ovp.r_adc_top1-p2", "safety.ovp.r_adc_top2-p2",
+        ):
+            assert current.get(net) == "HighVoltage", (
+                f"{net!r} is {current.get(net)!r} in pcb/temper.kicad_pro -- "
+                "it must be HighVoltage or kicad-cli holds it to Default 0.2mm"
+            )
 
 
 if __name__ == "__main__":

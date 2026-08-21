@@ -2515,9 +2515,14 @@ scripts:
 - path: sync_kicad_netclass_assignments.py
   purpose: 'Sync pcb/temper.kicad_pro net_settings.netclass_assignments from TEMPER_NET_ASSIGNMENTS (design_rules.py,
     the Python-side SSOT) -- generator for the defect class PR #1023 hand-fixed four instances of and
-    found ~15 more of, unmeasured; --check mode is the CI tripwire against future drift'
+    found ~15 more of, unmeasured; --check mode is the CI tripwire against future drift. That last
+    clause was FALSE from PR #1025 until 2026-08-20 -- no workflow ran it, as docs/evidence/2026-08-12-unassigned-domain-nets.md
+    line 107 recorded -- and is true now: --check plus its unit tests run in the "Cross-Source Consistency
+    Gates" job, both listed in .github/required-checks.json. PWR_RTN/CGND stay unwritable (PROTECTED_NETS),
+    but that reservation is per-net since 2026-08-20; it used to exit 5 file-wide and block every
+    unrelated assignment, including the four safety.ovp.r_{div,adc}_top{1,2}-p2 HighVoltage entries'
   owner: bennet
-  last_run: '2026-08-11'
+  last_run: '2026-08-20'
   category: keep
   disposition: ci-gate
   imports:
