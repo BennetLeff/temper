@@ -11,7 +11,7 @@ boards:
     # (docs/evidence/2026-08-11-golden-fixture-regeneration-decision.md),
     # after this fixture (33 components, 100x150mm, frozen since
     # 2026-07-11 454f71d9) was found mislabeled "the real golden-board
-    # corpus" by docs/evidence/2026-08-07-cpsat-equivalence-harness.py
+    # corpus" by docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py
     # while three CP-SAT consumers solve *placement* against it
     # (packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py's
     # test_golden_board_drc_regression / test_golden_board_routing_drc_regression,

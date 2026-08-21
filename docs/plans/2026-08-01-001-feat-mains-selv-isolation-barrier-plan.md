@@ -138,7 +138,7 @@ The gate's error text reads as a simple placement instruction ("A human must pla
 ## Feasibility Evidence (2026-08-01)
 
 Full reproducible analysis in `docs/evidence/2026-08-01-isolation-barrier-feasibility.md`
-(script: `docs/evidence/2026-08-01-isolation-barrier-feasibility.py`). Board 152×234 mm;
+(script: `docs/evidence/scripts/2026-08-01-isolation-barrier-feasibility.py`). Board 152×234 mm;
 HV-only = 45, SELV-only = 106, isolators = 8, unclassified = 10 components.
 
 **As-is: no corridor exists.** All 15 full-height columns mix domains; nearest

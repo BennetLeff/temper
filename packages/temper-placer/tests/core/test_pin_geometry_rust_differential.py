@@ -53,7 +53,7 @@ def _oracle_normalize_rotation(rotation):
     if rotation is None:
         return 0.0
     if isinstance(rotation, int):
-        return _tg.normalize_rotation_index_py(rotation)
+        return _tg.normalize_rotation_py(rotation)
     return float(rotation)
 
 

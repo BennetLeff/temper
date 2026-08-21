@@ -61,8 +61,9 @@ class TestHistoricalDefectReconstruction:
     the guarded-import / local-module controls that prove the gate does
     not fire on the shapes it is supposed to ignore.
 
-    ``find_spec`` genuinely resolves ``jinja2``/``sympy`` in *this*
-    development environment (they are real, installed dependencies here).
+    ``find_spec`` genuinely resolves ``jinja2`` in *this* development
+    environment (it is a real, installed dependency here), and used to
+    resolve ``sympy`` too before that dependency was dropped (2026-08-20).
     To reconstruct "declared nowhere, not resolvable" faithfully without
     depending on this environment's actual package set, these tests patch
     ``importlib.util.find_spec`` to simulate the undeclared state for the

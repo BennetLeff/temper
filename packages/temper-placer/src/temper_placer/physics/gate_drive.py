@@ -229,7 +229,10 @@ def _walk_forward(
                 continue
             overlap = pin_nets & current_nets
             if len(overlap) == 1:
-                new_net = next(iter(pin_nets - current_nets))
+                # pin_nets has exactly 2 nets and exactly one overlaps
+                # current_nets, so the difference has exactly one element;
+                # sort it to avoid PYTHONHASHSEED-dependent set iteration.
+                new_net = sorted(pin_nets - current_nets)[0]
                 new_nets.add(new_net)
                 newly_visited.add(component.ref)
 
@@ -268,13 +271,19 @@ def _pick_return_net(switch: Component, forward_nets: set[str]) -> str | None:
     if not other_nets:
         return None
 
-    named = [n for n in other_nets if any(m in n.lower() for m in _RETURN_NAME_MARKERS)]
+    # Iterate in sorted order: `other_nets` is a set whose iteration order is
+    # PYTHONHASHSEED-dependent, and `named`/`non_supply` feed index-based picks.
+    named = [
+        n
+        for n in sorted(other_nets)
+        if any(m in n.lower() for m in _RETURN_NAME_MARKERS)
+    ]
     if len(named) == 1:
         return named[0]
     if len(named) > 1:
         return None
 
-    non_supply = [n for n in other_nets if not n.startswith("+")]
+    non_supply = [n for n in sorted(other_nets) if not n.startswith("+")]
     if len(non_supply) == 1:
         return non_supply[0]
     return None

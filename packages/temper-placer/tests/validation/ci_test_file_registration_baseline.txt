@@ -82,7 +82,6 @@ heuristics/test_structural_rust_differential.py
 heuristics/test_style_rust_differential.py
 heuristics/test_topological_integration.py
 integration/test_all_gates_convergence.py
-integration/test_dpp_multiseed_ab.py
 integration/test_phased_placement_pipeline.py
 integration/test_phased_stage_integration.py
 integration/test_place_route_loop_temper.py

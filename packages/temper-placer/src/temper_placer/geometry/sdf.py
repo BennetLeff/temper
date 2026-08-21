@@ -6,51 +6,19 @@ SDFs are a powerful primitive for differentiable geometry. An SDF returns:
 - Zero: point is on the boundary
 - Positive value: point is outside the shape (distance to nearest boundary)
 
-All functions delegate to the temper_geometry Rust crate except sdf_gradient,
-which takes a Python callable and cannot be ported to Rust.
+Shim-debt cleanup (2026-08-19): the pure re-export lines (``x = _tg.x`` for
+the shape / combination / modification kernels) were collapsed — importers
+import those symbols from ``temper_geometry`` directly. This module keeps
+only the functions that cannot be pure Rust re-exports:
+
+- ``sdf_to_mask`` / ``sdf_to_penalty`` — wrap a scalar into a one-element
+  sequence for the Rust kernels (which take ``&[f64]``) and unwrap the
+  result, and carry the Python-side ``threshold`` / ``alpha`` defaults;
+- ``sdf_gradient`` — takes a Python callable and cannot be ported to Rust.
 """
 
 import numpy as np
 import temper_geometry as _tg
-
-# =============================================================================
-# Basic Shape SDFs
-# =============================================================================
-
-sdf_circle = _tg.sdf_circle
-sdf_rectangle = _tg.sdf_rectangle
-sdf_box_2d = _tg.sdf_box_2d
-sdf_rounded_rectangle = _tg.sdf_rounded_rectangle
-sdf_capsule = _tg.sdf_capsule
-
-# =============================================================================
-# Polygon SDF
-# =============================================================================
-
-sdf_polygon = _tg.sdf_polygon
-sdf_convex_polygon = _tg.sdf_convex_polygon
-
-# =============================================================================
-# SDF Combination Operations
-# =============================================================================
-
-sdf_union = _tg.sdf_union
-sdf_intersection = _tg.sdf_intersection
-sdf_subtraction = _tg.sdf_subtraction
-sdf_smooth_union = _tg.sdf_smooth_union
-sdf_smooth_intersection = _tg.sdf_smooth_intersection
-
-# =============================================================================
-# SDF Modifications
-# =============================================================================
-
-sdf_offset = _tg.sdf_offset
-sdf_round = _tg.sdf_round
-sdf_shell = _tg.sdf_shell
-
-# =============================================================================
-# Utility Functions
-# =============================================================================
 
 
 def sdf_to_mask(distances, threshold=0.1):

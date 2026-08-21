@@ -35,19 +35,14 @@ pub mod congestion;
 #[cfg(feature = "python")]
 pub mod congestion_analysis;
 // Shared CPython-exact OverflowError construction for the `pow_operator`
-// overflow guard duplicated in escape_via.rs and placement_suggestions.rs.
+// overflow guard duplicated in escape_via.rs (and formerly in
+// placement_suggestions.rs, deleted 2026-08-20).
 #[cfg(feature = "python")]
 mod py_errors;
 #[cfg(feature = "python")]
 pub mod escape_via;
 #[cfg(feature = "python")]
 pub mod routing_demand;
-#[cfg(feature = "python")]
-pub mod placement_suggestions;
-#[cfg(feature = "python")]
-pub mod apply_suggestions;
-#[cfg(feature = "python")]
-pub mod congestion_heatmap;
 pub mod clearance_geometry;
 pub mod spice_estimators;
 #[cfg(feature = "python")]
@@ -108,8 +103,6 @@ pub use occupancy_raster::{
 };
 pub mod host_math;
 pub mod grid_utils;
-#[cfg(feature = "python")]
-pub use grid_utils::{add_endpoint_nudge_py, snap_to_grid_py};
 pub mod via_placement;
 #[cfg(feature = "python")]
 pub use via_placement::{is_via_position_valid_py, place_via_with_clearance_py, via_distance_py};
@@ -382,9 +375,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::congestion_analysis::register(m)?;
     crate::escape_via::register(m)?;
     crate::routing_demand::register(m)?;
-    crate::placement_suggestions::register(m)?;
-    crate::apply_suggestions::register(m)?;
-    crate::congestion_heatmap::register(m)?;
     crate::fixed_copper::register(m)?;
     crate::zone_pour::register(m)?;
     crate::zone_generator::register(m)?;

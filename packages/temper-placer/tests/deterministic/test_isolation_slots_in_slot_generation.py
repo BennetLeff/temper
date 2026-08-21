@@ -17,8 +17,7 @@ from pathlib import Path
 import pytest
 
 from temper_placer.deterministic import create_drc_aware_pipeline
-from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage
-from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
+from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage, ZoneGeometryStage
 from temper_placer.io.config_loader import (
     load_constraints,
 )
