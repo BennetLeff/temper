@@ -1,3 +1,4 @@
+# provenance: commit=6bffbf4a72f03ae89cc48e85b1555d5fa1fd562d dirty=false
 """Does pricing HV<->HV functional creepage change the placer's feasibility?
 
 THE QUESTION. ``docs/evidence/2026-08-19-per-pairing-placer-solve.md`` computed

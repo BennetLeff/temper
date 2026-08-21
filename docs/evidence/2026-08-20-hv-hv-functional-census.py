@@ -1,3 +1,4 @@
+# provenance: commit=6bffbf4a72f03ae89cc48e85b1555d5fa1fd562d dirty=false
 """HV<->HV FUNCTIONAL creepage census: every HV pad against every other HV pad,
 exact copper-to-copper, graded by its OWN declared pairing, three-valued.
 
