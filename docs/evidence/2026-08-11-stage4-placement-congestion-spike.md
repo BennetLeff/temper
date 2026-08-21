@@ -1,4 +1,4 @@
-<!-- provenance: commit=c4956df66 (HEAD at spike start), branch spike/stage4-placement-congestion, dirty=false for pcb/temper.kicad_pcb (never modified by this task) -->
+<!-- provenance: commit=c4956df6646b98355f12f00527370b20325e8a70 (HEAD at spike start), branch spike/stage4-placement-congestion, dirty=false for pcb/temper.kicad_pcb (never modified by this task) -->
 
 # Stage 4 placement-congestion spike: what would actually route the remaining nets, costed
 

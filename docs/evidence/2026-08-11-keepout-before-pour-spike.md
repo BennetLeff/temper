@@ -1,4 +1,4 @@
-<!-- provenance: commit=86e81396 (main at task start) dirty=true -- this doc, packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py, packages/temper-placer/tests/router_v6/test_ground_plane.py, and scripts/generate_ground_plane.py are the diff this task produced. pcb/temper.kicad_pcb is UNCHANGED by this task -- verified `git status --short pcb/temper.kicad_pcb` / `git diff --stat pcb/temper.kicad_pcb` both empty throughout. -->
+<!-- provenance: commit=86e8139626790d901f951071a2bb9a894e1d92e3 (main at task start) dirty=true -- this doc, packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py, packages/temper-placer/tests/router_v6/test_ground_plane.py, and scripts/generate_ground_plane.py are the diff this task produced. pcb/temper.kicad_pcb is UNCHANGED by this task -- verified `git status --short pcb/temper.kicad_pcb` / `git diff --stat pcb/temper.kicad_pcb` both empty throughout. -->
 
 # Keepout-before-pour spike: the inner-layer planes do not exist, and a first one was built
 

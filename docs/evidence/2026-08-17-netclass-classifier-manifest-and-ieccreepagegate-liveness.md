@@ -1,4 +1,4 @@
-<!-- provenance: commit=caec25d61 (main, HEAD at start of this task), worktree agent-aa0fd3a4b1b6f7aa2.
+<!-- provenance: commit=caec25d6137c5801e6aa974762b09371f210e894 (main, HEAD at start of this task), worktree agent-aa0fd3a4b1b6f7aa2.
 pcb/temper.kicad_pcb sha256 6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1
 verified unchanged before, during, and after this task (read-only against the board;
 never opened for writing). Venv: `make venv-isolate` in THIS worktree only (unset
