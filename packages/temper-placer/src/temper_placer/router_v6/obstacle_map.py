@@ -309,9 +309,9 @@ def _create_pad_polygon(pin: Pin, x: float, y: float, comp_angle: float) -> Poly
     is added to ``comp_angle`` here.
     """
     from temper_placer.core.pad_geometry import pad_polygon
+    from temper_placer.geometry.pad_world import pad_world_rotation_rad
 
-    pad_rot_rad = math.radians(getattr(pin, "pad_rotation_deg", 0.0) or 0.0)
-    total_angle = comp_angle + pad_rot_rad
+    total_angle = pad_world_rotation_rad(comp_angle, getattr(pin, "pad_rotation_deg", 0.0))
     roundrect_ratio = getattr(pin, "roundrect_ratio", None) or 0.25
     return pad_polygon(
         pin.width,

@@ -80,7 +80,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from temper_placer.geometry.kicad_transform import place_local_to_world, rotate_local_to_world_deg
+from temper_placer.geometry.kicad_transform import place_local_to_world
+from temper_placer.geometry.pad_world import pad_world_center
 
 # Footprints whose pads are legitimately at absolute angle 0 despite a
 # 90/270-degree board rotation -- i.e. the library defines their pads with an
@@ -157,16 +158,6 @@ class Footprint:
     pads: tuple[Pad, ...]
 
 
-def _rotate(x: float, y: float, deg: float) -> tuple[float, float]:
-    """KiCad's footprint-child rotation (y-down board frame) -- see
-    ``temper_placer.geometry.kicad_transform``'s module docstring. This
-    function was independently correct before that module existed
-    (validated 57/57 against real ``kicad-cli`` DRC ``shorting_items``,
-    see docs/evidence/2026-07-29-intra-component-shorts-root-cause.md);
-    now delegates instead of carrying its own copy of the formula."""
-    return rotate_local_to_world_deg(x, y, deg)
-
-
 def load_footprints(board_path: Path) -> list[Footprint]:
     """Read every footprint and its world-frame pads out of *board_path*."""
     try:
@@ -206,7 +197,8 @@ def load_footprints(board_path: Path) -> list[Footprint]:
                 continue
             lx, ly = float(pat[1]), float(pat[2])
             pang = float(pat[3]) % 360.0 if len(pat) > 3 else 0.0
-            rx, ry = _rotate(lx, ly, frot)
+            # The single sanctioned local-offset -> board-centre composition.
+            pcx, pcy = pad_world_center(lx, ly, fx, fy, frot)
             net = _child(pd, "net")
             layers = _child(pd, "layers")
             pads.append(
@@ -215,8 +207,8 @@ def load_footprints(board_path: Path) -> list[Footprint]:
                     shape=pd[3] if len(pd) > 3 else "rect",
                     net=(net[2] if net is not None and len(net) > 2 else None),
                     layers=tuple(layers[1:]) if layers else (),
-                    cx=fx + rx,
-                    cy=fy + ry,
+                    cx=pcx,
+                    cy=pcy,
                     width=float(psz[1]),
                     height=float(psz[2]),
                     angle_deg=pang,

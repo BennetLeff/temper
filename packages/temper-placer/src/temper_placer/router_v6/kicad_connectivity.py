@@ -12,6 +12,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from temper_placer.geometry.pad_world import pad_world_rotation_deg
 from temper_placer.router_v6.connectivity import (
     CopperPad,
     CopperTrack,
@@ -274,7 +275,7 @@ def _copper_pads_by_net(
                 width = height = 1.0  # best-effort default, like the U4 pads
             shape = str(getattr(pin, "shape", "rect") or "rect")
             is_circle = shape in ("circle", "thru_hole")
-            rotation = comp_rot_deg + float(getattr(pin, "pad_rotation_deg", 0.0) or 0.0)
+            rotation = pad_world_rotation_deg(comp_rot_deg, getattr(pin, "pad_rotation_deg", 0.0))
             identity = PadIdentity(
                 component_ref=comp.ref,
                 pad=str(pad_number),
