@@ -32,12 +32,68 @@ copied rather than imported for the same fail-closed-independence reason
 
 This is a **measurement tool, not a gate**. It never exits non-zero because
 violations were found -- only because it could not run a trustworthy
-measurement at all (missing/empty inputs, zero HV or zero SELV pads, etc.,
-mirroring this repo's anti-vacuous-truth discipline -- see
-``scripts/check_vacuous_gates.py``). It is not wired into CI and must not
-be. Do not add a --fail-on-violations flag to this script; if a gate is
-wanted later, build one that imports this module's ``measure()`` function
-rather than repurposing this script's exit code.
+measurement at all (missing/empty inputs, zero HV or zero SELV pads, a
+pad-carrying net it cannot classify, etc., mirroring this repo's
+anti-vacuous-truth discipline -- see ``scripts/check_vacuous_gates.py``).
+It is not wired into CI and must not be. Do not add a
+--fail-on-violations flag to this script; if a gate is wanted later, build
+one that imports this module's ``measure()`` function rather than
+repurposing this script's exit code.
+
+Coverage: every pad-carrying net must be classified
+---------------------------------------------------
+This tool reports ``pairs_examined`` as its denominator and describes it as
+"every one measured". That claim was false until 2026-08-20. ``load_board``
+classified a pad as HV, SELV, or ``None``, and ``None`` meant ``continue``
+-- the pad was dropped, and with it the entire net, without appearing
+anywhere in the output. On ``pcb/temper.kicad_pcb`` that silently excluded
+**77 of the 139 pad-carrying nets (177 of 527 pads)** from a denominator
+reported as 25,833. Four of those 77 were the OVP-01 divider mid-chain
+nodes, which sit at 114V normally and reach the full ``+170V_BUS``
+potential under the single-component fault IEC 60335-1 cl. 8.1.4 requires
+be assumed; their nearest declared-SELV copper runs from 0.997mm. They went
+ungraded for months precisely because nothing objected to their absence.
+
+``load_board`` now **fails closed**: any pad carrying a net name the
+manifest classifies in neither domain, and does not declare as a
+protective-impedance chain interior node, is collected and raised as a
+``ToolError`` that names every offending net and pad. A silently-dropped
+pad is indistinguishable from a measured-and-clean one in the output, so
+the only safe response is to refuse to produce a number at all.
+
+Pads carrying **no net** (mechanical, mounting, unwired testpoints) are a
+different category and are not a gap: there is no net to declare. They are
+counted in ``BoardData.netless_pads`` and skipped, so ``pads_total`` always
+reconciles as ``hv + selv + netless``.
+
+Protective-impedance chain interior nodes
+------------------------------------------
+Some copper is hazardous-live and simultaneously, by design, resistively
+continuous with declared-SELV copper: the interior nodes of a declared
+protective-impedance chain. ``elec/domain_manifest.yaml``'s ``domains:``
+HV/SELV axis cannot express that -- putting such a node in ``HV:`` asserts
+two domains for one connected component, which
+``scripts/check_domain_partition.py``'s ``check_domain_disjointness``
+correctly rejects (verified empirically; see that file's
+``protective_impedance_chains`` block and
+``docs/evidence/2026-08-13-ovp01-midchain-single-fault-creepage.md``).
+
+Those nodes are therefore declared by exact net name under
+``protective_impedance_chains[].interior_nets`` and read here via
+``Manifest.hv_side_nets``, which grades them on the **HV side** of every
+cross-domain pair. That is the restrictive choice and the correct one: a
+chain member failing short puts the interior node adjacent to
+``boundary_a`` at the full ``boundary_a`` potential. Reading this field
+makes no ``domains:`` topology claim and leaves
+``check_domain_partition.py``'s verdict unchanged.
+
+Note the two intra-component pairs this necessarily surfaces on the real
+board (``R48.1 <-> R48.2`` and ``R53.1 <-> R53.2``, both 1.800mm): those
+are the chain's own final resistor, whose two terminals are HV-side and
+SELV-side *by construction*. They are a structural consequence of the
+protective-impedance topology, not a placement defect -- the component IS
+the boundary. They are reported rather than filtered, because filtering
+them here would require a rule that could also hide real findings.
 
 Which threshold is "current"
 -----------------------------
@@ -254,6 +310,32 @@ class ToolError(Exception):
 class Manifest:
     hv_nets: frozenset[str]
     selv_nets: frozenset[str]
+    # Nets declared as `interior_nets:` on a `protective_impedance_chains`
+    # entry: the copper BETWEEN two consecutive members of a declared
+    # protective-impedance construction. These are graded on the HV side
+    # (see ``hv_side_nets``) but are deliberately NOT in ``hv_nets`` --
+    # they are not a domain claim, and elec/domain_manifest.yaml's own
+    # `protective_impedance_chains` block explains at length why the
+    # HV/SELV topology axis cannot hold them without making
+    # scripts/check_domain_partition.py's disjointness check false.
+    chain_interior_nets: frozenset[str] = frozenset()
+
+    @property
+    def hv_side_nets(self) -> frozenset[str]:
+        """Every net whose pads this tool measures on the HV side of a
+        cross-domain pair: the declared HV domain plus every declared
+        protective-impedance chain interior node.
+
+        Chain interior nodes belong here because a chain member failing
+        short -- the single-fault condition IEC 60335-1 cl. 8.1.4 requires
+        be assumed of a protective-impedance construction, and the same
+        condition the manifest's own compliance argument for these chains
+        rests on -- puts the interior node adjacent to ``boundary_a`` at
+        the full ``boundary_a`` potential. Grading them on the SELV side,
+        or not grading them at all (what this tool did until 2026-08-20),
+        would hold hazardous-live copper to no reinforced requirement.
+        """
+        return self.hv_nets | self.chain_interior_nets
 
 
 def load_manifest(path: Path) -> Manifest:
@@ -299,7 +381,52 @@ def load_manifest(path: Path) -> Manifest:
     if overlap:
         raise ToolError(f"domain manifest declares net(s) in BOTH HV and SELV: {sorted(overlap)}")
 
-    return Manifest(hv_nets=hv_nets, selv_nets=selv_nets)
+    # Protective-impedance chain interior nodes. Same exact-literal-name
+    # discipline as the domain lists: read only from an explicit
+    # `interior_nets:` list, never derived from a naming convention (the
+    # interior net names happen to look like "<chain member>-p2", and
+    # guessing them from that pattern is precisely what this manifest's
+    # ground rule forbids -- the manifest states them instead).
+    chains_raw = data.get("protective_impedance_chains")
+    if chains_raw is None:
+        chains_raw = []
+    if not isinstance(chains_raw, list):
+        raise ToolError("'protective_impedance_chains' must be a list if present")
+    chain_interior: set[str] = set()
+    for entry in chains_raw:
+        if not isinstance(entry, dict):
+            raise ToolError(f"protective_impedance_chain entry must be a mapping: {entry!r}")
+        interior = entry.get("interior_nets")
+        if interior is None:
+            continue
+        if not isinstance(interior, list) or not interior:
+            raise ToolError(
+                f"protective_impedance_chain {entry.get('name')!r} declares an "
+                "'interior_nets' key that is not a non-empty list -- an empty "
+                "declaration must fail closed, not silently grade nothing"
+            )
+        for n in interior:
+            if not isinstance(n, str) or not n:
+                raise ToolError(
+                    f"protective_impedance_chain {entry.get('name')!r} has a "
+                    "non-string/empty 'interior_nets' entry"
+                )
+            chain_interior.add(n)
+
+    clash = chain_interior & (hv_nets | selv_nets)
+    if clash:
+        raise ToolError(
+            "net(s) declared BOTH as a protective-impedance chain interior "
+            f"node and in a domain: {sorted(clash)} -- one net cannot be both "
+            "a chain interior node and a domain member; the manifest is "
+            "internally inconsistent"
+        )
+
+    return Manifest(
+        hv_nets=hv_nets,
+        selv_nets=selv_nets,
+        chain_interior_nets=frozenset(chain_interior),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -371,6 +498,10 @@ class BoardData:
     selv_pads: list[PadInfo]
     bodies: dict[str, FootprintBody]
     back_side_pads_found: int
+    # Pads carrying no net name at all (mechanical/mounting/unwired). Not a
+    # coverage gap -- there is no net to declare -- but reported rather than
+    # dropped, so "pads_total" always reconciles: hv + selv + netless.
+    netless_pads: int = 0
 
 
 def _local_points_of_graphic_item(item) -> list[tuple[float, float]]:
@@ -455,6 +586,15 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
     pads_total = 0
     back_side_pads_found = 0
     bodies: dict[str, FootprintBody] = {}
+    # Fail-closed accounting: every pad that carries a net name must end up
+    # graded. Pads carrying NO net at all (unconnected mechanical pads,
+    # mounting holes, unwired testpoints) are a different thing and are
+    # counted separately -- they have no net to declare, so demanding a
+    # declaration for them would be a nonsense requirement, not a stricter
+    # one.
+    hv_side_nets = manifest.hv_side_nets
+    undeclared_net_pads: dict[str, list[str]] = {}
+    netless_pads = 0
 
     for fp in board.footprints:
         ref = (fp.properties or {}).get("Reference") or "<noref>"
@@ -467,8 +607,23 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
         for pad in fp.pads:
             pads_total += 1
             net_name = pad.net.name if pad.net is not None else ""
-            domain = "HV" if net_name in manifest.hv_nets else "SELV" if net_name in manifest.selv_nets else None
+            if not net_name:
+                netless_pads += 1
+                continue
+            domain = "HV" if net_name in hv_side_nets else "SELV" if net_name in manifest.selv_nets else None
             if domain is None:
+                # DO NOT `continue` here. Until 2026-08-20 this branch
+                # silently dropped the pad, and with it the net: 77 of the
+                # 139 pad-carrying nets on pcb/temper.kicad_pcb (177 pads)
+                # were skipped without a word, contributing nothing to the
+                # denominator this tool reports as "every one measured".
+                # Four of those 77 were the OVP-01 divider mid-chain nodes,
+                # which reach the full +170V bus potential under a
+                # single-component fault and went ungraded for months
+                # precisely because nothing objected to their absence.
+                # Record it and fail closed below -- an unclassifiable pad
+                # is a tool error, not an implicit "0 violations".
+                undeclared_net_pads.setdefault(net_name, []).append(f"{ref}.{pad.number}")
                 continue
 
             lx, ly = pad.position.X, pad.position.Y
@@ -531,6 +686,25 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
             "is a tool error, not '0 violations')"
         )
 
+    if undeclared_net_pads:
+        detail = "\n".join(
+            f"    {net} ({len(pads)} pad(s)): {', '.join(sorted(pads))}"
+            for net, pads in sorted(undeclared_net_pads.items())
+        )
+        total_pads = sum(len(p) for p in undeclared_net_pads.values())
+        raise ToolError(
+            f"{len(undeclared_net_pads)} pad-carrying net(s) ({total_pads} pad(s)) "
+            f"on {board_path} are declared in neither domain of the domain "
+            "manifest nor as a protective-impedance chain interior node.\n"
+            "This tool measures cross-domain pad pairs and reports the pair count "
+            "as its denominator; a net it cannot classify would be dropped from "
+            "that denominator without appearing anywhere in the output, so the "
+            "result would silently under-report. Declare each net below in "
+            "elec/domain_manifest.yaml (domains.HV.nets, domains.SELV.nets, or a "
+            "protective_impedance_chains entry's interior_nets) with the evidence "
+            "conventions that file documents, then re-run.\n" + detail
+        )
+
     return BoardData(
         footprints_total=len(board.footprints),
         pads_total=pads_total,
@@ -538,6 +712,7 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
         selv_pads=selv_pads,
         bodies=bodies,
         back_side_pads_found=back_side_pads_found,
+        netless_pads=netless_pads,
     )
 
 

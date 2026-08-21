@@ -109,6 +109,20 @@ def _rect_pad(number: str, net: Net, x: float = 0.0, y: float = 0.0, w: float = 
     )
 
 
+def _netless_pad(number: str, x: float = 0.0, y: float = 0.0, w: float = 1.0, h: float = 1.0) -> Pad:
+    """A pad carrying NO net at all -- a mechanical/unwired pad.
+
+    Distinct from "a pad on a net the manifest does not declare", which is a
+    coverage gap the tool now fails closed on (see ``load_board``). A pad
+    with no net has no net to declare, so it is counted (``netless_pads``)
+    and skipped, not treated as a gap. Used for body-only bystanders below.
+    """
+    return Pad(
+        number=number, type="smd", shape="rect", position=Position(x, y), size=Position(w, h),
+        layers=["F.Cu"], net=None,
+    )
+
+
 def _fab_box(cx: float, cy: float, half_w: float, half_h: float) -> FpPoly:
     """A local-frame F.Fab rectangle, centred at (cx, cy) in footprint-local
     coordinates, as a closed FpPoly -- the simplest body outline kiutils can
@@ -133,7 +147,6 @@ def build_board() -> Board:
         Net(number=0, name=""),
         Net(number=1, name="ac_l"),
         Net(number=2, name="gnd"),
-        Net(number=3, name="misc"),
     ]
     board.graphicItems = [
         GrPoly(
@@ -158,7 +171,6 @@ def build_board() -> Board:
 
     net_ac_l = Net(number=1, name="ac_l")
     net_gnd = Net(number=2, name="gnd")
-    net_misc = Net(number=3, name="misc")
 
     # --- Region A: clean pair, no obstruction -> body_free ---
     footprints.append(_fp("QA", 20, 20, [_rect_pad("1", net_ac_l)], [_fab_box(0, 0, 0.3, 0.3)]))
@@ -181,9 +193,14 @@ def build_board() -> Board:
     footprints.append(_fp("QC", 150, 20, [_rect_pad("1", net_ac_l)]))
     footprints.append(_fp("UC", 170, 20, [_rect_pad("1", net_gnd)]))
     footprints.append(
-        _fp("RC", 160, 20, [_rect_pad("1", net_misc)], [_fab_box(0, 0, 5.0, 5.0)])
-    )  # RC's own net ("misc") is neither HV nor SELV -- it never forms a
-    # cross-domain pair itself, only its BODY matters here.
+        _fp("RC", 160, 20, [_netless_pad("1")], [_fab_box(0, 0, 5.0, 5.0)])
+    )  # RC is a body-only bystander: it never forms a cross-domain pair
+    # itself, only its BODY matters here. Its pad therefore carries NO net.
+    # It used to sit on a net named "misc" that the fixture manifest left
+    # undeclared; since 2026-08-20 ``load_board`` fails closed on exactly
+    # that (an undeclared pad-carrying net is a silent hole in the
+    # denominator), so the bystander's net-less-ness is now stated
+    # explicitly instead of being expressed as an undeclared net.
 
     # --- Region D: clean pair, structurally identical to A, except QD
     #     carries no F.Fab/F.CrtYd at all -> unknown ---
@@ -536,3 +553,130 @@ class TestBodyCrossingWording:
         # ... and the standard's clause that remains unread and open.
         assert "Annex L" in doc
         assert "IEC 60335-1" in doc
+
+
+# ---------------------------------------------------------------------------
+# TestUndeclaredNetFailsClosed
+#
+# Until 2026-08-20 ``load_board`` did ``if domain is None: continue`` -- a
+# pad on a net the manifest declared in neither domain was dropped, and with
+# it the net, without a word anywhere in the output. On pcb/temper.kicad_pcb
+# that silently excluded 77 of 139 pad-carrying nets (177 pads) from the
+# "every one measured" denominator, including four OVP-01 divider mid-chain
+# nodes that reach the full +170V bus potential under a single-component
+# fault. These tests pin the fail-closed behaviour that replaced it.
+# ---------------------------------------------------------------------------
+
+
+class TestUndeclaredNetFailsClosed:
+    def test_undeclared_pad_carrying_net_is_a_tool_error(self, tmp_path: Path) -> None:
+        board = build_board()
+        # Give the body-only bystander a real net that the manifest does not
+        # declare -- the exact shape of the defect this check exists for.
+        rc = next(fp for fp in board.footprints if fp.properties["Reference"] == "RC")
+        rc.pads = [_rect_pad("1", Net(number=3, name="undeclared_net"))]
+        board.nets.append(Net(number=3, name="undeclared_net"))
+        board_path = write_board(tmp_path, board, name="undeclared.kicad_pcb")
+        manifest_path = write_manifest(tmp_path)
+        with pytest.raises(ToolError) as exc:
+            load_board(board_path, load_manifest(manifest_path))
+        msg = str(exc.value)
+        assert "pad-carrying net" in msg
+        # It must NAME the offender and its pads, not just count them: the
+        # whole failure mode was that the nets were invisible.
+        assert "undeclared_net" in msg
+        assert "RC.1" in msg
+
+    def test_netless_pads_are_not_treated_as_undeclared(self, tmp_path: Path) -> None:
+        """A pad with no net has no net to declare. It must be counted and
+        skipped, never reported as a coverage gap -- otherwise the check
+        would be unsatisfiable on any board with a mounting hole."""
+        board_path, manifest_path = _fixture(tmp_path)
+        data = load_board(board_path, load_manifest(manifest_path))
+        assert data.netless_pads == 1  # RC.1, the body-only bystander
+        assert data.pads_total == len(data.hv_pads) + len(data.selv_pads) + data.netless_pads
+
+    def test_zero_domain_pads_still_reported_before_undeclared_nets(self, tmp_path: Path) -> None:
+        """Ordering matters for diagnosability, and both outcomes fail
+        closed. A manifest that classifies nothing at all is a broken
+        manifest; saying "zero HV pads" is more useful than listing every
+        net on the board as undeclared. Neither path returns a measurement."""
+        board_path = write_board(tmp_path, build_board())
+        manifest_path = write_manifest(
+            tmp_path,
+            'schema_version: 1\ndomains:\n  HV:\n    nets: ["nonexistent"]\n  SELV:\n    nets: ["gnd"]\n',
+        )
+        with pytest.raises(ToolError, match="zero HV-domain-classified pads"):
+            load_board(board_path, load_manifest(manifest_path))
+
+
+# ---------------------------------------------------------------------------
+# TestChainInteriorNets
+#
+# Protective-impedance chain interior nodes are hazardous-live (a chain
+# member failing short puts the node adjacent to boundary_a at the full
+# boundary_a potential) but are simultaneously resistively continuous with
+# the declared-SELV boundary_b, so elec/domain_manifest.yaml cannot list
+# them under domains: without making check_domain_partition.py's
+# disjointness check false. They are declared on the chain instead, and
+# graded on the HV side here.
+# ---------------------------------------------------------------------------
+
+
+CHAIN_MANIFEST_TEXT = """
+schema_version: 1
+domains:
+  HV:
+    nets: ["ac_l"]
+  SELV:
+    nets: ["gnd"]
+protective_impedance_chains:
+  - name: test_chain
+    chain: ["a.r1", "a.r2", "a.r3"]
+    boundary_a: "ac_l"
+    boundary_b: "gnd"
+    min_length: 3
+    interior_nets:
+      - "chain_mid"
+"""
+
+
+class TestChainInteriorNets:
+    def test_interior_nets_are_graded_on_the_hv_side(self, tmp_path: Path) -> None:
+        board = build_board()
+        rc = next(fp for fp in board.footprints if fp.properties["Reference"] == "RC")
+        rc.pads = [_rect_pad("1", Net(number=3, name="chain_mid"))]
+        board.nets.append(Net(number=3, name="chain_mid"))
+        board_path = write_board(tmp_path, board, name="chain.kicad_pcb")
+        manifest_path = write_manifest(tmp_path, CHAIN_MANIFEST_TEXT)
+
+        manifest = load_manifest(manifest_path)
+        assert manifest.chain_interior_nets == frozenset({"chain_mid"})
+        # Not a domain claim: `domains:` is untouched by the declaration.
+        assert "chain_mid" not in manifest.hv_nets
+        assert "chain_mid" not in manifest.selv_nets
+        # But it IS measured, on the HV side.
+        assert "chain_mid" in manifest.hv_side_nets
+
+        data = load_board(board_path, manifest)
+        assert "chain_mid" in {p.net_name for p in data.hv_pads}
+        assert "chain_mid" not in {p.net_name for p in data.selv_pads}
+
+    def test_interior_net_also_in_a_domain_is_rejected(self, tmp_path: Path) -> None:
+        text = CHAIN_MANIFEST_TEXT.replace('nets: ["ac_l"]', 'nets: ["ac_l", "chain_mid"]')
+        manifest_path = write_manifest(tmp_path, text)
+        with pytest.raises(ToolError, match="internally inconsistent"):
+            load_manifest(manifest_path)
+
+    def test_empty_interior_nets_list_fails_closed(self, tmp_path: Path) -> None:
+        text = CHAIN_MANIFEST_TEXT.replace('    interior_nets:\n      - "chain_mid"\n', "    interior_nets: []\n")
+        manifest_path = write_manifest(tmp_path, text)
+        with pytest.raises(ToolError, match="not a non-empty list"):
+            load_manifest(manifest_path)
+
+    def test_absent_interior_nets_key_is_fine(self, tmp_path: Path) -> None:
+        """Chains that declare no interior nets (the pre-2026-08-20 shape)
+        must still load -- the field is additive, not required."""
+        text = CHAIN_MANIFEST_TEXT.replace('    interior_nets:\n      - "chain_mid"\n', "")
+        manifest = load_manifest(write_manifest(tmp_path, text))
+        assert manifest.chain_interior_nets == frozenset()

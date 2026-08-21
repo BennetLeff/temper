@@ -701,6 +701,506 @@ domains:
                              # correctly-sized netclass per IEC 60335-1 Table
                              # 17/18, mirroring this project's own
                              # HighVoltageTank precedent).
+                             #
+                             # SUPERSEDED IN PART 2026-08-20 (this change).
+                             # Point (1) above stands unchanged and is the
+                             # reason these four nodes must be GRADED. Point
+                             # (2) also stands: declaring them under
+                             # `domains:` was RE-TESTED independently this
+                             # pass (not inherited) and still breaks
+                             # disjointness -- see the DOMAIN-COVERAGE
+                             # COMPLETION block below for the reproduction.
+                             # What changed is that they are no longer
+                             # invisible: they are now declared explicitly,
+                             # by exact net name, as `interior_nets:` on
+                             # their own `protective_impedance_chains`
+                             # entries at the bottom of this file, and the
+                             # cross-domain creepage instrument grades them
+                             # on the HV side from that declaration. The
+                             # chain axis can express what the two-domain
+                             # topology axis cannot, and it does not make a
+                             # galvanic-disjointness claim.
+
+      # ---------------------------------------------------------------
+      # DOMAIN-COVERAGE COMPLETION, 2026-08-20.
+      #
+      # THE GAP THIS CLOSES. Until this change 77 of the 139 pad-carrying
+      # nets on pcb/temper.kicad_pcb (177 of 527 pads) appeared in NEITHER
+      # domain list. scripts/measure_cross_domain_creepage.py skipped every
+      # one of them SILENTLY (`domain = ... else None; if domain is None:
+      # continue`), so they contributed nothing to its 25,833-pair
+      # denominator (109 HV x 237 SELV) and their absence was invisible in
+      # its output. Counted directly from the board's own bytes this pass,
+      # not inherited: 168 footprints, 527 pads, 4 pads carrying no net at
+      # all, 139 distinct pad-carrying net names, 62 of them declared here
+      # (27 HV + 35 SELV, and all 62 do have pads on the board), 77 not.
+      # The instrument now fails closed on any undeclared pad-carrying net
+      # instead of dropping it, so this class of silence cannot recur.
+      #
+      # HOW THESE 73 WERE CLASSIFIED. From elec/src/*.ato and the pads each
+      # net actually lands on -- never from the net's name. That rule is
+      # load-bearing here: this board's compiled netlist contains `input`
+      # (already declared HV above: UCC21550 pin 10 = OUTB, the isolator's
+      # SECONDARY side) sitting three lines away from `ina`/`inb` (pins
+      # 1/2 = INA/INB, the PRIMARY side, declared SELV below). A
+      # name-keyword classifier gets that pair exactly backwards. Every
+      # entry below names the pins the net lands on and the .ato line that
+      # references them to a declared rail.
+      #
+      # SEPARATION-OF-CONCERNS NOTE. All 73 nets below are SELV. The
+      # remaining 4 of the 77 (the OVP-01 divider mid-chain nodes) are NOT
+      # declared here -- they are hazardous-live (114V normal, up to the
+      # full +170V_BUS under the single fault IEC 60335-1 cl. 8.1.4
+      # requires be assumed) AND simultaneously resistively continuous
+      # with the already-declared-SELV far end, which is a state this
+      # two-domain axis cannot represent. Re-verified independently this
+      # pass by reconstructing check_domain_partition.py's own graph model
+      # from the board's pad->net connectivity: the CONTROL (manifest as
+      # it stands) yields 0 HV<->SELV bridges and 0 mixed connected
+      # components; adding all four to `domains: HV:` yields 2 bridges
+      # ('safety.ovp.r_adc_top2-p2' --[R53]--> 'V_BUS_SENSE' and
+      # 'safety.ovp.r_div_top2-p2' --[R48]--> 'safety.ovp.comp-inp') and 1
+      # mixed component -- reproducing the 2026-08-13 finding exactly.
+      # They are declared instead as `interior_nets:` on their chains at
+      # the bottom of this file, which is where the creepage instrument
+      # now reads them from. Adding the 73 SELV nets below was checked the
+      # same way and yields 0 new bridges and 0 mixed components.
+      #
+      # RESTRICTIVE-DEFAULT DISPOSITION. No net below was assigned by
+      # default: all 73 trace to a declared SELV rail. The nearest thing
+      # to a judgement call is the group of no-connect / unwired pads
+      # (`nc_7`, `nc3`, `a3`, `b3`, `c3`, and the unwired ESP32-S3 module
+      # pins) which carry no potential at all; each is classified by the
+      # domain of the pin field it physically sits in, evidenced per entry
+      # below by measured pad coordinates, not by assumption.
+      # ---------------------------------------------------------------
+
+      # --- RTD sensing subsystem (RTDSensing, modules.ato:1755-2069) ---
+      # main.ato:838-839 wires this whole module's rails: `rtd_pan.power.vcc
+      # ~ vcc_3v3` / `rtd_pan.power.gnd ~ gnd` -- both already declared SELV
+      # above. The module is on the SELV side of the AuxSupply IRM-10-15
+      # barrier (that module's own docstring, corrected 2026-07-26). Every
+      # net below is interior to it and touches no HV node.
+      - vcc                  # NOT the board's 3.3V rail (that is `+3V3`,
+                             # declared above) despite the bare name -- this
+                             # is RTDSensing's POST-FERRITE analogue rail,
+                             # `fb_power.p2` (modules.ato:1859-1862). Pads:
+                             # R34.2 (fb_power, the BLM18AG121SN1D bead
+                             # modelled as a Resistor) plus U8.2/U8.3
+                             # (MAX31865 DVDD/VDD), U10.5/U11.5 (TLV3201
+                             # window comparators VCC), U12.5 (SN74LVC1G08
+                             # VCC), U14.5 (SN74LVC1G38 VCC), R40.1
+                             # (r_avdd_top), and C29/C31/C32/C33/C35 .1
+                             # (the per-IC 100nF bypass caps). One ferrite
+                             # bead downstream of `+3V3`; SELV throughout.
+      - bias                 # MAX31865 BIAS/REFIN+ node: `adc.BIAS ~
+                             # adc.REFIN_P`, `adc.REFIN_P ~ r_ref.p1`
+                             # (modules.ato:1899-1900). Pads U8.4 (BIAS),
+                             # U8.5 (REFIN_P), R28.1 (r_ref, the 430R
+                             # reference resistor).
+      - refin_n              # MAX31865 REFIN-/ISENSOR node: `r_ref.p2 ~
+                             # adc.REFIN_N`, `adc.ISENSOR ~ adc.REFIN_N`
+                             # (modules.ato:1901-1902), also the node both
+                             # hardware-window comparators observe
+                             # (`adc.REFIN_N ~ low_window.INP` :1937,
+                             # `adc.REFIN_N ~ high_window.INN` :1946). Pads
+                             # R28.2, U8.6 (REFIN_N), U8.7 (ISENSOR),
+                             # U10.3 (TLV3201 INP), U11.4 (TLV3201 INN).
+      - sclk                 # MAX31865 SCLK pin, downstream of the 33R
+                             # series damping resistor r_sclk
+                             # (`spi.sclk ~ r_sclk.p1`, `r_sclk.p2 ~
+                             # adc.SCLK`, modules.ato:1888-1889). Pads
+                             # R29.2, U8.15. The MCU-side half of the same
+                             # link is `RTD_SCK`, already declared SELV.
+      - sdi                  # same shape, r_mosi: pads R31.2, U8.14 (SDI).
+                             # MCU side is `RTD_SDI`, already SELV.
+      - sdo                  # same shape, r_miso (`adc.SDO ~ r_miso.p1`,
+                             # modules.ato:1894): pads R33.1, U8.17 (SDO).
+                             # MCU side is `RTD_SDO`, already SELV.
+      - cs_n                 # same shape, r_cs: pads R32.2, U8.16 (CS_N).
+                             # MCU side is `RTD_CS_N`, already SELV.
+      - nc3                  # MAX31865 pin 20, declared `signal NC3 ~ pin
+                             # 20` in components.ato:433 -- a no-connect
+                             # pad, single pad on the net (U8.20), no
+                             # potential. Classified SELV by the pin field
+                             # it sits in, measured not assumed: U8's pads
+                             # 11-20 all lie at local x=+2.6mm and pads
+                             # 1-10 at x=-2.6mm; every other pad in the
+                             # package is on an already-declared SELV net
+                             # (gnd, +3V3-derived `vcc`, the RTD force/
+                             # sense conductors, the SPI links). The whole
+                             # SSOP-20 sits inside the SELV domain, so the
+                             # restrictive requirement for this pad is the
+                             # reinforced HV<->SELV bar against HV copper,
+                             # which is what declaring it SELV imposes.
+      - vbias                # REF2025 VBIAS output (1.25V), components.ato
+                             # :521 `signal VBIAS ~ pin 1`; drives both
+                             # hardware-window divider tops (`reference.
+                             # VBIAS ~ r_low_top.p1` :1938, `~ r_high_top.
+                             # p1` :1944). Pads U9.1, R35.1, R37.1.
+      - rtd_pan.r_low_top-inn   # low_window.INN divider node: `r_low_top.p2
+                             # ~ low_window.INN`, `low_window.INN ~
+                             # r_low_bottom.p1` (modules.ato:1939-1940).
+                             # Pads R35.2, R36.1, U10.4.
+      - rtd_pan.r_high_top-inp  # high_window.INP divider node, the inverted
+                             # twin: `r_high_top.p2 ~ high_window.INP`,
+                             # `high_window.INP ~ r_high_bottom.p1`
+                             # (modules.ato:1945-1946). Pads R37.2, R38.1,
+                             # U11.3.
+      - rtd_pan.low_window-out  # low_window.OUT -> window_and.A
+                             # (modules.ato:1952). Pads U10.1, U12.1.
+      - rtd_pan.high_window-out # high_window.OUT -> window_and.B
+                             # (modules.ato:1953). Pads U11.1, U12.2.
+      - y                    # window_and.Y, the SN74LVC1G08 output: feeds
+                             # the 100k defined-low pulldown and the
+                             # open-drain NAND's A input (`window_and.Y ~
+                             # r_window_ok_pulldown.p1` :1960, `window_and.Y
+                             # ~ fault_nand.A` :2049). Pads R39.1, U12.4,
+                             # U14.1. Bare auto-name, same shape as `y1`
+                             # below -- not a hint about domain either way.
+      - rtd_pan.rail_monitor-ina_p  # TPS3700 INA_P, the RTD_AVDD brownout
+                             # divider node: `r_avdd_top.p2 ~
+                             # rail_monitor.INA_P`, `rail_monitor.INA_P ~
+                             # r_avdd_bottom.p1` (modules.ato:2036-2037).
+                             # Pads R40.2, R41.1, U13.3.
+      - rtd_pan.rail_monitor-outa   # TPS3700 OUTA (open-drain) with its 10k
+                             # pull-up to power.vcc and the NAND B input
+                             # (`r_rail_ok_pullup.p2 ~ rail_monitor.OUTA`
+                             # :2042, `rail_monitor.OUTA ~ fault_nand.B`
+                             # :2050). Pads R42.2 (r_rail_ok_pullup), U13.1
+                             # (TPS3700 OUTA), U14.2 (SN74LVC1G38 B).
+      - rtd_pan.rail_monitor-outb   # TPS3700 OUTB, components.ato:537
+                             # `signal OUTB ~ pin 6`. Single pad (U13.6),
+                             # unused second window output -- a driven pin
+                             # of a SELV-powered part (VDD ~ power.vcc,
+                             # GND ~ power.gnd, modules.ato:2019-2020), not
+                             # a floating conductor of unknown potential.
+
+      # --- Safety interlock (SafetyInterlock, modules.ato:3139-3448) ---
+      # main.ato:858-859: `safety.power_3v3.vcc ~ vcc_3v3` /
+      # `safety.power_3v3.gnd ~ gnd`. Every comparator, OR gate and latch
+      # in the module runs from that rail. The module's ONLY HV contacts
+      # are (a) `safety.dc_bus.line ~ dc_bus_plus` (main.ato:864), which
+      # enters through the two declared protective-impedance dividers, and
+      # (b) OCP-02's CT primary splice in DC_BUS_RTN (`safety.ocp2_bus_in`
+      # / `_bus_out`, main.ato:794-795) -- both already covered above. No
+      # net below touches either.
+      - OCP2_VREF_2V5        # REF2025 VREF (2.5V) -- components.ato:525
+                             # `signal VREF ~ pin 5`. main.ato:878/888 wire
+                             # BOTH `safety.ovp.vref_ext.line` and
+                             # `safety.ocp2.vref_ext.line` to the same
+                             # `rtd_pan.reference.VREF` node, so atopile
+                             # emitted ONE net and kept one of the two
+                             # override names; "OVP_VREF_2V5" exists in the
+                             # source but not in the compiled netlist, and
+                             # is deliberately NOT declared here (this file
+                             # declares compiled net names, not source
+                             # intentions). Pads U9.5 (VREF), U16.4 (OVP
+                             # comparator INN), U19.4 (OCP-02 comparator
+                             # INN). Precision reference on the 3.3V rail.
+      - safety-line          # SafetyInterlock.ntc_sense.line -- the
+                             # heatsink NTC divider node, NOT a "safety
+                             # line" in any bus sense (bare atopile
+                             # auto-name). `power.vcc ~ r_ntc_fixed.p1`,
+                             # `r_ntc_fixed.p2 ~ ntc_sense.line`,
+                             # `ntc_sense.line ~ ntc.p1`, `ntc.p2 ~
+                             # power.gnd` (modules.ato:2489-2492) and
+                             # `ntc_sense.line ~ comp.INN` (:2543). Pads
+                             # R56.2 (r_ntc_fixed), R55.1 (the NTC), U17.4
+                             # (TLV3201 INN -- components.ato:507 `signal
+                             # INN ~ pin 4`), U27.15 (ESP32 IO3 =
+                             # mcu.adc_ntc, main.ato:868). A 3.3V divider
+                             # end to end. The NTC itself is an
+                             # NTCALUG01A104GA lug sensor mounted on the
+                             # heatsink with 1500VAC lug-to-terminal
+                             # isolation and flying leads (its own
+                             # component comment) -- the heatsink-side
+                             # hazard is isolated INSIDE the sensor, off
+                             # this board's copper.
+      - safety-line-1        # CoilThermalComparator's ntc_sense.line, the
+                             # THM-02 twin of `safety-line`, structurally
+                             # identical (modules.ato:2597-2600, 2634).
+                             # Pads R61.2 (r_ntc_fixed), R60.1 (coil NTC),
+                             # U18.4 (TLV3201 INN). Not brought to the MCU.
+      - safety-line-2        # SafetyInterlock.reset_n_in.line: `reset_n_in
+                             # .line ~ fault_any_or.B2` (modules.ato:3328)
+                             # and `safety.reset_n_in.line ~ mcu.reset_n
+                             # .line` (main.ato:905). Pads U24.4 (SN74HC4075
+                             # B2 -- components.ato:600 `signal B2 ~ pin 4`)
+                             # and U27.22 (ESP32 IO14). Logic-level.
+      - safety-line-3        # SafetyInterlock.runaway_cut.line: `runaway_cut
+                             # .line ~ fault_or.C2` (modules.ato:3283) and
+                             # `safety.runaway_cut.line ~ mcu.runaway_cut
+                             # .line` (main.ato:906). Pads U23.5 (SN74HC4075
+                             # C2, pin 5) and U27.8 (ESP32 IO15).
+      - safety.ocp-line      # OCP-01 comparator output -> fault_or.A1
+                             # (`ocp.fault.line ~ fault_or.A1`, modules.ato
+                             # :3262). Pads U15.1 (TLV3201 OUT, pin 1),
+                             # U23.1 (SN74HC4075 A1). The comparator's
+                             # sense input is `I_SENSE`, the CT secondary,
+                             # already declared SELV -- no HV node is read.
+      - safety.ocp.comp-inn  # OCP-01 trip-threshold divider node:
+                             # `r_ref_top.p2 ~ comp.INN`, `comp.INN ~
+                             # r_ref_bot.p1` (modules.ato:2107-2108), both
+                             # legs between power.vcc and power.gnd. Pads
+                             # R44.2, R45.1, U15.4.
+      - safety.ovp-line      # OVP-01 comparator OUTPUT (not its bus-sense
+                             # input): `comp.OUT ~ fault.line` and
+                             # `r_hyst.p2 ~ comp.OUT` (modules.ato:2345-6),
+                             # `ovp.fault.line ~ fault_or.B1` (:3263). Pads
+                             # U16.1 (TLV3201 OUT), R50.2 (r_hyst), U23.2
+                             # (SN74HC4075 B1). The TLV3201 is powered from
+                             # power_3v3 and swings 0-3.3V; the HV side of
+                             # OVP-01 is upstream of comp.INP, behind the
+                             # declared divider chain.
+      - safety.thermal-line  # THM-01 comparator output: `comp.OUT ~
+                             # fault.line`, `r_hyst.p2 ~ comp.OUT`
+                             # (modules.ato:2537, 2530), `thermal.fault.line
+                             # ~ fault_or.C1` (:3264). Pads U17.1, R59.2,
+                             # U23.8 (SN74HC4075 C1 -- components.ato:607
+                             # `signal C1 ~ pin 8`).
+      - safety.thermal.comp-inp  # THM-01 reference/hysteresis node:
+                             # `r_ref_top.p2 ~ comp.INP`, `comp.INP ~
+                             # r_ref_bot.p1`, `comp.INP ~ r_hyst.p1`
+                             # (modules.ato:2524-2530). Three resistors on
+                             # one node -- pads R57.2, R58.1, R59.1, U17.3.
+      - safety.coil_thermal-line     # THM-02 comparator output ->
+                             # fault_any_or.C1 (`coil_thermal.fault.line ~
+                             # fault_any_or.C1`, modules.ato:3300). Pads
+                             # U18.1, R64.2 (r_hyst), U24.8.
+      - safety.coil_thermal.comp-inp # THM-02 reference/hysteresis node, the
+                             # structural twin of safety.thermal.comp-inp
+                             # (modules.ato:2617-2624). Pads R62.2, R63.1,
+                             # R64.1, U18.3.
+      - safety.uvlo_logic.mon-ina_p  # UVL-02 sense node: the TPS3700 INA_P
+                             # driven by the 698k/100k divider across
+                             # power_3v3 with the 3.74M hysteresis leg on
+                             # the same node (LogicUVLOComparator, modules.
+                             # ato:2967+). Pads R66.2, R67.1, R68.1, U21.3.
+                             # UVL-02 measures the logic rail itself -- its
+                             # own docstring: "VDD of the chip IS the rail
+                             # under test". No HV node anywhere in it.
+      - safety.uvlo_logic.mon-outa   # UVL-02 TPS3700 OUTA (open-drain,
+                             # active-low), its 10k pull-up, the hysteresis
+                             # resistor's far end, and the inverting NAND's
+                             # A input. Pads U21.1, R68.2, R69.2, U22.1.
+      - safety.uvlo_logic.mon-outb   # UVL-02 TPS3700 OUTB, pin 6, unused
+                             # second window output. Single pad (U21.6),
+                             # driven pin of a SELV-powered part.
+      - safety.fault_or-a2   # fault_or.Y1 fed back into fault_or.A2
+                             # (modules.ato:3273). Pads U23.9 (Y1, pin 9)
+                             # and U23.3 (A2, pin 3) -- one SN74HC4075's
+                             # own two pins, VCC ~ power_3v3.vcc (:3260).
+      - safety.fault_or-b2   # latch.Y4 -> fault_or.B2 (modules.ato:3276).
+                             # Pads U26.11 (SN74HC00 Y4, components.ato:643
+                             # `signal Y4 ~ pin 11`) and U23.4.
+      - safety.fault_or-y2   # fault_or.Y2 -> fault_any_or.A1 (modules.ato
+                             # :3288). Pads U23.6 (Y2, pin 6), U24.1 (A1).
+      - safety.fault_or-y3   # fault_or gate 3's output. Single pad
+                             # (U23.10). The module's own comment: "Unused
+                             # base-OR gate has defined inputs and no safety
+                             # consumer" -- its A3/B3/C3 are tied to
+                             # power_3v3.gnd (modules.ato:3341-3343), so Y3
+                             # is a DRIVEN logic-low output of a
+                             # SELV-powered package, not a floating pad.
+      - safety.fault_any_or-a2  # fault_any_or.Y1 fanned to its own A2 and
+                             # to fault_or3.A2 (modules.ato:3326, 3316).
+                             # Pads U24.9 (Y1), U24.3 (A2), U25.3
+                             # (fault_or3 A2).
+      - safety.fault_any_or-y2  # fault_any_or.Y2 -> latch.A3 (modules.ato
+                             # :3330). Pads U24.6, U26.9 (SN74HC00 A3).
+      - safety.fault_any_or-y3  # fault_any_or gate 3's output. Single pad
+                             # (U24.10). This is the gate the module
+                             # documents as "all four pins entirely
+                             # unreferenced anywhere in this module -- not
+                             # grounded, not wired, just absent"; its three
+                             # inputs are the `a3`/`b3`/`c3` nets below.
+                             # An unwired output pin inside a SELV-powered
+                             # SOIC-14 (VCC ~ power_3v3.vcc, GND ~
+                             # power_3v3.gnd, modules.ato:3295-3296).
+      - safety.fault_or3-b2  # fault_or3.Y1 -> its own B2 (modules.ato
+                             # :3317). Pads U25.9 (Y1), U25.4 (B2).
+      - safety.fault_or3-y2  # fault_or3.Y2 -> latch.A1, the SET input
+                             # (modules.ato:3319). Pads U25.6, U26.1.
+      - safety.fault_or3-y3  # fault_or3 gate 3's output. Single pad
+                             # (U25.10); its inputs are GND-tied
+                             # (modules.ato:3322-3324), same shape as
+                             # safety.fault_or-y3 above.
+      - safety.latch-b2      # SN74HC00 SR-latch cross-couple: `latch.Y3 ~
+                             # latch.B2` (modules.ato:3336). Pads U26.8
+                             # (Y3, components.ato:640) and U26.5 (B2).
+      - y1                   # the latch's OTHER cross-couple leg: `latch.Y1
+                             # ~ latch.A2` (modules.ato:3335). Pads U26.3
+                             # (Y1) and U26.4 (A2). Bare auto-name because
+                             # both endpoints are pins of one component.
+      - a3                   # fault_any_or gate 3's A3 input, single pad
+                             # U24.11 (components.ato:610 `signal A3 ~ pin
+                             # 11`). Genuinely unwired -- see
+                             # safety.fault_any_or-y3 above for the module's
+                             # own statement that this gate is untouched.
+                             # No potential; classified by the package it
+                             # sits in, which is SELV on every other pin.
+                             # A floating CMOS input inside a SELV part is
+                             # not an HV conductor, and holding it to the
+                             # reinforced HV<->SELV bar (what SELV here
+                             # means) is the requirement that actually
+                             # protects it.
+      - b3                   # same gate, B3 input, single pad U24.12.
+      - c3                   # same gate, C3 input, single pad U24.13.
+
+      # --- Gate driver PRIMARY (control) side, U6 = UCC21550BDWKR ---
+      # This is the trap the manifest's ground rule exists for. U6's pins
+      # 1-8 are the PRIMARY side (components.ato:60-67, its own "# Primary
+      # side" group) and pins 9-16 the SECONDARY (":69-79"). Verified
+      # against the placed board rather than trusted: U6's pads 1-8 all sit
+      # at local x=-4.875mm and pads 9,10,11,14,15,16 at x=+4.875mm (the
+      # DWK package has no 12/13). HalfBridge wires the primary side to
+      # SELV -- `power_3v3.vcc ~ gate_hs.driver.VCCI_1/VCCI_2` and
+      # `power_3v3.gnd ~ gate_hs.driver.GNDI` (modules.ato:381-384), with
+      # `hb.power_3v3.vcc ~ vcc_3v3` (main.ato:798) -- which is why pins
+      # 3/8 are already on the declared-SELV `+3V3` net and pin 4 on `gnd`.
+      # Note what is NOT here: `input` (pin 10, OUTB) and `+15V_LS`,
+      # `GATE_HS`, `hb-gnd`, `hb.gate_hs.driver-p1-1`/`-p2` are all
+      # declared HV above. Names do not separate these two groups; pin
+      # numbers do.
+      - ina                  # U6 pin 1 = INA, the primary-side PWM input,
+                             # behind the 51R/220pF EMI filter (`pwm_in_a ~
+                             # r_filt_a.p1`, `r_filt_a.p2 ~ driver.INA`,
+                             # `driver.INA ~ c_filt_a.p1`, modules.ato
+                             # :132-134). Pads U6.1, R20.2, C18.1. Fed from
+                             # `PWM_HS` (already SELV) via R20; the filter
+                             # cap returns to `driver.GNDI` = `gnd`.
+      - inb                  # U6 pin 2 = INB, the identical low-side path
+                             # (modules.ato:137-139). Pads U6.2, R21.2,
+                             # C19.1. Fed from `PWM_LS`, already SELV.
+      - hb.gate_hs.driver-p1 # U6 pin 6 = DT, the dead-time programming pin:
+                             # `dt_res.p1 ~ gate_hs.driver.DT`, `dt_res.p2 ~
+                             # gate_hs.driver.GNDI` (modules.ato:275-276),
+                             # i.e. a 34k resistor from this pin to `gnd`.
+                             # Pads U6.6, R24.1 (R24.2 is already on `gnd`).
+                             # Primary-side and GNDI-referenced -- exactly
+                             # as the `hb.gate_hs.driver-p2` entry in the HV
+                             # list above already warns, this net must not
+                             # be conflated with `hb.gate_hs.driver-p1-1`
+                             # (pin 16, VDDA, secondary/HV) which differs
+                             # from it by one character.
+      - nc_7                 # U6 pin 7, `signal NC_7 ~ pin 7`
+                             # (components.ato:66), declared by the
+                             # component under its own "# Primary side"
+                             # heading. Single pad (U6.7), no connection,
+                             # no potential. Classified by measured
+                             # position: local x=-4.875mm, i.e. in the
+                             # primary pin row between DT (pin 6) and
+                             # VCCI_2 (pin 8, on `+3V3`), 9.75mm of pad
+                             # pitch away from the secondary row. SELV is
+                             # both the physically correct side and the
+                             # requirement that actually binds here: it
+                             # holds this pad to the reinforced bar against
+                             # the HV row across the barrier. Declaring it
+                             # HV instead would demand 8.0mm between this
+                             # pad and its own SELV neighbours 1.27mm away
+                             # -- an unsatisfiable, false constraint, not a
+                             # conservative one.
+
+      # --- MCU (module MCU, modules.ato:3450-3599; U27 ESP32-S3-WROOM-1) ---
+      # main.ato:918-919: `mcu.power.vcc ~ vcc_3v3` / `mcu.power.gnd ~ gnd`.
+      # Every net below is a module pin of U27 and nothing else. The
+      # already-declared SELV nets `usb_dn`/`usb_dp` (single pads U27.13/
+      # U27.14) are the existing precedent for declaring an ESP32 pin net
+      # that lands on exactly one pad.
+      - en                   # ESP32-S3 EN (pin 3) with its boot RC and
+                             # reset button: `power.vcc ~ r_en.p1`, `r_en.p2
+                             # ~ mcu.EN`, `mcu.EN ~ c_en.p1`, `c_en.p2 ~
+                             # power.gnd`, `btn_reset.p1 ~ mcu.EN`
+                             # (modules.ato:3518-3521, 3533). Pads U27.3,
+                             # R71.2, C41.1, SW1.1.
+      - io0                  # IO0 bootstrap (pin 27): 10k pull-up to
+                             # power.vcc plus the download-mode button
+                             # (`r_boot.p2 ~ mcu.IO0`, `btn_boot.p1 ~
+                             # mcu.IO0`, modules.ato:3529, 3537). Pads
+                             # U27.27, R72.2, SW2.1.
+      - rx                   # RXD0, pin 36 (components.ato:685). Single
+                             # pad U27.36; `uart.rx ~ mcu.RXD0`
+                             # (modules.ato:3599) but UART is not wired to
+                             # anything else on this board.
+      - tx                   # TXD0, pin 37. Single pad U27.37.
+      - io13                 # IO13, pin 21 (components.ato:706). Single
+                             # pad, declared in the component's pin map but
+                             # unused by module MCU.
+      - io40                 # IO40, pin 33. Single pad, same disposition.
+      - io41                 # IO41, pin 34. Single pad, same disposition.
+      - io42                 # IO42, pin 35. Single pad, same disposition.
+      - io45                 # IO45, pin 26. Single pad, same disposition.
+      - io46                 # IO46, pin 16. Single pad, same disposition.
+      - io48                 # IO48, pin 25. Single pad, same disposition.
+      - gpio18               # GPIO18/IO18, pin 11 (components.ato:679 and
+                             # :711 -- the same physical pin under both
+                             # names). Single pad, unused.
+      - gpio21               # GPIO21/IO21, pin 23 -- one of the four
+                             # "Status LEDs" pins the design reserves but
+                             # never wires (the LED indicators are
+                             # explicitly left unassigned, modules.ato's
+                             # SafetyInterlock tail comment). Single pad.
+      - gpio35               # GPIO35/IO35, pin 28. Single pad, same.
+      - gpio36               # GPIO36/IO36, pin 29. Single pad, same.
+      - gpio37               # GPIO37/IO37, pin 30. Single pad, same.
+
+      # --- 3.3V buck converter (BuckConverter3V3, modules.ato:1422+) ---
+      # U3 = LMR51430XDDCR. Its input is the already-declared SELV `+15V`
+      # rail (pads U3.3 = VIN and U3.5 = EN both sit on `+15V`), its
+      # return is `gnd` (U3.1), and its output is `+3V3`. `+15V` itself
+      # comes from AuxSupply's isolated secondary (main.ato:697-698). The
+      # converter is entirely on the SELV side of the IRM-10-15 barrier;
+      # nothing in it references the DC bus. Historical note, since the
+      # refdes is easy to misread: U3 used to be the H11L1 ZCD
+      # optocoupler, an HV-straddling part -- that component was REMOVED
+      # 2026-07-30 (docs/evidence/2026-07-30-zcd-optocoupler-removal.md)
+      # and U3 is now this buck. Pin map read from components.ato:376-381,
+      # which itself carries a "Pin mapping fixed per datasheet" note.
+      - sw                   # LMR51430 SW, pin 2 -- the buck switch node,
+                             # a 15V-swinging node, not a mains node. Pads
+                             # U3.2, L2.1 (the output inductor), C10.2 (the
+                             # bootstrap cap's low side).
+      - boot                 # LMR51430 BOOT, pin 6. Pads U3.6, C10.1.
+      - fb                   # LMR51430 FB, pin 4 -- the 0.6V feedback
+                             # divider tap. Pads U3.4, R16.2, R17.1
+                             # (R16.1 is on `+3V3`, R17.2 on `gnd`).
+
+      # --- gnd-referenced low-side coil drivers ---
+      - power_in.q_relay_drv-g   # AO3400A gate node for the inrush-bypass
+                             # relay driver: `r_gate.p1 ~ relay_ctrl`,
+                             # `r_gate.p2 ~ q_relay_drv.G`, `r_gate_pd.p1 ~
+                             # q_relay_drv.G`, `r_gate_pd.p2 ~ gnd`
+                             # (modules.ato:898-901). Pads Q1.2, R2.2,
+                             # R3.1. Driven from `RELAY_CTRL` (already
+                             # SELV) with a pulldown to `gnd`; the MOSFET's
+                             # source is on `gnd` (:908) and its drain on
+                             # `power_in.bypass_relay-coil2` (already SELV).
+                             # The relay's HV contact side is a separate,
+                             # already-declared isolator group -- the gate
+                             # net never touches it.
+      - discharge.q_dis_drv-g    # the identical construction for the
+                             # bus-discharge relay coils: `ctrl ~
+                             # r_gate.p1`, `r_gate.p2 ~ q_dis_drv.G`,
+                             # `r_gate_pd.p2 ~ gnd`, `q_dis_drv.S ~ gnd`
+                             # (modules.ato:1400-1403, 1418). Pads Q2.2,
+                             # R12.2, R13.1. Driven from `DISCHARGE_CTRL`
+                             # (already SELV). K2/K3's HV NC/NO/COM
+                             # contacts are declared HV above and are on
+                             # the far side of those relays' declared
+                             # isolator barriers.
+
+      # --- forced-air cooling (ThermalSystem, modules.ato:1626-1660) ---
+      - thermal.j_fan-p1     # the fan header's positive pin, downstream of
+                             # the 39R 1W dropper: `power_15v.vcc ~
+                             # r_fan_drop.p1`, `r_fan_drop.p2 ~ j_fan.p1`,
+                             # `j_fan.p2 ~ power_15v.gnd` (modules.ato
+                             # :1657-1659), with `thermal.power_15v.vcc ~
+                             # vcc_15v` / `.gnd ~ gnd` (main.ato:922-923).
+                             # Pads J2.1, R75.2. ~12.1V at the fan; the
+                             # `+15V` rail it hangs off is already declared
+                             # SELV, and the fan is an off-board 12V part
+                             # on leadwires.
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
@@ -1051,6 +1551,51 @@ isolators:
 # Full derivation, arithmetic, single-fault analysis and UNVERIFIED list:
 # docs/evidence/2026-07-26-ovp-crossing-resolution.md
 # ---------------------------------------------------------------------------
+# Declared protective-impedance constructions.
+#
+# `interior_nets:` (ADDED 2026-08-20) names, by exact compiled net name,
+# every net BETWEEN two consecutive members of the chain -- the nodes that
+# are neither boundary_a nor boundary_b. It exists because those nodes are
+# real copper that must be graded for creepage, and the `domains:` HV/SELV
+# axis above provably cannot hold them:
+#
+#   * They ARE hazardous-live. Under IEC 60335-1 cl. 8.1.4's own required
+#     single-fault condition (any ONE chain member fails, open or short),
+#     a short of the member nearest boundary_a puts the interior node
+#     adjacent to it at the FULL boundary_a potential -- 170.0V, exactly
+#     `+170V_BUS`, not an approximation. See the per-chain tables below.
+#   * They are ALSO resistively continuous with the already-declared-SELV
+#     boundary_b under normal operation, through the remaining chain
+#     members, with no galvanic isolator between. That is the whole point
+#     of a protective-impedance construction, and it is true.
+#
+# Declaring such a node under `domains: HV:` therefore asserts that two
+# nets in the SAME connected component belong to different domains, which
+# scripts/check_domain_partition.py's check_domain_disjointness correctly
+# rejects. Re-tested independently 2026-08-20 by rebuilding that gate's
+# graph model from pcb/temper.kicad_pcb's own pad->net connectivity
+# (synthesize_chain_head_isolators makes ONLY each chain's first member a
+# graph isolator, so every interior node lands in boundary_b's component):
+#
+#   control, manifest as it stands ......... 0 bridges, 0 mixed components
+#   + all 4 interior nodes under domains:HV  2 bridges, 1 mixed component
+#       'safety.ovp.r_adc_top2-p2' --[R53]--> 'V_BUS_SENSE'
+#       'safety.ovp.r_div_top2-p2' --[R48]--> 'safety.ovp.comp-inp'
+#   + the 73 SELV nets added above .......... 0 bridges, 0 mixed components
+#
+# reproducing docs/evidence/2026-08-13-ovp01-midchain-single-fault-
+# creepage.md Sec 3 exactly. This field is the alternative that doc named
+# as missing: it records the nets as facts on the axis that CAN express
+# them (chain membership) without making a galvanic-topology claim on the
+# axis that cannot. scripts/measure_cross_domain_creepage.py reads it and
+# grades these pads on the HV side of every cross-domain pair -- the
+# restrictive choice, justified by the single-fault figures below -- so
+# they are no longer skipped. `domains:` is untouched by it and
+# check_domain_partition.py's verdict is unchanged.
+#
+# This is a declaration of nets, not a new domain and not a new threshold:
+# the pads are measured against the same reinforced HV<->SELV bar every
+# other HV pad on this board is already measured against.
 protective_impedance_chains:
   - name: ovp01_comparator_divider
     component: "OVP-01 comparator sense divider: 3 x Yageo RC1206FR-07430KL (430k 1% 1206) in series + RT0603BRD0716K9L (16.9k 0.1% 0603, was RC0603FR-0710KL 10k 1% until the 2026-07-27 REF2025 re-reference -- docs/evidence/2026-07-27-ovp01-ref2025-implementation.md). r_div_bot is NOT itself part of this chain (only r_div_top1-3 are, min_length below); listed here for context only."
@@ -1061,6 +1606,27 @@ protective_impedance_chains:
     boundary_a: "+170V_BUS"
     boundary_b: "safety.ovp.comp-inp"
     min_length: 3
+    # Read off elec/src/modules.ato:2304-2308 and confirmed against the
+    # placed board's own pads, in series order boundary_a -> boundary_b:
+    #   +170V_BUS (R46.1) -r_div_top1- [r_div_top1-p2: R46.2,R47.1]
+    #     -r_div_top2- [r_div_top2-p2: R47.2,R48.1]
+    #     -r_div_top3- safety.ovp.comp-inp (R48.2, with R49.1/R50.1/U16.3)
+    # Both interior nets carry exactly the two pads the chain predicts and
+    # nothing else, which is the same property check_chain_integrity
+    # independently enforces ("every interior node connects ONLY those two
+    # members' declared pins").
+    #
+    # Voltages, re-derived this pass from the declared component values
+    # (3 x 430k top, 16.9k bottom, 170V at boundary_a):
+    #   node              normal    worst single-fault (which fault)
+    #   r_div_top1-p2     114.1 V   170.0 V  (r_div_top1 shorts)
+    #   r_div_top2-p2      58.1 V    86.6 V  (r_div_top1 shorts)
+    # Both exceed the 60V DC ripple-free / 42.4V AC peak SELV ceiling in
+    # the governing single-fault condition; the first equals boundary_a
+    # exactly. Graded HV-side by the creepage instrument on that basis.
+    interior_nets:
+      - safety.ovp.r_div_top1-p2
+      - safety.ovp.r_div_top2-p2
 
   - name: ovp01_adc_sense_divider
     component: "OVP-01 ADC-sense divider: 3 x 170k in series + RC0603FR-0710KL (10k 1% 0603). Split from a single 510k top resistor on 2026-07-26 -- one short removed the impedance entirely, which is not a valid protective-impedance construction."
@@ -1071,3 +1637,19 @@ protective_impedance_chains:
     boundary_a: "+170V_BUS"
     boundary_b: "V_BUS_SENSE"
     min_length: 3
+    # elec/src/modules.ato:2437-2441, same structure, same confirmation
+    # against the board's pads:
+    #   +170V_BUS (R51.1) -r_adc_top1- [r_adc_top1-p2: R51.2,R52.1]
+    #     -r_adc_top2- [r_adc_top2-p2: R52.2,R53.1]
+    #     -r_adc_top3- V_BUS_SENSE (R53.2, with R54.1/C36.1/U27.38)
+    #
+    # Voltages (3 x 169k top -- the `component:` string above says "170k",
+    # which is the stale figure; elec/src/modules.ato declares 169kohm and
+    # the MPN RC1206FR-07169KL agrees -- and 10k bottom, 170V):
+    #   node              normal    worst single-fault (which fault)
+    #   r_adc_top1-p2     114.4 V   170.0 V  (r_adc_top1 shorts)
+    #   r_adc_top2-p2      58.9 V    87.4 V  (r_adc_top1 shorts)
+    # Same disposition as the comparator divider above.
+    interior_nets:
+      - safety.ovp.r_adc_top1-p2
+      - safety.ovp.r_adc_top2-p2
