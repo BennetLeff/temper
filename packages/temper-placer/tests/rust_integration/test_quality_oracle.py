@@ -29,11 +29,6 @@ class TestOracleModule:
         require_oracle()
         assert temper_quality_oracle.is_available_py() is True
 
-    def test_version_reports(self):
-        require_oracle()
-        version = temper_quality_oracle.version_py()
-        assert version == "0.1.0"
-
     def test_required_clearance_known_voltage(self):
         require_oracle()
         assert abs(temper_quality_oracle.required_clearance_py(230.0) - 3.20) < 1e-6

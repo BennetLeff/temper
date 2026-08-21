@@ -1,24 +1,19 @@
 #!/usr/bin/env python3
 """Stale-compiled-Rust-extension CI gate.
 
-Motivating incident (2026-07-27, see commit 02e907b9 and
-docs/evidence/2026-07-27-stale-extension-gate.md): this repo had no
+Motivating incident (2026-07-27, commit ``02e907b9``): this repo had no
 ``.cargo/config.toml``, so on macOS *every* pyo3 crate failed to link
-(``ld: symbol(s) not found for architecture arm64``, e.g.
-``__Py_TrueStruct``) whenever anyone tried to rebuild its extension module
-with ``maturin develop``. ``cargo build``/``cargo test`` were entirely
-unaffected -- they build the rlib and link libpython normally -- so the
-Rust test suites stayed green (temper-drc-rs 49/49, router-core 101/101)
-while every ``.so`` already installed in ``.venv`` sat frozen at its last
-successful build. The installed ``temper_io_types.cpython-312-darwin.so``
-was dated Jul 23 and did not contain ``ConfigBoardMismatchError``, a
-symbol registered at ``packages/temper-io-types/src/lib.rs:1178-1181`` --
-confirmed with ``strings`` (2 occurrences in a fresh build, 0 in the
-installed one). Two pytest modules silently failed to COLLECT as a
-result -- reported as an error line easy to scroll past, not a loud
-failure. A related trap: ``maturin develop`` printed "Installed ... as
-editable" while leaving the stale ``.so`` in place -- a success message
-from the build tool is not proof the artifact was replaced.
+(``ld: symbol(s) not found for architecture arm64``) whenever anyone tried
+to rebuild its extension module with ``maturin develop``, while
+``cargo build``/``cargo test`` stayed green -- so installed ``.so`` files
+sat frozen at their last successful build while ``lib.rs`` gained new
+symbols. Two pytest modules silently failed to COLLECT as a result, and
+``maturin develop`` printed "Installed ... as editable" while leaving the
+stale ``.so`` in place -- a success message from the build tool is not
+proof the artifact was replaced. Full narrative:
+``docs/evidence/2026-07-27-stale-extension-gate.md``. Related
+shared-venv staleness modes, including mode 4 (the same "Installed" lie):
+``docs/evidence/2026-08-11-worktree-poisons-shared-venv.md``.
 
 This gate closes that blind spot generically, for every pyo3/maturin
 extension crate in the repo, not just the one that broke that day.
@@ -114,11 +109,10 @@ check", so the gate instead assumed the build-after-checkout workflow.
 
 That assumption is what blocks baking prebuilt Rust wheels into the CI
 image (~77s of ``maturin develop`` per job, across 5-6 jobs), and it has
-already cost this repo a gate: on 2026-07-28 enabling an ``actions/cache``
-skip for the netlist made check_domain_partition.py report a cached
-netlist STALE whose sources had not changed at all -- run 30383701486
-rebuilt and passed, run 30384514627 restored from cache and failed, same
-branch, same sources.
+already cost this repo a gate: on 2026-07-28 an ``actions/cache`` restore
+made ``check_domain_partition.py`` report a cached netlist STALE whose
+sources had not changed at all (same sources, two CI runs, two verdicts;
+see ``docs/evidence/2026-07-30-c27-net-annotation-stale-briefing.md``).
 
 It is now fixed here too, with the shared mechanism that fixed the
 netlist: ``scripts/_lib/freshness.py``. A successful build records a

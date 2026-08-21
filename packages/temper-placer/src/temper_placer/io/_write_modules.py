@@ -1,11 +1,14 @@
 """Internal: footprint/module visualization and annotation functions.
 
-Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernel for
-the pad-bounding-box reduction. The per-pad KiCad rotation stays here (the
-``rotate_local_to_world`` SSOT — sin/cos on ``math.pi`` is not bit-portable
-across libm implementations, B1), and the pre-rotated world-space pads are
-handed to the Rust reduction, which reproduces the oracle's min/max and
-arithmetic order bit-identically.
+Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels:
+the pad-bounding-box reduction (``component_bounds_py``) and the per-item
+GrRect/GrText s-expression constructions (``gr_rect_sexpr_py`` /
+``gr_text_sexpr_py``, materialised through kiutils' own ``from_sexpr``), plus
+the Value-property read (``write_types.footprint_value_py``). The per-pad
+KiCad rotation stays here (the ``rotate_local_to_world`` SSOT — sin/cos on
+``math.pi`` is not bit-portable across libm implementations, B1), and the
+pre-rotated world-space pads are handed to the Rust reduction, which
+reproduces the oracle's min/max and arithmetic order bit-identically.
 """
 
 from __future__ import annotations
@@ -15,9 +18,9 @@ import math
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
-from kiutils.items.common import Position
 from kiutils.items.gritems import GrRect, GrText
 from temper_io_types import kicad_write_geometry as _GEOM
+from temper_io_types import write_types as _WT
 
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io._write_types import _get_footprint_reference
@@ -111,13 +114,12 @@ def add_bounding_boxes_to_pcb(
         x_max += margin
         y_max += margin
 
-        # Create rectangle graphic item
+        # Create rectangle graphic item — the construction runs in Rust
+        # (gr_rect_sexpr_py) and is materialised through kiutils' own
+        # parser; see the module docstring.
         try:
-            rect = GrRect(
-                start=Position(X=x_min, Y=y_min),
-                end=Position(X=x_max, Y=y_max),
-                layer=layer,
-                width=stroke_width,
+            rect = GrRect.from_sexpr(
+                _GEOM.gr_rect_sexpr_py(x_min, y_min, x_max, y_max, layer, stroke_width)
             )
             ki_board.graphicItems.append(rect)
             boxes_added += 1
@@ -195,29 +197,18 @@ def add_silkscreen_labels(
         # Scale text based on component size (min 0.8mm, max 1.5mm)
         scaled_height = max(0.8, min(1.5, min(comp_width, comp_height) / 4))
 
-        # Get component value from properties
-        value = None
-        props = getattr(fp, "properties", {})
-        if isinstance(props, dict):
-            value = props.get("Value")
-        elif isinstance(props, list):
-            for prop in props:
-                if hasattr(prop, "key") and prop.key == "Value":
-                    value = getattr(prop, "value", None)
-                    break
+        # Get component value from properties (Rust kernel — see the module
+        # docstring; the dict branch returns the raw value, no truthiness
+        # guard, matching the pre-migration read).
+        value = _WT.footprint_value_py(fp)
 
         # Add reference text on F.SilkS (positioned above component)
         if add_references:
             try:
                 ref_y = y_min - scaled_height - 0.5  # Above component
-                ref_text = GrText(
-                    text=ref,
-                    position=Position(X=comp_cx, Y=ref_y),
-                    layer="F.SilkS",
+                ref_text = GrText.from_sexpr(
+                    _GEOM.gr_text_sexpr_py(ref, comp_cx, ref_y, "F.SilkS")
                 )
-                # Set text attributes if available
-                if hasattr(ref_text, "effects"):
-                    pass  # Text effects handled differently in kiutils
                 ki_board.graphicItems.append(ref_text)
                 counts["references"] += 1
             except Exception:
@@ -227,10 +218,8 @@ def add_silkscreen_labels(
         if add_values and value:
             try:
                 val_y = y_min - 2 * scaled_height - 1.0  # Below reference
-                val_text = GrText(
-                    text=value,
-                    position=Position(X=comp_cx, Y=val_y),
-                    layer="F.SilkS",
+                val_text = GrText.from_sexpr(
+                    _GEOM.gr_text_sexpr_py(value, comp_cx, val_y, "F.SilkS")
                 )
                 ki_board.graphicItems.append(val_text)
                 counts["values"] += 1
@@ -241,11 +230,11 @@ def add_silkscreen_labels(
         if add_fab_outlines:
             try:
                 margin = 0.2
-                fab_rect = GrRect(
-                    start=Position(X=x_min - margin, Y=y_min - margin),
-                    end=Position(X=x_max + margin, Y=y_max + margin),
-                    layer="F.Fab",
-                    width=outline_width,
+                fab_rect = GrRect.from_sexpr(
+                    _GEOM.gr_rect_sexpr_py(
+                        x_min - margin, y_min - margin, x_max + margin, y_max + margin,
+                        "F.Fab", outline_width,
+                    )
                 )
                 ki_board.graphicItems.append(fab_rect)
                 counts["outlines"] += 1

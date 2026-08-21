@@ -435,26 +435,6 @@ pub fn grid_to_world_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn extract_vias_py(layers: Vec<i64>) -> PyResult<Vec<usize>> {
-    temper_py_bridge::catch_unwind(|| extract_vias(&layers)).map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn compute_path_length_py(xs: Vec<i64>, ys: Vec<i64>, cell_size: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| compute_path_length(&xs, &ys, cell_size))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn count_vias_in_path_py(layers: Vec<i64>) -> PyResult<usize> {
-    temper_py_bridge::catch_unwind(|| count_vias_in_path(&layers))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
 pub fn is_collinear_py(
     p1: (i64, i64, i64),
     p2: (i64, i64, i64),
@@ -485,9 +465,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(kw_boundary_match_py, m)?)?;
     m.add_function(wrap_pyfunction!(net_class_to_voltage_class_py, m)?)?;
     m.add_function(wrap_pyfunction!(grid_to_world_py, m)?)?;
-    m.add_function(wrap_pyfunction!(extract_vias_py, m)?)?;
-    m.add_function(wrap_pyfunction!(compute_path_length_py, m)?)?;
-    m.add_function(wrap_pyfunction!(count_vias_in_path_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_collinear_py, m)?)?;
     m.add_function(wrap_pyfunction!(simplify_path_py, m)?)?;
     m.add_function(wrap_pyfunction!(estimate_segment_count_py, m)?)?;

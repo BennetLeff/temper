@@ -706,7 +706,7 @@ def _ipc2152_forward(
 
     I = k·ΔT^0.44·A^0.725 with IPC-2221B §6.2 k coefficients: 0.048
     external / 0.024 internal (same kernel as ``temper-drc-rs``'s
-    authoritative ``estimate_trace_current``).  Internal layers use the
+    authoritative ``ipc2152_current_capacity``).  Internal layers use the
     internal k directly — no separate derate multiplier.  (Historical: the
     pre-2026-08-15 model cited "IPC-2152 Section 3" for a 65% internal
     derate; neither the citation nor the 0.65 factor was genuine — see

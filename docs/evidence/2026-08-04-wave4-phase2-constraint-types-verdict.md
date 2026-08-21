@@ -12,7 +12,7 @@ document is the measured input for revising it.
 Reproduce the numbers with:
 
 ```
-uv run python docs/evidence/2026-08-04-constraint-types-ffi-cost.py
+uv run python docs/evidence/scripts/2026-08-04-constraint-types-ffi-cost.py
 ```
 
 ## 1. Inventory: the surface is declarative schema, not compute

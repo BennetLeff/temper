@@ -25,7 +25,7 @@ import pytest
 # polygon.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry import (
+from temper_geometry import (
     compute_loop_area,
     compute_loop_perimeter,
     is_convex,
@@ -147,7 +147,7 @@ class TestPolygonUncovered:
 # primitives.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry import (
+from temper_geometry import (
     aabb_expand,
     aabb_from_points,
     aabb_intersects,
@@ -290,7 +290,7 @@ class TestPrimitivesUncovered:
 # smooth.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry import (
+from temper_geometry import (
     get_alpha_schedule,
     get_beta_schedule,
     smooth_clip,
@@ -370,20 +370,22 @@ class TestSmoothUncovered:
 # transform.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.transform import (
+from temper_geometry import (
     batch_get_rotated_bounds,
     batch_rotate_points,
     get_rotated_aabb,
     get_rotated_bounds,
     gumbel_softmax,
-    onehot_to_rotation_radians,
     rotate_points,
     rotate_rectangle_corners,
-    rotation_degrees_to_onehot,
     sample_rotation,
     sample_rotation_batch,
     transform_pin_position,
     transform_pin_positions,
+)
+from temper_placer.geometry.transform import (
+    onehot_to_rotation_radians,
+    rotation_degrees_to_onehot,
 )
 
 
@@ -487,7 +489,7 @@ class TestTransformUncovered:
 # overlap.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry import (
+from temper_geometry import (
     box_box_distance,
     box_box_distance_aabb,
     compute_clearance_penalties,
@@ -577,11 +579,10 @@ class TestOverlapUncovered:
 # sdf.py — uncovered subset
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry.sdf import (
+from temper_geometry import (
     sdf_box_2d,
     sdf_capsule,
     sdf_convex_polygon,
-    sdf_gradient,
     sdf_offset,
     sdf_polygon,
     sdf_round,
@@ -590,6 +591,9 @@ from temper_placer.geometry.sdf import (
     sdf_smooth_intersection,
     sdf_smooth_union,
     sdf_subtraction,
+)
+from temper_placer.geometry.sdf import (
+    sdf_gradient,
     sdf_to_mask,
     sdf_to_penalty,
 )
@@ -857,7 +861,7 @@ class TestConstraintFunctions:
 # projections.py
 # ---------------------------------------------------------------------------
 
-from temper_placer.geometry import (
+from temper_geometry import (
     identity_projection,
     project_onto_board,
     project_onto_edge_strip,

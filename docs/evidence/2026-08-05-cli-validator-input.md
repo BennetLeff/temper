@@ -175,7 +175,7 @@ EOF
 cd packages/temper-placer && uv run --no-sync pytest tests/cli/test_optimize_validator_input.py -q
 # real solve with audit (30s, production config; unresolved-ref downgrade is
 # only needed because the board is mid-routing vs the config's refs):
-TEMPER_UNRESOLVED_REF_POLICY=warn uv run --no-sync python docs/evidence/cli_validator_input_probe.py
+TEMPER_UNRESOLVED_REF_POLICY=warn uv run --no-sync python docs/evidence/scripts/cli_validator_input_probe.py
 # expected: audit armed 158/54; status=optimal; hard=0 intra=0 gaps=405
 # covered_pairs=0 geometry_trusted=True
 ```
