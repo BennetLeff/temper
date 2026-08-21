@@ -395,6 +395,16 @@ target_link_libraries(test_coil_guard_only m)
 enable_testing()
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
+# Registered 2026-08-20, found by scripts/check_ci_test_coverage.py.
+# `.github/workflows/firmware-tests.yml` has compiled `test_fault_list_only`
+# and then asked for it with `ctest -R "state_machine|fault_list"` all along,
+# but nothing registered it, so the `fault_list` half of that alternation
+# selected NOTHING -- and ctest exits 0 on an empty selection unless
+# `--no-tests=error` is passed, so the step stayed green while running half of
+# what it named. Confirmed before this line existed:
+# `ctest -N -R "state_machine|fault_list"` reported `Total Tests: 1`. The
+# binary passes 21/21 on a fresh build; it was simply never executed.
+add_test(NAME fault_list_tests COMMAND test_fault_list_only)
 add_test(NAME max31865_tests COMMAND test_max31865_only)
 add_test(NAME pid_tests COMMAND test_pid_only)
 add_test(NAME cascade_pid_tests COMMAND test_cascade_pid_only)

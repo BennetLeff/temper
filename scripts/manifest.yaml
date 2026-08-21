@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-19'
-  total_scripts: 173
+  total_scripts: 174
   counts:
-    keep: 160
+    keep: 161
     ticket: 13
   ticket_scripts_deleted: 43
 scripts:
@@ -211,6 +211,35 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_ci_test_coverage.py
+  purpose: 'CI gate, both directions of CI<->test-tree drift. A: a workflow step naming a test
+    path that does not exist -- pytest treats a nonexistent PATH as a usage error (exit 4, ZERO
+    collected; --continue-on-collection-errors does not rescue it), so one stale filename zeroes
+    the whole step. Shipped twice: invariant-router-v6-2 ran zero tests 2026-07-31..2026-08-07
+    (test_wave4_numba_astar.py, deleted in 37793e5c) with its pytest_guard floor correctly failing
+    and a continue-on-error discarding the failure, then #1314 deleted seven more. Hard fail, no
+    ledger. B: a test file that exists and that no CI job runs (142 files/~4,310 tests when first
+    counted by hand) plus firmware ctest binaries with no add_test() registration or no matching
+    `ctest -R` -- shrink-only ratchet in .ci-test-coverage-inventory. Every path is resolved
+    against ITS OWN step''s effective working directory (step/job working-directory, `cd` in the
+    run block, `cd` inside a subshell): resolving all of them against one package reports 10 dead
+    references where the truth is 8. Prints both counts on every run; a collapsed denominator is
+    a TOOL ERROR (exit 2), never a pass.'
+  owner: bennet
+  last_run: '2026-08-20'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - fnmatch
+  - os
+  - pathlib
+  - re
+  - shlex
+  - sys
+  - yaml
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet

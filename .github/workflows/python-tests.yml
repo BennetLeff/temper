@@ -96,6 +96,9 @@ on:
       - '.github/required-checks.json'
       - '.unwired-kernel-inventory'
       - '.orphaned-python-module-inventory'
+      - '.ci-test-coverage-inventory'
+      - 'scripts/check_ci_test_coverage.py'
+      - 'scripts/tests/test_check_ci_test_coverage.py'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -203,6 +206,9 @@ on:
       - '.github/required-checks.json'
       - '.unwired-kernel-inventory'
       - '.orphaned-python-module-inventory'
+      - '.ci-test-coverage-inventory'
+      - 'scripts/check_ci_test_coverage.py'
+      - 'scripts/tests/test_check_ci_test_coverage.py'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -3174,6 +3180,40 @@ jobs:
       - name: No new salted-hash order dependencies
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_hash_order_determinism.py
+
+      - name: CI<->test-tree coverage gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_ci_test_coverage.py -v --tb=short
+
+      # Two silent drifts, opposite directions, both already shipped here.
+      #
+      # A: a job names a test file that no longer exists. pytest treats a
+      #    nonexistent PATH as a USAGE error -- exit 4, ZERO collected --
+      #    and --continue-on-collection-errors does not rescue it, so one
+      #    stale filename zeroes the whole step. The invariant-router-v6-2
+      #    job above ran zero tests from 2026-07-31 to 2026-08-07 for
+      #    exactly this reason (test_wave4_numba_astar.py, deleted in
+      #    37793e5c), its pytest_guard floor CORRECTLY failed, and a
+      #    `continue-on-error: true` discarded the failure and painted the
+      #    job green. #1314 then deleted seven more and it recurred. Both
+      #    rounds were found and fixed by hand. Hard-failing here from day
+      #    one: there is no legitimate instance of this.
+      #
+      # B: a test file exists and no job runs it -- 142 files / ~4,310
+      #    tests when first counted by hand, plus five firmware ctest
+      #    binaries that build, pass, and are registered with neither
+      #    add_test() nor any `ctest -R` (one was hiding a thermistor
+      #    conversion wrong by ~60 C). Shrink-only ratchet over
+      #    .ci-test-coverage-inventory, same shape as .hash-order-inventory
+      #    above. NOT pre-shrunk: some entries are legitimately excluded and
+      #    some are real gaps, and a ratchet that starts at the true number
+      #    is the only one that can be trusted to move.
+      #
+      # Both counts print on every run: a denominator that collapses to
+      # zero is a TOOL ERROR (exit 2), never a clean pass.
+      - name: CI references every test, and every test is in a CI job
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_ci_test_coverage.py
 
       - name: No-raw-rotation-trig gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
