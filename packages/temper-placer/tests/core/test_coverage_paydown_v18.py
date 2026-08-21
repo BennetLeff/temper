@@ -739,18 +739,16 @@ class TestProvenance:
         assert "config=" in prov.as_comment()
 
     def test_embed_provenance(self):
-        from kiutils.board import Board as KiBoard
-
-        board = KiBoard()
         prov = Provenance(
             board_sha256="a" * 64,
             netlist_sha256="b" * 64,
             config_sha256=None,
             generated_at="2026-01-01T00:00:00+00:00",
         )
-        embed_provenance(board, prov)
-        assert board.titleBlock is not None
-        assert "provenance:" in board.titleBlock.comments[9]
+        board_text = '(kicad_pcb (version 20211014) (general (thickness 1.6)))'
+        out = embed_provenance(board_text, prov)
+        assert "provenance:" in out
+        assert "a" * 64 in out
 
 
 # ---------------------------------------------------------------------------

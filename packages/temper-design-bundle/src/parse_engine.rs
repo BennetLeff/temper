@@ -188,7 +188,7 @@ fn classify_number(word: &str, next_is_space_or_paren: bool) -> Option<KiAtom> {
 /// Returns `Err` on unbalanced parentheses (kiutils raises `AssertionError` /
 /// `IndexError` there; we raise a typed error instead -- both sides raise on
 /// malformed input, which is all the differential requires).
-fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
+pub(crate) fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
     let bytes = input.as_bytes();
     let mut i = 0usize;
     let mut stack: Vec<Vec<KiNode>> = vec![Vec::new()];
@@ -388,6 +388,29 @@ fn num_to_string(v: Num) -> String {
     }
 }
 
+/// Shortest round-trip decimal digits of a finite, non-zero `v`, as
+/// `(negative, digits, exponent)` where the represented value is
+/// `digits[0].digits[1..] * 10^exponent` (the digit string carries no
+/// decimal point; `format!("{v:e}")`'s mantissa/exponent are split and the
+/// dot stripped). Shared by CPython-exact `py_repr_f64` (fixed-notation for
+/// `1e-4 <= |v| < 1e16`, scientific otherwise) and the S-expression writer's
+/// always-fixed rendering (see `sexpr_writer.rs` -- a scientific token is
+/// NOT a kiutils number token and would re-parse as a bare string, breaking
+/// write round-trip parity).
+pub(crate) fn shortest_digits(v: f64) -> Result<(bool, String, i32), String> {
+    let s = format!("{v:e}");
+    let (mant, exp) = s
+        .split_once('e')
+        .ok_or_else(|| format!("format e produced no exponent for {v}"))?;
+    let exp: i32 = exp.parse().map_err(|_| format!("format e produced a non-numeric exponent for {v}"))?;
+    let (neg, mant) = match mant.strip_prefix('-') {
+        Some(rest) => (true, rest),
+        None => (false, mant),
+    };
+    let digits: String = mant.chars().filter(|c| *c != '.').collect();
+    Ok((neg, digits, exp))
+}
+
 /// CPython's `repr()`/`str()` of a float: shortest round-trip digits, fixed
 /// notation for `1e-4 <= |v| < 1e16` (with a mandatory `.0` on integral
 /// values), scientific otherwise (`1e-05`, `1e+16`), exponent zero-padded to
@@ -402,16 +425,7 @@ fn py_repr_f64(v: f64) -> Result<String, String> {
     if v == 0.0 {
         return Ok(if v.is_sign_negative() { "-0.0".to_string() } else { "0.0".to_string() });
     }
-    let s = format!("{v:e}");
-    let (mant, exp) = s
-        .split_once('e')
-        .ok_or_else(|| format!("format e produced no exponent for {v}"))?;
-    let exp: i32 = exp.parse().map_err(|_| format!("format e produced a non-numeric exponent for {v}"))?;
-    let (neg, mant) = match mant.strip_prefix('-') {
-        Some(rest) => (true, rest),
-        None => (false, mant),
-    };
-    let digits: String = mant.chars().filter(|c| *c != '.').collect();
+    let (neg, digits, exp) = shortest_digits(v)?;
     let mut out = String::new();
     if neg {
         out.push('-');
@@ -3594,6 +3608,15 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(tokenize, &sub)?)?;
+    // Wave 4 Phase 3 (formats/IO): the S-expression writer -- the inverse
+    // of this module's tokenizer (see sexpr_writer.rs). parse -> write ->
+    // parse is the identity on the KiNode tree, so these functions are the
+    // kiutils-free board-serialization surface.
+    sub.add_function(wrap_pyfunction!(crate::sexpr_writer::write_board_sexpr_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::embed_title_block_comment_py,
+        &sub
+    )?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }

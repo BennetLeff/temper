@@ -32,6 +32,27 @@ if TYPE_CHECKING:
     # invisible to lint -- mypy is the first gate that actually checks it.
     from temper_placer.deterministic.state import BoardState
 
+
+def _serialize_board(board) -> str:
+    """Final board serialization: kiutils object -> text -> Rust writer.
+
+    Wave 4 Phase 3 (formats/IO): the Rust S-expression writer
+    (``temper_design_bundle_python.parse_engine.write_board_sexpr_py``)
+    re-serializes kiutils' ``Board.to_sexpr()`` output from the token tree.
+    Re-parse parity is the contract (``sexpr_writer.rs``: parse -> write ->
+    parse is the identity on the tree), so the written file is semantically
+    identical to kiutils' own ``to_sexpr`` while the serializer itself is
+    Rust. Fails closed (ValueError) if kiutils ever emits text the Rust
+    tokenizer cannot parse -- it never writes half a board.
+
+    This is the production wiring of the writer kernel (the
+    unwired-kernel-inventory gate counts a module registered with pyo3 as
+    unwired until a non-test caller invokes it).
+    """
+    import temper_design_bundle_python as _tdb
+
+    return _tdb.parse_engine.write_board_sexpr_py(board.to_sexpr())
+
 # Layer mapping from grid layer index to KiCad layer name.
 # The canonical Temper board is 4-layer. 2-layer is not a production
 # path and has been removed.
@@ -510,7 +531,7 @@ def export_routed_pcb(
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
     _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    output_pcb.write_text(_serialize_board(board))
 
     # Automatically fill zones if requested (temper-x8jz)
     if auto_fill_zones:
@@ -617,15 +638,17 @@ def export_board_state(
 
     # Provenance header (plan 2026-07-15-001, unit U5). Skipped, not faked,
     # when the netlist isn't available -- this export path also runs against
-    # boards/fixtures unrelated to this project's real netlist.
+    # boards/fixtures unrelated to this project's real netlist. The embed
+    # is the Rust text kernel (provenance.py: parse -> mutate KiNode tree ->
+    # serialize), applied to the Rust-serialized board text.
+    board_text = _serialize_board(board)
     resolved_netlist_path = netlist_path or Path("elec/build/default.net")
     if resolved_netlist_path.exists():
         from temper_placer.io.provenance import compute_provenance, embed_provenance
 
         provenance = compute_provenance(template_pcb, resolved_netlist_path, config_path)
-        embed_provenance(board, provenance)
-
-    board.to_file(str(output_pcb))
+        board_text = embed_provenance(board_text, provenance)
+    output_pcb.write_text(board_text)
 
     # Automatically fill zones if requested
     if auto_fill_zones:
@@ -703,7 +726,7 @@ def export_from_geometry(
 
     # Write output
     _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    output_pcb.write_text(_serialize_board(board))
 
     return ExportResult(
         output_path=output_pcb,
