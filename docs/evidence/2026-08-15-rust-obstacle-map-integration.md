@@ -2,6 +2,19 @@
 
 # Rust obstacle-map integration: the A* containment predicate moves to temper-geometry
 
+> **2026-08-20 correction — the "0 mismatches" headline is board-specific and
+> was later broken.** Every number below is reproducible and was honest for the
+> board it was measured on (sha256 `077d4b69`); re-measured 2026-08-20, the
+> *unmodified* kernel still scores exactly 0 mismatches there. But it was
+> never a property of the kernel. The copper regeneration in #1312 produced
+> geometry that put cell centres exactly on axis-aligned C-space edges, and the
+> kernel's inverted index arithmetic then freed **3,020 cells that GEOS
+> blocks** — the permissive direction, at exactly the clearance distance. The
+> §3 claim of "cell-for-cell identical to GEOS **on the real board**" should be
+> read as "on *that* board". See
+> `docs/evidence/2026-08-20-rust-obstacle-rasteriser-geos-parity-loss.md` for
+> the mechanism, the fix, and the parity contract that replaced it.
+
 **Date:** 2026-08-15
 **Task:** wire the Rust geometry kernels into the Python A* obstacle checking.
 **Result:** the last Python collision-geometry kernel in the obstacle pipeline —
