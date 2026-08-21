@@ -3288,6 +3288,160 @@ fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyA
     out.into_any().unbind().into_py_any(py)
 }
 
+/// Extract per-footprint info (reference, position, value, local pads)
+/// from raw `.kicad_pcb` text. Returns a list of dicts, one per
+/// footprint, each with keys:
+///   ``ref`` (str|None), ``x`` (f64), ``y`` (f64), ``angle`` (f64),
+///   ``value`` (str|None), ``pads`` (list of (lx, ly, w, h) tuples).
+/// Pad positions are LOCAL (relative to the footprint origin), as
+/// stored in the .kicad_pcb file — the caller applies the footprint
+/// rotation if needed.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_footprint_info_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    let out = PyList::empty(py);
+    for fp in &raw.footprints {
+        let ref_str = get_footprint_reference(fp);
+        let value = fp
+            .properties
+            .iter()
+            .find(|(k, _)| k == "Value")
+            .map(|(_, v)| v.clone());
+        let angle = fp.position.angle.map(|a| a.as_f64()).unwrap_or(0.0);
+
+        let pads_list = PyList::empty(py);
+        for pad in &fp.pads {
+            let lx = pad.position.x.to_f64();
+            let ly = pad.position.y.to_f64();
+            let w = pad.size.x.to_f64();
+            let h = pad.size.y.to_f64();
+            pads_list.append((lx, ly, w, h))?;
+        }
+
+        let d = PyDict::new(py);
+        match &ref_str {
+            Some(r) => d.set_item("ref", r.as_str())?,
+            None => d.set_item("ref", py.None())?,
+        }
+        d.set_item("x", fp.position.x.to_f64())?;
+        d.set_item("y", fp.position.y.to_f64())?;
+        d.set_item("angle", angle)?;
+        match &value {
+            Some(v) => d.set_item("value", v.as_str())?,
+            None => d.set_item("value", py.None())?,
+        }
+        d.set_item("pads", pads_list)?;
+        out.append(d)?;
+    }
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Extract board outline from raw `.kicad_pcb` text: collects all
+/// line-segment endpoints on the ``Edge.Cuts`` layer from board-level
+/// graphic items. Returns a list of ``(start_x, start_y, end_x, end_y)``
+/// tuples.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_board_outline_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    let out = PyList::empty(py);
+    for item in &raw.graphic_items {
+        if let crate::parse_engine::RawGrItem::Line { start, end, layer } = item {
+            if layer == "Edge.Cuts" {
+                out.append((
+                    start.x.to_f64(),
+                    start.y.to_f64(),
+                    end.x.to_f64(),
+                    end.y.to_f64(),
+                ))?;
+            }
+        }
+    }
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Strip trace items (segments, vias, arcs) from a `.kicad_pcb` document
+/// tree, optionally removing zones and/or zone fills. Returns a tuple
+/// ``(new_text, traces_removed, vias_removed, zones_removed)``.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn strip_trace_items_py(
+    content: &str,
+    keep_zones: bool,
+    keep_fills: bool,
+) -> PyResult<(String, i64, i64, i64)> {
+    use crate::sexpr_writer::write_board_document;
+    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let root = nodes.first_mut().ok_or_else(|| {
+        PyValueError::new_err("empty document — no root node")
+    })?;
+    let KiNode::List(root_items) = root else {
+        return Err(PyValueError::new_err("document root is not a list"));
+    };
+    let root_is_pcb = matches!(
+        root_items.first(),
+        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb"
+    );
+    if !root_is_pcb {
+        return Err(PyValueError::new_err(
+            "document root is not a (kicad_pcb ...) list",
+        ));
+    }
+
+    let mut traces_removed = 0i64;
+    let mut vias_removed = 0i64;
+    let mut zones_removed = 0i64;
+
+    let mut filtered: Vec<KiNode> = Vec::with_capacity(root_items.len());
+    for item in root_items.iter() {
+        let KiNode::List(sub) = item else {
+            filtered.push(item.clone());
+            continue;
+        };
+        let head = match sub.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) => b.as_str(),
+            _ => {
+                filtered.push(item.clone());
+                continue;
+            }
+        };
+        match head {
+            "segment" | "arc" => {
+                traces_removed += 1;
+            }
+            "via" => {
+                vias_removed += 1;
+            }
+            "zone" => {
+                if !keep_zones {
+                    zones_removed += 1;
+                } else if !keep_fills {
+                    // Keep the zone outline but strip filledPolygons
+                    let mut stripped = sub.clone();
+                    stripped.retain(|n| {
+        !matches!(n, KiNode::List(fl) if matches!(fl.first(),
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "filled_polygon"))
+                    });
+                    filtered.push(KiNode::List(stripped));
+                } else {
+                    filtered.push(item.clone());
+                }
+            }
+            _ => {
+                filtered.push(item.clone());
+            }
+        }
+    }
+    if !keep_zones {
+        // zones_removed was counted above; zones were not pushed to filtered
+    }
+    *root_items = filtered;
+
+    let text = write_board_document(&nodes);
+    Ok((text, traces_removed, vias_removed, zones_removed))
+}
+
 /// Test/conformance surface: tokenize `content` with the kiutils-exact
 /// tokenizer and return the top-level s-expression as a Python value (the
 /// same shape kiutils' ``parse_sexp`` returns -- ``out[0]``). Drives the
@@ -3604,6 +3758,9 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_class::<Position>()?;
     sub.add_function(wrap_pyfunction!(parse_kicad_pcb, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_footprint_positions, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_footprint_info_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_board_outline_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(strip_trace_items_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
