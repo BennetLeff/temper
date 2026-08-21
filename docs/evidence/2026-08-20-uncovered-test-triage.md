@@ -29,17 +29,26 @@ re-confirmed in a serial re-run in this environment.
 | | |
 |---|---|
 | collected | 12,652 (collect-only, **0 collection errors**) |
-| executed | 12,643 |
-| passed | 12,546 |
-| failed | 42 |
+| executed | 12,647 |
+| passed | 12,547 |
+| failed (raw) | 45 |
+| — of which timeouts, not failures | 3 |
+| — of which non-reproducible noise | 1 |
+| **substantive failures** | **41** |
 | errors | 0 |
 | skipped | 55 |
-| files timing out at the 2400 s guard (NOT failures) | 1 |
 
-File-level, of the 369: **340 fully green**, **19 carrying all 42 failures**,
-**9 collecting zero tests**, 1 exceeding the 2400 s per-file guard
-(`tests/closure/test_router_completion.py` — three SM gates each shelling out
-to a full closure pipeline; not a failure).
+No file hit the 2400 s per-file wall-clock guard; every one of the 369 ran to
+completion. The 3 discounted failures are
+`tests/closure/test_router_completion.py`'s SM1/SM2/SM6, which all die on the
+test's *own* internal `subprocess` cap
+(`TimeoutExpired: ... measure_closure.py ... timed out after 600 seconds`) —
+the closure pipeline genuinely takes ~1134 s, so that 600 s cap can never be
+met on this board. Those are timeouts and are not counted as failures. The 4th
+discount is the microbenchmark below.
+
+File-level, of the 369: **340 fully green**, **20 carrying all 45 raw
+failures**, **9 collecting zero tests**.
 
 ### ctest — 19 entries
 
@@ -163,8 +172,9 @@ Reproduce:
 
 Detected by `packages/temper-placer/tests/cli/test_optimize_no_loop.py` (4 failures).
 
-`cli/__init__.py:714` writes with `board_origin=board.origin`, converting solved
-positions into absolute file coordinates. The after-write oracle at `:746` is
+`cli/__init__.py:709` calls `write_placements_to_pcb` with
+`board_origin=board.origin` (`:722`), converting solved positions into absolute
+file coordinates. The after-write oracle at `:746` is
 then handed the raw `cp_result.positions`, still in the normalized frame.
 `check_placement_roundtrip`'s docstring requires positions "in the same
 coordinate frame the writer wrote (file coordinates)", so every component and
@@ -254,9 +264,24 @@ All attributed to a landed commit.
   `pytest.skip("No golden fixtures available", allow_module_level=True)`.
   Environment artifact: the golden fixtures are absent from a fresh clone, so
   these would need fixture generation before they could contribute anything.
-* `test_dag_expr_perf::test_parse_perf_ab_with_parity` — a microbenchmark
-  (`Rust parse is 1.4x SLOWER`) measured under the 4-way-parallel sweep.
-  Timing-sensitive; re-run serially before treating as real.
+* `test_router_completion.py` SM1/SM2/SM6 — all three fail with
+  `subprocess.TimeoutExpired: measure_closure.py ... timed out after 600
+  seconds`, the test's own internal cap. They never reach their quality
+  assertions, so this says nothing about routing completion or DRC clearance
+  pass rate. The cap is unmeetable: the closure pipeline takes ~1134 s
+  (independently measured by `test_closure_bottleneck_perf`). Counted as
+  timeouts, not failures. Worth noting the baseline these gates compare against
+  is `router_completion_pct: 33.0` / `drc_clearance_pass_pct: 100.0` captured
+  2026-06-23 @ `2334d647`, with SM1's 90 % an aspirational target, not a
+  regression threshold — so even on a run that completed, a failure here would
+  need care before being called a regression.
+* `test_dag_expr_perf::test_parse_perf_ab_with_parity` — **does not reproduce.**
+  It failed once in the 4-way-parallel sweep (`Rust parse is 1.4x SLOWER`,
+  speedup 0.71x), then passed 9/9 four times running: once under equal-or-heavier
+  load (a full closure pipeline running concurrently) and three more times on a
+  quiet box. A microbenchmark perturbed by the sweep's own parallelism; not a
+  defect. This is the one failure of the 45 that is measurement noise rather
+  than a real signal.
 
 ## Cannot determine
 
@@ -269,8 +294,9 @@ All attributed to a landed commit.
 ## Verdict
 
 The 388 are **mostly neglect, but not only neglect.** All 19 ctest entries and
-12,545 of 12,641 pytest tests pass — a surface that is 99.7% green and would
-largely just work if wired in. But the 41 failures are not uniform rot: five are
+12,547 of 12,647 pytest tests pass — a surface that is 99.6% green and would
+largely just work if wired in. But the 41 substantive failures are not uniform
+rot: five are
 real defects, and two of those touch mains-voltage safety directly — a netclass
 gap that disables the cited creepage/clearance DRU rules on four OVP protection
 nets, and a router obstacle map that has silently lost GEOS parity in the
