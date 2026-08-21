@@ -146,6 +146,17 @@ def extract_footprint_positions(content: str) -> dict[str, dict[str, float]]: ..
 def extract_net_classes(content: str) -> dict[str, dict[str, Any]]: ...
 def extract_stackup_raw(content: str) -> dict[str, Any]: ...
 def extract_metadata_raw(content: str) -> dict[str, Any]: ...
+
+# Registered in parse_engine.rs (:3615, :3617) but defined in sexpr_writer.rs,
+# which is why they were missed when the write-engine migration (#1416/#1421)
+# updated this stub: they are the only parse_engine exports whose Rust source
+# lives in another module. Both exist at runtime -- verified with
+# `hasattr(temper_design_bundle_python.parse_engine, ...)` after a fresh
+# `maturin develop` -- so the gap was purely in the type surface, and mypy
+# reported it as `Module has no attribute` against the stub rather than the
+# extension.
+def write_board_sexpr_py(content: str) -> str: ...
+def embed_title_block_comment_py(content: str, slot: int, text: str) -> str: ...
 def tokenize(content: str) -> Any:
     """Tokenize `content` with the kiutils-exact tokenizer and return the
     top-level s-expression (the same shape `kiutils.utils.sexpr.parse_sexp`
