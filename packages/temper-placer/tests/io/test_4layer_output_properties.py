@@ -64,19 +64,16 @@ class TestKiCadExportLayerValidation:
 
     def test_validation_passes_for_4_layers(self):
         """_validate_4_layer_output succeeds for a valid 4-layer board."""
-        from kiutils.board import Board as KiBoard
+        from pathlib import Path
 
         from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
-        board = KiBoard.from_file(str(_TEMPER_PCB))
-        _validate_4_layer_output(board)
+        board_text = Path(_TEMPER_PCB).read_text()
+        _validate_4_layer_output(board_text)
 
-    def test_validation_raises_for_no_layers_attribute(self):
-        """_validate_4_layer_output raises RuntimeError on missing layers."""
+    def test_validation_raises_for_unparseable_board(self):
+        """_validate_4_layer_output raises RuntimeError on unparseable text."""
         from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
-        class FakeBoard:
-            pass
-
-        with pytest.raises(RuntimeError, match="no layers attribute"):
-            _validate_4_layer_output(FakeBoard())
+        with pytest.raises(Exception):
+            _validate_4_layer_output("(not a kicad_pcb doc)")

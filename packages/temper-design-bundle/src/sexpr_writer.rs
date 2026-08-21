@@ -611,6 +611,33 @@ pub fn append_items_to_board_py(
     Ok(write_board_document(&nodes))
 }
 
+/// Null the drill of every SMD pad in raw `.kicad_pcb` text — the text-path
+/// replacement for `kicad_exporter.export_routed_pcb`'s SMD drill-corruption
+/// cleanup (kiutils < 1.4.9 mis-parses `(drill (offset ...))` into garbage
+/// that crashes export; the fix there set `pad.drill = None` on every SMD
+/// pad carrying any drill token). Here: drop the whole `(drill ...)`
+/// sub-list from every `(pad ... N smd ...)` child of a top-level footprint,
+/// serialize back. A removed drill token can never re-parse into a drill,
+/// so re-parse parity holds by construction. The tree mutation itself is
+/// [`crate::parse_engine::strip_smd_drills_in_tree`] (ungated, wasm-covered);
+/// this wrapper adds parse + serialize.
+#[pyfunction]
+pub fn strip_smd_drills_py(content: &str) -> PyResult<String> {
+    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    {
+        let root = nodes.first_mut().ok_or_else(|| {
+            PyValueError::new_err("empty document — no root node")
+        })?;
+        match root {
+            KiNode::List(root_items) => {
+                crate::parse_engine::strip_smd_drills_in_tree(root_items);
+            }
+            _ => return Err(PyValueError::new_err("document root is not a list")),
+        }
+    }
+    Ok(write_board_document(&nodes))
+}
+
 /// Parse raw `.kicad_pcb` text and extract the `{net_name: net_index}`
 /// mapping from all `(net N "name")` entries in the root list.
 /// Returns a Python dict. Fails closed (ValueError) if the text is not
