@@ -34,7 +34,7 @@ Seven nets, exactly the list `docs/evidence/2026-08-12-router-safety-clearances.
 
 `gnd` is **not** in either list. It is netclass `Power`, which declares no `plane_required`/`plane_preferred` strategy, so `_zone_layers_for_net("gnd") == []`. Its plane comes from a different module entirely — see sec 6.
 
-Reproduce: `docs/evidence/2026-08-13-zone-pour-safety-clearances-measure.py` shares the parsing; the net list above is `[n for n in board_nets if not _should_route(n)]` and `[n for n in board_nets if _zone_layers_for_net(n)]`.
+Reproduce: `docs/evidence/scripts/2026-08-13-zone-pour-safety-clearances-measure.py` shares the parsing; the net list above is `[n for n in board_nets if not _should_route(n)]` and `[n for n in board_nets if _zone_layers_for_net(n)]`.
 
 ---
 

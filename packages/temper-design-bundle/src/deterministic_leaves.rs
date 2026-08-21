@@ -14,13 +14,14 @@
 //! Home-crate decision: `temper-design-bundle` hosts the placements /
 //! component-math kernels (component_assignment, layer_assignment,
 //! power_plane, fine_pitch_escape, phased_component_assignment_validator's
-//! slot-grid kernels) and the leaf data contracts (sequential_routing_dataclasses
-//! `DiffPairConfig`), because they bind onto this crate's
-//! contract pyclasses (`Netlist`/`Component`/`LayerAssignment`) — the same
-//! rationale #762 recorded for `deterministic_stages.rs`. DRC-check stages
-//! (courtyard_check / drc_sweep / drc_validation / placement_validation) land
-//! in `temper-drc-rs`; GEOS/shapely- and router_v6-bound stages are recorded
-//! R3-style in `VERIFICATION.md`.
+//! slot-grid kernels) and the leaf data contracts (the `LayerAssignment`
+//! pyclass; the `DiffPairConfig` pyclass was deleted 2026-08-20 with the
+//! orphaned sequential-routing dataclass cluster), because they bind onto
+//! this crate's contract pyclasses (`Netlist`/`Component`/`LayerAssignment`)
+//! — the same rationale #762 recorded for `deterministic_stages.rs`.
+//! DRC-check stages (courtyard_check / drc_sweep / drc_validation /
+//! placement_validation) land in `temper-drc-rs`; GEOS/shapely- and
+//! router_v6-bound stages are recorded R3-style in `VERIFICATION.md`.
 
 use std::collections::{HashMap, HashSet};
 use std::panic::AssertUnwindSafe;
@@ -81,133 +82,6 @@ fn py_number_repr(obj: &Bound<'_, PyAny>) -> PyResult<String> {
         return obj.repr().map(|r| r.to_string());
     }
     Ok(py_float_str(obj.extract::<f64>()?))
-}
-
-// ---------------------------------------------------------------------------
-// DiffPairConfig — sequential_routing_dataclasses.py
-// ---------------------------------------------------------------------------
-
-/// `DiffPairConfig` — a five-field plain dataclass (two required strings,
-/// three float defaults). The dataclass coerces nothing, so the three
-/// numeric fields store the CALLER's object (an int stays int, exactly like
-/// the oracle); the type-carrying differential canon pins that.
-#[pyclass(module = "temper_design_bundle_python", subclass)]
-#[derive(Debug)]
-pub struct DiffPairConfig {
-    net_pos: Py<PyAny>,
-    net_neg: Py<PyAny>,
-    spacing_mm: Py<PyAny>,
-    coupling_tolerance_mm: Py<PyAny>,
-    max_skew_mm: Py<PyAny>,
-}
-
-#[pymethods]
-impl DiffPairConfig {
-    /// Dataclass construction with defaults: `net_pos`/`net_neg` are
-    /// required positional-or-keyword; `spacing_mm=0.15`,
-    /// `coupling_tolerance_mm=0.5`, `max_skew_mm=0.5` are defaulted.
-    #[new]
-    #[pyo3(signature = (net_pos, net_neg, spacing_mm=None, coupling_tolerance_mm=None, max_skew_mm=None))]
-    fn new(
-        py: Python<'_>,
-        net_pos: &Bound<'_, PyAny>,
-        net_neg: &Bound<'_, PyAny>,
-        spacing_mm: Option<&Bound<'_, PyAny>>,
-        coupling_tolerance_mm: Option<&Bound<'_, PyAny>>,
-        max_skew_mm: Option<&Bound<'_, PyAny>>,
-    ) -> PyResult<Self> {
-        Ok(DiffPairConfig {
-            net_pos: net_pos.clone().unbind(),
-            net_neg: net_neg.clone().unbind(),
-            spacing_mm: match spacing_mm {
-                Some(v) => v.clone().unbind(),
-                None => 0.15_f64.into_bound_py_any(py)?.unbind(),
-            },
-            coupling_tolerance_mm: match coupling_tolerance_mm {
-                Some(v) => v.clone().unbind(),
-                None => 0.5_f64.into_bound_py_any(py)?.unbind(),
-            },
-            max_skew_mm: match max_skew_mm {
-                Some(v) => v.clone().unbind(),
-                None => 0.5_f64.into_bound_py_any(py)?.unbind(),
-            },
-        })
-    }
-
-    #[getter]
-    fn net_pos(&self, py: Python<'_>) -> Py<PyAny> {
-        self.net_pos.clone_ref(py)
-    }
-    #[setter]
-    fn set_net_pos(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-        self.net_pos = v.into_any().unbind();
-    }
-
-    #[getter]
-    fn net_neg(&self, py: Python<'_>) -> Py<PyAny> {
-        self.net_neg.clone_ref(py)
-    }
-    #[setter]
-    fn set_net_neg(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-        self.net_neg = v.into_any().unbind();
-    }
-
-    #[getter]
-    fn spacing_mm(&self, py: Python<'_>) -> Py<PyAny> {
-        self.spacing_mm.clone_ref(py)
-    }
-    #[setter]
-    fn set_spacing_mm(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-        self.spacing_mm = v.into_any().unbind();
-    }
-
-    #[getter]
-    fn coupling_tolerance_mm(&self, py: Python<'_>) -> Py<PyAny> {
-        self.coupling_tolerance_mm.clone_ref(py)
-    }
-    #[setter]
-    fn set_coupling_tolerance_mm(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-        self.coupling_tolerance_mm = v.into_any().unbind();
-    }
-
-    #[getter]
-    fn max_skew_mm(&self, py: Python<'_>) -> Py<PyAny> {
-        self.max_skew_mm.clone_ref(py)
-    }
-    #[setter]
-    fn set_max_skew_mm(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-        self.max_skew_mm = v.into_any().unbind();
-    }
-
-    fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
-        let pos = self.net_pos.bind(py);
-        let neg = self.net_neg.bind(py);
-        let spacing = self.spacing_mm.bind(py);
-        let coupling = self.coupling_tolerance_mm.bind(py);
-        let skew = self.max_skew_mm.bind(py);
-        Ok(format!(
-            "DiffPairConfig(net_pos={}, net_neg={}, spacing_mm={}, coupling_tolerance_mm={}, max_skew_mm={})",
-            py_str_repr(&pos.str()?.to_string()),
-            py_str_repr(&neg.str()?.to_string()),
-            py_number_repr(spacing)?,
-            py_number_repr(coupling)?,
-            py_number_repr(skew)?,
-        ))
-    }
-
-    fn __eq__(&self, py: Python<'_>, other: &Bound<'_, PyAny>) -> PyResult<bool> {
-        let other = other.extract::<PyRef<'_, DiffPairConfig>>()?;
-        let a = self.spacing_mm.bind(py);
-        let b = other.spacing_mm.bind(py);
-        Ok(self.net_pos.bind(py).eq(other.net_pos.bind(py))?
-            && self.net_neg.bind(py).eq(other.net_neg.bind(py))?
-            && a.eq(b)?
-            && self
-                .coupling_tolerance_mm
-                .bind(py)
-                .eq(other.coupling_tolerance_mm.bind(py))?
-            && self.max_skew_mm.bind(py).eq(other.max_skew_mm.bind(py))?)
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1120,12 +994,1594 @@ fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64),
 // Registration
 // ---------------------------------------------------------------------------
 
+// --- BEGIN generated by scripts/gen_oracle_freeze.py: power_plane ---
+    /// Frozen golden vectors for `recompute_plane_assignments` (FREEZE, batch 2).
+    /// Regenerate: `python3 scripts/gen_oracle_freeze.py --spec power_plane`
+    /// (requires reviving the deleted oracle from git history first -- see
+    /// scripts/oracle_freeze_specs/power_plane.py's module docstring).
+    #[cfg(test)]
+    mod frozen_power_plane_tests {
+        use super::*;
+        use std::collections::HashMap;
+
+        struct FrozenPowerPlaneCase {
+            existing: &'static [(&'static str, i64, bool, bool)],
+            plane_nets: &'static [&'static str],
+            plane_layers: &'static [(&'static str, i64)],
+            all_nets: &'static [&'static str],
+            expected: &'static [(&'static str, i64, bool, bool)],
+            tags: &'static [&'static str],
+        }
+
+        const FROZEN_POWER_PLANE_GOLDEN: &[FrozenPowerPlaneCase] = &[
+            FrozenPowerPlaneCase {
+                existing: &[("GND", 1i64, true, false), ("SPI_CLK", 0i64, true, false)],
+                plane_nets: &["GND", "+5V"],
+                plane_layers: &[("GND", 1i64), ("+5V", 2i64)],
+                all_nets: &["GND", "SPI_CLK", "+5V"],
+                expected: &[("GND", 1i64, true, true), ("SPI_CLK", 0i64, true, false), ("+5V", 2i64, true, true)],
+                tags: &["existing_non_plane", "existing_upgrade", "kernel:recompute", "new_plane_added"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("SPI_CLK", 0i64, true, false)],
+                plane_nets: &["GND"],
+                plane_layers: &[("GND", 1i64)],
+                all_nets: &["GND", "SPI_CLK"],
+                expected: &[("SPI_CLK", 0i64, true, false), ("GND", 1i64, true, true)],
+                tags: &["existing_non_plane", "kernel:recompute", "new_plane_added"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["GND"],
+                plane_layers: &[],
+                all_nets: &["GND"],
+                expected: &[("GND", 1i64, true, true)],
+                tags: &["kernel:recompute", "layer_fallback_1", "new_plane_added"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("GND", 0i64, true, false)],
+                plane_nets: &["GND"],
+                plane_layers: &[],
+                all_nets: &["GND"],
+                expected: &[("GND", 1i64, true, true)],
+                tags: &["existing_upgrade", "kernel:recompute", "layer_fallback_1"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["SPI_CLK", "GATE_HI"],
+                expected: &[("SPI_CLK", 0i64, true, false), ("GATE_HI", 0i64, true, false)],
+                tags: &["kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("SPI_CLK", 0i64, false, false)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["SPI_CLK"],
+                expected: &[("SPI_CLK", 0i64, false, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("GND", 1i64, true, false)],
+                plane_nets: &["GND", "NONEXISTENT"],
+                plane_layers: &[("GND", 1i64)],
+                all_nets: &["GND"],
+                expected: &[("GND", 1i64, true, true)],
+                tags: &["existing_upgrade", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["GND"],
+                plane_layers: &[("GND", 1i64)],
+                all_nets: &[],
+                expected: &[],
+                tags: &["kernel:recompute", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &[],
+                expected: &[],
+                tags: &["empty_inputs", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("GND", 0i64, true, false)],
+                plane_nets: &["GND"],
+                plane_layers: &[("GND", 2i64)],
+                all_nets: &["GND"],
+                expected: &[("GND", 2i64, true, true)],
+                tags: &["existing_upgrade", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("A", 0i64, true, false), ("B", 0i64, true, false)],
+                plane_nets: &["Z"],
+                plane_layers: &[("Z", 2i64)],
+                all_nets: &["A", "B", "Z", "C"],
+                expected: &[("A", 0i64, true, false), ("B", 0i64, true, false), ("Z", 2i64, true, true), ("C", 0i64, true, false)],
+                tags: &["existing_non_plane", "kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("GND", 3i64, true, true)],
+                plane_nets: &["GND"],
+                plane_layers: &[("GND", 1i64)],
+                all_nets: &["GND"],
+                expected: &[("GND", 1i64, true, true)],
+                tags: &["existing_upgrade", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("NET", 2i64, false, true)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["NET"],
+                expected: &[("NET", 2i64, false, true)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("X", 0i64, true, false)],
+                plane_nets: &["X"],
+                plane_layers: &[("X", 4i64)],
+                all_nets: &["X", "Y"],
+                expected: &[("X", 4i64, true, true), ("Y", 0i64, true, false)],
+                tags: &["existing_upgrade", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["N1"],
+                plane_layers: &[("N1", 3i64)],
+                all_nets: &["N0"],
+                expected: &[("N0", 0i64, true, false)],
+                tags: &["kernel:recompute", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, true, false), ("N1", 1i64, false, true)],
+                plane_nets: &["N0"],
+                plane_layers: &[("N0", 3i64)],
+                all_nets: &["N5"],
+                expected: &[("N0", 3i64, true, true), ("N1", 1i64, false, true), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "existing_upgrade", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, true, false), ("N1", 0i64, true, true)],
+                plane_nets: &["N4"],
+                plane_layers: &[],
+                all_nets: &["N4", "N5"],
+                expected: &[("N0", 0i64, true, false), ("N1", 0i64, true, true), ("N4", 1i64, true, true), ("N5", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, false, false)],
+                plane_nets: &["N1", "N2"],
+                plane_layers: &[("N1", 0i64)],
+                all_nets: &["N0", "N5"],
+                expected: &[("N0", 0i64, false, false), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["N0"],
+                plane_layers: &[("N0", 3i64)],
+                all_nets: &["N0", "N4"],
+                expected: &[("N0", 3i64, true, true), ("N4", 0i64, true, false)],
+                tags: &["kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, false, false), ("N1", 0i64, false, true), ("N2", 0i64, false, true)],
+                plane_nets: &["N4"],
+                plane_layers: &[],
+                all_nets: &["N3"],
+                expected: &[("N0", 1i64, false, false), ("N1", 0i64, false, true), ("N2", 0i64, false, true), ("N3", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, false), ("N1", 2i64, false, false)],
+                plane_nets: &["N0", "N3", "N4"],
+                plane_layers: &[("N3", 3i64), ("N4", 3i64)],
+                all_nets: &["N1", "N5"],
+                expected: &[("N0", 1i64, false, true), ("N1", 2i64, false, false), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_upgrade", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, true)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["N0", "N1", "N3"],
+                expected: &[("N0", 2i64, false, true), ("N1", 0i64, true, false), ("N3", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, false, false)],
+                plane_nets: &["N0", "N2", "N3"],
+                plane_layers: &[("N0", 3i64), ("N2", 2i64), ("N3", 2i64)],
+                all_nets: &["N5"],
+                expected: &[("N0", 3i64, false, true), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_upgrade", "kernel:recompute", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, true, false)],
+                plane_nets: &["N3", "N5"],
+                plane_layers: &[("N3", 3i64)],
+                all_nets: &["N3"],
+                expected: &[("N0", 0i64, true, false), ("N3", 3i64, true, true)],
+                tags: &["existing_non_plane", "kernel:recompute", "layer_fallback_1", "new_plane_added", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["N1", "N3", "N4"],
+                plane_layers: &[("N1", 3i64), ("N3", 1i64)],
+                all_nets: &["N1", "N2", "N3", "N4"],
+                expected: &[("N1", 3i64, true, true), ("N3", 1i64, true, true), ("N4", 1i64, true, true), ("N2", 0i64, true, false)],
+                tags: &["kernel:recompute", "layer_fallback_1", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, false, true), ("N1", 1i64, false, false)],
+                plane_nets: &["N2", "N4", "N5"],
+                plane_layers: &[("N2", 1i64), ("N5", 3i64)],
+                all_nets: &[],
+                expected: &[("N0", 1i64, false, true), ("N1", 1i64, false, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, true)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["N5"],
+                expected: &[("N0", 2i64, false, true), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["N2", "N5"],
+                plane_layers: &[("N2", 1i64), ("N5", 3i64)],
+                all_nets: &["N1", "N3"],
+                expected: &[("N1", 0i64, true, false), ("N3", 0i64, true, false)],
+                tags: &["kernel:recompute", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, true, true), ("N1", 3i64, true, false), ("N2", 3i64, true, true)],
+                plane_nets: &["N2", "N5"],
+                plane_layers: &[("N2", 1i64), ("N5", 2i64)],
+                all_nets: &["N2", "N4", "N5"],
+                expected: &[("N0", 2i64, true, true), ("N1", 3i64, true, false), ("N2", 1i64, true, true), ("N5", 2i64, true, true), ("N4", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "existing_upgrade", "kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, true, false), ("N1", 1i64, true, false)],
+                plane_nets: &["N0", "N4", "N5"],
+                plane_layers: &[("N4", 1i64)],
+                all_nets: &["N1", "N2"],
+                expected: &[("N0", 1i64, true, true), ("N1", 1i64, true, false), ("N2", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_upgrade", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, true, true)],
+                plane_nets: &["N1", "N2"],
+                plane_layers: &[("N1", 0i64)],
+                all_nets: &["N0", "N1", "N3"],
+                expected: &[("N0", 1i64, true, true), ("N1", 0i64, true, true), ("N3", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "new_plane_added", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, true, true), ("N1", 2i64, true, true), ("N2", 2i64, true, false)],
+                plane_nets: &["N3"],
+                plane_layers: &[],
+                all_nets: &[],
+                expected: &[("N0", 3i64, true, true), ("N1", 2i64, true, true), ("N2", 2i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, false)],
+                plane_nets: &["N4"],
+                plane_layers: &[("N4", 1i64)],
+                all_nets: &["N0", "N1"],
+                expected: &[("N0", 2i64, false, false), ("N1", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "kernel:recompute", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, true, false)],
+                plane_nets: &["N4"],
+                plane_layers: &[("N4", 1i64)],
+                all_nets: &["N2", "N3", "N4"],
+                expected: &[("N0", 0i64, true, false), ("N4", 1i64, true, true), ("N2", 0i64, true, false), ("N3", 0i64, true, false)],
+                tags: &["existing_non_plane", "kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, true)],
+                plane_nets: &["N0", "N4"],
+                plane_layers: &[("N4", 1i64)],
+                all_nets: &["N0", "N1", "N3"],
+                expected: &[("N0", 1i64, false, true), ("N1", 0i64, true, false), ("N3", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_upgrade", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, true, false)],
+                plane_nets: &["N0", "N3"],
+                plane_layers: &[("N0", 3i64), ("N3", 3i64)],
+                all_nets: &["N0"],
+                expected: &[("N0", 3i64, true, true)],
+                tags: &["existing_upgrade", "kernel:recompute", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, true, true), ("N1", 3i64, false, true)],
+                plane_nets: &["N2"],
+                plane_layers: &[("N2", 3i64)],
+                all_nets: &[],
+                expected: &[("N0", 3i64, true, true), ("N1", 3i64, false, true)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, false, true), ("N1", 0i64, true, false), ("N2", 1i64, false, false)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["N1", "N2", "N4", "N5"],
+                expected: &[("N0", 0i64, false, true), ("N1", 0i64, true, false), ("N2", 1i64, false, false), ("N4", 0i64, true, false), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, false, false), ("N1", 1i64, false, false), ("N2", 3i64, false, false)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &[],
+                expected: &[("N0", 1i64, false, false), ("N1", 1i64, false, false), ("N2", 3i64, false, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, true, false), ("N1", 2i64, true, true)],
+                plane_nets: &["N4"],
+                plane_layers: &[],
+                all_nets: &["N3"],
+                expected: &[("N0", 3i64, true, false), ("N1", 2i64, true, true), ("N3", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, true, false)],
+                plane_nets: &["N2"],
+                plane_layers: &[],
+                all_nets: &[],
+                expected: &[("N0", 1i64, true, false)],
+                tags: &["existing_non_plane", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 0i64, true, false), ("N1", 3i64, false, true), ("N2", 3i64, true, true)],
+                plane_nets: &["N2", "N3"],
+                plane_layers: &[("N2", 3i64), ("N3", 2i64)],
+                all_nets: &["N0", "N3", "N5"],
+                expected: &[("N0", 0i64, true, false), ("N1", 3i64, false, true), ("N2", 3i64, true, true), ("N3", 2i64, true, true), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "existing_upgrade", "kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, true, false), ("N1", 3i64, false, true), ("N2", 2i64, false, true)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["N0", "N2", "N4"],
+                expected: &[("N0", 1i64, true, false), ("N1", 3i64, false, true), ("N2", 2i64, false, true), ("N4", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["N0", "N1"],
+                plane_layers: &[("N0", 2i64), ("N1", 2i64)],
+                all_nets: &["N0"],
+                expected: &[("N0", 2i64, true, true)],
+                tags: &["kernel:recompute", "new_plane_added", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, true), ("N1", 0i64, true, true)],
+                plane_nets: &["N0"],
+                plane_layers: &[],
+                all_nets: &["N2", "N4"],
+                expected: &[("N0", 1i64, false, true), ("N1", 0i64, true, true), ("N2", 0i64, true, false), ("N4", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "existing_upgrade", "kernel:recompute", "layer_fallback_1", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, false, false), ("N1", 0i64, true, true), ("N2", 2i64, true, true)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &[],
+                expected: &[("N0", 1i64, false, false), ("N1", 0i64, true, true), ("N2", 2i64, true, true)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, false, true), ("N1", 3i64, false, false), ("N2", 1i64, false, false)],
+                plane_nets: &["N4"],
+                plane_layers: &[("N4", 3i64)],
+                all_nets: &["N1", "N3", "N4", "N5"],
+                expected: &[("N0", 1i64, false, true), ("N1", 3i64, false, false), ("N2", 1i64, false, false), ("N4", 3i64, true, true), ("N3", 0i64, true, false), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 1i64, true, false), ("N1", 1i64, true, true), ("N2", 0i64, true, true)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["N4", "N5"],
+                expected: &[("N0", 1i64, true, false), ("N1", 1i64, true, true), ("N2", 0i64, true, true), ("N4", 0i64, true, false), ("N5", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, true, true)],
+                plane_nets: &["N3", "N5"],
+                plane_layers: &[],
+                all_nets: &["N0", "N1"],
+                expected: &[("N0", 3i64, true, true), ("N1", 0i64, true, false)],
+                tags: &["existing_non_plane", "existing_plane_kept", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, false, true), ("N1", 1i64, true, true), ("N2", 2i64, true, false)],
+                plane_nets: &["N5"],
+                plane_layers: &[("N5", 2i64)],
+                all_nets: &["N0"],
+                expected: &[("N0", 2i64, false, true), ("N1", 1i64, true, true), ("N2", 2i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "plane_dropped_not_in_netlist"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 2i64, true, true), ("N1", 2i64, false, false)],
+                plane_nets: &["N0", "N5"],
+                plane_layers: &[],
+                all_nets: &["N1", "N3", "N4"],
+                expected: &[("N0", 1i64, true, true), ("N1", 2i64, false, false), ("N3", 0i64, true, false), ("N4", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_upgrade", "kernel:recompute", "layer_fallback_1", "plane_dropped_not_in_netlist", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, false, false)],
+                plane_nets: &["N0"],
+                plane_layers: &[("N0", 0i64)],
+                all_nets: &["N1", "N3", "N5"],
+                expected: &[("N0", 0i64, false, true), ("N1", 0i64, true, false), ("N3", 0i64, true, false), ("N5", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_upgrade", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[("N0", 3i64, true, false), ("N1", 0i64, false, true), ("N2", 2i64, false, false)],
+                plane_nets: &[],
+                plane_layers: &[],
+                all_nets: &["N4"],
+                expected: &[("N0", 3i64, true, false), ("N1", 0i64, false, true), ("N2", 2i64, false, false), ("N4", 0i64, true, false)],
+                tags: &["allow_false_preserved", "existing_non_plane", "existing_plane_kept", "kernel:recompute", "remaining_layer0"],
+            },
+            FrozenPowerPlaneCase {
+                existing: &[],
+                plane_nets: &["N2"],
+                plane_layers: &[("N2", 0i64)],
+                all_nets: &["N0", "N1", "N2", "N3"],
+                expected: &[("N2", 0i64, true, true), ("N0", 0i64, true, false), ("N1", 0i64, true, false), ("N3", 0i64, true, false)],
+                tags: &["kernel:recompute", "new_plane_added", "remaining_layer0"],
+            },
+        ];
+
+        #[test]
+        fn frozen_power_plane_matches_golden_corpus() {
+            for case in FROZEN_POWER_PLANE_GOLDEN {
+                let existing: Vec<(String, i64, bool, bool)> = case.existing
+                    .iter().map(|&(n, l, a, i)| (n.to_string(), l, a, i)).collect();
+                let plane_nets: Vec<String> = case.plane_nets.iter().map(|s| s.to_string()).collect();
+                let mut plane_layers: HashMap<String, i64> = HashMap::new();
+                for &(k, v) in case.plane_layers { plane_layers.insert(k.to_string(), v); }
+                let all_nets: Vec<String> = case.all_nets.iter().map(|s| s.to_string()).collect();
+                let got = recompute_plane_assignments(&existing, &plane_nets, &plane_layers, &all_nets);
+                let want: Vec<(String, i64, bool, bool)> = case.expected
+                    .iter().map(|&(n, l, a, i)| (n.to_string(), l, a, i)).collect();
+                assert_eq!(got, want, "tags={:?}", case.tags);
+            }
+        }
+
+        /// Q2 non-vacuity guard: fails closed if the frozen corpus above were
+        /// ever hand-edited down to something trivially satisfiable.
+        #[test]
+        fn frozen_power_plane_corpus_is_non_vacuous() {
+            let n = FROZEN_POWER_PLANE_GOLDEN.len() as u32;
+            let count = |tag: &str| FROZEN_POWER_PLANE_GOLDEN.iter().filter(|c| c.tags.contains(&tag)).count() as u32;
+            assert!(count("kernel:recompute") >= 10, "kernel:recompute: only {}/{} (need >= 10) -- recompute golden vectors must be present", count("kernel:recompute"), n);
+            assert!(count("existing_upgrade") >= 4, "existing_upgrade: only {}/{} (need >= 4) -- existing plane-net assignment upgrade branch (is_plane=True)", count("existing_upgrade"), n);
+            assert!(count("existing_non_plane") >= 4, "existing_non_plane: only {}/{} (need >= 4) -- existing non-plane assignment pass-through branch", count("existing_non_plane"), n);
+            assert!(count("new_plane_added") >= 3, "new_plane_added: only {}/{} (need >= 3) -- plane net not in existing, present in netlist -> appended", count("new_plane_added"), n);
+            assert!(count("plane_dropped_not_in_netlist") >= 2, "plane_dropped_not_in_netlist: only {}/{} (need >= 2) -- plane net absent from the netlist is silently dropped", count("plane_dropped_not_in_netlist"), n);
+            assert!(count("layer_fallback_1") >= 2, "layer_fallback_1: only {}/{} (need >= 2) -- `plane_layers.get(net_name, 1)` default must be exercised", count("layer_fallback_1"), n);
+            assert!(count("remaining_layer0") >= 3, "remaining_layer0: only {}/{} (need >= 3) -- netlist nets with no assignment -> layer 0, non-plane", count("remaining_layer0"), n);
+            assert!(count("allow_false_preserved") >= 2, "allow_false_preserved: only {}/{} (need >= 2) -- allow_layer_change=False must survive the upgrade branch", count("allow_false_preserved"), n);
+            assert!(count("empty_inputs") >= 1, "empty_inputs: only {}/{} (need >= 1) -- all-empty inputs must return the empty list", count("empty_inputs"), n);
+        }
+    }
+// --- END generated by scripts/gen_oracle_freeze.py: power_plane ---
+
+// --- BEGIN generated by scripts/gen_oracle_freeze.py: slot_grid_validator ---
+    /// Frozen golden vectors for the validator slot-grid kernels
+    /// `infer_slot_spacing` / `build_slot_index` / `slots_within_radius` (FREEZE, batch 2).
+    /// Regenerate: `python3 scripts/gen_oracle_freeze.py --spec slot_grid_validator`
+    /// (requires reviving the deleted oracle from git history first -- see
+    /// scripts/oracle_freeze_specs/slot_grid_validator.py's module docstring).
+    #[cfg(test)]
+    mod frozen_slot_grid_tests {
+        use super::*;
+        use std::collections::HashMap;
+
+        struct FrozenSpacingCase {
+            slots: &'static [(f64, f64)],
+            expected_bits: u64,
+            tags: &'static [&'static str],
+        }
+
+        const FROZEN_SPACING_GOLDEN: &[FrozenSpacingCase] = &[
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x3FF0000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))],
+                expected_bits: 0x3ff0000000000000_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64))],
+                expected_bits: 0x4014000000000000_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[],
+                expected_bits: 0x4014000000000000_u64,
+                tags: &["kernel:spacing", "spacing_fallback_degenerate", "spacing_fallback_uniform"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))],
+                expected_bits: 0x4014000000000000_u64,
+                tags: &["kernel:spacing", "spacing_fallback_degenerate", "spacing_fallback_uniform"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64)), (f64::from_bits(0x4000000000000000_u64), f64::from_bits(0x4000000000000000_u64))],
+                expected_bits: 0x3ff0000000000000_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4008000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4018000000000000_u64))],
+                expected_bits: 0x4008000000000000_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4020000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64))],
+                expected_bits: 0x4008000000000000_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FB999999999999A_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FC999999999999A_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FD3333333333333_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FD999999999999A_u64), f64::from_bits(0x0000000000000000_u64))],
+                expected_bits: 0x3fb9999999999998_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x4000000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x4000000000000000_u64))],
+                expected_bits: 0x4014000000000000_u64,
+                tags: &["kernel:spacing", "spacing_fallback_uniform"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC008000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                expected_bits: 0x4008000000000000_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC01EE6E95924D1E8_u64), f64::from_bits(0x402C708AD188F430_u64)), (f64::from_bits(0xC031C192D2720C68_u64), f64::from_bits(0x4008D7CDE47E3650_u64)), (f64::from_bits(0xC02595898DB78DB7_u64), f64::from_bits(0x4030609B1868B6EC_u64))],
+                expected_bits: 0x400142ad7d21e6a0_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC02D46661CC21E00_u64), f64::from_bits(0xC0308CCA1C02FC48_u64)), (f64::from_bits(0x40200A095BD00C2A_u64), f64::from_bits(0x40318BA8326295A4_u64)), (f64::from_bits(0x4030613BC870A704_u64), f64::from_bits(0xC0310F8E067F2270_u64)), (f64::from_bits(0x402C469641F651D8_u64), f64::from_bits(0xC02FCD601B73B570_u64))],
+                expected_bits: 0x3fe0587d4f84c500_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x401A74DA57F56BE8_u64), f64::from_bits(0xC0331B15BD08ED9F_u64))],
+                expected_bits: 0x4014000000000000_u64,
+                tags: &["kernel:spacing", "spacing_fallback_degenerate", "spacing_fallback_uniform"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC021F1B0AC81D674_u64), f64::from_bits(0x403220F10328B634_u64)), (f64::from_bits(0xC0219007E0BE6EBA_u64), f64::from_bits(0xC02E669116EAEC47_u64)), (f64::from_bits(0x4028551184FFABC0_u64), f64::from_bits(0xC025D749297BA1F8_u64)), (f64::from_bits(0x403068B05D45E790_u64), f64::from_bits(0xC021F1DE3AAB4E5A_u64)), (f64::from_bits(0xC03330AD567C3B62_u64), f64::from_bits(0x3FE129AF63E41000_u64)), (f64::from_bits(0xC016EF950C87A116_u64), f64::from_bits(0xC02F77DC00955BF8_u64)), (f64::from_bits(0xC033456508479A64_u64), f64::from_bits(0xC0328D36C6EA2BC6_u64)), (f64::from_bits(0xC02B7AD232581EBE_u64), f64::from_bits(0x402F22E824EED2D4_u64))],
+                expected_bits: 0x3fb4b7b1cb5f0200_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x400796C5B0490750_u64), f64::from_bits(0xC031F16D386F9EB1_u64)), (f64::from_bits(0x4022FCFA9AE4AC00_u64), f64::from_bits(0x400855217ED6DF48_u64)), (f64::from_bits(0x402B1FF140D2E9E4_u64), f64::from_bits(0xBF95A3124799CC00_u64)), (f64::from_bits(0xC0114E2544C0B5FC_u64), f64::from_bits(0xC02FFCABE088B1F4_u64))],
+                expected_bits: 0x3fff317482b45b70_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x3FF0921C216210C0_u64), f64::from_bits(0xC032A0AE9BAAA090_u64)), (f64::from_bits(0xC00176D90F48F2E0_u64), f64::from_bits(0x4017E4A30BB4B74C_u64)), (f64::from_bits(0x401A7D631EEE1868_u64), f64::from_bits(0xC02806AD553CEB20_u64))],
+                expected_bits: 0x4009bfe71ff9fb40_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x401BD7A0F0907848_u64), f64::from_bits(0x401A19ACB753AED8_u64)), (f64::from_bits(0xC019DE26BA2BF9DE_u64), f64::from_bits(0xC01E994CD82C83FA_u64)), (f64::from_bits(0xC0228E07E17CD24F_u64), f64::from_bits(0x4000927EFF162938_u64))],
+                expected_bits: 0x40067bd2119b5580_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xBFE4DFBE3482A460_u64), f64::from_bits(0xBFF17A38001AFD10_u64)), (f64::from_bits(0x40295CC1DB8B6E88_u64), f64::from_bits(0xC02FDC9A2EB172F3_u64)), (f64::from_bits(0x4017821AC53918D4_u64), f64::from_bits(0xC030338C96FF0AF9_u64))],
+                expected_bits: 0x3fd14fdfe9945fe0_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC02C12C9D39CDD37_u64), f64::from_bits(0x4032C2686B0E716A_u64)), (f64::from_bits(0x402A2BBCA27E8240_u64), f64::from_bits(0xC032B49F7B346CE7_u64)), (f64::from_bits(0x4009A591746640A0_u64), f64::from_bits(0xC01B84E66353C4CC_u64)), (f64::from_bits(0xBFFE1E5AB0311F80_u64), f64::from_bits(0x40278157DF9537CE_u64)), (f64::from_bits(0xC030DA3933490D9A_u64), f64::from_bits(0x4031A81EC1CB5E4C_u64)), (f64::from_bits(0x3FF6F955304AC770_u64), f64::from_bits(0xC021973F2E66AFA1_u64)), (f64::from_bits(0xC02C803EAD0A5FA6_u64), f64::from_bits(0xC00BDBC7CDF1D310_u64)), (f64::from_bits(0x402EBD87C3D88FFC_u64), f64::from_bits(0xC0267669BE54AD32_u64))],
+                expected_bits: 0x3fcb5d365b609bc0_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC0320CED21D630C5_u64), f64::from_bits(0xBFE5DA682577CC20_u64)), (f64::from_bits(0xC0301BAFF528318F_u64), f64::from_bits(0x4032ACEC4DE4200E_u64)), (f64::from_bits(0xC02B4B16C4C98DBA_u64), f64::from_bits(0xC01B7D82EFBC8D50_u64)), (f64::from_bits(0x40308B3F790F5C38_u64), f64::from_bits(0xC00DA46FF08A7EB0_u64)), (f64::from_bits(0xC02928968758BEB8_u64), f64::from_bits(0x3FEB408EF34E9E40_u64)), (f64::from_bits(0x40095620B8FD7EC0_u64), f64::from_bits(0x4030C973085E780C_u64)), (f64::from_bits(0xC0147F40B574B674_u64), f64::from_bits(0xC01426C65A456EA0_u64))],
+                expected_bits: 0x3ff11401eb867810_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x40100B2E25AD7C10_u64), f64::from_bits(0xC019DE0AFD6BF3FA_u64)), (f64::from_bits(0x401C0217EBC75CD8_u64), f64::from_bits(0x402E0405D7C9812C_u64)), (f64::from_bits(0xC028BF70B4CB022E_u64), f64::from_bits(0x403020B2DC639F12_u64)), (f64::from_bits(0x402C898D98B6A918_u64), f64::from_bits(0xC014F9B524820400_u64)), (f64::from_bits(0x40303C48DC77C780_u64), f64::from_bits(0xC033D9B3C915E559_u64)), (f64::from_bits(0x402D16B14FE042C0_u64), f64::from_bits(0xC02B54FC50EA746B_u64))],
+                expected_bits: 0x3fd1a476e5333500_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC019DF68E0A2C6DC_u64), f64::from_bits(0xC032AF30DB0BF2FB_u64)), (f64::from_bits(0x403265F4FE774F74_u64), f64::from_bits(0xBFF0FFAB8A713420_u64)), (f64::from_bits(0xC0195386EBED284C_u64), f64::from_bits(0x3FE1753C380DA0A0_u64))],
+                expected_bits: 0x3fc17c3e96b3d200_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0x400435A1A83A6EA0_u64), f64::from_bits(0x402535E551C48590_u64)), (f64::from_bits(0x402499EA2E10867C_u64), f64::from_bits(0x4015ED544CEB6448_u64)), (f64::from_bits(0xBFFAFDCF4E69E930_u64), f64::from_bits(0xC024B9B27F72608E_u64)), (f64::from_bits(0xBFF99B9A1A95E320_u64), f64::from_bits(0xC00CF36067138AC8_u64)), (f64::from_bits(0xC021460C084F0F8E_u64), f64::from_bits(0xC005A6BEAF1A1280_u64)), (f64::from_bits(0xC01E1EE5FB15FC7A_u64), f64::from_bits(0x3FE2522A627A5DC0_u64))],
+                expected_bits: 0x3fb623533d406100_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+            FrozenSpacingCase {
+                slots: &[(f64::from_bits(0xC033FE35F8EF3C71_u64), f64::from_bits(0xC031BA92FACB9756_u64)), (f64::from_bits(0x403155EAA72514C4_u64), f64::from_bits(0xC0310748B6D59A72_u64)), (f64::from_bits(0xC031980CFAEA9DE4_u64), f64::from_bits(0x4033C1B22488A042_u64)), (f64::from_bits(0xC03209956D022806_u64), f64::from_bits(0x40298A3924899920_u64)), (f64::from_bits(0xC030F16B7516ED8C_u64), f64::from_bits(0x400D7215F16DDA58_u64)), (f64::from_bits(0xC0331A8FBD291C5E_u64), f64::from_bits(0x402BE0DE89D71D88_u64)), (f64::from_bits(0x40107F8933BF7D0C_u64), f64::from_bits(0x401171F99E1ABCD0_u64)), (f64::from_bits(0xC0137FDD597B3C64_u64), f64::from_bits(0xBFF54309AC908420_u64))],
+                expected_bits: 0x3fdc621c85e28880_u64,
+                tags: &["kernel:spacing", "spacing_min_diff"],
+            },
+        ];
+
+        struct FrozenIndexCase {
+            slots: &'static [(f64, f64)],
+            spacing: f64,
+            expected: &'static [((i64, i64), &'static [(f64, f64)])],
+            tags: &'static [&'static str],
+        }
+
+        const FROZEN_INDEX_GOLDEN: &[FrozenIndexCase] = &[
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4014666666666666_u64), f64::from_bits(0x4014666666666666_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[((0i64, 0i64), &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((1i64, 0i64), &[(f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((2i64, 0i64), &[(f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((0i64, 1i64), &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64))]), ((1i64, 1i64), &[(f64::from_bits(0x4014666666666666_u64), f64::from_bits(0x4014666666666666_u64))])],
+                tags: &["index_multi_cell", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x4029000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4029333333333333_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0xC029000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0xC004000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[((2i64, 0i64), &[(f64::from_bits(0x4029000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((3i64, 0i64), &[(f64::from_bits(0x4029333333333333_u64), f64::from_bits(0x0000000000000000_u64))]), ((-2i64, 0i64), &[(f64::from_bits(0xC029000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((0i64, 0i64), &[(f64::from_bits(0xC004000000000000_u64), f64::from_bits(0x0000000000000000_u64))])],
+                tags: &["index_half_even", "index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[],
+                tags: &["index_empty", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x3FD0000000000000_u64), f64::from_bits(0x3FD0000000000000_u64)), (f64::from_bits(0x3FE8000000000000_u64), f64::from_bits(0x3FE8000000000000_u64))],
+                spacing: f64::from_bits(0x3FF0000000000000_u64),
+                expected: &[((0i64, 0i64), &[(f64::from_bits(0x3FD0000000000000_u64), f64::from_bits(0x3FD0000000000000_u64))]), ((1i64, 1i64), &[(f64::from_bits(0x3FE8000000000000_u64), f64::from_bits(0x3FE8000000000000_u64))])],
+                tags: &["index_multi_cell", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64)), (f64::from_bits(0x4026000000000000_u64), f64::from_bits(0x3FF0000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x4026000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[((0i64, 0i64), &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))]), ((2i64, 0i64), &[(f64::from_bits(0x4026000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))]), ((0i64, 2i64), &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x4026000000000000_u64))])],
+                tags: &["index_multi_cell", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4032000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0xC02C000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                spacing: f64::from_bits(0x4010000000000000_u64),
+                expected: &[((2i64, 0i64), &[(f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((4i64, 0i64), &[(f64::from_bits(0x4032000000000000_u64), f64::from_bits(0x0000000000000000_u64))]), ((-4i64, 0i64), &[(f64::from_bits(0xC02C000000000000_u64), f64::from_bits(0x0000000000000000_u64))])],
+                tags: &["index_half_even", "index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x401E000000000000_u64), f64::from_bits(0x401E000000000000_u64)), (f64::from_bits(0x4029000000000000_u64), f64::from_bits(0x4029000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[((2i64, 2i64), &[(f64::from_bits(0x401E000000000000_u64), f64::from_bits(0x401E000000000000_u64)), (f64::from_bits(0x4029000000000000_u64), f64::from_bits(0x4029000000000000_u64))])],
+                tags: &["index_half_even", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x4010000000000000_u64)), (f64::from_bits(0x4018000000000000_u64), f64::from_bits(0x4020000000000000_u64)), (f64::from_bits(0x4022000000000000_u64), f64::from_bits(0x4028000000000000_u64))],
+                spacing: f64::from_bits(0x4000000000000000_u64),
+                expected: &[((2i64, 2i64), &[(f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x4010000000000000_u64))]), ((3i64, 4i64), &[(f64::from_bits(0x4018000000000000_u64), f64::from_bits(0x4020000000000000_u64))]), ((4i64, 6i64), &[(f64::from_bits(0x4022000000000000_u64), f64::from_bits(0x4028000000000000_u64))])],
+                tags: &["index_half_even", "index_multi_cell", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0xC028D1A95498E6F4_u64), f64::from_bits(0x3FB108CA0BEC3700_u64)), (f64::from_bits(0x401C3812A3871878_u64), f64::from_bits(0xC001EEC442AB93B0_u64))],
+                spacing: f64::from_bits(0x4012C48A18467923_u64),
+                expected: &[((-3i64, 0i64), &[(f64::from_bits(0xC028D1A95498E6F4_u64), f64::from_bits(0x3FB108CA0BEC3700_u64))]), ((2i64, 0i64), &[(f64::from_bits(0x401C3812A3871878_u64), f64::from_bits(0xC001EEC442AB93B0_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[],
+                spacing: f64::from_bits(0x40167B4A30B3964C_u64),
+                expected: &[],
+                tags: &["index_empty", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0xC031BF736794F156_u64), f64::from_bits(0x4020DEACC677A114_u64)), (f64::from_bits(0x401195BB3FE85FE4_u64), f64::from_bits(0xC0165F335EA01968_u64))],
+                spacing: f64::from_bits(0x4018CC43DAA39A06_u64),
+                expected: &[((-3i64, 1i64), &[(f64::from_bits(0xC031BF736794F156_u64), f64::from_bits(0x4020DEACC677A114_u64))]), ((1i64, -1i64), &[(f64::from_bits(0x401195BB3FE85FE4_u64), f64::from_bits(0xC0165F335EA01968_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x4022A4826EADCAA8_u64), f64::from_bits(0xC027E320722EC821_u64)), (f64::from_bits(0xC0233DE7C97BD25C_u64), f64::from_bits(0x402F437131EC0A20_u64)), (f64::from_bits(0x401233266D81BFE4_u64), f64::from_bits(0xC02C8F610195CB77_u64)), (f64::from_bits(0x3FDED6F4682BA240_u64), f64::from_bits(0x4032887E39718E04_u64))],
+                spacing: f64::from_bits(0x401284011DC75CE6_u64),
+                expected: &[((2i64, -3i64), &[(f64::from_bits(0x4022A4826EADCAA8_u64), f64::from_bits(0xC027E320722EC821_u64))]), ((-2i64, 3i64), &[(f64::from_bits(0xC0233DE7C97BD25C_u64), f64::from_bits(0x402F437131EC0A20_u64))]), ((1i64, -3i64), &[(f64::from_bits(0x401233266D81BFE4_u64), f64::from_bits(0xC02C8F610195CB77_u64))]), ((0i64, 4i64), &[(f64::from_bits(0x3FDED6F4682BA240_u64), f64::from_bits(0x4032887E39718E04_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x402567CB71410792_u64), f64::from_bits(0xC02C45CFE37988A2_u64)), (f64::from_bits(0x402BDB96D9A5CEC8_u64), f64::from_bits(0x4030AA96D85C4D64_u64)), (f64::from_bits(0xC0276539CF998E54_u64), f64::from_bits(0xC0041AF9FC4927F0_u64)), (f64::from_bits(0x4018E6D073C729CC_u64), f64::from_bits(0x3FFE2A4918CFC670_u64)), (f64::from_bits(0xC01F903327E6961E_u64), f64::from_bits(0x402BDF1FE79B5758_u64)), (f64::from_bits(0xC0252CE008953CF6_u64), f64::from_bits(0xC02F9ED1724F4898_u64)), (f64::from_bits(0xC01113C930D52910_u64), f64::from_bits(0x402C8F4BED0E8464_u64)), (f64::from_bits(0x3FED87C82EC7B780_u64), f64::from_bits(0xC0301C675FE82B06_u64))],
+                spacing: f64::from_bits(0x4013AF4CCEF60829_u64),
+                expected: &[((2i64, -3i64), &[(f64::from_bits(0x402567CB71410792_u64), f64::from_bits(0xC02C45CFE37988A2_u64))]), ((3i64, 3i64), &[(f64::from_bits(0x402BDB96D9A5CEC8_u64), f64::from_bits(0x4030AA96D85C4D64_u64))]), ((-2i64, -1i64), &[(f64::from_bits(0xC0276539CF998E54_u64), f64::from_bits(0xC0041AF9FC4927F0_u64))]), ((1i64, 0i64), &[(f64::from_bits(0x4018E6D073C729CC_u64), f64::from_bits(0x3FFE2A4918CFC670_u64))]), ((-2i64, 3i64), &[(f64::from_bits(0xC01F903327E6961E_u64), f64::from_bits(0x402BDF1FE79B5758_u64))]), ((-2i64, -3i64), &[(f64::from_bits(0xC0252CE008953CF6_u64), f64::from_bits(0xC02F9ED1724F4898_u64))]), ((-1i64, 3i64), &[(f64::from_bits(0xC01113C930D52910_u64), f64::from_bits(0x402C8F4BED0E8464_u64))]), ((0i64, -3i64), &[(f64::from_bits(0x3FED87C82EC7B780_u64), f64::from_bits(0xC0301C675FE82B06_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x4024452EE2CD2F98_u64), f64::from_bits(0xBFE73DFE763841A0_u64)), (f64::from_bits(0x401C95604A7E400C_u64), f64::from_bits(0x40208F167F361D08_u64)), (f64::from_bits(0xC02D583BCC5AEB16_u64), f64::from_bits(0x40293463A02424C0_u64))],
+                spacing: f64::from_bits(0x401E830265B84695_u64),
+                expected: &[((1i64, 0i64), &[(f64::from_bits(0x4024452EE2CD2F98_u64), f64::from_bits(0xBFE73DFE763841A0_u64))]), ((1i64, 1i64), &[(f64::from_bits(0x401C95604A7E400C_u64), f64::from_bits(0x40208F167F361D08_u64))]), ((-2i64, 2i64), &[(f64::from_bits(0xC02D583BCC5AEB16_u64), f64::from_bits(0x40293463A02424C0_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0xC0310AA8D5C86AF8_u64), f64::from_bits(0x40315C3E130DC866_u64)), (f64::from_bits(0xC02D2E5656C65732_u64), f64::from_bits(0x40187B0A57DFFC24_u64)), (f64::from_bits(0x40128015D81D228C_u64), f64::from_bits(0xC030800B063AF2DE_u64)), (f64::from_bits(0xC024D67821599314_u64), f64::from_bits(0x40140ACC2F15A780_u64)), (f64::from_bits(0xC02B6871192E1D12_u64), f64::from_bits(0xC025627C28D333B9_u64))],
+                spacing: f64::from_bits(0x400654FACBA98FE5_u64),
+                expected: &[((-6i64, 6i64), &[(f64::from_bits(0xC0310AA8D5C86AF8_u64), f64::from_bits(0x40315C3E130DC866_u64))]), ((-5i64, 2i64), &[(f64::from_bits(0xC02D2E5656C65732_u64), f64::from_bits(0x40187B0A57DFFC24_u64))]), ((2i64, -6i64), &[(f64::from_bits(0x40128015D81D228C_u64), f64::from_bits(0xC030800B063AF2DE_u64))]), ((-4i64, 2i64), &[(f64::from_bits(0xC024D67821599314_u64), f64::from_bits(0x40140ACC2F15A780_u64))]), ((-5i64, -4i64), &[(f64::from_bits(0xC02B6871192E1D12_u64), f64::from_bits(0xC025627C28D333B9_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x402925DAEA6B8570_u64), f64::from_bits(0x4027034FF8AFB23C_u64))],
+                spacing: f64::from_bits(0x4006962FFC055E36_u64),
+                expected: &[((4i64, 4i64), &[(f64::from_bits(0x402925DAEA6B8570_u64), f64::from_bits(0x4027034FF8AFB23C_u64))])],
+                tags: &["kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0x400321692936B470_u64), f64::from_bits(0x3FEFE409E4D45EC0_u64)), (f64::from_bits(0x40237C3FE9A7C462_u64), f64::from_bits(0xC0307C92DF8712BE_u64)), (f64::from_bits(0x40324ECA718D7908_u64), f64::from_bits(0xC021A9D344EEDC0A_u64)), (f64::from_bits(0x403309C89E84B0FE_u64), f64::from_bits(0xC030C84BF143A0F1_u64))],
+                spacing: f64::from_bits(0x401FE22CCE170B00_u64),
+                expected: &[((0i64, 0i64), &[(f64::from_bits(0x400321692936B470_u64), f64::from_bits(0x3FEFE409E4D45EC0_u64))]), ((1i64, -2i64), &[(f64::from_bits(0x40237C3FE9A7C462_u64), f64::from_bits(0xC0307C92DF8712BE_u64))]), ((2i64, -1i64), &[(f64::from_bits(0x40324ECA718D7908_u64), f64::from_bits(0xC021A9D344EEDC0A_u64))]), ((2i64, -2i64), &[(f64::from_bits(0x403309C89E84B0FE_u64), f64::from_bits(0xC030C84BF143A0F1_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0xC01D205F80260958_u64), f64::from_bits(0x402426210039E9B6_u64)), (f64::from_bits(0xC030BBE6DFCF2D20_u64), f64::from_bits(0x4030FD3EC58629EE_u64)), (f64::from_bits(0xC033D798C252D60C_u64), f64::from_bits(0x4029182689EC9FF0_u64)), (f64::from_bits(0xC0309CEBD2D22626_u64), f64::from_bits(0xBFAEBDA666462000_u64)), (f64::from_bits(0xC031660A924AB7C2_u64), f64::from_bits(0xC0339916DC0CC4C7_u64))],
+                spacing: f64::from_bits(0x400AD221CB92418E_u64),
+                expected: &[((-2i64, 3i64), &[(f64::from_bits(0xC01D205F80260958_u64), f64::from_bits(0x402426210039E9B6_u64))]), ((-5i64, 5i64), &[(f64::from_bits(0xC030BBE6DFCF2D20_u64), f64::from_bits(0x4030FD3EC58629EE_u64))]), ((-6i64, 4i64), &[(f64::from_bits(0xC033D798C252D60C_u64), f64::from_bits(0x4029182689EC9FF0_u64))]), ((-5i64, 0i64), &[(f64::from_bits(0xC0309CEBD2D22626_u64), f64::from_bits(0xBFAEBDA666462000_u64))]), ((-5i64, -6i64), &[(f64::from_bits(0xC031660A924AB7C2_u64), f64::from_bits(0xC0339916DC0CC4C7_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0xC02C97428715A4C8_u64), f64::from_bits(0xBFF173A4645202B0_u64)), (f64::from_bits(0x401FDE151BE00068_u64), f64::from_bits(0x401CC6DE6443F018_u64)), (f64::from_bits(0x401EF308D424091C_u64), f64::from_bits(0x402DCFB1E84685A8_u64))],
+                spacing: f64::from_bits(0x401BF3F98CA683E1_u64),
+                expected: &[((-2i64, 0i64), &[(f64::from_bits(0xC02C97428715A4C8_u64), f64::from_bits(0xBFF173A4645202B0_u64))]), ((1i64, 1i64), &[(f64::from_bits(0x401FDE151BE00068_u64), f64::from_bits(0x401CC6DE6443F018_u64))]), ((1i64, 2i64), &[(f64::from_bits(0x401EF308D424091C_u64), f64::from_bits(0x402DCFB1E84685A8_u64))])],
+                tags: &["index_multi_cell", "index_negative_key", "kernel:index"],
+            },
+            FrozenIndexCase {
+                slots: &[(f64::from_bits(0xC033240C1533C1D4_u64), f64::from_bits(0xC0204CBF8E771224_u64))],
+                spacing: f64::from_bits(0x3FF971A69D79D4C6_u64),
+                expected: &[((-12i64, -5i64), &[(f64::from_bits(0xC033240C1533C1D4_u64), f64::from_bits(0xC0204CBF8E771224_u64))])],
+                tags: &["index_negative_key", "kernel:index"],
+            },
+        ];
+
+        struct FrozenWithinCase {
+            center: (f64, f64),
+            radius: f64,
+            slots: &'static [(f64, f64)],
+            spacing: f64,
+            expected: &'static [(f64, f64)],
+            tags: &'static [&'static str],
+        }
+
+        const FROZEN_WITHIN_GOLDEN: &[FrozenWithinCase] = &[
+            FrozenWithinCase {
+                center: (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)),
+                radius: f64::from_bits(0x4018000000000000_u64),
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x4014000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)),
+                radius: f64::from_bits(0x401399999999999A_u64),
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x4014000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x4014000000000000_u64)),
+                radius: f64::from_bits(0x4020000000000000_u64),
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x4014000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x4014000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)),
+                radius: f64::from_bits(0x0000000000000000_u64),
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4014000000000000_u64), f64::from_bits(0x4014000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_empty_radius", "within_nonempty", "within_radius_inclusive"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)),
+                radius: f64::from_bits(0x3FF0000000000000_u64),
+                slots: &[],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_empty_index"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)),
+                radius: f64::from_bits(0x4014000000000000_u64),
+                slots: &[(f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x4010000000000000_u64)), (f64::from_bits(0x4024000000000000_u64), f64::from_bits(0x4024000000000000_u64))],
+                spacing: f64::from_bits(0x4014000000000000_u64),
+                expected: &[(f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x4010000000000000_u64))],
+                tags: &["kernel:within", "within_nonempty", "within_radius_inclusive"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x3FE0000000000000_u64), f64::from_bits(0x3FE0000000000000_u64)),
+                radius: f64::from_bits(0x4000000000000000_u64),
+                slots: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4000000000000000_u64))],
+                spacing: f64::from_bits(0x3FF0000000000000_u64),
+                expected: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x4000000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4000000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x400C41D99DF07700_u64), f64::from_bits(0x3FE47CA6C774B200_u64)),
+                radius: f64::from_bits(0x400266842A68750D_u64),
+                slots: &[(f64::from_bits(0x4030317190AB16BE_u64), f64::from_bits(0xC02E46925C044EBC_u64)), (f64::from_bits(0xC00860A5D7897378_u64), f64::from_bits(0x4023769599901110_u64)), (f64::from_bits(0x4023EFF3C8186556_u64), f64::from_bits(0xC01915447C500E62_u64)), (f64::from_bits(0x402D74C4E464B578_u64), f64::from_bits(0xC02C3D80D15E3874_u64)), (f64::from_bits(0x402788A7E4D12D84_u64), f64::from_bits(0xC0337A441B3D67F4_u64)), (f64::from_bits(0xBFD0987DC24AF900_u64), f64::from_bits(0x402687B9BFCCF83A_u64)), (f64::from_bits(0xC03185FDD3A9B67A_u64), f64::from_bits(0xC01DE062B135E7C0_u64))],
+                spacing: f64::from_bits(0x402266E5E9F4AFA6_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC0223278D5EAFFBD_u64), f64::from_bits(0x4017C0443BCFDF46_u64)),
+                radius: f64::from_bits(0x401DFE20A6803747_u64),
+                slots: &[(f64::from_bits(0x402C65E82F6A0C00_u64), f64::from_bits(0x402BC0F649460B58_u64)), (f64::from_bits(0xC0321944A596E7C5_u64), f64::from_bits(0xC012501623F8EB44_u64))],
+                spacing: f64::from_bits(0x401D3662564B5BA0_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC0229ACF652F84ED_u64), f64::from_bits(0x40158DA3C9FF4164_u64)),
+                radius: f64::from_bits(0x40265F78A9E0C882_u64),
+                slots: &[(f64::from_bits(0x3FF4D91FE396D940_u64), f64::from_bits(0x401587DFB0A7D610_u64)), (f64::from_bits(0xC01A4FF128B8BDC4_u64), f64::from_bits(0xC01D42BEDD195C74_u64)), (f64::from_bits(0x401C9BAD6C2C1240_u64), f64::from_bits(0xBFADF7D5970B2000_u64)), (f64::from_bits(0xC02DAAB5C5C15D39_u64), f64::from_bits(0xC02D35582F6E03F5_u64)), (f64::from_bits(0x4017FA9C21513E40_u64), f64::from_bits(0xC01F30C3C6DDA354_u64)), (f64::from_bits(0x402CF1DD5DBD8648_u64), f64::from_bits(0xC0302C59588A0CCB_u64))],
+                spacing: f64::from_bits(0x400DE670191D30DD_u64),
+                expected: &[(f64::from_bits(0x3FF4D91FE396D940_u64), f64::from_bits(0x401587DFB0A7D610_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x3FF153B3E33F1FF0_u64), f64::from_bits(0xC012D63513511D12_u64)),
+                radius: f64::from_bits(0x4017AD7E22FA2013_u64),
+                slots: &[],
+                spacing: f64::from_bits(0x4010CD9348E0F120_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_empty_index"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC0128769C90BECEC_u64), f64::from_bits(0xC022899DA4EDBEE4_u64)),
+                radius: f64::from_bits(0x4020235EFEED846F_u64),
+                slots: &[(f64::from_bits(0xC00D392F038292F0_u64), f64::from_bits(0xC02ECBC93B7956FC_u64)), (f64::from_bits(0x4018772F769ED1F0_u64), f64::from_bits(0xC027A2895A2553EE_u64))],
+                spacing: f64::from_bits(0x3FF55473B610A4EE_u64),
+                expected: &[(f64::from_bits(0xC00D392F038292F0_u64), f64::from_bits(0xC02ECBC93B7956FC_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC021B29D52F2BDDB_u64), f64::from_bits(0xC0087F04A1D19BA4_u64)),
+                radius: f64::from_bits(0x400530CCAACF3F22_u64),
+                slots: &[(f64::from_bits(0x4007D074DF0006B0_u64), f64::from_bits(0xC01D4A52DF1332E4_u64))],
+                spacing: f64::from_bits(0x4018A50F1910BE52_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC012A5343F8E4860_u64), f64::from_bits(0x402169712DCC8C70_u64)),
+                radius: f64::from_bits(0x4024C00BE0A2E0F8_u64),
+                slots: &[(f64::from_bits(0x4027E7FCC9054954_u64), f64::from_bits(0x4033B3FCBBB06F8C_u64)), (f64::from_bits(0xC0337468991ECFF6_u64), f64::from_bits(0xC02F56BDB4B5BAC5_u64)), (f64::from_bits(0x402A9F8FA5FE5340_u64), f64::from_bits(0xC02E083A2BADAF6A_u64)), (f64::from_bits(0xC032A8E6C2BA9584_u64), f64::from_bits(0x4025570125D6101C_u64))],
+                spacing: f64::from_bits(0x4020F841A077B33D_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x402160132B88EA1C_u64), f64::from_bits(0x400624E4857D5EF8_u64)),
+                radius: f64::from_bits(0x4013B7B3979CC846_u64),
+                slots: &[(f64::from_bits(0xC0201C57EF311F7D_u64), f64::from_bits(0x40195176FA9494CC_u64)), (f64::from_bits(0x402578464FF3172C_u64), f64::from_bits(0xC03279FBA299CAED_u64)), (f64::from_bits(0xC02692D14746CFFA_u64), f64::from_bits(0xC030B3F100DDFF5D_u64)), (f64::from_bits(0x4019BE3F270A96D0_u64), f64::from_bits(0xC028245394A38E20_u64)), (f64::from_bits(0xBFCDDD7C8BD63400_u64), f64::from_bits(0x403182E4957EC10E_u64)), (f64::from_bits(0xC030C30ADF6F44D2_u64), f64::from_bits(0xC0209A7908A1150C_u64)), (f64::from_bits(0xC017499ED15C9E94_u64), f64::from_bits(0xC030E8CEB8FB38BF_u64)), (f64::from_bits(0xC01D4E377E4F75C4_u64), f64::from_bits(0x402B6CFF0E447748_u64))],
+                spacing: f64::from_bits(0x402352019343B4E3_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC017A9E4B8B0BF98_u64), f64::from_bits(0xC002A51FF33329F6_u64)),
+                radius: f64::from_bits(0x3FD57A604870B9B8_u64),
+                slots: &[(f64::from_bits(0x402563C94889CA92_u64), f64::from_bits(0x402E1FE9E19C9968_u64))],
+                spacing: f64::from_bits(0x401AC1251D330C43_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x4011A1A8E53F66AA_u64), f64::from_bits(0xC019E07EE0AFB569_u64)),
+                radius: f64::from_bits(0x40070BB78280BC7E_u64),
+                slots: &[(f64::from_bits(0xC02E3176149B2770_u64), f64::from_bits(0x400B711A05143448_u64)), (f64::from_bits(0xBFDF6D8316D001C0_u64), f64::from_bits(0x4021E576EE2A3964_u64)), (f64::from_bits(0x40319EC9566C0FE6_u64), f64::from_bits(0x403370EC6242D78E_u64))],
+                spacing: f64::from_bits(0x3FF8EB9B8B556D74_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC011688D5D9B0D2A_u64), f64::from_bits(0x4011409AAA6191BC_u64)),
+                radius: f64::from_bits(0x3FFD61767258B182_u64),
+                slots: &[(f64::from_bits(0xC0129E708A821AAC_u64), f64::from_bits(0x402D8D6C2054EA1C_u64)), (f64::from_bits(0x3FF6F98F2115D9F0_u64), f64::from_bits(0xC02EB19FCA7888C9_u64)), (f64::from_bits(0xC02C9E9D8BCFE44C_u64), f64::from_bits(0xC02C4B5A5C2FC842_u64)), (f64::from_bits(0x401E1ED80BC73D50_u64), f64::from_bits(0xC023235EF77AC7A2_u64)), (f64::from_bits(0x4019BEE951D7B7D0_u64), f64::from_bits(0xC0262CBD044DD27A_u64)), (f64::from_bits(0xC032F361E7633AEA_u64), f64::from_bits(0x400255197DBEB788_u64)), (f64::from_bits(0x401481446BE5299C_u64), f64::from_bits(0x4025EE800B49D1E4_u64)), (f64::from_bits(0xC007F892CA6BFD40_u64), f64::from_bits(0xC02D0AC1CD123660_u64))],
+                spacing: f64::from_bits(0x4020E8BC92A73725_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC023F06EE6118228_u64), f64::from_bits(0xC01CF046B83405DA_u64)),
+                radius: f64::from_bits(0x402793324E7946FE_u64),
+                slots: &[(f64::from_bits(0x4011E952823C9548_u64), f64::from_bits(0x4022A7C9149D013A_u64))],
+                spacing: f64::from_bits(0x40212EA5E29C87BA_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x3FF3357405D83150_u64), f64::from_bits(0xC0116D00428C639A_u64)),
+                radius: f64::from_bits(0x40232499622A4353_u64),
+                slots: &[(f64::from_bits(0xC032B0461A9A5764_u64), f64::from_bits(0xC02D6A646EF8336A_u64)), (f64::from_bits(0x402560906198C7AE_u64), f64::from_bits(0xC01984A729F1C454_u64)), (f64::from_bits(0x3FF5FC0943A94C80_u64), f64::from_bits(0xC001D8AB98BAE068_u64))],
+                spacing: f64::from_bits(0x4014327124C75E5F_u64),
+                expected: &[(f64::from_bits(0x3FF5FC0943A94C80_u64), f64::from_bits(0xC001D8AB98BAE068_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC00B47425FF11CFC_u64), f64::from_bits(0xC005209178E38754_u64)),
+                radius: f64::from_bits(0x4027E67496A70688_u64),
+                slots: &[(f64::from_bits(0xC02741F2802FD9AD_u64), f64::from_bits(0x40298246DD67B838_u64)), (f64::from_bits(0x40314975FE8B90A0_u64), f64::from_bits(0xBFDCCE80928AA100_u64))],
+                spacing: f64::from_bits(0x3FF07A843B4DAAAA_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC01B32B7504668A4_u64), f64::from_bits(0x40132275109B3590_u64)),
+                radius: f64::from_bits(0x401C5EE1126D0DB8_u64),
+                slots: &[(f64::from_bits(0xC01F0156B2E1BA98_u64), f64::from_bits(0xC02F2066275061C2_u64)), (f64::from_bits(0x4029C59711968344_u64), f64::from_bits(0x402C0706B62BD7C0_u64)), (f64::from_bits(0x3FF15D066EEFDB40_u64), f64::from_bits(0x4031E1F333305CA6_u64)), (f64::from_bits(0xC027C6DC56E0FF4F_u64), f64::from_bits(0x4022CFBBDCF78674_u64)), (f64::from_bits(0x401A3D157F0ADD04_u64), f64::from_bits(0xC022E87F2D3706B6_u64)), (f64::from_bits(0x4030916DA579664A_u64), f64::from_bits(0xC013532B7238496C_u64)), (f64::from_bits(0xC031F9808B1D45AE_u64), f64::from_bits(0xC02E7F5E4402E512_u64))],
+                spacing: f64::from_bits(0x400C098B3DA4855D_u64),
+                expected: &[(f64::from_bits(0xC027C6DC56E0FF4F_u64), f64::from_bits(0x4022CFBBDCF78674_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC01C8243D03EE29F_u64), f64::from_bits(0xC01E6683BB33E000_u64)),
+                radius: f64::from_bits(0x4014919B54F52E60_u64),
+                slots: &[(f64::from_bits(0xC02A553BEBD1E69A_u64), f64::from_bits(0xC0229B3F94BFF638_u64))],
+                spacing: f64::from_bits(0x400FD7CE91076EB4_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC0172DB027B71CAE_u64), f64::from_bits(0xC01DF6CB4222F590_u64)),
+                radius: f64::from_bits(0x3FE7E8897921A6EC_u64),
+                slots: &[(f64::from_bits(0xC008063F3A39A2C0_u64), f64::from_bits(0x3FEEA153F7D87860_u64)), (f64::from_bits(0xC027EFA04F4E7941_u64), f64::from_bits(0x3FE6BE5D5E478E80_u64)), (f64::from_bits(0xC01CBFE88D00C72C_u64), f64::from_bits(0xC030304904C65352_u64)), (f64::from_bits(0x4021D3887F82750E_u64), f64::from_bits(0xC01419C165DD1604_u64)), (f64::from_bits(0x402EA4511E27A6C4_u64), f64::from_bits(0xC01B5E70A92085FC_u64)), (f64::from_bits(0x401E0EB7F9590268_u64), f64::from_bits(0xC0219E3DB6C5DE1E_u64)), (f64::from_bits(0xC01CDE9BF8782924_u64), f64::from_bits(0x403251E09CC3D406_u64))],
+                spacing: f64::from_bits(0x40060C102DC33B6B_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x40229004ED0B4A38_u64), f64::from_bits(0x401BDBF14D5AC01C_u64)),
+                radius: f64::from_bits(0x400DFF9C83A4E523_u64),
+                slots: &[(f64::from_bits(0xC021B61D6D7F9E6C_u64), f64::from_bits(0x3FF78113771894E0_u64)), (f64::from_bits(0x402E6F6A654A4D84_u64), f64::from_bits(0x4033D2DF1A8057E0_u64)), (f64::from_bits(0x401C37C566A60818_u64), f64::from_bits(0x40315483708A81BA_u64)), (f64::from_bits(0xC02623E0D1304CFE_u64), f64::from_bits(0xC01919A7FE913BC4_u64)), (f64::from_bits(0x4027E34F245FB7EA_u64), f64::from_bits(0x40169CDE5705C590_u64)), (f64::from_bits(0xC0230DF8FFE528C2_u64), f64::from_bits(0xC006A6F57A0EB708_u64)), (f64::from_bits(0x402D0171E459F2F0_u64), f64::from_bits(0x4032D31880A27C38_u64)), (f64::from_bits(0xC011B02BBEF79C50_u64), f64::from_bits(0xC0280F55B3CFAE15_u64))],
+                spacing: f64::from_bits(0x4019D4B832258403_u64),
+                expected: &[(f64::from_bits(0x4027E34F245FB7EA_u64), f64::from_bits(0x40169CDE5705C590_u64))],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0xC022BE2E4BEB836D_u64), f64::from_bits(0xC023B0F58350105C_u64)),
+                radius: f64::from_bits(0x40120150EA9FFFCC_u64),
+                slots: &[(f64::from_bits(0x4025157DC3F47184_u64), f64::from_bits(0xC01C093D523614D8_u64)), (f64::from_bits(0x3FE0E989AD0F65A0_u64), f64::from_bits(0xC0319AB999F83A24_u64)), (f64::from_bits(0xC031D69FD8F9EB64_u64), f64::from_bits(0xC0192D66295B150A_u64))],
+                spacing: f64::from_bits(0x40177128F8DDF049_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x401762053C0AFF16_u64), f64::from_bits(0x4019466FF7CA1C44_u64)),
+                radius: f64::from_bits(0x3FC2B17AD03C3FF0_u64),
+                slots: &[],
+                spacing: f64::from_bits(0x40236E667BEE87EF_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_empty_index"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x4000121D99FB98AC_u64), f64::from_bits(0xC0094D2E9FCE9DCC_u64)),
+                radius: f64::from_bits(0x3FEBD6455EC482C8_u64),
+                slots: &[(f64::from_bits(0x4024AE32F2DE1CFC_u64), f64::from_bits(0xC031F369D52EC86E_u64)), (f64::from_bits(0x4033288E61B242E0_u64), f64::from_bits(0x4019B7E2ACCFC2FC_u64))],
+                spacing: f64::from_bits(0x401A64963E0E730B_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+            FrozenWithinCase {
+                center: (f64::from_bits(0x40206A9D9C4778B0_u64), f64::from_bits(0x40145C123703404E_u64)),
+                radius: f64::from_bits(0x3FF643033EDC52A8_u64),
+                slots: &[(f64::from_bits(0xC032C680BD8DECA0_u64), f64::from_bits(0xC010F2539EB01528_u64)), (f64::from_bits(0x40306ECB9F617362_u64), f64::from_bits(0xC002CBA46CF470B0_u64)), (f64::from_bits(0xC02943FC85F7E368_u64), f64::from_bits(0x4031C8625F2AD8C4_u64)), (f64::from_bits(0x40089F6C9A04C4F8_u64), f64::from_bits(0xC026A5C150DB6B7E_u64)), (f64::from_bits(0x401EB616A6E796DC_u64), f64::from_bits(0xC0295083A9439E66_u64))],
+                spacing: f64::from_bits(0x4023F946DC4988E0_u64),
+                expected: &[],
+                tags: &["kernel:within", "within_nonempty"],
+            },
+        ];
+
+        #[test]
+        fn frozen_slot_grid_matches_golden_corpus() {
+            for case in FROZEN_SPACING_GOLDEN {
+                let got = infer_slot_spacing(case.slots);
+                let want = f64::from_bits(case.expected_bits);
+                let ok = (got.is_nan() && want.is_nan()) || got.to_bits() == want.to_bits();
+                assert!(ok, "spacing tags={:?}: got {:?} want {:?}", case.tags, got, want);
+            }
+            for case in FROZEN_INDEX_GOLDEN {
+                let got = build_slot_index(case.slots, case.spacing);
+                let want: Vec<((i64, i64), Vec<(f64, f64)>)> = case.expected
+                    .iter().map(|&(k, v)| (k, v.to_vec())).collect();
+                assert_eq!(got, want, "index tags={:?}", case.tags);
+            }
+            for case in FROZEN_WITHIN_GOLDEN {
+                let index: HashMap<(i64, i64), Vec<(f64, f64)>> =
+                    build_slot_index(case.slots, case.spacing).into_iter().collect();
+                let got = slots_within_radius(case.center, case.radius, &index, case.spacing);
+                let want: Vec<(f64, f64)> = case.expected.to_vec();
+                assert_eq!(got, want, "within tags={:?}", case.tags);
+            }
+        }
+
+        /// Q2 non-vacuity guard: fails closed if the frozen corpus above were
+        /// ever hand-edited down to something trivially satisfiable.
+        #[test]
+        fn frozen_slot_grid_corpus_is_non_vacuous() {
+            let n = (FROZEN_SPACING_GOLDEN.len() + FROZEN_INDEX_GOLDEN.len() + FROZEN_WITHIN_GOLDEN.len()) as u32;
+            let count = |tag: &str| FROZEN_SPACING_GOLDEN.iter().filter(|c| c.tags.contains(&tag)).count() as u32 + FROZEN_INDEX_GOLDEN.iter().filter(|c| c.tags.contains(&tag)).count() as u32 + FROZEN_WITHIN_GOLDEN.iter().filter(|c| c.tags.contains(&tag)).count() as u32;
+            assert!(count("kernel:spacing") >= 8, "kernel:spacing: only {}/{} (need >= 8) -- spacing golden vectors must be present", count("kernel:spacing"), n);
+            assert!(count("kernel:index") >= 6, "kernel:index: only {}/{} (need >= 6) -- index golden vectors must be present", count("kernel:index"), n);
+            assert!(count("kernel:within") >= 6, "kernel:within: only {}/{} (need >= 6) -- within-radius golden vectors must be present", count("kernel:within"), n);
+            assert!(count("spacing_fallback_degenerate") >= 2, "spacing_fallback_degenerate: only {}/{} (need >= 2) -- <2 slots -> DEFAULT_SLOT_SPACING fallback branch", count("spacing_fallback_degenerate"), n);
+            assert!(count("spacing_fallback_uniform") >= 2, "spacing_fallback_uniform: only {}/{} (need >= 2) -- uniform grid (no distinct coords) -> fallback branch", count("spacing_fallback_uniform"), n);
+            assert!(count("spacing_min_diff") >= 6, "spacing_min_diff: only {}/{} (need >= 6) -- minimum non-zero difference branch", count("spacing_min_diff"), n);
+            assert!(count("index_half_even") >= 2, "index_half_even: only {}/{} (need >= 2) -- `int(round(x/spacing))` round-half-to-even cell keys", count("index_half_even"), n);
+            assert!(count("index_multi_cell") >= 5, "index_multi_cell: only {}/{} (need >= 5) -- multi-cell bucketing must be exercised", count("index_multi_cell"), n);
+            assert!(count("index_negative_key") >= 1, "index_negative_key: only {}/{} (need >= 1) -- negative cell keys (CPython round ties-to-even on negatives)", count("index_negative_key"), n);
+            assert!(count("within_empty_radius") >= 1, "within_empty_radius: only {}/{} (need >= 1) -- radius <= 0 -> [] branch", count("within_empty_radius"), n);
+            assert!(count("within_empty_index") >= 1, "within_empty_index: only {}/{} (need >= 1) -- empty index -> [] branch", count("within_empty_index"), n);
+            assert!(count("within_radius_inclusive") >= 1, "within_radius_inclusive: only {}/{} (need >= 1) -- inclusive `<= radius` distance check on an exact-boundary slot", count("within_radius_inclusive"), n);
+        }
+    }
+// --- END generated by scripts/gen_oracle_freeze.py: slot_grid_validator ---
+
+// --- BEGIN generated by scripts/gen_oracle_freeze.py: fine_pitch_escape ---
+    /// Frozen golden vectors for `min_pin_pitch` / `escape_layer_for_net`
+    /// (FREEZE, batch 2 — retired tests/deterministic/stages/_fine_pitch_escape_py_oracle.py).
+    /// Regenerate: `python3 scripts/gen_oracle_freeze.py --spec fine_pitch_escape`
+    /// (requires reviving the deleted oracle from git history first -- see
+    /// scripts/oracle_freeze_specs/fine_pitch_escape.py's module docstring).
+    #[cfg(test)]
+    mod frozen_fine_pitch_tests {
+        use super::*;
+        use std::collections::HashSet;
+
+        struct FrozenPitchCase {
+            pins: &'static [(f64, f64)],
+            expected_bits: Option<u64>,
+            tags: &'static [&'static str],
+        }
+
+        const FROZEN_PITCH_GOLDEN: &[FrozenPitchCase] = &[
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))],
+                expected_bits: Some(0x3ff0000000000000_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FE0000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FD0000000000000_u64), f64::from_bits(0x3FD0000000000000_u64))],
+                expected_bits: Some(0x3fd6a09e667f3bcd_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist"],
+            },
+            FrozenPitchCase {
+                pins: &[],
+                expected_bits: None,
+                tags: &["kernel:pitch", "pitch_fewer_than_two"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64))],
+                expected_bits: None,
+                tags: &["kernel:pitch", "pitch_fewer_than_two"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))],
+                expected_bits: Some(0x0000000000000000_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_identical_pins_zero"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64))],
+                expected_bits: Some(0x0000000000000000_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_identical_pins_zero"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC004000000000000_u64), f64::from_bits(0x400C000000000000_u64)), (f64::from_bits(0xC004000000000000_u64), f64::from_bits(0x400C000000000000_u64)), (f64::from_bits(0x401C000000000000_u64), f64::from_bits(0x401C000000000000_u64))],
+                expected_bits: Some(0x0000000000000000_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_identical_pins_zero", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x3FB999999999999A_u64), f64::from_bits(0x3FC999999999999A_u64)), (f64::from_bits(0x3FD3333333333333_u64), f64::from_bits(0x3FD999999999999A_u64)), (f64::from_bits(0x3FFB333333333333_u64), f64::from_bits(0x4007333333333333_u64))],
+                expected_bits: Some(0x3fd21a1851ff630a_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xBFF0000000000000_u64), f64::from_bits(0xBFF0000000000000_u64)), (f64::from_bits(0x3FF0000000000000_u64), f64::from_bits(0x3FF0000000000000_u64)), (f64::from_bits(0x4008000000000000_u64), f64::from_bits(0xC000000000000000_u64))],
+                expected_bits: Some(0x4006a09e667f3bcd_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x4008000000000000_u64), f64::from_bits(0x4010000000000000_u64)), (f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x4018000000000000_u64), f64::from_bits(0x4020000000000000_u64))],
+                expected_bits: Some(0x4014000000000000_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x0000000000000000_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FB999999999999A_u64), f64::from_bits(0x0000000000000000_u64)), (f64::from_bits(0x3FC999999999999A_u64), f64::from_bits(0x0000000000000000_u64))],
+                expected_bits: Some(0x3fb999999999999a_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist"],
+            },
+            FrozenPitchCase {
+                pins: &[],
+                expected_bits: None,
+                tags: &["kernel:pitch", "pitch_fewer_than_two"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x40236C354AFF1A62_u64), f64::from_bits(0x4017CE7DB87F3540_u64)), (f64::from_bits(0xC000BEBEA5712A18_u64), f64::from_bits(0x401EDCE946118A28_u64))],
+                expected_bits: Some(0x4027df02a5a7ac1e_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x4013A4585C3685C0_u64), f64::from_bits(0x4023D0F8385DE05A_u64)), (f64::from_bits(0x4021706DA6981C1C_u64), f64::from_bits(0x401CF65D3ECFE710_u64)), (f64::from_bits(0xC020A1BA2B143AFB_u64), f64::from_bits(0x4019B1636E7A7F6C_u64)), (f64::from_bits(0x4020DB16E21C2C76_u64), f64::from_bits(0x401FCF949EFDB748_u64))],
+                expected_bits: Some(0x3fe8a01b2890b2b6_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC022C7B32331556A_u64), f64::from_bits(0x3FB7EBE3AC7F1600_u64)), (f64::from_bits(0x401BE1CCD94F4938_u64), f64::from_bits(0x3FCD6897D6804180_u64)), (f64::from_bits(0x4023F825D0565BE2_u64), f64::from_bits(0x401877D9C4B81088_u64))],
+                expected_bits: Some(0x401a74c2210b155e_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC01379164EC051A0_u64), f64::from_bits(0x401C6898437BF7EC_u64)), (f64::from_bits(0xC014C255EB3067E8_u64), f64::from_bits(0xBFDE73F7D8055C80_u64)), (f64::from_bits(0xBFE4F30C463D3A40_u64), f64::from_bits(0x3FE775276975ABC0_u64)), (f64::from_bits(0xC01883788D3293D6_u64), f64::from_bits(0x401B0F583EF20324_u64))],
+                expected_bits: Some(0x3ff4df16ecd9011e_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC0153DFE7BA1B8B5_u64), f64::from_bits(0x4013E242B412EE88_u64)), (f64::from_bits(0xBFFA2F8B4B7E0A80_u64), f64::from_bits(0xC0230A577714D906_u64)), (f64::from_bits(0xC014BF7EAC3400A4_u64), f64::from_bits(0xC0156746741400CD_u64)), (f64::from_bits(0xC00398E9A20DED64_u64), f64::from_bits(0x3FE52012B8B46120_u64))],
+                expected_bits: Some(0x4014b1e7e9f9e417_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC0218454936DDDCD_u64), f64::from_bits(0x40154638657E5E7C_u64)), (f64::from_bits(0xC0215553B3730A05_u64), f64::from_bits(0xC0158E685439DB64_u64)), (f64::from_bits(0xBFE40A9CC42036E0_u64), f64::from_bits(0x401BC5383B10C520_u64)), (f64::from_bits(0xC02073F43E974556_u64), f64::from_bits(0xC00B478F21B3859A_u64))],
+                expected_bits: Some(0x4000384c0bcf4cbc_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC01AB9852B1CCE0C_u64), f64::from_bits(0xC01C1C3AB16E8DE9_u64))],
+                expected_bits: None,
+                tags: &["kernel:pitch", "pitch_fewer_than_two"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x400706829ACD9C10_u64), f64::from_bits(0xC01331A385743DE8_u64)), (f64::from_bits(0xBFDD96C94214F8C0_u64), f64::from_bits(0x3FF8374F5C9500A8_u64)), (f64::from_bits(0xC016897FB27E276C_u64), f64::from_bits(0x3FF422E1CE939A50_u64))],
+                expected_bits: Some(0x4014b681dfd572b1_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x3FFB24BEA71E7BE0_u64), f64::from_bits(0xC022E3E4C8B7F33A_u64)), (f64::from_bits(0x3FFF7FA996D9C160_u64), f64::from_bits(0x4022DA283ABD9A10_u64))],
+                expected_bits: Some(0x4032df8726e96a7a_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[],
+                expected_bits: None,
+                tags: &["kernel:pitch", "pitch_fewer_than_two"],
+            },
+            FrozenPitchCase {
+                pins: &[],
+                expected_bits: None,
+                tags: &["kernel:pitch", "pitch_fewer_than_two"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC000A222125ACFC0_u64), f64::from_bits(0x4000788A568B26F4_u64)), (f64::from_bits(0x401C9C2BE187AA0C_u64), f64::from_bits(0xC01E429769CC5894_u64)), (f64::from_bits(0xC012D0E508F96BF4_u64), f64::from_bits(0x400FFCC8AA72ACB0_u64)), (f64::from_bits(0x40153A8236FC449A_u64), f64::from_bits(0xC00F0136781FDC20_u64))],
+                expected_bits: Some(0x400a1c0a6231d8f9_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x3FB775897E37A000_u64), f64::from_bits(0xC02203A34DC4A996_u64)), (f64::from_bits(0x4017DDA564F3C66C_u64), f64::from_bits(0x3FFDFE79F1E1E700_u64)), (f64::from_bits(0x40198BE4B75DE7B8_u64), f64::from_bits(0x40121173836A2A26_u64))],
+                expected_bits: Some(0x400567a655d56e72_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC012D52B645C6DB4_u64), f64::from_bits(0x400C85AEB2A0FFE0_u64)), (f64::from_bits(0x3FE1A6232AC79A20_u64), f64::from_bits(0xC022E1E990492B46_u64)), (f64::from_bits(0x40172574B0BA018A_u64), f64::from_bits(0xC01A3C3E5A3502E8_u64)), (f64::from_bits(0xC00399201868D5D2_u64), f64::from_bits(0x401CDFBA077CF580_u64))],
+                expected_bits: Some(0x40112dff23497bd6_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0xC01E31CB4B2C8ED4_u64), f64::from_bits(0xC004590597D0C6A8_u64)), (f64::from_bits(0x4022EC4637A54D00_u64), f64::from_bits(0xC0181AE3D83BD19F_u64)), (f64::from_bits(0x40094599E8B2D234_u64), f64::from_bits(0x40053D4D8215A830_u64)), (f64::from_bits(0xBFD6A6D08268ACA0_u64), f64::from_bits(0x400DC698DA421178_u64))],
+                expected_bits: Some(0x400d5f052ee35f6b_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x402378DC3021EAFC_u64), f64::from_bits(0x4023EE4620755AD6_u64)), (f64::from_bits(0x3FF1C20F1F2978B8_u64), f64::from_bits(0xC022FC2FDB90B5AE_u64))],
+                expected_bits: Some(0x403548c8cf5a9ff2_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+            FrozenPitchCase {
+                pins: &[(f64::from_bits(0x4001EFF4FF8F4968_u64), f64::from_bits(0xC017B70D9E6ED0A2_u64)), (f64::from_bits(0x401640EE0D05E966_u64), f64::from_bits(0x402068AE0626481C_u64))],
+                expected_bits: Some(0x402d0952da1c8ddd_u64),
+                tags: &["kernel:pitch", "pitch_ge_two", "pitch_min_dist", "pitch_negative_coords"],
+            },
+        ];
+
+        struct FrozenEscapeCase {
+            net_name: &'static str,
+            layer2: &'static [&'static str],
+            layer3: &'static [&'static str],
+            primary: i64,
+            secondary: i64,
+            expected: (i64, &'static str),
+            tags: &'static [&'static str],
+        }
+
+        const FROZEN_ESCAPE_GOLDEN: &[FrozenEscapeCase] = &[
+            FrozenEscapeCase {
+                net_name: "PWM_H",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (2i64, "In2.Cu"),
+                tags: &["escape_l2", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "SPI_CLK",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (2i64, "In2.Cu"),
+                tags: &["escape_l2", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "I_SENSE",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (3i64, "B.Cu"),
+                tags: &["escape_l3", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "TEMP_SENSE",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (3i64, "B.Cu"),
+                tags: &["escape_l3", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "GATE_H",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (1i64, "In1.Cu"),
+                tags: &["escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "OTHER",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (1i64, "In1.Cu"),
+                tags: &["escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "",
+                layer2: &["PWM_H", "PWM_L", "SPI_CLK"],
+                layer3: &["I_SENSE", "TEMP_SENSE"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (1i64, "In1.Cu"),
+                tags: &["escape_default", "escape_empty_net_name", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "A",
+                layer2: &["A"],
+                layer3: &["B"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (2i64, "In2.Cu"),
+                tags: &["escape_l2", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "B",
+                layer2: &["A"],
+                layer3: &["B"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (3i64, "B.Cu"),
+                tags: &["escape_l3", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "C",
+                layer2: &["A"],
+                layer3: &["B"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (1i64, "In1.Cu"),
+                tags: &["escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "A",
+                layer2: &["A"],
+                layer3: &["B"],
+                primary: 5i64,
+                secondary: 9i64,
+                expected: (9i64, "In2.Cu"),
+                tags: &["escape_custom_layers", "escape_l2", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "C",
+                layer2: &["A"],
+                layer3: &["B"],
+                primary: 5i64,
+                secondary: 9i64,
+                expected: (5i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "X",
+                layer2: &["X"],
+                layer3: &["X"],
+                primary: 1i64,
+                secondary: 2i64,
+                expected: (3i64, "B.Cu"),
+                tags: &["escape_l3", "escape_l3_precedence", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "PWM_H",
+                layer2: &["I_SENSE", "SPI_CLK"],
+                layer3: &[],
+                primary: 6i64,
+                secondary: 4i64,
+                expected: (6i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "",
+                layer2: &["SPI_CLK", "TEMP_SENSE"],
+                layer3: &["", "GATE_H", "NET_7"],
+                primary: 8i64,
+                secondary: 2i64,
+                expected: (3i64, "B.Cu"),
+                tags: &["escape_custom_layers", "escape_empty_net_name", "escape_l3", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "PWM_H",
+                layer2: &[],
+                layer3: &["SPI_CLK"],
+                primary: 3i64,
+                secondary: 3i64,
+                expected: (3i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "TEMP_SENSE",
+                layer2: &["I_SENSE"],
+                layer3: &["GATE_H", "I_SENSE", "NET_8"],
+                primary: 4i64,
+                secondary: 3i64,
+                expected: (4i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "NET_7",
+                layer2: &["TEMP_SENSE"],
+                layer3: &["", "PWM_H"],
+                primary: 5i64,
+                secondary: 5i64,
+                expected: (5i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "",
+                layer2: &[],
+                layer3: &["GATE_H", "I_SENSE", "NET_7"],
+                primary: 7i64,
+                secondary: 7i64,
+                expected: (7i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "escape_empty_net_name", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "SPI_CLK",
+                layer2: &["PWM_H", "TEMP_SENSE"],
+                layer3: &["GATE_H", "I_SENSE", "PWM_H"],
+                primary: 4i64,
+                secondary: 2i64,
+                expected: (4i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "GATE_H",
+                layer2: &["GATE_H", "NET_8", "SPI_CLK"],
+                layer3: &["", "NET_8"],
+                primary: 8i64,
+                secondary: 1i64,
+                expected: (1i64, "In2.Cu"),
+                tags: &["escape_custom_layers", "escape_l2", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "GATE_H",
+                layer2: &["NET_7", "PWM_H"],
+                layer3: &["NET_7", "PWM_H"],
+                primary: 6i64,
+                secondary: 6i64,
+                expected: (6i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "I_SENSE",
+                layer2: &["GATE_H"],
+                layer3: &["GATE_H", "I_SENSE", "NET_7"],
+                primary: 2i64,
+                secondary: 8i64,
+                expected: (3i64, "B.Cu"),
+                tags: &["escape_custom_layers", "escape_l3", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "GATE_H",
+                layer2: &["NET_7", "SPI_CLK"],
+                layer3: &["", "I_SENSE"],
+                primary: 5i64,
+                secondary: 6i64,
+                expected: (5i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "",
+                layer2: &[],
+                layer3: &["GATE_H", "NET_8", "TEMP_SENSE"],
+                primary: 4i64,
+                secondary: 8i64,
+                expected: (4i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "escape_empty_net_name", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "NET_8",
+                layer2: &[],
+                layer3: &["TEMP_SENSE"],
+                primary: 2i64,
+                secondary: 6i64,
+                expected: (2i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "TEMP_SENSE",
+                layer2: &["GATE_H", "NET_7"],
+                layer3: &["GATE_H"],
+                primary: 6i64,
+                secondary: 7i64,
+                expected: (6i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "NET_8",
+                layer2: &["I_SENSE", "PWM_H", "SPI_CLK"],
+                layer3: &[],
+                primary: 4i64,
+                secondary: 4i64,
+                expected: (4i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "I_SENSE",
+                layer2: &[],
+                layer3: &[],
+                primary: 8i64,
+                secondary: 8i64,
+                expected: (8i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "SPI_CLK",
+                layer2: &["I_SENSE", "SPI_CLK"],
+                layer3: &["GATE_H"],
+                primary: 1i64,
+                secondary: 3i64,
+                expected: (3i64, "In2.Cu"),
+                tags: &["escape_custom_layers", "escape_l2", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "TEMP_SENSE",
+                layer2: &[],
+                layer3: &[""],
+                primary: 5i64,
+                secondary: 3i64,
+                expected: (5i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "NET_7",
+                layer2: &[],
+                layer3: &["", "NET_8", "SPI_CLK"],
+                primary: 3i64,
+                secondary: 6i64,
+                expected: (3i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "TEMP_SENSE",
+                layer2: &["I_SENSE", "PWM_H"],
+                layer3: &[],
+                primary: 2i64,
+                secondary: 8i64,
+                expected: (2i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "SPI_CLK",
+                layer2: &["", "NET_7", "TEMP_SENSE"],
+                layer3: &[""],
+                primary: 2i64,
+                secondary: 2i64,
+                expected: (2i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+            FrozenEscapeCase {
+                net_name: "PWM_H",
+                layer2: &[],
+                layer3: &["", "GATE_H"],
+                primary: 6i64,
+                secondary: 8i64,
+                expected: (6i64, "In1.Cu"),
+                tags: &["escape_custom_layers", "escape_default", "kernel:escape"],
+            },
+        ];
+
+        #[test]
+        fn frozen_fine_pitch_matches_golden_corpus() {
+            for case in FROZEN_PITCH_GOLDEN {
+                let got = min_pin_pitch(case.pins);
+                let want = case.expected_bits.map(f64::from_bits);
+                let ok = match (got, want) {
+                    (None, None) => true,
+                    (Some(g), Some(w)) => g.to_bits() == w.to_bits(),
+                    _ => false,
+                };
+                assert!(ok, "pitch tags={:?}: got {:?} want {:?}", case.tags, got, want);
+            }
+            for case in FROZEN_ESCAPE_GOLDEN {
+                let l3: HashSet<String> = case.layer3.iter().map(|s| s.to_string()).collect();
+                let l2: HashSet<String> = case.layer2.iter().map(|s| s.to_string()).collect();
+                // NOTE: pure escape_layer_for_net takes (net, l3, l2, primary, secondary).
+                let got = escape_layer_for_net(case.net_name, &l3, &l2, case.primary, case.secondary);
+                assert_eq!(got, case.expected, "escape tags={:?}", case.tags);
+            }
+        }
+
+        /// Q2 non-vacuity guard: fails closed if the frozen corpus above were
+        /// ever hand-edited down to something trivially satisfiable.
+        #[test]
+        fn frozen_fine_pitch_corpus_is_non_vacuous() {
+            let n = (FROZEN_PITCH_GOLDEN.len() + FROZEN_ESCAPE_GOLDEN.len()) as u32;
+            let count = |tag: &str| FROZEN_PITCH_GOLDEN.iter().filter(|c| c.tags.contains(&tag)).count() as u32 + FROZEN_ESCAPE_GOLDEN.iter().filter(|c| c.tags.contains(&tag)).count() as u32;
+            assert!(count("kernel:pitch") >= 8, "kernel:pitch: only {}/{} (need >= 8) -- pitch golden vectors must be present", count("kernel:pitch"), n);
+            assert!(count("kernel:escape") >= 8, "kernel:escape: only {}/{} (need >= 8) -- escape golden vectors must be present", count("kernel:escape"), n);
+            assert!(count("pitch_fewer_than_two") >= 2, "pitch_fewer_than_two: only {}/{} (need >= 2) -- <2 pins -> None branch", count("pitch_fewer_than_two"), n);
+            assert!(count("pitch_min_dist") >= 5, "pitch_min_dist: only {}/{} (need >= 5) -- minimum-distance branch (non-coincident pins)", count("pitch_min_dist"), n);
+            assert!(count("pitch_identical_pins_zero") >= 2, "pitch_identical_pins_zero: only {}/{} (need >= 2) -- coincident pins -> exactly 0.0 (kept, not inf)", count("pitch_identical_pins_zero"), n);
+            assert!(count("pitch_negative_coords") >= 2, "pitch_negative_coords: only {}/{} (need >= 2) -- negative coordinates must be exercised", count("pitch_negative_coords"), n);
+            assert!(count("escape_l3") >= 3, "escape_l3: only {}/{} (need >= 3) -- layer-3 (B.Cu) branch", count("escape_l3"), n);
+            assert!(count("escape_l2") >= 3, "escape_l2: only {}/{} (need >= 3) -- layer-2 (In2.Cu) branch", count("escape_l2"), n);
+            assert!(count("escape_default") >= 4, "escape_default: only {}/{} (need >= 4) -- default (In1.Cu) branch", count("escape_default"), n);
+            assert!(count("escape_custom_layers") >= 3, "escape_custom_layers: only {}/{} (need >= 3) -- non-default primary/secondary layer parameters", count("escape_custom_layers"), n);
+            assert!(count("escape_l3_precedence") >= 1, "escape_l3_precedence: only {}/{} (need >= 1) -- net in both sets -> layer 3 wins (checked first)", count("escape_l3_precedence"), n);
+        }
+    }
+// --- END generated by scripts/gen_oracle_freeze.py: fine_pitch_escape ---
+
 /// Registered as a submodule (`temper_design_bundle_python.deterministic_leaves`)
 /// so the delegation shims and the differential/PBT suites can address the
 /// migrated kernels by name. The pyclasses are registered at module top
 /// level (matching the shim re-export path).
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
-    module.add_class::<DiffPairConfig>()?;
     module.add_class::<LayerAssignment>()?;
 
     let py = module.py();

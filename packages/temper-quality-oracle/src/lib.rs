@@ -904,12 +904,6 @@ fn is_available_py() -> bool {
 }
 
 #[cfg(feature = "python")]
-#[pyfunction]
-fn version_py() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
-}
-
-#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_quality_py, m)?)?;
@@ -936,7 +930,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
-    m.add_function(wrap_pyfunction!(version_py, m)?)?;
+
     cluster_f::bindings::register(m)?;
     Ok(())
 }

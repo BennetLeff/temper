@@ -11,6 +11,7 @@ import numpy as np
 import temper_quality_oracle as _tqo
 
 from temper_placer.core.state import PlacementState
+from temper_placer.metrics._marshal import to_float_tuples
 
 
 def compute_aesthetic_score(
@@ -44,12 +45,15 @@ def compute_aesthetic_score(
     # packages/temper-quality-oracle/VERIFICATION.md).
     positions = np.asarray(state.positions)
     rotations = np.asarray(state.rotation_logits)
-    positions_are_f32 = positions.dtype == np.float32
-    rotations_are_f32 = rotations.dtype == np.float32
+    # Marshaling centralized in metrics/_marshal.py (shim-debt cleanup
+    # 2026-08-19): the tuples carry the exact f64 values and the flag
+    # carries the source dtype for the kernel's NEP 50 reproduction.
+    pos_tuples, positions_are_f32 = to_float_tuples(positions)
+    rot_tuples, rotations_are_f32 = to_float_tuples(rotations)
     return dict(
         _tqo.aesthetic_score_py(
-            [tuple(r) for r in positions.tolist()],
-            [tuple(r) for r in rotations.tolist()],
+            pos_tuples,
+            rot_tuples,
             grid_size,
             positions_are_f32,
             rotations_are_f32,

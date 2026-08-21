@@ -1,90 +1,30 @@
-"""Internal: shared data classes and helpers for kicad_writer."""
+"""Internal: shared data classes and helpers for kicad_writer.
+
+Delegation shim over ``temper-io-types``' ``write_types`` submodule (Wave 4
+Phase 3, formats/IO migration): the four write-result dataclasses are Rust
+pyclasses and ``_get_footprint_reference`` is a thin wrapper over a Rust
+pyfunction. All public names are preserved; ``kiutils`` is no longer imported
+here (the R4 gate). The differential
+``tests/io/test_write_types_rust_differential.py`` pins the Rust surface
+against the verbatim pre-migration oracle
+(``tests/io/_write_types_py_oracle.py``).
+
+``_get_footprint_reference`` stays a one-line function rather than a
+module-level binding so the Rust symbol is looked up at call time — the
+delegation-proof convention (the shipped entry point must reach the Rust
+kernel, which a captured reference would defeat).
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
+from temper_io_types import write_types as _RUST
 
-from kiutils.footprint import Footprint
-
-
-@dataclass
-class WriteResult:
-    """Result of writing placement to KiCad file."""
-
-    output_path: Path
-    components_updated: int
-    components_skipped: int
-    warnings: list[str]
-
-    @property
-    def has_warnings(self) -> bool:
-        return len(self.warnings) > 0
+WriteResult = _RUST.WriteResult
+StrippingResult = _RUST.StrippingResult
+PlacementUpdate = _RUST.PlacementUpdate
+IsolationSlotResult = _RUST.IsolationSlotResult
 
 
-@dataclass
-class StrippingResult:
-    """Result of stripping routing from a KiCad file."""
-
-    output_path: Path
-    traces_removed: int
-    vias_removed: int
-    zones_removed: int
-    components_preserved: int
-    warnings: list[str]
-
-    @property
-    def has_warnings(self) -> bool:
-        return len(self.warnings) > 0
-
-
-@dataclass
-class PlacementUpdate:
-    """
-    Placement update for a single component.
-
-    Attributes:
-        ref: Component reference designator (e.g., "U1").
-        x: New X position in mm.
-        y: New Y position in mm.
-        rotation: Rotation angle in degrees (0, 90, 180, or 270).
-    """
-
-    ref: str
-    x: float
-    y: float
-    rotation: float  # degrees: 0, 90, 180, 270
-
-
-@dataclass
-class IsolationSlotResult:
-    """Result of adding isolation slots to a KiCad file."""
-
-    output_path: Path
-    slots_added: int
-    slots_skipped: int
-    warnings: list[str]
-
-    @property
-    def has_warnings(self) -> bool:
-        return len(self.warnings) > 0
-
-
-def _get_footprint_reference(fp: Footprint) -> str | None:
-    """Extract reference designator from footprint."""
-    props = getattr(fp, "properties", {})
-    if isinstance(props, dict):
-        ref = props.get("Reference")
-        if ref:
-            return ref
-
-    if isinstance(props, list):
-        for prop in props:
-            if hasattr(prop, "key") and prop.key == "Reference":
-                return prop.value
-
-    for item in getattr(fp, "graphicItems", []):
-        if hasattr(item, "type") and item.type == "reference":
-            return getattr(item, "text", None)
-
-    return None
+def _get_footprint_reference(fp):
+    """Extract reference designator from footprint (Rust kernel)."""
+    return _RUST.get_footprint_reference_py(fp)

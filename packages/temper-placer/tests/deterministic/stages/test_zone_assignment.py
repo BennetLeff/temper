@@ -6,7 +6,7 @@ Tests component-to-zone assignment based on net classes and component types.
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.stages.zone_assignment import ZoneAssignmentStage
+import temper_orchestration as _to
 from temper_placer.deterministic.state import BoardState
 
 
@@ -26,9 +26,10 @@ def test_hv_component_assigned_to_hv_zone():
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
 
-    # Execute
-    stage = ZoneAssignmentStage()
-    result_state = stage.run(initial_state)
+    # Execute (shim-debt cleanup 2026-08-19: the one-line shim module
+    # stages/zone_assignment.py was deleted; the production path is the
+    # temper-orchestration pyfunction directly).
+    result_state = _to.run_zone_assignment(initial_state)
 
     # Verify
     zone_map = dict(result_state.component_zone_map)
@@ -52,9 +53,10 @@ def test_power_component_assigned_to_power_zone():
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
 
-    # Execute
-    stage = ZoneAssignmentStage()
-    result_state = stage.run(initial_state)
+    # Execute (shim-debt cleanup 2026-08-19: the one-line shim module
+    # stages/zone_assignment.py was deleted; the production path is the
+    # temper-orchestration pyfunction directly).
+    result_state = _to.run_zone_assignment(initial_state)
 
     # Verify
     zone_map = dict(result_state.component_zone_map)
@@ -78,9 +80,10 @@ def test_mcu_component_assigned_to_mcu_zone():
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
 
-    # Execute
-    stage = ZoneAssignmentStage()
-    result_state = stage.run(initial_state)
+    # Execute (shim-debt cleanup 2026-08-19: the one-line shim module
+    # stages/zone_assignment.py was deleted; the production path is the
+    # temper-orchestration pyfunction directly).
+    result_state = _to.run_zone_assignment(initial_state)
 
     # Verify
     zone_map = dict(result_state.component_zone_map)
@@ -104,9 +107,10 @@ def test_signal_component_default_zone():
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
 
-    # Execute
-    stage = ZoneAssignmentStage()
-    result_state = stage.run(initial_state)
+    # Execute (shim-debt cleanup 2026-08-19: the one-line shim module
+    # stages/zone_assignment.py was deleted; the production path is the
+    # temper-orchestration pyfunction directly).
+    result_state = _to.run_zone_assignment(initial_state)
 
     # Verify
     zone_map = dict(result_state.component_zone_map)
@@ -130,9 +134,10 @@ def test_spi_component_assigned_to_mcu_zone():
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
 
-    # Execute
-    stage = ZoneAssignmentStage()
-    result_state = stage.run(initial_state)
+    # Execute (shim-debt cleanup 2026-08-19: the one-line shim module
+    # stages/zone_assignment.py was deleted; the production path is the
+    # temper-orchestration pyfunction directly).
+    result_state = _to.run_zone_assignment(initial_state)
 
     # Verify
     zone_map = dict(result_state.component_zone_map)
@@ -183,9 +188,10 @@ def test_multiple_components_different_zones():
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
 
-    # Execute
-    stage = ZoneAssignmentStage()
-    result_state = stage.run(initial_state)
+    # Execute (shim-debt cleanup 2026-08-19: the one-line shim module
+    # stages/zone_assignment.py was deleted; the production path is the
+    # temper-orchestration pyfunction directly).
+    result_state = _to.run_zone_assignment(initial_state)
 
     # Verify
     zone_map = dict(result_state.component_zone_map)

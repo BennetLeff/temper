@@ -2,7 +2,7 @@
 name = "pumpkin-engine"
 version = "0.1.0"
 edition = "2021"
-description = "Standalone pumpkin-solver binary implementing the BLOCKER-ORTOOLS equivalence harness's Engine protocol (docs/evidence/2026-08-07-cpsat-equivalence-harness.py). Reads a PlacementModel spec as JSON on stdin, emits a solve outcome as JSON on stdout. Not part of any package/ or crates/ workspace member -- standalone by design, see docs/evidence/2026-08-07-pumpkin-engine-differential.md."
+description = "Standalone pumpkin-solver binary implementing the BLOCKER-ORTOOLS equivalence harness's Engine protocol (docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py). Reads a PlacementModel spec as JSON on stdin, emits a solve outcome as JSON on stdout. Not part of any package/ or crates/ workspace member -- standalone by design, see docs/evidence/2026-08-07-pumpkin-engine-differential.md."
 publish = false
 
 [[bin]]

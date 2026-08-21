@@ -45,18 +45,6 @@ def add(crate, file, old, new, tests, label):
     )
 
 
-# --- sequential_routing_dataclasses (DiffPairConfig) ----------------------
-add(TD, "src/deterministic_leaves.rs",
-    "None => 0.15_f64.into_bound_py_any(py)?.unbind(),",
-    "None => 0.2_f64.into_bound_py_any(py)?.unbind(),",
-    ["test_sequential_routing_dataclasses_rust_differential.py"],
-    "DiffPairConfig spacing default 0.15->0.2")
-add(TD, "src/deterministic_leaves.rs",
-    "None => 0.5_f64.into_bound_py_any(py)?.unbind(),",
-    "None => 0.6_f64.into_bound_py_any(py)?.unbind(),",
-    ["test_sequential_routing_dataclasses_rust_differential.py"],
-    "DiffPairConfig tolerance default 0.5->0.6")
-
 # --- layer_assignment -----------------------------------------------------
 add(TD, "src/deterministic_leaves.rs",
     '"Ground" => (1, true),',
@@ -204,8 +192,6 @@ add(DRC, "src/deterministic_connectivity.rs",
     "connectivity dangling requires both ends open")
 
 PRISTINE_TESTS = [
-    "test_sequential_routing_dataclasses_rust_differential.py",
-    "test_sequential_routing_dataclasses_pbt.py",
     "test_layer_assignment_rust_differential.py",
     "test_layer_assignment_pbt.py",
     "test_power_plane_rust_differential.py",

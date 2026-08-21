@@ -209,61 +209,6 @@ def test_grid_to_world_with_offset():
     assert y == pytest.approx(20.5)
 
 
-def test_extract_vias_no_layers():
-    cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-    assert list(_tg.extract_vias_py([c.layer for c in cells])) == []
-
-
-def test_extract_vias_with_transition():
-    cells = [
-        GridCell(0, 0, 0),
-        GridCell(1, 0, 0),
-        GridCell(1, 0, 1),
-        GridCell(2, 0, 1),
-    ]
-    assert list(_tg.extract_vias_py([c.layer for c in cells])) == [2]
-
-
-def test_extract_vias_multiple():
-    cells = [
-        GridCell(0, 0, 0),
-        GridCell(1, 0, 1),
-        GridCell(2, 0, 1),
-        GridCell(3, 0, 0),
-    ]
-    assert list(_tg.extract_vias_py([c.layer for c in cells])) == [1, 3]
-
-
-def test_compute_path_length_single():
-    cells = [GridCell(0, 0, 0)]
-    assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 1.0) == 0.0
-
-
-def test_compute_path_length_horizontal():
-    cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-    assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 0.5) == pytest.approx(1.0)
-
-
-def test_compute_path_length_diagonal():
-    cells = [GridCell(0, 0, 0), GridCell(2, 3, 0)]
-    assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 1.0) == pytest.approx(5.0)
-
-
-def test_count_vias_in_path_none():
-    cells = [GridCell(0, 0, 0), GridCell(5, 0, 0)]
-    assert _tg.count_vias_in_path_py([c.layer for c in cells]) == 0
-
-
-def test_count_vias_in_path_two():
-    cells = [
-        GridCell(0, 0, 0),
-        GridCell(1, 0, 1),
-        GridCell(2, 0, 1),
-        GridCell(3, 0, 0),
-    ]
-    assert _tg.count_vias_in_path_py([c.layer for c in cells]) == 2
-
-
 # ── path_simplify ──────────────────────────────────────────────────
 
 

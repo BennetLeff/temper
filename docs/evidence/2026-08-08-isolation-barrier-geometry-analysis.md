@@ -32,7 +32,7 @@ component," which is not a barrier in any electrically meaningful sense.
 This independently reproduces, via a different (project-blessed,
 rotation-bug-corrected) code path, the same conclusion already reached
 twice on this project: `origin/safety/mains-selv-isolation-barrier`
-(commit `645154b7`, kiutils-based) and `docs/evidence/2026-08-03_mains_selv_barrier_falsification.py`
+(commit `645154b7`, kiutils-based) and `docs/evidence/scripts/2026-08-03_mains_selv_barrier_falsification.py`
 (also kiutils-based, via `check_isolation_keepout.py`). Three independent
 measurements agreeing is strong evidence this is a real placement property
 of the board, not a tooling artifact.
@@ -202,7 +202,7 @@ HV    R27    pad  2   net=GATE_LS                             (57.002, 223.100)
 (then back to C6, closing the ring; strictly alternating HV/SELV.)
 
 **This exact 12-pad list -- same components, same pads, same net names --
-matches `docs/evidence/2026-08-03_mains_selv_barrier_falsification.py`'s
+matches `docs/evidence/scripts/2026-08-03_mains_selv_barrier_falsification.py`'s
 independently-computed cycle byte-for-byte**, despite that script using
 kiutils (a different parser) for pad extraction. Two independently-coded
 parsers, one of which (this analysis) uses the project's own blessed
