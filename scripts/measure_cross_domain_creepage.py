@@ -87,11 +87,23 @@ convention caveat" section found this repo's own parser/writer use
 the two conventions agree everywhere except pairs involving a 90/270-degree-
 rotated footprint's position relative to ANOTHER footprint, and left which
 one is "real" as an open question (weak evidence favoured ``R(+theta)``).
-This script therefore does not silently pick a side and stay quiet about it:
-by default (disable with ``--no-rotation-sensitivity-check``) it recomputes
-every violating pair under BOTH conventions and flags any pair whose
-PASS/FAIL verdict differs between them, instead of reporting a number that
-might depend on an unresolved convention question without saying so. As it
+
+**That question is now CLOSED, and against the side this script used to
+take.** The pad centre is computed by ``temper_placer.geometry.pad_world``,
+i.e. ``R(-theta)``. It is decided by this very board's own routed copper:
+KiCad anchors a track on a pad's centre, so for every pad of every footprint
+placed at 90 or 270 degrees both candidate centres were matched against
+same-net segment endpoints and via centres already on the board --
+``R(-theta)`` matched where ``R(+theta)`` did not on **73** pads, and
+``R(+theta)`` matched where ``R(-theta)`` did not on **0**. Independently:
+``kicad-cli 10.0.4`` DRC ``shorting_items`` 57/57, and ``pcbnew 10.0.5`` pad
+corners 10/10. Every figure this script printed before that change was
+computed on the wrong convention and must not be cited.
+
+The both-conventions machinery is kept (disable with
+``--no-rotation-sensitivity-check``) but its roles are now reversed: the
+``alt`` recomputation reports what the SUPERSEDED ``R(+theta)`` primary
+would have said, so a previously-published figure can still be traced. As it
 happens,
 ``pcb/temper.kicad_pcb`` has zero back-side (B.Cu) footprints as of this
 writing, so the position-mirroring half of this ambiguity (see ``_rotate``
@@ -217,6 +229,7 @@ from temper_placer.core.pad_geometry import (  # noqa: E402
     pad_core_polygon,
     pad_pair_distance,
 )
+from temper_placer.geometry.pad_world import pad_world_center  # noqa: E402
 
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 DEFAULT_MANIFEST = REPO_ROOT / "elec" / "domain_manifest.yaml"
@@ -308,24 +321,22 @@ def load_manifest(path: Path) -> Manifest:
 
 
 def _rotate_plus_theta(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
-    """R(+theta): the sign convention this repo's own parser/writer
-    (temper_placer.io._parse_modules.py / _write_modules.py) and
-    check_isolation_keepout.py both use for local-offset -> world-position.
-    See module docstring's "How pad geometry is measured" section for the
-    ground-truth verification and the open-question caveat this is NOT the
-    only convention seen in this repo's history."""
+    """R(+theta). **No longer the primary convention** -- retained solely so
+    the sensitivity check can still report what the superseded measurement
+    would have said.
+
+    This script used to take R(+theta) as its primary pad-centre convention
+    and demote R(-theta) to a sensitivity check. That was backwards. KiCad
+    rotates a footprint child by R(-theta), decided against this very board's
+    own routed copper: for every pad of every footprint placed at 90 or 270
+    degrees (the angles at which the two matrices differ), both candidate
+    centres were matched against same-net segment endpoints and via centres
+    already on the board -- R(-theta) matched where R(+theta) did not on 73
+    pads, R(+theta) matched where R(-theta) did not on 0. See
+    ``temper_placer.geometry.pad_world``.
+    """
     a = math.radians(angle_deg or 0.0)
     return (x * math.cos(a) - y * math.sin(a), x * math.sin(a) + y * math.cos(a))
-
-
-def _rotate_minus_theta(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
-    """R(-theta): KiCad's own internal footprint-rotation convention per
-    docs/evidence/2026-07-28-req-safe-01-rederivation.md's "Rotation-
-    convention caveat" and scripts/check_pad_orientation.py's documented
-    y-down-frame formula. Used only by the sensitivity check, never as the
-    primary measurement."""
-    a = math.radians(angle_deg or 0.0)
-    return (x * math.cos(a) + y * math.sin(a), -x * math.sin(a) + y * math.cos(a))
 
 
 @dataclass(frozen=True)
@@ -340,7 +351,7 @@ class PadInfo:
     roundrect_ratio: float
     cx: float
     cy: float
-    cx_alt: float  # position under R(-theta), for the sensitivity check
+    cx_alt: float  # position under the SUPERSEDED R(+theta), for the sensitivity check
     cy_alt: float
     rotation_rad: float
     is_back_side: bool
@@ -474,9 +485,11 @@ def load_board(board_path: Path, manifest: Manifest) -> BoardData:
             lx, ly = pad.position.X, pad.position.Y
             if flipped:
                 lx = -lx
-            dx, dy = _rotate_plus_theta(lx, ly, fangle)
-            cx, cy = fx + dx, fy + dy
-            adx, ady = _rotate_minus_theta(lx, ly, fangle)
+            # PRIMARY: the canonical kernel -- R(-theta), the convention this
+            # board's own copper decides 73:0.
+            cx, cy = pad_world_center(lx, ly, fx, fy, fangle)
+            # ALT: what the superseded R(+theta) primary would have said.
+            adx, ady = _rotate_plus_theta(lx, ly, fangle)
             cx_alt, cy_alt = fx + adx, fy + ady
 
             if flipped:
@@ -792,8 +805,8 @@ def format_report(report: Report, *, limit: int = 50) -> str:
     lines.append(f"  unknown (no body outline data):           {unknown}")
     if sensitive:
         lines.append(
-            f"  rotation-convention-sensitive (verdict flips under R(-theta)): {sensitive} "
-            "-- see module docstring's open-question caveat."
+            f"  verdict differed under the SUPERSEDED R(+theta) convention: {sensitive} "
+            "-- these are the pairs whose previously-published figures were wrong."
         )
 
     if report.violations:

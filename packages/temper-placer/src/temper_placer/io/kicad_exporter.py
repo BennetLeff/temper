@@ -18,7 +18,6 @@ from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.geometry_types import Track as GeoTrack
 from temper_placer.core.geometry_types import Via as GeoVia
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
@@ -107,7 +106,7 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     Returns:
         Dictionary mapping net_name -> list of (x, y) pad centers
     """
-    import math
+    from temper_placer.geometry.pad_world import pad_world_center
 
     pad_centers: dict[str, list[tuple[float, float]]] = {}
 
@@ -129,14 +128,12 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
             if not net_name:
                 continue
 
-            # Apply footprint rotation to pad position, using KiCad's real
-            # rotation convention -- see
-            # temper_placer.geometry.kicad_transform's docstring.
-            rel_x, rel_y = pad.position.X, pad.position.Y
-            rad = math.radians(fp_angle)
-            rot_x, rot_y = rotate_local_to_world(rel_x, rel_y, rad)
-            abs_x = fp_x + rot_x
-            abs_y = fp_y + rot_y
+            # The pad's centre in board coordinates, through the single
+            # sanctioned composition -- see
+            # temper_placer.geometry.pad_world's docstring.
+            abs_x, abs_y = pad_world_center(
+                pad.position.X, pad.position.Y, fp_x, fp_y, fp_angle
+            )
 
             if net_name not in pad_centers:
                 pad_centers[net_name] = []
