@@ -37,10 +37,9 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+import temper_orchestration as _to
+
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.stages import (
-    ApplyPlacementsStage as _shim_ap,
-)
 from temper_placer.deterministic.stages import (
     FinePitchEscapeStage as _shim_fpe,
 )
@@ -330,7 +329,7 @@ def _body_p5(impl, state):
 @given(ap_input())
 @settings(max_examples=20, deadline=None)
 def test_p5_placements_applied_and_preserved(inputs):
-    _body_p5(_shim_ap().run, inputs)
+    _body_p5(_to.run_apply_placements, inputs)
 
 
 def test_p5_fails_for_noop_mutant():

@@ -1,8 +1,10 @@
 """Internal: trace/via route writing and stripping functions.
 
 Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels
-(the deterministic emission keys, the net-index resolution and the stable
-object-ID derivation). The kiutils board I/O (load/mutate/write a
+(the deterministic emission keys, the net-index resolution, the stable
+object-ID derivation, and the per-segment/per-via s-expression constructions
+``segment_sexpr_py`` / ``via_sexpr_py``, materialised through kiutils' own
+``from_sexpr``). The kiutils board I/O (load/mutate/write a
 ``.kicad_pcb``) stays here — the KiCad format boundary is a documented
 JUSTIFIED-KEEP — so the public entry points keep their signatures and forward
 every pure kernel to Rust.
@@ -294,7 +296,6 @@ def write_routes_to_pcb(
         WriteResult with statistics and warnings.
     """
     from kiutils.items.brditems import Segment, Via
-    from kiutils.items.common import Position
 
     warnings: list[str] = []
     traces_added = 0
@@ -338,15 +339,21 @@ def write_routes_to_pcb(
             warnings.append(f"Net '{route.net}' not found in board, using index 0")
 
         try:
-            segment = Segment(
-                start=Position(X=route.start[0], Y=route.start[1]),
-                end=Position(X=route.end[0], Y=route.end[1]),
-                width=route.width,
-                layer=route.layer,
-                net=net_index,
-                # Required: unique object ID. Derived, not random -- see
-                # _stable_tstamp.
-                tstamp=_stable_tstamp("segment", route_key),
+            # The segment's content is constructed in Rust (segment_sexpr_py)
+            # and materialised through kiutils' own parser — see the module
+            # docstring. The tstamp is the deterministic per-object UUID from
+            # _stable_tstamp (unchanged).
+            segment = Segment.from_sexpr(
+                _GEOM.segment_sexpr_py(
+                    route.start[0],
+                    route.start[1],
+                    route.end[0],
+                    route.end[1],
+                    route.width,
+                    route.layer,
+                    net_index,
+                    _stable_tstamp("segment", route_key),
+                )
             )
             ki_board.traceItems.append(segment)
             traces_added += 1
@@ -364,13 +371,19 @@ def write_routes_to_pcb(
             net_index = _resolve_net_index(via.net, net_name_to_index)
 
             try:
-                kicad_via = Via(
-                    position=Position(X=via.position[0], Y=via.position[1]),
-                    size=via.width,
-                    drill=via.drill,
-                    layers=list(via.layers),
-                    net=net_index,
-                    tstamp=_stable_tstamp("via", via_key),
+                # Via content constructed in Rust (via_sexpr_py) — see the
+                # module docstring. The tstamp is the deterministic per-object
+                # UUID from _stable_tstamp (unchanged).
+                kicad_via = Via.from_sexpr(
+                    _GEOM.via_sexpr_py(
+                        via.position[0],
+                        via.position[1],
+                        via.width,
+                        via.drill,
+                        list(via.layers),
+                        net_index,
+                        _stable_tstamp("via", via_key),
+                    )
                 )
                 ki_board.traceItems.append(kicad_via)
                 vias_added += 1

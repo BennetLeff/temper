@@ -10,8 +10,7 @@ across the unit, and EVERY module is reached by at least one property:
 * P2  -> ``clearance_engine`` (``get_clearance``, composing
   ``safety_distances_py``)
 * P3  -> ``clearance_engine`` (``calculate_safety_distances``)
-* P4  -> ``grid_converter`` (``extract_vias_py`` / ``count_vias_in_path_py``)
-* P5  -> ``grid_converter`` (``compute_path_length_py``)
+* P4  -> ``grid_converter`` (``grid_to_world_py``)
 * P6  -> ``path_simplify`` (``simplify_path_py`` / ``estimate_segment_count_py``)
 * P7  -> ``clearance_engine`` (``net_class_to_voltage_class_py``)
 
@@ -23,10 +22,10 @@ the ``temper_geometry`` kernel with a degenerate implementation, re-runs
 the property on a fixed discriminating input via ``hypothesis.inner_test``,
 and asserts ``AssertionError``.
 
-The metamorphic section (M1-M3) is a clearly-labelled part of this file:
-three invariant relations with per-relation exactness claims (all three are
-exact -- the transforms are integer translations/reflections/reversals, so
-every f64 bit is preserved).
+The metamorphic section (M2-M3) is a clearly-labelled part of this file:
+two invariant relations with per-relation exactness claims (both are
+exact -- the transforms are integer reflections/reversals, so every f64
+bit is preserved).
 """
 
 from __future__ import annotations
@@ -194,14 +193,6 @@ def test_p3_fails_for_inverted_tables(_restore_kernels) -> None:
 # ---------------------------------------------------------------------------
 
 
-@given(_cell_path())
-@settings(max_examples=100, deadline=2000)
-def test_p4_via_count_equals_extract_len(cells):
-    layers = [c.layer for c in cells]
-    assert _tg.count_vias_in_path_py(layers) == len(_tg.extract_vias_py(layers))
-    assert _tg.count_vias_in_path_py(layers) <= max(0, len(cells) - 1)
-
-
 @given(
     st.integers(min_value=-20, max_value=20),
     st.integers(min_value=-20, max_value=20),
@@ -218,14 +209,6 @@ def test_p4_grid_to_world_axes_separable(x, y, ox, oy, size):
     assert gy == sy  # bit-exact
 
 
-def test_p4_fails_for_constant_extract_vias(_restore_kernels) -> None:
-    _tg.extract_vias_py = lambda *_a: []
-    with pytest.raises(AssertionError):
-        test_p4_via_count_equals_extract_len.hypothesis.inner_test(
-            [GridCell(0, 0, 0), GridCell(1, 0, 1), GridCell(2, 0, 1)]
-        )
-
-
 def test_p4_fails_for_mixed_axes_grid_to_world(_restore_kernels) -> None:
     _tg.grid_to_world_py = lambda x, y, ox, oy, size: (
         ox + (x + y) * size + size / 2,
@@ -233,31 +216,6 @@ def test_p4_fails_for_mixed_axes_grid_to_world(_restore_kernels) -> None:
     )
     with pytest.raises(AssertionError):
         test_p4_grid_to_world_axes_separable.hypothesis.inner_test(1, 1, 0, 0, 0.5)
-
-
-# ---------------------------------------------------------------------------
-# P5 — grid_converter: two-cell Manhattan length is the exact formula
-# ---------------------------------------------------------------------------
-
-
-@given(
-    st.integers(min_value=-10**6, max_value=10**6),
-    st.integers(min_value=-10**6, max_value=10**6),
-    st.integers(min_value=-10**6, max_value=10**6),
-    st.integers(min_value=-10**6, max_value=10**6),
-    st.floats(min_value=0.1, max_value=10.0),
-)
-@settings(max_examples=100, deadline=2000)
-def test_p5_path_length_two_cells_exact_formula(x1, y1, x2, y2, size):
-    got = _tg.compute_path_length_py([x1, x2], [y1, y2], size)
-    expected = (abs(x2 - x1) + abs(y2 - y1)) * size
-    assert got == expected  # bit-exact: int delta promoted once, one multiply
-
-
-def test_p5_fails_for_zero_length_kernel(_restore_kernels) -> None:
-    _tg.compute_path_length_py = lambda *_a, **_k: 0.0
-    with pytest.raises(AssertionError):
-        test_p5_path_length_two_cells_exact_formula.hypothesis.inner_test(0, 0, 3, 4, 0.5)
 
 
 # ---------------------------------------------------------------------------
@@ -338,9 +296,7 @@ def _restore_kernels():
             "via_layer_pair_py",
             "adjacent_layer_py",
             "safety_distances_py",
-            "extract_vias_py",
             "grid_to_world_py",
-            "compute_path_length_py",
             "simplify_path_py",
             "estimate_segment_count_py",
             "net_class_to_voltage_class_py",
@@ -357,8 +313,6 @@ def _restore_kernels():
 def test_sanity_kernel_is_not_trivial() -> None:
     straight = [GridCell(i, 0, 0) for i in range(5)]
     assert len(simplify_path(straight)) < len(straight)
-    assert _tg.compute_path_length_py([0, 3], [0, 4], 0.5) > 0.0
-    assert _tg.count_vias_in_path_py([0, 1]) == 1
     assert _tg.net_class_to_voltage_class_py("GND") != _tg.net_class_to_voltage_class_py("HV")
 
 
@@ -366,23 +320,6 @@ def test_sanity_kernel_is_not_trivial() -> None:
 # Metamorphic relations (G5) -- all exact (integer transforms, so every f64
 # bit is preserved)
 # ===========================================================================
-
-
-@given(
-    st.lists(st.tuples(st.integers(min_value=-50, max_value=50), st.integers(min_value=-50, max_value=50))),
-    st.integers(min_value=-50, max_value=50),
-    st.integers(min_value=-50, max_value=50),
-    st.floats(min_value=0.1, max_value=10.0),
-)
-@settings(max_examples=50, deadline=2000)
-def test_m1_path_length_invariant_under_translation(cells, tx, ty, size):
-    """M1: integer translation of the path leaves the Manhattan length
-    bit-exact (int deltas are unchanged)."""
-    before = _tg.compute_path_length_py([x for x, _ in cells], [y for _, y in cells], size)
-    after = _tg.compute_path_length_py(
-        [x + tx for x, _ in cells], [y + ty for _, y in cells], size
-    )
-    assert before == after
 
 
 @given(_cell_path())

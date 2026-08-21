@@ -52,6 +52,7 @@ from pathlib import Path
 import temper_orchestration as _to
 import tests.deterministic._component_assignment_py_oracle as _orc_component_assignment
 import tests.deterministic._phased_component_assignment_validator_py_oracle as _orc_validator
+
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import component_assignment as _shim_component_assignment
@@ -670,21 +671,17 @@ def test_validator_full_placer_end_to_end() -> None:
 # ---------------------------------------------------------------------------
 
 def test_assignment_chain_identical() -> None:
-    from temper_placer.deterministic.stages import (
-        slot_generation as _shim_slot_generation,
-    )
-    from temper_placer.deterministic.stages import (
-        zone_assignment as _shim_zone_assignment,
-    )
-    from temper_placer.deterministic.stages import (
-        zone_geometry as _shim_zone_geometry,
-    )
-
     import tests.deterministic._slot_generation_py_oracle as _orc_slot_generation
     import tests.deterministic._zone_assignment_py_oracle as _orc_zone_assignment
     import tests.deterministic._zone_geometry_py_oracle as _orc_zone_geometry
 
     from temper_placer.core.board import Board
+    from temper_placer.deterministic.stages import (
+        SlotGenerationStage as _shim_slot_generation,
+    )
+    from temper_placer.deterministic.stages import (
+        ZoneGeometryStage as _shim_zone_geometry,
+    )
 
     comps, nets = [], []
     refs = ("Q1", "C1", "U_MCU1", "R1")
@@ -702,19 +699,27 @@ def test_assignment_chain_identical() -> None:
     netlist = Netlist(components=comps, nets=nets)
     board = Board(width=120.5, height=80.0)
 
-    def chain(zg, za, sg, ca):
-        state = zg.ZoneGeometryStage().run(BoardState(board=board, netlist=netlist))
-        state = za.ZoneAssignmentStage().run(state)
-        state = sg.SlotGenerationStage(slot_spacing_mm=7.5).run(state)
+    def chain(zg, sg, ca, za_run=None):
+        # Shim-debt cleanup 2026-08-20: the D2 stage classes were collapsed
+        # onto the RustFunctionStage adapter in `stages/__init__.py`, so the
+        # port arm passes the CLASSES while the oracle arm passes its pinned
+        # modules (each defining its own pre-migration class).
+        zg_cls = zg if isinstance(zg, type) else zg.ZoneGeometryStage
+        sg_cls = sg if isinstance(sg, type) else sg.SlotGenerationStage
+        state = zg_cls().run(BoardState(board=board, netlist=netlist))
+        # Shim-debt cleanup 2026-08-19: the zone_assignment shim module was
+        # deleted; the port arm drives the pyfunction directly.
+        state = za_run(state) if za_run is not None else _orc_zone_assignment.ZoneAssignmentStage().run(state)
+        state = sg_cls(slot_spacing_mm=7.5).run(state)
         return ca.ComponentAssignmentStage(slot_spacing=7.5).run(state)
 
     orc_state = chain(
-        _orc_zone_geometry, _orc_zone_assignment, _orc_slot_generation,
+        _orc_zone_geometry, _orc_slot_generation,
         _orc_component_assignment,
     )
     port_state = chain(
-        _shim_zone_geometry, _shim_zone_assignment, _shim_slot_generation,
-        _shim_component_assignment,
+        _shim_zone_geometry, _shim_slot_generation,
+        _shim_component_assignment, za_run=_to.run_zone_assignment,
     )
     assert _placement_canon(port_state.placements) == _placement_canon(
         orc_state.placements

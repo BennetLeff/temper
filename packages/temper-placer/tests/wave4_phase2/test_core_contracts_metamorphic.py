@@ -169,56 +169,6 @@ def test_m3b_rect_coerce_is_idempotent():
 # ---------------------------------------------------------------------------
 
 
-def test_m4_placement_drc_is_translation_invariant():
-    """M4. Translating every pin by the same exact delta changes nothing
-    but the pin coordinates -- the violation set, order, distances and
-    messages are bit-identical."""
-    rng = random.Random(88)
-    pins = [
-        (
-            rng.randrange(0, 400) * 0.25,
-            rng.randrange(0, 400) * 0.25,
-            rng.choice(["GND", "VCC", "SDA"]),
-            f"U{rng.randrange(1, 9)}",
-            str(rng.randrange(1, 9)),
-            rng.choice([0.5, 1.0, 2.0]),
-        )
-        for _ in range(60)
-    ]
-    base = prod_drc.validate_placement_drc([prod_drc.PinInfo(*p) for p in pins], 0.5)
-    for dx, dy in [(0.25, 0.0), (-8.0, 4.0), (1024.0, -1024.0)]:
-        moved = [prod_drc.PinInfo(p[0] + dx, p[1] + dy, *p[2:]) for p in pins]
-        got = prod_drc.validate_placement_drc(moved, 0.5)
-        assert len(got) == len(base)
-        for g, b in zip(got, base, strict=True):
-            assert_same(g.distance, b.distance, "M4 distance")
-            assert_same(g.required, b.required, "M4 required")
-            assert g.violation_type == b.violation_type
-            assert g.message == b.message
-
-
-def test_m4b_placement_drc_is_equivariant_under_pin_relabelling():
-    """M4b. Reversing the pin list reverses which index is `item_a`, but
-    produces the same *set* of unordered offending pairs."""
-    rng = random.Random(99)
-    pins = [
-        prod_drc.PinInfo(
-            rng.uniform(0, 10), rng.uniform(0, 10), rng.choice(["A", "B", "C"]), "U", "1", 1.0
-        )
-        for _ in range(30)
-    ]
-    forward = prod_drc.validate_placement_drc(pins, 0.3)
-    backward = prod_drc.validate_placement_drc(list(reversed(pins)), 0.3)
-
-    def pair_set(violations):
-        return {
-            frozenset((id(v.item_a), id(v.item_b))): (v.violation_type, v.distance)
-            for v in violations
-        }
-
-    assert pair_set(forward) == pair_set(backward)
-
-
 # ---------------------------------------------------------------------------
 # M5. inflated_width and inflated_clearance are mutually inverse on the
 #     tolerance argument, in the exact-arithmetic sense.

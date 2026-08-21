@@ -337,7 +337,7 @@ def generate_power_islands_blocks(
     ``emit_zone_outline_s_expr_py``, the #1257 machinery) carved at
     ``max(clearance, creepage)`` per foreign obstacle -- see the zone
     footprint section below for the measured rationale and the
-    ``docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py`` data.
+    ``docs/evidence/scripts/2026-08-16-p3v3-in2cu-pour-feasibility.py`` data.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.placer.cp_sat.isolation_barrier import (
@@ -477,7 +477,7 @@ def generate_power_islands_blocks(
         # max(clearance, creepage) -- 12.6mm HV-vs-Power creepage, not the
         # 2.0mm clearance table -- and emits one (polygon ...) element per
         # ring (exterior + holes). Measured 2026-08-16
-        # (docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py): a
+        # (docs/evidence/scripts/2026-08-16-p3v3-in2cu-pour-feasibility.py): a
         # per-cluster carve covers 28/50 +3V3 pads in 12 zones, while a
         # SINGLE hull over all 50 pads (cluster=False, the gnd-plane
         # precedent) covers 34/50 pads in just 2 islands -- the same

@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs
+.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs
 
 # Show help for workflow commands
 help:
@@ -108,35 +108,29 @@ route: netlist
 	@echo "Routing $(PCB_FILE) through router_v6 (route_pcb)..."
 	uv run python3 scripts/route_board.py --pcb $(PCB_FILE) --output $(ROUTED_PCB)
 
-# --all-track-errors is load-bearing, for determinism as much as completeness.
-# Without it KiCad reports only a SUBSET of the errors on each track, and which
-# subset varies between runs on a byte-identical board: measured over 11 runs,
-# clearance 334-343 and shorting_items 148-174. With it those counts are stable
-# and clearance reads 499 -- the same figure docs/STRATEGY.md records for this
-# board. The earlier numbers were a sample, not a measurement.
+# --all-track-errors is load-bearing, for determinism as much as completeness:
+# without it KiCad reports a run-varying SUBSET of errors per track (measured
+# 2026-07-29: clearance 334-343, shorting_items 148-174 over 11 runs; with it,
+# stable, clearance 499 -- the figure docs/STRATEGY.md records). Omitting it
+# made `make drc` disagree with CI and with drc_ceiling.json. Rationale:
+# packages/temper-placer/src/temper_placer/validation/_drc_api.py.
 #
-# Omitting it here meant `make drc` disagreed with CI, with
-# power_pcb_dataset/drc_ceiling.json, and with itself between runs. See the
-# rationale in packages/temper-placer/src/temper_placer/validation/_drc_api.py.
-#
-# The pre-flight check below is load-bearing, not decorative: kicad-cli
-# resolves a project by finding <stem>.kicad_pro next to the board, and
-# when it can't, it does NOT error -- it silently drops every violation
-# sourced from the project's custom pcb/temper.kicad_dru rules
-# (track_width, and creepage -- the IEC 60335-1 HV/LV isolation check) and
-# from temper.kicad_pro's rule_severities overrides (missing_courtyard,
-# annular_width). `scripts/route_board.py` (the `route` target above)
-# propagates a resolvable project onto $(ROUTED_PCB) automatically, but
-# `make drc` can also be run standalone against a stale/hand-placed
-# $(ROUTED_PCB) that predates that fix, so this still fails loud rather
-# than measuring a silent subset. See
+# The pre-flight project check is load-bearing, not decorative: kicad-cli
+# resolves a project by finding <stem>.kicad_pro next to the board, and when
+# it can't it does NOT error -- it silently drops every violation sourced from
+# the project's custom pcb/temper.kicad_dru rules (track_width, creepage) and
+# temper.kicad_pro's rule_severities overrides (missing_courtyard,
+# annular_width). `make drc` can run standalone against a stale $(ROUTED_PCB)
+# that predates route_board.py's project propagation, so this still fails loud
+# rather than measuring a silent subset. See
 # docs/evidence/2026-08-08-drc-project-context-audit.md.
 #
-# The kicad-cli pre-flight is the second load-bearing check. This machine has
-# no distro KiCad 10.x, so kicad-cli is a hand-relocated deb tree that has
-# gone missing from PATH repeatedly. A DRC gate that skips when the tool is
-# absent turns the whole measurement into an environment footnote -- so this
-# fails, loudly, with the repair command. See scripts/install_kicad_cli.sh.
+# The kicad-cli pre-flight is the second load-bearing check: this machine's
+# kicad-cli is a hand-relocated deb tree that has gone missing from PATH
+# repeatedly, and a DRC gate that skips when the tool is absent turns the whole
+# measurement into an environment footnote -- so this fails loudly with the
+# repair command. See scripts/install_kicad_cli.sh. (Both pre-flights: AGENTS.md
+# "Measurement Instruments That Lie".)
 drc: kicad-cli-check
 	@echo "Running KiCad DRC..."
 	@if [ ! -f "$(ROUTED_PCB:.kicad_pcb=.kicad_pro)" ]; then \
@@ -195,34 +189,20 @@ test-fast:
 	@echo "Running tests (excluding 'slow' markers, parallel -- use 'make test' for the serial reference run)..."
 	uv run --no-sync python -m pytest -m "not slow" -n auto --dist loadgroup
 
-# Rebuild every pyo3/maturin Rust extension crate in the repo (fixes the
-# "stale .so" trap: a merge touches Rust source, the installed extension
-# still imports but is silently frozen at its last successful build --
-# scripts/check_stale_extensions.py detects this, this target fixes it).
+# Rebuild every pyo3/maturin Rust extension crate (fixes the "stale .so" trap:
+# a merge touches Rust source, the installed extension still imports but is
+# silently frozen at its last successful build).
 #
-# The crate list is NOT hardcoded here. `scripts/check_stale_extensions.py
-# --list-crates` is the same discover_crates() source of truth the gate
-# itself checks freshness against (a static scan of packages/ for
-# pyproject.toml+Cargo.toml pairs with a maturin backend, a cdylib
-# crate-type, and a pyo3 dependency) -- so this target can never drift
-# from "how many pyo3 crates does this repo actually have" the way a
-# hand-maintained list would. See extensions-crate-list-check below for
-# the fallback-hardcoding contingency this repo doesn't currently need.
-#
-# `uv run --no-sync` (not plain `uv run`) on every step: a bare `uv run`
-# re-resolves and can re-sync `.venv` against uv.lock, which -- for the
-# three crates below that `uv sync --all-packages` does not build itself
-# (temper-constraints is nested a level too deep for the
-# `packages/*` workspace-members glob; see pyproject.toml
-# [tool.uv.workspace]) -- would silently evict the very .so this target
-# just built. That happened once already recovering from this exact
-# staleness trap by hand.
-#
-# temper-constraints additionally needs PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
-# (see .github/workflows/python-tests.yml's "Build and install
-# temper-constraints" step) -- without it, its abi3 build fails against a
-# newer CPython than the abi3-forward-compat table in the pinned pyo3
-# version already knows about.
+# The crate list is NOT hardcoded: `scripts/check_stale_extensions.py
+# --list-crates` is the same discover_crates() source of truth the freshness
+# gate checks against, so this can never drift from "how many pyo3 crates the
+# repo actually has". `uv run --no-sync` (never bare `uv run`) on every step,
+# so a re-sync cannot evict the very .so just built; temper-constraints
+# additionally needs PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 (see
+# .github/workflows/python-tests.yml). Why all of this matters -- the four
+# silent-staleness modes, and why a poisoned cargo cache defeats a rebuild:
+# AGENTS.md "Rebuilding pyo3/maturin Rust Extensions" and
+# docs/evidence/2026-08-11-worktree-poisons-shared-venv.md.
 extensions:
 	@echo "Rebuilding pyo3/maturin extension crates (crate list from 'scripts/check_stale_extensions.py --list-crates')..."
 	@uv run --no-sync python3 scripts/check_stale_extensions.py --list-crates | while read -r crate_name manifest_path; do \
@@ -253,54 +233,23 @@ venv-integrity-check:
 
 # WASM verification tier (Track D): build the wasm-test-runner artifacts and
 # stage them beside the Worker source so `wrangler deploy` can bundle them via
-# the direct `.wasm` imports in packages/temper-worker/src/index.js. Full flow
-# in docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md.
+# the direct `.wasm` imports in packages/temper-worker/src/index.js.
 #
 #   make wasm-runner         # build the full-corpus .wasm only
 #   make wasm-worker-stage   # build EVERY .wasm into packages/temper-worker/src/
 #   make wasm-worker-deploy  # stage, then `wrangler deploy` every Worker
-#                            # (HUMAN step: requires a Cloudflare account +
-#                            # login/token with Workers Scripts:Edit)
+#                            # (HUMAN step: Cloudflare account + login/token)
 #
-# "Every" is defined by tools/wasm/wasm_tier_topology.json, not by a list in
-# this file. Thirteen Workers today across six tiers (temper-drc-rs:
-# temper-wasm-tier + 7 family shards; and one Worker each for temper-geometry,
-# temper-thermal, temper-design-bundle, temper-rust-router-core and
-# temper-constraint-compiler). This target used to carry its own copy of the
-# family list, which is bug #2 below repeating itself one crate later — the
-# whole reason that file exists. Three crates were added on 2026-08-11 and this
-# target needed no edit.
-#
-# CI equivalent, and the preferred path: the `workflow_dispatch`-only workflow
-# .github/workflows/wasm-tier-deploy.yml runs exactly these steps and then
-# VERIFIES the deployed corpus with tools/wasm/check_deployed_freshness.mjs.
-#
-# THREE BUGS FIXED HERE 2026-08-10 (Phase 5 U1, R5.2). All three made this
-# "one-command deploy" a trap rather than a path, and all three fed the
-# 2026-08-07..2026-08-10 staleness window this unit exists to close:
-#
-#  1. `wasm-runner` passed `--no-default-features` with no `--features`, which
-#     turns OFF `wasm-test-registry` -- the only thing enabling
-#     `temper-drc-rs/wasm-registry`, which gates `temper_drc_rs::
-#     wasm_test_registry` (temper-drc-rs/src/lib.rs:47). The target has not
-#     compiled at all since the family features landed; it fails with E0432
-#     `unresolved import`. Verified 2026-08-10 by running it. That is the same
-#     flag bug wasm-tier-nightly.yml's build step already carries a comment
-#     about; the Makefile copy of it was never fixed.
-#  2. `wasm-worker-stage` staged ONE module. `packages/temper-worker/src/
-#     index.js` imports all of them, so a deploy from that state cannot bundle.
-#     Worse, the seven per-family Workers -- the ones the tier actually
-#     dispatches -- were not built or deployed by this path at all, which is
-#     exactly how shards go stale while the full corpus looks current.
-#  3. `stat -f %z` is macOS syntax; on Linux `-f` selects filesystem info and
-#     prints garbage. Dropped in favour of `ls -lh` from the staging script.
-#
-# The staged copies are gitignored — never commit a built .wasm binary. Deploy
-# is deliberately not reachable from `make build`; it is a credentialed,
-# human-gated action, and nothing on the PR path can reach it.
-#
-# CARGO_TARGET_DIR (exported below) is the shared target dir, so this builds
-# incrementally against whatever the rest of the repo already compiled.
+# "Every" is defined by tools/wasm/wasm_tier_topology.json, never by a list in
+# this file -- three bugs fixed 2026-08-10 (a `--no-default-features` flag that
+# broke the build, a stage that copied ONE module, macOS-only `stat -f` syntax)
+# are exactly the class of drift the topology file exists to prevent, and the
+# deploy verification reads staged filenames back out of it. Staged copies are
+# gitignored -- never commit a built .wasm. Deploy is deliberately not
+# reachable from `make build`; the CI equivalent is the workflow_dispatch-only
+# .github/workflows/wasm-tier-deploy.yml. CARGO_TARGET_DIR (exported below) is
+# the shared target dir, so builds are incremental against the rest of the repo.
+# Full flow: docs/evidence/2026-08-07-phase1-u7-deploy-runbook.md.
 WASM_RUNNER_MANIFEST = packages/temper-wasm-test-runner/Cargo.toml
 WASM_RUNNER_ARTIFACT = $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/temper_wasm_test_runner.wasm
 # Deliberately NOT one variable per tier. `wasm-worker-deploy`'s verification
@@ -315,10 +264,10 @@ wasm-runner:
 		--manifest-path $(WASM_RUNNER_MANIFEST)
 
 # temper-geometry on the same tier. A separate target rather than a flag on
-# `wasm-runner` because the two produce different modules and different result
-# sets: the expected-failure manifests are per-crate (run_wasm_tests.mjs exits
-# non-zero on a manifest entry naming no registered test, so a geometry-only
-# module cannot be judged against temper-drc-rs's manifest).
+# `wasm-runner`: different module, different per-crate expected-failure
+# manifest (run_wasm_tests.mjs exits non-zero on a manifest entry naming no
+# registered test, so one crate's module cannot be judged against another's
+# manifest).
 #
 #   make wasm-geometry-test   # build + run all of temper-geometry's tests
 #                             # under Node, on wasm32-unknown-unknown
@@ -330,10 +279,9 @@ wasm-geometry-test:
 	node tools/wasm/run_wasm_tests.mjs $(WASM_RUNNER_ARTIFACT) \
 		--expected-failures tools/wasm/wasm_expected_failures_geometry.json
 
-# temper-thermal on the same tier, for the same reasons `wasm-geometry-test` is
-# its own target: a different module, a different result set, and a per-crate
-# expected-failure manifest that cannot judge a module built from another
-# crate's registry.
+# temper-thermal on the same tier, for the same reason `wasm-geometry-test` is
+# its own target: a different module and a different per-crate
+# expected-failure manifest.
 #
 #   make wasm-thermal-test    # build + run all of temper-thermal's registered
 #                             # tests under Node, on wasm32-unknown-unknown
@@ -346,22 +294,17 @@ wasm-thermal-test:
 		--expected-failures tools/wasm/wasm_expected_failures_thermal.json
 
 # The 2026-08-10 additions, each its own target for the same reason
-# `wasm-geometry-test` is: a different module, a different result set, and a
-# per-crate expected-failure manifest that cannot judge a module built from
-# another crate's registry. All three are deployed Workers as of 2026-08-11;
+# `wasm-geometry-test` is: a different module, a different per-crate
+# expected-failure manifest. All three are deployed Workers as of 2026-08-11;
 # these targets are the local equivalent of what those Workers serve.
 #
 #   make wasm-design-bundle-test        # 24 tests, 24 pass
 #   make wasm-router-core-test          # 111 tests, 111 pass
 #   make wasm-constraint-compiler-test  # 70 registered / 69 on wasm32, 69 pass
 #
-# `wasm-router-core-test` read "88 pass + 23 expected-fail" until #947 made
-# combinator::rewrite's trace clock lazy; all 23 `no-clock` entries became
-# passes and were deleted from the manifest in that PR. Note that the number
-# the DEPLOYED tier compares — `summary.registered` — did not move: 111 before,
-# 111 after. A count check cannot see a verdict change (issue #945), which is
-# why run_wasm_tests.mjs's non-zero exit on an UNEXPECTED PASS is the thing that
-# actually caught the manifest going stale.
+# Note on run_wasm_tests.mjs: it exits non-zero on an UNEXPECTED PASS as well
+# as on a failure -- a count check cannot see a verdict change, which is why
+# the manifest's unexpected-pass handling is what catches it going stale.
 wasm-design-bundle-test:
 	@echo "Building temper-wasm-test-runner with temper-design-bundle's registry..."
 	cargo build --release --target wasm32-unknown-unknown --no-default-features \
@@ -391,8 +334,7 @@ wasm-constraint-compiler-test:
 
 # Delegates to the committed staging script rather than duplicating its build
 # matrix: one definition of "what the modules are", shared by this target, the
-# deploy workflow, and the runbook. That script reads
-# tools/wasm/wasm_tier_topology.json.
+# deploy workflow, and the runbook (tools/wasm/wasm_tier_topology.json).
 wasm-worker-stage:
 	bash scripts/stage_wasm_families.sh
 	@echo "Local smoke test:  node tools/wasm/worker_local_server.mjs"
@@ -545,26 +487,12 @@ worktree:
 	@$(MAKE) -C "$(WT_PATH)" cargo-target-dir-guard
 	@if [ "$(VENV)" = "1" ]; then echo "provisioning isolated .venv..."; $(MAKE) -C "$(WT_PATH)" venv-isolate; fi
 
-gerbers: build
-	@echo "Exporting Gerbers..."
-	# kicad-cli pcb export gerber ...
-
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR)
 
-# RETIRED 2026-07-27: `regression` and `perf-regression` both drove the
-# JAX/benders_loop placement path, which no longer exists.
-#   - run-corpus reaches corpus_runner._run_board, which returns the
-#     retired-optimizer error for every valid board (the JAX optimizer and
-#     its stubs were removed in the cleanup C2 sweep), so every board failed
-#     regardless of input.
-#   - check_perf_regression.py imported `jax` and `temper_placer.losses.*`;
-#     both are gone from the tree, so it died on ModuleNotFoundError before
-#     doing any work. The script is deleted.
-# Both were masked in CI as runner flakiness rather than a removed capability.
-# Restoring quality/perf regression coverage needs a placement strategy that
-# still exists; these targets could not provide it.
+# RETIRED 2026-07-27: `regression` and `perf-regression` drove the deleted
+# JAX/benders_loop placement path and died with it; do not resurrect.
 
 # Onboarding
 

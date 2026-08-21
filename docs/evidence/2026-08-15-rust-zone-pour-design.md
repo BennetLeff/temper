@@ -232,7 +232,7 @@ next session's job.**
 
 ## 7. Prototype measurements (real board, `pcb/temper.kicad_pcb` @ origin/main)
 
-Harness: `docs/evidence/2026-08-15-zone-pour-design.py` (shapely mirrors
+Harness: `docs/evidence/scripts/2026-08-15-zone-pour-design.py` (shapely mirrors
 the Rust algorithm; run with the shared venv, read-only). Board: 35568 mm²,
 6-layer, 19 HV-domain nets (elec/domain_manifest.yaml).
 

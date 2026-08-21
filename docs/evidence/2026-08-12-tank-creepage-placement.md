@@ -96,7 +96,7 @@ At the looser PD2 figure (6.3mm), the same top 10 of these violate (`C25<->RV1` 
 
 ### 3.2 Solver-level proof (Pumpkin, not just a pure-Python checker)
 
-`docs/evidence/2026-08-12-tank-creepage-pumpkin-run.py --pin-current`: pins all 46 relevant refs (4 tank + 42 other-HV) to their committed `(position, rotation)`, in a model carrying ONLY the tank-creepage constraint (no barrier, no netclass/courtyard base) -- isolating this constraint as the one doing the rejecting.
+`docs/evidence/scripts/2026-08-12-tank-creepage-pumpkin-run.py --pin-current`: pins all 46 relevant refs (4 tank + 42 other-HV) to their committed `(position, rotation)`, in a model carrying ONLY the tank-creepage constraint (no barrier, no netclass/courtyard base) -- isolating this constraint as the one doing the rejecting.
 
 ```
 [engine] pumpkin_engine sha256=7ff153f478f8022f8f8659a514ab7067220812ef82b002fd17955fe0f2083b5e ...
@@ -121,7 +121,7 @@ source_commit=5bbf650d47d3a07fffd10a44e7c06c43a0a800bd
 
 Board `152x234mm`, 169 components, tau=0.4mm. Base: 9,714 netclass + 6,282 courtyard = 15,996 SEPARATED constraints. Barrier: PD2/8.0mm, horizontal, corridor Y `[113.0, 121.0]`, hv_only=43, selv_only=106, isolators=8, unclassified=12.
 
-**Premise check (per task instruction): all 8 committed-board isolators, none relaxed.** `--relax U6` (the harness's inherited default from the heatsink evidence run) is a no-op here: the derived isolator set is `C6, K1, K2, K3, PS1, T1, U3, U7` -- `U6` is not in it. This matches `docs/evidence/2026-08-12-heatsink-colocation-pumpkin-run.py`'s own finding that `U6` is an isolator only on the *reconciled* 168-component board, not the committed one. **No isolator was relaxed in any run below.**
+**Premise check (per task instruction): all 8 committed-board isolators, none relaxed.** `--relax U6` (the harness's inherited default from the heatsink evidence run) is a no-op here: the derived isolator set is `C6, K1, K2, K3, PS1, T1, U3, U7` -- `U6` is not in it. This matches `docs/evidence/scripts/2026-08-12-heatsink-colocation-pumpkin-run.py`'s own finding that `U6` is an isolator only on the *reconciled* 168-component board, not the committed one. **No isolator was relaxed in any run below.**
 
 | Run | status | solver time | wall |
 |---|---|---:|---:|
@@ -217,11 +217,11 @@ print(len(v), 'of', len(pairs), 'pairs violate at 10.0mm')
 
 # 3. Solver-level rejection proof
 PYTHONPATH=packages/temper-placer/src python3 \
-    docs/evidence/2026-08-12-tank-creepage-pumpkin-run.py --pin-current --timeout-ms 30000
+    docs/evidence/scripts/2026-08-12-tank-creepage-pumpkin-run.py --pin-current --timeout-ms 30000
 
 # 4. Fresh solve with the isolation barrier, all 8 isolators
 PYTHONPATH=packages/temper-placer/src python3 \
-    docs/evidence/2026-08-12-tank-creepage-pumpkin-run.py --margin-mm 10.0 --timeout-ms 60000
+    docs/evidence/scripts/2026-08-12-tank-creepage-pumpkin-run.py --margin-mm 10.0 --timeout-ms 60000
 
 # 5. Unit tests
 uv run --no-sync python -m pytest packages/temper-placer/tests/placer/cp_sat/test_tank_creepage.py -q
@@ -234,7 +234,7 @@ uv run --no-sync python -m pytest packages/temper-placer/tests/placer/cp_sat/tes
 - Constraint: `packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py`
 - Wired into the production entry point: `packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py` (`solve_placement(tank_creepage=...)`, `CpSatPlacementResult.tank_creepage_report`)
 - Tests: `packages/temper-placer/tests/placer/cp_sat/test_tank_creepage.py`
-- Evidence harness: `docs/evidence/2026-08-12-tank-creepage-pumpkin-run.py`
+- Evidence harness: `docs/evidence/scripts/2026-08-12-tank-creepage-pumpkin-run.py`
 - This document: `docs/evidence/2026-08-12-tank-creepage-placement.md`
 - Carried forward, not re-derived: `docs/evidence/2026-08-12-hv-hv-creepage-determination.md` (PR #1081, Table 18 / 6.3mm-10.0mm), `docs/evidence/2026-08-12-hv-hv-creepage-enforcement.md` (PR #1084, the 2.2656mm measurement and group scoping), `docs/evidence/2026-08-11-pd2-decision-record.md` (PD3 governs as-built), `packages/temper-placer/src/temper_placer/placer/cp_sat/domain_clearance.py` (the box-containment soundness lemma, reused not re-derived)
 - Borrowed for Sec 5 only, NOT part of this PR: `packages/temper-placer/src/temper_placer/placer/cp_sat/heatsink_colocation.py` from `origin/feat/igbt-heatsink-colocation @ 30ccf6ae5` (PR #1082)

@@ -14,25 +14,10 @@ from temper_placer.validation.drc_types import ConstraintSet as _DRCConstraintSe
 from temper_placer.validation.drc_types import Placement as _DRCPlacement
 
 from .channels import (
-    ALLOWED_SCHEMA_HASHES as ALLOWED_SCHEMA_HASHES,
-)
-from .channels import (
-    ALLOWED_SEVERITIES as ALLOWED_SEVERITIES,
-)
-from .channels import (
-    SEVERITY_WEIGHTS as SEVERITY_WEIGHTS,
-)
-from .channels import (
-    Bottleneck as Bottleneck,
-)
-from .channels import (
     ChannelMap as ChannelMap,
 )
 from .channels import (
     ChannelSidecarError as ChannelSidecarError,
-)
-from .channels import (
-    routability_penalty as routability_penalty,
 )
 from .stages.base import Stage
 from .stages.hv_lv_partition import HvLvPartitionStage as HvLvPartitionStage

@@ -101,7 +101,7 @@ value, and it is three-way mirrored (see below).
 
 ## 2. Measured results on the current board
 
-Run: `docs/evidence/2026-08-15-thermal-analysis-run.py` (parses
+Run: `docs/evidence/scripts/2026-08-15-thermal-analysis-run.py` (parses
 `pcb/temper.kicad_pcb`; no files modified). Design-limit ambient 60 °C,
 20 W per IGBT (conservative end of the committed 18-20 W), 5 W placeholder
 for the TO-220 rectifiers (their loss is not recorded in-repo — flagged,
