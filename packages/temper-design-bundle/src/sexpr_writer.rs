@@ -60,7 +60,6 @@
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
 
 use crate::parse_engine::{
     parse_ki_document, shortest_digits, KiAtom, KiNode,
@@ -70,13 +69,13 @@ use crate::parse_engine::{
 /// children). Returns the index and a mutable reference to the at-list.
 fn find_at_node_mut(items: &mut [KiNode]) -> Option<usize> {
     for (i, item) in items.iter().enumerate() {
-        if let KiNode::List(sub) = item {
-            if matches!(
+        if let KiNode::List(sub) = item
+            && matches!(
                 sub.first(),
                 Some(KiNode::Atom(KiAtom::Bare(b))) if b == "at"
-            ) {
-                return Some(i);
-            }
+            )
+        {
+            return Some(i);
         }
     }
     None
@@ -93,12 +92,11 @@ fn find_reference(items: &[KiNode]) -> Option<String> {
         };
         let _ = head;
         // (property "Reference" "R1") — index 1 is key, index 2 is value
-        if let Some(KiNode::Atom(KiAtom::Str(key))) = sub.get(1) {
-            if key == "Reference" {
-                if let Some(KiNode::Atom(KiAtom::Str(val))) = sub.get(2) {
-                    return Some(val.clone());
-                }
-            }
+        if let Some(KiNode::Atom(KiAtom::Str(key))) = sub.get(1)
+            && key == "Reference"
+            && let Some(KiNode::Atom(KiAtom::Str(val))) = sub.get(2)
+        {
+            return Some(val.clone());
         }
     }
     None
@@ -106,14 +104,14 @@ fn find_reference(items: &[KiNode]) -> Option<String> {
 
 /// Read the angle from an `(at X Y [angle])` node. Returns 0.0 if absent.
 fn read_at_angle(at_items: &[KiNode]) -> f64 {
-    if at_items.len() >= 4 {
-        if let Some(KiNode::Atom(a)) = at_items.get(3) {
-            return match a {
-                KiAtom::Int(v) => *v as f64,
-                KiAtom::Float(v) => *v,
-                _ => 0.0,
-            };
-        }
+    if at_items.len() >= 4
+        && let Some(KiNode::Atom(a)) = at_items.get(3)
+    {
+        return match a {
+            KiAtom::Int(v) => *v as f64,
+            KiAtom::Float(v) => *v,
+            _ => 0.0,
+        };
     }
     0.0
 }
@@ -181,11 +179,9 @@ fn reorient_pad_angle(old_angle: f64, delta: f64) -> f64 {
     let normalized = new_angle.rem_euclid(360.0);
     // If the result is a whole number, render as int (matches the Rust
     // writer's integral-decimal collapse)
-    if normalized == normalized.trunc() {
-        normalized
-    } else {
-        normalized
-    }
+    // Whole-number and fractional results render identically here; the
+    // branch the original port carried was dead and is collapsed.
+    normalized
 }
 
 /// Parse raw `.kicad_pcb` text, update footprint positions and pad angles
@@ -281,13 +277,13 @@ pub fn update_footprint_positions_py(
 /// other strings are quoted (net names, layer names, UUIDs). This mirrors
 /// kiutils' own ``Sexpr`` vs bare-token convention as observed in the
 /// production board corpus.
-fn py_sexpr_to_text(py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<String> {
+fn py_sexpr_to_text(_py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyResult<String> {
     use pyo3::types::PyList;
 
     // Try list first (most common for nested structures)
     if obj.is_instance_of::<PyList>() {
         let parts: Vec<String> = obj.try_iter()?
-            .map(|item| py_sexpr_to_text(py, &item?))
+            .map(|item| py_sexpr_to_text(_py, &item?))
             .collect::<PyResult<_>>()?;
         Ok(format!("({})", parts.join(" ")))
     } else if let Ok(b) = obj.extract::<bool>() {

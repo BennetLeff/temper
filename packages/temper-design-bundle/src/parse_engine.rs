@@ -3351,15 +3351,15 @@ fn extract_board_outline_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>
     let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
     let out = PyList::empty(py);
     for item in &raw.graphic_items {
-        if let crate::parse_engine::RawGrItem::Line { start, end, layer } = item {
-            if layer == "Edge.Cuts" {
-                out.append((
-                    start.x.to_f64(),
-                    start.y.to_f64(),
-                    end.x.to_f64(),
-                    end.y.to_f64(),
-                ))?;
-            }
+        if let crate::parse_engine::RawGrItem::Line { start, end, layer } = item
+            && layer == "Edge.Cuts"
+        {
+            out.append((
+                start.x.to_f64(),
+                start.y.to_f64(),
+                end.x.to_f64(),
+                end.y.to_f64(),
+            ))?;
         }
     }
     out.into_any().unbind().into_py_any(py)
