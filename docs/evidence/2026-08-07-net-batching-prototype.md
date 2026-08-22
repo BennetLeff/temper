@@ -1,4 +1,4 @@
-<!-- provenance: commit=88320cb0 (code), measured live this task; board pcb/temper.kicad_pcb sha256 unchanged -->
+<!-- provenance: commit=88320cb0346eb46464e7b84280c6bb3a5a4ac51f (code), measured live this task; board pcb/temper.kicad_pcb sha256 unchanged -->
 
 # Net-batching prototype for `#871`: 5/11 Stage 3 batches complete (50/110 nets get a SAT topology), then a Rust allocator abort under the 8GB cap — the board does NOT route end-to-end at B=10
 

@@ -1,4 +1,4 @@
-<!-- provenance: commit=775a7a40e dirty=false at stub-creation time (worktree agent-a6d08342e4be16707). pcb/temper.kicad_pcb sha256 33205399398fa053d93c046a460272ede4a728701d6f34c3c2bac6796e953962 at stub time (this is the post-#1312 board; task is to fix router via emission, not the board's placement). This stub is a placeholder written before any code change, per this project's survival rule (a worktree with no commits is destroyed when the agent stops). -->
+<!-- provenance: commit=775a7a40e72048846474d74d22461df8bbc42765 dirty=false at stub-creation time (worktree agent-a6d08342e4be16707). pcb/temper.kicad_pcb sha256 33205399398fa053d93c046a460272ede4a728701d6f34c3c2bac6796e953962 at stub time (this is the post-#1312 board; task is to fix router via emission, not the board's placement). This stub is a placeholder written before any code change, per this project's survival rule (a worktree with no commits is destroyed when the agent stops). -->
 ---
 title: "Blind-via annular-width floor fix (annular_width 0->56, holes_co_located 0->17 regression from #1312)"
 date: 2026-08-17
