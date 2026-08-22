@@ -38,7 +38,6 @@ packages/temper-placer/src/temper_placer/deterministic/feedback/violation_mapper
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py 12
 packages/temper-placer/src/temper_placer/explainability/traced_loss.py 1
 packages/temper-placer/src/temper_placer/heuristics/topological_init.py 1
-packages/temper-placer/src/temper_placer/io/dsn_exporter.py 1
 packages/temper-placer/src/temper_placer/pcl/constraints.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
 packages/temper-placer/src/temper_placer/pcl/sat_bridge.py 5

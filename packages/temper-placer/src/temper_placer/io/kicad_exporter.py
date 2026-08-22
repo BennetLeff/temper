@@ -17,7 +17,6 @@ from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.geometry_types import Track as GeoTrack
 from temper_placer.core.geometry_types import Via as GeoVia
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
@@ -350,7 +349,6 @@ def add_segments_to_board(
     if not segments:
         return 0
 
-    import temper_design_bundle_python as _tdb
 
     item_sexprs = []
     for seg in segments:

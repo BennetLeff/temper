@@ -246,11 +246,10 @@ def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
     trace_count = len(parse_result.traces)
     via_count = len(parse_result.vias)
 
-    # Count zones and components from the raw board
-    raw = _tdb.parse_engine.parse_kicad_document(content)
-    zones = len(raw.zones) if hasattr(raw, "zones") else 0
-    footprints = len(raw.footprints) if hasattr(raw, "footprints") else 0
-    nets = len(raw.nets) if hasattr(raw, "nets") else 0
+    # Count zones and components from the raw board. `parse_kicad_document`
+    # is pure-Rust (its RawBoard is not FromPyObject), so the extension
+    # exposes this counting wrapper instead of the parser itself.
+    zones, footprints, nets = _tdb.parse_engine.count_raw_board_items_py(content)
 
     return {
         "traces": trace_count,

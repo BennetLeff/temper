@@ -3540,6 +3540,18 @@ pub(crate) fn strip_smd_drills_in_tree(root_items: &mut [KiNode]) -> usize {
     removed
 }
 
+/// Count a raw board's zones, footprints and nets without converting the
+/// whole `RawBoard` across the pyo3 boundary (`parse_kicad_document` itself
+/// is pure-Rust and deliberately unregistered -- its return type is not
+/// `FromPyObject`). Serves `io/_write_tracks.get_routing_statistics`, whose
+/// pre-migration kiutils build counted these by walking the parsed tree.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn count_raw_board_items_py(content: &str) -> PyResult<(usize, usize, usize)> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    Ok((raw.zones.len(), raw.footprints.len(), raw.nets.len()))
+}
+
 /// Strip trace items (segments, vias, arcs) from a `.kicad_pcb` document
 /// tree, optionally removing zones and/or zone fills. Returns a tuple
 /// ``(new_text, traces_removed, vias_removed, zones_removed)``.
@@ -3975,6 +3987,7 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_copper_layer_names_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_edge_cuts_rings_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(strip_trace_items_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(count_raw_board_items_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_pad_centers_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;

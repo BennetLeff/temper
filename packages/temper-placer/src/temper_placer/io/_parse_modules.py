@@ -14,8 +14,12 @@ Phase 4; the helper retires then).
 
 from __future__ import annotations
 
+from typing import Any
 
-def _get_footprint_reference(fp: object) -> str | None:
+
+# fp is a payload object from extract_footprint_info_py (Rust, dynamically
+# shaped): duck-typed here, hence Any rather than object.
+def _get_footprint_reference(fp: Any) -> str | None:
     """
     Extract reference designator from a footprint item.
 
