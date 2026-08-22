@@ -856,3 +856,24 @@ allowlist:
 # plain entry above this line with a real citation -- never backdated into
 # a stale seeded date.
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# BACKLOG (seeded 2026-08-22, post-12-PR-landing triage — issue #1445 item 4;
+# both findings were named as open owner decisions in HANDOFF-2026-08-21.md
+# §4.3 before this gate's CI step was ever green). Real drift, deliberately
+# NOT recorded as justified: whether these belong in BOM.md is a purchasing/
+# hardware call, not a verification claim.
+# ---------------------------------------------------------------------------
+
+- kind: wired_uncosted
+  designator: j_rtd1
+  backlog: true
+  seeded: "2026-08-22"
+  reason: 'elec/src/modules.ato:2064 instantiates j_rtd1 = new JST_XH_B4B_XH_A (''B4B-XH-A(LF)(SN)''), but no BOM.md designator normalizes to match it'
+  file: elec/src/modules.ato
+- kind: wired_uncosted
+  designator: tp_ocp2_fault
+  backlog: true
+  seeded: "2026-08-22"
+  reason: 'elec/src/modules.ato:3364 instantiates tp_ocp2_fault = new TestPoint (''GENERIC_TEST_POINT''), but no BOM.md designator normalizes to match it'
+  file: elec/src/modules.ato
