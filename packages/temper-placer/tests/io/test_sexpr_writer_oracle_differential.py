@@ -62,7 +62,12 @@ CORPUS = [
 # Boards on which kiutils' own to_sexpr round trip reproduces the input
 # token tree (measured 2026-08-20: only rp2040). On these the differential
 # can assert Rust tree == oracle tree directly.
-KIUTILS_FAITHFUL = {"rp2040"}
+# "pcb" joined 2026-08-22: the production board's content changed (the
+# C6/K1 footprint corrections, #1424) and kiutils' round trip now
+# reproduces its token tree exactly -- the differential's own
+# premise-changed message prescribes this move. On pcb the assertion is
+# correspondingly stronger: Rust == oracle == original.
+KIUTILS_FAITHFUL = {"rp2040", "pcb"}
 
 
 @pytest.mark.parametrize("name,path", CORPUS, ids=[c[0] for c in CORPUS])
