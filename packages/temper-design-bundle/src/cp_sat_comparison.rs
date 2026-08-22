@@ -1270,7 +1270,18 @@ fn compare_metric_dicts(
     let mut expected_map: HashMap<String, String> = HashMap::new();
     let mut actual_map: HashMap<String, String> = HashMap::new();
     for name in &metric_names {
-        let cand_leaf = candidate_scores.get_item(name)?.unwrap();
+        // metric_names was built above as the two dicts' key intersection, so
+        // the lookup below cannot miss -- but get_item still hands back an
+        // Option, and unwrap_used/expect_used are deny-by-lint here. Propagate
+        // a typed error naming the invariant rather than panicking.
+        let missing = |which: &str| {
+            PyValueError::new_err(format!(
+                "{which} scores dict lost metric {name:?} between intersection and lookup (invariant violation)"
+            ))
+        };
+        let cand_leaf = candidate_scores
+            .get_item(name)?
+            .ok_or_else(|| missing("candidate"))?;
         actual_map.insert(
             name.clone(),
             if cand_leaf.is_instance_of::<PyString>() {
@@ -1279,7 +1290,9 @@ fn compare_metric_dicts(
                 encode_f64(py_builtin_float(py, &cand_leaf)?)
             },
         );
-        let base_leaf = baseline_scores.get_item(name)?.unwrap();
+        let base_leaf = baseline_scores
+            .get_item(name)?
+            .ok_or_else(|| missing("baseline"))?;
         expected_map.insert(
             name.clone(),
             if base_leaf.is_instance_of::<PyString>() {
@@ -1312,6 +1325,11 @@ fn compare_metric_dicts(
 }
 
 #[cfg(test)]
+// compare_metric_maps returns a Result whose Err arm is unreachable for the
+// well-formed HashMaps these tests construct; unwrap is the readable form and
+// this module is test-only, so the deny lints are relaxed here (house style:
+// constraint_merge.rs's own test module does the same).
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod cp_sat_comparison_core_tests {
     use super::*;
 
