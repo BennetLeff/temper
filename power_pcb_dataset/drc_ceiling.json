@@ -1,5 +1,5 @@
 {
-  "_goal": "error_ceiling: 0. Every number below is debt to pay down, not budget to spend. Ceilings may only decrease; raising one requires a 'Ceiling-Approval:' commit trailer plus a measured sample and an attributed cause -- both machine-checked by scripts/check_drc_ceiling_approval.py (R27 monotone contract): the _march log must gain a NEW non-empty entry naming the component/commit, and the raised board's provenance must be a fresh measured-live record (source=measured-live, clean tree, recorded kicad-cli version, >=120 samples for the nondeterministic clearance category, input hash matching pcb/temper.kicad_pcb). _march entries use the structured format {\"date\": ..., \"cause\": ..., \"per_type_delta\": {...}} since 2026-08-19; legacy entries' per-type deltas remain inside the cause prose (the log is the single cause authority -- never fabricate or drop attribution), and per_type_delta is populated by new entries going forward.",
+  "_goal": "error_ceiling: 0. Every number below is debt to pay down, not budget to spend. Ceilings may only decrease; raising one requires a 'Ceiling-Approval:' commit trailer plus a measured sample and an attributed cause -- both machine-checked by scripts/check_drc_ceiling_approval.py (R27 monotone contract): the _march log must gain a NEW non-empty entry naming the component/commit, and the raised board's provenance must be a fresh measured-live record (source=measured-live, clean tree, recorded kicad-cli version, >=120 samples for the nondeterministic clearance category, input hash matching pcb/temper.kicad_pcb). _march entries use the structured format {\"date\": ..., \"cause\": ..., \"per_type_delta\": {...}} since 2026-08-19; legacy entries' per-type deltas remain inside the cause prose (the log is the single cause authority -- never fabricate or drop attribution), and per_type_delta is populated by new entries going forward. Per-board `uncapped_totals` (2026-08-22, #1442): optional {category: {count, method, measured_at}} records carrying TRUE counts for categories whose raw kicad-cli read sits at its reporting cap. When present, the ratchet compares true-count vs ceiling instead of treating the capped read as inconclusive; a category at cap WITHOUT a committed total still fails the cap-saturation guard closed. A record whose count exceeds its ceiling is a regression, exactly like a raw over-ceiling read.",
   "_march": {
     "2026-07-27": {
       "date": "2026-07-27",
@@ -368,6 +368,14 @@
           "kicad_cli_cap": 199,
           "true_count": 39,
           "note": "Measures 39 < 199 on origin/main's re-routed board (26981fea): the re-route (#1333/#1334) massively reduced shorting_items from 183 on the prior board. Read directly as a true count."
+        }
+      },
+      "uncapped_totals": {
+        "silk_overlap": {
+          "count": 13060,
+          "method": "measure_uncapped_drc.py bucket-pair sweep with diagonal isolation (TRUE = raw - (n-1)*Sum(diag)); n=16 raw 3463/diag 204 and independent n=12 raw 2647/diag 204 agree after substituting the exact C2xC3 value (12852 via saturating-pair) for the single truncated cell",
+          "measured_at": "2026-08-21",
+          "source": "docs/evidence/2026-08-21-footprint-drift-drc-remeasure.md"
         }
       }
     }
