@@ -269,10 +269,10 @@ pub fn get_footprint_reference_py(
 
         if props.is_instance_of::<PyDict>() {
             let props = props.cast::<PyDict>()?;
-            if let Some(r) = props.get_item("Reference")? {
-                if r.is_truthy()? {
-                    return Ok(Some(r.unbind()));
-                }
+            if let Some(r) = props.get_item("Reference")?
+                && r.is_truthy()?
+            {
+                return Ok(Some(r.unbind()));
             }
         }
 

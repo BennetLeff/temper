@@ -376,6 +376,47 @@ def module_body(lines: list[str], decl_idx: int) -> list[str]:
     raise SystemExit(f"unbalanced braces at line {decl_idx + 1}")
 
 
+def in_file_ancestors(lines: list[str], ident: str) -> list[str]:
+    """Inline ``mod`` names whose body lexically contains ``mod <ident>``.
+
+    The census matches ``MOD_DECL`` at ANY indentation, so a test module nested
+    inside another module in the same file is discovered correctly -- but its
+    Rust path is not ``<file>::<ident>``, it is
+    ``<file>::<outer>::...::<ident>``. Without this, the registry emitted
+
+        crate::dsn_types::frozen_dsn_tests::WASM_TESTS
+
+    for a module that actually lives at ``dsn_types::tests::frozen_dsn_tests``
+    (dsn_types.rs:499 declares `mod tests`, :509 declares `mod
+    frozen_dsn_tests` inside it), and `--all-features` builds failed with
+    ``error[E0433]: cannot find `frozen_dsn_tests` in `dsn_types```. The
+    generator's own ``--check`` passed throughout, because it compared its
+    output against itself.
+
+    Returns outermost-first, so callers can ``"::".join(...)``.
+    """
+    target = next(
+        (
+            i
+            for i, ln in enumerate(lines)
+            if (m := MOD_DECL.match(ln)) and m.group(1) == ident and m.group(2) == "{"
+        ),
+        None,
+    )
+    if target is None:
+        return []
+    out: list[tuple[int, str]] = []
+    for i, ln in enumerate(lines):
+        if i >= target:
+            break
+        m = MOD_DECL.match(ln)
+        if not m or m.group(2) != "{" or m.group(1) == ident:
+            continue
+        if i + len(module_body(lines, i)) > target:
+            out.append((i, m.group(1)))
+    return [name for _, name in sorted(out)]
+
+
 def submodule_path(src: Path, rel: str, ident: str) -> Path:
     """Where the body of a file module ``mod <ident>;`` declared in ``rel`` lives.
 
@@ -1133,8 +1174,8 @@ def generated_block(
     return body
 
 
-def render_root(entries: list[tuple[str, str, int]]) -> str:
-    total = sum(n for _, _, n in entries)
+def render_root(entries: list[tuple[str, str, int, str]]) -> str:
+    total = sum(n for _, _, n, _ in entries)
     lines = [
         f"//! The `wasm32` test registry for `{CRATE_SPEC.name}`.",
         "//!",
@@ -1166,11 +1207,12 @@ def render_root(entries: list[tuple[str, str, int]]) -> str:
         "/// all families (`wasm-test-registry`) or individual ones.",
         "pub const ALL: &[&[WasmTest]] = &[",
     ]
-    for mod_path, ident, _ in entries:
+    for mod_path, ident, _, rust_path in entries:
+        # family from the plain ident; the emitted path from the nested one.
         family = FAMILY_BY_ENTRY.get((mod_path, ident), "infra")
         lines.append(
             f"    #[cfg(feature = \"wasm-registry-{family}\")]"
-            f" crate::{qualify(mod_path, ident)}::WASM_TESTS,"
+            f" crate::{qualify(mod_path, rust_path)}::WASM_TESTS,"
         )
     lines += [
         "];",
@@ -1389,7 +1431,7 @@ def main() -> int:
         return 0
 
     pending: dict[Path, str] = {}
-    entries: list[tuple[str, str, int]] = []
+    entries: list[tuple[str, str, int, str]] = []
 
     for rel, ident in ELIGIBLE:
         path = SRC / rel
@@ -1400,7 +1442,15 @@ def main() -> int:
         pending[path] = new_text
         if body_text is not None:
             pending[submodule_path(SRC, rel, ident)] = body_text
-        entries.append((module_path(rel), ident, len(fns)))
+        # The registry path must include any module the test module is NESTED
+        # INSIDE within the same file, not just the file's own module path --
+        # see in_file_ancestors(). `ident` is kept UNCHANGED alongside it:
+        # FAMILY_BY_ENTRY is keyed on (module_path, ident), so qualifying the
+        # ident here silently drops the entry to the "infra" fallback family.
+        nested_under = in_file_ancestors(new_text.splitlines(), ident)
+        entries.append(
+            (module_path(rel), ident, len(fns), "::".join([*nested_under, ident]))
+        )
 
         for decl_file, mod_ident in ancestor_decls(rel):
             decl_path = SRC / decl_file
@@ -1430,7 +1480,7 @@ def main() -> int:
         if not args.check:
             path.write_text(text)
 
-    total = sum(n for _, _, n in entries)
+    total = sum(n for _, _, n, _ in entries)
     suffix = "" if args.crate == "temper-drc-rs" else f" [{args.crate}]"
 
     # Second gate arm: a module that could register but is not on the list.

@@ -21,19 +21,28 @@
 // cluster (2026-08-20); they are the shared seam the explainability
 // migration still uses.
 
+// Feature-gated: the three helpers below are the ONLY pyo3-dependent items in
+// this module -- everything after them (`py_float_fmt_*`) is pure Rust and must
+// stay available in a `--no-default-features` build, which is what `cargo test
+// --doc` and the wasm32 target use. They arrived ungated when the orphaned
+// `report.rs` cluster was deleted (2026-08-20) and its shared seam moved here.
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 /// Python `float(obj)`.
+#[cfg(feature = "python")]
 pub fn to_f64(obj: &Bound<'_, PyAny>) -> PyResult<f64> {
     obj.call_method0("__float__")?.extract::<f64>()
 }
 
 /// Python `str(obj)`.
+#[cfg(feature = "python")]
 pub fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     Ok(obj.str()?.to_string())
 }
 
 /// Iterate a Python iterable's items.
+#[cfg(feature = "python")]
 pub fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> {
     let mut out = Vec::new();
     for item in obj.try_iter()? {

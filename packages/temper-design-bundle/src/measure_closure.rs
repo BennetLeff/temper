@@ -54,6 +54,10 @@ fn compute_drc_clearance_pass_pct(stages_exercised: i64, drc_errors: i64) -> f64
     /// Regenerate: `python3 scripts/gen_oracle_freeze.py --spec measure_closure`
     /// (requires reviving the deleted oracle from git history first -- see
     /// scripts/oracle_freeze_specs/measure_closure.py's module docstring).
+    // Frozen cases are pinned oracle output; the module sits where the
+    // generator emits it, and unwrapping a frozen-known-Ok result is the
+    // assertion, not an oversight.
+    #[allow(clippy::items_after_test_module)]
     #[cfg(test)]
     mod frozen_tests {
         use super::*;
