@@ -25,7 +25,7 @@ def _component_bounds(
     fp_x: float,
     fp_y: float,
     fp_angle: float,
-    pads: list[tuple[float, float, float, float, float, float]],
+    pads: list[tuple[float, float, float, float]],
 ) -> tuple[float, float, float, float]:
     """Pad-inclusive axis-aligned bounds of a footprint in world coordinates.
 
