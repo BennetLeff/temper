@@ -175,19 +175,19 @@
         (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "5" (effects (font (size 1.27 1.27)))) (number "5" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "RSF100JB-73-39R"
+    (symbol "RSF100JB-73-91R"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "RSF100JB-73-39R" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "RSF100JB-73-91R" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Description" "src/components.ato:Resistor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "RSF100JB-73-39R_0_1"
+      (symbol "RSF100JB-73-91R_0_1"
         (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "RSF100JB-73-39R_1_1"
+      (symbol "RSF100JB-73-91R_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -876,7 +876,7 @@
   )
 
   (symbol
-    (lib_id "RSF100JB-73-39R")
+    (lib_id "RSF100JB-73-91R")
     (at 210.80 170.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -1171,7 +1171,7 @@
   )
 
   (symbol
-    (lib_id "RSF100JB-73-39R")
+    (lib_id "RSF100JB-73-91R")
     (at 50.80 260.80 0)
     (unit 1)
     (exclude_from_sim no)
