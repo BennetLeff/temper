@@ -455,6 +455,7 @@
       "GATE_H": "GateDriveHV",
       "GATE_L": "GateDriveHV",
       "+15V_LS": "HighVoltageSignal",
+      "input": "HighVoltageSignal",
       "a": "HighVoltageSignal",
       "w1_1": "HighVoltage",
       "w1_2": "HighVoltage",
