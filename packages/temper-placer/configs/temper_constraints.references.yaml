@@ -162,12 +162,20 @@ authority:
 # geometry, so every alias/unresolved-component board ref above is verified
 # unaffected. The source export
 # (elec/exports/temper.design-input.v1.json) is untouched -- hash unchanged.
+# Re-pinned 2026-08-23 (fix/netclass-discharge-hv-classified, PR #1462): STALE --
+# pcb/temper.kicad_pcb changed by exactly 15 segment (width 0.2) -> (width 0.5)
+# lines on net 44 (discharge.r_snub1-p2), the HighVoltageSignal width floor
+# applied after #1360/#1363's classification. Verified: footprint count (168),
+# Sheetpath count (168), and the Sheetpath->Reference map are IDENTICAL
+# before/after (diffed programmatically across all 168 footprints) -- a width
+# change alters no component identity. Source export hash unchanged.
+
 provenance:
-  measured_at_commit: ec7b04267f7206255cce48e4096299c5957bcf03
+  measured_at_commit: 05d66fc1e83309e083c60609e949e3fa18aad8ab
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 3ae31c44db4553b1c2bf40722a20203db16cbc0f5c36529637c497169ac62f29
+      sha256: 62bff72d04ba3885534aa21df021b61f2a9bb3500c3be885d88ed103a6822777
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
