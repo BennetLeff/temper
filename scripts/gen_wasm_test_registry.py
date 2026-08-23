@@ -1303,7 +1303,37 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
     """
     lines = strip_generated(text.splitlines(), ident)
     attr_start, decl_idx, body_end = find_module_span(lines, ident)
+
+    # A prior generator (scripts/gen_oracle_freeze.py) may have pre-gated the
+    # module with the SAME GATE/ALLOW pair this function re-adds, parked above
+    # the module's doc comments. Keeping both duplicates the attributes
+    # (clippy::duplicated_attributes under -D warnings) -- so consume any
+    # identical pair found walking upward through the item's preamble.
     indent = lines[decl_idx][: len(lines[decl_idx]) - len(lines[decl_idx].lstrip())]
+
+    # gen_oracle_freeze.py pre-gates frozen modules with the SAME GATE/ALLOW
+    # pair this function would re-add, parked above the module's doc comments.
+    # If that pair already exists in the preamble, skip adding another --
+    # duplicated attributes fail clippy under -D warnings (#1445 §5.3).
+    gate_s, allow_s = GATE.strip(), ALLOW.strip()
+    j = attr_start
+    has_pair = False
+    saw_other_attr = False
+    while j > 0:
+        prev = lines[j - 1].strip()
+        if prev == gate_s or prev == allow_s:
+            has_pair = True
+            j -= 1
+            continue
+        if (
+            prev.startswith("#[")
+            or prev.startswith("///")
+            or prev.startswith("//")
+            or prev == ""
+        ):
+            j -= 1
+            continue
+        break
 
     # Rewrite the gate, keeping any hand-written attributes other than the
     # `cfg(test)` being replaced and the allow re-added below.
@@ -1316,7 +1346,7 @@ def rewrite_module(text: str, rel: str, ident: str) -> tuple[str, str | None, li
         and "clippy::unwrap_used" not in ln
         and "clippy::expect_used" not in ln
     ]
-    header = [f"{indent}{GATE}", f"{indent}{ALLOW}"] + kept
+    header = ([] if has_pair else [f"{indent}{GATE}", f"{indent}{ALLOW}"]) + kept
     decl = lines[decl_idx]
     if not decl.lstrip().startswith(("pub ", "pub(")):
         decl = f"{indent}pub(crate) {decl.lstrip()}"
