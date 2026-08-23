@@ -2724,9 +2724,25 @@ jobs:
       # (missing board/netlist, or a netlist not proven fresh against
       # elec/src/**) exits non-zero, same fail-closed contract as every
       # other gate in this job.
-      - name: Board-sync-stamp gate (pcb/temper.kicad_pcb provenance)
+      # Regen-and-diff (2026-08-23, #1445): the stamp folds in the netlist's
+      # bytes, and atopile's output embeds the build environment (absolute
+      # sheetpath prefixes; residual toolchain variance even after the
+      # 0.2.69 pin) -- so a stamp committed from a developer machine is not
+      # byte-reproducible by CI. CI is the canonical environment for every
+      # other generated artifact in this repo (gen_config, gen_schematics,
+      # wasm registry -- same write+diff pattern); this gate now follows it:
+      # reconcile, write the stamp against THIS run's netlist, then fail the
+      # diff if the committed sidecar differs. A PR that moves the board or
+      # the netlist without restamping still fails here -- visibly, with the
+      # exact new digest in the log -- and the fix is committing the
+      # regenerated sidecar. Never continue-on-error: same fail-closed
+      # contract as every other gate in this job.
+      - name: Board-sync-stamp write + diff (pcb/temper.kicad_pcb provenance)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run python scripts/check_board_sync_stamp.py
+        run: |
+          uv run python scripts/check_netlist_board_reconciliation.py
+          uv run python scripts/write_board_sync_stamp.py
+          git diff --exit-code pcb/temper.kicad_pcb.source-digest
 
       - name: Net-classification-by-substring gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
