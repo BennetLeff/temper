@@ -570,6 +570,52 @@ TEMPER_NET_ASSIGNMENTS = {
     # width just moved to 5.0mm for the current-carrying tier. This is a
     # current-band re-scope, not a domain change.
     "+15V_LS": "HighVoltageSignal",
+    # ADDED 2026-08-18. `input` is GateDriveLS's module-local signal
+    # (elec/src/modules.ato:214, :234) wired to UCC21550 pin 10 = OUTB at
+    # modules.ato:423 -- the driver's SECONDARY-side output. components.ato:71-74
+    # places pins 9 (VSSB), 10 (OUTB), 11 (VDDB) under the part's own
+    # "# Secondary side" comment, and the board's pad->net map confirms it
+    # independently: U6 pad 9 = hb-gnd, pad 10 = input, pad 11 = +15V_LS. It is
+    # physically sandwiched between two already-declared HV nets on adjacent
+    # pins of one package.
+    #
+    # Its reference is VSSB = hb-gnd = dc_bus.hv_minus: 0-15V relative to
+    # hb-gnd (the gate swing, bounded by VDDB, asserted <= 25V at
+    # modules.ato:438), but ~-170V to -155V relative to PWR_RTN. Not SELV.
+    #
+    # It is AFFIRMATIVELY declared HV at elec/domain_manifest.yaml:251 (PR
+    # #1134, 96db2ccde, 2026-08-15) -- not an absence case. But it had no entry
+    # here AND none in pcb/temper.kicad_pro, so it resolved to Default
+    # (0.15/0.2mm) on both enforced surfaces while
+    # router_v6.clearance_check._classify_net_class already returned "HV" for
+    # it. scripts/check_hv_netclass_coverage.py was already failing closed on
+    # this under PROPERTY 1 and BLOCKING PROPERTY 3.
+    #
+    # HighVoltageSignal, not HighVoltage or GateDriveHV. Matches +15V_LS above
+    # -- its own supply rail on the adjacent pin, same domain, same
+    # safety_category, same 2.0/6.0 -- and hb.power_loop.q_high-g, the high
+    # side's structural mirror, already HighVoltageSignal on both surfaces.
+    # trace_width 0.5mm suits the mA gate-drive tier; HighVoltage's 5.0mm
+    # targets the 15-22.5A bus/tank tier.
+    #
+    # GateDriveHV was measured and REJECTED: it clears all 10 of this net's
+    # current violations and surfaces NOTHING, because GateDriveHV is excluded
+    # from the B-side of every reinforced rule in the .kicad_dru and declares
+    # no creepage as an A-side -- `input` would owe zero creepage to any net on
+    # the board, including +3V3, gnd, SHUTDOWN and the fan connector. On a
+    # -170V-referenced conductor that is making a check pass by weakening it.
+    #
+    # Measured delta (each variant run 3x and intersected; kicad-cli is
+    # nondeterministic run-to-run): 10 same-domain false positives clear --
+    # two of them at the package-fixed 0.670mm SOIC-16W pad gap, unsatisfiable
+    # at any placement -- and 9 GENUINE reinforced-barrier exposures against
+    # LV/SELV surface at 8.1-12.5mm. Those 9 are not novel: pads 9/11/14/16
+    # already produce the byte-identical shape against the same primary-side
+    # pins today. `input` was the only secondary-side U6 pin not producing
+    # them, because it was the only one classed Default.
+    #
+    # See docs/evidence/2026-08-18-input-netclass-misclassification.md.
+    "input": "HighVoltageSignal",
     # ADDED 2026-07-28, same evidence doc. "a" (U3's own primary/LED-anode
     # net, between the ZCD divider tap and the H11L1 opto's series
     # resistor -- elec/build/default.net net 24, U3 pin 1 <-> R9 pin 2) was
