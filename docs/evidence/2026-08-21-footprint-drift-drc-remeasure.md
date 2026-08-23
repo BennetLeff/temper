@@ -1,3 +1,4 @@
+<!-- provenance: commit=a162dcea88b72ae8b1d25f8a05b3e8e72f8880bb dirty=false -->
 # 2026-08-21 — DRC ceiling re-measurement for PR #1424 (C6/K1 footprint corrections)
 
 ## Scope
