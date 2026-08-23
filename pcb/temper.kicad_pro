@@ -513,7 +513,9 @@
       "power_in.bypass_relay-coil2": "Power",
       "safety.ovp.comp-inp": "Default",
       "safety.uvlo_logic-line": "Default",
-      "hb-gnd": "HighVoltage"
+      "hb-gnd": "HighVoltage",
+      "s1": "Default",
+      "safety.ocp2-line": "Default"
     },
     "netclass_patterns": [
       {
