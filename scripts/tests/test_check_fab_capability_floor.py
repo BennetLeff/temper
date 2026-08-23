@@ -38,7 +38,12 @@ def test_loads_the_real_fab_capability_floors():
 
 def test_board_vias_all_meet_the_floor():
     vias = gate.board_via_rings()
-    assert len(vias) == 44  # docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md sec.6.1
+    # Anti-vacuity floor only: the board's via count is a routing artifact
+    # (44 at the 2026-08-13 envelope doc; 169 after the post-#1429 routing
+    # merges), so an exact-count pin here described one session's tree and
+    # went stale within days. The property under test is the per-via ring
+    # floor, which holds however many vias exist.
+    assert len(vias) > 0
     floor = gate.load_fab_floors()["min_annular_ring_mm"]
     assert all(ring >= floor for _size, _drill, ring in vias)
 

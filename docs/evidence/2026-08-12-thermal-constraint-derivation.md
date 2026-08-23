@@ -1,4 +1,4 @@
-<!-- provenance: commit=765859caa branch=analysis/thermal-constraint-derivation worktree=/home/bennet/Desktop/temper/.claude/worktrees/thermal-derivation dirty=true (this doc + one thermal_management.yaml edit for the constraint determined stale) -->
+<!-- provenance: commit=765859caaef56b879ba5d699eaf38449ff6f5eee branch=analysis/thermal-constraint-derivation worktree=/home/bennet/Desktop/temper/.claude/worktrees/thermal-derivation dirty=true (this doc + one thermal_management.yaml edit for the constraint determined stale) -->
 
 # Are the three violated thermal constraints real requirements or stale premises? Derivation against component/mechanical data
 

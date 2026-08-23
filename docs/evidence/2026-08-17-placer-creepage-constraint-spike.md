@@ -1,4 +1,4 @@
-<!-- provenance: commit=775a7a40e (main, HEAD at start of this task), worktree agent-a4e5afd80067cb887.
+<!-- provenance: commit=775a7a40e72048846474d74d22461df8bbc42765 (main, HEAD at start of this task), worktree agent-a4e5afd80067cb887.
 pcb/temper.kicad_pcb sha256 33205399398fa053d93c046a460272ede4a728701d6f34c3c2bac6796e953962
 verified unchanged before, during, and after this task (never opened for writing --
 analysis and read-only scripts only). uv sync --all-packages + make extensions run in

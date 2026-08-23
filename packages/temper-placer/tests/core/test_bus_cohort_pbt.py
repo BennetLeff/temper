@@ -169,7 +169,8 @@ def test_p4_fails_for_swapped_check_order_kernel():
 def test_p5_nets_identity_and_append_persists(name, nets, extra):
     """The nets getter is identity-preserving, and in-place append persists."""
     bus = BusCohortConstraint(name=name, nets=nets)
-    assert bus.nets is bus.nets
+    nets_back = bus.nets
+    assert nets_back is bus.nets
     before = bus.signal_count
     bus.nets.append(extra)
     assert extra in bus.nets

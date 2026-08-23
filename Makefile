@@ -53,7 +53,7 @@ NETLIST_FILE = $(ELEC_DIR)/build/default.net
 netlist:
 	@echo "Building Atopile project..."
 	@if [ -f $(BOM_FILE) ]; then cp $(BOM_FILE) $(BOM_PREV); fi
-	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY) \
+	cd $(ELEC_DIR) && uv tool run --from 'atopile==0.2.69' ato --non-interactive build $(ATO_ENTRY) \
 	  && cd .. && uv run --no-sync python scripts/write_build_stamp.py \
 	       --artifact $(NETLIST_FILE) --source-root $(ELEC_DIR)/src --glob '*.ato'
 
@@ -76,7 +76,7 @@ diff:
 	fi
 
 visualize:
-	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile==0.2.69' ato --non-interactive view $(ATO_ENTRY)
 
 # Re-pointed 2026-08-04 at the production board, which now exists -- this is the
 # "re-point PCB_FILE at the production board once it exists" the previous comment

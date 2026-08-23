@@ -2963,6 +2963,18 @@ scripts:
   category: keep
   disposition: utility
   imports: []
+- path: _stage_subprocess.py
+  purpose: "Single-stage subprocess for the temper Rust driver (Option E): materializes a deterministic BoardState from the state_ser.rs wire JSON on stdin, runs one temper_orchestration.run_<stage> pyfunction, serializes the mutated state to stdout"
+  owner: rust-driver
+  last_run: "2026-08-21"
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - json
+  - sys
 - path: _placement_subprocess.py
   purpose: "CP-SAT placement subprocess for the temper Rust driver (Option E): parses the board, loads constraints, calls solve_placement(), writes the result JSON -- the irreducible-Python solver boundary the binary orchestrates"
   owner: rust-driver

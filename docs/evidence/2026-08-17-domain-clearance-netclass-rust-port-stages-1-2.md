@@ -1,4 +1,4 @@
-<!-- provenance: commit=caec25d61 (main, HEAD at task start), worktree agent-a7148c963cf859481.
+<!-- provenance: commit=caec25d6137c5801e6aa974762b09371f210e894 (main, HEAD at task start), worktree agent-a7148c963cf859481.
 pcb/temper.kicad_pcb sha256 6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1
 verified unchanged at task start, at every rebuild, and at task end (read-only
 w.r.t. the board; no board writes attempted). -->

@@ -167,8 +167,13 @@ def discover_netclass_map_files(config_dirs: tuple[Path, ...]) -> list[Path]:
             if not isinstance(data, dict):
                 continue
             nc = data.get("net_classes")
-            if isinstance(nc, dict) and nc and all(isinstance(v, str) for v in nc.values()):
-                candidates.append(path)
+            if not isinstance(nc, dict):
+                continue
+            if not nc.values():
+                continue
+            if not all(isinstance(v, str) for v in nc.values()):
+                continue
+            candidates.append(path)
     return candidates
 
 

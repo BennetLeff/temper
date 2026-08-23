@@ -52,6 +52,13 @@ fn py_str_repr(s: &str) -> String {
 
 /// Render `v` exactly as CPython's `repr(float)` does (B10): shortest
 /// round-trip digits, `1e+300`/`1e-05` exponent form, `nan` not `NaN`.
+///
+/// Uncalled since its only consumer, `py_number_repr` below, lost ITS caller.
+/// Kept as a pair: five sibling modules (gates, loops, design_rules,
+/// net_types, priority) carry their own byte-identical copy of this function
+/// and all five are live, so the formula is load-bearing repo-wide -- this is
+/// a stranded sixth copy, not a disproved one.
+#[allow(dead_code)]
 fn py_float_str(v: f64) -> String {
     if v.is_nan() {
         return "nan".to_string();
@@ -77,6 +84,9 @@ fn py_float_str(v: f64) -> String {
 /// Render a numeric object the way CPython's dataclass repr does: if it is
 /// a Python int, render via CPython's own `repr(int)` (so `1` not `1.0`);
 /// otherwise render via the CPython `repr(float)` replica.
+///
+/// Uncalled. See `py_float_str` above, which this is the sole consumer of.
+#[allow(dead_code)]
 fn py_number_repr(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     if obj.is_instance_of::<pyo3::types::PyInt>() {
         return obj.repr().map(|r| r.to_string());
@@ -1623,6 +1633,10 @@ fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64),
             },
         ];
 
+        // Frozen-fixture shape: the tuple nesting mirrors the oracle's
+        // own return type exactly, which is the point of a frozen case --
+        // a `type` alias here would hide the very shape the freeze pins.
+        #[allow(clippy::type_complexity)]
         struct FrozenIndexCase {
             slots: &'static [(f64, f64)],
             spacing: f64,
@@ -2007,6 +2021,8 @@ fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64),
             }
             for case in FROZEN_INDEX_GOLDEN {
                 let got = build_slot_index(case.slots, case.spacing);
+                // Same frozen shape as FrozenIndexCase::expected above.
+                #[allow(clippy::type_complexity)]
                 let want: Vec<((i64, i64), Vec<(f64, f64)>)> = case.expected
                     .iter().map(|&(k, v)| (k, v.to_vec())).collect();
                 assert_eq!(got, want, "index tags={:?}", case.tags);

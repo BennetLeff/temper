@@ -373,6 +373,10 @@ def render_rust(results: list[tuple[FreezeCase, object]]) -> str:
     lines.append("")
 
     # slot_intersects_iso
+    lines.append("        // Frozen-fixture shape: the tuple nesting mirrors the oracle's")
+    lines.append("        // own return type exactly, which is the point of a frozen case --")
+    lines.append("        // a `type` alias here would hide the very shape the freeze pins.")
+    lines.append("        #[allow(clippy::type_complexity)]")
     lines.append("        struct FrozenIsoCase {")
     lines.append("            slot: (f64, f64),")
     lines.append("            aabbs: &'static [((f64, f64), (f64, f64))],")

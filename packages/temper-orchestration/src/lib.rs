@@ -190,6 +190,13 @@
 // that catch is what runs).
 mod board_state;
 mod apply_placements_stage;
+// Option-E subprocess serialization (2026-08-21): `NativeBoardState` <->
+// JSON for the Rust CLI driver's per-stage Python subprocesses. Ungated
+// (pure serde, no pyo3) so the wasm tier and the CLI both compile it.
+pub mod state_ser;
+// Option-E subprocess stage: `Stage<NativeBoardState>` over one
+// `_stage_subprocess.py` invocation. Ungated like `state_ser`.
+pub mod subprocess_stage;
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
 mod component_assignment_stage;
@@ -445,6 +452,7 @@ pub use slot_generation_stage::SlotGenerationStage;
 // The Rust CLI driver needs them to implement leaf-callback stages for
 // `PipelineRunner` without an interpreter.
 pub use stage::{Stage, StageError, StageErrorKind};
+pub use subprocess_stage::SubprocessStage;
 pub use via_validation_stage::{ViaDeduplicationStage, ViaValidationStage};
 pub use zone_assignment_stage::ZoneAssignmentStage;
 #[cfg(feature = "python")]
