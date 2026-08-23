@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree
+<!-- provenance: commit=a434a9aa9f52b1b1407f4b934153ca1d740c7050 dirty=UNKNOWN -->
 .claude/worktrees/agent-a374c69e35366ad12, branch diagnose/clearance-regression,
 HEAD d8062c6e6f60b693aa42f615e4042826de417d63 (origin/main, includes #1050/#1051/
 #1052/#1053; pcb/temper.kicad_pcb untouched since c4956df66, sha256

@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree /home/bennet/Desktop/temper-ovp,
+<!-- provenance: commit=6d0f0312f169df8c065f77b8ef2fe992d906958e dirty=UNKNOWN -->
 branch fix/ovp-divider-parallel-bus, base origin/main b33056c95.
 pcb/temper.kicad_pcb NOT modified: sha256
 6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64 unchanged,

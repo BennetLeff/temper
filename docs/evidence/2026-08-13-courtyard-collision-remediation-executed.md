@@ -1,4 +1,4 @@
-<!-- provenance: branch fix/courtyard-collision-remediation-exec, worktree
+<!-- provenance: commit=6285d6889b30644feb546912fdaebd50832d1166 dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-wt-fix-courtyard-collision-remediation-exec, based on
 origin/fix/board-schematic-resync @ a3fbaff37afd739b72f2b109847813b30ceb8e88 (no other
 commits between base and this branch's tip besides the 8-position move + this

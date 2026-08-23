@@ -1,4 +1,4 @@
-<!-- provenance: commit=eca0d755a815dbfce478aee623601d5569f56624 (main, this worktree's base) dirty=true
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
      (this doc's own companion code/pcb changes are on top of this commit)
      board sha256 (verified unchanged before, during, and after this
      investigation -- read-only against pcb/temper.kicad_pcb throughout,

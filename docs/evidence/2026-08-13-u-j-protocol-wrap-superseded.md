@@ -1,4 +1,4 @@
-<!-- provenance: commit=SUPERSEDED-RESOLUTION dirty=false -->
+<!-- provenance: commit=ca436efc4e2b6f3b50c1404e9bd1dfcff1f5bf08 dirty=UNKNOWN -->
 
 # U-J (Protocol wrap) is superseded — the Rust pipeline executor already exists; the residual Python is the plan's own R-B JUSTIFIED-KEEP surface
 

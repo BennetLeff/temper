@@ -1,3 +1,4 @@
+<!-- provenance: commit=e4107ab0fd1432dc05a8f7f49621fbf401025fb4 dirty=UNKNOWN -->
 # DRC / Safety-Check Vacuity Audit (2026-08-08)
 
 **Status: complete for the scope this session reached.** Every `safety/`

@@ -287,21 +287,29 @@
         "silk_over_copper": "+4 (C6 x U16 x3, K1 x1)",
         "silk_overlap": "-347 (stale upper bound 13407 -> measured-exact 13060; method change, see cause)"
       }
+    },
+    "2026-08-23-netclass-hv-classification-remeasure": {
+      "date": "2026-08-23-netclass-hv-classification-remeasure",
+      "cause": "Re-measurement of the fix/netclass-discharge-hv board: origin/main plus #1360's `input` HighVoltageSignal classification, #1363's six discharge.* classifications (both enforced surfaces), and the r_snub1-p2 track widening (15 segments 0.2->0.5mm, the HighVoltageSignal width floor) -- landing \u00a74 decision #2 (#1360/#1363, owner-approved as data-driven: elec/domain_manifest.yaml declares these nets HV; both enforcement surfaces lagging was drift).\n\nBASELINE: committed record re-measured first (errors 401-402 / warnings 405 across 120 samples), matching it exactly.\n\nDELTAS, all attributed (net RATCHET-DOWN, no rises):\n- errors 402 -> 398 (-4): clearance 188 -> 185 (-3, same-domain false positives cleared exactly as #1360's measured evidence predicted -- Default-classed discharge/input nets had been charged spurious HV-adjacent clearances); creepage observed band [114,115] -> [114] (-1 at observed max; the Default-classed nets owed full reinforced 12.6mm against HV neighbours under misclassification, now correctly scoped).\n- CREEPAGE NOW DETERMINISTIC: {114} x120 (was {114:13, 115:107}); ceiling 116 -> 114. The nondeterministic_error_types entry is removed -- with explicit classification the pointer-dedup scatter this file has documented since #602 no longer fires for these nets.\n- r_snub1-p2 widening removed 15 sub-floor track_width exposures BEFORE they could be charged (the 0.2mm tracks vs the new 0.5mm HighVoltageSignal floor); net effect visible as zero track_width category.\n- warnings unchanged: 405/405 (lib_footprint_mismatch 27, pth_inside_courtyard 3, silk_over_copper 46, via_dangling 111 all byte-stable).\n\nerror_ceiling 403 -> 398; warning_ceiling unchanged 13266. silk_overlap uncapped total 13060 unchanged (classification moves no copper).",
+      "per_type_delta": {
+        "clearance": "-3 (r_snub1-p2 widening to the 0.5mm HighVoltageSignal floor)",
+        "creepage": "-2 ceiling (observed max 115 -> 114; deterministic {114} x120)"
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 403,
+      "error_ceiling": 398,
       "warning_ceiling": 13266,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
-        "clearance": 188,
+        "clearance": 185,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 6,
-        "creepage": 116,
+        "creepage": 114,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -312,13 +320,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "ec7b04267f7206255cce48e4096299c5957bcf03",
+        "measured_at_commit": "05d66fc1e83309e083c60609e949e3fa18aad8ab",
         "dirty": false,
-        "branch": "fix/footprint-drift-c6-k1",
+        "branch": "fix/netclass-discharge-hv",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "3ae31c44db4553b1c2bf40722a20203db16cbc0f5c36529637c497169ac62f29"
+            "sha256": "62bff72d04ba3885534aa21df021b61f2a9bb3500c3be885d88ed103a6822777"
           }
         ],
         "tool_versions": {
@@ -326,7 +334,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc protocol (--all-track-errors, single-thread KICAD_CONFIG_HOME pin), after regenerating pcb/temper.kicad_dru from the current scripts/generate_kicad_dru.py (the ci_check_drc.py protocol). 120 samples against this board (3ae31c44..., unchanged since ec7b04267f72); errors 401-402, warnings 405/405; creepage {114: 13, 115: 107} the only nondeterministic category. clearance raw read 188 is a TRUE count (far under kicad-cli's 479 safe threshold; the saturated-read era ended with #1425's board). BASELINE VALIDATION: origin/main's board (26981fea, the #1425 record) re-measured first under the identical protocol, 120 samples, and reproduced the committed record exactly in every deterministic category (clearance 179, copper_edge 11, courtyards 1, drill 6, hole_clearance 33, shorting 39, solder_mask 4; via_dangling 111, track_dangling absent, silk_over_copper 42) with creepage {105: 14, 106: 106} inside the recorded band (ceiling 107) -- an independent reproduction of #1425's numbers, validating this environment before any delta was computed. silk_overlap re-measured EXACTLY at 13060 (raw read saturates at the 199 ERROR_LIMIT cap): bucket-pair sweep with diagonal isolation (TRUE = raw - (n-1)*Sum(diag)), n=16 raw 3463 / diag 204 and independent n=12 raw 2647 / diag 204 both yield 13060 after substituting the exact recursive value for the single truncated cell (C2xC3 = 12852 via saturating-pair item-level bisection, plus 2 within-C29 self-overlaps, all other pairs in the hot set zero). Full derivation in docs/evidence/2026-08-21-footprint-drift-drc-remeasure.md."
+        "measured_via": "temper_placer.validation._drc_api.run_drc protocol (--all-track-errors, single-thread KICAD_CONFIG_HOME pin), after regenerating pcb/temper.kicad_dru from the current scripts/generate_kicad_dru.py (the ci_check_drc.py protocol). 120 samples against this branch's board (widened r_snub1-p2 tracks 0.2->0.5mm; #1360/#1363 classification of input + 6 discharge.* nets as HighVoltageSignal on both surfaces): errors 398/398, warnings 405/405 -- FULLY DETERMINISTIC including creepage ({114} x120, the prior {114,115} scatter collapsed by the explicit classification removing ambiguous-Default treatment). clearance raw read 185 is a TRUE count (far under kicad-cli's safe threshold). silk_overlap raw read saturates at the 199 cap; its committed uncapped total (13060) is unchanged -- classification moves no copper. BASELINE VALIDATION: the committed record's figures were re-measured first under the identical protocol (errors 401-402, warnings 405) before any delta was computed."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
@@ -339,16 +347,7 @@
         "track_dangling": 0,
         "via_dangling": 111
       },
-      "nondeterministic_error_types": {
-        "creepage": {
-          "observed": [
-            114,
-            115
-          ],
-          "samples": 120,
-          "note": "Nondeterministic; ceiling 116 = max 115 + spread 1 (noise-headroom guard: 116-115 = 1 >= 115-114 = 1). Distribution {114: 13, 115: 107} across 120 samples -- the same upstream KiCad pointer-dedup artifact (issue #20048) documented since #602. Band shifted UP from {105,106} (main 26981fea) by the K1 footprint swap revealing its real THT contacts: every new creepage violation names a K1 contact net (power_in.ntc-no / w1_2 / power_in.bypass_relay-coil2)."
-        }
-      },
+      "nondeterministic_error_types": {},
       "saturation_hazard": {
         "_what_this_is": "kicad-cli caps every DRC category's reported count at a GUI list-widget constant (ERROR_LIMIT=199 or EXTENDED_ERROR_LIMIT=499, drc_engine.cpp) -- NOT a property of the board. A category landing at/near its cap, especially deterministically, may be SATURATED (true count >= the cap, exact value unknown) rather than genuinely equal to the reported number. See docs/evidence/2026-08-12-uncapped-drc-measurement.md and scripts/measure_uncapped_drc.py (the provably-exhaustive DRU-rule / physical-board-content partition-and-sum method that recovers a true count). Read violations_by_type/warnings_by_type above with this table, not blind.",
         "clearance": {

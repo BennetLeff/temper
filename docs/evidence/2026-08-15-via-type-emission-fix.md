@@ -1,3 +1,4 @@
+<!-- provenance: commit=dabbeaf73c678be2aa969d30f547eeda41d18c07 dirty=UNKNOWN -->
 ---
 module: temper-orchestration / temper-placer router_v6
 tags: [router, kiCad, via, drc, sexpr, emission, honesty-audit]

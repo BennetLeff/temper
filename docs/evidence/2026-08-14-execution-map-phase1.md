@@ -1,3 +1,4 @@
+<!-- provenance: commit=af108f3f3d7ec1465b823f5509431c8daa726b55 dirty=UNKNOWN -->
 # Execution Map, Phase 1 (2026-08-14) — checkpoint, in progress
 
 ## Headline, stated precisely (read this before the tables below)

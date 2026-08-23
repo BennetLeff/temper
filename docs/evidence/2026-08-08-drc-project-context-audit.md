@@ -1,4 +1,4 @@
-<!-- provenance: worktree /home/bennet/Desktop/temper-drc-audit, branch audit/drc-project-context-2026-08-08, based on feat/4layer-power-planes-real @ f598973a (docs(evidence): DRC power-token jump is a project-resolution artifact, not the token), which is itself based on c4956df6 ("fix(pcb): declare In1.Cu/In2.Cu as power-plane layers, not signal"). kicad-cli 10.0.5 (matches the CI pin recorded in power_pcb_dataset/drc_ceiling.json's provenance), obtained via the official KiCad AppImage (kicad-downloads.s3.cern.ch/appimage/stable/kicad-10.0.5-x86_64.AppImage.tar), extracted with --appimage-extract, wrapped with LD_LIBRARY_PATH scoped to that one binary. All measurements below were run live in this session; none are carried over unverified from a prior agent's report. -->
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 
 # DRC project-context audit: which measurements ran blind, what they hid, and the fix
 

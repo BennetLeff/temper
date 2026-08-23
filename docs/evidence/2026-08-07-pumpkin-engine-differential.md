@@ -1,4 +1,4 @@
-<!-- provenance: commit=450a8ed561ef6bad57e35a1e26ef2107bb95dd4a dirty=true -->
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 
 # Pumpkin run through the BLOCKER-ORTOOLS equivalence harness (2026-08-07)
 

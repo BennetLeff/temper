@@ -1,4 +1,4 @@
-<!-- provenance: worktree /tmp/claude-1000/-home-bennet-Desktop-temper/4d2f49a7-f7d3-4b8d-b589-2d30d85392d3/scratchpad/router-pad-connectivity, branch fix/router-pad-connectivity-terminal, branched from spike/nlayer-via-astar @ 7ac299be -->
+<!-- provenance: commit=cda628a898d33459069d983995ff9e4a96933772 dirty=UNKNOWN -->
 
 # Fix: wrong-pad routing terminals, and pad connectivity as the completion metric
 

@@ -1,4 +1,4 @@
-<!-- provenance: commit=bf765eb89616d1f3c7cc5f6834658f280c48d27e (origin/main tip at task start), dirty=false at
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
 measurement time, branch=fix/component-bounds-pad-extent,
 worktree=/home/bennet/Desktop/temper-worktrees/component-bounds-pad-extent.
 Measured 2026-08-12 against the pinned pumpkin_engine
