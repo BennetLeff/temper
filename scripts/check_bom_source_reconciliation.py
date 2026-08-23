@@ -507,6 +507,8 @@ def load_allowlist(path: Path) -> list[AllowlistEntry] | None:
         if not isinstance(e, dict):
             return None
         required = ("kind", "designator", "reason")
+        if not required:
+            return None
         if not all(k in e for k in required):
             return None
         if e["kind"] not in ALL_KINDS:
