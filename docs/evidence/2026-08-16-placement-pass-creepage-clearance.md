@@ -1,3 +1,4 @@
+<!-- provenance: commit=0b4d95114985df330c2a8644e34a8b4bd5cd4563 dirty=UNKNOWN -->
 ---
 module: pcb
 tags: [placement, creepage, drc, pd3, clearance, routing-domain, placement-domain]

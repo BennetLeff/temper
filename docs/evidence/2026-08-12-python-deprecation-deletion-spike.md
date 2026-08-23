@@ -1,4 +1,4 @@
-<!-- provenance: commit=d8e60a5326410843ad92afb895138750a4c84f61 and 9b7267f8f on branch spike/deletable-python
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
      base=origin/main d8062c6e6f60b693aa42f615e4042826de417d63
      date=2026-08-12
      method=AST import-gate over packages/temper-placer/src + tests + scripts +

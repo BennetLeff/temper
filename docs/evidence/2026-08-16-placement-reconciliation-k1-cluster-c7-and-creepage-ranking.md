@@ -1,3 +1,4 @@
+<!-- provenance: commit=6ac839e28646fe3b6e984326cc4efc0d56e58daa dirty=UNKNOWN -->
 ---
 module: pcb
 tags: [placement, ampacity, ntc, drc, creepage, courtyard, power_in.ntc-no, discharge, ocp02, pd3]

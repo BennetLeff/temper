@@ -1,4 +1,4 @@
-<!-- provenance: branch fix/ntc-no-ampacity-correction, worktree
+<!-- provenance: commit=155df4f5ba562e7bf0a54d26c711d3e86aa63598 dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-worktrees/ntc-ampacity-fix, based on
 fix/layer-aware-ampacity @ 0a8288949 (itself branched before PR #1129
 (ee427a147) landed on main -- see SS5 for the resulting design_rules.py

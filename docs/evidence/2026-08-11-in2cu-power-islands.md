@@ -1,4 +1,4 @@
-<!-- provenance: commit=1952c6e36a628e86f417133d08ca24ea4d6349ce (main at task start) dirty=true -- this doc, packages/temper-placer/src/temper_placer/router_v6/_power_islands.py, packages/temper-placer/src/temper_placer/router_v6/_zone_pour_stitch.py (docstring only, no behavior change), packages/temper-placer/tests/router_v6/test_power_islands.py, and scripts/generate_power_islands.py are the diff this task produced. pcb/temper.kicad_pcb is UNCHANGED by this task -- verified `git status --short pcb/temper.kicad_pcb` empty throughout. -->
+<!-- provenance: commit=259758f6a4add7314b6d5bdf85d73bbfebd1be55 dirty=UNKNOWN -->
 
 # In2.Cu power islands: a real generator, a corrected premise, and measured DRC/connectivity deltas
 

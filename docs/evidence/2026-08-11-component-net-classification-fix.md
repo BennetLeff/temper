@@ -1,3 +1,4 @@
+<!-- provenance: commit=b94f8cc9d4b03411a50680efc14e8c0d0bca1470 dirty=UNKNOWN -->
 ---
 title: "Component.net_class flattening -- root cause, fix, and before/after safety-rule measurement"
 date: 2026-08-11

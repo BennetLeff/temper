@@ -1,4 +1,4 @@
-<!-- provenance: branch=fix/placer-fail-closed-collision-guard, worktree=/home/bennet/Desktop/temper-worktrees/placer-fail-closed-guard, base=origin/fix/board-schematic-resync a3fbaff37afd739b72f2b109847813b30ceb8e88. pcb/temper.kicad_pcb NOT modified (sha256 b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6, identical before/after throughout this work). -->
+<!-- provenance: commit=96db2ccde669efa82d85fb494d5d152d8af8848f dirty=UNKNOWN -->
 
 # A fail-closed F.Fab body-collision guard at the placer's solve chokepoint
 
