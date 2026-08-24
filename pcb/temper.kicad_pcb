@@ -3524,7 +3524,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9792588b) (tstamp 9b1497d4-d1ec-1a99-41c9-08a2d8a269e1)
-    (at 112 218 90)
+    (at 112 206 180)
     (descr "C, Rect series, Radial, pin pitch=15.00mm, length*width=18*11mm^2, Capacitor, http://www.wima.com/EN/WIMA_FKS_3.pdf")
     (tags "C Rect series Radial pin pitch 15.00mm length 18mm width 11mm Capacitor")
     (property "Reference" "C7")
@@ -3541,9 +3541,9 @@
     (fp_text user "${REFERENCE}" (at 7.5 0 0) (layer "F.Fab")
       (effects (font (size 1 1) (thickness 0.15)))
     )
-    (pad "1" thru_hole circle (at 0 0 180) (size 2.4 2.4) (drill 1.2) (layers *.Cu *.Mask) (remove_unused_layers)
+    (pad "1" thru_hole circle (at 0 0 270) (size 2.4 2.4) (drill 1.2) (layers *.Cu *.Mask) (remove_unused_layers)
       (net 44 "discharge.r_snub1-p2"))
-    (pad "2" thru_hole circle (at 15 0 180) (size 2.4 2.4) (drill 1.2) (layers *.Cu *.Mask) (remove_unused_layers)
+    (pad "2" thru_hole circle (at 15 0 270) (size 2.4 2.4) (drill 1.2) (layers *.Cu *.Mask) (remove_unused_layers)
       (net 13 "PWR_RTN"))
     (model "${KICAD10_3DMODEL_DIR}/Capacitor_THT.3dshapes/C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3.step"
       (offset (xyz 0 0 0))
