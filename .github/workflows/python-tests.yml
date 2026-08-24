@@ -4797,8 +4797,16 @@ jobs:
       # a merge is a maintainer decision, not this step's to make.
       - name: WASM test registry matches committed (drift + unregistered gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # The `-e` this step's body says it does not have: `run:` defaults to
+        # `bash -e {0}`, so until 2026-08-24 the first crate whose --check
+        # exited non-zero killed the step. The `failed` accumulation below and
+        # the ::error:: naming every stale crate were unreachable -- observed
+        # on PR #1470, where the log ends at `--- temper-orchestration ---`
+        # with a bare `unbalanced braces at line 814` and the five crates
+        # after it never ran. An override is needed because a `run:` body
+        # cannot unset a shell flag its own interpreter was started with.
+        shell: bash --noprofile --norc -uo pipefail {0}
         run: |
-          # No `-e`: exit codes are inspected here, not merely propagated.
           set -uo pipefail
 
           crates="$(uv run python - <<'PY'
@@ -4885,8 +4893,10 @@ jobs:
       # blocks a merge is a maintainer decision, not this step's to make.
       - name: WASM test family map matches the registry
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Same `-e` correction as the step above: `rc=$?` is only reachable if
+        # the failing command did not already end the step.
+        shell: bash --noprofile --norc -uo pipefail {0}
         run: |
-          # No `-e`: the exit code is inspected here, not merely propagated.
           set -uo pipefail
 
           uv run python tools/wasm/gen_test_family_map.py --check
