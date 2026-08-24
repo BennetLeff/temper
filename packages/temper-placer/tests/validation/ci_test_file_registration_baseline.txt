@@ -91,8 +91,6 @@ integration/test_seed_filter_retriggers.py
 manufacturing/test_stackup_validator.py
 manufacturing/test_stackup_validator_pbt.py
 manufacturing/test_stackup_validator_rust_differential.py
-manufacturing/test_tolerances.py
-manufacturing/test_tolerances_rust_differential.py
 mechanical/test_coil_bracket.py
 mechanical/test_sensor_mount.py
 parity/test_lv_only_parity.py
