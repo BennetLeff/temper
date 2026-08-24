@@ -88,6 +88,7 @@ structural rather than convenient.
 from __future__ import annotations
 
 import argparse
+import functools
 import re
 import sys
 from dataclasses import dataclass, field
@@ -227,6 +228,7 @@ TEST_FN = re.compile(r"^(\s*)#\[(?:test|cfg_attr\(test, test\))\]\s*$")
 # crate, and excluding it on that basis would drop real tests from the tier for
 # a spelling.
 PROPTEST_USE = re.compile(r"(?:^|[^A-Za-z0-9_])proptest\s*(?:!|::)")
+STD_PROCESS_USE = re.compile(r"(?:^|[^A-Za-z0-9_])std::process\b")
 FN_NAME = re.compile(r"^\s*(?:pub\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 
 
@@ -308,6 +310,161 @@ def looks_test_gated(lines: list[str], decl_idx: int) -> bool:
     return False
 
 
+_RAW_OPEN = re.compile(r'(?:b?r)(#*)"')
+_CHAR_LIT = re.compile(r"'(?:\\u\{[0-9a-fA-F_]+\}|\\.|[^\\'])'")
+_IDENT_CHAR = re.compile(r"[A-Za-z0-9_]")
+
+
+def brace_deltas(lines: list[str]) -> list[int]:
+    """Per-line ``{`` minus ``}``, counting only braces that are *code*.
+
+    Braces inside line comments, block comments, string literals, byte
+    strings, raw strings and char literals are not block delimiters and must
+    not move the depth.  The scan is stateful across lines because every one
+    of those constructs can span them: Rust block comments nest, plain string
+    literals may contain a raw newline, and ``r#"..."#`` runs until its
+    matching terminator.
+
+    Why this is not ``line.count("{") - line.count("}")`` -- which is what it
+    was until 2026-08-24.  ``temper-orchestration``'s ``state_ser.rs`` tests
+    the loud-error path with a deliberately malformed JSON input::
+
+        let e = native_from_json("{not json").unwrap_err();
+
+    That ``{`` is four characters of test data, not a block.  The naive count
+    read it as an unclosed brace, :func:`module_body` walked to EOF without
+    returning to depth 0, and the gate died with ``unbalanced braces at line
+    814``.  Because the gate exits on the first crate that fails, and
+    ``temper-orchestration`` is 7th of 12, the five crates after it went
+    unchecked -- the step could not have reported their drift either.  It
+    failed ``Fast Gates``, and through it the ``Required Python Tests``
+    aggregator and every PR's merge, from #1434 (2026-08-21) onward.
+
+    The one genuine ambiguity is ``'``: a lifetime (``'a``) opens no char
+    literal.  A ``'`` is therefore treated as a char literal only when a
+    complete literal actually matches at that position, and as a lifetime
+    tick otherwise -- which is also why ``'\\u{1F600}'`` (a char literal that
+    really does contain braces) has to be part of that match.
+    """
+    return list(_brace_deltas_cached(tuple(lines)))
+
+
+@functools.lru_cache(maxsize=64)
+def _brace_deltas_cached(lines: tuple[str, ...]) -> tuple[int, ...]:
+    """:func:`brace_deltas`, memoised on the exact line sequence.
+
+    ``module_body`` and ``find_mod`` each re-scan a whole file per module they
+    resolve, so without this the lexer runs once per (file x module) pair.
+    Measured on this repo before the cache was added: the 12-crate sweep took
+    160s, against 2.3s for the naive count it replaces.  ``temper-geometry``
+    alone has 67 test modules in one crate, and the cost is quadratic in
+    exactly that.
+    """
+    deltas: list[int] = []
+    block_depth = 0  # Rust block comments nest, so this is a depth not a flag
+    raw_hashes: int | None = None  # inside r#"..."#: how many `#` close it
+    in_string = False  # inside a plain/byte "..." that has not closed yet
+    for line in lines:
+        # Fast paths.  Walking every character is ~8x the naive count on a
+        # large crate, and the two cases below cover the overwhelming
+        # majority of lines: whole-line comments (dense here, and they carry
+        # braces in code samples) and lines with nothing that could hide a
+        # brace at all.  Measured on temper-geometry, best of 5: 0.33s naive,
+        # 2.60s walking every character, 0.83s with these paths.  The gate
+        # runs 12 crates, so the remaining cost is a few seconds against a
+        # step that could not report a verdict at all before.
+        if not block_depth and raw_hashes is None and not in_string:
+            if line.lstrip().startswith("//"):
+                # A whole-line comment -- doc comments are dense in this
+                # codebase and they carry braces in code samples.
+                deltas.append(0)
+                continue
+            if '"' not in line and "\'" not in line and "/" not in line:
+                deltas.append(line.count("{") - line.count("}"))
+                continue
+        delta = 0
+        i = 0
+        n = len(line)
+        while i < n:
+            if raw_hashes is not None:
+                end = line.find('"' + "#" * raw_hashes, i)
+                if end < 0:
+                    break
+                i = end + 1 + raw_hashes
+                raw_hashes = None
+                continue
+            if in_string:
+                i = _skip_string_body(line, i)
+                in_string = i < 0
+                if in_string:
+                    break
+                continue
+            if block_depth:
+                if line.startswith("*/", i):
+                    block_depth -= 1
+                    i += 2
+                elif line.startswith("/*", i):
+                    block_depth += 1
+                    i += 2
+                else:
+                    i += 1
+                continue
+            if line.startswith("//", i):
+                break
+            if line.startswith("/*", i):
+                block_depth += 1
+                i += 2
+                continue
+            raw = _RAW_OPEN.match(line, i)
+            if raw and (i == 0 or not _IDENT_CHAR.match(line[i - 1])):
+                raw_hashes = len(raw.group(1))
+                i = raw.end()
+                continue
+            ch = line[i]
+            if ch == "b" and line.startswith('"', i + 1) and (
+                i == 0 or not _IDENT_CHAR.match(line[i - 1])
+            ):
+                i += 1
+                ch = '"'
+            if ch == '"':
+                j = _skip_string_body(line, i + 1)
+                if j < 0:
+                    in_string = True
+                    break
+                i = j
+                continue
+            if ch == "'":
+                lit = _CHAR_LIT.match(line, i)
+                i = lit.end() if lit else i + 1
+                continue
+            if ch == "{":
+                delta += 1
+            elif ch == "}":
+                delta -= 1
+            i += 1
+        deltas.append(delta)
+    return tuple(deltas)
+
+
+def _skip_string_body(line: str, i: int) -> int:
+    """Index just past the closing ``"``, or ``-1`` if the line ends first.
+
+    ``i`` is the first character of the body (the opening quote is already
+    consumed).  ``-1`` means the literal continues on the next line, which is
+    legal Rust -- a string may contain a raw newline.
+    """
+    n = len(line)
+    while i < n:
+        c = line[i]
+        if c == "\\":
+            i += 2
+            continue
+        if c == '"':
+            return i + 1
+        i += 1
+    return -1
+
+
 def nested_gated_mask(body: list[str]) -> list[bool]:
     """Which lines of ``body`` belong to a *nested* test-gated submodule.
 
@@ -349,8 +506,9 @@ def nested_gated_mask(body: list[str]) -> list[bool]:
         ):
             depth = 0
             end = len(body) - 1
+            deltas = brace_deltas(body)
             for j in range(i, len(body)):
-                depth += body[j].count("{") - body[j].count("}")
+                depth += deltas[j]
                 mask[j] = True
                 if depth == 0:
                     end = j
@@ -369,8 +527,9 @@ def own_lines(body: list[str]) -> list[str]:
 def module_body(lines: list[str], decl_idx: int) -> list[str]:
     """The brace-balanced body of the inline module declared at ``decl_idx``."""
     depth = 0
+    deltas = brace_deltas(lines)
     for j in range(decl_idx, len(lines)):
-        depth += lines[j].count("{") - lines[j].count("}")
+        depth += deltas[j]
         if depth == 0:
             return lines[decl_idx : j + 1]
     raise SystemExit(f"unbalanced braces at line {decl_idx + 1}")
@@ -524,6 +683,31 @@ def discover_eligible(
                 # compiled into.  Same exclusion `temper-drc-rs` makes by
                 # leaving its own `proptests` modules out of ELIGIBLE_DRC_RS.
                 reason = "proptest-dev-dependency"
+            elif any(STD_PROCESS_USE.search(ln.split("//")[0]) for ln in body):
+                # `wasm32-unknown-unknown` has no process model.  That is not
+                # an incidental gap -- it is the premise this whole tier is
+                # built on (see this module's own docstring: "no process
+                # model, no threads, no std::process::exit"), so `std`'s
+                # process support there is a stub whose every entry point
+                # panics: `no pids on this platform`,
+                # std/src/sys/process/unsupported.rs.
+                #
+                # Unlike the `Instant::now()` divergence
+                # `wasm_expected_failures_orchestration.json` records (fixed
+                # in `pipeline.rs` rather than catalogued, because a clock
+                # read was avoidable), this one cannot be fixed in the crate:
+                # a test that spawns a subprocess has nothing to spawn.  It
+                # is a native-only property by construction, so it is
+                # excluded here rather than listed as an expected failure --
+                # that manifest is for divergences worth executing, and these
+                # cannot execute at all.
+                #
+                # Found by registering `temper-orchestration`'s
+                # `subprocess_stage::tests` for the first time (its 7 tests
+                # spawn a Python interpreter); the module had been invisible
+                # to this script while the brace counter could not parse the
+                # file next to it.
+                reason = "std-process-no-wasm32"
             elif not any(is_test_gate(a) for a in attrs):
                 # `looks_test_gated` saw a gate the rewriter cannot reach --
                 # a comment sits between `#[cfg(test)]` and `mod`.  Report it
@@ -1056,8 +1240,9 @@ def find_module_span(lines: list[str], ident: str) -> tuple[int, int, int]:
         if m.group(1) == ";":
             return start, i, -1
         depth = 0
+        deltas = brace_deltas(lines)
         for j in range(i, len(lines)):
-            depth += lines[j].count("{") - lines[j].count("}")
+            depth += deltas[j]
             if depth == 0:
                 return start, i, j
         raise SystemExit(f"unbalanced braces for mod {ident}")

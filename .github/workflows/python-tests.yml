@@ -4795,10 +4795,27 @@ jobs:
       # cargo build, well under a second inside a job already budgeted 20
       # minutes. It is NOT added to .github/required-checks.json: what blocks
       # a merge is a maintainer decision, not this step's to make.
+      # The generator's own unit tests, run BEFORE the gate that depends on
+      # it. `scripts/tests/` is not in pyproject's `testpaths` and this
+      # workflow names each file it runs individually, so a test file added
+      # there without a step here never executes -- the "unwired for its
+      # entire existence" shape the step below was itself added to end.
+      - name: WASM registry generator unit tests (brace scan + eligibility)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_gen_wasm_test_registry_braces.py -v --tb=short
+
       - name: WASM test registry matches committed (drift + unregistered gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # The `-e` this step's body says it does not have: `run:` defaults to
+        # `bash -e {0}`, so until 2026-08-24 the first crate whose --check
+        # exited non-zero killed the step. The `failed` accumulation below and
+        # the ::error:: naming every stale crate were unreachable -- observed
+        # on PR #1470, where the log ends at `--- temper-orchestration ---`
+        # with a bare `unbalanced braces at line 814` and the five crates
+        # after it never ran. An override is needed because a `run:` body
+        # cannot unset a shell flag its own interpreter was started with.
+        shell: bash --noprofile --norc -uo pipefail {0}
         run: |
-          # No `-e`: exit codes are inspected here, not merely propagated.
           set -uo pipefail
 
           crates="$(uv run python - <<'PY'
@@ -4885,8 +4902,10 @@ jobs:
       # blocks a merge is a maintainer decision, not this step's to make.
       - name: WASM test family map matches the registry
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Same `-e` correction as the step above: `rc=$?` is only reachable if
+        # the failing command did not already end the step.
+        shell: bash --noprofile --norc -uo pipefail {0}
         run: |
-          # No `-e`: the exit code is inspected here, not merely propagated.
           set -uo pipefail
 
           uv run python tools/wasm/gen_test_family_map.py --check
