@@ -32,14 +32,32 @@ less is the failure being prevented.
 from __future__ import annotations
 
 import ast
-import sys
+import importlib.util
 from pathlib import Path
+from types import ModuleType
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(_REPO_ROOT / "benchmarks") not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT / "benchmarks"))
 
-import perf_ab  # noqa: E402
+
+def _load_perf_ab() -> ModuleType:
+    """Load ``benchmarks/perf_ab.py`` by path.
+
+    Not ``sys.path.insert`` + ``import perf_ab``: ``benchmarks/`` is not an
+    installed package, so a module-level import of it is undeclared --
+    `scripts/check_undeclared_imports.py` fails on exactly that, and it is
+    right to. Loading by explicit path is also what the module under test
+    does for its own oracles, so the test reaches its subject the same way
+    its subject reaches its subjects.
+    """
+    path = _REPO_ROOT / "benchmarks" / "perf_ab.py"
+    spec = importlib.util.spec_from_file_location("_test_perf_ab", path)
+    assert spec and spec.loader, f"cannot load {path}"
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+perf_ab = _load_perf_ab()
 
 _SOURCE = Path(perf_ab.__file__)
 _PHYSICS_DIR = _REPO_ROOT / "packages" / "temper-placer" / "tests" / "physics"
