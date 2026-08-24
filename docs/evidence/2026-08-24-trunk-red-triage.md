@@ -101,14 +101,20 @@ Two separable things here, and they should not be conflated:
   10.0 mm (PD3). Whether that is a real inadequacy or a disagreement between
   the enforcement layer and the SSOT figure is exactly the question, and it is
   an owner's question.
-- **A suspected vacuity regression, which worries me more.** `pour containment`
-  is now **empty for all four tank refs**, and `pour-bounded shortfall` is
-  **empty**. A detector that used to find things and now finds nothing is the
-  classic signature of a gate that has stopped biting. It may be legitimate —
-  the pours may genuinely have changed — but "the check now returns nothing" is
-  never self-evidently good news. Open PR #1388 ("zone fill is nondeterministic
-  on the HV bus and breaches the mains barrier") is plausibly the same
-  territory and should be read alongside this.
+- **A suspected vacuity regression — investigated, and NOT vacuity.**
+  `pour containment` is now empty for all four tank refs. I flagged that as the
+  classic signature of a gate that stopped biting. **It is not**, and
+  [`2026-08-24-tank-creepage-pour-containment.md`](./2026-08-24-tank-creepage-pour-containment.md)
+  is the correction: every step of the detector runs and resolves correctly, the
+  pads are 79–86 mm from the nearest `DC_BUS_RTN` pour, and the pads themselves
+  are at **byte-identical coordinates** in the revision that wrote the
+  expectation. The *pours* moved — `DC_BUS_RTN` outline area went 74,168 mm² to
+  3,103 mm² when the creepage-aware zone generator (#1257) carved them back off
+  the HV tank pads. Those two tests are stale against a real improvement and
+  should be re-derived. One thing worth keeping came out of it: neither board
+  revision stores a computed zone fill, so the old "2.0 mm pour-bounded" figure
+  was inferred from *outline* containment rather than measured from copper —
+  see that document's §3, and PR #1388 alongside it.
 
 The `184 pairs` failure is the mildest of the seven: the expectation is
 hardcoded `4 * 45` and the board now yields `4 * 46`, i.e. one component
@@ -252,9 +258,9 @@ After the change, `tests/validation/test_ci_test_file_registration.py` is
 
 1. **§1.1 first.** A mains-fuse pin with no schematic net is the highest-severity
    item here and probably the cheapest to resolve — it is one net in one file.
-2. **§1.2's vacuity half before its shortfall half.** Establish whether pour
-   containment legitimately became empty. If the detector regressed, every other
-   number from that gate is untrustworthy, including the ones currently green.
+2. ~~**§1.2's vacuity half before its shortfall half.**~~ **Done** — it is not a
+   vacuity regression; see §1.2. What remains there is the shortfall half (the
+   four declared-figure assertions) plus two stale expectations to re-derive.
 3. **§1.3**, which likely also clears most of Board/Provenance's other 12 steps.
 4. **Re-derive the `4 * 45` expectation last**, once the board is settled.
 5. **Separately, and regardless of the above: split the aggregator, or make it
