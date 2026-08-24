@@ -64,7 +64,20 @@ says it exists to catch, and it is on the mains input of a mains-powered
 appliance.
 
 The gate is a hard failure and reports `1 mismatch(es), 0 unverifiable`. It is
-not vacuous and it is not ambiguous. **Somebody needs to look at the schematic.**
+not vacuous and it is not ambiguous.
+
+**Run to ground in [`2026-08-24-ac-l-mains-no-connect.md`](./2026-08-24-ac-l-mains-no-connect.md).**
+Short version: `scripts/gen_schematics.py` renders every single-node net as a
+KiCad `no_connect` marker rather than a label. There are 29 such nets and for 28
+of them that is correct; `ac_l` is the exception, because a `no_connect` asserts
+a pin is *intentionally* unconnected and `ac_l` is where a panel-mount IEC C20
+inlet lands mains Line. The committed schematic therefore carries an X on the
+mains fuse's input pin. It is a representation defect, not a board defect — no
+copper is wrong — and `oracle_verify()` could never have caught it, because it
+skips single-node nets before comparing (`gen_schematics.py:1034-1036`). The fix
+and the policy decision it needs are in §4 of that document; I did not apply it
+because `kicad-cli` cannot run schematic operations on this machine, so I could
+not have verified it.
 
 ### 1.2 Core Tests — tank↔bus creepage is enforced at 2.0 mm against a 6.3–10.0 mm requirement
 
