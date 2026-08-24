@@ -139,6 +139,17 @@ ClearanceViolation(
 )
 ```
 
+**Run to ground in [`2026-08-24-k1-isolation-barrier-triage.md`](./2026-08-24-k1-isolation-barrier-triage.md).**
+Short version: the K1 **re-part succeeded** — its intra-footprint coil↔contact
+gap is now **17.800 mm**, up from the 8.000 mm a sibling test still pins, and
+that test crashes with `KeyError: '13'` because K1 went from an Omron G4A-E
+(pads `A1/A2/13/14`) to a Schrack RT33K012 (pads `1/2/3/4`). What remains is
+**placement, not part selection**: `K1`↔`R56` at 5.036 mm and `RT1`↔`K1` at
+7.000 mm, both under the enforced 8.0 mm. The K1↔R56 geometry was corroborated
+independently by a text-only parse of the board (4.549 mm rectangle-edge vs the
+checker's 5.036 mm — the expected direction for rounded pad corners), so it is
+real geometry rather than an instrument artifact.
+
 The R42 gate-mutation sweep then fails for a *derived* reason worth stating
 plainly, because it looks alarming and is not an independent defect:
 
@@ -261,7 +272,8 @@ After the change, `tests/validation/test_ci_test_file_registration.py` is
 2. ~~**§1.2's vacuity half before its shortfall half.**~~ **Done** — it is not a
    vacuity regression; see §1.2. What remains there is the shortfall half (the
    four declared-figure assertions) plus two stale expectations to re-derive.
-3. **§1.3**, which likely also clears most of Board/Provenance's other 12 steps.
+3. **§1.3** — triaged; see above. The two placement violations remain owner
+   calls; the `KeyError` half is a mechanical test re-parameterisation.
 4. **Re-derive the `4 * 45` expectation last**, once the board is settled.
 5. **Separately, and regardless of the above: split the aggregator, or make it
    fail per-job.** As long as one required context stands for ten jobs, the
