@@ -137,6 +137,14 @@ on:
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
       - 'pcb/temper.kicad_pcb'
+      # The board-sync gate's OWN committed artifact. Absent here, the one
+      # file whose modification should always re-run the gate was the one
+      # file that did not: #1467 adopted CI's canonical digest and, touching
+      # only this sidecar, triggered no Python Tests run on main -- the
+      # permanently-red gate's fix landed with no post-merge verdict. The
+      # PR side has the same hole: a PR that edits the stamp alone skips
+      # the write+diff step that validates it.
+      - 'pcb/temper.kicad_pcb.source-digest'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
       - 'pcb/temper.kicad_pro'
@@ -244,6 +252,7 @@ on:
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
       - 'pcb/temper.kicad_pcb'
+      - 'pcb/temper.kicad_pcb.source-digest'  # see push: above
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
       - 'pcb/temper.kicad_pro'
