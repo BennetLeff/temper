@@ -22,7 +22,6 @@ from typing import Any
 
 import numpy as np
 import pytest
-from kiutils.board import Board as KiBoard
 
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
@@ -505,17 +504,44 @@ class TestIoHelpers:
         assert snapped == (0.0, 0.0)
 
     def test_add_segments_and_vias_to_board(self):
-        kb = KiBoard()
+        """Both helpers take board TEXT and return a count.
+
+        Rewritten 2026-08-24. This test still drove the pre-#1440 API: it
+        passed a kiutils ``Board`` and asserted the helpers mutated
+        ``kb.traceItems``. #1440 ("de-kiutils kicad_exporter -- zero runtime
+        kiutils imports in packages/") moved both to the Rust text path,
+        where they build sexprs and return how many; the caller applies them
+        via ``_build_segment_items``/``_build_via_items`` + ``_append_items``
+        (see ``export_to_kicad``). So the old assertions described behaviour
+        the functions deliberately no longer have, and the ``Board`` argument
+        reached ``extract_net_map_from_text_py`` as ``TypeError: 'Board'
+        object is not an instance of 'str'``.
+        """
+        board_text = (
+            '(kicad_pcb (version 20240108) (generator pcbnew)\n'
+            '  (net 0 "")\n'
+            '  (net 1 "GND")\n'
+            ")"
+        )
         added = add_segments_to_board(
-            kb, [TraceSegment(net="GND", start=(0, 0), end=(1, 1), width=0.25, layer="F.Cu")]
+            board_text,
+            [TraceSegment(net="GND", start=(0, 0), end=(1, 1), width=0.25, layer="F.Cu")],
         )
         assert added == 1
-        assert len(kb.traceItems) == 1
         added_vias = add_vias_to_board(
-            kb, [TraceVia(net="GND", position=(1, 1), size=0.8, drill=0.4, layers=["F.Cu", "In1.Cu"])]
+            board_text,
+            [TraceVia(net="GND", position=(1, 1), size=0.8, drill=0.4, layers=["F.Cu", "In1.Cu"])],
         )
         assert added_vias == 1
-        assert len(kb.traceItems) == 2
+
+        # The board text is an input, not a target: neither helper writes.
+        assert board_text.count("(segment") == 0
+        assert board_text.count("(via") == 0
+
+    def test_add_segments_and_vias_short_circuit_on_empty(self):
+        """The early return, which the net-map lookup must not run before."""
+        assert add_segments_to_board("(kicad_pcb)", []) == 0
+        assert add_vias_to_board("(kicad_pcb)", []) == 0
 
 
 # ---------------------------------------------------------------------------
