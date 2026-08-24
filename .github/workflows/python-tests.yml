@@ -1313,8 +1313,11 @@ jobs:
       # -- they lose PR-time native execution, same as the geometry-crate
       # part of this task's remit for wasm-tier-nightly.yml's own native
       # arm. They still execute natively whenever temper-geometry comes up
-      # in that workflow's R19 rotation (full cycle every 9 nights, under
-      # 1.5 weeks -- see that file's header, "R19 NATIVE-ARM ROTATION"),
+      # in that workflow's R19 rotation (full cycle every `len(tiers)`
+      # nights -- TWELVE as of 2026-08-24, not the 9 / "under 1.5 weeks" this
+      # comment claimed when written; see that file's header, "R19 NATIVE-ARM
+      # ROTATION", and docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md §3
+      # for what that cadence means in practice),
       # because a rotation night runs the crate's ordinary, unfiltered
       # `cargo test`, not a tier-scoped subset.
       #
