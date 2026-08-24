@@ -756,18 +756,69 @@ class TestDomainConstraintDedup:
         DC_BUS<->LV_CONTROL pairs) while the net new SELV-domain component
         count (5 pair-contributing additions vs. 7 removals, but against a
         much larger same-domain population) still nets more 1.0mm pairs
-        overall."""
+        overall.
+
+        RE-DERIVED 2026-08-24. 11,466 -> 11,623, and the margin KEYS moved
+        too -- which is why this is a re-derivation and not a bump. Two
+        independent staleness sources had accumulated:
+
+        1. THE MARGINS. ``dist[8.0]`` and ``dist[1.0]`` asserted on figures
+           that no longer exist: 8.0mm was PD2 reinforced creepage and 1.0mm
+           was FUNCTIONAL, and both were replaced on 2026-08-15 by #1226
+           (`5b481f697`, FUNCTIONAL 1.0 -> 1.8, Table 18 PD3) and #1229
+           (`fe41fb78a`, PD3 reinforced 12.6). Measured on the current tree,
+           the generator emits nothing at either: both counters were 0.
+
+           This assertion has very likely been unpassable since it landed
+           rather than drifting later. #1178 (`8fc9c9967`) merged at 16:24
+           that same day -- hours after both -- setting 11,466 / 5,580 /
+           5,886, and its own docstring says where those came from:
+           "RE-DERIVED 2026-08-13". They were measured on a branch two days
+           stale and landed on a trunk that had moved underneath them. The
+           figures have not changed since (#1324's matrix consolidation
+           moved zero values by explicit rule), and nothing has touched this
+           file.
+
+        2. THE COUNTS. Pair counts depend on domain MEMBERSHIP, not on the
+           margin figures -- a figure change relabels buckets, it cannot
+           create or destroy a pair. So the +157 is entirely membership, from
+           the net-classification landings since 2026-08-13 (#1360 `input`
+           HighVoltageSignal, #1462 discharge classification + SELV defaults,
+           #1437 gate_drive substring false positives) and the board change
+           #1424.
+
+        Measured directly on this tree (best evidence, this call):
+
+          margin    rationale                                        pairs
+          12.60mm   DC_BUS<->LV_CONTROL (basic)                      5,156
+          12.60mm   MAINS<->LV_CONTROL (basic)                         472
+           1.80mm   LV_CONTROL<->LV_CONTROL (functional)             5,995
+                                                                    ------
+                                                                    11,623
+
+        Against the (pre-PD3) 2026-08-13 derivation: the basic/HV bucket
+        5,580 -> 5,628 (+48) and the functional bucket 5,886 -> 5,995
+        (+109). Structure unchanged: 158 refs contribute, 12,403 possible
+        unordered pairs, 780 excluded, 0 duplicate unordered pairs (#594's
+        invariant still holds), 6 chain-sibling exempt pairs.
+
+        The intra-footprint straddler set is NOT part of this change and has
+        not moved: ``test_real_board_finds_known_isolators``'s own docstring
+        already names all eight (C6, K1, K2, K3, PS1, T1, T2, U6) as of the
+        same 2026-08-13 re-derivation. T2 is called out above because it was
+        one of that resync's ADDITIONS, not because it was the only
+        straddler."""
         placement, voltage_domains, _stats = self._load()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
-        assert len(constraints) == 11_466, (
-            f"Expected 11,466 constraints (one per unordered pair, on the "
+        assert len(constraints) == 11_623, (
+            f"Expected 11,623 constraints (one per unordered pair, on the "
             f"resynced board), got {len(constraints)}"
         )
         # Margin distribution must match the measured unique-pair set:
-        # 5,580 pairs at 8.0mm + 5,886 pairs at 1.0mm == 11,466.
+        # 5,628 pairs at 12.6mm + 5,995 pairs at 1.8mm == 11,623.
         from collections import Counter
 
         dist = Counter(round(c.min_distance_mm, 3) for c in constraints)
-        assert dist[8.0] == 5_580
-        assert dist[1.0] == 5_886
-        assert sum(dist.values()) == 11_466
+        assert dist[12.6] == 5_628
+        assert dist[1.8] == 5_995
+        assert sum(dist.values()) == 11_623
