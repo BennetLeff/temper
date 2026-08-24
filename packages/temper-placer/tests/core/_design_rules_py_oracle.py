@@ -64,6 +64,55 @@ DO NOT EDIT THE SEMANTICS. This is the oracle the Rust pyo3 pyclasses
 (``temper_design_bundle_python``) must reproduce bit-identically; any
 edit here silently weakens the differential proof. If the module's
 contract changes, the oracle must be re-pinned from the new base first.
+
+RE-PINNED 2026-08-24 (the ceremony the live table asked for). Three safety
+commits added entries to ``design_rules.py``'s ``TEMPER_NET_ASSIGNMENTS``
+without touching this pin, so ``test_module_constants_identical`` and
+``test_create_temper_design_rules_identical`` have been red since. The
+`hb-gnd` commit's own inline comment names the reason it stopped there:
+"KNOWN CONSEQUENCE, LEFT RED, NOT FIXED (forbidden to re-pin a pinned oracle
+per this task's hard rules) ... Reconciling requires the standing oracle
+re-pin ceremony (exhaustive-divergence evidence, a deliberate committed act)
+as separate follow-up work." This is that act.
+
+EXHAUSTIVE DIVERGENCE, measured live module against this oracle:
+
+  * every top-level data constant compared: exactly ONE differs,
+    ``TEMPER_NET_ASSIGNMENTS`` -- +8 keys, -0 keys, 0 reclassified.
+    ``TEMPER_NET_CLASSES`` (keys AND per-class field values),
+    ``SAFETY_CONSTANT_AUTHORITY``, ``SAFETY_CONSTANT_AUTHORITY_NET_CLASSES``
+    and ``SAFETY_CONSTANT_AUTHORITY_FIELDS`` are all equal.
+  * every shared callable's source compared: only
+    ``create_temper_design_rules`` differs, which is the migration itself --
+    live delegates to the Rust pyclass, this oracle holds the pre-migration
+    body. Its OUTPUT differs in ``net_class_assignments`` alone, by exactly
+    the same 8 keys; ``net_classes``, ``differential_pairs``,
+    ``net_topologies``, ``bus_cohorts`` and all four defaults are identical.
+  * ``_hv_word_boundary_match`` and the other classification helpers are
+    unchanged, so this is drift in DATA, not in logic.
+
+The 8, each traced to the commit that added it:
+
+  ``discharge.k_dis1-no``, ``discharge.k_dis2-no``, ``discharge.r_dis1a-p2``,
+  ``discharge.r_dis2a-p2``, ``discharge.r_snub1-p2``,
+  ``discharge.r_snub2-p2`` -> HighVoltageSignal, f830951fd (#1462, "land
+  #1363's discharge classification on current main + SELV defaults").
+  ``hb-gnd`` -> HighVoltage, f9d10f196 ("hb-gnd is HV at ~-170V and had NO
+  netclass entry").
+  ``input`` -> HighVoltageSignal, 0ee4a901b (#1360, "classify `input`
+  HighVoltageSignal on both enforced surfaces").
+
+Every one is ADDITIVE and strictly stricter: a net that previously fell
+through to the LV default now carries an HV-domain class. Nothing was
+loosened, nothing was reclassified, nothing was removed. Re-pinned from the
+on-disk ``design_rules.py`` bytes for these 8 entries only; the full
+per-entry rationale (netlist traces, measured DRC consequence) stays with
+the live table rather than being duplicated here, as the 2026-08-13 re-pin
+did for its own two entries.
+
+``scripts/oracle_hashes.json`` updated in the same commit, per
+``check_oracle_hashes.py``'s contract.
+
 """
 
 import re
@@ -620,6 +669,15 @@ TEMPER_NET_ASSIGNMENTS = {
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
+    # RE-PINNED 2026-08-24 from f9d10f196 ("hb-gnd is HV at ~-170V and had
+    # NO netclass entry"). The half-bridge low-side return conductor, a few
+    # milliohms from the already-pinned HV net DC_BUS_RTN and ~-170V
+    # relative to PWR_RTN; it had no entry at all here, so it fell to the
+    # LV default. Strictly stricter. See
+    # docs/evidence/2026-08-17-hb-gnd-design-rules-classification-blast-
+    # radius.md and the live table's own comment block for the measured DRC
+    # consequence.
+    "hb-gnd": "HighVoltage",
     # FIXED 2026-07-28 (docs/evidence/2026-07-28-netclass-defect-reconciliation.md):
     # "+15V_LS" was misclassified below under "Power" despite
     # elec/domain_manifest.yaml declaring it an HV-domain net ("low-side
@@ -665,7 +723,24 @@ TEMPER_NET_ASSIGNMENTS = {
     "power_in.ntc-no": "HighVoltage",  # bypass relay NO -> rectified mains
     "discharge.k_dis1-nc": "HighVoltageSignal",  # k_dis1 contacts group (2026-08-13 re-scope, ~20mA)
     "discharge.k_dis2-nc": "HighVoltageSignal",  # k_dis2 contacts group (2026-08-13 re-scope, ~20mA)
+    # RE-PINNED 2026-08-24 from f830951fd (#1462, "land #1363's discharge
+    # classification on current main + SELV defaults"). The NC contacts were
+    # already pinned above; that PR classified the rest of both discharge
+    # relays' contact groups and the snubber taps to match. Additive: no
+    # entry here changed class. Full rationale lives with the live table in
+    # temper_placer/core/design_rules.py.
+    "discharge.k_dis1-no": "HighVoltageSignal",
+    "discharge.k_dis2-no": "HighVoltageSignal",
+    "discharge.r_dis1a-p2": "HighVoltageSignal",
+    "discharge.r_dis2a-p2": "HighVoltageSignal",
+    "discharge.r_snub1-p2": "HighVoltageSignal",
+    "discharge.r_snub2-p2": "HighVoltageSignal",
     "hb.power_loop.q_high-g": "HighVoltageSignal",  # Q_high gate, 1 resistor from GATE_HS (2026-08-13 re-scope)
+    # RE-PINNED 2026-08-24 from 0ee4a901b (#1360, "classify `input`
+    # HighVoltageSignal on both enforced surfaces"). GateDriveLS's
+    # module-local signal, wired to the UCC21550's secondary-side OUTB
+    # output. Additive; see the live table for the pin-level trace.
+    "input": "HighVoltageSignal",
     # ADDED 2026-07-28, same sweep. hb.gate_hs.driver-p1-1 (VDDA) /
     # hb.gate_hs.driver-p2 (VSSA) are the two REAL, currently-compiled nets
     # of the HighVoltageIsolated class defined above (elec/build/default.net
