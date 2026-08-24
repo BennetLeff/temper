@@ -28,7 +28,7 @@ misdescribes the tier's state to everyone who reads the plan directory.
 | R25 | Pool relief measured per job or step actually removed, not per crate | **SATISFIED; relief = 0** | Measured 2026-08-10, re-confirmed 2026-08-24. See §2.2 |
 | R26 | Python differential/PBT suites remain on GitHub Actions permanently | **SATISFIED** | Never in question; no change proposed or made |
 | R27 | Wasm-incompatible tests self-select via the R19 comparison | **PARTIAL** | The mechanism works and has produced 18 catalogued entries; it samples at a 12-night cadence. See §3 |
-| R28 | The moved suites' tier verdicts become their required PR context | **BLOCKED BY DESIGN** | `required-checks.json` holds zero wasm contexts, deliberately (D5.4). Unblocking crosses R22/R23, out of scope for the whole of Phase 5. See §4 |
+| R28 | The moved suites' tier verdicts become their required PR context | **BLOCKED — but not by what the workflow says** | `required-checks.json` holds zero wasm contexts. The stated blocker (R22/R23 durability) was closed on 2026-08-11 and re-verified for this document. The real blocker is R19 sustained per-crate agreement, which §3 shows is not producible at the current cadence. See §5 |
 
 **Governing decisions:**
 
@@ -48,9 +48,10 @@ misdescribes the tier's state to everyone who reads the plan directory.
 > executed and now has nothing left to execute against — the last Rust suite on
 > the PR path is `temper-orchestration`'s, which is structurally native-only and
 > whose removal would delete coverage rather than duplication. Its gating half
-> (R28) is blocked behind R22/R23 durability, which Phase 5's own scope
-> boundaries exclude. **R24 and R28 should be re-pulled as a separate phase with
-> an honest premise, or retired.**
+> (R28) is blocked — but not by the durability machinery every current document
+> names, which has been closed since 2026-08-11. It is blocked by the same
+> 12-night R19 cadence §3 measures. **R24 should be retired; R28 should be
+> re-pulled as a separate phase with the correct premise.**
 
 ---
 
@@ -186,37 +187,69 @@ to build:
 
 ---
 
-## 5. The gating question (R28), and why it is not a choice anyone can make today
+## 5. The gating question (R28) — and the stale premise everyone is reasoning from
 
-`.github/required-checks.json` contains **zero** wasm contexts. That is
-deliberate: `wasm-tier-pr.yml`'s own header says it "MUST NOT BE ADDED TO" that
-file, and states why in terms that this verdict endorses rather than disputes:
+`.github/required-checks.json` contains **zero** wasm contexts. Every current
+document explains that with the same reason, and **the reason is out of date.**
 
-> A PR that breaks wasm32/native equivalence produces a MISLEADING-BUT-PASSING
-> tier verdict here, and stays that way for up to 24 hours until the nightly's
-> R19 comparison catches it. This job cannot see it, because it has nothing to
-> compare against. That is acceptable only while the verdict is ADVISORY.
+`wasm-tier-pr.yml`'s header states it most directly:
 
-The threshold is therefore structural, not a matter of appetite. Making a tier
-verdict required requires **either** a native arm back on the PR path (the 39s
-of `cargo` D12 wanted removed — so R28 and D12 are in direct opposition) **or**
-a per-commit deploy, and in both cases the R22/R23 dead-letter, idempotency and
-reconciliation machinery that D10 leaves unbuilt *by design* and that Phase 5's
-Scope Boundaries exclude.
+> Making a tier verdict a required PR context crosses R22/R23 — the
+> dead-letter, idempotency and reconciliation machinery that is unbuilt BY
+> DESIGN under D10.
 
-**There are exactly two honest dispositions, and neither is "promote the check":**
+**R22/R23 is not unbuilt. It was closed on 2026-08-11 by #992**
+(`docs/evidence/2026-08-11-wasm-tier-r22-r23-durability.md`), with dead-letter
+handling, idempotent work keys, a `reconcile()` pass, and replication — each
+backed by a fault-injection test rather than by inspection.
 
-- **(a) Accept the tier as permanently advisory.** Amend D15 and R28 to say so.
-  Cost: nothing. Consequence: a PR that breaks a deployed Worker keeps going
-  green on the PR path, with a red advisory X next to it for a human to read.
-- **(b) Pull a new phase for R22/R23 durability + a PR-path native arm.** Only
-  this licenses R28. Cost: the machinery D10 deferred, plus re-litigating D12's
-  cost argument, which R28 contradicts.
+That workflow file was created **2026-08-10** in #951, one day before #992
+landed. Its header was true when written and became false the next day, and
+nothing updated it. Phase 5's D5.4 carries the same claim from the same
+pre-#992 moment.
 
-This verdict does not choose between them — that is an owner decision with a
-real cost on one side. It records that the choice exists, that it has been
-implicit since 2026-08-10, and that R28 cannot be marked anything but BLOCKED
-until it is made.
+**Re-verified for this document at `9546f568e`**, rather than taken from the
+2026-08-11 doc at face value:
+
+```
+$ node tools/wasm/test_sweep_durability.mjs
+All cases passed: the sweep accounts for every dispatched test under a lost
+response, a duplicate/conflicting delivery, a hung response, a transient
+fault, and a partial outage
+```
+
+`sweep_multi_worker.mjs` carries `reconcile()` with its own `exit(2)`, distinct
+from a test failure, and both the nightly and the PR workflow already treat any
+nonzero exit as a sweep failure — so R22/R23's failure modes are loud today,
+with no workflow edit required.
+
+### What actually blocks R28
+
+#992's own §5 named it, and this verdict's §3 measures it:
+
+1. **R19 sustained per-crate agreement.** R19's text: *"sustained agreement is
+   the bar for licensing any later gating under R15."* §3 shows any given
+   crate's agreement is re-derived once every 12 nights. That is the blocker,
+   and it is a measurement campaign, not an engineering gap.
+2. **R10's `kicad-cli` equivalence bar**, for the DRC verdict specifically, if
+   R15 is read at its literal definition. Q1 in the parent plan — *"how much
+   agreement, over what corpus, sustained for how long"* — is still open and
+   still has no terminal condition.
+
+So the disposition is **not** the two-option choice an earlier draft of this
+document stated. The engineering prerequisite is already paid for. What remains
+is to produce the agreement evidence, per crate, at a cadence that can license
+promotion — then promote contexts one crate at a time. That is a real phase with
+a tractable premise, and §7 recommends pulling it.
+
+### The pattern, noted because it is now four deep
+
+A workflow header's prose was load-bearing for a strategic decision and had been
+wrong for thirteen days. §6.2's three registry-drift incidents are the same
+shape: a document or artifact that was true when written, that nothing
+re-derives, and that a later reader treats as current. This document's own first
+draft repeated the `wasm-tier-pr.yml` claim before checking it against
+`docs/evidence/`, which is precisely how the pattern propagates.
 
 ---
 
@@ -252,12 +285,14 @@ Two consequences, the second worse than the first:
   `temper-thermal` never ran. The `failed` accumulator and its `::error::` text
   naming every stale crate were unreachable code.
 
-**PR #1473 fixes both**, plus adds a `std-process-no-wasm32` exclusion predicate
+**PR #1473 fixed both**, plus added a `std-process-no-wasm32` exclusion predicate
 for `subprocess_stage`. Independently verified for this verdict at its head
-`28e7ccc92`: all 12 registries green (30,375 tests registered in total),
-family-map check green, and its 28 new brace-parser tests pass. It is
-`MERGEABLE` but `BLOCKED` — `Required Python Tests` aggregates four checks that
-are independently red on `main` and unrelated to it.
+`28e7ccc92` before merge (all 12 registries green — 30,375 tests registered in
+total — family-map check green, 28 new brace-parser tests passing), and
+**merged 2026-08-24T17:52Z as `9546f568e`** by admin override: `Required Python
+Tests` aggregated four checks independently red on `main` and unrelated to it,
+and #1473 turned Fast Gates red→green while adding no new reds. Re-verified on
+`main` after the merge: all 12 registries and the family map check clean.
 
 ### 6.2 The freshness machinery cannot see registry drift — third occurrence
 
@@ -305,11 +340,16 @@ cadence.
 2. **Mark `docs/plans/2026-08-10-001-feat-wasm-tier-phase5-plan.md` `status:
    completed`** with this document as its verdict, and record R24 as vacuous and
    R28 as blocked in the parent plan rather than leaving them open.
-3. **Make the §5 choice explicitly**, in the open, as an owner decision. Until
-   then the tier's authority is advisory and every document should say so.
-4. **Do not re-pull Phase 5.** If the gating work is wanted, it is a new phase
-   whose premise is R22/R23 durability, not pool relief — and whose first act is
-   to re-argue D12, which R28 contradicts.
+3. **Correct the stale R22/R23 prose at its three sources** — `wasm-tier-pr.yml`'s
+   header, Phase 5's D5.4, and any document repeating them — so the next reader
+   does not re-derive the wrong blocker. The durability machinery has been closed
+   since 2026-08-11.
+4. **Retire R24.** It has no targets and its licensing condition is unproducible.
+   It should not be carried forward into any successor phase.
+5. **Pull a new phase for R28 with the correct premise: an R19 sustained
+   per-crate agreement campaign, then context promotion crate by crate.** Its
+   first unit is the §3 cadence, not durability. Drafted as
+   `docs/plans/2026-08-24-001-feat-wasm-tier-phase6-plan.md`.
 
 ---
 
@@ -353,4 +393,8 @@ python3 tools/wasm/gen_test_family_map.py --check    # -> 3283 tests mapped (tem
   `docs/evidence/2026-08-15-wasm-tier-redeploy-prep.md` — incidents 1 and 2 in §6.2.
 - `.github/workflows/wasm-tier-{pr,nightly,deploy,staleness-watch}.yml` — the
   four workflows, whose headers carry the arguments §3 and §5 defer to.
-- PR #1473 — the §6.1 fix, verified at `28e7ccc92` for this document.
+- `docs/evidence/2026-08-11-wasm-tier-r22-r23-durability.md` — #992's durability
+  work, the §5 correction's source, re-verified at `9546f568e`.
+- PR #1473 — the §6.1 fix, verified at `28e7ccc92` and merged as `9546f568e`.
+- `docs/plans/2026-08-24-001-feat-wasm-tier-phase6-plan.md` — the successor phase
+  §7.5 recommends.
