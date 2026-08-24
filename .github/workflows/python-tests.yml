@@ -722,14 +722,31 @@ jobs:
       # tests (pytest exit 4, a usage error) because it named test files that
       # #1314/#1411 deleted along with the kernels they pinned -- so the gate
       # ran vacuously in the exact way it exists to prevent. Removing the dead
-      # paths restores collection; the surviving files collect 172, so 176 was
-      # unreachable. 172 is the exact measured count, deliberately with no
+      # paths restores collection; the surviving files collect 167, so 176 was
+      # unreachable. 167 is the exact measured count, deliberately with no
       # slack margin, so a future shrink fails instead of passing.
+      #
+      # CORRECTED 2026-08-24: this said 172, and 172 was never reachable
+      # either -- the floor #1423 wrote was 5 above the count its own commit
+      # produced, so this gate has failed on every run since it landed
+      # WITHOUT a single test failing or disappearing. Measured three ways
+      # before changing the number: the 15 surviving paths collect 167 at
+      # HEAD, 167 at 494385928 (#1423's own tree, in a worktree at that
+      # commit), and CI's own log for run 32763303080 reports
+      # "167 passed ... expected at least 172". The collected node-ID sets at
+      # HEAD and at #1423 are IDENTICAL -- no test was added, removed or
+      # deselected in between, which is what rules out the failure modes the
+      # guard's message lists and leaves only a miscount.
+      #
+      # Lowering a floor is exactly what the guard tells you to do "deliberately
+      # with a reason", and this is that reason. The no-slack intent above is
+      # preserved: 167 is the measured count, not 167-with-headroom, so the
+      # next genuine shrink still fails.
       - name: Run validation DRC differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 172 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 167 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
