@@ -7,9 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 execution: code
 product_contract_source: measurement
-status: draft
-swept: null
-swept_basis: null
+status: completed
+swept: 2026-08-24
+swept_basis: "verdicted in docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md (#1479): complete by exhaustion. Additive half landed and works (12 deployed Workers, 30,349 executable tests, per-PR advisory verdict, push-triggered content-hash-verified deploy, hourly staleness watchdog). R25 satisfied at relief=0; R26 satisfied; R27 partial. R24 VACUOUS -- no removable suites remain that are not coverage. R28 BLOCKED and re-pulled as docs/plans/2026-08-24-001-feat-wasm-tier-phase6-plan.md (#1481) with the corrected premise: the blocker is R19 sustained per-crate agreement, not the R22/R23 durability D5.4 named, which #992 closed on 2026-08-11."
 ---
 
 # WASM Tier Phase 5 — Plan
