@@ -4323,8 +4323,16 @@ jobs:
       # (verified: regenerating over a populated tree leaves `git status`
       # clean). It also emits the four packages/temper-placer/configs/
       # *.generated.yaml files, which are committed and unchanged by it.
+      #
+      # No `if:` guard, deliberately: every other step in THIS job runs
+      # unconditionally (only "Build electronics netlist" is conditional, on
+      # its own cache-hit output). An earlier revision of this step carried
+      # `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`, copied
+      # from a job that HAS a step with `id: setup`. This one does not, so the
+      # expression was false, the step was SKIPPED, and the group failed with
+      # the same FileNotFoundError it was added to fix -- while actionlint
+      # flagged the undefined property. Both symptoms, one cause.
       - name: Generate pcb/temper.kicad_dru (gitignored input for the zone-pour staleness gates)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/generate_kicad_dru.py
 
       - name: Run invariant tests (router_v6 group 3)
