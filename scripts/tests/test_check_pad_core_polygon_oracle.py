@@ -134,9 +134,23 @@ class TestCorpusSelfChecks:
 # ---------------------------------------------------------------------------
 
 
+# The commit whose source these anti-vacuity tests load. It was `origin/main`,
+# a MOVING ref, and that made them self-invalidating: the moment the fix they
+# guard landed on main, "origin/main still carries the pre-fix call" stopped
+# being true and they failed -- which is exactly what happened when #1380
+# merged (633c819ec). Their own failure text asked for the right remedy:
+# "this test's premise has moved and it must be re-derived, not deleted."
+#
+# Pinned to 708bcce16 -- #1380's parent, i.e. the last commit that still carries the
+# pre-fix R(+theta) sites these tests execute. A pinned SHA is what makes an
+# anti-vacuity probe stable: the bytes it proves the gate catches must not
+# change under it.
+PRE_FIX_REF = "708bcce16225343a6af0e58289e3710d59c68e77"
+
+
 def _git_show(rel: str) -> str | None:
     r = subprocess.run(
-        ["git", "show", f"origin/main:{rel}"],
+        ["git", "show", f"{PRE_FIX_REF}:{rel}"],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,

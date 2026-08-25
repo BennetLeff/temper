@@ -26,6 +26,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import check_no_raw_rotation_trig as gate  # noqa: E402
 
+# The commit whose source this anti-vacuity test loads. It was `origin/main`,
+# a MOVING ref, and that made the probe self-invalidating: the moment the fix
+# it guards landed on main, "origin/main still carries the pre-fix call"
+# stopped being true and it failed -- which is exactly what happened when
+# #1380 merged (633c819ec). Its sibling's failure text asked for the right
+# remedy: "this test's premise has moved and it must be re-derived, not
+# deleted."
+#
+# Pinned to 708bcce16 -- #1380's parent, the last commit still carrying the
+# pre-fix R(+theta) sites this test executes. A pinned SHA is what makes an
+# anti-vacuity probe stable: the bytes it proves the gate catches must not
+# change under it.
+PRE_FIX_REF = "708bcce16225343a6af0e58289e3710d59c68e77"
+
 
 def _write(tmp_path: Path, rel: str, content: str) -> Path:
     p = tmp_path / rel
@@ -529,7 +543,7 @@ class TestRustRealRepo:
         repo_root = Path(__file__).resolve().parents[2]
         rel = "packages/temper-geometry/src/clearance_geometry.rs"
         r = subprocess.run(
-            ["git", "show", f"origin/main:{rel}"],
+            ["git", "show", f"{PRE_FIX_REF}:{rel}"],
             cwd=repo_root,
             capture_output=True,
             text=True,
