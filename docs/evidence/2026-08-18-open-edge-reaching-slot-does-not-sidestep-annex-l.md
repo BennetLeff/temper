@@ -1,4 +1,4 @@
-<!-- provenance: commit=e63028ccde1be397032479e0735f2a7c1f710d95 (origin/main), branch
+<!-- provenance: commit=e63028ccde1be397032479e0735f2a7c1f710d95 dirty=false (origin/main), branch
      investigate/open-slot-creepage, own fresh git worktree
      (.claude/worktrees/openslot-2026-08-18), never the main checkout.
      pcb/temper.kicad_pcb sha256=26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b
