@@ -596,16 +596,44 @@ class TestRealBoardIsolatorFigures:
     sealed-compartment prerequisite recorded there and in
     HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1; PD3/12.6mm remains the
     documented fallback if that prerequisite is not met. Against the
-    currently-enforced 8.0mm figure, K1's exact 8.000mm gap is now a MATCH,
-    not a shortfall -- see
-    ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``
-    below, which re-measures this directly rather than assuming it.
+    currently-enforced 8.0mm figure, K1's intra-footprint gap is no longer a
+    shortfall at all -- and since the 2026-08-24 re-part from the Omron
+    G4A-E to a Schrack RT33K012 it is **17.800mm**, not the 8.000mm this
+    docstring and the parametrization above both used to carry. See
+    ``test_k1_intra_footprint_isolation_clears_after_the_relay_repart``
+    below, which measures it directly, and
+    ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``,
+    which now covers only the INTER-component (placement) half. The two were
+    one assertion until 2026-08-24; folded together, the failing placement
+    half hid the passing part half. Full triage:
+    docs/evidence/2026-08-24-k1-isolation-barrier-triage.md.
     """
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
         "ref,pad_a,pad_b,expected_mm",
-        [("T1", "1", "4", 9.100), ("K1", "13", "A1", 8.000)],
+        # K1 was re-parted from an Omron G4A-E (pads A1/A2/13/14) to a Schrack
+        # RT33K012 (pads 1/2/3/4), so the old ("K1", "13", "A1", 8.000) case
+        # named pads that no longer exist and raised `KeyError: '13'` -- an
+        # assertion that CRASHES instead of measuring, which is why the
+        # re-part's improvement went unreported. See
+        # docs/evidence/2026-08-24-k1-isolation-barrier-triage.md.
+        #
+        # The barrier inside K1 is coil (pads 1/2, SELV) against contacts
+        # (pads 3/4, mains); 1<->4 is the MINIMUM of the four coil/contact
+        # combinations and therefore the figure that governs. Measured
+        # through this test's own code path: 1<->2 5.500, 3<->4 3.040 (both
+        # same-domain, not barrier crossings), 1<->4 17.800, 2<->4 19.001,
+        # 1<->3 22.840, 2<->3 23.807.
+        #
+        # NOTE: K1 carries DUPLICATE pad numbers (two pads "3", two pads "4" --
+        # the relay's contact pairs). `pads` below is a dict keyed by number,
+        # so each duplicate collapses to whichever `_component_pads` yields
+        # LAST. For 1<->4 that is deterministic and gives the minimum anyway,
+        # but a future footprint whose duplicate order flips would silently
+        # measure a different pad. Asserted explicitly in
+        # test_k1_intra_footprint_isolation_clears_after_the_relay_repart.
+        [("T1", "1", "4", 9.100), ("K1", "1", "4", 17.800)],
     )
     def test_isolator_pad_gap(self, ref, pad_a, pad_b, expected_mm):
         from temper_placer.core.pad_geometry import pad_pair_distance
@@ -671,10 +699,101 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         k1 = [v for v in result.violations if v.ref_a == "K1" or v.ref_b == "K1"]
-        assert k1 == [], (
-            "expected K1 to clear at the currently-enforced 8.0mm PD2 "
-            f"target (exact 8.000mm intra-footprint gap; see "
-            f"test_isolator_pad_gap); still violating: {k1}"
+        inter = [v for v in k1 if v.pair_kind == "inter"]
+        assert inter == [], (
+            "K1 still has INTER-COMPONENT creepage violations at the "
+            "currently-enforced 8.0mm PD2 target. This is a PLACEMENT "
+            "shortfall, not a part-selection one: K1's own intra-footprint "
+            "barrier clears with margin since the Schrack re-part (17.800mm, "
+            "asserted in "
+            "test_k1_intra_footprint_isolation_clears_after_the_relay_repart). "
+            "Measured 2026-08-24: K1(DC_BUS, power_in.ntc-no) <-> R56(LV_CONTROL, "
+            "safety-line) at 5.036mm, and RT1(DC_BUS) <-> K1(LV_CONTROL, coil) at "
+            "7.000mm -- both under 8.0mm PD2 and under 12.6mm PD3. K1 appears on "
+            "both sides because K1 IS the barrier (contacts mains, coil SELV). "
+            "Fixing this means moving R56 or K1, which is a board change with "
+            "its own same-PR DRC-ceiling discipline (AGENTS.md) -- do NOT "
+            "re-baseline this assertion to make it green. Full triage: "
+            "docs/evidence/2026-08-24-k1-isolation-barrier-triage.md. "
+            f"Still violating: {inter}"
+        )
+
+    @pytest.mark.slow
+    def test_k1_intra_footprint_isolation_clears_after_the_relay_repart(self):
+        """K1's own coil<->contact barrier, which the Schrack re-part fixed.
+
+        Split out of
+        ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``
+        on 2026-08-24 because that test's single ``k1 == []`` assertion
+        conflated two separable questions and answered neither:
+
+          * **Is the PART adequate?**  Yes, and by a wide margin since K1 went
+            from an Omron G4A-E (8.000mm coil<->contact) to a Schrack RT33K012
+            (**17.800mm**). That is more than double, and it is the creepage
+            work landing.
+          * **Is the PLACEMENT adequate?**  No -- see the sibling test above.
+
+        With both folded into one assertion the failing half hid the passing
+        half, and the sibling that measured the intra-footprint figure
+        (``test_isolator_pad_gap``) was itself raising ``KeyError: '13'`` on
+        the retired Omron pad names. So a real safety improvement was
+        invisible in CI. See
+        docs/evidence/2026-08-24-k1-isolation-barrier-triage.md.
+
+        Asserted here directly rather than by re-reading the parametrized
+        figure: zero intra-footprint violations, and the governing
+        coil<->contact gap at or above the enforced 8.0mm target.
+        """
+        from temper_placer.core.pad_geometry import pad_pair_distance
+        from temper_placer.requirements.validators.clearance import _component_pads
+
+        from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
+
+        try:
+            placement, domains, _stats = load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+        result = verify_iec60335_compliance(placement, domains)
+        intra = [
+            v
+            for v in result.violations
+            if (v.ref_a == "K1" or v.ref_b == "K1") and v.pair_kind == "intra"
+        ]
+        assert intra == [], (
+            "K1's intra-footprint barrier regressed -- the Schrack RT33K012 "
+            f"re-part cleared it on 2026-08-24. Violations: {intra}"
+        )
+
+        by_ref = {c["ref"]: c for c in placement["components"]}
+        pads_all = _component_pads(by_ref["K1"])
+        coil = {"1", "2"}
+        contact = {"3", "4"}
+        assert {p.number for p in pads_all} == coil | contact, (
+            "K1's pad numbering changed again; re-derive this test and "
+            "test_isolator_pad_gap's parametrization together."
+        )
+
+        def spec(p):
+            return (p.width, p.height, p.shape, p.cx, p.cy, p.rotation_rad, p.roundrect_ratio)
+
+        # Every coil pad against every contact pad, duplicates included -- this
+        # does NOT collapse duplicate pad numbers into a dict, so it is immune
+        # to the ordering hazard noted on test_isolator_pad_gap.
+        gap = min(
+            pad_pair_distance(spec(a), spec(b))
+            for a in pads_all
+            if a.number in coil
+            for b in pads_all
+            if b.number in contact
+        )
+        assert gap == pytest.approx(17.800, abs=1e-6), (
+            f"K1 coil<->contact minimum gap moved: {gap:.6f}mm (was 17.800mm "
+            "on the Schrack RT33K012). Re-derive against the new footprint."
+        )
+        assert gap >= 8.0, (
+            f"K1's intra-footprint barrier ({gap:.3f}mm) is under the enforced "
+            "8.0mm PD2 reinforced target"
         )
 
     @pytest.mark.slow
