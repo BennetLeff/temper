@@ -12,7 +12,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from temper_placer.validation._drc_api import copy_kicad_project_sidecar
 from temper_placer.placer.cp_sat.gates import (
     HV_LV_CREEPAGE_MM,
     BoardState,
@@ -25,6 +24,7 @@ from temper_placer.placer.cp_sat.gates import (
     Violation,
     ViolationType,
 )
+from temper_placer.validation._drc_api import copy_kicad_project_sidecar
 
 # =========================================================================
 # Helpers
