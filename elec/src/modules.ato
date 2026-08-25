@@ -3336,6 +3336,22 @@ module SafetyInterlock:
     power_3v3.gnd ~ fault_any_or.C2
     fault_any_or.Y2 ~ latch.A3
 
+    # Third gate on this package is unused. Its inputs are tied GND rather
+    # than left floating -- the same convention already applied to
+    # fault_or3 gate 3 above and fault_or gate 3 below. This package was
+    # the one that missed it: A3/B3/C3 were the only SN74HC4075 spare-gate
+    # inputs in the design left on single-node nets, i.e. floating CMOS
+    # inputs, which sit near the switching threshold, bias both output
+    # FETs partially on, draw excess ICC and can self-oscillate -- inside
+    # the package that carries the FAULT_ANY aggregation on gates 1 and 2.
+    # Found by triaging the 29 single-node nets in #1500; the generated
+    # schematic had been marking these pins `no_connect`, which asserts
+    # deliberate non-connection and suppresses the very ERC unconnected/
+    # undriven-input check that would otherwise have caught this.
+    power_3v3.gnd ~ fault_any_or.A3
+    power_3v3.gnd ~ fault_any_or.B3
+    power_3v3.gnd ~ fault_any_or.C3
+
     # Unused base-OR gate has defined inputs and no safety consumer.
     power_3v3.gnd ~ fault_or.A3
     power_3v3.gnd ~ fault_or.B3

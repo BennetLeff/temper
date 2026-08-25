@@ -250,6 +250,111 @@ sent whole investigations down dead ends.
   full digests programmatically; after a squash merge the branch SHA is
   never an ancestor of `main` (expected, not lost work).
 
+### Geometry — the R(+theta)/R(-theta) trap
+
+**The tenth instrument found on 2026-08-17/18, and the first that inverts a
+verdict rather than inflating or hiding a count.**
+
+KiCad rotates a footprint *child* — a pad offset, a courtyard vertex, a
+silkscreen item — into board coordinates **clockwise, `R(-theta)`**:
+
+    world = footprint_position + R(-theta) . local_offset
+    R(-theta) = [[ cos,  sin],
+                 [-sin,  cos]]
+
+The standard-math CCW `R(+theta)` is the wrong one, and this repo has now
+typed it out wrongly **thirteen times**. Twelve were found and consolidated
+into `temper_placer.geometry.kicad_transform` on 2026-07-29. The thirteenth,
+`scripts/measure_cross_domain_creepage.py`, was **created that same day**
+from a *superseded* evidence document that still called the sign "an open
+question, weak evidence favouring R(+theta)" — so the sweep fixed twelve
+sites while a new instance was being born from the stale write-up. It ran
+wrong for three weeks.
+
+**What it cost.** Not a wrong number — a wrong *set*. The script computed
+both conventions but filtered its violation list by the `R(+theta)` column
+and only then cross-checked the survivors, so a pair violating under KiCad's
+real convention but not under `R(+theta)` was **never examined at all**.
+Measured on the real board (`8.0mm -> 12.6mm`, 25,833 cross-domain pairs):
+
+| threshold | pre-fix R(+theta) | corrected R(-theta) |
+|---|---|---|
+| 8.0 mm  |  26 | **12** (17 were phantom, 3 real ones were missed) |
+| 12.6 mm | 155 | **122** |
+
+On a K1/C6 footprint-swap evaluation the broken tool read **155 -> 235**
+violations and the corrected one **122 -> 92 (zero new, 30 resolved)**. The
+instrument argued *against* a correct change. When a measurement tells you a
+good change made things worse, this is the shape of thing to suspect.
+
+**Why every existing test missed it.** Because at the angles this board
+uses, the two conventions are nearly indistinguishable:
+
+* At **0 and 180 degrees they are identical**. At **90/270 they differ only
+  in which of x/y is negated** — so any probe symmetric about the axis the
+  sign flips passes under both. `test_clearance_copper.py::TestRotation::
+  test_rotated_footprint_moves_its_pads` measured a distance that was equal
+  under either sign and reported green for weeks.
+* Round-trip tests (`parse(write(x)) == x`) pass under any *consistent but
+  wrong* convention. Parser and writer shared the bug and agreed.
+* Self-consistency is not correctness. The repo agreed with itself and
+  disagreed with KiCad.
+
+**How to detect it.** Ask KiCad, never this repo's own code:
+
+```bash
+# ground truth: pcbnew's own placement engine
+TEMPER_PCBNEW_PYTHON=/path/to/python3-with-pcbnew \
+    uv run python scripts/check_pad_world_position_oracle.py --verify-live-oracle
+```
+
+`scripts/kicad_pad_rotation_oracle.py` takes `[dx, dy, angle_deg]` triples and
+returns where `pcbnew` really puts the pad. Two probes settle it instantly:
+
+    (15, 0) at  90 deg -> (0, -15)              R(+theta) says (0, +15)
+    (10, 4) at  45 deg -> (9.899495, -4.242641) R(+theta) says (4.242641, 9.899495)
+
+**Use an asymmetric, non-90-multiple probe.** `dx != dy` at 45 degrees is the
+one that cannot be satisfied by a sign-symmetric coincidence; a 90-degree
+probe alone cannot discriminate and is how this hid.
+
+**The two gates, and why one was not enough.**
+
+* `scripts/check_no_raw_rotation_trig.py` — *syntactic*. Forbids raw
+  `math.cos`/`sin` in files that have already hosted the bug. It could never
+  have caught this one: a correctly-typed `R(+theta)` is syntactically
+  identical to a correctly-typed `R(-theta)`, and the file was new, so it
+  was not on the guarded list anyway.
+* `scripts/check_pad_world_position_oracle.py` — *behavioural*, added
+  2026-08-18. Resolves every registered pad-placement implementation **by
+  import and calls it**, comparing against pcbnew's pinned answers. It is
+  verified to fail on the actual pre-fix tree (30.000 mm error, diagnosed as
+  R(+theta)), and its test suite mutates both the Python shim and the Rust
+  symbol beneath it. Import-and-call, rather than source scanning, is
+  deliberate: `kicad_transform` is a pure delegation shim and the real
+  arithmetic is in a `.so`, so a source scan would read an innocent shim body.
+
+**Still open — a latent instance, correct only by coincidence.** A pad's
+*body* orientation is a different transform from its *position*, and the two
+disagree today. `core/pad_geometry.py::pad_core_polygon`/`::pad_polygon`
+(and their bit-exact Rust twin `clearance_geometry.rs::pad_core`) call
+`shapely.affinity.rotate` with `+degrees(rotation_rad)`, bypassing
+`kicad_transform.shapely_rotation_angle_deg` — i.e. `R(+theta)` — while
+`scripts/check_board_containment.py::_pad_polygons` rotates the *identical*
+object through the sanctioned bridge at `R(-theta)`. Measured on a 4x1 mm
+rect: identical corner set at 90 degrees, **mirrored at 30**. It is invisible
+because all 527 pads on `pcb/temper.kicad_pcb` sit at multiples of 90
+(0:58, 90:202, 180:175, 270:92, none elsewhere) — which is exactly why
+`pad_pair_distance` reproduced kicad-cli to four decimals across 11 values
+and was believed correct. The first non-orthogonal pad angle breaks it.
+**Correct by coincidence of placement, not by construction.**
+
+**The general lesson.** A site that is correct today but derives the rotation
+independently rather than calling `kicad_transform` is a latent instance of
+this bug, not a passing one. Twelve independently-typed copies of a two-line
+formula is one careless edit away from eleven correct copies and one silently
+wrong one — and that is not hypothetical here, it has now happened twice.
+
 ### Correct by coincidence — a passing test that proves nothing
 
 * **All 527 pads on `pcb/temper.kicad_pcb` sit at a multiple of 90 degrees**
