@@ -107,7 +107,18 @@
     "power_pcb_dataset/physics_parameter_map.yaml",
     "power_pcb_dataset/physics_soundness_register.yaml",
     "scripts/physics_soundness_register_gate.py",
-    "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
+    "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py",
+    "scripts/check_pad_world_position_oracle.py",
+    "scripts/tests/test_check_pad_world_position_oracle.py",
+    "scripts/kicad_pad_rotation_oracle.py",
+    "scripts/pad_rotation_oracle_corpus.json",
+    "scripts/check_pad_core_polygon_oracle.py",
+    "scripts/tests/test_check_pad_core_polygon_oracle.py",
+    "scripts/kicad_pad_polygon_oracle.py",
+    "scripts/pad_core_polygon_oracle_corpus.json",
+    "packages/temper-placer/src/temper_placer/core/pad_geometry.py",
+    "packages/temper-geometry/src/clearance_geometry.rs",
+    "packages/temper-geometry/src/kicad_transform.rs"
   ],
   "job_triggers": {
     "Cargo / Rustc Smoke Check": {
