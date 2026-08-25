@@ -301,7 +301,7 @@ def test_empty_bom_fails_closed(tmp_path):
 
 def test_malformed_netlist_fails_closed(tmp_path):
     bad = tmp_path / "bad.net"
-    bad.write_text("(export (components (comp (ref \"U1\"))")  # unbalanced
+    bad.write_text('(export (components (comp (ref "U1"))')  # unbalanced
     result = _run_gate(["--netlist", str(bad)])
     assert result.returncode == 5
 
@@ -320,7 +320,9 @@ def test_required_package_absent_fails_closed(tmp_path):
     (net (code "2") (name "N2") (node (ref "R1") (pin "2")))))
 """,
     )
-    csv = _write(tmp_path / "b.csv", "Comment,Designator,Footprint,LCSC,Price\n10k,R1,R_0603,RC0603,0.00\n")
+    csv = _write(
+        tmp_path / "b.csv", "Comment,Designator,Footprint,LCSC,Price\n10k,R1,R_0603,RC0603,0.00\n"
+    )
     result = _run_gate(["--netlist", str(net), "--bom", str(csv)])
     assert result.returncode == 5
     assert "zero instances" in result.stderr
@@ -352,7 +354,9 @@ def test_two_destination_instances_is_ambiguous_and_fails_closed(tmp_path):
         reset_extra="",
     )
     net = _write(tmp_path / "n.net", net_text)
-    csv = _write(tmp_path / "b.csv", MINIMAL_CSV + "SN74HC00DR,U3,Package_SO:SOIC-14,SN74HC00DR,0.00\n")
+    csv = _write(
+        tmp_path / "b.csv", MINIMAL_CSV + "SN74HC00DR,U3,Package_SO:SOIC-14,SN74HC00DR,0.00\n"
+    )
     result = _run_gate(["--netlist", str(net), "--bom", str(csv)])
     assert result.returncode == 5
     assert "ambiguous" in result.stderr
@@ -424,9 +428,7 @@ def test_real_tree_reports_two_available_set_path_inputs():
     all_results = [g for pkg in report.packages for g in pkg.gates]
 
     available = sorted(
-        (g.instance_path, g.gate_name, g.pin_name)
-        for g in all_results
-        if g.verdict == AVAILABLE
+        (g.instance_path, g.gate_name, g.pin_name) for g in all_results if g.verdict == AVAILABLE
     )
     assert available == [
         ("safety.fault_or3", "gate1", "C1"),
@@ -466,19 +468,35 @@ def test_real_tree_reports_two_available_set_path_inputs():
     # the headline number can't move.
 
     # fault_or gate3 (all 3 inputs GND-tied, dead output)
-    fault_or_g3 = [g for g in all_results if g.gate_name == "gate3" and g.instance_path == "safety.fault_or"]
+    fault_or_g3 = [
+        g for g in all_results if g.gate_name == "gate3" and g.instance_path == "safety.fault_or"
+    ]
     assert len(fault_or_g3) == 3
     for g in fault_or_g3:
         assert g.occupancy == GND_TIED
         assert "dead gate" in g.reason
 
-    # fault_any_or gate3 (all 3 inputs entirely unreferenced, dead output)
+    # fault_any_or gate3 (all 3 inputs GND-tied, dead output).
+    #
+    # These were UNREFERENCED until the floating-input fix: A3/B3/C3 sat on
+    # single-node nets a3/b3/c3, i.e. floating CMOS inputs on the package
+    # carrying the FAULT_ANY aggregation. They are now tied to GND, matching
+    # what fault_or gate3 and fault_or3 gate3 already did.
+    #
+    # This does not move the headline capacity number. classify_occupancy
+    # treats GND_TIED and UNREFERENCED alike -- "GND_TIED or UNREFERENCED: a
+    # candidate spare input" (capacity_budget_gate.py) -- and these three are
+    # UNUSABLE either way for the same unchanged reason: gate3's output is
+    # dead, so nothing applied at its inputs reaches the latch SET pin. Only
+    # the occupancy label moved, from "floating" to "deliberately parked".
     fault_any_or_g3 = [
-        g for g in all_results if g.gate_name == "gate3" and g.instance_path == "safety.fault_any_or"
+        g
+        for g in all_results
+        if g.gate_name == "gate3" and g.instance_path == "safety.fault_any_or"
     ]
     assert len(fault_any_or_g3) == 3
     for g in fault_any_or_g3:
-        assert g.occupancy == UNREFERENCED
+        assert g.occupancy == GND_TIED
         assert "dead gate" in g.reason
 
     # fault_any_or.C1 is occupied (claimed by THM-02) -- must show up as
@@ -486,7 +504,9 @@ def test_real_tree_reports_two_available_set_path_inputs():
     c1 = next(
         g
         for g in all_results
-        if g.instance_path == "safety.fault_any_or" and g.gate_name == "gate1" and g.pin_name == "C1"
+        if g.instance_path == "safety.fault_any_or"
+        and g.gate_name == "gate1"
+        and g.pin_name == "C1"
     )
     assert c1.occupancy == OCCUPIED
     assert c1.verdict != AVAILABLE
@@ -495,7 +515,9 @@ def test_real_tree_reports_two_available_set_path_inputs():
     c2 = next(
         g
         for g in all_results
-        if g.instance_path == "safety.fault_any_or" and g.gate_name == "gate2" and g.pin_name == "C2"
+        if g.instance_path == "safety.fault_any_or"
+        and g.gate_name == "gate2"
+        and g.pin_name == "C2"
     )
     assert c2.occupancy == GND_TIED
     assert "reset-qualifier" in c2.reason
