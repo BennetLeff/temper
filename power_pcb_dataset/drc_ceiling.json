@@ -314,7 +314,7 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 381,
+      "error_ceiling": 383,
       "warning_ceiling": 13265,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -322,7 +322,7 @@
         "clearance": 178,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 106,
+        "creepage": 108,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -339,7 +339,7 @@
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "6fd014e83578eb9fcd2cd48c6cae41a67dd3d51df7da9e12be5b21290d8f7e08"
+            "sha256": "1dfff173ca672c84a23a7241b8b15b3e832ef603ae6e6cee8d6622273bcb8bea"
           }
         ],
         "tool_versions": {
