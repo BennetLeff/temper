@@ -50,6 +50,20 @@ authority:
 # this resync only wrote pcb/temper.kicad_pcb, not elec/ -- confirmed by
 # hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
 #
+# Re-pinned 2026-08-25 (fix/references-repin-post-1506): STALE again --
+# pcb/temper.kicad_pcb changed under #1506 (95ddc9dbd), four board moves
+# clearing the body-collision cluster and K1's isolation barrier. Component
+# POSITIONS moved; identity did not. Verified the same way the 2026-08-13
+# resync entry below verified its own claim, not by assertion: the full
+# Sheetpath->Reference map was extracted from both boards and compared --
+# 168 entries each, IDENTICAL. `(footprint ` count 168, `(at ` line count
+# 1021 and `Sheetpath` occurrence count 168 are all unchanged before/after.
+# So every alias below (source designator -> board reference, matched by
+# KiCad Sheetpath) is verified unaffected, and the board hash is re-pinned
+# rather than the aliases re-derived. The source export is untouched --
+# hash still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0,
+# confirmed live, not carried over.
+#
 # Re-pinned 2026-08-13 (fix/pcb-stackup-declaration, commit fb00ab4f9): STALE
 # again -- pcb/temper.kicad_pcb changed, but ONLY by adding a
 # (setup (stackup ...)) copper-weight/dielectric declaration block (no
@@ -171,11 +185,11 @@ authority:
 # change alters no component identity. Source export hash unchanged.
 
 provenance:
-  measured_at_commit: 05d66fc1e83309e083c60609e949e3fa18aad8ab
+  measured_at_commit: 1bf621573089524bcd2a85ec4cf4cfb05c3d7f26
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 62bff72d04ba3885534aa21df021b61f2a9bb3500c3be885d88ed103a6822777
+      sha256: 1dfff173ca672c84a23a7241b8b15b3e832ef603ae6e6cee8d6622273bcb8bea
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
