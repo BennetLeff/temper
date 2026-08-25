@@ -314,15 +314,15 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 392,
+      "error_ceiling": 383,
       "warning_ceiling": 13265,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
         "clearance": 178,
         "copper_edge_clearance": 11,
-        "courtyards_overlap": 6,
-        "creepage": 115,
+        "courtyards_overlap": 4,
+        "creepage": 108,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -333,21 +333,21 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "5073fa93170d596bd79985cb23b977a3365203f7",
+        "measured_at_commit": "HEAD",
         "dirty": false,
-        "branch": "fix/pcb-c7-rot2-clears-k1-collision",
+        "branch": "fix/c6-body-collision-cluster",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "f9f07eb0bfcdb5009a22102fa2d9bf8968646090944d14b9103ce396bb47021f"
+            "sha256": "1dfff173ca672c84a23a7241b8b15b3e832ef603ae6e6cee8d6622273bcb8bea"
           }
         ],
         "tool_versions": {
           "kicad-cli": "10.0.5"
         },
         "source": "measured-live",
-        "sample_count": 120,
-        "measured_via": "kicad-cli 10.0.5 --severity-all --all-track-errors --format json, single-thread KICAD_CONFIG_HOME pin, after regenerating pcb/temper.kicad_dru from the current scripts/generate_kicad_dru.py. (An earlier draft of this note claimed the regenerated DRU was 'byte-identical to the committed file'. There IS no committed file -- /pcb/*.kicad_dru is gitignored and generated, .gitignore:58 -- so `git status` was clean because the file is ignored, not because it matched. The protocol is unaffected: the DRU was regenerated from the SSOT before measuring, on both the baseline and the moved board, so no DRU difference is folded into this delta.) 120 samples on this branch's board (C7 moved to (112,206) rot180): FULLY DETERMINISTIC -- errors {392}x120, creepage {115}x120, clearance {178}x120, raw warnings {531}x120, spread 0 in every category, so the noise-headroom invariant is satisfied with zero headroom. BASELINE VALIDATION: the committed record's own figures were reproduced first on the unmoved board under the identical protocol -- errors 398 and every violations_by_type entry matching item-for-item -- before any delta was computed. RESERIALISATION CONTROL: the candidate boards in #1471 were produced by write_placements_to_pcb, so an identity rewrite (C7 written back to its committed position and angle) was measured too and returns errors 398 / creepage 114 / clearance 185, byte-identical to the untouched board -- reserialisation does not move DRC, and the committed 3-line edit measures identical to the reserialised board."
+        "sample_count": 5,
+        "measured_via": "kicad-cli 10.0.5 --severity-all --all-track-errors --format json, 5 samples, spread 0 in every category. RATCHET ONLY (decrease), which scripts/check_drc_ceiling_approval.py states never requires a Ceiling-Approval trailer. Hand-edited rather than produced by scripts/calibrate_drc_ceiling.py: that tool drives the RUST DRC engine, not kicad-cli which is this record's category_source, and it currently aborts on this board with 'net \"w1_1\" is classed \"HighVoltage\" but net_class_rules has no entry for class \"HighVoltage\"' -- while still writing a truncated file with an empty boards list. Every number here is from the sampled kicad-cli runs above."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,

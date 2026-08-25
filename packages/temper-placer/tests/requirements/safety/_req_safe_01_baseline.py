@@ -56,23 +56,27 @@ from typing import Any
 # Measured 2026-08-25 on pcb/temper.kicad_pcb via verify_iec60335_compliance.
 REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     # Same-domain functional insulation. #1226 raised this bar 1.0 -> 1.8mm.
-    # The board's worst creepage offenders live here (C6<->U16 0.650mm,
-    # C16<->U14 0.667mm) -- functional, not a safety barrier.
-    ("creepage", "FUNCTIONAL", 1.8, "inter"): 28,
+    # 28 -> 27 with the C6 move in this PR.
+    ("creepage", "FUNCTIONAL", 1.8, "inter"): 27,
     # The mains<->SELV reinforced barrier at the PD3 12.6mm figure (#1229).
-    # 28 of these 32 clear the superseded PD2 8.0mm bar; 4 do not.
-    ("creepage", "REINFORCED", 12.6, "inter"): 32,
+    # 32 -> 31: the C6 move alone took this to 34 (it landed C6 nearer R6 at
+    # 7.231mm and R23 at 7.598mm), and the R56 move more than pays that back.
+    ("creepage", "REINFORCED", 12.6, "inter"): 31,
     # Package-intrinsic straddlers: U6 8.100mm, T1/T2 9.100mm. Placement
     # CANNOT fix these -- a footprint carries its own pads. They are the open
     # Question A of docs/evidence/
     # 2026-08-14-certification-lab-package-pd3-and-60664-4.md.
     ("creepage", "REINFORCED", 12.6, "intra"): 3,
-    ("creepage", "BASIC", 6.3, "inter"): 3,
-    # Clearance (through-air), not creepage: pollution-degree independent.
-    ("clearance", "REINFORCED", 6.0, "inter"): 3,
+    # 3 -> 1: two of these were K1<->R56, cleared by the R56 move.
+    ("creepage", "BASIC", 6.3, "inter"): 1,
+    # Clearance (through-air), not creepage: pollution-degree INDEPENDENT, so
+    # no PD decision can explain or excuse one. 3 -> 1: the K1<->R56 breach at
+    # 5.036mm against the 6.0mm floor is gone. That was the one finding on
+    # this board that no threshold change could account for.
+    ("clearance", "REINFORCED", 6.0, "inter"): 1,
 }
 
-REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 69
+REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 63
 
 
 def req_safe_01_strata(result: Any) -> dict[tuple[str, str, float, str], int]:
@@ -153,9 +157,9 @@ def assert_req_safe_01_at_baseline(result: Any, *, context: str) -> None:
 # unclassified part drifting into the margin fails here.
 PROXIMITY_BASELINE: dict[str, tuple[str, float]] = {
     # ref: (nearest declared-HV ref, measured mm)
-    "R37": ("R9", 11.880),   # rtd_pan.r_high_top vs discharge.r_dis2b
-    "R52": ("L1", 11.906),   # safety.ovp.r_adc_top2 vs power_in.cmc
-    "R68": ("R6", 12.037),   # safety.uvlo_logic.r_hyst vs discharge.r_dis1a
+    "R37": ("R9", 11.880),  # rtd_pan.r_high_top vs discharge.r_dis2b
+    "R52": ("L1", 11.906),  # safety.ovp.r_adc_top2 vs power_in.cmc
+    "R68": ("R6", 12.037),  # safety.uvlo_logic.r_hyst vs discharge.r_dis1a
 }
 
 
@@ -182,15 +186,12 @@ def assert_proximity_at_baseline(findings: list[dict[str, Any]], margin_mm: floa
                 + " -- classify them or move them; do not widen the pin"
             )
         if gone:
-            parts.append(
-                f"no longer inside the margin (record it): {', '.join(gone)}"
-            )
+            parts.append(f"no longer inside the margin (record it): {', '.join(gone)}")
         return "; ".join(parts)
     for ref, (hv, mm) in sorted(PROXIMITY_BASELINE.items()):
         got_hv, got_mm = actual[ref]
         if got_hv != hv or abs(got_mm - mm) > 0.001:
             return (
-                f"{ref} moved: pinned {mm:.3f}mm from {hv}, measured "
-                f"{got_mm:.3f}mm from {got_hv}"
+                f"{ref} moved: pinned {mm:.3f}mm from {hv}, measured {got_mm:.3f}mm from {got_hv}"
             )
     return None
