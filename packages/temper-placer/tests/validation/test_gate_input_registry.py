@@ -285,14 +285,47 @@ def _invoked_ci_gate_scripts() -> set[str]:
     four right.
     """
     workflow = _repo_root() / ".github" / "workflows" / "python-tests.yml"
-    text = workflow.read_text()
     found: set[str] = set()
-    for candidate in re.findall(r"[\w./-]*scripts/[A-Za-z0-9_]+\.py", text):
-        parts = candidate.split("/")
-        while parts and parts[0] in (".", ".."):
-            parts.pop(0)
-        if len(parts) == 2 and parts[0] == "scripts":
-            found.add(parts[1])
+    for raw in workflow.read_text().splitlines():
+        line = raw.strip()
+        # A `#` comment cannot invoke anything. Scanning the whole file text
+        # counted prose mentions as invocations: #1376 discusses
+        # `scripts/measure_cross_domain_creepage.py` in a comment explaining
+        # the R(+theta) convention and never runs it, and this survey reported
+        # it as an unregistered gate. Registering it would paper over the false
+        # positive exactly as this function's docstring warns about the
+        # subdirectory-`scripts/` case.
+        if line.startswith("#"):
+            continue
+        # A `paths:` trigger entry cannot invoke anything either -- it declares
+        # which file changes START the workflow. The entries are quoted list
+        # items (`- 'scripts/x.py'`), a shape no `run:` command can take, so
+        # this cannot drop a real invocation. #1376's
+        # `scripts/kicad_pad_rotation_oracle.py` is only ever a paths entry:
+        # it is a pcbnew-backed oracle helper IMPORTED by
+        # test_rotation_convention_oracle.py, not a gate CI executes.
+        #
+        # AUDIT of what this tightening stops detecting, measured 2026-08-25
+        # against this workflow: 92 -> 82 names. All ten are reference-only in
+        # python-tests.yml (comment prose or a paths entry) and none appears on
+        # a `run:` line here -- several are invoked by OTHER workflows
+        # (ci_check_drc.py by regression.yml, check_required_checks.py by
+        # required-checks.yml) or are developer tooling (regen_derived.py,
+        # update_oracle_hashes.py, update_production_routing_baseline.py,
+        # install_cargo_target_dir_guard.py, gate_mutate.py,
+        # check_firmware_board_contract.py). Their existing _CI_SCRIPT_SURVEY
+        # entries are harmless and are left in place: this module asserts only
+        # `invoked - registered`, never the reverse, so a surplus entry fails
+        # nothing. If any of them later gains a real invocation here it lands
+        # on a `run:` line and is detected again.
+        if re.fullmatch(r"-\s*'[^']*'", line) or re.fullmatch(r'-\s*"[^"]*"', line):
+            continue
+        for candidate in re.findall(r"[\w./-]*scripts/[A-Za-z0-9_]+\.py", line):
+            parts = candidate.split("/")
+            while parts and parts[0] in (".", ".."):
+                parts.pop(0)
+            if len(parts) == 2 and parts[0] == "scripts":
+                found.add(parts[1])
     return found
 
 

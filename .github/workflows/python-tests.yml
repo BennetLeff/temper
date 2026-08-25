@@ -136,6 +136,10 @@ on:
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
+      - 'scripts/check_pad_world_position_oracle.py'
+      - 'scripts/tests/test_check_pad_world_position_oracle.py'
+      - 'scripts/pad_rotation_oracle_corpus.json'
+      - 'scripts/kicad_pad_rotation_oracle.py'
       - 'pcb/temper.kicad_pcb'
       # The board-sync gate's OWN committed artifact. Absent here, the one
       # file whose modification should always re-run the gate was the one
@@ -251,6 +255,10 @@ on:
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
+      - 'scripts/check_pad_world_position_oracle.py'
+      - 'scripts/tests/test_check_pad_world_position_oracle.py'
+      - 'scripts/pad_rotation_oracle_corpus.json'
+      - 'scripts/kicad_pad_rotation_oracle.py'
       - 'pcb/temper.kicad_pcb'
       # see the push: block above for why this path is here
       - 'pcb/temper.kicad_pcb.source-digest'
@@ -3266,6 +3274,26 @@ jobs:
       - name: No raw rotation trig outside kicad_transform
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_no_raw_rotation_trig.py
+
+      - name: Pad-world-position oracle gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_world_position_oracle.py -v --tb=short
+
+      # The behavioural half of the rotation-convention defence. The lint
+      # above is syntactic and therefore cannot see a correctly-typed
+      # R(+theta): scripts/measure_cross_domain_creepage.py carried exactly
+      # that for three weeks, reporting the WRONG VIOLATION SET (a K1/C6
+      # evaluation read 155 -> 235 violations under R(+theta) versus
+      # 122 -> 92 under KiCad's real convention, i.e. it argued against a
+      # correct change). This gate resolves every registered pad-placement
+      # implementation by import and CALLS it, comparing the answer to
+      # pcbnew's own placement engine via a pinned corpus. Needs no pcbnew
+      # on the runner -- the corpus is pinned to the oracle's sha256 and
+      # the gate fails closed if that drifts. See AGENTS.md, "Measurement
+      # Instruments That Lie".
+      - name: Pad world positions agree with pcbnew (rotation convention)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_pad_world_position_oracle.py
 
       - name: Duplicate-predicate consolidation gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
