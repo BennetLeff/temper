@@ -295,21 +295,34 @@
         "clearance": "-3 (r_snub1-p2 widening to the 0.5mm HighVoltageSignal floor)",
         "creepage": "-2 ceiling (observed max 115 -> 114; deterministic {114} x120)"
       }
+    },
+    "2026-08-24-c7-rot2-clears-k1-body-collision": {
+      "date": "2026-08-24",
+      "cause": "C7 moved to (112,206) rot180 to clear its 77.14mm2 F.Fab body interpenetration with K1 (#1471). Chosen from four candidates all scored live with kicad-cli, not from the geometry search alone: the 8.51mm c7-rot3 candidate the search ranked first was REFUTED here (+7 creepage, twelve of its fourteen new pairs putting C7's HighVoltage-classified PWR_RTN pad against the SELV control pocket -- J1's RTD lines, U22's UVLO logic, +3V3/gnd/V_BUS_SENSE), and the best-creepage k1-rot1 candidate was disqualified for introducing 6 shorting_items between RT1.2 [power_in.ntc-no] and K1.4 [w1_2], both mains-side HV nets. Every ceiling here DECREASES.",
+      "per_type_delta": {
+        "clearance": "-7 (185 -> 178)",
+        "creepage": "+1 (114 -> 115, deterministic {115}x120; offset by the -7 clearance, so total errors 398 -> 392)",
+        "pth_inside_courtyard": "-3 (3 -> 0, warning)",
+        "track_dangling": "+1 (0 -> 1, warning: C7 is moved but not re-routed; the board already carries 343 unconnected items and this adds one)",
+        "silk_overlap": "+1 (13060 -> 13061, measured delta by identical-partition n=16 sweep on both boards; see uncapped_totals for the caveat)",
+        "error_ceiling": "-6 (398 -> 392)",
+        "warning_ceiling": "-1 (13266 -> 13265)"
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 398,
-      "warning_ceiling": 13266,
+      "error_ceiling": 392,
+      "warning_ceiling": 13265,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
-        "clearance": 185,
+        "clearance": 178,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 6,
-        "creepage": 114,
+        "creepage": 115,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -320,13 +333,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "05d66fc1e83309e083c60609e949e3fa18aad8ab",
+        "measured_at_commit": "5073fa93170d596bd79985cb23b977a3365203f7",
         "dirty": false,
-        "branch": "fix/netclass-discharge-hv",
+        "branch": "fix/pcb-c7-rot2-clears-k1-collision",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "62bff72d04ba3885534aa21df021b61f2a9bb3500c3be885d88ed103a6822777"
+            "sha256": "f9f07eb0bfcdb5009a22102fa2d9bf8968646090944d14b9103ce396bb47021f"
           }
         ],
         "tool_versions": {
@@ -334,17 +347,17 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc protocol (--all-track-errors, single-thread KICAD_CONFIG_HOME pin), after regenerating pcb/temper.kicad_dru from the current scripts/generate_kicad_dru.py (the ci_check_drc.py protocol). 120 samples against this branch's board (widened r_snub1-p2 tracks 0.2->0.5mm; #1360/#1363 classification of input + 6 discharge.* nets as HighVoltageSignal on both surfaces): errors 398/398, warnings 405/405 -- FULLY DETERMINISTIC including creepage ({114} x120, the prior {114,115} scatter collapsed by the explicit classification removing ambiguous-Default treatment). clearance raw read 185 is a TRUE count (far under kicad-cli's safe threshold). silk_overlap raw read saturates at the 199 cap; its committed uncapped total (13060) is unchanged -- classification moves no copper. BASELINE VALIDATION: the committed record's figures were re-measured first under the identical protocol (errors 401-402, warnings 405) before any delta was computed."
+        "measured_via": "kicad-cli 10.0.5 --severity-all --all-track-errors --format json, single-thread KICAD_CONFIG_HOME pin, after regenerating pcb/temper.kicad_dru from the current scripts/generate_kicad_dru.py. (An earlier draft of this note claimed the regenerated DRU was 'byte-identical to the committed file'. There IS no committed file -- /pcb/*.kicad_dru is gitignored and generated, .gitignore:58 -- so `git status` was clean because the file is ignored, not because it matched. The protocol is unaffected: the DRU was regenerated from the SSOT before measuring, on both the baseline and the moved board, so no DRU difference is folded into this delta.) 120 samples on this branch's board (C7 moved to (112,206) rot180): FULLY DETERMINISTIC -- errors {392}x120, creepage {115}x120, clearance {178}x120, raw warnings {531}x120, spread 0 in every category, so the noise-headroom invariant is satisfied with zero headroom. BASELINE VALIDATION: the committed record's own figures were reproduced first on the unmoved board under the identical protocol -- errors 398 and every violations_by_type entry matching item-for-item -- before any delta was computed. RESERIALISATION CONTROL: the candidate boards in #1471 were produced by write_placements_to_pcb, so an identity rewrite (C7 written back to its committed position and angle) was measured too and returns errors 398 / creepage 114 / clearance 185, byte-identical to the untouched board -- reserialisation does not move DRC, and the committed 3-line edit measures identical to the reserialised board."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
         "lib_footprint_mismatch": 27,
         "missing_courtyard": 5,
-        "pth_inside_courtyard": 3,
+        "pth_inside_courtyard": 0,
         "silk_edge_clearance": 1,
         "silk_over_copper": 46,
-        "silk_overlap": 13060,
-        "track_dangling": 0,
+        "silk_overlap": 13061,
+        "track_dangling": 1,
         "via_dangling": 111
       },
       "nondeterministic_error_types": {},
@@ -360,7 +373,8 @@
           "status": "verified_uncapped",
           "kicad_cli_cap": 199,
           "true_count": 13407,
-          "method": "True count (13407) measured on the prior board (see 2026-08-13-track-width-silk-overlap-uncapped-measurement _march entry). Raw kicad-cli still reads 199 (capped) on this board. None of C2/C3/C5/C7 (the dominant contributors: C2xC3=12852, C5xC7=360) were moved by any of the five board-changing commits since the prior record, so the true count is likely unchanged. Re-verify with scripts/measure_uncapped_drc.py if any of these four footprints move in a future PR."
+          "method": "True count (13407) measured on the prior board (see 2026-08-13-track-width-silk-overlap-uncapped-measurement _march entry). Raw kicad-cli still reads 199 (capped) on this board. None of C2/C3/C5/C7 (the dominant contributors: C2xC3=12852, C5xC7=360) were moved by any of the five board-changing commits since the prior record, so the true count is likely unchanged. Re-verify with scripts/measure_uncapped_drc.py if any of these four footprints move in a future PR.",
+          "note": "True count (13407) measured on a prior board. Raw kicad-cli still reads 199 (capped) on this board. CORRECTED 2026-08-24: the previous wording here claimed none of C2/C3/C5/C7 had moved since the prior record and carried C5xC7=360 as a dominant contributor. Both are stale -- C7 was moved by #1173 and again by #1248, and measure_uncapped_drc.py saturating-pair reports C5xC7 = 0 on BOTH the unmoved board and this one. The 360 describes a board that no longer exists. C2xC3 (12852) remains the dominant contributor and is unmoved. Re-verify with scripts/measure_uncapped_drc.py if C2 or C3 moves in a future PR."
         },
         "shorting_items": {
           "status": "below_cap_on_this_board",
@@ -371,10 +385,10 @@
       },
       "uncapped_totals": {
         "silk_overlap": {
-          "count": 13060,
-          "method": "measure_uncapped_drc.py bucket-pair sweep with diagonal isolation (TRUE = raw - (n-1)*Sum(diag)); n=16 raw 3463/diag 204 and independent n=12 raw 2647/diag 204 agree after substituting the exact C2xC3 value (12852 via saturating-pair) for the single truncated cell",
-          "measured_at": "2026-08-21",
-          "source": "docs/evidence/2026-08-21-footprint-drift-drc-remeasure.md"
+          "count": 13061,
+          "method": "prior validated total (13060) + a MEASURED delta of +1, not a re-derived absolute. The n=16 measure_uncapped_drc.py physical-category bucket-pair sweep was run on BOTH boards with the identical partition: same 136 cells, same 17 saturated cells (identical set), identical diagonal sum 204, and exactly ONE cell differing -- bucket (3,4), 186 -> 187. The unmoved board's raw sum reproduces this record's own prior n=16 raw of 3463 exactly; the moved board reads 3464. Because the partition is exhaustive over item-pairs and identical on both sides, the corrected delta equals the raw delta. CAVEAT, stated rather than buried: this is a delta, NOT a fresh absolute. 17 cells saturate on both boards, so a change confined inside a saturated cell would not surface here, and the absolute 13060 it builds on was measured on 2026-08-21 and is carried forward unre-derived. Re-deriving the absolute needs the inclusion-exclusion work the tool itself declines to do ('this session did not ship a validated total').",
+          "measured_at": "2026-08-24",
+          "source": "this record; see the _march entry for 2026-08-24"
         }
       }
     }
