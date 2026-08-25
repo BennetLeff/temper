@@ -25,8 +25,8 @@ uncovered while re-checking a plan that reads as finished but is half-landed.
 |---|---:|---|
 | `active` | 36 | Live work. |
 | `completed` | 131 | Deliverables landed. |
-| `superseded` | 9 | Replaced by a later plan or by STRATEGY.md. |
-| `draft` | 13 | -- |
+| `superseded` | 10 | Replaced by a later plan or by STRATEGY.md. |
+| `draft` | 12 | -- |
 | *(no frontmatter)* | 7 | Legacy documents predating the plan format. |
 
 **Active plans (36):**

@@ -7,12 +7,79 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 execution: code
 product_contract_source: measurement
-status: draft
-swept: null
-swept_basis: null
+status: superseded
+swept: 2026-08-24
+swept_basis: "Superseded by its own U1 finding, recorded in the Correction section below: the mechanism this plan proposed to build already exists (scripts/known_failure_pins.py + known-failure-pins.yaml) and DELIBERATELY keeps a pinned test red. The repo holds a standing rule against resolving a known failure by making it green. So this plan's D1 contradicts documented doctrine and is not implementable as written. The measurements in the Problem Frame stand and are the reason the decision in the Correction section has to be made."
 ---
 
 # Merge Gating vs Standing Safety Debt — Plan
+
+## CORRECTION (2026-08-24, before any unit was implemented)
+
+**This plan is superseded by its own first unit.** U1 said to measure before
+writing a baseline. Measuring turned up the thing that invalidates the plan:
+
+**The mechanism proposed here already exists**, as
+`scripts/known_failure_pins.py` + `known-failure-pins.yaml`, and it is better
+built than the design below. It is keyed by pytest nodeid, pins the exact
+failure *signature* (not just the finding's identity), requires an `issue`
+link to a real checked-in evidence document, expires entries, fails on a
+dangling link, fails when a pinned nodeid no longer resolves, and is already
+wired into CI at `python-tests.yml:4997`. That is R2, R3, R4, R5, R6 and U3
+of this plan, shipped.
+
+**And it deliberately does the opposite of what D1 wants.** From its own
+docstring:
+
+> a pinned test still fails, still shows red, still requires a human to look
+> at it. All this module changes is *what the failure message says*, not
+> whether the test failed.
+
+> This repo's standing rule forbids `pytest.xfail`/`skipif` as a way to
+> resolve a failure ... That is exactly the signal this mechanism exists to
+> preserve.
+
+Its ratchet caps at `MAX_LIVE_PINS = 3` and `MAX_PIN_LIFETIME_DAYS = 21` — it
+is built for a transient known-red, not for standing design debt.
+
+So the repo has already decided this question, in the opposite direction to
+D1: **a known failure stays red.** This plan proposed to build a parallel
+mechanism that would make known findings green, which is the exact thing that
+rule forbids. It should not be implemented as written.
+
+### What the measurements below still establish
+
+They stand, and they are the reason a decision is needed:
+
+- Two required contexts are red, each for **exactly one** failing step,
+  confirmed on `main` at `ed1b18d06` after the day's merges: `Core Tests` →
+  `Run tank<->bus creepage gate`; `Cross-Source Consistency Gates` → `ERC
+  endpoint_off_grid consequence gate`. Every other step in both jobs passes.
+- 58 open PRs. Zero successful `Python Tests` runs on `main` in the 63
+  completed runs before 2026-08-24.
+- Neither finding is fixable by a code change.
+
+### The decision, stated plainly
+
+There is no in-doctrine way to unblock the merge queue without fixing the
+findings. The options are therefore:
+
+1. **Fix the findings.** The `ac_l` half is a generator-policy change plus a
+   declared list of wire-landing nets
+   (`docs/evidence/2026-08-24-ac-l-mains-no-connect.md` §4). The creepage half
+   is a design decision — PD2 vs PD3, and whether `HighVoltageTank.creepage_mm`
+   6.3 mm and the enforced 2.0 mm move.
+2. **Change the doctrine**, consciously and in writing: amend the standing rule
+   so that an evidence-linked, expiring, owner-signed finding may stop blocking
+   merges. That is what this plan assumed without checking, and it is an owner
+   call about how this repo treats safety debt — not an implementation detail.
+3. **Accept the status quo**: the queue stays blocked and merges proceed by
+   admin override, which is what has happened for a week.
+
+**(3) is the current state by default rather than by decision**, which is the
+worst of the three. This document exists to make (1) or (2) an explicit choice.
+
+---
 
 ## Goal Capsule
 
