@@ -1031,3 +1031,104 @@ def test_missing_kernel_fails_cleanly_not_traceback(tmp_path, monkeypatch):
     assert s_res.exit_code == 1
     assert "DRC (kicad-cli) failed" in s_res.message
     assert "temper_drc_rs" in s_res.message
+
+
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Cap-saturation resolution (#1442): committed uncapped_totals
+# ---------------------------------------------------------------------------
+
+
+def test_capped_category_with_uncapped_total_passes(tmp_path):
+    """A measured count at its KiCad reporting cap (a floor, not a count)
+    is resolved through the committed uncapped_totals record: the true
+    count is compared against the ceiling and, being within it, the gate
+    passes. kicad-cli only -- the resolution exists precisely where the
+    per-type breakdown exists (the rust backend has no per-type data)."""
+    entry = {
+        "board_id": "b",
+        "path": "pcb/board.kicad_pcb",
+        "error_ceiling": 13060,
+        "warning_ceiling": 13060,
+        "violations_by_type": {"silk_overlap": 13060},
+        "warnings_by_type": {"silk_overlap": 13060},
+        "uncapped_totals": {
+            "silk_overlap": {
+                "count": 13060,
+                "method": "measure_uncapped_drc.py bucket-pair diagonal isolation",
+                "measured_at": "2026-08-22",
+            }
+        },
+        "provenance": {"tool_versions": {"kicad-cli": "v1"}},
+    }
+    o, s, pcb, stub, drc_api = _make_pair(
+        tmp_path, "kicad-cli", entry,
+        (["silk_overlap"] * 199, ["silk_overlap"] * 199),
+        version="v1",
+    )
+    drc_api.run_drc = stub._run_drc
+    drc_api.get_kicad_cli_version = lambda: stub.version
+    o_res = o._check_board("b", pcb, o.entries["b"])
+    s_res = s._check_board("b", pcb, s.entries["b"])
+    assert _canon_result(s_res) == _canon_result(o_res)
+    assert s_res.passed, s_res.message
+    assert s_res.exit_code == 0
+
+
+def test_capped_category_uncapped_total_over_ceiling_fails(tmp_path):
+    """The uncapped total EXCEEDING the ceiling is a real regression and
+    must fail -- the resolution never hides a true over-ceiling count."""
+    entry = {
+        "board_id": "b",
+        "path": "pcb/board.kicad_pcb",
+        "error_ceiling": 100,
+        "warning_ceiling": 100,
+        "violations_by_type": {"silk_overlap": 100},
+        "warnings_by_type": {"silk_overlap": 100},
+        "uncapped_totals": {
+            "silk_overlap": {"count": 99999, "method": "x", "measured_at": "2026-08-22"}
+        },
+        "provenance": {"tool_versions": {"kicad-cli": "v1"}},
+    }
+    o, s, pcb, stub, drc_api = _make_pair(
+        tmp_path, "kicad-cli", entry,
+        (["silk_overlap"] * 199, ["silk_overlap"] * 199),
+        version="v1",
+    )
+    drc_api.run_drc = stub._run_drc
+    drc_api.get_kicad_cli_version = lambda: stub.version
+    o_res = o._check_board("b", pcb, o.entries["b"])
+    s_res = s._check_board("b", pcb, s.entries["b"])
+    assert _canon_result(s_res) == _canon_result(o_res)
+    assert not s_res.passed
+    assert "silk_overlap" in s_res.message
+    assert "99999" in s_res.message
+
+
+def test_capped_category_without_uncapped_total_stays_capped(tmp_path):
+    """A saturated category with NO committed uncapped total remains an
+    inconclusive floor: it stays in capped_*_categories so the ci_check_drc
+    cap-saturation guard keeps failing on it (anti-vacuity)."""
+    entry = {
+        "board_id": "b",
+        "path": "pcb/board.kicad_pcb",
+        "error_ceiling": 200,
+        "warning_ceiling": 200,
+        "violations_by_type": {"silk_overlap": 200},
+        "warnings_by_type": {"silk_overlap": 200},
+        "provenance": {"tool_versions": {"kicad-cli": "v1"}},
+    }
+    o, s, pcb, stub, drc_api = _make_pair(
+        tmp_path, "kicad-cli", entry,
+        (["silk_overlap"] * 199, ["silk_overlap"] * 199),
+        version="v1",
+    )
+    drc_api.run_drc = stub._run_drc
+    drc_api.get_kicad_cli_version = lambda: stub.version
+    s_res = s._check_board("b", pcb, s.entries["b"])
+    # Not resolved -> the raw capped read (199) is compared and passes the
+    # 200 ceiling, but the category MUST remain surfaced as capped so the
+    # guard can still fail closed on the inconclusive read.
+    assert "silk_overlap" in s_res.capped_warning_categories
+    assert "silk_overlap" in s_res.capped_error_categories

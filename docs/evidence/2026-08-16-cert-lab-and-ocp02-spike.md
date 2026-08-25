@@ -1,4 +1,4 @@
-<!-- provenance: commit=607cc7bd662b14eb3e34e65859e9a5d74dedb3dc (origin/main at fork point)
+<!-- provenance: commit=e94cb6d4974d5691cea90717f6e9f369bccea3aa dirty=UNKNOWN -->
      dirty=false throughout (git status --porcelain clean apart from this document). Own git
      worktree (/tmp/opencode/agent-cert-ocp, branch investigate/cert-lab-and-ocp02-spike), never
      the main checkout. pcb/temper.kicad_pcb sha256=ddb96f9e03abdcbb0aa40523b45c07413bc6943094

@@ -28,6 +28,7 @@ from pathlib import Path
 import pytest
 from kiutils.board import Board as KiBoard
 from kiutils.items.gritems import GrRect, GrText
+import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
 from temper_io_types import write_types as _WT
 
@@ -186,21 +187,21 @@ def test_add_bounding_boxes_delegates_to_rust(tmp_path):
 
 def test_add_silkscreen_labels_delegates_to_rust(tmp_path):
     """The SHIPPED `add_silkscreen_labels` reaches the Rust
-    `footprint_value_py` kernel — the value read is NOT inside a swallowed
-    try/except, so a monkeypatched boom propagates."""
-    sentinel = RuntimeError("REACHED_RUST_VALUE")
+    `extract_footprint_info_py` kernel for value reads — the footprint
+    data (position, value, pads) is read via Rust, not kiutils."""
+    sentinel = RuntimeError("REACHED_RUST_FOOTPRINT_INFO")
 
     def boom(*_a, **_k):
         raise sentinel
 
-    original = _WT.footprint_value_py
-    _WT.footprint_value_py = boom
+    original = _tdb.parse_engine.extract_footprint_info_py
+    _tdb.parse_engine.extract_footprint_info_py = boom
     try:
-        pcb = _board_with_footprint(tmp_path)
-        with pytest.raises(RuntimeError, match="REACHED_RUST_VALUE"):
+        pcb = _board_with_footprint(tmp_path, ref="U1", value="100k")
+        with pytest.raises(RuntimeError, match="REACHED_RUST_FOOTPRINT_INFO"):
             shipped.add_silkscreen_labels(pcb)
     finally:
-        _WT.footprint_value_py = original
+        _tdb.parse_engine.extract_footprint_info_py = original
 
 
 def test_add_bounding_boxes_round_trips_through_parse(tmp_path):

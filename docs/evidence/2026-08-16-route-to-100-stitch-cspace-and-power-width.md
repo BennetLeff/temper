@@ -1,3 +1,4 @@
+<!-- provenance: commit=959a96852826880ac872b8a8ef2276d1b6497fc5 dirty=UNKNOWN -->
 ---
 module: pcb
 tags: [routing, drc, zone-stitch, c-space, track-width, netclass, gnd, power, coil]

@@ -323,46 +323,35 @@ def _physics_oracle(path_name: str, file_name: str) -> ModuleType:
     )
 
 
-def bench_physics_emi() -> tuple[float, float]:
-    """A/B predict_radiated_emissions (Rust) vs the verbatim oracle."""
-    import temper_thermal as _tt
-
-    oracle = _physics_oracle("emi", "test_emi_rust_differential.py")._oracle_predict_radiated_emissions
-    args = (100.0, 10.0, 1.0, 3.0)
-
-    def run_rust() -> float:
-        # Scalar kernel: batch 500 calls so the ratio is not timer noise.
-        return [_tt.predict_radiated_emissions_py(*args) for _ in range(500)][-1]
-
-    def run_oracle() -> float:
-        return [oracle(*args) for _ in range(500)][-1]
-
-    if run_rust() != run_oracle():
-        raise AssertionError("perf A/B arms disagree for physics-emi")
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-def bench_physics_safety() -> tuple[float, float]:
-    """A/B estimate_filter_delay (Rust) vs the verbatim oracle."""
-    import temper_thermal as _tt
-
-    oracle = _physics_oracle("safety", "test_safety_rust_differential.py")._oracle_estimate_filter_delay
-    args = (1000.0, 1e-6, 0.632)
-
-    def run_rust() -> float:
-        return [_tt.estimate_filter_delay_py(*args) for _ in range(500)][-1]
-
-    def run_oracle() -> float:
-        return [oracle(*args) for _ in range(500)][-1]
-
-    if run_rust() != run_oracle():
-        raise AssertionError("perf A/B arms disagree for physics-safety")
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
+# REMOVED 2026-08-24: bench_physics_emi and bench_physics_safety.
+#
+# #1411 deleted BOTH arms of each A/B -- the temper-thermal pyfunction
+# bridges (`predict_radiated_emissions_py` and `estimate_filter_delay_py`,
+# two of the 8 it removed from emi.rs/safety.rs) and the paired oracles
+# (`tests/physics/test_emi_rust_differential.py` and
+# `test_safety_rust_differential.py`).  This file was missed in that sweep,
+# so it kept benchmarking two implementations that no longer exist, and died
+# on the first of them:
+#
+#   FileNotFoundError: oracle module not found:
+#     packages/temper-placer/tests/physics/test_emi_rust_differential.py
+#
+# That crash is why `PR Performance Comparison` -- and through it the
+# `Required Python Tests` aggregator, the only required check on main -- has
+# been red on every PR since.  `bench_physics_safety` never ran at all:
+# `run_benchmarks` iterates `sorted(_BENCHMARKS)` and emi comes first, so its
+# own identically-dead oracle stayed invisible behind the traceback.
+#
+# Their rows in power_pcb_dataset/metrics/perf_ab_baseline.jsonl are
+# deliberately NOT deleted, and neither are their entries in
+# pr_perf_compare.py's PER_BENCHMARK_TIMING_MARGIN / UNGATEABLE_BENCHMARKS.
+# That file is an append-only measurement history ("nothing writes this file
+# automatically, by design"); the gate fails on a PR record with no baseline
+# row, never on a baseline row with no PR record, so the orphaned history is
+# inert.  The comparator's two tables are keyed against that history --
+# `test_no_benchmark_is_gated_tighter_than_its_measured_noise` derives its
+# keys from the baseline records themselves -- so dropping the entries while
+# the rows remain would break that invariant, not tidy it.
 
 def _heat_removal_fixture():
     mod = _physics_oracle("heat_removal", "test_heat_removal_rust_differential.py")
@@ -1778,8 +1767,6 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     # would make the gate miss every regression between +20% and +35%.
     ("pcl-tag-dispatch", "tag_resolve_sweep"): bench_pcl_tag_resolve_sweep,
     ("pcl-parse-utils", "parse_distance_batch"): bench_pcl_parse_distance_batch,
-    ("physics-emi", "predict"): bench_physics_emi,
-    ("physics-safety", "filter_delay"): bench_physics_safety,
     ("physics-heat_removal", "build_h_field"): bench_physics_heat_removal,
     ("physics-copper_coverage", "copper_masks"): bench_physics_copper_masks,
     ("physics-tj_cross_check", "device_cross_check"): bench_physics_device_check,

@@ -107,14 +107,28 @@ impl Core {
     }
 }
 
-/// Shapely's effective rotation of a pad core: `math.degrees` then
-/// shapely's own degrees->radians, then the `2.5e-16` cos/sin snap.
-/// Returns `(cosp, sinp)`.
+/// Shapely's effective rotation of a pad core: `math.degrees`, the
+/// sanctioned R(-theta) sign flip, then shapely's own degrees->radians and
+/// the `2.5e-16` cos/sin snap. Returns `(cosp, sinp)`.
+///
+/// The sign flip is `kicad_transform::shapely_rotation_angle_deg`, called
+/// rather than typed: `shapely.affinity.rotate`'s `angle` is CCW-positive
+/// (R(+theta)) and KiCad orients a pad's copper R(-theta), so the two are
+/// negations of each other. Until 2026-08-18 this function omitted the
+/// flip entirely -- mirroring every pad polygon at any angle that is not
+/// a multiple of 90 degrees. See `pad_core_polygon`'s docstring on the
+/// Python side, and `scripts/check_pad_core_polygon_oracle.py` for the
+/// pcbnew ground truth that now pins it. `core_graph_geometry.rs::
+/// courtyard_global_points` is the same shapely-replica shape and already
+/// negated its angle; this is now consistent with it.
 fn shapely_rotation_cos_sin(rotation_rad: f64) -> (f64, f64) {
     // Python chain, exact f64 order:
     //   deg  = math.degrees(rotation_rad)   = rotation_rad * (180.0 / PI)
+    //   deg  = shapely_rotation_angle_deg(deg)  == -deg (IEEE negation)
     //   angle = deg * pi / 180.0             (shapely.affinity.rotate)
-    let deg = rotation_rad * (180.0 / std::f64::consts::PI);
+    let deg = crate::kicad_transform::shapely_rotation_angle_deg(
+        rotation_rad * (180.0 / std::f64::consts::PI),
+    );
     let angle = deg * std::f64::consts::PI / 180.0;
     let (mut cosp, mut sinp) = math_cos_sin(angle);
     if cosp.abs() < 2.5e-16 {
@@ -447,13 +461,18 @@ fn copper_scan(
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
-/// KiCad R(-theta) footprint-child rotation (the formula behind
-/// `kicad_transform.rotate_local_to_world`, resolved with the host
-/// Python's own libm cos/sin so the result is bit-identical to the
-/// pure-Python `math.cos`/`math.sin` version).
+/// KiCad R(-theta) footprint-child rotation.
+///
+/// Delegates to `kicad_transform::rotate_local_to_world` rather than
+/// re-typing the two-line formula. Bit-identical by construction, not by
+/// luck: that function is `let (c, s) = math_cos_sin(theta_rad);
+/// (x * c + y * s, -x * s + y * c)` -- the SAME `pad_geometry::
+/// math_cos_sin` host-libm kernel this file already imports, in the same
+/// operation order. The `_py` wrapper below keeps its own name because
+/// `bridge.rs` has registered it since Wave 3 and `_copper.py` imports it
+/// by that name.
 fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    let (c, s) = math_cos_sin(theta_rad);
-    (x * c + y * s, -x * s + y * c)
+    crate::kicad_transform::rotate_local_to_world(x, y, theta_rad)
 }
 
 #[cfg(feature = "python")]

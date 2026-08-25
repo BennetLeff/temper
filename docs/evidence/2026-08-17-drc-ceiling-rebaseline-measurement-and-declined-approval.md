@@ -1,3 +1,4 @@
+<!-- provenance: commit=4137658b5dba46aef79b6b3c0bbb436803ee61ff dirty=UNKNOWN -->
 # DRC ceiling re-baseline: honest measurement + declined self-approval
 
 **Commit measured**: `2cc9eeb1e` (main). **Board sha256**:

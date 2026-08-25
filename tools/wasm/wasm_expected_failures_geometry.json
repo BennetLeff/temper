@@ -16,7 +16,12 @@
     "temper-geometry passes 779/779 on x86_64-unknown-linux-gnu, these 8 included. Every",
     "entry below is therefore a genuine native-vs-wasm32 divergence, not a broken test.",
     "",
-    "Measured 2026-08-11 against 722 registered tests: 714 pass, 8 expected-fail, 0 other. (Was 707 pass / 15 expected-fail until #941 fixed the unconditional Instant::now() in build_capacitated_graph, moving 7 no-clock entries to passing.)"
+    "Measured 2026-08-11 against 722 registered tests: 714 pass, 8 expected-fail, 0 other. (Was 707 pass / 15 expected-fail until #941 fixed the unconditional Instant::now() in build_capacitated_graph, moving 7 no-clock entries to passing.)",
+    "",
+    "Updated 2026-08-22 (#1446): +2 channel_skeleton host-libm-pow-rounding",
+    "entries -- both tests' own docstrings prescribe native-only status on a",
+    "correctly-rounded pow, which wasm32 has. Registry/counts in the runner's",
+    "own output are authoritative per run; the numbers above are historical."
   ],
   "expected_failures": {
     "bottleneck_geometry::tests::test_graph_deadline_fires_only_at_stride": {
@@ -50,6 +55,14 @@
     "transform::tests::test_gumbel_softmax_high_temp_uniform": {
       "class": "no-entropy-source",
       "reason": "Same root cause as test_gumbel_softmax_low_temp_argmax. (test_gumbel_softmax_empty passes: an empty logit slice returns before the sampling loop, so it never asks for entropy.)"
+    },
+    "channel_skeleton::tests::multiplication_is_not_a_valid_substitute_for_pow_at_board_scale": {
+      "class": "host-libm-pow-rounding-native-only",
+      "reason": "Added 2026-08-22 (#1446). The test asserts a counterexample EXISTS where host_math::pow(d, 2.0) and d*d disagree in the last bit -- a property of x86_64 glibc's pow, which is NOT correctly rounded. Its own docstring prescribes this disposition verbatim: 'The test asserts a counterexample EXISTS rather than pinning one specific value, so it keeps its meaning on a libm whose rounding differs from this host's. If some future libm really is correctly rounded and this test fails, the kernel is still correct -- only this justification would need rewriting.' wasm32's pow is such a libm: on wasm32 the search finds no disagreement and the pinned counterexample stops disagreeing. The KERNEL is correct on both targets (it calls host_math::pow to match CPython bit-for-bit on the host); only the divergence probe is native-only."
+    },
+    "channel_skeleton::tests::math_sqrt_and_pow_half_are_not_interchangeable": {
+      "class": "host-libm-pow-rounding-native-only",
+      "reason": "Added 2026-08-22 (#1446), same class as the multiplication_is_not_a_valid_substitute entry above. Pins that math.sqrt(s) and s ** 0.5 disagree at s = 55489.646545994874 (235.5624047805483 vs 235.56240478054826) -- true because glibc's pow is not correctly rounded while sqrt is. On wasm32 pow IS (effectively) correctly rounded, so the two spellings agree there and the divergence probe finds nothing. The production distinction it protects (math.sqrt lowers to f64::sqrt; ** 0.5 lowers to host_math::pow) remains correct on both targets."
     }
   }
 }

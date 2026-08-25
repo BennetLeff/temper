@@ -136,7 +136,26 @@ on:
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
+      - 'scripts/check_pad_world_position_oracle.py'
+      - 'scripts/tests/test_check_pad_world_position_oracle.py'
+      - 'scripts/pad_rotation_oracle_corpus.json'
+      - 'scripts/kicad_pad_rotation_oracle.py'
+      - 'scripts/check_pad_core_polygon_oracle.py'
+      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
+      - 'scripts/kicad_pad_polygon_oracle.py'
+      - 'scripts/pad_core_polygon_oracle_corpus.json'
+      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
+      - 'packages/temper-geometry/src/clearance_geometry.rs'
+      - 'packages/temper-geometry/src/kicad_transform.rs'
       - 'pcb/temper.kicad_pcb'
+      # The board-sync gate's OWN committed artifact. Absent here, the one
+      # file whose modification should always re-run the gate was the one
+      # file that did not: #1467 adopted CI's canonical digest and, touching
+      # only this sidecar, triggered no Python Tests run on main -- the
+      # permanently-red gate's fix landed with no post-merge verdict. The
+      # PR side has the same hole: a PR that edits the stamp alone skips
+      # the write+diff step that validates it.
+      - 'pcb/temper.kicad_pcb.source-digest'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
       - 'pcb/temper.kicad_pro'
@@ -243,7 +262,20 @@ on:
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
+      - 'scripts/check_pad_world_position_oracle.py'
+      - 'scripts/tests/test_check_pad_world_position_oracle.py'
+      - 'scripts/pad_rotation_oracle_corpus.json'
+      - 'scripts/kicad_pad_rotation_oracle.py'
+      - 'scripts/check_pad_core_polygon_oracle.py'
+      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
+      - 'scripts/kicad_pad_polygon_oracle.py'
+      - 'scripts/pad_core_polygon_oracle_corpus.json'
+      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
+      - 'packages/temper-geometry/src/clearance_geometry.rs'
+      - 'packages/temper-geometry/src/kicad_transform.rs'
       - 'pcb/temper.kicad_pcb'
+      # see the push: block above for why this path is here
+      - 'pcb/temper.kicad_pcb.source-digest'
       - 'scripts/check_hv_netclass_coverage.py'
       - 'scripts/tests/test_check_hv_netclass_coverage.py'
       - 'pcb/temper.kicad_pro'
@@ -462,7 +494,21 @@ jobs:
       TEMPER_REQUIRE_RUST_DRC: "1"
 
     steps:
+      # fetch-depth: 0 is load-bearing here, not hygiene. Several oracle-freeze
+      # tests assert a live oracle is byte-identical to a PINNED COMMIT and
+      # reach for it with `git cat-file -e <sha>`. Under the default shallow
+      # clone that object is absent, so the test takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch --
+      # in CI, silently, on every run. Measured on run 32493295419: the Wave-4
+      # round-2 gate COLLECTED 1029 but EXECUTED 1024, with all four
+      # `test_oracle_is_verbatim_copy[...]` params skipped. A guard that always
+      # skips is a guard that never runs -- the same vacuity the pytest_guard
+      # floors exist to catch, one level further down. The
+      # `board-provenance-requirements-gates`, `changes` and `fast-gates` jobs
+      # already set this.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # Container runs as root; workspace is owned by the runner user. Without
       # this, every `git` call in a later `run:` step exits 128 on "dubious
@@ -671,7 +717,7 @@ jobs:
         # dead-parameter registry/probe (plan 2026-08-02-019) public surface
         # carries executed-line coverage in the same coverage.json the
         # coverage gate reads.
-        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
+        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py tests/cli/test_repair_unplaced.py -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
@@ -693,11 +739,36 @@ jobs:
       # binary the CI image does not build; test_ucc21550_contract_pbt.py's
       # wiring contract lags a board redesign) — see the invariant-rest
       # split below for the trunk-side hard gate.
+      #
+      # FLOOR RE-ANCHORED 2026-08-21: 176 -> 172. This step executed ZERO
+      # tests (pytest exit 4, a usage error) because it named test files that
+      # #1314/#1411 deleted along with the kernels they pinned -- so the gate
+      # ran vacuously in the exact way it exists to prevent. Removing the dead
+      # paths restores collection; the surviving files collect 167, so 176 was
+      # unreachable. 167 is the exact measured count, deliberately with no
+      # slack margin, so a future shrink fails instead of passing.
+      #
+      # CORRECTED 2026-08-24: this said 172, and 172 was never reachable
+      # either -- the floor #1423 wrote was 5 above the count its own commit
+      # produced, so this gate has failed on every run since it landed
+      # WITHOUT a single test failing or disappearing. Measured three ways
+      # before changing the number: the 15 surviving paths collect 167 at
+      # HEAD, 167 at 494385928 (#1423's own tree, in a worktree at that
+      # commit), and CI's own log for run 32763303080 reports
+      # "167 passed ... expected at least 172". The collected node-ID sets at
+      # HEAD and at #1423 are IDENTICAL -- no test was added, removed or
+      # deselected in between, which is what rules out the failure modes the
+      # guard's message lists and leaves only a miscount.
+      #
+      # Lowering a floor is exactly what the guard tells you to do "deliberately
+      # with a reason", and this is that reason. The no-slack intent above is
+      # preserved: 167 is the measured count, not 167-with-headroom, so the
+      # next genuine shrink still fails.
       - name: Run validation DRC differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 176 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 167 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
@@ -705,9 +776,7 @@ jobs:
           tests/validation/test_geometric_rust_differential.py
           tests/validation/test_tht_check_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
-          tests/deterministic/test_grid_utils_rust_differential.py
           tests/deterministic/test_via_placement_rust_differential.py
-          tests/deterministic/test_grid_utils_pbt.py
           tests/deterministic/test_via_placement_pbt.py
           tests/deterministic/stages/test_slot_generation_rust_differential.py
           tests/deterministic/stages/test_zone_geometry_rust_differential.py
@@ -734,15 +803,18 @@ jobs:
       # fixtures, +2 from the list-position/truncate review pins), so a
       # silently-shrunk suite fails instead of passing vacuously. The oracle
       # packages are exercised only through these suites.
+      #
+      # FLOOR RE-ANCHORED 2026-08-21: 131 -> 105. The 4 tests/report/* files
+      # named here were deleted by #1314 and #1411 (the report oracles they
+      # pinned were retired with them), which made pytest exit 4 and collect
+      # NOTHING -- this gate had been running vacuously. The 26 absent tests
+      # are genuinely retired, not lost; 105 is the exact count of what
+      # remains.
       - name: Run Phase-5 report/explainability/clearance differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 131 --
-          tests/report/test_formatter_rust_differential.py
-          tests/report/test_summary_rust_differential.py
-          tests/report/test_generator_rust_differential.py
-          tests/report/test_report_pbt.py
+          uv run python ../../scripts/pytest_guard.py --min-tests 140 --
           tests/explainability/test_trace_rust_differential.py
           tests/explainability/test_decision_rust_differential.py
           tests/explainability/test_logger_rust_differential.py
@@ -752,6 +824,9 @@ jobs:
           tests/explainability/test_explainability_pbt.py
           tests/requirements/test_clearance_validator_rust_differential.py
           tests/requirements/test_clearance_validator_pbt.py
+          tests/pcl/test_netclass_constraints_rust_differential.py
+          tests/requirements/test_iec60335_requirements_rust_differential.py
+          tests/router_v6/test_astar_nlayer_rust_differential.py
           -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full
@@ -845,11 +920,17 @@ jobs:
       # all passing), so a silently-shrunk suite fails instead of passing
       # vacuously. The core/ and metrics/ members are also swept by other
       # jobs' directory arguments; they get the pinned floor here regardless.
+      #
+      # FLOOR RE-ANCHORED 2026-08-21: 1092 -> 1029. The two tests/core/
+      # graph-cluster files named here were deleted by #1314; naming them made
+      # pytest exit 4 and collect nothing, so this floor never evaluated. 1029
+      # is the measured count of the surviving 14-file invocation under the
+      # same `-m "not slow"`.
       - name: Run Wave-4 round-2 differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 1092 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 1029 --
           tests/heuristics/test_heuristics_rust_differential.py
           tests/heuristics/test_heuristics_pbt.py
           tests/router_v6/test_spatial_drc_cluster_rust_differential.py
@@ -861,8 +942,6 @@ jobs:
           tests/router_v6/test_channel_mapping_pbt.py
           tests/requirements/validators/test_geometry_rust_differential.py
           tests/requirements/validators/test_geometry_pbt.py
-          tests/core/test_core_graph_cluster_rust_differential.py
-          tests/core/test_core_graph_cluster_pbt.py
           tests/core/test_bus_cohort_rust_differential.py
           tests/core/test_bus_cohort_pbt.py
           tests/metrics/test_aesthetic_rust_differential.py
@@ -1276,8 +1355,11 @@ jobs:
       # -- they lose PR-time native execution, same as the geometry-crate
       # part of this task's remit for wasm-tier-nightly.yml's own native
       # arm. They still execute natively whenever temper-geometry comes up
-      # in that workflow's R19 rotation (full cycle every 9 nights, under
-      # 1.5 weeks -- see that file's header, "R19 NATIVE-ARM ROTATION"),
+      # in that workflow's R19 rotation (full cycle every `len(tiers)`
+      # nights -- TWELVE as of 2026-08-24, not the 9 / "under 1.5 weeks" this
+      # comment claimed when written; see that file's header, "R19 NATIVE-ARM
+      # ROTATION", and docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md §3
+      # for what that cadence means in practice),
       # because a rotation night runs the crate's ordinary, unfiltered
       # `cargo test`, not a tier-scoped subset.
       #
@@ -2697,9 +2779,25 @@ jobs:
       # (missing board/netlist, or a netlist not proven fresh against
       # elec/src/**) exits non-zero, same fail-closed contract as every
       # other gate in this job.
-      - name: Board-sync-stamp gate (pcb/temper.kicad_pcb provenance)
+      # Regen-and-diff (2026-08-23, #1445): the stamp folds in the netlist's
+      # bytes, and atopile's output embeds the build environment (absolute
+      # sheetpath prefixes; residual toolchain variance even after the
+      # 0.2.69 pin) -- so a stamp committed from a developer machine is not
+      # byte-reproducible by CI. CI is the canonical environment for every
+      # other generated artifact in this repo (gen_config, gen_schematics,
+      # wasm registry -- same write+diff pattern); this gate now follows it:
+      # reconcile, write the stamp against THIS run's netlist, then fail the
+      # diff if the committed sidecar differs. A PR that moves the board or
+      # the netlist without restamping still fails here -- visibly, with the
+      # exact new digest in the log -- and the fix is committing the
+      # regenerated sidecar. Never continue-on-error: same fail-closed
+      # contract as every other gate in this job.
+      - name: Board-sync-stamp write + diff (pcb/temper.kicad_pcb provenance)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run python scripts/check_board_sync_stamp.py
+        run: |
+          uv run python scripts/check_netlist_board_reconciliation.py
+          uv run python scripts/write_board_sync_stamp.py
+          git diff --exit-code pcb/temper.kicad_pcb.source-digest
 
       - name: Net-classification-by-substring gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -3190,6 +3288,44 @@ jobs:
       - name: No raw rotation trig outside kicad_transform
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_no_raw_rotation_trig.py
+
+      - name: Pad-world-position oracle gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_world_position_oracle.py -v --tb=short
+
+      # The behavioural half of the rotation-convention defence. The lint
+      # above is syntactic and therefore cannot see a correctly-typed
+      # R(+theta): scripts/measure_cross_domain_creepage.py carried exactly
+      # that for three weeks, reporting the WRONG VIOLATION SET (a K1/C6
+      # evaluation read 155 -> 235 violations under R(+theta) versus
+      # 122 -> 92 under KiCad's real convention, i.e. it argued against a
+      # correct change). This gate resolves every registered pad-placement
+      # implementation by import and CALLS it, comparing the answer to
+      # pcbnew's own placement engine via a pinned corpus. Needs no pcbnew
+      # on the runner -- the corpus is pinned to the oracle's sha256 and
+      # the gate fails closed if that drifts. See AGENTS.md, "Measurement
+      # Instruments That Lie".
+      - name: Pad world positions agree with pcbnew (rotation convention)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_pad_world_position_oracle.py
+      - name: Pad-core-polygon oracle gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_core_polygon_oracle.py -v --tb=short
+
+      # The second, independent half of the same convention: not where a
+      # pad's CENTRE lands (check_pad_world_position_oracle.py) but which
+      # way its copper RECTANGLE is turned about that centre.
+      # pad_core_polygon / pad_polygon and their bit-exact Rust twin
+      # clearance_geometry.rs::pad_core rotated R(+theta) -- the mirror of
+      # KiCad's rule -- and nothing noticed, because all 527 pads on this
+      # board sit at multiples of 90 degrees where the two conventions
+      # produce the same corner set. Correct by coincidence of placement,
+      # not by construction. This gate resolves every such implementation
+      # by import, calls it, and compares against corners pcbnew itself
+      # produced at angles where the conventions differ.
+      - name: Pad copper rectangle matches pcbnew at non-90-degree angles
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_pad_core_polygon_oracle.py
 
       - name: Duplicate-predicate consolidation gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -3897,7 +4033,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4005,7 +4151,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4143,7 +4299,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4203,11 +4369,40 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # pcb/temper.kicad_dru is GITIGNORED (.gitignore:58 `/pcb/*.kicad_dru`)
+      # and generated, so a fresh checkout does not have it. Two tests wired
+      # into this group by the same change that added this step --
+      # test_zone_pour_{clearance,creepage}.py::TestGeneratedFileIsNotStale --
+      # read it to prove the committed pour tables are not stale against the
+      # DRU kicad-cli actually enforces. Without this step they die on
+      # `FileNotFoundError: /__w/temper/temper/pcb/temper.kicad_dru` while
+      # passing locally, because a developer tree has the artifact lying
+      # around from an earlier `make` run. That is exactly the shape of
+      # "passes on my machine" this repo's stale-artifact gates exist to
+      # kill, so the fix is to generate it here rather than to deselect the
+      # two tests.
+      #
+      # Pure Python, no kicad-cli, no arguments, and byte-reproducible
+      # (verified: regenerating over a populated tree leaves `git status`
+      # clean). It also emits the four packages/temper-placer/configs/
+      # *.generated.yaml files, which are committed and unchanged by it.
+      #
+      # No `if:` guard, deliberately: every other step in THIS job runs
+      # unconditionally (only "Build electronics netlist" is conditional, on
+      # its own cache-hit output). An earlier revision of this step carried
+      # `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`, copied
+      # from a job that HAS a step with `id: setup`. This one does not, so the
+      # expression was false, the step was SKIPPED, and the group failed with
+      # the same FileNotFoundError it was added to fix -- while actionlint
+      # flagged the undefined property. Both symptoms, one cause.
+      - name: Generate pcb/temper.kicad_dru (gitignored input for the zone-pour staleness gates)
+        run: uv run python scripts/generate_kicad_dru.py
+
       - name: Run invariant tests (router_v6 group 3)
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_nlayer.py tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_pair_clearance.py tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
+          uv run python ../../scripts/pytest_guard.py --min-tests 570 --
+          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_nlayer.py tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_pair_clearance.py tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py  tests/router_v6/test_constraint_model_net_filter.py tests/router_v6/test_constraints_design_rules_zone_hv_boundary.py  tests/router_v6/test_net_route_result.py tests/router_v6/test_stage3_auto_batch.py tests/router_v6/test_stage3_direct_solver.py  tests/router_v6/test_zone_pour_clearance.py tests/router_v6/test_zone_pour_creepage.py tests/router_v6/test_zone_pour_rust_wiring.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
 
@@ -4233,7 +4428,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4325,7 +4530,17 @@ jobs:
       UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 -- see the Core Tests job for the measured incident.
+      # 12 of the 16 oracle-freeze tests that resolve a PINNED COMMIT via
+      # `git cat-file -e <sha>` live under tests/router_v6/, which these jobs
+      # own. Under a shallow clone each takes its
+      # `pytest.skip("pinned commit ... not present in this clone")` branch, so
+      # the byte-identity guarantee is unenforced whenever these jobs do run.
+      # Their floors (500 against 683-789 collected) are slack enough that the
+      # missing executions never show up as a failure.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -4702,10 +4917,27 @@ jobs:
       # cargo build, well under a second inside a job already budgeted 20
       # minutes. It is NOT added to .github/required-checks.json: what blocks
       # a merge is a maintainer decision, not this step's to make.
+      # The generator's own unit tests, run BEFORE the gate that depends on
+      # it. `scripts/tests/` is not in pyproject's `testpaths` and this
+      # workflow names each file it runs individually, so a test file added
+      # there without a step here never executes -- the "unwired for its
+      # entire existence" shape the step below was itself added to end.
+      - name: WASM registry generator unit tests (brace scan + eligibility)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_gen_wasm_test_registry_braces.py -v --tb=short
+
       - name: WASM test registry matches committed (drift + unregistered gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # The `-e` this step's body says it does not have: `run:` defaults to
+        # `bash -e {0}`, so until 2026-08-24 the first crate whose --check
+        # exited non-zero killed the step. The `failed` accumulation below and
+        # the ::error:: naming every stale crate were unreachable -- observed
+        # on PR #1470, where the log ends at `--- temper-orchestration ---`
+        # with a bare `unbalanced braces at line 814` and the five crates
+        # after it never ran. An override is needed because a `run:` body
+        # cannot unset a shell flag its own interpreter was started with.
+        shell: bash --noprofile --norc -uo pipefail {0}
         run: |
-          # No `-e`: exit codes are inspected here, not merely propagated.
           set -uo pipefail
 
           crates="$(uv run python - <<'PY'
@@ -4792,8 +5024,10 @@ jobs:
       # blocks a merge is a maintainer decision, not this step's to make.
       - name: WASM test family map matches the registry
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Same `-e` correction as the step above: `rc=$?` is only reachable if
+        # the failing command did not already end the step.
+        shell: bash --noprofile --norc -uo pipefail {0}
         run: |
-          # No `-e`: the exit code is inspected here, not merely propagated.
           set -uo pipefail
 
           uv run python tools/wasm/gen_test_family_map.py --check

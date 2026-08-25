@@ -24,17 +24,43 @@ from temper_placer.placer.cp_sat.gates import (
     Violation,
     ViolationType,
 )
+from temper_placer.validation._drc_api import copy_kicad_project_sidecar
 
 # =========================================================================
 # Helpers
 # =========================================================================
 
 
+#: The committed board, used only as the SOURCE of a project sidecar for the
+#: scratch PCBs below -- never measured here (every DRC call in this module
+#: is monkeypatched).
+_REPO_ROOT = Path(__file__).resolve().parents[5]
+_REAL_BOARD = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+
 def _write_pcb(name: str = "test") -> Path:
     tmp = tempfile.NamedTemporaryFile(suffix=".kicad_pcb", prefix=name, mode="w", delete=False)  # noqa: SIM115
     tmp.write("(kicad_pcb)\n")
     tmp.close()
-    return Path(tmp.name)
+    pcb = Path(tmp.name)
+    # Give the scratch board a resolvable .kicad_pro sidecar.
+    #
+    # Without it the DRC path now fails CLOSED -- GateStatus.UNMEASURED with
+    # "No resolvable project ... call copy_kicad_project_sidecar(pcb_path,
+    # source_board_path) to give it a resolvable project before DRC" -- a
+    # deliberate hardening, because kicad-cli DRC run without project
+    # context silently UNDER-measures (no netclass rules resolve, so the
+    # creepage/clearance rules this gate exists to enforce are simply not
+    # applied). tests/validation/test_drc_project_context_required.py is the
+    # gate on that behaviour.
+    #
+    # Added 2026-08-24. Every test in this module had been returning
+    # UNMEASURED since that hardening landed, so a suite whose whole subject
+    # is the IEC creepage gate was asserting against a gate that never ran.
+    # The DRC subprocess itself stays monkeypatched; this only satisfies the
+    # project-context precondition.
+    copy_kicad_project_sidecar(pcb, _REAL_BOARD)
+    return pcb
 
 
 def _fake_run_factory(

@@ -473,6 +473,121 @@ mod py_bridge {
         })
     }
 
+    /// `zone_manager.add_power_planes` / `add_zones_from_classification`'s
+    /// per-zone construction: the s-expression tree matching kiutils'
+    /// `Zone` serialisation of the pre-migration construction
+    /// (`Zone(net=..., netName=..., layers=[layer], name=f"{net}_plane",
+    /// priority=..., connectPads="thermal_reliefs", clearance=...,
+    /// minThickness=..., fillSettings=FillSettings(yes=True,
+    /// thermalGap=..., thermalBridgeWidth=...),
+    /// polygons=[ZonePolygon(coordinates=[...)])`), field-for-field:
+    ///
+    /// ```text
+    /// (zone (net N) (net_name "X") (layer "L") (name "X_plane")
+    ///   (hatch none 0.0) (priority P)
+    ///   (connect_pads thermal_reliefs (clearance C))
+    ///   (min_thickness T)
+    ///   (fill yes (thermal_gap G) (thermal_bridge_width B))
+    ///   (polygon (pts (xy ...) ...)))
+    /// ```
+    ///
+    /// No `tstamp`: the pre-migration construction left kiutils' empty
+    /// default, which `to_sexpr` omits — emitting one would be a visible
+    /// diff against every board written before the migration. Thermal
+    /// reliefs are load-bearing (spoke pattern prevents cold solder
+    /// joints); see `tests/io/test_thermal_relief.py`.
+    #[pyfunction]
+    #[allow(clippy::too_many_arguments)]
+    pub fn power_plane_zone_sexpr_py(
+        py: Python<'_>,
+        net_name: &str,
+        net: i64,
+        layer: &str,
+        priority: i64,
+        clearance: f64,
+        min_thickness: f64,
+        thermal_gap: f64,
+        thermal_bridge_width: f64,
+        points: Vec<(f64, f64)>,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let name = format!("{net_name}_plane");
+            let mut zone: Vec<Bound<'_, PyAny>> = vec!["zone".into_pyobject(py)?.into_any()];
+            zone.push(node(py, "net", vec![net.into_pyobject(py)?.into_any()])?);
+            zone.push(node(
+                py,
+                "net_name",
+                vec![net_name.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(
+                py,
+                "layer",
+                vec![layer.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(py, "name", vec![name.into_pyobject(py)?.into_any()])?);
+            zone.push(node(
+                py,
+                "hatch",
+                vec![
+                    "none".into_pyobject(py)?.into_any(),
+                    0.0f64.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            zone.push(node(
+                py,
+                "priority",
+                vec![priority.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(
+                py,
+                "connect_pads",
+                vec![
+                    "thermal_reliefs".into_pyobject(py)?.into_any(),
+                    node(
+                        py,
+                        "clearance",
+                        vec![clearance.into_pyobject(py)?.into_any()],
+                    )?,
+                ],
+            )?);
+            zone.push(node(
+                py,
+                "min_thickness",
+                vec![min_thickness.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(
+                py,
+                "fill",
+                vec![
+                    "yes".into_pyobject(py)?.into_any(),
+                    node(
+                        py,
+                        "thermal_gap",
+                        vec![thermal_gap.into_pyobject(py)?.into_any()],
+                    )?,
+                    node(
+                        py,
+                        "thermal_bridge_width",
+                        vec![thermal_bridge_width.into_pyobject(py)?.into_any()],
+                    )?,
+                ],
+            )?);
+            let mut pts: Vec<Bound<'_, PyAny>> = vec!["pts".into_pyobject(py)?.into_any()];
+            for (x, y) in points {
+                pts.push(node(
+                    py,
+                    "xy",
+                    vec![
+                        x.into_pyobject(py)?.into_any(),
+                        y.into_pyobject(py)?.into_any(),
+                    ],
+                )?);
+            }
+            zone.push(node(py, "polygon", vec![PyList::new(py, pts)?.into_any()])?);
+            Ok(PyList::new(py, zone)?.unbind())
+        })
+    }
+
     /// `_write_modules.add_bounding_boxes_to_pcb`'s per-rect construction: the
     /// parsed s-expression tree that kiutils' `GrRect.from_sexpr` consumes
     /// (`(gr_rect (start x y) (end x y) (layer L) (width W))`). Rust owns the
@@ -565,6 +680,12 @@ mod py_bridge {
     /// T))`). Rust owns the content; kiutils' own `to_sexpr` does the
     /// serialisation (B1 — floats are carried as values, so the int-coercion
     /// of a text round-trip can never change the emitted bytes).
+    // The argument list mirrors the Python-side signature this pyfunction
+    // replaces, one KiCad `(segment ...)` field per parameter. Bundling them
+    // into a struct to satisfy the 7-argument default would change the call
+    // shape at the pyo3 boundary -- i.e. change the Python API -- to silence a
+    // style lint about a flat list of primitives.
+    #[allow(clippy::too_many_arguments)]
     #[pyfunction]
     pub fn segment_sexpr_py(
         py: Python<'_>,
@@ -608,6 +729,9 @@ mod py_bridge {
     /// parsed s-expression tree that kiutils' `Via.from_sexpr` consumes
     /// (`(via (at x y) (size s) (drill d) (layers L1 L2) (net N) (tstamp
     /// T))`). See [`segment_sexpr_py`] for the float rationale.
+    // Same rationale as `segment_sexpr_py` above: one KiCad `(via ...)` field
+    // per parameter, matching the Python signature it replaces.
+    #[allow(clippy::too_many_arguments)]
     #[pyfunction]
     pub fn via_sexpr_py(
         py: Python<'_>,
@@ -695,7 +819,11 @@ mod py_bridge {
     /// as the Python loop would.
     #[pyfunction]
     pub fn find_net_code_py(
-        py: Python<'_>,
+        // Unused: this function reaches the interpreter only through the
+        // already-bound `nets`, never through the GIL token. Kept in the
+        // signature (as `_py`) rather than removed, so the parameter list stays
+        // uniform with every other pyfunction in this module.
+        _py: Python<'_>,
         nets: &Bound<'_, PyAny>,
         net_name: &str,
     ) -> PyResult<i64> {
@@ -740,6 +868,7 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(build_net_name_to_index_map_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(component_bounds_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(zone_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(power_plane_zone_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(gr_rect_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(gr_text_sexpr_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(segment_sexpr_py, &sub)?)?;

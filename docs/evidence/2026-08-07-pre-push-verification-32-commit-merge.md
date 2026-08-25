@@ -1,3 +1,4 @@
+<!-- provenance: commit=7ed0a5ac2b6729c9e0f703afc8022c4a82890aa3 dirty=UNKNOWN -->
 ---
 title: "Pre-push verification: local main's 32-commit merge session vs origin/main"
 date: 2026-08-07

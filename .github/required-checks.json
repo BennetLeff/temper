@@ -56,6 +56,7 @@
     "scripts/check_no_raw_rotation_trig.py",
     "scripts/tests/test_check_no_raw_rotation_trig.py",
     "pcb/temper.kicad_pcb",
+    "pcb/temper.kicad_pcb.source-digest",
     "scripts/check_hv_netclass_coverage.py",
     "scripts/tests/test_check_hv_netclass_coverage.py",
     "pcb/temper.kicad_pro",

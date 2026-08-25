@@ -1,3 +1,4 @@
+<!-- provenance: commit=7b424488fc70f86b3be0630b9b213e38313df4a2 dirty=UNKNOWN -->
 ---
 title: Stage 3 SAT capacity vacuity — the fix (direct capacity-aware topology solver)
 type: evidence

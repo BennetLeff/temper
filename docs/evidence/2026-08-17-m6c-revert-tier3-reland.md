@@ -1,4 +1,4 @@
-<!-- provenance: commit=342e1bd08 dirty=false (worktree agent-a7e7a9c50f564ffdb, main tip at task start). pcb/temper.kicad_pcb sha256 cb5184eae9fea94c4b7b3c68c553ce97923a0d8f9af9d0fbb87442ab593c39b3, matches task brief. -->
+<!-- provenance: commit=342e1bd08bf5cbdfe411a6b4e0c2642c53110024 dirty=false (worktree agent-a7e7a9c50f564ffdb, main tip at task start). pcb/temper.kicad_pcb sha256 cb5184eae9fea94c4b7b3c68c553ce97923a0d8f9af9d0fbb87442ab593c39b3, matches task brief. -->
 ---
 title: "Revert M6c (PR #1329's incidental carry), land Tier-3 span-scaled budget fix, re-route and measure"
 date: 2026-08-17

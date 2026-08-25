@@ -190,6 +190,13 @@
 // that catch is what runs).
 mod board_state;
 mod apply_placements_stage;
+// Option-E subprocess serialization (2026-08-21): `NativeBoardState` <->
+// JSON for the Rust CLI driver's per-stage Python subprocesses. Ungated
+// (pure serde, no pyo3) so the wasm tier and the CLI both compile it.
+pub mod state_ser;
+// Option-E subprocess stage: `Stage<NativeBoardState>` over one
+// `_stage_subprocess.py` invocation. Ungated like `state_ser`.
+pub mod subprocess_stage;
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
 mod component_assignment_stage;
@@ -369,7 +376,8 @@ pub(crate) mod metrics;
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use apply_placements_stage::ApplyPlacementsStage;
 #[cfg(feature = "python")]
-pub use board_state::{BoardState, RouteEntry, SlotId, ViaEntry};
+pub use board_state::{BoardState, RouteEntry, ViaEntry};
+pub use board_state::{NativeBoardState, SlotId};
 #[cfg(feature = "python")]
 pub use channel_mapping::{ChannelMappingStage, ChannelWidthsStage};
 #[cfg(feature = "python")]
@@ -384,8 +392,13 @@ pub use connectivity_validation_stage::ConnectivityValidationStage;
 #[cfg(feature = "python")]
 pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
+// The D1->D7 stage ORDER (23 stages) is pure Rust (a const table + a pure
+// substitution function over it) — ungated so the Rust CLI driver can drive
+// the sequencing order without an interpreter. The `DeterministicPipeline`
+// pyclass (the Python-driven run loop) stays python-gated.
+pub use deterministic_pipeline::drc_aware_stage_order;
 #[cfg(feature = "python")]
-pub use deterministic_pipeline::{DeterministicPipeline, drc_aware_stage_order};
+pub use deterministic_pipeline::DeterministicPipeline;
 #[cfg(feature = "python")]
 pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
 #[cfg(feature = "python")]
@@ -432,8 +445,14 @@ pub use router_pipeline::RouterPipeline;
 #[cfg(feature = "python")]
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
-#[cfg(feature = "python")]
+// Ungated (2026-08-20, Option E scaffolding): the `Stage<S>` trait,
+// `StageError` and `StageErrorKind` are pure Rust in both configurations
+// (the non-python `Stage<S>` simply has no `BoardState` default type
+// parameter — the `From<PyErr>` impl stays python-gated inside stage.rs).
+// The Rust CLI driver needs them to implement leaf-callback stages for
+// `PipelineRunner` without an interpreter.
 pub use stage::{Stage, StageError, StageErrorKind};
+pub use subprocess_stage::SubprocessStage;
 pub use via_validation_stage::{ViaDeduplicationStage, ViaValidationStage};
 pub use zone_assignment_stage::ZoneAssignmentStage;
 #[cfg(feature = "python")]

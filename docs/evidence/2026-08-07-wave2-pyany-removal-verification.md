@@ -1,6 +1,6 @@
 # Wave-2 PyAny Removal — Independent Verification & Close-out (2026-08-07)
 
-provenance: worktree=`/private/tmp/wt9-pyany2fix`, branch
+<!-- provenance: commit=35084d6427768fc22ee20af3af3196675a15a29e dirty=UNKNOWN -->
 `feat/wave4-pyany-removal-wave2`, HEAD == `origin/main` @ `fc05617d5`
 (assert-base verified 2026-08-07).
 

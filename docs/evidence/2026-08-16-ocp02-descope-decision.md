@@ -1,4 +1,4 @@
-<!-- provenance: decision recorded 2026-08-16. Companion to
+<!-- provenance: commit=c1f7025d37b32be9bb6ad2ac732dc43d399b9f18 dirty=UNKNOWN -->
      docs/evidence/2026-08-16-ocp02-descope-implementation.md (the what-was-done record)
      and docs/evidence/2026-08-16-cert-lab-and-ocp02-spike.md (the full alternatives chain,
      on main, PR #1262). No board file, threshold, or safety constant is touched by this

@@ -14,13 +14,12 @@ Phase 4; the helper retires then).
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from kiutils.footprint import Footprint
+from typing import Any
 
 
-def _get_footprint_reference(fp: Footprint) -> str | None:
+# fp is a payload object from extract_footprint_info_py (Rust, dynamically
+# shaped): duck-typed here, hence Any rather than object.
+def _get_footprint_reference(fp: Any) -> str | None:
     """
     Extract reference designator from a footprint item.
 
@@ -30,7 +29,7 @@ def _get_footprint_reference(fp: Footprint) -> str | None:
     the migrated engine uses the identical Rust port internally.
 
     Args:
-        fp: Kiutils Footprint item.
+        fp: kiutils ``Footprint``-shaped item (duck-typed).
 
     Returns:
         Reference string (e.g., "U1") or None.

@@ -18,7 +18,6 @@ packages/temper-placer/src/temper_placer/core/loop_extractor.py::get_common_net:
 packages/temper-placer/src/temper_placer/deterministic/channels.py::ChannelMap._from_payload::set-materialised 1
 packages/temper-placer/src/temper_placer/deterministic/instrumentation.py::run_with_trace_log::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/extraction/hypergraph_factory.py::HypergraphFactory.build::set-loop-records-order 1
-packages/temper-placer/src/temper_placer/io/zone_manager.py::get_board_outline::set-materialised 1
 packages/temper-placer/src/temper_placer/metrics/quality.py::thermal_score::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/_quality_erc_gates.py::QualityGate.check::set-materialised 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py::FeedbackClassifier._handle_congestion::hash-builtin 2

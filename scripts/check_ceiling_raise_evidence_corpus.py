@@ -254,6 +254,9 @@ def run_corpus(repo_root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
         else f"uncovered/gate-error -- detected={detected} problems={problems!r}",
     ))
 
+    if not verdicts:
+        raise GateError("ceiling-raise-evidence corpus produced zero verdicts -- "
+                        "a vacuous all() here would report a pass with nothing checked")
     overall_ok = all(v[1] for v in verdicts)
     return overall_ok, verdicts
 
