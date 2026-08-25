@@ -56,48 +56,27 @@ from typing import Any
 # Measured 2026-08-25 on pcb/temper.kicad_pcb via verify_iec60335_compliance.
 REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     # Same-domain functional insulation. #1226 raised this bar 1.0 -> 1.8mm.
-    # The board's worst creepage offenders live here (C16<->U14 0.667mm)
-    # -- functional, not a safety barrier.
-    #
-    # 28 -> 27 with the C6 move below.
+    # 28 -> 27 with the C6 move in this PR.
     ("creepage", "FUNCTIONAL", 1.8, "inter"): 27,
     # The mains<->SELV reinforced barrier at the PD3 12.6mm figure (#1229).
-    #
-    # 32 -> 34 WITH THE C6 MOVE, and this is a REGRESSION recorded on
-    # purpose rather than absorbed. Moving C6 -7.00mm to clear a three-way
-    # F.Fab body interpenetration (C4<->C6 14.5362mm^2, C6<->R26, C22<->C6 --
-    # parts in the same physical space, so the board could not be assembled)
-    # put it nearer R6 (7.231mm) and R23 (7.598mm) against the 12.6mm bar.
-    # Both are short of even the superseded PD2 8.0mm figure, so they are
-    # genuinely close pairs, not PD3 bookkeeping.
-    #
-    # Alternatives were measured, not assumed. Sweeping C6 over +/-30mm for a
-    # position that is body-clean AND keeps this stratum at 32 AND adds no
-    # sub-8.0mm pair yields three candidates, and every one lands C6 on
-    # existing copper: kicad-cli shorting_items rises 39 -> 42/44. Copper
-    # shorts on a mains board are the fatal class (docs/STRATEGY.md), so
-    # trading 2 creepage findings for 3-5 shorts was rejected. The one
-    # remaining alternative (71.99, 222.51) holds shorting at 39 and would
-    # give 68/32, but pushes kicad-cli creepage 115 -> 116 -- a ceiling
-    # RAISE, which check_drc_ceiling_approval.py requires an owner
-    # Ceiling-Approval trailer for, and none was given.
-    #
-    # Same reasoning #1498's approval used for C7<->K1: a board carrying more
-    # tracked creepage debt that CAN be assembled beats one carrying less
-    # that cannot. Tracked, not accepted as correct -- these two pairs want
-    # fixing.
-    ("creepage", "REINFORCED", 12.6, "inter"): 34,
+    # 32 -> 31: the C6 move alone took this to 34 (it landed C6 nearer R6 at
+    # 7.231mm and R23 at 7.598mm), and the R56 move more than pays that back.
+    ("creepage", "REINFORCED", 12.6, "inter"): 31,
     # Package-intrinsic straddlers: U6 8.100mm, T1/T2 9.100mm. Placement
     # CANNOT fix these -- a footprint carries its own pads. They are the open
     # Question A of docs/evidence/
     # 2026-08-14-certification-lab-package-pd3-and-60664-4.md.
     ("creepage", "REINFORCED", 12.6, "intra"): 3,
-    ("creepage", "BASIC", 6.3, "inter"): 3,
-    # Clearance (through-air), not creepage: pollution-degree independent.
-    ("clearance", "REINFORCED", 6.0, "inter"): 3,
+    # 3 -> 1: two of these were K1<->R56, cleared by the R56 move.
+    ("creepage", "BASIC", 6.3, "inter"): 1,
+    # Clearance (through-air), not creepage: pollution-degree INDEPENDENT, so
+    # no PD decision can explain or excuse one. 3 -> 1: the K1<->R56 breach at
+    # 5.036mm against the 6.0mm floor is gone. That was the one finding on
+    # this board that no threshold change could account for.
+    ("clearance", "REINFORCED", 6.0, "inter"): 1,
 }
 
-REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 70
+REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 63
 
 
 def req_safe_01_strata(result: Any) -> dict[tuple[str, str, float, str], int]:
