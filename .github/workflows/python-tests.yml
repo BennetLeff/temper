@@ -695,7 +695,7 @@ jobs:
         # dead-parameter registry/probe (plan 2026-08-02-019) public surface
         # carries executed-line coverage in the same coverage.json the
         # coverage gate reads.
-        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
+        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py tests/cli/test_repair_unplaced.py -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
@@ -792,7 +792,7 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 105 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 140 --
           tests/explainability/test_trace_rust_differential.py
           tests/explainability/test_decision_rust_differential.py
           tests/explainability/test_logger_rust_differential.py
@@ -802,6 +802,9 @@ jobs:
           tests/explainability/test_explainability_pbt.py
           tests/requirements/test_clearance_validator_rust_differential.py
           tests/requirements/test_clearance_validator_pbt.py
+          tests/pcl/test_netclass_constraints_rust_differential.py
+          tests/requirements/test_iec60335_requirements_rust_differential.py
+          tests/router_v6/test_astar_nlayer_rust_differential.py
           -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full
@@ -4303,11 +4306,40 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # pcb/temper.kicad_dru is GITIGNORED (.gitignore:58 `/pcb/*.kicad_dru`)
+      # and generated, so a fresh checkout does not have it. Two tests wired
+      # into this group by the same change that added this step --
+      # test_zone_pour_{clearance,creepage}.py::TestGeneratedFileIsNotStale --
+      # read it to prove the committed pour tables are not stale against the
+      # DRU kicad-cli actually enforces. Without this step they die on
+      # `FileNotFoundError: /__w/temper/temper/pcb/temper.kicad_dru` while
+      # passing locally, because a developer tree has the artifact lying
+      # around from an earlier `make` run. That is exactly the shape of
+      # "passes on my machine" this repo's stale-artifact gates exist to
+      # kill, so the fix is to generate it here rather than to deselect the
+      # two tests.
+      #
+      # Pure Python, no kicad-cli, no arguments, and byte-reproducible
+      # (verified: regenerating over a populated tree leaves `git status`
+      # clean). It also emits the four packages/temper-placer/configs/
+      # *.generated.yaml files, which are committed and unchanged by it.
+      #
+      # No `if:` guard, deliberately: every other step in THIS job runs
+      # unconditionally (only "Build electronics netlist" is conditional, on
+      # its own cache-hit output). An earlier revision of this step carried
+      # `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`, copied
+      # from a job that HAS a step with `id: setup`. This one does not, so the
+      # expression was false, the step was SKIPPED, and the group failed with
+      # the same FileNotFoundError it was added to fix -- while actionlint
+      # flagged the undefined property. Both symptoms, one cause.
+      - name: Generate pcb/temper.kicad_dru (gitignored input for the zone-pour staleness gates)
+        run: uv run python scripts/generate_kicad_dru.py
+
       - name: Run invariant tests (router_v6 group 3)
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_nlayer.py tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_pair_clearance.py tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
+          uv run python ../../scripts/pytest_guard.py --min-tests 570 --
+          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_nlayer.py tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_pair_clearance.py tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py  tests/router_v6/test_constraint_model_net_filter.py tests/router_v6/test_constraints_design_rules_zone_hv_boundary.py  tests/router_v6/test_net_route_result.py tests/router_v6/test_stage3_auto_batch.py tests/router_v6/test_stage3_direct_solver.py  tests/router_v6/test_zone_pour_clearance.py tests/router_v6/test_zone_pour_creepage.py tests/router_v6/test_zone_pour_rust_wiring.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
 

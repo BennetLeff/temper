@@ -1,3 +1,5 @@
+<!-- provenance: commit=c9ade7db014bd07b754651264f77b939fdf8188f dirty=UNKNOWN (stamp added retroactively 2026-08-24: this document landed in #1466 with no provenance line, which is why the "Evidence provenance gate (docs/evidence/)" step has been failing. c9ade7db0 is the commit that introduced the file, not necessarily the tree its figures were measured against -- hence dirty=UNKNOWN rather than a claim this document cannot support. The author of #1466 should replace this with the real measurement commit if it differs.) -->
+
 # 2026-08-23 — HV_to_ISO creepage figure decision package (SSOT-drift gate red)
 
 ## The finding
