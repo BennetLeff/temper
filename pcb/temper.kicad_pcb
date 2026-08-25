@@ -3491,7 +3491,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b7e10386) (tstamp f5bb3490-150c-026d-09fd-1c0917c4df28)
-    (at 66.99 201.51 90)
+    (at 59.99 201.51 90)
     (descr "C, Rect series, Radial, pin pitch=22.50mm, length*width=26.5*7mm^2, Capacitor, http://www.wima.com/EN/WIMA_MKS_4.pdf")
     (tags "C Rect series Radial pin pitch 22.50mm length 26.5mm width 7mm Capacitor")
     (property "Reference" "C6")
