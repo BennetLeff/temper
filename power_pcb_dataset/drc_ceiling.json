@@ -308,21 +308,29 @@
         "error_ceiling": "-6 (398 -> 392)",
         "warning_ceiling": "-1 (13266 -> 13265)"
       }
+    },
+    "2026-08-25": {
+      "date": "2026-08-25",
+      "cause": "error_ceiling 382 -> 473 (+91): clearance 178 -> 227, creepage 107 -> 149. Cause is the netclass-table reconciliation in this PR (#1391), NOT a board change -- no footprint moved. The 382 was measured while 'input' (the UCC21550 raw low-side driver output, on the HV side of the isolator) resolved to KiCad Default -- 0.2mm clearance and no creepage constraint at all -- since 2026-07-15, plus six discharge.* nets since 2026-07-16 and two unassigned SELV nets. Those nets now carry enforceable rules, so violations that always existed became visible. Evidence that this is measurement and not regression: across 5 samples with spread 0, ONLY the two categories that gained rules moved; shorting_items (39), courtyards_overlap (4), pth_inside_courtyard (0) and silk_over_copper (45) are all unchanged. Owner-approved explicitly on 2026-08-25 after being shown the measurement and both sides of the trade. The 91 newly-visible violations are open work.",
+      "per_type_delta": {
+        "clearance": 49,
+        "creepage": 42
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 382,
+      "error_ceiling": 473,
       "warning_ceiling": 13265,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
-        "clearance": 178,
+        "clearance": 227,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 107,
+        "creepage": 149,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -333,9 +341,9 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "95ddc9dbd1137d05b5638eaafe9eda18fe5177c3",
+        "measured_at_commit": "726b81f70416613d5d1f2a28e97dcc280d3bd88f",
         "dirty": false,
-        "branch": "fix/k1-rt1-c7-clearance",
+        "branch": "fix/netclass-tables-reconcile",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
