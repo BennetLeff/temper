@@ -876,13 +876,57 @@ class TestRealBoardIsolatorFigures:
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
 
-        # Wave-2 written board: 0 intra-footprint blockers -- K3's RT314012
-        # swap (12.76mm internal gap) cleared the last one (measured REQ-
-        # SAFE-01 = 0/0 on the written board; see
-        # docs/evidence/2026-08-02-k3-swap-and-board-write.md).
-        assert intra == set(), (
-            f"expected zero intra-footprint blockers on the wave-2 written "
-            f"board (K3 cleared by the RT314012 swap), got intra={intra}"
+        # RE-BASELINED 2026-08-25: intra is {T1, T2, U6}, not empty.
+        #
+        # The `intra == set()` baseline above was measured under the PD2
+        # 8.0mm reinforced target adopted on 2026-07-30. PD3/12.6mm is what
+        # is enforced today (#1229), and this docstring's own PD2 update
+        # predicted exactly this: "If the sealed-compartment prerequisite is
+        # not met and the PD3 fallback governs instead, all seven refs above
+        # return to this test's original set." The fallback governs. Some
+        # returned; several did not, and each has a distinct, measured
+        # reason rather than a single story:
+        #
+        #   T1  9.100mm  RETURNED as predicted. CST3015 primary<->secondary.
+        #   T2  9.100mm  T1's CST3015 pair partner, same figure.
+        #   U6  8.100mm  This is the ref the docstring above calls U7 -- the
+        #                TI UCC21550BDWKR isolated gate driver was renumbered
+        #                U7 -> U6, and 8.100mm matches its old figure exactly.
+        #                (Both U6 and U7 exist on the board today; today's U7
+        #                is a different part and is intra-clear.)
+        #
+        # Did NOT return, each verified rather than assumed:
+        #
+        #   K2, K3  by DESIGN -- the RT314012's 12.76mm internal gap still
+        #           beats the 12.6mm PD3 bar, so the relay swaps hold under
+        #           the stricter figure. This is the swap working, not drift.
+        #   K1      footprint swapped to temper:Relay_SPST_Schrack-RT33K012;
+        #           the 8.000mm figure above belonged to the older part.
+        #   C6      now Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4 --
+        #           22.5mm pad pitch, clears on geometry.
+        #   U3      no longer straddles a DECLARED barrier at all: it is a
+        #           SOT-23-6 whose non-LV pads (boot, fb, sw) are UNDECLARED,
+        #           so there is no HV<->LV pair for the validator to measure.
+        #           Cleared by classification, not by distance.
+        #
+        # All three survivors are placement-INDEPENDENT (pad-to-pad within
+        # one footprint) and are the open Question A of docs/evidence/
+        # 2026-08-14-certification-lab-package-pd3-and-60664-4.md -- U6 at
+        # -4.500mm, T1/T2 at -3.500mm against the 12.6mm bar. They are parts
+        # certified reinforced under a component standard whose external
+        # creepage falls short of the IEC 60335-1 PD3 table figure, a
+        # question this project sent OUT to a lab rather than answered here.
+        # T2's 9.100mm is the exact figure the OCP-02 descope decision cites
+        # (docs/evidence/2026-08-16-ocp02-descope-decision.md).
+        #
+        # Pinned as a SET so a FOURTH package-intrinsic straddler cannot
+        # appear unnoticed, and so the lab's answer arrives against an
+        # unchanged question. Same treatment #1501 applied to
+        # test_validator_audit.py's TestProductionBoardSolve.
+        assert intra == {"T1", "T2", "U6"}, (
+            f"the board's placement-independent creepage straddlers changed; "
+            f"a new one is a part/footprint decision, not a layout one. "
+            f"Expected the three certification-lab refs, got intra={intra}"
         )
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
@@ -908,12 +952,40 @@ class TestRealBoardIsolatorFigures:
             f"got it back in the blocker set: intra={intra}"
         )
 
-        # C6, K1, T1, U3, U7: cleared by the PD2 8.0mm target (were
-        # violations only at PD3's stricter 12.6mm). Asserted absent, not
-        # merely unmentioned, so a regression that silently re-adds any of
-        # them to `intra` is caught here.
-        assert "C6" not in intra, "C6 should clear at the 8.0mm PD2 target (8.000mm measured)"
-        assert "K1" not in intra, "K1 should clear at the 8.0mm PD2 target (8.000mm measured)"
-        assert "T1" not in intra, "T1 should clear at the 8.0mm PD2 target (9.100mm measured)"
-        assert "U3" not in intra, "U3 should clear at the 8.0mm PD2 target (8.560mm measured)"
-        assert "U7" not in intra, "U7 should clear at the 8.0mm PD2 target (8.100mm measured)"
+        # C6, K1, U3, U7: still absent, but NOT for the reason this block
+        # used to give. Every message here cited "the 8.0mm PD2 target" and
+        # a figure measured against it -- 8.000, 8.000, 8.560, 8.100 -- and
+        # every one of those figures FAILS the 12.6mm PD3 bar that is
+        # actually enforced today (#1229). The assertions kept passing, so
+        # the staleness was invisible: each was right by accident, and right
+        # in the lenient direction. Same defect class as #1496.
+        #
+        # Re-derived against what is enforced now. Each is absent for a
+        # structural reason, not a threshold one, so each still catches a
+        # real regression:
+        assert "C6" not in intra, (
+            "C6 carries Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4 -- "
+            "22.5mm pad pitch, clear at the 12.6mm PD3 bar on geometry. Back "
+            f"in the blocker set means a footprint change: intra={intra}"
+        )
+        assert "K1" not in intra, (
+            "K1 carries temper:Relay_SPST_Schrack-RT33K012 and measures clear "
+            "at the 12.6mm PD3 bar; the 8.000mm figure this assertion used to "
+            f"cite belonged to its previous footprint. Got intra={intra}"
+        )
+        assert "U3" not in intra, (
+            "U3 is a SOT-23-6 whose non-LV pads (boot, fb, sw) are UNDECLARED, "
+            "so it straddles no DECLARED barrier for the validator to measure "
+            "-- it is clear by classification, not by distance. Back in the "
+            f"blocker set means those nets acquired a domain: intra={intra}"
+        )
+        assert "U7" not in intra, (
+            "today's U7 is clear. NOTE: the 8.100mm figure this assertion used "
+            "to cite belongs to the TI UCC21550BDWKR, which is U6 on this "
+            "board -- the part was renumbered U7 -> U6, and it IS in the "
+            f"pinned set above at 8.100mm. Got intra={intra}"
+        )
+        # T1 is deliberately NOT asserted absent any more: at 9.100mm it does
+        # not clear 12.6mm, and it is pinned in the set assertion above. Its
+        # old "should clear at the 8.0mm PD2 target" line was the one stale
+        # assertion here that actually failed rather than passing by accident.
