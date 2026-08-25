@@ -1,3 +1,5 @@
+<!-- provenance: commit=9bf6e5df797cf93e0122b742ab87661bf097dd81 dirty=false (stamp added 2026-08-25; the document landed on main via #1380 (633c819ec) with no provenance line at all, which the Evidence provenance gate rejects. The commit is the document's own stated Base -- `origin/main` @ 9bf6e5df7 -- which resolves. dirty=false is what the document itself supports: its Board line records pcb/temper.kicad_pcb sha256=26981fea... 'verified byte-identical before and after every measurement below. Never modified.' If the author measured against a tree that differed from 9bf6e5df7 in some other file, replace this with the real measurement commit.) -->
+
 # Pad copper rectangles were rotated the wrong way — and no number on this board changed
 
 **Date:** 2026-08-18
