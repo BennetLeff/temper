@@ -59,9 +59,9 @@ REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     # 28 -> 27 with the C6 move in this PR.
     ("creepage", "FUNCTIONAL", 1.8, "inter"): 27,
     # The mains<->SELV reinforced barrier at the PD3 12.6mm figure (#1229).
-    # 32 -> 31: the C6 move alone took this to 34 (it landed C6 nearer R6 at
-    # 7.231mm and R23 at 7.598mm), and the R56 move more than pays that back.
-    ("creepage", "REINFORCED", 12.6, "inter"): 31,
+    # 32 -> 29. The C6 move alone took this to 34 (it landed C6 nearer R6 at
+    # 7.231mm and R23 at 7.598mm); the R56, RT1 and C7 moves more than repay it.
+    ("creepage", "REINFORCED", 12.6, "inter"): 29,
     # Package-intrinsic straddlers: U6 8.100mm, T1/T2 9.100mm. Placement
     # CANNOT fix these -- a footprint carries its own pads. They are the open
     # Question A of docs/evidence/
@@ -76,7 +76,7 @@ REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     ("clearance", "REINFORCED", 6.0, "inter"): 1,
 }
 
-REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 63
+REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 61
 
 
 def req_safe_01_strata(result: Any) -> dict[tuple[str, str, float, str], int]:

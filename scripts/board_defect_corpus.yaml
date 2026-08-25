@@ -25,7 +25,7 @@ _meta:
   # NOT true before the courtyard re-seed in this same change: the stale
   # seed coordinate had left that class silently uncovered (5/7), which
   # is why the hash could not simply be bumped on its own.
-  board_sha256: 1dfff173ca672c84a23a7241b8b15b3e832ef603ae6e6cee8d6622273bcb8bea
+  board_sha256: 6fd014e83578eb9fcd2cd48c6cae41a67dd3d51df7da9e12be5b21290d8f7e08
   board_commit: 92c08cd33
   created: 2026-08-02
   reseeded: 2026-08-04
