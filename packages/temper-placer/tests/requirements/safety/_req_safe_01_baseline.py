@@ -57,7 +57,7 @@ from typing import Any
 REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     # Same-domain functional insulation. #1226 raised this bar 1.0 -> 1.8mm.
     # 28 -> 27 with the C6 move in this PR.
-    ("creepage", "FUNCTIONAL", 1.8, "inter"): 27,
+    ("creepage", "FUNCTIONAL", 1.8, "inter"): 26,
     # The mains<->SELV reinforced barrier at the PD3 12.6mm figure (#1229).
     # 32 -> 31: the C6 move alone took this to 34 (it landed C6 nearer R6 at
     # 7.231mm and R23 at 7.598mm), and the R56 move more than pays that back.
@@ -76,7 +76,7 @@ REQ_SAFE_01_BASELINE: dict[tuple[str, str, float, str], int] = {
     ("clearance", "REINFORCED", 6.0, "inter"): 1,
 }
 
-REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 62
+REQ_SAFE_01_BASELINE_TOTAL = sum(REQ_SAFE_01_BASELINE.values())  # 61
 
 
 def req_safe_01_strata(result: Any) -> dict[tuple[str, str, float, str], int]:
