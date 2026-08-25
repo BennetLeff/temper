@@ -64,7 +64,6 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyDictMethods};
 
 use crate::congestion::{ceil_to_int, cpython_max, cpython_min, cpython_min2, int_trunc};
-use crate::host_math;
 
 /// `geometry.kicad_transform.rotate_local_to_world` -- R(-theta), via the
 /// host libm (see module doc's B1 note).

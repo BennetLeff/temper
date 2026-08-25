@@ -79,15 +79,6 @@ fn radians(deg: f64) -> f64 {
     deg * DEG_TO_RAD
 }
 
-/// KiCad R(-theta) footprint-child rotation.
-///
-/// Delegates to `kicad_transform` rather than re-typing the formula:
-/// same `pad_geometry::math_cos_sin` host-libm kernel, same operation
-/// order, so the swap is bit-identical by construction.
-fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
-    crate::kicad_transform::rotate_local_to_world(x, y, theta_rad)
-}
-
 /// `kicad_transform.place_local_to_world` -- rotate then translate, in the
 /// oracle's op order (the shared helper composes it the same way).
 fn place_local_to_world(lx: f64, ly: f64, ox: f64, oy: f64, theta_rad: f64) -> (f64, f64) {
