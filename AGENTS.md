@@ -355,6 +355,63 @@ this bug, not a passing one. Twelve independently-typed copies of a two-line
 formula is one careless edit away from eleven correct copies and one silently
 wrong one — and that is not hypothetical here, it has now happened twice.
 
+### Correct by coincidence — a passing test that proves nothing
+
+* **All 527 pads on `pcb/temper.kicad_pcb` sit at a multiple of 90 degrees**
+  (0:58, 90:202, 180:175, 270:92 — measured 2026-08-18, none elsewhere). At a
+  multiple of 90, KiCad's R(-theta) and the standard-math R(+theta) produce the
+  **same corner set** for a pad's copper rectangle; they differ only in ring
+  traversal order, which no distance, containment or area query can observe.
+  `pad_core_polygon`, `pad_polygon` and their Rust twin
+  `clearance_geometry.rs::pad_core` were R(+theta) — the mirror of the truth —
+  from the Wave 3 migration until 2026-08-18, and reproduced `kicad-cli` to four
+  decimals throughout. **Agreement on this board is not evidence of a correct
+  convention.** Any geometry claim about rotation has to be tested off a 90
+  multiple: `scripts/check_pad_core_polygon_oracle.py` does that against pcbnew.
+  See `docs/evidence/2026-08-18-pad-core-polygon-rotation-convention.md`.
+* **A differential suite cannot see a convention error.**
+  `test_clearance_rust_differential.py` pins Rust == Python bit-for-bit. A
+  **consistently wrong pair passes it**, and did for months. Bit-exactness
+  between two of your own implementations is not correctness; only an external
+  oracle (pcbnew, `kicad-cli`) can supply that. Correcting one side alone does
+  not produce evidence either — it produces a red suite. Move both, and anchor
+  the convention somewhere the oracle cannot reach.
+* **A plain `cargo build`/`cargo test` in a pyo3 crate poisons the extension
+  everyone else imports, and `maturin develop` then reports success.** The
+  `python` feature is not default, so a bare `cargo build --release -p
+  temper-geometry` links `target-shared/release/libtemper_geometry.so`
+  *without* `PyInit_temper_geometry` — and that path is SHARED across every
+  worktree. The next `maturin develop --release` prints `Finished ... in
+  0.04s`, `Installed temper-geometry-0.1.0`, and a single easily-missed
+  `⚠️ Warning: Couldn't find the symbol PyInit_...` line, then installs the
+  broken artifact. Every import of that module dies with
+  `ImportError: dynamic module does not define module export function`.
+  Observed 2026-08-18; `check_stale_extensions.py` reports it as
+  `[UNLOADABLE]` and names the cause.
+  **`cargo clean -p temper-geometry` did NOT fix it** — it printed
+  `Removed 0 files` because cargo's fingerprint was already satisfied. What
+  worked: `touch packages/temper-geometry/src/lib.rs`, then `maturin develop
+  --release`, **confirming a real `Compiling temper-geometry` line and a
+  minute of build time**. A `Finished ... in 0.0Xs` means it reused the
+  poisoned artifact. Then rebuild every dependent crate, whose own `.so`s the
+  touch just made `[STALE]`.
+  Use `make extensions` / `maturin develop`, not bare `cargo build`, in these
+  crates — and **run `make extensions-check` between the edit and the
+  measurement**, not merely after the build command claims success.
+* **An installed extension can silently REVERT to an older cached wheel, in a
+  worktree with its own `.venv`.** Observed 2026-08-18: an hour after a
+  verified `make extensions-check` PASS, `temper_geometry`'s `.so` was back at
+  the mtime of the wheel built during `make venv-isolate` (link count 2 — a
+  hardlink into a cache another process rewrote). The result was post-fix
+  Python running against a pre-fix Rust kernel — a state no commit describes —
+  and it manufactured **48 phantom failures**, including the change's own gate
+  self-test. After `maturin develop --release` the same selection reported
+  3623 passed / 3 failed (all 3 pre-existing on `origin/main`).
+  This is the same class as the shared-`.venv` poisoning below, but `venv-
+  isolate` does NOT immunise against it. **Re-verify `make extensions-check`
+  immediately before every measurement you intend to report — not once per
+  session** — and treat a sudden broad failure as a suspect instrument first.
+
 ### The general rule
 
 **When a measurement contradicts a change you just made, suspect the

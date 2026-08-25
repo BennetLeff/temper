@@ -140,6 +140,13 @@ on:
       - 'scripts/tests/test_check_pad_world_position_oracle.py'
       - 'scripts/pad_rotation_oracle_corpus.json'
       - 'scripts/kicad_pad_rotation_oracle.py'
+      - 'scripts/check_pad_core_polygon_oracle.py'
+      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
+      - 'scripts/kicad_pad_polygon_oracle.py'
+      - 'scripts/pad_core_polygon_oracle_corpus.json'
+      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
+      - 'packages/temper-geometry/src/clearance_geometry.rs'
+      - 'packages/temper-geometry/src/kicad_transform.rs'
       - 'pcb/temper.kicad_pcb'
       # The board-sync gate's OWN committed artifact. Absent here, the one
       # file whose modification should always re-run the gate was the one
@@ -259,6 +266,13 @@ on:
       - 'scripts/tests/test_check_pad_world_position_oracle.py'
       - 'scripts/pad_rotation_oracle_corpus.json'
       - 'scripts/kicad_pad_rotation_oracle.py'
+      - 'scripts/check_pad_core_polygon_oracle.py'
+      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
+      - 'scripts/kicad_pad_polygon_oracle.py'
+      - 'scripts/pad_core_polygon_oracle_corpus.json'
+      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
+      - 'packages/temper-geometry/src/clearance_geometry.rs'
+      - 'packages/temper-geometry/src/kicad_transform.rs'
       - 'pcb/temper.kicad_pcb'
       # see the push: block above for why this path is here
       - 'pcb/temper.kicad_pcb.source-digest'
@@ -3294,6 +3308,24 @@ jobs:
       - name: Pad world positions agree with pcbnew (rotation convention)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_pad_world_position_oracle.py
+      - name: Pad-core-polygon oracle gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_core_polygon_oracle.py -v --tb=short
+
+      # The second, independent half of the same convention: not where a
+      # pad's CENTRE lands (check_pad_world_position_oracle.py) but which
+      # way its copper RECTANGLE is turned about that centre.
+      # pad_core_polygon / pad_polygon and their bit-exact Rust twin
+      # clearance_geometry.rs::pad_core rotated R(+theta) -- the mirror of
+      # KiCad's rule -- and nothing noticed, because all 527 pads on this
+      # board sit at multiples of 90 degrees where the two conventions
+      # produce the same corner set. Correct by coincidence of placement,
+      # not by construction. This gate resolves every such implementation
+      # by import, calls it, and compares against corners pcbnew itself
+      # produced at angles where the conventions differ.
+      - name: Pad copper rectangle matches pcbnew at non-90-degree angles
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_pad_core_polygon_oracle.py
 
       - name: Duplicate-predicate consolidation gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

@@ -970,10 +970,18 @@ scripts:
   - sys
   - tempfile
 - path: check_no_raw_rotation_trig.py
-  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
+  purpose: 'CI gate: fail if any of the files that have already carried KiCad''s R(+theta)/R(-theta)
     footprint-child rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md)
-    contains a raw math.cos/math.sin/np.cos/np.sin call instead of importing temper_placer.geometry.kicad_transform,
-    the single sanctioned implementation those 12 sites were consolidated into'
+    contains a raw trig call instead of delegating to kicad_transform, the single sanctioned
+    implementation those sites were consolidated into. TWO HALVES since 2026-08-18: (a) the original
+    AST scan of 15 guarded Python files for math/np cos/sin; (b) a textual scan of 13 guarded RUST
+    files for every trig spelling this repo uses (.cos()/.sin()/.sin_cos(), f64::cos/sin, the
+    host_math and pad_geometry::math_cos_sin dlsym shims, the injected cos_sin callback) with
+    per-function exemptions, plus a duplicate-quadrant-table check that compares both copies of
+    project_onto_barrier_axis against a STATED R(-theta) expectation rather than only against each
+    other. The Rust half was added because the same bug had already crossed the FFI boundary:
+    clearance_geometry.rs::shapely_rotation_cos_sin rotated every pad polygon R(+theta), invisible
+    only because all 527 pads on this board sit at multiples of 90 degrees'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -1126,6 +1134,40 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_pad_core_polygon_oracle.py
+  purpose: 'CI gate: every implementation that orients a pad''s copper RECTANGLE must agree with
+    pcbnew, at angles that are not multiples of 90 degrees. Sibling of check_pad_world_position_oracle.py
+    (which covers where a pad''s CENTRE lands); this one covers the independent second half --
+    the orientation of the copper about that centre. core/pad_geometry.py::pad_core_polygon /
+    ::pad_polygon and their bit-exact Rust twin clearance_geometry.rs::pad_core rotated with
+    shapely.affinity.rotate(+degrees) -- R(+theta) -- while check_board_containment.py::_pad_polygons
+    rotated the identical object at R(-theta). Invisible because all 527 pads on pcb/temper.kicad_pcb
+    sit at multiples of 90, where the two conventions give the same corner SET. Resolves 5 sites BY
+    IMPORT and CALLS them against corners pinned from scripts/kicad_pad_polygon_oracle.py; the corpus
+    proves it discriminates before any verdict is trusted (90-degree rows are a hard error, >=4
+    asymmetric rows required, pinned to the oracle''s sha256 and failing closed with "regenerate",
+    never "re-pin"). Exit 0 clean / 3 violation / 5 tool_error.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.path_setup
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - enum
+  - hashlib
+  - importlib
+  - json
+  - math
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
 - path: check_pad_orientation.py
   purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a
     footprint rotated by a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature
@@ -2047,6 +2089,23 @@ scripts:
   category: keep
   disposition: utility
   imports:
+  - sys
+- path: kicad_pad_polygon_oracle.py
+  purpose: 'Ground-truth oracle for check_pad_core_polygon_oracle.py: builds a rectangular pad of a
+    given size, centre and orientation in pcbnew (KiCad''s own placement engine) and reads back the
+    corners of the polygon KiCad fills with copper. Rectangular only, deliberately -- for a rect pad
+    the copper outline IS pad_core_polygon''s core (corner radius 0), so the comparison is exact with
+    no arc approximation on either side. MUST run under an interpreter that has the pcbnew bindings,
+    which is normally NOT the project''s uv venv; no interpreter path is hardcoded (a /usr/bin/python3
+    that exists but lacks pcbnew is how a whole test family silently skipped for a week here). Not
+    CI-wired itself: CI consumes the pinned corpus it generates. Exit 0 / 2 no-pcbnew / 3 bad input.'
+  owner: bennet
+  last_run: '2026-08-18'
+  category: keep
+  disposition: oracle
+  imports:
+  - __future__
+  - json
   - sys
 - path: kicad_pad_rotation_oracle.py
   purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):

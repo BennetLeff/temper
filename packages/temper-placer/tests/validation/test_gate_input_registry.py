@@ -305,12 +305,19 @@ def _invoked_ci_gate_scripts() -> set[str]:
         # it is a pcbnew-backed oracle helper IMPORTED by
         # test_rotation_convention_oracle.py, not a gate CI executes.
         #
-        # AUDIT of what this tightening stops detecting, measured 2026-08-25
-        # against this workflow: 92 -> 82 names. All ten are reference-only in
+        # AUDIT of what this tightening stops detecting, re-measured 2026-08-25
+        # on the MERGED result of #1376 + #1380 (the figure is branch-dependent
+        # -- each PR adds its own oracle scripts -- so it is recorded here for
+        # the state that actually lands): 94 -> 83 names. All eleven are
+        # reference-only in
         # python-tests.yml (comment prose or a paths entry) and none appears on
         # a `run:` line here -- several are invoked by OTHER workflows
         # (ci_check_drc.py by regression.yml, check_required_checks.py by
-        # required-checks.yml) or are developer tooling (regen_derived.py,
+        # required-checks.yml), are pcbnew-backed oracle HELPERS imported by
+        # differential tests rather than run by CI (kicad_pad_rotation_oracle.py,
+        # kicad_pad_polygon_oracle.py, measure_cross_domain_creepage.py -- the
+        # last named only in comment prose), or are developer tooling
+        # (regen_derived.py,
         # update_oracle_hashes.py, update_production_routing_baseline.py,
         # install_cargo_target_dir_guard.py, gate_mutate.py,
         # check_firmware_board_contract.py). Their existing _CI_SCRIPT_SURVEY

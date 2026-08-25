@@ -175,6 +175,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -321,6 +322,274 @@ _TRIG_MODULES = frozenset({"math", "np", "numpy"})
 _TRIG_FUNCS = frozenset({"cos", "sin"})
 
 
+# ===========================================================================
+# THE RUST HALF (added 2026-08-18)
+# ===========================================================================
+#
+# Why there was none, and why that stopped being defensible
+# ---------------------------------------------------------
+# The section above says this AST lint "has no Rust equivalent,
+# deliberately -- there is no comparable '13 proven-vulnerable files'
+# precedent on the Rust side yet". That was written when the only Rust
+# rotation code was a generic polygon helper and a benchmark. It is no
+# longer true. A sweep on 2026-08-18 found the KiCad footprint-child
+# convention typed out by hand in **ten** Rust functions across six crates,
+# plus three copies of the integer quadrant table that is the same
+# transform for 0/90/180/270, plus one site that had the convention
+# outright WRONG:
+#
+#   `clearance_geometry.rs::shapely_rotation_cos_sin` -- the bit-exact Rust
+#   twin of `pad_geometry.py::pad_core_polygon` -- rotated every pad's
+#   copper rectangle R(+theta). It was invisible only because all 527 pads
+#   on `pcb/temper.kicad_pcb` sit at multiples of 90 degrees, where the two
+#   conventions give the same corner SET. Correct by coincidence of
+#   placement, not by construction. The bug the Python half of this gate
+#   was built to prevent had simply moved across the FFI boundary, into the
+#   half nothing was watching.
+#
+# So the precedent now exists, and it is worse than the Python one: on the
+# Rust side the wrong formula is invisible from Python, the differential
+# suites pin Rust against Python (so a consistently-wrong PAIR passes), and
+# the compiled `.so` cannot be read by anyone reviewing the shim above it.
+#
+# What is checked, and why it is textual rather than AST
+# -------------------------------------------------------
+# There is no Rust parser in this repo's dependency set and adding one to
+# run a lint would be a heavier commitment than the lint is worth
+# (`scripts/check_rotation_quadrant_arithmetic.py` sets the precedent: it
+# scans `.rs` textually for exactly this reason). So: each file in
+# `GUARDED_RUST_FILES` is scanned for any raw trig call token, with
+# comments stripped and the enclosing `fn` name tracked by brace depth so
+# that exemptions can be per-function exactly as on the Python side.
+#
+# Keying on the trig CALL rather than on the formula shape is deliberate.
+# The formula appears with at least eight different identifier pairs
+# (`c/s`, `cos/sin`, `cos_a/sin_a`, `cos_r/sin_r`, `cosp/sinp`, `c/sn`,
+# inline `t.cos()/t.sin()`, ...) and in both sign arrangements; a textual
+# matcher for the shape would be both leaky and false-positive-prone. The
+# trig call is the necessary precondition for typing the formula at all,
+# and requiring the guarded files to obtain cos/sin only from
+# `kicad_transform` is the same removal-of-capability the Python half
+# performs.
+#
+# The token list covers every spelling the sweep actually found, because a
+# lint keyed only on `.cos()` would have missed FIVE of the ten sites --
+# they call `pad_geometry::math_cos_sin` or `host_math::cos`, this repo's
+# two dlsym host-libm shims, not `f64::cos`.
+
+# Rust files that host, or have hosted, KiCad's footprint-child rotation.
+# Same rule as GUARDED_FILES: a file here that goes missing is a GATE
+# ERROR, not a silently smaller check.
+GUARDED_RUST_FILES: tuple[str, ...] = (
+    # Migrated to call kicad_transform on 2026-08-18 -- guarded so they
+    # cannot drift back. Each was verified bit-identical before the swap:
+    # `kicad_transform` resolves cos/sin through `pad_geometry::
+    # math_cos_sin`, which is the same `dlsym(RTLD_DEFAULT, "cos"/"sin")`
+    # pointer `host_math::cos`/`sin` resolves, with the same
+    # `f64::cos`/`f64::sin` fallback.
+    "packages/temper-geometry/src/clearance_geometry.rs",
+    "packages/temper-geometry/src/congestion_analysis.rs",
+    "packages/temper-geometry/src/connectivity_kernels.rs",
+    "packages/temper-geometry/src/core_graph_geometry.rs",
+    "packages/temper-geometry/src/drc_constraints_geometry.rs",
+    "packages/temper-geometry/src/escape_via.rs",
+    # NOT migrated -- see RUST_EXEMPT_FUNCTIONS for the per-function
+    # justification. Guarded anyway: an exemption names ONE function, so a
+    # new rotation typed into a different function in the same file still
+    # fails.
+    "packages/temper-geometry/src/transform.rs",
+    "packages/temper-geometry/src/fixed_copper.rs",
+    "packages/temper-geometry/src/pad_geometry.rs",
+    "packages/temper-rust-router/src/net_ordering.rs",
+    "packages/temper-rust-router/src/terminal_planning.rs",
+    "packages/temper-design-bundle/src/parse_engine.rs",
+    "packages/temper-io-types/src/placer_core/placer_compute.rs",
+)
+
+# The sanctioned Rust implementation. Never guarded, for the same reason
+# `kicad_transform.py` never is: it is the one place the formula may live.
+SANCTIONED_RUST_FILE = "packages/temper-geometry/src/kicad_transform.rs"
+
+# (file, fn name) pairs exempt from the Rust scan. Every entry carries the
+# same burden of proof as the Python EXEMPT_FUNCTIONS above: the site was
+# examined individually and is either a DIFFERENT computation, or a
+# migration that would NOT be behaviour-preserving. "It would be awkward to
+# change" is not on that list; "changing it changes the bits, and the bits
+# are pinned" is.
+RUST_EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
+    {
+        # --- the two dlsym host-libm providers: these ARE the cos/sin the
+        # sanctioned module itself calls. Exempting them is not a hole; it
+        # is the base case.
+        ("packages/temper-geometry/src/pad_geometry.rs", "math_cos"),
+        ("packages/temper-geometry/src/pad_geometry.rs", "math_sin"),
+        ("packages/temper-geometry/src/pad_geometry.rs", "math_cos_sin"),
+        ("packages/temper-geometry/src/pad_geometry.rs", "fallback_cos"),
+        ("packages/temper-geometry/src/pad_geometry.rs", "fallback_sin"),
+        ("packages/temper-geometry/src/pad_geometry.rs", "host_cos"),
+        ("packages/temper-geometry/src/pad_geometry.rs", "host_sin"),
+        # --- support functions: sign-INVARIANT by construction, so the
+        # rotation convention cannot be wrong in them. `support_radius`
+        # rotates a query DIRECTION and takes |dx|,|dy|; `local_pad_half`
+        # is the axis-aligned bounding box of a rotated rectangle
+        # (|cos|,|sin|). Neither places a point, and both give the same
+        # answer under either convention -- verified by inspection of the
+        # absolute values, not assumed.
+        ("packages/temper-geometry/src/pad_geometry.rs", "support_radius"),
+        ("packages/temper-geometry/src/fixed_copper.rs", "local_pad_half"),
+        # --- transform.rs::transform_pin_position / transform_pin_positions
+        # and get_rotation_matrix / rotate_point / rotate_points /
+        # get_rotated_bounds / rotate_rectangle_corners.
+        #
+        # `transform_pin_position` IS the KiCad convention and IS correct,
+        # but it uses plain `f64::cos`/`f64::sin`, NOT the host-libm
+        # `math_cos_sin` that `kicad_transform` uses -- and those differ by
+        # 1 ulp on this platform (measured 2026-08-05; `kicad_transform.rs`
+        # documents exactly this divergence in its own header, naming this
+        # function). Routing it through the shared helper would therefore
+        # CHANGE ITS OUTPUT BITS, which is the opposite of a
+        # behaviour-preserving migration, and its consumers are the
+        # crate's own Rust callers rather than a pinned Python oracle. It
+        # is left as its own copy, guarded here so a NEW function in this
+        # file cannot join it silently. The `get_rotation_matrix` family is
+        # a different computation entirely: generic CCW R(+theta) geometry
+        # with no KiCad correspondence (same verdict polygon.rs::
+        # rotate_polygon already carries in the Python section above).
+        ("packages/temper-geometry/src/transform.rs", "transform_pin_position"),
+        ("packages/temper-geometry/src/transform.rs", "transform_pin_positions"),
+        ("packages/temper-geometry/src/transform.rs", "get_rotation_matrix"),
+        # --- temper-rust-router: `net_ordering.rs` and `terminal_planning.rs`
+        # both carry a correct R(-theta) copy on plain `f64::cos`/`sin`.
+        # `temper-rust-router` does NOT depend on `temper-geometry` (its
+        # Cargo.toml lists only `temper-rust-router-core`), and
+        # `net_ordering.rs`'s own comment records that as the reason for
+        # the duplication. Adding a crate dependency to a routing crate to
+        # share a two-line function is a bigger change than this one, and
+        # it would also move these sites off plain `f64` trig onto the
+        # host-libm path -- a bit change, not a no-op. Registered as
+        # exempt, deliberately and visibly, rather than left unguarded:
+        # the file is scanned, so a THIRD rotation in either file fails.
+        ("packages/temper-rust-router/src/net_ordering.rs", "rotate_local_to_world"),
+        ("packages/temper-rust-router/src/terminal_planning.rs", "rotate_local_to_world"),
+        # --- parse_engine.rs::extract_components_pure -- the `.kicad_pcb`
+        # parse path. Correct R(-theta) today. `temper-design-bundle` DOES
+        # depend on `temper-geometry`, so the dependency is not the
+        # blocker; the arithmetic is. This site converts with
+        # `f64::to_radians`, while `kicad_transform`'s degrees wrapper uses
+        # the CPython-shaped `t * (PI / 180.0)` -- the two are not required
+        # to agree in the last bit, and this function's output feeds the
+        # parsed component positions that every downstream pin is measured
+        # from. Migrating it needs its own differential on real board
+        # geometry, which is a separate change from this one; it is
+        # recorded here so that "not migrated" is a decision on the record
+        # rather than an omission.
+        ("packages/temper-design-bundle/src/parse_engine.rs", "extract_components_pure"),
+        # --- placer_compute.rs::apply_component_template /
+        # apply_parametric_template. Correct R(-theta), and structurally
+        # unable to call `kicad_transform`: it takes cos/sin as an INJECTED
+        # CALLBACK (`cos_sin: &dyn Fn(f64) -> Result<(f64, f64), E>`) whose
+        # production implementation calls back into CPython's own
+        # `math.cos`/`math.sin`, precisely so the kernel does not re-type
+        # the transcendental. That seam is itself a
+        # `check_no_raw_rotation_trig` exemption on the Python side
+        # (`placer/template.py::_cos_sin`). `temper-io-types` also does not
+        # depend on `temper-geometry`.
+        ("packages/temper-io-types/src/placer_core/placer_compute.rs", "apply_component_template"),
+        ("packages/temper-io-types/src/placer_core/placer_compute.rs", "apply_parametric_template"),
+        # --- placer_compute.rs, NOT rotations: `place_by_proximity` is a
+        # spiral/polar placement search and `adjust_for_congestion` builds
+        # a random unit push vector. Same class as the Python
+        # `placer/deterministic.py` family the section above declined to
+        # guard.
+        ("packages/temper-io-types/src/placer_core/placer_compute.rs", "place_by_proximity"),
+        ("packages/temper-io-types/src/placer_core/placer_compute.rs", "adjust_for_congestion"),
+        # --- placer_compute.rs::cos_sin -- the in-crate TEST implementation
+        # of the injected callback above (`Ok((theta.cos(), theta.sin()))`).
+        # It is the stand-in for CPython's math.cos/sin, not a rotation; the
+        # production path never reaches it.
+        ("packages/temper-io-types/src/placer_core/placer_compute.rs", "cos_sin"),
+        # --- SHAPELY/NUMPY AFFINE REPLICAS. These two legitimately need
+        # their own trig, and it is NOT the rotation formula: they replicate
+        # `shapely.affinity.rotate`'s internals, including its own
+        # degrees->radians round trip and its `abs(cos/sin) < 2.5e-16 -> 0.0`
+        # snap, which `kicad_transform` deliberately does not have (it is a
+        # point transform, not an affine builder). What they must NOT type
+        # themselves is the SIGN, and neither does: both call
+        # `kicad_transform::shapely_rotation_angle_deg` to get the CCW angle
+        # shapely wants from KiCad's R(-theta). `shapely_rotation_cos_sin`
+        # is exactly where the missing sign flip lived until 2026-08-18, so
+        # the exemption is scoped to the trig call, and the sign it derives
+        # is pinned against pcbnew by
+        # `scripts/check_pad_core_polygon_oracle.py`.
+        ("packages/temper-geometry/src/clearance_geometry.rs", "shapely_rotation_cos_sin"),
+        ("packages/temper-geometry/src/core_graph_geometry.rs", "courtyard_global_points"),
+        # --- net_ordering.rs test: asserts that cos(PI/2) is NOT exactly
+        # 0.0, i.e. that a 90-degree quadrant rotation is not an exact axis
+        # swap. The trig residue IS the subject of the test; routing it
+        # through a helper would delete the thing being measured.
+        (
+            "packages/temper-rust-router/src/net_ordering.rs",
+            "quadrant_rotation_is_not_an_exact_axis_swap",
+        ),
+    }
+)
+
+# Registered duplicate integer quadrant tables: the SAME 0/90/180/270
+# rotation as the trig formula, written as a `match` with no trig at all,
+# so the scan above is structurally blind to them.
+#
+# Two byte-identical copies of this table exist. They are not consolidated
+# here because they differ in a real, deliberate way at the boundary:
+# `pad_geometry.rs`'s has a `_` catch-all that folds out-of-range indices
+# onto the rot==3 arm, while `clearance.rs`'s returns `None` (raising
+# `KeyError` at the Python boundary). Making either adopt the other's
+# behaviour is a semantic change, not a refactor. What CAN be enforced for
+# free is that the four in-range arms never drift apart -- which is the
+# failure mode that matters, and the one a reader of either file alone
+# cannot see.
+RUST_QUADRANT_TABLE_TWINS: tuple[tuple[str, str, str, str], ...] = (
+    (
+        "packages/temper-geometry/src/pad_geometry.rs",
+        "project_onto_barrier_axis",
+        "packages/temper-orchestration/src/clearance.rs",
+        "project_onto_barrier_axis_impl",
+    ),
+)
+
+# The in-range arms both twins must agree on: KiCad's R(-theta) at
+# 0/90/180/270. Written here as normalized text so the check is a
+# comparison against a stated expectation, not merely "the two files agree"
+# (two copies can drift together).
+_QUADRANT_EXPECTED = (
+    ("0", "(local_x,local_y)"),
+    ("1", "(local_y,-local_x)"),
+    ("2", "(-local_x,-local_y)"),
+    ("3", "(-local_y,local_x)"),
+)
+
+# Every spelling of a trig call the 2026-08-18 sweep found in this repo's
+# Rust. `.sin_cos()` is included because it is one call producing both
+# halves of a rotation; `cos_sin(` because `placer_compute.rs` receives the
+# pair through an injected callback.
+_RUST_TRIG_PATTERNS: tuple[tuple[str, str], ...] = (
+    (r"\.cos\s*\(\s*\)", "f64::cos method call"),
+    (r"\.sin\s*\(\s*\)", "f64::sin method call"),
+    (r"\.sin_cos\s*\(\s*\)", "f64::sin_cos method call"),
+    (r"\bf64\s*::\s*cos\s*\(", "f64::cos"),
+    (r"\bf64\s*::\s*sin\s*\(", "f64::sin"),
+    (r"\bhost_math\s*::\s*cos\s*\(", "host_math::cos (dlsym host libm)"),
+    (r"\bhost_math\s*::\s*sin\s*\(", "host_math::sin (dlsym host libm)"),
+    (r"\bhostmath\s*::\s*cos\s*\(", "hostmath::cos (dlsym host libm)"),
+    (r"\bhostmath\s*::\s*sin\s*\(", "hostmath::sin (dlsym host libm)"),
+    (r"\bpymath\s*::\s*cos\s*\(", "pymath::cos (dlsym host libm)"),
+    (r"\bpymath\s*::\s*sin\s*\(", "pymath::sin (dlsym host libm)"),
+    (r"\bmath_cos_sin\s*\(", "pad_geometry::math_cos_sin (dlsym host libm)"),
+    (r"\bmath_cos\s*\(", "pad_geometry::math_cos (dlsym host libm)"),
+    (r"\bmath_sin\s*\(", "pad_geometry::math_sin (dlsym host libm)"),
+    (r"\bcos_sin\s*\(", "injected cos/sin callback"),
+)
+
+
 class GateError(Exception):
     """Raised for any condition that must fail closed (exit 5)."""
 
@@ -335,6 +604,8 @@ class Violation:
 @dataclass
 class Report:
     files_checked: int = 0
+    rust_files_checked: int = 0
+    quadrant_twins_checked: int = 0
     violations: list[Violation] = field(default_factory=list)
 
 
@@ -443,9 +714,200 @@ def _find_violations(path: Path, repo_root: Path) -> list[Violation]:
     return found
 
 
-def run(repo_root: Path) -> Report:
+# ---------------------------------------------------------------------------
+# Rust scanning
+# ---------------------------------------------------------------------------
+
+_RUST_FN_RE = re.compile(r"\bfn\s+([A-Za-z_][A-Za-z0-9_]*)")
+_RUST_TRIG_RE = tuple((re.compile(p), label) for p, label in _RUST_TRIG_PATTERNS)
+
+
+def _strip_rust_comments(line: str) -> str:
+    """Drop everything from an unquoted ``//`` to end of line.
+
+    Deliberately simple: it tracks double-quote parity and a backslash
+    escape so a ``//`` inside a string literal is not treated as a comment,
+    which is the only case in these files that would cause a MISSED
+    violation. Block comments are not stripped -- a ``/* ... */`` wrapping
+    a rotation would be reported. That direction is the safe one: this gate
+    over-reports rather than under-reports, and a spurious hit is one
+    exemption entry away from resolution while a miss is another 2026-07-29.
+    """
+    out = []
+    in_str = False
+    escaped = False
+    i = 0
+    while i < len(line):
+        ch = line[i]
+        if in_str:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_str = False
+            out.append(ch)
+        else:
+            if ch == '"':
+                in_str = True
+                out.append(ch)
+            elif ch == "/" and i + 1 < len(line) and line[i + 1] == "/":
+                break
+            else:
+                out.append(ch)
+        i += 1
+    return "".join(out)
+
+
+def _rust_enclosing_functions(lines: list[str]) -> list[str | None]:
+    """For each 0-based line, the name of the innermost ``fn`` whose body
+    encloses it (or ``None`` outside any function).
+
+    Brace-depth tracking over comment-stripped lines, with a stack of
+    ``(name, depth_at_open)``. Good enough to attribute a trig call to a
+    function for exemption purposes; it does not need to be a Rust parser,
+    and a mis-attribution can only make an exemption fail to apply -- i.e.
+    fail LOUD, never silently exempt something it should not.
+    """
+    result: list[str | None] = []
+    stack: list[tuple[str, int]] = []
+    depth = 0
+    pending: str | None = None
+    for raw in lines:
+        code = _strip_rust_comments(raw)
+        m = _RUST_FN_RE.search(code)
+        if m:
+            pending = m.group(1)
+        # The name applying to THIS line is the innermost open fn.
+        result.append(stack[-1][0] if stack else pending)
+        for ch in code:
+            if ch == "{":
+                depth += 1
+                if pending is not None:
+                    stack.append((pending, depth))
+                    pending = None
+            elif ch == "}":
+                if stack and stack[-1][1] == depth:
+                    stack.pop()
+                depth -= 1
+    return result
+
+
+def _find_rust_violations(path: Path, repo_root: Path) -> list[Violation]:
+    try:
+        source = path.read_text()
+    except OSError as e:
+        raise GateError(f"{path}: could not read file: {e}") from None
+
+    rel = str(path.relative_to(repo_root))
+    exempt = {fn for (f, fn) in RUST_EXEMPT_FUNCTIONS if f == rel}
+
+    lines = source.splitlines()
+    owners = _rust_enclosing_functions(lines)
+
+    found: list[Violation] = []
+    for idx, raw in enumerate(lines):
+        code = _strip_rust_comments(raw)
+        if not code.strip():
+            continue
+        owner = owners[idx]
+        if owner is not None and owner in exempt:
+            continue
+        for regex, label in _RUST_TRIG_RE:
+            if regex.search(code):
+                found.append(
+                    Violation(
+                        rel,
+                        idx + 1,
+                        f"{label} in fn {owner or '<module>'}(...) -- raw trig, not "
+                        "temper_geometry::kicad_transform",
+                    )
+                )
+                break
+    return found
+
+
+def _quadrant_arms(path: Path, fn_name: str) -> list[tuple[str, str]]:
+    """Extract ``index => (expr, expr)`` arms from a quadrant-table ``match``
+    inside *fn_name*, whitespace-normalized."""
+    try:
+        lines = path.read_text().splitlines()
+    except OSError as e:
+        raise GateError(f"{path}: could not read file: {e}") from None
+    owners = _rust_enclosing_functions(lines)
+    # `_ =>` is accepted as an arm label because one of the two twins ends
+    # its table with a catch-all instead of an explicit `3` (that boundary
+    # difference is deliberate -- see RUST_QUADRANT_TABLE_TWINS). It is
+    # normalized to "3" ONLY when it is the fourth arm, so a table that
+    # dropped an arm and widened the catch-all cannot pass by accident.
+    arm_re = re.compile(r"^\s*([0-9]+|_)\s*=>\s*(\([^)]*\))\s*,")
+    arms: list[tuple[str, str]] = []
+    seen_fn = False
+    for idx, raw in enumerate(lines):
+        if owners[idx] != fn_name:
+            continue
+        seen_fn = True
+        m = arm_re.match(_strip_rust_comments(raw))
+        if m:
+            label = m.group(1)
+            if label == "_":
+                label = str(len(arms)) if len(arms) == 3 else f"_@{len(arms)}"
+            arms.append((label, re.sub(r"\s+", "", m.group(2))))
+    if not seen_fn:
+        raise GateError(
+            f"{path}: registered quadrant-table function '{fn_name}' was not found -- "
+            "RUST_QUADRANT_TABLE_TWINS has drifted from the repo (a rename must update "
+            "this list, not silently shrink the gate)"
+        )
+    return arms
+
+
+def _find_quadrant_violations(repo_root: Path) -> list[Violation]:
+    found: list[Violation] = []
+    for path_a, fn_a, path_b, fn_b in RUST_QUADRANT_TABLE_TWINS:
+        for rel in (path_a, path_b):
+            if not (repo_root / rel).is_file():
+                raise GateError(
+                    f"registered quadrant-table file '{rel}' does not exist -- "
+                    "RUST_QUADRANT_TABLE_TWINS has drifted from the repo"
+                )
+        arms_a = _quadrant_arms(repo_root / path_a, fn_a)
+        arms_b = _quadrant_arms(repo_root / path_b, fn_b)
+        expected = list(_QUADRANT_EXPECTED)
+        for rel, fn, arms in ((path_a, fn_a, arms_a), (path_b, fn_b, arms_b)):
+            if arms != expected:
+                found.append(
+                    Violation(
+                        rel,
+                        0,
+                        f"{fn}'s quadrant table is {arms}, expected KiCad's R(-theta) "
+                        f"{expected}. Two copies of this table exist ({path_a} and "
+                        f"{path_b}); they are compared against a STATED expectation, not "
+                        "only against each other, because two copies can drift together.",
+                    )
+                )
+    return found
+
+
+def run(repo_root: Path, *, include_python: bool = True, include_rust: bool = True) -> Report:
+    """Scan both halves. The two flags exist ONLY so this gate's own unit
+    tests can drive one detector at a time over a synthetic tree; CI always
+    runs with both on, and `main()` offers no way to turn either off. A
+    flag that could silence half the gate from the command line would be
+    the "make a check pass by weakening it" move this repo forbids."""
     report = Report()
 
+    if not include_python and not include_rust:
+        raise GateError("both halves disabled -- vacuous run, refusing to report clean")
+
+    if include_python:
+        _run_python(repo_root, report)
+    if include_rust:
+        _run_rust(repo_root, report)
+    return report
+
+
+def _run_python(repo_root: Path, report: Report) -> None:
     if not GUARDED_FILES:
         raise GateError("GUARDED_FILES is empty -- vacuous run, refusing to report clean")
 
@@ -460,7 +922,37 @@ def run(repo_root: Path) -> Report:
         report.files_checked += 1
         report.violations.extend(_find_violations(path, repo_root))
 
-    return report
+
+def _run_rust(repo_root: Path, report: Report) -> None:
+    if not GUARDED_RUST_FILES:
+        raise GateError("GUARDED_RUST_FILES is empty -- vacuous run, refusing to report clean")
+
+    sanctioned = repo_root / SANCTIONED_RUST_FILE
+    if not sanctioned.is_file():
+        raise GateError(
+            f"the sanctioned Rust implementation '{SANCTIONED_RUST_FILE}' does not exist. "
+            "Every guarded Rust site is required to delegate to it; if it moved, this gate "
+            "must be updated before it can report clean."
+        )
+    if sanctioned.name in {Path(r).name for r in GUARDED_RUST_FILES}:
+        raise GateError(
+            f"'{SANCTIONED_RUST_FILE}' appears in GUARDED_RUST_FILES -- it is the one place "
+            "the formula may live and must never be guarded against itself"
+        )
+
+    for rel in GUARDED_RUST_FILES:
+        path = repo_root / rel
+        if not path.is_file():
+            raise GateError(
+                f"guarded Rust file '{rel}' does not exist -- GUARDED_RUST_FILES has drifted "
+                "from the repo (a rename/move must update this list, not silently shrink the "
+                "gate's coverage)"
+            )
+        report.rust_files_checked += 1
+        report.violations.extend(_find_rust_violations(path, repo_root))
+
+    report.violations.extend(_find_quadrant_violations(repo_root))
+    report.quadrant_twins_checked = len(RUST_QUADRANT_TABLE_TWINS)
 
 
 def _print_report(report: Report) -> None:
@@ -471,18 +963,26 @@ def _print_report(report: Report) -> None:
         print(
             "\nFAILED -- raw rotation trig found in a file that has already proven "
             "capable of hosting the R(+theta)/R(-theta) sign bug. Use "
-            "temper_placer.geometry.kicad_transform instead -- see that module's "
-            "docstring."
+            "temper_placer.geometry.kicad_transform (Python) or "
+            "temper_geometry::kicad_transform (Rust) instead -- see those modules' "
+            "docstrings. If the site genuinely needs its own maths, add a JUSTIFIED "
+            "entry to EXEMPT_FUNCTIONS / RUST_EXEMPT_FUNCTIONS naming the function and "
+            "saying why -- never widen the scan."
         )
     else:
         print(
-            f"PASS -- no raw rotation trig in {report.files_checked} guarded file(s); "
-            "temper_placer.geometry.kicad_transform remains the single implementation."
+            f"PASS -- no raw rotation trig in {report.files_checked} guarded Python file(s) "
+            f"or {report.rust_files_checked} guarded Rust file(s); "
+            f"{report.quadrant_twins_checked} quadrant-table twin(s) still agree with "
+            "KiCad's R(-theta). kicad_transform remains the single implementation on both "
+            "sides of the FFI boundary."
         )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.parse_args()
 
     repo_root = find_repo_root()
@@ -501,7 +1001,9 @@ def main() -> None:
             state = "violation" if report.violations else "clean"
             f.write(f"\n### No-raw-rotation-trig gate: {state}\n")
             f.write(
-                f"- Guarded files checked: {report.files_checked}\n"
+                f"- Guarded Python files checked: {report.files_checked}\n"
+                f"- Guarded Rust files checked: {report.rust_files_checked}\n"
+                f"- Quadrant-table twins checked: {report.quadrant_twins_checked}\n"
                 f"- Violations: {len(report.violations)}\n"
             )
 
