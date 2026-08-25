@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: 34b14d58939313797c3b9e289d9a0881404a5ba3
+  measured_at_commit: e4b9f970b79701ec686b167e438ac3e184232147
 
 # Content-hash freshness identity (scripts/check_measurement_provenance.py),
 # added 2026-08-07. `authority.measured_at_commit` above is advisory (human
@@ -49,6 +49,14 @@ authority:
 # source export (elec/exports/temper.design-input.v1.json) is untouched --
 # this resync only wrote pcb/temper.kicad_pcb, not elec/ -- confirmed by
 # hash: still 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0.
+#
+# Re-pinned 2026-08-25 (fix/1418-provenance-fallout): STALE again --
+# pcb/temper.kicad_pcb changed under #1418 (86cffca74), the IECCreepageGate
+# HV-predicate fix. Verified the same way as the #1506 entry below, by
+# extraction not assertion: full Sheetpath->Reference map 168 entries each,
+# IDENTICAL; `(footprint ` 168, `(at ` 1021, `Sheetpath` 168 all unchanged.
+# Aliases unaffected, so re-pinned rather than re-derived. Source export
+# untouched.
 #
 # Re-pinned 2026-08-25 (fix/references-repin-post-1506): STALE again --
 # pcb/temper.kicad_pcb changed under #1506 (95ddc9dbd), four board moves
@@ -189,7 +197,7 @@ provenance:
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 1dfff173ca672c84a23a7241b8b15b3e832ef603ae6e6cee8d6622273bcb8bea
+      sha256: 7055f7da319c527f7a1a12b07ab15b99e8c56a7b70430607fcc839ca2031fae1
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}

@@ -1,3 +1,5 @@
+<!-- provenance: commit=86cffca749c97e32eb8c8ba58b0999177dcad1b7 dirty=UNKNOWN (stamp added 2026-08-25; the file landed on main via #1418 (86cffca74) with no provenance line, which the Evidence provenance gate rejects. 86cffca74 is the commit that introduced it. dirty=UNKNOWN rather than a claim this stamp cannot support -- replace with the real measurement commit if it differs.) -->
+
 # `is_hv_net()` blast radius: which consumer applies which separation to the five highest-energy nets
 
 Date: 2026-08-19
