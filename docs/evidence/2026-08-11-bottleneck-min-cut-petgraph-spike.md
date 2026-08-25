@@ -1,6 +1,6 @@
 # Spike: bottleneck min-cut petgraph parity — the plan's conditional Phase E item — decision evidence — 2026-08-11
 
-<!-- provenance: commit=753da7577 dirty=false (measurements taken against origin/main at spike base; the shipped kernel and bottleneck_geometry.py were untouched by this spike — only tests + docs landed) -->
+<!-- provenance: commit=753da757781f227019c4ef95a4508ed320de7051 dirty=false (measurements taken against origin/main at spike base; the shipped kernel and bottleneck_geometry.py were untouched by this spike — only tests + docs landed) -->
 <!-- measured_at_commit: 753da7577 (origin/main at spike base) -->
 
 **Direct answer: the parity pass is confirmed bit-exact, and the migration is already DONE — the networkx `minimum_cut` compute now runs in the `temper-geometry` Rust crate via a hand-rolled Edmonds-Karp kernel (`min_cut_py`). The remaining "petgraph" half of the plan's conditional is a documented-KEEP: petgraph cannot reproduce networkx's min-cut *partition*, and the consumer depends on exactly that partition, so a petgraph swap would buy nothing that the existing kernel does not already provide with measured bit-exact parity.**

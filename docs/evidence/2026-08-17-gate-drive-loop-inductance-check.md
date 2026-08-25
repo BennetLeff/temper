@@ -1,3 +1,4 @@
+<!-- provenance: commit=8e5d74705e98b8f14200cf443c458767d97349d6 dirty=UNKNOWN -->
 # Evidence: implementing PhysicsGate sub-check 2 (gate-drive-loop trace geometry)
 
 Status: DONE.

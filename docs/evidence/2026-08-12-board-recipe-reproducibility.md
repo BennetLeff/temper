@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree .claude/worktrees/agent-a374c69e35366ad12,
+<!-- provenance: commit=a434a9aa9f52b1b1407f4b934153ca1d740c7050 dirty=UNKNOWN -->
 branch diagnose/clearance-regression, HEAD 21869cffb (docs-only, 2 commits ahead of its
 base d8062c6e6 = origin/main tip at task start, including #1050/#1051/#1052/#1053). All
 board regeneration in /tmp/.../scratchpad/repro/, never under pcb/**

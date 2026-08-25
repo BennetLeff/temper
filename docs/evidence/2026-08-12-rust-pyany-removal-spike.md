@@ -1,4 +1,4 @@
-<!-- provenance: commits 631414c35, b24ce8de3, 270f7780b on branch spike/pyany-removal
+<!-- provenance: commit=7d78e98dd188680179cc9d6c886dc2f0fc694afe dirty=UNKNOWN -->
      base=origin/main d8062c6e6f60b693aa42f615e4042826de417d63
      date=2026-08-12
      method=pyo3-registration scan (scripts/check_unwired_kernels.py), AST import

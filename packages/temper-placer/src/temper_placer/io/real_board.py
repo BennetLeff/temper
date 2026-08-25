@@ -119,7 +119,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from temper_placer.core.pad_geometry import pad_bounding_radius
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.requirements.validators.clearance import (
     IEC60335_REQUIREMENTS,
@@ -359,9 +358,9 @@ def _copper_reach_mm(pads: list[dict[str, Any]], rotation_deg: float) -> float:
     separation.
     """
     del rotation_deg  # provably irrelevant; see docstring
-    from temper_placer.core.pad_geometry import shape_code
-
     import temper_geometry as _tg
+
+    from temper_placer.core.pad_geometry import shape_code
 
     # Wave 4: delegates to temper_geometry. The kernel replicates CPython's
     # builtin `max()` -- first NaN wins and nothing displaces it -- rather than
@@ -392,30 +391,22 @@ def _board_surface_geometry(pcb_path: Path) -> dict[str, Any]:
     silently report clearance as creepage (see
     ``clearance.check_creepage_path``).
 
-    Rings are recovered from the graphic items on ``Edge.Cuts``. Polygons and
+    Rings are recovered from the graphic items on ``Edge.Cuts`` via the
+    Rust parse engine (``extract_edge_cuts_rings_py``: polygons and
     rectangles are rings directly; loose lines/arcs are conservatively treated
-    as one ring each **only** for counting purposes. Anything this function
+    as one ring each **only** for counting purposes). Anything the engine
     cannot interpret is reported as a cutout, so an unrecognized outline makes
     the creepage model MORE conservative and louder, never less.
     """
-    from kiutils.board import Board as KiBoard
+    import temper_design_bundle_python as _tdb
 
-    ki_board = KiBoard.from_file(str(pcb_path))
-    items = [g for g in ki_board.graphicItems if getattr(g, "layer", None) == "Edge.Cuts"]
-
-    rings: list[list[tuple[float, float]]] = []
-    unrecognized = 0
-    for item in items:
-        coords = getattr(item, "coordinates", None)
-        if coords:
-            rings.append([(float(p.X), float(p.Y)) for p in coords])
-            continue
-        start, end = getattr(item, "start", None), getattr(item, "end", None)
-        if start is not None and end is not None and type(item).__name__ in ("GrRect",):
-            x0, y0, x1, y1 = float(start.X), float(start.Y), float(end.X), float(end.Y)
-            rings.append([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
-            continue
-        unrecognized += 1
+    edge_cuts = _tdb.parse_engine.extract_edge_cuts_rings_py(
+        pcb_path.read_text(encoding="utf-8")
+    )
+    rings: list[list[tuple[float, float]]] = [
+        [(float(x), float(y)) for x, y in ring] for ring in edge_cuts["rings"]
+    ]
+    unrecognized = int(edge_cuts["unrecognized"])
 
     # Largest-area ring is the board outline; every other ring is a cutout.
     def _area(ring: list[tuple[float, float]]) -> float:
@@ -449,7 +440,7 @@ def _board_surface_geometry(pcb_path: Path) -> dict[str, Any]:
     return {
         "outline": outline,
         "surface_cutouts": cutouts,
-        "edge_cuts_items": len(items),
+        "edge_cuts_items": int(edge_cuts["item_count"]),
         "edge_cuts_unrecognized": unrecognized,
     }
 

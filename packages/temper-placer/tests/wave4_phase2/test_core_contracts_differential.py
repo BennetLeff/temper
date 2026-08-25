@@ -34,7 +34,6 @@ from temper_placer.core import net_classification as prod_nc
 from temper_placer.core import units as prod_units
 from temper_placer.core.board import Rect as ProdRect
 from temper_placer.core.netlist import build_adjacency_matrix as prod_adjacency
-import temper_io_types as prod_drc
 from tests.wave4_phase2 import _core_py_oracle as oracle
 from tests.wave4_phase2._sig import assert_same, call
 
@@ -650,20 +649,11 @@ def test_zone_and_board_survive_pickle_and_deepcopy():
 
 
 def test_contract_objects_survive_pickle_and_deepcopy():
-    """Same for PinInfo, PlacementViolation and FabPreset."""
+    """Same for FabPreset."""
     import copy
     import pickle
 
-    pins_p = [
-        prod_drc.PinInfo(0.0, 0.0, "A", "U1", "1", 1.0),
-        prod_drc.PinInfo(1.5, 0.0, "B", "U2", "2", 1.0),
-    ]
-    pins_o = [
-        oracle.PinInfo(0.0, 0.0, "A", "U1", "1", 1.0),
-        oracle.PinInfo(1.5, 0.0, "B", "U2", "2", 1.0),
-    ]
     subjects = [
-        (prod_drc.PinInfo(1.0, 2.0, "GND", "U1", "3"), oracle.PinInfo(1.0, 2.0, "GND", "U1", "3")),
         (prod_mf.FabPreset.oshpark(), oracle.FabPreset.oshpark()),
         # Every field non-default, so a `__reduce__` that silently drops
         # one is caught. The three named presets all leave
@@ -672,14 +662,6 @@ def test_contract_objects_survive_pickle_and_deepcopy():
         (
             prod_mf.FabPreset("custom", 0.11, 0.22, 0.33, 0.44, 0.55, 0.66),
             oracle.FabPreset("custom", 0.11, 0.22, 0.33, 0.44, 0.55, 0.66),
-        ),
-        (
-            prod_drc.PinInfo(-1.5, 2.5, "AC_L", "Q7", "G", 2.75),
-            oracle.PinInfo(-1.5, 2.5, "AC_L", "Q7", "G", 2.75),
-        ),
-        (
-            prod_drc.validate_placement_drc(pins_p, 1.0)[0],
-            oracle.validate_placement_drc(pins_o, 1.0)[0],
         ),
     ]
     for got, want in subjects:
@@ -769,167 +751,6 @@ def test_rect_keeps_the_dataclass_protocol_and_asdict_shape():
     assert prod == orac, f"asdict shape diverged from the oracle: {prod} != {orac}"
     assert prod == {"bounds": {"x_min": 0.0, "y_min": 0.0, "x_max": 1.0, "y_max": 1.0}}
 
-def _pin_pair(cls, ax, ay, an, bx, by, bn, da=1.0, db=1.0):
-    return [
-        cls(ax, ay, an, "U1", "1", da),
-        cls(bx, by, bn, "U2", "2", db),
-    ]
-
-
-_DRC_CASES = [
-    # (ax, ay, netA, bx, by, netB, diaA, diaB, clearance)
-    (0.0, 0.0, "A", 0.0, 0.0, "A", 1.0, 1.0, 1.0),  # same net, coincident
-    (0.0, 0.0, "A", 0.0, 0.0, "B", 1.0, 1.0, 1.0),  # exact overlap
-    (0.0, 0.0, "A", 1.0, 0.0, "B", 1.0, 1.0, 0.0),  # exactly at pad sum
-    (0.0, 0.0, "A", 1.5, 0.0, "B", 1.0, 1.0, 1.0),  # clearance
-    (0.0, 0.0, "A", 2.0, 0.0, "B", 1.0, 1.0, 1.0),  # exactly at required
-    (0.0, 0.0, "A", 100.0, 0.0, "B", 1.0, 1.0, 1.0),  # clear
-    (0.0, 0.0, "A", 1e-9, 0.0, "B", 0.0, 0.0, 0.0),  # zero diameter
-    (0.0, 0.0, "A", 0.0005, 0.0, "B", 1.0, 1.0, 1.0),  # rounding in message
-    (float("nan"), 0.0, "A", 0.0, 0.0, "B", 1.0, 1.0, 1.0),  # NaN coordinate
-    (float("inf"), 0.0, "A", 0.0, 0.0, "B", 1.0, 1.0, 1.0),  # inf coordinate
-    (0.0, 0.0, "A", 1.0, 0.0, "B", float("nan"), 1.0, 1.0),  # NaN diameter
-    (0.0, 0.0, "A", 1.0, 0.0, "B", 1.0, 1.0, float("nan")),  # NaN clearance
-    (-0.0, -0.0, "A", 0.0, 0.0, "B", 1.0, 1.0, 1.0),  # signed zero
-]
-
-
-@pytest.mark.parametrize("case", _DRC_CASES)
-def test_placement_drc_pairs(case):
-    ax, ay, an, bx, by, bn, da, db, clr = case
-    got = prod_drc.validate_placement_drc(
-        _pin_pair(prod_drc.PinInfo, ax, ay, an, bx, by, bn, da, db), clr
-    )
-    want = oracle.validate_placement_drc(
-        _pin_pair(oracle.PinInfo, ax, ay, an, bx, by, bn, da, db), clr
-    )
-    assert_same(got, want, f"validate_placement_drc({case!r})")
-
-
-def _random_pins(cls, n: int, seed: int):
-    rng = random.Random(seed)
-    nets = ["GND", "VCC", "SDA", "SCL", "AC_L"]
-    return [
-        cls(
-            rng.uniform(0.0, 20.0),
-            rng.uniform(0.0, 20.0),
-            rng.choice(nets),
-            f"U{rng.randint(1, 9)}",
-            str(rng.randint(1, 16)),
-            rng.choice([0.3, 0.5, 1.0, 1.6]),
-        )
-        for _ in range(n)
-    ]
-
-
-@pytest.mark.parametrize("n", [0, 1, 2, 3, 17, 120, 600])
-def test_placement_drc_random_scenes(n):
-    """`n=600` matches the largest scene the perf harness benchmarks."""
-    got_pins = _random_pins(prod_drc.PinInfo, n, seed=100 + n)
-    want_pins = _random_pins(oracle.PinInfo, n, seed=100 + n)
-    got = prod_drc.validate_placement_drc(got_pins, 0.2)
-    want = oracle.validate_placement_drc(want_pins, 0.2)
-    assert_same(got, want, f"random scene n={n}")
-
-
-def test_placement_drc_random_scenes_are_not_vacuous():
-    pins = _random_pins(oracle.PinInfo, 120, seed=220)
-    kinds = {v.violation_type for v in oracle.validate_placement_drc(pins, 0.2)}
-    assert kinds == {"SHORT", "CLEARANCE"}, f"scene produced only {kinds}"
-
-
-def test_placement_drc_returns_the_callers_own_pin_objects():
-    pins = _random_pins(prod_drc.PinInfo, 40, seed=7)
-    for v in prod_drc.validate_placement_drc(pins, 0.5):
-        assert any(v.item_a is p for p in pins)
-        assert any(v.item_b is p for p in pins)
-
-
-@pytest.mark.parametrize("value", EDGE_FLOATS)
-def test_contract_object_reprs_render_floats_exactly_like_cpython(value):
-    """The Rust `__repr__` reimplements CPython's `repr(float)`.
-
-    `PinInfo`/`PlacementViolation`/`FabPreset` reprs are built in Rust
-    (unlike `Rect`, which delegates to the stored objects' own `repr`),
-    so the fixed/exponential threshold, the `nan`/`inf` spellings and the
-    signed zero all have to be reproduced. Mutant M24 (moving the
-    exponent threshold from `decpt > 16` to `decpt > 17`) survived the
-    corpus until every EDGE_FLOAT was pushed through one of these.
-    """
-    assert repr(prod_drc.PinInfo(value, value, "N", "C", "P", value)) == repr(
-        oracle.PinInfo(value, value, "N", "C", "P", value)
-    )
-    got = prod_mf.FabPreset("f", value, value, value, value, value, value)
-    want = oracle.FabPreset("f", value, value, value, value, value, value)
-    assert repr(got) == repr(want)
-
-
-def test_placement_violation_repr_renders_extreme_floats():
-    """The same threshold, reached through PlacementViolation."""
-    for scale in (1e-5, 1e-4, 1e15, 1e16, 1e300, 5e-324):
-        pins_p = [
-            prod_drc.PinInfo(0.0, 0.0, "A", "U1", "1", scale),
-            prod_drc.PinInfo(0.0, 0.0, "B", "U2", "2", scale),
-        ]
-        pins_o = [
-            oracle.PinInfo(0.0, 0.0, "A", "U1", "1", scale),
-            oracle.PinInfo(0.0, 0.0, "B", "U2", "2", scale),
-        ]
-        got = prod_drc.validate_placement_drc(pins_p, scale)
-        want = oracle.validate_placement_drc(pins_o, scale)
-        assert_same(got, want, f"scale={scale!r}")
-        for g, w in zip(got, want, strict=True):
-            assert repr(g) == repr(w)
-
-
-def test_pin_info_contract():
-    p, o = prod_drc.PinInfo(1.0, 2.0, "GND", "U1", "3"), oracle.PinInfo(1.0, 2.0, "GND", "U1", "3")
-    assert_same(p, o, "PinInfo")
-    assert_same(p.radius, o.radius, "radius")
-    assert repr(p) == repr(o)
-    p.diameter_mm = 3.0
-    o.diameter_mm = 3.0
-    assert_same(p.radius, o.radius, "radius after mutation")
-    for obj in (p, o):
-        with pytest.raises(TypeError, match="unhashable type: 'PinInfo'"):
-            hash(obj)
-
-
-def test_placement_violation_repr_matches():
-    pins = _random_pins(prod_drc.PinInfo, 30, seed=11)
-    opins = _random_pins(oracle.PinInfo, 30, seed=11)
-    got = prod_drc.validate_placement_drc(pins, 0.5)
-    want = oracle.validate_placement_drc(opins, 0.5)
-    assert len(got) == len(want) > 0
-    for g, w in zip(got, want, strict=True):
-        assert repr(g) == repr(w)
-
-
-def test_validate_placement_drc_accepts_a_duck_typed_pin():
-    """The reference read attributes; the port keeps accepting that."""
-
-    class DuckPin:
-        def __init__(self, x, y, net):
-            self.x = x
-            self.y = y
-            self.net_name = net
-            self.component_name = "U9"
-            self.pin_name = "1"
-            self.diameter_mm = 1.0
-
-        @property
-        def radius(self):
-            return self.diameter_mm / 2.0
-
-    ducks = [DuckPin(0.0, 0.0, "A"), DuckPin(1.5, 0.0, "B")]
-    got = prod_drc.validate_placement_drc(ducks, 1.0)
-    want = oracle.validate_placement_drc(ducks, 1.0)
-    assert len(got) == len(want) == 1
-    assert got[0].message == want[0].message
-    assert got[0].item_a is ducks[0]
-
-
-# ---------------------------------------------------------------------------
 # adjacency
 # ---------------------------------------------------------------------------
 

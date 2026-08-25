@@ -26,53 +26,50 @@
 # explicitly another workstream's territory per this task's brief, so it is
 # recorded here, not fixed.
 
+
+# --- stub-residual (same 2026-08-12 migration-stub cause, deeper field/method gaps) ---
+
+# --- unrelated crate, out of this task's cluster (temper-drc-rs; see header) ---
+packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py 1
 packages/temper-placer/src/temper_placer/core/loop_ownership.py 6
 packages/temper-placer/src/temper_placer/core/specification.py 1
 packages/temper-placer/src/temper_placer/core/state.py 2
-packages/temper-placer/src/temper_placer/deterministic/stages/_phase_rotation.py 7
-packages/temper-placer/src/temper_placer/deterministic/stages/_phase_validation.py 5
-packages/temper-placer/src/temper_placer/io/dsn_exporter.py 1
+packages/temper-placer/src/temper_placer/deterministic/feedback/violation_mapper.py 8
+packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py 12
+packages/temper-placer/src/temper_placer/explainability/traced_loss.py 1
+packages/temper-placer/src/temper_placer/heuristics/topological_init.py 1
+packages/temper-placer/src/temper_placer/pcl/constraints.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
+packages/temper-placer/src/temper_placer/pcl/sat_bridge.py 5
+packages/temper-placer/src/temper_placer/pcl/tagged_constraints.py 6
 packages/temper-placer/src/temper_placer/pipeline/derivation.py 6
 packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_core.py 2
+packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py 6
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_core.py 10
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_gates.py 8
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_stability.py 12
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py 1
+packages/temper-placer/src/temper_placer/placer/cp_sat/fixed_copper.py 41
 packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/adjacent.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/aligned.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/anchored.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/enclosing.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/loop_area.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/onside.py 1
-packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py 1
 packages/temper-placer/src/temper_placer/regression/physics_oracle.py 2
+packages/temper-placer/src/temper_placer/regression/runner.py 1
+packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py 2
 packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py 11
+packages/temper-placer/src/temper_placer/router_v6/_power_islands.py 1
+packages/temper-placer/src/temper_placer/router_v6/channel_mapping.py 8
+packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py 1
+packages/temper-placer/src/temper_placer/router_v6/clearance_check.py 1
+packages/temper-placer/src/temper_placer/router_v6/net_batching.py 1
+packages/temper-placer/src/temper_placer/router_v6/pad_connectivity_audit.py 1
+packages/temper-placer/src/temper_placer/topological/graph.py 6
 packages/temper-placer/src/temper_placer/validation/drc_result.py 1
 packages/temper-placer/src/temper_placer/validation/mfem_compare.py 2
 packages/temper-placer/src/temper_placer/validation/mfem_gate.py 4
 packages/temper-placer/src/temper_placer/validation/mfem_mesh.py 3
-
-# --- stub-residual (same 2026-08-12 migration-stub cause, deeper field/method gaps) ---
-packages/temper-placer/src/temper_placer/router_v6/channel_skeleton.py 1
-packages/temper-placer/src/temper_placer/router_v6/net_batching.py 1
-packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py 1
-packages/temper-placer/src/temper_placer/explainability/traced_loss.py 1
-packages/temper-placer/src/temper_placer/heuristics/topological_init.py 1
-packages/temper-placer/src/temper_placer/pcl/constraints.py 1
-packages/temper-placer/src/temper_placer/pcl/sat_bridge.py 5
-packages/temper-placer/src/temper_placer/pcl/tagged_constraints.py 6
-packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py 6
-packages/temper-placer/src/temper_placer/placer/cp_sat/fixed_copper.py 41
-packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py 2
-packages/temper-placer/src/temper_placer/router_v6/_power_islands.py 1
-packages/temper-placer/src/temper_placer/router_v6/channel_mapping.py 8
-packages/temper-placer/src/temper_placer/router_v6/clearance_check.py 1
-packages/temper-placer/src/temper_placer/router_v6/pad_connectivity_audit.py 1
-packages/temper-placer/src/temper_placer/topological/graph.py 6
 packages/temper-placer/stubs/temper_design_bundle_python/__init__.pyi 1
-packages/temper-placer/src/temper_placer/regression/runner.py 1
-
-# --- unrelated crate, out of this task's cluster (temper-drc-rs; see header) ---
-packages/temper-placer/src/temper_placer/deterministic/feedback/violation_mapper.py 8

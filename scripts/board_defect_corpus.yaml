@@ -9,8 +9,24 @@ _meta:
   # seed is re-validated by the run itself (KTD3: the corpus re-derives from
   # the committed board on every run). Update this hash with
   # `--update-manifest` after a board change has been re-validated green.
-  board_sha256: 6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64
-  board_commit: c4956df6646b98355f12f00527370b20325e8a70
+  # 2026-08-24: re-stamped by HAND, same reason as the 2026-08-13 entry --
+  # `--update-manifest` only stamps on a fully green run and `clearance`
+  # remains the documented deliberate uncovered exception, so ok=True is
+  # unreachable by design. Was 6928b7c8 / c4956df66 (2026-08-08), i.e.
+  # THIRTEEN board-changing commits stale, spanning the elec/src resync
+  # (#1134), a full copper regeneration (#1312), two re-routes
+  # (#1333/#1334) and five placement passes.
+  #
+  # Verified before re-stamping, to the same bar as 2026-08-13: the
+  # corpus re-derives every mutation from the committed board and
+  # reports 6/7 classes covered with `clearance` the only uncovered one
+  # -- off-board, pad-short, creepage, courtyard, hole-to-hole and
+  # missing-courtyard all fire by identity against this board. That was
+  # NOT true before the courtyard re-seed in this same change: the stale
+  # seed coordinate had left that class silently uncovered (5/7), which
+  # is why the hash could not simply be bumped on its own.
+  board_sha256: 62bff72d04ba3885534aa21df021b61f2a9bb3500c3be885d88ed103a6822777
+  board_commit: f830951fdba3b8cf27f38ef05b55246f8aa9129b
   created: 2026-08-02
   reseeded: 2026-08-04
   measured_kicad_cli: 10.0.4
@@ -250,7 +266,23 @@ classes:
     seed: 5
     params:
       ref: C38
-      position_mm: [41.54, 189.55]
+      # RE-SEEDED 2026-08-24: was [41.54, 189.55], chosen when R48 sat at
+      # (41.54, 187.57) -- 1.98mm away, so the moved C38 landed on top of
+      # it. #1134's elec/src resync (96db2ccde, 2026-08-15) moved R48 to
+      # (84.41, 242.27), ~65mm away, and the seed has dropped C38 into
+      # empty space ever since: measured on today's board the old
+      # coordinate yields 6 courtyards_overlap with ZERO naming C38, so the
+      # class was silently uncovered. This is the same staleness shape the
+      # 2026-08-04 reseed_note below records for the whole corpus after
+      # #517 re-solved all 169 placements, and the same one
+      # check_board_containment.py's docstring records for the off-board
+      # class -- a seed coordinate outliving the placement it was aimed at.
+      #
+      # New coordinate is R48's current position, keeping the anchor
+      # unchanged. Measured: 7 courtyards_overlap, exactly 1 naming C38,
+      # and it is "Footprint C38 <-> Footprint R48" -- the pair this class
+      # asserts on.
+      position_mm: [84.41, 242.27]
       anchor_ref: R48
     owning_gates: [kicad-drc]
     failure_signal: gate-names-defect

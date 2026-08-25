@@ -272,7 +272,7 @@
         "pcb_color": "rgba(200, 100, 0, 1.000)",
         "schematic_color": "rgba(200, 100, 0, 1.000)",
         "track_width": 0.5,
-        "via_diameter": 0.8,
+        "via_diameter": 1.0,
         "via_drill": 0.4,
         "wire_width": 6
       },
@@ -455,6 +455,7 @@
       "GATE_H": "GateDriveHV",
       "GATE_L": "GateDriveHV",
       "+15V_LS": "HighVoltageSignal",
+      "input": "HighVoltageSignal",
       "a": "HighVoltageSignal",
       "w1_1": "HighVoltage",
       "w1_2": "HighVoltage",
@@ -464,6 +465,12 @@
       "power_in.ntc-no": "HighVoltage",
       "discharge.k_dis1-nc": "HighVoltageSignal",
       "discharge.k_dis2-nc": "HighVoltageSignal",
+      "discharge.k_dis1-no": "HighVoltageSignal",
+      "discharge.k_dis2-no": "HighVoltageSignal",
+      "discharge.r_dis1a-p2": "HighVoltageSignal",
+      "discharge.r_dis2a-p2": "HighVoltageSignal",
+      "discharge.r_snub1-p2": "HighVoltageSignal",
+      "discharge.r_snub2-p2": "HighVoltageSignal",
       "hb.power_loop.q_high-g": "HighVoltageSignal",
       "DC_BUS_RTN": "HighVoltage",
       "PWR_RTN": "HighVoltage",
@@ -506,7 +513,9 @@
       "power_in.bypass_relay-coil2": "Power",
       "safety.ovp.comp-inp": "Default",
       "safety.uvlo_logic-line": "Default",
-      "hb-gnd": "HighVoltage"
+      "hb-gnd": "HighVoltage",
+      "s1": "Default",
+      "safety.ocp2-line": "Default"
     },
     "netclass_patterns": [
       {

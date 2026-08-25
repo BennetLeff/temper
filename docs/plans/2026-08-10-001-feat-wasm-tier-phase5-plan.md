@@ -7,9 +7,9 @@ artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 execution: code
 product_contract_source: measurement
-status: draft
-swept: null
-swept_basis: null
+status: completed
+swept: 2026-08-24
+swept_basis: "verdicted in docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md (#1479): complete by exhaustion. Additive half landed and works (12 deployed Workers, 30,349 executable tests, per-PR advisory verdict, push-triggered content-hash-verified deploy, hourly staleness watchdog). R25 satisfied at relief=0; R26 satisfied; R27 partial. R24 VACUOUS -- no removable suites remain that are not coverage. R28 BLOCKED and re-pulled as docs/plans/2026-08-24-001-feat-wasm-tier-phase6-plan.md (#1481) with the corrected premise: the blocker is R19 sustained per-crate agreement, not the R22/R23 durability D5.4 named, which #992 closed on 2026-08-11."
 ---
 
 # WASM Tier Phase 5 — Plan
@@ -251,8 +251,20 @@ preconditions for a re-pull. Mirrors the Phase 1 verdict's structure
 ## Scope Boundaries
 
 - **Not in scope: making any tier verdict a required PR context.** D5.4 —
-  that crosses R22/R23, which are unbuilt by design under D10. The parent
-  plan's R28 describes this end-state; this phase stops short of it.
+  this phase stops short of it; the parent plan's R28 describes the end-state.
+
+  **Corrected 2026-08-24 (#1482).** This boundary originally read "that
+  crosses R22/R23, which are unbuilt by design under D10." R22/R23 were
+  unbuilt when this plan was written on 2026-08-10, and were closed the next
+  day by #992 — dead-letter handling, idempotent work keys, a `reconcile()`
+  pass with its own `exit(2)`, and replication, each fault-injection tested
+  (`docs/evidence/2026-08-11-wasm-tier-r22-r23-durability.md`; re-verified at
+  `9546f568e`). The boundary itself still stands for this phase, but the
+  reason is now R19 sustained per-crate agreement — derived once every twelve
+  nights and recorded nowhere — plus R10/Q1 for the DRC verdict specifically.
+  See `docs/evidence/2026-08-24-wasm-tier-phase5-verdict.md` §5 and
+  `docs/plans/2026-08-24-001-feat-wasm-tier-phase6-plan.md`, which takes R28
+  on with the corrected premise.
 - **Not in scope: the Python suites.** R26 — CPython-bound, permanently on
   GitHub Actions. `pytest`, `numpy`/`scipy`/`ortools`, `kicad-cli`,
   `maturin`, and Docker builds cannot run in a Workers isolate and are not

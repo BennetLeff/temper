@@ -1,4 +1,4 @@
-<!-- provenance: analysis-only task, branch analysis/clearance-1085-remediation-plan,
+<!-- provenance: commit=21c59f542c9e74edb6c375ccf707294de2791689 dirty=UNKNOWN -->
 worktree /home/bennet/Desktop/temper-clearance-1085-plan, base origin/fix/board-schematic-resync
 @ a3fbaff37afd739b72f2b109847813b30ceb8e88 (PR #1134). pcb/temper.kicad_pcb NOT modified by this
 task (git status --porcelain pcb/ empty throughout); sha256 b7d865b7946f55dcc0d907cccbbee12f730fd1878b30d417bd56004d1091c1d6,

@@ -12,20 +12,12 @@ Targets:
 
 from __future__ import annotations
 
-import json
-import os
-import tempfile
-from pathlib import Path
-from typing import Any
-
 import pytest
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid, ClearanceGridStage
-
+from temper_placer.deterministic.state import BoardState
 
 # ============================================================================
 # Concrete Stage subclass for testing base class properties
@@ -156,9 +148,7 @@ class TestStageNames:
     """Cover .name properties for stages that are still on the allowlist."""
 
     def test_config_attach_stage_name(self):
-        from temper_placer.deterministic.stages.config_attach import (
-            ConfigAttachStage,
-        )
+        from temper_placer.deterministic.stages import ConfigAttachStage
         stage = ConfigAttachStage(config={})
         assert stage.name == "config_attach"
 
@@ -170,16 +160,12 @@ class TestStageNames:
         assert stage.name == "courtyard_check"
 
     def test_drc_sweep_stage_name(self):
-        from temper_placer.deterministic.stages.drc_sweep import (
-            DRCSweepStage,
-        )
+        from temper_placer.deterministic.stages import DRCSweepStage
         stage = DRCSweepStage()
         assert stage.name == "drc_sweep"
 
     def test_track_deduplication_stage_name(self):
-        from temper_placer.deterministic.stages.drc_sweep import (
-            TrackDeduplicationStage,
-        )
+        from temper_placer.deterministic.stages import TrackDeduplicationStage
         stage = TrackDeduplicationStage()
         assert stage.name == "track_deduplication"
 
@@ -191,9 +177,7 @@ class TestStageNames:
         assert stage.name == "drc_validation"
 
     def test_drc_oracle_setup_stage_name(self):
-        from temper_placer.deterministic.stages.setup import (
-            DRCOracleSetupStage,
-        )
+        from temper_placer.deterministic.stages import DRCOracleSetupStage
         stage = DRCOracleSetupStage()
         assert stage.name == "drc_oracle_setup"
 
@@ -210,23 +194,17 @@ class TestStageNames:
         assert stage.name == "clearance_grid"
 
     def test_via_deduplication_stage_name(self):
-        from temper_placer.deterministic.stages.via_validation import (
-            ViaDeduplicationStage,
-        )
+        from temper_placer.deterministic.stages import ViaDeduplicationStage
         stage = ViaDeduplicationStage()
         assert stage.name == "via_deduplication"
 
     def test_via_validation_stage_name(self):
-        from temper_placer.deterministic.stages.via_validation import (
-            ViaValidationStage,
-        )
+        from temper_placer.deterministic.stages import ViaValidationStage
         stage = ViaValidationStage()
         assert stage.name == "via_validation"
 
     def test_short_circuit_detection_stage_name(self):
-        from temper_placer.deterministic.stages.drc_sweep import (
-            ShortCircuitDetectionStage,
-        )
+        from temper_placer.deterministic.stages import ShortCircuitDetectionStage
         stage = ShortCircuitDetectionStage()
         assert stage.name == "short_circuit_detection"
 
@@ -325,9 +303,7 @@ class TestMinimalStageRuns:
 
     def test_drc_sweep_stage_run_empty_state(self):
         """DRCSweepStage.run with empty state returns state unchanged."""
-        from temper_placer.deterministic.stages.drc_sweep import (
-            DRCSweepStage,
-        )
+        from temper_placer.deterministic.stages import DRCSweepStage
         stage = DRCSweepStage()
         board = Board(width=100.0, height=100.0)
         state = BoardState(board=board)
@@ -336,9 +312,7 @@ class TestMinimalStageRuns:
 
     def test_via_deduplication_stage_run_empty_state(self):
         """ViaDeduplicationStage.run with empty state returns state unchanged."""
-        from temper_placer.deterministic.stages.via_validation import (
-            ViaDeduplicationStage,
-        )
+        from temper_placer.deterministic.stages import ViaDeduplicationStage
         stage = ViaDeduplicationStage()
         board = Board(width=100.0, height=100.0)
         state = BoardState(board=board)
@@ -348,9 +322,7 @@ class TestMinimalStageRuns:
 
     def test_via_validation_stage_run_empty_state(self):
         """ViaValidationStage.run with empty state returns state unchanged."""
-        from temper_placer.deterministic.stages.via_validation import (
-            ViaValidationStage,
-        )
+        from temper_placer.deterministic.stages import ViaValidationStage
         stage = ViaValidationStage()
         board = Board(width=100.0, height=100.0)
         state = BoardState(board=board)
@@ -360,9 +332,7 @@ class TestMinimalStageRuns:
 
     def test_short_circuit_detection_stage_run_empty_state(self):
         """ShortCircuitDetectionStage.run with empty state returns state unchanged."""
-        from temper_placer.deterministic.stages.drc_sweep import (
-            ShortCircuitDetectionStage,
-        )
+        from temper_placer.deterministic.stages import ShortCircuitDetectionStage
         stage = ShortCircuitDetectionStage()
         board = Board(width=100.0, height=100.0)
         state = BoardState(board=board)
@@ -371,9 +341,7 @@ class TestMinimalStageRuns:
 
     def test_config_attach_stage_run_with_config(self):
         """ConfigAttachStage.run attaches config to state."""
-        from temper_placer.deterministic.stages.config_attach import (
-            ConfigAttachStage,
-        )
+        from temper_placer.deterministic.stages import ConfigAttachStage
         stage = ConfigAttachStage(config={"key": "value"})
         board = Board(width=100.0, height=100.0)
         state = BoardState(board=board)

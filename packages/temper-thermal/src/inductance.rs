@@ -65,10 +65,6 @@
 //! B3/B4/B5/B6 are likewise not applicable (no rounding, no hypot, no
 //! Python `max`/`min`).
 
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use temper_py_bridge;
 
 /// Estimate parasitic loop inductance (nH) from loop area and perimeter.
 ///
@@ -120,27 +116,6 @@ pub fn estimate_loop_inductance(
     // (L_area_nH * 0.5 + L_self_nH) * routing_factor — parenthesized
     // sum first, then the multiply by routing_factor (B7).
     (l_area_nh * 0.5 + l_self_nh) * routing_factor
-}
-
-/// pyo3 bridge for [`estimate_loop_inductance`].
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (loop_area_mm2, perimeter_mm, layer_separation_mm, routing_factor))]
-pub fn estimate_loop_inductance_py(
-    loop_area_mm2: f64,
-    perimeter_mm: f64,
-    layer_separation_mm: f64,
-    routing_factor: f64,
-) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| {
-        estimate_loop_inductance(
-            loop_area_mm2,
-            perimeter_mm,
-            layer_separation_mm,
-            routing_factor,
-        )
-    })
-    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

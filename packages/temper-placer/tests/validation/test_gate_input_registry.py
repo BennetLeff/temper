@@ -259,10 +259,41 @@ def test_full_registry_validates_clean(registry):
 
 
 def _invoked_ci_gate_scripts() -> set[str]:
-    """Re-derive the survey from python-tests.yml (U4 completeness oracle)."""
+    r"""Re-derive the survey from python-tests.yml (U4 completeness oracle).
+
+    Only paths that resolve to the REPO-ROOT ``scripts/`` directory count.
+    The previous ``scripts/([A-Za-z0-9_]+\.py)`` was unanchored, so it also
+    matched the tail of any longer path carrying a ``scripts/`` segment, and
+    this workflow runs pytest against two of them:
+
+        packages/temper-placer/tests/scripts/test_rust_coverage_illusion_gate.py
+        packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py
+
+    Both were reported as unregistered *gate scripts*. Registering them would
+    have papered over the false positive and left the same shape available
+    for a genuinely unregistered script to hide behind later.
+
+    Anchoring is done by resolving the match rather than by a cleverer
+    regex, because the boundary cases point in opposite directions and a
+    lookbehind cannot tell them apart: two real repo-root gates are invoked
+    from a subdirectory as ``../../scripts/check_coverage_gate.py`` and
+    ``../../scripts/check_dead_parameter_inputs.py`` -- a "not preceded by
+    ``/``" rule drops both -- while ``packages/temper-placer/scripts/
+    gen_config_reference.py`` is a package-local script that this repo-root
+    survey does not cover. Stripping leading ``./``/``../`` segments and
+    requiring the remainder to be exactly ``scripts/<name>.py`` gets all
+    four right.
+    """
     workflow = _repo_root() / ".github" / "workflows" / "python-tests.yml"
     text = workflow.read_text()
-    return set(re.findall(r"scripts/([A-Za-z0-9_]+\.py)", text))
+    found: set[str] = set()
+    for candidate in re.findall(r"[\w./-]*scripts/[A-Za-z0-9_]+\.py", text):
+        parts = candidate.split("/")
+        while parts and parts[0] in (".", ".."):
+            parts.pop(0)
+        if len(parts) == 2 and parts[0] == "scripts":
+            found.add(parts[1])
+    return found
 
 
 # The standing check itself is referenced by the workflow once wired in; it

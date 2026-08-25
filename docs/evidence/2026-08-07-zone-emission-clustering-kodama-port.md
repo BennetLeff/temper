@@ -1,4 +1,4 @@
-<!-- provenance: commit=c10523bb (this migration's base commit; merges worktree-agent-a0c9bd1a1df109a4d [scipy re-triage] and worktree-agent-a4aa64a380b629dcd [zone-emission clustering defect fix]), dirty=true (this doc's own change in progress) -->
+<!-- provenance: commit=c10523bbb74ba6250d88af7bed417da6c7aec6c8 (this migration's base commit; merges worktree-agent-a0c9bd1a1df109a4d [scipy re-triage] and worktree-agent-a4aa64a380b629dcd [zone-emission clustering defect fix]), dirty=true (this doc's own change in progress) -->
 
 # `zone_emission.py` clustering: consumer-contract spike, `kodama` differential, and port (2026-08-07)
 

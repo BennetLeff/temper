@@ -1,30 +1,189 @@
 {
+  "provenance": {
+    "commit": "1ef19c16115349a5479e63fb446aa82f641fae1e",
+    "dirty": "UNKNOWN"
+  },
   "n_components": 169,
   "n_constraints": 14196,
   "n_hpwl_nets": 97,
   "board_w_mm": 152.0,
   "board_h_mm": 234.0,
-  "seeds": [0, 1, 7],
+  "seeds": [
+    0,
+    1,
+    7
+  ],
   "note": "seed=7 at timeout_ms=30000 hpwl-clean not captured for pumpkin -- the driving process crashed on seed=1's subprocess.TimeoutExpired (50s safety margin vs a 30s requested budget) before reaching seed=7; a same-configuration retry of seed=1 alone (separate process, 180s safety margin) is recorded below and completed cleanly at 30.17s. Not re-run for seed=7 given this spike's time budget -- recorded as a coverage gap, not silently backfilled.",
   "results": [
-    {"engine": "ortools", "mode": "feasibility-clean", "seed": 0, "timeout_ms": 30000, "status": "unknown", "solve_time_ms": 25825},
-    {"engine": "pumpkin", "mode": "feasibility-clean", "seed": 0, "timeout_ms": 30000, "status": "optimal", "solve_time_ms": 1989},
-    {"engine": "ortools", "mode": "feasibility-clean", "seed": 1, "timeout_ms": 30000, "status": "unknown", "solve_time_ms": 26093},
-    {"engine": "pumpkin", "mode": "feasibility-clean", "seed": 1, "timeout_ms": 30000, "status": "optimal", "solve_time_ms": 879},
-    {"engine": "ortools", "mode": "feasibility-clean", "seed": 7, "timeout_ms": 30000, "status": "unknown", "solve_time_ms": 26697},
-    {"engine": "pumpkin", "mode": "feasibility-clean", "seed": 7, "timeout_ms": 30000, "status": "optimal", "solve_time_ms": 1027},
-    {"check": "independent_verification", "engine": "pumpkin", "seed": 0, "status": "optimal", "verify_ok": true, "summary": "PASS", "note": "separate re-solve of seed=0 feasibility-clean, verified from scratch against the harness's own IndependentVerifier -- solve_ms=2001 on this particular re-solve (run-to-run variance vs the 1989ms figure above is expected, not a discrepancy)"},
-    {"engine": "ortools", "mode": "hpwl-clean", "seed": 0, "timeout_ms": 5000, "status": "unknown", "objective_value": 0.0, "recomputed_hpwl_mm": null, "solve_time_ms": 6125},
-    {"engine": "pumpkin", "mode": "hpwl-clean", "seed": 0, "timeout_ms": 5000, "status": "feasible", "objective_value": 1864185.0, "recomputed_hpwl_mm": 18641.85, "solve_time_ms": 5304},
-    {"engine": "ortools", "mode": "hpwl-clean", "seed": 1, "timeout_ms": 5000, "status": "unknown", "objective_value": 0.0, "recomputed_hpwl_mm": null, "solve_time_ms": 6197},
-    {"engine": "pumpkin", "mode": "hpwl-clean", "seed": 1, "timeout_ms": 5000, "status": "feasible", "objective_value": 1760149.0, "recomputed_hpwl_mm": 17601.49, "solve_time_ms": 5315},
-    {"engine": "ortools", "mode": "hpwl-clean", "seed": 7, "timeout_ms": 5000, "status": "unknown", "objective_value": 0.0, "recomputed_hpwl_mm": null, "solve_time_ms": 6083},
-    {"engine": "pumpkin", "mode": "hpwl-clean", "seed": 7, "timeout_ms": 5000, "status": "feasible", "objective_value": 1787043.0, "recomputed_hpwl_mm": 17870.43, "solve_time_ms": 5324},
-    {"engine": "ortools", "mode": "hpwl-clean", "seed": 0, "timeout_ms": 30000, "status": "unknown", "objective_value": 0.0, "recomputed_hpwl_mm": null, "solve_time_ms": 25953},
-    {"engine": "pumpkin", "mode": "hpwl-clean", "seed": 1, "timeout_ms": 30000, "status": "feasible", "objective_value": 1760066.0, "recomputed_hpwl_mm": null, "solve_time_ms": 30370, "note": "retried standalone after the original run crashed on this case (subprocess.TimeoutExpired at 50s safety margin); this retry used a 180s safety margin and completed at 30.17s wall / reported solve_time_ms=30157.76, essentially on-budget. Positions were not captured for this standalone retry, so recomputed_hpwl_mm is not independently cross-checked here (the reported objective_value is trusted at the same level the 5s-budget runs' self-consistency check already established for this engine/model)."},
-    {"engine": "pumpkin", "mode": "hpwl-clean", "seed": 0, "timeout_ms": 30000, "status": "error", "note": "subprocess.TimeoutExpired after 50s against a 30s requested budget; process killed by the Python subprocess timeout. Not confirmed as a reproducible defect -- see seed=1's clean retry above -- but recorded rather than silently dropped."},
-    {"engine": "ortools", "mode": "hpwl-clean", "seed": 1, "timeout_ms": 30000, "status": "not_run", "note": "run crashed (pumpkin seed=0 TimeoutExpired) before reaching this case"},
-    {"engine": "pumpkin", "mode": "hpwl-clean", "seed": 7, "timeout_ms": 30000, "status": "not_run", "note": "run crashed before reaching this case; not backfilled given this spike's time budget"},
-    {"engine": "ortools", "mode": "hpwl-clean", "seed": 7, "timeout_ms": 30000, "status": "not_run", "note": "run crashed before reaching this case; not backfilled given this spike's time budget"}
+    {
+      "engine": "ortools",
+      "mode": "feasibility-clean",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "solve_time_ms": 25825
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "feasibility-clean",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "optimal",
+      "solve_time_ms": 1989
+    },
+    {
+      "engine": "ortools",
+      "mode": "feasibility-clean",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "solve_time_ms": 26093
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "feasibility-clean",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "optimal",
+      "solve_time_ms": 879
+    },
+    {
+      "engine": "ortools",
+      "mode": "feasibility-clean",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "solve_time_ms": 26697
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "feasibility-clean",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "optimal",
+      "solve_time_ms": 1027
+    },
+    {
+      "check": "independent_verification",
+      "engine": "pumpkin",
+      "seed": 0,
+      "status": "optimal",
+      "verify_ok": true,
+      "summary": "PASS",
+      "note": "separate re-solve of seed=0 feasibility-clean, verified from scratch against the harness's own IndependentVerifier -- solve_ms=2001 on this particular re-solve (run-to-run variance vs the 1989ms figure above is expected, not a discrepancy)"
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl-clean",
+      "seed": 0,
+      "timeout_ms": 5000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 6125
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl-clean",
+      "seed": 0,
+      "timeout_ms": 5000,
+      "status": "feasible",
+      "objective_value": 1864185.0,
+      "recomputed_hpwl_mm": 18641.85,
+      "solve_time_ms": 5304
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl-clean",
+      "seed": 1,
+      "timeout_ms": 5000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 6197
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl-clean",
+      "seed": 1,
+      "timeout_ms": 5000,
+      "status": "feasible",
+      "objective_value": 1760149.0,
+      "recomputed_hpwl_mm": 17601.49,
+      "solve_time_ms": 5315
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl-clean",
+      "seed": 7,
+      "timeout_ms": 5000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 6083
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl-clean",
+      "seed": 7,
+      "timeout_ms": 5000,
+      "status": "feasible",
+      "objective_value": 1787043.0,
+      "recomputed_hpwl_mm": 17870.43,
+      "solve_time_ms": 5324
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl-clean",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "unknown",
+      "objective_value": 0.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 25953
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl-clean",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "feasible",
+      "objective_value": 1760066.0,
+      "recomputed_hpwl_mm": null,
+      "solve_time_ms": 30370,
+      "note": "retried standalone after the original run crashed on this case (subprocess.TimeoutExpired at 50s safety margin); this retry used a 180s safety margin and completed at 30.17s wall / reported solve_time_ms=30157.76, essentially on-budget. Positions were not captured for this standalone retry, so recomputed_hpwl_mm is not independently cross-checked here (the reported objective_value is trusted at the same level the 5s-budget runs' self-consistency check already established for this engine/model)."
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl-clean",
+      "seed": 0,
+      "timeout_ms": 30000,
+      "status": "error",
+      "note": "subprocess.TimeoutExpired after 50s against a 30s requested budget; process killed by the Python subprocess timeout. Not confirmed as a reproducible defect -- see seed=1's clean retry above -- but recorded rather than silently dropped."
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl-clean",
+      "seed": 1,
+      "timeout_ms": 30000,
+      "status": "not_run",
+      "note": "run crashed (pumpkin seed=0 TimeoutExpired) before reaching this case"
+    },
+    {
+      "engine": "pumpkin",
+      "mode": "hpwl-clean",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "not_run",
+      "note": "run crashed before reaching this case; not backfilled given this spike's time budget"
+    },
+    {
+      "engine": "ortools",
+      "mode": "hpwl-clean",
+      "seed": 7,
+      "timeout_ms": 30000,
+      "status": "not_run",
+      "note": "run crashed before reaching this case; not backfilled given this spike's time budget"
+    }
   ]
 }

@@ -1,3 +1,4 @@
+<!-- provenance: commit=afe8e84d2ab05d6f1e654588949ff00436b57823 dirty=UNKNOWN -->
 # Evidence: gate-loop inductance estimator, remaining unwired kernels, duplicate-predicates registry
 
 Status: DONE.

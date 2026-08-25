@@ -25,11 +25,6 @@ rather than smoothed over:
 * P3's natural strengthening ("positive demand gives positive utilization")
   is false -- ``5e-324 / 2.0`` underflows to ``+0.0``.  That is B8's standing
   denormal class showing up in this kernel.
-* P5's natural companion ("damping 1.0 reproduces ``suggested`` exactly") is
-  false -- ``c + (s - c) * 1.0`` rounds the subtraction, so it lands within
-  one ulp *of the span*, not of the endpoint.  A Rust mirror written as the
-  exact ``c*(1-d) + s*d`` lerp would be endpoint-exact and would therefore
-  **fail the differential**.
 
 Scope note
 ----------
@@ -112,29 +107,8 @@ def _demand_supply(draw):
     return ([draw(finite) for _ in range(n)], [draw(finite) for _ in range(n)])
 
 
-@st.composite
-def _heatmap_field(draw):
-    rows = draw(st.integers(min_value=1, max_value=4))
-    cols = draw(st.integers(min_value=1, max_value=4))
-    layers = draw(st.integers(min_value=1, max_value=3))
-    cell = st.floats(min_value=0.0, max_value=50.0, allow_nan=False, allow_infinity=False)
-    present = [[[draw(cell) for _ in range(layers)] for _ in range(cols)] for _ in range(rows)]
-    history = [[[draw(cell) for _ in range(layers)] for _ in range(cols)] for _ in range(rows)]
-    return present, history
 
 
-class _Router:
-    __slots__ = ("_conflicts", "cell_size", "history_cost", "origin", "present_congestion")
-
-    def __init__(self, present, history, conflicts=(), cell_size=1.0, origin=(0.0, 0.0)):
-        self.present_congestion = np.array(present, dtype=np.float64)
-        self.history_cost = np.array(history, dtype=np.float64)
-        self._conflicts = list(conflicts)
-        self.cell_size = cell_size
-        self.origin = origin
-
-    def get_conflict_locations(self):
-        return self._conflicts
 
 
 def _fresh_grid(layers: int = 1, supply: float = 10.0):
@@ -316,86 +290,6 @@ def test_p8_top_bottlenecks_is_a_sorted_capped_selection(overflows, n):
         assert all(b.overflow <= min(t.overflow for t in top) for b in rest)
 
 
-# ===========================================================================
-# P5 -- damping produces a point on the segment, with the two endpoints
-#       reproduced exactly.
-# ===========================================================================
-
-
-@given(
-    st.floats(min_value=-1e3, max_value=1e3, allow_nan=False, allow_infinity=False),
-    st.floats(min_value=-1e3, max_value=1e3, allow_nan=False, allow_infinity=False),
-    st.floats(min_value=-1e3, max_value=1e3, allow_nan=False, allow_infinity=False),
-    st.floats(min_value=-1e3, max_value=1e3, allow_nan=False, allow_infinity=False),
-    st.floats(min_value=0.0, max_value=1.0, allow_nan=False),
-)
-@_SETTINGS
-def test_p5_damping_is_a_convex_combination(cx, cy, sx, sy, damping):
-    """``_calculate_damped_position`` interpolates: exactly ``current`` at
-    ``damping == 0``, and never outside the axis-aligned box between the two
-    endpoints (up to one rounding step) in between.
-
-    **Bounded honestly, and the bound was found by this test.**  The obvious
-    companion claim -- "exactly ``suggested`` at ``damping == 1``" -- is
-    **false** for the reference's own expression.  ``c + (s - c) * 1.0``
-    rounds ``s - c`` first, so the result is only within one ulp of ``s``:
-    hypothesis's witness is ``c = -733.0``, ``s = 291.9999999999999``, which
-    comes back as ``292.0``.  That is a property of the *form* the module
-    chose, not of any implementation of it, so it is recorded as a fact
-    (:func:`test_p5_endpoint_is_not_exact_at_full_damping`) instead of being
-    asserted here.  A Rust mirror written as ``lerp(c, s, d)`` or
-    ``c*(1-d) + s*d`` would give the exact endpoint and therefore **fail the
-    differential** -- which is the point.
-    """
-    current = (cx, cy)
-    suggested = (sx, sy)
-    got = ORACLE._calculate_damped_position(current, suggested, damping)
-
-    if damping == 0.0:
-        # `(s - c) * 0.0` is exactly +0.0 for finite operands, and
-        # `c + 0.0 == c` for every finite c, so this endpoint IS exact.
-        assert got == current
-
-    lo_x, hi_x = min(cx, sx), max(cx, sx)
-    lo_y, hi_y = min(cy, sy), max(cy, sy)
-    # a rounding slack of one ulp of the span: the interpolation is
-    # `c + (s - c) * d`, which can land one ulp outside the closed interval
-    slack_x = max(abs(hi_x - lo_x), 1.0) * 1e-12
-    slack_y = max(abs(hi_y - lo_y), 1.0) * 1e-12
-    assert lo_x - slack_x <= got[0] <= hi_x + slack_x
-    assert lo_y - slack_y <= got[1] <= hi_y + slack_y
-
-
-def test_p5_endpoint_is_not_exact_at_full_damping():
-    """P5's bounded claim, with the witness hypothesis found.
-
-    ``c + (s - c) * 1.0 != s`` in general: the subtraction rounds.  Pinned so
-    a Phase-B author who "improves" the Rust to ``c*(1-d) + s*d`` sees why
-    the differential then fails, rather than concluding the differential is
-    wrong.
-    """
-    c, s = -733.0, 291.9999999999999
-    got = ORACLE._calculate_damped_position((c, 0.0), (s, 0.0), 1.0)
-    assert got[0] == 292.0
-    assert got[0] != s
-    # The error is one ulp of the SPAN (`s - c` is what rounds), not one ulp
-    # of the endpoint -- so it grows with how far apart the two points are.
-    # Measured here: 1.14e-13 absolute over a span of ~1025.
-    assert abs(got[0] - s) <= abs(s - c) * 2.0**-52
-    assert abs(got[0] - s) > abs(s) * 2.0**-53
-
-    # the exact-lerp spelling a Rust author would reach for gives `s` back
-    assert c * (1.0 - 1.0) + s * 1.0 == s
-
-    # ... while damping 0.0 IS exact, in both spellings
-    assert ORACLE._calculate_damped_position((c, 0.0), (s, 0.0), 0.0)[0] == c
-
-
-# ===========================================================================
-# P6 -- the routing-demand net classification partitions the routable nets.
-# ===========================================================================
-
-
 @given(
     st.lists(
         st.text(alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ_+-0123456789", min_size=1, max_size=8).filter(
@@ -438,36 +332,6 @@ def test_p6_net_classes_partition_the_routable_nets(names):
 # ===========================================================================
 
 
-@given(_heatmap_field())
-@_SETTINGS
-def test_p7_heatmap_normalizes_to_unit_maximum(field):
-    """``from_router`` divides by ``np.max(combined)`` when that is positive.
-
-    So the resulting f32 grid has a maximum of exactly 1.0; and when the
-    combined field has no positive cell, the array is returned *unnormalized*
-    -- a branch a "always divide" implementation would get wrong on an
-    all-zero board.
-    """
-    present, history = field
-    heatmap = ORACLE.CongestionHeatmap.from_router(_Router(present, history))
-    assert heatmap.grid.dtype == np.float32
-
-    combined = np.max(np.array(present), axis=2) + 0.5 * (np.max(np.array(history), axis=2) - 1.0)
-    max_val = float(np.max(combined))
-    if max_val > 0.0:
-        assert float(np.max(heatmap.grid)) == pytest.approx(1.0, abs=1e-6)
-        assert float(np.max(heatmap.grid)) <= 1.0 + 1e-6
-    else:
-        assert np.array_equal(heatmap.grid, combined.astype(np.float32))
-
-    total = heatmap.get_total_congestion()
-    assert total == float(np.sum(heatmap.grid))
-    assert total <= heatmap.grid.size * (1.0 + 1e-6) or max_val <= 0.0
-
-
-# ===========================================================================
-# METAMORPHIC RELATIONS (gate G5)
-# ===========================================================================
 
 
 @given(_pin_pairs(), st.integers(min_value=-4, max_value=4), st.integers(min_value=-4, max_value=4))
@@ -543,53 +407,18 @@ def test_m3_net_insertion_order_does_not_change_demand(nets, data):
     assert len(nets) >= 2
 
 
-@given(
-    st.floats(min_value=-1024.0, max_value=1024.0, allow_nan=False).map(lambda v: float(int(v))),
-    st.floats(min_value=-1024.0, max_value=1024.0, allow_nan=False).map(lambda v: float(int(v))),
-    st.integers(min_value=-8, max_value=8),
-    st.sampled_from([0.0, 0.25, 0.5, 0.75, 1.0]),
-)
-@_SETTINGS
-def test_m4_damping_is_exactly_scale_equivariant(cx, sx, exponent, damping):
-    """M4 -- ``_calculate_damped_position`` commutes with a power-of-two
-    scaling of both endpoints, **bit-exactly**.
-
-    **Exactness claim: exact, every bit**, and only because all three
-    ingredients are dyadic: the coordinates are drawn as integers, the
-    damping factors are quarters, and the scale is ``2**k``.  ``c + (s - c)*d``
-    is then a chain of exactly-representable operations, so
-    ``f(c*S, s*S, d) == f(c, s, d) * S``.  With a non-dyadic damping factor
-    this would be a tolerance claim, and it is not made.
-    """
-    scale = 2.0**exponent
-    plain = ORACLE._calculate_damped_position((cx, 0.0), (sx, 0.0), damping)
-    scaled = ORACLE._calculate_damped_position((cx * scale, 0.0), (sx * scale, 0.0), damping)
-    assert scaled[0] == plain[0] * scale
-    assert scaled[1] == plain[1] * scale
-
-
-# ===========================================================================
-# Mutation tests (gate G4 vacuity guard).
-#
-# Each restores the kernel it replaced, so ordering between tests cannot
-# leak a mutant into an unrelated property.
-# ===========================================================================
-
-
 @pytest.fixture
 def restore_kernels():
     saved = {
         name: getattr(ORACLE, name)
         for name in (
             "estimate_net_demand",
-            "_calculate_damped_position",
             "estimate_routing_demand",
         )
     }
     saved_methods = {
         "get_overflow": ORACLE.CongestionGrid.get_overflow,
         "get_utilization": ORACLE.CongestionGrid.get_utilization,
-        "from_router": ORACLE.CongestionHeatmap.from_router,
         "get_top_bottlenecks": ORACLE.CongestionResult.get_top_bottlenecks,
     }
     yield
@@ -597,7 +426,6 @@ def restore_kernels():
         setattr(ORACLE, name, fn)
     ORACLE.CongestionGrid.get_overflow = saved_methods["get_overflow"]
     ORACLE.CongestionGrid.get_utilization = saved_methods["get_utilization"]
-    ORACLE.CongestionHeatmap.from_router = saved_methods["from_router"]
     ORACLE.CongestionResult.get_top_bottlenecks = saved_methods["get_top_bottlenecks"]
 
 
@@ -677,15 +505,6 @@ def test_p8_fails_for_an_uncapped_selection(restore_kernels):
         )
 
 
-def test_p5_fails_for_a_constant_position(restore_kernels):
-    """A kernel returning a fixed point is not an interpolation."""
-
-    def constant(current, suggested, damping):  # noqa: ARG001
-        return (7.0, 7.0)
-
-    ORACLE._calculate_damped_position = constant
-    with pytest.raises(AssertionError):
-        test_p5_damping_is_a_convex_combination.hypothesis.inner_test(0.0, 0.0, 1.0, 1.0, 0.0)
 
 
 def test_p6_fails_for_a_double_counting_classifier(restore_kernels):
@@ -710,24 +529,6 @@ def test_p6_fails_for_a_double_counting_classifier(restore_kernels):
         test_p6_net_classes_partition_the_routable_nets.hypothesis.inner_test(["GND", "DATA"])
 
 
-def test_p7_fails_for_an_unnormalized_heatmap(restore_kernels):
-    """Skipping the ``/ max_val`` step leaves a maximum far above 1.0."""
-    original = ORACLE.CongestionHeatmap.from_router.__func__
-
-    def unnormalized(cls, router):
-        combined = np.max(router.present_congestion, axis=2) + 0.5 * (
-            np.max(router.history_cost, axis=2) - 1.0
-        )
-        return cls(
-            grid=combined.astype(np.float32),
-            cell_size=router.cell_size,
-            origin=router.origin,
-        )
-
-    ORACLE.CongestionHeatmap.from_router = classmethod(unnormalized)
-    with pytest.raises(AssertionError):
-        test_p7_heatmap_normalizes_to_unit_maximum.hypothesis.inner_test(([[[9.0]]], [[[1.0]]]))
-    assert original is not None  # the saved original is restored by the fixture
 
 
 def test_m1_fails_for_an_origin_ignoring_kernel(restore_kernels):
@@ -793,20 +594,6 @@ def test_m3_fails_for_an_order_dependent_kernel(restore_kernels):
         )
 
 
-def test_m4_fails_for_an_additive_offset(restore_kernels):
-    """Adding a constant makes the kernel affine rather than linear, so it
-    stops commuting with scaling."""
-    original = ORACLE._calculate_damped_position
-
-    def offset(current, suggested, damping):
-        x, y = original(current, suggested, damping)
-        return (x + 1.0, y)
-
-    ORACLE._calculate_damped_position = offset
-    with pytest.raises(AssertionError):
-        test_m4_damping_is_exactly_scale_equivariant.hypothesis.inner_test(0.0, 8.0, 3, 0.5)
-
-
 # ---------------------------------------------------------------------------
 # Sanity: the input classes are genuinely discriminating.
 # ---------------------------------------------------------------------------
@@ -825,9 +612,3 @@ def test_strategies_are_discriminating():
     grid = build_grid(ORACLE, [0.0, 20.0], [10.0, 10.0])
     assert float(grid.get_overflow().sum()) > 0.0
     assert len(np.unique(grid.get_utilization())) > 1
-
-    hm = ORACLE.CongestionHeatmap.from_router(_Router([[[1.0], [4.0]]], [[[1.0], [1.0]]]))
-    assert float(np.max(hm.grid)) == 1.0
-    assert float(np.min(hm.grid)) < 1.0
-
-    assert not math.isnan(ORACLE._calculate_damped_position((0.0, 0.0), (1.0, 1.0), 0.5)[0])

@@ -1,4 +1,13 @@
-"""Internal: board-level placement serialization and isolation slot functions."""
+"""Internal: board-level placement serialization and isolation slot functions.
+
+kiutils-free (Wave 4 Phase 3, formats/IO): board I/O goes through the
+Rust parse engine's text path — ``update_footprint_positions_py``
+updates footprint ``(at ...)`` nodes and reorients pad angles in the
+KiNode tree; ``extract_footprint_info_py`` reads footprint positions;
+``gr_line_sexpr_py`` constructs isolation slot s-expressions; and
+``append_items_to_board_py`` inserts items into the tree and serializes
+back to text. No kiutils ``Board`` object is loaded or mutated.
+"""
 
 from __future__ import annotations
 
@@ -6,9 +15,8 @@ import contextlib
 import math
 from pathlib import Path
 
-from kiutils.board import Board as KiBoard
-from kiutils.items.common import Position
-from kiutils.items.gritems import GrLine
+import temper_design_bundle_python as _tdb
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
@@ -16,52 +24,7 @@ from temper_placer.io._write_types import (
     IsolationSlotResult,
     PlacementUpdate,
     WriteResult,
-    _get_footprint_reference,
 )
-from temper_placer.io.kicad_exporter import _validate_4_layer_output
-
-
-def _reorient_pads(fp, old_fp_angle: float, new_fp_angle: float) -> None:
-    """Rotate a footprint's pad *bodies* to match its new board rotation.
-
-    In a ``.kicad_pcb`` file a pad's ``(at x y angle)`` angle is the pad's
-    **absolute** (world) orientation, not an offset from the parent
-    footprint's angle -- KiCad's parser does not add the footprint angle to
-    it. So changing ``footprint.at`` rotation moves every pad's *position*
-    (KiCad rotates ``at`` offsets at load time) but leaves every pad *body*
-    pointing the way it did before, unless the pad angles are rewritten too.
-
-    Failing to rewrite them silently squashes fine-pitch packages: an
-    SSOP-20 rotated 270 degrees keeps 1.2mm-long pad bodies lying along the
-    0.635mm pitch axis, so every adjacent pad pair physically overlaps and
-    KiCad reports ``shorting_items``. Measured on ``pcb/temper.kicad_pcb``:
-    55 of 60 intra-component shorts, plus 76 solder-mask bridges and 93
-    ``lib_footprint_mismatch`` violations, all from this one omission. See
-    ``docs/evidence/2026-07-29-intra-component-shorts-root-cause.md``.
-
-    Each pad's *intrinsic* orientation (its angle relative to its parent, as
-    defined by the library footprint) is preserved: ``intrinsic =
-    old_pad_angle - old_fp_angle``, and the new absolute angle is
-    ``new_fp_angle + intrinsic``.
-
-    The per-pad angle arithmetic delegates to the Rust kernel (Wave 4
-    Phase 3, formats/IO migration). Pinned oracle:
-    ``tests/io/_write_board_py_oracle.py``; differential:
-    ``tests/io/test_write_board_geometry_rust_differential.py``.
-    """
-    delta = new_fp_angle - old_fp_angle
-    if delta % 360.0 == 0.0:
-        return
-    pads = [pad for pad in fp.pads or [] if pad.position is not None]
-    if not pads:
-        return
-    from temper_design_bundle_python import write_board_geometry as _write_board_geometry
-
-    new_angles = _write_board_geometry.reorient_pad_angles_py(
-        [pad.position.angle for pad in pads], delta
-    )
-    for pad, new_angle in zip(pads, new_angles, strict=True):
-        pad.position.angle = new_angle
 
 
 def write_placements_to_pcb(
@@ -75,45 +38,12 @@ def write_placements_to_pcb(
     """
     Write optimized placements to a KiCad PCB file.
 
-    This function:
-    1. Loads the template PCB file
-    2. Updates component positions and rotations for matched references
-    3. Preserves all other design data (traces, zones, etc.)
-    4. Writes the modified PCB to the output path
-
-    Args:
-        template_pcb: Path to the template .kicad_pcb file.
-        output_pcb: Path for the output .kicad_pcb file.
-        placements: Dictionary mapping component ref to PlacementUpdate.
-            Positions are assumed to be in bounding-box-center coordinates
-            if `components` is provided, otherwise footprint-origin coordinates.
-        preserve_unmatched: If True, keep components not in placements dict
-            at their original positions. If False, warn about unmatched.
-        components: Optional list of Component objects from the netlist.
-            If provided, center offsets will be extracted and subtracted
-            from positions to convert from bounding-box-center to
-            footprint-origin coordinates (which KiCad expects).
-        board_origin: (x, y) mm offset to ADD to every placement before
-            writing. ``placements`` is produced by solving against
-            ``parse_kicad_pcb(..., normalize=True)`` output (the default),
-            which subtracts the board's own Edge.Cuts origin
-            (``board.origin`` -- (20, 20) mm on this board, not (0, 0)) from
-            every coordinate. ``template_pcb``'s raw ``(at X Y)`` fields are
-            in ABSOLUTE file coordinates, never normalized. Omitting this
-            (the previous, sole behavior -- default keeps it byte-for-byte
-            unchanged for any caller that never solved in a normalized
-            frame) silently writes every placed footprint ~board_origin mm
-            off from the real outline. Caught by
-            ``scripts/check_board_containment.py``, which the pure
-            self-consistency round-trip oracle
-            (``validation.placement_roundtrip.check_placement_roundtrip``)
-            does not cover, since that oracle re-derives its own "expected"
-            geometry from the same (already-wrong) positions dict rather
-            than independently from Edge.Cuts -- see
-            docs/evidence/2026-08-11-board-origin-write-path-fix.md.
-
-    Returns:
-        WriteResult with statistics and any warnings.
+    See the pre-migration docstring for the full board-origin and
+    center-offset rationale. The Rust kernel
+    ``update_footprint_positions_py`` finds each footprint by Reference
+    property, updates its ``(at X Y angle)`` node, and reorients pad
+    angles by ``delta = new_angle - old_angle`` (preserving each pad's
+    intrinsic orientation relative to its parent).
     """
     warnings: list[str] = []
     components_updated = 0
@@ -129,17 +59,13 @@ def write_placements_to_pcb(
                 if cx != 0 or cy != 0:
                     center_offsets[comp.ref] = (cx, cy)
 
-    # Load the template PCB
-    try:
-        ki_board = KiBoard.from_file(str(template_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to load template PCB: {e}") from e
+    content = Path(template_pcb).read_text(encoding="utf-8")
 
-    # Update footprint positions
-    for fp in ki_board.footprints:
-        ref = _get_footprint_reference(fp)
+    # Build the placement tuples for the Rust kernel
+    placement_tuples: list[tuple[str, float, float, float]] = []
+    for fp_info in _tdb.parse_engine.extract_footprint_info_py(content):
+        ref = fp_info["ref"]
         if not ref:
-            warnings.append(f"Skipping footprint with no reference: {fp.libId}")
             components_skipped += 1
             continue
 
@@ -155,62 +81,21 @@ def write_placements_to_pcb(
         y += board_origin[1]
         rotation_deg = update.rotation
 
-        # Convert from bounding-box-center to footprint-origin coordinates.
-        #
-        # Rotation sign: verified directly against ``pcbnew`` (KiCad's own
-        # placement engine) that a footprint's ``(at X Y ANGLE)`` rotates
-        # each pad's stored local offset *clockwise* by ANGLE to reach its
-        # absolute board position -- i.e. ``R(-ANGLE)`` in the standard
-        # (CCW-positive) trig convention used below, not ``R(+ANGLE)``. A
-        # 2-pad footprint at 37 deg with local pad offset (10, 4) places
-        # that pad at (10.393615, -2.823608) -- the R(-ANGLE) prediction to
-        # 6 decimal places; R(+ANGLE) predicts a different point,
-        # (5.579095, 9.212693). This function previously used the R(+ANGLE)
-        # sign, which silently re-offset every pad of a rotated,
-        # off-centroid footprint (an asymmetric TO-247, e.g.) by up to
-        # ``2 * center_offset`` mm -- invisible whenever a component's
-        # rotation happens not to change across a write (old and new angle
-        # both feed the same wrong sign, so the position error cancels),
-        # but real and safety-relevant the moment a re-solve actually
-        # rotates such a component. See
-        # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+        # Convert from bounding-box-center to footprint-origin coordinates
         if ref in center_offsets:
             cx, cy = center_offsets[ref]
             rot_rad = math.radians(rotation_deg)
-            # Rotate the center offset by the component's rotation, using
-            # KiCad's real rotation convention -- see
-            # temper_placer.geometry.kicad_transform's docstring. Must
-            # match the parser's inverse (io/_parse_modules.py) for this
-            # writer to place the footprint anchor where the parser's
-            # center actually resolves to.
             rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
             x -= rotated_cx
             y -= rotated_cy
 
-        # Update position. Pad bodies must be re-oriented alongside the
-        # footprint: a .kicad_pcb pad angle is absolute, so rotating only the
-        # footprint leaves every pad body unrotated (see _reorient_pads).
-        if fp.position is None:
-            fp.position = Position(X=x, Y=y, angle=rotation_deg)
-            _reorient_pads(fp, 0.0, rotation_deg)
-        else:
-            old_angle = fp.position.angle or 0.0
-            fp.position.X = x
-            fp.position.Y = y
-            fp.position.angle = rotation_deg
-            _reorient_pads(fp, old_angle, rotation_deg)
-
+        placement_tuples.append((ref, x, y, rotation_deg))
         components_updated += 1
 
-    # Ensure output directory exists
-    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    result_text = _tdb.parse_engine.update_footprint_positions_py(content, placement_tuples)
 
-    # Write the modified PCB
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(output_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}") from e
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    output_pcb.write_text(result_text, encoding="utf-8")
 
     return WriteResult(
         output_path=output_pcb,
@@ -230,25 +115,11 @@ def state_to_placements(
     """
     Convert a PlacementState to placement updates.
 
-    Args:
-        state: The optimized PlacementState.
-        component_refs: List of component reference designators, in the same
-            order as state.positions.
-        origin: (x, y) board origin to add to positions.
-        original_angles: Optional dict mapping component ref to original angle
-            in degrees. If provided, the rotation offset from the original
-            angle to its quantized 90° value will be preserved in the output.
-            This handles components with non-90° rotations gracefully.
-        components: Optional list of Component objects. If provided, center
-            offsets will be extracted and subtracted from positions to convert
-            from bounding-box-center to footprint-origin coordinates.
-
-    Returns:
-        Dictionary mapping component ref to PlacementUpdate.
+    Pure data transform — no kiutils dependency. See the pre-migration
+    docstring for the full rationale.
     """
     placements: dict[str, PlacementUpdate] = {}
 
-    # Build center offset map from components if provided
     center_offsets: dict[str, tuple[float, float]] = {}
     if components:
         for comp in components:
@@ -258,21 +129,11 @@ def state_to_placements(
                 if cx != 0 or cy != 0:
                     center_offsets[comp.ref] = (cx, cy)
 
-    # Get discrete rotations (to_discrete returns (positions, rotation_indices))
     _, rotation_indices = state.to_discrete()
 
     for i, ref in enumerate(component_refs):
-        # Convert rotation index to degrees (0, 90, 180, 270)
         rotation_deg = float(rotation_indices[i]) * 90.0
 
-        # If original angle was non-90°, preserve the offset
-        # e.g., if original was 45° (quantized to 0°), and optimizer chose 90°,
-        # output should be 90° + 45° = 135°
-        #
-        # Delegates to the Rust kernel (Wave 4 Phase 3, formats/IO
-        # migration). Pinned oracle: ``tests/io/_write_board_py_oracle.py``;
-        # differential:
-        # ``tests/io/test_write_board_geometry_rust_differential.py``.
         if original_angles and ref in original_angles:
             from temper_design_bundle_python import (
                 write_board_geometry as _write_board_geometry,
@@ -282,22 +143,12 @@ def state_to_placements(
                 rotation_deg, original_angles[ref]
             )
 
-        # Get position (internal bounding-box-center coordinates)
         x = float(state.positions[i, 0]) + origin[0]
         y = float(state.positions[i, 1]) + origin[1]
 
-        # Subtract rotated center offset to convert to footprint origin.
-        # Rotation sign matches write_placements_to_pcb above (KiCad rotates
-        # a pad's local offset *clockwise* by the footprint angle -- R(-ANGLE)
-        # in this function's standard-CCW trig convention, verified against
-        # pcbnew; see that function's docstring for the measurement).
         if ref in center_offsets:
             cx, cy = center_offsets[ref]
             rot_rad = math.radians(rotation_deg)
-            # Rotate the center offset by the final rotation, using KiCad's
-            # real rotation convention -- see
-            # temper_placer.geometry.kicad_transform's docstring. Must
-            # match the parser's inverse (io/_parse_modules.py).
             rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
             x -= rotated_cx
             y -= rotated_cy
@@ -316,15 +167,7 @@ def extract_original_angles(components: list) -> dict[str, float]:
     """
     Extract original angles from component attributes.
 
-    This reads the '_original_angle' attribute stored by the parser
-    for components with non-90° rotations.
-
-    Args:
-        components: List of Component objects from the netlist.
-
-    Returns:
-        Dictionary mapping component ref to original angle in degrees.
-        Only includes components that had non-90° rotations.
+    Pure data transform — no kiutils dependency.
     """
     angles: dict[str, float] = {}
     for comp in components:
@@ -345,19 +188,8 @@ def export_placements(
     """
     High-level function to export optimized state to KiCad PCB.
 
-    This is a convenience wrapper that combines state_to_placements and
+    Convenience wrapper combining state_to_placements and
     write_placements_to_pcb.
-
-    Args:
-        template_pcb: Path to the template .kicad_pcb file.
-        output_pcb: Path for the output .kicad_pcb file.
-        state: The optimized PlacementState.
-        component_refs: List of component reference designators.
-        origin: (x, y) board origin to add to positions.
-        components: Optional list of Component objects for center offset correction.
-
-    Returns:
-        WriteResult with statistics and any warnings.
     """
     placements = state_to_placements(state, component_refs, origin, components=components)
     return write_placements_to_pcb(template_pcb, output_pcb, placements)
@@ -367,11 +199,8 @@ def validate_output_pcb(output_pcb: Path) -> tuple[bool, list[str]]:
     """
     Validate that the output PCB file is readable.
 
-    Args:
-        output_pcb: Path to the PCB file to validate.
-
-    Returns:
-        Tuple of (is_valid, error_messages).
+    Uses the Rust parse engine to verify the board is parseable and
+    has footprints.
     """
     errors: list[str] = []
 
@@ -380,14 +209,13 @@ def validate_output_pcb(output_pcb: Path) -> tuple[bool, list[str]]:
         return False, errors
 
     try:
-        ki_board = KiBoard.from_file(str(output_pcb))
+        content = output_pcb.read_text(encoding="utf-8")
+        footprints = _tdb.parse_engine.extract_footprint_info_py(content)
+        if not footprints:
+            errors.append("Output PCB has no footprints")
+            return False, errors
     except Exception as e:
         errors.append(f"Failed to parse output PCB: {e}")
-        return False, errors
-
-    # Basic sanity checks
-    if not ki_board.footprints:
-        errors.append("Output PCB has no footprints")
         return False, errors
 
     return True, []
@@ -401,53 +229,27 @@ def add_isolation_slots_to_pcb(
     """
     Add creepage isolation slots to a KiCad PCB file.
 
-    Slots are drawn on the Edge.Cuts layer as lines with specified width.
-    The PCB manufacturer will route these as slots (board cutouts).
-
-    For TO-247 packages where gate pin is 5.45mm from HV collector:
-    - A 1.5mm wide slot between pins forces creepage path around it
-    - Effective creepage becomes 12-15mm (compliant with IEC 60335-1's 6mm requirement)
-
-    Args:
-        pcb_path: Path to the input .kicad_pcb file.
-        isolation_slots: List of IsolationSlot objects from config.
-        output_path: Optional output path. If None, modifies pcb_path in-place.
-
-    Returns:
-        IsolationSlotResult with statistics and warnings.
-
-    Example config YAML:
-        isolation_slots:
-          - name: "q1_gate_isolation"
-            component_ref: "Q1"
-            start_offset: [-2.0, -2.5]   # Relative to component center
-            end_offset: [-2.0, 7.5]      # Slot runs vertically
-            width_mm: 1.5
-            lv_pin: "1"                  # Gate
-            hv_pin: "2"                  # Collector
-            description: "IEC 60335-1 creepage isolation"
+    See the pre-migration docstring for the full TO-247 isolation slot
+    rationale. The Rust kernels ``extract_footprint_info_py`` (positions)
+    and ``gr_line_sexpr_py`` (s-expr construction) plus
+    ``append_items_to_board_py`` (tree insertion) replace kiutils.
     """
     warnings: list[str] = []
     slots_added = 0
     slots_skipped = 0
 
-    # Load the PCB
-    try:
-        ki_board = KiBoard.from_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}") from e
+    content = Path(pcb_path).read_text(encoding="utf-8")
 
-    # Build component reference -> position mapping
-    component_positions: dict[str, tuple[float, float, float]] = {}  # ref -> (x, y, angle)
-    for fp in ki_board.footprints:
-        ref = _get_footprint_reference(fp)
-        if ref and fp.position:
-            x = fp.position.X if fp.position.X is not None else 0.0
-            y = fp.position.Y if fp.position.Y is not None else 0.0
-            angle = fp.position.angle if fp.position.angle is not None else 0.0
-            component_positions[ref] = (x, y, angle)
+    # Build component reference → position mapping
+    footprints = _tdb.parse_engine.extract_footprint_info_py(content)
+    component_positions: dict[str, tuple[float, float, float]] = {}
+    for fp in footprints:
+        ref = fp["ref"]
+        if ref:
+            component_positions[ref] = (fp["x"], fp["y"], fp["angle"])
 
-    # Add slots for each IsolationSlot configuration
+    item_sexprs: list = []
+
     for slot in isolation_slots:
         comp_ref = slot.component_ref
 
@@ -459,15 +261,9 @@ def add_isolation_slots_to_pcb(
         comp_x, comp_y, comp_angle = component_positions[comp_ref]
         angle_rad = math.radians(comp_angle)
 
-        # Get slot offsets from component origin
         dx_start, dy_start = slot.start_offset
         dx_end, dy_end = slot.end_offset
 
-        # Rotate offsets by component angle, using KiCad's real rotation
-        # convention -- see temper_placer.geometry.kicad_transform's
-        # docstring.
-        # Note: Apply rotation for any non-zero angle (threshold removed to avoid
-        # silently ignoring small rotations that could affect slot placement)
         if comp_angle != 0.0:
             rot_start_x, rot_start_y = rotate_local_to_world(dx_start, dy_start, angle_rad)
             rot_end_x, rot_end_y = rotate_local_to_world(dx_end, dy_end, angle_rad)
@@ -475,36 +271,27 @@ def add_isolation_slots_to_pcb(
             rot_start_x, rot_start_y = dx_start, dy_start
             rot_end_x, rot_end_y = dx_end, dy_end
 
-        # Absolute coordinates
         abs_start_x = comp_x + rot_start_x
         abs_start_y = comp_y + rot_start_y
         abs_end_x = comp_x + rot_end_x
         abs_end_y = comp_y + rot_end_y
 
-        # Create GrLine on Edge.Cuts layer
-        # Width of the line = slot width (routed slot)
         try:
-            slot_line = GrLine(
-                start=Position(X=abs_start_x, Y=abs_start_y),
-                end=Position(X=abs_end_x, Y=abs_end_y),
-                layer="Edge.Cuts",
-                width=slot.width_mm,
+            item_sexprs.append(
+                _GEOM.gr_line_sexpr_py(
+                    abs_start_x, abs_start_y, abs_end_x, abs_end_y, "Edge.Cuts", slot.width_mm
+                )
             )
-            ki_board.graphicItems.append(slot_line)
             slots_added += 1
         except Exception as e:
             warnings.append(f"Failed to add slot '{slot.name}': {e}")
             slots_skipped += 1
 
-    # Write output
+    result_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
+
     out_path = output_path if output_path else pcb_path
     out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(out_path))
-    except Exception as e:
-        raise ValueError(f"Failed to write PCB: {e}") from e
+    out_path.write_text(result_text, encoding="utf-8")
 
     return IsolationSlotResult(
         output_path=out_path,
@@ -522,44 +309,25 @@ def compute_to247_isolation_slots(
     """
     Automatically compute isolation slot positions for TO-247 packages.
 
-    TO-247 packages have a fixed geometry where pin 1 (gate) is 5.45mm
-    from pin 2 (collector/drain). This function computes slot positions
-    that isolate the gate from HV pins.
-
-    The slot is positioned between pin 1 and pin 2, running perpendicular
-    to the pin row to maximize creepage path extension.
-
-    Args:
-        component_refs: List of component references to add slots for (e.g., ["Q1", "Q2"]).
-        slot_width_mm: Width of the slot (default 1.5mm).
-        slot_length_mm: Length of the slot (default 10mm).
-
-    Returns:
-        List of IsolationSlot objects ready for use with add_isolation_slots_to_pcb().
+    Pure data transform — no kiutils dependency. See the pre-migration
+    docstring for the TO-247 pin geometry rationale.
     """
     from temper_placer.io.config_loader import IsolationSlot
 
-    # TO-247 pin geometry (from datasheet, pin 1 to pin 2 center-to-center)
-    # Pin pitch: 5.45mm between pin 1 and pin 2
-    # Pins are aligned along the X-axis when component angle=0
-    TO247_PIN1_TO_PIN2_X = 5.45  # mm
+    TO247_PIN1_TO_PIN2_X = 5.45
 
-    # Slot position: between pin 1 and pin 2, offset to avoid hitting pads
-    # Place slot at X = 2.72mm (midpoint) from component origin (which is typically at pin 2)
-    SLOT_X_OFFSET = -TO247_PIN1_TO_PIN2_X / 2  # Between pins
+    SLOT_X_OFFSET = -TO247_PIN1_TO_PIN2_X / 2
 
     slots = []
     for ref in component_refs:
-        # Create slot definition
-        # Slot runs vertically (Y direction) centered on the midpoint between pins
         slot = IsolationSlot(
             name=f"{ref.lower()}_gate_isolation",
             component_ref=ref,
             start_offset=(SLOT_X_OFFSET, -slot_length_mm / 2),
             end_offset=(SLOT_X_OFFSET, slot_length_mm / 2),
             width_mm=slot_width_mm,
-            lv_pin="1",  # Gate
-            hv_pin="2",  # Collector/Drain
+            lv_pin="1",
+            hv_pin="2",
             description=f"IEC 60335-1 creepage isolation for {ref} gate",
         )
         slots.append(slot)

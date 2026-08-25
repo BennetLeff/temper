@@ -1,4 +1,4 @@
-<!-- provenance: worktree /home/bennet/Desktop/temper-plane-real, branch feat/4layer-power-planes-real, HEAD=c4956df6646b98355f12f00527370b20325e8a70 (clean, unmodified). kicad-cli 10.0.5 (matches CI pin), obtained via the official KiCad AppImage (kicad-downloads.s3.cern.ch/appimage/stable/kicad-10.0.5-x86_64.AppImage.tar) since the userspace .deb extraction from a prior session had been cleared by a VM reboot and system apt/docker-pigz were both unavailable in this sandbox. All numbers below came from commands run in this session; none are invented or carried over unverified from the prior agent's commit message. -->
+<!-- provenance: commit=f598973a7e7f5f58c88652c5ed38fb4031a0b08a dirty=UNKNOWN -->
 
 # Root cause of the 1109 -> 1415 DRC jump attributed to the `signal` -> `power` layer-type edit: it is not the token
 

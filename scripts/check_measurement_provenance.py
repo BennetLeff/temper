@@ -216,6 +216,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _lib.drc_ceiling import load_ceiling  # noqa: E402
 from _lib.gate_allowlist import (  # noqa: E402
     TICKET_PATTERN,
     check_shrink_mode as _check_shrink_mode,
@@ -340,7 +341,10 @@ def load_records(artifact: Path) -> list[Record]:
         if is_yaml:
             data = yaml.safe_load(artifact.read_text())
         else:
-            data = json.loads(artifact.read_text())
+            # JSON artifacts go through the shared scripts/_lib/drc_ceiling
+            # loader (the same read+json.loads this branch did inline) --
+            # see that module's docstring for the boundary argument.
+            data = load_ceiling(artifact)
     except json.JSONDecodeError as exc:
         raise GateError(f"{artifact}: malformed JSON, cannot verify provenance: {exc}") from exc
     except yaml.YAMLError as exc:

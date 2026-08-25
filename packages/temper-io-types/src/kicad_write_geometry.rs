@@ -37,6 +37,13 @@
 //     the same judgement `dsn_exporter.rs` records for `pin_world_position`.
 //     The reduction (order-sensitive `min`/`max` — B5, and the `abs_x - w/2`
 //     operation order — B7) is ported.
+//   * `zone_sexpr` — the `_write_zones.write_zones_to_pcb` per-zone
+//     construction as the parsed s-expression tree kiutils' `Zone.from_sexpr`
+//     consumes. Rust owns the semantic content (net/index, layer, tstamp,
+//     polygon points, the implicit hatch/clearance/min_thickness defaults);
+//     kiutils' own `to_sexpr` does the final serialisation, so float rendering
+//     and quoting are never reimplemented (B1). Pinned byte-identical by
+//     `tests/io/test_write_zones_rust_differential.py`.
 //   * `build_net_name_to_index_map` / `resolve_net_index` — the net-name →
 //     index mapping shared by `_write_zones.build_net_name_to_index_map` (and
 //     inlined in `_write_tracks.write_routes_to_pcb`) plus the two index
@@ -51,7 +58,8 @@
 // The zone tstamp (`write_zones_to_pcb`'s `uuid.uuid4()`) is NOT touched: it
 // is random in the pre-migration code, so determinizing it would be a behaviour
 // change no bit-identical differential could pin, and the zone writer has no
-// live caller. Recorded, not silently changed.
+// live caller. `zone_sexpr` therefore takes the tstamp as a parameter —
+// recorded, not silently changed.
 
 // Only `stable_tstamp` (below, `#[cfg(feature = "python")]`) hashes anything,
 // so with `--no-default-features` -- the wasm32 configuration -- this import
@@ -130,7 +138,7 @@ mod py_bridge {
     use super::*;
     use pyo3::exceptions::PyAttributeError;
     use pyo3::prelude::*;
-    use pyo3::types::{PyBool, PyDict, PyTuple};
+    use pyo3::types::{PyBool, PyDict, PyList, PyTuple};
     use temper_py_bridge::catch_panic;
 
     /// Python `float(obj)` — exact CPython `float()` semantics (works on ints,
@@ -157,6 +165,18 @@ mod py_bridge {
     /// on a miss matches the oracle's `net in map` / `dict.get` fallbacks.
     fn map_get<'py>(map: &Bound<'py, PyDict>, key: &str) -> PyResult<Option<Bound<'py, PyAny>>> {
         map.get_item(key)
+    }
+
+    /// `[key, vals...]` — a single node of a kiutils parsed s-expression
+    /// tree (the `list` form the `from_sexpr` constructors consume).
+    fn node<'py>(
+        py: Python<'py>,
+        key: &str,
+        vals: Vec<Bound<'py, PyAny>>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let mut items: Vec<Bound<'py, PyAny>> = vec![key.into_pyobject(py)?.into_any()];
+        items.extend(vals);
+        Ok(PyList::new(py, items)?.into_any())
     }
 
     /// `_resolve_net_index`: `net and net in map` — a truthiness-guarded
@@ -357,6 +377,468 @@ mod py_bridge {
         catch_panic(|| Ok(component_bounds_pure(fp_x, fp_y, &world_pads)))
     }
 
+    /// `_write_zones.write_zones_to_pcb`'s per-zone construction: the parsed
+    /// s-expression tree that kiutils' `Zone.from_sexpr` consumes, mirroring
+    /// `Zone(netName=..., net=..., layers=[...], tstamp=...,
+    /// polygons=[ZonePolygon(coordinates=[...])], minThickness=0.254)`
+    /// field-for-field (every other field at its dataclass default).
+    ///
+    /// Rust owns the zone's semantic content — the net name/index, layer,
+    /// tstamp, polygon points and the implicit defaults (hatch none/0.0,
+    /// clearance/min_thickness 0.254) — as a `list` structure; the Python
+    /// shim materialises it with `Zone.from_sexpr` and kiutils' own
+    /// `to_sexpr` does the final serialisation, so float rendering and
+    /// quoting are never reimplemented in Rust (B1 discipline). The
+    /// differential pins `Zone.from_sexpr(rust).to_sexpr()` byte-identical
+    /// to the oracle's `Zone(...).to_sexpr()`.
+    #[pyfunction]
+    pub fn zone_sexpr_py(
+        py: Python<'_>,
+        net_name: &str,
+        net: i64,
+        layer: &str,
+        tstamp: &str,
+        points: Vec<(f64, f64)>,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut zone: Vec<Bound<'_, PyAny>> = Vec::new();
+            zone.push("zone".into_pyobject(py)?.into_any());
+
+            let net_item: Vec<Bound<'_, PyAny>> = vec![
+                "net".into_pyobject(py)?.into_any(),
+                net.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, net_item)?.into_any());
+
+            let net_name_item: Vec<Bound<'_, PyAny>> = vec![
+                "net_name".into_pyobject(py)?.into_any(),
+                net_name.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, net_name_item)?.into_any());
+
+            let layer_item: Vec<Bound<'_, PyAny>> = vec![
+                "layer".into_pyobject(py)?.into_any(),
+                layer.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, layer_item)?.into_any());
+
+            let tstamp_item: Vec<Bound<'_, PyAny>> = vec![
+                "tstamp".into_pyobject(py)?.into_any(),
+                tstamp.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, tstamp_item)?.into_any());
+
+            let hatch_item: Vec<Bound<'_, PyAny>> = vec![
+                "hatch".into_pyobject(py)?.into_any(),
+                "none".into_pyobject(py)?.into_any(),
+                0.0f64.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, hatch_item)?.into_any());
+
+            let connect_item: Vec<Bound<'_, PyAny>> = vec![
+                "connect_pads".into_pyobject(py)?.into_any(),
+                PyList::new(
+                    py,
+                    [
+                        "clearance".into_pyobject(py)?.into_any(),
+                        0.254f64.into_pyobject(py)?.into_any(),
+                    ],
+                )?
+                .into_any(),
+            ];
+            zone.push(PyList::new(py, connect_item)?.into_any());
+
+            let min_thickness_item: Vec<Bound<'_, PyAny>> = vec![
+                "min_thickness".into_pyobject(py)?.into_any(),
+                0.254f64.into_pyobject(py)?.into_any(),
+            ];
+            zone.push(PyList::new(py, min_thickness_item)?.into_any());
+
+            let mut pts: Vec<Bound<'_, PyAny>> = vec!["pts".into_pyobject(py)?.into_any()];
+            for (x, y) in points {
+                let xy: Vec<Bound<'_, PyAny>> = vec![
+                    "xy".into_pyobject(py)?.into_any(),
+                    x.into_pyobject(py)?.into_any(),
+                    y.into_pyobject(py)?.into_any(),
+                ];
+                pts.push(PyList::new(py, xy)?.into_any());
+            }
+            let polygon_item: Vec<Bound<'_, PyAny>> = vec![
+                "polygon".into_pyobject(py)?.into_any(),
+                PyList::new(py, pts)?.into_any(),
+            ];
+            zone.push(PyList::new(py, polygon_item)?.into_any());
+
+            Ok(PyList::new(py, zone)?.unbind())
+        })
+    }
+
+    /// `zone_manager.add_power_planes` / `add_zones_from_classification`'s
+    /// per-zone construction: the s-expression tree matching kiutils'
+    /// `Zone` serialisation of the pre-migration construction
+    /// (`Zone(net=..., netName=..., layers=[layer], name=f"{net}_plane",
+    /// priority=..., connectPads="thermal_reliefs", clearance=...,
+    /// minThickness=..., fillSettings=FillSettings(yes=True,
+    /// thermalGap=..., thermalBridgeWidth=...),
+    /// polygons=[ZonePolygon(coordinates=[...)])`), field-for-field:
+    ///
+    /// ```text
+    /// (zone (net N) (net_name "X") (layer "L") (name "X_plane")
+    ///   (hatch none 0.0) (priority P)
+    ///   (connect_pads thermal_reliefs (clearance C))
+    ///   (min_thickness T)
+    ///   (fill yes (thermal_gap G) (thermal_bridge_width B))
+    ///   (polygon (pts (xy ...) ...)))
+    /// ```
+    ///
+    /// No `tstamp`: the pre-migration construction left kiutils' empty
+    /// default, which `to_sexpr` omits — emitting one would be a visible
+    /// diff against every board written before the migration. Thermal
+    /// reliefs are load-bearing (spoke pattern prevents cold solder
+    /// joints); see `tests/io/test_thermal_relief.py`.
+    #[pyfunction]
+    #[allow(clippy::too_many_arguments)]
+    pub fn power_plane_zone_sexpr_py(
+        py: Python<'_>,
+        net_name: &str,
+        net: i64,
+        layer: &str,
+        priority: i64,
+        clearance: f64,
+        min_thickness: f64,
+        thermal_gap: f64,
+        thermal_bridge_width: f64,
+        points: Vec<(f64, f64)>,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let name = format!("{net_name}_plane");
+            let mut zone: Vec<Bound<'_, PyAny>> = vec!["zone".into_pyobject(py)?.into_any()];
+            zone.push(node(py, "net", vec![net.into_pyobject(py)?.into_any()])?);
+            zone.push(node(
+                py,
+                "net_name",
+                vec![net_name.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(
+                py,
+                "layer",
+                vec![layer.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(py, "name", vec![name.into_pyobject(py)?.into_any()])?);
+            zone.push(node(
+                py,
+                "hatch",
+                vec![
+                    "none".into_pyobject(py)?.into_any(),
+                    0.0f64.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            zone.push(node(
+                py,
+                "priority",
+                vec![priority.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(
+                py,
+                "connect_pads",
+                vec![
+                    "thermal_reliefs".into_pyobject(py)?.into_any(),
+                    node(
+                        py,
+                        "clearance",
+                        vec![clearance.into_pyobject(py)?.into_any()],
+                    )?,
+                ],
+            )?);
+            zone.push(node(
+                py,
+                "min_thickness",
+                vec![min_thickness.into_pyobject(py)?.into_any()],
+            )?);
+            zone.push(node(
+                py,
+                "fill",
+                vec![
+                    "yes".into_pyobject(py)?.into_any(),
+                    node(
+                        py,
+                        "thermal_gap",
+                        vec![thermal_gap.into_pyobject(py)?.into_any()],
+                    )?,
+                    node(
+                        py,
+                        "thermal_bridge_width",
+                        vec![thermal_bridge_width.into_pyobject(py)?.into_any()],
+                    )?,
+                ],
+            )?);
+            let mut pts: Vec<Bound<'_, PyAny>> = vec!["pts".into_pyobject(py)?.into_any()];
+            for (x, y) in points {
+                pts.push(node(
+                    py,
+                    "xy",
+                    vec![
+                        x.into_pyobject(py)?.into_any(),
+                        y.into_pyobject(py)?.into_any(),
+                    ],
+                )?);
+            }
+            zone.push(node(py, "polygon", vec![PyList::new(py, pts)?.into_any()])?);
+            Ok(PyList::new(py, zone)?.unbind())
+        })
+    }
+
+    /// `_write_modules.add_bounding_boxes_to_pcb`'s per-rect construction: the
+    /// parsed s-expression tree that kiutils' `GrRect.from_sexpr` consumes
+    /// (`(gr_rect (start x y) (end x y) (layer L) (width W))`). Rust owns the
+    /// content; kiutils' own `to_sexpr` does the serialisation (B1 — floats
+    /// are carried as values, so the int-coercion of a text round-trip can
+    /// never change the emitted bytes).
+    #[pyfunction]
+    pub fn gr_rect_sexpr_py(
+        py: Python<'_>,
+        x_min: f64,
+        y_min: f64,
+        x_max: f64,
+        y_max: f64,
+        layer: &str,
+        width: f64,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut gr_rect: Vec<Bound<'_, PyAny>> = vec!["gr_rect".into_pyobject(py)?.into_any()];
+            gr_rect.push(node(
+                py,
+                "start",
+                vec![
+                    x_min.into_pyobject(py)?.into_any(),
+                    y_min.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_rect.push(node(
+                py,
+                "end",
+                vec![
+                    x_max.into_pyobject(py)?.into_any(),
+                    y_max.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_rect.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            gr_rect.push(node(py, "width", vec![width.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, gr_rect)?.unbind())
+        })
+    }
+
+    /// `_write_modules.add_silkscreen_labels`'s per-text construction: the
+    /// parsed s-expression tree that kiutils' `GrText.from_sexpr` consumes
+    /// (`(gr_text "T" (at x y) (layer L) (effects (font (size 1.0 1.0))))`).
+    /// The `effects` node reproduces the dataclass default `Font(size=1.0,
+    /// 1.0)` that `to_sexpr` emits. See [`gr_rect_sexpr_py`] for the float
+    /// rationale.
+    #[pyfunction]
+    pub fn gr_text_sexpr_py(
+        py: Python<'_>,
+        text: &str,
+        x: f64,
+        y: f64,
+        layer: &str,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut gr_text: Vec<Bound<'_, PyAny>> = vec![
+                "gr_text".into_pyobject(py)?.into_any(),
+                text.into_pyobject(py)?.into_any(),
+            ];
+            gr_text.push(node(
+                py,
+                "at",
+                vec![x.into_pyobject(py)?.into_any(), y.into_pyobject(py)?.into_any()],
+            )?);
+            gr_text.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            let effects = node(
+                py,
+                "effects",
+                vec![node(
+                    py,
+                    "font",
+                    vec![node(
+                        py,
+                        "size",
+                        vec![
+                            1.0f64.into_pyobject(py)?.into_any(),
+                            1.0f64.into_pyobject(py)?.into_any(),
+                        ],
+                    )?],
+                )?],
+            )?;
+            gr_text.push(effects);
+            Ok(PyList::new(py, gr_text)?.unbind())
+        })
+    }
+
+    /// `_write_tracks.write_routes_to_pcb`'s per-segment construction: the
+    /// parsed s-expression tree that kiutils' `Segment.from_sexpr` consumes
+    /// (`(segment (start x y) (end x y) (width w) (layer L) (net N) (tstamp
+    /// T))`). Rust owns the content; kiutils' own `to_sexpr` does the
+    /// serialisation (B1 — floats are carried as values, so the int-coercion
+    /// of a text round-trip can never change the emitted bytes).
+    // The argument list mirrors the Python-side signature this pyfunction
+    // replaces, one KiCad `(segment ...)` field per parameter. Bundling them
+    // into a struct to satisfy the 7-argument default would change the call
+    // shape at the pyo3 boundary -- i.e. change the Python API -- to silence a
+    // style lint about a flat list of primitives.
+    #[allow(clippy::too_many_arguments)]
+    #[pyfunction]
+    pub fn segment_sexpr_py(
+        py: Python<'_>,
+        start_x: f64,
+        start_y: f64,
+        end_x: f64,
+        end_y: f64,
+        width: f64,
+        layer: &str,
+        net: i64,
+        tstamp: &str,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut segment: Vec<Bound<'_, PyAny>> =
+                vec!["segment".into_pyobject(py)?.into_any()];
+            segment.push(node(
+                py,
+                "start",
+                vec![
+                    start_x.into_pyobject(py)?.into_any(),
+                    start_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            segment.push(node(
+                py,
+                "end",
+                vec![
+                    end_x.into_pyobject(py)?.into_any(),
+                    end_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            segment.push(node(py, "width", vec![width.into_pyobject(py)?.into_any()])?);
+            segment.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            segment.push(node(py, "net", vec![net.into_pyobject(py)?.into_any()])?);
+            segment.push(node(py, "tstamp", vec![tstamp.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, segment)?.unbind())
+        })
+    }
+
+    /// `_write_tracks.write_routes_to_pcb`'s per-via construction: the
+    /// parsed s-expression tree that kiutils' `Via.from_sexpr` consumes
+    /// (`(via (at x y) (size s) (drill d) (layers L1 L2) (net N) (tstamp
+    /// T))`). See [`segment_sexpr_py`] for the float rationale.
+    // Same rationale as `segment_sexpr_py` above: one KiCad `(via ...)` field
+    // per parameter, matching the Python signature it replaces.
+    #[allow(clippy::too_many_arguments)]
+    #[pyfunction]
+    pub fn via_sexpr_py(
+        py: Python<'_>,
+        x: f64,
+        y: f64,
+        size: f64,
+        drill: f64,
+        layers: Vec<String>,
+        net: i64,
+        tstamp: &str,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut via: Vec<Bound<'_, PyAny>> = vec!["via".into_pyobject(py)?.into_any()];
+            via.push(node(
+                py,
+                "at",
+                vec![x.into_pyobject(py)?.into_any(), y.into_pyobject(py)?.into_any()],
+            )?);
+            via.push(node(py, "size", vec![size.into_pyobject(py)?.into_any()])?);
+            via.push(node(py, "drill", vec![drill.into_pyobject(py)?.into_any()])?);
+            let mut layers_node: Vec<Bound<'_, PyAny>> =
+                vec!["layers".into_pyobject(py)?.into_any()];
+            for layer in layers {
+                layers_node.push(layer.into_pyobject(py)?.into_any());
+            }
+            via.push(PyList::new(py, layers_node)?.into_any());
+            via.push(node(py, "net", vec![net.into_pyobject(py)?.into_any()])?);
+            via.push(node(py, "tstamp", vec![tstamp.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, via)?.unbind())
+        })
+    }
+
+    /// `_write_board.add_isolation_slots_to_pcb`'s per-slot construction: the
+    /// parsed s-expression tree that kiutils' `GrLine.from_sexpr` consumes
+    /// (`(gr_line (start x y) (end x y) (layer L) (width W))`). See
+    /// [`segment_sexpr_py`] for the float rationale.
+    #[pyfunction]
+    pub fn gr_line_sexpr_py(
+        py: Python<'_>,
+        start_x: f64,
+        start_y: f64,
+        end_x: f64,
+        end_y: f64,
+        layer: &str,
+        width: f64,
+    ) -> PyResult<Py<PyList>> {
+        catch_panic(|| {
+            let mut gr_line: Vec<Bound<'_, PyAny>> = vec!["gr_line".into_pyobject(py)?.into_any()];
+            gr_line.push(node(
+                py,
+                "start",
+                vec![
+                    start_x.into_pyobject(py)?.into_any(),
+                    start_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_line.push(node(
+                py,
+                "end",
+                vec![
+                    end_x.into_pyobject(py)?.into_any(),
+                    end_y.into_pyobject(py)?.into_any(),
+                ],
+            )?);
+            gr_line.push(node(py, "layer", vec![layer.into_pyobject(py)?.into_any()])?);
+            gr_line.push(node(py, "width", vec![width.into_pyobject(py)?.into_any()])?);
+            Ok(PyList::new(py, gr_line)?.unbind())
+        })
+    }
+
+    /// `_kicad_exporter.add_segments_to_board` / `add_vias_to_board`'s
+    /// net-code lookup (the first `for net in board.nets` loop in each):
+    ///
+    /// ```python
+    /// net_code = 0  # Default to unconnected
+    /// for net in board.nets:
+    ///     if net.name == seg.net:
+    ///         net_code = net.number
+    ///         break
+    /// ```
+    ///
+    /// First match wins; no match yields 0 (unconnected). `net.name` /
+    /// `net.number` are read through the Python object protocol (the D5
+    /// duck-typed boundary) — a missing `name` attribute propagates, exactly
+    /// as the Python loop would.
+    #[pyfunction]
+    pub fn find_net_code_py(
+        // Unused: this function reaches the interpreter only through the
+        // already-bound `nets`, never through the GIL token. Kept in the
+        // signature (as `_py`) rather than removed, so the parameter list stays
+        // uniform with every other pyfunction in this module.
+        _py: Python<'_>,
+        nets: &Bound<'_, PyAny>,
+        net_name: &str,
+    ) -> PyResult<i64> {
+        catch_panic(|| {
+            for net in nets.try_iter()? {
+                let net = net?;
+                let name = net.getattr("name")?;
+                if name.eq(net_name)? {
+                    return py_index(&net.getattr("number")?);
+                }
+            }
+            Ok(0)
+        })
+    }
+
     /// `float(index) * 90.0` — rotation index to degrees.
     #[pyfunction]
     pub fn rotation_index_to_degrees_py(index: i64) -> PyResult<f64> {
@@ -385,6 +867,14 @@ mod py_bridge {
         sub.add_function(wrap_pyfunction!(resolve_net_index_default_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(build_net_name_to_index_map_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(component_bounds_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(zone_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(power_plane_zone_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(gr_rect_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(gr_text_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(segment_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(via_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(gr_line_sexpr_py, &sub)?)?;
+        sub.add_function(wrap_pyfunction!(find_net_code_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(rotation_index_to_degrees_py, &sub)?)?;
         sub.add_function(wrap_pyfunction!(placement_coordinate_py, &sub)?)?;
         module.add_submodule(&sub)

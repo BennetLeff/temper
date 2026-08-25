@@ -210,7 +210,25 @@ from _lib.repo import find_repo_root  # noqa: E402
 GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/core/courtyard.py",
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
-    "packages/temper-placer/src/temper_placer/deterministic/stages/setup.py",
+    # Was deterministic/stages/setup.py until 2026-08-19 (commit 3dd0f8044,
+    # "collapse 7 constructor-state stage shims to RustFunctionStage
+    # adapters", #1409), which DELETED the module and preserved its classes
+    # in stages/__init__.py -- DRCOracleSetupStage, NetClassSetupStage, and
+    # the SetupStage alias all live there now. That commit did not update
+    # this list, so the gate has been exiting 5 ("guarded file does not
+    # exist") on every run since: fail-closed working exactly as designed,
+    # and then left unfixed.
+    #
+    # FOLLOWED, not dropped. The visualization/ entries above were removed
+    # when that package died because the code was genuinely gone; this code
+    # moved. Neither the old setup.py nor today's __init__.py contains any
+    # trig -- the entry is precautionary either way, guarding the point
+    # where real board pad/component rotation ENTERS the stage pipeline and
+    # populates RotatedRect.rotation (see the constraints_geometry.py note
+    # above, which names this module as that source). Pointing it at the
+    # successor keeps that coverage; deleting it would silently shrink the
+    # gate, which its own preamble forbids.
+    "packages/temper-placer/src/temper_placer/deterministic/stages/__init__.py",
     "packages/temper-placer/src/temper_placer/io/_parse_modules.py",
     "packages/temper-placer/src/temper_placer/io/_write_board.py",
     "packages/temper-placer/src/temper_placer/io/_write_modules.py",
