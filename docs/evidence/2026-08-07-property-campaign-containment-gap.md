@@ -1,3 +1,4 @@
+<!-- provenance: commit=0e2e4837e1a9e76dacd45c4d33aed7265a2eb79b dirty=UNKNOWN -->
 # R7 property-based volume campaign: board-equivalents/second, and a real containment gap
 
 **Date:** 2026-08-07

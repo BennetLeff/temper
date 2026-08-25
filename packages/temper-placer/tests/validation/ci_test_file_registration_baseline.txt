@@ -82,7 +82,6 @@ heuristics/test_structural_rust_differential.py
 heuristics/test_style_rust_differential.py
 heuristics/test_topological_integration.py
 integration/test_all_gates_convergence.py
-integration/test_dpp_multiseed_ab.py
 integration/test_phased_placement_pipeline.py
 integration/test_phased_stage_integration.py
 integration/test_place_route_loop_temper.py
@@ -92,8 +91,6 @@ integration/test_seed_filter_retriggers.py
 manufacturing/test_stackup_validator.py
 manufacturing/test_stackup_validator_pbt.py
 manufacturing/test_stackup_validator_rust_differential.py
-manufacturing/test_tolerances.py
-manufacturing/test_tolerances_rust_differential.py
 mechanical/test_coil_bracket.py
 mechanical/test_sensor_mount.py
 parity/test_lv_only_parity.py

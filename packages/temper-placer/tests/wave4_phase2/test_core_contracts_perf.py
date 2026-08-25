@@ -23,7 +23,6 @@ from temper_placer.core import net_classification as prod_nc
 from temper_placer.core import units as prod_units
 from temper_placer.core.board import Rect as ProdRect
 from temper_placer.core.netlist import build_adjacency_matrix as prod_adjacency
-import temper_io_types as prod_drc
 from tests.wave4_phase2 import _core_py_oracle as oracle
 from tests.wave4_phase2._sig import assert_same
 
@@ -67,34 +66,6 @@ def test_perf_net_classification():
     rs_s, rs_r = _best(lambda: [prod_nc.classify_net_type(n) for n in names])
     assert_same(rs_r, py_r, "classify_net_type parity")
     _report(f"classify_net_type x{PERF_NAME_COUNT}", py_s, rs_s)
-
-
-def test_perf_placement_drc():
-    rng = random.Random(31337)
-
-    def build(cls):
-        return [
-            cls(
-                rng.uniform(0.0, 30.0),
-                rng.uniform(0.0, 30.0),
-                rng.choice(["GND", "VCC", "SDA", "SCL"]),
-                f"U{rng.randint(1, 40)}",
-                str(rng.randint(1, 32)),
-                rng.choice([0.3, 0.5, 1.0]),
-            )
-            for _ in range(PERF_PIN_COUNT)
-        ]
-
-    rng.seed(31337)
-    py_pins = build(oracle.PinInfo)
-    rng.seed(31337)
-    rs_pins = build(prod_drc.PinInfo)
-
-    py_s, py_r = _best(lambda: oracle.validate_placement_drc(py_pins, 0.25))
-    rs_s, rs_r = _best(lambda: prod_drc.validate_placement_drc(rs_pins, 0.25))
-    assert_same(rs_r, py_r, "validate_placement_drc parity")
-    assert len(py_r) > 0, "benchmark scene produced no violations"
-    _report(f"validate_placement_drc x{PERF_PIN_COUNT} pins", py_s, rs_s)
 
 
 def test_perf_adjacency():

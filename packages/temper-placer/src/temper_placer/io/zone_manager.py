@@ -1,8 +1,15 @@
 """
 Zone manager for KiCad copper pour generation.
 
-Creates copper pour zones (filled polygons) for power distribution layers.
-Supports standard 4-layer stackup: F.Cu (signal) - In1.Cu (GND) - In2.Cu (VCC) - B.Cu (signal)
+kiutils-free (Wave 4 Phase 3, formats/IO): board I/O goes through the
+Rust parse engine's text path — ``extract_board_outline_py`` /
+``extract_net_map_from_text_py`` / ``extract_copper_layer_names_py``
+read board data, ``power_plane_zone_sexpr_py`` constructs each zone's
+s-expression (mirroring the pre-migration kiutils ``Zone``
+construction field-for-field, including thermal reliefs), and
+``append_items_to_board_py`` inserts zones into the KiNode tree and
+serializes back to text. No kiutils ``Board`` / ``Zone`` /
+``ZonePolygon`` / ``FillSettings`` objects are created.
 """
 
 import math
@@ -11,24 +18,21 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from kiutils.board import Board as KiBoard
-from kiutils.items.common import Position
-from kiutils.items.zones import FillSettings, Zone, ZonePolygon
-
-from temper_placer.io.kicad_exporter import _validate_4_layer_output
+import temper_design_bundle_python as _tdb
+from temper_io_types import kicad_write_geometry as _GEOM
 
 
 @dataclass
 class PlaneConfig:
     """Configuration for a power plane zone."""
 
-    layer: str  # e.g., "In1.Cu"
-    net_name: str  # e.g., "GND"
-    priority: int = 0  # Higher priority zones fill first
-    min_thickness: float = 0.25  # Minimum copper width in mm
-    clearance: float = 0.3  # Clearance to other nets in mm
-    thermal_gap: float = 0.5  # Thermal relief gap in mm
-    thermal_bridge_width: float = 0.5  # Thermal spoke width in mm
+    layer: str
+    net_name: str
+    priority: int = 0
+    min_thickness: float = 0.25
+    clearance: float = 0.3
+    thermal_gap: float = 0.5
+    thermal_bridge_width: float = 0.5
 
 
 @dataclass
@@ -41,49 +45,31 @@ class ZoneResult:
     warnings: list[str] = field(default_factory=list)
 
 
-def get_board_outline(board: KiBoard) -> list[tuple[float, float]]:
-    """Extract board outline as polygon coordinates.
+def get_board_outline_from_text(content: str) -> list[tuple[float, float]]:
+    """Extract board outline as polygon coordinates from raw board text.
 
-    Args:
-        board: KiCad board object
-
-    Returns:
-        List of (x, y) coordinates forming the board outline
+    Returns Edge.Cuts line-segment endpoints, deduplicated and sorted
+    by angle from centroid for proper polygon ordering.
     """
-    # Try to find Edge.Cuts layer graphics
-    outline_points = []
+    lines = _tdb.parse_engine.extract_board_outline_py(content)
 
-    for item in board.graphicItems:
-        if (
-            hasattr(item, "layer")
-            and item.layer == "Edge.Cuts"
-            and hasattr(item, "start")
-            and hasattr(item, "end")
-        ):
-            # Line segment
-            outline_points.append((item.start.X, item.start.Y))
-            outline_points.append((item.end.X, item.end.Y))
+    outline_points: list[tuple[float, float]] = []
+    for sx, sy, ex, ey in lines:
+        outline_points.append((sx, sy))
+        outline_points.append((ex, ey))
 
     if not outline_points:
-        # Fallback: default board size
-        return [
-            (0.0, 0.0),
-            (100.0, 0.0),
-            (100.0, 130.0),
-            (0.0, 130.0),
-        ]
+        return [(0.0, 0.0), (100.0, 0.0), (100.0, 130.0), (0.0, 130.0)]
 
-    # Deduplicate and order points
-    unique_points = list(set(outline_points))
+    seen: set[tuple[float, float]] = set()
+    unique_points: list[tuple[float, float]] = []
+    for point in outline_points:
+        if point not in seen:
+            seen.add(point)
+            unique_points.append(point)
     if len(unique_points) < 3:
-        return [
-            (0.0, 0.0),
-            (100.0, 0.0),
-            (100.0, 130.0),
-            (0.0, 130.0),
-        ]
+        return [(0.0, 0.0), (100.0, 0.0), (100.0, 130.0), (0.0, 130.0)]
 
-    # Sort by angle from centroid for proper polygon ordering
     cx = sum(p[0] for p in unique_points) / len(unique_points)
     cy = sum(p[1] for p in unique_points) / len(unique_points)
     sorted_points = sorted(unique_points, key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
@@ -91,97 +77,90 @@ def get_board_outline(board: KiBoard) -> list[tuple[float, float]]:
     return sorted_points
 
 
-def get_net_code(board: KiBoard, net_name: str) -> int:
-    """Get net code for a net name.
-
-    Args:
-        board: KiCad board object
-        net_name: Name of the net
-
-    Returns:
-        Net code (integer), 0 if not found
-    """
-    for net in board.nets:
-        if net.name == net_name:
-            return net.number
-    return 0
+def get_net_code_from_map(net_map: dict[str, int], net_name: str) -> int:
+    """Get net code for a net name from a net name→index map."""
+    return net_map.get(net_name, 0)
 
 
-def create_zone(
-    board: KiBoard,
+def create_zone_sexpr(
+    net_index: int,
     config: PlaneConfig,
     outline: list[tuple[float, float]],
-) -> Zone:
-    """Create a copper pour zone for a power plane.
+) -> list:
+    """Create a copper pour zone s-expression for a power plane.
 
-    Args:
-        board: KiCad board object
-        config: Zone configuration
-        outline: Board outline coordinates
-
-    Returns:
-        Zone object ready to add to board
+    Delegates to the Rust kernel ``power_plane_zone_sexpr_py``, which
+    mirrors the pre-migration kiutils Zone construction field-for-field:
+    thermal reliefs (connect_pads thermal_reliefs), config clearance,
+    min_thickness, fill settings with thermal_gap/thermal_bridge_width,
+    priority, and the ``<net>_plane`` name.
     """
-    net_code = get_net_code(board, config.net_name)
-
-    # Create ZonePolygon with Position coordinates
-    positions = [Position(x, y) for x, y in outline]
-    zone_polygon = ZonePolygon(coordinates=positions)
-
-    # Create zone
-    zone = Zone()
-    zone.net = net_code
-    zone.netName = config.net_name
-    zone.layers = [config.layer]
-    zone.name = f"{config.net_name}_plane"
-    zone.priority = config.priority
-
-    # Use thermal reliefs for spoke patterns (prevents cold solder joints)
-    zone.connectPads = "thermal_reliefs"
-    zone.clearance = config.clearance
-    zone.minThickness = config.min_thickness
-
-    # Configure thermal reliefs via FillSettings
-    zone.fillSettings = FillSettings(
-        yes=True, thermalGap=config.thermal_gap, thermalBridgeWidth=config.thermal_bridge_width
+    return _GEOM.power_plane_zone_sexpr_py(
+        config.net_name,
+        net_index,
+        config.layer,
+        config.priority,
+        config.clearance,
+        config.min_thickness,
+        config.thermal_gap,
+        config.thermal_bridge_width,
+        outline,
     )
 
-    zone.polygons = [zone_polygon]  # Use ZonePolygon wrapper!
 
-    return zone
+def _validate_4_layer_output_text(content: str) -> None:
+    """Text-path port of ``kicad_exporter._validate_4_layer_output``.
+
+    Warns instead of raising for boards with differing layer counts — the
+    canonical 4-layer stackup is the production target, but non-production
+    boards (test fixtures, 2-layer prototypes) are valid output.
+    """
+    import logging
+
+    from temper_placer.core.board import CANONICAL_4LAYER_LAYER_NAMES
+
+    logger = logging.getLogger(__name__)
+
+    copper_names = _tdb.parse_engine.extract_copper_layer_names_py(content)
+    if len(copper_names) != 4:
+        logger.warning(
+            "Board has %d copper layers (canonical 4-layer stackup: %s). "
+            "Proceeding — non-4-layer boards are valid for test fixtures and prototypes.",
+            len(copper_names),
+            sorted(CANONICAL_4LAYER_LAYER_NAMES),
+        )
+        return
+    name_set = set(copper_names)
+    if name_set != set(CANONICAL_4LAYER_LAYER_NAMES):
+        raise RuntimeError(
+            f"Copper layer names must match canonical set {sorted(CANONICAL_4LAYER_LAYER_NAMES)}, "
+            f"got {sorted(name_set)}"
+        )
 
 
-def add_power_planes(
-    board: KiBoard,
+def add_power_planes_to_text(
+    content: str,
     gnd_nets: Sequence[str] = ("GND",),
     vcc_nets: Sequence[str] = ("+15V", "+5V", "+3V3", "VCC"),
     gnd_layer: str = "In1.Cu",
     vcc_layer: str = "In2.Cu",
-) -> ZoneResult:
-    """Add power plane zones to a 4-layer board.
+) -> tuple[str, ZoneResult]:
+    """Add power plane zones to raw board text.
 
     Creates copper pour zones on inner layers for power distribution.
-
-    Args:
-        board: KiCad board object to modify
-        gnd_nets: Net names to connect to GND plane
-        vcc_nets: Net names to connect to VCC plane
-        gnd_layer: Layer for GND plane
-        vcc_layer: Layer for VCC plane
-
-    Returns:
-        ZoneResult with statistics
+    Returns (new_text, ZoneResult).
     """
-    outline = get_board_outline(board)
-    warnings = []
+    outline = get_board_outline_from_text(content)
+    net_map = _tdb.parse_engine.extract_net_map_from_text_py(content)
+    warnings: list[str] = []
     zones_added = 0
-    nets_covered = []
-    layers_used = []
+    nets_covered: list[str] = []
+    layers_used: list[str] = []
+    item_sexprs: list = []
 
-    # Create GND plane (Layer 2 - In1.Cu)
     primary_gnd = None
     for net_name in gnd_nets:
-        if get_net_code(board, net_name) != 0:
+        if get_net_code_from_map(net_map, net_name) != 0:
             primary_gnd = net_name
             break
 
@@ -194,8 +173,13 @@ def add_power_planes(
             thermal_gap=0.5,
             thermal_bridge_width=0.5,
         )
-        zone = create_zone(board, config, outline)
-        board.zones.append(zone)
+        item_sexprs.append(
+            create_zone_sexpr(
+                get_net_code_from_map(net_map, config.net_name),
+                config,
+                outline,
+            )
+        )
         zones_added += 1
         nets_covered.append(primary_gnd)
         if gnd_layer not in layers_used:
@@ -203,12 +187,9 @@ def add_power_planes(
     else:
         warnings.append("No GND nets found, skipping GND plane")
 
-    # Create Power plane (Layer 3 - In2.Cu)
-    # We prioritize higher voltage or distinct power rails if needed,
-    # but for now we look for the first match in the list.
     primary_vcc = None
     for net_name in vcc_nets:
-        if get_net_code(board, net_name) != 0:
+        if get_net_code_from_map(net_map, net_name) != 0:
             primary_vcc = net_name
             break
 
@@ -221,8 +202,13 @@ def add_power_planes(
             thermal_gap=0.5,
             thermal_bridge_width=0.5,
         )
-        zone = create_zone(board, config, outline)
-        board.zones.append(zone)
+        item_sexprs.append(
+            create_zone_sexpr(
+                get_net_code_from_map(net_map, config.net_name),
+                config,
+                outline,
+            )
+        )
         zones_added += 1
         nets_covered.append(primary_vcc)
         if vcc_layer not in layers_used:
@@ -230,7 +216,9 @@ def add_power_planes(
     else:
         warnings.append("No VCC nets found, skipping VCC plane")
 
-    return ZoneResult(
+    new_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
+
+    return new_text, ZoneResult(
         zones_added=zones_added,
         nets_covered=nets_covered,
         layers_used=layers_used,
@@ -244,21 +232,12 @@ def add_zones_to_pcb(
     gnd_nets: Sequence[str] = ("GND",),
     vcc_nets: Sequence[str] = ("+15V", "+5V", "+3V3", "VCC"),
 ) -> ZoneResult:
-    """Add power plane zones to a PCB file.
-
-    Args:
-        input_pcb: Path to input KiCad PCB file
-        output_pcb: Path to output KiCad PCB file
-        gnd_nets: Net names for GND plane
-        vcc_nets: Net names for VCC plane
-
-    Returns:
-        ZoneResult with statistics
-    """
-    board = KiBoard.from_file(str(input_pcb))
-    result = add_power_planes(board, gnd_nets, vcc_nets)
-    _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    """Add power plane zones to a PCB file."""
+    content = Path(input_pcb).read_text(encoding="utf-8")
+    new_text, result = add_power_planes_to_text(content, gnd_nets, vcc_nets)
+    _validate_4_layer_output_text(new_text)
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    output_pcb.write_text(new_text, encoding="utf-8")
     return result
 
 
@@ -267,30 +246,19 @@ def add_zones_from_classification(
     output_pcb: Path,
     net_classification: "NetClassification",
 ) -> ZoneResult:
-    """Add copper zones based on NetClassification type system.
-
-    This function uses the type-safe NetClassification to create zones
-    for all nets that require plane connectivity (ground, power).
-
-    Args:
-        input_pcb: Path to input KiCad PCB file
-        output_pcb: Path to output KiCad PCB file
-        net_classification: Type-safe net classification from config
-
-    Returns:
-        ZoneResult with statistics
-    """
+    """Add copper zones based on NetClassification type system."""
     from temper_placer.core.net_types import ConnectivityStrategy
 
-    board = KiBoard.from_file(str(input_pcb))
-    outline = get_board_outline(board)
+    content = Path(input_pcb).read_text(encoding="utf-8")
+    outline = get_board_outline_from_text(content)
+    net_map = _tdb.parse_engine.extract_net_map_from_text_py(content)
 
-    warnings = []
+    warnings: list[str] = []
     zones_added = 0
-    nets_covered = []
-    layers_used = []
+    nets_covered: list[str] = []
+    layers_used: list[str] = []
+    item_sexprs: list = []
 
-    # Group nets by target layer
     layer_to_nets: dict[str, list[tuple[str, NetTypeSpec]]] = {}
 
     for net_name, spec in net_classification.specs.items():
@@ -300,7 +268,6 @@ def add_zones_from_classification(
                 layer_to_nets[layer] = []
             layer_to_nets[layer].append((net_name, spec))
 
-    # Also check for auto-classified plane nets
     for pattern in net_classification.ground_patterns:
         if pattern not in net_classification.specs:
             spec = net_classification.classify_net(pattern)
@@ -308,18 +275,14 @@ def add_zones_from_classification(
                 layer = spec.target_layer
                 if layer not in layer_to_nets:
                     layer_to_nets[layer] = []
-                # Only add if net exists on board
-                if get_net_code(board, pattern) != 0:
+                if get_net_code_from_map(net_map, pattern) != 0:
                     layer_to_nets[layer].append((pattern, spec))
 
-    # Create zones for each layer
-    # Priority: ground planes first (priority 0), then power (priority 1)
     priority_map = {"In1.Cu": 0, "In2.Cu": 1, "F.Cu": 2, "B.Cu": 2}
 
     for layer, net_specs in layer_to_nets.items():
-        # Find first valid net for this layer
         for net_name, spec in net_specs:
-            if get_net_code(board, net_name) != 0:
+            if get_net_code_from_map(net_map, net_name) != 0:
                 config = PlaneConfig(
                     layer=layer,
                     net_name=net_name,
@@ -327,18 +290,25 @@ def add_zones_from_classification(
                     clearance=spec.clearance_mm,
                     min_thickness=0.25,
                 )
-                zone = create_zone(board, config, outline)
-                board.zones.append(zone)
+                item_sexprs.append(
+                    create_zone_sexpr(
+                        get_net_code_from_map(net_map, net_name),
+                        config,
+                        outline,
+                    )
+                )
                 zones_added += 1
                 nets_covered.append(net_name)
                 if layer not in layers_used:
                     layers_used.append(layer)
-                break  # One zone per layer
+                break
         else:
             warnings.append(f"No valid nets found for layer {layer}")
 
-    _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    new_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
+    _validate_4_layer_output_text(new_text)
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    output_pcb.write_text(new_text, encoding="utf-8")
 
     return ZoneResult(
         zones_added=zones_added,

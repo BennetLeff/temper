@@ -35,9 +35,35 @@ class TestKiCadDRCValidatorPure:
         v = KiCadDRCValidator(kicad_cli_path="/nonexistent/kicad-cli")
         assert v.is_available() is False
 
-    def test_is_available_none(self):
+    def test_is_available_none_means_autodetect(self, monkeypatch):
+        """``kicad_cli_path=None`` means AUTO-DETECT, not "no CLI".
+
+        Rewritten 2026-08-24. This asserted ``is_available() is False`` for
+        ``kicad_cli_path=None``, which contradicts the constructor's own
+        documented contract -- ``kicad_cli_path: Path to kicad-cli binary.
+        If None, auto-detect.`` and ``self.kicad_cli_path = kicad_cli_path
+        or find_kicad_cli()``. It therefore passed only on machines with no
+        kicad-cli on PATH and failed on every machine that has one,
+        including CI, which installs kicad-cli to run DRC. It has been one
+        of the three reds in the `Invariant tests (validation)` job.
+
+        The "not available" case it was reaching for is already covered by
+        ``test_is_available_no_cli`` (an explicit nonexistent path). What
+        had no coverage at all was the auto-detect branch itself, so that is
+        what this now pins -- both ways, and independently of whether the
+        machine running the suite happens to have KiCad installed.
+        """
+        import temper_placer.validation.drc as drc_mod
+
+        monkeypatch.setattr(drc_mod, "find_kicad_cli", lambda: None)
         v = KiCadDRCValidator(kicad_cli_path=None)
+        assert v.kicad_cli_path is None
         assert v.is_available() is False
+
+        monkeypatch.setattr(drc_mod, "find_kicad_cli", lambda: str(__file__))
+        v = KiCadDRCValidator(kicad_cli_path=None)
+        assert v.kicad_cli_path == str(__file__)
+        assert v.is_available() is True
 
     def test_get_version_not_available(self):
         v = KiCadDRCValidator(kicad_cli_path="/nonexistent/kicad-cli")

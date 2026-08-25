@@ -1,4 +1,4 @@
-<!-- provenance: own worktree /home/bennet/Desktop/temper-worktrees/layer-arch-decision, branch
+<!-- provenance: commit=8fc9c9967e11a8079d224b91a0117e6301c467f1 dirty=UNKNOWN -->
 fix/layer-architecture-ssot, based on origin/fix/board-schematic-resync @ a3fbaff37, fast-forward
 merged onto origin/fix/pcb-stackup-declaration @ bdd17a162 (PR #1153, unmerged as of this writing)
 so this document's stackup edits extend PR #1153's `(setup (stackup ...))` block rather than

@@ -63,6 +63,7 @@ fn build_category_failures(
     allowed: &[(String, i64)],
     kind: &'static str,
     source: &str,
+    uncapped_totals: &HashMap<String, i64>,
 ) -> Vec<CatFailure> {
     let mut out = Vec::new();
     for (rule, count) in sorted_current {
@@ -71,10 +72,25 @@ fn build_category_failures(
             .find(|(r, _)| r == rule)
             .map(|(_, c)| *c)
             .unwrap_or(0);
-        if *count > allowed_count {
+        // Cap-saturation resolution (drc_ceiling.json `uncapped_totals`,
+        // #1442): a measured count at its KiCad reporting cap is a FLOOR
+        // (true count >= N). If the committed record carries the category's
+        // true uncapped count, compare THAT against the ceiling instead --
+        // the comparison is then meaningful (true count vs ceiling) rather
+        // than inconclusive. A category with no committed uncapped total
+        // still falls through to the raw-capped comparison, so the
+        // anti-vacuity discipline survives: a saturated category with no
+        // committed truth stays a real, reportable signal (the backend's
+        // `capped_*_categories` carry it forward to the ci_check_drc guard).
+        let compare_count = if is_at_cap(rule, *count) {
+            uncapped_totals.get(rule).copied().unwrap_or(*count)
+        } else {
+            *count
+        };
+        if compare_count > allowed_count {
             out.push(CatFailure {
                 rule: rule.clone(),
-                count: *count,
+                count: compare_count,
                 allowed: allowed_count,
                 is_new: !allowed.iter().any(|(r, _)| r == rule),
                 kind,
@@ -83,6 +99,12 @@ fn build_category_failures(
         }
     }
     out
+}
+
+/// True when `count` sits exactly at `rule`'s kicad-cli reporting cap (a
+/// saturation floor, not a count). Mirrors `temper_drc_rs.drc_count`.
+fn is_at_cap(rule: &str, count: i64) -> bool {
+    crate::drc_count::cap_for(rule).is_some_and(|cap| count == i64::from(cap))
 }
 
 /// Render one per-type block, preserving the oracle's
@@ -137,6 +159,8 @@ fn ratchet_check(
     allowed_by_type: Vec<(String, i64)>,
     current_warnings_by_type: Option<Vec<(String, i64)>>,
     allowed_warnings_by_type: Vec<(String, i64)>,
+    uncapped_errors_by_type: Vec<(String, i64)>,
+    uncapped_warnings_by_type: Vec<(String, i64)>,
     backend: String,
     version_mismatch: bool,
     running_version: Option<String>,
@@ -148,6 +172,8 @@ fn ratchet_check(
     sorted_errors.sort();
     let mut sorted_warnings: Vec<(String, i64)> = current_warnings_by_type.unwrap_or_default();
     sorted_warnings.sort();
+    let uncapped_errors: HashMap<String, i64> = uncapped_errors_by_type.into_iter().collect();
+    let uncapped_warnings: HashMap<String, i64> = uncapped_warnings_by_type.into_iter().collect();
 
     // Category detection ONLY runs when the allowed record is non-empty AND
     // the backend supplied a breakdown (the oracle's `and` guard: an empty
@@ -159,6 +185,7 @@ fn ratchet_check(
             &allowed_by_type,
             "error",
             &backend,
+            &uncapped_errors,
         ));
     }
     if !allowed_warnings_by_type.is_empty() {
@@ -167,6 +194,7 @@ fn ratchet_check(
             &allowed_warnings_by_type,
             "warning",
             &backend,
+            &uncapped_warnings,
         ));
     }
 

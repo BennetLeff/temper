@@ -1,4 +1,4 @@
-<!-- provenance: commit=d1b330b90 dirty=false -->
+<!-- provenance: commit=d1b330b90a149f5effd09c7e63b87deeebdb0261 dirty=false -->
 <!-- measured_at_commit: d1b330b90 (merge: migrate/phase-e3-clearance) -->
 
 # Spike S5: Is `nx.cycle_basis` observable in `physics/loop_area.py`?

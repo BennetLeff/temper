@@ -1,3 +1,4 @@
+<!-- provenance: commit=023bc0283289895314209d6242d31f7fe89c4626 dirty=UNKNOWN -->
 ---
 title: "Root-cause of every unrouted and broken net from the 6-layer route"
 date: 2026-08-15

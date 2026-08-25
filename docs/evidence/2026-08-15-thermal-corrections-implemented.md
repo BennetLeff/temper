@@ -1,4 +1,4 @@
-<!-- provenance: commit=2b18ade3e branch=fix/thermal-corrections-v2 dirty=false (the code-fix commit the analysis was run against; the analysis-run script and this doc were committed on top) -->
+<!-- provenance: commit=2b18ade3e9244d804a8cb2b0cb731745984b13a5 branch=fix/thermal-corrections-v2 dirty=false (the code-fix commit the analysis was run against; the analysis-run script and this doc were committed on top) -->
 
 # Thermal analysis corrections implemented — ambient 60 °C, margin vs 80 °C firmware trip, per-component Rjc/Rch/Rha (2026-08-15)
 
@@ -101,7 +101,7 @@ value, and it is three-way mirrored (see below).
 
 ## 2. Measured results on the current board
 
-Run: `docs/evidence/2026-08-15-thermal-analysis-run.py` (parses
+Run: `docs/evidence/scripts/2026-08-15-thermal-analysis-run.py` (parses
 `pcb/temper.kicad_pcb`; no files modified). Design-limit ambient 60 °C,
 20 W per IGBT (conservative end of the committed 18-20 W), 5 W placeholder
 for the TO-220 rectifiers (their loss is not recorded in-repo — flagged,

@@ -9,16 +9,14 @@ from __future__ import annotations
 import math
 import uuid
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import temper_geometry as _tg
-from kiutils.board import Board as KiBoard
-from kiutils.items.brditems import Segment, Via
-from kiutils.items.common import Position
+from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.geometry_types import Track as GeoTrack
 from temper_placer.core.geometry_types import Via as GeoVia
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
@@ -32,21 +30,19 @@ if TYPE_CHECKING:
     # invisible to lint -- mypy is the first gate that actually checks it.
     from temper_placer.deterministic.state import BoardState
 
-# Layer mapping from grid layer index to KiCad layer name.
-# The canonical Temper board is 4-layer. 2-layer is not a production
-# path and has been removed.
-LAYER_MAP = {
-    0: "F.Cu",  # Top copper (L1)
-    1: "In1.Cu",  # Inner layer 1 (L2, GND plane)
-    2: "In2.Cu",  # Inner layer 2 (L3, PWR plane)
-    3: "B.Cu",  # Bottom copper (L4)
-}
 
-# Endpoint snapping tolerance in mm (increased to handle grid alignment)
-SNAP_TOLERANCE_MM = 0.5  # 0.5mm handles typical grid cell sizes (0.5mm spacing)
+def _load_board_text(template_pcb: Path) -> str:
+    """Load a template board as raw text (the Rust kernels' input format).
+
+    Wave 4 Phase 3 (formats/IO): the entire board I/O path is Rust —
+    parse (``parse_engine``), mutate (``sexpr_writer`` tree kernels),
+    serialize (``write_board_sexpr_py``). Python only orchestrates; the
+    board never materializes as kiutils objects.
+    """
+    return Path(template_pcb).read_text()
 
 
-def _validate_4_layer_output(board: object) -> None:
+def _validate_4_layer_output(board_text: str) -> None:
     """Validate that a KiCad board has exactly 4 copper layers with canonical names.
 
     Warns instead of raising for boards with differing layer counts — the
@@ -59,11 +55,10 @@ def _validate_4_layer_output(board: object) -> None:
 
     logger = logging.getLogger(__name__)
 
-    if not hasattr(board, "layers"):
-        raise RuntimeError("KiCad board has no layers attribute — cannot validate layer count")
-    copper_names = [
-        ly.name for ly in board.layers if hasattr(ly, "name") and ly.name.endswith(".Cu")
-    ]
+    import temper_design_bundle_python as _tdb
+
+    layer_names = _tdb.parse_engine.extract_copper_layer_names_py(board_text)
+    copper_names = [name for name in layer_names if name.endswith(".Cu")]
     if len(copper_names) != 4:
         logger.warning(
             "Board has %d copper layers (canonical 4-layer stackup: %s). "
@@ -80,48 +75,82 @@ def _validate_4_layer_output(board: object) -> None:
         )
 
 
-def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
+# Layer mapping from grid layer index to KiCad layer name.
+# The canonical Temper board is 4-layer. 2-layer is not a production
+# path and has been removed.
+LAYER_MAP = {
+    0: "F.Cu",  # Top copper (L1)
+    1: "In1.Cu",  # Inner layer 1 (L2, GND plane)
+    2: "In2.Cu",  # Inner layer 2 (L3, PWR plane)
+    3: "B.Cu",  # Bottom copper (L4)
+}
+
+# Endpoint snapping tolerance in mm (increased to handle grid alignment)
+SNAP_TOLERANCE_MM = 0.5  # 0.5mm handles typical grid cell sizes (0.5mm spacing)
+
+
+def extract_pad_centers(board_text: str) -> dict[str, list[tuple[float, float]]]:
     """Extract pad center coordinates grouped by net name.
 
-    Returns:
-        Dictionary mapping net_name -> list of (x, y) pad centers
+    Delegates to the Rust kernel (``parse_engine.extract_pad_centers_py``):
+    text -> KiNode tree traversal with temper-geometry's canonical
+    R(-theta) rotation. Shape matches the pre-migration kiutils traversal
+    exactly (first-appearance group order).
     """
-    import math
+    import temper_design_bundle_python as _tdb
 
-    pad_centers: dict[str, list[tuple[float, float]]] = {}
+    return _tdb.parse_engine.extract_pad_centers_py(board_text)
 
-    for fp in board.footprints:
-        if fp.position:
-            fp_x, fp_y = fp.position.X, fp.position.Y
-            fp_angle = fp.position.angle if fp.position.angle is not None else 0.0
-        else:
-            fp_x, fp_y, fp_angle = 0.0, 0.0, 0.0
 
-        for pad in fp.pads:
-            net_name = (
-                pad.net.name
-                if pad.net and hasattr(pad.net, "name")
-                else str(pad.net)
-                if pad.net
-                else ""
-            )
-            if not net_name:
-                continue
+def _net_map(board_text: str) -> list:
+    """Net objects for find_net_code_py — [{name, number}] from the board text."""
+    import temper_design_bundle_python as _tdb
 
-            # Apply footprint rotation to pad position, using KiCad's real
-            # rotation convention -- see
-            # temper_placer.geometry.kicad_transform's docstring.
-            rel_x, rel_y = pad.position.X, pad.position.Y
-            rad = math.radians(fp_angle)
-            rot_x, rot_y = rotate_local_to_world(rel_x, rel_y, rad)
-            abs_x = fp_x + rot_x
-            abs_y = fp_y + rot_y
+    raw = _tdb.parse_engine.extract_net_map_from_text_py(board_text)
+    return [SimpleNamespace(name=name, number=number) for name, number in raw.items()]
 
-            if net_name not in pad_centers:
-                pad_centers[net_name] = []
-            pad_centers[net_name].append((abs_x, abs_y))
 
-    return pad_centers
+def _append_items(board_text: str, item_sexprs: list) -> str:
+    """Append pre-built s-expression items to the board tree; serialize."""
+    import temper_design_bundle_python as _tdb
+
+    return _tdb.parse_engine.append_items_to_board_py(board_text, item_sexprs)
+
+
+def _clear_traces(board_text: str) -> str:
+    """Remove all existing trace items (segments/vias/arcs); keep zones."""
+    import temper_design_bundle_python as _tdb
+
+    new_text, _, _, _ = _tdb.parse_engine.strip_trace_items_py(
+        board_text, True, True
+    )
+    return new_text
+
+
+def _build_segment_items(board_text: str, segments: list[TraceSegment]) -> list:
+    """Pre-build segment s-expression items (Rust content kernels)."""
+    nets = _net_map(board_text)
+    return [
+        _GEOM.segment_sexpr_py(
+            seg.start[0], seg.start[1], seg.end[0], seg.end[1],
+            seg.width, seg.layer, _GEOM.find_net_code_py(nets, seg.net),
+            str(uuid.uuid4()),
+        )
+        for seg in segments
+    ]
+
+
+def _build_via_items(board_text: str, vias: list[TraceVia]) -> list:
+    """Pre-build via s-expression items (Rust content kernels)."""
+    nets = _net_map(board_text)
+    return [
+        _GEOM.via_sexpr_py(
+            via.position[0], via.position[1],
+            via.size, via.drill, list(via.layers), _GEOM.find_net_code_py(nets, via.net),
+            str(uuid.uuid4()),
+        )
+        for via in vias
+    ]
 
 
 def snap_to_nearest_pad(
@@ -301,85 +330,68 @@ def _generate_connector_segments(
 
 
 def add_segments_to_board(
-    board: KiBoard,
+    board_text: str,
     segments: list[TraceSegment],
 ) -> int:
-    """Add trace segments to KiCad board object.
+    """Add trace segments to a KiCad board (text path).
 
-    Uses kiutils.items.brditems.Segment to create PCB trace elements.
+    The net-code lookup and segment content are built in Rust
+    (find_net_code_py / segment_sexpr_py); items are appended to the
+    parsed KiNode tree and serialized back by ``append_items_to_board_py``.
 
     Args:
-        board: KiCad board object to modify
+        board_text: Raw .kicad_pcb text of the board to modify
         segments: List of trace segments to add
 
     Returns:
         Number of segments added
     """
-    added_count = 0
+    if not segments:
+        return 0
 
+
+    item_sexprs = []
     for seg in segments:
-        # Find net code (KiCad uses numeric net IDs)
-        net_code = 0  # Default to unconnected
-        for net in board.nets:
-            if net.name == seg.net:
-                net_code = net.number
-                break
-
-        # Create segment using kiutils
-        kicad_seg = Segment(
-            start=Position(X=seg.start[0], Y=seg.start[1]),
-            end=Position(X=seg.end[0], Y=seg.end[1]),
-            width=seg.width,
-            layer=seg.layer,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        net_code = _GEOM.find_net_code_py(_net_map(board_text), seg.net)
+        item_sexprs.append(
+            _GEOM.segment_sexpr_py(
+                seg.start[0], seg.start[1], seg.end[0], seg.end[1],
+                seg.width, seg.layer, net_code, str(uuid.uuid4()),
+            )
         )
-
-        board.traceItems.append(kicad_seg)
-        added_count += 1
-
-    return added_count
+    return len(item_sexprs)  # caller applies via _append_items; count only
 
 
 def add_vias_to_board(
-    board: KiBoard,
+    board_text: str,
     vias: list[TraceVia],
 ) -> int:
-    """Add vias to KiCad board object.
+    """Add vias to a KiCad board (text path).
 
-    Uses kiutils.items.brditems.Via to create PCB via elements.
+    The net-code lookup and via content are built in Rust
+    (find_net_code_py / via_sexpr_py); items are appended to the parsed
+    KiNode tree and serialized back by ``append_items_to_board_py``.
 
     Args:
-        board: KiCad board object to modify
+        board_text: Raw .kicad_pcb text of the board to modify
         vias: List of vias to add
 
     Returns:
         Number of vias added
     """
-    added_count = 0
+    if not vias:
+        return 0
 
+    item_sexprs = []
     for via in vias:
-        # Find net code
-        net_code = 0
-        for net in board.nets:
-            if net.name == via.net:
-                net_code = net.number
-                break
-
-        # Create via using kiutils
-        kicad_via = Via(
-            position=Position(X=via.position[0], Y=via.position[1]),
-            size=via.size,
-            drill=via.drill,
-            layers=via.layers,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        net_code = _GEOM.find_net_code_py(_net_map(board_text), via.net)
+        item_sexprs.append(
+            _GEOM.via_sexpr_py(
+                via.position[0], via.position[1],
+                via.size, via.drill, list(via.layers), net_code, str(uuid.uuid4()),
+            )
         )
-
-        board.traceItems.append(kicad_via)
-        added_count += 1
-
-    return added_count
+    return len(item_sexprs)
 
 
 def export_routed_pcb(
@@ -400,7 +412,7 @@ def export_routed_pcb(
     Main export function that:
     1. Parses template PCB (has components, no traces)
     2. Converts successful routes to segments and vias
-    3. Adds geometry to PCB using kiutils
+    3. Adds geometry to PCB via the Rust text-path kernels
     4. Writes output file
 
     Args:
@@ -432,8 +444,14 @@ def export_routed_pcb(
         >>> print(result)
         Export complete: 2 nets, 45 segments, 3 vias → output.kicad_pcb
     """
-    # Load template PCB
-    board = KiBoard.from_file(str(template_pcb))
+    # Load template PCB as raw text — all board I/O is Rust from here
+    board_text = _load_board_text(template_pcb)
+
+    # Strip corrupt SMD drills (kiutils < 1.4.9 mis-parse; the Rust kernel
+    # drops the whole (drill ...) sub-list from every SMD pad).
+    import temper_design_bundle_python as _tdb
+
+    board_text = _tdb.parse_engine.strip_smd_drills_py(board_text)
 
     # Collect all segments and vias
     all_segments: list[TraceSegment] = []
@@ -443,17 +461,6 @@ def export_routed_pcb(
     warnings: list[str] = []
 
     layer_map_to_use = layer_map or LAYER_MAP
-
-    # FIX: Clean up corrupt drills from kiutils import of template
-    # kiutils < 1.4.9 has a bug parsing (drill (offset...)) which results in garbage data
-    # that crashes export. We must strip this from SMD pads.
-    if hasattr(board, "footprints"):
-        for fp in board.footprints:
-            for pad in fp.pads:
-                if pad.type == "smd" and pad.drill is not None:
-                    # If parse failed, it might have garbage in diameter or be a DrillDefinition object
-                    # Safe bet: SMD pads shouldn't have drills in this context.
-                    pad.drill = None
 
     for net_name, path in routes.items():
         # Check success if attribute exists (legacy), otherwise assume success if in dict
@@ -506,20 +513,24 @@ def export_routed_pcb(
     # OPTION G+H: GENERATE CONNECTOR SEGMENTS
     # Bridge small gaps between route ends and pad centers
     # caused by medial axis approximation or coordinate quirks.
-    pad_centers = extract_pad_centers(board)
+    pad_centers = extract_pad_centers(board_text)
     connectors = _generate_connector_segments(all_segments, pad_centers, max_dist=2.0)
     if connectors:
         print(f"  INFO: Generated {len(connectors)} connector segments to bridge gaps")
         all_segments.extend(connectors)
 
-    # Add geometry to board
-    segments_added = add_segments_to_board(board, all_segments)
-    vias_added = add_vias_to_board(board, unique_vias)
+    # Add geometry to board (Rust text path: build sexprs, append to tree)
+    segments_added = add_segments_to_board(board_text, all_segments)
+    vias_added = add_vias_to_board(board_text, unique_vias)
+    seg_items = _build_segment_items(board_text, all_segments)
+    via_items = _build_via_items(board_text, unique_vias)
+    board_text = _append_items(_clear_traces(board_text), seg_items + via_items)
+
     # Write output file
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
-    _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    _validate_4_layer_output(board_text)
+    output_pcb.write_text(board_text)
 
     # Automatically fill zones if requested (temper-x8jz)
     if auto_fill_zones:
@@ -564,17 +575,14 @@ def export_board_state(
     Returns:
         ExportResult stats
     """
-    # Load PCB
-    board = KiBoard.from_file(str(template_pcb))
-
-    # Clear existing traces/vias
-    board.traceItems = []
+    # Load PCB as raw text; clear existing traces/vias (Rust text path)
+    board_text = _clear_traces(_load_board_text(template_pcb))
 
     all_traces = list(state.routes)
     all_vias = list(state.vias)
 
     # Extract pad centers for endpoint snapping
-    pad_centers = extract_pad_centers(board)
+    pad_centers = extract_pad_centers(board_text)
 
     # Clean up segments and snap
     # 1. Reject zero-length segments
@@ -608,8 +616,8 @@ def export_board_state(
     if snapped_count > 0:
         print(f"  INFO: Snapped {snapped_count} traces to pad centers")
 
-    # Add geometry to board
-    segments_added = add_segments_to_board(board, clean_traces)
+    # Add geometry to board (Rust text path)
+    segments_added = add_segments_to_board(board_text, clean_traces)
 
     # Deduplicate vias
     via_list = [
@@ -617,24 +625,30 @@ def export_board_state(
         for v in all_vias
     ]
     unique_vias = deduplicate_vias(via_list)
-    vias_added = add_vias_to_board(board, unique_vias)
+    vias_added = add_vias_to_board(board_text, unique_vias)
+    board_text = _append_items(
+        board_text,
+        _build_segment_items(board_text, clean_traces)
+        + _build_via_items(board_text, unique_vias),
+    )
 
     # Write output
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
-    _validate_4_layer_output(board)
+    _validate_4_layer_output(board_text)
 
     # Provenance header (plan 2026-07-15-001, unit U5). Skipped, not faked,
     # when the netlist isn't available -- this export path also runs against
-    # boards/fixtures unrelated to this project's real netlist.
+    # boards/fixtures unrelated to this project's real netlist. The embed
+    # is the Rust text kernel (provenance.py: parse -> mutate KiNode tree ->
+    # serialize), applied to the Rust-serialized board text.
     resolved_netlist_path = netlist_path or Path("elec/build/default.net")
     if resolved_netlist_path.exists():
         from temper_placer.io.provenance import compute_provenance, embed_provenance
 
         provenance = compute_provenance(template_pcb, resolved_netlist_path, config_path)
-        embed_provenance(board, provenance)
-
-    board.to_file(str(output_pcb))
+        board_text = embed_provenance(board_text, provenance)
+    output_pcb.write_text(board_text)
 
     # Automatically fill zones if requested
     if auto_fill_zones:
@@ -673,55 +687,41 @@ def export_from_geometry(
     """
     layer_map = layer_map or LAYER_MAP
 
-    # Load PCB
-    board = KiBoard.from_file(str(template_pcb))
+    # Load PCB as raw text; clear existing traces/vias (Rust text path)
+    board_text = _clear_traces(_load_board_text(template_pcb))
 
-    # Clear existing traces/vias
-    board.traceItems = []
+    total_segments = len(tracks)
+    total_vias = len(vias)
 
-    total_segments = 0
-    total_vias = 0
-
-    # Helper to find net code
-    def get_net_code(net_name: str) -> int:
-        for n in board.nets:
-            if n.name == net_name:
-                return n.number
-        return 0
-
-    # Add tracks
+    # Build all items — net-code lookup and item content run in Rust
+    # (find_net_code_py / segment_sexpr_py / via_sexpr_py).
+    nets = _net_map(board_text)
+    items: list = []
     for track in tracks:
         layer_name = layer_map.get(track.layer, "F.Cu")
-        net_code = get_net_code(track.net)
-
-        segment = Segment(
-            start=Position(X=track.start.x, Y=track.start.y),
-            end=Position(X=track.end.x, Y=track.end.y),
-            width=track.width,
-            layer=layer_name,
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        net_code = _GEOM.find_net_code_py(nets, track.net)
+        items.append(
+            _GEOM.segment_sexpr_py(
+                track.start.x, track.start.y, track.end.x, track.end.y,
+                track.width, layer_name, net_code, str(uuid.uuid4()),
+            )
         )
-        board.traceItems.append(segment)
-        total_segments += 1
 
     # Add vias
     for via in vias:
-        net_code = get_net_code(via.net)
-        kicad_via = Via(
-            position=Position(X=via.center.x, Y=via.center.y),
-            size=via.diameter,
-            drill=via.drill,
-            layers=["F.Cu", "B.Cu"],  # Default through
-            net=net_code,
-            tstamp=str(uuid.uuid4()),
+        net_code = _GEOM.find_net_code_py(nets, via.net)
+        items.append(
+            _GEOM.via_sexpr_py(
+                via.center.x, via.center.y,
+                via.diameter, via.drill, ["F.Cu", "B.Cu"], net_code, str(uuid.uuid4()),
+            )
         )
-        board.traceItems.append(kicad_via)
-        total_vias += 1
+
+    board_text = _append_items(board_text, items)
 
     # Write output
-    _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    _validate_4_layer_output(board_text)
+    output_pcb.write_text(board_text)
 
     return ExportResult(
         output_path=output_pcb,

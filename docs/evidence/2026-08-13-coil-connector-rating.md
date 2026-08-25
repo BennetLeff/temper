@@ -1,4 +1,4 @@
-<!-- provenance: commit=5511e581f50be9f7ef649840b1acb82aa3633f17 (branch
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 fix/coil-connector-rating, base origin/main @ a3e117347, worktree
 /home/bennet/Desktop/temper/.claude/worktrees/fix-coil-connector-rating).
 pcb/temper.kicad_pcb sha256=6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64
@@ -122,14 +122,14 @@ The pitch formula (`diameter + 10.0mm`) is unchanged from PR #1109's derivation 
 
 ## 4. Placement re-solved on the wider part, and it holds
 
-`pcb/temper.kicad_pcb` is explicitly out of scope for this change, so feasibility is established the same way PR #1109's own companion evidence (`docs/evidence/2026-08-12-tank-creepage-geometry.md`) established it: a **scratch copy** of the committed board with R30's footprint instance widened to match the library fix (pad size 8→15mm, pitch 13→25mm — the committed board still carries the pre-#1109 13mm pitch; `pcb/temper.kicad_pcb`'s own R30 was never landed, so this scratch copy starts from that, not from an intermediate 18mm state), fed through the same composed-constraint Pumpkin harness the prior evidence used (`docs/evidence/2026-08-12-tank-creepage-geometry-run.py`, unmodified).
+`pcb/temper.kicad_pcb` is explicitly out of scope for this change, so feasibility is established the same way PR #1109's own companion evidence (`docs/evidence/2026-08-12-tank-creepage-geometry.md`) established it: a **scratch copy** of the committed board with R30's footprint instance widened to match the library fix (pad size 8→15mm, pitch 13→25mm — the committed board still carries the pre-#1109 13mm pitch; `pcb/temper.kicad_pcb`'s own R30 was never landed, so this scratch copy starts from that, not from an intermediate 18mm state), fed through the same composed-constraint Pumpkin harness the prior evidence used (`docs/evidence/scripts/2026-08-12-tank-creepage-geometry-run.py`, unmodified).
 
 ```
 $ .venv/bin/python scripts/verify_pumpkin_engine.py --require
 pumpkin_engine identity gate: VERIFIED -- sha256=7ff153f4… source_commit=5bbf650d47…   (exit 0)
 
 $ PYTHONPATH=packages/temper-placer/src .venv/bin/python \
-    docs/evidence/2026-08-12-tank-creepage-geometry-run.py \
+    docs/evidence/scripts/2026-08-12-tank-creepage-geometry-run.py \
     --board <scratch>/widened_r30.kicad_pcb --rot 1 --relax '' --margin-mm 10.0 \
     --timeout-ms 120000 --out solved.json
 

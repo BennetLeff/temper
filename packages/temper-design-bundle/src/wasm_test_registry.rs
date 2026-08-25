@@ -41,7 +41,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 52 eligible tests, in a stable order.  Each entry is
+/// All 60 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -51,6 +51,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-design-bundle")] crate::net_class_validation::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::netlist::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::pad_occurrence::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-design-bundle")] crate::parse_engine::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::pcl::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::pcl::real_pcl_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::safety_value::tests::WASM_TESTS,
