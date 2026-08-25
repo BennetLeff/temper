@@ -4306,6 +4306,27 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # pcb/temper.kicad_dru is GITIGNORED (.gitignore:58 `/pcb/*.kicad_dru`)
+      # and generated, so a fresh checkout does not have it. Two tests wired
+      # into this group by the same change that added this step --
+      # test_zone_pour_{clearance,creepage}.py::TestGeneratedFileIsNotStale --
+      # read it to prove the committed pour tables are not stale against the
+      # DRU kicad-cli actually enforces. Without this step they die on
+      # `FileNotFoundError: /__w/temper/temper/pcb/temper.kicad_dru` while
+      # passing locally, because a developer tree has the artifact lying
+      # around from an earlier `make` run. That is exactly the shape of
+      # "passes on my machine" this repo's stale-artifact gates exist to
+      # kill, so the fix is to generate it here rather than to deselect the
+      # two tests.
+      #
+      # Pure Python, no kicad-cli, no arguments, and byte-reproducible
+      # (verified: regenerating over a populated tree leaves `git status`
+      # clean). It also emits the four packages/temper-placer/configs/
+      # *.generated.yaml files, which are committed and unchanged by it.
+      - name: Generate pcb/temper.kicad_dru (gitignored input for the zone-pour staleness gates)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/generate_kicad_dru.py
+
       - name: Run invariant tests (router_v6 group 3)
         working-directory: packages/temper-placer
         run: >
