@@ -68,8 +68,21 @@ class TestFeedbackHandler:
         )()
         delta = fc._handle_clearance_violation(violation)
         assert delta is not None
-        # The because text should come from the class_pairs entry for ACMains-Signal
-        assert "IEC 60335" in delta.constraint.because
+        # The because text should come from the class_pairs entry for
+        # ACMains-Signal. It cites the SOURCE of the figure, and that source
+        # changed: netclass_rules.yaml now records the 6.0mm ACMains<->Signal
+        # value as UNSOURCED, with the previous "IEC 60335 Table 16 working
+        # isolation at 400V" citation marked debunked -- 6.0mm appears in no
+        # recovered table. Asserting the old citation made this test demand a
+        # provenance the rule no longer claims, so it has failed on main
+        # independently of this PR.
+        #
+        # Pinned to what the entry actually asserts now: that the figure is
+        # flagged unsourced and scoped to placer feasibility rather than
+        # presented as a standards requirement.
+        because = delta.constraint.because
+        assert "UNSOURCED" in because, because
+        assert "placer-feasibility model only" in because, because
 
     # -----------------------------------------------------------------
     # ADDED 2026-08-19 (docs/evidence/2026-08-19-is-hv-net-blast-radius.md).
