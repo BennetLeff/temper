@@ -58,6 +58,18 @@ from an author assertion. Marking it keeps "where it landed" separate from
 "where it was measured," which is the whole distinction the gate exists to
 preserve.
 
+### Implementation clarification (2026-08-26 review)
+
+"Marked as derived" means an explicit author-written
+`commit=DERIVED dirty=<true|false|UNKNOWN>` construct, not the absence of a
+provenance construct. The first implementation made a completely unstamped
+file pass by deriving its commit. That contradicted this decision's requirement
+that `dirty` stay author-supplied: git can recover where a file landed, but it
+cannot recover whether the measurement tree was dirty. The reviewed contract
+therefore derives only the commit field; a missing construct or missing
+`dirty` field remains a violation. The same token is supported in text and JSON
+evidence.
+
 ### How the error happened
 
 Same shape as the session's other misses: I measured "differs from X" and
@@ -71,9 +83,10 @@ I went to implement and asked what could go wrong.
 
 **Change the contract, do not change the enforcement.**
 
-Default `commit=` to the commit that introduces the file, computed, and require
-a hand-written stamp only when the author measured against a *different* tree.
-Keep both gates exactly as strict about everything else.
+Allow the explicit token `commit=DERIVED` to resolve to the commit that
+introduces the file, and require a literal SHA when the author measured against
+a *different* tree. `dirty=` remains hand-written in both cases. Keep both
+gates exactly as strict about everything else.
 
 The data below says the gates are catching something real a third of the time
 and transcribing something git already knows the other two thirds — and that
@@ -186,10 +199,12 @@ Two independent confirmations that this is the mechanism, not a guess:
 So the contract asks every author for a value that is derivable-by-default and
 unknowable-at-authoring-time, and 45% of the time they do not supply it.
 
-**The change:** when a file under `docs/evidence/` carries no `commit=`, the
-gate computes the introducing commit and treats that as the stamp. When the
-author *does* write one, it is enforced exactly as today, including the
-resolve-check. The dirty flag stays author-supplied — git cannot know it.
+**The change:** when a file under `docs/evidence/` explicitly carries
+`commit=DERIVED`, the gate computes the introducing commit and treats that as
+the landing-tree identity. A literal SHA is enforced exactly as today,
+including the resolve-check. The provenance construct and dirty flag remain
+author-supplied — git cannot know dirty state. A file with no provenance
+construct still fails.
 
 This preserves 100% of the gate's discriminating power (§1.4's 63 real
 assertions are all cases where the author writes something different, which
