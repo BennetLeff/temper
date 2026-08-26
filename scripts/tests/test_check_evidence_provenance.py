@@ -23,6 +23,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import check_evidence_provenance as gate  # noqa: E402
 from check_evidence_provenance import (  # noqa: E402
     REPO_ROOT,
     _is_shallow_repo,
@@ -409,3 +410,93 @@ class TestFailBeforePassAfter:
         result = _run_gate(evidence_dir, tmp_path / ".allowlist")
         assert result.returncode == 0, result.stdout + result.stderr
         assert "PASSED" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Derived-default contract (2026-08-25)
+#
+# docs/evidence/2026-08-25-provenance-stamp-contract-decision.md: a missing
+# stamp is COMPUTED as the commit that introduced the file, because the
+# contract previously asked authors for a value that does not exist when they
+# write the file (45% land-failure; 68% of repairs transcribed this exact
+# value and a further 23% pointed at the bulk-repair commit that stamped
+# them). These tests exist so the change cannot quietly become "the gate
+# always passes": each one fails if its specific guard is removed.
+# ---------------------------------------------------------------------------
+
+
+def _git(tmp, *args):
+    subprocess.run(["git", *args], cwd=tmp, check=True,
+                   capture_output=True, text=True)
+
+
+def _repo_with(tmp_path, name, body):
+    _git(tmp_path, "init", "-q")
+    _git(tmp_path, "config", "user.email", "t@t")
+    _git(tmp_path, "config", "user.name", "t")
+    d = tmp_path / "docs" / "evidence"
+    d.mkdir(parents=True)
+    (d / name).write_text(body)
+    _git(tmp_path, "add", "-A")
+    _git(tmp_path, "commit", "-qm", "add")
+    return d / name
+
+
+def test_missing_stamp_is_derived_and_marked(tmp_path):
+    """No stamp -> passes, and is MARKED derived rather than conflated with
+    an author assertion."""
+    f = _repo_with(tmp_path, "a.md", "# no stamp here\n")
+    r = gate.check_file(f)
+    assert r.ok, r.reason
+    assert r.derived is True
+    assert gate.SHA_RE.match(r.commit or ""), r.commit
+
+
+def test_author_stamp_is_not_marked_derived(tmp_path):
+    """An explicit stamp round-trips unchanged and is NOT marked derived --
+    the 9% of files whose measurement tree differs from where they landed
+    must stay distinguishable."""
+    sha = "b" * 40
+    f = _repo_with(tmp_path, "b.md",
+                   f"<!-- provenance: commit={sha} dirty=false -->\n# x\n")
+    r = gate.check_file(f)
+    assert r.ok, r.reason
+    assert r.derived is False
+    assert r.commit == sha
+
+
+def test_unparseable_stamp_still_fails_and_is_never_derived(tmp_path):
+    """A malformed stamp is a DIFFERENT failure from a missing one and must
+    not be rescued by derivation -- otherwise an abbreviated or fabricated
+    SHA becomes green."""
+    f = _repo_with(tmp_path, "c.md",
+                   "<!-- provenance: commit=abc123 dirty=false -->\n# x\n")
+    r = gate.check_file(f)
+    assert not r.ok
+    assert r.derived is False
+
+
+def test_no_derive_restores_the_stricter_contract(tmp_path):
+    """--no-derive keeps the pre-2026-08-25 behaviour available."""
+    f = _repo_with(tmp_path, "d.md", "# no stamp here\n")
+    gate._DERIVE_DISABLED = True
+    try:
+        r = gate.check_file(f)
+    finally:
+        gate._DERIVE_DISABLED = False
+    assert not r.ok
+    assert "no 'provenance:" in r.reason
+
+
+def test_underivable_file_fails_rather_than_passing(tmp_path):
+    """If git cannot name an introducing commit -- untracked file, shallow
+    clone -- the gate FAILS. A derivation that cannot be made must never
+    silently pass; that is the vacuous shape this repo has shipped before."""
+    _git(tmp_path, "init", "-q")
+    d = tmp_path / "docs" / "evidence"
+    d.mkdir(parents=True)
+    f = d / "e.md"
+    f.write_text("# never committed\n")
+    assert gate.derive_introducing_commit(f) is None
+    r = gate.check_file(f)
+    assert not r.ok
