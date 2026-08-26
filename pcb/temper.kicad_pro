@@ -514,10 +514,6 @@
       "discharge.r_dis2a-p2": "HighVoltageSignal",
       "discharge.r_snub1-p2": "HighVoltageSignal",
       "discharge.r_snub2-p2": "HighVoltageSignal",
-      "safety.ovp.r_div_top1-p2": "HighVoltage",
-      "safety.ovp.r_div_top2-p2": "HighVoltage",
-      "safety.ovp.r_adc_top1-p2": "HighVoltage",
-      "safety.ovp.r_adc_top2-p2": "HighVoltage",
       "s1": "FinePitch",
       "safety.ocp2-line": "FinePitch"
     },

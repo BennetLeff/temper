@@ -316,21 +316,29 @@
         "clearance": 49,
         "creepage": 42
       }
+    },
+    "2026-08-25b": {
+      "date": "2026-08-25b",
+      "cause": "error_ceiling 473 -> 413 (-60): clearance 227 -> 209, creepage 149 -> 107. A DECREASE, correcting part of the same-day 382 -> 473 raise. That raise was approved on the stated cause that 'input' had no creepage rule for 35 days -- true of the code path, but 'input' was ALREADY assigned HighVoltageSignal on main before #1391 landed, so it contributed 0 to the measured delta. The +91 actually decomposed as: +31 from 'gnd' GND->Power (legitimate -- GND was a class kicad_pro never declared, so gnd was unconstrained; see design_rules.py's own note) and +60 from wiring four OVP-01 mid-chain divider nodes into kicad_pro as HighVoltage. This entry removes that +60. The four nodes measure 58.1-87.4V and 114.4V; domain_manifest.yaml declines them deliberately ('genuinely mid-chain, neither HV nor SELV by voltage'), and docs/evidence/2026-08-13-ovp01-midchain-single-fault-creepage.md Sec 4 puts them at 1.4-4.0mm by IEC 60335-1 Table 17/18. Assigning HighVoltage made kicad-cli apply the HV-to-LV REINFORCED 12.6mm mains<->SELV bar to them, 3-9x the applicable figure. The SSOT entry's own comment had said kicad_pro wiring was 'a separate, still-open follow-up' and that the entry 'does not yet change the physical board's DRC creepage enforcement'. Creepage returning to exactly 107 -- its pre-#1391 value -- confirms all of #1391's creepage findings came from these four nets. The purpose-built netclass at the correct Table 17/18 row remains the real fix, named in that doc's Sec 6 and not invented here.",
+      "per_type_delta": {
+        "clearance": -18,
+        "creepage": -42
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 473,
+      "error_ceiling": 413,
       "warning_ceiling": 13265,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
-        "clearance": 227,
+        "clearance": 209,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 149,
+        "creepage": 107,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -343,7 +351,7 @@
       "provenance": {
         "measured_at_commit": "726b81f70416613d5d1f2a28e97dcc280d3bd88f",
         "dirty": false,
-        "branch": "fix/netclass-tables-reconcile",
+        "branch": "fix/ovp-midchain-overclassification",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
