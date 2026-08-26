@@ -189,7 +189,24 @@ class TestGroupMembership:
         #                       has left the board since.
         #
         # Net 45 -> 46. Tank refs are unchanged at 4 (C25, C26, C27, R30).
-        assert len(pairs) == 4 * 46, (
+        #
+        # RE-DERIVED 2026-08-25: 46 -> 42. Decomposed, not bumped, same as
+        # above. Four OVP-01 mid-chain divider nodes were unwired from
+        # HighVoltage (they measure 58.1-114.4V, domain_manifest.yaml
+        # declines them deliberately, and carrying HighVoltage made
+        # kicad-cli enforce the 12.6mm mains<->SELV REINFORCED bar on them
+        # -- 3-9x the 1.4-4.0mm that docs/evidence/2026-08-13-ovp01-
+        # midchain-single-fault-creepage.md Sec 4 derives from IEC 60335-1
+        # Table 17/18). The refs carrying those nets therefore leave the
+        # other-HV set.
+        #
+        # Measured, not assumed -- the other-ref set diffed against the
+        # pre-change board is exactly {R47, R48, R52, R53} removed, none
+        # added. R51 stays: it carries a second HighVoltage net beyond the
+        # unwired divider node.
+        #
+        # Net 46 -> 42. Tank refs still 4.
+        assert len(pairs) == 4 * 42, (
             f"got {len(pairs)} pairs -- re-derive against the new board if "
             f"this is an intentional board change"
         )
