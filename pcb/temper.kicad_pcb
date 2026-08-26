@@ -5355,7 +5355,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 3cbb84e7) (tstamp e7de30b1-2a6b-1b62-784e-0c4d93257897)
-    (at 84.41 242.27 180)
+    (at 85.41 242.27 180)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R48")
@@ -7317,7 +7317,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 22fb4268) (tstamp 936e0b2b-5bfb-3981-e454-9bf91d97be17)
-    (at 80.22 246.2 180)
+    (at 85.22 246.2 180)
     (descr "SOT, 6 Pin (JEDEC MO-178 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U21")
