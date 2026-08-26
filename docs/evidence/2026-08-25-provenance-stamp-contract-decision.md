@@ -6,6 +6,67 @@
 **Base:** `origin/main` @ `c2c73c505`
 **Question:** the evidence-provenance and measurement-provenance gates are correct and are re-broken by ordinary merges. Enforce harder, drop them, or change the contract?
 
+## CORRECTION (2026-08-25, before implementing) — §1.4's split was wrong, and the error hid a worse finding
+
+**This document originally reported "68% derivable / 32% carry real
+information." The 32% figure is wrong. The real split is three-way:**
+
+| | count | |
+|---|---:|---|
+| derivable — the introducing commit or its parent | **136** | 68% |
+| **NOT an ancestor of the introducing commit** — cannot be the tree the document was measured on | **46** | **23%** |
+| a real ancestor/base — a plausible author assertion | **17** | **9%** |
+
+I classified "differs from the introducing commit" as "carries real
+information." It does not follow. A stamp only *can* name the tree a document
+was measured on if it is an ancestor of the commit the document landed in.
+Testing that with `git merge-base --is-ancestor`, only 17 of 63 qualify.
+
+### What the other 46 point at
+
+```
+ 11x  e542aea35  chore: delete 25 abandoned plans; move 82 evidence probes
+  8x  fbc5ce517  fix(provenance): expand 41 abbreviated evidence SHAs to their real 40-char form
+  6x  a434a9aa9  fix(pcb): purge void board-baseline numbers from gates
+```
+
+**They point at the bulk-repair commit that stamped them.** Not a measurement
+tree — the commit that fixed the missing stamp. The provenance says "this
+document was measured at the commit where someone noticed it had no
+provenance."
+
+This is the gate's own documented failure mode, one level up. Its docstring
+warns about a SHA that *cannot* resolve:
+
+> A SHA nobody can resolve gives none of the traceability the gate exists for
+> while *looking* like it does — worse than an honest UNKNOWN, because UNKNOWN
+> is visible and this was not.
+
+These resolve. So they pass, and convey nothing. **23% of repaired stamps on
+`main` are meaningless and green.**
+
+### What it does to the decision
+
+It strengthens it. Auto-deriving replaces the 68% transcription *and* the 23%
+meaningless-repair-commit stamps with a correct, checkable value — 91% of
+cases improve. It silently mislabels the 9% that are genuine base-commit
+assertions.
+
+**So the decision stands, with one addition: a derived stamp must be marked as
+derived.** Recording `commit=<sha>` alone would make the 9% indistinguishable
+from an author assertion. Marking it keeps "where it landed" separate from
+"where it was measured," which is the whole distinction the gate exists to
+preserve.
+
+### How the error happened
+
+Same shape as the session's other misses: I measured "differs from X" and
+reported it as "means Y," without testing the step in between. One
+`git merge-base --is-ancestor` call separated them, and I ran it only because
+I went to implement and asked what could go wrong.
+
+---
+
 ## Decision, up front
 
 **Change the contract, do not change the enforcement.**
