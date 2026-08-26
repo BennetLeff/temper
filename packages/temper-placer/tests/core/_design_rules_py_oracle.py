@@ -764,11 +764,9 @@ TEMPER_NET_ASSIGNMENTS = {
     # deliberately kept in sync with the live wrapper (unlike the
     # pre-existing, separately-tracked gnd/PWR_RTN drift below, which this
     # change does not touch or attempt to resolve).
-    "safety.ovp.r_div_top1-p2": "HighVoltage",
-    "safety.ovp.r_div_top2-p2": "HighVoltage",
-    "safety.ovp.r_adc_top1-p2": "HighVoltage",
-    "safety.ovp.r_adc_top2-p2": "HighVoltage",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
+    "s1": "FinePitch",
+    "safety.ocp2-line": "FinePitch",
     "sclk": "FinePitch",
     "sdi": "FinePitch",
     "sdo": "FinePitch",

@@ -272,7 +272,7 @@
         "pcb_color": "rgba(200, 100, 0, 1.000)",
         "schematic_color": "rgba(200, 100, 0, 1.000)",
         "track_width": 0.5,
-        "via_diameter": 0.8,
+        "via_diameter": 1.0,
         "via_drill": 0.4,
         "wire_width": 6
       },
@@ -514,10 +514,6 @@
       "discharge.r_dis2a-p2": "HighVoltageSignal",
       "discharge.r_snub1-p2": "HighVoltageSignal",
       "discharge.r_snub2-p2": "HighVoltageSignal",
-      "safety.ovp.r_div_top1-p2": "HighVoltage",
-      "safety.ovp.r_div_top2-p2": "HighVoltage",
-      "safety.ovp.r_adc_top1-p2": "HighVoltage",
-      "safety.ovp.r_adc_top2-p2": "HighVoltage",
       "s1": "FinePitch",
       "safety.ocp2-line": "FinePitch"
     },

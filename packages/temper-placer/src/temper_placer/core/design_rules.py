@@ -910,10 +910,42 @@ TEMPER_NET_ASSIGNMENTS = {
     # separate, still-open follow-up (matches PR #1145/#1164's own precedent
     # of leaving that wiring for later); this entry alone does not yet change
     # the physical board's DRC creepage enforcement.
-    "safety.ovp.r_div_top1-p2": "HighVoltage",
-    "safety.ovp.r_div_top2-p2": "HighVoltage",
-    "safety.ovp.r_adc_top1-p2": "HighVoltage",
-    "safety.ovp.r_adc_top2-p2": "HighVoltage",
+    # REMOVED 2026-08-25. The four OVP-01 mid-chain divider nodes were
+    # mapped to "HighVoltage" above as a deliberate interim over-provision,
+    # and that comment closed by saying pcb/temper.kicad_pro's
+    # netclass_assignments -- "what the real kicad-cli DRC reads" -- was "a
+    # separate, still-open follow-up" and that "this entry alone does not yet
+    # change the physical board's DRC creepage enforcement".
+    #
+    # #1391 wired kicad_pro. That turned the interim entry into live DRC
+    # enforcement, and the figure it enforces is NOT the 6.0mm the
+    # over-provision was reasoned about: "HighVoltage" participates in the
+    # `HV to LV` rule, so kicad-cli applies REINFORCED creepage 12.6mm --
+    # the mains<->SELV barrier -- to nodes the evidence doc measures at
+    # 58.1-87.4V and 114.4V.
+    #
+    # docs/evidence/2026-08-13-ovp01-midchain-single-fault-creepage.md Sec 4
+    # gives the correct bands from IEC 60335-1 Table 18 (functional
+    # insulation, material group IIIa/IIIb): >50 and <=125V is 1.4mm PD2 /
+    # 2.2mm PD3, with Table 17 basic insulation at 1.5/2.4 and 2.5/4.0mm as
+    # the open alternative. So the enforced 12.6mm is 3-9x the applicable
+    # figure by that document's own derivation.
+    #
+    # MEASURED cost of the over-constraint, 5 samples, spread 0:
+    #   with these four assigned    errors 473  clearance 227  creepage 149
+    #   with them removed           errors 413  clearance 209  creepage 107
+    # 60 errors, and creepage returns exactly to its pre-#1391 value of 107 --
+    # i.e. every one of #1391's creepage findings came from these four nets.
+    #
+    # domain_manifest.yaml declines these nets deliberately and says so:
+    # "genuinely mid-chain, neither HV nor SELV by voltage ... not silently
+    # dropped: flagged". Removing them here restores agreement between all
+    # three tables rather than leaving two of them asserting a barrier the
+    # third rejects.
+    #
+    # The real fix is the purpose-built netclass at the correct Table 17/18
+    # row that the evidence doc names in its Sec 6 follow-ups. That needs the
+    # table-choice question answered and is not invented here.
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
     "sdi": "FinePitch",
