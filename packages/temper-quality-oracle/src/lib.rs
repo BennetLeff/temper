@@ -28,6 +28,7 @@ pub mod aesthetic;
 pub mod quality_score;
 pub mod routing_quality;
 pub mod validation_metrics;
+pub mod regional_feasibility;
 
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
 // so an added `python` gate here would silently exclude the registry and the
@@ -899,6 +900,59 @@ fn distribution_metrics_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn evaluate_regional_candidate_py(
+    py: Python<'_>,
+    baseline_pairs: Vec<String>,
+    candidate_pairs: Vec<String>,
+    baseline_drc: HashMap<String, usize>,
+    candidate_drc: HashMap<String, usize>,
+    baseline_body_overlaps: HashMap<String, f64>,
+    candidate_body_overlaps: HashMap<String, f64>,
+    baseline_pads: Vec<(String, f64, f64)>,
+    baseline_endpoints: Vec<(f64, f64)>,
+    candidate_pads: Vec<(String, f64, f64)>,
+    candidate_endpoints: Vec<(f64, f64)>,
+    endpoint_tolerance_mm: f64,
+    instrument_errors: Vec<String>,
+) -> PyResult<Py<PyDict>> {
+    use regional_feasibility::{RegionalSnapshot, evaluate_regional_candidate, routed_pad_endpoint_drift};
+    use std::collections::{BTreeMap, BTreeSet};
+
+    temper_py_bridge::catch_panic(|| {
+        let baseline = RegionalSnapshot {
+            cross_domain_pairs: baseline_pairs.into_iter().collect::<BTreeSet<_>>(),
+            drc_errors_by_rule: baseline_drc.into_iter().collect::<BTreeMap<_, _>>(),
+            body_overlap_by_pair: baseline_body_overlaps.into_iter().collect::<BTreeMap<_, _>>(),
+        };
+        let candidate = RegionalSnapshot {
+            cross_domain_pairs: candidate_pairs.into_iter().collect::<BTreeSet<_>>(),
+            drc_errors_by_rule: candidate_drc.into_iter().collect::<BTreeMap<_, _>>(),
+            body_overlap_by_pair: candidate_body_overlaps.into_iter().collect::<BTreeMap<_, _>>(),
+        };
+        let endpoint_drift = routed_pad_endpoint_drift(
+            &baseline_pads,
+            &baseline_endpoints,
+            &candidate_pads,
+            &candidate_endpoints,
+            endpoint_tolerance_mm,
+        );
+        let verdict = evaluate_regional_candidate(&baseline, &candidate, endpoint_drift, instrument_errors);
+        let out = PyDict::new(py);
+        out.set_item("accepted", verdict.accepted)?;
+        out.set_item("improved", verdict.improved)?;
+        out.set_item("reasons", verdict.reasons)?;
+        out.set_item("new_cross_domain_pairs", verdict.new_cross_domain_pairs)?;
+        out.set_item("removed_cross_domain_pairs", verdict.removed_cross_domain_pairs)?;
+        out.set_item("drc_rule_deltas", verdict.drc_rule_deltas)?;
+        out.set_item("new_or_worsened_body_pairs", verdict.new_or_worsened_body_pairs)?;
+        out.set_item("routed_pad_endpoint_drift", verdict.routed_pad_endpoint_drift)?;
+        Ok(out.into())
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
 fn is_available_py() -> bool {
     true
 }
@@ -929,6 +983,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(clearance_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
+    m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
 
     cluster_f::bindings::register(m)?;
