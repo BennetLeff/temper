@@ -415,13 +415,14 @@ class TestFailBeforePassAfter:
 # ---------------------------------------------------------------------------
 # Derived-default contract (2026-08-25)
 #
-# docs/evidence/2026-08-25-provenance-stamp-contract-decision.md: a missing
-# stamp is COMPUTED as the commit that introduced the file, because the
+# docs/evidence/2026-08-25-provenance-stamp-contract-decision.md: an explicit
+# commit=DERIVED is COMPUTED as the commit that introduced the file, because the
 # contract previously asked authors for a value that does not exist when they
 # write the file (45% land-failure; 68% of repairs transcribed this exact
 # value and a further 23% pointed at the bulk-repair commit that stamped
-# them). These tests exist so the change cannot quietly become "the gate
-# always passes": each one fails if its specific guard is removed.
+# them). The author must still supply dirty state. These tests exist so the
+# change cannot quietly become "the gate always passes": each one fails if its
+# specific guard is removed.
 # ---------------------------------------------------------------------------
 
 
@@ -442,14 +443,57 @@ def _repo_with(tmp_path, name, body):
     return d / name
 
 
-def test_missing_stamp_is_derived_and_marked(tmp_path):
-    """No stamp -> passes, and is MARKED derived rather than conflated with
-    an author assertion."""
-    f = _repo_with(tmp_path, "a.md", "# no stamp here\n")
+def test_explicit_derived_stamp_is_resolved_and_marked(tmp_path):
+    """DERIVED plus author-supplied dirty state resolves and stays distinct."""
+    f = _repo_with(
+        tmp_path,
+        "a.md",
+        "<!-- provenance: commit=DERIVED dirty=false -->\n# x\n",
+    )
     r = gate.check_file(f)
     assert r.ok, r.reason
     assert r.derived is True
     assert gate.SHA_RE.match(r.commit or ""), r.commit
+
+
+def test_missing_stamp_still_fails_even_when_derivation_is_enabled(tmp_path):
+    """Git cannot recover dirty state, so a completely absent stamp is red."""
+    f = _repo_with(tmp_path, "missing.md", "# no stamp here\n")
+    r = gate.check_file(f)
+    assert not r.ok
+    assert r.derived is False
+    assert "no 'provenance:" in r.reason
+
+
+def test_derived_without_dirty_still_fails(tmp_path):
+    """DERIVED only replaces commit; it never manufactures dirty state."""
+    f = _repo_with(
+        tmp_path,
+        "missing-dirty.md",
+        "<!-- provenance: commit=DERIVED -->\n# x\n",
+    )
+    r = gate.check_file(f)
+    assert not r.ok
+    assert "dirty=<absent>" in r.reason
+
+
+def test_json_explicit_derived_has_parity_with_text(tmp_path):
+    f = _repo_with(
+        tmp_path,
+        "derived.json",
+        json.dumps({"provenance": {"commit": "DERIVED", "dirty": False}}),
+    )
+    r = gate.check_file(f)
+    assert r.ok, r.reason
+    assert r.derived is True
+    assert gate.SHA_RE.match(r.commit or ""), r.commit
+
+
+def test_json_missing_provenance_still_fails(tmp_path):
+    f = _repo_with(tmp_path, "missing.json", json.dumps({"measurement": 1}))
+    r = gate.check_file(f)
+    assert not r.ok
+    assert r.derived is False
 
 
 def test_author_stamp_is_not_marked_derived(tmp_path):
@@ -477,15 +521,19 @@ def test_unparseable_stamp_still_fails_and_is_never_derived(tmp_path):
 
 
 def test_no_derive_restores_the_stricter_contract(tmp_path):
-    """--no-derive keeps the pre-2026-08-25 behaviour available."""
-    f = _repo_with(tmp_path, "d.md", "# no stamp here\n")
+    """--no-derive rejects an explicit request to compute the commit."""
+    f = _repo_with(
+        tmp_path,
+        "d.md",
+        "<!-- provenance: commit=DERIVED dirty=false -->\n# x\n",
+    )
     gate._DERIVE_DISABLED = True
     try:
         r = gate.check_file(f)
     finally:
         gate._DERIVE_DISABLED = False
     assert not r.ok
-    assert "no 'provenance:" in r.reason
+    assert "disabled by --no-derive" in r.reason
 
 
 def test_underivable_file_fails_rather_than_passing(tmp_path):
@@ -496,7 +544,7 @@ def test_underivable_file_fails_rather_than_passing(tmp_path):
     d = tmp_path / "docs" / "evidence"
     d.mkdir(parents=True)
     f = d / "e.md"
-    f.write_text("# never committed\n")
+    f.write_text("<!-- provenance: commit=DERIVED dirty=false -->\n")
     assert gate.derive_introducing_commit(f) is None
     r = gate.check_file(f)
     assert not r.ok
