@@ -324,21 +324,31 @@
         "clearance": -18,
         "creepage": -42
       }
+    },
+    "2026-08-26": {
+      "date": "2026-08-26",
+      "cause": "Re-measurement after moving U21 +5.0mm X and R48 +1.0mm X (commit cf993c465) away from C27 pad 2, the HighVoltageTank node tank.c_tank1-p2. The position-only move clears all three actionable C27 pairs from the 2026-08-25 burn-down (C27.2 vs U21.4 gnd, U21.5 +3V3, and R48.2 safety.ovp.comp-inp) plus C27.2 vs U21.2 gnd. Independent exact-copper measurement over all 26,640 HV-to-SELV pad pairs: 97 -> 93 total below 12.6mm, body_free 8 -> 5, body_crossing 88 -> 87, zero new pair. KiCad DRC, 120 samples on a clean tree with regenerated DRU, kicad-cli 10.0.5, --all-track-errors and single-thread pinning: every category deterministic. Errors 413 -> 409, entirely creepage 107 -> 103; every other error category unchanged. Raw warnings are 402/402 in all 120 runs. silk_over_copper 46 -> 45 corrects one unit of pre-existing ceiling slack rather than attributing it to this move: an exact parent-board control at d55258486 also measured 45, and the preceding 2026-08-25 _march entry itself already says silk_over_copper was 45 unchanged while the board record mistakenly retained 46. The uncapped silk_overlap total 13061 is carried unchanged because neither moved footprint is C2 or C3, the documented dominant/saturated pair. No category rises; no Ceiling-Approval trailer is required.",
+      "per_type_delta": {
+        "creepage": -4,
+        "silk_over_copper": -1,
+        "error_ceiling": -4,
+        "warning_ceiling": -1
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 413,
-      "warning_ceiling": 13265,
+      "error_ceiling": 409,
+      "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
         "annular_width": 0,
         "clearance": 209,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 107,
+        "creepage": 103,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -349,21 +359,21 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "726b81f70416613d5d1f2a28e97dcc280d3bd88f",
+        "measured_at_commit": "91b65e8a59a22ef6567e2ff8e04539a992935651",
         "dirty": false,
-        "branch": "fix/ovp-midchain-overclassification",
+        "branch": "fix/c27-counterpart-creepage",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "7055f7da319c527f7a1a12b07ab15b99e8c56a7b70430607fcc839ca2031fae1"
+            "sha256": "7c8b26d3d812fd0d07e29ee404a2723c22d276ece19adf0fc67fb95547984065"
           }
         ],
         "tool_versions": {
           "kicad-cli": "10.0.5"
         },
         "source": "measured-live",
-        "sample_count": 5,
-        "measured_via": "kicad-cli 10.0.5 --severity-all --all-track-errors --format json, 5 samples, spread 0 in every category. RATCHET ONLY (decrease), which scripts/check_drc_ceiling_approval.py states never requires a Ceiling-Approval trailer. Hand-edited rather than produced by scripts/calibrate_drc_ceiling.py: that tool drives the RUST DRC engine, not kicad-cli which is this record's category_source, and it currently aborts on this board with 'net \"w1_1\" is classed \"HighVoltage\" but net_class_rules has no entry for class \"HighVoltage\"' -- while still writing a truncated file with an empty boards list. Every number here is from the sampled kicad-cli runs above."
+        "sample_count": 120,
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 91b65e8a59a22ef6567e2ff8e04539a992935651 after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 409/409, warnings 402/402. Full distributions recorded in the 2026-08-26 _march entry's measurement transcript."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
@@ -371,7 +381,7 @@
         "missing_courtyard": 5,
         "pth_inside_courtyard": 0,
         "silk_edge_clearance": 1,
-        "silk_over_copper": 46,
+        "silk_over_copper": 45,
         "silk_overlap": 13061,
         "track_dangling": 1,
         "via_dangling": 111

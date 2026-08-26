@@ -191,13 +191,20 @@ authority:
 # Sheetpath count (168), and the Sheetpath->Reference map are IDENTICAL
 # before/after (diffed programmatically across all 168 footprints) -- a width
 # change alters no component identity. Source export hash unchanged.
+# Re-pinned 2026-08-26 (fix/c27-counterpart-creepage): STALE after moving
+# U21 +5.0mm X and R48 +1.0mm X to clear C27's three actionable HV<->SELV
+# pairs. This is position-only. Programmatic extraction from HEAD^ and HEAD
+# found 168 Sheetpath->Reference entries on each board and the maps are
+# IDENTICAL; footprint count (168) and Sheetpath count (168) are unchanged.
+# Every alias/unresolved-component identity below is therefore unaffected.
+# The source export is untouched and its live hash remains unchanged.
 
 provenance:
-  measured_at_commit: 1bf621573089524bcd2a85ec4cf4cfb05c3d7f26
+  measured_at_commit: cf993c465a4b6c7b4ad80901ec8328143633cab1
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 7055f7da319c527f7a1a12b07ab15b99e8c56a7b70430607fcc839ca2031fae1
+      sha256: 7c8b26d3d812fd0d07e29ee404a2723c22d276ece19adf0fc67fb95547984065
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
