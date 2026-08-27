@@ -4,6 +4,8 @@ date: 2026-08-26
 status: measured
 ---
 
+provenance: commit=06b772f113ac72479dda8fde2aaa24bd079b5c82 dirty=false
+
 # HV-to-SELV body-free topology and package closeout
 
 ## Decision

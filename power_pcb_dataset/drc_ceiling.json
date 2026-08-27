@@ -342,13 +342,21 @@
         "creepage": -3,
         "error_ceiling": -3
       }
+    },
+    "2026-08-26-r43": {
+      "date": "2026-08-26",
+      "cause": "Re-measurement after moving R43, the RTD_HW_FAULT +3V3 pull-up, from (41.54, 187.57) to its consumer-side interface at (27.0, 197.4) on clean commit 06b772f113ac72479dda8fde2aaa24bd079b5c82. The Rust-owned regional Pareto evaluator measured exact HV-to-SELV pad pairs below 12.6 mm 90 -> 86, removing four R43<->hb.gate_ls.rgs pairs with zero new pair, zero routed-pad endpoint drift, and zero new or worsened F.Fab collision. Package-only and split-chain alternatives for the two remaining R4-involved body-free pairs were evaluated in two distinct regions and rejected after each created a component-body collision; docs/evidence/2026-08-26-hv-selv-topology-package-closeout.md records the bounded stopping rule and escalates R4 to a block-level floorplan/topology redesign. KiCad DRC then ran 120 samples on the clean anchor commit after canonical DRU regeneration and an immediate 10/10 pyo3 freshness check: every error and warning category was deterministic, errors 405/405 and raw warnings 402/402. Creepage alone changes 100 -> 99; every other category is unchanged. The uncapped silk_overlap total 13061 is carried unchanged because R43 is not either member of the documented dominant C2/C3 pair and the raw warning distribution is byte-identical. No category rises; no Ceiling-Approval trailer is required.",
+      "per_type_delta": {
+        "creepage": -1,
+        "error_ceiling": -1
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 406,
+      "error_ceiling": 405,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -356,7 +364,7 @@
         "clearance": 209,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 100,
+        "creepage": 99,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -367,13 +375,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "2da1fcb3857064a4c1bde09e991b825ed26c24cf",
+        "measured_at_commit": "06b772f113ac72479dda8fde2aaa24bd079b5c82",
         "dirty": false,
-        "branch": "fix/regional-creepage-candidates",
+        "branch": "feat/hv-selv-consumer-relocation",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+            "sha256": "f1a8dd503dc3227453609ef343941b503873c8b82c55b865e0c92252787af529"
           }
         ],
         "tool_versions": {
@@ -381,7 +389,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 2da1fcb3857064a4c1bde09e991b825ed26c24cf after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 406/406, warnings 402/402. Full distributions and candidate attribution are recorded in the 2026-08-26-u13 _march entry."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 06b772f113ac72479dda8fde2aaa24bd079b5c82 after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 405/405, warnings 402/402. Full distributions and candidate attribution are recorded in the 2026-08-26-r43 _march entry."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,

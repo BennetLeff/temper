@@ -204,13 +204,20 @@ authority:
 # unchanged from the parent board. Every alias/unresolved-component identity
 # is therefore unaffected. The source export is untouched and its live hash
 # remains unchanged.
+# Re-pinned 2026-08-26 (feat/hv-selv-consumer-relocation): STALE after moving
+# R43 from (41.54, 187.57) to (27.0, 197.4). This is position-only.
+# Programmatic extraction from the clean anchor's parent and the anchor found
+# 168 Sheetpath->Reference entries on each board and the maps are IDENTICAL;
+# footprint count (168) and Sheetpath count (168) are also unchanged. Every
+# alias/unresolved-component identity below is therefore unaffected. The
+# source export is untouched and its live hash remains unchanged.
 
 provenance:
-  measured_at_commit: 2da1fcb3857064a4c1bde09e991b825ed26c24cf
+  measured_at_commit: 06b772f113ac72479dda8fde2aaa24bd079b5c82
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f
+      sha256: f1a8dd503dc3227453609ef343941b503873c8b82c55b865e0c92252787af529
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
