@@ -69,3 +69,28 @@ def test_pair_identity_canonicalizes_both_sides() -> None:
     assert _MODULE._stable_pair_label("R4.1(+170V)<->U16.5(+3V3)", identities) == (
         "power.bleed.1(+170V)<->safety.ovp.5(+3V3)"
     )
+
+
+def test_rust_block_schedule_is_bounded_and_excludes_origin() -> None:
+    schedule = quality.block_translation_schedule_py(5.0, 3, 10)
+    assert len(schedule) == 10
+    assert schedule[0] == (-5.0, -5.0, 1)
+    assert all(dx != 0.0 or dy != 0.0 for dx, dy, _ in schedule)
+
+
+def test_rust_block_selector_rejects_unsafe_complete_route() -> None:
+    winner = quality.select_routed_block_candidate_py(
+        [
+            # id, dx, dy, ring, accepted, removed, DRC, connected, unrouted
+            (1, 5.0, 0.0, 1, False, 20, 0, 100, 0),
+            (2, 10.0, 0.0, 2, True, 2, 405, 90, 2),
+        ]
+    )
+    assert winner is not None
+    assert winner["candidate_id"] == 2
+
+
+def test_rust_block_expansion_uses_measured_collision_frequency() -> None:
+    assert quality.block_expansion_candidates_py(
+        ["R4", "C4"], ["C4<->R8", "C4<->R46", "R4<->R8", "C4<->R4"]
+    ) == [("R8", 2), ("R46", 1)]

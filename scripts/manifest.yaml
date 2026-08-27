@@ -118,6 +118,7 @@ scripts:
   - collections
   - generate_kicad_dru
   - json
+  - kiutils.board
   - measure_cross_domain_creepage
   - pathlib
   - sys
@@ -126,6 +127,28 @@ scripts:
   - temper_placer.placer.cp_sat.body_collision
   - temper_placer.validation._drc_api
   - temper_quality_oracle
+- path: search_block_layout.py
+  purpose: 'Bounded rigid-block floorplan search: Rust generates the finite translation schedule, owns
+    safety acceptance and selects among router-measured candidates; Python only adapts KiCad board serialization
+    and the production route_pcb entry point.'
+  owner: bennet
+  last_run: '2026-08-26'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - evaluate_regional_layout
+  - json
+  - measure_cross_domain_creepage
+  - pathlib
+  - route_board
+  - shutil
+  - sys
+  - temper_design_bundle_python
+  - temper_placer.io.kicad_writer
+  - temper_quality_oracle
+  - tempfile
 - path: capacity_budget_gate.py
   purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability
     over elec/build/default.net, not pin-occupancy counting; fails closed on missing/empty netlist or
