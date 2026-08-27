@@ -7,7 +7,6 @@ from pathlib import Path
 
 import temper_quality_oracle as quality
 
-
 _SCRIPT = Path(__file__).parents[1] / "evaluate_regional_layout.py"
 _SPEC = importlib.util.spec_from_file_location("evaluate_regional_layout", _SCRIPT)
 assert _SPEC is not None and _SPEC.loader is not None

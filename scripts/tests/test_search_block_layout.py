@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 
-
 _SCRIPT = Path(__file__).parents[1] / "search_block_layout.py"
 _SPEC = importlib.util.spec_from_file_location("search_block_layout", _SCRIPT)
 assert _SPEC is not None and _SPEC.loader is not None
