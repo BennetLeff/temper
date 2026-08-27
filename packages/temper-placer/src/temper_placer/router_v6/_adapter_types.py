@@ -118,6 +118,11 @@ class RoutingResult:
     # claim. None means the preflight failed to run (no verdicts exist,
     # which is honest); an empty dict would mean "no pad-bearing nets".
     net_route_results: dict[str, Any] | None = None
+    # Rust-extracted per-net decline evidence from
+    # stage4.pathfinding_result.failure_reports. Values are
+    # RoutingFailureReport instances, kept as Any here to avoid coupling this
+    # dependency-light adapter type module to the pathfinder report module.
+    failure_reports: dict[str, Any] = field(default_factory=dict)
     # Net names Stage 3 (net-batched or monolithic) produced a NetTopology
     # for -- i.e. what "solved" means today, BEFORE Stage 4 tries to turn
     # that topology into physical copper. Exposed so a caller (e.g.

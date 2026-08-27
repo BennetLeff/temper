@@ -22,6 +22,7 @@ from temper_placer.router_v6._adapter_types import (
     ParsedPcbLike,
     RoutingResult,
 )
+from temper_placer.router_v6._routing_reports import RoutingFailureReport
 
 # Re-exported from _zone_pour_stitch.py (LOC cap paydown, temper-N7-cap5):
 # _stitch_isolated_pads/_emit_zone_pours/_zone_layers_for_net/
@@ -818,6 +819,7 @@ def _build_routing_result(
         drc_violations,
         congestion_regions,
         topology_solved_nets,
+        failure_reports,
     ) = _to.run_build_routing_result(result)
 
     drc_violations = [
@@ -834,6 +836,28 @@ def _build_routing_result(
         )
         for (n, a, b, d, pa, pb) in congestion_regions
     ]
+    failure_reports = {
+        net_name: RoutingFailureReport(
+            net_name=net_name,
+            failure_reason=reason,
+            blocking_nets=blockers,
+            attempted_ripups=attempted_ripups,
+            congestion_region=region,
+            pin_count=pin_count,
+            rule_id=rule_id,
+            domain=domain,
+        )
+        for (
+            net_name,
+            reason,
+            blockers,
+            attempted_ripups,
+            region,
+            pin_count,
+            rule_id,
+            domain,
+        ) in failure_reports
+    }
 
     # U4: post-write connectivity preflight
     connectivity = None
@@ -881,6 +905,7 @@ def _build_routing_result(
         topology_solved_nets=topology_solved_nets,
         net_batch_summary=_summarize_batch_results(getattr(result, "batch_results", None)),
         net_route_results=net_route_results,
+        failure_reports=failure_reports,
     )
 
 
