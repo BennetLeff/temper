@@ -27,7 +27,10 @@ from temper_placer.router_v6._astar_nlayer import (
 )
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
-from temper_placer.router_v6.astar_nlayer_rust import route_segment_3d_rust_diagnostic
+from temper_placer.router_v6.astar_nlayer_rust import (
+    route_segment_3d_rust_diagnostic,
+    via_spacing_is_legal_rust,
+)
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
@@ -77,6 +80,12 @@ def test_rust_diagnostic_distinguishes_cap_from_frontier_exhaustion():
     assert route is None
     assert iterations == 1
     assert hit_cap is False
+
+
+def test_rust_via_spacing_uses_drill_center_distance():
+    assert via_spacing_is_legal_rust((0.6, 0.8), [(0.0, 0.0)], 1.0)
+    assert not via_spacing_is_legal_rust((0.59, 0.8), [(0.0, 0.0)], 1.0)
+    assert via_spacing_is_legal_rust((0.0, 0.0), [(0.0, 0.0)], 1.0)
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +163,48 @@ def test_nlayer_two_grid_bottleneck_uses_tier2_alternate_detour():
     assert result.forced_segment_count == 0
     assert result.via_positions == [start, goal]
     assert any(seg[2] == "B.Cu" for seg in result.segments)
+
+
+def test_nlayer_tier2_rejects_endpoint_vias_that_are_too_close(monkeypatch):
+    """Tier 2 must not publish a detour whose two drilled endpoints violate
+    the board's unconditional hole-to-hole rule.
+
+    The search itself is stubbed so this test isolates the acceptance gate:
+    primary fails, alternate succeeds, then the second via sees the first as
+    already accepted and makes the segment fall through fail-closed.
+    """
+    import temper_placer.router_v6._astar_nlayer as subject
+
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    start, goal = (2.0, 2.0), (2.5, 2.0)
+    channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 0.5, preferred_layer="F.Cu")
+    spacing_calls = []
+
+    def fake_segment_search(grid, *_args, **_kwargs):
+        if grid.layer_name == "F.Cu":
+            return None, grid, 0
+        return [(4, 4)], grid, 0
+
+    def fake_spacing(candidate, prior, minimum):
+        spacing_calls.append((candidate, list(prior), minimum))
+        return not prior
+
+    monkeypatch.setattr(subject, "_segment_search", fake_segment_search)
+    monkeypatch.setattr(subject, "_via_spacing_is_legal", fake_spacing)
+    monkeypatch.setattr(
+        subject,
+        "_route_segment_3d_diagnostic",
+        lambda *_args, **_kwargs: (None, 0, False),
+    )
+
+    result, _fb = _astar_route_nlayer(
+        "NET1", channel_path, grids, net_id=1, allow_forced_segments=False
+    )
+
+    assert result is not None
+    assert result.forced_segment_count == 1
+    assert result.via_positions == []
+    assert spacing_calls == [(start, [], 0.8), (goal, [start], 0.8)]
 
 
 def test_nlayer_tier2_skips_degenerate_same_layer_anchor_via():

@@ -42,7 +42,11 @@ import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 
-__all__ = ["astar_search_3d_rust", "route_segment_3d_rust"]
+__all__ = [
+    "astar_search_3d_rust",
+    "route_segment_3d_rust",
+    "via_spacing_is_legal_rust",
+]
 
 #: Mirrors ``astar_core._ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER``.
 ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER: int = 200_000
@@ -176,6 +180,8 @@ def route_segment_3d_rust(
     trace_width: float | None = None,
     clearance: float = 0.2,
     net_id: int = 0,
+    prior_via_positions: list[tuple[float, float]] | None = None,
+    min_via_spacing_mm: float = 0.0,
     max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
 ) -> tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None:
     """Route one segment across N layers with via insertion.
@@ -194,6 +200,8 @@ def route_segment_3d_rust(
         trace_width=trace_width,
         clearance=clearance,
         net_id=net_id,
+        prior_via_positions=prior_via_positions,
+        min_via_spacing_mm=min_via_spacing_mm,
         max_iter=max_iter,
     )
     return route
@@ -210,6 +218,8 @@ def route_segment_3d_rust_diagnostic(
     trace_width: float | None = None,
     clearance: float = 0.2,
     net_id: int = 0,
+    prior_via_positions: list[tuple[float, float]] | None = None,
+    min_via_spacing_mm: float = 0.0,
     max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
 ) -> tuple[
     tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None,
@@ -252,6 +262,8 @@ def route_segment_3d_rust_diagnostic(
                 if trace_width is None
                 else max(0.0, (float(via_diameter) - float(trace_width)) / 2.0)
             ),
+            list(prior_via_positions or []),
+            float(min_via_spacing_mm),
             None if max_iter is None else int(max_iter),
         )
     )
@@ -267,4 +279,21 @@ def route_segment_3d_rust_diagnostic(
         ),
         iterations,
         hit_iteration_cap,
+    )
+
+
+def via_spacing_is_legal_rust(
+    candidate: tuple[float, float],
+    prior_via_positions: list[tuple[float, float]],
+    min_via_spacing_mm: float,
+) -> bool:
+    """Return Rust's physical center-spacing verdict for one candidate via."""
+    import temper_rust_router as _trr
+
+    return bool(
+        _trr.via_spacing_is_legal_py(
+            (float(candidate[0]), float(candidate[1])),
+            list(prior_via_positions),
+            float(min_via_spacing_mm),
+        )
     )

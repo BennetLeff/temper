@@ -14,12 +14,13 @@
 
 use pyo3::prelude::*;
 use temper_rust_router_core::astar_nlayer::{
-    astar_search_3d, route_segment_3d, LayerGrid, NlayerInput,
+    astar_search_3d, route_segment_3d, via_spacing_is_legal, LayerGrid, NlayerInput,
 };
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(route_segment_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(astar_search_3d_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_spacing_is_legal_py, m)?)?;
     Ok(())
 }
 
@@ -133,6 +134,8 @@ fn astar_search_3d_py(
         available_layers: &available_layers,
         via_cost,
         via_extra_radius_mm: 0.0,
+        prior_vias_world: &[],
+        min_prior_via_spacing_mm: 0.0,
         max_iter,
     });
     Ok((out.path, out.vias, out.found, out.iterations))
@@ -149,7 +152,8 @@ fn astar_search_3d_py(
 #[pyo3(signature = (
     start_world, goal_world, start_layer, goal_layer,
     planes, name_ranks, stack_ranks, widths, heights, origins, cell_sizes,
-    available_layers, via_cost, via_extra_radius_mm, max_iter,
+    available_layers, via_cost, via_extra_radius_mm,
+    prior_vias_world, min_prior_via_spacing_mm, max_iter,
 ))]
 #[expect(
     clippy::too_many_arguments,
@@ -171,6 +175,8 @@ fn route_segment_3d_py(
     available_layers: Vec<usize>,
     via_cost: f64,
     via_extra_radius_mm: f64,
+    prior_vias_world: Vec<(f64, f64)>,
+    min_prior_via_spacing_mm: f64,
     max_iter: Option<u64>,
 ) -> PyResult<(
     Vec<(f64, f64, usize)>,
@@ -199,6 +205,8 @@ fn route_segment_3d_py(
         &available_layers,
         via_cost,
         via_extra_radius_mm,
+        &prior_vias_world,
+        min_prior_via_spacing_mm,
         max_iter,
     );
 
@@ -211,4 +219,13 @@ fn route_segment_3d_py(
         out.iterations,
         hit_iteration_cap,
     ))
+}
+
+#[pyfunction]
+fn via_spacing_is_legal_py(
+    candidate: (f64, f64),
+    prior_vias: Vec<(f64, f64)>,
+    min_spacing_mm: f64,
+) -> bool {
+    via_spacing_is_legal(candidate, &prior_vias, min_spacing_mm)
 }
