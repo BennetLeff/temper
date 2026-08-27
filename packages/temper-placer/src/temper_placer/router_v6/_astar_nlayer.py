@@ -152,7 +152,7 @@ from temper_placer.router_v6.astar_grid import (
     _unblock_net_pads,
 )
 from temper_placer.router_v6.astar_nlayer_rust import (
-    route_segment_3d_rust as _route_segment_3d,
+    route_segment_3d_rust_diagnostic as _route_segment_3d_diagnostic,
 )
 from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
 from temper_placer.router_v6.net_classification import classify_net_type
@@ -295,13 +295,17 @@ def select_routing_grids_nlayer(
     return {name: occupancy_grids[name] for name in ordered_names}
 
 
-def _emit_2d_segment(detailed_segments, segment_path, grid_used, layer_name, tolerance, i, start_world, goal_world):
+def _emit_2d_segment(
+    detailed_segments, segment_path, grid_used, layer_name, tolerance, i, start_world, goal_world
+):
     if i == 0:
         detailed_segments.append((start_world[0], start_world[1], layer_name))
     for node in segment_path:
         wx, wy = grid_used.grid_to_world(node[0], node[1])
         append_grid_path_point(detailed_segments, (wx, wy, layer_name), tolerance)
-    append_exact_terminal_point(detailed_segments, (goal_world[0], goal_world[1], layer_name), tolerance)
+    append_exact_terminal_point(
+        detailed_segments, (goal_world[0], goal_world[1], layer_name), tolerance
+    )
 
 
 def _astar_route_nlayer(
@@ -441,8 +445,14 @@ def _astar_route_nlayer(
         if segment_path:
             tolerance = grid_quantization_tolerance(grid_used.cell_size)
             _emit_2d_segment(
-                detailed_segments, segment_path, grid_used, primary_grid.layer_name,
-                tolerance, i, start_world, goal_world,
+                detailed_segments,
+                segment_path,
+                grid_used,
+                primary_grid.layer_name,
+                tolerance,
+                i,
+                start_world,
+                goal_world,
             )
             if tally is not None:
                 tally.record(SegmentTier.PRIMARY_2D)
@@ -512,7 +522,9 @@ def _astar_route_nlayer(
             # real layer instead (see this function's docstring on
             # effective_end_layer). Same same-layer guard as the start
             # anchor above.
-            end_anchor_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+            end_anchor_layer = (
+                effective_end_layer if i == last_segment_index else primary_grid.layer_name
+            )
             if end_anchor_layer != alt_layer:
                 detailed_segments.append((goal_world[0], goal_world[1], end_anchor_layer))
                 via_positions.append(goal_world)
@@ -526,8 +538,10 @@ def _astar_route_nlayer(
         # Tier 3: full N-layer via-aware 3D search across every grid.
         net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
         tier3_start_layer = effective_start_layer if i == 0 else primary_grid.layer_name
-        tier3_goal_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
-        result_3d = _route_segment_3d(
+        tier3_goal_layer = (
+            effective_end_layer if i == last_segment_index else primary_grid.layer_name
+        )
+        result_3d, _tier3_iterations, tier3_hit_iteration_cap = _route_segment_3d_diagnostic(
             start_world,
             goal_world,
             tier3_start_layer,
@@ -567,6 +581,7 @@ def _astar_route_nlayer(
                 via_count=len(via_positions),
                 forced_segment_count=1,
                 failed_waypoint_indices=failed_waypoint_indices,
+                failure_hit_iteration_cap=tier3_hit_iteration_cap,
             ), fallback_count
 
         if tally is not None:
@@ -575,7 +590,9 @@ def _astar_route_nlayer(
         failed_waypoint_indices.append(i + 1)
         if i == 0:
             detailed_segments.append((start_world[0], start_world[1], effective_start_layer))
-        forced_end_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
+        forced_end_layer = (
+            effective_end_layer if i == last_segment_index else primary_grid.layer_name
+        )
         detailed_segments.append((goal_world[0], goal_world[1], forced_end_layer))
 
     path_length = _path_length_3d(detailed_segments)
@@ -972,9 +989,7 @@ def _family_halo_layers(
         if creep <= 0.0:
             continue
         for vx, vy, diameter in vias:
-            via_poly = Polygon(
-                _circle_buffer_ring(vx, vy, diameter / 2.0, 8)
-            )
+            via_poly = Polygon(_circle_buffer_ring(vx, vy, diameter / 2.0, 8))
             marshalled = _halo_poly(creep, via_poly)
             if marshalled is None:
                 continue
@@ -1051,7 +1066,9 @@ def _family_halo_layers(
         # `set(zone_layers) & routable_layers` is a set: iterate a stable
         # order (see the pad loop above; scripts/check_hash_order_determinism.py).
         for layer in sorted(set(zone_layers) & routable_layers):
-            per_layer[layer].append((net_names[0] if net_names else "", marshalled[0], marshalled[1]))
+            per_layer[layer].append(
+                (net_names[0] if net_names else "", marshalled[0], marshalled[1])
+            )
 
     return {layer: entries for layer, entries in per_layer.items() if entries}
 
@@ -1117,7 +1134,9 @@ def _build_width_families(
             for layer in grids
             if layer in routing_spaces
         }
-    family_halos = _build_creepage_halos(families, design_rules, pcb, escape_vias_map) if pcb else {}
+    family_halos = (
+        _build_creepage_halos(families, design_rules, pcb, escape_vias_map) if pcb else {}
+    )
     return families, family_of_net, family_halos
 
 
@@ -1278,7 +1297,10 @@ def run_astar_pathfinding_nlayer(
                         "net %r: netclass-SSOT preferred_layer=%r disagrees with the "
                         "%s pad's own layer=%r; anchoring that route endpoint on the "
                         "pad's real layer instead of the SSOT layer.",
-                        net_name, channel_path.preferred_layer, end_name, pad_layer,
+                        net_name,
+                        channel_path.preferred_layer,
+                        end_name,
+                        pad_layer,
                     )
 
         # Same per-net elliptical iteration-budget derivation as production
@@ -1298,7 +1320,9 @@ def run_astar_pathfinding_nlayer(
                 dx = abs(waypoints[-1][0] - waypoints[0][0])
                 dy = abs(waypoints[-1][1] - waypoints[0][1])
                 span_cells = int((dx + dy) / primary_grid_for_budget.cell_size)
-                grid_area = primary_grid_for_budget.width_cells * primary_grid_for_budget.height_cells
+                grid_area = (
+                    primary_grid_for_budget.width_cells * primary_grid_for_budget.height_cells
+                )
                 ellipse_cells = int(math.pi * (span_cells / 2.0) ** 2)
                 derived = max(1000, min(ellipse_cells, grid_area))
                 per_net_max_iter = min(max_iter, derived)
@@ -1423,7 +1447,11 @@ def run_astar_pathfinding_nlayer(
         blocker_history.setdefault(net_name, set()).update(blocker_names)
 
         def congestion_region():
-            return channel_path.waypoints[len(channel_path.waypoints) // 2] if channel_path.waypoints else None
+            return (
+                channel_path.waypoints[len(channel_path.waypoints) // 2]
+                if channel_path.waypoints
+                else None
+            )
 
         if route_path:
             if route_path.forced_segment_count > 0:
@@ -1441,7 +1469,11 @@ def run_astar_pathfinding_nlayer(
                 return _forced_segment_decline(
                     [],
                     congestion_region(),
-                    context="nlayer_tier_exhausted",
+                    context=(
+                        "nlayer_iteration_cap"
+                        if route_path.failure_hit_iteration_cap
+                        else "nlayer_frontier_exhausted"
+                    ),
                     has_partial_geometry=has_partial_geometry,
                 )
             routed_paths[net_name] = route_path
@@ -1466,8 +1498,7 @@ def run_astar_pathfinding_nlayer(
                     route_path,
                     _fam_grids,
                     trace_width=net_rule.trace_width_mm,
-                    clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage)
-                    + _fam_w / 2.0,
+                    clearance=max(net_rule.clearance_mm, _fam_c, pair_creepage) + _fam_w / 2.0,
                     net_id=net_id,
                     via_diameter=net_rule.via_diameter_mm,
                 )

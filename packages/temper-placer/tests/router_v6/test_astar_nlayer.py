@@ -27,6 +27,7 @@ from temper_placer.router_v6._astar_nlayer import (
 )
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
+from temper_placer.router_v6.astar_nlayer_rust import route_segment_3d_rust_diagnostic
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
@@ -44,6 +45,36 @@ def _blocked_grid(name: str) -> OccupancyGrid:
     return OccupancyGrid(
         name, np.full((_SIZE, _SIZE), -1, dtype=np.int8), (0.0, 0.0), _CELL, _SIZE, _SIZE
     )
+
+
+def test_rust_diagnostic_distinguishes_cap_from_frontier_exhaustion():
+    open_grid = _open_grid("F.Cu")
+    route, iterations, hit_cap = route_segment_3d_rust_diagnostic(
+        (0.0, 0.0),
+        (10.0, 10.0),
+        "F.Cu",
+        "F.Cu",
+        {"F.Cu": open_grid},
+        max_iter=1,
+    )
+    assert route is None
+    assert iterations == 2
+    assert hit_cap is True
+
+    boxed = _blocked_grid("F.Cu")
+    boxed.grid[0, 0] = 0
+    boxed.grid[-1, -1] = 0
+    route, iterations, hit_cap = route_segment_3d_rust_diagnostic(
+        (0.0, 0.0),
+        (10.0, 10.0),
+        "F.Cu",
+        "F.Cu",
+        {"F.Cu": boxed},
+        max_iter=100,
+    )
+    assert route is None
+    assert iterations == 1
+    assert hit_cap is False
 
 
 # ---------------------------------------------------------------------------

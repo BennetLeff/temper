@@ -62,4 +62,34 @@ bucket into cap-bound versus frontier-exhausted. Only the first supports a
 budget/search-efficiency change; the second points to occupancy, net order, or
 floorplan feasibility.
 
+## Termination split
+
+That follow-up was implemented without rerunning a search: the pyo3 result now
+returns Rust's iteration count and a Rust-derived `hit_iteration_cap` flag from
+the same invocation. The legacy Python route wrapper discards those fields and
+keeps its old return shape; the production N-layer caller retains the flag on
+the failed route solely long enough to select its reason.
+
+A two-case falsifier distinguishes a deliberately one-iteration-capped open
+grid (`iterations=2`, cap hit) from a boxed-in start whose reachable frontier
+contains only itself (`iterations=1`, frontier exhausted). Thus the two labels
+cannot collapse back into “any None is cap-bound.”
+
+The unchanged production route then measured:
+
+| termination and partial state | nets |
+|---|---:|
+| iteration cap, no safe prefix | 38 |
+| iteration cap, safe partial prefix | 10 |
+| reachable frontier exhausted, no safe prefix | 22 |
+| reachable frontier exhausted, safe partial prefix | 0 |
+
+All 70 reports are accounted for. Route output remained 55/136 fully
+pad-connected; wall time was 209.7 s versus 212.0 s before the termination
+split. The immediate next experiment is therefore a bounded 2,000,000-iteration
+Tier-3 floor, measured end-to-end. It targets the measured 48-net cap-bound
+population while leaving the 22 geometrically exhausted nets alone. It must
+not be promoted merely because individual segments recover: pad connectivity,
+runtime, and routed-board DRC remain the acceptance criteria.
+
 Certification-lab work remains the final project step and was not performed.

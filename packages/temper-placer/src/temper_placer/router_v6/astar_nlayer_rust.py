@@ -170,14 +170,46 @@ def route_segment_3d_rust(
     Signature and return shape mirror ``astar_core._route_segment_3d``:
     ``(world_path, via_world_positions)`` or ``None``.
     """
+    route, _iterations, _hit_iteration_cap = route_segment_3d_rust_diagnostic(
+        start_world,
+        goal_world,
+        start_layer,
+        goal_layer,
+        grids,
+        via_cost=via_cost,
+        via_diameter=via_diameter,
+        clearance=clearance,
+        net_id=net_id,
+        max_iter=max_iter,
+    )
+    return route
+
+
+def route_segment_3d_rust_diagnostic(
+    start_world: tuple[float, float],
+    goal_world: tuple[float, float],
+    start_layer: str,
+    goal_layer: str,
+    grids: dict,
+    via_cost: float = 10.0,
+    via_diameter: float = 0.6,
+    clearance: float = 0.2,
+    net_id: int = 0,
+    max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
+) -> tuple[
+    tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None,
+    int,
+    bool,
+]:
+    """Route once and retain Rust's iterations and cap-termination flag."""
     import temper_rust_router as _trr
 
     if not grids:
-        return None
+        return None, 0, False
     # `_astar_search_3d` returned None (hence `_route_segment_3d` too) when
     # either terminal named a layer with no grid.
     if start_layer not in grids or goal_layer not in grids:
-        return None
+        return None, 0, False
 
     # Layer index order = `grids` iteration order, so index 0's frame is the
     # `next(iter(grids.values()))` sample grid the Python used for every
@@ -185,27 +217,33 @@ def route_segment_3d_rust(
     layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
     widths, heights, origins, cell_sizes = frames
 
-    world_path, via_world, via_cells, found, _iters = _trr.route_segment_3d_py(
-        (float(start_world[0]), float(start_world[1])),
-        (float(goal_world[0]), float(goal_world[1])),
-        index_of[start_layer],
-        index_of[goal_layer],
-        planes,
-        name_ranks,
-        widths,
-        heights,
-        origins,
-        cell_sizes,
-        [index_of[n] for n in _available_layers(grids)],
-        float(via_cost),
-        None if max_iter is None else int(max_iter),
+    world_path, via_world, via_cells, found, iterations, hit_iteration_cap = (
+        _trr.route_segment_3d_py(
+            (float(start_world[0]), float(start_world[1])),
+            (float(goal_world[0]), float(goal_world[1])),
+            index_of[start_layer],
+            index_of[goal_layer],
+            planes,
+            name_ranks,
+            widths,
+            heights,
+            origins,
+            cell_sizes,
+            [index_of[n] for n in _available_layers(grids)],
+            float(via_cost),
+            None if max_iter is None else int(max_iter),
+        )
     )
     if not found:
-        return None
+        return None, iterations, hit_iteration_cap
 
     _mark_vias(via_cells, grids, sample, via_diameter, clearance, net_id)
 
     return (
-        [(x, y, layer_names[li]) for x, y, li in world_path],
-        [(x, y) for x, y in via_world],
+        (
+            [(x, y, layer_names[li]) for x, y, li in world_path],
+            [(x, y) for x, y in via_world],
+        ),
+        iterations,
+        hit_iteration_cap,
     )

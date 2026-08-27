@@ -13,6 +13,8 @@ enum ForcedSegmentContext {
     TreeWaypointChain,
     PointToPoint,
     NlayerTierExhausted,
+    NlayerIterationCap,
+    NlayerFrontierExhausted,
 }
 
 impl ForcedSegmentContext {
@@ -22,6 +24,8 @@ impl ForcedSegmentContext {
             "tree_waypoint_chain" => Some(Self::TreeWaypointChain),
             "point_to_point" => Some(Self::PointToPoint),
             "nlayer_tier_exhausted" => Some(Self::NlayerTierExhausted),
+            "nlayer_iteration_cap" => Some(Self::NlayerIterationCap),
+            "nlayer_frontier_exhausted" => Some(Self::NlayerFrontierExhausted),
             _ => None,
         }
     }
@@ -34,6 +38,10 @@ impl ForcedSegmentContext {
             (Self::PointToPoint, _) => "forced_segment_point_to_point",
             (Self::NlayerTierExhausted, true) => "forced_segment_all_tiers_failed_partial",
             (Self::NlayerTierExhausted, false) => "forced_segment_all_tiers_failed_empty",
+            (Self::NlayerIterationCap, true) => "forced_segment_iteration_cap_partial",
+            (Self::NlayerIterationCap, false) => "forced_segment_iteration_cap_empty",
+            (Self::NlayerFrontierExhausted, true) => "forced_segment_frontier_exhausted_partial",
+            (Self::NlayerFrontierExhausted, false) => "forced_segment_frontier_exhausted_empty",
         }
     }
 }

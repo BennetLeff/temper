@@ -134,8 +134,11 @@ fn astar_search_3d_py(
 
 /// Python-callable `_route_segment_3d`.
 ///
-/// Returns `(world_path, via_world, via_cells, found, iterations)` where
-/// `world_path` is a list of `(x_mm, y_mm, layer_index)`.
+/// Returns `(world_path, via_world, via_cells, found, iterations,
+/// hit_iteration_cap)` where `world_path` is a list of
+/// `(x_mm, y_mm, layer_index)`. The final flag is computed here from the
+/// kernel's own bail convention (`iterations > cap`), not inferred from a
+/// missing path by Python.
 #[pyfunction]
 #[pyo3(signature = (
     start_world, goal_world, start_layer, goal_layer,
@@ -167,6 +170,7 @@ fn route_segment_3d_py(
     Vec<(i64, i64)>,
     bool,
     u64,
+    bool,
 )> {
     let grids = decode_planes(
         &planes,
@@ -188,11 +192,13 @@ fn route_segment_3d_py(
         max_iter,
     );
 
+    let hit_iteration_cap = !out.found && max_iter.is_some_and(|cap| out.iterations > cap);
     Ok((
         out.world_path,
         out.via_world,
         out.via_cells,
         out.found,
         out.iterations,
+        hit_iteration_cap,
     ))
 }

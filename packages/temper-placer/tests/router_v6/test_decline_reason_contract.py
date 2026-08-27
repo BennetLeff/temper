@@ -73,6 +73,10 @@ class TestForcedSegmentFailClosedAttribution:
             ("point_to_point", False, "forced_segment_point_to_point"),
             ("nlayer_tier_exhausted", True, "forced_segment_all_tiers_failed_partial"),
             ("nlayer_tier_exhausted", False, "forced_segment_all_tiers_failed_empty"),
+            ("nlayer_iteration_cap", True, "forced_segment_iteration_cap_partial"),
+            ("nlayer_iteration_cap", False, "forced_segment_iteration_cap_empty"),
+            ("nlayer_frontier_exhausted", True, "forced_segment_frontier_exhausted_partial"),
+            ("nlayer_frontier_exhausted", False, "forced_segment_frontier_exhausted_empty"),
         ],
     )
     def test_rust_owned_reason_vocabulary(self, context, partial, expected):
