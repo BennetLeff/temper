@@ -56,12 +56,39 @@ class TestForcedSegmentFailClosedAttribution:
 
         assert "SIGNAL_NET" in result.failed_nets
         report = result.failure_reports["SIGNAL_NET"]
+        assert report.failure_reason == "forced_segment_point_to_point"
         assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
             "A net blocked by the forced-segment fail-closed gate must name "
             "that specific mechanism, not attribution_gap"
         )
         assert report.attribution_gap is False
         assert report.domain == classify_net_type("SIGNAL_NET")
+
+    @pytest.mark.parametrize(
+        ("context", "partial", "expected"),
+        [
+            ("terminal_tree_edge", False, "forced_segment_terminal_tree_edge"),
+            ("tree_waypoint_chain", True, "forced_segment_tree_waypoint_partial"),
+            ("tree_waypoint_chain", False, "forced_segment_tree_waypoint_empty"),
+            ("point_to_point", False, "forced_segment_point_to_point"),
+            ("nlayer_tier_exhausted", True, "forced_segment_all_tiers_failed_partial"),
+            ("nlayer_tier_exhausted", False, "forced_segment_all_tiers_failed_empty"),
+            ("nlayer_iteration_cap", True, "forced_segment_iteration_cap_partial"),
+            ("nlayer_iteration_cap", False, "forced_segment_iteration_cap_empty"),
+            ("nlayer_frontier_exhausted", True, "forced_segment_frontier_exhausted_partial"),
+            ("nlayer_frontier_exhausted", False, "forced_segment_frontier_exhausted_empty"),
+        ],
+    )
+    def test_rust_owned_reason_vocabulary(self, context, partial, expected):
+        import temper_rust_router as rust_router
+
+        assert rust_router.forced_segment_decline_reason_py(context, partial) == expected
+
+    def test_unknown_context_fails_closed_at_the_boundary(self):
+        import temper_rust_router as rust_router
+
+        with pytest.raises(ValueError, match="unknown forced-segment decline context"):
+            rust_router.forced_segment_decline_reason_py("congestion", False)
 
     def test_hv_domain_net_blocked_by_gate_still_names_mechanism(self):
         """An HV-*class* net (not HV-*named*) still gets the same specific

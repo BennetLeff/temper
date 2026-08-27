@@ -5,6 +5,8 @@
 pub mod layer_assignment;
 pub mod net_ordering;
 pub mod terminal_planning;
+#[cfg(feature = "python")]
+pub mod decline_reason;
 
 // `loop_extractor`, `net_batching`, `theta_star` and
 // `types_py_bridge` are pyo3 surfaces with no pure subset:
@@ -557,6 +559,8 @@ mod py {
         crate::theta_star::register(m)?;
         // Tier-3 N-layer via-aware A* (_astar_search_3d / _route_segment_3d).
         crate::astar_nlayer::register(m)?;
+        // Stable, Rust-owned fail-closed diagnostic vocabulary.
+        crate::decline_reason::register(m)?;
 
         // Phase E E5 (Rust Orchestration Engine plan 2026-08-09-001): the
         // net-batching batch-loop orchestration primitives.

@@ -332,7 +332,11 @@ def run_astar_pathfinding(
             # execute_terminal_tree always calls with allow_forced_segments=False
             # (terminal_tree_execution.py) -- this is the same fail-closed gate,
             # just reached via the tree-execution path rather than _astar_route.
-            return _forced_segment_decline([], (terminal.center.x, terminal.center.y))
+            return _forced_segment_decline(
+                [],
+                (terminal.center.x, terminal.center.y),
+                context="terminal_tree_edge",
+            )
 
         route_path, ripped_ids, fb = _astar_route_with_ripup(
             net_name,
@@ -380,14 +384,20 @@ def run_astar_pathfinding(
                     completed_edge_count=failed_index - 1,
                     reason="no_legal_path",
                 )
-                if _has_safe_partial_geometry(route_path):
+                has_partial_geometry = _has_safe_partial_geometry(route_path)
+                if has_partial_geometry:
                     partial_paths[net_name] = route_path
                 print(
                     f"      ✗ {net_name} INCOMPLETE: no legal tree edge to "
                     f"{channel_path.waypoints[failed_index]}",
                     flush=True,
                 )
-                return _forced_segment_decline([], channel_path.waypoints[failed_index])
+                return _forced_segment_decline(
+                    [],
+                    channel_path.waypoints[failed_index],
+                    context="tree_waypoint_chain",
+                    has_partial_geometry=has_partial_geometry,
+                )
 
             # No net class is exempt from the forced-segment gate (see
             # _allow_forced_segments docstring, which is unconditional --
@@ -406,6 +416,7 @@ def run_astar_pathfinding(
                     channel_path.waypoints[len(channel_path.waypoints) // 2]
                     if channel_path.waypoints
                     else None,
+                    context="point_to_point",
                 )
             if congestion_tensor is not None:
                 if hasattr(route_path, "coordinates"):

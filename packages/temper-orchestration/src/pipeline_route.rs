@@ -1342,6 +1342,16 @@ pub fn run_build_routing_result(
     Vec<(String, String, (f64, f64), i64, String)>,
     Vec<(String, String, String, f64, (f64, f64), (f64, f64))>,
     Vec<String>,
+    Vec<(
+        String,
+        String,
+        Vec<String>,
+        i64,
+        Option<(f64, f64)>,
+        usize,
+        Option<String>,
+        Option<String>,
+    )>,
 )> {
     let result = result.bind(py);
 
@@ -1477,6 +1487,43 @@ pub fn run_build_routing_result(
         }
     }
 
+    // Preserve the N-layer router's per-net decline evidence. This is a
+    // sibling of, not a replacement for, `unrouted_nets`: the latter is the
+    // outcome set, while these records explain why a searched net declined.
+    let mut failure_reports = Vec::new();
+    let pathfinding_result = getattr_or(py, &stage4, "pathfinding_result", &default_none)?;
+    let reports = getattr_or(py, &pathfinding_result, "failure_reports", &default_none)?;
+    if reports.is_truthy()? {
+        let reports_dict = reports.cast::<PyDict>()?;
+        for (net_name, report) in reports_dict.iter() {
+            let net_name: String = net_name.extract()?;
+            let reason: String =
+                getattr_or(py, &report, "failure_reason", &default_unknown)?.extract()?;
+            let blockers: Vec<String> =
+                getattr_or(py, &report, "blocking_nets", &default_empty_list)?.extract()?;
+            let attempted_ripups: i64 =
+                getattr_or(py, &report, "attempted_ripups", &default_zero)?.extract()?;
+            let region: Option<(f64, f64)> =
+                getattr_or(py, &report, "congestion_region", &default_none)?.extract()?;
+            let pin_count: usize =
+                getattr_or(py, &report, "pin_count", &default_zero)?.extract()?;
+            let rule_id: Option<String> =
+                getattr_or(py, &report, "rule_id", &default_none)?.extract()?;
+            let domain: Option<String> =
+                getattr_or(py, &report, "domain", &default_none)?.extract()?;
+            failure_reports.push((
+                net_name,
+                reason,
+                blockers,
+                attempted_ripups,
+                region,
+                pin_count,
+                rule_id,
+                domain,
+            ));
+        }
+    }
+
     let completion_rate: f64 = result.getattr("completion_rate")?.extract()?;
 
     Ok((
@@ -1486,6 +1533,7 @@ pub fn run_build_routing_result(
         drc_violations,
         congestion_regions,
         topology_solved_nets,
+        failure_reports,
     ))
 }
 

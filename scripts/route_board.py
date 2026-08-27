@@ -302,6 +302,19 @@ def route_once(
     # proved it; the post-hoc audit above is the independent cross-check.
     # None means the preflight failed to run (no verdicts exist).
     net_route_results = getattr(result, "net_route_results", None)
+    failure_reports = {
+        net_name: {
+            "failure_reason": report.failure_reason,
+            "blocking_nets": list(report.blocking_nets),
+            "attempted_ripups": report.attempted_ripups,
+            "congestion_region": report.congestion_region,
+            "pin_count": report.pin_count,
+            "rule_id": report.rule_id,
+            "domain": report.domain,
+            "attribution_gap": report.attribution_gap,
+        }
+        for net_name, report in getattr(result, "failure_reports", {}).items()
+    }
 
     return {
         "wall_s": wall_s,
@@ -321,6 +334,7 @@ def route_once(
         "pad_connectivity": pad_connectivity,
         "net_batch_summary": getattr(result, "net_batch_summary", None) or {},
         "net_route_results": net_route_results,
+        "failure_reports": failure_reports,
     }
 
 
@@ -429,6 +443,28 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
             line += f"\n  partial (copper exists, pads NOT all joined): {', '.join(partial)}"
         if zone_dep:
             line += f"\n  zone-dependent (outline only, no fill): {', '.join(zone_dep)}"
+    failure_reports = r.get("failure_reports") or {}
+    if failure_reports:
+        reason_counts: dict[str, int] = {}
+        rule_counts: dict[str, int] = {}
+        for report in failure_reports.values():
+            reason = report["failure_reason"]
+            reason_counts[reason] = reason_counts.get(reason, 0) + 1
+            rule_id = report["rule_id"] or "UNATTRIBUTED"
+            rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
+        rendered = ", ".join(
+            f"{reason}={count}"
+            for reason, count in sorted(reason_counts.items(), key=lambda item: (-item[1], item[0]))
+        )
+        attributed = sum(not report["attribution_gap"] for report in failure_reports.values())
+        rendered_rules = ", ".join(
+            f"{rule_id}={count}"
+            for rule_id, count in sorted(rule_counts.items(), key=lambda item: (-item[1], item[0]))
+        )
+        line += (
+            f"\n{label} (decline evidence): {len(failure_reports)} reports; "
+            f"rule-attributed={attributed}; reasons: {rendered}; rules: {rendered_rules}"
+        )
     return line
 
 

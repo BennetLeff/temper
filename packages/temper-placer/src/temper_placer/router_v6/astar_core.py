@@ -199,6 +199,9 @@ class RoutePath3D:
     via_count: int = 0
     forced_segment_count: int = 0
     failed_waypoint_indices: list[int] = field(default_factory=list)
+    # Diagnostic carrier only: Rust decides whether the failed Tier-3 search
+    # stopped at its cap. None means this path did not carry that failure.
+    failure_hit_iteration_cap: bool | None = None
 
     @property
     def segment_count(self) -> int:
@@ -364,5 +367,4 @@ def _astar_search(
 def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
     """Octile distance heuristic for 8-connected grid search."""
     return octile_distance(a, b)
-
 

@@ -119,6 +119,7 @@ pub use heuristics_geometry::keepout_mask_flags_py;
 // kernels (module grid, circular offset, power-flow stage layout, decoupling
 // candidate positions, domain grid) -- see organizational_geometry.rs's
 // module doc for the classification-vs-placement triage.
+pub mod block_layout;
 pub mod organizational_geometry;
 #[cfg(feature = "python")]
 pub use organizational_geometry::{

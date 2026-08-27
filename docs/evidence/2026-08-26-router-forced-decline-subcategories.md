@@ -1,0 +1,146 @@
+---
+title: Router forced-segment decline subcategories
+date: 2026-08-26
+status: measured
+---
+
+# Router forced-segment decline subcategories
+
+## Question
+
+The production result boundary now preserves 70 per-net decline reports, but
+all 70 originally said only `no_path` / `forced_segment_fail_closed`. Which
+actual refusal path dominates, and therefore which router seam should be
+worked next?
+
+## Contract
+
+The router remains fail-closed. This change only replaces the ambiguous reason
+string with facts already known at the refusal site:
+
+- terminal-tree edge execution failed;
+- a tree waypoint chain failed, with or without safe partial geometry;
+- the legacy point-to-point path proposed a forced fallback; or
+- every tier of the production N-layer cascade failed, with or without safe
+  partial geometry.
+
+The stable vocabulary and invalid-context rejection are Rust-owned in
+`temper-rust-router`. Python supplies the local context and the result of the
+existing `_has_safe_partial_geometry` predicate; it does not define a second
+reason table. All categories retain the same
+`forced_segment_fail_closed` rule ID and none permits forced copper.
+
+`all_tiers_failed` is deliberate wording. The call site does not yet know
+whether Tier 3 hit its iteration cap or exhausted its reachable frontier, so
+calling it `budget_exhausted` or `no_geometric_path` would fabricate a cause.
+
+## Production measurement
+
+The same production command, unchanged board, regenerated DRU, and 10/10
+fresh extensions produced:
+
+| metric | before | after |
+|---|---:|---:|
+| wall time | 212.6 s | 212.0 s |
+| fully pad-connected nets | 55 / 136 | 55 / 136 |
+| decline reports | 70 | 70 |
+| `forced_segment_all_tiers_failed_empty` | unavailable | 60 |
+| `forced_segment_all_tiers_failed_partial` | unavailable | 10 |
+| every legacy/tree context combined | unavailable | 0 |
+
+The diagnostic split is route-neutral and accounts for every prior report.
+The dominant problem occurs on the first unresolved segment: 60 nets have no
+safe searched prefix at all. Ten get through at least one real segment before
+a later segment fails.
+
+## Decision
+
+Do not spend the next router iteration on terminal-tree handling or another
+placement nudge. Preserve Tier 3's Rust search termination evidence (actual
+iterations and cap) through the thin Python adapter, then split the 60-net
+bucket into cap-bound versus frontier-exhausted. Only the first supports a
+budget/search-efficiency change; the second points to occupancy, net order, or
+floorplan feasibility.
+
+## Termination split
+
+That follow-up was implemented without rerunning a search: the pyo3 result now
+returns Rust's iteration count and a Rust-derived `hit_iteration_cap` flag from
+the same invocation. The legacy Python route wrapper discards those fields and
+keeps its old return shape; the production N-layer caller retains the flag on
+the failed route solely long enough to select its reason.
+
+A two-case falsifier distinguishes a deliberately one-iteration-capped open
+grid (`iterations=2`, cap hit) from a boxed-in start whose reachable frontier
+contains only itself (`iterations=1`, frontier exhausted). Thus the two labels
+cannot collapse back into “any None is cap-bound.”
+
+The unchanged production route then measured:
+
+| termination and partial state | nets |
+|---|---:|
+| iteration cap, no safe prefix | 38 |
+| iteration cap, safe partial prefix | 10 |
+| reachable frontier exhausted, no safe prefix | 22 |
+| reachable frontier exhausted, safe partial prefix | 0 |
+
+All 70 reports are accounted for. Route output remained 55/136 fully
+pad-connected; wall time was 209.7 s versus 212.0 s before the termination
+split. The immediate next experiment is therefore a bounded 2,000,000-iteration
+Tier-3 floor, measured end-to-end. It targets the measured 48-net cap-bound
+population while leaving the 22 geometrically exhausted nets alone. It must
+not be promoted merely because individual segments recover: pad connectivity,
+runtime, and routed-board DRC remain the acceptance criteria.
+
+## Bounded 2M experiment: rejected
+
+The 2,000,000-iteration Tier-3 floor was applied only for an experimental
+full-board run, then removed before commit. It produced:
+
+| metric | 1M production | 2M experiment | delta |
+|---|---:|---:|---:|
+| wall time | 209.7 s | 249.4 s | +39.7 s (+19%) |
+| fully pad-connected nets | 55 | 58 | +3 |
+| A* decline reports | 70 | 67 | -3 |
+| iteration-cap declines | 48 | 29 | -19 |
+| frontier-exhausted declines | 22 | 38 | +16 |
+
+Four nets recovered (`discharge.q_dis_drv-g`, `rtd_pan.r_low_top-inn`,
+`safety.ovp-line`, and `safety.thermal-line`) while `WDT_RESET_N` regressed.
+The aggregate gain was real, but not monotone.
+
+It fails the routed-board acceptance gate. Three independent kicad-cli DRC
+runs per artifact were identical:
+
+| DRC category | 1M | 2M | delta |
+|---|---:|---:|---:|
+| total errors | 425 | 457 | +32 |
+| clearance | 234 | 250 | +16 |
+| shorting_items | 26 | 29 | +3 |
+| hole_clearance | 26 | 28 | +2 |
+| copper_edge_clearance | 30 | 32 | +2 |
+| creepage | 95 | 98 | +3 |
+| solder_mask_bridge | 0 | 6 | +6 |
+
+Set-diffing found 75 newly appearing violations while other baseline findings
+disappeared. The recovered nets dominate the new set:
+`discharge.q_dis_drv-g` appears in 29, `safety.thermal-line` in 19,
+`rtd_pan.r_low_top-inn` in 15, and `safety.ovp-line` in 11. Representative
+failures are physical-via-envelope collisions: a `discharge.q_dis_drv-g` via
+against U12's GND pad, an `rtd_pan.r_low_top-inn` blind via against C20's +3V3
+pad, and a `safety.thermal-line` via against R59's foreign pad.
+
+The mechanism is visible at the boundary: Rust Tier 3 receives occupancy
+planes, layer frames, via cost, and an iteration cap, but not via diameter or
+clearance. It can prove a via *center cell* reachable without proving the
+drill and copper envelope legal. The Python adapter receives diameter and
+clearance only after search, where `_mark_vias` stamps the chosen result; it
+does not reject a collision the search already selected.
+
+Decision: do not promote the 2M floor. The next router fix is to make Rust's
+layer-transition validity account for the physical via envelope on every
+spanned layer, with the retired Python implementation retained as a
+differential and kicad-cli DRC as the external correctness oracle. Only then
+should the bounded budget experiment be repeated.
+
+Certification-lab work remains the final project step and was not performed.

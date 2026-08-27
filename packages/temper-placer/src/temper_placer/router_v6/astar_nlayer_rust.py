@@ -42,7 +42,12 @@ import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 
-__all__ = ["astar_search_3d_rust", "route_segment_3d_rust"]
+__all__ = [
+    "astar_search_3d_rust",
+    "route_segment_3d_rust",
+    "via_candidate_is_legal_rust",
+    "via_spacing_is_legal_rust",
+]
 
 #: Mirrors ``astar_core._ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER``.
 ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER: int = 200_000
@@ -80,6 +85,17 @@ def _marshal(grids: dict):
     # must be the name's position in lexicographic order.
     ranked = sorted(layer_names)
     name_ranks = [ranked.index(name) for name in layer_names]
+
+    def stack_rank(name: str) -> int:
+        if name == "F.Cu":
+            return 0
+        if name == "B.Cu":
+            return 10_000
+        if name.startswith("In") and name.endswith(".Cu"):
+            return int(name[2:-3])
+        raise ValueError(f"unsupported copper layer name: {name}")
+
+    stack_ranks = [stack_rank(name) for name in layer_names]
     widths = [int(grids[n].width_cells) for n in layer_names]
     heights = [int(grids[n].height_cells) for n in layer_names]
     origins = [(float(grids[n].origin[0]), float(grids[n].origin[1])) for n in layer_names]
@@ -88,7 +104,7 @@ def _marshal(grids: dict):
         [np.ascontiguousarray(grids[n].grid, dtype=np.int8).reshape(-1) for n in layer_names]
     ).tobytes()
     frames = (widths, heights, origins, cell_sizes)
-    return layer_names, index_of, sample, name_ranks, planes, frames
+    return layer_names, index_of, sample, name_ranks, stack_ranks, planes, frames
 
 
 def _mark_vias(via_cells, grids, sample, via_diameter, clearance, net_id) -> None:
@@ -127,7 +143,7 @@ def astar_search_3d_rust(
     if start.layer not in grids or goal.layer not in grids:
         return None
 
-    layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
+    layer_names, index_of, sample, name_ranks, stack_ranks, planes, frames = _marshal(grids)
     widths, heights, origins, cell_sizes = frames
 
     path_cells, via_cells, found, _iters = _trr.astar_search_3d_py(
@@ -135,6 +151,7 @@ def astar_search_3d_rust(
         (int(goal.x), int(goal.y), index_of[goal.layer]),
         planes,
         name_ranks,
+        stack_ranks,
         widths,
         heights,
         origins,
@@ -161,8 +178,11 @@ def route_segment_3d_rust(
     grids: dict,
     via_cost: float = 10.0,
     via_diameter: float = 0.6,
+    trace_width: float | None = None,
     clearance: float = 0.2,
     net_id: int = 0,
+    prior_via_positions: list[tuple[float, float]] | None = None,
+    min_via_spacing_mm: float = 0.0,
     max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
 ) -> tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None:
     """Route one segment across N layers with via insertion.
@@ -170,42 +190,148 @@ def route_segment_3d_rust(
     Signature and return shape mirror ``astar_core._route_segment_3d``:
     ``(world_path, via_world_positions)`` or ``None``.
     """
+    route, _iterations, _hit_iteration_cap = route_segment_3d_rust_diagnostic(
+        start_world,
+        goal_world,
+        start_layer,
+        goal_layer,
+        grids,
+        via_cost=via_cost,
+        via_diameter=via_diameter,
+        trace_width=trace_width,
+        clearance=clearance,
+        net_id=net_id,
+        prior_via_positions=prior_via_positions,
+        min_via_spacing_mm=min_via_spacing_mm,
+        max_iter=max_iter,
+    )
+    return route
+
+
+def route_segment_3d_rust_diagnostic(
+    start_world: tuple[float, float],
+    goal_world: tuple[float, float],
+    start_layer: str,
+    goal_layer: str,
+    grids: dict,
+    via_cost: float = 10.0,
+    via_diameter: float = 0.6,
+    trace_width: float | None = None,
+    clearance: float = 0.2,
+    net_id: int = 0,
+    prior_via_positions: list[tuple[float, float]] | None = None,
+    min_via_spacing_mm: float = 0.0,
+    max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
+) -> tuple[
+    tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None,
+    int,
+    bool,
+]:
+    """Route once and retain Rust's iterations and cap-termination flag."""
     import temper_rust_router as _trr
 
     if not grids:
-        return None
+        return None, 0, False
     # `_astar_search_3d` returned None (hence `_route_segment_3d` too) when
     # either terminal named a layer with no grid.
     if start_layer not in grids or goal_layer not in grids:
-        return None
+        return None, 0, False
 
     # Layer index order = `grids` iteration order, so index 0's frame is the
     # `next(iter(grids.values()))` sample grid the Python used for every
     # coordinate conversion.
-    layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
+    layer_names, index_of, sample, name_ranks, stack_ranks, planes, frames = _marshal(grids)
     widths, heights, origins, cell_sizes = frames
 
-    world_path, via_world, via_cells, found, _iters = _trr.route_segment_3d_py(
-        (float(start_world[0]), float(start_world[1])),
-        (float(goal_world[0]), float(goal_world[1])),
-        index_of[start_layer],
-        index_of[goal_layer],
-        planes,
-        name_ranks,
-        widths,
-        heights,
-        origins,
-        cell_sizes,
-        [index_of[n] for n in _available_layers(grids)],
-        float(via_cost),
-        None if max_iter is None else int(max_iter),
+    world_path, via_world, via_cells, found, iterations, hit_iteration_cap = (
+        _trr.route_segment_3d_py(
+            (float(start_world[0]), float(start_world[1])),
+            (float(goal_world[0]), float(goal_world[1])),
+            index_of[start_layer],
+            index_of[goal_layer],
+            planes,
+            name_ranks,
+            stack_ranks,
+            widths,
+            heights,
+            origins,
+            cell_sizes,
+            [index_of[n] for n in _available_layers(grids)],
+            float(via_cost),
+            (
+                0.0
+                if trace_width is None
+                else max(0.0, (float(via_diameter) - float(trace_width)) / 2.0)
+            ),
+            list(prior_via_positions or []),
+            float(min_via_spacing_mm),
+            None if max_iter is None else int(max_iter),
+        )
     )
     if not found:
-        return None
+        return None, iterations, hit_iteration_cap
 
     _mark_vias(via_cells, grids, sample, via_diameter, clearance, net_id)
 
     return (
-        [(x, y, layer_names[li]) for x, y, li in world_path],
-        [(x, y) for x, y in via_world],
+        (
+            [(x, y, layer_names[li]) for x, y, li in world_path],
+            [(x, y) for x, y in via_world],
+        ),
+        iterations,
+        hit_iteration_cap,
+    )
+
+
+def via_spacing_is_legal_rust(
+    candidate: tuple[float, float],
+    prior_via_positions: list[tuple[float, float]],
+    min_via_spacing_mm: float,
+) -> bool:
+    """Return Rust's physical center-spacing verdict for one candidate via."""
+    import temper_rust_router as _trr
+
+    return bool(
+        _trr.via_spacing_is_legal_py(
+            (float(candidate[0]), float(candidate[1])),
+            list(prior_via_positions),
+            float(min_via_spacing_mm),
+        )
+    )
+
+
+def via_candidate_is_legal_rust(
+    candidate_world: tuple[float, float],
+    from_layer: str,
+    to_layer: str,
+    grids: dict,
+    *,
+    via_diameter: float,
+    trace_width: float,
+    prior_via_positions: list[tuple[float, float]],
+    min_via_spacing_mm: float,
+) -> bool:
+    """Validate one exact-world via against Rust's physical envelope."""
+    import temper_rust_router as _trr
+
+    if not grids or from_layer not in grids or to_layer not in grids:
+        return False
+    _layer_names, index_of, _sample, name_ranks, stack_ranks, planes, frames = _marshal(grids)
+    widths, heights, origins, cell_sizes = frames
+    return bool(
+        _trr.via_candidate_is_legal_py(
+            (float(candidate_world[0]), float(candidate_world[1])),
+            index_of[from_layer],
+            index_of[to_layer],
+            planes,
+            name_ranks,
+            stack_ranks,
+            widths,
+            heights,
+            origins,
+            cell_sizes,
+            max(0.0, (float(via_diameter) - float(trace_width)) / 2.0),
+            list(prior_via_positions),
+            float(min_via_spacing_mm),
+        )
     )

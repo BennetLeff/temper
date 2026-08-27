@@ -33,6 +33,154 @@ pub struct RegionalVerdict {
     pub routed_pad_endpoint_drift: Vec<String>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BlockTranslation {
+    pub dx_mm: f64,
+    pub dy_mm: f64,
+    pub ring: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BlockSearchMove {
+    pub arrangement_index: usize,
+    pub block_quarter_turn: usize,
+    pub translation: BlockTranslation,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct RoutedBlockCandidate {
+    pub candidate_id: usize,
+    pub translation: BlockTranslation,
+    pub accepted: bool,
+    pub removed_cross_domain_pairs: usize,
+    pub drc_errors: usize,
+    pub pad_connected_nets: usize,
+    pub unrouted_nets: usize,
+}
+
+/// Finite rigid-block translations, ordered by Chebyshev ring.  The origin is
+/// excluded so router budget is never spent on the unchanged board.
+pub fn block_translation_schedule(
+    step_mm: f64,
+    max_rings: usize,
+    max_candidates: usize,
+) -> Result<Vec<BlockTranslation>, String> {
+    if !step_mm.is_finite() || step_mm <= 0.0 {
+        return Err("step_mm must be finite and > 0".into());
+    }
+    if max_rings == 0 || max_candidates == 0 {
+        return Err("max_rings and max_candidates must be > 0".into());
+    }
+    let mut out = Vec::with_capacity(max_candidates);
+    macro_rules! push {
+        ($x:expr, $y:expr, $ring:expr) => {{
+            out.push(BlockTranslation {
+                dx_mm: $x as f64 * step_mm,
+                dy_mm: $y as f64 * step_mm,
+                ring: $ring,
+            });
+            if out.len() == max_candidates { return Ok(out); }
+        }};
+    }
+    for ring in 1..=max_rings {
+        let r = ring as isize;
+        for x in -r..=r { push!(x, -r, ring); }
+        for y in (-r + 1)..=r { push!(r, y, ring); }
+        for x in (-r..r).rev() { push!(x, r, ring); }
+        for y in ((-r + 1)..r).rev() { push!(-r, y, ring); }
+    }
+    Ok(out)
+}
+
+/// Compose internal arrangements, whole-block rotations, and translations
+/// into one deterministic finite vocabulary. Arrangement zero is the as-is
+/// layout; only its unchanged origin/rotation tuple is excluded.
+pub fn block_search_schedule(
+    step_mm: f64,
+    max_rings: usize,
+    arrangement_count: usize,
+    block_quarter_turns: &[usize],
+    max_candidates: usize,
+) -> Result<Vec<BlockSearchMove>, String> {
+    if arrangement_count == 0 || block_quarter_turns.is_empty() || max_candidates == 0 {
+        return Err("arrangements, rotations, and max_candidates must be non-empty".into());
+    }
+    if block_quarter_turns.iter().any(|turn| *turn > 3) {
+        return Err("block quarter turns must be in 0..=3".into());
+    }
+    let side = max_rings
+        .checked_mul(2)
+        .and_then(|value| value.checked_add(1))
+        .ok_or_else(|| "max_rings is too large".to_string())?;
+    let translation_count = side
+        .checked_mul(side)
+        .and_then(|value| value.checked_sub(1))
+        .ok_or_else(|| "max_rings is too large".to_string())?;
+    let translations = block_translation_schedule(
+        step_mm,
+        max_rings,
+        translation_count.min(max_candidates),
+    )?;
+    let origin = BlockTranslation { dx_mm: 0.0, dy_mm: 0.0, ring: 0 };
+    let mut out = Vec::with_capacity(max_candidates);
+    for translation in std::iter::once(origin).chain(translations) {
+        for arrangement_index in 0..arrangement_count {
+            for &block_quarter_turn in block_quarter_turns {
+                if translation.ring == 0 && arrangement_index == 0 && block_quarter_turn == 0 {
+                    continue;
+                }
+                out.push(BlockSearchMove {
+                    arrangement_index,
+                    block_quarter_turn,
+                    translation,
+                });
+                if out.len() == max_candidates {
+                    return Ok(out);
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Full safety acceptance is a prerequisite; routed connectivity dominates
+/// the secondary quality axes among the remaining candidates.
+pub fn select_routed_block_candidate(
+    candidates: &[RoutedBlockCandidate],
+) -> Option<RoutedBlockCandidate> {
+    candidates.iter().filter(|c| c.accepted).min_by(|a, b| {
+        b.pad_connected_nets.cmp(&a.pad_connected_nets)
+            .then_with(|| a.unrouted_nets.cmp(&b.unrouted_nets))
+            .then_with(|| b.removed_cross_domain_pairs.cmp(&a.removed_cross_domain_pairs))
+            .then_with(|| a.drc_errors.cmp(&b.drc_errors))
+            .then_with(|| a.translation.ring.cmp(&b.translation.ring))
+            .then_with(|| a.candidate_id.cmp(&b.candidate_id))
+    }).cloned()
+}
+
+/// Convert collision feedback into deterministic block-expansion candidates.
+pub fn block_expansion_candidates(
+    block_refs: &[String],
+    collision_pairs: &[String],
+) -> Vec<(String, usize)> {
+    let block: BTreeSet<_> = block_refs.iter().map(String::as_str).collect();
+    let mut counts: BTreeMap<String, usize> = BTreeMap::new();
+    for pair in collision_pairs {
+        let Some((left, right)) = pair.split_once("<->") else { continue };
+        let outside = match (block.contains(left), block.contains(right)) {
+            (true, false) => Some(right),
+            (false, true) => Some(left),
+            _ => None,
+        };
+        if let Some(reference) = outside {
+            *counts.entry(reference.to_string()).or_default() += 1;
+        }
+    }
+    let mut result: Vec<_> = counts.into_iter().collect();
+    result.sort_by(|(ra, ca), (rb, cb)| cb.cmp(ca).then_with(|| ra.cmp(rb)));
+    result
+}
+
 pub fn routed_pad_endpoint_drift(
     baseline_pads: &[(String, f64, f64)],
     baseline_endpoints: &[(f64, f64)],
@@ -218,6 +366,80 @@ pub(crate) mod tests {
         );
     }
 
+    #[cfg_attr(test, test)]
+    fn translation_schedule_is_finite_and_excludes_origin() {
+        let schedule = block_translation_schedule(5.0, 3, 10).unwrap();
+        assert_eq!(schedule.len(), 10);
+        assert_eq!(schedule[0], BlockTranslation { dx_mm: -5.0, dy_mm: -5.0, ring: 1 });
+        assert!(schedule.iter().all(|p| p.dx_mm != 0.0 || p.dy_mm != 0.0));
+        assert_eq!(schedule, block_translation_schedule(5.0, 3, 10).unwrap());
+    }
+
+    #[cfg_attr(test, test)]
+    fn translation_schedule_rejects_invalid_requests() {
+        assert!(block_translation_schedule(0.0, 1, 1).is_err());
+        assert!(block_translation_schedule(f64::NAN, 1, 1).is_err());
+        assert!(block_translation_schedule(1.0, 0, 1).is_err());
+        assert!(block_translation_schedule(1.0, 1, 0).is_err());
+    }
+
+    #[cfg_attr(test, test)]
+    fn structural_schedule_is_finite_origin_first_and_excludes_unchanged() {
+        let schedule = block_search_schedule(10.0, 1, 3, &[0, 1], 8).unwrap();
+        assert_eq!(schedule.len(), 8);
+        assert_eq!(schedule[0].arrangement_index, 0);
+        assert_eq!(schedule[0].block_quarter_turn, 1);
+        assert_eq!(schedule[0].translation.ring, 0);
+        assert_eq!(schedule[1].arrangement_index, 1);
+        assert!(schedule.iter().all(|item| {
+            item.arrangement_index != 0
+                || item.block_quarter_turn != 0
+                || item.translation.ring != 0
+        }));
+    }
+
+    #[cfg_attr(test, test)]
+    fn structural_schedule_rejects_unbounded_or_invalid_vocabulary() {
+        assert!(block_search_schedule(10.0, 1, 0, &[0], 1).is_err());
+        assert!(block_search_schedule(10.0, 1, 1, &[], 1).is_err());
+        assert!(block_search_schedule(10.0, 1, 1, &[4], 1).is_err());
+        assert!(block_search_schedule(10.0, 1, 1, &[0], 0).is_err());
+    }
+
+    fn routed(id: usize, accepted: bool, connected: usize, removed: usize) -> RoutedBlockCandidate {
+        RoutedBlockCandidate {
+            candidate_id: id,
+            translation: BlockTranslation { dx_mm: id as f64, dy_mm: 0.0, ring: id },
+            accepted,
+            removed_cross_domain_pairs: removed,
+            drc_errors: 405,
+            pad_connected_nets: connected,
+            unrouted_nets: 1,
+        }
+    }
+
+    #[cfg_attr(test, test)]
+    fn selector_never_accepts_unsafe_candidate() {
+        let unsafe_complete = routed(1, false, 100, 20);
+        let safe = routed(2, true, 90, 2);
+        assert_eq!(select_routed_block_candidate(&[unsafe_complete, safe]).unwrap().candidate_id, 2);
+    }
+
+    #[cfg_attr(test, test)]
+    fn selector_prioritizes_connectivity_then_safety_improvement() {
+        let incomplete = routed(1, true, 89, 20);
+        let complete = routed(2, true, 90, 2);
+        let safer_complete = routed(3, true, 90, 3);
+        assert_eq!(select_routed_block_candidate(&[incomplete, complete, safer_complete]).unwrap().candidate_id, 3);
+    }
+
+    #[cfg_attr(test, test)]
+    fn expansion_feedback_names_only_external_blockers() {
+        let block = vec!["R4".into(), "C4".into()];
+        let pairs = vec!["C4<->R8".into(), "C4<->R46".into(), "R4<->R8".into(), "C4<->R4".into()];
+        assert_eq!(block_expansion_candidates(&block, &pairs), vec![("R8".into(), 2), ("R46".into(), 1)]);
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -229,6 +451,13 @@ pub(crate) mod tests {
         ("regional_feasibility::tests::rejects_new_pair_even_when_counts_fall", rejects_new_pair_even_when_counts_fall),
         ("regional_feasibility::tests::rejects_body_collision_endpoint_drift_and_instrument_error", rejects_body_collision_endpoint_drift_and_instrument_error),
         ("regional_feasibility::tests::endpoint_drift_tracks_pad_identity_not_coordinate", endpoint_drift_tracks_pad_identity_not_coordinate),
+        ("regional_feasibility::tests::translation_schedule_is_finite_and_excludes_origin", translation_schedule_is_finite_and_excludes_origin),
+        ("regional_feasibility::tests::translation_schedule_rejects_invalid_requests", translation_schedule_rejects_invalid_requests),
+        ("regional_feasibility::tests::structural_schedule_is_finite_origin_first_and_excludes_unchanged", structural_schedule_is_finite_origin_first_and_excludes_unchanged),
+        ("regional_feasibility::tests::structural_schedule_rejects_unbounded_or_invalid_vocabulary", structural_schedule_rejects_unbounded_or_invalid_vocabulary),
+        ("regional_feasibility::tests::selector_never_accepts_unsafe_candidate", selector_never_accepts_unsafe_candidate),
+        ("regional_feasibility::tests::selector_prioritizes_connectivity_then_safety_improvement", selector_prioritizes_connectivity_then_safety_improvement),
+        ("regional_feasibility::tests::expansion_feedback_names_only_external_blockers", expansion_feedback_names_only_external_blockers),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

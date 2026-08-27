@@ -103,6 +103,8 @@ pub struct LayerGrid<'a> {
     /// Rank of this layer's name in the lexicographically sorted name list —
     /// the heap tie-breaker standing in for Python's layer-name comparison.
     pub name_rank: u32,
+    /// Physical copper-stack order (F.Cu < InN.Cu < B.Cu).
+    pub stack_rank: u32,
     /// Row-major `(height, width)` int8 occupancy. 0 = free.
     pub cells: &'a [i8],
     pub width: i64,
@@ -131,8 +133,99 @@ pub struct NlayerInput<'a> {
     /// which via moves are generated.
     pub available_layers: &'a [usize],
     pub via_cost: f64,
+    /// Additional radius beyond the trace envelope already represented by
+    /// each occupancy grid: max(0, via_diameter/2 - trace_width/2).
+    pub via_extra_radius_mm: f64,
+    /// Vias already accepted for earlier segments of this same route.
+    pub prior_vias_world: &'a [(f64, f64)],
+    /// Minimum center-to-center distance from every prior via.
+    pub min_prior_via_spacing_mm: f64,
     /// `None` = unbounded, mirroring the Python default.
     pub max_iter: Option<u64>,
+}
+
+pub fn via_spacing_is_legal(
+    candidate: (f64, f64),
+    prior_vias: &[(f64, f64)],
+    min_spacing_mm: f64,
+) -> bool {
+    if min_spacing_mm <= 0.0 {
+        return true;
+    }
+    let min_sq = min_spacing_mm * min_spacing_mm;
+    prior_vias.iter().all(|&(px, py)| {
+        let dx = candidate.0 - px;
+        let dy = candidate.1 - py;
+        let distance_sq = dx * dx + dy * dy;
+        // The same center is reuse of one physical hole at a shared
+        // waypoint, not a second drilled hole. The downstream via
+        // canonicalizer removes that duplicate record. Distinct centers,
+        // however close, remain subject to the manufacturing minimum.
+        distance_sq == 0.0 || distance_sq >= min_sq
+    })
+}
+
+pub fn via_candidate_is_legal(
+    grids: &[LayerGrid<'_>],
+    candidate_world: (f64, f64),
+    layer: usize,
+    other: usize,
+    via_extra_radius_mm: f64,
+    prior_vias_world: &[(f64, f64)],
+    min_prior_via_spacing_mm: f64,
+) -> bool {
+    if layer >= grids.len() || other >= grids.len() {
+        return false;
+    }
+    if !via_spacing_is_legal(candidate_world, prior_vias_world, min_prior_via_spacing_mm) {
+        return false;
+    }
+    if via_extra_radius_mm <= 0.0 {
+        return true;
+    }
+    let source = &grids[layer];
+    let lo = source.stack_rank.min(grids[other].stack_rank);
+    let hi = source.stack_rank.max(grids[other].stack_rank);
+    for grid in grids.iter().filter(|g| (lo..=hi).contains(&g.stack_rank)) {
+        let (cx, cy) = world_to_grid(
+            candidate_world.0,
+            candidate_world.1,
+            grid.origin,
+            grid.cell_size,
+        );
+        let expansion = (via_extra_radius_mm / grid.cell_size).ceil() as i64;
+        for gy in (cy - expansion)..=(cy + expansion) {
+            for gx in (cx - expansion)..=(cx + expansion) {
+                let dx = gx - cx;
+                let dy = gy - cy;
+                let distance_mm = ((dx * dx + dy * dy) as f64).sqrt() * grid.cell_size;
+                if distance_mm <= via_extra_radius_mm && !grid.is_free(gx, gy) {
+                    return false;
+                }
+            }
+        }
+    }
+    true
+}
+
+fn via_envelope_is_free(
+    input: &NlayerInput<'_>,
+    x: i64,
+    y: i64,
+    layer: usize,
+    other: usize,
+) -> bool {
+    let source = &input.grids[layer];
+    let candidate_world = grid_to_world(x, y, source.origin, source.cell_size);
+    via_candidate_is_legal(
+        input.grids,
+        candidate_world,
+        layer,
+        other,
+        input.via_extra_radius_mm,
+        input.prior_vias_world,
+        input.min_prior_via_spacing_mm,
+    )
 }
 
 #[derive(Debug, Default)]
@@ -313,7 +406,10 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
             }
         }
         for &other in input.available_layers {
-            if other != layer && input.grids[other].is_free(x, y) {
+            if other != layer
+                && input.grids[other].is_free(x, y)
+                && via_envelope_is_free(input, x, y, layer, other)
+            {
                 moves.push(((x, y, other), input.via_cost));
             }
         }
@@ -442,6 +538,9 @@ pub fn route_segment_3d(
     grids: &[LayerGrid<'_>],
     available_layers: &[usize],
     via_cost: f64,
+    via_extra_radius_mm: f64,
+    prior_vias_world: &[(f64, f64)],
+    min_prior_via_spacing_mm: f64,
     max_iter: Option<u64>,
 ) -> RouteSegment3dOutput {
     let empty = RouteSegment3dOutput {
@@ -473,6 +572,9 @@ pub fn route_segment_3d(
         grids,
         available_layers,
         via_cost,
+        via_extra_radius_mm,
+        prior_vias_world,
+        min_prior_via_spacing_mm,
         max_iter,
     });
     if !out.found {
@@ -500,11 +602,28 @@ pub fn route_segment_3d(
         );
     }
 
-    let via_world = out
+    let via_world: Vec<(f64, f64)> = out
         .vias
         .iter()
         .map(|&(vx, vy)| grid_to_world(vx, vy, origin, cell_size))
         .collect();
+
+    // A* can reject transitions against vias accepted by earlier waypoint
+    // segments, but its node state deliberately does not carry the entire
+    // via history of this search. Validate the completed route as well so
+    // two transitions created inside one segment cannot violate the same
+    // manufacturing constraint. Failing closed may discard this path; it
+    // must never publish physically impossible drilled geometry.
+    let mut accepted_vias = prior_vias_world.to_vec();
+    for &candidate in &via_world {
+        if !via_spacing_is_legal(candidate, &accepted_vias, min_prior_via_spacing_mm) {
+            return RouteSegment3dOutput {
+                iterations: out.iterations,
+                ..empty
+            };
+        }
+        accepted_vias.push(candidate);
+    }
 
     RouteSegment3dOutput {
         world_path,
@@ -530,6 +649,7 @@ pub(crate) mod tests {
             .enumerate()
             .map(|(i, p)| LayerGrid {
                 name_rank: i as u32,
+                stack_rank: i as u32,
                 cells: p,
                 width: w,
                 height: h,
@@ -549,6 +669,9 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0, 1],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(out.found);
@@ -567,11 +690,70 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0, 1],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(out.found);
         assert_eq!(out.vias, vec![(1, 1)], "one transition => exactly one via");
         assert_eq!(out.path, vec![(1, 1, 0), (1, 1, 1)]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_via_envelope_rejects_center_only_aperture() {
+        let mut lower = vec![-1i8; 25];
+        let mut upper = vec![-1i8; 25];
+        lower[2 * 5 + 2] = 0;
+        upper[2 * 5 + 2] = 0;
+        let planes = vec![lower, upper];
+        let g = grids_from(&planes, 5, 5);
+
+        let center_only = astar_search_3d(&NlayerInput {
+            start: (2, 2, 0),
+            goal: (2, 2, 1),
+            grids: &g,
+            available_layers: &[0, 1],
+            via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
+            max_iter: Some(100),
+        });
+        assert!(
+            center_only.found,
+            "legacy center-cell check accepts the slit"
+        );
+
+        let physical_envelope = astar_search_3d(&NlayerInput {
+            start: (2, 2, 0),
+            goal: (2, 2, 1),
+            grids: &g,
+            available_layers: &[0, 1],
+            via_cost: 10.0,
+            via_extra_radius_mm: 1.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
+            max_iter: Some(100),
+        });
+        assert!(
+            !physical_envelope.found,
+            "a via cannot fit through a one-cell slit"
+        );
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_prior_via_spacing_rejects_only_close_transition() {
+        assert!(!via_spacing_is_legal((1.5, 1.0), &[(1.0, 1.0)], 0.9));
+        assert!(via_spacing_is_legal((2.0, 1.0), &[(1.0, 1.0)], 0.9));
+        assert!(via_spacing_is_legal((1.0, 1.0), &[(1.0, 1.0)], 0.9));
+        assert!(via_spacing_is_legal((1.0, 1.0), &[], 0.9));
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_prior_via_spacing_uses_center_distance() {
+        assert!(via_spacing_is_legal((0.6, 0.8), &[(0.0, 0.0)], 1.0));
+        assert!(!via_spacing_is_legal((0.59, 0.8), &[(0.0, 0.0)], 1.0));
     }
 
     #[cfg_attr(test, test)]
@@ -589,6 +771,9 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0, 1],
             via_cost: 1.0,
+            via_extra_radius_mm: 0.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(out.found);
@@ -610,6 +795,9 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(!out.found);
@@ -626,6 +814,9 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
+            prior_vias_world: &[],
+            min_prior_via_spacing_mm: 0.0,
             max_iter: Some(5),
         });
         assert!(!out.found);
@@ -684,6 +875,9 @@ pub(crate) mod tests {
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("astar_nlayer::tests::test_same_layer_path_on_open_grid", test_same_layer_path_on_open_grid),
         ("astar_nlayer::tests::test_layer_change_emits_via", test_layer_change_emits_via),
+        ("astar_nlayer::tests::test_via_envelope_rejects_center_only_aperture", test_via_envelope_rejects_center_only_aperture),
+        ("astar_nlayer::tests::test_prior_via_spacing_rejects_only_close_transition", test_prior_via_spacing_rejects_only_close_transition),
+        ("astar_nlayer::tests::test_prior_via_spacing_uses_center_distance", test_prior_via_spacing_uses_center_distance),
         ("astar_nlayer::tests::test_blocked_layer_forces_detour_via_other_layer", test_blocked_layer_forces_detour_via_other_layer),
         ("astar_nlayer::tests::test_unreachable_returns_not_found", test_unreachable_returns_not_found),
         ("astar_nlayer::tests::test_max_iter_bail", test_max_iter_bail),

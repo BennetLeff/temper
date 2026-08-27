@@ -14,12 +14,15 @@
 
 use pyo3::prelude::*;
 use temper_rust_router_core::astar_nlayer::{
-    astar_search_3d, route_segment_3d, LayerGrid, NlayerInput,
+    astar_search_3d, route_segment_3d, via_candidate_is_legal, via_spacing_is_legal, LayerGrid,
+    NlayerInput,
 };
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(route_segment_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(astar_search_3d_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_spacing_is_legal_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_candidate_is_legal_py, m)?)?;
     Ok(())
 }
 
@@ -37,6 +40,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 fn decode_planes<'a>(
     planes: &'a [u8],
     name_ranks: &[u32],
+    stack_ranks: &[u32],
     widths: &[i64],
     heights: &[i64],
     origins: &[(f64, f64)],
@@ -45,6 +49,7 @@ fn decode_planes<'a>(
     let n = name_ranks.len();
     if n == 0
         || widths.len() != n
+        || stack_ranks.len() != n
         || heights.len() != n
         || origins.len() != n
         || cell_sizes.len() != n
@@ -74,6 +79,7 @@ fn decode_planes<'a>(
         let len = (widths[i] * heights[i]) as usize;
         out.push(LayerGrid {
             name_rank: name_ranks[i],
+            stack_rank: stack_ranks[i],
             cells: &signed[offset..offset + len],
             width: widths[i],
             height: heights[i],
@@ -92,7 +98,7 @@ fn decode_planes<'a>(
 /// a list of `(x, y, layer_index)`.
 #[pyfunction]
 #[pyo3(signature = (
-    start, goal, planes, name_ranks, widths, heights, origins, cell_sizes,
+    start, goal, planes, name_ranks, stack_ranks, widths, heights, origins, cell_sizes,
     available_layers, via_cost, max_iter,
 ))]
 #[expect(
@@ -105,6 +111,7 @@ fn astar_search_3d_py(
     goal: (i64, i64, usize),
     planes: Vec<u8>,
     name_ranks: Vec<u32>,
+    stack_ranks: Vec<u32>,
     widths: Vec<i64>,
     heights: Vec<i64>,
     origins: Vec<(f64, f64)>,
@@ -116,6 +123,7 @@ fn astar_search_3d_py(
     let grids = decode_planes(
         &planes,
         &name_ranks,
+        &stack_ranks,
         &widths,
         &heights,
         &origins,
@@ -127,6 +135,9 @@ fn astar_search_3d_py(
         grids: &grids,
         available_layers: &available_layers,
         via_cost,
+        via_extra_radius_mm: 0.0,
+        prior_vias_world: &[],
+        min_prior_via_spacing_mm: 0.0,
         max_iter,
     });
     Ok((out.path, out.vias, out.found, out.iterations))
@@ -134,13 +145,17 @@ fn astar_search_3d_py(
 
 /// Python-callable `_route_segment_3d`.
 ///
-/// Returns `(world_path, via_world, via_cells, found, iterations)` where
-/// `world_path` is a list of `(x_mm, y_mm, layer_index)`.
+/// Returns `(world_path, via_world, via_cells, found, iterations,
+/// hit_iteration_cap)` where `world_path` is a list of
+/// `(x_mm, y_mm, layer_index)`. The final flag is computed here from the
+/// kernel's own bail convention (`iterations > cap`), not inferred from a
+/// missing path by Python.
 #[pyfunction]
 #[pyo3(signature = (
     start_world, goal_world, start_layer, goal_layer,
-    planes, name_ranks, widths, heights, origins, cell_sizes,
-    available_layers, via_cost, max_iter,
+    planes, name_ranks, stack_ranks, widths, heights, origins, cell_sizes,
+    available_layers, via_cost, via_extra_radius_mm,
+    prior_vias_world, min_prior_via_spacing_mm, max_iter,
 ))]
 #[expect(
     clippy::too_many_arguments,
@@ -154,12 +169,16 @@ fn route_segment_3d_py(
     goal_layer: usize,
     planes: Vec<u8>,
     name_ranks: Vec<u32>,
+    stack_ranks: Vec<u32>,
     widths: Vec<i64>,
     heights: Vec<i64>,
     origins: Vec<(f64, f64)>,
     cell_sizes: Vec<f64>,
     available_layers: Vec<usize>,
     via_cost: f64,
+    via_extra_radius_mm: f64,
+    prior_vias_world: Vec<(f64, f64)>,
+    min_prior_via_spacing_mm: f64,
     max_iter: Option<u64>,
 ) -> PyResult<(
     Vec<(f64, f64, usize)>,
@@ -167,10 +186,12 @@ fn route_segment_3d_py(
     Vec<(i64, i64)>,
     bool,
     u64,
+    bool,
 )> {
     let grids = decode_planes(
         &planes,
         &name_ranks,
+        &stack_ranks,
         &widths,
         &heights,
         &origins,
@@ -185,14 +206,73 @@ fn route_segment_3d_py(
         &grids,
         &available_layers,
         via_cost,
+        via_extra_radius_mm,
+        &prior_vias_world,
+        min_prior_via_spacing_mm,
         max_iter,
     );
 
+    let hit_iteration_cap = !out.found && max_iter.is_some_and(|cap| out.iterations > cap);
     Ok((
         out.world_path,
         out.via_world,
         out.via_cells,
         out.found,
         out.iterations,
+        hit_iteration_cap,
+    ))
+}
+
+#[pyfunction]
+fn via_spacing_is_legal_py(
+    candidate: (f64, f64),
+    prior_vias: Vec<(f64, f64)>,
+    min_spacing_mm: f64,
+) -> bool {
+    via_spacing_is_legal(candidate, &prior_vias, min_spacing_mm)
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    candidate_world, layer, other, planes, name_ranks, stack_ranks,
+    widths, heights, origins, cell_sizes, via_extra_radius_mm,
+    prior_vias_world, min_prior_via_spacing_mm,
+))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary carries the same per-layer grid frames as route_segment_3d_py"
+)]
+fn via_candidate_is_legal_py(
+    candidate_world: (f64, f64),
+    layer: usize,
+    other: usize,
+    planes: Vec<u8>,
+    name_ranks: Vec<u32>,
+    stack_ranks: Vec<u32>,
+    widths: Vec<i64>,
+    heights: Vec<i64>,
+    origins: Vec<(f64, f64)>,
+    cell_sizes: Vec<f64>,
+    via_extra_radius_mm: f64,
+    prior_vias_world: Vec<(f64, f64)>,
+    min_prior_via_spacing_mm: f64,
+) -> PyResult<bool> {
+    let grids = decode_planes(
+        &planes,
+        &name_ranks,
+        &stack_ranks,
+        &widths,
+        &heights,
+        &origins,
+        &cell_sizes,
+    )?;
+    Ok(via_candidate_is_legal(
+        &grids,
+        candidate_world,
+        layer,
+        other,
+        via_extra_radius_mm,
+        &prior_vias_world,
+        min_prior_via_spacing_mm,
     ))
 }

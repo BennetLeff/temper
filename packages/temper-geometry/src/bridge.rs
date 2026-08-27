@@ -39,6 +39,7 @@ use crate::creepage_check::{
 };
 use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py, spice_infer_unit_py, spice_loop_inductance_py};
 use crate::heuristics_geometry::keepout_mask_flags_py;
+use crate::block_layout::{block_orbit_slots_py, block_transform_py};
 use crate::organizational_geometry::{
     circle_offsets_py, decoupling_candidate_positions_py, domain_grid_positions_py,
     module_grid_positions_py, power_flow_positions_py,
@@ -1533,6 +1534,8 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(power_flow_positions_py, m)?)?;
     m.add_function(wrap_pyfunction!(decoupling_candidate_positions_py, m)?)?;
     m.add_function(wrap_pyfunction!(domain_grid_positions_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_transform_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_orbit_slots_py, m)?)?;
     m.add_function(wrap_pyfunction!(radial_sector_positions_py, m)?)?;
     m.add_function(wrap_pyfunction!(signal_chain_positions_py, m)?)?;
 

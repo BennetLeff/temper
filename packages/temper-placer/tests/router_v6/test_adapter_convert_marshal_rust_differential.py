@@ -487,7 +487,7 @@ def test_collect_pad_positions_applies_component_rotation():
         initial_position=(10.0, 20.0),
         initial_rotation_quadrant=2,  # 180 deg
         initial_side=0,
-        get_pin=lambda name: SimpleNamespace(position=(1.0, 0.0)),
+        get_pin=lambda _name: SimpleNamespace(position=(1.0, 0.0)),
     )
     pcb = _pcb([comp], [_net("NET_R", [("U1", "1")])])
     _assert_pad_positions_same(pcb, "rotated comp")
@@ -506,7 +506,7 @@ def test_collect_pad_positions_applies_component_rotation():
         initial_position=(5.0, 5.0),
         initial_rotation_quadrant=0,
         initial_side=1,
-        get_pin=lambda name: SimpleNamespace(position=(2.0, 0.0)),
+        get_pin=lambda _name: SimpleNamespace(position=(2.0, 0.0)),
     )
     pcb_bottom = _pcb([comp_bottom], [_net("NET_S", [("U2", "1")])])
     got_b = dict(_to.run_collect_pad_positions(pcb_bottom))["NET_S"][0]
@@ -654,6 +654,32 @@ def test_build_routing_result_failed_nets_passthrough():
     _assert_result_same(result, "failed nets")
     got = shim_build_routing_result(result)
     assert got.unrouted_nets == ["SPI_MOSI", "NET2"]
+
+
+def test_build_routing_result_preserves_rust_extracted_failure_evidence():
+    report = SimpleNamespace(
+        failure_reason="pad_layer_landing_blocked:source",
+        blocking_nets=["HV_OBSTACLE", "GND"],
+        attempted_ripups=0,
+        congestion_region=(12.5, 9.25),
+        pin_count=3,
+        rule_id="pad_layer_landing",
+        domain="signal",
+    )
+    result = _minimal_result()
+    result.stage4.pathfinding_result = SimpleNamespace(
+        failure_reports={"SPI_MOSI": report}
+    )
+
+    got = shim_build_routing_result(result)
+
+    assert list(got.failure_reports) == ["SPI_MOSI"]
+    preserved = got.failure_reports["SPI_MOSI"]
+    assert preserved.failure_reason == "pad_layer_landing_blocked:source"
+    assert preserved.blocking_nets == ["HV_OBSTACLE", "GND"]
+    assert preserved.congestion_region == (12.5, 9.25)
+    assert preserved.rule_id == "pad_layer_landing"
+    assert preserved.attribution_gap is False
 
 
 def test_build_routing_result_forced_segment_nets():

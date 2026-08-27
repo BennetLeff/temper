@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import temper_rust_router as _trr
+
 from temper_placer.router_v6.astar_core import RoutePath, RoutePath3D
 from temper_placer.router_v6.tree_route_geometry import TreeRouteGeometry
 
@@ -35,14 +37,19 @@ FAILURE_REASON_PROVER_ERROR = "prover_error"
 def _forced_segment_decline(
     blockers: list[str],
     region: tuple[float, float] | None,
+    *,
+    context: str,
+    has_partial_geometry: bool = False,
 ) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None]:
     """Build the standard decline tuple for a forced-segment fail-closed refusal.
 
-    Every call site that reaches this shares the same reason and rule_id;
-    centralizing the pairing here means a future change to either only
-    needs to happen once, not in lockstep across every return site.
+    Rust owns the stable reason vocabulary. Python supplies only facts the
+    refusing call site can prove (its execution context and whether safe
+    partial geometry exists); every context retains the same fail-closed
+    rule attribution.
     """
-    return False, "no_path", blockers, region, RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
+    reason = _trr.forced_segment_decline_reason_py(context, has_partial_geometry)
+    return False, reason, blockers, region, RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
 
 
 @dataclass

@@ -27,6 +27,11 @@ from temper_placer.router_v6._astar_nlayer import (
 )
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
+from temper_placer.router_v6.astar_nlayer_rust import (
+    route_segment_3d_rust_diagnostic,
+    via_candidate_is_legal_rust,
+    via_spacing_is_legal_rust,
+)
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
@@ -37,12 +42,81 @@ _MID = _SIZE // 2
 
 
 def _open_grid(name: str) -> OccupancyGrid:
-    return OccupancyGrid(name, np.zeros((_SIZE, _SIZE), dtype=np.int8), (0.0, 0.0), _CELL, _SIZE, _SIZE)
+    return OccupancyGrid(
+        name, np.zeros((_SIZE, _SIZE), dtype=np.int8), (0.0, 0.0), _CELL, _SIZE, _SIZE
+    )
 
 
 def _blocked_grid(name: str) -> OccupancyGrid:
     return OccupancyGrid(
         name, np.full((_SIZE, _SIZE), -1, dtype=np.int8), (0.0, 0.0), _CELL, _SIZE, _SIZE
+    )
+
+
+def test_rust_diagnostic_distinguishes_cap_from_frontier_exhaustion():
+    open_grid = _open_grid("F.Cu")
+    route, iterations, hit_cap = route_segment_3d_rust_diagnostic(
+        (0.0, 0.0),
+        (10.0, 10.0),
+        "F.Cu",
+        "F.Cu",
+        {"F.Cu": open_grid},
+        max_iter=1,
+    )
+    assert route is None
+    assert iterations == 2
+    assert hit_cap is True
+
+    boxed = _blocked_grid("F.Cu")
+    boxed.grid[0, 0] = 0
+    boxed.grid[-1, -1] = 0
+    route, iterations, hit_cap = route_segment_3d_rust_diagnostic(
+        (0.0, 0.0),
+        (10.0, 10.0),
+        "F.Cu",
+        "F.Cu",
+        {"F.Cu": boxed},
+        max_iter=100,
+    )
+    assert route is None
+    assert iterations == 1
+    assert hit_cap is False
+
+
+def test_rust_via_spacing_uses_drill_center_distance():
+    assert via_spacing_is_legal_rust((0.6, 0.8), [(0.0, 0.0)], 1.0)
+    assert not via_spacing_is_legal_rust((0.59, 0.8), [(0.0, 0.0)], 1.0)
+    assert via_spacing_is_legal_rust((0.0, 0.0), [(0.0, 0.0)], 1.0)
+
+
+def test_rust_via_candidate_checks_physical_envelope_on_spanned_layers():
+    f_grid = _open_grid("F.Cu")
+    in4_grid = _open_grid("In4.Cu")
+    b_grid = _open_grid("B.Cu")
+    candidate = f_grid.grid_to_world(5, 5)
+    in4_grid.grid[5, 5] = -1
+
+    assert not via_candidate_is_legal_rust(
+        candidate,
+        "F.Cu",
+        "B.Cu",
+        {"F.Cu": f_grid, "In4.Cu": in4_grid, "B.Cu": b_grid},
+        via_diameter=0.9,
+        trace_width=0.2,
+        prior_via_positions=[],
+        min_via_spacing_mm=0.8,
+    )
+
+    in4_grid.grid[5, 5] = 0
+    assert via_candidate_is_legal_rust(
+        candidate,
+        "F.Cu",
+        "B.Cu",
+        {"F.Cu": f_grid, "In4.Cu": in4_grid, "B.Cu": b_grid},
+        via_diameter=0.9,
+        trace_width=0.2,
+        prior_via_positions=[],
+        min_via_spacing_mm=0.8,
     )
 
 
@@ -94,7 +168,9 @@ def test_select_routing_grids_nlayer_collapses_to_two_on_a_two_layer_board():
 
 def test_nlayer_two_grid_open_primary_needs_no_via():
     grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
-    channel_path = ChannelPath("NET1", ["CH1"], [(2.0, 2.0), (8.0, 8.0)], 10.0, preferred_layer="F.Cu")
+    channel_path = ChannelPath(
+        "NET1", ["CH1"], [(2.0, 2.0), (8.0, 8.0)], 10.0, preferred_layer="F.Cu"
+    )
     result, _fb = _astar_route_nlayer("NET1", channel_path, grids, net_id=1)
     assert isinstance(result, RoutePath3D)
     assert result.forced_segment_count == 0
@@ -121,6 +197,50 @@ def test_nlayer_two_grid_bottleneck_uses_tier2_alternate_detour():
     assert any(seg[2] == "B.Cu" for seg in result.segments)
 
 
+def test_nlayer_tier2_rejects_endpoint_vias_that_are_too_close(monkeypatch):
+    """Tier 2 must not publish a detour whose two drilled endpoints violate
+    the board's unconditional hole-to-hole rule.
+
+    The search itself is stubbed so this test isolates the acceptance gate:
+    primary fails, alternate succeeds, then the second via sees the first as
+    already accepted and makes the segment fall through fail-closed.
+    """
+    import temper_placer.router_v6._astar_nlayer as subject
+
+    grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
+    start, goal = (2.0, 2.0), (2.5, 2.0)
+    channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 0.5, preferred_layer="F.Cu")
+    spacing_calls = []
+
+    def fake_segment_search(grid, *_args, **_kwargs):
+        if grid.layer_name == "F.Cu":
+            return None, grid, 0
+        return [(4, 4)], grid, 0
+
+    def fake_candidate(candidate, _anchor, _alt, _grids, **kwargs):
+        prior = kwargs["prior_via_positions"]
+        minimum = kwargs["min_via_spacing_mm"]
+        spacing_calls.append((candidate, list(prior), minimum))
+        return not prior
+
+    monkeypatch.setattr(subject, "_segment_search", fake_segment_search)
+    monkeypatch.setattr(subject, "_via_candidate_is_legal", fake_candidate)
+    monkeypatch.setattr(
+        subject,
+        "_route_segment_3d_diagnostic",
+        lambda *_args, **_kwargs: (None, 0, False),
+    )
+
+    result, _fb = _astar_route_nlayer(
+        "NET1", channel_path, grids, net_id=1, allow_forced_segments=False
+    )
+
+    assert result is not None
+    assert result.forced_segment_count == 1
+    assert result.via_positions == []
+    assert spacing_calls == [(start, [], 0.8), (goal, [start], 0.8)]
+
+
 def test_nlayer_tier2_skips_degenerate_same_layer_anchor_via():
     """Measured 2026-08-14 (docs/evidence/
     2026-08-14-router-primary-grid-selection-fix.md, Task 1 follow-up): when
@@ -143,8 +263,12 @@ def test_nlayer_tier2_skips_degenerate_same_layer_anchor_via():
     channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 10.0, preferred_layer="B.Cu")
 
     result, _fb = _astar_route_nlayer(
-        "NET1", channel_path, grids, net_id=1,
-        pad_layer_start="F.Cu", pad_layer_end="F.Cu",
+        "NET1",
+        channel_path,
+        grids,
+        net_id=1,
+        pad_layer_start="F.Cu",
+        pad_layer_end="F.Cu",
     )
     assert result is not None
     assert result.forced_segment_count == 0
@@ -187,14 +311,20 @@ def _make_three_layer_bottleneck() -> dict[str, OccupancyGrid]:
     split = _SIZE // 2  # column 10 for _SIZE=21
 
     f_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
-    f_arr[_MID, 0] = 0
-    f_arr[_MID, _SIZE - 1] = 0
+    # Three-cell aperture around each transition: the default 0.9 mm via is
+    # wider than the 0.2 mm trace, so a one-cell slit is center-reachable but
+    # not physically via-reachable under the production envelope check.
+    f_arr[_MID - 1 : _MID + 2, 0:3] = 0
+    f_arr[_MID - 1 : _MID + 2, _SIZE - 3 : _SIZE] = 0
 
     mid_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
-    mid_arr[_MID, 0 : split + 1] = 0  # In1.Cu open columns 0..split
+    mid_arr[_MID - 1 : _MID + 2, 0 : split + 2] = 0
+    # The final B.Cu -> F.Cu through-via physically spans In1.Cu too, even
+    # though the routed trace does not travel there at that endpoint.
+    mid_arr[_MID - 1 : _MID + 2, _SIZE - 3 : _SIZE] = 0
 
     b_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
-    b_arr[_MID, split : _SIZE] = 0  # B.Cu open columns split..end
+    b_arr[_MID - 1 : _MID + 2, split - 1 : _SIZE] = 0
 
     grids = {}
     for name, arr in (("F.Cu", f_arr), ("In1.Cu", mid_arr), ("B.Cu", b_arr)):
@@ -317,7 +447,9 @@ def test_land_route_on_pad_layers_is_a_noop_when_termini_already_match():
     )
     pads = {"NET1": [(2.0, 2.0, 0.5, "F.Cu"), (8.0, 8.0, 0.5, "F.Cu")]}
     result = _land_route_on_pad_layers("NET1", route, pads, grids)
-    assert result is route, "must not mutate/replace a route whose termini already sit on their pad's real layer"
+    assert result is route, (
+        "must not mutate/replace a route whose termini already sit on their pad's real layer"
+    )
 
 
 def test_land_route_on_pad_layers_inserts_landing_vias_at_both_termini():
@@ -397,7 +529,9 @@ def test_run_astar_pathfinding_nlayer_lands_a_route_forced_onto_the_wrong_layer(
     assert "NET1" in result.routed_paths
     assert "NET1" not in result.failed_nets
     routed = result.routed_paths["NET1"]
-    assert routed.segments[0][2] == "F.Cu", "must land on the pad's real layer, not the SSOT-forced one"
+    assert routed.segments[0][2] == "F.Cu", (
+        "must land on the pad's real layer, not the SSOT-forced one"
+    )
     assert routed.segments[-1][2] == "F.Cu"
     assert start in routed.via_positions
     assert goal in routed.via_positions
@@ -505,9 +639,9 @@ def test_build_width_families_without_routing_spaces_is_identity():
     base = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
     rules = _make_width_aware_design_rules()
     families, family_of_net, _halos = _build_width_families(base, None, ["NARROW", "WIDE"], rules)
-    assert (
-        families[(0.2, 0.2, "Default")] is base
-    ), "single identity family must BE the caller's dict"
+    assert families[(0.2, 0.2, "Default")] is base, (
+        "single identity family must BE the caller's dict"
+    )
 
 
 def _min_centerline_distance(path_a, path_b) -> float:
@@ -692,10 +826,10 @@ def _make_mini_pcb(design_rules: DesignRules) -> ParsedPCB:
         footprint="TEST",
         bounds=(4.0, 4.0),
         pins=[
-            Pin(name="1", number="1", position=(10.0, 10.0), net="HV_PAD_NET",
-                width=1.0, height=1.0),
-            Pin(name="2", number="2", position=(16.0, 10.0), net="LV_NET",
-                width=1.0, height=1.0),
+            Pin(
+                name="1", number="1", position=(10.0, 10.0), net="HV_PAD_NET", width=1.0, height=1.0
+            ),
+            Pin(name="2", number="2", position=(16.0, 10.0), net="LV_NET", width=1.0, height=1.0),
         ],
         initial_position=(0.0, 0.0),
         initial_rotation_quadrant=0,
@@ -762,17 +896,33 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # pad's halo carries 12.6mm. Both must be present in the per-family
     # halo lists.
     lv_family = families[(0.2, 0.2, "Default")]
-    hv_family = families[(5.0, 2.0, "HighVoltage")]
-
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
     assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"
-    assert "LV_NET" not in lv_halo_nets, "same-class pads must not halo themselves"
+    assert "LV_NET" in lv_halo_nets, "zero-creepage static inventory must remain restampable"
 
     hv_halos = halos[(5.0, 2.0, "HighVoltage")]["F.Cu"]
     hv_halo_nets = {n for n, _o, _h in hv_halos}
     assert "LV_NET" in hv_halo_nets, "LV pad must halo an HV searching net"
-    assert "HV_PAD_NET" not in hv_halo_nets, "own-class pad must not be haloed"
+    assert "HV_PAD_NET" in hv_halo_nets, "zero-creepage static inventory must remain restampable"
+
+    # The zero-creepage LV entry is retained for static restoration but is
+    # filtered when LV_NET itself searches. The same exact polygon blocks a
+    # different net through the Rust area rasteriser.
+    lv_only = [entry for entry in lv_halos if entry[0] == "LV_NET"]
+    probe = OccupancyGrid(
+        "F.Cu",
+        np.zeros_like(lv_family["F.Cu"].grid),
+        lv_family["F.Cu"].origin,
+        lv_family["F.Cu"].cell_size,
+        lv_family["F.Cu"].width_cells,
+        lv_family["F.Cu"].height_cells,
+    )
+    _nl._stamp_foreign_creepage_halos("LV_NET", {"F.Cu": probe}, {"F.Cu": lv_only})
+    lv_pad_cell = probe.world_to_grid(16.0, 10.0)
+    assert probe.is_free(*lv_pad_cell), "own static entry must not close its access"
+    _nl._stamp_foreign_creepage_halos("OTHER", {"F.Cu": probe}, {"F.Cu": lv_only})
+    assert probe.is_blocked(*lv_pad_cell), "foreign zero-creepage pad must be restored"
 
     # The halo radius must reach the pair creepage: HV pad (1.0mm square,
     # half-extent 0.5) + W/2 + C + 12.6. In the LV family W/2+C = 0.3, so a
@@ -795,6 +945,29 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
 
 
+def test_multiple_foreign_halo_entries_keep_holes_aligned_per_polygon():
+    """Each halo entry contains `_area_rings` output. Combining entries
+    must flatten both the outer and holes axes once; retaining the entry axis
+    makes pyo3 receive a list where a hole coordinate must be a float."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    routing_space = _make_box_routing_space("F.Cu", 40.0)
+    grid = build_occupancy_grid(routing_space, inflation_mm=0.1)
+    square_a = [5.0, 5.0, 8.0, 5.0, 8.0, 8.0, 5.0, 8.0, 5.0, 5.0]
+    square_b = [20.0, 20.0, 23.0, 20.0, 23.0, 23.0, 20.0, 23.0, 20.0, 20.0]
+    halos = {
+        "F.Cu": [
+            ("HV_A", [square_a], [[]]),
+            ("HV_B", [square_b], [[]]),
+        ]
+    }
+
+    _nl._stamp_foreign_creepage_halos("LV", {"F.Cu": grid}, halos)
+
+    assert grid.is_blocked(*grid.world_to_grid(6.0, 6.0))
+    assert grid.is_blocked(*grid.world_to_grid(21.0, 21.0))
+
+
 def test_creepage_halo_blocks_lv_net_from_hv_pad():
     """End-to-end: the LV net must not route within the HV pad's 12.6mm
     creepage halo. With an HV pad at (10,10) and an LV track crossing at
@@ -809,9 +982,7 @@ def test_creepage_halo_blocks_lv_net_from_hv_pad():
 
     # LV net from (4, 10) to (36, 10) -- passes 6mm from the HV pad at
     # (10,10) (14mm centerline minus 0.5 half-pad) if the halo were absent.
-    sig_ch = ChannelPath(
-        "SIG", ["CH1"], [(4.0, 10.0), (36.0, 10.0)], 32.0, preferred_layer="F.Cu"
-    )
+    sig_ch = ChannelPath("SIG", ["CH1"], [(4.0, 10.0), (36.0, 10.0)], 32.0, preferred_layer="F.Cu")
     channel_mapping = ChannelMapping(channel_paths={"SIG": sig_ch})
     result = run_astar_pathfinding_nlayer(
         channel_mapping,

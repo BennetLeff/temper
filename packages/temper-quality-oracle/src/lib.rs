@@ -953,6 +953,84 @@ fn evaluate_regional_candidate_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
+fn block_search_schedule_py(
+    step_mm: f64,
+    max_rings: usize,
+    arrangement_count: usize,
+    block_quarter_turns: Vec<usize>,
+    max_candidates: usize,
+) -> PyResult<Vec<(usize, usize, f64, f64, usize)>> {
+    temper_py_bridge::catch_panic(|| {
+        regional_feasibility::block_search_schedule(
+            step_mm,
+            max_rings,
+            arrangement_count,
+            &block_quarter_turns,
+            max_candidates,
+        )
+        .map(|items| {
+            items
+                .into_iter()
+                .map(|item| {
+                    (
+                        item.arrangement_index,
+                        item.block_quarter_turn,
+                        item.translation.dx_mm,
+                        item.translation.dy_mm,
+                        item.translation.ring,
+                    )
+                })
+                .collect()
+        })
+        .map_err(PyValueError::new_err)
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn select_routed_block_candidate_py(
+    py: Python<'_>,
+    candidates: Vec<(usize, f64, f64, usize, bool, usize, usize, usize, usize)>,
+) -> PyResult<Option<Py<PyDict>>> {
+    use regional_feasibility::{BlockTranslation, RoutedBlockCandidate, select_routed_block_candidate};
+    temper_py_bridge::catch_panic(|| {
+        let typed: Vec<_> = candidates.into_iter().map(
+            |(id, dx, dy, ring, accepted, removed, drc, connected, unrouted)| RoutedBlockCandidate {
+                candidate_id: id,
+                translation: BlockTranslation { dx_mm: dx, dy_mm: dy, ring },
+                accepted,
+                removed_cross_domain_pairs: removed,
+                drc_errors: drc,
+                pad_connected_nets: connected,
+                unrouted_nets: unrouted,
+            }
+        ).collect();
+        select_routed_block_candidate(&typed).map(|winner| {
+            let out = PyDict::new(py);
+            out.set_item("candidate_id", winner.candidate_id)?;
+            out.set_item("dx_mm", winner.translation.dx_mm)?;
+            out.set_item("dy_mm", winner.translation.dy_mm)?;
+            out.set_item("ring", winner.translation.ring)?;
+            out.set_item("removed_cross_domain_pairs", winner.removed_cross_domain_pairs)?;
+            out.set_item("drc_errors", winner.drc_errors)?;
+            out.set_item("pad_connected_nets", winner.pad_connected_nets)?;
+            out.set_item("unrouted_nets", winner.unrouted_nets)?;
+            Ok(out.into())
+        }).transpose()
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn block_expansion_candidates_py(
+    block_refs: Vec<String>,
+    collision_pairs: Vec<String>,
+) -> Vec<(String, usize)> {
+    regional_feasibility::block_expansion_candidates(&block_refs, &collision_pairs)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
 fn is_available_py() -> bool {
     true
 }
@@ -984,6 +1062,9 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_search_schedule_py, m)?)?;
+    m.add_function(wrap_pyfunction!(select_routed_block_candidate_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_expansion_candidates_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
 
     cluster_f::bindings::register(m)?;
