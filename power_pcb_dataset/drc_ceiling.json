@@ -343,26 +343,12 @@
         "error_ceiling": -3
       }
     },
-    "2026-08-30-c6-absolute-pad-orientation": {
-      "date": "2026-08-30",
-      "cause": "C6's footprint is placed at 90 degrees, but its two board-level pad records omitted their absolute body angles. The source footprint has no intrinsic pad rotation, so the board representation now records absolute 90-degree pad angles for both pads. The correction is metadata-only for these round pads and restores the board's pad-orientation invariant; it does not move C6, change nets, or alter any copper geometry. The unchanged origin/main control and corrected board were each measured with 120 samples through temper_placer.validation._drc_api.run_drc using kicad-cli 10.0.5, --all-track-errors, regenerated DRU rules, the sibling fp-lib-table, and the pinned single-thread environment. Both distributions were identical: 406 errors / 402 warnings on every sample, so no DRC ceiling changed.",
+    "2026-08-26-r43": {
+      "date": "2026-08-26",
+      "cause": "Re-measurement after moving R43, the RTD_HW_FAULT +3V3 pull-up, from (41.54, 187.57) to its consumer-side interface at (27.0, 197.4) on clean commit 06b772f113ac72479dda8fde2aaa24bd079b5c82. The Rust-owned regional Pareto evaluator measured exact HV-to-SELV pad pairs below 12.6 mm 90 -> 86, removing four R43<->hb.gate_ls.rgs pairs with zero new pair, zero routed-pad endpoint drift, and zero new or worsened F.Fab collision. Package-only and split-chain alternatives for the two remaining R4-involved body-free pairs were evaluated in two distinct regions and rejected after each created a component-body collision; docs/evidence/2026-08-26-hv-selv-topology-package-closeout.md records the bounded stopping rule and escalates R4 to a block-level floorplan/topology redesign. KiCad DRC then ran 120 samples on the clean anchor commit after canonical DRU regeneration and an immediate 10/10 pyo3 freshness check: every error and warning category was deterministic, errors 405/405 and raw warnings 402/402. Creepage alone changes 100 -> 99; every other category is unchanged. The uncapped silk_overlap total 13061 is carried unchanged because R43 is not either member of the documented dominant C2/C3 pair and the raw warning distribution is byte-identical. No category rises; no Ceiling-Approval trailer is required.",
       "per_type_delta": {
-        "clearance": 0,
-        "copper_edge_clearance": 0,
-        "courtyards_overlap": 0,
-        "creepage": 0,
-        "drill_out_of_range": 0,
-        "hole_clearance": 0,
-        "shorting_items": 0,
-        "solder_mask_bridge": 0,
-        "lib_footprint_issues": 0,
-        "lib_footprint_mismatch": 0,
-        "missing_courtyard": 0,
-        "silk_edge_clearance": 0,
-        "silk_over_copper": 0,
-        "silk_overlap": 0,
-        "track_dangling": 0,
-        "via_dangling": 0
+        "creepage": -1,
+        "error_ceiling": -1
       }
     }
   },
@@ -370,7 +356,7 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 406,
+      "error_ceiling": 405,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -378,7 +364,7 @@
         "clearance": 209,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 100,
+        "creepage": 99,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -389,13 +375,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "3f26ee8871d2d4b92518c3402981b0d46a43e4e6",
+        "measured_at_commit": "06b772f113ac72479dda8fde2aaa24bd079b5c82",
         "dirty": false,
-        "branch": "fix/board-safety-followup-20260830",
+        "branch": "feat/hv-selv-consumer-relocation",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
+            "sha256": "f1a8dd503dc3227453609ef343941b503873c8b82c55b865e0c92252787af529"
           }
         ],
         "tool_versions": {
@@ -403,7 +389,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with sibling fp-lib-table and single-thread KICAD_CONFIG_HOME pin, 120 samples on the clean board commit 392870a58f2d1964c88f68aeac32f078d35a53d0 after regenerating pcb/temper.kicad_dru. The unchanged origin/main control was measured with the same tool, flags, rules, project context, and sample count first. Spread 0 in every error and warning category on both boards: errors 406/406, warnings 402/402. Full attribution is recorded in the 2026-08-30-c6-absolute-pad-orientation _march entry."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 06b772f113ac72479dda8fde2aaa24bd079b5c82 after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 405/405, warnings 402/402. Full distributions and candidate attribution are recorded in the 2026-08-26-r43 _march entry."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
