@@ -334,13 +334,21 @@
         "error_ceiling": -4,
         "warning_ceiling": -1
       }
+    },
+    "2026-08-26-u13": {
+      "date": "2026-08-26",
+      "cause": "Re-measurement after moving the unrouted U13 rail-monitor comparator from (147.70, 42.48) to (150.70, 46.48) on clean commit 2da1fcb3857064a4c1bde09e991b825ed26c24cf. The Rust-owned regional Pareto evaluator measured the exact candidate against its parent board before it was committed: HV-to-SELV pad pairs below 12.6 mm 93 -> 90, removing C14.1 (+170V_BUS) against U13.2/U13.4 (gnd) and U13.5 (+3V3), with zero new cross-domain pair, zero routed-pad endpoint drift, and zero new or worsened F.Fab collision. KiCad DRC then ran 120 samples on the clean anchor commit after canonical DRU regeneration and an immediate 10/10 pyo3 freshness check: every error and warning category was deterministic, errors 406/406 and raw warnings 402/402. Creepage alone changes 103 -> 100; every other category is unchanged. The uncapped silk_overlap total 13061 is carried unchanged because U13 is not either member of the documented dominant C2/C3 pair and the raw warning distribution is byte-identical. No category rises; no Ceiling-Approval trailer is required.",
+      "per_type_delta": {
+        "creepage": -3,
+        "error_ceiling": -3
+      }
     }
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 409,
+      "error_ceiling": 406,
       "warning_ceiling": 13264,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -348,7 +356,7 @@
         "clearance": 209,
         "copper_edge_clearance": 11,
         "courtyards_overlap": 4,
-        "creepage": 103,
+        "creepage": 100,
         "drill_out_of_range": 6,
         "hole_clearance": 33,
         "hole_to_hole": 0,
@@ -359,13 +367,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "91b65e8a59a22ef6567e2ff8e04539a992935651",
+        "measured_at_commit": "2da1fcb3857064a4c1bde09e991b825ed26c24cf",
         "dirty": false,
-        "branch": "fix/c27-counterpart-creepage",
+        "branch": "fix/regional-creepage-candidates",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "7c8b26d3d812fd0d07e29ee404a2723c22d276ece19adf0fc67fb95547984065"
+            "sha256": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
           }
         ],
         "tool_versions": {
@@ -373,7 +381,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 91b65e8a59a22ef6567e2ff8e04539a992935651 after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 409/409, warnings 402/402. Full distributions recorded in the 2026-08-26 _march entry's measurement transcript."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 2da1fcb3857064a4c1bde09e991b825ed26c24cf after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 406/406, warnings 402/402. Full distributions and candidate attribution are recorded in the 2026-08-26-u13 _march entry."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,

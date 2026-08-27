@@ -198,13 +198,19 @@ authority:
 # IDENTICAL; footprint count (168) and Sheetpath count (168) are unchanged.
 # Every alias/unresolved-component identity below is therefore unaffected.
 # The source export is untouched and its live hash remains unchanged.
+# Re-pinned 2026-08-26 (fix/regional-creepage-candidates): STALE after moving
+# U13 from (147.70, 42.48) to (150.70, 46.48). This is position-only: the
+# footprint count and complete 168-entry Sheetpath->Reference identity map are
+# unchanged from the parent board. Every alias/unresolved-component identity
+# is therefore unaffected. The source export is untouched and its live hash
+# remains unchanged.
 
 provenance:
-  measured_at_commit: cf993c465a4b6c7b4ad80901ec8328143633cab1
+  measured_at_commit: 2da1fcb3857064a4c1bde09e991b825ed26c24cf
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: 7c8b26d3d812fd0d07e29ee404a2723c22d276ece19adf0fc67fb95547984065
+      sha256: a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
