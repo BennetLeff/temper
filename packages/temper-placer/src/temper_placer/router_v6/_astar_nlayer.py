@@ -1435,9 +1435,15 @@ def run_astar_pathfinding_nlayer(
                 # _has_safe_partial_geometry rejects a forced/fabricated
                 # edge, matching the exact gate _astar_reconstruct.py's
                 # tree-route path already uses for this same shape.
-                if _has_safe_partial_geometry(route_path):
+                has_partial_geometry = _has_safe_partial_geometry(route_path)
+                if has_partial_geometry:
                     partial_paths[net_name] = route_path
-                return _forced_segment_decline([], congestion_region())
+                return _forced_segment_decline(
+                    [],
+                    congestion_region(),
+                    context="nlayer_tier_exhausted",
+                    has_partial_geometry=has_partial_geometry,
+                )
             routed_paths[net_name] = route_path
             # Width/creepage-aware stamp (2026-08-16): the routed net's own
             # real width (not the flat 0.2mm board default, which
