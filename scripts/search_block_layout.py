@@ -186,6 +186,7 @@ def search(
     pivot_quarter_turns: list[int] | None = None,
     orbit_gap_mm: float = 1.0,
     winner_board: Path | None = None,
+    routed_output_dir: Path | None = None,
 ) -> dict:
     if not refs:
         raise ValueError("at least one --ref is required")
@@ -296,17 +297,25 @@ def search(
             connectivity = routed.get("pad_connectivity") or {}
             connected = int(connectivity.get("fully_connected", 0))
             unrouted = int(routed.get("unrouted", 0))
+            connected_names = sorted(connectivity.get("fully_connected_nets", []))
+            unrouted_names = sorted(routed.get("unrouted_nets", []))
             record.update(
                 {
                     "routed": True,
                     "route_completion": float(routed.get("completion_rate", 0.0)),
                     "pad_connected_nets": connected,
+                    "pad_connected_net_names": connected_names,
                     "unrouted_nets": unrouted,
+                    "unrouted_net_names": unrouted_names,
                     "final_accepted": bool(verdict["accepted"]),
                     "final_reasons": list(verdict["reasons"]),
                     "drc_errors": int(verdict["candidate"]["drc_errors"]),
                 }
             )
+            if routed_output_dir is not None:
+                output_context = routed_output_dir / f"candidate-{candidate_id}"
+                shutil.copytree(candidate_board.parent, output_context, dirs_exist_ok=True)
+                record["routed_board"] = str(output_context / candidate_board.name)
             routed_for_rust.append(
                 (
                     candidate_id,
@@ -377,6 +386,7 @@ def main() -> int:
     parser.add_argument("--route", action="store_true")
     parser.add_argument("--json", type=Path)
     parser.add_argument("--winner-board", type=Path)
+    parser.add_argument("--routed-output-dir", type=Path)
     args = parser.parse_args()
     try:
         result = search(
@@ -397,6 +407,7 @@ def main() -> int:
             pivot_quarter_turns=args.pivot_turns,
             orbit_gap_mm=args.orbit_gap_mm,
             winner_board=args.winner_board,
+            routed_output_dir=args.routed_output_dir,
         )
     except Exception as exc:
         print(f"BLOCK SEARCH ERROR: {exc}", file=sys.stderr)
