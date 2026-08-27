@@ -14,15 +14,40 @@ import shutil
 from pathlib import Path
 
 import pytest
+from shapely.geometry import Point
 
 from temper_placer.router_v6._power_islands import (
     PLANE_LAYER,
     POWER_ISLAND_NETS,
+    _routed_signal_layer_obstacles,
     generate_power_islands_content,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PRODUCTION_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+
+def test_routed_inner_layer_track_is_a_power_drop_via_obstacle():
+    """A through power via crosses In4.Cu even though its KiCad layer pair
+    names only F.Cu/B.Cu; the In4 route must therefore enter the via's
+    placement obstacle union.
+    """
+    obstacles = _routed_signal_layer_obstacles(
+        [
+            '  (segment (start 10.0000 20.0000) (end 20.0000 20.0000) '
+            '(width 0.2000) (layer "In4.Cu") (net 7) (tstamp "x"))'
+        ],
+        "+3V3",
+        {7: "RECOVERED_SIGNAL"},
+        {"+3V3": 0.5, "RECOVERED_SIGNAL": 0.2},
+        0.5,
+        0.2,
+    )
+    obstacle = obstacles["In4.Cu"]
+
+    assert obstacle is not None
+    assert obstacle.contains(Point(15.0, 20.0))
+    assert obstacles["F.Cu"] is None
 
 
 @pytest.mark.skipif(

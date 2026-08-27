@@ -153,7 +153,7 @@ from temper_placer.router_v6.astar_grid import (
 )
 from temper_placer.router_v6.astar_nlayer_rust import (
     route_segment_3d_rust_diagnostic as _route_segment_3d_diagnostic,
-    via_spacing_is_legal_rust as _via_spacing_is_legal,
+    via_candidate_is_legal_rust as _via_candidate_is_legal,
 )
 from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
 from temper_placer.router_v6.net_classification import classify_net_type
@@ -509,19 +509,26 @@ def _astar_route_nlayer(
             )
             candidate_vias = []
             if start_anchor_layer != alt_layer:
-                candidate_vias.append(start_world)
+                candidate_vias.append((start_world, start_anchor_layer))
             if end_anchor_layer != alt_layer:
-                candidate_vias.append(goal_world)
+                candidate_vias.append((goal_world, end_anchor_layer))
             accepted_candidates = list(via_positions)
-            candidate_spacing_is_legal = True
-            for candidate in candidate_vias:
-                if not _via_spacing_is_legal(
-                    candidate, accepted_candidates, min_via_center_spacing_mm
+            candidate_vias_are_legal = True
+            for candidate, anchor_layer in candidate_vias:
+                if not _via_candidate_is_legal(
+                    candidate,
+                    anchor_layer,
+                    alt_layer,
+                    grids,
+                    via_diameter=net_rules.via_diameter_mm if net_rules else 0.9,
+                    trace_width=net_rules.trace_width_mm if net_rules else 0.2,
+                    prior_via_positions=accepted_candidates,
+                    min_via_spacing_mm=min_via_center_spacing_mm,
                 ):
-                    candidate_spacing_is_legal = False
+                    candidate_vias_are_legal = False
                     break
                 accepted_candidates.append(candidate)
-            if not candidate_spacing_is_legal:
+            if not candidate_vias_are_legal:
                 continue
             if start_anchor_layer != alt_layer:
                 if i == 0:

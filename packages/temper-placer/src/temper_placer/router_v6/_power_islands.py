@@ -306,6 +306,40 @@ class PowerIslandResult:
         )
 
 
+def _routed_signal_layer_obstacles(
+    segments: list[str] | None,
+    net_name: str,
+    num_to_name: dict[int, str],
+    net_clearance: dict[str, float],
+    own_clearance: float,
+    default_clearance: float,
+) -> dict[str, Polygon | None]:
+    """Return this route's copper obstacles on every supported signal layer.
+
+    A F.Cu-B.Cu power via physically spans the inner signal layers even
+    though KiCad names only its endpoint layers. The returned mapping is
+    keyed from the stackup capability SSOT so In3/In4 cannot silently fall
+    out of the via-placement obstacle union again.
+    """
+    from temper_placer.core.board_layer_roles import (
+        ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED,
+    )
+    from temper_placer.router_v6._corridor_backbone import routed_segments_obstacle
+
+    return {
+        layer: routed_segments_obstacle(
+            segments,
+            net_name,
+            layer,
+            num_to_name,
+            net_clearance,
+            own_clearance,
+            default_clearance,
+        )
+        for layer in ENGINE_SUPPORTED_SIGNAL_LAYERS_ORDERED
+    }
+
+
 def generate_power_islands_blocks(
     pcb_path: Path,
     *,
@@ -655,21 +689,28 @@ def generate_power_islands_blocks(
             routed_segments_obstacle,
         )
 
-        routed_fcu_avoid = routed_segments_obstacle(
-            segments, net_name, "F.Cu", num_to_name,
-            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
+        # A F.Cu-B.Cu power drop via physically crosses every intervening
+        # signal layer. Looking only at its named endpoint layers made the
+        # placement blind to this run's In3.Cu/In4.Cu routes; the final 2M
+        # measurement caught +3V3 vias shorting two newly recovered In4.Cu
+        # nets. Build one obstacle per routable signal layer from the
+        # stackup SSOT and union all of them for via placement. The F.Cu
+        # member is retained separately below for the F.Cu-only backbone.
+        routed_signal_avoid = _routed_signal_layer_obstacles(
+            segments,
+            net_name,
+            num_to_name,
+            _net_clearance,
+            _net_clearance.get(net_name, _default_clearance),
+            _default_clearance,
         )
-        routed_bcu_avoid = routed_segments_obstacle(
-            segments, net_name, "B.Cu", num_to_name,
-            _net_clearance, _net_clearance.get(net_name, _default_clearance), _default_clearance,
-        )
+        routed_fcu_avoid = routed_signal_avoid["F.Cu"]
         via_avoid_parts = [
             g
             for g in (
                 other_copper_fcu,
                 other_copper_bcu,
-                routed_fcu_avoid,
-                routed_bcu_avoid,
+                *routed_signal_avoid.values(),
                 *run_new_fcu_copper,
                 *run_new_bcu_copper,
             )

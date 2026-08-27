@@ -45,6 +45,7 @@ from temper_placer.core.board import STANDARD_LAYER_ORDER
 __all__ = [
     "astar_search_3d_rust",
     "route_segment_3d_rust",
+    "via_candidate_is_legal_rust",
     "via_spacing_is_legal_rust",
 ]
 
@@ -293,6 +294,43 @@ def via_spacing_is_legal_rust(
     return bool(
         _trr.via_spacing_is_legal_py(
             (float(candidate[0]), float(candidate[1])),
+            list(prior_via_positions),
+            float(min_via_spacing_mm),
+        )
+    )
+
+
+def via_candidate_is_legal_rust(
+    candidate_world: tuple[float, float],
+    from_layer: str,
+    to_layer: str,
+    grids: dict,
+    *,
+    via_diameter: float,
+    trace_width: float,
+    prior_via_positions: list[tuple[float, float]],
+    min_via_spacing_mm: float,
+) -> bool:
+    """Validate one exact-world via against Rust's physical envelope."""
+    import temper_rust_router as _trr
+
+    if not grids or from_layer not in grids or to_layer not in grids:
+        return False
+    _layer_names, index_of, _sample, name_ranks, stack_ranks, planes, frames = _marshal(grids)
+    widths, heights, origins, cell_sizes = frames
+    return bool(
+        _trr.via_candidate_is_legal_py(
+            (float(candidate_world[0]), float(candidate_world[1])),
+            index_of[from_layer],
+            index_of[to_layer],
+            planes,
+            name_ranks,
+            stack_ranks,
+            widths,
+            heights,
+            origins,
+            cell_sizes,
+            max(0.0, (float(via_diameter) - float(trace_width)) / 2.0),
             list(prior_via_positions),
             float(min_via_spacing_mm),
         )

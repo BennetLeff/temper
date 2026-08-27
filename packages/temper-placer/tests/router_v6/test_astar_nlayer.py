@@ -29,6 +29,7 @@ from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
 from temper_placer.router_v6.astar_nlayer_rust import (
     route_segment_3d_rust_diagnostic,
+    via_candidate_is_legal_rust,
     via_spacing_is_legal_rust,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
@@ -86,6 +87,37 @@ def test_rust_via_spacing_uses_drill_center_distance():
     assert via_spacing_is_legal_rust((0.6, 0.8), [(0.0, 0.0)], 1.0)
     assert not via_spacing_is_legal_rust((0.59, 0.8), [(0.0, 0.0)], 1.0)
     assert via_spacing_is_legal_rust((0.0, 0.0), [(0.0, 0.0)], 1.0)
+
+
+def test_rust_via_candidate_checks_physical_envelope_on_spanned_layers():
+    f_grid = _open_grid("F.Cu")
+    in4_grid = _open_grid("In4.Cu")
+    b_grid = _open_grid("B.Cu")
+    candidate = f_grid.grid_to_world(5, 5)
+    in4_grid.grid[5, 5] = -1
+
+    assert not via_candidate_is_legal_rust(
+        candidate,
+        "F.Cu",
+        "B.Cu",
+        {"F.Cu": f_grid, "In4.Cu": in4_grid, "B.Cu": b_grid},
+        via_diameter=0.9,
+        trace_width=0.2,
+        prior_via_positions=[],
+        min_via_spacing_mm=0.8,
+    )
+
+    in4_grid.grid[5, 5] = 0
+    assert via_candidate_is_legal_rust(
+        candidate,
+        "F.Cu",
+        "B.Cu",
+        {"F.Cu": f_grid, "In4.Cu": in4_grid, "B.Cu": b_grid},
+        via_diameter=0.9,
+        trace_width=0.2,
+        prior_via_positions=[],
+        min_via_spacing_mm=0.8,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -185,12 +217,14 @@ def test_nlayer_tier2_rejects_endpoint_vias_that_are_too_close(monkeypatch):
             return None, grid, 0
         return [(4, 4)], grid, 0
 
-    def fake_spacing(candidate, prior, minimum):
+    def fake_candidate(candidate, _anchor, _alt, _grids, **kwargs):
+        prior = kwargs["prior_via_positions"]
+        minimum = kwargs["min_via_spacing_mm"]
         spacing_calls.append((candidate, list(prior), minimum))
         return not prior
 
     monkeypatch.setattr(subject, "_segment_search", fake_segment_search)
-    monkeypatch.setattr(subject, "_via_spacing_is_legal", fake_spacing)
+    monkeypatch.setattr(subject, "_via_candidate_is_legal", fake_candidate)
     monkeypatch.setattr(
         subject,
         "_route_segment_3d_diagnostic",

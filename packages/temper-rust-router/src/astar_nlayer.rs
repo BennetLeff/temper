@@ -14,13 +14,15 @@
 
 use pyo3::prelude::*;
 use temper_rust_router_core::astar_nlayer::{
-    astar_search_3d, route_segment_3d, via_spacing_is_legal, LayerGrid, NlayerInput,
+    astar_search_3d, route_segment_3d, via_candidate_is_legal, via_spacing_is_legal, LayerGrid,
+    NlayerInput,
 };
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(route_segment_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(astar_search_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(via_spacing_is_legal_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_candidate_is_legal_py, m)?)?;
     Ok(())
 }
 
@@ -228,4 +230,49 @@ fn via_spacing_is_legal_py(
     min_spacing_mm: f64,
 ) -> bool {
     via_spacing_is_legal(candidate, &prior_vias, min_spacing_mm)
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    candidate_world, layer, other, planes, name_ranks, stack_ranks,
+    widths, heights, origins, cell_sizes, via_extra_radius_mm,
+    prior_vias_world, min_prior_via_spacing_mm,
+))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary carries the same per-layer grid frames as route_segment_3d_py"
+)]
+fn via_candidate_is_legal_py(
+    candidate_world: (f64, f64),
+    layer: usize,
+    other: usize,
+    planes: Vec<u8>,
+    name_ranks: Vec<u32>,
+    stack_ranks: Vec<u32>,
+    widths: Vec<i64>,
+    heights: Vec<i64>,
+    origins: Vec<(f64, f64)>,
+    cell_sizes: Vec<f64>,
+    via_extra_radius_mm: f64,
+    prior_vias_world: Vec<(f64, f64)>,
+    min_prior_via_spacing_mm: f64,
+) -> PyResult<bool> {
+    let grids = decode_planes(
+        &planes,
+        &name_ranks,
+        &stack_ranks,
+        &widths,
+        &heights,
+        &origins,
+        &cell_sizes,
+    )?;
+    Ok(via_candidate_is_legal(
+        &grids,
+        candidate_world,
+        layer,
+        other,
+        via_extra_radius_mm,
+        &prior_vias_world,
+        min_prior_via_spacing_mm,
+    ))
 }

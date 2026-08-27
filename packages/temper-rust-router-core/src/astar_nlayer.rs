@@ -165,6 +165,49 @@ pub fn via_spacing_is_legal(
     })
 }
 
+pub fn via_candidate_is_legal(
+    grids: &[LayerGrid<'_>],
+    candidate_world: (f64, f64),
+    layer: usize,
+    other: usize,
+    via_extra_radius_mm: f64,
+    prior_vias_world: &[(f64, f64)],
+    min_prior_via_spacing_mm: f64,
+) -> bool {
+    if layer >= grids.len() || other >= grids.len() {
+        return false;
+    }
+    if !via_spacing_is_legal(candidate_world, prior_vias_world, min_prior_via_spacing_mm) {
+        return false;
+    }
+    if via_extra_radius_mm <= 0.0 {
+        return true;
+    }
+    let source = &grids[layer];
+    let lo = source.stack_rank.min(grids[other].stack_rank);
+    let hi = source.stack_rank.max(grids[other].stack_rank);
+    for grid in grids.iter().filter(|g| (lo..=hi).contains(&g.stack_rank)) {
+        let (cx, cy) = world_to_grid(
+            candidate_world.0,
+            candidate_world.1,
+            grid.origin,
+            grid.cell_size,
+        );
+        let expansion = (via_extra_radius_mm / grid.cell_size).ceil() as i64;
+        for gy in (cy - expansion)..=(cy + expansion) {
+            for gx in (cx - expansion)..=(cx + expansion) {
+                let dx = gx - cx;
+                let dy = gy - cy;
+                let distance_mm = ((dx * dx + dy * dy) as f64).sqrt() * grid.cell_size;
+                if distance_mm <= via_extra_radius_mm && !grid.is_free(gx, gy) {
+                    return false;
+                }
+            }
+        }
+    }
+    true
+}
+
 fn via_envelope_is_free(
     input: &NlayerInput<'_>,
     x: i64,
@@ -172,39 +215,17 @@ fn via_envelope_is_free(
     layer: usize,
     other: usize,
 ) -> bool {
-    if input.via_extra_radius_mm <= 0.0 {
-        return true;
-    }
     let source = &input.grids[layer];
-    let (wx, wy) = grid_to_world(x, y, source.origin, source.cell_size);
-    if !via_spacing_is_legal(
-        (wx, wy),
+    let candidate_world = grid_to_world(x, y, source.origin, source.cell_size);
+    via_candidate_is_legal(
+        input.grids,
+        candidate_world,
+        layer,
+        other,
+        input.via_extra_radius_mm,
         input.prior_vias_world,
         input.min_prior_via_spacing_mm,
-    ) {
-        return false;
-    }
-    let lo = source.stack_rank.min(input.grids[other].stack_rank);
-    let hi = source.stack_rank.max(input.grids[other].stack_rank);
-    for grid in input
-        .grids
-        .iter()
-        .filter(|g| (lo..=hi).contains(&g.stack_rank))
-    {
-        let (cx, cy) = world_to_grid(wx, wy, grid.origin, grid.cell_size);
-        let expansion = (input.via_extra_radius_mm / grid.cell_size).ceil() as i64;
-        for gy in (cy - expansion)..=(cy + expansion) {
-            for gx in (cx - expansion)..=(cx + expansion) {
-                let dx = gx - cx;
-                let dy = gy - cy;
-                let distance_mm = ((dx * dx + dy * dy) as f64).sqrt() * grid.cell_size;
-                if distance_mm <= input.via_extra_radius_mm && !grid.is_free(gx, gy) {
-                    return false;
-                }
-            }
-        }
-    }
-    true
+    )
 }
 
 #[derive(Debug, Default)]
