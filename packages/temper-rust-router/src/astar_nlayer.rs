@@ -37,6 +37,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 fn decode_planes<'a>(
     planes: &'a [u8],
     name_ranks: &[u32],
+    stack_ranks: &[u32],
     widths: &[i64],
     heights: &[i64],
     origins: &[(f64, f64)],
@@ -45,6 +46,7 @@ fn decode_planes<'a>(
     let n = name_ranks.len();
     if n == 0
         || widths.len() != n
+        || stack_ranks.len() != n
         || heights.len() != n
         || origins.len() != n
         || cell_sizes.len() != n
@@ -74,6 +76,7 @@ fn decode_planes<'a>(
         let len = (widths[i] * heights[i]) as usize;
         out.push(LayerGrid {
             name_rank: name_ranks[i],
+            stack_rank: stack_ranks[i],
             cells: &signed[offset..offset + len],
             width: widths[i],
             height: heights[i],
@@ -92,7 +95,7 @@ fn decode_planes<'a>(
 /// a list of `(x, y, layer_index)`.
 #[pyfunction]
 #[pyo3(signature = (
-    start, goal, planes, name_ranks, widths, heights, origins, cell_sizes,
+    start, goal, planes, name_ranks, stack_ranks, widths, heights, origins, cell_sizes,
     available_layers, via_cost, max_iter,
 ))]
 #[expect(
@@ -105,6 +108,7 @@ fn astar_search_3d_py(
     goal: (i64, i64, usize),
     planes: Vec<u8>,
     name_ranks: Vec<u32>,
+    stack_ranks: Vec<u32>,
     widths: Vec<i64>,
     heights: Vec<i64>,
     origins: Vec<(f64, f64)>,
@@ -116,6 +120,7 @@ fn astar_search_3d_py(
     let grids = decode_planes(
         &planes,
         &name_ranks,
+        &stack_ranks,
         &widths,
         &heights,
         &origins,
@@ -127,6 +132,7 @@ fn astar_search_3d_py(
         grids: &grids,
         available_layers: &available_layers,
         via_cost,
+        via_extra_radius_mm: 0.0,
         max_iter,
     });
     Ok((out.path, out.vias, out.found, out.iterations))
@@ -142,8 +148,8 @@ fn astar_search_3d_py(
 #[pyfunction]
 #[pyo3(signature = (
     start_world, goal_world, start_layer, goal_layer,
-    planes, name_ranks, widths, heights, origins, cell_sizes,
-    available_layers, via_cost, max_iter,
+    planes, name_ranks, stack_ranks, widths, heights, origins, cell_sizes,
+    available_layers, via_cost, via_extra_radius_mm, max_iter,
 ))]
 #[expect(
     clippy::too_many_arguments,
@@ -157,12 +163,14 @@ fn route_segment_3d_py(
     goal_layer: usize,
     planes: Vec<u8>,
     name_ranks: Vec<u32>,
+    stack_ranks: Vec<u32>,
     widths: Vec<i64>,
     heights: Vec<i64>,
     origins: Vec<(f64, f64)>,
     cell_sizes: Vec<f64>,
     available_layers: Vec<usize>,
     via_cost: f64,
+    via_extra_radius_mm: f64,
     max_iter: Option<u64>,
 ) -> PyResult<(
     Vec<(f64, f64, usize)>,
@@ -175,6 +183,7 @@ fn route_segment_3d_py(
     let grids = decode_planes(
         &planes,
         &name_ranks,
+        &stack_ranks,
         &widths,
         &heights,
         &origins,
@@ -189,6 +198,7 @@ fn route_segment_3d_py(
         &grids,
         &available_layers,
         via_cost,
+        via_extra_radius_mm,
         max_iter,
     );
 

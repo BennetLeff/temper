@@ -80,6 +80,17 @@ def _marshal(grids: dict):
     # must be the name's position in lexicographic order.
     ranked = sorted(layer_names)
     name_ranks = [ranked.index(name) for name in layer_names]
+
+    def stack_rank(name: str) -> int:
+        if name == "F.Cu":
+            return 0
+        if name == "B.Cu":
+            return 10_000
+        if name.startswith("In") and name.endswith(".Cu"):
+            return int(name[2:-3])
+        raise ValueError(f"unsupported copper layer name: {name}")
+
+    stack_ranks = [stack_rank(name) for name in layer_names]
     widths = [int(grids[n].width_cells) for n in layer_names]
     heights = [int(grids[n].height_cells) for n in layer_names]
     origins = [(float(grids[n].origin[0]), float(grids[n].origin[1])) for n in layer_names]
@@ -88,7 +99,7 @@ def _marshal(grids: dict):
         [np.ascontiguousarray(grids[n].grid, dtype=np.int8).reshape(-1) for n in layer_names]
     ).tobytes()
     frames = (widths, heights, origins, cell_sizes)
-    return layer_names, index_of, sample, name_ranks, planes, frames
+    return layer_names, index_of, sample, name_ranks, stack_ranks, planes, frames
 
 
 def _mark_vias(via_cells, grids, sample, via_diameter, clearance, net_id) -> None:
@@ -127,7 +138,7 @@ def astar_search_3d_rust(
     if start.layer not in grids or goal.layer not in grids:
         return None
 
-    layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
+    layer_names, index_of, sample, name_ranks, stack_ranks, planes, frames = _marshal(grids)
     widths, heights, origins, cell_sizes = frames
 
     path_cells, via_cells, found, _iters = _trr.astar_search_3d_py(
@@ -135,6 +146,7 @@ def astar_search_3d_rust(
         (int(goal.x), int(goal.y), index_of[goal.layer]),
         planes,
         name_ranks,
+        stack_ranks,
         widths,
         heights,
         origins,
@@ -161,6 +173,7 @@ def route_segment_3d_rust(
     grids: dict,
     via_cost: float = 10.0,
     via_diameter: float = 0.6,
+    trace_width: float | None = None,
     clearance: float = 0.2,
     net_id: int = 0,
     max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
@@ -178,6 +191,7 @@ def route_segment_3d_rust(
         grids,
         via_cost=via_cost,
         via_diameter=via_diameter,
+        trace_width=trace_width,
         clearance=clearance,
         net_id=net_id,
         max_iter=max_iter,
@@ -193,6 +207,7 @@ def route_segment_3d_rust_diagnostic(
     grids: dict,
     via_cost: float = 10.0,
     via_diameter: float = 0.6,
+    trace_width: float | None = None,
     clearance: float = 0.2,
     net_id: int = 0,
     max_iter: int | None = ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
@@ -214,7 +229,7 @@ def route_segment_3d_rust_diagnostic(
     # Layer index order = `grids` iteration order, so index 0's frame is the
     # `next(iter(grids.values()))` sample grid the Python used for every
     # coordinate conversion.
-    layer_names, index_of, sample, name_ranks, planes, frames = _marshal(grids)
+    layer_names, index_of, sample, name_ranks, stack_ranks, planes, frames = _marshal(grids)
     widths, heights, origins, cell_sizes = frames
 
     world_path, via_world, via_cells, found, iterations, hit_iteration_cap = (
@@ -225,12 +240,18 @@ def route_segment_3d_rust_diagnostic(
             index_of[goal_layer],
             planes,
             name_ranks,
+            stack_ranks,
             widths,
             heights,
             origins,
             cell_sizes,
             [index_of[n] for n in _available_layers(grids)],
             float(via_cost),
+            (
+                0.0
+                if trace_width is None
+                else max(0.0, (float(via_diameter) - float(trace_width)) / 2.0)
+            ),
             None if max_iter is None else int(max_iter),
         )
     )

@@ -552,6 +552,7 @@ def _astar_route_nlayer(
             # identical fallback in _astar_search.py (docs/evidence/
             # 2026-08-13-jlcpcb-fab-capability-envelope.md).
             via_diameter=net_rules.via_diameter_mm if net_rules else 0.9,
+            trace_width=net_rules.trace_width_mm if net_rules else 0.2,
             clearance=net_rules.clearance_mm if net_rules else 0.2,
             net_id=net_id,
             max_iter=segment_3d_fallback_max_iter,

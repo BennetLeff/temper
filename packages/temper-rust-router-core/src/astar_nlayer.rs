@@ -103,6 +103,8 @@ pub struct LayerGrid<'a> {
     /// Rank of this layer's name in the lexicographically sorted name list —
     /// the heap tie-breaker standing in for Python's layer-name comparison.
     pub name_rank: u32,
+    /// Physical copper-stack order (F.Cu < InN.Cu < B.Cu).
+    pub stack_rank: u32,
     /// Row-major `(height, width)` int8 occupancy. 0 = free.
     pub cells: &'a [i8],
     pub width: i64,
@@ -131,8 +133,42 @@ pub struct NlayerInput<'a> {
     /// which via moves are generated.
     pub available_layers: &'a [usize],
     pub via_cost: f64,
+    /// Additional radius beyond the trace envelope already represented by
+    /// each occupancy grid: max(0, via_diameter/2 - trace_width/2).
+    pub via_extra_radius_mm: f64,
     /// `None` = unbounded, mirroring the Python default.
     pub max_iter: Option<u64>,
+}
+
+fn via_envelope_is_free(
+    input: &NlayerInput<'_>,
+    x: i64,
+    y: i64,
+    layer: usize,
+    other: usize,
+) -> bool {
+    if input.via_extra_radius_mm <= 0.0 {
+        return true;
+    }
+    let source = &input.grids[layer];
+    let (wx, wy) = grid_to_world(x, y, source.origin, source.cell_size);
+    let lo = source.stack_rank.min(input.grids[other].stack_rank);
+    let hi = source.stack_rank.max(input.grids[other].stack_rank);
+    for grid in input.grids.iter().filter(|g| (lo..=hi).contains(&g.stack_rank)) {
+        let (cx, cy) = world_to_grid(wx, wy, grid.origin, grid.cell_size);
+        let expansion = (input.via_extra_radius_mm / grid.cell_size).ceil() as i64;
+        for gy in (cy - expansion)..=(cy + expansion) {
+            for gx in (cx - expansion)..=(cx + expansion) {
+                let dx = gx - cx;
+                let dy = gy - cy;
+                let distance_mm = ((dx * dx + dy * dy) as f64).sqrt() * grid.cell_size;
+                if distance_mm <= input.via_extra_radius_mm && !grid.is_free(gx, gy) {
+                    return false;
+                }
+            }
+        }
+    }
+    true
 }
 
 #[derive(Debug, Default)]
@@ -313,7 +349,10 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
             }
         }
         for &other in input.available_layers {
-            if other != layer && input.grids[other].is_free(x, y) {
+            if other != layer
+                && input.grids[other].is_free(x, y)
+                && via_envelope_is_free(input, x, y, layer, other)
+            {
                 moves.push(((x, y, other), input.via_cost));
             }
         }
@@ -442,6 +481,7 @@ pub fn route_segment_3d(
     grids: &[LayerGrid<'_>],
     available_layers: &[usize],
     via_cost: f64,
+    via_extra_radius_mm: f64,
     max_iter: Option<u64>,
 ) -> RouteSegment3dOutput {
     let empty = RouteSegment3dOutput {
@@ -473,6 +513,7 @@ pub fn route_segment_3d(
         grids,
         available_layers,
         via_cost,
+        via_extra_radius_mm,
         max_iter,
     });
     if !out.found {
@@ -530,6 +571,7 @@ pub(crate) mod tests {
             .enumerate()
             .map(|(i, p)| LayerGrid {
                 name_rank: i as u32,
+                stack_rank: i as u32,
                 cells: p,
                 width: w,
                 height: h,
@@ -549,6 +591,7 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0, 1],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(out.found);
@@ -567,11 +610,44 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0, 1],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(out.found);
         assert_eq!(out.vias, vec![(1, 1)], "one transition => exactly one via");
         assert_eq!(out.path, vec![(1, 1, 0), (1, 1, 1)]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_via_envelope_rejects_center_only_aperture() {
+        let mut lower = vec![-1i8; 25];
+        let mut upper = vec![-1i8; 25];
+        lower[2 * 5 + 2] = 0;
+        upper[2 * 5 + 2] = 0;
+        let planes = vec![lower, upper];
+        let g = grids_from(&planes, 5, 5);
+
+        let center_only = astar_search_3d(&NlayerInput {
+            start: (2, 2, 0),
+            goal: (2, 2, 1),
+            grids: &g,
+            available_layers: &[0, 1],
+            via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
+            max_iter: Some(100),
+        });
+        assert!(center_only.found, "legacy center-cell check accepts the slit");
+
+        let physical_envelope = astar_search_3d(&NlayerInput {
+            start: (2, 2, 0),
+            goal: (2, 2, 1),
+            grids: &g,
+            available_layers: &[0, 1],
+            via_cost: 10.0,
+            via_extra_radius_mm: 1.0,
+            max_iter: Some(100),
+        });
+        assert!(!physical_envelope.found, "a via cannot fit through a one-cell slit");
     }
 
     #[cfg_attr(test, test)]
@@ -589,6 +665,7 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0, 1],
             via_cost: 1.0,
+            via_extra_radius_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(out.found);
@@ -610,6 +687,7 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
             max_iter: Some(100_000),
         });
         assert!(!out.found);
@@ -626,6 +704,7 @@ pub(crate) mod tests {
             grids: &g,
             available_layers: &[0],
             via_cost: 10.0,
+            via_extra_radius_mm: 0.0,
             max_iter: Some(5),
         });
         assert!(!out.found);
@@ -684,6 +763,7 @@ pub(crate) mod tests {
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("astar_nlayer::tests::test_same_layer_path_on_open_grid", test_same_layer_path_on_open_grid),
         ("astar_nlayer::tests::test_layer_change_emits_via", test_layer_change_emits_via),
+        ("astar_nlayer::tests::test_via_envelope_rejects_center_only_aperture", test_via_envelope_rejects_center_only_aperture),
         ("astar_nlayer::tests::test_blocked_layer_forces_detour_via_other_layer", test_blocked_layer_forces_detour_via_other_layer),
         ("astar_nlayer::tests::test_unreachable_returns_not_found", test_unreachable_returns_not_found),
         ("astar_nlayer::tests::test_max_iter_bail", test_max_iter_bail),

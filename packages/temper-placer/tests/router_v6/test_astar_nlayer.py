@@ -38,7 +38,9 @@ _MID = _SIZE // 2
 
 
 def _open_grid(name: str) -> OccupancyGrid:
-    return OccupancyGrid(name, np.zeros((_SIZE, _SIZE), dtype=np.int8), (0.0, 0.0), _CELL, _SIZE, _SIZE)
+    return OccupancyGrid(
+        name, np.zeros((_SIZE, _SIZE), dtype=np.int8), (0.0, 0.0), _CELL, _SIZE, _SIZE
+    )
 
 
 def _blocked_grid(name: str) -> OccupancyGrid:
@@ -125,7 +127,9 @@ def test_select_routing_grids_nlayer_collapses_to_two_on_a_two_layer_board():
 
 def test_nlayer_two_grid_open_primary_needs_no_via():
     grids = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
-    channel_path = ChannelPath("NET1", ["CH1"], [(2.0, 2.0), (8.0, 8.0)], 10.0, preferred_layer="F.Cu")
+    channel_path = ChannelPath(
+        "NET1", ["CH1"], [(2.0, 2.0), (8.0, 8.0)], 10.0, preferred_layer="F.Cu"
+    )
     result, _fb = _astar_route_nlayer("NET1", channel_path, grids, net_id=1)
     assert isinstance(result, RoutePath3D)
     assert result.forced_segment_count == 0
@@ -174,8 +178,12 @@ def test_nlayer_tier2_skips_degenerate_same_layer_anchor_via():
     channel_path = ChannelPath("NET1", ["CH1"], [start, goal], 10.0, preferred_layer="B.Cu")
 
     result, _fb = _astar_route_nlayer(
-        "NET1", channel_path, grids, net_id=1,
-        pad_layer_start="F.Cu", pad_layer_end="F.Cu",
+        "NET1",
+        channel_path,
+        grids,
+        net_id=1,
+        pad_layer_start="F.Cu",
+        pad_layer_end="F.Cu",
     )
     assert result is not None
     assert result.forced_segment_count == 0
@@ -218,14 +226,20 @@ def _make_three_layer_bottleneck() -> dict[str, OccupancyGrid]:
     split = _SIZE // 2  # column 10 for _SIZE=21
 
     f_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
-    f_arr[_MID, 0] = 0
-    f_arr[_MID, _SIZE - 1] = 0
+    # Three-cell aperture around each transition: the default 0.9 mm via is
+    # wider than the 0.2 mm trace, so a one-cell slit is center-reachable but
+    # not physically via-reachable under the production envelope check.
+    f_arr[_MID - 1 : _MID + 2, 0:3] = 0
+    f_arr[_MID - 1 : _MID + 2, _SIZE - 3 : _SIZE] = 0
 
     mid_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
-    mid_arr[_MID, 0 : split + 1] = 0  # In1.Cu open columns 0..split
+    mid_arr[_MID - 1 : _MID + 2, 0 : split + 2] = 0
+    # The final B.Cu -> F.Cu through-via physically spans In1.Cu too, even
+    # though the routed trace does not travel there at that endpoint.
+    mid_arr[_MID - 1 : _MID + 2, _SIZE - 3 : _SIZE] = 0
 
     b_arr = np.full((_SIZE, _SIZE), -1, dtype=np.int8)
-    b_arr[_MID, split : _SIZE] = 0  # B.Cu open columns split..end
+    b_arr[_MID - 1 : _MID + 2, split - 1 : _SIZE] = 0
 
     grids = {}
     for name, arr in (("F.Cu", f_arr), ("In1.Cu", mid_arr), ("B.Cu", b_arr)):
@@ -348,7 +362,9 @@ def test_land_route_on_pad_layers_is_a_noop_when_termini_already_match():
     )
     pads = {"NET1": [(2.0, 2.0, 0.5, "F.Cu"), (8.0, 8.0, 0.5, "F.Cu")]}
     result = _land_route_on_pad_layers("NET1", route, pads, grids)
-    assert result is route, "must not mutate/replace a route whose termini already sit on their pad's real layer"
+    assert result is route, (
+        "must not mutate/replace a route whose termini already sit on their pad's real layer"
+    )
 
 
 def test_land_route_on_pad_layers_inserts_landing_vias_at_both_termini():
@@ -428,7 +444,9 @@ def test_run_astar_pathfinding_nlayer_lands_a_route_forced_onto_the_wrong_layer(
     assert "NET1" in result.routed_paths
     assert "NET1" not in result.failed_nets
     routed = result.routed_paths["NET1"]
-    assert routed.segments[0][2] == "F.Cu", "must land on the pad's real layer, not the SSOT-forced one"
+    assert routed.segments[0][2] == "F.Cu", (
+        "must land on the pad's real layer, not the SSOT-forced one"
+    )
     assert routed.segments[-1][2] == "F.Cu"
     assert start in routed.via_positions
     assert goal in routed.via_positions
@@ -536,9 +554,9 @@ def test_build_width_families_without_routing_spaces_is_identity():
     base = {"F.Cu": _open_grid("F.Cu"), "B.Cu": _open_grid("B.Cu")}
     rules = _make_width_aware_design_rules()
     families, family_of_net, _halos = _build_width_families(base, None, ["NARROW", "WIDE"], rules)
-    assert (
-        families[(0.2, 0.2, "Default")] is base
-    ), "single identity family must BE the caller's dict"
+    assert families[(0.2, 0.2, "Default")] is base, (
+        "single identity family must BE the caller's dict"
+    )
 
 
 def _min_centerline_distance(path_a, path_b) -> float:
@@ -723,10 +741,10 @@ def _make_mini_pcb(design_rules: DesignRules) -> ParsedPCB:
         footprint="TEST",
         bounds=(4.0, 4.0),
         pins=[
-            Pin(name="1", number="1", position=(10.0, 10.0), net="HV_PAD_NET",
-                width=1.0, height=1.0),
-            Pin(name="2", number="2", position=(16.0, 10.0), net="LV_NET",
-                width=1.0, height=1.0),
+            Pin(
+                name="1", number="1", position=(10.0, 10.0), net="HV_PAD_NET", width=1.0, height=1.0
+            ),
+            Pin(name="2", number="2", position=(16.0, 10.0), net="LV_NET", width=1.0, height=1.0),
         ],
         initial_position=(0.0, 0.0),
         initial_rotation_quadrant=0,
@@ -861,9 +879,7 @@ def test_creepage_halo_blocks_lv_net_from_hv_pad():
 
     # LV net from (4, 10) to (36, 10) -- passes 6mm from the HV pad at
     # (10,10) (14mm centerline minus 0.5 half-pad) if the halo were absent.
-    sig_ch = ChannelPath(
-        "SIG", ["CH1"], [(4.0, 10.0), (36.0, 10.0)], 32.0, preferred_layer="F.Cu"
-    )
+    sig_ch = ChannelPath("SIG", ["CH1"], [(4.0, 10.0), (36.0, 10.0)], 32.0, preferred_layer="F.Cu")
     channel_mapping = ChannelMapping(channel_paths={"SIG": sig_ch})
     result = run_astar_pathfinding_nlayer(
         channel_mapping,
