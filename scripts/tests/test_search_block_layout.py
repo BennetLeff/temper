@@ -40,3 +40,33 @@ def test_search_fails_before_measurement_for_unknown_block_ref(
             bounds=(0.0, 0.0, 10.0, 10.0),
             route=False,
         )
+
+
+def test_block_transform_uses_kicad_clockwise_quarter_turn() -> None:
+    moved = _MODULE._transform(
+        {"C4": (0.0, 0.0, 0.0), "R4": (10.0, 4.0, 0.0)},
+        "C4",
+        1,
+        0.0,
+        0.0,
+    )
+    assert moved["R4"].x == pytest.approx(4.0)
+    assert moved["R4"].y == pytest.approx(-10.0)
+    assert moved["R4"].rotation == pytest.approx(90.0)
+
+
+def test_internal_slots_are_dimension_derived_and_finite() -> None:
+    arrangements = _MODULE._arrangements(
+        {"C4": (10.0, 20.0, 0.0), "R4": (30.0, 40.0, 180.0)},
+        ["C4", "R4"],
+        "C4",
+        "R4",
+        {"C4": (8.0, 6.0), "R4": (4.0, 2.0)},
+        [0, 1],
+        1.0,
+    )
+    assert len(arrangements) == 9  # as-is plus four slots at two rotations
+    assert arrangements[1][0] == "R4:right:q0"
+    assert arrangements[1][1]["R4"] == (17.0, 20.0, 180.0)
+    assert arrangements[5][0] == "R4:right:q1"
+    assert arrangements[5][1]["R4"] == (16.0, 20.0, 270.0)

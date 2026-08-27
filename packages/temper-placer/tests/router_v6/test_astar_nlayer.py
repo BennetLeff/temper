@@ -762,8 +762,6 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # pad's halo carries 12.6mm. Both must be present in the per-family
     # halo lists.
     lv_family = families[(0.2, 0.2, "Default")]
-    hv_family = families[(5.0, 2.0, "HighVoltage")]
-
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
     assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"
@@ -793,6 +791,29 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # LV pad's surroundings carry no halo ring beyond the 0.2mm erosion.
     lv_pad_cell = grid.world_to_grid(16.0, 10.0)
     assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
+
+
+def test_multiple_foreign_halo_entries_keep_holes_aligned_per_polygon():
+    """Each halo entry contains `_area_rings` output. Combining entries
+    must flatten both the outer and holes axes once; retaining the entry axis
+    makes pyo3 receive a list where a hole coordinate must be a float."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    routing_space = _make_box_routing_space("F.Cu", 40.0)
+    grid = build_occupancy_grid(routing_space, inflation_mm=0.1)
+    square_a = [5.0, 5.0, 8.0, 5.0, 8.0, 8.0, 5.0, 8.0, 5.0, 5.0]
+    square_b = [20.0, 20.0, 23.0, 20.0, 23.0, 23.0, 20.0, 23.0, 20.0, 20.0]
+    halos = {
+        "F.Cu": [
+            ("HV_A", [square_a], [[]]),
+            ("HV_B", [square_b], [[]]),
+        ]
+    }
+
+    _nl._stamp_foreign_creepage_halos("LV", {"F.Cu": grid}, halos)
+
+    assert grid.is_blocked(*grid.world_to_grid(6.0, 6.0))
+    assert grid.is_blocked(*grid.world_to_grid(21.0, 21.0))
 
 
 def test_creepage_halo_blocks_lv_net_from_hv_pad():

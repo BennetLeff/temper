@@ -953,15 +953,36 @@ fn evaluate_regional_candidate_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-fn block_translation_schedule_py(
+fn block_search_schedule_py(
     step_mm: f64,
     max_rings: usize,
+    arrangement_count: usize,
+    block_quarter_turns: Vec<usize>,
     max_candidates: usize,
-) -> PyResult<Vec<(f64, f64, usize)>> {
+) -> PyResult<Vec<(usize, usize, f64, f64, usize)>> {
     temper_py_bridge::catch_panic(|| {
-        regional_feasibility::block_translation_schedule(step_mm, max_rings, max_candidates)
-            .map(|items| items.into_iter().map(|p| (p.dx_mm, p.dy_mm, p.ring)).collect())
-            .map_err(PyValueError::new_err)
+        regional_feasibility::block_search_schedule(
+            step_mm,
+            max_rings,
+            arrangement_count,
+            &block_quarter_turns,
+            max_candidates,
+        )
+        .map(|items| {
+            items
+                .into_iter()
+                .map(|item| {
+                    (
+                        item.arrangement_index,
+                        item.block_quarter_turn,
+                        item.translation.dx_mm,
+                        item.translation.dy_mm,
+                        item.translation.ring,
+                    )
+                })
+                .collect()
+        })
+        .map_err(PyValueError::new_err)
     })
 }
 
@@ -1041,7 +1062,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
-    m.add_function(wrap_pyfunction!(block_translation_schedule_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_search_schedule_py, m)?)?;
     m.add_function(wrap_pyfunction!(select_routed_block_candidate_py, m)?)?;
     m.add_function(wrap_pyfunction!(block_expansion_candidates_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;

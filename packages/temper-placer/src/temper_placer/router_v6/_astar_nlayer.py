@@ -883,7 +883,7 @@ def _stamp_foreign_creepage_halos(
         _tg.rasterize_area_polygons_py(
             temp,
             [ring for outer, _holes in foreign for ring in outer],
-            [holes for _outer, holes in foreign],
+            [polygon_holes for _outer, holes in foreign for polygon_holes in holes],
             grid.origin[0],
             grid.origin[1],
             grid.cell_size,

@@ -70,11 +70,11 @@ def test_pair_identity_canonicalizes_both_sides() -> None:
     )
 
 
-def test_rust_block_schedule_is_bounded_and_excludes_origin() -> None:
-    schedule = quality.block_translation_schedule_py(5.0, 3, 10)
+def test_rust_block_schedule_is_bounded_and_excludes_unchanged_board() -> None:
+    schedule = quality.block_search_schedule_py(5.0, 3, 1, [0], 10)
     assert len(schedule) == 10
-    assert schedule[0] == (-5.0, -5.0, 1)
-    assert all(dx != 0.0 or dy != 0.0 for dx, dy, _ in schedule)
+    assert schedule[0] == (0, 0, -5.0, -5.0, 1)
+    assert all(dx != 0.0 or dy != 0.0 for _, _, dx, dy, _ in schedule)
 
 
 def test_rust_block_selector_rejects_unsafe_complete_route() -> None:
