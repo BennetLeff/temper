@@ -92,4 +92,55 @@ population while leaving the 22 geometrically exhausted nets alone. It must
 not be promoted merely because individual segments recover: pad connectivity,
 runtime, and routed-board DRC remain the acceptance criteria.
 
+## Bounded 2M experiment: rejected
+
+The 2,000,000-iteration Tier-3 floor was applied only for an experimental
+full-board run, then removed before commit. It produced:
+
+| metric | 1M production | 2M experiment | delta |
+|---|---:|---:|---:|
+| wall time | 209.7 s | 249.4 s | +39.7 s (+19%) |
+| fully pad-connected nets | 55 | 58 | +3 |
+| A* decline reports | 70 | 67 | -3 |
+| iteration-cap declines | 48 | 29 | -19 |
+| frontier-exhausted declines | 22 | 38 | +16 |
+
+Four nets recovered (`discharge.q_dis_drv-g`, `rtd_pan.r_low_top-inn`,
+`safety.ovp-line`, and `safety.thermal-line`) while `WDT_RESET_N` regressed.
+The aggregate gain was real, but not monotone.
+
+It fails the routed-board acceptance gate. Three independent kicad-cli DRC
+runs per artifact were identical:
+
+| DRC category | 1M | 2M | delta |
+|---|---:|---:|---:|
+| total errors | 425 | 457 | +32 |
+| clearance | 234 | 250 | +16 |
+| shorting_items | 26 | 29 | +3 |
+| hole_clearance | 26 | 28 | +2 |
+| copper_edge_clearance | 30 | 32 | +2 |
+| creepage | 95 | 98 | +3 |
+| solder_mask_bridge | 0 | 6 | +6 |
+
+Set-diffing found 75 newly appearing violations while other baseline findings
+disappeared. The recovered nets dominate the new set:
+`discharge.q_dis_drv-g` appears in 29, `safety.thermal-line` in 19,
+`rtd_pan.r_low_top-inn` in 15, and `safety.ovp-line` in 11. Representative
+failures are physical-via-envelope collisions: a `discharge.q_dis_drv-g` via
+against U12's GND pad, an `rtd_pan.r_low_top-inn` blind via against C20's +3V3
+pad, and a `safety.thermal-line` via against R59's foreign pad.
+
+The mechanism is visible at the boundary: Rust Tier 3 receives occupancy
+planes, layer frames, via cost, and an iteration cap, but not via diameter or
+clearance. It can prove a via *center cell* reachable without proving the
+drill and copper envelope legal. The Python adapter receives diameter and
+clearance only after search, where `_mark_vias` stamps the chosen result; it
+does not reject a collision the search already selected.
+
+Decision: do not promote the 2M floor. The next router fix is to make Rust's
+layer-transition validity account for the physical via envelope on every
+spanned layer, with the retired Python implementation retained as a
+differential and kicad-cli DRC as the external correctness oracle. Only then
+should the bounded budget experiment be repeated.
+
 Certification-lab work remains the final project step and was not performed.
