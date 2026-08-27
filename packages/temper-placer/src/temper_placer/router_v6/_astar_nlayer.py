@@ -924,10 +924,10 @@ def _family_halo_layers(
     ``_stamp_foreign_creepage_halos``). Sources mirror
     ``obstacle_map.build_obstacle_map``'s obstacle inventory -- pads, escape
     vias, pre-existing vias, pre-routed tracks and net-eligible zones -- so
-    the A* reserves the same copper the static layer already blocks, plus
+    the A* can restore exact foreign static copper after pad unblocking, plus
     the pair creepage the DRC grades between this family's class and the
-    obstacle's net class. A zero-creepage pair contributes no entry: the
-    grid's W/2 + C erosion already reserves that obstacle.
+    obstacle's net class. Zero-creepage pairs remain in this inventory: their
+    W/2 + C polygon restores static cells that a nearby own-pad opening erased.
     """
     from shapely.geometry import Polygon
 
@@ -967,8 +967,6 @@ def _family_halo_layers(
             pad_poly = _create_pad_polygon(pin, px, py, angle)
             pad_class = net_class_of(pin.net, design_rules)
             creep = table.required(family_class, pad_class)
-            if creep <= 0.0:
-                continue
             marshalled = _halo_poly(creep, pad_poly)
             if marshalled is None:
                 continue
@@ -987,8 +985,6 @@ def _family_halo_layers(
     for net_name, vias in (escape_vias_map or {}).items():
         via_class = net_class_of(net_name, design_rules)
         creep = table.required(family_class, via_class)
-        if creep <= 0.0:
-            continue
         for vx, vy, diameter in vias:
             via_poly = Polygon(_circle_buffer_ring(vx, vy, diameter / 2.0, 8))
             marshalled = _halo_poly(creep, via_poly)
@@ -1006,8 +1002,6 @@ def _family_halo_layers(
             continue
         via_class = net_class_of(via_net, design_rules)
         creep = table.required(family_class, via_class)
-        if creep <= 0.0:
-            continue
         via_poly = Polygon(
             _circle_buffer_ring(via.position[0], via.position[1], via.diameter / 2.0, 8)
         )
@@ -1026,8 +1020,6 @@ def _family_halo_layers(
             continue
         track_class = net_class_of(track_net, design_rules)
         creep = table.required(family_class, track_class)
-        if creep <= 0.0:
-            continue
         from shapely.geometry import LineString
 
         line = LineString([track.start, track.end])
@@ -1052,8 +1044,6 @@ def _family_halo_layers(
             (table.required(family_class, net_class_of(n, design_rules)) for n in net_names),
             default=0.0,
         )
-        if zone_creep <= 0.0:
-            continue
         try:
             zone_poly = Polygon(zone.polygon)
             if not zone_poly.is_valid:
@@ -1337,11 +1327,11 @@ def run_astar_pathfinding_nlayer(
             existing_vias_map=existing_vias_per_net,
         )
 
-        # Creepage-aware C-space (2026-08-16): the unblock above cleared the
-        # -1 cells inside this net's own pad circles -- including whatever
-        # part of a foreign pad's much larger creepage halo fell inside
-        # them. Re-stamp the foreign halos so this net cannot route through
-        # another net's required creepage distance (see
+        # Static ownership + creepage-aware C-space: the unblock above clears
+        # anonymous -1 cells inside this net's access circles, including
+        # overlapping foreign pads/vias/tracks/zones and their larger creepage
+        # halos. Re-stamp the exact pre-marshalled foreign polygons so this
+        # net cannot route through erased copper or required creepage (see
         # _stamp_foreign_creepage_halos). No-op for synthetic fixtures
         # (family_halos empty).
         _stamp_foreign_creepage_halos(net_name, active_grids, family_halos.get(family_key, {}))

@@ -814,12 +814,30 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
     assert "HV_PAD_NET" in lv_halo_nets, "HV pad must halo an LV searching net"
-    assert "LV_NET" not in lv_halo_nets, "same-class pads must not halo themselves"
+    assert "LV_NET" in lv_halo_nets, "zero-creepage static inventory must remain restampable"
 
     hv_halos = halos[(5.0, 2.0, "HighVoltage")]["F.Cu"]
     hv_halo_nets = {n for n, _o, _h in hv_halos}
     assert "LV_NET" in hv_halo_nets, "LV pad must halo an HV searching net"
-    assert "HV_PAD_NET" not in hv_halo_nets, "own-class pad must not be haloed"
+    assert "HV_PAD_NET" in hv_halo_nets, "zero-creepage static inventory must remain restampable"
+
+    # The zero-creepage LV entry is retained for static restoration but is
+    # filtered when LV_NET itself searches. The same exact polygon blocks a
+    # different net through the Rust area rasteriser.
+    lv_only = [entry for entry in lv_halos if entry[0] == "LV_NET"]
+    probe = OccupancyGrid(
+        "F.Cu",
+        np.zeros_like(lv_family["F.Cu"].grid),
+        lv_family["F.Cu"].origin,
+        lv_family["F.Cu"].cell_size,
+        lv_family["F.Cu"].width_cells,
+        lv_family["F.Cu"].height_cells,
+    )
+    _nl._stamp_foreign_creepage_halos("LV_NET", {"F.Cu": probe}, {"F.Cu": lv_only})
+    lv_pad_cell = probe.world_to_grid(16.0, 10.0)
+    assert probe.is_free(*lv_pad_cell), "own static entry must not close its access"
+    _nl._stamp_foreign_creepage_halos("OTHER", {"F.Cu": probe}, {"F.Cu": lv_only})
+    assert probe.is_blocked(*lv_pad_cell), "foreign zero-creepage pad must be restored"
 
     # The halo radius must reach the pair creepage: HV pad (1.0mm square,
     # half-extent 0.5) + W/2 + C + 12.6. In the LV family W/2+C = 0.3, so a
