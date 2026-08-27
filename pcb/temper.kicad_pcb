@@ -6764,7 +6764,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c5786565) (tstamp 3b7f8990-cbae-d8f2-f84b-8d41b8a51d4d)
-    (at 147.7 42.480000000000004 180)
+    (at 150.7 46.48 180)
     (descr "SOT, 6 Pin (JEDEC MO-178 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U13")
