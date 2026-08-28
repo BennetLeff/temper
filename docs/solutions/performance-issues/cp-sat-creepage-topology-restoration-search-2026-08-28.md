@@ -246,6 +246,82 @@ within the completed probes. Cross-half combinations are not justified by the
 planner because the 72-component half is unresolved rather than proven
 insufficient.
 
+## Decision after deletion testing
+
+Deletion testing answered the component-local hypothesis. The 2 mm conflict
+is not repaired by releasing any one weighted-twin class, including the class
+containing 96 of the 168 components. More combinations would be expensive and
+hard to interpret while the 72-component half and the all-released control are
+still unresolved.
+
+The next search should therefore change axes. Instead of asking *which
+components may move farther?*, ask *which production constraint family first
+makes the known-safe creepage topology infeasible or intractable?*
+
+This distinction matters because releasing all 168 displacement bounds does
+not remove production constraints. The 120-second all-released timeout is
+consistent with at least three different causes:
+
+1. the complete combined model is feasible but has weak propagation;
+2. one production constraint family contradicts the safe topology; or
+3. two individually compatible families interact to create the conflict.
+
+The deletion frontier cannot distinguish those cases. A constraint-family
+feasibility ladder can.
+
+## Next experiment: independent constraint-family probes
+
+Build each probe from a fresh model. Use the stripped, exhaustively verified
+creepage model as the common base, then add production constraint families in
+a declared deterministic order. Do not infer causality from a single
+cumulative order alone: after the first cumulative failure, also test that
+family independently on the base and test the previously accepted prefix
+without it.
+
+Every probe must record four states separately:
+
+- **accepted**: a complete placement exists; run the exhaustive Rust creepage
+  verifier before calling the combined candidate clean;
+- **infeasible**: the exact fresh model was proven contradictory;
+- **unknown/timeout**: the solver did not decide within the bound;
+- **invalid/error**: the experiment itself was malformed or failed.
+
+The first bounded campaign should be diagnostic rather than exhaustive:
+
+1. Reproduce the stripped creepage base.
+2. Probe each available production family independently against that base.
+3. Run a cumulative ladder in a stable, documented order, carrying only an
+   accepted placement as the next hint.
+4. At the first non-accepted cumulative stage, run leave-one-out probes over
+   the active prefix.
+5. If every family is independently accepted but a prefix fails, bisect the
+   interacting family set with fresh models; do not weaken any family.
+6. Persist a canonical frontier keyed by board hash, exact family set,
+   production-option digest, and limits so interrupted runs can resume.
+
+The desired output is not merely "the full model timed out." It is the
+smallest evidence-backed set of production families known to change the safe
+creepage base from accepted to infeasible or unresolved. That set determines
+whether the next engineering work is a correctness fix, a stronger Rust-owned
+encoding, or a more targeted search decomposition.
+
+### Implemented diagnostic harness
+
+The family-ladder harness now consists of three deliberately separate parts:
+
+- `constraint_family_probe_planner.py` plans independent, cumulative,
+  leave-one-out, and interaction-bisection probes from recorded evidence;
+- `constraint_family_campaign.py` runs each exact family set in a fresh child
+  process, verifies complete candidates, and permits hints only from accepted
+  placements; and
+- `constraint_family_frontier.py` persists canonical resumable results keyed
+  by board identity, exact family set, stable option digests, and solve limits.
+
+A dynamically planned campaign always runs the empty-family base first. If
+that control is not accepted, the planner is not invoked. Optional production
+families still require their real caller-owned artifacts; the harness refuses
+to synthesize a manifest or treat an empty placeholder as a measurement.
+
 ## Implementation history
 
 The investigation is represented by these branch commits:
