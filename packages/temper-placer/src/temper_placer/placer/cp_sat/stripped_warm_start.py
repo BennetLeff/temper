@@ -56,13 +56,33 @@ class StrippedWarmStartResult:
         return bool(self.hints) and self.solve is not None and self.solve.feasible
 
 
-def _component_inputs(netlist) -> list[tuple[str, float, float]]:
-    """Project component dimensions without reimplementing Rust validation."""
+def _component_inputs(
+    netlist,
+) -> tuple[list[tuple[str, float, float]], dict[str, int]]:
+    """Project oriented dimensions and current quadrants.
 
-    return [
-        (component.ref, float(component.bounds[0]), float(component.bounds[1]))
-        for component in netlist.components
-    ]
+    The stripped model has no rotation variable in this mode. Consequently,
+    its input dimensions must already be in the component's current board
+    orientation, while the production hint still needs the absolute quadrant
+    that selected that orientation.
+    """
+
+    components: list[tuple[str, float, float]] = []
+    rotations: dict[str, int] = {}
+    for component in netlist.components:
+        width, height = (float(component.bounds[0]), float(component.bounds[1]))
+        rotation = getattr(component, "initial_rotation_quadrant", 0)
+        if (
+            isinstance(rotation, bool)
+            or not isinstance(rotation, int)
+            or rotation not in range(4)
+        ):
+            raise ValueError(f"component {component.ref!r} has invalid initial rotation")
+        if rotation % 2:
+            width, height = height, width
+        components.append((component.ref, width, height))
+        rotations[component.ref] = rotation
+    return components, rotations
 
 
 def _requirement_inputs(netlist, design_rules: DesignRules) -> list[tuple[str, str, float]]:
@@ -96,6 +116,7 @@ def _solve_instance(
     timeout_s: float,
     units_per_mm: int,
     num_search_workers: int,
+    desired_rotations: dict[str, int] | None = None,
 ) -> StrippedWarmStartResult:
     """Solve one plain instance and convert its complete boxes to hints."""
 
@@ -129,6 +150,7 @@ def _solve_instance(
         return StrippedWarmStartResult({}, solve, len(requirements), message)
 
     hints: dict[str, tuple[float, float, int]] = {}
+    rotations = desired_rotations or {}
     for ref, (x_min, y_min, orientation) in solve.placements.items():
         # ``allow_rotations=False`` and Rust verification guarantee orientation
         # zero.  Keep this defensive check at the adapter boundary so a future
@@ -138,7 +160,16 @@ def _solve_instance(
             _LOGGER.warning("stripped creepage warm-start unavailable: %s", message)
             return StrippedWarmStartResult({}, solve, len(requirements), message)
         width, height = dimensions[ref]
-        hints[ref] = (x_min + width / 2.0, y_min + height / 2.0, 0)
+        rotation = rotations.get(ref, 0)
+        if (
+            isinstance(rotation, bool)
+            or not isinstance(rotation, int)
+            or rotation not in range(4)
+        ):
+            message = f"production warm-start rotation {rotation!r} for {ref} is invalid"
+            _LOGGER.warning("stripped creepage warm-start unavailable: %s", message)
+            return StrippedWarmStartResult({}, solve, len(requirements), message)
+        hints[ref] = (x_min + width / 2.0, y_min + height / 2.0, rotation)
 
     return StrippedWarmStartResult(hints, solve, len(requirements))
 
@@ -163,7 +194,7 @@ def solve_stripped_creepage_warm_start(
     """
 
     try:
-        components = _component_inputs(netlist)
+        components, rotations = _component_inputs(netlist)
         requirements = _requirement_inputs(netlist, design_rules)
     except Exception as exc:  # optional warm-start must fail closed
         _LOGGER.warning("stripped creepage warm-start unavailable: %s", exc)
@@ -177,6 +208,7 @@ def solve_stripped_creepage_warm_start(
         timeout_s=timeout_s,
         units_per_mm=units_per_mm,
         num_search_workers=num_search_workers,
+        desired_rotations=rotations,
     )
 
 
@@ -199,6 +231,11 @@ def solve_production_stripped_instance_warm_start(
         requirements = tuple(instance.requirements)
         board_width = float(instance.board_width_mm)
         board_height = float(instance.board_height_mm)
+        initial_placements = instance.initial_placements
+        rotations = {
+            ref: int(placement[2])
+            for ref, placement in initial_placements.items()
+        }
     except Exception as exc:
         _LOGGER.warning("stripped creepage warm-start unavailable: %s", exc)
         return StrippedWarmStartResult({}, None, 0, str(exc))
@@ -210,6 +247,7 @@ def solve_production_stripped_instance_warm_start(
         timeout_s=timeout_s,
         units_per_mm=units_per_mm,
         num_search_workers=num_search_workers,
+        desired_rotations=rotations,
     )
 
 

@@ -18,10 +18,12 @@ def _return(value):
     return fake
 
 
-def _netlist() -> SimpleNamespace:
+def _netlist(*, rotated: bool = False) -> SimpleNamespace:
     return SimpleNamespace(
         components=[
-            SimpleNamespace(ref="A", bounds=(4.0, 2.0)),
+            SimpleNamespace(
+                ref="A", bounds=(4.0, 2.0), initial_rotation_quadrant=1 if rotated else 0
+            ),
             SimpleNamespace(ref="B", bounds=(3.0, 1.0)),
         ]
     )
@@ -96,12 +98,38 @@ def test_requirement_generation_failure_fails_closed(monkeypatch) -> None:
     assert "bad rules" in (result.message or "")
 
 
+def test_nonsquare_ninety_degree_component_uses_oriented_center_and_quadrant(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(bridge, "_requirement_inputs", _return([]))
+    captured = {}
+    solve = StrippedCreepageSolveResult(
+        StrippedCreepageSolveStatus.FEASIBLE,
+        {"A": (1.0, 2.0, 0), "B": (10.0, 4.0, 0)},
+        0.1,
+    )
+
+    def fake_solve(*args, **kwargs):
+        captured["components"] = args[0]
+        return solve
+
+    monkeypatch.setattr(bridge, "solve_stripped_creepage", fake_solve)
+    result = bridge.solve_stripped_creepage_warm_start(_netlist(rotated=True), _board(), object())
+
+    assert result.usable
+    # Raw bounds are 4x2, but the fixed current quadrant is 90 degrees, so
+    # the stripped box is 2x4 and the production hint retains quadrant 1.
+    assert captured["components"][0] == ("A", 2.0, 4.0)
+    assert result.hints["A"] == (2.0, 4.0, 1)
+
+
 def test_prepared_production_instance_uses_its_plain_instance_data(monkeypatch) -> None:
     instance = SimpleNamespace(
         components=(("A", 4.0, 2.0), ("B", 3.0, 1.0)),
         requirements=(("A", "B", 6.0),),
         board_width_mm=20.0,
         board_height_mm=10.0,
+        initial_placements={"A": (1.0, 2.0, 0), "B": (10.0, 4.0, 0)},
     )
     solve = StrippedCreepageSolveResult(
         StrippedCreepageSolveStatus.FEASIBLE,
@@ -127,3 +155,23 @@ def test_prepared_production_instance_uses_its_plain_instance_data(monkeypatch) 
         10.0,
     )
     assert calls[0][1]["allow_rotations"] is False
+
+
+def test_prepared_instance_preserves_absolute_quadrant_in_hint(monkeypatch) -> None:
+    instance = SimpleNamespace(
+        components=(("A", 2.0, 4.0), ("B", 3.0, 1.0)),
+        requirements=(),
+        board_width_mm=20.0,
+        board_height_mm=10.0,
+        initial_placements={"A": (1.0, 2.0, 1), "B": (10.0, 4.0, 0)},
+    )
+    solve = StrippedCreepageSolveResult(
+        StrippedCreepageSolveStatus.FEASIBLE,
+        {"A": (1.0, 2.0, 0), "B": (10.0, 4.0, 0)},
+        0.1,
+    )
+    monkeypatch.setattr(bridge, "solve_stripped_creepage", _return(solve))
+
+    result = bridge.solve_production_stripped_instance_warm_start(instance)
+
+    assert result.hints["A"] == (2.0, 4.0, 1)
