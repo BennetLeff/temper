@@ -280,6 +280,37 @@ class TestDisplacementObjective:
         with pytest.raises(ValueError):
             model.add_displacement_objective("Q1", 500, 500, max_units=-1)
 
+    def test_hard_displacement_bound_does_not_add_objective(self) -> None:
+        # The hard-only API restricts the feasible set, but must not turn the
+        # solve into a minimum-displacement optimization.
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        model.add_hard_displacement_bound("Q1", 500, 500, max_units=200)
+        sol = model.solve(time_limit_s=2.0)
+        assert sol.feasible
+        x, y = sol.positions["Q1"]
+        assert abs(x - 500) + abs(y - 500) <= 200, (x, y)
+        assert sol.objective_value == 0.0
+
+    def test_hard_only_displacement_bound_can_make_model_infeasible(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_hard_displacement_bound("Q1", 500, 500, max_units=100)
+        sol = model.solve(time_limit_s=2.0)
+        assert not sol.feasible
+
+    def test_hard_displacement_bound_validates_ref_and_radius(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(KeyError):
+            model.add_hard_displacement_bound("NOPE", 500, 500, max_units=100)
+        with pytest.raises(ValueError):
+            model.add_hard_displacement_bound("Q1", 500, 500, max_units=-1)
+
 
 class TestFixedRotation:
     """Hard-pinning a component's 0-3 rotation index.

@@ -230,6 +230,33 @@ class TestReferenceReconciliation:
                 reference_aliases={"U_GATE": "U7", "C_BOOT": "U999"},  # bad target
             )
 
+    def test_hard_displacement_mapping_restricts_without_objective(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            max_displacement_mm=0.0,
+        )
+        assert result.status in ("optimal", "feasible"), result.status
+        assert result.positions["U1"] == (10.0, 12.0)
+        assert result.objective_value == 0.0
+
+    def test_hard_displacement_mapping_requires_a_radius(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        with pytest.raises(ValueError, match="requires max_displacement_mm"):
+            solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=[],
+                timeout_ms=200,
+                hard_displacement_to={"U1": (10.0, 12.0)},
+            )
+
 
 class TestHandlerCoverage:
     """All 8 ConstraintType values must have a handler."""

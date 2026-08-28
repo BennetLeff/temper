@@ -341,6 +341,35 @@ class CpSatModel:
                 raise ValueError("displacement bound must be non-negative")
             self.model_ref.Add(distances["x"] + distances["y"] <= max_units)
 
+    def add_hard_displacement_bound(
+        self,
+        ref: str,
+        x_target_units: int,
+        y_target_units: int,
+        max_units: int,
+    ) -> None:
+        """Constrain Manhattan displacement without adding an objective.
+
+        This is the hard-envelope counterpart to
+        :meth:`add_displacement_objective`.  It posts only
+        ``|x - x_target| + |y - y_target| <= max_units``; the solver remains
+        free to choose any feasible point inside that diamond.  Keeping this
+        separate is important for topology-restoration campaigns: a hard
+        radius is a safety/topology restriction, not an optimization request.
+
+        Coordinates are integer model-grid units.  Callers that start with
+        millimetres must convert both the target and radius through
+        :meth:`mm_to_units` before calling this method.
+        """
+        if max_units < 0:
+            raise ValueError("displacement bound must be non-negative")
+        component = self.get_component(ref)
+        x_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_x_{ref}")
+        y_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_y_{ref}")
+        self.model_ref.AddAbsEquality(x_distance, component.x_center - x_target_units)
+        self.model_ref.AddAbsEquality(y_distance, component.y_center - y_target_units)
+        self.model_ref.Add(x_distance + y_distance <= max_units)  # type: ignore[operator]
+
     def add_fixed_rotation(self, ref: str, rotation_index: int) -> None:
         """Pin a component's rotation to a fixed 0-3 quadrant index (hard).
 

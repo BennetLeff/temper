@@ -36,6 +36,7 @@ from temper_placer.placer.cp_sat.encoder import solve_placement
 
 _SUCCESS_STATUSES = frozenset({"optimal", "feasible"})
 _MAX_STAGES = 64
+_DEFAULT_BOUNDED_RADII_MM = (2.0, 5.0, 10.0, 20.0)
 
 
 class RestorationStageStatus(StrEnum):
@@ -57,6 +58,13 @@ class RestorationCampaignStatus(StrEnum):
     STOPPED = "stopped"
     INVALID = "invalid"
     TIMEOUT = "timeout"
+
+
+class BoundedDisplacementSweepStatus(StrEnum):
+    """Terminal status of bounded-radius sweep orchestration."""
+
+    COMPLETE = "complete"
+    INVALID = "invalid"
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,6 +146,67 @@ class RestorationCampaignResult:
     @property
     def final_stage(self) -> RestorationStageResult | None:
         return self.stages[-1] if self.stages else None
+
+
+@dataclass(frozen=True, slots=True)
+class BoundedDisplacementRadiusResult:
+    """Independent production-solver result for one displacement radius.
+
+    ``status`` describes only production solve feasibility.  Exact creepage
+    verification is deliberately reported separately: a solver-feasible
+    candidate with violations is still useful evidence about the production
+    model's radius feasibility, and must not be mislabeled as an infeasible
+    solve or silently discarded.
+    """
+
+    radius_mm: float
+    status: RestorationStageStatus
+    elapsed_s: float
+    solver_status: str | None = None
+    positions: Mapping[str, tuple[float, float]] = field(default_factory=dict)
+    rotations: Mapping[str, int] = field(default_factory=dict)
+    verification_passed: bool | None = None
+    violation_count: int | None = None
+    diagnostics: tuple[str, ...] = ()
+
+    @property
+    def production_feasible(self) -> bool:
+        """Whether the production solver returned a complete candidate."""
+
+        return self.status is RestorationStageStatus.ACCEPTED
+
+    @property
+    def exact_creepage_clean(self) -> bool:
+        """Whether the optional exact verifier explicitly passed."""
+
+        return self.verification_passed is True
+
+
+@dataclass(frozen=True, slots=True)
+class BoundedDisplacementSweepResult:
+    """Results for every independently attempted bounded radius."""
+
+    status: BoundedDisplacementSweepStatus
+    radii: tuple[BoundedDisplacementRadiusResult, ...]
+    diagnostics: tuple[str, ...] = ()
+
+    @property
+    def production_feasible_radii(self) -> tuple[BoundedDisplacementRadiusResult, ...]:
+        """Reports whose production model produced a complete placement."""
+
+        return tuple(report for report in self.radii if report.production_feasible)
+
+    @property
+    def exact_clean_radii(self) -> tuple[BoundedDisplacementRadiusResult, ...]:
+        """Solver-feasible reports that also passed exact verification."""
+
+        return tuple(report for report in self.radii if report.exact_creepage_clean)
+
+    @property
+    def first_exact_clean(self) -> BoundedDisplacementRadiusResult | None:
+        """First radius whose candidate passed the exact verifier."""
+
+        return next(iter(self.exact_clean_radii), None)
 
 
 def default_restoration_stages(
@@ -264,6 +333,81 @@ def distance_tier_restoration_stages(instance: object) -> tuple[RestorationStage
         for distance, constraints in sorted(by_distance.items())
     )
     return tuple(stages)
+
+
+def bounded_displacement_restoration_stages(
+    verified_warm_start: object,
+    radii_mm: Sequence[float] = _DEFAULT_BOUNDED_RADII_MM,
+) -> tuple[RestorationStage, ...]:
+    """Build cumulative stages around a Rust-verified stripped placement.
+
+    ``verified_warm_start`` must be the result returned by
+    :func:`solve_production_stripped_instance_warm_start` (or an equivalent
+    object exposing a true ``usable`` property and complete ``hints``
+    mapping).  Its hints use production centre coordinates
+    ``(x_mm, y_mm, rotation_index)``.  The stripped placement is therefore
+    both the solver hint and the reference for the hard Manhattan movement
+    bound; it is never treated as a lower-left box.
+
+    The generated stages only add the widening displacement envelope.  They
+    intentionally do not enable or omit creepage, or restore another
+    production family: callers provide those options through
+    ``production_kwargs``/other stages in
+    :func:`run_bounded_displacement_restoration_campaign`.
+
+    Every later radius must be strictly larger than the previous radius.
+    This is a hard per-component bound, not merely a minimum-displacement
+    objective.  A stage can still be infeasible if the production model
+    cannot satisfy its constraints inside that envelope.
+    """
+
+    usable = getattr(verified_warm_start, "usable", False)
+    if usable is not True:
+        raise ValueError("bounded restoration requires a usable verified stripped warm-start")
+    hints = getattr(verified_warm_start, "hints", None)
+    if isinstance(hints, (str, bytes)) or not isinstance(hints, Mapping) or not hints:
+        raise ValueError("verified warm-start hints must be a non-empty mapping")
+
+    centers: dict[str, tuple[float, float]] = {}
+    for ref, hint in hints.items():
+        if not isinstance(ref, str) or not ref.strip():
+            raise ValueError("verified warm-start contains an invalid component reference")
+        if not isinstance(hint, (tuple, list)) or len(hint) != 3:
+            raise ValueError(f"verified warm-start hint for {ref!r} is not (x, y, rotation)")
+        x, y, rotation = hint
+        try:
+            x_value, y_value = float(x), float(y)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"verified warm-start hint for {ref!r} has invalid coordinates") from exc
+        if not math.isfinite(x_value) or not math.isfinite(y_value):
+            raise ValueError(f"verified warm-start hint for {ref!r} has non-finite coordinates")
+        if isinstance(rotation, bool) or not isinstance(rotation, int) or rotation not in range(4):
+            raise ValueError(f"verified warm-start hint for {ref!r} has invalid rotation")
+        centers[ref] = (x_value, y_value)
+
+    if isinstance(radii_mm, (str, bytes)):
+        raise ValueError("bounded displacement radii must be a sequence of positive numbers")
+    try:
+        radii = tuple(float(radius) for radius in radii_mm)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("bounded displacement radii must be a sequence of positive numbers") from exc
+    if not radii:
+        raise ValueError("bounded displacement radii must not be empty")
+    if any(not math.isfinite(radius) or radius <= 0.0 for radius in radii):
+        raise ValueError("bounded displacement radii must be finite and positive")
+    if any(later <= earlier for earlier, later in zip(radii, radii[1:])):
+        raise ValueError("bounded displacement radii must be strictly increasing")
+
+    return tuple(
+        RestorationStage(
+            f"bounded_displacement_{radius:g}mm",
+            {
+                "minimize_displacement_to": centers,
+                "max_displacement_mm": radius,
+            },
+        )
+        for radius in radii
+    )
 
 
 def neighborhood_batched_creepage_constraints(
@@ -433,6 +577,24 @@ def _merge_kwargs(current: dict[str, object], stage: RestorationStage) -> dict[s
             # diagnostic baseline omits generated creepage and the next
             # stage restores it. No other option may be replaced.
             merged[key] = value
+        elif key == "max_displacement_mm" and key in merged:
+            # A bounded-displacement campaign deliberately widens one hard
+            # envelope at a time.  Permit that one monotone transition while
+            # continuing to reject accidental replacement of other solver
+            # options (or a campaign that narrows its envelope).
+            try:
+                prior_radius = float(merged[key])
+                next_radius = float(value)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("max_displacement_mm must be numeric") from exc
+            if not math.isfinite(prior_radius) or not math.isfinite(next_radius):
+                raise ValueError("max_displacement_mm must be finite")
+            if next_radius < prior_radius:
+                raise ValueError(
+                    f"stage {stage.name!r} narrows max_displacement_mm "
+                    f"from {prior_radius:g} to {next_radius:g}"
+                )
+            merged[key] = value
         elif key in merged and merged[key] != value:
             raise ValueError(f"stage {stage.name!r} attempts to replace existing option {key!r}")
         else:
@@ -499,6 +661,131 @@ def _run_stage(
         solver_status=solver_status,
         positions=dict(positions) if stage_status is RestorationStageStatus.ACCEPTED else {},
         rotations=dict(rotations) if stage_status is RestorationStageStatus.ACCEPTED else {},
+        diagnostics=(str(diagnostic),),
+    )
+
+
+def _bounded_radius_worker(
+    output: Any,
+    solver: Callable[..., object],
+    netlist: object,
+    board: object,
+    kwargs: Mapping[str, object],
+    expected_refs: tuple[str, ...],
+    verify: Callable[[object], object] | None,
+    memory_limit_mb: int | None,
+) -> None:
+    """Run one independent radius and retain verifier diagnostics."""
+
+    try:
+        _install_memory_limit(memory_limit_mb)
+        result = solver(netlist, board, **dict(kwargs))
+        solver_status = _status_name(getattr(result, "status", None))
+        if solver_status not in _SUCCESS_STATUSES:
+            output.put(("solver", solver_status, {}, {}, None, None, f"solver returned {solver_status!r}"))
+            return
+        positions, rotations = _plain_candidate(result)
+        if set(positions) != set(expected_refs):
+            missing = sorted(set(expected_refs) - set(positions))
+            extra = sorted(set(positions) - set(expected_refs))
+            output.put(("invalid", solver_status, {}, {}, False, None, f"incomplete placement (missing={missing}, extra={extra})"))
+            return
+
+        verification_passed: bool | None = None
+        violation_count: int | None = None
+        diagnostic = "solver accepted"
+        if verify is not None:
+            try:
+                checked = verify(result)
+                violations = getattr(checked, "violations", None)
+                passed = getattr(checked, "passed", None)
+                if violations is not None:
+                    violation_count = len(violations)
+                    verification_passed = violation_count == 0
+                elif isinstance(passed, bool):
+                    verification_passed = passed
+                else:
+                    raise ValueError("verification result has neither violations nor passed")
+                diagnostic = (
+                    "solver and exact verifier accepted"
+                    if verification_passed
+                    else f"exact verifier found {violation_count if violation_count is not None else 'unknown'} violation(s)"
+                )
+            except BaseException as exc:
+                # Production feasibility remains useful, but verification
+                # failure is explicit and never looks like a clean result.
+                verification_passed = False
+                diagnostic = f"exact verifier failed: {type(exc).__name__}: {exc}"
+        output.put(("accepted", solver_status, tuple(positions.items()), tuple(rotations.items()), verification_passed, violation_count, diagnostic))
+    except BaseException as exc:  # fail closed at the worker boundary
+        output.put(("error", None, {}, {}, False, None, f"{type(exc).__name__}: {exc}"))
+
+
+def _run_bounded_radius(
+    radius_mm: float,
+    solver: Callable[..., object],
+    netlist: object,
+    board: object,
+    kwargs: Mapping[str, object],
+    expected_refs: tuple[str, ...],
+    verify: Callable[[object], object] | None,
+    timeout_s: float,
+    memory_limit_mb: int | None,
+) -> BoundedDisplacementRadiusResult:
+    """Run one radius in an isolated worker without carrying state forward."""
+
+    started = time.monotonic()
+    context = mp.get_context("fork" if "fork" in mp.get_all_start_methods() else "spawn")
+    output = context.Queue(maxsize=1)
+    process = context.Process(
+        target=_bounded_radius_worker,
+        args=(output, solver, netlist, board, kwargs, expected_refs, verify, memory_limit_mb),
+        name=f"temper-bounded-radius-{radius_mm:g}mm",
+    )
+    try:
+        process.start()
+        process.join(timeout_s)
+    except BaseException as exc:
+        return BoundedDisplacementRadiusResult(
+            radius_mm,
+            RestorationStageStatus.ERROR,
+            time.monotonic() - started,
+            diagnostics=(f"could not start worker: {exc}",),
+        )
+    if process.is_alive():
+        process.terminate()
+        process.join(2.0)
+        return BoundedDisplacementRadiusResult(
+            radius_mm,
+            RestorationStageStatus.TIMEOUT,
+            time.monotonic() - started,
+            diagnostics=(f"worker exceeded external wall-time limit of {timeout_s:.3f}s",),
+        )
+    try:
+        outcome, solver_status, positions, rotations, verification_passed, violation_count, diagnostic = output.get(timeout=1.0)
+    except queue_module.Empty:
+        return BoundedDisplacementRadiusResult(
+            radius_mm,
+            RestorationStageStatus.ERROR,
+            time.monotonic() - started,
+            diagnostics=(f"worker exited without a result (exitcode={process.exitcode})",),
+        )
+    status_by_outcome = {
+        "accepted": RestorationStageStatus.ACCEPTED,
+        "solver": RestorationStageStatus.UNKNOWN if solver_status == "unknown" else RestorationStageStatus(solver_status or "unknown") if solver_status in {s.value for s in RestorationStageStatus} else RestorationStageStatus.ERROR,
+        "invalid": RestorationStageStatus.INVALID,
+        "error": RestorationStageStatus.ERROR,
+    }
+    stage_status = status_by_outcome.get(outcome, RestorationStageStatus.ERROR)
+    return BoundedDisplacementRadiusResult(
+        radius_mm,
+        stage_status,
+        time.monotonic() - started,
+        solver_status=solver_status,
+        positions=dict(positions) if stage_status is RestorationStageStatus.ACCEPTED else {},
+        rotations=dict(rotations) if stage_status is RestorationStageStatus.ACCEPTED else {},
+        verification_passed=verification_passed,
+        violation_count=violation_count,
         diagnostics=(str(diagnostic),),
     )
 
@@ -583,6 +870,162 @@ def run_constraint_restoration_campaign(
     return RestorationCampaignResult(RestorationCampaignStatus.ACCEPTED, tuple(stage_reports), prior_positions, prior_rotations, ("all restoration stages accepted",))
 
 
+def run_bounded_displacement_radius_sweep(
+    netlist: object,
+    board: object,
+    verified_warm_start: object,
+    *,
+    radii_mm: Sequence[float] = _DEFAULT_BOUNDED_RADII_MM,
+    production_kwargs: Mapping[str, object] | None = None,
+    solver: Callable[..., object] = solve_placement,
+    verify: Callable[[object], object] | None = None,
+    limits: RestorationLimits = RestorationLimits(),
+) -> BoundedDisplacementSweepResult:
+    """Solve every bounded radius independently from the same safe centers.
+
+    This is the first-principles radius experiment: start from a complete,
+    Rust-verified stripped placement, constrain every component to a radius
+    around its stripped centre, and run each radius as a fresh model.  A
+    small-radius infeasibility, timeout, or unknown result never prevents
+    larger radii from being attempted.
+
+    ``verify`` should be the exact Rust-backed placement verifier when the
+    campaign is intended to retain creepage safety.  Production feasibility
+    and exact verification are reported independently in each result; a
+    candidate with exact-creepage violations remains visible as a feasible
+    production result and is never mislabeled as a clean placement.
+    Invalid warm-start data is reported as an invalid campaign result rather
+    than escaping as an exception, matching the fail-closed campaign API.
+    """
+
+    try:
+        stages = bounded_displacement_restoration_stages(verified_warm_start, radii_mm)
+        hints = verified_warm_start.hints
+        expected_ref_sequence = _expected_refs(netlist)
+        expected_refs = set(expected_ref_sequence)
+        if set(hints) != expected_refs:
+            missing = sorted(expected_refs - set(hints))
+            extra = sorted(set(hints) - expected_refs)
+            raise ValueError(
+                "verified warm-start does not cover the campaign netlist "
+                f"(missing={missing}, extra={extra})"
+            )
+        base_kwargs = dict(production_kwargs or {})
+        conflicting = {
+            "hint_positions",
+            "minimize_displacement_to",
+            "max_displacement_mm",
+            "hard_displacement_to",
+        } & set(base_kwargs)
+        if conflicting:
+            raise ValueError(
+                "production_kwargs cannot override bounded sweep options: "
+                f"{sorted(conflicting)}"
+            )
+        centers = stages[0].kwargs["minimize_displacement_to"]
+        reports: list[BoundedDisplacementRadiusResult] = []
+        started = time.monotonic()
+        for stage in stages:
+            radius = float(stage.kwargs["max_displacement_mm"])
+            remaining = limits.total_timeout_s - (time.monotonic() - started)
+            if remaining <= 0.0:
+                reports.append(
+                    BoundedDisplacementRadiusResult(
+                        radius,
+                        RestorationStageStatus.TIMEOUT,
+                        time.monotonic() - started,
+                        diagnostics=("campaign deadline exhausted before radius",),
+                    )
+                )
+                continue
+            radius_kwargs = dict(base_kwargs)
+            # Every radius gets the original stripped centers and initial
+            # hints.  In particular, do not seed from a prior radius result:
+            # that would turn this sweep back into a cumulative campaign.
+            radius_kwargs.update(
+                {
+                    "hint_positions": dict(hints),
+                    # This dedicated hard-bound API must not register the
+                    # minimum-displacement objective.  The sweep is a pure
+                    # feasibility experiment; objective terms can dominate
+                    # search and confound the radius measurement.
+                    "hard_displacement_to": centers,
+                    "max_displacement_mm": radius,
+                    # Keep the inner CP-SAT deadline aligned with the
+                    # external worker deadline.  Without this, solve_placement
+                    # falls back to its 1000 ms default and a sweep reports
+                    # misleading UNKNOWN results long before the requested
+                    # radius budget is used.
+                    "timeout_ms": max(1, int(min(limits.stage_timeout_s, remaining) * 1000.0)),
+                }
+            )
+            reports.append(
+                _run_bounded_radius(
+                    radius,
+                    solver,
+                    netlist,
+                    board,
+                    radius_kwargs,
+                    expected_ref_sequence,
+                    verify,
+                    min(limits.stage_timeout_s, remaining),
+                    limits.memory_limit_mb,
+                )
+            )
+        return BoundedDisplacementSweepResult(BoundedDisplacementSweepStatus.COMPLETE, tuple(reports))
+    except Exception as exc:
+        return BoundedDisplacementSweepResult(BoundedDisplacementSweepStatus.INVALID, (), (str(exc),))
+
+
+def run_bounded_displacement_restoration_campaign(
+    netlist: object,
+    board: object,
+    verified_warm_start: object,
+    *,
+    radii_mm: Sequence[float] = _DEFAULT_BOUNDED_RADII_MM,
+    production_kwargs: Mapping[str, object] | None = None,
+    solver: Callable[..., object] = solve_placement,
+    verify: Callable[[object], object] | None = None,
+    limits: RestorationLimits = RestorationLimits(),
+) -> RestorationCampaignResult:
+    """Run a cumulative bounded restoration campaign.
+
+    This is the original restoration API and intentionally stops when a
+    radius is infeasible or exact verification rejects its candidate.  For
+    feasibility discovery across radii, use
+    :func:`run_bounded_displacement_radius_sweep`, which runs every radius
+    independently and reports solver feasibility separately from verification.
+    """
+
+    try:
+        stages = bounded_displacement_restoration_stages(verified_warm_start, radii_mm)
+        hints = verified_warm_start.hints
+        expected_refs = set(_expected_refs(netlist))
+        if set(hints) != expected_refs:
+            missing = sorted(expected_refs - set(hints))
+            extra = sorted(set(hints) - expected_refs)
+            raise ValueError(
+                "verified warm-start does not cover the campaign netlist "
+                f"(missing={missing}, extra={extra})"
+            )
+        return run_constraint_restoration_campaign(
+            netlist,
+            board,
+            stages=stages,
+            production_kwargs=production_kwargs,
+            initial_hint_positions=dict(hints),
+            solver=solver,
+            verify=verify,
+            limits=limits,
+        )
+    except Exception as exc:
+        return RestorationCampaignResult(
+            RestorationCampaignStatus.INVALID,
+            (),
+            diagnostics=(str(exc),),
+        )
+
+
 __all__ = [
     "RestorationCampaignResult",
     "RestorationCampaignStatus",
@@ -590,7 +1033,13 @@ __all__ = [
     "RestorationStage",
     "RestorationStageResult",
     "RestorationStageStatus",
+    "BoundedDisplacementRadiusResult",
+    "BoundedDisplacementSweepResult",
+    "BoundedDisplacementSweepStatus",
     "default_restoration_stages",
     "distance_tier_restoration_stages",
+    "bounded_displacement_restoration_stages",
+    "run_bounded_displacement_radius_sweep",
     "run_constraint_restoration_campaign",
+    "run_bounded_displacement_restoration_campaign",
 ]

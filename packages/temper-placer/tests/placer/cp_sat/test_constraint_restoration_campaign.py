@@ -6,13 +6,18 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 
 from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
+    BoundedDisplacementSweepStatus,
     RestorationCampaignStatus,
     RestorationLimits,
     RestorationStage,
     RestorationStageStatus,
+    _merge_kwargs,
+    bounded_displacement_restoration_stages,
     default_restoration_stages,
     distance_tier_restoration_stages,
     neighborhood_batched_creepage_constraints,
+    run_bounded_displacement_radius_sweep,
+    run_bounded_displacement_restoration_campaign,
     run_constraint_restoration_campaign,
 )
 
@@ -37,6 +42,12 @@ class _Solve:
     status: str
     positions: dict[str, tuple[float, float]]
     rotations: dict[str, int]
+
+
+@dataclass
+class _VerifiedWarmStart:
+    hints: dict[str, tuple[float, float, int]]
+    usable: bool = True
 
 
 def test_distance_tiers_restore_exact_pairs_in_sorted_cumulative_order() -> None:
@@ -76,6 +87,249 @@ def test_distance_tiers_reject_duplicate_pair_rows() -> None:
         assert "duplicate" in str(exc)
     else:  # pragma: no cover - assertion helper without pytest dependency
         raise AssertionError("duplicate pair was accepted")
+
+
+def test_bounded_stages_keep_verified_centres_and_widen_monotonically() -> None:
+    warm_start = _VerifiedWarmStart(
+        {"B": (20.0, 30.0, 1), "A": (10.0, 15.0, 0)}
+    )
+
+    stages = bounded_displacement_restoration_stages(warm_start, (2, 5.5, 12))
+
+    assert [stage.name for stage in stages] == [
+        "bounded_displacement_2mm",
+        "bounded_displacement_5.5mm",
+        "bounded_displacement_12mm",
+    ]
+    assert [stage.kwargs["max_displacement_mm"] for stage in stages] == [2.0, 5.5, 12.0]
+    expected_centres = {"A": (10.0, 15.0), "B": (20.0, 30.0)}
+    assert all(stage.kwargs["minimize_displacement_to"] == expected_centres for stage in stages)
+
+
+def test_bounded_stages_require_a_verified_complete_warm_start() -> None:
+    for warm_start in (
+        _VerifiedWarmStart({}, True),
+        _VerifiedWarmStart({"A": (1.0, 2.0, 0)}, False),
+    ):
+        try:
+            bounded_displacement_restoration_stages(warm_start)
+        except ValueError as exc:
+            assert "warm-start" in str(exc)
+        else:  # pragma: no cover - assertion helper without pytest dependency
+            raise AssertionError("invalid warm-start was accepted")
+
+
+def test_bounded_stages_reject_non_increasing_or_invalid_radii() -> None:
+    warm_start = _VerifiedWarmStart({"A": (1.0, 2.0, 0)})
+    for radii in ((2.0, 2.0), (5.0, 2.0), (0.0, 1.0), (float("inf"),)):
+        try:
+            bounded_displacement_restoration_stages(warm_start, radii)
+        except ValueError as exc:
+            assert "radi" in str(exc)
+        else:  # pragma: no cover - assertion helper without pytest dependency
+            raise AssertionError("invalid radii were accepted")
+
+
+def test_bounded_campaign_carries_original_centres_while_widening_bound() -> None:
+    netlist = _Netlist([_Component("A")])
+
+    def solver(_netlist: object, _board: object, **kwargs: object) -> _Solve:
+        # A forked campaign worker cannot mutate the parent's test state, so
+        # encode the stage's radius in the returned candidate instead.
+        if kwargs["max_displacement_mm"] == 1.0:
+            return _Solve("optimal", {"A": (3.0, 4.0)}, {"A": 0})
+        assert kwargs["max_displacement_mm"] == 4.0
+        assert kwargs["minimize_displacement_to"] == {"A": (3.0, 4.0)}
+        assert kwargs["hint_positions"] == {"A": (3.0, 4.0, 0)}
+        return _Solve("optimal", {"A": (3.5, 4.0)}, {"A": 0})
+
+    result = run_bounded_displacement_restoration_campaign(
+        netlist,
+        _Board(),
+        _VerifiedWarmStart({"A": (3.0, 4.0, 0)}),
+        radii_mm=(1.0, 4.0),
+        solver=solver,
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+
+    assert result.status is RestorationCampaignStatus.ACCEPTED
+    assert result.placement == {"A": (3.5, 4.0)}
+
+
+def test_bounded_campaign_fails_closed_for_invalid_warm_start() -> None:
+    result = run_bounded_displacement_restoration_campaign(
+        _Netlist([_Component("A")]),
+        _Board(),
+        _VerifiedWarmStart({}, True),
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+    assert result.status is RestorationCampaignStatus.INVALID
+    assert result.diagnostics
+
+
+def test_bounded_campaign_rejects_warm_start_for_another_netlist() -> None:
+    result = run_bounded_displacement_restoration_campaign(
+        _Netlist([_Component("A"), _Component("B")]),
+        _Board(),
+        _VerifiedWarmStart({"A": (1.0, 2.0, 0)}),
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+    assert result.status is RestorationCampaignStatus.INVALID
+    assert "missing" in result.diagnostics[0]
+
+
+def test_bounded_radius_sweep_continues_after_failures_and_separates_verification() -> None:
+    netlist = _Netlist([_Component("A")])
+
+    def solver(_netlist: object, _board: object, **kwargs: object) -> _Solve:
+        radius = kwargs["max_displacement_mm"]
+        assert kwargs["hint_positions"] == {"A": (3.0, 4.0, 0)}
+        assert "minimize_displacement_to" not in kwargs
+        assert kwargs["hard_displacement_to"] == {"A": (3.0, 4.0)}
+        assert kwargs["timeout_ms"] == 2000
+        if radius == 1.0:
+            return _Solve("unknown", {}, {})
+        if radius == 2.0:
+            return _Solve("infeasible", {}, {})
+        if radius == 4.0:
+            return _Solve("optimal", {"A": (3.5, 4.0)}, {"A": 0})
+        return _Solve("optimal", {"A": (4.0, 4.0)}, {"A": 0})
+
+    class Verification:
+        def __init__(self, violations: list[str]) -> None:
+            self.violations = violations
+
+    def verify(result: _Solve) -> Verification:
+        return Verification([] if result.positions["A"] == (4.0, 4.0) else ["creepage"])
+
+    result = run_bounded_displacement_radius_sweep(
+        netlist,
+        _Board(),
+        _VerifiedWarmStart({"A": (3.0, 4.0, 0)}),
+        radii_mm=(1.0, 2.0, 4.0, 8.0),
+        solver=solver,
+        verify=verify,
+        limits=RestorationLimits(total_timeout_s=10.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+
+    assert result.status is BoundedDisplacementSweepStatus.COMPLETE
+    assert [report.status for report in result.radii] == [
+        RestorationStageStatus.UNKNOWN,
+        RestorationStageStatus.INFEASIBLE,
+        RestorationStageStatus.ACCEPTED,
+        RestorationStageStatus.ACCEPTED,
+    ]
+    assert [report.production_feasible for report in result.radii] == [False, False, True, True]
+    assert [report.verification_passed for report in result.radii] == [None, None, False, True]
+    assert [report.violation_count for report in result.radii] == [None, None, 1, 0]
+    assert [report.radius_mm for report in result.production_feasible_radii] == [4.0, 8.0]
+    assert result.first_exact_clean is not None
+    assert result.first_exact_clean.radius_mm == 8.0
+
+
+def test_bounded_stages_are_independent_views_of_the_same_safe_centres() -> None:
+    """Later radii must not retarget the envelope around a moved candidate."""
+    warm_start = _VerifiedWarmStart({"A": (11.0, 13.0, 0)})
+    stages = bounded_displacement_restoration_stages(warm_start, (1.0, 2.0))
+
+    assert stages[0].kwargs["minimize_displacement_to"] == {"A": (11.0, 13.0)}
+    assert stages[1].kwargs["minimize_displacement_to"] == {"A": (11.0, 13.0)}
+    assert stages[0].kwargs["max_displacement_mm"] == 1.0
+    assert stages[1].kwargs["max_displacement_mm"] == 2.0
+
+
+def test_bounded_campaign_rejects_non_monotone_radius_before_solving() -> None:
+    """The cumulative campaign may widen, never narrow, its hard envelope."""
+    result = run_bounded_displacement_restoration_campaign(
+        _Netlist([_Component("A")]),
+        _Board(),
+        _VerifiedWarmStart({"A": (3.0, 4.0, 0)}),
+        radii_mm=(5.0, 2.0),
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+
+    assert result.status is RestorationCampaignStatus.INVALID
+    assert not result.stages
+    assert "increasing" in result.diagnostics[0]
+
+
+def test_radius_merge_is_cumulative_only_for_a_widening_bound() -> None:
+    current = {"max_displacement_mm": 2.0}
+
+    widened = _merge_kwargs(
+        current,
+        RestorationStage("radius_5", {"max_displacement_mm": 5.0}),
+    )
+    assert widened["max_displacement_mm"] == 5.0
+    # The helper must not mutate the caller's accumulated kwargs while
+    # assembling a hypothetical later stage.
+    assert current["max_displacement_mm"] == 2.0
+
+    try:
+        _merge_kwargs(
+            widened,
+            RestorationStage("radius_1", {"max_displacement_mm": 1.0}),
+        )
+    except ValueError as exc:
+        assert "narrows" in str(exc)
+    else:  # pragma: no cover - assertion helper without pytest dependency
+        raise AssertionError("a narrower cumulative envelope was accepted")
+
+
+def test_bounded_stages_reject_malformed_centres_and_rotations() -> None:
+    malformed = (
+        _VerifiedWarmStart({"": (1.0, 2.0, 0)}),
+        _VerifiedWarmStart({"A": (1.0, 2.0)}),
+        _VerifiedWarmStart({"A": (float("nan"), 2.0, 0)}),
+        _VerifiedWarmStart({"A": (1.0, float("inf"), 0)}),
+        _VerifiedWarmStart({"A": (1.0, 2.0, True)}),
+        _VerifiedWarmStart({"A": (1.0, 2.0, 4)}),
+    )
+
+    for warm_start in malformed:
+        try:
+            bounded_displacement_restoration_stages(warm_start, (1.0,))
+        except ValueError as exc:
+            assert "warm-start" in str(exc)
+        else:  # pragma: no cover - assertion helper without pytest dependency
+            raise AssertionError("malformed warm-start was accepted")
+
+
+def test_bounded_stages_reject_non_sequence_and_non_numeric_radii() -> None:
+    warm_start = _VerifiedWarmStart({"A": (1.0, 2.0, 0)})
+    for radii in ("1,2", None, ("bad",), (float("nan"),), (float("-inf"),)):
+        try:
+            bounded_displacement_restoration_stages(warm_start, radii)
+        except ValueError as exc:
+            assert "radi" in str(exc)
+        else:  # pragma: no cover - assertion helper without pytest dependency
+            raise AssertionError("malformed radii were accepted")
+
+
+def test_bounded_campaign_discards_candidate_when_exact_verifier_rejects_it() -> None:
+    def solver(_netlist: object, _board: object, **kwargs: object) -> _Solve:
+        # If the campaign wrongly continued after a rejected candidate, this
+        # second-stage result would make the test falsely appear accepted.
+        if kwargs["max_displacement_mm"] == 1.0:
+            return _Solve("feasible", {"A": (8.0, 9.0)}, {"A": 0})
+        return _Solve("feasible", {"A": (3.0, 4.0)}, {"A": 0})
+
+    class Verification:
+        violations = ("A/B",)
+
+    result = run_bounded_displacement_restoration_campaign(
+        _Netlist([_Component("A")]),
+        _Board(),
+        _VerifiedWarmStart({"A": (3.0, 4.0, 0)}),
+        radii_mm=(1.0, 4.0),
+        solver=solver,
+        verify=lambda _candidate: Verification(),
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+
+    assert result.status is RestorationCampaignStatus.STOPPED
+    assert result.stages[0].status is RestorationStageStatus.INVALID
+    assert result.placement == {}
 
 
 def test_neighborhood_batch_selects_local_alternatives_deterministically() -> None:

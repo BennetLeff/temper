@@ -386,6 +386,7 @@ def solve_placement(
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
+    hard_displacement_to: dict[str, tuple[float, float]] | None = None,
     reference_aliases: Mapping[str, str] | None = None,
     loop_aliases: Mapping[str, str] | None = None,
     fixed_rotations: dict[str, int] | None = None,
@@ -439,6 +440,15 @@ def solve_placement(
             only move as far as the clearance constraints force them, and
             the existing routed copper is not disturbed wholesale the way a
             free reshuffle disturbs it.
+        hard_displacement_to: Optional reference coordinates for a hard
+            Manhattan displacement envelope: ``{ref: (x_mm, y_mm)}``.
+            Together with ``max_displacement_mm``, this posts only
+            ``|dx| + |dy| <= max_displacement_mm`` for each mapped ref; it
+            does not add an objective and therefore does not prefer one
+            feasible point inside the envelope over another.  This mapping
+            is separate from ``minimize_displacement_to`` so callers cannot
+            accidentally turn a topology-preserving restriction into an
+            optimization request.
         reference_aliases: Optional explicit config-to-netlist component
             reference mapping applied before validation. Unmapped names
             remain subject to the fail-closed unresolved-reference policy.
@@ -451,14 +461,15 @@ def solve_placement(
             every pad, disconnecting the routed copper attached to it), so
             repair callers pin every ref to its current board rotation.
         max_displacement_mm: Optional hard per-component Manhattan
-            displacement bound applied to every ref in
-            ``minimize_displacement_to``: each such component may move at
-            most ``max_displacement_mm`` in total (|dx| + |dy|). This is
-            the bounded-repair formulation -- it *guarantees* the solved
+            displacement bound.  It applies to ``minimize_displacement_to``
+            (retaining its existing objective behavior) and/or
+            ``hard_displacement_to`` (restriction only).  At least one of
+            those mappings is required.  Each mapped component may move at
+            most this value in total (|dx| + |dy|). This is the
+            bounded-repair formulation -- it *guarantees* the solved
             placement stays inside a displacement envelope around the
-            current board (feasibility permitting), rather than trusting
-            the objective search to find a low-displacement solution. Only
-            meaningful together with ``minimize_displacement_to``.
+            reference (feasibility permitting), rather than trusting the
+            objective search to find a low-displacement solution.
         fixed_positions: Optional HARD position pins.  Dict mapping component
             ref to ``(x_mm, y_mm, rotation_0_3)``.  Unlike ``hint_positions``,
             these are binding equality constraints -- the solver cannot move a
@@ -1227,19 +1238,34 @@ def solve_placement(
     # is what makes the parameter actually steer the solve (a previous,
     # never-landed attempt registered objective terms without ever calling
     # Minimize on this path, making the parameter a silent no-op).
-    if max_displacement_mm is not None and not minimize_displacement_to:
+    if max_displacement_mm is not None and not (
+        minimize_displacement_to or hard_displacement_to
+    ):
         # Same no-op class as the #498 bug: a bound with no reference would
         # silently constrain nothing. Fail loudly instead.
         raise ValueError(
-            "max_displacement_mm requires minimize_displacement_to (the bound "
-            "applies to every ref in the reference dict)"
+            "max_displacement_mm requires minimize_displacement_to or "
+            "hard_displacement_to (the bound applies to every ref in the "
+            "selected reference mapping)"
         )
+    if hard_displacement_to and max_displacement_mm is None:
+        raise ValueError("hard_displacement_to requires max_displacement_mm")
     if minimize_displacement_to:
         bound_units = None
         if max_displacement_mm is not None:
             bound_units = model_wrapper.mm_to_units(max_displacement_mm)
         for ref, (x_mm, y_mm) in minimize_displacement_to.items():
             model_wrapper.add_displacement_objective(
+                ref,
+                model_wrapper.mm_to_units(x_mm),
+                model_wrapper.mm_to_units(y_mm),
+                max_units=bound_units,
+            )
+    if hard_displacement_to:
+        assert max_displacement_mm is not None
+        bound_units = model_wrapper.mm_to_units(max_displacement_mm)
+        for ref, (x_mm, y_mm) in hard_displacement_to.items():
+            model_wrapper.add_hard_displacement_bound(
                 ref,
                 model_wrapper.mm_to_units(x_mm),
                 model_wrapper.mm_to_units(y_mm),
