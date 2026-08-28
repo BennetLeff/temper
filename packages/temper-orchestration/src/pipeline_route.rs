@@ -1809,74 +1809,22 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "pipeline_route::tests::sha1_matches_rfc_3174_test_vectors",
-            sha1_matches_rfc_3174_test_vectors,
-        ),
-        (
-            "pipeline_route::tests::sha1_padding_handles_multiblock_inputs",
-            sha1_padding_handles_multiblock_inputs,
-        ),
-        (
-            "pipeline_route::tests::uuid5_namespace_produces_the_python_expected_shape",
-            uuid5_namespace_produces_the_python_expected_shape,
-        ),
-        (
-            "pipeline_route::tests::uuid5_is_deterministic_and_name_sensitive",
-            uuid5_is_deterministic_and_name_sensitive,
-        ),
-        (
-            "pipeline_route::tests::select_sat_nets_bounds_and_stable_order",
-            select_sat_nets_bounds_and_stable_order,
-        ),
-        (
-            "pipeline_route::tests::select_sat_nets_duplicate_name_last_writer_wins",
-            select_sat_nets_duplicate_name_last_writer_wins,
-        ),
-        (
-            "pipeline_route::tests::via_type_token_full_stack_pair_is_through",
-            via_type_token_full_stack_pair_is_through,
-        ),
-        (
-            "pipeline_route::tests::via_type_token_outer_to_inner_is_blind",
-            via_type_token_outer_to_inner_is_blind,
-        ),
-        (
-            "pipeline_route::tests::via_type_token_inner_to_inner_is_buried",
-            via_type_token_inner_to_inner_is_buried,
-        ),
-        #[cfg(feature = "python")]
-        (
-            "pipeline_route::tests::emit_s_expr_full_stack_pair_has_no_type_token",
-            emit_s_expr_full_stack_pair_has_no_type_token,
-        ),
-        #[cfg(feature = "python")]
-        (
-            "pipeline_route::tests::emit_s_expr_outer_to_inner_emits_blind_token",
-            emit_s_expr_outer_to_inner_emits_blind_token,
-        ),
-        #[cfg(feature = "python")]
-        (
-            "pipeline_route::tests::emit_s_expr_inner_to_inner_emits_buried_token",
-            emit_s_expr_inner_to_inner_emits_buried_token,
-        ),
-        (
-            "pipeline_route::tests::via_new_enforces_annular_floor_on_the_exact_regressed_pair",
-            via_new_enforces_annular_floor_on_the_exact_regressed_pair,
-        ),
-        (
-            "pipeline_route::tests::via_new_leaves_a_compliant_pair_untouched",
-            via_new_leaves_a_compliant_pair_untouched,
-        ),
-        (
-            "pipeline_route::tests::via_new_leaves_a_pair_exactly_at_the_floor_untouched",
-            via_new_leaves_a_pair_exactly_at_the_floor_untouched,
-        ),
-        #[cfg(feature = "python")]
-        (
-            "pipeline_route::tests::emit_s_expr_reflects_the_annular_floor_clamp",
-            emit_s_expr_reflects_the_annular_floor_clamp,
-        ),
+        ("pipeline_route::tests::sha1_matches_rfc_3174_test_vectors", sha1_matches_rfc_3174_test_vectors),
+        ("pipeline_route::tests::sha1_padding_handles_multiblock_inputs", sha1_padding_handles_multiblock_inputs),
+        ("pipeline_route::tests::uuid5_namespace_produces_the_python_expected_shape", uuid5_namespace_produces_the_python_expected_shape),
+        ("pipeline_route::tests::uuid5_is_deterministic_and_name_sensitive", uuid5_is_deterministic_and_name_sensitive),
+        ("pipeline_route::tests::select_sat_nets_bounds_and_stable_order", select_sat_nets_bounds_and_stable_order),
+        ("pipeline_route::tests::select_sat_nets_duplicate_name_last_writer_wins", select_sat_nets_duplicate_name_last_writer_wins),
+        ("pipeline_route::tests::via_type_token_full_stack_pair_is_through", via_type_token_full_stack_pair_is_through),
+        ("pipeline_route::tests::via_type_token_outer_to_inner_is_blind", via_type_token_outer_to_inner_is_blind),
+        ("pipeline_route::tests::via_type_token_inner_to_inner_is_buried", via_type_token_inner_to_inner_is_buried),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_full_stack_pair_has_no_type_token", emit_s_expr_full_stack_pair_has_no_type_token),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_outer_to_inner_emits_blind_token", emit_s_expr_outer_to_inner_emits_blind_token),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_inner_to_inner_emits_buried_token", emit_s_expr_inner_to_inner_emits_buried_token),
+        ("pipeline_route::tests::via_new_enforces_annular_floor_on_the_exact_regressed_pair", via_new_enforces_annular_floor_on_the_exact_regressed_pair),
+        ("pipeline_route::tests::via_new_leaves_a_compliant_pair_untouched", via_new_leaves_a_compliant_pair_untouched),
+        ("pipeline_route::tests::via_new_leaves_a_pair_exactly_at_the_floor_untouched", via_new_leaves_a_pair_exactly_at_the_floor_untouched),
+        #[cfg(feature = "python")] ("pipeline_route::tests::emit_s_expr_reflects_the_annular_floor_clamp", emit_s_expr_reflects_the_annular_floor_clamp),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

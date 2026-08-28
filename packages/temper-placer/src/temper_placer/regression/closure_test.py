@@ -428,6 +428,11 @@ class ClosureTest:
         # Step 3: Router V6 routing via protocol
         router_completion_pct = 0.0
         routing_failure_messages: list[str] = []
+        # The direct CP-SAT path returns a router result directly, while the
+        # protocol path returns a StageOutput wrapper.  Both are intentionally
+        # accepted by the orchestration below; keep the boundary untyped
+        # instead of making one implementation's shape constrain the other.
+        routing_result: Any
         try:
             # Routing consumes the placement output.  Running it against an
             # empty placement map after placement failed makes the router

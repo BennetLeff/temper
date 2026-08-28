@@ -2013,514 +2013,133 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "phased_assignment_stage::tests::py_max_nan_first_argument_wins",
-            py_max_nan_first_argument_wins,
-        ),
-        (
-            "phased_assignment_stage::tests::py_max_ties_keep_first",
-            py_max_ties_keep_first,
-        ),
-        (
-            "phased_assignment_stage::tests::py_max_infinity",
-            py_max_infinity,
-        ),
-        (
-            "phased_assignment_stage::tests::tuple_cmp_normal_floats",
-            tuple_cmp_normal_floats,
-        ),
-        (
-            "phased_assignment_stage::tests::tuple_cmp_nan_falls_through_to_ref",
-            tuple_cmp_nan_falls_through_to_ref,
-        ),
-        (
-            "phased_assignment_stage::tests::tuple_cmp_negative_zero_vs_zero",
-            tuple_cmp_negative_zero_vs_zero,
-        ),
-        (
-            "phased_assignment_stage::tests::tuple_cmp_infinity",
-            tuple_cmp_infinity,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_000",
-            p1_py_max_returns_larger_seed_000,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_001",
-            p1_py_max_returns_larger_seed_001,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_002",
-            p1_py_max_returns_larger_seed_002,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_003",
-            p1_py_max_returns_larger_seed_003,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_004",
-            p1_py_max_returns_larger_seed_004,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_005",
-            p1_py_max_returns_larger_seed_005,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_006",
-            p1_py_max_returns_larger_seed_006,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_007",
-            p1_py_max_returns_larger_seed_007,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_008",
-            p1_py_max_returns_larger_seed_008,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_009",
-            p1_py_max_returns_larger_seed_009,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_010",
-            p1_py_max_returns_larger_seed_010,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_011",
-            p1_py_max_returns_larger_seed_011,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_012",
-            p1_py_max_returns_larger_seed_012,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_013",
-            p1_py_max_returns_larger_seed_013,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_014",
-            p1_py_max_returns_larger_seed_014,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_015",
-            p1_py_max_returns_larger_seed_015,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_016",
-            p1_py_max_returns_larger_seed_016,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_017",
-            p1_py_max_returns_larger_seed_017,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_018",
-            p1_py_max_returns_larger_seed_018,
-        ),
-        (
-            "phased_assignment_stage::tests::p1_py_max_returns_larger_seed_019",
-            p1_py_max_returns_larger_seed_019,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_000",
-            p2_py_max_returns_one_of_inputs_seed_000,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_001",
-            p2_py_max_returns_one_of_inputs_seed_001,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_002",
-            p2_py_max_returns_one_of_inputs_seed_002,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_003",
-            p2_py_max_returns_one_of_inputs_seed_003,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_004",
-            p2_py_max_returns_one_of_inputs_seed_004,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_005",
-            p2_py_max_returns_one_of_inputs_seed_005,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_006",
-            p2_py_max_returns_one_of_inputs_seed_006,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_007",
-            p2_py_max_returns_one_of_inputs_seed_007,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_008",
-            p2_py_max_returns_one_of_inputs_seed_008,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_009",
-            p2_py_max_returns_one_of_inputs_seed_009,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_010",
-            p2_py_max_returns_one_of_inputs_seed_010,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_011",
-            p2_py_max_returns_one_of_inputs_seed_011,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_012",
-            p2_py_max_returns_one_of_inputs_seed_012,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_013",
-            p2_py_max_returns_one_of_inputs_seed_013,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_014",
-            p2_py_max_returns_one_of_inputs_seed_014,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_015",
-            p2_py_max_returns_one_of_inputs_seed_015,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_016",
-            p2_py_max_returns_one_of_inputs_seed_016,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_017",
-            p2_py_max_returns_one_of_inputs_seed_017,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_018",
-            p2_py_max_returns_one_of_inputs_seed_018,
-        ),
-        (
-            "phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_019",
-            p2_py_max_returns_one_of_inputs_seed_019,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_000",
-            p3_py_max_commutative_seed_000,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_001",
-            p3_py_max_commutative_seed_001,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_002",
-            p3_py_max_commutative_seed_002,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_003",
-            p3_py_max_commutative_seed_003,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_004",
-            p3_py_max_commutative_seed_004,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_005",
-            p3_py_max_commutative_seed_005,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_006",
-            p3_py_max_commutative_seed_006,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_007",
-            p3_py_max_commutative_seed_007,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_008",
-            p3_py_max_commutative_seed_008,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_009",
-            p3_py_max_commutative_seed_009,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_010",
-            p3_py_max_commutative_seed_010,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_011",
-            p3_py_max_commutative_seed_011,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_012",
-            p3_py_max_commutative_seed_012,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_013",
-            p3_py_max_commutative_seed_013,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_014",
-            p3_py_max_commutative_seed_014,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_015",
-            p3_py_max_commutative_seed_015,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_016",
-            p3_py_max_commutative_seed_016,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_017",
-            p3_py_max_commutative_seed_017,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_018",
-            p3_py_max_commutative_seed_018,
-        ),
-        (
-            "phased_assignment_stage::tests::p3_py_max_commutative_seed_019",
-            p3_py_max_commutative_seed_019,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_000",
-            p4_tuple_cmp_matches_numeric_order_seed_000,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_001",
-            p4_tuple_cmp_matches_numeric_order_seed_001,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_002",
-            p4_tuple_cmp_matches_numeric_order_seed_002,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_003",
-            p4_tuple_cmp_matches_numeric_order_seed_003,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_004",
-            p4_tuple_cmp_matches_numeric_order_seed_004,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_005",
-            p4_tuple_cmp_matches_numeric_order_seed_005,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_006",
-            p4_tuple_cmp_matches_numeric_order_seed_006,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_007",
-            p4_tuple_cmp_matches_numeric_order_seed_007,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_008",
-            p4_tuple_cmp_matches_numeric_order_seed_008,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_009",
-            p4_tuple_cmp_matches_numeric_order_seed_009,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_010",
-            p4_tuple_cmp_matches_numeric_order_seed_010,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_011",
-            p4_tuple_cmp_matches_numeric_order_seed_011,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_012",
-            p4_tuple_cmp_matches_numeric_order_seed_012,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_013",
-            p4_tuple_cmp_matches_numeric_order_seed_013,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_014",
-            p4_tuple_cmp_matches_numeric_order_seed_014,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_015",
-            p4_tuple_cmp_matches_numeric_order_seed_015,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_016",
-            p4_tuple_cmp_matches_numeric_order_seed_016,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_017",
-            p4_tuple_cmp_matches_numeric_order_seed_017,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_018",
-            p4_tuple_cmp_matches_numeric_order_seed_018,
-        ),
-        (
-            "phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_019",
-            p4_tuple_cmp_matches_numeric_order_seed_019,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_000",
-            p5_equal_floats_defer_to_ref_seed_000,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_001",
-            p5_equal_floats_defer_to_ref_seed_001,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_002",
-            p5_equal_floats_defer_to_ref_seed_002,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_003",
-            p5_equal_floats_defer_to_ref_seed_003,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_004",
-            p5_equal_floats_defer_to_ref_seed_004,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_005",
-            p5_equal_floats_defer_to_ref_seed_005,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_006",
-            p5_equal_floats_defer_to_ref_seed_006,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_007",
-            p5_equal_floats_defer_to_ref_seed_007,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_008",
-            p5_equal_floats_defer_to_ref_seed_008,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_009",
-            p5_equal_floats_defer_to_ref_seed_009,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_010",
-            p5_equal_floats_defer_to_ref_seed_010,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_011",
-            p5_equal_floats_defer_to_ref_seed_011,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_012",
-            p5_equal_floats_defer_to_ref_seed_012,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_013",
-            p5_equal_floats_defer_to_ref_seed_013,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_014",
-            p5_equal_floats_defer_to_ref_seed_014,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_015",
-            p5_equal_floats_defer_to_ref_seed_015,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_016",
-            p5_equal_floats_defer_to_ref_seed_016,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_017",
-            p5_equal_floats_defer_to_ref_seed_017,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_018",
-            p5_equal_floats_defer_to_ref_seed_018,
-        ),
-        (
-            "phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_019",
-            p5_equal_floats_defer_to_ref_seed_019,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_000",
-            p6_transitive_seed_000,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_001",
-            p6_transitive_seed_001,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_002",
-            p6_transitive_seed_002,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_003",
-            p6_transitive_seed_003,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_004",
-            p6_transitive_seed_004,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_005",
-            p6_transitive_seed_005,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_006",
-            p6_transitive_seed_006,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_007",
-            p6_transitive_seed_007,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_008",
-            p6_transitive_seed_008,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_009",
-            p6_transitive_seed_009,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_010",
-            p6_transitive_seed_010,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_011",
-            p6_transitive_seed_011,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_012",
-            p6_transitive_seed_012,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_013",
-            p6_transitive_seed_013,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_014",
-            p6_transitive_seed_014,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_015",
-            p6_transitive_seed_015,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_016",
-            p6_transitive_seed_016,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_017",
-            p6_transitive_seed_017,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_018",
-            p6_transitive_seed_018,
-        ),
-        (
-            "phased_assignment_stage::tests::p6_transitive_seed_019",
-            p6_transitive_seed_019,
-        ),
+        ("phased_assignment_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("phased_assignment_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("phased_assignment_stage::tests::py_max_infinity", py_max_infinity),
+        ("phased_assignment_stage::tests::tuple_cmp_normal_floats", tuple_cmp_normal_floats),
+        ("phased_assignment_stage::tests::tuple_cmp_nan_falls_through_to_ref", tuple_cmp_nan_falls_through_to_ref),
+        ("phased_assignment_stage::tests::tuple_cmp_negative_zero_vs_zero", tuple_cmp_negative_zero_vs_zero),
+        ("phased_assignment_stage::tests::tuple_cmp_infinity", tuple_cmp_infinity),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_000", p1_py_max_returns_larger_seed_000),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_001", p1_py_max_returns_larger_seed_001),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_002", p1_py_max_returns_larger_seed_002),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_003", p1_py_max_returns_larger_seed_003),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_004", p1_py_max_returns_larger_seed_004),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_005", p1_py_max_returns_larger_seed_005),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_006", p1_py_max_returns_larger_seed_006),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_007", p1_py_max_returns_larger_seed_007),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_008", p1_py_max_returns_larger_seed_008),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_009", p1_py_max_returns_larger_seed_009),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_010", p1_py_max_returns_larger_seed_010),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_011", p1_py_max_returns_larger_seed_011),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_012", p1_py_max_returns_larger_seed_012),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_013", p1_py_max_returns_larger_seed_013),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_014", p1_py_max_returns_larger_seed_014),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_015", p1_py_max_returns_larger_seed_015),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_016", p1_py_max_returns_larger_seed_016),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_017", p1_py_max_returns_larger_seed_017),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_018", p1_py_max_returns_larger_seed_018),
+        ("phased_assignment_stage::tests::p1_py_max_returns_larger_seed_019", p1_py_max_returns_larger_seed_019),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_000", p2_py_max_returns_one_of_inputs_seed_000),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_001", p2_py_max_returns_one_of_inputs_seed_001),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_002", p2_py_max_returns_one_of_inputs_seed_002),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_003", p2_py_max_returns_one_of_inputs_seed_003),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_004", p2_py_max_returns_one_of_inputs_seed_004),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_005", p2_py_max_returns_one_of_inputs_seed_005),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_006", p2_py_max_returns_one_of_inputs_seed_006),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_007", p2_py_max_returns_one_of_inputs_seed_007),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_008", p2_py_max_returns_one_of_inputs_seed_008),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_009", p2_py_max_returns_one_of_inputs_seed_009),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_010", p2_py_max_returns_one_of_inputs_seed_010),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_011", p2_py_max_returns_one_of_inputs_seed_011),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_012", p2_py_max_returns_one_of_inputs_seed_012),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_013", p2_py_max_returns_one_of_inputs_seed_013),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_014", p2_py_max_returns_one_of_inputs_seed_014),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_015", p2_py_max_returns_one_of_inputs_seed_015),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_016", p2_py_max_returns_one_of_inputs_seed_016),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_017", p2_py_max_returns_one_of_inputs_seed_017),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_018", p2_py_max_returns_one_of_inputs_seed_018),
+        ("phased_assignment_stage::tests::p2_py_max_returns_one_of_inputs_seed_019", p2_py_max_returns_one_of_inputs_seed_019),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_000", p3_py_max_commutative_seed_000),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_001", p3_py_max_commutative_seed_001),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_002", p3_py_max_commutative_seed_002),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_003", p3_py_max_commutative_seed_003),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_004", p3_py_max_commutative_seed_004),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_005", p3_py_max_commutative_seed_005),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_006", p3_py_max_commutative_seed_006),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_007", p3_py_max_commutative_seed_007),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_008", p3_py_max_commutative_seed_008),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_009", p3_py_max_commutative_seed_009),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_010", p3_py_max_commutative_seed_010),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_011", p3_py_max_commutative_seed_011),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_012", p3_py_max_commutative_seed_012),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_013", p3_py_max_commutative_seed_013),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_014", p3_py_max_commutative_seed_014),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_015", p3_py_max_commutative_seed_015),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_016", p3_py_max_commutative_seed_016),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_017", p3_py_max_commutative_seed_017),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_018", p3_py_max_commutative_seed_018),
+        ("phased_assignment_stage::tests::p3_py_max_commutative_seed_019", p3_py_max_commutative_seed_019),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_000", p4_tuple_cmp_matches_numeric_order_seed_000),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_001", p4_tuple_cmp_matches_numeric_order_seed_001),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_002", p4_tuple_cmp_matches_numeric_order_seed_002),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_003", p4_tuple_cmp_matches_numeric_order_seed_003),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_004", p4_tuple_cmp_matches_numeric_order_seed_004),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_005", p4_tuple_cmp_matches_numeric_order_seed_005),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_006", p4_tuple_cmp_matches_numeric_order_seed_006),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_007", p4_tuple_cmp_matches_numeric_order_seed_007),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_008", p4_tuple_cmp_matches_numeric_order_seed_008),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_009", p4_tuple_cmp_matches_numeric_order_seed_009),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_010", p4_tuple_cmp_matches_numeric_order_seed_010),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_011", p4_tuple_cmp_matches_numeric_order_seed_011),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_012", p4_tuple_cmp_matches_numeric_order_seed_012),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_013", p4_tuple_cmp_matches_numeric_order_seed_013),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_014", p4_tuple_cmp_matches_numeric_order_seed_014),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_015", p4_tuple_cmp_matches_numeric_order_seed_015),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_016", p4_tuple_cmp_matches_numeric_order_seed_016),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_017", p4_tuple_cmp_matches_numeric_order_seed_017),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_018", p4_tuple_cmp_matches_numeric_order_seed_018),
+        ("phased_assignment_stage::tests::p4_tuple_cmp_matches_numeric_order_seed_019", p4_tuple_cmp_matches_numeric_order_seed_019),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_000", p5_equal_floats_defer_to_ref_seed_000),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_001", p5_equal_floats_defer_to_ref_seed_001),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_002", p5_equal_floats_defer_to_ref_seed_002),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_003", p5_equal_floats_defer_to_ref_seed_003),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_004", p5_equal_floats_defer_to_ref_seed_004),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_005", p5_equal_floats_defer_to_ref_seed_005),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_006", p5_equal_floats_defer_to_ref_seed_006),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_007", p5_equal_floats_defer_to_ref_seed_007),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_008", p5_equal_floats_defer_to_ref_seed_008),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_009", p5_equal_floats_defer_to_ref_seed_009),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_010", p5_equal_floats_defer_to_ref_seed_010),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_011", p5_equal_floats_defer_to_ref_seed_011),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_012", p5_equal_floats_defer_to_ref_seed_012),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_013", p5_equal_floats_defer_to_ref_seed_013),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_014", p5_equal_floats_defer_to_ref_seed_014),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_015", p5_equal_floats_defer_to_ref_seed_015),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_016", p5_equal_floats_defer_to_ref_seed_016),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_017", p5_equal_floats_defer_to_ref_seed_017),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_018", p5_equal_floats_defer_to_ref_seed_018),
+        ("phased_assignment_stage::tests::p5_equal_floats_defer_to_ref_seed_019", p5_equal_floats_defer_to_ref_seed_019),
+        ("phased_assignment_stage::tests::p6_transitive_seed_000", p6_transitive_seed_000),
+        ("phased_assignment_stage::tests::p6_transitive_seed_001", p6_transitive_seed_001),
+        ("phased_assignment_stage::tests::p6_transitive_seed_002", p6_transitive_seed_002),
+        ("phased_assignment_stage::tests::p6_transitive_seed_003", p6_transitive_seed_003),
+        ("phased_assignment_stage::tests::p6_transitive_seed_004", p6_transitive_seed_004),
+        ("phased_assignment_stage::tests::p6_transitive_seed_005", p6_transitive_seed_005),
+        ("phased_assignment_stage::tests::p6_transitive_seed_006", p6_transitive_seed_006),
+        ("phased_assignment_stage::tests::p6_transitive_seed_007", p6_transitive_seed_007),
+        ("phased_assignment_stage::tests::p6_transitive_seed_008", p6_transitive_seed_008),
+        ("phased_assignment_stage::tests::p6_transitive_seed_009", p6_transitive_seed_009),
+        ("phased_assignment_stage::tests::p6_transitive_seed_010", p6_transitive_seed_010),
+        ("phased_assignment_stage::tests::p6_transitive_seed_011", p6_transitive_seed_011),
+        ("phased_assignment_stage::tests::p6_transitive_seed_012", p6_transitive_seed_012),
+        ("phased_assignment_stage::tests::p6_transitive_seed_013", p6_transitive_seed_013),
+        ("phased_assignment_stage::tests::p6_transitive_seed_014", p6_transitive_seed_014),
+        ("phased_assignment_stage::tests::p6_transitive_seed_015", p6_transitive_seed_015),
+        ("phased_assignment_stage::tests::p6_transitive_seed_016", p6_transitive_seed_016),
+        ("phased_assignment_stage::tests::p6_transitive_seed_017", p6_transitive_seed_017),
+        ("phased_assignment_stage::tests::p6_transitive_seed_018", p6_transitive_seed_018),
+        ("phased_assignment_stage::tests::p6_transitive_seed_019", p6_transitive_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

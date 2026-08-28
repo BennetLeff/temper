@@ -1132,815 +1132,209 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "timing::tests::py_max_asymmetric_on_nan",
-            py_max_asymmetric_on_nan,
-        ),
+        ("timing::tests::py_max_asymmetric_on_nan", py_max_asymmetric_on_nan),
         ("timing::tests::py_cmp_nan_is_equal", py_cmp_nan_is_equal),
-        (
-            "timing::tests::compare_stage_guards_zero_baseline",
-            compare_stage_guards_zero_baseline,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_000",
-            p1_py_max_returns_larger_seed_000,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_001",
-            p1_py_max_returns_larger_seed_001,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_002",
-            p1_py_max_returns_larger_seed_002,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_003",
-            p1_py_max_returns_larger_seed_003,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_004",
-            p1_py_max_returns_larger_seed_004,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_005",
-            p1_py_max_returns_larger_seed_005,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_006",
-            p1_py_max_returns_larger_seed_006,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_007",
-            p1_py_max_returns_larger_seed_007,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_008",
-            p1_py_max_returns_larger_seed_008,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_009",
-            p1_py_max_returns_larger_seed_009,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_010",
-            p1_py_max_returns_larger_seed_010,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_011",
-            p1_py_max_returns_larger_seed_011,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_012",
-            p1_py_max_returns_larger_seed_012,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_013",
-            p1_py_max_returns_larger_seed_013,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_014",
-            p1_py_max_returns_larger_seed_014,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_015",
-            p1_py_max_returns_larger_seed_015,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_016",
-            p1_py_max_returns_larger_seed_016,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_017",
-            p1_py_max_returns_larger_seed_017,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_018",
-            p1_py_max_returns_larger_seed_018,
-        ),
-        (
-            "timing::tests::p1_py_max_returns_larger_seed_019",
-            p1_py_max_returns_larger_seed_019,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_000",
-            p2_py_max_returns_one_of_inputs_seed_000,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_001",
-            p2_py_max_returns_one_of_inputs_seed_001,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_002",
-            p2_py_max_returns_one_of_inputs_seed_002,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_003",
-            p2_py_max_returns_one_of_inputs_seed_003,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_004",
-            p2_py_max_returns_one_of_inputs_seed_004,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_005",
-            p2_py_max_returns_one_of_inputs_seed_005,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_006",
-            p2_py_max_returns_one_of_inputs_seed_006,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_007",
-            p2_py_max_returns_one_of_inputs_seed_007,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_008",
-            p2_py_max_returns_one_of_inputs_seed_008,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_009",
-            p2_py_max_returns_one_of_inputs_seed_009,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_010",
-            p2_py_max_returns_one_of_inputs_seed_010,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_011",
-            p2_py_max_returns_one_of_inputs_seed_011,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_012",
-            p2_py_max_returns_one_of_inputs_seed_012,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_013",
-            p2_py_max_returns_one_of_inputs_seed_013,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_014",
-            p2_py_max_returns_one_of_inputs_seed_014,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_015",
-            p2_py_max_returns_one_of_inputs_seed_015,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_016",
-            p2_py_max_returns_one_of_inputs_seed_016,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_017",
-            p2_py_max_returns_one_of_inputs_seed_017,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_018",
-            p2_py_max_returns_one_of_inputs_seed_018,
-        ),
-        (
-            "timing::tests::p2_py_max_returns_one_of_inputs_seed_019",
-            p2_py_max_returns_one_of_inputs_seed_019,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_000",
-            p3_py_max_commutative_seed_000,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_001",
-            p3_py_max_commutative_seed_001,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_002",
-            p3_py_max_commutative_seed_002,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_003",
-            p3_py_max_commutative_seed_003,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_004",
-            p3_py_max_commutative_seed_004,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_005",
-            p3_py_max_commutative_seed_005,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_006",
-            p3_py_max_commutative_seed_006,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_007",
-            p3_py_max_commutative_seed_007,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_008",
-            p3_py_max_commutative_seed_008,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_009",
-            p3_py_max_commutative_seed_009,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_010",
-            p3_py_max_commutative_seed_010,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_011",
-            p3_py_max_commutative_seed_011,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_012",
-            p3_py_max_commutative_seed_012,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_013",
-            p3_py_max_commutative_seed_013,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_014",
-            p3_py_max_commutative_seed_014,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_015",
-            p3_py_max_commutative_seed_015,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_016",
-            p3_py_max_commutative_seed_016,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_017",
-            p3_py_max_commutative_seed_017,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_018",
-            p3_py_max_commutative_seed_018,
-        ),
-        (
-            "timing::tests::p3_py_max_commutative_seed_019",
-            p3_py_max_commutative_seed_019,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_000",
-            p4_py_cmp_reflexive_seed_000,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_001",
-            p4_py_cmp_reflexive_seed_001,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_002",
-            p4_py_cmp_reflexive_seed_002,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_003",
-            p4_py_cmp_reflexive_seed_003,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_004",
-            p4_py_cmp_reflexive_seed_004,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_005",
-            p4_py_cmp_reflexive_seed_005,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_006",
-            p4_py_cmp_reflexive_seed_006,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_007",
-            p4_py_cmp_reflexive_seed_007,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_008",
-            p4_py_cmp_reflexive_seed_008,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_009",
-            p4_py_cmp_reflexive_seed_009,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_010",
-            p4_py_cmp_reflexive_seed_010,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_011",
-            p4_py_cmp_reflexive_seed_011,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_012",
-            p4_py_cmp_reflexive_seed_012,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_013",
-            p4_py_cmp_reflexive_seed_013,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_014",
-            p4_py_cmp_reflexive_seed_014,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_015",
-            p4_py_cmp_reflexive_seed_015,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_016",
-            p4_py_cmp_reflexive_seed_016,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_017",
-            p4_py_cmp_reflexive_seed_017,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_018",
-            p4_py_cmp_reflexive_seed_018,
-        ),
-        (
-            "timing::tests::p4_py_cmp_reflexive_seed_019",
-            p4_py_cmp_reflexive_seed_019,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_000",
-            p5_py_cmp_antisymmetric_seed_000,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_001",
-            p5_py_cmp_antisymmetric_seed_001,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_002",
-            p5_py_cmp_antisymmetric_seed_002,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_003",
-            p5_py_cmp_antisymmetric_seed_003,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_004",
-            p5_py_cmp_antisymmetric_seed_004,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_005",
-            p5_py_cmp_antisymmetric_seed_005,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_006",
-            p5_py_cmp_antisymmetric_seed_006,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_007",
-            p5_py_cmp_antisymmetric_seed_007,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_008",
-            p5_py_cmp_antisymmetric_seed_008,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_009",
-            p5_py_cmp_antisymmetric_seed_009,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_010",
-            p5_py_cmp_antisymmetric_seed_010,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_011",
-            p5_py_cmp_antisymmetric_seed_011,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_012",
-            p5_py_cmp_antisymmetric_seed_012,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_013",
-            p5_py_cmp_antisymmetric_seed_013,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_014",
-            p5_py_cmp_antisymmetric_seed_014,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_015",
-            p5_py_cmp_antisymmetric_seed_015,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_016",
-            p5_py_cmp_antisymmetric_seed_016,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_017",
-            p5_py_cmp_antisymmetric_seed_017,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_018",
-            p5_py_cmp_antisymmetric_seed_018,
-        ),
-        (
-            "timing::tests::p5_py_cmp_antisymmetric_seed_019",
-            p5_py_cmp_antisymmetric_seed_019,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_000",
-            p6_py_cmp_transitive_seed_000,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_001",
-            p6_py_cmp_transitive_seed_001,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_002",
-            p6_py_cmp_transitive_seed_002,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_003",
-            p6_py_cmp_transitive_seed_003,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_004",
-            p6_py_cmp_transitive_seed_004,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_005",
-            p6_py_cmp_transitive_seed_005,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_006",
-            p6_py_cmp_transitive_seed_006,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_007",
-            p6_py_cmp_transitive_seed_007,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_008",
-            p6_py_cmp_transitive_seed_008,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_009",
-            p6_py_cmp_transitive_seed_009,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_010",
-            p6_py_cmp_transitive_seed_010,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_011",
-            p6_py_cmp_transitive_seed_011,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_012",
-            p6_py_cmp_transitive_seed_012,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_013",
-            p6_py_cmp_transitive_seed_013,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_014",
-            p6_py_cmp_transitive_seed_014,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_015",
-            p6_py_cmp_transitive_seed_015,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_016",
-            p6_py_cmp_transitive_seed_016,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_017",
-            p6_py_cmp_transitive_seed_017,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_018",
-            p6_py_cmp_transitive_seed_018,
-        ),
-        (
-            "timing::tests::p6_py_cmp_transitive_seed_019",
-            p6_py_cmp_transitive_seed_019,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_000",
-            p7_compare_stage_zero_delta_at_parity_seed_000,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_001",
-            p7_compare_stage_zero_delta_at_parity_seed_001,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_002",
-            p7_compare_stage_zero_delta_at_parity_seed_002,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_003",
-            p7_compare_stage_zero_delta_at_parity_seed_003,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_004",
-            p7_compare_stage_zero_delta_at_parity_seed_004,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_005",
-            p7_compare_stage_zero_delta_at_parity_seed_005,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_006",
-            p7_compare_stage_zero_delta_at_parity_seed_006,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_007",
-            p7_compare_stage_zero_delta_at_parity_seed_007,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_008",
-            p7_compare_stage_zero_delta_at_parity_seed_008,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_009",
-            p7_compare_stage_zero_delta_at_parity_seed_009,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_010",
-            p7_compare_stage_zero_delta_at_parity_seed_010,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_011",
-            p7_compare_stage_zero_delta_at_parity_seed_011,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_012",
-            p7_compare_stage_zero_delta_at_parity_seed_012,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_013",
-            p7_compare_stage_zero_delta_at_parity_seed_013,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_014",
-            p7_compare_stage_zero_delta_at_parity_seed_014,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_015",
-            p7_compare_stage_zero_delta_at_parity_seed_015,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_016",
-            p7_compare_stage_zero_delta_at_parity_seed_016,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_017",
-            p7_compare_stage_zero_delta_at_parity_seed_017,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_018",
-            p7_compare_stage_zero_delta_at_parity_seed_018,
-        ),
-        (
-            "timing::tests::p7_compare_stage_zero_delta_at_parity_seed_019",
-            p7_compare_stage_zero_delta_at_parity_seed_019,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_000",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_000,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_001",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_001,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_002",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_002,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_003",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_003,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_004",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_004,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_005",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_005,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_006",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_006,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_007",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_007,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_008",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_008,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_009",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_009,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_010",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_010,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_011",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_011,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_012",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_012,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_013",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_013,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_014",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_014,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_015",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_015,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_016",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_016,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_017",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_017,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_018",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_018,
-        ),
-        (
-            "timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_019",
-            p8_compare_stage_positive_delta_pct_for_regression_seed_019,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_000",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_000,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_001",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_001,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_002",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_002,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_003",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_003,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_004",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_004,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_005",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_005,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_006",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_006,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_007",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_007,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_008",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_008,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_009",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_009,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_010",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_010,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_011",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_011,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_012",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_012,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_013",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_013,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_014",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_014,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_015",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_015,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_016",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_016,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_017",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_017,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_018",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_018,
-        ),
-        (
-            "timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_019",
-            p9_compare_stage_effective_baseline_at_least_floor_seed_019,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_000",
-            p10_compare_stage_zero_margin_exact_threshold_seed_000,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_001",
-            p10_compare_stage_zero_margin_exact_threshold_seed_001,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_002",
-            p10_compare_stage_zero_margin_exact_threshold_seed_002,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_003",
-            p10_compare_stage_zero_margin_exact_threshold_seed_003,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_004",
-            p10_compare_stage_zero_margin_exact_threshold_seed_004,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_005",
-            p10_compare_stage_zero_margin_exact_threshold_seed_005,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_006",
-            p10_compare_stage_zero_margin_exact_threshold_seed_006,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_007",
-            p10_compare_stage_zero_margin_exact_threshold_seed_007,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_008",
-            p10_compare_stage_zero_margin_exact_threshold_seed_008,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_009",
-            p10_compare_stage_zero_margin_exact_threshold_seed_009,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_010",
-            p10_compare_stage_zero_margin_exact_threshold_seed_010,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_011",
-            p10_compare_stage_zero_margin_exact_threshold_seed_011,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_012",
-            p10_compare_stage_zero_margin_exact_threshold_seed_012,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_013",
-            p10_compare_stage_zero_margin_exact_threshold_seed_013,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_014",
-            p10_compare_stage_zero_margin_exact_threshold_seed_014,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_015",
-            p10_compare_stage_zero_margin_exact_threshold_seed_015,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_016",
-            p10_compare_stage_zero_margin_exact_threshold_seed_016,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_017",
-            p10_compare_stage_zero_margin_exact_threshold_seed_017,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_018",
-            p10_compare_stage_zero_margin_exact_threshold_seed_018,
-        ),
-        (
-            "timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_019",
-            p10_compare_stage_zero_margin_exact_threshold_seed_019,
-        ),
+        ("timing::tests::compare_stage_guards_zero_baseline", compare_stage_guards_zero_baseline),
+        ("timing::tests::p1_py_max_returns_larger_seed_000", p1_py_max_returns_larger_seed_000),
+        ("timing::tests::p1_py_max_returns_larger_seed_001", p1_py_max_returns_larger_seed_001),
+        ("timing::tests::p1_py_max_returns_larger_seed_002", p1_py_max_returns_larger_seed_002),
+        ("timing::tests::p1_py_max_returns_larger_seed_003", p1_py_max_returns_larger_seed_003),
+        ("timing::tests::p1_py_max_returns_larger_seed_004", p1_py_max_returns_larger_seed_004),
+        ("timing::tests::p1_py_max_returns_larger_seed_005", p1_py_max_returns_larger_seed_005),
+        ("timing::tests::p1_py_max_returns_larger_seed_006", p1_py_max_returns_larger_seed_006),
+        ("timing::tests::p1_py_max_returns_larger_seed_007", p1_py_max_returns_larger_seed_007),
+        ("timing::tests::p1_py_max_returns_larger_seed_008", p1_py_max_returns_larger_seed_008),
+        ("timing::tests::p1_py_max_returns_larger_seed_009", p1_py_max_returns_larger_seed_009),
+        ("timing::tests::p1_py_max_returns_larger_seed_010", p1_py_max_returns_larger_seed_010),
+        ("timing::tests::p1_py_max_returns_larger_seed_011", p1_py_max_returns_larger_seed_011),
+        ("timing::tests::p1_py_max_returns_larger_seed_012", p1_py_max_returns_larger_seed_012),
+        ("timing::tests::p1_py_max_returns_larger_seed_013", p1_py_max_returns_larger_seed_013),
+        ("timing::tests::p1_py_max_returns_larger_seed_014", p1_py_max_returns_larger_seed_014),
+        ("timing::tests::p1_py_max_returns_larger_seed_015", p1_py_max_returns_larger_seed_015),
+        ("timing::tests::p1_py_max_returns_larger_seed_016", p1_py_max_returns_larger_seed_016),
+        ("timing::tests::p1_py_max_returns_larger_seed_017", p1_py_max_returns_larger_seed_017),
+        ("timing::tests::p1_py_max_returns_larger_seed_018", p1_py_max_returns_larger_seed_018),
+        ("timing::tests::p1_py_max_returns_larger_seed_019", p1_py_max_returns_larger_seed_019),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_000", p2_py_max_returns_one_of_inputs_seed_000),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_001", p2_py_max_returns_one_of_inputs_seed_001),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_002", p2_py_max_returns_one_of_inputs_seed_002),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_003", p2_py_max_returns_one_of_inputs_seed_003),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_004", p2_py_max_returns_one_of_inputs_seed_004),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_005", p2_py_max_returns_one_of_inputs_seed_005),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_006", p2_py_max_returns_one_of_inputs_seed_006),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_007", p2_py_max_returns_one_of_inputs_seed_007),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_008", p2_py_max_returns_one_of_inputs_seed_008),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_009", p2_py_max_returns_one_of_inputs_seed_009),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_010", p2_py_max_returns_one_of_inputs_seed_010),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_011", p2_py_max_returns_one_of_inputs_seed_011),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_012", p2_py_max_returns_one_of_inputs_seed_012),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_013", p2_py_max_returns_one_of_inputs_seed_013),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_014", p2_py_max_returns_one_of_inputs_seed_014),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_015", p2_py_max_returns_one_of_inputs_seed_015),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_016", p2_py_max_returns_one_of_inputs_seed_016),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_017", p2_py_max_returns_one_of_inputs_seed_017),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_018", p2_py_max_returns_one_of_inputs_seed_018),
+        ("timing::tests::p2_py_max_returns_one_of_inputs_seed_019", p2_py_max_returns_one_of_inputs_seed_019),
+        ("timing::tests::p3_py_max_commutative_seed_000", p3_py_max_commutative_seed_000),
+        ("timing::tests::p3_py_max_commutative_seed_001", p3_py_max_commutative_seed_001),
+        ("timing::tests::p3_py_max_commutative_seed_002", p3_py_max_commutative_seed_002),
+        ("timing::tests::p3_py_max_commutative_seed_003", p3_py_max_commutative_seed_003),
+        ("timing::tests::p3_py_max_commutative_seed_004", p3_py_max_commutative_seed_004),
+        ("timing::tests::p3_py_max_commutative_seed_005", p3_py_max_commutative_seed_005),
+        ("timing::tests::p3_py_max_commutative_seed_006", p3_py_max_commutative_seed_006),
+        ("timing::tests::p3_py_max_commutative_seed_007", p3_py_max_commutative_seed_007),
+        ("timing::tests::p3_py_max_commutative_seed_008", p3_py_max_commutative_seed_008),
+        ("timing::tests::p3_py_max_commutative_seed_009", p3_py_max_commutative_seed_009),
+        ("timing::tests::p3_py_max_commutative_seed_010", p3_py_max_commutative_seed_010),
+        ("timing::tests::p3_py_max_commutative_seed_011", p3_py_max_commutative_seed_011),
+        ("timing::tests::p3_py_max_commutative_seed_012", p3_py_max_commutative_seed_012),
+        ("timing::tests::p3_py_max_commutative_seed_013", p3_py_max_commutative_seed_013),
+        ("timing::tests::p3_py_max_commutative_seed_014", p3_py_max_commutative_seed_014),
+        ("timing::tests::p3_py_max_commutative_seed_015", p3_py_max_commutative_seed_015),
+        ("timing::tests::p3_py_max_commutative_seed_016", p3_py_max_commutative_seed_016),
+        ("timing::tests::p3_py_max_commutative_seed_017", p3_py_max_commutative_seed_017),
+        ("timing::tests::p3_py_max_commutative_seed_018", p3_py_max_commutative_seed_018),
+        ("timing::tests::p3_py_max_commutative_seed_019", p3_py_max_commutative_seed_019),
+        ("timing::tests::p4_py_cmp_reflexive_seed_000", p4_py_cmp_reflexive_seed_000),
+        ("timing::tests::p4_py_cmp_reflexive_seed_001", p4_py_cmp_reflexive_seed_001),
+        ("timing::tests::p4_py_cmp_reflexive_seed_002", p4_py_cmp_reflexive_seed_002),
+        ("timing::tests::p4_py_cmp_reflexive_seed_003", p4_py_cmp_reflexive_seed_003),
+        ("timing::tests::p4_py_cmp_reflexive_seed_004", p4_py_cmp_reflexive_seed_004),
+        ("timing::tests::p4_py_cmp_reflexive_seed_005", p4_py_cmp_reflexive_seed_005),
+        ("timing::tests::p4_py_cmp_reflexive_seed_006", p4_py_cmp_reflexive_seed_006),
+        ("timing::tests::p4_py_cmp_reflexive_seed_007", p4_py_cmp_reflexive_seed_007),
+        ("timing::tests::p4_py_cmp_reflexive_seed_008", p4_py_cmp_reflexive_seed_008),
+        ("timing::tests::p4_py_cmp_reflexive_seed_009", p4_py_cmp_reflexive_seed_009),
+        ("timing::tests::p4_py_cmp_reflexive_seed_010", p4_py_cmp_reflexive_seed_010),
+        ("timing::tests::p4_py_cmp_reflexive_seed_011", p4_py_cmp_reflexive_seed_011),
+        ("timing::tests::p4_py_cmp_reflexive_seed_012", p4_py_cmp_reflexive_seed_012),
+        ("timing::tests::p4_py_cmp_reflexive_seed_013", p4_py_cmp_reflexive_seed_013),
+        ("timing::tests::p4_py_cmp_reflexive_seed_014", p4_py_cmp_reflexive_seed_014),
+        ("timing::tests::p4_py_cmp_reflexive_seed_015", p4_py_cmp_reflexive_seed_015),
+        ("timing::tests::p4_py_cmp_reflexive_seed_016", p4_py_cmp_reflexive_seed_016),
+        ("timing::tests::p4_py_cmp_reflexive_seed_017", p4_py_cmp_reflexive_seed_017),
+        ("timing::tests::p4_py_cmp_reflexive_seed_018", p4_py_cmp_reflexive_seed_018),
+        ("timing::tests::p4_py_cmp_reflexive_seed_019", p4_py_cmp_reflexive_seed_019),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_000", p5_py_cmp_antisymmetric_seed_000),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_001", p5_py_cmp_antisymmetric_seed_001),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_002", p5_py_cmp_antisymmetric_seed_002),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_003", p5_py_cmp_antisymmetric_seed_003),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_004", p5_py_cmp_antisymmetric_seed_004),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_005", p5_py_cmp_antisymmetric_seed_005),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_006", p5_py_cmp_antisymmetric_seed_006),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_007", p5_py_cmp_antisymmetric_seed_007),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_008", p5_py_cmp_antisymmetric_seed_008),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_009", p5_py_cmp_antisymmetric_seed_009),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_010", p5_py_cmp_antisymmetric_seed_010),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_011", p5_py_cmp_antisymmetric_seed_011),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_012", p5_py_cmp_antisymmetric_seed_012),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_013", p5_py_cmp_antisymmetric_seed_013),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_014", p5_py_cmp_antisymmetric_seed_014),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_015", p5_py_cmp_antisymmetric_seed_015),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_016", p5_py_cmp_antisymmetric_seed_016),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_017", p5_py_cmp_antisymmetric_seed_017),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_018", p5_py_cmp_antisymmetric_seed_018),
+        ("timing::tests::p5_py_cmp_antisymmetric_seed_019", p5_py_cmp_antisymmetric_seed_019),
+        ("timing::tests::p6_py_cmp_transitive_seed_000", p6_py_cmp_transitive_seed_000),
+        ("timing::tests::p6_py_cmp_transitive_seed_001", p6_py_cmp_transitive_seed_001),
+        ("timing::tests::p6_py_cmp_transitive_seed_002", p6_py_cmp_transitive_seed_002),
+        ("timing::tests::p6_py_cmp_transitive_seed_003", p6_py_cmp_transitive_seed_003),
+        ("timing::tests::p6_py_cmp_transitive_seed_004", p6_py_cmp_transitive_seed_004),
+        ("timing::tests::p6_py_cmp_transitive_seed_005", p6_py_cmp_transitive_seed_005),
+        ("timing::tests::p6_py_cmp_transitive_seed_006", p6_py_cmp_transitive_seed_006),
+        ("timing::tests::p6_py_cmp_transitive_seed_007", p6_py_cmp_transitive_seed_007),
+        ("timing::tests::p6_py_cmp_transitive_seed_008", p6_py_cmp_transitive_seed_008),
+        ("timing::tests::p6_py_cmp_transitive_seed_009", p6_py_cmp_transitive_seed_009),
+        ("timing::tests::p6_py_cmp_transitive_seed_010", p6_py_cmp_transitive_seed_010),
+        ("timing::tests::p6_py_cmp_transitive_seed_011", p6_py_cmp_transitive_seed_011),
+        ("timing::tests::p6_py_cmp_transitive_seed_012", p6_py_cmp_transitive_seed_012),
+        ("timing::tests::p6_py_cmp_transitive_seed_013", p6_py_cmp_transitive_seed_013),
+        ("timing::tests::p6_py_cmp_transitive_seed_014", p6_py_cmp_transitive_seed_014),
+        ("timing::tests::p6_py_cmp_transitive_seed_015", p6_py_cmp_transitive_seed_015),
+        ("timing::tests::p6_py_cmp_transitive_seed_016", p6_py_cmp_transitive_seed_016),
+        ("timing::tests::p6_py_cmp_transitive_seed_017", p6_py_cmp_transitive_seed_017),
+        ("timing::tests::p6_py_cmp_transitive_seed_018", p6_py_cmp_transitive_seed_018),
+        ("timing::tests::p6_py_cmp_transitive_seed_019", p6_py_cmp_transitive_seed_019),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_000", p7_compare_stage_zero_delta_at_parity_seed_000),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_001", p7_compare_stage_zero_delta_at_parity_seed_001),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_002", p7_compare_stage_zero_delta_at_parity_seed_002),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_003", p7_compare_stage_zero_delta_at_parity_seed_003),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_004", p7_compare_stage_zero_delta_at_parity_seed_004),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_005", p7_compare_stage_zero_delta_at_parity_seed_005),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_006", p7_compare_stage_zero_delta_at_parity_seed_006),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_007", p7_compare_stage_zero_delta_at_parity_seed_007),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_008", p7_compare_stage_zero_delta_at_parity_seed_008),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_009", p7_compare_stage_zero_delta_at_parity_seed_009),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_010", p7_compare_stage_zero_delta_at_parity_seed_010),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_011", p7_compare_stage_zero_delta_at_parity_seed_011),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_012", p7_compare_stage_zero_delta_at_parity_seed_012),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_013", p7_compare_stage_zero_delta_at_parity_seed_013),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_014", p7_compare_stage_zero_delta_at_parity_seed_014),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_015", p7_compare_stage_zero_delta_at_parity_seed_015),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_016", p7_compare_stage_zero_delta_at_parity_seed_016),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_017", p7_compare_stage_zero_delta_at_parity_seed_017),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_018", p7_compare_stage_zero_delta_at_parity_seed_018),
+        ("timing::tests::p7_compare_stage_zero_delta_at_parity_seed_019", p7_compare_stage_zero_delta_at_parity_seed_019),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_000", p8_compare_stage_positive_delta_pct_for_regression_seed_000),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_001", p8_compare_stage_positive_delta_pct_for_regression_seed_001),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_002", p8_compare_stage_positive_delta_pct_for_regression_seed_002),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_003", p8_compare_stage_positive_delta_pct_for_regression_seed_003),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_004", p8_compare_stage_positive_delta_pct_for_regression_seed_004),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_005", p8_compare_stage_positive_delta_pct_for_regression_seed_005),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_006", p8_compare_stage_positive_delta_pct_for_regression_seed_006),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_007", p8_compare_stage_positive_delta_pct_for_regression_seed_007),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_008", p8_compare_stage_positive_delta_pct_for_regression_seed_008),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_009", p8_compare_stage_positive_delta_pct_for_regression_seed_009),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_010", p8_compare_stage_positive_delta_pct_for_regression_seed_010),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_011", p8_compare_stage_positive_delta_pct_for_regression_seed_011),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_012", p8_compare_stage_positive_delta_pct_for_regression_seed_012),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_013", p8_compare_stage_positive_delta_pct_for_regression_seed_013),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_014", p8_compare_stage_positive_delta_pct_for_regression_seed_014),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_015", p8_compare_stage_positive_delta_pct_for_regression_seed_015),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_016", p8_compare_stage_positive_delta_pct_for_regression_seed_016),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_017", p8_compare_stage_positive_delta_pct_for_regression_seed_017),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_018", p8_compare_stage_positive_delta_pct_for_regression_seed_018),
+        ("timing::tests::p8_compare_stage_positive_delta_pct_for_regression_seed_019", p8_compare_stage_positive_delta_pct_for_regression_seed_019),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_000", p9_compare_stage_effective_baseline_at_least_floor_seed_000),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_001", p9_compare_stage_effective_baseline_at_least_floor_seed_001),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_002", p9_compare_stage_effective_baseline_at_least_floor_seed_002),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_003", p9_compare_stage_effective_baseline_at_least_floor_seed_003),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_004", p9_compare_stage_effective_baseline_at_least_floor_seed_004),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_005", p9_compare_stage_effective_baseline_at_least_floor_seed_005),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_006", p9_compare_stage_effective_baseline_at_least_floor_seed_006),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_007", p9_compare_stage_effective_baseline_at_least_floor_seed_007),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_008", p9_compare_stage_effective_baseline_at_least_floor_seed_008),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_009", p9_compare_stage_effective_baseline_at_least_floor_seed_009),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_010", p9_compare_stage_effective_baseline_at_least_floor_seed_010),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_011", p9_compare_stage_effective_baseline_at_least_floor_seed_011),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_012", p9_compare_stage_effective_baseline_at_least_floor_seed_012),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_013", p9_compare_stage_effective_baseline_at_least_floor_seed_013),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_014", p9_compare_stage_effective_baseline_at_least_floor_seed_014),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_015", p9_compare_stage_effective_baseline_at_least_floor_seed_015),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_016", p9_compare_stage_effective_baseline_at_least_floor_seed_016),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_017", p9_compare_stage_effective_baseline_at_least_floor_seed_017),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_018", p9_compare_stage_effective_baseline_at_least_floor_seed_018),
+        ("timing::tests::p9_compare_stage_effective_baseline_at_least_floor_seed_019", p9_compare_stage_effective_baseline_at_least_floor_seed_019),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_000", p10_compare_stage_zero_margin_exact_threshold_seed_000),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_001", p10_compare_stage_zero_margin_exact_threshold_seed_001),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_002", p10_compare_stage_zero_margin_exact_threshold_seed_002),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_003", p10_compare_stage_zero_margin_exact_threshold_seed_003),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_004", p10_compare_stage_zero_margin_exact_threshold_seed_004),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_005", p10_compare_stage_zero_margin_exact_threshold_seed_005),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_006", p10_compare_stage_zero_margin_exact_threshold_seed_006),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_007", p10_compare_stage_zero_margin_exact_threshold_seed_007),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_008", p10_compare_stage_zero_margin_exact_threshold_seed_008),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_009", p10_compare_stage_zero_margin_exact_threshold_seed_009),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_010", p10_compare_stage_zero_margin_exact_threshold_seed_010),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_011", p10_compare_stage_zero_margin_exact_threshold_seed_011),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_012", p10_compare_stage_zero_margin_exact_threshold_seed_012),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_013", p10_compare_stage_zero_margin_exact_threshold_seed_013),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_014", p10_compare_stage_zero_margin_exact_threshold_seed_014),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_015", p10_compare_stage_zero_margin_exact_threshold_seed_015),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_016", p10_compare_stage_zero_margin_exact_threshold_seed_016),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_017", p10_compare_stage_zero_margin_exact_threshold_seed_017),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_018", p10_compare_stage_zero_margin_exact_threshold_seed_018),
+        ("timing::tests::p10_compare_stage_zero_margin_exact_threshold_seed_019", p10_compare_stage_zero_margin_exact_threshold_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

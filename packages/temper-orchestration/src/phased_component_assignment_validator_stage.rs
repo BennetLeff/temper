@@ -940,268 +940,71 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "phased_component_assignment_validator_stage::tests::py_max_nan_first_argument_wins",
-            py_max_nan_first_argument_wins,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::py_max_ties_keep_first",
-            py_max_ties_keep_first,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::py_max_infinity",
-            py_max_infinity,
-        ),
-        #[cfg(feature = "python")]
-        (
-            "phased_component_assignment_validator_stage::tests::is_hv_safety_true_for_hv_and_ac",
-            is_hv_safety_true_for_hv_and_ac,
-        ),
-        #[cfg(feature = "python")]
-        (
-            "phased_component_assignment_validator_stage::tests::is_hv_safety_false_for_none_and_unknown",
-            is_hv_safety_false_for_none_and_unknown,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_000",
-            p1_py_max_returns_larger_seed_000,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_001",
-            p1_py_max_returns_larger_seed_001,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_002",
-            p1_py_max_returns_larger_seed_002,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_003",
-            p1_py_max_returns_larger_seed_003,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_004",
-            p1_py_max_returns_larger_seed_004,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_005",
-            p1_py_max_returns_larger_seed_005,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_006",
-            p1_py_max_returns_larger_seed_006,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_007",
-            p1_py_max_returns_larger_seed_007,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_008",
-            p1_py_max_returns_larger_seed_008,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_009",
-            p1_py_max_returns_larger_seed_009,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_010",
-            p1_py_max_returns_larger_seed_010,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_011",
-            p1_py_max_returns_larger_seed_011,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_012",
-            p1_py_max_returns_larger_seed_012,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_013",
-            p1_py_max_returns_larger_seed_013,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_014",
-            p1_py_max_returns_larger_seed_014,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_015",
-            p1_py_max_returns_larger_seed_015,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_016",
-            p1_py_max_returns_larger_seed_016,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_017",
-            p1_py_max_returns_larger_seed_017,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_018",
-            p1_py_max_returns_larger_seed_018,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_019",
-            p1_py_max_returns_larger_seed_019,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_000",
-            p2_py_max_returns_one_of_inputs_seed_000,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_001",
-            p2_py_max_returns_one_of_inputs_seed_001,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_002",
-            p2_py_max_returns_one_of_inputs_seed_002,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_003",
-            p2_py_max_returns_one_of_inputs_seed_003,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_004",
-            p2_py_max_returns_one_of_inputs_seed_004,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_005",
-            p2_py_max_returns_one_of_inputs_seed_005,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_006",
-            p2_py_max_returns_one_of_inputs_seed_006,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_007",
-            p2_py_max_returns_one_of_inputs_seed_007,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_008",
-            p2_py_max_returns_one_of_inputs_seed_008,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_009",
-            p2_py_max_returns_one_of_inputs_seed_009,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_010",
-            p2_py_max_returns_one_of_inputs_seed_010,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_011",
-            p2_py_max_returns_one_of_inputs_seed_011,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_012",
-            p2_py_max_returns_one_of_inputs_seed_012,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_013",
-            p2_py_max_returns_one_of_inputs_seed_013,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_014",
-            p2_py_max_returns_one_of_inputs_seed_014,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_015",
-            p2_py_max_returns_one_of_inputs_seed_015,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_016",
-            p2_py_max_returns_one_of_inputs_seed_016,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_017",
-            p2_py_max_returns_one_of_inputs_seed_017,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_018",
-            p2_py_max_returns_one_of_inputs_seed_018,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_019",
-            p2_py_max_returns_one_of_inputs_seed_019,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_000",
-            p3_py_max_commutative_for_finite_seed_000,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_001",
-            p3_py_max_commutative_for_finite_seed_001,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_002",
-            p3_py_max_commutative_for_finite_seed_002,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_003",
-            p3_py_max_commutative_for_finite_seed_003,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_004",
-            p3_py_max_commutative_for_finite_seed_004,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_005",
-            p3_py_max_commutative_for_finite_seed_005,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_006",
-            p3_py_max_commutative_for_finite_seed_006,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_007",
-            p3_py_max_commutative_for_finite_seed_007,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_008",
-            p3_py_max_commutative_for_finite_seed_008,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_009",
-            p3_py_max_commutative_for_finite_seed_009,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_010",
-            p3_py_max_commutative_for_finite_seed_010,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_011",
-            p3_py_max_commutative_for_finite_seed_011,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_012",
-            p3_py_max_commutative_for_finite_seed_012,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_013",
-            p3_py_max_commutative_for_finite_seed_013,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_014",
-            p3_py_max_commutative_for_finite_seed_014,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_015",
-            p3_py_max_commutative_for_finite_seed_015,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_016",
-            p3_py_max_commutative_for_finite_seed_016,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_017",
-            p3_py_max_commutative_for_finite_seed_017,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_018",
-            p3_py_max_commutative_for_finite_seed_018,
-        ),
-        (
-            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_019",
-            p3_py_max_commutative_for_finite_seed_019,
-        ),
+        ("phased_component_assignment_validator_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("phased_component_assignment_validator_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("phased_component_assignment_validator_stage::tests::py_max_infinity", py_max_infinity),
+        #[cfg(feature = "python")] ("phased_component_assignment_validator_stage::tests::is_hv_safety_true_for_hv_and_ac", is_hv_safety_true_for_hv_and_ac),
+        #[cfg(feature = "python")] ("phased_component_assignment_validator_stage::tests::is_hv_safety_false_for_none_and_unknown", is_hv_safety_false_for_none_and_unknown),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_000", p1_py_max_returns_larger_seed_000),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_001", p1_py_max_returns_larger_seed_001),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_002", p1_py_max_returns_larger_seed_002),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_003", p1_py_max_returns_larger_seed_003),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_004", p1_py_max_returns_larger_seed_004),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_005", p1_py_max_returns_larger_seed_005),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_006", p1_py_max_returns_larger_seed_006),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_007", p1_py_max_returns_larger_seed_007),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_008", p1_py_max_returns_larger_seed_008),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_009", p1_py_max_returns_larger_seed_009),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_010", p1_py_max_returns_larger_seed_010),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_011", p1_py_max_returns_larger_seed_011),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_012", p1_py_max_returns_larger_seed_012),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_013", p1_py_max_returns_larger_seed_013),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_014", p1_py_max_returns_larger_seed_014),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_015", p1_py_max_returns_larger_seed_015),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_016", p1_py_max_returns_larger_seed_016),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_017", p1_py_max_returns_larger_seed_017),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_018", p1_py_max_returns_larger_seed_018),
+        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_019", p1_py_max_returns_larger_seed_019),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_000", p2_py_max_returns_one_of_inputs_seed_000),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_001", p2_py_max_returns_one_of_inputs_seed_001),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_002", p2_py_max_returns_one_of_inputs_seed_002),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_003", p2_py_max_returns_one_of_inputs_seed_003),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_004", p2_py_max_returns_one_of_inputs_seed_004),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_005", p2_py_max_returns_one_of_inputs_seed_005),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_006", p2_py_max_returns_one_of_inputs_seed_006),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_007", p2_py_max_returns_one_of_inputs_seed_007),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_008", p2_py_max_returns_one_of_inputs_seed_008),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_009", p2_py_max_returns_one_of_inputs_seed_009),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_010", p2_py_max_returns_one_of_inputs_seed_010),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_011", p2_py_max_returns_one_of_inputs_seed_011),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_012", p2_py_max_returns_one_of_inputs_seed_012),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_013", p2_py_max_returns_one_of_inputs_seed_013),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_014", p2_py_max_returns_one_of_inputs_seed_014),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_015", p2_py_max_returns_one_of_inputs_seed_015),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_016", p2_py_max_returns_one_of_inputs_seed_016),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_017", p2_py_max_returns_one_of_inputs_seed_017),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_018", p2_py_max_returns_one_of_inputs_seed_018),
+        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_019", p2_py_max_returns_one_of_inputs_seed_019),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_000", p3_py_max_commutative_for_finite_seed_000),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_001", p3_py_max_commutative_for_finite_seed_001),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_002", p3_py_max_commutative_for_finite_seed_002),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_003", p3_py_max_commutative_for_finite_seed_003),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_004", p3_py_max_commutative_for_finite_seed_004),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_005", p3_py_max_commutative_for_finite_seed_005),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_006", p3_py_max_commutative_for_finite_seed_006),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_007", p3_py_max_commutative_for_finite_seed_007),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_008", p3_py_max_commutative_for_finite_seed_008),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_009", p3_py_max_commutative_for_finite_seed_009),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_010", p3_py_max_commutative_for_finite_seed_010),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_011", p3_py_max_commutative_for_finite_seed_011),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_012", p3_py_max_commutative_for_finite_seed_012),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_013", p3_py_max_commutative_for_finite_seed_013),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_014", p3_py_max_commutative_for_finite_seed_014),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_015", p3_py_max_commutative_for_finite_seed_015),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_016", p3_py_max_commutative_for_finite_seed_016),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_017", p3_py_max_commutative_for_finite_seed_017),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_018", p3_py_max_commutative_for_finite_seed_018),
+        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_019", p3_py_max_commutative_for_finite_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

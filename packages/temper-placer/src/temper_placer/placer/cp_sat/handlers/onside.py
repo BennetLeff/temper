@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from temper_placer.pcl.constraints import OnSideConstraint
 from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
@@ -34,7 +34,7 @@ def encode_onside(
         )
 
     for ref in constraint.components:
-        v = components.get(ref)
+        v = components[ref]
         label = f"oside_{constraint.id}_{ref}"
         assumption = model.new_assumption(label)
 
@@ -46,5 +46,5 @@ def encode_onside(
             model.add_constraint_enforced(v.y_end >= ctx.board_y_max_units - max_d_u, assumption)
         elif side == "bottom":
             model.add_constraint_enforced(v.y_start <= ctx.board_y_min_units + max_d_u, assumption)
-        labels.append(assumption)
+        labels.append(cast(AssumptionLiteral, assumption))
     return labels

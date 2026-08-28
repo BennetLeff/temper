@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from temper_placer.pcl.constraints import EnclosingConstraint
 from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
@@ -45,7 +45,7 @@ def encode_enclosing(
     margin_u = model.mm_to_units(constraint.margin_mm)
 
     for ref in constraint.inner:
-        v = components.get(ref)
+        v = components[ref]
         label = f"enc_{constraint.id}_{ref}"
         assumption = model.new_assumption(label)
 
@@ -65,5 +65,5 @@ def encode_enclosing(
             v.y_end <= zy_max_u - margin_u,
             assumption,
         )
-        labels.append(assumption)
+        labels.append(cast(AssumptionLiteral, assumption))
     return labels

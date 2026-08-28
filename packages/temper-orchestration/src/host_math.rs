@@ -866,576 +866,149 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        #[cfg(not(target_arch = "wasm32"))]
-        (
-            "host_math::tests::host_libm_symbols_actually_resolve",
-            host_libm_symbols_actually_resolve,
-        ),
-        (
-            "host_math::tests::pow_matches_python_libm_on_known_values",
-            pow_matches_python_libm_on_known_values,
-        ),
+        #[cfg(not(target_arch = "wasm32"))] ("host_math::tests::host_libm_symbols_actually_resolve", host_libm_symbols_actually_resolve),
+        ("host_math::tests::pow_matches_python_libm_on_known_values", pow_matches_python_libm_on_known_values),
         ("host_math::tests::pow_special_values", pow_special_values),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_000",
-            p1_pow_zero_exponent_seed_000,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_001",
-            p1_pow_zero_exponent_seed_001,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_002",
-            p1_pow_zero_exponent_seed_002,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_003",
-            p1_pow_zero_exponent_seed_003,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_004",
-            p1_pow_zero_exponent_seed_004,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_005",
-            p1_pow_zero_exponent_seed_005,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_006",
-            p1_pow_zero_exponent_seed_006,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_007",
-            p1_pow_zero_exponent_seed_007,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_008",
-            p1_pow_zero_exponent_seed_008,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_009",
-            p1_pow_zero_exponent_seed_009,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_010",
-            p1_pow_zero_exponent_seed_010,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_011",
-            p1_pow_zero_exponent_seed_011,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_012",
-            p1_pow_zero_exponent_seed_012,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_013",
-            p1_pow_zero_exponent_seed_013,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_014",
-            p1_pow_zero_exponent_seed_014,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_015",
-            p1_pow_zero_exponent_seed_015,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_016",
-            p1_pow_zero_exponent_seed_016,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_017",
-            p1_pow_zero_exponent_seed_017,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_018",
-            p1_pow_zero_exponent_seed_018,
-        ),
-        (
-            "host_math::tests::p1_pow_zero_exponent_seed_019",
-            p1_pow_zero_exponent_seed_019,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_000",
-            p2_pow_unity_exponent_seed_000,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_001",
-            p2_pow_unity_exponent_seed_001,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_002",
-            p2_pow_unity_exponent_seed_002,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_003",
-            p2_pow_unity_exponent_seed_003,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_004",
-            p2_pow_unity_exponent_seed_004,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_005",
-            p2_pow_unity_exponent_seed_005,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_006",
-            p2_pow_unity_exponent_seed_006,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_007",
-            p2_pow_unity_exponent_seed_007,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_008",
-            p2_pow_unity_exponent_seed_008,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_009",
-            p2_pow_unity_exponent_seed_009,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_010",
-            p2_pow_unity_exponent_seed_010,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_011",
-            p2_pow_unity_exponent_seed_011,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_012",
-            p2_pow_unity_exponent_seed_012,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_013",
-            p2_pow_unity_exponent_seed_013,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_014",
-            p2_pow_unity_exponent_seed_014,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_015",
-            p2_pow_unity_exponent_seed_015,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_016",
-            p2_pow_unity_exponent_seed_016,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_017",
-            p2_pow_unity_exponent_seed_017,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_018",
-            p2_pow_unity_exponent_seed_018,
-        ),
-        (
-            "host_math::tests::p2_pow_unity_exponent_seed_019",
-            p2_pow_unity_exponent_seed_019,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_000",
-            p3_pow_square_non_negative_seed_000,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_001",
-            p3_pow_square_non_negative_seed_001,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_002",
-            p3_pow_square_non_negative_seed_002,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_003",
-            p3_pow_square_non_negative_seed_003,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_004",
-            p3_pow_square_non_negative_seed_004,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_005",
-            p3_pow_square_non_negative_seed_005,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_006",
-            p3_pow_square_non_negative_seed_006,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_007",
-            p3_pow_square_non_negative_seed_007,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_008",
-            p3_pow_square_non_negative_seed_008,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_009",
-            p3_pow_square_non_negative_seed_009,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_010",
-            p3_pow_square_non_negative_seed_010,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_011",
-            p3_pow_square_non_negative_seed_011,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_012",
-            p3_pow_square_non_negative_seed_012,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_013",
-            p3_pow_square_non_negative_seed_013,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_014",
-            p3_pow_square_non_negative_seed_014,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_015",
-            p3_pow_square_non_negative_seed_015,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_016",
-            p3_pow_square_non_negative_seed_016,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_017",
-            p3_pow_square_non_negative_seed_017,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_018",
-            p3_pow_square_non_negative_seed_018,
-        ),
-        (
-            "host_math::tests::p3_pow_square_non_negative_seed_019",
-            p3_pow_square_non_negative_seed_019,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_000",
-            p4_pow_modest_inputs_finite_seed_000,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_001",
-            p4_pow_modest_inputs_finite_seed_001,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_002",
-            p4_pow_modest_inputs_finite_seed_002,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_003",
-            p4_pow_modest_inputs_finite_seed_003,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_004",
-            p4_pow_modest_inputs_finite_seed_004,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_005",
-            p4_pow_modest_inputs_finite_seed_005,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_006",
-            p4_pow_modest_inputs_finite_seed_006,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_007",
-            p4_pow_modest_inputs_finite_seed_007,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_008",
-            p4_pow_modest_inputs_finite_seed_008,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_009",
-            p4_pow_modest_inputs_finite_seed_009,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_010",
-            p4_pow_modest_inputs_finite_seed_010,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_011",
-            p4_pow_modest_inputs_finite_seed_011,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_012",
-            p4_pow_modest_inputs_finite_seed_012,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_013",
-            p4_pow_modest_inputs_finite_seed_013,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_014",
-            p4_pow_modest_inputs_finite_seed_014,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_015",
-            p4_pow_modest_inputs_finite_seed_015,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_016",
-            p4_pow_modest_inputs_finite_seed_016,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_017",
-            p4_pow_modest_inputs_finite_seed_017,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_018",
-            p4_pow_modest_inputs_finite_seed_018,
-        ),
-        (
-            "host_math::tests::p4_pow_modest_inputs_finite_seed_019",
-            p4_pow_modest_inputs_finite_seed_019,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_000",
-            p5_pow_one_to_anything_seed_000,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_001",
-            p5_pow_one_to_anything_seed_001,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_002",
-            p5_pow_one_to_anything_seed_002,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_003",
-            p5_pow_one_to_anything_seed_003,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_004",
-            p5_pow_one_to_anything_seed_004,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_005",
-            p5_pow_one_to_anything_seed_005,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_006",
-            p5_pow_one_to_anything_seed_006,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_007",
-            p5_pow_one_to_anything_seed_007,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_008",
-            p5_pow_one_to_anything_seed_008,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_009",
-            p5_pow_one_to_anything_seed_009,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_010",
-            p5_pow_one_to_anything_seed_010,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_011",
-            p5_pow_one_to_anything_seed_011,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_012",
-            p5_pow_one_to_anything_seed_012,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_013",
-            p5_pow_one_to_anything_seed_013,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_014",
-            p5_pow_one_to_anything_seed_014,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_015",
-            p5_pow_one_to_anything_seed_015,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_016",
-            p5_pow_one_to_anything_seed_016,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_017",
-            p5_pow_one_to_anything_seed_017,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_018",
-            p5_pow_one_to_anything_seed_018,
-        ),
-        (
-            "host_math::tests::p5_pow_one_to_anything_seed_019",
-            p5_pow_one_to_anything_seed_019,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_000",
-            p6_pow_additive_exponents_seed_000,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_001",
-            p6_pow_additive_exponents_seed_001,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_002",
-            p6_pow_additive_exponents_seed_002,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_003",
-            p6_pow_additive_exponents_seed_003,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_004",
-            p6_pow_additive_exponents_seed_004,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_005",
-            p6_pow_additive_exponents_seed_005,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_006",
-            p6_pow_additive_exponents_seed_006,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_007",
-            p6_pow_additive_exponents_seed_007,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_008",
-            p6_pow_additive_exponents_seed_008,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_009",
-            p6_pow_additive_exponents_seed_009,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_010",
-            p6_pow_additive_exponents_seed_010,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_011",
-            p6_pow_additive_exponents_seed_011,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_012",
-            p6_pow_additive_exponents_seed_012,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_013",
-            p6_pow_additive_exponents_seed_013,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_014",
-            p6_pow_additive_exponents_seed_014,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_015",
-            p6_pow_additive_exponents_seed_015,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_016",
-            p6_pow_additive_exponents_seed_016,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_017",
-            p6_pow_additive_exponents_seed_017,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_018",
-            p6_pow_additive_exponents_seed_018,
-        ),
-        (
-            "host_math::tests::p6_pow_additive_exponents_seed_019",
-            p6_pow_additive_exponents_seed_019,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_000",
-            p7_pow_square_then_square_seed_000,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_001",
-            p7_pow_square_then_square_seed_001,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_002",
-            p7_pow_square_then_square_seed_002,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_003",
-            p7_pow_square_then_square_seed_003,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_004",
-            p7_pow_square_then_square_seed_004,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_005",
-            p7_pow_square_then_square_seed_005,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_006",
-            p7_pow_square_then_square_seed_006,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_007",
-            p7_pow_square_then_square_seed_007,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_008",
-            p7_pow_square_then_square_seed_008,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_009",
-            p7_pow_square_then_square_seed_009,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_010",
-            p7_pow_square_then_square_seed_010,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_011",
-            p7_pow_square_then_square_seed_011,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_012",
-            p7_pow_square_then_square_seed_012,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_013",
-            p7_pow_square_then_square_seed_013,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_014",
-            p7_pow_square_then_square_seed_014,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_015",
-            p7_pow_square_then_square_seed_015,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_016",
-            p7_pow_square_then_square_seed_016,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_017",
-            p7_pow_square_then_square_seed_017,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_018",
-            p7_pow_square_then_square_seed_018,
-        ),
-        (
-            "host_math::tests::p7_pow_square_then_square_seed_019",
-            p7_pow_square_then_square_seed_019,
-        ),
+        ("host_math::tests::p1_pow_zero_exponent_seed_000", p1_pow_zero_exponent_seed_000),
+        ("host_math::tests::p1_pow_zero_exponent_seed_001", p1_pow_zero_exponent_seed_001),
+        ("host_math::tests::p1_pow_zero_exponent_seed_002", p1_pow_zero_exponent_seed_002),
+        ("host_math::tests::p1_pow_zero_exponent_seed_003", p1_pow_zero_exponent_seed_003),
+        ("host_math::tests::p1_pow_zero_exponent_seed_004", p1_pow_zero_exponent_seed_004),
+        ("host_math::tests::p1_pow_zero_exponent_seed_005", p1_pow_zero_exponent_seed_005),
+        ("host_math::tests::p1_pow_zero_exponent_seed_006", p1_pow_zero_exponent_seed_006),
+        ("host_math::tests::p1_pow_zero_exponent_seed_007", p1_pow_zero_exponent_seed_007),
+        ("host_math::tests::p1_pow_zero_exponent_seed_008", p1_pow_zero_exponent_seed_008),
+        ("host_math::tests::p1_pow_zero_exponent_seed_009", p1_pow_zero_exponent_seed_009),
+        ("host_math::tests::p1_pow_zero_exponent_seed_010", p1_pow_zero_exponent_seed_010),
+        ("host_math::tests::p1_pow_zero_exponent_seed_011", p1_pow_zero_exponent_seed_011),
+        ("host_math::tests::p1_pow_zero_exponent_seed_012", p1_pow_zero_exponent_seed_012),
+        ("host_math::tests::p1_pow_zero_exponent_seed_013", p1_pow_zero_exponent_seed_013),
+        ("host_math::tests::p1_pow_zero_exponent_seed_014", p1_pow_zero_exponent_seed_014),
+        ("host_math::tests::p1_pow_zero_exponent_seed_015", p1_pow_zero_exponent_seed_015),
+        ("host_math::tests::p1_pow_zero_exponent_seed_016", p1_pow_zero_exponent_seed_016),
+        ("host_math::tests::p1_pow_zero_exponent_seed_017", p1_pow_zero_exponent_seed_017),
+        ("host_math::tests::p1_pow_zero_exponent_seed_018", p1_pow_zero_exponent_seed_018),
+        ("host_math::tests::p1_pow_zero_exponent_seed_019", p1_pow_zero_exponent_seed_019),
+        ("host_math::tests::p2_pow_unity_exponent_seed_000", p2_pow_unity_exponent_seed_000),
+        ("host_math::tests::p2_pow_unity_exponent_seed_001", p2_pow_unity_exponent_seed_001),
+        ("host_math::tests::p2_pow_unity_exponent_seed_002", p2_pow_unity_exponent_seed_002),
+        ("host_math::tests::p2_pow_unity_exponent_seed_003", p2_pow_unity_exponent_seed_003),
+        ("host_math::tests::p2_pow_unity_exponent_seed_004", p2_pow_unity_exponent_seed_004),
+        ("host_math::tests::p2_pow_unity_exponent_seed_005", p2_pow_unity_exponent_seed_005),
+        ("host_math::tests::p2_pow_unity_exponent_seed_006", p2_pow_unity_exponent_seed_006),
+        ("host_math::tests::p2_pow_unity_exponent_seed_007", p2_pow_unity_exponent_seed_007),
+        ("host_math::tests::p2_pow_unity_exponent_seed_008", p2_pow_unity_exponent_seed_008),
+        ("host_math::tests::p2_pow_unity_exponent_seed_009", p2_pow_unity_exponent_seed_009),
+        ("host_math::tests::p2_pow_unity_exponent_seed_010", p2_pow_unity_exponent_seed_010),
+        ("host_math::tests::p2_pow_unity_exponent_seed_011", p2_pow_unity_exponent_seed_011),
+        ("host_math::tests::p2_pow_unity_exponent_seed_012", p2_pow_unity_exponent_seed_012),
+        ("host_math::tests::p2_pow_unity_exponent_seed_013", p2_pow_unity_exponent_seed_013),
+        ("host_math::tests::p2_pow_unity_exponent_seed_014", p2_pow_unity_exponent_seed_014),
+        ("host_math::tests::p2_pow_unity_exponent_seed_015", p2_pow_unity_exponent_seed_015),
+        ("host_math::tests::p2_pow_unity_exponent_seed_016", p2_pow_unity_exponent_seed_016),
+        ("host_math::tests::p2_pow_unity_exponent_seed_017", p2_pow_unity_exponent_seed_017),
+        ("host_math::tests::p2_pow_unity_exponent_seed_018", p2_pow_unity_exponent_seed_018),
+        ("host_math::tests::p2_pow_unity_exponent_seed_019", p2_pow_unity_exponent_seed_019),
+        ("host_math::tests::p3_pow_square_non_negative_seed_000", p3_pow_square_non_negative_seed_000),
+        ("host_math::tests::p3_pow_square_non_negative_seed_001", p3_pow_square_non_negative_seed_001),
+        ("host_math::tests::p3_pow_square_non_negative_seed_002", p3_pow_square_non_negative_seed_002),
+        ("host_math::tests::p3_pow_square_non_negative_seed_003", p3_pow_square_non_negative_seed_003),
+        ("host_math::tests::p3_pow_square_non_negative_seed_004", p3_pow_square_non_negative_seed_004),
+        ("host_math::tests::p3_pow_square_non_negative_seed_005", p3_pow_square_non_negative_seed_005),
+        ("host_math::tests::p3_pow_square_non_negative_seed_006", p3_pow_square_non_negative_seed_006),
+        ("host_math::tests::p3_pow_square_non_negative_seed_007", p3_pow_square_non_negative_seed_007),
+        ("host_math::tests::p3_pow_square_non_negative_seed_008", p3_pow_square_non_negative_seed_008),
+        ("host_math::tests::p3_pow_square_non_negative_seed_009", p3_pow_square_non_negative_seed_009),
+        ("host_math::tests::p3_pow_square_non_negative_seed_010", p3_pow_square_non_negative_seed_010),
+        ("host_math::tests::p3_pow_square_non_negative_seed_011", p3_pow_square_non_negative_seed_011),
+        ("host_math::tests::p3_pow_square_non_negative_seed_012", p3_pow_square_non_negative_seed_012),
+        ("host_math::tests::p3_pow_square_non_negative_seed_013", p3_pow_square_non_negative_seed_013),
+        ("host_math::tests::p3_pow_square_non_negative_seed_014", p3_pow_square_non_negative_seed_014),
+        ("host_math::tests::p3_pow_square_non_negative_seed_015", p3_pow_square_non_negative_seed_015),
+        ("host_math::tests::p3_pow_square_non_negative_seed_016", p3_pow_square_non_negative_seed_016),
+        ("host_math::tests::p3_pow_square_non_negative_seed_017", p3_pow_square_non_negative_seed_017),
+        ("host_math::tests::p3_pow_square_non_negative_seed_018", p3_pow_square_non_negative_seed_018),
+        ("host_math::tests::p3_pow_square_non_negative_seed_019", p3_pow_square_non_negative_seed_019),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_000", p4_pow_modest_inputs_finite_seed_000),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_001", p4_pow_modest_inputs_finite_seed_001),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_002", p4_pow_modest_inputs_finite_seed_002),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_003", p4_pow_modest_inputs_finite_seed_003),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_004", p4_pow_modest_inputs_finite_seed_004),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_005", p4_pow_modest_inputs_finite_seed_005),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_006", p4_pow_modest_inputs_finite_seed_006),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_007", p4_pow_modest_inputs_finite_seed_007),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_008", p4_pow_modest_inputs_finite_seed_008),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_009", p4_pow_modest_inputs_finite_seed_009),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_010", p4_pow_modest_inputs_finite_seed_010),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_011", p4_pow_modest_inputs_finite_seed_011),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_012", p4_pow_modest_inputs_finite_seed_012),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_013", p4_pow_modest_inputs_finite_seed_013),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_014", p4_pow_modest_inputs_finite_seed_014),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_015", p4_pow_modest_inputs_finite_seed_015),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_016", p4_pow_modest_inputs_finite_seed_016),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_017", p4_pow_modest_inputs_finite_seed_017),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_018", p4_pow_modest_inputs_finite_seed_018),
+        ("host_math::tests::p4_pow_modest_inputs_finite_seed_019", p4_pow_modest_inputs_finite_seed_019),
+        ("host_math::tests::p5_pow_one_to_anything_seed_000", p5_pow_one_to_anything_seed_000),
+        ("host_math::tests::p5_pow_one_to_anything_seed_001", p5_pow_one_to_anything_seed_001),
+        ("host_math::tests::p5_pow_one_to_anything_seed_002", p5_pow_one_to_anything_seed_002),
+        ("host_math::tests::p5_pow_one_to_anything_seed_003", p5_pow_one_to_anything_seed_003),
+        ("host_math::tests::p5_pow_one_to_anything_seed_004", p5_pow_one_to_anything_seed_004),
+        ("host_math::tests::p5_pow_one_to_anything_seed_005", p5_pow_one_to_anything_seed_005),
+        ("host_math::tests::p5_pow_one_to_anything_seed_006", p5_pow_one_to_anything_seed_006),
+        ("host_math::tests::p5_pow_one_to_anything_seed_007", p5_pow_one_to_anything_seed_007),
+        ("host_math::tests::p5_pow_one_to_anything_seed_008", p5_pow_one_to_anything_seed_008),
+        ("host_math::tests::p5_pow_one_to_anything_seed_009", p5_pow_one_to_anything_seed_009),
+        ("host_math::tests::p5_pow_one_to_anything_seed_010", p5_pow_one_to_anything_seed_010),
+        ("host_math::tests::p5_pow_one_to_anything_seed_011", p5_pow_one_to_anything_seed_011),
+        ("host_math::tests::p5_pow_one_to_anything_seed_012", p5_pow_one_to_anything_seed_012),
+        ("host_math::tests::p5_pow_one_to_anything_seed_013", p5_pow_one_to_anything_seed_013),
+        ("host_math::tests::p5_pow_one_to_anything_seed_014", p5_pow_one_to_anything_seed_014),
+        ("host_math::tests::p5_pow_one_to_anything_seed_015", p5_pow_one_to_anything_seed_015),
+        ("host_math::tests::p5_pow_one_to_anything_seed_016", p5_pow_one_to_anything_seed_016),
+        ("host_math::tests::p5_pow_one_to_anything_seed_017", p5_pow_one_to_anything_seed_017),
+        ("host_math::tests::p5_pow_one_to_anything_seed_018", p5_pow_one_to_anything_seed_018),
+        ("host_math::tests::p5_pow_one_to_anything_seed_019", p5_pow_one_to_anything_seed_019),
+        ("host_math::tests::p6_pow_additive_exponents_seed_000", p6_pow_additive_exponents_seed_000),
+        ("host_math::tests::p6_pow_additive_exponents_seed_001", p6_pow_additive_exponents_seed_001),
+        ("host_math::tests::p6_pow_additive_exponents_seed_002", p6_pow_additive_exponents_seed_002),
+        ("host_math::tests::p6_pow_additive_exponents_seed_003", p6_pow_additive_exponents_seed_003),
+        ("host_math::tests::p6_pow_additive_exponents_seed_004", p6_pow_additive_exponents_seed_004),
+        ("host_math::tests::p6_pow_additive_exponents_seed_005", p6_pow_additive_exponents_seed_005),
+        ("host_math::tests::p6_pow_additive_exponents_seed_006", p6_pow_additive_exponents_seed_006),
+        ("host_math::tests::p6_pow_additive_exponents_seed_007", p6_pow_additive_exponents_seed_007),
+        ("host_math::tests::p6_pow_additive_exponents_seed_008", p6_pow_additive_exponents_seed_008),
+        ("host_math::tests::p6_pow_additive_exponents_seed_009", p6_pow_additive_exponents_seed_009),
+        ("host_math::tests::p6_pow_additive_exponents_seed_010", p6_pow_additive_exponents_seed_010),
+        ("host_math::tests::p6_pow_additive_exponents_seed_011", p6_pow_additive_exponents_seed_011),
+        ("host_math::tests::p6_pow_additive_exponents_seed_012", p6_pow_additive_exponents_seed_012),
+        ("host_math::tests::p6_pow_additive_exponents_seed_013", p6_pow_additive_exponents_seed_013),
+        ("host_math::tests::p6_pow_additive_exponents_seed_014", p6_pow_additive_exponents_seed_014),
+        ("host_math::tests::p6_pow_additive_exponents_seed_015", p6_pow_additive_exponents_seed_015),
+        ("host_math::tests::p6_pow_additive_exponents_seed_016", p6_pow_additive_exponents_seed_016),
+        ("host_math::tests::p6_pow_additive_exponents_seed_017", p6_pow_additive_exponents_seed_017),
+        ("host_math::tests::p6_pow_additive_exponents_seed_018", p6_pow_additive_exponents_seed_018),
+        ("host_math::tests::p6_pow_additive_exponents_seed_019", p6_pow_additive_exponents_seed_019),
+        ("host_math::tests::p7_pow_square_then_square_seed_000", p7_pow_square_then_square_seed_000),
+        ("host_math::tests::p7_pow_square_then_square_seed_001", p7_pow_square_then_square_seed_001),
+        ("host_math::tests::p7_pow_square_then_square_seed_002", p7_pow_square_then_square_seed_002),
+        ("host_math::tests::p7_pow_square_then_square_seed_003", p7_pow_square_then_square_seed_003),
+        ("host_math::tests::p7_pow_square_then_square_seed_004", p7_pow_square_then_square_seed_004),
+        ("host_math::tests::p7_pow_square_then_square_seed_005", p7_pow_square_then_square_seed_005),
+        ("host_math::tests::p7_pow_square_then_square_seed_006", p7_pow_square_then_square_seed_006),
+        ("host_math::tests::p7_pow_square_then_square_seed_007", p7_pow_square_then_square_seed_007),
+        ("host_math::tests::p7_pow_square_then_square_seed_008", p7_pow_square_then_square_seed_008),
+        ("host_math::tests::p7_pow_square_then_square_seed_009", p7_pow_square_then_square_seed_009),
+        ("host_math::tests::p7_pow_square_then_square_seed_010", p7_pow_square_then_square_seed_010),
+        ("host_math::tests::p7_pow_square_then_square_seed_011", p7_pow_square_then_square_seed_011),
+        ("host_math::tests::p7_pow_square_then_square_seed_012", p7_pow_square_then_square_seed_012),
+        ("host_math::tests::p7_pow_square_then_square_seed_013", p7_pow_square_then_square_seed_013),
+        ("host_math::tests::p7_pow_square_then_square_seed_014", p7_pow_square_then_square_seed_014),
+        ("host_math::tests::p7_pow_square_then_square_seed_015", p7_pow_square_then_square_seed_015),
+        ("host_math::tests::p7_pow_square_then_square_seed_016", p7_pow_square_then_square_seed_016),
+        ("host_math::tests::p7_pow_square_then_square_seed_017", p7_pow_square_then_square_seed_017),
+        ("host_math::tests::p7_pow_square_then_square_seed_018", p7_pow_square_then_square_seed_018),
+        ("host_math::tests::p7_pow_square_then_square_seed_019", p7_pow_square_then_square_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

@@ -1444,518 +1444,134 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "zone_aware_slot_generation_stage::tests::py_max_nan_first_argument_wins",
-            py_max_nan_first_argument_wins,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_max_ties_keep_first",
-            py_max_ties_keep_first,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_max_infinity",
-            py_max_infinity,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_max_normal_cases",
-            py_max_normal_cases,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_min_nan_first_argument_wins",
-            py_min_nan_first_argument_wins,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_min_ties_keep_first",
-            py_min_ties_keep_first,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_min_infinity",
-            py_min_infinity,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::py_min_normal_cases",
-            py_min_normal_cases,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_000",
-            p1_py_max_returns_larger_seed_000,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_001",
-            p1_py_max_returns_larger_seed_001,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_002",
-            p1_py_max_returns_larger_seed_002,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_003",
-            p1_py_max_returns_larger_seed_003,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_004",
-            p1_py_max_returns_larger_seed_004,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_005",
-            p1_py_max_returns_larger_seed_005,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_006",
-            p1_py_max_returns_larger_seed_006,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_007",
-            p1_py_max_returns_larger_seed_007,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_008",
-            p1_py_max_returns_larger_seed_008,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_009",
-            p1_py_max_returns_larger_seed_009,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_010",
-            p1_py_max_returns_larger_seed_010,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_011",
-            p1_py_max_returns_larger_seed_011,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_012",
-            p1_py_max_returns_larger_seed_012,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_013",
-            p1_py_max_returns_larger_seed_013,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_014",
-            p1_py_max_returns_larger_seed_014,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_015",
-            p1_py_max_returns_larger_seed_015,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_016",
-            p1_py_max_returns_larger_seed_016,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_017",
-            p1_py_max_returns_larger_seed_017,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_018",
-            p1_py_max_returns_larger_seed_018,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_019",
-            p1_py_max_returns_larger_seed_019,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_000",
-            p2_py_max_returns_one_of_inputs_seed_000,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_001",
-            p2_py_max_returns_one_of_inputs_seed_001,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_002",
-            p2_py_max_returns_one_of_inputs_seed_002,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_003",
-            p2_py_max_returns_one_of_inputs_seed_003,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_004",
-            p2_py_max_returns_one_of_inputs_seed_004,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_005",
-            p2_py_max_returns_one_of_inputs_seed_005,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_006",
-            p2_py_max_returns_one_of_inputs_seed_006,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_007",
-            p2_py_max_returns_one_of_inputs_seed_007,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_008",
-            p2_py_max_returns_one_of_inputs_seed_008,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_009",
-            p2_py_max_returns_one_of_inputs_seed_009,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_010",
-            p2_py_max_returns_one_of_inputs_seed_010,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_011",
-            p2_py_max_returns_one_of_inputs_seed_011,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_012",
-            p2_py_max_returns_one_of_inputs_seed_012,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_013",
-            p2_py_max_returns_one_of_inputs_seed_013,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_014",
-            p2_py_max_returns_one_of_inputs_seed_014,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_015",
-            p2_py_max_returns_one_of_inputs_seed_015,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_016",
-            p2_py_max_returns_one_of_inputs_seed_016,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_017",
-            p2_py_max_returns_one_of_inputs_seed_017,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_018",
-            p2_py_max_returns_one_of_inputs_seed_018,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_019",
-            p2_py_max_returns_one_of_inputs_seed_019,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_000",
-            p3_py_max_commutative_for_finite_seed_000,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_001",
-            p3_py_max_commutative_for_finite_seed_001,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_002",
-            p3_py_max_commutative_for_finite_seed_002,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_003",
-            p3_py_max_commutative_for_finite_seed_003,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_004",
-            p3_py_max_commutative_for_finite_seed_004,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_005",
-            p3_py_max_commutative_for_finite_seed_005,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_006",
-            p3_py_max_commutative_for_finite_seed_006,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_007",
-            p3_py_max_commutative_for_finite_seed_007,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_008",
-            p3_py_max_commutative_for_finite_seed_008,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_009",
-            p3_py_max_commutative_for_finite_seed_009,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_010",
-            p3_py_max_commutative_for_finite_seed_010,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_011",
-            p3_py_max_commutative_for_finite_seed_011,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_012",
-            p3_py_max_commutative_for_finite_seed_012,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_013",
-            p3_py_max_commutative_for_finite_seed_013,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_014",
-            p3_py_max_commutative_for_finite_seed_014,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_015",
-            p3_py_max_commutative_for_finite_seed_015,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_016",
-            p3_py_max_commutative_for_finite_seed_016,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_017",
-            p3_py_max_commutative_for_finite_seed_017,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_018",
-            p3_py_max_commutative_for_finite_seed_018,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_019",
-            p3_py_max_commutative_for_finite_seed_019,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_000",
-            p4_py_min_returns_smaller_seed_000,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_001",
-            p4_py_min_returns_smaller_seed_001,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_002",
-            p4_py_min_returns_smaller_seed_002,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_003",
-            p4_py_min_returns_smaller_seed_003,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_004",
-            p4_py_min_returns_smaller_seed_004,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_005",
-            p4_py_min_returns_smaller_seed_005,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_006",
-            p4_py_min_returns_smaller_seed_006,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_007",
-            p4_py_min_returns_smaller_seed_007,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_008",
-            p4_py_min_returns_smaller_seed_008,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_009",
-            p4_py_min_returns_smaller_seed_009,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_010",
-            p4_py_min_returns_smaller_seed_010,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_011",
-            p4_py_min_returns_smaller_seed_011,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_012",
-            p4_py_min_returns_smaller_seed_012,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_013",
-            p4_py_min_returns_smaller_seed_013,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_014",
-            p4_py_min_returns_smaller_seed_014,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_015",
-            p4_py_min_returns_smaller_seed_015,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_016",
-            p4_py_min_returns_smaller_seed_016,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_017",
-            p4_py_min_returns_smaller_seed_017,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_018",
-            p4_py_min_returns_smaller_seed_018,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_019",
-            p4_py_min_returns_smaller_seed_019,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_000",
-            p5_py_min_returns_one_of_inputs_seed_000,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_001",
-            p5_py_min_returns_one_of_inputs_seed_001,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_002",
-            p5_py_min_returns_one_of_inputs_seed_002,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_003",
-            p5_py_min_returns_one_of_inputs_seed_003,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_004",
-            p5_py_min_returns_one_of_inputs_seed_004,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_005",
-            p5_py_min_returns_one_of_inputs_seed_005,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_006",
-            p5_py_min_returns_one_of_inputs_seed_006,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_007",
-            p5_py_min_returns_one_of_inputs_seed_007,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_008",
-            p5_py_min_returns_one_of_inputs_seed_008,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_009",
-            p5_py_min_returns_one_of_inputs_seed_009,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_010",
-            p5_py_min_returns_one_of_inputs_seed_010,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_011",
-            p5_py_min_returns_one_of_inputs_seed_011,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_012",
-            p5_py_min_returns_one_of_inputs_seed_012,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_013",
-            p5_py_min_returns_one_of_inputs_seed_013,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_014",
-            p5_py_min_returns_one_of_inputs_seed_014,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_015",
-            p5_py_min_returns_one_of_inputs_seed_015,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_016",
-            p5_py_min_returns_one_of_inputs_seed_016,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_017",
-            p5_py_min_returns_one_of_inputs_seed_017,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_018",
-            p5_py_min_returns_one_of_inputs_seed_018,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_019",
-            p5_py_min_returns_one_of_inputs_seed_019,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_000",
-            p6_py_min_commutative_for_finite_seed_000,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_001",
-            p6_py_min_commutative_for_finite_seed_001,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_002",
-            p6_py_min_commutative_for_finite_seed_002,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_003",
-            p6_py_min_commutative_for_finite_seed_003,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_004",
-            p6_py_min_commutative_for_finite_seed_004,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_005",
-            p6_py_min_commutative_for_finite_seed_005,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_006",
-            p6_py_min_commutative_for_finite_seed_006,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_007",
-            p6_py_min_commutative_for_finite_seed_007,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_008",
-            p6_py_min_commutative_for_finite_seed_008,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_009",
-            p6_py_min_commutative_for_finite_seed_009,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_010",
-            p6_py_min_commutative_for_finite_seed_010,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_011",
-            p6_py_min_commutative_for_finite_seed_011,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_012",
-            p6_py_min_commutative_for_finite_seed_012,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_013",
-            p6_py_min_commutative_for_finite_seed_013,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_014",
-            p6_py_min_commutative_for_finite_seed_014,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_015",
-            p6_py_min_commutative_for_finite_seed_015,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_016",
-            p6_py_min_commutative_for_finite_seed_016,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_017",
-            p6_py_min_commutative_for_finite_seed_017,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_018",
-            p6_py_min_commutative_for_finite_seed_018,
-        ),
-        (
-            "zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_019",
-            p6_py_min_commutative_for_finite_seed_019,
-        ),
+        ("zone_aware_slot_generation_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
+        ("zone_aware_slot_generation_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
+        ("zone_aware_slot_generation_stage::tests::py_max_infinity", py_max_infinity),
+        ("zone_aware_slot_generation_stage::tests::py_max_normal_cases", py_max_normal_cases),
+        ("zone_aware_slot_generation_stage::tests::py_min_nan_first_argument_wins", py_min_nan_first_argument_wins),
+        ("zone_aware_slot_generation_stage::tests::py_min_ties_keep_first", py_min_ties_keep_first),
+        ("zone_aware_slot_generation_stage::tests::py_min_infinity", py_min_infinity),
+        ("zone_aware_slot_generation_stage::tests::py_min_normal_cases", py_min_normal_cases),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_000", p1_py_max_returns_larger_seed_000),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_001", p1_py_max_returns_larger_seed_001),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_002", p1_py_max_returns_larger_seed_002),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_003", p1_py_max_returns_larger_seed_003),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_004", p1_py_max_returns_larger_seed_004),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_005", p1_py_max_returns_larger_seed_005),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_006", p1_py_max_returns_larger_seed_006),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_007", p1_py_max_returns_larger_seed_007),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_008", p1_py_max_returns_larger_seed_008),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_009", p1_py_max_returns_larger_seed_009),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_010", p1_py_max_returns_larger_seed_010),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_011", p1_py_max_returns_larger_seed_011),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_012", p1_py_max_returns_larger_seed_012),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_013", p1_py_max_returns_larger_seed_013),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_014", p1_py_max_returns_larger_seed_014),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_015", p1_py_max_returns_larger_seed_015),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_016", p1_py_max_returns_larger_seed_016),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_017", p1_py_max_returns_larger_seed_017),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_018", p1_py_max_returns_larger_seed_018),
+        ("zone_aware_slot_generation_stage::tests::p1_py_max_returns_larger_seed_019", p1_py_max_returns_larger_seed_019),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_000", p2_py_max_returns_one_of_inputs_seed_000),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_001", p2_py_max_returns_one_of_inputs_seed_001),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_002", p2_py_max_returns_one_of_inputs_seed_002),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_003", p2_py_max_returns_one_of_inputs_seed_003),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_004", p2_py_max_returns_one_of_inputs_seed_004),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_005", p2_py_max_returns_one_of_inputs_seed_005),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_006", p2_py_max_returns_one_of_inputs_seed_006),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_007", p2_py_max_returns_one_of_inputs_seed_007),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_008", p2_py_max_returns_one_of_inputs_seed_008),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_009", p2_py_max_returns_one_of_inputs_seed_009),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_010", p2_py_max_returns_one_of_inputs_seed_010),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_011", p2_py_max_returns_one_of_inputs_seed_011),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_012", p2_py_max_returns_one_of_inputs_seed_012),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_013", p2_py_max_returns_one_of_inputs_seed_013),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_014", p2_py_max_returns_one_of_inputs_seed_014),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_015", p2_py_max_returns_one_of_inputs_seed_015),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_016", p2_py_max_returns_one_of_inputs_seed_016),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_017", p2_py_max_returns_one_of_inputs_seed_017),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_018", p2_py_max_returns_one_of_inputs_seed_018),
+        ("zone_aware_slot_generation_stage::tests::p2_py_max_returns_one_of_inputs_seed_019", p2_py_max_returns_one_of_inputs_seed_019),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_000", p3_py_max_commutative_for_finite_seed_000),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_001", p3_py_max_commutative_for_finite_seed_001),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_002", p3_py_max_commutative_for_finite_seed_002),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_003", p3_py_max_commutative_for_finite_seed_003),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_004", p3_py_max_commutative_for_finite_seed_004),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_005", p3_py_max_commutative_for_finite_seed_005),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_006", p3_py_max_commutative_for_finite_seed_006),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_007", p3_py_max_commutative_for_finite_seed_007),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_008", p3_py_max_commutative_for_finite_seed_008),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_009", p3_py_max_commutative_for_finite_seed_009),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_010", p3_py_max_commutative_for_finite_seed_010),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_011", p3_py_max_commutative_for_finite_seed_011),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_012", p3_py_max_commutative_for_finite_seed_012),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_013", p3_py_max_commutative_for_finite_seed_013),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_014", p3_py_max_commutative_for_finite_seed_014),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_015", p3_py_max_commutative_for_finite_seed_015),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_016", p3_py_max_commutative_for_finite_seed_016),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_017", p3_py_max_commutative_for_finite_seed_017),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_018", p3_py_max_commutative_for_finite_seed_018),
+        ("zone_aware_slot_generation_stage::tests::p3_py_max_commutative_for_finite_seed_019", p3_py_max_commutative_for_finite_seed_019),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_000", p4_py_min_returns_smaller_seed_000),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_001", p4_py_min_returns_smaller_seed_001),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_002", p4_py_min_returns_smaller_seed_002),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_003", p4_py_min_returns_smaller_seed_003),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_004", p4_py_min_returns_smaller_seed_004),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_005", p4_py_min_returns_smaller_seed_005),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_006", p4_py_min_returns_smaller_seed_006),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_007", p4_py_min_returns_smaller_seed_007),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_008", p4_py_min_returns_smaller_seed_008),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_009", p4_py_min_returns_smaller_seed_009),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_010", p4_py_min_returns_smaller_seed_010),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_011", p4_py_min_returns_smaller_seed_011),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_012", p4_py_min_returns_smaller_seed_012),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_013", p4_py_min_returns_smaller_seed_013),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_014", p4_py_min_returns_smaller_seed_014),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_015", p4_py_min_returns_smaller_seed_015),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_016", p4_py_min_returns_smaller_seed_016),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_017", p4_py_min_returns_smaller_seed_017),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_018", p4_py_min_returns_smaller_seed_018),
+        ("zone_aware_slot_generation_stage::tests::p4_py_min_returns_smaller_seed_019", p4_py_min_returns_smaller_seed_019),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_000", p5_py_min_returns_one_of_inputs_seed_000),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_001", p5_py_min_returns_one_of_inputs_seed_001),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_002", p5_py_min_returns_one_of_inputs_seed_002),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_003", p5_py_min_returns_one_of_inputs_seed_003),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_004", p5_py_min_returns_one_of_inputs_seed_004),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_005", p5_py_min_returns_one_of_inputs_seed_005),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_006", p5_py_min_returns_one_of_inputs_seed_006),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_007", p5_py_min_returns_one_of_inputs_seed_007),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_008", p5_py_min_returns_one_of_inputs_seed_008),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_009", p5_py_min_returns_one_of_inputs_seed_009),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_010", p5_py_min_returns_one_of_inputs_seed_010),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_011", p5_py_min_returns_one_of_inputs_seed_011),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_012", p5_py_min_returns_one_of_inputs_seed_012),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_013", p5_py_min_returns_one_of_inputs_seed_013),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_014", p5_py_min_returns_one_of_inputs_seed_014),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_015", p5_py_min_returns_one_of_inputs_seed_015),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_016", p5_py_min_returns_one_of_inputs_seed_016),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_017", p5_py_min_returns_one_of_inputs_seed_017),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_018", p5_py_min_returns_one_of_inputs_seed_018),
+        ("zone_aware_slot_generation_stage::tests::p5_py_min_returns_one_of_inputs_seed_019", p5_py_min_returns_one_of_inputs_seed_019),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_000", p6_py_min_commutative_for_finite_seed_000),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_001", p6_py_min_commutative_for_finite_seed_001),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_002", p6_py_min_commutative_for_finite_seed_002),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_003", p6_py_min_commutative_for_finite_seed_003),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_004", p6_py_min_commutative_for_finite_seed_004),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_005", p6_py_min_commutative_for_finite_seed_005),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_006", p6_py_min_commutative_for_finite_seed_006),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_007", p6_py_min_commutative_for_finite_seed_007),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_008", p6_py_min_commutative_for_finite_seed_008),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_009", p6_py_min_commutative_for_finite_seed_009),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_010", p6_py_min_commutative_for_finite_seed_010),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_011", p6_py_min_commutative_for_finite_seed_011),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_012", p6_py_min_commutative_for_finite_seed_012),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_013", p6_py_min_commutative_for_finite_seed_013),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_014", p6_py_min_commutative_for_finite_seed_014),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_015", p6_py_min_commutative_for_finite_seed_015),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_016", p6_py_min_commutative_for_finite_seed_016),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_017", p6_py_min_commutative_for_finite_seed_017),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_018", p6_py_min_commutative_for_finite_seed_018),
+        ("zone_aware_slot_generation_stage::tests::p6_py_min_commutative_for_finite_seed_019", p6_py_min_commutative_for_finite_seed_019),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

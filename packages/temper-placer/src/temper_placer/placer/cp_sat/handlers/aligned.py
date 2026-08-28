@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from temper_placer.pcl.constraints import AlignedConstraint
 from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
@@ -35,8 +35,10 @@ def encode_aligned(
         )
     for i in range(len(comp_refs)):
         for j in range(i + 1, len(comp_refs)):
-            va = components.get(comp_refs[i])
-            vb = components.get(comp_refs[j])
+            # The missing-reference check above establishes these keys for
+            # the type checker as well as for the runtime error message.
+            va = components[comp_refs[i]]
+            vb = components[comp_refs[j]]
             label = f"align_{constraint.id}_{comp_refs[i]}_{comp_refs[j]}"
             assumption = model.new_assumption(label)
 
@@ -47,5 +49,5 @@ def encode_aligned(
 
             model.add_constraint_enforced(cva - cvb <= tol_u, assumption)
             model.add_constraint_enforced(cvb - cva <= tol_u, assumption)
-            labels.append(assumption)
+            labels.append(cast(AssumptionLiteral, assumption))
     return labels

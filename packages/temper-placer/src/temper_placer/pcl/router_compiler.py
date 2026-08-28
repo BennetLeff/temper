@@ -33,7 +33,6 @@ from temper_placer.pcl.constraints import (
 )
 from temper_placer.router_v6.constraint_model import (
     ChannelSeparationConstraint,
-    Constraint,
     LayerConstraint,
     OrderVar,
 )
@@ -44,6 +43,13 @@ if TYPE_CHECKING:
     from temper_placer.pcl.parser import ConstraintCollection
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     from temper_placer.router_v6.channel_widths import ChannelWidths
+
+
+# The Rust pyclasses intentionally do not use Python inheritance, so the
+# generated stubs expose their common fields without making the concrete
+# classes subtypes of ``Constraint``.  Keep the compiler's output type honest
+# with the finite set of classes it actually emits.
+RouterConstraint = OrderVar | LayerConstraint | ChannelSeparationConstraint
 
 
 # ---------------------------------------------------------------------------
@@ -124,7 +130,7 @@ class ConstraintCompilationReceipt:
     pcl_id: str
     constraint_type: ConstraintType
     disposition: CompilationDisposition
-    outputs: tuple[Constraint, ...]
+    outputs: tuple[RouterConstraint, ...]
 
     @property
     def output_names(self) -> tuple[str, ...]:
@@ -135,7 +141,7 @@ class ConstraintCompilationReceipt:
 class RouterCompilationResult:
     """Complete output and provenance for one router compilation run."""
 
-    constraints: list[Constraint]
+    constraints: list[RouterConstraint]
     receipts: list[ConstraintCompilationReceipt]
     origins: ConstraintOrigin
 
@@ -237,13 +243,13 @@ TIER_TO_HARDNESS: dict[ConstraintTier, str] = {
 def _adjacent_to_router(
     constraint: AdjacentConstraint,
     ctx: RouterCompilationContext,
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """AdjacentConstraint → proximity-preference soft clauses.
 
     Produces OrderVar proximity clauses for nets a,b on shared channels.
     No hard capacity reservation in MVP.
     """
-    results: list[Constraint] = []
+    results: list[RouterConstraint] = []
     try:
         idx_a = ctx.component_indices(constraint.a)
         idx_b = ctx.component_indices(constraint.b)
@@ -277,13 +283,13 @@ def _adjacent_to_router(
 def _separated_to_router(
     constraint: SeparatedConstraint,
     ctx: RouterCompilationContext,
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """SeparatedConstraint → ChannelSeparationConstraint.
 
     For each shared channel, enforces at least ceil(min_distance / spacing)
     empty slots between nets in group A and group B.
     """
-    results: list[Constraint] = []
+    results: list[RouterConstraint] = []
     try:
         indices_a = ctx.component_indices(constraint.a)
         indices_b = ctx.component_indices(constraint.b)
@@ -322,13 +328,13 @@ def _separated_to_router(
 def _enclosing_to_router(
     constraint: EnclosingConstraint,
     ctx: RouterCompilationContext,
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """EnclosingConstraint → LayerConstraint restricting inner nets to zone.
 
     Computes which channels lie within the zone's spatial extent and restricts
     inner-component nets to those channels.
     """
-    results: list[Constraint] = []
+    results: list[RouterConstraint] = []
     try:
         inner_indices: list[int] = []
         for ref in constraint.inner:
@@ -359,7 +365,7 @@ def _enclosing_to_router(
 def _aligned_to_router(
     constraint: AlignedConstraint,  # noqa: ARG001
     ctx: RouterCompilationContext,  # noqa: ARG001
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """AlignedConstraint has no router grounding (placement-only).
 
     Alignment is placement-only, so the router handler returns an empty list.
@@ -370,13 +376,13 @@ def _aligned_to_router(
 def _onside_to_router(
     constraint: OnSideConstraint,
     ctx: RouterCompilationContext,
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """OnSideConstraint → LayerConstraint restricting to board-side channels.
 
     Identifies edge-adjacent channels based on board side and restricts
     component nets to those channels.
     """
-    results: list[Constraint] = []
+    results: list[RouterConstraint] = []
     try:
         component_indices: list[int] = []
         for ref in constraint.components:
@@ -407,12 +413,12 @@ def _onside_to_router(
 def _anchored_to_router(
     constraint: AnchoredConstraint,
     ctx: RouterCompilationContext,
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """AnchoredConstraint → pin NetChannelVar to channels near anchored position.
 
     Finds channels whose endpoints bracket the anchored position/region.
     """
-    results: list[Constraint] = []
+    results: list[RouterConstraint] = []
     try:
         indices = ctx.component_indices(constraint.component)
     except (ValueError, KeyError):
@@ -450,12 +456,12 @@ def _anchored_to_router(
 def _loop_area_to_router(
     constraint: LoopAreaConstraint,
     ctx: RouterCompilationContext,
-) -> list[Constraint]:
+) -> list[RouterConstraint]:
     """LoopAreaConstraint → combined OrderConstraint + CapacityConstraint.
 
     Restricts shared-channel count for nets in the loop to enforce area bound.
     """
-    results: list[Constraint] = []
+    results: list[RouterConstraint] = []
     # LoopAreaConstraint references a loop_name; resolve to nets via context.
     loop_nets: list[int] = (
         ctx.netlist.component_indices_for_loop(constraint.loop_name)
@@ -488,7 +494,7 @@ def _loop_area_to_router(
 # Dispatch tables
 # ---------------------------------------------------------------------------
 
-_Handler = Callable[[BaseConstraint, RouterCompilationContext], list[Constraint]]
+_Handler = Callable[[BaseConstraint, RouterCompilationContext], list[RouterConstraint]]
 
 # KEEPOUT has no router target in the PCL contract and is intentionally handled
 # as a no-op. It must remain named here so adding a new ConstraintType cannot
@@ -576,7 +582,7 @@ TYPE_HANDLERS: Mapping[ConstraintType, _Handler] = _build_type_handlers(_HANDLER
 def constraint_to_router_constraints(
     constraint: BaseConstraint,
     ctx: RouterCompilationContext,
-) -> tuple[list[Constraint], ConstraintOrigin]:
+) -> tuple[list[RouterConstraint], ConstraintOrigin]:
     """Compile one PCL constraint into router constraint entries.
 
     Returns ``(router_constraints, origin_registry)``.  A constraint with no
@@ -657,7 +663,7 @@ def compile_pcl_for_router(
     except AttributeError as exc:
         raise TypeError("context must be a CompilationContext") from exc
 
-    compiled: list[Constraint] = []
+    compiled: list[RouterConstraint] = []
     receipts: list[ConstraintCompilationReceipt] = []
     origins = ConstraintOrigin()
 
