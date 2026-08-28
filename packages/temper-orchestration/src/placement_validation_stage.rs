@@ -212,15 +212,15 @@ fn make_placement_violation<'py>(
     kwargs.set_item("violation_type", violation_type)?;
     kwargs.set_item("message", message)?;
     kwargs.set_item("severity", severity)?;
-    if let Some(value) = component_a {
-        if !value.is_empty() {
-            kwargs.set_item("component_a", value)?;
-        }
+    if let Some(value) = component_a
+        && !value.is_empty()
+    {
+        kwargs.set_item("component_a", value)?;
     }
-    if let Some(value) = component_b {
-        if !value.is_empty() {
-            kwargs.set_item("component_b", value)?;
-        }
+    if let Some(value) = component_b
+        && !value.is_empty()
+    {
+        kwargs.set_item("component_b", value)?;
     }
     if let Some(value) = actual {
         kwargs.set_item("actual_distance_mm", value)?;
