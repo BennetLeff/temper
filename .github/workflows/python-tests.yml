@@ -766,21 +766,21 @@ jobs:
       #
       # Lowering a floor is exactly what the guard tells you to do "deliberately
       # with a reason", and this is that reason. The no-slack intent above is
-      # preserved: 167 is the measured count, not 167-with-headroom, so the
-      # next genuine shrink still fails.
+      # preserved. RE-ANCHORED 2026-08-27: 167 -> 133 after the two retired
+      # via-placement differential/PBT files were removed from this command;
+      # 133 is the exact surviving collection count measured with the command
+      # below, not a buffered floor.
       - name: Run validation DRC differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 167 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 133 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
           tests/validation/test_drc_fence_rust_differential.py
           tests/validation/test_geometric_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
-          tests/deterministic/test_via_placement_rust_differential.py
-          tests/deterministic/test_via_placement_pbt.py
           tests/deterministic/stages/test_slot_generation_rust_differential.py
           tests/deterministic/stages/test_zone_geometry_rust_differential.py
           tests/deterministic/stages/test_zone_assignment_rust_differential.py
@@ -812,16 +812,16 @@ jobs:
       # pinned were retired with them), which made pytest exit 4 and collect
       # NOTHING -- this gate had been running vacuously. The 26 absent tests
       # are genuinely retired, not lost; 105 is the exact count of what
-      # remains.
+      # remains. RE-ANCHORED 2026-08-27: 105 -> 85 after the retired Markdown
+      # and serialization differential files were removed from this command;
+      # 85 is the exact surviving collection count.
       - name: Run Phase-5 report/explainability/clearance differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 140 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 85 --
           tests/explainability/test_trace_rust_differential.py
           tests/explainability/test_decision_rust_differential.py
-          tests/explainability/test_markdown_rust_differential.py
-          tests/explainability/test_serialization_rust_differential.py
           tests/explainability/test_explainability_pbt.py
           tests/requirements/test_clearance_validator_rust_differential.py
           tests/requirements/test_clearance_validator_pbt.py

@@ -469,14 +469,6 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
         "PASSING locally (2026-08-09, part of the spatial-index tier-2 "
         "migration wave). Rust differential. Not yet wired into any CI job."
     ),
-    "router_v6/test_via_clearance_tier2_pbt.py": (
-        "PASSING locally (2026-08-09, part of the via-clearance tier-2 "
-        "migration wave). Property-based tests. Not yet wired into any CI job."
-    ),
-    "router_v6/test_via_clearance_tier2_rust_differential.py": (
-        "PASSING locally (2026-08-09, part of the via-clearance tier-2 "
-        "migration wave). Rust differential. Not yet wired into any CI job."
-    ),
 }
 
 # --- the 3 genuinely-failing files outside router_v6/, triaged in
@@ -501,6 +493,11 @@ _PASSING_LOCALLY_OTHER_2026_08_09 = (
 )
 
 _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
+    "pipeline/test_phase_c_tail_rust_differential.py": (
+        "PASSING locally (2026-08-27 migration stabilization). Differential "
+        "coverage for the Rust-owned Phase-C tail; no current workflow sweeps "
+        "the pipeline/ directory, so it remains explicitly registered here."
+    ),
     "closure/test_router_completion.py": (
         "FAILING (2026-08-07 full-tree triage), 3 of 4 tests -- "
         "TestPostChangePromotionGate::test_closure_post_change_meets_{sm1,sm2,sm6}. "

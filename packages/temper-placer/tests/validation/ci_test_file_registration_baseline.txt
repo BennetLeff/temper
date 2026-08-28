@@ -113,7 +113,6 @@ pipeline/test_pipeline_feasibility_pbt.py
 pipeline/test_pipeline_feasibility_rust_differential.py
 placer/test_deterministic_unit.py
 placer/test_parametric_template.py
-placer/test_placer_adjustment_rust_differential.py
 placer/test_placer_deterministic_rust_differential.py
 placer/test_placer_template_pbt.py
 placer/test_placer_template_rust_differential.py
@@ -176,7 +175,6 @@ topological/test_topological_invariants_pbt.py
 topological/test_topological_metamorphic.py
 topological/test_topological_rust_differential.py
 topological/test_zone_solver.py
-unit/test_projections.py
 wave4_phase2/test_core_contracts_differential.py
 wave4_phase2/test_core_contracts_metamorphic.py
 wave4_phase2/test_core_contracts_pbt.py
