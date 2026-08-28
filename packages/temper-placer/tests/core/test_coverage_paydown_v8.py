@@ -228,24 +228,24 @@ class TestGeometryInitSDFGradient:
 
 class TestSmoothLeakyRelu:
     def test_positive_input(self):
-        from temper_geometry import smooth_leaky_relu
+        from temper_placer.geometry import smooth_leaky_relu
 
-        result = smooth_leaky_relu(5.0, 10.0, 0.01)
+        result = smooth_leaky_relu(5.0)
         # Should be close to 5.0 for large alpha
         assert result == pytest.approx(5.0, abs=0.5)
 
     def test_negative_input(self):
-        from temper_geometry import smooth_leaky_relu
+        from temper_placer.geometry import smooth_leaky_relu
 
-        result = smooth_leaky_relu(-5.0, 10.0, 0.01)
+        result = smooth_leaky_relu(-5.0)
         # Negative slope 0.01 means ~ -0.05
         assert result < 0
         assert result > -0.1
 
     def test_zero_input(self):
-        from temper_geometry import smooth_leaky_relu
+        from temper_placer.geometry import smooth_leaky_relu
 
-        result = smooth_leaky_relu(0.0, 10.0, 0.01)
+        result = smooth_leaky_relu(0.0)
         assert result >= 0
 
 
