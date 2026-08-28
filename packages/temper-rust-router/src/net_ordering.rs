@@ -365,13 +365,11 @@ fn loop_criticality(net_name: &str, loops: &[LoopRow]) -> i64 {
 // Net-order key and its comparison
 // ===========================================================================
 
-/// One element of the comparison key, carrying enough to reproduce both
-/// CPython's value comparison and its identity shortcut.
+/// One element of the comparison key, carrying enough to reproduce CPython's
+/// value comparison and its identity shortcut.
 #[derive(Clone)]
 enum KeyElem {
-    /// An `int`, plus whether the Python object was a `bool` (`True == 1`,
-    /// but `sig()` separates them, so the distinction must survive).
-    Int(i64, bool),
+    Int(i64),
     /// A `float`, plus the identity of the Python object it came from, when
     /// there is one -- see [`py_eq_elem`].  `None` means "computed in Rust,
     /// no Python object behind it", and two `None`s are **not** identical:
@@ -390,9 +388,7 @@ enum KeyElem {
 /// freshly computed values instead.
 fn py_eq_elem(a: &KeyElem, b: &KeyElem) -> bool {
     match (a, b) {
-        // `True == 1` in Python: boolness does not affect the comparison,
-        // only the signature.
-        (KeyElem::Int(x, _), KeyElem::Int(y, _)) => x == y,
+        (KeyElem::Int(x), KeyElem::Int(y)) => x == y,
         (KeyElem::Float(x, ida), KeyElem::Float(y, idb)) => {
             matches!((ida, idb), (Some(a), Some(b)) if a == b) || x == y
         }
@@ -403,7 +399,7 @@ fn py_eq_elem(a: &KeyElem, b: &KeyElem) -> bool {
 
 fn py_lt_elem(a: &KeyElem, b: &KeyElem) -> bool {
     match (a, b) {
-        (KeyElem::Int(x, _), KeyElem::Int(y, _)) => x < y,
+        (KeyElem::Int(x), KeyElem::Int(y)) => x < y,
         (KeyElem::Float(x, _), KeyElem::Float(y, _)) => x < y,
         // Python compares `str` byte-wise by code point; Rust's `Ord` for
         // `str` is byte-wise over UTF-8, which is the same order.
@@ -1114,10 +1110,10 @@ fn order_key(
     const DEFAULT_PRIORITY: i64 = 5;
     let config_priority = config.get(&net.name).copied().unwrap_or(DEFAULT_PRIORITY);
     vec![
-        KeyElem::Int(config_priority, false),
-        KeyElem::Int(loop_criticality(&net.name, loops), false),
-        KeyElem::Int(net_class_from_string(&net.net_class), false),
-        KeyElem::Int(net.pin_count, false),
+        KeyElem::Int(config_priority),
+        KeyElem::Int(loop_criticality(&net.name, loops)),
+        KeyElem::Int(net_class_from_string(&net.net_class)),
+        KeyElem::Int(net.pin_count),
         // Each HPWL is a freshly computed value with no Python object
         // behind it, so the identity shortcut cannot fire between two
         // different nets -- exactly as in CPython, where `width + height`
@@ -1274,10 +1270,10 @@ pub(crate) mod tests {
     fn nan_keys_reproduce_cpython_sort_placement() {
         let key = |wl: f64, name: &str| {
             vec![
-                KeyElem::Int(5, false),
-                KeyElem::Int(3, false),
-                KeyElem::Int(4, false),
-                KeyElem::Int(2, false),
+                KeyElem::Int(5),
+                KeyElem::Int(3),
+                KeyElem::Int(4),
+                KeyElem::Int(2),
                 KeyElem::Float(wl, None),
                 KeyElem::Str(name.to_string()),
             ]
