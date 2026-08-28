@@ -303,6 +303,35 @@ class TestDisplacementObjective:
         sol = model.solve(time_limit_s=2.0)
         assert not sol.feasible
 
+    def test_hard_displacement_bound_has_stable_unsat_label(self) -> None:
+        """A bound identifies its component when it causes infeasibility."""
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_hard_displacement_bound("Q1", 500, 500, max_units=100)
+
+        sol = model.solve(time_limit_s=2.0)
+
+        assert not sol.feasible
+        assert "displacement_bound_Q1" in sol.unsat_assumptions
+
+    def test_hard_displacement_bound_accepts_custom_unsat_label(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_hard_displacement_bound(
+            "Q1", 500, 500, max_units=100, assumption_label="safe_topology_Q1"
+        )
+
+        sol = model.solve(time_limit_s=2.0)
+
+        assert not sol.feasible
+        assert "safe_topology_Q1" in sol.unsat_assumptions
+
     def test_hard_displacement_bound_validates_ref_and_radius(self) -> None:
         model = CpSatModel()
         model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)

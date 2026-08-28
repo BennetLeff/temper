@@ -257,6 +257,41 @@ class TestReferenceReconciliation:
                 hard_displacement_to={"U1": (10.0, 12.0)},
             )
 
+    def test_hard_displacement_mapping_reports_stable_component_label(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            max_displacement_mm=0.0,
+            fixed_positions={"U1": (20.0, 22.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        assert any(item["name"] == "displacement_bound_U1" for item in result.unsat_core)
+
+    def test_hard_displacement_mapping_accepts_explicit_stable_label(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            hard_displacement_assumption_labels={"U1": "safe_topology_U1"},
+            max_displacement_mm=0.0,
+            fixed_positions={"U1": (20.0, 22.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        assert any(item["name"] == "safe_topology_U1" for item in result.unsat_core)
+
 
 class TestHandlerCoverage:
     """All 8 ConstraintType values must have a handler."""

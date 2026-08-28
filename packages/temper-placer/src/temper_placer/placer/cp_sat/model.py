@@ -297,6 +297,7 @@ class CpSatModel:
         y_target_units: int,
         weight: int = 1,
         max_units: int | None = None,
+        assumption_label: str | None = None,
     ) -> None:
         """Minimise Manhattan displacement from a reference position.
 
@@ -319,6 +320,12 @@ class CpSatModel:
         caller that needs "move at most B" passes ``max_units`` (and
         usually both).
 
+        When ``max_units`` is supplied, ``assumption_label`` optionally
+        guards that hard envelope with a named assumption literal.  The
+        literal is enabled during ordinary solves and can therefore identify
+        the component bound in an infeasibility core.  This does not alter
+        the displacement objective itself.
+
         Coordinates are in model grid units (callers convert mm via
         :meth:`mm_to_units`) so the objective is exact and deterministic.
         """
@@ -339,7 +346,14 @@ class CpSatModel:
         if max_units is not None:
             if max_units < 0:
                 raise ValueError("displacement bound must be non-negative")
-            self.model_ref.Add(distances["x"] + distances["y"] <= max_units)
+            envelope = distances["x"] + distances["y"] <= max_units
+            if assumption_label is None:
+                self.model_ref.Add(envelope)
+            else:
+                if not isinstance(assumption_label, str) or not assumption_label.strip():
+                    raise ValueError("displacement assumption label must be non-empty")
+                assumption = self.new_assumption(assumption_label)
+                self.add_constraint_enforced(envelope, assumption)
 
     def add_hard_displacement_bound(
         self,
@@ -347,6 +361,7 @@ class CpSatModel:
         x_target_units: int,
         y_target_units: int,
         max_units: int,
+        assumption_label: str | None = None,
     ) -> None:
         """Constrain Manhattan displacement without adding an objective.
 
@@ -356,6 +371,15 @@ class CpSatModel:
         free to choose any feasible point inside that diamond.  Keeping this
         separate is important for topology-restoration campaigns: a hard
         radius is a safety/topology restriction, not an optimization request.
+
+        The bound is guarded by a named assumption literal.  If
+        ``assumption_label`` is omitted, the stable default
+        ``displacement_bound_<ref>`` is used.  The absolute-difference
+        definitions remain unconditional; only the envelope inequality is
+        guarded, so a reported label means that component's radius
+        restriction participated in the infeasibility core.  The assumption
+        is enabled for ordinary solves, preserving the historical feasible
+        set while making the bound diagnosable.
 
         Coordinates are integer model-grid units.  Callers that start with
         millimetres must convert both the target and radius through
@@ -368,7 +392,12 @@ class CpSatModel:
         y_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_y_{ref}")
         self.model_ref.AddAbsEquality(x_distance, component.x_center - x_target_units)
         self.model_ref.AddAbsEquality(y_distance, component.y_center - y_target_units)
-        self.model_ref.Add(x_distance + y_distance <= max_units)  # type: ignore[operator]
+        envelope = x_distance + y_distance <= max_units
+        label = assumption_label or f"displacement_bound_{ref}"
+        if not isinstance(label, str) or not label.strip():
+            raise ValueError("displacement assumption label must be non-empty")
+        assumption = self.new_assumption(label)
+        self.add_constraint_enforced(envelope, assumption)
 
     def add_fixed_rotation(self, ref: str, rotation_index: int) -> None:
         """Pin a component's rotation to a fixed 0-3 quadrant index (hard).

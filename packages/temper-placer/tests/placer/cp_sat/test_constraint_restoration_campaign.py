@@ -11,6 +11,7 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     RestorationLimits,
     RestorationStage,
     RestorationStageStatus,
+    SelectiveDisplacementCampaignStatus,
     _merge_kwargs,
     bounded_displacement_restoration_stages,
     default_restoration_stages,
@@ -19,6 +20,7 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     run_bounded_displacement_radius_sweep,
     run_bounded_displacement_restoration_campaign,
     run_constraint_restoration_campaign,
+    run_selective_displacement_campaign,
 )
 
 
@@ -128,6 +130,65 @@ def test_bounded_stages_reject_non_increasing_or_invalid_radii() -> None:
             assert "radi" in str(exc)
         else:  # pragma: no cover - assertion helper without pytest dependency
             raise AssertionError("invalid radii were accepted")
+
+
+def test_selective_campaign_escalates_only_the_component_in_unsat_core() -> None:
+    netlist = _Netlist([_Component("A"), _Component("B")])
+    def solver(_netlist: object, _board: object, **kwargs: object) -> _Solve:
+        radii = dict(kwargs["hard_displacement_radii_mm"])
+        assert kwargs["hard_displacement_assumption_labels"] == {
+            "A": "displacement_bound_A",
+            "B": "displacement_bound_B",
+        }
+        if radii == {"A": 2.0, "B": 2.0}:
+            return SimpleNamespace(
+                status="infeasible",
+                positions={},
+                rotations={},
+                unsat_core=[{"name": "displacement_bound_A"}],
+            )
+        return _Solve("optimal", {"A": (1.0, 1.0), "B": (2.0, 2.0)}, {"A": 0, "B": 0})
+
+    result = run_selective_displacement_campaign(
+        netlist,
+        _Board(),
+        _VerifiedWarmStart({"A": (1.0, 1.0, 0), "B": (2.0, 2.0, 0)}),
+        base_radius_mm=2.0,
+        radii_mm=(5.0, 10.0),
+        solver=solver,
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+
+    assert result.status is SelectiveDisplacementCampaignStatus.ACCEPTED
+    assert result.rounds[1].component_radii_mm == {"A": 5.0, "B": 2.0}
+    assert result.rounds[0].core_labels == ("displacement_bound_A",)
+    assert result.rounds[0].implicated_refs == ("A",)
+    assert result.component_radii_mm == {"A": 5.0, "B": 2.0}
+
+
+def test_selective_campaign_fails_closed_for_foreign_or_empty_core() -> None:
+    netlist = _Netlist([_Component("A")])
+
+    def solver(_netlist: object, _board: object, **_kwargs: object) -> SimpleNamespace:
+        return SimpleNamespace(
+            status="infeasible",
+            positions={},
+            rotations={},
+            unsat_core=[{"name": "unrelated_production_constraint"}],
+        )
+
+    result = run_selective_displacement_campaign(
+        netlist,
+        _Board(),
+        _VerifiedWarmStart({"A": (1.0, 1.0, 0)}),
+        solver=solver,
+        limits=RestorationLimits(total_timeout_s=5.0, stage_timeout_s=2.0, memory_limit_mb=None),
+    )
+
+    assert result.status is SelectiveDisplacementCampaignStatus.STOPPED
+    assert len(result.rounds) == 1
+    assert result.rounds[0].implicated_refs == ()
+    assert result.placement == {}
 
 
 def test_bounded_campaign_carries_original_centres_while_widening_bound() -> None:

@@ -387,6 +387,8 @@ def solve_placement(
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
     hard_displacement_to: dict[str, tuple[float, float]] | None = None,
+    hard_displacement_assumption_labels: Mapping[str, str] | None = None,
+    hard_displacement_radii_mm: Mapping[str, float] | None = None,
     reference_aliases: Mapping[str, str] | None = None,
     loop_aliases: Mapping[str, str] | None = None,
     fixed_rotations: dict[str, int] | None = None,
@@ -449,6 +451,18 @@ def solve_placement(
             is separate from ``minimize_displacement_to`` so callers cannot
             accidentally turn a topology-preserving restriction into an
             optimization request.
+        hard_displacement_assumption_labels: Optional ``{ref: label}``
+            mapping that guards each corresponding hard displacement envelope
+            with a named CP-SAT assumption. Infeasible solves expose these
+            labels through ``unsat_core``. Refs omitted from this optional
+            mapping receive the stable default ``displacement_bound_<ref>``;
+            refs outside ``hard_displacement_to`` are rejected.
+        hard_displacement_radii_mm: Optional per-reference hard radius
+            mapping. When supplied, it must cover exactly
+            ``hard_displacement_to`` and replaces the scalar
+            ``max_displacement_mm`` for those refs. This is the bounded,
+            selective-release primitive; each radius remains a hard
+            restriction and may be assumption-labelled independently.
         reference_aliases: Optional explicit config-to-netlist component
             reference mapping applied before validation. Unmapped names
             remain subject to the fail-closed unresolved-reference policy.
@@ -1248,8 +1262,30 @@ def solve_placement(
             "hard_displacement_to (the bound applies to every ref in the "
             "selected reference mapping)"
         )
-    if hard_displacement_to and max_displacement_mm is None:
-        raise ValueError("hard_displacement_to requires max_displacement_mm")
+    if (
+        hard_displacement_to
+        and max_displacement_mm is None
+        and hard_displacement_radii_mm is None
+    ):
+        raise ValueError(
+            "hard_displacement_to requires max_displacement_mm or "
+            "hard_displacement_radii_mm"
+        )
+    if hard_displacement_assumption_labels is not None and hard_displacement_to is None:
+        raise ValueError("hard_displacement_assumption_labels requires hard_displacement_to")
+    if hard_displacement_radii_mm is not None:
+        if hard_displacement_to is None:
+            raise ValueError("hard_displacement_radii_mm requires hard_displacement_to")
+        radius_refs = set(hard_displacement_radii_mm)
+        bound_refs = set(hard_displacement_to)
+        if radius_refs != bound_refs:
+            raise ValueError(
+                "hard_displacement_radii_mm must cover exactly hard_displacement_to "
+                f"(missing={sorted(bound_refs - radius_refs)}, extra={sorted(radius_refs - bound_refs)})"
+            )
+        for ref, radius in hard_displacement_radii_mm.items():
+            if isinstance(radius, bool) or not math.isfinite(float(radius)) or float(radius) < 0.0:
+                raise ValueError(f"hard displacement radius for {ref!r} must be finite and non-negative")
     if minimize_displacement_to:
         bound_units = None
         if max_displacement_mm is not None:
@@ -1260,16 +1296,40 @@ def solve_placement(
                 model_wrapper.mm_to_units(x_mm),
                 model_wrapper.mm_to_units(y_mm),
                 max_units=bound_units,
+                assumption_label=(
+                    f"displacement_bound_{ref}" if bound_units is not None else None
+                ),
             )
     if hard_displacement_to:
-        assert max_displacement_mm is not None
-        bound_units = model_wrapper.mm_to_units(max_displacement_mm)
+        if hard_displacement_assumption_labels is not None:
+            unknown_labels = set(hard_displacement_assumption_labels) - set(hard_displacement_to)
+            if unknown_labels:
+                raise ValueError(
+                    "hard displacement assumption labels reference unknown bound refs: "
+                    f"{sorted(unknown_labels)}"
+                )
+        scalar_bound_units = (
+            model_wrapper.mm_to_units(max_displacement_mm)
+            if max_displacement_mm is not None
+            else None
+        )
         for ref, (x_mm, y_mm) in hard_displacement_to.items():
+            bound_units = (
+                model_wrapper.mm_to_units(hard_displacement_radii_mm[ref])
+                if hard_displacement_radii_mm is not None
+                else scalar_bound_units
+            )
+            assert bound_units is not None
             model_wrapper.add_hard_displacement_bound(
                 ref,
                 model_wrapper.mm_to_units(x_mm),
                 model_wrapper.mm_to_units(y_mm),
                 max_units=bound_units,
+                assumption_label=(
+                    hard_displacement_assumption_labels.get(ref)
+                    if hard_displacement_assumption_labels is not None
+                    else f"displacement_bound_{ref}"
+                ),
             )
 
     # Hard position pins (minimal-disruption API): unlike AddHint above,

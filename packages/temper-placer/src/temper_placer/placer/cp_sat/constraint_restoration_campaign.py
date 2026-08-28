@@ -67,6 +67,57 @@ class BoundedDisplacementSweepStatus(StrEnum):
     INVALID = "invalid"
 
 
+class SelectiveDisplacementCampaignStatus(StrEnum):
+    """Terminal status of a component-selective radius campaign."""
+
+    ACCEPTED = "accepted"
+    STOPPED = "stopped"
+    INVALID = "invalid"
+    TIMEOUT = "timeout"
+
+
+@dataclass(frozen=True, slots=True)
+class SelectiveDisplacementRoundResult:
+    """Plain diagnostics for one selective-release solve.
+
+    ``core_labels`` is copied from the solver's assumption core.  Only labels
+    that exactly match this campaign's own component-bound labels are included
+    in ``implicated_refs``; an empty/foreign core therefore never causes an
+    untrusted component to be released.
+    """
+
+    round_index: int
+    status: RestorationStageStatus
+    elapsed_s: float
+    component_radii_mm: Mapping[str, float]
+    core_labels: tuple[str, ...] = ()
+    implicated_refs: tuple[str, ...] = ()
+    solver_status: str | None = None
+    positions: Mapping[str, tuple[float, float]] = field(default_factory=dict)
+    rotations: Mapping[str, int] = field(default_factory=dict)
+    diagnostics: tuple[str, ...] = ()
+
+    @property
+    def accepted(self) -> bool:
+        return self.status is RestorationStageStatus.ACCEPTED
+
+
+@dataclass(frozen=True, slots=True)
+class SelectiveDisplacementCampaignResult:
+    """Fail-closed report for selective component radius escalation."""
+
+    status: SelectiveDisplacementCampaignStatus
+    rounds: tuple[SelectiveDisplacementRoundResult, ...]
+    component_radii_mm: Mapping[str, float] = field(default_factory=dict)
+    placement: Mapping[str, tuple[float, float]] = field(default_factory=dict)
+    rotations: Mapping[str, int] = field(default_factory=dict)
+    diagnostics: tuple[str, ...] = ()
+
+    @property
+    def accepted(self) -> bool:
+        return self.status is SelectiveDisplacementCampaignStatus.ACCEPTED
+
+
 @dataclass(frozen=True, slots=True)
 class RestorationStage:
     """One named, cumulative set of production solver options.
@@ -790,6 +841,225 @@ def _run_bounded_radius(
     )
 
 
+def _selective_round_worker(
+    output: Any,
+    solver: Callable[..., object],
+    netlist: object,
+    board: object,
+    kwargs: Mapping[str, object],
+    expected_refs: tuple[str, ...],
+    verify: Callable[[object], object] | None,
+    memory_limit_mb: int | None,
+) -> None:
+    """Run one selective round and return only serializable diagnostics."""
+
+    try:
+        _install_memory_limit(memory_limit_mb)
+        result = solver(netlist, board, **dict(kwargs))
+        solver_status = _status_name(getattr(result, "status", None))
+        raw_core = getattr(result, "unsat_core", ())
+        core_labels: list[str] = []
+        if isinstance(raw_core, (list, tuple)):
+            for item in raw_core:
+                if isinstance(item, str):
+                    core_labels.append(item)
+                elif isinstance(item, Mapping) and isinstance(item.get("name"), str):
+                    core_labels.append(item["name"])
+        core = tuple(sorted(set(core_labels)))
+        if solver_status not in _SUCCESS_STATUSES:
+            output.put(("solver", solver_status, core, {}, {}, f"solver returned {solver_status!r}"))
+            return
+        positions, rotations = _plain_candidate(result)
+        if set(positions) != set(expected_refs):
+            missing = sorted(set(expected_refs) - set(positions))
+            extra = sorted(set(positions) - set(expected_refs))
+            output.put(("invalid", solver_status, core, {}, {}, f"incomplete placement (missing={missing}, extra={extra})"))
+            return
+        if verify is not None:
+            checked = verify(result)
+            violations = getattr(checked, "violations", None)
+            passed = getattr(checked, "passed", None)
+            clean = len(violations) == 0 if violations is not None else passed is True if isinstance(passed, bool) else None
+            if clean is not True:
+                count = len(violations) if violations is not None else "unknown"
+                output.put(("verification", solver_status, core, {}, {}, f"exact verifier found {count} violation(s)"))
+                return
+        output.put(("accepted", solver_status, core, tuple(positions.items()), tuple(rotations.items()), "solver and verification accepted"))
+    except BaseException as exc:  # fail closed at the worker boundary
+        output.put(("error", None, (), {}, {}, f"{type(exc).__name__}: {exc}"))
+
+
+def _run_selective_round(
+    round_index: int,
+    solver: Callable[..., object],
+    netlist: object,
+    board: object,
+    kwargs: Mapping[str, object],
+    expected_refs: tuple[str, ...],
+    component_radii_mm: Mapping[str, float],
+    label_to_ref: Mapping[str, str],
+    verify: Callable[[object], object] | None,
+    timeout_s: float,
+    memory_limit_mb: int | None,
+) -> SelectiveDisplacementRoundResult:
+    """Execute one fresh model for a selective radius vector."""
+
+    started = time.monotonic()
+    context = mp.get_context("fork" if "fork" in mp.get_all_start_methods() else "spawn")
+    output = context.Queue(maxsize=1)
+    process = context.Process(
+        target=_selective_round_worker,
+        args=(output, solver, netlist, board, kwargs, expected_refs, verify, memory_limit_mb),
+        name=f"temper-selective-displacement-{round_index}",
+    )
+    try:
+        process.start()
+        process.join(timeout_s)
+    except BaseException as exc:
+        return SelectiveDisplacementRoundResult(
+            round_index,
+            RestorationStageStatus.ERROR,
+            time.monotonic() - started,
+            dict(component_radii_mm),
+            diagnostics=(f"could not start worker: {exc}",),
+        )
+    if process.is_alive():
+        process.terminate()
+        process.join(2.0)
+        return SelectiveDisplacementRoundResult(
+            round_index,
+            RestorationStageStatus.TIMEOUT,
+            time.monotonic() - started,
+            dict(component_radii_mm),
+            diagnostics=(f"worker exceeded external wall-time limit of {timeout_s:.3f}s",),
+        )
+    try:
+        outcome, solver_status, core_labels, positions, rotations, diagnostic = output.get(timeout=1.0)
+    except queue_module.Empty:
+        return SelectiveDisplacementRoundResult(
+            round_index,
+            RestorationStageStatus.ERROR,
+            time.monotonic() - started,
+            dict(component_radii_mm),
+            diagnostics=(f"worker exited without a result (exitcode={process.exitcode})",),
+        )
+    status_by_outcome = {
+        "accepted": RestorationStageStatus.ACCEPTED,
+        "solver": RestorationStageStatus.UNKNOWN if solver_status == "unknown" else RestorationStageStatus(solver_status or "unknown") if solver_status in {s.value for s in RestorationStageStatus} else RestorationStageStatus.ERROR,
+        "verification": RestorationStageStatus.INVALID,
+        "invalid": RestorationStageStatus.INVALID,
+        "error": RestorationStageStatus.ERROR,
+    }
+    status = status_by_outcome.get(outcome, RestorationStageStatus.ERROR)
+    implicated = tuple(sorted(label_to_ref[label] for label in core_labels if label in label_to_ref))
+    return SelectiveDisplacementRoundResult(
+        round_index,
+        status,
+        time.monotonic() - started,
+        dict(component_radii_mm),
+        core_labels=tuple(core_labels),
+        implicated_refs=implicated,
+        solver_status=solver_status,
+        positions=dict(positions) if status is RestorationStageStatus.ACCEPTED else {},
+        rotations=dict(rotations) if status is RestorationStageStatus.ACCEPTED else {},
+        diagnostics=(str(diagnostic),),
+    )
+
+
+def run_selective_displacement_campaign(
+    netlist: object,
+    board: object,
+    verified_warm_start: object,
+    *,
+    base_radius_mm: float = 2.0,
+    radii_mm: Sequence[float] = (5.0, 10.0, 20.0, 40.0),
+    max_rounds: int = 16,
+    production_kwargs: Mapping[str, object] | None = None,
+    solver: Callable[..., object] = solve_placement,
+    verify: Callable[[object], object] | None = None,
+    limits: RestorationLimits = RestorationLimits(),
+) -> SelectiveDisplacementCampaignResult:
+    """Escalate only components named in a bounded displacement UNSAT core.
+
+    Every round is a fresh model with a hard, independently labelled radius
+    for every component.  A proven infeasible result may release only refs
+    whose exact labels occur in CP-SAT's ``unsat_core``; unknown, malformed,
+    timeout, and foreign/empty cores stop the campaign.  This fail-closed
+    behavior is intentional: no component is released merely because a
+    solver failed to explain an infeasibility.
+
+    ``radii_mm`` is the monotone escalation ladder.  The base radius applies
+    to all refs in round zero; an implicated ref moves to the first ladder
+    value greater than its current radius.  The campaign is bounded by both
+    ``max_rounds`` and ``limits`` and exposes every radius/core decision as
+    plain structured data.
+    """
+
+    try:
+        expected_refs = _expected_refs(netlist)
+        hints = getattr(verified_warm_start, "hints", None)
+        if getattr(verified_warm_start, "usable", False) is not True:
+            raise ValueError("selective restoration requires a usable verified stripped warm-start")
+        if not isinstance(hints, Mapping) or isinstance(hints, (str, bytes)) or set(hints) != set(expected_refs):
+            raise ValueError("verified warm-start must cover exactly the campaign netlist")
+        centers = {ref: (float(hints[ref][0]), float(hints[ref][1])) for ref in expected_refs}
+        base = float(base_radius_mm)
+        ladder = tuple(float(value) for value in radii_mm)
+        if not math.isfinite(base) or base < 0.0:
+            raise ValueError("base_radius_mm must be finite and non-negative")
+        if not ladder or any(not math.isfinite(value) or value <= base for value in ladder):
+            raise ValueError("radii_mm must contain finite values strictly above base_radius_mm")
+        if any(later <= earlier for earlier, later in zip(ladder, ladder[1:])):
+            raise ValueError("radii_mm must be strictly increasing")
+        if isinstance(max_rounds, bool) or not isinstance(max_rounds, int) or not 1 <= max_rounds <= _MAX_STAGES:
+            raise ValueError(f"max_rounds must be between 1 and {_MAX_STAGES}")
+        base_kwargs = dict(production_kwargs or {})
+        conflicting = {"hard_displacement_to", "hard_displacement_radii_mm", "hard_displacement_assumption_labels", "max_displacement_mm", "minimize_displacement_to"} & set(base_kwargs)
+        if conflicting:
+            raise ValueError(f"production_kwargs cannot override selective displacement options: {sorted(conflicting)}")
+    except Exception as exc:
+        return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.INVALID, (), diagnostics=(str(exc),))
+
+    labels = {ref: f"displacement_bound_{ref}" for ref in expected_refs}
+    label_to_ref = {label: ref for ref, label in labels.items()}
+    current = dict.fromkeys(expected_refs, base)
+    reports: list[SelectiveDisplacementRoundResult] = []
+    started = time.monotonic()
+    for round_index in range(max_rounds):
+        remaining = limits.total_timeout_s - (time.monotonic() - started)
+        if remaining <= 0.0:
+            reports.append(SelectiveDisplacementRoundResult(round_index, RestorationStageStatus.TIMEOUT, time.monotonic() - started, current, diagnostics=("campaign deadline exhausted before round",)))
+            return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.TIMEOUT, tuple(reports), current, diagnostics=("campaign deadline exhausted",))
+        kwargs = dict(base_kwargs)
+        kwargs.update({
+            "hint_positions": dict(hints),
+            "hard_displacement_to": centers,
+            "hard_displacement_radii_mm": dict(current),
+            "hard_displacement_assumption_labels": labels,
+            "timeout_ms": max(1, int(min(limits.stage_timeout_s, remaining) * 1000.0)),
+        })
+        report = _run_selective_round(round_index, solver, netlist, board, kwargs, expected_refs, current, label_to_ref, verify, min(limits.stage_timeout_s, remaining), limits.memory_limit_mb)
+        reports.append(report)
+        if report.accepted:
+            return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.ACCEPTED, tuple(reports), current, report.positions, report.rotations, ("all component bounds accepted",))
+        if report.status is RestorationStageStatus.TIMEOUT:
+            return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.TIMEOUT, tuple(reports), current, diagnostics=("selective round timed out",))
+        if report.status is not RestorationStageStatus.INFEASIBLE:
+            return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.STOPPED, tuple(reports), current, diagnostics=(f"stopped after round {round_index}: {report.status.value}",))
+        if not report.implicated_refs:
+            return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.STOPPED, tuple(reports), current, diagnostics=("infeasible solve returned no recognized displacement assumptions",))
+        progressed = False
+        for ref in report.implicated_refs:
+            next_radius = next((value for value in ladder if value > current[ref]), None)
+            if next_radius is None:
+                continue
+            current[ref] = next_radius
+            progressed = True
+        if not progressed:
+            return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.STOPPED, tuple(reports), current, diagnostics=("all implicated component bounds are at the top of the radius ladder",))
+    return SelectiveDisplacementCampaignResult(SelectiveDisplacementCampaignStatus.STOPPED, tuple(reports), current, diagnostics=(f"maximum selective rounds ({max_rounds}) reached",))
+
+
 def run_constraint_restoration_campaign(
     netlist: object,
     board: object,
@@ -1036,10 +1306,14 @@ __all__ = [
     "BoundedDisplacementRadiusResult",
     "BoundedDisplacementSweepResult",
     "BoundedDisplacementSweepStatus",
+    "SelectiveDisplacementCampaignStatus",
+    "SelectiveDisplacementRoundResult",
+    "SelectiveDisplacementCampaignResult",
     "default_restoration_stages",
     "distance_tier_restoration_stages",
     "bounded_displacement_restoration_stages",
     "run_bounded_displacement_radius_sweep",
     "run_constraint_restoration_campaign",
     "run_bounded_displacement_restoration_campaign",
+    "run_selective_displacement_campaign",
 ]
