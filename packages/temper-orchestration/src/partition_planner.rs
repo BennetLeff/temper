@@ -80,6 +80,16 @@ pub type CreepageTerritoryPlan = (
     Vec<(usize, f64)>,
 );
 
+/// Deterministic component groups for displacement diagnostics.
+///
+/// Group IDs are the zero-based positions in this vector.  The groups and
+/// their members are sorted by their lexically-first reference, so callers
+/// can safely use the IDs as stable assumption-group labels across repeated
+/// model builds.  This is the grouping-only view of
+/// [`CreepageTerritoryPlan`]; it intentionally carries no geometric or solver
+/// state.
+pub type CreepageDisplacementGroups = Vec<Vec<String>>;
+
 /// A complete, integer-grid instance for the stripped component-box model.
 ///
 /// Components are `(reference, width_units, height_units)`, requirements are
@@ -412,6 +422,20 @@ pub fn plan_creepage_territories(
         }
     }
     Ok((territories, cross, internal))
+}
+
+/// Return the weighted-twin component groups used by displacement diagnosis.
+///
+/// This is deliberately a view over [`plan_creepage_territories`], rather
+/// than a second implementation of the quotient algorithm.  A group contains
+/// components with identical weighted creepage neighborhoods (including
+/// their relationship to every other supplied reference).  The returned
+/// order and member order are deterministic and independent of input order.
+pub fn plan_creepage_displacement_groups(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> Result<CreepageDisplacementGroups, String> {
+    plan_creepage_territories(component_refs, cuts).map(|(groups, _, _)| groups)
 }
 
 /// Return a deterministic greedy vertex cover for a creepage violation graph.
@@ -1443,6 +1467,16 @@ pub fn plan_creepage_territories_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
+pub fn plan_creepage_displacement_groups_py(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> PyResult<CreepageDisplacementGroups> {
+    plan_creepage_displacement_groups(component_refs, cuts)
+        .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
 pub fn plan_creepage_repair_frontier_py(
     violations: Vec<(String, String, f64, f64)>,
 ) -> PyResult<Vec<String>> {
@@ -1566,6 +1600,41 @@ pub(crate) mod tests {
         );
         assert_eq!(plan.1, vec![(0, 1, 12.6), (0, 2, 0.5)]);
         assert_eq!(plan.2, vec![(0, 0.0), (1, 2.0), (2, 0.0)]);
+    }
+
+    #[test]
+    fn displacement_groups_are_the_deterministic_territory_view() {
+        let refs = ["B2", "A2", "X", "B1", "A1"]
+            .into_iter()
+            .map(str::to_string)
+            .collect::<Vec<_>>();
+        let cuts = vec![
+            ("A1".into(), "B1".into(), 12.6),
+            ("A1".into(), "B2".into(), 12.6),
+            ("A2".into(), "B1".into(), 12.6),
+            ("A2".into(), "B2".into(), 12.6),
+            ("B1".into(), "B2".into(), 2.0),
+            ("A1".into(), "X".into(), 0.5),
+            ("A2".into(), "X".into(), 0.5),
+        ];
+        let groups = plan_creepage_displacement_groups(refs, cuts.clone()).unwrap();
+        assert_eq!(
+            groups,
+            vec![
+                vec!["A1".to_string(), "A2".to_string()],
+                vec!["B1".to_string(), "B2".to_string()],
+                vec!["X".to_string()],
+            ]
+        );
+
+        // The grouping-only API must remain exactly the first field of the
+        // full quotient, including its input-order independence.
+        let full = plan_creepage_territories(
+            vec!["A1".into(), "A2".into(), "B1".into(), "B2".into(), "X".into()],
+            cuts,
+        )
+        .unwrap();
+        assert_eq!(groups, full.0);
     }
 
     #[test]

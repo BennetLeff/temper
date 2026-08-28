@@ -31,10 +31,19 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     run_constraint_restoration_campaign,
     run_selective_displacement_campaign,
 )
+from temper_placer.placer.cp_sat.hierarchical_displacement_campaign import (
+    CoarseGroupDisplacementCampaignResult,
+    CoarseGroupDisplacementRoundResult,
+    run_coarse_group_displacement_core_experiment,
+)
 from temper_placer.placer.cp_sat.creepage_lower_bounds import (
     CreepageLowerBoundReport,
     ThresholdCliqueBound,
     analyze_creepage_lower_bounds,
+)
+from temper_placer.placer.cp_sat.creepage_territory_planner import (
+    plan_creepage_displacement_groups,
+    plan_creepage_territories,
 )
 from temper_placer.placer.cp_sat.encoder import (
     UNSUPPORTED_TYPES,
@@ -101,7 +110,11 @@ __all__ = [
     "ComponentVars",
     "ConstraintDelta",
     "CreepageLowerBoundReport",
+    "plan_creepage_displacement_groups",
+    "plan_creepage_territories",
     "ComponentPairRequirement",
+    "CoarseGroupDisplacementCampaignResult",
+    "CoarseGroupDisplacementRoundResult",
     "ComponentSpec",
     "EnvelopeBounds",
     "EnvelopeSolveResult",
@@ -160,6 +173,7 @@ __all__ = [
     "run_bounded_displacement_restoration_campaign",
     "run_bounded_displacement_radius_sweep",
     "run_constraint_restoration_campaign",
+    "run_coarse_group_displacement_core_experiment",
     "run_selective_displacement_campaign",
     "solve_production_stripped_instance_warm_start",
     "solve_stripped_creepage_warm_start",

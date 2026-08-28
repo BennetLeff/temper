@@ -425,9 +425,10 @@ pub use net_ordering_stage::NetOrderingStage;
 pub use partition_planner::{
     ComponentPinClasses, ElectricalNet, GroupedCreepagePlan, NetTerminal,
     PartitionCreepageRequirements, PartitionEnvelope, PartitionPlan, PinClassRecord,
+    CreepageDisplacementGroups,
     compact_partition_envelopes, compact_partition_envelopes_with_internal_gaps,
     internal_component_creepage_requirements, partition_creepage_requirements,
-    plan_component_partitions, plan_grouped_creepage_cuts,
+    plan_component_partitions, plan_creepage_displacement_groups, plan_grouped_creepage_cuts,
 };
 #[cfg(feature = "python")]
 pub use phased_assignment_stage::PhasedAssignmentStage;
@@ -674,6 +675,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(
         partition_planner::plan_creepage_territories_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_displacement_groups_py,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(

@@ -15,4 +15,21 @@ def plan_creepage_territories(
     return temper_orchestration.plan_creepage_territories_py(list(component_refs), list(cuts))
 
 
-__all__ = ["plan_creepage_territories"]
+def plan_creepage_displacement_groups(
+    component_refs: Sequence[str], cuts: Sequence[tuple[str, str, float]]
+) -> list[list[str]]:
+    """Return deterministic Rust-owned weighted-twin groups for diagnostics.
+
+    The group index is stable for a fixed component/reference graph and the
+    members are sorted.  This is intentionally a grouping-only view of
+    :func:`plan_creepage_territories`; callers can use the groups to assign
+    shared displacement assumptions without reimplementing the quotient in
+    Python.
+    """
+
+    return temper_orchestration.plan_creepage_displacement_groups_py(
+        list(component_refs), list(cuts)
+    )
+
+
+__all__ = ["plan_creepage_displacement_groups", "plan_creepage_territories"]

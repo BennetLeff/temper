@@ -79,6 +79,11 @@ class CpSatModel:
         self._components: dict[str, ComponentVars] = {}
         self._assumptions: list[cp_model.IntVar] = []
         self._assumption_labels: dict[int, str] = {}
+        # Displacement bounds may be grouped for hierarchical UNSAT-core
+        # diagnosis.  Keep this cache separate from the general assumption
+        # API: existing callers still get one literal per call, while bounds
+        # explicitly sharing a label get one literal for the whole group.
+        self._displacement_assumptions: dict[str, cp_model.IntVar] = {}
         self.units_per_mm = units_per_mm
         self._objective_terms: list[tuple[cp_model.IntVar, int]] = []
         self._objective_applied = False
@@ -352,7 +357,7 @@ class CpSatModel:
             else:
                 if not isinstance(assumption_label, str) or not assumption_label.strip():
                     raise ValueError("displacement assumption label must be non-empty")
-                assumption = self.new_assumption(assumption_label)
+                assumption = self._displacement_assumption(assumption_label)
                 self.add_constraint_enforced(envelope, assumption)
 
     def add_hard_displacement_bound(
@@ -396,7 +401,7 @@ class CpSatModel:
         label = assumption_label or f"displacement_bound_{ref}"
         if not isinstance(label, str) or not label.strip():
             raise ValueError("displacement assumption label must be non-empty")
-        assumption = self.new_assumption(label)
+        assumption = self._displacement_assumption(label)
         self.add_constraint_enforced(envelope, assumption)
 
     def add_fixed_rotation(self, ref: str, rotation_index: int) -> None:
@@ -442,6 +447,20 @@ class CpSatModel:
         self._assumptions.append(b)
         self._assumption_labels[b.Index()] = label
         return b
+
+    def _displacement_assumption(self, label: str) -> cp_model.IntVar:
+        """Return the single assumption literal for a displacement group.
+
+        The envelope passed by each caller remains an independent constraint;
+        only their enable/disable switch is shared.  Consequently a grouped
+        label never weakens a component bound: enabling the group enables all
+        of its member envelopes, and a core names the group label once.
+        """
+        assumption = self._displacement_assumptions.get(label)
+        if assumption is None:
+            assumption = self.new_assumption(label)
+            self._displacement_assumptions[label] = assumption
+        return assumption
 
     # ------------------------------------------------------------------
     # Constraint helpers for encoder

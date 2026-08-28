@@ -292,6 +292,35 @@ class TestReferenceReconciliation:
         assert result.status == "infeasible"
         assert any(item["name"] == "safe_topology_U1" for item in result.unsat_core)
 
+    def test_hard_displacement_mapping_reuses_group_label(self) -> None:
+        """Multiple component bounds share one UNSAT-core group literal."""
+        netlist = Netlist(
+            components=[self._component(ref) for ref in ("U1", "U2")], nets=[]
+        )
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0), "U2": (20.0, 22.0)},
+            hard_displacement_assumption_labels={
+                "U1": "safe_topology_group_0",
+                "U2": "safe_topology_group_0",
+            },
+            max_displacement_mm=0.0,
+            fixed_positions={"U1": (11.0, 12.0, 0), "U2": (21.0, 22.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        group_labels = [
+            item["name"]
+            for item in result.unsat_core
+            if item["name"] == "safe_topology_group_0"
+        ]
+        assert group_labels == ["safe_topology_group_0"]
+
 
 class TestHandlerCoverage:
     """All 8 ConstraintType values must have a handler."""
