@@ -693,93 +693,6 @@ def bench_topological_force_refinement() -> tuple[float, float]:
 
 
 # ---------------------------------------------------------------------------
-# Wave 4 Phase 4: geometry/drc_inflate.py DRC-proxy kernels
-# ---------------------------------------------------------------------------
-
-# Fixed shape and seed, same reason as the bottleneck fixture above. 40
-# components is 780 pairs, past numpy's 128-element pairwise blocksize, so both
-# arms exercise the blocked reduction rather than its small-input shortcut.
-_DRC_COMPONENTS = 40
-_DRC_SEED = 20260804
-_SMOOTH_RELU_SAMPLES = 4096
-
-
-def _drc_inflate_oracle() -> ModuleType:
-    return _load_module_from_path(
-        "_perf_ab_drc_inflate_oracle",
-        REPO_ROOT / "packages/temper-placer/tests/geometry/_drc_inflate_py_oracle.py",
-    )
-
-
-def _drc_fixture() -> tuple[Any, Any, Any]:
-    """Deterministic float32 placement — the dtype every shipped call site uses."""
-    import numpy as np
-
-    rng = np.random.default_rng(_DRC_SEED)
-    positions = rng.uniform(-40.0, 40.0, size=(_DRC_COMPONENTS, 2)).astype(np.float32)
-    hw = rng.uniform(0.5, 6.0, size=(_DRC_COMPONENTS,)).astype(np.float32)
-    hh = rng.uniform(0.5, 6.0, size=(_DRC_COMPONENTS,)).astype(np.float32)
-    return positions, hw, hh
-
-
-def bench_drc_proxy_score() -> tuple[float, float]:
-    """A/B ``compute_drc_proxy_score`` (Rust) vs the verbatim oracle."""
-    from temper_placer.geometry.drc_inflate import compute_drc_proxy_score
-
-    oracle_fn = _drc_inflate_oracle().compute_drc_proxy_score
-    positions, hw, hh = _drc_fixture()
-
-    def run_rust() -> Any:
-        return compute_drc_proxy_score(positions, hw, hh, clearance_mm=0.2, beta=10.0)
-
-    def run_oracle() -> Any:
-        return oracle_fn(positions, hw, hh, clearance_mm=0.2, beta=10.0)
-
-    # The behavioural gate is bit-exact, so this parity check is too: a
-    # performance number for an arm that no longer agrees is meaningless.
-    if float(run_rust()).hex() != float(run_oracle()).hex():
-        raise AssertionError(
-            "perf A/B arms disagree for drc_proxy_score -- the behavioral A/B "
-            "(test_drc_inflate_rust_differential.py) should be failing too"
-        )
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-def bench_smooth_relu_array() -> tuple[float, float]:
-    """A/B the vectorised softplus (Rust) vs the verbatim numpy oracle.
-
-    Registered separately from ``drc_proxy_score`` because it is the arm most
-    likely to regress: numpy's elementwise loop is already vectorised, so this
-    is the honest place for the ratio to be visible rather than buried inside
-    an O(n^2) caller.
-    """
-    import numpy as np
-
-    from temper_placer.geometry.drc_inflate import _smooth_relu_array
-
-    oracle_fn = _drc_inflate_oracle()._smooth_relu_array
-    xs = np.random.default_rng(_DRC_SEED).uniform(-8.0, 8.0, size=_SMOOTH_RELU_SAMPLES)
-
-    def run_rust() -> Any:
-        return _smooth_relu_array(xs, alpha=10.0)
-
-    def run_oracle() -> Any:
-        return oracle_fn(xs, alpha=10.0)
-
-    got, want = run_rust(), run_oracle()
-    if [float(v).hex() for v in got] != [float(v).hex() for v in want]:
-        raise AssertionError(
-            "perf A/B arms disagree for smooth_relu_array -- the behavioral "
-            "A/B should be failing too"
-        )
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-# ---------------------------------------------------------------------------
 # Wave 4 Phase 3 candidate 6: the DSN emitter (temper_placer/io/dsn_exporter.py)
 # ---------------------------------------------------------------------------
 
@@ -1671,8 +1584,6 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("topological", "constraint_propagation"): bench_topological_propagation,
     ("topological", "force_refinement"): bench_topological_force_refinement,
-    ("drc-inflate", "drc_proxy_score"): bench_drc_proxy_score,
-    ("drc-inflate", "smooth_relu_array"): bench_smooth_relu_array,
     ("dsn-exporter", "export_pcb"): bench_dsn_export_pcb,
     ("loaders", "loaders"): bench_loaders,
     # Wave 4 Phase 2. NOTE: these two keys have no row in
