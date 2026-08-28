@@ -388,6 +388,7 @@ def solve_placement(
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
     hard_displacement_to: dict[str, tuple[float, float]] | None = None,
     hard_displacement_assumption_labels: Mapping[str, str] | None = None,
+    hard_displacement_assumptions: bool = True,
     hard_displacement_radii_mm: Mapping[str, float] | None = None,
     reference_aliases: Mapping[str, str] | None = None,
     loop_aliases: Mapping[str, str] | None = None,
@@ -457,6 +458,12 @@ def solve_placement(
             labels through ``unsat_core``. Refs omitted from this optional
             mapping receive the stable default ``displacement_bound_<ref>``;
             refs outside ``hard_displacement_to`` are rejected.
+        hard_displacement_assumptions: Whether hard displacement envelopes
+            should be guarded by assumptions. The default is ``True`` for
+            backwards compatibility and UNSAT-core diagnostics. Set it to
+            ``False`` for deletion tests: every envelope is posted
+            unconditionally, no displacement assumption labels are created,
+            and this option does not add an objective.
         hard_displacement_radii_mm: Optional per-reference hard radius
             mapping. When supplied, it must cover exactly
             ``hard_displacement_to`` and replaces the scalar
@@ -1273,6 +1280,13 @@ def solve_placement(
         )
     if hard_displacement_assumption_labels is not None and hard_displacement_to is None:
         raise ValueError("hard_displacement_assumption_labels requires hard_displacement_to")
+    if not isinstance(hard_displacement_assumptions, bool):
+        raise TypeError("hard_displacement_assumptions must be a bool")
+    if not hard_displacement_assumptions and hard_displacement_assumption_labels is not None:
+        raise ValueError(
+            "hard_displacement_assumption_labels cannot be used when "
+            "hard_displacement_assumptions is false"
+        )
     if hard_displacement_radii_mm is not None:
         if hard_displacement_to is None:
             raise ValueError("hard_displacement_radii_mm requires hard_displacement_to")
@@ -1330,6 +1344,7 @@ def solve_placement(
                     if hard_displacement_assumption_labels is not None
                     else f"displacement_bound_{ref}"
                 ),
+                use_assumption=hard_displacement_assumptions,
             )
 
     # Hard position pins (minimal-disruption API): unlike AddHint above,

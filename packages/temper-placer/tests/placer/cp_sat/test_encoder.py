@@ -292,6 +292,51 @@ class TestReferenceReconciliation:
         assert result.status == "infeasible"
         assert any(item["name"] == "safe_topology_U1" for item in result.unsat_core)
 
+    def test_hard_displacement_mapping_can_be_unconditional(self) -> None:
+        """Deletion-test bounds retain hard semantics without labels/objective."""
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            hard_displacement_radii_mm={"U1": 0.0},
+            hard_displacement_assumptions=False,
+            fixed_positions={"U1": (11.0, 12.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        assert result.unsat_core == []
+        assert result.objective_value == 0.0
+
+    def test_hard_displacement_unconditional_matches_labelled_feasible_result(self) -> None:
+        """Disabling diagnostics must not change the hard-bound feasible set."""
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        common = {
+            "netlist": netlist,
+            "board": board,
+            "extra_constraints": [],
+            "timeout_ms": 1_000,
+            "hard_displacement_to": {"U1": (10.0, 12.0)},
+            "hard_displacement_radii_mm": {"U1": 0.0},
+            "fixed_positions": {"U1": (10.0, 12.0, 0)},
+        }
+
+        labelled = solve_placement(**common)
+        unconditional = solve_placement(
+            **common, hard_displacement_assumptions=False
+        )
+
+        assert labelled.status == unconditional.status == "optimal"
+        assert labelled.positions == unconditional.positions
+        assert labelled.objective_value == unconditional.objective_value == 0.0
+        assert [item["name"] for item in labelled.unsat_core] == []
+        assert unconditional.unsat_core == []
+
     def test_hard_displacement_mapping_reuses_group_label(self) -> None:
         """Multiple component bounds share one UNSAT-core group literal."""
         netlist = Netlist(

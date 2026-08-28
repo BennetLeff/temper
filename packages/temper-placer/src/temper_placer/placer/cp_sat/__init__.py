@@ -36,6 +36,13 @@ from temper_placer.placer.cp_sat.hierarchical_displacement_campaign import (
     CoarseGroupDisplacementRoundResult,
     run_coarse_group_displacement_core_experiment,
 )
+from temper_placer.placer.cp_sat.displacement_deletion_campaign import (
+    DisplacementDeletionCampaignResult,
+    DisplacementDeletionCampaignStatus,
+    DisplacementDeletionTestResult,
+    run_deletion_testing_campaign,
+    run_displacement_deletion_campaign,
+)
 from temper_placer.placer.cp_sat.creepage_lower_bounds import (
     CreepageLowerBoundReport,
     ThresholdCliqueBound,
@@ -115,6 +122,9 @@ __all__ = [
     "ComponentPairRequirement",
     "CoarseGroupDisplacementCampaignResult",
     "CoarseGroupDisplacementRoundResult",
+    "DisplacementDeletionCampaignResult",
+    "DisplacementDeletionCampaignStatus",
+    "DisplacementDeletionTestResult",
     "ComponentSpec",
     "EnvelopeBounds",
     "EnvelopeSolveResult",
@@ -174,6 +184,8 @@ __all__ = [
     "run_bounded_displacement_radius_sweep",
     "run_constraint_restoration_campaign",
     "run_coarse_group_displacement_core_experiment",
+    "run_displacement_deletion_campaign",
+    "run_deletion_testing_campaign",
     "run_selective_displacement_campaign",
     "solve_production_stripped_instance_warm_start",
     "solve_stripped_creepage_warm_start",

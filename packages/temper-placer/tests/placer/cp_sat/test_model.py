@@ -303,6 +303,32 @@ class TestDisplacementObjective:
         sol = model.solve(time_limit_s=2.0)
         assert not sol.feasible
 
+    def test_hard_displacement_bound_can_be_unconditional(self) -> None:
+        """Deletion-test bounds do not create an assumption literal."""
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        assumptions_before = len(model._assumptions)
+        model.add_hard_displacement_bound(
+            "Q1", 500, 500, max_units=100, use_assumption=False
+        )
+
+        assert len(model._assumptions) == assumptions_before
+        assert model._displacement_assumptions == {}
+        sol = model.solve(time_limit_s=2.0)
+        assert not sol.feasible
+        assert sol.unsat_assumptions == []
+
+    def test_hard_displacement_bound_rejects_non_boolean_assumption_mode(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(TypeError, match="use_assumption must be a bool"):
+            model.add_hard_displacement_bound(
+                "Q1", 500, 500, max_units=100, use_assumption=1  # type: ignore[arg-type]
+            )
+
     def test_hard_displacement_bound_has_stable_unsat_label(self) -> None:
         """A bound identifies its component when it causes infeasibility."""
         model = CpSatModel()

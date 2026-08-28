@@ -367,6 +367,7 @@ class CpSatModel:
         y_target_units: int,
         max_units: int,
         assumption_label: str | None = None,
+        use_assumption: bool = True,
     ) -> None:
         """Constrain Manhattan displacement without adding an objective.
 
@@ -377,14 +378,13 @@ class CpSatModel:
         separate is important for topology-restoration campaigns: a hard
         radius is a safety/topology restriction, not an optimization request.
 
-        The bound is guarded by a named assumption literal.  If
+        By default the bound is guarded by a named assumption literal.  If
         ``assumption_label`` is omitted, the stable default
-        ``displacement_bound_<ref>`` is used.  The absolute-difference
-        definitions remain unconditional; only the envelope inequality is
-        guarded, so a reported label means that component's radius
-        restriction participated in the infeasibility core.  The assumption
-        is enabled for ordinary solves, preserving the historical feasible
-        set while making the bound diagnosable.
+        ``displacement_bound_<ref>`` is used.  Pass ``use_assumption=False``
+        to post the envelope unconditionally; this is useful for deletion
+        tests, which need the strong propagation of the original hard-bound
+        formulation and deliberately do not collect UNSAT-core labels.  In
+        either mode the absolute-difference definitions are unconditional.
 
         Coordinates are integer model-grid units.  Callers that start with
         millimetres must convert both the target and radius through
@@ -392,12 +392,17 @@ class CpSatModel:
         """
         if max_units < 0:
             raise ValueError("displacement bound must be non-negative")
+        if not isinstance(use_assumption, bool):
+            raise TypeError("use_assumption must be a bool")
         component = self.get_component(ref)
         x_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_x_{ref}")
         y_distance = self.model_ref.NewIntVar(0, 1_000_000, f"hard_displacement_y_{ref}")
         self.model_ref.AddAbsEquality(x_distance, component.x_center - x_target_units)
         self.model_ref.AddAbsEquality(y_distance, component.y_center - y_target_units)
         envelope = x_distance + y_distance <= max_units
+        if not use_assumption:
+            self.model_ref.Add(envelope)
+            return
         label = assumption_label or f"displacement_bound_{ref}"
         if not isinstance(label, str) or not label.strip():
             raise ValueError("displacement assumption label must be non-empty")
