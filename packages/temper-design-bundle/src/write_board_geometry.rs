@@ -121,6 +121,7 @@ fn guard<R>(body: impl FnOnce() -> PyResult<R>) -> PyResult<R> {
 /// by a return. Returns `None` exactly when the caller should omit the
 /// angle token (result is exactly `0.0`), matching the oracle's `None if
 /// new_angle == 0.0 else new_angle`.
+#[cfg(test)]
 pub fn reorient_pad_angle(current_angle: Option<f64>, delta_deg: f64) -> Option<f64> {
     let current = current_angle.unwrap_or(0.0);
     let new_angle = py_float_mod(current + delta_deg, 360.0);
@@ -130,6 +131,7 @@ pub fn reorient_pad_angle(current_angle: Option<f64>, delta_deg: f64) -> Option<
 /// Batch form of [`reorient_pad_angle`] — one footprint's whole pad list in
 /// a single pyo3 crossing (the shipped `_reorient_pads` calls this once per
 /// footprint, not once per pad).
+#[cfg(test)]
 pub fn reorient_pad_angles(current_angles: &[Option<f64>], delta_deg: f64) -> Vec<Option<f64>> {
     current_angles
         .iter()
