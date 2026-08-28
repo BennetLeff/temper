@@ -218,16 +218,33 @@ fresh model. The unconditional baseline reproduced the useful proof in
 | twin 08 | 2 | infeasible | 21.741 s |
 | twin 10 | 8 | infeasible | 21.031 s |
 
-The other seven singleton releases timed out at 25 seconds, including the
-96-member class. No singleton produced a production-feasible candidate. The
-campaign correctly did not schedule balanced-half tests: an `unknown` or
-external timeout is not proof that a singleton release was insufficient.
+The other seven singleton releases initially timed out at 25 seconds. A
+targeted fresh-instrument rerun at up to 60 seconds resolved all seven as
+infeasible; the actual proofs completed in 5.739--11.092 seconds. Thus every
+one of the 11 weighted-twin singleton releases is proven insufficient,
+including the 96-member class. The discrepancy in wall time reinforces the
+rule that solver timeout is not evidence and that measurements must preserve
+their exact environment and status.
 
-This is useful negative evidence. The four proven groups cannot individually
-explain the topology conflict, while the other seven remain candidates rather
-than positives. The next measurement should spend larger budgets only on
-those unresolved groups, or test deterministic multi-group releases that do
-not rely on reified constraints.
+The deterministic member-balanced split then had one already-tested half:
+the 96-member `twin_02` class. Its 72-member complement was unresolved after
+both 60 and 120 seconds. Releasing all 168 components to 40 mm also exceeded
+an external 120-second limit without an incumbent. Neither result is an
+infeasibility claim, and neither candidate reached the Rust verifier.
+
+The canonical machine-readable frontier is stored at
+`docs/evidence/2026-08-28-displacement-deletion-frontier.json`, keyed by the
+board SHA-256, exact released refs, radii, and production options. It records:
+
+- the proven all-2-mm baseline;
+- all 11 proven-insufficient singleton releases;
+- the unresolved 72-component balanced complement; and
+- the timed-out all-168 upper-control release.
+
+This is the bounded search frontier: there is no known sufficient release set
+within the completed probes. Cross-half combinations are not justified by the
+planner because the 72-component half is unresolved rather than proven
+insufficient.
 
 ## Implementation history
 

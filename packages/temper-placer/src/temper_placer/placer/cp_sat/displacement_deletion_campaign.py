@@ -19,12 +19,18 @@ import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
+from pathlib import Path
 
 from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     RestorationLimits,
     RestorationStageStatus,
     _expected_refs,
     _run_bounded_radius,
+)
+from temper_placer.placer.cp_sat.displacement_deletion_frontier import (
+    DeletionProbeRecord,
+    DeletionSearchFrontier,
+    deletion_probe_key,
 )
 from temper_placer.placer.cp_sat.encoder import solve_placement
 
@@ -84,6 +90,7 @@ class DisplacementDeletionCampaignResult:
     singleton_tests: tuple[DisplacementDeletionTestResult, ...] = ()
     balanced_half_tests: tuple[DisplacementDeletionTestResult, ...] = ()
     diagnostics: tuple[str, ...] = ()
+    frontier: DeletionSearchFrontier | None = None
 
     @property
     def all_tests(self) -> tuple[DisplacementDeletionTestResult, ...]:
@@ -217,6 +224,10 @@ def run_displacement_deletion_campaign(
     verify: Callable[[object], object] | None = None,
     limits: RestorationLimits = RestorationLimits(),
     test_balanced_halves: bool = True,
+    frontier: DeletionSearchFrontier | None = None,
+    frontier_path: str | Path | None = None,
+    production_options: Mapping[str, object] | None = None,
+    board_hash: str | None = None,
 ) -> DisplacementDeletionCampaignResult:
     """Run fresh unconditional deletion tests for an authoritative partition.
 
@@ -255,6 +266,13 @@ def run_displacement_deletion_campaign(
         } & set(base_kwargs)
         if forbidden:
             raise ValueError(f"production_kwargs cannot override deletion options: {sorted(forbidden)}")
+        if frontier is not None and frontier_path is not None:
+            raise ValueError("provide frontier or frontier_path, not both")
+        if frontier_path is not None:
+            cache_file = Path(frontier_path)
+            frontier = DeletionSearchFrontier.read(cache_file) if cache_file.exists() else DeletionSearchFrontier()
+        if production_options is not None and not isinstance(production_options, Mapping):
+            raise ValueError("production_options must be a mapping")
     except Exception as exc:
         return DisplacementDeletionCampaignResult(
             DisplacementDeletionCampaignStatus.INVALID,
@@ -265,17 +283,95 @@ def run_displacement_deletion_campaign(
     started = time.monotonic()
     expected = tuple(expected_refs)
     base_radii = dict.fromkeys(expected, base)
+    # Production kwargs often contain live constraint objects.  They are
+    # intentionally not guessed at by the cache: callers using a frontier may
+    # provide a stable JSON-safe projection explicitly.  With no explicit
+    # projection, the ordinary JSON-safe kwargs still make useful keys, while
+    # opaque options fail closed when cache use is requested.
+    key_options = dict(
+        production_options
+        if production_options is not None
+        else {key: value for key, value in base_kwargs.items() if key not in {"timeout_ms"}}
+    )
+    cache_enabled = frontier is not None or frontier_path is not None
+    cache_write_error: list[str] = []
+
+    def cache_key(released_refs: Sequence[str]) -> object:
+        return deletion_probe_key(
+            released_refs,
+            base_radius_mm=base,
+            release_radius_mm=release,
+            production_options=key_options,
+            board=board,
+            board_hash=board_hash,
+        )
+
+    def report_from_record(
+        record: DeletionProbeRecord,
+        test_index: int,
+        name: str,
+        released_groups: tuple[str, ...],
+        released_refs: tuple[str, ...],
+        radii: Mapping[str, float],
+    ) -> DisplacementDeletionTestResult:
+        return DisplacementDeletionTestResult(
+            test_index,
+            name,
+            released_groups,
+            released_refs,
+            dict(radii),
+            record.status,
+            0.0,
+            record.solver_status,
+            dict(record.positions) if record.status is RestorationStageStatus.ACCEPTED else {},
+            dict(record.rotations) if record.status is RestorationStageStatus.ACCEPTED else {},
+            record.verification_passed,
+            record.violation_count,
+            (*record.diagnostics, "reused cached deletion-test result"),
+        )
 
     def run_test(
         test_index: int,
         name: str,
         released_group_names: Sequence[str],
     ) -> DisplacementDeletionTestResult:
+        nonlocal frontier
         selected = tuple(sorted(released_group_names))
         released_refs = tuple(sorted(ref for group_name in selected for ref in canonical_groups[group_name]))
         radii = dict(base_radii)
         for ref in released_refs:
             radii[ref] = release
+        key = None
+        if cache_enabled:
+            try:
+                key = cache_key(released_refs)
+            except (TypeError, ValueError) as exc:
+                return DisplacementDeletionTestResult(
+                    test_index,
+                    name,
+                    selected,
+                    released_refs,
+                    radii,
+                    RestorationStageStatus.INVALID,
+                    0.0,
+                    diagnostics=(f"cannot construct deletion cache key: {exc}",),
+                )
+            cached = frontier.lookup(key) if frontier is not None else None
+            if cached is not None:
+                if cached.status is RestorationStageStatus.ACCEPTED and (
+                    set(cached.positions) != set(expected) or set(cached.rotations) != set(expected)
+                ):
+                    return DisplacementDeletionTestResult(
+                        test_index,
+                        name,
+                        selected,
+                        released_refs,
+                        radii,
+                        RestorationStageStatus.INVALID,
+                        0.0,
+                        diagnostics=("cached accepted deletion result has an incomplete placement",),
+                    )
+                return report_from_record(cached, test_index, name, selected, released_refs, radii)
         remaining = limits.total_timeout_s - (time.monotonic() - started)
         if remaining <= 0.0:
             return _timeout_report(
@@ -312,7 +408,7 @@ def run_displacement_deletion_campaign(
             min(limits.stage_timeout_s, remaining),
             limits.memory_limit_mb,
         )
-        return DisplacementDeletionTestResult(
+        result = DisplacementDeletionTestResult(
             test_index,
             name,
             selected,
@@ -327,6 +423,25 @@ def run_displacement_deletion_campaign(
             report.violation_count,
             report.diagnostics,
         )
+        if cache_enabled and key is not None:
+            record = DeletionProbeRecord(
+                key,
+                result.status,
+                result.elapsed_s,
+                result.solver_status,
+                result.positions,
+                result.rotations,
+                result.verification_passed,
+                result.violation_count,
+                result.diagnostics,
+            )
+            frontier = frontier.add(record) if frontier is not None else DeletionSearchFrontier((record,))
+            if frontier_path is not None:
+                try:
+                    frontier.write(frontier_path)
+                except OSError as exc:
+                    cache_write_error.append(f"could not persist deletion frontier: {exc}")
+        return result
 
     baseline = run_test(0, "baseline_all_base", ())
     if baseline.status is not RestorationStageStatus.INFEASIBLE:
@@ -346,6 +461,7 @@ def run_displacement_deletion_campaign(
             diagnostics=(
                 "singleton releases require a proven infeasible all-base-radius baseline",
             ),
+            frontier=frontier,
         )
 
     singleton: list[DisplacementDeletionTestResult] = []
@@ -415,7 +531,9 @@ def run_displacement_deletion_campaign(
                 if timed_out
                 else "all scheduled deletion tests completed"
             ),
+            *cache_write_error,
         ),
+        frontier=frontier,
     )
 
 

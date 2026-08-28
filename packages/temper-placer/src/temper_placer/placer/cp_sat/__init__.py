@@ -31,18 +31,6 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     run_constraint_restoration_campaign,
     run_selective_displacement_campaign,
 )
-from temper_placer.placer.cp_sat.hierarchical_displacement_campaign import (
-    CoarseGroupDisplacementCampaignResult,
-    CoarseGroupDisplacementRoundResult,
-    run_coarse_group_displacement_core_experiment,
-)
-from temper_placer.placer.cp_sat.displacement_deletion_campaign import (
-    DisplacementDeletionCampaignResult,
-    DisplacementDeletionCampaignStatus,
-    DisplacementDeletionTestResult,
-    run_deletion_testing_campaign,
-    run_displacement_deletion_campaign,
-)
 from temper_placer.placer.cp_sat.creepage_lower_bounds import (
     CreepageLowerBoundReport,
     ThresholdCliqueBound,
@@ -51,6 +39,23 @@ from temper_placer.placer.cp_sat.creepage_lower_bounds import (
 from temper_placer.placer.cp_sat.creepage_territory_planner import (
     plan_creepage_displacement_groups,
     plan_creepage_territories,
+)
+from temper_placer.placer.cp_sat.displacement_deletion_campaign import (
+    DisplacementDeletionCampaignResult,
+    DisplacementDeletionCampaignStatus,
+    DisplacementDeletionTestResult,
+    run_deletion_testing_campaign,
+    run_displacement_deletion_campaign,
+)
+from temper_placer.placer.cp_sat.displacement_deletion_frontier import (
+    DeletionProbeKey,
+    DeletionProbeRecord,
+    DeletionSearchFrontier,
+    DeletionSearchFrontierRecord,
+    DeletionSearchKey,
+    available_board_hash,
+    canonical_json,
+    deletion_probe_key,
 )
 from temper_placer.placer.cp_sat.encoder import (
     UNSUPPORTED_TYPES,
@@ -74,6 +79,11 @@ from temper_placer.placer.cp_sat.envelope_solver import (
 )
 from temper_placer.placer.cp_sat.feedback import ConstraintDelta, FeedbackClassifier
 from temper_placer.placer.cp_sat.gate import AcceptanceGate
+from temper_placer.placer.cp_sat.hierarchical_displacement_campaign import (
+    CoarseGroupDisplacementCampaignResult,
+    CoarseGroupDisplacementRoundResult,
+    run_coarse_group_displacement_core_experiment,
+)
 from temper_placer.placer.cp_sat.local_subenvelope_solver import (
     ComponentPairRequirement,
     ComponentSpec,
@@ -125,6 +135,14 @@ __all__ = [
     "DisplacementDeletionCampaignResult",
     "DisplacementDeletionCampaignStatus",
     "DisplacementDeletionTestResult",
+    "DeletionProbeKey",
+    "DeletionProbeRecord",
+    "DeletionSearchKey",
+    "DeletionSearchFrontier",
+    "DeletionSearchFrontierRecord",
+    "available_board_hash",
+    "canonical_json",
+    "deletion_probe_key",
     "ComponentSpec",
     "EnvelopeBounds",
     "EnvelopeSolveResult",
