@@ -649,6 +649,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
+        netclass::netclass_creepage_neighborhood_candidates_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
         netclass::netclass_creepage_requirements_py,
         m
     )?)?;

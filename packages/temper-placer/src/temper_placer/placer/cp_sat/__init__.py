@@ -18,6 +18,7 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     RestorationStageStatus,
     default_restoration_stages,
     distance_tier_restoration_stages,
+    neighborhood_batched_creepage_constraints,
     run_constraint_restoration_campaign,
 )
 from temper_placer.placer.cp_sat.creepage_lower_bounds import (
@@ -138,6 +139,7 @@ __all__ = [
     "run_production_stripped_probe",
     "default_restoration_stages",
     "distance_tier_restoration_stages",
+    "neighborhood_batched_creepage_constraints",
     "run_constraint_restoration_campaign",
     "solve_production_stripped_instance_warm_start",
     "solve_stripped_creepage_warm_start",

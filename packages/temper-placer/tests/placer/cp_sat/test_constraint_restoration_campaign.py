@@ -12,6 +12,7 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     RestorationStageStatus,
     default_restoration_stages,
     distance_tier_restoration_stages,
+    neighborhood_batched_creepage_constraints,
     run_constraint_restoration_campaign,
 )
 
@@ -75,6 +76,64 @@ def test_distance_tiers_reject_duplicate_pair_rows() -> None:
         assert "duplicate" in str(exc)
     else:  # pragma: no cover - assertion helper without pytest dependency
         raise AssertionError("duplicate pair was accepted")
+
+
+def test_neighborhood_batch_selects_local_alternatives_deterministically() -> None:
+    requirements = (
+        ("A", "B", 12.6),
+        ("A", "D", 10.0),
+        ("B", "C", 6.0),
+        ("C", "D", 2.0),
+        ("A", "E", 0.5),
+    )
+    positions = {
+        "A": (0.0, 0.0),
+        "C": (1.0, 1.0),
+        "B": (10.0, 0.0),
+        "D": (11.0, 1.0),
+        "E": (100.0, 100.0),
+    }
+
+    constraints = neighborhood_batched_creepage_constraints(
+        requirements,
+        (("B", "A", 12.6, 5.0),),
+        positions,
+        radius_mm=2.0,
+    )
+
+    assert [(constraint.a, constraint.b) for constraint in constraints] == [
+        ("C", "D"),
+        ("B", "C"),
+        ("A", "D"),
+        ("A", "B"),
+    ]
+
+
+def test_neighborhood_batch_skips_active_pairs_and_rejects_missing_positions() -> None:
+    requirements = (("A", "B", 12.6), ("A", "C", 6.0), ("B", "C", 2.0))
+    positions = {"A": (0.0, 0.0), "B": (5.0, 0.0), "C": (5.0, 1.0)}
+    constraints = neighborhood_batched_creepage_constraints(
+        requirements,
+        (("A", "B", 12.6, 0.0),),
+        positions,
+        radius_mm=6.1,
+        existing_pairs=(("B", "A"),),
+    )
+    assert [(constraint.a, constraint.b) for constraint in constraints] == [
+        ("B", "C"),
+        ("A", "C"),
+    ]
+
+    try:
+        neighborhood_batched_creepage_constraints(
+            (("A", "MISSING", 1.0),),
+            (("A", "MISSING", 1.0, 0.0),),
+            {"A": (0.0, 0.0)},
+        )
+    except ValueError as exc:
+        assert "without a position" in str(exc)
+    else:  # pragma: no cover - assertion helper without pytest dependency
+        raise AssertionError("missing position was accepted")
 
 
 def test_default_stage_order_is_deterministic() -> None:

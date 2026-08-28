@@ -21,6 +21,7 @@ inventing or weakening a requirement.
 
 from __future__ import annotations
 
+import math
 import multiprocessing as mp
 import queue as queue_module
 import time
@@ -28,6 +29,8 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
+
+import temper_orchestration as _to
 
 from temper_placer.placer.cp_sat.encoder import solve_placement
 
@@ -261,6 +264,65 @@ def distance_tier_restoration_stages(instance: object) -> tuple[RestorationStage
         for distance, constraints in sorted(by_distance.items())
     )
     return tuple(stages)
+
+
+def neighborhood_batched_creepage_constraints(
+    requirements: Sequence[tuple[str, str, float]],
+    violations: Sequence[tuple[str, str, float, float]],
+    positions: Mapping[str, tuple[float, float]],
+    *,
+    radius_mm: float = 12.0,
+    existing_pairs: Sequence[tuple[str, str]] = (),
+) -> tuple[object, ...]:
+    """Select exact creepage constraints in the local violation neighborhood.
+
+    ``positions`` are candidate component centres.  A requirement is selected
+    when its two endpoints are respectively near the two endpoints of a
+    current violation (in either orientation).  This deliberately batches
+    local alternatives that can become the next violation after the solver
+    moves one endpoint.  The selector is heuristic; the exhaustive Rust
+    creepage verifier remains the acceptance authority.
+    """
+
+    if isinstance(requirements, (str, bytes)) or isinstance(violations, (str, bytes)):
+        raise ValueError("requirements and violations must be sequences")
+    if isinstance(positions, (str, bytes)) or not isinstance(positions, Mapping):
+        raise ValueError("positions must be a mapping of component centres")
+    if isinstance(existing_pairs, (str, bytes)):
+        raise ValueError("existing_pairs must be a sequence")
+    try:
+        radius = float(radius_mm)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("radius_mm must be finite and positive") from exc
+    if not math.isfinite(radius) or radius <= 0.0:
+        raise ValueError("radius_mm must be finite and positive")
+
+    # Positions are centres here; representing them as zero-area boxes keeps
+    # the geometry/query implementation in the Rust orchestration kernel.
+    component_boxes = [
+        (str(ref), float(point[0]), float(point[0]), float(point[1]), float(point[1]))
+        for ref, point in positions.items()
+    ]
+    rows = _to.netclass_creepage_neighborhood_candidates_py(
+        list(requirements),
+        component_boxes,
+        list(violations),
+        radius,
+        [tuple(pair) for pair in existing_pairs],
+    )
+    from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+
+    return tuple(
+        SeparatedConstraint(
+            a=left,
+            b=right,
+            min_distance_mm=required,
+            tier=ConstraintTier.HARD,
+            because="Adaptive creepage neighbourhood restoration batch",
+            id=f"neighborhood_creepage_{required:g}_{left}_{right}",
+        )
+        for left, right, required in rows
+    )
 
 
 def _status_name(status: object) -> str | None:
