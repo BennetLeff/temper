@@ -137,7 +137,9 @@ pub fn normalize_stripped_creepage(
         let width = scaled_grid_units(width, units_per_mm, "component width")?;
         let height = scaled_grid_units(height, units_per_mm, "component height")?;
         if width == 0 || height == 0 {
-            return Err(format!("component {reference} is smaller than one model grid unit"));
+            return Err(format!(
+                "component {reference} is smaller than one model grid unit"
+            ));
         }
         canonical_components.insert(reference, (width, height));
     }
@@ -153,9 +155,16 @@ pub fn normalize_stripped_creepage(
         if !canonical_components.contains_key(&left) || !canonical_components.contains_key(&right) {
             return Err("creepage requirement references an unknown component".into());
         }
-        let key = if left < right { (left, right) } else { (right, left) };
+        let key = if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        };
         if requested.contains_key(&key) {
-            return Err(format!("duplicate creepage requirement: {} / {}", key.0, key.1));
+            return Err(format!(
+                "duplicate creepage requirement: {} / {}",
+                key.0, key.1
+            ));
         }
         requested.insert(
             key,
@@ -207,6 +216,13 @@ pub fn verify_stripped_creepage(
     placements: Vec<(String, f64, f64, i64)>,
     allow_rotations: bool,
 ) -> Result<(), String> {
+    // Integer-grid equalities can reappear a few binary64 ULPs below their
+    // decimal value (for example, 12.6 becomes 12.599999999999994 after
+    // coordinate subtraction). This scale-aware tolerance covers only that
+    // representation noise; it is far below one solver grid unit.
+    let comparison_tolerance = |values: &[f64]| {
+        64.0 * f64::EPSILON * values.iter().copied().map(f64::abs).fold(1.0, f64::max)
+    };
     if !board_width_mm.is_finite() || board_width_mm <= 0.0 {
         return Err("board_width_mm must be finite and positive".into());
     }
@@ -220,7 +236,9 @@ pub fn verify_stripped_creepage(
             || !height.is_finite()
             || width <= 0.0
             || height <= 0.0
-            || dimensions.insert(reference.clone(), (width, height)).is_some()
+            || dimensions
+                .insert(reference.clone(), (width, height))
+                .is_some()
         {
             return Err("malformed or duplicate component dimensions".into());
         }
@@ -240,7 +258,11 @@ pub fn verify_stripped_creepage(
         {
             return Err("malformed creepage requirement".into());
         }
-        let key = if left < right { (left, right) } else { (right, left) };
+        let key = if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        };
         if gaps.insert(key, required).is_some() {
             return Err("duplicate creepage requirement".into());
         }
@@ -264,12 +286,14 @@ pub fn verify_stripped_creepage(
         };
         let x_max = x + width;
         let y_max = y + height;
+        let bounds_tolerance =
+            comparison_tolerance(&[x, y, x_max, y_max, board_width_mm, board_height_mm]);
         if !x_max.is_finite()
             || !y_max.is_finite()
             || x < 0.0
             || y < 0.0
-            || x_max > board_width_mm + f64::EPSILON
-            || y_max > board_height_mm + f64::EPSILON
+            || x_max > board_width_mm + bounds_tolerance
+            || y_max > board_height_mm + bounds_tolerance
         {
             return Err(format!("component {reference} is outside board bounds"));
         }
@@ -292,7 +316,13 @@ pub fn verify_stripped_creepage(
                 .max(first.2 - second.3)
                 .max(second.2 - first.3)
                 .max(0.0);
-            if gap + f64::EPSILON < required {
+            if gap
+                + comparison_tolerance(&[
+                    gap, required, first.0, first.1, first.2, first.3, second.0, second.1,
+                    second.2, second.3,
+                ])
+                < required
+            {
                 return Err(format!(
                     "components {left} and {right} violate {required} mm gap (actual {gap})"
                 ));
@@ -2041,7 +2071,14 @@ pub(crate) mod tests {
             100,
         )
         .unwrap();
-        assert_eq!(instance.0, vec![("A".into(), 100, 300), ("B".into(), 201, 100), ("C".into(), 100, 100)]);
+        assert_eq!(
+            instance.0,
+            vec![
+                ("A".into(), 100, 300),
+                ("B".into(), 201, 100),
+                ("C".into(), 100, 100)
+            ]
+        );
         assert_eq!(
             instance.1,
             vec![
@@ -2057,33 +2094,69 @@ pub(crate) mod tests {
     fn stripped_creepage_verifier_rejects_missing_and_bad_pairs() {
         let components = vec![("A".into(), 2.0, 2.0), ("B".into(), 2.0, 2.0)];
         let requirements = vec![("A".into(), "B".into(), 3.0)];
-        assert!(verify_stripped_creepage(
-            components.clone(),
-            requirements.clone(),
-            10.0,
-            10.0,
-            vec![("A".into(), 0.0, 0.0, 0)],
-            false,
-        )
-        .is_err());
-        assert!(verify_stripped_creepage(
-            components.clone(),
-            requirements.clone(),
-            10.0,
-            10.0,
-            vec![("A".into(), 0.0, 0.0, 0), ("B".into(), 5.0, 0.0, 0)],
-            false,
-        )
-        .is_ok());
-        assert!(verify_stripped_creepage(
-            components,
-            requirements,
-            10.0,
-            10.0,
-            vec![("A".into(), 0.0, 0.0, 1), ("B".into(), 5.0, 0.0, 0)],
-            false,
-        )
-        .is_err());
+        assert!(
+            verify_stripped_creepage(
+                components.clone(),
+                requirements.clone(),
+                10.0,
+                10.0,
+                vec![("A".into(), 0.0, 0.0, 0)],
+                false,
+            )
+            .is_err()
+        );
+        assert!(
+            verify_stripped_creepage(
+                components.clone(),
+                requirements.clone(),
+                10.0,
+                10.0,
+                vec![("A".into(), 0.0, 0.0, 0), ("B".into(), 5.0, 0.0, 0)],
+                false,
+            )
+            .is_ok()
+        );
+        assert!(
+            verify_stripped_creepage(
+                components,
+                requirements,
+                10.0,
+                10.0,
+                vec![("A".into(), 0.0, 0.0, 1), ("B".into(), 5.0, 0.0, 0)],
+                false,
+            )
+            .is_err()
+        );
+
+        // Decimal equality may round a handful of binary64 ULPs downward;
+        // a materially short gap must still fail.
+        let decimal_components = vec![("A".into(), 1.2, 1.0), ("B".into(), 1.0, 1.0)];
+        let decimal_requirement = vec![("A".into(), "B".into(), 12.6)];
+        assert!(
+            verify_stripped_creepage(
+                decimal_components.clone(),
+                decimal_requirement.clone(),
+                20.0,
+                2.0,
+                vec![
+                    ("A".into(), 0.0, 0.0, 0),
+                    ("B".into(), 13.799999999999995, 0.0, 0),
+                ],
+                false,
+            )
+            .is_ok()
+        );
+        assert!(
+            verify_stripped_creepage(
+                decimal_components,
+                decimal_requirement,
+                20.0,
+                2.0,
+                vec![("A".into(), 0.0, 0.0, 0), ("B".into(), 13.799999, 0.0, 0),],
+                false,
+            )
+            .is_err()
+        );
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---

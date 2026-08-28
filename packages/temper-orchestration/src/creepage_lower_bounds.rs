@@ -19,6 +19,26 @@
 
 use std::collections::BTreeMap;
 
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
+
+/// Data-only Python representation of one threshold certificate.
+pub type ThresholdCliqueBoundPy = (f64, Vec<usize>, Vec<String>, usize, f64, f64, f64, f64);
+
+/// Data-only Python representation of the complete necessary-condition report.
+pub type CreepageLowerBoundReportPy = (
+    usize,
+    usize,
+    usize,
+    Vec<usize>,
+    f64,
+    f64,
+    f64,
+    f64,
+    Vec<ThresholdCliqueBoundPy>,
+    bool,
+);
+
 /// The result for one requirement threshold and its maximum weighted clique.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ThresholdCliqueBound {
@@ -407,6 +427,48 @@ pub fn analyze_creepage_lower_bounds(
         threshold_bounds,
         passes_necessary_conditions,
     })
+}
+
+/// Thin Python boundary for the Rust-owned necessary-condition analysis.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn analyze_creepage_lower_bounds_py(
+    component_dimensions: Vec<(String, f64, f64)>,
+    cuts: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+) -> PyResult<CreepageLowerBoundReportPy> {
+    let report =
+        analyze_creepage_lower_bounds(component_dimensions, cuts, board_width_mm, board_height_mm)
+            .map_err(pyo3::exceptions::PyValueError::new_err)?;
+    let threshold_bounds = report
+        .threshold_bounds
+        .into_iter()
+        .map(|bound| {
+            (
+                bound.threshold_mm,
+                bound.class_ids,
+                bound.component_refs,
+                bound.component_count,
+                bound.expanded_area_mm2,
+                bound.board_expanded_area_mm2,
+                bound.required_board_width_mm,
+                bound.required_board_height_mm,
+            )
+        })
+        .collect();
+    Ok((
+        report.component_count,
+        report.requirement_count,
+        report.quotient_class_count,
+        report.quotient_class_sizes,
+        report.max_component_width_mm,
+        report.max_component_height_mm,
+        report.board_width_mm,
+        report.board_height_mm,
+        threshold_bounds,
+        report.passes_necessary_conditions,
+    ))
 }
 
 #[cfg(test)]

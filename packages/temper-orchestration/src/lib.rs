@@ -219,6 +219,7 @@ mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
 pub(crate) mod partition_planner;
+pub(crate) mod creepage_lower_bounds;
 // Orchestration-port unit U-E (Rust Orchestration Engine plan 2026-08-09-001):
 // the `DeterministicPipeline` pyclass hosting the `create_drc_aware_pipeline()`
 // stage factory (the D1->D7 ORDER) and the `DeterministicPipeline.run()`
@@ -669,6 +670,18 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(
         partition_planner::plan_creepage_repair_frontier_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::normalize_stripped_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::verify_stripped_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        creepage_lower_bounds::analyze_creepage_lower_bounds_py,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(

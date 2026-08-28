@@ -25,9 +25,10 @@ import multiprocessing as mp
 import os
 import queue as queue_module
 import time
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 
 class ProbeMode(StrEnum):

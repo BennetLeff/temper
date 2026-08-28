@@ -9,6 +9,11 @@ from temper_placer.placer.cp_sat.audit import (
     Placement,
     PlacementAuditor,
 )
+from temper_placer.placer.cp_sat.creepage_lower_bounds import (
+    CreepageLowerBoundReport,
+    ThresholdCliqueBound,
+    analyze_creepage_lower_bounds,
+)
 from temper_placer.placer.cp_sat.encoder import (
     UNSUPPORTED_TYPES,
     CpSatPlacementResult,
@@ -61,6 +66,7 @@ __all__ = [
     "AuditViolation",
     "ComponentVars",
     "ConstraintDelta",
+    "CreepageLowerBoundReport",
     "ComponentPairRequirement",
     "ComponentSpec",
     "EnvelopeBounds",
@@ -80,6 +86,7 @@ __all__ = [
     "LocalSubEnvelopeStatus",
     "StrippedCreepageSolveResult",
     "StrippedCreepageSolveStatus",
+    "ThresholdCliqueBound",
     "PlaceRouteLoop",
     "Placement",
     "PlacementAuditor",
@@ -94,5 +101,6 @@ __all__ = [
     "solve_local_envelope",
     "solve_local_sub_envelope",
     "solve_stripped_creepage",
+    "analyze_creepage_lower_bounds",
     "prepare_envelope_inputs",
 ]
