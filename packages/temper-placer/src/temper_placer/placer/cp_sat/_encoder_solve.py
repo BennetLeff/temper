@@ -644,8 +644,9 @@ def solve_placement(
             constraints and the Rust verifier remains authoritative.
         decomposed_creepage_group_prior_cuts: Use the Rust neighborhood
             planner to share four relative-direction literals across dense
-            replay-cut blocks. This is a decomposed-only search restriction;
-            every component pair retains its exact distance inequality.
+            replay-cut blocks. This is a search restriction, so an infeasible
+            grouped model returns ``unknown``; every component pair retains
+            its exact distance inequality.
 
     """
     from ortools.sat.python import cp_model as cp
@@ -656,8 +657,6 @@ def solve_placement(
         raise ValueError("lazy_creepage_iteration_timeout_ms must be positive")
     if decomposed_creepage and not lazy_creepage:
         raise ValueError("decomposed_creepage requires lazy_creepage")
-    if decomposed_creepage_group_prior_cuts and not decomposed_creepage:
-        raise ValueError("grouped prior cuts require decomposed_creepage")
     if not isinstance(decomposed_creepage_group_prior_cuts, bool):
         raise ValueError("decomposed_creepage_group_prior_cuts must be a boolean")
     if (
@@ -1512,11 +1511,15 @@ def solve_placement(
     # submodel is unsatisfiable.  It is not a proof that the unrestricted
     # placement problem is infeasible, so decomposition must fail closed as
     # unknown and must not expose a misleading UNSAT core.
-    if decomposed_creepage and status_str == "infeasible":
+    if (decomposed_creepage or decomposed_creepage_group_prior_cuts) and status_str == "infeasible":
         status_code = cp.UNKNOWN
         status_str = "unknown"
-        decomposed_error = "restricted coarse-envelope model is infeasible"
-        logger.warning("decomposed creepage restricted model is infeasible; returning unknown")
+        decomposed_error = (
+            "restricted coarse-envelope model is infeasible"
+            if decomposed_creepage
+            else "restricted grouped-creepage model is infeasible"
+        )
+        logger.warning("%s; returning unknown", decomposed_error)
 
     elapsed_ms = (time.monotonic() - t_start) * 1000.0
 

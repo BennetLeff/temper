@@ -35,7 +35,7 @@ def encode_separated(
     ``power_pcb_dataset/physics_soundness_register.yaml``.
 
     Each pair (a, b) gets a pairwise Chebyshev disjunction — exactly the
-    margin required on **either** the x-axis **or** the y-axis — using 6
+    margin required on **either** the x-axis **or** the y-axis — using 4
     Boolean auxiliary variables per pair.  This is strictly stronger than
     the previous ``AddNoOverlap2D`` with one-sided interval inflation,
     which allowed components to touch on one axis while being disjoint
@@ -50,10 +50,7 @@ def encode_separated(
         below  ⇔  a.y_end + margin ≤ b.y_start
         above  ⇔  b.y_end + margin ≤ a.y_start
 
-        x_ok   ⇔  left ∨ right         (BoolVar, not reified — via BoolOr)
-        y_ok   ⇔  below ∨ above
-
-        AddBoolOr([x_ok, y_ok])         # at least one axis has the gap
+        AddBoolOr([left, right, below, above])
 
     Soundness: SAT ⇒ Chebyshev(L∞) gap ≥ margin (by case analysis over
     which of left/right/below/above holds).  Induction: base n≤1 vacuously
@@ -110,15 +107,10 @@ def encode_separated(
             model.model_ref.Add(va.y_end + margin <= vb.y_start).OnlyEnforceIf(below)
             model.model_ref.Add(vb.y_end + margin <= va.y_start).OnlyEnforceIf(above)
 
-            # ---- axis Booleans ----
-            x_ok = model.new_bool_var(f"sep_x_ok_{ra}_{rb}")
-            y_ok = model.new_bool_var(f"sep_y_ok_{ra}_{rb}")
-
-            model.model_ref.AddBoolOr([x_ok.Not(), left, right])
-            model.model_ref.AddBoolOr([y_ok.Not(), below, above])
-
-            # ---- final disjunction — at least one axis separated ----
-            model.model_ref.AddBoolOr([x_ok, y_ok])
+            # One of the four exact directional bounds must hold.  The old
+            # x_ok/y_ok intermediates encoded the same disjunction but added
+            # two variables and three clauses per component pair.
+            model.model_ref.AddBoolOr([left, right, below, above])
 
             labels.append(model.new_assumption(label))
     return labels

@@ -409,10 +409,7 @@ pub use deterministic_pipeline::drc_aware_stage_order;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
 #[cfg(feature = "python")]
-pub use feedback::{
-    classify_feedback, compute_heuristic_position, detect_persistent_ics, find_critical_components,
-    handle_congestion,
-};
+pub use feedback::classify_feedback;
 #[cfg(feature = "python")]
 pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
 #[cfg(feature = "python")]
@@ -785,12 +782,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // `classify()` delegates here; congestion handling is Rust-owned and the
     // remaining constraint-building handlers retain Python-object seams.
     m.add_function(wrap_pyfunction!(feedback::classify_feedback, m)?)?;
-    m.add_function(wrap_pyfunction!(feedback::handle_congestion, m)?)?;
     // Keep the scalar helper adjacent to its classifier registration so the
     // Python shim cannot observe a partially wired feedback surface.
-    m.add_function(wrap_pyfunction!(feedback::compute_heuristic_position, m)?)?;
-    m.add_function(wrap_pyfunction!(feedback::find_critical_components, m)?)?;
-    m.add_function(wrap_pyfunction!(feedback::detect_persistent_ics, m)?)?;
     // Orchestration-port unit U-I (append-only per the U-I dispatch): the
     // validator-aligned R24 post-solve audit sequencing. The
     // `validator_audit.py` shim's `audit_domain_clearance_validator()`
