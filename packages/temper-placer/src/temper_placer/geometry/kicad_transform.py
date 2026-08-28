@@ -107,13 +107,37 @@ __all__ = [
 ]
 
 
-# The public functions below have exactly the Rust boundary's argument and
-# return contracts.  Keep this module as a compatibility import path, but do
-# not add six Python call-through bodies that can drift from the sanctioned
-# KiCad convention.  Rust also owns the finite/infinite-angle error behavior.
-rotate_local_to_world = _tg.kicad_rotate_local_to_world_py
-rotate_local_to_world_deg = _tg.kicad_rotate_local_to_world_deg_py
-rotate_world_to_local = _tg.kicad_rotate_world_to_local_py
-rotate_world_to_local_deg = _tg.kicad_rotate_world_to_local_deg_py
-place_local_to_world = _tg.kicad_place_local_to_world_py
-shapely_rotation_angle_deg = _tg.kicad_shapely_rotation_angle_deg_py
+def rotate_local_to_world(x: float, y: float, theta_rad: float) -> tuple[float, float]:
+    """Delegate to the Rust kernel using a live module lookup."""
+    return _tg.kicad_rotate_local_to_world_py(x, y, theta_rad)
+
+
+def rotate_local_to_world_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
+    """Delegate to the Rust degrees kernel using a live module lookup."""
+    return _tg.kicad_rotate_local_to_world_deg_py(x, y, theta_deg)
+
+
+def rotate_world_to_local(x: float, y: float, theta_rad: float) -> tuple[float, float]:
+    """Delegate to the Rust inverse kernel using a live module lookup."""
+    return _tg.kicad_rotate_world_to_local_py(x, y, theta_rad)
+
+
+def rotate_world_to_local_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
+    """Delegate to the Rust inverse degrees kernel using a live lookup."""
+    return _tg.kicad_rotate_world_to_local_deg_py(x, y, theta_deg)
+
+
+def place_local_to_world(
+    local_x: float,
+    local_y: float,
+    origin_x: float,
+    origin_y: float,
+    theta_rad: float,
+) -> tuple[float, float]:
+    """Delegate to the Rust rotate-then-translate kernel."""
+    return _tg.kicad_place_local_to_world_py(local_x, local_y, origin_x, origin_y, theta_rad)
+
+
+def shapely_rotation_angle_deg(theta_deg: float) -> float:
+    """Delegate to the Rust Shapely-angle kernel using a live lookup."""
+    return _tg.kicad_shapely_rotation_angle_deg_py(theta_deg)

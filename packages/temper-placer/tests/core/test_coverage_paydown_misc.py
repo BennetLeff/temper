@@ -10,7 +10,10 @@ Exercises public functions in:
 - fields/field.py, fields/result.py, fields/interface.py
 """
 
+import numpy as np
+
 from temper_orchestration import Trace
+from temper_placer.core.state import PlacementState
 from temper_placer.metrics.aesthetic import compute_aesthetic_score
 from temper_placer.metrics.routing_quality import RoutingQualityScore
 from temper_placer.placer.cp_sat.gate import GateResult as AcceptanceGateResult

@@ -63,14 +63,14 @@ pub fn edt_width_lookup_batch_kernel(
     // raises ValueError there. (No pyo3 exceptions in this crate — the
     // error machinery breaks `cargo test` linking for extension-module
     // crates without libpython.)
-    let edt = parse_f64_bytes(&edt_bytes);
+    let edt = parse_f64_bytes(edt_bytes);
     debug_assert_eq!(edt.len(), height_cells * width_cells);
     debug_assert_eq!(mask_bytes.len(), height_cells * width_cells);
     edt_width_lookup_batch_inner(
-        &xs,
-        &ys,
+        xs,
+        ys,
         &edt,
-        &mask_bytes,
+        mask_bytes,
         height_cells,
         width_cells,
         min_x,

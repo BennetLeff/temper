@@ -26,7 +26,6 @@
 // `_SAFETY_CATEGORY_RANK` byte-for-byte) and the O(n^2) cross-class pairing
 // walk with class-pair-override lookup.
 
-#[cfg(feature = "python")]
 use std::collections::{HashMap, HashSet};
 
 #[cfg(feature = "python")]
@@ -57,7 +56,6 @@ fn kicad_class_name(class: &str) -> &str {
 /// Canonicalize one unordered generated-matrix key.  The generated YAML is
 /// loaded symmetrically by the Python boundary, but canonicalizing once here
 /// means the hot component-pair loop never scans both `(A, B)` and `(B, A)`.
-#[cfg(feature = "python")]
 fn canonical_creepage_key(class_a: &str, class_b: &str) -> (String, String) {
     let a = kicad_class_name(class_a).to_string();
     let b = kicad_class_name(class_b).to_string();
@@ -68,7 +66,6 @@ fn canonical_creepage_key(class_a: &str, class_b: &str) -> (String, String) {
 /// pair.  Keeping this reduction in Rust makes the matrix's max semantics
 /// explicit and prevents duplicate/symmetric rows from multiplying work in
 /// every component pair.
-#[cfg(feature = "python")]
 fn canonical_creepage_matrix(rows: &[(String, String, f64)]) -> HashMap<(String, String), f64> {
     let mut matrix: HashMap<(String, String), f64> = HashMap::with_capacity(rows.len());
     for (class_a, class_b, required) in rows {
@@ -85,7 +82,6 @@ fn canonical_creepage_matrix(rows: &[(String, String, f64)]) -> HashMap<(String,
 /// equivalent to the exhaustive max over all pin pairs, while reducing the
 /// work from `pins_a * pins_b * matrix_rows` to
 /// `unique_classes_a * unique_classes_b` hash lookups.
-#[cfg(feature = "python")]
 fn max_creepage_for_pin_classes(
     pins_a: &[PinClassInfo],
     pins_b: &[PinClassInfo],
@@ -226,6 +222,7 @@ pub fn netclass_separated_constraints_py(
 /// marshalled from `pair_creepage.generated.yaml`.  Keeping the matrix as an
 /// input preserves that generated file as the authority; Rust owns the
 /// pairing and reduction, not a second Python implementation.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn netclass_separated_constraints_with_creepage_py(
     py: Python<'_>,
@@ -254,6 +251,7 @@ pub fn netclass_separated_constraints_with_creepage_py(
 /// to add in an earlier round.  Every component pair with a non-zero matrix
 /// requirement is inspected and every current violation is returned as
 /// `(a, b, required_mm, measured_chebyshev_gap_mm)`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn netclass_creepage_violations_py(
     components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,
@@ -306,6 +304,7 @@ pub fn netclass_creepage_violations_py(
     Ok(violations)
 }
 
+#[cfg(feature = "python")]
 fn netclass_separated_constraints_impl(
     py: Python<'_>,
     components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,

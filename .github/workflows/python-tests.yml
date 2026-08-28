@@ -907,16 +907,16 @@ jobs:
       # vacuously. The core/ and metrics/ members are also swept by other
       # jobs' directory arguments; they get the pinned floor here regardless.
       #
-      # FLOOR RE-ANCHORED 2026-08-21: 1092 -> 1029. The two tests/core/
-      # graph-cluster files named here were deleted by #1314; naming them made
-      # pytest exit 4 and collect nothing, so this floor never evaluated. 1029
-      # is the measured count of the surviving 14-file invocation under the
-      # same `-m "not slow"`.
+      # FLOOR RE-ANCHORED 2026-08-28: 1029 -> 607. The two
+      # tests/requirements/validators geometry suites were retired with their
+      # Python implementations in the Rust migration and removed from this
+      # invocation; 607 is the measured count of the surviving 13-file
+      # invocation under the same `-m "not slow"`.
       - name: Run Wave-4 round-2 differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 1029 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 607 --
           tests/heuristics/test_heuristics_rust_differential.py
           tests/heuristics/test_heuristics_pbt.py
           tests/router_v6/test_spatial_drc_cluster_rust_differential.py

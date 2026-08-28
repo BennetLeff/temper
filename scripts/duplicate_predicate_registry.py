@@ -132,7 +132,6 @@ CONSOLIDATED_FAMILIES: tuple[ConsolidatedFamily, ...] = (
             "packages/temper-placer/src/temper_placer/router_v6/_pipeline_grid.py",
             "packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py",
             "packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py",
-            "packages/temper-placer/src/temper_placer/router_v6/capacity_check.py",
         ),
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
         consolidated_on="2026-08-13",

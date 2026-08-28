@@ -81,11 +81,7 @@ def test_property_every_hv_pin_produces_ghost_pad(state_rules):
     found_overlap = False
     for px, py, _comp_ref, _pin_name in pins:
         # Build the set of slots within creepage of this pin.
-        ring_slots = (
-            [(sx, sy) for (sx, sy) in result.zone_slots for _, slots in [(s, s) for s in [None]]]
-            if False
-            else []
-        )
+        ring_slots = []
         # Simpler: iterate state.zone_slots explicitly
         for _zone, zone_slots in result.zone_slots:
             for sx, sy in zone_slots:

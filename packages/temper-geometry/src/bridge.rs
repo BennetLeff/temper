@@ -142,6 +142,12 @@ fn smooth_max(a: f64, b: f64, alpha: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| crate::smooth::smooth_max(a, b, alpha)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[pyfunction]
+fn smooth_leaky_relu(x: f64, alpha: f64, negative_slope: f64) -> PyResult<f64> {
+    temper_py_bridge::catch_unwind(|| crate::smooth::smooth_leaky_relu(x, alpha, negative_slope))
+        .map_err(temper_py_bridge::panic_to_err)
+}
+
 // =============================================================================
 // transform module
 // =============================================================================
@@ -364,6 +370,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sdf_circle, m)?)?;
     // smooth
     m.add_function(wrap_pyfunction!(smooth_max, m)?)?;
+    m.add_function(wrap_pyfunction!(smooth_leaky_relu, m)?)?;
 
     // transform
     m.add_function(wrap_pyfunction!(get_rotation_matrix, m)?)?;
