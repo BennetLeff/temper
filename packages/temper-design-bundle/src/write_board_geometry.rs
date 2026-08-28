@@ -168,22 +168,6 @@ pub fn preserve_rotation_offset(rotation_deg: f64, original_angle: f64) -> f64 {
 // Python bindings
 // ---------------------------------------------------------------------------
 
-/// Python-visible `reorient_pad_angles_py(current_angles, delta_deg)` —
-/// batch form; this is the one the shipped `_write_board._reorient_pads`
-/// actually calls (one crossing per footprint). No scalar
-/// `reorient_pad_angle_py` binding is registered: it would have no
-/// production caller (`check_unwired_kernels.py` would flag it), and the
-/// batch form covers the same bit-exactness surface one element at a time
-/// via a single-element list — see the Rust-side `#[cfg(test)]` unit tests
-/// below for scalar-level coverage of [`reorient_pad_angle`] directly.
-#[pyfunction]
-fn reorient_pad_angles_py(
-    current_angles: Vec<Option<f64>>,
-    delta_deg: f64,
-) -> PyResult<Vec<Option<f64>>> {
-    guard(|| Ok(reorient_pad_angles(&current_angles, delta_deg)))
-}
-
 /// Python-visible `preserve_rotation_offset_py(rotation_deg, original_angle)`.
 #[pyfunction]
 fn preserve_rotation_offset_py(rotation_deg: f64, original_angle: f64) -> PyResult<f64> {
@@ -193,11 +177,10 @@ fn preserve_rotation_offset_py(rotation_deg: f64, original_angle: f64) -> PyResu
 /// Registered as the `write_board_geometry` submodule
 /// (`temper_design_bundle_python.write_board_geometry`), matching the
 /// established per-domain submodule convention
-/// (`kicad_exporter_geometry`, `deterministic_leaves`, ...).
+/// (`deterministic_leaves`, ...).
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let py = module.py();
     let sub = PyModule::new(py, "write_board_geometry")?;
-    sub.add_function(wrap_pyfunction!(reorient_pad_angles_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(preserve_rotation_offset_py, &sub)?)?;
     module.add_submodule(&sub)
 }

@@ -29,7 +29,7 @@ use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_data_model::{LayerAssignmentSet};
+use temper_data_model::LayerAssignmentSet;
 
 const STAGE_NAME: &str = "power_plane";
 
@@ -89,7 +89,9 @@ impl PowerPlaneStage {
 
         // `recompute_plane_assignments(existing, plane_nets, plane_layers,
         // all_nets)` -- the design-bundle kernel.
-        let leaves = py.import("temper_design_bundle_python")?.getattr("deterministic_leaves")?;
+        let leaves = py
+            .import("temper_design_bundle_python")?
+            .getattr("deterministic_leaves")?;
         let new_assignments = leaves.call_method1(
             "recompute_plane_assignments",
             (&existing, &plane_nets, &plane_layers, &all_nets),
@@ -106,14 +108,9 @@ impl PowerPlaneStage {
 #[cfg(feature = "python")]
 /// FFI entry for the Python shim: `run_power_plane(state, stage)`.
 #[pyfunction]
-pub fn run_power_plane(
-    py: Python<'_>,
-    state: Py<PyAny>,
-    stage: Py<PyAny>,
-) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+pub fn run_power_plane(py: Python<'_>, state: Py<PyAny>, stage: Py<PyAny>) -> PyResult<Py<PyAny>> {
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let rust_stage = PowerPlaneStage { stage };
     let out = rust_stage
         .run(rust_state)

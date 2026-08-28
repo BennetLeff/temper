@@ -41,6 +41,11 @@ temper-data-model = { path = "../temper-data-model" }
 # comp_pos + pin_pos" bug is unrepresentable at the call site. Pure Rust,
 # unconditional (like temper-data-model), so the wasm32 tier is unaffected.
 temper-geometry = { path = "../temper-geometry" }
+# Net-name classification kernels used by channel mapping.  Keep the
+# router-v6 Python module as the owner of its process-local single-layer
+# switch, but call the pure classification predicates directly in Rust so
+# routing decisions do not cross the Python boundary for every net.
+temper-io-types = { path = "../temper-io-types", default-features = false }
 # Option-E subprocess serialization (`state_ser.rs`): the NativeBoardState
 # <-> JSON codec for the Rust CLI driver's per-stage Python subprocesses.
 # Pure Rust, unconditional (like temper-data-model), so the wasm32 tier is

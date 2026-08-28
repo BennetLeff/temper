@@ -30,8 +30,8 @@ use std::hash::{Hash, Hasher};
 use pyo3::PyAny;
 
 use temper_data_model::{
-    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList,
-    RouteSet, StrPairSet, ViolationList, ViaSet, ZoneSet, ZoneSlotsSet,
+    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, RouteSet,
+    StrPairSet, ViaSet, ViolationList, ZoneSet, ZoneSlotsSet,
 };
 
 #[cfg(feature = "python")]

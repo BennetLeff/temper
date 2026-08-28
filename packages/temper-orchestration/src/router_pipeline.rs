@@ -187,7 +187,9 @@ impl RunContext {
         if let Some(rr) = routing_results {
             kwargs.set_item("routing_results", rr)?;
         }
-        self.pipeline.bind(py).call_method("_run_fence", (), Some(&kwargs))?;
+        self.pipeline
+            .bind(py)
+            .call_method("_run_fence", (), Some(&kwargs))?;
         Ok(())
     }
 }
@@ -301,15 +303,19 @@ impl Stage<BoardState> for RouterStageLegalize {
             if ctx.verbose(py)? {
                 d6_util::py_print(
                     py,
-                    &[PyString::new(py, "Stage 0.5: Checking and Legalizing Placement...")
-                        .into_any()],
+                    &[
+                        PyString::new(py, "Stage 0.5: Checking and Legalizing Placement...")
+                            .into_any(),
+                    ],
                 )?;
             }
             let pcb = ctx.get(py, &ctx.pcb)?;
             let legalizer_mod = py.import("temper_placer.router_v6.placement_legalization")?;
             let legalizer = legalizer_mod.getattr("Legalizer")?.call1((pcb,))?;
             if ctx.verbose(py)? {
-                let collisions = legalizer.getattr("auditor")?.call_method0("check_collisions")?;
+                let collisions = legalizer
+                    .getattr("auditor")?
+                    .call_method0("check_collisions")?;
                 let n: usize = collisions.len()?;
                 let msg = d6_util::py_format(
                     py,
@@ -323,22 +329,20 @@ impl Stage<BoardState> for RouterStageLegalize {
                 if ctx.verbose(py)? {
                     d6_util::py_print(
                         py,
-                        &[PyString::new(
-                            py,
-                            "  Placement collision check passed (0 overlaps)",
-                        )
-                        .into_any()],
+                        &[
+                            PyString::new(py, "  Placement collision check passed (0 overlaps)")
+                                .into_any(),
+                        ],
                     )?;
                 }
             } else {
-                let collisions = legalizer.getattr("auditor")?.call_method0("check_collisions")?;
+                let collisions = legalizer
+                    .getattr("auditor")?
+                    .call_method0("check_collisions")?;
                 if ctx.verbose(py)? {
                     let joined = advisory_overlaps(py, &collisions)?;
-                    let msg = d6_util::py_format(
-                        py,
-                        "  Advisory pin-hull overlaps: {}",
-                        &[joined],
-                    )?;
+                    let msg =
+                        d6_util::py_format(py, "  Advisory pin-hull overlaps: {}", &[joined])?;
                     d6_util::py_print(py, &[msg])?;
                 }
             }
@@ -359,11 +363,7 @@ fn advisory_overlaps<'a>(
     let n: usize = collisions.len()?;
     for i in 0..n.min(8) {
         let c = collisions.get_item(i)?;
-        let item = d6_util::py_format(
-            py,
-            "{}/{}",
-            &[c.getattr("ref1")?, c.getattr("ref2")?],
-        )?;
+        let item = d6_util::py_format(py, "{}/{}", &[c.getattr("ref1")?, c.getattr("ref2")?])?;
         items.append(item)?;
     }
     PyString::new(py, ", ").call_method1("join", (items,))
@@ -495,10 +495,10 @@ impl Stage<BoardState> for RouterStageEscapeVias {
                     None,
                 )?;
             }
-            ctx.pipeline.bind(py).getattr("ledger")?.call_method1(
-                "checkout",
-                ("escape_vias", pcb),
-            )?;
+            ctx.pipeline
+                .bind(py)
+                .getattr("ledger")?
+                .call_method1("checkout", ("escape_vias", pcb))?;
             ctx.set(&ctx.escape_vias, escape_vias.into_any().unbind())?;
             Ok(state)
         })
@@ -604,10 +604,10 @@ impl Stage<BoardState> for RouterStageGeometric {
             let stage2 = ctx.get(py, &ctx.stage2)?;
             let stage3 = ctx.get(py, &ctx.stage3)?;
             let escape_vias = ctx.get(py, &ctx.escape_vias)?;
-            let stage4 = ctx.pipeline.bind(py).call_method1(
-                "_run_stage4",
-                (pcb, stage2, stage3, escape_vias),
-            )?;
+            let stage4 = ctx
+                .pipeline
+                .bind(py)
+                .call_method1("_run_stage4", (pcb, stage2, stage3, escape_vias))?;
             ctx.set(&ctx.stage4, stage4.unbind())?;
             Ok(state)
         })
@@ -632,10 +632,10 @@ impl Stage<BoardState> for RouterStageManufacturing {
             let pcb = ctx.get(py, &ctx.pcb)?;
             let stage4 = ctx.get(py, &ctx.stage4)?;
             let routing_results = stage4.bind(py).getattr("routing_results")?;
-            let report = ctx.pipeline.bind(py).call_method1(
-                "_run_manufacturing_drc",
-                (pcb, routing_results),
-            )?;
+            let report = ctx
+                .pipeline
+                .bind(py)
+                .call_method1("_run_manufacturing_drc", (pcb, routing_results))?;
             let fail_on: String = ctx.pipeline.bind(py).getattr("dfm_fail_on")?.extract()?;
             if fail_on != "none" {
                 let critical: i64 = report.getattr("critical_violations")?.extract()?;
@@ -785,7 +785,9 @@ impl Stage<BoardState> for RouterStageResult {
                 let msg = d6_util::py_format(
                     py,
                     "  Completion: {:.1f}%",
-                    &[completion_pct(success, failure).into_pyobject(py)?.into_any()],
+                    &[completion_pct(success, failure)
+                        .into_pyobject(py)?
+                        .into_any()],
                 )?;
                 d6_util::py_print(py, &[msg])?;
             }
@@ -813,10 +815,10 @@ impl Stage<BoardState> for RouterStageResult {
             let batch_list = py.import("builtins")?.getattr("list")?.call1((batch,))?;
             kwargs.set_item("batch_results", batch_list)?;
             let result = result_cls.call((), Some(&kwargs))?;
-            ctx.pipeline.bind(py).getattr("ledger")?.call_method1(
-                "checkout",
-                ("routing_complete", &result),
-            )?;
+            ctx.pipeline
+                .bind(py)
+                .getattr("ledger")?
+                .call_method1("checkout", ("routing_complete", &result))?;
             ctx.set(&ctx.result, result.into_any().unbind())?;
             Ok(state)
         })
@@ -876,11 +878,7 @@ pub(crate) fn run_router_pipeline(
     let (_final, report) = runner.run(BoardState::new());
 
     if report.halted_early {
-        let value = ctx
-            .pending_error
-            .lock()
-            .map_err(|_| poison())?
-            .take();
+        let value = ctx.pending_error.lock().map_err(|_| poison())?.take();
         if let Some(v) = value {
             return Err(PyErr::from_value(v.bind(py).clone()));
         }
@@ -1004,9 +1002,18 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("router_pipeline::tests::dfm_should_fail_matches_the_oracle_decision_table", dfm_should_fail_matches_the_oracle_decision_table),
-        ("router_pipeline::tests::completion_pct_matches_cpython_true_division", completion_pct_matches_cpython_true_division),
-        ("router_pipeline::tests::completion_pct_matches_cpython_for_typical_counts", completion_pct_matches_cpython_for_typical_counts),
+        (
+            "router_pipeline::tests::dfm_should_fail_matches_the_oracle_decision_table",
+            dfm_should_fail_matches_the_oracle_decision_table,
+        ),
+        (
+            "router_pipeline::tests::completion_pct_matches_cpython_true_division",
+            completion_pct_matches_cpython_true_division,
+        ),
+        (
+            "router_pipeline::tests::completion_pct_matches_cpython_for_typical_counts",
+            completion_pct_matches_cpython_for_typical_counts,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

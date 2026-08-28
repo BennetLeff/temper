@@ -14,8 +14,9 @@
 // PyModule::import, so parity with the validator's own delegation is by
 // construction), the saturation short-circuit (``math.hypot`` called via the
 // math module), the fallback ``used_slots`` recompute AND the legitimate-
-// origin set through the D5 mixin helpers (``_get_footprint_radius`` /
-// ``_effective_ghost_pad_radius`` called on a ``PhasedComponentAssignmentStage``
+// origin set through the design-bundle footprint kernel and the D5 mixin
+// helper (``_effective_ghost_pad_radius``) called on a
+// ``PhasedComponentAssignmentStage``
 // instance constructed via ``__new__`` exactly like the validator does -- the
 // ``use_isolation_slots = False`` invariant makes ``_effective_ghost_pad_radius``
 // return the creepage unchanged), and the two failure scans (coverage in pin
@@ -32,7 +33,7 @@
 // What stays Python: the ``StageDRCFailure`` construction (the router_v6
 // binding -- the kernel returns ``(field, value, reason)`` triples the shim
 // wraps), the slot-grid kernels (single-source in design-bundle), the D5
-// mixin methods ``_get_footprint_radius`` / ``_effective_ghost_pad_radius``
+// mixin method ``_effective_ghost_pad_radius``
 // and the ``PhasedComponentAssignmentStage`` class aggregation
 // (``phased_component_assignment.py`` -- its ``run()`` lives in the D5
 // mixins), and the small state-extraction bindings ``_absolute_hv_pins`` /
@@ -81,9 +82,8 @@ fn is_hv_safety(safety: &Bound<'_, PyAny>) -> PyResult<bool> {
 /// ``StageDRCFailure`` objects.
 #[pyfunction]
 pub fn run_phased_validator_hv(py: Python<'_>, state: Py<PyAny>) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("phased_validator: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("phased_validator: {e}")))?;
     phased_validator_hv(py, rust_state)
 }
 
@@ -260,7 +260,10 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
         let comp_ref = pin.get_item(2)?;
         let pin_name = pin.get_item(3)?;
         let center = PyTuple::new(py, [px.clone(), py_.clone()])?;
-        let nearby = rs.call_method1("slots_within_radius_py", (&center, creepage, &slot_index, spacing))?;
+        let nearby = rs.call_method1(
+            "slots_within_radius_py",
+            (&center, creepage, &slot_index, spacing),
+        )?;
         for slot in nearby.try_iter()? {
             let slot = slot?;
             let in_used: bool = used_slots.contains(&slot)?;
@@ -285,11 +288,7 @@ fn validate<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyL
             );
             failures.append(PyTuple::new(
                 py,
-                [
-                    PyString::new(py, &field).into_any(),
-                    slot,
-                    reason,
-                ],
+                [PyString::new(py, &field).into_any(), slot, reason],
             )?)?;
         }
     }
@@ -350,20 +349,13 @@ fn creepage_mm(py: Python<'_>, state: &BoardState) -> PyResult<f64> {
 
 /// CPython ``max(a, b)``: first-arg-wins on ties and NaN, never ``f64::max``.
 fn py_max(a: f64, b: f64) -> f64 {
-    if b > a {
-        b
-    } else {
-        a
-    }
+    if b > a { b } else { a }
 }
 
 #[cfg(feature = "python")]
 /// ``_absolute_hv_pins``: absolute ``(x, y, comp_ref, pin_name)`` for every
 /// HV/AC pin of every placed component.
-fn absolute_hv_pins<'py>(
-    py: Python<'py>,
-    state: &BoardState,
-) -> PyResult<Bound<'py, PyList>> {
+fn absolute_hv_pins<'py>(py: Python<'py>, state: &BoardState) -> PyResult<Bound<'py, PyList>> {
     let out = PyList::empty(py);
     let rules = match &state.design_rules {
         Some(r) => r.clone_ref(py),
@@ -418,7 +410,9 @@ fn absolute_hv_pins<'py>(
             if class_name.is_none() {
                 continue;
             }
-            let in_classes: bool = net_classes.call_method1("__contains__", (&class_name,))?.extract()?;
+            let in_classes: bool = net_classes
+                .call_method1("__contains__", (&class_name,))?
+                .extract()?;
             if !in_classes {
                 continue;
             }
@@ -434,7 +428,12 @@ fn absolute_hv_pins<'py>(
             let ay = PyFloat::new(py, cy + py_);
             out.append(PyTuple::new(
                 py,
-                [ax.into_any(), ay.into_any(), comp_ref.clone(), pin.getattr("name")?],
+                [
+                    ax.into_any(),
+                    ay.into_any(),
+                    comp_ref.clone(),
+                    pin.getattr("name")?,
+                ],
             )?)?;
         }
     }
@@ -460,23 +459,20 @@ fn rings_update<'py>(
 ) -> PyResult<()> {
     let net_class_assignments = match &state.design_rules {
         Some(r) => {
-            let v = getattr_default(py, r.bind(py), "net_class_assignments", empty_dict(py).unbind())?;
-            if v.is_truthy()? {
-                v
-            } else {
-                empty_dict(py)
-            }
+            let v = getattr_default(
+                py,
+                r.bind(py),
+                "net_class_assignments",
+                empty_dict(py).unbind(),
+            )?;
+            if v.is_truthy()? { v } else { empty_dict(py) }
         }
         None => empty_dict(py),
     };
     let net_classes = match &state.design_rules {
         Some(r) => {
             let v = getattr_default(py, r.bind(py), "net_classes", empty_dict(py).unbind())?;
-            if v.is_truthy()? {
-                v
-            } else {
-                empty_dict(py)
-            }
+            if v.is_truthy()? { v } else { empty_dict(py) }
         }
         None => empty_dict(py),
     };
@@ -492,8 +488,9 @@ fn rings_update<'py>(
         let cx: f64 = pos.get_item(0)?.extract()?;
         let cy: f64 = pos.get_item(1)?.extract()?;
 
-        // `radius = stage._get_footprint_radius(comp)` (the D5 mixin helper).
-        let radius: f64 = stage.call_method1("_get_footprint_radius", (&comp,))?.extract()?;
+        // Use the canonical design-bundle footprint kernel directly; the
+        // validator must not depend on a Python stage callback.
+        let radius = crate::phased_assignment_stage::footprint_radius(py, stage, &comp)?;
         update_radius(py, target, (cx, cy), radius, slot_index, spacing, rs)?;
 
         for pin in comp.getattr("pins")?.try_iter()? {
@@ -506,7 +503,9 @@ fn rings_update<'py>(
             if class_name.is_none() {
                 continue;
             }
-            let in_classes: bool = net_classes.call_method1("__contains__", (&class_name,))?.extract()?;
+            let in_classes: bool = net_classes
+                .call_method1("__contains__", (&class_name,))?
+                .extract()?;
             if !in_classes {
                 continue;
             }
@@ -518,23 +517,33 @@ fn rings_update<'py>(
             // `_effective_ghost_pad_radius(ref, pin, creepage, (cx, cy),
             // (cx, cy))` -- the mixin helper; with `use_isolation_slots =
             // False` (pinned in validate) it returns the creepage unchanged.
-            let ring_radius: f64 = stage.call_method1(
-                "_effective_ghost_pad_radius",
-                (
-                    comp.getattr("ref")?,
-                    pin.getattr("name")?,
-                    PyFloat::new(py, creepage),
-                    PyTuple::new(py, [cx, cy])?,
-                    PyTuple::new(py, [cx, cy])?,
-                ),
-            )?.extract()?;
+            let ring_radius: f64 = stage
+                .call_method1(
+                    "_effective_ghost_pad_radius",
+                    (
+                        comp.getattr("ref")?,
+                        pin.getattr("name")?,
+                        PyFloat::new(py, creepage),
+                        PyTuple::new(py, [cx, cy])?,
+                        PyTuple::new(py, [cx, cy])?,
+                    ),
+                )?
+                .extract()?;
             if ring_radius <= 0.0 {
                 continue;
             }
             let pin_pos = pin.getattr("position")?;
             let px: f64 = pin_pos.get_item(0)?.extract()?;
             let py_: f64 = pin_pos.get_item(1)?.extract()?;
-            update_radius(py, target, (cx + px, cy + py_), ring_radius, slot_index, spacing, rs)?;
+            update_radius(
+                py,
+                target,
+                (cx + px, cy + py_),
+                ring_radius,
+                slot_index,
+                spacing,
+                rs,
+            )?;
         }
     }
     Ok(())
@@ -552,7 +561,10 @@ fn update_radius<'py>(
     rs: &Bound<'py, PyAny>,
 ) -> PyResult<()> {
     let center_tuple = PyTuple::new(py, [center.0, center.1])?;
-    let nearby = rs.call_method1("slots_within_radius_py", (&center_tuple, radius, slot_index, spacing))?;
+    let nearby = rs.call_method1(
+        "slots_within_radius_py",
+        (&center_tuple, radius, slot_index, spacing),
+    )?;
     for slot in nearby.try_iter()? {
         target.add(slot?)?;
     }
@@ -588,8 +600,10 @@ pub(crate) mod tests {
     fn py_max_ties_keep_first() {
         assert_eq!(py_max(0.0, -0.0), 0.0);
         let r = py_max(-0.0, 0.0);
-        assert!(r == -0.0 && r.is_sign_negative(),
-            "py_max(-0.0, 0.0) must return -0.0, got {r}");
+        assert!(
+            r == -0.0 && r.is_sign_negative(),
+            "py_max(-0.0, 0.0) must return -0.0, got {r}"
+        );
         assert_eq!(py_max(3.0, 3.0), 3.0);
     }
 
@@ -650,7 +664,10 @@ pub(crate) mod tests {
         let a = campaign_normal_f64(&mut rng);
         let b = campaign_normal_f64(&mut rng);
         let r = py_max(a, b);
-        assert!(r >= a && r >= b, "py_max({a},{b})={r} not >= both (seed={seed})");
+        assert!(
+            r >= a && r >= b,
+            "py_max({a},{b})={r} not >= both (seed={seed})"
+        );
     }
 
     /// P2: py_max returns one of its inputs bit-identically.
@@ -676,125 +693,245 @@ pub(crate) mod tests {
     // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
     // 3 properties x 20 seeds = 60 distinct-input wasm tests.
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_000() { p1_py_max_returns_larger_impl(0); }
+    fn p1_py_max_returns_larger_seed_000() {
+        p1_py_max_returns_larger_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_001() { p1_py_max_returns_larger_impl(1); }
+    fn p1_py_max_returns_larger_seed_001() {
+        p1_py_max_returns_larger_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_002() { p1_py_max_returns_larger_impl(2); }
+    fn p1_py_max_returns_larger_seed_002() {
+        p1_py_max_returns_larger_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_003() { p1_py_max_returns_larger_impl(3); }
+    fn p1_py_max_returns_larger_seed_003() {
+        p1_py_max_returns_larger_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_004() { p1_py_max_returns_larger_impl(4); }
+    fn p1_py_max_returns_larger_seed_004() {
+        p1_py_max_returns_larger_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_005() { p1_py_max_returns_larger_impl(5); }
+    fn p1_py_max_returns_larger_seed_005() {
+        p1_py_max_returns_larger_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_006() { p1_py_max_returns_larger_impl(6); }
+    fn p1_py_max_returns_larger_seed_006() {
+        p1_py_max_returns_larger_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_007() { p1_py_max_returns_larger_impl(7); }
+    fn p1_py_max_returns_larger_seed_007() {
+        p1_py_max_returns_larger_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_008() { p1_py_max_returns_larger_impl(8); }
+    fn p1_py_max_returns_larger_seed_008() {
+        p1_py_max_returns_larger_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_009() { p1_py_max_returns_larger_impl(9); }
+    fn p1_py_max_returns_larger_seed_009() {
+        p1_py_max_returns_larger_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_010() { p1_py_max_returns_larger_impl(10); }
+    fn p1_py_max_returns_larger_seed_010() {
+        p1_py_max_returns_larger_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_011() { p1_py_max_returns_larger_impl(11); }
+    fn p1_py_max_returns_larger_seed_011() {
+        p1_py_max_returns_larger_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_012() { p1_py_max_returns_larger_impl(12); }
+    fn p1_py_max_returns_larger_seed_012() {
+        p1_py_max_returns_larger_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_013() { p1_py_max_returns_larger_impl(13); }
+    fn p1_py_max_returns_larger_seed_013() {
+        p1_py_max_returns_larger_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_014() { p1_py_max_returns_larger_impl(14); }
+    fn p1_py_max_returns_larger_seed_014() {
+        p1_py_max_returns_larger_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_015() { p1_py_max_returns_larger_impl(15); }
+    fn p1_py_max_returns_larger_seed_015() {
+        p1_py_max_returns_larger_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_016() { p1_py_max_returns_larger_impl(16); }
+    fn p1_py_max_returns_larger_seed_016() {
+        p1_py_max_returns_larger_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_017() { p1_py_max_returns_larger_impl(17); }
+    fn p1_py_max_returns_larger_seed_017() {
+        p1_py_max_returns_larger_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_018() { p1_py_max_returns_larger_impl(18); }
+    fn p1_py_max_returns_larger_seed_018() {
+        p1_py_max_returns_larger_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_019() { p1_py_max_returns_larger_impl(19); }
+    fn p1_py_max_returns_larger_seed_019() {
+        p1_py_max_returns_larger_impl(19);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_000() { p2_py_max_returns_one_of_inputs_impl(0); }
+    fn p2_py_max_returns_one_of_inputs_seed_000() {
+        p2_py_max_returns_one_of_inputs_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_001() { p2_py_max_returns_one_of_inputs_impl(1); }
+    fn p2_py_max_returns_one_of_inputs_seed_001() {
+        p2_py_max_returns_one_of_inputs_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_002() { p2_py_max_returns_one_of_inputs_impl(2); }
+    fn p2_py_max_returns_one_of_inputs_seed_002() {
+        p2_py_max_returns_one_of_inputs_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_003() { p2_py_max_returns_one_of_inputs_impl(3); }
+    fn p2_py_max_returns_one_of_inputs_seed_003() {
+        p2_py_max_returns_one_of_inputs_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_004() { p2_py_max_returns_one_of_inputs_impl(4); }
+    fn p2_py_max_returns_one_of_inputs_seed_004() {
+        p2_py_max_returns_one_of_inputs_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_005() { p2_py_max_returns_one_of_inputs_impl(5); }
+    fn p2_py_max_returns_one_of_inputs_seed_005() {
+        p2_py_max_returns_one_of_inputs_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_006() { p2_py_max_returns_one_of_inputs_impl(6); }
+    fn p2_py_max_returns_one_of_inputs_seed_006() {
+        p2_py_max_returns_one_of_inputs_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_007() { p2_py_max_returns_one_of_inputs_impl(7); }
+    fn p2_py_max_returns_one_of_inputs_seed_007() {
+        p2_py_max_returns_one_of_inputs_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_008() { p2_py_max_returns_one_of_inputs_impl(8); }
+    fn p2_py_max_returns_one_of_inputs_seed_008() {
+        p2_py_max_returns_one_of_inputs_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_009() { p2_py_max_returns_one_of_inputs_impl(9); }
+    fn p2_py_max_returns_one_of_inputs_seed_009() {
+        p2_py_max_returns_one_of_inputs_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_010() { p2_py_max_returns_one_of_inputs_impl(10); }
+    fn p2_py_max_returns_one_of_inputs_seed_010() {
+        p2_py_max_returns_one_of_inputs_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_011() { p2_py_max_returns_one_of_inputs_impl(11); }
+    fn p2_py_max_returns_one_of_inputs_seed_011() {
+        p2_py_max_returns_one_of_inputs_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_012() { p2_py_max_returns_one_of_inputs_impl(12); }
+    fn p2_py_max_returns_one_of_inputs_seed_012() {
+        p2_py_max_returns_one_of_inputs_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_013() { p2_py_max_returns_one_of_inputs_impl(13); }
+    fn p2_py_max_returns_one_of_inputs_seed_013() {
+        p2_py_max_returns_one_of_inputs_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_014() { p2_py_max_returns_one_of_inputs_impl(14); }
+    fn p2_py_max_returns_one_of_inputs_seed_014() {
+        p2_py_max_returns_one_of_inputs_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_015() { p2_py_max_returns_one_of_inputs_impl(15); }
+    fn p2_py_max_returns_one_of_inputs_seed_015() {
+        p2_py_max_returns_one_of_inputs_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_016() { p2_py_max_returns_one_of_inputs_impl(16); }
+    fn p2_py_max_returns_one_of_inputs_seed_016() {
+        p2_py_max_returns_one_of_inputs_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_017() { p2_py_max_returns_one_of_inputs_impl(17); }
+    fn p2_py_max_returns_one_of_inputs_seed_017() {
+        p2_py_max_returns_one_of_inputs_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_018() { p2_py_max_returns_one_of_inputs_impl(18); }
+    fn p2_py_max_returns_one_of_inputs_seed_018() {
+        p2_py_max_returns_one_of_inputs_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_019() { p2_py_max_returns_one_of_inputs_impl(19); }
+    fn p2_py_max_returns_one_of_inputs_seed_019() {
+        p2_py_max_returns_one_of_inputs_impl(19);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_000() { p3_py_max_commutative_for_finite_impl(0); }
+    fn p3_py_max_commutative_for_finite_seed_000() {
+        p3_py_max_commutative_for_finite_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_001() { p3_py_max_commutative_for_finite_impl(1); }
+    fn p3_py_max_commutative_for_finite_seed_001() {
+        p3_py_max_commutative_for_finite_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_002() { p3_py_max_commutative_for_finite_impl(2); }
+    fn p3_py_max_commutative_for_finite_seed_002() {
+        p3_py_max_commutative_for_finite_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_003() { p3_py_max_commutative_for_finite_impl(3); }
+    fn p3_py_max_commutative_for_finite_seed_003() {
+        p3_py_max_commutative_for_finite_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_004() { p3_py_max_commutative_for_finite_impl(4); }
+    fn p3_py_max_commutative_for_finite_seed_004() {
+        p3_py_max_commutative_for_finite_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_005() { p3_py_max_commutative_for_finite_impl(5); }
+    fn p3_py_max_commutative_for_finite_seed_005() {
+        p3_py_max_commutative_for_finite_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_006() { p3_py_max_commutative_for_finite_impl(6); }
+    fn p3_py_max_commutative_for_finite_seed_006() {
+        p3_py_max_commutative_for_finite_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_007() { p3_py_max_commutative_for_finite_impl(7); }
+    fn p3_py_max_commutative_for_finite_seed_007() {
+        p3_py_max_commutative_for_finite_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_008() { p3_py_max_commutative_for_finite_impl(8); }
+    fn p3_py_max_commutative_for_finite_seed_008() {
+        p3_py_max_commutative_for_finite_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_009() { p3_py_max_commutative_for_finite_impl(9); }
+    fn p3_py_max_commutative_for_finite_seed_009() {
+        p3_py_max_commutative_for_finite_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_010() { p3_py_max_commutative_for_finite_impl(10); }
+    fn p3_py_max_commutative_for_finite_seed_010() {
+        p3_py_max_commutative_for_finite_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_011() { p3_py_max_commutative_for_finite_impl(11); }
+    fn p3_py_max_commutative_for_finite_seed_011() {
+        p3_py_max_commutative_for_finite_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_012() { p3_py_max_commutative_for_finite_impl(12); }
+    fn p3_py_max_commutative_for_finite_seed_012() {
+        p3_py_max_commutative_for_finite_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_013() { p3_py_max_commutative_for_finite_impl(13); }
+    fn p3_py_max_commutative_for_finite_seed_013() {
+        p3_py_max_commutative_for_finite_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_014() { p3_py_max_commutative_for_finite_impl(14); }
+    fn p3_py_max_commutative_for_finite_seed_014() {
+        p3_py_max_commutative_for_finite_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_015() { p3_py_max_commutative_for_finite_impl(15); }
+    fn p3_py_max_commutative_for_finite_seed_015() {
+        p3_py_max_commutative_for_finite_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_016() { p3_py_max_commutative_for_finite_impl(16); }
+    fn p3_py_max_commutative_for_finite_seed_016() {
+        p3_py_max_commutative_for_finite_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_017() { p3_py_max_commutative_for_finite_impl(17); }
+    fn p3_py_max_commutative_for_finite_seed_017() {
+        p3_py_max_commutative_for_finite_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_018() { p3_py_max_commutative_for_finite_impl(18); }
+    fn p3_py_max_commutative_for_finite_seed_018() {
+        p3_py_max_commutative_for_finite_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_for_finite_seed_019() { p3_py_max_commutative_for_finite_impl(19); }
+    fn p3_py_max_commutative_for_finite_seed_019() {
+        p3_py_max_commutative_for_finite_impl(19);
+    }
     // --- END generated seeded property-mirror wrappers ---
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
@@ -803,71 +940,268 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("phased_component_assignment_validator_stage::tests::py_max_nan_first_argument_wins", py_max_nan_first_argument_wins),
-        ("phased_component_assignment_validator_stage::tests::py_max_ties_keep_first", py_max_ties_keep_first),
-        ("phased_component_assignment_validator_stage::tests::py_max_infinity", py_max_infinity),
-        #[cfg(feature = "python")] ("phased_component_assignment_validator_stage::tests::is_hv_safety_true_for_hv_and_ac", is_hv_safety_true_for_hv_and_ac),
-        #[cfg(feature = "python")] ("phased_component_assignment_validator_stage::tests::is_hv_safety_false_for_none_and_unknown", is_hv_safety_false_for_none_and_unknown),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_000", p1_py_max_returns_larger_seed_000),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_001", p1_py_max_returns_larger_seed_001),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_002", p1_py_max_returns_larger_seed_002),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_003", p1_py_max_returns_larger_seed_003),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_004", p1_py_max_returns_larger_seed_004),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_005", p1_py_max_returns_larger_seed_005),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_006", p1_py_max_returns_larger_seed_006),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_007", p1_py_max_returns_larger_seed_007),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_008", p1_py_max_returns_larger_seed_008),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_009", p1_py_max_returns_larger_seed_009),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_010", p1_py_max_returns_larger_seed_010),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_011", p1_py_max_returns_larger_seed_011),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_012", p1_py_max_returns_larger_seed_012),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_013", p1_py_max_returns_larger_seed_013),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_014", p1_py_max_returns_larger_seed_014),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_015", p1_py_max_returns_larger_seed_015),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_016", p1_py_max_returns_larger_seed_016),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_017", p1_py_max_returns_larger_seed_017),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_018", p1_py_max_returns_larger_seed_018),
-        ("phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_019", p1_py_max_returns_larger_seed_019),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_000", p2_py_max_returns_one_of_inputs_seed_000),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_001", p2_py_max_returns_one_of_inputs_seed_001),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_002", p2_py_max_returns_one_of_inputs_seed_002),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_003", p2_py_max_returns_one_of_inputs_seed_003),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_004", p2_py_max_returns_one_of_inputs_seed_004),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_005", p2_py_max_returns_one_of_inputs_seed_005),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_006", p2_py_max_returns_one_of_inputs_seed_006),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_007", p2_py_max_returns_one_of_inputs_seed_007),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_008", p2_py_max_returns_one_of_inputs_seed_008),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_009", p2_py_max_returns_one_of_inputs_seed_009),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_010", p2_py_max_returns_one_of_inputs_seed_010),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_011", p2_py_max_returns_one_of_inputs_seed_011),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_012", p2_py_max_returns_one_of_inputs_seed_012),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_013", p2_py_max_returns_one_of_inputs_seed_013),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_014", p2_py_max_returns_one_of_inputs_seed_014),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_015", p2_py_max_returns_one_of_inputs_seed_015),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_016", p2_py_max_returns_one_of_inputs_seed_016),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_017", p2_py_max_returns_one_of_inputs_seed_017),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_018", p2_py_max_returns_one_of_inputs_seed_018),
-        ("phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_019", p2_py_max_returns_one_of_inputs_seed_019),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_000", p3_py_max_commutative_for_finite_seed_000),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_001", p3_py_max_commutative_for_finite_seed_001),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_002", p3_py_max_commutative_for_finite_seed_002),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_003", p3_py_max_commutative_for_finite_seed_003),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_004", p3_py_max_commutative_for_finite_seed_004),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_005", p3_py_max_commutative_for_finite_seed_005),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_006", p3_py_max_commutative_for_finite_seed_006),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_007", p3_py_max_commutative_for_finite_seed_007),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_008", p3_py_max_commutative_for_finite_seed_008),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_009", p3_py_max_commutative_for_finite_seed_009),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_010", p3_py_max_commutative_for_finite_seed_010),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_011", p3_py_max_commutative_for_finite_seed_011),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_012", p3_py_max_commutative_for_finite_seed_012),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_013", p3_py_max_commutative_for_finite_seed_013),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_014", p3_py_max_commutative_for_finite_seed_014),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_015", p3_py_max_commutative_for_finite_seed_015),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_016", p3_py_max_commutative_for_finite_seed_016),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_017", p3_py_max_commutative_for_finite_seed_017),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_018", p3_py_max_commutative_for_finite_seed_018),
-        ("phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_019", p3_py_max_commutative_for_finite_seed_019),
+        (
+            "phased_component_assignment_validator_stage::tests::py_max_nan_first_argument_wins",
+            py_max_nan_first_argument_wins,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::py_max_ties_keep_first",
+            py_max_ties_keep_first,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::py_max_infinity",
+            py_max_infinity,
+        ),
+        #[cfg(feature = "python")]
+        (
+            "phased_component_assignment_validator_stage::tests::is_hv_safety_true_for_hv_and_ac",
+            is_hv_safety_true_for_hv_and_ac,
+        ),
+        #[cfg(feature = "python")]
+        (
+            "phased_component_assignment_validator_stage::tests::is_hv_safety_false_for_none_and_unknown",
+            is_hv_safety_false_for_none_and_unknown,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_000",
+            p1_py_max_returns_larger_seed_000,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_001",
+            p1_py_max_returns_larger_seed_001,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_002",
+            p1_py_max_returns_larger_seed_002,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_003",
+            p1_py_max_returns_larger_seed_003,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_004",
+            p1_py_max_returns_larger_seed_004,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_005",
+            p1_py_max_returns_larger_seed_005,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_006",
+            p1_py_max_returns_larger_seed_006,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_007",
+            p1_py_max_returns_larger_seed_007,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_008",
+            p1_py_max_returns_larger_seed_008,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_009",
+            p1_py_max_returns_larger_seed_009,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_010",
+            p1_py_max_returns_larger_seed_010,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_011",
+            p1_py_max_returns_larger_seed_011,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_012",
+            p1_py_max_returns_larger_seed_012,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_013",
+            p1_py_max_returns_larger_seed_013,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_014",
+            p1_py_max_returns_larger_seed_014,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_015",
+            p1_py_max_returns_larger_seed_015,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_016",
+            p1_py_max_returns_larger_seed_016,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_017",
+            p1_py_max_returns_larger_seed_017,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_018",
+            p1_py_max_returns_larger_seed_018,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p1_py_max_returns_larger_seed_019",
+            p1_py_max_returns_larger_seed_019,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_000",
+            p2_py_max_returns_one_of_inputs_seed_000,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_001",
+            p2_py_max_returns_one_of_inputs_seed_001,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_002",
+            p2_py_max_returns_one_of_inputs_seed_002,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_003",
+            p2_py_max_returns_one_of_inputs_seed_003,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_004",
+            p2_py_max_returns_one_of_inputs_seed_004,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_005",
+            p2_py_max_returns_one_of_inputs_seed_005,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_006",
+            p2_py_max_returns_one_of_inputs_seed_006,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_007",
+            p2_py_max_returns_one_of_inputs_seed_007,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_008",
+            p2_py_max_returns_one_of_inputs_seed_008,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_009",
+            p2_py_max_returns_one_of_inputs_seed_009,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_010",
+            p2_py_max_returns_one_of_inputs_seed_010,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_011",
+            p2_py_max_returns_one_of_inputs_seed_011,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_012",
+            p2_py_max_returns_one_of_inputs_seed_012,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_013",
+            p2_py_max_returns_one_of_inputs_seed_013,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_014",
+            p2_py_max_returns_one_of_inputs_seed_014,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_015",
+            p2_py_max_returns_one_of_inputs_seed_015,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_016",
+            p2_py_max_returns_one_of_inputs_seed_016,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_017",
+            p2_py_max_returns_one_of_inputs_seed_017,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_018",
+            p2_py_max_returns_one_of_inputs_seed_018,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p2_py_max_returns_one_of_inputs_seed_019",
+            p2_py_max_returns_one_of_inputs_seed_019,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_000",
+            p3_py_max_commutative_for_finite_seed_000,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_001",
+            p3_py_max_commutative_for_finite_seed_001,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_002",
+            p3_py_max_commutative_for_finite_seed_002,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_003",
+            p3_py_max_commutative_for_finite_seed_003,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_004",
+            p3_py_max_commutative_for_finite_seed_004,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_005",
+            p3_py_max_commutative_for_finite_seed_005,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_006",
+            p3_py_max_commutative_for_finite_seed_006,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_007",
+            p3_py_max_commutative_for_finite_seed_007,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_008",
+            p3_py_max_commutative_for_finite_seed_008,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_009",
+            p3_py_max_commutative_for_finite_seed_009,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_010",
+            p3_py_max_commutative_for_finite_seed_010,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_011",
+            p3_py_max_commutative_for_finite_seed_011,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_012",
+            p3_py_max_commutative_for_finite_seed_012,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_013",
+            p3_py_max_commutative_for_finite_seed_013,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_014",
+            p3_py_max_commutative_for_finite_seed_014,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_015",
+            p3_py_max_commutative_for_finite_seed_015,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_016",
+            p3_py_max_commutative_for_finite_seed_016,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_017",
+            p3_py_max_commutative_for_finite_seed_017,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_018",
+            p3_py_max_commutative_for_finite_seed_018,
+        ),
+        (
+            "phased_component_assignment_validator_stage::tests::p3_py_max_commutative_for_finite_seed_019",
+            p3_py_max_commutative_for_finite_seed_019,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

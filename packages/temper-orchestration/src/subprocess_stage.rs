@@ -53,7 +53,11 @@ pub struct SubprocessStage {
 }
 
 impl SubprocessStage {
-    pub fn new(stage_name: impl Into<String>, python_bin: impl Into<PathBuf>, script_path: impl Into<PathBuf>) -> Self {
+    pub fn new(
+        stage_name: impl Into<String>,
+        python_bin: impl Into<PathBuf>,
+        script_path: impl Into<PathBuf>,
+    ) -> Self {
         Self {
             stage_name: stage_name.into(),
             python_bin: python_bin.into(),
@@ -93,7 +97,10 @@ impl Stage<NativeBoardState> for SubprocessStage {
         // Write stdin from a thread: if the subprocess writes more stdout
         // than the pipe buffer while we are still writing stdin, a
         // single-threaded write-then-read deadlocks both processes.
-        let mut stdin = child.stdin.take().ok_or_else(|| err("child stdin unavailable".to_string()))?;
+        let mut stdin = child
+            .stdin
+            .take()
+            .ok_or_else(|| err("child stdin unavailable".to_string()))?;
         let payload = input.clone();
         let writer = std::thread::spawn(move || {
             // A closed-stdin child (early exit) makes this write fail —
@@ -113,12 +120,19 @@ impl Stage<NativeBoardState> for SubprocessStage {
             return Err(err(format!(
                 "{} stage failed (exit {}): {stderr_tail}",
                 self.stage_name,
-                output.status.code().map(|c| c.to_string()).unwrap_or_else(|| "signal".to_string()),
+                output
+                    .status
+                    .code()
+                    .map(|c| c.to_string())
+                    .unwrap_or_else(|| "signal".to_string()),
             )));
         }
 
         let stdout = String::from_utf8(output.stdout).map_err(|e| {
-            err(format!("{} stage printed non-UTF-8 stdout: {e}", self.stage_name))
+            err(format!(
+                "{} stage printed non-UTF-8 stdout: {e}",
+                self.stage_name
+            ))
         })?;
         let decoded = native_from_json(stdout.trim())?;
         Ok(decoded)
@@ -199,10 +213,16 @@ mod tests {
 
         let stage = SubprocessStage::new("slot_generation", "/bin/sh", &script);
         let out = stage.run(state).unwrap();
-        assert!(out.used_slots.is_none(), "the decoded replacement state wins");
+        assert!(
+            out.used_slots.is_none(),
+            "the decoded replacement state wins"
+        );
 
         let captured = std::fs::read_to_string(&echo_to).expect("captured stdin");
-        assert!(captured.contains("\"used_slots\":[[1.5,2.5]]"), "captured: {captured}");
+        assert!(
+            captured.contains("\"used_slots\":[[1.5,2.5]]"),
+            "captured: {captured}"
+        );
     }
 
     #[test]
@@ -214,7 +234,10 @@ mod tests {
         let e = stage.run(NativeBoardState::new()).unwrap_err();
         assert_eq!(e.kind, StageErrorKind::Fatal);
         assert!(e.message.contains("exit 3"), "message: {}", e.message);
-        assert!(e.message.contains("missing slot_spacing"), "stderr must reach the error");
+        assert!(
+            e.message.contains("missing slot_spacing"),
+            "stderr must reach the error"
+        );
     }
 
     #[test]
@@ -240,7 +263,12 @@ mod tests {
         let mut state = NativeBoardState::new();
         state.config = Some(Box::new(serde_json::json!({ "placer": { "k": 1 } })));
         let out = stage.run(state).unwrap();
-        let cfg = out.config.as_ref().unwrap().downcast_ref::<serde_json::Value>().unwrap();
+        let cfg = out
+            .config
+            .as_ref()
+            .unwrap()
+            .downcast_ref::<serde_json::Value>()
+            .unwrap();
         assert_eq!(cfg["placer"]["k"], serde_json::json!(1));
     }
 
@@ -250,7 +278,11 @@ mod tests {
         let mut state = NativeBoardState::new();
         state.board = Some(Box::new(42_u32));
         let e = stage.run(state).unwrap_err();
-        assert!(e.message.contains("board"), "error names the field: {}", e.message);
+        assert!(
+            e.message.contains("board"),
+            "error names the field: {}",
+            e.message
+        );
     }
 
     /// Minimal scoped temp-dir helper (no tempfile dev-dependency).

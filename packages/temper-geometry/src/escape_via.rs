@@ -583,62 +583,8 @@ pub fn escape_generate_vias_py(
     generate_escape_vias(&comp, pitch, &design_rules, &strategy)
 }
 
-/// `_is_position_valid(x, y, radius, component, _, _, clearance)`.
-///
-/// `pads` rows are `(pad_x, pad_y, pad_w, pad_h, shape)`; the probe corpus
-/// builds them into a component whose position is `(0.0, 0.0)` and whose
-/// rotation index is `0`, so the world transform is the identity *by
-/// arithmetic* rather than by a shortcut -- `px * 1.0 + py * 0.0` is not
-/// `px` when `px` is `-0.0`.
-#[pyfunction]
-#[pyo3(signature = (x, y, radius, pads, clearance))]
-pub fn escape_is_position_valid_py(
-    x: f64,
-    y: f64,
-    radius: f64,
-    pads: &Bound<'_, PyAny>,
-    clearance: f64,
-) -> PyResult<bool> {
-    let mut rows = Vec::new();
-    for (i, row) in pads.try_iter()?.enumerate() {
-        let row = row?;
-        // Accept either the 5-tuple `(px, py, w, h, shape)` or the 6-tuple
-        // that additionally carries `roundrect_ratio`. The 5-tuple form keeps
-        // working and falls back to the default ratio, which is what every
-        // pre-existing corpus row relies on.
-        let (px, py, w, h, shape, ratio): (f64, f64, f64, f64, String, Option<f64>) =
-            match row.extract() {
-                Ok(six) => six,
-                Err(_) => {
-                    let (px, py, w, h, shape): (f64, f64, f64, f64, String) = row.extract()?;
-                    (px, py, w, h, shape, None)
-                }
-            };
-        rows.push(PadRow {
-            number: i.to_string(),
-            position: (px, py),
-            net: None,
-            width: w,
-            height: h,
-            shape,
-            roundrect_ratio: ratio,
-        });
-    }
-    let comp = CompRow {
-        position: Some((0.0, 0.0)),
-        // The probe corpus's component has rotation index `0`; both
-        // resolutions of index 0 are 0.0 rad.
-        pad_rotation_rad: 0.0,
-        dogbone_angle_rad: 0.0,
-        side: None,
-        pads: rows,
-    };
-    is_position_valid(x, y, radius, &comp, clearance)
-}
-
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(escape_generate_vias_py, m)?)?;
-    m.add_function(wrap_pyfunction!(escape_is_position_valid_py, m)?)?;
     Ok(())
 }
 

@@ -1,9 +1,10 @@
 // The feasibility / check compute of the Wave-4 `pipeline/` slice
 // (`temper_placer.pipeline.{convergence,preflight,derivation}`).
 //
-// The three Python modules keep their full public API (dataclasses, enums,
-// the `ConvergenceChecker` / `PreflightChecker` classes and the module-level
-// functions); the compute kernels delegate across the pyo3 boundary here.
+// The Python modules keep their full public API (dataclasses, enums, the
+// `ConvergenceChecker` / `PreflightChecker` classes and the module-level
+// `is_converged` helper); live class methods and compute kernels remain in
+// their owning Rust modules.
 // The pre-migration modules are pinned VERBATIM as the differential oracle
 // (`tests/pipeline/_pipeline_feasibility_py_oracle.py`).
 //
@@ -31,18 +32,12 @@
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use pyo3::types::PyDict;
 use std::collections::BTreeSet;
 
 /// CPython `min(a, b)` for floats — returns `a` unless `b < a`, keeping the
 /// first argument on ties and NaN (asymmetric, unlike `f64::min`).
 fn py_min(a: f64, b: f64) -> f64 {
-    if b < a {
-        b
-    } else {
-        a
-    }
+    if b < a { b } else { a }
 }
 
 /// CPython builtin `sum()` over floats — the 3.12 improved Kahan-Babuska
@@ -102,7 +97,6 @@ fn sum_product_areas_impl(dims: &[(f64, f64)]) -> f64 {
 // convergence.py
 // ---------------------------------------------------------------------------
 
-#[cfg(feature = "python")]
 /// `ConvergenceChecker.record_loss` compute: whether `loss` counts as a
 /// meaningful improvement over `best_loss`, and what the new best is.
 ///
@@ -126,19 +120,20 @@ fn sum_product_areas_impl(dims: &[(f64, f64)]) -> f64 {
 /// 0.0` (including `-0.0`) raises `ZeroDivisionError` in Python, where IEEE
 /// division would return ±inf. The kernel raises the identical exception
 /// instead of computing an IEEE value.
-#[pyfunction]
-pub fn record_loss(
+// Kept only for the legacy Rust test registry.  The live convergence class
+// owns this state transition in convergence.rs; there is no production Rust
+// caller for a standalone loss probe.
+#[cfg(any(test, feature = "wasm-registry"))]
+fn record_loss(
     best_loss: f64,
     loss: f64,
     min_loss_improvement: f64,
-) -> PyResult<(f64, bool)> {
+) -> Result<(f64, bool), &'static str> {
     if best_loss == f64::INFINITY {
         return Ok((loss, true));
     }
     if best_loss == 0.0 {
-        return Err(pyo3::exceptions::PyZeroDivisionError::new_err(
-            "float division by zero",
-        ));
+        return Err("float division by zero");
     }
     let improvement = (best_loss - loss) / best_loss;
     if improvement >= min_loss_improvement {
@@ -155,9 +150,12 @@ pub fn record_loss(
 /// `0.0` for routing/margin) and passes the four resolved values; a `True`
 /// result makes the shim set `terminated = True`,
 /// `termination_reason = SUCCESS`.
-#[allow(clippy::too_many_arguments)] // one arg per metric + per criterion, mirroring the oracle's call
-#[cfg_attr(feature = "python", pyfunction)]
-pub fn check_success(
+#[allow(clippy::too_many_arguments)]
+// one arg per metric + per criterion, mirroring the oracle's call
+// Test-only mirror of the standalone binding probe.  ConvergenceChecker's
+// method performs the live metrics/default handling in convergence.rs.
+#[cfg(any(test, feature = "wasm-registry"))]
+fn check_success(
     overlap_mm2: f64,
     boundary_violation_mm: f64,
     routing_completion: f64,
@@ -235,14 +233,14 @@ pub fn is_converged(current: Vec<(bool, f64)>, previous: Option<Vec<(bool, f64)>
 /// regression_threshold` product the regression message re-renders) so the
 /// shim formats without recomputing, and `lost_nets` already sorted.
 /// Internal result of the routability-regression decision.
-struct RoutabilityResult {
-    outcome: &'static str,
-    current_ratio: f64,
-    threshold_product: f64,
-    lost_nets: Vec<String>,
-    best_routed: Option<BTreeSet<String>>,
-    best_ratio: Option<f64>,
-    stall_count: i64,
+pub(crate) struct RoutabilityResult {
+    pub(crate) outcome: &'static str,
+    pub(crate) current_ratio: f64,
+    pub(crate) threshold_product: f64,
+    pub(crate) lost_nets: Vec<String>,
+    pub(crate) best_routed: Option<BTreeSet<String>>,
+    pub(crate) best_ratio: Option<f64>,
+    pub(crate) stall_count: i64,
 }
 
 /// Pure core of `check_routability_regression` (no pyo3): decides the
@@ -250,7 +248,7 @@ struct RoutabilityResult {
 /// `len`, equality and difference are set semantics and `lost_nets` comes out
 /// sorted.
 #[allow(clippy::too_many_arguments)] // mirrors the pyfunction signature 1:1 (it is its body)
-fn routability_regression_core(
+pub(crate) fn routability_regression_core(
     routed_nets: Vec<String>,
     total_nets: i64,
     previous_routed_nets: Option<Vec<String>>,
@@ -325,46 +323,6 @@ fn routability_regression_core(
         best_ratio,
         stall_count,
     }
-}
-
-#[cfg(feature = "python")]
-#[allow(clippy::too_many_arguments)] // net/criteria/state fields mirror the oracle's method signature
-#[pyfunction]
-pub fn check_routability_regression(
-    py: Python<'_>,
-    routed_nets: Vec<String>,
-    total_nets: i64,
-    previous_routed_nets: Option<Vec<String>>,
-    regression_threshold: f64,
-    stall_limit: i64,
-    best_routed_nets: Option<Vec<String>>,
-    best_ratio: Option<f64>,
-    stall_count: i64,
-) -> PyResult<Py<PyAny>> {
-    let r = routability_regression_core(
-        routed_nets,
-        total_nets,
-        previous_routed_nets,
-        regression_threshold,
-        stall_limit,
-        best_routed_nets,
-        best_ratio,
-        stall_count,
-    );
-    let out = PyDict::new(py);
-    out.set_item("outcome", r.outcome)?;
-    out.set_item("current_ratio", r.current_ratio)?;
-    out.set_item("threshold_product", r.threshold_product)?;
-    out.set_item("lost_nets", r.lost_nets)?;
-    out.set_item(
-        "best_routed",
-        r.best_routed
-            .as_ref()
-            .map(|s| s.iter().cloned().collect::<Vec<String>>()),
-    )?;
-    out.set_item("best_ratio", r.best_ratio)?;
-    out.set_item("stall_count", r.stall_count)?;
-    Ok(out.into_any().unbind())
 }
 
 // ---------------------------------------------------------------------------
@@ -674,9 +632,36 @@ pub(crate) mod tests {
         assert!(!check_success(0.0, 0.0, 1.0, 0.0, 0.01, 0.01, 1.0, 0.05));
         // inf default for overlap fails; NaN values never FAIL a comparison
         // (NaN > x is False), so a NaN overlap passes exactly like Python.
-        assert!(!check_success(f64::INFINITY, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05));
-        assert!(check_success(f64::NAN, 0.0, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05));
-        assert!(check_success(0.0, f64::NAN, 1.0, 0.1, 0.01, 0.01, 1.0, 0.05));
+        assert!(!check_success(
+            f64::INFINITY,
+            0.0,
+            1.0,
+            0.1,
+            0.01,
+            0.01,
+            1.0,
+            0.05
+        ));
+        assert!(check_success(
+            f64::NAN,
+            0.0,
+            1.0,
+            0.1,
+            0.01,
+            0.01,
+            1.0,
+            0.05
+        ));
+        assert!(check_success(
+            0.0,
+            f64::NAN,
+            1.0,
+            0.1,
+            0.01,
+            0.01,
+            1.0,
+            0.05
+        ));
     }
 
     #[cfg_attr(test, test)]
@@ -718,10 +703,7 @@ pub(crate) mod tests {
         assert_eq!(r.stall_count, 0);
         match r.best_routed {
             Some(set) => {
-                assert_eq!(
-                    set.into_iter().collect::<Vec<String>>(),
-                    vec!["N1", "N2"]
-                );
+                assert_eq!(set.into_iter().collect::<Vec<String>>(), vec!["N1", "N2"]);
             }
             None => panic!("best_routed must be set after the first call"),
         }
@@ -735,7 +717,13 @@ pub(crate) mod tests {
             None,
             0.5,
             2,
-            Some(vec!["N1".into(), "N2".into(), "N3".into(), "N4".into(), "N5".into()]),
+            Some(vec![
+                "N1".into(),
+                "N2".into(),
+                "N3".into(),
+                "N4".into(),
+                "N5".into(),
+            ]),
             Some(0.5),
             0,
         );
@@ -794,10 +782,7 @@ pub(crate) mod tests {
         assert_eq!(r.best_ratio, Some(0.2));
         match r.best_routed {
             Some(set) => {
-                assert_eq!(
-                    set.into_iter().collect::<Vec<String>>(),
-                    vec!["N1", "N2"]
-                );
+                assert_eq!(set.into_iter().collect::<Vec<String>>(), vec!["N1", "N2"]);
             }
             None => panic!("best_routed must be updated after improvement"),
         }
@@ -835,22 +820,70 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("feasibility::tests::builtin_sum_is_compensated_not_naive", builtin_sum_is_compensated_not_naive),
-        ("feasibility::tests::builtin_sum_negative_zero_seed_is_cpython", builtin_sum_negative_zero_seed_is_cpython),
-        ("feasibility::tests::builtin_sum_single_and_empty", builtin_sum_single_and_empty),
-        ("feasibility::tests::builtin_sum_nonfinite_compensation_guard", builtin_sum_nonfinite_compensation_guard),
-        ("feasibility::tests::py_min_is_asymmetric_on_nan_and_ties", py_min_is_asymmetric_on_nan_and_ties),
-        #[cfg(feature = "python")] ("feasibility::tests::record_loss_first_call_is_improvement", record_loss_first_call_is_improvement),
-        #[cfg(feature = "python")] ("feasibility::tests::record_loss_improvement_threshold", record_loss_improvement_threshold),
-        #[cfg(feature = "python")] ("feasibility::tests::record_loss_zero_best_raises_like_cpython", record_loss_zero_best_raises_like_cpython),
-        ("feasibility::tests::check_success_order_and_defaults", check_success_order_and_defaults),
+        (
+            "feasibility::tests::builtin_sum_is_compensated_not_naive",
+            builtin_sum_is_compensated_not_naive,
+        ),
+        (
+            "feasibility::tests::builtin_sum_negative_zero_seed_is_cpython",
+            builtin_sum_negative_zero_seed_is_cpython,
+        ),
+        (
+            "feasibility::tests::builtin_sum_single_and_empty",
+            builtin_sum_single_and_empty,
+        ),
+        (
+            "feasibility::tests::builtin_sum_nonfinite_compensation_guard",
+            builtin_sum_nonfinite_compensation_guard,
+        ),
+        (
+            "feasibility::tests::py_min_is_asymmetric_on_nan_and_ties",
+            py_min_is_asymmetric_on_nan_and_ties,
+        ),
+        #[cfg(feature = "python")]
+        (
+            "feasibility::tests::record_loss_first_call_is_improvement",
+            record_loss_first_call_is_improvement,
+        ),
+        #[cfg(feature = "python")]
+        (
+            "feasibility::tests::record_loss_improvement_threshold",
+            record_loss_improvement_threshold,
+        ),
+        #[cfg(feature = "python")]
+        (
+            "feasibility::tests::record_loss_zero_best_raises_like_cpython",
+            record_loss_zero_best_raises_like_cpython,
+        ),
+        (
+            "feasibility::tests::check_success_order_and_defaults",
+            check_success_order_and_defaults,
+        ),
         ("feasibility::tests::is_converged_paths", is_converged_paths),
-        ("feasibility::tests::routability_first_call_seeds_state", routability_first_call_seeds_state),
-        ("feasibility::tests::routability_regression_detected", routability_regression_detected),
-        ("feasibility::tests::routability_converged_after_stall_limit", routability_converged_after_stall_limit),
-        ("feasibility::tests::routability_improvement_updates_best", routability_improvement_updates_best),
-        ("feasibility::tests::mains_voltage_class_boundaries", mains_voltage_class_boundaries),
-        ("feasibility::tests::extract_min_clearance_suffix_and_all_occurrences", extract_min_clearance_suffix_and_all_occurrences),
+        (
+            "feasibility::tests::routability_first_call_seeds_state",
+            routability_first_call_seeds_state,
+        ),
+        (
+            "feasibility::tests::routability_regression_detected",
+            routability_regression_detected,
+        ),
+        (
+            "feasibility::tests::routability_converged_after_stall_limit",
+            routability_converged_after_stall_limit,
+        ),
+        (
+            "feasibility::tests::routability_improvement_updates_best",
+            routability_improvement_updates_best,
+        ),
+        (
+            "feasibility::tests::mains_voltage_class_boundaries",
+            mains_voltage_class_boundaries,
+        ),
+        (
+            "feasibility::tests::extract_min_clearance_suffix_and_all_occurrences",
+            extract_min_clearance_suffix_and_all_occurrences,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

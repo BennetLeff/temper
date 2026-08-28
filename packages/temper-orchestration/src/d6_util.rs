@@ -42,7 +42,9 @@ pub(crate) fn log_msg(
     level: &str,
     msg: &Bound<'_, PyAny>,
 ) -> PyResult<()> {
-    let logger = py.import("logging")?.call_method1("getLogger", (logger_name,))?;
+    let logger = py
+        .import("logging")?
+        .call_method1("getLogger", (logger_name,))?;
     logger.call_method1(level, (msg,))?;
     Ok(())
 }
@@ -64,7 +66,10 @@ pub(crate) fn write_back_or_raise(
     candidates: &[&str],
 ) -> PyResult<(Py<PyAny>, Option<String>)> {
     match result {
-        Ok(out) => Ok((crate::d1_bridge::to_python(py, orig, &out, candidates)?, None)),
+        Ok(out) => Ok((
+            crate::d1_bridge::to_python(py, orig, &out, candidates)?,
+            None,
+        )),
         Err(e) if e.kind == crate::stage::StageErrorKind::Infeasible => {
             Ok((orig.clone().unbind(), Some(e.message)))
         }

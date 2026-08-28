@@ -88,8 +88,8 @@ const DRC_AWARE_STAGE_KINDS: &[&str] = &[
     "zone_geometry",
     "zone_assignment",
     "hv_lv_partition",
-    "slot_generation",        // zone_aware -> zone_aware_slot_generation
-    "component_assignment",   // phased config -> phased_component_assignment
+    "slot_generation",      // zone_aware -> zone_aware_slot_generation
+    "component_assignment", // phased config -> phased_component_assignment
     "apply_placements",
     "courtyard_check",
     "apply_placements",
@@ -119,10 +119,18 @@ pub fn drc_aware_stage_order(zone_aware: bool, phased: bool) -> Vec<&'static str
         .iter()
         .map(|k| match *k {
             "slot_generation" => {
-                if zone_aware { "zone_aware_slot_generation" } else { "slot_generation" }
+                if zone_aware {
+                    "zone_aware_slot_generation"
+                } else {
+                    "slot_generation"
+                }
             }
             "component_assignment" => {
-                if phased { "phased_component_assignment" } else { "component_assignment" }
+                if phased {
+                    "phased_component_assignment"
+                } else {
+                    "component_assignment"
+                }
             }
             other => other,
         })
@@ -190,7 +198,8 @@ impl PythonStageShim {
             .ctx
             .current_py_state
             .lock()
-            .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? = result.clone().unbind();
+            .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? =
+            result.clone().unbind();
 
         // The oracle's fence block: `if self.fence and stage.invariants:`.
         if let Some(fence) = &self.ctx.fence {
@@ -244,7 +253,8 @@ impl PythonStageShim {
                     .ctx
                     .previous_violations
                     .lock()
-                    .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? = Some(fs);
+                    .map_err(|_| PyRuntimeError::new_err("pipeline run context poisoned"))? =
+                    Some(fs);
             }
         }
 
@@ -296,7 +306,9 @@ pub(crate) fn run_pipeline(
     let py_state: Py<PyAny> = match initial_state {
         Some(s) => s,
         None => {
-            let cls = py.import("temper_placer.deterministic.state")?.getattr("BoardState")?;
+            let cls = py
+                .import("temper_placer.deterministic.state")?
+                .getattr("BoardState")?;
             cls.call0()?.into_any().unbind()
         }
     };
@@ -380,7 +392,11 @@ fn config_has_phased_rules(py: Python<'_>, config: Option<&Bound<'_, PyAny>>) ->
     let Some(config) = config else {
         return Ok(false);
     };
-    for name in ["placement_priority", "component_spacing_rules", "component_groups"] {
+    for name in [
+        "placement_priority",
+        "component_spacing_rules",
+        "component_groups",
+    ] {
         let v = attr_or_none(config, name)?;
         if v.bind(py).is_truthy()? {
             return Ok(true);

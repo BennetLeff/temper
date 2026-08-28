@@ -148,7 +148,10 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     modules.set_item("temper_placer.router_v6.constraints_design_rules", &cdr)?;
     modules.set_item("temper_placer.router_v6.constraints_drc_oracle", &drc)?;
     modules.set_item("temper_placer.router_v6.constraints_geometry", &geom)?;
-    modules.set_item("temper_placer.router_v6.constraints_spatial_index", &spatial)?;
+    modules.set_item(
+        "temper_placer.router_v6.constraints_spatial_index",
+        &spatial,
+    )?;
     modules.set_item("temper_placer.router_v6.net_ordering", &ordering)?;
     modules.set_item("temper_placer.core", &core)?;
     modules.set_item("temper_placer.core.loop", &loops)?;
@@ -216,16 +219,19 @@ fn three_stages_sequence_end_to_end() {
 
         // config attached
         let config = out.config.as_ref().expect("config attached");
-        assert_eq!(
-            config.bind(py).get_item("zones").unwrap().len().unwrap(),
-            0
-        );
+        assert_eq!(config.bind(py).get_item("zones").unwrap().len().unwrap(), 0);
         // net_order written from the fake order_nets
         assert_eq!(out.net_order, vec!["NET_B", "NET_A"]);
         // drc_oracle written with the fake DRCOracle
         let oracle = out.drc_oracle.as_ref().expect("drc_oracle attached");
         let geometry = oracle.bind(py).getattr("geometry").unwrap();
-        let pads: Vec<Bound<'_, PyAny>> = geometry.getattr("pads").unwrap().try_iter().unwrap().collect::<Result<_, _>>().unwrap();
+        let pads: Vec<Bound<'_, PyAny>> = geometry
+            .getattr("pads")
+            .unwrap()
+            .try_iter()
+            .unwrap()
+            .collect::<Result<_, _>>()
+            .unwrap();
         assert!(pads.is_empty());
         Ok::<(), PyErr>(())
     })
@@ -244,9 +250,7 @@ fn net_ordering_defaults_empty_loops() {
         // state.loops left None -> stage must build an empty LoopCollection.
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
-        runner.add_stage(Box::new(NetOrderingStage {
-            net_priority: None,
-        }));
+        runner.add_stage(Box::new(NetOrderingStage { net_priority: None }));
         let (out, report) = runner.run(state);
         assert!(!report.halted_early);
         assert_eq!(out.net_order, vec!["NET_B", "NET_A"]);
@@ -264,9 +268,7 @@ fn no_netlist_skips_net_ordering() {
         state.net_order = vec!["PRESERVED".into()];
 
         let mut runner = PipelineRunner::new(PipelineConfig::default());
-        runner.add_stage(Box::new(NetOrderingStage {
-            net_priority: None,
-        }));
+        runner.add_stage(Box::new(NetOrderingStage { net_priority: None }));
         let (out, report) = runner.run(state);
         assert!(!report.halted_early);
         // The stage returned the state unchanged.

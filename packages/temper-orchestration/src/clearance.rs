@@ -49,9 +49,9 @@
 
 #[cfg(feature = "python")]
 use std::borrow::Cow;
+use std::collections::HashSet;
 #[cfg(feature = "python")]
 use std::collections::{BTreeMap, HashMap};
-use std::collections::HashSet;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::{PyKeyError, PyValueError};
@@ -108,17 +108,24 @@ fn tg(py: Python<'_>) -> PyResult<Bound<'_, pyo3::types::PyModule>> {
 /// f-strings use (`{x!r}`). Rust `{:?}` differs for `nan`/`inf`/`-inf`.
 fn py_float_repr(py: Python<'_>, f: f64) -> PyResult<String> {
     let obj = f.into_pyobject(py)?;
-    py.import("builtins")?.getattr("repr")?.call1((obj,))?.extract()
+    py.import("builtins")?
+        .getattr("repr")?
+        .call1((obj,))?
+        .extract()
 }
 
 #[cfg(feature = "python")]
 fn tg_high_voltage_net(py: Python<'_>, net: &str) -> PyResult<bool> {
-    tg(py)?.call_method1("is_high_voltage_net_py", (net,))?.extract()
+    tg(py)?
+        .call_method1("is_high_voltage_net_py", (net,))?
+        .extract()
 }
 
 #[cfg(feature = "python")]
 fn tg_required_creepage(py: Python<'_>, voltage: f64) -> PyResult<f64> {
-    tg(py)?.call_method1("calculate_required_creepage_py", (voltage,))?.extract()
+    tg(py)?
+        .call_method1("calculate_required_creepage_py", (voltage,))?
+        .extract()
 }
 
 #[cfg(feature = "python")]
@@ -151,14 +158,24 @@ fn tg_net_class_to_voltage_class(py: Python<'_>, net_class: &str) -> PyResult<i6
 }
 
 #[cfg(feature = "python")]
-fn tg_barrier_axis_gap(py: Python<'_>, hv: &[PadTuple], selv: &[PadTuple], axis: i64) -> PyResult<f64> {
+fn tg_barrier_axis_gap(
+    py: Python<'_>,
+    hv: &[PadTuple],
+    selv: &[PadTuple],
+    axis: i64,
+) -> PyResult<f64> {
     tg(py)?
         .call_method1("barrier_axis_gap_py", (hv, selv, axis))?
         .extract()
 }
 
 #[cfg(feature = "python")]
-fn tg_best_rotation(py: Python<'_>, hv: &[PadTuple], selv: &[PadTuple], axis: i64) -> PyResult<(i64, f64, bool)> {
+fn tg_best_rotation(
+    py: Python<'_>,
+    hv: &[PadTuple],
+    selv: &[PadTuple],
+    axis: i64,
+) -> PyResult<(i64, f64, bool)> {
     tg(py)?
         .call_method1("best_rotation_for_barrier_py", (hv, selv, axis))?
         .extract()
@@ -179,7 +196,8 @@ fn drc_nets_domain_map(
     voltage_domains: &Bound<'_, PyAny>,
 ) -> PyResult<HashMap<String, String>> {
     let tdr = py.import("temper_drc_rs")?;
-    let nets_domain = tdr.call_method1("req_safe_01_nets_domain_map", (placement, voltage_domains))?;
+    let nets_domain =
+        tdr.call_method1("req_safe_01_nets_domain_map", (placement, voltage_domains))?;
     let mut out = HashMap::new();
     for item in nets_domain.call_method0("items")?.try_iter()? {
         let item = item?;
@@ -314,8 +332,20 @@ impl Stage<BoardState> for ClearanceCheckStage {
                     let r = r.bind(py);
                     let ratings = getattr_default(py, r, "voltage_ratings", py.None())?;
                     let hv = getattr_default(py, r, "hv_net_names", py.None())?;
-                    let min_clearance: f64 = getattr_default(py, r, "min_clearance", crate::grid_hv::py_float(py, 0.127))?.extract()?;
-                    let _ = run_clearance_check(py, r.clone().unbind(), min_clearance, ratings.unbind(), hv.unbind())?;
+                    let min_clearance: f64 = getattr_default(
+                        py,
+                        r,
+                        "min_clearance",
+                        crate::grid_hv::py_float(py, 0.127),
+                    )?
+                    .extract()?;
+                    let _ = run_clearance_check(
+                        py,
+                        r.clone().unbind(),
+                        min_clearance,
+                        ratings.unbind(),
+                        hv.unbind(),
+                    )?;
                 }
                 Ok(state)
             })
@@ -487,7 +517,9 @@ fn get_clearance_impl(
     })();
     if let Ok((vc_a, vc_b)) = vc {
         for member in [&vc_a, &vc_b] {
-            let c: f64 = member.call_method1("get_clearance_mm", (pollution_degree,))?.extract()?;
+            let c: f64 = member
+                .call_method1("get_clearance_mm", (pollution_degree,))?
+                .extract()?;
             // `get_clearance_mm` (through-air spacing) is pollution-degree-only
             // per IEC 60335-1 Table 16 -- material group does not enter it.
             // `get_creepage_mm` (along-surface spacing, Table 17) IS CTI-group
@@ -764,7 +796,12 @@ pub fn project_onto_barrier_axis_py(
 }
 
 /// The pure 4-rotation table; `None` for a rotation outside 0..=3.
-fn project_onto_barrier_axis_impl(local_x: f64, local_y: f64, rot_value: i64, barrier_axis: i64) -> Option<f64> {
+fn project_onto_barrier_axis_impl(
+    local_x: f64,
+    local_y: f64,
+    rot_value: i64,
+    barrier_axis: i64,
+) -> Option<f64> {
     let (gx, gy) = match rot_value {
         0 => (local_x, local_y),
         1 => (local_y, -local_x),
@@ -807,7 +844,11 @@ pub fn evaluate_isolator_feasibility_py(
         tg_best_rotation(py, &hv_pads, &selv_pads, barrier_axis)?;
     // rot in {0, 2} projects local X onto the barrier axis; {1, 3} projects
     // local Y.
-    let feasible_axis = if rot_value == 0 || rot_value == 2 { 0 } else { 1 };
+    let feasible_axis = if rot_value == 0 || rot_value == 2 {
+        0
+    } else {
+        1
+    };
     let feasible_axis_out = if achievable_gap >= corridor_width_mm {
         Some(feasible_axis)
     } else {
@@ -872,7 +913,11 @@ pub fn domain_clearance_constraints_py(
             {
                 continue;
             }
-            let key = if ra <= rb { (ra.clone(), rb.clone()) } else { (rb, ra) };
+            let key = if ra <= rb {
+                (ra.clone(), rb.clone())
+            } else {
+                (rb, ra)
+            };
             if margin > pair_margin.get(&key).copied().unwrap_or(0.0) {
                 pair_margin.insert(key.clone(), margin);
             }
@@ -1031,8 +1076,7 @@ pub fn intra_footprint_conflicts_py(
         let margin = tc_required_margin_mm(py, *min_clearance, *min_creepage)?;
         let group_a = drc_components_in_domain(py, placement, domain_a, &nets_domain_py)?;
         let group_b = drc_components_in_domain(py, placement, domain_b, &nets_domain_py)?;
-        let group_b_refs: HashSet<Option<String>> =
-            group_b.iter().map(comp_opt_ref).collect();
+        let group_b_refs: HashSet<Option<String>> = group_b.iter().map(comp_opt_ref).collect();
         for comp in group_a {
             let ref_ = comp_opt_ref(&comp);
             let Some(ref_) = ref_ else {
@@ -1067,7 +1111,13 @@ pub fn intra_footprint_conflicts_py(
                 )?;
                 worst.insert(
                     ref_,
-                    (margin, domain_a.clone(), domain_b.clone(), insulation_type.clone(), reason),
+                    (
+                        margin,
+                        domain_a.clone(),
+                        domain_b.clone(),
+                        insulation_type.clone(),
+                        reason,
+                    ),
                 );
             }
         }
@@ -1138,11 +1188,7 @@ pub fn audit_domain_clearance_py(
 #[cfg(feature = "python")]
 /// CPython `str.format(template, *args)` — the only reason-string renderer
 /// (float `{}` interpolation stays CPython so `4.0mm` renders `"4.0mm"`).
-fn py_format<'py>(
-    py: Python<'py>,
-    template: &str,
-    args: &[Bound<'py, PyAny>],
-) -> PyResult<String> {
+fn py_format<'py>(py: Python<'py>, template: &str, args: &[Bound<'py, PyAny>]) -> PyResult<String> {
     d6_util::py_format(py, template, args)?.extract()
 }
 
@@ -1158,7 +1204,11 @@ fn comp_opt_ref(comp: &Bound<'_, PyAny>) -> Option<String> {
 #[cfg(feature = "python")]
 /// Python `dict.get(key, [])`: the item or an empty list when the key is
 /// absent.
-fn dict_get<'py>(py: Python<'py>, dict: &Bound<'py, PyAny>, key: &str) -> PyResult<Bound<'py, PyAny>> {
+fn dict_get<'py>(
+    py: Python<'py>,
+    dict: &Bound<'py, PyAny>,
+    key: &str,
+) -> PyResult<Bound<'py, PyAny>> {
     match dict.get_item(key) {
         Ok(v) => Ok(v),
         Err(_) => Ok(pyo3::types::PyList::empty(py).into_any()),
@@ -1283,8 +1333,10 @@ pub(crate) mod tests {
         assert!(v == 0.0 && v.is_sign_positive());
 
         // +inf / -inf.
-        assert!(py_style_max(&[f64::INFINITY, 1e300]).is_infinite()
-            && py_style_max(&[f64::INFINITY, 1e300]).is_sign_positive());
+        assert!(
+            py_style_max(&[f64::INFINITY, 1e300]).is_infinite()
+                && py_style_max(&[f64::INFINITY, 1e300]).is_sign_positive()
+        );
         assert_eq!(py_style_max(&[f64::NEG_INFINITY, 0.0]), 0.0);
         assert!(py_style_max(&[f64::NAN, f64::INFINITY]).is_nan());
 
@@ -1362,29 +1414,56 @@ pub(crate) mod tests {
             classify_domain_partition_py(comps.clone(), hv_nets.clone(), selv_nets.clone());
 
         let total = hv_only.len() + selv_only.len() + isolators.len() + unclassified.len();
-        assert_eq!(total, comps.len(), "seed={seed}: every component must be in exactly one bucket");
+        assert_eq!(
+            total,
+            comps.len(),
+            "seed={seed}: every component must be in exactly one bucket"
+        );
 
         let mut all_refs = std::collections::HashSet::new();
-        for r in hv_only.iter().chain(&selv_only).chain(&isolators).chain(&unclassified) {
+        for r in hv_only
+            .iter()
+            .chain(&selv_only)
+            .chain(&isolators)
+            .chain(&unclassified)
+        {
             assert!(all_refs.insert(r.clone()), "seed={seed}: duplicate ref {r}");
         }
 
         for r in &hv_only {
             let comp = comps.iter().find(|(ref_, _)| ref_ == r).unwrap();
-            assert!(!comp.1.iter().any(|n| selv_nets.contains(n)), "seed={seed}: HV-only component {r} has a SELV net");
+            assert!(
+                !comp.1.iter().any(|n| selv_nets.contains(n)),
+                "seed={seed}: HV-only component {r} has a SELV net"
+            );
         }
         for r in &selv_only {
             let comp = comps.iter().find(|(ref_, _)| ref_ == r).unwrap();
-            assert!(!comp.1.iter().any(|n| hv_nets.contains(n)), "seed={seed}: SELV-only component {r} has an HV net");
+            assert!(
+                !comp.1.iter().any(|n| hv_nets.contains(n)),
+                "seed={seed}: SELV-only component {r} has an HV net"
+            );
         }
 
         // Every bucket is non-empty by construction (n >= 5 guarantees at
         // least one component in each i % 5 class) -- the standing guard
         // against the "buckets always empty" trap, not just a hope.
-        assert!(!hv_only.is_empty(), "seed={seed}: hv_only unexpectedly empty");
-        assert!(!selv_only.is_empty(), "seed={seed}: selv_only unexpectedly empty");
-        assert!(!isolators.is_empty(), "seed={seed}: isolators unexpectedly empty");
-        assert!(!unclassified.is_empty(), "seed={seed}: unclassified unexpectedly empty");
+        assert!(
+            !hv_only.is_empty(),
+            "seed={seed}: hv_only unexpectedly empty"
+        );
+        assert!(
+            !selv_only.is_empty(),
+            "seed={seed}: selv_only unexpectedly empty"
+        );
+        assert!(
+            !isolators.is_empty(),
+            "seed={seed}: isolators unexpectedly empty"
+        );
+        assert!(
+            !unclassified.is_empty(),
+            "seed={seed}: unclassified unexpectedly empty"
+        );
     }
 
     /// P2. rot 2 = -(rot 0), rot 3 = -(rot 1) for axis 0.
@@ -1486,192 +1565,375 @@ pub(crate) mod tests {
         let selv_nets = vec![selv_net];
         let (hv_only, selv_only, isolators, unclassified) =
             classify_domain_partition_py(comps.clone(), hv_nets.clone(), selv_nets.clone());
-        let (r_hv, r_selv, r_iso, r_uncl) = classify_domain_partition_py(
-            renamed.clone(),
-            hv_nets.clone(),
-            selv_nets.clone(),
-        );
+        let (r_hv, r_selv, r_iso, r_uncl) =
+            classify_domain_partition_py(renamed.clone(), hv_nets.clone(), selv_nets.clone());
 
-        let map_refs = |v: &[String]| -> Vec<String> {
-            v.iter().map(|r| rename(r)).collect()
-        };
-        assert_eq!(map_refs(&hv_only), r_hv, "seed={seed}: hv_only did not map through the rename");
-        assert_eq!(map_refs(&selv_only), r_selv, "seed={seed}: selv_only did not map through the rename");
-        assert_eq!(map_refs(&isolators), r_iso, "seed={seed}: isolators did not map through the rename");
-        assert_eq!(map_refs(&unclassified), r_uncl, "seed={seed}: unclassified did not map through the rename");
+        let map_refs = |v: &[String]| -> Vec<String> { v.iter().map(|r| rename(r)).collect() };
+        assert_eq!(
+            map_refs(&hv_only),
+            r_hv,
+            "seed={seed}: hv_only did not map through the rename"
+        );
+        assert_eq!(
+            map_refs(&selv_only),
+            r_selv,
+            "seed={seed}: selv_only did not map through the rename"
+        );
+        assert_eq!(
+            map_refs(&isolators),
+            r_iso,
+            "seed={seed}: isolators did not map through the rename"
+        );
+        assert_eq!(
+            map_refs(&unclassified),
+            r_uncl,
+            "seed={seed}: unclassified did not map through the rename"
+        );
 
         // Every bucket is non-empty by construction (n >= 5 guarantees each
         // i % 5 class) -- the rename covariance is asserted on live buckets,
         // not vacuously on empty ones.
-        assert!(!hv_only.is_empty(), "seed={seed}: hv_only unexpectedly empty");
-        assert!(!selv_only.is_empty(), "seed={seed}: selv_only unexpectedly empty");
-        assert!(!isolators.is_empty(), "seed={seed}: isolators unexpectedly empty");
-        assert!(!unclassified.is_empty(), "seed={seed}: unclassified unexpectedly empty");
+        assert!(
+            !hv_only.is_empty(),
+            "seed={seed}: hv_only unexpectedly empty"
+        );
+        assert!(
+            !selv_only.is_empty(),
+            "seed={seed}: selv_only unexpectedly empty"
+        );
+        assert!(
+            !isolators.is_empty(),
+            "seed={seed}: isolators unexpectedly empty"
+        );
+        assert!(
+            !unclassified.is_empty(),
+            "seed={seed}: unclassified unexpectedly empty"
+        );
     }
 
     // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
     // 3 properties x 20 seeds = 60 distinct-input wasm tests.
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_000() { p1_partition_totals_and_disjointness_impl(0); }
+    fn p1_partition_totals_and_disjointness_seed_000() {
+        p1_partition_totals_and_disjointness_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_001() { p1_partition_totals_and_disjointness_impl(1); }
+    fn p1_partition_totals_and_disjointness_seed_001() {
+        p1_partition_totals_and_disjointness_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_002() { p1_partition_totals_and_disjointness_impl(2); }
+    fn p1_partition_totals_and_disjointness_seed_002() {
+        p1_partition_totals_and_disjointness_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_003() { p1_partition_totals_and_disjointness_impl(3); }
+    fn p1_partition_totals_and_disjointness_seed_003() {
+        p1_partition_totals_and_disjointness_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_004() { p1_partition_totals_and_disjointness_impl(4); }
+    fn p1_partition_totals_and_disjointness_seed_004() {
+        p1_partition_totals_and_disjointness_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_005() { p1_partition_totals_and_disjointness_impl(5); }
+    fn p1_partition_totals_and_disjointness_seed_005() {
+        p1_partition_totals_and_disjointness_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_006() { p1_partition_totals_and_disjointness_impl(6); }
+    fn p1_partition_totals_and_disjointness_seed_006() {
+        p1_partition_totals_and_disjointness_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_007() { p1_partition_totals_and_disjointness_impl(7); }
+    fn p1_partition_totals_and_disjointness_seed_007() {
+        p1_partition_totals_and_disjointness_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_008() { p1_partition_totals_and_disjointness_impl(8); }
+    fn p1_partition_totals_and_disjointness_seed_008() {
+        p1_partition_totals_and_disjointness_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_009() { p1_partition_totals_and_disjointness_impl(9); }
+    fn p1_partition_totals_and_disjointness_seed_009() {
+        p1_partition_totals_and_disjointness_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_010() { p1_partition_totals_and_disjointness_impl(10); }
+    fn p1_partition_totals_and_disjointness_seed_010() {
+        p1_partition_totals_and_disjointness_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_011() { p1_partition_totals_and_disjointness_impl(11); }
+    fn p1_partition_totals_and_disjointness_seed_011() {
+        p1_partition_totals_and_disjointness_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_012() { p1_partition_totals_and_disjointness_impl(12); }
+    fn p1_partition_totals_and_disjointness_seed_012() {
+        p1_partition_totals_and_disjointness_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_013() { p1_partition_totals_and_disjointness_impl(13); }
+    fn p1_partition_totals_and_disjointness_seed_013() {
+        p1_partition_totals_and_disjointness_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_014() { p1_partition_totals_and_disjointness_impl(14); }
+    fn p1_partition_totals_and_disjointness_seed_014() {
+        p1_partition_totals_and_disjointness_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_015() { p1_partition_totals_and_disjointness_impl(15); }
+    fn p1_partition_totals_and_disjointness_seed_015() {
+        p1_partition_totals_and_disjointness_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_016() { p1_partition_totals_and_disjointness_impl(16); }
+    fn p1_partition_totals_and_disjointness_seed_016() {
+        p1_partition_totals_and_disjointness_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_017() { p1_partition_totals_and_disjointness_impl(17); }
+    fn p1_partition_totals_and_disjointness_seed_017() {
+        p1_partition_totals_and_disjointness_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_018() { p1_partition_totals_and_disjointness_impl(18); }
+    fn p1_partition_totals_and_disjointness_seed_018() {
+        p1_partition_totals_and_disjointness_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p1_partition_totals_and_disjointness_seed_019() { p1_partition_totals_and_disjointness_impl(19); }
+    fn p1_partition_totals_and_disjointness_seed_019() {
+        p1_partition_totals_and_disjointness_impl(19);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_000() { p2_rotation_negation_orthogonality_impl(0); }
+    fn p2_rotation_negation_orthogonality_seed_000() {
+        p2_rotation_negation_orthogonality_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_001() { p2_rotation_negation_orthogonality_impl(1); }
+    fn p2_rotation_negation_orthogonality_seed_001() {
+        p2_rotation_negation_orthogonality_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_002() { p2_rotation_negation_orthogonality_impl(2); }
+    fn p2_rotation_negation_orthogonality_seed_002() {
+        p2_rotation_negation_orthogonality_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_003() { p2_rotation_negation_orthogonality_impl(3); }
+    fn p2_rotation_negation_orthogonality_seed_003() {
+        p2_rotation_negation_orthogonality_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_004() { p2_rotation_negation_orthogonality_impl(4); }
+    fn p2_rotation_negation_orthogonality_seed_004() {
+        p2_rotation_negation_orthogonality_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_005() { p2_rotation_negation_orthogonality_impl(5); }
+    fn p2_rotation_negation_orthogonality_seed_005() {
+        p2_rotation_negation_orthogonality_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_006() { p2_rotation_negation_orthogonality_impl(6); }
+    fn p2_rotation_negation_orthogonality_seed_006() {
+        p2_rotation_negation_orthogonality_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_007() { p2_rotation_negation_orthogonality_impl(7); }
+    fn p2_rotation_negation_orthogonality_seed_007() {
+        p2_rotation_negation_orthogonality_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_008() { p2_rotation_negation_orthogonality_impl(8); }
+    fn p2_rotation_negation_orthogonality_seed_008() {
+        p2_rotation_negation_orthogonality_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_009() { p2_rotation_negation_orthogonality_impl(9); }
+    fn p2_rotation_negation_orthogonality_seed_009() {
+        p2_rotation_negation_orthogonality_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_010() { p2_rotation_negation_orthogonality_impl(10); }
+    fn p2_rotation_negation_orthogonality_seed_010() {
+        p2_rotation_negation_orthogonality_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_011() { p2_rotation_negation_orthogonality_impl(11); }
+    fn p2_rotation_negation_orthogonality_seed_011() {
+        p2_rotation_negation_orthogonality_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_012() { p2_rotation_negation_orthogonality_impl(12); }
+    fn p2_rotation_negation_orthogonality_seed_012() {
+        p2_rotation_negation_orthogonality_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_013() { p2_rotation_negation_orthogonality_impl(13); }
+    fn p2_rotation_negation_orthogonality_seed_013() {
+        p2_rotation_negation_orthogonality_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_014() { p2_rotation_negation_orthogonality_impl(14); }
+    fn p2_rotation_negation_orthogonality_seed_014() {
+        p2_rotation_negation_orthogonality_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_015() { p2_rotation_negation_orthogonality_impl(15); }
+    fn p2_rotation_negation_orthogonality_seed_015() {
+        p2_rotation_negation_orthogonality_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_016() { p2_rotation_negation_orthogonality_impl(16); }
+    fn p2_rotation_negation_orthogonality_seed_016() {
+        p2_rotation_negation_orthogonality_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_017() { p2_rotation_negation_orthogonality_impl(17); }
+    fn p2_rotation_negation_orthogonality_seed_017() {
+        p2_rotation_negation_orthogonality_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_018() { p2_rotation_negation_orthogonality_impl(18); }
+    fn p2_rotation_negation_orthogonality_seed_018() {
+        p2_rotation_negation_orthogonality_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p2_rotation_negation_orthogonality_seed_019() { p2_rotation_negation_orthogonality_impl(19); }
+    fn p2_rotation_negation_orthogonality_seed_019() {
+        p2_rotation_negation_orthogonality_impl(19);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_000() { p3_rotation_table_correctness_impl(0); }
+    fn p3_rotation_table_correctness_seed_000() {
+        p3_rotation_table_correctness_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_001() { p3_rotation_table_correctness_impl(1); }
+    fn p3_rotation_table_correctness_seed_001() {
+        p3_rotation_table_correctness_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_002() { p3_rotation_table_correctness_impl(2); }
+    fn p3_rotation_table_correctness_seed_002() {
+        p3_rotation_table_correctness_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_003() { p3_rotation_table_correctness_impl(3); }
+    fn p3_rotation_table_correctness_seed_003() {
+        p3_rotation_table_correctness_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_004() { p3_rotation_table_correctness_impl(4); }
+    fn p3_rotation_table_correctness_seed_004() {
+        p3_rotation_table_correctness_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_005() { p3_rotation_table_correctness_impl(5); }
+    fn p3_rotation_table_correctness_seed_005() {
+        p3_rotation_table_correctness_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_006() { p3_rotation_table_correctness_impl(6); }
+    fn p3_rotation_table_correctness_seed_006() {
+        p3_rotation_table_correctness_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_007() { p3_rotation_table_correctness_impl(7); }
+    fn p3_rotation_table_correctness_seed_007() {
+        p3_rotation_table_correctness_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_008() { p3_rotation_table_correctness_impl(8); }
+    fn p3_rotation_table_correctness_seed_008() {
+        p3_rotation_table_correctness_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_009() { p3_rotation_table_correctness_impl(9); }
+    fn p3_rotation_table_correctness_seed_009() {
+        p3_rotation_table_correctness_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_010() { p3_rotation_table_correctness_impl(10); }
+    fn p3_rotation_table_correctness_seed_010() {
+        p3_rotation_table_correctness_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_011() { p3_rotation_table_correctness_impl(11); }
+    fn p3_rotation_table_correctness_seed_011() {
+        p3_rotation_table_correctness_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_012() { p3_rotation_table_correctness_impl(12); }
+    fn p3_rotation_table_correctness_seed_012() {
+        p3_rotation_table_correctness_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_013() { p3_rotation_table_correctness_impl(13); }
+    fn p3_rotation_table_correctness_seed_013() {
+        p3_rotation_table_correctness_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_014() { p3_rotation_table_correctness_impl(14); }
+    fn p3_rotation_table_correctness_seed_014() {
+        p3_rotation_table_correctness_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_015() { p3_rotation_table_correctness_impl(15); }
+    fn p3_rotation_table_correctness_seed_015() {
+        p3_rotation_table_correctness_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_016() { p3_rotation_table_correctness_impl(16); }
+    fn p3_rotation_table_correctness_seed_016() {
+        p3_rotation_table_correctness_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_017() { p3_rotation_table_correctness_impl(17); }
+    fn p3_rotation_table_correctness_seed_017() {
+        p3_rotation_table_correctness_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_018() { p3_rotation_table_correctness_impl(18); }
+    fn p3_rotation_table_correctness_seed_018() {
+        p3_rotation_table_correctness_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p3_rotation_table_correctness_seed_019() { p3_rotation_table_correctness_impl(19); }
+    fn p3_rotation_table_correctness_seed_019() {
+        p3_rotation_table_correctness_impl(19);
+    }
     // --- p4_partition_ref_renaming_covariant: 20 generated seeds ---
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_000() { p4_partition_ref_renaming_covariant_impl(0); }
+    fn p4_partition_ref_renaming_covariant_seed_000() {
+        p4_partition_ref_renaming_covariant_impl(0);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_001() { p4_partition_ref_renaming_covariant_impl(1); }
+    fn p4_partition_ref_renaming_covariant_seed_001() {
+        p4_partition_ref_renaming_covariant_impl(1);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_002() { p4_partition_ref_renaming_covariant_impl(2); }
+    fn p4_partition_ref_renaming_covariant_seed_002() {
+        p4_partition_ref_renaming_covariant_impl(2);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_003() { p4_partition_ref_renaming_covariant_impl(3); }
+    fn p4_partition_ref_renaming_covariant_seed_003() {
+        p4_partition_ref_renaming_covariant_impl(3);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_004() { p4_partition_ref_renaming_covariant_impl(4); }
+    fn p4_partition_ref_renaming_covariant_seed_004() {
+        p4_partition_ref_renaming_covariant_impl(4);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_005() { p4_partition_ref_renaming_covariant_impl(5); }
+    fn p4_partition_ref_renaming_covariant_seed_005() {
+        p4_partition_ref_renaming_covariant_impl(5);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_006() { p4_partition_ref_renaming_covariant_impl(6); }
+    fn p4_partition_ref_renaming_covariant_seed_006() {
+        p4_partition_ref_renaming_covariant_impl(6);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_007() { p4_partition_ref_renaming_covariant_impl(7); }
+    fn p4_partition_ref_renaming_covariant_seed_007() {
+        p4_partition_ref_renaming_covariant_impl(7);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_008() { p4_partition_ref_renaming_covariant_impl(8); }
+    fn p4_partition_ref_renaming_covariant_seed_008() {
+        p4_partition_ref_renaming_covariant_impl(8);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_009() { p4_partition_ref_renaming_covariant_impl(9); }
+    fn p4_partition_ref_renaming_covariant_seed_009() {
+        p4_partition_ref_renaming_covariant_impl(9);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_010() { p4_partition_ref_renaming_covariant_impl(10); }
+    fn p4_partition_ref_renaming_covariant_seed_010() {
+        p4_partition_ref_renaming_covariant_impl(10);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_011() { p4_partition_ref_renaming_covariant_impl(11); }
+    fn p4_partition_ref_renaming_covariant_seed_011() {
+        p4_partition_ref_renaming_covariant_impl(11);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_012() { p4_partition_ref_renaming_covariant_impl(12); }
+    fn p4_partition_ref_renaming_covariant_seed_012() {
+        p4_partition_ref_renaming_covariant_impl(12);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_013() { p4_partition_ref_renaming_covariant_impl(13); }
+    fn p4_partition_ref_renaming_covariant_seed_013() {
+        p4_partition_ref_renaming_covariant_impl(13);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_014() { p4_partition_ref_renaming_covariant_impl(14); }
+    fn p4_partition_ref_renaming_covariant_seed_014() {
+        p4_partition_ref_renaming_covariant_impl(14);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_015() { p4_partition_ref_renaming_covariant_impl(15); }
+    fn p4_partition_ref_renaming_covariant_seed_015() {
+        p4_partition_ref_renaming_covariant_impl(15);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_016() { p4_partition_ref_renaming_covariant_impl(16); }
+    fn p4_partition_ref_renaming_covariant_seed_016() {
+        p4_partition_ref_renaming_covariant_impl(16);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_017() { p4_partition_ref_renaming_covariant_impl(17); }
+    fn p4_partition_ref_renaming_covariant_seed_017() {
+        p4_partition_ref_renaming_covariant_impl(17);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_018() { p4_partition_ref_renaming_covariant_impl(18); }
+    fn p4_partition_ref_renaming_covariant_seed_018() {
+        p4_partition_ref_renaming_covariant_impl(18);
+    }
     #[cfg_attr(test, test)]
-    fn p4_partition_ref_renaming_covariant_seed_019() { p4_partition_ref_renaming_covariant_impl(19); }
+    fn p4_partition_ref_renaming_covariant_seed_019() {
+        p4_partition_ref_renaming_covariant_impl(19);
+    }
     // --- END generated seeded property-mirror wrappers ---
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
@@ -1680,94 +1942,358 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("clearance::tests::project_onto_barrier_axis_is_the_integer_rotation_table", project_onto_barrier_axis_is_the_integer_rotation_table),
-        ("clearance::tests::project_onto_barrier_axis_out_of_range_is_none", project_onto_barrier_axis_out_of_range_is_none),
-        ("clearance::tests::classify_domain_partition_buckets_exactly", classify_domain_partition_buckets_exactly),
-        ("clearance::tests::classify_domain_partition_never_substring_matches", classify_domain_partition_never_substring_matches),
-        ("clearance::tests::projection_preserves_nan", projection_preserves_nan),
-        ("clearance::tests::max_computation_matches_python_builtin_max", max_computation_matches_python_builtin_max),
-        ("clearance::tests::partition_empty_input_yields_empty_buckets", partition_empty_input_yields_empty_buckets),
-        ("clearance::tests::dual_net_component_is_isolator", dual_net_component_is_isolator),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_000", p1_partition_totals_and_disjointness_seed_000),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_001", p1_partition_totals_and_disjointness_seed_001),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_002", p1_partition_totals_and_disjointness_seed_002),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_003", p1_partition_totals_and_disjointness_seed_003),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_004", p1_partition_totals_and_disjointness_seed_004),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_005", p1_partition_totals_and_disjointness_seed_005),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_006", p1_partition_totals_and_disjointness_seed_006),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_007", p1_partition_totals_and_disjointness_seed_007),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_008", p1_partition_totals_and_disjointness_seed_008),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_009", p1_partition_totals_and_disjointness_seed_009),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_010", p1_partition_totals_and_disjointness_seed_010),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_011", p1_partition_totals_and_disjointness_seed_011),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_012", p1_partition_totals_and_disjointness_seed_012),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_013", p1_partition_totals_and_disjointness_seed_013),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_014", p1_partition_totals_and_disjointness_seed_014),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_015", p1_partition_totals_and_disjointness_seed_015),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_016", p1_partition_totals_and_disjointness_seed_016),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_017", p1_partition_totals_and_disjointness_seed_017),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_018", p1_partition_totals_and_disjointness_seed_018),
-        ("clearance::tests::p1_partition_totals_and_disjointness_seed_019", p1_partition_totals_and_disjointness_seed_019),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_000", p2_rotation_negation_orthogonality_seed_000),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_001", p2_rotation_negation_orthogonality_seed_001),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_002", p2_rotation_negation_orthogonality_seed_002),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_003", p2_rotation_negation_orthogonality_seed_003),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_004", p2_rotation_negation_orthogonality_seed_004),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_005", p2_rotation_negation_orthogonality_seed_005),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_006", p2_rotation_negation_orthogonality_seed_006),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_007", p2_rotation_negation_orthogonality_seed_007),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_008", p2_rotation_negation_orthogonality_seed_008),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_009", p2_rotation_negation_orthogonality_seed_009),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_010", p2_rotation_negation_orthogonality_seed_010),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_011", p2_rotation_negation_orthogonality_seed_011),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_012", p2_rotation_negation_orthogonality_seed_012),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_013", p2_rotation_negation_orthogonality_seed_013),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_014", p2_rotation_negation_orthogonality_seed_014),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_015", p2_rotation_negation_orthogonality_seed_015),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_016", p2_rotation_negation_orthogonality_seed_016),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_017", p2_rotation_negation_orthogonality_seed_017),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_018", p2_rotation_negation_orthogonality_seed_018),
-        ("clearance::tests::p2_rotation_negation_orthogonality_seed_019", p2_rotation_negation_orthogonality_seed_019),
-        ("clearance::tests::p3_rotation_table_correctness_seed_000", p3_rotation_table_correctness_seed_000),
-        ("clearance::tests::p3_rotation_table_correctness_seed_001", p3_rotation_table_correctness_seed_001),
-        ("clearance::tests::p3_rotation_table_correctness_seed_002", p3_rotation_table_correctness_seed_002),
-        ("clearance::tests::p3_rotation_table_correctness_seed_003", p3_rotation_table_correctness_seed_003),
-        ("clearance::tests::p3_rotation_table_correctness_seed_004", p3_rotation_table_correctness_seed_004),
-        ("clearance::tests::p3_rotation_table_correctness_seed_005", p3_rotation_table_correctness_seed_005),
-        ("clearance::tests::p3_rotation_table_correctness_seed_006", p3_rotation_table_correctness_seed_006),
-        ("clearance::tests::p3_rotation_table_correctness_seed_007", p3_rotation_table_correctness_seed_007),
-        ("clearance::tests::p3_rotation_table_correctness_seed_008", p3_rotation_table_correctness_seed_008),
-        ("clearance::tests::p3_rotation_table_correctness_seed_009", p3_rotation_table_correctness_seed_009),
-        ("clearance::tests::p3_rotation_table_correctness_seed_010", p3_rotation_table_correctness_seed_010),
-        ("clearance::tests::p3_rotation_table_correctness_seed_011", p3_rotation_table_correctness_seed_011),
-        ("clearance::tests::p3_rotation_table_correctness_seed_012", p3_rotation_table_correctness_seed_012),
-        ("clearance::tests::p3_rotation_table_correctness_seed_013", p3_rotation_table_correctness_seed_013),
-        ("clearance::tests::p3_rotation_table_correctness_seed_014", p3_rotation_table_correctness_seed_014),
-        ("clearance::tests::p3_rotation_table_correctness_seed_015", p3_rotation_table_correctness_seed_015),
-        ("clearance::tests::p3_rotation_table_correctness_seed_016", p3_rotation_table_correctness_seed_016),
-        ("clearance::tests::p3_rotation_table_correctness_seed_017", p3_rotation_table_correctness_seed_017),
-        ("clearance::tests::p3_rotation_table_correctness_seed_018", p3_rotation_table_correctness_seed_018),
-        ("clearance::tests::p3_rotation_table_correctness_seed_019", p3_rotation_table_correctness_seed_019),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_000", p4_partition_ref_renaming_covariant_seed_000),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_001", p4_partition_ref_renaming_covariant_seed_001),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_002", p4_partition_ref_renaming_covariant_seed_002),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_003", p4_partition_ref_renaming_covariant_seed_003),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_004", p4_partition_ref_renaming_covariant_seed_004),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_005", p4_partition_ref_renaming_covariant_seed_005),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_006", p4_partition_ref_renaming_covariant_seed_006),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_007", p4_partition_ref_renaming_covariant_seed_007),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_008", p4_partition_ref_renaming_covariant_seed_008),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_009", p4_partition_ref_renaming_covariant_seed_009),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_010", p4_partition_ref_renaming_covariant_seed_010),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_011", p4_partition_ref_renaming_covariant_seed_011),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_012", p4_partition_ref_renaming_covariant_seed_012),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_013", p4_partition_ref_renaming_covariant_seed_013),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_014", p4_partition_ref_renaming_covariant_seed_014),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_015", p4_partition_ref_renaming_covariant_seed_015),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_016", p4_partition_ref_renaming_covariant_seed_016),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_017", p4_partition_ref_renaming_covariant_seed_017),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_018", p4_partition_ref_renaming_covariant_seed_018),
-        ("clearance::tests::p4_partition_ref_renaming_covariant_seed_019", p4_partition_ref_renaming_covariant_seed_019),
+        (
+            "clearance::tests::project_onto_barrier_axis_is_the_integer_rotation_table",
+            project_onto_barrier_axis_is_the_integer_rotation_table,
+        ),
+        (
+            "clearance::tests::project_onto_barrier_axis_out_of_range_is_none",
+            project_onto_barrier_axis_out_of_range_is_none,
+        ),
+        (
+            "clearance::tests::classify_domain_partition_buckets_exactly",
+            classify_domain_partition_buckets_exactly,
+        ),
+        (
+            "clearance::tests::classify_domain_partition_never_substring_matches",
+            classify_domain_partition_never_substring_matches,
+        ),
+        (
+            "clearance::tests::projection_preserves_nan",
+            projection_preserves_nan,
+        ),
+        (
+            "clearance::tests::max_computation_matches_python_builtin_max",
+            max_computation_matches_python_builtin_max,
+        ),
+        (
+            "clearance::tests::partition_empty_input_yields_empty_buckets",
+            partition_empty_input_yields_empty_buckets,
+        ),
+        (
+            "clearance::tests::dual_net_component_is_isolator",
+            dual_net_component_is_isolator,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_000",
+            p1_partition_totals_and_disjointness_seed_000,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_001",
+            p1_partition_totals_and_disjointness_seed_001,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_002",
+            p1_partition_totals_and_disjointness_seed_002,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_003",
+            p1_partition_totals_and_disjointness_seed_003,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_004",
+            p1_partition_totals_and_disjointness_seed_004,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_005",
+            p1_partition_totals_and_disjointness_seed_005,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_006",
+            p1_partition_totals_and_disjointness_seed_006,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_007",
+            p1_partition_totals_and_disjointness_seed_007,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_008",
+            p1_partition_totals_and_disjointness_seed_008,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_009",
+            p1_partition_totals_and_disjointness_seed_009,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_010",
+            p1_partition_totals_and_disjointness_seed_010,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_011",
+            p1_partition_totals_and_disjointness_seed_011,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_012",
+            p1_partition_totals_and_disjointness_seed_012,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_013",
+            p1_partition_totals_and_disjointness_seed_013,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_014",
+            p1_partition_totals_and_disjointness_seed_014,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_015",
+            p1_partition_totals_and_disjointness_seed_015,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_016",
+            p1_partition_totals_and_disjointness_seed_016,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_017",
+            p1_partition_totals_and_disjointness_seed_017,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_018",
+            p1_partition_totals_and_disjointness_seed_018,
+        ),
+        (
+            "clearance::tests::p1_partition_totals_and_disjointness_seed_019",
+            p1_partition_totals_and_disjointness_seed_019,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_000",
+            p2_rotation_negation_orthogonality_seed_000,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_001",
+            p2_rotation_negation_orthogonality_seed_001,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_002",
+            p2_rotation_negation_orthogonality_seed_002,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_003",
+            p2_rotation_negation_orthogonality_seed_003,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_004",
+            p2_rotation_negation_orthogonality_seed_004,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_005",
+            p2_rotation_negation_orthogonality_seed_005,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_006",
+            p2_rotation_negation_orthogonality_seed_006,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_007",
+            p2_rotation_negation_orthogonality_seed_007,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_008",
+            p2_rotation_negation_orthogonality_seed_008,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_009",
+            p2_rotation_negation_orthogonality_seed_009,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_010",
+            p2_rotation_negation_orthogonality_seed_010,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_011",
+            p2_rotation_negation_orthogonality_seed_011,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_012",
+            p2_rotation_negation_orthogonality_seed_012,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_013",
+            p2_rotation_negation_orthogonality_seed_013,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_014",
+            p2_rotation_negation_orthogonality_seed_014,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_015",
+            p2_rotation_negation_orthogonality_seed_015,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_016",
+            p2_rotation_negation_orthogonality_seed_016,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_017",
+            p2_rotation_negation_orthogonality_seed_017,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_018",
+            p2_rotation_negation_orthogonality_seed_018,
+        ),
+        (
+            "clearance::tests::p2_rotation_negation_orthogonality_seed_019",
+            p2_rotation_negation_orthogonality_seed_019,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_000",
+            p3_rotation_table_correctness_seed_000,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_001",
+            p3_rotation_table_correctness_seed_001,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_002",
+            p3_rotation_table_correctness_seed_002,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_003",
+            p3_rotation_table_correctness_seed_003,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_004",
+            p3_rotation_table_correctness_seed_004,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_005",
+            p3_rotation_table_correctness_seed_005,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_006",
+            p3_rotation_table_correctness_seed_006,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_007",
+            p3_rotation_table_correctness_seed_007,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_008",
+            p3_rotation_table_correctness_seed_008,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_009",
+            p3_rotation_table_correctness_seed_009,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_010",
+            p3_rotation_table_correctness_seed_010,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_011",
+            p3_rotation_table_correctness_seed_011,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_012",
+            p3_rotation_table_correctness_seed_012,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_013",
+            p3_rotation_table_correctness_seed_013,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_014",
+            p3_rotation_table_correctness_seed_014,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_015",
+            p3_rotation_table_correctness_seed_015,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_016",
+            p3_rotation_table_correctness_seed_016,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_017",
+            p3_rotation_table_correctness_seed_017,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_018",
+            p3_rotation_table_correctness_seed_018,
+        ),
+        (
+            "clearance::tests::p3_rotation_table_correctness_seed_019",
+            p3_rotation_table_correctness_seed_019,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_000",
+            p4_partition_ref_renaming_covariant_seed_000,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_001",
+            p4_partition_ref_renaming_covariant_seed_001,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_002",
+            p4_partition_ref_renaming_covariant_seed_002,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_003",
+            p4_partition_ref_renaming_covariant_seed_003,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_004",
+            p4_partition_ref_renaming_covariant_seed_004,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_005",
+            p4_partition_ref_renaming_covariant_seed_005,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_006",
+            p4_partition_ref_renaming_covariant_seed_006,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_007",
+            p4_partition_ref_renaming_covariant_seed_007,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_008",
+            p4_partition_ref_renaming_covariant_seed_008,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_009",
+            p4_partition_ref_renaming_covariant_seed_009,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_010",
+            p4_partition_ref_renaming_covariant_seed_010,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_011",
+            p4_partition_ref_renaming_covariant_seed_011,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_012",
+            p4_partition_ref_renaming_covariant_seed_012,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_013",
+            p4_partition_ref_renaming_covariant_seed_013,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_014",
+            p4_partition_ref_renaming_covariant_seed_014,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_015",
+            p4_partition_ref_renaming_covariant_seed_015,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_016",
+            p4_partition_ref_renaming_covariant_seed_016,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_017",
+            p4_partition_ref_renaming_covariant_seed_017,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_018",
+            p4_partition_ref_renaming_covariant_seed_018,
+        ),
+        (
+            "clearance::tests::p4_partition_ref_renaming_covariant_seed_019",
+            p4_partition_ref_renaming_covariant_seed_019,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
