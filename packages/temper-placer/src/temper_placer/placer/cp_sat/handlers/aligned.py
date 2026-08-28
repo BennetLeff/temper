@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import AlignedConstraint, ConstraintType
+from temper_placer.pcl.constraints import AlignedConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
@@ -16,10 +15,6 @@ if TYPE_CHECKING:
         ModelProtocol,
     )
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.ALIGNED)
 def encode_aligned(
     constraint: AlignedConstraint,
     components: dict[str, ComponentVarsProtocol],
@@ -32,12 +27,16 @@ def encode_aligned(
     axis = constraint.axis.value  # "x" or "y"
 
     comp_refs = constraint.components
+    missing = [ref for ref in comp_refs if ref not in components]
+    if missing:
+        raise UnresolvedConstraintRefsError(
+            f"Aligned constraint {constraint.id!r} references missing component(s): "
+            + ", ".join(repr(ref) for ref in missing)
+        )
     for i in range(len(comp_refs)):
         for j in range(i + 1, len(comp_refs)):
             va = components.get(comp_refs[i])
             vb = components.get(comp_refs[j])
-            if va is None or vb is None:
-                continue
             label = f"align_{constraint.id}_{comp_refs[i]}_{comp_refs[j]}"
             assumption = model.new_assumption(label)
 

@@ -1,4 +1,4 @@
-"""Closure test: Benders placement -> Router V6 routing -> KiCad DRC.
+"""Closure test: CP-SAT placement -> Router V6 routing -> KiCad DRC.
 
 Runs the full closed-loop pipeline and asserts:
 - 100% nets routed (or current baseline)
@@ -23,12 +23,6 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-
-# Side-effect import: registers ``placement_template`` and
-# ``router_v6_full`` strategies with the strategy registry.  Without
-# this, the closure test reports "No stage registered for phase='placement'/
-# 'routing'" — the strategies are implemented but never wired up.
-import temper_placer.adapters.register_strategies  # noqa: F401
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -87,6 +81,63 @@ def _run_channel_analysis(*, output_dir: Path, stages_exercised: int) -> int:
     except Exception as e:
         _LOGGER.warning("Channel analysis failed: %s", e)
         return stages_exercised
+
+
+def _run_cp_sat_placement(parsed: Any, seed: int) -> Any:
+    """Run the supported CP-SAT placement backend for a parsed board.
+
+    The old ``template`` protocol entry point was a retired JAX/Benders
+    adapter.  It must not be recreated merely to make this regression path
+    green.  CP-SAT is the production placement entry point (and its loop
+    sequencing is Rust-backed), so the closure fallback calls that boundary
+    directly when no legacy protocol stage is registered.
+    """
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.placer.cp_sat.encoder import solve_placement
+
+    netlist = Netlist(components=list(parsed.components), nets=list(parsed.nets))
+    result = solve_placement(
+        netlist=netlist,
+        board=parsed.board,
+        extra_constraints=[],
+        # Match PlaceRouteLoop's initial solve budget rather than the
+        # low-level 1-second default, which is intended for re-solves.
+        timeout_ms=30_000,
+        seed=seed,
+    )
+    status = str(getattr(result, "status", "")).lower()
+    placements = result.to_placements_dict()
+    if status not in {"optimal", "feasible"} or not placements:
+        raise RuntimeError(
+            f"CP-SAT placement did not produce a feasible result "
+            f"(status={status or 'unknown'}, placements={len(placements)})"
+        )
+    return result
+
+
+def _load_routing_design_rules() -> Any:
+    """Load the router's authoritative netclass rules for direct routing.
+
+    ``parse_kicad_pcb_v6`` carries the legacy Stage-0 compatibility rules on
+    ``ParsedPCB.design_rules``.  That object is intentionally not the YAML
+    netclass SSOT consumed by ``route_pcb`` (in particular, it does not carry
+    the project's net-to-class assignments).  The direct CP-SAT fallback must
+    therefore pass the same core ``DesignRules`` object used by the normal
+    place-route loop; omitting it silently disables per-net layer and safety
+    routing constraints.
+    """
+    from pathlib import Path
+
+    from temper_placer.core.design_rules import create_temper_design_rules
+    from temper_placer.io.netclass_loader import load_netclass_rules
+
+    config_path = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
+    if config_path.exists():
+        return load_netclass_rules(config_path).design_rules
+    # Keep the direct path usable in small/test installations while retaining
+    # the core module as the single source of truth when the YAML package
+    # resource is absent.
+    return create_temper_design_rules()
 
 
 def _write_sidecar(*, sidecar_path: Path, cell_size_um: int, stage2: Any) -> None:
@@ -237,14 +288,14 @@ class ClosureResult:
 
 
 class ClosureTest:
-    """Orchestrates the full parse -> Benders -> Router -> DRC pipeline."""
+    """Orchestrates the full parse -> CP-SAT -> Router -> DRC pipeline."""
 
     def __init__(
         self,
         pcb_path: Path,
         seed: dict | None = None,
         repo_root: Path | None = None,
-        strategy: str = "template",
+        strategy: str = "cp_sat",
         require_all_stages: bool = False,
     ):
         self.pcb_path = Path(pcb_path)
@@ -315,54 +366,113 @@ class ClosureTest:
             except ChannelSidecarError as e:
                 _LOGGER.warning("sidecar validation failed: %s", e)
 
-        # Step 2: Benders placement via protocol
+        # Step 2: CP-SAT placement via the supported backend.  ``cp_sat`` is
+        # deliberately a direct call: asking the protocol registry for a
+        # same-named stage would make a future/partial registration silently
+        # replace the supported solver.  ``template`` is retained only as a
+        # compatibility spelling for callers of the pre-migration closure
+        # entry point; its retired adapter is never imported or recreated.
         benders_iterations = 0
         benders_cuts = 0
-        try:
-            from temper_placer.protocol import StageInput, StageMeta
-            from temper_placer.runner import resolve_and_run
+        placement_succeeded = False
+        direct_cp_sat = False
+        if self.strategy in {"template", "cp_sat"}:
+            try:
+                placement_result = _run_cp_sat_placement(parsed, self.benders_seed)
+                optimized_placements = placement_result.to_placements_dict()
+                # A direct CP-SAT solve is one placement iteration; no
+                # Benders cuts are produced by this backend.
+                benders_iterations = 1
+                benders_cuts = 0
+                stages_exercised += 1
+                placement_succeeded = True
+                direct_cp_sat = True
+            except Exception as exc:
+                msg = f"Placement not available: CP-SAT failed: {exc}"
+                if self.require_all_stages:
+                    errors.append(msg)
+                else:
+                    warnings.append(msg)
+                optimized_placements = {}
+        else:
+            # Custom protocol strategies are caller-owned.  A missing or
+            # failing strategy is an actual failure, not permission to run a
+            # different algorithm under its name.
+            try:
+                from temper_placer.protocol import StageInput, StageMeta
+                from temper_placer.runner import resolve_and_run
 
-            placement_result = resolve_and_run(
-                phase="placement",
-                strategies=[self.strategy],
-                input=StageInput(
-                    data=parsed,
-                    meta=StageMeta(seed=self.benders_seed),
-                ),
-                fallback="template",
-            )
-            benders_iterations = getattr(placement_result.data, "iterations", 0)
-            benders_cuts = getattr(placement_result.data, "cuts", 0)
-            optimized_placements = getattr(placement_result.data, "placements", {})
-            if benders_iterations == 0 and optimized_placements:
-                benders_iterations = len(optimized_placements)  # CP-SAT: count placements as metric
-            stages_exercised += 1
-        except Exception as e:
-            msg = f"Placement not available: {e}"
-            if self.require_all_stages:
-                errors.append(msg)
-            else:
-                warnings.append(msg)
-            optimized_placements = {}
+                placement_result = resolve_and_run(
+                    phase="placement",
+                    strategies=[self.strategy],
+                    input=StageInput(
+                        data=parsed,
+                        meta=StageMeta(seed=self.benders_seed),
+                    ),
+                )
+                benders_iterations = getattr(placement_result.data, "iterations", 0)
+                benders_cuts = getattr(placement_result.data, "cuts", 0)
+                optimized_placements = getattr(placement_result.data, "placements", {})
+                if benders_iterations == 0 and optimized_placements:
+                    benders_iterations = len(optimized_placements)  # CP-SAT: count placements as metric
+                stages_exercised += 1
+                placement_succeeded = True
+            except Exception as exc:
+                msg = f"Placement not available: {exc}"
+                if self.require_all_stages:
+                    errors.append(msg)
+                else:
+                    warnings.append(msg)
+                optimized_placements = {}
 
         # Step 3: Router V6 routing via protocol
         router_completion_pct = 0.0
         routing_failure_messages: list[str] = []
         try:
-            from temper_placer.protocol import StageInput, StageMeta
-            from temper_placer.runner import resolve_and_run
+            # Routing consumes the placement output.  Running it against an
+            # empty placement map after placement failed makes the router
+            # silently fall back to the production board's existing positions
+            # and can spend several minutes solving a workload that cannot
+            # produce a valid closure result.  In particular, this used to
+            # turn the known retired placement adapter into a CI OOM/SIGTERM
+            # instead of preserving the actionable placement error.
+            if not placement_succeeded:
+                raise RuntimeError("placement stage failed; downstream routing skipped")
+            if direct_cp_sat:
+                from temper_placer.router_v6 import route_pcb
 
-            routing_result = resolve_and_run(
-                phase="routing",
-                strategies=["router_v6_full"],
-                input=StageInput(
-                    data=parsed,
-                    meta=StageMeta(
-                        seed=self.router_seed,
-                        trace_context={"placements": optimized_placements},
+                # CP-SAT solves in the board-relative frame while KiCad's
+                # source file stores absolute coordinates. This is the same
+                # frame conversion used by PlaceRouteLoop's source-board
+                # routing path.
+                origin_x, origin_y = getattr(parsed.board, "origin", (0.0, 0.0))
+                absolute_placements = {
+                    ref: (x + origin_x, y + origin_y)
+                    for ref, (x, y) in optimized_placements.items()
+                }
+                rotations = getattr(placement_result, "to_rotations_dict", lambda: None)()
+                routing_result = route_pcb(
+                    parsed,
+                    absolute_placements,
+                    design_rules=_load_routing_design_rules(),
+                    rotations=rotations,
+                    components=list(parsed.components),
+                )
+            else:
+                from temper_placer.protocol import StageInput, StageMeta
+                from temper_placer.runner import resolve_and_run
+
+                routing_result = resolve_and_run(
+                    phase="routing",
+                    strategies=["router_v6_full"],
+                    input=StageInput(
+                        data=parsed,
+                        meta=StageMeta(
+                            seed=self.router_seed,
+                            trace_context={"placements": optimized_placements},
+                        ),
                     ),
-                ),
-            )
+                )
             router_completion_pct = getattr(routing_result.data, "completion_rate", 0.0)
             stages_exercised += 1
 

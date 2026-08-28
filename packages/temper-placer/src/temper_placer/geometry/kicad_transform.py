@@ -107,65 +107,13 @@ __all__ = [
 ]
 
 
-def rotate_local_to_world(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """Rotate a local (footprint-relative) offset into world orientation.
-
-    This is R(-theta), KiCad's real footprint-child rotation convention --
-    see this module's docstring for the confirming evidence. ``theta_rad``
-    is the footprint/component's own board rotation, in radians.
-    """
-    return _tg.kicad_rotate_local_to_world_py(x, y, theta_rad)
-
-
-def rotate_local_to_world_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
-    """Degrees convenience wrapper for :func:`rotate_local_to_world`."""
-    return _tg.kicad_rotate_local_to_world_deg_py(x, y, theta_deg)
-
-
-def rotate_world_to_local(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """Inverse of :func:`rotate_local_to_world`: rotate a world-oriented
-    offset back into the footprint's local frame.
-
-    This is R(+theta) -- the transpose of R(-theta), which for a rotation
-    matrix is also its inverse. No call site needed this at the time this
-    module was written; provided as the documented pair of the forward
-    transform (this task's own brief: "expose local->world placement ...
-    plus its inverse") so a future caller does not have to re-derive it.
-    """
-    return _tg.kicad_rotate_world_to_local_py(x, y, theta_rad)
-
-
-def rotate_world_to_local_deg(x: float, y: float, theta_deg: float) -> tuple[float, float]:
-    """Degrees convenience wrapper for :func:`rotate_world_to_local`."""
-    return _tg.kicad_rotate_world_to_local_deg_py(x, y, theta_deg)
-
-
-def place_local_to_world(
-    local_x: float,
-    local_y: float,
-    origin_x: float,
-    origin_y: float,
-    theta_rad: float,
-) -> tuple[float, float]:
-    """Rotate a local offset by ``theta_rad`` (KiCad convention) and
-    translate by ``(origin_x, origin_y)``. The common "rotate offset from
-    a component's origin, then place at the component's board position"
-    pattern used throughout this repo's KiCad I/O, in one call.
-    """
-    return _tg.kicad_place_local_to_world_py(local_x, local_y, origin_x, origin_y, theta_rad)
-
-
-def shapely_rotation_angle_deg(theta_deg: float) -> float:
-    """The angle (degrees) to pass to ``shapely.affinity.rotate`` to apply
-    this module's KiCad rotation convention to a polygon.
-
-    ``shapely.affinity.rotate``'s own ``angle`` parameter is CCW-positive
-    (standard math convention, i.e. R(+theta)) -- the opposite sign of
-    this module's R(-theta). So::
-
-        shapely.affinity.rotate(poly, shapely_rotation_angle_deg(theta), origin=(0, 0))
-
-    rotates every vertex of ``poly`` exactly as :func:`rotate_local_to_world_deg`
-    would rotate that vertex individually.
-    """
-    return _tg.kicad_shapely_rotation_angle_deg_py(theta_deg)
+# The public functions below have exactly the Rust boundary's argument and
+# return contracts.  Keep this module as a compatibility import path, but do
+# not add six Python call-through bodies that can drift from the sanctioned
+# KiCad convention.  Rust also owns the finite/infinite-angle error behavior.
+rotate_local_to_world = _tg.kicad_rotate_local_to_world_py
+rotate_local_to_world_deg = _tg.kicad_rotate_local_to_world_deg_py
+rotate_world_to_local = _tg.kicad_rotate_world_to_local_py
+rotate_world_to_local_deg = _tg.kicad_rotate_world_to_local_deg_py
+place_local_to_world = _tg.kicad_place_local_to_world_py
+shapely_rotation_angle_deg = _tg.kicad_shapely_rotation_angle_deg_py

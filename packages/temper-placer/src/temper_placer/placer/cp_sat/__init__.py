@@ -16,9 +16,32 @@ from temper_placer.placer.cp_sat.encoder import (
     encode_constraints,
     solve_placement,
 )
+from temper_placer.placer.cp_sat.envelope_preparation import (
+    PreparedEnvelopeInputs,
+    prepare_envelope_inputs,
+)
+from temper_placer.placer.cp_sat.envelope_solver import (
+    EnvelopeBounds,
+    EnvelopeSolveResult,
+    EnvelopeSolveStatus,
+    EnvelopeStatus,
+    PairRequirement,
+    PartitionPlan,
+    solve_envelopes,
+)
 from temper_placer.placer.cp_sat.feedback import ConstraintDelta, FeedbackClassifier
 from temper_placer.placer.cp_sat.gate import AcceptanceGate
-from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+from temper_placer.placer.cp_sat.local_subenvelope_solver import (
+    ComponentPairRequirement,
+    ComponentSpec,
+    LocalComponentBounds,
+    LocalSubEnvelopeSolveResult,
+    LocalSubEnvelopeSolveStatus,
+    LocalSubEnvelopeStatus,
+    pack_local_sub_envelope,
+    solve_local_envelope,
+    solve_local_sub_envelope,
+)
 from temper_placer.placer.cp_sat.loop import LoopResult, PlaceRouteLoop
 from temper_placer.placer.cp_sat.model import (
     ComponentVars,
@@ -33,18 +56,35 @@ __all__ = [
     "AuditViolation",
     "ComponentVars",
     "ConstraintDelta",
+    "ComponentPairRequirement",
+    "ComponentSpec",
+    "EnvelopeBounds",
+    "EnvelopeSolveResult",
+    "EnvelopeSolveStatus",
+    "EnvelopeStatus",
+    "PreparedEnvelopeInputs",
     "CpSatPlacementResult",
     "CpSatModel",
     "CpSolverSolution",
     "EncoderContext",
     "FeedbackClassifier",
     "LoopResult",
+    "LocalComponentBounds",
+    "LocalSubEnvelopeSolveResult",
+    "LocalSubEnvelopeSolveStatus",
+    "LocalSubEnvelopeStatus",
     "PlaceRouteLoop",
     "Placement",
     "PlacementAuditor",
+    "PairRequirement",
+    "PartitionPlan",
     "SolveStatus",
     "solve_placement",
-    "HANDLER_REGISTRY",
     "UNSUPPORTED_TYPES",
     "encode_constraints",
+    "solve_envelopes",
+    "pack_local_sub_envelope",
+    "solve_local_envelope",
+    "solve_local_sub_envelope",
+    "prepare_envelope_inputs",
 ]
