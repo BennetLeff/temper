@@ -50,6 +50,8 @@ def test_default_stage_order_is_deterministic() -> None:
         "fixed_copper",
         "body_collision_audit",
     ]
+    assert stages[0].kwargs["experimental_omit_generated_creepage"] is True
+    assert stages[1].kwargs["experimental_omit_generated_creepage"] is False
 
 
 def test_campaign_carries_previous_solution_as_a_hint_and_appends_constraints() -> None:

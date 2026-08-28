@@ -415,6 +415,7 @@ def solve_placement(
     decomposed_creepage_local_pack_timeout_ms: int = _DEFAULT_DECOMPOSED_LOCAL_PACK_TIMEOUT_MS,
     decomposed_creepage_envelope_headroom_mm: float = _DEFAULT_DECOMPOSED_ENVELOPE_HEADROOM_MM,
     decomposed_creepage_restriction_slack_mm: float = _DEFAULT_DECOMPOSED_RESTRICTION_SLACK_MM,
+    experimental_omit_generated_creepage: bool = False,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -644,6 +645,15 @@ def solve_placement(
             prevents false infeasibility at this integration boundary; exact
             generated creepage gaps and component no-overlap remain hard
             constraints and the Rust verifier remains authoritative.
+        experimental_omit_generated_creepage: Diagnostic-only experiment
+            switch. When true, omit only the auto-generated KiCad creepage
+            matrix from the ordinary encoder call. Courtyard separation,
+            board bounds, NoOverlap2D, explicit PCL constraints, and every
+            other production constraint remain active. This is intended only
+            for incremental restoration experiments; it is false by default
+            and cannot be combined with ``lazy_creepage`` or
+            ``decomposed_creepage``. A later stage with this switch false is
+            required before treating a placement as production-complete.
         decomposed_creepage_group_prior_cuts: Use the Rust neighborhood
             planner to share four relative-direction literals across dense
             replay-cut blocks. This is a search restriction, so an infeasible
@@ -664,6 +674,13 @@ def solve_placement(
         raise ValueError("lazy_creepage_iteration_timeout_ms must be positive")
     if decomposed_creepage and not lazy_creepage:
         raise ValueError("decomposed_creepage requires lazy_creepage")
+    if not isinstance(experimental_omit_generated_creepage, bool):
+        raise ValueError("experimental_omit_generated_creepage must be a boolean")
+    if experimental_omit_generated_creepage and (lazy_creepage or decomposed_creepage):
+        raise ValueError(
+            "experimental_omit_generated_creepage cannot be combined with "
+            "lazy_creepage or decomposed_creepage"
+        )
     if not isinstance(decomposed_creepage_group_prior_cuts, bool):
         raise ValueError("decomposed_creepage_group_prior_cuts must be a boolean")
     if (
@@ -1354,8 +1371,11 @@ def solve_placement(
         # matrix. Decomposed mode opts into posting it eagerly, while the
         # existing non-decomposed lazy behavior remains unchanged.
         enforce_creepage=(
-            not lazy_creepage
-            or (decomposed_creepage and decomposed_creepage_eager_constraints)
+            not experimental_omit_generated_creepage
+            and (
+                not lazy_creepage
+                or (decomposed_creepage and decomposed_creepage_eager_constraints)
+            )
         ),
     )
     if decomposed_creepage_group_prior_cuts and accumulated_cut_map:

@@ -44,6 +44,68 @@ def test_partition_ref_projection_preserves_prepared_input_order() -> None:
     }
 
 
+def test_experimental_creepage_omission_keeps_ordinary_encoder_constraints(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only auto-generated creepage is omitted by the diagnostic switch."""
+    netlist, board = _inputs()
+    monkeypatch.setattr(
+        "temper_placer.io.netclass_loader.load_netclass_rules",
+        lambda _path: SimpleNamespace(design_rules=SimpleNamespace()),
+    )
+    monkeypatch.setattr(_encoder_solve, "courtyard_clearance_mm", lambda _default: 1.0)
+    captured: dict[str, object] = {}
+
+    def capture_encode(*_args: object, **kwargs: object) -> None:
+        captured.update(kwargs)
+
+    monkeypatch.setattr(_encoder_solve, "encode_constraints", capture_encode)
+    result = _encoder_solve.solve_placement(
+        netlist,
+        board,
+        timeout_ms=2_000,
+        experimental_omit_generated_creepage=True,
+    )
+    assert result.status in {"optimal", "feasible"}
+    assert captured["enforce_creepage"] is False
+    # NoOverlap2D and board-bound constraints are installed before the
+    # encoder dispatch and therefore remain active in this mode.
+    assert result.positions
+
+
+def test_generated_creepage_remains_eager_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    netlist, board = _inputs()
+    monkeypatch.setattr(
+        "temper_placer.io.netclass_loader.load_netclass_rules",
+        lambda _path: SimpleNamespace(design_rules=SimpleNamespace()),
+    )
+    monkeypatch.setattr(_encoder_solve, "courtyard_clearance_mm", lambda _default: 1.0)
+    captured: dict[str, object] = {}
+
+    def capture_encode(*_args: object, **kwargs: object) -> None:
+        captured.update(kwargs)
+
+    monkeypatch.setattr(_encoder_solve, "encode_constraints", capture_encode)
+    _encoder_solve.solve_placement(netlist, board, timeout_ms=2_000)
+    assert captured["enforce_creepage"] is True
+
+
+def test_experimental_creepage_omission_is_explicitly_incompatible_with_lazy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    netlist, board = _inputs()
+    with pytest.raises(ValueError, match="cannot be combined"):
+        _encoder_solve.solve_placement(
+            netlist,
+            board,
+            timeout_ms=2_000,
+            lazy_creepage=True,
+            experimental_omit_generated_creepage=True,
+        )
+
+
 def _patch_coarse_dependencies(monkeypatch: pytest.MonkeyPatch, result):
     netlist, board = _inputs()
     monkeypatch.setattr(

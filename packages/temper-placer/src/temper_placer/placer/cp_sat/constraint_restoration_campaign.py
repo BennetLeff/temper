@@ -151,18 +151,19 @@ def default_restoration_stages(
 ) -> tuple[RestorationStage, ...]:
     """Return the canonical deterministic family order.
 
-    The baseline stage uses the ordinary production call exactly as supplied
-    by ``production_kwargs``.  Optional mappings are copied into later
-    stages in this order:
+    The baseline stage uses the ordinary production call with only the
+    diagnostic generated-creepage omission enabled.  The following stage
+    always restores the complete eager generated-creepage family. Optional
+    mappings are copied into later stages in this order:
 
     ``exact_creepage``, ``decomposed_creepage``, ``isolation_barrier``,
     ``tank_creepage``, ``heatsink_colocation``,
     ``protective_impedance_colocation``, ``fixed_copper``,
     ``validator_audit``, ``body_collision_audit``.
 
-    Empty/missing mappings are omitted.  The function does not synthesize
-    manifests or constraints; a family is restored only when its complete
-    production API kwargs are supplied.
+    Empty/missing optional mappings are omitted.  The function does not
+    synthesize manifests or constraints; an optional family is restored only
+    when its complete production API kwargs are supplied.
     """
 
     candidates = (
@@ -176,9 +177,21 @@ def default_restoration_stages(
         ("validator_audit", validator_audit),
         ("body_collision_audit", body_collision_audit),
     )
-    stages = [RestorationStage("baseline")]
+    stages = [
+        RestorationStage(
+            "baseline",
+            {"experimental_omit_generated_creepage": True},
+        )
+    ]
+    exact_kwargs = {"experimental_omit_generated_creepage": False}
+    if exact_creepage is not None:
+        exact_kwargs.update(exact_creepage)
+    # Do not permit an accidentally supplied true value to make this appear
+    # to be the eager-restoration stage while it is still omitted.
+    exact_kwargs["experimental_omit_generated_creepage"] = False
+    stages.append(RestorationStage("exact_creepage", exact_kwargs))
     for name, kwargs in candidates:
-        if kwargs is not None:
+        if kwargs is not None and name != "exact_creepage":
             stages.append(RestorationStage(name, dict(kwargs)))
     return tuple(stages)
 
@@ -282,6 +295,15 @@ def _merge_kwargs(current: dict[str, object], stage: RestorationStage) -> dict[s
             if isinstance(prior, (str, bytes)) or isinstance(value, (str, bytes)):
                 raise ValueError("extra_constraints must be sequences")
             merged[key] = [*list(prior), *list(value)]  # type: ignore[arg-type]
+        elif (
+            key == "experimental_omit_generated_creepage"
+            and merged.get(key) is True
+            and value is False
+        ):
+            # This is the one deliberate cumulative transition: the
+            # diagnostic baseline omits generated creepage and the next
+            # stage restores it. No other option may be replaced.
+            merged[key] = value
         elif key in merged and merged[key] != value:
             raise ValueError(f"stage {stage.name!r} attempts to replace existing option {key!r}")
         else:
@@ -380,12 +402,18 @@ def run_constraint_restoration_campaign(
     started = time.monotonic()
     try:
         expected = _expected_refs(netlist)
+        using_default_stages = stages is None
         selected = tuple(stages if stages is not None else default_restoration_stages())
         if not selected or len(selected) > _MAX_STAGES:
             raise ValueError(f"stages must contain between 1 and {_MAX_STAGES} entries")
         if any(not isinstance(stage, RestorationStage) for stage in selected):
             raise ValueError("stages must contain RestorationStage values")
         base_kwargs = dict(production_kwargs or {})
+        if using_default_stages:
+            # The default campaign owns this switch for its diagnostic
+            # baseline. A caller's ordinary default value must not conflict
+            # with the explicitly named baseline stage.
+            base_kwargs.pop("experimental_omit_generated_creepage", None)
         if initial_hint_positions is not None:
             base_kwargs["hint_positions"] = dict(initial_hint_positions)
     except Exception as exc:
