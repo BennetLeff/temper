@@ -306,6 +306,94 @@ pub fn netclass_creepage_violations_py(
     Ok(violations)
 }
 
+/// Return the complete component-pair creepage requirements represented by
+/// the generated KiCad class-pair matrix.
+///
+/// The Python side supplies only opaque-object marshalling and the generated
+/// matrix rows.  Rust owns the pin-class cross product and its max reduction,
+/// keeping production instance preparation from growing a second Python
+/// implementation of the safety graph.  Pairs with no generated requirement
+/// are omitted; the stripped model's normal non-overlap relation supplies the
+/// zero-gap case for those pairs.
+#[pyfunction]
+pub fn netclass_creepage_requirements_py(
+    components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,
+    class_clearance: HashMap<String, f64>,
+    class_pair_overrides: Vec<(String, String, Option<f64>, String)>,
+    class_pair_creepage: Vec<(String, String, f64)>,
+) -> PyResult<Vec<(String, String, f64)>> {
+    if class_clearance
+        .values()
+        .any(|value| !value.is_finite() || *value < 0.0)
+        || class_pair_overrides.iter().any(|(a, b, value, _)| {
+            a.trim().is_empty()
+                || b.trim().is_empty()
+                || value.is_some_and(|distance| !distance.is_finite() || distance < 0.0)
+        })
+    {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "malformed component clearance or class-pair override",
+        ));
+    }
+    for (class_a, class_b, required) in &class_pair_creepage {
+        if class_a.trim().is_empty()
+            || class_b.trim().is_empty()
+            || !required.is_finite()
+            || *required < 0.0
+        {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "malformed generated creepage matrix row",
+            ));
+        }
+    }
+    let matrix = canonical_creepage_matrix(&class_pair_creepage);
+    let mut requirements = Vec::new();
+    for (index_a, (ref_a, pins_a)) in components_pin_infos.iter().enumerate() {
+        if ref_a.trim().is_empty() {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "component reference must be non-empty",
+            ));
+        }
+        for (ref_b, pins_b) in components_pin_infos.iter().skip(index_a + 1) {
+            if ref_b.trim().is_empty() || ref_a == ref_b {
+                return Err(pyo3::exceptions::PyValueError::new_err(
+                    "component references must be unique and non-empty",
+                ));
+            }
+            let creepage = max_creepage_for_pin_classes(pins_a, pins_b, &matrix);
+            let class_a = resolve_component_net_class(pins_a);
+            let class_b = resolve_component_net_class(pins_b);
+            let clearance = match (class_a.as_deref(), class_b.as_deref()) {
+                (Some(class_a), Some(class_b)) if class_a != class_b => {
+                    let (key_a, key_b) = if class_a <= class_b {
+                        (class_a, class_b)
+                    } else {
+                        (class_b, class_a)
+                    };
+                    let override_value = class_pair_overrides.iter().find_map(
+                        |(override_a, override_b, value, _because)| {
+                            (override_a == key_a && override_b == key_b).then_some(*value)
+                        },
+                    );
+                    override_value.flatten().unwrap_or_else(|| {
+                        class_clearance
+                            .get(class_a)
+                            .copied()
+                            .unwrap_or(0.0)
+                            .max(class_clearance.get(class_b).copied().unwrap_or(0.0))
+                    })
+                }
+                _ => 0.0,
+            };
+            let required = clearance.max(creepage);
+            if required > 0.0 {
+                requirements.push((ref_a.clone(), ref_b.clone(), required));
+            }
+        }
+    }
+    Ok(requirements)
+}
+
 fn netclass_separated_constraints_impl(
     py: Python<'_>,
     components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,

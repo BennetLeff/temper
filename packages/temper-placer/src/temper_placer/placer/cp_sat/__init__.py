@@ -59,6 +59,13 @@ from temper_placer.placer.cp_sat.stripped_creepage_solver import (
     StrippedCreepageSolveStatus,
     solve_stripped_creepage,
 )
+from temper_placer.placer.cp_sat.production_stripped_instance import (
+    ProductionStrippedDiagnostics,
+    ProductionStrippedInstance,
+    ProductionStrippedProbeReport,
+    prepare_production_stripped_instance,
+    run_production_stripped_probe,
+)
 
 __all__ = [
     "AcceptanceGate",
@@ -86,6 +93,9 @@ __all__ = [
     "LocalSubEnvelopeStatus",
     "StrippedCreepageSolveResult",
     "StrippedCreepageSolveStatus",
+    "ProductionStrippedDiagnostics",
+    "ProductionStrippedInstance",
+    "ProductionStrippedProbeReport",
     "ThresholdCliqueBound",
     "PlaceRouteLoop",
     "Placement",
@@ -101,6 +111,8 @@ __all__ = [
     "solve_local_envelope",
     "solve_local_sub_envelope",
     "solve_stripped_creepage",
+    "prepare_production_stripped_instance",
+    "run_production_stripped_probe",
     "analyze_creepage_lower_bounds",
     "prepare_envelope_inputs",
 ]
