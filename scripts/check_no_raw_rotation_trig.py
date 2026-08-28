@@ -232,7 +232,6 @@ GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/io/_parse_modules.py",
     "packages/temper-placer/src/temper_placer/io/_write_board.py",
     "packages/temper-placer/src/temper_placer/io/_write_modules.py",
-    "packages/temper-placer/src/temper_placer/io/kicad_exporter.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
     "packages/temper-placer/src/temper_placer/placer/template.py",
     "packages/temper-placer/src/temper_placer/requirements/validators/_copper.py",
@@ -388,7 +387,12 @@ GUARDED_RUST_FILES: tuple[str, ...] = (
     # pointer `host_math::cos`/`sin` resolves, with the same
     # `f64::cos`/`f64::sin` fallback.
     "packages/temper-geometry/src/clearance_geometry.rs",
-    "packages/temper-geometry/src/congestion_analysis.rs",
+    # congestion_analysis.rs was split into congestion.rs during the
+    # accumulator/real-record migration. Its only KiCad-derived rotation
+    # helper (pin_world_position) was removed with that old analysis surface;
+    # congestion.rs is the surviving congestion owner and remains guarded so
+    # a future rotation helper cannot be added unreviewed.
+    "packages/temper-geometry/src/congestion.rs",
     "packages/temper-geometry/src/connectivity_kernels.rs",
     "packages/temper-geometry/src/core_graph_geometry.rs",
     "packages/temper-geometry/src/drc_constraints_geometry.rs",

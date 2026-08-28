@@ -51,7 +51,6 @@ pytest_sessionstart  # unused import (packages/temper-placer/tests/conftest.py:2
 refresh  # unused variable (packages/temper-placer/src/temper_placer/cli/watch_commands.py:44)
 safety_margin_current  # unused variable (packages/temper-placer/tests/requirements/validators/schematic.py:279)
 same_layer  # unused variable (packages/temper-placer/tests/router_v6/astar_property_strategies.py:85)
-sat_bridge  # unused import (packages/temper-placer/tests/pcl/test_constraints_rust_differential.py:55)
 schematic_path  # unused variable (packages/temper-placer/tests/requirements/validators/schematic.py:566)
 shielding_zones  # unused variable (packages/temper-placer/tests/requirements/validators/layout_review.py:818)
 silkscreen_layer  # unused variable (packages/temper-placer/tests/requirements/validators/layout_review.py:1018)
