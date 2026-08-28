@@ -664,6 +664,14 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_territories_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_repair_frontier_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
         partition_planner::compact_partition_envelopes_py,
         m
     )?)?;

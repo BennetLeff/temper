@@ -67,6 +67,146 @@ pub type PartitionCreepageRequirements = (Vec<(usize, usize, f64)>, Vec<(usize, 
 /// `(groups, dense_group_pairs)` for shared-direction creepage encoding.
 pub type GroupedCreepagePlan = (Vec<Vec<String>>, Vec<(usize, usize)>);
 
+/// Exact weighted-twin quotient of a component creepage graph.
+///
+/// The three fields are `(territories, cross_territory_requirements,
+/// internal_territory_requirements)`. Two refs share a territory exactly when
+/// they have the same required distance to every third ref. This admits both
+/// false twins (no internal edge) and true twins (one uniform internal edge)
+/// without confusing the missing self-edge for a different neighborhood.
+pub type CreepageTerritoryPlan = (
+    Vec<Vec<String>>,
+    Vec<(usize, usize, f64)>,
+    Vec<(usize, f64)>,
+);
+
+/// Build the exact weighted-twin quotient of a complete component ref set.
+pub fn plan_creepage_territories(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> Result<CreepageTerritoryPlan, String> {
+    let mut refs = BTreeSet::new();
+    for reference in component_refs {
+        if reference.trim().is_empty() {
+            return Err("component references must be non-empty".into());
+        }
+        if !refs.insert(reference.clone()) {
+            return Err(format!("duplicate component reference: {reference}"));
+        }
+    }
+    if refs.is_empty() {
+        return Err("at least one component reference is required".into());
+    }
+    let mut edges = BTreeMap::<(String, String), f64>::new();
+    for (left, right, required) in cuts {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("creepage cuts require two distinct non-empty refs".into());
+        }
+        if !refs.contains(&left) || !refs.contains(&right) {
+            return Err("creepage cut references an unknown component".into());
+        }
+        if !required.is_finite() || required < 0.0 {
+            return Err("creepage cut distance must be finite and non-negative".into());
+        }
+        let key = if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        };
+        let entry = edges.entry(key).or_insert(0.0);
+        *entry = entry.max(required);
+    }
+    let refs: Vec<String> = refs.into_iter().collect();
+    let weight = |left: &str, right: &str| -> f64 {
+        let key = if left < right {
+            (left.to_owned(), right.to_owned())
+        } else {
+            (right.to_owned(), left.to_owned())
+        };
+        edges.get(&key).copied().unwrap_or(0.0)
+    };
+    let mut territories: Vec<Vec<String>> = Vec::new();
+    for reference in &refs {
+        let compatible = territories.iter().position(|territory| {
+            let representative = &territory[0];
+            refs.iter().all(|other| {
+                other == reference
+                    || other == representative
+                    || weight(reference, other) == weight(representative, other)
+            })
+        });
+        if let Some(index) = compatible {
+            territories[index].push(reference.clone());
+        } else {
+            territories.push(vec![reference.clone()]);
+        }
+    }
+    territories.sort_by(|left, right| left[0].cmp(&right[0]));
+    let mut cross = Vec::new();
+    let mut internal = Vec::with_capacity(territories.len());
+    for (territory_id, territory) in territories.iter().enumerate() {
+        let required = territory
+            .get(1)
+            .map(|other| weight(&territory[0], other))
+            .unwrap_or(0.0);
+        internal.push((territory_id, required));
+    }
+    for left in 0..territories.len() {
+        for right in (left + 1)..territories.len() {
+            let required = weight(&territories[left][0], &territories[right][0]);
+            if required > 0.0 {
+                cross.push((left, right, required));
+            }
+        }
+    }
+    Ok((territories, cross, internal))
+}
+
+/// Return a deterministic greedy vertex cover for a creepage violation graph.
+///
+/// Every returned ref may move while the complement is frozen. At each step
+/// the highest-degree remaining vertex is selected; lexical order breaks
+/// ties. The result is not claimed minimum, but every supplied edge is
+/// covered by construction and the bounded O(VE) policy is reproducible.
+pub fn plan_creepage_repair_frontier(
+    violations: Vec<(String, String, f64, f64)>,
+) -> Result<Vec<String>, String> {
+    let mut edges = BTreeSet::<(String, String)>::new();
+    for (left, right, required, actual) in violations {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("creepage violations require two distinct non-empty refs".into());
+        }
+        if !required.is_finite() || !actual.is_finite() || required < 0.0 || actual < 0.0 {
+            return Err("creepage violation distances must be finite and non-negative".into());
+        }
+        if actual >= required {
+            return Err("creepage repair input contains a non-violation".into());
+        }
+        edges.insert(if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        });
+    }
+    let mut cover = Vec::new();
+    while !edges.is_empty() {
+        let mut degrees = BTreeMap::<String, usize>::new();
+        for (left, right) in &edges {
+            *degrees.entry(left.clone()).or_default() += 1;
+            *degrees.entry(right.clone()).or_default() += 1;
+        }
+        let selected = degrees
+            .into_iter()
+            .max_by(|left, right| left.1.cmp(&right.1).then_with(|| right.0.cmp(&left.0)))
+            .map(|(reference, _degree)| reference)
+            .ok_or_else(|| "creepage repair graph lost all vertices".to_string())?;
+        edges.retain(|(left, right)| left != &selected && right != &selected);
+        cover.push(selected);
+    }
+    cover.sort();
+    Ok(cover)
+}
+
 /// Group refs with similar cut neighborhoods, then identify dense group pairs.
 /// Requirements remain attached to their original component pairs; this plan
 /// only permits the caller to share relative-direction literals.
@@ -1042,6 +1182,23 @@ pub fn plan_grouped_creepage_cuts_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
+pub fn plan_creepage_territories_py(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> PyResult<CreepageTerritoryPlan> {
+    plan_creepage_territories(component_refs, cuts).map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn plan_creepage_repair_frontier_py(
+    violations: Vec<(String, String, f64, f64)>,
+) -> PyResult<Vec<String>> {
+    plan_creepage_repair_frontier(violations).map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
 pub fn compact_partition_envelopes_py(
     partitions: Vec<PartitionPlan>,
     component_dimensions: Vec<(String, f64, f64)>,
@@ -1087,6 +1244,47 @@ pub(crate) mod tests {
         let mut reversed = cuts;
         reversed.reverse();
         assert_eq!(plan_grouped_creepage_cuts(reversed, 2, 3).unwrap(), plan);
+    }
+
+    #[test]
+    fn creepage_territories_find_weighted_true_and_false_twins() {
+        let refs = ["A1", "A2", "B1", "B2", "X"]
+            .into_iter()
+            .map(str::to_string)
+            .collect();
+        let cuts = vec![
+            ("A1".into(), "B1".into(), 12.6),
+            ("A1".into(), "B2".into(), 12.6),
+            ("A2".into(), "B1".into(), 12.6),
+            ("A2".into(), "B2".into(), 12.6),
+            ("B1".into(), "B2".into(), 2.0),
+            ("A1".into(), "X".into(), 0.5),
+            ("A2".into(), "X".into(), 0.5),
+        ];
+        let plan = plan_creepage_territories(refs, cuts).unwrap();
+        assert_eq!(
+            plan.0,
+            vec![
+                vec!["A1".to_string(), "A2".to_string()],
+                vec!["B1".to_string(), "B2".to_string()],
+                vec!["X".to_string()],
+            ]
+        );
+        assert_eq!(plan.1, vec![(0, 1, 12.6), (0, 2, 0.5)]);
+        assert_eq!(plan.2, vec![(0, 0.0), (1, 2.0), (2, 0.0)]);
+    }
+
+    #[test]
+    fn creepage_repair_frontier_covers_every_edge_deterministically() {
+        let violations = vec![
+            ("A".into(), "B".into(), 12.6, 1.0),
+            ("A".into(), "C".into(), 12.6, 2.0),
+            ("D".into(), "C".into(), 6.0, 1.0),
+        ];
+        assert_eq!(
+            plan_creepage_repair_frontier(violations).unwrap(),
+            vec!["A".to_string(), "C".to_string()]
+        );
     }
 
     fn sample() -> (Vec<ComponentPinClasses>, Vec<ElectricalNet>) {
