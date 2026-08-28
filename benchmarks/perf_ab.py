@@ -447,27 +447,6 @@ def bench_physics_device_check() -> tuple[float, float]:
     )
 
 
-def bench_physics_classify() -> tuple[float, float]:
-    """A/B classify_parameter (Rust string classification) vs the oracle."""
-    import temper_thermal as _tt
-
-    oracle = _physics_oracle("parameter_bounds", "test_parameter_bounds_rust_differential.py")._oracle_classify
-    args = ("junction_to_case_c_per_w", "R_theta sweep")
-
-    def run_rust() -> Any:
-        return [_tt.classify_parameter_py(*args) for _ in range(500)][-1]
-
-    def run_oracle() -> Any:
-        return [oracle(*args) for _ in range(500)][-1]
-
-    if run_rust() != run_oracle():
-        raise AssertionError("perf A/B arms disagree for physics-classify")
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
-
 _OCCUPANCY_VALUES = (0, 1, 2, 3, 7, 11, -1, -2)
 _CLASS_POOL = ("GateDriveHV", "GateDriveSELV", "SIGNAL", "ISO_SAFE")
 
@@ -1770,7 +1749,6 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("physics-heat_removal", "build_h_field"): bench_physics_heat_removal,
     ("physics-copper_coverage", "copper_masks"): bench_physics_copper_masks,
     ("physics-tj_cross_check", "device_cross_check"): bench_physics_device_check,
-    ("physics-parameter_bounds", "classify"): bench_physics_classify,
     ("config-loader", "preprocess_config"): bench_config_loader_preprocess,
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
     ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
