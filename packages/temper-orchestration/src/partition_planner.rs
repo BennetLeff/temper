@@ -80,6 +80,228 @@ pub type CreepageTerritoryPlan = (
     Vec<(usize, f64)>,
 );
 
+/// A complete, integer-grid instance for the stripped component-box model.
+///
+/// Components are `(reference, width_units, height_units)`, requirements are
+/// a complete lexicographically ordered pair list `(a, b, gap_units)`, and
+/// the final two values are the board dimensions in the same grid.  Keeping
+/// this canonical representation in Rust makes the CP-SAT boundary unable to
+/// silently omit a component or pair while still leaving OR-Tools (which is
+/// a Python dependency in this repository) at its natural boundary.
+pub type StrippedCreepageInstance = (
+    Vec<(String, i64, i64)>,
+    Vec<(String, String, i64)>,
+    i64,
+    i64,
+);
+
+fn scaled_grid_units(value: f64, units_per_mm: i64, label: &str) -> Result<i64, String> {
+    if !value.is_finite() || value < 0.0 {
+        return Err(format!("{label} must be finite and non-negative"));
+    }
+    let scaled = value * units_per_mm as f64;
+    if !scaled.is_finite() || scaled > i64::MAX as f64 {
+        return Err(format!("{label} overflows the integer model grid"));
+    }
+    let units = scaled.ceil() as i64;
+    Ok(units)
+}
+
+/// Validate and canonicalize the exact component-box creepage instance.
+///
+/// The returned requirements include every unordered component pair.  Rows
+/// absent from the caller's non-zero creepage table receive a zero gap, which
+/// still gives the model the ordinary non-overlap relation.  Duplicate rows,
+/// unknown references, self-pairs, malformed numbers, and dimensions that
+/// quantize to zero are rejected rather than being silently repaired.
+pub fn normalize_stripped_creepage(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    units_per_mm: i64,
+) -> Result<StrippedCreepageInstance, String> {
+    if units_per_mm <= 0 {
+        return Err("units_per_mm must be positive".into());
+    }
+    let board_width = scaled_grid_units(board_width_mm, units_per_mm, "board_width_mm")?;
+    let board_height = scaled_grid_units(board_height_mm, units_per_mm, "board_height_mm")?;
+    let mut canonical_components = BTreeMap::<String, (i64, i64)>::new();
+    for (reference, width, height) in components {
+        if reference.trim().is_empty() {
+            return Err("component reference must be non-empty".into());
+        }
+        if canonical_components.contains_key(&reference) {
+            return Err(format!("duplicate component reference: {reference}"));
+        }
+        let width = scaled_grid_units(width, units_per_mm, "component width")?;
+        let height = scaled_grid_units(height, units_per_mm, "component height")?;
+        if width == 0 || height == 0 {
+            return Err(format!("component {reference} is smaller than one model grid unit"));
+        }
+        canonical_components.insert(reference, (width, height));
+    }
+    if canonical_components.is_empty() {
+        return Err("at least one component is required".into());
+    }
+
+    let mut requested = BTreeMap::<(String, String), i64>::new();
+    for (left, right, required) in requirements {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("creepage requirements need two distinct non-empty refs".into());
+        }
+        if !canonical_components.contains_key(&left) || !canonical_components.contains_key(&right) {
+            return Err("creepage requirement references an unknown component".into());
+        }
+        let key = if left < right { (left, right) } else { (right, left) };
+        if requested.contains_key(&key) {
+            return Err(format!("duplicate creepage requirement: {} / {}", key.0, key.1));
+        }
+        requested.insert(
+            key,
+            scaled_grid_units(required, units_per_mm, "creepage gap")?,
+        );
+    }
+
+    let refs: Vec<String> = canonical_components.keys().cloned().collect();
+    let mut complete_requirements = Vec::with_capacity(refs.len() * (refs.len() - 1) / 2);
+    for (index, left) in refs.iter().enumerate() {
+        for right in refs.iter().skip(index + 1) {
+            complete_requirements.push((
+                left.clone(),
+                right.clone(),
+                requested
+                    .get(&(left.clone(), right.clone()))
+                    .copied()
+                    .unwrap_or(0),
+            ));
+        }
+    }
+    let normalized_components = refs
+        .into_iter()
+        .map(|reference| {
+            let (width, height) = canonical_components[&reference];
+            (reference, width, height)
+        })
+        .collect();
+    Ok((
+        normalized_components,
+        complete_requirements,
+        board_width,
+        board_height,
+    ))
+}
+
+/// Exhaustively verify one stripped-model placement using physical mm values.
+///
+/// Placements are `(reference, x_min_mm, y_min_mm, orientation)`, where
+/// orientation `0` is the supplied `(width, height)` and orientation `1` is
+/// its 90-degree rotation.  A successful return is the only accepted result;
+/// any omitted/unknown reference, malformed geometry, out-of-bounds box, or
+/// remaining pair violation is an error.
+pub fn verify_stripped_creepage(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    placements: Vec<(String, f64, f64, i64)>,
+    allow_rotations: bool,
+) -> Result<(), String> {
+    if !board_width_mm.is_finite() || board_width_mm <= 0.0 {
+        return Err("board_width_mm must be finite and positive".into());
+    }
+    if !board_height_mm.is_finite() || board_height_mm <= 0.0 {
+        return Err("board_height_mm must be finite and positive".into());
+    }
+    let mut dimensions = BTreeMap::<String, (f64, f64)>::new();
+    for (reference, width, height) in components {
+        if reference.trim().is_empty()
+            || !width.is_finite()
+            || !height.is_finite()
+            || width <= 0.0
+            || height <= 0.0
+            || dimensions.insert(reference.clone(), (width, height)).is_some()
+        {
+            return Err("malformed or duplicate component dimensions".into());
+        }
+    }
+    if dimensions.is_empty() {
+        return Err("at least one component is required".into());
+    }
+    let mut gaps = BTreeMap::<(String, String), f64>::new();
+    for (left, right, required) in requirements {
+        if left.trim().is_empty()
+            || right.trim().is_empty()
+            || left == right
+            || !dimensions.contains_key(&left)
+            || !dimensions.contains_key(&right)
+            || !required.is_finite()
+            || required < 0.0
+        {
+            return Err("malformed creepage requirement".into());
+        }
+        let key = if left < right { (left, right) } else { (right, left) };
+        if gaps.insert(key, required).is_some() {
+            return Err("duplicate creepage requirement".into());
+        }
+    }
+    let mut boxes = BTreeMap::<String, (f64, f64, f64, f64)>::new();
+    for (reference, x, y, orientation) in placements {
+        if !dimensions.contains_key(&reference)
+            || !x.is_finite()
+            || !y.is_finite()
+            || !(orientation == 0 || orientation == 1)
+            || (!allow_rotations && orientation != 0)
+            || boxes.contains_key(&reference)
+        {
+            return Err(format!("malformed placement for {reference}"));
+        }
+        let (width, height) = dimensions[&reference];
+        let (width, height) = if orientation == 0 {
+            (width, height)
+        } else {
+            (height, width)
+        };
+        let x_max = x + width;
+        let y_max = y + height;
+        if !x_max.is_finite()
+            || !y_max.is_finite()
+            || x < 0.0
+            || y < 0.0
+            || x_max > board_width_mm + f64::EPSILON
+            || y_max > board_height_mm + f64::EPSILON
+        {
+            return Err(format!("component {reference} is outside board bounds"));
+        }
+        boxes.insert(reference, (x, x_max, y, y_max));
+    }
+    if boxes.len() != dimensions.len() {
+        return Err("placement omitted one or more components".into());
+    }
+    let refs: Vec<String> = dimensions.keys().cloned().collect();
+    for (index, left) in refs.iter().enumerate() {
+        for right in refs.iter().skip(index + 1) {
+            let required = gaps
+                .get(&(left.clone(), right.clone()))
+                .copied()
+                .unwrap_or(0.0);
+            let first = boxes[left];
+            let second = boxes[right];
+            let gap = (first.0 - second.1)
+                .max(second.0 - first.1)
+                .max(first.2 - second.3)
+                .max(second.2 - first.3)
+                .max(0.0);
+            if gap + f64::EPSILON < required {
+                return Err(format!(
+                    "components {left} and {right} violate {required} mm gap (actual {gap})"
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Build the exact weighted-twin quotient of a complete component ref set.
 pub fn plan_creepage_territories(
     component_refs: Vec<String>,
@@ -1216,6 +1438,48 @@ pub fn compact_partition_envelopes_py(
     .map_err(pyo3::exceptions::PyValueError::new_err)
 }
 
+/// Python boundary for the stripped exact component-box model.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn normalize_stripped_creepage_py(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    units_per_mm: i64,
+) -> PyResult<StrippedCreepageInstance> {
+    normalize_stripped_creepage(
+        components,
+        requirements,
+        board_width_mm,
+        board_height_mm,
+        units_per_mm,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+/// Python boundary for the exhaustive stripped-model verifier.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn verify_stripped_creepage_py(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    placements: Vec<(String, f64, f64, i64)>,
+    allow_rotations: bool,
+) -> PyResult<()> {
+    verify_stripped_creepage(
+        components,
+        requirements,
+        board_width_mm,
+        board_height_mm,
+        placements,
+        allow_rotations,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
@@ -1763,6 +2027,65 @@ pub(crate) mod tests {
         );
     }
 
+    #[cfg_attr(test, test)]
+    fn stripped_creepage_normalization_is_complete_and_conservative() {
+        let instance = normalize_stripped_creepage(
+            vec![
+                ("B".into(), 2.001, 1.0),
+                ("A".into(), 1.0, 3.0),
+                ("C".into(), 1.0, 1.0),
+            ],
+            vec![("B".into(), "A".into(), 2.001)],
+            10.0,
+            20.0,
+            100,
+        )
+        .unwrap();
+        assert_eq!(instance.0, vec![("A".into(), 100, 300), ("B".into(), 201, 100), ("C".into(), 100, 100)]);
+        assert_eq!(
+            instance.1,
+            vec![
+                ("A".into(), "B".into(), 201),
+                ("A".into(), "C".into(), 0),
+                ("B".into(), "C".into(), 0),
+            ]
+        );
+        assert_eq!((instance.2, instance.3), (1000, 2000));
+    }
+
+    #[cfg_attr(test, test)]
+    fn stripped_creepage_verifier_rejects_missing_and_bad_pairs() {
+        let components = vec![("A".into(), 2.0, 2.0), ("B".into(), 2.0, 2.0)];
+        let requirements = vec![("A".into(), "B".into(), 3.0)];
+        assert!(verify_stripped_creepage(
+            components.clone(),
+            requirements.clone(),
+            10.0,
+            10.0,
+            vec![("A".into(), 0.0, 0.0, 0)],
+            false,
+        )
+        .is_err());
+        assert!(verify_stripped_creepage(
+            components.clone(),
+            requirements.clone(),
+            10.0,
+            10.0,
+            vec![("A".into(), 0.0, 0.0, 0), ("B".into(), 5.0, 0.0, 0)],
+            false,
+        )
+        .is_ok());
+        assert!(verify_stripped_creepage(
+            components,
+            requirements,
+            10.0,
+            10.0,
+            vec![("A".into(), 0.0, 0.0, 1), ("B".into(), 5.0, 0.0, 0)],
+            false,
+        )
+        .is_err());
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1812,6 +2135,14 @@ pub(crate) mod tests {
         (
             "partition_planner::tests::internal_component_requirements_reject_bad_coverage_and_rows",
             internal_component_requirements_reject_bad_coverage_and_rows,
+        ),
+        (
+            "partition_planner::tests::stripped_creepage_normalization_is_complete_and_conservative",
+            stripped_creepage_normalization_is_complete_and_conservative,
+        ),
+        (
+            "partition_planner::tests::stripped_creepage_verifier_rejects_missing_and_bad_pairs",
+            stripped_creepage_verifier_rejects_missing_and_bad_pairs,
         ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---

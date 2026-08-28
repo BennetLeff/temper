@@ -49,6 +49,11 @@ from temper_placer.placer.cp_sat.model import (
     CpSolverSolution,
     SolveStatus,
 )
+from temper_placer.placer.cp_sat.stripped_creepage_solver import (
+    StrippedCreepageSolveResult,
+    StrippedCreepageSolveStatus,
+    solve_stripped_creepage,
+)
 
 __all__ = [
     "AcceptanceGate",
@@ -73,6 +78,8 @@ __all__ = [
     "LocalSubEnvelopeSolveResult",
     "LocalSubEnvelopeSolveStatus",
     "LocalSubEnvelopeStatus",
+    "StrippedCreepageSolveResult",
+    "StrippedCreepageSolveStatus",
     "PlaceRouteLoop",
     "Placement",
     "PlacementAuditor",
@@ -86,5 +93,6 @@ __all__ = [
     "pack_local_sub_envelope",
     "solve_local_envelope",
     "solve_local_sub_envelope",
+    "solve_stripped_creepage",
     "prepare_envelope_inputs",
 ]
