@@ -19,15 +19,15 @@ import temper_orchestration as _to
 
 from temper_placer.core.design_rules import DesignRules
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.placer.cp_sat.netclass_constraints import (
-    _generated_creepage_rows,
-    _pin_class_infos,
-)
 from temper_placer.placer.cp_sat.bounded_feasibility_probe import (
     BoundedProbeResult,
     ProbeLimits,
     ProbeMode,
     run_bounded_probe,
+)
+from temper_placer.placer.cp_sat.netclass_constraints import (
+    _generated_creepage_rows,
+    _pin_class_infos,
 )
 from temper_placer.placer.cp_sat.stripped_creepage_solver import (
     ComponentSpec,

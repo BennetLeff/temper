@@ -7,7 +7,6 @@ from types import SimpleNamespace
 
 from temper_placer.placer.cp_sat import production_stripped_instance as production
 
-
 _REAL_BOARD = Path(__file__).resolve().parents[5] / "pcb" / "temper.kicad_pcb"
 
 
@@ -27,14 +26,14 @@ def test_preparation_applies_committed_quarter_turn_and_reports_census(monkeypat
         board=SimpleNamespace(width=164.0, height=234.0),
         netlist=SimpleNamespace(components=components),
     )
-    monkeypatch.setattr(production, "parse_kicad_pcb", lambda *args, **kwargs: parsed)
+    monkeypatch.setattr(production, "parse_kicad_pcb", lambda *_args, **_kwargs: parsed)
     monkeypatch.setattr(production, "_load_design_rules", lambda: SimpleNamespace(net_classes={}))
-    monkeypatch.setattr(production, "_pin_class_infos", lambda *args: [("HV", "HV", 2.0)])
+    monkeypatch.setattr(production, "_pin_class_infos", lambda *_args: [("HV", "HV", 2.0)])
     monkeypatch.setattr(production, "_generated_creepage_rows", lambda: [("HV", "LV", 6.0)])
     monkeypatch.setattr(
         production._to,
         "netclass_creepage_requirements_py",
-        lambda infos, clearances, overrides, rows: [("A", "B", 6.0)],
+        lambda _infos, _clearances, _overrides, _rows: [("A", "B", 6.0)],
         raising=False,
     )
 
