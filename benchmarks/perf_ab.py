@@ -244,68 +244,6 @@ def _hubs_bottleneck_fixture() -> tuple[dict[str, Any], list[tuple[float, float]
     return payload, probes
 
 
-def bench_deterministic_hubs_score_at() -> tuple[float, float] | None:
-    """A/B ``BottleneckMap.score_at`` (Rust kernel + per-call O(n) scores
-    marshalling) vs the verbatim oracle.
-
-    Returns None (harness skips) while ``deterministic_hubs`` is absent from
-    the installed ``temper-design-bundle`` extension -- i.e. before the
-    deterministic-hubs slice merges.
-    """
-    import temper_design_bundle_python as _tdb
-
-    dh = getattr(_tdb, "deterministic_hubs", None)
-    if dh is None:
-        return None
-
-    oracle = _load_module_from_path(
-        "_perf_ab_hubs_bottleneck_oracle",
-        _DETERMINISTIC_HUBS_ORACLE_DIR / "_bottleneck_map_py_oracle.py",
-    )
-    payload, probes = _hubs_bottleneck_fixture()
-    cell_size_mm = payload["cell_size_mm"]
-    width = payload["width"]
-    height = payload["height"]
-    origin_xy = payload["origin_xy"]
-    scores = payload["scores"]
-    oracle_map = oracle.BottleneckMap(
-        cell_size_mm=cell_size_mm,
-        width=width,
-        height=height,
-        origin_xy=tuple(origin_xy),
-        scores=tuple(scores),
-    )
-
-    def run_rust() -> list[tuple[str, Any]]:
-        # Replicates the shim's score_at call shape exactly -- the list()
-        # marshalling copy happens per call, inside the timed region.
-        return [
-            _scalar_hex(
-                dh.bottleneck_score_at(
-                    cell_size_mm, width, height, origin_xy[0], origin_xy[1],
-                    list(scores), x, y,
-                )
-            )
-            for x, y in probes
-        ]
-
-    def run_oracle() -> list[tuple[str, Any]]:
-        return [_scalar_hex(oracle_map.score_at(x, y)) for x, y in probes]
-
-    # Parity sanity inside the perf harness (the full A/B is the differential
-    # suite): a perf number for an implementation that no longer agrees with
-    # its oracle is meaningless.
-    if run_rust() != run_oracle():
-        raise AssertionError(
-            "perf A/B arms disagree for deterministic-hubs score_at -- the "
-            "behavioral A/B (test_bottleneck_map_rust_differential.py) "
-            "should be failing too"
-        )
-    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
-        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
-    )
-
-
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 4: physics kernels (temper_placer/physics/* -> temper-thermal)
 # ---------------------------------------------------------------------------
@@ -1757,7 +1695,6 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("drc-geometry", "segment_segment"): bench_drc_geometry_segment_segment,
     ("drc-geometry", "point_rect"): bench_drc_geometry_point_rect,
     ("drc-geometry", "segment_rect"): bench_drc_geometry_segment_rect,
-    ("deterministic-hubs", "score_at"): bench_deterministic_hubs_score_at,
 }
 
 
