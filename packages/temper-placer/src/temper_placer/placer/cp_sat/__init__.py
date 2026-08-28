@@ -42,6 +42,19 @@ from temper_placer.placer.cp_sat.constraint_family_probe_planner import (
     plan_constraint_family_probes,
     plan_family_feasibility_probes,
 )
+from temper_placer.placer.cp_sat.constraint_family_real_board import (
+    run_constraint_family_real_board_campaign,
+    run_real_board_constraint_family_campaign,
+    run_real_board_family_campaign,
+)
+from temper_placer.placer.cp_sat.constraint_family_schema import (
+    ConstraintFamilyDefinition,
+    ConstraintFamilySourceKind,
+    constraint_family_definition,
+    production_constraint_family_definitions,
+    production_family_kwargs,
+    validate_constraint_family_kwargs,
+)
 from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     BoundedDisplacementRadiusResult,
     BoundedDisplacementSweepResult,
@@ -135,6 +148,17 @@ from temper_placer.placer.cp_sat.model import (
     CpSolverSolution,
     SolveStatus,
 )
+from temper_placer.placer.cp_sat.production_constraint_family_inputs import (
+    ProductionConstraintFamilyInputs,
+    ProductionCreepageVerification,
+    build_production_creepage_verifier,
+    make_production_constraint_family_verifier,
+    prepare_production_constraint_family_inputs,
+    production_constraint_family_cache_projections,
+    run_production_board_constraint_family_campaign,
+    run_production_constraint_family_campaign,
+    run_production_constraint_family_real_board_campaign,
+)
 from temper_placer.placer.cp_sat.production_stripped_instance import (
     ProductionStrippedDiagnostics,
     ProductionStrippedInstance,
@@ -185,6 +209,9 @@ __all__ = [
     "FamilySearchFrontier",
     "accepted_placement_covers",
     "constraint_family_probe_key",
+    "run_constraint_family_real_board_campaign",
+    "run_real_board_constraint_family_campaign",
+    "run_real_board_family_campaign",
     "ComponentSpec",
     "EnvelopeBounds",
     "EnvelopeSolveResult",
@@ -206,6 +233,7 @@ __all__ = [
     "ProductionStrippedDiagnostics",
     "ProductionStrippedInstance",
     "ProductionStrippedProbeReport",
+    "ProductionCreepageVerification",
     "RestorationCampaignResult",
     "RestorationCampaignStatus",
     "RestorationLimits",
@@ -226,8 +254,22 @@ __all__ = [
     "plan_constraint_family_feasibility",
     "plan_constraint_family_probes",
     "plan_family_feasibility_probes",
+    "ConstraintFamilyDefinition",
+    "ConstraintFamilySourceKind",
+    "constraint_family_definition",
+    "production_constraint_family_definitions",
+    "production_family_kwargs",
+    "validate_constraint_family_kwargs",
     "run_constraint_family_campaign",
     "run_constraint_family_feasibility_campaign",
+    "ProductionConstraintFamilyInputs",
+    "build_production_creepage_verifier",
+    "make_production_constraint_family_verifier",
+    "prepare_production_constraint_family_inputs",
+    "production_constraint_family_cache_projections",
+    "run_production_constraint_family_campaign",
+    "run_production_constraint_family_real_board_campaign",
+    "run_production_board_constraint_family_campaign",
     "SelectiveDisplacementCampaignResult",
     "SelectiveDisplacementCampaignStatus",
     "SelectiveDisplacementRoundResult",

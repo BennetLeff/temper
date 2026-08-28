@@ -322,6 +322,41 @@ that control is not accepted, the planner is not invoked. Optional production
 families still require their real caller-owned artifacts; the harness refuses
 to synthesize a manifest or treat an empty placeholder as a measurement.
 
+### First authoritative family frontier (measured 2026-08-28)
+
+The production adapter found three families with complete live inputs on this
+checkout: exact generated creepage, tank creepage, and the F.Fab body-collision
+audit. The validator audit was unavailable because `elec/build/default.net`
+had not been generated. Repair-only families were reported unavailable rather
+than represented by empty options.
+
+With a Rust-verified stripped warm start and a 45-second per-probe limit:
+
+| exact family set | solver outcome | time | exhaustive creepage result |
+|---|---|---:|---|
+| none | optimal | 36.588 s | 1 violation |
+| exact creepage | unknown | 45.051 s | no candidate |
+| tank creepage | optimal | 26.761 s | 1 violation |
+| body-collision audit | error/rejected | 36.014 s | candidate rejected by audit |
+
+A targeted fresh exact-creepage probe remained `unknown` after 120.078
+seconds. The canonical five-record frontier, including both exact-creepage
+budgets, is `docs/evidence/2026-08-28-constraint-family-frontier.json`.
+
+The body-collision row needs careful interpretation. This family is a
+post-solve acceptance oracle, not a propagating CP-SAT constraint. It rejected
+an otherwise optimal candidate for 14 new F.Fab collisions (worst:
+`C27`--`L1`, 493.875 mm²). That is evidence that the candidate is physically
+unacceptable, but not a proof that no collision-clean placement exists.
+
+The family ladder therefore confirms the earlier distance-tier result with a
+different instrument: exact generated creepage is the available encoded
+family that changes a quickly solvable production baseline into unresolved
+search. Tank creepage is not that wall. The next solver work should focus on
+the 12.6 mm exact-creepage topology encoding or on generating a collision-safe
+candidate during search; further component-deletion combinations have lower
+diagnostic value.
+
 ## Implementation history
 
 The investigation is represented by these branch commits:

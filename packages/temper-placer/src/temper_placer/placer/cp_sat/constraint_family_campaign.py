@@ -241,6 +241,14 @@ def _compose_family_kwargs(
                 if isinstance(prior, (str, bytes)) or isinstance(value, (str, bytes)):
                     raise ValueError("extra_constraints must be sequences")
                 result[key] = [*list(prior), *list(value)]  # type: ignore[arg-type]
+            elif (
+                key == "experimental_omit_generated_creepage"
+                and result.get(key) is True
+                and value is False
+            ):
+                # The stripped baseline deliberately owns this switch; the
+                # exact-creepage family is the one documented transition.
+                result[key] = value
             elif key in result and result[key] != value:
                 raise ValueError(
                     f"family set {tuple(family_set)!r} has conflicting option {key!r}"
