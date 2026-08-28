@@ -126,7 +126,7 @@ def _component_geometry(component: Any) -> tuple[ComponentSpec, Placement, int]:
         raise ValueError(f"component {ref!r} has non-finite initial position")
     return (
         (ref, width, height),
-        (center_x - width / 2.0, center_y - height / 2.0, 0),
+        (center_x - width / 2.0, center_y - height / 2.0, quadrant),
         quadrant,
     )
 

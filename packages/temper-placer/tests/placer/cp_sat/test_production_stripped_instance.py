@@ -41,7 +41,7 @@ def test_preparation_applies_committed_quarter_turn_and_reports_census(monkeypat
     instance = production.prepare_production_stripped_instance("board.kicad_pcb")
 
     assert instance.components == (("A", 2.0, 4.0), ("B", 4.0, 2.0))
-    assert instance.initial_placements["A"] == (9.0, 18.0, 0)
+    assert instance.initial_placements["A"] == (9.0, 18.0, 1)
     assert instance.initial_placements["B"] == (8.0, 19.0, 0)
     assert instance.requirements == (("A", "B", 6.0),)
     assert instance.diagnostics.component_count == 2

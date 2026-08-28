@@ -98,10 +98,25 @@ def _requirement_inputs(netlist, design_rules: DesignRules) -> list[tuple[str, s
         )
         if pin_infos:
             components_pin_infos.append((component.ref, pin_infos))
+    class_clearance = {
+        cls: float(design_rules.get_rules_for_net("", net_class=cls).clearance)
+        for cls in design_rules.net_classes
+    }
+    class_pair_overrides: list[tuple[str, str, float | None, str]] = []
+    for key, value in (getattr(design_rules, "class_pairs", {}) or {}).items():
+        if not (isinstance(key, tuple) and len(key) == 2 and isinstance(value, dict)):
+            continue
+        class_a, class_b = key
+        if isinstance(class_a, str) and isinstance(class_b, str):
+            class_pair_overrides.append(
+                (class_a, class_b, value.get("clearance"), str(value.get("because", "")))
+            )
     return [
         (str(ref_a), str(ref_b), float(required))
         for ref_a, ref_b, required in _to.netclass_creepage_requirements_py(
             components_pin_infos,
+            class_clearance,
+            class_pair_overrides,
             _generated_creepage_rows(),
         )
     ]
