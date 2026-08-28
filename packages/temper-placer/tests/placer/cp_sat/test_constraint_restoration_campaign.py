@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     RestorationCampaignStatus,
@@ -10,6 +11,7 @@ from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
     RestorationStage,
     RestorationStageStatus,
     default_restoration_stages,
+    distance_tier_restoration_stages,
     run_constraint_restoration_campaign,
 )
 
@@ -34,6 +36,45 @@ class _Solve:
     status: str
     positions: dict[str, tuple[float, float]]
     rotations: dict[str, int]
+
+
+def test_distance_tiers_restore_exact_pairs_in_sorted_cumulative_order() -> None:
+    stages = distance_tier_restoration_stages(
+        SimpleNamespace(
+            requirements=(
+                ("B", "C", 12.6),
+                ("A", "C", 0.5),
+                ("A", "B", 12.6),
+            )
+        )
+    )
+
+    assert [stage.name for stage in stages] == [
+        "baseline",
+        "creepage_0.5mm",
+        "creepage_12.6mm",
+    ]
+    assert stages[0].kwargs == {"experimental_omit_generated_creepage": True}
+    half_mm = stages[1].kwargs["extra_constraints"]
+    strongest = stages[2].kwargs["extra_constraints"]
+    assert [(constraint.a, constraint.b) for constraint in half_mm] == [("A", "C")]
+    assert [(constraint.a, constraint.b) for constraint in strongest] == [
+        ("A", "B"),
+        ("B", "C"),
+    ]
+
+
+def test_distance_tiers_reject_duplicate_pair_rows() -> None:
+    instance = SimpleNamespace(
+        requirements=(("A", "B", 0.5), ("B", "A", 12.6))
+    )
+
+    try:
+        distance_tier_restoration_stages(instance)
+    except ValueError as exc:
+        assert "duplicate" in str(exc)
+    else:  # pragma: no cover - assertion helper without pytest dependency
+        raise AssertionError("duplicate pair was accepted")
 
 
 def test_default_stage_order_is_deterministic() -> None:

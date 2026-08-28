@@ -196,6 +196,73 @@ def default_restoration_stages(
     return tuple(stages)
 
 
+def distance_tier_restoration_stages(instance: object) -> tuple[RestorationStage, ...]:
+    """Restore exact generated creepage pairs one distance tier at a time.
+
+    ``instance.requirements`` must be the Rust-reduced production component
+    pairs.  Python only groups those authoritative rows by their already
+    assigned distance and constructs ordinary hard ``SEPARATED`` constraints.
+    The baseline retains every ordinary production constraint while omitting
+    the automatic all-at-once creepage expansion.  Each later stage appends
+    one complete distance tier, so the final stage is equivalent to restoring
+    every generated component-pair requirement without imposing shared
+    directions or whole-group envelopes.
+    """
+
+    from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+
+    raw = getattr(instance, "requirements", None)
+    if isinstance(raw, (str, bytes)) or raw is None:
+        raise ValueError("production instance requirements are required")
+    rows: list[tuple[str, str, float]] = []
+    seen: set[tuple[str, str]] = set()
+    for index, row in enumerate(raw):
+        try:
+            left_raw, right_raw, distance_raw = row
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"requirement {index} must be (left, right, distance)") from exc
+        left, right = str(left_raw), str(right_raw)
+        distance = float(distance_raw)
+        if not left.strip() or not right.strip() or left == right:
+            raise ValueError(f"requirement {index} has invalid component refs")
+        if not (distance > 0.0 and distance < float("inf")):
+            raise ValueError(f"requirement {index} has invalid distance")
+        pair = tuple(sorted((left, right)))
+        if pair in seen:
+            raise ValueError(f"duplicate production requirement for {pair[0]} / {pair[1]}")
+        seen.add(pair)
+        rows.append((pair[0], pair[1], distance))
+    if not rows:
+        raise ValueError("production instance has no positive creepage requirements")
+
+    by_distance: dict[float, list[SeparatedConstraint]] = {}
+    for left, right, distance in sorted(rows, key=lambda row: (row[2], row[0], row[1])):
+        by_distance.setdefault(distance, []).append(
+            SeparatedConstraint(
+                a=left,
+                b=right,
+                min_distance_mm=distance,
+                tier=ConstraintTier.HARD,
+                because="Generated KiCad creepage distance-tier restoration",
+                id=f"tier_creepage_{distance:g}_{left}_{right}",
+            )
+        )
+    stages = [
+        RestorationStage(
+            "baseline",
+            {"experimental_omit_generated_creepage": True},
+        )
+    ]
+    stages.extend(
+        RestorationStage(
+            f"creepage_{distance:g}mm",
+            {"extra_constraints": tuple(constraints)},
+        )
+        for distance, constraints in sorted(by_distance.items())
+    )
+    return tuple(stages)
+
+
 def _status_name(status: object) -> str | None:
     if isinstance(status, str):
         return status.strip().lower() or None
@@ -462,5 +529,6 @@ __all__ = [
     "RestorationStageResult",
     "RestorationStageStatus",
     "default_restoration_stages",
+    "distance_tier_restoration_stages",
     "run_constraint_restoration_campaign",
 ]

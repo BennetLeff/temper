@@ -9,6 +9,17 @@ from temper_placer.placer.cp_sat.audit import (
     Placement,
     PlacementAuditor,
 )
+from temper_placer.placer.cp_sat.constraint_restoration_campaign import (
+    RestorationCampaignResult,
+    RestorationCampaignStatus,
+    RestorationLimits,
+    RestorationStage,
+    RestorationStageResult,
+    RestorationStageStatus,
+    default_restoration_stages,
+    distance_tier_restoration_stages,
+    run_constraint_restoration_campaign,
+)
 from temper_placer.placer.cp_sat.creepage_lower_bounds import (
     CreepageLowerBoundReport,
     ThresholdCliqueBound,
@@ -54,17 +65,22 @@ from temper_placer.placer.cp_sat.model import (
     CpSolverSolution,
     SolveStatus,
 )
-from temper_placer.placer.cp_sat.stripped_creepage_solver import (
-    StrippedCreepageSolveResult,
-    StrippedCreepageSolveStatus,
-    solve_stripped_creepage,
-)
 from temper_placer.placer.cp_sat.production_stripped_instance import (
     ProductionStrippedDiagnostics,
     ProductionStrippedInstance,
     ProductionStrippedProbeReport,
     prepare_production_stripped_instance,
     run_production_stripped_probe,
+)
+from temper_placer.placer.cp_sat.stripped_creepage_solver import (
+    StrippedCreepageSolveResult,
+    StrippedCreepageSolveStatus,
+    solve_stripped_creepage,
+)
+from temper_placer.placer.cp_sat.stripped_warm_start import (
+    StrippedWarmStartResult,
+    solve_production_stripped_instance_warm_start,
+    solve_stripped_creepage_warm_start,
 )
 
 __all__ = [
@@ -96,6 +112,13 @@ __all__ = [
     "ProductionStrippedDiagnostics",
     "ProductionStrippedInstance",
     "ProductionStrippedProbeReport",
+    "RestorationCampaignResult",
+    "RestorationCampaignStatus",
+    "RestorationLimits",
+    "RestorationStage",
+    "RestorationStageResult",
+    "RestorationStageStatus",
+    "StrippedWarmStartResult",
     "ThresholdCliqueBound",
     "PlaceRouteLoop",
     "Placement",
@@ -113,6 +136,11 @@ __all__ = [
     "solve_stripped_creepage",
     "prepare_production_stripped_instance",
     "run_production_stripped_probe",
+    "default_restoration_stages",
+    "distance_tier_restoration_stages",
+    "run_constraint_restoration_campaign",
+    "solve_production_stripped_instance_warm_start",
+    "solve_stripped_creepage_warm_start",
     "analyze_creepage_lower_bounds",
     "prepare_envelope_inputs",
 ]
