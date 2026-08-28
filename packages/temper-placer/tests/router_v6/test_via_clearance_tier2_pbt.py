@@ -1,7 +1,7 @@
 """Property-based tests for the Wave-4 tier-2 via/clearance/grid cluster.
 
 Verification unit: ``router_v6/{via_placement, clearance_engine,
-grid_converter, path_simplify}.py`` (kernels in ``temper-geometry``'s
+path_simplify}.py`` (kernels in ``temper-geometry``'s
 ``via_clearance.rs``).  Per the G4 cluster ruling
 (``docs/wave4-discipline-contract.md``), the >=5 properties are counted
 across the unit, and EVERY module is reached by at least one property:
@@ -10,8 +10,7 @@ across the unit, and EVERY module is reached by at least one property:
 * P2  -> ``clearance_engine`` (``get_clearance``, composing
   ``safety_distances_py``)
 * P3  -> ``clearance_engine`` (``calculate_safety_distances``)
-* P4  -> ``grid_converter`` (``grid_to_world_py``)
-* P6  -> ``path_simplify`` (``simplify_path_py`` / ``estimate_segment_count_py``)
+* P6  -> the ``temper_geometry`` path-simplification kernels
 * P7  -> ``clearance_engine`` (``net_class_to_voltage_class_py``)
 
 Reachability is measured, not assumed: every property calls its kernel(s)
@@ -45,10 +44,17 @@ from temper_placer.router_v6.clearance_engine import (
 from temper_placer.router_v6.grid_types import (
     GridCell,
 )
-from temper_placer.router_v6.path_simplify import (
-    estimate_segment_count,
-    simplify_path,
-)
+
+
+def simplify_path(cells: list[GridCell]) -> list[GridCell]:
+    """Adapt GridCell fixtures directly to the Rust kernel wire format."""
+    wire = [(c.x, c.y, c.layer) for c in cells]
+    return [GridCell(*cell) for cell in _tg.simplify_path_py(wire)]
+
+
+def estimate_segment_count(cells: list[GridCell]) -> int:
+    """Call the Rust kernel directly; the deleted shim added no behavior."""
+    return _tg.estimate_segment_count_py([(c.x, c.y, c.layer) for c in cells])
 
 _LAYERS = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
 _NET_CLASS_LABELS = [
@@ -188,37 +194,6 @@ def test_p3_fails_for_inverted_tables(_restore_kernels) -> None:
 
 
 # ---------------------------------------------------------------------------
-# P4 — grid_converter: the via-count is the length of the transition-index
-# list, and grid_to_world's axes are separable (bit-exact)
-# ---------------------------------------------------------------------------
-
-
-@given(
-    st.integers(min_value=-20, max_value=20),
-    st.integers(min_value=-20, max_value=20),
-    st.integers(min_value=-20, max_value=20),
-    st.integers(min_value=-20, max_value=20),
-    st.floats(min_value=0.1, max_value=10.0),
-)
-@settings(max_examples=100, deadline=2000)
-def test_p4_grid_to_world_axes_separable(x, y, ox, oy, size):
-    gx, gy = _tg.grid_to_world_py(x, y, float(ox), float(oy), size)
-    sx, _ = _tg.grid_to_world_py(x, 0, float(ox), float(oy), size)
-    _, sy = _tg.grid_to_world_py(0, y, float(ox), float(oy), size)
-    assert gx == sx  # bit-exact
-    assert gy == sy  # bit-exact
-
-
-def test_p4_fails_for_mixed_axes_grid_to_world(_restore_kernels) -> None:
-    _tg.grid_to_world_py = lambda x, y, ox, oy, size: (
-        ox + (x + y) * size + size / 2,
-        oy + x * size + size / 2,
-    )
-    with pytest.raises(AssertionError):
-        test_p4_grid_to_world_axes_separable.hypothesis.inner_test(1, 1, 0, 0, 0.5)
-
-
-# ---------------------------------------------------------------------------
 # P6 — path_simplify: simplification is idempotent and strictly reduces a
 # straight run; the segment count agrees with the simplified path
 # ---------------------------------------------------------------------------
@@ -296,7 +271,6 @@ def _restore_kernels():
             "via_layer_pair_py",
             "adjacent_layer_py",
             "safety_distances_py",
-            "grid_to_world_py",
             "simplify_path_py",
             "estimate_segment_count_py",
             "net_class_to_voltage_class_py",

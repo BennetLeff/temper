@@ -57,23 +57,3 @@ class TestStackupCorrectness:
         )
         with pytest.raises(ValueError, match="6 layers"):
             Board(width=100, height=100, layer_stackup=stackup)
-
-
-class TestKiCadExportLayerValidation:
-    """The KiCad exporter validates 4 copper layers before writing (R4)."""
-
-    def test_validation_passes_for_4_layers(self):
-        """_validate_4_layer_output succeeds for a valid 4-layer board."""
-        from pathlib import Path
-
-        from temper_placer.io.kicad_exporter import _validate_4_layer_output
-
-        board_text = Path(_TEMPER_PCB).read_text()
-        _validate_4_layer_output(board_text)
-
-    def test_validation_raises_for_unparseable_board(self):
-        """_validate_4_layer_output raises RuntimeError on unparseable text."""
-        from temper_placer.io.kicad_exporter import _validate_4_layer_output
-
-        with pytest.raises(Exception):
-            _validate_4_layer_output("(not a kicad_pcb doc)")

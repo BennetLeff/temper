@@ -22,7 +22,7 @@ import random
 
 import temper_io_types as _rust
 
-from temper_placer.explainability.trace import Entry, Trace
+from temper_orchestration import Entry, Trace
 from tests.explainability.explain_oracle import trace_oracle as _oracle
 
 # Module-scope RED arm.

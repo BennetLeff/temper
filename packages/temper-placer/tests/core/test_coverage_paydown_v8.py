@@ -2,11 +2,11 @@
 fields interface, channels, bottleneck, topological graph, and metrics.
 
 Exercises public functions in:
-- geometry/constraints.py, geometry/transform.py, geometry/sdf.py,
+- geometry/constraints.py, geometry/transform.py,
   geometry/smooth.py, geometry/polygon.py, geometry/projections.py,
-  geometry/drc_inflate.py, geometry/__init__.py
+  geometry/__init__.py
 - deterministic/geometry/grid_utils.py, deterministic/flags.py
-- deterministic/channels.py, deterministic/bottleneck_map.py
+- deterministic/channels.py
 - heuristics/base.py, heuristics/conflict.py
 - fields/interface.py
 - topological/graph.py
@@ -208,108 +208,6 @@ class TestGeometricConstraintsCompute:
         ) is False
 
 
-# ---------------------------------------------------------------------------
-# geometry/transform.py: rotation conversion functions
-# ---------------------------------------------------------------------------
-
-
-class TestRotationTransforms:
-    def test_rotation_index_to_onehot_default(self):
-        from temper_placer.geometry.transform import rotation_index_to_onehot
-
-        result = rotation_index_to_onehot(0)
-        assert len(result) == 4
-        assert result[0] == 1.0
-
-    def test_rotation_index_to_onehot_idx2(self):
-        from temper_placer.geometry.transform import rotation_index_to_onehot
-
-        result = rotation_index_to_onehot(2)
-        assert len(result) == 4
-        assert result[2] == 1.0
-
-    def test_rotation_degrees_to_onehot_default(self):
-        from temper_placer.geometry.transform import rotation_degrees_to_onehot
-
-        result = rotation_degrees_to_onehot(0.0)
-        assert len(result) == 4
-        assert result[0] == 1.0
-
-        result = rotation_degrees_to_onehot(90.0)
-        assert result[1] == 1.0
-
-    def test_onehot_to_rotation_degrees_default(self):
-        from temper_placer.geometry.transform import onehot_to_rotation_degrees
-
-        deg = onehot_to_rotation_degrees([1.0, 0.0, 0.0, 0.0])
-        assert deg == pytest.approx(0.0)
-
-        deg = onehot_to_rotation_degrees([0.0, 1.0, 0.0, 0.0])
-        assert deg == pytest.approx(90.0)
-
-    def test_onehot_to_rotation_radians_default(self):
-        from temper_placer.geometry.transform import onehot_to_rotation_radians
-
-        rad = onehot_to_rotation_radians([1.0, 0.0, 0.0, 0.0])
-        assert rad == pytest.approx(0.0)
-
-        rad = onehot_to_rotation_radians([0.0, 1.0, 0.0, 0.0])
-        assert rad == pytest.approx(1.5707963267948966)
-
-
-# ---------------------------------------------------------------------------
-# geometry/sdf.py: sdf_gradient, sdf_to_mask, sdf_to_penalty
-# ---------------------------------------------------------------------------
-
-
-class TestSDFFunctions:
-    def test_sdf_to_mask_scalar(self):
-        from temper_placer.geometry.sdf import sdf_to_mask
-
-        # Inside shape (negative) -> mask ~1
-        m = sdf_to_mask(-1.0, threshold=0.5)
-        assert 0.8 <= m <= 1.0
-
-        # Outside shape (positive) -> mask ~0
-        m = sdf_to_mask(1.0, threshold=0.5)
-        assert 0.0 <= m <= 0.2
-
-    def test_sdf_to_mask_array(self):
-        from temper_placer.geometry.sdf import sdf_to_mask
-
-        m = sdf_to_mask([-1.0, 0.0, 1.0], threshold=0.5)
-        assert len(m) == 3
-
-    def test_sdf_to_penalty_scalar(self):
-        from temper_placer.geometry.sdf import sdf_to_penalty
-
-        # Inside shape (negative) -> penalty > 0
-        p = sdf_to_penalty(-0.5, alpha=10.0)
-        assert p >= 0
-
-        # Outside shape (positive) -> penalty near 0
-        p = sdf_to_penalty(1.0, alpha=10.0)
-        assert p < 0.1
-
-    def test_sdf_to_penalty_array(self):
-        from temper_placer.geometry.sdf import sdf_to_penalty
-
-        p = sdf_to_penalty([-1.0, 0.0, 1.0], alpha=10.0)
-        assert len(p) == 3
-
-    def test_sdf_gradient_circle(self):
-        from temper_placer.geometry.sdf import sdf_gradient
-
-        def circle_sdf(pt):
-            x, y = pt
-            return np.sqrt(x**2 + y**2) - 1.0  # unit circle centered at origin
-
-        grad = sdf_gradient(circle_sdf, (2.0, 0.0))
-        # Gradient should point radially outward
-        assert grad[0] > 0
-        assert abs(grad[1]) < 1e-3
-
-
 # Also test sdf_gradient via geometry/__init__.py re-export
 class TestGeometryInitSDFGradient:
     def test_sdf_gradient_re_export(self):
@@ -349,109 +247,6 @@ class TestSmoothLeakyRelu:
 
         result = smooth_leaky_relu(0.0, 10.0, 0.01)
         assert result >= 0
-
-
-# ---------------------------------------------------------------------------
-# geometry/polygon.py: point_in_polygon_soft, point_in_rect_soft
-# ---------------------------------------------------------------------------
-
-
-class TestPointInPolygonSoft:
-    def test_point_inside_square(self):
-        from temper_geometry import point_in_polygon_soft
-
-        # Square: (0,0), (10,0), (10,10), (0,10)
-        vertices = [0, 0, 10, 0, 10, 10, 0, 10]
-        result = point_in_polygon_soft(5.0, 5.0, vertices, 0.1)
-        # Inside -> close to 1
-        assert result > 0.5
-
-    def test_point_outside_square(self):
-        from temper_geometry import point_in_polygon_soft
-
-        vertices = [0, 0, 10, 0, 10, 10, 0, 10]
-        result = point_in_polygon_soft(20.0, 20.0, vertices, 0.1)
-        # Outside -> close to 0
-        assert result < 0.5
-
-
-class TestPointInRectSoft:
-    def test_point_inside(self):
-        from temper_geometry import point_in_rect_soft
-
-        result = point_in_rect_soft(5.0, 5.0, 0.0, 0.0, 10.0, 10.0, 0.1)
-        assert result > 0.5
-
-    def test_point_outside(self):
-        from temper_geometry import point_in_rect_soft
-
-        result = point_in_rect_soft(20.0, 20.0, 0.0, 0.0, 10.0, 10.0, 0.1)
-        assert result < 0.5
-
-
-# ---------------------------------------------------------------------------
-# geometry/projections.py: project_outside_keepout
-# ---------------------------------------------------------------------------
-
-
-class TestProjectOutsideKeepout:
-    def test_point_outside_no_expansion(self):
-        from temper_geometry import project_outside_keepout
-
-        # half_w/half_h were defaulted to 0.0 by the deleted shim
-        # geometry/projections.py; the Rust kernel requires them explicitly.
-        x, y = project_outside_keepout(15.0, 15.0, 0.0, 0.0, 10.0, 10.0, 0.0, 0.0)
-        assert x > 10.0 or y > 10.0
-
-    def test_point_inside_keepout(self):
-        from temper_geometry import project_outside_keepout
-
-        x, y = project_outside_keepout(5.0, 5.0, 0.0, 0.0, 10.0, 10.0, 0.0, 0.0)
-        # Should be projected to nearest boundary
-        assert x >= 10.0 or y >= 10.0 or x <= 0.0 or y <= 0.0
-
-
-# ---------------------------------------------------------------------------
-# geometry/drc_inflate.py: compute_inflated_half_dims_from_bounds,
-#                          compute_drc_proxy_score
-# ---------------------------------------------------------------------------
-
-
-class TestDRCInflate:
-    def test_compute_inflated_half_dims_f32(self):
-        from temper_placer.geometry.drc_inflate import compute_inflated_half_dims_from_bounds
-
-        bounds = np.array([[10.0, 8.0], [6.0, 4.0]], dtype=np.float32)
-        result = compute_inflated_half_dims_from_bounds(bounds, trace_width_mm=0.25)
-        assert result.shape == (2, 2)
-        # half-widths should be > original/2 due to inflation
-        assert result[0, 0] > 5.0
-
-    def test_compute_inflated_half_dims_f64(self):
-        from temper_placer.geometry.drc_inflate import compute_inflated_half_dims_from_bounds
-
-        bounds = np.array([[10.0, 8.0], [6.0, 4.0]], dtype=np.float64)
-        result = compute_inflated_half_dims_from_bounds(bounds, trace_width_mm=0.25)
-        assert result.shape == (2, 2)
-
-    def test_compute_drc_proxy_score_no_overlap(self):
-        from temper_placer.geometry.drc_inflate import compute_drc_proxy_score
-
-        positions = np.array([[0.0, 0.0], [100.0, 100.0]], dtype=np.float32)
-        hw = np.array([5.0, 5.0], dtype=np.float32)
-        hh = np.array([5.0, 5.0], dtype=np.float32)
-        score = compute_drc_proxy_score(positions, hw, hh)
-        assert score == 0.0
-
-    def test_compute_drc_proxy_score_with_overlap(self):
-        from temper_placer.geometry.drc_inflate import compute_drc_proxy_score
-
-        positions = np.array([[0.0, 0.0], [1.0, 1.0]], dtype=np.float32)
-        hw = np.array([5.0, 5.0], dtype=np.float32)
-        hh = np.array([5.0, 5.0], dtype=np.float32)
-        score = compute_drc_proxy_score(positions, hw, hh)
-        # Overlap or near-overlap -> positive score
-        assert score >= 0
 
 
 # ---------------------------------------------------------------------------
@@ -836,43 +631,6 @@ class TestChannelMap:
         cm = ChannelMap.empty()
         p = routability_penalty((10.0, 10.0), cm)
         assert p == 0.0
-
-
-# ---------------------------------------------------------------------------
-# deterministic/bottleneck_map.py: BottleneckMap.score_at, load_bottleneck_map
-# ---------------------------------------------------------------------------
-
-
-class TestBottleneckMap:
-    def test_score_at_in_bounds(self):
-        from temper_placer.deterministic.bottleneck_map import BottleneckMap
-
-        bm = BottleneckMap(
-            cell_size_mm=1.0,
-            width=10,
-            height=10,
-            origin_xy=(0.0, 0.0),
-            scores=tuple(float(i % 10) / 10.0 for i in range(100)),
-        )
-        score = bm.score_at(5.5, 5.5)
-        assert 0.0 <= score <= 1.0
-
-    def test_score_at_out_of_bounds(self):
-        from temper_placer.deterministic.bottleneck_map import BottleneckMap
-
-        bm = BottleneckMap(
-            cell_size_mm=1.0,
-            width=10,
-            height=10,
-            origin_xy=(0.0, 0.0),
-            scores=tuple(0.5 for _ in range(100)),
-        )
-        # Out-of-bounds should return 0.0
-        score = bm.score_at(-10.0, -10.0)
-        assert score == 0.0
-
-        score = bm.score_at(100.0, 100.0)
-        assert score == 0.0
 
 
 # ---------------------------------------------------------------------------

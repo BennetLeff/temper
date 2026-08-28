@@ -1,6 +1,6 @@
 """R1a differential: the Wave-4 tier-2 via/clearance/grid cluster vs its pinned oracles.
 
-Verification unit: ``router_v6/{via_placement, clearance_engine, grid_converter,
+Verification unit: ``router_v6/{via_placement, clearance_engine,
 path_simplify}.py`` (home crate ``temper-geometry``, kernel module
 ``temper_geometry.via_clearance``).
 
@@ -19,11 +19,10 @@ Migrated kernels
   branching).  Pinned via ``_oracle_calculate_safety_distances``,
   ``_oracle_kw_boundary_match``, ``_oracle_net_class_to_voltage_class`` and
   the composite ``_oracle_get_clearance`` — all verbatim copies.
-* ``grid_converter`` — ``grid_to_world``, ``extract_vias``,
-  ``compute_path_length``, ``count_vias_in_path`` (the Python shim was
-  deleted 2026-08-16; the kernels are exercised via ``_rust()`` directly
-  against the four ``_oracle_*`` copies below).  Pinned via the four
-  ``_oracle_*`` copies below.
+* ``grid_converter`` — ``extract_vias``, ``compute_path_length``,
+  ``count_vias_in_path`` (the Python shim was deleted 2026-08-16; the
+  remaining kernels are exercised via ``_rust()`` directly against the
+  pinned copies below).
 * ``path_simplify`` — ``is_collinear``, ``simplify_path``,
   ``estimate_segment_count``.  These were migrated to ``temper-rust-router``
   in an earlier slice (#856); this tier **re-homes** them into
@@ -33,8 +32,7 @@ Migrated kernels
 
 Comparison discipline: ``tests/router_v6/_signature.sig`` — type-carrying,
 bit-exact (``float.hex()``), no tolerance anywhere.  Floats are the IEC
-tables' exact literals (bit-identical doubles in Python and Rust) and the
-grid arithmetic (int * f64 with the same left-to-right expression shape);
+tables' exact literals (bit-identical doubles in Python and Rust);
 there is no libm transcendental in the unit, so the Wave-4 B1/B2/B4/B6/B7
 catalog classes do not apply here.
 
@@ -90,7 +88,6 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "safety_distances_py",
     "kw_boundary_match_py",
     "net_class_to_voltage_class_py",
-    "grid_to_world_py",
     "is_collinear_py",
     "simplify_path_py",
     "estimate_segment_count_py",
@@ -458,48 +455,6 @@ def _oracle_get_clearance(
     return result
 
 
-# -- grid_converter.py -------------------------------------------------------
-
-
-@dataclass
-class _OracleGridCell:
-    """Grid cell coordinates (x, y, layer)."""
-
-    x: int
-    y: int
-    layer: int = 0
-
-
-GridCell = _OracleGridCell
-
-
-def _oracle_grid_to_world(
-    cell: GridCell,
-    origin: tuple[float, float],
-    cell_size: float,
-) -> tuple[float, float]:
-    """Convert grid cell to world coordinates (mm).
-
-    Returns center of cell in PCB coordinate system.
-
-    Args:
-        cell: Grid cell coordinates
-        origin: PCB origin (x0, y0) in mm
-        cell_size: Grid cell size in mm
-
-    Returns:
-        (x, y) position in mm, at cell center
-
-    Example:
-        >>> cell = GridCell(x=10, y=20, layer=0)
-        >>> grid_to_world(cell, origin=(0, 0), cell_size=0.5)
-        (5.25, 10.25)  # Cell center at (10*0.5 + 0.5/2, 20*0.5 + 0.5/2)
-    """
-    x = origin[0] + cell.x * cell_size + cell_size / 2
-    y = origin[1] + cell.y * cell_size + cell_size / 2
-    return (x, y)
-
-
 # -- path_simplify.py --------------------------------------------------------
 # Reused verbatim oracle: tests/router_v6/_path_simplify_py_oracle.py (the
 # pinned 550cab2a extraction).  `PS_ORACLE.is_collinear` / `.simplify_path` /
@@ -534,12 +489,6 @@ _ORACLE_SOURCES = (
             ("_oracle_calculate_safety_distances", "calculate_safety_distances"),
             ("_oracle_kw_boundary_match", "_kw_boundary_match"),
             ("_oracle_net_class_to_voltage_class", "_net_class_to_voltage_class"),
-        ),
-    ),
-    (
-        "packages/temper-placer/src/temper_placer/router_v6/grid_converter.py",
-        (
-            ("_oracle_grid_to_world", "grid_to_world"),
         ),
     ),
 )
@@ -848,31 +797,6 @@ def test_get_clearance_oracle_parity_hypothesis(nca, ncb, voltage, layer_type, p
     assert sig(o) == sig(s), (nca, ncb, voltage, layer_type, pd, ovcat, drc)
 
 
-# ===========================================================================
-# grid_converter.py
-# ===========================================================================
-
-
-def test_grid_to_world_oracle_parity():
-    fn = _rust("grid_to_world_py")
-    cases = [
-        (ShimGridCell(10, 20, 0), (0.0, 0.0), 0.5),
-        (ShimGridCell(0, 0, 0), (0.0, 0.0), 0.5),
-        (ShimGridCell(-3, 7, 1), (-10.0, 2.5), 0.25),
-        (ShimGridCell(1, 1, 0), (1.0, 1.0), 0.1),
-        (ShimGridCell(0, 0, 0), (0.0, 0.0), 0.0),
-        (ShimGridCell(5, -5, 0), (3.3, -2.2), 1.0),
-    ]
-    for cell, origin, size in cases:
-        o = _oracle_grid_to_world(cell, origin, size)
-        got = fn(cell.x, cell.y, origin[0], origin[1], size)
-        assert sig(o) == sig(got), (cell, origin, size)
-
-
-
-
-
-
 def _cell_wire(c: ShimGridCell) -> tuple[int, int, int]:
     return (c.x, c.y, c.layer)
 
@@ -1050,8 +974,7 @@ def test_randomized_clearance_engine_parity():
         )
 
 
-def test_randomized_grid_and_path_parity():
-    fn_gtw = _rust("grid_to_world_py")
+def test_randomized_path_parity():
     fn_simp = _rust("simplify_path_py")
     fn_est = _rust("estimate_segment_count_py")
     rng = random.Random(0x6E1D)
@@ -1061,12 +984,6 @@ def test_randomized_grid_and_path_parity():
             ShimGridCell(rng.randint(-20, 20), rng.randint(-20, 20), rng.randint(0, 3))
             for _ in range(n)
         ]
-        size = rng.choice([0.1, 0.25, 0.5, 1.0, 0.125, 0.2])
-        origin = (round(rng.uniform(-10, 10), 2), round(rng.uniform(-10, 10), 2))
-        for cell in cells:
-            assert sig(_oracle_grid_to_world(cell, origin, size)) == sig(
-                fn_gtw(cell.x, cell.y, origin[0], origin[1], size)
-            )
         wire = [_cell_wire(c) for c in cells]
         assert sig(PS_ORACLE.simplify_path(cells)) == sig(
             [ShimGridCell(*t) for t in fn_simp(wire)]

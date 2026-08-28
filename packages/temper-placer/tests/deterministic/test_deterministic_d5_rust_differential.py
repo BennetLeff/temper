@@ -49,7 +49,11 @@ from dataclasses import replace
 from pathlib import Path
 
 import temper_orchestration as _to
+from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
 import tests.deterministic._phased_assignment_py_oracle as _orc_phased
+
+_install_legacy_oracle_modules()
+
 import tests.deterministic._zone_aware_slot_generation_run_py_oracle as _orc_zone_aware
 
 from temper_placer.core.board import Board

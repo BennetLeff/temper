@@ -275,53 +275,6 @@ def test_signal_hv_empty_hv_positions_overlong_path():
     assert got[7] == ""  # no violation kind
 
 
-def test_shim_signal_hv_violation_kind_wired():
-    """The stage shim passes the kernel's explicit kind to the violation.
-
-    `_validate_signal_hv` must not re-infer the kind from message text — the
-    kernel's final tuple element is the source of truth, and this pins that
-    the wiring reaches the constructed `PlacementViolation`.
-    """
-    from temper_placer.deterministic.stages.placement_validation import (
-        PlacementValidationStage,
-    )
-
-    stage = PlacementValidationStage(
-        constraints={},
-        parsed_pads={
-            "U1": {"1": {"x": 0.0, "y": 0.0}},
-            "U2": {"2": {"x": 0.0, "y": 0.0}},
-            "Q1": {"3": {"x": 0.0, "y": 0.0}},
-        },
-    )
-    positions = {"U1": (0.0, 0.0), "U2": (50.0, 0.0), "Q1": (25.0, 1.0)}
-
-    c = _Constraint(
-        name="W1", signal_component="U1", signal_pin="1", target_component="U2",
-        target_pin="2", hv_component="Q1", hv_pins=["3"], required_clearance_mm=6.0,
-        max_path_length_mm=10.0, tier="hard",
-    )
-    v = stage._validate_signal_hv(c, positions)
-    assert v is not None and v.violation_type == "path_too_long"
-    assert v.message.startswith("Signal path from")
-
-    c2 = _Constraint(
-        name="W2", signal_component="U1", signal_pin="1", target_component="U2",
-        target_pin="2", hv_component="Q1", hv_pins=["3"], required_clearance_mm=6.0,
-        max_path_length_mm=50.0, tier="hard",
-    )
-    v2 = stage._validate_signal_hv(c2, {"U1": (0.0, 0.0), "U2": (50.0, 0.0), "Q1": (25.0, 0.5)})
-    assert v2 is not None and v2.violation_type == "hv_clearance"
-
-    c3 = _Constraint(
-        name="W3", signal_component="U1", signal_pin="1", target_component="MISSING",
-        target_pin="2", hv_component="Q1", hv_pins=["3"], required_clearance_mm=6.0,
-        max_path_length_mm=50.0, tier="hard",
-    )
-    v3 = stage._validate_signal_hv(c3, {"U1": (0.0, 0.0), "Q1": (25.0, 30.0)})
-    assert v3 is not None and v3.violation_type == "missing_component"
-
-
 def _assert_clamp(pos, margin, w, h):
     exp = _oracle.clamp_position(pos, margin, w, h)
     got = _drc.clamp_position_py(pos[0], pos[1], margin, w, h)

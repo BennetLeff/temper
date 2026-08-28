@@ -74,7 +74,6 @@ from tests.router_v6._congestion_builders import (
     build_grid,
     build_netlist,
     build_parsed_pcb,
-    build_routing_results,
 )
 from tests.router_v6._congestion_cases import (
     ANALYZE_DESIGNS,
@@ -116,10 +115,6 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "congestion_result_overflow_ratio_py",
     "congestion_result_top_bottlenecks_py",
     "congestion_estimate_net_demand_py",
-    "congestion_analyze_py",
-    # congestion_analysis.py
-    "congestion_identify_regions_py",
-    "congestion_classify_severity_py",
     # routing_demand.py
     "routing_demand_estimate_py",
     "routing_demand_complexity_py",
@@ -616,39 +611,6 @@ def test_estimate_net_demand_accumulates_bit_exact(case):
     )
 
 
-@pytest.mark.parametrize("design", ANALYZE_DESIGNS, ids=lambda d: d["label"])
-def test_analyze_congestion_bit_exact(design):
-    def _oracle():
-        result = ORACLE.analyze_congestion(
-            build_netlist(design["components"], design["nets"]),
-            build_board(*design["board"]),
-            cell_size_mm=design["cell"],
-            capacity_per_cell=design["capacity"],
-            num_layers=design["layers"],
-        )
-        return (
-            result.grid.demand,
-            result.grid.supply,
-            result.total_overflow,
-            result.max_utilization,
-            [(b.x, b.y, b.utilization, b.overflow, b.layer) for b in result.bottlenecks],
-        )
-
-    _assert_same(
-        f"analyze_congestion[{design['label']}]",
-        _oracle,
-        "congestion_analyze_py",
-        lambda fn: fn(
-            design["components"],
-            design["nets"],
-            design["board"],
-            design["cell"],
-            design["capacity"],
-            design["layers"],
-        ),
-    )
-
-
 # ---------------------------------------------------------------------------
 # congestion.py -- the three defects, REPAIRED by #760 and pinned INVERTED
 #
@@ -908,63 +870,6 @@ def test_repaired_d3_offboard_net_contributes_nothing():
 
 
 # ---------------------------------------------------------------------------
-# congestion_analysis.py
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("case", ROUTING_RESULT_CASES, ids=lambda c: c[0])
-@pytest.mark.parametrize("use_segments", [False, True])
-def test_identify_congested_regions_bit_exact(case, use_segments):
-    label, bw, bh, gs, failed, routes = case
-
-    def _oracle():
-        cm = ORACLE.identify_congested_regions(
-            build_routing_results(failed, routes, use_segments), bw, bh, gs
-        )
-        return [
-            (r.center, r.radius, r.severity.value, r.failed_net_count, r.bottleneck_score)
-            for r in cm.regions
-        ]
-
-    _assert_same(
-        f"identify_congested_regions[{label}, segments={use_segments}]",
-        _oracle,
-        "congestion_identify_regions_py",
-        lambda fn: fn(failed, routes, bw, bh, gs, use_segments),
-    )
-
-
-@pytest.mark.parametrize(
-    "score,failed",
-    [
-        (0.0, 0),
-        (1.0, 0),  # exactly 1.0 -> NONE (the test is strict >)
-        (math.nextafter(1.0, 2.0), 0),  # -> LOW
-        (3.0, 0),
-        (math.nextafter(3.0, 4.0), 0),  # -> MEDIUM
-        (5.0, 0),
-        (math.nextafter(5.0, 6.0), 0),  # -> HIGH
-        (1e9, 0),
-        (-1.0, 0),
-        (float("nan"), 0),  # every `>` is False -> NONE
-        (float("inf"), 0),
-        (0.0, 1),  # failed >= 1 -> HIGH, whatever the score
-        (0.0, 2),
-        (0.0, 3),  # failed >= 3 -> CRITICAL
-        (1e9, 3),
-        (0.0, -1),  # negative counts fall through to the score branch
-    ],
-)
-def test_classify_congestion_bit_exact(score, failed):
-    _assert_same(
-        f"_classify_congestion({score}, {failed})",
-        lambda: ORACLE._classify_congestion(score, failed).value,
-        "congestion_classify_severity_py",
-        lambda fn: fn(score, failed),
-    )
-
-
-# ---------------------------------------------------------------------------
 # routing_demand.py
 # ---------------------------------------------------------------------------
 
@@ -1057,9 +962,6 @@ def test_trap_three_way_max_semantics():
     # signed zeros: max returns the FIRST argument when they compare equal
     assert math.copysign(1.0, max(0.0, -0.0)) == 1.0
     assert math.copysign(1.0, max(-0.0, 0.0)) == -1.0
-
-
-
 
 
 

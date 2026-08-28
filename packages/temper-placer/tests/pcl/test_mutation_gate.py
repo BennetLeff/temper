@@ -154,48 +154,50 @@ class TestLiveKillSetVerification:
     snapshot and never re-derived its claims from current encoder source.
 
     These tests exercise ``check_live_kill_sets`` -- the fix -- directly
-    against the real register and a live-mutated ``HANDLER_REGISTRY`` entry,
+    against the real register and an explicitly injected mutated catalog,
     without touching any file on disk.
     """
 
     def test_clean_register_has_no_live_mismatches(self, register) -> None:
         assert gate.check_live_kill_sets(register) == []
 
-    def test_gutted_keepout_encoder_is_caught(self, register, monkeypatch) -> None:
+    def test_gutted_keepout_encoder_is_caught(self, register) -> None:
         """Reproduction of the audit's finding 8: a KEEPOUT handler reduced
         to a no-op (mirroring ``encode_keepout`` gutted down to a bare
         ``return []``) must fail live verification, even though the register
         still claims ``keepout_drop_no_overlap`` is ``killed``.
         """
         from temper_placer.pcl.constraints import ConstraintType
-        from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+        from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
 
         def _gutted_encode_keepout(constraint, components, model, ctx):
             return []
 
-        monkeypatch.setitem(HANDLER_REGISTRY, ConstraintType.KEEPOUT, _gutted_encode_keepout)
+        catalog = dict(CP_SAT_HANDLER_CATALOG)
+        catalog[ConstraintType.KEEPOUT] = _gutted_encode_keepout
 
-        violations = gate.check_live_kill_sets(register)
+        violations = gate.check_live_kill_sets(register, catalog)
         assert violations, (
             "gutting the keepout encoder's enforcement must produce a live "
             "verification violation, not pass silently"
         )
         assert any("keepout" in v for v in violations)
 
-    def test_gutted_keepout_encoder_fails_the_whole_gate(self, monkeypatch) -> None:
+    def test_gutted_keepout_encoder_fails_the_whole_gate(self) -> None:
         """End-to-end: the top-level ``main()`` entrypoint (what CI actually
         runs) must exit non-zero, not just the isolated check function.
         """
         from temper_placer.pcl.constraints import ConstraintType
-        from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+        from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
 
         def _gutted_encode_keepout(constraint, components, model, ctx):
             return []
 
-        monkeypatch.setitem(HANDLER_REGISTRY, ConstraintType.KEEPOUT, _gutted_encode_keepout)
+        catalog = dict(CP_SAT_HANDLER_CATALOG)
+        catalog[ConstraintType.KEEPOUT] = _gutted_encode_keepout
 
         with pytest.raises(SystemExit) as exc_info:
-            gate.main()
+            gate.main(catalog)
         assert exc_info.value.code == gate.EXIT_MISSING
 
     def test_stale_killed_claim_is_caught_without_touching_source(
@@ -212,7 +214,7 @@ class TestLiveKillSetVerification:
                 self.mutation_id = mutation_id
                 self.outcome = outcome
 
-        def _fake_run_suite():
+        def _fake_run_suite(_handler_catalog=None):
             return [_FakeResult("separated", "sep_sign_flip_x_margin", "survived")]
 
         import constraint_mutation_runner as runner

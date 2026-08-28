@@ -19,6 +19,24 @@ from temper_placer.placer.cp_sat.feedback import (
     UnclassifiedFailure,
 )
 
+
+def test_heuristic_position_is_rust_owned():
+    """The deterministic unrouted-pin position bias lives in orchestration."""
+    import temper_orchestration
+
+    assert temper_orchestration.compute_heuristic_position("Q1", (10.0, 20.0), "GATE") == (
+        10.0,
+        15.0,
+    )
+    assert temper_orchestration.compute_heuristic_position("U_MCU", (10.0, 20.0), "SPI") == (
+        10.0,
+        20.0,
+    )
+    assert temper_orchestration.compute_heuristic_position("J1", (10.0, 20.0), "OTHER") == (
+        10.0,
+        25.0,
+    )
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -152,6 +170,29 @@ def test_congestion_with_bbox_produces_keepout(classifier, basic_placement):
     deltas = [d for d in result.deltas if "General congestion" in d.reason]
     assert len(deltas) >= 1
     assert deltas[0].priority == 20
+
+
+def test_congestion_classifier_path_does_not_call_python_handler(monkeypatch, basic_placement):
+    """The production classifier dispatches congestion directly to Rust.
+
+    Keep the public method as a compatibility adapter, but make a mutated
+    callback unable to alter the normal classifier path.  This is the
+    migration boundary proof that a Python implementation cannot quietly
+    become the computational source of truth again.
+    """
+    def fail_if_called(self, region, placed_refs):  # noqa: ARG001
+        raise AssertionError("production congestion handler must be Rust-owned")
+
+    monkeypatch.setattr(FeedbackClassifier, "_handle_congestion", fail_if_called)
+    rr = MockRoutingResult(
+        completion_rate=0.8,
+        congestion_regions=[
+            MockCongestionRegion(comp_a="Q1", comp_b="Q2", current_distance_mm=3.0)
+        ],
+    )
+    result = FeedbackClassifier().classify(rr, basic_placement)
+    assert len(result.deltas) == 1
+    assert result.deltas[0].constraint.min_distance_mm == 4.5
 
 
 # ---------------------------------------------------------------------------

@@ -1,17 +1,16 @@
-"""Differential test (Phase-A U8): the explainability DATA CONTRACTS and the
-markdown report generation, migrated to ``temper-orchestration`` pyclasses /
-pyfunctions, vs the pinned pre-migration Python oracles.
+"""Differential test (Phase-A U8): the explainability DATA CONTRACTS migrated
+to ``temper-orchestration`` pyclasses vs the pinned pre-migration oracles.
 
 Wave-4 Phase 5 moved the explainability COMPUTE (why/why_not/history/summary,
-serialize dict-shapes, log kernels) into ``temper-io-types`` and left the
+and log kernels) into ``temper-io-types`` and left the
 dataclasses/enums Python. Phase A U8 (plan ``2026-08-09-001``,
-``explainability/{decision,trace,serialization,markdown_report}.py`` row:
-``temper-orchestration`` → ``Decision``, ``Trace``, ``MarkdownReport``) moves
+``explainability/{decision,trace,serialization}.py`` row:
+``temper-orchestration`` → ``Decision``, ``Trace``) moves
 the DATA CONTRACTS themselves to Rust pyclasses in ``temper-orchestration``
-and ports the markdown report generation (the ``MarkdownReport`` deliverable,
-a deterministic-string candidate pinned byte-identical). The oracle is the
-verbatim pre-migration module copy (``explain_oracle/decision_oracle.py`` /
-``trace_oracle.py`` / ``markdown_report_oracle.py``).
+The former MarkdownReport export was differential-only and is intentionally
+covered neither by this contract suite nor the production API. The oracle is
+the verbatim pre-migration module copy for the retained data contracts
+(``explain_oracle/decision_oracle.py`` / ``trace_oracle.py``).
 
 Boundaries (argued in VERIFICATION.md): ``DecisionPhase`` / ``DecisionType``
 stay Python Enum classes in ``decision.py`` (member identity, value
@@ -19,12 +18,16 @@ construction and class iteration ``list(DecisionPhase)`` are Python runtime
 semantics — pyo3 has no metaclass hook, so a pyclass cannot be iterated as a
 class); ``uuid``/``datetime`` default factories stay Python runtime semantics
 (invoked from the pyclass constructors); the NL-generation kernels
-(``why``/``why_not``/``history``/``summary``) and the serialize dict-shapes
-stay single-source in ``temper-io-types`` and are called from the pyclass
-methods (the pyclass exposes the same attribute surface the kernels read).
+(``why``/``why_not``/``history``/``summary``) stay single-source in
+``temper-io-types`` and are called from the pyclass methods (the pyclass
+exposes the same attribute surface the kernels read). The pyclasses' own
+``to_dict`` shape is tested directly; the retired generic serialization
+adapter has no production caller.
 
 The RED arm (anti-vacuity): the shim's types MUST be the temper-orchestration
-pyclasses — this file fails at import until the shims collapse.
+pyclasses — this file fails at import until the shims collapse. Their
+``to_dict`` data shape is exercised directly; persistence reconstruction in
+this test remains a small Python adapter for datetime/Enum semantics.
 """
 
 from __future__ import annotations
@@ -38,13 +41,8 @@ from temper_placer.explainability.decision import (
     DecisionPhase,
     DecisionType,
 )
-from temper_placer.explainability.markdown_report import (
-    render_component_report,
-    render_markdown_report,
-)
 from tests.explainability.explain_oracle import (
     decision_oracle as _doracle,
-    markdown_report_oracle as _moracle,
     trace_oracle as _toracle,
 )
 
@@ -414,118 +412,14 @@ def _summary_key(s):
 
 
 # ---------------------------------------------------------------------------
-# Markdown report — deterministic-string byte-pin
-# ---------------------------------------------------------------------------
-
-def _markdown_trace(kwargs_lists, **trace_kwargs):
-    t = _to.DecisionTrace(run_id="run-abc123", start_time=_FIXED_DT, **trace_kwargs)
-    for k in kwargs_lists:
-        t.decisions.append(_shim_decision(k))
-    return t
-
-
-def _markdown_oracle_trace(kwargs_lists, **trace_kwargs):
-    t = _doracle.DecisionTrace(run_id="run-abc123", start_time=_FIXED_DT, **trace_kwargs)
-    for k in kwargs_lists:
-        t.decisions.append(_oracle_decision(k))
-    return t
-
-
-def _markdown_fixtures():
-    rng = random.Random(0xADE1C)
-    out = [[]]
-    for _ in range(15):
-        decisions = []
-        for counter in range(rng.randint(0, 7)):
-            subject = rng.choice(["Q1", "Q2", "U1", "VCC", "R5"])
-            kind = rng.randint(0, 4)
-            if kind == 0:
-                value = (rng.uniform(-50, 50), rng.uniform(-50, 50))
-            elif kind == 1:
-                value = (rng.uniform(-50, 50), rng.uniform(-50, 50), rng.choice([0, 90, 180]))
-            elif kind == 2:
-                value = {"x": rng.uniform(-50, 50), "y": rng.uniform(-50, 50),
-                         "rotation": rng.randint(0, 270)}
-            elif kind == 3:
-                value = rng.choice([1.23456, 90, "L2", None, True])
-            else:
-                value = rng.choice([(1, 2), (3, 4, 5), "path"])
-            decisions.append(_decision_kwargs(
-                subject, value, "because " + "y" * rng.randint(3, 90),
-                counter=counter,
-                phase=rng.choice(list(DecisionPhase)),
-                dtype=rng.choice(list(DecisionType)),
-                constraint_refs=rng.sample(["c1", "c2"], rng.randint(0, 2)),
-                epoch=rng.choice([None, 0, 100]),
-            ))
-        out.append(decisions)
-    return out
-
-
-def test_render_markdown_byte_identical():
-    for kwargs_list in _markdown_fixtures():
-        for include_config, include_positions in [(True, True), (True, False),
-                                                  (False, True), (False, False)]:
-            shim = _markdown_trace(kwargs_list)
-            oracle = _markdown_oracle_trace(kwargs_list)
-            ours = render_markdown_report(
-                shim, include_config=include_config, include_positions=include_positions
-            )
-            theirs = _moracle.render_markdown_report(
-                oracle, include_config=include_config, include_positions=include_positions
-            )
-            assert ours == theirs
-
-
-def test_render_component_report_byte_identical():
-    for kwargs_list in _markdown_fixtures():
-        shim = _markdown_trace(kwargs_list)
-        oracle = _markdown_oracle_trace(kwargs_list)
-        for subject in ["Q1", "VCC", "nobody"]:
-            assert render_component_report(shim, subject) == _moracle.render_component_report(
-                oracle, subject
-            )
-
-
-def test_markdown_deterministic_string_golden():
-    """The report is a deterministic string: the SAME trace renders
-    byte-identically on every call, and a fixed trace pins a fixed golden
-    block (the byte-pin the U8 dispatch asks for)."""
-    shim = _markdown_trace([
-        _decision_kwargs("Q1", (10.0, 20.0), "Initial placement", counter=0),
-        _decision_kwargs("Q1", (12.5, 18.0), "Moved for thermal clearance",
-                         counter=1, constraint_refs=["thermal.edge"]),
-    ], end_time=datetime(2026, 8, 4, 12, 31, 0))
-    shim.final_positions = {"Q1": (12.5, 18.0)}
-    shim.final_metrics = {"total_loss": 1.25}
-    shim.config_snapshot = {"clearance": 0.2}
-
-    oracle_trace = _markdown_oracle_trace([
-        _decision_kwargs("Q1", (10.0, 20.0), "Initial placement", counter=0),
-        _decision_kwargs("Q1", (12.5, 18.0), "Moved for thermal clearance",
-                         counter=1, constraint_refs=["thermal.edge"]),
-    ], end_time=datetime(2026, 8, 4, 12, 31, 0))
-    oracle_trace.final_positions = {"Q1": (12.5, 18.0)}
-    oracle_trace.final_metrics = {"total_loss": 1.25}
-    oracle_trace.config_snapshot = {"clearance": 0.2}
-
-    report = render_markdown_report(shim)
-    assert report == render_markdown_report(shim)
-    assert report == _moracle.render_markdown_report(oracle_trace)
-    assert "# Placement Decision Report" in report
-    assert "**Run ID**: `run-abc123`" in report
-    assert "**Final Value**: (12.5, 18.0)" in report
-    assert "thermal.edge" in report
-
-
-# ---------------------------------------------------------------------------
-# serialization round-trip through the pyclasses
+# persistence-shaped round-trip through the pyclasses
 # ---------------------------------------------------------------------------
 
 def test_deserialize_roundtrip_through_pyclasses():
-    """`deserialize_decision` / `deserialize_trace` construct the pyclasses;
-    their attribute surface must match the oracle's round-trip."""
-    from temper_placer.explainability.serialization import deserialize_decision as _dd
+    """Test-local Python Enum/datetime adaptation constructs the pyclasses;
+    its attribute surface matches the oracle."""
+    from datetime import datetime
+
     from tests.explainability.explain_oracle import serialization_oracle as _soracle
 
     payload = {
@@ -537,7 +431,37 @@ def test_deserialize_roundtrip_through_pyclasses():
              "loss_if_chosen": 0.1},
         ], "epoch": 3, "iteration": 7,
     }
-    ours = _dd(payload)
+    try:
+        phase = DecisionPhase(payload.get("phase", "geometric"))
+    except ValueError:
+        phase = DecisionPhase.GEOMETRIC
+    try:
+        dtype = DecisionType(payload.get("decision_type", "position_update"))
+    except ValueError:
+        dtype = DecisionType.POSITION_UPDATE
+    ours = _to.Decision(
+        id=payload.get("id", ""),
+        timestamp=datetime.fromisoformat(payload["timestamp"]),
+        phase=phase,
+        decision_type=dtype,
+        subject=payload.get("subject", ""),
+        value=payload.get("value"),
+        previous_value=payload.get("previous_value"),
+        reason=payload.get("reason", ""),
+        constraint_refs=payload.get("constraint_refs", []),
+        loss_contribution=payload.get("loss_contribution", 0.0),
+        alternatives=[
+            _to.Alternative(
+                value=alt.get("value"),
+                rejection_reason=alt.get("rejection_reason", ""),
+                constraint_violated=alt.get("constraint_violated"),
+                loss_if_chosen=alt.get("loss_if_chosen"),
+            )
+            for alt in payload.get("alternatives", [])
+        ],
+        epoch=payload.get("epoch"),
+        iteration=payload.get("iteration"),
+    )
     theirs = _soracle.deserialize_decision(payload)
     assert ours.id == theirs.id == "d5"
     assert ours.subject == theirs.subject == "Q9"

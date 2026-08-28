@@ -18,6 +18,7 @@ from __future__ import annotations
 import math
 
 import pytest
+import temper_design_bundle_python as _tdb
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
@@ -178,14 +179,6 @@ def test_property_used_slots_symmetric(state_rules):
     used = set(result.used_slots)
     placements = dict(result.placements)
     comp_by_ref = {c.ref: c for c in result.netlist.components}
-    from temper_placer.deterministic.stages.phased_component_assignment import (
-        PhasedComponentAssignmentStage,
-    )
-
-    stage = PhasedComponentAssignmentStage.__new__(PhasedComponentAssignmentStage)
-    stage.slot_spacing = 12.0
-    stage.design_rules = state.design_rules
-    stage.use_isolation_slots = False
     for slot in used:
         sx, sy = slot
         # Coverage forward: every HV pin near s must be in used_slots (trivially).
@@ -196,7 +189,9 @@ def test_property_used_slots_symmetric(state_rules):
             if comp is None:
                 continue
             cx, cy = pos
-            if math.hypot(sx - cx, sy - cy) <= stage._get_footprint_radius(comp):
+            bounds = comp.bounds if hasattr(comp, "bounds") and comp.bounds else None
+            radius = _tdb.deterministic_phase.footprint_radius_py(bounds, 12.0)
+            if math.hypot(sx - cx, sy - cy) <= radius:
                 covered = True
                 break
         if not covered:
