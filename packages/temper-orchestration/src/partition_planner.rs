@@ -956,18 +956,36 @@ pub fn compact_partition_envelopes_with_internal_gaps(
             .iter()
             .map(|component| component.width)
             .fold(0.0, f64::max);
-        let mut target_width = aspect_area.sqrt().max(largest_width).min(board_width_mm);
-        let mut envelope = pack_shelves(&components, target_width, partition_gap)?;
-        if envelope.1 > board_height_mm {
-            target_width = board_width_mm;
-            envelope = pack_shelves(&components, target_width, partition_gap)?;
+        let aspect_target = aspect_area.sqrt().max(largest_width).min(board_width_mm);
+        // Shelf breaks are discrete.  A single area-derived target can land
+        // just below a useful break and create a pathological tall strip.
+        // Search a fixed bounded set of widths and retain the most balanced
+        // actual extent.  This stays deterministic and O(32*n), while
+        // avoiding an optimization solver for electrically-simple groups.
+        let mut targets = vec![aspect_target, board_width_mm];
+        for step in 0..=32 {
+            targets.push(largest_width + (board_width_mm - largest_width) * f64::from(step) / 32.0);
         }
-        if envelope.0 > board_width_mm || envelope.1 > board_height_mm {
+        targets.sort_by(f64::total_cmp);
+        targets.dedup_by(|left, right| left.total_cmp(right).is_eq());
+        let mut candidates = Vec::new();
+        for target_width in targets {
+            let candidate = pack_shelves(&components, target_width, partition_gap)?;
+            if candidate.0 <= board_width_mm && candidate.1 <= board_height_mm {
+                candidates.push(candidate);
+            }
+        }
+        let envelope = candidates.into_iter().min_by(|left, right| {
+            (left.0 / board_width_mm + left.1 / board_height_mm)
+                .total_cmp(&(right.0 / board_width_mm + right.1 / board_height_mm))
+                .then_with(|| left.0.total_cmp(&right.0))
+                .then_with(|| left.1.total_cmp(&right.1))
+        });
+        let Some(envelope) = envelope else {
             return Err(format!(
-                "partition {partition_id} envelope ({:.6}x{:.6} mm) cannot fit board ({board_width_mm}x{board_height_mm} mm)",
-                envelope.0, envelope.1
+                "partition {partition_id} cannot fit board ({board_width_mm}x{board_height_mm} mm)"
             ));
-        }
+        };
         output.push((partition_id, refs, envelope.0, envelope.1));
     }
     Ok(output)
@@ -1020,6 +1038,25 @@ pub fn plan_grouped_creepage_cuts_py(
 ) -> PyResult<GroupedCreepagePlan> {
     plan_grouped_creepage_cuts(cuts, max_group_size, min_cross_edges)
         .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn compact_partition_envelopes_py(
+    partitions: Vec<PartitionPlan>,
+    component_dimensions: Vec<(String, f64, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    internal_gap_mm: f64,
+) -> PyResult<Vec<PartitionEnvelope>> {
+    compact_partition_envelopes(
+        partitions,
+        component_dimensions,
+        board_width_mm,
+        board_height_mm,
+        internal_gap_mm,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

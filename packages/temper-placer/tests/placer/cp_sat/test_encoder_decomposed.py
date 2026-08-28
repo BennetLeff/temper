@@ -160,6 +160,7 @@ def test_seeded_early_failure_reports_active_prior_count(
     assert placement.decomposed_creepage_new_cut_count == 0
     assert placement.decomposed_creepage_cuts == [("Q2", "Q_HS1", 4.0)]
     assert placement.decomposed_creepage_remaining_violations == ()
+    assert placement.decomposed_creepage_effective_restriction_slack_mm == 8.0
 
 
 def test_restricted_model_infeasibility_is_not_global_infeasibility(
@@ -545,8 +546,14 @@ def test_absent_partition_hints_are_not_passed_as_fake_origins(
     assert solve_kwargs["rotatable_partition_ids"] == set()
 
 
-def test_production_sized_plan_uses_exact_hierarchical_warm_start(
+@pytest.mark.parametrize(
+    ("enforce_coarse_pair_gaps", "expected_requirements"),
+    [(False, []), (True, [("0", "1", 12.6)])],
+)
+def test_production_sized_plan_controls_coarse_pair_gaps(
     monkeypatch: pytest.MonkeyPatch,
+    enforce_coarse_pair_gaps: bool,
+    expected_requirements: list[tuple[str, str, float]],
 ) -> None:
     result = EnvelopeSolveResult(
         status=EnvelopeSolveStatus.FEASIBLE,
@@ -601,6 +608,7 @@ def test_production_sized_plan_uses_exact_hierarchical_warm_start(
         timeout_ms=2_000,
         lazy_creepage=True,
         decomposed_creepage=True,
+        decomposed_creepage_enforce_coarse_pair_gaps=enforce_coarse_pair_gaps,
     )
 
     assert placement.status in {"optimal", "feasible"}
@@ -608,7 +616,7 @@ def test_production_sized_plan_uses_exact_hierarchical_warm_start(
     assert calls["num_search_workers"] == 16
     assert isinstance(calls["time_limit_s"], float)
     assert calls["time_limit_s"] > 0.0
-    assert calls["pair_requirements"] == [("0", "1", 12.6)]
+    assert calls["pair_requirements"] == expected_requirements
     assert "initial_position_hints" not in calls
     assert calls["rotatable_partition_ids"] == {"7"}
 
@@ -772,6 +780,19 @@ def test_decomposed_restriction_slack_is_finite_and_non_negative(
             lazy_creepage=True,
             decomposed_creepage=True,
             decomposed_creepage_restriction_slack_mm=slack_mm,
+        )
+
+
+@pytest.mark.parametrize("enabled", [None, 0, 1, "yes"])
+def test_decomposed_coarse_pair_gap_control_must_be_boolean(enabled: Any) -> None:
+    netlist, board = _inputs()
+    with pytest.raises(ValueError, match="enforce_coarse_pair_gaps"):
+        _encoder_solve.solve_placement(
+            netlist,
+            board,
+            lazy_creepage=True,
+            decomposed_creepage=True,
+            decomposed_creepage_enforce_coarse_pair_gaps=enabled,
         )
 
 

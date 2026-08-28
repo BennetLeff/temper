@@ -304,6 +304,7 @@ class CpSatPlacementResult:
     decomposed_creepage_grouped_cut_count: int = 0
     decomposed_creepage_independent_cut_count: int = 0
     decomposed_creepage_direction_bool_count: int = 0
+    decomposed_creepage_effective_restriction_slack_mm: float = 0.0
     # Optional coarse partition-envelope diagnostics.  These remain zero for
     # the default (non-decomposed) solve path.
     decomposed_creepage_partition_count: int = 0
@@ -403,6 +404,7 @@ def solve_placement(
     lazy_creepage_iteration_timeout_ms: int | None = None,
     decomposed_creepage: bool = False,
     decomposed_creepage_eager_constraints: bool = True,
+    decomposed_creepage_enforce_coarse_pair_gaps: bool = False,
     decomposed_creepage_prior_cuts: Sequence[tuple[str, str, float]] | None = None,
     decomposed_creepage_group_prior_cuts: bool = False,
     decomposed_creepage_group_max_size: int = 8,
@@ -647,6 +649,11 @@ def solve_placement(
             replay-cut blocks. This is a search restriction, so an infeasible
             grouped model returns ``unknown``; every component pair retains
             its exact distance inequality.
+        decomposed_creepage_enforce_coarse_pair_gaps: Apply partition-pair
+            maxima to whole coarse envelopes. Disabled by default because
+            that abstraction is stronger than the component-pair safety
+            model; exact replay cuts and the exhaustive Rust verifier remain
+            authoritative in either mode.
 
     """
     from ortools.sat.python import cp_model as cp
@@ -673,6 +680,8 @@ def solve_placement(
         raise ValueError("decomposed_creepage_group_min_cross_edges must be at least 2")
     if not isinstance(decomposed_creepage_eager_constraints, bool):
         raise ValueError("decomposed_creepage_eager_constraints must be a boolean")
+    if not isinstance(decomposed_creepage_enforce_coarse_pair_gaps, bool):
+        raise ValueError("decomposed_creepage_enforce_coarse_pair_gaps must be a boolean")
     if (
         isinstance(lazy_creepage_post_cut_reserve_ms, bool)
         or not isinstance(lazy_creepage_post_cut_reserve_ms, int)
@@ -754,6 +763,16 @@ def solve_placement(
     new_cut_count = 0
     remaining_violations: tuple[tuple[str, str, float, float], ...] = ()
     grouped_cut_stats = None
+    effective_restriction_slack_mm = float(decomposed_creepage_restriction_slack_mm)
+    if (
+        decomposed_creepage
+        and not decomposed_creepage_enforce_coarse_pair_gaps
+        and accumulated_cut_map
+    ):
+        effective_restriction_slack_mm = max(
+            effective_restriction_slack_mm,
+            2.0 * max(accumulated_cut_map.values()),
+        )
 
     # Routed-board repair: pin every requested component's rotation to its
     # current board value (hard constraint). A rotation would move every pad
@@ -852,6 +871,9 @@ def solve_placement(
             decomposed_creepage_prior_cut_count=prior_cut_count,
             decomposed_creepage_new_cut_count=new_cut_count,
             decomposed_creepage_remaining_violations=remaining_violations,
+            decomposed_creepage_effective_restriction_slack_mm=(
+                effective_restriction_slack_mm
+            ),
         )
 
     if decomposed_creepage and comp_refs:
@@ -949,7 +971,11 @@ def solve_placement(
 
                 envelope_result = solve_hierarchical_envelopes(
                     prepared.partitions,
-                    prepared.pair_requirements,
+                    (
+                        prepared.pair_requirements
+                        if decomposed_creepage_enforce_coarse_pair_gaps
+                        else []
+                    ),
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -963,7 +989,11 @@ def solve_placement(
             else:
                 envelope_result = solve_envelopes(
                     prepared.partitions,
-                    prepared.pair_requirements,
+                    (
+                        prepared.pair_requirements
+                        if decomposed_creepage_enforce_coarse_pair_gaps
+                        else []
+                    ),
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -990,7 +1020,7 @@ def solve_placement(
                 )
             refs_by_partition = _refs_by_partition_in_input_order(prepared.partitions)
             restriction_slack_units = model_wrapper.mm_to_units(
-                float(decomposed_creepage_restriction_slack_mm)
+                effective_restriction_slack_mm
             )
             for ref, partition_id in prepared.ref_to_partition.items():
                 envelope = envelope_bounds.get(partition_id)
@@ -1746,6 +1776,7 @@ def solve_placement(
         decomposed_creepage_grouped_cut_count=grouped_cut_stats.grouped_cut_count if grouped_cut_stats else 0,
         decomposed_creepage_independent_cut_count=grouped_cut_stats.independent_cut_count if grouped_cut_stats else 0,
         decomposed_creepage_direction_bool_count=grouped_cut_stats.direction_bool_count if grouped_cut_stats else 0,
+        decomposed_creepage_effective_restriction_slack_mm=effective_restriction_slack_mm,
         decomposed_creepage_new_cut_count=new_cut_count,
         decomposed_creepage_remaining_violations=remaining_violations,
     )

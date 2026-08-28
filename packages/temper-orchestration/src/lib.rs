@@ -663,6 +663,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
         partition_planner::plan_grouped_creepage_cuts_py,
         m
     )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::compact_partition_envelopes_py,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_channel_mapping, m)?)?;
     m.add_function(wrap_pyfunction!(
         channel_mapping::run_fallback_channel_path,

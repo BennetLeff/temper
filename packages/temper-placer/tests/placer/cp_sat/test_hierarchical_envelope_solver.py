@@ -7,6 +7,7 @@ from temper_placer.placer.cp_sat.envelope_solver import (
     solve_envelopes,
 )
 from temper_placer.placer.cp_sat.hierarchical_envelope_solver import (
+    _batch_board_dimensions,
     solve_hierarchical_envelopes,
 )
 
@@ -64,6 +65,18 @@ def test_timeout_is_fail_closed_without_partial_batch_bounds() -> None:
 
     assert result.status is EnvelopeSolveStatus.MODEL_INVALID
     assert result.envelopes == {}
+
+
+def test_batch_board_dimensions_match_kernel_quantization() -> None:
+    width, height = _batch_board_dimensions(
+        [("A", ["rA"], 1.001, 2.0), ("B", ["rB"], 1.001, 2.0)],
+        [],
+        board_width_mm=10.0,
+        board_height_mm=10.0,
+        units_per_mm=100,
+    )
+
+    assert (width, height) == (2.02, 2.0)
 
 
 def test_infeasible_batch_or_global_layout_has_no_partial_bounds() -> None:
