@@ -9,7 +9,7 @@
 //! tolerance-aware recursive JSON diff, all producing a structured report
 //! of BINARY / WITHIN_TOLERANCE / BEYOND_TOLERANCE entries.
 //!
-//! What migrated vs stays Python:
+//! What migrated from Python:
 //!   - `parse_dsn_places` / `parse_dsn_nets` / `parse_ses_wires` -- the
 //!     regex kernels (pure Rust, wasm32-safe).  The existing `dsn`/`dsn_types`
 //!     modules were checked and NOT reused: they are a DSN *formatter*
@@ -18,12 +18,14 @@
 //!   - `diff_dsn` / `diff_ses` / `diff_json` (+ `json_diff_recursive`) -- the
 //!     comparison kernels, including the CPython-`str(float)` replica
 //!     (`py_str_float`) and CPython-`round(x, 6)` (`py_round_6`).
-//!   - the `diff_golden` dispatch, `DiffEntry`/`DiffReport` dataclasses and
-//!     `to_json` presentation stay Python in the shim.
+//!   - the former `diff_golden` dispatch, `DiffEntry`/`DiffReport` dataclasses
+//!     and `to_json` presentation were binding-only and were retired with the
+//!     Python shim.
 //!
-//! The three `golden_diff_*` pyfunctions return `(entries, passed, summary)`
-//! where `entries` is a list of dicts whose keys mirror the `DiffEntry`
-//! dataclass fields exactly, so the shim can construct `DiffEntry(**e)`.
+//! The former Python bridge returned `(entries, passed, summary)` from these
+//! kernels.  That bridge had no production callers and is intentionally kept
+//! out of the extension surface; the kernels remain available to Rust tests
+//! and native consumers.
 
 use regex::Regex;
 use serde_json::Value;
@@ -894,90 +896,12 @@ pub fn diff_json(
 
 #[cfg(feature = "python")]
 mod py_bridge {
-    use super::*;
     use pyo3::prelude::*;
-    use pyo3::types::PyDict;
 
-    fn entry_to_py(py: Python<'_>, e: &DiffEntryData) -> PyResult<Py<PyDict>> {
-        let d = PyDict::new(py);
-        d.set_item("board", &e.board)?;
-        d.set_item("stage", &e.stage)?;
-        d.set_item("category", &e.category)?;
-        d.set_item("entity", &e.entity)?;
-        d.set_item("field", &e.field)?;
-        d.set_item("golden_value", &e.golden_value)?;
-        d.set_item("candidate_value", &e.candidate_value)?;
-        match e.delta {
-            Some(v) => d.set_item("delta", v)?,
-            None => d.set_item("delta", py.None())?,
-        }
-        match e.tolerance {
-            Some(v) => d.set_item("tolerance", v)?,
-            None => d.set_item("tolerance", py.None())?,
-        }
-        Ok(d.unbind())
-    }
-
-    fn report_to_py(py: Python<'_>, report: DiffReportData) -> PyResult<(Vec<Py<PyDict>>, bool, String)> {
-        let mut entries = Vec::with_capacity(report.entries.len());
-        for e in report.entries {
-            entries.push(entry_to_py(py, &e)?);
-        }
-        Ok((entries, report.passed, report.summary))
-    }
-
-    #[pyfunction]
-    #[pyo3(signature = (board, stage, golden, candidate, tolerance))]
-    fn golden_diff_dsn(
-        py: Python<'_>,
-        board: &str,
-        stage: &str,
-        golden: &str,
-        candidate: &str,
-        tolerance: f64,
-    ) -> PyResult<(Vec<Py<PyDict>>, bool, String)> {
-        temper_py_bridge::catch_panic(|| {
-            let report = super::diff_dsn(board, stage, golden, candidate, tolerance);
-            report_to_py(py, report)
-        })
-    }
-
-    #[pyfunction]
-    #[pyo3(signature = (board, stage, golden, candidate, tolerance))]
-    fn golden_diff_ses(
-        py: Python<'_>,
-        board: &str,
-        stage: &str,
-        golden: &str,
-        candidate: &str,
-        tolerance: f64,
-    ) -> PyResult<(Vec<Py<PyDict>>, bool, String)> {
-        temper_py_bridge::catch_panic(|| {
-            let report = super::diff_ses(board, stage, golden, candidate, tolerance);
-            report_to_py(py, report)
-        })
-    }
-
-    #[pyfunction]
-    #[pyo3(signature = (board, stage, golden, candidate, tolerance))]
-    fn golden_diff_json(
-        py: Python<'_>,
-        board: &str,
-        stage: &str,
-        golden: &str,
-        candidate: &str,
-        tolerance: f64,
-    ) -> PyResult<(Vec<Py<PyDict>>, bool, String)> {
-        temper_py_bridge::catch_panic(|| {
-            let report = super::diff_json(board, stage, golden, candidate, tolerance);
-            report_to_py(py, report)
-        })
-    }
-
-    pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-        m.add_function(wrap_pyfunction!(golden_diff_dsn, m)?)?;
-        m.add_function(wrap_pyfunction!(golden_diff_ses, m)?)?;
-        m.add_function(wrap_pyfunction!(golden_diff_json, m)?)?;
+    /// This module has no Python exports.  Keep an empty registration hook so
+    /// the crate's module assembly remains stable while the Rust kernels stay
+    /// usable by native and wasm tests.
+    pub fn register(_m: &Bound<'_, PyModule>) -> PyResult<()> {
         Ok(())
     }
 }

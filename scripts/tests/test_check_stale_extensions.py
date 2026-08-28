@@ -50,6 +50,7 @@ from check_stale_extensions import (  # noqa: E402
     GateError,
     ModuleStatus,
     Report,
+    _exports_init_symbol,
     _resolve_native_artifact,
     check_module,
     crate_source_files,
@@ -946,6 +947,12 @@ class TestUnloadableArtifact:
             lambda name: fake_spec if name == "fake_crate_ext" else None,
         )
         return crate
+
+    def test_dotted_module_name_uses_leaf_for_init_symbol(self, tmp_path: Path) -> None:
+        """Package-contained maturin modules export the leaf init symbol."""
+        artifact = tmp_path / "temper_io_types.cpython-312-x86_64-linux-gnu.so"
+        artifact.write_bytes(b"\x00PyInit_temper_io_types\x00")
+        assert _exports_init_symbol("temper_io_types.temper_io_types", artifact)
 
     def test_artifact_without_init_symbol_is_unloadable_not_fresh(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

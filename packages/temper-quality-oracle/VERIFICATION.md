@@ -169,7 +169,9 @@ delegates through `temper_quality_oracle.{thermal_score_py,
 zone_compliance_score_py, hv_lv_clearance_score_py,
 dual_rail_clearance_report_py, loop_area_score_py, compactness_score_py,
 connectivity_clustering_score_py, quality_report_overall_py,
-numpy_pairwise_sum_py}`).
+loop_area_score_py}`). The numpy pairwise reduction remains a private Rust
+helper used by the loop-area kernel and is covered by its Rust unit/property
+tests.
 
 Unlike the two closed-form scores above, these kernels **do** have
 computational structure — every one is a fold over a variable-length
@@ -274,13 +276,11 @@ and are now entered in `docs/wave4-discipline-contract.md` §2.  B12 was
 found the hard way: `compactness_score` was 1 ulp off on random inputs
 because the Rust used a naive fold where the oracle wrote `sum(...)`.
 
-`numpy_pairwise_sum` is verified exact against `np.sum` across all three
-of numpy's branches (n < 8 naive, n <= 128 eight-way unrolled,
-n > 128 recursive halving) for n in 1..=40 plus
-{63, 64, 127, 128, 129, 200, 256, 300, 1000}, and P6 fuzzes it to 400
-elements.  The complementary anti-vacuity check
-(`test_naive_summation_would_fail_the_pin`) proves numpy does *not* sum
-naively, so the replication is load-bearing rather than ornamental.
+`numpy_pairwise_sum` is verified exact against `np.sum` through the
+loop-area differential, while its direct branch and recursion coverage lives
+in the Rust unit/property tests. The Python-facing probe was differential-only
+and has been retired; the pure Rust helper remains load-bearing for
+`loop_area_score`.
 
 ### NEP 50 weak promotion — `connectivity_clustering_score`
 

@@ -522,6 +522,30 @@ class TestRustRealRepo:
         assert report.rust_files_checked == len(gate.GUARDED_RUST_FILES)
         assert report.quadrant_twins_checked == len(gate.RUST_QUADRANT_TABLE_TWINS)
 
+    def test_current_congestion_owner_mutation_is_caught(self, tmp_path, monkeypatch):
+        """The moved congestion owner must remain covered by the Rust lint.
+
+        This copies the real owner into an isolated fixture and injects the
+        raw-call shape the deleted ``congestion_analysis.rs`` helper used.
+        The test therefore proves the registry follows the surviving file,
+        rather than merely proving that an unrelated synthetic file is
+        scanned.
+        """
+        repo_root = Path(__file__).resolve().parents[2]
+        rel = "packages/temper-geometry/src/congestion.rs"
+        source = (repo_root / rel).read_text()
+        path = _write(
+            tmp_path,
+            rel,
+            source + "\nfn accidental_kicad_rotation(theta: f64) -> f64 { theta.cos() }\n",
+        )
+        _rust_env(tmp_path, monkeypatch, [rel])
+        report = gate.run(tmp_path, include_python=False)
+        assert any(
+            violation.path == rel and "accidental_kicad_rotation" in violation.detail
+            for violation in report.violations
+        ), (path, report.violations)
+
     def test_every_registered_rust_exemption_names_a_real_function(self):
         """An exemption for a function that no longer exists is dead weight
         that reads as coverage. Each entry must still resolve."""

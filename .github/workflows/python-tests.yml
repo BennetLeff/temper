@@ -136,6 +136,17 @@ on:
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
+      - 'scripts/check_pad_world_position_oracle.py'
+      - 'scripts/tests/test_check_pad_world_position_oracle.py'
+      - 'scripts/pad_rotation_oracle_corpus.json'
+      - 'scripts/kicad_pad_rotation_oracle.py'
+      - 'scripts/check_pad_core_polygon_oracle.py'
+      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
+      - 'scripts/kicad_pad_polygon_oracle.py'
+      - 'scripts/pad_core_polygon_oracle_corpus.json'
+      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
+      - 'packages/temper-geometry/src/clearance_geometry.rs'
+      - 'packages/temper-geometry/src/kicad_transform.rs'
       - 'pcb/temper.kicad_pcb'
       # The board-sync gate's OWN committed artifact. Absent here, the one
       # file whose modification should always re-run the gate was the one
@@ -198,17 +209,6 @@ on:
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
       - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
-      - 'scripts/check_pad_world_position_oracle.py'
-      - 'scripts/tests/test_check_pad_world_position_oracle.py'
-      - 'scripts/kicad_pad_rotation_oracle.py'
-      - 'scripts/pad_rotation_oracle_corpus.json'
-      - 'scripts/check_pad_core_polygon_oracle.py'
-      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
-      - 'scripts/kicad_pad_polygon_oracle.py'
-      - 'scripts/pad_core_polygon_oracle_corpus.json'
-      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
-      - 'packages/temper-geometry/src/clearance_geometry.rs'
-      - 'packages/temper-geometry/src/kicad_transform.rs'
   pull_request:
     branches: [main]
     paths:
@@ -264,6 +264,17 @@ on:
       - 'scripts/tests/test_check_pad_orientation.py'
       - 'scripts/check_no_raw_rotation_trig.py'
       - 'scripts/tests/test_check_no_raw_rotation_trig.py'
+      - 'scripts/check_pad_world_position_oracle.py'
+      - 'scripts/tests/test_check_pad_world_position_oracle.py'
+      - 'scripts/pad_rotation_oracle_corpus.json'
+      - 'scripts/kicad_pad_rotation_oracle.py'
+      - 'scripts/check_pad_core_polygon_oracle.py'
+      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
+      - 'scripts/kicad_pad_polygon_oracle.py'
+      - 'scripts/pad_core_polygon_oracle_corpus.json'
+      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
+      - 'packages/temper-geometry/src/clearance_geometry.rs'
+      - 'packages/temper-geometry/src/kicad_transform.rs'
       - 'pcb/temper.kicad_pcb'
       # see the push: block above for why this path is here
       - 'pcb/temper.kicad_pcb.source-digest'
@@ -320,17 +331,6 @@ on:
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
       - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
-      - 'scripts/check_pad_world_position_oracle.py'
-      - 'scripts/tests/test_check_pad_world_position_oracle.py'
-      - 'scripts/kicad_pad_rotation_oracle.py'
-      - 'scripts/pad_rotation_oracle_corpus.json'
-      - 'scripts/check_pad_core_polygon_oracle.py'
-      - 'scripts/tests/test_check_pad_core_polygon_oracle.py'
-      - 'scripts/kicad_pad_polygon_oracle.py'
-      - 'scripts/pad_core_polygon_oracle_corpus.json'
-      - 'packages/temper-placer/src/temper_placer/core/pad_geometry.py'
-      - 'packages/temper-geometry/src/clearance_geometry.rs'
-      - 'packages/temper-geometry/src/kicad_transform.rs'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
@@ -766,22 +766,21 @@ jobs:
       #
       # Lowering a floor is exactly what the guard tells you to do "deliberately
       # with a reason", and this is that reason. The no-slack intent above is
-      # preserved: 167 is the measured count, not 167-with-headroom, so the
-      # next genuine shrink still fails.
+      # preserved. RE-ANCHORED 2026-08-27: 167 -> 133 after the two retired
+      # via-placement differential/PBT files were removed from this command;
+      # 133 is the exact surviving collection count measured with the command
+      # below, not a buffered floor.
       - name: Run validation DRC differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 167 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 133 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
           tests/validation/test_drc_fence_rust_differential.py
           tests/validation/test_geometric_rust_differential.py
-          tests/validation/test_tht_check_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
-          tests/deterministic/test_via_placement_rust_differential.py
-          tests/deterministic/test_via_placement_pbt.py
           tests/deterministic/stages/test_slot_generation_rust_differential.py
           tests/deterministic/stages/test_zone_geometry_rust_differential.py
           tests/deterministic/stages/test_zone_assignment_rust_differential.py
@@ -813,18 +812,16 @@ jobs:
       # pinned were retired with them), which made pytest exit 4 and collect
       # NOTHING -- this gate had been running vacuously. The 26 absent tests
       # are genuinely retired, not lost; 105 is the exact count of what
-      # remains.
+      # remains. RE-ANCHORED 2026-08-27: 105 -> 85 after the retired Markdown
+      # and serialization differential files were removed from this command;
+      # 85 is the exact surviving collection count.
       - name: Run Phase-5 report/explainability/clearance differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 140 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 85 --
           tests/explainability/test_trace_rust_differential.py
           tests/explainability/test_decision_rust_differential.py
-          tests/explainability/test_logger_rust_differential.py
-          tests/explainability/test_markdown_rust_differential.py
-          tests/explainability/test_serialization_rust_differential.py
-          tests/explainability/test_traced_loss_pipeline_rust_differential.py
           tests/explainability/test_explainability_pbt.py
           tests/requirements/test_clearance_validator_rust_differential.py
           tests/requirements/test_clearance_validator_pbt.py
@@ -895,21 +892,6 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
-      # Phase-5 workflow half of the same gate: route_and_measure differential
-      # + PBT live in the temper-workflow test tree (separate package). A
-      # pytest_guard floor so the pin cannot silently shrink.
-      - name: Run Phase-5 workflow differentials (anti-vacuity gate)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        working-directory: packages/temper-workflow
-        run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 32 --
-          tests/test_route_and_measure_rust_differential.py
-          tests/test_route_and_measure_pbt.py
-          -v --tb=short -p no:cacheprovider --maxfail=10
-        env:
-          RUST_BACKTRACE: full
-          PYTHONFAULTHANDLER: 1
-
       # Wave 4 round-2 anti-vacuity gate (PR merge path): the round-2
       # migration-wave differential/PBT suites (heuristics, spatial-DRC
       # cluster, constraint-model, channel-mapping, requirements geometry
@@ -925,16 +907,16 @@ jobs:
       # vacuously. The core/ and metrics/ members are also swept by other
       # jobs' directory arguments; they get the pinned floor here regardless.
       #
-      # FLOOR RE-ANCHORED 2026-08-21: 1092 -> 1029. The two tests/core/
-      # graph-cluster files named here were deleted by #1314; naming them made
-      # pytest exit 4 and collect nothing, so this floor never evaluated. 1029
-      # is the measured count of the surviving 14-file invocation under the
-      # same `-m "not slow"`.
+      # FLOOR RE-ANCHORED 2026-08-28: 1029 -> 607. The two
+      # tests/requirements/validators geometry suites were retired with their
+      # Python implementations in the Rust migration and removed from this
+      # invocation; 607 is the measured count of the surviving 13-file
+      # invocation under the same `-m "not slow"`.
       - name: Run Wave-4 round-2 differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 1029 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 607 --
           tests/heuristics/test_heuristics_rust_differential.py
           tests/heuristics/test_heuristics_pbt.py
           tests/router_v6/test_spatial_drc_cluster_rust_differential.py
@@ -944,8 +926,6 @@ jobs:
           tests/router_v6/test_channel_mapping_rust_differential.py
           tests/router_v6/test_channel_skeleton_pad_anchor_rust_differential.py
           tests/router_v6/test_channel_mapping_pbt.py
-          tests/requirements/validators/test_geometry_rust_differential.py
-          tests/requirements/validators/test_geometry_pbt.py
           tests/core/test_bus_cohort_rust_differential.py
           tests/core/test_bus_cohort_pbt.py
           tests/metrics/test_aesthetic_rust_differential.py
@@ -4136,7 +4116,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_acid_trap_boundary.py tests/router_v6/test_acid_trap_detection.py tests/router_v6/test_acid_trap_induction.py tests/router_v6/test_acid_trap_properties.py tests/router_v6/test_adapter.py tests/router_v6/test_annular_ring_induction.py tests/router_v6/test_astar_cost_field.py tests/router_v6/test_astar_inductive_ladder.py tests/router_v6/test_astar_pathfinding.py tests/router_v6/test_astar_perf_regression.py tests/router_v6/test_bundle_analyzer.py tests/router_v6/test_bundled_model_builder.py tests/router_v6/test_capacity_check.py tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py tests/router_v6/test_ci_bug_regressions.py tests/router_v6/test_clearance_segment_dist.py tests/router_v6/test_copper_balance.py tests/router_v6/test_copper_balance_boundary.py tests/router_v6/test_copper_balance_induction.py tests/router_v6/test_creepage_boundary.py tests/router_v6/test_creepage_properties.py tests/router_v6/test_dfm_interaction.py tests/router_v6/test_finish_board_gate.py tests/router_v6/test_forced_segment_fail_closed_pbt.py tests/router_v6/test_grid_prep_pbt.py tests/router_v6/test_layer_capacity.py tests/router_v6/test_los_bb_shortcut.py tests/router_v6/test_manufacturing_report.py tests/router_v6/test_manufacturing_report_properties.py tests/router_v6/test_net_class_parser.py tests/router_v6/test_net_ordering_proof.py tests/router_v6/test_occupancy_grid_pbt.py tests/router_v6/test_phase1_anti_false_zero.py tests/router_v6/test_resource_bound.py tests/router_v6/test_routing_demand_pbt.py tests/router_v6/test_routing_space.py tests/router_v6/test_stage3_monolith_parity.py tests/router_v6/test_stage4_result_pbt.py tests/router_v6/test_stage_ledger.py tests/router_v6/test_teardrop_properties.py tests/router_v6/test_temper_production_board_routing.py tests/router_v6/test_terminal_extraction.py tests/router_v6/test_topology_solver.py tests/router_v6/test_trace_width_assignment.py tests/router_v6/test_tree_route_geometry.py tests/router_v6/test_zone_stitch_netclass_width.py tests/router_v6/test_truthful_completion.py tests/router_v6/test_via_layer_properties_pbt.py tests/router_v6/test_via_placement.py tests/router_v6/test_wave3_skip_sat.py tests/router_v6/test_wave4_pathfinder.py
+          tests/router_v6/test_acid_trap_boundary.py tests/router_v6/test_acid_trap_detection.py tests/router_v6/test_acid_trap_induction.py tests/router_v6/test_acid_trap_properties.py tests/router_v6/test_adapter.py tests/router_v6/test_annular_ring_induction.py tests/router_v6/test_astar_cost_field.py tests/router_v6/test_astar_inductive_ladder.py tests/router_v6/test_astar_pathfinding.py tests/router_v6/test_astar_perf_regression.py tests/router_v6/test_bundle_analyzer.py tests/router_v6/test_bundled_model_builder.py tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py tests/router_v6/test_ci_bug_regressions.py tests/router_v6/test_clearance_segment_dist.py tests/router_v6/test_copper_balance.py tests/router_v6/test_copper_balance_boundary.py tests/router_v6/test_copper_balance_induction.py tests/router_v6/test_creepage_boundary.py tests/router_v6/test_creepage_properties.py tests/router_v6/test_dfm_interaction.py tests/router_v6/test_finish_board_gate.py tests/router_v6/test_forced_segment_fail_closed_pbt.py tests/router_v6/test_grid_prep_pbt.py tests/router_v6/test_layer_capacity.py tests/router_v6/test_los_bb_shortcut.py tests/router_v6/test_manufacturing_report.py tests/router_v6/test_manufacturing_report_properties.py tests/router_v6/test_net_class_parser.py tests/router_v6/test_net_ordering_proof.py tests/router_v6/test_occupancy_grid_pbt.py tests/router_v6/test_phase1_anti_false_zero.py tests/router_v6/test_resource_bound.py tests/router_v6/test_routing_demand_pbt.py tests/router_v6/test_routing_space.py tests/router_v6/test_stage3_monolith_parity.py tests/router_v6/test_stage4_result_pbt.py tests/router_v6/test_stage_ledger.py tests/router_v6/test_teardrop_properties.py tests/router_v6/test_temper_production_board_routing.py tests/router_v6/test_terminal_extraction.py tests/router_v6/test_topology_solver.py tests/router_v6/test_trace_width_assignment.py tests/router_v6/test_tree_route_geometry.py tests/router_v6/test_zone_stitch_netclass_width.py tests/router_v6/test_truthful_completion.py tests/router_v6/test_via_layer_properties_pbt.py tests/router_v6/test_via_placement.py tests/router_v6/test_wave3_skip_sat.py tests/router_v6/test_wave4_pathfinder.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         # Re-masked 2026-07-28 citing "1 failed / 716 passed". Re-checked
@@ -4254,7 +4234,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py
+          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_assignment_validation_pbt.py tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_constraint_model.py tests/router_v6/test_constraint_model_pcl.py tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_diagnostics.py tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_quality_via_count.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py tests/router_v6/test_wave4_bit_tensor.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         # FIXED 2026-08-07: this job ran ZERO tests since 2026-07-31. The

@@ -77,7 +77,11 @@ fn py_float_fmt(x: f64, prec: usize) -> String {
         return "nan".to_string();
     }
     if x.is_infinite() {
-        return if x > 0.0 { "inf".to_string() } else { "-inf".to_string() };
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
     }
     format!("{x:.prec$}")
 }
@@ -139,7 +143,8 @@ impl MetricsObserver {
         mkdir_kw.set_item("parents", true)?;
         mkdir_kw.set_item("exist_ok", true)?;
         output_dir.call_method("mkdir", (), Some(&mkdir_kw))?;
-        let output_path = output_dir.call_method("__truediv__", ("pipeline_metrics.jsonl",), None)?;
+        let output_path =
+            output_dir.call_method("__truediv__", ("pipeline_metrics.jsonl",), None)?;
         let sv_mod = PyModule::import(py, "temper_placer.regression.schema_validator")?;
         let sv_cls = sv_mod.getattr("SchemaValidator")?;
         let schema_validator = sv_cls.call0()?;
@@ -194,7 +199,8 @@ impl MetricsObserver {
         metrics.set_item("wall_time_ms", &wall_time_ms)?;
         metrics.set_item(CANARY_KEY, &me._canary_value)?;
 
-        let drc_delta = if !outputs.is_none() && outputs.is_truthy()?
+        let drc_delta = if !outputs.is_none()
+            && outputs.is_truthy()?
             && outputs.contains("drc_errors_before")?
             && outputs.contains("drc_errors_after")?
         {
@@ -224,7 +230,8 @@ impl MetricsObserver {
         cv_kwargs.set_item("start_t", start_t)?;
         cv_kwargs.set_item("stage_name", &stage_name)?;
         cv_kwargs.set_item("caller_duration_s", duration_s)?;
-        slf.getattr("_cross_validate_against")?.call((), Some(&cv_kwargs))?;
+        slf.getattr("_cross_validate_against")?
+            .call((), Some(&cv_kwargs))?;
         slf.getattr("_check_canary")?.call1((&record,))?;
         slf.getattr("_write")?.call1((&record,))?;
         Ok(())
@@ -276,9 +283,7 @@ impl MetricsObserver {
                 let now = time_mod.call_method0("monotonic")?;
                 let diff = now.sub(st.bind(py))?;
                 let observer_duration_s: f64 = diff.extract()?;
-                if (caller_duration_s - observer_duration_s).abs()
-                    > CROSS_VALIDATION_TOLERANCE_S
-                {
+                if (caller_duration_s - observer_duration_s).abs() > CROSS_VALIDATION_TOLERANCE_S {
                     let tolerance = py_str(&PyFloat::new(py, CROSS_VALIDATION_TOLERANCE_S))?;
                     return Err(CrossValidationError::new_err(format!(
                         "Timing mismatch for stage '{}': caller={}s, observer={}s (tolerance={}s)",
@@ -320,7 +325,9 @@ impl MetricsObserver {
     /// `_validate_schema` — a call-back into the Python `SchemaValidator`.
     fn _validate_schema(&self, py: Python<'_>, record: &Bound<'_, PyAny>) -> PyResult<()> {
         let metrics = record.getattr("metrics")?;
-        self._schema_validator.bind(py).call_method1("validate", (metrics,))?;
+        self._schema_validator
+            .bind(py)
+            .call_method1("validate", (metrics,))?;
         Ok(())
     }
 

@@ -4,7 +4,6 @@ Integration tests for the Rust quality oracle crate (temper_quality_oracle).
 Covers:
 - R14: E2E tests drive full oracle through PyO3
 - Parity with existing Python quality pipeline
-- IPC-2221 bracket parity between Rust and Python
 - NormalizedScore error handling
 - panic-to-exception safety (R15)
 """
@@ -24,38 +23,16 @@ def require_oracle():
         pytest.skip("temper_quality_oracle not installed")
 
 
+def evaluate_quality(netlist, placement, spec, metrics):
+    """Exercise the two-step API used by production callers."""
+    prepared = temper_quality_oracle.prepare_quality_py(netlist, spec)
+    return temper_quality_oracle.evaluate_prepared_py(prepared, placement, metrics)
+
+
 class TestOracleModule:
     def test_module_imports(self):
         require_oracle()
-        assert temper_quality_oracle.is_available_py() is True
-
-    def test_required_clearance_known_voltage(self):
-        require_oracle()
-        assert abs(temper_quality_oracle.required_clearance_py(230.0) - 3.20) < 1e-6
-        assert abs(temper_quality_oracle.required_clearance_py(0.0) - 0.13) < 1e-6
-        assert abs(temper_quality_oracle.required_clearance_py(500.0) - 8.00) < 1e-6
-
-
-class TestNetClassification:
-    def test_classify_simple_nets(self):
-        require_oracle()
-        netlist = {
-            "nets": [
-                {"name": "GND", "pins": []},
-                {"name": "+12V", "pins": []},
-                {"name": "SW_NODE", "pins": []},
-                {"name": "GATE_H", "pins": []},
-                {"name": "SIG1", "pins": []},
-            ],
-            "components": [],
-        }
-        result = temper_quality_oracle.classify_nets_py(netlist)
-        assert result["GND"] == "ground"
-        assert result["+12V"] == "power"
-        assert result["SW_NODE"] == "high_voltage"
-        assert result["GATE_H"] == "gate_drive"
-        assert result["SIG1"] == "signal"
-
+        assert callable(temper_quality_oracle.prepare_quality_py)
 
 class TestQualityOraclePipeline:
     def test_empty_board_passes(self):
@@ -78,7 +55,7 @@ class TestQualityOraclePipeline:
             "connectivity_clustering_score": 0.5,
             "total_wirelength_mm": 100.0,
         }
-        result = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
+        result = evaluate_quality(netlist, placement, spec, metrics)
         assert result["verdict"] == "Pass"
         assert "metrics" in result
         assert abs(result["metrics"]["overall_score"] - 0.5) < 1e-6
@@ -115,7 +92,7 @@ class TestQualityOraclePipeline:
             "connectivity_clustering_score": 0.5,
             "total_wirelength_mm": 100.0,
         }
-        result = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
+        result = evaluate_quality(netlist, placement, spec, metrics)
         assert result["verdict"] == "Fail"
         assert "violations" in result
         violations = result["violations"]
@@ -142,7 +119,7 @@ class TestQualityOraclePipeline:
             "connectivity_clustering_score": 0.5,
             "total_wirelength_mm": 100.0,
         }
-        result = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
+        result = evaluate_quality(netlist, placement, spec, metrics)
         assert result["verdict"] == "Fail"
         assert "violations" in result
 
@@ -166,8 +143,8 @@ class TestQualityOraclePipeline:
             "connectivity_clustering_score": 0.5,
             "total_wirelength_mm": 100.0,
         }
-        r1 = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
-        r2 = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
+        r1 = evaluate_quality(netlist, placement, spec, metrics)
+        r2 = evaluate_quality(netlist, placement, spec, metrics)
         assert r1["verdict"] == r2["verdict"]
 
 
@@ -230,7 +207,7 @@ class TestPrepareEvaluateSplit:
             "board_width_mm": 100.0,
             "board_height_mm": 100.0,
         }
-        single = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
+        single = evaluate_quality(netlist, placement, spec, metrics)
         prepared = temper_quality_oracle.prepare_quality_py(netlist, spec)
         split = temper_quality_oracle.evaluate_prepared_py(prepared, placement, metrics)
         assert split == single
@@ -277,42 +254,3 @@ class TestPrepareEvaluateSplit:
         result = temper_quality_oracle.evaluate_prepared_py(prepared, placement, bad_metrics)
         assert result["verdict"] == "Fail"
         assert any(v["type"] == "invalid_metric" for v in result["violations"])
-
-
-class TestIPC2221BracketParity:
-    def test_bracket_boundaries_match_python(self):
-        require_oracle()
-        from temper_placer.router_v6.creepage_check import _calculate_required_creepage
-
-        voltages = [
-            0,
-            10,
-            15,
-            16,
-            30,
-            31,
-            50,
-            51,
-            100,
-            101,
-            150,
-            151,
-            170,
-            171,
-            230,
-            250,
-            251,
-            300,
-            301,
-            500,
-            600,
-            800,
-            1000,
-            1500,
-        ]
-        for v in voltages:
-            rust_val = temper_quality_oracle.required_clearance_py(v)
-            py_val = _calculate_required_creepage(v)
-            assert abs(rust_val - py_val) < 1e-6, (
-                f"mismatch at {v}V: rust={rust_val}, python={py_val}"
-            )

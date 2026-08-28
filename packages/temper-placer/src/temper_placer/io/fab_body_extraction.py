@@ -14,14 +14,13 @@ filters. The geometry ARITHMETIC (rotation transform, merge/hull,
 polygon boolean) is unchanged from the canonical kernels either way;
 only the parsing library differs.
 
-**Validation.** This module's output was cross-checked against PR #1158's
-independently-implemented (from-scratch S-expression parser, not this
-codebase's kernels) body-overlap measurements for all 8 tracked
-``courtyards_overlap`` pairs on ``pcb/temper.kicad_pcb`` and reproduces its
-published depths/gaps (e.g. C2xC3 world body centers (98.48, 64.84) /
-(87.36, 39.94), matching to the mm) and, independently, against live
-``kicad-cli pcb drc`` output on the same board (identical 8-pair set,
-`kicad-cli` 10.0.5) -- see ``docs/evidence/<this-PR>-body-collision-guard.md``.
+**Validation.** This module's output was originally cross-checked against
+PR #1158's independently-implemented (from-scratch S-expression parser, not
+this codebase's kernels) body-overlap measurements for the then-current
+``courtyards_overlap`` pairs. The committed board has since landed the
+documented component relocations; the current test pins C2/C3 as the one
+remaining body collision and explicitly checks the seven cleared historical
+pairs against the board's current geometry and live ``kicad-cli`` output.
 """
 
 from __future__ import annotations

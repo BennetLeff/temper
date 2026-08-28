@@ -65,6 +65,25 @@
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap};
 
+/// Hard upper bound for one Tier-3 search's state storage.
+///
+/// A production grid is roughly 1,680 x 2,380 cells and has four signal
+/// layers, so the complete rectangular state space is about 16 million
+/// states.  The old `HashMap` representation used 50--100+ bytes per state
+/// (and retained every state until the search returned), allowing one hard
+/// segment to consume many gigabytes before its `max_iter` limit fired.  The
+/// dense representation below uses two flat arrays (16 bytes/state), while
+/// this cap is a fail-closed guard for malformed or unexpectedly huge input.
+/// It is deliberately a state-space bound, not a time-derived guess.
+const MAX_SEARCH_STATES: usize = 24_000_000;
+const MAX_SPARSE_STATES: usize = 2_000_000;
+/// Keep duplicate frontier entries from becoming a second unbounded store.
+/// A* can legally re-enqueue a node when a cheaper path is found; this cap is
+/// intentionally generous for normal routes but fail-closes pathological
+/// congestion instead of allowing heap growth to dominate RSS.
+const MAX_FRONTIER_ENTRIES: usize = 4_000_000;
+const NO_PREDECESSOR: u64 = u64::MAX;
+
 /// `math.sqrt(2.0) - 1.0` — mirrors `astar_core.OCTILE_DIAG`.
 pub const OCTILE_DIAG: f64 = std::f64::consts::SQRT_2 - 1.0;
 
@@ -118,7 +137,13 @@ impl LayerGrid<'_> {
         if x < 0 || y < 0 || x >= self.width || y >= self.height {
             return false;
         }
-        self.cells[(y * self.width + x) as usize] == 0
+        // `LayerGrid` is also part of the pure-Rust API, so callers can
+        // construct malformed planes without going through the pyo3 decoder.
+        // A short plane is simply blocked rather than turning bad input into
+        // an indexing panic in the router.
+        self.cells
+            .get((y * self.width + x) as usize)
+            .is_some_and(|cell| *cell == 0)
     }
 }
 
@@ -144,6 +169,166 @@ pub struct NlayerOutput {
     pub vias: Vec<(i64, i64)>,
     pub found: bool,
     pub iterations: u64,
+}
+
+/// State storage for one search.
+///
+/// Production grids share dimensions, so dense arrays avoid the allocator
+/// and hash-table overhead that made the previous implementation grow to
+/// multi-gigabyte RSS.  Small heterogeneous fixtures retain the old sparse
+/// representation for parity; that representation is still explicitly
+/// capped so arbitrary inputs cannot turn this kernel into an unbounded
+/// allocator.
+enum SearchState {
+    Dense {
+        costs: Vec<f64>,
+        predecessors: Vec<u64>,
+        layers: usize,
+        stride: usize,
+    },
+    Sparse {
+        costs: HashMap<u64, f64>,
+        predecessors: HashMap<u64, Option<(i64, i64, usize)>>,
+    },
+}
+
+impl SearchState {
+    fn new(input: &NlayerInput, stride: usize, height: usize) -> Option<Self> {
+        let layers = input.grids.len();
+        let state_count = stride.checked_mul(height)?.checked_mul(layers)?;
+        if state_count > MAX_SEARCH_STATES {
+            return None;
+        }
+        let homogeneous = input
+            .grids
+            .iter()
+            .all(|grid| grid.width == stride as i64 && grid.height == height as i64);
+        if homogeneous {
+            // `f64` costs + `u64` predecessor, 16 bytes/state.  Use fallible
+            // reservation so an OS allocation failure becomes a clean,
+            // fail-closed search result rather than aborting the process.
+            let mut costs = Vec::new();
+            costs.try_reserve_exact(state_count).ok()?;
+            costs.resize(state_count, f64::INFINITY);
+            let mut predecessors = Vec::new();
+            predecessors.try_reserve_exact(state_count).ok()?;
+            predecessors.resize(state_count, NO_PREDECESSOR);
+            Some(Self::Dense {
+                costs,
+                predecessors,
+                layers,
+                stride,
+            })
+        } else {
+            Some(Self::Sparse {
+                costs: HashMap::new(),
+                predecessors: HashMap::new(),
+            })
+        }
+    }
+
+    #[inline]
+    fn dense_index(&self, key: u64) -> Option<usize> {
+        match self {
+            Self::Dense { costs, .. } => {
+                let index = usize::try_from(key).ok()?;
+                (index < costs.len()).then_some(index)
+            }
+            Self::Sparse { .. } => None,
+        }
+    }
+
+    #[inline]
+    fn cost(&self, key: u64) -> Option<f64> {
+        match self {
+            Self::Dense { costs, .. } => self
+                .dense_index(key)
+                .map(|i| costs[i])
+                .filter(|v| v.is_finite()),
+            Self::Sparse { costs, .. } => costs.get(&key).copied(),
+        }
+    }
+
+    /// Update a state. Returns false only when the sparse safety cap is hit.
+    fn update(&mut self, key: u64, cost: f64, predecessor: (i64, i64, usize)) -> bool {
+        match self {
+            Self::Dense {
+                costs,
+                predecessors,
+                layers,
+                stride,
+            } => {
+                let Some(index) = usize::try_from(key).ok().filter(|&i| i < costs.len()) else {
+                    return false;
+                };
+                costs[index] = cost;
+                // Dense keys use the same packed layout as `key()`; encode
+                // the predecessor here to avoid a 24-byte tuple per state.
+                let (x, y, layer) = predecessor;
+                predecessors[index] = Self::encode_dense_predecessor(x, y, layer, *stride, *layers);
+                true
+            }
+            Self::Sparse {
+                costs,
+                predecessors,
+            } => {
+                if !costs.contains_key(&key) && costs.len() >= MAX_SPARSE_STATES {
+                    return false;
+                }
+                costs.insert(key, cost);
+                predecessors.insert(key, Some(predecessor));
+                true
+            }
+        }
+    }
+
+    fn insert_start(&mut self, key: u64) -> bool {
+        match self {
+            Self::Dense { costs, .. } => {
+                let Some(index) = usize::try_from(key).ok().filter(|&i| i < costs.len()) else {
+                    return false;
+                };
+                costs[index] = 0.0;
+                true
+            }
+            Self::Sparse {
+                costs,
+                predecessors,
+            } => {
+                costs.insert(key, 0.0);
+                predecessors.insert(key, None);
+                true
+            }
+        }
+    }
+
+    fn encode_dense_predecessor(x: i64, y: i64, layer: usize, stride: usize, layers: usize) -> u64 {
+        (((y as usize * stride + x as usize) * layers) + layer) as u64
+    }
+
+    fn predecessor(&self, key: u64) -> Option<(i64, i64, usize)> {
+        match self {
+            Self::Dense {
+                costs,
+                predecessors,
+                layers,
+                stride,
+            } => {
+                let index = usize::try_from(key).ok().filter(|&i| i < costs.len())?;
+                if !costs[index].is_finite() || predecessors[index] == NO_PREDECESSOR {
+                    return None;
+                }
+                let cell = predecessors[index] / *layers as u64;
+                let layer = (predecessors[index] % *layers as u64) as usize;
+                Some((
+                    (cell % *stride as u64) as i64,
+                    (cell / *stride as u64) as i64,
+                    layer,
+                ))
+            }
+            Self::Sparse { predecessors, .. } => predecessors.get(&key).copied().flatten(),
+        }
+    }
 }
 
 /// A frontier entry ordered exactly as Python's `(priority, (x, y, layer))`.
@@ -200,10 +385,37 @@ impl PartialOrd for MinEntry {
 
 #[inline]
 fn octile(ax: i64, ay: i64, bx: i64, by: i64) -> f64 {
-    let dx = (ax - bx).abs();
-    let dy = (ay - by).abs();
+    // `abs_diff` avoids overflowing for hostile i64 endpoints (the Python
+    // implementation accepts arbitrary-sized ints at this boundary).
+    let dx = ax.abs_diff(bx);
+    let dy = ay.abs_diff(by);
     let (hi, lo) = if dx >= dy { (dx, dy) } else { (dy, dx) };
     hi as f64 + OCTILE_DIAG * lo as f64
+}
+
+/// Pack a valid cell into the flat state arrays/maps.  Returning `None` for
+/// an unrepresentable endpoint is important: a signed-coordinate cast to
+/// `u64` can otherwise alias a valid state or panic in debug builds during
+/// multiplication.
+#[inline]
+fn pack_key(
+    x: i64,
+    y: i64,
+    layer: usize,
+    stride: usize,
+    height: usize,
+    n_layers: usize,
+) -> Option<u64> {
+    let x = usize::try_from(x).ok()?;
+    let y = usize::try_from(y).ok()?;
+    if x >= stride || y >= height || layer >= n_layers {
+        return None;
+    }
+    y.checked_mul(stride)
+        .and_then(|cell| cell.checked_add(x))
+        .and_then(|cell| cell.checked_mul(n_layers))
+        .and_then(|key| key.checked_add(layer))
+        .and_then(|key| u64::try_from(key).ok())
 }
 
 /// Port of `astar_core._astar_search_3d`.
@@ -221,21 +433,38 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
         return NlayerOutput::default();
     }
 
-    // Compact state key: ((y * width + x) * n_layers) + layer. The grids share
-    // a coordinate frame (they are built from one board outline), so layer 0's
-    // width is the common stride.
-    let stride = input.grids[0].width;
-    let key = |x: i64, y: i64, l: usize| -> u64 {
-        (((y * stride + x) as u64) * n_layers as u64) + l as u64
+    // Compact state key: ((y * width + x) * n_layers) + layer. Use the widest
+    // layer as the stride: heterogeneous fixtures can legally have a layer
+    // wider than `grids[0]`, and using the first width would alias their keys.
+    let stride = input.grids.iter().map(|grid| grid.width).max().unwrap_or(0);
+    let height = input
+        .grids
+        .iter()
+        .map(|grid| grid.height)
+        .max()
+        .unwrap_or(0);
+    if stride <= 0 || height <= 0 {
+        return NlayerOutput::default();
+    }
+    let Some(stride) = usize::try_from(stride).ok() else {
+        return NlayerOutput::default();
     };
-
-    let mut came_from: HashMap<u64, Option<(i64, i64, usize)>> = HashMap::new();
-    let mut cost_so_far: HashMap<u64, f64> = HashMap::new();
+    let Some(height) = usize::try_from(height).ok() else {
+        return NlayerOutput::default();
+    };
+    let Some(mut state) = SearchState::new(input, stride, height) else {
+        // A pathological grid cannot be represented within the kernel's
+        // memory contract.  Decline it before allocating search state.
+        return NlayerOutput::default();
+    };
     let mut frontier: BinaryHeap<MinEntry> = BinaryHeap::new();
 
-    let start_key = key(sx, sy, sl);
-    came_from.insert(start_key, None);
-    cost_so_far.insert(start_key, 0.0);
+    let Some(start_key) = pack_key(sx, sy, sl, stride, height, n_layers) else {
+        return NlayerOutput::default();
+    };
+    if !state.insert_start(start_key) {
+        return NlayerOutput::default();
+    }
     // Python seeds the heap with an integer 0 priority; 0 == 0.0 numerically,
     // and tie-breaking then falls through to the node tuple exactly as here.
     frontier.push(MinEntry(Entry {
@@ -263,7 +492,12 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
         }
 
         let Entry { x, y, layer, .. } = top.0;
-        let cur_key = key(x, y, layer);
+        let Some(cur_key) = pack_key(x, y, layer, stride, height, n_layers) else {
+            return NlayerOutput {
+                iterations,
+                ..Default::default()
+            };
+        };
 
         if x == gx && y == gy && layer == gl {
             // Reverse walk, mirroring the Python reconstruction: `path` is
@@ -281,7 +515,8 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
                     }
                 }
                 prev_layer = Some(cl);
-                cur = came_from.get(&key(cx, cy, cl)).copied().flatten();
+                cur = pack_key(cx, cy, cl, stride, height, n_layers)
+                    .and_then(|key| state.predecessor(key));
             }
             path.reverse();
             return NlayerOutput {
@@ -292,8 +527,8 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
             };
         }
 
-        let cur_cost = match cost_so_far.get(&cur_key) {
-            Some(c) => *c,
+        let cur_cost = match state.cost(cur_key) {
+            Some(c) => c,
             None => continue,
         };
         let grid = &input.grids[layer];
@@ -313,34 +548,64 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
             }
         }
         for &other in input.available_layers {
-            if other != layer && input.grids[other].is_free(x, y) {
+            if other < n_layers && other != layer && input.grids[other].is_free(x, y) {
                 moves.push(((x, y, other), input.via_cost));
             }
         }
 
         for ((nx, ny, nl), move_cost) in moves {
             let new_cost = cur_cost + move_cost;
-            let nkey = key(nx, ny, nl);
-            let better = match cost_so_far.get(&nkey) {
+            // Malformed costs (or an f64 overflow after a very long route)
+            // must not enter either the state table or the heap.  In
+            // particular, `NaN` breaks the total ordering contract used by
+            // BinaryHeap and would otherwise turn every revisit into a new
+            // frontier entry until the safety cap fires.
+            if !new_cost.is_finite() {
+                continue;
+            }
+            let Some(nkey) = pack_key(nx, ny, nl, stride, height, n_layers) else {
+                return NlayerOutput {
+                    iterations,
+                    ..Default::default()
+                };
+            };
+            let better = match state.cost(nkey) {
                 None => true,
-                Some(&existing) => new_cost < existing,
+                Some(existing) => new_cost < existing,
             };
             if !better {
                 continue;
             }
-            cost_so_far.insert(nkey, new_cost);
+            if !state.update(nkey, new_cost, (x, y, layer)) {
+                // Sparse fixtures are bounded too.  Treat exhaustion as an
+                // honest no-path result; never continue allocating until the
+                // process is killed.
+                return NlayerOutput {
+                    iterations,
+                    ..Default::default()
+                };
+            }
             let mut h = octile(nx, ny, gx, gy);
             if nl != gl {
                 h += input.via_cost;
             }
+            let priority = new_cost + h;
+            if !priority.is_finite() {
+                continue;
+            }
             frontier.push(MinEntry(Entry {
-                priority: new_cost + h,
+                priority,
                 x: nx,
                 y: ny,
                 rank: input.grids[nl].name_rank,
                 layer: nl,
             }));
-            came_from.insert(nkey, Some((x, y, layer)));
+            if frontier.len() > MAX_FRONTIER_ENTRIES {
+                return NlayerOutput {
+                    iterations,
+                    ..Default::default()
+                };
+            }
         }
     }
 
@@ -633,6 +898,141 @@ pub(crate) mod tests {
     }
 
     #[cfg_attr(test, test)]
+    fn test_oversized_state_space_declines_before_allocation() {
+        // The cell buffers are intentionally empty: the state-space guard
+        // must fire before the search can inspect a cell. This is a cheap
+        // regression witness for the production failure mode, where a
+        // multi-layer grid's HashMaps previously grew until the process was
+        // killed by the OOM cgroup.
+        let grids = vec![LayerGrid {
+            name_rank: 0,
+            cells: &[],
+            width: 10_000,
+            height: 10_000,
+            origin: (0.0, 0.0),
+            cell_size: 1.0,
+        }];
+        let out = astar_search_3d(&NlayerInput {
+            start: (0, 0, 0),
+            goal: (9_999, 9_999, 0),
+            grids: &grids,
+            available_layers: &[0],
+            via_cost: 10.0,
+            max_iter: Some(1_000_000),
+        });
+        assert!(!out.found);
+        assert_eq!(out.iterations, 0);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_heterogeneous_widths_use_collision_free_keys() {
+        // The second layer is wider than the first.  Using grids[0].width as
+        // the sparse key stride aliases (x=2,y=0) with a later row; this
+        // route exercises both the wider coordinate and reconstruction.
+        let planes = [open(1, 3), open(3, 3)];
+        let g = [
+            LayerGrid {
+                name_rank: 0,
+                cells: &planes[0],
+                width: 1,
+                height: 3,
+                origin: (0.0, 0.0),
+                cell_size: 1.0,
+            },
+            LayerGrid {
+                name_rank: 1,
+                cells: &planes[1],
+                width: 3,
+                height: 3,
+                origin: (0.0, 0.0),
+                cell_size: 1.0,
+            },
+        ];
+        let out = astar_search_3d(&NlayerInput {
+            start: (2, 0, 1),
+            // This endpoint intentionally collides with (2,0,1) if the
+            // first layer's width (1) is incorrectly used as the stride.
+            goal: (0, 2, 1),
+            grids: &g,
+            available_layers: &[0, 1],
+            via_cost: 10.0,
+            max_iter: Some(100),
+        });
+        assert!(out.found);
+        assert_eq!(out.path.first(), Some(&(2, 0, 1)));
+        assert_eq!(out.path.last(), Some(&(0, 2, 1)));
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_invalid_available_layer_is_ignored() {
+        let planes = vec![open(3, 3)];
+        let g = grids_from(&planes, 3, 3);
+        let out = astar_search_3d(&NlayerInput {
+            start: (0, 0, 0),
+            goal: (2, 2, 0),
+            grids: &g,
+            available_layers: &[99, 0],
+            via_cost: 10.0,
+            max_iter: Some(100),
+        });
+        assert!(out.found);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_short_plane_is_treated_as_blocked() {
+        let g = [LayerGrid {
+            name_rank: 0,
+            cells: &[0],
+            width: 2,
+            height: 2,
+            origin: (0.0, 0.0),
+            cell_size: 1.0,
+        }];
+        let out = astar_search_3d(&NlayerInput {
+            start: (0, 0, 0),
+            goal: (1, 1, 0),
+            grids: &g,
+            available_layers: &[0],
+            via_cost: 10.0,
+            max_iter: Some(100),
+        });
+        assert!(!out.found);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_extreme_goal_does_not_overflow_heuristic() {
+        let planes = vec![open(3, 3)];
+        let g = grids_from(&planes, 3, 3);
+        let out = astar_search_3d(&NlayerInput {
+            start: (0, 0, 0),
+            goal: (i64::MAX, i64::MIN, 0),
+            grids: &g,
+            available_layers: &[0],
+            via_cost: 10.0,
+            max_iter: Some(100),
+        });
+        assert!(!out.found);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_nonfinite_via_cost_cannot_poison_frontier() {
+        let planes = vec![open(4, 4), open(4, 4)];
+        let g = grids_from(&planes, 4, 4);
+        let out = astar_search_3d(&NlayerInput {
+            start: (0, 0, 0),
+            goal: (3, 3, 0),
+            grids: &g,
+            available_layers: &[0, 1],
+            via_cost: f64::NAN,
+            max_iter: Some(100),
+        });
+        // Same-layer routing remains valid; malformed via costs are ignored
+        // rather than entering the cost table as NaN and being re-enqueued.
+        assert!(out.found);
+        assert!(out.vias.is_empty());
+    }
+
+    #[cfg_attr(test, test)]
     fn test_out_of_bounds_is_not_free() {
         let planes = vec![open(3, 3)];
         let g = grids_from(&planes, 3, 3);
@@ -687,6 +1087,12 @@ pub(crate) mod tests {
         ("astar_nlayer::tests::test_blocked_layer_forces_detour_via_other_layer", test_blocked_layer_forces_detour_via_other_layer),
         ("astar_nlayer::tests::test_unreachable_returns_not_found", test_unreachable_returns_not_found),
         ("astar_nlayer::tests::test_max_iter_bail", test_max_iter_bail),
+        ("astar_nlayer::tests::test_oversized_state_space_declines_before_allocation", test_oversized_state_space_declines_before_allocation),
+        ("astar_nlayer::tests::test_heterogeneous_widths_use_collision_free_keys", test_heterogeneous_widths_use_collision_free_keys),
+        ("astar_nlayer::tests::test_invalid_available_layer_is_ignored", test_invalid_available_layer_is_ignored),
+        ("astar_nlayer::tests::test_short_plane_is_treated_as_blocked", test_short_plane_is_treated_as_blocked),
+        ("astar_nlayer::tests::test_extreme_goal_does_not_overflow_heuristic", test_extreme_goal_does_not_overflow_heuristic),
+        ("astar_nlayer::tests::test_nonfinite_via_cost_cannot_poison_frontier", test_nonfinite_via_cost_cannot_poison_frontier),
         ("astar_nlayer::tests::test_out_of_bounds_is_not_free", test_out_of_bounds_is_not_free),
         ("astar_nlayer::tests::test_octile_matches_reference_formula", test_octile_matches_reference_formula),
         ("astar_nlayer::tests::test_world_grid_roundtrip_truncates_toward_zero", test_world_grid_roundtrip_truncates_toward_zero),

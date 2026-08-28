@@ -14,5 +14,4 @@
 
 /// Debug-assert proof registry.
 #[cfg(debug_assertions)]
-pub mod proof_registry {
-}
+pub mod proof_registry {}

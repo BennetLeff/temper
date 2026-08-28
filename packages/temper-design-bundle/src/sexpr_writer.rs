@@ -457,113 +457,6 @@ pub(crate) fn write_board_document(nodes: &[KiNode]) -> String {
     out
 }
 
-fn is_list_with_head(node: &KiNode, head: &str) -> bool {
-    match node {
-        KiNode::List(items) => matches!(
-            items.first(),
-            Some(KiNode::Atom(KiAtom::Bare(b))) if b == head
-        ),
-        _ => false,
-    }
-}
-
-/// Build a fresh `(title_block (comment SLOT "text"))` list.
-fn make_title_block(slot: usize, text: &str) -> KiNode {
-    let comment = KiNode::List(vec![
-        KiNode::Atom(KiAtom::Bare("comment".to_string())),
-        KiNode::Atom(KiAtom::Int(slot as i64)),
-        KiNode::Atom(KiAtom::Str(text.to_string())),
-    ]);
-    KiNode::List(vec![
-        KiNode::Atom(KiAtom::Bare("title_block".to_string())),
-        comment,
-    ])
-}
-
-/// Set comment `slot` to `text` inside an existing `(title_block ...)`
-/// list: overwrite the `(comment SLOT ...)` entry when present, otherwise
-/// append one.
-fn set_title_block_comment(tb_items: &mut Vec<KiNode>, slot: usize, text: &str) {
-    let new_comment = KiNode::List(vec![
-        KiNode::Atom(KiAtom::Bare("comment".to_string())),
-        KiNode::Atom(KiAtom::Int(slot as i64)),
-        KiNode::Atom(KiAtom::Str(text.to_string())),
-    ]);
-    for item in tb_items.iter_mut() {
-        let KiNode::List(comment_items) = item else { continue };
-        let head_matches = matches!(
-            comment_items.first(),
-            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "comment"
-        );
-        if head_matches
-            && matches!(comment_items.get(1), Some(KiNode::Atom(KiAtom::Int(v))) if *v == slot as i64)
-        {
-            *item = new_comment;
-            return;
-        }
-    }
-    tb_items.push(new_comment);
-}
-
-/// Embed a numbered title-block comment into a parsed document tree:
-/// overwrite `(comment SLOT ...)` when the board already has a
-/// `(title_block ...)`, otherwise create the title_block and insert it
-/// after `(paper ...)` if present, else after `(general ...)`, else right
-/// after the root head. Returns an error (fail closed) when the document
-/// has no `(kicad_pcb ...)` root list.
-pub(crate) fn embed_title_block_comment(
-    nodes: &mut [KiNode],
-    slot: usize,
-    text: &str,
-) -> Result<(), String> {
-    let root = nodes.first_mut().ok_or_else(|| "empty document".to_string())?;
-    let KiNode::List(root_items) = root else {
-        return Err("document root is not a list".to_string());
-    };
-    let root_is_pcb = matches!(
-        root_items.first(),
-        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb"
-    );
-    if !root_is_pcb {
-        return Err("document root is not a (kicad_pcb ...) list".to_string());
-    }
-    match root_items.iter().position(|n| is_list_with_head(n, "title_block")) {
-        Some(i) => {
-            let KiNode::List(tb_items) = &mut root_items[i] else {
-                return Err("title_block is not a list".to_string());
-            };
-            set_title_block_comment(tb_items, slot, text);
-        }
-        None => {
-            let title_block = make_title_block(slot, text);
-            let insert_at = root_items
-                .iter()
-                .position(|n| is_list_with_head(n, "paper"))
-                .map(|i| i + 1)
-                .or_else(|| {
-                    root_items
-                        .iter()
-                        .position(|n| is_list_with_head(n, "general"))
-                        .map(|i| i + 1)
-                })
-                .unwrap_or(1);
-            let insert_at = insert_at.min(root_items.len());
-            root_items.insert(insert_at, title_block);
-        }
-    }
-    Ok(())
-}
-
-/// Parse raw `.kicad_pcb` text with the kiutils-exact tokenizer, serialize
-/// the resulting tree back to text. Re-parsing the result yields the same
-/// tree (D7 re-parse parity); the bytes need not match the input (the
-/// tokenizer already normalized whitespace/carets/integral decimals).
-#[pyfunction]
-pub fn write_board_sexpr_py(content: &str) -> PyResult<String> {
-    let nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    Ok(write_board_document(&nodes))
-}
-
 /// Parse raw `.kicad_pcb` text, append one or more s-expression items
 /// (as Python nested lists — the output of ``zone_sexpr_py``,
 /// ``segment_sexpr_py`` etc.) to the root ``(kicad_pcb ...)`` list, and
@@ -602,33 +495,6 @@ pub fn append_items_to_board_py(
             parse_ki_document(&item_text).map_err(PyValueError::new_err)?;
         for item_node in item_nodes {
             root_items.push(item_node);
-        }
-    }
-    Ok(write_board_document(&nodes))
-}
-
-/// Null the drill of every SMD pad in raw `.kicad_pcb` text — the text-path
-/// replacement for `kicad_exporter.export_routed_pcb`'s SMD drill-corruption
-/// cleanup (kiutils < 1.4.9 mis-parses `(drill (offset ...))` into garbage
-/// that crashes export; the fix there set `pad.drill = None` on every SMD
-/// pad carrying any drill token). Here: drop the whole `(drill ...)`
-/// sub-list from every `(pad ... N smd ...)` child of a top-level footprint,
-/// serialize back. A removed drill token can never re-parse into a drill,
-/// so re-parse parity holds by construction. The tree mutation itself is
-/// [`crate::parse_engine::strip_smd_drills_in_tree`] (ungated, wasm-covered);
-/// this wrapper adds parse + serialize.
-#[pyfunction]
-pub fn strip_smd_drills_py(content: &str) -> PyResult<String> {
-    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    {
-        let root = nodes.first_mut().ok_or_else(|| {
-            PyValueError::new_err("empty document — no root node")
-        })?;
-        match root {
-            KiNode::List(root_items) => {
-                crate::parse_engine::strip_smd_drills_in_tree(root_items);
-            }
-            _ => return Err(PyValueError::new_err("document root is not a list")),
         }
     }
     Ok(write_board_document(&nodes))
@@ -681,17 +547,6 @@ pub fn extract_net_map_from_text_py(
         }
     }
     Ok(out.into_any().unbind())
-}
-
-/// Parse raw `.kicad_pcb` text, set title-block comment `slot` to `text`
-/// (creating the title_block when absent), and serialize the mutated tree
-/// back to text. The provenance-embedding kernel behind
-/// `temper_placer.io.provenance.embed_provenance`.
-#[pyfunction]
-pub fn embed_title_block_comment_py(content: &str, slot: usize, text: &str) -> PyResult<String> {
-    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    embed_title_block_comment(&mut nodes, slot, text).map_err(PyValueError::new_err)?;
-    Ok(write_board_document(&nodes))
 }
 
 #[cfg(test)]
@@ -818,46 +673,6 @@ mod tests {
         // A bare-atom document is not a real board but must still round-trip.
         let out = assert_round_trip("hello");
         assert_eq!(out, "hello\n");
-    }
-
-    #[test]
-    fn embed_comment_creates_title_block() {
-        let mut nodes = parse_ki_document(
-            "(kicad_pcb (version 20211014) (general (thickness 1.6)) (paper \"A4\"))",
-        )
-        .unwrap();
-        embed_title_block_comment(&mut nodes, 9, "provenance: board=abc").unwrap();
-        let out = write_board_document(&nodes);
-        assert!(out.contains("(title_block\n        (comment 9 \"provenance: board=abc\")\n    )"));
-        // The inserted title_block must sit right after (paper ...).
-        let paper_pos = out.find("(paper \"A4\")").unwrap();
-        let tb_pos = out.find("title_block").unwrap();
-        assert!(tb_pos > paper_pos);
-        // Re-parse parity holds after the mutation.
-        let tree2 = parse_ki_document(&out).unwrap();
-        assert_eq!(nodes, tree2);
-    }
-
-    #[test]
-    fn embed_comment_overwrites_existing_slot() {
-        let mut nodes = parse_ki_document(
-            "(kicad_pcb (title_block (title \"T\")\n (comment 9 \"old\") (comment 2 \"keep\")))",
-        )
-        .unwrap();
-        embed_title_block_comment(&mut nodes, 9, "new").unwrap();
-        let out = write_board_document(&nodes);
-        assert!(!out.contains("\"old\""));
-        assert!(out.contains("(comment 9 \"new\")"));
-        assert!(out.contains("(comment 2 \"keep\")"));
-        assert!(out.contains("(title \"T\")"));
-        let tree2 = parse_ki_document(&out).unwrap();
-        assert_eq!(nodes, tree2);
-    }
-
-    #[test]
-    fn embed_comment_fails_closed_on_non_pcb_document() {
-        let mut nodes = parse_ki_document("(not_a_board (x 1))").unwrap();
-        assert!(embed_title_block_comment(&mut nodes, 9, "x").is_err());
     }
 
     /// The acceptance fixture: the production board. Parse -> write ->

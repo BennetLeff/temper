@@ -9,26 +9,19 @@
 // wasm/other pure-Rust consumers build with `--no-default-features`.
 //
 // What's genuinely pure now (see each module for detail):
-//   - export_types:      TraceSegment, TraceVia, ExportResult (data only)
-//   - isolation:          isolation_slot_aabb (pure geometry)
+//   - export_types:      TraceSegment (data only)
 //   - dsn_types:          DSN S-expression formatting (DsnArg/DsnExpressionData)
 //   - footprint_spec:     FootprintSpec (data only)
 //
-// What stays pyo3-only, and why (no pure core to extract):
-//   - zone_filler — shells out to a live Python interpreter + KiCad's
-//     `pcbnew` C++ extension via `subprocess`; there is no kernel to make
-//     pure, and wasm32 has neither a filesystem nor process spawning.
-
 // WASM tier R1 (plan 2026-08-03-002): with `--no-default-features` the whole
 // pyo3 surface (`explain`, `report`, `reference_aliases`, `footprint_library`,
-// `dsn_pyo3`, `zone_filler` and each module's `*_py` bridges) is not compiled,
+// `dsn_pyo3` and each module's `*_py` bridges) is not compiled,
 // so the pure helpers those bridges call look unused to rustc -- it cannot see
 // past the cfg gate.  Allow dead_code in that configuration only, exactly as
 // `temper-geometry` and `temper-thermal` do; the default (python) build keeps
 // the lint.
 #![cfg_attr(not(feature = "python"), allow(dead_code))]
 
-pub mod dag_expr;
 pub mod dsn;
 pub mod dsn_exporter;
 pub mod dsn_types;
@@ -46,7 +39,6 @@ pub mod export_types;
 #[cfg(feature = "python")]
 pub mod footprint_library;
 pub mod footprint_spec;
-pub mod isolation;
 pub mod kicad_write_geometry;
 // Wave-4 tail-tooling migration: the regression golden-manifest path sets
 // and validation (temper_placer/regression/manifest.py) — the path-set
@@ -100,9 +92,6 @@ pub mod write_types;
 #[cfg(feature = "wasm-registry")]
 pub mod wasm_test_registry;
 
-#[cfg(feature = "python")]
-pub mod zone_filler;
-
 // Wave 4, Phase 3 tail: DSN (Specctra) format utilities, consolidated from the
 // deleted temper-dsn crate. `dsn` (declared above with the other modules)
 // holds the pure kernels and their unit tests; `dsn_pyo3` is the wholly-pyo3
@@ -128,27 +117,8 @@ mod pymodule_def {
 
     #[pymodule]
     fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
-        // Which Cargo profile this extension was built with. The dag_expr
-        // performance A/B reads it: an unoptimised build of the same code
-        // measured 0.51x vs Python where the release build measures 2.70x,
-        // so a debug .so silently turns a speed-up into a apparent
-        // regression. Better to say so than to publish the wrong number.
-        m.add(
-            "BUILD_PROFILE",
-            if cfg!(debug_assertions) { "debug" } else { "release" },
-        )?;
-
-        m.add(
-            "DagExprSyntaxError",
-            m.py().get_type::<crate::dag_expr::DagExprSyntaxError>(),
-        )?;
-        m.add("DagExprError", m.py().get_type::<crate::dag_expr::DagExprError>())?;
-
         // Classes
-        m.add_class::<crate::dag_expr::PySkipExpr>()?;
         m.add_class::<crate::export_types::PyTraceSegment>()?;
-        m.add_class::<crate::export_types::PyTraceVia>()?;
-        m.add_class::<crate::export_types::PyExportResult>()?;
         m.add_class::<crate::dsn_types::DSNExpression>()?;
         m.add_class::<crate::dsn_exporter::PyDsnExporterCore>()?;
         m.add_class::<crate::dsn_types::PyDsnRect>()?;
@@ -159,11 +129,6 @@ mod pymodule_def {
         m.add_class::<crate::reference_aliases::PyReferenceAliasManifest>()?;
 
         // Functions
-        m.add_function(wrap_pyfunction!(crate::dag_expr::parse_skip_expr_rs, m)?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::isolation::isolation_slot_aabb_py,
-            m
-        )?)?;
         m.add_function(wrap_pyfunction!(crate::dsn_types::dsn_list, m)?)?;
         // Wave-4 tail-tooling — quarantine compute (testing/quarantine.py).
         m.add_function(wrap_pyfunction!(crate::quarantine::classify_error, m)?)?;
@@ -204,61 +169,6 @@ mod pymodule_def {
             crate::explain::explain_decision_trace_summary,
             m
         )?)?;
-        m.add_function(wrap_pyfunction!(crate::explain::explain_should_log, m)?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_significant_change,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(crate::explain::explain_log_position, m)?)?;
-        m.add_function(wrap_pyfunction!(crate::explain::explain_log_rotation, m)?)?;
-        m.add_function(wrap_pyfunction!(crate::explain::explain_log_heuristic, m)?)?;
-        m.add_function(wrap_pyfunction!(crate::explain::explain_log_constraint, m)?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_render_markdown_report,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_render_component_report,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_serialize_value,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_deserialize_value,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_serialize_alternative,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_serialize_decision,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_serialize_trace,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_constraint_subject,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_trace_threshold,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::explain::explain_compose_traces,
-            m
-        )?)?;
-        m.add_function(wrap_pyfunction!(crate::zone_filler::fill_zones_pcbnew, m)?)?;
-        m.add_function(wrap_pyfunction!(
-            crate::zone_filler::fill_zones_if_present,
-            m
-        )?)?;
-
         // Wave 4 Phase 4 leftovers slice: the stackup validator ported from
         // temper_placer/manufacturing/stackup_validator.py (see
         // stackup_validator.rs).

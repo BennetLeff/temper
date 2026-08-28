@@ -52,7 +52,7 @@
 //
 // Kernel selection deliberately avoids `hostmath::pow`/`hostmath::sqrt`:
 // `junction_temp.rs` and `inductance.rs` call no libm at all (their own
-// doc comments say so explicitly), and `rtd.rs`'s pure core is private.
+// doc comments say so explicitly).
 // `emi.rs` DOES call `hostmath::pow`/`hostmath::log10` (the crate's
 // catalogued B1/B7 dlsym-vs-wasm32 divergence class -- see
 // `tools/wasm/wasm_expected_failures_thermal.json`), so its properties

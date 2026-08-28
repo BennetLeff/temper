@@ -330,7 +330,6 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
     "router_v6/test_net_ordering_rust_supplemental.py": _PASSING_LOCALLY,
     "router_v6/test_occupancy_grid_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_occupancy_raster_rust_differential.py": _PASSING_LOCALLY,
-    "router_v6/test_path_simplify_rust_differential.py": _PASSING_LOCALLY,
     "router_v6/test_quality_metrics_oracle_pin.py": _PASSING_LOCALLY,
     "router_v6/test_quality_metrics_pbt.py": _PASSING_LOCALLY,
     "router_v6/test_quality_metrics_rust_differential.py": _PASSING_LOCALLY,
@@ -470,14 +469,6 @@ _KNOWN_UNCOVERED_ROUTER_V6_FILES: dict[str, str] = {
         "PASSING locally (2026-08-09, part of the spatial-index tier-2 "
         "migration wave). Rust differential. Not yet wired into any CI job."
     ),
-    "router_v6/test_via_clearance_tier2_pbt.py": (
-        "PASSING locally (2026-08-09, part of the via-clearance tier-2 "
-        "migration wave). Property-based tests. Not yet wired into any CI job."
-    ),
-    "router_v6/test_via_clearance_tier2_rust_differential.py": (
-        "PASSING locally (2026-08-09, part of the via-clearance tier-2 "
-        "migration wave). Rust differential. Not yet wired into any CI job."
-    ),
 }
 
 # --- the 3 genuinely-failing files outside router_v6/, triaged in
@@ -502,6 +493,11 @@ _PASSING_LOCALLY_OTHER_2026_08_09 = (
 )
 
 _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
+    "pipeline/test_phase_c_tail_rust_differential.py": (
+        "PASSING locally (2026-08-27 migration stabilization). Differential "
+        "coverage for the Rust-owned Phase-C tail; no current workflow sweeps "
+        "the pipeline/ directory, so it remains explicitly registered here."
+    ),
     "closure/test_router_completion.py": (
         "FAILING (2026-08-07 full-tree triage), 3 of 4 tests -- "
         "TestPostChangePromotionGate::test_closure_post_change_meets_{sm1,sm2,sm6}. "
@@ -521,18 +517,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "is unaffected and passes. temper-NNN. Do not wire in un-deselected -- "
         "see doc §4.1/§6."
     ),
-    "geometry/test_drc_inflate_rust_differential.py": (
-        "FAILING (2026-08-07 full-tree triage): "
-        "TestDRCProxyScoreDifferential::test_summation_order_is_load_bearing -- "
-        "same class as router_v6's test_zone_pour_geometry_rust_differential.py "
-        "finding: an anti-vacuity meta-test whose fixed corpus "
-        "(np.random.default_rng(3), n=40) no longer provokes a genuine "
-        "pairwise-vs-naive-sum disagreement, so the assertion "
-        "'pairwise.hex() != naive.hex()' now fails on identical bit patterns. "
-        "The underlying differential this meta-test guards still passes in "
-        "the same run -- maintenance debt in the corpus, not a Rust-port "
-        "regression. temper-NNN. Do not wire in un-deselected -- see doc §4.2."
-    ),
     # PRUNED 2026-08-24: manufacturing/test_tolerances{,_pbt,_rust_differential}.py
     # were DELETED from the tree by #1411 ("delete 66 orphaned Rust pyo3 kernels
     # + 7 paired oracles"), which left their entries here and two more in
@@ -547,11 +531,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "this supplemental suite is consolidation-era with no pinned-kernel "
         "role. Not wired into any CI job."
     ),
-    "explainability/test_logger_extra.py": (
-        "PASSING (2026-08-09 triage): supplemental 'extra' suite for the "
-        "logger explainability surface (the Rust differential is wired). "
-        "Consolidation-era, no pinned-kernel role; not wired into any CI job."
-    ),
     "explainability/test_trace_extra.py": (
         "PASSING (2026-08-09 triage): supplemental 'extra' suite for the "
         "trace explainability surface (the Rust differential is wired). "
@@ -562,7 +541,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
     "pcl/test_coverage_paydown.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "pipeline/test_bottleneck_report.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "pipeline/test_convergence.py": _PASSING_LOCALLY_OTHER_2026_08_09,
-    "pipeline/test_dag_types.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "pipeline/test_derivation.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "pipeline/test_preflight.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "placer/test_template_extra.py": _PASSING_LOCALLY_OTHER_2026_08_09,
@@ -581,18 +559,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
     ),
     "testing/test_quarantine.py": _PASSING_LOCALLY_OTHER_2026_08_09,
     "topological/test_topological_coverage.py": _PASSING_LOCALLY_OTHER_2026_08_09,
-    "geometry/test_drc_inflate_coverage.py": (
-        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
-        "geometry/): exercises precompute_from_pad_polygons + collateral "
-        "(inflate_pad_polygon, precompute_inflated_dims) with a "
-        "skip-if-no-shapely guard. Pure Python/Shapely, no external binary. "
-        "Not yet wired into any CI job."
-    ),
-    "pipeline/test_dag_expr_simple.py": (
-        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
-        "pipeline/): evaluate_skip_expr/parse_skip_expr + DAG expression "
-        "helpers. Pure Python. Not yet wired into any CI job."
-    ),
     "pipeline/test_dag_observability.py": (
         "PASSING locally (2026-08-09, coverage-allowlist paydown for "
         "pipeline/): PipelineExecutionLog.to_dict + write_execution_log_json. "
@@ -608,21 +574,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "regression/): record_metrics_for_stage, ClosureResult/GoldenBoard/"
         "GoldenManifest/CorpusManifest/BaselineSpec helpers, RegressionReporter, "
         "fingerprint cache. Pure Python. Not yet wired into any CI job."
-    ),
-    "adapters/test_deterministic_adapter.py": (
-        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
-        "adapters/): wrap_deterministic_stage. Pure Python. Not yet wired "
-        "into any CI job."
-    ),
-    "adapters/test_register_strategies.py": (
-        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
-        "adapters/): PlacementStage.run + register_strategies. Pure Python. "
-        "Not yet wired into any CI job."
-    ),
-    "adapters/test_router_v6_stage_adapter.py": (
-        "PASSING locally (2026-08-09, coverage-allowlist paydown for "
-        "adapters/): RouterV6Stage0_LoadPCB.run. Pure Python. Not yet wired "
-        "into any CI job."
     ),
     "topological/test_topological_coverage_edge.py": (
         "PASSING locally (2026-08-09, coverage-allowlist paydown for "
@@ -657,15 +608,6 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "PASSING locally (2026-08-10, pipeline-state differential, commit "
         "ee37f950): Rust parity suite. Pure Python/Rust, no external binary. "
         "Not yet wired into any CI job — a concurrent migration."
-    ),
-    "pipeline/test_phase_c_tail_rust_differential.py": (
-        "PASSING locally (2026-08-11, Phase-C-tail pipeline-contract "
-        "differential, migrate/phase-c-tail): the dag_types / dag / bottleneck "
-        "/ metrics contract differential against the four verbatim "
-        "_*_py_oracle.py files (content-hash pinned in scripts/oracle_hashes.json), "
-        "plus 6 non-vacuous PBT properties and 4 metamorphic relations (52 "
-        "tests). Pure Python/Rust, no external binary. Not yet wired into any "
-        "CI job."
     ),
     "pipeline/test_metrics_observer.py": (
         "PASSING locally (2026-08-10, coverage-allowlist paydown for "
@@ -746,9 +688,8 @@ _KNOWN_UNCOVERED_OTHER_FILES: dict[str, str] = {
         "pre-migration pins, incl. real power_pcb_dataset/goldens DSN parity "
         "runs) + 5 non-vacuous PBT properties + 3 metamorphic relations over "
         "generated DSN/SES/JSON. Pure Python/Rust, no external binary. The "
-        "temper_io_types.golden_diff_* surface is also pinned by the existing "
-        "tests/testing/test_golden_diff.py consumers through the shim. Not yet "
-        "wired into any CI job."
+        "retired Python shim's consumers were removed; this suite calls the "
+        "temper_io_types.golden_diff_* surface directly. Not yet wired into any CI job."
     ),
 }
 

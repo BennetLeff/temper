@@ -55,7 +55,6 @@ from . import deterministic_phase as deterministic_phase
 # Wave 4 Phase 3/5 per-domain submodules (formats/IO + deterministic leaf
 # stages) — same nesting rationale as the block above.
 from . import deterministic_leaves as deterministic_leaves
-from . import kicad_exporter_geometry as kicad_exporter_geometry
 from . import write_board_geometry as write_board_geometry
 from . import constraint_model as constraint_model
 from . import hv_lv_partition as hv_lv_partition
@@ -650,42 +649,6 @@ def load_loop_collection(
     name: str = "",
     description: str = "",
 ) -> LoopCollection: ...
-
-
-# ---------------------------------------------------------------------------
-# Wave 4 Phase 4 leftovers — extraction/hypergraph_factory.py migration.
-# The Rust builder computes the filtering/classification/ordering; the
-# Python shim class (temper_placer.extraction.hypergraph_factory) owns the
-# scipy/numpy assembly.
-# ---------------------------------------------------------------------------
-
-
-class HypergraphBuildResult:
-    n_nodes: int
-    n_edges: int
-    node_refs: list[str]
-    hyperedge_names: list[str]
-    edge_voltages: list[float]
-    edge_currents: list[float]
-    edge_widths: list[float]
-    node_weights: list[float]
-    hyperedge_weights: list[float]
-    connected_indices: list[list[int]]
-
-
-class HypergraphFactory:
-    netlist: object
-    ignore_global_nets: bool
-    global_net_threshold: int
-
-    def __init__(
-        self,
-        netlist: object,
-        ignore_global_nets: bool = False,
-        global_net_threshold: int = 50,
-    ) -> None: ...
-
-    def build(self) -> HypergraphBuildResult: ...
 
 
 # ---------------------------------------------------------------------------

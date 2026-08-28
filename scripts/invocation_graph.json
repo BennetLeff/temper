@@ -13,6 +13,9 @@
     "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
   ],
   "board_defect_mutator.py": [],
+  "build_extensions.py": [
+    "Makefile"
+  ],
   "calibrate_drc_ceiling.py": [
     "packages/temper-placer/src/temper_placer/router_v6/_pipeline_verify.py"
   ],
@@ -319,7 +322,6 @@
   ],
   "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml",
-    "packages/temper-placer/src/temper_placer/geometry/drc_inflate.py",
     "packages/temper-placer/src/temper_placer/router_v6/creepage_check.py",
     "packages/temper-placer/tests/metrics/test_quality_rust_differential.py",
     "packages/temper-placer/tests/router_v6/test_quality_metrics_oracle_pin.py"
@@ -383,7 +385,6 @@
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
     "packages/temper-placer/src/temper_placer/physics/thermal_fdm.py",
     "packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py",
-    "packages/temper-placer/src/temper_placer/router_v6/capacity_check.py",
     "packages/temper-placer/src/temper_placer/validation/gate_input_registry.py"
   ],
   "evaluate_regional_layout.py": [],
@@ -411,8 +412,7 @@
   ],
   "gen_schematics.py": [
     ".github/workflows/python-tests.yml",
-    "Makefile",
-    "packages/temper-placer/src/temper_placer/io/provenance.py"
+    "Makefile"
   ],
   "gen_wasm_test_registry.py": [
     ".github/workflows/python-tests.yml",
@@ -427,6 +427,7 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/design_rules.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/tank_creepage.py",
     "packages/temper-placer/src/temper_placer/requirements/validators/clearance.py",
     "packages/temper-placer/src/temper_placer/router_v6/_ground_plane.py",
@@ -555,7 +556,6 @@
     "packages/temper-placer/tests/router_v6/test_strip_copper.py",
     "packages/temper-placer/tests/router_v6/test_strip_copper_rust_differential.py",
     "packages/temper-placer/tests/router_v6/test_topology_copper_audit.py",
-    "packages/temper-workflow/src/temper_workflow/routing/route_and_measure.py",
     "packages/temper-workflow/tests/_route_and_measure_py_oracle.py"
   ],
   "run_feedback_loop.py": [

@@ -176,6 +176,26 @@ def test_concurrency_never_exceeds_cpu_count(fake_kicad_cli, tmp_path: Path):
     assert observed <= os.cpu_count()
 
 
+def test_max_workers_one_serializes_samples(fake_kicad_cli, tmp_path: Path):
+    board = _probe_board(tmp_path)
+    counter = tmp_path / "counter"
+    maxlog = tmp_path / "maxlog"
+    os.environ["FAKE_DRC_COUNTER"] = str(counter)
+    os.environ["FAKE_DRC_MAXLOG"] = str(maxlog)
+    try:
+        run_drc_samples(board, n=4, timeout=30, label="serial", max_workers=1)
+    finally:
+        os.environ.pop("FAKE_DRC_COUNTER", None)
+        os.environ.pop("FAKE_DRC_MAXLOG", None)
+    assert int(maxlog.read_text().strip() or 0) == 1
+
+
+def test_max_workers_zero_is_rejected(fake_kicad_cli, tmp_path: Path):
+    board = _probe_board(tmp_path)
+    with pytest.raises(ValueError, match="max_workers"):
+        run_drc_samples(board, n=1, timeout=30, label="invalid", max_workers=0)
+
+
 def test_timeout_raises_loud_error_naming_label_and_timeout(fake_kicad_cli, tmp_path: Path):
     board = _probe_board(tmp_path)
     os.environ["FAKE_DRC_SLEEP"] = "30"

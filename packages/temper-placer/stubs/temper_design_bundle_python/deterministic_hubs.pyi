@@ -2,9 +2,8 @@
 
 Compiled from `packages/temper-design-bundle/src/deterministic_hubs.rs` — the
 Wave 4 Phase 5 deterministic-hubs slice migration of the scoring/feedback
-kernels (`temper_placer/deterministic/{channels,bottleneck_map,seed_filter}.py`
-and `temper_placer/deterministic/feedback/{violation_mapper,zone_adjuster,
-drc_parser}.py`). Keep in sync with that file.
+kernels (`temper_placer/deterministic/{channels,feedback}.py`). Keep in sync
+with that file.
 
 These are kernels only: the Python modules keep their public API (the data
 containers stay Python dataclasses) and delegate the compute here.
@@ -28,35 +27,6 @@ def build_channel_index(
     grid_flat: list[float],
     bottlenecks: list[tuple[int, int, str, float]],
 ) -> ChannelIndex: ...
-
-
-def bottleneck_score_at(
-    cell_size_mm: float,
-    width: int,
-    height: int,
-    origin_x: float,
-    origin_y: float,
-    scores: list[float],
-    x: float,
-    y: float,
-) -> float: ...
-
-
-def bottleneck_coerce_score(value: Any) -> float: ...
-
-
-def filter_seed_kernel(
-    seed: dict[str, tuple[float, float]],
-    cell_size_mm: float,
-    width: int,
-    height: int,
-    origin_x: float,
-    origin_y: float,
-    scores: list[float],
-    threshold: float,
-    hv_threshold: float,
-    hv_refs: set[str],
-) -> bool: ...
 
 
 def map_violation_kernel(

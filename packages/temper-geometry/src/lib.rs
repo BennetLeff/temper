@@ -2,7 +2,7 @@
 // (each module's `register`, `*_py` functions) is not compiled.  Functions
 // reachable ONLY through those bridges then appear dead — they are not, but
 // clippy cannot see past the cfg gate.  Allow dead_code in the no-python
-// config; the production (python ON) build gates nothing.
+// config; production extension builds always enable `python` explicitly.
 // WASM CI guard (plan 2026-08-03-002, U3).
 #![cfg_attr(not(feature = "python"), allow(dead_code))]
 pub mod types;
@@ -14,7 +14,6 @@ pub mod transform;
 pub mod overlap;
 pub mod projections;
 pub mod constraints;
-pub mod drc_inflate;
 // Wholly pyo3 surface (see congestion_tensor.rs's module doc comment for
 // why this can't be split into a kernel + wrapper like the other modules).
 #[cfg(feature = "python")]
@@ -32,8 +31,6 @@ pub mod pad_geometry;
 // every entry point exists to mirror one Python function bit-for-bit.
 #[cfg(feature = "python")]
 pub mod congestion;
-#[cfg(feature = "python")]
-pub mod congestion_analysis;
 // Shared CPython-exact OverflowError construction for the `pow_operator`
 // overflow guard duplicated in escape_via.rs (and formerly in
 // placement_suggestions.rs, deleted 2026-08-20).
@@ -104,8 +101,6 @@ pub use occupancy_raster::{
 pub mod host_math;
 pub mod grid_utils;
 pub mod via_placement;
-#[cfg(feature = "python")]
-pub use via_placement::{is_via_position_valid_py, place_via_with_clearance_py, via_distance_py};
 pub mod bottleneck_geometry;
 #[cfg(feature = "python")]
 pub use bottleneck_geometry::{
@@ -372,7 +367,6 @@ pub mod wasm_test_registry;
 fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     bridge::register_functions(m)?;
     crate::congestion::register(m)?;
-    crate::congestion_analysis::register(m)?;
     crate::escape_via::register(m)?;
     crate::routing_demand::register(m)?;
     crate::fixed_copper::register(m)?;
@@ -380,7 +374,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::zone_generator::register(m)?;
     crate::channel_skeleton::register(m)?;
     crate::hierarchical_clustering::register(m)?;
-    crate::geometry_kernels::register(m)?;
     crate::channel_mapping::register(m)?;
     crate::resource_bound::register(m)?;
     crate::power_plane::register(m)?;
@@ -388,7 +381,6 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::trace_width_assignment::register(m)?;
     crate::dense_package_detection::register(m)?;
     crate::core_graph_geometry::register(m)?;
-    crate::world_position::register(m)?;
     crate::via_clearance::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;

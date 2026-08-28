@@ -27,7 +27,7 @@ from temper_placer.placer.cp_sat.domain_clearance import (
     generate_domain_clearance_constraints,
     required_margin_mm,
 )
-from tests.requirements.validators._geometry import _distance
+from math import dist as _distance
 
 # ---------------------------------------------------------------------------
 # Group 1: the generator is not vacuous

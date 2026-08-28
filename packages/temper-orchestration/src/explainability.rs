@@ -1,14 +1,15 @@
 // Phase-A U8 (plan 2026-08-09-001, `explainability/{decision,trace,
-// serialization,markdown_report}.py` row) — the explainability DATA CONTRACTS
+// serialization}.py` row) — the explainability DATA CONTRACTS
 // and the markdown report generation, migrated to this crate.
 //
 // The `Decision` / `Alternative` / `DecisionTrace` / `Entry` / `Trace`
 // dataclasses (decision.py + trace.py) become pyclasses; the markdown report
-// renderers (markdown_report.py) become the `MarkdownReport` pyfunctions
-// (deterministic-string candidate, pinned byte-identical by the differential
-// suites). The Python shims collapse to re-exports; the verbatim
+// renderers (markdown_report.py) remain Rust-owned implementation kernels;
+// their former differential-only Python exports are retired. The Python
+// shims collapse to re-exports; the verbatim
 // pre-migration oracles live in
-// `tests/explainability/explain_oracle/{decision,trace,markdown_report}_oracle.py`.
+// `tests/explainability/explain_oracle/{decision,trace}_oracle.py`; the
+// markdown oracle remains separately pinned as historical migration evidence.
 //
 // Boundaries (argued in VERIFICATION.md, U8 section):
 // - `DecisionPhase` / `DecisionType` stay Python `Enum` classes in
@@ -25,8 +26,10 @@
 //   `temper-io-types::explain` (already pinned by the Wave-4 differentials);
 //   the pyclass methods call them back across the boundary with the pyclass
 //   instances (which expose the exact attribute surface the kernels read).
-//   Only the markdown renderers are ported here (the plan's `MarkdownReport`
-//   deliverable); the two io-types renderers are orphaned and ledgered.
+//   The markdown renderer implementation remains here for Rust-native reuse;
+//   its Python-only export adapters are retired because the former shim has
+//   no production callers. The two io-types renderers are orphaned and
+//   ledgered.
 // - `logger.py`, `pipeline.py`, `traced_loss.py`, `serialization.py` stay
 //   Python (orchestration / stdlib file-I/O / numpy — porting would ADD
 //   boundary crossings without removing compute; the logger's
@@ -100,7 +103,11 @@ fn py_float_fmt(x: f64, prec: usize) -> String {
         return "nan".to_string();
     }
     if x.is_infinite() {
-        return if x > 0.0 { "inf".to_string() } else { "-inf".to_string() };
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
     }
     format!("{x:.prec$}")
 }
@@ -247,7 +254,11 @@ impl Alternative {
         if lhs.rejection_reason != rhs.rejection_reason {
             return Ok(false);
         }
-        if !lhs.constraint_violated.bind(py).eq(rhs.constraint_violated.bind(py))? {
+        if !lhs
+            .constraint_violated
+            .bind(py)
+            .eq(rhs.constraint_violated.bind(py))?
+        {
             return Ok(false);
         }
         lhs.loss_if_chosen.bind(py).eq(rhs.loss_if_chosen.bind(py))
@@ -360,9 +371,15 @@ impl Decision {
     fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
         out.set_item("id", &self.id)?;
-        out.set_item("timestamp", self.timestamp.bind(py).call_method0("isoformat")?)?;
+        out.set_item(
+            "timestamp",
+            self.timestamp.bind(py).call_method0("isoformat")?,
+        )?;
         out.set_item("phase", self.phase.bind(py).getattr("value")?)?;
-        out.set_item("decision_type", self.decision_type.bind(py).getattr("value")?)?;
+        out.set_item(
+            "decision_type",
+            self.decision_type.bind(py).getattr("value")?,
+        )?;
         out.set_item("subject", &self.subject)?;
         out.set_item("value", &self.value)?;
         out.set_item("previous_value", &self.previous_value)?;
@@ -433,16 +450,28 @@ impl Decision {
         if !lhs.value.bind(py).eq(rhs.value.bind(py))? {
             return Ok(false);
         }
-        if !lhs.previous_value.bind(py).eq(rhs.previous_value.bind(py))? {
+        if !lhs
+            .previous_value
+            .bind(py)
+            .eq(rhs.previous_value.bind(py))?
+        {
             return Ok(false);
         }
         if lhs.reason != rhs.reason {
             return Ok(false);
         }
-        if !lhs.constraint_refs.bind(py).eq(rhs.constraint_refs.bind(py))? {
+        if !lhs
+            .constraint_refs
+            .bind(py)
+            .eq(rhs.constraint_refs.bind(py))?
+        {
             return Ok(false);
         }
-        if !lhs.loss_contribution.bind(py).eq(rhs.loss_contribution.bind(py))? {
+        if !lhs
+            .loss_contribution
+            .bind(py)
+            .eq(rhs.loss_contribution.bind(py))?
+        {
             return Ok(false);
         }
         if !lhs.alternatives.bind(py).eq(rhs.alternatives.bind(py))? {
@@ -540,7 +569,9 @@ impl DecisionTrace {
 
     /// `add(decision)` — append to the decisions list.
     fn add(&mut self, py: Python<'_>, decision: Py<PyAny>) -> PyResult<()> {
-        self.decisions.bind(py).call_method1("append", (decision,))?;
+        self.decisions
+            .bind(py)
+            .call_method1("append", (decision,))?;
         Ok(())
     }
 
@@ -594,21 +625,22 @@ impl DecisionTrace {
     /// `why(subject)` — delegates to the single-source NL-generation kernel
     /// in temper-io-types (Wave-4 compute, already byte-pinned).
     fn why(&self, py: Python<'_>, subject: &str) -> PyResult<String> {
-        let out = io_types_call(py, "explain_decision_trace_why", (self.decisions.bind(py).clone(), subject))?;
+        let out = io_types_call(
+            py,
+            "explain_decision_trace_why",
+            (self.decisions.bind(py).clone(), subject),
+        )?;
         out.extract()
     }
 
     /// `why_not(subject, value)` — delegates to the io-types kernel.
-    fn why_not(
-        &self,
-        py: Python<'_>,
-        subject: &str,
-        value: &Bound<'_, PyAny>,
-    ) -> PyResult<String> {
+    fn why_not(&self, py: Python<'_>, subject: &str, value: &Bound<'_, PyAny>) -> PyResult<String> {
         let m = PyModule::import(py, "temper_io_types")?;
-        let out = m
-            .getattr("explain_decision_trace_why_not")?
-            .call1((self.decisions.bind(py), subject, value))?;
+        let out = m.getattr("explain_decision_trace_why_not")?.call1((
+            self.decisions.bind(py),
+            subject,
+            value,
+        ))?;
         out.extract()
     }
 
@@ -646,7 +678,10 @@ impl DecisionTrace {
     fn to_dict(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
         out.set_item("run_id", &self.run_id)?;
-        out.set_item("start_time", self.start_time.bind(py).call_method0("isoformat")?)?;
+        out.set_item(
+            "start_time",
+            self.start_time.bind(py).call_method0("isoformat")?,
+        )?;
         let end = self.end_time.bind(py);
         if end.is_none() {
             out.set_item("end_time", py.None())?;
@@ -689,15 +724,13 @@ impl DecisionTrace {
             }
         };
         let m = PyModule::import(py, "temper_io_types")?;
-        let out = m
-            .getattr("explain_decision_trace_summary")?
-            .call1((
-                self.decisions.bind(py),
-                subjects_list,
-                duration,
-                self.run_id.as_str(),
-                self.final_metrics.bind(py),
-            ))?;
+        let out = m.getattr("explain_decision_trace_summary")?.call1((
+            self.decisions.bind(py),
+            subjects_list,
+            duration,
+            self.run_id.as_str(),
+            self.final_metrics.bind(py),
+        ))?;
         Ok(out.cast_into::<PyDict>()?.unbind())
     }
 
@@ -744,13 +777,21 @@ impl DecisionTrace {
         if !lhs.end_time.bind(py).eq(rhs.end_time.bind(py))? {
             return Ok(false);
         }
-        if !lhs.config_snapshot.bind(py).eq(rhs.config_snapshot.bind(py))? {
+        if !lhs
+            .config_snapshot
+            .bind(py)
+            .eq(rhs.config_snapshot.bind(py))?
+        {
             return Ok(false);
         }
         if !lhs.decisions.bind(py).eq(rhs.decisions.bind(py))? {
             return Ok(false);
         }
-        if !lhs.final_positions.bind(py).eq(rhs.final_positions.bind(py))? {
+        if !lhs
+            .final_positions
+            .bind(py)
+            .eq(rhs.final_positions.bind(py))?
+        {
             return Ok(false);
         }
         lhs.final_metrics.bind(py).eq(rhs.final_metrics.bind(py))
@@ -880,10 +921,22 @@ impl Trace {
         value: Py<PyAny>,
         because: String,
     ) -> PyResult<Py<Self>> {
-        let entry = Py::new(py, Entry { subject, value, because })?;
+        let entry = Py::new(
+            py,
+            Entry {
+                subject,
+                value,
+                because,
+            },
+        )?;
         let one = PyTuple::new(py, [entry.into_any()])?;
         let new_entries = self.entries.bind(py).call_method1("__add__", (one,))?;
-        Py::new(py, Self { entries: new_entries.unbind() })
+        Py::new(
+            py,
+            Self {
+                entries: new_entries.unbind(),
+            },
+        )
     }
 
     /// `a + b` — monoid composition (order-preserving concat).
@@ -893,7 +946,12 @@ impl Trace {
             .entries
             .bind(py)
             .call_method1("__add__", (rhs.borrow().entries.bind(py),))?;
-        Py::new(py, Self { entries: entries.unbind() })
+        Py::new(
+            py,
+            Self {
+                entries: entries.unbind(),
+            },
+        )
     }
 
     /// `for_subject(subject)` — filter to one subject's entries.
@@ -906,7 +964,12 @@ impl Trace {
             }
         }
         let tup = PyTuple::new(py, kept)?;
-        Py::new(py, Self { entries: tup.into_any().unbind() })
+        Py::new(
+            py,
+            Self {
+                entries: tup.into_any().unbind(),
+            },
+        )
     }
 
     /// `why(subject, max_reasons=3)` — delegates to the single-source
@@ -914,9 +977,9 @@ impl Trace {
     #[pyo3(signature = (subject, max_reasons=3))]
     fn why(&self, py: Python<'_>, subject: &str, max_reasons: usize) -> PyResult<String> {
         let m = PyModule::import(py, "temper_io_types")?;
-        let out = m
-            .getattr("explain_trace_why")?
-            .call1((self.entries.bind(py), subject, max_reasons))?;
+        let out =
+            m.getattr("explain_trace_why")?
+                .call1((self.entries.bind(py), subject, max_reasons))?;
         out.extract()
     }
 
@@ -953,12 +1016,14 @@ impl Trace {
 }
 
 // ---------------------------------------------------------------------------
-// MarkdownReport — the deterministic markdown renderers (ported from
-// temper-io-types explain.rs; byte-pinned by the differential suites).
+// MarkdownReport — the deterministic markdown renderer implementation
+// (ported from temper-io-types explain.rs; retained as Rust-owned code after
+// the differential-only Python exports were retired).
 // ---------------------------------------------------------------------------
 
 #[cfg(feature = "python")]
 /// `_format_value` — position tuples, position+rotation, dicts, floats.
+#[allow(dead_code)]
 fn format_value_impl(value: &Bound<'_, PyAny>) -> PyResult<String> {
     if value.is_none() {
         return Ok("-".to_string());
@@ -982,12 +1047,8 @@ fn format_value_impl(value: &Bound<'_, PyAny>) -> PyResult<String> {
         let has_x = d.get_item("x")?.is_some();
         let has_y = d.get_item("y")?.is_some();
         if has_x && has_y {
-            let x_item = d
-                .get_item("x")?
-                .ok_or_else(|| PyKeyError::new_err("x"))?;
-            let y_item = d
-                .get_item("y")?
-                .ok_or_else(|| PyKeyError::new_err("y"))?;
+            let x_item = d.get_item("x")?.ok_or_else(|| PyKeyError::new_err("x"))?;
+            let y_item = d.get_item("y")?.ok_or_else(|| PyKeyError::new_err("y"))?;
             let x = py_float_fmt_1(to_f64(&x_item)?);
             let y = py_float_fmt_1(to_f64(&y_item)?);
             let rot = match d.get_item("rotation")? {
@@ -1036,6 +1097,7 @@ fn py_title(s: &str) -> String {
 }
 
 #[cfg(feature = "python")]
+#[allow(dead_code)]
 fn count_by_phase_impl<'py>(
     py: Python<'py>,
     decisions: &Bound<'py, PyAny>,
@@ -1064,6 +1126,7 @@ fn count_by_phase_impl<'py>(
 }
 
 #[cfg(feature = "python")]
+#[allow(dead_code)]
 fn count_by_type_impl<'py>(
     py: Python<'py>,
     decisions: &Bound<'py, PyAny>,
@@ -1086,6 +1149,7 @@ fn count_by_type_impl<'py>(
 }
 
 #[cfg(feature = "python")]
+#[allow(dead_code)]
 fn render_component_section_impl(
     _py: Python<'_>,
     subject: &str,
@@ -1197,6 +1261,7 @@ fn render_component_section_impl(
     Ok(lines.join("\n"))
 }
 
+#[allow(dead_code)]
 struct MarkdownRenderOpts<'a> {
     include_config: bool,
     include_positions: bool,
@@ -1207,6 +1272,7 @@ struct MarkdownRenderOpts<'a> {
 }
 
 #[cfg(feature = "python")]
+#[allow(dead_code)]
 fn render_markdown_report_impl(
     py: Python<'_>,
     trace: &Bound<'_, PyAny>,
@@ -1356,6 +1422,7 @@ fn render_markdown_report_impl(
 #[cfg(feature = "python")]
 /// `filter_by_subject` — chronological filter (shared with the component
 /// sections).
+#[allow(dead_code)]
 fn filter_by_subject<'py>(
     decisions: &Bound<'py, PyAny>,
     subject: &str,
@@ -1368,67 +1435,6 @@ fn filter_by_subject<'py>(
         }
     }
     Ok(out)
-}
-
-#[cfg(feature = "python")]
-/// `render_markdown_report` — the shim pre-formats the two timestamp strings
-/// and the duration (strftime / datetime arithmetic stay Python).
-#[allow(clippy::too_many_arguments)] // mirrors markdown_report.render_markdown_report's signature
-#[pyfunction]
-#[pyo3(signature = (trace, include_config, include_positions, start_str, end_str, duration, max_decisions_per_component = 10))]
-pub fn render_markdown_report(
-    py: Python<'_>,
-    trace: &Bound<'_, PyAny>,
-    include_config: bool,
-    include_positions: bool,
-    start_str: &str,
-    end_str: Option<&str>,
-    duration: Option<f64>,
-    max_decisions_per_component: usize,
-) -> PyResult<String> {
-    render_markdown_report_impl(
-        py,
-        trace,
-        MarkdownRenderOpts {
-            include_config,
-            include_positions,
-            start_str,
-            end_str,
-            duration,
-            max_decisions_per_component,
-        },
-    )
-}
-
-#[cfg(feature = "python")]
-/// `render_component_report` — max_decisions=50, no timestamps needed.
-#[pyfunction]
-pub fn render_component_report(
-    py: Python<'_>,
-    trace: &Bound<'_, PyAny>,
-    subject: &str,
-) -> PyResult<String> {
-    let decisions = trace.getattr("decisions")?;
-    let subj = filter_by_subject(&decisions, subject)?;
-    let subj_list = PyList::empty(py);
-    for d in subj {
-        subj_list.append(d)?;
-    }
-    let run_id: String = trace.getattr("run_id")?.extract()?;
-    let mut lines: Vec<String> = vec![
-        format!("# Decision Report: {subject}"),
-        String::new(),
-        format!("**Run ID**: `{run_id}`"),
-        format!("**Total Decisions**: {}", subj_list.len()),
-        String::new(),
-    ];
-    lines.push(render_component_section_impl(
-        py,
-        subject,
-        &subj_list.into_any(),
-        50,
-    )?);
-    Ok(lines.join("\n"))
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

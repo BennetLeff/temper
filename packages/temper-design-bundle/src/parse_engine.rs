@@ -2895,6 +2895,10 @@ fn node_to_py(py: Python<'_>, node: &KiNode) -> PyResult<Py<PyAny>> {
 }
 
 #[cfg(feature = "python")]
+// unwired-kernel-return-edge: parse_kicad_pcb -> DrillDefinition
+// `Pin.drill` is intentionally erased to `Py<PyAny>` because ordinary pads
+// carry a numeric drill while offset/oval drills carry this pyclass.  Keep
+// the ownership edge machine-readable for the production liveness scanner.
 fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<DrillDefinition>();
     let oval: Py<PyAny> = drill.oval.into_py_any(py)?;
@@ -3433,113 +3437,6 @@ fn extract_copper_layer_names_py(content: &str) -> PyResult<Vec<String>> {
         .collect())
 }
 
-/// Pad centers grouped by net name; groups in first-appearance order
-/// (a `type` alias because the bare nested form trips clippy's
-/// `type_complexity`).
-pub(crate) type PadCenterGroups = Vec<(String, Vec<(f64, f64)>)>;
-
-/// Pure core of [`extract_pad_centers_py`]: `{net_name: [(x, y), ...]}` as
-/// an ordered vector (groups in first-appearance order).
-fn extract_pad_centers_pure(content: &str) -> Result<PadCenterGroups, String> {
-    use temper_geometry::kicad_transform::rotate_local_to_world_deg;
-
-    let raw = parse_kicad_document(content)?;
-    let mut groups: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
-    for fp in &raw.footprints {
-        let fp_x = fp.position.x.to_f64();
-        let fp_y = fp.position.y.to_f64();
-        let fp_angle = fp.position.angle.map(|a| a.as_f64()).unwrap_or(0.0);
-        for pad in &fp.pads {
-            let Some((_, net_name)) = &pad.net else {
-                continue;
-            };
-            if net_name.is_empty() {
-                continue;
-            }
-            let (rx, ry) = rotate_local_to_world_deg(
-                pad.position.x.to_f64(),
-                pad.position.y.to_f64(),
-                fp_angle,
-            );
-            let center = (fp_x + rx, fp_y + ry);
-            match groups.iter_mut().find(|(name, _)| name == net_name) {
-                Some((_, pts)) => pts.push(center),
-                None => groups.push((net_name.clone(), vec![center])),
-            }
-        }
-    }
-    Ok(groups)
-}
-
-/// Extract pad centers grouped by net name from raw `.kicad_pcb` text —
-/// the text-path replacement for `kicad_exporter.extract_pad_centers`'s
-/// kiutils Board traversal. For every footprint (in document order) and
-/// every pad with a non-empty net name, the pad's LOCAL position is
-/// rotated into world coordinates by the footprint's own angle via
-/// temper-geometry's canonical `rotate_local_to_world_deg` kernel (KiCad's
-/// R(-theta) convention — the single sanctioned implementation this module
-/// must not re-derive), offset by the footprint position, and appended to
-/// that net's group. Returns `{net_name: [(x, y), ...]}` with groups in
-/// first-appearance order (Python dicts preserve insertion order, so the
-/// shape matches the pre-migration function exactly).
-#[cfg(feature = "python")]
-#[pyfunction]
-fn extract_pad_centers_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
-    let groups = extract_pad_centers_pure(content).map_err(PyValueError::new_err)?;
-    let out = PyDict::new(py);
-    for (name, pts) in &groups {
-        out.set_item(name, pts)?;
-    }
-    Ok(out.into_any().unbind())
-}
-
-/// Drop the `(drill ...)` sub-list from every SMD pad (`(pad "N" smd ...)`,
-/// type at exp[2] — the same index kiutils' `Pad.from_sexpr` reads) of every
-/// top-level footprint in a parsed root item list. Returns the number of
-/// drill tokens removed. Pure tree mutation — no serialization dependency,
-/// so it is wasm-testable; the python wrapper lives in
-/// `sexpr_writer::strip_smd_drills_py`.
-pub(crate) fn strip_smd_drills_in_tree(root_items: &mut [KiNode]) -> usize {
-    let mut removed = 0usize;
-    for item in root_items.iter_mut() {
-        let KiNode::List(fp_items) = item else {
-            continue;
-        };
-        if !matches!(
-            fp_items.first(),
-            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "footprint"
-        ) {
-            continue;
-        }
-        for child in fp_items.iter_mut() {
-            let KiNode::List(pad_items) = child else {
-                continue;
-            };
-            if !matches!(
-                pad_items.first(),
-                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "pad"
-            ) {
-                continue;
-            }
-            if !matches!(
-                pad_items.get(2),
-                Some(KiNode::Atom(KiAtom::Bare(b)))
-                    | Some(KiNode::Atom(KiAtom::Str(b)))
-                    if b == "smd"
-            ) {
-                continue;
-            }
-            let before = pad_items.len();
-            pad_items.retain(|n| {
-                !matches!(n, KiNode::List(fl) if matches!(fl.first(),
-                    Some(KiNode::Atom(KiAtom::Bare(b))) if b == "drill"))
-            });
-            removed += before - pad_items.len();
-        }
-    }
-    removed
-}
-
 /// Count a raw board's zones, footprints and nets without converting the
 /// whole `RawBoard` across the pyo3 boundary (`parse_kicad_document` itself
 /// is pure-Rust and deliberately unregistered -- its return type is not
@@ -3631,25 +3528,6 @@ fn strip_trace_items_py(
 
     let text = write_board_document(&nodes);
     Ok((text, traces_removed, vias_removed, zones_removed))
-}
-
-/// Test/conformance surface: tokenize `content` with the kiutils-exact
-/// tokenizer and return the top-level s-expression as a Python value (the
-/// same shape kiutils' ``parse_sexp`` returns -- ``out[0]``). Drives the
-/// tokenizer-conformance test against ``kiutils.utils.sexpr.parse_sexp`` on
-/// adversarial token strings (caret, adjacent quotes, backslash-quote runs,
-/// ``+5``, CRLF) so the "kiutils-exact" claim is asserted as written, not
-/// just on the corpus.
-#[cfg(feature = "python")]
-#[pyfunction]
-fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
-    let tree = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    let Some(first) = tree.first() else {
-        // kiutils' parse_sexp does `return out[0]` -- an empty input raises
-        // IndexError there; fail closed the same way.
-        return Err(PyValueError::new_err("cannot index empty token stream"));
-    };
-    node_to_py(py, first)
 }
 
 #[cfg(feature = "python")]
@@ -3988,25 +3866,16 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_edge_cuts_rings_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(strip_trace_items_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(count_raw_board_items_py, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(extract_pad_centers_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(tokenize, &sub)?)?;
-    // Wave 4 Phase 3 (formats/IO): the S-expression writer -- the inverse
-    // of this module's tokenizer (see sexpr_writer.rs). parse -> write ->
-    // parse is the identity on the KiNode tree, so these functions are the
-    // kiutils-free board-serialization surface.
-    sub.add_function(wrap_pyfunction!(crate::sexpr_writer::write_board_sexpr_py, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(
-        crate::sexpr_writer::embed_title_block_comment_py,
-        &sub
-    )?)?;
+    // Wave 4 Phase 3 (formats/IO): Rust-owned S-expression mutation/writing
+    // helpers. The former whole-document `tokenize`/`write_board_sexpr_py`
+    // probes were differential-only and are intentionally not exported.
     sub.add_function(wrap_pyfunction!(
         crate::sexpr_writer::append_items_to_board_py,
         &sub
     )?)?;
-    sub.add_function(wrap_pyfunction!(crate::sexpr_writer::strip_smd_drills_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(
         crate::sexpr_writer::extract_net_map_from_text_py,
         &sub
@@ -4271,88 +4140,6 @@ pub(crate) mod tests {
         assert!((height - 2.0).abs() < 1e-9, "height={height}, expected 2.0 fallback");
     }
 
-    /// SMD drill strip removes the drill token from an SMD pad (including
-    /// the `(drill (offset ...))` quirk form kiutils < 1.4.9 mis-parses)
-    /// while leaving a thru_hole pad's drill untouched, and reports the
-    /// removed count.
-    #[cfg_attr(test, test)]
-    fn strip_smd_drills_removes_only_smd_drills() {
-        let input = r#"(kicad_pcb (version 20240108) (generator pcbnew)
-  (footprint "Test:Fp" (layer "F.Cu")
-    (pad "1" smd rect (at 0 0) (size 1 1) (drill (offset 0.5 0.5)) (layers "F.Cu"))
-    (pad "2" thru_hole circle (at 2 0) (size 1.5 1.5) (drill 0.8) (layers "*.Cu"))
-  )
-)
-"#;
-        let mut tree = parse_ki_document(input).expect("fixture must parse");
-        let KiNode::List(root_items) = &mut tree[0] else {
-            panic!("root must be a list");
-        };
-        let removed = strip_smd_drills_in_tree(root_items);
-        assert_eq!(removed, 1, "exactly the SMD pad's drill is removed");
-        let KiNode::List(root_items) = &tree[0] else {
-            panic!("root must be a list");
-        };
-        for item in root_items {
-            let KiNode::List(fp_items) = item else { continue };
-            if !matches!(
-                fp_items.first(),
-                Some(KiNode::Atom(KiAtom::Bare(b))) if b == "footprint"
-            ) {
-                continue;
-            }
-            for pad in fp_items {
-                let KiNode::List(pad_items) = pad else { continue };
-                if !matches!(
-                    pad_items.first(),
-                    Some(KiNode::Atom(KiAtom::Bare(b))) if b == "pad"
-                ) {
-                    continue;
-                }
-                let is_smd = matches!(
-                    pad_items.get(2),
-                    Some(KiNode::Atom(KiAtom::Bare(b))) | Some(KiNode::Atom(KiAtom::Str(b)))
-                        if b == "smd"
-                );
-                let has_drill = pad_items.iter().any(|n| {
-                    matches!(n, KiNode::List(fl) if matches!(fl.first(),
-                        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "drill"))
-                });
-                assert!(
-                    !(is_smd && has_drill),
-                    "SMD pads must have no drill after the strip"
-                );
-            }
-        }
-    }
-
-    /// Pad centers: local offsets rotate by the footprint's own angle via
-    /// the canonical R(-theta) kernel and translate to the footprint
-    /// position; groups keep first-appearance order and empty-net /
-    /// netless pads are skipped.
-    #[cfg_attr(test, test)]
-    fn extract_pad_centers_rotates_and_groups_by_net() {
-        // A footprint at (10, 20), rotated 90 degrees. Under KiCad's
-        // R(-theta) convention, local (1, 0) maps to world offset (0, -1).
-        let content = r#"(kicad_pcb (version 20240108) (generator pcbnew)
-  (net 0 "")
-  (net 1 "GND")
-  (footprint "Test:Fp" (layer "F.Cu") (at 10 20 90)
-    (pad "1" smd rect (at 1 0) (size 1 1) (layers "F.Cu") (net 1 "GND"))
-    (pad "2" smd rect (at 0 0) (size 1 1) (layers "F.Cu") (net 2 ""))
-    (pad "3" smd rect (at 2 0) (size 1 1) (layers "F.Cu"))
-  )
-)
-"#;
-        let groups = extract_pad_centers_pure(content).expect("fixture must parse");
-        assert_eq!(
-            groups,
-            vec![("GND".to_string(), vec![(10.0, 19.0)])],
-            "pad at local (1,0) in a 90deg-rotated footprint lands at world (10, 19); \
-             the empty-named net and the netless pad are skipped"
-        );
-    }
-
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -4365,8 +4152,6 @@ pub(crate) mod tests {
         ("parse_engine::tests::real_cp_radial_d35_courtyard_matches_kicad_diameter", real_cp_radial_d35_courtyard_matches_kicad_diameter),
         ("parse_engine::tests::poly_only_fab_outline_produces_poly_bounds", poly_only_fab_outline_produces_poly_bounds),
         ("parse_engine::tests::empty_poly_does_not_fake_valid_bounds", empty_poly_does_not_fake_valid_bounds),
-        ("parse_engine::tests::strip_smd_drills_removes_only_smd_drills", strip_smd_drills_removes_only_smd_drills),
-        ("parse_engine::tests::extract_pad_centers_rotates_and_groups_by_net", extract_pad_centers_rotates_and_groups_by_net),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

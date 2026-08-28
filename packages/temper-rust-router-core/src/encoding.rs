@@ -109,9 +109,7 @@ fn encode_at_most_k(
         }
     }
 
-    let r = |i: usize, j: usize| -> i32 {
-        (r_start + i * k + j + 1) as i32
-    };
+    let r = |i: usize, j: usize| -> i32 { (r_start + i * k + j + 1) as i32 };
 
     let v = |i: usize| -> i32 { (vars[i] + 1) as i32 };
 
@@ -168,23 +166,51 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
     };
 
     let encode_lit = |idx: usize, pos: bool| -> i32 {
-        if pos { (idx + 1) as i32 } else { -((idx + 1) as i32) }
+        if pos {
+            (idx + 1) as i32
+        } else {
+            -((idx + 1) as i32)
+        }
     };
 
     // Map all internal variables to SAT variable indices with net tracking.
     for v in &model.variables {
         match v {
             InternalVariable::NetChannel { name, net_idx, .. } => {
-                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net_idx);
+                add_var_with_net(
+                    &mut var_map,
+                    &mut var_to_net,
+                    &mut name_to_idx,
+                    name,
+                    *net_idx,
+                );
             }
             InternalVariable::NetLayer { name, net_idx, .. } => {
-                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net_idx);
+                add_var_with_net(
+                    &mut var_map,
+                    &mut var_to_net,
+                    &mut name_to_idx,
+                    name,
+                    *net_idx,
+                );
             }
             InternalVariable::Via { name, net_idx, .. } => {
-                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net_idx);
+                add_var_with_net(
+                    &mut var_map,
+                    &mut var_to_net,
+                    &mut name_to_idx,
+                    name,
+                    *net_idx,
+                );
             }
             InternalVariable::Ordering { name, net1_idx, .. } => {
-                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net1_idx);
+                add_var_with_net(
+                    &mut var_map,
+                    &mut var_to_net,
+                    &mut name_to_idx,
+                    name,
+                    *net1_idx,
+                );
             }
         }
     }
@@ -192,7 +218,12 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
     // Encode constraints.
     for c in &model.constraints {
         match c {
-            InternalConstraint::Capacity { channel_id: _ch, capacity: _cap, slack_factor: _sf, terms } => {
+            InternalConstraint::Capacity {
+                channel_id: _ch,
+                capacity: _cap,
+                slack_factor: _sf,
+                terms,
+            } => {
                 if terms.is_empty() {
                     continue;
                 }
@@ -217,8 +248,14 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                     }
                 }
             }
-            InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
-                if let (Some(&p), Some(&n)) = (name_to_idx.get(p_var_name), name_to_idx.get(n_var_name)) {
+            InternalConstraint::DiffPair {
+                p_var_name,
+                n_var_name,
+                ..
+            } => {
+                if let (Some(&p), Some(&n)) =
+                    (name_to_idx.get(p_var_name), name_to_idx.get(n_var_name))
+                {
                     // p ↔ n: (¬p ∨ n) ∧ (p ∨ ¬n)
                     clauses.push(vec![encode_lit(p, false), encode_lit(n, true)]);
                     clauses.push(vec![encode_lit(p, true), encode_lit(n, false)]);
@@ -230,7 +267,12 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                     clauses.push(vec![encode_lit(idx, *allowed)]);
                 }
             }
-            InternalConstraint::ChannelSeparation { group_a, group_b, min_slots, channel_id: _ch } => {
+            InternalConstraint::ChannelSeparation {
+                group_a,
+                group_b,
+                min_slots,
+                channel_id: _ch,
+            } => {
                 // For each pair (a in A, b in B), enforce ordering separation.
                 // The encoding adds AtMostK cardinality: at most min_slots
                 // nets from (A U B) can share contiguous channel slots.
@@ -334,9 +376,16 @@ pub(crate) mod tests {
                         break;
                     }
                     match assign[var] {
-                        Some(v) if v == sign => { clause_sat = true; break; }
+                        Some(v) if v == sign => {
+                            clause_sat = true;
+                            break;
+                        }
                         Some(_) => {} // falsified literal
-                        None => { unset_count += 1; unset_idx = var; unset_sign = sign; }
+                        None => {
+                            unset_count += 1;
+                            unset_idx = var;
+                            unset_sign = sign;
+                        }
                     }
                 }
                 if clause_sat {
@@ -359,7 +408,9 @@ pub(crate) mod tests {
         let all_sat = clauses.iter().all(|clause| {
             clause.iter().any(|&lit| {
                 let var = (lit.unsigned_abs() as usize) - 1;
-                if var >= assign.len() { return true; }
+                if var >= assign.len() {
+                    return true;
+                }
                 match assign[var] {
                     Some(v) => v == (lit > 0),
                     None => false,
@@ -409,20 +460,26 @@ pub(crate) mod tests {
                     for i in 0..(n as usize) {
                         let val = (bits >> i) & 1 == 1;
                         assign[i] = Some(val);
-                        if val { true_count += 1; }
+                        if val {
+                            true_count += 1;
+                        }
                     }
                     // All aux vars start unset.
 
                     let sat = dpll_sat(&clauses, &assign);
 
                     if true_count > k as usize {
-                        assert!(!sat,
+                        assert!(
+                            !sat,
                             "UNSAT expected: n={n} k={k} assignment={bits:0>n$b} true_count={true_count} but CNF was SAT",
-                            n = n as usize);
+                            n = n as usize
+                        );
                     } else {
-                        assert!(sat,
+                        assert!(
+                            sat,
                             "SAT expected: n={n} k={k} assignment={bits:0>n$b} true_count={true_count} but CNF was UNSAT",
-                            n = n as usize);
+                            n = n as usize
+                        );
                     }
                 }
             }
@@ -453,7 +510,11 @@ pub(crate) mod tests {
     // this module is the enclosing module's generated `WASM_TESTS` const,
     // appended there by design.
     #[cfg(test)]
-    #[allow(clippy::items_after_test_module, clippy::expect_used, clippy::unwrap_used)]
+    #[allow(
+        clippy::items_after_test_module,
+        clippy::expect_used,
+        clippy::unwrap_used
+    )]
     mod proptests {
 
         use super::*;
@@ -600,8 +661,14 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("encoding::tests::exhaustive_at_most_k_n1_to_n8", exhaustive_at_most_k_n1_to_n8),
-        ("encoding::tests::encode_to_cnf_empty_model", encode_to_cnf_empty_model),
+        (
+            "encoding::tests::exhaustive_at_most_k_n1_to_n8",
+            exhaustive_at_most_k_n1_to_n8,
+        ),
+        (
+            "encoding::tests::encode_to_cnf_empty_model",
+            encode_to_cnf_empty_model,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }
