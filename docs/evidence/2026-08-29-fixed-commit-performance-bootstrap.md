@@ -4,6 +4,8 @@ date: 2026-08-29
 status: reviewed-bootstrap
 ---
 
+<!-- provenance: commit=65f14a652afc2110a6ad74b194e23ddb9c51f397 dirty=false -->
+
 # Fixed-commit performance capture bootstrap
 
 Five independent \`PR Performance Check\` \`workflow_dispatch\` runs captured
@@ -42,13 +44,21 @@ non-default value is the documented \`ceil(2 x worst fixed-commit excursion)\`
 result, and the 126% config-loader result is reported as advisory because it
 exceeds the 33.8% maximum gateable margin.
 
-## Bootstrap limitation
+## Bootstrap evidence contract
 
-The captures used the old default-branch \`pr-perf-check.yml\` workflow. It
-publishes only \`perf-metrics.jsonl\`; it does not emit the metadata sidecars
-required by \`scripts/validate_perf_capture.py\` (one shared workflow identity
-and matrix runs 1--5). The newer matrix capture workflow is not present on
-the default branch and GitHub rejects dispatching it with HTTP 404. No
-sidecars or metadata were fabricated. This bootstrap therefore records real
-rows and their checks, but is not a substitute for a future metadata-backed
-capture validation.
+The captures used the old default-branch \`pr-perf-check.yml\` workflow. Each
+run publishes one \`perf-metrics.jsonl\` artifact and no metadata sidecar, so
+the refresh manifest records the five real run/artifact pairs directly. The
+committed evidence files under
+\`power_pcb_dataset/metrics/perf_ab_baseline_refresh/\` are the exact extracted
+artifact bytes; the manifest records their SHA-256 digests. The PR workflow
+queries GitHub for every run and artifact, checks completion, success, exact
+capture SHA, ownership, expiry, and downloaded-byte equality before invoking
+the reviewed validator.
+
+An independent different-SHA capture is intentionally not required for this
+bootstrap. The validator rejects any change between the capture SHA and the
+candidate HEAD under \`benchmarks/\`, \`packages/\`, or the harness dependency
+manifests/configuration. This is the conservative source-identity proof that
+makes the five fixed-commit rows sufficient; future captures may use the newer
+sidecar-producing workflow when a second-SHA comparison is useful.

@@ -96,3 +96,40 @@ def test_aggregate_uses_trusted_default_branch_code_and_separate_capture_tree() 
     assert "--repo-root \"$GITHUB_WORKSPACE/capture-source\"" in text
     assert "--registry \"$GITHUB_WORKSPACE/capture-source/benchmarks/perf_ab.py\"" in text
     assert "capture-source/scripts/validate_perf_capture.py" not in text
+
+
+def test_baseline_refresh_path_is_fail_closed_and_keeps_ordinary_prs_on_main() -> None:
+    text = (
+        Path(__file__).resolve().parents[2]
+        / ".github"
+        / "workflows"
+        / "pr-perf-check.yml"
+    ).read_text(encoding="utf-8")
+    assert "REFRESH_MANIFEST" in text
+    assert "GH_TOKEN: ${{ github.token }}" in text
+    assert "Baseline changed without a reviewed refresh manifest" in text
+    assert "git show origin/main:scripts/validate_perf_capture.py" in text
+    assert "git show origin/main:scripts/pr_perf_compare.py" in text
+    assert "BASELINE_FOR_COMPARE=main-perf-baseline.jsonl" in text
+    assert "BASELINE_FOR_COMPARE=$BASELINE_PATH" in text
+    assert "candidate-baseline \"$BASELINE_PATH\"" in text
+    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}\"" in text
+    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}\"" in text
+    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip\"" in text
+    assert "primary_capture.captures" in text
+    assert "five distinct" in text
+    assert "BASELINE_REFRESH_SCHEMA_VERSION = 2" in text
+    assert "actions: read" in text
+    # The candidate assignment appears only after the trusted validator and
+    # API provenance checks, while the default remains the main baseline.
+    assert text.index("BASELINE_FOR_COMPARE=main-perf-baseline.jsonl") < text.index(
+        "python3 \"$validator_dir/validate_perf_capture.py\""
+    ) < text.index("BASELINE_FOR_COMPARE=$BASELINE_PATH")
+
+
+def test_refresh_manifest_cannot_be_approved_by_the_capture_workflow_itself() -> None:
+    text = workflow_text()
+    assert "contents: write" not in text
+    assert "git push" not in text
+    assert "git commit" not in text
+    assert "candidate-baseline-append.jsonl" in text

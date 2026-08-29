@@ -91,6 +91,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       pull-requests: write
+      actions: read
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       BASELINE_PATH: power_pcb_dataset/metrics/perf_ab_baseline.jsonl
@@ -223,6 +224,85 @@ jobs:
           EOF
           wc -l main-benchmarks.tsv
 
+      # A baseline-changing PR may use its candidate only after the reviewed
+      # validator has proved an append-only five-run capture and unchanged
+      # benchmark-owned inputs. Ordinary PRs keep the main baseline
+      # unconditionally. The API identity checks below are independent of the
+      # candidate validator; the bootstrap fallback is needed because
+      # origin/main predates schema 2.
+      - name: Validate reviewed baseline refresh (if requested)
+        if: github.event_name == 'pull_request'
+        env:
+          REFRESH_MANIFEST: power_pcb_dataset/metrics/perf_ab_baseline_refresh/manifest.json
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          echo "BASELINE_FOR_COMPARE=main-perf-baseline.jsonl" >> "$GITHUB_ENV"
+          if git diff --quiet origin/main...HEAD -- "$BASELINE_PATH"; then
+            echo "No candidate baseline change; comparison remains pinned to origin/main."
+            exit 0
+          fi
+          test -s "$REFRESH_MANIFEST" || {
+            echo "::error::Baseline changed without a reviewed refresh manifest: $REFRESH_MANIFEST" >&2
+            exit 1
+          }
+
+          # The manifest records five distinct successful Actions
+          # run/artifact identities.  Verify every identity through the
+          # GitHub API before trusting the committed evidence bytes.  A green
+          # local-looking JSON file cannot stand in for a real capture run.
+          verify_run() {
+            local run_id="$1" expected_sha="$2"
+            local run_json
+            run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
+            test "$(jq -r '.status' <<<"$run_json")" = completed
+            test "$(jq -r '.conclusion' <<<"$run_json")" = success
+            test "$(jq -r '.event' <<<"$run_json")" = workflow_dispatch
+            test "$(jq -r '.head_sha' <<<"$run_json" | tr '[:upper:]' '[:lower:]')" = "${expected_sha,,}"
+          }
+          capture_sha="$(jq -r '.primary_capture.capture_sha' "$REFRESH_MANIFEST")"
+          test "$capture_sha" != "null"
+          jq -e '.primary_capture.captures | length == 5' "$REFRESH_MANIFEST" >/dev/null
+          while read -r run_id artifact_id evidence expected_hash; do
+            test -n "$run_id" && test -n "$artifact_id" && test -n "$evidence" && test -n "$expected_hash"
+            verify_run "$run_id" "$capture_sha"
+            artifact_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}")"
+            test "$(jq -r '.workflow_run.id' <<<"$artifact_json")" = "$run_id"
+            test "$(jq -r '.expired' <<<"$artifact_json")" = false
+            test -f "$evidence"
+            archive="$(mktemp)"
+            extracted="$(mktemp)"
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "$archive"
+            unzip -Z1 "$archive" | grep -Fx 'perf-metrics.jsonl' >/dev/null
+            unzip -p "$archive" perf-metrics.jsonl > "$extracted"
+            test "$(sha256sum "$extracted" | awk '{print $1}')" = "${expected_hash,,}"
+            cmp -- "$extracted" "$evidence"
+          done < <(jq -r '.primary_capture.captures[] | [.workflow_run_id, .artifact_id, .artifact, .artifact_sha256] | @tsv' "$REFRESH_MANIFEST")
+
+          mapfile -t changed_paths < <(git diff --name-only origin/main...HEAD)
+          validator_dir="$(mktemp -d)"
+          git show origin/main:scripts/validate_perf_capture.py > "$validator_dir/validate_perf_capture.py"
+          git show origin/main:scripts/pr_perf_compare.py > "$validator_dir/pr_perf_compare.py"
+          args=(
+            --baseline main-perf-baseline.jsonl
+            --candidate-baseline "$BASELINE_PATH"
+            --baseline-refresh-manifest "$REFRESH_MANIFEST"
+            --registry benchmarks/perf_ab.py
+            --repo-root "$GITHUB_WORKSPACE"
+          )
+          for changed_path in "${changed_paths[@]}"; do
+            args+=(--changed-path "$changed_path")
+          done
+          if grep -q 'BASELINE_REFRESH_SCHEMA_VERSION = 2' "$validator_dir/validate_perf_capture.py"; then
+            python3 "$validator_dir/validate_perf_capture.py" "${args[@]}"
+          else
+            # Bootstrap path: origin/main predates schema 2.  The API checks
+            # above independently establish immutable run/artifact identity;
+            # use the reviewed candidate validator only for the new schema.
+            python3 scripts/validate_perf_capture.py "${args[@]}"
+          fi
+          echo "BASELINE_FOR_COMPARE=$BASELINE_PATH" >> "$GITHUB_ENV"
+
       # 2026-08-04 (Wave 4 Phase 0, R2): `continue-on-error: true` removed. It
       # cited `temper-N6-U8`, a placeholder ticket id shared across 27 masks and
       # documented as a stub in
@@ -257,7 +337,7 @@ jobs:
         run: |
           uv run python scripts/pr_perf_compare.py \
             --pr-metrics perf-metrics.jsonl \
-            --baseline-jsonl main-perf-baseline.jsonl \
+            --baseline-jsonl "$BASELINE_FOR_COMPARE" \
             --main-benchmarks main-benchmarks.tsv \
             --report-file perf-report.md
 

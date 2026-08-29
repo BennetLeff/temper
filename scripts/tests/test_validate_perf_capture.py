@@ -19,6 +19,7 @@ from validate_perf_capture import (  # noqa: E402
     parse_capture_metadata,
     parse_ndjson,
     validate_append_only,
+    validate_baseline_refresh,
     validate_capture,
     validate_independent_capture,
 )
@@ -499,3 +500,156 @@ def test_aggregate_capture_records_independent_validation_in_manifest(tmp_path: 
 
     assert result.manifest["independent_current"]["validated"] is True
     assert result.manifest["independent_current"]["capture_sha"] == independent_sha
+
+
+def _write_refresh_fixture(tmp_path: Path) -> tuple[Path, Path, Path, str, str]:
+    repo, capture_sha = _git_repo(tmp_path)
+    registry = repo / "benchmarks" / "perf_ab.py"
+    registry.parent.mkdir()
+    registry.write_text(
+        "_BENCHMARKS = {('demo', 'ratio'): object, ('demo', 'other'): object}\n",
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "-C", str(repo), "add", "benchmarks"], check=True)
+    subprocess.run(
+        [
+            "git", "-C", str(repo), "-c", "user.name=Test", "-c",
+            "user.email=test@example.com", "commit", "-qm", "registry",
+        ],
+        check=True,
+    )
+    # The capture must name the registry commit, which is now the repository
+    # head; the independent commit is deliberately a different earlier SHA.
+    capture_sha = subprocess.check_output(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+    ).strip()
+    rows = _capture_rows(sha=capture_sha)
+    root = repo / "power_pcb_dataset" / "metrics" / "perf_ab_refresh"
+    root.mkdir(parents=True)
+    artifacts, _sidecars = _write_bundle(root, rows)
+    baseline_path = repo / "power_pcb_dataset" / "metrics" / "perf_ab_baseline.jsonl"
+    baseline_path.parent.mkdir(parents=True, exist_ok=True)
+    baseline_path.write_text(
+        json.dumps(_row("ratio", sha="f" * 40, timestamp="2026-08-28T00:00:00")) + "\n",
+        encoding="utf-8",
+    )
+    candidate_path = repo / "power_pcb_dataset" / "metrics" / "perf_ab_baseline.candidate.jsonl"
+    candidate_rows = [
+        _row("ratio", sha="f" * 40, timestamp="2026-08-28T00:00:00"),
+        *rows,
+    ]
+    candidate_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in candidate_rows), encoding="utf-8"
+    )
+    append_text = "".join(validator._canonical(row) + "\n" for row in rows)
+    manifest = {
+        "schema_version": 2,
+        "source": "measured-live",
+        "evidence_source": "github-actions-artifact",
+        "baseline_path": "power_pcb_dataset/metrics/perf_ab_baseline.jsonl",
+        "candidate_baseline_path": "power_pcb_dataset/metrics/perf_ab_baseline.candidate.jsonl",
+        "benchmark_owned_prefixes": list(validator.BASELINE_REFRESH_PROTECTED_PREFIXES),
+        "primary_capture": {
+            "capture_sha": capture_sha,
+            "captures": [
+                {
+                    "workflow_run_id": str(123 + index),
+                    "artifact_id": str(101 + index),
+                    "artifact": str(path.relative_to(repo)),
+                    "artifact_sha256": validator._file_sha256(path),
+                }
+                for index, path in enumerate(artifacts)
+            ],
+        },
+        "candidate_append_sha256": hashlib.sha256(append_text.encode()).hexdigest(),
+    }
+    manifest_path = root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return repo, baseline_path, candidate_path, str(manifest_path.relative_to(repo)), str(registry.relative_to(repo))
+
+
+def test_baseline_refresh_requires_five_distinct_immutable_captures(tmp_path: Path) -> None:
+    repo, baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
+    result = validate_baseline_refresh(
+        baseline_path=baseline.relative_to(repo),
+        candidate_path=candidate.relative_to(repo),
+        manifest_path=Path(manifest_rel),
+        registry_path=Path(registry_rel),
+        repo_root=repo,
+        committed_margins={"gated": {}, "ungateable": {}},
+        changed_paths={
+            str(candidate.relative_to(repo)), manifest_rel,
+            *[str(path.relative_to(repo)) for path in (repo / "power_pcb_dataset/metrics/perf_ab_refresh").iterdir() if path.name != "manifest.json"],
+        },
+    )
+    assert result.manifest["capture_runs"] == ["123", "124", "125", "126", "127"]
+
+    raw = json.loads((repo / manifest_rel).read_text(encoding="utf-8"))
+    raw["primary_capture"]["captures"][1]["workflow_run_id"] = "123"
+    (repo / manifest_rel).write_text(json.dumps(raw), encoding="utf-8")
+    with pytest.raises(CaptureValidationError, match="five distinct workflow runs"):
+        validate_baseline_refresh(
+            baseline_path=baseline.relative_to(repo),
+            candidate_path=candidate.relative_to(repo),
+            manifest_path=Path(manifest_rel),
+            registry_path=Path(registry_rel),
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+
+
+def test_baseline_refresh_rejects_owned_input_change_and_digest_substitution(tmp_path: Path) -> None:
+    repo, baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
+    common = {
+        "baseline_path": baseline.relative_to(repo),
+        "candidate_path": candidate.relative_to(repo),
+        "manifest_path": Path(manifest_rel),
+        "registry_path": Path(registry_rel),
+        "repo_root": repo,
+    }
+    with pytest.raises(CaptureValidationError, match="evidence manifest"):
+        validate_baseline_refresh(
+            **common,
+            changed_paths={str(candidate.relative_to(repo))},
+        )
+    raw = json.loads((repo / manifest_rel).read_text(encoding="utf-8"))
+    raw["primary_capture"]["captures"][0]["artifact_sha256"] = "0" * 64
+    (repo / manifest_rel).write_text(json.dumps(raw), encoding="utf-8")
+    with pytest.raises(CaptureValidationError, match="digest mismatch"):
+        validate_baseline_refresh(
+            **common, committed_margins={"gated": {}, "ungateable": {}}
+        )
+
+
+def test_baseline_refresh_rejects_benchmark_input_changed_after_capture(tmp_path: Path) -> None:
+    repo, _baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
+    registry = repo / registry_rel
+    registry.write_text(registry.read_text(encoding="utf-8") + "# changed after capture\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", registry_rel], check=True)
+    subprocess.run(
+        [
+            "git", "-C", str(repo), "-c", "user.name=Test", "-c",
+            "user.email=test@example.com", "commit", "-qm", "changed benchmark",
+        ],
+        check=True,
+    )
+    with pytest.raises(CaptureValidationError, match="benchmark-owned inputs changed"):
+        validate_baseline_refresh(
+            baseline_path=Path("power_pcb_dataset/metrics/perf_ab_baseline.jsonl"),
+            candidate_path=candidate.relative_to(repo),
+            manifest_path=Path(manifest_rel),
+            registry_path=Path(registry_rel),
+            repo_root=repo,
+        )
+
+
+def test_baseline_refresh_rejects_paths_outside_repository(tmp_path: Path) -> None:
+    repo, _baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
+    with pytest.raises(CaptureValidationError, match="inside repository root"):
+        validate_baseline_refresh(
+            baseline_path=Path("/tmp/not-the-repository-baseline.jsonl"),
+            candidate_path=candidate.relative_to(repo),
+            manifest_path=Path(manifest_rel),
+            registry_path=Path(registry_rel),
+            repo_root=repo,
+        )

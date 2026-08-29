@@ -57,7 +57,7 @@ The current baseline key is only module, board, and stage. PR #1535 showed that 
 - R11. The workflow rejects a capture commit that changes the benchmarked arm, oracle, fixture, or harness paths relative to its parent.
 - R12. Successful capture produces a manifest, raw rows, and an append-only candidate patch; it has no permission or step that writes to `main`.
 - R13. Candidate validation proves append-only history, fixed-SHA provenance, complete rolling windows, and exact agreement between derived and committed margins.
-- R14. A regime-reset baseline PR can validate an independent current capture against its candidate baseline without making ordinary PR comparisons permissive.
+- R14. A regime-reset baseline PR can validate a reviewed fixed-commit evidence manifest without making ordinary PR comparisons permissive. The manifest contains five distinct successful run/artifact pairs; when a second-SHA capture is unavailable, the validator requires benchmark-owned inputs to remain unchanged from the capture SHA through candidate HEAD.
 
 ### Actors
 
@@ -120,7 +120,7 @@ The current baseline key is only module, board, and stage. PR #1535 showed that 
 
 `scripts/pr_perf_compare.py` resolves a row identity to its explicit fingerprint or `legacy-v2`. Baseline loading retains append-only history but selects a compatible regime before median calculation. Known keys with no compatible rows produce `INCOMPATIBLE_BASELINE`; genuinely unknown keys remain `NO_BASELINE`. Fixed-commit noise grouping includes regime identity.
 
-A new validator script consumes five capture artifacts, an immutable requested SHA, and the existing baseline. It validates completeness, uniqueness, SHA identity, resolvability, path-change restrictions, append-only output, and derived margins, then emits a manifest and candidate patch. The manual workflow checks out the exact SHA in a five-entry matrix, rebuilds and freshness-checks extensions, runs the benchmark, aggregates artifacts, and uploads review outputs with read-only repository permissions.
+A new validator script consumes five capture artifacts, an immutable requested SHA, and the existing baseline. It validates completeness, uniqueness, SHA identity, resolvability, path-change restrictions, append-only output, and derived margins, then emits a manifest and candidate patch. The reviewed bootstrap manifest accepts five distinct run/artifact pairs from the legacy capture workflow, hashes the exact extracted artifact bytes, and rejects changes under benchmark/package/dependency inputs between capture and candidate HEAD. The manual workflow checks out the exact SHA in a five-entry matrix, rebuilds and freshness-checks extensions, runs the benchmark, aggregates artifacts, and uploads review outputs with read-only repository permissions.
 
 ### Sequencing
 
@@ -152,7 +152,7 @@ U1 establishes the record identity and comparator contract. U2 builds the captur
 - **Requirements:** R9–R14; F3; AE4 and AE6.
 - **Files:** `.github/workflows/pr-perf-baseline-capture.yml` or the repo-conventional equivalent, workflow tests/trigger fixtures, and documentation references only when necessary.
 - **Approach:** Require `capture_sha`; validate it before checkout; run five independent matrix captures at the exact SHA; preserve per-run artifacts; aggregate in a dependent job; upload raw rows, manifest, and candidate patch; grant no contents-write permission.
-- **Test scenarios:** trigger/input contract; five-run matrix; artifact naming; aggregation dependency; read-only permissions; partial failure blocks aggregation; actionlint compatibility.
+- **Test scenarios:** trigger/input contract; five-run matrix; artifact naming; aggregation dependency; read-only permissions; partial failure blocks aggregation; legacy five-run/artifact bootstrap; artifact-byte substitution; protected-input drift; actionlint compatibility.
 - **Verification:** `actionlint` with repository flags, workflow trigger tests, and any workflow-policy gates.
 
 ### U4. Integrated migration evidence
@@ -161,7 +161,7 @@ U1 establishes the record identity and comparator contract. U2 builds the captur
 - **Requirements:** R5–R14; AE1–AE6.
 - **Files:** Test fixtures and generated review artifacts only; `power_pcb_dataset/metrics/perf_ab_baseline.jsonl` changes only from an actually completed five-run capture reviewed in this PR.
 - **Approach:** Run focused and repository gates, verify extension freshness immediately before reported measurements, dispatch the workflow at one unchanged post-migration main SHA, and inspect its evidence bundle. If external capture cannot complete in-session, leave the code verified and report baseline refresh as an explicit residual rather than fabricating rows.
-- **Test scenarios:** PR #1535 stale-regime reproduction; compatible candidate comparison; independent capture against candidate; no global margin change.
+- **Test scenarios:** PR #1535 stale-regime reproduction; compatible candidate comparison; fixed-commit bootstrap manifest; protected-input drift rejection; no global margin change.
 - **Verification:** `make extensions-check`, focused pytest, `uv run python scripts/import_linter_gate.py`, `make regen-check`, and relevant CI workflows.
 
 ## Verification Contract
