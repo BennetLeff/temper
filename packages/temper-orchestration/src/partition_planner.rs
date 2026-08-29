@@ -518,7 +518,7 @@ pub fn plan_grouped_creepage_cuts(
     }
     let refs: Vec<String> = refs.into_iter().collect();
     let mut neighbors = BTreeMap::<String, BTreeSet<String>>::new();
-    for ((left, right), _) in &edges {
+    for (left, right) in edges.keys() {
         neighbors
             .entry(left.clone())
             .or_default()
@@ -545,8 +545,12 @@ pub fn plan_grouped_creepage_cuts(
     let mut groups: Vec<BTreeSet<String>> =
         refs.iter().map(|r| BTreeSet::from([r.clone()])).collect();
     for (_, left, right) in candidates {
-        let li = groups.iter().position(|g| g.contains(&left)).unwrap();
-        let ri = groups.iter().position(|g| g.contains(&right)).unwrap();
+        let Some(li) = groups.iter().position(|g| g.contains(&left)) else {
+            return Err(format!("grouping invariant lost component {left}"));
+        };
+        let Some(ri) = groups.iter().position(|g| g.contains(&right)) else {
+            return Err(format!("grouping invariant lost component {right}"));
+        };
         if li == ri || groups[li].len() + groups[ri].len() > max_group_size {
             continue;
         }

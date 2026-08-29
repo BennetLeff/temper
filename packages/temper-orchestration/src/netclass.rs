@@ -26,8 +26,10 @@
 // `_SAFETY_CATEGORY_RANK` byte-for-byte) and the O(n^2) cross-class pairing
 // walk with class-pair-override lookup.
 
+use std::collections::{HashMap, HashSet};
+
 #[cfg(feature = "python")]
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -57,7 +59,6 @@ fn kicad_class_name(class: &str) -> &str {
 /// Canonicalize one unordered generated-matrix key.  The generated YAML is
 /// loaded symmetrically by the Python boundary, but canonicalizing once here
 /// means the hot component-pair loop never scans both `(A, B)` and `(B, A)`.
-#[cfg(feature = "python")]
 fn canonical_creepage_key(class_a: &str, class_b: &str) -> (String, String) {
     let a = kicad_class_name(class_a).to_string();
     let b = kicad_class_name(class_b).to_string();
@@ -68,7 +69,6 @@ fn canonical_creepage_key(class_a: &str, class_b: &str) -> (String, String) {
 /// pair.  Keeping this reduction in Rust makes the matrix's max semantics
 /// explicit and prevents duplicate/symmetric rows from multiplying work in
 /// every component pair.
-#[cfg(feature = "python")]
 fn canonical_creepage_matrix(rows: &[(String, String, f64)]) -> HashMap<(String, String), f64> {
     let mut matrix: HashMap<(String, String), f64> = HashMap::with_capacity(rows.len());
     for (class_a, class_b, required) in rows {
@@ -85,7 +85,6 @@ fn canonical_creepage_matrix(rows: &[(String, String, f64)]) -> HashMap<(String,
 /// equivalent to the exhaustive max over all pin pairs, while reducing the
 /// work from `pins_a * pins_b * matrix_rows` to
 /// `unique_classes_a * unique_classes_b` hash lookups.
-#[cfg(feature = "python")]
 fn max_creepage_for_pin_classes(
     pins_a: &[PinClassInfo],
     pins_b: &[PinClassInfo],
@@ -441,7 +440,7 @@ fn netclass_creepage_neighborhood_candidates(
         }
         let left_nearby = nearby_refs(&left)?;
         let right_nearby = nearby_refs(&right)?;
-        for (pair, _) in &rows {
+        for pair in rows.keys() {
             if excluded.contains(pair) {
                 continue;
             }
@@ -497,6 +496,7 @@ pub fn netclass_creepage_neighborhood_candidates_py(
 /// implementation of the safety graph.  Pairs with no generated requirement
 /// are omitted; the stripped model's normal non-overlap relation supplies the
 /// zero-gap case for those pairs.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn netclass_creepage_requirements_py(
     components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,
