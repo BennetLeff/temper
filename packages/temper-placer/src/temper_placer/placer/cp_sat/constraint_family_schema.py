@@ -134,8 +134,16 @@ def _validate_artifact_mapping(definition: ConstraintFamilyDefinition, value: ob
     missing = [key for key in definition.required_mapping_keys if key not in value]
     if missing:
         raise ValueError(f"{definition.name} is missing required artifact key(s): {', '.join(missing)}")
+    def alternative_matches(alternative: tuple[str, ...]) -> bool:
+        # An empty alternative would make all(...) vacuously true and turn a
+        # malformed schema into an accepted artifact. Reject it explicitly
+        # before aggregating the required-key checks.
+        if not alternative:
+            return False
+        return all(key in value for key in alternative)
+
     if definition.alternative_mapping_keys and not any(
-        all(key in value for key in alternative) for alternative in definition.alternative_mapping_keys
+        alternative_matches(alternative) for alternative in definition.alternative_mapping_keys
     ):
         alternatives = " or ".join("{" + ", ".join(keys) + "}" for keys in definition.alternative_mapping_keys)
         raise ValueError(f"{definition.name} requires one of {alternatives}")

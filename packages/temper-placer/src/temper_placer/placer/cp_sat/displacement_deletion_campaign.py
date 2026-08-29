@@ -469,9 +469,12 @@ def run_displacement_deletion_campaign(
         singleton.append(run_test(index, f"release_{group_name}", (group_name,)))
 
     halves: list[DisplacementDeletionTestResult] = []
-    all_singletons_infeasible = bool(singleton) and all(
-        report.status is RestorationStageStatus.INFEASIBLE for report in singleton
-    )
+    if not singleton:
+        all_singletons_infeasible = False
+    else:
+        all_singletons_infeasible = all(
+            report.status is RestorationStageStatus.INFEASIBLE for report in singleton
+        )
     if test_balanced_halves and all_singletons_infeasible and len(canonical_groups) >= 2:
         half_groups = _balanced_group_halves(canonical_groups)
         for offset, selected in enumerate(half_groups):

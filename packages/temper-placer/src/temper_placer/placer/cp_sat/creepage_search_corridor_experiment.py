@@ -851,6 +851,8 @@ def execute_axis_probe(
     )
     if any(gate.status == "error" for gate in gates):
         acceptance: AcceptanceVerdict = "gate-error"
+    elif not gates:
+        acceptance = "gate-error"
     elif all(gate.status == "passed" for gate in gates):
         acceptance = "accepted"
     else:
