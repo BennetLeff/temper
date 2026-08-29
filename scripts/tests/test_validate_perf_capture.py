@@ -12,6 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import validate_perf_capture as validator  # noqa: E402
 from validate_perf_capture import (  # noqa: E402
     CaptureValidationError,
     aggregate_capture,
@@ -19,6 +20,7 @@ from validate_perf_capture import (  # noqa: E402
     parse_ndjson,
     validate_append_only,
     validate_capture,
+    validate_independent_capture,
 )
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
@@ -262,6 +264,40 @@ def test_declared_regime_is_required_and_uniform(tmp_path: Path) -> None:
         )
 
 
+def test_capture_tree_cannot_replace_trusted_margin_authority(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    malicious = repo / "scripts" / "pr_perf_compare.py"
+    malicious.parent.mkdir()
+    malicious.write_text("raise RuntimeError('capture code executed')\n", encoding="utf-8")
+    (malicious.parent / "validate_perf_capture.py").write_text(
+        "raise RuntimeError('capture validator executed')\n", encoding="utf-8"
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "add", "scripts"],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git", "-C", str(repo), "-c", "user.name=Test", "-c",
+            "user.email=test@example.com", "commit", "-qm", "malicious capture code",
+        ],
+        check=True,
+    )
+    capture_sha = subprocess.check_output(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+    ).strip()
+    artifacts, metadata = _write_bundle(tmp_path, _capture_rows(sha=capture_sha))
+    result = validator.validate_capture(
+        artifacts,
+        requested_sha=capture_sha,
+        expected_keys=KEYS,
+        metadata_paths=metadata,
+        repo_root=repo,
+        committed_margins={"gated": {}, "ungateable": {}},
+    )
+    assert result.manifest["capture_sha"] == capture_sha
+
+
 def test_changed_registered_source_is_rejected_for_merge_commit(tmp_path: Path) -> None:
     repo, base_sha = _git_repo(tmp_path)
     subprocess.run(["git", "-C", str(repo), "branch", "-M", "main"], check=True)
@@ -374,3 +410,92 @@ def test_candidate_baseline_must_preserve_existing_prefix(tmp_path: Path) -> Non
             candidate_records=candidate,
             repo_root=repo,
         )
+
+
+def _commit_current_revision(repo: Path) -> str:
+    (repo / "current.txt").write_text("current\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "current.txt"], check=True)
+    subprocess.run(
+        [
+            "git", "-C", str(repo), "-c", "user.name=Test", "-c",
+            "user.email=test@example.com", "commit", "-qm", "current",
+        ],
+        check=True,
+    )
+    return subprocess.check_output(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+    ).strip()
+
+
+def test_independent_current_capture_is_compared_to_candidate_baseline(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    independent_sha = _commit_current_revision(repo)
+    candidate = _capture_rows(sha=capture_sha)
+    current = [_row(stage, sha=independent_sha, value=0.5) for stage in ("ratio", "other")]
+    artifact = _write_ndjson(tmp_path / "perf-current.ndjson", current)
+
+    results = validate_independent_capture(
+        artifact,
+        requested_sha=independent_sha,
+        capture_sha=capture_sha,
+        expected_keys=KEYS,
+        candidate_records=candidate,
+        repo_root=repo,
+    )
+
+    assert all(result["status"] == "OK" for result in results)
+
+
+def test_independent_current_capture_must_use_a_different_sha(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    current = [_row(stage, sha=capture_sha, value=0.5) for stage in ("ratio", "other")]
+    artifact = _write_ndjson(tmp_path / "perf-current.ndjson", current)
+    with pytest.raises(CaptureValidationError, match="different commit"):
+        validate_independent_capture(
+            artifact,
+            requested_sha=capture_sha,
+            capture_sha=capture_sha,
+            expected_keys=KEYS,
+            candidate_records=_capture_rows(sha=capture_sha),
+            repo_root=repo,
+        )
+
+
+def test_independent_current_capture_rejects_candidate_baseline_regression(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    independent_sha = _commit_current_revision(repo)
+    current = [_row(stage, sha=independent_sha, value=0.8) for stage in ("ratio", "other")]
+    artifact = _write_ndjson(tmp_path / "perf-current.ndjson", current)
+    with pytest.raises(CaptureValidationError, match="does not validate"):
+        validate_independent_capture(
+            artifact,
+            requested_sha=independent_sha,
+            capture_sha=capture_sha,
+            expected_keys=KEYS,
+            candidate_records=_capture_rows(sha=capture_sha),
+            repo_root=repo,
+        )
+
+
+def test_aggregate_capture_records_independent_validation_in_manifest(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    independent_sha = _commit_current_revision(repo)
+    rows = _capture_rows(sha=capture_sha)
+    artifacts, metadata = _write_bundle(tmp_path, rows)
+    current = [_row(stage, sha=independent_sha, value=0.5) for stage in ("ratio", "other")]
+    current_artifact = _write_ndjson(tmp_path / "perf-current.ndjson", current)
+
+    result = aggregate_capture(
+        artifacts,
+        requested_sha=capture_sha,
+        expected_keys=KEYS,
+        metadata_paths=metadata,
+        baseline_records=[_row("ratio", sha="f" * 40, timestamp="2026-08-28T00:00:00")],
+        repo_root=repo,
+        committed_margins={"gated": {}, "ungateable": {}},
+        independent_artifact=current_artifact,
+        independent_sha=independent_sha,
+    )
+
+    assert result.manifest["independent_current"]["validated"] is True
+    assert result.manifest["independent_current"]["capture_sha"] == independent_sha

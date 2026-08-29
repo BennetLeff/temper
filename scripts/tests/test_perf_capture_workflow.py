@@ -49,14 +49,33 @@ def test_workflow_rebuilds_and_checks_extensions_before_measurement() -> None:
 
 def test_workflow_aggregates_only_after_all_capture_legs_and_fails_closed() -> None:
     text = workflow_text()
-    assert "needs: [validate-input, capture]" in text
-    assert "if: always() && needs.validate-input.result == 'success'" in text
+    assert "needs: [validate-input, capture, independent-current]" in text
+    assert "needs['independent-current'].result == 'success'" in text
+    assert "needs['independent-current'].result == 'skipped'" in text
     assert "actions/download-artifact@v8" in text
     assert "for run in 1 2 3 4 5" in text
     assert "scripts/validate_perf_capture.py" in text
     for run in range(1, 6):
         assert f"captures/perf-capture-{run}.ndjson" in text
         assert f"--metadata captures/capture-{run}.metadata" in text
+
+
+def test_independent_current_mode_is_manual_and_wired_only_to_capture_workflow() -> None:
+    text = workflow_text()
+    assert "independent_sha:" in text
+    assert "independent-current:" in text
+    assert "--independent-current captures/perf-current.ndjson" in text
+    assert "--independent-sha \"$INDEPENDENT_SHA\"" in text
+    assert "must differ from capture_sha" in text
+
+    ordinary_pr = (
+        Path(__file__).resolve().parents[2]
+        / ".github"
+        / "workflows"
+        / "pr-perf-check.yml"
+    ).read_text(encoding="utf-8")
+    assert "independent-current" not in ordinary_pr
+    assert "origin/main" in ordinary_pr
 
 
 def test_workflow_is_read_only_and_uploads_raw_and_review_artifacts() -> None:
@@ -68,3 +87,12 @@ def test_workflow_is_read_only_and_uploads_raw_and_review_artifacts() -> None:
     assert "candidate-baseline-append.jsonl" in text
     assert "capture-manifest.json" in text
     assert "actions/upload-artifact@v7" in text
+
+
+def test_aggregate_uses_trusted_default_branch_code_and_separate_capture_tree() -> None:
+    text = workflow_text()
+    assert "ref: ${{ github.event.repository.default_branch }}" in text
+    assert "path: capture-source" in text
+    assert "--repo-root \"$GITHUB_WORKSPACE/capture-source\"" in text
+    assert "--registry \"$GITHUB_WORKSPACE/capture-source/benchmarks/perf_ab.py\"" in text
+    assert "capture-source/scripts/validate_perf_capture.py" not in text

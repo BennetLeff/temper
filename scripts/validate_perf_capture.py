@@ -38,7 +38,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pr_perf_compare import LEGACY_REGIME_IDENTITY
+from pr_perf_compare import (
+    LEGACY_REGIME_IDENTITY,
+    compare,
+    gate_failures,
+    load_main_baselines,
+)
 
 SHA_RE = re.compile(r"[0-9a-fA-F]{40}\Z")
 REGIME_SHA_RE = re.compile(r"[0-9a-fA-F]{64}\Z")
@@ -682,6 +687,102 @@ def validate_capture(
     )
 
 
+def validate_independent_capture(
+    artifact_path: Path,
+    *,
+    requested_sha: str,
+    capture_sha: str,
+    expected_keys: Iterable[Sequence[str]],
+    candidate_records: Sequence[dict[str, Any]],
+    repo_root: Path | None = None,
+    declared_regime_keys: Iterable[Sequence[str]] = (),
+) -> list[dict[str, Any]]:
+    """Compare one independently captured commit against a candidate baseline.
+
+    This is deliberately separate from the ordinary PR comparator. A reset
+    candidate must prove that a different, resolvable commit can be compared
+    against the proposed append; normal PRs continue to read origin/main in
+    ``pr-perf-check.yml``.
+    """
+
+    root = (repo_root or Path.cwd()).resolve()
+    capture = _resolve_capture_sha(capture_sha, root)
+    current = _resolve_capture_sha(requested_sha, root)
+    if current == capture:
+        raise CaptureValidationError(
+            "independent current capture must use a different commit than the five-run capture"
+        )
+
+    expected = normalize_keys(expected_keys)
+    records = _read_ndjson_file(Path(artifact_path), source=str(artifact_path))
+    if not records:
+        raise CaptureValidationError("independent current capture is empty")
+    if len(records) != len(expected) or {_key(record) for record in records} != expected:
+        raise CaptureValidationError(
+            "independent current capture must contain exactly one row for every benchmark"
+        )
+
+    for index, record in enumerate(records, start=1):
+        row_sha = record.get("git_commit")
+        if not isinstance(row_sha, str) or not SHA_RE.fullmatch(row_sha):
+            raise CaptureValidationError(
+                f"independent capture row {index} has an invalid or symbolic git_commit"
+            )
+        if row_sha.lower() != current:
+            raise CaptureValidationError(
+                f"independent capture rows must use requested SHA {current}; "
+                f"row {index} uses {row_sha!r}"
+            )
+        timestamp = record.get("timestamp")
+        if not isinstance(timestamp, str) or not timestamp:
+            raise CaptureValidationError(
+                f"independent capture row {index} has no valid timestamp"
+            )
+        metrics = record.get("metrics")
+        if not isinstance(metrics, dict) or "rust_over_oracle_ratio" not in metrics:
+            raise CaptureValidationError(
+                f"independent capture row {index} is missing rust_over_oracle_ratio"
+            )
+        for metric_name, metric_value in metrics.items():
+            if (
+                isinstance(metric_value, bool)
+                or not isinstance(metric_value, (int, float))
+                or not math.isfinite(float(metric_value))
+                or float(metric_value) <= 0
+            ):
+                raise CaptureValidationError(
+                    f"independent capture row {index} metric {metric_name!r} "
+                    "must be finite and positive"
+                )
+
+    expected_regime_keys = (
+        normalize_keys(declared_regime_keys) if declared_regime_keys else set()
+    )
+    if expected_regime_keys - expected:
+        raise CaptureValidationError(
+            "regime registry contains keys absent from benchmark registry"
+        )
+    for key in expected:
+        for record in records:
+            if _key(record) != key:
+                continue
+            if key in expected_regime_keys and record.get("measurement_regime") is None:
+                raise CaptureValidationError(
+                    f"independent benchmark {key!r} requires current measurement regime metadata"
+                )
+
+    _verify_regime_sources(records, root, current)
+    baselines = load_main_baselines(list(candidate_records))
+    results = compare(records, baselines)
+    failures = gate_failures(results)
+    if failures:
+        raise CaptureValidationError(
+            "independent current capture does not validate against candidate baseline: "
+            + "; ".join(failures)
+        )
+    return results
+
+
 def aggregate_capture(
     artifact_paths: Iterable[Path],
     *,
@@ -693,6 +794,8 @@ def aggregate_capture(
     candidate_records: Sequence[dict[str, Any]] | None = None,
     repo_root: Path | None = None,
     committed_margins: dict[str, Any] | None = None,
+    independent_artifact: Path | None = None,
+    independent_sha: str | None = None,
     output_dir: Path | None = None,
 ) -> CaptureResult:
     """Validate a capture and optionally write only review artifacts."""
@@ -708,6 +811,25 @@ def aggregate_capture(
         repo_root=repo_root,
         committed_margins=committed_margins,
     )
+    if (independent_artifact is None) != (independent_sha is None):
+        raise CaptureValidationError(
+            "independent_artifact and independent_sha must be supplied together"
+        )
+    if independent_artifact is not None and independent_sha is not None:
+        independent_results = validate_independent_capture(
+            independent_artifact,
+            requested_sha=independent_sha,
+            capture_sha=requested_sha,
+            expected_keys=expected_keys,
+            candidate_records=result.candidate_records,
+            repo_root=repo_root,
+            declared_regime_keys=declared_regime_keys,
+        )
+        result.manifest["independent_current"] = {
+            "capture_sha": independent_sha.lower(),
+            "validated": True,
+            "results": independent_results,
+        }
     if output_dir is None:
         return result
     output = Path(output_dir)
@@ -744,6 +866,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--candidate-baseline", type=Path, default=None)
     parser.add_argument("--margins-json", type=Path, default=None)
+    parser.add_argument(
+        "--independent-current", type=Path, default=None,
+        help="one current-capture NDJSON to validate against the candidate baseline",
+    )
+    parser.add_argument(
+        "--independent-sha", default=None,
+        help="immutable SHA for --independent-current; must differ from --capture-sha",
+    )
     parser.add_argument("--metadata", type=Path, action="append", required=True)
     parser.add_argument("--key", type=_parse_cli_key, action="append", dest="keys", default=None)
     parser.add_argument("artifacts", type=Path, nargs="+")
@@ -772,6 +902,8 @@ def main(argv: list[str] | None = None) -> int:
             candidate_records=candidate,
             repo_root=args.repo_root,
             committed_margins=margins,
+            independent_artifact=args.independent_current,
+            independent_sha=args.independent_sha,
             output_dir=args.output_dir,
         )
     except (CaptureValidationError, OSError, json.JSONDecodeError) as exc:

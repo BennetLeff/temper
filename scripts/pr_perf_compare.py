@@ -255,6 +255,26 @@ class BaselineMap(dict[tuple[str, str, str], dict[str, float]]):
         ] = {}
 
 
+class FixedCommitNoiseMap(dict[tuple[str, str], dict[str, float]]):
+    """Noise measurements with a compatibility view and regime details.
+
+    Existing callers use the mapping as ``(module, stage) -> stats``.  The
+    ``regimes`` index retains the exact ``(commit, regime)`` measurements so
+    margin derivation can select the active regime instead of taking the worst
+    value from unrelated historical regimes.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.regimes: dict[
+            tuple[str, str], dict[str, dict[str, float]]
+        ] = {}
+        # Only this view is safe for margin derivation. It excludes a
+        # historical qualifying regime when a newer regime has not yet
+        # accumulated enough rows to qualify.
+        self.active: dict[tuple[str, str], dict[str, float]] = {}
+
+
 def _parse_records(text: str, source: str) -> list[dict[str, Any]]:
     """Parse a JSON array or an NDJSON stream into a list of record dicts.
 
@@ -371,7 +391,7 @@ def measure_fixed_commit_noise(
     records: list[dict[str, Any]],
     metric: str = "rust_over_oracle_ratio",
     min_group: int = MIN_NOISE_GROUP,
-) -> dict[tuple[str, str], dict[str, float]]:
+) -> FixedCommitNoiseMap:
     """Worst leave-one-out excursion per benchmark, measured at a FIXED COMMIT.
 
     This is the only defensible noise estimate available from the baseline
@@ -387,9 +407,14 @@ def measure_fixed_commit_noise(
     own arithmetic: each sample against the median of the others, which is what
     a PR run faces against a trailing-window median baseline.
 
-    Returns ``{(module, stage): {"worst_pct", "n", "groups"}}``. Benchmarks
-    with no qualifying group are absent -- callers must treat that as "not
-    measured", never as "no noise".
+    Returns a compatibility mapping of ``{(module, stage): stats}`` plus a
+    ``.regimes`` index of ``{(module, stage): {regime: stats}}``.  When the
+    newest observed regime has a qualifying group, both the compatibility and
+    ``.active`` views use it. If it is not ready yet, the compatibility view
+    retains a historical qualifying value for old callers, while ``.active``
+    omits the benchmark so that stale noise cannot widen the current margin.
+    Benchmarks with no qualifying group are absent -- callers must treat that
+    as "not measured", never as "no noise".
     """
     by_key_commit: dict[
         tuple[str, str], dict[tuple[str, str], list[float]]
@@ -409,24 +434,62 @@ def measure_fixed_commit_noise(
             (commit, regime), []
         ).append(float(value))
 
-    measured: dict[tuple[str, str], dict[str, float]] = {}
+    measured = FixedCommitNoiseMap()
     for key, commits in by_key_commit.items():
-        worst = 0.0
-        total = 0
-        groups = 0
-        for values in commits.values():
+        by_regime: dict[str, dict[str, float]] = {}
+        for (_commit, regime), values in commits.items():
             if len(values) < min_group:
                 continue
-            groups += 1
-            total += len(values)
+            worst = 0.0
             for i, value in enumerate(values):
                 others = values[:i] + values[i + 1:]
                 median = statistics.median(others)
                 if median <= 0:
                     continue
                 worst = max(worst, abs(value - median) / median * 100)
-        if groups:
-            measured[key] = {"worst_pct": worst, "n": float(total), "groups": float(groups)}
+            stats = {
+                "worst_pct": worst,
+                "n": float(len(values)),
+                "groups": 1.0,
+            }
+            previous = by_regime.get(regime)
+            if previous is None:
+                by_regime[regime] = stats
+            else:
+                # A regime may have multiple fixed commits. Preserve the
+                # historical worst-case behavior within that regime.
+                by_regime[regime] = {
+                    "worst_pct": max(previous["worst_pct"], stats["worst_pct"]),
+                    "n": previous["n"] + stats["n"],
+                    "groups": previous["groups"] + stats["groups"],
+                }
+        if by_regime:
+            measured.regimes[key] = by_regime
+            # Select the regime with the newest row in the input, not merely
+            # the newest *qualifying* group. Captures append in chronological
+            # order. If a new regime has not accumulated a complete fixed-
+            # commit group yet, omit this benchmark entirely: falling back to
+            # an older regime would let stale noise widen the current margin.
+            observed_regimes: dict[str, int] = {}
+            for index, record in enumerate(records):
+                if (record.get("module", ""), record.get("stage", "")) != key:
+                    continue
+                if not isinstance((record.get("metrics") or {}).get(metric), (int, float)):
+                    continue
+                observed_regimes[measurement_regime_identity(record)] = index
+            latest_regime = max(observed_regimes, key=observed_regimes.__getitem__)
+            if latest_regime in by_regime:
+                measured[key] = by_regime[latest_regime]
+                measured.active[key] = by_regime[latest_regime]
+            else:
+                # Retain the old mapping's most recent qualifying value for
+                # callers that only consume the historical API, but do not
+                # expose it as active evidence for a margin.
+                fallback_regime = max(
+                    by_regime,
+                    key=observed_regimes.__getitem__,
+                )
+                measured[key] = by_regime[fallback_regime]
     return measured
 
 
@@ -447,7 +510,8 @@ def derive_margin_table(
     """
     gated: dict[tuple[str, str], float] = {}
     ungateable: dict[tuple[str, str], float] = {}
-    for key, stats in measure_fixed_commit_noise(records).items():
+    measured = measure_fixed_commit_noise(records)
+    for key, stats in measured.active.items():
         margin = derive_margin(stats["worst_pct"])
         if margin > MAX_GATEABLE_MARGIN:
             ungateable[key] = margin

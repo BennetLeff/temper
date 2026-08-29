@@ -442,6 +442,43 @@ def test_fixed_commit_noise_does_not_mix_regimes():
     assert measured[("bottleneck-geometry", "cell_capacity_batch")]["groups"] == 1
 
 
+def test_fixed_commit_margin_uses_newest_regime_not_legacy_noise():
+    key = ("bottleneck-geometry", "cell_capacity_batch")
+    records = [
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:01"),
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:02"),
+        _regime_record(2.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:03"),
+        _regime_record(1.0, "current-regime", commit="current", ts="2026-08-05T00:00:01"),
+        _regime_record(1.0, "current-regime", commit="current", ts="2026-08-05T00:00:02"),
+        _regime_record(1.05, "current-regime", commit="current", ts="2026-08-05T00:00:03"),
+    ]
+
+    measured = measure_fixed_commit_noise(records)
+    assert measured.regimes[key]["legacy-v2"]["worst_pct"] == pytest.approx(100.0)
+    assert measured.regimes[key]["current-regime"]["worst_pct"] == pytest.approx(5.0)
+    assert measured[key]["worst_pct"] == pytest.approx(5.0)
+
+    _, ungateable = derive_margin_table(records)
+    assert key not in ungateable
+
+
+def test_fixed_commit_margin_does_not_fall_back_to_legacy_before_current_group_is_ready():
+    key = ("bottleneck-geometry", "cell_capacity_batch")
+    records = [
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:01"),
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:02"),
+        _regime_record(2.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:03"),
+        _regime_record(1.0, "current-regime", commit="current", ts="2026-08-05T00:00:01"),
+    ]
+
+    measured = measure_fixed_commit_noise(records)
+
+    assert measured.regimes[key]["legacy-v2"]["worst_pct"] == pytest.approx(100.0)
+    assert key in measured  # legacy mapping remains API-compatible
+    assert key not in measured.active
+    assert key not in derive_margin_table(records)[1]
+
+
 # ---------------------------------------------------------------------------
 # Per-benchmark margins (2026-08-05)
 #
