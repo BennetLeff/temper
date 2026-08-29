@@ -204,7 +204,19 @@ jobs:
         # running ~987s per PR here on top of the same ~987s in python-tests'
         # cp-sat slow job -- ~33 min/day of duplicated serial work. It now
         # runs nightly + on demand in .github/workflows/r9-evidence.yml.
-        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py --ignore=tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py
+        # The production-board routing DRC test is sharded into the parallel
+        # production-routing-regression job below. It takes ~20m by itself
+        # (1252s in run 33231812889); leaving it in this 30m job after the
+        # ~6m setup and the other CP-SAT tests caused the job to hit its hard
+        # timeout at 30:00 with the test still running. The dedicated job
+        # preserves the test on both PR and main paths without changing its
+        # assertion or masking its result.
+        run: >
+          uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py
+          tests/cli/test_cp_sat_flag.py -v --tb=short
+          --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py
+          --ignore=tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py
+          --deselect "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
 
       - name: Zone/Pour Production Measurement
         working-directory: packages/temper-placer
@@ -218,3 +230,83 @@ jobs:
         run: |
           echo "## Regression Suite Results" >> $GITHUB_STEP_SUMMARY
           echo "Regression suite, DRC ratchet, round-trip integrity, metamorphic oracles, zone-pour measurement, and quarantine report executed." >> $GITHUB_STEP_SUMMARY
+
+  # The full production-board routing DRC regression is intentionally a
+  # separate lane. The main regression job has ~6m of setup before its CP-SAT
+  # step, while this one test has measured at 1252s (20m52s) on the same
+  # runner. Running it after the 1296-item CP-SAT collection therefore leaves
+  # no margin under the 30m job ceiling. Sharding by exact node ID keeps the
+  # assertion running on every PR and main event, and gives its setup + route
+  # a dedicated 35m budget. This is a timing fix only: no test is skipped,
+  # masked, or made less strict.
+  production-routing-regression:
+    name: Production board routing regression
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          lfs: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      # Match the extension environment used by the main regression job. A
+      # restored uv cache alone is not sufficient because it can contain
+      # artifacts built from an older checkout.
+      - name: Build and install Rust extensions
+        run: |
+          uv pip install maturin
+          for crate in \
+            packages/temper-geometry \
+            packages/temper-thermal \
+            packages/temper-rust-router \
+            packages/temper-drc-rs; do
+            uv run maturin develop --release --manifest-path "$crate/Cargo.toml"
+          done
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 \
+            uv run maturin develop --release \
+            --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+
+      - name: Production board routing DRC regression
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 1 --
+          "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
+          -v --tb=short -p no:cacheprovider --maxfail=1
