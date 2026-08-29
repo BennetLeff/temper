@@ -235,11 +235,14 @@ jobs:
   # assertion running on every PR and main event, and gives its setup + route
   # a dedicated budget. The first dedicated run reached its 35m ceiling
   # before the route produced a result; its setup took 6m58s, leaving only
-  # 28m02s for the test. The route itself was previously measured at 1252s
-  # (20m52s), but the trunk-only serial lane already budgets 70m for this
-  # route plus the zone measurement, and the dedicated lane must absorb
-  # runner variance independently. Use 45m: it leaves 38m for the route
-  # (~1.8x the measured route) while remaining a finite fail-closed budget.
+  # 28m02s for the test. The subsequent 45m dedicated run (33270908898)
+  # again reached its ceiling after 38m11s in the test, with no result. The
+  # trunk-only routing lane also reached its 50m ceiling after 43m56s in the
+  # test (33262575088). Those observations supersede the old 1252s (~20m52s)
+  # measurement: the route is currently materially slower and needs a
+  # dedicated ceiling that includes measured runner variance. Use 75m: it
+  # leaves 68m for the route after setup, while remaining finite and
+  # fail-closed.
   # This is a timing fix only: no test is skipped, masked, or made less strict.
   production-routing-regression:
     name: Production board routing regression
@@ -247,7 +250,7 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 45
+    timeout-minutes: 75
     strategy:
       fail-fast: false
     env:
@@ -322,17 +325,21 @@ jobs:
   # 35m ceiling before producing a result; its setup took 6m59s, leaving only
   # 28m01s for the two-arm measurement. That arm was previously measured at
   # 1241s (20m41s), but it is sensitive to runner load and must include both
-  # full routes, zone fills, and DRC sampling. Use 45m: it leaves 38m for the
-  # measurement (~1.8x the measured wall time) while remaining a finite,
-  # fail-closed budget. The exact test invocation is preserved on both PR and
-  # main paths without masking or changing it.
+  # full routes, zone fills, and DRC sampling. The 45m dedicated run
+  # (33270908898) reached its ceiling after 37m42s in the test, while the same
+  # test completed in 45m08s on main (33262575088). That measured completion
+  # is materially slower than the old 1241s (~20m41s) estimate. Use 60m: it
+  # leaves 52m42s for the measurement after the observed setup, with roughly
+  # 7m34s above the measured completion, while remaining finite and
+  # fail-closed. The exact test invocation is preserved on both PR and main
+  # paths without masking or changing it.
   production-zone-pour-measurement:
     name: Zone/pour production measurement
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
     env:
