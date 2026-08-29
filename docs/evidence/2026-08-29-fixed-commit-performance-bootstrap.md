@@ -4,26 +4,26 @@ date: 2026-08-29
 status: reviewed-bootstrap
 ---
 
-<!-- provenance: commit=65f14a652afc2110a6ad74b194e23ddb9c51f397 dirty=false -->
+<!-- provenance: commit=049f5ea2daa437114940d0a0420a768c6f5faa25 dirty=false -->
 
 # Fixed-commit performance capture bootstrap
 
 Five independent \`PR Performance Check\` \`workflow_dispatch\` runs captured
 the exact PR head
-\`e1747634f615bf8c1b203032dec42d1961ab32dd\`:
+\`049f5ea2daa437114940d0a0420a768c6f5faa25\`:
 
-- [33270300259](https://github.com/BennetLeff/temper/actions/runs/33270300259)
-- [33270301615](https://github.com/BennetLeff/temper/actions/runs/33270301615)
-- [33270302948](https://github.com/BennetLeff/temper/actions/runs/33270302948)
-- [33270304247](https://github.com/BennetLeff/temper/actions/runs/33270304247)
-- [33270305655](https://github.com/BennetLeff/temper/actions/runs/33270305655)
+- [33281175832](https://github.com/BennetLeff/temper/actions/runs/33281175832)
+- [33281177002](https://github.com/BennetLeff/temper/actions/runs/33281177002)
+- [33281178023](https://github.com/BennetLeff/temper/actions/runs/33281178023)
+- [33281178967](https://github.com/BennetLeff/temper/actions/runs/33281178967)
+- [33281180153](https://github.com/BennetLeff/temper/actions/runs/33281180153)
 
 Each run succeeded and produced 21 rows. The five artifacts have identical
 benchmark key sets and all 105 rows carry the requested immutable commit SHA.
 The rows' measurement-regime source digests validate against the capture
 commit, and the baseline update is append-only: the file grows from 434 to
 539 rows. The exact 105-row candidate append has SHA-256
-\`53dc83dd557d14e4b3df4fbcbbb87d5f3b4f1f956110a99f38881fec79c389ff\`.
+\`3a20aa58167b4978fa0d34b7cdcffb43e18f5c5510a4d1f2c37cdc7cb3c13cf4\`.
 
 The rows were appended to
 \`power_pcb_dataset/metrics/perf_ab_baseline.jsonl\` without editing or
