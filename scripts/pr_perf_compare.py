@@ -156,18 +156,16 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
     # worst fixed-commit excursion 14.6% -> 2 x 14.6 = 29.2 -> 30%
     ("bottleneck-geometry", "hard_blocked_batch"): 0.30,
-    # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
-    ("loaders", "loaders"): 0.22,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
     ("physics-copper_coverage", "copper_masks"): 0.32,
+    # worst fixed-commit excursion 10.1% -> 2 x 10.1 = 20.2 -> 21%
+    ("net-ordering", "compute_hpwl"): 0.21,
+    # worst fixed-commit excursion 13.0% -> 2 x 13.0 = 26.0 -> 26%
+    ("pcl-tag-dispatch", "tag_resolve_sweep"): 0.26,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
     ("physics-safety", "filter_delay"): 0.30,
-    # worst fixed-commit excursion 11.3% -> 2 x 11.3 = 22.6 -> 23%
-    ("dsn-exporter", "export_pcb"): 0.23,
-    # worst fixed-commit excursion 15.2% -> 2 x 15.2 = 30.4 -> 31%
-    ("topological", "constraint_propagation"): 0.31,
-    # worst fixed-commit excursion 11.0% -> 2 x 11.0 = 22.0 -> 22%
-    ("topological", "force_refinement"): 0.22,
+    # worst fixed-commit excursion 15.1% -> 2 x 15.1 = 30.2 -> 31%
+    ("dsn-exporter", "export_pcb"): 0.31,
 }
 
 # Benchmarks whose measured fixed-commit noise leaves no usable band between
@@ -204,12 +202,15 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("drc-inflate", "smooth_relu_array"):
         "fixed-commit excursion 36.8% -> margin 74%, above the 33.8% max "
         "gateable margin",
+    ("footprint-library", "from_yaml_string"):
+        "fixed-commit excursion 25.6% -> margin 52%, above the 33.8% max "
+        "gateable margin",
+    ("loaders", "loaders"):
+        "fixed-commit excursion 20.5% -> margin 41%, above the 33.8% max "
+        "gateable margin",
     ("physics-heat_removal", "build_h_field"):
         "fixed-commit excursion 24.4% -> margin 49%, above the 33.8% max "
         "gateable margin (and only 1.04x below the 50.7% real-regression floor)",
-    ("config-loader", "preprocess_config"):
-        "fixed-commit excursion 62.9% -> margin 126%, above the 33.8% max "
-        "gateable margin",
 }
 
 # Minimum rows sharing one commit before a group counts as a noise sample.

@@ -35,14 +35,14 @@ reordering existing history.
 power_pcb_dataset/metrics/perf_ab_baseline.jsonl\` completes and derives the
 fixed-commit observations. The frozen margin tables in
 \`scripts/pr_perf_compare.py\` now match the derivation exactly. The five-row
-bootstrap adds gateable entries for \`dsn-exporter/export_pcb\` (23%),
-\`topological/constraint_propagation\` (31%), and
-\`topological/force_refinement\` (22%), and an ungateable entry for
-\`config-loader/preprocess_config\` (126%). The focused comparator and capture
-validator suites pass (96 tests). No margin was widened silently: every
-non-default value is the documented \`ceil(2 x worst fixed-commit excursion)\`
-result, and the 126% config-loader result is reported as advisory because it
-exceeds the 33.8% maximum gateable margin.
+bootstrap derives a 31% gateable margin for \`dsn-exporter/export_pcb\`. It
+also records newly observed ungateable noise for
+\`footprint-library/from_yaml_string\` (52%) and \`loaders/loaders\` (41%),
+alongside the existing advisory entries. The focused comparator and capture
+validator suites pass after the derivation. No margin was widened silently:
+every non-default value is the documented \`ceil(2 x worst fixed-commit
+excursion)\` result, and all entries above the 33.8% maximum gateable margin
+remain reported as advisory.
 
 ## Bootstrap evidence contract
 
