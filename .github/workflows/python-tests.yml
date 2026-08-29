@@ -3862,7 +3862,7 @@ jobs:
         continue-on-error: true
 
   extended-cpsat-slow:
-    name: Extended Test Suites (cp-sat, slow x2)
+    name: Extended Test Suites (cp-sat, slow serial)
     # Trunk-only. The routing DRC regression gate in this job was unmasked
     # 2026-08-05 (fix(netclass): _mm read aliases landed; gate can now bite).
     if: ${{ github.event_name != 'pull_request' }}
@@ -3870,20 +3870,21 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    # Same 25-minute budget the combined cp-sat job already had -- not a
-    # raise. See the comment above extended-cpsat for the measured basis
-    # (these tests alone already consumed 20m45s-22m38s of that budget
-    # serially; -n auto --dist loadgroup is expected to reduce that, not
-    # increase it, and the real number gets measured in CI before this is
-    # revisited).
+    # These tests run three full production-board routes in total (the
+    # zone-pour measurement routes with pours disabled and enabled, and the
+    # routing DRC regression routes once). A documented production route can
+    # approach 1193s, so allow roughly three route budgets plus DRC/setup
+    # overhead. The xdist worker previously died during the first route and
+    # left the parent waiting until the old 25-minute timeout.
     # 2026-08-01: the hybrid test (877.7-986.9s of the trio) moved out to the
     # nightly r9-evidence.yml workflow -- it is explicit evidence-gathering
     # for the R9 promotion decision (continue-on-error, "Not a CI gate" in
     # its own docstring), so per-PR sampling of a pending decision was paying
-    # 16+ min of wall-clock on the critical path. This job is now the zone
-    # pour (~211s) + routing DRC regression (~102s) pair; wall drops from
-    # ~20.7 min to ~5-6 min. See docs/solutions/ for the measurement.
-    timeout-minutes: 25
+    # 16+ min of wall-clock on the critical path. This job retains the
+    # zone-pour + routing DRC pair, but now runs it in-process to survive the
+    # production route's memory pressure; the timeout above is intentionally
+    # sized for that serial execution.
+    timeout-minutes: 70
     env:
       VIRTUAL_ENV: /_temper-venv
       UV_PROJECT_ENVIRONMENT: /_temper-venv
@@ -3981,7 +3982,7 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
-      - name: Run cp-sat suite (slow pair, parallelized)
+      - name: Run cp-sat suite (slow pair, in-process serial)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # The two tests that own >98% of the old combined job's pytest
         # wall-clock (see the comment above extended-cpsat for the
@@ -3991,15 +3992,12 @@ jobs:
         # 877.7s/986.9s) moved to the nightly r9-evidence.yml workflow on
         # 2026-08-01: it is evidence for the pending R9 promotion decision,
         # not a gate (continue-on-error, docstring: "Not a CI gate"), and its
-        # ~16 min made it the per-PR critical path. `-n auto --dist loadgroup`
-        # is MANDATORY whenever `-n` is passed in this file -- other dist
-        # modes silently turn `xdist_group`-tagged dependents into SKIPs.
-        # Neither of the remaining two carries an `xdist_group` mark (checked
-        # packages/temper-placer/tests/conftest.py's `_XDIST_GROUPS`), so
-        # `loadgroup` is retained with one worker so these production-board
-        # routes run strictly one-at-a-time. A single current-board route
-        # reaches ~18 GB RSS; two concurrent workers trigger runner SIGKILL
-        # (exit 137) before pytest can report a result. Same
+        # ~16 min made it the per-PR critical path. These production-board
+        # routes run in-process, one-at-a-time: the xdist worker died during
+        # the first route in CI and left the parent waiting until job
+        # cancellation, even when constrained to one worker. A single
+        # current-board route reaches ~18 GB RSS, so keep the process boundary
+        # out of this pair entirely. Same
         # `-v --tb=short -p no:cacheprovider --maxfail=10` flags, minus
         # `continue-on-error` (removed 2026-08-05: the routing gate is now
         # a real trunk-blocking gate, not a masked observer).
@@ -4012,7 +4010,7 @@ jobs:
           uv run python ../../scripts/pytest_guard.py --min-tests 1 --
           "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
-          -v --tb=short -p no:cacheprovider --maxfail=10 -n 1 --dist loadgroup
+          -v --tb=short -p no:cacheprovider --maxfail=10
         # continue-on-error removed 2026-08-05: the _mm-aliases fix (#671)
         # landed on main, so this gate's failure is a real signal, not masked
         # flakiness. If flakiness re-emerges in this step, triage it as a bug,
