@@ -182,3 +182,49 @@ def test_the_removed_arms_are_gone() -> None:
         assert not (_PHYSICS_DIR / gone).exists(), f"{gone} is back; re-add its bench"
     assert ("physics-emi", "predict") not in perf_ab._BENCHMARKS
     assert ("physics-safety", "filter_delay") not in perf_ab._BENCHMARKS
+
+
+def test_regime_fingerprint_is_stable_and_covers_source_bytes(tmp_path: Path) -> None:
+    source = tmp_path / "source.py"
+    source.write_bytes(b"one")
+    declaration = {
+        "arms": {"oracle": ["source.py"], "rust": ["source.py"]},
+        "harness": {"warmup": 3, "repeats": 9},
+    }
+    first = perf_ab.build_measurement_regime(declaration, repo_root=tmp_path)
+    second = perf_ab.build_measurement_regime(declaration, repo_root=tmp_path)
+    assert first == second
+    assert len(first["fingerprint"]) == 64
+    assert first["metadata"]["arms"]["oracle"]["sources"][0]["path"] == "source.py"
+
+    other_root = tmp_path / "other-checkout"
+    other_root.mkdir()
+    (other_root / "source.py").write_bytes(b"one")
+    assert perf_ab.measurement_regime_fingerprint(
+        declaration, repo_root=other_root
+    ) == first["fingerprint"]
+
+    source.write_bytes(b"two")
+    changed = perf_ab.measurement_regime_fingerprint(declaration, repo_root=tmp_path)
+    assert changed != first["fingerprint"]
+
+
+def test_regime_fingerprint_changes_when_harness_changes(tmp_path: Path) -> None:
+    source = tmp_path / "source.py"
+    source.write_bytes(b"stable")
+    declaration = {"arms": {"rust": ["source.py"]}, "harness": {"repeats": 9}}
+    first = perf_ab.measurement_regime_fingerprint(declaration, repo_root=tmp_path)
+    declaration["harness"]["repeats"] = 10
+    assert perf_ab.measurement_regime_fingerprint(declaration, repo_root=tmp_path) != first
+
+
+def test_dsn_registry_emits_auditable_regime_record(monkeypatch) -> None:
+    def bench() -> tuple[float, float]:
+        return 2.0, 4.0
+
+    monkeypatch.setattr(perf_ab, "_BENCHMARKS", {("dsn-exporter", "export_pcb"): bench})
+    records = perf_ab.run_benchmarks("capture-sha")
+    regime = records[0]["measurement_regime"]
+    assert len(regime["fingerprint"]) == 64
+    assert regime["metadata"]["harness"]["timing"]["repeats"] == perf_ab.DEFAULT_REPEATS
+    assert regime["metadata"]["arms"]["rust"]["sources"]

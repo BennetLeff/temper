@@ -215,6 +215,46 @@ class PerfGateError(RuntimeError):
     """Raised when the comparison cannot be made. Always fails the gate."""
 
 
+LEGACY_REGIME = "legacy-v2"
+
+
+def measurement_regime_identity(record: dict[str, Any]) -> str:
+    """Return the exact regime identity carried by *record*.
+
+    Baseline history predates regime metadata, so an absent (or empty)
+    descriptor is deliberately mapped to one stable identity.  A couple of
+    top-level spellings are accepted while records are being migrated; new
+    producers should use ``measurement_regime.fingerprint``.
+    """
+    descriptor = record.get("measurement_regime")
+    if isinstance(descriptor, dict):
+        fingerprint = descriptor.get("fingerprint")
+        if isinstance(fingerprint, str) and fingerprint:
+            return fingerprint
+    elif isinstance(descriptor, str) and descriptor:
+        return descriptor
+    for field in ("regime_fingerprint", "measurement_regime_fingerprint"):
+        fingerprint = record.get(field)
+        if isinstance(fingerprint, str) and fingerprint:
+            return fingerprint
+    return LEGACY_REGIME
+
+
+class BaselineMap(dict[tuple[str, str, str], dict[str, float]]):
+    """Compatibility view of regime-indexed rolling baselines.
+
+    The dict itself retains the historical three-field API for callers that
+    have one regime.  ``regimes`` is the authoritative index used by the
+    comparator and keeps medians for every exact regime independently.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.regimes: dict[
+            tuple[str, str, str], dict[str, dict[str, float]]
+        ] = {}
+
+
 def _parse_records(text: str, source: str) -> list[dict[str, Any]]:
     """Parse a JSON array or an NDJSON stream into a list of record dicts.
 
@@ -285,28 +325,44 @@ def _key(record: dict[str, Any]) -> tuple[str, str, str]:
 def load_main_baselines(
     records: list[dict[str, Any]],
     window: int = DEFAULT_WINDOW,
-) -> dict[tuple[str, str, str], dict[str, float]]:
-    """Compute median baseline for each (module, board, stage) from records."""
-    groups: dict[tuple[str, str, str], list[dict]] = {}
+) -> BaselineMap:
+    """Compute rolling medians per key *and exact measurement regime*.
+
+    The legacy mapping surface remains available for the one-regime case, but
+    rows from different regimes never share a rolling window.
+    """
+    groups: dict[
+        tuple[str, str, str], dict[str, list[dict[str, Any]]]
+    ] = {}
     for r in records:
         key = _key(r)
         if key[1] and key[2]:
-            groups.setdefault(key, []).append(r)
+            regime = measurement_regime_identity(r)
+            groups.setdefault(key, {}).setdefault(regime, []).append(r)
 
-    baselines: dict[tuple[str, str, str], dict[str, float]] = {}
-    for key, group in groups.items():
-        group.sort(key=lambda r: r.get("timestamp", ""))
-        recent = group[-window:]
-        metric_collect: dict[str, list[float]] = {}
-        for r in recent:
-            for mk, mv in (r.get("metrics") or {}).items():
-                if isinstance(mv, (int, float)):
-                    metric_collect.setdefault(mk, []).append(float(mv))
+    baselines = BaselineMap()
+    for key, regimes in groups.items():
+        for regime, group in regimes.items():
+            group.sort(key=lambda r: r.get("timestamp", ""))
+            recent = group[-window:]
+            metric_collect: dict[str, list[float]] = {}
+            for r in recent:
+                for mk, mv in (r.get("metrics") or {}).items():
+                    if isinstance(mv, (int, float)):
+                        metric_collect.setdefault(mk, []).append(float(mv))
 
-        medians: dict[str, float] = {}
-        for mk, vals in metric_collect.items():
-            medians[mk] = statistics.median(vals) if vals else 0.0
-        baselines[key] = medians
+            medians: dict[str, float] = {}
+            for mk, vals in metric_collect.items():
+                medians[mk] = statistics.median(vals) if vals else 0.0
+            baselines.regimes.setdefault(key, {})[regime] = medians
+
+        # Preserve the old ``baselines[key][metric]`` view when unambiguous.
+        # For mixed keys the legacy identity is the least surprising view for
+        # old callers; regime-aware consumers use ``.regimes``.
+        if len(baselines.regimes[key]) == 1:
+            baselines[key] = next(iter(baselines.regimes[key].values()))
+        elif LEGACY_REGIME in baselines.regimes[key]:
+            baselines[key] = baselines.regimes[key][LEGACY_REGIME]
 
     return baselines
 
@@ -335,7 +391,9 @@ def measure_fixed_commit_noise(
     with no qualifying group are absent -- callers must treat that as "not
     measured", never as "no noise".
     """
-    by_key_commit: dict[tuple[str, str], dict[str, list[float]]] = {}
+    by_key_commit: dict[
+        tuple[str, str], dict[tuple[str, str], list[float]]
+    ] = {}
     for r in records:
         value = (r.get("metrics") or {}).get(metric)
         if not isinstance(value, (int, float)):
@@ -346,7 +404,10 @@ def measure_fixed_commit_noise(
         commit = str(r.get("git_commit", ""))
         if not commit:
             continue
-        by_key_commit.setdefault(key, {}).setdefault(commit, []).append(float(value))
+        regime = measurement_regime_identity(r)
+        by_key_commit.setdefault(key, {}).setdefault(
+            (commit, regime), []
+        ).append(float(value))
 
     measured: dict[tuple[str, str], dict[str, float]] = {}
     for key, commits in by_key_commit.items():
@@ -448,8 +509,31 @@ def compare(
     results: list[dict[str, Any]] = []
     for pr_entry in pr_metrics:
         key = _key(pr_entry)
-        baseline = baselines.get(key, {})
+        regime = measurement_regime_identity(pr_entry)
+        regime_groups = getattr(baselines, "regimes", None)
+        if regime_groups is not None:
+            available_regimes = sorted(regime_groups.get(key, {}))
+            baseline = regime_groups.get(key, {}).get(regime, {})
+            key_has_baseline = bool(available_regimes)
+        else:
+            # A plain dict is accepted for callers that construct medians
+            # directly. Such values are necessarily legacy-v2 rows.
+            plain_baseline = baselines.get(key, {})
+            available_regimes = [LEGACY_REGIME] if plain_baseline else []
+            baseline = plain_baseline if regime == LEGACY_REGIME else {}
+            key_has_baseline = bool(plain_baseline)
         if not baseline:
+            if key_has_baseline and available_regimes:
+                results.append({
+                    "module": key[0],
+                    "board": key[1],
+                    "stage": key[2],
+                    "status": "INCOMPATIBLE_BASELINE",
+                    "measurement_regime": regime,
+                    "available_regimes": available_regimes,
+                    "deltas": {},
+                })
+                continue
             # A benchmark with no baseline row is one of two very different
             # things, and conflating them made adding a benchmark impossible.
             #
@@ -475,6 +559,7 @@ def compare(
                 "board": key[1],
                 "stage": key[2],
                 "status": "NEW_BENCHMARK" if is_new else "NO_BASELINE",
+                "measurement_regime": regime,
                 "deltas": {},
             })
             continue
@@ -514,6 +599,7 @@ def compare(
             "board": key[1],
             "stage": key[2],
             "status": worst,
+            "measurement_regime": regime,
             "deltas": deltas,
         })
 
@@ -535,6 +621,15 @@ def gate_failures(results: list[dict[str, Any]]) -> list[str]:
                 f"on main. Capture one into the committed baseline before "
                 f"merging -- an unbaselined module is not covered by the "
                 f"performance A/B."
+            )
+            continue
+        if res["status"] == "INCOMPATIBLE_BASELINE":
+            available = ", ".join(res.get("available_regimes", [])) or "none"
+            failures.append(
+                f"{label}: INCOMPATIBLE_BASELINE for regime "
+                f"{res.get('measurement_regime', LEGACY_REGIME)!r}; available "
+                f"baseline regimes: {available}. Capture a reviewed recapture "
+                "baseline for this measurement regime before merging."
             )
             continue
         for mk, delta in sorted(res["deltas"].items()):
@@ -588,6 +683,15 @@ def format_markdown(
     )
 
     for res in results:
+        if res["status"] == "INCOMPATIBLE_BASELINE":
+            available = ", ".join(res.get("available_regimes", [])) or "none"
+            current = res.get("measurement_regime", LEGACY_REGIME)
+            lines.append(
+                f"| {res['module']} | {res['board']} | {res['stage']} | "
+                f"— | — | — | regime mismatch (current {current}; available {available}) | — | "
+                "🔴 INCOMPATIBLE_BASELINE |"
+            )
+            continue
         if res["status"] == "NO_BASELINE":
             lines.append(
                 f"| {res['module']} | {res['board']} | {res['stage']} | "

@@ -380,6 +380,69 @@ def test_absent_registry_degrades_to_the_strict_behaviour() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Measurement-regime identity (U1 / R5-R8)
+# ---------------------------------------------------------------------------
+
+
+def _regime_record(ratio: float, regime: str, *, commit: str = "deadbeef", ts: str = "2026-08-04T00:00:00") -> dict:
+    row = _record(ratio, ts=ts)
+    row["git_commit"] = commit
+    row["measurement_regime"] = {
+        "fingerprint": regime,
+        "metadata": {"fixture": regime},
+    }
+    return row
+
+
+def test_legacy_rows_have_a_stable_legacy_regime_identity():
+    baseline = load_main_baselines([_record(0.10)])
+    pr = _regime_record(0.105, "legacy-v2")
+    results = compare([pr], baseline)
+    assert results[0]["status"] == "OK"
+    assert results[0]["measurement_regime"] == "legacy-v2"
+
+
+def test_incompatible_regime_fails_closed_without_using_old_rows():
+    baseline = load_main_baselines([_regime_record(0.50, "old-regime")])
+    results = compare([_regime_record(0.60, "new-regime")], baseline)
+    assert results[0]["status"] == "INCOMPATIBLE_BASELINE"
+    assert results[0]["available_regimes"] == ["old-regime"]
+    failures = gate_failures(results)
+    assert len(failures) == 1
+    assert "INCOMPATIBLE_BASELINE" in failures[0]
+    assert "recapture" in failures[0].lower()
+    report = format_markdown(results, failures)
+    assert "old-regime" in report
+    assert "new-regime" in report
+
+
+def test_mixed_regimes_select_only_the_current_regime_window():
+    records = [
+        _regime_record(0.90, "old-regime", ts="2026-08-04T00:00:01"),
+        _regime_record(0.91, "old-regime", ts="2026-08-04T00:00:02"),
+        _regime_record(0.50, "new-regime", ts="2026-08-04T00:00:03"),
+    ]
+    baselines = load_main_baselines(records)
+    result = compare([_regime_record(0.55, "new-regime")], baselines)[0]
+    assert result["status"] == "OK"
+    assert result["deltas"]["rust_over_oracle_ratio"]["main"] == 0.5
+
+
+def test_fixed_commit_noise_does_not_mix_regimes():
+    records = [
+        _regime_record(1.00, "old-regime", commit="same", ts="2026-08-04T00:00:01"),
+        _regime_record(1.01, "old-regime", commit="same", ts="2026-08-04T00:00:02"),
+        _regime_record(1.50, "old-regime", commit="same", ts="2026-08-04T00:00:03"),
+        _regime_record(0.50, "new-regime", commit="same", ts="2026-08-04T00:00:04"),
+    ]
+    measured = measure_fixed_commit_noise(records)
+    # The singleton new regime is not a qualifying group and cannot dilute or
+    # inflate the old-regime group's noise calculation.
+    assert measured[("bottleneck-geometry", "cell_capacity_batch")]["n"] == 3
+    assert measured[("bottleneck-geometry", "cell_capacity_batch")]["groups"] == 1
+
+
+# ---------------------------------------------------------------------------
 # Per-benchmark margins (2026-08-05)
 #
 # One constant for seventeen benchmarks produced false regressions on arms
