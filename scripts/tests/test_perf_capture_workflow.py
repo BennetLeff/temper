@@ -117,9 +117,11 @@ def test_baseline_refresh_path_is_fail_closed_and_keeps_ordinary_prs_on_main() -
     assert "candidate-baseline \"$BASELINE_PATH\"" in text
     assert "--validated-margins-output \"$RUNNER_TEMP/validated-perf-margins.json\"" in text
     assert "VALIDATED_MARGINS_JSON=$RUNNER_TEMP/validated-perf-margins.json" in text
-    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}\"" in text
-    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}\"" in text
-    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip\"" in text
+    assert 'curl --fail --silent --show-error --location' in text
+    assert 'Authorization: Bearer ${GH_TOKEN}' in text
+    assert 'github_api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}"' in text
+    assert 'github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}"' in text
+    assert 'github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip"' in text
     assert 'json_field "$run_json" .workflow_id' in text
     assert "303796920" in text
     assert 'json_field "$run_json" .path' in text

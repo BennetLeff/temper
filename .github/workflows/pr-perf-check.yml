@@ -251,8 +251,17 @@ jobs:
           }
 
           # The CI container does not guarantee the ubuntu runner's host
-          # utilities are installed inside the container. Parse API payloads
-          # with Python so a valid refresh does not fail on missing jq.
+          # utilities are installed inside the container. Use curl + Python
+          # rather than host-only CLI tools so a valid refresh stays
+          # fail-closed.
+          github_api() {
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL:-https://api.github.com}/$1"
+          }
+
           json_field() {
             JSON_PAYLOAD="$1" JSON_FIELD_PATH="$2" python3 -c '
           import json
@@ -274,7 +283,7 @@ jobs:
           verify_run() {
             local run_id="$1" expected_sha="$2"
             local run_json
-            run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
+            run_json="$(github_api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
             test "$(json_field "$run_json" .status)" = completed
             test "$(json_field "$run_json" .conclusion)" = success
             test "$(json_field "$run_json" .event)" = workflow_dispatch
@@ -296,14 +305,14 @@ jobs:
           while IFS=$'\t' read -r run_id artifact_id evidence expected_hash; do
             test -n "$run_id" && test -n "$artifact_id" && test -n "$evidence" && test -n "$expected_hash"
             verify_run "$run_id" "$capture_sha"
-            artifact_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}")"
+            artifact_json="$(github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}")"
             test "$(json_field "$artifact_json" .workflow_run.id)" = "$run_id"
             test "$(json_field "$artifact_json" .expired)" = false
             test "$(json_field "$artifact_json" .name)" = "perf-ab-baseline-rows-${run_id}-1"
             test -f "$evidence"
             archive="$(mktemp)"
             extracted="$(mktemp)"
-            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "$archive"
+            github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "$archive"
             unzip -Z1 "$archive" | grep -Fx 'perf-metrics.jsonl' >/dev/null
             unzip -p "$archive" perf-metrics.jsonl > "$extracted"
             test "$(sha256sum "$extracted" | awk '{print $1}')" = "${expected_hash,,}"
