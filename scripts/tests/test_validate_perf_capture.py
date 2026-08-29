@@ -621,6 +621,34 @@ def test_baseline_refresh_rejects_owned_input_change_and_digest_substitution(tmp
         )
 
 
+@pytest.mark.parametrize("rewrite", ["reformat", "duplicate-key"])
+def test_baseline_refresh_rejects_semantically_equal_baseline_rewrite(
+    tmp_path: Path, rewrite: str
+) -> None:
+    repo, baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
+    original, remainder = candidate.read_bytes().split(b"\n", 1)
+    parsed = json.loads(original)
+    if rewrite == "reformat":
+        replacement = json.dumps(parsed, separators=(",", ":")).encode("utf-8")
+    else:
+        replacement = original.replace(
+            b'"stage": "ratio"', b'"stage": "ratio", "stage": "ratio"', 1
+        )
+    assert replacement != original
+    assert json.loads(replacement) == parsed
+    candidate.write_bytes(replacement + b"\n" + remainder)
+
+    with pytest.raises(CaptureValidationError, match="exact byte append"):
+        validate_baseline_refresh(
+            baseline_path=baseline.relative_to(repo),
+            candidate_path=candidate.relative_to(repo),
+            manifest_path=Path(manifest_rel),
+            registry_path=Path(registry_rel),
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+
+
 def test_baseline_refresh_rejects_benchmark_input_changed_after_capture(tmp_path: Path) -> None:
     repo, _baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
     registry = repo / registry_rel

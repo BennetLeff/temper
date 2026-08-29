@@ -184,6 +184,23 @@ def _read_ndjson_file(path: Path, *, source: str) -> list[dict[str, Any]]:
     return parse_ndjson(path.read_text(encoding="utf-8"), source=source)
 
 
+def _validate_exact_baseline_prefix(baseline_path: Path, candidate_path: Path) -> None:
+    """Require the candidate file to retain the baseline's exact bytes."""
+
+    try:
+        baseline_bytes = baseline_path.read_bytes()
+        candidate_bytes = candidate_path.read_bytes()
+    except OSError as exc:
+        raise CaptureValidationError(
+            f"cannot read baseline files for exact byte-prefix validation: {exc}"
+        ) from exc
+    if not candidate_bytes.startswith(baseline_bytes):
+        raise CaptureValidationError(
+            "candidate baseline is not an exact byte append: "
+            "authoritative baseline bytes are not an exact prefix"
+        )
+
+
 def _key(record: dict[str, Any]) -> tuple[str, str, str]:
     return (
         str(record.get("module", "")),
@@ -1081,6 +1098,7 @@ def validate_baseline_refresh(
                 "baseline refresh evidence is not committed: " + ", ".join(missing_evidence)
             )
 
+    _validate_exact_baseline_prefix(baseline_file, candidate_file)
     baseline = _read_ndjson_file(baseline_file, source="authoritative baseline")
     candidate = _read_ndjson_file(candidate_file, source="candidate baseline")
     expected_keys = registered_keys_from_source(registry_file)
