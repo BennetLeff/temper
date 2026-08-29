@@ -39,7 +39,7 @@ __all__ = [
     "resolve_creepage_search_corridor_report_from_solver",
 ]
 
-_POLARITY = "hv-low-selv-high"
+_POLARITY: Literal["hv-low-selv-high"] = "hv-low-selv-high"
 
 
 @dataclass(frozen=True)
@@ -215,7 +215,9 @@ def add_creepage_search_corridor_to_model(
         end = component.x_end if axis == "x" else component.y_end
         hv_ends.append(end)
         model.model_ref.Add(end <= separator)
-    model.model_ref.AddMaxEquality(separator, hv_ends)
+    # The runtime exposes AddMaxEquality; the local OR-Tools typing stubs do
+    # not (same compatibility boundary as local_subenvelope_solver.py).
+    model.model_ref.AddMaxEquality(separator, hv_ends)  # type: ignore[attr-defined]
 
     for ref in declared_selv:
         component = model.get_component(ref)

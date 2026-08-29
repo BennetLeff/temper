@@ -1549,7 +1549,7 @@ pub fn verify_stripped_creepage_py(
 pub(crate) mod tests {
     use super::*;
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn grouped_creepage_plan_finds_dense_bipartite_blocks_deterministically() {
         let cuts = vec![
             ("A1".into(), "B1".into(), 8.0),
@@ -1574,7 +1574,7 @@ pub(crate) mod tests {
         assert_eq!(plan_grouped_creepage_cuts(reversed, 2, 3).unwrap(), plan);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn creepage_territories_find_weighted_true_and_false_twins() {
         let refs = ["A1", "A2", "B1", "B2", "X"]
             .into_iter()
@@ -1602,7 +1602,7 @@ pub(crate) mod tests {
         assert_eq!(plan.2, vec![(0, 0.0), (1, 2.0), (2, 0.0)]);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn displacement_groups_are_the_deterministic_territory_view() {
         let refs = ["B2", "A2", "X", "B1", "A1"]
             .into_iter()
@@ -1637,7 +1637,7 @@ pub(crate) mod tests {
         assert_eq!(groups, full.0);
     }
 
-    #[test]
+    #[cfg_attr(test, test)]
     fn creepage_repair_frontier_covers_every_edge_deterministically() {
         let violations = vec![
             ("A".into(), "B".into(), 12.6, 1.0),
@@ -2234,58 +2234,23 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        (
-            "partition_planner::tests::groups_connectivity_and_retains_mixed_pin_classes",
-            groups_connectivity_and_retains_mixed_pin_classes,
-        ),
-        (
-            "partition_planner::tests::output_is_invariant_to_input_order",
-            output_is_invariant_to_input_order,
-        ),
-        (
-            "partition_planner::tests::shared_ground_does_not_bridge_safety_signatures",
-            shared_ground_does_not_bridge_safety_signatures,
-        ),
-        (
-            "partition_planner::tests::malformed_duplicate_and_unresolved_inputs_fail_closed",
-            malformed_duplicate_and_unresolved_inputs_fail_closed,
-        ),
-        (
-            "partition_planner::tests::compact_shelves_are_stable_and_fit_the_board",
-            compact_shelves_are_stable_and_fit_the_board,
-        ),
-        (
-            "partition_planner::tests::compact_shelves_reject_bad_coverage_and_dimensions",
-            compact_shelves_reject_bad_coverage_and_dimensions,
-        ),
-        (
-            "partition_planner::tests::creepage_requirements_reduce_cross_and_internal_maxima",
-            creepage_requirements_reduce_cross_and_internal_maxima,
-        ),
-        (
-            "partition_planner::tests::creepage_requirements_reject_duplicate_and_bad_rows",
-            creepage_requirements_reject_duplicate_and_bad_rows,
-        ),
-        (
-            "partition_planner::tests::internal_creepage_gap_is_applied_per_partition",
-            internal_creepage_gap_is_applied_per_partition,
-        ),
-        (
-            "partition_planner::tests::internal_component_requirements_are_pair_specific",
-            internal_component_requirements_are_pair_specific,
-        ),
-        (
-            "partition_planner::tests::internal_component_requirements_reject_bad_coverage_and_rows",
-            internal_component_requirements_reject_bad_coverage_and_rows,
-        ),
-        (
-            "partition_planner::tests::stripped_creepage_normalization_is_complete_and_conservative",
-            stripped_creepage_normalization_is_complete_and_conservative,
-        ),
-        (
-            "partition_planner::tests::stripped_creepage_verifier_rejects_missing_and_bad_pairs",
-            stripped_creepage_verifier_rejects_missing_and_bad_pairs,
-        ),
+        ("partition_planner::tests::grouped_creepage_plan_finds_dense_bipartite_blocks_deterministically", grouped_creepage_plan_finds_dense_bipartite_blocks_deterministically),
+        ("partition_planner::tests::creepage_territories_find_weighted_true_and_false_twins", creepage_territories_find_weighted_true_and_false_twins),
+        ("partition_planner::tests::displacement_groups_are_the_deterministic_territory_view", displacement_groups_are_the_deterministic_territory_view),
+        ("partition_planner::tests::creepage_repair_frontier_covers_every_edge_deterministically", creepage_repair_frontier_covers_every_edge_deterministically),
+        ("partition_planner::tests::groups_connectivity_and_retains_mixed_pin_classes", groups_connectivity_and_retains_mixed_pin_classes),
+        ("partition_planner::tests::output_is_invariant_to_input_order", output_is_invariant_to_input_order),
+        ("partition_planner::tests::shared_ground_does_not_bridge_safety_signatures", shared_ground_does_not_bridge_safety_signatures),
+        ("partition_planner::tests::malformed_duplicate_and_unresolved_inputs_fail_closed", malformed_duplicate_and_unresolved_inputs_fail_closed),
+        ("partition_planner::tests::compact_shelves_are_stable_and_fit_the_board", compact_shelves_are_stable_and_fit_the_board),
+        ("partition_planner::tests::compact_shelves_reject_bad_coverage_and_dimensions", compact_shelves_reject_bad_coverage_and_dimensions),
+        ("partition_planner::tests::creepage_requirements_reduce_cross_and_internal_maxima", creepage_requirements_reduce_cross_and_internal_maxima),
+        ("partition_planner::tests::creepage_requirements_reject_duplicate_and_bad_rows", creepage_requirements_reject_duplicate_and_bad_rows),
+        ("partition_planner::tests::internal_creepage_gap_is_applied_per_partition", internal_creepage_gap_is_applied_per_partition),
+        ("partition_planner::tests::internal_component_requirements_are_pair_specific", internal_component_requirements_are_pair_specific),
+        ("partition_planner::tests::internal_component_requirements_reject_bad_coverage_and_rows", internal_component_requirements_reject_bad_coverage_and_rows),
+        ("partition_planner::tests::stripped_creepage_normalization_is_complete_and_conservative", stripped_creepage_normalization_is_complete_and_conservative),
+        ("partition_planner::tests::stripped_creepage_verifier_rejects_missing_and_bad_pairs", stripped_creepage_verifier_rejects_missing_and_bad_pairs),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

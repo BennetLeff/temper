@@ -1075,7 +1075,6 @@ def solve_placement(
                         if decomposed_creepage_enforce_coarse_pair_gaps
                         else []
                     ),
-                    prepared.pair_requirements,
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -1094,7 +1093,6 @@ def solve_placement(
                         if decomposed_creepage_enforce_coarse_pair_gaps
                         else []
                     ),
-                    prepared.pair_requirements,
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -1633,7 +1631,7 @@ def solve_placement(
 
             telemetry_capture = SolverTelemetryCapture(model_wrapper.model_ref)
             telemetry_capture.configure_solver(solver)
-            status_code = solver.Solve(
+            status_code = solver.solve(
                 model_wrapper.model_ref,
                 telemetry_capture.solution_callback,
             )
@@ -1642,8 +1640,7 @@ def solve_placement(
                 status_name=status_map.get(status_code, "unknown").upper(),
             )
         else:
-            status_code = solver.Solve(model_wrapper.model_ref)
-        status_code = solver.Solve(model_wrapper.model_ref)
+            status_code = solver.solve(model_wrapper.model_ref)
         status_str = status_map.get(status_code, "unknown")
         if not lazy_creepage or status_str not in ("optimal", "feasible"):
             break
