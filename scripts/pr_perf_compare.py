@@ -162,6 +162,12 @@ PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
     ("physics-copper_coverage", "copper_masks"): 0.32,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
     ("physics-safety", "filter_delay"): 0.30,
+    # worst fixed-commit excursion 11.3% -> 2 x 11.3 = 22.6 -> 23%
+    ("dsn-exporter", "export_pcb"): 0.23,
+    # worst fixed-commit excursion 15.2% -> 2 x 15.2 = 30.4 -> 31%
+    ("topological", "constraint_propagation"): 0.31,
+    # worst fixed-commit excursion 11.0% -> 2 x 11.0 = 22.0 -> 22%
+    ("topological", "force_refinement"): 0.22,
 }
 
 # Benchmarks whose measured fixed-commit noise leaves no usable band between
@@ -173,8 +179,8 @@ PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
 # look principled and detect nothing, which is the failure mode
 # scripts/check_vacuous_gates.py exists because of.
 #
-# The fix for each is to reduce its variance, not to widen its margin: all
-# three are dominated by single-shot scheduling excursions on arms whose timed
+# The fix for each is to reduce its variance, not to widen a margin: these are
+# dominated by single-shot scheduling excursions on arms whose timed
 # region is tens of microseconds. Raising perf_ab.py's DEFAULT_REPEATS for
 # these arms, or having them median several in-process re-measurements, should
 # bring them back under MAX_GATEABLE_MARGIN -- at which point the test below
@@ -201,6 +207,9 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("physics-heat_removal", "build_h_field"):
         "fixed-commit excursion 24.4% -> margin 49%, above the 33.8% max "
         "gateable margin (and only 1.04x below the 50.7% real-regression floor)",
+    ("config-loader", "preprocess_config"):
+        "fixed-commit excursion 62.9% -> margin 126%, above the 33.8% max "
+        "gateable margin",
 }
 
 # Minimum rows sharing one commit before a group counts as a noise sample.
