@@ -87,7 +87,11 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 30
+    # The suite reaches the production routing-DRC test after the preceding
+    # DRC, round-trip, metamorphic, and CP-SAT stages.  A 30-minute job cap
+    # cancelled that test at 85% in run 33265482661; the same test is budgeted
+    # at 75 minutes in python-tests.yml's dedicated routing lane.
+    timeout-minutes: 75
     strategy:
       fail-fast: false
     env:
