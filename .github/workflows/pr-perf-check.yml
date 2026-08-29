@@ -313,10 +313,24 @@ jobs:
             archive="$(mktemp)"
             extracted="$(mktemp)"
             github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "$archive"
-            unzip -Z1 "$archive" | grep -Fx 'perf-metrics.jsonl' >/dev/null
-            unzip -p "$archive" perf-metrics.jsonl > "$extracted"
-            test "$(sha256sum "$extracted" | awk '{print $1}')" = "${expected_hash,,}"
-            cmp -- "$extracted" "$evidence"
+            python3 - "$archive" "$extracted" "$expected_hash" "$evidence" <<'PY'
+          import hashlib
+          import pathlib
+          import sys
+          import zipfile
+
+          archive_path, extracted_path, expected_hash, evidence_path = sys.argv[1:]
+          with zipfile.ZipFile(archive_path) as archive:
+              try:
+                  payload = archive.read("perf-metrics.jsonl")
+              except KeyError as exc:
+                  raise SystemExit("artifact is missing perf-metrics.jsonl") from exc
+          if hashlib.sha256(payload).hexdigest() != expected_hash.lower():
+              raise SystemExit("artifact payload hash does not match the manifest")
+          if payload != pathlib.Path(evidence_path).read_bytes():
+              raise SystemExit("artifact payload differs from committed evidence")
+          pathlib.Path(extracted_path).write_bytes(payload)
+          PY
           done < <(python3 - "$REFRESH_MANIFEST" <<'PY'
           import json
           import sys
