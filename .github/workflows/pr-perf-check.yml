@@ -231,7 +231,7 @@ jobs:
       # benchmark-owned inputs. Ordinary PRs keep the main baseline
       # unconditionally. The API identity checks below are independent of the
       # validator, and the validator itself must come from origin/main. A PR
-      # cannot bootstrap schema 2 by executing its own approval code.
+          # cannot bootstrap schema 2 by executing its own approval code.
       - name: Validate reviewed baseline refresh (if requested)
         if: github.event_name == 'pull_request'
         shell: bash
@@ -250,6 +250,25 @@ jobs:
             exit 1
           }
 
+          # The CI container intentionally carries only the project's Python
+          # toolchain; it does not guarantee the ubuntu runner's host tools
+          # are present inside the container.  Parse the small API payloads
+          # with Python rather than relying on jq, which made every otherwise
+          # valid refresh fail with command-not-found in temper-ci.
+          json_field() {
+            JSON_PAYLOAD="$1" JSON_FIELD_PATH="$2" python3 -c '
+          import json
+          import os
+          value = json.loads(os.environ["JSON_PAYLOAD"])
+          for part in os.environ["JSON_FIELD_PATH"].strip(".").split("."):
+              value = value[part]
+          if isinstance(value, bool):
+              print(str(value).lower())
+          else:
+              print(value)
+          '
+          }
+
           # The manifest records five distinct successful Actions
           # run/artifact identities.  Verify every identity through the
           # GitHub API before trusting the committed evidence bytes.  A green
@@ -258,23 +277,31 @@ jobs:
             local run_id="$1" expected_sha="$2"
             local run_json
             run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}")"
-            test "$(jq -r '.status' <<<"$run_json")" = completed
-            test "$(jq -r '.conclusion' <<<"$run_json")" = success
-            test "$(jq -r '.event' <<<"$run_json")" = workflow_dispatch
-            test "$(jq -r '.head_sha' <<<"$run_json" | tr '[:upper:]' '[:lower:]')" = "${expected_sha,,}"
-            test "$(jq -r '.workflow_id' <<<"$run_json")" = 303796920
-            test "$(jq -r '.path' <<<"$run_json")" = .github/workflows/pr-perf-check.yml
+            test "$(json_field "$run_json" .status)" = completed
+            test "$(json_field "$run_json" .conclusion)" = success
+            test "$(json_field "$run_json" .event)" = workflow_dispatch
+            test "$(json_field "$run_json" .head_sha | tr '[:upper:]' '[:lower:]')" = "${expected_sha,,}"
+            test "$(json_field "$run_json" .workflow_id)" = 303796920
+            test "$(json_field "$run_json" .path)" = .github/workflows/pr-perf-check.yml
           }
-          capture_sha="$(jq -r '.primary_capture.capture_sha' "$REFRESH_MANIFEST")"
-          test "$capture_sha" != "null"
-          jq -e '.primary_capture.captures | length == 5' "$REFRESH_MANIFEST" >/dev/null
-          while read -r run_id artifact_id evidence expected_hash; do
+          capture_sha="$(python3 - "$REFRESH_MANIFEST" <<'PY'
+          import json
+          import sys
+          manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+          capture = manifest["primary_capture"]
+          captures = capture["captures"]
+          if not capture.get("capture_sha") or len(captures) != 5:
+              raise SystemExit("manifest must contain capture_sha and exactly five primary captures")
+          print(capture["capture_sha"])
+          PY
+          )"
+          while IFS=$'\t' read -r run_id artifact_id evidence expected_hash; do
             test -n "$run_id" && test -n "$artifact_id" && test -n "$evidence" && test -n "$expected_hash"
             verify_run "$run_id" "$capture_sha"
             artifact_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}")"
-            test "$(jq -r '.workflow_run.id' <<<"$artifact_json")" = "$run_id"
-            test "$(jq -r '.expired' <<<"$artifact_json")" = false
-            test "$(jq -r '.name' <<<"$artifact_json")" = "perf-ab-baseline-rows-${run_id}-1"
+            test "$(json_field "$artifact_json" .workflow_run.id)" = "$run_id"
+            test "$(json_field "$artifact_json" .expired)" = false
+            test "$(json_field "$artifact_json" .name)" = "perf-ab-baseline-rows-${run_id}-1"
             test -f "$evidence"
             archive="$(mktemp)"
             extracted="$(mktemp)"
@@ -283,7 +310,17 @@ jobs:
             unzip -p "$archive" perf-metrics.jsonl > "$extracted"
             test "$(sha256sum "$extracted" | awk '{print $1}')" = "${expected_hash,,}"
             cmp -- "$extracted" "$evidence"
-          done < <(jq -r '.primary_capture.captures[] | [.workflow_run_id, .artifact_id, .artifact, .artifact_sha256] | @tsv' "$REFRESH_MANIFEST")
+          done < <(python3 - "$REFRESH_MANIFEST" <<'PY'
+          import json
+          import sys
+          manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+          for capture in manifest["primary_capture"]["captures"]:
+              print("\t".join(
+                  str(capture[field])
+                  for field in ("workflow_run_id", "artifact_id", "artifact", "artifact_sha256")
+              ))
+          PY
+          )
 
           mapfile -t changed_paths < <(git diff --name-only origin/main...HEAD)
           validator_dir="$(mktemp -d)"

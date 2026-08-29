@@ -762,7 +762,7 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # pad's halo carries 12.6mm. Both must be present in the per-family
     # halo lists.
     lv_family = families[(0.2, 0.2, "Default")]
-    hv_family = families[(5.0, 2.0, "HighVoltage")]
+    assert (5.0, 2.0, "HighVoltage") in families
 
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
@@ -793,6 +793,31 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # LV pad's surroundings carry no halo ring beyond the 0.2mm erosion.
     lv_pad_cell = grid.world_to_grid(16.0, 10.0)
     assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
+
+
+def test_creepage_halo_rasterization_keeps_multipolygon_holes_aligned(monkeypatch):
+    """Flatten each halo's polygon components, not just its outer rings."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    grid = _open_grid("F.Cu")
+    outer_a = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
+    outer_b = [4.0, 0.0, 6.0, 0.0, 6.0, 2.0, 4.0, 2.0]
+    hole_b = [4.5, 0.5, 5.5, 0.5, 5.5, 1.5, 4.5, 1.5]
+    captured = {}
+
+    def capture(_grid, outer_rings, hole_rings, *_args):
+        captured["outer"] = outer_rings
+        captured["holes"] = hole_rings
+
+    monkeypatch.setattr(_nl._tg, "rasterize_area_polygons_py", capture)
+    _nl._stamp_foreign_creepage_halos(
+        "SEARCHING",
+        {"F.Cu": grid},
+        {"F.Cu": [("FOREIGN", [outer_a, outer_b], [[], [hole_b]])]},
+    )
+
+    assert captured["outer"] == [outer_a, outer_b]
+    assert captured["holes"] == [[], [hole_b]]
 
 
 def test_creepage_halo_blocks_lv_net_from_hv_pad():
