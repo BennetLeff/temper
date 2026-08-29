@@ -141,7 +141,9 @@ jobs:
       # freshness/importability before the gates run. CONDA_PREFIX must be
       # absent because maturin refuses to run alongside VIRTUAL_ENV.
       - name: Build and install Rust extensions
-        run: env -u CONDA_PREFIX make extensions
+        run: |
+          uv pip install maturin
+          env -u CONDA_PREFIX make extensions
 
       - name: Verify Rust extension freshness
         run: env -u CONDA_PREFIX make extensions-check
