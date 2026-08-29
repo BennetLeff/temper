@@ -284,6 +284,10 @@ class FixedCommitNoiseMap(dict[tuple[str, str], dict[str, float]]):
         self.active: dict[tuple[str, str], dict[str, float]] = {}
 
 
+VALIDATED_MARGINS_SCHEMA_VERSION = 1
+VALIDATED_MARGINS_SOURCE = "trusted-baseline-refresh-validator"
+
+
 def _parse_records(text: str, source: str) -> list[dict[str, Any]]:
     """Parse a JSON array or an NDJSON stream into a list of record dicts.
 
@@ -541,10 +545,44 @@ def margin_for(key: tuple[str, str] | None) -> float:
     return PER_BENCHMARK_TIMING_MARGIN.get(key, TIMING_MARGIN)
 
 
+def load_validated_margins(path: Path) -> dict[str, dict[tuple[str, str], float]]:
+    """Load the explicit margin artifact emitted by the trusted validator."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PerfGateError(f"validated margins: cannot read {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise PerfGateError("validated margins: artifact must be an object")
+    if payload.get("schema_version") != VALIDATED_MARGINS_SCHEMA_VERSION:
+        raise PerfGateError("validated margins: unsupported schema version")
+    if payload.get("source") != VALIDATED_MARGINS_SOURCE:
+        raise PerfGateError("validated margins: untrusted artifact source")
+    raw = payload.get("margins")
+    if not isinstance(raw, dict) or set(raw) != {"gated", "ungateable"}:
+        raise PerfGateError("validated margins: expected gated and ungateable maps")
+    result: dict[str, dict[tuple[str, str], float]] = {"gated": {}, "ungateable": {}}
+    for category, values in raw.items():
+        if not isinstance(values, dict):
+            raise PerfGateError(f"validated margins: {category} must be an object")
+        for label, value in values.items():
+            parts = label.split("/") if isinstance(label, str) else []
+            if len(parts) != 2 or not parts or any(not part for part in parts):
+                raise PerfGateError(f"validated margins: malformed benchmark key {label!r}")
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise PerfGateError(f"validated margins: malformed value for {label!r}")
+            if not math.isfinite(float(value)) or float(value) < 0:
+                raise PerfGateError(f"validated margins: invalid value for {label!r}")
+            result[category][(parts[0], parts[1])] = float(value)
+    if set(result["gated"]) & set(result["ungateable"]):
+        raise PerfGateError("validated margins: benchmark appears in both maps")
+    return result
+
+
 def _status_for(
     mk: str,
     delta_pct: float,
     key: tuple[str, str] | None = None,
+    validated_margins: dict[str, dict[tuple[str, str], float]] | None = None,
 ) -> str:
     """Classify one metric delta. Unrecognised metric names are informational.
 
@@ -559,13 +597,21 @@ def _status_for(
             return "IMPROVED"
         return "OK"
     if mk.endswith(LOWER_IS_BETTER_SUFFIXES):
-        if key is not None and key in UNGATEABLE_BENCHMARKS:
+        ungateable = (
+            validated_margins.get("ungateable", {})
+            if validated_margins is not None
+            else UNGATEABLE_BENCHMARKS
+        )
+        if key is not None and key in ungateable:
             # Measured, reported, never gated -- and never labelled IMPROVED
             # either. physics-emi's own noise produced a -42.8% reading on
             # unmodified code; calling that an improvement is the same error
             # as calling the mirror-image reading a regression.
             return "ADVISORY"
-        if delta_pct > margin_for(key) * 100:
+        margin = margin_for(key)
+        if validated_margins is not None and key is not None:
+            margin = validated_margins.get("gated", {}).get(key, margin)
+        if delta_pct > margin * 100:
             return "REGRESSION"
         if delta_pct < -IMPROVEMENT_THRESHOLD * 100:
             return "IMPROVED"
@@ -577,6 +623,7 @@ def compare(
     pr_metrics: list[dict[str, Any]],
     baselines: dict[tuple[str, str, str], dict[str, float]],
     main_benchmarks: set[tuple[str, str]] | None = None,
+    validated_margins: dict[str, dict[tuple[str, str], float]] | None = None,
 ) -> list[dict[str, Any]]:
     """Compare PR metrics against baselines and return delta entries."""
     results: list[dict[str, Any]] = []
@@ -651,8 +698,20 @@ def compare(
                 "main": round(base_val, 6),
                 "pr": round(pr_float, 6),
                 "delta_pct": round(delta_pct, 1),
-                "status": _status_for(mk, delta_pct, bench),
-                "margin_pct": round(margin_for(bench) * 100, 1),
+                "status": _status_for(mk, delta_pct, bench, validated_margins),
+                "margin_pct": round(
+                    (
+                        validated_margins.get("gated", {}).get(
+                            bench,
+                            validated_margins.get("ungateable", {}).get(
+                                bench, margin_for(bench)
+                            ),
+                        )
+                        if validated_margins is not None
+                        else margin_for(bench)
+                    ) * 100,
+                    1,
+                ),
             }
 
         # Precedence: a REGRESSION anywhere outranks everything; ADVISORY
@@ -726,11 +785,14 @@ def advisory_notes(results: list[dict[str, Any]]) -> list[str]:
     for res in results:
         bench = (res["module"], res["stage"])
         reason = UNGATEABLE_BENCHMARKS.get(bench)
-        if reason is None:
-            continue
         for mk, delta in sorted(res["deltas"].items()):
             if delta["status"] != "ADVISORY":
                 continue
+            if reason is None:
+                reason = (
+                    f"validated margin {delta.get('margin_pct', 0):.0f}% "
+                    f"exceeds the {MAX_GATEABLE_MARGIN:.1%} maximum gateable margin"
+                )
             notes.append(
                 f"{res['module']}/{res['board']}/{res['stage']}: {mk} "
                 f"{delta['delta_pct']:+.1f}% (baseline {delta['main']} -> PR "
@@ -772,7 +834,6 @@ def format_markdown(
             )
             continue
 
-        bench = (res["module"], res["stage"])
         for mk, delta in sorted(res["deltas"].items()):
             icon = ""
             if delta["status"] == "REGRESSION":
@@ -782,7 +843,7 @@ def format_markdown(
             elif delta["status"] == "ADVISORY":
                 icon = "⚪"
             direction = "+" if delta["delta_pct"] >= 0 else ""
-            if bench in UNGATEABLE_BENCHMARKS:
+            if any(delta["status"] == "ADVISORY" for delta in res["deltas"].values()):
                 margin = "not gated"
             elif mk.endswith(LOWER_IS_BETTER_SUFFIXES):
                 margin = f"{delta.get('margin_pct', TIMING_MARGIN * 100):.0f}%"
@@ -917,6 +978,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--window", type=int, default=DEFAULT_WINDOW,
                         help=f"Rolling window size for baseline median (default: {DEFAULT_WINDOW})")
+    parser.add_argument(
+        "--validated-margins-json", type=Path, default=None,
+        help="Margin artifact emitted by the trusted baseline-refresh validator",
+    )
     parser.add_argument("--json", action="store_true",
                         help="Output results as JSON")
     parser.add_argument("--report-file", type=Path, default=None,
@@ -976,7 +1041,16 @@ def main(argv: list[str] | None = None) -> int:
             if len(parts) == 2:
                 main_benchmarks.add((parts[0], parts[1]))
 
-    results = compare(pr_metrics, baselines, main_benchmarks)
+    try:
+        validated_margins = (
+            load_validated_margins(args.validated_margins_json)
+            if args.validated_margins_json is not None else None
+        )
+    except PerfGateError as err:
+        print(f"FAIL: {err}", file=sys.stderr)
+        return 1
+
+    results = compare(pr_metrics, baselines, main_benchmarks, validated_margins)
     failures = gate_failures(results)
     advisories = advisory_notes(results)
     report = format_markdown(results, failures, advisories)

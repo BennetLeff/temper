@@ -3695,11 +3695,15 @@ jobs:
   #      2026-07-29 split -- both new jobs still need the full maturin/uv
   #      chain, same as every other split-out job in this file. Not attacked
   #      here since (per point above) it was never the dominant cost.
-  #   4. `timeout-minutes` on `extended-cpsat-slow` is left at 25 -- the same
-  #      number the combined cp-sat job already had, not a raise. Parallelism
-  #      is expected to reduce, not increase, the time needed against that
-  #      budget; the actual post-parallelization numbers get measured in CI
-  #      before this number is revisited downward.
+  #   4. The two remaining production tests now run as independent matrix
+  #      jobs below. This is important after the memory fix: a completed
+  #      zone-pour route can take ~45 minutes on main, and the documented
+  #      production route can approach 1193s before runner contention and
+  #      setup variance. Give the zone-pour lane 75 minutes (a ~70-minute
+  #      test allowance plus ~3 minutes measured setup and margin), and the
+  #      routing-DRC lane 50 minutes (a ~45-minute allowance plus the same
+  #      setup/margin). Each matrix expansion is a separate trunk-only job,
+  #      so one test cannot consume the other's timeout or hide its traceback.
   #   `extended-cpsat` (this job, now just the fast remainder) drops to
   #   `timeout-minutes: 15`, matching `extended-bundle-workflow-checks`'s
   #   budget for a suite of the same "well under a minute" shape.
@@ -3862,7 +3866,7 @@ jobs:
         continue-on-error: true
 
   extended-cpsat-slow:
-    name: Extended Test Suites (cp-sat, slow serial)
+    name: Extended Test Suites (cp-sat, slow ${{ matrix.suite }})
     # Trunk-only. The routing DRC regression gate in this job was unmasked
     # 2026-08-05 (fix(netclass): _mm read aliases landed; gate can now bite).
     if: ${{ github.event_name != 'pull_request' }}
@@ -3870,21 +3874,32 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    # These tests run three full production-board routes in total (the
-    # zone-pour measurement routes with pours disabled and enabled, and the
-    # routing DRC regression routes once). A documented production route can
-    # approach 1193s, so allow roughly three route budgets plus DRC/setup
-    # overhead. The xdist worker previously died during the first route and
-    # left the parent waiting until the old 25-minute timeout.
+    # Each matrix expansion below is a separate trunk-only job. The tests run
+    # true in-process serially (no xdist/process worker): the xdist worker
+    # previously died during the first production route and left its parent
+    # waiting until cancellation. Splitting the tests also means a long zone
+    # route cannot consume the routing-DRC lane's timeout.
     # 2026-08-01: the hybrid test (877.7-986.9s of the trio) moved out to the
     # nightly r9-evidence.yml workflow -- it is explicit evidence-gathering
     # for the R9 promotion decision (continue-on-error, "Not a CI gate" in
     # its own docstring), so per-PR sampling of a pending decision was paying
     # 16+ min of wall-clock on the critical path. This job retains the
     # zone-pour + routing DRC pair, but now runs it in-process to survive the
-    # production route's memory pressure; the timeout above is intentionally
-    # sized for that serial execution.
-    timeout-minutes: 70
+    # production route's memory pressure; each timeout below is intentionally
+    # sized for that test's serial execution and setup overhead.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: zone-pour
+            timeout: 75
+            test: >-
+              tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items
+          - suite: routing-drc
+            timeout: 50
+            test: >-
+              tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression
+    timeout-minutes: ${{ matrix.timeout }}
     env:
       VIRTUAL_ENV: /_temper-venv
       UV_PROJECT_ENVIRONMENT: /_temper-venv
@@ -3982,7 +3997,7 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
-      - name: Run cp-sat suite (slow pair, in-process serial)
+      - name: Run cp-sat suite (${{ matrix.suite }}, in-process serial)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # The two tests that own >98% of the old combined job's pytest
         # wall-clock (see the comment above extended-cpsat for the
@@ -3992,12 +4007,12 @@ jobs:
         # 877.7s/986.9s) moved to the nightly r9-evidence.yml workflow on
         # 2026-08-01: it is evidence for the pending R9 promotion decision,
         # not a gate (continue-on-error, docstring: "Not a CI gate"), and its
-        # ~16 min made it the per-PR critical path. These production-board
-        # routes run in-process, one-at-a-time: the xdist worker died during
-        # the first route in CI and left the parent waiting until job
-        # cancellation, even when constrained to one worker. A single
-        # current-board route reaches ~18 GB RSS, so keep the process boundary
-        # out of this pair entirely. Same
+        # ~16 min made it the per-PR critical path. Each production-board
+        # route now runs alone in its own matrix job, in-process: the xdist
+        # worker died during the first route in CI and left the parent waiting
+        # until job cancellation, even when constrained to one worker. A
+        # single current-board route reaches ~18 GB RSS, so keep the process
+        # boundary out of these lanes entirely. Same
         # `-v --tb=short -p no:cacheprovider --maxfail=10` flags, minus
         # `continue-on-error` (removed 2026-08-05: the routing gate is now
         # a real trunk-blocking gate, not a masked observer).
@@ -4008,8 +4023,7 @@ jobs:
         run: >
           cd packages/temper-placer &&
           uv run python ../../scripts/pytest_guard.py --min-tests 1 --
-          "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
-          "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
+          "${{ matrix.test }}"
           -v --tb=short -p no:cacheprovider --maxfail=10
         # continue-on-error removed 2026-08-05: the _mm-aliases fix (#671)
         # landed on main, so this gate's failure is a real signal, not masked

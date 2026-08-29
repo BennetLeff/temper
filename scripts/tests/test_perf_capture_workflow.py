@@ -115,6 +115,8 @@ def test_baseline_refresh_path_is_fail_closed_and_keeps_ordinary_prs_on_main() -
     assert "BASELINE_FOR_COMPARE=main-perf-baseline.jsonl" in text
     assert "BASELINE_FOR_COMPARE=$BASELINE_PATH" in text
     assert "candidate-baseline \"$BASELINE_PATH\"" in text
+    assert "--validated-margins-output \"$RUNNER_TEMP/validated-perf-margins.json\"" in text
+    assert "VALIDATED_MARGINS_JSON=$RUNNER_TEMP/validated-perf-margins.json" in text
     assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}\"" in text
     assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}\"" in text
     assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip\"" in text
@@ -127,6 +129,7 @@ def test_baseline_refresh_path_is_fail_closed_and_keeps_ordinary_prs_on_main() -
     assert "BASELINE_REFRESH_SCHEMA_VERSION = 2" in text
     assert "python3 scripts/validate_perf_capture.py" not in text
     assert "python3 main-pr-perf-compare.py" in text
+    assert "--validated-margins-json \"$VALIDATED_MARGINS_JSON\"" in text
     assert "uv run python scripts/pr_perf_compare.py" not in text
     assert "Trusted baseline-refresh validator is not yet present on origin/main" in text
     assert "actions: read" in text

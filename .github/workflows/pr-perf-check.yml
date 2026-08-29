@@ -231,7 +231,7 @@ jobs:
       # benchmark-owned inputs. Ordinary PRs keep the main baseline
       # unconditionally. The API identity checks below are independent of the
       # validator, and the validator itself must come from origin/main. A PR
-          # cannot bootstrap schema 2 by executing its own approval code.
+      # cannot bootstrap schema 2 by executing its own approval code.
       - name: Validate reviewed baseline refresh (if requested)
         if: github.event_name == 'pull_request'
         shell: bash
@@ -250,11 +250,9 @@ jobs:
             exit 1
           }
 
-          # The CI container intentionally carries only the project's Python
-          # toolchain; it does not guarantee the ubuntu runner's host tools
-          # are present inside the container.  Parse the small API payloads
-          # with Python rather than relying on jq, which made every otherwise
-          # valid refresh fail with command-not-found in temper-ci.
+          # The CI container does not guarantee the ubuntu runner's host
+          # utilities are installed inside the container. Parse API payloads
+          # with Python so a valid refresh does not fail on missing jq.
           json_field() {
             JSON_PAYLOAD="$1" JSON_FIELD_PATH="$2" python3 -c '
           import json
@@ -336,6 +334,7 @@ jobs:
             --baseline main-perf-baseline.jsonl
             --candidate-baseline "$BASELINE_PATH"
             --baseline-refresh-manifest "$REFRESH_MANIFEST"
+            --validated-margins-output "$RUNNER_TEMP/validated-perf-margins.json"
             --registry benchmarks/perf_ab.py
             --repo-root "$GITHUB_WORKSPACE"
           )
@@ -347,6 +346,8 @@ jobs:
             exit 1
           }
           python3 "$validator_dir/validate_perf_capture.py" "${args[@]}"
+          test -s "$RUNNER_TEMP/validated-perf-margins.json"
+          echo "VALIDATED_MARGINS_JSON=$RUNNER_TEMP/validated-perf-margins.json" >> "$GITHUB_ENV"
           echo "BASELINE_FOR_COMPARE=$BASELINE_PATH" >> "$GITHUB_ENV"
 
       # 2026-08-04 (Wave 4 Phase 0, R2): `continue-on-error: true` removed. It
@@ -380,12 +381,18 @@ jobs:
       # Capture on main, gate on PRs.
       - name: Compare against baseline (hard gate)
         if: github.event_name == 'pull_request'
+        shell: bash
         run: |
-          python3 main-pr-perf-compare.py \
-            --pr-metrics perf-metrics.jsonl \
-            --baseline-jsonl "$BASELINE_FOR_COMPARE" \
-            --main-benchmarks main-benchmarks.tsv \
+          compare_args=(
+            --pr-metrics perf-metrics.jsonl
+            --baseline-jsonl "$BASELINE_FOR_COMPARE"
+            --main-benchmarks main-benchmarks.tsv
             --report-file perf-report.md
+          )
+          if [[ -n "${VALIDATED_MARGINS_JSON:-}" ]]; then
+            compare_args+=(--validated-margins-json "$VALIDATED_MARGINS_JSON")
+          fi
+          python3 main-pr-perf-compare.py "${compare_args[@]}"
 
       # CAPTURE-ONLY (main / manual). Emits the measured rows two ways: as a
       # downloadable artifact, and inline in the job summary so the append is a

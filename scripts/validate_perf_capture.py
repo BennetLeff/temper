@@ -469,6 +469,28 @@ def _derive_margins(records: list[dict[str, Any]]) -> dict[str, dict[str, float]
     }
 
 
+def _write_validated_margins(path: Path, margins: dict[str, dict[str, float]]) -> None:
+    """Write the trusted validator's one-run margin handoff artifact."""
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "source": "trusted-baseline-refresh-validator",
+                    "margins": margins,
+                },
+                indent=2,
+                sort_keys=True,
+            ) + "\n",
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        raise CaptureValidationError(
+            f"cannot write validated margins artifact {path}: {exc}"
+        ) from exc
+
+
 def _normalize_margin_file(value: dict[str, Any]) -> dict[str, dict[str, float]]:
     if not isinstance(value, dict):
         raise CaptureValidationError("committed margins must be a JSON object")
@@ -489,7 +511,13 @@ def _normalize_margin_file(value: dict[str, Any]) -> dict[str, dict[str, float]]
 
 def _validate_margins(records: list[dict[str, Any]], committed: dict[str, Any] | None) -> dict[str, dict[str, float]]:
     derived = _derive_margins(records)
-    expected = _normalize_margin_file(committed) if committed is not None else _load_committed_margins()
+    # A baseline refresh has no trusted source-code table yet: its purpose is
+    # to produce the evidence-derived table for the comparator run.  When a
+    # caller supplies a table, retain the strict equality check used by raw
+    # capture tests and explicit review inputs.
+    if committed is None:
+        return derived
+    expected = _normalize_margin_file(committed)
     if expected != derived:
         raise CaptureValidationError(
             "committed margins do not exactly match fixed-commit, same-regime "
@@ -917,6 +945,7 @@ def validate_baseline_refresh(
     repo_root: Path,
     changed_paths: Iterable[str] | None = None,
     committed_margins: dict[str, Any] | None = None,
+    validated_margins_output: Path | None = None,
 ) -> CaptureResult:
     """Validate a baseline-changing PR using a committed evidence manifest.
 
@@ -1122,6 +1151,8 @@ def validate_baseline_refresh(
         raise CaptureValidationError("candidate append digest does not match refresh manifest")
     result.manifest["refresh_manifest"] = str(manifest_path)
     result.manifest["capture_runs"] = run_ids
+    if validated_margins_output is not None:
+        _write_validated_margins(validated_margins_output, result.derived_margins)
     return result
 
 
@@ -1159,6 +1190,10 @@ def main(argv: list[str] | None = None) -> int:
         "--changed-path", action="append", default=None,
         help="repository-relative changed path (required for baseline-refresh validation)",
     )
+    parser.add_argument(
+        "--validated-margins-output", type=Path, default=None,
+        help="write the trusted, evidence-derived margin handoff JSON",
+    )
     parser.add_argument("--metadata", type=Path, action="append", default=[])
     parser.add_argument("--key", type=_parse_cli_key, action="append", dest="keys", default=None)
     parser.add_argument("artifacts", type=Path, nargs="*")
@@ -1180,6 +1215,7 @@ def main(argv: list[str] | None = None) -> int:
                 registry_path=args.registry,
                 repo_root=args.repo_root,
                 changed_paths=args.changed_path,
+                validated_margins_output=args.validated_margins_output,
             )
             print(
                 "validated baseline refresh: "

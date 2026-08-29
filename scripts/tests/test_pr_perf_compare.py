@@ -36,6 +36,7 @@ from pr_perf_compare import (  # noqa: E402
     format_markdown,
     gate_failures,
     load_main_baselines,
+    load_validated_margins,
     main,
     margin_for,
     measure_fixed_commit_noise,
@@ -643,6 +644,39 @@ def test_default_margin_still_applies_to_an_uncharacterised_benchmark():
     assert margin_for(("brand-new", "arm")) == TIMING_MARGIN
     assert margin_for(None) == TIMING_MARGIN
     assert _status_for("rust_over_oracle_ratio", 20.1, ("brand-new", "arm")) == "REGRESSION"
+
+
+def test_trusted_validated_margin_artifact_overrides_static_table(tmp_path):
+    """A refresh run can use measured margins without executing PR code."""
+    artifact = tmp_path / "validated-margins.json"
+    artifact.write_text(json.dumps({
+        "schema_version": 1,
+        "source": "trusted-baseline-refresh-validator",
+        "margins": {
+            "gated": {"bottleneck-geometry/hard_blocked_batch": 0.40},
+            "ungateable": {},
+        },
+    }))
+    margins = load_validated_margins(artifact)
+    result = compare(
+        _pr_row("bottleneck-geometry", "hard_blocked_batch", 0.535),
+        load_main_baselines(_window("bottleneck-geometry", "hard_blocked_batch", 0.40)),
+        validated_margins=margins,
+    )
+    assert result[0]["deltas"]["rust_over_oracle_ratio"]["margin_pct"] == 40.0
+    assert not gate_failures(result)  # +33.75% is below the validated 40%
+
+
+@pytest.mark.parametrize("payload", [
+    {"schema_version": 1, "source": "pr-code", "margins": {"gated": {}, "ungateable": {}}},
+    {"schema_version": 1, "source": "trusted-baseline-refresh-validator", "margins": {"gated": {"bad": 0.2}, "ungateable": {}}},
+    {"schema_version": 1, "source": "trusted-baseline-refresh-validator", "margins": {"gated": {"x/y": 0.2}, "ungateable": {"x/y": 0.3}}},
+])
+def test_validated_margin_artifact_rejects_tampering(tmp_path, payload):
+    artifact = tmp_path / "validated-margins.json"
+    artifact.write_text(json.dumps(payload))
+    with pytest.raises(PerfGateError, match="validated margins"):
+        load_validated_margins(artifact)
 
 
 def _ungateable_case(delta_ratio: float):

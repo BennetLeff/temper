@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-19'
-  total_scripts: 173
+  total_scripts: 174
   counts:
-    keep: 160
+    keep: 161
     ticket: 13
   ticket_scripts_deleted: 43
 scripts:
@@ -2730,6 +2730,29 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: validate_perf_capture.py
+  purpose: Fail-closed aggregation of five immutable-SHA performance captures into review-only manifest
+    and append patch artifacts
+  owner: pipeline
+  last_run: '2026-08-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - collections.abc
+  - dataclasses
+  - hashlib
+  - importlib.util
+  - json
+  - math
+  - pathlib
+  - pr_perf_compare
+  - re
+  - subprocess
+  - sys
+  - typing
 - path: validate_footprints.py
   purpose: Validate footprint assignments (shell-invoked)
   owner: unassigned

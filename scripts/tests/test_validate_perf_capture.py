@@ -570,6 +570,7 @@ def _write_refresh_fixture(tmp_path: Path) -> tuple[Path, Path, Path, str, str]:
 
 def test_baseline_refresh_requires_five_distinct_immutable_captures(tmp_path: Path) -> None:
     repo, baseline, candidate, manifest_rel, registry_rel = _write_refresh_fixture(tmp_path)
+    handoff_path = tmp_path / "validated-margins.json"
     result = validate_baseline_refresh(
         baseline_path=baseline.relative_to(repo),
         candidate_path=candidate.relative_to(repo),
@@ -581,8 +582,12 @@ def test_baseline_refresh_requires_five_distinct_immutable_captures(tmp_path: Pa
             str(candidate.relative_to(repo)), manifest_rel,
             *[str(path.relative_to(repo)) for path in (repo / "power_pcb_dataset/metrics/perf_ab_refresh").iterdir() if path.name != "manifest.json"],
         },
+        validated_margins_output=handoff_path,
     )
     assert result.manifest["capture_runs"] == ["123", "124", "125", "126", "127"]
+    handoff = json.loads(handoff_path.read_text(encoding="utf-8"))
+    assert handoff["source"] == "trusted-baseline-refresh-validator"
+    assert handoff["margins"] == {"gated": {}, "ungateable": {}}
 
     raw = json.loads((repo / manifest_rel).read_text(encoding="utf-8"))
     raw["primary_capture"]["captures"][1]["workflow_run_id"] = "123"
