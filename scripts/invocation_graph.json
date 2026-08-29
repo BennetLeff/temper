@@ -590,7 +590,9 @@
   "validate_footprints.py": [
     "scripts/sprint1_validation.sh"
   ],
-  "validate_perf_capture.py": [],
+  "validate_perf_capture.py": [
+    ".github/workflows/pr-perf-baseline-capture.yml"
+  ],
   "verify_proofs.py": [],
   "verify_pumpkin_engine.py": [
     "packages/temper-placer/src/temper_placer/placer/cp_sat/heatsink_colocation.py",

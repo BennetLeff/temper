@@ -74,6 +74,7 @@ jobs:
         with:
           ref: ${{ inputs.capture_sha }}
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Verify exact detached commit
         shell: bash
@@ -172,6 +173,7 @@ jobs:
         with:
           ref: ${{ inputs.capture_sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Verify exact detached commit
         shell: bash
@@ -215,6 +217,11 @@ jobs:
             --registry benchmarks/perf_ab.py \
             --repo-root "$GITHUB_WORKSPACE" \
             --output-dir capture-evidence \
+            --metadata captures/capture-1.metadata \
+            --metadata captures/capture-2.metadata \
+            --metadata captures/capture-3.metadata \
+            --metadata captures/capture-4.metadata \
+            --metadata captures/capture-5.metadata \
             captures/perf-capture-1.ndjson \
             captures/perf-capture-2.ndjson \
             captures/perf-capture-3.ndjson \

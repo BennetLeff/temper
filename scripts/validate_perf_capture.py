@@ -7,11 +7,14 @@ or updates a git ref.  A capture is accepted only when every expected
 benchmark has exactly five unique rows from one resolvable 40-hex commit and
 the rows can be appended to the existing baseline without changing history.
 
-The workflow-facing command is, for example::
+    The workflow-facing command is, for example::
 
     uv run python scripts/validate_perf_capture.py \
       --capture-sha 0123...89ab --baseline baseline.jsonl \
       --registry benchmarks/perf_ab.py --output-dir evidence \
+      --metadata capture-1.metadata --metadata capture-2.metadata \
+      --metadata capture-3.metadata --metadata capture-4.metadata \
+      --metadata capture-5.metadata \
       capture-1.ndjson capture-2.ndjson capture-3.ndjson \
       capture-4.ndjson capture-5.ndjson
 
@@ -26,6 +29,7 @@ import ast
 import hashlib
 import importlib.util
 import json
+import math
 import re
 import subprocess
 import sys
@@ -87,6 +91,40 @@ def parse_ndjson(text: str, *, source: str = "capture") -> list[dict[str, Any]]:
     return records
 
 
+def parse_capture_metadata(text: str, *, source: str = "metadata") -> dict[str, str]:
+    """Parse the key/value metadata emitted beside one capture artifact."""
+
+    fields: dict[str, str] = {}
+    required = {
+        "capture_sha",
+        "checked_out_sha",
+        "matrix_run",
+        "workflow_run_id",
+        "workflow_run_attempt",
+    }
+    for line_number, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line:
+            continue
+        if "=" not in line:
+            raise CaptureValidationError(
+                f"{source}: line {line_number} is not key=value metadata"
+            )
+        key, value = line.split("=", 1)
+        if not key or not value or key in fields:
+            raise CaptureValidationError(
+                f"{source}: line {line_number} has malformed or duplicate metadata"
+            )
+        fields[key] = value
+    missing = sorted(required - fields.keys())
+    if missing:
+        raise CaptureValidationError(f"{source}: missing metadata fields: {missing!r}")
+    unknown = sorted(set(fields) - required)
+    if unknown:
+        raise CaptureValidationError(f"{source}: unsupported metadata fields: {unknown!r}")
+    return fields
+
+
 def load_capture_artifacts(paths: Iterable[Path]) -> list[dict[str, Any]]:
     """Load capture artifacts in argument order with strict NDJSON parsing."""
 
@@ -96,6 +134,20 @@ def load_capture_artifacts(paths: Iterable[Path]) -> list[dict[str, Any]]:
         if not path.is_file():
             raise CaptureValidationError(f"capture artifact not found: {path}")
         records.extend(parse_ndjson(path.read_text(encoding="utf-8"), source=str(path)))
+    return records
+
+
+def load_capture_metadata(paths: Iterable[Path]) -> list[dict[str, str]]:
+    """Load the metadata sidecar for each independent capture run."""
+
+    records: list[dict[str, str]] = []
+    for path in paths:
+        path = Path(path)
+        if not path.is_file():
+            raise CaptureValidationError(f"capture metadata not found: {path}")
+        records.append(
+            parse_capture_metadata(path.read_text(encoding="utf-8"), source=str(path))
+        )
     return records
 
 
@@ -161,6 +213,46 @@ def registered_keys_from_source(path: Path) -> set[tuple[str, str, str]]:
     raise CaptureValidationError(f"benchmark registry {path} has no _BENCHMARKS mapping")
 
 
+def declared_regime_keys_from_source(path: Path) -> set[tuple[str, str, str]]:
+    """Read benchmark keys that have an explicit regime declaration."""
+
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError) as exc:
+        raise CaptureValidationError(f"cannot read benchmark registry {path}: {exc}") from exc
+
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        if not any(
+            isinstance(target, ast.Name) and target.id == "_BENCHMARK_REGIME_METADATA"
+            for target in targets
+        ):
+            continue
+        value = node.value
+        if not isinstance(value, ast.Dict):
+            raise CaptureValidationError(
+                f"benchmark regime registry {path} is not a literal mapping"
+            )
+        keys: list[tuple[str, str]] = []
+        for key in value.keys:
+            if not isinstance(key, ast.Tuple) or len(key.elts) != 2:
+                raise CaptureValidationError(
+                    f"benchmark regime registry {path} contains a non-literal two-field key"
+                )
+            if not all(
+                isinstance(item, ast.Constant) and isinstance(item.value, str)
+                for item in key.elts
+            ):
+                raise CaptureValidationError(
+                    f"benchmark regime registry {path} contains a non-string key"
+                )
+            keys.append((key.elts[0].value, key.elts[1].value))
+        return normalize_keys(keys)
+    return set()
+
+
 def _resolve_capture_sha(requested_sha: str, repo_root: Path) -> str:
     if not isinstance(requested_sha, str) or not SHA_RE.fullmatch(requested_sha):
         raise CaptureValidationError("capture SHA must be an immutable 40-hex commit SHA")
@@ -186,14 +278,43 @@ def _changed_paths(
     if not source_digests:
         return set()
     try:
-        output = subprocess.check_output(
-            ["git", "-C", str(repo_root), "diff-tree", "--no-commit-id", "--name-only", "-r", "--root", sha],
+        parents_line = subprocess.check_output(
+            ["git", "-C", str(repo_root), "rev-list", "--parents", "-n", "1", sha],
             text=True,
             stderr=subprocess.PIPE,
-        )
+        ).strip()
     except (OSError, subprocess.CalledProcessError) as exc:
         raise CaptureValidationError(f"cannot inspect capture commit {sha}") from exc
-    return {line.strip() for line in output.splitlines() if line.strip()}
+    fields = parents_line.split()
+    if not fields or fields[0].lower() != sha.lower():
+        raise CaptureValidationError(f"cannot inspect capture commit {sha}: malformed parent list")
+    parents = fields[1:]
+    commands: list[list[str]]
+    if parents:
+        # Compare against every parent. Plain diff-tree on a merge commit
+        # suppresses the merge diff and would let a changed second-parent arm
+        # through the source-change guard.
+        commands = [
+            ["git", "-C", str(repo_root), "diff", "--name-only", parent, sha]
+            for parent in parents
+        ]
+    else:
+        commands = [[
+            "git", "-C", str(repo_root), "diff-tree", "--no-commit-id",
+            "--name-only", "-r", "--root", sha,
+        ]]
+    changed: set[str] = set()
+    for command in commands:
+        try:
+            output = subprocess.check_output(
+                command, text=True, stderr=subprocess.PIPE
+            )
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise CaptureValidationError(
+                f"cannot inspect capture commit {sha} against its parent"
+            ) from exc
+        changed.update(line.strip() for line in output.splitlines() if line.strip())
+    return changed
 
 
 def _regime_sources(record: dict[str, Any]) -> list[tuple[str, str]]:
@@ -321,14 +442,39 @@ def _normalize_margin_file(value: dict[str, Any]) -> dict[str, dict[str, float]]
 
 def _validate_margins(records: list[dict[str, Any]], committed: dict[str, Any] | None) -> dict[str, dict[str, float]]:
     derived = _derive_margins(records)
-    if committed is not None:
-        expected = _normalize_margin_file(committed)
-        if expected != derived:
-            raise CaptureValidationError(
-                "committed margins do not exactly match fixed-commit, same-regime "
-                f"derivation (expected {derived!r}, got {expected!r})"
-            )
+    expected = _normalize_margin_file(committed) if committed is not None else _load_committed_margins()
+    if expected != derived:
+        raise CaptureValidationError(
+            "committed margins do not exactly match fixed-commit, same-regime "
+            f"derivation (expected {derived!r}, got {expected!r})"
+        )
     return derived
+
+
+def _load_committed_margins() -> dict[str, dict[str, float]]:
+    """Load the margin table committed in the comparator source."""
+
+    path = Path(__file__).resolve().parent / "pr_perf_compare.py"
+    spec = importlib.util.spec_from_file_location("_capture_committed_margins", path)
+    if spec is None or spec.loader is None:
+        raise CaptureValidationError(f"cannot load margin authority {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    ungateable: dict[str, float] = {}
+    for key, reason in module.UNGATEABLE_BENCHMARKS.items():
+        match = re.search(r"margin (\d+)%", reason)
+        if match is None:
+            raise CaptureValidationError(
+                f"cannot parse committed ungateable margin for {key!r}"
+            )
+        ungateable[_margin_key(key)] = int(match.group(1)) / 100
+    return {
+        "gated": {
+            _margin_key(key): float(value)
+            for key, value in module.PER_BENCHMARK_TIMING_MARGIN.items()
+        },
+        "ungateable": ungateable,
+    }
 
 
 def validate_capture(
@@ -336,6 +482,8 @@ def validate_capture(
     *,
     requested_sha: str,
     expected_keys: Iterable[Sequence[str]],
+    metadata_paths: Iterable[Path] | None = None,
+    declared_regime_keys: Iterable[Sequence[str]] = (),
     baseline_records: Sequence[dict[str, Any]] = (),
     candidate_records: Sequence[dict[str, Any]] | None = None,
     repo_root: Path | None = None,
@@ -346,7 +494,81 @@ def validate_capture(
     root = (repo_root or Path.cwd()).resolve()
     sha = _resolve_capture_sha(requested_sha, root)
     expected = normalize_keys(expected_keys)
-    records = load_capture_artifacts(artifact_paths)
+    artifact_list = [Path(path) for path in artifact_paths]
+    if len(artifact_list) != CAPTURE_COUNT:
+        raise CaptureValidationError(
+            f"exactly {CAPTURE_COUNT} capture artifacts are required; got {len(artifact_list)}"
+        )
+    if metadata_paths is None:
+        raise CaptureValidationError(
+            f"exactly {CAPTURE_COUNT} capture metadata artifacts are required"
+        )
+    metadata_list = [Path(path) for path in metadata_paths]
+    if len(metadata_list) != CAPTURE_COUNT:
+        raise CaptureValidationError(
+            f"exactly {CAPTURE_COUNT} capture metadata artifacts are required; got {len(metadata_list)}"
+        )
+    metadata = load_capture_metadata(metadata_list)
+    seen_matrix_runs: set[int] = set()
+    workflow_identity: tuple[str, str] | None = None
+    for index, fields in enumerate(metadata, start=1):
+        matrix_run = fields["matrix_run"]
+        if not matrix_run.isdigit() or not 1 <= int(matrix_run) <= CAPTURE_COUNT:
+            raise CaptureValidationError(
+                f"metadata {index} has matrix_run outside 1..{CAPTURE_COUNT}"
+            )
+        run_number = int(matrix_run)
+        if run_number in seen_matrix_runs:
+            raise CaptureValidationError(f"capture metadata duplicates matrix_run {run_number}")
+        seen_matrix_runs.add(run_number)
+        capture_sha = fields["capture_sha"].lower()
+        checked_out_sha = fields["checked_out_sha"].lower()
+        if not SHA_RE.fullmatch(capture_sha) or capture_sha != sha:
+            raise CaptureValidationError(
+                f"metadata {index} does not carry requested capture SHA {sha}"
+            )
+        if not SHA_RE.fullmatch(checked_out_sha) or checked_out_sha != sha:
+            raise CaptureValidationError(
+                f"metadata {index} does not carry checked-out SHA {sha}"
+            )
+        identity = (fields["workflow_run_id"], fields["workflow_run_attempt"])
+        if not all(value.isdigit() for value in identity):
+            raise CaptureValidationError(
+                f"metadata {index} has a non-numeric workflow run identity"
+            )
+        if workflow_identity is None:
+            workflow_identity = identity
+        elif identity != workflow_identity:
+            raise CaptureValidationError(
+                "capture metadata must share one workflow run and attempt"
+            )
+    if seen_matrix_runs != set(range(1, CAPTURE_COUNT + 1)):
+        raise CaptureValidationError(
+            f"capture metadata must contain exactly matrix_run 1..{CAPTURE_COUNT}"
+        )
+
+    expected_regime_keys = normalize_keys(declared_regime_keys) if declared_regime_keys else set()
+    undeclared_capture_keys = expected_regime_keys - expected
+    if undeclared_capture_keys:
+        raise CaptureValidationError(
+            f"regime registry contains keys absent from benchmark registry: {sorted(undeclared_capture_keys)!r}"
+        )
+    per_artifact: list[list[dict[str, Any]]] = []
+    for artifact_index, path in enumerate(artifact_list, start=1):
+        rows = _read_ndjson_file(path, source=str(path))
+        if not rows:
+            raise CaptureValidationError(f"capture artifact {artifact_index} is empty")
+        artifact_keys = [_key(row) for row in rows]
+        if len(artifact_keys) != len(set(artifact_keys)):
+            raise CaptureValidationError(
+                f"capture artifact {artifact_index} contains a duplicate benchmark key"
+            )
+        if set(artifact_keys) != expected:
+            raise CaptureValidationError(
+                f"capture artifact {artifact_index} is missing benchmark keys or contains unexpected keys"
+            )
+        per_artifact.append(rows)
+    records = [record for rows in per_artifact for record in rows]
     if not records:
         raise CaptureValidationError("capture artifacts are empty")
 
@@ -368,6 +590,21 @@ def validate_capture(
         timestamp = record.get("timestamp")
         if not isinstance(timestamp, str) or not timestamp:
             raise CaptureValidationError(f"capture row {index} has no valid timestamp")
+        metrics = record.get("metrics")
+        if not isinstance(metrics, dict) or "rust_over_oracle_ratio" not in metrics:
+            raise CaptureValidationError(
+                f"capture row {index} is missing rust_over_oracle_ratio"
+            )
+        for metric_name, metric_value in metrics.items():
+            if (
+                isinstance(metric_value, bool)
+                or not isinstance(metric_value, (int, float))
+                or not math.isfinite(float(metric_value))
+                or float(metric_value) <= 0
+            ):
+                raise CaptureValidationError(
+                    f"capture row {index} metric {metric_name!r} must be finite and positive"
+                )
         run_identity = (key, timestamp)
         if run_identity in seen_runs:
             raise CaptureValidationError(
@@ -394,6 +631,24 @@ def validate_capture(
         )
 
     _verify_regime_sources(records, root, sha)
+    for key in expected:
+        identities: set[str] = set()
+        for record in records:
+            if _key(record) != key:
+                continue
+            regime = record.get("measurement_regime")
+            if key in expected_regime_keys and regime is None:
+                raise CaptureValidationError(
+                    f"benchmark {key!r} requires current measurement regime metadata"
+                )
+            if regime is None:
+                identities.add(LEGACY_REGIME_IDENTITY)
+            else:
+                identities.add(str(regime["fingerprint"]).lower())
+        if len(identities) != 1:
+            raise CaptureValidationError(
+                f"benchmark {key!r} has mixed measurement regimes"
+            )
     derived_margins = _validate_margins(candidate, committed_margins)
     regimes = sorted({
         str(
@@ -432,6 +687,8 @@ def aggregate_capture(
     *,
     requested_sha: str,
     expected_keys: Iterable[Sequence[str]],
+    metadata_paths: Iterable[Path] | None = None,
+    declared_regime_keys: Iterable[Sequence[str]] = (),
     baseline_records: Sequence[dict[str, Any]] = (),
     candidate_records: Sequence[dict[str, Any]] | None = None,
     repo_root: Path | None = None,
@@ -444,6 +701,8 @@ def aggregate_capture(
         artifact_paths,
         requested_sha=requested_sha,
         expected_keys=expected_keys,
+        metadata_paths=metadata_paths,
+        declared_regime_keys=declared_regime_keys,
         baseline_records=baseline_records,
         candidate_records=candidate_records,
         repo_root=repo_root,
@@ -485,11 +744,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--candidate-baseline", type=Path, default=None)
     parser.add_argument("--margins-json", type=Path, default=None)
+    parser.add_argument("--metadata", type=Path, action="append", required=True)
     parser.add_argument("--key", type=_parse_cli_key, action="append", dest="keys", default=None)
     parser.add_argument("artifacts", type=Path, nargs="+")
     args = parser.parse_args(argv)
     try:
         keys = args.keys if args.keys is not None else registered_keys_from_source(args.registry)
+        declared_regimes = declared_regime_keys_from_source(args.registry)
         baseline = _read_ndjson_file(args.baseline, source="baseline")
         candidate = (
             _read_ndjson_file(args.candidate_baseline, source="candidate baseline")
@@ -505,6 +766,8 @@ def main(argv: list[str] | None = None) -> int:
             args.artifacts,
             requested_sha=args.capture_sha,
             expected_keys=keys,
+            metadata_paths=args.metadata,
+            declared_regime_keys=declared_regimes,
             baseline_records=baseline,
             candidate_records=candidate,
             repo_root=args.repo_root,

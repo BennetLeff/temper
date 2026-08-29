@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from validate_perf_capture import (  # noqa: E402
     CaptureValidationError,
     aggregate_capture,
+    parse_capture_metadata,
     parse_ndjson,
     validate_append_only,
     validate_capture,
@@ -60,6 +61,26 @@ def _write_ndjson(path: Path, rows: list[dict]) -> Path:
     return path
 
 
+def _write_bundle(tmp_path: Path, rows: list[dict], *, workflow_run_id: str = "123") -> tuple[list[Path], list[Path]]:
+    artifacts: list[Path] = []
+    metadata: list[Path] = []
+    for run in range(1, 6):
+        artifact = tmp_path / f"perf-capture-{run}.ndjson"
+        run_rows = [row for row in rows if row["timestamp"].startswith(f"2026-08-29T00:0{run - 1}:")]
+        artifacts.append(_write_ndjson(artifact, run_rows))
+        sidecar = tmp_path / f"capture-{run}.metadata"
+        sidecar.write_text(
+            f"capture_sha={rows[0]['git_commit']}\n"
+            f"checked_out_sha={rows[0]['git_commit']}\n"
+            f"matrix_run={run}\n"
+            f"workflow_run_id={workflow_run_id}\n"
+            "workflow_run_attempt=1\n",
+            encoding="utf-8",
+        )
+        metadata.append(sidecar)
+    return artifacts, metadata
+
+
 def _git_repo(tmp_path: Path) -> tuple[Path, str]:
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -76,15 +97,17 @@ def _git_repo(tmp_path: Path) -> tuple[Path, str]:
 def test_valid_five_run_capture_aggregates_without_mutating_baseline(tmp_path: Path) -> None:
     repo, capture_sha = _git_repo(tmp_path)
     rows = _capture_rows(sha=capture_sha)
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", rows)
+    artifacts, metadata = _write_bundle(tmp_path, rows)
     baseline = [_row("ratio", sha="f" * 40, timestamp="2026-08-28T00:00:00")]
 
     result = validate_capture(
-        [artifact],
+        artifacts,
         requested_sha=capture_sha,
         expected_keys=KEYS,
+        metadata_paths=metadata,
         baseline_records=baseline,
         repo_root=repo,
+        committed_margins={"gated": {}, "ungateable": {}},
     )
 
     assert len(result.records) == 10
@@ -93,11 +116,13 @@ def test_valid_five_run_capture_aggregates_without_mutating_baseline(tmp_path: P
     assert result.manifest["capture_sha"] == capture_sha
 
     output = aggregate_capture(
-        [artifact],
+        artifacts,
         requested_sha=capture_sha,
         expected_keys=KEYS,
+        metadata_paths=metadata,
         baseline_records=baseline,
         repo_root=repo,
+        committed_margins={"gated": {}, "ungateable": {}},
         output_dir=tmp_path / "evidence",
     )
     assert output.patch_path and output.patch_path.is_file()
@@ -124,32 +149,163 @@ def test_unresolved_sha_is_rejected(tmp_path: Path) -> None:
 def test_mixed_sha_is_rejected(tmp_path: Path) -> None:
     repo, capture_sha = _git_repo(tmp_path)
     rows = _capture_rows(sha=capture_sha)
-    rows[-1]["git_commit"] = OTHER_SHA
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", rows)
+    artifacts, metadata = _write_bundle(tmp_path, rows)
+    rows[0]["git_commit"] = OTHER_SHA
+    _write_ndjson(artifacts[0], rows[:2])
     with pytest.raises(CaptureValidationError, match="one capture SHA"):
-        validate_capture([artifact], requested_sha=capture_sha, expected_keys=KEYS, repo_root=repo)
+        validate_capture(artifacts, requested_sha=capture_sha, expected_keys=KEYS, metadata_paths=metadata, repo_root=repo)
 
 
 def test_partial_benchmark_set_is_rejected(tmp_path: Path) -> None:
     repo, capture_sha = _git_repo(tmp_path)
     rows = [row for row in _capture_rows(sha=capture_sha) if row["stage"] == "ratio"]
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", rows)
+    artifacts, metadata = _write_bundle(tmp_path, rows)
     with pytest.raises(CaptureValidationError, match="missing benchmark keys"):
-        validate_capture([artifact], requested_sha=capture_sha, expected_keys=KEYS, repo_root=repo)
+        validate_capture(artifacts, requested_sha=capture_sha, expected_keys=KEYS, metadata_paths=metadata, repo_root=repo)
 
 
 def test_duplicate_rows_are_rejected(tmp_path: Path) -> None:
     repo, capture_sha = _git_repo(tmp_path)
     rows = _capture_rows(sha=capture_sha)
     rows[-1] = rows[-2].copy()
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", rows)
+    artifacts, metadata = _write_bundle(tmp_path, rows)
     with pytest.raises(CaptureValidationError, match="duplicate"):
-        validate_capture([artifact], requested_sha=capture_sha, expected_keys=KEYS, repo_root=repo)
+        validate_capture(artifacts, requested_sha=capture_sha, expected_keys=KEYS, metadata_paths=metadata, repo_root=repo)
 
 
 def test_malformed_ndjson_is_rejected() -> None:
     with pytest.raises(CaptureValidationError, match="line 2.*not JSON"):
         parse_ndjson('{"ok": true}\nnot-json\n', source="capture")
+
+
+def test_metadata_requires_one_matrix_run_per_artifact(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    artifacts, metadata = _write_bundle(tmp_path, _capture_rows(sha=capture_sha))
+    metadata[1].write_text(
+        metadata[0].read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    with pytest.raises(CaptureValidationError, match="duplicates matrix_run"):
+        validate_capture(
+            artifacts,
+            requested_sha=capture_sha,
+            expected_keys=KEYS,
+            metadata_paths=metadata,
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+
+
+def test_metadata_parser_rejects_unknown_or_missing_fields() -> None:
+    with pytest.raises(CaptureValidationError, match="missing metadata fields"):
+        parse_capture_metadata("capture_sha=abc\n")
+    with pytest.raises(CaptureValidationError, match="unsupported metadata fields"):
+        parse_capture_metadata(
+            "capture_sha=a\nchecked_out_sha=b\nmatrix_run=1\n"
+            "workflow_run_id=2\nworkflow_run_attempt=1\nextra=x\n"
+        )
+
+
+@pytest.mark.parametrize("value", [0, -1, float("nan"), float("inf"), "1", True])
+def test_non_finite_or_non_positive_metrics_are_rejected(tmp_path: Path, value: object) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    rows = _capture_rows(sha=capture_sha)
+    rows[0]["metrics"]["rust_over_oracle_ratio"] = value
+    artifacts, metadata = _write_bundle(tmp_path, rows)
+    with pytest.raises(CaptureValidationError, match="finite and positive"):
+        validate_capture(
+            artifacts,
+            requested_sha=capture_sha,
+            expected_keys=KEYS,
+            metadata_paths=metadata,
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+
+
+def test_declared_regime_is_required_and_uniform(tmp_path: Path) -> None:
+    repo, capture_sha = _git_repo(tmp_path)
+    rows = _capture_rows(sha=capture_sha)
+    artifacts, metadata = _write_bundle(tmp_path, rows)
+    with pytest.raises(CaptureValidationError, match="requires current"):
+        validate_capture(
+            artifacts,
+            requested_sha=capture_sha,
+            expected_keys=KEYS,
+            metadata_paths=metadata,
+            declared_regime_keys={("demo", "synthetic", "ratio")},
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+
+    regime_metadata = {
+        "algorithm": "sha256-canonical-json-v1",
+        "arms": {},
+        "harness": {},
+    }
+    regime = {
+        "fingerprint": hashlib.sha256(
+            json.dumps(regime_metadata, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+        "metadata": regime_metadata,
+    }
+    for row in rows[:1]:
+        row["measurement_regime"] = regime
+    artifacts, metadata = _write_bundle(tmp_path, rows)
+    with pytest.raises(CaptureValidationError, match="mixed measurement regimes"):
+        validate_capture(
+            artifacts,
+            requested_sha=capture_sha,
+            expected_keys=KEYS,
+            metadata_paths=metadata,
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+
+
+def test_changed_registered_source_is_rejected_for_merge_commit(tmp_path: Path) -> None:
+    repo, base_sha = _git_repo(tmp_path)
+    subprocess.run(["git", "-C", str(repo), "branch", "-M", "main"], check=True)
+    subprocess.run(["git", "-C", str(repo), "checkout", "-qb", "side"], check=True)
+    (repo / "tracked.txt").write_text("side\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "commit", "-qam", "side"], check=True)
+    subprocess.run(["git", "-C", str(repo), "checkout", "-q", "main"], check=True)
+    (repo / "main.txt").write_text("main\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "main.txt"], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-qm", "main"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "merge", "--no-ff", "-m", "merge", "side"],
+        check=True,
+        stdout=subprocess.DEVNULL,
+    )
+    capture_sha = subprocess.check_output(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+    ).strip()
+    digest = hashlib.sha256((repo / "tracked.txt").read_bytes()).hexdigest()
+    metadata = {
+        "algorithm": "sha256-canonical-json-v1",
+        "arms": {"rust": {"sources": [{"path": "tracked.txt", "sha256": digest}]}},
+        "harness": {},
+    }
+    regime = {
+        "fingerprint": hashlib.sha256(
+            json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+        "metadata": metadata,
+    }
+    rows = _capture_rows(sha=capture_sha)
+    for row in rows:
+        row["measurement_regime"] = regime
+    artifacts, sidecars = _write_bundle(tmp_path, rows)
+    with pytest.raises(CaptureValidationError, match="changed registered paths"):
+        validate_capture(
+            artifacts,
+            requested_sha=capture_sha,
+            expected_keys=KEYS,
+            metadata_paths=sidecars,
+            repo_root=repo,
+            committed_margins={"gated": {}, "ungateable": {}},
+        )
+    assert base_sha != capture_sha
 
 
 def test_changed_registered_source_is_rejected(tmp_path: Path) -> None:
@@ -168,15 +324,16 @@ def test_changed_registered_source_is_rejected(tmp_path: Path) -> None:
         "arms": {"rust": {"sources": [{"path": "tracked.txt", "sha256": "0" * 64}]}},
         "harness": {},
     }
-    rows[0]["measurement_regime"] = {
-        "fingerprint": hashlib.sha256(
-            json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode()
-        ).hexdigest(),
-        "metadata": metadata,
-    }
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", rows)
+    for row in rows:
+        row["measurement_regime"] = {
+            "fingerprint": hashlib.sha256(
+                json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest(),
+            "metadata": metadata,
+        }
+    artifacts, metadata = _write_bundle(tmp_path, rows)
     with pytest.raises(CaptureValidationError, match="changed registered paths"):
-        validate_capture([artifact], requested_sha=capture_sha, expected_keys=KEYS, repo_root=repo)
+        validate_capture(artifacts, requested_sha=capture_sha, expected_keys=KEYS, metadata_paths=metadata, repo_root=repo)
 
     assert base_sha != capture_sha
 
@@ -190,12 +347,13 @@ def test_non_append_candidate_is_rejected() -> None:
 
 def test_unsupported_margin_change_is_rejected(tmp_path: Path) -> None:
     repo, capture_sha = _git_repo(tmp_path)
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", _capture_rows(sha=capture_sha))
+    artifacts, metadata = _write_bundle(tmp_path, _capture_rows(sha=capture_sha))
     with pytest.raises(CaptureValidationError, match="margin"):
         validate_capture(
-            [artifact],
+            artifacts,
             requested_sha=capture_sha,
             expected_keys=KEYS,
+            metadata_paths=metadata,
             repo_root=repo,
             committed_margins={"gated": {"demo/ratio": 0.99}, "ungateable": {}},
         )
@@ -203,14 +361,15 @@ def test_unsupported_margin_change_is_rejected(tmp_path: Path) -> None:
 
 def test_candidate_baseline_must_preserve_existing_prefix(tmp_path: Path) -> None:
     repo, capture_sha = _git_repo(tmp_path)
-    artifact = _write_ndjson(tmp_path / "capture.ndjson", _capture_rows(sha=capture_sha))
+    artifacts, metadata = _write_bundle(tmp_path, _capture_rows(sha=capture_sha))
     baseline = [_row("ratio", timestamp="2026-08-28T00:00:00")]
     candidate = [dict(baseline[0], timestamp="edited")] + _capture_rows(sha=capture_sha)
     with pytest.raises(CaptureValidationError, match="append-only"):
         validate_capture(
-            [artifact],
+            artifacts,
             requested_sha=capture_sha,
             expected_keys=KEYS,
+            metadata_paths=metadata,
             baseline_records=baseline,
             candidate_records=candidate,
             repo_root=repo,

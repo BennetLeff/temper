@@ -37,6 +37,7 @@ def test_workflow_captures_exact_sha_in_five_matrix_legs() -> None:
     assert 'if [[ "$checked_out" != "$requested" ]]' in text
     assert 'uv run python benchmarks/perf_ab.py \\' in text
     assert '--commit "$CAPTURE_SHA"' in text
+    assert "persist-credentials: false" in text
 
 
 def test_workflow_rebuilds_and_checks_extensions_before_measurement() -> None:
@@ -55,6 +56,7 @@ def test_workflow_aggregates_only_after_all_capture_legs_and_fails_closed() -> N
     assert "scripts/validate_perf_capture.py" in text
     for run in range(1, 6):
         assert f"captures/perf-capture-{run}.ndjson" in text
+        assert f"--metadata captures/capture-{run}.metadata" in text
 
 
 def test_workflow_is_read_only_and_uploads_raw_and_review_artifacts() -> None:
