@@ -75,6 +75,22 @@ def _provision_project(scratch_pcb_path: str | Path) -> None:
     creepage/track_width/missing_courtyard/annular_width."""
     copy_kicad_project_sidecar(Path(scratch_pcb_path), _REAL_PRODUCTION_BOARD)
 
+
+def _make_clean_route_input(board_path: Path) -> tuple[Path, int]:
+    """Write a clean reroute input, matching ``route_board.py``'s default."""
+    from temper_io_types import strip_existing_copper
+
+    clean_content, stripped_count = strip_existing_copper(
+        board_path.read_text(encoding="utf-8")
+    )
+    with tempfile.NamedTemporaryFile(
+        suffix=".kicad_pcb", mode="w", delete=False, encoding="utf-8"
+    ) as clean_tmp:
+        clean_tmp.write(clean_content)
+        clean_path = Path(clean_tmp.name)
+    return clean_path, stripped_count
+
+
 # known_failure_pins.py lives in scripts/ (not a package -- no __init__.py),
 # so it is reached the same way scripts/tests/*.py reach each other: an
 # absolute sys.path insert, safe from any cwd this test happens to run from.
@@ -628,6 +644,19 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
 # ---- Production board tests (pcb/temper.kicad_pcb) ----
 
 PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+
+def test_clean_route_input_strips_existing_copper() -> None:
+    """The router-output gate must start from the same clean artifact as CI's baseline."""
+    clean_path, stripped_count = _make_clean_route_input(PRODUCTION_BOARD_PATH)
+    try:
+        clean_content = clean_path.read_text(encoding="utf-8")
+        assert stripped_count > 0
+        assert "(segment " not in clean_content
+        assert "(via " not in clean_content
+        assert "(zone " not in clean_content
+    finally:
+        clean_path.unlink(missing_ok=True)
 
 # ---------------------------------------------------------------------------
 # BASELINE PROVENANCE — read this before changing any number below.
@@ -1281,20 +1310,25 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
 
     rules = load_netclass_rules(RULES_PATH)
     netlist = parse_kicad_pcb(PRODUCTION_BOARD_PATH).netlist
-    parsed_stub = make_parsed_pcb_stub(PRODUCTION_BOARD_PATH, netlist)
+    clean_input, stripped_count = _make_clean_route_input(PRODUCTION_BOARD_PATH)
+    assert stripped_count > 0, "production route input unexpectedly had no copper to strip"
+    try:
+        parsed_stub = make_parsed_pcb_stub(clean_input, netlist)
 
-    routing_result = route_pcb(
-        parsed_stub,
-        {},
-        design_rules=rules.design_rules,
-        # `#871`/net_batching.py -- the path scripts/route_board.py's
-        # documented recipe (--net-batching) actually exercises in
-        # production; see this function's own docstring for why the
-        # monolithic default OOMs at ~59GB and why net-batching is not a
-        # cosmetic substitute for it.
-        enable_net_batching=True,
-        net_batch_size=DEFAULT_BATCH_SIZE,
-    )
+        routing_result = route_pcb(
+            parsed_stub,
+            {},
+            design_rules=rules.design_rules,
+            # `#871`/net_batching.py -- the path scripts/route_board.py's
+            # documented recipe (--net-batching) actually exercises in
+            # production; see this function's own docstring for why the
+            # monolithic default OOMs at ~59GB and why net-batching is not a
+            # cosmetic substitute for it.
+            enable_net_batching=True,
+            net_batch_size=DEFAULT_BATCH_SIZE,
+        )
+    finally:
+        clean_input.unlink(missing_ok=True)
 
     assert routing_result.routed_pcb_content is not None, "Routing produced no output"
     print(
