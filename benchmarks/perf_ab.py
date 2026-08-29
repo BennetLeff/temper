@@ -113,6 +113,7 @@ Capture SEVERAL runs of the SAME commit -- the margins depend on it:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import math
@@ -136,6 +137,84 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # (module, board, stage); "synthetic" keeps these rows from colliding with the
 # board-corpus rows produced by the closure pipeline.
 SYNTHETIC_BOARD = "synthetic"
+
+def _canonical_json(value: Any) -> str:
+    """Serialize regime metadata independently of host and dict ordering."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def build_measurement_regime(
+    declaration: dict[str, Any],
+    *,
+    repo_root: Path = REPO_ROOT,
+) -> dict[str, Any]:
+    """Materialize auditable file digests and a deterministic regime hash.
+
+    ``declaration`` is intentionally small and explicit: ``arms`` maps arm
+    names to source path lists, while ``harness`` carries result-affecting
+    fixture/timing parameters.  Paths are stored repository-relative so the
+    same checkout at different absolute locations hashes identically.
+    """
+    root = repo_root.resolve()
+    arms = declaration.get("arms", {})
+    if not arms:
+        arms = {
+            arm_name: declaration.get(f"{arm_name}_sources", [])
+            for arm_name in ("rust", "oracle")
+            if f"{arm_name}_sources" in declaration
+        }
+    if not isinstance(arms, dict):
+        raise TypeError("measurement regime arms must be a mapping")
+    materialized_arms: dict[str, dict[str, list[dict[str, str]]]] = {}
+    digest_cache: dict[Path, str] = {}
+    for arm_name in sorted(arms):
+        paths = arms[arm_name]
+        if isinstance(paths, dict):
+            paths = paths.get(
+                "source_paths",
+                paths.get(
+                    "paths",
+                    [source.get("path") for source in paths.get("sources", [])],
+                ),
+            )
+        if not isinstance(paths, (list, tuple)):
+            raise TypeError(f"measurement regime {arm_name!r} paths must be a list")
+        sources: list[dict[str, str]] = []
+        for raw_path in sorted(str(path) for path in paths):
+            path = Path(raw_path)
+            if not path.is_absolute():
+                path = root / path
+            resolved = path.resolve()
+            try:
+                relative = resolved.relative_to(root)
+            except ValueError as err:
+                raise ValueError(
+                    f"measurement regime source is outside repository: {raw_path}"
+                ) from err
+            if not resolved.is_file():
+                raise FileNotFoundError(f"measurement regime source not found: {relative}")
+            digest = digest_cache.get(resolved)
+            if digest is None:
+                digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
+                digest_cache[resolved] = digest
+            sources.append({"path": relative.as_posix(), "sha256": digest})
+        materialized_arms[str(arm_name)] = {"sources": sources}
+
+    canonical = {
+        "algorithm": "sha256-canonical-json-v1",
+        "arms": materialized_arms,
+        "harness": declaration.get("harness", {}),
+    }
+    fingerprint = hashlib.sha256(_canonical_json(canonical).encode("utf-8")).hexdigest()
+    return {"fingerprint": fingerprint, "metadata": canonical}
+
+
+def measurement_regime_fingerprint(
+    declaration: dict[str, Any], *, repo_root: Path = REPO_ROOT
+) -> str:
+    """Return only the stable SHA-256 identity for a regime declaration."""
+    return build_measurement_regime(declaration, repo_root=repo_root)["fingerprint"]
+
 
 DEFAULT_WARMUP = 3
 DEFAULT_REPEATS = 9
@@ -1569,6 +1648,51 @@ def bench_drc_geometry_segment_rect() -> tuple[float, float]:
     return _drc_geometry_ab(build, "drc-geometry-segment-rect")
 
 
+_BENCHMARK_REGIME_METADATA: dict[tuple[str, str], dict[str, Any]] = {
+    # The Rust arm includes its Python API shim because that shim chooses the
+    # boundary and still performs numpy/pin geometry work.  The oracle arm
+    # includes its frozen exporter plus the same Rust-backed DSN primitive
+    # surface it imports today.  The harness source is covered on both sides:
+    # fixture construction, timing parameters, and arm call shape all affect
+    # what the ratio means.
+    ("dsn-exporter", "export_pcb"): {
+        "arms": {
+            "rust": [
+                "benchmarks/perf_ab.py",
+                "packages/temper-placer/src/temper_placer/io/dsn_exporter.py",
+                "packages/temper-io-types/src/dsn_exporter.rs",
+                "packages/temper-placer/src/temper_placer/io/dsn.py",
+                "packages/temper-io-types/src/dsn_types.rs",
+                "packages/temper-io-types/src/dsn.rs",
+                "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
+            ],
+            "oracle": [
+                "benchmarks/perf_ab.py",
+                "packages/temper-placer/tests/io/_dsn_exporter_py_oracle.py",
+                "packages/temper-placer/src/temper_placer/io/dsn.py",
+                "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
+                "packages/temper-io-types/src/dsn_types.rs",
+                "packages/temper-io-types/src/dsn.rs",
+            ],
+        },
+        "harness": {
+            "fixture": {
+                "seed": _DSN_SEED,
+                "components": _DSN_COMPONENTS,
+                "pins_per_component": _DSN_PINS_PER_COMPONENT,
+            },
+            "timing": {
+                "warmup": DEFAULT_WARMUP,
+                "repeats": DEFAULT_REPEATS,
+                "statistic": "median",
+                "unit": "microseconds",
+            },
+            "entrypoint": "bench_dsn_export_pcb",
+        },
+    },
+}
+
+
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     # NOTE (net-ordering): these two entries have NO row yet in
@@ -1649,6 +1773,15 @@ def run_benchmarks(commit: str = "") -> list[dict[str, Any]]:
                     "rust_wall_us": round(rust_us, 3),
                     "oracle_wall_us": round(oracle_us, 3),
                 },
+                **(
+                    {
+                        "measurement_regime": build_measurement_regime(
+                            _BENCHMARK_REGIME_METADATA[(module, stage)]
+                        )
+                    }
+                    if (module, stage) in _BENCHMARK_REGIME_METADATA
+                    else {}
+                ),
             }
         )
     return records

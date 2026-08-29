@@ -173,8 +173,8 @@ PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
 # look principled and detect nothing, which is the failure mode
 # scripts/check_vacuous_gates.py exists because of.
 #
-# The fix for each is to reduce its variance, not to widen its margin: all
-# three are dominated by single-shot scheduling excursions on arms whose timed
+# The fix for each is to reduce its variance, not to widen a margin: these are
+# dominated by single-shot scheduling excursions on arms whose timed
 # region is tens of microseconds. Raising perf_ab.py's DEFAULT_REPEATS for
 # these arms, or having them median several in-process re-measurements, should
 # bring them back under MAX_GATEABLE_MARGIN -- at which point the test below
@@ -213,6 +213,70 @@ HIGHER_IS_BETTER_NAMES = ("completion_rate",)
 
 class PerfGateError(RuntimeError):
     """Raised when the comparison cannot be made. Always fails the gate."""
+
+
+LEGACY_REGIME_IDENTITY = "legacy-v2"
+
+
+def measurement_regime_identity(record: dict[str, Any]) -> str:
+    """Return the exact regime identity carried by *record*.
+
+    Baseline history predates regime metadata, so an absent (or empty)
+    descriptor is deliberately mapped to one stable identity.  A couple of
+    top-level spellings are accepted while records are being migrated; new
+    producers should use ``measurement_regime.fingerprint``.
+    """
+    descriptor = record.get("measurement_regime")
+    if isinstance(descriptor, dict):
+        fingerprint = descriptor.get("fingerprint")
+        if isinstance(fingerprint, str) and fingerprint:
+            return fingerprint
+    elif isinstance(descriptor, str) and descriptor:
+        return descriptor
+    for field in ("regime_fingerprint", "measurement_regime_fingerprint"):
+        fingerprint = record.get(field)
+        if isinstance(fingerprint, str) and fingerprint:
+            return fingerprint
+    return LEGACY_REGIME_IDENTITY
+
+
+class BaselineMap(dict[tuple[str, str, str], dict[str, float]]):
+    """Compatibility view of regime-indexed rolling baselines.
+
+    The dict itself retains the historical three-field API for callers that
+    have one regime.  ``regimes`` is the authoritative index used by the
+    comparator and keeps medians for every exact regime independently.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.regimes: dict[
+            tuple[str, str, str], dict[str, dict[str, float]]
+        ] = {}
+
+
+class FixedCommitNoiseMap(dict[tuple[str, str], dict[str, float]]):
+    """Noise measurements with a compatibility view and regime details.
+
+    Existing callers use the mapping as ``(module, stage) -> stats``.  The
+    ``regimes`` index retains the exact ``(commit, regime)`` measurements so
+    margin derivation can select the active regime instead of taking the worst
+    value from unrelated historical regimes.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.regimes: dict[
+            tuple[str, str], dict[str, dict[str, float]]
+        ] = {}
+        # Only this view is safe for margin derivation. It excludes a
+        # historical qualifying regime when a newer regime has not yet
+        # accumulated enough rows to qualify.
+        self.active: dict[tuple[str, str], dict[str, float]] = {}
+
+
+VALIDATED_MARGINS_SCHEMA_VERSION = 1
+VALIDATED_MARGINS_SOURCE = "trusted-baseline-refresh-validator"
 
 
 def _parse_records(text: str, source: str) -> list[dict[str, Any]]:
@@ -285,28 +349,44 @@ def _key(record: dict[str, Any]) -> tuple[str, str, str]:
 def load_main_baselines(
     records: list[dict[str, Any]],
     window: int = DEFAULT_WINDOW,
-) -> dict[tuple[str, str, str], dict[str, float]]:
-    """Compute median baseline for each (module, board, stage) from records."""
-    groups: dict[tuple[str, str, str], list[dict]] = {}
+) -> BaselineMap:
+    """Compute rolling medians per key *and exact measurement regime*.
+
+    The legacy mapping surface remains available for the one-regime case, but
+    rows from different regimes never share a rolling window.
+    """
+    groups: dict[
+        tuple[str, str, str], dict[str, list[dict[str, Any]]]
+    ] = {}
     for r in records:
         key = _key(r)
         if key[1] and key[2]:
-            groups.setdefault(key, []).append(r)
+            regime = measurement_regime_identity(r)
+            groups.setdefault(key, {}).setdefault(regime, []).append(r)
 
-    baselines: dict[tuple[str, str, str], dict[str, float]] = {}
-    for key, group in groups.items():
-        group.sort(key=lambda r: r.get("timestamp", ""))
-        recent = group[-window:]
-        metric_collect: dict[str, list[float]] = {}
-        for r in recent:
-            for mk, mv in (r.get("metrics") or {}).items():
-                if isinstance(mv, (int, float)):
-                    metric_collect.setdefault(mk, []).append(float(mv))
+    baselines = BaselineMap()
+    for key, regimes in groups.items():
+        for regime, group in regimes.items():
+            group.sort(key=lambda r: r.get("timestamp", ""))
+            recent = group[-window:]
+            metric_collect: dict[str, list[float]] = {}
+            for r in recent:
+                for mk, mv in (r.get("metrics") or {}).items():
+                    if isinstance(mv, (int, float)):
+                        metric_collect.setdefault(mk, []).append(float(mv))
 
-        medians: dict[str, float] = {}
-        for mk, vals in metric_collect.items():
-            medians[mk] = statistics.median(vals) if vals else 0.0
-        baselines[key] = medians
+            medians: dict[str, float] = {}
+            for mk, vals in metric_collect.items():
+                medians[mk] = statistics.median(vals) if vals else 0.0
+            baselines.regimes.setdefault(key, {})[regime] = medians
+
+        # Preserve the old ``baselines[key][metric]`` view when unambiguous.
+        # For mixed keys the legacy identity is the least surprising view for
+        # old callers; regime-aware consumers use ``.regimes``.
+        if len(baselines.regimes[key]) == 1:
+            baselines[key] = next(iter(baselines.regimes[key].values()))
+        elif LEGACY_REGIME_IDENTITY in baselines.regimes[key]:
+            baselines[key] = baselines.regimes[key][LEGACY_REGIME_IDENTITY]
 
     return baselines
 
@@ -315,7 +395,7 @@ def measure_fixed_commit_noise(
     records: list[dict[str, Any]],
     metric: str = "rust_over_oracle_ratio",
     min_group: int = MIN_NOISE_GROUP,
-) -> dict[tuple[str, str], dict[str, float]]:
+) -> FixedCommitNoiseMap:
     """Worst leave-one-out excursion per benchmark, measured at a FIXED COMMIT.
 
     This is the only defensible noise estimate available from the baseline
@@ -331,11 +411,18 @@ def measure_fixed_commit_noise(
     own arithmetic: each sample against the median of the others, which is what
     a PR run faces against a trailing-window median baseline.
 
-    Returns ``{(module, stage): {"worst_pct", "n", "groups"}}``. Benchmarks
-    with no qualifying group are absent -- callers must treat that as "not
-    measured", never as "no noise".
+    Returns a compatibility mapping of ``{(module, stage): stats}`` plus a
+    ``.regimes`` index of ``{(module, stage): {regime: stats}}``.  When the
+    newest observed regime has a qualifying group, both the compatibility and
+    ``.active`` views use it. If it is not ready yet, the compatibility view
+    retains a historical qualifying value for old callers, while ``.active``
+    omits the benchmark so that stale noise cannot widen the current margin.
+    Benchmarks with no qualifying group are absent -- callers must treat that
+    as "not measured", never as "no noise".
     """
-    by_key_commit: dict[tuple[str, str], dict[str, list[float]]] = {}
+    by_key_commit: dict[
+        tuple[str, str], dict[tuple[str, str], list[float]]
+    ] = {}
     for r in records:
         value = (r.get("metrics") or {}).get(metric)
         if not isinstance(value, (int, float)):
@@ -346,26 +433,67 @@ def measure_fixed_commit_noise(
         commit = str(r.get("git_commit", ""))
         if not commit:
             continue
-        by_key_commit.setdefault(key, {}).setdefault(commit, []).append(float(value))
+        regime = measurement_regime_identity(r)
+        by_key_commit.setdefault(key, {}).setdefault(
+            (commit, regime), []
+        ).append(float(value))
 
-    measured: dict[tuple[str, str], dict[str, float]] = {}
+    measured = FixedCommitNoiseMap()
     for key, commits in by_key_commit.items():
-        worst = 0.0
-        total = 0
-        groups = 0
-        for values in commits.values():
+        by_regime: dict[str, dict[str, float]] = {}
+        for (_commit, regime), values in commits.items():
             if len(values) < min_group:
                 continue
-            groups += 1
-            total += len(values)
+            worst = 0.0
             for i, value in enumerate(values):
                 others = values[:i] + values[i + 1:]
                 median = statistics.median(others)
                 if median <= 0:
                     continue
                 worst = max(worst, abs(value - median) / median * 100)
-        if groups:
-            measured[key] = {"worst_pct": worst, "n": float(total), "groups": float(groups)}
+            stats = {
+                "worst_pct": worst,
+                "n": float(len(values)),
+                "groups": 1.0,
+            }
+            previous = by_regime.get(regime)
+            if previous is None:
+                by_regime[regime] = stats
+            else:
+                # A regime may have multiple fixed commits. Preserve the
+                # historical worst-case behavior within that regime.
+                by_regime[regime] = {
+                    "worst_pct": max(previous["worst_pct"], stats["worst_pct"]),
+                    "n": previous["n"] + stats["n"],
+                    "groups": previous["groups"] + stats["groups"],
+                }
+        if by_regime:
+            measured.regimes[key] = by_regime
+            # Select the regime with the newest row in the input, not merely
+            # the newest *qualifying* group. Captures append in chronological
+            # order. If a new regime has not accumulated a complete fixed-
+            # commit group yet, omit this benchmark entirely: falling back to
+            # an older regime would let stale noise widen the current margin.
+            observed_regimes: dict[str, int] = {}
+            for index, record in enumerate(records):
+                if (record.get("module", ""), record.get("stage", "")) != key:
+                    continue
+                if not isinstance((record.get("metrics") or {}).get(metric), (int, float)):
+                    continue
+                observed_regimes[measurement_regime_identity(record)] = index
+            latest_regime = max(observed_regimes, key=observed_regimes.__getitem__)
+            if latest_regime in by_regime:
+                measured[key] = by_regime[latest_regime]
+                measured.active[key] = by_regime[latest_regime]
+            else:
+                # Retain the old mapping's most recent qualifying value for
+                # callers that only consume the historical API, but do not
+                # expose it as active evidence for a margin.
+                fallback_regime = max(
+                    by_regime,
+                    key=observed_regimes.__getitem__,
+                )
+                measured[key] = by_regime[fallback_regime]
     return measured
 
 
@@ -386,7 +514,8 @@ def derive_margin_table(
     """
     gated: dict[tuple[str, str], float] = {}
     ungateable: dict[tuple[str, str], float] = {}
-    for key, stats in measure_fixed_commit_noise(records).items():
+    measured = measure_fixed_commit_noise(records)
+    for key, stats in measured.active.items():
         margin = derive_margin(stats["worst_pct"])
         if margin > MAX_GATEABLE_MARGIN:
             ungateable[key] = margin
@@ -407,10 +536,44 @@ def margin_for(key: tuple[str, str] | None) -> float:
     return PER_BENCHMARK_TIMING_MARGIN.get(key, TIMING_MARGIN)
 
 
+def load_validated_margins(path: Path) -> dict[str, dict[tuple[str, str], float]]:
+    """Load the explicit margin artifact emitted by the trusted validator."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PerfGateError(f"validated margins: cannot read {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise PerfGateError("validated margins: artifact must be an object")
+    if payload.get("schema_version") != VALIDATED_MARGINS_SCHEMA_VERSION:
+        raise PerfGateError("validated margins: unsupported schema version")
+    if payload.get("source") != VALIDATED_MARGINS_SOURCE:
+        raise PerfGateError("validated margins: untrusted artifact source")
+    raw = payload.get("margins")
+    if not isinstance(raw, dict) or set(raw) != {"gated", "ungateable"}:
+        raise PerfGateError("validated margins: expected gated and ungateable maps")
+    result: dict[str, dict[tuple[str, str], float]] = {"gated": {}, "ungateable": {}}
+    for category, values in raw.items():
+        if not isinstance(values, dict):
+            raise PerfGateError(f"validated margins: {category} must be an object")
+        for label, value in values.items():
+            parts = label.split("/") if isinstance(label, str) else []
+            if len(parts) != 2 or not parts or any(not part for part in parts):
+                raise PerfGateError(f"validated margins: malformed benchmark key {label!r}")
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise PerfGateError(f"validated margins: malformed value for {label!r}")
+            if not math.isfinite(float(value)) or float(value) < 0:
+                raise PerfGateError(f"validated margins: invalid value for {label!r}")
+            result[category][(parts[0], parts[1])] = float(value)
+    if set(result["gated"]) & set(result["ungateable"]):
+        raise PerfGateError("validated margins: benchmark appears in both maps")
+    return result
+
+
 def _status_for(
     mk: str,
     delta_pct: float,
     key: tuple[str, str] | None = None,
+    validated_margins: dict[str, dict[tuple[str, str], float]] | None = None,
 ) -> str:
     """Classify one metric delta. Unrecognised metric names are informational.
 
@@ -425,13 +588,21 @@ def _status_for(
             return "IMPROVED"
         return "OK"
     if mk.endswith(LOWER_IS_BETTER_SUFFIXES):
-        if key is not None and key in UNGATEABLE_BENCHMARKS:
+        ungateable = (
+            validated_margins.get("ungateable", {})
+            if validated_margins is not None
+            else UNGATEABLE_BENCHMARKS
+        )
+        if key is not None and key in ungateable:
             # Measured, reported, never gated -- and never labelled IMPROVED
             # either. physics-emi's own noise produced a -42.8% reading on
             # unmodified code; calling that an improvement is the same error
             # as calling the mirror-image reading a regression.
             return "ADVISORY"
-        if delta_pct > margin_for(key) * 100:
+        margin = margin_for(key)
+        if validated_margins is not None and key is not None:
+            margin = validated_margins.get("gated", {}).get(key, margin)
+        if delta_pct > margin * 100:
             return "REGRESSION"
         if delta_pct < -IMPROVEMENT_THRESHOLD * 100:
             return "IMPROVED"
@@ -443,13 +614,37 @@ def compare(
     pr_metrics: list[dict[str, Any]],
     baselines: dict[tuple[str, str, str], dict[str, float]],
     main_benchmarks: set[tuple[str, str]] | None = None,
+    validated_margins: dict[str, dict[tuple[str, str], float]] | None = None,
 ) -> list[dict[str, Any]]:
     """Compare PR metrics against baselines and return delta entries."""
     results: list[dict[str, Any]] = []
     for pr_entry in pr_metrics:
         key = _key(pr_entry)
-        baseline = baselines.get(key, {})
+        regime = measurement_regime_identity(pr_entry)
+        regime_groups = getattr(baselines, "regimes", None)
+        if regime_groups is not None:
+            available_regimes = sorted(regime_groups.get(key, {}))
+            baseline = regime_groups.get(key, {}).get(regime, {})
+            key_has_baseline = bool(available_regimes)
+        else:
+            # A plain dict is accepted for callers that construct medians
+            # directly. Such values are necessarily legacy-v2 rows.
+            plain_baseline = baselines.get(key, {})
+            available_regimes = [LEGACY_REGIME_IDENTITY] if plain_baseline else []
+            baseline = plain_baseline if regime == LEGACY_REGIME_IDENTITY else {}
+            key_has_baseline = bool(plain_baseline)
         if not baseline:
+            if key_has_baseline and available_regimes:
+                results.append({
+                    "module": key[0],
+                    "board": key[1],
+                    "stage": key[2],
+                    "status": "INCOMPATIBLE_BASELINE",
+                    "measurement_regime": regime,
+                    "available_regimes": available_regimes,
+                    "deltas": {},
+                })
+                continue
             # A benchmark with no baseline row is one of two very different
             # things, and conflating them made adding a benchmark impossible.
             #
@@ -475,6 +670,7 @@ def compare(
                 "board": key[1],
                 "stage": key[2],
                 "status": "NEW_BENCHMARK" if is_new else "NO_BASELINE",
+                "measurement_regime": regime,
                 "deltas": {},
             })
             continue
@@ -493,8 +689,20 @@ def compare(
                 "main": round(base_val, 6),
                 "pr": round(pr_float, 6),
                 "delta_pct": round(delta_pct, 1),
-                "status": _status_for(mk, delta_pct, bench),
-                "margin_pct": round(margin_for(bench) * 100, 1),
+                "status": _status_for(mk, delta_pct, bench, validated_margins),
+                "margin_pct": round(
+                    (
+                        validated_margins.get("gated", {}).get(
+                            bench,
+                            validated_margins.get("ungateable", {}).get(
+                                bench, margin_for(bench)
+                            ),
+                        )
+                        if validated_margins is not None
+                        else margin_for(bench)
+                    ) * 100,
+                    1,
+                ),
             }
 
         # Precedence: a REGRESSION anywhere outranks everything; ADVISORY
@@ -514,6 +722,7 @@ def compare(
             "board": key[1],
             "stage": key[2],
             "status": worst,
+            "measurement_regime": regime,
             "deltas": deltas,
         })
 
@@ -537,6 +746,15 @@ def gate_failures(results: list[dict[str, Any]]) -> list[str]:
                 f"performance A/B."
             )
             continue
+        if res["status"] == "INCOMPATIBLE_BASELINE":
+            available = ", ".join(res.get("available_regimes", [])) or "none"
+            failures.append(
+                f"{label}: INCOMPATIBLE_BASELINE for regime "
+                f"{res.get('measurement_regime', LEGACY_REGIME_IDENTITY)!r}; available "
+                f"baseline regimes: {available}. Capture a reviewed recapture "
+                "baseline for this measurement regime before merging."
+            )
+            continue
         for mk, delta in sorted(res["deltas"].items()):
             if delta["status"] == "REGRESSION":
                 failures.append(
@@ -558,11 +776,14 @@ def advisory_notes(results: list[dict[str, Any]]) -> list[str]:
     for res in results:
         bench = (res["module"], res["stage"])
         reason = UNGATEABLE_BENCHMARKS.get(bench)
-        if reason is None:
-            continue
         for mk, delta in sorted(res["deltas"].items()):
             if delta["status"] != "ADVISORY":
                 continue
+            if reason is None:
+                reason = (
+                    f"validated margin {delta.get('margin_pct', 0):.0f}% "
+                    f"exceeds the {MAX_GATEABLE_MARGIN:.1%} maximum gateable margin"
+                )
             notes.append(
                 f"{res['module']}/{res['board']}/{res['stage']}: {mk} "
                 f"{delta['delta_pct']:+.1f}% (baseline {delta['main']} -> PR "
@@ -588,6 +809,15 @@ def format_markdown(
     )
 
     for res in results:
+        if res["status"] == "INCOMPATIBLE_BASELINE":
+            available = ", ".join(res.get("available_regimes", [])) or "none"
+            current = res.get("measurement_regime", LEGACY_REGIME_IDENTITY)
+            lines.append(
+                f"| {res['module']} | {res['board']} | {res['stage']} | "
+                f"— | — | — | regime mismatch (current {current}; available {available}) | — | "
+                "🔴 INCOMPATIBLE_BASELINE |"
+            )
+            continue
         if res["status"] == "NO_BASELINE":
             lines.append(
                 f"| {res['module']} | {res['board']} | {res['stage']} | "
@@ -595,7 +825,6 @@ def format_markdown(
             )
             continue
 
-        bench = (res["module"], res["stage"])
         for mk, delta in sorted(res["deltas"].items()):
             icon = ""
             if delta["status"] == "REGRESSION":
@@ -605,7 +834,7 @@ def format_markdown(
             elif delta["status"] == "ADVISORY":
                 icon = "⚪"
             direction = "+" if delta["delta_pct"] >= 0 else ""
-            if bench in UNGATEABLE_BENCHMARKS:
+            if any(delta["status"] == "ADVISORY" for delta in res["deltas"].values()):
                 margin = "not gated"
             elif mk.endswith(LOWER_IS_BETTER_SUFFIXES):
                 margin = f"{delta.get('margin_pct', TIMING_MARGIN * 100):.0f}%"
@@ -740,6 +969,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--window", type=int, default=DEFAULT_WINDOW,
                         help=f"Rolling window size for baseline median (default: {DEFAULT_WINDOW})")
+    parser.add_argument(
+        "--validated-margins-json", type=Path, default=None,
+        help="Margin artifact emitted by the trusted baseline-refresh validator",
+    )
     parser.add_argument("--json", action="store_true",
                         help="Output results as JSON")
     parser.add_argument("--report-file", type=Path, default=None,
@@ -799,7 +1032,16 @@ def main(argv: list[str] | None = None) -> int:
             if len(parts) == 2:
                 main_benchmarks.add((parts[0], parts[1]))
 
-    results = compare(pr_metrics, baselines, main_benchmarks)
+    try:
+        validated_margins = (
+            load_validated_margins(args.validated_margins_json)
+            if args.validated_margins_json is not None else None
+        )
+    except PerfGateError as err:
+        print(f"FAIL: {err}", file=sys.stderr)
+        return 1
+
+    results = compare(pr_metrics, baselines, main_benchmarks, validated_margins)
     failures = gate_failures(results)
     advisories = advisory_notes(results)
     report = format_markdown(results, failures, advisories)
