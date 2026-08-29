@@ -1,0 +1,380 @@
+name: Performance Baseline Capture
+
+# Reviewed recapture path for the measurement-regime guard (U3 of
+# docs/plans/2026-08-29-1152-feat-performance-measurement-regime-guard-plan.md).
+# This workflow emits evidence only. It never writes a ref, a baseline file,
+# or a pull request, and it deliberately is not a PR check.
+
+on:
+  workflow_dispatch:
+    inputs:
+      capture_sha:
+        description: "Exact 40-hex commit to capture (must be immutable and resolvable)"
+        required: true
+        type: string
+      independent_sha:
+        description: "Optional different 40-hex commit for R14 candidate-baseline validation"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # Captures are evidence, not superseding checks. Keep concurrent manual
+  # captures independent so a second dispatch cannot discard the first one.
+  group: performance-baseline-capture-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  validate-input:
+    name: Validate capture SHA
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Resolve immutable capture commit
+        uses: actions/github-script@v9
+        env:
+          CAPTURE_SHA: ${{ inputs.capture_sha }}
+          INDEPENDENT_SHA: ${{ inputs.independent_sha }}
+        with:
+          script: |
+            const sha = process.env.CAPTURE_SHA || "";
+            if (!/^[0-9a-fA-F]{40}$/.test(sha)) {
+              core.setFailed("capture_sha must be an immutable 40-hex commit SHA");
+              return;
+            }
+            const { data } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: sha,
+            });
+            if (data.sha.toLowerCase() !== sha.toLowerCase()) {
+              core.setFailed(`capture_sha resolved to ${data.sha}, not ${sha}`);
+              return;
+            }
+            core.info(`Resolved immutable capture commit ${data.sha}`);
+            const independent = process.env.INDEPENDENT_SHA || "";
+            if (!independent) return;
+            if (!/^[0-9a-fA-F]{40}$/.test(independent)) {
+              core.setFailed("independent_sha must be an immutable 40-hex commit SHA");
+              return;
+            }
+            if (independent.toLowerCase() === sha.toLowerCase()) {
+              core.setFailed("independent_sha must differ from capture_sha");
+              return;
+            }
+            const independentCommit = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: independent,
+            });
+            if (independentCommit.data.sha.toLowerCase() !== independent.toLowerCase()) {
+              core.setFailed(
+                `independent_sha resolved to ${independentCommit.data.sha}, not ${independent}`
+              );
+              return;
+            }
+            core.info(`Resolved independent current commit ${independentCommit.data.sha}`);
+
+  capture:
+    name: Capture run ${{ matrix.run }}
+    needs: validate-input
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        run: [1, 2, 3, 4, 5]
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      CAPTURE_SHA: ${{ inputs.capture_sha }}
+    steps:
+      - name: Check out exact capture SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.capture_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact detached commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$CAPTURE_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "capture_sha is not an immutable 40-hex SHA" >&2
+            exit 1
+          fi
+          checked_out="$(git rev-parse HEAD)"
+          requested="${CAPTURE_SHA,,}"
+          if [[ "$checked_out" != "$requested" ]]; then
+            echo "checkout resolved to $checked_out, requested $requested" >&2
+            exit 1
+          fi
+          echo "Capturing immutable commit $checked_out"
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      # A plain cargo build can poison the shared pyo3 cdylib with no
+      # PyInit_<module>. Use the repository driver, then check immediately
+      # before measuring so a stale or cached extension cannot produce rows.
+      - name: Rebuild pyo3 extensions
+        run: make extensions
+
+      - name: Verify extension freshness
+        run: make extensions-check
+
+      - name: Run performance A/B
+        run: |
+          uv run python benchmarks/perf_ab.py \
+            --commit "$CAPTURE_SHA" \
+            --json > "perf-capture-${{ matrix.run }}.ndjson"
+          test -s "perf-capture-${{ matrix.run }}.ndjson"
+          cat "perf-capture-${{ matrix.run }}.ndjson"
+
+      - name: Write capture metadata
+        run: |
+          {
+            echo "capture_sha=$CAPTURE_SHA"
+            echo "checked_out_sha=$(git rev-parse HEAD)"
+            echo "matrix_run=${{ matrix.run }}"
+            echo "workflow_run_id=${{ github.run_id }}"
+            echo "workflow_run_attempt=${{ github.run_attempt }}"
+          } > "capture-${{ matrix.run }}.metadata"
+
+      - name: Upload raw capture
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-capture-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.run }}
+          path: |
+            perf-capture-${{ matrix.run }}.ndjson
+            capture-${{ matrix.run }}.metadata
+          if-no-files-found: error
+
+  independent-current:
+    name: Validate current capture against candidate
+    needs: validate-input
+    if: inputs.independent_sha != ''
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      INDEPENDENT_SHA: ${{ inputs.independent_sha }}
+    steps:
+      - name: Check out exact independent commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.independent_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact detached commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          checked_out="$(git rev-parse HEAD)"
+          requested="${INDEPENDENT_SHA,,}"
+          if [[ ! "$INDEPENDENT_SHA" =~ ^[0-9a-fA-F]{40}$ || "$checked_out" != "$requested" ]]; then
+            echo "independent checkout does not match requested SHA" >&2
+            exit 1
+          fi
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Rebuild pyo3 extensions
+        run: make extensions
+
+      - name: Verify extension freshness
+        run: make extensions-check
+
+      - name: Run independent current performance A/B
+        run: |
+          uv run python benchmarks/perf_ab.py \
+            --commit "$INDEPENDENT_SHA" \
+            --json > perf-current.ndjson
+          test -s perf-current.ndjson
+          cat perf-current.ndjson
+
+      - name: Upload independent current capture
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-current-${{ github.run_id }}-${{ github.run_attempt }}
+          path: perf-current.ndjson
+          if-no-files-found: error
+
+  aggregate:
+    name: Validate and publish capture evidence
+    needs: [validate-input, capture, independent-current]
+    # If any matrix leg fails, still enter this job and fail closed on the
+    # incomplete artifact set instead of silently skipping aggregation.
+    if: >-
+      always() && needs.validate-input.result == 'success' &&
+      (needs['independent-current'].result == 'success' ||
+      needs['independent-current'].result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 15
+    env:
+      CAPTURE_SHA: ${{ inputs.capture_sha }}
+      INDEPENDENT_SHA: ${{ inputs.independent_sha }}
+      BASELINE_PATH: power_pcb_dataset/metrics/perf_ab_baseline.jsonl
+    steps:
+      # Keep the validator and comparator on the default branch. The capture
+      # commit is untrusted input: it may provide source bytes and registry
+      # declarations, but it must not be able to replace the code deciding
+      # whether its own evidence is acceptable.
+      - name: Check out trusted default-branch validator
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out capture source tree separately
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.capture_sha }}
+          path: capture-source
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact capture source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C capture-source rev-parse HEAD)" = "${CAPTURE_SHA,,}"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/capture-source"
+
+      - name: Fetch independent commit for validation
+        if: inputs.independent_sha != ''
+        run: git fetch --no-tags origin "$INDEPENDENT_SHA"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+
+      - name: Download all successful capture artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: perf-capture-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: captures
+          merge-multiple: true
+
+      - name: Download independent current artifact
+        if: inputs.independent_sha != ''
+        uses: actions/download-artifact@v8
+        with:
+          name: perf-current-${{ github.run_id }}-${{ github.run_attempt }}
+          path: captures
+
+      - name: Fetch authoritative baseline from main
+        run: |
+          set -euo pipefail
+          git show "HEAD:$BASELINE_PATH" > main-perf-baseline.jsonl
+          test -s main-perf-baseline.jsonl
+
+      - name: Require all five raw capture rows files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for run in 1 2 3 4 5; do
+            test -s "captures/perf-capture-${run}.ndjson"
+            test -s "captures/capture-${run}.metadata"
+          done
+          if [[ -n "$INDEPENDENT_SHA" ]]; then
+            test -s captures/perf-current.ndjson
+          fi
+
+      - name: Aggregate and validate candidate append
+        run: |
+          capture_args=( \
+            --capture-sha "$CAPTURE_SHA" \
+            --baseline main-perf-baseline.jsonl \
+            --registry "$GITHUB_WORKSPACE/capture-source/benchmarks/perf_ab.py" \
+            --repo-root "$GITHUB_WORKSPACE/capture-source" \
+            --output-dir capture-evidence \
+            --metadata captures/capture-1.metadata \
+            --metadata captures/capture-2.metadata \
+            --metadata captures/capture-3.metadata \
+            --metadata captures/capture-4.metadata \
+            --metadata captures/capture-5.metadata \
+            captures/perf-capture-1.ndjson \
+            captures/perf-capture-2.ndjson \
+            captures/perf-capture-3.ndjson \
+            captures/perf-capture-4.ndjson \
+            captures/perf-capture-5.ndjson )
+          if [[ -n "$INDEPENDENT_SHA" ]]; then
+            capture_args+=( \
+              --independent-current captures/perf-current.ndjson \
+              --independent-sha "$INDEPENDENT_SHA" )
+          fi
+          uv run python scripts/validate_perf_capture.py "${capture_args[@]}"
+
+      - name: Upload review-only evidence bundle
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-baseline-capture-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            captures/*.ndjson
+            captures/*.metadata
+            capture-evidence/capture-manifest.json
+            capture-evidence/candidate-baseline-append.jsonl
+            main-perf-baseline.jsonl
+          if-no-files-found: error
