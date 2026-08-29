@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import statistics
 import subprocess
 import sys
@@ -74,6 +75,15 @@ def _provision_project(scratch_pcb_path: str | Path) -> None:
     propagated from the real committed board, so DRC on it is not blind to
     creepage/track_width/missing_courtyard/annular_width."""
     copy_kicad_project_sidecar(Path(scratch_pcb_path), _REAL_PRODUCTION_BOARD)
+    # The project file's custom footprint nicknames resolve through the
+    # sibling table and project-local libraries.  A scratch board in /tmp
+    # therefore needs those assets too; copying only .kicad_pro/.kicad_dru
+    # makes KiCad report every footprint as a library issue (168 here),
+    # invalidating the measured router-output baseline.
+    scratch_dir = Path(scratch_pcb_path).parent
+    source_dir = _REAL_PRODUCTION_BOARD.parent
+    shutil.copyfile(source_dir / "fp-lib-table", scratch_dir / "fp-lib-table")
+    shutil.copytree(source_dir / "libs", scratch_dir / "libs", dirs_exist_ok=True)
 
 
 def _make_clean_route_input(board_path: Path) -> tuple[Path, int]:
