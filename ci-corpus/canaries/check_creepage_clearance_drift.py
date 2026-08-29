@@ -32,12 +32,12 @@ def _agreeing_tree(root: Path) -> None:
         "elec/src/constraints.ato",
         "module Constraints:\n"
         "    module HighVoltage:\n"
-        "        creepage = 8.0mm   # IEC 60335-1 reinforced insulation\n",
+        "        creepage = 8.0mm   # IEC 60335-1 working insulation\n",
     )
     _mk(
         root,
         "scripts/derived_constant.py",
-        "# reinforced creepage figure, mirrors constraints.ato HighVoltage\n"
+        "# working creepage figure, mirrors constraints.ato HighVoltage\n"
         "HV_CREEPAGE_MM = 8.0\n",
     )
 
@@ -51,13 +51,13 @@ def _mismatched_tree(root: Path) -> None:
         "elec/src/constraints.ato",
         "module Constraints:\n"
         "    module HighVoltage:\n"
-        "        creepage = 8.0mm   # IEC 60335-1 reinforced insulation\n",
+        "        creepage = 8.0mm   # IEC 60335-1 working insulation\n",
     )
     _mk(
         root,
         "scripts/derived_constant.py",
-        "# reinforced creepage figure, drifted from constraints.ato HighVoltage\n"
-        "HV_CREEPAGE_MM = 12.6\n",
+        "# working creepage figure, drifted from constraints.ato HighVoltage\n"
+        "HV_CREEPAGE_MM = 10.0\n",
     )
 
 

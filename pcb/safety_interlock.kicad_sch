@@ -1927,17 +1927,23 @@
     (at 106.04 355.88)
     (uuid "121dd398-71d5-fe98-01c5-94ac6ebf17b4")
   )
-  (no_connect
-    (at 106.04 350.80)
-    (uuid "127c4993-e425-08e5-ec32-494d97469f56")
+  (hierarchical_label "gnd"
+    (shape bidirectional)
+    (at 106.04 350.80 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "34511c25-1300-6b8d-c573-bae4228098a3")
   )
-  (no_connect
-    (at 106.04 345.72)
-    (uuid "367cf161-a8c1-45c1-ecdf-caab28c3cd85")
+  (hierarchical_label "gnd"
+    (shape bidirectional)
+    (at 106.04 345.72 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "93f457dd-3b67-64d7-8f08-6e3b7605cdf7")
   )
-  (no_connect
-    (at 106.04 340.64)
-    (uuid "0943b5a2-6dc6-bc8e-c8dc-92e9e2562f94")
+  (hierarchical_label "gnd"
+    (shape bidirectional)
+    (at 106.04 340.64 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "16d81c4d-e8eb-36dd-19af-75f8a8620e65")
   )
   (hierarchical_label "+3V3"
     (shape bidirectional)
