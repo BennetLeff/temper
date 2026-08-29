@@ -199,6 +199,8 @@ jobs:
           # NO_BASELINE, so a fetch failure degrades to the strict behaviour.
           git show "origin/main:benchmarks/perf_ab.py" > main-perf-ab.py 2>/dev/null \
             || : > main-perf-ab.py
+          git show "origin/main:scripts/pr_perf_compare.py" > main-pr-perf-compare.py 2>/dev/null \
+            || : > main-pr-perf-compare.py
           python3 - <<'EOF' > main-benchmarks.tsv
           import ast, pathlib
           src = pathlib.Path("main-perf-ab.py").read_text()
@@ -228,10 +230,11 @@ jobs:
       # validator has proved an append-only five-run capture and unchanged
       # benchmark-owned inputs. Ordinary PRs keep the main baseline
       # unconditionally. The API identity checks below are independent of the
-      # candidate validator; the bootstrap fallback is needed because
-      # origin/main predates schema 2.
+      # validator, and the validator itself must come from origin/main. A PR
+      # cannot bootstrap schema 2 by executing its own approval code.
       - name: Validate reviewed baseline refresh (if requested)
         if: github.event_name == 'pull_request'
+        shell: bash
         env:
           REFRESH_MANIFEST: power_pcb_dataset/metrics/perf_ab_baseline_refresh/manifest.json
           GH_TOKEN: ${{ github.token }}
@@ -259,6 +262,8 @@ jobs:
             test "$(jq -r '.conclusion' <<<"$run_json")" = success
             test "$(jq -r '.event' <<<"$run_json")" = workflow_dispatch
             test "$(jq -r '.head_sha' <<<"$run_json" | tr '[:upper:]' '[:lower:]')" = "${expected_sha,,}"
+            test "$(jq -r '.workflow_id' <<<"$run_json")" = 303796920
+            test "$(jq -r '.path' <<<"$run_json")" = .github/workflows/pr-perf-check.yml
           }
           capture_sha="$(jq -r '.primary_capture.capture_sha' "$REFRESH_MANIFEST")"
           test "$capture_sha" != "null"
@@ -269,6 +274,7 @@ jobs:
             artifact_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}")"
             test "$(jq -r '.workflow_run.id' <<<"$artifact_json")" = "$run_id"
             test "$(jq -r '.expired' <<<"$artifact_json")" = false
+            test "$(jq -r '.name' <<<"$artifact_json")" = "perf-ab-baseline-rows-${run_id}-1"
             test -f "$evidence"
             archive="$(mktemp)"
             extracted="$(mktemp)"
@@ -281,8 +287,14 @@ jobs:
 
           mapfile -t changed_paths < <(git diff --name-only origin/main...HEAD)
           validator_dir="$(mktemp -d)"
-          git show origin/main:scripts/validate_perf_capture.py > "$validator_dir/validate_perf_capture.py"
-          git show origin/main:scripts/pr_perf_compare.py > "$validator_dir/pr_perf_compare.py"
+          git show origin/main:scripts/validate_perf_capture.py > "$validator_dir/validate_perf_capture.py" 2>/dev/null || {
+            echo "::error::Trusted baseline-refresh validator is not yet present on origin/main" >&2
+            exit 1
+          }
+          git show origin/main:scripts/pr_perf_compare.py > "$validator_dir/pr_perf_compare.py" 2>/dev/null || {
+            echo "::error::Trusted performance comparator is not present on origin/main" >&2
+            exit 1
+          }
           args=(
             --baseline main-perf-baseline.jsonl
             --candidate-baseline "$BASELINE_PATH"
@@ -293,14 +305,11 @@ jobs:
           for changed_path in "${changed_paths[@]}"; do
             args+=(--changed-path "$changed_path")
           done
-          if grep -q 'BASELINE_REFRESH_SCHEMA_VERSION = 2' "$validator_dir/validate_perf_capture.py"; then
-            python3 "$validator_dir/validate_perf_capture.py" "${args[@]}"
-          else
-            # Bootstrap path: origin/main predates schema 2.  The API checks
-            # above independently establish immutable run/artifact identity;
-            # use the reviewed candidate validator only for the new schema.
-            python3 scripts/validate_perf_capture.py "${args[@]}"
-          fi
+          grep -q 'BASELINE_REFRESH_SCHEMA_VERSION = 2' "$validator_dir/validate_perf_capture.py" || {
+            echo "::error::origin/main does not yet support baseline-refresh schema 2" >&2
+            exit 1
+          }
+          python3 "$validator_dir/validate_perf_capture.py" "${args[@]}"
           echo "BASELINE_FOR_COMPARE=$BASELINE_PATH" >> "$GITHUB_ENV"
 
       # 2026-08-04 (Wave 4 Phase 0, R2): `continue-on-error: true` removed. It
@@ -335,7 +344,7 @@ jobs:
       - name: Compare against baseline (hard gate)
         if: github.event_name == 'pull_request'
         run: |
-          uv run python scripts/pr_perf_compare.py \
+          python3 main-pr-perf-compare.py \
             --pr-metrics perf-metrics.jsonl \
             --baseline-jsonl "$BASELINE_FOR_COMPARE" \
             --main-benchmarks main-benchmarks.tsv \

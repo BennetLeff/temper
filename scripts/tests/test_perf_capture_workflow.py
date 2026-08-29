@@ -107,18 +107,28 @@ def test_baseline_refresh_path_is_fail_closed_and_keeps_ordinary_prs_on_main() -
     ).read_text(encoding="utf-8")
     assert "REFRESH_MANIFEST" in text
     assert "GH_TOKEN: ${{ github.token }}" in text
+    assert "shell: bash" in text
     assert "Baseline changed without a reviewed refresh manifest" in text
     assert "git show origin/main:scripts/validate_perf_capture.py" in text
     assert "git show origin/main:scripts/pr_perf_compare.py" in text
+    assert 'git show "origin/main:scripts/pr_perf_compare.py" > main-pr-perf-compare.py' in text
     assert "BASELINE_FOR_COMPARE=main-perf-baseline.jsonl" in text
     assert "BASELINE_FOR_COMPARE=$BASELINE_PATH" in text
     assert "candidate-baseline \"$BASELINE_PATH\"" in text
     assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}\"" in text
     assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}\"" in text
     assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip\"" in text
+    assert "'.workflow_id'" in text
+    assert "303796920" in text
+    assert "'.path'" in text
+    assert "perf-ab-baseline-rows-${run_id}-1" in text
     assert "primary_capture.captures" in text
     assert "five distinct" in text
     assert "BASELINE_REFRESH_SCHEMA_VERSION = 2" in text
+    assert "python3 scripts/validate_perf_capture.py" not in text
+    assert "python3 main-pr-perf-compare.py" in text
+    assert "uv run python scripts/pr_perf_compare.py" not in text
+    assert "Trusted baseline-refresh validator is not yet present on origin/main" in text
     assert "actions: read" in text
     # The candidate assignment appears only after the trusted validator and
     # API provenance checks, while the default remains the main baseline.
