@@ -3996,10 +3996,10 @@ jobs:
         # modes silently turn `xdist_group`-tagged dependents into SKIPs.
         # Neither of the remaining two carries an `xdist_group` mark (checked
         # packages/temper-placer/tests/conftest.py's `_XDIST_GROUPS`), so
-        # `loadgroup` distributes each independently across the runner's 2
-        # workers (measured via a same-day invariant-router-v6-1 log:
-        # "created: 2/2 workers") -- same per-test outcomes as serial, just
-        # two running concurrently instead of one-at-a-time. Same
+        # `loadgroup` is retained with one worker so these production-board
+        # routes run strictly one-at-a-time. A single current-board route
+        # reaches ~18 GB RSS; two concurrent workers trigger runner SIGKILL
+        # (exit 137) before pytest can report a result. Same
         # `-v --tb=short -p no:cacheprovider --maxfail=10` flags, minus
         # `continue-on-error` (removed 2026-08-05: the routing gate is now
         # a real trunk-blocking gate, not a masked observer).
@@ -4012,7 +4012,7 @@ jobs:
           uv run python ../../scripts/pytest_guard.py --min-tests 1 --
           "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
-          -v --tb=short -p no:cacheprovider --maxfail=10 -n auto --dist loadgroup
+          -v --tb=short -p no:cacheprovider --maxfail=10 -n 1 --dist loadgroup
         # continue-on-error removed 2026-08-05: the _mm-aliases fix (#671)
         # landed on main, so this gate's failure is a real signal, not masked
         # flakiness. If flakiness re-emerges in this step, triage it as a bug,
