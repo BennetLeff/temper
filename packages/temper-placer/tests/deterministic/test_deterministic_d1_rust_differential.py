@@ -49,13 +49,15 @@ from temper_placer.core.board import Board
 from temper_placer.core.design_rules import create_temper_design_rules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import (
+    ConfigAttachStage as _shim_config_attach,
+)
+from temper_placer.deterministic.stages import (
     DRCOracleSetupStage as _shim_drc_oracle_setup,
 )
 from temper_placer.deterministic.stages import (
     NetClassSetupStage as _shim_net_class_setup,
 )
 from temper_placer.deterministic.stages import NetOrderingStage as _shim_net_ordering
-from temper_placer.deterministic.stages import config_attach as _shim_config_attach
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io._kicad_types import PadData
 
@@ -97,13 +99,13 @@ def test_oracle_and_port_are_different_implementations() -> None:
     assert _shim_drc_oracle_setup is not _orc_setup.DRCOracleSetupStage
     assert _shim_net_class_setup is not _orc_setup.NetClassSetupStage
     assert _shim_net_ordering is not _orc_net_ordering.NetOrderingStage
-    assert _shim_config_attach.ConfigAttachStage is not _orc_config_attach.ConfigAttachStage
+    assert _shim_config_attach is not _orc_config_attach.ConfigAttachStage
     # The adapters' instances bind the temper_orchestration pyfunctions --
     # the Rust port -- by identity.
     assert _shim_drc_oracle_setup()._fn is _to.run_drc_oracle_setup
     assert _shim_net_class_setup()._fn is _to.run_net_class_setup
     assert _shim_net_ordering()._fn is _to.run_net_ordering
-    assert _shim_config_attach.ConfigAttachStage({})._fn is _to.run_config_attach
+    assert _shim_config_attach({})._fn is _to.run_config_attach
 
 
 # ---------------------------------------------------------------------------
@@ -232,7 +234,7 @@ def test_config_attach_attaches_when_absent() -> None:
     for config in ({"zones": ["x"]}, None, {"a": 1}):
         state = BoardState()
         oracle_out = _orc_config_attach.ConfigAttachStage(config).run(state)
-        shim_out = _shim_config_attach.ConfigAttachStage(config).run(state)
+        shim_out = _shim_config_attach(config).run(state)
         assert shim_out.config == oracle_out.config
         if config is None:
             assert shim_out.config is None
@@ -242,7 +244,7 @@ def test_config_attach_preserves_existing_config() -> None:
     config = {"zones": ["x"]}
     state = BoardState(config={"existing": True})
     oracle_out = _orc_config_attach.ConfigAttachStage(config).run(state)
-    shim_out = _shim_config_attach.ConfigAttachStage(config).run(state)
+    shim_out = _shim_config_attach(config).run(state)
     assert shim_out.config == oracle_out.config == {"existing": True}
 
 

@@ -11,7 +11,6 @@ from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
     AnchoredConstraint,
-    CompilationTarget,
     ConstraintTier,
     ConstraintType,
     EnclosingConstraint,
@@ -29,7 +28,7 @@ from temper_placer.placer.cp_sat.encoder import (
     solve_placement,
     validate_constraint_refs,
 )
-from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
 from temper_placer.placer.cp_sat.model import CpSatModel
 
 
@@ -372,9 +371,8 @@ class TestHandlerCoverage:
 
     def test_all_constraint_types_covered(self) -> None:
         for ct in ConstraintType:
-            if CompilationTarget.CP_SAT in ct.supported_targets:
-                assert ct in HANDLER_REGISTRY, f"No handler for {ct}"
-        assert len(HANDLER_REGISTRY) == 8
+            assert ct in CP_SAT_HANDLER_CATALOG, f"No handler for {ct}"
+        assert len(CP_SAT_HANDLER_CATALOG) == 8
 
 
 class TestSeparated:

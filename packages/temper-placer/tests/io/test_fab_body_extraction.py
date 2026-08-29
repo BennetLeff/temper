@@ -1,13 +1,13 @@
 """Tests for io.fab_body_extraction, cross-validated against the real board.
 
-The numbers asserted here are measured, not assumed: they reproduce PR
-#1158's independently-implemented (from-scratch S-expression parser, no
-shared code with this module) body-overlap findings for all 8 of the
-board's tracked ``courtyards_overlap`` pairs
-(``docs/evidence/2026-08-13-courtyard-collision-characterization-and-remediation-plan.md``),
-and were separately cross-checked in this change against live
-``kicad-cli pcb drc --format json`` on the same board content (identical
-8-pair set, ``kicad-cli`` 10.0.5) before being written here.
+The numbers asserted here are measured, not assumed.  The original
+PR #1158 measurements covered all 8 tracked ``courtyards_overlap`` pairs
+(``docs/evidence/2026-08-13-courtyard-collision-characterization-and-remediation-plan.md``).
+The board subsequently landed the verified single-part relocations from
+that plan, so this test tracks the current board state: C2/C3 is the sole
+remaining body collision and the other seven historical pairs are clear.
+The current classification was independently checked against the board
+geometry and live ``kicad-cli`` measurements before being pinned here.
 """
 
 from __future__ import annotations
@@ -67,21 +67,30 @@ class TestExtractFabBodies:
             assert (maxy - miny) == pytest.approx(35.0, abs=0.05)
 
 
-class TestMeasuredBodyOverlapMatchesPR1158:
-    """Reproduces PR #1158's Section 2.2 table (all 8 tracked
-    courtyards_overlap pairs), independently, from this module's own
-    extraction + the canonical rotation kernel."""
+class TestMeasuredBodyOverlapMatchesCurrentBoard:
+    """Pins the current board's measured F.Fab body classification.
+
+    PR #1158's original six-collision table is historical evidence.  The
+    seven relocations from that plan that landed on the board cleared five
+    of those body collisions and both courtyard-only touches; C2/C3 is the
+    one deliberately unresolved pair.  Keeping the cleared pairs explicit
+    makes a return (including the marginal R4/C4 collision) fail loudly.
+    """
 
     # (ref_a, ref_b, expected body classification)
-    REAL_COLLISIONS = {
-        ("R4", "C4"): 0.0306,
-        ("L1", "C5"): 10.3219,
-        ("C22", "C4"): 1.2800,
-        ("C2", "C3"): 115.6512,
-        ("C4", "R46"): 5.1200,
-        ("C5", "C7"): 106.8341,
-    }
-    BENIGN_COURTYARD_TOUCHES = [("K3", "C3"), ("C2", "PS1")]
+    REAL_COLLISIONS = {("C2", "C3"): 115.6512}
+    CLEAR_BODY_PAIRS = [
+        # Five real collisions cleared by the landed relocations.
+        ("R4", "C4"),
+        ("L1", "C5"),
+        ("C22", "C4"),
+        ("C4", "R46"),
+        ("C5", "C7"),
+        # Two historical courtyard-only touches whose bodies were already
+        # clear (and remain clear after the relocations).
+        ("K3", "C3"),
+        ("C2", "PS1"),
+    ]
 
     def _overlap_area(self, bodies, positions, rotations, ref_a, ref_b) -> float:
         pos_a = positions[ref_a]
@@ -97,13 +106,13 @@ class TestMeasuredBodyOverlapMatchesPR1158:
             area = self._overlap_area(bodies, positions, rotations, ref_a, ref_b)
             assert area == pytest.approx(expected_area, abs=1e-3), (ref_a, ref_b)
 
-    def test_benign_courtyard_touches_have_zero_body_overlap(self):
+    def test_cleared_and_benign_pairs_have_zero_body_overlap(self):
         bodies = extract_fab_bodies(_PCB_PATH)
         positions, rotations = _board_positions_and_rotations()
-        for ref_a, ref_b in self.BENIGN_COURTYARD_TOUCHES:
+        for ref_a, ref_b in self.CLEAR_BODY_PAIRS:
             area = self._overlap_area(bodies, positions, rotations, ref_a, ref_b)
             assert area == pytest.approx(0.0, abs=1e-9), (
                 ref_a,
                 ref_b,
-                "bodies should be clear -- this is the courtyard-only-touch case",
+                "bodies should be clear on the current board",
             )

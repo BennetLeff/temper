@@ -10,9 +10,9 @@ off-by-one, double-count — and the encoding's own existing defenses
 Design:
 - Mutations are applied at SOURCE level: the handler module's text is parsed
   into an AST, the bug is injected by an AST transform, and the mutated source
-  is ``exec``-ed as a fresh module. The handler's ``@register_handler``
-  decorator then replaces the real function in ``HANDLER_REGISTRY`` — no
-  runtime monkeypatching of the live encoder.
+  is ``exec``-ed as a fresh module. The mutated handler function is injected
+  into an explicit catalog passed to the encoder — no
+  runtime monkeypatching of process-global dispatch state.
 - Each mutation must actually change the encoder's output on a probe input
   (the model proto differs from the unmutated encoder's); a mutation that
   leaves the proto identical is a no-op and is rejected, not counted as a
@@ -946,32 +946,20 @@ MUTATION_CATALOG: dict[str, dict[str, MutationSpec]] = {
 
 
 def discover_handler_surfaces() -> list[HandlerSurface]:
-    """AST-scan ``handlers/`` for ``@register_handler`` encoder functions."""
+    """Resolve handler surfaces from the production immutable catalog."""
+    from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
+
     surfaces: list[HandlerSurface] = []
-    for path in sorted(HANDLERS_DIR.glob("*.py")):
-        if path.name.startswith("_") or path.name == "__init__.py":
-            continue
-        tree = ast.parse(path.read_text())
-        for node in ast.walk(tree):
-            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                continue
-            for dec in node.decorator_list:
-                if (
-                    isinstance(dec, ast.Call)
-                    and isinstance(dec.func, ast.Name)
-                    and dec.func.id == "register_handler"
-                    and dec.args
-                    and isinstance(dec.args[0], ast.Attribute)
-                    and dec.args[0].attr
-                ):
-                    surfaces.append(
-                        HandlerSurface(
-                            surface_id=path.stem,
-                            constraint_type=dec.args[0].attr,
-                            handler_fn=node.name,
-                            module_path=path,
-                        )
-                    )
+    for constraint_type, handler in CP_SAT_HANDLER_CATALOG.items():
+        module_stem = handler.__module__.rsplit(".", 1)[-1]
+        surfaces.append(
+            HandlerSurface(
+                surface_id=module_stem,
+                constraint_type=constraint_type.name,
+                handler_fn=handler.__name__,
+                module_path=HANDLERS_DIR / f"{module_stem}.py",
+            )
+        )
     return sorted(surfaces, key=lambda s: s.surface_id)
 
 
@@ -1306,11 +1294,11 @@ def _build_defenses() -> dict[str, list[Defense]]:
     from temper_placer.placer.cp_sat.audit import PlacementAuditor
 
     def make_encoder(name: str, surface: str, scenario_key: str, check) -> Defense:
-        def run() -> None:
+        def run(handler_catalog=None) -> None:
             model, constraints, ctx = _scenarios()[scenario_key].build()
             from temper_placer.placer.cp_sat.encoder import encode_constraints
 
-            encode_constraints(constraints, model, ctx)
+            encode_constraints(constraints, model, ctx, handler_catalog=handler_catalog)
             sol = _pinned_solve(model)
             check(model, sol, constraints, ctx)
 
@@ -1322,11 +1310,11 @@ def _build_defenses() -> dict[str, list[Defense]]:
         )
 
     def make_auditor(name: str, surface: str, scenario_key: str) -> Defense:
-        def run() -> None:
+        def run(handler_catalog=None) -> None:
             model, constraints, ctx = _scenarios()[scenario_key].build()
             from temper_placer.placer.cp_sat.encoder import encode_constraints
 
-            encode_constraints(constraints, model, ctx)
+            encode_constraints(constraints, model, ctx, handler_catalog=handler_catalog)
             sol = _pinned_solve(model)
             assert sol.feasible, f"auditor defense: solve infeasible for {surface}"
             placement = _placement_from_solve(model, sol, ctx)
@@ -1534,7 +1522,7 @@ def _load_mutated_module(source: str, module_name: str):
     return mod
 
 
-def _encode_proto(surface: HandlerSurface, scenario_name: str):
+def _encode_proto(surface: HandlerSurface, scenario_name: str, handler_catalog=None):
     """Encode *scenario_name* for *surface* and return the model proto text.
 
     The CpModel's text proto is a deterministic rendering of every variable,
@@ -1545,7 +1533,7 @@ def _encode_proto(surface: HandlerSurface, scenario_name: str):
     from temper_placer.placer.cp_sat.encoder import encode_constraints
 
     model, constraints, ctx = scenarios[scenario_name].build()
-    encode_constraints(constraints, model, ctx)
+    encode_constraints(constraints, model, ctx, handler_catalog=handler_catalog)
     return str(model.model_ref)
 
 
@@ -1553,6 +1541,7 @@ def run_mutation(
     surface: HandlerSurface,
     spec: MutationSpec,
     defenses: list[Defense],
+    handler_catalog=None,
 ) -> MutationResult:
     """Apply *spec* to *surface* and classify killed / survived / no-op."""
     source = surface.module_path.read_text()
@@ -1574,7 +1563,10 @@ def run_mutation(
             detail="transform produced an identical AST (no mutation applied)",
         )
 
-    from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+    from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
+    base_catalog = (
+        CP_SAT_HANDLER_CATALOG if handler_catalog is None else handler_catalog
+    )
 
     constraint_type = surface.constraint_type
     # resolve the real enum value
@@ -1589,7 +1581,6 @@ def run_mutation(
     scenario_names = _scenario_names_for_surface(surface.surface_id)
     changed = False
     noop_detail = "encoder output identical on every probe input (mutation not exercised)"
-    orig_handler = HANDLER_REGISTRY.get(ct)
     try:
         # Baseline protos for EVERY scenario must be captured with the original
         # handler registered, before any mutated module is loaded — a per-
@@ -1598,26 +1589,30 @@ def run_mutation(
         baselines: dict[str, str] = {}
         for scenario_name in scenario_names:
             try:
-                baselines[scenario_name] = _encode_proto(surface, scenario_name)
+                baselines[scenario_name] = _encode_proto(
+                    surface, scenario_name, base_catalog
+                )
             except Exception as exc:  # pragma: no cover - scenario infrastructure
                 return MutationResult(
                     surface.surface_id, surface.constraint_type, spec.mutation_id,
                     spec.operator, spec.description, "error",
                     detail=f"baseline encode failed ({scenario_name}): {exc}",
                 )
-        _load_mutated_module(
+        mutated_module = _load_mutated_module(
             mutated_source, f"_mut_{surface.surface_id}_{spec.mutation_id}"
         )
-        mutated_handler = HANDLER_REGISTRY.get(ct)
-        if mutated_handler is orig_handler:
+        mutated_handler = getattr(mutated_module, surface.handler_fn, None)
+        if not callable(mutated_handler):
             return MutationResult(
                 surface.surface_id, surface.constraint_type, spec.mutation_id,
                 spec.operator, spec.description, "error",
-                detail="mutated module did not replace the registry entry",
+                detail="mutated module did not define the handler function",
             )
+        mutated_catalog = dict(base_catalog)
+        mutated_catalog[ct] = mutated_handler
         for scenario_name in scenario_names:
             try:
-                mutated_proto = _encode_proto(surface, scenario_name)
+                mutated_proto = _encode_proto(surface, scenario_name, mutated_catalog)
             except Exception as exc:  # pragma: no cover - scenario infrastructure
                 return MutationResult(
                     surface.surface_id, surface.constraint_type, spec.mutation_id,
@@ -1628,8 +1623,7 @@ def run_mutation(
                 changed = True
                 break
     finally:
-        if orig_handler is not None:
-            HANDLER_REGISTRY[ct] = orig_handler
+        pass
 
     if not changed:
         return MutationResult(
@@ -1639,14 +1633,19 @@ def run_mutation(
         )
 
     # --- run the per-surface defense subset ---
-    # (defenses encode through HANDLER_REGISTRY, so run them while the
-    #  mutated handler is registered)
+    # Defenses receive the mutated catalog explicitly; the production catalog
+    # remains immutable for the entire run.
     fired: list[str] = []
     try:
-        _load_mutated_module(mutated_source, f"_mut_{surface.surface_id}_{spec.mutation_id}")
+        mutated_module = _load_mutated_module(
+            mutated_source, f"_mut_{surface.surface_id}_{spec.mutation_id}"
+        )
+        mutated_handler = getattr(mutated_module, surface.handler_fn)
+        mutated_catalog = dict(base_catalog)
+        mutated_catalog[ct] = mutated_handler
         for defense in defenses:
             try:
-                defense.run()
+                defense.run(mutated_catalog)
             except AssertionError:
                 fired.append(defense.name)
                 # continue running remaining defenses to record all that fire
@@ -1664,11 +1663,10 @@ def run_mutation(
             detail="all defenses passed",
         )
     finally:
-        if orig_handler is not None:
-            HANDLER_REGISTRY[ct] = orig_handler
+        pass
 
 
-def run_suite() -> list[MutationResult]:
+def run_suite(handler_catalog=None) -> list[MutationResult]:
     """Run every mutation in the catalog against its surface's defenses."""
     surfaces = {s.surface_id: s for s in discover_handler_surfaces()}
     defenses = _build_defenses()
@@ -1680,7 +1678,7 @@ def run_suite() -> list[MutationResult]:
     for surface_id, defs in defenses.items():
         for defense in defs:
             try:
-                defense.run()
+                defense.run(handler_catalog)
             except Exception as exc:  # pragma: no cover - harness bug
                 raise RuntimeError(
                     f"baseline defense {defense.name} failed on the unmutated "
@@ -1710,7 +1708,14 @@ def run_suite() -> list[MutationResult]:
             )
             continue
         for _mutation_id, spec in sorted(MUTATION_CATALOG[surface_id].items()):
-            results.append(run_mutation(surface, spec, defenses.get(surface_id, [])))
+            results.append(
+                run_mutation(
+                    surface,
+                    spec,
+                    defenses.get(surface_id, []),
+                    handler_catalog,
+                )
+            )
     return results
 
 

@@ -99,6 +99,22 @@ class Gate:
         return DeltaMapper.map(violation)
 
 
+def create_mfem_corroboration_gate(**kwargs: Any) -> Gate:
+    """Build the optional external-MFEM corroboration gate.
+
+    MFEM is an optional external instrument, so importing its gate eagerly
+    into the core gate module would make every placement process depend on
+    the optional thermal stack.  This public factory keeps the dependency at
+    the explicit-gate boundary while giving production callers a stable
+    owner (`gates.py`) instead of importing the ledgered implementation by
+    test-only path.  The returned gate remains fail-closed ``UNMEASURED`` when
+    the configured MFEM binary is unavailable.
+    """
+    from temper_placer.validation.mfem_gate import MFEMCorroborationGate
+
+    return MFEMCorroborationGate(**kwargs)
+
+
 # ---------------------------------------------------------------------------
 # Portable KiCad footprint-library directory resolution (plan 2026-07-23-001 U1)
 # ---------------------------------------------------------------------------

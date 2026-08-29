@@ -226,6 +226,7 @@ pub fn netclass_separated_constraints_py(
 /// marshalled from `pair_creepage.generated.yaml`.  Keeping the matrix as an
 /// input preserves that generated file as the authority; Rust owns the
 /// pairing and reduction, not a second Python implementation.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn netclass_separated_constraints_with_creepage_py(
     py: Python<'_>,
@@ -254,6 +255,7 @@ pub fn netclass_separated_constraints_with_creepage_py(
 /// to add in an earlier round.  Every component pair with a non-zero matrix
 /// requirement is inspected and every current violation is returned as
 /// `(a, b, required_mm, measured_chebyshev_gap_mm)`.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn netclass_creepage_violations_py(
     components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,
@@ -574,6 +576,7 @@ pub fn netclass_creepage_requirements_py(
     Ok(requirements)
 }
 
+#[cfg(feature = "python")]
 fn netclass_separated_constraints_impl(
     py: Python<'_>,
     components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,

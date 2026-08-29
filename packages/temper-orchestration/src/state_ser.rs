@@ -32,13 +32,12 @@
 
 use std::collections::HashSet;
 
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 
 use temper_data_model::{
-    ConnectivityViolationList, LayerAssignment, LayerAssignmentSet, Placement, PlacementSet,
-    PlacementViolationList, Route, RouteSet, SlotPos, Val, Via, ViaSet, Violation,
-    ViolationList, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet, StrPairSet,
-    ConnectivityViolation, PlacementViolation,
+    ConnectivityViolation, ConnectivityViolationList, LayerAssignment, LayerAssignmentSet,
+    Placement, PlacementSet, PlacementViolation, PlacementViolationList, Route, RouteSet, SlotPos,
+    StrPairSet, Val, Via, ViaSet, Violation, ViolationList, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet,
 };
 
 use crate::board_state::{NativeBoardState, SlotId};
@@ -62,7 +61,9 @@ fn val_to_json(v: &Val) -> Value {
 }
 
 fn val_from_json(v: &Value) -> Result<Val, String> {
-    let obj = v.as_object().ok_or("expected {\"int\": ..} or {\"float\": ..}")?;
+    let obj = v
+        .as_object()
+        .ok_or("expected {\"int\": ..} or {\"float\": ..}")?;
     if let Some(i) = obj.get("int") {
         return Ok(Val::Int(
             i.as_i64().ok_or("\"int\" tag value must be an integer")?,
@@ -83,12 +84,16 @@ fn finite(f: f64, field: &str) -> Result<Value, String> {
     if f.is_finite() {
         Ok(json!(f))
     } else {
-        Err(format!("{field}: non-finite float {f} is not JSON-representable"))
+        Err(format!(
+            "{field}: non-finite float {f} is not JSON-representable"
+        ))
     }
 }
 
 fn f64_from(v: &Value, field: &str) -> Result<f64, String> {
-    let f = v.as_f64().ok_or_else(|| format!("{field}: expected a number"))?;
+    let f = v
+        .as_f64()
+        .ok_or_else(|| format!("{field}: expected a number"))?;
     if f.is_finite() {
         Ok(f)
     } else {
@@ -146,7 +151,9 @@ fn route_to_json(r: &Route) -> Result<Value, String> {
 
 fn route_from_json(v: &Value) -> Result<Route, String> {
     let coord = |v: &Value, what: &str| -> Result<(f64, f64), String> {
-        let a = v.as_array().ok_or_else(|| format!("route.{what}: expected [x, y]"))?;
+        let a = v
+            .as_array()
+            .ok_or_else(|| format!("route.{what}: expected [x, y]"))?;
         if a.len() != 2 {
             return Err(format!("route.{what}: expected [x, y]"));
         }
@@ -157,13 +164,20 @@ fn route_from_json(v: &Value) -> Result<Route, String> {
     Ok(Route {
         start,
         end,
-        width: f64_from(v.get("width").ok_or("route: missing \"width\"")?, "route.width")?,
+        width: f64_from(
+            v.get("width").ok_or("route: missing \"width\"")?,
+            "route.width",
+        )?,
         layer: v
             .get("layer")
             .and_then(Value::as_str)
             .ok_or("route: missing \"layer\"")?
             .to_string(),
-        net: v.get("net").ok_or("route: missing \"net\"")?.as_str().map(str::to_string),
+        net: v
+            .get("net")
+            .ok_or("route: missing \"net\"")?
+            .as_str()
+            .map(str::to_string),
     })
 }
 
@@ -210,7 +224,11 @@ fn via_from_json(v: &Value) -> Result<Via, String> {
                 .ok_or("via.layers[1]: expected a string")?
                 .to_string(),
         ),
-        net: v.get("net").ok_or("via: missing \"net\"")?.as_str().map(str::to_string),
+        net: v
+            .get("net")
+            .ok_or("via: missing \"net\"")?
+            .as_str()
+            .map(str::to_string),
         is_diff_pair: v
             .get("is_diff_pair")
             .and_then(Value::as_bool)
@@ -234,7 +252,10 @@ fn layer_assignment_from_json(v: &Value) -> Result<LayerAssignment, String> {
             .and_then(Value::as_str)
             .ok_or("layer_assignment: missing \"net_name\"")?
             .to_string(),
-        layer: val_from_json(v.get("layer").ok_or("layer_assignment: missing \"layer\"")?)?,
+        layer: val_from_json(
+            v.get("layer")
+                .ok_or("layer_assignment: missing \"layer\"")?,
+        )?,
         allow_layer_change: v
             .get("allow_layer_change")
             .and_then(Value::as_bool)
@@ -299,7 +320,11 @@ fn violation_from_json(v: &Value) -> Result<Violation, String> {
             .ok_or_else(|| format!("violation: missing \"{k}\""))
     };
     let f = |k: &str| -> Result<f64, String> {
-        f64_from(v.get(k).ok_or_else(|| format!("violation: missing \"{k}\""))?, k)
+        f64_from(
+            v.get(k)
+                .ok_or_else(|| format!("violation: missing \"{k}\""))?,
+            k,
+        )
     };
     Ok(Violation {
         type_: s("type")?,
@@ -309,7 +334,10 @@ fn violation_from_json(v: &Value) -> Result<Violation, String> {
         net_b: s("net_b")?,
         clearance_actual: f("clearance_actual")?,
         clearance_required: f("clearance_required")?,
-        location: (f64_from(&loc[0], "violation.location")?, f64_from(&loc[1], "violation.location")?),
+        location: (
+            f64_from(&loc[0], "violation.location")?,
+            f64_from(&loc[1], "violation.location")?,
+        ),
     })
 }
 
@@ -381,7 +409,10 @@ fn placement_violation_from_json(v: &Value) -> Result<PlacementViolation, String
             .ok_or_else(|| format!("placement_violation: missing \"{k}\""))
     };
     let opt_f = |k: &str| -> Result<Option<f64>, String> {
-        match v.get(k).ok_or_else(|| format!("placement_violation: missing \"{k}\""))? {
+        match v
+            .get(k)
+            .ok_or_else(|| format!("placement_violation: missing \"{k}\""))?
+        {
             Value::Null => Ok(None),
             x => Ok(Some(f64_from(x, k)?)),
         }
@@ -391,8 +422,16 @@ fn placement_violation_from_json(v: &Value) -> Result<PlacementViolation, String
         violation_type: s("violation_type")?,
         message: s("message")?,
         severity: s("severity")?,
-        component_a: v.get("component_a").ok_or("placement_violation: missing \"component_a\"")?.as_str().map(str::to_string),
-        component_b: v.get("component_b").ok_or("placement_violation: missing \"component_b\"")?.as_str().map(str::to_string),
+        component_a: v
+            .get("component_a")
+            .ok_or("placement_violation: missing \"component_a\"")?
+            .as_str()
+            .map(str::to_string),
+        component_b: v
+            .get("component_b")
+            .ok_or("placement_violation: missing \"component_b\"")?
+            .as_str()
+            .map(str::to_string),
         actual_distance_mm: opt_f("actual_distance_mm")?,
         required_distance_mm: opt_f("required_distance_mm")?,
     })
@@ -463,7 +502,7 @@ pub fn native_to_json(state: &NativeBoardState) -> Result<String, StageError> {
                          re-bootstrapped per subprocess invocation (--pcb/--config), they are \
                          never threaded through the state JSON"
                     ),
-                ))
+                ));
             }
         }
     }
@@ -505,7 +544,10 @@ pub fn native_to_json(state: &NativeBoardState) -> Result<String, StageError> {
 fn zone_slots_to_json(zs: &ZoneSlots) -> Result<Value, String> {
     let mut slots = Vec::with_capacity(zs.slots.len());
     for s in &zs.slots {
-        slots.push(json!([finite(s.0, "zone_slots.x")?, finite(s.1, "zone_slots.y")?]));
+        slots.push(json!([
+            finite(s.0, "zone_slots.x")?,
+            finite(s.1, "zone_slots.y")?
+        ]));
     }
     Ok(json!({ "zone": zs.zone, "slots": slots }))
 }
@@ -606,9 +648,12 @@ fn pairs_opt_json(set: Option<&StrPairSet>) -> Result<Value, StageError> {
 pub fn native_from_json(json_str: &str) -> Result<NativeBoardState, StageError> {
     let doc: Value = serde_json::from_str(json_str)
         .map_err(|e| err(SER_STAGE, format!("parsing state JSON: {e}")))?;
-    let obj = doc
-        .as_object()
-        .ok_or_else(|| err(SER_STAGE, "state document: expected a JSON object".to_string()))?;
+    let obj = doc.as_object().ok_or_else(|| {
+        err(
+            SER_STAGE,
+            "state document: expected a JSON object".to_string(),
+        )
+    })?;
 
     let mut state = NativeBoardState::new();
 
@@ -618,9 +663,12 @@ pub fn native_from_json(json_str: &str) -> Result<NativeBoardState, StageError> 
             .ok_or_else(|| err(SER_STAGE, "net_order: expected an array".to_string()))?
             .iter()
             .map(|v| {
-                v.as_str()
-                    .map(str::to_string)
-                    .ok_or_else(|| err(SER_STAGE, "net_order element: expected a string".to_string()))
+                v.as_str().map(str::to_string).ok_or_else(|| {
+                    err(
+                        SER_STAGE,
+                        "net_order element: expected a string".to_string(),
+                    )
+                })
             })
             .collect::<Result<Vec<_>, _>>()?;
     }
@@ -631,15 +679,18 @@ pub fn native_from_json(json_str: &str) -> Result<NativeBoardState, StageError> 
         }
     }
 
-    let typed = obj
-        .get("typed")
-        .and_then(Value::as_object)
-        .ok_or_else(|| err(SER_STAGE, "state document: missing \"typed\" object".to_string()))?;
+    let typed = obj.get("typed").and_then(Value::as_object).ok_or_else(|| {
+        err(
+            SER_STAGE,
+            "state document: missing \"typed\" object".to_string(),
+        )
+    })?;
 
     let get = |name: &str| typed.get(name).unwrap_or(&Value::Null);
 
     state.drc_violations = violation_list_from(get("drc_violations"))?;
-    state.connectivity_violations = connectivity_violation_list_from(get("connectivity_violations"))?;
+    state.connectivity_violations =
+        connectivity_violation_list_from(get("connectivity_violations"))?;
     state.placement_violations = placement_violation_list_from(get("placement_violations"))?;
 
     state.placements = set_from(get("placements"), placement_from_json)?.map(PlacementSet);
@@ -674,7 +725,7 @@ fn insert_opaque(state: &mut NativeBoardState, name: &str, value: Value) -> Resu
             return Err(err(
                 SER_STAGE,
                 format!("unknown opaque field {other:?} in state document"),
-            ))
+            ));
         }
     }
     Ok(())
@@ -682,15 +733,16 @@ fn insert_opaque(state: &mut NativeBoardState, name: &str, value: Value) -> Resu
 
 /// `null` → `None` (the pre-population Python default); an array → the owned
 /// list newtype (order-preserving — the tuple order is load-bearing).
-fn violation_list_from(
-    v: &Value,
-) -> Result<Option<ViolationList>, StageError> {
+fn violation_list_from(v: &Value) -> Result<Option<ViolationList>, StageError> {
     if v.is_null() {
         return Ok(None);
     }
-    let arr = v
-        .as_array()
-        .ok_or_else(|| err(SER_STAGE, "drc_violations: expected an array or null".to_string()))?;
+    let arr = v.as_array().ok_or_else(|| {
+        err(
+            SER_STAGE,
+            "drc_violations: expected an array or null".to_string(),
+        )
+    })?;
     let mut out = Vec::with_capacity(arr.len());
     for item in arr {
         out.push(violation_from_json(item).map_err(|e| err(SER_STAGE, e))?);
@@ -705,7 +757,10 @@ fn connectivity_violation_list_from(
         return Ok(None);
     }
     let arr = v.as_array().ok_or_else(|| {
-        err(SER_STAGE, "connectivity_violations: expected an array or null".to_string())
+        err(
+            SER_STAGE,
+            "connectivity_violations: expected an array or null".to_string(),
+        )
     })?;
     let mut out = Vec::with_capacity(arr.len());
     for item in arr {
@@ -714,14 +769,15 @@ fn connectivity_violation_list_from(
     Ok(Some(ConnectivityViolationList(out)))
 }
 
-fn placement_violation_list_from(
-    v: &Value,
-) -> Result<Option<PlacementViolationList>, StageError> {
+fn placement_violation_list_from(v: &Value) -> Result<Option<PlacementViolationList>, StageError> {
     if v.is_null() {
         return Ok(None);
     }
     let arr = v.as_array().ok_or_else(|| {
-        err(SER_STAGE, "placement_violations: expected an array or null".to_string())
+        err(
+            SER_STAGE,
+            "placement_violations: expected an array or null".to_string(),
+        )
     })?;
     let mut out = Vec::with_capacity(arr.len());
     for item in arr {
@@ -739,9 +795,12 @@ where
     if v.is_null() {
         return Ok(None);
     }
-    let arr = v
-        .as_array()
-        .ok_or_else(|| err(SER_STAGE, "collection field: expected an array or null".to_string()))?;
+    let arr = v.as_array().ok_or_else(|| {
+        err(
+            SER_STAGE,
+            "collection field: expected an array or null".to_string(),
+        )
+    })?;
     let mut set = HashSet::with_capacity(arr.len());
     for item in arr {
         set.insert(dec(item).map_err(|e| err(SER_STAGE, e))?);
@@ -753,9 +812,12 @@ fn slots_from(v: &Value) -> Result<Option<HashSet<SlotId>>, StageError> {
     if v.is_null() {
         return Ok(None);
     }
-    let arr = v
-        .as_array()
-        .ok_or_else(|| err(SER_STAGE, "used_slots: expected an array or null".to_string()))?;
+    let arr = v.as_array().ok_or_else(|| {
+        err(
+            SER_STAGE,
+            "used_slots: expected an array or null".to_string(),
+        )
+    })?;
     let mut set = HashSet::with_capacity(arr.len());
     for item in arr {
         let pair = item
@@ -779,13 +841,19 @@ fn pairs_from(v: &Value) -> Result<Option<StrPairSet>, StageError> {
     if v.is_null() {
         return Ok(None);
     }
-    let arr = v
-        .as_array()
-        .ok_or_else(|| err(SER_STAGE, "component_zone_map: expected an array or null".to_string()))?;
+    let arr = v.as_array().ok_or_else(|| {
+        err(
+            SER_STAGE,
+            "component_zone_map: expected an array or null".to_string(),
+        )
+    })?;
     let mut set = HashSet::with_capacity(arr.len());
     for item in arr {
         let pair = item.as_array().ok_or_else(|| {
-            err(SER_STAGE, "component_zone_map element: expected [ref, zone]".to_string())
+            err(
+                SER_STAGE,
+                "component_zone_map element: expected [ref, zone]".to_string(),
+            )
         })?;
         if pair.len() != 2 {
             return Err(err(
@@ -794,16 +862,17 @@ fn pairs_from(v: &Value) -> Result<Option<StrPairSet>, StageError> {
             ));
         }
         let s = |i: usize| -> Result<String, StageError> {
-            pair[i]
-                .as_str()
-                .map(str::to_string)
-                .ok_or_else(|| err(SER_STAGE, "component_zone_map element: expected strings".to_string()))
+            pair[i].as_str().map(str::to_string).ok_or_else(|| {
+                err(
+                    SER_STAGE,
+                    "component_zone_map element: expected strings".to_string(),
+                )
+            })
         };
         set.insert((s(0)?, s(1)?));
     }
     Ok(Some(StrPairSet(set)))
 }
-
 
 // ---------------------------------------------------------------------------
 // Tests — the JSON round-trip gate (pure Rust, no interpreter)
@@ -835,20 +904,25 @@ pub(crate) mod tests {
             location: (3.0, 4.0),
             description: "unrouted".into(),
         }]));
-        s.placement_violations =
-            Some(PlacementViolationList(vec![PlacementViolation {
-                constraint_name: "signal_hv".into(),
-                violation_type: "proximity".into(),
-                message: "too close".into(),
-                severity: "error".into(),
-                component_a: Some("R1".into()),
-                component_b: None,
-                actual_distance_mm: None,
-                required_distance_mm: Some(2.0),
-            }]));
+        s.placement_violations = Some(PlacementViolationList(vec![PlacementViolation {
+            constraint_name: "signal_hv".into(),
+            violation_type: "proximity".into(),
+            message: "too close".into(),
+            severity: "error".into(),
+            component_a: Some("R1".into()),
+            component_b: None,
+            actual_distance_mm: None,
+            required_distance_mm: Some(2.0),
+        }]));
         let mut placements = HashSet::new();
-        placements.insert(Placement { ref_: "U1".into(), position: (10.5, -20.25) });
-        placements.insert(Placement { ref_: "R1".into(), position: (0.0, 5.0) });
+        placements.insert(Placement {
+            ref_: "U1".into(),
+            position: (10.5, -20.25),
+        });
+        placements.insert(Placement {
+            ref_: "R1".into(),
+            position: (0.0, 5.0),
+        });
         s.placements = Some(PlacementSet(placements));
         let mut slots = HashSet::new();
         slots.insert(SlotId(-0.0, 5.0));
@@ -876,7 +950,10 @@ pub(crate) mod tests {
         let mut zones = HashSet::new();
         zones.insert(Zone {
             name: "HV_edge".into(),
-            bounds: ((Val::Int(0), Val::Int(0)), (Val::Float(40.0), Val::Float(30.0))),
+            bounds: (
+                (Val::Int(0), Val::Int(0)),
+                (Val::Float(40.0), Val::Float(30.0)),
+            ),
         });
         s.zones = Some(ZoneSet(zones));
         let mut pairs = HashSet::new();
@@ -947,7 +1024,10 @@ pub(crate) mod tests {
         let mut zones = HashSet::new();
         zones.insert(Zone {
             name: "z".into(),
-            bounds: ((Val::Int(0), Val::Float(0.0)), (Val::Int(1), Val::Float(1.0))),
+            bounds: (
+                (Val::Int(0), Val::Float(0.0)),
+                (Val::Int(1), Val::Float(1.0)),
+            ),
         });
         s.zones = Some(ZoneSet(zones));
         let json = native_to_json(&s).unwrap();
@@ -973,11 +1053,21 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn value_opaque_passes_through() {
         let mut s = NativeBoardState::new();
-        s.config = Some(Box::new(json!({ "placer": { "use_isolation_slots": true } })));
+        s.config = Some(Box::new(
+            json!({ "placer": { "use_isolation_slots": true } }),
+        ));
         let back = native_from_json(&native_to_json(&s).unwrap()).unwrap();
-        let cfg = back.config.as_ref().unwrap().downcast_ref::<Value>().unwrap();
+        let cfg = back
+            .config
+            .as_ref()
+            .unwrap()
+            .downcast_ref::<Value>()
+            .unwrap();
         assert_eq!(
-            cfg.get("placer").unwrap().get("use_isolation_slots").unwrap(),
+            cfg.get("placer")
+                .unwrap()
+                .get("use_isolation_slots")
+                .unwrap(),
             &json!(true)
         );
     }

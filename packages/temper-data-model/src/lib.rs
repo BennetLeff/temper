@@ -123,6 +123,120 @@ pub struct Net {
     pub voltage_class: String,
 }
 
+/// Pure zone-assignment kernel shared by the design-bundle leaf binding and
+/// the orchestration stage.  Keeping this reduction in the pyo3-free data
+/// model means the orchestration stage can marshal the Python netlist once
+/// and compute without calling back into a Python module.
+pub mod zone_assignment {
+    use std::collections::HashMap;
+
+    /// Assign each component to its deterministic placement zone.
+    ///
+    /// `components` is in netlist order.  Each net is `(name, net_class,
+    /// pins)` in netlist order; `None` represents a missing/None Python
+    /// `net_class` and therefore falls through to Signal.  The order and
+    /// duplicate-net semantics intentionally mirror the former Python leaf.
+    pub fn assign_component_zones(
+        components: &[String],
+        nets: &[(String, Option<String>, Vec<(String, String)>)],
+    ) -> Vec<(String, String)> {
+        let mut net_class_map: HashMap<&str, &str> = HashMap::with_capacity(nets.len());
+        for (name, net_class, _) in nets {
+            if let Some(net_class) = net_class.as_deref() {
+                net_class_map.insert(name, net_class);
+            }
+        }
+
+        let mut comp_nets: HashMap<&str, Vec<&str>> = HashMap::new();
+        for (name, _, pins) in nets {
+            for (component_ref, _) in pins {
+                comp_nets
+                    .entry(component_ref.as_str())
+                    .or_default()
+                    .push(name.as_str());
+            }
+        }
+
+        components
+            .iter()
+            .map(|component_ref| {
+                let nets_of = comp_nets
+                    .get(component_ref.as_str())
+                    .map(Vec::as_slice)
+                    .unwrap_or(&[]);
+                let zone = if component_ref.starts_with("U_MCU") {
+                    "MCU"
+                } else if nets_of.iter().any(|name| {
+                    let upper = name.to_uppercase();
+                    ["SPI", "I2C", "UART"]
+                        .iter()
+                        .any(|protocol| upper.contains(protocol))
+                }) {
+                    "MCU"
+                } else if nets_of
+                    .iter()
+                    .any(|name| net_class_map.get(name).copied() == Some("HighVoltage"))
+                {
+                    "HV"
+                } else if nets_of
+                    .iter()
+                    .any(|name| net_class_map.get(name).copied() == Some("Power"))
+                {
+                    "Power"
+                } else {
+                    "Signal"
+                };
+                (component_ref.clone(), zone.to_string())
+            })
+            .collect()
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::assign_component_zones;
+
+        #[test]
+        fn priority_and_net_order_match_leaf_contract() {
+            let components = vec!["R1".into(), "U_MCU1".into(), "Q1".into(), "J1".into()];
+            let nets = vec![
+                (
+                    "HV_RELAY".into(),
+                    Some("HighVoltage".into()),
+                    vec![("Q1".into(), "1".into())],
+                ),
+                (
+                    "spi_mosi".into(),
+                    Some("Signal".into()),
+                    vec![("J1".into(), "1".into())],
+                ),
+            ];
+            assert_eq!(
+                assign_component_zones(&components, &nets),
+                vec![
+                    ("R1".into(), "Signal".into()),
+                    ("U_MCU1".into(), "MCU".into()),
+                    ("Q1".into(), "HV".into()),
+                    ("J1".into(), "MCU".into()),
+                ]
+            );
+        }
+
+        #[test]
+        fn missing_or_none_net_class_falls_through() {
+            let components = vec!["R1".into()];
+            let nets = vec![(
+                "N1".into(),
+                None,
+                vec![("R1".into(), "1".into())],
+            )];
+            assert_eq!(
+                assign_component_zones(&components, &nets),
+                vec![("R1".into(), "Signal".into())]
+            );
+        }
+    }
+}
+
 /// The U3 (O-C3) owned AGGREGATE structs — [`Board`] + [`Netlist`],
 /// composing the U2 leaves. See the module's own doc for the field-by-field
 /// owned-vs-keep classification.

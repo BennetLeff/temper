@@ -90,9 +90,8 @@ pub fn run_net_ordering(
     state: Py<PyAny>,
     net_priority: Option<Py<PyAny>>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("net_ordering: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("net_ordering: {e}")))?;
     let stage = NetOrderingStage { net_priority };
     let out = stage.run(rust_state).map_err(|e| to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["net_order"])

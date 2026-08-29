@@ -17,6 +17,25 @@ scripts:
   - re
   - sys
   - uuid
+- path: build_extensions.py
+  purpose: 'Build and verify every first-party pyo3/maturin extension in deterministic dependents-first
+    order: clear package outputs from the shared Cargo target, explicitly enable the Python feature, then
+    require fresh artifacts and successful imports (closes the poisoned cdylib incident).'
+  owner: pipeline
+  last_run: '2026-08-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - check_stale_extensions
+  - heapq
+  - importlib
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tomllib
 - path: batch_pipeline_validate.py
   purpose: Batch pipeline validation — feed corpus boards through parse→placement→route and quarantine
     failures
@@ -1804,7 +1823,6 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
-  - ast
   - importlib
   - pathlib
   - sys

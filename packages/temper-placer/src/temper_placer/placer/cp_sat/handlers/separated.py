@@ -2,27 +2,22 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import ConstraintType, SeparatedConstraint
+from temper_placer.pcl.constraints import SeparatedConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 from temper_placer.placer.cp_sat.handlers._shared import resolve_refs
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
     from temper_placer.placer.cp_sat.model import ComponentVars, CpSatModel
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.SEPARATED)
 def encode_separated(
     constraint: SeparatedConstraint,
     components: dict[str, ComponentVars],
     model: CpSatModel,
-    ctx: EncoderContext,
+    ctx: EncoderContext | None,
 ) -> list[AssumptionLiteral]:
     """Enforce Chebyshev clearance between every component in group A and B.
 
@@ -56,15 +51,44 @@ def encode_separated(
     which of left/right/below/above holds).  Induction: base n≤1 vacuously
     true; step adds constraints for (i, k+1) that are linear on existing
     variables — previous constraints are unaffected.
+
     """
     labels: list[AssumptionLiteral] = []
     margin = model.mm_to_units(constraint.min_distance_mm)
 
-    refs_a = resolve_refs(constraint.a, components, ctx)
-    refs_b = resolve_refs(constraint.b, components, ctx)
+    # Some narrow callers (notably the tank-creepage compiler) already
+    # resolved both operands to literal component refs and deliberately have
+    # no board context.  Keep that supported path; a missing context must not
+    # turn a pair of known component refs into an AttributeError.  Zone refs
+    # still require a real context and therefore fail closed below.
+    if ctx is None:
+        refs_a = [constraint.a] if constraint.a in components else []
+        refs_b = [constraint.b] if constraint.b in components else []
+    else:
+        refs_a = resolve_refs(constraint.a, components, ctx)
+        refs_b = resolve_refs(constraint.b, components, ctx)
     if not refs_a or not refs_b:
-        logger.warning("Separated %s: cannot resolve refs", constraint.id)
-        return labels
+        missing = [name for name, refs in ((constraint.a, refs_a), (constraint.b, refs_b)) if not refs]
+        raise UnresolvedConstraintRefsError(
+            f"Separated constraint {constraint.id!r} references unresolved ref/zone(s): "
+            + ", ".join(repr(name) for name in missing)
+        )
+
+    # Zone membership is required input. Do not silently discard stale refs
+    # while expanding a zone into component variables.
+    missing_zone_refs = [
+        ref
+        for name in (constraint.a, constraint.b)
+        if ctx is not None and name in ctx.zones
+        for ref in ctx.zone_components.get(name, ())
+        if ref not in components
+    ]
+    if missing_zone_refs:
+        raise UnresolvedConstraintRefsError(
+            f"Separated constraint {constraint.id!r} references missing zone "
+            "component(s): "
+            + ", ".join(repr(ref) for ref in dict.fromkeys(missing_zone_refs))
+        )
 
     for ra in refs_a:
         for rb in refs_b:

@@ -3,8 +3,8 @@ Python oracle for ``temper_placer/analysis/_area_sufficiency.py``.
 
 Wave 4, Phase 4 — the analysis-surface migration (plan
 ``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``).
-The Rust pyfunctions ``area_sufficiency_compute`` / ``top_courtyards`` /
-``py_sum`` (in ``temper_geometry``, from the ``temper-geometry`` crate)
+The Rust pyfunctions ``area_sufficiency_compute`` / ``top_courtyards``
+(in ``temper_geometry``, from the ``temper-geometry`` crate)
 must reproduce the pre-migration Python implementation bit-identically.
 The pre-migration implementation is pinned verbatim as the oracle
 (``_area_sufficiency_py_oracle.py``, commit c5875adad) and every
@@ -12,15 +12,14 @@ assertion here drives IDENTICAL inputs through both sides.
 
 Two arms:
 
-1. **Kernel arm** — ``py_sum`` is CPython 3.12's builtin ``sum()`` float
-   semantics (Neumaier fast path with an int-0 start).  The oracle's
-   ``sum(c._polygon.area for c in ...)`` calls exactly that builtin, so the
-   differential drives adversarial float corpora (empty, single-element,
-   -0.0, NaN, ±inf, subnormals, large-magnitude cancellation) through both
-   ``sum(areas)`` and ``_tg.py_sum(areas)``, comparing bit patterns via
+1. **Kernel arm** — ``area_sufficiency_compute`` uses CPython 3.12's
+   builtin ``sum()`` float semantics (Neumaier fast path with an int-0
+   start).  The oracle's ``sum(c._polygon.area for c in ...)`` calls exactly
+   that builtin, so the differential drives adversarial float corpora
+   (empty, single-element, -0.0, NaN, ±inf, subnormals, large-magnitude
+   cancellation) through the live aggregate, comparing bit patterns via
    ``float.hex()`` AND the concrete leaf type (``sum([])`` is ``int 0``,
-   not ``float 0.0``).  ``area_sufficiency_compute`` must agree with
-   ``py_sum`` on the same area list (the PBT suite's P1 pins that linkage).
+   not ``float 0.0``).
 
 2. **Path arm** — synthetic ``.kicad_pcb`` boards drive the full public
    API: ``compute_area_sufficiency`` (oracle module) vs the delegation
@@ -46,7 +45,6 @@ import tests.analysis._area_sufficiency_py_oracle as _oracle
 # Rust symbols under test — must exist or this file fails to collect (RED).
 AREA_SUFFICIENCY_COMPUTE = _tg.area_sufficiency_compute
 TOP_COURTYARDS = _tg.top_courtyards
-PY_SUM = _tg.py_sum
 
 from temper_placer.analysis._area_sufficiency import (
     compute_area_sufficiency,
@@ -137,7 +135,7 @@ def _write_pcb(tmp_path: Path, name: str, content: str) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# Kernel arm: py_sum vs CPython 3.12 builtin sum (Neumaier fast path).
+# Kernel arm: live aggregate vs CPython 3.12 builtin sum.
 # ---------------------------------------------------------------------------
 
 
@@ -184,20 +182,20 @@ def _float_corpus() -> list[list[float]]:
 
 
 @pytest.mark.parametrize("areas", _float_corpus())
-def test_py_sum_matches_builtin_sum_bit_exact(areas):
+def test_aggregate_matches_builtin_sum_bit_exact(areas):
     oracle = sum(areas)  # CPython 3.12 builtin — the oracle's kernel verbatim
-    rust = PY_SUM(areas)
+    rust = AREA_SUFFICIENCY_COMPUTE(100.0, 100.0, 5.0, areas)[0]
     assert _sum_key(rust) == _sum_key(oracle), f"{areas!r}: {rust!r} vs {oracle!r}"
 
 
-def test_py_sum_empty_is_int_zero():
-    rust = PY_SUM([])
+def test_aggregate_empty_is_int_zero():
+    rust = AREA_SUFFICIENCY_COMPUTE(100.0, 100.0, 5.0, [])[0]
     assert type(rust) is int and rust == 0
 
 
-def test_py_sum_single_negative_zero_normalises_to_positive():
+def test_aggregate_single_negative_zero_normalises_to_positive():
     # CPython: 0 (int) + -0.0 == +0.0 via PyNumber_Add (round-to-nearest).
-    rust = PY_SUM([-0.0])
+    rust = AREA_SUFFICIENCY_COMPUTE(100.0, 100.0, 5.0, [-0.0])[0]
     assert _sum_key(rust) == _sum_key(0.0)
     assert math.copysign(1.0, float(rust)) == 1.0
 
@@ -285,14 +283,14 @@ def test_non_positive_usable_area_int_dims_identical_message(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Kernel-linkage arm: area_sufficiency_compute total == py_sum(areas).
+# Kernel-linkage arm: area_sufficiency_compute total matches builtin sum.
 # ---------------------------------------------------------------------------
 
 
-def test_compute_total_equals_py_sum_on_adversarial_areas():
+def test_compute_total_matches_builtin_sum_on_adversarial_areas():
     for areas in _float_corpus():
         total, _usable, _ratio, _w, _h, n = AREA_SUFFICIENCY_COMPUTE(100.0, 100.0, 5.0, areas)
-        assert _sum_key(total) == _sum_key(PY_SUM(areas)), f"{areas!r}"
+        assert _sum_key(total) == _sum_key(sum(areas)), f"{areas!r}"
         assert n == len(areas)
 
 

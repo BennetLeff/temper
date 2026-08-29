@@ -110,7 +110,11 @@ _TO_RADIANS_DIRECT_RE = re.compile(
     + r"\b(?:\s*(?:as\s+f64|\.unwrap\(\)|\.unwrap_or\(\s*-?\d+\s*\)))*\s*\)?\s*\.to_radians\(\)"
 )
 
-SKIP_DIR_PARTS = {"target", "target-shared", ".venv", "node_modules"}
+# Agent worktrees live under ``.claude/worktrees`` in local checkouts. They
+# are separate checkouts of the same sources, not part of the tree being
+# audited; traversing them both multiplies findings and makes the real-repo
+# anti-vacuity test fail on otherwise clean source.
+SKIP_DIR_PARTS = {"target", "target-shared", ".venv", "node_modules", ".claude"}
 
 # This gate's own module docstring and its test file discuss the footgun
 # shapes in prose, and the test file builds bad-pattern fixtures at runtime

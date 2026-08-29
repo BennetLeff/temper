@@ -37,7 +37,7 @@ use crate::derivation_stage::{pyerr_stage, stage_guard};
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_data_model::{PlacementSet};
+use temper_data_model::PlacementSet;
 
 #[cfg(feature = "python")]
 /// The DRC-oracle setup stage: design_rules/board -> populated DRCOracle.
@@ -141,9 +141,8 @@ pub fn run_drc_oracle_setup(
     design_rules: Option<Py<PyAny>>,
     parsed_pads: Option<Py<PyAny>>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("drc_oracle_setup: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("drc_oracle_setup: {e}")))?;
     let stage = DrcOracleSetupStage {
         design_rules,
         parsed_pads,
@@ -161,9 +160,8 @@ pub fn run_net_class_setup(
     state: Py<PyAny>,
     net_classes: Option<Py<PyAny>>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("net_class_setup: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("net_class_setup: {e}")))?;
     let stage = NetClassSetupStage { net_classes };
     let out = stage.run(rust_state).map_err(|e| to_pyerr(&e))?;
     // The netlist is mutated in place (shared Py object); nothing is
@@ -217,7 +215,8 @@ fn build_matrix<'py>(
             for (_name, rules) in dict_items(py, &dr.getattr("net_classes")?)? {
                 matrix.call_method1("add_net_class_rules", (rules,))?;
             }
-            for (net_name, net_class_name) in dict_items(py, &dr.getattr("net_class_assignments")?)? {
+            for (net_name, net_class_name) in dict_items(py, &dr.getattr("net_class_assignments")?)?
+            {
                 matrix.call_method1("set_net_class", (net_name, net_class_name))?;
             }
         }
@@ -227,7 +226,11 @@ fn build_matrix<'py>(
                 let pair = pair?;
                 matrix.call_method1(
                     "add_differential_pair",
-                    (pair.getattr("net_pos")?, pair.getattr("net_neg")?, pair.getattr("spacing_mm")?),
+                    (
+                        pair.getattr("net_pos")?,
+                        pair.getattr("net_neg")?,
+                        pair.getattr("spacing_mm")?,
+                    ),
                 )?;
             }
         }
@@ -263,8 +266,8 @@ fn register_parsed_pads(
 
     for pad_data in parsed_pads.bind(py).try_iter()? {
         let pad_data = pad_data?;
-        let pad_layer: String = getattr_default(py, &pad_data, "layer", str_py(py, "F.Cu"))?
-            .extract()?;
+        let pad_layer: String =
+            getattr_default(py, &pad_data, "layer", str_py(py, "F.Cu"))?.extract()?;
         let drill = getattr_default(py, &pad_data, "drill", py.None())?;
         let has_drill = drill_has_hole(py, &drill)?;
         let is_pth = pad_layer == "all" || pad_layer == "*.Cu" || has_drill;
@@ -283,8 +286,8 @@ fn register_parsed_pads(
             net.extract()?
         };
 
-        let shape_raw: String = getattr_default(py, &pad_data, "shape", str_py(py, "rect"))?
-            .extract()?;
+        let shape_raw: String =
+            getattr_default(py, &pad_data, "shape", str_py(py, "rect"))?.extract()?;
         let shape = if ["circle", "rect", "oval"].contains(&shape_raw.as_str()) {
             shape_raw
         } else {
@@ -299,7 +302,8 @@ fn register_parsed_pads(
         let component_ref: String = pad_data.getattr("component_ref")?.extract()?;
         let number: String = pad_data.getattr("number")?.extract()?;
         let id = format!("{component_ref}.{number}");
-        let rotation: f64 = getattr_default(py, &pad_data, "rotation", py_float(py, 0.0))?.extract()?;
+        let rotation: f64 =
+            getattr_default(py, &pad_data, "rotation", py_float(py, 0.0))?.extract()?;
 
         let pad = build_pad(
             py,
@@ -378,11 +382,7 @@ fn register_netlist_pads(
 
         let rot_idx: i64 = {
             let rot = getattr_default(py, &component, "initial_rotation_quadrant", py.None())?;
-            if rot.is_none() {
-                0
-            } else {
-                rot.extract()?
-            }
+            if rot.is_none() { 0 } else { rot.extract()? }
         };
         let rotation = rot_idx as f64 * 90.0;
 
@@ -394,11 +394,11 @@ fn register_netlist_pads(
             let y: f64 = pin_pos.get_item(1)?.extract()?;
             let center = point_cls.call1((x, y))?;
 
-            let pin_layer: String = getattr_default(py, &pin, "layer", str_py(py, "F.Cu"))?
-                .extract()?;
+            let pin_layer: String =
+                getattr_default(py, &pin, "layer", str_py(py, "F.Cu"))?.extract()?;
             let is_pth: bool = {
-                let is_pth_attr: bool = getattr_default(py, &pin, "is_pth", py_bool(py, false))?
-                    .extract()?;
+                let is_pth_attr: bool =
+                    getattr_default(py, &pin, "is_pth", py_bool(py, false))?.extract()?;
                 pin_layer == "all" || is_pth_attr
             };
             let layer_idx = match pin_layer.as_str() {
@@ -505,10 +505,7 @@ fn getattr_default<'py>(
 #[cfg(feature = "python")]
 /// Iterate a dict's items in insertion order, returning owned `(key,
 /// value)` pairs.
-fn dict_items(
-    py: Python<'_>,
-    dict: &Bound<'_, PyAny>,
-) -> PyResult<Vec<(Py<PyAny>, Py<PyAny>)>> {
+fn dict_items(py: Python<'_>, dict: &Bound<'_, PyAny>) -> PyResult<Vec<(Py<PyAny>, Py<PyAny>)>> {
     let mut out = Vec::new();
     let items = dict.call_method0("items")?;
     for item in items.try_iter()? {

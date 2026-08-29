@@ -15,7 +15,7 @@ the conventions the promotion gate expects:
     pipeline result rather than a structural stub.
 
 The runner is intentionally thin — all real work lives in
-``ClosureTest.run()``.  When Benders, Router V6, or KiCad DRC are
+``ClosureTest.run()``.  When CP-SAT, Router V6, or KiCad DRC are
 unavailable, ``ClosureTest`` reports a zero-results failure; the
 runner propagates that and exits non-zero so the promotion gate
 fails loudly rather than silently passing.
@@ -56,7 +56,7 @@ def measure_closure(
     _baseline: dict[str, Any] | None = None,
     *,
     repo_root: Path | None = None,
-    strategy: str = "template",
+    strategy: str = "cp_sat",
 ) -> dict[str, Any]:
     """Run the closure pipeline and return a CandidateClosure-shaped dict.
 
@@ -184,8 +184,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--strategy",
-        default="template",
-        help="Placement strategy name (default: template)",
+        default="cp_sat",
+        help="Placement strategy name (default: cp_sat)",
     )
     args = parser.parse_args(argv)
 

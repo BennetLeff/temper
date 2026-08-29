@@ -5,7 +5,7 @@ behavior it replaced:
 
 1. Per-zone parity — ``power_plane_zone_sexpr_py`` output, materialised
    through the Rust writer's own parser/serializer
-   (``write_board_sexpr_py``), must serialize identically to kiutils'
+   Rust's board-item append serializer, must serialize identically to kiutils'
    ``Zone(...).to_sexpr()`` for the pre-migration construction (thermal
    reliefs, config clearance/min_thickness/thermal gap/bridge, priority,
    ``<net>_plane`` name, no tstamp).
@@ -201,14 +201,6 @@ def test_outline_extraction_matches_kiutils():
 
     assert sorted(rust_points) == sorted(legacy_points)
     assert get_board_outline_from_text(MINIMAL_BOARD) is not None
-
-
-def test_writer_round_trip_idempotent():
-    _, result = add_power_planes_to_text(MINIMAL_BOARD)
-    assert result.zones_added == 2
-    once = _tdb.parse_engine.write_board_sexpr_py(MINIMAL_BOARD)
-    twice = _tdb.parse_engine.write_board_sexpr_py(once)
-    assert once == twice
 
 
 def test_missing_nets_produce_warnings_not_zones():

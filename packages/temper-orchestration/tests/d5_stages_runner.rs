@@ -17,8 +17,8 @@
 //      the no-netlist guard returns the state untouched.
 //
 // The phased stage drives the phase dispatch, the slot scoring, the footprint
-// + HV ring reservation and the `_compute_wirelength` / `_get_footprint_radius`
-// / `_effective_ghost_pad_radius` / `_apply_bottleneck_filter` mixin helpers
+// + HV ring reservation and the `_compute_wirelength` /
+// `_effective_ghost_pad_radius` / `_apply_bottleneck_filter` mixin helpers
 // through the fake stage object.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)] // tests-only integration target
@@ -26,9 +26,11 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyTuple};
 
-use temper_data_model::{SlotPos, StrPairSet, Val, Zone, ZoneSlots, ZoneSlotsSet, ZoneSet};
+use temper_data_model::{SlotPos, StrPairSet, Val, Zone, ZoneSet, ZoneSlots, ZoneSlotsSet};
 
-use temper_orchestration::{BoardState, PhasedAssignmentStage, PipelineConfig, PipelineRunner, ZoneAwareSlotGenerationStage};
+use temper_orchestration::{
+    BoardState, PhasedAssignmentStage, PipelineConfig, PipelineRunner, ZoneAwareSlotGenerationStage,
+};
 
 const FAKE_MODULES: &str = r#"
 # Fake Python modules the D5 stages import at runtime (registered into
@@ -89,8 +91,6 @@ class FakeStage:
         self._bottleneck_map = None
         self.slot_spacing = 12.0
         self.fixed_placements = {}
-    def _get_footprint_radius(self, comp):
-        return 3.0
     def _effective_ghost_pad_radius(self, ref, pin_name, base_radius, cur, other):
         return base_radius
     def _compute_wirelength(self, ref, slot, net_pins, placements):
@@ -131,6 +131,19 @@ def isolation_slot_aabb(slot, component_xy):
 
 def routability_penalty(slot, channel_map):
     return 0.0
+
+def footprint_radius_py(bounds, slot_spacing):
+    if bounds:
+        return ((bounds[0] ** 2 + bounds[1] ** 2) ** 0.5) / 2.0 + 1.0
+    return slot_spacing / 2.0
+
+def reserve_slots_py(center, radius, all_slots):
+    cx, cy = center
+    return [s for s in all_slots
+            if ((s[0] - cx) ** 2 + (s[1] - cy) ** 2) ** 0.5 <= radius]
+
+def distance_py(p1, p2):
+    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
 "#;
 
 fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
@@ -145,10 +158,19 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     // temper_design_bundle_python.deterministic_stages / .deterministic_phase
     let tdb = PyModule::new(py, "temper_design_bundle_python")?;
     let ds = PyModule::new(py, "deterministic_stages")?;
-    ds.add("generate_slots_for_zone", ns.getattr("generate_slots_for_zone")?)?;
+    ds.add(
+        "generate_slots_for_zone",
+        ns.getattr("generate_slots_for_zone")?,
+    )?;
     let dp = PyModule::new(py, "deterministic_phase")?;
     dp.add("point_in_polygon_py", ns.getattr("point_in_polygon_py")?)?;
-    dp.add("slot_intersects_iso_py", ns.getattr("slot_intersects_iso_py")?)?;
+    dp.add(
+        "slot_intersects_iso_py",
+        ns.getattr("slot_intersects_iso_py")?,
+    )?;
+    dp.add("footprint_radius_py", ns.getattr("footprint_radius_py")?)?;
+    dp.add("reserve_slots_py", ns.getattr("reserve_slots_py")?)?;
+    dp.add("distance_py", ns.getattr("distance_py")?)?;
     tdb.add("deterministic_stages", &ds)?;
     tdb.add("deterministic_phase", &dp)?;
     modules.set_item("temper_design_bundle_python", &tdb)?;
@@ -201,7 +223,10 @@ fn zone_state<'py>(
     state.zones = Some(if with_zones {
         ZoneSet(std::collections::HashSet::from([Zone {
             name: "Signal".into(),
-            bounds: ((Val::Float(0.0), Val::Float(0.0)), (Val::Float(30.0), Val::Float(30.0))),
+            bounds: (
+                (Val::Float(0.0), Val::Float(0.0)),
+                (Val::Float(30.0), Val::Float(30.0)),
+            ),
         }]))
     } else {
         ZoneSet(Default::default())
@@ -263,7 +288,10 @@ fn zone_aware_with_zones_writes_zone_slots() {
             .iter()
             .find(|z| z.zone == "Signal")
             .expect("the Signal zone must have an entry");
-        assert!(!signal.slots.is_empty(), "the Signal zone must produce slots");
+        assert!(
+            !signal.slots.is_empty(),
+            "the Signal zone must produce slots"
+        );
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -275,10 +303,16 @@ fn phased_state<'py>(
     design_rules: Option<&Bound<'py, PyAny>>,
 ) -> PyResult<BoardState> {
     let pin1 = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0, "HV"))?;
-    let r1 = ns.getattr("FakeComponent")?.call1(("Q1", (2.0, 2.0), vec![&pin1]))?;
+    let r1 = ns
+        .getattr("FakeComponent")?
+        .call1(("Q1", (2.0, 2.0), vec![&pin1]))?;
     let pin2 = ns.getattr("FakePin")?.call1(("1", 0.0, 0.0, "NET"))?;
-    let r2 = ns.getattr("FakeComponent")?.call1(("C1", (2.0, 2.0), vec![&pin2]))?;
-    let netlist = ns.getattr("FakeNetlist")?.call1((PyList::new(py, [r1, r2])?,))?;
+    let r2 = ns
+        .getattr("FakeComponent")?
+        .call1(("C1", (2.0, 2.0), vec![&pin2]))?;
+    let netlist = ns
+        .getattr("FakeNetlist")?
+        .call1((PyList::new(py, [r1, r2])?,))?;
     let mut state = BoardState::new();
     state.netlist = Some(netlist.into_any().unbind());
     // U6 (O-C3) group-2: the owned shapes of the Python `frozenset` feeds.
@@ -328,7 +362,10 @@ fn phased_guard_no_netlist_identity() {
         }));
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        assert!(out.placements.is_none(), "placements must be untouched by the guard");
+        assert!(
+            out.placements.is_none(),
+            "placements must be untouched by the guard"
+        );
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -381,10 +418,7 @@ fn phased_hv_rings_reserved() {
         // Python set to probe membership in).
         let used_set = py.import("builtins")?.getattr("set")?.call0()?;
         for slot in used {
-            used_set.call_method1(
-                "add",
-                (PyTuple::new(py, [slot.0, slot.1])?,),
-            )?;
+            used_set.call_method1("add", (PyTuple::new(py, [slot.0, slot.1])?,))?;
         }
         // Q1's HV pin sits at its placed position + (0,0); creepage 6.0 with
         // the 2.5/7.5 grid guarantees at least the placed slot and neighbors.
@@ -399,7 +433,10 @@ fn phased_hv_rings_reserved() {
             .find(|p| p.ref_ == "Q1")
             .expect("Q1 placed");
         let q1_pos = (q1.position.0, q1.position.1).into_pyobject(py)?;
-        assert!(used_set.contains(q1_pos)?, "the placed slot must be reserved");
+        assert!(
+            used_set.contains(q1_pos)?,
+            "the placed slot must be reserved"
+        );
         Ok::<(), PyErr>(())
     })
     .unwrap();

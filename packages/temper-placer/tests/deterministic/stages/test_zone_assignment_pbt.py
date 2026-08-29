@@ -1,9 +1,8 @@
 """Property-based + metamorphic tests for the migrated zone_assignment compute.
 
 Wave 4, Phase 5, first slice (deterministic leaf stages). These properties
-exercise the migrated
-``temper_design_bundle_python.deterministic_stages.assign_component_zones``
-(the delegation shim ``deterministic/stages/zone_assignment.py`` calls it);
+exercise the migrated orchestration stage's shared pyo3-free kernel (the
+delegation shim ``deterministic/stages/zone_assignment.py`` calls it);
 bit-identical parity against the pinned pre-migration Python is asserted
 separately by ``test_zone_assignment_rust_differential.py``.
 
@@ -31,14 +30,12 @@ Three metamorphic relations (R1d):
 
 from __future__ import annotations
 
-import temper_design_bundle_python as _tdb
+import temper_orchestration as _to
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
-_RS = _tdb.deterministic_stages
-RS_ASSIGN = _RS.assign_component_zones
+from temper_placer.deterministic.state import BoardState
 
 _ZONES = ("MCU", "HV", "Power", "Signal")
 _REFS = st.text(
@@ -56,7 +53,7 @@ def _mk(ref, nets, classes):
 
 
 def _zones_of(netlist):
-    return dict(RS_ASSIGN(netlist))
+    return dict(_to.run_zone_assignment(BoardState(netlist=netlist)).component_zone_map)
 
 
 @given(

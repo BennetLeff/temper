@@ -53,10 +53,10 @@ class TestSeparatedHandlerStructural:
 
     def test_handler_is_registered(self) -> None:
         from temper_placer.pcl.constraints import ConstraintType
-        from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY
+        from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
 
-        assert ConstraintType.SEPARATED in HANDLER_REGISTRY
-        assert HANDLER_REGISTRY[ConstraintType.SEPARATED] is encode_separated
+        assert ConstraintType.SEPARATED in CP_SAT_HANDLER_CATALOG
+        assert CP_SAT_HANDLER_CATALOG[ConstraintType.SEPARATED] is encode_separated
 
     def test_handler_satisfies_protocol(self) -> None:
         from temper_placer.placer.cp_sat.handlers._protocol import ConstraintHandler

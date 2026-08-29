@@ -197,6 +197,8 @@ def _interior_net_name(instance_path: str) -> str:
 def resolve_chain_pairs(
     chains: Iterable[dict[str, Any]],
     components: Iterable[Any],
+    *,
+    strict: bool = False,
 ) -> list[ChainPair]:
     """Map declared chains onto board designators via their interior nets.
 
@@ -207,7 +209,12 @@ def resolve_chain_pairs(
 
     A pair whose interior net is absent from the board, or which does not
     resolve to exactly two components, is **skipped rather than guessed**
-    -- an under-resolved pair would silently constrain the wrong parts.
+    when ``strict`` is false -- an under-resolved pair would silently
+    constrain the wrong parts.  Production solver integration passes
+    ``strict=True`` so a malformed manifest/netlist fails closed instead of
+    silently dropping a protective constraint.  The permissive default is
+    retained for read-only board-audit callers that intentionally inspect
+    partial netlists.
     """
     net_to_refs: dict[str, set[str]] = {}
     for comp in components:
@@ -224,6 +231,11 @@ def resolve_chain_pairs(
             net = _interior_net_name(members[i])
             refs = sorted(net_to_refs.get(net, ()))
             if len(refs) != 2:
+                if strict:
+                    raise ValueError(
+                        f"{name}: interior net {net!r} resolves to "
+                        f"{len(refs)} components, expected exactly 2"
+                    )
                 continue
             pairs.append(ChainPair(chain_name=name, a=refs[0], b=refs[1], interior_net=net))
     return pairs

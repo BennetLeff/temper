@@ -10,18 +10,10 @@ the ``temper-orchestration`` pyfunction as the adapter's ``*fn_args``. The
 Rust pyfunction is the single source of truth; ``run`` is the adapter's one
 shared implementation.
 
-Two module paths survive as thin re-export shims because a pinned VERBATIM
-oracle imports them by module path (the oracle bodies cannot be edited):
-
-- ``stages/config_attach.py``  -- the pinned pipeline oracle
-  (``tests/deterministic/_deterministic_pipeline_py_oracle.py``) does
-  ``from temper_placer.deterministic.stages.config_attach import
-  ConfigAttachStage`` inside its pinned body.
-- ``stages/slot_generation.py`` -- the pinned zone-aware oracle
-  (``tests/deterministic/_zone_aware_slot_generation_run_py_oracle.py``)
-  imports ``SlotGenerationStage`` from that module and SUBCLASSES it (its
-  pre-migration ``run`` body also calls ``self._generate_slots_for_zone``,
-  so the adapter keeps that Phase-5 leaf-kernel delegation helper).
+The old ``config_attach.py`` and ``slot_generation.py`` module paths were
+deleted after their live callers migrated.  Immutable oracle bodies that
+still import those paths receive test-only in-memory sentinels before they
+are loaded; no compatibility modules are shipped in production.
 
 ``stages/zone_geometry.py`` likewise survives, but only as the home of the
 ``Zone`` dataclass -- a real data type the Rust ``ZoneGeometryStage`` /
@@ -71,12 +63,12 @@ from .power_plane import TEMPER_PLANE_LAYERS, PowerPlaneStage
 class ConfigAttachStage(RustFunctionStage):
     """Attach the parsed PlacementConstraints config to BoardState.
 
-    Shim-debt cleanup (2026-08-20): the shim module
+    Shim-debt cleanup (2026-08-20): the former shim module
     ``stages/config_attach.py`` was collapsed; the run orchestration is
     ``temper-orchestration``'s ``ConfigAttachStage``, reached through
     ``temper_orchestration.run_config_attach``. The module path survives
-    only because the pinned pipeline oracle imports the class from it
-    (see the package docstring).
+    directly through the package adapter.  The immutable oracle uses a
+    test-only module sentinel for its historical import path.
     """
 
     def __init__(self, config) -> None:
@@ -154,9 +146,10 @@ class SlotGenerationStage(RustFunctionStage):
     def _generate_slots_for_zone(self, zone, spacing: float) -> list[tuple[float, float]]:
         """Generate a regular grid of placement slots within a zone.
 
-        Kept as a delegation helper: the pinned zone-aware oracle
-        (``_zone_aware_slot_generation_run_py_oracle.py``) subclasses this
-        stage and calls this method from its own pre-migration ``run`` body.
+        Kept as a delegation helper for the package adapter.  The pinned
+        zone-aware oracle subclasses the adapter supplied by its test-only
+        historical-module sentinel and calls this method from its own
+        pre-migration ``run`` body.
         The slot-grid walk is the Wave-4 Phase-5 Rust leaf kernel
         (``temper_design_bundle_python.deterministic_stages
         .generate_slots_for_zone``).

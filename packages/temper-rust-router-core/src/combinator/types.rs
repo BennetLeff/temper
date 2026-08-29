@@ -37,10 +37,7 @@ pub enum PrimitiveConstraint {
         terms: Vec<(String, f64)>, // (var_name, width)
     },
     /// P4. LayerAssignment: unit clause x = v.
-    LayerAssignment {
-        var_name: String,
-        value: bool,
-    },
+    LayerAssignment { var_name: String, value: bool },
 }
 
 /// A composition tree node.
@@ -98,17 +95,11 @@ pub fn cardinality_bound_new(
 
 /// P4 layer assignment: `var_name = value`.
 pub fn layer_assignment_new(var_name: String, value: bool) -> ComposedConstraint {
-    ComposedConstraint::Primitive(PrimitiveConstraint::LayerAssignment {
-        var_name,
-        value,
-    })
+    ComposedConstraint::Primitive(PrimitiveConstraint::LayerAssignment { var_name, value })
 }
 
 /// Combine two constraints: both must hold.
-pub fn compose_conjoin(
-    a: ComposedConstraint,
-    b: ComposedConstraint,
-) -> ComposedConstraint {
+pub fn compose_conjoin(a: ComposedConstraint, b: ComposedConstraint) -> ComposedConstraint {
     ComposedConstraint::Conjoin(Box::new(a), Box::new(b))
 }
 
@@ -124,10 +115,7 @@ pub fn compose_conditional(
 }
 
 /// Restrict a constraint to apply only within the given variable set.
-pub fn compose_restrict_domain(
-    inner: ComposedConstraint,
-    vars: Vec<String>,
-) -> ComposedConstraint {
+pub fn compose_restrict_domain(inner: ComposedConstraint, vars: Vec<String>) -> ComposedConstraint {
     ComposedConstraint::RestrictDomain {
         inner: Box::new(inner),
         vars,
@@ -175,15 +163,22 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn construct_conjoin() {
         let p2 = cardinality_bound_new(
-            "L1_E5".into(), 3,
+            "L1_E5".into(),
+            3,
             vec![("A".into(), 1.0), ("B".into(), 1.0), ("C".into(), 1.0)],
         );
         let p4 = layer_assignment_new("A".into(), true);
         let composed = compose_conjoin(p2, p4);
         match &composed {
             ComposedConstraint::Conjoin(left, right) => {
-                assert!(matches!(&**left, ComposedConstraint::Primitive(PrimitiveConstraint::CardinalityBound { .. })));
-                assert!(matches!(&**right, ComposedConstraint::Primitive(PrimitiveConstraint::LayerAssignment { .. })));
+                assert!(matches!(
+                    &**left,
+                    ComposedConstraint::Primitive(PrimitiveConstraint::CardinalityBound { .. })
+                ));
+                assert!(matches!(
+                    &**right,
+                    ComposedConstraint::Primitive(PrimitiveConstraint::LayerAssignment { .. })
+                ));
             }
             _ => panic!("expected Conjoin"),
         }
@@ -194,7 +189,10 @@ pub(crate) mod tests {
         let p1 = mutual_exclusion_equality("p".into(), "n".into());
         let cond = compose_conditional(vec![("guard".into(), true)], p1);
         match &cond {
-            ComposedConstraint::Conditional { antecedent, consequent: _ } => {
+            ComposedConstraint::Conditional {
+                antecedent,
+                consequent: _,
+            } => {
                 assert_eq!(antecedent, &vec![("guard".to_string(), true)]);
             }
             _ => panic!("expected Conditional"),
@@ -204,7 +202,8 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn construct_restrict_domain() {
         let p2 = cardinality_bound_new(
-            "CH1".into(), 2,
+            "CH1".into(),
+            2,
             vec![("A".into(), 1.0), ("B".into(), 1.0), ("C".into(), 1.0)],
         );
         let restricted = compose_restrict_domain(p2, vec!["A".into(), "B".into()]);

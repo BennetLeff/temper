@@ -113,6 +113,17 @@ did for its own two entries.
 ``scripts/oracle_hashes.json`` updated in the same commit, per
 ``check_oracle_hashes.py``'s contract.
 
+RE-PINNED 2026-08-27 (PD3 tank creepage contract). The live table and the
+generated ``pair_creepage.generated.yaml`` now intentionally select the
+as-built PD3 requirement for ``HighVoltageTank`` (10.0mm), while this pin
+still carried the superseded conditional PD2 value (6.3mm). The source,
+generated pair table, DRU generator, and tank enforcement tests agree on the
+PD3 value; retaining 6.3mm here would make the differential suite report a
+false migration divergence. Only this ``creepage_mm`` literal changed
+semantically in this re-pin; the original PD2 figure remains separately
+pinned by the live tank contract's constants and evidence
+(``docs/evidence/2026-08-12-hv-hv-creepage-determination.md``).
+
 """
 
 import re
@@ -586,7 +597,7 @@ TEMPER_NET_CLASSES = {
         via_drill=0.6,
         via_template="Via3x3",
         voltage_v=923.7,
-        creepage_mm=6.3,
+        creepage_mm=10.0,
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",

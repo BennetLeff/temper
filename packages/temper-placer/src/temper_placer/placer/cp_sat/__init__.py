@@ -212,6 +212,7 @@ __all__ = [
     "run_constraint_family_real_board_campaign",
     "run_real_board_constraint_family_campaign",
     "run_real_board_family_campaign",
+    "ComponentPairRequirement",
     "ComponentSpec",
     "EnvelopeBounds",
     "EnvelopeSolveResult",

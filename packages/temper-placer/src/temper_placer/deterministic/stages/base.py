@@ -13,8 +13,6 @@ subclass it and rely on its exact ABC surface:
   constraint_model,channel_widths,occupancy_grid,routing_demand,
   stage4_orchestrator,bottleneck_analysis,grid_prep_stage,routing_space}.py`` --
   15 modules subclass ``Stage``),
-- ``adapters/deterministic_adapter.py`` (the ``_WrappedDeterministicStage``
-  protocol-compat wrapper), and
 - the D1-D7 Python stage shims, which keep ``class XStage(Stage)`` so
   ``isinstance(stage, Stage)`` and the ABC contract properties keep working
   for the ``DeterministicPipeline`` runner.

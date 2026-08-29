@@ -127,6 +127,55 @@ def _load_zones(config_path: Path) -> dict[str, tuple[float, float, float, float
     return {z.name: z.bounds for z in getattr(constraints, "zones", [])}
 
 
+def _violation_component_refs(violation: dict) -> set[str]:
+    """Extract component refs from KiCad's structured violation items.
+
+    KiCad puts refs in ``items[].description`` (for example ``Pad 1 of C1``
+    or ``Footprint J1``), not in the top-level rule description.  Looking
+    only at the latter makes every same-footprint violation appear
+    placement-fixable and inflated the golden-board count.
+    """
+    item_descriptions = [
+        item.get("description", "")
+        for item in violation.get("items", [])
+        if isinstance(item, dict)
+    ]
+    descriptions = item_descriptions or [violation.get("description", "")]
+    refs: set[str] = set()
+    for description in descriptions:
+        refs.update(re.findall(r"\bof\s+([A-Za-z_][\w]*)\b", description))
+        refs.update(re.findall(r"\bFootprint\s+([A-Za-z_][\w]*)\b", description))
+    return refs
+
+
+def test_violation_component_refs_read_structured_items() -> None:
+    """The placement/irreducible split must use KiCad item descriptions."""
+    assert _violation_component_refs(
+        {
+            "description": "Clearance violation (actual 0.1 mm)",
+            "items": [
+                {"description": "Pad 1 [N1] of C1"},
+                {"description": "Pad 2 [GND] of C1"},
+            ],
+        }
+    ) == {"C1"}
+    assert _violation_component_refs(
+        {
+            "description": "Footprint has no courtyard defined",
+            "items": [{"description": "Footprint J1"}],
+        }
+    ) == {"J1"}
+    assert _violation_component_refs(
+        {
+            "description": "Clearance violation (actual 0.1 mm)",
+            "items": [
+                {"description": "Pad 1 [N1] of Q1"},
+                {"description": "Pad 1 [N2] of U1"},
+            ],
+        }
+    ) == {"Q1", "U1"}
+
+
 # VERIFIED 2026-07-18: PCL_CONFIG declares zones (HV_ZONE, MCU_ZONE,
 # ISOLATION_BARRIER) and named critical loops (commutation_loop,
 # gate_drive_high, gate_drive_low) that solve_placement() needs `zones=`/
@@ -258,8 +307,6 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
 
         # 7. Count violations by type, distinguishing placement-fixable
         #    from placement-irreducible (intra-component).
-        import re
-
         # Violations no amount of re-placement can remove: they describe the
         # footprint itself, not where it sits.  `lib_footprint_mismatch` (board
         # footprint differs from the library's) is one character-class away
@@ -275,11 +322,10 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
 
         for v in violations:
             vtype = v.get("type", "other")
-            desc = v.get("description", "")
 
             # Intra-component: both sides name the same component ref.
             # Example: "Pad 13 of U_MCU" and "Pad 14 of U_MCU".
-            refs = set(re.findall(r"of\s+(\S+)", desc))
+            refs = _violation_component_refs(v)
             if len(refs) == 1 and vtype not in PLACEMENT_IRREDUCIBLE_TYPES:
                 irreducible_counts[vtype] = irreducible_counts.get(vtype, 0) + 1
                 intra_component_count += 1
@@ -653,11 +699,19 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # #690/#711 (7e3608bc2).  This is the first shape change since the gate went
 # masked 2026-07-30 (continue-on-error), which is why it went unnoticed for
 # ~12 days — the un-mask (wasm/router-unmask) surfaced it.
+#
+# 2026-08-27 RE-MEASUREMENT (c24d0381044e6c77621d18a7616b5e945bb4419b,
+# kicad-cli 10.0.5 Linux): board SHA-256
+# a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f.
+# The board now contains 168 footprints, 4553 segments, 169 vias, and 151
+# zones. The committed-board DRC was sampled in 15 sequential runs with its
+# adjacent .kicad_pro/.kicad_dru project context; every run was identical
+# (724 total violations, 32 shorting_items, 348 unconnected_items).
 PRODUCTION_BOARD_BASELINE_SHAPE = {
-    "footprints": 169,
-    "segments": 2290,
-    "vias": 48,
-    "zones": 96,
+    "footprints": 168,
+    "segments": 4553,
+    "vias": 169,
+    "zones": 151,
 }
 
 # KiCad's DRC is not reproducible run-to-run on this board: docs/STRATEGY.md
@@ -822,9 +876,9 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # before) — plus the netclass-reclassification context on main already
 # sitting at 1264 vs the then-threshold 1283 (+19 headroom).  `shorting`
 # does NOT move: written worst median-of-5 138 still clears 141.
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1425
-PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 141
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 428
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 724
+PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 32
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 348
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -958,9 +1012,43 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 428
 # in this PR (docs/evidence/2026-08-04-designrules-parse-fix.md): the
 # threshold was set on an older board while the router path was crash-dead.
 # Threshold: worst median-of-5 (1504) + 10 = 1514.
-PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1514
-PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 178
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 463
+#
+# 2026-08-27 RE-MEASUREMENT (c24d0381044e6c77621d18a7616b5e945bb4419b,
+# kicad-cli 10.0.5 Linux): the board changed shape again and all six values
+# below were re-measured together against board SHA-256
+# a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f.
+# Shape is 168 footprints / 4553 segments / 169 vias / 151 zones.  The
+# committed board was measured with 15 sequential project-context DRC runs;
+# every run was identical: total 724, shorting_items 32, and
+# unconnected_items 348.  Per-type counts were clearance 165,
+# copper_edge_clearance 11, courtyards_overlap 4, creepage 100,
+# drill_out_of_range 6, lib_footprint_issues 13, lib_footprint_mismatch 27,
+# missing_courtyard 5, shorting_items 32, silk_edge_clearance 1,
+# silk_over_copper 45, silk_overlap 199, solder_mask_bridge 4,
+# track_dangling 1, via_dangling 111.
+#
+# The router-output artifact was produced with route_board.py --net-batching
+# and its project sidecar was propagated from the production board. Two
+# successful output artifacts were byte-identical (SHA-256
+# a2bc9200c608fd782fb02302b806327f4468ae24dceadba1c30c8bb1fefcd2b2), with
+# identical route metrics: completion 34/105 (32.4%), 4714 segments, 176
+# vias, 170 zones, and 55/136 fully pad-connected nets.  The repository's
+# three-run wrapper also completed its first route but, at measurement time,
+# failed afterward on its now-fixed report serialization bug (NetRouteResult
+# was not JSON serializable), so determinism was confirmed by the two direct
+# output artifacts instead.  The focused route-board report test covers that
+# JSON boundary. Eleven sequential project-context DRC runs on the
+# byte-identical output were all identical: total 758, shorting_items 26,
+# unconnected_items 342; per-type counts were clearance 179,
+# copper_edge_clearance 30, courtyards_overlap 4, creepage 96,
+# drill_out_of_range 8, lib_footprint_issues 13, lib_footprint_mismatch 27,
+# missing_courtyard 5, shorting_items 26, silk_edge_clearance 1,
+# silk_over_copper 45, silk_overlap 199, via_dangling 125.  No category was
+# cap-saturated and neither artifact showed run-to-run scatter, so the
+# exact medians are the complete remeasurement rather than padded budgets.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 758
+PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 26
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 342
 
 
 @dataclass(frozen=True)
@@ -1059,8 +1147,8 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     repo — placement *and* whatever copper is committed with it.  It does
     NOT run CP-SAT placement (infeasible at 168 components / 30s timeout),
     and since 556ccf4f (2026-07-27) it is no longer a placement-only
-    measurement: the committed board carries 2,290 segments, 48 vias and
-    96 zones.  See the provenance block above.
+    measurement: the committed board carries 4,553 segments, 169 vias and
+    151 zones.  See the provenance block above.
 
     The corpus board (<30 nets, CP-SAT placed) provides fast, stable
     regression coverage.  The production board test here provides a
@@ -1082,7 +1170,7 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.shorting_items <= PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS, (
         f"Committed board shorting_items median {sample.shorting_items} exceeds "
         f"the measured baseline {PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS} "
-        f"(2026-07-29: median 68, range 66–87 over N=15 DRC runs; "
+        f"(2026-08-27: 32 in all 15 sequential DRC runs; "
         f"this run's sample: {sample.shortings}). "
         f"A copper short is a fatal defect on a mains-connected board "
         f"(docs/STRATEGY.md) — this threshold is a ratchet, not a budget. "
@@ -1093,9 +1181,8 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.unconnected <= PRODUCTION_COMMITTED_BOARD_UNCONNECTED, (
         f"Committed board unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_COMMITTED_BOARD_UNCONNECTED} "
-        f"(2026-08-03: 428 in all 5 runs on the written board, zero scatter; "
-        f"pre-write 425 — re-baselined for the wave-2 board write, proof in "
-        f"docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 5b). This "
+        f"(2026-08-27: 348 in all 15 sequential runs, zero scatter; "
+        f"re-baselined for the current 168-footprint routed board). This "
         f"number may only "
         f"go down FOR A FIXED BOARD GEOMETRY — routing can only ever close "
         f"connections. It legitimately rose once, 382 -> 388 on 2026-07-29, "
@@ -1110,10 +1197,7 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.total <= PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS, (
         f"Committed board DRC total median {sample.total} exceeds threshold "
         f"{PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS} "
-        f"(2026-08-03: median 1408, range 1390–1417 over N=15 runs on the "
-        f"written board — re-baselined 1283 -> 1425 for the wave-2 board "
-        f"write, proof in "
-        f"docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 5b; "
+        f"(2026-08-27: 724 in all 15 sequential runs on the current board; "
         f"this run's sample: {sample.totals}). "
         f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"
     )
@@ -1176,21 +1260,11 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     ``docs/evidence/2026-08-12-production-ratchet-runnable.md`` for the
     full verdict and the peak-RSS measurement this change enables.
 
-    PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS/UNCONNECTED (178/463) were
-    seeded against the monolithic path's output (see the provenance block
-    above -- every re-measurement cited there ran ``route_pcb()`` at its
-    net-batching-disabled default).  They are NOT re-derived here: this
-    change does not know, and does not assert, that 178/463 are the right
-    bars for net-batching's structurally different output (different
-    completion rate, different copper) -- only that the numbers measured
-    below are the first real ones this path has ever produced, checked
-    against the only bars this repo has, honestly reported as whatever they
-    turn out to be relative to those bars. Re-baselining PRODUCTION_ROUTER_
-    OUTPUT_SHORTING_ITEMS/UNCONNECTED for the net-batching artefact -- if
-    warranted -- is deliberately left to a follow-up with its own N>=5
-    median-of-N provenance block, matching this file's own established
-    convention for every prior re-seeding; it is not done silently inside
-    this fix.
+    The current 26/342 router-output bars were measured against this exact
+    net-batching artifact on 2026-08-27; see the provenance block above.
+    They are deliberately separate from the committed-board 32/348 bars:
+    route_pcb() strips existing copper and emits a different artifact, whose
+    project sidecar must be provisioned before KiCad DRC is run.
     """
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
@@ -1249,12 +1323,10 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     assert sample.shorting_items <= PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS, (
         f"Router output shorting_items median {sample.shorting_items} exceeds "
         f"the measured baseline {PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS} "
-        f"(2026-07-29: median 115, range 89–122 over N=11 DRC runs on the "
+        f"(2026-08-27: 26 in all 11 sequential DRC runs on the "
         f"router's deterministic output; this run's sample: {sample.shortings}). "
-        f"NOTE (2026-08-12): that baseline was measured on the MONOLITHIC "
-        f"path; this assertion now runs net-batching (see this test's own "
-        f"docstring) -- a different artefact the baseline was never "
-        f"re-derived against. A copper short is a fatal defect on a "
+        f"This is the current net-batching artifact baseline (see this test's "
+        f"provenance block). A copper short is a fatal defect on a "
         f"mains-connected board (docs/STRATEGY.md) — this threshold is a "
         f"ratchet, not a budget. Do not raise it to go green."
     )
@@ -1262,23 +1334,17 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     assert sample.unconnected <= PRODUCTION_ROUTER_OUTPUT_UNCONNECTED, (
         f"Router output unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_ROUTER_OUTPUT_UNCONNECTED} "
-        f"(2026-07-29: 405 in all eleven runs, zero scatter) despite the "
+        f"(2026-08-27: 342 in all eleven runs, zero scatter) despite the "
         f"router completion signal (completion_rate="
-        f"{routing_result.completion_rate:.4f}). NOTE (2026-08-12): that "
-        f"baseline was measured on the MONOLITHIC path; this assertion now "
-        f"runs net-batching (see this test's own docstring) -- a different "
-        f"artefact, with its own completion rate, the baseline was never "
-        f"re-derived against. Same caveat as the Category A gate: this "
-        f"rose 396 -> 402 (reader fix 1979fcc8) -> 405 (corrected board, "
-        f"2026-07-29) as phantom copper connections were removed, every newly "
-        f"reported pair verified SAME-NET. KiCad details: "
+        f"{routing_result.completion_rate:.4f}). This is the current "
+        f"net-batching artifact baseline; KiCad details: "
         f"{sample.last_raw.get('unconnected_items', [])[:5]}"
     )
 
     assert sample.total <= PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS, (
         f"Router output DRC total median {sample.total} exceeds threshold "
         f"{PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS} "
-        f"(2026-07-29: median 1551, range 1508–1558 over N=11 runs; "
+        f"(2026-08-27: 758 in all eleven runs; "
         f"this run's sample: {sample.totals}; "
         f"unconnected={sample.unconnected}). "
         f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"

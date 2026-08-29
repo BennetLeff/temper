@@ -128,7 +128,10 @@ impl RewriteTrace {
     fn log(&self, msg: impl FnOnce() -> String) {
         if let Some(start) = self.start {
             let msg = msg();
-            eprintln!("[rewrite-trace t={:.3}s] {msg}", start.elapsed().as_secs_f64());
+            eprintln!(
+                "[rewrite-trace t={:.3}s] {msg}",
+                start.elapsed().as_secs_f64()
+            );
             let _ = std::io::stderr().flush();
         }
     }
@@ -162,10 +165,7 @@ pub enum RewriteError {
         "Capacity dedup invariant violation: no CapInfo matched var-set key \
          '{var_set:?}' in the dedup map."
     )]
-    SubsumeDedup {
-        var_set: String,
-        channel_id: String,
-    },
+    SubsumeDedup { var_set: String, channel_id: String },
 }
 
 /// Apply RW1-RW7 rewrite rules to an `InternalConstraintModel`.
@@ -637,7 +637,8 @@ fn subsume_capacity(
         });
     }
 
-    let mut tight_k: Vec<Option<usize>> = cap_infos.iter().map(|info| Some(info.max_nets)).collect();
+    let mut tight_k: Vec<Option<usize>> =
+        cap_infos.iter().map(|info| Some(info.max_nets)).collect();
     let mut comparisons: u64 = 0u64;
     let loop_start = trace.timer();
 
@@ -677,8 +678,7 @@ fn subsume_capacity(
                         j,
                     })?;
 
-                    let skip: bool = cap_infos[i].terms.len() > cap_infos[j].terms.len()
-                        || ki > kj;
+                    let skip: bool = cap_infos[i].terms.len() > cap_infos[j].terms.len() || ki > kj;
                     if skip {
                         continue;
                     }
@@ -731,11 +731,7 @@ fn subsume_capacity(
 
     for info in &cap_infos {
         let k = tight_k[info.orig_idx].unwrap_or(info.max_nets);
-        let var_sorted: BTreeSet<String> = info
-            .terms
-            .iter()
-            .map(|(n, _)| n.clone())
-            .collect();
+        let var_sorted: BTreeSet<String> = info.terms.iter().map(|(n, _)| n.clone()).collect();
 
         let entry = dedup_map.entry(var_sorted).or_insert((info.orig_idx, k));
         if k < entry.1 {
@@ -746,10 +742,12 @@ fn subsume_capacity(
     let mut result = others;
 
     for (_var_sorted, (orig_idx, tight_k)) in dedup_map {
-        let info = cap_infos.get(orig_idx).ok_or_else(|| RewriteError::SubsumeDedup {
-            var_set: format!("orig_idx={orig_idx}"),
-            channel_id: String::from("<unknown>"),
-        })?;
+        let info = cap_infos
+            .get(orig_idx)
+            .ok_or_else(|| RewriteError::SubsumeDedup {
+                var_set: format!("orig_idx={orig_idx}"),
+                channel_id: String::from("<unknown>"),
+            })?;
 
         let new_max_nets = tight_k;
 
@@ -826,11 +824,7 @@ fn eliminate_trivial_capacity(constraints: Vec<InternalConstraint>) -> Vec<Inter
 pub(crate) mod tests {
     use super::*;
 
-    fn capacity(
-        channel_id: &str,
-        capacity: f64,
-        terms: Vec<(&str, f64)>,
-    ) -> InternalConstraint {
+    fn capacity(channel_id: &str, capacity: f64, terms: Vec<(&str, f64)>) -> InternalConstraint {
         InternalConstraint::Capacity {
             channel_id: channel_id.into(),
             capacity,
@@ -863,10 +857,7 @@ pub(crate) mod tests {
     fn rw7_layer_conflict_detected() {
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![
-                layer("N3_L1_E5", true),
-                layer("N3_L1_E5", false),
-            ],
+            constraints: vec![layer("N3_L1_E5", true), layer("N3_L1_E5", false)],
         };
         let err = rewrite(&model).unwrap_err();
         assert!(matches!(err, RewriteError::UnsatPreSolve { .. }));
@@ -877,10 +868,7 @@ pub(crate) mod tests {
     fn rw7_no_conflict_when_distinct_vars() {
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![
-                layer("A", true),
-                layer("B", false),
-            ],
+            constraints: vec![layer("A", true), layer("B", false)],
         };
         let result = rewrite(&model).unwrap();
         assert_eq!(result.constraints.len(), 2);
@@ -895,10 +883,7 @@ pub(crate) mod tests {
     fn rw5_dedup_identical_diffpairs() {
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![
-                diffpair("CH1", "p", "n"),
-                diffpair("CH1", "p", "n"),
-            ],
+            constraints: vec![diffpair("CH1", "p", "n"), diffpair("CH1", "p", "n")],
         };
         let result = rewrite(&model).unwrap();
         let dp_count = result
@@ -914,10 +899,7 @@ pub(crate) mod tests {
     fn rw5_preserves_different_diffpairs() {
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![
-                diffpair("CH1", "p", "n"),
-                diffpair("CH2", "p2", "n2"),
-            ],
+            constraints: vec![diffpair("CH1", "p", "n"), diffpair("CH2", "p2", "n2")],
         };
         let result = rewrite(&model).unwrap();
         assert_eq!(result.constraints.len(), 2);
@@ -956,7 +938,11 @@ pub(crate) mod tests {
             variables: vec![],
             constraints: vec![
                 // K=4 over 5 vars: max_nets=4, terms=[A,B,C,D,E]
-                capacity("L1_E5", 4.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0), ("D", 1.0), ("E", 1.0)]),
+                capacity(
+                    "L1_E5",
+                    4.0,
+                    vec![("A", 1.0), ("B", 1.0), ("C", 1.0), ("D", 1.0), ("E", 1.0)],
+                ),
                 layer("A", true),
             ],
         };
@@ -968,11 +954,17 @@ pub(crate) mod tests {
             .iter()
             .find(|c| matches!(c, InternalConstraint::Capacity { .. }));
         assert!(cap.is_some(), "Capacity should still exist");
-        if let InternalConstraint::Capacity { terms, capacity, .. } = cap.unwrap() {
+        if let InternalConstraint::Capacity {
+            terms, capacity, ..
+        } = cap.unwrap()
+        {
             assert_eq!(terms.len(), 4); // B,C,D,E
             assert!(!terms.iter().any(|(n, _)| n == "A"));
             // max_nets = 3, capacity = 3.0
-            assert!((*capacity - 3.0).abs() < 0.001, "expected capacity ~3.0, got {capacity}");
+            assert!(
+                (*capacity - 3.0).abs() < 0.001,
+                "expected capacity ~3.0, got {capacity}"
+            );
         }
         // LayerRestriction preserved.
         assert!(result.constraints.iter().any(|c| {
@@ -994,10 +986,12 @@ pub(crate) mod tests {
         let result = rewrite(&model).unwrap();
         // After removing both A and B from Capacity, terms become empty.
         // Capacity is dropped since all terms removed.
-        assert!(!result
-            .constraints
-            .iter()
-            .any(|c| matches!(c, InternalConstraint::Capacity { .. })));
+        assert!(
+            !result
+                .constraints
+                .iter()
+                .any(|c| matches!(c, InternalConstraint::Capacity { .. }))
+        );
         // Both LayerRestrictions preserved.
         assert_eq!(result.constraints.len(), 2);
     }
@@ -1022,7 +1016,12 @@ pub(crate) mod tests {
         assert!(result.constraints.iter().any(|c| {
             matches!(c, InternalConstraint::LayerRestriction { var_name, allowed } if var_name == "A" && *allowed)
         }));
-        assert!(!result.constraints.iter().any(|c| matches!(c, InternalConstraint::Capacity { .. })));
+        assert!(
+            !result
+                .constraints
+                .iter()
+                .any(|c| matches!(c, InternalConstraint::Capacity { .. }))
+        );
     }
 
     // -----------------------------------------------------------------------
@@ -1048,7 +1047,10 @@ pub(crate) mod tests {
             .iter()
             .find(|c| matches!(c, InternalConstraint::Capacity { .. }));
         assert!(cap.is_some(), "Capacity should still exist");
-        if let InternalConstraint::Capacity { terms, capacity, .. } = cap.unwrap() {
+        if let InternalConstraint::Capacity {
+            terms, capacity, ..
+        } = cap.unwrap()
+        {
             assert_eq!(terms.len(), 2); // B, C
             assert!(!terms.iter().any(|(n, _)| n == "A"));
             // K stays at 1 → capacity stays 1.0
@@ -1067,7 +1069,11 @@ pub(crate) mod tests {
             variables: vec![],
             constraints: vec![
                 capacity("L1_E5", 2.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0)]),
-                capacity("L1_E5", 5.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0), ("D", 1.0), ("E", 1.0)]),
+                capacity(
+                    "L1_E5",
+                    5.0,
+                    vec![("A", 1.0), ("B", 1.0), ("C", 1.0), ("D", 1.0), ("E", 1.0)],
+                ),
             ],
         };
         let result = rewrite(&model).unwrap();
@@ -1116,7 +1122,13 @@ pub(crate) mod tests {
             .filter(|c| matches!(c, InternalConstraint::Capacity { .. }))
             .collect();
         assert_eq!(caps.len(), 1, "duplicate var sets should be merged");
-        if let InternalConstraint::Capacity { capacity, slack_factor, terms, .. } = caps[0] {
+        if let InternalConstraint::Capacity {
+            capacity,
+            slack_factor,
+            terms,
+            ..
+        } = caps[0]
+        {
             let max_nets = compute_max_nets(*capacity, *slack_factor, terms);
             assert_eq!(max_nets, 2, "should keep smaller K=2");
         }
@@ -1131,15 +1143,15 @@ pub(crate) mod tests {
     fn rw2_eliminate_trivial_capacity() {
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![
-                capacity("CH1", 3.0, vec![("A", 1.0), ("B", 1.0)]),
-            ],
+            constraints: vec![capacity("CH1", 3.0, vec![("A", 1.0), ("B", 1.0)])],
         };
         let result = rewrite(&model).unwrap();
-        assert!(!result
-            .constraints
-            .iter()
-            .any(|c| matches!(c, InternalConstraint::Capacity { .. })));
+        assert!(
+            !result
+                .constraints
+                .iter()
+                .any(|c| matches!(c, InternalConstraint::Capacity { .. }))
+        );
     }
 
     /// RW2: K < |V| → constraint preserved.
@@ -1147,9 +1159,7 @@ pub(crate) mod tests {
     fn rw2_preserves_binding_constraint() {
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![
-                capacity("CH1", 1.0, vec![("A", 1.0), ("B", 1.0)]),
-            ],
+            constraints: vec![capacity("CH1", 1.0, vec![("A", 1.0), ("B", 1.0)])],
         };
         let result = rewrite(&model).unwrap();
         assert_eq!(result.constraints.len(), 1);
@@ -1164,7 +1174,11 @@ pub(crate) mod tests {
             variables: vec![],
             constraints: vec![
                 capacity("L1_E5", 2.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0)]),
-                capacity("L1_E5", 5.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0), ("D", 1.0), ("E", 1.0)]),
+                capacity(
+                    "L1_E5",
+                    5.0,
+                    vec![("A", 1.0), ("B", 1.0), ("C", 1.0), ("D", 1.0), ("E", 1.0)],
+                ),
             ],
         };
         let result = rewrite(&model).unwrap();
@@ -1197,7 +1211,12 @@ pub(crate) mod tests {
         assert!(result.constraints.iter().any(|c| {
             matches!(c, InternalConstraint::LayerRestriction { var_name, allowed } if var_name == "B" && !*allowed)
         }));
-        assert!(!result.constraints.iter().any(|c| matches!(c, InternalConstraint::Capacity { .. })));
+        assert!(
+            !result
+                .constraints
+                .iter()
+                .any(|c| matches!(c, InternalConstraint::Capacity { .. }))
+        );
     }
 
     // -----------------------------------------------------------------------
@@ -1226,7 +1245,11 @@ pub(crate) mod tests {
         // No rules fire → loop terminates in 1 iteration.
         let model = InternalConstraintModel {
             variables: vec![],
-            constraints: vec![capacity("CH1", 2.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0)])],
+            constraints: vec![capacity(
+                "CH1",
+                2.0,
+                vec![("A", 1.0), ("B", 1.0), ("C", 1.0)],
+            )],
         };
         let result = rewrite(&model).unwrap();
         assert_eq!(result.constraints.len(), 1);
@@ -1260,17 +1283,16 @@ pub(crate) mod tests {
         for n in 1..=4u32 {
             for k in 0..n {
                 let var_names: Vec<String> = (0..n).map(|i| format!("v{i}")).collect();
-                let terms: Vec<(String, f64)> = var_names.iter().map(|v| (v.clone(), 1.0)).collect();
+                let terms: Vec<(String, f64)> =
+                    var_names.iter().map(|v| (v.clone(), 1.0)).collect();
 
                 for assign_layer_idx in 0..=var_names.len() {
-                    let mut constraints = vec![
-                        InternalConstraint::Capacity {
-                            channel_id: "CH1".into(),
-                            capacity: k as f64,
-                            slack_factor: 1.0,
-                            terms: terms.clone(),
-                        },
-                    ];
+                    let mut constraints = vec![InternalConstraint::Capacity {
+                        channel_id: "CH1".into(),
+                        capacity: k as f64,
+                        slack_factor: 1.0,
+                        terms: terms.clone(),
+                    }];
 
                     if assign_layer_idx < var_names.len() {
                         constraints.push(InternalConstraint::LayerRestriction {
@@ -1288,9 +1310,11 @@ pub(crate) mod tests {
                     // Rewrite should never error for non-contradictory inputs.
                     // Constraint count may increase when K=0 expansion adds unit
                     // clauses, but this is correct (clause count still decreases).
-                    assert!(rewritten.is_ok(),
+                    assert!(
+                        rewritten.is_ok(),
                         "rewrite errored for n={n} k={k} layer_idx={assign_layer_idx}: {:?}",
-                        rewritten.err());
+                        rewritten.err()
+                    );
                     // If rewrite errored (RW7), that's acceptable — it means a
                     // contradiction was detected, which could only happen in
                     // complex multi-layer cases.

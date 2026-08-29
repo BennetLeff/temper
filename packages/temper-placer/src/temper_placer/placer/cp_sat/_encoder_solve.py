@@ -718,6 +718,10 @@ def solve_placement(
             that abstraction is stronger than the component-pair safety
             model; exact replay cuts and the exhaustive Rust verifier remain
             authoritative in either mode.
+        decomposed_creepage_group_prior_cuts: Use the Rust neighborhood
+            planner to share four relative-direction literals across dense
+            replay-cut blocks. This is a decomposed-only search restriction;
+            every component pair retains its exact distance inequality.
 
     """
     from ortools.sat.python import cp_model as cp
@@ -737,6 +741,8 @@ def solve_placement(
             "experimental_omit_generated_creepage cannot be combined with "
             "lazy_creepage or decomposed_creepage"
         )
+    if decomposed_creepage_group_prior_cuts and not decomposed_creepage:
+        raise ValueError("grouped prior cuts require decomposed_creepage")
     if not isinstance(decomposed_creepage_group_prior_cuts, bool):
         raise ValueError("decomposed_creepage_group_prior_cuts must be a boolean")
     if (
@@ -1069,6 +1075,7 @@ def solve_placement(
                         if decomposed_creepage_enforce_coarse_pair_gaps
                         else []
                     ),
+                    prepared.pair_requirements,
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -1087,6 +1094,7 @@ def solve_placement(
                         if decomposed_creepage_enforce_coarse_pair_gaps
                         else []
                     ),
+                    prepared.pair_requirements,
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -1635,6 +1643,7 @@ def solve_placement(
             )
         else:
             status_code = solver.Solve(model_wrapper.model_ref)
+        status_code = solver.Solve(model_wrapper.model_ref)
         status_str = status_map.get(status_code, "unknown")
         if not lazy_creepage or status_str not in ("optimal", "feasible"):
             break
@@ -1732,6 +1741,11 @@ def solve_placement(
             else "restricted grouped-creepage model is infeasible"
         )
         logger.warning("%s; returning unknown", decomposed_error)
+    if decomposed_creepage and status_str == "infeasible":
+        status_code = cp.UNKNOWN
+        status_str = "unknown"
+        decomposed_error = "restricted coarse-envelope model is infeasible"
+        logger.warning("decomposed creepage restricted model is infeasible; returning unknown")
 
     elapsed_ms = (time.monotonic() - t_start) * 1000.0
 

@@ -4,8 +4,8 @@
 // the Rust version implements evaluate() directly on InternalConstraint
 // variants. The compiler ensures every variant is handled exhaustively.
 
-use std::collections::HashMap;
 use crate::types::InternalConstraint;
+use std::collections::HashMap;
 
 /// Evaluate all constraints against a variable assignment.
 ///
@@ -51,20 +51,18 @@ pub fn evaluate_one(constraint: &InternalConstraint, assignment: &HashMap<String
             terms,
             ..
         } => {
-            let (_, max_nets, true_count) = capacity_metrics(terms, *capacity, *slack_factor, assignment);
+            let (_, max_nets, true_count) =
+                capacity_metrics(terms, *capacity, *slack_factor, assignment);
             true_count <= max_nets
         }
         InternalConstraint::DiffPair {
             p_var_name,
             n_var_name,
             ..
-        } => {
-            assignment_value(assignment, p_var_name) == assignment_value(assignment, n_var_name)
+        } => assignment_value(assignment, p_var_name) == assignment_value(assignment, n_var_name),
+        InternalConstraint::LayerRestriction { var_name, allowed } => {
+            assignment_value(assignment, var_name) == *allowed
         }
-        InternalConstraint::LayerRestriction {
-            var_name,
-            allowed,
-        } => assignment_value(assignment, var_name) == *allowed,
         InternalConstraint::ChannelSeparation { .. } => {
             // ChannelSeparation is a structural constraint, not a behavioral one.
             // It is decomposed into sub-constraints before evaluation.
@@ -97,10 +95,7 @@ pub enum Violation {
 
 /// The violation implied by one constraint under an assignment, or `None`
 /// when the constraint is satisfied or structural (ChannelSeparation).
-fn violation_for(
-    c: &InternalConstraint,
-    assignment: &HashMap<String, bool>,
-) -> Option<Violation> {
+fn violation_for(c: &InternalConstraint, assignment: &HashMap<String, bool>) -> Option<Violation> {
     if evaluate_one(c, assignment) {
         return None;
     }
@@ -117,7 +112,8 @@ fn violation_for(
             terms,
             ..
         } => {
-            let (_, max_nets, true_count) = capacity_metrics(terms, *capacity, *slack_factor, assignment);
+            let (_, max_nets, true_count) =
+                capacity_metrics(terms, *capacity, *slack_factor, assignment);
             Violation::Capacity {
                 constraint_name: "Capacity".into(),
                 channel_id: channel_id.clone(),
@@ -134,10 +130,7 @@ fn violation_for(
             p_val: assignment_value(assignment, p_var_name),
             n_val: assignment_value(assignment, n_var_name),
         },
-        InternalConstraint::LayerRestriction {
-            var_name,
-            allowed,
-        } => Violation::Layer {
+        InternalConstraint::LayerRestriction { var_name, allowed } => Violation::Layer {
             constraint_name: "Layer".into(),
             var_name: var_name.clone(),
             expected: *allowed,
