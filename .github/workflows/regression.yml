@@ -233,15 +233,21 @@ jobs:
   # runner. Running it after the 1296-item CP-SAT collection therefore leaves
   # no margin under the 30m job ceiling. Sharding by exact node ID keeps the
   # assertion running on every PR and main event, and gives its setup + route
-  # a dedicated 35m budget. This is a timing fix only: no test is skipped,
-  # masked, or made less strict.
+  # a dedicated budget. The first dedicated run reached its 35m ceiling
+  # before the route produced a result; its setup took 6m58s, leaving only
+  # 28m02s for the test. The route itself was previously measured at 1252s
+  # (20m52s), but the trunk-only serial lane already budgets 70m for this
+  # route plus the zone measurement, and the dedicated lane must absorb
+  # runner variance independently. Use 45m: it leaves 38m for the route
+  # (~1.8x the measured route) while remaining a finite fail-closed budget.
+  # This is a timing fix only: no test is skipped, masked, or made less strict.
   production-routing-regression:
     name: Production board routing regression
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 35
+    timeout-minutes: 45
     strategy:
       fail-fast: false
     env:
@@ -312,15 +318,21 @@ jobs:
   # about 127s, but this one measurement took 1241s (20m41s) after that
   # collection in run 33263816906. Running it after the collection and
   # routing work in the same 30m job leaves no margin. Its setup plus the
-  # measurement has a dedicated 35m budget, and the exact test invocation is
-  # preserved on both PR and main paths without masking or changing it.
+  # measurement has a dedicated budget. The first dedicated run reached its
+  # 35m ceiling before producing a result; its setup took 6m59s, leaving only
+  # 28m01s for the two-arm measurement. That arm was previously measured at
+  # 1241s (20m41s), but it is sensitive to runner load and must include both
+  # full routes, zone fills, and DRC sampling. Use 45m: it leaves 38m for the
+  # measurement (~1.8x the measured wall time) while remaining a finite,
+  # fail-closed budget. The exact test invocation is preserved on both PR and
+  # main paths without masking or changing it.
   production-zone-pour-measurement:
     name: Zone/pour production measurement
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 35
+    timeout-minutes: 45
     strategy:
       fail-fast: false
     env:
