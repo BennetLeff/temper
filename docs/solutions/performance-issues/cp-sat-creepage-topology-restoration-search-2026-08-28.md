@@ -357,6 +357,82 @@ the 12.6 mm exact-creepage topology encoding or on generating a collision-safe
 candidate during search; further component-deletion combinations have lower
 diagnostic value.
 
+### Baseline violation replay and topology-hint controls
+
+Replaying the accepted empty-family placement through the same production
+adapter and Rust stripped verifier identified its sole exact violation:
+
+| pair | required | actual | best direction in candidate |
+|---|---:|---:|---|
+| `C1`--`C13` | 12.6 mm | 10.1 mm | `C13` below `C1` |
+
+The alternative horizontal gap was only 6.0 mm. `C1` is a 7.5 x 18.5 mm
+through-hole capacitor and has 134 neighbours in the 12.6 mm graph; `C13` is
+a 1.46 x 2.96 mm SMD capacitor with 48 such neighbours. The 2.5 mm local
+shortfall therefore looked like a useful first topology seed, but two bounded
+controls falsified that interpretation:
+
+1. Starting the sound lazy-cut path from the accepted placement ran three
+   feasible verifier rounds, then returned `unknown` after 117.633 seconds.
+   Its last complete candidate had 222 exact violations. Repairing the one
+   visible pair caused a global topology jump rather than local convergence.
+2. A temporary implementation seeded all four separation literals for every
+   encoded `SeparatedConstraint` from the complete Rust-verified stripped
+   placement (exactly one true direction per pair). These were `AddHint`
+   values, never hard equalities. The full exact-creepage production model
+   still returned `unknown` with no incumbent after 120.017 seconds, matching
+   the previous 120-second control. The implementation was removed after the
+   negative measurement rather than retained as an unproven optimization.
+
+Both measurements ran after all ten pyo3 extension freshness checks passed.
+They narrow the next encoding experiment: neither one violated pair nor 9,176
+independent Boolean direction hints supplies the missing propagation. The
+next candidate should encode a sparse set of shared ordering relations for the
+6,201-pair 12.6 mm tier and measure presolve/branching plus first-incumbent
+time. Independent per-pair hints should not be repeated.
+
+### Designer-declared corridor comparison
+
+The next bounded probe encoded one hard, movable 12.6 mm box corridor between
+the explicit 40-member HV-only bucket and 110-member SELV-only bucket. The
+eight isolators and ten unclassified components remained outside the corridor
+relation. Vertical and horizontal axes ran as independent fresh models with
+the same Rust-verified stripped hint and separate 120-second CP-SAT budgets.
+
+Both restricted models produced optimal complete candidates, unlike the
+unrestricted exact-production control that had returned `unknown` with no
+incumbent at 120 seconds:
+
+| axis | first incumbent | solver wall time | conflicts | branches | presolved variables / constraints | result |
+|---|---:|---:|---:|---:|---:|---|
+| vertical (`x`) | 60.492 s | 60.503 s | 4,450 | 352,480 | 69,254 / 70,492 | optimal, rejected |
+| horizontal (`y`) | 59.667 s | 59.678 s | 6,484 | 331,259 | 69,254 / 70,492 | optimal, rejected |
+
+The corridor therefore supplied the missing global propagation, but neither
+candidate passed the required post-solve geometry gates:
+
+| axis | exhaustive Rust creepage | REQ-SAFE-01 | F.Fab |
+|---|---|---|---|
+| `x` | 1 violation: `J1`--`R27`, 0.495 / 0.5 mm | trusted geometry; 94 hard records, 0 coverage gaps, 3 intra-footprint findings | 14 disallowed collisions |
+| `y` | 1 violation: `C1`--`PS1`, 12.595 / 12.6 mm | trusted geometry; 100 hard records, 0 coverage gaps, 3 intra-footprint findings | 14 disallowed collisions |
+
+The strongest supported conclusion is narrow: a designer-declared shared
+ordering can turn this search from no incumbent into an optimal candidate
+inside the existing bound, but this particular HV-low/SELV-high corridor does
+not produce an acceptable board placement. The tiny exhaustive-creepage
+shortfalls are still real gate failures; they were not rounded away or
+reclassified. The much larger validator and body-collision failures show that
+the corridor is only a topology aid, not a substitute for copper-aware or
+body-aware search structure. Do not promote it to a production configuration
+surface from this result.
+
+The canonical comparison is stored at
+`docs/evidence/2026-08-28-creepage-search-corridor-experiment.json`. Its input
+identity records all 9,176 exact requirements (including 6,201 at 12.6 mm),
+the four domain buckets, solver settings, source hashes, complete candidates,
+telemetry, and independent gate censuses. All ten pyo3 extensions passed the
+freshness gate immediately before measurement.
+
 ## Implementation history
 
 The investigation is represented by these branch commits:

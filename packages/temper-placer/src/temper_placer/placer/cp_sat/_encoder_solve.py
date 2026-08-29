@@ -23,6 +23,7 @@ from temper_placer.placer.cp_sat.model import CpSatModel
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.fixed_copper import PadRectLocal
+    from temper_placer.placer.cp_sat.solver_telemetry import CpSatSolverTelemetry
 
 logger = logging.getLogger(__name__)
 
@@ -260,6 +261,12 @@ class CpSatPlacementResult:
     solve_time_ms: float = 0.0
     objective_value: float = 0.0
     unsat_core: list[dict] = field(default_factory=list)  # [{name, because}] when infeasible
+    # Populated only for the experiment-only hard HV/SELV box ordering.
+    # This is a search restriction report, not a physical isolation claim.
+    creepage_search_corridor_report: object | None = None
+    # Populated only when solve_placement(capture_telemetry=True) was passed.
+    # See solver_telemetry.py::CpSatSolverTelemetry.
+    solver_telemetry: CpSatSolverTelemetry | None = None
     # Populated only when solve_placement(isolation_barrier=...) was passed;
     # see isolation_barrier.py::IsolationBarrierReport.
     isolation_barrier_report: object | None = None
@@ -394,6 +401,8 @@ def solve_placement(
     loop_aliases: Mapping[str, str] | None = None,
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
+    creepage_search_corridor: dict | None = None,
+    capture_telemetry: bool = False,
     isolation_barrier: dict | None = None,
     tank_creepage: dict | None = None,
     heatsink_colocation: int | None = None,
@@ -510,6 +519,19 @@ def solve_placement(
             HARD constraint (see ``isolation_barrier.py``) before encoding.
             The resulting report is attached to the returned
             ``CpSatPlacementResult.isolation_barrier_report``.
+        creepage_search_corridor: Experiment-only kwargs forwarded to
+            ``creepage_search_corridor.add_creepage_search_corridor_to_model``
+            after all component rectangles are registered. The mapping must
+            carry explicit ``hv_only_refs`` and ``selv_only_refs``, a domain
+            ``manifest_path``, ``axis`` (``"x"`` or ``"y"``), and ``gap_mm``.
+            The classifier validates the declaration but never infers it.
+            Absent (default), no corridor variables, constraints, or report
+            are created and the ordinary solve path is unchanged.
+        capture_telemetry: Opt-in CP-SAT model/search telemetry. When true,
+            the existing solver invocation records model and presolve counts,
+            conflicts, branches, solver wall time, first-incumbent time, and
+            raw audit statistics on ``CpSatPlacementResult.solver_telemetry``.
+            The default leaves solver logging and callback behavior unchanged.
         tank_creepage: Optional kwargs forwarded to
             ``tank_creepage.add_tank_creepage_to_model`` (minus
             ``model``/``netlist``, which this function supplies) -- e.g.
@@ -700,6 +722,8 @@ def solve_placement(
     """
     from ortools.sat.python import cp_model as cp
 
+    if not isinstance(capture_telemetry, bool):
+        raise ValueError("capture_telemetry must be a boolean")
     if lazy_creepage and lazy_creepage_max_rounds < 0:
         raise ValueError("lazy_creepage_max_rounds must be non-negative")
     if lazy_creepage_iteration_timeout_ms is not None and lazy_creepage_iteration_timeout_ms <= 0:
@@ -800,6 +824,25 @@ def solve_placement(
         # Add rotation unless it's a known polarized part.
         polarized = ref in _POLARIZED_REFS
         model_wrapper.add_rotation(ref, is_polarized=polarized)
+
+    # Experiment-only designer search topology. Every component rectangle
+    # must exist before validation/posting. Keep this before decomposition so
+    # a stale declaration fails before any restricted solve can return.
+    creepage_search_corridor_encoding = None
+    creepage_search_corridor_report = None
+    if creepage_search_corridor is not None:
+        from temper_placer.placer.cp_sat.creepage_search_corridor import (
+            add_creepage_search_corridor_to_model,
+        )
+
+        creepage_search_corridor_encoding = add_creepage_search_corridor_to_model(
+            model_wrapper,
+            netlist,
+            board_w_mm=board_w,
+            board_h_mm=board_h,
+            **creepage_search_corridor,
+        )
+        creepage_search_corridor_report = creepage_search_corridor_encoding.report
 
     accumulated_cut_map = {
         (ref_a, ref_b): required
@@ -910,6 +953,7 @@ def solve_placement(
             unplaced_refs=list(comp_refs),
             status="unknown",
             solve_time_ms=elapsed_ms,
+            creepage_search_corridor_report=creepage_search_corridor_report,
             decomposed_creepage_partition_count=decomposed_partition_count,
             decomposed_creepage_envelope_solve_time_ms=decomposed_envelope_solve_ms,
             decomposed_creepage_error=message,
@@ -1548,6 +1592,7 @@ def solve_placement(
     status_code = cp.UNKNOWN
     status_str = "unknown"
     solver = cp.CpSolver()
+    solver_telemetry = None
     lazy_round = 0
     lazy_cut_count = 0
     post_cut_reserve_s = (
@@ -1573,7 +1618,23 @@ def solve_placement(
         solver.parameters.random_seed = seed
         solver.parameters.num_search_workers = 4
         solver.parameters.log_search_progress = False
-        status_code = solver.Solve(model_wrapper.model_ref)
+        if capture_telemetry:
+            from temper_placer.placer.cp_sat.solver_telemetry import (
+                SolverTelemetryCapture,
+            )
+
+            telemetry_capture = SolverTelemetryCapture(model_wrapper.model_ref)
+            telemetry_capture.configure_solver(solver)
+            status_code = solver.Solve(
+                model_wrapper.model_ref,
+                telemetry_capture.solution_callback,
+            )
+            solver_telemetry = telemetry_capture.finish(
+                solver,
+                status_name=status_map.get(status_code, "unknown").upper(),
+            )
+        else:
+            status_code = solver.Solve(model_wrapper.model_ref)
         status_str = status_map.get(status_code, "unknown")
         if not lazy_creepage or status_str not in ("optimal", "feasible"):
             break
@@ -1687,6 +1748,15 @@ def solve_placement(
             positions[ref] = (round(x_mm, 3), round(y_mm, 3))
             if cv.rot_ref is not None:
                 rotations[ref] = solver.Value(cv.rot_ref)
+        if creepage_search_corridor_encoding is not None:
+            from temper_placer.placer.cp_sat.creepage_search_corridor import (
+                resolve_creepage_search_corridor_report_from_solver,
+            )
+
+            creepage_search_corridor_report = resolve_creepage_search_corridor_report_from_solver(
+                creepage_search_corridor_encoding,
+                solver,
+            )
 
     unsat_core: list[dict] = []
     if status_str in ("infeasible", "model_invalid"):
@@ -1878,6 +1948,8 @@ def solve_placement(
         solve_time_ms=elapsed_ms,
         objective_value=objective,
         unsat_core=unsat_core,
+        creepage_search_corridor_report=creepage_search_corridor_report,
+        solver_telemetry=solver_telemetry,
         isolation_barrier_report=isolation_barrier_report,
         validator_audit=validator_audit,
         tank_creepage_report=tank_creepage_report,
