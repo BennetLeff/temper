@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.capture_sha }}
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Verify exact detached commit
         shell: bash

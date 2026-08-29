@@ -29,10 +29,12 @@ import json
 import re
 import subprocess
 import sys
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
+from pr_perf_compare import LEGACY_REGIME_IDENTITY
 
 SHA_RE = re.compile(r"[0-9a-fA-F]{40}\Z")
 REGIME_SHA_RE = re.compile(r"[0-9a-fA-F]{64}\Z")
@@ -178,7 +180,11 @@ def _resolve_capture_sha(requested_sha: str, repo_root: Path) -> str:
     return requested
 
 
-def _changed_paths(repo_root: Path, sha: str) -> set[str]:
+def _changed_paths(
+    repo_root: Path, sha: str, source_digests: Mapping[str, str]
+) -> set[str]:
+    if not source_digests:
+        return set()
     try:
         output = subprocess.check_output(
             ["git", "-C", str(repo_root), "diff-tree", "--no-commit-id", "--name-only", "-r", "--root", sha],
@@ -223,21 +229,19 @@ def _regime_sources(record: dict[str, Any]) -> list[tuple[str, str]]:
 
 
 def _verify_regime_sources(records: Iterable[dict[str, Any]], repo_root: Path, sha: str) -> None:
-    paths: set[str] = set()
     source_digests: dict[str, str] = {}
     for record in records:
         for path, digest in _regime_sources(record):
             if Path(path).is_absolute() or ".." in Path(path).parts:
                 raise CaptureValidationError(f"registered source path is not repository-relative: {path}")
-            paths.add(path)
             previous = source_digests.setdefault(path, digest)
             if previous != digest:
                 raise CaptureValidationError(
                     f"registered source path {path!r} has conflicting regime digests"
                 )
 
-    changed = _changed_paths(repo_root, sha)
-    changed_registered = sorted(changed & paths)
+    changed = _changed_paths(repo_root, sha, source_digests)
+    changed_registered = sorted(changed & source_digests.keys())
     if changed_registered:
         raise CaptureValidationError(
             "capture commit changed registered paths relative to its parent: "
@@ -268,7 +272,9 @@ def validate_append_only(
 
     if len(candidate_records) < len(baseline_records):
         raise CaptureValidationError("candidate baseline is not append-only: rows were removed")
-    for index, (before, after) in enumerate(zip(baseline_records, candidate_records)):
+    for index, (before, after) in enumerate(
+        zip(baseline_records, candidate_records[: len(baseline_records)], strict=True)
+    ):
         if _canonical(before) != _canonical(after):
             raise CaptureValidationError(
                 f"candidate baseline is not append-only: existing row {index} was edited"
@@ -344,7 +350,6 @@ def validate_capture(
     if not records:
         raise CaptureValidationError("capture artifacts are empty")
 
-    seen: set[str] = set()
     seen_runs: set[tuple[tuple[str, str, str], str]] = set()
     counts: dict[tuple[str, str, str], int] = {}
     for index, record in enumerate(records, start=1):
@@ -369,10 +374,6 @@ def validate_capture(
                 f"capture contains duplicate run identity {key!r} at timestamp {timestamp!r}"
             )
         seen_runs.add(run_identity)
-        identity = _canonical(record)
-        if identity in seen:
-            raise CaptureValidationError(f"capture contains duplicate row {index} for {key!r}")
-        seen.add(identity)
         counts[key] = counts.get(key, 0) + 1
 
     missing = sorted(expected - counts.keys())
@@ -395,7 +396,11 @@ def validate_capture(
     _verify_regime_sources(records, root, sha)
     derived_margins = _validate_margins(candidate, committed_margins)
     regimes = sorted({
-        str((record.get("measurement_regime") or {}).get("fingerprint", "legacy-v2"))
+        str(
+            (record.get("measurement_regime") or {}).get(
+                "fingerprint", LEGACY_REGIME_IDENTITY
+            )
+        )
         for record in records
     })
     manifest = {

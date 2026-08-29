@@ -215,7 +215,7 @@ class PerfGateError(RuntimeError):
     """Raised when the comparison cannot be made. Always fails the gate."""
 
 
-LEGACY_REGIME = "legacy-v2"
+LEGACY_REGIME_IDENTITY = "legacy-v2"
 
 
 def measurement_regime_identity(record: dict[str, Any]) -> str:
@@ -237,7 +237,7 @@ def measurement_regime_identity(record: dict[str, Any]) -> str:
         fingerprint = record.get(field)
         if isinstance(fingerprint, str) and fingerprint:
             return fingerprint
-    return LEGACY_REGIME
+    return LEGACY_REGIME_IDENTITY
 
 
 class BaselineMap(dict[tuple[str, str, str], dict[str, float]]):
@@ -361,8 +361,8 @@ def load_main_baselines(
         # old callers; regime-aware consumers use ``.regimes``.
         if len(baselines.regimes[key]) == 1:
             baselines[key] = next(iter(baselines.regimes[key].values()))
-        elif LEGACY_REGIME in baselines.regimes[key]:
-            baselines[key] = baselines.regimes[key][LEGACY_REGIME]
+        elif LEGACY_REGIME_IDENTITY in baselines.regimes[key]:
+            baselines[key] = baselines.regimes[key][LEGACY_REGIME_IDENTITY]
 
     return baselines
 
@@ -519,8 +519,8 @@ def compare(
             # A plain dict is accepted for callers that construct medians
             # directly. Such values are necessarily legacy-v2 rows.
             plain_baseline = baselines.get(key, {})
-            available_regimes = [LEGACY_REGIME] if plain_baseline else []
-            baseline = plain_baseline if regime == LEGACY_REGIME else {}
+            available_regimes = [LEGACY_REGIME_IDENTITY] if plain_baseline else []
+            baseline = plain_baseline if regime == LEGACY_REGIME_IDENTITY else {}
             key_has_baseline = bool(plain_baseline)
         if not baseline:
             if key_has_baseline and available_regimes:
@@ -627,7 +627,7 @@ def gate_failures(results: list[dict[str, Any]]) -> list[str]:
             available = ", ".join(res.get("available_regimes", [])) or "none"
             failures.append(
                 f"{label}: INCOMPATIBLE_BASELINE for regime "
-                f"{res.get('measurement_regime', LEGACY_REGIME)!r}; available "
+                f"{res.get('measurement_regime', LEGACY_REGIME_IDENTITY)!r}; available "
                 f"baseline regimes: {available}. Capture a reviewed recapture "
                 "baseline for this measurement regime before merging."
             )
@@ -685,7 +685,7 @@ def format_markdown(
     for res in results:
         if res["status"] == "INCOMPATIBLE_BASELINE":
             available = ", ".join(res.get("available_regimes", [])) or "none"
-            current = res.get("measurement_regime", LEGACY_REGIME)
+            current = res.get("measurement_regime", LEGACY_REGIME_IDENTITY)
             lines.append(
                 f"| {res['module']} | {res['board']} | {res['stage']} | "
                 f"— | — | — | regime mismatch (current {current}; available {available}) | — | "

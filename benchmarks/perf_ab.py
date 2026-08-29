@@ -138,12 +138,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # board-corpus rows produced by the closure pipeline.
 SYNTHETIC_BOARD = "synthetic"
 
-# A missing descriptor is intentionally represented by the comparator's
-# stable legacy identity.  New ratio benches should register a descriptor
-# below so source and harness changes cannot reuse an old baseline silently.
-LEGACY_REGIME = "legacy-v2"
-
-
 def _canonical_json(value: Any) -> str:
     """Serialize regime metadata independently of host and dict ordering."""
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
@@ -172,6 +166,7 @@ def build_measurement_regime(
     if not isinstance(arms, dict):
         raise TypeError("measurement regime arms must be a mapping")
     materialized_arms: dict[str, dict[str, list[dict[str, str]]]] = {}
+    digest_cache: dict[Path, str] = {}
     for arm_name in sorted(arms):
         paths = arms[arm_name]
         if isinstance(paths, dict):
@@ -198,10 +193,11 @@ def build_measurement_regime(
                 ) from err
             if not resolved.is_file():
                 raise FileNotFoundError(f"measurement regime source not found: {relative}")
-            sources.append({
-                "path": relative.as_posix(),
-                "sha256": hashlib.sha256(resolved.read_bytes()).hexdigest(),
-            })
+            digest = digest_cache.get(resolved)
+            if digest is None:
+                digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
+                digest_cache[resolved] = digest
+            sources.append({"path": relative.as_posix(), "sha256": digest})
         materialized_arms[str(arm_name)] = {"sources": sources}
 
     canonical = {
@@ -219,11 +215,6 @@ def measurement_regime_fingerprint(
     """Return only the stable SHA-256 identity for a regime declaration."""
     return build_measurement_regime(declaration, repo_root=repo_root)["fingerprint"]
 
-
-# Alias kept private for small benchmark tests and callers that used the
-# module's existing private-helper convention.
-_measurement_regime_fingerprint = measurement_regime_fingerprint
-measurement_regime_descriptor = build_measurement_regime
 
 DEFAULT_WARMUP = 3
 DEFAULT_REPEATS = 9

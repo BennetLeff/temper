@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
-
-import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -20,7 +19,6 @@ from validate_perf_capture import (  # noqa: E402
     validate_append_only,
     validate_capture,
 )
-
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 OTHER_SHA = "89abcdef0123456789abcdef0123456789abcdef"
