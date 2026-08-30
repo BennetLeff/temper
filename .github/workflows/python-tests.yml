@@ -3700,9 +3700,11 @@ jobs:
   #      zone-pour route can take ~45 minutes on main, and the documented
   #      production route can approach 1193s before runner contention and
   #      setup variance. Give the zone-pour lane 75 minutes (a ~70-minute
-  #      test allowance plus ~3 minutes measured setup and margin), and the
-  #      routing-DRC lane 50 minutes (a ~45-minute allowance plus the same
-  #      setup/margin). Each matrix expansion is a separate trunk-only job,
+  #      test allowance plus ~3 minutes measured setup and margin). The
+  #      routing-DRC lane is also 75 minutes: run 33262575088/job 99126939400
+  #      spent ~6 minutes in setup and ~44 minutes in the test before the
+  #      original 50-minute cap cancelled it without a result. Each matrix
+  #      expansion is a separate trunk-only job,
   #      so one test cannot consume the other's timeout or hide its traceback.
   #   `extended-cpsat` (this job, now just the fast remainder) drops to
   #   `timeout-minutes: 15`, matching `extended-bundle-workflow-checks`'s
@@ -3886,7 +3888,10 @@ jobs:
     # 16+ min of wall-clock on the critical path. This job retains the
     # zone-pour + routing DRC pair, but now runs it in-process to survive the
     # production route's memory pressure; each timeout below is intentionally
-    # sized for that test's serial execution and setup overhead.
+    # sized for that test's serial execution and setup overhead. The
+    # routing-DRC budget was raised to 75 minutes after run 33262575088
+    # (job 99126939400) used ~6 minutes for setup and ~44 minutes for the
+    # test before the 50-minute cap cancelled it without a result.
     strategy:
       fail-fast: false
       matrix:
@@ -3896,7 +3901,7 @@ jobs:
             test: >-
               tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items
           - suite: routing-drc
-            timeout: 50
+            timeout: 75
             test: >-
               tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression
     timeout-minutes: ${{ matrix.timeout }}
