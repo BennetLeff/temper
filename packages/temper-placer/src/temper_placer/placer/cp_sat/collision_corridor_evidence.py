@@ -283,7 +283,7 @@ def _unrestricted_control(
             _validator_gate(validator_audit, prepared, positions, rotations),
             _body_gate(body_audit, prepared, positions, rotations),
         )
-    passed = bool(gates) and all(gate.status == "passed" for gate in gates)
+    passed = tuple(gate.status for gate in gates) == ("passed", "passed", "passed")
     gate_error = any(gate.status == "error" for gate in gates)
     terminal = (
         "accepted" if passed else ("invalid_experiment" if gate_error else "verifier_rejected")
