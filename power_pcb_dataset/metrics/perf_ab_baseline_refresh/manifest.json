@@ -15,39 +15,39 @@
     "Makefile"
   ],
   "primary_capture": {
-    "capture_sha": "0c5d8290cf688fa162bb2deb3e4c2f89a3a452c1",
+    "capture_sha": "1dc40c3afb0882445bbf92a1d8c38902328137ee",
     "captures": [
       {
-        "workflow_run_id": "33293546207",
-        "artifact_id": "9726830666",
-        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33293546207.ndjson",
-        "artifact_sha256": "e4a36576b84a73431c0acf491075939c2fa77ff47875bf50e8410326e39fd559"
+        "workflow_run_id": "33296081089",
+        "artifact_id": "9727511295",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296081089.ndjson",
+        "artifact_sha256": "50f98a1bd3816b15488d486d4cc32f211eca3317c4001e6882f7bd12fb0cad68"
       },
       {
-        "workflow_run_id": "33294312102",
-        "artifact_id": "9727050102",
-        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33294312102.ndjson",
-        "artifact_sha256": "97e8290ca92a2d2b3202c6c3902ff3db5df72d013b5ea2c1e25dea96bf19ade1"
+        "workflow_run_id": "33296081874",
+        "artifact_id": "9727510198",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296081874.ndjson",
+        "artifact_sha256": "a029704564a0da802f480ca52571a77602159ae37164bbd8e5cdb128dd4aa90d"
       },
       {
-        "workflow_run_id": "33294313061",
-        "artifact_id": "9727050403",
-        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33294313061.ndjson",
-        "artifact_sha256": "51782896a9cf14f8aab3e4aefc4b92f95a49013c5019aae3016650caac1d860f"
+        "workflow_run_id": "33296082812",
+        "artifact_id": "9727509358",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296082812.ndjson",
+        "artifact_sha256": "cc419f50a77cf681add8eea941a48942834fdd9f4c43552f2bd40375d8878d78"
       },
       {
-        "workflow_run_id": "33294314765",
-        "artifact_id": "9727027400",
-        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33294314765.ndjson",
-        "artifact_sha256": "7f64727307f761c11473f7d6fc55ce00555a7305e781295124eb816bc738a1a1"
+        "workflow_run_id": "33296083689",
+        "artifact_id": "9727510889",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296083689.ndjson",
+        "artifact_sha256": "f805b496b319ba27f8fd27b95d43688c91ee8f9c8ae874edc4eb5af62f007c32"
       },
       {
-        "workflow_run_id": "33294313853",
-        "artifact_id": "9727162902",
-        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33294313853.ndjson",
-        "artifact_sha256": "d9a2265c993c17be90821a6e845792774a3c26f3e72b2cfc4e13741c8bb36272"
+        "workflow_run_id": "33296084670",
+        "artifact_id": "9727511365",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296084670.ndjson",
+        "artifact_sha256": "ed5882ce65bb2b37cd4973698e2581c8dd52aa15e123e34651d81322bcbbfd89"
       }
     ]
   },
-  "candidate_append_sha256": "050e0fa5bc2a235b807d642b3dd24e6fa114a57e04ff46fcaef330db1b768759"
+  "candidate_append_sha256": "f962b10a4a635237032290a7d61bbe0e27d6b9cbe611986f736ebaeece9510e1"
 }
