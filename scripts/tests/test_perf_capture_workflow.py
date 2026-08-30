@@ -45,6 +45,8 @@ def test_workflow_rebuilds_and_checks_extensions_before_measurement() -> None:
     assert "uv pip install maturin" in text
     assert "env -u CONDA_PREFIX make extensions" in text
     assert "run: make extensions-check" in text
+    assert "name: Fetch authoritative baseline from main\n        shell: bash" in text
+    assert "name: Aggregate and validate candidate append\n        shell: bash" in text
     assert text.index("run: make extensions-check") < text.index("name: Run performance A/B")
 
 
