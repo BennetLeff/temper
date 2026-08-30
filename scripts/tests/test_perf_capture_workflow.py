@@ -42,7 +42,8 @@ def test_workflow_captures_exact_sha_in_five_matrix_legs() -> None:
 
 def test_workflow_rebuilds_and_checks_extensions_before_measurement() -> None:
     text = workflow_text()
-    assert "run: make extensions\n\n      - name: Verify extension freshness" in text
+    assert "uv pip install maturin" in text
+    assert "env -u CONDA_PREFIX make extensions" in text
     assert "run: make extensions-check" in text
     assert text.index("run: make extensions-check") < text.index("name: Run performance A/B")
 
