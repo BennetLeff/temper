@@ -71,7 +71,7 @@ def _state(gate_module, kicad_pro_path: Path, clearance: float) -> str:
     state, report = gate_module.run(
         kicad_pro_path,
         net_classes=net_classes,
-        net_assignments={"test_net": "HighVoltage"},
+        net_assignments={"dc_bus": "HighVoltage"},
     )
     if state == "clean":
         return "clean"

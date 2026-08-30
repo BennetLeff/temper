@@ -452,7 +452,7 @@ mutations:
     function: run
     match: if-invert
     index: 2
-    line_hint: "if report.mismatches or"
+    line_hint: "if report.mismatches or report.unresolved_references:"
     description: >-
       Invert the final violation guard in run() so a real field mismatch
       is reported clean and an agreeing class is reported a violation --
