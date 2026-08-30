@@ -343,7 +343,27 @@ impl Prepared {
     pub fn checkpoint(&self) -> CampaignCheckpoint {
         CampaignCheckpoint {
             state: self.state.clone(),
+            terminal: None,
         }
+    }
+
+    /// Return the validated frontier restored from a checkpoint.  The
+    /// campaign adapter uses this to replay every cut into the next fresh
+    /// CP-SAT model; callers cannot mutate the underlying state.
+    pub fn cuts(&self) -> Vec<CollisionCut> {
+        self.state
+            .cuts
+            .iter()
+            .map(|c| CollisionCut {
+                key: c.key.clone(),
+                area_mm2: c.area_mm2,
+                candidate_digest: c.candidate_digest.clone(),
+            })
+            .collect()
+    }
+
+    pub fn round(&self) -> u32 {
+        self.state.round
     }
 }
 
@@ -384,6 +404,13 @@ pub struct Candidate {
     poses: BTreeMap<ComponentRef, ExactPose>,
 }
 impl Candidate {
+    fn checkpoint(&self) -> CampaignCheckpoint {
+        CampaignCheckpoint {
+            state: self.state.clone(),
+            terminal: None,
+        }
+    }
+
     pub fn audit(
         self,
         gates: AuditGates,
@@ -473,6 +500,7 @@ impl Refining {
     pub fn checkpoint(&self) -> CampaignCheckpoint {
         CampaignCheckpoint {
             state: self.state.clone(),
+            terminal: None,
         }
     }
 }
@@ -483,7 +511,7 @@ pub enum AuditDecision {
     Terminal(TerminalVerdict),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TerminalVerdict {
     Accepted { rounds: u32 },
     VerifierRejected { reason: String },
@@ -497,14 +525,16 @@ impl TerminalVerdict {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CampaignCheckpoint {
     state: CampaignState,
+    #[serde(default)]
+    terminal: Option<TerminalVerdict>,
 }
 impl CampaignCheckpoint {
     pub fn to_bytes(&self) -> Result<Vec<u8>, CampaignError> {
-        let payload = serde_json::to_vec(&self.state)
-            .map_err(|e| CampaignError::Checkpoint(e.to_string()))?;
+        let payload =
+            serde_json::to_vec(self).map_err(|e| CampaignError::Checkpoint(e.to_string()))?;
         let mut bytes = CHECKPOINT_MAGIC.to_vec();
         bytes.extend(payload);
         Ok(bytes)
@@ -515,12 +545,24 @@ impl CampaignCheckpoint {
                 "unknown checkpoint version".into(),
             ));
         }
-        let state: CampaignState = serde_json::from_slice(&bytes[CHECKPOINT_MAGIC.len()..])
+        let payload = &bytes[CHECKPOINT_MAGIC.len()..];
+        // Accept the U2 state-only envelope while writing the U5 envelope
+        // with an optional terminal marker.
+        let checkpoint = serde_json::from_slice::<Self>(payload)
+            .or_else(|_| {
+                serde_json::from_slice::<CampaignState>(payload).map(|state| Self {
+                    state,
+                    terminal: None,
+                })
+            })
             .map_err(|e| CampaignError::Checkpoint(e.to_string()))?;
-        validate_checkpoint_state(&state)?;
-        Ok(Self { state })
+        validate_checkpoint_state(&checkpoint.state)?;
+        Ok(checkpoint)
     }
     pub fn restore_for(&self, identity: &InputIdentity) -> Result<Prepared, CampaignError> {
+        if self.terminal.is_some() {
+            return Err(CampaignError::TerminalState);
+        }
         if &self.state.identity != identity {
             return Err(CampaignError::ForeignIdentity {
                 expected: identity.label(),
@@ -530,6 +572,10 @@ impl CampaignCheckpoint {
         Ok(Prepared {
             state: self.state.clone(),
         })
+    }
+
+    pub fn terminal(&self) -> Option<&TerminalVerdict> {
+        self.terminal.as_ref()
     }
 }
 
@@ -622,6 +668,7 @@ pub struct PyRefining {
 )]
 pub struct PyAuditDecision {
     inner: Option<AuditDecision>,
+    checkpoint: Option<CampaignCheckpoint>,
 }
 
 #[cfg(feature = "python")]
@@ -741,6 +788,10 @@ fn parse_witnesses(
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (board, rules, solver, axis, components, max_rounds, round_budget_ms))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "the pyo3 constructor receives the four-part evidence identity and two explicit limits"
+)]
 pub fn prepare_collision_campaign(
     py: Python<'_>,
     board: String,
@@ -766,6 +817,12 @@ pub fn prepare_collision_campaign(
 #[cfg(feature = "python")]
 #[pymethods]
 impl PyPrepared {
+    #[getter]
+    fn round(&self) -> PyResult<u32> {
+        let prepared = self.inner.as_ref().ok_or_else(consumed_error)?;
+        Ok(prepared.round())
+    }
+
     fn start_solving(&mut self, py: Python<'_>) -> PyResult<Py<PySolving>> {
         let prepared = take_handle(&mut self.inner)?;
         let solving = prepared.start_solving().map_err(campaign_error)?;
@@ -785,6 +842,15 @@ impl PyPrepared {
                 inner: prepared.checkpoint(),
             },
         )
+    }
+
+    fn cuts(&self, py: Python<'_>) -> PyResult<Vec<Py<PyCollisionCut>>> {
+        let prepared = self.inner.as_ref().ok_or_else(consumed_error)?;
+        prepared
+            .cuts()
+            .into_iter()
+            .map(|cut| Py::new(py, PyCollisionCut { inner: cut }))
+            .collect()
     }
 }
 
@@ -832,12 +898,17 @@ impl PyCandidate {
             parse_gate(provenance, true)?,
         );
         let witnesses = parse_witnesses(witnesses)?;
+        let checkpoint = {
+            let candidate_ref = self.inner.as_ref().ok_or_else(consumed_error)?;
+            Some(candidate_ref.checkpoint())
+        };
         let candidate = take_handle(&mut self.inner)?;
         let decision = candidate.audit(gates, witnesses).map_err(campaign_error)?;
         Py::new(
             py,
             PyAuditDecision {
                 inner: Some(decision),
+                checkpoint,
             },
         )
     }
@@ -885,6 +956,31 @@ impl PyAuditDecision {
                 "campaign decision is refining, not terminal",
             )),
         }
+    }
+
+    /// Return an immutable terminal checkpoint before consuming this
+    /// decision.  The state and terminal verdict are serialized by Rust;
+    /// Python receives only the opaque checkpoint wrapper.
+    fn terminal_checkpoint(&self, py: Python<'_>) -> PyResult<Py<PyCheckpoint>> {
+        let decision = self.inner.as_ref().ok_or_else(consumed_error)?;
+        let terminal = match decision {
+            AuditDecision::Terminal(value) => value.clone(),
+            AuditDecision::Refining(_) => {
+                return Err(PyValueError::new_err(
+                    "campaign decision is refining, not terminal",
+                ));
+            }
+        };
+        let checkpoint = self.checkpoint.as_ref().ok_or_else(consumed_error)?;
+        Py::new(
+            py,
+            PyCheckpoint {
+                inner: CampaignCheckpoint {
+                    state: checkpoint.state.clone(),
+                    terminal: Some(terminal),
+                },
+            },
+        )
     }
 }
 
@@ -1020,6 +1116,29 @@ impl PyCollisionCut {
 #[cfg(feature = "python")]
 #[pymethods]
 impl PyCheckpoint {
+    #[getter]
+    fn terminal_kind(&self) -> Option<&'static str> {
+        self.inner.terminal.as_ref().map(|terminal| match terminal {
+            TerminalVerdict::Accepted { .. } => "accepted",
+            TerminalVerdict::VerifierRejected { .. } => "verifier_rejected",
+            TerminalVerdict::NoProgress { .. } => "no_progress",
+            TerminalVerdict::RoundLimit { .. } => "round_limit",
+            TerminalVerdict::InvalidExperiment { .. } => "invalid_experiment",
+        })
+    }
+
+    #[getter]
+    fn terminal_reason(&self) -> Option<&str> {
+        self.inner
+            .terminal
+            .as_ref()
+            .and_then(|terminal| match terminal {
+                TerminalVerdict::VerifierRejected { reason }
+                | TerminalVerdict::InvalidExperiment { reason } => Some(reason.as_str()),
+                _ => None,
+            })
+    }
+
     #[staticmethod]
     fn from_bytes(bytes: Vec<u8>) -> PyResult<Self> {
         CampaignCheckpoint::from_bytes(&bytes)

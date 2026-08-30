@@ -250,6 +250,10 @@ class PreparedCorridorExperiment:
     voltage_domains: Mapping[str, object]
     fab_bodies: Mapping[str, object]
     body_allowlist: object
+    # Campaign-only callers inspect this explicit extraction coverage.  The
+    # ordinary corridor experiment intentionally keeps its historical
+    # reporting-only body-audit behavior.
+    body_coverage: object | None = None
 
 
 class SharedPreflightError(ValueError):
@@ -534,6 +538,13 @@ def prepare_corridor_experiment(
         if allowlist is None:
             raise SharedPreflightError("gate", "F.Fab allowlist is unavailable", placeholder)
 
+        # Preserve the map used by ordinary callers, but also retain the
+        # explicit coverage classification needed by the collision campaign.
+        # Missing/invalid bodies are evidence, not fabricated geometry.
+        from temper_placer.io.fab_body_extraction import extract_fab_body_coverage
+
+        body_coverage = extract_fab_body_coverage(pcb, all_refs)
+
         from temper_placer.placer.cp_sat.production_constraint_family_inputs import (
             _find_repo_file,
             make_production_constraint_family_verifier,
@@ -624,6 +635,7 @@ def prepare_corridor_experiment(
             voltage_domains=voltage_domains,
             fab_bodies=fab_bodies,
             body_allowlist=allowlist,
+            body_coverage=body_coverage,
         )
     except SharedPreflightError:
         raise
@@ -1009,6 +1021,44 @@ def run_prepared_corridor_experiment(
     return CreepageSearchCorridorExperimentRecord(prepared.identity, (results[0], results[1]))
 
 
+def run_prepared_collision_corridor_experiment(
+    prepared: PreparedCorridorExperiment,
+    *,
+    limits: object | None = None,
+    solver: Callable[..., object] | None = None,
+    verifier: Callable[[object], object] | None = None,
+    validator_audit: Callable[..., object] | None = None,
+    body_audit: Callable[..., object] | None = None,
+    checkpoint_dir: str | Path | None = None,
+) -> tuple[object, object]:
+    """Run independent x/y collision campaigns with fresh state and budgets."""
+
+    from temper_placer.placer.cp_sat.collision_corridor_campaign import (
+        CollisionCorridorLimits,
+        run_collision_corridor_campaign,
+    )
+
+    effective_limits = limits or CollisionCorridorLimits()
+    results = []
+    for axis in ("x", "y"):
+        checkpoint_path = None
+        if checkpoint_dir is not None:
+            checkpoint_path = str(Path(checkpoint_dir) / f"collision-corridor-{axis}.bin")
+        results.append(
+            run_collision_corridor_campaign(
+                prepared,
+                axis,
+                limits=effective_limits,
+                solver=solver,
+                verifier=verifier,
+                validator_audit=validator_audit,
+                body_audit=body_audit,
+                checkpoint_path=checkpoint_path,
+            )
+        )
+    return results[0], results[1]
+
+
 def _shared_failure_record(exc: SharedPreflightError) -> CreepageSearchCorridorExperimentRecord:
     solver: SolverStatus = "model-invalid" if exc.category == "input" else "not-run"
     acceptance: AcceptanceVerdict = "not-run" if exc.category == "input" else "gate-error"
@@ -1262,6 +1312,7 @@ __all__ = [
     "prepare_corridor_experiment",
     "read_experiment_record",
     "run_axis_in_fresh_process",
+    "run_prepared_collision_corridor_experiment",
     "run_creepage_search_corridor_experiment",
     "run_prepared_corridor_experiment",
     "run_with_shared_preflight",
