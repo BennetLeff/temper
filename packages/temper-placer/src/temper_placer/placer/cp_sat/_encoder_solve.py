@@ -23,6 +23,7 @@ from temper_placer.placer.cp_sat.model import CpSatModel
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.fixed_copper import PadRectLocal
+    from temper_placer.placer.cp_sat.solver_telemetry import CpSatSolverTelemetry
 
 logger = logging.getLogger(__name__)
 
@@ -260,6 +261,12 @@ class CpSatPlacementResult:
     solve_time_ms: float = 0.0
     objective_value: float = 0.0
     unsat_core: list[dict] = field(default_factory=list)  # [{name, because}] when infeasible
+    # Populated only for the experiment-only hard HV/SELV box ordering.
+    # This is a search restriction report, not a physical isolation claim.
+    creepage_search_corridor_report: object | None = None
+    # Populated only when solve_placement(capture_telemetry=True) was passed.
+    # See solver_telemetry.py::CpSatSolverTelemetry.
+    solver_telemetry: CpSatSolverTelemetry | None = None
     # Populated only when solve_placement(isolation_barrier=...) was passed;
     # see isolation_barrier.py::IsolationBarrierReport.
     isolation_barrier_report: object | None = None
@@ -304,6 +311,7 @@ class CpSatPlacementResult:
     decomposed_creepage_grouped_cut_count: int = 0
     decomposed_creepage_independent_cut_count: int = 0
     decomposed_creepage_direction_bool_count: int = 0
+    decomposed_creepage_effective_restriction_slack_mm: float = 0.0
     # Optional coarse partition-envelope diagnostics.  These remain zero for
     # the default (non-decomposed) solve path.
     decomposed_creepage_partition_count: int = 0
@@ -385,10 +393,16 @@ def solve_placement(
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
+    hard_displacement_to: dict[str, tuple[float, float]] | None = None,
+    hard_displacement_assumption_labels: Mapping[str, str] | None = None,
+    hard_displacement_assumptions: bool = True,
+    hard_displacement_radii_mm: Mapping[str, float] | None = None,
     reference_aliases: Mapping[str, str] | None = None,
     loop_aliases: Mapping[str, str] | None = None,
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
+    creepage_search_corridor: dict | None = None,
+    capture_telemetry: bool = False,
     isolation_barrier: dict | None = None,
     tank_creepage: dict | None = None,
     heatsink_colocation: int | None = None,
@@ -403,6 +417,7 @@ def solve_placement(
     lazy_creepage_iteration_timeout_ms: int | None = None,
     decomposed_creepage: bool = False,
     decomposed_creepage_eager_constraints: bool = True,
+    decomposed_creepage_enforce_coarse_pair_gaps: bool = False,
     decomposed_creepage_prior_cuts: Sequence[tuple[str, str, float]] | None = None,
     decomposed_creepage_group_prior_cuts: bool = False,
     decomposed_creepage_group_max_size: int = 8,
@@ -413,6 +428,7 @@ def solve_placement(
     decomposed_creepage_local_pack_timeout_ms: int = _DEFAULT_DECOMPOSED_LOCAL_PACK_TIMEOUT_MS,
     decomposed_creepage_envelope_headroom_mm: float = _DEFAULT_DECOMPOSED_ENVELOPE_HEADROOM_MM,
     decomposed_creepage_restriction_slack_mm: float = _DEFAULT_DECOMPOSED_RESTRICTION_SLACK_MM,
+    experimental_omit_generated_creepage: bool = False,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -436,6 +452,33 @@ def solve_placement(
             only move as far as the clearance constraints force them, and
             the existing routed copper is not disturbed wholesale the way a
             free reshuffle disturbs it.
+        hard_displacement_to: Optional reference coordinates for a hard
+            Manhattan displacement envelope: ``{ref: (x_mm, y_mm)}``.
+            Together with ``max_displacement_mm``, this posts only
+            ``|dx| + |dy| <= max_displacement_mm`` for each mapped ref; it
+            does not add an objective and therefore does not prefer one
+            feasible point inside the envelope over another.  This mapping
+            is separate from ``minimize_displacement_to`` so callers cannot
+            accidentally turn a topology-preserving restriction into an
+            optimization request.
+        hard_displacement_assumption_labels: Optional ``{ref: label}``
+            mapping that guards each corresponding hard displacement envelope
+            with a named CP-SAT assumption. Infeasible solves expose these
+            labels through ``unsat_core``. Refs omitted from this optional
+            mapping receive the stable default ``displacement_bound_<ref>``;
+            refs outside ``hard_displacement_to`` are rejected.
+        hard_displacement_assumptions: Whether hard displacement envelopes
+            should be guarded by assumptions. The default is ``True`` for
+            backwards compatibility and UNSAT-core diagnostics. Set it to
+            ``False`` for deletion tests: every envelope is posted
+            unconditionally, no displacement assumption labels are created,
+            and this option does not add an objective.
+        hard_displacement_radii_mm: Optional per-reference hard radius
+            mapping. When supplied, it must cover exactly
+            ``hard_displacement_to`` and replaces the scalar
+            ``max_displacement_mm`` for those refs. This is the bounded,
+            selective-release primitive; each radius remains a hard
+            restriction and may be assumption-labelled independently.
         reference_aliases: Optional explicit config-to-netlist component
             reference mapping applied before validation. Unmapped names
             remain subject to the fail-closed unresolved-reference policy.
@@ -448,14 +491,15 @@ def solve_placement(
             every pad, disconnecting the routed copper attached to it), so
             repair callers pin every ref to its current board rotation.
         max_displacement_mm: Optional hard per-component Manhattan
-            displacement bound applied to every ref in
-            ``minimize_displacement_to``: each such component may move at
-            most ``max_displacement_mm`` in total (|dx| + |dy|). This is
-            the bounded-repair formulation -- it *guarantees* the solved
+            displacement bound.  It applies to ``minimize_displacement_to``
+            (retaining its existing objective behavior) and/or
+            ``hard_displacement_to`` (restriction only).  At least one of
+            those mappings is required.  Each mapped component may move at
+            most this value in total (|dx| + |dy|). This is the
+            bounded-repair formulation -- it *guarantees* the solved
             placement stays inside a displacement envelope around the
-            current board (feasibility permitting), rather than trusting
-            the objective search to find a low-displacement solution. Only
-            meaningful together with ``minimize_displacement_to``.
+            reference (feasibility permitting), rather than trusting the
+            objective search to find a low-displacement solution.
         fixed_positions: Optional HARD position pins.  Dict mapping component
             ref to ``(x_mm, y_mm, rotation_0_3)``.  Unlike ``hint_positions``,
             these are binding equality constraints -- the solver cannot move a
@@ -475,6 +519,19 @@ def solve_placement(
             HARD constraint (see ``isolation_barrier.py``) before encoding.
             The resulting report is attached to the returned
             ``CpSatPlacementResult.isolation_barrier_report``.
+        creepage_search_corridor: Experiment-only kwargs forwarded to
+            ``creepage_search_corridor.add_creepage_search_corridor_to_model``
+            after all component rectangles are registered. The mapping must
+            carry explicit ``hv_only_refs`` and ``selv_only_refs``, a domain
+            ``manifest_path``, ``axis`` (``"x"`` or ``"y"``), and ``gap_mm``.
+            The classifier validates the declaration but never infers it.
+            Absent (default), no corridor variables, constraints, or report
+            are created and the ordinary solve path is unchanged.
+        capture_telemetry: Opt-in CP-SAT model/search telemetry. When true,
+            the existing solver invocation records model and presolve counts,
+            conflicts, branches, solver wall time, first-incumbent time, and
+            raw audit statistics on ``CpSatPlacementResult.solver_telemetry``.
+            The default leaves solver logging and callback behavior unchanged.
         tank_creepage: Optional kwargs forwarded to
             ``tank_creepage.add_tank_creepage_to_model`` (minus
             ``model``/``netlist``, which this function supplies) -- e.g.
@@ -642,6 +699,25 @@ def solve_placement(
             prevents false infeasibility at this integration boundary; exact
             generated creepage gaps and component no-overlap remain hard
             constraints and the Rust verifier remains authoritative.
+        experimental_omit_generated_creepage: Diagnostic-only experiment
+            switch. When true, omit only the auto-generated KiCad creepage
+            matrix from the ordinary encoder call. Courtyard separation,
+            board bounds, NoOverlap2D, explicit PCL constraints, and every
+            other production constraint remain active. This is intended only
+            for incremental restoration experiments; it is false by default
+            and cannot be combined with ``lazy_creepage`` or
+            ``decomposed_creepage``. A later stage with this switch false is
+            required before treating a placement as production-complete.
+        decomposed_creepage_group_prior_cuts: Use the Rust neighborhood
+            planner to share four relative-direction literals across dense
+            replay-cut blocks. This is a search restriction, so an infeasible
+            grouped model returns ``unknown``; every component pair retains
+            its exact distance inequality.
+        decomposed_creepage_enforce_coarse_pair_gaps: Apply partition-pair
+            maxima to whole coarse envelopes. Disabled by default because
+            that abstraction is stronger than the component-pair safety
+            model; exact replay cuts and the exhaustive Rust verifier remain
+            authoritative in either mode.
         decomposed_creepage_group_prior_cuts: Use the Rust neighborhood
             planner to share four relative-direction literals across dense
             replay-cut blocks. This is a decomposed-only search restriction;
@@ -650,12 +726,21 @@ def solve_placement(
     """
     from ortools.sat.python import cp_model as cp
 
+    if not isinstance(capture_telemetry, bool):
+        raise ValueError("capture_telemetry must be a boolean")
     if lazy_creepage and lazy_creepage_max_rounds < 0:
         raise ValueError("lazy_creepage_max_rounds must be non-negative")
     if lazy_creepage_iteration_timeout_ms is not None and lazy_creepage_iteration_timeout_ms <= 0:
         raise ValueError("lazy_creepage_iteration_timeout_ms must be positive")
     if decomposed_creepage and not lazy_creepage:
         raise ValueError("decomposed_creepage requires lazy_creepage")
+    if not isinstance(experimental_omit_generated_creepage, bool):
+        raise ValueError("experimental_omit_generated_creepage must be a boolean")
+    if experimental_omit_generated_creepage and (lazy_creepage or decomposed_creepage):
+        raise ValueError(
+            "experimental_omit_generated_creepage cannot be combined with "
+            "lazy_creepage or decomposed_creepage"
+        )
     if decomposed_creepage_group_prior_cuts and not decomposed_creepage:
         raise ValueError("grouped prior cuts require decomposed_creepage")
     if not isinstance(decomposed_creepage_group_prior_cuts, bool):
@@ -674,6 +759,8 @@ def solve_placement(
         raise ValueError("decomposed_creepage_group_min_cross_edges must be at least 2")
     if not isinstance(decomposed_creepage_eager_constraints, bool):
         raise ValueError("decomposed_creepage_eager_constraints must be a boolean")
+    if not isinstance(decomposed_creepage_enforce_coarse_pair_gaps, bool):
+        raise ValueError("decomposed_creepage_enforce_coarse_pair_gaps must be a boolean")
     if (
         isinstance(lazy_creepage_post_cut_reserve_ms, bool)
         or not isinstance(lazy_creepage_post_cut_reserve_ms, int)
@@ -744,6 +831,25 @@ def solve_placement(
         polarized = ref in _POLARIZED_REFS
         model_wrapper.add_rotation(ref, is_polarized=polarized)
 
+    # Experiment-only designer search topology. Every component rectangle
+    # must exist before validation/posting. Keep this before decomposition so
+    # a stale declaration fails before any restricted solve can return.
+    creepage_search_corridor_encoding = None
+    creepage_search_corridor_report = None
+    if creepage_search_corridor is not None:
+        from temper_placer.placer.cp_sat.creepage_search_corridor import (
+            add_creepage_search_corridor_to_model,
+        )
+
+        creepage_search_corridor_encoding = add_creepage_search_corridor_to_model(
+            model_wrapper,
+            netlist,
+            board_w_mm=board_w,
+            board_h_mm=board_h,
+            **creepage_search_corridor,
+        )
+        creepage_search_corridor_report = creepage_search_corridor_encoding.report
+
     accumulated_cut_map = {
         (ref_a, ref_b): required
         for ref_a, ref_b, required in _canonical_creepage_cuts(
@@ -755,6 +861,16 @@ def solve_placement(
     new_cut_count = 0
     remaining_violations: tuple[tuple[str, str, float, float], ...] = ()
     grouped_cut_stats = None
+    effective_restriction_slack_mm = float(decomposed_creepage_restriction_slack_mm)
+    if (
+        decomposed_creepage
+        and not decomposed_creepage_enforce_coarse_pair_gaps
+        and accumulated_cut_map
+    ):
+        effective_restriction_slack_mm = max(
+            effective_restriction_slack_mm,
+            2.0 * max(accumulated_cut_map.values()),
+        )
 
     # Routed-board repair: pin every requested component's rotation to its
     # current board value (hard constraint). A rotation would move every pad
@@ -843,6 +959,7 @@ def solve_placement(
             unplaced_refs=list(comp_refs),
             status="unknown",
             solve_time_ms=elapsed_ms,
+            creepage_search_corridor_report=creepage_search_corridor_report,
             decomposed_creepage_partition_count=decomposed_partition_count,
             decomposed_creepage_envelope_solve_time_ms=decomposed_envelope_solve_ms,
             decomposed_creepage_error=message,
@@ -853,6 +970,9 @@ def solve_placement(
             decomposed_creepage_prior_cut_count=prior_cut_count,
             decomposed_creepage_new_cut_count=new_cut_count,
             decomposed_creepage_remaining_violations=remaining_violations,
+            decomposed_creepage_effective_restriction_slack_mm=(
+                effective_restriction_slack_mm
+            ),
         )
 
     if decomposed_creepage and comp_refs:
@@ -950,7 +1070,11 @@ def solve_placement(
 
                 envelope_result = solve_hierarchical_envelopes(
                     prepared.partitions,
-                    prepared.pair_requirements,
+                    (
+                        prepared.pair_requirements
+                        if decomposed_creepage_enforce_coarse_pair_gaps
+                        else []
+                    ),
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -964,7 +1088,11 @@ def solve_placement(
             else:
                 envelope_result = solve_envelopes(
                     prepared.partitions,
-                    prepared.pair_requirements,
+                    (
+                        prepared.pair_requirements
+                        if decomposed_creepage_enforce_coarse_pair_gaps
+                        else []
+                    ),
                     interior_width_mm,
                     interior_height_mm,
                     time_limit_s=outer_budget_s,
@@ -991,7 +1119,7 @@ def solve_placement(
                 )
             refs_by_partition = _refs_by_partition_in_input_order(prepared.partitions)
             restriction_slack_units = model_wrapper.mm_to_units(
-                float(decomposed_creepage_restriction_slack_mm)
+                effective_restriction_slack_mm
             )
             for ref, partition_id in prepared.ref_to_partition.items():
                 envelope = envelope_bounds.get(partition_id)
@@ -1181,13 +1309,47 @@ def solve_placement(
     # is what makes the parameter actually steer the solve (a previous,
     # never-landed attempt registered objective terms without ever calling
     # Minimize on this path, making the parameter a silent no-op).
-    if max_displacement_mm is not None and not minimize_displacement_to:
+    if max_displacement_mm is not None and not (
+        minimize_displacement_to or hard_displacement_to
+    ):
         # Same no-op class as the #498 bug: a bound with no reference would
         # silently constrain nothing. Fail loudly instead.
         raise ValueError(
-            "max_displacement_mm requires minimize_displacement_to (the bound "
-            "applies to every ref in the reference dict)"
+            "max_displacement_mm requires minimize_displacement_to or "
+            "hard_displacement_to (the bound applies to every ref in the "
+            "selected reference mapping)"
         )
+    if (
+        hard_displacement_to
+        and max_displacement_mm is None
+        and hard_displacement_radii_mm is None
+    ):
+        raise ValueError(
+            "hard_displacement_to requires max_displacement_mm or "
+            "hard_displacement_radii_mm"
+        )
+    if hard_displacement_assumption_labels is not None and hard_displacement_to is None:
+        raise ValueError("hard_displacement_assumption_labels requires hard_displacement_to")
+    if not isinstance(hard_displacement_assumptions, bool):
+        raise TypeError("hard_displacement_assumptions must be a bool")
+    if not hard_displacement_assumptions and hard_displacement_assumption_labels is not None:
+        raise ValueError(
+            "hard_displacement_assumption_labels cannot be used when "
+            "hard_displacement_assumptions is false"
+        )
+    if hard_displacement_radii_mm is not None:
+        if hard_displacement_to is None:
+            raise ValueError("hard_displacement_radii_mm requires hard_displacement_to")
+        radius_refs = set(hard_displacement_radii_mm)
+        bound_refs = set(hard_displacement_to)
+        if radius_refs != bound_refs:
+            raise ValueError(
+                "hard_displacement_radii_mm must cover exactly hard_displacement_to "
+                f"(missing={sorted(bound_refs - radius_refs)}, extra={sorted(radius_refs - bound_refs)})"
+            )
+        for ref, radius in hard_displacement_radii_mm.items():
+            if isinstance(radius, bool) or not math.isfinite(float(radius)) or float(radius) < 0.0:
+                raise ValueError(f"hard displacement radius for {ref!r} must be finite and non-negative")
     if minimize_displacement_to:
         bound_units = None
         if max_displacement_mm is not None:
@@ -1198,6 +1360,41 @@ def solve_placement(
                 model_wrapper.mm_to_units(x_mm),
                 model_wrapper.mm_to_units(y_mm),
                 max_units=bound_units,
+                assumption_label=(
+                    f"displacement_bound_{ref}" if bound_units is not None else None
+                ),
+            )
+    if hard_displacement_to:
+        if hard_displacement_assumption_labels is not None:
+            unknown_labels = set(hard_displacement_assumption_labels) - set(hard_displacement_to)
+            if unknown_labels:
+                raise ValueError(
+                    "hard displacement assumption labels reference unknown bound refs: "
+                    f"{sorted(unknown_labels)}"
+                )
+        scalar_bound_units = (
+            model_wrapper.mm_to_units(max_displacement_mm)
+            if max_displacement_mm is not None
+            else None
+        )
+        for ref, (x_mm, y_mm) in hard_displacement_to.items():
+            bound_units = (
+                model_wrapper.mm_to_units(hard_displacement_radii_mm[ref])
+                if hard_displacement_radii_mm is not None
+                else scalar_bound_units
+            )
+            assert bound_units is not None
+            model_wrapper.add_hard_displacement_bound(
+                ref,
+                model_wrapper.mm_to_units(x_mm),
+                model_wrapper.mm_to_units(y_mm),
+                max_units=bound_units,
+                assumption_label=(
+                    hard_displacement_assumption_labels.get(ref)
+                    if hard_displacement_assumption_labels is not None
+                    else f"displacement_bound_{ref}"
+                ),
+                use_assumption=hard_displacement_assumptions,
             )
 
     # Hard position pins (minimal-disruption API): unlike AddHint above,
@@ -1325,8 +1522,11 @@ def solve_placement(
         # matrix. Decomposed mode opts into posting it eagerly, while the
         # existing non-decomposed lazy behavior remains unchanged.
         enforce_creepage=(
-            not lazy_creepage
-            or (decomposed_creepage and decomposed_creepage_eager_constraints)
+            not experimental_omit_generated_creepage
+            and (
+                not lazy_creepage
+                or (decomposed_creepage and decomposed_creepage_eager_constraints)
+            )
         ),
     )
     if decomposed_creepage_group_prior_cuts and accumulated_cut_map:
@@ -1398,6 +1598,7 @@ def solve_placement(
     status_code = cp.UNKNOWN
     status_str = "unknown"
     solver = cp.CpSolver()
+    solver_telemetry = None
     lazy_round = 0
     lazy_cut_count = 0
     post_cut_reserve_s = (
@@ -1423,7 +1624,23 @@ def solve_placement(
         solver.parameters.random_seed = seed
         solver.parameters.num_search_workers = 4
         solver.parameters.log_search_progress = False
-        status_code = solver.Solve(model_wrapper.model_ref)
+        if capture_telemetry:
+            from temper_placer.placer.cp_sat.solver_telemetry import (
+                SolverTelemetryCapture,
+            )
+
+            telemetry_capture = SolverTelemetryCapture(model_wrapper.model_ref)
+            telemetry_capture.configure_solver(solver)
+            status_code = solver.solve(
+                model_wrapper.model_ref,
+                telemetry_capture.solution_callback,
+            )
+            solver_telemetry = telemetry_capture.finish(
+                solver,
+                status_name=status_map.get(status_code, "unknown").upper(),
+            )
+        else:
+            status_code = solver.solve(model_wrapper.model_ref)
         status_str = status_map.get(status_code, "unknown")
         if not lazy_creepage or status_str not in ("optimal", "feasible"):
             break
@@ -1512,6 +1729,15 @@ def solve_placement(
     # submodel is unsatisfiable.  It is not a proof that the unrestricted
     # placement problem is infeasible, so decomposition must fail closed as
     # unknown and must not expose a misleading UNSAT core.
+    if (decomposed_creepage or decomposed_creepage_group_prior_cuts) and status_str == "infeasible":
+        status_code = cp.UNKNOWN
+        status_str = "unknown"
+        decomposed_error = (
+            "restricted coarse-envelope model is infeasible"
+            if decomposed_creepage
+            else "restricted grouped-creepage model is infeasible"
+        )
+        logger.warning("%s; returning unknown", decomposed_error)
     if decomposed_creepage and status_str == "infeasible":
         status_code = cp.UNKNOWN
         status_str = "unknown"
@@ -1533,6 +1759,15 @@ def solve_placement(
             positions[ref] = (round(x_mm, 3), round(y_mm, 3))
             if cv.rot_ref is not None:
                 rotations[ref] = solver.Value(cv.rot_ref)
+        if creepage_search_corridor_encoding is not None:
+            from temper_placer.placer.cp_sat.creepage_search_corridor import (
+                resolve_creepage_search_corridor_report_from_solver,
+            )
+
+            creepage_search_corridor_report = resolve_creepage_search_corridor_report_from_solver(
+                creepage_search_corridor_encoding,
+                solver,
+            )
 
     unsat_core: list[dict] = []
     if status_str in ("infeasible", "model_invalid"):
@@ -1724,6 +1959,8 @@ def solve_placement(
         solve_time_ms=elapsed_ms,
         objective_value=objective,
         unsat_core=unsat_core,
+        creepage_search_corridor_report=creepage_search_corridor_report,
+        solver_telemetry=solver_telemetry,
         isolation_barrier_report=isolation_barrier_report,
         validator_audit=validator_audit,
         tank_creepage_report=tank_creepage_report,
@@ -1743,6 +1980,7 @@ def solve_placement(
         decomposed_creepage_grouped_cut_count=grouped_cut_stats.grouped_cut_count if grouped_cut_stats else 0,
         decomposed_creepage_independent_cut_count=grouped_cut_stats.independent_cut_count if grouped_cut_stats else 0,
         decomposed_creepage_direction_bool_count=grouped_cut_stats.direction_bool_count if grouped_cut_stats else 0,
+        decomposed_creepage_effective_restriction_slack_mm=effective_restriction_slack_mm,
         decomposed_creepage_new_cut_count=new_cut_count,
         decomposed_creepage_remaining_violations=remaining_violations,
     )

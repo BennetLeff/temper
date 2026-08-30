@@ -67,6 +67,422 @@ pub type PartitionCreepageRequirements = (Vec<(usize, usize, f64)>, Vec<(usize, 
 /// `(groups, dense_group_pairs)` for shared-direction creepage encoding.
 pub type GroupedCreepagePlan = (Vec<Vec<String>>, Vec<(usize, usize)>);
 
+/// Exact weighted-twin quotient of a component creepage graph.
+///
+/// The three fields are `(territories, cross_territory_requirements,
+/// internal_territory_requirements)`. Two refs share a territory exactly when
+/// they have the same required distance to every third ref. This admits both
+/// false twins (no internal edge) and true twins (one uniform internal edge)
+/// without confusing the missing self-edge for a different neighborhood.
+pub type CreepageTerritoryPlan = (
+    Vec<Vec<String>>,
+    Vec<(usize, usize, f64)>,
+    Vec<(usize, f64)>,
+);
+
+/// Deterministic component groups for displacement diagnostics.
+///
+/// Group IDs are the zero-based positions in this vector.  The groups and
+/// their members are sorted by their lexically-first reference, so callers
+/// can safely use the IDs as stable assumption-group labels across repeated
+/// model builds.  This is the grouping-only view of
+/// [`CreepageTerritoryPlan`]; it intentionally carries no geometric or solver
+/// state.
+pub type CreepageDisplacementGroups = Vec<Vec<String>>;
+
+/// A complete, integer-grid instance for the stripped component-box model.
+///
+/// Components are `(reference, width_units, height_units)`, requirements are
+/// a complete lexicographically ordered pair list `(a, b, gap_units)`, and
+/// the final two values are the board dimensions in the same grid.  Keeping
+/// this canonical representation in Rust makes the CP-SAT boundary unable to
+/// silently omit a component or pair while still leaving OR-Tools (which is
+/// a Python dependency in this repository) at its natural boundary.
+pub type StrippedCreepageInstance = (
+    Vec<(String, i64, i64)>,
+    Vec<(String, String, i64)>,
+    i64,
+    i64,
+);
+
+fn scaled_grid_units(value: f64, units_per_mm: i64, label: &str) -> Result<i64, String> {
+    if !value.is_finite() || value < 0.0 {
+        return Err(format!("{label} must be finite and non-negative"));
+    }
+    let scaled = value * units_per_mm as f64;
+    if !scaled.is_finite() || scaled > i64::MAX as f64 {
+        return Err(format!("{label} overflows the integer model grid"));
+    }
+    let units = scaled.ceil() as i64;
+    Ok(units)
+}
+
+/// Validate and canonicalize the exact component-box creepage instance.
+///
+/// The returned requirements include every unordered component pair.  Rows
+/// absent from the caller's non-zero creepage table receive a zero gap, which
+/// still gives the model the ordinary non-overlap relation.  Duplicate rows,
+/// unknown references, self-pairs, malformed numbers, and dimensions that
+/// quantize to zero are rejected rather than being silently repaired.
+pub fn normalize_stripped_creepage(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    units_per_mm: i64,
+) -> Result<StrippedCreepageInstance, String> {
+    if units_per_mm <= 0 {
+        return Err("units_per_mm must be positive".into());
+    }
+    let board_width = scaled_grid_units(board_width_mm, units_per_mm, "board_width_mm")?;
+    let board_height = scaled_grid_units(board_height_mm, units_per_mm, "board_height_mm")?;
+    let mut canonical_components = BTreeMap::<String, (i64, i64)>::new();
+    for (reference, width, height) in components {
+        if reference.trim().is_empty() {
+            return Err("component reference must be non-empty".into());
+        }
+        if canonical_components.contains_key(&reference) {
+            return Err(format!("duplicate component reference: {reference}"));
+        }
+        let width = scaled_grid_units(width, units_per_mm, "component width")?;
+        let height = scaled_grid_units(height, units_per_mm, "component height")?;
+        if width == 0 || height == 0 {
+            return Err(format!(
+                "component {reference} is smaller than one model grid unit"
+            ));
+        }
+        canonical_components.insert(reference, (width, height));
+    }
+    if canonical_components.is_empty() {
+        return Err("at least one component is required".into());
+    }
+
+    let mut requested = BTreeMap::<(String, String), i64>::new();
+    for (left, right, required) in requirements {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("creepage requirements need two distinct non-empty refs".into());
+        }
+        if !canonical_components.contains_key(&left) || !canonical_components.contains_key(&right) {
+            return Err("creepage requirement references an unknown component".into());
+        }
+        let key = if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        };
+        if requested.contains_key(&key) {
+            return Err(format!(
+                "duplicate creepage requirement: {} / {}",
+                key.0, key.1
+            ));
+        }
+        requested.insert(
+            key,
+            scaled_grid_units(required, units_per_mm, "creepage gap")?,
+        );
+    }
+
+    let refs: Vec<String> = canonical_components.keys().cloned().collect();
+    let mut complete_requirements = Vec::with_capacity(refs.len() * (refs.len() - 1) / 2);
+    for (index, left) in refs.iter().enumerate() {
+        for right in refs.iter().skip(index + 1) {
+            complete_requirements.push((
+                left.clone(),
+                right.clone(),
+                requested
+                    .get(&(left.clone(), right.clone()))
+                    .copied()
+                    .unwrap_or(0),
+            ));
+        }
+    }
+    let normalized_components = refs
+        .into_iter()
+        .map(|reference| {
+            let (width, height) = canonical_components[&reference];
+            (reference, width, height)
+        })
+        .collect();
+    Ok((
+        normalized_components,
+        complete_requirements,
+        board_width,
+        board_height,
+    ))
+}
+
+/// Exhaustively verify one stripped-model placement using physical mm values.
+///
+/// Placements are `(reference, x_min_mm, y_min_mm, orientation)`, where
+/// orientation `0` is the supplied `(width, height)` and orientation `1` is
+/// its 90-degree rotation.  A successful return is the only accepted result;
+/// any omitted/unknown reference, malformed geometry, out-of-bounds box, or
+/// remaining pair violation is an error.
+pub fn verify_stripped_creepage(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    placements: Vec<(String, f64, f64, i64)>,
+    allow_rotations: bool,
+) -> Result<(), String> {
+    // Integer-grid equalities can reappear a few binary64 ULPs below their
+    // decimal value (for example, 12.6 becomes 12.599999999999994 after
+    // coordinate subtraction). This scale-aware tolerance covers only that
+    // representation noise; it is far below one solver grid unit.
+    let comparison_tolerance = |values: &[f64]| {
+        64.0 * f64::EPSILON * values.iter().copied().map(f64::abs).fold(1.0, f64::max)
+    };
+    if !board_width_mm.is_finite() || board_width_mm <= 0.0 {
+        return Err("board_width_mm must be finite and positive".into());
+    }
+    if !board_height_mm.is_finite() || board_height_mm <= 0.0 {
+        return Err("board_height_mm must be finite and positive".into());
+    }
+    let mut dimensions = BTreeMap::<String, (f64, f64)>::new();
+    for (reference, width, height) in components {
+        if reference.trim().is_empty()
+            || !width.is_finite()
+            || !height.is_finite()
+            || width <= 0.0
+            || height <= 0.0
+            || dimensions
+                .insert(reference.clone(), (width, height))
+                .is_some()
+        {
+            return Err("malformed or duplicate component dimensions".into());
+        }
+    }
+    if dimensions.is_empty() {
+        return Err("at least one component is required".into());
+    }
+    let mut gaps = BTreeMap::<(String, String), f64>::new();
+    for (left, right, required) in requirements {
+        if left.trim().is_empty()
+            || right.trim().is_empty()
+            || left == right
+            || !dimensions.contains_key(&left)
+            || !dimensions.contains_key(&right)
+            || !required.is_finite()
+            || required < 0.0
+        {
+            return Err("malformed creepage requirement".into());
+        }
+        let key = if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        };
+        if gaps.insert(key, required).is_some() {
+            return Err("duplicate creepage requirement".into());
+        }
+    }
+    let mut boxes = BTreeMap::<String, (f64, f64, f64, f64)>::new();
+    for (reference, x, y, orientation) in placements {
+        if !dimensions.contains_key(&reference)
+            || !x.is_finite()
+            || !y.is_finite()
+            || !(orientation == 0 || orientation == 1)
+            || (!allow_rotations && orientation != 0)
+            || boxes.contains_key(&reference)
+        {
+            return Err(format!("malformed placement for {reference}"));
+        }
+        let (width, height) = dimensions[&reference];
+        let (width, height) = if orientation == 0 {
+            (width, height)
+        } else {
+            (height, width)
+        };
+        let x_max = x + width;
+        let y_max = y + height;
+        let bounds_tolerance =
+            comparison_tolerance(&[x, y, x_max, y_max, board_width_mm, board_height_mm]);
+        if !x_max.is_finite()
+            || !y_max.is_finite()
+            || x < 0.0
+            || y < 0.0
+            || x_max > board_width_mm + bounds_tolerance
+            || y_max > board_height_mm + bounds_tolerance
+        {
+            return Err(format!("component {reference} is outside board bounds"));
+        }
+        boxes.insert(reference, (x, x_max, y, y_max));
+    }
+    if boxes.len() != dimensions.len() {
+        return Err("placement omitted one or more components".into());
+    }
+    let refs: Vec<String> = dimensions.keys().cloned().collect();
+    for (index, left) in refs.iter().enumerate() {
+        for right in refs.iter().skip(index + 1) {
+            let required = gaps
+                .get(&(left.clone(), right.clone()))
+                .copied()
+                .unwrap_or(0.0);
+            let first = boxes[left];
+            let second = boxes[right];
+            let gap = (first.0 - second.1)
+                .max(second.0 - first.1)
+                .max(first.2 - second.3)
+                .max(second.2 - first.3)
+                .max(0.0);
+            if gap
+                + comparison_tolerance(&[
+                    gap, required, first.0, first.1, first.2, first.3, second.0, second.1,
+                    second.2, second.3,
+                ])
+                < required
+            {
+                return Err(format!(
+                    "components {left} and {right} violate {required} mm gap (actual {gap})"
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Build the exact weighted-twin quotient of a complete component ref set.
+pub fn plan_creepage_territories(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> Result<CreepageTerritoryPlan, String> {
+    let mut refs = BTreeSet::new();
+    for reference in component_refs {
+        if reference.trim().is_empty() {
+            return Err("component references must be non-empty".into());
+        }
+        if !refs.insert(reference.clone()) {
+            return Err(format!("duplicate component reference: {reference}"));
+        }
+    }
+    if refs.is_empty() {
+        return Err("at least one component reference is required".into());
+    }
+    let mut edges = BTreeMap::<(String, String), f64>::new();
+    for (left, right, required) in cuts {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("creepage cuts require two distinct non-empty refs".into());
+        }
+        if !refs.contains(&left) || !refs.contains(&right) {
+            return Err("creepage cut references an unknown component".into());
+        }
+        if !required.is_finite() || required < 0.0 {
+            return Err("creepage cut distance must be finite and non-negative".into());
+        }
+        let key = if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        };
+        let entry = edges.entry(key).or_insert(0.0);
+        *entry = entry.max(required);
+    }
+    let refs: Vec<String> = refs.into_iter().collect();
+    let weight = |left: &str, right: &str| -> f64 {
+        let key = if left < right {
+            (left.to_owned(), right.to_owned())
+        } else {
+            (right.to_owned(), left.to_owned())
+        };
+        edges.get(&key).copied().unwrap_or(0.0)
+    };
+    let mut territories: Vec<Vec<String>> = Vec::new();
+    for reference in &refs {
+        let compatible = territories.iter().position(|territory| {
+            let representative = &territory[0];
+            refs.iter().all(|other| {
+                other == reference
+                    || other == representative
+                    || weight(reference, other) == weight(representative, other)
+            })
+        });
+        if let Some(index) = compatible {
+            territories[index].push(reference.clone());
+        } else {
+            territories.push(vec![reference.clone()]);
+        }
+    }
+    territories.sort_by(|left, right| left[0].cmp(&right[0]));
+    let mut cross = Vec::new();
+    let mut internal = Vec::with_capacity(territories.len());
+    for (territory_id, territory) in territories.iter().enumerate() {
+        let required = territory
+            .get(1)
+            .map(|other| weight(&territory[0], other))
+            .unwrap_or(0.0);
+        internal.push((territory_id, required));
+    }
+    for left in 0..territories.len() {
+        for right in (left + 1)..territories.len() {
+            let required = weight(&territories[left][0], &territories[right][0]);
+            if required > 0.0 {
+                cross.push((left, right, required));
+            }
+        }
+    }
+    Ok((territories, cross, internal))
+}
+
+/// Return the weighted-twin component groups used by displacement diagnosis.
+///
+/// This is deliberately a view over [`plan_creepage_territories`], rather
+/// than a second implementation of the quotient algorithm.  A group contains
+/// components with identical weighted creepage neighborhoods (including
+/// their relationship to every other supplied reference).  The returned
+/// order and member order are deterministic and independent of input order.
+pub fn plan_creepage_displacement_groups(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> Result<CreepageDisplacementGroups, String> {
+    plan_creepage_territories(component_refs, cuts).map(|(groups, _, _)| groups)
+}
+
+/// Return a deterministic greedy vertex cover for a creepage violation graph.
+///
+/// Every returned ref may move while the complement is frozen. At each step
+/// the highest-degree remaining vertex is selected; lexical order breaks
+/// ties. The result is not claimed minimum, but every supplied edge is
+/// covered by construction and the bounded O(VE) policy is reproducible.
+pub fn plan_creepage_repair_frontier(
+    violations: Vec<(String, String, f64, f64)>,
+) -> Result<Vec<String>, String> {
+    let mut edges = BTreeSet::<(String, String)>::new();
+    for (left, right, required, actual) in violations {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("creepage violations require two distinct non-empty refs".into());
+        }
+        if !required.is_finite() || !actual.is_finite() || required < 0.0 || actual < 0.0 {
+            return Err("creepage violation distances must be finite and non-negative".into());
+        }
+        if actual >= required {
+            return Err("creepage repair input contains a non-violation".into());
+        }
+        edges.insert(if left < right {
+            (left, right)
+        } else {
+            (right, left)
+        });
+    }
+    let mut cover = Vec::new();
+    while !edges.is_empty() {
+        let mut degrees = BTreeMap::<String, usize>::new();
+        for (left, right) in &edges {
+            *degrees.entry(left.clone()).or_default() += 1;
+            *degrees.entry(right.clone()).or_default() += 1;
+        }
+        let selected = degrees
+            .into_iter()
+            .max_by(|left, right| left.1.cmp(&right.1).then_with(|| right.0.cmp(&left.0)))
+            .map(|(reference, _degree)| reference)
+            .ok_or_else(|| "creepage repair graph lost all vertices".to_string())?;
+        edges.retain(|(left, right)| left != &selected && right != &selected);
+        cover.push(selected);
+    }
+    cover.sort();
+    Ok(cover)
+}
+
 /// Group refs with similar cut neighborhoods, then identify dense group pairs.
 /// Requirements remain attached to their original component pairs; this plan
 /// only permits the caller to share relative-direction literals.
@@ -130,10 +546,10 @@ pub fn plan_grouped_creepage_cuts(
         refs.iter().map(|r| BTreeSet::from([r.clone()])).collect();
     for (_, left, right) in candidates {
         let Some(li) = groups.iter().position(|g| g.contains(&left)) else {
-            return Err(format!("candidate references missing group: {left}"));
+            return Err(format!("grouping invariant lost component {left}"));
         };
         let Some(ri) = groups.iter().position(|g| g.contains(&right)) else {
-            return Err(format!("candidate references missing group: {right}"));
+            return Err(format!("grouping invariant lost component {right}"));
         };
         if li == ri || groups[li].len() + groups[ri].len() > max_group_size {
             continue;
@@ -960,18 +1376,36 @@ pub fn compact_partition_envelopes_with_internal_gaps(
             .iter()
             .map(|component| component.width)
             .fold(0.0, f64::max);
-        let mut target_width = aspect_area.sqrt().max(largest_width).min(board_width_mm);
-        let mut envelope = pack_shelves(&components, target_width, partition_gap)?;
-        if envelope.1 > board_height_mm {
-            target_width = board_width_mm;
-            envelope = pack_shelves(&components, target_width, partition_gap)?;
+        let aspect_target = aspect_area.sqrt().max(largest_width).min(board_width_mm);
+        // Shelf breaks are discrete.  A single area-derived target can land
+        // just below a useful break and create a pathological tall strip.
+        // Search a fixed bounded set of widths and retain the most balanced
+        // actual extent.  This stays deterministic and O(32*n), while
+        // avoiding an optimization solver for electrically-simple groups.
+        let mut targets = vec![aspect_target, board_width_mm];
+        for step in 0..=32 {
+            targets.push(largest_width + (board_width_mm - largest_width) * f64::from(step) / 32.0);
         }
-        if envelope.0 > board_width_mm || envelope.1 > board_height_mm {
+        targets.sort_by(f64::total_cmp);
+        targets.dedup_by(|left, right| left.total_cmp(right).is_eq());
+        let mut candidates = Vec::new();
+        for target_width in targets {
+            let candidate = pack_shelves(&components, target_width, partition_gap)?;
+            if candidate.0 <= board_width_mm && candidate.1 <= board_height_mm {
+                candidates.push(candidate);
+            }
+        }
+        let envelope = candidates.into_iter().min_by(|left, right| {
+            (left.0 / board_width_mm + left.1 / board_height_mm)
+                .total_cmp(&(right.0 / board_width_mm + right.1 / board_height_mm))
+                .then_with(|| left.0.total_cmp(&right.0))
+                .then_with(|| left.1.total_cmp(&right.1))
+        });
+        let Some(envelope) = envelope else {
             return Err(format!(
-                "partition {partition_id} envelope ({:.6}x{:.6} mm) cannot fit board ({board_width_mm}x{board_height_mm} mm)",
-                envelope.0, envelope.1
+                "partition {partition_id} cannot fit board ({board_width_mm}x{board_height_mm} mm)"
             ));
-        }
+        };
         output.push((partition_id, refs, envelope.0, envelope.1));
     }
     Ok(output)
@@ -1026,6 +1460,94 @@ pub fn plan_grouped_creepage_cuts_py(
         .map_err(pyo3::exceptions::PyValueError::new_err)
 }
 
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn plan_creepage_territories_py(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> PyResult<CreepageTerritoryPlan> {
+    plan_creepage_territories(component_refs, cuts).map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn plan_creepage_displacement_groups_py(
+    component_refs: Vec<String>,
+    cuts: Vec<(String, String, f64)>,
+) -> PyResult<CreepageDisplacementGroups> {
+    plan_creepage_displacement_groups(component_refs, cuts)
+        .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn plan_creepage_repair_frontier_py(
+    violations: Vec<(String, String, f64, f64)>,
+) -> PyResult<Vec<String>> {
+    plan_creepage_repair_frontier(violations).map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn compact_partition_envelopes_py(
+    partitions: Vec<PartitionPlan>,
+    component_dimensions: Vec<(String, f64, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    internal_gap_mm: f64,
+) -> PyResult<Vec<PartitionEnvelope>> {
+    compact_partition_envelopes(
+        partitions,
+        component_dimensions,
+        board_width_mm,
+        board_height_mm,
+        internal_gap_mm,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+/// Python boundary for the stripped exact component-box model.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn normalize_stripped_creepage_py(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    units_per_mm: i64,
+) -> PyResult<StrippedCreepageInstance> {
+    normalize_stripped_creepage(
+        components,
+        requirements,
+        board_width_mm,
+        board_height_mm,
+        units_per_mm,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+/// Python boundary for the exhaustive stripped-model verifier.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn verify_stripped_creepage_py(
+    components: Vec<(String, f64, f64)>,
+    requirements: Vec<(String, String, f64)>,
+    board_width_mm: f64,
+    board_height_mm: f64,
+    placements: Vec<(String, f64, f64, i64)>,
+    allow_rotations: bool,
+) -> PyResult<()> {
+    verify_stripped_creepage(
+        components,
+        requirements,
+        board_width_mm,
+        board_height_mm,
+        placements,
+        allow_rotations,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
@@ -1054,6 +1576,82 @@ pub(crate) mod tests {
         let mut reversed = cuts;
         reversed.reverse();
         assert_eq!(plan_grouped_creepage_cuts(reversed, 2, 3).unwrap(), plan);
+    }
+
+    #[cfg_attr(test, test)]
+    fn creepage_territories_find_weighted_true_and_false_twins() {
+        let refs = ["A1", "A2", "B1", "B2", "X"]
+            .into_iter()
+            .map(str::to_string)
+            .collect();
+        let cuts = vec![
+            ("A1".into(), "B1".into(), 12.6),
+            ("A1".into(), "B2".into(), 12.6),
+            ("A2".into(), "B1".into(), 12.6),
+            ("A2".into(), "B2".into(), 12.6),
+            ("B1".into(), "B2".into(), 2.0),
+            ("A1".into(), "X".into(), 0.5),
+            ("A2".into(), "X".into(), 0.5),
+        ];
+        let plan = plan_creepage_territories(refs, cuts).unwrap();
+        assert_eq!(
+            plan.0,
+            vec![
+                vec!["A1".to_string(), "A2".to_string()],
+                vec!["B1".to_string(), "B2".to_string()],
+                vec!["X".to_string()],
+            ]
+        );
+        assert_eq!(plan.1, vec![(0, 1, 12.6), (0, 2, 0.5)]);
+        assert_eq!(plan.2, vec![(0, 0.0), (1, 2.0), (2, 0.0)]);
+    }
+
+    #[cfg_attr(test, test)]
+    fn displacement_groups_are_the_deterministic_territory_view() {
+        let refs = ["B2", "A2", "X", "B1", "A1"]
+            .into_iter()
+            .map(str::to_string)
+            .collect::<Vec<_>>();
+        let cuts = vec![
+            ("A1".into(), "B1".into(), 12.6),
+            ("A1".into(), "B2".into(), 12.6),
+            ("A2".into(), "B1".into(), 12.6),
+            ("A2".into(), "B2".into(), 12.6),
+            ("B1".into(), "B2".into(), 2.0),
+            ("A1".into(), "X".into(), 0.5),
+            ("A2".into(), "X".into(), 0.5),
+        ];
+        let groups = plan_creepage_displacement_groups(refs, cuts.clone()).unwrap();
+        assert_eq!(
+            groups,
+            vec![
+                vec!["A1".to_string(), "A2".to_string()],
+                vec!["B1".to_string(), "B2".to_string()],
+                vec!["X".to_string()],
+            ]
+        );
+
+        // The grouping-only API must remain exactly the first field of the
+        // full quotient, including its input-order independence.
+        let full = plan_creepage_territories(
+            vec!["A1".into(), "A2".into(), "B1".into(), "B2".into(), "X".into()],
+            cuts,
+        )
+        .unwrap();
+        assert_eq!(groups, full.0);
+    }
+
+    #[cfg_attr(test, test)]
+    fn creepage_repair_frontier_covers_every_edge_deterministically() {
+        let violations = vec![
+            ("A".into(), "B".into(), 12.6, 1.0),
+            ("A".into(), "C".into(), 12.6, 2.0),
+            ("D".into(), "C".into(), 6.0, 1.0),
+        ];
+        assert_eq!(
+            plan_creepage_repair_frontier(violations).unwrap(),
+            vec!["A".to_string(), "C".to_string()]
+        );
     }
 
     fn sample() -> (Vec<ComponentPinClasses>, Vec<ElectricalNet>) {
@@ -1532,6 +2130,108 @@ pub(crate) mod tests {
         );
     }
 
+    #[cfg_attr(test, test)]
+    fn stripped_creepage_normalization_is_complete_and_conservative() {
+        let instance = normalize_stripped_creepage(
+            vec![
+                ("B".into(), 2.001, 1.0),
+                ("A".into(), 1.0, 3.0),
+                ("C".into(), 1.0, 1.0),
+            ],
+            vec![("B".into(), "A".into(), 2.001)],
+            10.0,
+            20.0,
+            100,
+        )
+        .unwrap();
+        assert_eq!(
+            instance.0,
+            vec![
+                ("A".into(), 100, 300),
+                ("B".into(), 201, 100),
+                ("C".into(), 100, 100)
+            ]
+        );
+        assert_eq!(
+            instance.1,
+            vec![
+                ("A".into(), "B".into(), 201),
+                ("A".into(), "C".into(), 0),
+                ("B".into(), "C".into(), 0),
+            ]
+        );
+        assert_eq!((instance.2, instance.3), (1000, 2000));
+    }
+
+    #[cfg_attr(test, test)]
+    fn stripped_creepage_verifier_rejects_missing_and_bad_pairs() {
+        let components = vec![("A".into(), 2.0, 2.0), ("B".into(), 2.0, 2.0)];
+        let requirements = vec![("A".into(), "B".into(), 3.0)];
+        assert!(
+            verify_stripped_creepage(
+                components.clone(),
+                requirements.clone(),
+                10.0,
+                10.0,
+                vec![("A".into(), 0.0, 0.0, 0)],
+                false,
+            )
+            .is_err()
+        );
+        assert!(
+            verify_stripped_creepage(
+                components.clone(),
+                requirements.clone(),
+                10.0,
+                10.0,
+                vec![("A".into(), 0.0, 0.0, 0), ("B".into(), 5.0, 0.0, 0)],
+                false,
+            )
+            .is_ok()
+        );
+        assert!(
+            verify_stripped_creepage(
+                components,
+                requirements,
+                10.0,
+                10.0,
+                vec![("A".into(), 0.0, 0.0, 1), ("B".into(), 5.0, 0.0, 0)],
+                false,
+            )
+            .is_err()
+        );
+
+        // Decimal equality may round a handful of binary64 ULPs downward;
+        // a materially short gap must still fail.
+        let decimal_components = vec![("A".into(), 1.2, 1.0), ("B".into(), 1.0, 1.0)];
+        let decimal_requirement = vec![("A".into(), "B".into(), 12.6)];
+        assert!(
+            verify_stripped_creepage(
+                decimal_components.clone(),
+                decimal_requirement.clone(),
+                20.0,
+                2.0,
+                vec![
+                    ("A".into(), 0.0, 0.0, 0),
+                    ("B".into(), 13.799999999999995, 0.0, 0),
+                ],
+                false,
+            )
+            .is_ok()
+        );
+        assert!(
+            verify_stripped_creepage(
+                decimal_components,
+                decimal_requirement,
+                20.0,
+                2.0,
+                vec![("A".into(), 0.0, 0.0, 0), ("B".into(), 13.799999, 0.0, 0),],
+                false,
+            )
+            .is_err()
+        );
+    }
+
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---
     /// Every `#[test]` in this module, as a callable the `wasm32`
     /// entry point can invoke by index.  Generated because these
@@ -1539,6 +2239,9 @@ pub(crate) mod tests {
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("partition_planner::tests::grouped_creepage_plan_finds_dense_bipartite_blocks_deterministically", grouped_creepage_plan_finds_dense_bipartite_blocks_deterministically),
+        ("partition_planner::tests::creepage_territories_find_weighted_true_and_false_twins", creepage_territories_find_weighted_true_and_false_twins),
+        ("partition_planner::tests::displacement_groups_are_the_deterministic_territory_view", displacement_groups_are_the_deterministic_territory_view),
+        ("partition_planner::tests::creepage_repair_frontier_covers_every_edge_deterministically", creepage_repair_frontier_covers_every_edge_deterministically),
         ("partition_planner::tests::groups_connectivity_and_retains_mixed_pin_classes", groups_connectivity_and_retains_mixed_pin_classes),
         ("partition_planner::tests::output_is_invariant_to_input_order", output_is_invariant_to_input_order),
         ("partition_planner::tests::shared_ground_does_not_bridge_safety_signatures", shared_ground_does_not_bridge_safety_signatures),
@@ -1550,6 +2253,8 @@ pub(crate) mod tests {
         ("partition_planner::tests::internal_creepage_gap_is_applied_per_partition", internal_creepage_gap_is_applied_per_partition),
         ("partition_planner::tests::internal_component_requirements_are_pair_specific", internal_component_requirements_are_pair_specific),
         ("partition_planner::tests::internal_component_requirements_reject_bad_coverage_and_rows", internal_component_requirements_reject_bad_coverage_and_rows),
+        ("partition_planner::tests::stripped_creepage_normalization_is_complete_and_conservative", stripped_creepage_normalization_is_complete_and_conservative),
+        ("partition_planner::tests::stripped_creepage_verifier_rejects_missing_and_bad_pairs", stripped_creepage_verifier_rejects_missing_and_bad_pairs),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

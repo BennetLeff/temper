@@ -240,18 +240,22 @@ def _separated_transforms() -> dict[str, MutationSpec]:
         assert n == 2, f"expected 2 x-axis margin adds, flipped {n}"
         return tree
 
-    def drop_y_ok(tree: ast.Module) -> ast.Module:
-        removed = _remove_statement(
-            tree,
-            lambda s: (
-                isinstance(s, ast.Expr)
-                and isinstance(s.value, ast.Call)
-                and isinstance(s.value.func, ast.Attribute)
-                and s.value.func.attr == "AddBoolOr"
-                and any("y_ok.Not()" in ast.unparse(a) for a in s.value.args)
-            ),
-        )
-        assert removed, "y_ok definitional clause not found"
+    def drop_y_axis_terms(tree: ast.Module) -> ast.Module:
+        changed = 0
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "AddBoolOr"
+                and len(node.args) == 1
+                and isinstance(node.args[0], ast.List)
+            ):
+                continue
+            names = [ast.unparse(element) for element in node.args[0].elts]
+            if names == ["left", "right", "below", "above"]:
+                node.args[0].elts = node.args[0].elts[:2]
+                changed += 1
+        assert changed == 1, f"expected one four-way separation clause, changed {changed}"
         return tree
 
     def loosened_margin(tree: ast.Module) -> ast.Module:
@@ -288,13 +292,13 @@ def _separated_transforms() -> dict[str, MutationSpec]:
             "components may overlap by up to the margin on x",
             sign_flip_x,
         ),
-        "sep_drop_y_ok_clause": MutationSpec(
-            "sep_drop_y_ok_clause",
+        "sep_drop_y_axis_terms": MutationSpec(
+            "sep_drop_y_axis_terms",
             "dropped-term",
-            "y_ok definitional clause AddBoolOr([y_ok.Not(), below, above]) dropped: "
-            "y_ok becomes a free literal, so the final x_ok ∨ y_ok disjunction is "
-            "satisfiable without any y separation (the weak-nooverlap2d class)",
-            drop_y_ok,
+            "below and above removed from AddBoolOr([left, right, below, above]): "
+            "the encoding incorrectly requires x-axis separation and can reject valid "
+            "placements whose required gap is present only on y",
+            drop_y_axis_terms,
         ),
         "sep_loosened_margin": MutationSpec(
             "sep_loosened_margin",
@@ -1727,9 +1731,9 @@ def run_suite(handler_catalog=None) -> list[MutationResult]:
 def _triage_from_register(path: Path) -> dict[tuple[str, str], tuple[str, str]]:
     """Load prior triage verdicts from an existing register (if present).
 
-    Survivor triage (benign vs test-gap + rationale) is curated by hand; when
-    the runner regenerates the register, the prior triage is preserved for
-    mutations that still survive so a re-run cannot silently drop it.
+    Survivor and non-applicable triage is curated by hand; when the runner
+    regenerates the register, the prior triage is preserved for mutations
+    whose outcome is unchanged so a re-run cannot silently drop it.
     """
     import yaml
 
@@ -1740,7 +1744,7 @@ def _triage_from_register(path: Path) -> dict[tuple[str, str], tuple[str, str]]:
     for surface in (doc or {}).get("families", {}).get("placer-pcl-handlers", {}).get("surfaces", []):
         sid = surface.get("id")
         for m in surface.get("mutations", []):
-            if m.get("outcome") == "survived" and m.get("triage"):
+            if m.get("outcome") in ("survived", "non-applicable") and m.get("triage"):
                 triage[(sid, m["id"])] = (m["triage"], m.get("triage_rationale", ""))
     return triage
 
@@ -1774,8 +1778,15 @@ def results_to_register(results: list[MutationResult], triage: dict[tuple[str, s
                 )
                 entry["triage"] = status
                 entry["triage_rationale"] = rationale
-            else:  # no-op / error
+            else:  # no-op / error / non-applicable
                 entry["detail"] = r.detail
+                if r.outcome == "non-applicable":
+                    status, rationale = triage.get(
+                        (surface_id, r.mutation_id),
+                        ("non-applicable", "TODO: explain why this mutation is not expressible"),
+                    )
+                    entry["triage"] = status
+                    entry["triage_rationale"] = rationale
             mutations_out.append(entry)
         surfaces_out.append(
             {
@@ -1800,7 +1811,9 @@ def results_to_register(results: list[MutationResult], triage: dict[tuple[str, s
             "loosened-bound, off-by-one, double-count) applied at source level; "
             "outcome is killed when the surface's existing defenses (encoder "
             "unit-test mirrors + post-solve PlacementAuditor) fail. Survivors are "
-            "triaged: benign (documented rationale) or test-gap (TODO). Enforced "
+            "triaged: benign (documented rationale), test-gap (TODO), or "
+            "non-applicable (mutation not expressible on the current code shape, "
+            "with a recorded reason). Enforced "
             "by scripts/constraint_mutation_gate.py."
         ),
         "families": {

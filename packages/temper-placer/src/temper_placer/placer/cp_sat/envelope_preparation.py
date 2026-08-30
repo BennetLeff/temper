@@ -582,12 +582,70 @@ def prepare_envelope_inputs(
         partition_ids,
         key=lambda partition_id: (-partition_inputs[partition_id][2], int(partition_id)),
     )
+    # A partition without pair-specific creepage rows needs only the common
+    # courtyard gap.  Rust's deterministic shelf packer provides sufficient
+    # extents by construction and avoids asking CP-SAT to optimize thousands
+    # of interchangeable pair directions in large electrically-simple groups.
+    shelf_only_ids = tuple(
+        partition_id
+        for partition_id in ordered_partition_ids
+        if not partition_inputs[partition_id][1]
+    )
+    shelf_sizes: dict[str, tuple[float, float]] = {}
+    if shelf_only_ids:
+        shelf_plans = [
+            (
+                int(partition_id),
+                [
+                    ref
+                    for ref, _width, _height in component_dimensions
+                    if ref_to_partition[ref] == partition_id
+                ],
+                [],
+                [],
+            )
+            for partition_id in shelf_only_ids
+        ]
+        raw_shelves = _to.compact_partition_envelopes_py(
+            shelf_plans,
+            [row for row in component_dimensions if ref_to_partition[row[0]] in shelf_only_ids],
+            board_width,
+            board_height,
+            internal_gap,
+        )
+        shelf_sizes = {
+            str(partition_id): (
+                _positive_dimension(
+                    width + headroom, f"Rust shelf partition {partition_id} width"
+                ),
+                _positive_dimension(
+                    height + headroom, f"Rust shelf partition {partition_id} height"
+                ),
+            )
+            for partition_id, _refs, width, height in raw_shelves
+        }
+        if len(shelf_sizes) != len(shelf_only_ids) or any(
+            partition_id not in shelf_sizes for partition_id in shelf_only_ids
+        ):
+            raise ValueError("Rust shelf sizing omitted or added a partition")
+        if any(
+            width > board_width or height > board_height
+            for width, height in shelf_sizes.values()
+        ):
+            raise ValueError("Rust shelf sizing plus headroom exceeds the board")
     remaining_work = sum(partition_inputs[partition_id][2] for partition_id in ordered_partition_ids)
     for partition_id in ordered_partition_ids:
         remaining_s = local_timeout - (time.monotonic() - preparation_started)
         if remaining_s <= 0.0:
             raise ValueError("local sub-envelope preparation timed out")
         component_specs, exact_requirements, complexity = partition_inputs[partition_id]
+        if partition_id in shelf_sizes:
+            width, height = shelf_sizes[partition_id]
+            partitions.append(
+                (partition_id, tuple(ref for ref, _width, _height in component_specs), width, height)
+            )
+            remaining_work -= complexity
+            continue
         partition_budget = remaining_s * complexity / remaining_work
         try:
             local_result = solve_local_sub_envelope(

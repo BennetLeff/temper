@@ -241,6 +241,7 @@ def _batch_board_dimensions(
     requirements: Sequence[PairRequirement],
     board_width_mm: float,
     board_height_mm: float,
+    units_per_mm: int,
 ) -> tuple[float, float]:
     """Choose a conservative shelf-sized board for one batch.
 
@@ -252,12 +253,19 @@ def _batch_board_dimensions(
     requested.
     """
 
-    widths = [width for _partition_id, _refs, width, _height in batch]
-    heights = [height for _partition_id, _refs, _width, height in batch]
-    largest_gap = max((required for _id_a, _id_b, required in requirements), default=0.0)
+    # Match solve_envelopes' conservative integer quantization before sizing
+    # the temporary shelf board. Summing raw millimetres and flooring only at
+    # the kernel boundary can lose one grid unit per independently-ceiled
+    # rectangle, causing a valid shelf incumbent to fail defensive bounds.
+    widths = [math.ceil(width * units_per_mm - 1e-9) for _id, _refs, width, _height in batch]
+    heights = [math.ceil(height * units_per_mm - 1e-9) for _id, _refs, _width, height in batch]
+    largest_gap = max(
+        (math.ceil(required * units_per_mm - 1e-9) for _a, _b, required in requirements),
+        default=0,
+    )
     count_gap = max(0, len(batch) - 1) * largest_gap
-    horizontal = (sum(widths) + count_gap, max(heights))
-    vertical = (max(widths), sum(heights) + count_gap)
+    horizontal = ((sum(widths) + count_gap) / units_per_mm, max(heights) / units_per_mm)
+    vertical = (max(widths) / units_per_mm, (sum(heights) + count_gap) / units_per_mm)
     candidates = [
         candidate
         for candidate in (horizontal, vertical)
@@ -516,6 +524,7 @@ def solve_hierarchical_envelopes(
             internal_requirements[batch_index],
             board_width,
             board_height,
+            units_per_mm,
         )
         result = _solve_kernel(
             batch,

@@ -219,6 +219,7 @@ mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
 pub(crate) mod partition_planner;
+pub(crate) mod creepage_lower_bounds;
 // Orchestration-port unit U-E (Rust Orchestration Engine plan 2026-08-09-001):
 // the `DeterministicPipeline` pyclass hosting the `create_drc_aware_pipeline()`
 // stage factory (the D1->D7 ORDER) and the `DeterministicPipeline.run()`
@@ -425,11 +426,11 @@ pub use layer_assignment_stage::LayerAssignmentStage;
 #[cfg(feature = "python")]
 pub use net_ordering_stage::NetOrderingStage;
 pub use partition_planner::{
-    ComponentPinClasses, ElectricalNet, GroupedCreepagePlan, NetTerminal,
-    PartitionCreepageRequirements, PartitionEnvelope, PartitionPlan, PinClassRecord,
+    ComponentPinClasses, CreepageDisplacementGroups, ElectricalNet, GroupedCreepagePlan,
+    NetTerminal, PartitionCreepageRequirements, PartitionEnvelope, PartitionPlan, PinClassRecord,
     compact_partition_envelopes, compact_partition_envelopes_with_internal_gaps,
     internal_component_creepage_requirements, partition_creepage_requirements,
-    plan_component_partitions, plan_grouped_creepage_cuts,
+    plan_component_partitions, plan_creepage_displacement_groups, plan_grouped_creepage_cuts,
 };
 #[cfg(feature = "python")]
 pub use phased_assignment_stage::PhasedAssignmentStage;
@@ -651,6 +652,14 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m
     )?)?;
     m.add_function(wrap_pyfunction!(
+        netclass::netclass_creepage_neighborhood_candidates_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_creepage_requirements_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
         partition_planner::plan_component_partitions_py,
         m
     )?)?;
@@ -664,6 +673,34 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     m.add_function(wrap_pyfunction!(
         partition_planner::plan_grouped_creepage_cuts_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_territories_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_displacement_groups_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_repair_frontier_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::normalize_stripped_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::verify_stripped_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        creepage_lower_bounds::analyze_creepage_lower_bounds_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::compact_partition_envelopes_py,
         m
     )?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_channel_mapping, m)?)?;
@@ -785,6 +822,8 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // `classify()` delegates here; congestion handling is Rust-owned and the
     // remaining constraint-building handlers retain Python-object seams.
     m.add_function(wrap_pyfunction!(feedback::classify_feedback, m)?)?;
+    // Keep the scalar helper adjacent to its classifier registration so the
+    // Python shim cannot observe a partially wired feedback surface.
     m.add_function(wrap_pyfunction!(feedback::handle_congestion, m)?)?;
     // Keep the scalar helper adjacent to its classifier registration so the
     // Python shim cannot observe a partially wired feedback surface.

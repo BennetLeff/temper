@@ -83,6 +83,15 @@ def test_prepares_plain_inputs_from_rust_partition_requirements(
         return SimpleNamespace(feasible=True, width_mm=width, height_mm=height, message=None)
 
     monkeypatch.setattr(envelope_preparation, "solve_local_sub_envelope", local_pack)
+    shelf_calls: list[object] = []
+
+    def shelf_pack(partitions: object, *_args: object) -> list[object]:
+        shelf_calls.append(partitions)
+        return [(7, ["U7"], 7.0, 5.0), (11, ["C6"], 6.5, 6.5)]
+
+    monkeypatch.setattr(
+        envelope_preparation._to, "compact_partition_envelopes_py", shelf_pack, raising=False
+    )
     monkeypatch.setattr(
         envelope_preparation._to,
         "partition_creepage_requirements_py",
@@ -111,15 +120,12 @@ def test_prepares_plain_inputs_from_rust_partition_requirements(
 
     assert [partition[0] for partition in prepared.partitions] == ["2", "7", "11"]
     assert prepared.partitions[0] == ("2", ("Q1", "R1"), 8.0, 4.0)
-    assert [call[0] for call in local_calls] == ["2", "7", "11"]
-    # The two-component partition has four pairwise-disjunction units versus
-    # one for each singleton, so it is scheduled first and receives the
-    # largest proportional initial budget.
-    assert local_calls[0][2] > local_calls[1][2]
+    assert [call[0] for call in local_calls] == ["2"]
+    assert shelf_calls == [[(7, ["U7"], [], []), (11, ["C6"], [], [])]]
     assert local_calls[0][1][0] == [("Q1", 4.0, 2.0), ("R1", 4.0, 2.0)]
     assert local_calls[0][1][1] == [("Q1", "R1", 0.0)]
     assert all(call[1][2] == 4 for call in local_calls)
-    assert local_headrooms == [0.0, 0.0, 0.0]
+    assert local_headrooms == [0.0]
     assert prepared.ref_to_partition == {"C6": "11", "Q1": "2", "R1": "2", "U7": "7"}
     assert prepared.pair_requirements == [
         ("2", "7", 12.6),
@@ -139,7 +145,7 @@ def test_local_headroom_is_validated_and_forwarded(
     monkeypatch.setattr(
         envelope_preparation._to,
         "plan_component_partitions_py",
-        lambda _components, _nets: [(0, ["Q1"], ["GATE_H"], ["HighVoltage"])],
+        lambda _components, _nets: [(0, ["Q1", "R1"], ["GATE_H"], ["HighVoltage"])],
         raising=False,
     )
     monkeypatch.setattr(
@@ -151,7 +157,7 @@ def test_local_headroom_is_validated_and_forwarded(
     monkeypatch.setattr(
         envelope_preparation._to,
         "internal_component_creepage_requirements_py",
-        lambda _partitions, _components, _rows: [],
+        lambda _partitions, _components, _rows: [(0, "Q1", "R1", 0.0)],
         raising=False,
     )
     received: list[float] = []
@@ -162,8 +168,11 @@ def test_local_headroom_is_validated_and_forwarded(
 
     monkeypatch.setattr(envelope_preparation, "solve_local_sub_envelope", local_pack)
     netlist = SimpleNamespace(
-        components=[_component("Q1", 10.0, 10.0, net="GATE_H")],
-        nets=[SimpleNamespace(name="GATE_H", pins=[("Q1", "1")])],
+        components=[
+            _component("Q1", 10.0, 10.0, net="GATE_H"),
+            _component("R1", 16.0, 10.0, net="GATE_H"),
+        ],
+        nets=[SimpleNamespace(name="GATE_H", pins=[("Q1", "1"), ("R1", "1")])],
     )
 
     envelope_preparation.prepare_envelope_inputs(
@@ -294,7 +303,7 @@ def test_failed_local_pack_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(
         envelope_preparation._to,
         "plan_component_partitions_py",
-        lambda _components, _nets: [(0, ["Q1"], ["GATE_H"], ["HighVoltage"])],
+        lambda _components, _nets: [(0, ["Q1", "R1"], ["GATE_H"], ["HighVoltage"])],
         raising=False,
     )
     monkeypatch.setattr(
@@ -306,7 +315,7 @@ def test_failed_local_pack_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(
         envelope_preparation._to,
         "internal_component_creepage_requirements_py",
-        lambda _partitions, _components, _rows: [],
+        lambda _partitions, _components, _rows: [(0, "Q1", "R1", 0.0)],
         raising=False,
     )
     monkeypatch.setattr(
@@ -319,8 +328,11 @@ def test_failed_local_pack_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None
         ),
     )
     netlist = SimpleNamespace(
-        components=[_component("Q1", 10.0, 10.0, net="GATE_H")],
-        nets=[SimpleNamespace(name="GATE_H", pins=[("Q1", "1")])],
+        components=[
+            _component("Q1", 10.0, 10.0, net="GATE_H"),
+            _component("R1", 16.0, 10.0, net="GATE_H"),
+        ],
+        nets=[SimpleNamespace(name="GATE_H", pins=[("Q1", "1"), ("R1", "1")])],
     )
 
     with pytest.raises(ValueError, match="local sub-envelope solve failed"):

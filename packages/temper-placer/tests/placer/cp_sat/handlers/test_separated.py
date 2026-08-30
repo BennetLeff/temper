@@ -62,3 +62,25 @@ class TestSeparatedHandlerStructural:
         from temper_placer.placer.cp_sat.handlers._protocol import ConstraintHandler
 
         assert isinstance(encode_separated, ConstraintHandler)
+
+    def test_handler_uses_only_four_direction_booleans_per_pair(self) -> None:
+        model = CpSatModel(units_per_mm=100)
+        for reference in ("A", "B"):
+            model.add_component(reference, 0, 0, 200, 200)
+        before = len(model.model_ref.Proto().variables)
+        encode_separated(
+            SeparatedConstraint(
+                a="A",
+                b="B",
+                min_distance_mm=12.6,
+                tier=ConstraintTier.HARD,
+                because="Exact creepage requirement",
+            ),
+            model.component_map,
+            model,
+            None,
+        )
+        names = [v.name for v in list(model.model_ref.Proto().variables)[before:]]
+        direction_prefixes = ("sep_left_", "sep_right_", "sep_below_", "sep_above_")
+        assert sum(name.startswith(direction_prefixes) for name in names) == 4
+        assert not any("x_ok" in name or "y_ok" in name for name in names)

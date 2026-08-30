@@ -104,6 +104,9 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Verify exact detached commit
         shell: bash
         run: |
@@ -119,9 +122,6 @@ jobs:
             exit 1
           fi
           echo "Capturing immutable commit $checked_out"
-
-      - name: Mark workspace safe for git
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -142,11 +142,14 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      - name: Install maturin
+        run: uv pip install maturin
+
       # A plain cargo build can poison the shared pyo3 cdylib with no
       # PyInit_<module>. Use the repository driver, then check immediately
       # before measuring so a stale or cached extension cannot produce rows.
       - name: Rebuild pyo3 extensions
-        run: make extensions
+        run: env -u CONDA_PREFIX make extensions
 
       - name: Verify extension freshness
         run: make extensions-check
@@ -201,6 +204,9 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Verify exact detached commit
         shell: bash
         run: |
@@ -211,7 +217,6 @@ jobs:
             echo "independent checkout does not match requested SHA" >&2
             exit 1
           fi
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -232,8 +237,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      - name: Install maturin
+        run: uv pip install maturin
+
       - name: Rebuild pyo3 extensions
-        run: make extensions
+        run: env -u CONDA_PREFIX make extensions
 
       - name: Verify extension freshness
         run: make extensions-check
@@ -324,6 +332,7 @@ jobs:
           path: captures
 
       - name: Fetch authoritative baseline from main
+        shell: bash
         run: |
           set -euo pipefail
           git show "HEAD:$BASELINE_PATH" > main-perf-baseline.jsonl
@@ -342,6 +351,7 @@ jobs:
           fi
 
       - name: Aggregate and validate candidate append
+        shell: bash
         run: |
           capture_args=( \
             --capture-sha "$CAPTURE_SHA" \

@@ -173,8 +173,7 @@
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
     "packages/temper-placer/tests/deterministic/_zone_aware_slot_generation_run_py_oracle.py",
     "packages/temper-placer/tests/router_v6/_congestion_py_oracle.py",
-    "packages/temper-placer/tests/router_v6/_constraints_design_rules_py_oracle.py",
-    "packages/temper-placer/tests/router_v6/test_via_clearance_tier2_rust_differential.py"
+    "packages/temper-placer/tests/router_v6/_constraints_design_rules_py_oracle.py"
   ],
   "check_net_pin_identity_pad_correspondence.py": [
     ".github/workflows/python-tests.yml",
@@ -526,6 +525,7 @@
   "pytest_guard.py": [
     ".github/workflows/python-tests.yml",
     ".github/workflows/r9-evidence.yml",
+    ".github/workflows/regression.yml",
     "packages/temper-placer/tests/validation/test_ci_test_file_registration.py"
   ],
   "quarantine_report.py": [

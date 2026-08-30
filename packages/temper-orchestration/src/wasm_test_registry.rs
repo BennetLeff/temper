@@ -59,12 +59,13 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 910 eligible tests, in a stable order.  Each entry is
+/// All 921 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-orchestration")] crate::channel_mapping::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::clearance::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-orchestration")] crate::creepage_lower_bounds::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::explainability::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::feasibility::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::grid_stage::tests::WASM_TESTS,

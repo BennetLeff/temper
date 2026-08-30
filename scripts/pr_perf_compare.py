@@ -154,8 +154,8 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 # Derived by the procedure above from the committed baseline. Only entries that
 # differ from TIMING_MARGIN are listed; everything else uses the 20% default.
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
-    # worst fixed-commit excursion 14.6% -> 2 x 14.6 = 29.2 -> 30%
-    ("bottleneck-geometry", "hard_blocked_batch"): 0.30,
+    # worst fixed-commit excursion 15.7% -> 2 x 15.7 = 31.4 -> 32%
+    ("bottleneck-geometry", "hard_blocked_batch"): 0.32,
     # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
     ("loaders", "loaders"): 0.22,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
@@ -201,6 +201,9 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("physics-heat_removal", "build_h_field"):
         "fixed-commit excursion 24.4% -> margin 49%, above the 33.8% max "
         "gateable margin (and only 1.04x below the 50.7% real-regression floor)",
+    ("topological", "constraint_propagation"):
+        "fixed-commit excursion 17.9% -> margin 36%, above the 33.8% max "
+        "gateable margin",
 }
 
 # Minimum rows sharing one commit before a group counts as a noise sample.

@@ -29,6 +29,9 @@
 use std::collections::{HashMap, HashSet};
 
 #[cfg(feature = "python")]
+use std::collections::{BTreeMap, BTreeSet};
+
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 #[cfg(feature = "python")]
@@ -302,6 +305,275 @@ pub fn netclass_creepage_violations_py(
         }
     }
     Ok(violations)
+}
+
+/// Select authoritative creepage requirements in the spatial neighbourhood
+/// of current violations.  This is a batching heuristic, not a verifier:
+/// the caller must still run the exhaustive creepage check after every solve.
+/// A small uniform grid provides the broad phase; the exact component-box
+/// Chebyshev gap is evaluated here in Rust so Python cannot drift from the
+/// placement geometry convention.
+#[cfg(feature = "python")]
+fn netclass_creepage_neighborhood_candidates(
+    requirements: Vec<(String, String, f64)>,
+    component_boxes: Vec<(String, f64, f64, f64, f64)>,
+    violations: Vec<(String, String, f64, f64)>,
+    radius_mm: f64,
+    existing_pairs: Vec<(String, String)>,
+) -> Result<Vec<(String, String, f64)>, String> {
+    if !radius_mm.is_finite() || radius_mm <= 0.0 {
+        return Err("neighborhood radius must be finite and positive".into());
+    }
+    let mut boxes = BTreeMap::<String, (f64, f64, f64, f64)>::new();
+    let mut max_extent = 0.0_f64;
+    for (reference, x_min, x_max, y_min, y_max) in component_boxes {
+        if reference.trim().is_empty()
+            || !x_min.is_finite()
+            || !x_max.is_finite()
+            || !y_min.is_finite()
+            || !y_max.is_finite()
+            || x_min > x_max
+            || y_min > y_max
+        {
+            return Err(format!("malformed component box for {reference}"));
+        }
+        if boxes
+            .insert(reference.clone(), (x_min, x_max, y_min, y_max))
+            .is_some()
+        {
+            return Err(format!("duplicate component box for {reference}"));
+        }
+        max_extent = max_extent.max((x_max - x_min).max(y_max - y_min));
+    }
+    if boxes.is_empty() {
+        return Err("component boxes are required".into());
+    }
+
+    let canonical = |left: String, right: String| {
+        if left <= right {
+            (left, right)
+        } else {
+            (right, left)
+        }
+    };
+    let mut rows = BTreeMap::<(String, String), f64>::new();
+    for (left, right, required) in requirements {
+        if left.trim().is_empty()
+            || right.trim().is_empty()
+            || left == right
+            || !required.is_finite()
+            || required <= 0.0
+        {
+            return Err(format!("malformed creepage requirement {left}/{right}"));
+        }
+        if !boxes.contains_key(&left) || !boxes.contains_key(&right) {
+            return Err(format!(
+                "creepage requirement references component without a position: {left}/{right}"
+            ));
+        }
+        let key = canonical(left, right);
+        if rows.insert(key.clone(), required).is_some() {
+            return Err(format!(
+                "duplicate creepage requirement {}/{}",
+                key.0, key.1
+            ));
+        }
+    }
+    let mut excluded = BTreeSet::<(String, String)>::new();
+    for (left, right) in existing_pairs {
+        if left.trim().is_empty() || right.trim().is_empty() || left == right {
+            return Err("malformed existing creepage pair".into());
+        }
+        excluded.insert(canonical(left, right));
+    }
+
+    // Index component centres.  The cell width includes the largest box
+    // extent, so searching adjacent cells is sufficient for the expanded
+    // radius; the exact box-gap check below handles unequal component sizes
+    // and cell-boundary cases.
+    let cell_size = radius_mm + max_extent;
+    let cell = |value: f64| (value / cell_size).floor() as i64;
+    let mut grid = BTreeMap::<(i64, i64), Vec<String>>::new();
+    for (reference, &(x_min, x_max, y_min, y_max)) in &boxes {
+        let centre = ((x_min + x_max) / 2.0, (y_min + y_max) / 2.0);
+        grid.entry((cell(centre.0), cell(centre.1)))
+            .or_default()
+            .push(reference.clone());
+    }
+    let box_gap = |a: &(f64, f64, f64, f64), b: &(f64, f64, f64, f64)| {
+        let dx = (a.0 - b.1).max(b.0 - a.1).max(0.0);
+        let dy = (a.2 - b.3).max(b.2 - a.3).max(0.0);
+        dx.max(dy) <= radius_mm + f64::EPSILON
+    };
+    let nearby_refs = |trigger: &str| -> Result<BTreeSet<String>, String> {
+        let trigger_box = boxes.get(trigger).ok_or_else(|| {
+            format!("violation references component without a position: {trigger}")
+        })?;
+        let centre_x = (trigger_box.0 + trigger_box.1) / 2.0;
+        let centre_y = (trigger_box.2 + trigger_box.3) / 2.0;
+        let base_x = cell(centre_x);
+        let base_y = cell(centre_y);
+        let mut nearby = BTreeSet::new();
+        for ix in (base_x - 1)..=(base_x + 1) {
+            for iy in (base_y - 1)..=(base_y + 1) {
+                for candidate in grid.get(&(ix, iy)).into_iter().flatten() {
+                    if box_gap(trigger_box, &boxes[candidate]) {
+                        nearby.insert(candidate.clone());
+                    }
+                }
+            }
+        }
+        Ok(nearby)
+    };
+    let mut selected = BTreeSet::<(String, String)>::new();
+    for (left, right, required, actual) in violations {
+        if left.trim().is_empty()
+            || right.trim().is_empty()
+            || left == right
+            || !required.is_finite()
+            || required <= 0.0
+            || !actual.is_finite()
+            || actual < 0.0
+            || actual >= required
+        {
+            return Err(format!("malformed creepage violation {left}/{right}"));
+        }
+        let left_nearby = nearby_refs(&left)?;
+        let right_nearby = nearby_refs(&right)?;
+        for pair in rows.keys() {
+            if excluded.contains(pair) {
+                continue;
+            }
+            let direct = left_nearby.contains(&pair.0) && right_nearby.contains(&pair.1);
+            let reversed = left_nearby.contains(&pair.1) && right_nearby.contains(&pair.0);
+            if direct || reversed {
+                selected.insert(pair.clone());
+            }
+        }
+    }
+    let mut output: Vec<_> = selected
+        .into_iter()
+        .map(|(left, right)| {
+            let required = rows[&(left.clone(), right.clone())];
+            (left, right, required)
+        })
+        .collect();
+    output.sort_by(|left, right| {
+        left.2
+            .total_cmp(&right.2)
+            .then_with(|| left.0.cmp(&right.0))
+            .then_with(|| left.1.cmp(&right.1))
+    });
+    Ok(output)
+}
+
+/// Python boundary for [`netclass_creepage_neighborhood_candidates`].
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn netclass_creepage_neighborhood_candidates_py(
+    requirements: Vec<(String, String, f64)>,
+    component_boxes: Vec<(String, f64, f64, f64, f64)>,
+    violations: Vec<(String, String, f64, f64)>,
+    radius_mm: f64,
+    existing_pairs: Vec<(String, String)>,
+) -> PyResult<Vec<(String, String, f64)>> {
+    netclass_creepage_neighborhood_candidates(
+        requirements,
+        component_boxes,
+        violations,
+        radius_mm,
+        existing_pairs,
+    )
+    .map_err(pyo3::exceptions::PyValueError::new_err)
+}
+
+/// Return the complete component-pair creepage requirements represented by
+/// the generated KiCad class-pair matrix.
+///
+/// The Python side supplies only opaque-object marshalling and the generated
+/// matrix rows.  Rust owns the pin-class cross product and its max reduction,
+/// keeping production instance preparation from growing a second Python
+/// implementation of the safety graph.  Pairs with no generated requirement
+/// are omitted; the stripped model's normal non-overlap relation supplies the
+/// zero-gap case for those pairs.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn netclass_creepage_requirements_py(
+    components_pin_infos: Vec<(String, Vec<PinClassInfo>)>,
+    class_clearance: HashMap<String, f64>,
+    class_pair_overrides: Vec<(String, String, Option<f64>, String)>,
+    class_pair_creepage: Vec<(String, String, f64)>,
+) -> PyResult<Vec<(String, String, f64)>> {
+    if class_clearance
+        .values()
+        .any(|value| !value.is_finite() || *value < 0.0)
+        || class_pair_overrides.iter().any(|(a, b, value, _)| {
+            a.trim().is_empty()
+                || b.trim().is_empty()
+                || value.is_some_and(|distance| !distance.is_finite() || distance < 0.0)
+        })
+    {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "malformed component clearance or class-pair override",
+        ));
+    }
+    for (class_a, class_b, required) in &class_pair_creepage {
+        if class_a.trim().is_empty()
+            || class_b.trim().is_empty()
+            || !required.is_finite()
+            || *required < 0.0
+        {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "malformed generated creepage matrix row",
+            ));
+        }
+    }
+    let matrix = canonical_creepage_matrix(&class_pair_creepage);
+    let mut requirements = Vec::new();
+    for (index_a, (ref_a, pins_a)) in components_pin_infos.iter().enumerate() {
+        if ref_a.trim().is_empty() {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "component reference must be non-empty",
+            ));
+        }
+        for (ref_b, pins_b) in components_pin_infos.iter().skip(index_a + 1) {
+            if ref_b.trim().is_empty() || ref_a == ref_b {
+                return Err(pyo3::exceptions::PyValueError::new_err(
+                    "component references must be unique and non-empty",
+                ));
+            }
+            let creepage = max_creepage_for_pin_classes(pins_a, pins_b, &matrix);
+            let class_a = resolve_component_net_class(pins_a);
+            let class_b = resolve_component_net_class(pins_b);
+            let clearance = match (class_a.as_deref(), class_b.as_deref()) {
+                (Some(class_a), Some(class_b)) if class_a != class_b => {
+                    let (key_a, key_b) = if class_a <= class_b {
+                        (class_a, class_b)
+                    } else {
+                        (class_b, class_a)
+                    };
+                    let override_value = class_pair_overrides.iter().find_map(
+                        |(override_a, override_b, value, _because)| {
+                            (override_a == key_a && override_b == key_b).then_some(*value)
+                        },
+                    );
+                    override_value.flatten().unwrap_or_else(|| {
+                        class_clearance
+                            .get(class_a)
+                            .copied()
+                            .unwrap_or(0.0)
+                            .max(class_clearance.get(class_b).copied().unwrap_or(0.0))
+                    })
+                }
+                _ => 0.0,
+            };
+            let required = clearance.max(creepage);
+            if required > 0.0 {
+                requirements.push((ref_a.clone(), ref_b.clone(), required));
+            }
+        }
+    }
+    Ok(requirements)
 }
 
 #[cfg(feature = "python")]

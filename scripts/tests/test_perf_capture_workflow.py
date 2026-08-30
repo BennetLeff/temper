@@ -42,8 +42,11 @@ def test_workflow_captures_exact_sha_in_five_matrix_legs() -> None:
 
 def test_workflow_rebuilds_and_checks_extensions_before_measurement() -> None:
     text = workflow_text()
-    assert "run: make extensions\n\n      - name: Verify extension freshness" in text
+    assert "uv pip install maturin" in text
+    assert "env -u CONDA_PREFIX make extensions" in text
     assert "run: make extensions-check" in text
+    assert "name: Fetch authoritative baseline from main\n        shell: bash" in text
+    assert "name: Aggregate and validate candidate append\n        shell: bash" in text
     assert text.index("run: make extensions-check") < text.index("name: Run performance A/B")
 
 
@@ -117,14 +120,16 @@ def test_baseline_refresh_path_is_fail_closed_and_keeps_ordinary_prs_on_main() -
     assert "candidate-baseline \"$BASELINE_PATH\"" in text
     assert "--validated-margins-output \"$RUNNER_TEMP/validated-perf-margins.json\"" in text
     assert "VALIDATED_MARGINS_JSON=$RUNNER_TEMP/validated-perf-margins.json" in text
-    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}\"" in text
-    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}\"" in text
-    assert "gh api \"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip\"" in text
-    assert "'.workflow_id'" in text
+    assert 'curl --fail --silent --show-error --location' in text
+    assert 'Authorization: Bearer ${GH_TOKEN}' in text
+    assert 'github_api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}"' in text
+    assert 'github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}"' in text
+    assert 'github_api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip"' in text
+    assert 'json_field "$run_json" .workflow_id' in text
     assert "303796920" in text
-    assert "'.path'" in text
+    assert 'json_field "$run_json" .path' in text
     assert "perf-ab-baseline-rows-${run_id}-1" in text
-    assert "primary_capture.captures" in text
+    assert 'manifest["primary_capture"]["captures"]' in text
     assert "five distinct" in text
     assert "BASELINE_REFRESH_SCHEMA_VERSION = 2" in text
     assert "python3 scripts/validate_perf_capture.py" not in text
