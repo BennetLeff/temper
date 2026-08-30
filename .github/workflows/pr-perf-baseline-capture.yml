@@ -104,6 +104,9 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Verify exact detached commit
         shell: bash
         run: |
@@ -119,9 +122,6 @@ jobs:
             exit 1
           fi
           echo "Capturing immutable commit $checked_out"
-
-      - name: Mark workspace safe for git
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -201,6 +201,9 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Verify exact detached commit
         shell: bash
         run: |
@@ -211,7 +214,6 @@ jobs:
             echo "independent checkout does not match requested SHA" >&2
             exit 1
           fi
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - uses: astral-sh/setup-uv@v7
         with:
