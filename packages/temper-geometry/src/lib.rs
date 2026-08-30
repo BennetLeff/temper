@@ -381,6 +381,11 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::trace_width_assignment::register(m)?;
     crate::dense_package_detection::register(m)?;
     crate::core_graph_geometry::register(m)?;
+    // Requirements validators use the Rust-owned shared geometry kernels.
+    // Keep this registration alongside the other Python-facing kernel
+    // families; omitting it leaves the compiled functions unreachable even
+    // though their module and tests are present.
+    crate::geometry_kernels::register(m)?;
     crate::via_clearance::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     m.add_class::<crate::persistent_radius_index::RadiusIndex>()?;
