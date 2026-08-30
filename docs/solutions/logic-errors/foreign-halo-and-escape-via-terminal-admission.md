@@ -37,9 +37,9 @@ minimum-spacing constraints.
   from 29 to 15 after both corrections.
 - The replay did not improve the route count. Unrouted nets changed from 97 to 98,
   and the only net-result disposition change was `RTD_CS_N`, from `connected` to
-  `failed/no_copper_emitted`. The comparison exposes a publication gap; restoring
-  synthetic escape geometry would require separate evidence that the package has
-  a legitimate escape obligation.
+  `failed/no_copper_emitted`. The comparison exposes a downstream route-quality
+  regression; restoring synthetic escape geometry would require separate evidence
+  that the package has a legitimate escape obligation.
 
 The comparison used two retained, machine-local mandatory replay artifacts. Both
 attempted the same 112 routes:
@@ -78,6 +78,20 @@ U8, while the Rust pipeline emits none
 The implementation does not reopen every terminal after halo stamping. Its design
 rationale is to correct the obstacle construction itself; a broad reopening would
 need a separate falsifier proving that it preserves foreign-copper spacing.
+
+A follow-up experiment also rejected changing the N-layer A* budget to count only
+current-best frontier entries. That optimization was locally sound and recovered
+one production route, but it recovered `safety.thermal-line`, not either regressed
+terminal net. On the exact production regression path, `unconnected_items` stayed
+at 345 and `shorting_items` rose from 15 to 17. The two new shorts were attributable
+to the recovered copper:
+
+- its F.Cu-to-In3.Cu blind via shorted pad 1 of
+  `safety.thermal.comp-inp` at R59;
+- its 28.3 mm In3.Cu track shorted a `+3V3` through-via.
+
+The optimization was removed rather than allowing locally legal occupancy to
+override KiCad's board-level verdict.
 
 ## Solution
 
@@ -122,6 +136,53 @@ whether a dense package needs synthetic egress geometry. Honoring that decision
 before generation keeps the occupancy graph aligned with the package's actual
 routing obligation.
 
+## Follow-up Routing Boundary
+
+`WDT_RESET_N` and `io0` both originate at U27, but their production failures do
+not prove that U27 needs the deleted synthetic vias. A target-only Stage 4 run on
+the same clean board, with corrected halos, zero generated escape vias, and both
+nets present together routed 2/2 successfully. This is both an isolation result
+and a coexistence witness: legal geometry exists, and the two nets do not exclude
+each other. Their failure in the full route is therefore an ordering/congestion
+problem, not a placement impossibility and not evidence for restoring via-in-pad
+geometry on the ESP32 module's castellated pads.
+
+The production failures remain budget-shaped. `WDT_RESET_N` exhausts 500,000
+iterations on U27.6 to U20.2; `io0` first completes U27.27 to R72.2, then exhausts
+the same budget from R72.2 to SW2.1. Both terminals are admitted, all four signal
+layers are available, and the retained failure topology finds neither a missing
+layer transition nor a complete blocking cut. The next correction belongs in
+negotiated congestion, with the production KiCad short and connectivity ratchets
+as the acceptance authority.
+
+Static priority was tested and rejected as the correction. These are full-board
+routes from the same stripped production input, followed by the same external
+KiCad DRC path; none changed the committed board:
+
+| temporary order | target nets connected | `shorting_items` | `unconnected_items` | verdict |
+|---|---:|---:|---:|---|
+| corrected occupancy, unchanged order | 0/2 | 15 | 345 | regression witness |
+| `WDT_RESET_N`, `io0` first | 2/2 | 15 | 343 | closest result; misses connectivity ratchet by 1 |
+| six mutually-coexisting displaced/target nets first | 2/2 | 18 | 349 | rejected |
+| `fb`, `WDT_RESET_N`, `io0` first | 3/3 | 10 | 349 | rejected |
+| `io0`, `WDT_RESET_N` first | 2/2 | 23 | 344 | rejected |
+
+The six-net set (`WDT_RESET_N`, `io0`, `PWM_LS`,
+`discharge.k_dis1-no`, `fb`, and `safety-line-3`) routed 6/6 together on an
+otherwise clean Stage 4 scene before its full-board priority run. Its full-board
+failure is therefore not a pairwise coexistence impossibility. More importantly,
+the permutations move unrelated connectivity and shorts non-monotonically. A
+larger production-name priority list would tune one deterministic route by
+coincidence instead of solving congestion. The next implementation should make a
+failed net identify already-routed blockers, transactionally unstamp a bounded
+set, attempt the legal route, and either reroute the displaced nets or restore the
+previous occupancy exactly. The existing N-layer path reports
+`attempted_ripups=0`; that missing negotiated pass is the live seam. A straight-line
+intersection with routed copper is not sufficient blocker evidence: the failed A*
+search may have had other legal detours or may simply have exhausted its budget.
+The next implementation therefore needs counterfactual removal or a blocking-cut
+certificate before it attributes a failure to a routed net and unstamps copper.
+
 ## Prevention
 
 - Model every physical obligation once. When rules are simultaneous lower bounds
@@ -138,8 +199,8 @@ routing obligation.
   historical semantics. Add an explicit divergence test instead of making both
   implementations agree on the old bug.
 - Evaluate routing fixes with comparable production replays. A lower invalid-input
-  count can reveal a downstream publication defect even when the final routed-net
-  count does not improve.
+  count can reveal a downstream route-quality regression even when the final
+  routed-net count does not improve.
 
 ## Related Issues
 
