@@ -142,11 +142,14 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      - name: Install maturin
+        run: uv pip install maturin
+
       # A plain cargo build can poison the shared pyo3 cdylib with no
       # PyInit_<module>. Use the repository driver, then check immediately
       # before measuring so a stale or cached extension cannot produce rows.
       - name: Rebuild pyo3 extensions
-        run: make extensions
+        run: env -u CONDA_PREFIX make extensions
 
       - name: Verify extension freshness
         run: make extensions-check
@@ -234,8 +237,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      - name: Install maturin
+        run: uv pip install maturin
+
       - name: Rebuild pyo3 extensions
-        run: make extensions
+        run: env -u CONDA_PREFIX make extensions
 
       - name: Verify extension freshness
         run: make extensions-check
