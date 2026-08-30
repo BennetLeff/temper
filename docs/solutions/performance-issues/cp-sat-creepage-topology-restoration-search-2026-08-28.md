@@ -433,6 +433,32 @@ the four domain buckets, solver settings, source hashes, complete candidates,
 telemetry, and independent gate censuses. All ten pyo3 extensions passed the
 freshness gate immediately before measurement.
 
+### Collision-aware corridor follow-up (measured 2026-08-30)
+
+The bounded collision-cut comparison is recorded at
+`docs/evidence/2026-08-30-collision-aware-creepage-corridor.json`. It used
+seed 0, four CP-SAT workers, the same 9,176-requirement identity, and a
+four-round campaign budget of 120 seconds per axis (480 seconds total). The
+extension freshness gate passed for all 10 pyo3 modules immediately before
+the measurement, and the PCB SHA-256 was unchanged before and after.
+
+The historical unrestricted 120-second control returned `unknown` without
+an incumbent. The matched unrestricted control returned an optimal candidate
+after about 123 seconds, but it failed exact creepage and the acceptance
+instrumentation (REQ-SAFE-01 input was unavailable and F.Fab coverage was
+incomplete). Both collision-aware axes stopped during fail-closed preparation:
+the board has no complete F.Fab body coverage for ten expected references
+(`F1`, `J1`, `L2`, `R30`, `RT1`, `TP1`--`TP4`, and `U27`), and
+`elec/build/default.net` is absent for REQ-SAFE-01. No solver round or cut was
+claimed for either axis. These axis results are classified as insufficient
+evidence, not non-convergence, because the required complete candidate and
+sound applied-cut preconditions were not exercised.
+
+This follow-up therefore does not establish collision-cut convergence or
+physical acceptance. It preserves the earlier conclusion: the corridor is a
+search-topology aid, while a production acceptance result requires complete
+independent creepage, REQ-SAFE-01, and exact F.Fab evidence in the same regime.
+
 ## Implementation history
 
 The investigation is represented by these branch commits:

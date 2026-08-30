@@ -77,6 +77,8 @@ class CollisionCorridorRoundTelemetry:
     conflicts: int | None = None
     branches: int | None = None
     diagnostics: tuple[str, ...] = ()
+    witnesses: tuple[dict[str, object], ...] = ()
+    cuts: tuple[dict[str, object], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -386,6 +388,7 @@ def run_collision_corridor_campaign(
                 checkpoint_path,
             )
         round_started = time.monotonic()
+        frontier_before = len(cuts)
         kwargs = dict(prepared.solve_kwargs)
         kwargs.update(
             {
@@ -507,15 +510,22 @@ def run_collision_corridor_campaign(
                 else f"rejected:{body.diagnostics[0] if body.diagnostics else 'F.Fab collision'}"
             )
             witnesses = []
+            witness_records: list[dict[str, object]] = []
             body_result = body_result_cache[0]
             for violation in getattr(body_result, "violations", ()):
+                ref_a = str(violation.ref_a)
+                ref_b = str(violation.ref_b)
+                overlap_mm2 = float(violation.overlap_mm2)
                 witnesses.append(
-                    (
-                        str(violation.ref_a),
-                        str(violation.ref_b),
-                        float(violation.overlap_mm2),
-                        digest,
-                    )
+                    (ref_a, ref_b, overlap_mm2, digest)
+                )
+                witness_records.append(
+                    {
+                        "ref_a": ref_a,
+                        "ref_b": ref_b,
+                        "overlap_mm2": overlap_mm2,
+                        "candidate_digest": digest,
+                    }
                 )
             decision = candidate.audit(
                 rust_creepage_status, body_status, provenance_status, witnesses
@@ -546,21 +556,23 @@ def run_collision_corridor_campaign(
                 last_digest,
                 checkpoint_path,
             )
-        rounds.append(
-            CollisionCorridorRoundTelemetry(
-                round_index,
-                model_identity,
-                len(cuts),
-                len(cuts),
-                time.monotonic() - round_started,
-                status,
-                digest,
-                first,
-                conflicts,
-                branches,
-            )
-        )
         if decision.kind == "terminal":
+            rounds.append(
+                CollisionCorridorRoundTelemetry(
+                    round_index,
+                    model_identity,
+                    len(cuts),
+                    0,
+                    time.monotonic() - round_started,
+                    status,
+                    digest,
+                    first,
+                    conflicts,
+                    branches,
+                    witnesses=tuple(witness_records),
+                    cuts=tuple(_frontier_projection(cuts)),
+                )
+            )
             if checkpoint_path:
                 from temper_placer.placer.cp_sat.collision_corridor_checkpoint import (
                     write_collision_campaign_checkpoint,
@@ -593,6 +605,22 @@ def run_collision_corridor_campaign(
             )
         refining = decision.take_refining()
         cuts = tuple(refining.cuts())
+        rounds.append(
+            CollisionCorridorRoundTelemetry(
+                round_index,
+                model_identity,
+                frontier_before,
+                len(witness_records),
+                time.monotonic() - round_started,
+                status,
+                digest,
+                first,
+                conflicts,
+                branches,
+                witnesses=tuple(witness_records),
+                cuts=tuple(_frontier_projection(cuts)),
+            )
+        )
         if checkpoint_path:
             from temper_placer.placer.cp_sat.collision_corridor_checkpoint import (
                 write_collision_campaign_checkpoint,

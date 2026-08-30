@@ -23,6 +23,21 @@ from temper_placer.placer.cp_sat.collision_corridor_checkpoint import (
     restore_collision_campaign_checkpoint,
     write_collision_campaign_checkpoint,
 )
+from temper_placer.placer.cp_sat.collision_corridor_evidence import (
+    EVIDENCE_SCHEMA as COLLISION_CORRIDOR_EVIDENCE_SCHEMA,
+)
+from temper_placer.placer.cp_sat.collision_corridor_evidence import (
+    EVIDENCE_VERSION as COLLISION_CORRIDOR_EVIDENCE_VERSION,
+)
+from temper_placer.placer.cp_sat.collision_corridor_evidence import (
+    EvidenceValidationError,
+    canonical_collision_corridor_evidence,
+    prepare_u6_corridor_experiment,
+    read_collision_corridor_evidence,
+    run_collision_corridor_comparison,
+    validate_collision_corridor_evidence,
+    write_collision_corridor_evidence,
+)
 from temper_placer.placer.cp_sat.collision_cut_adapter import (
     RUST_MODEL_UNITS_PER_MM,
     apply_collision_cut,
@@ -211,6 +226,15 @@ __all__ = [
     "candidate_digest",
     "resume_collision_corridor_campaign",
     "run_collision_corridor_campaign",
+    "COLLISION_CORRIDOR_EVIDENCE_SCHEMA",
+    "COLLISION_CORRIDOR_EVIDENCE_VERSION",
+    "EvidenceValidationError",
+    "canonical_collision_corridor_evidence",
+    "prepare_u6_corridor_experiment",
+    "read_collision_corridor_evidence",
+    "run_collision_corridor_comparison",
+    "validate_collision_corridor_evidence",
+    "write_collision_corridor_evidence",
     "read_collision_campaign_checkpoint",
     "restore_collision_campaign_checkpoint",
     "write_collision_campaign_checkpoint",
