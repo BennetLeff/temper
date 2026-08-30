@@ -156,8 +156,12 @@ MAX_GATEABLE_MARGIN = REAL_REGRESSION_FLOOR / MIN_SEPARATION
 PER_BENCHMARK_TIMING_MARGIN: dict[tuple[str, str], float] = {
     # worst fixed-commit excursion 14.6% -> 2 x 14.6 = 29.2 -> 30%
     ("bottleneck-geometry", "hard_blocked_batch"): 0.30,
-    # worst fixed-commit excursion 14.3% -> 2 x 14.3 = 28.6 -> 29%
-    ("loaders", "loaders"): 0.29,
+    # worst fixed-commit excursion 10.9% -> 2 x 10.9 = 21.7 -> 22%
+    ("loaders", "loaders"): 0.22,
+    # worst fixed-commit excursion 14.9% -> 2 x 14.9 = 29.8 -> 30%
+    ("dsn-exporter", "export_pcb"): 0.30,
+    # worst fixed-commit excursion 10.2% -> 2 x 10.2 = 20.4 -> 21%
+    ("net-ordering", "order_nets"): 0.21,
     # worst fixed-commit excursion 15.9% -> 2 x 15.9 = 31.8 -> 32%
     ("physics-copper_coverage", "copper_masks"): 0.32,
     # worst fixed-commit excursion 14.7% -> 2 x 14.7 = 29.4 -> 30%
@@ -192,6 +196,12 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("drc-geometry", "point_rect"):
         "fixed-commit excursion 26.0% -> margin 53%, above the 33.8% max "
         "gateable margin",
+    ("drc-geometry", "segment_rect"):
+        "fixed-commit excursion 48.7% -> margin 98%, above the 33.8% max "
+        "gateable margin",
+    ("drc-geometry", "segment_segment"):
+        "fixed-commit excursion 22.5% -> margin 46%, above the 33.8% max "
+        "gateable margin",
     ("drc-inflate", "drc_proxy_score"):
         "fixed-commit excursion 32.0% -> margin 64%, above the 33.8% max "
         "gateable margin",
@@ -201,9 +211,6 @@ UNGATEABLE_BENCHMARKS: dict[tuple[str, str], str] = {
     ("physics-heat_removal", "build_h_field"):
         "fixed-commit excursion 24.4% -> margin 49%, above the 33.8% max "
         "gateable margin (and only 1.04x below the 50.7% real-regression floor)",
-    ("topological", "constraint_propagation"):
-        "fixed-commit excursion 17.5% -> margin 35%, above the 33.8% max "
-        "gateable margin",
 }
 
 # Minimum rows sharing one commit before a group counts as a noise sample.
