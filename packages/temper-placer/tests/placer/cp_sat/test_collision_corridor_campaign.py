@@ -9,11 +9,13 @@ import temper_orchestration as rust
 
 from temper_placer.placer.cp_sat.collision_corridor_campaign import (
     CollisionCorridorLimits,
+    _identity_parts,
     run_collision_corridor_campaign,
 )
 from temper_placer.placer.cp_sat.collision_corridor_checkpoint import (
     write_collision_campaign_checkpoint,
 )
+from temper_placer.placer.cp_sat.collision_corridor_evidence import _campaign_record
 from temper_placer.placer.cp_sat.creepage_search_corridor_experiment import (
     ExperimentIdentity,
     PreparedCorridorExperiment,
@@ -153,6 +155,30 @@ def test_collision_cut_is_replayed_into_the_next_fresh_round():
     assert result.terminal_kind == "no_progress" or result.terminal_kind == "budget_exhausted"
 
 
+def test_round_limit_records_the_final_collision_cut_in_telemetry():
+    result = run_collision_corridor_campaign(
+        _prepared(),
+        "x",
+        limits=CollisionCorridorLimits(max_rounds=1, round_budget_s=1),
+        solver=_solver_factory([]),
+        validator_audit=_validator,
+        body_audit=_collision_body,
+    )
+
+    assert result.terminal_kind == "budget_exhausted"
+    assert len(result.rounds) == 1
+    round_record = result.rounds[0]
+    assert round_record.cuts_applied == 1
+    assert round_record.cuts[0]["first"] == "A"
+    assert round_record.cuts[0]["second"] == "B"
+    assert round_record.cuts[0]["x_first"] == 2000
+    assert round_record.cuts[0]["x_second"] == 3000
+
+    evidence = _campaign_record(result, 1.0)
+    assert evidence["classification"] == "bounded_non_convergence"
+    assert evidence["cumulative"]["unique_cuts"] == 1
+
+
 def test_missing_fab_coverage_is_invalid_before_campaign_factory_or_solver():
     called = False
 
@@ -232,13 +258,14 @@ def test_rust_campaign_identity_rejects_foreign_axis_checkpoint(tmp_path):
 
 
 def test_resume_rejects_campaign_limit_mismatch(tmp_path):
+    prepared = _prepared()
     checkpoint = rust.prepare_collision_campaign(
-        "a" * 64, "b" * 64, "d" * 64, "x", ["A", "B"], 4, 1000
+        *_identity_parts(prepared, "x"), ["A", "B"], 4, 1000
     ).checkpoint()
     path = tmp_path / "limits.bin"
     write_collision_campaign_checkpoint(path, checkpoint)
     result = run_collision_corridor_campaign(
-        _prepared(),
+        prepared,
         "x",
         limits=CollisionCorridorLimits(max_rounds=3, round_budget_s=1),
         checkpoint_path=str(path),
@@ -262,7 +289,7 @@ def test_body_audit_error_is_not_masked_by_witness_cache() -> None:
         validator_audit=_validator,
         body_audit=broken_body,
     )
-    assert result.terminal_kind == "verifier_rejected"
+    assert result.terminal_kind == "invalid_experiment"
     body_gate = next(gate for gate in result.gates if gate.name == "f-fab")
     assert body_gate.status == "error"
     assert "audit instrument failed" in body_gate.diagnostics[0]

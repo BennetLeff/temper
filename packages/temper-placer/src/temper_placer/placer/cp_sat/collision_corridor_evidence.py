@@ -208,18 +208,20 @@ def _unrestricted_control(
             "axis": None,
             "budget_s": float(budget_s),
             "terminal": {"kind": "error", "reason": f"solver raised {type(exc).__name__}: {exc}"},
-            "rounds": [{
-                "round_index": 0,
-                "model_identity": hashlib.sha256(f"{name}:{budget_s}".encode()).hexdigest(),
-                "frontier_size": 0,
-                "cuts_applied": 0,
-                "elapsed_s": elapsed,
-                "solver_status": "error",
-                "candidate_complete": False,
-                "telemetry": {},
-                "witnesses": [],
-                "cuts": [],
-            }],
+            "rounds": [
+                {
+                    "round_index": 0,
+                    "model_identity": hashlib.sha256(f"{name}:{budget_s}".encode()).hexdigest(),
+                    "frontier_size": 0,
+                    "cuts_applied": 0,
+                    "elapsed_s": elapsed,
+                    "solver_status": "error",
+                    "candidate_complete": False,
+                    "telemetry": {},
+                    "witnesses": [],
+                    "cuts": [],
+                }
+            ],
             "cumulative": {
                 "round_count": 1,
                 "wall_time_s": elapsed,
@@ -272,7 +274,9 @@ def _unrestricted_control(
     candidate_record = _candidate_record(candidate, prepared.expected_refs)
     gates: tuple[CandidateGateResult, ...] = ()
     if candidate_record["complete"]:
-        positions = {str(row[0]): (float(row[1]), float(row[2])) for row in candidate_record["positions"]}  # type: ignore[index]
+        positions = {
+            str(row[0]): (float(row[1]), float(row[2])) for row in candidate_record["positions"]
+        }  # type: ignore[index]
         rotations = {str(row[0]): int(row[1]) for row in candidate_record["rotations"]}  # type: ignore[index]
         gates = (
             _rust_gate(verifier, candidate, prepared.identity.requirement_count or 0),
@@ -281,7 +285,9 @@ def _unrestricted_control(
         )
     passed = bool(gates) and all(gate.status == "passed" for gate in gates)
     gate_error = any(gate.status == "error" for gate in gates)
-    terminal = "accepted" if passed else ("invalid_experiment" if gate_error else "verifier_rejected")
+    terminal = (
+        "accepted" if passed else ("invalid_experiment" if gate_error else "verifier_rejected")
+    )
     classification = "accepted" if passed else "insufficient_evidence"
     elapsed = time.monotonic() - started
     return {
@@ -289,20 +295,25 @@ def _unrestricted_control(
         "kind": "unrestricted_control",
         "axis": None,
         "budget_s": float(budget_s),
-        "terminal": {"kind": terminal, "reason": "all gates passed" if passed else "complete control was not accepted"},
-        "rounds": [{
-            "round_index": 0,
-            "model_identity": model_identity,
-            "frontier_size": 0,
-            "cuts_applied": 0,
-            "elapsed_s": elapsed,
-            "solver_status": status,
-            "candidate_complete": bool(candidate_record["complete"]),
-            "candidate_digest": candidate_record.get("digest"),
-            "telemetry": telemetry,
-            "witnesses": [],
-            "cuts": [],
-        }],
+        "terminal": {
+            "kind": terminal,
+            "reason": "all gates passed" if passed else "complete control was not accepted",
+        },
+        "rounds": [
+            {
+                "round_index": 0,
+                "model_identity": model_identity,
+                "frontier_size": 0,
+                "cuts_applied": 0,
+                "elapsed_s": elapsed,
+                "solver_status": status,
+                "candidate_complete": bool(candidate_record["complete"]),
+                "candidate_digest": candidate_record.get("digest"),
+                "telemetry": telemetry,
+                "witnesses": [],
+                "cuts": [],
+            }
+        ],
         "cumulative": {
             "round_count": 1,
             "wall_time_s": elapsed,
@@ -373,9 +384,14 @@ def _campaign_record(result: CollisionCorridorCampaignResult, budget_s: float) -
     complete_rejected = any(
         bool(item["candidate_complete"]) and item["cuts_applied"] > 0 for item in rounds
     )
-    falsification = complete_rejected and result.terminal_kind in {"no_progress", "budget_exhausted"}
-    classification = "accepted" if result.accepted else (
-        "bounded_non_convergence" if falsification else "insufficient_evidence"
+    falsification = complete_rejected and result.terminal_kind in {
+        "no_progress",
+        "budget_exhausted",
+    }
+    classification = (
+        "accepted"
+        if result.accepted
+        else ("bounded_non_convergence" if falsification else "insufficient_evidence")
     )
     first_values = [
         item["telemetry"]["first_incumbent_s"]
@@ -415,7 +431,8 @@ def _campaign_record(result: CollisionCorridorCampaignResult, budget_s: float) -
         "falsification_preconditions": {
             "complete_rejected_candidate": complete_rejected,
             "sound_applied_cut": any(item["cuts_applied"] > 0 for item in rounds),
-            "repeated_frontier_or_exhausted_bound": result.terminal_kind in {"no_progress", "budget_exhausted"},
+            "repeated_frontier_or_exhausted_bound": result.terminal_kind
+            in {"no_progress", "budget_exhausted"},
         },
         "classification": classification,
     }
@@ -454,7 +471,10 @@ def validate_collision_corridor_evidence(payload: Mapping[str, object]) -> None:
         fail("regime must declare one exact corridor shared by x and y")
     if not isinstance(campaign_limits, Mapping):
         fail("campaign_limits are required")
-    if float(campaign_limits.get("max_rounds", 0)) != 4 or float(campaign_limits.get("round_budget_s", 0)) != 120.0:
+    if (
+        float(campaign_limits.get("max_rounds", 0)) != 4
+        or float(campaign_limits.get("round_budget_s", 0)) != 120.0
+    ):
         fail("campaign limits must be four independent 120-second rounds")
     if float(campaign_limits.get("total_budget_s", 0)) != 480.0:
         fail("campaign total allowance must be 480 seconds")
@@ -550,9 +570,44 @@ def validate_collision_corridor_evidence(payload: Mapping[str, object]) -> None:
         if terminal.get("kind") == "accepted":
             if candidate.get("complete") is not True:
                 fail(f"accepted run {run_id} has no complete candidate")
-            statuses = {gate.get("status") for gate in gates if isinstance(gate, Mapping)}
-            if statuses != {"passed"} or len(gates) != 3:
+            gate_map = {
+                gate.get("name"): gate.get("status") for gate in gates if isinstance(gate, Mapping)
+            }
+            if (
+                gate_map
+                != {
+                    "rust-creepage": "passed",
+                    "req-safe-01": "passed",
+                    "f-fab": "passed",
+                }
+                or len(gates) != 3
+            ):
                 fail(f"accepted run {run_id} does not pass all three gates")
+            positions_raw = candidate.get("positions")
+            rotations_raw = candidate.get("rotations")
+            if (
+                not isinstance(positions_raw, Sequence)
+                or isinstance(positions_raw, (str, bytes))
+                or not positions_raw
+                or not isinstance(rotations_raw, Sequence)
+                or isinstance(rotations_raw, (str, bytes))
+                or not rotations_raw
+            ):
+                fail(f"accepted run {run_id} has incomplete candidate coordinates")
+            try:
+                positions = {str(row[0]): (float(row[1]), float(row[2])) for row in positions_raw}
+                rotations = {str(row[0]): int(row[1]) for row in rotations_raw}
+            except (IndexError, TypeError, ValueError) as exc:
+                fail(f"accepted run {run_id} has malformed candidate coordinates: {exc}")
+            if len(positions) != len(positions_raw) or len(rotations) != len(rotations_raw):
+                fail(f"accepted run {run_id} has duplicate candidate references")
+            if set(positions) != set(rotations):
+                fail(f"accepted run {run_id} has inconsistent candidate coverage")
+            digest = candidate.get("digest")
+            if not isinstance(digest, str) or digest != candidate_digest(positions, rotations):
+                fail(f"accepted run {run_id} has inconsistent candidate digest")
+            if not round_maps or round_maps[-1].get("candidate_digest") != digest:
+                fail(f"accepted run {run_id} does not match its final round")
     if seen_axes != {"x", "y"}:
         fail("both independent campaign axes are required")
     required_ids = {
@@ -601,13 +656,16 @@ def run_collision_corridor_comparison(
 ) -> dict[str, object]:
     """Run controls then independent collision-aware x/y campaigns."""
 
-    limits = campaign_limits or CollisionCorridorLimits(max_rounds=4, round_budget_s=120.0, total_budget_s=480.0)
-    board_path = next(
-        path for path in (Path("pcb/temper.kicad_pcb"),) if path.is_file()
+    limits = campaign_limits or CollisionCorridorLimits(
+        max_rounds=4, round_budget_s=120.0, total_budget_s=480.0
     )
+    board_path = next(path for path in (Path("pcb/temper.kicad_pcb"),) if path.is_file())
     board_hash_before = _sha256(board_path)
     controls = []
-    for name, budget in (("historical_control_120s", historical_control_s), ("matched_control_480s", matched_control_s)):
+    for name, budget in (
+        ("historical_control_120s", historical_control_s),
+        ("matched_control_480s", matched_control_s),
+    ):
         record = _unrestricted_control(prepared, name, budget, solver=solver)
         controls.append(record)
         if progress:
@@ -740,7 +798,9 @@ def prepare_u6_corridor_experiment(
     )
     hints = getattr(warm, "hints", None)
     if getattr(warm, "usable", False) is not True or not isinstance(hints, Mapping):
-        raise ValueError(str(getattr(warm, "message", None) or "Rust-verified stripped hint unavailable"))
+        raise ValueError(
+            str(getattr(warm, "message", None) or "Rust-verified stripped hint unavailable")
+        )
     body_allowlist = load_body_collision_allowlist(allowlist_path)
     body_bodies = extract_fab_bodies(pcb)
     coverage = extract_fab_body_coverage(pcb, all_refs)

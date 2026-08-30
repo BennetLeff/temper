@@ -1,3 +1,4 @@
+use serde_json::{Value, json};
 use temper_geometry::rotation_quadrant::RotationQuadrant;
 use temper_orchestration::collision_campaign::{
     AuditGates, CampaignError, CampaignLimits, CollisionWitness, ComponentRef, ExactPose,
@@ -36,7 +37,61 @@ fn constructors_reject_malformed_domain_values() {
     assert!(CollisionWitness::new("U1", "U1", 1.0, "candidate").is_err());
     assert!(CollisionWitness::new("U1", "R1", f64::NAN, "candidate").is_err());
     assert!(CollisionWitness::new("U1", "R1", -1.0, "candidate").is_err());
+    assert!(
+        CollisionWitness::new(
+            "U1",
+            "R1",
+            temper_geometry::body_collision::AREA_TOLERANCE_MM2,
+            "candidate",
+        )
+        .is_err()
+    );
     assert!(Prepared::new(identity(), vec!["U1", "U1"], limits()).is_err());
+}
+
+fn valid_refining_checkpoint_json() -> Value {
+    let witness = CollisionWitness::new("U1", "R1", 0.25, "candidate").unwrap();
+    let decision = prepared()
+        .start_solving()
+        .unwrap()
+        .complete_candidate(vec![("U1", pose(100, 200, 0)), ("R1", pose(300, 400, 1))])
+        .unwrap()
+        .audit(AuditGates::all_passed(), vec![witness])
+        .unwrap();
+    let refining = match decision {
+        temper_orchestration::collision_campaign::AuditDecision::Refining(refining) => refining,
+        other => panic!("expected refinement, got {other:?}"),
+    };
+    let bytes = refining.checkpoint().to_bytes().unwrap();
+    serde_json::from_slice(&bytes[8..]).unwrap()
+}
+
+fn checkpoint_bytes(payload: &Value) -> Vec<u8> {
+    let mut bytes = b"TCAMP001".to_vec();
+    bytes.extend(serde_json::to_vec(payload).unwrap());
+    bytes
+}
+
+#[test]
+fn checkpoint_rejects_unvalidated_pose_and_noncanonical_pair() {
+    let mut invalid_pose = valid_refining_checkpoint_json();
+    invalid_pose["state"]["cuts"][0]["key"]["first_pose"]["rotation_index"] = json!(4);
+    assert!(
+        temper_orchestration::collision_campaign::CampaignCheckpoint::from_bytes(
+            &checkpoint_bytes(&invalid_pose)
+        )
+        .is_err()
+    );
+
+    let mut self_pair = valid_refining_checkpoint_json();
+    self_pair["state"]["cuts"][0]["key"]["pair"]["first"] = json!("U1");
+    self_pair["state"]["cuts"][0]["key"]["pair"]["second"] = json!("U1");
+    assert!(
+        temper_orchestration::collision_campaign::CampaignCheckpoint::from_bytes(
+            &checkpoint_bytes(&self_pair)
+        )
+        .is_err()
+    );
 }
 
 #[test]
@@ -219,8 +274,13 @@ fn checkpoints_are_versioned_and_reject_foreign_identity() {
     let bytes = checkpoint.to_bytes().unwrap();
     let restored =
         temper_orchestration::collision_campaign::CampaignCheckpoint::from_bytes(&bytes).unwrap();
+    assert!(restored.validate_identity(&identity()).is_ok());
     assert!(restored.restore_for(&identity()).is_ok());
     let foreign = InputIdentity::new("other-board", "rules-sha", "solver-build", "axis-x").unwrap();
+    assert!(matches!(
+        restored.validate_identity(&foreign),
+        Err(CampaignError::ForeignIdentity { .. })
+    ));
     assert!(matches!(
         restored.restore_for(&foreign),
         Err(CampaignError::ForeignIdentity { .. })

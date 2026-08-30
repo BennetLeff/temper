@@ -135,6 +135,23 @@ def test_accepted_verdict_requires_complete_candidate_and_three_passed_gates() -
         validate_collision_corridor_evidence(payload)
 
 
+def test_accepted_verdict_rejects_anonymous_gates_and_empty_candidate() -> None:
+    payload = _evidence()
+    accepted = payload["runs"][2]  # type: ignore[index]
+    accepted["terminal"] = {"kind": "accepted"}  # type: ignore[index]
+    accepted["final"] = {  # type: ignore[index]
+        "candidate": {
+            "complete": True,
+            "digest": "0" * 64,
+            "positions": [],
+            "rotations": [],
+        },
+        "gates": [{"status": "passed"}, {"status": "passed"}, {"status": "passed"}],
+    }
+    with pytest.raises(EvidenceValidationError, match="all three gates"):
+        validate_collision_corridor_evidence(payload)
+
+
 def test_campaign_cumulative_round_count_and_unique_cuts_are_consistent() -> None:
     payload = _evidence()
     campaign = payload["runs"][2]  # type: ignore[index]

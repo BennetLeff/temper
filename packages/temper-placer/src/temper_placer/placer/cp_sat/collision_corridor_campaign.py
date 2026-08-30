@@ -138,8 +138,15 @@ def _identity_parts(prepared: PreparedCorridorExperiment, axis: Axis) -> tuple[s
     hashes = dict(prepared.identity.input_sha256)
     code = dict(prepared.identity.tool_code_sha256)
     board = hashes.get("pcb") or next(iter(hashes.values()), "board")
-    rules = hashes.get("constraints") or prepared.identity.requirement_sha256 or "rules"
-    solver = code.get("solver") or code.get("experiment") or "solver"
+    rules = hashlib.sha256(
+        canonical_json(
+            {
+                "inputs": {key: value for key, value in hashes.items() if key != "pcb"},
+                "requirements": prepared.identity.requirement_sha256,
+            }
+        ).encode("utf-8")
+    ).hexdigest()
+    solver = hashlib.sha256(canonical_json(code).encode("utf-8")).hexdigest()
     return board, rules, solver, axis
 
 
@@ -256,6 +263,68 @@ def _frontier_projection(cuts: Sequence[object]) -> list[dict[str, object]]:
     return [{field: getattr(cut, field) for field in fields} for cut in cuts]
 
 
+def _terminal_witness_cut_projection(
+    cuts: Sequence[object],
+    witness_records: Sequence[Mapping[str, object]],
+    positions: Mapping[str, Sequence[float]],
+    rotations: Mapping[str, int],
+) -> list[dict[str, object]]:
+    """Project collision assignments added by a terminal round for evidence.
+
+    Rust keeps the post-audit frontier inside its consuming terminal state.  A
+    terminal decision cannot expose that state without making the decision
+    resumable, so the evidence record also carries the exact assignment that
+    the validated Rust witness would have added.  This is a projection only:
+    it is never fed back into CP-SAT or used to decide whether a witness is
+    actionable.
+    """
+
+    fields = (
+        "first",
+        "second",
+        "x_first",
+        "y_first",
+        "rotation_first",
+        "x_second",
+        "y_second",
+        "rotation_second",
+    )
+    existing = {tuple(getattr(cut, field) for field in fields) for cut in cuts}
+    projected: list[dict[str, object]] = []
+    for witness in witness_records:
+        raw_a = witness.get("ref_a")
+        raw_b = witness.get("ref_b")
+        digest = witness.get("candidate_digest")
+        if not isinstance(raw_a, str) or not isinstance(raw_b, str):
+            raise ValueError("terminal collision witness has malformed component refs")
+        if not isinstance(digest, str) or not digest:
+            raise ValueError("terminal collision witness has no candidate digest")
+        if raw_a not in positions or raw_b not in positions:
+            raise ValueError("terminal collision witness is missing a candidate pose")
+        first, second = raw_a, raw_b
+        if first > second:
+            first, second = second, first
+        first_x, first_y = positions[first]
+        second_x, second_y = positions[second]
+        row = {
+            "first": first,
+            "second": second,
+            "x_first": int(round(float(first_x) * RUST_MODEL_UNITS_PER_MM)),
+            "y_first": int(round(float(first_y) * RUST_MODEL_UNITS_PER_MM)),
+            "rotation_first": int(rotations[first]),
+            "x_second": int(round(float(second_x) * RUST_MODEL_UNITS_PER_MM)),
+            "y_second": int(round(float(second_y) * RUST_MODEL_UNITS_PER_MM)),
+            "rotation_second": int(rotations[second]),
+            "candidate_digest": digest,
+        }
+        key = tuple(row[field] for field in fields)
+        if key in existing:
+            continue
+        existing.add(key)
+        projected.append(row)
+    return projected
+
+
 def run_collision_corridor_campaign(
     prepared: PreparedCorridorExperiment,
     axis: Axis,
@@ -330,6 +399,17 @@ def run_collision_corridor_campaign(
             )
     else:
         try:
+            checkpoint.validate_for(*_identity_parts(prepared, axis))
+            if int(checkpoint.max_rounds) != limits.max_rounds or int(
+                checkpoint.round_budget_ms
+            ) != int(round(limits.round_budget_s * 1000.0)):
+                return CollisionCorridorCampaignResult(
+                    axis,
+                    CollisionCorridorTerminal(
+                        "invalid_experiment",
+                        "checkpoint campaign limits do not match requested limits",
+                    ),
+                )
             stored_kind = getattr(checkpoint, "terminal_kind", None)
             if stored_kind:
                 stored_reason = str(getattr(checkpoint, "terminal_reason", None) or "")
@@ -342,18 +422,6 @@ def run_collision_corridor_campaign(
                     checkpoint_path=checkpoint_path,
                 )
             campaign = checkpoint.restore_for(*_identity_parts(prepared, axis))
-            if (
-                int(campaign.max_rounds) != limits.max_rounds
-                or int(campaign.round_budget_ms)
-                != int(round(limits.round_budget_s * 1000.0))
-            ):
-                return CollisionCorridorCampaignResult(
-                    axis,
-                    CollisionCorridorTerminal(
-                        "invalid_experiment",
-                        "checkpoint campaign limits do not match requested limits",
-                    ),
-                )
             start_round = int(getattr(campaign, "round", len(cuts)))
             cuts = tuple(campaign.cuts())
             solving = campaign.start_solving()
@@ -513,6 +581,13 @@ def run_collision_corridor_campaign(
             last_digest = digest
             last_gates = gates
             rust_creepage, validator, body = gates
+            gate_errors = [
+                f"{gate.name}: {gate.diagnostics[0] if gate.diagnostics else 'audit failed'}"
+                for gate in gates
+                if gate.status == "error"
+            ]
+            if gate_errors:
+                raise RuntimeError("acceptance instrument error: " + "; ".join(gate_errors))
             rust_creepage_status = (
                 "passed"
                 if rust_creepage.status == "passed"
@@ -535,9 +610,7 @@ def run_collision_corridor_campaign(
                 ref_a = str(violation.ref_a)
                 ref_b = str(violation.ref_b)
                 overlap_mm2 = float(violation.overlap_mm2)
-                witnesses.append(
-                    (ref_a, ref_b, overlap_mm2, digest)
-                )
+                witnesses.append((ref_a, ref_b, overlap_mm2, digest))
                 witness_records.append(
                     {
                         "ref_a": ref_a,
@@ -576,12 +649,22 @@ def run_collision_corridor_campaign(
                 checkpoint_path,
             )
         if decision.kind == "terminal":
+            terminal_checkpoint = decision.terminal_checkpoint()
+            terminal_kind = str(terminal_checkpoint.terminal_kind or "")
+            terminal_cut_projection: list[dict[str, object]] = []
+            if terminal_kind == "round_limit":
+                terminal_cut_projection = _terminal_witness_cut_projection(
+                    cuts,
+                    witness_records,
+                    positions,
+                    rotations,
+                )
             rounds.append(
                 CollisionCorridorRoundTelemetry(
                     round_index,
                     model_identity,
                     len(cuts),
-                    0,
+                    len(terminal_cut_projection),
                     time.monotonic() - round_started,
                     status,
                     digest,
@@ -589,7 +672,7 @@ def run_collision_corridor_campaign(
                     conflicts,
                     branches,
                     witnesses=tuple(witness_records),
-                    cuts=tuple(_frontier_projection(cuts)),
+                    cuts=tuple(_frontier_projection(cuts) + terminal_cut_projection),
                 )
             )
             if checkpoint_path:
@@ -597,9 +680,7 @@ def run_collision_corridor_campaign(
                     write_collision_campaign_checkpoint,
                 )
 
-                write_collision_campaign_checkpoint(
-                    checkpoint_path, decision.terminal_checkpoint()
-                )
+                write_collision_campaign_checkpoint(checkpoint_path, terminal_checkpoint)
             terminal = decision.take_terminal()
             kind = str(terminal.kind)
             if kind == "accepted":

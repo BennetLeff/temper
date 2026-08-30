@@ -7,6 +7,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
+use temper_geometry::body_collision::AREA_TOLERANCE_MM2;
 use temper_geometry::rotation_quadrant::RotationQuadrant;
 
 #[cfg(feature = "python")]
@@ -188,7 +189,10 @@ pub struct CollisionWitness {
 }
 impl CollisionWitness {
     pub fn new(a: &str, b: &str, area_mm2: f64, digest: &str) -> Result<Self, CampaignError> {
-        if !area_mm2.is_finite() || area_mm2 < 0.0 {
+        // Keep the campaign witness domain aligned with the geometry
+        // authority: boundary contact and sub-tolerance Boolean noise are
+        // not collisions and must never become exact-assignment cuts.
+        if !area_mm2.is_finite() || area_mm2 <= AREA_TOLERANCE_MM2 {
             return Err(CampaignError::InvalidValue("overlap area"));
         }
         Ok(Self {
@@ -561,18 +565,26 @@ impl CampaignCheckpoint {
         Ok(checkpoint)
     }
     pub fn restore_for(&self, identity: &InputIdentity) -> Result<Prepared, CampaignError> {
+        self.validate_identity(identity)?;
         if self.terminal.is_some() {
             return Err(CampaignError::TerminalState);
         }
+        Ok(Prepared {
+            state: self.state.clone(),
+        })
+    }
+
+    /// Validate the input identity without attempting to resume the phase.
+    /// Terminal checkpoints remain identity-bound even though they cannot be
+    /// restored into a live campaign.
+    pub fn validate_identity(&self, identity: &InputIdentity) -> Result<(), CampaignError> {
         if &self.state.identity != identity {
             return Err(CampaignError::ForeignIdentity {
                 expected: identity.label(),
                 actual: self.state.identity.label(),
             });
         }
-        Ok(Prepared {
-            state: self.state.clone(),
-        })
+        Ok(())
     }
 
     pub fn terminal(&self) -> Option<&TerminalVerdict> {
@@ -596,11 +608,23 @@ fn validate_checkpoint_state(state: &CampaignState) -> Result<(), CampaignError>
     }
     let mut keys = BTreeSet::new();
     for cut in &state.cuts {
+        let canonical_pair =
+            ComponentPair::new(cut.key.pair.first.clone(), cut.key.pair.second.clone())
+                .map_err(|_| CampaignError::Checkpoint("invalid collision pair".into()))?;
+        if canonical_pair != cut.key.pair {
+            return Err(CampaignError::Checkpoint(
+                "collision pair is not canonical".into(),
+            ));
+        }
+        for pose in [&cut.key.first_pose, &cut.key.second_pose] {
+            ExactPose::from_raw(pose.x.raw(), pose.y.raw(), pose.rotation_index as i64)
+                .map_err(|_| CampaignError::Checkpoint("invalid collision pose".into()))?;
+        }
         if cut.key.identity != state.identity
             || !state.components.contains(cut.key.pair.first())
             || !state.components.contains(cut.key.pair.second())
             || !cut.area_mm2.is_finite()
-            || cut.area_mm2 < 0.0
+            || cut.area_mm2 <= AREA_TOLERANCE_MM2
             || cut.candidate_digest.trim().is_empty()
         {
             return Err(CampaignError::Checkpoint("invalid collision cut".into()));
@@ -1130,6 +1154,16 @@ impl PyCollisionCut {
 #[pymethods]
 impl PyCheckpoint {
     #[getter]
+    fn max_rounds(&self) -> u32 {
+        self.inner.state.limits.max_rounds
+    }
+
+    #[getter]
+    fn round_budget_ms(&self) -> u64 {
+        self.inner.state.limits.round_budget_ms
+    }
+
+    #[getter]
     fn terminal_kind(&self) -> Option<&'static str> {
         self.inner.terminal.as_ref().map(|terminal| match terminal {
             TerminalVerdict::Accepted { .. } => "accepted",
@@ -1161,6 +1195,21 @@ impl PyCheckpoint {
 
     fn to_bytes(&self) -> PyResult<Vec<u8>> {
         self.inner.to_bytes().map_err(campaign_error)
+    }
+
+    #[pyo3(signature = (board, rules, solver, axis))]
+    fn validate_for(
+        &self,
+        board: String,
+        rules: String,
+        solver: String,
+        axis: String,
+    ) -> PyResult<()> {
+        let identity =
+            InputIdentity::new(&board, &rules, &solver, &axis).map_err(campaign_error)?;
+        self.inner
+            .validate_identity(&identity)
+            .map_err(campaign_error)
     }
 
     #[pyo3(signature = (board, rules, solver, axis))]
