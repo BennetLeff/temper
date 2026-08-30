@@ -30,6 +30,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import temper_design_bundle_python as _tdb
+import temper_geometry as _rust_geometry
 
 from temper_placer.core.fab_body import FabBody
 from temper_placer.io.kicad_metadata import _courtyard_points_from_raw
@@ -64,6 +65,10 @@ def _fab_shape_inputs(footprint_shapes: list[dict]) -> list[dict]:
     return list(footprint_shapes)
 
 
+def _flat_points(points: list[tuple[float, float]]) -> list[float]:
+    return [coordinate for point in points for coordinate in point]
+
+
 def extract_fab_bodies(pcb_path: Path) -> dict[str, FabBody]:
     """Return ``{ref: FabBody}`` for every footprint on *pcb_path* that
     carries real ``F.Fab``/``B.Fab`` graphics.
@@ -92,6 +97,7 @@ def extract_fab_bodies(pcb_path: Path) -> dict[str, FabBody]:
         points = _courtyard_points_from_raw(_fab_shape_inputs(shapes))
         if not points:
             continue
+        _rust_geometry.fab_body_validate_py(ref, _flat_points(points))
         bodies[ref] = FabBody(component_ref=ref, points=points)
     return bodies
 
@@ -107,9 +113,6 @@ def extract_fab_body_coverage(
     """
     if not pcb_path.exists():
         raise FileNotFoundError(f"PCB file not found: {pcb_path}")
-
-    import math
-    from shapely.geometry import Polygon
 
     expected = tuple(sorted(set(expected_refs)))
     fab_inputs = _tdb.parse_engine.extract_metadata_raw(
@@ -128,11 +131,7 @@ def extract_fab_body_coverage(
             if len(points) < 3:
                 missing.append(ref)
                 continue
-            if any(not math.isfinite(value) for point in points for value in point):
-                raise ValueError("body polygon contains a non-finite coordinate")
-            polygon = Polygon(points)
-            if polygon.is_empty or not polygon.is_valid or polygon.area <= 0.0:
-                raise ValueError("body polygon is invalid or degenerate")
+            _rust_geometry.fab_body_validate_py(ref, _flat_points(points))
             present[ref] = FabBody(component_ref=ref, points=points)
         except Exception as exc:  # noqa: BLE001 - classify every parser/GEOS failure as invalid coverage
             invalid[ref] = str(exc)

@@ -485,6 +485,10 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // wrappers are opaque and their consuming methods enforce generation
     // invalidation in collision_campaign.rs).
     m.add_function(wrap_pyfunction!(collision_campaign::prepare_collision_campaign, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        collision_campaign::collision_campaign_model_units_per_mm,
+        m
+    )?)?;
     m.add_class::<collision_campaign::PyPrepared>()?;
     m.add_class::<collision_campaign::PySolving>()?;
     m.add_class::<collision_campaign::PyCandidate>()?;

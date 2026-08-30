@@ -9,6 +9,8 @@ import tests.placer.cp_sat._body_collision_py_oracle as _oracle
 
 
 assert hasattr(_rust, "fab_body_overlap_py"), "Rust F.Fab authority is not imported"
+assert hasattr(_rust, "fab_body_validate_py"), "Rust F.Fab validation is not imported"
+assert hasattr(_rust, "fab_body_relations_batch_py"), "Rust F.Fab batch API is not imported"
 
 
 def _rust_relation(points_a, pose_a, points_b, pose_b):
@@ -66,3 +68,37 @@ def test_courtyard_only_aabb_overlap_is_not_a_body_collision():
     )
     assert relation == "clear"
     assert area == 0.0
+
+
+def test_rust_owns_tolerance_and_standalone_body_validation():
+    assert _rust.AREA_TOLERANCE_MM2 == pytest.approx(1e-6)
+    assert _rust.fab_body_validate_py(
+        "A", [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
+    )
+    with pytest.raises(ValueError, match="self-intersecting"):
+        _rust.fab_body_validate_py(
+            "A", [0.0, 0.0, 3.0, 3.0, 0.0, 2.0, 2.0, 0.0]
+        )
+
+
+def test_batch_relations_are_sorted_and_match_pairwise_authority():
+    refs = ["C", "A", "B"]
+    points = [
+        [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0],
+        [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0],
+        [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0],
+    ]
+    relations = _rust.fab_body_relations_batch_py(
+        refs,
+        points,
+        [(20.0, 0.0), (0.0, 0.0), (1.0, 0.0)],
+        [0, 0, 0],
+    )
+    assert [(ref_a, ref_b) for ref_a, ref_b, _kind, _area in relations] == [
+        ("A", "B"),
+        ("A", "C"),
+        ("B", "C"),
+    ]
+    assert relations[0][2] == "overlap"
+    assert relations[1][2] == "clear"
+    assert relations[2][2] == "clear"

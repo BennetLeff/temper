@@ -19,6 +19,12 @@ use pyo3::types::{PyAny, PyDict};
 const CHECKPOINT_MAGIC: &[u8; 8] = b"TCAMP001";
 pub const MODEL_UNITS_PER_MM: i64 = 1_000;
 
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn collision_campaign_model_units_per_mm() -> i64 {
+    MODEL_UNITS_PER_MM
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CampaignError {
     InvalidValue(&'static str),
@@ -300,6 +306,18 @@ struct CampaignState {
     round: u32,
     cuts: Vec<StoredCut>,
 }
+impl CampaignState {
+    fn collision_cuts(&self) -> Vec<CollisionCut> {
+        self.cuts
+            .iter()
+            .map(|cut| CollisionCut {
+                key: cut.key.clone(),
+                area_mm2: cut.area_mm2,
+                candidate_digest: cut.candidate_digest.clone(),
+            })
+            .collect()
+    }
+}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct StoredCut {
     key: CutKey,
@@ -351,15 +369,7 @@ impl Prepared {
     /// campaign adapter uses this to replay every cut into the next fresh
     /// CP-SAT model; callers cannot mutate the underlying state.
     pub fn cuts(&self) -> Vec<CollisionCut> {
-        self.state
-            .cuts
-            .iter()
-            .map(|c| CollisionCut {
-                key: c.key.clone(),
-                area_mm2: c.area_mm2,
-                candidate_digest: c.candidate_digest.clone(),
-            })
-            .collect()
+        self.state.collision_cuts()
     }
 
     pub fn round(&self) -> u32 {
@@ -433,6 +443,12 @@ impl Candidate {
         }
         let mut state = self.state;
         let mut added = 0;
+        let mut cut_indexes: BTreeMap<CutKey, usize> = state
+            .cuts
+            .iter()
+            .enumerate()
+            .map(|(index, cut)| (cut.key.clone(), index))
+            .collect();
         for witness in witnesses {
             let first_pose = *self
                 .poses
@@ -448,7 +464,8 @@ impl Candidate {
                 first_pose,
                 second_pose,
             };
-            if let Some(existing) = state.cuts.iter().find(|cut| cut.key == key) {
+            if let Some(existing_index) = cut_indexes.get(&key) {
+                let existing = &state.cuts[*existing_index];
                 if existing.area_mm2.to_bits() == witness.area_mm2.to_bits()
                     && existing.candidate_digest == witness.candidate_digest
                 {
@@ -457,10 +474,11 @@ impl Candidate {
                 return Err(CampaignError::ConflictingCut);
             }
             state.cuts.push(StoredCut {
-                key,
+                key: key.clone(),
                 area_mm2: witness.area_mm2,
                 candidate_digest: witness.candidate_digest,
             });
+            cut_indexes.insert(key, state.cuts.len() - 1);
             added += 1;
         }
         if added == 0 {
@@ -484,15 +502,7 @@ pub struct Refining {
 }
 impl Refining {
     pub fn cuts(&self) -> Vec<CollisionCut> {
-        self.state
-            .cuts
-            .iter()
-            .map(|c| CollisionCut {
-                key: c.key.clone(),
-                area_mm2: c.area_mm2,
-                candidate_digest: c.candidate_digest.clone(),
-            })
-            .collect()
+        self.state.collision_cuts()
     }
     pub fn next_round(self) -> Result<Solving, CampaignError> {
         Ok(Solving { state: self.state })
@@ -545,16 +555,7 @@ impl CampaignCheckpoint {
                 "unknown checkpoint version".into(),
             ));
         }
-        let payload = &bytes[CHECKPOINT_MAGIC.len()..];
-        // Accept the U2 state-only envelope while writing the U5 envelope
-        // with an optional terminal marker.
-        let checkpoint = serde_json::from_slice::<Self>(payload)
-            .or_else(|_| {
-                serde_json::from_slice::<CampaignState>(payload).map(|state| Self {
-                    state,
-                    terminal: None,
-                })
-            })
+        let checkpoint = serde_json::from_slice::<Self>(&bytes[CHECKPOINT_MAGIC.len()..])
             .map_err(|e| CampaignError::Checkpoint(e.to_string()))?;
         validate_checkpoint_state(&checkpoint.state)?;
         Ok(checkpoint)
@@ -821,6 +822,18 @@ impl PyPrepared {
     fn round(&self) -> PyResult<u32> {
         let prepared = self.inner.as_ref().ok_or_else(consumed_error)?;
         Ok(prepared.round())
+    }
+
+    #[getter]
+    fn max_rounds(&self) -> PyResult<u32> {
+        let prepared = self.inner.as_ref().ok_or_else(consumed_error)?;
+        Ok(prepared.state.limits.max_rounds)
+    }
+
+    #[getter]
+    fn round_budget_ms(&self) -> PyResult<u64> {
+        let prepared = self.inner.as_ref().ok_or_else(consumed_error)?;
+        Ok(prepared.state.limits.round_budget_ms)
     }
 
     fn start_solving(&mut self, py: Python<'_>) -> PyResult<Py<PySolving>> {

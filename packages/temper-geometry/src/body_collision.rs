@@ -29,6 +29,8 @@ pub enum BodyGeometryError {
     InvalidPosition,
     InvalidRotation(i64),
     InvalidOverlapArea,
+    BatchInputLengthMismatch,
+    DuplicateComponentReference,
 }
 
 impl fmt::Display for BodyGeometryError {
@@ -51,6 +53,12 @@ impl fmt::Display for BodyGeometryError {
             Self::InvalidRotation(raw) => write!(f, "rotation quadrant must be 0..=3, got {raw}"),
             Self::InvalidOverlapArea => {
                 f.write_str("polygon overlap area is non-finite or negative")
+            }
+            Self::BatchInputLengthMismatch => {
+                f.write_str("batch body inputs must have matching lengths")
+            }
+            Self::DuplicateComponentReference => {
+                f.write_str("batch body references must be unique")
             }
         }
     }
@@ -295,6 +303,14 @@ pub fn classify_body_overlap(
 ) -> Result<BodyRelation, BodyGeometryError> {
     let polygon_a = body_a.world_polygon(pose_a)?;
     let polygon_b = body_b.world_polygon(pose_b)?;
+    classify_world_overlap(&polygon_a, &polygon_b)
+}
+
+/// Classify two already-transformed body polygons.
+fn classify_world_overlap(
+    polygon_a: &Polygon<f64>,
+    polygon_b: &Polygon<f64>,
+) -> Result<BodyRelation, BodyGeometryError> {
     let Some(bounds_a) = polygon_a.bounding_rect() else {
         return Err(BodyGeometryError::DegeneratePolygon);
     };
@@ -309,13 +325,13 @@ pub fn classify_body_overlap(
         return Ok(BodyRelation::Clear);
     }
 
-    let intersection = polygon_a.intersection(&polygon_b);
+    let intersection = polygon_a.intersection(polygon_b);
     let area = intersection.unsigned_area();
     let area = NonNegativeArea::new(area)?;
     if area.value() > AREA_TOLERANCE_MM2 {
         return Ok(BodyRelation::Overlap { area });
     }
-    if polygon_a.intersects(&polygon_b) {
+    if polygon_a.intersects(polygon_b) {
         Ok(BodyRelation::BoundaryTouch)
     } else {
         Ok(BodyRelation::Clear)
@@ -412,6 +428,82 @@ pub fn fab_body_overlap_py(
             BodyRelation::Overlap { area } => ("overlap", area.value()),
         };
         Ok::<(String, f64), BodyGeometryError>((name.to_owned(), area))
+    })
+    .map_err(temper_py_bridge::panic_to_err)?
+    .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    Ok(result)
+}
+
+/// Validate one extracted F.Fab body without performing any pairwise work.
+///
+/// Returning `true` makes this useful as a direct extraction predicate while
+/// still reporting the detailed validation failure through `ValueError`.
+#[cfg(feature = "python")]
+#[pyo3::pyfunction]
+pub fn fab_body_validate_py(ref_name: String, points: Vec<f64>) -> pyo3::PyResult<bool> {
+    use pyo3::exceptions::PyValueError;
+    let result = temper_py_bridge::catch_unwind(|| {
+        let component = ComponentRef::new(&ref_name)?;
+        BodyPolygon::from_flat(component, &points).map(|_| true)
+    })
+    .map_err(temper_py_bridge::panic_to_err)?
+    .map_err(|error| PyValueError::new_err(error.to_string()))?;
+    Ok(result)
+}
+
+/// Validate and transform each body once, then classify every pair in
+/// deterministic component-reference order.  Each returned item is
+/// `(ref_a, ref_b, relation, overlap_area_mm2)` with `ref_a < ref_b`.
+#[cfg(feature = "python")]
+#[pyo3::pyfunction]
+pub fn fab_body_relations_batch_py(
+    refs: Vec<String>,
+    points: Vec<Vec<f64>>,
+    positions: Vec<(f64, f64)>,
+    rotations: Vec<i64>,
+) -> pyo3::PyResult<Vec<(String, String, String, f64)>> {
+    use pyo3::exceptions::PyValueError;
+    let result = temper_py_bridge::catch_unwind(|| {
+        if refs.len() != points.len()
+            || refs.len() != positions.len()
+            || refs.len() != rotations.len()
+        {
+            return Err(BodyGeometryError::BatchInputLengthMismatch);
+        }
+
+        let mut bodies = Vec::with_capacity(refs.len());
+        for (((ref_name, raw_points), (x, y)), rotation) in
+            refs.into_iter().zip(points).zip(positions).zip(rotations)
+        {
+            let component = ComponentRef::new(&ref_name)?;
+            let body = BodyPolygon::from_flat(component, &raw_points)?;
+            let pose = BodyPose::new(x, y, rotation)?;
+            let world = body.world_polygon(pose)?;
+            bodies.push((ref_name, world));
+        }
+        let mut seen_refs = std::collections::HashSet::with_capacity(bodies.len());
+        if bodies
+            .iter()
+            .any(|(ref_name, _)| !seen_refs.insert(ref_name))
+        {
+            return Err(BodyGeometryError::DuplicateComponentReference);
+        }
+        bodies.sort_by(|left, right| left.0.cmp(&right.0));
+
+        let mut relations =
+            Vec::with_capacity(bodies.len().saturating_mul(bodies.len().saturating_sub(1)) / 2);
+        for (index, (ref_a, polygon_a)) in bodies.iter().enumerate() {
+            for (ref_b, polygon_b) in bodies.iter().skip(index + 1) {
+                let relation = classify_world_overlap(polygon_a, polygon_b)?;
+                let (name, area) = match relation {
+                    BodyRelation::Clear => ("clear", 0.0),
+                    BodyRelation::BoundaryTouch => ("boundary_touch", 0.0),
+                    BodyRelation::Overlap { area } => ("overlap", area.value()),
+                };
+                relations.push((ref_a.clone(), ref_b.clone(), name.to_owned(), area));
+            }
+        }
+        Ok::<Vec<(String, String, String, f64)>, BodyGeometryError>(relations)
     })
     .map_err(temper_py_bridge::panic_to_err)?
     .map_err(|error| PyValueError::new_err(error.to_string()))?;
@@ -536,11 +628,26 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
-        ("body_collision::tests::rejects_invalid_geometry_and_unvalidated_pose_values", rejects_invalid_geometry_and_unvalidated_pose_values),
-        ("body_collision::tests::aabb_overlap_without_polygon_overlap_is_clear", aabb_overlap_without_polygon_overlap_is_clear),
-        ("body_collision::tests::true_overlap_reports_finite_non_negative_area", true_overlap_reports_finite_non_negative_area),
-        ("body_collision::tests::boundary_touch_is_not_a_physical_collision", boundary_touch_is_not_a_physical_collision),
-        ("body_collision::tests::asymmetric_quadrant_uses_kicad_r_minus_theta", asymmetric_quadrant_uses_kicad_r_minus_theta),
+        (
+            "body_collision::tests::rejects_invalid_geometry_and_unvalidated_pose_values",
+            rejects_invalid_geometry_and_unvalidated_pose_values,
+        ),
+        (
+            "body_collision::tests::aabb_overlap_without_polygon_overlap_is_clear",
+            aabb_overlap_without_polygon_overlap_is_clear,
+        ),
+        (
+            "body_collision::tests::true_overlap_reports_finite_non_negative_area",
+            true_overlap_reports_finite_non_negative_area,
+        ),
+        (
+            "body_collision::tests::boundary_touch_is_not_a_physical_collision",
+            boundary_touch_is_not_a_physical_collision,
+        ),
+        (
+            "body_collision::tests::asymmetric_quadrant_uses_kicad_r_minus_theta",
+            asymmetric_quadrant_uses_kicad_r_minus_theta,
+        ),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---
 }

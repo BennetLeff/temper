@@ -229,3 +229,40 @@ def test_rust_campaign_identity_rejects_foreign_axis_checkpoint(tmp_path):
         body_audit=_clean_body,
     )
     assert result.terminal_kind == "invalid_experiment"
+
+
+def test_resume_rejects_campaign_limit_mismatch(tmp_path):
+    checkpoint = rust.prepare_collision_campaign(
+        "a" * 64, "b" * 64, "d" * 64, "x", ["A", "B"], 4, 1000
+    ).checkpoint()
+    path = tmp_path / "limits.bin"
+    write_collision_campaign_checkpoint(path, checkpoint)
+    result = run_collision_corridor_campaign(
+        _prepared(),
+        "x",
+        limits=CollisionCorridorLimits(max_rounds=3, round_budget_s=1),
+        checkpoint_path=str(path),
+        solver=_solver_factory([]),
+        validator_audit=_validator,
+        body_audit=_clean_body,
+    )
+    assert result.terminal_kind == "invalid_experiment"
+    assert "limits" in result.terminal.reason
+
+
+def test_body_audit_error_is_not_masked_by_witness_cache() -> None:
+    def broken_body(*_args):
+        raise RuntimeError("audit instrument failed")
+
+    result = run_collision_corridor_campaign(
+        _prepared(),
+        "x",
+        limits=CollisionCorridorLimits(max_rounds=2, round_budget_s=1),
+        solver=_solver_factory([]),
+        validator_audit=_validator,
+        body_audit=broken_body,
+    )
+    assert result.terminal_kind == "verifier_rejected"
+    body_gate = next(gate for gate in result.gates if gate.name == "f-fab")
+    assert body_gate.status == "error"
+    assert "audit instrument failed" in body_gate.diagnostics[0]

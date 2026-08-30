@@ -60,6 +60,13 @@ class CollisionCorridorLimits:
                 continue
             if not math.isfinite(float(value)) or float(value) <= 0.0:
                 raise ValueError(f"{name} must be finite and positive")
+        if self.total_budget_s is not None and not math.isclose(
+            float(self.total_budget_s),
+            self.max_rounds * float(self.round_budget_s),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        ):
+            raise ValueError("total_budget_s must equal max_rounds * round_budget_s")
 
 
 @dataclass(frozen=True, slots=True)
@@ -335,6 +342,18 @@ def run_collision_corridor_campaign(
                     checkpoint_path=checkpoint_path,
                 )
             campaign = checkpoint.restore_for(*_identity_parts(prepared, axis))
+            if (
+                int(campaign.max_rounds) != limits.max_rounds
+                or int(campaign.round_budget_ms)
+                != int(round(limits.round_budget_s * 1000.0))
+            ):
+                return CollisionCorridorCampaignResult(
+                    axis,
+                    CollisionCorridorTerminal(
+                        "invalid_experiment",
+                        "checkpoint campaign limits do not match requested limits",
+                    ),
+                )
             start_round = int(getattr(campaign, "round", len(cuts)))
             cuts = tuple(campaign.cuts())
             solving = campaign.start_solving()
@@ -511,7 +530,7 @@ def run_collision_corridor_campaign(
             )
             witnesses = []
             witness_records: list[dict[str, object]] = []
-            body_result = body_result_cache[0]
+            body_result = body_result_cache[0] if body_result_cache else None
             for violation in getattr(body_result, "violations", ()):
                 ref_a = str(violation.ref_a)
                 ref_b = str(violation.ref_b)

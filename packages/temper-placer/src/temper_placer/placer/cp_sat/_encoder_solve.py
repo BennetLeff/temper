@@ -823,7 +823,14 @@ def solve_placement(
     # an explicit (possibly empty) cut sequence is the opt-in campaign
     # marker.  This preserves both the legacy fail-closed body audit and the
     # exact six-variable replay contract.
-    campaign_model_units = 1_000 if collision_campaign_cuts is not None else 100
+    if collision_campaign_cuts is None:
+        campaign_model_units = 100
+    else:
+        from temper_placer.placer.cp_sat.collision_cut_adapter import (
+            RUST_MODEL_UNITS_PER_MM,
+        )
+
+        campaign_model_units = RUST_MODEL_UNITS_PER_MM
     model_wrapper = CpSatModel(units_per_mm=campaign_model_units)
     board_w_units = model_wrapper.mm_to_units(board_w)
     board_h_units = model_wrapper.mm_to_units(board_h)

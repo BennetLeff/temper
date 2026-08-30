@@ -444,7 +444,7 @@ the measurement, and the PCB SHA-256 was unchanged before and after.
 
 The historical unrestricted 120-second control returned `unknown` without
 an incumbent. The matched unrestricted control returned an optimal candidate
-after about 123 seconds, but it failed exact creepage and the acceptance
+after 120.672 seconds, but it failed exact creepage and the acceptance
 instrumentation (REQ-SAFE-01 input was unavailable and F.Fab coverage was
 incomplete). Both collision-aware axes stopped during fail-closed preparation:
 the board has no complete F.Fab body coverage for ten expected references

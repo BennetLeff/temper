@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from numbers import Integral
 from typing import TYPE_CHECKING, Any
 
+import temper_orchestration as _rust
 from ortools.sat.python import cp_model
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 # from a millimetre value at this boundary.  The Rust cut fields are exact
 # integer model coordinates at this scale; accepting another scale would
 # silently forbid a different placement.
-RUST_MODEL_UNITS_PER_MM = 1_000
+RUST_MODEL_UNITS_PER_MM = _rust.collision_campaign_model_units_per_mm()
 
 
 @dataclass(frozen=True)

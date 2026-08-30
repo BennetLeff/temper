@@ -62,6 +62,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+
 import temper_geometry as _rust_geometry
 
 from temper_placer.core.fab_body import FabBody
@@ -70,7 +71,9 @@ from temper_placer.core.fab_body import FabBody
 #: from a boundary touch, not a real collision -- matches the "clear by
 #: 0.19mm/0.39mm" benign pairs measuring exactly 0.0 area under this
 #: pipeline (see module docstring / this repo's PR #1158 cross-validation).
-AREA_TOLERANCE_MM2 = 1e-6
+# Keep the public name for callers/tests, but make Rust the sole source of
+# this policy constant so the extractor and overlap authority cannot drift.
+AREA_TOLERANCE_MM2 = _rust_geometry.AREA_TOLERANCE_MM2
 
 
 # ---------------------------------------------------------------------------
@@ -264,58 +267,48 @@ def audit_body_collisions(
 
     result = BodyCollisionAuditResult(refs_without_geometry=refs_without_geometry)
 
-    n = len(refs)
-    for i in range(n):
-        ref_a = refs[i]
-        for j in range(i + 1, n):
-            ref_b = refs[j]
-            # Rust owns validation, KiCad rotation, broad-phase rejection,
-            # and polygon Boolean classification.  Python only marshals the
-            # extracted primitive body/pose data and applies the allowlist
-            # policy to the typed overlap result.
-            result.checked_pairs += 1
-            x_a, y_a = resolved_positions_mm[ref_a]
-            x_b, y_b = resolved_positions_mm[ref_b]
-            relation, area = _rust_geometry.fab_body_overlap_py(
-                ref_a,
-                [coordinate for point in fab_bodies[ref_a].points for coordinate in point],
-                x_a,
-                y_a,
-                resolved_rotations.get(ref_a, 0),
-                ref_b,
-                [coordinate for point in fab_bodies[ref_b].points for coordinate in point],
-                x_b,
-                y_b,
-                resolved_rotations.get(ref_b, 0),
-            )
-            if relation != "overlap" or area <= AREA_TOLERANCE_MM2:
-                continue
+    points = [
+        [coordinate for point in fab_bodies[ref].points for coordinate in point]
+        for ref in refs
+    ]
+    positions = [resolved_positions_mm[ref] for ref in refs]
+    rotations = [resolved_rotations.get(ref, 0) for ref in refs]
+    # Rust validates and transforms each body once, then returns every pair in
+    # sorted i<j order. Python only applies the allowlist policy to these
+    # already-classified relations.
+    relations = _rust_geometry.fab_body_relations_batch_py(
+        refs, points, positions, rotations
+    )
+    result.checked_pairs = len(relations)
+    for ref_a, ref_b, relation, area in relations:
+        if relation != "overlap" or area <= AREA_TOLERANCE_MM2:
+            continue
 
-            entry = allowlist.get(ref_a, ref_b)
-            if entry is None:
-                result.violations.append(
-                    BodyCollisionViolation(ref_a, ref_b, area, kind="new")
+        entry = allowlist.get(ref_a, ref_b)
+        if entry is None:
+            result.violations.append(
+                BodyCollisionViolation(ref_a, ref_b, area, kind="new")
+            )
+        elif area > entry.baseline_overlap_mm2 + AREA_TOLERANCE_MM2:
+            result.violations.append(
+                BodyCollisionViolation(
+                    ref_a,
+                    ref_b,
+                    area,
+                    kind="worsened",
+                    baseline_overlap_mm2=entry.baseline_overlap_mm2,
                 )
-            elif area > entry.baseline_overlap_mm2 + AREA_TOLERANCE_MM2:
-                result.violations.append(
-                    BodyCollisionViolation(
-                        ref_a,
-                        ref_b,
-                        area,
-                        kind="worsened",
-                        baseline_overlap_mm2=entry.baseline_overlap_mm2,
-                    )
+            )
+        else:
+            result.allowlisted.append(
+                BodyCollisionViolation(
+                    ref_a,
+                    ref_b,
+                    area,
+                    kind="allowlisted",
+                    baseline_overlap_mm2=entry.baseline_overlap_mm2,
                 )
-            else:
-                result.allowlisted.append(
-                    BodyCollisionViolation(
-                        ref_a,
-                        ref_b,
-                        area,
-                        kind="allowlisted",
-                        baseline_overlap_mm2=entry.baseline_overlap_mm2,
-                    )
-                )
+            )
 
     return result
 

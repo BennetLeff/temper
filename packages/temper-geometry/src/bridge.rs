@@ -9,7 +9,9 @@ use pyo3::prelude::*;
 use crate::bottleneck_geometry::{
     build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py, min_cut_py,
 };
-use crate::body_collision::fab_body_overlap_py;
+use crate::body_collision::{
+    AREA_TOLERANCE_MM2, fab_body_overlap_py, fab_body_relations_batch_py, fab_body_validate_py,
+};
 use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::connected_components::connected_components_8_transform;
@@ -362,7 +364,10 @@ fn point_in_zone(
 
 pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // body collision (Rust-owned validated F.Fab geometry authority)
+    m.add("AREA_TOLERANCE_MM2", AREA_TOLERANCE_MM2)?;
     m.add_function(wrap_pyfunction!(fab_body_overlap_py, m)?)?;
+    m.add_function(wrap_pyfunction!(fab_body_validate_py, m)?)?;
+    m.add_function(wrap_pyfunction!(fab_body_relations_batch_py, m)?)?;
 
     // primitives
     m.add_function(wrap_pyfunction!(point_distance, m)?)?;

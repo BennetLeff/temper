@@ -7,6 +7,8 @@ poisoned before any later campaign mutation can occur.
 
 from __future__ import annotations
 
+import json
+
 import pytest
 import temper_orchestration as rust
 
@@ -119,3 +121,11 @@ def test_checkpoint_is_rust_serialized_and_round_trips_without_python_state():
         restored.restore_for("other-board", "rules-sha", "solver-build", "axis-x")
     with pytest.raises(ValueError, match="checkpoint"):
         rust.CollisionCampaignCheckpoint.from_bytes(b"not-a-checkpoint")
+
+
+def test_checkpoint_version_has_one_envelope_schema() -> None:
+    payload = _prepared().checkpoint().to_bytes()
+    envelope = json.loads(payload.removeprefix(b"TCAMP001"))
+    branch_era_state_only = b"TCAMP001" + json.dumps(envelope["state"]).encode()
+    with pytest.raises(ValueError, match="(?i)checkpoint"):
+        rust.CollisionCampaignCheckpoint.from_bytes(branch_era_state_only)
