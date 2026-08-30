@@ -90,6 +90,11 @@ class CpSatModel:
         self._rotation_pinned_refs: set[str] = set()
         self._keepout_intervals_x: list[cp_model.IntervalVar] = []
         self._keepout_intervals_y: list[cp_model.IntervalVar] = []
+        # Exact collision-cut keys already projected into this model.  The
+        # adapter owns the key format; keeping the registry on the model
+        # makes duplicate application observable without inspecting the
+        # opaque OR-Tools proto.
+        self._collision_cut_keys: set[tuple[object, ...]] = set()
 
     # ------------------------------------------------------------------
     # Unit conversion helpers (public for encoder use)

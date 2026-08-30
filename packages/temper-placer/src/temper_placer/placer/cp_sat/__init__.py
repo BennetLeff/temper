@@ -82,6 +82,11 @@ from temper_placer.placer.cp_sat.creepage_lower_bounds import (
     ThresholdCliqueBound,
     analyze_creepage_lower_bounds,
 )
+from temper_placer.placer.cp_sat.collision_cut_adapter import (
+    RUST_MODEL_UNITS_PER_MM,
+    apply_collision_cut,
+    apply_collision_cuts,
+)
 from temper_placer.placer.cp_sat.creepage_territory_planner import (
     plan_creepage_displacement_groups,
     plan_creepage_territories,
