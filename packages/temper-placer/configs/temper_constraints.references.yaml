@@ -204,13 +204,21 @@ authority:
 # unchanged from the parent board. Every alias/unresolved-component identity
 # is therefore unaffected. The source export is untouched and its live hash
 # remains unchanged.
+# Re-pinned 2026-08-30 (fix/board-safety-followup-20260830): STALE after
+# correcting C6's two board-level pad body angles from omitted/zero to absolute
+# 90 degrees, matching its 90-degree footprint placement. This edit is confined
+# to C6 pad metadata: the footprint count and complete 168-entry
+# Sheetpath->Reference identity map are identical before/after, and no
+# component position, reference, or source export changed. Every
+# alias/unresolved-component identity below is therefore unaffected. The source
+# export remains byte-identical.
 
 provenance:
   measured_at_commit: UNKNOWN
   dirty: false
   inputs:
     - path: pcb/temper.kicad_pcb
-      sha256: a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f
+      sha256: 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9
     - path: elec/exports/temper.design-input.v1.json
       sha256: 4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0
   tool_versions: {}
