@@ -79,6 +79,53 @@ def test_terminal_decision_is_closed_and_old_alias_is_consumed():
         terminal.resume()
 
 
+def test_terminal_checkpoint_retains_the_final_collision_cut():
+    candidate = _candidate(_prepared(max_rounds=1).start_solving())
+    decision = candidate.audit("passed", "passed", "trusted", _witnesses())
+
+    checkpoint = decision.terminal_checkpoint()
+    payload = json.loads(checkpoint.to_bytes().removeprefix(b"TCAMP001"))
+    assert len(payload["state"]["cuts"]) == 1
+    assert payload["state"]["cuts"][0]["key"]["pair"] == {
+        "first": "R1",
+        "second": "U1",
+    }
+    assert payload["terminal"] is not None
+
+
+@pytest.mark.parametrize(
+    ("method", "kind", "reason"),
+    (
+        ("solver_unresolved", "solver_unresolved", "solver timeout"),
+        ("proven_infeasible", "proven_infeasible", "no feasible assignment"),
+        ("budget_exhausted", "budget_exhausted", "campaign budget"),
+    ),
+)
+def test_solving_terminal_transitions_are_typed_and_serialized(method, kind, reason):
+    solving = _prepared().start_solving()
+    solving_alias = solving
+    decision = getattr(solving, method)(reason)
+    terminal_checkpoint = decision.terminal_checkpoint()
+    terminal = decision.take_terminal()
+
+    assert terminal.kind == kind
+    assert terminal.reason == reason
+    assert terminal_checkpoint.terminal_kind == kind
+    assert terminal_checkpoint.terminal_reason == reason
+    restored = rust.CollisionCampaignCheckpoint.from_bytes(terminal_checkpoint.to_bytes())
+    assert restored.terminal_kind == kind
+    assert restored.terminal_reason == reason
+    restored.validate_for("board-sha", "rules-sha", "solver-build", "axis-x")
+    with pytest.raises(RuntimeError, match="handle has been consumed"):
+        getattr(solving_alias, method)(reason)
+
+
+def test_solving_terminal_transitions_reject_empty_reasons():
+    for method in ("solver_unresolved", "proven_infeasible", "budget_exhausted"):
+        with pytest.raises(ValueError, match="terminal reason"):
+            getattr(_prepared().start_solving(), method)("")
+
+
 def test_untrusted_provenance_cannot_be_promoted_to_accepted():
     candidate = _candidate(_prepared().start_solving())
     decision = candidate.audit("passed", "passed", "passed", [])

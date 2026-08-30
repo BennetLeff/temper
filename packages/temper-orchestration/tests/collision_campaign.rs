@@ -142,7 +142,8 @@ fn accepted_requires_all_gates_and_collision_rejection_refines() {
     assert!(matches!(
         decision,
         temper_orchestration::collision_campaign::AuditDecision::Terminal(
-            TerminalVerdict::Accepted { .. }
+            TerminalVerdict::Accepted { .. },
+            _,
         )
     ));
 
@@ -164,7 +165,8 @@ fn accepted_requires_all_gates_and_collision_rejection_refines() {
     assert!(matches!(
         decision,
         temper_orchestration::collision_campaign::AuditDecision::Terminal(
-            TerminalVerdict::VerifierRejected { .. }
+            TerminalVerdict::VerifierRejected { .. },
+            _,
         )
     ));
 
@@ -211,7 +213,8 @@ fn collision_witness_cannot_override_failed_creepage_or_untrusted_provenance() {
     assert!(matches!(
         decision,
         temper_orchestration::collision_campaign::AuditDecision::Terminal(
-            TerminalVerdict::VerifierRejected { .. }
+            TerminalVerdict::VerifierRejected { .. },
+            _,
         )
     ));
 
@@ -233,7 +236,8 @@ fn collision_witness_cannot_override_failed_creepage_or_untrusted_provenance() {
     assert!(matches!(
         decision,
         temper_orchestration::collision_campaign::AuditDecision::Terminal(
-            TerminalVerdict::VerifierRejected { .. }
+            TerminalVerdict::VerifierRejected { .. },
+            _,
         )
     ));
 }
@@ -261,11 +265,104 @@ fn duplicate_frontier_is_no_progress_and_terminal_cannot_resume() {
         .audit(AuditGates::all_passed(), vec![witness])
         .unwrap()
     {
-        temper_orchestration::collision_campaign::AuditDecision::Terminal(value) => value,
+        temper_orchestration::collision_campaign::AuditDecision::Terminal(value, _) => value,
         other => panic!("expected terminal, got {other:?}"),
     };
     assert!(matches!(terminal, TerminalVerdict::NoProgress { .. }));
     assert!(terminal.resume().is_err());
+}
+
+#[test]
+fn round_limit_terminal_checkpoint_retains_post_audit_collision_cut() {
+    let campaign = Prepared::new(
+        identity(),
+        vec!["U1", "R1"],
+        CampaignLimits::new(1, 120_000).unwrap(),
+    )
+    .unwrap();
+    let witness = CollisionWitness::new("U1", "R1", 1.0, "candidate").unwrap();
+    let decision = campaign
+        .start_solving()
+        .unwrap()
+        .complete_candidate(vec![("U1", pose(100, 200, 0)), ("R1", pose(300, 400, 1))])
+        .unwrap()
+        .audit(AuditGates::all_passed(), vec![witness])
+        .unwrap();
+    let (verdict, checkpoint) = match decision {
+        temper_orchestration::collision_campaign::AuditDecision::Terminal(verdict, checkpoint) => {
+            (verdict, checkpoint)
+        }
+        other => panic!("expected round-limit terminal, got {other:?}"),
+    };
+    assert!(matches!(
+        verdict,
+        TerminalVerdict::BudgetExhausted { ref reason }
+            if reason.contains("maximum campaign rounds reached (1)")
+    ));
+
+    let payload: Value = serde_json::from_slice(&checkpoint.to_bytes().unwrap()[8..]).unwrap();
+    assert_eq!(payload["state"]["cuts"].as_array().unwrap().len(), 1);
+    assert!(
+        payload["terminal"]["BudgetExhausted"]["reason"]
+            .as_str()
+            .unwrap()
+            .contains("maximum campaign rounds reached (1)")
+    );
+}
+
+#[test]
+fn solving_terminal_transitions_are_typed_and_reject_empty_reasons() {
+    let unresolved = prepared()
+        .start_solving()
+        .unwrap()
+        .solver_unresolved("solver timeout")
+        .unwrap();
+    assert!(matches!(
+        unresolved,
+        TerminalVerdict::SolverUnresolved { ref reason } if reason == "solver timeout"
+    ));
+
+    let infeasible = prepared()
+        .start_solving()
+        .unwrap()
+        .proven_infeasible("no feasible assignment")
+        .unwrap();
+    assert!(matches!(
+        infeasible,
+        TerminalVerdict::ProvenInfeasible { ref reason } if reason == "no feasible assignment"
+    ));
+
+    let exhausted = prepared()
+        .start_solving()
+        .unwrap()
+        .budget_exhausted("campaign budget")
+        .unwrap();
+    assert!(matches!(
+        exhausted,
+        TerminalVerdict::BudgetExhausted { ref reason } if reason == "campaign budget"
+    ));
+
+    assert!(
+        prepared()
+            .start_solving()
+            .unwrap()
+            .solver_unresolved("  ")
+            .is_err()
+    );
+    assert!(
+        prepared()
+            .start_solving()
+            .unwrap()
+            .proven_infeasible("")
+            .is_err()
+    );
+    assert!(
+        prepared()
+            .start_solving()
+            .unwrap()
+            .budget_exhausted("")
+            .is_err()
+    );
 }
 
 #[test]

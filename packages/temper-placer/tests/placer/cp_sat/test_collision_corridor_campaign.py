@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import time
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 import temper_orchestration as rust
 
 from temper_placer.placer.cp_sat.collision_corridor_campaign import (
@@ -257,6 +260,77 @@ def test_rust_campaign_identity_rejects_foreign_axis_checkpoint(tmp_path):
     assert result.terminal_kind == "invalid_experiment"
 
 
+def test_terminal_checkpoint_rejects_foreign_identity_before_returning_terminal(tmp_path):
+    prepared = _prepared()
+    campaign = rust.prepare_collision_campaign(
+        *_identity_parts(prepared, "x"), ["A", "B"], 4, 1000
+    )
+    candidate = campaign.start_solving().complete_candidate(
+        {"A": (100, 200, 0), "B": (300, 400, 1)}
+    )
+    decision = candidate.audit("passed", "passed", "trusted", [])
+    checkpoint = decision.terminal_checkpoint()
+    path = tmp_path / "terminal.bin"
+    write_collision_campaign_checkpoint(path, checkpoint)
+
+    # Terminal checkpoints still carry the Rust identity and must be checked
+    # before their stored verdict is surfaced as this campaign's result.
+    result = run_collision_corridor_campaign(
+        prepared,
+        "y",
+        checkpoint_path=str(path),
+        solver=lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("foreign terminal checkpoint must not run a solver")
+        ),
+        validator_audit=_validator,
+        body_audit=_clean_body,
+    )
+    assert result.terminal_kind == "invalid_experiment"
+
+
+@pytest.mark.parametrize("changed_identity", ("manifest", "allowlist", "campaign_code"))
+def test_checkpoint_rejects_changes_to_all_campaign_input_identities(
+    tmp_path, changed_identity: str
+):
+    prepared = _prepared()
+    checkpoint = rust.prepare_collision_campaign(
+        *_identity_parts(prepared, "x"), ["A", "B"], 4, 1000
+    ).checkpoint()
+    path = tmp_path / f"{changed_identity}.bin"
+    write_collision_campaign_checkpoint(path, checkpoint)
+
+    identity = prepared.identity
+    if changed_identity == "manifest":
+        identity = replace(
+            identity,
+            input_sha256=tuple(identity.input_sha256) + (("manifest", "e" * 64),),
+        )
+    elif changed_identity == "allowlist":
+        identity = replace(
+            identity,
+            input_sha256=tuple(identity.input_sha256) + (("body_allowlist", "e" * 64),),
+        )
+    else:
+        identity = replace(
+            identity,
+            tool_code_sha256=tuple(identity.tool_code_sha256)
+            + (("collision_campaign", "e" * 64),),
+        )
+    changed = replace(prepared, identity=identity)
+
+    result = run_collision_corridor_campaign(
+        changed,
+        "x",
+        checkpoint_path=str(path),
+        solver=lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("stale checkpoint must not run a solver")
+        ),
+        validator_audit=_validator,
+        body_audit=_clean_body,
+    )
+    assert result.terminal_kind == "invalid_experiment"
+
+
 def test_resume_rejects_campaign_limit_mismatch(tmp_path):
     prepared = _prepared()
     checkpoint = rust.prepare_collision_campaign(
@@ -293,3 +367,20 @@ def test_body_audit_error_is_not_masked_by_witness_cache() -> None:
     body_gate = next(gate for gate in result.gates if gate.name == "f-fab")
     assert body_gate.status == "error"
     assert "audit instrument failed" in body_gate.diagnostics[0]
+
+
+def test_solver_result_returned_after_round_budget_cannot_be_accepted() -> None:
+    def late_solver(*args, **kwargs):
+        time.sleep(0.02)
+        return _solver_factory([])(*args, **kwargs)
+
+    result = run_collision_corridor_campaign(
+        _prepared(),
+        "x",
+        limits=CollisionCorridorLimits(max_rounds=1, round_budget_s=0.001),
+        solver=late_solver,
+        validator_audit=_validator,
+        body_audit=_clean_body,
+    )
+    assert result.terminal_kind == "budget_exhausted"
+    assert not result.accepted

@@ -386,6 +386,13 @@ pub struct Solving {
     state: CampaignState,
 }
 impl Solving {
+    fn checkpoint(&self) -> CampaignCheckpoint {
+        CampaignCheckpoint {
+            state: self.state.clone(),
+            terminal: None,
+        }
+    }
+
     pub fn complete_candidate(
         self,
         poses: Vec<(&str, ExactPose)>,
@@ -410,6 +417,34 @@ impl Solving {
             poses: map,
         })
     }
+
+    fn terminal_reason(reason: &str) -> Result<String, CampaignError> {
+        nonempty(reason, "terminal reason")
+    }
+
+    pub fn solver_unresolved(self, reason: &str) -> Result<TerminalVerdict, CampaignError> {
+        Ok(TerminalVerdict::SolverUnresolved {
+            reason: Self::terminal_reason(reason)?,
+        })
+    }
+
+    pub fn proven_infeasible(self, reason: &str) -> Result<TerminalVerdict, CampaignError> {
+        Ok(TerminalVerdict::ProvenInfeasible {
+            reason: Self::terminal_reason(reason)?,
+        })
+    }
+
+    pub fn budget_exhausted(self, reason: &str) -> Result<TerminalVerdict, CampaignError> {
+        Ok(TerminalVerdict::BudgetExhausted {
+            reason: Self::terminal_reason(reason)?,
+        })
+    }
+
+    pub fn invalid_experiment(self, reason: &str) -> Result<TerminalVerdict, CampaignError> {
+        Ok(TerminalVerdict::InvalidExperiment {
+            reason: Self::terminal_reason(reason)?,
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -418,32 +453,25 @@ pub struct Candidate {
     poses: BTreeMap<ComponentRef, ExactPose>,
 }
 impl Candidate {
-    fn checkpoint(&self) -> CampaignCheckpoint {
-        CampaignCheckpoint {
-            state: self.state.clone(),
-            terminal: None,
-        }
-    }
-
     pub fn audit(
         self,
         gates: AuditGates,
         witnesses: Vec<CollisionWitness>,
     ) -> Result<AuditDecision, CampaignError> {
         if witnesses.is_empty() {
-            return Ok(match gates.rejection() {
-                Some(reason) => {
-                    AuditDecision::Terminal(TerminalVerdict::VerifierRejected { reason })
-                }
-                None => AuditDecision::Terminal(TerminalVerdict::Accepted {
+            let verdict = match gates.rejection() {
+                Some(reason) => TerminalVerdict::VerifierRejected { reason },
+                None => TerminalVerdict::Accepted {
                     rounds: self.state.round + 1,
-                }),
-            });
+                },
+            };
+            return Ok(AuditDecision::terminal(self.state, verdict));
         }
         if let Some(reason) = gates.refinement_blocker() {
-            return Ok(AuditDecision::Terminal(TerminalVerdict::VerifierRejected {
-                reason,
-            }));
+            return Ok(AuditDecision::terminal(
+                self.state,
+                TerminalVerdict::VerifierRejected { reason },
+            ));
         }
         let mut state = self.state;
         let mut added = 0;
@@ -486,14 +514,20 @@ impl Candidate {
             added += 1;
         }
         if added == 0 {
-            return Ok(AuditDecision::Terminal(TerminalVerdict::NoProgress {
-                rounds: state.round + 1,
-            }));
+            let rounds = state.round + 1;
+            return Ok(AuditDecision::terminal(
+                state,
+                TerminalVerdict::NoProgress { rounds },
+            ));
         }
         if state.round + 1 >= state.limits.max_rounds {
-            return Ok(AuditDecision::Terminal(TerminalVerdict::RoundLimit {
-                rounds: state.round + 1,
-            }));
+            let rounds = state.round + 1;
+            return Ok(AuditDecision::terminal(
+                state,
+                TerminalVerdict::BudgetExhausted {
+                    reason: format!("maximum campaign rounds reached ({rounds})"),
+                },
+            ));
         }
         state.round += 1;
         Ok(AuditDecision::Refining(Refining { state }))
@@ -522,7 +556,19 @@ impl Refining {
 #[derive(Debug)]
 pub enum AuditDecision {
     Refining(Refining),
-    Terminal(TerminalVerdict),
+    Terminal(TerminalVerdict, CampaignCheckpoint),
+}
+
+impl AuditDecision {
+    fn terminal(state: CampaignState, verdict: TerminalVerdict) -> Self {
+        Self::Terminal(
+            verdict.clone(),
+            CampaignCheckpoint {
+                state,
+                terminal: Some(verdict),
+            },
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -530,10 +576,35 @@ pub enum TerminalVerdict {
     Accepted { rounds: u32 },
     VerifierRejected { reason: String },
     NoProgress { rounds: u32 },
-    RoundLimit { rounds: u32 },
+    SolverUnresolved { reason: String },
+    ProvenInfeasible { reason: String },
+    BudgetExhausted { reason: String },
     InvalidExperiment { reason: String },
 }
 impl TerminalVerdict {
+    fn kind(&self) -> &'static str {
+        match self {
+            Self::Accepted { .. } => "accepted",
+            Self::VerifierRejected { .. } => "verifier_rejected",
+            Self::NoProgress { .. } => "no_progress",
+            Self::SolverUnresolved { .. } => "solver_unresolved",
+            Self::ProvenInfeasible { .. } => "proven_infeasible",
+            Self::BudgetExhausted { .. } => "budget_exhausted",
+            Self::InvalidExperiment { .. } => "invalid_experiment",
+        }
+    }
+
+    fn reason(&self) -> Option<&str> {
+        match self {
+            Self::VerifierRejected { reason }
+            | Self::SolverUnresolved { reason }
+            | Self::ProvenInfeasible { reason }
+            | Self::BudgetExhausted { reason }
+            | Self::InvalidExperiment { reason } => Some(reason),
+            Self::Accepted { .. } | Self::NoProgress { .. } => None,
+        }
+    }
+
     pub fn resume(&self) -> Result<Prepared, CampaignError> {
         Err(CampaignError::TerminalState)
     }
@@ -693,7 +764,6 @@ pub struct PyRefining {
 )]
 pub struct PyAuditDecision {
     inner: Option<AuditDecision>,
-    checkpoint: Option<CampaignCheckpoint>,
 }
 
 #[cfg(feature = "python")]
@@ -744,6 +814,29 @@ fn take_handle<T>(slot: &mut Option<T>) -> PyResult<T> {
 #[cfg(feature = "python")]
 fn campaign_error(error: CampaignError) -> PyErr {
     PyValueError::new_err(error.to_string())
+}
+
+#[cfg(feature = "python")]
+fn finish_solving_terminal(
+    slot: &mut Option<Solving>,
+    py: Python<'_>,
+    reason: String,
+    transition: fn(Solving, &str) -> Result<TerminalVerdict, CampaignError>,
+) -> PyResult<Py<PyAuditDecision>> {
+    Solving::terminal_reason(&reason).map_err(campaign_error)?;
+    let solving = take_handle(slot)?;
+    let checkpoint = solving.checkpoint();
+    let terminal = transition(solving, &reason).map_err(campaign_error)?;
+    let terminal_checkpoint = CampaignCheckpoint {
+        state: checkpoint.state,
+        terminal: Some(terminal.clone()),
+    };
+    Py::new(
+        py,
+        PyAuditDecision {
+            inner: Some(AuditDecision::Terminal(terminal, terminal_checkpoint)),
+        },
+    )
 }
 
 #[cfg(feature = "python")]
@@ -916,6 +1009,38 @@ impl PySolving {
             },
         )
     }
+
+    fn solver_unresolved(
+        &mut self,
+        py: Python<'_>,
+        reason: String,
+    ) -> PyResult<Py<PyAuditDecision>> {
+        finish_solving_terminal(&mut self.inner, py, reason, Solving::solver_unresolved)
+    }
+
+    fn proven_infeasible(
+        &mut self,
+        py: Python<'_>,
+        reason: String,
+    ) -> PyResult<Py<PyAuditDecision>> {
+        finish_solving_terminal(&mut self.inner, py, reason, Solving::proven_infeasible)
+    }
+
+    fn budget_exhausted(
+        &mut self,
+        py: Python<'_>,
+        reason: String,
+    ) -> PyResult<Py<PyAuditDecision>> {
+        finish_solving_terminal(&mut self.inner, py, reason, Solving::budget_exhausted)
+    }
+
+    fn invalid_experiment(
+        &mut self,
+        py: Python<'_>,
+        reason: String,
+    ) -> PyResult<Py<PyAuditDecision>> {
+        finish_solving_terminal(&mut self.inner, py, reason, Solving::invalid_experiment)
+    }
 }
 
 #[cfg(feature = "python")]
@@ -935,17 +1060,12 @@ impl PyCandidate {
             parse_gate(provenance, true)?,
         );
         let witnesses = parse_witnesses(witnesses)?;
-        let checkpoint = {
-            let candidate_ref = self.inner.as_ref().ok_or_else(consumed_error)?;
-            Some(candidate_ref.checkpoint())
-        };
         let candidate = take_handle(&mut self.inner)?;
         let decision = candidate.audit(gates, witnesses).map_err(campaign_error)?;
         Py::new(
             py,
             PyAuditDecision {
                 inner: Some(decision),
-                checkpoint,
             },
         )
     }
@@ -958,12 +1078,12 @@ impl PyAuditDecision {
     fn kind(&self) -> PyResult<&'static str> {
         match self.inner.as_ref().ok_or_else(consumed_error)? {
             AuditDecision::Refining(_) => Ok("refining"),
-            AuditDecision::Terminal(_) => Ok("terminal"),
+            AuditDecision::Terminal(_, _) => Ok("terminal"),
         }
     }
 
     fn take_refining(&mut self, py: Python<'_>) -> PyResult<Py<PyRefining>> {
-        if matches!(self.inner.as_ref(), Some(AuditDecision::Terminal(_))) {
+        if matches!(self.inner.as_ref(), Some(AuditDecision::Terminal(_, _))) {
             return Err(PyValueError::new_err(
                 "campaign decision is terminal, not refining",
             ));
@@ -975,7 +1095,7 @@ impl PyAuditDecision {
                     inner: Some(refining),
                 },
             ),
-            AuditDecision::Terminal(_) => Err(PyValueError::new_err(
+            AuditDecision::Terminal(_, _) => Err(PyValueError::new_err(
                 "campaign decision is terminal, not refining",
             )),
         }
@@ -988,7 +1108,9 @@ impl PyAuditDecision {
             ));
         }
         match take_handle(&mut self.inner)? {
-            AuditDecision::Terminal(terminal) => Py::new(py, PyTerminalVerdict { inner: terminal }),
+            AuditDecision::Terminal(terminal, _) => {
+                Py::new(py, PyTerminalVerdict { inner: terminal })
+            }
             AuditDecision::Refining(_) => Err(PyValueError::new_err(
                 "campaign decision is refining, not terminal",
             )),
@@ -999,25 +1121,15 @@ impl PyAuditDecision {
     /// decision.  The state and terminal verdict are serialized by Rust;
     /// Python receives only the opaque checkpoint wrapper.
     fn terminal_checkpoint(&self, py: Python<'_>) -> PyResult<Py<PyCheckpoint>> {
-        let decision = self.inner.as_ref().ok_or_else(consumed_error)?;
-        let terminal = match decision {
-            AuditDecision::Terminal(value) => value.clone(),
+        let checkpoint = match self.inner.as_ref().ok_or_else(consumed_error)? {
+            AuditDecision::Terminal(_, checkpoint) => checkpoint.clone(),
             AuditDecision::Refining(_) => {
                 return Err(PyValueError::new_err(
                     "campaign decision is refining, not terminal",
                 ));
             }
         };
-        let checkpoint = self.checkpoint.as_ref().ok_or_else(consumed_error)?;
-        Py::new(
-            py,
-            PyCheckpoint {
-                inner: CampaignCheckpoint {
-                    state: checkpoint.state.clone(),
-                    terminal: Some(terminal),
-                },
-            },
-        )
+        Py::new(py, PyCheckpoint { inner: checkpoint })
     }
 }
 
@@ -1060,33 +1172,26 @@ impl PyRefining {
 impl PyTerminalVerdict {
     #[getter]
     fn kind(&self) -> &'static str {
-        match self.inner {
-            TerminalVerdict::Accepted { .. } => "accepted",
-            TerminalVerdict::VerifierRejected { .. } => "verifier_rejected",
-            TerminalVerdict::NoProgress { .. } => "no_progress",
-            TerminalVerdict::RoundLimit { .. } => "round_limit",
-            TerminalVerdict::InvalidExperiment { .. } => "invalid_experiment",
-        }
+        self.inner.kind()
     }
 
     #[getter]
     fn rounds(&self) -> Option<u32> {
         match self.inner {
-            TerminalVerdict::Accepted { rounds }
-            | TerminalVerdict::NoProgress { rounds }
-            | TerminalVerdict::RoundLimit { rounds } => Some(rounds),
-            TerminalVerdict::VerifierRejected { .. }
+            TerminalVerdict::Accepted { rounds } | TerminalVerdict::NoProgress { rounds } => {
+                Some(rounds)
+            }
+            TerminalVerdict::BudgetExhausted { .. }
+            | TerminalVerdict::SolverUnresolved { .. }
+            | TerminalVerdict::ProvenInfeasible { .. }
+            | TerminalVerdict::VerifierRejected { .. }
             | TerminalVerdict::InvalidExperiment { .. } => None,
         }
     }
 
     #[getter]
     fn reason(&self) -> Option<&str> {
-        match &self.inner {
-            TerminalVerdict::VerifierRejected { reason }
-            | TerminalVerdict::InvalidExperiment { reason } => Some(reason),
-            _ => None,
-        }
+        self.inner.reason()
     }
 
     /// Terminal verdicts are closed.  This method exists to make attempted
@@ -1165,13 +1270,7 @@ impl PyCheckpoint {
 
     #[getter]
     fn terminal_kind(&self) -> Option<&'static str> {
-        self.inner.terminal.as_ref().map(|terminal| match terminal {
-            TerminalVerdict::Accepted { .. } => "accepted",
-            TerminalVerdict::VerifierRejected { .. } => "verifier_rejected",
-            TerminalVerdict::NoProgress { .. } => "no_progress",
-            TerminalVerdict::RoundLimit { .. } => "round_limit",
-            TerminalVerdict::InvalidExperiment { .. } => "invalid_experiment",
-        })
+        self.inner.terminal.as_ref().map(TerminalVerdict::kind)
     }
 
     #[getter]
@@ -1179,11 +1278,19 @@ impl PyCheckpoint {
         self.inner
             .terminal
             .as_ref()
-            .and_then(|terminal| match terminal {
-                TerminalVerdict::VerifierRejected { reason }
-                | TerminalVerdict::InvalidExperiment { reason } => Some(reason.as_str()),
-                _ => None,
-            })
+            .and_then(TerminalVerdict::reason)
+    }
+
+    /// Project the Rust-owned frontier for telemetry and the next model.
+    /// Callers cannot mutate these cuts or use them to resume a terminal
+    /// checkpoint.
+    fn cuts(&self, py: Python<'_>) -> PyResult<Vec<Py<PyCollisionCut>>> {
+        self.inner
+            .state
+            .collision_cuts()
+            .into_iter()
+            .map(|cut| Py::new(py, PyCollisionCut { inner: cut }))
+            .collect()
     }
 
     #[staticmethod]

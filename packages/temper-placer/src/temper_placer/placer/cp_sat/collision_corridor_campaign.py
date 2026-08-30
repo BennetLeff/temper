@@ -212,16 +212,6 @@ def _solver_status(candidate: object) -> str:
     return str(getattr(candidate, "status", "unknown")).strip().lower().replace("-", "_")
 
 
-def _terminal_from_status(status: str) -> TerminalKind:
-    if status == "infeasible":
-        return "proven_infeasible"
-    if status in {"unknown", "timeout"}:
-        return "solver_unresolved"
-    if status in {"model_invalid", "invalid"}:
-        return "invalid_experiment"
-    return "error"
-
-
 def _telemetry(candidate: object) -> tuple[float | None, int | None, int | None]:
     raw = getattr(candidate, "solver_telemetry", None)
     if raw is None:
@@ -261,68 +251,6 @@ def _frontier_projection(cuts: Sequence[object]) -> list[dict[str, object]]:
         "candidate_digest",
     )
     return [{field: getattr(cut, field) for field in fields} for cut in cuts]
-
-
-def _terminal_witness_cut_projection(
-    cuts: Sequence[object],
-    witness_records: Sequence[Mapping[str, object]],
-    positions: Mapping[str, Sequence[float]],
-    rotations: Mapping[str, int],
-) -> list[dict[str, object]]:
-    """Project collision assignments added by a terminal round for evidence.
-
-    Rust keeps the post-audit frontier inside its consuming terminal state.  A
-    terminal decision cannot expose that state without making the decision
-    resumable, so the evidence record also carries the exact assignment that
-    the validated Rust witness would have added.  This is a projection only:
-    it is never fed back into CP-SAT or used to decide whether a witness is
-    actionable.
-    """
-
-    fields = (
-        "first",
-        "second",
-        "x_first",
-        "y_first",
-        "rotation_first",
-        "x_second",
-        "y_second",
-        "rotation_second",
-    )
-    existing = {tuple(getattr(cut, field) for field in fields) for cut in cuts}
-    projected: list[dict[str, object]] = []
-    for witness in witness_records:
-        raw_a = witness.get("ref_a")
-        raw_b = witness.get("ref_b")
-        digest = witness.get("candidate_digest")
-        if not isinstance(raw_a, str) or not isinstance(raw_b, str):
-            raise ValueError("terminal collision witness has malformed component refs")
-        if not isinstance(digest, str) or not digest:
-            raise ValueError("terminal collision witness has no candidate digest")
-        if raw_a not in positions or raw_b not in positions:
-            raise ValueError("terminal collision witness is missing a candidate pose")
-        first, second = raw_a, raw_b
-        if first > second:
-            first, second = second, first
-        first_x, first_y = positions[first]
-        second_x, second_y = positions[second]
-        row = {
-            "first": first,
-            "second": second,
-            "x_first": int(round(float(first_x) * RUST_MODEL_UNITS_PER_MM)),
-            "y_first": int(round(float(first_y) * RUST_MODEL_UNITS_PER_MM)),
-            "rotation_first": int(rotations[first]),
-            "x_second": int(round(float(second_x) * RUST_MODEL_UNITS_PER_MM)),
-            "y_second": int(round(float(second_y) * RUST_MODEL_UNITS_PER_MM)),
-            "rotation_second": int(rotations[second]),
-            "candidate_digest": digest,
-        }
-        key = tuple(row[field] for field in fields)
-        if key in existing:
-            continue
-        existing.add(key)
-        projected.append(row)
-    return projected
 
 
 def run_collision_corridor_campaign(
@@ -413,12 +341,9 @@ def run_collision_corridor_campaign(
             stored_kind = getattr(checkpoint, "terminal_kind", None)
             if stored_kind:
                 stored_reason = str(getattr(checkpoint, "terminal_reason", None) or "")
-                stored_terminal: TerminalKind = (
-                    "budget_exhausted" if stored_kind == "round_limit" else stored_kind
-                )
                 return CollisionCorridorCampaignResult(
                     axis,
-                    CollisionCorridorTerminal(stored_terminal, stored_reason),
+                    CollisionCorridorTerminal(str(stored_kind), stored_reason),
                     checkpoint_path=checkpoint_path,
                 )
             campaign = checkpoint.restore_for(*_identity_parts(prepared, axis))
@@ -453,6 +378,20 @@ def run_collision_corridor_campaign(
     last_rotations: tuple[tuple[str, int], ...] = ()
     last_digest: str | None = None
     last_gates: tuple[CandidateGateResult, ...] = ()
+
+    def rust_terminal_payload(decision: object) -> tuple[str, str]:
+        """Consume a Rust terminal decision and persist its exact checkpoint."""
+
+        terminal_checkpoint = decision.terminal_checkpoint()
+        if checkpoint_path:
+            from temper_placer.placer.cp_sat.collision_corridor_checkpoint import (
+                write_collision_campaign_checkpoint,
+            )
+
+            write_collision_campaign_checkpoint(checkpoint_path, terminal_checkpoint)
+        terminal = decision.take_terminal()
+        return str(terminal.kind), str(terminal.reason or "")
+
     # Rust's checkpoint frontier is authoritative.  A cut is added after a
     # completed round, so its cardinality is also the next zero-based round
     # index for this bounded campaign (the Rust state enforces the actual
@@ -462,11 +401,12 @@ def run_collision_corridor_campaign(
             limits.total_budget_s is not None
             and time.monotonic() - started_campaign >= limits.total_budget_s
         ):
+            kind, reason = rust_terminal_payload(
+                solving.budget_exhausted("total campaign budget exhausted")
+            )
             return CollisionCorridorCampaignResult(
                 axis,
-                CollisionCorridorTerminal(
-                    "budget_exhausted", "total campaign budget exhausted", round_index
-                ),
+                CollisionCorridorTerminal(kind, reason, round_index),
                 tuple(rounds),
                 last_gates,
                 last_positions,
@@ -531,6 +471,37 @@ def run_collision_corridor_campaign(
             )
         status = _solver_status(raw_candidate)
         first, conflicts, branches = _telemetry(raw_candidate)
+        elapsed_round = time.monotonic() - round_started
+        elapsed_campaign = time.monotonic() - started_campaign
+        if elapsed_round >= limits.round_budget_s or (
+            limits.total_budget_s is not None and elapsed_campaign >= limits.total_budget_s
+        ):
+            rounds.append(
+                CollisionCorridorRoundTelemetry(
+                    round_index,
+                    model_identity,
+                    len(cuts),
+                    0,
+                    elapsed_round,
+                    "timeout",
+                    first_incumbent_s=first,
+                    conflicts=conflicts,
+                    branches=branches,
+                )
+            )
+            kind, reason = rust_terminal_payload(
+                solving.budget_exhausted("solver exceeded the campaign budget")
+            )
+            return CollisionCorridorCampaignResult(
+                axis,
+                CollisionCorridorTerminal(kind, reason, round_index),
+                tuple(rounds),
+                last_gates,
+                last_positions,
+                last_rotations,
+                last_digest,
+                checkpoint_path,
+            )
         if status not in {"optimal", "feasible"}:
             rounds.append(
                 CollisionCorridorRoundTelemetry(
@@ -545,10 +516,16 @@ def run_collision_corridor_campaign(
                     branches=branches,
                 )
             )
-            kind = _terminal_from_status(status)
+            if status == "infeasible":
+                decision = solving.proven_infeasible(f"solver returned {status}")
+            elif status in {"unknown", "timeout"}:
+                decision = solving.solver_unresolved(f"solver returned {status}")
+            else:
+                decision = solving.invalid_experiment(f"solver returned {status}")
+            kind, reason = rust_terminal_payload(decision)
             return CollisionCorridorCampaignResult(
                 axis,
-                CollisionCorridorTerminal(kind, f"solver returned {status}", round_index),
+                CollisionCorridorTerminal(kind, reason, round_index),
                 tuple(rounds),
                 last_gates,
                 last_positions,
@@ -651,20 +628,17 @@ def run_collision_corridor_campaign(
         if decision.kind == "terminal":
             terminal_checkpoint = decision.terminal_checkpoint()
             terminal_kind = str(terminal_checkpoint.terminal_kind or "")
-            terminal_cut_projection: list[dict[str, object]] = []
-            if terminal_kind == "round_limit":
-                terminal_cut_projection = _terminal_witness_cut_projection(
-                    cuts,
-                    witness_records,
-                    positions,
-                    rotations,
-                )
+            # Read the post-audit frontier from Rust's terminal checkpoint;
+            # Python must not reconstruct cut authority from witnesses.
+            terminal_cuts = tuple(terminal_checkpoint.cuts())
+            terminal_cut_projection = _frontier_projection(terminal_cuts)
+            cuts_applied = max(0, len(terminal_cuts) - len(cuts))
             rounds.append(
                 CollisionCorridorRoundTelemetry(
                     round_index,
                     model_identity,
                     len(cuts),
-                    len(terminal_cut_projection),
+                    cuts_applied,
                     time.monotonic() - round_started,
                     status,
                     digest,
@@ -672,7 +646,7 @@ def run_collision_corridor_campaign(
                     conflicts,
                     branches,
                     witnesses=tuple(witness_records),
-                    cuts=tuple(_frontier_projection(cuts) + terminal_cut_projection),
+                    cuts=tuple(terminal_cut_projection),
                 )
             )
             if checkpoint_path:
@@ -682,20 +656,9 @@ def run_collision_corridor_campaign(
 
                 write_collision_campaign_checkpoint(checkpoint_path, terminal_checkpoint)
             terminal = decision.take_terminal()
-            kind = str(terminal.kind)
-            if kind == "accepted":
-                terminal_kind: TerminalKind = "accepted"
-            elif kind == "no_progress":
-                terminal_kind = "no_progress"
-            elif kind == "round_limit":
-                terminal_kind = "budget_exhausted"
-            elif kind == "invalid_experiment":
-                terminal_kind = "invalid_experiment"
-            else:
-                terminal_kind = "verifier_rejected"
             return CollisionCorridorCampaignResult(
                 axis,
-                CollisionCorridorTerminal(terminal_kind, str(terminal.reason or ""), round_index),
+                CollisionCorridorTerminal(str(terminal.kind), str(terminal.reason or ""), round_index),
                 tuple(rounds),
                 last_gates,
                 last_positions,
@@ -728,9 +691,12 @@ def run_collision_corridor_campaign(
 
             write_collision_campaign_checkpoint(checkpoint_path, refining.checkpoint())
         solving = refining.next_round()
+    kind, reason = rust_terminal_payload(
+        solving.budget_exhausted("maximum campaign rounds exhausted")
+    )
     return CollisionCorridorCampaignResult(
         axis,
-        CollisionCorridorTerminal("budget_exhausted", "maximum rounds exhausted"),
+        CollisionCorridorTerminal(kind, reason),
         tuple(rounds),
         last_gates,
         last_positions,

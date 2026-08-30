@@ -108,3 +108,45 @@ def test_batch_relations_are_sorted_and_match_pairwise_authority():
     assert relations[0][2] == "overlap"
     assert relations[1][2] == "clear"
     assert relations[2][2] == "clear"
+
+
+def test_batch_relation_uses_kicad_clockwise_transform_for_asymmetric_body():
+    # The first triangle becomes (4,-10), (4,-11), (5,-10) at quadrant 1.
+    # The independently chosen B polygon contains that triangle, while the
+    # opposite R(+theta) convention would put A in the other half-plane.
+    relations = _rust.fab_body_relations_batch_py(
+        ["A", "B"],
+        [
+            [10.0, 4.0, 11.0, 4.0, 10.0, 5.0],
+            [3.0, -11.0, 5.0, -11.0, 5.0, -9.0, 3.0, -9.0],
+        ],
+        [(0.0, 0.0), (0.0, 0.0)],
+        [1, 0],
+    )
+    assert relations == [("A", "B", "overlap", pytest.approx(0.5))]
+
+
+@pytest.mark.parametrize(
+    ("overlap_width", "expected_kind"),
+    [(0.5e-6, "boundary_touch"), (2.0e-6, "overlap")],
+)
+def test_batch_relation_respects_area_tolerance_edge(
+    overlap_width: float, expected_kind: str
+):
+    relations = _rust.fab_body_relations_batch_py(
+        ["A", "B"],
+        [
+            [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
+            [1.0 - overlap_width, 0.0, 2.0, 0.0, 2.0, 1.0, 1.0 - overlap_width, 1.0],
+        ],
+        [(0.0, 0.0), (0.0, 0.0)],
+        [0, 0],
+    )
+    kind = relations[0][2]
+    area = relations[0][3]
+    assert kind == expected_kind
+    if expected_kind == "boundary_touch":
+        assert area == 0.0
+    else:
+        assert area > _rust.AREA_TOLERANCE_MM2
+        assert area == pytest.approx(overlap_width, rel=1e-3)
