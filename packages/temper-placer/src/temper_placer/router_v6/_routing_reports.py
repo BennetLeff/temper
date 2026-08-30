@@ -71,6 +71,10 @@ class RoutingFailureReport:
     pin_count: int = 0  # Number of pins in the net
     rule_id: str | None = None  # Specific rule/mechanism name, e.g. RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
     domain: str | None = None  # net_classification.classify_net_type(net_name) result
+    # Ranked dynamic owners touched by the failed A* frontier. Candidate
+    # evidence only: blocking_nets remains empty until a counterfactual removal
+    # proves that one of these owners actually prevented the route.
+    frontier_candidate_nets: list[str] = field(default_factory=list)
 
     @property
     def attribution_gap(self) -> bool:

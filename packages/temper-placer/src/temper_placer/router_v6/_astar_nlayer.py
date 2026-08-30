@@ -155,7 +155,7 @@ from temper_placer.router_v6.astar_nlayer_rust import (
     foreign_obstacle_halo_inflation_rust as _foreign_obstacle_halo_inflation,
 )
 from temper_placer.router_v6.astar_nlayer_rust import (
-    route_segment_3d_rust as _route_segment_3d,
+    route_segment_3d_diagnostic_rust as _route_segment_3d_diagnostic,
 )
 from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
 from temper_placer.router_v6.net_classification import classify_net_type
@@ -327,6 +327,7 @@ def _astar_route_nlayer(
     pad_layer_start: str | None = None,
     pad_layer_end: str | None = None,
     tally: TierTally | None = None,
+    frontier_contacts: dict[int, int] | None = None,
 ) -> tuple[RoutePath3D | None, int]:
     """Route one net's waypoint chain across an arbitrary number of layers.
 
@@ -531,7 +532,7 @@ def _astar_route_nlayer(
         net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
         tier3_start_layer = effective_start_layer if i == 0 else primary_grid.layer_name
         tier3_goal_layer = effective_end_layer if i == last_segment_index else primary_grid.layer_name
-        result_3d = _route_segment_3d(
+        result_3d, segment_contacts = _route_segment_3d_diagnostic(
             start_world,
             goal_world,
             tier3_start_layer,
@@ -557,6 +558,10 @@ def _astar_route_nlayer(
                 detailed_segments.append(world_path_3d[0])
             detailed_segments.extend(world_path_3d[1:])
             continue
+
+        if frontier_contacts is not None:
+            for owner, count in segment_contacts:
+                frontier_contacts[owner] = frontier_contacts.get(owner, 0) + count
 
         if not allow_forced_segments:
             if tally is not None:
@@ -1276,6 +1281,8 @@ def run_astar_pathfinding_nlayer(
     failed_nets_set: set[str] = set()
     failure_reports: dict[str, RoutingFailureReport] = {}
     blocker_history: dict[str, set[str]] = {}
+    frontier_candidate_history: dict[str, list[str]] = {}
+
     # Task 2 (docs/evidence/2026-08-14-router-primary-grid-selection-fix.md):
     # a net-level decline that still has legitimately computed geometry --
     # a landing via blocked at one endpoint, or a forced-segment refusal
@@ -1466,6 +1473,7 @@ def run_astar_pathfinding_nlayer(
         # decision for the same net -- not as the fix for the 3 specific
         # recoverable hops, which remains open (see the evidence doc's
         # "what remains" section).
+        frontier_contacts: dict[int, int] = {}
         route_path, fb = _astar_route_nlayer(
             net_name,
             channel_path,
@@ -1485,8 +1493,18 @@ def run_astar_pathfinding_nlayer(
             pad_layer_end=pad_layer_end,
             segment_3d_fallback_max_iter=max(per_net_max_iter, _SEGMENT_3D_FALLBACK_MAX_ITER),
             tally=tier_tally,
+            frontier_contacts=frontier_contacts,
         )
         fallback_count += fb
+
+        ranked_frontier_candidates = [
+            id_to_net.get(owner, f"Unknown-{owner}")
+            for owner, _count in sorted(
+                frontier_contacts.items(), key=lambda item: (-item[1], item[0])
+            )
+            if owner != net_id
+        ]
+        frontier_candidate_history[net_name] = ranked_frontier_candidates
 
         landing_blocked = False
         landing_blocked_ends: tuple[str, ...] = ()
@@ -1595,12 +1613,13 @@ def run_astar_pathfinding_nlayer(
         failure_reports[net_name] = RoutingFailureReport(
             net_name=net_name,
             failure_reason=reason,
-            blocking_nets=list(blocker_history.get(net_name, set())),
+            blocking_nets=sorted(blocker_history.get(net_name, set())),
             attempted_ripups=0,
             congestion_region=region,
             pin_count=pin_count,
             rule_id=rule_id,
             domain=classify_net_type(net_name),
+            frontier_candidate_nets=frontier_candidate_history.get(net_name, []),
         )
 
     for net_name in routable_nets:

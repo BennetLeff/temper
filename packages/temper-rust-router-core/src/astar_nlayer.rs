@@ -63,7 +63,7 @@
 //!   it. Passing the order in keeps it visible at the Python call site.
 
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BTreeMap, BinaryHeap, HashMap};
 
 /// Hard upper bound for one Tier-3 search's state storage.
 ///
@@ -145,6 +145,23 @@ impl LayerGrid<'_> {
             .get((y * self.width + x) as usize)
             .is_some_and(|cell| *cell == 0)
     }
+
+    /// Return the routed-net owner of one blocked cell.
+    ///
+    /// Static obstacles use negative sentinels and free cells use zero, so
+    /// only positive values are dynamic copper that a negotiated reroute may
+    /// later test counterfactually. Out-of-bounds and malformed short planes
+    /// are deliberately indistinguishable from static blockage here.
+    #[inline]
+    fn blocking_net_id(&self, x: i64, y: i64) -> Option<i8> {
+        if x < 0 || y < 0 || x >= self.width || y >= self.height {
+            return None;
+        }
+        self.cells
+            .get((y * self.width + x) as usize)
+            .copied()
+            .filter(|cell| *cell > 0)
+    }
 }
 
 pub struct NlayerInput<'a> {
@@ -192,6 +209,32 @@ pub struct NlayerOutput {
     pub vias: Vec<(i64, i64)>,
     pub found: bool,
     pub iterations: u64,
+    /// Dynamic net IDs touched on the explored search frontier, ranked by
+    /// descending contact count and then ascending ID.
+    ///
+    /// These are candidates, not causal blockers. A caller must still remove
+    /// one candidate and repeat the search before it may attribute the
+    /// failure or unstamp committed copper.
+    pub blocker_contacts: Vec<(i64, u64)>,
+}
+
+fn ranked_blocker_contacts(contacts: &BTreeMap<i8, u64>) -> Vec<(i64, u64)> {
+    let mut ranked: Vec<_> = contacts
+        .iter()
+        .map(|(&net_id, &count)| (i64::from(net_id), count))
+        .collect();
+    ranked.sort_by(|(id_a, count_a), (id_b, count_b)| {
+        count_b.cmp(count_a).then_with(|| id_a.cmp(id_b))
+    });
+    ranked
+}
+
+fn failed_output(iterations: u64, contacts: &BTreeMap<i8, u64>) -> NlayerOutput {
+    NlayerOutput {
+        iterations,
+        blocker_contacts: ranked_blocker_contacts(contacts),
+        ..Default::default()
+    }
 }
 
 /// State storage for one search.
@@ -499,6 +542,7 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
     }));
 
     let mut iterations: u64 = 0;
+    let mut blocker_contacts: BTreeMap<i8, u64> = BTreeMap::new();
 
     while let Some(top) = frontier.pop() {
         // Python increments, then bails when `iterations > max_iter`, then
@@ -507,19 +551,13 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
         iterations += 1;
         if let Some(cap) = input.max_iter {
             if iterations > cap {
-                return NlayerOutput {
-                    iterations,
-                    ..Default::default()
-                };
+                return failed_output(iterations, &blocker_contacts);
             }
         }
 
         let Entry { x, y, layer, .. } = top.0;
         let Some(cur_key) = pack_key(x, y, layer, stride, height, n_layers) else {
-            return NlayerOutput {
-                iterations,
-                ..Default::default()
-            };
+            return failed_output(iterations, &blocker_contacts);
         };
 
         if x == gx && y == gy && layer == gl {
@@ -547,6 +585,7 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
                 vias,
                 found: true,
                 iterations,
+                blocker_contacts: ranked_blocker_contacts(&blocker_contacts),
             };
         }
 
@@ -568,11 +607,17 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
                     1.0
                 };
                 moves.push(((nx, ny, layer), cost));
+            } else if let Some(blocker) = grid.blocking_net_id(nx, ny) {
+                *blocker_contacts.entry(blocker).or_default() += 1;
             }
         }
         for &other in input.available_layers {
-            if other < n_layers && other != layer && input.grids[other].is_free(x, y) {
-                moves.push(((x, y, other), input.via_cost));
+            if other < n_layers && other != layer {
+                if input.grids[other].is_free(x, y) {
+                    moves.push(((x, y, other), input.via_cost));
+                } else if let Some(blocker) = input.grids[other].blocking_net_id(x, y) {
+                    *blocker_contacts.entry(blocker).or_default() += 1;
+                }
             }
         }
 
@@ -587,10 +632,7 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
                 continue;
             }
             let Some(nkey) = pack_key(nx, ny, nl, stride, height, n_layers) else {
-                return NlayerOutput {
-                    iterations,
-                    ..Default::default()
-                };
+                return failed_output(iterations, &blocker_contacts);
             };
             let better = match state.cost(nkey) {
                 None => true,
@@ -603,10 +645,7 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
                 // Sparse fixtures are bounded too.  Treat exhaustion as an
                 // honest no-path result; never continue allocating until the
                 // process is killed.
-                return NlayerOutput {
-                    iterations,
-                    ..Default::default()
-                };
+                return failed_output(iterations, &blocker_contacts);
             }
             let mut h = octile(nx, ny, gx, gy);
             if nl != gl {
@@ -624,18 +663,12 @@ pub fn astar_search_3d(input: &NlayerInput) -> NlayerOutput {
                 layer: nl,
             }));
             if frontier.len() > MAX_FRONTIER_ENTRIES {
-                return NlayerOutput {
-                    iterations,
-                    ..Default::default()
-                };
+                return failed_output(iterations, &blocker_contacts);
             }
         }
     }
 
-    NlayerOutput {
-        iterations,
-        ..Default::default()
-    }
+    failed_output(iterations, &blocker_contacts)
 }
 
 // ---------------------------------------------------------------------------
@@ -702,6 +735,7 @@ pub struct RouteSegment3dOutput {
     pub via_cells: Vec<(i64, i64)>,
     pub found: bool,
     pub iterations: u64,
+    pub blocker_contacts: Vec<(i64, u64)>,
 }
 
 /// Port of `astar_core._route_segment_3d`.
@@ -738,6 +772,7 @@ pub fn route_segment_3d(
         via_cells: Vec::new(),
         found: false,
         iterations: 0,
+        blocker_contacts: Vec::new(),
     };
     if grids.is_empty() {
         return empty;
@@ -766,6 +801,7 @@ pub fn route_segment_3d(
     if !out.found {
         return RouteSegment3dOutput {
             iterations: out.iterations,
+            blocker_contacts: out.blocker_contacts,
             ..empty
         };
     }
@@ -800,6 +836,7 @@ pub fn route_segment_3d(
         via_cells: out.vias,
         found: true,
         iterations: out.iterations,
+        blocker_contacts: out.blocker_contacts,
     }
 }
 
@@ -925,6 +962,40 @@ pub(crate) mod tests {
         });
         assert!(!out.found);
         assert!(out.path.is_empty());
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_failed_search_reports_dynamic_frontier_contacts_not_static_obstacles() {
+        // Dynamic owner 7 forms the only cut. A separate static cell must
+        // never be presented as a negotiated-reroute candidate.
+        let mut l0 = open(5, 5);
+        for y in 0..5 {
+            l0[(y * 5 + 3) as usize] = 7;
+        }
+        l0[1] = -1;
+        let planes = vec![l0];
+        let g = grids_from(&planes, 5, 5);
+        let out = astar_search_3d(&NlayerInput {
+            start: (0, 2, 0),
+            goal: (4, 2, 0),
+            grids: &g,
+            available_layers: &[0],
+            via_cost: 10.0,
+            max_iter: Some(100_000),
+        });
+        assert!(!out.found);
+        assert_eq!(out.blocker_contacts.len(), 1);
+        assert_eq!(out.blocker_contacts[0].0, 7);
+        assert!(out.blocker_contacts[0].1 > 0);
+    }
+
+    #[cfg_attr(test, test)]
+    fn test_frontier_contacts_rank_by_count_then_net_id() {
+        let contacts = BTreeMap::from([(9, 4), (3, 4), (7, 12)]);
+        assert_eq!(
+            ranked_blocker_contacts(&contacts),
+            vec![(7, 12), (3, 4), (9, 4)]
+        );
     }
 
     #[cfg_attr(test, test)]
@@ -1135,6 +1206,8 @@ pub(crate) mod tests {
         ("astar_nlayer::tests::test_layer_change_emits_via", test_layer_change_emits_via),
         ("astar_nlayer::tests::test_blocked_layer_forces_detour_via_other_layer", test_blocked_layer_forces_detour_via_other_layer),
         ("astar_nlayer::tests::test_unreachable_returns_not_found", test_unreachable_returns_not_found),
+        ("astar_nlayer::tests::test_failed_search_reports_dynamic_frontier_contacts_not_static_obstacles", test_failed_search_reports_dynamic_frontier_contacts_not_static_obstacles),
+        ("astar_nlayer::tests::test_frontier_contacts_rank_by_count_then_net_id", test_frontier_contacts_rank_by_count_then_net_id),
         ("astar_nlayer::tests::test_max_iter_bail", test_max_iter_bail),
         ("astar_nlayer::tests::test_oversized_state_space_declines_before_allocation", test_oversized_state_space_declines_before_allocation),
         ("astar_nlayer::tests::test_heterogeneous_widths_use_collision_free_keys", test_heterogeneous_widths_use_collision_free_keys),

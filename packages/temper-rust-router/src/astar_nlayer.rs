@@ -14,12 +14,14 @@
 
 use pyo3::prelude::*;
 use temper_rust_router_core::astar_nlayer::{
-    LayerGrid, NlayerInput, astar_search_3d, foreign_obstacle_halo_inflation, route_segment_3d,
+    LayerGrid, NlayerInput, RouteSegment3dOutput, astar_search_3d, foreign_obstacle_halo_inflation,
+    route_segment_3d,
 };
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(foreign_obstacle_halo_inflation_py, m)?)?;
     m.add_function(wrap_pyfunction!(route_segment_3d_py, m)?)?;
+    m.add_function(wrap_pyfunction!(route_segment_3d_diagnostic_py, m)?)?;
     m.add_function(wrap_pyfunction!(astar_search_3d_py, m)?)?;
     Ok(())
 }
@@ -229,25 +231,21 @@ fn route_segment_3d_py(
     bool,
     u64,
 )> {
-    let grids = decode_planes(
+    let out = route_segment_3d_decoded(
         &planes,
         &name_ranks,
         &widths,
         &heights,
         &origins,
         &cell_sizes,
-    )?;
-
-    let out = route_segment_3d(
         start_world,
         goal_world,
         start_layer,
         goal_layer,
-        &grids,
         &available_layers,
         via_cost,
         max_iter,
-    );
+    )?;
 
     Ok((
         out.world_path,
@@ -255,5 +253,102 @@ fn route_segment_3d_py(
         out.via_cells,
         out.found,
         out.iterations,
+    ))
+}
+
+/// Diagnostic form of [`route_segment_3d_py`].
+///
+/// The extra final value is a deterministic `[(net_id, frontier_contacts)]`
+/// list. It is deliberately named as contact evidence rather than blockers:
+/// encountering committed copper on the explored frontier does not prove
+/// that removing it makes the route possible.
+#[pyfunction]
+#[pyo3(signature = (
+    start_world, goal_world, start_layer, goal_layer,
+    planes, name_ranks, widths, heights, origins, cell_sizes,
+    available_layers, via_cost, max_iter,
+))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the route-segment signature and adds only diagnostics"
+)]
+#[allow(clippy::type_complexity)]
+fn route_segment_3d_diagnostic_py(
+    start_world: (f64, f64),
+    goal_world: (f64, f64),
+    start_layer: usize,
+    goal_layer: usize,
+    planes: Vec<u8>,
+    name_ranks: Vec<u32>,
+    widths: Vec<i64>,
+    heights: Vec<i64>,
+    origins: Vec<(f64, f64)>,
+    cell_sizes: Vec<f64>,
+    available_layers: Vec<usize>,
+    via_cost: f64,
+    max_iter: Option<u64>,
+) -> PyResult<(
+    Vec<(f64, f64, usize)>,
+    Vec<(f64, f64)>,
+    Vec<(i64, i64)>,
+    bool,
+    u64,
+    Vec<(i64, u64)>,
+)> {
+    let out = route_segment_3d_decoded(
+        &planes,
+        &name_ranks,
+        &widths,
+        &heights,
+        &origins,
+        &cell_sizes,
+        start_world,
+        goal_world,
+        start_layer,
+        goal_layer,
+        &available_layers,
+        via_cost,
+        max_iter,
+    )?;
+
+    Ok((
+        out.world_path,
+        out.via_world,
+        out.via_cells,
+        out.found,
+        out.iterations,
+        out.blocker_contacts,
+    ))
+}
+
+#[expect(
+    clippy::too_many_arguments,
+    reason = "shared decoder for two pyo3 signatures with exact parity inputs"
+)]
+fn route_segment_3d_decoded(
+    planes: &[u8],
+    name_ranks: &[u32],
+    widths: &[i64],
+    heights: &[i64],
+    origins: &[(f64, f64)],
+    cell_sizes: &[f64],
+    start_world: (f64, f64),
+    goal_world: (f64, f64),
+    start_layer: usize,
+    goal_layer: usize,
+    available_layers: &[usize],
+    via_cost: f64,
+    max_iter: Option<u64>,
+) -> PyResult<RouteSegment3dOutput> {
+    let grids = decode_planes(planes, name_ranks, widths, heights, origins, cell_sizes)?;
+    Ok(route_segment_3d(
+        start_world,
+        goal_world,
+        start_layer,
+        goal_layer,
+        &grids,
+        available_layers,
+        via_cost,
+        max_iter,
     ))
 }

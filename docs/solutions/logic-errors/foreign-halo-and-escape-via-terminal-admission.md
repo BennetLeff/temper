@@ -1,6 +1,7 @@
 ---
 title: Foreign-obstacle halos and escape-via policy falsely rejected legal router terminals
 date: 2026-08-30
+last_updated: 2026-08-30
 category: logic-errors
 module: temper_placer.router_v6
 problem_type: logic_error
@@ -182,6 +183,69 @@ intersection with routed copper is not sufficient blocker evidence: the failed A
 search may have had other legal detours or may simply have exhausted its budget.
 The next implementation therefore needs counterfactual removal or a blocking-cut
 certificate before it attributes a failure to a routed net and unstamps copper.
+
+### Frontier-contact follow-up (2026-08-30)
+
+The N-layer Rust search now reports a deterministic candidate ranking for failed
+searches: positive dynamic owner IDs contacted at the explored frontier, counted
+descending with owner-ID ascending as the tie-break. Static obstacles remain
+excluded, and the failure report labels the result
+`frontier_candidate_nets`—candidate evidence, not a causal `blocking_nets`
+claim. On the production route the leading candidates were:
+
+- `WDT_RESET_N`: `PWM_LS`, `i2c_scl_ui`, `PWM_HS`,
+  `rtd_pan.high_window-out`, `safety-line-3`.
+- `io0`: `PWM_HS`, `fb`, `i2c_scl_ui`, `DISCHARGE_CTRL`, `RTD_CS_N`.
+
+Three bounded counterfactual designs were measured and removed rather than
+shipped:
+
+| experiment | target result | `shorting_items` | `unconnected_items` | finding |
+|---|---:|---:|---:|---|
+| remove the strongest owner, reroute both nets transactionally | 0/2 | 15 | 345 | one owner was not causal |
+| remove up to five ranked owners by owner ID, then reroute all displaced nets | 1/2 | 77 | 347 | invalid instrument: clearing an overwrite-only owner cell erased older reservations beneath it |
+| rebuild every family from its immutable baseline and replay accepted routes; remove up to twelve frontier/direct candidates | 0/2 | 16 | 345 | safe rollback, but neither target coexisted after 12/13 attempts |
+
+The 77-short result exposed a structural constraint on negotiated routing: the
+current occupancy grid stores one owner byte per cell, not an owner stack or
+reference count. An in-place `grid[cell] = 0` inverse is therefore impossible by
+construction after a later route overwrites an earlier reservation. Exact
+reconstruction avoids that corruption, but the safe reconstruction experiment
+still failed the production bar and was removed in full.
+
+The first implementation of frontier-contact aggregation also counted contacts
+from successful earlier waypoint segments when a later segment failed. That did
+not change either target's corrected production ranking, but it made the report
+claim a failed frontier had contacted owners that only the successful prefix had
+seen. Aggregating contacts only after a Tier-3 segment fails keeps the diagnostic
+scoped to the segment it describes. A three-waypoint regression now proves that
+contacts from the successful first segment are excluded from the failed second
+segment's candidates.
+
+Four more static probes reinforced that router completion is not the board-level
+objective:
+
+| temporary order extension | target result | `shorting_items` | `unconnected_items` | finding |
+|---|---:|---:|---:|---|
+| cheapest one-frontier-owner candidate third | 2/2 | 15 | 343 | reported completion did not improve physical connectivity |
+| one raw KiCad witness net third | 2/2 | 15 | 343 | reported completion did not improve physical connectivity |
+| `PWM_LS` third | 2/2 | 12 | 345 | `PWM_LS` connected, but the physical forest lost two other connections |
+| `safety-line-3` before both targets | 2/2 | 24 | 345 | the safety net connected, but shorts and connectivity both regressed |
+
+The last two measurements are especially useful falsifiers. Promoting a newly
+unconnected signal can make its own route succeed while worsening the global
+forest, and a safety-first order can keep both target nets connected while
+exceeding the shorting ratchet. Any future ordering change must therefore be
+selected by physical connectivity and shorting outcomes, not by the count of
+nets that returned a route object.
+
+The remaining implementation seam is now narrower. Do not add owner-ID clearing
+to this grid and do not expand production-name priority lists. A viable negotiated
+router needs either (a) multi-owner/reference-count occupancy built into the
+construction model, or (b) a connectivity-aware order selected before stamping,
+then proven on the external 15-short/342-unconnected KiCad bars. Frontier contact
+is useful for narrowing candidates, but budget exhaustion plus contact is not a
+cut certificate.
 
 ## Prevention
 
