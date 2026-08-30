@@ -879,16 +879,16 @@ def _stamp_foreign_creepage_halos(
             continue
         temp = np.full(grid.grid.shape, 1, dtype=np.int8)
         # Each entry's `outer`/`holes` are themselves the _area_rings
-        # marshalling (lists of flat rings, with one hole-list per outer
-        # ring).  Flatten both sides together so Rust receives index-aligned
-        # polygon components.  Flattening only `outer` leaves the holes
-        # grouped by source object; that misaligns MultiPolygon components
-        # and PyO3 then tries to convert a hole-list as a coordinate.
-        outer_rings = []
-        hole_rings = []
-        for outer, holes in foreign:
-            outer_rings.extend(outer)
-            hole_rings.extend(holes)
+        # marshalling (lists of flat rings); concatenate across polygons.
+        # Holes must be flattened alongside outer rings: the Rust binding
+        # expects one hole-list per outer ring, not one extra list per halo
+        # entry.
+        outer_rings = [ring for outer, _holes in foreign for ring in outer]
+        hole_rings = [
+            holes_for_ring
+            for _outer, holes in foreign
+            for holes_for_ring in holes
+        ]
         _tg.rasterize_area_polygons_py(
             temp,
             outer_rings,

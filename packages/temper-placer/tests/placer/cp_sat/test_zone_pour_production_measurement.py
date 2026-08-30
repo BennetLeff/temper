@@ -353,12 +353,6 @@ class TestZonePourProductionMeasurement:
             by_type=by_type,
         )
 
-    # This differential was previously an accepted strict-xfail: the
-    # production board's pour arm re-poured already-zoned nets and did not
-    # improve connectivity. The branch's MultiPolygon foreign-creepage halo
-    # fix now lets the poured arm connect additional nets, so the measured
-    # positive result is the U3 signal that reopens the U4 decision. Keep the
-    # assertion below live and strict; future regressions must fail loudly.
     def test_zone_pours_reduce_unconnected_items(self):
         if not _kicad_cli_available():
             pytest.skip("kicad-cli not available")
@@ -412,9 +406,9 @@ class TestZonePourProductionMeasurement:
             f"  ON : {on.describe()}\n"
             f"  OFF: {off.describe()}\n"
             f"  violation deltas (ON - OFF): {changed}\n"
-            f"Zone/pour as currently implemented does not help on this board "
-            f"-- U4 promotion should not proceed. This is a differential "
-            f"measurement on the checked-in board, NOT a comparison against a "
-            f"stored baseline, so it cannot be a stale-number artifact: both "
-            f"arms were routed and DRC'd in this same run."
+            f"Zone/pour did not meet the required improvement margin in this "
+            f"run. This is a differential measurement on the checked-in board, "
+            f"NOT a comparison against a stored baseline, so it cannot be a "
+            f"stale-number artifact: both arms were routed and DRC'd in this "
+            f"same run."
         )

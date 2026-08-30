@@ -28,7 +28,11 @@ from temper_placer.router_v6._astar_nlayer import (
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_grid import _mark_route_blocked
 from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid, build_occupancy_grid
+from temper_placer.router_v6.occupancy_grid import (
+    OccupancyGrid,
+    _area_rings,
+    build_occupancy_grid,
+)
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules, ParsedPCB
 
 _SIZE = 21
@@ -762,7 +766,7 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     # pad's halo carries 12.6mm. Both must be present in the per-family
     # halo lists.
     lv_family = families[(0.2, 0.2, "Default")]
-    assert (5.0, 2.0, "HighVoltage") in families
+    hv_family = families[(5.0, 2.0, "HighVoltage")]
 
     lv_halos = halos[(0.2, 0.2, "Default")]["F.Cu"]
     lv_halo_nets = {n for n, _o, _h in lv_halos}
@@ -795,29 +799,46 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     assert grid.grid[lv_pad_cell[1], lv_pad_cell[0]] == -1
 
 
-def test_creepage_halo_rasterization_keeps_multipolygon_holes_aligned(monkeypatch):
-    """Flatten each halo's polygon components, not just its outer rings."""
+def test_creepage_halo_stamp_preserves_holes_across_multipolygon_components():
+    """Marshal each MultiPolygon component's holes at the same level as its
+    flattened outer ring before crossing the pyo3 rasterizer boundary."""
+    from shapely.geometry import MultiPolygon, Polygon
+
     import temper_placer.router_v6._astar_nlayer as _nl
 
-    grid = _open_grid("F.Cu")
-    outer_a = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
-    outer_b = [4.0, 0.0, 6.0, 0.0, 6.0, 2.0, 4.0, 2.0]
-    hole_b = [4.5, 0.5, 5.5, 0.5, 5.5, 1.5, 4.5, 1.5]
-    captured = {}
-
-    def capture(_grid, outer_rings, hole_rings, *_args):
-        captured["outer"] = outer_rings
-        captured["holes"] = hole_rings
-
-    monkeypatch.setattr(_nl._tg, "rasterize_area_polygons_py", capture)
-    _nl._stamp_foreign_creepage_halos(
-        "SEARCHING",
-        {"F.Cu": grid},
-        {"F.Cu": [("FOREIGN", [outer_a, outer_b], [[], [hole_b]])]},
+    first = Polygon(
+        [(2.0, 2.0), (10.0, 2.0), (10.0, 10.0), (2.0, 10.0)],
+        holes=[[(4.0, 4.0), (8.0, 4.0), (8.0, 8.0), (4.0, 8.0)]],
+    )
+    second = Polygon(
+        [(20.0, 2.0), (28.0, 2.0), (28.0, 10.0), (20.0, 10.0)],
+        holes=[[(22.0, 4.0), (26.0, 4.0), (26.0, 8.0), (22.0, 8.0)]],
+    )
+    outer_rings, holes = _area_rings(MultiPolygon([first, second]))
+    grid = OccupancyGrid(
+        "F.Cu",
+        np.zeros((16, 32), dtype=np.int8),
+        (0.0, 0.0),
+        1.0,
+        32,
+        16,
     )
 
-    assert captured["outer"] == [outer_a, outer_b]
-    assert captured["holes"] == [[], [hole_b]]
+    _nl._stamp_foreign_creepage_halos(
+        "ROUTING",
+        {"F.Cu": grid},
+        {"F.Cu": [("FOREIGN", outer_rings, holes)]},
+    )
+
+    def cell(x: float, y: float) -> int:
+        col, row = grid.world_to_grid(x, y)
+        return int(grid.grid[row, col])
+
+    assert cell(3.0, 3.0) == -1
+    assert cell(6.0, 6.0) == 0
+    assert cell(21.0, 3.0) == -1
+    assert cell(24.0, 6.0) == 0
+    assert cell(15.0, 6.0) == 0
 
 
 def test_creepage_halo_blocks_lv_net_from_hv_pad():
