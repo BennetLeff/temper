@@ -63,5 +63,5 @@ visualize  # unused variable (packages/temper-placer/src/temper_placer/cli/__ini
 weight_channel_capacity  # unused variable (packages/temper-placer/src/temper_placer/cli/__init__.py:277)
 weight_overlap  # unused variable (packages/temper-placer/src/temper_placer/cli/__init__.py:251)
 weight_wirelength  # unused variable (packages/temper-placer/src/temper_placer/cli/__init__.py:252)
-x_start_val  # unused variable (packages/temper-placer/src/temper_placer/placer/cp_sat/model.py:134)
-y_start_val  # unused variable (packages/temper-placer/src/temper_placer/placer/cp_sat/model.py:135)
+x_start_val  # unused variable (packages/temper-placer/src/temper_placer/placer/cp_sat/model.py:139)
+y_start_val  # unused variable (packages/temper-placer/src/temper_placer/placer/cp_sat/model.py:140)
