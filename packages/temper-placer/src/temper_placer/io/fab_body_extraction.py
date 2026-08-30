@@ -25,10 +25,33 @@ pairs against the board's current geometry and live ``kicad-cli`` output.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path
+
+import temper_design_bundle_python as _tdb
 
 from temper_placer.core.fab_body import FabBody
 from temper_placer.io.kicad_metadata import _courtyard_points_from_raw
+
+
+@dataclass(frozen=True)
+class FabBodyCoverage:
+    """Explicit F.Fab extraction coverage for an expected reference set.
+
+    ``present`` contains only references with a validated, usable polygon;
+    ``missing`` means the board supplied no parseable F.Fab body for that
+    reference; ``invalid`` records malformed geometry/parser failures.  A
+    caller must inspect this coverage before treating an audit as complete.
+    """
+
+    present: dict[str, FabBody]
+    missing: tuple[str, ...]
+    invalid: dict[str, str]
+
+    @property
+    def complete(self) -> bool:
+        return not self.missing and not self.invalid
 
 
 def _fab_shape_inputs(footprint_shapes: list[dict]) -> list[dict]:
@@ -58,8 +81,6 @@ def extract_fab_bodies(pcb_path: Path) -> dict[str, FabBody]:
     if not pcb_path.exists():
         raise FileNotFoundError(f"PCB file not found: {pcb_path}")
 
-    import temper_design_bundle_python as _tdb
-
     fab_inputs = _tdb.parse_engine.extract_metadata_raw(
         pcb_path.read_text(encoding="utf-8")
     )["fab_body_inputs"]
@@ -73,3 +94,51 @@ def extract_fab_bodies(pcb_path: Path) -> dict[str, FabBody]:
             continue
         bodies[ref] = FabBody(component_ref=ref, points=points)
     return bodies
+
+
+def extract_fab_body_coverage(
+    pcb_path: Path, expected_refs: Iterable[str]
+) -> FabBodyCoverage:
+    """Extract bodies and classify every expected reference explicitly.
+
+    This is an additive coverage API; the historical ``extract_fab_bodies``
+    map remains unchanged for compatibility.  No pad, courtyard, or
+    rectangular fallback is invented for a missing body.
+    """
+    if not pcb_path.exists():
+        raise FileNotFoundError(f"PCB file not found: {pcb_path}")
+
+    import math
+    from shapely.geometry import Polygon
+
+    expected = tuple(sorted(set(expected_refs)))
+    fab_inputs = _tdb.parse_engine.extract_metadata_raw(
+        pcb_path.read_text(encoding="utf-8")
+    )["fab_body_inputs"]
+    present: dict[str, FabBody] = {}
+    missing: list[str] = []
+    invalid: dict[str, str] = {}
+    for ref in expected:
+        shapes = fab_inputs.get(ref)
+        if not shapes:
+            missing.append(ref)
+            continue
+        try:
+            points = _courtyard_points_from_raw(_fab_shape_inputs(shapes))
+            if len(points) < 3:
+                missing.append(ref)
+                continue
+            if any(not math.isfinite(value) for point in points for value in point):
+                raise ValueError("body polygon contains a non-finite coordinate")
+            polygon = Polygon(points)
+            if polygon.is_empty or not polygon.is_valid or polygon.area <= 0.0:
+                raise ValueError("body polygon is invalid or degenerate")
+            present[ref] = FabBody(component_ref=ref, points=points)
+        except Exception as exc:  # noqa: BLE001 - classify every parser/GEOS failure as invalid coverage
+            invalid[ref] = str(exc)
+
+    return FabBodyCoverage(
+        present=present,
+        missing=tuple(missing),
+        invalid=invalid,
+    )

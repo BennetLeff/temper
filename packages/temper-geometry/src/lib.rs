@@ -41,6 +41,7 @@ pub mod escape_via;
 #[cfg(feature = "python")]
 pub mod routing_demand;
 pub mod clearance_geometry;
+pub mod body_collision;
 pub mod spice_estimators;
 #[cfg(feature = "python")]
 pub use pad_geometry::{

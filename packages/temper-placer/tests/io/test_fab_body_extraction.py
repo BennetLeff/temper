@@ -16,7 +16,10 @@ from pathlib import Path
 
 import pytest
 
-from temper_placer.io.fab_body_extraction import extract_fab_bodies
+from temper_placer.io.fab_body_extraction import (
+    extract_fab_bodies,
+    extract_fab_body_coverage,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
@@ -65,6 +68,13 @@ class TestExtractFabBodies:
             minx, miny, maxx, maxy = poly.bounds
             assert (maxx - minx) == pytest.approx(35.0, abs=0.05)
             assert (maxy - miny) == pytest.approx(35.0, abs=0.05)
+
+    def test_coverage_reports_present_and_missing_refs_explicitly(self):
+        coverage = extract_fab_body_coverage(_PCB_PATH, ("C2", "C3", "NOT_ON_BOARD"))
+        assert set(coverage.present) == {"C2", "C3"}
+        assert coverage.missing == ("NOT_ON_BOARD",)
+        assert coverage.invalid == {}
+        assert not coverage.complete
 
 
 class TestMeasuredBodyOverlapMatchesCurrentBoard:
