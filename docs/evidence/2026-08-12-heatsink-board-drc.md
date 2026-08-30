@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree .claude/worktrees/kicad-durable, branch
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 chore/kicad-cli-durable-install, HEAD 2d3bb669a (base 1a7365587 = origin/main tip at task
 start). Board regenerated from origin/feat/igbt-heatsink-colocation (PR #1082) HEAD
 30ccf6ae5, checked out in a separate detached worktree .claude/worktrees/hs-repro.

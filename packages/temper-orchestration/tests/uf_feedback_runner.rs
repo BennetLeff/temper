@@ -156,7 +156,10 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
 
     // Silence the loop's logger: CRITICAL means `info` messages are dropped.
     let logging = py.import("logging")?;
-    let logger = logging.call_method1("getLogger", ("temper_placer.deterministic.feedback.orchestrator",))?;
+    let logger = logging.call_method1(
+        "getLogger",
+        ("temper_placer.deterministic.feedback.orchestrator",),
+    )?;
     let critical = logging.getattr("CRITICAL")?;
     logger.call_method1("setLevel", (critical,))?;
 
@@ -170,7 +173,9 @@ fn fake_objs<'py>(
 ) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyAny>, Bound<'py, PyAny>)> {
     let s1 = ns.getattr("FakeBoardState")?.call1((10.0_f64,))?;
     let s2 = ns.getattr("FakeBoardState")?.call1((20.0_f64,))?;
-    let pipeline = ns.getattr("FakePipeline")?.call1((PyList::new(py, [s1, s2])?,))?;
+    let pipeline = ns
+        .getattr("FakePipeline")?
+        .call1((PyList::new(py, [s1, s2])?,))?;
     let drc_runner = ns.getattr("FakeDRCRunner")?.call0()?;
 
     let parse = ns.getattr("FakeParse")?;
@@ -240,7 +245,9 @@ fn feedback_loop_through_pyfunction() {
         assert!(pipeline_calls[0].bind(py).is_none());
         let second_input = pipeline_calls[1].bind(py);
         assert_eq!(
-            second_input.getattr("config")?.extract::<Option<String>>()?,
+            second_input
+                .getattr("config")?
+                .extract::<Option<String>>()?,
             None,
             "reset state must preserve config (None here)"
         );
@@ -313,11 +320,8 @@ fn iteration_stages_through_runner() {
         );
         // Iterations 1-2 ran (violating then clean); 3-5 were skipped by
         // the runner because the clean break cleared the continue flag.
-        let outcomes: Vec<&StageOutcome> = report
-            .stage_reports
-            .iter()
-            .map(|r| &r.outcome)
-            .collect();
+        let outcomes: Vec<&StageOutcome> =
+            report.stage_reports.iter().map(|r| &r.outcome).collect();
         assert!(matches!(outcomes[0], StageOutcome::Completed));
         assert!(matches!(outcomes[1], StageOutcome::Completed));
         assert!(matches!(outcomes[2], StageOutcome::Skipped));
@@ -326,11 +330,7 @@ fn iteration_stages_through_runner() {
 
         // The runner threaded the Rust BoardState; the PYTHON state
         // (iteration 2's pipeline output) lives in the context.
-        let final_py = ctx
-            .current_py_state
-            .lock()
-            .expect("context lock")
-            .clone();
+        let final_py = ctx.current_py_state.lock().expect("context lock").clone();
         assert_eq!(
             final_py.bind(py).getattr("board")?.extract::<f64>()?,
             20.0,

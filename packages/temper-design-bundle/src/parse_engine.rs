@@ -374,7 +374,11 @@ impl Num {
     }
 
     /// `float(x)`.
-    fn to_f64(self) -> f64 {
+    ///
+    /// Public: `RawBoard`'s constituent types are deliberately inspectable
+    /// by non-Python consumers (`temper-cli` reads footprint positions), and
+    /// every coordinate field is a `Num`.
+    pub fn to_f64(self) -> f64 {
         self.as_f64()
     }
 }
@@ -2891,6 +2895,10 @@ fn node_to_py(py: Python<'_>, node: &KiNode) -> PyResult<Py<PyAny>> {
 }
 
 #[cfg(feature = "python")]
+// unwired-kernel-return-edge: parse_kicad_pcb -> DrillDefinition
+// `Pin.drill` is intentionally erased to `Py<PyAny>` because ordinary pads
+// carry a numeric drill while offset/oval drills carry this pyclass.  Keep
+// the ownership edge machine-readable for the production liveness scanner.
 fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny>> {
     let cls = py.get_type::<DrillDefinition>();
     let oval: Py<PyAny> = drill.oval.into_py_any(py)?;
@@ -3288,23 +3296,238 @@ fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyA
     out.into_any().unbind().into_py_any(py)
 }
 
-/// Test/conformance surface: tokenize `content` with the kiutils-exact
-/// tokenizer and return the top-level s-expression as a Python value (the
-/// same shape kiutils' ``parse_sexp`` returns -- ``out[0]``). Drives the
-/// tokenizer-conformance test against ``kiutils.utils.sexpr.parse_sexp`` on
-/// adversarial token strings (caret, adjacent quotes, backslash-quote runs,
-/// ``+5``, CRLF) so the "kiutils-exact" claim is asserted as written, not
-/// just on the corpus.
+/// Extract per-footprint info (reference, position, value, local pads)
+/// from raw `.kicad_pcb` text. Returns a list of dicts, one per
+/// footprint, each with keys:
+///   ``ref`` (str|None), ``x`` (f64), ``y`` (f64), ``angle`` (f64),
+///   ``value`` (str|None), ``pads`` (list of (lx, ly, w, h) tuples).
+/// Pad positions are LOCAL (relative to the footprint origin), as
+/// stored in the .kicad_pcb file — the caller applies the footprint
+/// rotation if needed.
 #[cfg(feature = "python")]
 #[pyfunction]
-fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
-    let tree = parse_ki_document(content).map_err(PyValueError::new_err)?;
-    let Some(first) = tree.first() else {
-        // kiutils' parse_sexp does `return out[0]` -- an empty input raises
-        // IndexError there; fail closed the same way.
-        return Err(PyValueError::new_err("cannot index empty token stream"));
+fn extract_footprint_info_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    let out = PyList::empty(py);
+    for fp in &raw.footprints {
+        let ref_str = get_footprint_reference(fp);
+        let value = fp
+            .properties
+            .iter()
+            .find(|(k, _)| k == "Value")
+            .map(|(_, v)| v.clone());
+        let angle = fp.position.angle.map(|a| a.as_f64()).unwrap_or(0.0);
+
+        let pads_list = PyList::empty(py);
+        for pad in &fp.pads {
+            let lx = pad.position.x.to_f64();
+            let ly = pad.position.y.to_f64();
+            let w = pad.size.x.to_f64();
+            let h = pad.size.y.to_f64();
+            pads_list.append((lx, ly, w, h))?;
+        }
+
+        let d = PyDict::new(py);
+        match &ref_str {
+            Some(r) => d.set_item("ref", r.as_str())?,
+            None => d.set_item("ref", py.None())?,
+        }
+        d.set_item("x", fp.position.x.to_f64())?;
+        d.set_item("y", fp.position.y.to_f64())?;
+        d.set_item("angle", angle)?;
+        match &value {
+            Some(v) => d.set_item("value", v.as_str())?,
+            None => d.set_item("value", py.None())?,
+        }
+        d.set_item("pads", pads_list)?;
+        out.append(d)?;
+    }
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Extract board outline from raw `.kicad_pcb` text: collects all
+/// line-segment endpoints on the ``Edge.Cuts`` layer from board-level
+/// graphic items. Returns a list of ``(start_x, start_y, end_x, end_y)``
+/// tuples.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_board_outline_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    let out = PyList::empty(py);
+    for item in &raw.graphic_items {
+        if let crate::parse_engine::RawGrItem::Line { start, end, layer } = item
+            && layer == "Edge.Cuts"
+        {
+            out.append((
+                start.x.to_f64(),
+                start.y.to_f64(),
+                end.x.to_f64(),
+                end.y.to_f64(),
+            ))?;
+        }
+    }
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Extract Edge.Cuts ring structure from raw `.kicad_pcb` text for
+/// ``real_board._board_surface_geometry``: polygons become rings directly,
+/// rectangles become their four-corner rings, and every other Edge.Cuts
+/// item (lines, arcs, circles, texts) is counted as unrecognized -- the
+/// same classification the pre-migration kiutils reader applied
+/// (`coordinates` attr → ring; `GrRect` start/end → ring; else
+/// unrecognized). Returns ``(rings, item_count, unrecognized)``.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_edge_cuts_rings_py(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    let rings = PyList::empty(py);
+    let mut item_count = 0i64;
+    let mut unrecognized = 0i64;
+    for item in &raw.graphic_items {
+        if g_layer(item) != "Edge.Cuts" {
+            continue;
+        }
+        item_count += 1;
+        match item {
+            RawGrItem::Poly { coords, .. } => {
+                let ring = PyList::empty(py);
+                for p in coords {
+                    ring.append((p.x.to_f64(), p.y.to_f64()))?;
+                }
+                rings.append(ring)?;
+            }
+            RawGrItem::Rect { start, end, .. } => {
+                let (x0, y0) = (start.x.to_f64(), start.y.to_f64());
+                let (x1, y1) = (end.x.to_f64(), end.y.to_f64());
+                rings.append((
+                    (x0, y0),
+                    (x1, y0),
+                    (x1, y1),
+                    (x0, y1),
+                ))?;
+            }
+            _ => {
+                unrecognized += 1;
+            }
+        }
+    }
+    let out = PyDict::new(py);
+    out.set_item("rings", rings)?;
+    out.set_item("item_count", item_count)?;
+    out.set_item("unrecognized", unrecognized)?;
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Extract the copper layer names declared in a `.kicad_pcb` document's
+/// ``(layers ...)`` block — every layer name ending in ``.Cu``, in
+/// declaration order. Backs `zone_manager`'s 4-layer stackup validation
+/// on the text path (the pre-migration code ran
+/// `kicad_exporter._validate_4_layer_output` on the kiutils Board object;
+/// the check's warn/raise semantics live in Python, this only supplies
+/// the names).
+#[cfg(feature = "python")]
+#[pyfunction]
+fn extract_copper_layer_names_py(content: &str) -> PyResult<Vec<String>> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    Ok(raw
+        .layers
+        .iter()
+        .filter(|name| name.ends_with(".Cu"))
+        .cloned()
+        .collect())
+}
+
+/// Count a raw board's zones, footprints and nets without converting the
+/// whole `RawBoard` across the pyo3 boundary (`parse_kicad_document` itself
+/// is pure-Rust and deliberately unregistered -- its return type is not
+/// `FromPyObject`). Serves `io/_write_tracks.get_routing_statistics`, whose
+/// pre-migration kiutils build counted these by walking the parsed tree.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn count_raw_board_items_py(content: &str) -> PyResult<(usize, usize, usize)> {
+    let raw = parse_kicad_document(content).map_err(PyValueError::new_err)?;
+    Ok((raw.zones.len(), raw.footprints.len(), raw.nets.len()))
+}
+
+/// Strip trace items (segments, vias, arcs) from a `.kicad_pcb` document
+/// tree, optionally removing zones and/or zone fills. Returns a tuple
+/// ``(new_text, traces_removed, vias_removed, zones_removed)``.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn strip_trace_items_py(
+    content: &str,
+    keep_zones: bool,
+    keep_fills: bool,
+) -> PyResult<(String, i64, i64, i64)> {
+    use crate::sexpr_writer::write_board_document;
+    let mut nodes = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let root = nodes.first_mut().ok_or_else(|| {
+        PyValueError::new_err("empty document — no root node")
+    })?;
+    let KiNode::List(root_items) = root else {
+        return Err(PyValueError::new_err("document root is not a list"));
     };
-    node_to_py(py, first)
+    let root_is_pcb = matches!(
+        root_items.first(),
+        Some(KiNode::Atom(KiAtom::Bare(b))) if b == "kicad_pcb"
+    );
+    if !root_is_pcb {
+        return Err(PyValueError::new_err(
+            "document root is not a (kicad_pcb ...) list",
+        ));
+    }
+
+    let mut traces_removed = 0i64;
+    let mut vias_removed = 0i64;
+    let mut zones_removed = 0i64;
+
+    let mut filtered: Vec<KiNode> = Vec::with_capacity(root_items.len());
+    for item in root_items.iter() {
+        let KiNode::List(sub) = item else {
+            filtered.push(item.clone());
+            continue;
+        };
+        let head = match sub.first() {
+            Some(KiNode::Atom(KiAtom::Bare(b))) => b.as_str(),
+            _ => {
+                filtered.push(item.clone());
+                continue;
+            }
+        };
+        match head {
+            "segment" | "arc" => {
+                traces_removed += 1;
+            }
+            "via" => {
+                vias_removed += 1;
+            }
+            "zone" => {
+                if !keep_zones {
+                    zones_removed += 1;
+                } else if !keep_fills {
+                    // Keep the zone outline but strip filledPolygons
+                    let mut stripped = sub.clone();
+                    stripped.retain(|n| {
+        !matches!(n, KiNode::List(fl) if matches!(fl.first(),
+            Some(KiNode::Atom(KiAtom::Bare(b))) if b == "filled_polygon"))
+                    });
+                    filtered.push(KiNode::List(stripped));
+                } else {
+                    filtered.push(item.clone());
+                }
+            }
+            _ => {
+                filtered.push(item.clone());
+            }
+        }
+    }
+    if !keep_zones {
+        // zones_removed was counted above; zones were not pushed to filtered
+    }
+    *root_items = filtered;
+
+    let text = write_board_document(&nodes);
+    Ok((text, traces_removed, vias_removed, zones_removed))
 }
 
 #[cfg(feature = "python")]
@@ -3536,8 +3759,37 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     out.set_item("pad_bbox_inputs", pad_bbox)?;
 
     // raw courtyard inputs: {ref: [{"kind": ..., ...}]}
-    let courtyards = PyDict::new(py);
-    for fp in &raw.footprints {
+    let courtyards = fp_shape_inputs(
+        py,
+        &raw.footprints,
+        &["F.CrtYd", "B.CrtYd"],
+    )?;
+    out.set_item("courtyard_inputs", courtyards)?;
+
+    // raw F.Fab/B.Fab body inputs: same shape schema as courtyard_inputs,
+    // different source layers. Backs io/fab_body_extraction.py (the
+    // pre-migration kiutils-based reader; see that module's docstring for
+    // the validation history of this consolidation).
+    let fab_bodies = fp_shape_inputs(py, &raw.footprints, &["F.Fab", "B.Fab"])?;
+    out.set_item("fab_body_inputs", fab_bodies)?;
+
+    out.into_any().unbind().into_py_any(py)
+}
+
+/// Per-footprint graphic-item shapes on the given layers, in the
+/// ``{ref: [{"kind": ..., ...}]}`` schema
+/// ``kicad_metadata._courtyard_points_from_raw`` consumes. One
+/// serialization switch shared by the courtyard extraction
+/// (``F.CrtYd``/``B.CrtYd``) and the fab-body extraction
+/// (``F.Fab``/``B.Fab``).
+#[cfg(feature = "python")]
+fn fp_shape_inputs(
+    py: Python<'_>,
+    footprints: &[crate::parse_engine::RawFootprint],
+    layers: &[&str],
+) -> PyResult<Py<PyDict>> {
+    let out = PyDict::new(py);
+    for fp in footprints {
         let r#ref = fp.properties.iter().find(|(k, _)| k == "Reference").map(|(_, v)| v.clone()).unwrap_or_default();
         if r#ref.is_empty() {
             continue;
@@ -3545,7 +3797,7 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
         let mut shapes: Vec<Py<PyAny>> = Vec::new();
         for item in &fp.graphic_items {
             let layer = item.layer();
-            if layer != "F.CrtYd" && layer != "B.CrtYd" {
+            if !layers.contains(&layer) {
                 continue;
             }
             let shape = PyDict::new(py);
@@ -3579,14 +3831,18 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
                     shape.set_item("mid", PyTuple::new(py, [num_to_py(py, mid.x)?, num_to_py(py, mid.y)?])?)?;
                     shape.set_item("end", PyTuple::new(py, [num_to_py(py, end.x)?, num_to_py(py, end.y)?])?)?;
                 }
-                RawFpItem::Text { .. } | RawFpItem::TextBox { .. } | RawFpItem::Curve { .. } => {}
+                RawFpItem::Text { .. } | RawFpItem::TextBox { .. } | RawFpItem::Curve { .. } => {
+                    // No body-outline contribution -- matches the kiutils
+                    // reader's skip list (fab_body_extraction pre-migration)
+                    // and keeps empty dicts out of the emitted schema.
+                    continue;
+                }
             }
             shapes.push(shape.into_any().unbind());
         }
-        courtyards.set_item(r#ref, PyList::new(py, shapes.iter().map(|s| s.bind(py)))?)?;
+        out.set_item(r#ref, PyList::new(py, shapes.iter().map(|s| s.bind(py)))?)?;
     }
-    out.set_item("courtyard_inputs", courtyards)?;
-    out.into_any().unbind().into_py_any(py)
+    Ok(out.unbind())
 }
 
 // ===========================================================================
@@ -3604,17 +3860,28 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_class::<Position>()?;
     sub.add_function(wrap_pyfunction!(parse_kicad_pcb, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_footprint_positions, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_footprint_info_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_board_outline_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_copper_layer_names_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(extract_edge_cuts_rings_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(strip_trace_items_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(count_raw_board_items_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
-    sub.add_function(wrap_pyfunction!(tokenize, &sub)?)?;
-    // Wave 4 Phase 3 (formats/IO): the S-expression writer -- the inverse
-    // of this module's tokenizer (see sexpr_writer.rs). parse -> write ->
-    // parse is the identity on the KiNode tree, so these functions are the
-    // kiutils-free board-serialization surface.
-    sub.add_function(wrap_pyfunction!(crate::sexpr_writer::write_board_sexpr_py, &sub)?)?;
+    // Wave 4 Phase 3 (formats/IO): Rust-owned S-expression mutation/writing
+    // helpers. The former whole-document `tokenize`/`write_board_sexpr_py`
+    // probes were differential-only and are intentionally not exported.
     sub.add_function(wrap_pyfunction!(
-        crate::sexpr_writer::embed_title_block_comment_py,
+        crate::sexpr_writer::append_items_to_board_py,
+        &sub
+    )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::extract_net_map_from_text_py,
+        &sub
+    )?)?;
+    sub.add_function(wrap_pyfunction!(
+        crate::sexpr_writer::update_footprint_positions_py,
         &sub
     )?)?;
     module.add_submodule(&sub)?;

@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree .claude/worktrees/fix-scipy-migration-regression,
+<!-- provenance: commit=0123cc07848ed12b508227fc3937109a4d080009 dirty=UNKNOWN -->
 branch fix/scipy-migration-regression, base origin/main 66a277d94 (tip at task start).
 All counts below are direct grep over the working tree at that commit (plus the fix
 commit cff390182 for the "after" state); no counts are inferred from docs. -->

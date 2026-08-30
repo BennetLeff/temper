@@ -325,10 +325,7 @@ impl PartialOrd for ReverseKey {
 impl Ord for ReverseKey {
     fn cmp(&self, other: &Self) -> Ordering {
         // Reverse order for f64, then reverse for the node tie-break.
-        other
-            .0
-            .partial_cmp(&self.0)
-            .unwrap_or(Ordering::Equal)
+        other.0.partial_cmp(&self.0).unwrap_or(Ordering::Equal)
     }
 }
 
@@ -415,7 +412,11 @@ pub fn solve_topology_direct(nets: &[DirectNet], edges: &[DirectEdge]) -> Direct
         // The corridor decision itself (capacity-aware, connected,
         // post-condition-verified) remains the fix; the emission is the
         // minimal guidance Stage 4 demonstrably benefits from.
-        let layer = graph.edges[path[0] as usize].id.split('_').next().unwrap_or("F.Cu");
+        let layer = graph.edges[path[0] as usize]
+            .id
+            .split('_')
+            .next()
+            .unwrap_or("F.Cu");
         // Pad emission order matches Stage 4's `fallback_channel_path`
         // convention exactly: a 2-pad net keeps its given pad order
         // (the A* start/end then match the batched reference's geometry),
@@ -834,7 +835,11 @@ fn verify_postconditions(
                     ));
                 }
                 Some(pn) => {
-                    prev_node = if pn == edge.u { Some(edge.v) } else { Some(edge.u) };
+                    prev_node = if pn == edge.u {
+                        Some(edge.v)
+                    } else {
+                        Some(edge.u)
+                    };
                 }
                 None => {
                     prev_node = Some(edge.v);
@@ -852,7 +857,8 @@ fn verify_postconditions(
         if net.pads.len() < 2 {
             continue;
         }
-        if !routed_names.contains(net.name.as_str()) && !unrouted_names.contains(net.name.as_str()) {
+        if !routed_names.contains(net.name.as_str()) && !unrouted_names.contains(net.name.as_str())
+        {
             violations.push(format!(
                 "net {} with {} pads is neither routed nor reported unrouted",
                 net.name,
@@ -880,15 +886,29 @@ pub(crate) mod tests {
         let c = (20.0, 0.0);
         (
             vec![
-                DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
-                DirectEdge { layer: "F.Cu".into(), u: b, v: c, capacity: 10.0 },
+                DirectEdge {
+                    layer: "F.Cu".into(),
+                    u: a,
+                    v: b,
+                    capacity: 10.0,
+                },
+                DirectEdge {
+                    layer: "F.Cu".into(),
+                    u: b,
+                    v: c,
+                    capacity: 10.0,
+                },
             ],
             vec![a, b, c],
         )
     }
 
     fn net(name: &str, pads: Vec<(f64, f64)>, width: f64) -> DirectNet {
-        DirectNet { name: name.to_string(), pads, width }
+        DirectNet {
+            name: name.to_string(),
+            pads,
+            width,
+        }
     }
 
     /// THE vacuity regression: a two-pad net on a connected skeleton MUST
@@ -900,16 +920,27 @@ pub(crate) mod tests {
         let (edges, nodes) = line_graph();
         let r = solve_topology_direct(&[net("n1", vec![nodes[0], nodes[2]], 1.0)], &edges);
         assert_eq!(r.status, SolverStatus::Satisfiable);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         assert!(r.unrouted.is_empty());
         assert_eq!(r.net_topologies.len(), 1);
         let (name, topo) = &r.net_topologies[0];
         assert_eq!(name, "n1");
-        assert!(!topo.uses_channels.is_empty(), "topology must be non-empty (vacuity regression)");
+        assert!(
+            !topo.uses_channels.is_empty(),
+            "topology must be non-empty (vacuity regression)"
+        );
         // A two-pad net emits exactly one pad-waypoint channel id (the
         // topology-decided pad pair) — non-empty, pad-to-pad guidance.
         assert_eq!(topo.uses_channels.len(), 1, "{:?}", topo.uses_channels);
-        assert!(topo.uses_channels[0].contains("_PW_"), "{:?}", topo.uses_channels);
+        assert!(
+            topo.uses_channels[0].contains("_PW_"),
+            "{:?}",
+            topo.uses_channels
+        );
         assert_eq!(topo.path_graph.len(), 1);
     }
 
@@ -923,10 +954,30 @@ pub(crate) mod tests {
         let x = (0.0, 10.0);
         let y = (10.0, 10.0);
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 1.0 },   // bridge
-            DirectEdge { layer: "F.Cu".into(), u: a, v: x, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: x, v: y, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: y, v: b, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 1.0,
+            }, // bridge
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: x,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: x,
+                v: y,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: y,
+                v: b,
+                capacity: 10.0,
+            },
         ];
         let nets = vec![
             net("n1", vec![a, b], 1.0), // takes the bridge (capacity 1.0 * 0.8 = 0.8 < 1.0? no: 1.0*0.8=0.8, width 1.0 > 0.8 -> blocked!)
@@ -935,7 +986,11 @@ pub(crate) mod tests {
         // Capacity 1.0 * 0.8 = 0.8 usable < width 1.0: the bridge is blocked
         // for BOTH nets; both must use the alternate path (or one be unrouted).
         let r = solve_topology_direct(&nets, &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         // Both nets are routable (the alternate path exists); neither may
         // be over-committed (post-conditions are the capacity audit — the
         // emitted pad-waypoint ids do not expose the internal path choice).
@@ -954,16 +1009,56 @@ pub(crate) mod tests {
         let y = (10.0, 10.0);
         let mut graph = Graph::default();
         let ids = canonical_edge_ids(&[
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 1.0 }, // bridge
-            DirectEdge { layer: "F.Cu".into(), u: a, v: x, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: x, v: y, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: y, v: b, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 1.0,
+            }, // bridge
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: x,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: x,
+                v: y,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: y,
+                v: b,
+                capacity: 10.0,
+            },
         ]);
         for (e, id) in [
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 1.0 },
-            DirectEdge { layer: "F.Cu".into(), u: a, v: x, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: x, v: y, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: y, v: b, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 1.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: x,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: x,
+                v: y,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: y,
+                v: b,
+                capacity: 10.0,
+            },
         ]
         .iter()
         .zip(ids.iter())
@@ -984,7 +1079,9 @@ pub(crate) mod tests {
         // The path must use exactly the 3 alternate edges (a-x, x-y, y-b).
         assert_eq!(path.len(), 3, "{:?}", path);
         assert!(
-            graph.edges[path[0] as usize].id.contains("(0.000000, 0.000000)_(0.000000, 10.000000)"),
+            graph.edges[path[0] as usize]
+                .id
+                .contains("(0.000000, 0.000000)_(0.000000, 10.000000)"),
             "path must start on the alternate a-x edge, got {:?}",
             graph.edges[path[0] as usize].id
         );
@@ -1004,17 +1101,38 @@ pub(crate) mod tests {
         let x = (0.0, 10.0);
         let y = (10.0, 10.0);
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 1.0 },
-            DirectEdge { layer: "F.Cu".into(), u: a, v: x, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: x, v: y, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: y, v: b, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 1.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: x,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: x,
+                v: y,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: y,
+                v: b,
+                capacity: 10.0,
+            },
         ];
-        let nets = vec![
-            net("n1", vec![a, b], 0.5),
-            net("n2", vec![a, b], 0.5),
-        ];
+        let nets = vec![net("n1", vec![a, b], 0.5), net("n2", vec![a, b], 0.5)];
         let r = solve_topology_direct(&nets, &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         // Both nets routable (the alternate exists); capacity (0.5+0.5 <=
         // 0.8... no: usable 0.8, so net 2 re-routes around the bridge) is
         // verified by the post-condition audit; the emission is pad-based.
@@ -1027,7 +1145,11 @@ pub(crate) mod tests {
     fn multi_pad_net_reaches_all_pads() {
         let (edges, nodes) = line_graph();
         let r = solve_topology_direct(&[net("m", vec![nodes[0], nodes[1], nodes[2]], 1.0)], &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         let (_, topo) = &r.net_topologies[0];
         assert_eq!(topo.uses_channels.len(), 2);
     }
@@ -1046,13 +1168,32 @@ pub(crate) mod tests {
         let c = (20.0, 0.0);
         let d = (10.0, 10.0); // spur tip, joined at b
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: b, v: c, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: b, v: d, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: c,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: d,
+                capacity: 10.0,
+            },
         ];
         // Pads at a, d (spur tip), c: path a->d->c retraces the b-d spur.
         let r = solve_topology_direct(&[net("spur", vec![a, d, c], 1.0)], &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         let (_, topo) = &r.net_topologies[0];
         // Emitted: one pad-waypoint id per consecutive pad pair: (a,d) and
         // (d,c) => 2 ids. The spur edge's double traversal stays internal
@@ -1077,11 +1218,12 @@ pub(crate) mod tests {
                 capacity: 10.0,
             });
         }
-        let r = solve_topology_direct(
-            &[net("long", vec![(0.0, 0.0), (29.0, 0.0)], 1.0)],
-            &edges,
+        let r = solve_topology_direct(&[net("long", vec![(0.0, 0.0), (29.0, 0.0)], 1.0)], &edges);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
         );
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
         let (_, topo) = &r.net_topologies[0];
         assert!(
             topo.uses_channels.len() == 1,
@@ -1098,15 +1240,31 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn turn_is_not_emitted_endpoints_only() {
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: (0.0, 0.0), v: (10.0, 0.0), capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: (10.0, 0.0), v: (10.0, 10.0), capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: (10.0, 10.0), v: (20.0, 10.0), capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: (0.0, 0.0),
+                v: (10.0, 0.0),
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: (10.0, 0.0),
+                v: (10.0, 10.0),
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: (10.0, 10.0),
+                v: (20.0, 10.0),
+                capacity: 10.0,
+            },
         ];
-        let r = solve_topology_direct(
-            &[net("L", vec![(0.0, 0.0), (20.0, 10.0)], 1.0)],
-            &edges,
+        let r = solve_topology_direct(&[net("L", vec![(0.0, 0.0), (20.0, 10.0)], 1.0)], &edges);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
         );
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
         let (_, topo) = &r.net_topologies[0];
         assert_eq!(topo.uses_channels.len(), 1, "{:?}", topo.uses_channels);
     }
@@ -1125,16 +1283,37 @@ pub(crate) mod tests {
         let d = (10.0, 10.0);
         let e = (10.0, -10.0);
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: b, v: c, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: b, v: d, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: b, v: e, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: c,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: d,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: e,
+                capacity: 10.0,
+            },
         ];
-        let r = solve_topology_direct(
-            &[net("thru", vec![a, c], 1.0)],
-            &edges,
+        let r = solve_topology_direct(&[net("thru", vec![a, c], 1.0)], &edges);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
         );
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
         let (_, topo) = &r.net_topologies[0];
         assert_eq!(topo.uses_channels.len(), 1, "{:?}", topo.uses_channels);
     }
@@ -1150,14 +1329,33 @@ pub(crate) mod tests {
         let c = (20.0, 0.0);
         let d = (10.0, 10.0); // spur tip, joined at b
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: b, v: c, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: c,
+                capacity: 10.0,
+            },
             // Spur usable = 1.0 * 0.8 = 0.8 < 2×width 0.6? width 0.5: 2×0.5
             // = 1.0 > 0.8 -> the out-and-back cannot fit -> unrouted.
-            DirectEdge { layer: "F.Cu".into(), u: b, v: d, capacity: 1.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: b,
+                v: d,
+                capacity: 1.0,
+            },
         ];
         let r = solve_topology_direct(&[net("spur", vec![a, d, c], 0.5)], &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         assert!(r.net_topologies.is_empty(), "{:?}", r.net_topologies);
         assert_eq!(r.unrouted, vec!["spur".to_string()]);
     }
@@ -1171,11 +1369,25 @@ pub(crate) mod tests {
         let c = (100.0, 100.0);
         let d = (110.0, 100.0);
         let edges = vec![
-            DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 10.0 },
-            DirectEdge { layer: "F.Cu".into(), u: c, v: d, capacity: 10.0 },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: a,
+                v: b,
+                capacity: 10.0,
+            },
+            DirectEdge {
+                layer: "F.Cu".into(),
+                u: c,
+                v: d,
+                capacity: 10.0,
+            },
         ];
         let r = solve_topology_direct(&[net("dis", vec![a, d], 1.0)], &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         assert!(r.net_topologies.is_empty());
         assert_eq!(r.unrouted, vec!["dis".to_string()]);
     }
@@ -1192,7 +1404,10 @@ pub(crate) mod tests {
                 .match_indices('(')
                 .filter_map(|(i, _)| ch[i + 1..].find(')').map(|j| &ch[i + 1..i + 1 + j]))
                 .collect();
-            assert!(groups.len() >= 2, "channel {ch} must carry two coordinate groups");
+            assert!(
+                groups.len() >= 2,
+                "channel {ch} must carry two coordinate groups"
+            );
         }
     }
 
@@ -1200,7 +1415,10 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn solve_is_deterministic() {
         let (edges, nodes) = line_graph();
-        let nets = vec![net("n1", vec![nodes[0], nodes[2]], 1.0), net("n2", vec![nodes[2], nodes[0]], 1.0)];
+        let nets = vec![
+            net("n1", vec![nodes[0], nodes[2]], 1.0),
+            net("n2", vec![nodes[2], nodes[0]], 1.0),
+        ];
         let r1 = solve_topology_direct(&nets, &edges);
         let r2 = solve_topology_direct(&nets, &edges);
         assert_eq!(r1.net_topologies.len(), r2.net_topologies.len());
@@ -1226,9 +1444,18 @@ pub(crate) mod tests {
     fn no_capacity_data_means_unlimited() {
         let a = (0.0, 0.0);
         let b = (10.0, 0.0);
-        let edges = vec![DirectEdge { layer: "F.Cu".into(), u: a, v: b, capacity: 0.0 }];
+        let edges = vec![DirectEdge {
+            layer: "F.Cu".into(),
+            u: a,
+            v: b,
+            capacity: 0.0,
+        }];
         let r = solve_topology_direct(&[net("u", vec![a, b], 999.0)], &edges);
-        assert!(r.post_condition_violations.is_empty(), "{:?}", r.post_condition_violations);
+        assert!(
+            r.post_condition_violations.is_empty(),
+            "{:?}",
+            r.post_condition_violations
+        );
         assert_eq!(r.net_topologies.len(), 1);
     }
 

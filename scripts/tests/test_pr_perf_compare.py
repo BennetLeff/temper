@@ -36,6 +36,7 @@ from pr_perf_compare import (  # noqa: E402
     format_markdown,
     gate_failures,
     load_main_baselines,
+    load_validated_margins,
     main,
     margin_for,
     measure_fixed_commit_noise,
@@ -380,6 +381,106 @@ def test_absent_registry_degrades_to_the_strict_behaviour() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Measurement-regime identity (U1 / R5-R8)
+# ---------------------------------------------------------------------------
+
+
+def _regime_record(ratio: float, regime: str, *, commit: str = "deadbeef", ts: str = "2026-08-04T00:00:00") -> dict:
+    row = _record(ratio, ts=ts)
+    row["git_commit"] = commit
+    row["measurement_regime"] = {
+        "fingerprint": regime,
+        "metadata": {"fixture": regime},
+    }
+    return row
+
+
+def test_legacy_rows_have_a_stable_legacy_regime_identity():
+    baseline = load_main_baselines([_record(0.10)])
+    pr = _regime_record(0.105, "legacy-v2")
+    results = compare([pr], baseline)
+    assert results[0]["status"] == "OK"
+    assert results[0]["measurement_regime"] == "legacy-v2"
+
+
+def test_incompatible_regime_fails_closed_without_using_old_rows():
+    baseline = load_main_baselines([_regime_record(0.50, "old-regime")])
+    results = compare([_regime_record(0.60, "new-regime")], baseline)
+    assert results[0]["status"] == "INCOMPATIBLE_BASELINE"
+    assert results[0]["available_regimes"] == ["old-regime"]
+    failures = gate_failures(results)
+    assert len(failures) == 1
+    assert "INCOMPATIBLE_BASELINE" in failures[0]
+    assert "recapture" in failures[0].lower()
+    report = format_markdown(results, failures)
+    assert "old-regime" in report
+    assert "new-regime" in report
+
+
+def test_mixed_regimes_select_only_the_current_regime_window():
+    records = [
+        _regime_record(0.90, "old-regime", ts="2026-08-04T00:00:01"),
+        _regime_record(0.91, "old-regime", ts="2026-08-04T00:00:02"),
+        _regime_record(0.50, "new-regime", ts="2026-08-04T00:00:03"),
+    ]
+    baselines = load_main_baselines(records)
+    result = compare([_regime_record(0.55, "new-regime")], baselines)[0]
+    assert result["status"] == "OK"
+    assert result["deltas"]["rust_over_oracle_ratio"]["main"] == 0.5
+
+
+def test_fixed_commit_noise_does_not_mix_regimes():
+    records = [
+        _regime_record(1.00, "old-regime", commit="same", ts="2026-08-04T00:00:01"),
+        _regime_record(1.01, "old-regime", commit="same", ts="2026-08-04T00:00:02"),
+        _regime_record(1.50, "old-regime", commit="same", ts="2026-08-04T00:00:03"),
+        _regime_record(0.50, "new-regime", commit="same", ts="2026-08-04T00:00:04"),
+    ]
+    measured = measure_fixed_commit_noise(records)
+    # The singleton new regime is not a qualifying group and cannot dilute or
+    # inflate the old-regime group's noise calculation.
+    assert measured[("bottleneck-geometry", "cell_capacity_batch")]["n"] == 3
+    assert measured[("bottleneck-geometry", "cell_capacity_batch")]["groups"] == 1
+
+
+def test_fixed_commit_margin_uses_newest_regime_not_legacy_noise():
+    key = ("bottleneck-geometry", "cell_capacity_batch")
+    records = [
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:01"),
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:02"),
+        _regime_record(2.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:03"),
+        _regime_record(1.0, "current-regime", commit="current", ts="2026-08-05T00:00:01"),
+        _regime_record(1.0, "current-regime", commit="current", ts="2026-08-05T00:00:02"),
+        _regime_record(1.05, "current-regime", commit="current", ts="2026-08-05T00:00:03"),
+    ]
+
+    measured = measure_fixed_commit_noise(records)
+    assert measured.regimes[key]["legacy-v2"]["worst_pct"] == pytest.approx(100.0)
+    assert measured.regimes[key]["current-regime"]["worst_pct"] == pytest.approx(5.0)
+    assert measured[key]["worst_pct"] == pytest.approx(5.0)
+
+    _, ungateable = derive_margin_table(records)
+    assert key not in ungateable
+
+
+def test_fixed_commit_margin_does_not_fall_back_to_legacy_before_current_group_is_ready():
+    key = ("bottleneck-geometry", "cell_capacity_batch")
+    records = [
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:01"),
+        _regime_record(1.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:02"),
+        _regime_record(2.0, "legacy-v2", commit="legacy", ts="2026-08-04T00:00:03"),
+        _regime_record(1.0, "current-regime", commit="current", ts="2026-08-05T00:00:01"),
+    ]
+
+    measured = measure_fixed_commit_noise(records)
+
+    assert measured.regimes[key]["legacy-v2"]["worst_pct"] == pytest.approx(100.0)
+    assert key in measured  # legacy mapping remains API-compatible
+    assert key not in measured.active
+    assert key not in derive_margin_table(records)[1]
+
+
+# ---------------------------------------------------------------------------
 # Per-benchmark margins (2026-08-05)
 #
 # One constant for seventeen benchmarks produced false regressions on arms
@@ -543,6 +644,39 @@ def test_default_margin_still_applies_to_an_uncharacterised_benchmark():
     assert margin_for(("brand-new", "arm")) == TIMING_MARGIN
     assert margin_for(None) == TIMING_MARGIN
     assert _status_for("rust_over_oracle_ratio", 20.1, ("brand-new", "arm")) == "REGRESSION"
+
+
+def test_trusted_validated_margin_artifact_overrides_static_table(tmp_path):
+    """A refresh run can use measured margins without executing PR code."""
+    artifact = tmp_path / "validated-margins.json"
+    artifact.write_text(json.dumps({
+        "schema_version": 1,
+        "source": "trusted-baseline-refresh-validator",
+        "margins": {
+            "gated": {"bottleneck-geometry/hard_blocked_batch": 0.40},
+            "ungateable": {},
+        },
+    }))
+    margins = load_validated_margins(artifact)
+    result = compare(
+        _pr_row("bottleneck-geometry", "hard_blocked_batch", 0.535),
+        load_main_baselines(_window("bottleneck-geometry", "hard_blocked_batch", 0.40)),
+        validated_margins=margins,
+    )
+    assert result[0]["deltas"]["rust_over_oracle_ratio"]["margin_pct"] == 40.0
+    assert not gate_failures(result)  # +33.75% is below the validated 40%
+
+
+@pytest.mark.parametrize("payload", [
+    {"schema_version": 1, "source": "pr-code", "margins": {"gated": {}, "ungateable": {}}},
+    {"schema_version": 1, "source": "trusted-baseline-refresh-validator", "margins": {"gated": {"bad": 0.2}, "ungateable": {}}},
+    {"schema_version": 1, "source": "trusted-baseline-refresh-validator", "margins": {"gated": {"x/y": 0.2}, "ungateable": {"x/y": 0.3}}},
+])
+def test_validated_margin_artifact_rejects_tampering(tmp_path, payload):
+    artifact = tmp_path / "validated-margins.json"
+    artifact.write_text(json.dumps(payload))
+    with pytest.raises(PerfGateError, match="validated margins"):
+        load_validated_margins(artifact)
 
 
 def _ungateable_case(delta_ratio: float):

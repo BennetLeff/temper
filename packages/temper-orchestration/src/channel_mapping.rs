@@ -24,7 +24,7 @@
 //   `compute_channel_widths`: the edge sampling (`(dx**2 + dy**2) ** 0.5`
 //   via host-libm pow, `int(edge_length / sample_distance)` truncation, the
 //   `i / num_samples` interpolation points), the all-points assembly, the
-//   batch `edt_width_lookup_batch` dispatch, the node/edge-width assembly
+//   direct Rust batch EDT dispatch, the node/edge-width assembly
 //   (CPython `min` first-minimum-wins semantics) and the statistics (CPython
 //   `min`/`max` iterable semantics; the `avg` is the reference's `sum()`
 //   over a first-element-`np.float64` list — numpy scalar arithmetic, i.e.
@@ -53,7 +53,7 @@ use std::borrow::Cow;
 use std::cmp::Ordering;
 
 #[cfg(feature = "python")]
-use pyo3::exceptions::{PyKeyError, PyValueError};
+use pyo3::exceptions::{PyKeyError, PyOverflowError, PyValueError};
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
@@ -70,48 +70,59 @@ use crate::stage::{Stage, StageError};
 // ---------------------------------------------------------------------------
 
 #[cfg(feature = "python")]
-fn tg(py: Python<'_>) -> PyResult<Bound<'_, pyo3::types::PyModule>> {
-    py.import("temper_geometry")
-}
-
-#[cfg(feature = "python")]
-/// `temper_geometry.channel_path_length_py(flatten(waypoints))` — the
+/// `temper_geometry::channel_mapping::path_length(flatten(waypoints))` — the
 /// already-Rust path-length kernel (naive `+=` fold of libm-pow segment
 /// lengths, pinned by the Wave-4 kernel differential).
-fn tg_channel_path_length(py: Python<'_>, waypoints: &[(f64, f64)]) -> PyResult<f64> {
+fn tg_channel_path_length(_py: Python<'_>, waypoints: &[(f64, f64)]) -> PyResult<f64> {
     let mut flat: Vec<f64> = Vec::with_capacity(waypoints.len() * 2);
     for (x, y) in waypoints {
         flat.push(*x);
         flat.push(*y);
     }
-    tg(py)?.call_method1("channel_path_length_py", (flat,))?.extract()
+    // This is a pure value kernel.  Keep the Python float-power overflow
+    // contract at this orchestration boundary, but avoid a second pyo3 hop.
+    temper_geometry::channel_mapping::path_length(&flat).map_err(|err| match err {
+        temper_geometry::channel_mapping::KernelError::Overflow => py_overflow_error(),
+    })
+}
+
+/// Construct the same platform-specific error as CPython's `float_pow`.
+/// `float_pow` uses `PyErr_SetFromErrno(ERANGE)`, so using the host strerror
+/// text (rather than a hard-coded message) keeps the differential contract
+/// valid on both glibc and Darwin.
+#[cfg(feature = "python")]
+fn py_overflow_error() -> PyErr {
+    const ERANGE: i32 = 34;
+    PyOverflowError::new_err((
+        ERANGE,
+        std::io::Error::from_raw_os_error(ERANGE).to_string(),
+    ))
 }
 
 #[cfg(feature = "python")]
 /// `temper_geometry.is_near_skeleton_py(x, y, flatten(nodes), tolerance)` —
 /// the existential `dx*dx + dy*dy <= tolerance*tolerance` kernel.
 fn tg_is_near_skeleton(
-    py: Python<'_>,
+    _py: Python<'_>,
     x: f64,
     y: f64,
     nodes: &[(f64, f64)],
     tolerance: f64,
 ) -> PyResult<bool> {
-    let mut flat: Vec<f64> = Vec::with_capacity(nodes.len() * 2);
-    for (nx, ny) in nodes {
-        flat.push(*nx);
-        flat.push(*ny);
-    }
-    tg(py)?
-        .call_method1("is_near_skeleton_py", (x, y, flat, tolerance))?
-        .extract()
+    // This leaf has no Python-specific contract or error translation. Call
+    // the pure Rust owner directly instead of round-tripping through the
+    // temper_geometry pyo3 module from the orchestration extension.
+    let flat: Vec<f64> = nodes.iter().flat_map(|(nx, ny)| [*nx, *ny]).collect();
+    Ok(temper_geometry::channel_mapping::is_near_skeleton(
+        x, y, &flat, tolerance,
+    ))
 }
 
 #[cfg(feature = "python")]
-/// `temper_geometry.nearest_skeleton_node_py(x, y, flatten(nodes))` — the
+/// `temper_geometry::channel_mapping::nearest_skeleton_node(x, y, flatten(nodes))` — the
 /// argmin-over-`((n - coord)**2, n)` kernel.
 fn tg_nearest_skeleton_node(
-    py: Python<'_>,
+    _py: Python<'_>,
     x: f64,
     y: f64,
     nodes: &[(f64, f64)],
@@ -121,36 +132,36 @@ fn tg_nearest_skeleton_node(
         flat.push(*nx);
         flat.push(*ny);
     }
-    tg(py)?
-        .call_method1("nearest_skeleton_node_py", (x, y, flat))?
-        .extract()
+    temper_geometry::channel_mapping::nearest_skeleton_node(x, y, &flat).map_err(|err| match err {
+        temper_geometry::channel_mapping::KernelError::Overflow => py_overflow_error(),
+    })
 }
 
 #[cfg(feature = "python")]
 /// `temper_geometry.nearest_terminal_order_py(x, y, flatten(pads))` — the
 /// greedy nearest-by-Manhattan ordering over the de-duplicated pad set.
 fn tg_nearest_terminal_order(
-    py: Python<'_>,
+    _py: Python<'_>,
     x: f64,
     y: f64,
     pads: &[(f64, f64)],
 ) -> PyResult<Vec<(f64, f64)>> {
-    let mut flat: Vec<f64> = Vec::with_capacity(pads.len() * 2);
-    for (px, py_) in pads {
-        flat.push(*px);
-        flat.push(*py_);
-    }
-    tg(py)?
-        .call_method1("nearest_terminal_order_py", (x, y, flat))?
-        .extract()
+    // As above, this kernel returns a plain value and needs no Python
+    // object adaptation, so keep the orchestration path Rust-to-Rust.
+    let flat: Vec<f64> = pads.iter().flat_map(|(px, py)| [*px, *py]).collect();
+    Ok(temper_geometry::channel_mapping::nearest_terminal_order(
+        x, y, &flat,
+    ))
 }
 
 #[cfg(feature = "python")]
-/// `temper_geometry.edt_width_lookup_batch(...)` — the batched bilinear
-/// EDT width lookup (one FFI crossing for all sample points).
+/// `temper_geometry::channel_widths::edt_width_lookup_batch(...)` — the
+/// batched bilinear EDT width lookup. The orchestration caller passes owned
+/// byte buffers because that is the existing Python-facing ABI, but the
+/// numerical kernel itself is invoked directly in Rust.
 #[allow(clippy::too_many_arguments)]
 fn tg_edt_width_lookup_batch(
-    py: Python<'_>,
+    _py: Python<'_>,
     xs: &[f64],
     ys: &[f64],
     edt_bytes: &[u8],
@@ -160,60 +171,47 @@ fn tg_edt_width_lookup_batch(
     bounds: (f64, f64, f64, f64),
     cell_size: f64,
 ) -> PyResult<Vec<f64>> {
-    tg(py)?
-        .call_method1(
-            "edt_width_lookup_batch",
-            (
-                xs,
-                ys,
-                edt_bytes,
-                mask_bytes,
-                height_cells,
-                width_cells,
-                bounds,
-                cell_size,
-            ),
-        )?
-        .extract()
+    Ok(
+        temper_geometry::channel_widths::edt_width_lookup_batch_kernel(
+            xs,
+            ys,
+            edt_bytes,
+            mask_bytes,
+            height_cells,
+            width_cells,
+            bounds,
+            cell_size,
+        ),
+    )
 }
 
 // ---------------------------------------------------------------------------
-// net_classification call-backs (the Python module stays single-source —
-// single-layer-mode is process-local mutable state; the is_* predicates
-// already short-circuit on it internally)
+// net classification: the Python module owns only the process-local
+// single-layer switch.  The predicates themselves are pure Rust kernels in
+// temper-io-types, so routing decisions do not call back into Python once
+// that mode bit has been read.
 // ---------------------------------------------------------------------------
-
-#[cfg(feature = "python")]
-fn net_classification(py: Python<'_>) -> PyResult<Bound<'_, pyo3::types::PyModule>> {
-    py.import("temper_placer.router_v6.net_classification")
-}
-
-#[cfg(feature = "python")]
-fn net_class_is_power(py: Python<'_>, net_name: &str) -> PyResult<bool> {
-    net_classification(py)?
-        .call_method1("is_power_net", (net_name,))?
-        .extract()
-}
-
-#[cfg(feature = "python")]
-fn net_class_is_ground(py: Python<'_>, net_name: &str) -> PyResult<bool> {
-    net_classification(py)?
-        .call_method1("is_ground_net", (net_name,))?
-        .extract()
-}
-
-#[cfg(feature = "python")]
-fn net_class_is_hv(py: Python<'_>, net_name: &str) -> PyResult<bool> {
-    net_classification(py)?
-        .call_method1("is_hv_net", (net_name,))?
-        .extract()
-}
 
 #[cfg(feature = "python")]
 fn net_class_single_layer_mode(py: Python<'_>) -> PyResult<bool> {
-    net_classification(py)?
+    py.import("temper_placer.router_v6.net_classification")?
         .call_method0("get_single_layer_mode")?
         .extract()
+}
+
+#[cfg(feature = "python")]
+fn net_class_prefers_back_layer(single_layer_mode: bool, net_name: &str) -> bool {
+    // `router_v6.net_classification` intentionally differs from the core
+    // classifier for power nets (`POWER_NET_PATTERNS_V6` plus the leading
+    // '+' heuristic).  Preserve that exact variant while using its Rust
+    // owner directly.  Single-layer mode is mutable Python session state,
+    // hence the one retained read above.
+    if single_layer_mode {
+        return false;
+    }
+    temper_io_types::placer_core::netclass::is_power_net_v6(net_name)
+        || temper_io_types::placer_core::netclass::is_ground_net(net_name)
+        || temper_io_types::placer_core::netclass::is_hv_net(net_name)
 }
 
 // ---------------------------------------------------------------------------
@@ -254,7 +252,10 @@ type EdgeSamples = ((f64, f64), (f64, f64), Vec<(f64, f64)>);
 
 #[cfg(feature = "python")]
 fn py_float(py: Python<'_>, s: &str) -> PyResult<f64> {
-    py.import("builtins")?.getattr("float")?.call1((s,))?.extract()
+    py.import("builtins")?
+        .getattr("float")?
+        .call1((s,))?
+        .extract()
 }
 
 // ---------------------------------------------------------------------------
@@ -488,7 +489,12 @@ fn map_net_to_channels_impl(
     let waypoints = extract_waypoints_impl(py, &channel_sequence, skeleton_nodes)?;
     let total_length = tg_channel_path_length(py, &waypoints)?;
     let preferred_layer = assign_layer_impl(py, net_name, layer_constraints)?;
-    Ok(Some((channel_sequence, waypoints, total_length, preferred_layer)))
+    Ok(Some((
+        channel_sequence,
+        waypoints,
+        total_length,
+        preferred_layer,
+    )))
 }
 
 // ---------------------------------------------------------------------------
@@ -614,8 +620,7 @@ fn parse_channel_coordinate_impl(
     if clean_id.contains(',') {
         let parts: Vec<&str> = clean_id.split(',').collect();
         if parts.len() == 2
-            && let (Ok(x), Ok(y)) =
-                (py_float(py, parts[0].trim()), py_float(py, parts[1].trim()))
+            && let (Ok(x), Ok(y)) = (py_float(py, parts[0].trim()), py_float(py, parts[1].trim()))
         {
             return Ok(Some((x, y)));
         }
@@ -644,13 +649,11 @@ fn assign_layer_impl(
     net_name: &str,
     layer_constraints: Option<&Bound<'_, PyAny>>,
 ) -> PyResult<String> {
-    if net_class_single_layer_mode(py)? {
+    let single_layer_mode = net_class_single_layer_mode(py)?;
+    if single_layer_mode {
         return Ok("F.Cu".to_string());
     }
-    let heuristic = if net_class_is_power(py, net_name)?
-        || net_class_is_ground(py, net_name)?
-        || net_class_is_hv(py, net_name)?
-    {
+    let heuristic = if net_class_prefers_back_layer(single_layer_mode, net_name) {
         "B.Cu".to_string()
     } else {
         "F.Cu".to_string()
@@ -678,8 +681,9 @@ fn ssot_layer_for_net_impl(
         return Ok(None);
     }
 
-    let reason: String = crate::grid_hv::getattr_default(py, &assignment, "reason", crate::grid_hv::str_py(py, ""))?
-        .extract()?;
+    let reason: String =
+        crate::grid_hv::getattr_default(py, &assignment, "reason", crate::grid_hv::str_py(py, ""))?
+            .extract()?;
     if reason.contains("netclass=Default") {
         return Ok(None);
     }
@@ -829,7 +833,11 @@ pub fn run_expand_all_pad_tree(
     pads: Vec<(f64, f64)>,
 ) -> PyResult<Option<ExpandedPath>> {
     let (_, _, waypoints, _, _) = path;
-    let missing: Vec<(f64, f64)> = pads.iter().copied().filter(|pad| !waypoints.contains(pad)).collect();
+    let missing: Vec<(f64, f64)> = pads
+        .iter()
+        .copied()
+        .filter(|pad| !waypoints.contains(pad))
+        .collect();
     if missing.is_empty() {
         return Ok(None);
     }
@@ -837,7 +845,8 @@ pub fn run_expand_all_pad_tree(
         .last()
         .copied()
         .unwrap_or_else(|| py_min_tuple(&missing));
-    let ordered_missing = tg_nearest_terminal_order(py, attachment_point.0, attachment_point.1, &missing)?;
+    let ordered_missing =
+        tg_nearest_terminal_order(py, attachment_point.0, attachment_point.1, &missing)?;
 
     let mut combined = waypoints.clone();
     combined.extend_from_slice(&ordered_missing);
@@ -1039,7 +1048,10 @@ pub(crate) mod tests {
         // re.findall(r"\(([^)]+)\)", s) — leftmost, non-overlapping.
         assert_eq!(find_paren_groups(""), Vec::<String>::new());
         assert_eq!(find_paren_groups("(0, 0)"), vec!["0, 0"]);
-        assert_eq!(find_paren_groups("edge_(0, 0)_(10, 0)"), vec!["0, 0", "10, 0"]);
+        assert_eq!(
+            find_paren_groups("edge_(0, 0)_(10, 0)"),
+            vec!["0, 0", "10, 0"]
+        );
         assert_eq!(find_paren_groups("CH1"), Vec::<String>::new());
         assert_eq!(find_paren_groups("()"), Vec::<String>::new());
         assert_eq!(find_paren_groups("((a))"), vec!["(a"]);

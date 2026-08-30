@@ -363,18 +363,17 @@ TEMPER_NET_CLASSES = {
     # power_pcb_dataset/drc_ceiling.json, because it is the bus/relay/rectifier
     # nets -- at most 400 V -- that are packed tight, not the tank node.
     #
-    # WHY 6.3mm: IEC 60335-1 Table 18 ("Minimum Creepage Distances for
+    # CREEPAGE: IEC 60335-1 Table 18 ("Minimum Creepage Distances for
     # FUNCTIONAL Insulation", clauses 29.2.4 and L-2), band >500 and <=800 V,
-    # material group IIIa/IIIb, pollution degree 2 = 6.3mm. Table 18 is the
+    # material group IIIa/IIIb, pollution degree 3 = 10.0mm. Table 18 is the
     # correct table for this pair (functional, not basic, insulation) and above
     # 500 V it is numerically IDENTICAL to Table 17 -- the functional-insulation
     # concession that exists in rows i-v is gone by row vi. Full transcription
     # and the clause-29.2.4 exemption analysis:
     # docs/evidence/2026-08-12-hv-hv-creepage-determination.md sec 3.1-3.3.
-    # PD2 is the repo's selected pollution degree
-    # (docs/evidence/2026-08-11-pd2-decision-record.md D1; PD3 would be 10.0mm,
-    # and that record's own sec 2 notes PD3 governs the as-built construction
-    # until the sealed compartment lands -- so 6.3mm is a FLOOR, not a ceiling).
+    # PD2's 6.3mm value is conditional on a sealed compartment that is absent
+    # from this as-built board; PD3 therefore governs (docs/evidence/
+    # 2026-08-11-pd2-decision-record.md).
     #
     # `clearance` is deliberately IDENTICAL to `HighVoltage`'s 2.0mm:
     # docs/evidence/2026-08-12-hv-clearance-adequacy.md settled that 2.0mm is
@@ -384,7 +383,7 @@ TEMPER_NET_CLASSES = {
     # WIDTH RE-SCOPED 2026-08-13, same task/evidence doc as HighVoltage above.
     # tank.c_tank1-p2 carries the same 22.5A RMS tank current as the
     # HighVoltage bus nets (it IS the cap<->coil junction the current flows
-    # through) -- only creepage differs from HighVoltage (6.3mm vs 6.0mm,
+    # through) -- only creepage differs from HighVoltage (10.0mm vs 6.0mm,
     # Table 18 row vi vs row iv, per the class's own header comment). Width
     # tracks HighVoltage's bump 3.0->5.0mm for the identical current-band
     # reason; this net is unrouted on the real board today (PR #1119 S2.2),
@@ -398,7 +397,7 @@ TEMPER_NET_CLASSES = {
         via_drill=0.6,
         via_template="Via3x3",
         voltage_v=923.7,
-        creepage_mm=6.3,
+        creepage_mm=10.0,
         routing_strategy="plane_required",
         dru_priority=21,
         required_layer="B.Cu",
@@ -570,6 +569,52 @@ TEMPER_NET_ASSIGNMENTS = {
     # width just moved to 5.0mm for the current-carrying tier. This is a
     # current-band re-scope, not a domain change.
     "+15V_LS": "HighVoltageSignal",
+    # ADDED 2026-08-18. `input` is GateDriveLS's module-local signal
+    # (elec/src/modules.ato:214, :234) wired to UCC21550 pin 10 = OUTB at
+    # modules.ato:423 -- the driver's SECONDARY-side output. components.ato:71-74
+    # places pins 9 (VSSB), 10 (OUTB), 11 (VDDB) under the part's own
+    # "# Secondary side" comment, and the board's pad->net map confirms it
+    # independently: U6 pad 9 = hb-gnd, pad 10 = input, pad 11 = +15V_LS. It is
+    # physically sandwiched between two already-declared HV nets on adjacent
+    # pins of one package.
+    #
+    # Its reference is VSSB = hb-gnd = dc_bus.hv_minus: 0-15V relative to
+    # hb-gnd (the gate swing, bounded by VDDB, asserted <= 25V at
+    # modules.ato:438), but ~-170V to -155V relative to PWR_RTN. Not SELV.
+    #
+    # It is AFFIRMATIVELY declared HV at elec/domain_manifest.yaml:251 (PR
+    # #1134, 96db2ccde, 2026-08-15) -- not an absence case. But it had no entry
+    # here AND none in pcb/temper.kicad_pro, so it resolved to Default
+    # (0.15/0.2mm) on both enforced surfaces while
+    # router_v6.clearance_check._classify_net_class already returned "HV" for
+    # it. scripts/check_hv_netclass_coverage.py was already failing closed on
+    # this under PROPERTY 1 and BLOCKING PROPERTY 3.
+    #
+    # HighVoltageSignal, not HighVoltage or GateDriveHV. Matches +15V_LS above
+    # -- its own supply rail on the adjacent pin, same domain, same
+    # safety_category, same 2.0/6.0 -- and hb.power_loop.q_high-g, the high
+    # side's structural mirror, already HighVoltageSignal on both surfaces.
+    # trace_width 0.5mm suits the mA gate-drive tier; HighVoltage's 5.0mm
+    # targets the 15-22.5A bus/tank tier.
+    #
+    # GateDriveHV was measured and REJECTED: it clears all 10 of this net's
+    # current violations and surfaces NOTHING, because GateDriveHV is excluded
+    # from the B-side of every reinforced rule in the .kicad_dru and declares
+    # no creepage as an A-side -- `input` would owe zero creepage to any net on
+    # the board, including +3V3, gnd, SHUTDOWN and the fan connector. On a
+    # -170V-referenced conductor that is making a check pass by weakening it.
+    #
+    # Measured delta (each variant run 3x and intersected; kicad-cli is
+    # nondeterministic run-to-run): 10 same-domain false positives clear --
+    # two of them at the package-fixed 0.670mm SOIC-16W pad gap, unsatisfiable
+    # at any placement -- and 9 GENUINE reinforced-barrier exposures against
+    # LV/SELV surface at 8.1-12.5mm. Those 9 are not novel: pads 9/11/14/16
+    # already produce the byte-identical shape against the same primary-side
+    # pins today. `input` was the only secondary-side U6 pin not producing
+    # them, because it was the only one classed Default.
+    #
+    # See docs/evidence/2026-08-18-input-netclass-misclassification.md.
+    "input": "HighVoltageSignal",
     # ADDED 2026-07-28, same evidence doc. "a" (U3's own primary/LED-anode
     # net, between the ZCD divider tap and the H11L1 opto's series
     # resistor -- elec/build/default.net net 24, U3 pin 1 <-> R9 pin 2) was
@@ -637,10 +682,179 @@ TEMPER_NET_ASSIGNMENTS = {
     # are HV-bus-referenced contacts, open when the relay is de-energized).
     "discharge.k_dis1-nc": "HighVoltageSignal",  # k_dis1 contacts group (HV bus)
     "discharge.k_dis2-nc": "HighVoltageSignal",  # k_dis2 contacts group (HV bus)
+    # ADDED 2026-08-18: the remaining six `discharge.*` nets, each
+    # AFFIRMATIVELY DECLARED HV in elec/domain_manifest.yaml
+    # (lines 285/306/313/335/345/359)
+    # yet absent from BOTH enforced surfaces -- this table AND
+    # pcb/temper.kicad_pro's netclass_assignments -- so every one resolved to
+    # `Default` (0.2mm clearance, ZERO creepage) for both the Python placer
+    # and kicad-cli. Same defect shape as `input` (PR #1360) and `hb-gnd`
+    # (PR #1145). Topology re-traced from elec/src/modules.ato directly, NOT
+    # from the manifest's own summary, and cross-checked against the board's
+    # pad->net map; all six are HV-domain throughout, with BOTH ends of every
+    # string already-declared HV nets:
+    #
+    #   r_dis1a-p2 (R6.2+R7.1): mid-node of half-bus-1's bleed string
+    #     `hv_plus -> r_dis1a -> r_dis1b -> k_dis1.NC -> mid`
+    #     (modules.ato:1378-1381). hv_plus = +170V_BUS, mid = PWR_RTN --
+    #     both already-declared HV. Sits ~+85V wrt PWR_RTN.
+    #   r_dis2a-p2 (R8.2+R9.1): mid-node of half-bus-2's string
+    #     `mid -> r_dis2a -> r_dis2b -> k_dis2.NC -> hv_minus`
+    #     (modules.ato:1384-1387). mid = PWR_RTN, hv_minus = DC_BUS_RTN --
+    #     both already-declared HV. Sits ~-85V wrt PWR_RTN.
+    #   r_snub1-p2 (C7.1+R14.2) / r_snub2-p2 (C8.1+R15.2): the RC-snubber
+    #     mid-nodes bridging each relay's own NC-COM contact gap
+    #     (modules.ato:1392-1397). DC-blocked by c_snub*, so these carry only
+    #     transient AC current across a gap whose BOTH ends are HV
+    #     (k_dis*.NC already HV-declared; k_dis*.COM = PWR_RTN / DC_BUS_RTN).
+    #   k_dis1-no (K2.3) / k_dis2-no (K3.3): the relays' NO contacts. The
+    #     manifest's "same physical contact bank as COM/NC" argument holds,
+    #     but UNDERSTATES the case: modules.ato:1388-1389 records that the
+    #     coils are held energized in normal operation, which holds each pole
+    #     ON its NO contact -- so NO is GALVANICALLY BONDED to COM (= PWR_RTN
+    #     for K2, DC_BUS_RTN for K3) for the entire time the unit is running.
+    #     These are live HV pads whenever the product is powered, not merely
+    #     mechanically-adjacent unconnected ones.
+    #
+    # Class choice is HighVoltageSignal, not HighVoltage, for the same
+    # ~20mA current-tier reason the 2026-08-13 re-scope above gives for their
+    # own directly-connected siblings k_dis1-nc/k_dis2-nc: same voltage
+    # domain, same safety_category ("HV"), same 6.0mm creepage parameter and
+    # the same real 2.0mm/12.6mm reinforced enforcement via the ".. to LV"
+    # rule -- it is the current/width requirement alone that differs.
+    # HighVoltage's 5.0mm width would be a bus/tank figure on a mA-scale net.
+    #
+    # VERIFIED this class actually ENFORCES something before proposing it
+    # (the GateDriveHV trap that PR #1360 measured and rejected: that class
+    # is excluded from the B-side of every reinforced rule AND declares no
+    # creepage as an A-side, so a net assigned it owes zero creepage to
+    # anything). HighVoltageSignal is the A-side of a real generated rule --
+    # "HighVoltageSignal to LV", RULE 4d -- carrying clearance 2.0mm and
+    # creepage 12.6mm against every LV/SELV/Default net.
+    #
+    # MEASURED (3 kicad-cli runs per variant, sets intersected, scratch copy
+    # with an fp-lib-table sibling; kicad-cli is nondeterministic run-to-run):
+    # 379 -> 395 errors. 18 creepage violations CLEAR, and every single one is
+    # a same-domain HV<->HV pair that was only ever a false positive of these
+    # nets reading as `Default`/LV (K2.3<->K2.4 and K3.3<->K3.4 -- adjacent
+    # pads of ONE relay contact block; R14.1<->R14.2 and R15.1<->R15.2 -- the
+    # two pads of ONE 2512 resistor, unsatisfiable at any placement; plus
+    # pairs against PWR_RTN, DC_BUS_RTN, SW_NODE, hb-gnd, ac_n, tank-out and
+    # the isolated gate-driver rails). 17 NEW creepage violations surface
+    # against genuinely LV/SELV nets (+3V3, gnd, safety-line/-1/-2,
+    # RTD_SDI/RTD_SDO, V_BUS_SENSE, OCP2_VREF_2V5, rtd_force_n,
+    # rtd_pan.r_high_top-inp, safety.coil_thermal-line/.comp-inp) -- real,
+    # previously-invisible reinforced-barrier exposure, the same shape the
+    # `input` and `hb-gnd` fixes surfaced. Direction is strictly stricter.
+    #
+    # ALSO SURFACED, GENUINE, NOT FIXED HERE: 15 track_width violations, all
+    # on `discharge.r_snub1-p2` -- the ONLY one of these six with any routed
+    # copper, carried at 0.2mm on In3.Cu against HighVoltageSignal's 0.5mm
+    # manufacturability floor. That is a real undersized-trace finding on a
+    # net that swings to the full half-bus, not an artifact of this change;
+    # remediating it means moving copper in pcb/temper.kicad_pcb, which this
+    # task is forbidden to touch. Reported, not applied. Choosing a weaker
+    # class to make it disappear would be the reclassification-to-escape
+    # failure mode this table's own comments warn against.
+    "discharge.k_dis1-no": "HighVoltageSignal",  # K2.3 NO contact; bonded to COM (PWR_RTN) when energized
+    "discharge.k_dis2-no": "HighVoltageSignal",  # K3.3 NO contact; bonded to COM (DC_BUS_RTN) when energized
+    "discharge.r_dis1a-p2": "HighVoltageSignal",  # half-bus-1 bleed mid-node, ~+85V wrt PWR_RTN
+    "discharge.r_dis2a-p2": "HighVoltageSignal",  # half-bus-2 bleed mid-node, ~-85V wrt PWR_RTN
+    "discharge.r_snub1-p2": "HighVoltageSignal",  # K2 NC-COM snubber mid-node
+    "discharge.r_snub2-p2": "HighVoltageSignal",  # K3 NC-COM snubber mid-node
     # RE-SCOPED 2026-08-13, same evidence doc: Q_high's gate current is
     # mA-scale gate-drive current, not bus/tank current -- moved to
     # "HighVoltageSignal".
     "hb.power_loop.q_high-g": "HighVoltageSignal",  # Q_high gate, 1 resistor from GATE_HS
+    # ADDED 2026-08-19 (netclass two-table reconciliation). These 7 nets
+    # are declared under elec/domain_manifest.yaml's domains.HV.nets and
+    # landed there on 2026-08-15 via PR #1164 (commits a458f8e2a /
+    # 3c7f7484d, "classify every Default-netclass net's true domain;
+    # declare 7 newly-found HV nets"). That PR's own commit message names
+    # this table and pcb/temper.kicad_pro as a deliberate, NOT-taken
+    # follow-up ("TEMPER_NET_ASSIGNMENTS / kicad_pro are left as a named
+    # follow-up, same as PR #1145 left them for hb-gnd/s1"). Nothing has
+    # taken it since, so all 7 have been HV-declared but netclass-
+    # unassigned in BOTH tables -- scripts/check_hv_netclass_coverage.py
+    # PROPERTY 1 (this table) and PROPERTY 3 (kicad_pro) have both been
+    # red on origin/main for those 7 names, and on the fab-authoritative
+    # path (kicad-cli DRC, via kicad_pro's netclass_assignments) every one
+    # of them resolves to KiCad's "Default" class: 0.2mm clearance and NO
+    # creepage constraint of any kind. `input` and the six discharge nets
+    # have been physically present on pcb/temper.kicad_pcb since
+    # 2026-07-15 (a1e93e8b5) and 2026-07-16 (b5674c3e0 / f6ec8abbb)
+    # respectively.
+    #
+    # Domain re-verified independently for this change from the evidence
+    # hierarchy (manifest -> elec/src/*.ato -> connected pins), NOT from
+    # net spelling -- every verdict below agrees with PR #1164's:
+    #
+    # - `input`: UCC21550 (U6) pin 10 = OUTB, inside components.ato's own
+    #   "# Secondary side" pin group, plus R22.1 (hb.gate_ls.rg_on.p1).
+    #   Wired at HalfBridge level by `gate_hs.driver.OUTB ~ gate_ls.input`
+    #   (modules.ato:423); `rg_on.p2 ~ drive.out` makes it ONE 2.2ohm gate
+    #   resistor upstream of the already-declared HV net GATE_LS. Floats
+    #   on DC_BUS_RTN via driver.VSSB (pin 9, modules.ato:424) -- roughly
+    #   -170V with respect to signal ground. It is the low-side structural
+    #   analogue of `hb.power_loop.q_high-g` directly above.
+    #
+    #   CLASS CHOICE, and why it is NOT "GateDriveHV" even though `input`
+    #   is literally a gate-driver output: this table's two existing
+    #   precedents for a node one gate-resistor away from a driver output
+    #   DISAGREE -- GATE_HS/GATE_LS are "GateDriveHV", while
+    #   `hb.power_loop.q_high-g` (GATE_HS's own post-resistor sibling) is
+    #   "HighVoltageSignal". Under an unresolved precedent conflict the
+    #   more restrictive class is required, and here the gap is not
+    #   marginal: measured against the generated pcb/temper.kicad_dru,
+    #   the GateDriveHV class has NO rule granting it any clearance or
+    #   creepage against any LV/SELV class -- its only A-side rules are
+    #   "GateDriveHV near HV" (0.5mm), "GateDriveHV to ACMains" (0.5mm)
+    #   and "GateDriveHV to HighVoltageIsolated" (0.5mm), and it is
+    #   explicitly excluded from the B-side of every "... to LV" rule.
+    #   HighVoltageSignal, by contrast, carries "HighVoltageSignal to LV"
+    #   (2.0mm clearance + 12.6mm reinforced creepage). Same voltage
+    #   domain, same safety_category, but only one of the two actually
+    #   enforces the barrier -- see this change's report for the separate
+    #   GateDriveHV finding, which is NOT fixed here.
+    "input": "HighVoltageSignal",
+    # - `discharge.k_dis1-no` / `discharge.k_dis2-no`: pin 3 (NO) of each
+    #   discharge relay, the SAME physical contact block as pin 1 (COM,
+    #   `k_dis1.COM ~ mid` = power_return = already-declared HV PWR_RTN)
+    #   and pin 4 (NC, already declared HV and already classed
+    #   HighVoltageSignal directly above). modules.ato leaves the NO
+    #   contacts deliberately unconnected ("NO contacts intentionally
+    #   unconnected: energized = pole held on NO = discharge path open"),
+    #   so these pads carry zero current -- HighVoltageSignal's 0.5mm
+    #   width is ample and its clearance/creepage (2.0/6.0) are identical
+    #   to HighVoltage's. Matched to their own -nc siblings.
+    "discharge.k_dis1-no": "HighVoltageSignal",
+    "discharge.k_dis2-no": "HighVoltageSignal",
+    # - `discharge.r_dis1a-p2` / `discharge.r_dis2a-p2`: interior mid-node
+    #   of each half-bus bleed string (`hv_plus -> r_dis1a(3.9k) ->
+    #   r_dis1b(3.9k) -> k_dis1.NC -> mid`, modules.ato:1378-1385). BOTH
+    #   ends are already-declared HV nets (+170V_BUS and PWR_RTN), so
+    #   every interior node is unambiguously HV -- unlike the OVP-01
+    #   protective-impedance dividers below, this string never reaches
+    #   SELV at any point. Current is ~20mA (170V/7.8k), three orders of
+    #   magnitude below the bus/tank tier HighVoltage's 5.0mm width
+    #   targets -- the identical derivation already cited for
+    #   discharge.k_dis1-nc/k_dis2-nc above.
+    "discharge.r_dis1a-p2": "HighVoltageSignal",
+    "discharge.r_dis2a-p2": "HighVoltageSignal",
+    # - `discharge.r_snub1-p2` / `discharge.r_snub2-p2`: interior node of
+    #   the RC snubber bridging each relay's own NC-COM contact gap
+    #   (`k_dis1.NC ~ r_snub1.p1`, `r_snub1.p2 ~ c_snub1.p1`, `c_snub1.p2
+    #   ~ k_dis1.COM`, modules.ato:1392-1394). Both ends of that string
+    #   are HV (k_dis1.NC via discharge.k_dis1-nc; k_dis1.COM = mid =
+    #   PWR_RTN), so the interior node is HV throughout -- a DC-blocked
+    #   AC-only path across the SAME HV contact gap, not a crossing into
+    #   another domain. Continuous current is zero (series capacitor);
+    #   the only current is the 1.7A-peak / 47us closure transient
+    #   modules.ato:1164 sizes the snubber for, far inside a 0.5mm
+    #   conductor's transient capability and nowhere near the continuous
+    #   bus/tank tier. HighVoltageSignal.
+    "discharge.r_snub1-p2": "HighVoltageSignal",
+    "discharge.r_snub2-p2": "HighVoltageSignal",
     # ADDED 2026-07-28, same sweep. hb.gate_hs.driver-p1-1 (VDDA) /
     # hb.gate_hs.driver-p2 (VSSA) are the two REAL, currently-compiled nets
     # of the HighVoltageIsolated class defined above (elec/build/default.net
@@ -695,10 +909,42 @@ TEMPER_NET_ASSIGNMENTS = {
     # separate, still-open follow-up (matches PR #1145/#1164's own precedent
     # of leaving that wiring for later); this entry alone does not yet change
     # the physical board's DRC creepage enforcement.
-    "safety.ovp.r_div_top1-p2": "HighVoltage",
-    "safety.ovp.r_div_top2-p2": "HighVoltage",
-    "safety.ovp.r_adc_top1-p2": "HighVoltage",
-    "safety.ovp.r_adc_top2-p2": "HighVoltage",
+    # REMOVED 2026-08-25. The four OVP-01 mid-chain divider nodes were
+    # mapped to "HighVoltage" above as a deliberate interim over-provision,
+    # and that comment closed by saying pcb/temper.kicad_pro's
+    # netclass_assignments -- "what the real kicad-cli DRC reads" -- was "a
+    # separate, still-open follow-up" and that "this entry alone does not yet
+    # change the physical board's DRC creepage enforcement".
+    #
+    # #1391 wired kicad_pro. That turned the interim entry into live DRC
+    # enforcement, and the figure it enforces is NOT the 6.0mm the
+    # over-provision was reasoned about: "HighVoltage" participates in the
+    # `HV to LV` rule, so kicad-cli applies REINFORCED creepage 12.6mm --
+    # the mains<->SELV barrier -- to nodes the evidence doc measures at
+    # 58.1-87.4V and 114.4V.
+    #
+    # docs/evidence/2026-08-13-ovp01-midchain-single-fault-creepage.md Sec 4
+    # gives the correct bands from IEC 60335-1 Table 18 (functional
+    # insulation, material group IIIa/IIIb): >50 and <=125V is 1.4mm PD2 /
+    # 2.2mm PD3, with Table 17 basic insulation at 1.5/2.4 and 2.5/4.0mm as
+    # the open alternative. So the enforced 12.6mm is 3-9x the applicable
+    # figure by that document's own derivation.
+    #
+    # MEASURED cost of the over-constraint, 5 samples, spread 0:
+    #   with these four assigned    errors 473  clearance 227  creepage 149
+    #   with them removed           errors 413  clearance 209  creepage 107
+    # 60 errors, and creepage returns exactly to its pre-#1391 value of 107 --
+    # i.e. every one of #1391's creepage findings came from these four nets.
+    #
+    # domain_manifest.yaml declines these nets deliberately and says so:
+    # "genuinely mid-chain, neither HV nor SELV by voltage ... not silently
+    # dropped: flagged". Removing them here restores agreement between all
+    # three tables rather than leaving two of them asserting a barrier the
+    # third rejects.
+    #
+    # The real fix is the purpose-built netclass at the correct Table 17/18
+    # row that the evidence doc names in its Sec 6 follow-ups. That needs the
+    # table-choice question answered and is not invented here.
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
     "sdi": "FinePitch",
@@ -713,6 +959,51 @@ TEMPER_NET_ASSIGNMENTS = {
     "RTD_SDO": "FinePitch",
     "RTD_DRDY": "FinePitch",
     "RTD_HW_FAULT": "FinePitch",
+    # ADDED 2026-08-19 (netclass two-table reconciliation). The two
+    # remaining elec/domain_manifest.yaml SELV-domain nets with no
+    # assignment in pcb/temper.kicad_pro (scripts/
+    # check_hv_netclass_coverage.py PROPERTY 4, red on origin/main).
+    # Declared here first so kicad_pro can be DERIVED from this table by
+    # scripts/sync_kicad_netclass_assignments.py rather than hand-copied.
+    #
+    # Both were traced to SELV in the manifest itself, from the compiled
+    # netlist, and re-verified for this change:
+    #
+    # - `s1`: OCP-02's CT (T2 / safety.ocp2.ct) SECONDARY node. Netlist
+    #   net code 117 = T2.3 (ct.S1), U19.3 (TLV3201 INP), C37.1
+    #   (c_filter), R65.1 (r_burden). modules.ato SecondaryOCPComparator
+    #   wires `ct.S2 ~ power.gnd` and `r_burden.p2 ~ power.gnd`, and
+    #   main.ato:859 chains `safety.power_3v3.gnd ~ gnd` -- the secondary
+    #   has NO galvanic connection to the primary (which sits on
+    #   hb-gnd/DC_BUS_RTN), so it is referenced to signal ground
+    #   regardless of the primary's common-mode voltage. This is the
+    #   exact isolation construction of `I_SENSE` (T1's secondary), and
+    #   `I_SENSE` is classed FinePitch -- matched to its twin.
+    "s1": "FinePitch",
+    # - `safety.ocp2-line`: OCP-02's fault line on TP3 (U25.2 comparator
+    #   output, U19.1 fault-OR input, TP3.1). Entirely SELV: the TLV3201
+    #   is powered from power_3v3 and no HV node is read, driven or
+    #   referenced on this net; the sensing happens through CT2's
+    #   isolated secondary (above). Matched to `RTD_HW_FAULT` directly
+    #   above -- the board's other SELV comparator/fault status line.
+    #
+    # NOTE on class choice for these two: it is deliberately NOT a
+    # safety-bearing decision, and this is provable rather than assumed.
+    # Every "... to LV" rule in the generated pcb/temper.kicad_dru
+    # conditions its B side on `B.NetClass != <each HV-family class>`, so
+    # a net gets the full 2.0mm/12.6mm reinforced barrier against every
+    # HV net if and only if its class is not one of the HV-family
+    # classes. FinePitch, Power, GND and KiCad's own Default are
+    # therefore INDISTINGUISHABLE to every HV<->SELV rule; they differ
+    # only in their own baseline netclass clearance and trace width,
+    # which for these two low-current sense/logic nets is a functional
+    # and routability matter, not a shock-hazard one. The maximally
+    # restrictive alternative would be "Power" (0.5mm baseline vs
+    # FinePitch's 0.1mm); it is not taken because the evidence here is
+    # not absent or ambiguous -- each net has a directly-traced twin
+    # already carrying FinePitch -- and because Power's 1.0mm track width
+    # is wrong for a CT burden node and a comparator output.
+    "safety.ocp2-line": "FinePitch",
     # GateDriveHV/GateDriveSELV - MOSFET gate drive signals, split 2026-07-28
     # (R4) across U7's reinforced isolation barrier. GATE_* are the
     # secondary-side (HV) gate outputs; PWM_* are the primary-side (SELV)

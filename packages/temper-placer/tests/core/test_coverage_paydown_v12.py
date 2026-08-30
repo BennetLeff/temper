@@ -4,12 +4,10 @@ Targets allowlist entries across:
 - io/placement_exporter (5): soft_to_discrete_rotations, rotation_index_to_degrees,
   positions_to_placements, cleanup_temp_pcb, create_pcb_exporter
 - io/kicad_writer (2): placements_to_json, placements_from_json
-- pipeline/dag_types (1): StageResult.success
 - pipeline/bottleneck_report (12): BottleneckNetEntry, BottleneckRegion,
   CongestionHeatmapData, BottleneckReport to_dict/from_dict/from_json/to_json
   + routed_count/failed_count
 - pipeline/convergence (1): is_converged
-- pipeline/dag_expr (2): parse_skip_expr, evaluate_skip_expr
 - pipeline/dag_observability (2): PipelineExecutionLog.to_dict, write_execution_log_json
 - pipeline/explainability (4): DecisionLogger.log_placement, log_routing, finish,
   generate_markdown_report
@@ -42,12 +40,10 @@ from temper_placer.pipeline.bottleneck_report import (
     CongestionHeatmapData,
 )
 from temper_placer.pipeline.convergence import is_converged
-from temper_placer.pipeline.dag_expr import evaluate_skip_expr, parse_skip_expr
 from temper_placer.pipeline.dag_observability import (
     PipelineExecutionLog,
     write_execution_log_json,
 )
-from temper_placer.pipeline.dag_types import DataContext, StageResult
 from temper_placer.pipeline.derivation import (
     apply_derived_constraints,
     derive_constraints_from_spec,
@@ -247,29 +243,6 @@ class TestPlacementsToFromJson:
         assert len(d) == 1
         restored = placements_from_json(d)
         assert restored["R1"].rotation == 180.0
-
-
-# ---------------------------------------------------------------------------
-# pipeline/dag_types
-# ---------------------------------------------------------------------------
-
-
-class TestStageResultSuccess:
-    """Tests for pipeline/dag_types.py::StageResult.success."""
-
-    def test_default_creates_result(self):
-        result = StageResult.success()
-        assert isinstance(result, StageResult)
-        assert result.outputs == {}
-        assert result.duration_s == 0.0
-
-    def test_with_outputs(self):
-        result = StageResult.success({"key": "value"})
-        assert result.outputs == {"key": "value"}
-
-    def test_with_none_outputs(self):
-        result = StageResult.success(None)
-        assert result.outputs == {}
 
 
 # ---------------------------------------------------------------------------
@@ -562,144 +535,6 @@ class TestIsConverged:
         current = {"a": FakeResult(success=False, length=100.0)}
         previous = {"a": FakeResult(success=False, length=99.0)}
         assert is_converged(current, previous) is False
-
-
-# ---------------------------------------------------------------------------
-# pipeline/dag_expr
-# ---------------------------------------------------------------------------
-
-
-class TestParseSkipExpr:
-    """Tests for pipeline/dag_expr.py::parse_skip_expr."""
-
-    def test_parse_literal_true(self):
-        expr = parse_skip_expr("true")
-        assert expr is not None
-
-    def test_parse_literal_false(self):
-        expr = parse_skip_expr("false")
-        assert expr is not None
-
-    def test_parse_comparison(self):
-        expr = parse_skip_expr("config.foo == 5")
-        assert expr is not None
-
-    def test_parse_and_expression(self):
-        expr = parse_skip_expr("true and false")
-        assert expr is not None
-
-    def test_parse_or_expression(self):
-        expr = parse_skip_expr("true or false")
-        assert expr is not None
-
-    def test_parse_not_expression(self):
-        expr = parse_skip_expr("not true")
-        assert expr is not None
-
-    def test_parse_null(self):
-        expr = parse_skip_expr("null")
-        assert expr is not None
-
-
-class TestEvaluateSkipExpr:
-    """Tests for pipeline/dag_expr.py::evaluate_skip_expr."""
-
-    def _make_context(self, **kwargs) -> DataContext:
-        return dict(kwargs)
-
-    def _make_config(self, **kwargs):
-        class _Config:
-            def __init__(self, **entries):
-                self.__dict__.update(entries)
-
-        return _Config(**kwargs)
-
-    def _make_state(self, **kwargs):
-        class _State:
-            def __init__(self, **entries):
-                self.__dict__.update(entries)
-
-        return _State(**kwargs)
-
-    def test_evaluate_literal_true(self):
-        expr = parse_skip_expr("true")
-        assert evaluate_skip_expr(expr, None, None, {}) is True
-
-    def test_evaluate_literal_false(self):
-        expr = parse_skip_expr("false")
-        assert evaluate_skip_expr(expr, None, None, {}) is False
-
-    def test_evaluate_null_is_falsy(self):
-        expr = parse_skip_expr("null")
-        # null is None, which is falsy, so `not null` is True
-        expr2 = parse_skip_expr("not null")
-        assert evaluate_skip_expr(expr2, None, None, {}) is True
-
-    def test_evaluate_config_accessor(self):
-        expr = parse_skip_expr("config.foo == 5")
-        config = self._make_config(foo=5)
-        assert evaluate_skip_expr(expr, config, None, {}) is True
-
-    def test_evaluate_config_accessor_false(self):
-        expr = parse_skip_expr("config.bar == 3")
-        config = self._make_config(bar=7)
-        assert evaluate_skip_expr(expr, config, None, {}) is False
-
-    def test_evaluate_state_accessor(self):
-        expr = parse_skip_expr("state.baz == 'hello'")
-        state = self._make_state(baz="hello")
-        assert evaluate_skip_expr(expr, None, state, {}) is True
-
-    def test_evaluate_context_accessor(self):
-        expr = parse_skip_expr("context.x == 42")
-        ctx = self._make_context(x=42)
-        assert evaluate_skip_expr(expr, None, None, ctx) is True
-
-    def test_evaluate_and(self):
-        expr = parse_skip_expr("true and true")
-        assert evaluate_skip_expr(expr, None, None, {}) is True
-
-        expr2 = parse_skip_expr("true and false")
-        assert evaluate_skip_expr(expr2, None, None, {}) is False
-
-    def test_evaluate_or(self):
-        expr = parse_skip_expr("false or true")
-        assert evaluate_skip_expr(expr, None, None, {}) is True
-
-        expr2 = parse_skip_expr("false or false")
-        assert evaluate_skip_expr(expr2, None, None, {}) is False
-
-    def test_evaluate_not(self):
-        expr = parse_skip_expr("not false")
-        assert evaluate_skip_expr(expr, None, None, {}) is True
-
-    def test_evaluate_complex(self):
-        expr = parse_skip_expr("config.x > 0 and config.x < 100")
-        config = self._make_config(x=50)
-        assert evaluate_skip_expr(expr, config, None, {}) is True
-
-        config2 = self._make_config(x=200)
-        assert evaluate_skip_expr(expr, config2, None, {}) is False
-
-    def test_evaluate_comparison_ops(self):
-        for op, val, expected in [
-            ("==", 5, True),
-            ("==", 3, False),
-            ("!=", 3, True),
-            ("!=", 5, False),
-            ("<", 10, True),
-            ("<", 5, False),
-            (">", 0, True),
-            (">", 5, False),
-            ("<=", 5, True),
-            ("<=", 10, True),
-            (">=", 5, True),
-            (">=", 10, False),
-        ]:
-            expr = parse_skip_expr(f"config.x {op} {val}")
-            config = self._make_config(x=5)
-            result = evaluate_skip_expr(expr, config, None, {})
-            assert result is expected, f"config.x {op} {val} (x=5) should be {expected}"
 
 
 # ---------------------------------------------------------------------------

@@ -14,8 +14,8 @@
 //! Two exclusion classes apply here, both structural:
 //!
 //! * `#[cfg(feature = "python")]` modules -- `explain`, `report`,
-//!   `reference_aliases`, `footprint_library`, `dsn_pyo3` and
-//!   `zone_filler`.  Each is a *whole* pyo3 surface: its entry
+//!   `reference_aliases`, `footprint_library` and `dsn_pyo3`.  Each
+//!   is a *whole* pyo3 surface: its entry
 //!   points take and return `Bound<'_, PyAny>` and read Python
 //!   runtime semantics (`str()`, `yaml.safe_load`, `str.strip`)
 //!   back across the boundary, so there is no kernel underneath to
@@ -43,20 +43,18 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 6942 eligible tests, in a stable order.  Each entry is
+/// All 6927 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
-    #[cfg(feature = "wasm-registry-io-types")] crate::dag_expr::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-io-types")] crate::dag_expr::depth_boundary::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn_exporter::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn_exporter::property_campaigns::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::dsn_types::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-io-types")] crate::dsn_types::tests::frozen_dsn_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::export_types::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::footprint_spec::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::golden_diff::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-io-types")] crate::isolation::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::kicad_write_geometry::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::placer_core::adjacency::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-io-types")] crate::placer_core::manufacturing::tests::WASM_TESTS,

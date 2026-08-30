@@ -22,8 +22,6 @@
 //                     `_diff` compare), CardinalitySnapshot (the
 //                     `_CardinalitySnapshot` dataclass) — the final portable
 //                     router_v6 orchestration module
-// - `copper_length` — temper-workflow routing/route_and_measure.py:
-//                     measure_copper_length
 // - `feasibility`   — pipeline/convergence.py + pipeline/preflight.py +
 //                     pipeline/derivation.py: record_loss, check_success,
 //                     is_converged, check_routability_regression,
@@ -31,6 +29,12 @@
 //                     zone_over_capacity, loop_area_violation,
 //                     isolation_barrier_too_large, derive_* and the
 //                     min-clearance extraction (pipeline-feasibility slice)
+// - `partition_planner` — deterministic coarse placement clusters.  Complete
+//                     sorted pin-class signatures constrain electrical-net
+//                     unions, so shared global rails cannot bridge safety
+//                     domains; the plain tuple/list plan is the CP-SAT seam,
+//                     with compact aspect-aware shelf envelope sizing and
+//                     Rust-owned per-partition creepage gap reduction.
 //
 // The Rust orchestration engine (Rust Orchestration Engine plan
 // 2026-08-09-001, U0 scaffolding + U1 convergence) lives here too:
@@ -67,10 +71,10 @@
 //                     as a `Stage<BoardState>` implementor
 // - `explainability` — Phase-A U8: the explainability DATA CONTRACTS
 //                     (`Decision`, `Alternative`, `DecisionTrace`, `Entry`,
-//                     `Trace` pyclasses) and the `MarkdownReport` renderers
-//                     (`render_markdown_report` / `render_component_report`),
-//                     bit-exact with `explainability/{decision,trace,
-//                     markdown_report}.py` (oracles in the temper-placer test
+//                     `Trace` pyclasses; the former MarkdownReport binding
+//                     was differential-only and is no longer exported,
+//                     bit-exact with `explainability/{decision,trace}.py`
+//                     (oracles in the temper-placer test
 //                     tree); the NL-generation kernels stay single-source in
 //                     temper-io-types and are called back from the pyclasses
 // - `grid_stage`    — Phase D batch D3: the deterministic clearance-grid
@@ -84,7 +88,7 @@
 //                     `_grid_hv.hv_pad_set` orchestration: zone -> HV
 //                     component resolution with the temper-geometry spatial
 //                     fallback, `ConfigError` raising, pad-set assembly)
-// - `grid_fence`    — Phase D batch D3: `run_grid_fence_check` + 
+// - `grid_fence`    — Phase D batch D3: `run_grid_fence_check` +
 //                     `run_grid_perf_budget` (the `_grid_fence`
 //                     conservatism-fence and perf-budget orchestration with
 //                     CPython-`__format__`-rendered messages)
@@ -112,17 +116,17 @@
 //                     the `_isolation_filter` + K4 reclaim, `_get_copper_zones`,
 //                     the per-zone copper + isolation-cutout slot walk and the
 //                     `zone_slots` / `reclaim_by_pin_pair` writes; the
-//                     slot-grid / ray-casting / AABB leaf kernels, the
-//                     `POWER_NET_NAMES` classification set and the
-//                     `isolation_slot_aabb` stay single-source in
-//                     design-bundle / Python and are driven through FFI)
+//                     slot-grid / ray-casting / AABB leaf kernels and the
+//                     `POWER_NET_NAMES` classification set stay single-source
+//                     in design-bundle / Python and are driven through FFI;
+//                     isolation-slot AABB arithmetic is private to this stage)
 // - `placement_validation_stage` — Phase D batch D6: the
 //                     `PlacementValidationStage` `Stage<BoardState>` impl
 //                     (mirroring `deterministic/stages/placement_validation.py`:
 //                     the no-board guard, the component-position extraction,
-//                     the proximity / signal-HV sweeps calling the Python
-//                     `_validate_proximity` / `_validate_signal_hv` helpers
-//                     back, the hard-violation filter + raise message and the
+//                     the proximity / signal-HV sweeps calling the
+//                     temper-drc-rs kernels directly, the hard-violation
+//                     filter + raise message and the
 //                     `placement_violations` write)
 // - `via_validation_stage` — Phase D batch D6: the `ViaValidationStage` +
 //                     `ViaDeduplicationStage` `Stage<BoardState>` impls
@@ -188,24 +192,34 @@
 // into `PyPanicException`, so no panic can unwind across the pyo3 frame
 // into CPython (the crate also sets `profile.release.panic = "unwind"` so
 // that catch is what runs).
-mod board_state;
 mod apply_placements_stage;
+mod board_state;
+// Option-E subprocess serialization (2026-08-21): `NativeBoardState` <->
+// JSON for the Rust CLI driver's per-stage Python subprocesses. Ungated
+// (pure serde, no pyo3) so the wasm tier and the CLI both compile it.
+pub mod state_ser;
+// Option-E subprocess stage: `Stage<NativeBoardState>` over one
+// `_stage_subprocess.py` invocation. Ungated like `state_ser`.
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
 mod component_assignment_stage;
+pub mod subprocess_stage;
 // 2026-08-17 placer constraint/clearance Rust-port stage 2: the
 // `netclass_constraints.py` cross-class SEPARATED constraint orchestration
 // (O(n^2) pairing loop, severity-rank component classification,
 // class-pair-override lookup). See netclass.rs's own header comment.
 pub(crate) mod netclass;
+// Deterministic coarse placement partition contract.  The planner is pure
+// Rust; only its plain tuple/list boundary is exposed through pyo3.
 mod config_attach_stage;
 mod connectivity_validation_stage;
 mod convergence;
-pub(crate) mod copper_length;
 mod courtyard_check_stage;
 mod d1_bridge;
 mod d6_util;
 mod derivation_stage;
+pub(crate) mod partition_planner;
+pub(crate) mod creepage_lower_bounds;
 // Orchestration-port unit U-E (Rust Orchestration Engine plan 2026-08-09-001):
 // the `DeterministicPipeline` pyclass hosting the `create_drc_aware_pipeline()`
 // stage factory (the D1->D7 ORDER) and the `DeterministicPipeline.run()`
@@ -237,8 +251,9 @@ mod cpsat_loop;
 // Wave-4 CP-SAT placement-loop slice): the `FeedbackClassifier.classify()`
 // feedback-DECISION sequencing of `temper_placer/placer/cp_sat/feedback.py`.
 // The `classify_feedback` pyfunction is the delegation target of the shim's
-// `classify()`; the four `_handle_*` constraint-building handlers and the
-// leaf helpers stay Python call-backs. Append-only per the U-I dispatch.
+// `classify()`; congestion handling is Rust-owned while clearance and the
+// remaining constraint-building handlers retain Python-object seams.
+// Append-only per the U-I dispatch.
 mod feedback;
 // Orchestration-port unit U-I (Rust Orchestration Engine plan 2026-08-09-001,
 // Wave-4 CP-SAT placement-loop slice): the RESIDUAL non-ortools orchestration
@@ -252,7 +267,6 @@ mod feedback;
 // `build_validator_placement` / the pad-schema serialization and
 // `verify_iec60335_compliance` stay Python call-backs. Append-only per the
 // U-I dispatch.
-mod validator_audit;
 mod drc_sweep_stage;
 mod drc_validation_stage;
 pub(crate) mod explainability;
@@ -266,13 +280,14 @@ mod hv_lv_partition_stage;
 mod layer_assignment_stage;
 #[cfg(feature = "python")]
 pub(crate) mod marshal;
+mod validator_audit;
 // Unit O-C3/U2: the owned leaf-struct boundary — `Marshal` impls for the
 // `temper-data-model` `Component`/`Pin`/`Net` structs (python-gated: they
 // are the pyo3 half of the data-model port; the structs themselves are pure
 // Rust in the sibling crate).
+mod net_ordering_stage;
 #[cfg(feature = "python")]
 pub(crate) mod netlist_owned;
-mod net_ordering_stage;
 pub(crate) mod phased_assignment_stage;
 pub(crate) mod phased_component_assignment_validator_stage;
 pub(crate) mod pipeline;
@@ -294,8 +309,8 @@ pub(crate) mod timing;
 mod trace_filter;
 mod via_validation_stage;
 mod zone_assignment_stage;
-mod zone_geometry_stage;
 pub(crate) mod zone_aware_slot_generation_stage;
+mod zone_geometry_stage;
 
 // Deterministic SplitMix64 generator shared by the `proptest`-mirroring
 // campaigns added to `timing`/`host_math`/`copper_length`/`clearance`/
@@ -345,8 +360,7 @@ pub(crate) mod pipeline_route;
 pub(crate) mod reporter;
 
 // Phase C residual (Rust Orchestration Engine plan 2026-08-09-001, U4-style
-// dispatch): the pipeline-contract tail — `pipeline/dag_types.py` →
-// `dag_types` (the `StageResult` dataclass), `pipeline/dag_observability.py`
+// dispatch): the pipeline-contract tail — `pipeline/dag_observability.py`
 // → `dag` (the `StageEvent` / `PipelineExecutionLog` observability
 // dataclasses + the asdict `to_dict` serialization), `pipeline/
 // bottleneck_report.py` → `bottleneck` (`BottleneckNetEntry` /
@@ -361,7 +375,6 @@ pub(crate) mod reporter;
 // needs stay Python. Append-only per the U4 dispatch.
 pub(crate) mod bottleneck;
 pub(crate) mod dag;
-pub(crate) mod dag_types;
 pub(crate) mod metrics;
 
 // Public re-exports for the orchestration engine's Rust consumers (the
@@ -369,13 +382,12 @@ pub(crate) mod metrics;
 // Append-only per the U4 dispatch; the individual modules stay private.
 pub use apply_placements_stage::ApplyPlacementsStage;
 #[cfg(feature = "python")]
-pub use board_state::{BoardState, RouteEntry, SlotId, ViaEntry};
+pub use board_state::{BoardState, RouteEntry, ViaEntry};
+pub use board_state::{NativeBoardState, SlotId};
 #[cfg(feature = "python")]
 pub use channel_mapping::{ChannelMappingStage, ChannelWidthsStage};
 #[cfg(feature = "python")]
-pub use clearance::{
-    ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage,
-};
+pub use clearance::{ClearanceCheckStage, ClearanceEngineStage, CreepageCheckStage};
 #[cfg(feature = "python")]
 pub use component_assignment_stage::ComponentAssignmentStage;
 #[cfg(feature = "python")]
@@ -384,20 +396,26 @@ pub use connectivity_validation_stage::ConnectivityValidationStage;
 #[cfg(feature = "python")]
 pub use courtyard_check_stage::CourtyardCheckStage;
 pub use derivation_stage::DerivationStage;
-#[cfg(feature = "python")]
-pub use deterministic_pipeline::{DeterministicPipeline, drc_aware_stage_order};
-#[cfg(feature = "python")]
-pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
+// The D1->D7 stage ORDER (23 stages) is pure Rust (a const table + a pure
+// substitution function over it) — ungated so the Rust CLI driver can drive
+// the sequencing order without an interpreter. The `DeterministicPipeline`
+// pyclass (the Python-driven run loop) stays python-gated.
 #[cfg(feature = "python")]
 pub use cpsat_loop::{
     cpsat_run_gated_loop, cpsat_run_legacy_loop, cpsat_solve_phase2, cpsat_solve_with_delta,
 };
 #[cfg(feature = "python")]
-pub use feedback::classify_feedback;
-#[cfg(feature = "python")]
-pub use validator_audit::audit_domain_clearance_validator;
+pub use deterministic_pipeline::DeterministicPipeline;
+pub use deterministic_pipeline::drc_aware_stage_order;
 pub use drc_sweep_stage::{DRCSweepStage, ShortCircuitDetectionStage, TrackDeduplicationStage};
 pub use drc_validation_stage::DRCValidationStage;
+#[cfg(feature = "python")]
+pub use feedback::{
+    classify_feedback, compute_heuristic_position, detect_persistent_ics, find_critical_components,
+    handle_congestion,
+};
+#[cfg(feature = "python")]
+pub use feedback_loop::{FeedbackIterationStage, FeedbackRunContext, run_automated_zero_drc};
 #[cfg(feature = "python")]
 pub use fine_pitch_escape_stage::FinePitchEscapeStage;
 #[cfg(feature = "python")]
@@ -407,15 +425,24 @@ pub use hv_lv_partition_stage::HvLvPartitionStage;
 pub use layer_assignment_stage::LayerAssignmentStage;
 #[cfg(feature = "python")]
 pub use net_ordering_stage::NetOrderingStage;
+pub use partition_planner::{
+    ComponentPinClasses, CreepageDisplacementGroups, ElectricalNet, GroupedCreepagePlan,
+    NetTerminal, PartitionCreepageRequirements, PartitionEnvelope, PartitionPlan, PinClassRecord,
+    compact_partition_envelopes, compact_partition_envelopes_with_internal_gaps,
+    internal_component_creepage_requirements, partition_creepage_requirements,
+    plan_component_partitions, plan_creepage_displacement_groups, plan_grouped_creepage_cuts,
+};
 #[cfg(feature = "python")]
 pub use phased_assignment_stage::PhasedAssignmentStage;
-pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
 #[cfg(feature = "python")]
 pub use phased_component_assignment_validator_stage::phased_validator_hv;
+pub use pipeline::{PipelineConfig, PipelineRunner, StageOutcome, StageReport};
+#[cfg(feature = "python")]
+pub use pipeline_route::PipelineRouteStage;
 #[cfg(feature = "python")]
 pub use placement_validation_stage::PlacementValidationStage;
 #[cfg(feature = "python")]
-pub use pipeline_route::PipelineRouteStage;
+pub use validator_audit::audit_domain_clearance_validator;
 // The emission `Via` (private layer pair + `emit_s_expr` as the only
 // sexpr-producing API) is re-exported so its `compile_fail` doctest — the
 // structural guarantee that the blind/buried/through type token cannot be
@@ -432,14 +459,20 @@ pub use router_pipeline::RouterPipeline;
 #[cfg(feature = "python")]
 pub use setup_stage::{DrcOracleSetupStage, NetClassSetupStage};
 pub use slot_generation_stage::SlotGenerationStage;
-#[cfg(feature = "python")]
+// Ungated (2026-08-20, Option E scaffolding): the `Stage<S>` trait,
+// `StageError` and `StageErrorKind` are pure Rust in both configurations
+// (the non-python `Stage<S>` simply has no `BoardState` default type
+// parameter — the `From<PyErr>` impl stays python-gated inside stage.rs).
+// The Rust CLI driver needs them to implement leaf-callback stages for
+// `PipelineRunner` without an interpreter.
 pub use stage::{Stage, StageError, StageErrorKind};
+pub use subprocess_stage::SubprocessStage;
 pub use via_validation_stage::{ViaDeduplicationStage, ViaValidationStage};
 pub use zone_assignment_stage::ZoneAssignmentStage;
 #[cfg(feature = "python")]
-pub use zone_geometry_stage::ZoneGeometryStage;
-#[cfg(feature = "python")]
 pub use zone_aware_slot_generation_stage::ZoneAwareSlotGenerationStage;
+#[cfg(feature = "python")]
+pub use zone_geometry_stage::ZoneGeometryStage;
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -450,21 +483,29 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(timing::compare_stage, m)?)?;
     m.add_function(wrap_pyfunction!(timing::p95, m)?)?;
     m.add_function(wrap_pyfunction!(trace_filter::filter_decisions, m)?)?;
-    m.add_function(wrap_pyfunction!(trace_filter::find_rejected_alternative, m)?)?;
-    m.add_function(wrap_pyfunction!(copper_length::measure_copper_length, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::record_loss, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::check_success, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        trace_filter::find_rejected_alternative,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(feasibility::is_converged, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::check_routability_regression, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::component_area_ratio, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::proximity_rule_impossible, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::zone_over_capacity, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::loop_area_violation, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::isolation_barrier_too_large, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        feasibility::isolation_barrier_too_large,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(feasibility::derive_emi_max_dist, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility::derive_thermal_clearance, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::derive_si_max_placement_dist, m)?)?;
-    m.add_function(wrap_pyfunction!(feasibility::mains_voltage_to_class_code, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        feasibility::derive_si_max_placement_dist,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        feasibility::mains_voltage_to_class_code,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(feasibility::extract_min_clearance, m)?)?;
     m.add_class::<convergence::ConvergenceChecker>()?;
     m.add_class::<convergence::ConvergenceCriteria>()?;
@@ -478,72 +519,246 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<explainability::DecisionTrace>()?;
     m.add_class::<explainability::Entry>()?;
     m.add_class::<explainability::Trace>()?;
-    m.add_function(wrap_pyfunction!(explainability::render_markdown_report, m)?)?;
-    m.add_function(wrap_pyfunction!(explainability::render_component_report, m)?)?;
     m.add_function(wrap_pyfunction!(config_attach_stage::run_config_attach, m)?)?;
     m.add_function(wrap_pyfunction!(net_ordering_stage::run_net_ordering, m)?)?;
     m.add_function(wrap_pyfunction!(setup_stage::run_drc_oracle_setup, m)?)?;
     m.add_function(wrap_pyfunction!(setup_stage::run_net_class_setup, m)?)?;
     m.add_function(wrap_pyfunction!(zone_geometry_stage::run_zone_geometry, m)?)?;
-    m.add_function(wrap_pyfunction!(zone_assignment_stage::run_zone_assignment, m)?)?;
-    m.add_function(wrap_pyfunction!(slot_generation_stage::run_slot_generation, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        zone_assignment_stage::run_zone_assignment,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        slot_generation_stage::run_slot_generation,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(grid_stage::run_clearance_grid_stage, m)?)?;
     m.add_function(wrap_pyfunction!(grid_hv::run_hv_pad_set, m)?)?;
     m.add_function(wrap_pyfunction!(grid_fence::run_grid_fence_check, m)?)?;
     m.add_function(wrap_pyfunction!(grid_fence::run_grid_perf_budget, m)?)?;
-    m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment, m)?)?;
-    m.add_function(wrap_pyfunction!(component_assignment_stage::run_component_assignment_kernel, m)?)?;
-    m.add_function(wrap_pyfunction!(phased_component_assignment_validator_stage::run_phased_validator_hv, m)?)?;
-    m.add_function(wrap_pyfunction!(zone_aware_slot_generation_stage::run_zone_aware_slot_generation, m)?)?;
-    m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phased_assignment, m)?)?;
-    m.add_function(wrap_pyfunction!(phased_assignment_stage::run_phase_select_best_slot, m)?)?;
-    m.add_function(wrap_pyfunction!(drc_validation_stage::run_drc_validation, m)?)?;
-    m.add_function(wrap_pyfunction!(connectivity_validation_stage::run_connectivity_validation, m)?)?;
-    m.add_function(wrap_pyfunction!(via_validation_stage::run_via_validation, m)?)?;
-    m.add_function(wrap_pyfunction!(via_validation_stage::run_via_deduplication, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        component_assignment_stage::run_component_assignment,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        component_assignment_stage::run_component_assignment_kernel,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        phased_component_assignment_validator_stage::run_phased_validator_hv,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        zone_aware_slot_generation_stage::run_zone_aware_slot_generation,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        phased_assignment_stage::run_phased_assignment,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        phased_assignment_stage::run_phase_select_best_slot,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        drc_validation_stage::run_drc_validation,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        connectivity_validation_stage::run_connectivity_validation,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        via_validation_stage::run_via_validation,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        via_validation_stage::run_via_deduplication,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(drc_sweep_stage::run_drc_sweep, m)?)?;
-    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_track_deduplication, m)?)?;
-    m.add_function(wrap_pyfunction!(drc_sweep_stage::run_short_circuit_detection, m)?)?;
-    m.add_function(wrap_pyfunction!(placement_validation_stage::run_placement_validation, m)?)?;
-    m.add_function(wrap_pyfunction!(courtyard_check_stage::run_courtyard_check, m)?)?;
-    m.add_function(wrap_pyfunction!(fine_pitch_escape_stage::run_fine_pitch_escape, m)?)?;
-    m.add_function(wrap_pyfunction!(hv_lv_partition_stage::run_hv_lv_partition, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        drc_sweep_stage::run_track_deduplication,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        drc_sweep_stage::run_short_circuit_detection,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        placement_validation_stage::run_placement_validation,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        courtyard_check_stage::run_courtyard_check,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        fine_pitch_escape_stage::run_fine_pitch_escape,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        hv_lv_partition_stage::run_hv_lv_partition,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(power_plane_stage::run_power_plane, m)?)?;
-    m.add_function(wrap_pyfunction!(layer_assignment_stage::run_layer_assignment, m)?)?;
-    m.add_function(wrap_pyfunction!(apply_placements_stage::run_apply_placements, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        layer_assignment_stage::run_layer_assignment,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        apply_placements_stage::run_apply_placements,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(clearance::get_clearance_py, m)?)?;
     m.add_function(wrap_pyfunction!(clearance::run_clearance_check, m)?)?;
     m.add_function(wrap_pyfunction!(clearance::run_creepage_check, m)?)?;
-    m.add_function(wrap_pyfunction!(clearance::classify_domain_partition_py, m)?)?;
-    m.add_function(wrap_pyfunction!(clearance::project_onto_barrier_axis_py, m)?)?;
-    m.add_function(wrap_pyfunction!(clearance::evaluate_isolator_feasibility_py, m)?)?;
-    m.add_function(wrap_pyfunction!(clearance::domain_clearance_constraints_py, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        clearance::classify_domain_partition_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        clearance::project_onto_barrier_axis_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        clearance::evaluate_isolator_feasibility_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        clearance::domain_clearance_constraints_py,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(clearance::keepaway_constraints_py, m)?)?;
-    m.add_function(wrap_pyfunction!(clearance::intra_footprint_conflicts_py, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        clearance::intra_footprint_conflicts_py,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(clearance::audit_domain_clearance_py, m)?)?;
-    m.add_function(wrap_pyfunction!(netclass::netclass_resolve_component_class_py, m)?)?;
-    m.add_function(wrap_pyfunction!(netclass::netclass_separated_constraints_py, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_resolve_component_class_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_separated_constraints_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_separated_constraints_with_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_creepage_violations_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_creepage_neighborhood_candidates_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        netclass::netclass_creepage_requirements_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_component_partitions_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::partition_creepage_requirements_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::internal_component_creepage_requirements_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_grouped_creepage_cuts_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_territories_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_displacement_groups_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::plan_creepage_repair_frontier_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::normalize_stripped_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::verify_stripped_creepage_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        creepage_lower_bounds::analyze_creepage_lower_bounds_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        partition_planner::compact_partition_envelopes_py,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_channel_mapping, m)?)?;
-    m.add_function(wrap_pyfunction!(channel_mapping::run_fallback_channel_path, m)?)?;
-    m.add_function(wrap_pyfunction!(channel_mapping::run_validated_two_pad_terminals, m)?)?;
-    m.add_function(wrap_pyfunction!(channel_mapping::run_expand_all_pad_tree, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        channel_mapping::run_fallback_channel_path,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        channel_mapping::run_validated_two_pad_terminals,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        channel_mapping::run_expand_all_pad_tree,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(channel_mapping::run_assign_layer, m)?)?;
-    m.add_function(wrap_pyfunction!(channel_mapping::run_channel_widths_edt, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        channel_mapping::run_channel_widths_edt,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_select_sat_nets, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_build_clause_origin, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_select_routing_grids, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_build_clause_origin,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_select_routing_grids,
+        m
+    )?)?;
     m.add_function(wrap_pyfunction!(pipeline_route::run_next_tstamp, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_to_stage0_netclass_rules, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_write_route_segments, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_summarize_batch_results, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_to_stage0_netclass_rules,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_write_route_segments,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_summarize_batch_results,
+        m
+    )?)?;
     // Unit U-H (E6 follow-on): the residual _adapter_convert.py adapter
     // marshalling -- the router input/output wire-format construction.
-    m.add_function(wrap_pyfunction!(pipeline_route::run_collect_pad_positions, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_build_route_payload, m)?)?;
-    m.add_function(wrap_pyfunction!(pipeline_route::run_build_routing_result, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_collect_pad_positions,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_build_route_payload,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        pipeline_route::run_build_routing_result,
+        m
+    )?)?;
     // Phase C residual (append-only per the U4 dispatch): the pipeline
-    // contract tail — dag_types / dag / bottleneck / metrics.
-    m.add_class::<dag_types::StageResult>()?;
+    // contract tail — dag / bottleneck / metrics.
     m.add_class::<dag::StageEvent>()?;
     m.add_class::<dag::PipelineExecutionLog>()?;
     m.add_class::<bottleneck::BottleneckNetEntry>()?;
@@ -552,8 +767,14 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<bottleneck::BottleneckReport>()?;
     m.add_class::<bottleneck::DeclaredArtifact>()?;
     m.add_class::<metrics::MetricsObserver>()?;
-    m.add("CrossValidationError", m.py().get_type::<metrics::CrossValidationError>())?;
-    m.add("CanaryCheckError", m.py().get_type::<metrics::CanaryCheckError>())?;
+    m.add(
+        "CrossValidationError",
+        m.py().get_type::<metrics::CrossValidationError>(),
+    )?;
+    m.add(
+        "CanaryCheckError",
+        m.py().get_type::<metrics::CanaryCheckError>(),
+    )?;
     // The final router_v6 orchestration slice (Rust Orchestration Engine plan
     // 2026-08-09-001): the stage_ledger cardinality compute —
     // `snapshot_cardinality` (`_snapshot`), `diff_cardinality` (`_diff`) and
@@ -598,15 +819,26 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cpsat_loop::cpsat_solve_phase2, m)?)?;
     // Orchestration-port unit U-I (append-only per the U-I dispatch): the
     // feedback-classifier DECISION sequencing. The `feedback.py` shim's
-    // `classify()` delegates here; the constraint-building `_handle_*`
-    // handlers and the leaf helpers stay Python call-backs.
+    // `classify()` delegates here; congestion handling is Rust-owned and the
+    // remaining constraint-building handlers retain Python-object seams.
     m.add_function(wrap_pyfunction!(feedback::classify_feedback, m)?)?;
+    // Keep the scalar helper adjacent to its classifier registration so the
+    // Python shim cannot observe a partially wired feedback surface.
+    m.add_function(wrap_pyfunction!(feedback::handle_congestion, m)?)?;
+    // Keep the scalar helper adjacent to its classifier registration so the
+    // Python shim cannot observe a partially wired feedback surface.
+    m.add_function(wrap_pyfunction!(feedback::compute_heuristic_position, m)?)?;
+    m.add_function(wrap_pyfunction!(feedback::find_critical_components, m)?)?;
+    m.add_function(wrap_pyfunction!(feedback::detect_persistent_ics, m)?)?;
     // Orchestration-port unit U-I (append-only per the U-I dispatch): the
     // validator-aligned R24 post-solve audit sequencing. The
     // `validator_audit.py` shim's `audit_domain_clearance_validator()`
     // delegates here; `build_validator_placement`, the pad-schema
     // serialization and `verify_iec60335_compliance` stay Python call-backs.
-    m.add_function(wrap_pyfunction!(validator_audit::audit_domain_clearance_validator, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        validator_audit::audit_domain_clearance_validator,
+        m
+    )?)?;
     Ok(())
 }
 
@@ -615,10 +847,9 @@ fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
 pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn module_exports_exist() {
-        // Compile-time sanity: the five exported names exist on their
+        // Compile-time sanity: the exported timing name exists on its
         // modules. The behavioural proof is the differential suite.
         let _ = super::timing::compare_stage(0.0, 1.0, 0.2, 10.0);
-        let _ = super::copper_length::measure_copper_length(vec![]);
     }
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---

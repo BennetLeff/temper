@@ -190,13 +190,18 @@ pub fn normalize_rotation_index(index: i64) -> f64 {
 /// convention (`rotate_local_to_world`: `x*c + y*s`, `-x*s + y*c`), then add
 /// the component position. `rotation_rad` comes from the shim's
 /// `_normalize_rotation`, so cos/sin here must be the host libm's (B1).
+///
+/// The rotate-then-translate half is `kicad_transform::place_local_to_world`,
+/// called rather than re-typed. Bit-identical by construction: it resolves
+/// cos/sin through `pad_geometry::math_cos_sin`, the same
+/// `dlsym(RTLD_DEFAULT, "cos"/"sin")` lookup with the same `f64::cos`/
+/// `f64::sin` fallback as `host_math::cos`/`sin` -- the same function
+/// pointer -- and composes `(origin + rotated)` in the same op order. The
+/// side mirror stays here because it must happen BEFORE the rotation and
+/// is not part of the shared transform.
 pub fn pin_world_position_kernel(px: f64, py: f64, side: i64, rotation_rad: f64, cx: f64, cy: f64) -> (f64, f64) {
     let mx = if side == 1 { -px } else { px };
-    let c = host_math::cos(rotation_rad);
-    let s = host_math::sin(rotation_rad);
-    let rx = mx * c + py * s;
-    let ry = -mx * s + py * c;
-    (cx + rx, cy + ry)
+    crate::kicad_transform::place_local_to_world(mx, py, cx, cy, rotation_rad)
 }
 
 // =============================================================================
@@ -289,7 +294,13 @@ pub fn topology_connected_components(nodes: &[String], edge_a: &[String], edge_b
 /// Python shim.
 pub fn courtyard_global_points(points: &[f64], rotation_idx: i64, x: f64, y: f64) -> Vec<f64> {
     let angle = (rotation_idx as f64) * 90.0;
-    let rad = ((-angle) * std::f64::consts::PI) / 180.0;
+    // The `-angle` is KiCad's R(-theta) expressed as a shapely/numpy CCW
+    // affine, so it comes from `kicad_transform::shapely_rotation_angle_deg`
+    // rather than a typed minus sign. IEEE negation, so bit-identical to
+    // the `(-angle)` this line carried before -- and it is now the same
+    // call `clearance_geometry.rs::shapely_rotation_cos_sin` makes, which
+    // is where the identical omission was a live bug until 2026-08-18.
+    let rad = (crate::kicad_transform::shapely_rotation_angle_deg(angle) * std::f64::consts::PI) / 180.0;
     let mut cosp = host_math::cos(rad);
     let mut sinp = host_math::sin(rad);
     if cosp.abs() < 2.5e-16 {

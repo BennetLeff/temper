@@ -1,7 +1,7 @@
 """
 Router V6 Stage 3.1: Build Constraint Model
 
-Defines the variables and constraints for the SAT/SMT-based routing solver.
+Defines the variables and constraints for the routing solver.
 Part of temper-atsd (Stage 3 - Topological Routing)
 
 Phase E batch E1 (rust-orchestration-engine plan 2026-08-09-001): the
@@ -378,47 +378,46 @@ class ModelBuilder:
         return self.model
 
     def _apply_pcl_constraints(self):
-        """Apply PCL constraints to the SAT constraint model (R22).
+        """Apply supplied PCL constraints to the routing constraint model.
 
-        When pcl_constraints is provided, compiles them to SAT via the
-        SAT bridge and adds the resulting constraints to the model.
-        When None, behavior is identical to current (R23).
+        When ``pcl_constraints`` is provided, it is lowered through the
+        explicit router compiler and the resulting constraints are added to
+        the model.  Compilation errors deliberately propagate: a supplied
+        designer constraint must never become an accidental no-op.
+
+        ``None`` means that no PCL constraints were supplied and remains a
+        no-op.
 
         Phase E batch E1: this is the PCL-bound step that stays Python --
-        ``pcl_constraints.compile`` is the Python PCL compiler.
+        the router compiler owns the PCL-to-router lowering boundary.
         """
         if self.pcl_constraints is None:
             return
 
-        try:
-            from temper_placer.core.netlist import Netlist
-            from temper_placer.pcl.constraints import CompilationContext, CompilationTarget
+        from temper_placer.core.netlist import Netlist
+        from temper_placer.pcl.constraints import CompilationContext
+        from temper_placer.pcl.router_compiler import compile_pcl_for_router
 
-            # Build a Netlist from available PCB data.
-            netlist = Netlist(
-                components=self.pcb.components if self.pcb else [],
-                nets=self.nets,
-            )
+        # Build a Netlist from available PCB data.
+        netlist = Netlist(
+            components=self.pcb.components if self.pcb else [],
+            nets=self.nets,
+        )
 
-            ctx = CompilationContext(
-                netlist=netlist,
-                board=self.pcb.board if self.pcb else None,
-                skeletons=self.skeletons,
-                channel_widths=self.channel_widths,
-                design_rules=self.design_rules,
-            )
+        ctx = CompilationContext(
+            netlist=netlist,
+            board=self.pcb.board if self.pcb else None,
+            skeletons=self.skeletons,
+            channel_widths=self.channel_widths,
+            design_rules=self.design_rules,
+        )
 
-            compiled = self.pcl_constraints.compile(CompilationTarget.SAT, ctx)
-            for c_list in compiled:
-                if isinstance(c_list, list):
-                    for c in c_list:
-                        self.model.add_constraint(c)
-                elif hasattr(c_list, "name"):
-                    self.model.add_constraint(c_list)
-        except Exception as e:
-            import warnings
-
-            warnings.warn(f"PCL→SAT compilation failed: {e}", stacklevel=2)
+        # Do not catch compiler errors here.  The compiler is the single
+        # source of truth for supported router lowering, and its contract is
+        # fail-closed for every supplied constraint.
+        compiled = compile_pcl_for_router(self.pcl_constraints, ctx)
+        for constraint in compiled.constraints:
+            self.model.add_constraint(constraint)
 
 class ConstraintGenerationStage(Stage):
     """Stage 3.1: Build constraint model from skeletons and nets."""

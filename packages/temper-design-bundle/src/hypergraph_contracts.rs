@@ -17,7 +17,7 @@
 //! `data` and the `@` result are **numpy arrays**, because downstream
 //! consumers and the existing differential/PBT suites read them as such
 //! (`.row.tolist()`, `_arr(data)`'s `(dtype.str, shape, tobytes())` key in
-//! `test_hypergraph_factory_rust_differential.py`, `got.shape[0]`,
+//! the retained hypergraph-kernel tests, `got.shape[0]`,
 //! elementwise indexing).  The getters therefore materialize fresh numpy
 //! arrays *by calling numpy itself* (`numpy.array(vec, dtype=...)`) — the
 //! dtype is preserved for `data` (the factory builds `float32`; the getter

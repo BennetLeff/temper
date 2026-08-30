@@ -1,3 +1,4 @@
+<!-- provenance: commit=d9d455d29073aa1b184abc39b3bbf5879b8412b2 dirty=UNKNOWN -->
 # The board is out of sync with the schematic — U6/U7 designators are swapped
 
 **Date:** 2026-08-13

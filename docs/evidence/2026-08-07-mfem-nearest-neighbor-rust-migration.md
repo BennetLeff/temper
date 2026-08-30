@@ -1,4 +1,4 @@
-<!-- provenance: commit=73ddab17 (merge base, worktree-agent-a0c9bd1a1df109a4d) dirty=true (working-tree changes at authoring time: this document plus the diff and measurement script it describes) -->
+<!-- provenance: commit=73ddab178a7843308e2706d76ab8a8ebee532f58 (merge base, worktree-agent-a0c9bd1a1df109a4d) dirty=true (working-tree changes at authoring time: this document plus the diff and measurement script it describes) -->
 
 # `mfem_compare.py`'s `griddata(nearest)` — Rust `rstar` nearest-neighbor migration (2026-08-07)
 

@@ -1,4 +1,4 @@
-<!-- provenance: written during feat/board-place-and-reroute session, 2026-08-12. See the PR description for full commit/hash provenance. -->
+<!-- provenance: commit=e5539273a01c030c0968006fcf61bb4bedba65be dirty=UNKNOWN -->
 
 # Isolation-barrier-constrained Pumpkin placement, on the reconciled 168-component board
 

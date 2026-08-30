@@ -100,6 +100,10 @@ fn validate_schema(
     /// Regenerate: `python3 scripts/gen_oracle_freeze.py --spec schema_validator`
     /// (requires reviving the deleted oracle from git history first -- see
     /// scripts/oracle_freeze_specs/schema_validator.py's module docstring).
+    // Frozen cases are pinned oracle output; the module sits where the
+    // generator emits it, and unwrapping a frozen-known-Ok result is the
+    // assertion, not an oversight.
+    #[allow(clippy::items_after_test_module, clippy::unwrap_used)]
     #[cfg(test)]
     mod frozen_tests {
         use super::*;

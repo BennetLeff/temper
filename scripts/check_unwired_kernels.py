@@ -93,7 +93,20 @@ PYFUNCTION_NAME = re.compile(r'#\[pyfunction\([^)]*name\s*=\s*"([^"]+)"')
 
 def registered_symbols() -> dict[str, str]:
     """Python-visible symbol -> the .rs file that registers it."""
-    out: dict[str, str] = {}
+    return {
+        name: detail[2]
+        for name, detail in registered_symbol_details().items()
+    }
+
+
+def registered_symbol_details() -> dict[str, tuple[str, str, str]]:
+    """Python name -> (Rust item name, kind, source file).
+
+    ``registered_symbols`` deliberately keeps its small public result shape,
+    while the liveness scan also needs the Rust item behind a registration in
+    order to follow typed return/field edges.  ``kind`` is ``function`` or
+    ``class``; this is registration-derived metadata, never a name allowlist.
+    """
     sources: list[tuple[str, str]] = []
     for rs in REPO_ROOT.glob("packages/*/src/**/*.rs"):
         if "/target" in str(rs):
@@ -114,18 +127,21 @@ def registered_symbols() -> dict[str, str]:
         renames.update(pyclass_renames(text))
         renames.update(pyfunction_renames(text))
 
+    details: dict[str, tuple[str, str, str]] = {}
     for rel, text in sources:
         for m in ADD_FUNCTION.finditer(text):
             rust_name = m.group(1)
-            out.setdefault(renames.get(rust_name, rust_name), rel)
+            py_name = renames.get(rust_name, rust_name)
+            details.setdefault(py_name, (rust_name, "function", rel))
         for m in ADD_CLASS.finditer(text):
             rust_name = m.group(1)
             # A `#[pyclass(name = "X")]` is visible to Python as X, NOT as the
             # Rust struct name -- e.g. `PyFabPreset` is `FabPreset` to callers,
             # and `core/manufacturing.py` imports it under that name. Scanning
             # for the Rust name would report a wired kernel as unwired.
-            out.setdefault(renames.get(rust_name, rust_name), rel)
-    return out
+            py_name = renames.get(rust_name, rust_name)
+            details.setdefault(py_name, (rust_name, "class", rel))
+    return details
 
 
 def registered_symbols_runtime() -> dict[str, str]:
@@ -314,6 +330,493 @@ def code_identifiers(src: str) -> set[str]:
     return names
 
 
+def _rust_code_without_comments(src: str) -> str:
+    """Remove Rust comments while preserving string/character literals.
+
+    The unwired-kernel gate needs to inspect Rust-side dynamic Python calls,
+    but a raw search would also read the migration comments that describe
+    those calls.  This is intentionally a small lexical scanner rather than a
+    Rust parser: it handles nested block comments, escaped literals, and raw
+    strings, which is the syntax relevant to the literal-call patterns below.
+    """
+    out: list[str] = []
+    i = 0
+    n = len(src)
+    block_depth = 0
+    while i < n:
+        if block_depth:
+            if src.startswith("/*", i):
+                block_depth += 1
+                i += 2
+            elif src.startswith("*/", i):
+                block_depth -= 1
+                i += 2
+            else:
+                if src[i] == "\n":
+                    out.append("\n")
+                i += 1
+            continue
+
+        if src.startswith("//", i):
+            i += 2
+            while i < n and src[i] != "\n":
+                i += 1
+            continue
+        if src.startswith("/*", i):
+            block_depth = 1
+            i += 2
+            continue
+
+        # Preserve raw strings, including any comment-looking text inside.
+        raw = RUST_RAW_STRING_START.match(src, i) if src[i] == "r" else None
+        if raw is not None:
+            hashes = raw.group(1)
+            end = '"' + hashes
+            j = src.find(end, raw.end())
+            if j < 0:
+                out.append(src[i:])
+                break
+            j += len(end)
+            out.append(src[i:j])
+            i = j
+            continue
+
+        if src[i] == "'":
+            # Rust lifetimes (`'a`) are not character literals. Only enter
+            # literal mode when a closing quote is nearby; otherwise preserve
+            # the apostrophe and continue scanning code normally.
+            char_end = i + 1
+            if char_end < n and src[char_end] == "\\":
+                char_end += 2
+            else:
+                char_end += 1
+            if char_end >= n or src[char_end] != "'":
+                out.append(src[i])
+                i += 1
+                continue
+            out.append(src[i : char_end + 1])
+            i = char_end + 1
+            continue
+
+        if src[i] == '"':
+            quote = src[i]
+            j = i + 1
+            while j < n:
+                if src[j] == "\\":
+                    j += 2
+                elif src[j] == quote:
+                    j += 1
+                    break
+                else:
+                    j += 1
+            out.append(src[i:j])
+            i = j
+            continue
+
+        out.append(src[i])
+        i += 1
+    return "".join(out)
+
+
+RUST_GETATTR_LITERAL = re.compile(r"(?:\.\s*)?getattr\s*\(\s*\"([^\"]+)\"")
+RUST_CALL_METHOD_LITERAL = re.compile(
+    r"(?:\.\s*)?call_method\d*\s*\(\s*\"([^\"]+)\""
+)
+RUST_IMPORT_LITERAL = re.compile(
+    r"(?:PyModule|[A-Za-z_][A-Za-z0-9_:]*)\s*::\s*import(?:_bound)?\s*"
+    r"\([^,]+,\s*\"([^\"]+)\""
+)
+RUST_RAW_STRING_START = re.compile(r'r(#+)"')
+RUST_RETURN_EDGE = re.compile(
+    r"unwired-kernel-return-edge:\s*"
+    r"([A-Za-z_][A-Za-z0-9_]*)\s*->\s*([A-Za-z_][A-Za-z0-9_]*)"
+)
+
+
+def rust_code_identifiers(src: str) -> set[str]:
+    """Literal Python names reached by dynamic calls in Rust production code.
+
+    Rust migrations commonly cross the extension boundary with
+    ``module.getattr("kernel_py")``.  Those references are invisible to the
+    Python AST scan, while registrations such as
+    ``wrap_pyfunction!(kernel_py, module)`` are deliberately not matched.
+    Only literal first arguments to ``getattr``, ``call_method*`` and
+    ``PyModule::import`` are accepted; comments and docstrings are removed
+    before matching.
+    """
+    code = _rust_code_without_comments(src)
+    names: set[str] = set()
+    for pattern in (
+        RUST_GETATTR_LITERAL,
+        RUST_CALL_METHOD_LITERAL,
+        RUST_IMPORT_LITERAL,
+    ):
+        for match in pattern.finditer(code):
+            value = match.group(1).strip()
+            if value:
+                names.add(value)
+                names.update(value.split("."))
+    names |= _rust_helper_dynamic_literals(code)
+    return names
+
+
+def _split_rust_arguments(text: str) -> list[str]:
+    """Split one Rust call/signature argument list at top-level commas."""
+    args: list[str] = []
+    start = 0
+    depth = {"(": 0, "[": 0, "{": 0, "<": 0}
+    pairs = {")": "(", "]": "[", "}": "{",
+    }
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if ch in depth:
+            depth[ch] += 1
+        elif ch in pairs:
+            opening = pairs[ch]
+            depth[opening] = max(0, depth[opening] - 1)
+        elif ch == ">":
+            depth["<"] = max(0, depth["<"] - 1)
+        elif ch == "," and not any(depth.values()):
+            args.append(text[start:i].strip())
+            start = i + 1
+        i += 1
+    tail = text[start:].strip()
+    if tail:
+        args.append(tail)
+    return args
+
+
+def _rust_call_argument_text(code: str, start: int) -> tuple[str, int] | None:
+    """Return the balanced argument text beginning at an opening paren."""
+    if start >= len(code) or code[start] != "(":
+        return None
+    depth = 0
+    i = start
+    while i < len(code):
+        if code[i] == "(":
+            depth += 1
+        elif code[i] == ")":
+            depth -= 1
+            if depth == 0:
+                return code[start + 1 : i], i
+        i += 1
+    return None
+
+
+def _rust_helper_dynamic_literals(code: str) -> set[str]:
+    """Follow a small, literal-only Rust helper dispatch pattern.
+
+    The orchestration explainability bridge passes ``"explain_*"`` through
+    ``io_types_call(..., name, ...)`` before calling ``m.getattr(name)``.
+    Direct-literal matching cannot see that edge.  This recognises only a
+    helper whose body calls ``getattr(<&str parameter>)`` on a ``PyModule``
+    and only call sites whose corresponding argument is a string literal.
+    It therefore cannot turn arbitrary prose or unrelated string arguments
+    into liveness evidence.
+    """
+    helpers: list[tuple[str, int]] = []
+    fn = re.compile(
+        r"\bfn\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:<[^{}]*>)?\s*\(([^{};]*)\)"
+    )
+    for match in fn.finditer(code):
+        args = _split_rust_arguments(match.group(2))
+        name_positions = [
+            i for i, arg in enumerate(args)
+            if re.search(r"\b[A-Za-z_][A-Za-z0-9_]*\s*:\s*&(?:'[^']+\s*)?str\b", arg)
+        ]
+        if not name_positions:
+            continue
+        body_start = code.find("{", match.end())
+        if body_start < 0:
+            continue
+        # Most functions cannot be dispatch helpers.  Avoid a full brace walk
+        # unless a getattr call is nearby in the candidate body; the bound is
+        # intentionally generous for this small adapter pattern.
+        if code.find(".getattr", body_start, min(len(code), body_start + 2048)) < 0:
+            continue
+        # Find the matching function body with the same lexical brace walk
+        # used below; this keeps a helper's proof local to its own body.
+        depth = 0
+        i = body_start
+        while i < len(code):
+            if code[i] == "{":
+                depth += 1
+            elif code[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            i += 1
+        if depth != 0:
+            continue
+        body_text = code[body_start + 1 : i]
+        for position in name_positions:
+            param_name = re.match(r"([A-Za-z_][A-Za-z0-9_]*)", args[position])
+            if param_name and re.search(
+                rf"\.\s*getattr\s*\(\s*{re.escape(param_name.group(1))}\s*\)",
+                body_text,
+            ):
+                helpers.append((match.group(1), position))
+
+    names: set[str] = set()
+    for helper, position in helpers:
+        for call in re.finditer(rf"\b{re.escape(helper)}\s*\(", code):
+            # Skip the helper's own declaration; its parameter list cannot
+            # contain a target string literal, but skipping is clearer and
+            # avoids treating a string in a signature default-like construct.
+            prefix = code[max(0, call.start() - 3) : call.start()]
+            if re.search(r"\bfn\s*$", prefix):
+                continue
+            parsed = _rust_call_argument_text(code, call.end() - 1)
+            if parsed is None:
+                continue
+            argument_text, _end = parsed
+            args = _split_rust_arguments(argument_text)
+            if position >= len(args):
+                continue
+            literal = re.fullmatch(r'"([^"]+)"', args[position].strip())
+            if literal:
+                value = literal.group(1).strip()
+                if value:
+                    names.add(value)
+                    names.update(value.split("."))
+    return names
+
+
+def _rust_type_names(type_text: str, known_types: set[str]) -> set[str]:
+    """Return known pyclass Rust names occurring in a Rust type expression."""
+    return {
+        name for name in re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b", type_text)
+        if name in known_types
+    }
+
+
+def _rust_class_names(code: str) -> set[str]:
+    """Find Rust names immediately following ``#[pyclass]`` attributes."""
+    names: set[str] = set()
+    pending = False
+    for line in _logical_lines(code):
+        s = line.strip()
+        if s.startswith("#[pyclass"):
+            pending = True
+            continue
+        if pending:
+            match = re.match(
+                r"(?:pub(?:\([^)]*\))?\s+)?(?:struct|enum)\s+"
+                r"([A-Za-z_][A-Za-z0-9_]*)",
+                s,
+            )
+            if match:
+                names.add(match.group(1))
+                pending = False
+                continue
+            if s and not s.startswith("#["):
+                pending = False
+    return names
+
+
+def _rust_brace_body(code: str, opening: int) -> str | None:
+    if opening < 0 or opening >= len(code) or code[opening] != "{":
+        return None
+    depth = 0
+    for i in range(opening, len(code)):
+        if code[i] == "{":
+            depth += 1
+        elif code[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return code[opening + 1 : i]
+    return None
+
+
+def _rust_function_returns(
+    code: str,
+    known_classes: set[str] | None = None,
+) -> dict[str, set[str]]:
+    """Rust function name -> pyclass names in its declared return type."""
+    returns: dict[str, set[str]] = {}
+    pyclasses = _rust_class_names(code) if known_classes is None else known_classes
+    fn = re.compile(
+        r"\bfn\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:<[^{};]*>)?\s*"
+        r"\([^{};]*\)([^{};]*)"
+    )
+    for match in fn.finditer(code):
+        signature_tail = match.group(2)
+        if "->" not in signature_tail:
+            continue
+        return_type = signature_tail.rsplit("->", 1)[1]
+        returns.setdefault(match.group(1), set()).update(
+            _rust_type_names(return_type, pyclasses)
+        )
+    return returns
+
+
+def _rust_class_edges(code: str) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+    """Return (field edges, inherent-method return edges) for pyclasses."""
+    pyclasses = _rust_class_names(code)
+    fields: dict[str, set[str]] = {name: set() for name in pyclasses}
+    for match in re.finditer(
+        r"\b(?:pub(?:\([^)]*\))?\s+)?struct\s+"
+        r"([A-Za-z_][A-Za-z0-9_]*)[^\{;]*\{",
+        code,
+    ):
+        owner = match.group(1)
+        if owner not in pyclasses:
+            continue
+        body = _rust_brace_body(code, match.end() - 1)
+        if body is not None:
+            fields[owner] |= _rust_type_names(body, pyclasses) - {owner}
+
+    method_returns: dict[str, set[str]] = {name: set() for name in pyclasses}
+    impl = re.compile(
+        r"\bimpl\s+(?:[A-Za-z_][A-Za-z0-9_]*::)*"
+        r"([A-Za-z_][A-Za-z0-9_]*)\s*\{"
+    )
+    for match in impl.finditer(code):
+        owner = match.group(1)
+        if owner not in pyclasses:
+            continue
+        body = _rust_brace_body(code, match.end() - 1)
+        if body is None:
+            continue
+        for name, returned in _rust_function_returns(body, pyclasses).items():
+            del name  # the class edge only needs the return type
+            method_returns[owner] |= returned
+    return fields, method_returns
+
+
+def rust_type_flow_references(
+    referenced: set[str],
+    sources: list[tuple[str, str]] | None = None,
+    details: dict[str, tuple[str, str, str]] | None = None,
+) -> set[str]:
+    """Infer anonymously consumed pyclasses from registered typed edges.
+
+    A registered function is a root only when its Python-visible name occurs
+    in production references.  Its declared return type, and the fields of
+    any returned registered pyclass, are then followed transitively.  A
+    registered class used directly by production is likewise a root and its
+    inherent-method return/field edges are followed.  This is intentionally
+    type-and-registration driven: no symbol-name allowlist can make an
+    unrelated dead class look live.
+
+    A small source-level ``unwired-kernel-return-edge: owner -> Type`` marker
+    is also accepted for erased ``Py<PyAny>`` nested wires.  The marker is
+    validated against a registered, production-called owner, so it is not a
+    ledger exemption or a free-standing name allowlist.
+    """
+    if sources is None:
+        sources = []
+        for rs in REPO_ROOT.glob("packages/*/src/**/*.rs"):
+            if "/target" in str(rs):
+                continue
+            try:
+                sources.append((str(rs.relative_to(REPO_ROOT)), rs.read_text()))
+            except OSError:
+                continue
+
+    if details is None:
+        details = registered_symbol_details()
+    registered_classes = {
+        rust_name: py_name
+        for py_name, (rust_name, kind, _rel) in details.items()
+        if kind == "class"
+    }
+    if not registered_classes:
+        return set()
+
+    fields: dict[str, set[str]] = {name: set() for name in registered_classes}
+    method_returns: dict[str, set[str]] = {name: set() for name in registered_classes}
+    function_returns: dict[str, set[str]] = {}
+    marked_edges: list[tuple[str, str]] = []
+    registered_functions = {
+        rust_name
+        for rust_name, kind, _rel in details.values()
+        if kind == "function"
+    }
+    for _rel, source in sources:
+        # Most Rust files cannot contribute an edge.  Keep the source scan
+        # cheap by looking for a pyclass attribute, a registered function
+        # declaration, or an explicit erased-edge marker before stripping
+        # comments and walking braces.
+        if (
+            "#[pyclass" not in source
+            and "unwired-kernel-return-edge:" not in source
+            and not any(f"fn {name}" in source for name in registered_functions)
+        ):
+            continue
+        code = _rust_code_without_comments(source)
+        source_classes = _rust_class_names(code)
+        fields_local, methods_local = _rust_class_edges(code)
+        for owner, targets in fields_local.items():
+            if owner in fields:
+                fields[owner] |= targets & set(registered_classes)
+        for owner, targets in methods_local.items():
+            if owner in method_returns:
+                method_returns[owner] |= targets & set(registered_classes)
+        for fn_name, targets in _rust_function_returns(code, source_classes).items():
+            function_returns.setdefault(fn_name, set()).update(
+                targets & set(registered_classes)
+            )
+        # Markers are read from the original source because they are comments;
+        # the owner/target are still checked against parsed registrations.
+        for owner, target in RUST_RETURN_EDGE.findall(source):
+            if owner and target in source_classes:
+                marked_edges.append((owner, target))
+
+    roots: set[str] = set()
+    for py_name, (rust_name, kind, _rel) in details.items():
+        if py_name not in referenced:
+            continue
+        if kind == "class" and rust_name in registered_classes:
+            roots.add(rust_name)
+        elif kind == "function":
+            roots |= function_returns.get(rust_name, set())
+
+    # An erased nested field (currently Pin.drill) is represented by a
+    # validated source marker.  Owner resolution accepts either the Rust name
+    # or its Python-visible renamed name, but still requires a live function
+    # registration before it can add a type edge.
+    for owner, target in marked_edges:
+        owner_details = next(
+            (
+                (rust_name, kind, py_name)
+                for py_name, (rust_name, kind, _rel) in details.items()
+                if rust_name == owner or py_name == owner
+            ),
+            None,
+        )
+        if owner_details is None:
+            continue
+        owner_rust, owner_kind, owner_py = owner_details
+        if owner_kind == "function" and owner_py in referenced:
+            roots.add(target)
+
+    reachable = set(roots)
+    pending = list(roots)
+    while pending:
+        owner = pending.pop()
+        for target in fields.get(owner, set()) | method_returns.get(owner, set()):
+            if target not in reachable:
+                reachable.add(target)
+                pending.append(target)
+    return {registered_classes[rust_name] for rust_name in reachable}
+
+
+def rust_production_references() -> tuple[set[str], list[str]]:
+    """Identifiers dynamically referenced by non-test Rust source files."""
+    names: set[str] = set()
+    unreadable: list[str] = []
+    for rs in REPO_ROOT.glob("packages/*/src/**/*.rs"):
+        if "/target" in str(rs) or "/tests/" in str(rs):
+            continue
+        try:
+            names |= rust_code_identifiers(rs.read_text())
+        except OSError:
+            unreadable.append(str(rs.relative_to(REPO_ROOT)))
+    return names, unreadable
+
+
 def production_references() -> tuple[set[str], list[str]]:
     """Identifiers referenced by every non-test Python source, and unparseable files."""
     roots = ["packages", "scripts", "tools"]
@@ -354,7 +857,14 @@ def production_references() -> tuple[set[str], list[str]]:
             except SyntaxError:
                 unparseable.append(str(py.relative_to(REPO_ROOT)))
                 names |= set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", src))
-    return names, unparseable
+    rust_names, unreadable = rust_production_references()
+    names |= rust_names
+    # Some pyo3 classes are intentionally anonymous to Python callers: they
+    # are nested in a live function/class return (for example DRC snapshot
+    # rows and loop wires). Follow their Rust type edges after collecting the
+    # ordinary Python and dynamic Rust references.
+    names |= rust_type_flow_references(names)
+    return names, unparseable + unreadable
 
 
 def load_inventory() -> dict[str, str]:
@@ -380,7 +890,6 @@ def write_inventory(unwired: dict[str, str], previous: dict[str, str]) -> None:
         "#",
         "# Generated by scripts/check_unwired_kernels.py --write-inventory",
         "# <symbol>\\t<reason>",
-        "",
     ]
     for sym in sorted(unwired):
         reason = previous.get(sym, "").strip() or "unwired at time of recording; no reason given"

@@ -14,6 +14,11 @@ for ~125 symbols) was collapsed; consumers import those symbols from
 The ``drc_inflate`` / ``kicad_transform`` submodule re-exports were removed
 in Phase 1.4 (2026-08-19): zero importers referenced those names through
 this package (consumers use the submodule paths directly).
+
+``smooth_leaky_relu`` remains a small Python boundary because its historical
+API supplies defaults that the scalar Rust kernel intentionally leaves
+explicit.  The wrapper keeps callers on the placer package surface while
+delegating all computation to Rust.
 """
 
 from __future__ import annotations
@@ -53,6 +58,13 @@ ROTATION_MATRICES = (
 # ---------------------------------------------------------------------------
 
 compute_pairwise_distances = _tg.compute_pairwise_distances
+
+
+def smooth_leaky_relu(
+    x: float, alpha: float = 10.0, negative_slope: float = 0.01
+) -> float:
+    """Evaluate Rust's smooth leaky-ReLU kernel with stable API defaults."""
+    return _tg.smooth_leaky_relu(x, alpha, negative_slope)
 
 # ---------------------------------------------------------------------------
 # sdf_gradient — kept as Python wrapper since Rust can't take a callable

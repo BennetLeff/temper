@@ -203,14 +203,20 @@ pub fn audit_domain_clearance_validator(
         }
     }
     // `solved_refs = set(resolved_positions_mm)`.
-    let solved_refs = py.import("builtins")?.getattr("set")?.call1((resolved_positions_mm,))?;
+    let solved_refs = py
+        .import("builtins")?
+        .getattr("set")?
+        .call1((resolved_positions_mm,))?;
     // `placement_refs & solved_refs`.
     let overlap = placement_refs.call_method1("__and__", (&solved_refs,))?;
 
     let placement_refs_empty = !placement_refs.is_truthy()?;
     let overlap_empty = !overlap.is_truthy()?;
     if placement_refs_empty || overlap_empty {
-        let sorted_solved = py.import("builtins")?.getattr("sorted")?.call1((&solved_refs,))?;
+        let sorted_solved = py
+            .import("builtins")?
+            .getattr("sorted")?
+            .call1((&solved_refs,))?;
         let sorted_placement = py
             .import("builtins")?
             .getattr("sorted")?
@@ -253,7 +259,10 @@ pub fn audit_domain_clearance_validator(
     } else {
         empty_dict.into_any()
     };
-    let stats = py.import("builtins")?.getattr("dict")?.call1((&stats_src,))?;
+    let stats = py
+        .import("builtins")?
+        .getattr("dict")?
+        .call1((&stats_src,))?;
 
     // Geometry trust computation.
     let empty_list = PyList::empty(py);
@@ -263,10 +272,7 @@ pub fn audit_domain_clearance_validator(
     } else {
         PyList::empty(py).into_any()
     };
-    let components_without_pads = py
-        .import("builtins")?
-        .getattr("list")?
-        .call1((&cwp_src,))?;
+    let components_without_pads = py.import("builtins")?.getattr("list")?.call1((&cwp_src,))?;
 
     let empty_rows = PyList::empty(py);
     let rows = stats.call_method1("get", ("rows", &empty_rows))?;
@@ -290,10 +296,10 @@ pub fn audit_domain_clearance_validator(
             .import("builtins")?
             .getattr("sorted")?
             .call1((&components_without_pads,))?;
-        let joined = py.import("builtins")?.getattr("str")?.call_method1(
-            "join",
-            ("", &sorted_cwp),
-        )?;
+        let joined = py
+            .import("builtins")?
+            .getattr("str")?
+            .call_method1("join", ("", &sorted_cwp))?;
         let joined = if joined.is_truthy()? {
             joined
         } else {
@@ -363,15 +369,31 @@ pub fn audit_domain_clearance_validator(
         } else {
             PyString::new(py, "?").into_any()
         };
-        let boundary = if boundary.is_truthy()? { boundary } else { PyString::new(py, "?").into_any() };
+        let boundary = if boundary.is_truthy()? {
+            boundary
+        } else {
+            PyString::new(py, "?").into_any()
+        };
         let insulation_type = if !insulation.is_none() {
             insulation.getattr("value")?
         } else {
             PyString::new(py, "?").into_any()
         };
-        let metric = if metric.is_truthy()? { metric } else { PyString::new(py, "?").into_any() };
-        let measured_mm = if !measured.is_none() { measured } else { nan.clone() };
-        let required_mm = if !required.is_none() { required } else { nan.clone() };
+        let metric = if metric.is_truthy()? {
+            metric
+        } else {
+            PyString::new(py, "?").into_any()
+        };
+        let measured_mm = if !measured.is_none() {
+            measured
+        } else {
+            nan.clone()
+        };
+        let required_mm = if !required.is_none() {
+            required
+        } else {
+            nan.clone()
+        };
         let pair_kind = if pair_kind.is_truthy()? {
             pair_kind
         } else {
@@ -496,11 +518,7 @@ mod proptests {
 
     /// `x or "?"` on a `str | None` attribute.
     fn or_question(s: Option<&str>) -> &str {
-        if truthy_str(s) {
-            s.unwrap()
-        } else {
-            "?"
-        }
+        if truthy_str(s) { s.unwrap() } else { "?" }
     }
 
     /// The oracle's `_classify_violation` bucket decision, transcribed from
@@ -723,7 +741,12 @@ mod proptests {
     /// make P1 vacuous).
     #[test]
     fn production_reaches_all_three_buckets() {
-        type Shape = (Option<&'static str>, Option<&'static str>, Option<&'static str>, bool);
+        type Shape = (
+            Option<&'static str>,
+            Option<&'static str>,
+            Option<&'static str>,
+            bool,
+        );
         init_python();
         let observed = Python::attach(|py| -> Vec<String> {
             let cases: Vec<Shape> = vec![
@@ -762,30 +785,32 @@ mod proptests {
         assert_ne!("gap", reference_bucket(None, None, None, false));
     }
 
-// ---------------------------------------------------------------------------
-mod proptests_seam {
-    use crate::validator_audit::{LOGGER_NAME, audit_domain_clearance_validator, classify_violation};
-    use pyo3::prelude::*;
-    use proptest::prelude::*;
-    use pyo3::types::{PyDict, PyList, PyModule, PyString};
-    use pyo3::IntoPyObjectExt;
-    use std::sync::{Mutex, Once};
+    // ---------------------------------------------------------------------------
+    mod proptests_seam {
+        use crate::validator_audit::{
+            LOGGER_NAME, audit_domain_clearance_validator, classify_violation,
+        };
+        use proptest::prelude::*;
+        use pyo3::IntoPyObjectExt;
+        use pyo3::prelude::*;
+        use pyo3::types::{PyDict, PyList, PyModule, PyString};
+        use std::sync::{Mutex, Once};
 
-    // One-time interpreter init (a second `Python::initialize()` is a no-op).
-    static PY_INIT: Once = Once::new();
+        // One-time interpreter init (a second `Python::initialize()` is a no-op).
+        static PY_INIT: Once = Once::new();
 
-    // Serializes the per-case `verify_iec60335_compliance` monkeypatch across
-    // this module's own proptest fns (each drives the same venv module
-    // attribute; the setattr -> call -> restore sequence is atomic under one
-    // GIL hold, but the patch must not interleave between two test threads).
-    static PATCH_GATE: Mutex<()> = Mutex::new(());
-    static FAKES: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        // Serializes the per-case `verify_iec60335_compliance` monkeypatch across
+        // this module's own proptest fns (each drives the same venv module
+        // attribute; the setattr -> call -> restore sequence is atomic under one
+        // GIL hold, but the patch must not interleave between two test threads).
+        static PATCH_GATE: Mutex<()> = Mutex::new(());
+        static FAKES: std::sync::OnceLock<()> = std::sync::OnceLock::new();
 
-    // The fake `temper_placer.placer.cp_sat.validator_audit` leaf module the
-    // kernel imports: the two dataclasses (constructed by keyword args) plus
-    // the `build_validator_placement` call-back (returns the placement
-    // unchanged -- the fake verify ignores it).
-    const FAKE_VA_SOURCE: &str = r#"
+        // The fake `temper_placer.placer.cp_sat.validator_audit` leaf module the
+        // kernel imports: the two dataclasses (constructed by keyword args) plus
+        // the `build_validator_placement` call-back (returns the placement
+        // unchanged -- the fake verify ignores it).
+        const FAKE_VA_SOURCE: &str = r#"
 from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
@@ -815,624 +840,627 @@ def build_validator_placement(placement, resolved_positions_mm, resolved_rotatio
     return placement
 "#;
 
-    // The fake `temper_placer.requirements.validators.clearance` leaf module
-    // (a placeholder `verify_iec60335_compliance`, monkeypatched per case).
-    const FAKE_CLEARANCE_SOURCE: &str = r#"
+        // The fake `temper_placer.requirements.validators.clearance` leaf module
+        // (a placeholder `verify_iec60335_compliance`, monkeypatched per case).
+        const FAKE_CLEARANCE_SOURCE: &str = r#"
 def verify_iec60335_compliance(validator_placement, voltage_domains):
     raise NotImplementedError("fake verify -- monkeypatched per case")
 "#;
 
-    // Install the two fake leaf modules into `sys.modules` (only the full
-    // dotted names -- the import machinery resolves them without the real
-    // `temper_placer` package, so this is cooperative with feedback_loop.rs's
-    // own `temper_placer` fake).
-    fn install_fakes(py: Python<'_>) -> PyResult<()> {
-        let sys = py.import("sys")?;
-        let modules: Bound<'_, PyDict> = sys.getattr("modules")?.cast_into()?;
-        if modules.get_item("temper_placer")?.is_none() {
-            modules.set_item("temper_placer", PyModule::new(py, "temper_placer")?)?;
+        // Install the two fake leaf modules into `sys.modules` (only the full
+        // dotted names -- the import machinery resolves them without the real
+        // `temper_placer` package, so this is cooperative with feedback_loop.rs's
+        // own `temper_placer` fake).
+        fn install_fakes(py: Python<'_>) -> PyResult<()> {
+            let sys = py.import("sys")?;
+            let modules: Bound<'_, PyDict> = sys.getattr("modules")?.cast_into()?;
+            if modules.get_item("temper_placer")?.is_none() {
+                modules.set_item("temper_placer", PyModule::new(py, "temper_placer")?)?;
+            }
+            let va = PyModule::new(py, "temper_placer.placer.cp_sat.validator_audit")?;
+            let src = std::ffi::CString::new(FAKE_VA_SOURCE).expect("no NUL");
+            py.run(src.as_c_str(), Some(&va.dict()), Some(&va.dict()))?;
+            modules.set_item("temper_placer.placer.cp_sat.validator_audit", &va)?;
+            let clr = PyModule::new(py, "temper_placer.requirements.validators.clearance")?;
+            let src2 = std::ffi::CString::new(FAKE_CLEARANCE_SOURCE).expect("no NUL");
+            py.run(src2.as_c_str(), Some(&clr.dict()), Some(&clr.dict()))?;
+            modules.set_item("temper_placer.requirements.validators.clearance", &clr)?;
+            // Silence the audit's degraded-geometry logger (the kernel logs at
+            // ERROR through the default Python handler; proptest output is noisy
+            // otherwise).
+            let logging = py.import("logging")?;
+            let logger = logging.call_method1("getLogger", (LOGGER_NAME,))?;
+            logger.call_method1("setLevel", (logging.getattr("CRITICAL")?,))?;
+            Ok(())
         }
-        let va = PyModule::new(py, "temper_placer.placer.cp_sat.validator_audit")?;
-        let src = std::ffi::CString::new(FAKE_VA_SOURCE).expect("no NUL");
-        py.run(src.as_c_str(), Some(&va.dict()), Some(&va.dict()))?;
-        modules.set_item("temper_placer.placer.cp_sat.validator_audit", &va)?;
-        let clr = PyModule::new(py, "temper_placer.requirements.validators.clearance")?;
-        let src2 = std::ffi::CString::new(FAKE_CLEARANCE_SOURCE).expect("no NUL");
-        py.run(src2.as_c_str(), Some(&clr.dict()), Some(&clr.dict()))?;
-        modules.set_item("temper_placer.requirements.validators.clearance", &clr)?;
-        // Silence the audit's degraded-geometry logger (the kernel logs at
-        // ERROR through the default Python handler; proptest output is noisy
-        // otherwise).
-        let logging = py.import("logging")?;
-        let logger = logging.call_method1("getLogger", (LOGGER_NAME,))?;
-        logger.call_method1("setLevel", (logging.getattr("CRITICAL")?,))?;
-        Ok(())
-    }
 
-    // One-time interpreter init + fake-module install.
-    fn fakes_ready() {
-        PY_INIT.call_once(Python::initialize);
-        let _ = std::sync::OnceLock::get_or_init(&FAKES, || {
-            Python::attach(|py| install_fakes(py).expect("fake install failed"))
-        });
-    }
-
-    // `py.None()` as a `Bound<PyAny>` (pyo3's `Python::None` returns an owned
-    // `Py<PyNone>`, whose `.into_any()` yields `Py<PyAny>` -- not what the
-    // `Bound`-building helpers want).
-    fn none_any(py: Python<'_>) -> Bound<'_, PyAny> {
-        py.None().into_bound_py_any(py).unwrap()
-    }
-
-    // -- reference model for `_classify_violation` (oracle transcription) ----
-
-    // `v.ref_a or "?"` -- a truthy value survives, a falsy one (None, "") is
-    // replaced by the "?" default.
-    fn defaulted(raw: &Option<String>) -> String {
-        match raw {
-            Some(s) if !s.is_empty() => s.clone(),
-            _ => "?".to_string(),
+        // One-time interpreter init + fake-module install.
+        fn fakes_ready() {
+            PY_INIT.call_once(Python::initialize);
+            let _ = std::sync::OnceLock::get_or_init(&FAKES, || {
+                Python::attach(|py| install_fakes(py).expect("fake install failed"))
+            });
         }
-    }
 
-    // The oracle's `_classify_violation` bucket + reason, transcribed
-    // structurally; the only formatting (the "hard" `{measured_mm:.3f}` /
-    // `{required_mm}` render) is done through CPython's `str.format` so the
-    // comparison is bit-exact by construction -- and it still pins that the
-    // kernel routes the RAW `v.measured_mm` / `v.required_mm` (not the
-    // nan-defaulted record fields) into the reason.
-    fn reference_classify(
-        py: Python<'_>,
-        ref_a: &Option<String>,
-        ref_b: &Option<String>,
-        pair_kind: &Option<String>,
-        covered: bool,
-        measured: f64,
-        required: f64,
-    ) -> (&'static str, String) {
-        let da = defaulted(ref_a);
-        let db = defaulted(ref_b);
-        let pk_intra = pair_kind.as_deref() == Some("intra");
-        if pk_intra || da == db {
-            return (
-                "intra",
-                format!(
-                    "{da}'s own pads straddle a domain boundary within one \
+        // `py.None()` as a `Bound<PyAny>` (pyo3's `Python::None` returns an owned
+        // `Py<PyNone>`, whose `.into_any()` yields `Py<PyAny>` -- not what the
+        // `Bound`-building helpers want).
+        fn none_any(py: Python<'_>) -> Bound<'_, PyAny> {
+            py.None().into_bound_py_any(py).unwrap()
+        }
+
+        // -- reference model for `_classify_violation` (oracle transcription) ----
+
+        // `v.ref_a or "?"` -- a truthy value survives, a falsy one (None, "") is
+        // replaced by the "?" default.
+        fn defaulted(raw: &Option<String>) -> String {
+            match raw {
+                Some(s) if !s.is_empty() => s.clone(),
+                _ => "?".to_string(),
+            }
+        }
+
+        // The oracle's `_classify_violation` bucket + reason, transcribed
+        // structurally; the only formatting (the "hard" `{measured_mm:.3f}` /
+        // `{required_mm}` render) is done through CPython's `str.format` so the
+        // comparison is bit-exact by construction -- and it still pins that the
+        // kernel routes the RAW `v.measured_mm` / `v.required_mm` (not the
+        // nan-defaulted record fields) into the reason.
+        fn reference_classify(
+            py: Python<'_>,
+            ref_a: &Option<String>,
+            ref_b: &Option<String>,
+            pair_kind: &Option<String>,
+            covered: bool,
+            measured: f64,
+            required: f64,
+        ) -> (&'static str, String) {
+            let da = defaulted(ref_a);
+            let db = defaulted(ref_b);
+            let pk_intra = pair_kind.as_deref() == Some("intra");
+            if pk_intra || da == db {
+                return (
+                    "intra",
+                    format!(
+                        "{da}'s own pads straddle a domain boundary within one \
                      footprint; placement translates/rotates the part rigidly \
                      so no SeparatedConstraint (nor any placement) can fix it \
                      -- reported separately, not as a solver-encoding failure"
-                ),
-            );
-        }
-        if covered {
-            let tmpl = "pair is covered by the solve's domain-clearance \
+                    ),
+                );
+            }
+            if covered {
+                let tmpl = "pair is covered by the solve's domain-clearance \
                         constraint set but the validator still measures \
                         {measured_mm:.3f}mm copper-to-copper < {required_mm}mm \
                         required -- the box separation the solver SAT did NOT \
                         imply the validator's exact copper separation \
                         (encoding unsound for this solve)";
-            let kwargs = PyDict::new(py);
-            kwargs.set_item("measured_mm", measured).unwrap();
-            kwargs.set_item("required_mm", required).unwrap();
-            let reason = PyString::new(py, tmpl)
-                .call_method("format", (), Some(&kwargs))
-                .unwrap();
-            return ("hard", reason.str().unwrap().to_string());
-        }
-        (
-            "gap",
-            "pair is NOT in the solve's domain-clearance constraint set -- the \
+                let kwargs = PyDict::new(py);
+                kwargs.set_item("measured_mm", measured).unwrap();
+                kwargs.set_item("required_mm", required).unwrap();
+                let reason = PyString::new(py, tmpl)
+                    .call_method("format", (), Some(&kwargs))
+                    .unwrap();
+                return ("hard", reason.str().unwrap().to_string());
+            }
+            (
+                "gap",
+                "pair is NOT in the solve's domain-clearance constraint set -- the \
              generator's component_refs filter or the intra-footprint exemption \
              excluded it (solver-validator pair-set misalignment)"
-                .to_string(),
-        )
-    }
-
-    // -- Python-object builders ---------------------------------------------
-
-    // A `types.SimpleNamespace` carrying exactly the five attributes the
-    // kernel reads (`ref_a`, `ref_b`, `pair_kind`, `measured_mm`,
-    // `required_mm`), with `None` for the falsy/absent arm.
-    fn make_violation<'py>(
-        py: Python<'py>,
-        ref_a: &Option<String>,
-        ref_b: &Option<String>,
-        pair_kind: &Option<String>,
-        measured: f64,
-        required: f64,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let sns = py.import("types")?.getattr("SimpleNamespace")?;
-        let kwargs = PyDict::new(py);
-        let ra = match ref_a {
-            Some(s) => PyString::new(py, s).into_any(),
-            None => none_any(py),
-        };
-        let rb = match ref_b {
-            Some(s) => PyString::new(py, s).into_any(),
-            None => none_any(py),
-        };
-        let pk = match pair_kind {
-            Some(s) => PyString::new(py, s).into_any(),
-            None => none_any(py),
-        };
-        kwargs.set_item("ref_a", &ra)?;
-        kwargs.set_item("ref_b", &rb)?;
-        kwargs.set_item("pair_kind", &pk)?;
-        kwargs.set_item("measured_mm", measured)?;
-        kwargs.set_item("required_mm", required)?;
-        sns.call((), Some(&kwargs))
-    }
-
-    // The `covered_pairs` set: contains `frozenset((ref_a, ref_b))` (built
-    // from the DEFAULTED refs) iff `covered`.
-    fn make_covered<'py>(
-        py: Python<'py>,
-        ref_a: &Option<String>,
-        ref_b: &Option<String>,
-        covered: bool,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let covered_pairs = py.import("builtins")?.getattr("set")?.call0()?;
-        if covered {
-            let frozenset = py.import("builtins")?.getattr("frozenset")?;
-            let fs = frozenset.call1((PyList::new(
-                py,
-                [defaulted(ref_a).into_bound_py_any(py)?, defaulted(ref_b).into_bound_py_any(py)?],
-            )?,))?;
-            covered_pairs.call_method1("add", (&fs,))?;
+                    .to_string(),
+            )
         }
-        Ok(covered_pairs)
-    }
 
-    // A callable fake `verify_iec60335_compliance` returning itself (so
-    // `result.violations` / `result.stats` read the injected values),
-    // mirroring the oracle's `ClearanceResult`.
-    fn make_fake_verify<'py>(
-        py: Python<'py>,
-        violations: &Bound<'py, PyAny>,
-        stats: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let ns = PyModule::new(py, "__audit_proptest_fake_verify__")?;
-        let src = std::ffi::CString::new(
-            "class FakeVerify:\n    def __init__(self, violations, stats):\n        \
+        // -- Python-object builders ---------------------------------------------
+
+        // A `types.SimpleNamespace` carrying exactly the five attributes the
+        // kernel reads (`ref_a`, `ref_b`, `pair_kind`, `measured_mm`,
+        // `required_mm`), with `None` for the falsy/absent arm.
+        fn make_violation<'py>(
+            py: Python<'py>,
+            ref_a: &Option<String>,
+            ref_b: &Option<String>,
+            pair_kind: &Option<String>,
+            measured: f64,
+            required: f64,
+        ) -> PyResult<Bound<'py, PyAny>> {
+            let sns = py.import("types")?.getattr("SimpleNamespace")?;
+            let kwargs = PyDict::new(py);
+            let ra = match ref_a {
+                Some(s) => PyString::new(py, s).into_any(),
+                None => none_any(py),
+            };
+            let rb = match ref_b {
+                Some(s) => PyString::new(py, s).into_any(),
+                None => none_any(py),
+            };
+            let pk = match pair_kind {
+                Some(s) => PyString::new(py, s).into_any(),
+                None => none_any(py),
+            };
+            kwargs.set_item("ref_a", &ra)?;
+            kwargs.set_item("ref_b", &rb)?;
+            kwargs.set_item("pair_kind", &pk)?;
+            kwargs.set_item("measured_mm", measured)?;
+            kwargs.set_item("required_mm", required)?;
+            sns.call((), Some(&kwargs))
+        }
+
+        // The `covered_pairs` set: contains `frozenset((ref_a, ref_b))` (built
+        // from the DEFAULTED refs) iff `covered`.
+        fn make_covered<'py>(
+            py: Python<'py>,
+            ref_a: &Option<String>,
+            ref_b: &Option<String>,
+            covered: bool,
+        ) -> PyResult<Bound<'py, PyAny>> {
+            let covered_pairs = py.import("builtins")?.getattr("set")?.call0()?;
+            if covered {
+                let frozenset = py.import("builtins")?.getattr("frozenset")?;
+                let fs = frozenset.call1((PyList::new(
+                    py,
+                    [
+                        defaulted(ref_a).into_bound_py_any(py)?,
+                        defaulted(ref_b).into_bound_py_any(py)?,
+                    ],
+                )?,))?;
+                covered_pairs.call_method1("add", (&fs,))?;
+            }
+            Ok(covered_pairs)
+        }
+
+        // A callable fake `verify_iec60335_compliance` returning itself (so
+        // `result.violations` / `result.stats` read the injected values),
+        // mirroring the oracle's `ClearanceResult`.
+        fn make_fake_verify<'py>(
+            py: Python<'py>,
+            violations: &Bound<'py, PyAny>,
+            stats: &Bound<'py, PyAny>,
+        ) -> PyResult<Bound<'py, PyAny>> {
+            let ns = PyModule::new(py, "__audit_proptest_fake_verify__")?;
+            let src = std::ffi::CString::new(
+                "class FakeVerify:\n    def __init__(self, violations, stats):\n        \
              self.violations = violations\n        self.stats = stats\n    \
              def __call__(self, validator_placement, voltage_domains):\n        \
              return self\n",
-        )
-        .expect("fake verify source has no NUL");
-        py.run(src.as_c_str(), Some(&ns.dict()), Some(&ns.dict()))?;
-        let cls = ns.getattr("FakeVerify")?;
-        cls.call1((violations, stats))
-    }
-
-    // A validator-shape placement (`{"components": [{"ref": ...}], ...}`)
-    // whose component refs are exactly `refs`.
-    fn make_placement<'py>(py: Python<'py>, refs: &[String]) -> PyResult<Bound<'py, PyAny>> {
-        let placement = PyDict::new(py);
-        let components = PyList::empty(py);
-        for r in refs {
-            let comp = PyDict::new(py);
-            comp.set_item("ref", PyString::new(py, r))?;
-            components.append(comp)?;
-        }
-        placement.set_item("components", &components)?;
-        Ok(placement.into_any())
-    }
-
-    // Drive the full pyfunction once, monkeypatching
-    // `verify_iec60335_compliance` to return `violations` / `stats`. The
-    // patch is set and restored under one GIL hold (caller holds
-    // `PATCH_GATE`).
-    #[allow(clippy::too_many_arguments)]
-    fn drive_audit<'py>(
-        py: Python<'py>,
-        constraints: &Bound<'py, PyAny>,
-        positions: &Bound<'py, PyAny>,
-        rotations: &Bound<'py, PyAny>,
-        placement: &Bound<'py, PyAny>,
-        vd: &Bound<'py, PyAny>,
-        violations: &Bound<'py, PyAny>,
-        stats: &Bound<'py, PyAny>,
-    ) -> PyResult<Py<PyAny>> {
-        let clearance_mod = py.import("temper_placer.requirements.validators.clearance")?;
-        let orig = clearance_mod.getattr("verify_iec60335_compliance")?;
-        let fake = make_fake_verify(py, violations, stats)?;
-        clearance_mod.setattr("verify_iec60335_compliance", &fake)?;
-        let r = audit_domain_clearance_validator(
-            py,
-            constraints.clone().unbind(),
-            positions.clone().unbind(),
-            rotations.clone().unbind(),
-            placement.clone().unbind(),
-            vd.clone().unbind(),
-            None,
-        );
-        clearance_mod.setattr("verify_iec60335_compliance", &orig)?;
-        r
-    }
-
-    // `{"ac_l": "MAINS", "gnd": "LV_CONTROL"}`-shaped voltage-domain map.
-    fn make_vd<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let vd = PyDict::new(py);
-        vd.set_item("ac_l", "MAINS")?;
-        vd.set_item("gnd", "LV_CONTROL")?;
-        Ok(vd.into_any())
-    }
-
-    // -- strategies ----------------------------------------------------------
-
-    fn opt_ref() -> impl Strategy<Value = Option<String>> {
-        prop::option::of(prop::sample::select(vec![
-            "A".to_string(),
-            "B".to_string(),
-            "U1".to_string(),
-            "Q2".to_string(),
-            "X".to_string(),
-            "".to_string(),
-        ]))
-    }
-
-    fn opt_pair_kind() -> impl Strategy<Value = Option<String>> {
-        prop::option::of(prop::sample::select(vec![
-            "intra".to_string(),
-            "inter".to_string(),
-            "".to_string(),
-            "weird".to_string(),
-        ]))
-    }
-
-    // -----------------------------------------------------------------------
-
-    // P1. `classify_violation` reproduces the oracle's bucket AND reason
-    // bit-identically for every randomized violation + coverage combination.
-    // This is the seam the finish agent wired after the interrupted
-    // migration: the three fallbacks -- falsy `pair_kind` (falls through to
-    // `ref_a == ref_b` value-equality on the DEFAULTED refs), `ref_a/ref_b`
-    // falsy -> "?", and the covered-pair "hard" reason rendering the RAW
-    // measured/required through CPython `str.format` -- must all match.
-    proptest! {
-        #![proptest_config(ProptestConfig::default())]
-
-        #[test]
-        fn classify_violation_bucket_and_reason_match_reference(
-            (ref_a, ref_b, pair_kind, covered, measured, required) in (
-                opt_ref(),
-                opt_ref(),
-                opt_pair_kind(),
-                proptest::bool::ANY,
-                -100.0f64..100.0,
-                -100.0f64..100.0,
-            ),
-        ) {
-            fakes_ready();
-            let r: PyResult<(String, String, &'static str, String)> = Python::attach(|py| {
-                let v = make_violation(py, &ref_a, &ref_b, &pair_kind, measured, required)?;
-                let covered_pairs = make_covered(py, &ref_a, &ref_b, covered)?;
-                let (bucket, reason) = classify_violation(py, &v, &covered_pairs)?;
-                let (rb, rr) = reference_classify(
-                    py, &ref_a, &ref_b, &pair_kind, covered, measured, required,
-                );
-                Ok((bucket, reason, rb, rr))
-            });
-            let (bucket, reason, rb, rr) = r.unwrap();
-            prop_assert_eq!(bucket.as_str(), rb);
-            prop_assert_eq!(reason, rr);
+            )
+            .expect("fake verify source has no NUL");
+            py.run(src.as_c_str(), Some(&ns.dict()), Some(&ns.dict()))?;
+            let cls = ns.getattr("FakeVerify")?;
+            cls.call1((violations, stats))
         }
 
-        // P2. The disjoint-refs ValueError guard fires with the oracle's
-        // exact message shape (the sorted ref lists) for every randomized
-        // disjoint (placement refs, solved refs) pair. The overlap arm is
-        // exercised by P3/P4/P5 (which always overlap).
-        #[test]
-        fn disjoint_refs_guard_fires_with_sorted_refs(
-            (placement_refs, solved_refs) in (
-                prop::collection::vec("[A-Z][0-9]?", 1..=5),
-                prop::collection::vec("[a-z][0-9]?", 1..=5),
-            ),
-        ) {
-            fakes_ready();
-            // The two strategies are case-separated, so the sets are always
-            // disjoint (upper- vs lower-case).
-            prop_assert!(!placement_refs.iter().any(|r| solved_refs.contains(r)));
-            let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
-            let _r: PyResult<()> = Python::attach(|py| {
-                let placement = make_placement(py, &placement_refs)?;
-                let positions = PyDict::new(py);
-                for r in &solved_refs {
-                    positions.set_item(r, (1.0_f64, 1.0_f64).into_bound_py_any(py)?)?;
-                }
-                let rotations = PyDict::new(py);
-                let vd = make_vd(py)?;
-                let empty_violations = PyList::empty(py);
-                let empty_stats = PyDict::new(py);
-                let err = drive_audit(
-                    py,
-                    &PyList::empty(py).into_any(),
-                    &positions.into_any(),
-                    &rotations.into_any(),
-                    &placement,
-                    &vd,
-                    &empty_violations.into_any(),
-                    &empty_stats.into_any(),
-                )
-                .unwrap_err();
-                let msg = err.value(py).str()?.to_string();
-                assert!(msg.contains("no overlap"), "guard text: {msg}");
-                assert!(msg.contains("share no overlap with the placement's"));
-                Ok(())
-            });
-            _r.unwrap();
+        // A validator-shape placement (`{"components": [{"ref": ...}], ...}`)
+        // whose component refs are exactly `refs`.
+        fn make_placement<'py>(py: Python<'py>, refs: &[String]) -> PyResult<Bound<'py, PyAny>> {
+            let placement = PyDict::new(py);
+            let components = PyList::empty(py);
+            for r in refs {
+                let comp = PyDict::new(py);
+                comp.set_item("ref", PyString::new(py, r))?;
+                components.append(comp)?;
+            }
+            placement.set_item("components", &components)?;
+            Ok(placement.into_any())
         }
 
-        // P3. `geometry_trusted` is true iff no component is pad-less AND no
-        // candidate pair was measured origin-to-origin, for every randomized
-        // stats combination.
-        #[test]
-        fn geometry_trusted_iff_no_cwp_and_no_origin_modelled(
-            (cwp, origin) in (
-                prop::collection::vec("[A-Z][0-9]?", 0..=4),
-                prop::collection::vec(proptest::option::of(0i64..=4), 0..=4),
-            ),
-        ) {
-            fakes_ready();
-            let origin_sum: i64 = origin.iter().map(|o| o.unwrap_or(0)).sum();
-            let expected_trusted = cwp.is_empty() && origin_sum == 0;
-            let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
-            let trusted: PyResult<bool> = Python::attach(|py| {
-                let placement = make_placement(py, &["A".to_string(), "B".to_string()])?;
-                let positions = PyDict::new(py);
-                positions.set_item("A", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                positions.set_item("B", (8.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                let rotations = PyDict::new(py);
-                rotations.set_item("A", 0_i64)?;
-                rotations.set_item("B", 0_i64)?;
-                let vd = make_vd(py)?;
-                let stats = PyDict::new(py);
-                let cwp_list = PyList::empty(py);
-                for r in &cwp {
-                    cwp_list.append(PyString::new(py, r))?;
-                }
-                stats.set_item("components_without_pads", &cwp_list)?;
-                let rows = PyList::empty(py);
-                for o in &origin {
-                    let row = PyDict::new(py);
-                    match o {
-                        Some(v) => {
-                            row.set_item("pairs_origin_modelled", *v)?;
-                        }
-                        None => {
-                            row.set_item("pairs_origin_modelled", none_any(py))?;
+        // Drive the full pyfunction once, monkeypatching
+        // `verify_iec60335_compliance` to return `violations` / `stats`. The
+        // patch is set and restored under one GIL hold (caller holds
+        // `PATCH_GATE`).
+        #[allow(clippy::too_many_arguments)]
+        fn drive_audit<'py>(
+            py: Python<'py>,
+            constraints: &Bound<'py, PyAny>,
+            positions: &Bound<'py, PyAny>,
+            rotations: &Bound<'py, PyAny>,
+            placement: &Bound<'py, PyAny>,
+            vd: &Bound<'py, PyAny>,
+            violations: &Bound<'py, PyAny>,
+            stats: &Bound<'py, PyAny>,
+        ) -> PyResult<Py<PyAny>> {
+            let clearance_mod = py.import("temper_placer.requirements.validators.clearance")?;
+            let orig = clearance_mod.getattr("verify_iec60335_compliance")?;
+            let fake = make_fake_verify(py, violations, stats)?;
+            clearance_mod.setattr("verify_iec60335_compliance", &fake)?;
+            let r = audit_domain_clearance_validator(
+                py,
+                constraints.clone().unbind(),
+                positions.clone().unbind(),
+                rotations.clone().unbind(),
+                placement.clone().unbind(),
+                vd.clone().unbind(),
+                None,
+            );
+            clearance_mod.setattr("verify_iec60335_compliance", &orig)?;
+            r
+        }
+
+        // `{"ac_l": "MAINS", "gnd": "LV_CONTROL"}`-shaped voltage-domain map.
+        fn make_vd<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+            let vd = PyDict::new(py);
+            vd.set_item("ac_l", "MAINS")?;
+            vd.set_item("gnd", "LV_CONTROL")?;
+            Ok(vd.into_any())
+        }
+
+        // -- strategies ----------------------------------------------------------
+
+        fn opt_ref() -> impl Strategy<Value = Option<String>> {
+            prop::option::of(prop::sample::select(vec![
+                "A".to_string(),
+                "B".to_string(),
+                "U1".to_string(),
+                "Q2".to_string(),
+                "X".to_string(),
+                "".to_string(),
+            ]))
+        }
+
+        fn opt_pair_kind() -> impl Strategy<Value = Option<String>> {
+            prop::option::of(prop::sample::select(vec![
+                "intra".to_string(),
+                "inter".to_string(),
+                "".to_string(),
+                "weird".to_string(),
+            ]))
+        }
+
+        // -----------------------------------------------------------------------
+
+        // P1. `classify_violation` reproduces the oracle's bucket AND reason
+        // bit-identically for every randomized violation + coverage combination.
+        // This is the seam the finish agent wired after the interrupted
+        // migration: the three fallbacks -- falsy `pair_kind` (falls through to
+        // `ref_a == ref_b` value-equality on the DEFAULTED refs), `ref_a/ref_b`
+        // falsy -> "?", and the covered-pair "hard" reason rendering the RAW
+        // measured/required through CPython `str.format` -- must all match.
+        proptest! {
+            #![proptest_config(ProptestConfig::default())]
+
+            #[test]
+            fn classify_violation_bucket_and_reason_match_reference(
+                (ref_a, ref_b, pair_kind, covered, measured, required) in (
+                    opt_ref(),
+                    opt_ref(),
+                    opt_pair_kind(),
+                    proptest::bool::ANY,
+                    -100.0f64..100.0,
+                    -100.0f64..100.0,
+                ),
+            ) {
+                fakes_ready();
+                let r: PyResult<(String, String, &'static str, String)> = Python::attach(|py| {
+                    let v = make_violation(py, &ref_a, &ref_b, &pair_kind, measured, required)?;
+                    let covered_pairs = make_covered(py, &ref_a, &ref_b, covered)?;
+                    let (bucket, reason) = classify_violation(py, &v, &covered_pairs)?;
+                    let (rb, rr) = reference_classify(
+                        py, &ref_a, &ref_b, &pair_kind, covered, measured, required,
+                    );
+                    Ok((bucket, reason, rb, rr))
+                });
+                let (bucket, reason, rb, rr) = r.unwrap();
+                prop_assert_eq!(bucket.as_str(), rb);
+                prop_assert_eq!(reason, rr);
+            }
+
+            // P2. The disjoint-refs ValueError guard fires with the oracle's
+            // exact message shape (the sorted ref lists) for every randomized
+            // disjoint (placement refs, solved refs) pair. The overlap arm is
+            // exercised by P3/P4/P5 (which always overlap).
+            #[test]
+            fn disjoint_refs_guard_fires_with_sorted_refs(
+                (placement_refs, solved_refs) in (
+                    prop::collection::vec("[A-Z][0-9]?", 1..=5),
+                    prop::collection::vec("[a-z][0-9]?", 1..=5),
+                ),
+            ) {
+                fakes_ready();
+                // The two strategies are case-separated, so the sets are always
+                // disjoint (upper- vs lower-case).
+                prop_assert!(!placement_refs.iter().any(|r| solved_refs.contains(r)));
+                let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
+                let _r: PyResult<()> = Python::attach(|py| {
+                    let placement = make_placement(py, &placement_refs)?;
+                    let positions = PyDict::new(py);
+                    for r in &solved_refs {
+                        positions.set_item(r, (1.0_f64, 1.0_f64).into_bound_py_any(py)?)?;
+                    }
+                    let rotations = PyDict::new(py);
+                    let vd = make_vd(py)?;
+                    let empty_violations = PyList::empty(py);
+                    let empty_stats = PyDict::new(py);
+                    let err = drive_audit(
+                        py,
+                        &PyList::empty(py).into_any(),
+                        &positions.into_any(),
+                        &rotations.into_any(),
+                        &placement,
+                        &vd,
+                        &empty_violations.into_any(),
+                        &empty_stats.into_any(),
+                    )
+                    .unwrap_err();
+                    let msg = err.value(py).str()?.to_string();
+                    assert!(msg.contains("no overlap"), "guard text: {msg}");
+                    assert!(msg.contains("share no overlap with the placement's"));
+                    Ok(())
+                });
+                _r.unwrap();
+            }
+
+            // P3. `geometry_trusted` is true iff no component is pad-less AND no
+            // candidate pair was measured origin-to-origin, for every randomized
+            // stats combination.
+            #[test]
+            fn geometry_trusted_iff_no_cwp_and_no_origin_modelled(
+                (cwp, origin) in (
+                    prop::collection::vec("[A-Z][0-9]?", 0..=4),
+                    prop::collection::vec(proptest::option::of(0i64..=4), 0..=4),
+                ),
+            ) {
+                fakes_ready();
+                let origin_sum: i64 = origin.iter().map(|o| o.unwrap_or(0)).sum();
+                let expected_trusted = cwp.is_empty() && origin_sum == 0;
+                let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
+                let trusted: PyResult<bool> = Python::attach(|py| {
+                    let placement = make_placement(py, &["A".to_string(), "B".to_string()])?;
+                    let positions = PyDict::new(py);
+                    positions.set_item("A", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                    positions.set_item("B", (8.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                    let rotations = PyDict::new(py);
+                    rotations.set_item("A", 0_i64)?;
+                    rotations.set_item("B", 0_i64)?;
+                    let vd = make_vd(py)?;
+                    let stats = PyDict::new(py);
+                    let cwp_list = PyList::empty(py);
+                    for r in &cwp {
+                        cwp_list.append(PyString::new(py, r))?;
+                    }
+                    stats.set_item("components_without_pads", &cwp_list)?;
+                    let rows = PyList::empty(py);
+                    for o in &origin {
+                        let row = PyDict::new(py);
+                        match o {
+                            Some(v) => {
+                                row.set_item("pairs_origin_modelled", *v)?;
+                            }
+                            None => {
+                                row.set_item("pairs_origin_modelled", none_any(py))?;
+                            }
+                        };
+                        rows.append(row)?;
+                    }
+                    stats.set_item("rows", &rows)?;
+                    let result = drive_audit(
+                        py,
+                        &PyList::empty(py).into_any(),
+                        &positions.into_any(),
+                        &rotations.into_any(),
+                        &placement,
+                        &vd,
+                        &PyList::empty(py).into_any(),
+                        &stats.into_any(),
+                    )?;
+                    let trusted: bool = result.bind(py).getattr("geometry_trusted")?.extract()?;
+                    Ok(trusted)
+                });
+                let trusted = trusted.unwrap();
+                prop_assert_eq!(trusted, expected_trusted);
+            }
+
+            // P4. `covered_pair_count` equals the number of DISTINCT str-str
+            // pairs in the constraint set -- duplicate and reversed-order
+            // constraints collapse (coverage is a per-pair property), and a
+            // non-str `b` is filtered out (the oracle's isinstance guard).
+            #[test]
+            fn covered_pair_count_is_distinct_pairs(
+                pairs in prop::collection::vec(("[A-Z][0-9]?", "[a-z][0-9]?"), 0..=8),
+            ) {
+                fakes_ready();
+                let distinct = pairs
+                    .iter()
+                    .map(|(a, b)| {
+                        let mut v = vec![a.clone(), b.clone()];
+                        v.sort();
+                        v
+                    })
+                    .collect::<std::collections::BTreeSet<_>>()
+                    .len();
+                let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
+                let count: PyResult<usize> = Python::attach(|py| {
+                    let placement = make_placement(py, &["A".to_string(), "B".to_string()])?;
+                    let positions = PyDict::new(py);
+                    positions.set_item("A", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                    positions.set_item("B", (8.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                    let rotations = PyDict::new(py);
+                    rotations.set_item("A", 0_i64)?;
+                    rotations.set_item("B", 0_i64)?;
+                    let vd = make_vd(py)?;
+                    let sns = py.import("types")?.getattr("SimpleNamespace")?;
+                    let constraints = PyList::empty(py);
+                    for (a, b) in &pairs {
+                        let kwargs = PyDict::new(py);
+                        kwargs.set_item("a", PyString::new(py, a))?;
+                        kwargs.set_item("b", PyString::new(py, b))?;
+                        constraints.append(sns.call((), Some(&kwargs))?)?;
+                    }
+                    // A non-str `b` constraint (filtered out by the oracle).
+                    let kwargs = PyDict::new(py);
+                    kwargs.set_item("a", PyString::new(py, "A"))?;
+                    kwargs.set_item("b", 7_i64)?;
+                    constraints.append(sns.call((), Some(&kwargs))?)?;
+                    let result = drive_audit(
+                        py,
+                        &constraints.into_any(),
+                        &positions.into_any(),
+                        &rotations.into_any(),
+                        &placement,
+                        &vd,
+                        &PyList::empty(py).into_any(),
+                        &PyDict::new(py).into_any(),
+                    )?;
+                    let count: usize = result.bind(py).getattr("covered_pair_count")?.extract()?;
+                    Ok(count)
+                });
+                let count = count.unwrap();
+                prop_assert_eq!(count, distinct);
+            }
+
+            // P5. The per-violation record construction reproduces the oracle's
+            // field defaults: `ref_a/ref_b/boundary/metric or "?"`, `nan` for
+            // None measurements, the `pair_kind` fallback to VALUE equality of
+            // the RAW refs, and the insulation enum `.value` extraction.
+            #[test]
+            fn violation_record_defaults_match_reference(
+                (ref_a, ref_b, pair_kind, boundary, metric, measured, required) in (
+                    opt_ref(),
+                    opt_ref(),
+                    opt_pair_kind(),
+                    proptest::option::of(prop::sample::select(vec!["MAINS-LV".to_string(), "".to_string()])),
+                    proptest::option::of(prop::sample::select(vec!["clearance".to_string(), "".to_string()])),
+                    proptest::option::of(-100.0f64..100.0),
+                    proptest::option::of(-100.0f64..100.0),
+                ),
+            ) {
+                fakes_ready();
+                let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
+                let gotwant: PyResult<_> = Python::attach(|py| {
+                    let sns = py.import("types")?.getattr("SimpleNamespace")?;
+                    let kwargs = PyDict::new(py);
+                    let ra = match &ref_a {
+                        Some(s) => PyString::new(py, s).into_any(),
+                        None => none_any(py),
+                    };
+                    let rb = match &ref_b {
+                        Some(s) => PyString::new(py, s).into_any(),
+                        None => none_any(py),
+                    };
+                    let pk = match &pair_kind {
+                        Some(s) => PyString::new(py, s).into_any(),
+                        None => none_any(py),
+                    };
+                    let bd = match &boundary {
+                        Some(s) => PyString::new(py, s).into_any(),
+                        None => none_any(py),
+                    };
+                    let mt = match &metric {
+                        Some(s) => PyString::new(py, s).into_any(),
+                        None => none_any(py),
+                    };
+                    let me = match measured {
+                        Some(v) => v.into_bound_py_any(py)?,
+                        None => none_any(py),
+                    };
+                    let rq = match required {
+                        Some(v) => v.into_bound_py_any(py)?,
+                        None => none_any(py),
+                    };
+                    let ins_kwargs = PyDict::new(py);
+                    ins_kwargs.set_item("value", "BASIC")?;
+                    let ins = sns.call((), Some(&ins_kwargs))?;
+                    kwargs.set_item("ref_a", &ra)?;
+                    kwargs.set_item("ref_b", &rb)?;
+                    kwargs.set_item("pair_kind", &pk)?;
+                    kwargs.set_item("boundary", &bd)?;
+                    kwargs.set_item("metric", &mt)?;
+                    kwargs.set_item("measured_mm", &me)?;
+                    kwargs.set_item("required_mm", &rq)?;
+                    kwargs.set_item("insulation_type", &ins)?;
+                    kwargs.set_item("closest_pads", none_any(py))?;
+                    let violation = sns.call((), Some(&kwargs))?;
+
+                    let placement = make_placement(py, &["A".to_string(), "B".to_string()])?;
+                    let positions = PyDict::new(py);
+                    positions.set_item("A", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                    positions.set_item("B", (8.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                    let rotations = PyDict::new(py);
+                    rotations.set_item("A", 0_i64)?;
+                    rotations.set_item("B", 0_i64)?;
+                    let vd = make_vd(py)?;
+                    let result = drive_audit(
+                        py,
+                        &PyList::empty(py).into_any(),
+                        &positions.into_any(),
+                        &rotations.into_any(),
+                        &placement,
+                        &vd,
+                        &PyList::new(py, [violation.clone()])?.into_any(),
+                        &PyDict::new(py).into_any(),
+                    )?;
+
+                    // Read the constructed record out of whichever bucket it landed in.
+                    let intra = result.bind(py).getattr("intra_footprint")?;
+                    let bucket = if intra.is_truthy()? {
+                        "intra_footprint"
+                    } else {
+                        "coverage_gaps"
+                    };
+                    let list = result.bind(py).getattr(bucket)?;
+                    let rec = list.get_item(0)?;
+
+                    // Reference defaults (oracle transcription).
+                    let want_ref_a = defaulted(&ref_a);
+                    let want_ref_b = defaulted(&ref_b);
+                    let want_pair_kind = match &pair_kind {
+                        Some(s) if !s.is_empty() => s.clone(),
+                        _ => {
+                            // RAW value equality of the ORIGINAL attribute values:
+                            // None == None and "U1" == "U1" are both "intra".
+                            let ra_raw = ref_a.clone().unwrap_or_default();
+                            let rb_raw = ref_b.clone().unwrap_or_default();
+                            if ref_a.is_none() == ref_b.is_none() && ra_raw == rb_raw {
+                                "intra".to_string()
+                            } else {
+                                "inter".to_string()
+                            }
                         }
                     };
-                    rows.append(row)?;
-                }
-                stats.set_item("rows", &rows)?;
-                let result = drive_audit(
-                    py,
-                    &PyList::empty(py).into_any(),
-                    &positions.into_any(),
-                    &rotations.into_any(),
-                    &placement,
-                    &vd,
-                    &PyList::empty(py).into_any(),
-                    &stats.into_any(),
-                )?;
-                let trusted: bool = result.bind(py).getattr("geometry_trusted")?.extract()?;
-                Ok(trusted)
-            });
-            let trusted = trusted.unwrap();
-            prop_assert_eq!(trusted, expected_trusted);
-        }
+                    let want_boundary = match &boundary {
+                        Some(s) if !s.is_empty() => s.clone(),
+                        _ => "?".to_string(),
+                    };
+                    let want_metric = match &metric {
+                        Some(s) if !s.is_empty() => s.clone(),
+                        _ => "?".to_string(),
+                    };
 
-        // P4. `covered_pair_count` equals the number of DISTINCT str-str
-        // pairs in the constraint set -- duplicate and reversed-order
-        // constraints collapse (coverage is a per-pair property), and a
-        // non-str `b` is filtered out (the oracle's isinstance guard).
-        #[test]
-        fn covered_pair_count_is_distinct_pairs(
-            pairs in prop::collection::vec(("[A-Z][0-9]?", "[a-z][0-9]?"), 0..=8),
-        ) {
-            fakes_ready();
-            let distinct = pairs
-                .iter()
-                .map(|(a, b)| {
-                    let mut v = vec![a.clone(), b.clone()];
-                    v.sort();
-                    v
-                })
-                .collect::<std::collections::BTreeSet<_>>()
-                .len();
-            let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
-            let count: PyResult<usize> = Python::attach(|py| {
-                let placement = make_placement(py, &["A".to_string(), "B".to_string()])?;
-                let positions = PyDict::new(py);
-                positions.set_item("A", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                positions.set_item("B", (8.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                let rotations = PyDict::new(py);
-                rotations.set_item("A", 0_i64)?;
-                rotations.set_item("B", 0_i64)?;
-                let vd = make_vd(py)?;
-                let sns = py.import("types")?.getattr("SimpleNamespace")?;
-                let constraints = PyList::empty(py);
-                for (a, b) in &pairs {
-                    let kwargs = PyDict::new(py);
-                    kwargs.set_item("a", PyString::new(py, a))?;
-                    kwargs.set_item("b", PyString::new(py, b))?;
-                    constraints.append(sns.call((), Some(&kwargs))?)?;
-                }
-                // A non-str `b` constraint (filtered out by the oracle).
-                let kwargs = PyDict::new(py);
-                kwargs.set_item("a", PyString::new(py, "A"))?;
-                kwargs.set_item("b", 7_i64)?;
-                constraints.append(sns.call((), Some(&kwargs))?)?;
-                let result = drive_audit(
-                    py,
-                    &constraints.into_any(),
-                    &positions.into_any(),
-                    &rotations.into_any(),
-                    &placement,
-                    &vd,
-                    &PyList::empty(py).into_any(),
-                    &PyDict::new(py).into_any(),
-                )?;
-                let count: usize = result.bind(py).getattr("covered_pair_count")?.extract()?;
-                Ok(count)
-            });
-            let count = count.unwrap();
-            prop_assert_eq!(count, distinct);
-        }
+                    let got_ref_a: String = rec.getattr("ref_a")?.extract()?;
+                    let got_ref_b: String = rec.getattr("ref_b")?.extract()?;
+                    let got_pair_kind: String = rec.getattr("pair_kind")?.extract()?;
+                    let got_boundary: String = rec.getattr("boundary")?.extract()?;
+                    let got_metric: String = rec.getattr("metric")?.extract()?;
+                    let got_insulation: String = rec.getattr("insulation_type")?.extract()?;
+                    let got_measured: f64 = rec.getattr("measured_mm")?.extract()?;
+                    let got_required: f64 = rec.getattr("required_mm")?.extract()?;
 
-        // P5. The per-violation record construction reproduces the oracle's
-        // field defaults: `ref_a/ref_b/boundary/metric or "?"`, `nan` for
-        // None measurements, the `pair_kind` fallback to VALUE equality of
-        // the RAW refs, and the insulation enum `.value` extraction.
-        #[test]
-        fn violation_record_defaults_match_reference(
-            (ref_a, ref_b, pair_kind, boundary, metric, measured, required) in (
-                opt_ref(),
-                opt_ref(),
-                opt_pair_kind(),
-                proptest::option::of(prop::sample::select(vec!["MAINS-LV".to_string(), "".to_string()])),
-                proptest::option::of(prop::sample::select(vec!["clearance".to_string(), "".to_string()])),
-                proptest::option::of(-100.0f64..100.0),
-                proptest::option::of(-100.0f64..100.0),
-            ),
-        ) {
-            fakes_ready();
-            let _guard = PATCH_GATE.lock().unwrap_or_else(|e| e.into_inner());
-            let gotwant: PyResult<_> = Python::attach(|py| {
-                let sns = py.import("types")?.getattr("SimpleNamespace")?;
-                let kwargs = PyDict::new(py);
-                let ra = match &ref_a {
-                    Some(s) => PyString::new(py, s).into_any(),
-                    None => none_any(py),
-                };
-                let rb = match &ref_b {
-                    Some(s) => PyString::new(py, s).into_any(),
-                    None => none_any(py),
-                };
-                let pk = match &pair_kind {
-                    Some(s) => PyString::new(py, s).into_any(),
-                    None => none_any(py),
-                };
-                let bd = match &boundary {
-                    Some(s) => PyString::new(py, s).into_any(),
-                    None => none_any(py),
-                };
-                let mt = match &metric {
-                    Some(s) => PyString::new(py, s).into_any(),
-                    None => none_any(py),
-                };
-                let me = match measured {
-                    Some(v) => v.into_bound_py_any(py)?,
-                    None => none_any(py),
-                };
-                let rq = match required {
-                    Some(v) => v.into_bound_py_any(py)?,
-                    None => none_any(py),
-                };
-                let ins_kwargs = PyDict::new(py);
-                ins_kwargs.set_item("value", "BASIC")?;
-                let ins = sns.call((), Some(&ins_kwargs))?;
-                kwargs.set_item("ref_a", &ra)?;
-                kwargs.set_item("ref_b", &rb)?;
-                kwargs.set_item("pair_kind", &pk)?;
-                kwargs.set_item("boundary", &bd)?;
-                kwargs.set_item("metric", &mt)?;
-                kwargs.set_item("measured_mm", &me)?;
-                kwargs.set_item("required_mm", &rq)?;
-                kwargs.set_item("insulation_type", &ins)?;
-                kwargs.set_item("closest_pads", none_any(py))?;
-                let violation = sns.call((), Some(&kwargs))?;
-
-                let placement = make_placement(py, &["A".to_string(), "B".to_string()])?;
-                let positions = PyDict::new(py);
-                positions.set_item("A", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                positions.set_item("B", (8.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                let rotations = PyDict::new(py);
-                rotations.set_item("A", 0_i64)?;
-                rotations.set_item("B", 0_i64)?;
-                let vd = make_vd(py)?;
-                let result = drive_audit(
-                    py,
-                    &PyList::empty(py).into_any(),
-                    &positions.into_any(),
-                    &rotations.into_any(),
-                    &placement,
-                    &vd,
-                    &PyList::new(py, [violation.clone()])?.into_any(),
-                    &PyDict::new(py).into_any(),
-                )?;
-
-                // Read the constructed record out of whichever bucket it landed in.
-                let intra = result.bind(py).getattr("intra_footprint")?;
-                let bucket = if intra.is_truthy()? {
-                    "intra_footprint"
-                } else {
-                    "coverage_gaps"
-                };
-                let list = result.bind(py).getattr(bucket)?;
-                let rec = list.get_item(0)?;
-
-                // Reference defaults (oracle transcription).
-                let want_ref_a = defaulted(&ref_a);
-                let want_ref_b = defaulted(&ref_b);
-                let want_pair_kind = match &pair_kind {
-                    Some(s) if !s.is_empty() => s.clone(),
-                    _ => {
-                        // RAW value equality of the ORIGINAL attribute values:
-                        // None == None and "U1" == "U1" are both "intra".
-                        let ra_raw = ref_a.clone().unwrap_or_default();
-                        let rb_raw = ref_b.clone().unwrap_or_default();
-                        if ref_a.is_none() == ref_b.is_none() && ra_raw == rb_raw {
-                            "intra".to_string()
-                        } else {
-                            "inter".to_string()
-                        }
-                    }
-                };
-                let want_boundary = match &boundary {
-                    Some(s) if !s.is_empty() => s.clone(),
-                    _ => "?".to_string(),
-                };
-                let want_metric = match &metric {
-                    Some(s) if !s.is_empty() => s.clone(),
-                    _ => "?".to_string(),
-                };
-
-                let got_ref_a: String = rec.getattr("ref_a")?.extract()?;
-                let got_ref_b: String = rec.getattr("ref_b")?.extract()?;
-                let got_pair_kind: String = rec.getattr("pair_kind")?.extract()?;
-                let got_boundary: String = rec.getattr("boundary")?.extract()?;
-                let got_metric: String = rec.getattr("metric")?.extract()?;
-                let got_insulation: String = rec.getattr("insulation_type")?.extract()?;
-                let got_measured: f64 = rec.getattr("measured_mm")?.extract()?;
-                let got_required: f64 = rec.getattr("required_mm")?.extract()?;
-
-                let got = (
-                    got_ref_a,
-                    got_ref_b,
-                    got_pair_kind,
-                    got_boundary,
-                    got_metric,
-                    got_insulation,
-                    got_measured.to_bits(),
-                    got_required.to_bits(),
-                );
-                let want = (
-                    want_ref_a,
-                    want_ref_b,
-                    want_pair_kind,
-                    want_boundary,
-                    want_metric,
-                    "BASIC".to_string(),
-                    measured.unwrap_or(f64::NAN).to_bits(),
-                    required.unwrap_or(f64::NAN).to_bits(),
-                );
-                Ok((got, want))
-            });
-            let (got, want) = gotwant.unwrap();
-            prop_assert_eq!(got, want);
+                    let got = (
+                        got_ref_a,
+                        got_ref_b,
+                        got_pair_kind,
+                        got_boundary,
+                        got_metric,
+                        got_insulation,
+                        got_measured.to_bits(),
+                        got_required.to_bits(),
+                    );
+                    let want = (
+                        want_ref_a,
+                        want_ref_b,
+                        want_pair_kind,
+                        want_boundary,
+                        want_metric,
+                        "BASIC".to_string(),
+                        measured.unwrap_or(f64::NAN).to_bits(),
+                        required.unwrap_or(f64::NAN).to_bits(),
+                    );
+                    Ok((got, want))
+                });
+                let (got, want) = gotwant.unwrap();
+                prop_assert_eq!(got, want);
+            }
         }
     }
-}
 }

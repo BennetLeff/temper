@@ -41,20 +41,12 @@
 //   4 = MAINS_240V, 5 = HIGH_VOLTAGE) -- the pyo3 `VoltageClass` enum in
 //   `temper-design-bundle` assigns exactly these `auto()` values, and the
 //   Python shim maps the int back to the enum.
-// * `grid_converter.grid_to_world` is `(origin + cell * size) + size / 2`
 //   evaluated left-to-right on int-promoted-to-f64 -- same expression shape,
 //   same rounding.  `compute_path_length` accumulates `(dx + dy) * size`
 //   with a naive `+=` fold (the reference's loop), int deltas computed in
 //   i128 so i64 extremes cannot overflow (Python ints are unbounded).
 //   `extract_vias` / `count_vias_in_path` are pure index/count scans over
 //   consecutive-layer changes.
-// * `path_simplify.{is_collinear, simplify_path, estimate_segment_count}` are
-//   re-homed bit-for-bit from `temper-rust-router::terminal_planning` (the
-//   earlier #856 slice); both are pinned against the same oracle
-//   (`_path_simplify_py_oracle.py`).  Grid cells are all-int, so every
-//   comparison is exact; the only order-sensitive behaviour is that
-//   `simplify_path` iterates cells in order and appends -- it must never
-//   build its result through a set.
 //
 // All pure kernels are exposed under the `python` feature via `register()`;
 // the crate builds `--no-default-features` (WASM tier R1) with the pyo3
@@ -267,15 +259,6 @@ pub fn net_class_to_voltage_class(net_class: &str) -> i64 {
 // grid_converter.py
 // ===========================================================================
 
-/// `grid_converter.grid_to_world` — cell centre in world coordinates.
-/// `(origin + cell * size) + size / 2`, left-to-right, exactly the
-/// reference's expression shape.
-pub fn grid_to_world(x: i64, y: i64, origin_x: f64, origin_y: f64, cell_size: f64) -> (f64, f64) {
-    let fx = x as f64;
-    let fy = y as f64;
-    (origin_x + fx * cell_size + cell_size / 2.0, origin_y + fy * cell_size + cell_size / 2.0)
-}
-
 /// `grid_converter.extract_vias` — indices of consecutive layer transitions.
 pub fn extract_vias(layers: &[i64]) -> Vec<usize> {
     let mut out = Vec::new();
@@ -314,40 +297,28 @@ pub fn count_vias_in_path(layers: &[i64]) -> usize {
     n
 }
 
-// ===========================================================================
-// path_simplify.py (re-homed from temper-rust-router terminal_planning.rs)
-// ===========================================================================
-
-/// `path_simplify.is_collinear` — all on one layer, then same-y (horizontal)
-/// or same-x (vertical).  Exact int comparison.
-pub fn is_collinear(p1: (i64, i64, i64), p2: (i64, i64, i64), p3: (i64, i64, i64)) -> bool {
-    if !(p1.2 == p2.2 && p2.2 == p3.2) {
-        return false;
-    }
-    if p1.1 == p2.1 && p2.1 == p3.1 {
-        return true;
-    }
-    p1.0 == p2.0 && p2.0 == p3.0
+// The path-simplification test campaign was retired with its Python facade.
+// Keep these private test-only helpers temporarily so the existing seeded
+// in-crate property corpus remains buildable while its generated registry is
+// regenerated; they are not part of the Python or production Rust surface.
+#[cfg(any(test, feature = "wasm-registry"))]
+fn is_collinear(p1: (i64, i64, i64), p2: (i64, i64, i64), p3: (i64, i64, i64)) -> bool {
+    p1.2 == p2.2 && p2.2 == p3.2
+        && ((p1.1 == p2.1 && p2.1 == p3.1) || (p1.0 == p2.0 && p2.0 == p3.0))
 }
 
-/// `path_simplify.simplify_path` — keep layer transitions and direction
-/// changes, always keep first and last.  Iterates in order and appends; never
-/// reorders through a set.
-pub fn simplify_path(cells: &[(i64, i64, i64)]) -> Vec<(i64, i64, i64)> {
+#[cfg(any(test, feature = "wasm-registry"))]
+fn simplify_path(cells: &[(i64, i64, i64)]) -> Vec<(i64, i64, i64)> {
     if cells.len() <= 2 {
         return cells.to_vec();
     }
-    let mut simplified: Vec<(i64, i64, i64)> = Vec::with_capacity(cells.len());
+    let mut simplified = Vec::with_capacity(cells.len());
     simplified.push(cells[0]);
     for i in 1..cells.len() - 1 {
         let prev = cells[i - 1];
         let curr = cells[i];
         let next = cells[i + 1];
-        if curr.2 != prev.2 || curr.2 != next.2 {
-            simplified.push(curr);
-            continue;
-        }
-        if !is_collinear(prev, curr, next) {
+        if curr.2 != prev.2 || curr.2 != next.2 || !is_collinear(prev, curr, next) {
             simplified.push(curr);
         }
     }
@@ -355,17 +326,10 @@ pub fn simplify_path(cells: &[(i64, i64, i64)]) -> Vec<(i64, i64, i64)> {
     simplified
 }
 
-/// `path_simplify.estimate_segment_count` — same-layer consecutive pairs in
-/// the simplified path.
-pub fn estimate_segment_count(cells: &[(i64, i64, i64)]) -> usize {
+#[cfg(any(test, feature = "wasm-registry"))]
+fn estimate_segment_count(cells: &[(i64, i64, i64)]) -> usize {
     let simplified = simplify_path(cells);
-    let mut count = 0usize;
-    for i in 1..simplified.len() {
-        if simplified[i].2 == simplified[i - 1].2 {
-            count += 1;
-        }
-    }
-    count
+    simplified.windows(2).filter(|pair| pair[0].2 == pair[1].2).count()
 }
 
 // ===========================================================================
@@ -420,42 +384,6 @@ pub fn net_class_to_voltage_class_py(net_class: String) -> PyResult<i64> {
         .map_err(temper_py_bridge::panic_to_err)
 }
 
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn grid_to_world_py(
-    x: i64,
-    y: i64,
-    origin_x: f64,
-    origin_y: f64,
-    cell_size: f64,
-) -> PyResult<(f64, f64)> {
-    temper_py_bridge::catch_unwind(|| grid_to_world(x, y, origin_x, origin_y, cell_size))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn is_collinear_py(
-    p1: (i64, i64, i64),
-    p2: (i64, i64, i64),
-    p3: (i64, i64, i64),
-) -> PyResult<bool> {
-    temper_py_bridge::catch_unwind(|| is_collinear(p1, p2, p3)).map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn simplify_path_py(cells: Vec<(i64, i64, i64)>) -> PyResult<Vec<(i64, i64, i64)>> {
-    temper_py_bridge::catch_unwind(|| simplify_path(&cells)).map_err(temper_py_bridge::panic_to_err)
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn estimate_segment_count_py(cells: Vec<(i64, i64, i64)>) -> PyResult<usize> {
-    temper_py_bridge::catch_unwind(|| estimate_segment_count(&cells))
-        .map_err(temper_py_bridge::panic_to_err)
-}
-
 /// Register the tier-2 kernels on the `temper_geometry` module.
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -464,10 +392,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(safety_distances_py, m)?)?;
     m.add_function(wrap_pyfunction!(kw_boundary_match_py, m)?)?;
     m.add_function(wrap_pyfunction!(net_class_to_voltage_class_py, m)?)?;
-    m.add_function(wrap_pyfunction!(grid_to_world_py, m)?)?;
-    m.add_function(wrap_pyfunction!(is_collinear_py, m)?)?;
-    m.add_function(wrap_pyfunction!(simplify_path_py, m)?)?;
-    m.add_function(wrap_pyfunction!(estimate_segment_count_py, m)?)?;
     Ok(())
 }
 
@@ -640,11 +564,6 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn grid_kernels() {
-        assert_eq!(grid_to_world(10, 20, 0.0, 0.0, 0.5), (5.25, 10.25));
-        assert_eq!(grid_to_world(0, 0, 0.0, 0.0, 0.5), (0.25, 0.25));
-        assert_eq!(grid_to_world(0, 0, 0.0, 0.0, 0.0), (0.0, 0.0));
-        assert_eq!(grid_to_world(-3, 7, -10.0, 2.5, 0.25), (-10.625, 4.375));
-
         let layers = [0, 0, 1, 1, 2];
         assert_eq!(extract_vias(&layers), vec![2, 4]);
         assert_eq!(count_vias_in_path(&layers), 2);
@@ -667,33 +586,6 @@ pub(crate) mod tests {
         );
     }
 
-    #[cfg_attr(test, test)]
-    fn path_simplify_kernels() {
-        assert!(is_collinear((0, 0, 0), (1, 0, 0), (2, 0, 0)));
-        assert!(is_collinear((0, 0, 0), (0, 1, 0), (0, 2, 0)));
-        assert!(!is_collinear((0, 0, 0), (1, 0, 0), (1, 1, 0)));
-        assert!(!is_collinear((0, 0, 1), (1, 0, 0), (2, 0, 0))); // layer mismatch
-        assert!(!is_collinear((0, 0, 0), (1, 1, 0), (2, 2, 0))); // diagonal
-        assert!(is_collinear((3, 3, 0), (3, 3, 0), (3, 3, 0))); // coincident
-
-        let straight = vec![(0, 0, 0), (1, 0, 0), (2, 0, 0)];
-        assert_eq!(simplify_path(&straight), vec![(0, 0, 0), (2, 0, 0)]);
-        assert_eq!(estimate_segment_count(&straight), 1);
-
-        let l_shape = vec![(0, 0, 0), (1, 0, 0), (1, 1, 0)];
-        assert_eq!(simplify_path(&l_shape), l_shape);
-        assert_eq!(estimate_segment_count(&l_shape), 2);
-
-        let layer_change = vec![(0, 0, 0), (1, 0, 0), (1, 0, 1)];
-        assert_eq!(simplify_path(&layer_change), layer_change);
-        // Layer transitions create vias, not segments.
-        assert_eq!(estimate_segment_count(&layer_change), 1);
-
-        assert_eq!(simplify_path(&[]), Vec::<(i64, i64, i64)>::new());
-        let single = vec![(5, 5, 0)];
-        assert_eq!(simplify_path(&single), single);
-    }
-
 
     // ------------------------------------------------------------------
     // Deterministic wasm32 mirrors of the 8 properties in `mod properties`
@@ -707,8 +599,8 @@ pub(crate) mod tests {
     // `temper-drc-rs/src/rules/drc/property_campaigns.rs`'s mirrors, and
     // `creepage_check.rs`'s sibling mirror in this same crate.
     //
-    // Every kernel these properties exercise (`grid_to_world`,
-    // `compute_path_length`, `safety_distances`, `net_class_to_voltage_class`,
+    // Every kernel these properties exercise (`compute_path_length`,
+    // `safety_distances`, `net_class_to_voltage_class`,
     // `extract_vias`/`count_vias_in_path`/`simplify_path`/
     // `estimate_segment_count`) is `pub`, so this COULD live in a sibling
     // top-level `property_campaigns_N.rs` the way this crate's existing
@@ -783,25 +675,6 @@ pub(crate) mod tests {
     /// generator's own stream (matches `creepage_check.rs`'s `sub_rng`).
     fn sub_rng(seed: u64, salt: u64) -> SplitMix64 {
         SplitMix64::new(seed.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(salt))
-    }
-
-    // --- P1: grid_to_world axis separability -----------------------------
-    // Pure algebraic identity (the x output never depends on y and vice
-    // versa) -- true for every input, so no interesting/trivial branch to
-    // bias toward. Uses the native `coord()` domain directly.
-
-    fn vc_p1_grid_to_world_axes_are_separable_impl(seed: u64) {
-        let mut rng = SplitMix64::new(seed);
-        let x = rng.range_i64(-100, 100);
-        let y = rng.range_i64(-100, 100);
-        let ox = rng.range(-50.0, 50.0);
-        let oy = rng.range(-50.0, 50.0);
-        let size = rng.range(0.1, 10.0);
-        let (gx, gy) = grid_to_world(x, y, ox, oy, size);
-        let (sx, _) = grid_to_world(x, 0, ox, oy, size);
-        let (_, sy) = grid_to_world(0, y, ox, oy, size);
-        assert_eq!(gx, sx, "seed={seed}: x axis not separable");
-        assert_eq!(gy, sy, "seed={seed}: y axis not separable");
     }
 
     // --- P2: two-cell path length matches the closed form ---------------
@@ -1072,107 +945,6 @@ pub(crate) mod tests {
 
     // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors) ---
     // 8 properties x 50 seeds = 400 distinct-input wasm tests.
-    // --- vc_p1_grid_to_world_axes_are_separable: 50 generated seeds ---
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_000() { vc_p1_grid_to_world_axes_are_separable_impl(0); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_001() { vc_p1_grid_to_world_axes_are_separable_impl(1); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_002() { vc_p1_grid_to_world_axes_are_separable_impl(2); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_003() { vc_p1_grid_to_world_axes_are_separable_impl(3); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_004() { vc_p1_grid_to_world_axes_are_separable_impl(4); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_005() { vc_p1_grid_to_world_axes_are_separable_impl(5); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_006() { vc_p1_grid_to_world_axes_are_separable_impl(6); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_007() { vc_p1_grid_to_world_axes_are_separable_impl(7); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_008() { vc_p1_grid_to_world_axes_are_separable_impl(8); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_009() { vc_p1_grid_to_world_axes_are_separable_impl(9); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_010() { vc_p1_grid_to_world_axes_are_separable_impl(10); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_011() { vc_p1_grid_to_world_axes_are_separable_impl(11); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_012() { vc_p1_grid_to_world_axes_are_separable_impl(12); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_013() { vc_p1_grid_to_world_axes_are_separable_impl(13); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_014() { vc_p1_grid_to_world_axes_are_separable_impl(14); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_015() { vc_p1_grid_to_world_axes_are_separable_impl(15); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_016() { vc_p1_grid_to_world_axes_are_separable_impl(16); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_017() { vc_p1_grid_to_world_axes_are_separable_impl(17); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_018() { vc_p1_grid_to_world_axes_are_separable_impl(18); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_019() { vc_p1_grid_to_world_axes_are_separable_impl(19); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_020() { vc_p1_grid_to_world_axes_are_separable_impl(20); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_021() { vc_p1_grid_to_world_axes_are_separable_impl(21); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_022() { vc_p1_grid_to_world_axes_are_separable_impl(22); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_023() { vc_p1_grid_to_world_axes_are_separable_impl(23); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_024() { vc_p1_grid_to_world_axes_are_separable_impl(24); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_025() { vc_p1_grid_to_world_axes_are_separable_impl(25); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_026() { vc_p1_grid_to_world_axes_are_separable_impl(26); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_027() { vc_p1_grid_to_world_axes_are_separable_impl(27); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_028() { vc_p1_grid_to_world_axes_are_separable_impl(28); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_029() { vc_p1_grid_to_world_axes_are_separable_impl(29); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_030() { vc_p1_grid_to_world_axes_are_separable_impl(30); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_031() { vc_p1_grid_to_world_axes_are_separable_impl(31); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_032() { vc_p1_grid_to_world_axes_are_separable_impl(32); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_033() { vc_p1_grid_to_world_axes_are_separable_impl(33); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_034() { vc_p1_grid_to_world_axes_are_separable_impl(34); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_035() { vc_p1_grid_to_world_axes_are_separable_impl(35); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_036() { vc_p1_grid_to_world_axes_are_separable_impl(36); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_037() { vc_p1_grid_to_world_axes_are_separable_impl(37); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_038() { vc_p1_grid_to_world_axes_are_separable_impl(38); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_039() { vc_p1_grid_to_world_axes_are_separable_impl(39); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_040() { vc_p1_grid_to_world_axes_are_separable_impl(40); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_041() { vc_p1_grid_to_world_axes_are_separable_impl(41); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_042() { vc_p1_grid_to_world_axes_are_separable_impl(42); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_043() { vc_p1_grid_to_world_axes_are_separable_impl(43); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_044() { vc_p1_grid_to_world_axes_are_separable_impl(44); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_045() { vc_p1_grid_to_world_axes_are_separable_impl(45); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_046() { vc_p1_grid_to_world_axes_are_separable_impl(46); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_047() { vc_p1_grid_to_world_axes_are_separable_impl(47); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_048() { vc_p1_grid_to_world_axes_are_separable_impl(48); }
-    #[cfg_attr(test, test)]
-    fn vc_p1_grid_to_world_axes_are_separable_seed_049() { vc_p1_grid_to_world_axes_are_separable_impl(49); }
     // --- vc_p2_path_length_two_cells_matches_formula: 50 generated seeds ---
     #[cfg_attr(test, test)]
     fn vc_p2_path_length_two_cells_matches_formula_seed_000() { vc_p2_path_length_two_cells_matches_formula_impl(0); }
@@ -1895,60 +1667,9 @@ pub(crate) mod tests {
         ("via_clearance::tests::kw_boundary_match_positive_and_negative", kw_boundary_match_positive_and_negative),
         ("via_clearance::tests::net_class_to_voltage_class_branches", net_class_to_voltage_class_branches),
         ("via_clearance::tests::grid_kernels", grid_kernels),
-        ("via_clearance::tests::path_simplify_kernels", path_simplify_kernels),
         ("via_clearance::tests::vc_p3_coverage_guard_straddles_a_bracket", vc_p3_coverage_guard_straddles_a_bracket),
         ("via_clearance::tests::vc_p4_coverage_guard_hits_a_keyword_branch", vc_p4_coverage_guard_hits_a_keyword_branch),
         ("via_clearance::tests::vc_p5_coverage_guard_transitions_and_folds", vc_p5_coverage_guard_transitions_and_folds),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_000", vc_p1_grid_to_world_axes_are_separable_seed_000),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_001", vc_p1_grid_to_world_axes_are_separable_seed_001),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_002", vc_p1_grid_to_world_axes_are_separable_seed_002),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_003", vc_p1_grid_to_world_axes_are_separable_seed_003),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_004", vc_p1_grid_to_world_axes_are_separable_seed_004),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_005", vc_p1_grid_to_world_axes_are_separable_seed_005),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_006", vc_p1_grid_to_world_axes_are_separable_seed_006),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_007", vc_p1_grid_to_world_axes_are_separable_seed_007),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_008", vc_p1_grid_to_world_axes_are_separable_seed_008),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_009", vc_p1_grid_to_world_axes_are_separable_seed_009),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_010", vc_p1_grid_to_world_axes_are_separable_seed_010),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_011", vc_p1_grid_to_world_axes_are_separable_seed_011),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_012", vc_p1_grid_to_world_axes_are_separable_seed_012),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_013", vc_p1_grid_to_world_axes_are_separable_seed_013),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_014", vc_p1_grid_to_world_axes_are_separable_seed_014),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_015", vc_p1_grid_to_world_axes_are_separable_seed_015),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_016", vc_p1_grid_to_world_axes_are_separable_seed_016),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_017", vc_p1_grid_to_world_axes_are_separable_seed_017),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_018", vc_p1_grid_to_world_axes_are_separable_seed_018),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_019", vc_p1_grid_to_world_axes_are_separable_seed_019),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_020", vc_p1_grid_to_world_axes_are_separable_seed_020),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_021", vc_p1_grid_to_world_axes_are_separable_seed_021),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_022", vc_p1_grid_to_world_axes_are_separable_seed_022),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_023", vc_p1_grid_to_world_axes_are_separable_seed_023),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_024", vc_p1_grid_to_world_axes_are_separable_seed_024),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_025", vc_p1_grid_to_world_axes_are_separable_seed_025),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_026", vc_p1_grid_to_world_axes_are_separable_seed_026),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_027", vc_p1_grid_to_world_axes_are_separable_seed_027),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_028", vc_p1_grid_to_world_axes_are_separable_seed_028),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_029", vc_p1_grid_to_world_axes_are_separable_seed_029),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_030", vc_p1_grid_to_world_axes_are_separable_seed_030),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_031", vc_p1_grid_to_world_axes_are_separable_seed_031),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_032", vc_p1_grid_to_world_axes_are_separable_seed_032),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_033", vc_p1_grid_to_world_axes_are_separable_seed_033),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_034", vc_p1_grid_to_world_axes_are_separable_seed_034),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_035", vc_p1_grid_to_world_axes_are_separable_seed_035),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_036", vc_p1_grid_to_world_axes_are_separable_seed_036),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_037", vc_p1_grid_to_world_axes_are_separable_seed_037),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_038", vc_p1_grid_to_world_axes_are_separable_seed_038),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_039", vc_p1_grid_to_world_axes_are_separable_seed_039),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_040", vc_p1_grid_to_world_axes_are_separable_seed_040),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_041", vc_p1_grid_to_world_axes_are_separable_seed_041),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_042", vc_p1_grid_to_world_axes_are_separable_seed_042),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_043", vc_p1_grid_to_world_axes_are_separable_seed_043),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_044", vc_p1_grid_to_world_axes_are_separable_seed_044),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_045", vc_p1_grid_to_world_axes_are_separable_seed_045),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_046", vc_p1_grid_to_world_axes_are_separable_seed_046),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_047", vc_p1_grid_to_world_axes_are_separable_seed_047),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_048", vc_p1_grid_to_world_axes_are_separable_seed_048),
-        ("via_clearance::tests::vc_p1_grid_to_world_axes_are_separable_seed_049", vc_p1_grid_to_world_axes_are_separable_seed_049),
         ("via_clearance::tests::vc_p2_path_length_two_cells_matches_formula_seed_000", vc_p2_path_length_two_cells_matches_formula_seed_000),
         ("via_clearance::tests::vc_p2_path_length_two_cells_matches_formula_seed_001", vc_p2_path_length_two_cells_matches_formula_seed_001),
         ("via_clearance::tests::vc_p2_path_length_two_cells_matches_formula_seed_002", vc_p2_path_length_two_cells_matches_formula_seed_002),
@@ -2331,24 +2052,6 @@ mod properties {
     proptest! {
         #![proptest_config(ProptestConfig { cases: 2000, ..ProptestConfig::default() })]
         // 2000 cases, matching the other native property suites in this crate.
-
-        /// P1. `grid_to_world`'s x and y components are separable: the x
-        /// output of `(x, y)` equals the x output of `(x, 0)` and the y
-        /// output of `(x, y)` equals the y output of `(0, y)`, both
-        /// BIT-EXACT (each is the same `origin + cell*size + size/2`
-        /// expression).  A degenerate kernel that mixes the axes (e.g.
-        /// returns `(x + y, ...)`) fails this on the first case.
-        #[test]
-        fn p1_grid_to_world_axes_are_separable(
-            x in coord(), y in coord(), ox in -50.0f64..50.0, oy in -50.0f64..50.0,
-            size in 0.1f64..10.0,
-        ) {
-            let (gx, gy) = grid_to_world(x, y, ox, oy, size);
-            let (sx, _) = grid_to_world(x, 0, ox, oy, size);
-            let (_, sy) = grid_to_world(0, y, ox, oy, size);
-            prop_assert_eq!(gx, sx, "x axis not separable");
-            prop_assert_eq!(gy, sy, "y axis not separable");
-        }
 
         /// P2. `compute_path_length` of a two-cell path is exactly
         /// `(abs(dx) + abs(dy)) * size` -- int deltas in i128, then one

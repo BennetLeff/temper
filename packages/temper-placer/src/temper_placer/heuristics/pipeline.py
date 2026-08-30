@@ -37,7 +37,7 @@ class PipelineResult:
 
     Attributes:
         placements: Final component placements
-        state: JAX-compatible PlacementState for optimization
+        state: NumPy PlacementState for export and validation
         conflicts: All conflicts encountered
         heuristic_stats: Stats for each heuristic (components placed, conflicts, etc.)
         unplaced: Components that couldn't be placed by any heuristic
@@ -67,7 +67,7 @@ class HeuristicPipeline:
         pipeline.register(ConnectorSnapHeuristic())
 
         result = pipeline.run(board, netlist, constraints, key)
-        state = result.state  # Ready for optimization
+        state = result.state  # Ready for export or validation
     """
 
     def __init__(
@@ -213,7 +213,7 @@ class HeuristicPipeline:
                 "message": fill_result.message,
             }
 
-        # Convert to JAX state
+        # Convert to the NumPy placement state used by I/O and validation.
         state = self._to_placement_state(context, netlist)
 
         return PipelineResult(
@@ -300,7 +300,7 @@ class HeuristicPipeline:
         netlist: Netlist,
     ) -> PlacementState:
         """
-        Convert placements to a JAX PlacementState.
+        Convert placements to the NumPy PlacementState contract.
         """
         n_components = netlist.n_components
         positions = np.zeros((n_components, 2), dtype=np.float32)
@@ -354,5 +354,3 @@ class HeuristicPipeline:
     def get_registered_heuristics(self) -> list[tuple[str, HeuristicPriority]]:
         """Get list of registered heuristics with their priorities."""
         return [(h.name, h.priority) for h in self.heuristics]
-
-

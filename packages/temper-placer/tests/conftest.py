@@ -33,6 +33,13 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E40
 from temper_placer.deterministic.state import BoardState  # noqa: E402
 from temper_placer.io.footprint_library import load_footprint_library  # noqa: E402
 
+# Historical paths referenced only by immutable pre-migration oracles are
+# test-only sentinels.  Install them before collecting test modules so direct
+# imports in router tests cannot accidentally resurrect a production facade.
+from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules  # noqa: E402
+
+_install_legacy_oracle_modules()
+
 # ── pytest-dependency clusters, pinned to one xdist worker (defensive) ────────
 #
 # READ THIS FIRST: as of 2026-07-28 `pytest-dependency` is NOT installed -- not

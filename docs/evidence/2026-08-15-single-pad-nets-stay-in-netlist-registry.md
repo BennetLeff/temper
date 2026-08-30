@@ -1,4 +1,4 @@
-<!-- provenance: branch=fix/acl-single-pad-net-parser base=origin/main (9898dc813) dirty=false -->
+<!-- provenance: commit=03e551c5e65b952379b51ab2c204e65bdc89d2be dirty=UNKNOWN -->
 
 # Single-pad nets stay in the netlist registry (parser contract change)
 

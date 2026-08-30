@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, feat/board-place-and-reroute session, against a reconciled+placed+routed pcb/temper.kicad_pcb that is NOT the version committed by this PR (see verdict below). kicad-cli 10.0.5, same LD_LIBRARY_PATH/KICAD_STOCK_DATA_HOME environment as docs/evidence/2026-08-11-pad-connectivity-ground-truth.md. -->
+<!-- provenance: commit=a434a9aa9f52b1b1407f4b934153ca1d740c7050 dirty=UNKNOWN -->
 
 # Place + re-route experiment on the reconciled board: real connectivity gains, a real clearance regression, and why this PR does not land the board
 

@@ -104,7 +104,14 @@ class TestHybridPourStitchVerification:
                 filled_path = _fill_zones_via_pcbnew(routed_path)
                 for sample, drc_data in enumerate(
                     run_drc_samples(
-                        filled_path, n=drc_samples, timeout=600, label="hybrid-pour"
+                        filled_path,
+                        n=drc_samples,
+                        timeout=600,
+                        label="hybrid-pour",
+                        # pcbnew/kicad-cli each load the production board;
+                        # three concurrent processes exceeded the nightly
+                        # container's memory limit (pytest exit -9).
+                        max_workers=1,
                     )
                 ):
                     violations = drc_data.get("violations", [])
@@ -152,7 +159,11 @@ class TestHybridPourStitchVerification:
             try:
                 for sample, drc_data in enumerate(
                     run_drc_samples(
-                        routed_path, n=drc_samples, timeout=600, label="hybrid-pour"
+                        routed_path,
+                        n=drc_samples,
+                        timeout=600,
+                        label="hybrid-pour",
+                        max_workers=1,
                     )
                 ):
                     violations = drc_data.get("violations", [])

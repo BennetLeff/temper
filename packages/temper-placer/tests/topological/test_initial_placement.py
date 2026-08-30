@@ -893,39 +893,6 @@ class TestGenerateInitialPlacement:
         assert len(placement_no_refine.positions) == 2
         assert len(placement_refined.positions) == 2
 
-    def test_backend_parameter(self, simple_zone, simple_sizes, simple_graph):
-        """backend parameter is accepted (numpy/jax)."""
-        assignment = ZoneAssignment(
-            assignments={"C1": "TEST_ZONE", "C2": "TEST_ZONE"},
-            unassigned=[],
-            conflicts=[],
-        )
-
-        # NumPy backend
-        placement_numpy = generate_initial_placement(
-            graph=simple_graph,
-            zone_assignment=assignment,
-            zones=[simple_zone],
-            component_sizes=simple_sizes,
-            backend="numpy",
-        )
-
-        assert len(placement_numpy.positions) == 2
-
-        # JAX backend (if available)
-        try:
-            placement_jax = generate_initial_placement(
-                graph=simple_graph,
-                zone_assignment=assignment,
-                zones=[simple_zone],
-                component_sizes=simple_sizes,
-                backend="jax",
-            )
-            assert len(placement_jax.positions) == 2
-        except ImportError:
-            pytest.skip("JAX not available")
-
-
 # =============================================================================
 # Tests: Edge Cases
 # =============================================================================

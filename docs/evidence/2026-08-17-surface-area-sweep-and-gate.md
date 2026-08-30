@@ -1,4 +1,4 @@
-<!-- provenance: commit=aec4bf1f8 dirty=false -->
+<!-- provenance: commit=aec4bf1f865c566c8ecbfc437c47d4768612f758 dirty=false -->
 
 # 2026-08-17 — Surface-area reduction sweep + mechanized gate (in progress)
 

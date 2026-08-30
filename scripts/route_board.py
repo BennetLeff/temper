@@ -415,10 +415,18 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
         # by "A* found a grid path". Printed unconditionally when present;
         # None (preflight failed to run) prints nothing rather than a
         # fabricated number.
-        connected = sorted(n for n, v in nrr.items() if v.disposition == "connected")
-        partial = sorted(n for n, v in nrr.items() if v.disposition == "partial")
-        zone_dep = sorted(n for n, v in nrr.items() if v.disposition == "zone_dependent")
-        failed = sorted(n for n, v in nrr.items() if v.disposition == "failed")
+        def disposition(verdict: Any) -> str:
+            # Worker reports cross a JSON boundary and carry a compact
+            # ``{"disposition": ...}`` summary; direct route_once() callers
+            # retain the Rust PyNetRouteResult object.
+            if isinstance(verdict, dict):
+                return verdict["disposition"]
+            return verdict.disposition
+
+        connected = sorted(n for n, v in nrr.items() if disposition(v) == "connected")
+        partial = sorted(n for n, v in nrr.items() if disposition(v) == "partial")
+        zone_dep = sorted(n for n, v in nrr.items() if disposition(v) == "zone_dependent")
+        failed = sorted(n for n, v in nrr.items() if disposition(v) == "failed")
         line += (
             f"\n{label} (verified copper, NetRouteResult): "
             f"{len(connected)} connected, {len(zone_dep)} zone-dependent, "
@@ -430,6 +438,26 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
         if zone_dep:
             line += f"\n  zone-dependent (outline only, no fill): {', '.join(zone_dep)}"
     return line
+
+
+def _prepare_worker_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Make a ``route_once`` report safe to send through JSON.
+
+    ``route_once`` intentionally returns the Rust-verified
+    ``NetRouteResult`` objects to in-process callers.  The ``--runs`` mode
+    launches it in a child process, however, and only needs each verdict's
+    disposition for its report.  Reduce that Rust boundary object here rather
+    than changing the router API or silently dropping the verified summary.
+    """
+    worker_report = dict(report)
+    worker_report.pop("routed_pcb_content", None)
+    net_route_results = worker_report.get("net_route_results")
+    if net_route_results is not None:
+        worker_report["net_route_results"] = {
+            str(net): {"disposition": verdict.disposition}
+            for net, verdict in net_route_results.items()
+        }
+    return worker_report
 
 
 def run_single(
@@ -758,8 +786,9 @@ def main(argv: list[str] | None = None) -> int:
             max_sat_nets=args.max_sat_nets,
             enable_nlayer_astar_spike=args.nlayer_astar_spike,
         )
-        r.pop("routed_pcb_content", None)
-        args._worker_output.write_text(json.dumps(r), encoding="utf-8")
+        args._worker_output.write_text(
+            json.dumps(_prepare_worker_report(r)), encoding="utf-8"
+        )
         return 0
 
     if args.runs is not None:

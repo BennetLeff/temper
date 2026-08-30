@@ -1,4 +1,4 @@
-<!-- provenance: worktree /home/bennet/Desktop/temper-nlayer-astar-spike, branch spike/nlayer-via-astar, branched from agent/router-combined @ 6121c49f -->
+<!-- provenance: commit=7ac299bea255c989e8405628fa21d192a07450e0 dirty=UNKNOWN -->
 
 # Spike: a real N-layer, via-aware A* search for the Stage 4 router
 

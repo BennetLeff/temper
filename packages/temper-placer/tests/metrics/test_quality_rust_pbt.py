@@ -270,54 +270,6 @@ def test_p5_fails_for_unclamped_utilization(_restore_compact):
 
 
 # ---------------------------------------------------------------------------
-# P6 — the pairwise sum IS numpy's sum
-# ---------------------------------------------------------------------------
-
-
-@given(
-    vals=st.lists(
-        st.floats(min_value=-1e6, max_value=1e6, allow_nan=False, allow_infinity=False),
-        min_size=0,
-        max_size=400,
-    )
-)
-@settings(max_examples=300, deadline=None)
-def test_p6_pairwise_sum_is_bit_identical_to_numpy(vals):
-    """P6: the Rust replication of numpy's pairwise reduction is exact.
-
-    Sizes range across all three numpy branches (<8, <=128, >128).  A naive
-    accumulator passes only below 8, so this property has real teeth for the
-    majority of generated inputs.
-    """
-    expected = float(np.sum(np.array(vals, dtype=np.float64))) if vals else 0.0
-    got = _tqo.numpy_pairwise_sum_py(vals)
-    assert got.hex() == expected.hex(), (len(vals), got, expected)
-
-
-def test_p6_fails_for_naive_summation(_restore_pairwise):
-    """Vacuity guard: naive left-to-right summation is NOT np.sum.
-
-    This is the anti-vacuity proof for catalog class B11 — if numpy ever
-    summed naively, this guard would fail and the whole replication could be
-    deleted.
-    """
-
-    def naive(vals):
-        acc = 0.0
-        for v in vals:
-            acc += v
-        return acc
-
-    _tqo.numpy_pairwise_sum_py = naive
-    with pytest.raises(AssertionError):
-        # 1e16 dominates, so the trailing ones are lost naively but partially
-        # recovered by numpy's blocked accumulation.
-        test_p6_pairwise_sum_is_bit_identical_to_numpy.hypothesis.inner_test(
-            [1e16] + [1.0] * 15
-        )
-
-
-# ---------------------------------------------------------------------------
 # P7 — zone compliance is exactly a fraction of counted booleans
 # ---------------------------------------------------------------------------
 
@@ -535,6 +487,5 @@ _restore_clearance = _restorer("hv_lv_clearance_score_py")
 _restore_dual = _restorer("dual_rail_clearance_report_py")
 _restore_loop = _restorer("loop_area_score_py")
 _restore_compact = _restorer("compactness_score_py")
-_restore_pairwise = _restorer("numpy_pairwise_sum_py")
 _restore_zone = _restorer("zone_compliance_score_py")
 _restore_cluster = _restorer("connectivity_clustering_score_py")
