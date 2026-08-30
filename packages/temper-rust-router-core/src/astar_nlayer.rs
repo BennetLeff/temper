@@ -160,6 +160,29 @@ pub struct NlayerInput<'a> {
     pub max_iter: Option<u64>,
 }
 
+/// Return the configuration-space inflation for a foreign obstacle.
+///
+/// Clearance and creepage are simultaneous spacing constraints, so the
+/// larger required edge-to-edge distance is charged once. Invalid physical
+/// inputs fail closed instead of producing a misleading halo.
+pub fn foreign_obstacle_halo_inflation(
+    trace_width_mm: f64,
+    clearance_mm: f64,
+    pair_creepage_mm: f64,
+) -> Option<f64> {
+    if !trace_width_mm.is_finite()
+        || !clearance_mm.is_finite()
+        || !pair_creepage_mm.is_finite()
+        || trace_width_mm < 0.0
+        || clearance_mm < 0.0
+        || pair_creepage_mm < 0.0
+    {
+        return None;
+    }
+    let inflation = trace_width_mm / 2.0 + clearance_mm.max(pair_creepage_mm);
+    inflation.is_finite().then_some(inflation)
+}
+
 #[derive(Debug, Default)]
 pub struct NlayerOutput {
     /// Nodes from start to goal inclusive. Empty when no path was found.
@@ -789,6 +812,29 @@ pub(crate) mod tests {
         vec![0i8; (w * h) as usize]
     }
 
+    #[cfg_attr(test, test)]
+    fn foreign_obstacle_halo_inflation_uses_pair_creepage_once() {
+        let inflation = foreign_obstacle_halo_inflation(0.5, 2.0, 12.6)
+            .expect("production-shaped spacing inputs are valid");
+        assert!((inflation - 12.85).abs() < 1e-12);
+    }
+
+    #[cfg_attr(test, test)]
+    fn foreign_obstacle_halo_inflation_uses_clearance_when_larger_or_creepage_is_zero() {
+        assert_eq!(foreign_obstacle_halo_inflation(0.5, 2.0, 0.0), Some(2.25));
+        assert_eq!(foreign_obstacle_halo_inflation(0.5, 2.0, 1.0), Some(2.25));
+    }
+
+    #[cfg_attr(test, test)]
+    fn foreign_obstacle_halo_inflation_rejects_invalid_inputs() {
+        assert_eq!(foreign_obstacle_halo_inflation(-0.5, 2.0, 12.6), None);
+        assert_eq!(foreign_obstacle_halo_inflation(0.5, f64::NAN, 12.6), None);
+        assert_eq!(
+            foreign_obstacle_halo_inflation(f64::MAX, f64::MAX, 0.0),
+            None
+        );
+    }
+
     fn grids_from<'a>(planes: &'a [Vec<i8>], w: i64, h: i64) -> Vec<LayerGrid<'a>> {
         planes
             .iter()
@@ -1082,6 +1128,9 @@ pub(crate) mod tests {
     /// functions are private to this module and unreachable from
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
+        ("astar_nlayer::tests::foreign_obstacle_halo_inflation_uses_pair_creepage_once", foreign_obstacle_halo_inflation_uses_pair_creepage_once),
+        ("astar_nlayer::tests::foreign_obstacle_halo_inflation_uses_clearance_when_larger_or_creepage_is_zero", foreign_obstacle_halo_inflation_uses_clearance_when_larger_or_creepage_is_zero),
+        ("astar_nlayer::tests::foreign_obstacle_halo_inflation_rejects_invalid_inputs", foreign_obstacle_halo_inflation_rejects_invalid_inputs),
         ("astar_nlayer::tests::test_same_layer_path_on_open_grid", test_same_layer_path_on_open_grid),
         ("astar_nlayer::tests::test_layer_change_emits_via", test_layer_change_emits_via),
         ("astar_nlayer::tests::test_blocked_layer_forces_detour_via_other_layer", test_blocked_layer_forces_detour_via_other_layer),

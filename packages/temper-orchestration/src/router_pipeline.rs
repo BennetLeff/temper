@@ -455,6 +455,9 @@ impl Stage<BoardState> for RouterStageEscapeVias {
             let generate = escape_mod.getattr("generate_escape_vias")?;
             for item in dense.try_iter()? {
                 let pkg = item?;
+                if !pkg.getattr("requires_escape")?.is_truthy()? {
+                    continue;
+                }
                 let kwargs = PyDict::new(py);
                 kwargs.set_item("strategy", "dog-bone")?;
                 let vias = generate.call((&pkg, &design_rules), Some(&kwargs))?;

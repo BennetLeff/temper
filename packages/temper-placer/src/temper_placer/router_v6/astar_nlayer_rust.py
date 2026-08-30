@@ -42,10 +42,34 @@ import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 
-__all__ = ["astar_search_3d_rust", "route_segment_3d_rust"]
+__all__ = [
+    "astar_search_3d_rust",
+    "foreign_obstacle_halo_inflation_rust",
+    "route_segment_3d_rust",
+]
 
 #: Mirrors ``astar_core._ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER``.
 ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER: int = 200_000
+
+
+def foreign_obstacle_halo_inflation_rust(
+    trace_width_mm: float,
+    clearance_mm: float,
+    pair_creepage_mm: float,
+) -> float:
+    """Return Rust's fail-closed foreign-obstacle halo inflation."""
+    import temper_rust_router as _trr
+
+    kernel = getattr(_trr, "foreign_obstacle_halo_inflation_py", None)
+    if kernel is None:
+        raise RuntimeError(
+            "temper_rust_router.foreign_obstacle_halo_inflation_py is unavailable; "
+            "rebuild the router extension"
+        )
+    result = kernel(float(trace_width_mm), float(clearance_mm), float(pair_creepage_mm))
+    if not isinstance(result, (int, float)):
+        raise TypeError("foreign_obstacle_halo_inflation_py must return a number")
+    return float(result)
 
 
 def _available_layers(grids: dict) -> list[str]:

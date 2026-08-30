@@ -152,6 +152,9 @@ from temper_placer.router_v6.astar_grid import (
     _unblock_net_pads,
 )
 from temper_placer.router_v6.astar_nlayer_rust import (
+    foreign_obstacle_halo_inflation_rust as _foreign_obstacle_halo_inflation,
+)
+from temper_placer.router_v6.astar_nlayer_rust import (
     route_segment_3d_rust as _route_segment_3d,
 )
 from temper_placer.router_v6.clearance_floor import DEFAULT_ROUTING_CLEARANCE_MM
@@ -1004,6 +1007,7 @@ def _family_halo_layers(
     # class -- the required SEPARATION comes from `_pair_requirement` below.
     half_width = family_width / 2.0
     routable_layers = set(layer_grids)
+    halo_inflations: dict[float, float] = {}
 
     def _pair_requirement(obstacle_class: str) -> float:
         """`max(pair creepage, pair clearance)` between this family's class
@@ -1015,7 +1019,14 @@ def _family_halo_layers(
         )
 
     def _halo_poly(radius_mm: float, base_poly) -> list | None:
-        total = half_width + radius_mm
+        if radius_mm not in halo_inflations:
+            # Rust owns this geometry arithmetic. Passing zero for the
+            # class-clearance argument preserves the pair-halo formula:
+            # family half-width + max(pair creepage, pair clearance).
+            halo_inflations[radius_mm] = _foreign_obstacle_halo_inflation(
+                family_width, 0.0, radius_mm
+            )
+        total = halo_inflations[radius_mm]
         if total <= 0.0:
             return None
         buffered = base_poly.buffer(total, quad_segs=4)

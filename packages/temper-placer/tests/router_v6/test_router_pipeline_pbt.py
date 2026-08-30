@@ -136,7 +136,13 @@ def _patched(log):
 
     def _dense(pcb_components):
         log.append(("dense", len(pcb_components)))
-        return [SimpleNamespace(component=SimpleNamespace(ref="U1"), _ref="U1")]
+        return [
+            SimpleNamespace(
+                component=SimpleNamespace(ref="U1"),
+                _ref="U1",
+                requires_escape=True,
+            )
+        ]
 
     stack.enter_context(
         mock.patch(

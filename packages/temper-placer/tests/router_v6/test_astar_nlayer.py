@@ -839,6 +839,36 @@ def test_creepage_halos_stamped_around_foreign_pads_only():
     )
 
 
+def test_foreign_halo_uses_max_clearance_and_pair_creepage():
+    """A foreign pad halo charges the larger simultaneous spacing rule once."""
+    import temper_placer.router_v6._astar_nlayer as _nl
+
+    routing_space = _make_box_routing_space("F.Cu", 40.0)
+    base = {"F.Cu": build_occupancy_grid(routing_space, inflation_mm=0.1)}
+    rules = _make_creepage_design_rules()
+    pcb = _make_mini_pcb(rules)
+    signature = (0.5, 2.0, "HighVoltageSignal")
+    halos = _nl._family_halo_layers(signature, base, rules, pcb, {})["F.Cu"]
+    # The Signal pad is the production-shaped foreign obstacle: the table
+    # grades HighVoltageSignal<->Signal at 12.6mm.
+    signal_entry = next(entry for entry in halos if entry[0] == "LV_NET")
+
+    probe = OccupancyGrid(
+        "F.Cu",
+        np.zeros_like(base["F.Cu"].grid),
+        base["F.Cu"].origin,
+        base["F.Cu"].cell_size,
+        base["F.Cu"].width_cells,
+        base["F.Cu"].height_cells,
+    )
+    _nl._stamp_foreign_pair_halos("OTHER", {"F.Cu": probe}, {"F.Cu": [signal_entry]})
+
+    # The pad's 0.5mm half-extent plus W/2 + max(C, creepage) = 12.85mm
+    # ends the halo at x=29.35mm. The old additive formula reached 31.35mm.
+    assert probe.is_blocked(*probe.world_to_grid(29.0, 10.0))
+    assert probe.is_free(*probe.world_to_grid(30.0, 10.0))
+
+
 def test_creepage_halo_stamp_preserves_holes_across_multipolygon_components():
     """Marshal each MultiPolygon component's holes at the same level as its
     flattened outer ring before crossing the pyo3 rasterizer boundary."""

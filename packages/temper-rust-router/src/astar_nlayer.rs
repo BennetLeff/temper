@@ -14,13 +14,26 @@
 
 use pyo3::prelude::*;
 use temper_rust_router_core::astar_nlayer::{
-    LayerGrid, NlayerInput, astar_search_3d, route_segment_3d,
+    LayerGrid, NlayerInput, astar_search_3d, foreign_obstacle_halo_inflation, route_segment_3d,
 };
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(foreign_obstacle_halo_inflation_py, m)?)?;
     m.add_function(wrap_pyfunction!(route_segment_3d_py, m)?)?;
     m.add_function(wrap_pyfunction!(astar_search_3d_py, m)?)?;
     Ok(())
+}
+
+/// Compute one foreign-obstacle C-space inflation in the Rust core.
+#[pyfunction]
+fn foreign_obstacle_halo_inflation_py(
+    trace_width_mm: f64,
+    clearance_mm: f64,
+    pair_creepage_mm: f64,
+) -> PyResult<f64> {
+    foreign_obstacle_halo_inflation(trace_width_mm, clearance_mm, pair_creepage_mm).ok_or_else(
+        || pyo3::exceptions::PyValueError::new_err("invalid foreign-obstacle halo spacing"),
+    )
 }
 
 /// Decode the concatenated int8 plane blob into per-layer [`LayerGrid`]s.

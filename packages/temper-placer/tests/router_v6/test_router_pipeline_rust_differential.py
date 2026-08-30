@@ -261,7 +261,14 @@ def _fake_parse(log, nets, validation_errors=()):
 def _fake_dense(log, refs=("U1", "U2")):
     def _identify(pcb_components):
         log.append(("dense", len(pcb_components)))
-        return [SimpleNamespace(component=SimpleNamespace(ref=r), _ref=r) for r in refs]
+        return [
+            SimpleNamespace(
+                component=SimpleNamespace(ref=r),
+                _ref=r,
+                requires_escape=True,
+            )
+            for r in refs
+        ]
 
     return _identify
 
@@ -472,6 +479,67 @@ _CANONICAL_SEQUENCE = [
     "stage4",
     "ledger.checkout",
 ]
+
+
+def test_requires_escape_false_skips_rust_generation_but_not_oracle(monkeypatch) -> None:
+    """Rust must not consume escape-via space for a non-escaping dense package.
+
+    The pinned oracle intentionally retains its historical behavior so this
+    test makes the migration's deliberate semantic divergence explicit.
+    """
+    package = SimpleNamespace(
+        component=SimpleNamespace(ref="U8"),
+        _ref="U8",
+        pin_count=20,
+        pitch_mm=0.635,
+        package_type="QFN",
+        requires_escape=False,
+    )
+
+    def _one_non_escaping_package(_pcb_components):
+        return [package]
+
+    def _one_escape_via(log):
+        def _generate(pkg, design_rules, strategy="dog-bone"):  # noqa: ARG001
+            log.append(("escape", pkg._ref, strategy))
+            return [object()]
+
+        return _generate
+
+    arm_o = _ArmState([])
+    arm_s = _ArmState([])
+    pipe_o = _make_pipeline(arm_o)
+    pipe_s = _make_pipeline(arm_s)
+
+    _patch_modules(monkeypatch, arm_o)
+    _patch_oracle_arm(monkeypatch, arm_o)
+    import temper_placer.router_v6._pipeline_core as _core_mod
+    import temper_placer.router_v6.dense_package_detection as _dense_mod
+    import temper_placer.router_v6.escape_via_generator as _escape_mod
+
+    monkeypatch.setattr(_dense_mod, "identify_dense_packages", _one_non_escaping_package)
+    monkeypatch.setattr(_escape_mod, "generate_escape_vias", _one_escape_via(arm_o.log))
+    monkeypatch.setattr(_core_mod, "identify_dense_packages", _one_non_escaping_package, raising=False)
+    monkeypatch.setattr(_core_mod, "generate_escape_vias", _one_escape_via(arm_o.log), raising=False)
+    monkeypatch.setattr(_orc, "identify_dense_packages", _one_non_escaping_package)
+    monkeypatch.setattr(_orc, "generate_escape_vias", _one_escape_via(arm_o.log))
+
+    result_o = _orc.run_verbatim(pipe_o, _PCB_PATH)
+
+    _patch_modules(monkeypatch, arm_s)
+    monkeypatch.setattr(_dense_mod, "identify_dense_packages", _one_non_escaping_package)
+    monkeypatch.setattr(_escape_mod, "generate_escape_vias", _one_escape_via(arm_s.log))
+    monkeypatch.setattr(_core_mod, "identify_dense_packages", _one_non_escaping_package, raising=False)
+    monkeypatch.setattr(_core_mod, "generate_escape_vias", _one_escape_via(arm_s.log), raising=False)
+
+    result_s = pipe_s.run(_PCB_PATH)
+
+    assert len(result_o.escape_vias) == 1
+    assert [entry for entry in arm_o.log if entry[0] == "escape"] == [
+        ("escape", "U8", "dog-bone"),
+    ]
+    assert result_s.escape_vias == []
+    assert [entry for entry in arm_s.log if entry[0] == "escape"] == []
 
 # ---------------------------------------------------------------------------
 # Call sequence + state threading (G2)
@@ -685,7 +753,13 @@ def test_fence_gated_on_escape_vias_and_routing_results(monkeypatch) -> None:
         return []
 
     def one_pkg(pcb_components):  # noqa: ARG001
-        return [SimpleNamespace(component=SimpleNamespace(ref="U1"), _ref="U1")]
+        return [
+            SimpleNamespace(
+                component=SimpleNamespace(ref="U1"),
+                _ref="U1",
+                requires_escape=True,
+            )
+        ]
     _patch_modules(monkeypatch, arm_o)
     _patch_modules(monkeypatch, arm_s)
     _patch_oracle_arm(monkeypatch, arm_o)
