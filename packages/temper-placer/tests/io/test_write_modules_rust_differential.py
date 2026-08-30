@@ -1,11 +1,11 @@
 """Differential test: the ``_write_modules.py`` annotation constructions
 (``temper_io_types.kicad_write_geometry.gr_rect_sexpr_py`` /
-``gr_text_sexpr_py`` and ``temper_io_types.write_types.footprint_value_py``)
-vs the pinned Python oracle.
+``gr_text_sexpr_py``) vs the pinned Python oracle.
 
 Wave 4, Phase 3 (formats/IO) — migrates ``add_bounding_boxes_to_pcb``'s
-GrRect construction, ``add_silkscreen_labels``'s GrText construction and
-Value read. The pad-bounding-box reduction (`component_bounds_py`) and the
+GrRect construction and ``add_silkscreen_labels``'s GrText construction.
+The value read is now supplied by the live parse-engine footprint extraction
+boundary. The pad-bounding-box reduction (`component_bounds_py`) and the
 reference read (`get_footprint_reference_py`) were ported earlier; the
 per-pad rotation stays Python (the `rotate_local_to_world` SSOT — B1). See
 ``kicad_write_geometry.rs`` / ``write_types.rs`` module docstrings for what
@@ -28,8 +28,8 @@ from pathlib import Path
 import pytest
 from kiutils.board import Board as KiBoard
 from kiutils.items.gritems import GrRect, GrText
+import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
-from temper_io_types import write_types as _WT
 
 import tests.io._write_modules_py_oracle as _oracle
 from temper_placer.io import _write_modules as shipped
@@ -37,7 +37,6 @@ from temper_placer.io import _write_modules as shipped
 # Rust symbols under test — must exist or this file fails to collect (RED).
 GR_RECT = _GEOM.gr_rect_sexpr_py
 GR_TEXT = _GEOM.gr_text_sexpr_py
-FOOTPRINT_VALUE = _WT.footprint_value_py
 
 
 def _rust_gr_rect_text(x_min, y_min, x_max, y_max, layer, width):
@@ -78,55 +77,6 @@ def test_gr_text_matches_oracle_byte_identical(text, x, y, layer):
     py_text = _oracle.gr_text_to_sexpr(text, x, y, layer)
     rust_text = _rust_gr_text_text(text, x, y, layer)
     assert rust_text == py_text
-
-
-def _ns(**kwargs):
-    from types import SimpleNamespace
-
-    return SimpleNamespace(**kwargs)
-
-
-class _RaisingValueItem:
-    """A property item whose `key` is "Value" but whose `value` access
-    raises RuntimeError — `getattr(prop, "value", None)` swallows only
-    AttributeError on CPython 3.12, so this propagates on both arms."""
-
-    key = "Value"
-
-    @property
-    def value(self):
-        raise RuntimeError("boom")
-
-
-@pytest.mark.parametrize(
-    "fp,expected",
-    [
-        (_ns(properties={"Value": "100k"}), "100k"),
-        (_ns(properties={"Value": ""}), ""),  # no truthiness guard — returned raw
-        (_ns(properties={"Reference": "U1"}), None),  # no Value key
-        (_ns(properties={}), None),
-        (_ns(properties=[_ns(key="Value", value="10uF")]), "10uF"),
-        (_ns(properties=[_ns(key="Reference", value="U1"), _ns(key="Value", value="10uF")]), "10uF"),
-        # first key=="Value" match wins, even with a missing value attr (None)
-        (_ns(properties=[_ns(key="Value"), _ns(key="Value", value="x")]), None),
-        (_ns(properties=[_ns(value="x")]), None),  # no key attribute
-        (_ns(), None),  # no properties at all
-    ],
-)
-def test_footprint_value_matches_oracle(fp, expected):
-    assert FOOTPRINT_VALUE(fp) == _oracle.footprint_value(fp) == expected
-
-
-def test_footprint_value_propagates_non_attribute_error():
-    """getattr(prop, "value", None) swallows only AttributeError — a
-    RuntimeError propagates on both arms (bpo-45522 hasattr/getattr)."""
-    fp = _ns(properties=[_RaisingValueItem()])
-    # oracle: hasattr(prop, "key") true; prop.key == "Value" true; then
-    # getattr(prop, "value", None) raises RuntimeError (not swallowed).
-    with pytest.raises(RuntimeError, match="boom"):
-        _oracle.footprint_value(fp)
-    with pytest.raises(RuntimeError, match="boom"):
-        FOOTPRINT_VALUE(fp)
 
 
 # ---------------------------------------------------------------------------
@@ -186,21 +136,21 @@ def test_add_bounding_boxes_delegates_to_rust(tmp_path):
 
 def test_add_silkscreen_labels_delegates_to_rust(tmp_path):
     """The SHIPPED `add_silkscreen_labels` reaches the Rust
-    `footprint_value_py` kernel — the value read is NOT inside a swallowed
-    try/except, so a monkeypatched boom propagates."""
-    sentinel = RuntimeError("REACHED_RUST_VALUE")
+    `extract_footprint_info_py` kernel for value reads — the footprint
+    data (position, value, pads) is read via Rust, not kiutils."""
+    sentinel = RuntimeError("REACHED_RUST_FOOTPRINT_INFO")
 
     def boom(*_a, **_k):
         raise sentinel
 
-    original = _WT.footprint_value_py
-    _WT.footprint_value_py = boom
+    original = _tdb.parse_engine.extract_footprint_info_py
+    _tdb.parse_engine.extract_footprint_info_py = boom
     try:
-        pcb = _board_with_footprint(tmp_path)
-        with pytest.raises(RuntimeError, match="REACHED_RUST_VALUE"):
+        pcb = _board_with_footprint(tmp_path, ref="U1", value="100k")
+        with pytest.raises(RuntimeError, match="REACHED_RUST_FOOTPRINT_INFO"):
             shipped.add_silkscreen_labels(pcb)
     finally:
-        _WT.footprint_value_py = original
+        _tdb.parse_engine.extract_footprint_info_py = original
 
 
 def test_add_bounding_boxes_round_trips_through_parse(tmp_path):

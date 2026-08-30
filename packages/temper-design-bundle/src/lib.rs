@@ -1,3 +1,4 @@
+// Production extension builds enable this pyo3 surface explicitly.
 #[cfg(feature = "python")]
 mod net_types;
 
@@ -6,13 +7,6 @@ mod net_types;
 // pyo3 dependency, so it is unconditional like `rotation_quadrant` is in
 // `temper-geometry` -- see that module's own precedent for this pattern.
 pub mod pad_occurrence;
-
-// Wave 4 Phase 3 (formats/IO): the two GEOMETRY/matching kernels ported out
-// of temper_placer/io/kicad_exporter.py (snap_to_nearest_pad,
-// _generate_connector_segments) — see kicad_exporter_geometry.rs's module
-// docstring for the full triage of what was and was not ported.
-#[cfg(feature = "python")]
-mod kicad_exporter_geometry;
 
 // Wave 4 Phase 3 (formats/IO): the two numeric kernels ported out of
 // temper_placer/io/_write_board.py (_reorient_pads's per-pad angle update,
@@ -154,9 +148,6 @@ pub(crate) mod parse_engine;
 #[cfg(feature = "python")]
 mod sexpr_writer;
 #[cfg(feature = "python")]
-mod hypergraph_factory;
-
-#[cfg(feature = "python")]
 mod loaders;
 
 #[cfg(feature = "python")]
@@ -178,8 +169,9 @@ mod deterministic_hubs;
 // Wave 4 Phase 4 — regression slice: the measure-closure /
 // cp_sat_comparison / fingerprint / schema_validator kernels (see the
 // module docstrings and packages/temper-design-bundle/VERIFICATION.md).
-#[cfg(feature = "python")]
-mod cp_sat_comparison;
+#[cfg(any(test, feature = "wasm-registry"))]
+#[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
+pub(crate) mod cp_sat_comparison;
 #[cfg(feature = "python")]
 mod fingerprint;
 #[cfg(feature = "python")]
@@ -366,11 +358,6 @@ mod python {
         module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
         module.add_function(wrap_pyfunction!(sha256_hex, module)?)?;
 
-        // Wave 4 Phase 3 (formats/IO): kicad_exporter.py's geometry kernels
-        // (see kicad_exporter_geometry.rs). Registered early since it has no
-        // dependency on the contracts pyclasses below.
-        crate::kicad_exporter_geometry::register(module)?;
-
         // Wave 4 Phase 3 (formats/IO): _write_board.py's numeric kernels
         // (see write_board_geometry.rs).
         crate::write_board_geometry::register(module)?;
@@ -458,11 +445,6 @@ mod python {
         )?)?;
         crate::parse_engine::register(module)?;
 
-        // Wave 4 Phase 4 leftovers slice: the hypergraph factory ported
-        // from temper_placer/extraction/hypergraph_factory.py (see
-        // hypergraph_factory.rs — scipy/numpy/set-iteration stay Python).
-        crate::hypergraph_factory::register(module)?;
-
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and
         // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
@@ -486,7 +468,6 @@ mod python {
         // cp_sat_comparison / fingerprint / schema_validator kernels (see
         // the module docstrings and VERIFICATION.md).
         crate::measure_closure::register(module)?;
-        crate::cp_sat_comparison::register(module)?;
         crate::fingerprint::register(module)?;
         crate::schema_validator::register(module)?;
 

@@ -1,3 +1,4 @@
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 ---
 title: Stage 3 SAT memory blowup — investigation (net-count dependence confirmed)
 type: evidence

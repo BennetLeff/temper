@@ -41,11 +41,13 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 58 eligible tests, in a stable order.  Each entry is
+/// All 64 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-design-bundle")] crate::constraint_merge::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-design-bundle")] crate::cp_sat_comparison::frozen_tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-design-bundle")] crate::cp_sat_comparison::cp_sat_comparison_core_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::identity::board_identity_tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::kicad_pcb::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-design-bundle")] crate::net_class_validation::tests::WASM_TESTS,

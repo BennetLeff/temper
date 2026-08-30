@@ -13,7 +13,6 @@ removals after CI-exact verification.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -23,9 +22,7 @@ import pytest
 from temper_placer.core.board import Board, Via
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
-from temper_placer.deterministic.bottleneck_map import BottleneckMap, load_bottleneck_map
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.provenance import Provenance, compute_provenance, embed_provenance
 from temper_placer.io.reference_loader import (
     ReferenceDesign,
     filter_components,
@@ -89,13 +86,6 @@ from temper_placer.validation.spice_templates import (
     get_available_templates,
     get_template_parameters,
     load_template,
-)
-from temper_placer.validation.trace_analyzer import (
-    calculate_actual_loop_area,
-    calculate_actual_trace_length,
-    calculate_min_hv_lv_clearance,
-    validate_emi_traces,
-    validate_signal_integrity,
 )
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
@@ -573,56 +563,6 @@ class TestDecideVerdict:
 
 
 # ---------------------------------------------------------------------------
-# validation/trace_analyzer
-# ---------------------------------------------------------------------------
-
-
-class TestTraceAnalyzer:
-    def test_calculate_actual_trace_length(self):
-        board = _make_board()
-        board.traces = [
-            SimpleNamespace(net="N1", start=(0.0, 0.0), end=(10.0, 0.0)),
-            SimpleNamespace(net="N1", start=(10.0, 0.0), end=(10.0, 10.0)),
-            SimpleNamespace(net="N2", start=(0.0, 0.0), end=(100.0, 0.0)),
-        ]
-        assert calculate_actual_trace_length(board, "N1") == pytest.approx(20.0)
-
-    def test_calculate_actual_loop_area(self):
-        board = _make_board()
-        board.traces = [
-            SimpleNamespace(net="L1", start=(0.0, 0.0), end=(10.0, 0.0)),
-            SimpleNamespace(net="L1", start=(10.0, 0.0), end=(10.0, 10.0)),
-            SimpleNamespace(net="L1", start=(10.0, 10.0), end=(0.0, 10.0)),
-            SimpleNamespace(net="L1", start=(0.0, 10.0), end=(0.0, 0.0)),
-        ]
-        assert calculate_actual_loop_area(board, ["L1"]) == pytest.approx(100.0)
-
-    def test_calculate_actual_loop_area_degenerate(self):
-        board = _make_board()
-        board.traces = [SimpleNamespace(net="L1", start=(0.0, 0.0), end=(1.0, 0.0))]
-        assert calculate_actual_loop_area(board, ["L1"]) == 0.0
-
-    def test_calculate_min_hv_lv_clearance(self):
-        board = _make_board()
-        board.traces = [
-            SimpleNamespace(net="HV", start=(0.0, 0.0), end=(10.0, 0.0)),
-            SimpleNamespace(net="LV", start=(0.0, 20.0), end=(10.0, 20.0)),
-        ]
-        clearance = calculate_min_hv_lv_clearance(board, {"HV": "HighVoltage", "LV": "Signal"})
-        assert clearance == pytest.approx(20.0)
-
-    def test_validate_signal_integrity(self):
-        board = _make_board()
-        board.traces = [SimpleNamespace(net="CLK", start=(0.0, 0.0), end=(5.0, 0.0))]
-        spec = SimpleNamespace(max_length_mm={"CLK": 100.0})
-        results = validate_signal_integrity(board, spec)
-        assert results["CLK_length"] == pytest.approx(5.0)
-
-    def test_validate_emi_traces(self):
-        assert validate_emi_traces(_make_board(), SimpleNamespace()) == {}
-
-
-# ---------------------------------------------------------------------------
 # validation/metrics
 # ---------------------------------------------------------------------------
 
@@ -707,85 +647,6 @@ class TestReferenceLoader:
         first_fp = design.netlist.components[0].footprint
         filtered = filter_components(design, footprint_pattern=first_fp)
         assert filtered.netlist.components[0].footprint == first_fp
-
-
-# ---------------------------------------------------------------------------
-# io/provenance
-# ---------------------------------------------------------------------------
-
-
-class TestProvenance:
-    def test_compute_provenance(self, tmp_path):
-        board_file = tmp_path / "in.kicad_pcb"
-        board_file.write_text("board-bytes")
-        net_file = tmp_path / "net.net"
-        net_file.write_text("net-bytes")
-        prov = compute_provenance(board_file, net_file)
-        assert isinstance(prov, Provenance)
-        assert len(prov.board_sha256) == 64
-        assert len(prov.netlist_sha256) == 64
-        assert prov.config_sha256 is None
-        assert "board=" in prov.as_comment()
-
-    def test_compute_provenance_with_config(self, tmp_path):
-        board_file = tmp_path / "in.kicad_pcb"
-        board_file.write_text("b")
-        net_file = tmp_path / "net.net"
-        net_file.write_text("n")
-        cfg_file = tmp_path / "cfg.yaml"
-        cfg_file.write_text("c")
-        prov = compute_provenance(board_file, net_file, cfg_file)
-        assert prov.config_sha256 is not None
-        assert "config=" in prov.as_comment()
-
-    def test_embed_provenance(self):
-        prov = Provenance(
-            board_sha256="a" * 64,
-            netlist_sha256="b" * 64,
-            config_sha256=None,
-            generated_at="2026-01-01T00:00:00+00:00",
-        )
-        board_text = '(kicad_pcb (version 20211014) (general (thickness 1.6)))'
-        out = embed_provenance(board_text, prov)
-        assert "provenance:" in out
-        assert "a" * 64 in out
-
-
-# ---------------------------------------------------------------------------
-# deterministic/bottleneck_map
-# ---------------------------------------------------------------------------
-
-
-class TestBottleneckMapLoader:
-    def test_load_from_state_attribute(self):
-        bm = BottleneckMap(
-            cell_size_mm=1.0, width=2, height=2, origin_xy=(0.0, 0.0), scores=(0.1, 0.2, 0.3, 0.4)
-        )
-        state = SimpleNamespace(bottleneck_analysis=bm)
-        assert load_bottleneck_map(state) is bm
-
-    def test_load_from_sidecar(self, tmp_path):
-        sidecar = tmp_path / "placement.channels.json"
-        sidecar.write_text(
-            json.dumps(
-                {
-                    "cell_size_mm": 1.0,
-                    "width": 2,
-                    "height": 2,
-                    "origin_xy": [0.0, 0.0],
-                    "scores": [0.1, 0.2, 0.3, 0.4],
-                }
-            )
-        )
-        state = SimpleNamespace(bottleneck_analysis=None)
-        bm = load_bottleneck_map(state, sidecar)
-        assert bm is not None
-        assert bm.width == 2
-        assert bm.scores == (0.1, 0.2, 0.3, 0.4)
-
-    def test_load_none(self):
-        state = SimpleNamespace(bottleneck_analysis=None)
-        assert load_bottleneck_map(state) is None
 
 
 # ---------------------------------------------------------------------------

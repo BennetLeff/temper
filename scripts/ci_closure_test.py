@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""CI entry point: closure test (Benders -> Router -> DRC).
+"""CI entry point: closure test (CP-SAT -> Router -> DRC).
 
-Runs the full parse -> Benders placement -> Router V6 routing -> KiCad DRC pipeline.
+Runs the full parse -> CP-SAT placement -> Router V6 routing -> KiCad DRC pipeline.
 Exits 0 if all assertions pass, non-zero on failure.
 """
 
@@ -27,7 +27,7 @@ def _setup_path(repo_root: Path) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Benders->Router closure test")
+    parser = argparse.ArgumentParser(description="Run CP-SAT->Router closure test")
     parser.add_argument("--pcb", type=str, required=True, help="Path to input .kicad_pcb file")
     parser.add_argument("--seed", type=str, default=None, help="Path to seed.json file")
     parser.add_argument("--output", type=str, default=None, help="Output path for JSON summary")
@@ -132,9 +132,9 @@ def main() -> int:
     )
     result = test.run(_observer=observer)
     observer.on_pipeline_complete(
-        success=result.passed,
-        total_duration_s=result.wall_clock_seconds,
-        stage_timings={},
+        result.passed,
+        result.wall_clock_seconds,
+        {},
     )
 
     print(result.summary())

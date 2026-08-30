@@ -505,27 +505,6 @@ pub fn extract_medial_axis_single_py(
     .map_err(temper_py_bridge::panic_to_err)
 }
 
-/// pyo3 boundary for [`extract_medial_axis`]. `polygons` is a list of
-/// `(outer_ring, holes)` pairs, one per constituent polygon of a
-/// `Polygon`/`MultiPolygon`.
-#[cfg(feature = "python")]
-#[pyfunction]
-#[pyo3(signature = (polygons, simplify_tolerance))]
-pub fn extract_medial_axis_py(
-    polygons: Vec<(Vec<CoordPair>, Vec<Vec<CoordPair>>)>,
-    simplify_tolerance: f64,
-) -> PyResult<Vec<(CoordPair, CoordPair)>> {
-    temper_py_bridge::catch_unwind(|| {
-        let polys: Vec<(Vec<Point>, Vec<Vec<Point>>)> = polygons
-            .into_iter()
-            .map(|(outer, holes)| (to_points(outer), holes.into_iter().map(to_points).collect()))
-            .collect();
-        let segments = extract_medial_axis(&polys, simplify_tolerance);
-        segments_to_py(segments)
-    })
-    .map_err(temper_py_bridge::panic_to_err)
-}
-
 /// Decode `n` interleaved little-endian `(x, y)` `f64` pairs.
 ///
 /// Mirrors `radius_pairs_transform`'s bytes-in convention
@@ -601,7 +580,6 @@ pub fn pad_anchor_plan_py(
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(extract_medial_axis_single_py, m)?)?;
-    m.add_function(wrap_pyfunction!(extract_medial_axis_py, m)?)?;
     m.add_function(wrap_pyfunction!(pad_anchor_plan_py, m)?)?;
     Ok(())
 }

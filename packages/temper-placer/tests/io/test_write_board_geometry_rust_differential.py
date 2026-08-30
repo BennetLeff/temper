@@ -31,26 +31,40 @@ from temper_placer.io import _write_board as shipped
 _GEOM = _tdb.write_board_geometry
 
 
-def test_reorient_pads_delegates_to_rust():
-    """The SHIPPED `_write_board._reorient_pads` must reach the Rust
-    kernel, not just have a differential proving the kernel is correct in
-    isolation. Monkeypatch the Rust symbol to raise; call the shipped
-    entry point; the raise must propagate.
+def test_write_placements_delegates_to_rust_update(tmp_path):
+    """The SHIPPED `write_placements_to_pcb` must reach the Rust
+    `update_footprint_positions_py` kernel, not just have a differential
+    proving the kernel is correct in isolation. Monkeypatch the Rust
+    symbol to raise; call the shipped entry point; the raise propagates.
     """
-    sentinel = RuntimeError("REACHED_RUST_REORIENT")
+    from pathlib import Path
+
+    sentinel = RuntimeError("REACHED_RUST_UPDATE_FP")
 
     def boom(*_a, **_k):
         raise sentinel
 
-    fp = SimpleNamespace(pads=[SimpleNamespace(position=SimpleNamespace(angle=10.0))])
-
-    original = _GEOM.reorient_pad_angles_py
-    _GEOM.reorient_pad_angles_py = boom
+    original = _tdb.parse_engine.update_footprint_positions_py
+    _tdb.parse_engine.update_footprint_positions_py = boom
     try:
-        with pytest.raises(RuntimeError, match="REACHED_RUST_REORIENT"):
-            shipped._reorient_pads(fp, 0.0, 90.0)
+        template = tmp_path / "template.kicad_pcb"
+        template.write_text(
+            '(kicad_pcb (version 20240108) (generator pcbnew)\n'
+            '  (footprint "Lib:R1" (layer "F.Cu")\n'
+            '    (at 50.0 60.0 90)\n'
+            '    (property "Reference" "R1")\n'
+            '    (pad "1" thru_hole circle (at 0 0 0) (size 1.5 1.5) (drill 0.8))\n'
+            '  )\n'
+            ')\n'
+        )
+        out = tmp_path / "out.kicad_pcb"
+        with pytest.raises(RuntimeError, match="REACHED_RUST_UPDATE_FP"):
+            shipped.write_placements_to_pcb(
+                template, out,
+                {"R1": shipped.PlacementUpdate(ref="R1", x=100.0, y=200.0, rotation=180.0)},
+            )
     finally:
-        _GEOM.reorient_pad_angles_py = original
+        _tdb.parse_engine.update_footprint_positions_py = original
 
 
 def test_state_to_placements_delegates_to_rust():

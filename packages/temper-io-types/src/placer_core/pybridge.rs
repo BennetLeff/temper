@@ -202,21 +202,11 @@ pub fn classify_net_type(name: &str) -> &'static str {
 // "starts with '+'" prefix heuristic; see netclass.rs). Ground/HV/pin
 // classification is byte-identical to the core module above, so router_v6
 // reuses `is_ground_net`/`is_hv_net`/`is_*_pin` directly and only needs
-// these three additional bindings.
+// this additional binding.
 
 #[pyfunction]
 pub fn is_power_net_v6(name: &str) -> bool {
     netclass::is_power_net_v6(name)
-}
-
-#[pyfunction]
-pub fn is_signal_net_v6(name: &str) -> bool {
-    netclass::is_signal_net_v6(name)
-}
-
-#[pyfunction]
-pub fn classify_net_type_v6(name: &str) -> &'static str {
-    netclass::classify_net_type_v6(name)
 }
 
 // ---------------------------------------------------------------------------
@@ -583,50 +573,6 @@ pub fn placer_place_in_zone_center(
     })
 }
 
-/// `adjust_for_congestion` compute: the dtype-aware per-(bottleneck,
-/// component) push loop. `dist_cb(dx, dy)` reproduces
-/// `np.sqrt(dx**2 + dy**2)` in the caller's dtype; `uniform_cb()` is
-/// `np.random.uniform(0, 2*pi)` drawn in the oracle's iteration order;
-/// `cos_sin` applies to the random angle.
-#[pyfunction]
-#[allow(clippy::too_many_arguments)] // mirrors adjust_for_congestion's Python seam surface
-pub fn placer_adjust_for_congestion(
-    positions: Vec<f64>,
-    is_f32: bool,
-    fixed: Vec<bool>,
-    bottlenecks: Vec<(f64, f64)>,
-    push_strength: f64,
-    influence_radius: f64,
-    dist_cb: &Bound<'_, PyAny>,
-    uniform_cb: &Bound<'_, PyAny>,
-    cos_sin: &Bound<'_, PyAny>,
-) -> PyResult<Vec<f64>> {
-    guard(|| {
-        let dist_impl = {
-            let cb = dist_cb;
-            move |dx: f64, dy: f64| -> PyResult<f64> {
-                cb.call1((dx, dy))?.extract()
-            }
-        };
-        let uniform_impl = {
-            let cb = uniform_cb;
-            move || -> PyResult<f64> { cb.call0()?.extract() }
-        };
-        let cos_sin_impl = cos_sin_impl(cos_sin);
-        placer_compute::adjust_for_congestion(
-            &positions,
-            is_f32,
-            &fixed,
-            &bottlenecks,
-            push_strength,
-            influence_radius,
-            &dist_impl,
-            &uniform_impl,
-            &cos_sin_impl,
-        )
-    })
-}
-
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyFabPreset>()?;
 
@@ -650,8 +596,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(is_hv_pin, m)?)?;
     m.add_function(wrap_pyfunction!(is_clock_pin, m)?)?;
     m.add_function(wrap_pyfunction!(is_power_net_v6, m)?)?;
-    m.add_function(wrap_pyfunction!(is_signal_net_v6, m)?)?;
-    m.add_function(wrap_pyfunction!(classify_net_type_v6, m)?)?;
 
     m.add_function(wrap_pyfunction!(inflated_clearance, m)?)?;
     m.add_function(wrap_pyfunction!(inflated_width, m)?)?;
@@ -663,6 +607,5 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(placer_place_power_stage_template, m)?)?;
     m.add_function(wrap_pyfunction!(placer_place_by_proximity, m)?)?;
     m.add_function(wrap_pyfunction!(placer_place_in_zone_center, m)?)?;
-    m.add_function(wrap_pyfunction!(placer_adjust_for_congestion, m)?)?;
     Ok(())
 }

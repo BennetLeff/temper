@@ -95,7 +95,19 @@ def test_real_board_finds_exactly_k1_k2_k3() -> None:
     by_ref = {fp.ref: fp.duplicate_pad_numbers for fp in found}
     assert by_ref["K2"] == {"1": 2, "3": 2, "4": 2}
     assert by_ref["K3"] == {"1": 2, "3": 2, "4": 2}
-    assert by_ref["K1"] == {"": 4}
+    # RE-DERIVED 2026-08-24: was {"": 4}. K1's four pads carried NO pad
+    # number at all until #1424 (a162dcea8, "land the two source-corrected
+    # footprints the board never received") replaced the footprint with the
+    # source-corrected Relay_SPST_Schrack-RT33K012, which numbers them.
+    #
+    # This is a real improvement, and a partial one. Before, every one of
+    # K1's four pads was ambiguous under (ref, pad_number) because the key
+    # was (K1, "") four times over. Now pads 1 and 2 are uniquely
+    # identifiable and only 3 and 4 remain duplicated -- which is the
+    # relay's actual multi-contact structure (two pads per switched
+    # contact), not a footprint defect. So K1 stays in this gate's finding
+    # set, correctly, on narrower grounds than before.
+    assert by_ref["K1"] == {"3": 2, "4": 2}
 
 
 # ---------------------------------------------------------------------------

@@ -93,6 +93,29 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _lib.freshness import compute_inputs_digest, read_stamp  # noqa: E402
+
+
+def _netlist_content_normalizer(root: Path):
+    """Build a content normalizer for netlist digesting (#1445 follow-up).
+
+    atopile 0.2.69 embeds the ABSOLUTE build directory in every component's
+    sheetpath (e.g. ``/tmp/opencode/.../elec/src/main.ato:Top::power_in.fuse``),
+    so the raw netlist bytes differ between this checkout and CI's
+    /__w/temper/temper even when the design is identical -- which made the
+    board-sync stamp unreproducible across environments (digest 695d3a98...
+    locally vs 4addacd7... in CI, #1457's version pin notwithstanding).
+    Normalising the repo-root prefix to a canonical form makes the digest
+    portable while preserving every design-meaningful byte.
+    """
+    prefix = str(root.resolve()).encode() + b"/"
+
+    def normalize(path: Path, data: bytes) -> bytes:
+        if path.name.endswith(".net"):
+            data = data.replace(prefix, b"")
+        return data
+
+    return normalize
+
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
@@ -174,7 +197,11 @@ def run(
                 )
         return EXIT_VIOLATION
 
-    current = compute_inputs_digest([board_path, netlist_path], repo_root)
+    current = compute_inputs_digest(
+        [board_path, netlist_path],
+        repo_root,
+        content_normalizer=_netlist_content_normalizer(repo_root),
+    )
     if current != recorded:
         print(
             f"\nSTALE: recorded digest {recorded[:12]}… does not match the "

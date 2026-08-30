@@ -23,8 +23,8 @@
 // `__new__`-construction pattern the D4 validator uses): `constraints`,
 // `slot_filter`, `slot_scorer`, `design_rules`, `channel_map`, `w_r`,
 // `use_isolation_slots`, `_isolation_slots_by_ref`, `seed_filter`,
-// `_bottleneck_map`. The `_get_footprint_radius`, `_effective_ghost_pad_radius`
-// (design-bundle kernel), `_compute_wirelength` (design-bundle kernel),
+// `_bottleneck_map`. The `_effective_ghost_pad_radius`, `_compute_wirelength`
+// and footprint/ring distance kernels (design-bundle kernels),
 // `_apply_bottleneck_filter` (R6 seed-filter logging) and `_is_hv_ref` mixin
 // methods are CALLED back on the stage -- single-source, bit-exact by
 // construction. shapely `_filter_by_domain` is driven through the shapely
@@ -210,7 +210,9 @@ fn phased_placement<'py>(
     let net_pins = build_net_pins(py, netlist)?;
     let all_slots = flatten_slots(py, zone_slots)?;
 
-    let phases = stage.getattr("constraints")?.getattr("placement_priority")?;
+    let phases = stage
+        .getattr("constraints")?
+        .getattr("placement_priority")?;
     if !phases.is_truthy()? {
         return simple_greedy_placement(py, stage, netlist, component_zone_map, zone_slots);
     }
@@ -242,7 +244,9 @@ fn phased_placement<'py>(
         let filtered = PyList::empty(py);
         for ref_val in components.try_iter()? {
             let ref_val = ref_val?;
-            let in_cbr: bool = comp_by_ref.call_method1("__contains__", (&ref_val,))?.extract()?;
+            let in_cbr: bool = comp_by_ref
+                .call_method1("__contains__", (&ref_val,))?
+                .extract()?;
             let placed: bool = placed_refs.contains(&ref_val)?;
             if in_cbr && !placed {
                 filtered.append(ref_val)?;
@@ -255,17 +259,43 @@ fn phased_placement<'py>(
 
         let phase_placements = match method.as_deref() {
             Some("template") => place_template(
-                py, stage, &components, phase_config, &comp_by_ref, &all_slots,
-                &used_slots, &placements, netlist,
+                py,
+                stage,
+                &components,
+                phase_config,
+                &comp_by_ref,
+                &all_slots,
+                &used_slots,
+                &placements,
+                netlist,
             )?,
             Some("proximity") => place_proximity(
-                py, stage, &components, phase_config, &comp_by_ref, &placements,
-                zone_slots, &used_slots, &all_slots, &net_pins, netlist,
+                py,
+                stage,
+                &components,
+                phase_config,
+                &comp_by_ref,
+                &placements,
+                zone_slots,
+                &used_slots,
+                &all_slots,
+                &net_pins,
+                netlist,
             )?,
             Some("optimize") | Some("auto") => place_optimize(
-                py, stage, &components, &comp_by_ref, component_zone_map, zone_slots,
-                &placements, &used_slots, &all_slots, &net_pins, Some(netlist),
-                domain_for_ref, domain_regions,
+                py,
+                stage,
+                &components,
+                &comp_by_ref,
+                component_zone_map,
+                zone_slots,
+                &placements,
+                &used_slots,
+                &all_slots,
+                &net_pins,
+                Some(netlist),
+                domain_for_ref,
+                domain_regions,
             )?,
             _ => {
                 let method_name = method.as_deref().unwrap_or("None");
@@ -304,7 +334,10 @@ fn build_net_pins<'py>(
     for net in netlist.getattr("nets")?.try_iter()? {
         let net = net?;
         let pins = net.getattr("pins")?;
-        net_pins.set_item(net.getattr("name")?, builtins.getattr("list")?.call1((pins,))?)?;
+        net_pins.set_item(
+            net.getattr("name")?,
+            builtins.getattr("list")?.call1((pins,))?,
+        )?;
     }
     Ok(net_pins)
 }
@@ -355,13 +388,33 @@ fn domain_lookups<'py>(
 
 #[cfg(feature = "python")]
 /// `dict(obj)` -- the builtin dict constructor over an iterable of pairs.
-fn builtins_dict<'py>(
+fn builtins_dict<'py>(py: Python<'py>, obj: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+    py.import("builtins")?.getattr("dict")?.call1((obj,))
+}
+
+#[cfg(feature = "python")]
+/// Call the canonical design-bundle footprint kernel for a component.
+///
+/// The former Python callback only supplied the `bounds` presence/truthiness
+/// guard. Keep that marshalling at this boundary, but invoke the existing Rust
+/// owner directly so orchestration no longer depends on a stage method.
+pub(crate) fn footprint_radius<'py>(
     py: Python<'py>,
-    obj: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyAny>> {
-    py.import("builtins")?
-        .getattr("dict")?
-        .call1((obj,))
+    stage: &Bound<'py, PyAny>,
+    component: &Bound<'py, PyAny>,
+) -> PyResult<f64> {
+    let kernel = py
+        .import("temper_design_bundle_python")?
+        .getattr("deterministic_phase")?
+        .getattr("footprint_radius_py")?;
+    let spacing = stage.getattr("slot_spacing")?;
+    if component.hasattr("bounds")? {
+        let bounds = component.getattr("bounds")?;
+        if bounds.is_truthy()? {
+            return kernel.call1((bounds, spacing))?.extract();
+        }
+    }
+    kernel.call1((py.None(), spacing))?.extract()
 }
 
 // ---------------------------------------------------------------------------
@@ -389,7 +442,9 @@ fn place_template<'py>(
     let placements = PyDict::new(py);
     for (i, ref_val) in components.try_iter()?.enumerate() {
         let ref_val = ref_val?;
-        let in_cbr: bool = comp_by_ref.call_method1("__contains__", (&ref_val,))?.extract()?;
+        let in_cbr: bool = comp_by_ref
+            .call_method1("__contains__", (&ref_val,))?
+            .extract()?;
         if !in_cbr {
             continue;
         }
@@ -398,7 +453,16 @@ fn place_template<'py>(
         placements.set_item(&ref_val, &pos)?;
         let cumulative = merge_dicts(py, current_placements, &placements)?;
         let component = comp_by_ref.call_method1("__getitem__", (&ref_val,))?;
-        reserve_slots_with_hv(py, stage, &component, &pos, all_slots, used_slots, &cumulative, Some(netlist))?;
+        reserve_slots_with_hv(
+            py,
+            stage,
+            &component,
+            &pos,
+            all_slots,
+            used_slots,
+            &cumulative,
+            Some(netlist),
+        )?;
     }
     Ok(placements)
 }
@@ -438,9 +502,19 @@ fn place_proximity<'py>(
         // current_placements, used_slots, all_slots, net_pins)` -- no
         // netlist, no domains (full base-radius HV rings).
         return place_optimize(
-            py, stage, components, comp_by_ref, &empty_map.into_any(), zone_slots,
-            current_placements, used_slots, all_slots, net_pins, None,
-            &empty_domains, &empty_domains,
+            py,
+            stage,
+            components,
+            comp_by_ref,
+            &empty_map.into_any(),
+            zone_slots,
+            current_placements,
+            used_slots,
+            all_slots,
+            net_pins,
+            None,
+            &empty_domains,
+            &empty_domains,
         );
     }
 
@@ -453,7 +527,9 @@ fn place_proximity<'py>(
 
     for ref_val in components.try_iter()? {
         let ref_val = ref_val?;
-        let in_cbr: bool = comp_by_ref.call_method1("__contains__", (&ref_val,))?.extract()?;
+        let in_cbr: bool = comp_by_ref
+            .call_method1("__contains__", (&ref_val,))?
+            .extract()?;
         if !in_cbr {
             continue;
         }
@@ -478,12 +554,27 @@ fn place_proximity<'py>(
         }
 
         let best_slot = select_best_slot(
-            py, stage, &ref_val, &nearby_slots, current_placements.as_any(), placements.as_any(), net_pins.as_any(),
+            py,
+            stage,
+            &ref_val,
+            &nearby_slots,
+            current_placements.as_any(),
+            placements.as_any(),
+            net_pins.as_any(),
         )?;
         if !best_slot.is_none() {
             placements.set_item(&ref_val, &best_slot)?;
             let cumulative = merge_dicts(py, current_placements, &placements)?;
-            reserve_slots_with_hv(py, stage, &component, &best_slot, all_slots, used_slots, &cumulative, Some(netlist))?;
+            reserve_slots_with_hv(
+                py,
+                stage,
+                &component,
+                &best_slot,
+                all_slots,
+                used_slots,
+                &cumulative,
+                Some(netlist),
+            )?;
         }
     }
     Ok(placements)
@@ -523,7 +614,9 @@ fn place_optimize<'py>(
 
     let builtins = py.import("builtins")?;
     for (_key, _, ref_val) in items {
-        let in_cbr: bool = comp_by_ref.call_method1("__contains__", (&ref_val,))?.extract()?;
+        let in_cbr: bool = comp_by_ref
+            .call_method1("__contains__", (&ref_val,))?
+            .extract()?;
         if !in_cbr {
             continue;
         }
@@ -563,23 +656,42 @@ fn place_optimize<'py>(
             continue;
         }
 
-        let filtered = stage.call_method1("_apply_bottleneck_filter", (&ref_val, &available_slots, comp_by_ref))?;
+        let filtered = stage.call_method1(
+            "_apply_bottleneck_filter",
+            (&ref_val, &available_slots, comp_by_ref),
+        )?;
         if filtered.len()? == 0 {
             continue;
         }
 
-        let domain_filtered = filter_by_domain(py, &ref_val, &filtered, domain_for_ref, domain_regions)?;
+        let domain_filtered =
+            filter_by_domain(py, &ref_val, &filtered, domain_for_ref, domain_regions)?;
         if domain_filtered.len() == 0 {
             continue;
         }
 
         let best_slot = select_best_slot(
-            py, stage, &ref_val, &domain_filtered, current_placements.as_any(), placements.as_any(), net_pins.as_any(),
+            py,
+            stage,
+            &ref_val,
+            &domain_filtered,
+            current_placements.as_any(),
+            placements.as_any(),
+            net_pins.as_any(),
         )?;
         if !best_slot.is_none() {
             placements.set_item(&ref_val, &best_slot)?;
             let cumulative = merge_dicts(py, current_placements, &placements)?;
-            reserve_slots_with_hv(py, stage, &component, &best_slot, all_slots, used_slots, &cumulative, netlist)?;
+            reserve_slots_with_hv(
+                py,
+                stage,
+                &component,
+                &best_slot,
+                all_slots,
+                used_slots,
+                &cumulative,
+                netlist,
+            )?;
         }
     }
     Ok(placements)
@@ -686,10 +798,15 @@ fn select_best_slot<'py>(
             .call1((&slot, component_ref, &all_placements))?
             .extract()?;
         let wirelength: f64 = stage
-            .call_method1("_compute_wirelength", (component_ref, &slot, net_pins, &all_placements))?
+            .call_method1(
+                "_compute_wirelength",
+                (component_ref, &slot, net_pins, &all_placements),
+            )?
             .extract()?;
         let routability = if !channel_map.is_none() && w_r > 0.0 {
-            let p: f64 = routability_penalty.call1((&slot, &channel_map))?.extract()?;
+            let p: f64 = routability_penalty
+                .call1((&slot, &channel_map))?
+                .extract()?;
             p * w_r
         } else {
             0.0
@@ -742,9 +859,9 @@ fn simple_greedy_placement<'py>(
     for (_key, _, component) in items {
         let ref_val = component.getattr("ref")?;
         let zone_name = component_zone_map.call_method1("get", (&ref_val, "Signal"))?;
-        let zone_slot_list = builtins.getattr("list")?.call1((
-            zone_slots.call_method1("get", (&zone_name, PyTuple::empty(py)))?,
-        ))?;
+        let zone_slot_list = builtins
+            .getattr("list")?
+            .call1((zone_slots.call_method1("get", (&zone_name, PyTuple::empty(py)))?,))?;
         let available = PyList::empty(py);
         for s in zone_slot_list.try_iter()? {
             let s = s?;
@@ -764,7 +881,10 @@ fn simple_greedy_placement<'py>(
         for s in available.try_iter()? {
             let s = s?;
             let wl: f64 = stage
-                .call_method1("_compute_wirelength", (&ref_val, &s, &net_pins, &placements))?
+                .call_method1(
+                    "_compute_wirelength",
+                    (&ref_val, &s, &net_pins, &placements),
+                )?
                 .extract()?;
             match &best {
                 None => {
@@ -781,8 +901,8 @@ fn simple_greedy_placement<'py>(
         }
         if let Some(best_slot) = best {
             placements.set_item(&ref_val, &best_slot)?;
-            let radius: f64 = stage.call_method1("_get_footprint_radius", (&component,))?.extract()?;
-            reserve_slots(&best_slot, radius, &all_slots, &used_slots)?;
+            let radius = footprint_radius(py, stage, &component)?;
+            reserve_slots(py, &best_slot, radius, &all_slots, &used_slots)?;
         }
     }
     Ok((placements, used_slots))
@@ -807,8 +927,8 @@ fn reserve_slots_with_hv<'py>(
     placements: &Bound<'py, PyDict>,
     netlist: Option<&Bound<'py, PyAny>>,
 ) -> PyResult<()> {
-    let radius: f64 = stage.call_method1("_get_footprint_radius", (component,))?.extract()?;
-    reserve_slots(placed_pos, radius, all_slots, used_slots)?;
+    let radius = footprint_radius(py, stage, component)?;
+    reserve_slots(py, placed_pos, radius, all_slots, used_slots)?;
 
     let design_rules = stage.getattr("design_rules")?;
     if design_rules.is_none() {
@@ -827,8 +947,13 @@ fn reserve_slots_with_hv<'py>(
         let rules = rules?;
         let safety = rules.getattr("safety_category")?;
         if is_hv_safety(&safety)? {
-            let creep: f64 = getattr_default(py, &rules, "creepage_mm", PyFloat::new(py, 0.0).into_any().unbind())?
-                .extract()?;
+            let creep: f64 = getattr_default(
+                py,
+                &rules,
+                "creepage_mm",
+                PyFloat::new(py, 0.0).into_any().unbind(),
+            )?
+            .extract()?;
             base_radius = py_max(base_radius, creep);
         }
     }
@@ -866,7 +991,9 @@ fn reserve_slots_with_hv<'py>(
                 if other_class.is_none() {
                     continue;
                 }
-                let in_nc: bool = net_classes.call_method1("__contains__", (&other_class,))?.extract()?;
+                let in_nc: bool = net_classes
+                    .call_method1("__contains__", (&other_class,))?
+                    .extract()?;
                 if !in_nc {
                     continue;
                 }
@@ -895,7 +1022,9 @@ fn reserve_slots_with_hv<'py>(
         if class_name.is_none() {
             continue;
         }
-        let in_nc: bool = net_classes.call_method1("__contains__", (&class_name,))?.extract()?;
+        let in_nc: bool = net_classes
+            .call_method1("__contains__", (&class_name,))?
+            .extract()?;
         if !in_nc {
             continue;
         }
@@ -938,7 +1067,7 @@ fn reserve_slots_with_hv<'py>(
             continue;
         }
         let center = PyTuple::new(py, [abs_x, abs_y])?;
-        reserve_slots(&center, ring_radius, all_slots, used_slots)?;
+        reserve_slots(py, &center, ring_radius, all_slots, used_slots)?;
     }
     Ok(())
 }
@@ -947,37 +1076,29 @@ fn reserve_slots_with_hv<'py>(
 /// `_reserve_slots`: `math.sqrt((sx - cx) ** 2 + (sy - cy) ** 2) <= radius`
 /// over every slot, added to the used set.
 fn reserve_slots<'py>(
+    py: Python<'py>,
     center: &Bound<'py, PyAny>,
     radius: f64,
     all_slots: &Bound<'py, PyList>,
     used_slots: &Bound<'py, PySet>,
 ) -> PyResult<()> {
-    let cx: f64 = center.get_item(0)?.extract()?;
-    let cy: f64 = center.get_item(1)?.extract()?;
-    for slot in all_slots.try_iter()? {
-        let slot = slot?;
-        let sx: f64 = slot.get_item(0)?.extract()?;
-        let sy: f64 = slot.get_item(1)?.extract()?;
-        let dist = f64::sqrt(host_math::pow(sx - cx, 2.0) + host_math::pow(sy - cy, 2.0));
-        if dist <= radius {
-            used_slots.add(slot)?;
-        }
+    let nearby = py
+        .import("temper_design_bundle_python")?
+        .getattr("deterministic_phase")?
+        .call_method1("reserve_slots_py", (center, radius, all_slots))?;
+    for slot in nearby.try_iter()? {
+        used_slots.add(slot?)?;
     }
     Ok(())
 }
 
 #[cfg(feature = "python")]
 /// `_distance`: `math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)`.
-fn distance<'py>(
-    _py: Python<'py>,
-    p1: &Bound<'py, PyAny>,
-    p2: &Bound<'py, PyAny>,
-) -> PyResult<f64> {
-    let x1: f64 = p1.get_item(0)?.extract()?;
-    let y1: f64 = p1.get_item(1)?.extract()?;
-    let x2: f64 = p2.get_item(0)?.extract()?;
-    let y2: f64 = p2.get_item(1)?.extract()?;
-    Ok(f64::sqrt(host_math::pow(x1 - x2, 2.0) + host_math::pow(y1 - y2, 2.0)))
+fn distance<'py>(py: Python<'py>, p1: &Bound<'py, PyAny>, p2: &Bound<'py, PyAny>) -> PyResult<f64> {
+    py.import("temper_design_bundle_python")?
+        .getattr("deterministic_phase")?
+        .call_method1("distance_py", (p1, p2))?
+        .extract()
 }
 
 // ---------------------------------------------------------------------------
@@ -1071,11 +1192,7 @@ fn is_hv_safety(safety: &Bound<'_, PyAny>) -> PyResult<bool> {
 
 /// CPython `max(a, b)`: first-arg-wins on ties/NaN.
 fn py_max(a: f64, b: f64) -> f64 {
-    if b > a {
-        b
-    } else {
-        a
-    }
+    if b > a { b } else { a }
 }
 
 #[cfg(feature = "python")]
@@ -1092,7 +1209,9 @@ fn py_format<'py>(
 #[cfg(feature = "python")]
 /// `logging.getLogger(name).<level>(message)`.
 fn log_msg(py: Python<'_>, logger_name: &str, level: &str, msg: &Bound<'_, PyAny>) -> PyResult<()> {
-    let logger = py.import("logging")?.call_method1("getLogger", (logger_name,))?;
+    let logger = py
+        .import("logging")?
+        .call_method1("getLogger", (logger_name,))?;
     logger.call_method1(level, (msg,))?;
     Ok(())
 }
@@ -1124,9 +1243,8 @@ pub fn run_phased_assignment(
     state: Py<PyAny>,
     stage: Py<PyAny>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let rust_stage = PhasedAssignmentStage { stage };
     let out = rust_stage.run(rust_state).map_err(|e| to_pyerr(&e))?;
     crate::d1_bridge::to_python(
@@ -1190,8 +1308,11 @@ pub(crate) mod tests {
     fn py_max_ties_keep_first() {
         assert_eq!(py_max(0.0, -0.0), 0.0);
         let r = py_max(-0.0, 0.0);
-        assert_eq!(r.to_bits(), (-0.0f64).to_bits(),
-            "py_max(-0.0, 0.0) must return -0.0, got {r}");
+        assert_eq!(
+            r.to_bits(),
+            (-0.0f64).to_bits(),
+            "py_max(-0.0, 0.0) must return -0.0, got {r}"
+        );
         assert_eq!(py_max(3.0, 3.0), 3.0);
     }
 
@@ -1208,12 +1329,27 @@ pub(crate) mod tests {
     #[cfg_attr(test, test)]
     fn tuple_cmp_normal_floats() {
         // Larger negative (more negative) = smaller
-        assert_eq!(py_tuple_key_cmp(&-5.0, "A", &-3.0, "B"), std::cmp::Ordering::Less);
-        assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-5.0, "B"), std::cmp::Ordering::Greater);
+        assert_eq!(
+            py_tuple_key_cmp(&-5.0, "A", &-3.0, "B"),
+            std::cmp::Ordering::Less
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&-3.0, "A", &-5.0, "B"),
+            std::cmp::Ordering::Greater
+        );
         // Equal floats fall through to string comparison
-        assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-3.0, "B"), std::cmp::Ordering::Less);
-        assert_eq!(py_tuple_key_cmp(&-3.0, "B", &-3.0, "A"), std::cmp::Ordering::Greater);
-        assert_eq!(py_tuple_key_cmp(&-3.0, "A", &-3.0, "A"), std::cmp::Ordering::Equal);
+        assert_eq!(
+            py_tuple_key_cmp(&-3.0, "A", &-3.0, "B"),
+            std::cmp::Ordering::Less
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&-3.0, "B", &-3.0, "A"),
+            std::cmp::Ordering::Greater
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&-3.0, "A", &-3.0, "A"),
+            std::cmp::Ordering::Equal
+        );
     }
 
     #[cfg_attr(test, test)]
@@ -1268,9 +1404,18 @@ pub(crate) mod tests {
 
     #[cfg_attr(test, test)]
     fn tuple_cmp_infinity() {
-        assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &1.0, "B"), std::cmp::Ordering::Greater);
-        assert_eq!(py_tuple_key_cmp(&f64::NEG_INFINITY, "A", &1.0, "B"), std::cmp::Ordering::Less);
-        assert_eq!(py_tuple_key_cmp(&f64::INFINITY, "A", &f64::INFINITY, "B"), std::cmp::Ordering::Less);
+        assert_eq!(
+            py_tuple_key_cmp(&f64::INFINITY, "A", &1.0, "B"),
+            std::cmp::Ordering::Greater
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&f64::NEG_INFINITY, "A", &1.0, "B"),
+            std::cmp::Ordering::Less
+        );
+        assert_eq!(
+            py_tuple_key_cmp(&f64::INFINITY, "A", &f64::INFINITY, "B"),
+            std::cmp::Ordering::Less
+        );
     }
 
     // -----------------------------------------------------------------------
@@ -1308,7 +1453,10 @@ pub(crate) mod tests {
         let a = campaign_normal_f64(&mut rng);
         let b = campaign_normal_f64(&mut rng);
         let r = py_max(a, b);
-        assert!(r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(), "seed={seed}");
+        assert!(
+            r.to_bits() == a.to_bits() || r.to_bits() == b.to_bits(),
+            "seed={seed}"
+        );
     }
 
     /// P3: Commutative for non-NaN inputs.
@@ -1342,7 +1490,11 @@ pub(crate) mod tests {
         let x = campaign_normal_f64(&mut rng);
         let ref_a = rng.ref_like();
         let ref_b = rng.ref_like();
-        assert_eq!(py_tuple_key_cmp(&x, &ref_a, &x, &ref_b), ref_a.cmp(&ref_b), "seed={seed}");
+        assert_eq!(
+            py_tuple_key_cmp(&x, &ref_a, &x, &ref_b),
+            ref_a.cmp(&ref_b),
+            "seed={seed}"
+        );
     }
 
     /// P6: py_tuple_key_cmp is transitive for non-NaN floats. Builds an
@@ -1374,245 +1526,485 @@ pub(crate) mod tests {
     // --- BEGIN generated seeded property-mirror wrappers (deterministic proptest mirrors, R19/U6) ---
     // 6 properties x 20 seeds = 120 distinct-input wasm tests.
     #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_000() { p1_py_max_returns_larger_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_001() { p1_py_max_returns_larger_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_002() { p1_py_max_returns_larger_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_003() { p1_py_max_returns_larger_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_004() { p1_py_max_returns_larger_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_005() { p1_py_max_returns_larger_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_006() { p1_py_max_returns_larger_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_007() { p1_py_max_returns_larger_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_008() { p1_py_max_returns_larger_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_009() { p1_py_max_returns_larger_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_010() { p1_py_max_returns_larger_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_011() { p1_py_max_returns_larger_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_012() { p1_py_max_returns_larger_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_013() { p1_py_max_returns_larger_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_014() { p1_py_max_returns_larger_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_015() { p1_py_max_returns_larger_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_016() { p1_py_max_returns_larger_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_017() { p1_py_max_returns_larger_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_018() { p1_py_max_returns_larger_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p1_py_max_returns_larger_seed_019() { p1_py_max_returns_larger_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_000() { p2_py_max_returns_one_of_inputs_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_001() { p2_py_max_returns_one_of_inputs_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_002() { p2_py_max_returns_one_of_inputs_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_003() { p2_py_max_returns_one_of_inputs_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_004() { p2_py_max_returns_one_of_inputs_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_005() { p2_py_max_returns_one_of_inputs_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_006() { p2_py_max_returns_one_of_inputs_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_007() { p2_py_max_returns_one_of_inputs_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_008() { p2_py_max_returns_one_of_inputs_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_009() { p2_py_max_returns_one_of_inputs_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_010() { p2_py_max_returns_one_of_inputs_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_011() { p2_py_max_returns_one_of_inputs_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_012() { p2_py_max_returns_one_of_inputs_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_013() { p2_py_max_returns_one_of_inputs_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_014() { p2_py_max_returns_one_of_inputs_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_015() { p2_py_max_returns_one_of_inputs_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_016() { p2_py_max_returns_one_of_inputs_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_017() { p2_py_max_returns_one_of_inputs_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_018() { p2_py_max_returns_one_of_inputs_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p2_py_max_returns_one_of_inputs_seed_019() { p2_py_max_returns_one_of_inputs_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_000() { p3_py_max_commutative_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_001() { p3_py_max_commutative_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_002() { p3_py_max_commutative_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_003() { p3_py_max_commutative_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_004() { p3_py_max_commutative_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_005() { p3_py_max_commutative_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_006() { p3_py_max_commutative_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_007() { p3_py_max_commutative_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_008() { p3_py_max_commutative_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_009() { p3_py_max_commutative_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_010() { p3_py_max_commutative_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_011() { p3_py_max_commutative_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_012() { p3_py_max_commutative_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_013() { p3_py_max_commutative_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_014() { p3_py_max_commutative_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_015() { p3_py_max_commutative_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_016() { p3_py_max_commutative_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_017() { p3_py_max_commutative_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_018() { p3_py_max_commutative_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p3_py_max_commutative_seed_019() { p3_py_max_commutative_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_000() { p4_tuple_cmp_matches_numeric_order_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_001() { p4_tuple_cmp_matches_numeric_order_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_002() { p4_tuple_cmp_matches_numeric_order_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_003() { p4_tuple_cmp_matches_numeric_order_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_004() { p4_tuple_cmp_matches_numeric_order_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_005() { p4_tuple_cmp_matches_numeric_order_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_006() { p4_tuple_cmp_matches_numeric_order_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_007() { p4_tuple_cmp_matches_numeric_order_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_008() { p4_tuple_cmp_matches_numeric_order_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_009() { p4_tuple_cmp_matches_numeric_order_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_010() { p4_tuple_cmp_matches_numeric_order_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_011() { p4_tuple_cmp_matches_numeric_order_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_012() { p4_tuple_cmp_matches_numeric_order_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_013() { p4_tuple_cmp_matches_numeric_order_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_014() { p4_tuple_cmp_matches_numeric_order_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_015() { p4_tuple_cmp_matches_numeric_order_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_016() { p4_tuple_cmp_matches_numeric_order_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_017() { p4_tuple_cmp_matches_numeric_order_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_018() { p4_tuple_cmp_matches_numeric_order_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p4_tuple_cmp_matches_numeric_order_seed_019() { p4_tuple_cmp_matches_numeric_order_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_000() { p5_equal_floats_defer_to_ref_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_001() { p5_equal_floats_defer_to_ref_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_002() { p5_equal_floats_defer_to_ref_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_003() { p5_equal_floats_defer_to_ref_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_004() { p5_equal_floats_defer_to_ref_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_005() { p5_equal_floats_defer_to_ref_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_006() { p5_equal_floats_defer_to_ref_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_007() { p5_equal_floats_defer_to_ref_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_008() { p5_equal_floats_defer_to_ref_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_009() { p5_equal_floats_defer_to_ref_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_010() { p5_equal_floats_defer_to_ref_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_011() { p5_equal_floats_defer_to_ref_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_012() { p5_equal_floats_defer_to_ref_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_013() { p5_equal_floats_defer_to_ref_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_014() { p5_equal_floats_defer_to_ref_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_015() { p5_equal_floats_defer_to_ref_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_016() { p5_equal_floats_defer_to_ref_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_017() { p5_equal_floats_defer_to_ref_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_018() { p5_equal_floats_defer_to_ref_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p5_equal_floats_defer_to_ref_seed_019() { p5_equal_floats_defer_to_ref_impl(19); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_000() { p6_transitive_impl(0); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_001() { p6_transitive_impl(1); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_002() { p6_transitive_impl(2); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_003() { p6_transitive_impl(3); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_004() { p6_transitive_impl(4); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_005() { p6_transitive_impl(5); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_006() { p6_transitive_impl(6); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_007() { p6_transitive_impl(7); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_008() { p6_transitive_impl(8); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_009() { p6_transitive_impl(9); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_010() { p6_transitive_impl(10); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_011() { p6_transitive_impl(11); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_012() { p6_transitive_impl(12); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_013() { p6_transitive_impl(13); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_014() { p6_transitive_impl(14); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_015() { p6_transitive_impl(15); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_016() { p6_transitive_impl(16); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_017() { p6_transitive_impl(17); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_018() { p6_transitive_impl(18); }
-    #[cfg_attr(test, test)]
-    fn p6_transitive_seed_019() { p6_transitive_impl(19); }
+    fn p1_py_max_returns_larger_seed_000() {
+        p1_py_max_returns_larger_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_001() {
+        p1_py_max_returns_larger_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_002() {
+        p1_py_max_returns_larger_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_003() {
+        p1_py_max_returns_larger_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_004() {
+        p1_py_max_returns_larger_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_005() {
+        p1_py_max_returns_larger_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_006() {
+        p1_py_max_returns_larger_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_007() {
+        p1_py_max_returns_larger_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_008() {
+        p1_py_max_returns_larger_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_009() {
+        p1_py_max_returns_larger_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_010() {
+        p1_py_max_returns_larger_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_011() {
+        p1_py_max_returns_larger_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_012() {
+        p1_py_max_returns_larger_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_013() {
+        p1_py_max_returns_larger_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_014() {
+        p1_py_max_returns_larger_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_015() {
+        p1_py_max_returns_larger_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_016() {
+        p1_py_max_returns_larger_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_017() {
+        p1_py_max_returns_larger_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_018() {
+        p1_py_max_returns_larger_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p1_py_max_returns_larger_seed_019() {
+        p1_py_max_returns_larger_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_000() {
+        p2_py_max_returns_one_of_inputs_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_001() {
+        p2_py_max_returns_one_of_inputs_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_002() {
+        p2_py_max_returns_one_of_inputs_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_003() {
+        p2_py_max_returns_one_of_inputs_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_004() {
+        p2_py_max_returns_one_of_inputs_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_005() {
+        p2_py_max_returns_one_of_inputs_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_006() {
+        p2_py_max_returns_one_of_inputs_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_007() {
+        p2_py_max_returns_one_of_inputs_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_008() {
+        p2_py_max_returns_one_of_inputs_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_009() {
+        p2_py_max_returns_one_of_inputs_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_010() {
+        p2_py_max_returns_one_of_inputs_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_011() {
+        p2_py_max_returns_one_of_inputs_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_012() {
+        p2_py_max_returns_one_of_inputs_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_013() {
+        p2_py_max_returns_one_of_inputs_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_014() {
+        p2_py_max_returns_one_of_inputs_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_015() {
+        p2_py_max_returns_one_of_inputs_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_016() {
+        p2_py_max_returns_one_of_inputs_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_017() {
+        p2_py_max_returns_one_of_inputs_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_018() {
+        p2_py_max_returns_one_of_inputs_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p2_py_max_returns_one_of_inputs_seed_019() {
+        p2_py_max_returns_one_of_inputs_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_000() {
+        p3_py_max_commutative_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_001() {
+        p3_py_max_commutative_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_002() {
+        p3_py_max_commutative_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_003() {
+        p3_py_max_commutative_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_004() {
+        p3_py_max_commutative_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_005() {
+        p3_py_max_commutative_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_006() {
+        p3_py_max_commutative_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_007() {
+        p3_py_max_commutative_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_008() {
+        p3_py_max_commutative_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_009() {
+        p3_py_max_commutative_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_010() {
+        p3_py_max_commutative_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_011() {
+        p3_py_max_commutative_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_012() {
+        p3_py_max_commutative_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_013() {
+        p3_py_max_commutative_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_014() {
+        p3_py_max_commutative_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_015() {
+        p3_py_max_commutative_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_016() {
+        p3_py_max_commutative_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_017() {
+        p3_py_max_commutative_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_018() {
+        p3_py_max_commutative_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p3_py_max_commutative_seed_019() {
+        p3_py_max_commutative_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_000() {
+        p4_tuple_cmp_matches_numeric_order_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_001() {
+        p4_tuple_cmp_matches_numeric_order_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_002() {
+        p4_tuple_cmp_matches_numeric_order_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_003() {
+        p4_tuple_cmp_matches_numeric_order_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_004() {
+        p4_tuple_cmp_matches_numeric_order_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_005() {
+        p4_tuple_cmp_matches_numeric_order_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_006() {
+        p4_tuple_cmp_matches_numeric_order_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_007() {
+        p4_tuple_cmp_matches_numeric_order_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_008() {
+        p4_tuple_cmp_matches_numeric_order_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_009() {
+        p4_tuple_cmp_matches_numeric_order_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_010() {
+        p4_tuple_cmp_matches_numeric_order_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_011() {
+        p4_tuple_cmp_matches_numeric_order_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_012() {
+        p4_tuple_cmp_matches_numeric_order_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_013() {
+        p4_tuple_cmp_matches_numeric_order_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_014() {
+        p4_tuple_cmp_matches_numeric_order_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_015() {
+        p4_tuple_cmp_matches_numeric_order_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_016() {
+        p4_tuple_cmp_matches_numeric_order_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_017() {
+        p4_tuple_cmp_matches_numeric_order_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_018() {
+        p4_tuple_cmp_matches_numeric_order_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p4_tuple_cmp_matches_numeric_order_seed_019() {
+        p4_tuple_cmp_matches_numeric_order_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_000() {
+        p5_equal_floats_defer_to_ref_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_001() {
+        p5_equal_floats_defer_to_ref_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_002() {
+        p5_equal_floats_defer_to_ref_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_003() {
+        p5_equal_floats_defer_to_ref_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_004() {
+        p5_equal_floats_defer_to_ref_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_005() {
+        p5_equal_floats_defer_to_ref_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_006() {
+        p5_equal_floats_defer_to_ref_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_007() {
+        p5_equal_floats_defer_to_ref_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_008() {
+        p5_equal_floats_defer_to_ref_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_009() {
+        p5_equal_floats_defer_to_ref_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_010() {
+        p5_equal_floats_defer_to_ref_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_011() {
+        p5_equal_floats_defer_to_ref_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_012() {
+        p5_equal_floats_defer_to_ref_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_013() {
+        p5_equal_floats_defer_to_ref_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_014() {
+        p5_equal_floats_defer_to_ref_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_015() {
+        p5_equal_floats_defer_to_ref_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_016() {
+        p5_equal_floats_defer_to_ref_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_017() {
+        p5_equal_floats_defer_to_ref_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_018() {
+        p5_equal_floats_defer_to_ref_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p5_equal_floats_defer_to_ref_seed_019() {
+        p5_equal_floats_defer_to_ref_impl(19);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_000() {
+        p6_transitive_impl(0);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_001() {
+        p6_transitive_impl(1);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_002() {
+        p6_transitive_impl(2);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_003() {
+        p6_transitive_impl(3);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_004() {
+        p6_transitive_impl(4);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_005() {
+        p6_transitive_impl(5);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_006() {
+        p6_transitive_impl(6);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_007() {
+        p6_transitive_impl(7);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_008() {
+        p6_transitive_impl(8);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_009() {
+        p6_transitive_impl(9);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_010() {
+        p6_transitive_impl(10);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_011() {
+        p6_transitive_impl(11);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_012() {
+        p6_transitive_impl(12);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_013() {
+        p6_transitive_impl(13);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_014() {
+        p6_transitive_impl(14);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_015() {
+        p6_transitive_impl(15);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_016() {
+        p6_transitive_impl(16);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_017() {
+        p6_transitive_impl(17);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_018() {
+        p6_transitive_impl(18);
+    }
+    #[cfg_attr(test, test)]
+    fn p6_transitive_seed_019() {
+        p6_transitive_impl(19);
+    }
     // --- END generated seeded property-mirror wrappers ---
 
     // --- BEGIN generated by scripts/gen_wasm_test_registry.py: tests ---

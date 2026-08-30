@@ -10,7 +10,7 @@ facts change".
 
 Four properties, in increasing order of strength:
 
-1. The gate flags all four 2026-08-18 incidents, by exact
+1. The gate flags all three unresolved 2026-08-18 incidents, by exact
    (python module, rust file) pair.
 2. It flags them for the RIGHT REASON -- the Python module in question
    really does not call the namesake, and the namesake really is served by
@@ -62,13 +62,14 @@ def findings(gate):
     return found
 
 
-def test_flags_all_four_motivating_incidents(gate, findings):
-    """Property 1: the gate says the four true things it was built to say."""
+def test_flags_all_three_unresolved_incidents(gate, findings):
+    """Property 1: the gate says the three unresolved truths it must retain."""
     problems = gate.self_test(findings)
     assert not problems, "\n".join(problems)
-    assert len(gate.KNOWN_INCIDENTS) == 4, (
-        "the incident list shrank -- a resolved incident must be removed "
-        "deliberately, naming the pairing in the diff, not silently"
+    assert len(gate.KNOWN_INCIDENTS) == 3, (
+        "the incident list changed unexpectedly -- the resolved "
+        "core.hypergraph / hypergraph_factory pairing was deliberately "
+        "removed with the migration"
     )
 
 

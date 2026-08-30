@@ -112,15 +112,25 @@ def run_drc_loud(pcb_path: str | Path, *, timeout: int, label: str) -> dict:
 
 
 def run_drc_samples(
-    pcb_path: str | Path, *, n: int, timeout: int, label: str
+    pcb_path: str | Path,
+    *,
+    n: int,
+    timeout: int,
+    label: str,
+    max_workers: int | None = None,
 ) -> list[dict]:
-    """Run ``n`` DRC samples under concurrency bounded to the CPU count.
+    """Run ``n`` DRC samples under a bounded concurrency.
 
-    Results preserve call order (one result per sample index). A failure
-    in any sample raises :class:`LoudDrcError`; already-started samples
-    are not cancelled (their subprocesses end with the CI container).
+    By default the bound is the CPU count. High-memory boards can pass a
+    smaller value (including ``1``) because each kicad-cli process loads the
+    whole board and concurrent DRCs can exceed a CI container's memory limit.
+    Results preserve call order (one result per sample index). A failure in
+    any sample raises :class:`LoudDrcError`; already-started samples are not
+    cancelled (their subprocesses end with the CI container).
     """
-    workers = min(os.cpu_count() or 1, n)
+    workers = min((os.cpu_count() or 1) if max_workers is None else max_workers, n)
+    if workers < 1:
+        raise ValueError("max_workers must be at least 1")
     pool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
     futures = [
         pool.submit(run_drc_loud, pcb_path, timeout=timeout, label=label)

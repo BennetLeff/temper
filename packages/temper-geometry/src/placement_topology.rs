@@ -256,21 +256,6 @@ fn feasibility_check(
     catch_unwind_py(|| heuristics::feasibility_check(&sizes, &zone_dims, margin))
 }
 
-/// Boundary clamp with numpy `np.clip` semantics (B12).
-#[pyfunction]
-#[allow(clippy::too_many_arguments)]
-fn clamp_position(
-    x: f64,
-    y: f64,
-    width: f64,
-    height: f64,
-    board_w: f64,
-    board_h: f64,
-    margin: f64,
-) -> PyResult<(f64, f64)> {
-    catch_unwind_py(|| heuristics::clamp_position(x, y, width, height, board_w, board_h, margin))
-}
-
 /// Register the consolidated topological-placement kernels with
 /// `temper_geometry`.
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -288,6 +273,5 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(overlap_check, m)?)?;
     m.add_function(wrap_pyfunction!(nudge_candidates, m)?)?;
     m.add_function(wrap_pyfunction!(feasibility_check, m)?)?;
-    m.add_function(wrap_pyfunction!(clamp_position, m)?)?;
     Ok(())
 }

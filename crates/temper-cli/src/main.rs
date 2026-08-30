@@ -33,6 +33,9 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
+use temper_orchestration::{
+    NativeBoardState, PipelineConfig, PipelineRunner, StageOutcome, SubprocessStage,
+};
 
 #[derive(Parser)]
 #[command(name = "temper", about = "temper — PCB design tooling (Rust entry point)")]
@@ -100,6 +103,39 @@ enum Command {
         #[arg(long)]
         pcb: PathBuf,
     },
+
+    /// Print the D1→D7 deterministic pipeline stage order.
+    ///
+    /// Runs entirely in Rust via `temper_orchestration::drc_aware_stage_order`
+    /// — the 23-stage sequencing order, the same table the Python
+    /// `DeterministicPipeline` uses (now ungated from pyo3).
+    PipelineOrder {
+        /// Use the zone-aware slot-generation stage (default: true).
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        zone_aware: bool,
+        /// Use the phased component-assignment stage (default: true).
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        phased: bool,
+    },
+
+    /// Run the 23-stage deterministic pipeline. RUST owns the loop; each
+    /// stage shells out to a Python subprocess (`_stage_subprocess.py`).
+    ///
+    /// Stages whose compute needs state that does not survive the JSON
+    /// boundary yet (a parsed Board, a Netlist, config blocks) fail loudly
+    /// in their report — the run continues so the per-stage status shows
+    /// exactly where the marshalling gaps are.
+    PipelineRun {
+        /// Path to a .kicad_pcb file.
+        #[arg(long)]
+        pcb: PathBuf,
+        /// Use the zone-aware slot-generation stage (default: true).
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        zone_aware: bool,
+        /// Use the phased component-assignment stage (default: true).
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        phased: bool,
+    },
 }
 
 fn main() -> ExitCode {
@@ -109,6 +145,10 @@ fn main() -> ExitCode {
         Command::Route { pcb, output } => route(&pcb, &output),
         Command::Place { pcb, constraints, output_json } => place(&pcb, &constraints, &output_json),
         Command::Drc { pcb } => drc(&pcb),
+        Command::PipelineOrder { zone_aware, phased } => pipeline_order(zone_aware, phased),
+        Command::PipelineRun { pcb, zone_aware, phased } => {
+            pipeline_run(&pcb, zone_aware, phased)
+        }
     }
 }
 
@@ -230,6 +270,160 @@ fn run_in_repo(repo: &Path, program: &[String], args: &[&str]) -> ExitCode {
     }
 }
 
+/// `temper pipeline-order`: print the D1→D7 stage sequence from Rust.
+///
+/// This proves the Rust CLI driver can access the orchestration crate's
+/// ungated types (`drc_aware_stage_order`, `PipelineRunner`,
+/// `NativeBoardState`, `Stage`/`StageError`) without a Python interpreter.
+fn pipeline_order(zone_aware: bool, phased: bool) -> ExitCode {
+    let stages = temper_orchestration::drc_aware_stage_order(zone_aware, phased);
+    println!("D1→D7 stage order ({} stages, zone_aware={}, phased={})",
+             stages.len(), zone_aware, phased);
+    for (i, s) in stages.iter().enumerate() {
+        println!("  D{:>2}  {}", i + 1, s);
+    }
+    ExitCode::SUCCESS
+}
+
+/// `temper pipeline-run`: run the 23-stage deterministic pipeline with RUST
+/// owning the loop (`PipelineRunner<NativeBoardState>`), each stage shelling
+/// out to `scripts/_stage_subprocess.py` (the Option-E subprocess boundary).
+///
+/// The initial state is seeded from a pure-Rust parse of the board: net
+/// order (file order) and placements (Reference + position). Everything
+/// interpreter-shaped (Board/Netlist/config objects) is deliberately NOT
+/// threaded — stages that need it fail loudly in their report line, which
+/// is exactly the marshalling-gap census this subcommand produces.
+fn pipeline_run(pcb: &Path, zone_aware: bool, phased: bool) -> ExitCode {
+    let Some(repo) = repo_root() else {
+        eprintln!("temper: cannot locate repo root (no scripts/route_board.py above CWD)");
+        return ExitCode::FAILURE;
+    };
+    if !pcb.is_file() {
+        eprintln!("temper: no such file: {}", pcb.display());
+        return ExitCode::FAILURE;
+    }
+    let text = match std::fs::read_to_string(pcb) {
+        Ok(t) => t,
+        Err(e) => {
+            eprintln!("temper: cannot read {}: {e}", pcb.display());
+            return ExitCode::FAILURE;
+        }
+    };
+    // Rust-side validation of the input board before any subprocess runs.
+    let board = match temper_design_bundle::parse_kicad_document(&text) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("temper: {} is not a parseable .kicad_pcb: {e}", pcb.display());
+            return ExitCode::FAILURE;
+        }
+    };
+
+    let script = repo.join("scripts").join("_stage_subprocess.py");
+    if !script.is_file() {
+        eprintln!("temper: missing {}: the subprocess stages need it", script.display());
+        return ExitCode::FAILURE;
+    }
+    let python_bin = match python_cmd(&repo)[..] {
+        [ref bin] => PathBuf::from(bin),
+        _ => {
+            // `uv run --no-sync python3` form: the subprocess stage spawns a
+            // single binary, so fall back to the plain interpreter and let
+            // the venv resolution happen inside it.
+            PathBuf::from("python3")
+        }
+    };
+
+    let stage_names = temper_orchestration::drc_aware_stage_order(zone_aware, phased);
+    println!(
+        "temper: running {} stages on {} (zone_aware={zone_aware}, phased={phased})",
+        stage_names.len(),
+        pcb.display()
+    );
+
+    let mut runner =
+        PipelineRunner::new(PipelineConfig { halt_on_error: false });
+    for name in &stage_names {
+        runner.add_stage(Box::new(SubprocessStage::new(
+            (*name).to_string(),
+            &python_bin,
+            &script,
+        )));
+    }
+
+    let initial = initial_native_state(&board);
+    let (_final_state, report) = runner.run(initial);
+
+    let mut failed = 0_usize;
+    for r in &report.stage_reports {
+        match &r.outcome {
+            StageOutcome::Completed => {
+                println!("  {:<44} {:>10.1} ms  ok", r.name, r.elapsed_ms);
+            }
+            StageOutcome::Skipped => {
+                println!("  {:<44} {:>10}      skipped", r.name, "-");
+            }
+            StageOutcome::Failed(e) => {
+                failed += 1;
+                let tail: String = e.message.chars().take(300).collect();
+                println!("  {:<44} {:>10.1} ms  FAILED", r.name, r.elapsed_ms);
+                println!("      {}", tail.replace('\n', " | "));
+            }
+        }
+    }
+    let completed = report.stage_reports.len() - failed;
+    println!(
+        "temper: {completed}/{} stages ok in {:.0} ms{}",
+        report.stage_reports.len(),
+        report.total_elapsed_ms,
+        if report.halted_early { " (halted early)" } else { "" }
+    );
+    if failed == 0 {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::FAILURE
+    }
+}
+
+/// Seed the pipeline's initial [`NativeBoardState`] from a parsed board:
+/// everything that is pure data crosses into typed owned fields; anything
+/// interpreter-shaped stays out (see the module doc on the subprocess
+/// boundary re-bootstrapping opaques per invocation).
+fn initial_native_state(board: &temper_design_bundle::RawBoard) -> NativeBoardState {
+    use temper_data_model::{Placement, PlacementSet};
+
+    let mut state = NativeBoardState::new();
+    // Net order: the board's own net declaration order, unconnected nets
+    // (empty name) dropped.
+    state.net_order = board
+        .nets
+        .iter()
+        .map(|n| n.name.clone())
+        .filter(|n| !n.is_empty())
+        .collect();
+    // Placements: each footprint's Reference property and its position.
+    // A footprint without a resolvable Reference is skipped (it cannot be
+    // addressed by any stage anyway).
+    let mut placements = HashSet::new();
+    for fp in &board.footprints {
+        let Some(reference) = fp
+            .properties
+            .iter()
+            .find(|(k, _)| k == "Reference")
+            .map(|(_, v)| v.clone())
+            .filter(|r| !r.is_empty())
+        else {
+            continue;
+        };
+        placements.insert(Placement {
+            ref_: reference,
+            position: (fp.position.x.to_f64(), fp.position.y.to_f64()),
+        });
+    }
+    state.placements = Some(PlacementSet(placements));
+    state
+}
+
 /// `temper route`: parse the board in Rust (fail fast on malformed input),
 /// then hand routing to `scripts/route_board.py`.
 fn route(pcb: &Path, output: &Path) -> ExitCode {
@@ -252,6 +446,14 @@ fn route(pcb: &Path, output: &Path) -> ExitCode {
     if let Err(e) = temper_design_bundle::parse_kicad_document(&text) {
         eprintln!("temper: {} is not a parseable .kicad_pcb: {e}", pcb.display());
         return ExitCode::FAILURE;
+    }
+    // Print the Rust-computed D1→D7 stage order — the driver now knows the
+    // sequencing (from temper-orchestration, no pyo3); the leaf compute still
+    // runs as a Python subprocess until each stage is ported.
+    let stages = temper_orchestration::drc_aware_stage_order(true, true);
+    println!("temper: D1→D7 stage order ({} stages):", stages.len());
+    for (i, s) in stages.iter().enumerate() {
+        println!("  D{:>2}  {}", i + 1, s);
     }
     let script = repo.join("scripts").join("route_board.py");
     let script = script.to_string_lossy().into_owned();

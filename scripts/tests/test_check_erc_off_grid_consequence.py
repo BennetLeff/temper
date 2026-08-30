@@ -37,9 +37,7 @@ def _write_erc_json(path: Path, entries: list[tuple[str, str]]) -> None:
                         "violations": [
                             {
                                 "type": "endpoint_off_grid",
-                                "items": [
-                                    {"description": f"Symbol {ref} Pin {pin}"}
-                                ],
+                                "items": [{"description": f"Symbol {ref} Pin {pin}"}],
                             }
                             for ref, pin in entries
                         ]
@@ -63,7 +61,7 @@ def _write_sch_netlist(path: Path, nets: dict[str, list[tuple[str, str]]]) -> No
 def _write_atopile_net(path: Path, nets: dict[str, list[tuple[str, str]]]) -> None:
     net_blocks = "".join(
         f'(net (code {i}) (name "{name}")'
-        + "".join(f'(node (ref {ref}) (pin {pin}))' for ref, pin in members)
+        + "".join(f"(node (ref {ref}) (pin {pin}))" for ref, pin in members)
         + ")"
         for i, (name, members) in enumerate(nets.items(), start=1)
     )
@@ -123,7 +121,11 @@ def test_no_atopile_net_fails(tmp_path):
     assert "NO_ATOPILE_NET" in result.stdout
     assert "UNVERIFIABLE" in result.stdout
     assert "PASSED" not in result.stdout
-    assert "0 mismatch" in result.stdout  # confirms it's the UNVERIFIABLE class, not MISMATCH
+    # "non-backlogged" since #1499: the gate now partitions mismatches into
+    # backlogged (documented open questions, reported but not failing) and
+    # non-backlogged (still failing). This assertion pins the FAILING count,
+    # which is what "it's the UNVERIFIABLE class, not MISMATCH" means here.
+    assert "0 non-backlogged mismatch" in result.stdout
 
 
 def test_all_declared_and_matching_passes(tmp_path):
@@ -182,5 +184,5 @@ def test_mixed_mismatch_and_no_atopile_net_reports_both(tmp_path):
     result = _run(tmp_path, erc_json)
 
     assert result.returncode == 1
-    assert "1 mismatch" in result.stdout
+    assert "1 non-backlogged mismatch" in result.stdout  # see note in test_no_atopile_net_fails
     assert "1 unverifiable" in result.stdout

@@ -14,6 +14,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     ErcGate,
@@ -62,6 +64,30 @@ def _fake_run_factory(
 class TestErcGateCheck:
     """Direct unit tests for ``ErcGate.check()``."""
 
+    @pytest.fixture(autouse=True)
+    def _pin_footprint_dir(self, monkeypatch, tmp_path):
+        """Make the footprint-library precondition deterministic.
+
+        ``ErcGate.check`` resolves the KiCad footprint dir and fails closed as
+        UNMEASURED *before* it ever reaches ``subprocess``. Every test in this
+        class mocks ``subprocess.run`` but none of them controlled that earlier
+        gate, so each one silently inherited whatever the host happened to have
+        installed -- and got a different answer per environment:
+
+          host WITHOUT /usr/share/kicad/footprints  -> resolver returns None,
+              the gate short-circuits, and the tests below fail with
+              "footprint library directory not found" instead of the error
+              they were written to assert (7 failures on a bare checkout)
+          host WITH it (CI)                         -> resolver returns a real
+              path and these pass, while test_erc_footprint_dir_missing fails
+              for the mirror-image reason (see its own docstring)
+
+        Setting the env var exercises the resolver's real first branch (it
+        returns the override without an is_dir() check) rather than stubbing
+        the function out, so these stay honest about the code path they take.
+        """
+        monkeypatch.setenv("KICAD7_FOOTPRINT_DIR", str(tmp_path))
+
     def test_erc_clean(self, monkeypatch):
         """Zero ERC violations returns CLEAN."""
         pcb = _write_pcb()
@@ -99,9 +125,7 @@ class TestErcGateCheck:
         payload = [
             {"type": "missing_power", "message": "Power pin not driven"},
         ]
-        monkeypatch.setattr(
-            subprocess, "run", _fake_run_factory(0, payload, output_key="items")
-        )
+        monkeypatch.setattr(subprocess, "run", _fake_run_factory(0, payload, output_key="items"))
         try:
             result = ErcGate().check(BoardState(routed_pcb_path=pcb))
         finally:
@@ -135,18 +159,14 @@ class TestErcGateCheck:
 
     def test_erc_nonexistent_pcb(self):
         """Non-existent PCB path returns UNMEASURED."""
-        result = ErcGate().check(
-            BoardState(routed_pcb_path=Path("/nonexistent/board.kicad_pcb"))
-        )
+        result = ErcGate().check(BoardState(routed_pcb_path=Path("/nonexistent/board.kicad_pcb")))
         assert result.status is GateStatus.UNMEASURED
         assert result.error_message
 
     def test_erc_cli_exit_nonzero(self, monkeypatch):
         """kicad-cli exits with non-zero returns UNMEASURED."""
         pcb = _write_pcb()
-        monkeypatch.setattr(
-            subprocess, "run", _fake_run_factory(3, None, stderr="parse error")
-        )
+        monkeypatch.setattr(subprocess, "run", _fake_run_factory(3, None, stderr="parse error"))
         try:
             result = ErcGate().check(BoardState(routed_pcb_path=pcb))
         finally:
@@ -169,12 +189,25 @@ class TestErcGateCheck:
             pcb.unlink(missing_ok=True)
 
         assert result.status is GateStatus.UNMEASURED
-        assert "no" in result.error_message.lower() and "erc" in result.error_message.lower() and "output" in result.error_message.lower()
+        assert (
+            "no" in result.error_message.lower()
+            and "erc" in result.error_message.lower()
+            and "output" in result.error_message.lower()
+        )
 
     def test_erc_footprint_dir_missing(self, monkeypatch):
         """When fp-lib-table is unresolvable, gate fails closed as UNMEASURED."""
+        # Patch where the name is USED, not where it is defined.
+        # _quality_erc_gates.py does `from ...gates import
+        # _resolve_kicad_footprint_dir`, binding the function object at import
+        # time, so patching the attribute on `gates` never reached the call
+        # site. This test therefore asserted nothing on any host that HAS a
+        # KiCad footprint library -- the gate resolved a real directory,
+        # proceeded past the fail-closed branch, and the test failed in CI
+        # while "passing" on bare checkouts only because the directory was
+        # genuinely absent there. Both outcomes were environment, not behaviour.
         monkeypatch.setattr(
-            "temper_placer.placer.cp_sat.gates._resolve_kicad_footprint_dir",
+            "temper_placer.placer.cp_sat._quality_erc_gates._resolve_kicad_footprint_dir",
             lambda: None,
         )
 
@@ -198,6 +231,30 @@ class TestErcGateCheck:
 
 class TestErcGateInvocation:
     """Verify subprocess.run is called with the right arguments."""
+
+    @pytest.fixture(autouse=True)
+    def _pin_footprint_dir(self, monkeypatch, tmp_path):
+        """Make the footprint-library precondition deterministic.
+
+        ``ErcGate.check`` resolves the KiCad footprint dir and fails closed as
+        UNMEASURED *before* it ever reaches ``subprocess``. Every test in this
+        class mocks ``subprocess.run`` but none of them controlled that earlier
+        gate, so each one silently inherited whatever the host happened to have
+        installed -- and got a different answer per environment:
+
+          host WITHOUT /usr/share/kicad/footprints  -> resolver returns None,
+              the gate short-circuits, and the tests below fail with
+              "footprint library directory not found" instead of the error
+              they were written to assert (7 failures on a bare checkout)
+          host WITH it (CI)                         -> resolver returns a real
+              path and these pass, while test_erc_footprint_dir_missing fails
+              for the mirror-image reason (see its own docstring)
+
+        Setting the env var exercises the resolver's real first branch (it
+        returns the override without an is_dir() check) rather than stubbing
+        the function out, so these stay honest about the code path they take.
+        """
+        monkeypatch.setenv("KICAD7_FOOTPRINT_DIR", str(tmp_path))
 
     def test_invokes_kicad_cli_pcb_erc(self, monkeypatch):
         """subprocess.run receives kicad-cli pcb erc ..."""

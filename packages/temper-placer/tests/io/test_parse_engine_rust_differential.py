@@ -484,44 +484,6 @@ def test_track_width_zero_net_class_parity():
     assert rust["Default"]["trace_width"] is None
 
 
-# P2a: tokenizer conformance -- the 'kiutils-exact' claim asserted on
-# adversarial token strings, not just the corpus. Both arms must tokenize
-# identically (and both must raise on the unbalanced bare-quote inputs).
-def test_tokenizer_kiutils_exact():
-    from kiutils.utils.sexpr import parse_sexp
-
-    cases = [
-        "(at 5^0 50)",            # caret: bare token split, `^` skipped
-        '(x "R1"())',             # quote not followed by )/ws -> bare, quotes kept
-        '(x "a\\"b"())',          # backslash-quote run, bad lookahead -> bare
-        '(fp_text ref "a\\"b")',  # escaped quote inside a proper string
-        "(at +5 10)",             # `+5`: the int form has no `+` -> bare string
-        "(at -5 10)",             # `-5` int
-        "(at +5.0 10)",           # `+5.0`: the decimal form accepts `+` -> int 5
-        "(at 5.0 10)",            # integral decimal -> int
-        "(at 5.5 10)",            # fractional decimal -> float
-        "(a\r\nb)",               # CRLF whitespace
-        '"unterminated',          # unterminated string -> bare token
-        "(net 5)",                # bare numbers stay ints
-        "5^0",
-        '"a"b" c',
-        "(at 5 10 unlocked)",     # unlocked marker is a bare token
-        "(a (b ^ c) d)",
-        '(x "5")',                # proper string
-        '(x "5"y)',               # bad lookahead -> bare with quotes
-    ]
-    for case in cases:
-        oracle = parse_sexp(case)
-        rust = _PARSE_ENGINE.tokenize(case)
-        assert rust == oracle, f"tokenizer mismatch for {case!r}: rust={rust!r} oracle={oracle!r}"
-    # Unbalanced bare-quote inputs raise on both arms (fail-closed parity).
-    for case in ['"R1"(', '"a\\"b"(']:
-        assert _raised_by(lambda case=case: parse_sexp(case)) is not None, f"oracle accepted {case!r}"
-        assert _raised_by(lambda case=case: _PARSE_ENGINE.tokenize(case)) is not None, (
-            f"rust accepted unbalanced {case!r}"
-        )
-
-
 # P2d: courtyard Strategy-2 must include unnumbered pads. The oracle iterates
 # `for pad in fp.pads:` with no number filter, while its `_extract_pad_sizes`
 # skips empty pad numbers -- so the engine's raw `pad_sizes` surface keeps

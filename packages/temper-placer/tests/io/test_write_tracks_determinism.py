@@ -77,20 +77,35 @@ _CHILD = textwrap.dedent(
     write_routes_to_pcb(template, out, routes, vias, clear_existing=True)
 
     raw = out.read_bytes()
-    lines = [
-        ln.strip()
-        for ln in raw.decode().splitlines()
-        if ln.lstrip().startswith("(segment ") or ln.lstrip().startswith("(via ")
-    ]
-    stripped = [re.sub(r"\\((?:tstamp|uuid) [^)]*\\)", "", ln) for ln in lines]
-    stamps = [
-        m.group(1)
-        for ln in lines
-        if (m := re.search(r'\\((?:tstamp|uuid) "?([0-9a-fA-F-]{36})"?\\)', ln))
-    ]
+    text = raw.decode()
+    n_seg = text.count("(segment")
+    n_via = text.count("(via") - text.count("(via_dia") - text.count("(via_drill")
+    stamps = re.findall(r'\\((?:tstamp|uuid) "?([0-9a-fA-F-]{36})"?\\)', text)
+    # Collect per-item text (each item starts with (segment or (via and
+    # ends at the next item or the board's closing paren)
+    item_texts = []
+    for keyword in ["(segment", "(via"]:
+        start = 0
+        while True:
+            idx = text.find(keyword, start)
+            if idx == -1:
+                break
+            # Find the end of this item (matching close paren at same indent)
+            end = text.find(")", idx)
+            # Simple approach: take up to the next (segment/(via or end of file
+            next_item = len(text)
+            for kw2 in ["(segment", "(via", "(gr_line", "(gr_rect", "(gr_text", "(zone", "(footprint"]:
+                ni = text.find(kw2, idx + 1)
+                if ni != -1 and ni < next_item:
+                    next_item = ni
+            item_text = text[idx:next_item].strip()
+            # Strip tstamp for determinism comparison
+            item_text = re.sub(r'\\((?:tstamp|uuid) "?[0-9a-fA-F-]{36}"?\\)', '', item_text)
+            item_texts.append(item_text.strip())
+            start = idx + 1
     print(json.dumps({
-        "n": len(stripped),
-        "items": stripped,
+        "n": n_seg + n_via,
+        "items": item_texts,
         "raw": hashlib.sha256(raw).hexdigest(),
         "stamps": stamps,
     }))
@@ -202,7 +217,7 @@ def test_segments_are_grouped_by_board_net_index_not_net_name(per_seed):
     AVDD<GND<VBUS). A later `sorted()` by name fails here.
     """
     items = per_seed[0]["items"]
-    segments = [ln for ln in items if ln.startswith("(segment ")]
+    segments = [ln for ln in items if ln.startswith("(segment")]
     seen: list[int] = []
     for line in segments:
         match = re.search(r"\(net (\d+)\)", line)
@@ -226,7 +241,7 @@ def test_layers_within_a_net_follow_stackup_not_alphabetical_order(per_seed):
     first_net = NETS[0][1]
     layers: list[str] = []
     for line in items:
-        if not line.startswith("(segment "):
+        if not line.startswith("(segment"):
             continue
         if int(re.search(r"\(net (\d+)\)", line).group(1)) != first_net:
             continue

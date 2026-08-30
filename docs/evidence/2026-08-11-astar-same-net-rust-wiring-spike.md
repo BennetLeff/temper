@@ -1,4 +1,4 @@
-<!-- provenance: commit=HEAD at spike start (fanout16/work-1 on origin/main at 1ef19c161, rebased to bcea9d1), branch=fanout16/work-1, dirty=false for pcb/temper.kicad_pcb (never read or written). No crate was built; no production file was edited. -->
+<!-- provenance: commit=15919a964c52bd3f0f4cb31891efe589e0be49c4 dirty=UNKNOWN -->
 
 # A* same-net Rust wiring spike: what it takes to route `net_id >= 0` through the Rust kernel
 

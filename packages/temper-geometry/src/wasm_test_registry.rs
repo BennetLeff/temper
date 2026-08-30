@@ -47,7 +47,7 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 8388 eligible tests, in a stable order.  Each entry is
+/// All 8302 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
@@ -72,7 +72,6 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-geometry")] crate::dense_package_detection::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::diff_pair_inference::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::drc_constraints_geometry::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-geometry")] crate::drc_inflate::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::edt::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::force::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-geometry")] crate::graph::tests::WASM_TESTS,

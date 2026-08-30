@@ -493,9 +493,13 @@ def _exports_init_symbol(module_name: str, artifact: Path) -> bool | None:
         blob = artifact.read_bytes()[:_SYMBOL_SCAN_MAX_BYTES]
     except OSError:
         return None
-    return any(
-        f"{prefix}{module_name}".encode() in blob for prefix in _INIT_SYMBOL_PREFIXES
-    )
+    # Maturin accepts dotted module names for package-contained extensions
+    # (for example ``temper_io_types.temper_io_types``).  The native init
+    # symbol is named for the final module component, not the Python import
+    # path; looking for ``PyInit_temper_io_types.temper_io_types`` can never
+    # succeed and falsely marks a valid extension unloadable.
+    init_name = module_name.rsplit(".", 1)[-1]
+    return any(f"{prefix}{init_name}".encode() in blob for prefix in _INIT_SYMBOL_PREFIXES)
 
 
 # ---------------------------------------------------------------------------

@@ -5,12 +5,10 @@ Tests the pure functions and heuristic class properties across
 organizational, structural, style, and other heuristic modules.
 """
 
-import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.config_loader import PlacementConstraints
-
 
 # ============================================================================
 # Organizational module tests
@@ -97,8 +95,8 @@ class TestOrganizationalHeuristics:
 
     def test_decoupling_cap_heuristic_priority(self):
         """DecouplingCapHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.organizational import DecouplingCapHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.organizational import DecouplingCapHeuristic
         h = DecouplingCapHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -117,8 +115,8 @@ class TestOrganizationalHeuristics:
 
     def test_domain_separation_heuristic_priority(self):
         """DomainSeparationHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.organizational import DomainSeparationHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.organizational import DomainSeparationHeuristic
         h = DomainSeparationHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -136,8 +134,8 @@ class TestOrganizationalHeuristics:
 
     def test_functional_module_clustering_heuristic_priority(self):
         """FunctionalModuleClusteringHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.organizational import FunctionalModuleClusteringHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.organizational import FunctionalModuleClusteringHeuristic
         h = FunctionalModuleClusteringHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -155,8 +153,8 @@ class TestOrganizationalHeuristics:
 
     def test_power_flow_topology_heuristic_priority(self):
         """PowerFlowTopologyHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.organizational import PowerFlowTopologyHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.organizational import PowerFlowTopologyHeuristic
         h = PowerFlowTopologyHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -193,8 +191,9 @@ class TestStructuralPureFunctions:
 
     def test_create_keepout_mask_returns_array(self):
         """create_keepout_mask returns a numpy array."""
-        from temper_placer.heuristics.structural import create_keepout_mask
         import numpy as np
+
+        from temper_placer.heuristics.structural import create_keepout_mask
         board = Board(width=100.0, height=100.0)
         constraints = make_placement_constraints()
         mask = create_keepout_mask(board, constraints, resolution_mm=5.0)
@@ -213,8 +212,8 @@ class TestStructuralHeuristics:
 
     def test_connector_edge_snapping_priority(self):
         """ConnectorEdgeSnappingHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.structural import ConnectorEdgeSnappingHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.structural import ConnectorEdgeSnappingHeuristic
         h = ConnectorEdgeSnappingHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -232,8 +231,8 @@ class TestStructuralHeuristics:
 
     def test_critical_loop_heuristic_priority(self):
         """CriticalLoopHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.structural import CriticalLoopHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.structural import CriticalLoopHeuristic
         h = CriticalLoopHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -251,8 +250,8 @@ class TestStructuralHeuristics:
 
     def test_keepout_awareness_heuristic_priority(self):
         """KeepoutAwarenessHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.structural import KeepoutAwarenessHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.structural import KeepoutAwarenessHeuristic
         h = KeepoutAwarenessHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -270,8 +269,8 @@ class TestStructuralHeuristics:
 
     def test_thermal_edge_placement_heuristic_priority(self):
         """ThermalEdgePlacementHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.structural import ThermalEdgePlacementHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.structural import ThermalEdgePlacementHeuristic
         h = ThermalEdgePlacementHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -318,8 +317,8 @@ class TestStyleHeuristics:
 
     def test_signal_flow_preservation_priority(self):
         """SignalFlowPreservationHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.style import SignalFlowPreservationHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.style import SignalFlowPreservationHeuristic
         h = SignalFlowPreservationHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -337,8 +336,8 @@ class TestStyleHeuristics:
 
     def test_star_ground_topology_priority(self):
         """StarGroundTopologyHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.style import StarGroundTopologyHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.style import StarGroundTopologyHeuristic
         h = StarGroundTopologyHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -350,38 +349,8 @@ class TestStyleHeuristics:
 
 
 # ============================================================================
-# Power stage, spectral, topological_init, mcu_subsystem tests
+# Spectral and topological_init tests
 # ============================================================================
-
-
-class TestPowerStageHeuristic:
-    """Tests for power_stage.py heuristics."""
-
-    def test_driver_proximity_name(self):
-        """DriverProximityHeuristic.name returns a string."""
-        from temper_placer.heuristics.power_stage import DriverProximityHeuristic
-        h = DriverProximityHeuristic()
-        assert isinstance(h.name, str)
-
-    def test_driver_proximity_priority(self):
-        """DriverProximityHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.power_stage import DriverProximityHeuristic
-        from temper_placer.heuristics.base import HeuristicPriority
-        h = DriverProximityHeuristic()
-        assert isinstance(h.priority, HeuristicPriority)
-
-    def test_power_stage_template_name(self):
-        """PowerStageTemplateHeuristic.name returns a string."""
-        from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-        h = PowerStageTemplateHeuristic()
-        assert isinstance(h.name, str)
-
-    def test_power_stage_template_priority(self):
-        """PowerStageTemplateHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.power_stage import PowerStageTemplateHeuristic
-        from temper_placer.heuristics.base import HeuristicPriority
-        h = PowerStageTemplateHeuristic()
-        assert isinstance(h.priority, HeuristicPriority)
 
 
 class TestTopologicalInitialization:
@@ -395,8 +364,8 @@ class TestTopologicalInitialization:
 
     def test_topological_init_priority(self):
         """TopologicalInitializationHeuristic.priority returns HeuristicPriority."""
-        from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
         from temper_placer.heuristics.base import HeuristicPriority
+        from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
         h = TopologicalInitializationHeuristic()
         assert isinstance(h.priority, HeuristicPriority)
 
@@ -405,19 +374,6 @@ class TestTopologicalInitialization:
         from temper_placer.heuristics.topological_init import TopologicalInitializationHeuristic
         h = TopologicalInitializationHeuristic()
         assert isinstance(h.description, str)
-
-
-class TestMCUSubsystemHeuristic:
-    """Tests for mcu_subsystem.py."""
-
-    def test_mcu_subsystem_apply_returns_result(self, simple_netlist, simple_board):
-        """MCUSubsystemHeuristic.apply returns PlacementResult (needs MCU zone)."""
-        from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
-        # MCUSubsystemHeuristic is not a Heuristic subclass; it requires a board with MCU zone.
-        # Just verify it instantiates without error.
-        h = MCUSubsystemHeuristic()
-        assert h.template_path is not None
-        assert h.template is not None
 
 
 # ============================================================================
@@ -437,10 +393,12 @@ class TestHeuristicPipeline:
 
     def test_heuristic_pipeline_register_and_run(self, simple_netlist, simple_board, rng_key):
         """HeuristicPipeline.register and run cycle."""
-        from temper_placer.heuristics.pipeline import HeuristicPipeline
         from temper_placer.heuristics.base import (
-            HeuristicPriority, Heuristic, HeuristicResult,
+            Heuristic,
+            HeuristicPriority,
+            HeuristicResult,
         )
+        from temper_placer.heuristics.pipeline import HeuristicPipeline
         from temper_placer.io.config_loader import PlacementConstraints as PC
         pipeline = HeuristicPipeline()
         # Initially empty
@@ -486,8 +444,8 @@ class TestConflictResolver:
 
     def test_conflict_resolver_basic(self):
         """ConflictResolver basic operations."""
-        from temper_placer.heuristics.conflict import ConflictResolver
         from temper_placer.heuristics.base import ComponentPlacement
+        from temper_placer.heuristics.conflict import ConflictResolver
         cr = ConflictResolver()
 
         p1 = ComponentPlacement(ref="U1", position=(10.0, 20.0))
@@ -506,8 +464,8 @@ class TestConflictResolver:
 
     def test_conflict_resolver_add_placements(self):
         """ConflictResolver.add_placements accepts dict of placements."""
-        from temper_placer.heuristics.conflict import ConflictResolver
         from temper_placer.heuristics.base import ComponentPlacement
+        from temper_placer.heuristics.conflict import ConflictResolver
         cr = ConflictResolver()
         cr.add_placements({
             "U1": ComponentPlacement(ref="U1", position=(10.0, 20.0)),
@@ -517,8 +475,8 @@ class TestConflictResolver:
 
     def test_conflict_resolver_check_conflict(self, simple_netlist, simple_board, rng_key):
         """ConflictResolver.check_conflict detects overlaps."""
-        from temper_placer.heuristics.conflict import ConflictResolver
         from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
+        from temper_placer.heuristics.conflict import ConflictResolver
         cr = ConflictResolver()
         cr.add_placement(ComponentPlacement(ref="U1", position=(10.0, 20.0)))
         ctx = PlacementContext(
@@ -534,8 +492,8 @@ class TestConflictResolver:
 
     def test_conflict_resolver_resolve(self, simple_netlist, simple_board, rng_key):
         """ConflictResolver.resolve returns resolved placement."""
-        from temper_placer.heuristics.conflict import ConflictResolver
         from temper_placer.heuristics.base import ComponentPlacement, PlacementContext
+        from temper_placer.heuristics.conflict import ConflictResolver
         cr = ConflictResolver()
         cr.add_placement(ComponentPlacement(ref="U1", position=(10.0, 20.0)))
         ctx = PlacementContext(

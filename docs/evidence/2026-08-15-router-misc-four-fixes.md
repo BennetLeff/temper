@@ -1,3 +1,4 @@
+<!-- provenance: commit=dabbeaf73c678be2aa969d30f547eeda41d18c07 dirty=UNKNOWN -->
 # 2026-08-15 — Four router fixes: rotation, all-pad-tree, gnd plane, via audit
 
 Branch: `fix/router-misc-fixes` (4 commits off `origin/main` @ `6285d6889`).

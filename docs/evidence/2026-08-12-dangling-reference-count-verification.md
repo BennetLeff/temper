@@ -1,4 +1,4 @@
-<!-- provenance: commit=dc415d21be73c30d820c7a639d407a3a9d16a847 (origin/main), dirty=false, branch verify/dangling-reference-counts, worktree /home/bennet/Desktop/temper-verify-dangling. All commands below were run directly against this commit on this machine (Linux x86_64, Python 3.12.3 via /home/bennet/Desktop/temper/.venv/bin/python, uv 0.12.3). No pcb/** file was modified. The claims being checked come from docs/brainstorms/2026-08-12-referential-integrity-options.md, which is NOT reachable from origin/main -- it exists only on branch spike/referential-integrity-solo (verified: `git merge-base --is-ancestor 723a7f07d origin/main` fails). That branch-only existence is itself confirmed, not assumed. -->
+<!-- provenance: commit=07bb75af2e67e9560b17d2c268ff969f47514328 dirty=UNKNOWN -->
 
 # Dangling-reference count verification: 347 copper-net violations and 151/167 unexamined @req annotations
 

@@ -57,9 +57,7 @@ import pytest
 import tests.router_v6._quality_metrics_fixtures as FX
 import tests.router_v6._quality_metrics_py_oracle as ORACLE
 from tests.router_v6._quality_metrics_cases import (
-    BBOX_CASES,
     CORPUS_BOARDS,
-    EDGE_MARGIN_CASES,
     SCENARIOS,
 )
 from tests.router_v6._signature import sig
@@ -81,16 +79,8 @@ except ImportError as exc:  # pragma: no cover
 #: ``<module>_<function>_py`` convention used by the landed differentials.
 REQUIRED_RUST_SYMBOLS = (
     # metrics/slop_linter
-    "slop_lint_hairpin_turns_py",
-    "slop_lint_zigzag_patterns_py",
-    "slop_lint_isolated_vias_py",
-    "slop_lint_single_net_detours_py",
     "slop_lint_all_py",
     # quality/via_count
-    "via_count_get_component_bboxes_py",
-    "via_count_get_board_bbox_py",
-    "via_count_is_via_in_bbox_py",
-    "via_count_is_via_near_board_edge_py",
     "via_count_classify_vias_py",
 )
 
@@ -132,28 +122,6 @@ def test_rust_symbols_exist() -> None:
 
 
 # ---------------------------------------------------------------------------
-# via_count — classification helpers
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("case", BBOX_CASES, ids=range(len(BBOX_CASES)))
-def test_is_via_in_bbox_bit_exact(case) -> None:
-    x, y, bboxes = case
-    via = FX.FakeVia(position=(x, y), net="N", layers=("F.Cu", "B.Cu"))
-    expected = ORACLE._is_via_in_bbox(via, bboxes)
-    assert sig(rust("via_count_is_via_in_bbox_py")(x, y, list(bboxes))) == sig(expected)
-
-
-@pytest.mark.parametrize("case", EDGE_MARGIN_CASES, ids=range(len(EDGE_MARGIN_CASES)))
-def test_is_via_near_board_edge_bit_exact(case) -> None:
-    vx, vy, x_min, y_min, x_max, y_max, margin = case
-    via = FX.FakeVia(position=(vx, vy), net="GND", layers=("F.Cu", "B.Cu"))
-    expected = ORACLE._is_via_near_board_edge(via, (x_min, y_min, x_max, y_max), margin)
-    got = rust("via_count_is_via_near_board_edge_py")(vx, vy, x_min, y_min, x_max, y_max, margin)
-    assert sig(got) == sig(expected)
-
-
-# ---------------------------------------------------------------------------
 # Whole-board scenarios — all three modules on synthetic inputs
 # ---------------------------------------------------------------------------
 
@@ -175,19 +143,6 @@ def test_lint_all_bit_exact(name: str, scenario, monkeypatch) -> None:
     FX.patched_parse(monkeypatch, ORACLE, FX.build(scenario))
     expected = ORACLE.lint_all("<synthetic>")
     assert sig(rust("slop_lint_all_py")(scenario)) == sig(expected)
-
-
-@pytest.mark.parametrize("name,scenario", SCENARIOS, ids=[n for n, _ in SCENARIOS])
-def test_lint_per_check_bit_exact(name: str, scenario, monkeypatch) -> None:
-    """Each linter separately, so a failure names the artifact class."""
-    FX.patched_parse(monkeypatch, ORACLE, FX.build(scenario))
-    for oracle_fn, rust_name in (
-        (ORACLE.lint_hairpin_turns, "slop_lint_hairpin_turns_py"),
-        (ORACLE.lint_zigzag_patterns, "slop_lint_zigzag_patterns_py"),
-        (ORACLE.lint_isolated_vias, "slop_lint_isolated_vias_py"),
-        (ORACLE.lint_single_net_detours, "slop_lint_single_net_detours_py"),
-    ):
-        assert sig(rust(rust_name)(scenario)) == sig(oracle_fn("<synthetic>"))
 
 
 def test_lint_all_ordering_follows_insertion_order(monkeypatch) -> None:

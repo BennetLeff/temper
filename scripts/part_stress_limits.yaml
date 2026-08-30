@@ -234,7 +234,11 @@ entries:
       ripple current, not a datasheet-stated derating rule.
 
   - id: coil_ntc_temperature_margin
-    designators: [R65]
+    # Re-pinned 2026-08-22 (#1445 item 4): the NTCALUG01A104GA lug NTC is
+    # R55 in the current netlist; R65 is today safety.ocp2.r_burden
+    # (RC1206FR-074R12L), which is what tripped this entry's own
+    # fail-closed MPN check. Verified against elec/build/default.net.
+    designators: [R55]
     mpn: NTCALUG01A104GA
     domain: temperature
     unit: C
@@ -250,7 +254,12 @@ entries:
   # OK-path coverage -- not exhaustive, see the audit doc Sec 3 table)
   # ---------------------------------------------------------------------
   - id: igbt_voltage_margin
-    designators: [U5, U6]
+    # Re-pinned 2026-08-22 (post-12-PR-landing triage, #1445 item 4): the
+    # IKW40N120H3 IGBTs (q_high/q_low, modules.ato:78-79) are U4/U5 in the
+    # current compiled netlist; the old pin [U5, U6] predated the resync-era
+    # renumbering and U6 is today the UCC21550 gate driver. Verified against
+    # elec/build/default.net comp blocks.
+    designators: [U4, U5]
     mpn: IKW40N120H3
     domain: voltage_film
     unit: V

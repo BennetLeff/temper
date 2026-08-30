@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree /tmp/opencode/wt-oworker, branch
+<!-- provenance: commit=6150e18a998dfe3374c6eedc0b6acdadb8e6bcc8 dirty=UNKNOWN -->
 spike/orchestration-workers, base origin/main @ 6e81c1d97. Analysis + a new
 SPIKE-only crate scaffolding (packages/temper-orchestration-core/, a brand-new
 package dir). No existing crate, script, workflow, manifest, or measurement

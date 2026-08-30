@@ -237,11 +237,7 @@ pub(crate) mod tests {
             start: (500.0, 0.0),
             end: (510.0, 0.0),
         };
-        assert!(!is_candidate_edge(
-            &net,
-            &edge,
-            &PruningParams::default()
-        ));
+        assert!(!is_candidate_edge(&net, &edge, &PruningParams::default()));
     }
 
     #[cfg_attr(test, test)]
@@ -255,22 +251,14 @@ pub(crate) mod tests {
             start: (25.0, 0.0),
             end: (26.0, 0.0),
         };
-        assert!(is_candidate_edge(
-            &net,
-            &edge,
-            &PruningParams::default()
-        ));
+        assert!(is_candidate_edge(&net, &edge, &PruningParams::default()));
 
         // Edge at distance 35mm: beyond 30 -> excluded.
         let edge2 = Edge2D {
             start: (35.0, 0.0),
             end: (36.0, 0.0),
         };
-        assert!(!is_candidate_edge(
-            &net,
-            &edge2,
-            &PruningParams::default()
-        ));
+        assert!(!is_candidate_edge(&net, &edge2, &PruningParams::default()));
     }
 
     #[cfg_attr(test, test)]
@@ -309,11 +297,7 @@ pub(crate) mod tests {
         };
         // Distance from (0,0) to segment ((0,30),(10,30)): for point (0,0),
         // projection to line y=30 at x=0, t = 0, distance = 30.
-        assert!(is_candidate_edge(
-            &net,
-            &edge,
-            &PruningParams::default()
-        ));
+        assert!(is_candidate_edge(&net, &edge, &PruningParams::default()));
     }
 
     #[cfg_attr(test, test)]
@@ -379,11 +363,7 @@ pub(crate) mod tests {
         };
 
         // Default: M_n = max(2*10, 30) = 30 → edge passes
-        assert!(is_candidate_edge(
-            &net,
-            &edge,
-            &PruningParams::default()
-        ));
+        assert!(is_candidate_edge(&net, &edge, &PruningParams::default()));
 
         // Tight params: K=1.0, M_min=5.0 → M_n = max(10, 5) = 10 → edge fails
         let tight = PruningParams {
@@ -770,11 +750,7 @@ mod property_tests {
         let margin = (tight.k_factor * span).max(tight.m_min); // max(0.3*200, 1) = 60
 
         // With default params (K=2.0): M_n = 400 → candidate
-        assert!(is_candidate_edge(
-            &net,
-            &detour,
-            &PruningParams::default()
-        ));
+        assert!(is_candidate_edge(&net, &detour, &PruningParams::default()));
 
         // With tight params (K=0.3): M_n = 60, dist=78.1 > 60 → EXCLUDED
         assert!(
