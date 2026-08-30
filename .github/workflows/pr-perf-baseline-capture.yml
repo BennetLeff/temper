@@ -332,6 +332,7 @@ jobs:
           path: captures
 
       - name: Fetch authoritative baseline from main
+        shell: bash
         run: |
           set -euo pipefail
           git show "HEAD:$BASELINE_PATH" > main-perf-baseline.jsonl
@@ -350,6 +351,7 @@ jobs:
           fi
 
       - name: Aggregate and validate candidate append
+        shell: bash
         run: |
           capture_args=( \
             --capture-sha "$CAPTURE_SHA" \
