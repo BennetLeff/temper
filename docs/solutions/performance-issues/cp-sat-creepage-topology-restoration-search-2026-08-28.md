@@ -442,9 +442,9 @@ four-round campaign budget of 120 seconds per axis (480 seconds total). The
 extension freshness gate passed for all 10 pyo3 modules immediately before
 the measurement, and the PCB SHA-256 was unchanged before and after.
 
-The historical unrestricted 120-second control returned `unknown` without
-an incumbent. The matched unrestricted control returned an optimal candidate
-after 123.241 seconds (123.804 seconds total wall time), but it failed exact creepage and the acceptance
+The historical unrestricted 120-second control produced a complete candidate
+at 119.048 seconds, and the matched unrestricted control produced one at
+120.111 seconds (120.649 seconds total wall time). Neither passed exact creepage or the acceptance
 instrumentation (REQ-SAFE-01 input was unavailable and F.Fab coverage was
 incomplete). Both collision-aware axes stopped during fail-closed preparation:
 the board has no complete F.Fab body coverage for ten expected references
