@@ -62,9 +62,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
-
-from shapely.geometry import Polygon
+import temper_geometry as _rust_geometry
 
 from temper_placer.core.fab_body import FabBody
 
@@ -229,18 +227,6 @@ class BodyCollisionAuditResult:
         return "\n".join(lines)
 
 
-def _global_polygon_or_buffered(body: FabBody, x: float, y: float, rotation_idx: int) -> Polygon:
-    poly = body.get_global_polygon(x, y, rotation_idx)
-    if not poly.is_valid:
-        # Self-intersecting outline from an unusual footprint graphic
-        # (rare -- e.g. a poly with a degenerate/self-crossing edge).
-        # buffer(0) is shapely's standard idiom for repairing this into a
-        # valid geometry equivalent in area; it is a GEOS library boundary
-        # operation, not a re-derivation of the geometry itself.
-        poly = poly.buffer(0)
-    return poly
-
-
 def audit_body_collisions(
     fab_bodies: dict[str, FabBody],
     resolved_positions_mm: dict[str, tuple[float, float]],
@@ -278,35 +264,32 @@ def audit_body_collisions(
 
     result = BodyCollisionAuditResult(refs_without_geometry=refs_without_geometry)
 
-    polygons: dict[str, Any] = {}
-    bounds: dict[str, tuple[float, float, float, float]] = {}
-    for ref in refs:
-        x, y = resolved_positions_mm[ref]
-        rot = resolved_rotations.get(ref, 0)
-        poly = _global_polygon_or_buffered(fab_bodies[ref], x, y, rot)
-        polygons[ref] = poly
-        bounds[ref] = poly.bounds  # (minx, miny, maxx, maxy)
-
     n = len(refs)
     for i in range(n):
         ref_a = refs[i]
-        ax0, ay0, ax1, ay1 = bounds[ref_a]
-        poly_a = polygons[ref_a]
         for j in range(i + 1, n):
             ref_b = refs[j]
-            bx0, by0, bx1, by1 = bounds[ref_b]
-            # Cheap broad-phase reject: bounding boxes must overlap before
-            # a real polygon boolean is worth computing (O(n^2) pairs over
-            # a ~170-component board is fine for the bbox check; the
-            # shapely intersection is the expensive step this skips for
-            # the overwhelming majority of far-apart pairs).
-            if ax1 < bx0 or bx1 < ax0 or ay1 < by0 or by1 < ay0:
-                continue
+            # Rust owns validation, KiCad rotation, broad-phase rejection,
+            # and polygon Boolean classification.  Python only marshals the
+            # extracted primitive body/pose data and applies the allowlist
+            # policy to the typed overlap result.
             result.checked_pairs += 1
-            poly_b = polygons[ref_b]
-            area = poly_a.intersection(poly_b).area
-            if area <= AREA_TOLERANCE_MM2:
-                continue  # bodies clear -- a courtyard-only touch, if any, is not this guard's concern
+            x_a, y_a = resolved_positions_mm[ref_a]
+            x_b, y_b = resolved_positions_mm[ref_b]
+            relation, area = _rust_geometry.fab_body_overlap_py(
+                ref_a,
+                [coordinate for point in fab_bodies[ref_a].points for coordinate in point],
+                x_a,
+                y_a,
+                resolved_rotations.get(ref_a, 0),
+                ref_b,
+                [coordinate for point in fab_bodies[ref_b].points for coordinate in point],
+                x_b,
+                y_b,
+                resolved_rotations.get(ref_b, 0),
+            )
+            if relation != "overlap" or area <= AREA_TOLERANCE_MM2:
+                continue
 
             entry = allowlist.get(ref_a, ref_b)
             if entry is None:

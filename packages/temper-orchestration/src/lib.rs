@@ -481,6 +481,18 @@ use pyo3::prelude::*;
 #[cfg(feature = "python")]
 #[pymodule]
 fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    // Collision campaign boundary (one registration per symbol; the phase
+    // wrappers are opaque and their consuming methods enforce generation
+    // invalidation in collision_campaign.rs).
+    m.add_function(wrap_pyfunction!(collision_campaign::prepare_collision_campaign, m)?)?;
+    m.add_class::<collision_campaign::PyPrepared>()?;
+    m.add_class::<collision_campaign::PySolving>()?;
+    m.add_class::<collision_campaign::PyCandidate>()?;
+    m.add_class::<collision_campaign::PyRefining>()?;
+    m.add_class::<collision_campaign::PyAuditDecision>()?;
+    m.add_class::<collision_campaign::PyTerminalVerdict>()?;
+    m.add_class::<collision_campaign::PyCollisionCut>()?;
+    m.add_class::<collision_campaign::PyCheckpoint>()?;
     m.add_function(wrap_pyfunction!(timing::compare_stage, m)?)?;
     m.add_function(wrap_pyfunction!(timing::p95, m)?)?;
     m.add_function(wrap_pyfunction!(trace_filter::filter_decisions, m)?)?;

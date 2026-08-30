@@ -9,6 +9,13 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use temper_geometry::rotation_quadrant::RotationQuadrant;
 
+#[cfg(feature = "python")]
+use pyo3::exceptions::{PyRuntimeError, PyTypeError, PyValueError};
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
+#[cfg(feature = "python")]
+use pyo3::types::{PyAny, PyDict};
+
 const CHECKPOINT_MAGIC: &[u8; 8] = b"TCAMP001";
 pub const MODEL_UNITS_PER_MM: i64 = 1_000;
 
@@ -257,12 +264,31 @@ impl AuditGates {
         )
     }
     fn rejection(&self) -> Option<String> {
-        [&self.creepage, &self.body, &self.provenance]
+        let gate_rejection = [&self.creepage, &self.body]
             .into_iter()
             .find_map(|g| match g {
                 GateOutcome::Rejected(reason) => Some(reason.clone()),
                 _ => None,
-            })
+            });
+        gate_rejection.or_else(|| match &self.provenance {
+            GateOutcome::Trusted => None,
+            GateOutcome::Rejected(reason) => Some(reason.clone()),
+            GateOutcome::Passed => Some("provenance gate is not trusted".to_owned()),
+        })
+    }
+
+    /// A body collision may legitimately drive another refinement round;
+    /// failed creepage or untrusted provenance may not.
+    fn refinement_blocker(&self) -> Option<String> {
+        match &self.creepage {
+            GateOutcome::Rejected(reason) => return Some(reason.clone()),
+            GateOutcome::Passed | GateOutcome::Trusted => {}
+        }
+        match &self.provenance {
+            GateOutcome::Trusted => None,
+            GateOutcome::Rejected(reason) => Some(reason.clone()),
+            GateOutcome::Passed => Some("provenance gate is not trusted".to_owned()),
+        }
     }
 }
 
@@ -372,6 +398,11 @@ impl Candidate {
                     rounds: self.state.round + 1,
                 }),
             });
+        }
+        if let Some(reason) = gates.refinement_blocker() {
+            return Ok(AuditDecision::Terminal(TerminalVerdict::VerifierRejected {
+                reason,
+            }));
         }
         let mut state = self.state;
         let mut added = 0;
@@ -532,4 +563,491 @@ fn validate_checkpoint_state(state: &CampaignState) -> Result<(), CampaignError>
         }
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// PyO3 boundary
+// ---------------------------------------------------------------------------
+
+/// The Python surface deliberately has one wrapper per Rust phase.  The
+/// `Option` is not a convenience cache: taking it is the generation token.
+/// Every consuming method takes the token before entering the Rust
+/// transition, so all Python aliases of the old object observe the same
+/// consumed handle after the call returns (or fails).
+#[cfg(feature = "python")]
+#[pyclass(
+    module = "temper_orchestration",
+    name = "CollisionCampaignPrepared",
+    skip_from_py_object
+)]
+pub struct PyPrepared {
+    inner: Option<Prepared>,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    module = "temper_orchestration",
+    name = "CollisionCampaignSolving",
+    skip_from_py_object
+)]
+pub struct PySolving {
+    inner: Option<Solving>,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    module = "temper_orchestration",
+    name = "CollisionCampaignCandidate",
+    skip_from_py_object
+)]
+pub struct PyCandidate {
+    inner: Option<Candidate>,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    module = "temper_orchestration",
+    name = "CollisionCampaignRefining",
+    skip_from_py_object
+)]
+pub struct PyRefining {
+    inner: Option<Refining>,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    module = "temper_orchestration",
+    name = "CollisionCampaignDecision",
+    skip_from_py_object
+)]
+pub struct PyAuditDecision {
+    inner: Option<AuditDecision>,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    frozen,
+    module = "temper_orchestration",
+    name = "CollisionCampaignTerminalVerdict",
+    skip_from_py_object
+)]
+pub struct PyTerminalVerdict {
+    inner: TerminalVerdict,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    frozen,
+    module = "temper_orchestration",
+    name = "CollisionCampaignCut",
+    skip_from_py_object
+)]
+pub struct PyCollisionCut {
+    inner: CollisionCut,
+}
+
+#[cfg(feature = "python")]
+#[pyclass(
+    frozen,
+    module = "temper_orchestration",
+    name = "CollisionCampaignCheckpoint",
+    skip_from_py_object
+)]
+pub struct PyCheckpoint {
+    inner: CampaignCheckpoint,
+}
+
+#[cfg(feature = "python")]
+fn consumed_error() -> PyErr {
+    PyRuntimeError::new_err(
+        "collision campaign handle has been consumed; use the handle returned by the transition",
+    )
+}
+
+#[cfg(feature = "python")]
+fn take_handle<T>(slot: &mut Option<T>) -> PyResult<T> {
+    slot.take().ok_or_else(consumed_error)
+}
+
+#[cfg(feature = "python")]
+fn campaign_error(error: CampaignError) -> PyErr {
+    PyValueError::new_err(error.to_string())
+}
+
+#[cfg(feature = "python")]
+fn parse_gate(value: &Bound<'_, PyAny>, allow_trusted: bool) -> PyResult<GateOutcome> {
+    if let Ok(value) = value.extract::<bool>() {
+        return Ok(if value {
+            GateOutcome::Passed
+        } else {
+            GateOutcome::Rejected("gate rejected".to_owned())
+        });
+    }
+    let value = value
+        .extract::<String>()
+        .map_err(|_| PyTypeError::new_err("gate outcome must be a bool or a status string"))?;
+    let status = value.trim();
+    if status.eq_ignore_ascii_case("passed") || status.eq_ignore_ascii_case("accepted") {
+        return Ok(GateOutcome::Passed);
+    }
+    if allow_trusted && status.eq_ignore_ascii_case("trusted") {
+        return Ok(GateOutcome::Trusted);
+    }
+    if let Some(reason) = status.strip_prefix("rejected:") {
+        let reason = reason.trim();
+        if reason.is_empty() {
+            return Err(PyValueError::new_err(
+                "rejected gate outcome must include a reason",
+            ));
+        }
+        return Ok(GateOutcome::Rejected(reason.to_owned()));
+    }
+    Err(PyValueError::new_err(
+        "gate outcome must be 'passed', 'trusted', or 'rejected:<reason>'",
+    ))
+}
+
+#[cfg(feature = "python")]
+fn parse_poses(value: &Bound<'_, PyAny>) -> PyResult<Vec<(String, ExactPose)>> {
+    // A mapping is the production shape.  Primitive values are copied into
+    // owned Rust values; no Python object is retained by the campaign.
+    let dict = value.cast::<PyDict>().map_err(|_| {
+        PyTypeError::new_err("candidate poses must be a dict of ref -> (x, y, rotation)")
+    })?;
+    let mut parsed = Vec::with_capacity(dict.len());
+    for (reference, pose) in dict.iter() {
+        let reference = reference.extract::<String>()?;
+        let (x, y, rotation) = pose.extract::<(i64, i64, i64)>().map_err(|_| {
+            PyTypeError::new_err("each candidate pose must be an (x, y, rotation) integer tuple")
+        })?;
+        let exact = ExactPose::from_raw(x, y, rotation).map_err(campaign_error)?;
+        parsed.push((reference, exact));
+    }
+    Ok(parsed)
+}
+
+#[cfg(feature = "python")]
+fn parse_witnesses(
+    witnesses: Vec<(String, String, f64, String)>,
+) -> Result<Vec<CollisionWitness>, PyErr> {
+    witnesses
+        .into_iter()
+        .map(|(a, b, area, digest)| {
+            CollisionWitness::new(&a, &b, area, &digest).map_err(campaign_error)
+        })
+        .collect()
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (board, rules, solver, axis, components, max_rounds, round_budget_ms))]
+pub fn prepare_collision_campaign(
+    py: Python<'_>,
+    board: String,
+    rules: String,
+    solver: String,
+    axis: String,
+    components: Vec<String>,
+    max_rounds: u32,
+    round_budget_ms: u64,
+) -> PyResult<Py<PyPrepared>> {
+    let identity = InputIdentity::new(&board, &rules, &solver, &axis).map_err(campaign_error)?;
+    let refs = components.iter().map(String::as_str).collect();
+    let limits = CampaignLimits::new(max_rounds, round_budget_ms).map_err(campaign_error)?;
+    let prepared = Prepared::new(identity, refs, limits).map_err(campaign_error)?;
+    Py::new(
+        py,
+        PyPrepared {
+            inner: Some(prepared),
+        },
+    )
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyPrepared {
+    fn start_solving(&mut self, py: Python<'_>) -> PyResult<Py<PySolving>> {
+        let prepared = take_handle(&mut self.inner)?;
+        let solving = prepared.start_solving().map_err(campaign_error)?;
+        Py::new(
+            py,
+            PySolving {
+                inner: Some(solving),
+            },
+        )
+    }
+
+    fn checkpoint(&self, py: Python<'_>) -> PyResult<Py<PyCheckpoint>> {
+        let prepared = self.inner.as_ref().ok_or_else(consumed_error)?;
+        Py::new(
+            py,
+            PyCheckpoint {
+                inner: prepared.checkpoint(),
+            },
+        )
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PySolving {
+    fn complete_candidate(
+        &mut self,
+        py: Python<'_>,
+        poses: &Bound<'_, PyAny>,
+    ) -> PyResult<Py<PyCandidate>> {
+        let poses = parse_poses(poses)?;
+        let solving = take_handle(&mut self.inner)?;
+        let candidate = solving
+            .complete_candidate(
+                poses
+                    .iter()
+                    .map(|(reference, pose)| (reference.as_str(), *pose))
+                    .collect(),
+            )
+            .map_err(campaign_error)?;
+        Py::new(
+            py,
+            PyCandidate {
+                inner: Some(candidate),
+            },
+        )
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyCandidate {
+    fn audit(
+        &mut self,
+        py: Python<'_>,
+        creepage: &Bound<'_, PyAny>,
+        body: &Bound<'_, PyAny>,
+        provenance: &Bound<'_, PyAny>,
+        witnesses: Vec<(String, String, f64, String)>,
+    ) -> PyResult<Py<PyAuditDecision>> {
+        let gates = AuditGates::new(
+            parse_gate(creepage, false)?,
+            parse_gate(body, false)?,
+            parse_gate(provenance, true)?,
+        );
+        let witnesses = parse_witnesses(witnesses)?;
+        let candidate = take_handle(&mut self.inner)?;
+        let decision = candidate.audit(gates, witnesses).map_err(campaign_error)?;
+        Py::new(
+            py,
+            PyAuditDecision {
+                inner: Some(decision),
+            },
+        )
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyAuditDecision {
+    #[getter]
+    fn kind(&self) -> PyResult<&'static str> {
+        match self.inner.as_ref().ok_or_else(consumed_error)? {
+            AuditDecision::Refining(_) => Ok("refining"),
+            AuditDecision::Terminal(_) => Ok("terminal"),
+        }
+    }
+
+    fn take_refining(&mut self, py: Python<'_>) -> PyResult<Py<PyRefining>> {
+        if matches!(self.inner.as_ref(), Some(AuditDecision::Terminal(_))) {
+            return Err(PyValueError::new_err(
+                "campaign decision is terminal, not refining",
+            ));
+        }
+        match take_handle(&mut self.inner)? {
+            AuditDecision::Refining(refining) => Py::new(
+                py,
+                PyRefining {
+                    inner: Some(refining),
+                },
+            ),
+            AuditDecision::Terminal(_) => Err(PyValueError::new_err(
+                "campaign decision is terminal, not refining",
+            )),
+        }
+    }
+
+    fn take_terminal(&mut self, py: Python<'_>) -> PyResult<Py<PyTerminalVerdict>> {
+        if matches!(self.inner.as_ref(), Some(AuditDecision::Refining(_))) {
+            return Err(PyValueError::new_err(
+                "campaign decision is refining, not terminal",
+            ));
+        }
+        match take_handle(&mut self.inner)? {
+            AuditDecision::Terminal(terminal) => Py::new(py, PyTerminalVerdict { inner: terminal }),
+            AuditDecision::Refining(_) => Err(PyValueError::new_err(
+                "campaign decision is refining, not terminal",
+            )),
+        }
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyRefining {
+    fn next_round(&mut self, py: Python<'_>) -> PyResult<Py<PySolving>> {
+        let refining = take_handle(&mut self.inner)?;
+        let solving = refining.next_round().map_err(campaign_error)?;
+        Py::new(
+            py,
+            PySolving {
+                inner: Some(solving),
+            },
+        )
+    }
+
+    fn cuts(&self, py: Python<'_>) -> PyResult<Vec<Py<PyCollisionCut>>> {
+        let refining = self.inner.as_ref().ok_or_else(consumed_error)?;
+        refining
+            .cuts()
+            .into_iter()
+            .map(|cut| Py::new(py, PyCollisionCut { inner: cut }))
+            .collect()
+    }
+
+    fn checkpoint(&self, py: Python<'_>) -> PyResult<Py<PyCheckpoint>> {
+        let refining = self.inner.as_ref().ok_or_else(consumed_error)?;
+        Py::new(
+            py,
+            PyCheckpoint {
+                inner: refining.checkpoint(),
+            },
+        )
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyTerminalVerdict {
+    #[getter]
+    fn kind(&self) -> &'static str {
+        match self.inner {
+            TerminalVerdict::Accepted { .. } => "accepted",
+            TerminalVerdict::VerifierRejected { .. } => "verifier_rejected",
+            TerminalVerdict::NoProgress { .. } => "no_progress",
+            TerminalVerdict::RoundLimit { .. } => "round_limit",
+            TerminalVerdict::InvalidExperiment { .. } => "invalid_experiment",
+        }
+    }
+
+    #[getter]
+    fn rounds(&self) -> Option<u32> {
+        match self.inner {
+            TerminalVerdict::Accepted { rounds }
+            | TerminalVerdict::NoProgress { rounds }
+            | TerminalVerdict::RoundLimit { rounds } => Some(rounds),
+            TerminalVerdict::VerifierRejected { .. }
+            | TerminalVerdict::InvalidExperiment { .. } => None,
+        }
+    }
+
+    #[getter]
+    fn reason(&self) -> Option<&str> {
+        match &self.inner {
+            TerminalVerdict::VerifierRejected { reason }
+            | TerminalVerdict::InvalidExperiment { reason } => Some(reason),
+            _ => None,
+        }
+    }
+
+    /// Terminal verdicts are closed.  This method exists to make attempted
+    /// resume explicit at the Python boundary and always fails.
+    fn resume(&self) -> PyResult<()> {
+        self.inner.resume().map(|_| ()).map_err(campaign_error)
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyCollisionCut {
+    #[getter]
+    fn first(&self) -> &str {
+        self.inner.key.pair.first.as_str()
+    }
+
+    #[getter]
+    fn second(&self) -> &str {
+        self.inner.key.pair.second.as_str()
+    }
+
+    #[getter]
+    fn x_first(&self) -> i64 {
+        self.inner.key.first_pose.x.raw()
+    }
+
+    #[getter]
+    fn y_first(&self) -> i64 {
+        self.inner.key.first_pose.y.raw()
+    }
+
+    #[getter]
+    fn rotation_first(&self) -> u8 {
+        self.inner.key.first_pose.rotation_index
+    }
+
+    #[getter]
+    fn x_second(&self) -> i64 {
+        self.inner.key.second_pose.x.raw()
+    }
+
+    #[getter]
+    fn y_second(&self) -> i64 {
+        self.inner.key.second_pose.y.raw()
+    }
+
+    #[getter]
+    fn rotation_second(&self) -> u8 {
+        self.inner.key.second_pose.rotation_index
+    }
+
+    #[getter]
+    fn overlap_area_mm2(&self) -> f64 {
+        self.inner.area_mm2
+    }
+
+    #[getter]
+    fn candidate_digest(&self) -> &str {
+        &self.inner.candidate_digest
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+impl PyCheckpoint {
+    #[staticmethod]
+    fn from_bytes(bytes: Vec<u8>) -> PyResult<Self> {
+        CampaignCheckpoint::from_bytes(&bytes)
+            .map(|inner| Self { inner })
+            .map_err(campaign_error)
+    }
+
+    fn to_bytes(&self) -> PyResult<Vec<u8>> {
+        self.inner.to_bytes().map_err(campaign_error)
+    }
+
+    #[pyo3(signature = (board, rules, solver, axis))]
+    fn restore_for(
+        &self,
+        py: Python<'_>,
+        board: String,
+        rules: String,
+        solver: String,
+        axis: String,
+    ) -> PyResult<Py<PyPrepared>> {
+        let identity =
+            InputIdentity::new(&board, &rules, &solver, &axis).map_err(campaign_error)?;
+        let prepared = self.inner.restore_for(&identity).map_err(campaign_error)?;
+        Py::new(
+            py,
+            PyPrepared {
+                inner: Some(prepared),
+            },
+        )
+    }
 }

@@ -136,6 +136,54 @@ fn accepted_requires_all_gates_and_collision_rejection_refines() {
 }
 
 #[test]
+fn collision_witness_cannot_override_failed_creepage_or_untrusted_provenance() {
+    let witness = CollisionWitness::new("U1", "R1", 0.25, "candidate-1").unwrap();
+    let candidate = prepared()
+        .start_solving()
+        .unwrap()
+        .complete_candidate(vec![("U1", pose(100, 200, 0)), ("R1", pose(300, 400, 1))])
+        .unwrap();
+    let decision = candidate
+        .audit(
+            AuditGates::new(
+                GateOutcome::Rejected("creepage shortfall".into()),
+                GateOutcome::Rejected("body collision".into()),
+                GateOutcome::Trusted,
+            ),
+            vec![witness.clone()],
+        )
+        .unwrap();
+    assert!(matches!(
+        decision,
+        temper_orchestration::collision_campaign::AuditDecision::Terminal(
+            TerminalVerdict::VerifierRejected { .. }
+        )
+    ));
+
+    let candidate = prepared()
+        .start_solving()
+        .unwrap()
+        .complete_candidate(vec![("U1", pose(100, 200, 0)), ("R1", pose(300, 400, 1))])
+        .unwrap();
+    let decision = candidate
+        .audit(
+            AuditGates::new(
+                GateOutcome::Passed,
+                GateOutcome::Rejected("body collision".into()),
+                GateOutcome::Passed,
+            ),
+            vec![witness],
+        )
+        .unwrap();
+    assert!(matches!(
+        decision,
+        temper_orchestration::collision_campaign::AuditDecision::Terminal(
+            TerminalVerdict::VerifierRejected { .. }
+        )
+    ));
+}
+
+#[test]
 fn duplicate_frontier_is_no_progress_and_terminal_cannot_resume() {
     let solver = prepared().start_solving().unwrap();
     let candidate = solver
