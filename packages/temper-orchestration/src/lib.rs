@@ -202,6 +202,7 @@ pub mod state_ser;
 // `_stage_subprocess.py` invocation. Ungated like `state_ser`.
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
+pub mod collision_campaign;
 mod component_assignment_stage;
 pub mod subprocess_stage;
 // 2026-08-17 placer constraint/clearance Rust-port stage 2: the
