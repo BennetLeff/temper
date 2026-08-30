@@ -342,6 +342,28 @@
         "creepage": -3,
         "error_ceiling": -3
       }
+    },
+    "2026-08-30-c6-absolute-pad-orientation": {
+      "date": "2026-08-30",
+      "cause": "C6's footprint is placed at 90 degrees, but its two board-level pad records omitted their absolute body angles. The source footprint has no intrinsic pad rotation, so the board representation now records absolute 90-degree pad angles for both pads. The correction is metadata-only for these round pads and restores the board's pad-orientation invariant; it does not move C6, change nets, or alter any copper geometry. The unchanged origin/main control and corrected board were each measured with 120 samples through temper_placer.validation._drc_api.run_drc using kicad-cli 10.0.5, --all-track-errors, regenerated DRU rules, the sibling fp-lib-table, and the pinned single-thread environment. Both distributions were identical: 406 errors / 402 warnings on every sample, so no DRC ceiling changed.",
+      "per_type_delta": {
+        "clearance": 0,
+        "copper_edge_clearance": 0,
+        "courtyards_overlap": 0,
+        "creepage": 0,
+        "drill_out_of_range": 0,
+        "hole_clearance": 0,
+        "shorting_items": 0,
+        "solder_mask_bridge": 0,
+        "lib_footprint_issues": 0,
+        "lib_footprint_mismatch": 0,
+        "missing_courtyard": 0,
+        "silk_edge_clearance": 0,
+        "silk_over_copper": 0,
+        "silk_overlap": 0,
+        "track_dangling": 0,
+        "via_dangling": 0
+      }
     }
   },
   "boards": [
@@ -367,13 +389,13 @@
         "via_diameter": 0
       },
       "provenance": {
-        "measured_at_commit": "UNKNOWN",
+        "measured_at_commit": "3f26ee8871d2d4b92518c3402981b0d46a43e4e6",
         "dirty": false,
-        "branch": "fix/regional-creepage-candidates",
+        "branch": "fix/board-safety-followup-20260830",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
-            "sha256": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+            "sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9"
           }
         ],
         "tool_versions": {
@@ -381,7 +403,7 @@
         },
         "source": "measured-live",
         "sample_count": 120,
-        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with single-thread KICAD_CONFIG_HOME pin, 120 samples on clean commit 2da1fcb3857064a4c1bde09e991b825ed26c24cf after regenerating pcb/temper.kicad_dru and verifying 10/10 pyo3 extensions fresh immediately before measurement. Spread 0 in every error and warning category: errors 406/406, warnings 402/402. Full distributions and candidate attribution are recorded in the 2026-08-26-u13 _march entry."
+        "measured_via": "temper_placer.validation._drc_api.run_drc, kicad-cli 10.0.5 --severity-all --all-track-errors --format json with sibling fp-lib-table and single-thread KICAD_CONFIG_HOME pin, 120 samples on the clean board commit 392870a58f2d1964c88f68aeac32f078d35a53d0 after regenerating pcb/temper.kicad_dru. The unchanged origin/main control was measured with the same tool, flags, rules, project context, and sample count first. Spread 0 in every error and warning category on both boards: errors 406/406, warnings 402/402. Full attribution is recorded in the 2026-08-30-c6-absolute-pad-orientation _march entry."
       },
       "warnings_by_type": {
         "lib_footprint_issues": 13,
