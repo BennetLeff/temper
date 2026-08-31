@@ -39,6 +39,12 @@ debt below the limit is acceptable.
 
 ### Bounded candidate study
 
-A predeclared finite family of scratch placement-and-routing variants evaluated
-against independent safety, connectivity, mechanical, and DRC vetoes before
-any production-board change is allowed.
+A predeclared staged family of scratch placement variants, with routing only
+for candidates that survive earlier vetoes, evaluated against the applicable
+independent safety, connectivity, mechanical, and DRC gates before any
+production-board change is allowed.
+
+Its reported denominator includes only candidates produced by a validated
+family and authoritative measurement instruments; a calibration run that uses
+the wrong coordinate convention or offers no physically admissible option is
+retained as diagnostic evidence but excluded from the design verdict.

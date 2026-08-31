@@ -1,6 +1,7 @@
 ---
 title: "Dense creepage repair is neighborhood topology, not a connector nudge"
 date: "2026-08-31"
+last_updated: "2026-08-31"
 category: architecture-patterns
 module: pcb-hardware-design
 problem_type: architecture_pattern
@@ -53,6 +54,24 @@ ceiling, or provenance record was committed. The five added pad-only REQ-SAFE
 signatures and the separate routed-copper DRC veto are itemized in the evidence
 record rather than inferred from aggregate counts.
 
+The follow-up neighborhood study then tested that handoff directly. It declared
+972 placements of J1, R45, R58, R66, SW1, and U22 inside a fixed local fence.
+Authoritative body and courtyard polygons rejected 912; all 60 remaining
+placements were materialized. Every one cleared the 13.1 mm nominal K1-J1
+target and added no body or courtyard overlap, but every one introduced
+J1-R14 and R14-U22 reinforced-creepage signatures plus new or worsened
+functional-spacing signatures. The corrected right/bottom family is therefore
+exhausted before routing, while the wider neighborhood remains unproven
+(`docs/evidence/2026-08-31-k1-j1-domain-refloorplan.md`).
+
+That result was accepted only after invalidating two calibration defects. The
+first gap calculation treated unresolved parsed pad offsets as board
+coordinates for a 180-degree connector; the sanctioned component-pad/Rust
+geometry path reversed the verdict and showed that the target gap actually
+passed. The first option family also pinned R45 and placed every U22 option
+into fixed U8. A repeatable run over an invalid instrument or an intrinsically
+colliding family is not topology evidence.
+
 This was not the first local search to hit that shape. Earlier K1 and neighbor
 campaigns found that geometry-only winners could introduce plated-hole,
 shorting, or creepage regressions under live DRC, and that missing fabrication
@@ -63,7 +82,7 @@ requirement was infeasible. (session history)
 The checked-in board still describes J1 as a hand-built approximation and
 claims its precision does not affect the high-voltage barrier, even though this
 investigation measured J1.4 as the closest SELV copper to K1
-(`pcb/temper.kicad_pcb:3790`). A safety
+(`pcb/temper.kicad_pcb:3793`). A safety
 investigation must establish geometry authority before treating any placement
 result as real.
 
@@ -79,16 +98,37 @@ design study rather than as a mandate to change the board.
    explicitly. Do not silently commit the footprint update merely because it
    is more accurate; it still needs an accepted placement and routing context.
 
-2. **Define the candidate budget and vetoes before moving copper.** A candidate
-   is acceptable only if it improves the target condition without adding a
-   cross-domain pair, increasing a hard-veto DRC rule, worsening a body
-   collision, losing a routed endpoint, or invalidating an instrument. The
-   repository's regional oracle implements this no-trade rule: new
-   cross-domain pairs, relevant DRC rises, body collisions, endpoint drift,
-   and instrument errors all contribute rejection reasons; acceptance requires
-   no reasons (`packages/temper-quality-oracle/src/regional_feasibility.rs:107`).
+2. **Define and calibrate the candidate family before moving copper.** Record
+   the fence, fixed and movable object census, per-footprint options, Cartesian
+   size, deterministic ordering, placement budget, and routing budget. Before
+   combining options, prove each option is clear of fixed bodies and
+   courtyards; then use authoritative polygons to prefilter movable-to-movable
+   collisions. Report the declared size, geometry rejects, and materialized
+   survivors separately. An option family in which one component has no valid
+   slot cannot support a positive or negative topology conclusion.
 
-3. **Move the connector and its copper as one design object.** Reroute the
+3. **Calibrate every geometry instrument against the production validator.**
+   Parsed pad offsets are not automatically world coordinates after footprint
+   rotation. Resolve footprint children through the sanctioned KiCad
+   transform and the same component-pad construction used by REQ-SAFE, then
+   calculate exact copper distance through the Rust-backed
+   `pad_pair_distance`. The component-pad facade delegates its construction to
+   Rust (`packages/temper-placer/src/temper_placer/requirements/validators/_copper.py:95`),
+   and exact pad distance delegates to the Rust geometry kernel
+   (`packages/temper-placer/src/temper_placer/core/pad_geometry.py:327`). Keep
+   the failed calibration as evidence, but exclude it from the verdict
+   denominator.
+
+4. **Predeclare the vetoes before moving copper.** A candidate is acceptable
+   only if it improves the target condition without adding a safety signature,
+   increasing a hard-veto DRC rule, worsening a body collision, losing a routed
+   endpoint, or invalidating an instrument. The repository's regional oracle
+   implements this no-trade rule: new cross-domain pairs, relevant DRC rises,
+   body collisions, endpoint drift, and instrument errors all contribute
+   rejection reasons; acceptance requires no reasons
+   (`packages/temper-quality-oracle/src/regional_feasibility.rs:107`).
+
+5. **Move the connector and its copper as one design object.** Reroute the
    affected approaches on each scratch board and prove intended connectivity
    separately from creepage. The connectivity audit parses the written board
    and evaluates its pad, segment, and via graph
@@ -98,7 +138,7 @@ design study rather than as a mandate to change the board.
    being called connected
    (`packages/temper-placer/src/temper_placer/router_v6/pad_connectivity_audit.py:118`).
 
-4. **Use independent instruments for independent claims.** Exact safety
+6. **Use independent instruments for independent claims.** Exact safety
    signatures answer whether the target pair was removed or substituted.
    Connectivity proves the nets are joined. KiCad DRC exposes shorts, mask,
    hole, and courtyard faults. Fabrication-body and containment checks address
@@ -106,28 +146,32 @@ design study rather than as a mandate to change the board.
    independent fail-closed invariant
    (`scripts/check_isolation_keepout.py:894`).
 
-5. **Reject suspect measurements before judging candidates.** The regional
+7. **Reject suspect measurements before judging candidates.** The regional
    evaluator rejects missing or stale generated rules, missing project or
-   footprint-library context, empty safety denominators, capped 199/499
+   footprint-library context, empty safety denominators, capped 199/499 error
    categories, and the known footprint-resolution failure signature
    (`scripts/evaluate_regional_layout.py:85`). The DRC API also fails when the
-   KiCad project context cannot be resolved and invokes `kicad-cli` with
-   `--all-track-errors` in a single-threaded environment
+   KiCad project context cannot be resolved, invokes `kicad-cli` with
+   `--all-track-errors`, and attempts to pin KiCad to one thread; the pinning
+   helper can explicitly degrade to the ambient environment
    (`packages/temper-placer/src/temper_placer/validation/_drc_api.py:581`).
 
-6. **Stop when the bounded candidates fail.** Do not keep nudging the same
+8. **Stop at the cheapest decisive veto.** Do not keep nudging the same
    component, accept a lower aggregate while new signatures appear, or raise
    DRC ceilings to absorb the result. Preserve the scratch measurements, leave
    production artifacts unchanged, and hand off the smallest larger design
-   problem that can plausibly create space.
+   problem that can plausibly create space. If placement safety rejects every
+   geometry survivor, report `0/N` routed promotions and do not route forbidden
+   candidates merely to consume the budget.
 
-7. **Escalate from component placement to neighborhood floorplanning.** For
-   this region, the next design unit is J1 plus R45, R58, R66, SW1, U22, and
-   the U8 routing approach. Synchronize the authoritative J1 footprint,
-   reserve the nominal K1-J1 safety corridor, and jointly place and reroute
-   that low-voltage neighborhood. Only a collision-free candidate that clears
-   the exact safety set and repeated set-based DRC should advance to the
-   repository's full 120-sample DRC/provenance campaign.
+9. **Escalate only the topology the evidence names.** The connector-only study
+   justified a six-footprint neighborhood. The fully covered right/bottom
+   family then showed that fixed R14/high-voltage copper blocks that specific
+   packing. The next run must either relocate J1 along a different board-edge
+   and enclosure/cable axis or explicitly add R14 and its associated HV route
+   to the movable set inside the board-wide domain-first barrier refloorplan.
+   Neither result licenses a smaller creepage value or a global infeasibility
+   claim.
 
 ## Why This Matters
 
@@ -148,6 +192,19 @@ live DRC, while other K1-region moves traded creepage improvement for
 `pth_inside_courtyard` or `shorting_items` regressions. Complete physical-body
 coverage and live board-level vetoes are therefore acceptance prerequisites,
 not polish after a coordinate has been selected. (session history)
+
+The corrected neighborhood campaign makes the point without relying on a DRC
+aggregate. All 60 mechanically valid placements measured K1-J1 at
+13.304745870407777..13.77882654659717 mm, yet all 60 put J1 only
+10.303625675302813..11.383111055730906 mm from fixed R14 and put U22 only
+8.71360662977365..9.211078285214919 mm from R14, both below the 12.6 mm
+reinforced requirement. A named-gap pass can therefore be a deterministic
+safety-debt transfer even when mechanical geometry is clean.
+
+Prior K1-region campaigns had already eliminated relay-internal geometry,
+R56, RT1, and C7 as clean explanations and retained K1's measured Pareto
+location. R14 is new limiting evidence from this corrected family, not a fact
+to retroactively attribute to those older searches. (session history)
 
 An evidence-only stop also protects measurement provenance. A 120-sample DRC
 campaign is meaningful only for board bytes that could ship. When every
@@ -220,19 +277,33 @@ leave production board unchanged
 publish evidence and refloorplan the local functional neighborhood
 ```
 
+### Corrected neighborhood-family result
+
+| Stage | Result |
+|---|---:|
+| Declared Cartesian family | 972 |
+| Rejected by authoritative body/courtyard geometry | 912 |
+| Materialized geometry survivors | 60/60 |
+| K1-J1 target passes | 60/60 |
+| Full REQ-SAFE passes | 0/60 |
+| Routed promotions | 0/24; placement safety veto occurred first |
+
+The invalidated calibration run is not included in those counts: its pad-gap
+instrument ignored footprint rotation for the 180-degree J1, and its option
+set gave U22 no fixed-obstacle-clear slot. The corrected declaration fixed
+both preconditions before materialization.
+
 ### Handoff wording
 
 A useful handoff is constrained and falsifiable:
 
-> The tested connector-only translations clear K1-J1 and restore RTD
-> connectivity, but both add the five pad-only safety signatures itemized in
-> the evidence record, a 10.2500 mm routed-creepage violation from J1.4 to the
-> In3.Cu `discharge.r_snub1-p2` track, shorts, and mechanical collisions. Do not
-> continue the J1-only nudge search. Jointly refloorplan J1, R45, R58, R66,
-> SW1, U22, and the U8 approach using the authoritative J1 footprint. Protect
-> both the K1-J1 corridor and the inner-layer high-voltage route, then require
-> exact safety-set improvement and repeated set-based DRC before changing the
-> production board.
+> The tested right/bottom neighborhood family contains 972 declared placements;
+> exact body/courtyard filtering retained 60, and all 60 clear K1-J1 while all
+> 60 add J1-R14 and R14-U22 reinforced-creepage signatures. No placement was
+> eligible for routing, so production board, footprint, and DRC-ceiling bytes
+> remain unchanged. Do not weaken REQ-SAFE or continue the same packing axis.
+> Relocate J1 along a different board-edge/enclosure axis, or expand the
+> domain-first refloorplan to move R14 and its associated high-voltage route.
 
 That wording preserves the successful routing idea, rejects the unsafe
 placements, and defines the next board-design unit without claiming that every
@@ -242,6 +313,9 @@ possible local solution has been exhausted.
 
 - `docs/evidence/2026-08-30-k1-j1-creepage-repair.md` — the measured candidate
   evidence behind this pattern.
+- `docs/evidence/2026-08-31-k1-j1-domain-refloorplan.md` — the corrected,
+  fully covered right/bottom neighborhood-family result and its invalidated
+  calibration instruments.
 - `docs/solutions/architecture-patterns/physical-isolation-barrier-requires-domain-first-floorplan-2026-07-30.md`
   — the larger topology this stopped run hands off to; its current-state facts
   need a separate refresh against the PD3 board.
