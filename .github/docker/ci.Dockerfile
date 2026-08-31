@@ -77,6 +77,9 @@ RUN rustup default stable && rustc --version && cargo --version
 # Leaf crates (no internal path deps) — needed as deps by the main crates
 COPY packages/temper-rust-router-core/Cargo.toml packages/temper-rust-router-core/Cargo.lock* packages/temper-rust-router-core/
 COPY packages/temper-pcl-ir/Cargo.toml packages/temper-pcl-ir/Cargo.lock* packages/temper-pcl-ir/
+COPY packages/temper-py-bridge-derive/Cargo.toml packages/temper-py-bridge-derive/Cargo.lock* packages/temper-py-bridge-derive/
+COPY packages/temper-py-bridge/Cargo.toml packages/temper-py-bridge/Cargo.lock* packages/temper-py-bridge/
+COPY packages/temper-geometry/Cargo.toml packages/temper-geometry/Cargo.lock* packages/temper-geometry/
 
 # Main crates built in CI (maturin develop / cargo check)
 COPY packages/temper-rust-router/Cargo.toml packages/temper-rust-router/Cargo.lock* packages/temper-rust-router/build.rs packages/temper-rust-router/
@@ -93,6 +96,12 @@ RUN mkdir -p packages/temper-rust-router-core/src \
     && echo 'pub fn __temper_dummy() {}' > packages/temper-rust-router-core/src/lib.rs \
     && mkdir -p packages/temper-pcl-ir/src \
     && echo 'pub fn __temper_dummy() {}' > packages/temper-pcl-ir/src/lib.rs \
+    && mkdir -p packages/temper-py-bridge-derive/src \
+    && echo '// Dummy proc-macro crate for dependency pre-compilation.' > packages/temper-py-bridge-derive/src/lib.rs \
+    && mkdir -p packages/temper-py-bridge/src \
+    && echo 'pub fn __temper_dummy() {}' > packages/temper-py-bridge/src/lib.rs \
+    && mkdir -p packages/temper-geometry/src \
+    && echo 'pub fn __temper_dummy() {}' > packages/temper-geometry/src/lib.rs \
     && mkdir -p packages/temper-rust-router/src \
     && printf 'use pyo3::prelude::*;\n#[pymodule]\nfn temper_rust_router(_py: Python, _m: &Bound<PyModule>) -> PyResult<()> { Ok(()) }\n' > packages/temper-rust-router/src/lib.rs \
     && mkdir -p packages/temper-drc-rs/src \
@@ -123,6 +132,9 @@ RUN cargo build --release --manifest-path packages/temper-drc-rs/Cargo.toml \
 # when the workspace is checked out in CI
 RUN rm -f packages/temper-rust-router-core/src/lib.rs \
     packages/temper-pcl-ir/src/lib.rs \
+    packages/temper-py-bridge-derive/src/lib.rs \
+    packages/temper-py-bridge/src/lib.rs \
+    packages/temper-geometry/src/lib.rs \
     packages/temper-rust-router/src/lib.rs \
     packages/temper-drc-rs/src/lib.rs \
     packages/temper-constraint-compiler/src/lib.rs \
