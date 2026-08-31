@@ -105,7 +105,7 @@ RUN mkdir -p packages/temper-rust-router-core/src \
     && mkdir -p packages/temper-rust-router/src \
     && printf 'use pyo3::prelude::*;\n#[pymodule]\nfn temper_rust_router(_py: Python, _m: &Bound<PyModule>) -> PyResult<()> { Ok(()) }\n' > packages/temper-rust-router/src/lib.rs \
     && mkdir -p packages/temper-drc-rs/src \
-    && printf 'use pyo3::prelude::*;\n#[pymodule]\nfn temper_drc_rs(_py: Python, _m: &Bound<PyModule>) -> PyResult<()> { Ok(()) }\n' > packages/temper-drc-rs/src/lib.rs \
+    && echo 'pub fn __temper_dummy() {}' > packages/temper-drc-rs/src/lib.rs \
     && mkdir -p packages/temper-constraint-compiler/src \
     && printf 'use pyo3::prelude::*;\n#[pymodule]\nfn temper_constraint_compiler(_py: Python, _m: &Bound<PyModule>) -> PyResult<()> { Ok(()) }\n' > packages/temper-constraint-compiler/src/lib.rs \
     && mkdir -p packages/temper-design-bundle/src \
