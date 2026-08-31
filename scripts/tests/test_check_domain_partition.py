@@ -39,6 +39,7 @@ from check_domain_partition import (  # noqa: E402
     parse_netlist,
     resolve_isolator_refs,
     run,
+    validate_split_domain_contract,
 )
 
 # ---------------------------------------------------------------------------
@@ -576,6 +577,77 @@ class TestBoardPartitionContract:
             "split-board interface net 'shutdown' is not owned by the "
             "control-board domain 'SELV'"
         ]
+
+    def test_non_isolator_cross_component_must_use_cross_domain_module(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "  cross_domain_components:\n"
+            "    - instance_path: aux.psu\n"
+            "      module: aux\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n",
+            "  cross_domain_components:\n"
+            "    - instance_path: aux.psu\n"
+            "      module: aux\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n"
+            "    - instance_path: power_in.cap\n"
+            "      module: power_in\n"
+            "      sides: {POWER_BOARD: [all]}\n",
+        )
+
+        with pytest.raises(GateError, match="non-isolator.*cross_domain_modules"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_isolator_may_live_under_an_ordinary_board_module(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "      module: aux\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n",
+            "      module: mcu\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n",
+            1,
+        )
+
+        manifest = load_manifest(write_manifest(tmp_path, text))
+        assert manifest.board_partition is not None
+        assert manifest.board_partition.cross_domain_components[0]["module"] == "mcu"
+
+
+class TestSplitDomainContractAuthority:
+    def test_public_validator_checks_real_typed_contract_and_inventory(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        manifest = validate_split_domain_contract(
+            repo_root / "elec" / "domain_manifest.yaml",
+            src_dir=repo_root / "elec" / "src",
+        )
+
+        assert manifest.board_interface is not None
+        assert len(manifest.board_interface.signals) == 10
+        assert manifest.board_partition is not None
+
+    def test_public_validator_rejects_typed_signal_mutation(self, tmp_path):
+        repo_root = Path(__file__).resolve().parents[2]
+        text = (repo_root / "elec" / "domain_manifest.yaml").read_text()
+        mutated = text.replace(
+            "    - net: I_SENSE\n      role: telemetry\n      owner: POWER_BOARD\n",
+            "    - net: I_SENSE\n      role: telemetry\n      owner: CONTROL_BOARD\n",
+            1,
+        )
+        path = write_manifest(tmp_path, mutated)
+
+        with pytest.raises(GateError, match="role/owner/direction"):
+            validate_split_domain_contract(path, src_dir=repo_root / "elec" / "src")
+
+    def test_public_validator_rejects_partition_inventory_mutation(self, tmp_path):
+        repo_root = Path(__file__).resolve().parents[2]
+        text = (repo_root / "elec" / "domain_manifest.yaml").read_text()
+        mutated = text.replace(
+            "        - thermal.j_fan\n",
+            "",
+            1,
+        )
+        path = write_manifest(tmp_path, mutated)
+
+        with pytest.raises(GateError, match="component inventory"):
+            validate_split_domain_contract(path, src_dir=repo_root / "elec" / "src")
 
 
 def test_split_board_atopile_boundary_has_no_connector_or_physical_board_claim():

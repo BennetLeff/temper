@@ -1267,6 +1267,7 @@ def load_manifest(path: Path) -> Manifest:
             )
 
         side_by_path = {entry.instance_path: entry for entry in isolator_sides}
+        isolator_paths = set(isolator_by_path)
         cross_paths: set[str] = set()
         for entry in cross_components:
             path = entry["instance_path"]
@@ -1284,6 +1285,12 @@ def load_manifest(path: Path) -> Manifest:
                 )
             mapped_sides = entry["sides"]
             iso_side = side_by_path.get(path)
+            if path not in isolator_paths and entry["module"] not in cross_modules:
+                raise GateError(
+                    f"board_partition non-isolator cross-domain component {path!r} "
+                    f"must belong to cross_domain_modules, got module "
+                    f"{entry['module']!r}"
+                )
             if iso_side is not None:
                 expected = {
                     power_board: (iso_side.power_board_group,),
@@ -1364,6 +1371,59 @@ def check_board_interface_contract(
                 f"outside allowed domains {list(interface.allowed_domains)!r}"
             )
     return violations
+
+
+def validate_split_domain_contract(
+    manifest_path: Path = DEFAULT_MANIFEST,
+    *,
+    src_dir: Path | None = None,
+    netlist_path: Path | None = None,
+) -> Manifest:
+    """Load and fully validate the source-backed split-board domain contract.
+
+    This is the public authority for consumers that need to decide whether a
+    split-board operation may proceed.  Keeping the call here is deliberate:
+    :func:`load_manifest` owns typed signal semantics and the mandatory
+    generation-field set, while :func:`check_board_partition_contract` owns
+    the exact source component/module inventory.  A readiness consumer must
+    not reproduce either rule with a second YAML parser or a regex.
+
+    ``src_dir`` defaults to the sibling ``src`` directory of the supplied
+    domain manifest.  Tests and callers using a copied manifest can provide
+    the hierarchy's actual source directory explicitly.  ``netlist_path`` is
+    optional because the future split contract is valid before a freshly
+    compiled legacy netlist exists; when supplied, the same board-interface
+    and partition checks are also applied to that compiled netlist.
+
+    A malformed contract or an inventory mismatch raises :class:`GateError`.
+    A structurally valid but generation-incomplete contract is returned so
+    the readiness layer can report its blockers (unresolved signals,
+    connector decisions, and mechanical decisions) without treating them as
+    malformed input.
+    """
+    manifest = load_manifest(manifest_path)
+    if manifest.board_interface is None:
+        raise GateError("split-board domain contract has no board_interface")
+    if manifest.board_partition is None:
+        raise GateError("split-board domain contract has no board_partition")
+
+    resolved_src_dir = src_dir if src_dir is not None else manifest_path.parent / "src"
+    netlist = parse_netlist(netlist_path) if netlist_path is not None else None
+    interface_violations = (
+        check_board_interface_contract(netlist, manifest)
+        if netlist is not None
+        else []
+    )
+    partition_violations = check_board_partition_contract(
+        manifest, netlist=netlist, src_dir=resolved_src_dir
+    )
+    violations = [*interface_violations, *partition_violations]
+    if violations:
+        raise GateError(
+            "split-board domain contract has violations: "
+            + "; ".join(violations)
+        )
+    return manifest
 
 
 def check_board_interface_generation_ready(manifest: Manifest) -> None:
