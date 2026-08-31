@@ -38,7 +38,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # behaviour, and it is strictly better than the counts moving silently. To bump:
 # raise the version here, then re-measure the baselines against the new binary
 # and land both together, per AGENTS.md's same-PR re-measurement rule.
-ARG KICAD_VERSION=10.0.5~ubuntu24.04.1
+ARG KICAD_VERSION=10.0.6~ubuntu24.04.1
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends software-properties-common \
