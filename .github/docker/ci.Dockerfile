@@ -48,9 +48,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && kicad-cli version \
     && rm -rf /var/lib/apt/lists/*
 
-# Rust toolchain (stable, minimal profile)
+# Rust toolchain (pinned, minimal profile). Toolchain bumps are deliberate so
+# new Clippy lints cannot break an unchanged image definition.
+ARG RUST_VERSION=1.97.0
 ENV RUSTUP_HOME=/root/.rustup CARGO_HOME=/root/.cargo
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal \
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "${RUST_VERSION}" --profile minimal \
     && /root/.cargo/bin/rustup component add clippy
 ENV PATH="/root/.cargo/bin:${PATH}"
 
@@ -62,7 +64,7 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # Verify Rust works (sets default toolchain in settings.toml)
-RUN rustup default stable && rustc --version && cargo --version
+RUN rustup default "${RUST_VERSION}" && rustc --version && cargo --version
 
 # ── Pre-compile Rust dependencies ─────────────────────────────────────────────
 # Docker layer caching trick: copy only Cargo.toml + Cargo.lock + build.rs
