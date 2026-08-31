@@ -1,4 +1,4 @@
-<!-- provenance: commit=1d6aa40200df96978ef44e352cab201e0885f5f9 (fix/router-nlayer-routing, worktree
+<!-- provenance: commit=84cc526fd2f1cc15ac92dc26f511f49c1fcfd9a2 dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-worktrees/router-nlayer-routing, branched from fix/layer-architecture-ssot
 commit eaef53cbf). pcb/temper.kicad_pcb sha256=1b15b2747ff55977bd45154e23200c7feaf137e927c4fb9f59d27b2e4c4ade0d
 -- UNCHANGED by this task throughout (verified before and after every measurement below; routing output

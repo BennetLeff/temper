@@ -6,8 +6,9 @@ Wave 4, **Phase 5, final leaves**. The residual arithmetic of
 distance filter) and ``_distance`` (Euclidean distance) -- moves to the
 ``temper-design-bundle`` crate
 (``temper_design_bundle_python.deterministic_phase``); the Python methods
-become delegation shims. The pre-migration implementation is pinned VERBATIM
-as the oracle (``_phase_core_py_oracle.py``).
+were retired after the orchestration stage began calling these kernels
+directly. The pre-migration implementation is pinned VERBATIM as the oracle
+(``_phase_core_py_oracle.py``).
 
 Numerical traps pinned here:
 - ``w ** 2`` is exact int pow for int bounds and libm ``pow`` for float bounds

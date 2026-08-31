@@ -59,9 +59,9 @@ pub(crate) mod integration;
 #[allow(unused_imports)]
 pub use lower::lower_composed;
 #[allow(unused_imports)]
-pub use rewrite::{rewrite, RewriteError};
+pub use rewrite::{RewriteError, rewrite};
 #[allow(unused_imports)]
 pub use types::{
-    cardinality_bound_new, compose_conjoin, compose_conditional, compose_restrict_domain,
-    layer_assignment_new, mutual_exclusion_equality, ComposedConstraint, PrimitiveConstraint,
+    ComposedConstraint, PrimitiveConstraint, cardinality_bound_new, compose_conditional,
+    compose_conjoin, compose_restrict_domain, layer_assignment_new, mutual_exclusion_equality,
 };

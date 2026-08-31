@@ -83,7 +83,12 @@ fn diff_counts(pre: [usize; 5], post: [usize; 5]) -> Vec<(String, usize, usize)>
 /// `__eq__` reproduce the dataclass's shapes bit-for-bit (the class name the
 /// dataclass repr prints is `_CardinalitySnapshot`, preserved literally).
 #[cfg(feature = "python")]
-#[pyclass(dict, skip_from_py_object, module = "temper_orchestration", name = "CardinalitySnapshot")]
+#[pyclass(
+    dict,
+    skip_from_py_object,
+    module = "temper_orchestration",
+    name = "CardinalitySnapshot"
+)]
 #[derive(Clone, Debug, Default)]
 pub struct CardinalitySnapshot {
     #[pyo3(get, set)]

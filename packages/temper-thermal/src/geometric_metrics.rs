@@ -58,10 +58,6 @@
 //! vectorized numpy reduction).
 
 use crate::hostmath;
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use temper_py_bridge;
 
 /// Mirrors `GeometricMetrics` — raw geometric violations.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -243,62 +239,6 @@ pub fn measure_geometric(
     }
 
     m
-}
-
-/// pyo3 bridge for [`measure_geometric`]. Returns a 6-tuple in field
-/// order: `(overlap_count, overlap_area_mm2, zone_violation_count,
-/// zone_violation_max_mm, boundary_violation_count,
-/// min_hv_lv_clearance_mm)`.
-#[cfg(feature = "python")]
-#[allow(clippy::too_many_arguments)]
-#[pyfunction]
-#[pyo3(signature = (
-    positions_x,
-    positions_y,
-    widths,
-    heights,
-    min_separation,
-    zone_bounds,
-    board_origin,
-    board_width,
-    board_height,
-    is_hv,
-))]
-pub fn measure_geometric_py(
-    positions_x: Vec<f32>,
-    positions_y: Vec<f32>,
-    widths: Vec<f64>,
-    heights: Vec<f64>,
-    min_separation: f64,
-    zone_bounds: Vec<ZoneBounds>,
-    board_origin: (f64, f64),
-    board_width: f64,
-    board_height: f64,
-    is_hv: Vec<bool>,
-) -> PyResult<(i64, f64, i64, f64, i64, f64)> {
-    temper_py_bridge::catch_unwind(|| {
-        let m = measure_geometric(
-            &positions_x,
-            &positions_y,
-            &widths,
-            &heights,
-            min_separation,
-            &zone_bounds,
-            board_origin,
-            board_width,
-            board_height,
-            &is_hv,
-        );
-        (
-            m.overlap_count,
-            m.overlap_area_mm2,
-            m.zone_violation_count,
-            m.zone_violation_max_mm,
-            m.boundary_violation_count,
-            m.min_hv_lv_clearance_mm,
-        )
-    })
-    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

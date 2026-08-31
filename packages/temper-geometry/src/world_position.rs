@@ -61,8 +61,6 @@
 //! callers, not to churn every correct site in one change.
 
 use crate::core_graph_geometry::{normalize_rotation_index, pin_world_position_kernel};
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
 
 /// A pad's world position — the `(x, y)` on the board after applying
 /// component position + rotation + quadrant + pin offset (and the KiCad
@@ -135,42 +133,6 @@ impl WorldPosition {
     pub fn as_tuple(&self) -> (f64, f64) {
         (self.x, self.y)
     }
-}
-
-/// Python-exported `WorldPosition::from_component_pin`: applies the full
-/// R(-θ) + quadrant + side correction in one call and returns the world
-/// `(x, y)` tuple. The only sanctioned way to construct a world position
-/// from plain primitives — the duck-typed `pin_world_position_at_py`
-/// (which reads the attributes off Python objects itself) stays for the
-/// object-graph callers; this one exists for callers that already hold the
-/// resolved values.
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn world_position_from_component_pin_py(
-    comp_pos: (f64, f64),
-    comp_rotation: f64,
-    pin_offset: (f64, f64),
-    initial_rotation_quadrant: i32,
-    initial_side: i32,
-) -> PyResult<(f64, f64)> {
-    temper_py_bridge::catch_unwind(|| {
-        WorldPosition::from_component_pin(
-            comp_pos,
-            comp_rotation,
-            pin_offset,
-            initial_rotation_quadrant,
-            initial_side,
-        )
-        .as_tuple()
-    })
-    .map_err(temper_py_bridge::panic_to_err)
-}
-
-/// Register this module's kernels with the `temper_geometry` module.
-#[cfg(feature = "python")]
-pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(world_position_from_component_pin_py, m)?)?;
-    Ok(())
 }
 
 // =============================================================================

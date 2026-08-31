@@ -1,3 +1,4 @@
+<!-- provenance: commit=775a7a40e72048846474d74d22461df8bbc42765 dirty=UNKNOWN -->
 # Oracle-hash drift — evidence assembled, NOT re-pinned (owner decision)
 
 2026-08-17. Board sha256 `bf2dbb3dcd48f9f1457306769e786d6fcbfa87287339f8a39473888ce80db1f5`

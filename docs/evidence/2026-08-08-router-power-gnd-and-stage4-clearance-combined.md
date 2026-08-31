@@ -1,4 +1,4 @@
-<!-- provenance: commit=a94ea10b (merge of fix/router-power-gnd-copper-gap + investigate/stage4-astar-19nets onto 888331ba) dirty=true -- this doc + the accessor fix are the dirty diff in this same task -->
+<!-- provenance: commit=a94ea10b36fe42c3e31d06d70b54d3ac49d760f8 (merge of fix/router-power-gnd-copper-gap + investigate/stage4-astar-19nets onto 888331ba) dirty=true -- this doc + the accessor fix are the dirty diff in this same task -->
 
 # Combining the power/GND policy fix and the Stage 4 clearance fix: resolving the baseline contradiction and measuring the real combined effect
 

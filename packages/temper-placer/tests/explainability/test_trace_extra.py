@@ -3,7 +3,7 @@
 Covers Trace.empty(), Trace.add(), Trace.for_subject(), and Trace.why().
 """
 
-from temper_placer.explainability.trace import Trace
+from temper_orchestration import Trace
 
 
 class TestTraceEmpty:

@@ -2,15 +2,13 @@
 /// U5: Proptest invariants (R14-R17)
 /// U6: BMC induction ladder (R18-R21)  
 /// U7: Temper board reproduction (SC1)
-use temper_rust_router_core::loop_extractor::extract::{
-    auto_extract_loops, Component, Pin,
-};
+use temper_rust_router_core::loop_extractor::extract::{Component, Pin, auto_extract_loops};
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod proptest_tests {
-    use proptest::prelude::*;
     use super::*;
+    use proptest::prelude::*;
 
     fn make_switch(ref_name: &str) -> Component {
         Component {
@@ -19,15 +17,24 @@ mod proptest_tests {
             mpn: String::new(),
             value: String::new(),
             pins: vec![
-                Pin { name: "1".into(), net: Some(format!("GATE_{}", ref_name)) },
-                Pin { name: "2".into(), net: match ref_name {
-                    "Q1" => Some("DC_BUS+".into()),
-                    _ => Some("SW_NODE".into()),
-                }},
-                Pin { name: "3".into(), net: match ref_name {
-                    "Q1" => Some("SW_NODE".into()),
-                    _ => Some("DC_BUS-".into()),
-                }},
+                Pin {
+                    name: "1".into(),
+                    net: Some(format!("GATE_{}", ref_name)),
+                },
+                Pin {
+                    name: "2".into(),
+                    net: match ref_name {
+                        "Q1" => Some("DC_BUS+".into()),
+                        _ => Some("SW_NODE".into()),
+                    },
+                },
+                Pin {
+                    name: "3".into(),
+                    net: match ref_name {
+                        "Q1" => Some("SW_NODE".into()),
+                        _ => Some("DC_BUS-".into()),
+                    },
+                },
             ],
             classification: Default::default(),
         }
@@ -40,8 +47,14 @@ mod proptest_tests {
             mpn: String::new(),
             value: "1000uF".into(),
             pins: vec![
-                Pin { name: "1".into(), net: Some(net_a.into()) },
-                Pin { name: "2".into(), net: Some(net_b.into()) },
+                Pin {
+                    name: "1".into(),
+                    net: Some(net_a.into()),
+                },
+                Pin {
+                    name: "2".into(),
+                    net: Some(net_b.into()),
+                },
             ],
             classification: Default::default(),
         }
@@ -54,8 +67,14 @@ mod proptest_tests {
             mpn: String::new(),
             value: "10R".into(),
             pins: vec![
-                Pin { name: "1".into(), net: Some(net.into()) },
-                Pin { name: "2".into(), net: None },
+                Pin {
+                    name: "1".into(),
+                    net: Some(net.into()),
+                },
+                Pin {
+                    name: "2".into(),
+                    net: None,
+                },
             ],
             classification: Default::default(),
         }
@@ -119,28 +138,61 @@ mod bmc_tests {
     fn minimal_half_bridge() -> Vec<Component> {
         vec![
             Component {
-                ref_des: "Q1".into(), footprint: "TO-247-3".into(), mpn: String::new(), value: String::new(),
+                ref_des: "Q1".into(),
+                footprint: "TO-247-3".into(),
+                mpn: String::new(),
+                value: String::new(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("GATE_H".into()) },
-                    Pin { name: "2".into(), net: Some("DC_BUS+".into()) },
-                    Pin { name: "3".into(), net: Some("SW_NODE".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("GATE_H".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("DC_BUS+".into()),
+                    },
+                    Pin {
+                        name: "3".into(),
+                        net: Some("SW_NODE".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
             Component {
-                ref_des: "Q2".into(), footprint: "TO-247-3".into(), mpn: String::new(), value: String::new(),
+                ref_des: "Q2".into(),
+                footprint: "TO-247-3".into(),
+                mpn: String::new(),
+                value: String::new(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("GATE_L".into()) },
-                    Pin { name: "2".into(), net: Some("SW_NODE".into()) },
-                    Pin { name: "3".into(), net: Some("DC_BUS-".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("GATE_L".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("SW_NODE".into()),
+                    },
+                    Pin {
+                        name: "3".into(),
+                        net: Some("DC_BUS-".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
             Component {
-                ref_des: "C_BUS".into(), footprint: "CP_Radial".into(), mpn: String::new(), value: "1000uF".into(),
+                ref_des: "C_BUS".into(),
+                footprint: "CP_Radial".into(),
+                mpn: String::new(),
+                value: "1000uF".into(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("DC_BUS+".into()) },
-                    Pin { name: "2".into(), net: Some("DC_BUS-".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("DC_BUS+".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("DC_BUS-".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
@@ -172,16 +224,28 @@ mod bmc_tests {
         let mut comps = minimal_half_bridge();
         for i in 1..=18 {
             comps.push(Component {
-                ref_des: format!("R{}", i), footprint: "R_0805".into(), mpn: String::new(), value: "10k".into(),
+                ref_des: format!("R{}", i),
+                footprint: "R_0805".into(),
+                mpn: String::new(),
+                value: "10k".into(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("GND".into()) },
-                    Pin { name: "2".into(), net: None },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("GND".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: None,
+                    },
                 ],
                 classification: Default::default(),
             });
         }
         let result = auto_extract_loops(&comps, &[], &[]);
-        assert!(result.is_ok(), "Adding unrelated components should not break extraction");
+        assert!(
+            result.is_ok(),
+            "Adding unrelated components should not break extraction"
+        );
         let loops = result.unwrap();
         assert!(loops.iter().any(|l| l.name == "auto_commutation"));
     }
@@ -193,10 +257,19 @@ mod bmc_tests {
         // Changing an unrelated component's footprint should not change the loop set
         let mut comps = minimal_half_bridge();
         let r1 = Component {
-            ref_des: "R1".into(), footprint: "R_0805".into(), mpn: String::new(), value: "10k".into(),
+            ref_des: "R1".into(),
+            footprint: "R_0805".into(),
+            mpn: String::new(),
+            value: "10k".into(),
             pins: vec![
-                Pin { name: "1".into(), net: Some("GND".into()) },
-                Pin { name: "2".into(), net: None },
+                Pin {
+                    name: "1".into(),
+                    net: Some("GND".into()),
+                },
+                Pin {
+                    name: "2".into(),
+                    net: None,
+                },
             ],
             classification: Default::default(),
         };
@@ -205,10 +278,19 @@ mod bmc_tests {
 
         // Change footprint
         let r2 = Component {
-            ref_des: "R1".into(), footprint: "R_0603".into(), mpn: String::new(), value: "10k".into(),
+            ref_des: "R1".into(),
+            footprint: "R_0603".into(),
+            mpn: String::new(),
+            value: "10k".into(),
             pins: vec![
-                Pin { name: "1".into(), net: Some("GND".into()) },
-                Pin { name: "2".into(), net: None },
+                Pin {
+                    name: "1".into(),
+                    net: Some("GND".into()),
+                },
+                Pin {
+                    name: "2".into(),
+                    net: None,
+                },
             ],
             classification: Default::default(),
         };
@@ -216,7 +298,10 @@ mod bmc_tests {
         comps2.push(r2);
         let loops_after = auto_extract_loops(&comps2, &[], &[]).unwrap();
 
-        assert_eq!(loops_before, loops_after, "Footprint change should not affect loop set");
+        assert_eq!(
+            loops_before, loops_after,
+            "Footprint change should not affect loop set"
+        );
     }
 
     // ---- BMC: Inductive remove (R21) ----
@@ -226,16 +311,28 @@ mod bmc_tests {
         // Removing an unrelated component should not break extraction
         let mut comps = minimal_half_bridge();
         comps.push(Component {
-            ref_des: "R_EXTRA".into(), footprint: "R_0805".into(), mpn: String::new(), value: "10k".into(),
+            ref_des: "R_EXTRA".into(),
+            footprint: "R_0805".into(),
+            mpn: String::new(),
+            value: "10k".into(),
             pins: vec![
-                Pin { name: "1".into(), net: Some("GND".into()) },
-                Pin { name: "2".into(), net: None },
+                Pin {
+                    name: "1".into(),
+                    net: Some("GND".into()),
+                },
+                Pin {
+                    name: "2".into(),
+                    net: None,
+                },
             ],
             classification: Default::default(),
         });
         let loops_with = auto_extract_loops(&comps, &[], &[]).unwrap();
         let loops_without = auto_extract_loops(&minimal_half_bridge(), &[], &[]).unwrap();
-        assert_eq!(loops_with, loops_without, "Removing unrelated component should not change loop set");
+        assert_eq!(
+            loops_with, loops_without,
+            "Removing unrelated component should not change loop set"
+        );
     }
 }
 
@@ -250,40 +347,78 @@ mod temper_tests {
         // Covers the first Temper failure: Q1 with pin "2" (collector) maps correctly
         let comps = vec![
             Component {
-                ref_des: "Q1".into(), footprint: "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown".into(),
-                mpn: String::new(), value: String::new(),
+                ref_des: "Q1".into(),
+                footprint: "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown".into(),
+                mpn: String::new(),
+                value: String::new(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("GATE_H".into()) },
-                    Pin { name: "2".into(), net: Some("DC_BUS+".into()) },
-                    Pin { name: "3".into(), net: Some("SW_NODE".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("GATE_H".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("DC_BUS+".into()),
+                    },
+                    Pin {
+                        name: "3".into(),
+                        net: Some("SW_NODE".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
             Component {
-                ref_des: "Q2".into(), footprint: "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown".into(),
-                mpn: String::new(), value: String::new(),
+                ref_des: "Q2".into(),
+                footprint: "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown".into(),
+                mpn: String::new(),
+                value: String::new(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("GATE_L".into()) },
-                    Pin { name: "2".into(), net: Some("SW_NODE".into()) },
-                    Pin { name: "3".into(), net: Some("DC_BUS-".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("GATE_L".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("SW_NODE".into()),
+                    },
+                    Pin {
+                        name: "3".into(),
+                        net: Some("DC_BUS-".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
             Component {
-                ref_des: "C_BUS1".into(), footprint: "CP_Radial_D10.0mm".into(),
-                mpn: String::new(), value: "1000uF".into(),
+                ref_des: "C_BUS1".into(),
+                footprint: "CP_Radial_D10.0mm".into(),
+                mpn: String::new(),
+                value: "1000uF".into(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("DC_BUS+".into()) },
-                    Pin { name: "2".into(), net: Some("PGND".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("DC_BUS+".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("PGND".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
             Component {
-                ref_des: "C_BUS2".into(), footprint: "CP_Radial_D10.0mm".into(),
-                mpn: String::new(), value: "1000uF".into(),
+                ref_des: "C_BUS2".into(),
+                footprint: "CP_Radial_D10.0mm".into(),
+                mpn: String::new(),
+                value: "1000uF".into(),
                 pins: vec![
-                    Pin { name: "1".into(), net: Some("PGND".into()) },
-                    Pin { name: "2".into(), net: Some("DC_BUS-".into()) },
+                    Pin {
+                        name: "1".into(),
+                        net: Some("PGND".into()),
+                    },
+                    Pin {
+                        name: "2".into(),
+                        net: Some("DC_BUS-".into()),
+                    },
                 ],
                 classification: Default::default(),
             },
@@ -291,13 +426,29 @@ mod temper_tests {
 
         // Covers AE2: split-capacitor topology
         let result = auto_extract_loops(&comps, &[], &[]);
-        assert!(result.is_ok(), "Temper board extraction must succeed: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "Temper board extraction must succeed: {:?}",
+            result.err()
+        );
         let loops = result.unwrap();
         let comm = loops.iter().find(|l| l.name == "auto_commutation").unwrap();
-        assert!(comm.components.contains(&"Q1".into()), "Q1 in commutation loop");
-        assert!(comm.components.contains(&"Q2".into()), "Q2 in commutation loop");
-        assert!(comm.components.contains(&"C_BUS1".into()), "C_BUS1 in commutation loop");
-        assert!(comm.components.contains(&"C_BUS2".into()), "C_BUS2 in commutation loop");
+        assert!(
+            comm.components.contains(&"Q1".into()),
+            "Q1 in commutation loop"
+        );
+        assert!(
+            comm.components.contains(&"Q2".into()),
+            "Q2 in commutation loop"
+        );
+        assert!(
+            comm.components.contains(&"C_BUS1".into()),
+            "C_BUS1 in commutation loop"
+        );
+        assert!(
+            comm.components.contains(&"C_BUS2".into()),
+            "C_BUS2 in commutation loop"
+        );
     }
 
     /// Temper board: no generic None failures (SC1)
@@ -308,7 +459,10 @@ mod temper_tests {
         assert!(result.is_err());
         let err = result.unwrap_err();
         let msg = err.to_string();
-        assert!(msg.contains("half-bridge"), "Error should explain the failure: {}", msg);
+        assert!(
+            msg.contains("half-bridge"),
+            "Error should explain the failure: {}",
+            msg
+        );
     }
 }
-

@@ -62,28 +62,18 @@ class TopologicalInitializationHeuristic(Heuristic):
 
     Attributes:
         _force_iterations: Number of force refinement iterations
-        _backend: Computation backend ("numpy" or "jax")
     """
 
     def __init__(
         self,
         force_iterations: int = 100,
-        backend: str = "numpy",
     ) -> None:
         """Initialize the heuristic.
 
         Args:
             force_iterations: Number of force refinement iterations
-            backend: Computation backend ("numpy" or "jax")
-
-        Raises:
-            ValueError: If backend is not "numpy" or "jax"
         """
-        if backend not in ("numpy", "jax"):
-            raise ValueError(f"Invalid backend: {backend}. Must be 'numpy' or 'jax'")
-
         self._force_iterations = force_iterations
-        self._backend = backend
 
     @property
     def name(self) -> str:
@@ -177,7 +167,6 @@ class TopologicalInitializationHeuristic(Heuristic):
                 component_sizes=component_sizes,
                 board_bounds=board_bounds,
                 force_iterations=self._force_iterations,
-                backend=self._backend,
             )
         except PlacementError as e:
             return HeuristicResult(

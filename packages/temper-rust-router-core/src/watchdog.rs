@@ -72,11 +72,8 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
         _net_names: &[String],
     ) -> Self {
         // Compute budget (R7.1).
-        let total_nets_in_bundles: usize = manifest
-            .bundles
-            .iter()
-            .map(|b| b.net_indices.len())
-            .sum();
+        let total_nets_in_bundles: usize =
+            manifest.bundles.iter().map(|b| b.net_indices.len()).sum();
         let budget_total = BUDGET_MULTIPLIER * total_nets_in_bundles.max(1);
 
         Self {
@@ -98,9 +95,8 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
 
         loop {
             // ----- Step 1: Solve -----
-            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                self.solver.solve()
-            }));
+            let result =
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.solver.solve()));
 
             let elapsed = start.elapsed().as_secs_f64() * 1000.0;
 
@@ -171,8 +167,12 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                     for i in 0..self.var_names.len() {
                         if (i as u32) < sol.len() as u32 {
                             match sol[Var::new(i as u32)] {
-                                TernaryVal::True => { assignments.insert(i, true); }
-                                TernaryVal::False => { assignments.insert(i, false); }
+                                TernaryVal::True => {
+                                    assignments.insert(i, true);
+                                }
+                                TernaryVal::False => {
+                                    assignments.insert(i, false);
+                                }
                                 TernaryVal::DontCare => {}
                             }
                         }
@@ -196,9 +196,7 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                     }
 
                     // ----- Step 3: Instantiate per-net vars + blocking clauses -----
-                    let clauses_added = self.instantiate_per_net_vars(
-                        &violations, net_names,
-                    );
+                    let clauses_added = self.instantiate_per_net_vars(&violations, net_names);
 
                     // Check iteration limit
                     self.cegar_iterations += 1;
@@ -254,10 +252,7 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
     ///
     /// For each diff-pair bundle: check if the bundle's class variable is
     /// assigned TRUE on more than one channel (split possible).
-    fn inspect_violations(
-        &self,
-        assignments: &HashMap<usize, bool>,
-    ) -> Vec<Violation> {
+    fn inspect_violations(&self, assignments: &HashMap<usize, bool>) -> Vec<Violation> {
         let mut violations = Vec::new();
 
         // Find class variables that are TRUE, grouped by bundle.
@@ -308,17 +303,18 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
     /// Instantiate per-net variables and add blocking clauses for violations.
     ///
     /// Returns true if at least one clause was added.
-    fn instantiate_per_net_vars(
-        &mut self,
-        violations: &[Violation],
-        net_names: &[String],
-    ) -> bool {
+    fn instantiate_per_net_vars(&mut self, violations: &[Violation], net_names: &[String]) -> bool {
         let mut any_added = false;
 
         for v in violations {
             if self.budget_used >= self.budget_total {
                 // Mark remaining bundle nets as degraded.
-                if let Some(bundle) = self.manifest.bundles.iter().find(|b| b.bundle_id == v.bundle_id) {
+                if let Some(bundle) = self
+                    .manifest
+                    .bundles
+                    .iter()
+                    .find(|b| b.bundle_id == v.bundle_id)
+                {
                     for &ni in &bundle.net_indices {
                         if let Some(name) = net_names.get(ni)
                             && !self.budget_exhausted_nets.contains(name)
@@ -346,7 +342,12 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
     /// For a diff-pair bundle, create per-net variables and add equivalence
     /// clauses ensuring both members use the same channels.
     fn instantiate_diff_pair_clauses(&mut self, bundle_id: usize) -> bool {
-        let bundle = match self.manifest.bundles.iter().find(|b| b.bundle_id == bundle_id) {
+        let bundle = match self
+            .manifest
+            .bundles
+            .iter()
+            .find(|b| b.bundle_id == bundle_id)
+        {
             Some(b) => b,
             None => return false,
         };
@@ -385,8 +386,14 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
             }
 
             // Equivalence: (¬p ∨ n) ∧ (p ∨ ¬n)
-            let clause1 = [Lit::negative((p_var + 1) as u32), Lit::positive((n_var + 1) as u32)];
-            let clause2 = [Lit::positive((p_var + 1) as u32), Lit::negative((n_var + 1) as u32)];
+            let clause1 = [
+                Lit::negative((p_var + 1) as u32),
+                Lit::positive((n_var + 1) as u32),
+            ];
+            let clause2 = [
+                Lit::positive((p_var + 1) as u32),
+                Lit::negative((n_var + 1) as u32),
+            ];
 
             if self.solver.add_clause(Clause::from(&clause1[..])).is_ok()
                 && self.solver.add_clause(Clause::from(&clause2[..])).is_ok()

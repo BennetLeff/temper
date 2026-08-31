@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree .claude/worktrees/fix-scipy-migration-regression,
+<!-- provenance: commit=a434a9aa9f52b1b1407f4b934153ca1d740c7050 dirty=UNKNOWN -->
 branch fix/scipy-migration-regression, commit cff390182 (the fix) on top of
 origin/main 66a277d94. pcb/temper.kicad_pcb untouched throughout (`git status
 --short pcb/` empty before/after every step; sha256

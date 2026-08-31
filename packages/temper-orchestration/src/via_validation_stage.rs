@@ -81,7 +81,9 @@ impl ViaValidationStage {
         // truthiness guards map to `!set.is_empty()`, the owned sets are
         // rebuilt into the Python frozensets the oracle loops expect.
         let vias = match &state.vias {
-            Some(v) if !v.is_empty() => crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py),
+            Some(v) if !v.is_empty() => {
+                crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py)
+            }
             _ => return Ok(state),
         };
         let routes = match &state.routes {
@@ -114,7 +116,8 @@ impl ViaValidationStage {
                 Ok(v) => v.extract()?,
                 Err(e) if e.is_instance_of::<pyo3::exceptions::PyAttributeError>(py) => false,
                 Err(e) => return Err(e),
-            };            if is_diff_pair {
+            };
+            if is_diff_pair {
                 valid_vias.append(&via)?;
                 continue;
             }
@@ -231,7 +234,12 @@ impl ViaValidationStage {
                 // truncating, identically to the pinned oracle's
                 // `sorted(plane_vias_removed)[:5]`.
                 plane_vias_removed.sort()?;
-                d6_util::py_print(py, &["  Removed plane vias (first 5):".into_pyobject(py)?.into_any()])?;
+                d6_util::py_print(
+                    py,
+                    &["  Removed plane vias (first 5):"
+                        .into_pyobject(py)?
+                        .into_any()],
+                )?;
                 let first5: Vec<Bound<'_, PyAny>> = plane_vias_removed
                     .try_iter()?
                     .take(5)
@@ -244,7 +252,12 @@ impl ViaValidationStage {
                     let msg = d6_util::py_format(
                         py,
                         "    {} at {} layers={} connected={}",
-                        &[net_obj.into_any(), pos.into_any(), layers.into_any(), conn.into_any()],
+                        &[
+                            net_obj.into_any(),
+                            pos.into_any(),
+                            layers.into_any(),
+                            conn.into_any(),
+                        ],
                     )?;
                     d6_util::py_print(py, &[msg])?;
                 }
@@ -306,7 +319,13 @@ impl ViaValidationStage {
                     let t = (i as f64) / (steps as f64);
                     let x = sx + t * (ex - sx);
                     let y = sy + t * (ey - sy);
-                    let pt = PyTuple::new(py, [x.into_pyobject(py)?.into_any(), y.into_pyobject(py)?.into_any()])?;
+                    let pt = PyTuple::new(
+                        py,
+                        [
+                            x.into_pyobject(py)?.into_any(),
+                            y.into_pyobject(py)?.into_any(),
+                        ],
+                    )?;
                     layer_set.call_method1("add", (&pt,))?;
                 }
             }
@@ -331,7 +350,9 @@ impl ViaValidationStage {
         let set_cls = builtins.getattr("set")?;
         let pin_geometry = py.import("temper_placer.core.pin_geometry")?;
         let pin_world_position = pin_geometry.getattr("pin_world_position")?;
-        let standard_order = py.import("temper_placer.core.board")?.getattr("STANDARD_LAYER_ORDER")?;
+        let standard_order = py
+            .import("temper_placer.core.board")?
+            .getattr("STANDARD_LAYER_ORDER")?;
 
         for comp in netlist.getattr("components")?.try_iter()? {
             let comp = comp?;
@@ -347,11 +368,11 @@ impl ViaValidationStage {
                     }
                 } else {
                     let layer = getattr_default(
-                    py,
-                    &pin,
-                    "layer",
-                    crate::grid_hv::str_py(py, DEFAULT_LAYER),
-                )?;
+                        py,
+                        &pin,
+                        "layer",
+                        crate::grid_hv::str_py(py, DEFAULT_LAYER),
+                    )?;
                     add_to_layer_set(py, &index, &set_cls, &layer, &pin_pos)?;
                 }
             }
@@ -375,7 +396,8 @@ impl ViaValidationStage {
             is_plane_net(
                 py,
                 &net,
-                &py.import("temper_placer.core.net_classification")?.into_any(),
+                &py.import("temper_placer.core.net_classification")?
+                    .into_any(),
             )?
         } else {
             false
@@ -390,7 +412,15 @@ impl ViaValidationStage {
         let count = drc
             .call_method1(
                 "count_connected_layers_py",
-                (&position, &layers_list, self.tolerance_mm, trace_index, pin_index, is_plane_net, &plane_layers),
+                (
+                    &position,
+                    &layers_list,
+                    self.tolerance_mm,
+                    trace_index,
+                    pin_index,
+                    is_plane_net,
+                    &plane_layers,
+                ),
             )?
             .extract::<usize>()?;
         Ok(count as i64)
@@ -424,7 +454,9 @@ impl Stage<BoardState> for ViaDeduplicationStage {
 impl ViaDeduplicationStage {
     fn run_inner(&self, py: Python<'_>, state: BoardState) -> PyResult<BoardState> {
         let vias = match &state.vias {
-            Some(v) if !v.is_empty() => crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py),
+            Some(v) if !v.is_empty() => {
+                crate::marshal::to_python::<HashSet<ViaEntry>>(py, v)?.into_bound(py)
+            }
             _ => return Ok(state),
         };
         let builtins = py.import("builtins")?;
@@ -536,14 +568,15 @@ pub fn run_via_validation(
     tolerance_mm: f64,
     require_both_layers: bool,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let stage = ViaValidationStage {
         tolerance_mm,
         require_both_layers,
     };
-    let out = stage.run(rust_state).map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
+    let out = stage
+        .run(rust_state)
+        .map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["vias"])
 }
 
@@ -560,6 +593,8 @@ pub fn run_via_deduplication(
         pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME_DEDUP}: {e}"))
     })?;
     let stage = ViaDeduplicationStage { tolerance_mm };
-    let out = stage.run(rust_state).map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
+    let out = stage
+        .run(rust_state)
+        .map_err(|e| crate::config_attach_stage::to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["vias"])
 }

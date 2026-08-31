@@ -42,18 +42,16 @@ before/after ceiling pair, differing only in ONE evidence field each time:
     ``measured_at_commit`` is well-formed 40-hex but does not resolve to
     any commit in this repository -- the exact 2026-08-07 incident
     AGENTS.md documents verbatim ("a commit absent from this repository's
-    object store entirely"). NOTE: ``validate_raise_evidence`` itself only
-    checks the SHAPE of ``measured_at_commit`` (well-formed hex), not its
-    resolvability against the git object store (that is
-    ``check_measurement_provenance.py``'s ``verify_commits_exist`` job, a
-    separate gate over ``docs/evidence/*`` and this file specifically) --
-    so this class's mutated record is EXPECTED to still report a problem,
-    but for a DIFFERENT reason (the input-hash-freshness check, since a
-    synthetic hash can't also be made to match the real board), not for
-    catching the dangling commit itself. Recorded as a finding: this
-    specific ratchet method does not, by itself, catch a dangling
-    ``measured_at_commit`` -- consistent with AGENTS.md's own account of
-    why ``check_measurement_provenance.py`` had to be added separately.
+    object store entirely"). This class also injects a stale input hash
+    (the corpus's own synthetic seed cannot claim a fresh measurement of
+    the real board), so it is EXPECTED to report BOTH problems: the
+    unresolvable commit (``validate_raise_evidence`` resolves commits
+    against the git object store since the 2026-08-07 fix -- a well-formed
+    SHA that never asks git is exactly how drc_ceiling.json carried an
+    orphaned commit for weeks, so the shape-only check is gone) and the
+    input-hash-freshness problem. The commit-resolvability problem is the
+    class's namesake; the stale-hash problem is the second, independent
+    defect.
 
 Both classes assert ``find_ceiling_raises`` detects the raise (regardless
 of evidence quality -- detection and evidence-validity are different
@@ -76,6 +74,8 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -98,10 +98,42 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _base_ceiling(board_hash: str) -> dict[str, Any]:
+def _current_head_commit(repo_root: Path) -> str:
+    """The repo's own current HEAD commit -- a genuine, resolvable git
+    fact, verified by ``validate_raise_evidence`` itself via
+    ``git cat-file --batch-check`` (the same mechanism
+    ``test_drc_ratchet_approval.py`` uses for its compliant fixtures).
+
+    Derived at runtime rather than hardcoded so the control cannot be
+    orphaned by a future history rewrite -- the exact 2026-08-07 incident
+    class this corpus exists to exercise. ``git rev-parse HEAD`` always
+    names a commit object present in the local object store, so it always
+    resolves, in any checkout depth, in CI or locally.
+    """
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise GateError(
+            f"cannot resolve HEAD commit in {repo_root}: {result.stderr.strip()}"
+        )
+    commit = result.stdout.strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise GateError(f"git rev-parse HEAD returned unexpected value {commit!r}")
+    return commit
+
+
+def _base_ceiling(board_hash: str, measured_at_commit: str) -> dict[str, Any]:
     """A minimal, self-consistent ``drc_ceiling.json``-shaped dict -- the
     corpus's own synthetic seed, never read from or written to the real
-    file."""
+    file. ``measured_at_commit`` must be a real, resolvable commit from the
+    repo being validated against (see ``_current_head_commit``): the
+    ``fully-evidenced-raise-control`` proves the gate is silent on COMPLETE
+    valid evidence, and a commit that does not resolve is not complete
+    evidence."""
     return {
         "_march": {
             "2026-08-01-seed": "synthetic corpus seed -- not a real measurement",
@@ -117,7 +149,7 @@ def _base_ceiling(board_hash: str) -> dict[str, Any]:
                 "nondeterministic_error_types": {"clearance": "observed max + 1 headroom"},
                 "provenance": {
                     "source": "measured-live",
-                    "measured_at_commit": "0" * 40,
+                    "measured_at_commit": measured_at_commit,
                     "dirty": False,
                     "tool_versions": {"kicad-cli": "10.0.5"},
                     "sample_count": 120,
@@ -141,10 +173,11 @@ def run_corpus(repo_root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
     if not board_path.is_file():
         raise GateError(f"real board file not found: {board_path}")
     board_hash = _sha256_file(board_path)
+    head_commit = _current_head_commit(repo_root)
 
     ratchet = DrcRatchet(repo_root / "power_pcb_dataset" / "drc_ceiling.json")
 
-    old_ceiling = _base_ceiling(board_hash)
+    old_ceiling = _base_ceiling(board_hash, head_commit)
 
     verdicts: list[tuple[str, bool, str]] = []
 
@@ -194,10 +227,11 @@ def run_corpus(repo_root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
     ))
 
     # --- class 2: real raise, attributed, but provenance is a DANGLING
-    #     40-hex commit and (necessarily, since this is a synthetic seed
-    #     the corpus controls) a non-matching input hash -- see module
-    #     docstring for why this class's expected finding is the
-    #     input-hash-freshness problem, not a dangling-commit-specific one.
+    #     40-hex commit AND a stale input hash -- see module docstring:
+    #     both defects are expected findings (validate_raise_evidence
+    #     resolves commits against the git object store since the
+    #     2026-08-07 fix, and the stale hash is the second, independent
+    #     defect this class injects).
     dangling = _raised_copy(old_ceiling, 60)
     dangling["_march"]["2026-08-07-dangling"] = (
         "clearance 50 -> 60: synthetic corpus injection -- dangling commit"
@@ -214,13 +248,15 @@ def run_corpus(repo_root: Path) -> tuple[bool, list[tuple[str, bool, str]]]:
     verdicts.append((
         "dangling-commit",
         ok,
-        f"owning gate DrcRatchet.validate_raise_evidence fired (on stale input hash, not on "
-        f"commit resolvability -- that is check_measurement_provenance.py's job, not "
-        f"validate_raise_evidence's): {problems}"
+        f"owning gate DrcRatchet.validate_raise_evidence fired on BOTH injected "
+        f"defects -- unresolvable measured_at_commit AND stale input hash: {problems}"
         if ok
         else f"uncovered/gate-error -- detected={detected} problems={problems!r}",
     ))
 
+    if not verdicts:
+        raise GateError("ceiling-raise-evidence corpus produced zero verdicts -- "
+                        "a vacuous all() here would report a pass with nothing checked")
     overall_ok = all(v[1] for v in verdicts)
     return overall_ok, verdicts
 

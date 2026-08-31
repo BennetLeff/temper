@@ -1,7 +1,8 @@
-"""Differential test: Rust classify/parse kernels vs the pinned Python oracle.
+"""Differential test: Rust classify kernel vs the pinned Python oracle.
 
 Wave-4 migration of the residual compute in ``core/loop_extractor.py``:
-the ``classify_component`` leaf and its ``_parse_capacitance`` helper.
+the ``classify_component`` leaf (whose Rust implementation retains the
+private ``_parse_capacitance`` helper).
 (``auto_extract_loops`` already delegates to the Rust extractor via
 ``loop_extractor_rs.py``; the Python classify leaf is what remains and it
 feeds ``loop_ownership.classify_role``.)
@@ -11,24 +12,20 @@ The pre-migration implementations are pinned VERBATIM as the
 committed at ``68ea250f`` (origin/main, 2026-08-09). **Do not edit them --
 they are the reference.** (R1a)
 
-The Rust side is ``temper_rust_router.classify_component_rs`` /
-``temper_rust_router.parse_capacitance_rs`` (kernels in
-``temper-rust-router-core/src/loop_extractor/classify_py.rs``). Every
+The Rust side is ``temper_rust_router.classify_component_rs`` (the kernel is
+in ``temper-rust-router-core/src/loop_extractor/classify_py.rs``). Every
 assertion drives IDENTICAL inputs through both sides. Floats are compared
-as ``float.hex()``, never a tolerance (wave-4 discipline contract §2 B1-B13
--- this kernel is string classification plus one ``float()``-style
-multiply, so the only bit-exactness risk is the CPython-vs-Rust float
-parse, pinned here on the full parse edge corpus). Calls that can raise
+as ``float.hex()``, never a tolerance (wave-4 discipline contract §2 B1-B13).
+Calls that can raise
 (malformed capacitance values such as ``"1.2.3F"``) are compared for
 error-*type* parity: CPython raises ``ValueError`` from ``float()`` and the
 Rust pyfunction raises ``ValueError`` for the same inputs.
 
 Divergence classes recorded in
 ``packages/temper-rust-router-core/VERIFICATION.md`` (contract §3 --
-"reported, not faked"): a numeric part that overflows f64 (CPython
-``float()`` saturates to ``inf``, e.g. ``"9"*400``) is excluded from the
-raise-parity corpus and handled explicitly; everything else is pinned
-bit-exact here.
+"reported, not faked") remain covered when malformed capacitance values are
+encountered through classification; the direct parse-only binding has been
+retired.
 """
 
 from __future__ import annotations
@@ -201,16 +198,11 @@ def _oracle_parse_capacitance(value_str):
 # ===========================================================================
 # Rust symbols under test -- must exist or this file fails to collect (RED).
 RS_CLASSIFY = temper_rust_router.classify_component_rs
-RS_PARSE = temper_rust_router.parse_capacitance_rs
 
 
 def _rs_classify(ref: str, footprint: str, value: str, mpn: str) -> dict:
     payload = json.dumps({"ref": ref, "footprint": footprint, "value": value, "mpn": mpn})
     return json.loads(RS_CLASSIFY(payload))
-
-
-def _rs_parse(value: str):
-    return json.loads(RS_PARSE(value))["uf"]
 
 
 def _py_classify(ref: str, footprint: str, value: str, mpn: str) -> dict:
@@ -262,42 +254,6 @@ _CLASSIFY_CASES = [
     ("", "Foo", "", ""),  # empty ref -> other
 ]
 
-_PARSE_CASES = [
-    "",
-    "abc",
-    "1abc",
-    "1000uF",
-    "220µF",
-    "10nF",
-    "100pF",
-    "1F",
-    "0.1uF",
-    "47NF",
-    "2.2UF",
-    "1M",
-    "1MF",
-    "1000 UF",
-    "1000uF ",
-    "\t10uF",
-    "10 µF",
-    "1.5UFxyz",
-    "0.5",
-    ".5",
-    "5.",
-    "10P",
-    "10PF",
-    "1.5pF",
-    "1000μF",
-    "1u",
-    "1uf",
-    "1UF",
-    "22 nF",
-    "4.7mF",
-    "10",
-    "10F",
-]
-
-
 def _assert_classification_equal(rs: dict, py: dict) -> None:
     assert rs["ref"] == py["ref"]
     assert rs["category"] == py["category"]
@@ -312,31 +268,6 @@ def test_classify_hand_crafted_corpus_bit_exact():
         rs = _rs_classify(ref, fp, value, mpn)
         py = _py_classify(ref, fp, value, mpn)
         _assert_classification_equal(rs, py)
-
-
-def test_parse_capacitance_hand_crafted_corpus_bit_exact():
-    for value in _PARSE_CASES:
-        py = _oracle_parse_capacitance(value)
-        if py is None:
-            assert _rs_parse(value) is None, f"parse {value!r}: rust gave a value"
-            continue
-        # Guard against accidental float-classification divergences in the
-        # corpus itself: the oracle must produce a float here.
-        assert isinstance(py, float)
-        rs = _rs_parse(value)
-        assert rs is not None, f"parse {value!r}: rust returned None"
-        assert float(rs).hex() == py.hex(), f"parse {value!r}: {rs!r} vs {py!r}"
-
-
-def test_parse_capacitance_error_parity():
-    """Malformed numeric parts raise ValueError on BOTH sides (CPython
-    ``float()`` vs the Rust pyfunction)."""
-    malformed = ["1.2.3F", "1.2.3", ".", "...", "1...1", "1.5.5"]
-    for value in malformed:
-        with pytest.raises(ValueError):
-            _oracle_parse_capacitance(value)
-        with pytest.raises(ValueError):
-            _rs_parse(value)
 
 
 def test_classify_error_parity_on_malformed_capacitance():
@@ -359,8 +290,6 @@ _FOOTPRINT = st.one_of(
     st.sampled_from(["TO-247", "TO-220-3", "TO-263", "R_0805", "C_0603", "CP_Radial_D10", "SOIC-8", "QFN-32", "D_SOD-123", ""]),
     st.text(alphabet=st.characters(codec="ascii"), min_size=0, max_size=12),
 )
-_NUM = st.sampled_from(["", "1", "10", "100", "101", "0.1", "0", "220", "1e", "1.2"])
-_UNIT = st.sampled_from(["", "uF", "µF", "nF", "pF", "F", "UF", "NF", "PF", "M"])
 _VALUE = st.one_of(
     st.sampled_from(["", "1000uF", "10nF", "220µF", "1F", "0.5"]),
     st.text(alphabet="0123456789.uUnNpPFµΜ ", min_size=0, max_size=10),
@@ -384,33 +313,6 @@ def test_classify_randomized_bit_exact(prefix, suffix, footprint, value, mpn):
         return
     rs = _rs_classify(ref, footprint, value, mpn)
     _assert_classification_equal(rs, py)
-
-
-@given(_VALUE)
-@settings(max_examples=300, deadline=60000)
-def test_parse_capacitance_randomized_bit_exact(value):
-    try:
-        py = _oracle_parse_capacitance(value)
-    except ValueError:
-        with pytest.raises(ValueError):
-            _rs_parse(value)
-        return
-    if py is None:
-        assert _rs_parse(value) is None
-        return
-    rs = _rs_parse(value)
-    assert rs is not None
-    assert float(rs).hex() == py.hex(), f"parse {value!r}: {rs!r} vs {py!r}"
-
-
-def test_overflow_saturates_like_cpython():
-    """CPython float() saturates an overflowing digit string to ``inf``; the
-    Rust kernel replicates that (recorded divergence class in VERIFICATION.md)."""
-    huge = "9" * 400
-    assert _oracle_parse_capacitance(huge) == float("inf")
-    rs = _rs_parse(huge)
-    assert float(rs) == float("inf")
-    assert float(rs).hex() == float("inf").hex()
 
 
 def test_delegated_classify_component_matches_oracle():

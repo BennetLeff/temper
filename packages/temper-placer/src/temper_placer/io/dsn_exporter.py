@@ -49,7 +49,10 @@ from temper_placer.io.dsn import DSNExpression, dsn_list
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.kicad_parser import TraceData
+
+    # TraceData moved to _kicad_types (Rust-backed) in the de-kiutils
+    # migration; kicad_parser no longer carries it.
+    from temper_placer.io._kicad_types import TraceData
 
 __all__ = ["DSNExporter"]
 

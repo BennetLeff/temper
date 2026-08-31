@@ -1,4 +1,4 @@
-<!-- provenance: commit=670a751f3 dirty=false -->
+<!-- provenance: commit=670a751f35de8a9e01dbd1330729b2d99aeb77c2 dirty=false -->
 <!-- measured_at_commit: 670a751f3 (branch: fanout12/work-3, off origin/main) -->
 
 # Spike S6: `core/community.py` and `heuristics/spectral.py` — migration-or-keep assessment

@@ -50,15 +50,12 @@ KNOWN BLIND SPOTS (state them; do not pretend this is exhaustive):
   - This does not attempt call-graph reachability from a real entry point --
     only "is it imported by name from somewhere," the same granularity
     `check_unwired_kernels.py` uses for Rust kernels.
-  - A CLOSED CLUSTER of mutually-referencing dead modules is invisible to
-    this gate by construction: if dead module A imports dead module B and
-    nothing outside the cluster imports either, both look "referenced." This
-    is a real, confirmed instance in this repo -- `router_v6/constraints_drc_
-    oracle.py` + `constraints_design_rules.py` + `constraints_spatial_index.py`
-    (~1,984 LOC, docs/evidence/2026-08-17-python-deprecation-spike.md) --
-    caught by hand-tracing, not by this gate. This gate catches the far more
-    common shape (a shim or spike whose single external caller was deleted),
-    not a whole dead subgraph. Do not read "0 orphaned" as "0 dead code."
+  - A CLOSED CLUSTER of mutually-referencing dead modules used to be
+    invisible to this gate. The SCC pass below closes that specific blind
+    spot while retaining package-entry-point, console-script, and Rust-import
+    roots. Reachability is still not a whole-program call graph; computed
+    dynamic imports remain a documented blind spot. Do not read "0 orphaned"
+    as "0 dead code."
 
 THE RATCHET
 -----------
@@ -101,8 +98,14 @@ EXCLUDED_NAME_PATTERNS = (
     "conftest.py",
 )
 
+# Match both ``py.import("module")`` and the pyo3
+# ``PyModule::import(py, "module")`` spelling.  Keep the opening call
+# parenthesis outside the alternation: the previous pattern included it in
+# the second branch and consequently required a *second* ``(``, silently
+# missing every Rust callback that used ``PyModule::import``.
 RUST_PY_IMPORT = re.compile(
-    r'(?:py\.import|PyModule::import(?:_bound)?\(py,?)\s*\(\s*"([A-Za-z_][A-Za-z0-9_.]*)"'
+    r'(?:py\.import|PyModule::import(?:_bound)?)\s*\(\s*(?:py\s*,\s*)?"'
+    r'([A-Za-z_][A-Za-z0-9_.]*)"'
 )
 
 
@@ -270,6 +273,130 @@ def console_script_targets() -> set[str]:
     return referenced
 
 
+def strongly_connected_components(graph: dict[str, set[str]]) -> list[set[str]]:
+    """Return graph SCCs using Tarjan's linear-time algorithm."""
+    index = 0
+    indices: dict[str, int] = {}
+    lowlinks: dict[str, int] = {}
+    stack: list[str] = []
+    on_stack: set[str] = set()
+    components: list[set[str]] = []
+
+    def visit(node: str) -> None:
+        nonlocal index
+        indices[node] = index
+        lowlinks[node] = index
+        index += 1
+        stack.append(node)
+        on_stack.add(node)
+        for target in graph.get(node, set()):
+            if target not in indices:
+                visit(target)
+                lowlinks[node] = min(lowlinks[node], lowlinks[target])
+            elif target in on_stack:
+                lowlinks[node] = min(lowlinks[node], indices[target])
+        if lowlinks[node] != indices[node]:
+            return
+        component: set[str] = set()
+        while True:
+            member = stack.pop()
+            on_stack.remove(member)
+            component.add(member)
+            if member == node:
+                break
+        components.append(component)
+
+    for node in graph:
+        if node not in indices:
+            visit(node)
+    return components
+
+
+def dead_import_subgraph_modules(
+    graph: dict[str, set[str]], roots: set[str]
+) -> set[str]:
+    """Find modules reachable only from closed, rootless import SCCs.
+
+    ``graph[a]`` contains modules imported by ``a``. Roots are modules reached
+    from package entry points, console scripts, or Rust ``py.import`` calls;
+    zero-in-degree candidates are deliberately not treated as roots because a
+    public module may legitimately have no in-repository importer.
+    """
+    reachable: set[str] = set()
+    pending = [root for root in roots if root in graph]
+    while pending:
+        node = pending.pop()
+        if node in reachable:
+            continue
+        reachable.add(node)
+        pending.extend(target for target in graph.get(node, set()) if target not in reachable)
+
+    dead_cycles: list[set[str]] = []
+    for component in strongly_connected_components(graph):
+        if component & reachable:
+            continue
+        cyclic = len(component) > 1 or any(
+            node in graph.get(node, set()) for node in component
+        )
+        if cyclic:
+            dead_cycles.append(component)
+
+    dead: set[str] = set()
+    pending = [node for component in dead_cycles for node in component]
+    while pending:
+        node = pending.pop()
+        if node in dead:
+            continue
+        dead.add(node)
+        pending.extend(target for target in graph.get(node, set()) if target not in dead)
+    return dead
+
+
+def _source_module(path: Path) -> str | None:
+    """Return a package-source module path, excluding non-package roots."""
+    src_root = next((r for r in src_roots() if _is_relative_to(path, r)), None)
+    if src_root is None:
+        return None
+    rel = path.relative_to(src_root).with_suffix("")
+    parts = rel.parts
+    if parts and parts[-1] == "__init__":
+        parts = parts[:-1]
+    return ".".join(parts) or None
+
+
+def _candidate_import_targets(ref: str, candidates: dict[str, Path]) -> set[str]:
+    """Resolve a reference to candidate modules, including loaded parents."""
+    parts = ref.split(".")
+    return {
+        ".".join(parts[:i])
+        for i in range(1, len(parts) + 1)
+        if ".".join(parts[:i]) in candidates
+    }
+
+
+def production_import_graph() -> tuple[dict[str, set[str]], set[str]]:
+    """Build candidate imports and non-candidate production roots."""
+    candidates = candidate_modules()
+    graph = {module: set() for module in candidates}
+    roots: set[str] = set()
+    for py in all_python_files(production_only=True):
+        importer = _source_module(py)
+        refs, _ok = imports_in_file(py)
+        targets = {
+            target
+            for ref in refs
+            for target in _candidate_import_targets(ref, candidates)
+        }
+        if importer in graph:
+            graph[importer] |= targets - {importer}
+        else:
+            roots |= targets
+
+    for target in rust_references() | console_script_targets():
+        roots |= _candidate_import_targets(target, candidates)
+    return graph, roots
+
+
 def load_inventory() -> dict[str, str]:
     if not INVENTORY.exists():
         return {}
@@ -337,6 +464,13 @@ def main() -> int:
     prod_referenced |= non_python
     test_referenced |= non_python
 
+    # A closed cycle can give every member an apparent importer while still
+    # having no production root. Treat the whole unreachable subgraph as
+    # orphaned so the existing shrink-only inventory can record it by module.
+    import_graph, import_roots = production_import_graph()
+    dead_subgraph = dead_import_subgraph_modules(import_graph, import_roots)
+    prod_referenced -= dead_subgraph
+
     if unparseable:
         print(f"WARN: {len(unparseable)} production file(s) did not parse and "
               f"were skipped as an import SOURCE (they can still be a valid "
@@ -370,7 +504,12 @@ def main() -> int:
 
     print("FAIL: orphaned-python-module gate\n")
     for mod in new:
-        tag = "TEST-ONLY, zero production importers" if mod in test_only else "zero importers on ANY surface"
+        if mod in dead_subgraph:
+            tag = "unreachable import SCC/subgraph with no production root"
+        elif mod in test_only:
+            tag = "TEST-ONLY, zero production importers"
+        else:
+            tag = "zero importers on ANY surface"
         print(f"NEW_ORPHANED   {mod}  ({orphaned[mod]})")
         print(f"               {tag} (Python or Rust py.import).")
     for mod in stale:

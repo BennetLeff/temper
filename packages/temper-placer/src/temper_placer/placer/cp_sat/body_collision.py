@@ -62,9 +62,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
-from shapely.geometry import Polygon
+import temper_geometry as _rust_geometry
 
 from temper_placer.core.fab_body import FabBody
 
@@ -72,7 +71,9 @@ from temper_placer.core.fab_body import FabBody
 #: from a boundary touch, not a real collision -- matches the "clear by
 #: 0.19mm/0.39mm" benign pairs measuring exactly 0.0 area under this
 #: pipeline (see module docstring / this repo's PR #1158 cross-validation).
-AREA_TOLERANCE_MM2 = 1e-6
+# Keep the public name for callers/tests, but make Rust the sole source of
+# this policy constant so the extractor and overlap authority cannot drift.
+AREA_TOLERANCE_MM2 = _rust_geometry.AREA_TOLERANCE_MM2
 
 
 # ---------------------------------------------------------------------------
@@ -229,18 +230,6 @@ class BodyCollisionAuditResult:
         return "\n".join(lines)
 
 
-def _global_polygon_or_buffered(body: FabBody, x: float, y: float, rotation_idx: int) -> Polygon:
-    poly = body.get_global_polygon(x, y, rotation_idx)
-    if not poly.is_valid:
-        # Self-intersecting outline from an unusual footprint graphic
-        # (rare -- e.g. a poly with a degenerate/self-crossing edge).
-        # buffer(0) is shapely's standard idiom for repairing this into a
-        # valid geometry equivalent in area; it is a GEOS library boundary
-        # operation, not a re-derivation of the geometry itself.
-        poly = poly.buffer(0)
-    return poly
-
-
 def audit_body_collisions(
     fab_bodies: dict[str, FabBody],
     resolved_positions_mm: dict[str, tuple[float, float]],
@@ -278,61 +267,48 @@ def audit_body_collisions(
 
     result = BodyCollisionAuditResult(refs_without_geometry=refs_without_geometry)
 
-    polygons: dict[str, Any] = {}
-    bounds: dict[str, tuple[float, float, float, float]] = {}
-    for ref in refs:
-        x, y = resolved_positions_mm[ref]
-        rot = resolved_rotations.get(ref, 0)
-        poly = _global_polygon_or_buffered(fab_bodies[ref], x, y, rot)
-        polygons[ref] = poly
-        bounds[ref] = poly.bounds  # (minx, miny, maxx, maxy)
+    points = [
+        [coordinate for point in fab_bodies[ref].points for coordinate in point]
+        for ref in refs
+    ]
+    positions = [resolved_positions_mm[ref] for ref in refs]
+    rotations = [resolved_rotations.get(ref, 0) for ref in refs]
+    # Rust validates and transforms each body once, then returns every pair in
+    # sorted i<j order. Python only applies the allowlist policy to these
+    # already-classified relations.
+    relations = _rust_geometry.fab_body_relations_batch_py(
+        refs, points, positions, rotations
+    )
+    result.checked_pairs = len(relations)
+    for ref_a, ref_b, relation, area in relations:
+        if relation != "overlap" or area <= AREA_TOLERANCE_MM2:
+            continue
 
-    n = len(refs)
-    for i in range(n):
-        ref_a = refs[i]
-        ax0, ay0, ax1, ay1 = bounds[ref_a]
-        poly_a = polygons[ref_a]
-        for j in range(i + 1, n):
-            ref_b = refs[j]
-            bx0, by0, bx1, by1 = bounds[ref_b]
-            # Cheap broad-phase reject: bounding boxes must overlap before
-            # a real polygon boolean is worth computing (O(n^2) pairs over
-            # a ~170-component board is fine for the bbox check; the
-            # shapely intersection is the expensive step this skips for
-            # the overwhelming majority of far-apart pairs).
-            if ax1 < bx0 or bx1 < ax0 or ay1 < by0 or by1 < ay0:
-                continue
-            result.checked_pairs += 1
-            poly_b = polygons[ref_b]
-            area = poly_a.intersection(poly_b).area
-            if area <= AREA_TOLERANCE_MM2:
-                continue  # bodies clear -- a courtyard-only touch, if any, is not this guard's concern
-
-            entry = allowlist.get(ref_a, ref_b)
-            if entry is None:
-                result.violations.append(
-                    BodyCollisionViolation(ref_a, ref_b, area, kind="new")
+        entry = allowlist.get(ref_a, ref_b)
+        if entry is None:
+            result.violations.append(
+                BodyCollisionViolation(ref_a, ref_b, area, kind="new")
+            )
+        elif area > entry.baseline_overlap_mm2 + AREA_TOLERANCE_MM2:
+            result.violations.append(
+                BodyCollisionViolation(
+                    ref_a,
+                    ref_b,
+                    area,
+                    kind="worsened",
+                    baseline_overlap_mm2=entry.baseline_overlap_mm2,
                 )
-            elif area > entry.baseline_overlap_mm2 + AREA_TOLERANCE_MM2:
-                result.violations.append(
-                    BodyCollisionViolation(
-                        ref_a,
-                        ref_b,
-                        area,
-                        kind="worsened",
-                        baseline_overlap_mm2=entry.baseline_overlap_mm2,
-                    )
+            )
+        else:
+            result.allowlisted.append(
+                BodyCollisionViolation(
+                    ref_a,
+                    ref_b,
+                    area,
+                    kind="allowlisted",
+                    baseline_overlap_mm2=entry.baseline_overlap_mm2,
                 )
-            else:
-                result.allowlisted.append(
-                    BodyCollisionViolation(
-                        ref_a,
-                        ref_b,
-                        area,
-                        kind="allowlisted",
-                        baseline_overlap_mm2=entry.baseline_overlap_mm2,
-                    )
-                )
+            )
 
     return result
 

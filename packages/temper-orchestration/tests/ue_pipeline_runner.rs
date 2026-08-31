@@ -95,8 +95,6 @@ def mutate_net_order(tag):
 def make_stage(name, order_log, mutate=None):
     return FakeStage(name, order_log, mutate)
 
-def assign_component_zones(netlist):
-    return [("U1", "z1"), ("U2", "z2")]
 "#;
 
 /// Register the fake `temper_placer.deterministic.state` module (the
@@ -119,7 +117,6 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyModule>> {
 
     let tdb = PyModule::new(py, "temper_design_bundle_python")?;
     let tds = PyModule::new(py, "deterministic_stages")?;
-    tds.add("assign_component_zones", ns.getattr("assign_component_zones")?)?;
     tdb.add("deterministic_stages", &tds)?;
 
     modules.set_item("temper_placer", &pkg)?;
@@ -143,7 +140,7 @@ fn d1_to_d7_order_through_pyclass_loop() {
         for (i, name) in order.iter().enumerate() {
             let make = ns.getattr("make_stage")?;
             let obj = match i % 4 {
-                0 => make.call1((name, &log))?,                       // identity
+                0 => make.call1((name, &log))?, // identity
                 1 => make.call1((name, &log, ns.getattr("mutate_config")?.call1((name,))?))?,
                 2 => make.call1((name, &log, ns.getattr("mutate_net_order")?.call1((name,))?))?,
                 _ => make.call1((name, &log))?,
@@ -203,7 +200,10 @@ fn empty_stage_list_returns_initial_state_identity() {
         let inst = cls.call0()?;
         let empty = PyList::empty(py);
         let out = inst.call_method1("run", (empty, py.None(), initial.clone()))?;
-        assert!(out.is(&initial), "empty stage list must return the exact object");
+        assert!(
+            out.is(&initial),
+            "empty stage list must return the exact object"
+        );
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -214,7 +214,9 @@ fn real_rust_stages_sequence_through_runner() {
     Python::initialize();
     Python::attach(|py| {
         // install_fakes' side effect (sys.modules registration) is what is
-        // needed here; the returned namespace is not.
+        // needed here; the returned namespace is not. Zone assignment is
+        // computed by the pyo3-free orchestration kernel; only the unrelated
+        // factory-path modules are installed as fakes.
         let _ns = install_fakes(py)?;
 
         // A minimal duck-typed netlist (components list for ApplyPlacements).
@@ -233,9 +235,12 @@ class FakeComponent:
 @dataclass
 class FakeNetlist:
     components: list = None
+    nets: list = None
     def __post_init__(self):
         if self.components is None:
             self.components = [FakeComponent("U1"), FakeComponent("U2")]
+        if self.nets is None:
+            self.nets = []
 "#,
         )
         .expect("netlist fake has no NUL");
@@ -280,7 +285,10 @@ class FakeNetlist:
             .iter()
             .map(|r| r.name.to_string())
             .collect();
-        assert_eq!(names, vec!["config_attach", "zone_assignment", "apply_placements"]);
+        assert_eq!(
+            names,
+            vec!["config_attach", "zone_assignment", "apply_placements"]
+        );
         for r in &report.stage_reports {
             assert!(
                 matches!(r.outcome, temper_orchestration::StageOutcome::Completed),

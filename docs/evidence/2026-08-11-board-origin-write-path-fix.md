@@ -1,3 +1,4 @@
+<!-- provenance: commit=e5539273a01c030c0968006fcf61bb4bedba65be dirty=UNKNOWN -->
 # Board-origin write-path bug: two placement writers wrote normalized coordinates into an absolute-coordinate file
 
 **Found by:** PR #1049 (`feat/board-sync-and-placement`), via

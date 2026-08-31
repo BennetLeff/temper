@@ -66,7 +66,10 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
     let mut g_score = vec![INF; n_cells];
     let start = input.start_idx as usize;
     if start >= n_cells {
-        return AstarOutput { path: Vec::new(), iterations: 0 };
+        return AstarOutput {
+            path: Vec::new(),
+            iterations: 0,
+        };
     }
     g_score[start] = 0.0f32;
     let mut came_from = vec![-1i32; n_cells];
@@ -77,9 +80,20 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
     let mut heap_pri: Vec<f32> = Vec::with_capacity(4096);
     let mut heap_idx: Vec<i32> = Vec::with_capacity(4096);
 
-    let (sr, sc) = (input.start_idx / input.cols as i64, input.start_idx % input.cols as i64);
-    let (gr, gc) = (input.goal_idx / input.cols as i64, input.goal_idx % input.cols as i64);
-    heap_push(&mut heap_pri, &mut heap_idx, octile_heuristic_f32((sc - gc).abs(), (sr - gr).abs()), input.start_idx as i32);
+    let (sr, sc) = (
+        input.start_idx / input.cols as i64,
+        input.start_idx % input.cols as i64,
+    );
+    let (gr, gc) = (
+        input.goal_idx / input.cols as i64,
+        input.goal_idx % input.cols as i64,
+    );
+    heap_push(
+        &mut heap_pri,
+        &mut heap_idx,
+        octile_heuristic_f32((sc - gc).abs(), (sr - gr).abs()),
+        input.start_idx as i32,
+    );
 
     let mut iterations: u64 = 0;
     while !heap_pri.is_empty() && iterations < input.max_iterations {
@@ -96,7 +110,10 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
                 c = came_from[c as usize] as i64;
             }
             back_list.reverse();
-            return AstarOutput { path: back_list, iterations };
+            return AstarOutput {
+                path: back_list,
+                iterations,
+            };
         }
 
         if closed[cur_i] != 0 {
@@ -154,7 +171,11 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
             }
 
             // Octile step cost: straight 1.0, diagonal 1.4142135 (f32).
-            let mut step: f32 = if d % 2 == 0 { 1.0 } else { std::f32::consts::SQRT_2 };
+            let mut step: f32 = if d % 2 == 0 {
+                1.0
+            } else {
+                std::f32::consts::SQRT_2
+            };
 
             // Same-net cost discount: cells already committed for this
             // net cost 0.25× of a free cell, so tree branches
@@ -202,7 +223,10 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
         }
     }
 
-    AstarOutput { path: Vec::new(), iterations }
+    AstarOutput {
+        path: Vec::new(),
+        iterations,
+    }
 }
 
 fn heap_push(heap_pri: &mut Vec<f32>, heap_idx: &mut Vec<i32>, pri: f32, idx: i32) {

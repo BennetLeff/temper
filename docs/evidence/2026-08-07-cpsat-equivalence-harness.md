@@ -5,7 +5,7 @@
 **Scope:** build the acceptance criteria and the harness needed to make
 BLOCKER-ORTOOLS (`docs/wave4-verdicts.yaml`) decidable. No solver was
 picked, no code was migrated, no call site was touched. Companion code:
-`docs/evidence/2026-08-07-cpsat-equivalence-harness.py` (independent
+`docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py` (independent
 verifier + engine-pluggable differential harness) and
 `docs/evidence/2026-08-07-cpsat-equivalence-summary.json` (measured
 output from the run this doc reports).
@@ -395,7 +395,7 @@ budgets are seed-sensitive in a way not previously measured.
 ## 7. Reproduction
 
 ```
-uv run --no-sync python docs/evidence/2026-08-07-cpsat-equivalence-harness.py
+uv run --no-sync python docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py
 ```
 
 Run from `packages/temper-placer/` (needs the built Rust extensions —
@@ -406,7 +406,7 @@ approximately 2-3 minutes end-to-end (dominated by the `full-board`
 model's two 30s-timeout seeds).
 
 Files:
-- `docs/evidence/2026-08-07-cpsat-equivalence-harness.py` — verifier +
+- `docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py` — verifier +
   harness + corpus, ~930 lines, no changes to any production module.
 - `docs/evidence/2026-08-07-cpsat-equivalence-summary.json` — the
   54-run raw result set this doc's §4 table summarizes.
