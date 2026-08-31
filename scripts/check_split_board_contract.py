@@ -25,9 +25,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -486,20 +488,31 @@ def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: l
     if not hierarchy_path.is_file():
         raise GateError(f"split-board hierarchy not found: {data['hierarchy']}")
     _require_tracked(hierarchy_path, manifest_path, "split-board hierarchy")
-    if not _is_fixture(manifest_path):
-        try:
-            from check_domain_partition import validate_split_domain_contract
+    try:
+        from check_domain_partition import (
+            check_board_interface_generation_ready,
+            load_manifest,
+            validate_split_domain_contract,
+        )
 
+        if not _is_fixture(manifest_path):
             validate_split_domain_contract(
                 source_path,
                 src_dir=source_path.parent / "src",
             )
+        # This is deliberately a call to the typed authority, not a local
+        # reimplementation of its required-field list.  Physical readiness
+        # includes connector retention/single-fault review and all mechanical
+        # fields, even while the outer contract is still blocked.
+        typed_manifest = load_manifest(source_path)
+        try:
+            check_board_interface_generation_ready(typed_manifest)
         except Exception as exc:
-            if isinstance(exc, GateError):
-                raise
-            raise GateError(
-                "authoritative split domain validation failed: " + str(exc)
-            ) from exc
+            errors.append("domain interface generation readiness blocked: " + str(exc))
+    except Exception as exc:
+        if isinstance(exc, GateError):
+            raise
+        raise GateError("authoritative split domain validation failed: " + str(exc)) from exc
     hierarchy = hierarchy_path.read_text(encoding="utf-8")
     match = re.search(
         r"(?ms)^interface\s+PowerControlSELV:\s*\n(?P<body>.*?)(?=^\S|\Z)",
@@ -525,23 +538,6 @@ def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: l
             "match domain_manifest.yaml board_interface.nets: "
             f"expected {expected_signals!r}, got {actual_signals!r}"
         )
-    # U3 consumes the typed readiness verdict from U1.  An unresolved
-    # interface is a valid, machine-readable blocker, not malformed input.
-    unresolved = [
-        signal.get("net") for signal in source_signals
-        if signal.get("status") != "resolved"
-    ]
-    if unresolved:
-        errors.append(
-            "domain interface readiness blocked: unresolved signal semantics: "
-            + ", ".join(sorted(str(net) for net in unresolved))
-        )
-    fault = source_interface.get("fault_aggregation")
-    if not isinstance(fault, dict) or fault.get("status") != "resolved":
-        errors.append("domain interface readiness blocked: fault aggregation semantics are unresolved")
-    generation_spec = source_interface.get("generation")
-    if not isinstance(generation_spec, dict) or generation_spec.get("status") != "ready":
-        errors.append("domain interface readiness blocked: generation.status is not 'ready'")
 
 
 def _check_review_evidence(
@@ -582,14 +578,18 @@ def _read_artifact(path: Path, context: str, *, suffix: str | None = None) -> by
     return contents
 
 
+def _atopile_declarations(text: str) -> list[str]:
+    return re.findall(
+        r"(?m)^\s*(?:module|interface|component)\s+([A-Za-z_]\w*)\s*:",
+        text,
+    )
+
+
 def _check_atopile_entrypoint(path: Path, context: str, board_role: str) -> bytes:
     """Require an Atopile source to contain a real module/interface shape."""
     contents = _read_artifact(path, context, suffix=".ato")
     text = contents.decode("utf-8")
-    declarations = re.findall(
-        r"(?m)^\s*(?:module|interface|component)\s+([A-Za-z_]\w*)\s*:",
-        text,
-    )
+    declarations = _atopile_declarations(text)
     if not declarations:
         raise GateError(f"{context} has no Atopile module, interface, or component declaration")
     if not re.search(r"(?m)^\s*module\s+[A-Za-z_]\w*\s*:", text):
@@ -686,6 +686,139 @@ def _check_sexp_artifact(path: Path, context: str, root: bytes, suffix: str) -> 
     return contents
 
 
+def _sexp_atom(value: Any) -> str:
+    """Return an S-expression atom without KiCad's optional quoting."""
+    if not isinstance(value, str):
+        return ""
+    if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
+        try:
+            return str(json.loads(value))
+        except json.JSONDecodeError:
+            return value[1:-1]
+    return value
+
+
+def _sexp_field(node: list[Any], name: str) -> str | None:
+    for child in node[1:]:
+        if isinstance(child, list) and child and child[0] == name and len(child) >= 2:
+            return _sexp_atom(child[1])
+    return None
+
+
+def _artifact_inventory(contents: bytes, root: str, context: str) -> tuple[set[str], set[str]]:
+    """Extract the identity-bearing component and net inventories.
+
+    A root/header check is not enough: a copied empty board and an unrelated
+    netlist can both be syntactically valid.  This parser intentionally keeps
+    the inventory small and structural, while the manifest's identity record
+    supplies the reviewed expected values.
+    """
+    tree = _parse_sexp(contents, context)
+    if not tree or tree[0] != root:
+        raise GateError(f"{context} has unexpected root {tree[:1]!r}")
+    components: set[str] = set()
+    nets: set[str] = set()
+    if root == "export":
+        blocks = [child for child in tree[1:] if isinstance(child, list) and child]
+        components_block = next((b for b in blocks if b[0] == "components"), None)
+        nets_block = next((b for b in blocks if b[0] == "nets"), None)
+        if components_block is None or nets_block is None:
+            raise GateError(f"{context} is missing components or nets")
+        for comp in components_block[1:]:
+            if isinstance(comp, list) and comp and comp[0] == "comp":
+                ref = _sexp_field(comp, "ref")
+                if ref:
+                    components.add(ref)
+        for net in nets_block[1:]:
+            if isinstance(net, list) and net and net[0] == "net":
+                name = _sexp_field(net, "name")
+                if name:
+                    nets.add(name)
+    elif root == "kicad_pcb":
+        for child in tree[1:]:
+            if not isinstance(child, list) or not child:
+                continue
+            if child[0] == "net" and len(child) >= 3:
+                name = _sexp_atom(child[2])
+                if name:
+                    nets.add(name)
+            if child[0] != "footprint":
+                continue
+            reference = None
+            for nested in child[1:]:
+                if not isinstance(nested, list) or not nested:
+                    continue
+                if nested[0] == "property" and len(nested) >= 3:
+                    if _sexp_atom(nested[1]) == "Reference":
+                        reference = _sexp_atom(nested[2])
+                elif nested[0] == "fp_text" and len(nested) >= 3:
+                    if _sexp_atom(nested[1]) == "reference":
+                        reference = _sexp_atom(nested[2])
+                elif nested[0] == "pad":
+                    net_fields = [
+                        item for item in nested[1:]
+                        if isinstance(item, list) and item and item[0] == "net"
+                    ]
+                    net_name = _sexp_atom(net_fields[0][2]) if net_fields and len(net_fields[0]) >= 3 else None
+                    if net_name:
+                        nets.add(net_name)
+            if reference:
+                components.add(reference)
+    if not components or not nets:
+        raise GateError(f"{context} has no meaningful component/net inventory")
+    return components, nets
+
+
+def _check_board_identity(
+    board: dict[str, Any],
+    board_role: str,
+    source_path: Path,
+    netlist_path: Path,
+    pcb_path: Path,
+    source_bytes: bytes,
+    netlist_bytes: bytes,
+    pcb_bytes: bytes,
+) -> None:
+    identity = board.get("identity")
+    context = f"{board_role} board identity"
+    if not isinstance(identity, dict):
+        raise GateError(f"{context} must be declared for enabled generation")
+    for field, artifact, actual in (
+        ("source_sha256", source_path, source_bytes),
+        ("netlist_sha256", netlist_path, netlist_bytes),
+        ("pcb_sha256", pcb_path, pcb_bytes),
+    ):
+        digest = identity.get(field)
+        if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+            raise GateError(f"{context}.{field} must be a full SHA-256")
+        if digest != sha256_file_from_bytes(actual):
+            raise GateError(f"{context}.{field} does not match {artifact}")
+    modules = identity.get("source_modules")
+    refs = identity.get("component_refs")
+    names = identity.get("net_names")
+    for field, value in (("source_modules", modules), ("component_refs", refs), ("net_names", names)):
+        if not isinstance(value, list) or not value or any(not isinstance(v, str) or not v.strip() for v in value):
+            raise GateError(f"{context}.{field} must be a non-empty string list")
+        if len(set(value)) != len(value):
+            raise GateError(f"{context}.{field} must not contain duplicates")
+    source_inventory = set(_atopile_declarations(source_bytes.decode("utf-8")))
+    netlist_inventory = _artifact_inventory(netlist_bytes, "export", f"{board_role} board netlist")
+    pcb_inventory = _artifact_inventory(pcb_bytes, "kicad_pcb", f"{board_role} board PCB")
+    expected_modules, expected_refs, expected_names = set(modules), set(refs), set(names)
+    if source_inventory != expected_modules:
+        raise GateError(f"{context}.source_modules does not match source declarations")
+    if netlist_inventory[0] != expected_refs or pcb_inventory[0] != expected_refs:
+        raise GateError(f"{context}.component_refs do not match netlist and PCB inventories")
+    if netlist_inventory[1] != expected_names or pcb_inventory[1] != expected_names:
+        raise GateError(f"{context}.net_names do not match netlist and PCB inventories")
+
+
+def sha256_file_from_bytes(contents: bytes) -> str:
+    import hashlib
+
+    return hashlib.sha256(contents).hexdigest()
+
+
 def _check_drc_report(
     path: Path,
     board_id: str,
@@ -711,15 +844,22 @@ def _check_drc_report(
         raise GateError(f"{board_id} DRC report must record engineering_values")
     if not isinstance(report.get("sample_count"), int) or report["sample_count"] < 1:
         raise GateError(f"{board_id} DRC report must record a positive sample_count")
-    nondeterministic = report.get("nondeterministic_error_types", [])
-    if not isinstance(nondeterministic, list) or any(
-        not isinstance(item, str) or not item.strip() for item in nondeterministic
-    ):
-        raise GateError(f"{board_id} DRC report nondeterministic_error_types must be a list")
+    # Nondeterminism is a property of the tracked measurement campaign, not
+    # something a report may self-declare to lower its sample burden.
+    if "nondeterministic_error_types" in report:
+        raise GateError(
+            f"{board_id} DRC report must not self-declare nondeterministic categories; "
+            "use the tracked ceiling source"
+        )
+    if "nondeterministic_error_types" not in ceiling_limits:
+        raise GateError(
+            f"{board_id} DRC ceiling policy must declare nondeterministic_error_types"
+        )
+    nondeterministic = ceiling_limits["nondeterministic_error_types"]
     if nondeterministic and report["sample_count"] < 120:
         raise GateError(
             f"{board_id} DRC report needs at least 120 samples when "
-            "nondeterministic error types are declared"
+            "the tracked ceiling policy declares nondeterministic error types"
         )
     for field in ("violations_by_type", "warnings_by_type"):
         counts = report.get(field)
@@ -735,8 +875,13 @@ def _check_drc_report(
         raise GateError(f"{board_id} DRC report pcb_sha256 does not match its PCB")
     if report.get("provenance_sha256") != provenance_hash:
         raise GateError(f"{board_id} DRC report provenance_sha256 does not match its provenance")
-    if not isinstance(report.get("method_config"), dict) or not report["method_config"]:
+    method_config = report.get("method_config")
+    if not isinstance(method_config, dict) or not method_config:
         raise GateError(f"{board_id} DRC report must record non-empty method_config")
+    if method_config.get("backend") != "kicad-cli":
+        raise GateError(f"{board_id} DRC method must use canonical kicad-cli")
+    if method_config.get("all_track_errors") is not True:
+        raise GateError(f"{board_id} DRC method must pass --all-track-errors")
     # The report itself is content-addressed, so a copied/stale report cannot
     # be made to agree with a new PCB merely by changing its binding fields.
     digest = report.get("content_sha256")
@@ -823,6 +968,14 @@ def _load_ceiling_source(
         limits[field] = selected[field]
     limits["source_ref"] = str(path.relative_to(_contract_repo_root(manifest_path)))
     limits["board_id"] = selected.get("board_id", board_id)
+    if selected.get("category_source") != "kicad-cli":
+        raise GateError(f"{board_id} DRC ceiling source category_source must be 'kicad-cli'")
+    nondeterministic = selected.get("nondeterministic_error_types", {})
+    if not isinstance(nondeterministic, dict):
+        raise GateError(f"{board_id} DRC ceiling source nondeterministic_error_types must be a mapping")
+    if any(not isinstance(name, str) or not name.strip() for name in nondeterministic):
+        raise GateError(f"{board_id} DRC ceiling source has invalid nondeterministic category")
+    limits["nondeterministic_error_types"] = nondeterministic
     return limits
 
 
@@ -1006,11 +1159,25 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
             ):
                 source_path = _resolve(source_entrypoint, path)
                 netlist_path = _resolve(netlist_value, path)
-                _check_atopile_entrypoint(
+                source_bytes = _check_atopile_entrypoint(
                     source_path, f"{board_role} board source entrypoint", board_role
                 )
-                _check_sexp_artifact(pcb_path, f"{board_role} board PCB artifact", b"kicad_pcb", ".kicad_pcb")
-                _check_sexp_artifact(netlist_path, f"{board_role} board netlist artifact", b"export", ".net")
+                pcb_bytes = _check_sexp_artifact(
+                    pcb_path, f"{board_role} board PCB artifact", b"kicad_pcb", ".kicad_pcb"
+                )
+                netlist_bytes = _check_sexp_artifact(
+                    netlist_path, f"{board_role} board netlist artifact", b"export", ".net"
+                )
+                _check_board_identity(
+                    board,
+                    board_role,
+                    source_path,
+                    netlist_path,
+                    pcb_path,
+                    source_bytes,
+                    netlist_bytes,
+                    pcb_bytes,
+                )
                 for artifact_path, context in (
                     (source_path, f"{board_role} board source entrypoint"),
                     (pcb_path, f"{board_role} board PCB artifact"),
@@ -1136,16 +1303,95 @@ def assert_generation_ready(path: Path = DEFAULT_MANIFEST) -> None:
 
 
 def generate_with_contract(
-    path: Path, writer: Callable[[], Any]
-) -> Any:
-    """Run a future artifact writer only after the readiness gate passes.
+    path: Path,
+    writer: Callable[[Path], dict[Path, bytes]],
+    *,
+    outputs: tuple[Path, ...],
+    validate: Callable[[dict[Path, bytes]], Any],
+) -> dict[Path, bytes]:
+    """Stage, validate, and atomically publish generated artifacts.
 
-    This is the integration seam for every split-board generator.  The
-    callback is deliberately invoked *after* ``assert_generation_ready``;
-    tests can therefore prove a blocked contract performs zero writes.
+    ``writer`` receives a private staging directory and returns bytes keyed by
+    the exact final paths it intends to publish.  It never receives permission
+    to write a final artifact.  Before publication we snapshot every target so
+    a callback that tries to bypass the protocol (including during a first
+    generation where the target does not yet exist) fails closed.  Validation
+    runs over all staged bytes before any ``os.replace`` occurs.
     """
     assert_generation_ready(path)
-    return writer()
+    if not outputs:
+        raise GateError("generation outputs must be a non-empty tuple")
+    resolved_outputs = tuple(output.resolve() for output in outputs)
+    if len(set(resolved_outputs)) != len(resolved_outputs):
+        raise GateError("generation outputs must be distinct")
+    repo_root = _contract_repo_root(path).resolve()
+    for output in resolved_outputs:
+        try:
+            output.relative_to(repo_root)
+        except ValueError as exc:
+            raise GateError(f"generation output escapes its repository: {output}") from exc
+
+    before: dict[Path, bytes | None] = {
+        output: output.read_bytes() if output.is_file() else None
+        for output in resolved_outputs
+    }
+    stage_parent = path.parent.resolve()
+    published = False
+    try:
+        with tempfile.TemporaryDirectory(prefix="split-board-stage-", dir=stage_parent) as raw_stage:
+            stage_dir = Path(raw_stage)
+            generated = writer(stage_dir)
+            if not isinstance(generated, dict):
+                raise GateError("generation writer must return a mapping of final paths to bytes")
+            normalized_generated = {
+                Path(key).resolve(): value for key, value in generated.items()
+            }
+            generated_paths = set(normalized_generated)
+            if generated_paths != set(resolved_outputs):
+                raise GateError("generation writer outputs do not match declared final paths")
+            staged: dict[Path, bytes] = {}
+            for output in resolved_outputs:
+                value = normalized_generated[output]
+                if not isinstance(value, bytes) or not value.strip() or b"\x00" in value:
+                    raise GateError(f"generated artifact is empty or contains NUL bytes: {output}")
+                staged[output] = value
+                (stage_dir / f"{len(staged)}.artifact").write_bytes(value)
+
+            # A malicious callback can still close over a destination path;
+            # ensure it did not alter a pre-existing artifact or create one.
+            for output, old in before.items():
+                current = output.read_bytes() if output.is_file() else None
+                if current != old:
+                    raise GateError(f"generation writer modified final artifact before validation: {output}")
+            validate(staged)
+
+            temporary_targets: list[tuple[Path, Path]] = []
+            try:
+                for index, output in enumerate(resolved_outputs):
+                    temp_target = output.with_name(f".{output.name}.split-stage-{os.getpid()}-{index}")
+                    temp_target.write_bytes(staged[output])
+                    with temp_target.open("rb") as handle:
+                        os.fsync(handle.fileno())
+                    temporary_targets.append((temp_target, output))
+                for temp_target, output in temporary_targets:
+                    os.replace(temp_target, output)
+                published = True
+            except OSError as exc:
+                for temp_target, _ in temporary_targets:
+                    temp_target.unlink(missing_ok=True)
+                raise GateError(f"atomic generation publish failed: {exc}") from exc
+            return staged
+    finally:
+        # A writer which bypasses the API must not leave a modified final file
+        # behind, even when validation or publication fails.
+        if not published:
+            for output, old in before.items():
+                current = output.read_bytes() if output.is_file() else None
+                if current != old:
+                    if old is None:
+                        output.unlink(missing_ok=True)
+                    else:
+                        output.write_bytes(old)
 
 
 def run(path: Path = DEFAULT_MANIFEST) -> int:

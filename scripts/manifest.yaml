@@ -392,14 +392,20 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.measurement_provenance
+  - _lib.repo
   - argparse
+  - check_evidence_provenance
   - collections.abc
   - hashlib
   - json
+  - math
+  - os
   - pathlib
   - re
   - subprocess
   - sys
+  - tempfile
   - typing
   - yaml
 - path: check_drc_ceiling_approval.py

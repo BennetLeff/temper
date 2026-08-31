@@ -268,7 +268,10 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
             f"(comment {role}) "
             "(general (thickness 1.6)) "
             "(layers (0 \"F.Cu\" signal) (31 \"B.Cu\" signal)) "
-            "(setup (pad_to_mask_clearance 0)))\n",
+            "(setup (pad_to_mask_clearance 0)) "
+            f"(net 1 \"gnd\") "
+            f"(footprint \"Test:Footprint\" (property \"Reference\" \"{role[0].upper()}1\") "
+            "(pad \"1\" thru_hole circle (net 1 \"gnd\"))))\n",
             encoding="utf-8",
         )
         netlist.write_text(
@@ -297,8 +300,11 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
     ceiling_record = {
         "schema_version": 1,
         "source_identity": "split-fixture-ceiling",
+        "category_source": "kicad-cli",
         "boards": [{
             "board_id": "split-fixture",
+            "category_source": "kicad-cli",
+            "nondeterministic_error_types": {},
             "error_ceiling": 2,
             "warning_ceiling": 0,
             "violations_by_type": {"clearance": 2},
@@ -421,6 +427,25 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
     source_interface["generation"]["status"] = "ready"
     source_path.write_text(yaml.safe_dump(source_data, sort_keys=False), encoding="utf-8")
 
+    # Ready artifacts must carry explicit source/netlist/PCB identity.  This
+    # mirrors the record a real generator writes after rendering its bytes.
+    contract_data = yaml.safe_load(complete_path.read_text(encoding="utf-8"))
+    for role in ("power", "control"):
+        source = tmp_path / f"{role}_board.ato"
+        netlist = tmp_path / f"{role}.net"
+        board = tmp_path / f"{role}.kicad_pcb"
+        contract_data["boards"][role]["identity"] = {
+            "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+            "netlist_sha256": hashlib.sha256(netlist.read_bytes()).hexdigest(),
+            "pcb_sha256": hashlib.sha256(board.read_bytes()).hexdigest(),
+            "source_modules": [
+                "PowerBoardBoundary" if role == "power" else "ControlBoardBoundary"
+            ],
+            "component_refs": [f"{role[0].upper()}1"],
+            "net_names": ["gnd"],
+        }
+    complete_path.write_text(yaml.safe_dump(contract_data, sort_keys=False), encoding="utf-8")
+
     assert validate_contract(complete_path) == []
     assert run(complete_path) == EXIT_OK
     assert_generation_ready(complete_path)
@@ -476,9 +501,63 @@ def test_blocked_generation_guard_writes_nothing(tmp_path):
     writes: list[str] = []
 
     with pytest.raises(GateError, match="not ready"):
-        generate_with_contract(path, lambda: writes.append("artifact"))
+        generate_with_contract(
+            path,
+            lambda stage: writes.append("artifact") or {},
+            outputs=(tmp_path / "board.kicad_pcb",),
+            validate=lambda generated: None,
+        )
 
     assert writes == []
+
+
+def test_generation_rejects_callback_overwrite_of_existing_output(tmp_path, monkeypatch):
+    import check_split_board_contract as gate
+
+    monkeypatch.setattr(gate, "assert_generation_ready", lambda path: None)
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+    target = tmp_path / "board.kicad_pcb"
+    target.write_bytes(b"old-board")
+
+    def malicious(stage):
+        target.write_bytes(b"attacker-output")
+        return {target: b"new-board"}
+
+    with pytest.raises(GateError, match="modified final artifact"):
+        gate.generate_with_contract(
+            manifest,
+            malicious,
+            outputs=(target,),
+            validate=lambda generated: None,
+        )
+    assert target.read_bytes() == b"old-board"
+
+
+def test_generation_first_publish_is_atomic_and_validated(tmp_path, monkeypatch):
+    import check_split_board_contract as gate
+
+    monkeypatch.setattr(gate, "assert_generation_ready", lambda path: None)
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+    target = tmp_path / "board.kicad_pcb"
+    seen: list[bytes] = []
+
+    def writer(stage):
+        return {target: b"generated-board"}
+
+    def validate(generated):
+        seen.append(generated[target])
+
+    result = gate.generate_with_contract(
+        manifest,
+        writer,
+        outputs=(target,),
+        validate=validate,
+    )
+    assert result[target] == b"generated-board"
+    assert seen == [b"generated-board"]
+    assert target.read_bytes() == b"generated-board"
 
 
 def test_blocked_cli_emits_machine_readable_missing_prerequisites(tmp_path, capsys):
@@ -563,7 +642,7 @@ def test_nonzero_drc_is_allowed_only_within_project_ceiling(tmp_path):
         "pollution_degree": 3,
         "required_creepage_mm": 12.6,
         "engineering_values": {"all_track_errors": True},
-        "method_config": {"backend": "kicad-cli"},
+        "method_config": {"backend": "kicad-cli", "all_track_errors": True},
         "sample_count": 1,
         "violations_by_type": {"clearance": 1},
         "warnings_by_type": {},
@@ -587,6 +666,7 @@ def test_nonzero_drc_is_allowed_only_within_project_ceiling(tmp_path):
         "warnings_by_type": {},
         "error_ceiling": 1,
         "warning_ceiling": 0,
+        "nondeterministic_error_types": {},
     }
     _check_drc_report(
         report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
@@ -605,6 +685,68 @@ def test_nonzero_drc_is_allowed_only_within_project_ceiling(tmp_path):
     report_record["content_sha256"] = _evidence_digest(report_record)
     report.write_text(json.dumps(report_record), encoding="utf-8")
     with pytest.raises(GateError, match="self-declared ceilings"):
+        _check_drc_report(
+            report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
+        )
+
+
+def test_drc_sampling_comes_from_tracked_policy_and_method_is_canonical(tmp_path):
+    board = tmp_path / "power.kicad_pcb"
+    board.write_text("(kicad_pcb (version 20240108))", encoding="utf-8")
+    provenance_record = {
+        "source": "measured-live",
+        "dirty": False,
+        "measured_at_commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip(),
+        "tool_versions": {"kicad-cli": "10.0.5"},
+        "inputs": [{"path": board.name, "sha256": hashlib.sha256(board.read_bytes()).hexdigest()}],
+    }
+    provenance_record["content_sha256"] = _evidence_digest(provenance_record)
+    provenance = tmp_path / "provenance.json"
+    provenance.write_text(json.dumps(provenance_record), encoding="utf-8")
+    report_record = {
+        "schema_version": 1,
+        "approved": True,
+        "source_identity": "kicad-cli-10.0.5",
+        "pollution_degree": 3,
+        "required_creepage_mm": 12.6,
+        "engineering_values": {"all_track_errors": True},
+        "method_config": {"backend": "kicad-cli", "all_track_errors": True},
+        "sample_count": 1,
+        "violations_by_type": {},
+        "warnings_by_type": {},
+        "pcb_sha256": hashlib.sha256(board.read_bytes()).hexdigest(),
+        "provenance_sha256": provenance_record["content_sha256"],
+        "acceptance": {
+            "source": "project-drc-ceiling",
+            "ceiling_source": "drc-ceiling.json",
+            "ceiling_board_id": "POWER_BOARD",
+        },
+    }
+    report_record["content_sha256"] = _evidence_digest(report_record)
+    report = tmp_path / "drc.json"
+    report.write_text(json.dumps(report_record), encoding="utf-8")
+    manifest = tmp_path / "split_board_manifest.yaml"
+    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+    limits = {
+        "source_ref": "drc-ceiling.json",
+        "board_id": "POWER_BOARD",
+        "violations_by_type": {},
+        "warnings_by_type": {},
+        "error_ceiling": 0,
+        "warning_ceiling": 0,
+        "nondeterministic_error_types": {"creepage": {"samples": 120}},
+    }
+    with pytest.raises(GateError, match="tracked ceiling policy"):
+        _check_drc_report(
+            report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
+        )
+    report_record["sample_count"] = 120
+    report_record["nondeterministic_error_types"] = ["creepage"]
+    report_record["content_sha256"] = _evidence_digest(report_record)
+    report.write_text(json.dumps(report_record), encoding="utf-8")
+    with pytest.raises(GateError, match="must not self-declare"):
         _check_drc_report(
             report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
         )
