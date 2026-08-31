@@ -70,6 +70,11 @@ configuration-space view used by route search.
 The fail-closed decision that a routing attempt's required endpoints remain usable
 after the routing family's static and foreign-copper obligations are applied.
 
+### Pad Occurrence
+
+Exactly one physical solder pad, identified by its logical pad number plus its
+zero-based encounter index among same-numbered pads on one component.
+
 ### Foreign-Obstacle Halo
 
 The configuration-space region that a routing family must keep clear around

@@ -78,14 +78,15 @@ from tests.router_v6._via_annular_floor import floor_compliant_via
 _VIA_DIAMETER, _VIA_DRILL = floor_compliant_via()
 
 # ---------------------------------------------------------------------------
-# The oracles must stay verbatim
+# The oracles are content-addressed
 # ---------------------------------------------------------------------------
 #
-# Verbatim pre-migration copies of the `_adapter_convert.py` blocks AS
-# COMMITTED at the dispatch base (origin/main 6ac9b8107).  Do NOT edit: they
-# are the reference.  If the module's source really changes upstream,
-# re-pin the bodies in their own commit (the `_ORACLE_*_SHA256` digests below
-# fail on any drift).
+# The route-payload and routing-result bodies remain verbatim pre-migration
+# copies. The pad-position body was deliberately re-pinned on 2026-08-30 to
+# physical pad occurrences, with evidence in
+# docs/evidence/2026-08-30-duplicate-pad-occurrence-terminal-closure.md.
+# Re-pin any body only in its own evidence-backed commit; the digests below
+# fail on drift.
 
 
 def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float]]]:
@@ -100,11 +101,14 @@ def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float
     now calls back into via ``pin_world_position_at_py``), so the differential
     asserts the Rust port matches canonical pad-position geometry rather than
     the historical bug. Missing ``initial_rotation_quadrant``/``initial_side``
-    read as 0/0 (getattr defaults, exactly like the Rust kernel). Everything
-    else (the ``comp_by_ref`` dict comprehension, the ``getattr(net, "pins",
-    [])`` walk, the ``comp.get_pin`` duck-typed call, the comp-position
-    fallback for a missing/None pin) is unchanged from the pre-migration
-    body."""
+    read as 0/0 (getattr defaults, exactly like the Rust kernel).
+
+    RE-PINNED 2026-08-30 (deliberate, with duplicate-contact closure): a
+    physical ``component.pins`` collection is occurrence-indexed so K2/K3's
+    repeated relay-contact rows resolve to distinct holes. Legacy duck
+    fixtures without a physical pin collection retain their ``get_pin``
+    fallback. A requested physical occurrence that does not exist is omitted;
+    it must not fabricate a pad at the component anchor."""
     pad_positions: dict[str, list[tuple[float, float]]] = {}
     if pcb is not None:
         import temper_geometry as _tg
@@ -112,12 +116,27 @@ def _oracle_collect_pad_positions(pcb: Any) -> dict[str, list[tuple[float, float
         comp_by_ref = {c.ref: c for c in pcb.components}
         for net in pcb.nets:
             positions: list[tuple[float, float]] = []
+            occurrence_by_pin: dict[tuple[str, str], int] = {}
             for comp_ref, pin_name in getattr(net, "pins", []):
                 comp = comp_by_ref.get(comp_ref)
                 if comp is None:
                     continue
                 comp_pos = getattr(comp, "initial_position", (0.0, 0.0))
-                pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
+                key = (comp_ref, pin_name)
+                occurrence = occurrence_by_pin.get(key, 0)
+                occurrence_by_pin[key] = occurrence + 1
+                physical_pins = getattr(comp, "pins", None)
+                if physical_pins is not None:
+                    matches = [
+                        candidate
+                        for candidate in physical_pins
+                        if candidate.name == pin_name or candidate.number == pin_name
+                    ]
+                    if occurrence >= len(matches):
+                        continue
+                    pin = matches[occurrence]
+                else:
+                    pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
                 if pin is None:
                     positions.append((float(comp_pos[0]), float(comp_pos[1])))
                 else:
@@ -299,7 +318,7 @@ def _body_sha256(name: str) -> str:
 # The oracles are evidence only while they are unmodified.  Pinned so a body
 # edit fails this test rather than silently re-pinning the differential.
 _ORACLE_COLLECT_PAD_POSITIONS_SHA256 = (
-    "ab4c4b81dca817238c1e2a03c0a76377cae2d97543a4183e2ac728b2afc5918c"
+    "1af523b08a78cac5d3018368354fe7499695c57b95dfdec59f1ed5fc9b47b830"
 )
 _ORACLE_BUILD_ROUTE_PAYLOAD_SHA256 = (
     "63a2da4cd8a3022a60f96541dcec29285f6635a0c3a4d454c91b43254cfe5c05"
@@ -446,6 +465,91 @@ def test_collect_pad_positions_get_pin_returns_none():
     pcb = _pcb(comps, nets)
     _assert_pad_positions_same(pcb, "get_pin None")
     assert dict(_to.run_collect_pad_positions(pcb))["NET_X"] == [(1.0, 2.0)]
+
+
+def test_collect_pad_positions_keeps_duplicate_numbered_physical_pads_distinct():
+    from temper_placer.core.netlist import Component, Net, Pin
+
+    relay = Component("K2", "relay", (30, 14), initial_position=(100, 50))
+    relay.pins = [
+        Pin("3", "3", (0.0, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+        Pin("3", "3", (7.5, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+    ]
+    pcb = _pcb(
+        [relay],
+        [Net("RELAY_NO", [("K2", "3"), ("K2", "3")])],
+    )
+
+    _assert_pad_positions_same(pcb, "duplicate physical relay contacts")
+    assert dict(_to.run_collect_pad_positions(pcb))["RELAY_NO"] == [
+        (100.0, 50.0),
+        (107.5, 50.0),
+    ]
+    assert _to.run_collect_duplicate_pad_edges(pcb) == [
+        (
+            "RELAY_NO",
+            "K2",
+            "3",
+            (0, 100.0, 50.0),
+            (1, 107.5, 50.0),
+            "F.Cu",
+        )
+    ]
+
+
+def test_collect_duplicate_pad_edges_skips_unconnected_and_missing_geometry():
+    from temper_placer.core.netlist import Component, Pin
+
+    connected = Component("K2", "relay", (30, 14), initial_position=(100, 50))
+    connected.pins = [
+        Pin("3", "3", (0.0, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+        Pin("3", "3", (7.5, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+        Pin("NC", "NC", (0.0, 4.0), net=None, layer="all", is_pth=True),
+    ]
+    unplaced = Component("K9", "relay", (30, 14), initial_position=None)
+    unplaced.pins = [
+        Pin("3", "3", (0.0, 0.0), net="UNPLACED", layer="all", is_pth=True),
+        Pin("3", "3", (7.5, 0.0), net="UNPLACED", layer="all", is_pth=True),
+    ]
+
+    assert _to.run_collect_duplicate_pad_edges(_pcb([connected, unplaced], [])) == [
+        (
+            "RELAY_NO",
+            "K2",
+            "3",
+            (0, 100.0, 50.0),
+            (1, 107.5, 50.0),
+            "F.Cu",
+        )
+    ]
+
+
+def test_collect_duplicate_pad_edges_omits_layer_incompatible_occurrences():
+    from temper_placer.core.netlist import Component, Pin
+
+    mixed = Component("K2", "relay", (30, 14), initial_position=(100, 50))
+    mixed.pins = [
+        Pin("3", "3", (0.0, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+        Pin("3", "3", (7.5, 0.0), net="RELAY_NO", layer="F.Cu", is_pth=False),
+    ]
+
+    assert _to.run_collect_duplicate_pad_edges(_pcb([mixed], [])) == []
+
+
+def test_collect_pad_positions_omits_unmatched_physical_occurrence():
+    from temper_placer.core.netlist import Component, Net, Pin
+
+    relay = Component("K2", "relay", (30, 14), initial_position=(100, 50))
+    relay.pins = [
+        Pin("3", "3", (0.0, 0.0), net="RELAY_NO", layer="all", is_pth=True),
+    ]
+    pcb = _pcb(
+        [relay],
+        [Net("RELAY_NO", [("K2", "3"), ("K2", "3")])],
+    )
+
+    _assert_pad_positions_same(pcb, "unmatched physical occurrence")
+    assert dict(_to.run_collect_pad_positions(pcb))["RELAY_NO"] == [(100.0, 50.0)]
 
 
 def test_collect_pad_positions_missing_pins_attr_and_initial_position():

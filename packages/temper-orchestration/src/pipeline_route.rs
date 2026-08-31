@@ -64,6 +64,8 @@
 #[cfg(feature = "python")]
 use std::borrow::Cow;
 use std::collections::HashMap;
+#[cfg(feature = "python")]
+use temper_design_bundle::pad_occurrence::PadOccurrence;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::{PyAttributeError, PyTypeError, PyValueError};
@@ -1021,6 +1023,8 @@ fn getattr_or<'py>(
 // emission and the `connectivity_preflight` call-back stay Python):
 //
 // - `run_collect_pad_positions`: the board -> `pad_positions` conversion
+// - `run_collect_duplicate_pad_edges`: occurrence-distinct local edges for
+//   same-number physical contact pads (K2/K3 relay contacts)
 //   (the dict/vector assembly whose per-net length feeds
 //   `run_write_route_segments`' pad count, the zone-pour emission and the
 //   connectivity preflight). Duck-typed: `pcb.components` / `pcb.nets` /
@@ -1042,16 +1046,234 @@ fn getattr_or<'py>(
 //   `connectivity_preflight` call-back stays Python in the shim.
 
 #[cfg(feature = "python")]
+fn component_pin_world_xy(
+    comp: &Bound<'_, PyAny>,
+    pin: &Bound<'_, PyAny>,
+) -> PyResult<Option<(f64, f64)>> {
+    let Ok(comp_pos) = comp.getattr("initial_position") else {
+        return Ok(None);
+    };
+    if comp_pos.is_none() {
+        return Ok(None);
+    }
+    let Ok(cx) = comp_pos.get_item(0).and_then(|value| value.extract::<f64>()) else {
+        return Ok(None);
+    };
+    let Ok(cy) = comp_pos.get_item(1).and_then(|value| value.extract::<f64>()) else {
+        return Ok(None);
+    };
+    let rotation_rad: f64 = match comp.getattr("initial_rotation_quadrant") {
+        Ok(attr) if !attr.is_none() => match attr.extract::<i64>() {
+            Ok(index) => normalize_rotation_index(index),
+            Err(_) => attr.extract::<f64>()?,
+        },
+        _ => 0.0,
+    };
+    let side: i32 = match comp.getattr("initial_side") {
+        Ok(attr) if !attr.is_none() && attr.is_truthy().unwrap_or(false) => {
+            attr.extract::<i32>().unwrap_or(0)
+        }
+        _ => 0,
+    };
+    let Ok(pin_pos) = pin.getattr("position") else {
+        return Ok(None);
+    };
+    if pin_pos.is_none() {
+        return Ok(None);
+    }
+    let Ok(px) = pin_pos.get_item(0).and_then(|value| value.extract::<f64>()) else {
+        return Ok(None);
+    };
+    let Ok(py) = pin_pos.get_item(1).and_then(|value| value.extract::<f64>()) else {
+        return Ok(None);
+    };
+    let world = WorldPosition::from_component_pin(
+        (cx, cy),
+        rotation_rad,
+        (px, py),
+        0,
+        side,
+    );
+    Ok(Some((world.x(), world.y())))
+}
+
+#[cfg(feature = "python")]
+#[derive(Debug)]
+struct DuplicatePadPoint {
+    occurrence: PadOccurrence,
+    x: f64,
+    y: f64,
+    is_pth: bool,
+    layer: String,
+}
+
+#[cfg(feature = "python")]
+#[derive(Debug)]
+struct DuplicatePadGroup {
+    net_name: String,
+    component_ref: String,
+    pin_number: String,
+    points: Vec<DuplicatePadPoint>,
+}
+
+#[cfg(feature = "python")]
+/// Return deterministic minimum-length local edges between physical pads that
+/// share `(component, pin number, net)` but have distinct occurrences.
+///
+/// This is the semantic owner for K2/K3's duplicated high-current relay
+/// contacts. A bare `(component, pin number)` is deliberately never used as a
+/// physical-pad identity: each point carries a [`PadOccurrence`]. Python owns
+/// only the final board-text emission and the Shapely foreign-copper gate.
+#[pyfunction]
+#[allow(clippy::type_complexity)]
+pub fn run_collect_duplicate_pad_edges(
+    py: Python<'_>,
+    pcb: Option<Py<PyAny>>,
+) -> PyResult<
+    Vec<(
+        String,
+        String,
+        String,
+        (usize, f64, f64),
+        (usize, f64, f64),
+        String,
+    )>,
+> {
+    let Some(pcb) = pcb else {
+        return Ok(Vec::new());
+    };
+    let pcb = pcb.bind(py);
+    let mut groups: Vec<DuplicatePadGroup> = Vec::new();
+    let mut group_index: HashMap<(String, String, String), usize> = HashMap::new();
+
+    for comp in pcb.getattr("components")?.try_iter()? {
+        let comp = comp?;
+        let component_ref: String = comp.getattr("ref")?.extract()?;
+        let Ok(pins) = comp.getattr("pins") else {
+            continue;
+        };
+        for pin in pins.try_iter()? {
+            let pin = pin?;
+            let Ok(net_attr) = pin.getattr("net") else {
+                continue;
+            };
+            let Ok(number_attr) = pin.getattr("number") else {
+                continue;
+            };
+            let Ok(net_name) = net_attr.extract::<String>() else {
+                continue;
+            };
+            let Ok(pin_number) = number_attr.extract::<String>() else {
+                continue;
+            };
+            if net_name.is_empty() || pin_number.is_empty() {
+                continue;
+            }
+            let key = (net_name.clone(), component_ref.clone(), pin_number.clone());
+            let index = if let Some(index) = group_index.get(&key) {
+                *index
+            } else {
+                let index = groups.len();
+                group_index.insert(key, index);
+                groups.push(DuplicatePadGroup {
+                    net_name: net_name.clone(),
+                    component_ref: component_ref.clone(),
+                    pin_number: pin_number.clone(),
+                    points: Vec::new(),
+                });
+                index
+            };
+            let occurrence = PadOccurrence::new(&pin_number, groups[index].points.len());
+            let Some((x, y)) = component_pin_world_xy(&comp, &pin)? else {
+                continue;
+            };
+            let Ok(is_pth) = pin.getattr("is_pth").and_then(|value| value.extract::<bool>()) else {
+                continue;
+            };
+            let Ok(layer) = pin.getattr("layer").and_then(|value| value.extract::<String>()) else {
+                continue;
+            };
+            groups[index].points.push(DuplicatePadPoint {
+                occurrence,
+                x,
+                y,
+                is_pth,
+                layer,
+            });
+        }
+    }
+
+    let mut out = Vec::new();
+    for group in groups {
+        if group.points.len() < 2 {
+            continue;
+        }
+        // Prim MST: one less edge than physical occurrences and minimum
+        // total local copper length. Encounter-order loops are the stable
+        // tie-break, so identical input produces identical edge order.
+        let mut in_tree = vec![0usize];
+        let mut remaining: Vec<usize> = (1..group.points.len()).collect();
+        while !remaining.is_empty() {
+            let mut best: Option<(usize, usize)> = None;
+            let mut best_d2 = f64::INFINITY;
+            for &i in &in_tree {
+                for &j in &remaining {
+                    let a = &group.points[i];
+                    let b = &group.points[j];
+                    let has_common_layer = (a.is_pth && b.is_pth)
+                        || (a.layer == b.layer && !a.layer.is_empty());
+                    if !has_common_layer {
+                        continue;
+                    }
+                    let dx = group.points[j].x - group.points[i].x;
+                    let dy = group.points[j].y - group.points[i].y;
+                    let d2 = dx * dx + dy * dy;
+                    if d2 < best_d2 {
+                        best_d2 = d2;
+                        best = Some((i, j));
+                    }
+                }
+            }
+            let Some((i, j)) = best else {
+                break;
+            };
+            let a = &group.points[i];
+            let b = &group.points[j];
+            let layer = if a.is_pth && b.is_pth {
+                String::from("F.Cu")
+            } else if a.layer == b.layer && !a.layer.is_empty() {
+                a.layer.clone()
+            } else {
+                // The candidate loop excludes this case. Retain the guard so
+                // a future candidate-selection change still fails closed.
+                break;
+            };
+            out.push((
+                group.net_name.clone(),
+                group.component_ref.clone(),
+                group.pin_number.clone(),
+                (a.occurrence.occurrence(), a.x, a.y),
+                (b.occurrence.occurrence(), b.x, b.y),
+                layer,
+            ));
+            in_tree.push(j);
+            remaining.retain(|candidate| *candidate != j);
+        }
+    }
+    Ok(out)
+}
+
+#[cfg(feature = "python")]
 /// `router_v6/_adapter_convert._write_routes_to_content`'s pad-positions
 /// block: `comp_by_ref = {c.ref: c for c in pcb.components}` (duplicate refs:
 /// last writer wins), then per net the `getattr(net, "pins", [])` walk with
-/// `comp.initial_position` (default `(0.0, 0.0)`) and the conditional
-/// `comp.get_pin(pin_name)` call (a missing method or a `None` pin falls
-/// back to the component position; a found pin resolves its WORLD position
-/// through `temper_geometry.pin_world_position_at_py` -- rotation- and
-/// side-aware, the SSOT kernel). Returns `(net_name, positions)` pairs in
-/// first-seen net order; a net whose resolvable pin list is empty is
-/// omitted, exactly like the oracle.
+/// `comp.initial_position` (default `(0.0, 0.0)`) and occurrence-aware pin
+/// lookup. A requested physical occurrence that does not exist is omitted;
+/// legacy duck fixtures without `get_pin_occurrences` retain the historical
+/// `get_pin`/component-position fallback. A found pin resolves its WORLD
+/// position through the temper-geometry SSOT kernel. Returns `(net_name,
+/// positions)` pairs in first-seen net order; a net whose resolvable pin list
+/// is empty is omitted, exactly like the oracle.
 ///
 /// ROTATION FIX (2026-08-15): the pre-migration body (and this port, until
 /// now) summed `comp.initial_position + pin.position` with no component
@@ -1087,12 +1309,14 @@ pub fn run_collect_pad_positions(
     for net in pcb.getattr("nets")?.try_iter()? {
         let net = net?;
         let mut positions: Vec<(f64, f64)> = Vec::new();
+        let mut occurrence_by_pin: HashMap<(String, String), usize> = HashMap::new();
         let pins = getattr_or(py, &net, "pins", &default_empty_list)?;
         for entry in pins.try_iter()? {
             let entry = entry?;
             // for comp_ref, pin_name in ...pins:  (2-tuple unpack)
             let comp_ref: String = entry.get_item(0)?.extract()?;
             let pin_name = entry.get_item(1)?;
+            let pin_name_string: String = pin_name.extract()?;
             let Some(comp) = comp_by_ref.get(&comp_ref) else {
                 continue;
             };
@@ -1100,9 +1324,30 @@ pub fn run_collect_pad_positions(
             let comp_pos = getattr_or(py, comp, "initial_position", &default_zero_pos)?;
             let cx: f64 = comp_pos.get_item(0)?.extract()?;
             let cy: f64 = comp_pos.get_item(1)?.extract()?;
-            // pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
-            let pin = if comp.hasattr("get_pin")? {
-                Some(comp.call_method1("get_pin", (pin_name,))?)
+            // Resolve repeated (component, pad-number) references by physical
+            // occurrence. Relay footprints K2/K3 intentionally contain two
+            // distinct holes named "3" (and likewise "1"/"4"); get_pin()
+            // always returns the first match and used to report that same
+            // coordinate twice. Real Component pyclasses expose the Rust-owned
+            // get_pin_occurrences predicate; duck-typed legacy fixtures keep
+            // their historical get_pin fallback.
+            let occurrence = occurrence_by_pin
+                .entry((comp_ref.clone(), pin_name_string.clone()))
+                .or_insert(0);
+            let pad_occurrence = PadOccurrence::new(&pin_name_string, *occurrence);
+            *occurrence += 1;
+            let pin = if comp.hasattr("get_pin_occurrences")? {
+                let matches = comp.call_method1("get_pin_occurrences", (&pin_name_string,))?;
+                if pad_occurrence.occurrence() < matches.len()? {
+                    Some(matches.get_item(pad_occurrence.occurrence())?)
+                } else {
+                    // A nonexistent physical occurrence is not the component
+                    // anchor. Omit it rather than fabricating copper geometry
+                    // at a coordinate that is not a pad.
+                    continue;
+                }
+            } else if comp.hasattr("get_pin")? {
+                Some(comp.call_method1("get_pin", (&pin_name_string,))?)
             } else {
                 None
             };

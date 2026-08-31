@@ -160,6 +160,7 @@ class RouterV6Pipeline:
         enable_net_batching: bool = False,
         net_batch_size: int = 10,
         enable_nlayer_astar_spike: bool = False,
+        net_priority: dict[str, int] | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -340,6 +341,10 @@ class RouterV6Pipeline:
         # Spike prototype opt-in (see enable_nlayer_astar_spike's docstring
         # above). Default False -- production behavior unchanged.
         self.enable_nlayer_astar_spike = enable_nlayer_astar_spike
+        # Board-level routing intent. Unlike target_nets this does not filter
+        # the route set; it stably promotes named nets ahead of the geometric
+        # order while leaving every unlisted relative order unchanged.
+        self.net_priority = dict(net_priority or {})
         self.last_batch_results: list[Any] = []
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.

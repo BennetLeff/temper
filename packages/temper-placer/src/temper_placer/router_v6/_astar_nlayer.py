@@ -1249,6 +1249,7 @@ def run_astar_pathfinding_nlayer(
     thermal_flat=None,
     thermal_weight: float = 0.0,
     routing_spaces: dict[str, RoutingSpace] | None = None,
+    net_priority_config: dict[str, int] | None = None,
 ) -> PathfindingResult:
     """N-layer, via-aware generalization of ``astar_pathfinding.run_astar_pathfinding``.
 
@@ -1316,7 +1317,10 @@ def run_astar_pathfinding_nlayer(
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
         existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
-    net_order = _compute_net_order(channel_mapping)
+    net_order = _compute_net_order(
+        channel_mapping,
+        net_priority_config=net_priority_config,
+    )
     routable_nets = [n for n in net_order if _should_route(n)]
     if target_nets:
         target_set = set(target_nets)

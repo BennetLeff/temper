@@ -54,6 +54,13 @@ DEFAULT_PCB = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 DEFAULT_RULES = (
     REPO_ROOT / "packages" / "temper-placer" / "configs" / "netclass_rules.yaml"
 )
+DEFAULT_ROUTING_CONSTRAINTS = (
+    REPO_ROOT
+    / "packages"
+    / "temper-placer"
+    / "configs"
+    / "production_routing_constraints.yaml"
+)
 
 
 def _make_parsed_stub(pcb_path: Path, netlist: Any) -> Any:
@@ -193,10 +200,12 @@ def route_once(
     route on top of what is already there.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.io.config_loader import load_constraints
     from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
 
     rules = load_netclass_rules(rules_path)
+    routing_constraints = load_constraints(DEFAULT_ROUTING_CONSTRAINTS)
     netlist = parse_kicad_pcb(pcb_path).netlist
 
     stripped_count = 0
@@ -228,6 +237,7 @@ def route_once(
         net_batch_size=net_batch_size,
         max_sat_nets=max_sat_nets,
         enable_nlayer_astar_spike=enable_nlayer_astar_spike,
+        net_priority=dict(routing_constraints.net_priority),
     )
     wall_s = time.perf_counter() - t0
 

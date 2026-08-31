@@ -1,5 +1,5 @@
 ---
-title: Foreign-obstacle halos and escape-via policy falsely rejected legal router terminals
+title: Terminal admission and duplicate-pad identity hid legal production routes
 date: 2026-08-30
 last_updated: 2026-08-30
 category: logic-errors
@@ -10,13 +10,18 @@ symptoms:
   - Legal Stage1 terminal attempts were rejected before useful search.
   - Escape-via generation added synthetic geometry when requires_escape was false.
   - Foreign-obstacle halo inflation over-constrained terminal admission.
+  - Repeated relay pad numbers collapsed distinct physical contact holes.
+  - WDT_RESET_N and io0 regressed after corrected occupancy changed route order.
 root_cause: logic_error
 resolution_type: code_fix
 severity: high
-tags: [router-v6, terminal-admission, escape-vias, foreign-obstacles, creepage, clearance, rust, pyo3]
+tags: [router-v6, terminal-admission, escape-vias, foreign-obstacles, pad-occurrence, net-priority, rust, pyo3]
 ---
 
-# Foreign-obstacle halos and escape-via policy falsely rejected legal router terminals
+# Terminal admission and duplicate-pad identity hid legal production routes
+
+Status: the implementation and measurements below describe pending PR #1544,
+open and unmerged as of 2026-08-30.
 
 ## Problem
 
@@ -156,7 +161,7 @@ layer transition nor a complete blocking cut. The next correction belongs in
 negotiated congestion, with the production KiCad short and connectivity ratchets
 as the acceptance authority.
 
-Static priority was tested and rejected as the correction. These are full-board
+Broad static priority tuning was tested and rejected as the correction. These are full-board
 routes from the same stripped production input, followed by the same external
 KiCad DRC path; none changed the committed board:
 
@@ -174,8 +179,13 @@ otherwise clean Stage 4 scene before its full-board priority run. Its full-board
 failure is therefore not a pairwise coexistence impossibility. More importantly,
 the permutations move unrelated connectivity and shorts non-monotonically. A
 larger production-name priority list would tune one deterministic route by
-coincidence instead of solving congestion. The next implementation should make a
-failed net identify already-routed blockers, transactionally unstamp a bounded
+coincidence instead of solving congestion. At this point, the 343-to-342 miss
+was still incorrectly treated as congestion. The later physical-occurrence
+audit below showed that it was a separate terminal-identity defect. The final
+implementation therefore retains only the two measured control nets as
+declarative board intent and does not promote a speculative blocker or relay
+net. A future negotiated implementation should make a failed net identify
+already-routed blockers, transactionally unstamp a bounded
 set, attempt the legal route, and either reroute the displaced nets or restore the
 previous occupancy exactly. The existing N-layer path reports
 `attempted_ripups=0`; that missing negotiated pass is the live seam. A straight-line
@@ -240,12 +250,63 @@ selected by physical connectivity and shorting outcomes, not by the count of
 nets that returned a route object.
 
 The remaining implementation seam is now narrower. Do not add owner-ID clearing
-to this grid and do not expand production-name priority lists. A viable negotiated
+to this grid and do not expand the evidence-backed two-net production priority
+set. A viable negotiated
 router needs either (a) multi-owner/reference-count occupancy built into the
 construction model, or (b) a connectivity-aware order selected before stamping,
 then proven on the external 15-short/342-unconnected KiCad bars. Frontier contact
 is useful for narrowing candidates, but budget exhaustion plus contact is not a
 cut certificate.
+
+## Physical Occurrence Closure
+
+K2 and K3 deliberately contain two through-hole pads under each logical
+high-current contact number. `(component_ref, pad_number)` therefore names a
+logical contact, not a unique terminal. Two Rust-live consumers still resolved
+every repeated net reference through first-match lookup, so occurrence one
+collapsed onto occurrence zero:
+
+- `temper-rust-router::terminal_planning::extract_net_terminals`;
+- `temper-orchestration::pipeline_route::run_collect_pad_positions`.
+
+Both now resolve the nth repeated reference through the repository's existing
+`PadOccurrence(pin_number, occurrence_index)` identity. Missing occurrences are
+omitted rather than fabricated. The pinned Python differentials were deliberately
+re-pinned, with evidence, because preserving first-match semantics would require
+making the Rust owner physically wrong.
+
+Occurrence discovery alone does not electrically join manufacturer-duplicated
+holes. A second Rust boundary groups pads by `(net, component, pin number)`,
+keeps occurrence identity on each point, and produces deterministic,
+compatible-layer minimum-spanning edges. The thin Python board writer supplies
+the netclass width and emits an edge only when the same clearance/creepage
+obstacle inventory used by zone stitching proves the full trace footprint
+clear. Missing geometry, width, layer compatibility, or board context fails
+closed. Unconnected pads (`net = None`) are skipped rather than aborting the
+board walk. When the input retains existing zones, the stitch is also omitted
+unless that route will strip and replace those zones; the pad/track/via obstacle
+inventory alone cannot prove clearance from filled zone copper.
+
+The control-net ordering is explicit board intent in
+`packages/temper-placer/configs/production_routing_constraints.yaml`. Lower numeric priorities stably
+promote `WDT_RESET_N` and `io0`; every unlisted net retains the router's prior
+geometric relative order. This is deliberately narrower than the rejected
+priority experiments above: no inferred blocker or relay net is promoted.
+
+The preserved production route passed the ordinary regression and the stricter
+acceptance check:
+
+| check | result |
+|---|---:|
+| `WDT_RESET_N` physical pads | 3/3 connected |
+| `io0` physical pads | 3/3 connected |
+| five-run `shorting_items` sample | 15, 15, 15, 15, 15 |
+| median `unconnected_items` | **341** (ceiling 342) |
+| board or safety-ratchet changes | none |
+
+See `docs/evidence/2026-08-30-duplicate-pad-occurrence-terminal-closure.md`
+for the manual 342-item witness, rejected relay promotion, oracle decision, and
+production measurement provenance.
 
 ## Prevention
 
@@ -265,6 +326,14 @@ cut certificate.
 - Evaluate routing fixes with comparable production replays. A lower invalid-input
   count can reveal a downstream route-quality regression even when the final
   routed-net count does not improve.
+- Treat repeated pad numbers as logical names, never physical identity. Carry an
+  occurrence index through extraction, routing, emission, and audit.
+- Keep critical board routing intent declarative and narrow. Stable promotion must
+  preserve every unlisted relative order, and its acceptance authority is external
+  pad connectivity plus KiCad DRC—not the router's route-object count.
+- Collision-check local terminal closure at the emitted trace width and applicable
+  foreign-net spacing. If board context is missing or layer compatibility is
+  unknown, omit the copper.
 
 ## Related Issues
 

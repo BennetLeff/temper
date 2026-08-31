@@ -1,17 +1,17 @@
-"""Pinned Python oracle for ``router_v6/terminal_extraction.py`` (Wave-4 terminal-tree slice).
+"""Pinned Python oracle for ``router_v6/terminal_extraction.py``.
 
-DO NOT EDIT -- THIS IS THE REFERENCE.
-======================================
-Every executable statement below is a **verbatim** ``git show`` extraction
-from commit ``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5`` (``origin/main``,
-2026-08-03) of ``temper_placer/router_v6/terminal_extraction.py``:
-``ParsedTerminal``, ``extract_net_terminals`` -- the whole module except its
-import block and module docstring.
+DELIBERATELY RE-PINNED 2026-08-30.
+==================================
+The original Wave-4 oracle was a verbatim copy from commit
+``550cab2a3a0fcfd4a6c29063d30d3a83837ebcb5``. It called first-match
+``Component.get_pin()`` for every net-pin row, which collapses K2/K3's two
+physical same-number relay contact pads onto occurrence zero. The corrected
+occurrence contract and its KiCad closure evidence are recorded in
+``docs/evidence/2026-08-30-duplicate-pad-occurrence-terminal-closure.md``.
 
-Nothing has been cleaned up, refactored, or fixed.
-``test_terminal_extraction_rust_differential.py::test_oracle_is_verbatim_copy``
-re-extracts each definition from the pinned commit and compares the source
-text character for character.
+This oracle remains independent Python, but its definitions are now
+content-addressed by ``test_terminal_extraction_rust_differential.py``. Do not
+edit without a new evidence-backed, deliberately committed re-pin.
 
 Fields this kernel actually reads (the wire-format trap)
 -----------------------------------------------------------
@@ -20,9 +20,11 @@ Fields this kernel actually reads (the wire-format trap)
 So the fields a faithful Rust port must read are exactly:
 
 * ``component.ref``
-* ``component.get_pin(pad_name)`` -- first pin whose ``.name`` OR ``.number``
-  equals ``pad_name`` (``temper-design-bundle``'s ``netlist_contracts.rs``
-  ``Component::get_pin``), in pin-list order; ``None`` if no pin matches.
+* ``component.pins`` -- every pin whose ``.name`` OR ``.number`` equals
+  ``pad_name``, in pin-list order; repeated net rows select successive
+  physical occurrences. An unmatched occurrence is omitted. Legacy duck
+  fixtures with no physical ``pins`` collection retain a first-match
+  ``component.get_pin(pad_name)`` fallback.
 * ``pin.position`` (a ``(float, float)`` local offset)
 * ``pin.number`` (identity's ``pad`` field is ``str(pin.number)``)
 * ``pin.is_pth``
@@ -122,11 +124,24 @@ def extract_net_terminals(
     )
 
     terminals: list[ParsedTerminal] = []
+    occurrence_by_pin: dict[tuple[str, str], int] = {}
     for component_ref, pad_name in net_pins:
         component = components.get(component_ref)
         if component is None:
             continue
-        pin = component.get_pin(pad_name) if hasattr(component, "get_pin") else None
+        key = (component_ref, pad_name)
+        occurrence = occurrence_by_pin.get(key, 0)
+        occurrence_by_pin[key] = occurrence + 1
+        physical_pins = getattr(component, "pins", None)
+        if physical_pins is not None:
+            matches = [
+                candidate
+                for candidate in physical_pins
+                if candidate.name == pad_name or candidate.number == pad_name
+            ]
+            pin = matches[occurrence] if occurrence < len(matches) else None
+        else:
+            pin = component.get_pin(pad_name) if hasattr(component, "get_pin") else None
         if pin is None:
             continue
         x, y = pin_world_position(pin, component)
