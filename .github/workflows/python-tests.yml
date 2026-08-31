@@ -1831,6 +1831,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_domain_partition.py -v --tb=short
 
+      # The split-board contract is intentionally generation-blocked until
+      # connector and enclosure evidence exists. Unit tests pin both that
+      # blocked state and the later artifact/provenance requirements without
+      # manufacturing placeholder PCB files in CI.
+      - name: Split-board contract gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_split_board_contract.py -v --tb=short
+
       - name: Netlist domain-partition gate (galvanic isolation)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # Fail-closed: reads the compiled netlist against

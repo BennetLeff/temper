@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs
+.PHONY: all build netlist clean drc kicad-cli-install kicad-cli-check route help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate venv-integrity-check worktree regen regen-check wasm-runner wasm-worker-stage wasm-worker-deploy cargo-target-dir-guard check-worktree-target-dirs split-board-contract
 
 # Show help for workflow commands
 help:
@@ -28,6 +28,7 @@ help:
 	@echo "  make venv-integrity-check - Assert THIS venv's editable installs point at THIS repo root, not a worktree/other checkout"
 	@echo "  make cargo-target-dir-guard - Install/refresh the ~/.local/bin/cargo wrapper so direct cargo/maturin calls can't cold-build a private target-shared"
 	@echo "  make check-worktree-target-dirs [CLEAN=1] - Fail if any worktree has its own private target-shared/ (CLEAN=1 also deletes CACHEDIR.TAG-verified ones)"
+	@echo "  make split-board-contract - Validate the approved split power/control-board contract before generation"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -154,6 +155,12 @@ kicad-cli-install:
 # _pcbnew.kiface and OpenCASCADE -- is broken.
 kicad-cli-check:
 	@scripts/install_kicad_cli.sh --check
+
+# The split architecture is deliberately gated before any future generator
+# writes a power- or control-board artifact. The initial contract is expected
+# to return EXIT_VIOLATION until connector and enclosure evidence is complete.
+split-board-contract:
+	uv run python3 scripts/check_split_board_contract.py
 
 # Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).
 #

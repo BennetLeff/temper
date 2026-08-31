@@ -1,0 +1,81 @@
+# Contract for the approved power/control-board split.
+#
+# This is deliberately a contract, not a generated-board inventory. The
+# current design still has one legacy PCB, so generation is explicitly
+# disabled until the connector and enclosure decisions have reviewable,
+# committed evidence. A split-board generator must call
+# scripts/check_split_board_contract.py before writing either PCB artifact.
+
+schema_version: 1
+architecture: split_power_control
+status: contract-incomplete
+
+generation:
+  enabled: false
+  blocking_requirements:
+    - connector
+    - enclosure
+
+boards:
+  power:
+    id: POWER_BOARD
+    owner: power
+    required_domains: [HV, SELV]
+    artifacts:
+      pcb: null
+      netlist: null
+    source:
+      entrypoint: null
+    checks:
+      drc:
+        required: true
+        report: null
+      provenance:
+        required: true
+        record: null
+  control:
+    id: CONTROL_BOARD
+    owner: control
+    required_domains: [SELV]
+    artifacts:
+      pcb: null
+      netlist: null
+    source:
+      entrypoint: null
+    checks:
+      drc:
+        required: true
+        report: null
+      provenance:
+        required: true
+        record: null
+
+interface:
+  name: POWER_CONTROL_SELV_INTERFACE
+  domain_manifest: domain_manifest.yaml
+  connector_ref: J_POWER_CONTROL
+  allowed_domains: [SELV]
+  nets:
+    - gnd
+    - "+15V"
+    - "+3V3"
+    - PWM_HS
+    - PWM_LS
+    - SHUTDOWN
+    - RELAY_CTRL
+    - DISCHARGE_CTRL
+    - V_BUS_SENSE
+
+contract:
+  connector:
+    status: incomplete
+    evidence: null
+  enclosure:
+    status: incomplete
+    evidence: null
+
+cross_domain:
+  pollution_degree: 3
+  reinforced_creepage_mm: 12.6
+  method: ../scripts/measure_cross_domain_creepage.py
+  report: null
