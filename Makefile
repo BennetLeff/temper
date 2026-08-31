@@ -158,7 +158,8 @@ kicad-cli-check:
 
 # The split architecture is deliberately gated before any future generator
 # writes a power- or control-board artifact. The initial contract is expected
-# to return EXIT_VIOLATION until connector and enclosure evidence is complete.
+# to return exit 2 (well-formed but blocked) until connector and enclosure
+# evidence is complete; exit 1 is reserved for malformed/untrustworthy input.
 split-board-contract:
 	uv run python3 scripts/check_split_board_contract.py
 

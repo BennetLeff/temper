@@ -65,6 +65,7 @@ interface:
     - RELAY_CTRL
     - DISCHARGE_CTRL
     - V_BUS_SENSE
+    - I_SENSE
 
 contract:
   connector:
