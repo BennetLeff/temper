@@ -222,6 +222,67 @@ board_interface:
       reason: "ThermalSystem has no tach conductor or tach receiver"
       evidence: elec/src/modules.ato
 
+# Approved split-board ownership contract (source foundation only).
+#
+# `status: planned` is deliberate: the current Atopile entry point and
+# `pcb/temper.kicad_pcb` remain the legacy one-board artifact.  This section
+# records the reviewed ownership boundary that a future two-board migration
+# must implement; it does not claim that either physical PCB has already
+# been generated.  Board ownership follows the exact domain declarations
+# below, never a net-name prefix or a component-value heuristic.
+board_partition:
+  status: planned
+  boards:
+    POWER_BOARD:
+      domain: HV
+      # Top-level Atopile modules whose primary ownership is the mains/HV
+      # power stage.  Cross-domain components are listed under
+      # isolator_sides instead of being silently assigned wholesale.
+      modules:
+        - power_in
+        - hb
+        - tank
+        - discharge
+    CONTROL_BOARD:
+      domain: SELV
+      # MCU, UI-facing signals, RTD sensing, safety logic, and low-voltage
+      # regulation remain on the SELV control side.
+      modules:
+        - power_mgmt
+        - rtd_pan
+        - safety
+        - mcu
+        - thermal
+  # Every declared galvanic isolator must identify which pin group belongs
+  # to the power-side domain and which belongs to the control-side domain.
+  # Group names are resolved against the isolators: entries below, so this
+  # mapping remains stable across refdes changes.
+  isolator_sides:
+    - instance_path: aux_supply.psu
+      power_board_group: primary
+      control_board_group: secondary
+    - instance_path: hb.gate_hs.driver
+      power_board_group: secondary
+      control_board_group: primary
+    - instance_path: ct_sense.ct
+      power_board_group: primary
+      control_board_group: secondary
+    - instance_path: safety.ocp2.ct
+      power_board_group: primary
+      control_board_group: secondary
+    - instance_path: power_in.bypass_relay
+      power_board_group: contacts
+      control_board_group: coil
+    - instance_path: discharge.k_dis1
+      power_board_group: contacts
+      control_board_group: coil
+    - instance_path: discharge.k_dis2
+      power_board_group: contacts
+      control_board_group: coil
+    - instance_path: power_in.y_cap_pe
+      power_board_group: hv_side
+      control_board_group: selv_side
+
 domains:
   # Mains / high-voltage power domain: AC line/neutral, the rectified DC
   # bus, the doubler midpoint (power_return), and everything that floats on

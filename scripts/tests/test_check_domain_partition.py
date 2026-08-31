@@ -29,6 +29,7 @@ from check_domain_partition import (  # noqa: E402
     build_graph,
     check_board_interface_contract,
     check_board_interface_generation_ready,
+    check_board_partition_contract,
     check_domain_disjointness,
     check_isolator_integrity,
     check_netlist_freshness,
@@ -177,6 +178,90 @@ isolators: []
 """
 
 
+SPLIT_BOARD_PARTITION_MANIFEST = """
+schema_version: 1
+board_interface:
+  name: POWER_CONTROL_SELV_INTERFACE
+  power_board: POWER_BOARD
+  control_board: CONTROL_BOARD
+  connector: J_POWER_CONTROL
+  allowed_domains: [SELV]
+  nets: [v15, pwm, shutdown]
+  safety_target:
+    standard: IEC 60335-1
+    pollution_degree: 3
+    reinforced_creepage_mm: 12.6
+  signals:
+    - net: v15
+      role: supply
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss blocks power-up"
+      status: resolved
+    - net: pwm
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss disables power stage"
+      status: resolved
+    - net: shutdown
+      role: fault
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "active fault disables power stage"
+      status: resolved
+  fault_aggregation:
+    output_net: shutdown
+    active_level: high
+    latched: true
+    sources: [OCP_01]
+    status: resolved
+  connector_spec:
+    part_number: null
+    pinout: null
+    retention: null
+    single_fault_review: null
+  mechanical_spec:
+    enclosure_compartment: null
+    board_partition: null
+    cable_routing: null
+    mounting: null
+  generation:
+    status: blocked
+    required_fields: [connector_spec.part_number]
+board_partition:
+  status: planned
+  boards:
+    POWER_BOARD:
+      domain: HV
+      modules: [power_in, hb]
+    CONTROL_BOARD:
+      domain: SELV
+      modules: [mcu, rtd_pan]
+  isolator_sides:
+    - instance_path: aux.psu
+      power_board_group: primary
+      control_board_group: secondary
+domains:
+  HV:
+    nets: [ac_l, hv_return]
+  SELV:
+    nets: [v15, pwm, shutdown]
+isolators:
+  - instance_path: aux.psu
+    component: Test isolator
+    groups:
+      primary: [1]
+      secondary: [2]
+"""
+
+
 def _isolated_topology_nets():
     """A correctly isolated topology: PS1 pins 1/2 (primary=HV) never share
     a net with pins 3/4 (secondary=SELV)."""
@@ -291,6 +376,101 @@ class TestBoardInterfaceContract:
         assert len(violations) == 1
         assert "hv_return" in violations[0]
         assert "HV" in violations[0]
+
+
+class TestBoardPartitionContract:
+    def test_real_manifest_assigns_hv_power_and_mcu_rtd_control(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        manifest = load_manifest(repo_root / "elec" / "domain_manifest.yaml")
+
+        assert manifest.board_partition is not None
+        partition = manifest.board_partition
+        assert partition.board_domains[partition.power_board] == "HV"
+        assert partition.board_domains[partition.control_board] == "SELV"
+        assert "hb" in partition.modules[partition.power_board]
+        assert "mcu" in partition.modules[partition.control_board]
+        assert "rtd_pan" in partition.modules[partition.control_board]
+        assert "thermal" in partition.modules[partition.control_board]
+        assert check_board_partition_contract(manifest) == []
+
+    def test_split_board_partition_keeps_domains_and_isolator_sides_explicit(self, tmp_path):
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_PARTITION_MANIFEST)
+        )
+
+        assert manifest.board_partition is not None
+        assert manifest.board_partition.board_domains == {
+            "POWER_BOARD": "HV",
+            "CONTROL_BOARD": "SELV",
+        }
+        assert manifest.board_partition.modules["CONTROL_BOARD"] == (
+            "mcu",
+            "rtd_pan",
+        )
+        side = manifest.board_partition.isolator_sides[0]
+        assert (side.power_board_group, side.control_board_group) == (
+            "primary",
+            "secondary",
+        )
+        assert check_board_partition_contract(manifest) == []
+
+    def test_partition_rejects_hv_control_board(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "CONTROL_BOARD:\n      domain: SELV",
+            "CONTROL_BOARD:\n      domain: HV",
+        )
+
+        with pytest.raises(GateError, match="different domains"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_partition_requires_every_declared_isolator_side_mapping(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "isolator_sides:\n    - instance_path: aux.psu\n      power_board_group: primary\n      control_board_group: secondary\n",
+            "isolator_sides: []\n",
+        )
+
+        with pytest.raises(GateError, match="isolator_sides must be a non-empty list"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_partition_reports_interface_domain_leak(self, tmp_path):
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_PARTITION_MANIFEST)
+        )
+        # Exercise the semantic check independently of YAML parsing: a
+        # future caller cannot move an interface net to HV and still receive
+        # a clean partition verdict.
+        manifest.domains["HV"].append("shutdown")
+        manifest.domains["SELV"].remove("shutdown")
+
+        violations = check_board_partition_contract(manifest)
+
+        assert violations == [
+            "split-board interface net 'shutdown' is not owned by the "
+            "control-board domain 'SELV'"
+        ]
+
+
+def test_split_board_atopile_boundary_has_no_connector_or_physical_board_claim():
+    repo_root = Path(__file__).resolve().parents[2]
+    source = (repo_root / "elec" / "src" / "split_board_hierarchy.ato").read_text()
+
+    assert "interface PowerControlSELV" in source
+    for signal in (
+        "gnd",
+        "vcc_15v",
+        "vcc_3v3",
+        "pwm_hs",
+        "pwm_ls",
+        "shutdown",
+        "relay_ctrl",
+        "discharge_ctrl",
+        "v_bus_sense",
+    ):
+        assert f"signal {signal}" in source
+    assert "module PowerBoardBoundary" in source
+    assert "module ControlBoardBoundary" in source
+    assert "connector =" not in source.lower()
+    assert "pcb/temper.kicad_pcb" in source
 
 
 def _shorted_topology_nets():

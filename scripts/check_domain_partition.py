@@ -358,12 +358,47 @@ class BoardInterface:
     deferred_signals: tuple[dict[str, Any], ...] = ()
 
 
+@dataclass(frozen=True)
+class IsolatorBoardSides:
+    """Map an isolator's manifest pin groups to the future board domains.
+
+    The mapping is intentionally expressed in terms of the isolator's named
+    groups, not pad numbers or refdes.  It therefore remains stable when the
+    legacy one-board artifact is renumbered, while still making the intended
+    power/control side of every barrier explicit.
+    """
+
+    instance_path: str
+    power_board_group: str
+    control_board_group: str
+
+
+@dataclass(frozen=True)
+class BoardPartition:
+    """Planned ownership for the split-board migration.
+
+    This is a source contract only.  ``status`` must remain ``planned``
+    until a later CAD change creates two physical board artifacts.  Keeping
+    the partition here, alongside the exact domain manifest, prevents a
+    future split from silently moving a domain or an isolator side without
+    changing the reviewed source contract.
+    """
+
+    status: str
+    power_board: str
+    control_board: str
+    board_domains: dict[str, str]
+    modules: dict[str, tuple[str, ...]]
+    isolator_sides: tuple[IsolatorBoardSides, ...]
+
+
 @dataclass
 class Manifest:
     domains: dict[str, list[str]]  # domain name -> [net name, ...]
     isolators: list[Isolator]
     chains: list[ProtectiveImpedanceChain] = field(default_factory=list)
     board_interface: BoardInterface | None = None
+    board_partition: BoardPartition | None = None
 
 
 def load_manifest(path: Path) -> Manifest:
@@ -855,11 +890,141 @@ def load_manifest(path: Path) -> Manifest:
             deferred_signals=tuple(deferred_signals),
         )
 
+    board_partition_raw = data.get("board_partition")
+    board_partition: BoardPartition | None = None
+    if board_partition_raw is not None:
+        if not isinstance(board_partition_raw, dict):
+            raise GateError("'board_partition' must be a mapping if present")
+        status = board_partition_raw.get("status")
+        if status != "planned":
+            raise GateError(
+                "board_partition.status must be 'planned' until two physical "
+                "board artifacts and their migration gates exist"
+            )
+        if board_interface is None:
+            raise GateError(
+                "board_partition requires board_interface so its board names "
+                "and cross-board nets have one explicit contract"
+            )
+
+        boards_raw = board_partition_raw.get("boards")
+        if not isinstance(boards_raw, dict) or len(boards_raw) != 2:
+            raise GateError("board_partition.boards must contain exactly two boards")
+        board_domains: dict[str, str] = {}
+        modules: dict[str, tuple[str, ...]] = {}
+        seen_modules: set[str] = set()
+        for board_name, body in boards_raw.items():
+            if not isinstance(board_name, str) or not board_name.strip():
+                raise GateError("board_partition board names must be non-empty strings")
+            if not isinstance(body, dict):
+                raise GateError(f"board_partition board {board_name!r} must be a mapping")
+            domain = body.get("domain")
+            if not isinstance(domain, str) or domain not in domains:
+                raise GateError(
+                    f"board_partition board {board_name!r} must name one declared "
+                    f"domain, got {domain!r}"
+                )
+            paths_raw = body.get("modules")
+            if not isinstance(paths_raw, list) or not paths_raw:
+                raise GateError(
+                    f"board_partition board {board_name!r} must declare a non-empty "
+                    "modules list"
+                )
+            paths = tuple(str(path) for path in paths_raw)
+            if any(not path.strip() for path in paths) or len(set(paths)) != len(paths):
+                raise GateError(
+                    f"board_partition board {board_name!r} modules must be unique "
+                    "non-empty paths"
+                )
+            overlap = seen_modules & set(paths)
+            if overlap:
+                raise GateError(
+                    "board_partition module path(s) assigned to more than one "
+                    f"board: {sorted(overlap)}"
+                )
+            seen_modules.update(paths)
+            board_domains[board_name] = domain
+            modules[board_name] = paths
+
+        power_board = board_interface.power_board
+        control_board = board_interface.control_board
+        if set(board_domains) != {power_board, control_board}:
+            raise GateError(
+                "board_partition.boards must match board_interface.power_board "
+                "and board_interface.control_board exactly"
+            )
+        if board_domains[power_board] == board_domains[control_board]:
+            raise GateError("power and control boards must own different domains")
+        if board_domains[power_board] != "HV" or board_domains[control_board] != "SELV":
+            raise GateError(
+                "split-board partition must assign HV to the power board and "
+                "SELV to the control board"
+            )
+
+        sides_raw = board_partition_raw.get("isolator_sides")
+        if not isinstance(sides_raw, list) or not sides_raw:
+            raise GateError("board_partition.isolator_sides must be a non-empty list")
+        isolator_by_path = {iso.instance_path: iso for iso in isolators}
+        seen_side_paths: set[str] = set()
+        isolator_sides: list[IsolatorBoardSides] = []
+        for entry in sides_raw:
+            if not isinstance(entry, dict):
+                raise GateError("board_partition isolator_sides entries must be mappings")
+            path = entry.get("instance_path")
+            power_group = entry.get("power_board_group")
+            control_group = entry.get("control_board_group")
+            if not all(isinstance(value, str) and value.strip() for value in (path, power_group, control_group)):
+                raise GateError(
+                    "board_partition isolator_sides entries require non-empty "
+                    "instance_path, power_board_group, and control_board_group"
+                )
+            if path in seen_side_paths:
+                raise GateError(f"duplicate board isolator side mapping: {path!r}")
+            seen_side_paths.add(path)
+            iso = isolator_by_path.get(path)
+            if iso is None:
+                raise GateError(
+                    f"board_partition isolator {path!r} is not declared under isolators"
+                )
+            if power_group not in iso.groups or control_group not in iso.groups:
+                raise GateError(
+                    f"board_partition isolator {path!r} names unknown group(s): "
+                    f"{power_group!r}, {control_group!r}"
+                )
+            if power_group == control_group:
+                raise GateError(
+                    f"board_partition isolator {path!r} maps both boards to "
+                    f"the same group {power_group!r}"
+                )
+            isolator_sides.append(
+                IsolatorBoardSides(
+                    instance_path=path,
+                    power_board_group=power_group,
+                    control_board_group=control_group,
+                )
+            )
+        declared_paths = set(isolator_by_path)
+        if seen_side_paths != declared_paths:
+            raise GateError(
+                "board_partition.isolator_sides must cover every declared isolator; "
+                f"missing: {sorted(declared_paths - seen_side_paths)}"
+            )
+
+        board_partition = BoardPartition(
+            status=status,
+            power_board=power_board,
+            control_board=control_board,
+            board_domains=board_domains,
+            modules=modules,
+            isolator_sides=tuple(isolator_sides),
+        )
+
     return Manifest(
         domains=domains,
         isolators=isolators,
         chains=chains,
         board_interface=board_interface,
+        board_partition=board_partition,
     )
 
 
@@ -961,6 +1126,38 @@ def check_board_interface_generation_ready(manifest: Manifest) -> None:
             "board-interface generation blocked until the approved contract is "
             "complete: " + "; ".join(blockers)
         )
+
+
+def check_board_partition_contract(manifest: Manifest) -> list[str]:
+    """Return violations in the planned split-board ownership contract.
+
+    The parser enforces structural validity and complete isolator-side
+    coverage.  This check supplies the small semantic part that is useful to
+    the existing gate: the board-to-board interface must remain wholly on
+    the control-side (SELV) domain.  It deliberately does not inspect the
+    legacy netlist for physical board placement; ``status: planned`` means
+    that claim belongs to the future two-PCB migration gate.
+    """
+    partition = manifest.board_partition
+    if partition is None:
+        return []
+    interface = manifest.board_interface
+    if interface is None:  # defensive; load_manifest rejects this combination
+        return ["board partition has no board-interface contract"]
+    control_domain = partition.board_domains[partition.control_board]
+    owners = {
+        net: domain
+        for domain, nets in manifest.domains.items()
+        for net in nets
+    }
+    violations: list[str] = []
+    for net in interface.nets:
+        if owners.get(net) != control_domain:
+            violations.append(
+                f"split-board interface net {net!r} is not owned by the "
+                f"control-board domain {control_domain!r}"
+            )
+    return violations
 
 
 # ---------------------------------------------------------------------------
@@ -1726,6 +1923,7 @@ def run(
             netlist, manifest.chains, chain_refs, name_to_code
         )
         board_interface_violations = check_board_interface_contract(netlist, manifest)
+        board_partition_violations = check_board_partition_contract(manifest)
     except GateError as exc:
         print("=== DOMAIN-PARTITION GATE ERROR ===", file=sys.stderr)
         print(f"Reason: {exc}", file=sys.stderr)
@@ -1762,6 +1960,13 @@ def run(
             f"connector {interface.connector!r}, "
             f"{len(interface.nets)} SELV-contract net(s)."
         )
+    if manifest.board_partition is not None:
+        partition = manifest.board_partition
+        print(
+            f"Split-board partition ({partition.status}): "
+            f"{partition.power_board}=HV, {partition.control_board}=SELV, "
+            f"{len(partition.isolator_sides)} isolator-side mapping(s)."
+        )
 
     # Informational only (does not affect the exit code): a net record with
     # zero nodes is a dangling/unused signal declaration in the source --
@@ -1786,6 +1991,7 @@ def run(
         and not isolator_violations
         and not chain_violations
         and not board_interface_violations
+        and not board_partition_violations
     ):
         print(
             "\nPASSED -- 0 domain crossings, 0 isolator-barrier breaches, "
@@ -1800,7 +2006,8 @@ def run(
                     f"{len(ref_isolator)} isolators, "
                     f"{len(manifest.chains)} protective-impedance chains, "
                     f"{len(board_interface_violations)} board-interface "
-                    "contract violations.\n"
+                    f"contract violation(s), {len(board_partition_violations)} "
+                    "split-board partition violation(s).\n"
                 )
         return EXIT_OK
 
@@ -1861,6 +2068,16 @@ def run(
         print(f"\n  {detail}")
         gh_lines.append(f"- board-interface: {detail}")
 
+    print(
+        f"\n=== SPLIT-BOARD PARTITION VIOLATIONS: "
+        f"{len(board_partition_violations)} ==="
+        if board_partition_violations
+        else "\n=== SPLIT-BOARD PARTITION VIOLATIONS: 0 ==="
+    )
+    for detail in board_partition_violations:
+        print(f"\n  {detail}")
+        gh_lines.append(f"- split-board partition: {detail}")
+
     if gh:
         with open(gh, "a") as f:
             f.write("### Netlist Domain-Partition Gate -- FAILED\n")
@@ -1869,7 +2086,9 @@ def run(
                 f"{len(isolator_violations)} isolator violation(s), "
                 f"{len(chain_violations)} protective-impedance chain "
                 f"violation(s), {len(board_interface_violations)} "
-                "board-interface contract violation(s)\n\n"
+                f"board-interface contract violation(s), "
+                f"{len(board_partition_violations)} split-board partition "
+                "violation(s)\n\n"
             )
             for line in gh_lines:
                 f.write(line + "\n")
@@ -1879,7 +2098,8 @@ def run(
         f"{len(isolator_violations)} isolator barrier violation(s), "
         f"{len(chain_violations)} protective-impedance chain violation(s), "
         f"{len(board_interface_violations)} board-interface contract "
-        "violation(s)"
+        f"violation(s), {len(board_partition_violations)} split-board "
+        "partition violation(s)"
     )
     return EXIT_VIOLATION
 
