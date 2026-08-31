@@ -26,11 +26,11 @@ from check_split_board_contract import (  # noqa: E402
     _check_manifest_location,
     _check_provenance,
     _evidence_digest,
+    _fixture_generate_with_contract,
     _load_ceiling_source,
     _load_json,
     _read_artifact,
     assert_generation_ready,
-    generate_with_contract,
     load_contract,
     run,
     validate_contract,
@@ -46,6 +46,10 @@ hierarchy: elec/src/split_board_hierarchy.ato
 generation:
   enabled: false
   blocking_requirements: [connector, enclosure]
+  trusted_generator:
+    id: fixture-post-generation
+    implementation: fixture-only
+    implementation_sha256: null
 boards:
   power:
     id: POWER_BOARD
@@ -602,7 +606,7 @@ def test_blocked_generation_guard_writes_nothing(tmp_path):
     writes: list[str] = []
 
     with pytest.raises(GateError, match="not ready"):
-        generate_with_contract(
+        _fixture_generate_with_contract(
             path,
             lambda stage: writes.append("artifact") or {},
             outputs=(tmp_path / "board.kicad_pcb",),
@@ -626,7 +630,7 @@ def test_generation_rejects_callback_overwrite_of_existing_output(tmp_path, monk
         return {target: b"new-board"}
 
     with pytest.raises(GateError, match="modified final artifact"):
-        gate.generate_with_contract(
+        gate._fixture_generate_with_contract(
             manifest,
             malicious,
             outputs=(target,),
@@ -650,7 +654,7 @@ def test_generation_first_publish_is_atomic_and_validated(tmp_path):
         # publication; the final path is still absent at this point.
         seen.append((target.exists(), generated[target]))
 
-    result = generate_with_contract(
+    result = _fixture_generate_with_contract(
         manifest,
         writer,
         outputs=(target,),
@@ -666,7 +670,7 @@ def test_generation_validation_failure_does_not_publish_first_artifact(tmp_path)
     target = tmp_path / "board.kicad_pcb"
 
     with pytest.raises(GateError, match="staged bundle rejected"):
-        generate_with_contract(
+        _fixture_generate_with_contract(
             manifest,
             lambda stage: {target: b"generated-board"},
             outputs=(target,),
@@ -689,6 +693,50 @@ def test_blocked_cli_emits_machine_readable_missing_prerequisites(tmp_path, caps
     payload = json.loads(payload_line.split("=", 1)[1])
     assert payload["status"] == "blocked"
     assert payload["missing_prerequisites"]
+
+
+def test_production_manifest_cannot_authorize_self_consistent_source_claim(monkeypatch):
+    """A Git-worktree source hash is not compiler provenance."""
+    manifest = Path(__file__).resolve().parents[2] / "elec" / "split_board_manifest.yaml"
+    data = load_contract(manifest)
+    data["generation"]["enabled"] = True
+    data["generation"]["trusted_generator"] = {
+        "id": "self-authored",
+        "implementation": "scripts/check_split_board_contract.py",
+        "implementation_sha256": hashlib.sha256(
+            (manifest.parents[0].parent / "scripts" / "check_split_board_contract.py").read_bytes()
+        ).hexdigest(),
+    }
+    data["boards"]["power"]["identity"] = {
+        "source_build": {
+            "entrypoint": "unrelated.ato",
+            "module": "PowerBoardBoundary",
+            "interface": "PowerControlSELV",
+            "source_sha256": "0" * 64,
+            "component_refs": ["P1"],
+            "net_names": ["gnd"],
+            "build_sha256": "1" * 64,
+        }
+    }
+    import check_split_board_contract as gate
+
+    monkeypatch.setattr(gate, "load_contract", lambda path: data)
+    errors = validate_contract(manifest)
+    assert any("trusted-generator prerequisite" in error for error in errors)
+    assert run(manifest) == EXIT_BLOCKED
+
+
+def test_staged_writer_is_not_a_production_api(tmp_path):
+    import check_split_board_contract as gate
+
+    assert not hasattr(gate, "generate_with_contract")
+    with pytest.raises(GateError, match="fixture-only"):
+        gate._fixture_generate_with_contract(
+            Path(__file__).resolve().parents[2] / "elec" / "split_board_manifest.yaml",
+            lambda stage: {},
+            outputs=(tmp_path / "board.kicad_pcb",),
+            validate=lambda generated: None,
+        )
 
 
 def test_empty_or_malformed_board_artifact_fails_closed(tmp_path):

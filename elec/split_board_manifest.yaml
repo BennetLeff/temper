@@ -16,6 +16,12 @@ generation:
   blocking_requirements:
     - connector
     - enclosure
+  # No split-board compiler is trusted yet.  This identity is mandatory so
+  # enabling generation cannot be authorized by self-authored source hashes.
+  trusted_generator:
+    id: null
+    implementation: null
+    implementation_sha256: null
 
 boards:
   power:

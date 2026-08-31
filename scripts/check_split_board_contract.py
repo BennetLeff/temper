@@ -2,7 +2,7 @@
 """Validate the approved split power/control-board contract.
 
 This gate is intentionally separate from the legacy one-board gates.  It
-validates the *inputs required before* a split-board generator may create
+validates the *inputs required before* a trusted split-board generator may create
 artifacts, and validates the complete generated bundle before publication; it
 does not invent PCB files or treat the existing legacy board as either new
 board.
@@ -12,7 +12,8 @@ returns ``EXIT_VIOLATION``.  That is deliberate: a future split-board
 generator must call :func:`assert_generation_ready` before writing either
 PCB.  The connector and enclosure reviews, both board artifacts, their DRC
 reports, provenance records, and the PD3/12.6 mm cross-domain report are all
-required before generation can be enabled.
+required before generation can be enabled.  There is intentionally no trusted
+split-board generator registered yet, so production generation remains blocked.
 
 Exit codes:
 
@@ -57,6 +58,8 @@ REQUIRED_INTERFACE_DOMAIN = "SELV"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 FIXTURE_CONTEXT = "unit-test"
+FIXTURE_GENERATOR_ID = "fixture-post-generation"
+TRUSTED_GENERATOR_ALLOWLIST_NAME = "split_board_generator_allowlist.yaml"
 ATOPILE_INTERFACE_SIGNAL = {
     "gnd": "gnd",
     "+15V": "vcc_15v",
@@ -189,6 +192,21 @@ def load_contract(path: Path) -> dict[str, Any]:
     if set(blockers) != set(REQUIRED_BLOCKERS):
         raise GateError(
             "generation.blocking_requirements must name connector and enclosure exactly"
+        )
+    trusted_generator = _mapping(
+        generation.get("trusted_generator"), "generation.trusted_generator"
+    )
+    for field in ("id", "implementation"):
+        _text(
+            trusted_generator.get(field),
+            f"generation.trusted_generator.{field}",
+            allow_none=True,
+        )
+    digest = trusted_generator.get("implementation_sha256")
+    if digest is not None and (not isinstance(digest, str) or not SHA256_RE.fullmatch(digest)):
+        raise GateError(
+            "generation.trusted_generator.implementation_sha256 must be a full SHA-256 "
+            "when present"
         )
 
     boards = _mapping(data.get("boards"), "boards")
@@ -340,6 +358,108 @@ def _is_fixture(manifest_path: Path) -> bool:
     except (OSError, yaml.YAMLError):
         return False
     return isinstance(raw, dict) and raw.get("fixture_context") == FIXTURE_CONTEXT
+
+
+def _trusted_generator_allowlist(manifest_path: Path) -> Path:
+    """Return the registry in the repository that owns the manifest."""
+    return _contract_repo_root(manifest_path) / "scripts" / TRUSTED_GENERATOR_ALLOWLIST_NAME
+
+
+def _load_yaml_mapping(path: Path, context: str) -> dict[str, Any]:
+    try:
+        value = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise GateError(f"{context} is not valid YAML: {path}: {exc}") from exc
+    return _mapping(value, context)
+
+
+def _check_trusted_generator(
+    data: dict[str, Any], manifest_path: Path, errors: list[str]
+) -> None:
+    """Require a generator identity recognized by the owning repository.
+
+    A ``source_build`` hash/inventory is not an authority: a manifest author
+    can hash unrelated source and manufacture a self-consistent claim.  A
+    production contract must instead name an implementation registered in a
+    tracked repository-owned allowlist.  The explicit fixture identity is only
+    for the staged unit-test helper and is never accepted from a Git worktree.
+    """
+    identity = data["generation"]["trusted_generator"]
+    if _is_fixture(manifest_path):
+        if (
+            identity.get("id") != FIXTURE_GENERATOR_ID
+            or identity.get("implementation") != "fixture-only"
+        ):
+            errors.append(
+                "fixture trusted-generator identity must be "
+                f"{FIXTURE_GENERATOR_ID!r} / 'fixture-only'"
+            )
+        return
+
+    generator_id = identity.get("id")
+    implementation = identity.get("implementation")
+    implementation_sha = identity.get("implementation_sha256")
+    if not generator_id or not implementation or not implementation_sha:
+        errors.append(
+            "trusted-generator prerequisite: generation.enabled=true requires "
+            "a complete generation.trusted_generator identity"
+        )
+        return
+
+    allowlist_path = _trusted_generator_allowlist(manifest_path)
+    if not allowlist_path.is_file():
+        raise GateError(
+            "trusted-generator allowlist is missing from the owning repository: "
+            f"{allowlist_path}"
+        )
+    _require_tracked(allowlist_path, manifest_path, "trusted-generator allowlist")
+    allowlist = _load_yaml_mapping(allowlist_path, "trusted-generator allowlist")
+    if allowlist.get("schema_version") != 1:
+        raise GateError("trusted-generator allowlist schema_version must be 1")
+    entries = allowlist.get("generators")
+    if not isinstance(entries, list):
+        raise GateError("trusted-generator allowlist.generators must be a list")
+    match = next(
+        (entry for entry in entries if isinstance(entry, dict) and entry.get("id") == generator_id),
+        None,
+    )
+    if match is None:
+        errors.append(
+            "trusted-generator prerequisite: no trusted split-board generator is "
+            f"registered for id {generator_id!r}"
+        )
+        return
+    if match.get("implementation") != implementation:
+        errors.append(
+            "trusted-generator prerequisite: implementation does not match the "
+            "repository-owned allowlist"
+        )
+        return
+    if match.get("implementation_sha256") != implementation_sha:
+        errors.append(
+            "trusted-generator prerequisite: implementation_sha256 does not match "
+            "the repository-owned allowlist"
+        )
+        return
+    repo_root = _contract_repo_root(manifest_path).resolve()
+    implementation_path = (repo_root / implementation).resolve()
+    try:
+        implementation_path.relative_to(repo_root)
+    except ValueError as exc:
+        raise GateError(
+            "trusted-generator implementation escapes the owning repository"
+        ) from exc
+    if not implementation_path.is_file():
+        errors.append(
+            "trusted-generator prerequisite: allowlisted implementation is missing: "
+            f"{implementation}"
+        )
+        return
+    _require_tracked(implementation_path, manifest_path, "trusted-generator implementation")
+    if sha256_file(implementation_path) != implementation_sha:
+        raise GateError(
+            "trusted-generator implementation hash does not match the repository file"
+        )
 
 
 def _require_tracked(path: Path, manifest_path: Path, context: str) -> None:
@@ -801,6 +921,7 @@ def _artifact_inventory(contents: bytes, root: str, context: str) -> tuple[set[s
 def _check_board_identity(
     board: dict[str, Any],
     board_role: str,
+    manifest_path: Path,
     source_entrypoint: str,
     source_path: Path,
     netlist_path: Path,
@@ -813,6 +934,11 @@ def _check_board_identity(
     context = f"{board_role} board identity"
     if not isinstance(identity, dict):
         raise GateError(f"{context} must be declared for enabled generation")
+    if not _is_fixture(manifest_path):
+        raise GateError(
+            f"{context} cannot use self-authored source_build identity in a "
+            "production manifest; trusted generator attestation is required"
+        )
     for field, artifact, actual in (
         ("source_sha256", source_path, source_bytes),
         ("netlist_sha256", netlist_path, netlist_bytes),
@@ -1180,6 +1306,9 @@ def _generation_prerequisite_errors(data: dict[str, Any], path: Path) -> list[st
         raise GateError(f"cross-domain method not found: {data['cross_domain']['method']}")
     _require_tracked(method_path, path, "cross-domain measurement method")
 
+    if generation["enabled"]:
+        _check_trusted_generator(data, path, errors)
+
     for board_role in REQUIRED_BOARDS:
         source_entrypoint = data["boards"][board_role]["source"]["entrypoint"]
         if not source_entrypoint:
@@ -1224,6 +1353,14 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
     errors = _generation_prerequisite_errors(data, path)
     generation = data["generation"]
     method_path = _resolve(data["cross_domain"]["method"], path)
+
+    # Do not inspect or authenticate generated artifacts when the production
+    # generator itself is not trusted.  In particular, self-authored
+    # source_build hashes must never turn an unrelated source into readiness.
+    if generation["enabled"] and any(
+        error.startswith("trusted-generator prerequisite:") for error in errors
+    ):
+        return errors
 
     if generation["enabled"]:
         board_paths: dict[str, dict[str, Path]] = {}
@@ -1275,6 +1412,7 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
                 _check_board_identity(
                     board,
                     board_role,
+                    path,
                     source_entrypoint,
                     source_path,
                     netlist_path,
@@ -1415,22 +1553,36 @@ def assert_generation_prerequisites(path: Path = DEFAULT_MANIFEST) -> None:
         raise GateError("split-board generation prerequisites are not ready:\n- " + "\n- ".join(errors))
 
 
-def generate_with_contract(
+def _fixture_generate_with_contract(
     path: Path,
     writer: Callable[[Path], dict[Path, bytes]],
     *,
     outputs: tuple[Path, ...],
     validate: Callable[[dict[Path, bytes]], Any],
 ) -> dict[Path, bytes]:
-    """Stage, validate, and atomically publish generated artifacts.
+    """Stage and atomically publish fixture artifacts for unit tests only.
 
-    ``writer`` receives a private staging directory and returns bytes keyed by
-    the exact final paths it intends to publish.  It never receives permission
-    to write a final artifact.  Before publication we snapshot every target so
-    a callback that tries to bypass the protocol (including during a first
-    generation where the target does not yet exist) fails closed.  Validation
-    runs over all staged bytes before any ``os.replace`` occurs.
+    This is not a production generator API and must not be used as compiler
+    evidence.  ``writer`` receives a private staging directory and returns
+    bytes keyed by the exact final paths it intends to publish.  Before
+    publication we snapshot every target so a callback that tries to bypass
+    the protocol fails closed.  Validation runs over all staged bytes before
+    any ``os.replace`` occurs.
     """
+    if not _is_fixture(path):
+        raise GateError(
+            "fixture-only split-board generation helper cannot run in a Git "
+            "worktree or production manifest"
+        )
+    try:
+        find_repo_root(path.parent)
+    except FileNotFoundError:
+        pass
+    else:
+        raise GateError(
+            "fixture-only split-board generation helper requires a non-Git "
+            "unit-test context"
+        )
     # Full readiness cannot be checked yet: this is the first-generation
     # seam, so the output artifacts intentionally do not exist.  Validate all
     # physical/interface inputs first, then validate the complete staged

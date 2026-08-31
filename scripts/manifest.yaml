@@ -384,8 +384,9 @@ scripts:
 - path: check_split_board_contract.py
   purpose: 'Fail-closed gate for the approved split power/control-board architecture: validate physical and
     interface prerequisites before generation, validate a complete staged bundle before atomic publication,
-    and require per-board source-build identity, netlist/PCB inventories, DRC reports, repository provenance,
-    and a PD3/12.6mm cross-domain report; exit 2 is blocked and exit 1 is malformed input'
+    require a repository-owned trusted-generator integration before production generation, and require
+    per-board netlist/PCB identities, DRC reports, repository provenance, and a PD3/12.6mm cross-domain
+    report; the staged writer is fixture-only; exit 2 is blocked and exit 1 is malformed input'
   owner: pipeline
   last_run: '2026-08-31'
   category: keep

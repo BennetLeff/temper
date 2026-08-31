@@ -1,0 +1,5 @@
+# Repository-owned integrations that are permitted to produce split-board
+# artifacts.  Physical split-board generation is intentionally out of scope,
+# so this registry is empty until a generator is reviewed and implemented.
+schema_version: 1
+generators: []
