@@ -1,27 +1,22 @@
 """Internal: zone output functions and net name mapping.
 
-Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels:
-the net-name → index map build, the zones writer's index resolution, and the
-per-zone s-expression construction (``zone_sexpr_py`` — Rust owns the zone's
-semantic content; ``Zone.from_sexpr`` materialises the object and kiutils'
-own ``to_sexpr`` serialises it, so float rendering and quoting are never
-reimplemented). The kiutils board I/O stays here (KiCad-format boundary —
-documented JUSTIFIED-KEEP); note the zone ``tstamp`` is still
-``uuid.uuid4()`` in the pre-migration code and is deliberately NOT
-determinized here — that would be a behaviour change no bit-identical
-differential could pin (see ``kicad_write_geometry.rs``'s module docstring).
+kiutils-free (Wave 4 Phase 3, formats/IO): board I/O goes through the
+Rust parse engine's text path — ``extract_net_map_from_text_py`` reads
+the net name → index map, ``zone_sexpr_py`` constructs each zone's
+s-expression content, and ``append_items_to_board_py`` inserts the
+items into the KiNode tree and serializes back to text. No kiutils
+``Board`` object is loaded or mutated.
 """
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
-from kiutils.board import Board as KiBoard
-from kiutils.items.zones import Zone
+import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.io._write_types import WriteResult
-from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
 
 def _net_index_map_from_nets(nets) -> dict[str, int]:
@@ -40,16 +35,8 @@ def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
     KiCad uses integer net indices internally, but our Trace objects
     use net names. This function builds the mapping for conversion.
     """
-    try:
-        ki_board = KiBoard.from_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}") from e
-
-    net_map = {}
-    if hasattr(ki_board, "nets") and ki_board.nets:
-        net_map = _net_index_map_from_nets(ki_board.nets)
-
-    return net_map
+    content = Path(pcb_path).read_text(encoding="utf-8")
+    return _tdb.parse_engine.extract_net_map_from_text_py(content)
 
 
 def write_zones_to_pcb(
@@ -76,16 +63,12 @@ def write_zones_to_pcb(
     warnings: list[str] = []
     zones_added = 0
 
-    try:
-        ki_board = KiBoard.from_file(str(template_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to load template PCB: {e}") from e
+    content = Path(template_pcb).read_text(encoding="utf-8")
 
     if net_name_to_index is None:
-        net_name_to_index = build_net_name_to_index_map(template_pcb)
+        net_name_to_index = _tdb.parse_engine.extract_net_map_from_text_py(content)
 
-    if not hasattr(ki_board, "zones") or ki_board.zones is None:
-        ki_board.zones = []
+    item_sexprs: list[str] = []
 
     for zone_def in zones:
         net_name = zone_def["net_name"]
@@ -95,16 +78,7 @@ def write_zones_to_pcb(
         net_index = _GEOM.resolve_net_index_default_py(net_name, net_name_to_index)
 
         try:
-            import uuid
-
-            # The zone's content is constructed in Rust (zone_sexpr_py) and
-            # materialised through kiutils' own parser — see the module
-            # docstring. Points are coerced to float by the kernel; an
-            # int-valued caller point round-trips as `(xy 1.0 2.0)` instead of
-            # `(xy 1 2)` — a byte change in a KiCad-equivalent token on a
-            # function with no live caller (production polygon points are
-            # floats), recorded here rather than silently relied on.
-            zone = Zone.from_sexpr(
+            item_sexprs.append(
                 _GEOM.zone_sexpr_py(
                     net_name,
                     net_index,
@@ -113,16 +87,14 @@ def write_zones_to_pcb(
                     [(p[0], p[1]) for p in pts],
                 )
             )
-            ki_board.zones.append(zone)
             zones_added += 1
         except Exception as e:
             warnings.append(f"Failed to add zone for {net_name}: {e}")
 
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(output_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}") from e
+    result_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
+
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    output_pcb.write_text(result_text, encoding="utf-8")
 
     return WriteResult(
         output_path=output_pcb,

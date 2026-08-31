@@ -2,8 +2,8 @@
 
 Rust Orchestration Engine plan 2026-08-09-001, Phase-C residual: the
 ``temper_placer.pipeline`` contract tail migrates to the ``temper-orchestration``
-crate as pyclasses — ``dag_types.py`` → ``dag_types`` (``StageResult``),
-``dag_observability.py`` → ``dag`` (``StageEvent``, ``PipelineExecutionLog``),
+crate as pyclasses — ``dag_observability.py`` → ``dag``
+(``StageEvent``, ``PipelineExecutionLog``),
 ``bottleneck_report.py`` → ``bottleneck`` (``BottleneckNetEntry``,
 ``BottleneckRegion``, ``CongestionHeatmapData``, ``BottleneckReport``,
 ``DeclaredArtifact``) and ``metrics_observer.py`` → ``metrics``
@@ -47,11 +47,9 @@ from hypothesis import strategies as st
 
 from temper_placer.pipeline import bottleneck_report as _bottleneck
 from temper_placer.pipeline import dag_observability as _dag
-from temper_placer.pipeline import dag_types as _dag_types
 from temper_placer.pipeline import metrics_observer as _metrics
 from tests.pipeline import _bottleneck_report_py_oracle as _oracle_bottleneck
 from tests.pipeline import _dag_observability_py_oracle as _oracle_dag
-from tests.pipeline import _dag_types_py_oracle as _oracle_types
 from tests.pipeline import _metrics_observer_py_oracle as _oracle_metrics
 
 # ---------------------------------------------------------------------------
@@ -59,7 +57,6 @@ from tests.pipeline import _metrics_observer_py_oracle as _oracle_metrics
 # ---------------------------------------------------------------------------
 
 _ORACLE_PINS = [
-    ("_dag_types_py_oracle.py", "686e0ed7d14c2336c52dfb18948d6fae1da3dc23b3cb431d30da90156701b69a"),
     ("_dag_observability_py_oracle.py", "843e6b9cdd46acf097eff1b35d52adfec2427046827203d7ced644a8e229e22c"),
     ("_bottleneck_report_py_oracle.py", "9ff50c45ac8eeeb30f73a2837268c4837ab53147c7c24a95c60c1e916a8b7995"),
     ("_metrics_observer_py_oracle.py", "fcf63debb2e9f320f3af5f16359e2821a36cc6ce8356e5cff27d0cd727d5cf2d"),
@@ -83,7 +80,6 @@ def test_oracle_bodies_match_pinned_digests() -> None:
 def test_oracle_and_port_are_different_implementations() -> None:
     """Anti-vacuity: the port must be the Rust pyclasses, not the shim."""
     for shim_cls, oracle_cls in [
-        (_dag_types.StageResult, _oracle_types.StageResult),
         (_dag.StageEvent, _oracle_dag.StageEvent),
         (_dag.PipelineExecutionLog, _oracle_dag.PipelineExecutionLog),
         (_bottleneck.BottleneckNetEntry, _oracle_bottleneck.BottleneckNetEntry),
@@ -103,75 +99,10 @@ def test_oracle_and_port_are_different_implementations() -> None:
     assert issubclass(_metrics.CrossValidationError, ValueError)
     assert issubclass(_metrics.CanaryCheckError, ValueError)
     # The exceptions that stayed Python stay on the shim.
-    assert _dag_types.DAGError.__module__ == "temper_placer.pipeline.dag_types"
-    assert _dag_types.DAGExprError.__module__ == "temper_placer.pipeline.dag_types"
     # The shims still carry the `_rs` delegation seam.
-    for mod in (_dag_types, _dag, _bottleneck, _metrics):
+    for mod in (_dag, _bottleneck, _metrics):
         assert hasattr(mod, "_rs")
         assert mod._rs is _to
-
-
-# ---------------------------------------------------------------------------
-# dag_types — StageResult
-# ---------------------------------------------------------------------------
-
-
-def _stage_result_cases():
-    return [
-        {},
-        {"outputs": {"a": 1, "b": [1, 2]}},
-        {"outputs": {"nested": {"k": (1, 2)}}},
-        {"duration_s": 1.5},
-        {"outputs": {"a": 1}, "duration_s": 3.5},
-        {"outputs": {}},
-        {"outputs": {"x": float("nan")}},
-    ]
-
-
-def test_stage_result_constructor_and_repr_match() -> None:
-    for kw in _stage_result_cases():
-        o = _oracle_types.StageResult(**kw)
-        p = _dag_types.StageResult(**kw)
-        assert repr(o) == repr(p), (kw, repr(o), repr(p))
-
-
-def test_stage_result_success_matches() -> None:
-    for outputs in (None, {}, {"a": 1}, {"a": []}, [], {"x": None}):
-        o = _oracle_types.StageResult.success(outputs)
-        p = _dag_types.StageResult.success(outputs)
-        assert repr(o) == repr(p), (outputs, repr(o), repr(p))
-
-
-def test_stage_result_success_keeps_truthy_dict_identity() -> None:
-    outputs = {"a": 1}
-    assert _dag_types.StageResult.success(outputs).outputs is outputs
-    assert _dag_types.StageResult.success().outputs == {}
-
-
-def test_stage_result_eq_matches() -> None:
-    cases = [
-        ({"a": 1}, 0.0, {"a": 1}, 0.0),
-        ({"a": 1}, 0.0, {"a": 2}, 0.0),
-        ({"a": 1}, 0.0, {"a": 1}, 1.0),
-        ({"a": 1}, 0.0, {"a": 1.0}, 0.0),  # 1 == 1.0 in Python
-        ({}, float("nan"), {}, float("nan")),  # NaN != NaN
-    ]
-    for a1, d1, a2, d2 in cases:
-        o1, o2 = _oracle_types.StageResult(a1, d1), _oracle_types.StageResult(a2, d2)
-        p1, p2 = _dag_types.StageResult(a1, d1), _dag_types.StageResult(a2, d2)
-        assert (o1 == o2) == (p1 == p2), (a1, d1, a2, d2)
-    # Cross-class / non-instance operands are never equal.
-    o = _oracle_types.StageResult()
-    p = _dag_types.StageResult()
-    assert (o == 5) == (p == 5) is False
-    assert (o == "x") == (p == "x") is False
-
-
-def test_stage_result_unhashable() -> None:
-    with pytest.raises(TypeError):
-        hash(_oracle_types.StageResult())
-    with pytest.raises(TypeError):
-        hash(_dag_types.StageResult())
 
 
 # ---------------------------------------------------------------------------
@@ -605,9 +536,6 @@ def test_metrics_mock_seam_preserved(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 _IMPL = {
-    "stage_result_success": lambda outputs: _dag_types.StageResult.success(outputs),
-    "stage_result_outputs": lambda sr: sr.outputs,
-    "stage_result_duration": lambda sr: sr.duration_s,
     "make_net_entry": lambda d: _bottleneck.BottleneckNetEntry.from_dict(d),
     "net_entry_to_dict": lambda e: e.to_dict(),
     "net_entry_pin_positions": lambda e: e.pin_positions,
@@ -635,28 +563,6 @@ def _restore_impl():
     yield
     _IMPL.clear()
     _IMPL.update(saved)
-
-
-@given(
-    outputs=st.one_of(
-        st.none(),
-        st.dictionaries(st.text(min_size=1, max_size=20), st.integers(min_value=-100, max_value=100), max_size=8),
-    )
-)
-@settings(max_examples=50, deadline=30000)
-def test_p1_stage_result_success_truthiness(outputs):
-    """P1. `success(outputs)` yields `outputs or {}` and duration 0.0."""
-    sr = _IMPL["stage_result_success"](outputs)
-    assert _IMPL["stage_result_outputs"](sr) == (outputs if outputs else {})
-    assert _IMPL["stage_result_duration"](sr) == 0.0
-    if outputs:
-        assert _IMPL["stage_result_outputs"](sr) is outputs
-
-
-def test_p1_fails_for_always_empty_mutant(_restore_impl):
-    _IMPL["stage_result_success"] = lambda outputs: _dag_types.StageResult.success({})  # noqa: ARG005
-    with pytest.raises(AssertionError):
-        test_p1_stage_result_success_truthiness.hypothesis.inner_test({"a": 1})
 
 
 @given(
@@ -844,12 +750,3 @@ def test_m3_net_entry_order_preserved_through_roundtrip() -> None:
     )
     assert list(reversed(entry.pin_positions)) == rev.pin_positions
     assert list(reversed(entry.to_dict()["pin_positions"])) == rev.to_dict()["pin_positions"]
-
-
-def test_m4_stage_result_success_duration_invariant() -> None:
-    """M4. success() fixes duration_s at 0.0 and never mutates its input."""
-    for outputs in ({}, {"a": 1}, {"b": 2}):
-        snapshot = dict(outputs)
-        sr = _dag_types.StageResult.success(outputs)
-        assert sr.duration_s == 0.0
-        assert outputs == snapshot

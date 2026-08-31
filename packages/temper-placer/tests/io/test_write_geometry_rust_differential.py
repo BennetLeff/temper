@@ -600,7 +600,7 @@ def test_component_bounds_delegates_to_rust():
     _GEOM.component_bounds_py = boom
     try:
         with pytest.raises(RuntimeError, match="REACHED_RUST_COMPONENT_BOUNDS"):
-            shipped_modules._component_bounds(0.0, 0.0, 0.0, [_pad(0.0, 0.0, 1.0, 1.0)])
+            shipped_modules._component_bounds(0.0, 0.0, 0.0, [(0.0, 0.0, 1.0, 1.0)])
     finally:
         _GEOM.component_bounds_py = original
 

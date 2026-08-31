@@ -1,4 +1,4 @@
-<!-- provenance: written 2026-08-15 on branch fix/tank-creepage-test-structural-mask (base origin/main 8f21d2725, dirty=false at measurement time). Everything measured was read-only against pcb/temper.kicad_pcb and the committed SSOTs; pcb/temper.kicad_pcb was never opened for writing. The 6.3/10.0 requirement figures are CARRIED FORWARD from docs/evidence/2026-08-12-hv-hv-creepage-determination.md Sec 4.3 (itself DERIVED from the recovered IEC 60335-1 Table 18/17, >500-800V row, material group IIIa/IIIb); no standards text was re-read here. -->
+<!-- provenance: commit=d9ab1e723e4973818bb9f786f156071b33f1b33e dirty=UNKNOWN -->
 
 # test_tank_creepage.py structural mask: the tank↔bus shortfall is now caught
 

@@ -62,7 +62,6 @@ from temper_placer.heuristics.topological_init import TopologicalInitializationH
 def create_default_pipeline(
     include_topological: bool = True,
     topological_force_iterations: int = 100,
-    topological_backend: str = "numpy",
 ) -> HeuristicPipeline:
     """
     Create a pipeline with all default heuristics registered.
@@ -87,8 +86,6 @@ def create_default_pipeline(
             Set to False to skip topological analysis (e.g., for faster iteration).
         topological_force_iterations: Number of force refinement iterations for
             topological placement (default: 100).
-        topological_backend: Computation backend for topological placement
-            ("numpy" or "jax", default: "numpy").
 
     Returns:
         Configured HeuristicPipeline ready to use.
@@ -105,7 +102,6 @@ def create_default_pipeline(
         pipeline.register(
             TopologicalInitializationHeuristic(
                 force_iterations=topological_force_iterations,
-                backend=topological_backend,
             )
         )
 

@@ -1,6 +1,6 @@
 """Coverage-paydown wave 19: validation/spice, mfem_compare, drc_runner
 data-surface, helps_battery, prereg schema, battery_run artifacts, and
-deterministic/router_v6 pure loaders (guard_strip, seed_filter, channels,
+deterministic/router_v6 pure loaders (guard_strip, channels,
 drc_parser, stage_validators, test_boards).
 
 Targets allowlist entries that are pure functions, dataclass methods, or
@@ -24,11 +24,9 @@ import pytest
 import yaml
 from shapely.geometry import Polygon
 
-from temper_placer.deterministic.bottleneck_map import BottleneckMap
 from temper_placer.deterministic.channels import ChannelMap, ChannelSidecarError
 from temper_placer.deterministic.feedback.drc_parser import parse_kicad_drc
 from temper_placer.deterministic.geometry.guard_strip import compute_guard_strip
-from temper_placer.deterministic.seed_filter import filter_seed
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig
 from temper_placer.router_v6 import stage_validators as sv
 from temper_placer.router_v6.test_boards import (
@@ -523,30 +521,6 @@ class TestComputeGuardStrip:
     def test_non_polygon_raises(self):
         with pytest.raises(ValueError):
             compute_guard_strip([(0, 0), (1, 0)], 1.0)  # type: ignore[arg-type]
-
-
-# ---------------------------------------------------------------------------
-# deterministic/seed_filter
-# ---------------------------------------------------------------------------
-
-
-class TestFilterSeed:
-    def _map(self, scores=(0.1, 0.0, 0.0, 0.0)) -> BottleneckMap:
-        return BottleneckMap(
-            cell_size_mm=1.0, width=2, height=2, origin_xy=(0.0, 0.0), scores=scores
-        )
-
-    def test_accept_low_congestion(self):
-        assert filter_seed({"Q1": (0.5, 0.5)}, self._map(), 0.5, 0.2, frozenset({"Q1"})) is True
-
-    def test_reject_high_congestion(self):
-        m = self._map(scores=(0.9, 0.0, 0.0, 0.0))
-        assert filter_seed({"Q1": (0.5, 0.5)}, m, 0.5, 0.2, frozenset()) is False
-
-    def test_stricter_hv_threshold(self):
-        m = self._map(scores=(0.9, 0.0, 0.0, 0.0))
-        # HV refs use hv_threshold (stricter) -> 0.9 >= 0.2 rejects
-        assert filter_seed({"Q1": (0.5, 0.5)}, m, 1.0, 0.2, frozenset({"Q1"})) is False
 
 
 # ---------------------------------------------------------------------------

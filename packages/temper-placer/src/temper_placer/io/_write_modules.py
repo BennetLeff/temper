@@ -1,60 +1,48 @@
 """Internal: footprint/module visualization and annotation functions.
 
-Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels:
-the pad-bounding-box reduction (``component_bounds_py``) and the per-item
-GrRect/GrText s-expression constructions (``gr_rect_sexpr_py`` /
-``gr_text_sexpr_py``, materialised through kiutils' own ``from_sexpr``), plus
-the Value-property read (``write_types.footprint_value_py``). The per-pad
-KiCad rotation stays here (the ``rotate_local_to_world`` SSOT — sin/cos on
-``math.pi`` is not bit-portable across libm implementations, B1), and the
-pre-rotated world-space pads are handed to the Rust reduction, which
-reproduces the oracle's min/max and arithmetic order bit-identically.
+kiutils-free (Wave 4 Phase 3, formats/IO): board I/O goes through the
+Rust parse engine's text path — ``extract_footprint_info_py`` reads
+footprint positions, values, and local pad data; ``gr_rect_sexpr_py`` /
+``gr_text_sexpr_py`` construct per-item s-expressions; and
+``append_items_to_board_py`` inserts them into the KiNode tree and
+serializes back to text. The per-pad KiCad rotation and the bounding-box
+reduction (``component_bounds_py``) stay in Python/Rust as before.
 """
 
 from __future__ import annotations
-from typing import Any
 
 import math
 from pathlib import Path
+from typing import Any
 
-from kiutils.board import Board as KiBoard
-from kiutils.items.gritems import GrRect, GrText
+import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
-from temper_io_types import write_types as _WT
 
 from temper_placer.geometry.kicad_transform import rotate_local_to_world
-from temper_placer.io._write_types import _get_footprint_reference
-from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
 
 def _component_bounds(
     fp_x: float,
     fp_y: float,
     fp_angle: float,
-    pads: list[Any],
+    pads: list[tuple[float, float, float, float]],
 ) -> tuple[float, float, float, float]:
     """Pad-inclusive axis-aligned bounds of a footprint in world coordinates.
 
-    Shared by ``add_bounding_boxes_to_pcb`` and ``add_silkscreen_labels``
-    (both pre-migration implementations ran this identical loop). The rotation
-    threshold (``abs(fp_angle) > 0.1``), the ``rotate_local_to_world`` SSOT call
-    and the ``position``/``size`` defaults stay here; the min/max reduction
-    over the rotated extents runs in Rust (``component_bounds_py``).
+    ``pads`` is a list of ``(local_x, local_y, width, height)`` tuples.
+    The rotation threshold (``abs(fp_angle) > 0.1``), the
+    ``rotate_local_to_world`` SSOT call and the ``position``/``size``
+    defaults stay here; the min/max reduction runs in Rust
+    (``component_bounds_py``).
     """
     angle_rad = math.radians(fp_angle)
     world_pads = []
-    for pad in pads:
-        local_x = pad.position.X if pad.position else 0.0
-        local_y = pad.position.Y if pad.position else 0.0
-
+    for lx, ly, pw, ph in pads:
         if abs(fp_angle) > 0.1:
-            rotated_x, rotated_y = rotate_local_to_world(local_x, local_y, angle_rad)
+            rotated_x, rotated_y = rotate_local_to_world(lx, ly, angle_rad)
         else:
-            rotated_x, rotated_y = local_x, local_y
-
-        pad_w = pad.size.X if pad.size else 1.0
-        pad_h = pad.size.Y if pad.size else 1.0
-        world_pads.append((rotated_x, rotated_y, pad_w, pad_h))
+            rotated_x, rotated_y = lx, ly
+        world_pads.append((rotated_x, rotated_y, pw, ph))
 
     _result = _GEOM.component_bounds_py(fp_x, fp_y, world_pads)
     return (float(_result[0]), float(_result[1]), float(_result[2]), float(_result[3]))
@@ -72,67 +60,51 @@ def add_bounding_boxes_to_pcb(
     This draws a rectangle around each component on a user layer, making it
     easy to see component boundaries vs individual pads.
 
-    If component_bounds is None, calculates bounds from actual footprint pads.
-
     Args:
         pcb_path: Path to the .kicad_pcb file to modify (in-place).
-        component_bounds: Optional dict mapping ref -> (x, y, width, height).
-            If None, bounds are calculated from footprint pads.
         layer: KiCad layer to draw on (default: "Dwgs.User").
         stroke_width: Line width in mm.
 
     Returns:
         Number of bounding boxes added.
     """
-    try:
-        ki_board = KiBoard.from_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}") from e
+    content = Path(pcb_path).read_text(encoding="utf-8")
+    footprints = _tdb.parse_engine.extract_footprint_info_py(content)
 
+    item_sexprs: list[Any] = []
     boxes_added = 0
 
-    for fp in ki_board.footprints:
-        ref = _get_footprint_reference(fp)
+    for fp in footprints:
+        ref = fp["ref"]
         if not ref:
             continue
 
-        # Get footprint position
-        fp_x = fp.position.X if fp.position else 0.0
-        fp_y = fp.position.Y if fp.position else 0.0
-        fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
+        fp_x = fp["x"]
+        fp_y = fp["y"]
+        fp_angle = fp["angle"]
 
-        # Calculate bounds from all pads
-        if not fp.pads:
+        pads = fp["pads"]
+        if not pads:
             continue
 
-        x_min, y_min, x_max, y_max = _component_bounds(fp_x, fp_y, fp_angle, fp.pads)
+        x_min, y_min, x_max, y_max = _component_bounds(fp_x, fp_y, fp_angle, pads)
 
-        # Add small margin
         margin = 0.3
         x_min -= margin
         y_min -= margin
         x_max += margin
         y_max += margin
 
-        # Create rectangle graphic item — the construction runs in Rust
-        # (gr_rect_sexpr_py) and is materialised through kiutils' own
-        # parser; see the module docstring.
         try:
-            rect = GrRect.from_sexpr(
+            item_sexprs.append(
                 _GEOM.gr_rect_sexpr_py(x_min, y_min, x_max, y_max, layer, stroke_width)
             )
-            ki_board.graphicItems.append(rect)
             boxes_added += 1
         except Exception:
-            # GrRect might not be available in older kiutils, skip silently
             pass
 
-    # Write back
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to write PCB: {e}") from e
+    result_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
+    Path(pcb_path).write_text(result_text, encoding="utf-8")
 
     return boxes_added
 
@@ -149,103 +121,79 @@ def add_silkscreen_labels(
     """
     Add improved silkscreen labels and fab layer outlines to a PCB file.
 
-    This function enhances component visibility by:
-    1. Adding reference designators on F.SilkS layer (positioned above component)
-    2. Adding value text on F.SilkS layer (positioned below reference)
-    3. Adding component body outlines on F.Fab layer
-
     Args:
         pcb_path: Path to the .kicad_pcb file to modify (in-place).
-        add_references: If True, add reference designator text.
+        add_references: If True, add reference designators.
         add_values: If True, add component value text.
         add_fab_outlines: If True, add F.Fab layer component outlines.
-        _text_height: Height of text in mm.
-        _text_thickness: Stroke width of text in mm.
         outline_width: Stroke width of F.Fab outlines in mm.
 
     Returns:
         Dictionary with counts: {"references": n, "values": n, "outlines": n}
     """
-    try:
-        ki_board = KiBoard.from_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}") from e
+    content = Path(pcb_path).read_text(encoding="utf-8")
+    footprints = _tdb.parse_engine.extract_footprint_info_py(content)
 
+    item_sexprs: list[Any] = []
     counts = {"references": 0, "values": 0, "outlines": 0}
 
-    for fp in ki_board.footprints:
-        ref = _get_footprint_reference(fp)
+    for fp in footprints:
+        ref = fp["ref"]
         if not ref:
             continue
 
-        # Get footprint position and bounds
-        fp_x = fp.position.X if fp.position else 0.0
-        fp_y = fp.position.Y if fp.position else 0.0
-        fp_angle = fp.position.angle if fp.position and fp.position.angle else 0.0
+        fp_x = fp["x"]
+        fp_y = fp["y"]
+        fp_angle = fp["angle"]
 
-        # Calculate bounds from pads
-        if not fp.pads:
+        pads = fp["pads"]
+        if not pads:
             continue
 
-        x_min, y_min, x_max, y_max = _component_bounds(fp_x, fp_y, fp_angle, fp.pads)
+        x_min, y_min, x_max, y_max = _component_bounds(fp_x, fp_y, fp_angle, pads)
 
         comp_width = x_max - x_min
         comp_height = y_max - y_min
         comp_cx = (x_min + x_max) / 2
-        (y_min + y_max) / 2
 
-        # Scale text based on component size (min 0.8mm, max 1.5mm)
         scaled_height = max(0.8, min(1.5, min(comp_width, comp_height) / 4))
 
-        # Get component value from properties (Rust kernel — see the module
-        # docstring; the dict branch returns the raw value, no truthiness
-        # guard, matching the pre-migration read).
-        value = _WT.footprint_value_py(fp)
+        value = fp["value"]
 
-        # Add reference text on F.SilkS (positioned above component)
         if add_references:
             try:
-                ref_y = y_min - scaled_height - 0.5  # Above component
-                ref_text = GrText.from_sexpr(
+                ref_y = y_min - scaled_height - 0.5
+                item_sexprs.append(
                     _GEOM.gr_text_sexpr_py(ref, comp_cx, ref_y, "F.SilkS")
                 )
-                ki_board.graphicItems.append(ref_text)
                 counts["references"] += 1
             except Exception:
                 pass
 
-        # Add value text on F.SilkS (positioned below reference)
         if add_values and value:
             try:
-                val_y = y_min - 2 * scaled_height - 1.0  # Below reference
-                val_text = GrText.from_sexpr(
+                val_y = y_min - 2 * scaled_height - 1.0
+                item_sexprs.append(
                     _GEOM.gr_text_sexpr_py(value, comp_cx, val_y, "F.SilkS")
                 )
-                ki_board.graphicItems.append(val_text)
                 counts["values"] += 1
             except Exception:
                 pass
 
-        # Add F.Fab outline (component body rectangle)
         if add_fab_outlines:
             try:
                 margin = 0.2
-                fab_rect = GrRect.from_sexpr(
+                item_sexprs.append(
                     _GEOM.gr_rect_sexpr_py(
                         x_min - margin, y_min - margin, x_max + margin, y_max + margin,
                         "F.Fab", outline_width,
                     )
                 )
-                ki_board.graphicItems.append(fab_rect)
                 counts["outlines"] += 1
             except Exception:
                 pass
 
-    # Write back
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to write PCB: {e}") from e
+    result_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
+    Path(pcb_path).write_text(result_text, encoding="utf-8")
 
     return counts

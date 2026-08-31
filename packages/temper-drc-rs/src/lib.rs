@@ -508,9 +508,6 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Wave 4 — router_v6/constraints_design_rules.py hot-path clearance
     // kernels (clearance_matrix.rs).
     crate::clearance_matrix::register(m)?;
-    // Wave 4 marshalling boundary — drc_oracle pydantic→plain + K1 dict
-    // builders migrated from validation/drc_oracle.py.
-    crate::drc_oracle_marshal::register(m)?;
     // Phase-A U5 — typed DRC marshalling types (DrcBoardSnapshot,
     // TypedConstraintSet, ConstraintValue) + the CheckRunner data surface.
     crate::drc_marshal::register(m)?;

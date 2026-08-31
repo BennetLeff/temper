@@ -23,24 +23,28 @@
 // constructs the initial `BoardState` from Python objects (crossing FFI once
 // per pipeline, not per stage) by setting them directly.
 
-#[cfg(feature = "python")]
 use std::collections::HashSet;
-#[cfg(feature = "python")]
 use std::hash::{Hash, Hasher};
 
 #[cfg(feature = "python")]
 use pyo3::PyAny;
 
-#[cfg(feature = "python")]
 use temper_data_model::{
-    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, Route,
-    StrPairSet, ViolationList, ZoneSet, ZoneSlotsSet,
+    ConnectivityViolationList, LayerAssignmentSet, PlacementSet, PlacementViolationList, RouteSet,
+    StrPairSet, ViaSet, ViolationList, ZoneSet, ZoneSlotsSet,
 };
 
 #[cfg(feature = "python")]
+use temper_data_model::Route;
+
 /// A grid-slot id: the `(x, y)` coordinate pair of a slot in the placement
 /// grid (Python: a `(float, float)` tuple — zone slots are float grid
 /// positions, see the D4/D5 oracles' `set[tuple[float, float]]`).
+///
+/// Ungated (2026-08-20, Option E scaffolding): the type is pure Rust (f64
+/// pair + CPython-semantics `Eq`/`Hash`); the pyo3 `BoardState` field that
+/// uses it stays python-gated, but a native `BoardState` variant needs it
+/// without an interpreter.
 ///
 /// Hash/Eq normalize the float semantics Python gives a set element:
 /// `(0.0, 5.0) == (-0.0, 5.0)` in Python, so the two slot ids must live in
@@ -52,17 +56,14 @@ use temper_data_model::{
 #[derive(Clone, Copy, Debug)]
 pub struct SlotId(pub f64, pub f64);
 
-#[cfg(feature = "python")]
 impl PartialEq for SlotId {
     fn eq(&self, other: &Self) -> bool {
         feq(self.0, other.0) && feq(self.1, other.1)
     }
 }
 
-#[cfg(feature = "python")]
 impl Eq for SlotId {}
 
-#[cfg(feature = "python")]
 impl Hash for SlotId {
     fn hash<H: Hasher>(&self, state: &mut H) {
         slot_bits(self.0).hash(state);
@@ -70,14 +71,12 @@ impl Hash for SlotId {
     }
 }
 
-#[cfg(feature = "python")]
 /// Python `==` for floats: value equality, with `NaN == NaN` folded true so
 /// `SlotId`'s `Eq` stays reflexive (slot ids are never NaN in practice).
 fn feq(a: f64, b: f64) -> bool {
     a == b || (a.is_nan() && b.is_nan())
 }
 
-#[cfg(feature = "python")]
 /// The hash of a float under Python-set semantics: `hash(0.0) == hash(-0.0)`
 /// (CPython normalizes them), and every NaN hashes to one canonical form so
 /// `Hash` agrees with `feq`'s NaN folding. `pub(crate)` so the marshaller's
@@ -296,5 +295,127 @@ impl BoardState {
 impl Default for BoardState {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Native (non-pyo3) BoardState variant — Option E scaffolding (2026-08-20)
+// ---------------------------------------------------------------------------
+//
+// The pyo3 `BoardState` above holds 12 `Option<Py<PyAny>>` "marshalling-
+// pending" fields whose Rust types have not yet landed. A Rust CLI driver
+// that owns the process (Option E: Rust orchestrates, Python executes the
+// not-yet-migrated leaf compute via subprocess) needs a state carrier that
+// does not require a Python interpreter — the `PipelineRunner<S>` is already
+// generic, so a `NativeBoardState` lets the driver construct and thread
+// pipeline state without pyo3.
+//
+// The owned-type fields (ViolationList, PlacementSet, etc.) are the same
+// `temper-data-model` types the pyo3 `BoardState` uses — they are pure
+// Rust and unconditional. The 12 opaque fields that hold `Option<Py<PyAny>>`
+// in the pyo3 variant become `Option<Box<dyn std::any::Any + Send + Sync>>`
+// here: a Rust driver stores type-erased native values (a parsed board
+// struct, a config object, ...) and downcasts at the stage boundary. The
+// `routes`/`vias` fields use `RouteSet`/`ViaSet` directly (no `RouteEntry`/
+// `ViaEntry` enum — the `Opaque` variant of those enums exists only for
+// non-Trace/non-Via Python objects that pass through unchanged; a native
+// pipeline has no such objects).
+
+// (All `temper_data_model` types used by `NativeBoardState` are imported at
+// the top of this file — the ungated `use` is the single import source for
+// both the pyo3 and non-pyo3 variants.)
+
+/// Immutable snapshot of the board at a pipeline point — the non-pyo3
+/// variant for the Rust CLI driver (Option E).
+///
+/// This mirrors the pyo3 `BoardState` field-for-field, replacing
+/// `Option<Py<PyAny>>` with `Option<Box<dyn Any + Send + Sync>>` and using
+/// `RouteSet`/`ViaSet` directly instead of the pyo3-only `RouteEntry`/
+/// `ViaEntry` enums.
+///
+/// Cloning is cheap for the opaque fields (a `Box` clone would deep-copy;
+/// instead `Clone` is manual — opaque fields are NOT cloned, they are
+/// `None` after clone, exactly like the pyo3 variant's `Py<PyAny>` clone
+/// which only bumps a refcount without copying the Python object).
+#[derive(Debug, Default)]
+pub struct NativeBoardState {
+    // ---- Already-migrated or trivial types ----
+    pub net_order: Vec<String>,
+
+    // ---- Opaque fields (type-erased native values) ----
+    pub board: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub netlist: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub loops: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub grid: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub drc_oracle: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub design_rules: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub config: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub component_domain_map: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub routing_corridors: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub domain_regions: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub violations: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub reclaim_by_pin_pair: Option<Box<dyn std::any::Any + Send + Sync>>,
+
+    // ---- Owned typed fields (same temper-data-model types as the pyo3 variant) ----
+    pub drc_violations: Option<ViolationList>,
+    pub connectivity_violations: Option<ConnectivityViolationList>,
+    pub placement_violations: Option<PlacementViolationList>,
+    pub placements: Option<PlacementSet>,
+    pub used_slots: Option<HashSet<SlotId>>,
+    pub routes: Option<RouteSet>,
+    pub vias: Option<ViaSet>,
+    pub zones: Option<ZoneSet>,
+    pub component_zone_map: Option<StrPairSet>,
+    pub zone_slots: Option<ZoneSlotsSet>,
+    pub layer_assignments: Option<LayerAssignmentSet>,
+}
+
+impl NativeBoardState {
+    /// Create an empty state — all fields `None`.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Builder: set the net ordering.
+    pub fn with_net_order(mut self, net_order: Vec<String>) -> Self {
+        self.net_order = net_order;
+        self
+    }
+}
+
+impl Clone for NativeBoardState {
+    /// Clone the owned fields; drop the opaque fields (set to `None`).
+    /// This mirrors the pyo3 variant's semantics: opaque values are not
+    /// deep-copyable, so a clone leaves them empty (the pipeline runner
+    /// clones state between stages, but a stage that reads an opaque field
+    /// always runs after the stage that set it — the clone is an
+    /// intermediate snapshot, not a full fork).
+    fn clone(&self) -> Self {
+        Self {
+            net_order: self.net_order.clone(),
+            board: None,
+            netlist: None,
+            loops: None,
+            grid: None,
+            drc_oracle: None,
+            drc_violations: self.drc_violations.clone(),
+            design_rules: None,
+            connectivity_violations: self.connectivity_violations.clone(),
+            placement_violations: self.placement_violations.clone(),
+            placements: self.placements.clone(),
+            used_slots: self.used_slots.clone(),
+            config: None,
+            component_domain_map: None,
+            routing_corridors: None,
+            domain_regions: None,
+            routes: self.routes.clone(),
+            vias: self.vias.clone(),
+            violations: None,
+            zones: self.zones.clone(),
+            component_zone_map: self.component_zone_map.clone(),
+            zone_slots: self.zone_slots.clone(),
+            layer_assignments: self.layer_assignments.clone(),
+            reclaim_by_pin_pair: None,
+        }
     }
 }

@@ -1,4 +1,4 @@
-<!-- provenance: branch=analysis/tank-creepage-diagnosis base=main 9019da63f
+<!-- provenance: commit=55655ea7df30304b1592e312165b270688303ed7 dirty=UNKNOWN -->
      Board measured: pcb/temper.kicad_pcb sha256
      26981fea2dbc425f456010d4d4e755cdebdefee2b5355ad915086352b90c110b
      (verified unchanged before and after -- Sec 8). kicad-cli 10.0.5,

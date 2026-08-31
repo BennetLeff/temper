@@ -1,6 +1,6 @@
 //! pyo3 surface for router_v6 cluster F.
 //!
-//! The 15 exports named in
+//! The aggregate exports named in
 //! `tests/router_v6/test_quality_metrics_rust_differential.py::REQUIRED_RUST_SYMBOLS`.
 //!
 //! Two conventions the differential's `sig()` comparator forces:
@@ -251,44 +251,6 @@ fn findings_to_list<'py>(py: Python<'py>, findings: &[Finding]) -> PyResult<Boun
 // ---------------------------------------------------------------------------
 
 #[pyfunction]
-pub fn slop_lint_hairpin_turns_py<'py>(
-    py: Python<'py>,
-    source: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyList>> {
-    let view = build_view(py, source)?;
-    findings_to_list(py, &slop_linter::lint_hairpin_turns(&view))
-}
-
-#[pyfunction]
-pub fn slop_lint_zigzag_patterns_py<'py>(
-    py: Python<'py>,
-    source: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyList>> {
-    let view = build_view(py, source)?;
-    findings_to_list(py, &slop_linter::lint_zigzag_patterns(&view))
-}
-
-#[pyfunction]
-pub fn slop_lint_isolated_vias_py<'py>(
-    py: Python<'py>,
-    source: &Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyList>> {
-    let view = build_view(py, source)?;
-    findings_to_list(py, &slop_linter::lint_isolated_vias(&view))
-}
-
-#[pyfunction]
-#[pyo3(signature = (source, max_ratio = 1.5))]
-pub fn slop_lint_single_net_detours_py<'py>(
-    py: Python<'py>,
-    source: &Bound<'py, PyAny>,
-    max_ratio: f64,
-) -> PyResult<Bound<'py, PyList>> {
-    let view = build_view(py, source)?;
-    findings_to_list(py, &slop_linter::lint_single_net_detours(&view, max_ratio))
-}
-
-#[pyfunction]
 pub fn slop_lint_all_py<'py>(
     py: Python<'py>,
     source: &Bound<'py, PyAny>,
@@ -302,48 +264,6 @@ pub fn slop_lint_all_py<'py>(
 // ---------------------------------------------------------------------------
 
 #[pyfunction]
-pub fn via_count_get_component_bboxes_py(
-    py: Python<'_>,
-    source: &Bound<'_, PyAny>,
-    refs: Vec<String>,
-) -> PyResult<Vec<(f64, f64, f64, f64)>> {
-    let view = build_view(py, source)?;
-    Ok(via_count::get_component_bboxes(&view, &refs))
-}
-
-#[pyfunction]
-pub fn via_count_get_board_bbox_py(
-    py: Python<'_>,
-    source: &Bound<'_, PyAny>,
-) -> PyResult<Option<(f64, f64, f64, f64)>> {
-    let view = build_view(py, source)?;
-    Ok(via_count::get_board_bbox(&view))
-}
-
-#[pyfunction]
-pub fn via_count_is_via_in_bbox_py(
-    x: f64,
-    y: f64,
-    bboxes: Vec<(f64, f64, f64, f64)>,
-) -> bool {
-    via_count::is_via_in_bbox(x, y, &bboxes)
-}
-
-#[pyfunction]
-#[allow(clippy::too_many_arguments)]
-pub fn via_count_is_via_near_board_edge_py(
-    vx: f64,
-    vy: f64,
-    x_min: f64,
-    y_min: f64,
-    x_max: f64,
-    y_max: f64,
-    margin_mm: f64,
-) -> bool {
-    via_count::is_via_near_board_edge(vx, vy, (x_min, y_min, x_max, y_max), margin_mm)
-}
-
-#[pyfunction]
 pub fn via_count_classify_vias_py(
     py: Python<'_>,
     source: &Bound<'_, PyAny>,
@@ -355,15 +275,7 @@ pub fn via_count_classify_vias_py(
 
 /// Register every cluster-F export on the extension module.
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(slop_lint_hairpin_turns_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_lint_zigzag_patterns_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_lint_isolated_vias_py, m)?)?;
-    m.add_function(wrap_pyfunction!(slop_lint_single_net_detours_py, m)?)?;
     m.add_function(wrap_pyfunction!(slop_lint_all_py, m)?)?;
-    m.add_function(wrap_pyfunction!(via_count_get_component_bboxes_py, m)?)?;
-    m.add_function(wrap_pyfunction!(via_count_get_board_bbox_py, m)?)?;
-    m.add_function(wrap_pyfunction!(via_count_is_via_in_bbox_py, m)?)?;
-    m.add_function(wrap_pyfunction!(via_count_is_via_near_board_edge_py, m)?)?;
     m.add_function(wrap_pyfunction!(via_count_classify_vias_py, m)?)?;
     Ok(())
 }

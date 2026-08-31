@@ -73,6 +73,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 KICAD_PRO_PATH = REPO_ROOT / "pcb" / "temper.kicad_pro"
+KICAD_PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
 sys.path.insert(0, str(REPO_ROOT / "packages" / "temper-placer" / "src"))
 
@@ -85,6 +86,27 @@ from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS  # noqa: E402
 PROTECTED_NETS: frozenset[str] = frozenset({"PWR_RTN", "CGND"})
 
 NETCLASS_ASSIGNMENTS_KEY = '"netclass_assignments": {'
+
+_BOARD_NET_RE = re.compile(r'\(net \d+ "([^"]*)"\)')
+
+
+def load_board_net_names(pcb_path: Path) -> set[str] | None:
+    """Return the set of net names declared in *pcb_path*'s net table, or
+    ``None`` if the file cannot be read or declares no nets.
+
+    Read-only; this script never writes the board. Used ONLY by the
+    ``PROTECTED_NETS`` tripwire in ``main`` to decide whether a protected
+    net names real copper. ``None`` (unreadable/empty board) makes that
+    tripwire fail closed -- it then behaves exactly as if every protected
+    net named real copper.
+    """
+    try:
+        text = pcb_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    names = set(_BOARD_NET_RE.findall(text))
+    names.discard("")
+    return names or None
 
 
 class SyncError(Exception):
@@ -240,18 +262,83 @@ def main() -> int:
     current = load_current_assignments(text)
     targets = compute_target_assignments(declared_classes)
 
-    for protected in PROTECTED_NETS:
+    # PROTECTED_NETS tripwire.
+    #
+    # The PRIMARY refusal is `compute_target_assignments`, which drops every
+    # PROTECTED_NET from `targets` unconditionally -- this script can never
+    # write PWR_RTN or CGND, and that is unchanged by the narrowing below.
+    # This tripwire is the defense-in-depth layer on top: hard-fail (exit 5)
+    # rather than let a protected net's reserved human decision be picked up
+    # silently.
+    #
+    # NARROWED 2026-08-19 (netclass two-table reconciliation). As written, the
+    # tripwire fired whenever a protected net's TEMPER_NET_ASSIGNMENTS class
+    # merely *was* a declared kicad_pro class -- regardless of whether there
+    # was any pending decision to adjudicate. Two same-day changes made that
+    # unconditionally true and thereby turned this entire gate off:
+    #
+    #   * 2026-08-12, commit 322cbf5b0 (#1092) reassigned
+    #     TEMPER_NET_ASSIGNMENTS["PWR_RTN"] from "GND" to "HighVoltage" -- a
+    #     declared class. But that reclassification IS the human decision this
+    #     tripwire reserves, and it had already been TAKEN AND LANDED: PR
+    #     #1083 wrote "PWR_RTN": "HighVoltage" into pcb/temper.kicad_pro.
+    #     Both tables have agreed ever since, so there has been nothing left
+    #     to reserve -- yet the tripwire kept firing on the agreement itself.
+    #   * 2026-08-12 also gave kicad_pro a real declared "GND" class
+    #     (docs/evidence/2026-08-12-gnd-class-decision.md), so CGND -> "GND"
+    #     became "declared" too.
+    #
+    # Measured consequence: `--check` exited 5 before computing any diff, on
+    # every run, from 2026-08-12 to 2026-08-19. The repo's only net -> netclass
+    # drift generator was dead for a week, which is how 13 missing and 1
+    # mismatched entry accumulated between TEMPER_NET_ASSIGNMENTS and
+    # pcb/temper.kicad_pro unnoticed -- including 7 elec/domain_manifest.yaml
+    # HV-domain nets sitting at KiCad's Default 0.2mm/no-creepage class on the
+    # fab-authoritative kicad-cli DRC path.
+    #
+    # The tripwire now fires when there is an actual reserved decision to
+    # make: a protected net whose kicad_pro value would have to CHANGE
+    # (`current != target`) AND which names real copper on the board, so that
+    # the change would carry the physical blast radius the reservation exists
+    # for. Both escape conditions are provable from the files themselves, not
+    # a hand-maintained name allowlist, and anything with real copper and a
+    # real pending change still hard-fails exactly as before. An unreadable
+    # board file yields `board_nets is None` and fails closed.
+    board_nets = load_board_net_names(KICAD_PCB_PATH)
+    for protected in sorted(PROTECTED_NETS):
         cls = TEMPER_NET_ASSIGNMENTS.get(protected)
-        if cls in declared_classes:
+        if cls not in declared_classes:
+            # Structural protection still holds: the class is not one
+            # kicad_pro declares, so it could never be written anyway.
+            continue
+        if current.get(protected) == cls:
             print(
-                f"ERROR: {protected!r} (protected) now resolves to a declared "
-                f"kicad_pro netclass ({cls!r}) -- this script refuses to "
-                "proceed rather than silently pick it up. See module "
-                "docstring; this is the PWR_RTN/CGND reclassification the "
-                "task explicitly reserves for a human decision.",
-                file=sys.stderr,
+                f"NOTE: {protected!r} (protected) resolves to declared "
+                f"kicad_pro netclass {cls!r}, and pcb/temper.kicad_pro ALREADY "
+                f"carries that exact value -- the reserved reclassification "
+                f"has been taken and landed in both tables; nothing pending."
             )
-            return 5
+            continue
+        if board_nets is not None and protected not in board_nets:
+            print(
+                f"NOTE: {protected!r} (protected) resolves to declared "
+                f"kicad_pro netclass {cls!r} but names NO net on "
+                f"pcb/temper.kicad_pcb, so no assignment for it can reach any "
+                f"conductor. Still never written (excluded from targets); "
+                f"deleting the stale entry is the reserved decision, not this "
+                f"script's."
+            )
+            continue
+        print(
+            f"ERROR: {protected!r} (protected) resolves to a declared "
+            f"kicad_pro netclass ({cls!r}) and pcb/temper.kicad_pro does not "
+            f"already carry that value (currently {current.get(protected)!r}) "
+            "-- this script refuses to proceed rather than silently pick it "
+            "up. See module docstring; this is the PWR_RTN/CGND "
+            "reclassification reserved for a human decision.",
+            file=sys.stderr,
+        )
+        return 5
 
     missing, mismatched = compute_diff(current, targets)
 

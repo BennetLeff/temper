@@ -38,9 +38,9 @@ Wave 4 (PORT, ``docs/wave4-verdicts.yaml`` removal_surfaces entry for this
 file, 157 LOC -- "keyword/regex lookup tables ... not numeric compute"):
 ``is_ground_net``/``is_power_net``/``is_hv_net``/``is_signal_net``/
 ``classify_net_type`` and the four ``is_*_pin`` helpers delegate to
-``temper_io_types`` (``is_power_net_v6``/``is_signal_net_v6``/
-``classify_net_type_v6`` plus the shared ``is_ground_net``/``is_hv_net``/
-``is_*_pin`` bindings core/net_classification.py already uses -- ground/HV
+``temper_io_types`` (``is_power_net_v6`` plus the shared
+``is_ground_net``/``is_hv_net``/``is_*_pin`` bindings core/net_classification.py
+already uses -- ground/HV
 net patterns and all four pin pattern sets are byte-identical between the
 two Python modules, so the Rust side holds exactly one copy of each; only
 power-net classification needs a router_v6-specific kernel, because

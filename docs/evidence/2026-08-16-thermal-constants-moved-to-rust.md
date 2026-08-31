@@ -1,3 +1,4 @@
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 # Thermal constants moved to Rust — 2026-08-16
 
 ## Summary

@@ -1,84 +1,52 @@
 """Internal: trace/via route writing and stripping functions.
 
-Delegation shim over ``temper-io-types``' ``kicad_write_geometry`` kernels
-(the deterministic emission keys, the net-index resolution, the stable
-object-ID derivation, and the per-segment/per-via s-expression constructions
-``segment_sexpr_py`` / ``via_sexpr_py``, materialised through kiutils' own
-``from_sexpr``). The kiutils board I/O (load/mutate/write a
-``.kicad_pcb``) stays here — the KiCad format boundary is a documented
-JUSTIFIED-KEEP — so the public entry points keep their signatures and forward
-every pure kernel to Rust.
+kiutils-free (Wave 4 Phase 3, formats/IO): board I/O goes through the
+Rust parse engine's text path — ``extract_net_map_from_text_py`` reads
+net name→index, ``strip_trace_items_py`` removes trace items from the
+tree, ``segment_sexpr_py`` / ``via_sexpr_py`` construct per-item
+s-expressions, and ``append_items_to_board_py`` inserts them into the
+KiNode tree and serializes back to text.
+
+The deterministic emission keys, stable tstamp derivation, and net-index
+resolution are Rust kernels (unchanged). The emission order (sorted by
+total keys) is preserved.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from kiutils.board import Board as KiBoard
+import temper_design_bundle_python as _tdb
 from temper_io_types import kicad_write_geometry as _GEOM
 
 from temper_placer.core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
-from temper_placer.io._write_types import StrippingResult, WriteResult, _get_footprint_reference
-from temper_placer.io.kicad_exporter import _validate_4_layer_output
+from temper_placer.io._write_types import StrippingResult, WriteResult
 
-# Layer rank for unknown / non-canonical layer names. Sorts them after every
-# layer in the standard stackup, still totally ordered among themselves by name.
 _UNRANKED_LAYER = len(STANDARD_LAYER_ORDER)
 
 
 def _stable_tstamp(kind: str, key: tuple) -> str:
     """A reproducible KiCad object UUID derived from the object's own identity.
 
-    KiCad requires each track and via to carry a unique ``tstamp``. This was
-    ``uuid.uuid4()``, i.e. fresh randomness on every write, which made the
-    written board byte-different on every run even at a fixed hash seed --
-    independently of emission order. Since the board's content hash is recorded
-    as measurement provenance, that alone made the artifact unreproducible.
-
-    Uniqueness is preserved, not weakened. ``key`` is the element's emission
-    key, which is total over its set (see :func:`_trace_emission_key`), so
-    distinct elements always yield distinct digests; ``kind`` domain-separates
-    the track and via spaces so the two can never collide. Nothing references
-    a track's UUID, and the previous value was random, so deriving it changes
-    no meaning -- only its reproducibility.
-
-    The sha256 + RFC 4122 v4 derivation lives in Rust (``stable_tstamp_py``);
-    ``key!r`` is CPython's repr, which the kernel calls back across the
-    boundary so the digest input is byte-identical to the pre-migration
-    ``f"{kind}\\x00{key!r}"``.
+    See the pre-migration docstring for the uniqueness/reproducibility
+    argument. The sha256 + RFC 4122 v4 derivation lives in Rust
+    (``stable_tstamp_py``).
     """
     return _GEOM.stable_tstamp_py(kind, key)
 
 
 def _resolve_net_index(net: object, net_name_to_index: dict[str, int]) -> int:
-    """Board net index actually written for ``net`` (0 when unknown).
-
-    Single source for both the emitted ``(net ...)`` field and the emission
-    sort key, so the file's own net numbering and its physical ordering can
-    never drift apart.
-    """
+    """Board net index actually written for ``net`` (0 when unknown)."""
     return _GEOM.resolve_net_index_py(net, net_name_to_index)
 
 
 def _trace_emission_key(route: object, net_name_to_index: dict[str, int]) -> tuple:
-    """Total order over ``Trace`` objects for deterministic emission.
-
-    Totality argument: ``Trace`` equality/hash is defined over exactly
-    ``(start, end, width, layer, net)``, and every one of those fields appears
-    in this key. Two traces with equal keys are therefore ``==`` and cannot
-    both be members of the ``routes`` set -- so no tie is ever left for set
-    iteration order to break.
-    """
+    """Total order over ``Trace`` objects for deterministic emission."""
     return _GEOM.trace_emission_key_py(route, net_name_to_index, LAYER_NAME_TO_IDX, _UNRANKED_LAYER)
 
 
 def _via_emission_key(via: object, net_name_to_index: dict[str, int]) -> tuple:
-    """Total order over ``Via`` objects for deterministic emission.
-
-    Same totality argument as :func:`_trace_emission_key`: ``Via`` equality is
-    over ``(position, drill, width, layers, net, is_diff_pair)`` and all six
-    appear here.
-    """
+    """Total order over ``Via`` objects for deterministic emission."""
     return _GEOM.via_emission_key_py(via, net_name_to_index)
 
 
@@ -91,95 +59,22 @@ def strip_routing(
     """
     Remove traces and vias from a KiCad PCB file while preserving components and netlist.
 
-    This is used to create "unrouted" versions of PCBs for benchmark comparisons,
-    where we want to compare optimizer placements against human placements without
-    the interference of broken traces (which cause DRC errors when components move).
-
-    What is REMOVED:
-    - All trace segments on copper layers (F.Cu, B.Cu, In*.Cu)
-    - All vias
-    - Zone fills (optionally, if keep_fills=False)
-
-    What is KEPT:
-    - Footprints (components) with original positions
-    - Pads and their net assignments (connectivity information)
-    - Board outline (Edge.Cuts layer)
-    - Text, silkscreen, labels
-    - Design rules
-    - Net definitions
-    - Zone outlines (if keep_zones=True)
-
-    Args:
-        input_pcb: Path to the input .kicad_pcb file with routing.
-        output_pcb: Path for the output .kicad_pcb file without routing.
-        keep_zones: If True, keep zone outlines but remove fills.
-                   If False, remove zones entirely.
-        keep_fills: If True, keep zone copper fills (rarely desired).
-
-    Returns:
-        StrippingResult with statistics about what was removed.
+    See the pre-migration docstring for full details on what is removed/kept.
     """
     warnings: list[str] = []
-    traces_removed = 0
-    vias_removed = 0
-    zones_removed = 0
 
-    # Load the input PCB
-    try:
-        ki_board = KiBoard.from_file(str(input_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to load input PCB: {e}") from e
+    content = Path(input_pcb).read_text(encoding="utf-8")
 
     # Count components for verification
-    components_preserved = len(ki_board.footprints)
+    footprints = _tdb.parse_engine.extract_footprint_info_py(content)
+    components_preserved = len(footprints)
 
-    # Remove traces and vias from traceItems
-    # traceItems contains: Segment (traces), Via, Arc
-    len(ki_board.traceItems) if ki_board.traceItems else 0
+    text, traces_removed, vias_removed, zones_removed = _tdb.parse_engine.strip_trace_items_py(
+        content, keep_zones, keep_fills
+    )
 
-    # Filter traceItems - keep only non-routing items (there shouldn't be any)
-    # In kiutils, traceItems are: Segment, Via, Arc
-    if ki_board.traceItems:
-        new_trace_items = []
-        for item in ki_board.traceItems:
-            item_type = type(item).__name__
-
-            if item_type in ("Segment", "Arc"):
-                # This is a trace segment - remove it
-                traces_removed += 1
-            elif item_type == "Via":
-                # This is a via - remove it
-                vias_removed += 1
-            else:
-                # Unknown type - keep it with warning
-                warnings.append(f"Unknown traceItem type preserved: {item_type}")
-                new_trace_items.append(item)
-
-        ki_board.traceItems = new_trace_items
-
-    # Handle zones
-    if ki_board.zones:
-        if not keep_zones:
-            # Remove all zones entirely
-            zones_removed = len(ki_board.zones)
-            ki_board.zones = []
-        elif not keep_fills:
-            # Keep zone outlines but clear fills
-            for zone in ki_board.zones:
-                # Clear filled polygons (the copper pour)
-                if hasattr(zone, "filledPolygons"):
-                    zone.filledPolygons = []
-                # The polygon/polygons attribute is the zone outline, keep it
-
-    # Ensure output directory exists
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write the stripped PCB
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(output_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}") from e
+    output_pcb.write_text(text, encoding="utf-8")
 
     return StrippingResult(
         output_path=output_pcb,
@@ -198,54 +93,41 @@ def strip_routing_preserve_nets(
     """
     Strip routing with net assignment verification.
 
-    This is a convenience wrapper around strip_routing that verifies
-    net assignments are preserved after stripping.
-
-    Args:
-        input_pcb: Path to the input .kicad_pcb file.
-        output_pcb: Path for the output .kicad_pcb file.
-
-    Returns:
-        StrippingResult with warnings if net assignments differ.
+    Verifies net assignments are preserved after stripping by re-parsing
+    the output and comparing pad→net mappings.
     """
-    # First, capture net assignments from input
-    try:
-        ki_input = KiBoard.from_file(str(input_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to load input PCB: {e}") from e
+    content = Path(input_pcb).read_text(encoding="utf-8")
 
-    input_net_assignments: dict[str, dict[str, str]] = {}  # ref -> {pad_num -> net_name}
-    for fp in ki_input.footprints:
-        ref = _get_footprint_reference(fp)
-        if ref:
-            input_net_assignments[ref] = {}
-            for pad in fp.pads:
-                if pad.net and pad.net.name:
-                    input_net_assignments[ref][pad.number or ""] = pad.net.name
+    # Capture net assignments from input using the Rust parse engine
+    parse_result = _tdb.parse_engine.parse_kicad_pcb(content, normalize=False)
+    input_net_assignments: dict[str, dict[str, str]] = {}
+    for pad in parse_result.pads:
+        comp_ref = pad.component_ref if pad.component_ref else None
+        if comp_ref:
+            if comp_ref not in input_net_assignments:
+                input_net_assignments[comp_ref] = {}
+            net_name = pad.net if pad.net else ""
+            input_net_assignments[comp_ref][pad.number] = net_name
 
     # Strip routing
     result = strip_routing(input_pcb, output_pcb, keep_zones=True, keep_fills=False)
 
     # Verify net assignments in output
-    try:
-        ki_output = KiBoard.from_file(str(output_pcb))
-    except Exception as e:
-        result.warnings.append(f"Failed to verify output: {e}")
-        return result
+    out_content = Path(output_pcb).read_text(encoding="utf-8")
+    out_parse = _tdb.parse_engine.parse_kicad_pcb(out_content, normalize=False)
 
-    for fp in ki_output.footprints:
-        ref = _get_footprint_reference(fp)
-        if ref and ref in input_net_assignments:
-            for pad in fp.pads:
-                pad_num = pad.number or ""
-                expected_net = input_net_assignments[ref].get(pad_num)
-                actual_net = pad.net.name if pad.net else None
-                if expected_net == actual_net:
-                    continue
-                if expected_net and actual_net != expected_net:
-                    result.warnings.append(
-                        f"Net assignment mismatch for {ref} pad {pad_num}: expected {expected_net}, got {actual_net}"
-                    )
+    for pad in out_parse.pads:
+        comp_ref = pad.component_ref if pad.component_ref else None
+        if comp_ref and comp_ref in input_net_assignments:
+            pad_num = pad.number
+            expected_net = input_net_assignments[comp_ref].get(pad_num)
+            actual_net = pad.net if pad.net else None
+            if expected_net == actual_net:
+                continue
+            if expected_net and actual_net != expected_net:
+                result.warnings.append(
+                    f"Net assignment mismatch for {comp_ref} pad {pad_num}: expected {expected_net}, got {actual_net}"
+                )
 
     return result
 
@@ -261,74 +143,34 @@ def write_routes_to_pcb(
     """
     Add deterministic routes (traces) and vias to a KiCad PCB file.
 
-    This function takes routes generated by the deterministic pipeline
-    (as Trace objects) and adds them to a KiCad board as Segment objects.
-    Also adds Vias if provided.
-
-    Emission order (load-bearing)
-    -----------------------------
-    ``routes`` and ``vias`` are **unordered sets** and are treated as such: the
-    writer does not consume their iteration order, it imposes a canonical one.
-    Segments are emitted sorted by :func:`_trace_emission_key` and vias by
-    :func:`_via_emission_key` -- board net index first (so a net's copper is
-    contiguous in the file, as in a KiCad-authored board), then physical layer
-    position, then geometry. Both keys are proven total against the element
-    type's own equality, so nothing is left for set iteration order to decide.
-
-    This matters because the written ``.kicad_pcb`` is a shipped artifact whose
-    content hash is recorded as measurement provenance. Before this ordering,
-    the byte order of tracks and vias followed CPython's per-process string
-    hash salt (PEP 456), so re-writing an identical route set produced a
-    different file on every process.
+    See the pre-migration docstring for the emission-order rationale
+    (sorted by total keys; PYTHONHASHSEED-independent).
 
     Args:
         template_pcb: Path to the template .kicad_pcb file.
         output_pcb: Path for the output .kicad_pcb file.
         routes: Unordered set of Trace objects from BoardState.routes.
-            Iteration order is deliberately not honoured; see above.
         vias: Unordered set of Via objects from BoardState.vias.
-            Iteration order is deliberately not honoured; see above.
         net_name_to_index: Optional map of net name → net index.
-            If None, will be built from the template PCB.
         clear_existing: If True, remove all existing traces before adding new ones.
-
-    Returns:
-        WriteResult with statistics and warnings.
     """
-    from kiutils.items.brditems import Segment, Via
-
     warnings: list[str] = []
     traces_added = 0
     traces_skipped = 0
     vias_added = 0
 
-    # Load the template PCB
-    try:
-        ki_board = KiBoard.from_file(str(template_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to load template PCB: {e}") from e
+    content = Path(template_pcb).read_text(encoding="utf-8")
 
-    # Build net name → index mapping if not provided
     if net_name_to_index is None:
-        net_name_to_index = {}
-        if hasattr(ki_board, "nets") and ki_board.nets:
-            for net in ki_board.nets:
-                if hasattr(net, "name") and hasattr(net, "number"):
-                    net_name_to_index[net.name] = net.number
+        net_name_to_index = _tdb.parse_engine.extract_net_map_from_text_py(content)
 
-    # Clear existing traces if requested
-    if clear_existing and hasattr(ki_board, "traceItems"):
-        original_count = len(ki_board.traceItems) if ki_board.traceItems else 0
-        ki_board.traceItems = []
-        if original_count > 0:
-            warnings.append(f"Cleared {original_count} existing trace items")
+    if clear_existing:
+        content, _, _, _ = _tdb.parse_engine.strip_trace_items_py(content, True, True)
+        warnings.append("Cleared existing trace items")
 
-    # Initialize traceItems if it doesn't exist
-    if not hasattr(ki_board, "traceItems") or ki_board.traceItems is None:
-        ki_board.traceItems = []
+    item_sexprs: list = []
 
-    # Add routes as Segment objects, in canonical order (see docstring). The
-    # emission key doubles as the segment's identity, so it is computed once.
+    # Add routes as Segment objects, in canonical order
     keyed_routes = sorted(
         ((_trace_emission_key(r, net_name_to_index), r) for r in routes),
         key=lambda pair: pair[0],
@@ -339,11 +181,7 @@ def write_routes_to_pcb(
             warnings.append(f"Net '{route.net}' not found in board, using index 0")
 
         try:
-            # The segment's content is constructed in Rust (segment_sexpr_py)
-            # and materialised through kiutils' own parser — see the module
-            # docstring. The tstamp is the deterministic per-object UUID from
-            # _stable_tstamp (unchanged).
-            segment = Segment.from_sexpr(
+            item_sexprs.append(
                 _GEOM.segment_sexpr_py(
                     route.start[0],
                     route.start[1],
@@ -355,7 +193,6 @@ def write_routes_to_pcb(
                     _stable_tstamp("segment", route_key),
                 )
             )
-            ki_board.traceItems.append(segment)
             traces_added += 1
         except Exception as e:
             warnings.append(f"Failed to add trace {route.start} → {route.end}: {e}")
@@ -371,10 +208,7 @@ def write_routes_to_pcb(
             net_index = _resolve_net_index(via.net, net_name_to_index)
 
             try:
-                # Via content constructed in Rust (via_sexpr_py) — see the
-                # module docstring. The tstamp is the deterministic per-object
-                # UUID from _stable_tstamp (unchanged).
-                kicad_via = Via.from_sexpr(
+                item_sexprs.append(
                     _GEOM.via_sexpr_py(
                         via.position[0],
                         via.position[1],
@@ -385,24 +219,18 @@ def write_routes_to_pcb(
                         _stable_tstamp("via", via_key),
                     )
                 )
-                ki_board.traceItems.append(kicad_via)
                 vias_added += 1
             except Exception as e:
                 warnings.append(f"Failed to add via at {via.position}: {e}")
 
-    # Ensure output directory exists
-    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    result_text = _tdb.parse_engine.append_items_to_board_py(content, item_sexprs)
 
-    # Write the modified PCB
-    try:
-        _validate_4_layer_output(ki_board)
-        ki_board.to_file(str(output_pcb))
-    except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}") from e
+    output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    output_pcb.write_text(result_text, encoding="utf-8")
 
     return WriteResult(
         output_path=output_pcb,
-        components_updated=traces_added,  # Reusing field for trace count
+        components_updated=traces_added,
         components_skipped=traces_skipped,
         warnings=warnings,
     )
@@ -411,33 +239,22 @@ def write_routes_to_pcb(
 def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
     """
     Get statistics about routing in a PCB file.
-
-    Args:
-        pcb_path: Path to the .kicad_pcb file.
-
-    Returns:
-        Dictionary with counts of traces, vias, zones, components.
     """
-    try:
-        ki_board = KiBoard.from_file(str(pcb_path))
-    except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}") from e
+    content = Path(pcb_path).read_text(encoding="utf-8")
+    parse_result = _tdb.parse_engine.parse_kicad_pcb(content, normalize=False)
 
-    trace_count = 0
-    via_count = 0
+    trace_count = len(parse_result.traces)
+    via_count = len(parse_result.vias)
 
-    if ki_board.traceItems:
-        for item in ki_board.traceItems:
-            item_type = type(item).__name__
-            if item_type in ("Segment", "Arc"):
-                trace_count += 1
-            elif item_type == "Via":
-                via_count += 1
+    # Count zones and components from the raw board. `parse_kicad_document`
+    # is pure-Rust (its RawBoard is not FromPyObject), so the extension
+    # exposes this counting wrapper instead of the parser itself.
+    zones, footprints, nets = _tdb.parse_engine.count_raw_board_items_py(content)
 
     return {
         "traces": trace_count,
         "vias": via_count,
-        "zones": len(ki_board.zones) if ki_board.zones else 0,
-        "components": len(ki_board.footprints) if ki_board.footprints else 0,
-        "nets": len(ki_board.nets) if ki_board.nets else 0,
+        "zones": zones,
+        "components": footprints,
+        "nets": nets,
     }

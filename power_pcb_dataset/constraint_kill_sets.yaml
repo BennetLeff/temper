@@ -297,19 +297,16 @@ families:
       constraint_type: SEPARATED
       handler_module: temper_placer.placer.cp_sat.handlers.separated
       mutations:
-      - id: sep_drop_y_ok_clause
+      - id: sep_drop_y_axis_terms
         operator: dropped-term
-        description: 'y_ok definitional clause AddBoolOr([y_ok.Not(), below, above]) dropped: y_ok becomes a free literal,
-          so the final x_ok ∨ y_ok disjunction is satisfiable without any y separation (the weak-nooverlap2d class)'
+        description: 'below and above removed from AddBoolOr([left, right, below, above]): the encoding incorrectly requires
+          x-axis separation and can reject valid placements whose required gap is present only on y'
         outcome: survived
         triage: test-gap
-        triage_rationale: 'WEAK-NOOVERLAP2D CLASS: dropping the y_ok definitional clause frees the literal, so the final x_ok
-          ∨ y_ok disjunction is satisfiable with y_ok=true and NO y separation enforced — the encoding under-delivers the
-          stated clearance. Neither existing defense catches it: the encoder test asserts at-least-one-axis and the auditor''s
-          max(dx, dy) Chebyshev gap equals the enforced margin even when one axis fully overlaps (the plan''s U1 scenario
-          expected an auditor kill; empirically it survives — the plan''s expectation was wrong, and the suite records reality).
-          TODO: one-axis separation check in the auditor (plan 2026-08-02-016) or an exhaustive encoder-vs-auditor test (plan
-          2026-08-02-005).'
+        triage_rationale: 'OVER-CONSTRAINT CLASS: removing both y-axis alternatives rejects placements that are valid only
+          by vertical separation. The current defenses audit soundness of returned feasible placements; they do not prove
+          completeness by requiring a y-only witness to remain satisfiable. Add a focused encoder test with overlapping x
+          intervals and a valid y gap.'
       - id: sep_loosened_margin
         operator: loosened-bound
         description: 'min_distance_mm margin halved before mm_to_units: the enforced Chebyshev clearance is half the stated
@@ -337,7 +334,7 @@ families:
       - sep_off_by_one_x
       - sep_sign_flip_x_margin
       survived:
-      - sep_drop_y_ok_clause
+      - sep_drop_y_axis_terms
   router-v6-topology:
     status: deferred
     deferred_reason: The router-V6 topology family's ESL/BMC defense machinery (esl.py, bmc.py, test_bmc_*.py) was removed

@@ -64,9 +64,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList, PyModule, PyString, PyTuple};
 
-use temper_data_model::{
-    Placement, PlacementSet, SlotPos, StrPairSet, ZoneSlots, ZoneSlotsSet,
-};
+use temper_data_model::{Placement, PlacementSet, SlotPos, StrPairSet, ZoneSlots, ZoneSlotsSet};
 
 use temper_orchestration::{
     BoardState, ComponentAssignmentStage, PipelineConfig, PipelineRunner, SlotId,
@@ -109,8 +107,6 @@ class FakeDesignRules:
 class FakePhasedComponentAssignmentStage:
     def __new__(cls):
         return object.__new__(cls)
-    def _get_footprint_radius(self, comp):
-        return 2.0
     def _effective_ghost_pad_radius(self, ref, pin_name, base_radius, cur, other):
         return base_radius
 
@@ -169,6 +165,11 @@ def slots_within_radius_py(center, radius, index, spacing):
             if ((s[0] - cx) ** 2 + (s[1] - cy) ** 2) ** 0.5 <= radius:
                 out.append(s)
     return out
+
+def footprint_radius_py(bounds, slot_spacing):
+    if bounds:
+        return ((bounds[0] ** 2 + bounds[1] ** 2) ** 0.5) / 2.0 + 1.0
+    return slot_spacing / 2.0
 "#;
 
 /// `TEMPER_REQUIRE_RUST_EXTENSIONS=1` (mirrors `TEMPER_REQUIRE_RUST_DRC` /
@@ -192,13 +193,26 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     // temper_design_bundle_python.deterministic_leaves
     let tdb = PyModule::new(py, "temper_design_bundle_python")?;
     let dl = PyModule::new(py, "deterministic_leaves")?;
-    dl.add("assign_components_to_slots", ns.getattr("assign_components_to_slots")?)?;
-    dl.add("infer_slot_spacing_py", ns.getattr("infer_slot_spacing_py")?)?;
+    dl.add(
+        "assign_components_to_slots",
+        ns.getattr("assign_components_to_slots")?,
+    )?;
+    dl.add(
+        "infer_slot_spacing_py",
+        ns.getattr("infer_slot_spacing_py")?,
+    )?;
     dl.add("build_slot_index_py", ns.getattr("build_slot_index_py")?)?;
-    dl.add("slots_within_radius_py", ns.getattr("slots_within_radius_py")?)?;
+    dl.add(
+        "slots_within_radius_py",
+        ns.getattr("slots_within_radius_py")?,
+    )?;
+    let dp = PyModule::new(py, "deterministic_phase")?;
+    dp.add("footprint_radius_py", ns.getattr("footprint_radius_py")?)?;
     tdb.add("deterministic_leaves", &dl)?;
+    tdb.add("deterministic_phase", &dp)?;
     modules.set_item("temper_design_bundle_python", &tdb)?;
     modules.set_item("temper_design_bundle_python.deterministic_leaves", &dl)?;
+    modules.set_item("temper_design_bundle_python.deterministic_phase", &dp)?;
 
     // shapely.geometry (the domain-filter predicate)
     let shapely_pkg = PyModule::new(py, "shapely")?;
@@ -214,14 +228,20 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let det = PyModule::new(py, "deterministic")?;
     let stages = PyModule::new(py, "stages")?;
     let pca = PyModule::new(py, "phased_component_assignment")?;
-    pca.add("PhasedComponentAssignmentStage", ns.getattr("FakePhasedComponentAssignmentStage")?)?;
+    pca.add(
+        "PhasedComponentAssignmentStage",
+        ns.getattr("FakePhasedComponentAssignmentStage")?,
+    )?;
     stages.add("phased_component_assignment", &pca)?;
     det.add("stages", &stages)?;
     pkg.add("deterministic", &det)?;
     modules.set_item("temper_placer", &pkg)?;
     modules.set_item("temper_placer.deterministic", &det)?;
     modules.set_item("temper_placer.deterministic.stages", &stages)?;
-    modules.set_item("temper_placer.deterministic.stages.phased_component_assignment", &pca)?;
+    modules.set_item(
+        "temper_placer.deterministic.stages.phased_component_assignment",
+        &pca,
+    )?;
     Ok(ns.into_any())
 }
 
@@ -238,7 +258,10 @@ fn py_list<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Boun
     Ok(list.into_any())
 }
 
-fn py_frozenset<'py>(py: Python<'py>, items: Vec<Bound<'py, PyAny>>) -> PyResult<Bound<'py, PyAny>> {
+fn py_frozenset<'py>(
+    py: Python<'py>,
+    items: Vec<Bound<'py, PyAny>>,
+) -> PyResult<Bound<'py, PyAny>> {
     let builtins = py.import("builtins")?;
     let list = py_list(py, items)?;
     builtins.getattr("frozenset")?.call1((list,))
@@ -264,12 +287,7 @@ fn assignment_state<'py>(
         .call1((py_list(py, components.clone())?,))?;
     let component_zone_map: Vec<(String, String)> = components
         .iter()
-        .map(|c| {
-            Ok((
-                c.getattr("ref")?.extract::<String>()?,
-                "Signal".to_string(),
-            ))
-        })
+        .map(|c| Ok((c.getattr("ref")?.extract::<String>()?, "Signal".to_string())))
         .collect::<PyResult<Vec<_>>>()?;
 
     let mut state = BoardState::new();
@@ -304,7 +322,10 @@ fn component_assignment_no_netlist_guard() {
         runner.add_stage(Box::new(stage()));
         let (out, report) = runner.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        assert!(out.placements.is_none(), "placements must be untouched by the guard");
+        assert!(
+            out.placements.is_none(),
+            "placements must be untouched by the guard"
+        );
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -329,9 +350,15 @@ fn component_assignment_single_stage_end_to_end() {
         // U6 (O-C3) group-2: the field is owned -- probe the placed positions
         // through the owned elements (the Python `dict(...)` rebuild path is
         // exercised by the Python D4 differential).
-        let r1 = placements.iter().find(|p| p.ref_ == "R1").expect("R1 placed");
+        let r1 = placements
+            .iter()
+            .find(|p| p.ref_ == "R1")
+            .expect("R1 placed");
         assert_eq!(r1.position, (0.0, 0.0));
-        let r2 = placements.iter().find(|p| p.ref_ == "R2").expect("R2 placed");
+        let r2 = placements
+            .iter()
+            .find(|p| p.ref_ == "R2")
+            .expect("R2 placed");
         assert_eq!(r2.position, (5.0, 5.0));
         Ok::<(), PyErr>(())
     })
@@ -360,9 +387,15 @@ fn component_assignment_fixed_placements() {
         let placements = out.placements.as_ref().expect("placements attached");
         // The fixed placement wins the exact position; R2 gets the first
         // free grid slot (the fake kernel's fallback).
-        let r1 = placements.iter().find(|p| p.ref_ == "R1").expect("R1 placed");
+        let r1 = placements
+            .iter()
+            .find(|p| p.ref_ == "R1")
+            .expect("R1 placed");
         assert_eq!(r1.position, (3.0, 3.0));
-        let r2 = placements.iter().find(|p| p.ref_ == "R2").expect("R2 placed");
+        let r2 = placements
+            .iter()
+            .find(|p| p.ref_ == "R2")
+            .expect("R2 placed");
         assert_eq!(r2.position, (0.0, 0.0));
         Ok::<(), PyErr>(())
     })
@@ -379,7 +412,9 @@ fn component_assignment_domain_filter() {
 
         // Confine R1 to x >= 3 via a right-hand corridor region.
         let geometry = py.import("shapely.geometry")?;
-        let region = geometry.getattr("Region")?.call1((3.0, 0.0, 100.0, 100.0))?;
+        let region = geometry
+            .getattr("Region")?
+            .call1((3.0, 0.0, 100.0, 100.0))?;
         let dom = py_frozenset(py, vec![pair(py, "R1", str_any(py, "LV_interior"))?])?;
         let regions = PyTuple::new(py, [region])?;
         state.component_domain_map = Some(dom.into_any().unbind());
@@ -392,7 +427,10 @@ fn component_assignment_domain_filter() {
         let placements = out.placements.as_ref().expect("placements attached");
         // The domain filter drops slot (0,0); the only covered slot (5,5)
         // wins.
-        let r1 = placements.iter().find(|p| p.ref_ == "R1").expect("R1 placed");
+        let r1 = placements
+            .iter()
+            .find(|p| p.ref_ == "R1")
+            .expect("R1 placed");
         assert_eq!(r1.position, (5.0, 5.0));
         Ok::<(), PyErr>(())
     })

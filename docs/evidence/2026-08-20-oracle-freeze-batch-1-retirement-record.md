@@ -1,3 +1,4 @@
+<!-- provenance: commit=28b2b17eba9c27dfa32b871e2f57926ef213d0d7 dirty=false -->
 # Oracle FREEZE — batch 1 retirement record (2026-08-20)
 
 Branch: `migration/retire-oracle-batch-1` (PR for review).

@@ -682,6 +682,24 @@ def test_pv_parsed_pads_offset() -> None:
     )
 
 
+def test_pv_pin_resolution_does_not_call_python_stage_callback() -> None:
+    """Pin lookup is owned by the Rust DRC leaf, not a stage callback."""
+    state = _pv_state()
+    stage = _shim_pv(
+        **_pv_kwargs(
+            constraints={"placement_proximity": [_prox_violated()]},
+            fail_on_hard_violations=False,
+        )
+    )
+
+    def unexpected_callback(*_args, **_kwargs):
+        raise AssertionError("Rust placement validation called _get_pin_position")
+
+    stage._get_pin_position = unexpected_callback
+    out = stage.run(state)
+    assert out.placement_violations
+
+
 def test_pv_combined_and_multiple() -> None:
     """Multiple constraints of both kinds, mixed pass/fail, ordering pinned."""
     state = _pv_state()

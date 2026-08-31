@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 /tmp/claude-1000/-home-bennet-Desktop-temper/c0bf43ed-bc14-4a43-9c79-57bf591cf8ab/scratchpad/wt-creepage,
 branch fix/tank-creepage-geometry, base origin/main @ 900c79dd9, HEAD 1daba90e4 (clean:
 `git status --porcelain` empty before every commit; `git grep -l '^<<<<<<< '` over

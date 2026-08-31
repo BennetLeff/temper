@@ -139,6 +139,7 @@ def generate_netclass_separated_constraints(
     design_rules: DesignRules,
     existing_constraints: list | None = None,
     touch_refs: set[str] | None = None,
+    enforce_creepage: bool = False,
 ) -> list[SeparatedConstraint]:
     """Generate SEPARATED constraints for cross-class component-net pairs.
 
@@ -158,6 +159,11 @@ def generate_netclass_separated_constraints(
             (typically larger, e.g. 6mm) cross-class clearance turn every
             solve spuriously infeasible. ``None`` (default): unrestricted,
             identical to prior behaviour for every existing caller.
+        enforce_creepage: when true, apply the generated KiCad creepage
+            matrix to every cross-pin class pair before Rust reduces the
+            result to one component-level constraint. This is opt-in here
+            to preserve the clearance-only differential API; the production
+            CP-SAT dispatcher enables it for full solves.
 
     Marshalling (2026-08-17 stage 2 port, rebased onto #1323): this function
     resolves every component's pins through the live ``design_rules``
@@ -240,13 +246,27 @@ def generate_netclass_separated_constraints(
     # only tests set membership.
     touch_list = sorted(touch_refs) if touch_refs is not None else None
 
-    out = _to.netclass_separated_constraints_py(
-        components_pin_infos,
-        class_clearance,
-        class_pair_overrides,
-        existing_pairs,
-        touch_list,
-    )
+    if enforce_creepage:
+        # This is generated from pcb/temper.kicad_dru by
+        # scripts/generate_kicad_dru.py. Python only marshals the table;
+        # cross-pin pairing/reduction remains Rust-owned.
+        class_pair_creepage = _generated_creepage_rows()
+        out = _to.netclass_separated_constraints_with_creepage_py(
+            components_pin_infos,
+            class_clearance,
+            class_pair_overrides,
+            existing_pairs,
+            touch_list,
+            class_pair_creepage,
+        )
+    else:
+        out = _to.netclass_separated_constraints_py(
+            components_pin_infos,
+            class_clearance,
+            class_pair_overrides,
+            existing_pairs,
+            touch_list,
+        )
 
     constraints = [
         SeparatedConstraint(
@@ -262,3 +282,47 @@ def generate_netclass_separated_constraints(
 
     logger.info("Auto-generated %d netclass SEPARATED constraints", len(constraints))
     return constraints
+
+
+def _generated_creepage_rows() -> list[tuple[str, str, float]]:
+    """Return the generated KiCad creepage matrix in its Rust input shape."""
+    from temper_placer.router_v6.pair_creepage import default_creepage_table
+
+    return [
+        (
+            "Ground" if class_a == "GND" else class_a,
+            "Ground" if class_b == "GND" else class_b,
+            required,
+        )
+        for (class_a, class_b), required in default_creepage_table().pairs.items()
+        if class_a <= class_b
+    ]
+
+
+def verify_generated_creepage(
+    netlist,
+    design_rules: DesignRules,
+    component_boxes: list[tuple[str, float, float, float, float]],
+) -> list[tuple[str, str, float, float]]:
+    """Exhaustively check all generated creepage requirements in Rust.
+
+    ``component_boxes`` uses `(ref, x_start, x_end, y_start, y_end)` in mm.
+    The wrapper only resolves opaque netlist objects and marshals generated
+    rules; the complete pair walk and geometric verification live in Rust.
+    """
+    pin_cache: dict[str, tuple[str, str | None, float]] = {}
+    components_pin_infos: list[tuple[str, list[tuple[str, str | None, float]]]] = []
+    for comp in netlist.components:
+        pins = getattr(comp, "pins", [])
+        if not pins:
+            continue
+        pin_infos = _pin_class_infos(pins, design_rules, pin_cache)
+        if pin_infos:
+            components_pin_infos.append((getattr(comp, "ref", str(comp)), pin_infos))
+    if len(components_pin_infos) < 2:
+        return []
+    return _to.netclass_creepage_violations_py(
+        components_pin_infos,
+        component_boxes,
+        _generated_creepage_rows(),
+    )

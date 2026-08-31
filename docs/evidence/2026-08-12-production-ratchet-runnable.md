@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree
+<!-- provenance: commit=c47761757de8f62dc307c3bb79d1180ebe412ef3 dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-worktrees/production-ratchet-runnable, branch
 fix/production-ratchet-runnable, base b33056c95 (= origin/main tip at task
 start). Own .venv (make venv-isolate, 10/10 pyo3 extensions fresh, venv

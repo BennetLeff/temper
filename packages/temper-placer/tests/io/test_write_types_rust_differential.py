@@ -373,8 +373,11 @@ def test_write_engine_modules_import_through_the_shim():
     assert kicad_writer.PlacementUpdate is _RUST.PlacementUpdate
     assert kicad_writer.StrippingResult is _RUST.StrippingResult
     assert kicad_writer.IsolationSlotResult is _RUST.IsolationSlotResult
-    # Every consumer resolves the reference helper to the shim's wrapper —
-    # which the delegation test proves reaches the Rust function at call time.
-    assert _write_tracks._get_footprint_reference is shipped._get_footprint_reference
-    assert _write_board._get_footprint_reference is shipped._get_footprint_reference
-    assert _write_modules._get_footprint_reference is shipped._get_footprint_reference
+    # The writer modules no longer import the reference helper at all:
+    # since the de-kiutils migration they read references through the Rust
+    # parse engine (extract_footprint_info_py / update_footprint_positions_py),
+    # not through a Python attribute walk. The helper itself stays on the
+    # shim for its remaining consumers and is delegation-tested above.
+    for module in (_write_board, _write_modules, _write_tracks, _write_zones):
+        assert not hasattr(module, "_get_footprint_reference")
+        assert "kiutils" not in module.__dict__

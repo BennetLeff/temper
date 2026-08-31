@@ -3,13 +3,13 @@
 // PipelineRunner<BoardState> (Rust Orchestration Engine plan 2026-08-09-001,
 // Phase D batch D2).
 //
-// The stages delegate their leaf compute to Python modules that the embedded
-// test interpreter cannot see (no venv), so the modules the stages import are
-// registered as FAKES in sys.modules below -- the same builtins-only approach
-// d1_stages_runner.rs uses. What this suite proves is the SEQUENCING and the
-// BoardState read/write contract: each stage reads the Py<PyAny> fields it
-// needs, the runner threads the state through in declaration order, and the
-// write-back lands on the correct fields.
+// The geometry and slot leaf modules that the embedded test interpreter
+// cannot see (no venv) are registered as FAKES in sys.modules below -- the
+// same builtins-only approach d1_stages_runner.rs uses. Zone assignment is
+// intentionally exercised through the orchestration-owned Rust kernel. What
+// this suite proves is the SEQUENCING and BoardState read/write contract:
+// each stage reads the fields it needs, the runner threads state in
+// declaration order, and write-back lands on the correct fields.
 //
 // Tests:
 //   1. three_stages_sequence_end_to_end — all three through one runner,
@@ -50,9 +50,18 @@ class FakeZone:
 class FakeComp:
     def __init__(self, ref):
         self.ref = ref
+class FakeNet:
+    def __init__(self, name, pins, net_class):
+        self.name = name
+        self.pins = pins
+        self.net_class = net_class
 class FakeNetlist:
     def __init__(self):
         self.components = [FakeComp("Q1"), FakeComp("R1")]
+        self.nets = [
+            FakeNet("HV_RELAY", [("Q1", "1")], "HighVoltage"),
+            FakeNet("spi_mosi", [("R1", "1")], "Signal"),
+        ]
 def define_zone_layout(board_width, board_height):
     return [
         ("HV", 0, 0, board_width * 0.3, board_height),
@@ -62,8 +71,6 @@ def define_zone_layout(board_width, board_height):
     ]
 def scale_zone_bounds(name, r0, r1, r2, r3, board_width, board_height):
     return (r0 * board_width, r1 * board_height, r2 * board_width, r3 * board_height)
-def assign_component_zones(netlist):
-    return [(c.ref, "Signal") for c in netlist.components]
 def generate_slots_for_zone(x_min, y_min, x_max, y_max, spacing):
     return [(x_min + spacing / 2.0, y_min + spacing / 2.0)]
 "#;
@@ -81,8 +88,10 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let ds = PyModule::new(py, "deterministic_stages")?;
     ds.add("define_zone_layout", ns.getattr("define_zone_layout")?)?;
     ds.add("scale_zone_bounds", ns.getattr("scale_zone_bounds")?)?;
-    ds.add("assign_component_zones", ns.getattr("assign_component_zones")?)?;
-    ds.add("generate_slots_for_zone", ns.getattr("generate_slots_for_zone")?)?;
+    ds.add(
+        "generate_slots_for_zone",
+        ns.getattr("generate_slots_for_zone")?,
+    )?;
     tdb.add("deterministic_stages", &ds)?;
 
     // `temper_placer.deterministic.stages.zone_geometry` (parent chain too)
@@ -109,7 +118,11 @@ fn three_stages_sequence_end_to_end() {
     Python::initialize();
     Python::attach(|py| {
         let ns = install_fakes(py).unwrap();
-        let board = ns.getattr("FakeBoard").unwrap().call1((100.0, 50.0)).unwrap();
+        let board = ns
+            .getattr("FakeBoard")
+            .unwrap()
+            .call1((100.0, 50.0))
+            .unwrap();
         let netlist = ns.getattr("FakeNetlist").unwrap().call0().unwrap();
 
         let mut state = BoardState::new();
@@ -146,9 +159,14 @@ fn three_stages_sequence_end_to_end() {
         // zones populated from the fake define_zone_layout
         let zones = out.zones.as_ref().expect("zones attached");
         assert_eq!(zones.len(), 4);
-        // component_zone_map populated from the fake assign_component_zones
-        let czm = out.component_zone_map.as_ref().expect("component_zone_map attached");
+        // component_zone_map populated by the orchestration-owned kernel.
+        let czm = out
+            .component_zone_map
+            .as_ref()
+            .expect("component_zone_map attached");
         assert_eq!(czm.len(), 2);
+        assert!(czm.0.contains(&("Q1".into(), "HV".into())));
+        assert!(czm.0.contains(&("R1".into(), "MCU".into())));
         // zone_slots populated: one entry per zone
         let zone_slots = out.zone_slots.as_ref().expect("zone_slots attached");
         assert_eq!(zone_slots.len(), 4);
@@ -209,7 +227,10 @@ fn slot_generation_no_zones_guard() {
         }));
         let (out, report) = runner.run(state);
         assert!(!report.halted_early);
-        assert!(out.zone_slots.is_none(), "zone_slots must be untouched by the guard");
+        assert!(
+            out.zone_slots.is_none(),
+            "zone_slots must be untouched by the guard"
+        );
         let _ = py;
         Ok::<(), PyErr>(())
     })

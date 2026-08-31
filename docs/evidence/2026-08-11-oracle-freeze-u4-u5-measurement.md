@@ -1,3 +1,4 @@
+<!-- provenance: commit=f98dfd20797ae7a969c1b9226f3f2c8bf64a69b9 dirty=UNKNOWN -->
 # FREEZE (U4/U5) measurement — the production-Python metric does not move, and why
 
 **Date:** 2026-08-11

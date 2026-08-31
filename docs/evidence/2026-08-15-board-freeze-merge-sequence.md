@@ -1,3 +1,4 @@
+<!-- provenance: commit=337f3586d8ca1baad7363ec43238649e30ac16e9 dirty=UNKNOWN -->
 # Board-Freeze Merge Sequence — decision record & first landing (2026-08-15)
 
 Status: FIRST LANDING DONE — PR #1201 (ZCD removal) pushed with its

@@ -1,4 +1,4 @@
-<!-- provenance: commit=2a161284a dirty=false -->
+<!-- provenance: commit=2a161284aa3a29ef8fd659dcb0674a002047e42b dirty=false -->
 
 <!-- worktree /tmp/opencode/agent-cspace, branch fix/router-width-aware-cspace, based on fdbe0a6ad (origin/main). kicad-cli 10.0.5. Every number in this document was measured live with `temper_placer.validation._drc_api.run_drc`'s protocol (kicad-cli pcb drc --all-track-errors --format json, project sidecar resolvable). -->
 

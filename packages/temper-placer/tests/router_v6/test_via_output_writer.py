@@ -65,7 +65,12 @@ class TestViaEmission:
         content = _write_routes_to_content('(kicad_pcb\n  (net 1 "NET")\n)\n', result)[0]
         assert "(via " in content
         assert "(at 2.5000 0.0000)" in content
-        assert "(size 0.6000)" in content
+        # Via::new enforces the 0.254mm annular-ring floor at construction
+        # (docs/evidence/2026-08-17-blind-via-annular-floor-fix.md): a
+        # 0.6/0.3 via would give a 0.15mm ring, so the emitter raises the
+        # diameter to 0.9 (0.3mm ring). Updated 2026-08-22 from the
+        # pre-floor pin (size 0.6000), which predated that enforcement.
+        assert "(size 0.9000)" in content
         assert '(layers "F.Cu" "B.Cu")' in content
 
     def test_two_vias_both_emitted(self):
