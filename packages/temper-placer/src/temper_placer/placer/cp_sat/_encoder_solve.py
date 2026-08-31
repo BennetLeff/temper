@@ -429,6 +429,7 @@ def solve_placement(
     decomposed_creepage_envelope_headroom_mm: float = _DEFAULT_DECOMPOSED_ENVELOPE_HEADROOM_MM,
     decomposed_creepage_restriction_slack_mm: float = _DEFAULT_DECOMPOSED_RESTRICTION_SLACK_MM,
     experimental_omit_generated_creepage: bool = False,
+    collision_campaign_cuts: Sequence[object] | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -708,6 +709,13 @@ def solve_placement(
             and cannot be combined with ``lazy_creepage`` or
             ``decomposed_creepage``. A later stage with this switch false is
             required before treating a placement as production-complete.
+        collision_campaign_cuts: Optional immutable Rust collision-cut views
+            for the campaign-only fresh-model path.  Supplying an empty
+            sequence is intentional: it selects the campaign's 1,000
+            units/mm model from round zero, while ``None`` leaves ordinary
+            production solving unchanged.  The cuts are projected only after
+            every component pose variable is registered; ordinary callers
+            never enter this path.
         decomposed_creepage_group_prior_cuts: Use the Rust neighborhood
             planner to share four relative-direction literals across dense
             replay-cut blocks. This is a search restriction, so an infeasible
@@ -810,7 +818,20 @@ def solve_placement(
     board_w = float(getattr(board, "width", 100.0))
     board_h = float(getattr(board, "height", 100.0))
 
-    model_wrapper = CpSatModel(units_per_mm=100)
+    # The collision campaign's Rust model-coordinate type is fixed at 1,000
+    # units/mm.  Keep the historical 100-unit grid for every ordinary solve;
+    # an explicit (possibly empty) cut sequence is the opt-in campaign
+    # marker.  This preserves both the legacy fail-closed body audit and the
+    # exact six-variable replay contract.
+    if collision_campaign_cuts is None:
+        campaign_model_units = 100
+    else:
+        from temper_placer.placer.cp_sat.collision_cut_adapter import (
+            RUST_MODEL_UNITS_PER_MM,
+        )
+
+        campaign_model_units = RUST_MODEL_UNITS_PER_MM
+    model_wrapper = CpSatModel(units_per_mm=campaign_model_units)
     board_w_units = model_wrapper.mm_to_units(board_w)
     board_h_units = model_wrapper.mm_to_units(board_h)
 
@@ -830,6 +851,13 @@ def solve_placement(
         # Add rotation unless it's a known polarized part.
         polarized = ref in _POLARIZED_REFS
         model_wrapper.add_rotation(ref, is_polarized=polarized)
+
+    if collision_campaign_cuts is not None:
+        from temper_placer.placer.cp_sat.collision_cut_adapter import apply_collision_cuts
+
+        # The adapter preflights the complete frontier before mutating the
+        # model.  No collision policy lives in this encoder boundary.
+        apply_collision_cuts(model_wrapper, collision_campaign_cuts)
 
     # Experiment-only designer search topology. Every component rectangle
     # must exist before validation/posting. Keep this before decomposition so

@@ -9,6 +9,40 @@ from temper_placer.placer.cp_sat.audit import (
     Placement,
     PlacementAuditor,
 )
+from temper_placer.placer.cp_sat.collision_corridor_campaign import (
+    CollisionCorridorCampaignResult,
+    CollisionCorridorLimits,
+    CollisionCorridorRoundTelemetry,
+    CollisionCorridorTerminal,
+    candidate_digest,
+    resume_collision_corridor_campaign,
+    run_collision_corridor_campaign,
+)
+from temper_placer.placer.cp_sat.collision_corridor_checkpoint import (
+    read_collision_campaign_checkpoint,
+    restore_collision_campaign_checkpoint,
+    write_collision_campaign_checkpoint,
+)
+from temper_placer.placer.cp_sat.collision_corridor_evidence import (
+    EVIDENCE_SCHEMA as COLLISION_CORRIDOR_EVIDENCE_SCHEMA,
+)
+from temper_placer.placer.cp_sat.collision_corridor_evidence import (
+    EVIDENCE_VERSION as COLLISION_CORRIDOR_EVIDENCE_VERSION,
+)
+from temper_placer.placer.cp_sat.collision_corridor_evidence import (
+    EvidenceValidationError,
+    canonical_collision_corridor_evidence,
+    prepare_u6_corridor_experiment,
+    read_collision_corridor_evidence,
+    run_collision_corridor_comparison,
+    validate_collision_corridor_evidence,
+    write_collision_corridor_evidence,
+)
+from temper_placer.placer.cp_sat.collision_cut_adapter import (
+    RUST_MODEL_UNITS_PER_MM,
+    apply_collision_cut,
+    apply_collision_cuts,
+)
 from temper_placer.placer.cp_sat.constraint_family_campaign import (
     ConstraintFamilyCampaignResult,
     ConstraintFamilyCampaignStatus,
@@ -81,6 +115,9 @@ from temper_placer.placer.cp_sat.creepage_lower_bounds import (
     CreepageLowerBoundReport,
     ThresholdCliqueBound,
     analyze_creepage_lower_bounds,
+)
+from temper_placer.placer.cp_sat.creepage_search_corridor_experiment import (
+    run_prepared_collision_corridor_experiment,
 )
 from temper_placer.placer.cp_sat.creepage_territory_planner import (
     plan_creepage_displacement_groups,
@@ -179,6 +216,29 @@ from temper_placer.placer.cp_sat.stripped_warm_start import (
 
 __all__ = [
     "AcceptanceGate",
+    "RUST_MODEL_UNITS_PER_MM",
+    "apply_collision_cut",
+    "apply_collision_cuts",
+    "CollisionCorridorCampaignResult",
+    "CollisionCorridorLimits",
+    "CollisionCorridorRoundTelemetry",
+    "CollisionCorridorTerminal",
+    "candidate_digest",
+    "resume_collision_corridor_campaign",
+    "run_collision_corridor_campaign",
+    "COLLISION_CORRIDOR_EVIDENCE_SCHEMA",
+    "COLLISION_CORRIDOR_EVIDENCE_VERSION",
+    "EvidenceValidationError",
+    "canonical_collision_corridor_evidence",
+    "prepare_u6_corridor_experiment",
+    "read_collision_corridor_evidence",
+    "run_collision_corridor_comparison",
+    "validate_collision_corridor_evidence",
+    "write_collision_corridor_evidence",
+    "read_collision_campaign_checkpoint",
+    "restore_collision_campaign_checkpoint",
+    "write_collision_campaign_checkpoint",
+    "run_prepared_collision_corridor_experiment",
     "AuditReport",
     "AuditViolation",
     "ComponentVars",

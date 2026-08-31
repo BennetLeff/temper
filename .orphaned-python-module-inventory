@@ -13,6 +13,5 @@
 
 temper_placer.placer.cp_sat.creepage_repair_frontier	Experimental campaign API retained for its focused test/evidence harness; not wired into production placement.
 temper_placer.placer.cp_sat.creepage_replay_resume	Test-only replay/resume contract retained to validate deterministic experiment recovery; not a production stage.
-temper_placer.placer.cp_sat.creepage_search_corridor_experiment	Explicitly experimental corridor runner retained for controlled probes and evidence generation; production only consumes the opt-in encoding seam.
 temper_placer.placer.cp_sat.displacement_deletion_scheduler	Experimental campaign scheduler retained for focused search-policy tests; not wired into production placement.
 temper_placer.placer.cp_sat.progressive_creepage_cuts	Experimental comparison implementation retained for differential tests while grouped cuts are evaluated; not wired into production placement.

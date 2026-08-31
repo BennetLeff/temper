@@ -202,6 +202,7 @@ pub mod state_ser;
 // `_stage_subprocess.py` invocation. Ungated like `state_ser`.
 pub(crate) mod channel_mapping;
 pub(crate) mod clearance;
+pub mod collision_campaign;
 mod component_assignment_stage;
 pub mod subprocess_stage;
 // 2026-08-17 placer constraint/clearance Rust-port stage 2: the
@@ -480,6 +481,22 @@ use pyo3::prelude::*;
 #[cfg(feature = "python")]
 #[pymodule]
 fn temper_orchestration(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    // Collision campaign boundary (one registration per symbol; the phase
+    // wrappers are opaque and their consuming methods enforce generation
+    // invalidation in collision_campaign.rs).
+    m.add_function(wrap_pyfunction!(collision_campaign::prepare_collision_campaign, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        collision_campaign::collision_campaign_model_units_per_mm,
+        m
+    )?)?;
+    m.add_class::<collision_campaign::PyPrepared>()?;
+    m.add_class::<collision_campaign::PySolving>()?;
+    m.add_class::<collision_campaign::PyCandidate>()?;
+    m.add_class::<collision_campaign::PyRefining>()?;
+    m.add_class::<collision_campaign::PyAuditDecision>()?;
+    m.add_class::<collision_campaign::PyTerminalVerdict>()?;
+    m.add_class::<collision_campaign::PyCollisionCut>()?;
+    m.add_class::<collision_campaign::PyCheckpoint>()?;
     m.add_function(wrap_pyfunction!(timing::compare_stage, m)?)?;
     m.add_function(wrap_pyfunction!(timing::p95, m)?)?;
     m.add_function(wrap_pyfunction!(trace_filter::filter_decisions, m)?)?;
