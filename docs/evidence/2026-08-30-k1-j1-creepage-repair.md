@@ -1,3 +1,5 @@
+<!-- provenance: commit=62ed191892aece64105d58e613c6e7c2b97899f8 dirty=false (clean parent used for every measurement; all candidate board mutations and reports lived outside the tracked worktree under /tmp/compound-engineering-1000/) -->
+
 # K1-J1 creepage repair: bounded J1 candidates are infeasible
 
 **Verdict: STOPPED, EVIDENCE ONLY.** The two placements authorized by the
