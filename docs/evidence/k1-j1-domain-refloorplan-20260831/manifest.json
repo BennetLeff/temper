@@ -1,0 +1,6187 @@
+{
+  "baseline_req_safe": {
+    "components_without_pads": [],
+    "coverage_ratio": 0.9404761904761905,
+    "errors": 57,
+    "matched_components": 158,
+    "total_components": 168,
+    "warnings": 0
+  },
+  "fence_mm": {
+    "x_max": 108.5,
+    "x_min": 90.0,
+    "y_max": 253.0,
+    "y_min": 239.0
+  },
+  "fixed_obstacle_clear_options": true,
+  "full_cartesian_size": 972,
+  "movable_refs": [
+    "J1",
+    "R45",
+    "R58",
+    "R66",
+    "SW1",
+    "U22"
+  ],
+  "mutually_body_and_courtyard_clear_combinations": 60,
+  "official_j1_footprint_sha256": "578ba6321290aead39a60428eed317d8e0eb2b23759774ccc9090a41e82a8285",
+  "options": {
+    "J1": [
+      [
+        103,
+        242.5,
+        180
+      ],
+      [
+        104,
+        242.5,
+        180
+      ],
+      [
+        103,
+        243,
+        180
+      ],
+      [
+        104,
+        243,
+        180
+      ],
+      [
+        105,
+        243,
+        180
+      ],
+      [
+        103,
+        243.5,
+        180
+      ],
+      [
+        104,
+        243.5,
+        180
+      ],
+      [
+        105,
+        243.5,
+        180
+      ],
+      [
+        106,
+        243.5,
+        180
+      ]
+    ],
+    "R45": [
+      [
+        93,
+        244,
+        270
+      ],
+      [
+        93.5,
+        244,
+        270
+      ]
+    ],
+    "R58": [
+      [
+        91,
+        242.5,
+        90
+      ],
+      [
+        91.5,
+        242.5,
+        90
+      ]
+    ],
+    "R66": [
+      [
+        102,
+        249.5,
+        180
+      ],
+      [
+        102.5,
+        249.5,
+        180
+      ],
+      [
+        103,
+        249.5,
+        180
+      ]
+    ],
+    "SW1": [
+      [
+        102,
+        247.5,
+        180
+      ],
+      [
+        102.5,
+        247.5,
+        180
+      ],
+      [
+        103,
+        247.5,
+        180
+      ]
+    ],
+    "U22": [
+      [
+        105.5,
+        249,
+        180
+      ],
+      [
+        106,
+        249,
+        180
+      ],
+      [
+        106.5,
+        249,
+        180
+      ]
+    ]
+  },
+  "ordering": "(-J1_y, abs(J1_x-105), total displacement, placement tuple)",
+  "placement_screen_budget": 96,
+  "placement_survivors": [],
+  "placements_selected": 60,
+  "results": [
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C001/temper.kicad_pcb",
+      "id": "C001",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "601b1eadb147e2bf8358e0865ded291435244ede1069182f5606a8f69d8d3f7e",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C002/temper.kicad_pcb",
+      "id": "C002",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "ec7b5fbec9d2000419561d1ea81b29b03e11144518c43bb3766c4f7103af8224",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C003/temper.kicad_pcb",
+      "id": "C003",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "0662631d5afa2d5e319ad0190ee2dd9dcb352071287f8656a88948d5599a48ee",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C004/temper.kicad_pcb",
+      "id": "C004",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "fa6a715ca3b74e57031f0515e0ee80fe23f4a036913e013471c72babd1d5be18",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C005/temper.kicad_pcb",
+      "id": "C005",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "bb63aa079be94b5d9ad85405408a21b34c20d19eb48683dfcb3b69efd2c9573c",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C006/temper.kicad_pcb",
+      "id": "C006",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "71e246d5ebdac9b80513916a02a19397ebc263d211fc37d80c47f9fd69675866",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C007/temper.kicad_pcb",
+      "id": "C007",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "7463d9ca8dd5b684014a5c1d728be8d21fc9a0bc44ea638c26f1b30ca5d1c1de",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C008/temper.kicad_pcb",
+      "id": "C008",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "3142e3d26760d28df726c1a2125a1809951ea3e51d5c4c7263036e8039ef045f",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C009/temper.kicad_pcb",
+      "id": "C009",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "0764d7a19917c7a32744ed1fb0fbc74a66355abcea8c4437e9edc456e223d00a",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C010/temper.kicad_pcb",
+      "id": "C010",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "63a7dd91c4cbf1c5d5d57da53501d2c67210d40e55ac36e0befaba4599da2945",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C011/temper.kicad_pcb",
+      "id": "C011",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "6696062b1962eebb339d4ce34a6cf93607ad90048e8893130c309d6f152a916d",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C012/temper.kicad_pcb",
+      "id": "C012",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "24f36b2651d70a647917bd775b81c1715f16b77ffcb9e54068ae81d2e4dad619",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C013/temper.kicad_pcb",
+      "id": "C013",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "8705c28a89413c331f98420bc713a746e4405efca326cd4bfd14a5d198aaeff8",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C014/temper.kicad_pcb",
+      "id": "C014",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "3052b3c86e33758ec1530ad530dc755c1b1073efd630860cb54a6e2f62635e29",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C015/temper.kicad_pcb",
+      "id": "C015",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "288ab5917aa92b0a08469e83e2e40a4f3a86561d21285c1fd24917e361eba444",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C016/temper.kicad_pcb",
+      "id": "C016",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "5b370ec5aa6a4a6b0d45c42c8c0192003d4dbbd0c3bdafef8082b312851d09b9",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C017/temper.kicad_pcb",
+      "id": "C017",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "d92ee4b4719c5d11f5101d30d646587c318afc23ee96a6d8c65467396a0bcbf8",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C018/temper.kicad_pcb",
+      "id": "C018",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "73c9e6b6539fb712e07cf0db703b9503ee864f22fd416ac5e8b51cbdefbc9b5c",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C019/temper.kicad_pcb",
+      "id": "C019",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "480d7a9bdbb9817dc3f385e724ecb75e2e94facebdef95bf2a11f4fb3b23f9d4",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C020/temper.kicad_pcb",
+      "id": "C020",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.77882654659717,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "08b19bbfa67c392f4b6f1e8aee32d1438e8f5612e87c8020cb3544b9e51c8dce",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C021/temper.kicad_pcb",
+      "id": "C021",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "47d324204913cab3923d039c0bb64dd7ce31ddfc040a26f66f67cfc595a9202a",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C022/temper.kicad_pcb",
+      "id": "C022",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "b9daa2fb4f5bd4c8eb53a2300b623c44e44542baabf42a73733ebc1123ff9adf",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C023/temper.kicad_pcb",
+      "id": "C023",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "2e202f831aef39332535fccac15731b480dac8bc4de3b52a459d914878e69099",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C024/temper.kicad_pcb",
+      "id": "C024",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "939676c49def40505bc1ebb494586e1b0838a07539cddd768442ee09975048a4",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C025/temper.kicad_pcb",
+      "id": "C025",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "50888b83dcbffd5088c1b3405b48a270cfcbb26e383d6284b3b326e95e1f1be6",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C026/temper.kicad_pcb",
+      "id": "C026",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "ec86afd2d2a114cba11e796c00e4978d2800b07f3b7e94b00780b7da7c7cbfeb",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C027/temper.kicad_pcb",
+      "id": "C027",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "0cacce29405eaeed95376b11e3c7d667e4c0a5ad5b063d75e1276f6cd47bd5f0",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C028/temper.kicad_pcb",
+      "id": "C028",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "755ab26db6838a79797c07426eaf81b7035e662c1dd73cb64391c9d0af1c9ec6",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C029/temper.kicad_pcb",
+      "id": "C029",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "16fa274c07104b831b08fa8a0a7ea3a854ce8509b51ce94231d1e41f89eefbfe",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C030/temper.kicad_pcb",
+      "id": "C030",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "abca86fbafd5648f244eeb1673cec3174f650f99e0392adc3be54c8bb31821c9",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C031/temper.kicad_pcb",
+      "id": "C031",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "5e88506ee18445450fef0a5d4b347411c8b267568069c32eccf4228a48cce4e7",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C032/temper.kicad_pcb",
+      "id": "C032",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "88b877f56336a049332ff1edfd4885d46cee3361d481e8d252ca535f5ed2ed80",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C033/temper.kicad_pcb",
+      "id": "C033",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "3ba544e86bcc695abce408bda76bbde3dffe9a408ab68cf1582a9a96f9cb5c55",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C034/temper.kicad_pcb",
+      "id": "C034",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "b2f69c9114930431a4cdb55fe7fe82b99a399375246a1299863ad19af26f87d6",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C035/temper.kicad_pcb",
+      "id": "C035",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "fd693c4e0418bb5d2d178cae9ca1e61b2a32e362f008a0db4bcf4233400d8c79",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C036/temper.kicad_pcb",
+      "id": "C036",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "3ba1b3582dcaa988dabbfc9df1165b007d2079929f09df5fb99c9f74b18db9e7",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C037/temper.kicad_pcb",
+      "id": "C037",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "983477c1892e7a7a3b7c840be578fe2a2f257eaa4bafe84a14d0ebc0575872e0",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C038/temper.kicad_pcb",
+      "id": "C038",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "58c3b9b65a517184fb7261ba032bdb2d27b706d36e066dcbd5649885340d3d5e",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C039/temper.kicad_pcb",
+      "id": "C039",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "9c3a9e0bcd6a98ceb8a1be578a1a4ad11c3596936fa7b98f76b7e0faa1eb444a",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C040/temper.kicad_pcb",
+      "id": "C040",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.49671580172922,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          106,
+          243.5,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "81c871402b42132e23f092c702debb5c41d1deb38573db226623c44eb1077e09",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C041/temper.kicad_pcb",
+      "id": "C041",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "7b346cfbebdefda46feb2e0e6dbd21c142b35e21099733c4e2e631f8c0335f09",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C042/temper.kicad_pcb",
+      "id": "C042",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "2da8e423a76871ac1994f2441fb73eadd1ccffc8c6236abceb1ae879b2fde14a",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C043/temper.kicad_pcb",
+      "id": "C043",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "23b499db39d8571887f2f5ec972f3caf6cef19ffdcb2d677c8457524032d1eb5",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C044/temper.kicad_pcb",
+      "id": "C044",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "3affd0aaf432171c69c56a840d52b569ad81565eee607ef0bf782f25d214380f",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C045/temper.kicad_pcb",
+      "id": "C045",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "aac2d1967b2b6c79fc3e9b0d81928f82f23293f492aaa9877635fc3944eee862",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C046/temper.kicad_pcb",
+      "id": "C046",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "ab33d8e148346e7752012cd8b94babcf3c2218c1db4e21733fee5986257b5bb2",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C047/temper.kicad_pcb",
+      "id": "C047",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "d5260256d5ef8e5fc1bc3129267989c2cd9ca5aa52a7dbbae7fd852d374dc0fa",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C048/temper.kicad_pcb",
+      "id": "C048",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "14721ebc5410c4edf9759b4a541029c603d90885ed486fc34ba376a73eb495c5",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C049/temper.kicad_pcb",
+      "id": "C049",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "5bc1fcbac271f485f2d36c4988a302f6ec08776da57292d46228615b2f059695",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C050/temper.kicad_pcb",
+      "id": "C050",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "caff56c2ead5cc945d9872b1fa6019d6a9cee9fe2dbec74d0d13b5122fa33230",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C051/temper.kicad_pcb",
+      "id": "C051",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "3f268b1644dffdd374a78976b21f43acda2732363d0536fabca7cc0ccf277de3",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C052/temper.kicad_pcb",
+      "id": "C052",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "cbfda9ce06d9858b42887abb083389055697b1e92849c26c9c222187418cb85a",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C053/temper.kicad_pcb",
+      "id": "C053",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "254ea6d791db9c355e83b4a5d0180c9e0d88d30f7a65f2bd2be5f2a26ea712dc",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C054/temper.kicad_pcb",
+      "id": "C054",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "c277860364ec1143a9005f041eee4a74afb5e05a1dccd553f62f6d91cd0e0d34",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C055/temper.kicad_pcb",
+      "id": "C055",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93.5,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "49a7f3d2fffad72959d2c480de06f7427347c7e84f2fc6552463d1d8092aa183",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C056/temper.kicad_pcb",
+      "id": "C056",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "03d9a09578ed548b7ae36e77b14311ac681e34fcdce461457b22ab900672ea3e",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C057/temper.kicad_pcb",
+      "id": "C057",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91.5,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "ed20a741a6306acb763977faf7456c068093eaca11b3f1eb3f388255b971007e",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C058/temper.kicad_pcb",
+      "id": "C058",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "650352bce385eac0e39b3805f80962ff88bd33d8c6e49a727ff5a1a3b717e5ae",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C059/temper.kicad_pcb",
+      "id": "C059",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R66",
+          "SW1",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102.5,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 60,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "ff010324cbe3aa9f02c66ae52ea65713162832087ddb99e6a00e7cb4105c0914",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    },
+    {
+      "board": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/corrected/placements/C060/temper.kicad_pcb",
+      "id": "C060",
+      "k1_j1_closest_pair": "K1.4(w1_2)<->J1.1(rtd_force_p)",
+      "k1_j1_gap_mm": 13.304745870407777,
+      "new_body_overlaps": [],
+      "new_courtyard_overlaps": [],
+      "new_req_safe_signatures": [
+        [
+          "J1",
+          "R14",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R14",
+          "U22",
+          "creepage",
+          "InsulationType.REINFORCED",
+          "DC_BUS<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "R66",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ],
+        [
+          "R54",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ],
+      "placement_pass": false,
+      "placements": {
+        "J1": [
+          105,
+          243,
+          180
+        ],
+        "R45": [
+          93,
+          244,
+          270
+        ],
+        "R58": [
+          91,
+          242.5,
+          90
+        ],
+        "R66": [
+          102.5,
+          249.5,
+          180
+        ],
+        "SW1": [
+          102,
+          247.5,
+          180
+        ],
+        "U22": [
+          106.5,
+          249,
+          180
+        ]
+      },
+      "req_safe": {
+        "components_without_pads": [],
+        "coverage_ratio": 0.9404761904761905,
+        "errors": 59,
+        "matched_components": 158,
+        "total_components": 168,
+        "warnings": 0
+      },
+      "sha256": "a8d27875dd5213ff4da55b504289f709cb0ca45b944a64588d507eca9dbfec7a",
+      "worsened_req_safe_signatures": [
+        [
+          "R66",
+          "U22",
+          "creepage",
+          "InsulationType.FUNCTIONAL",
+          "LV_CONTROL<->LV_CONTROL",
+          "inter"
+        ]
+      ]
+    }
+  ],
+  "routed_promotion_budget": 24,
+  "source": "/tmp/compound-engineering-1000/k1-j1-candidates/authority/temper.kicad_pcb",
+  "source_sha256": "5ef29bfda80ac96cd490bed0b8881835f807eba3fa60b2b126eefc16eaf26e8a",
+  "status": "declared-before-materialization",
+  "supersedes_calibration_manifest": "/tmp/compound-engineering-1000/k1-j1-refloorplan-20260831/manifest.json"
+}
