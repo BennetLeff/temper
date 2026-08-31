@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import subprocess
 import sys
@@ -80,6 +81,18 @@ def _mapping(value: Any, context: str) -> dict[str, Any]:
     return value
 
 
+def _reject_nonfinite(value: Any, context: str) -> None:
+    """Reject JSON/YAML numbers that cannot be trusted as engineering data."""
+    if isinstance(value, float) and not math.isfinite(value):
+        raise GateError(f"{context} contains a non-finite number")
+    if isinstance(value, dict):
+        for key, child in value.items():
+            _reject_nonfinite(child, f"{context}.{key}")
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            _reject_nonfinite(child, f"{context}[{index}]")
+
+
 def _text(value: Any, context: str, *, allow_none: bool = False) -> str | None:
     if value is None and allow_none:
         return None
@@ -100,6 +113,37 @@ def _string_list(value: Any, context: str, *, nonempty: bool = True) -> list[str
     return result
 
 
+def _check_manifest_location(path: Path, fixture_context: Any) -> None:
+    """Keep the fixture escape hatch out of production Git worktrees."""
+    try:
+        repo_root = find_repo_root(path.parent)
+    except FileNotFoundError:
+        if fixture_context != FIXTURE_CONTEXT:
+            raise GateError(
+                "split-board manifest outside a Git worktree must declare "
+                "fixture_context: unit-test"
+            ) from None
+        return
+
+    if fixture_context is not None:
+        raise GateError(
+            "fixture_context is permitted only for manifests outside a Git worktree"
+        )
+    try:
+        relative = path.resolve().relative_to(repo_root.resolve())
+    except ValueError as exc:
+        raise GateError(f"split-board manifest is outside its Git worktree: {path}") from exc
+    result = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", "--", str(relative)],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise GateError(f"production split-board manifest must be tracked: {path}")
+
+
 def load_contract(path: Path) -> dict[str, Any]:
     """Load and structurally validate a split-board manifest."""
 
@@ -113,6 +157,7 @@ def load_contract(path: Path) -> dict[str, Any]:
     except yaml.YAMLError as exc:
         raise GateError(f"split-board contract is not valid YAML: {exc}") from exc
     data = _mapping(data, "split-board contract")
+    _reject_nonfinite(data, "split-board contract")
 
     if data.get("schema_version") != SCHEMA_VERSION:
         raise GateError(
@@ -129,6 +174,7 @@ def load_contract(path: Path) -> dict[str, Any]:
     fixture_context = data.get("fixture_context")
     if fixture_context is not None and fixture_context != FIXTURE_CONTEXT:
         raise GateError(f"fixture_context must be {FIXTURE_CONTEXT!r} when present")
+    _check_manifest_location(path, fixture_context)
 
     generation = _mapping(data.get("generation"), "generation")
     if not isinstance(generation.get("enabled"), bool):
@@ -184,6 +230,29 @@ def load_contract(path: Path) -> dict[str, Any]:
                 f"boards.{board_role}.checks.{check_name}.{record_name}",
                 allow_none=True,
             )
+            if check_name == "drc":
+                ceiling_source = _mapping(
+                    check.get("ceiling_source"),
+                    f"boards.{board_role}.checks.drc.ceiling_source",
+                )
+                _text(
+                    ceiling_source.get("path"),
+                    f"boards.{board_role}.checks.drc.ceiling_source.path",
+                    allow_none=True,
+                )
+                _text(
+                    ceiling_source.get("board_id"),
+                    f"boards.{board_role}.checks.drc.ceiling_source.board_id",
+                    allow_none=True,
+                )
+                digest = ceiling_source.get("sha256")
+                if digest is not None and (
+                    not isinstance(digest, str) or not SHA256_RE.fullmatch(digest)
+                ):
+                    raise GateError(
+                        f"boards.{board_role}.checks.drc.ceiling_source.sha256 "
+                        "must be a full SHA-256 when present"
+                    )
 
     interface = _mapping(data.get("interface"), "interface")
     _text(interface.get("name"), "interface.name")
@@ -321,6 +390,7 @@ def _load_json(path: Path, context: str) -> dict[str, Any]:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise GateError(f"{context} is not valid JSON: {path}: {exc}") from exc
+    _reject_nonfinite(value, context)
     return _mapping(value, context)
 
 
@@ -416,6 +486,20 @@ def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: l
     if not hierarchy_path.is_file():
         raise GateError(f"split-board hierarchy not found: {data['hierarchy']}")
     _require_tracked(hierarchy_path, manifest_path, "split-board hierarchy")
+    if not _is_fixture(manifest_path):
+        try:
+            from check_domain_partition import validate_split_domain_contract
+
+            validate_split_domain_contract(
+                source_path,
+                src_dir=source_path.parent / "src",
+            )
+        except Exception as exc:
+            if isinstance(exc, GateError):
+                raise
+            raise GateError(
+                "authoritative split domain validation failed: " + str(exc)
+            ) from exc
     hierarchy = hierarchy_path.read_text(encoding="utf-8")
     match = re.search(
         r"(?ms)^interface\s+PowerControlSELV:\s*\n(?P<body>.*?)(?=^\S|\Z)",
@@ -498,20 +582,107 @@ def _read_artifact(path: Path, context: str, *, suffix: str | None = None) -> by
     return contents
 
 
+def _check_atopile_entrypoint(path: Path, context: str, board_role: str) -> bytes:
+    """Require an Atopile source to contain a real module/interface shape."""
+    contents = _read_artifact(path, context, suffix=".ato")
+    text = contents.decode("utf-8")
+    declarations = re.findall(
+        r"(?m)^\s*(?:module|interface|component)\s+([A-Za-z_]\w*)\s*:",
+        text,
+    )
+    if not declarations:
+        raise GateError(f"{context} has no Atopile module, interface, or component declaration")
+    if not re.search(r"(?m)^\s*module\s+[A-Za-z_]\w*\s*:", text):
+        raise GateError(f"{context} must declare an Atopile module entrypoint")
+    # A board entrypoint must have a board-shaped declaration, not merely an
+    # imported library interface.  Accept the boundary names used by the
+    # foundation and conventional generated PowerBoard/ControlBoard names.
+    role_names = {
+        "power": {"PowerBoard", "PowerBoardBoundary"},
+        "control": {"ControlBoard", "ControlBoardBoundary"},
+    }[board_role]
+    if not role_names.intersection(declarations):
+        raise GateError(
+            f"{context} has no {board_role}-board module declaration "
+            f"(expected one of {sorted(role_names)!r})"
+        )
+    return contents
+
+
+def _parse_sexp(contents: bytes, context: str) -> list[Any]:
+    """Parse the small structural subset needed by KiCad artifacts."""
+    text = contents.decode("utf-8")
+    tokens = re.findall(r'\(|\)|"(?:\\.|[^"\\])*"|[^()\s]+', text)
+    position = 0
+
+    def parse_list() -> list[Any]:
+        nonlocal position
+        if position >= len(tokens) or tokens[position] != "(":
+            raise GateError(f"{context} has an invalid S-expression")
+        position += 1
+        result: list[Any] = []
+        while position < len(tokens) and tokens[position] != ")":
+            if tokens[position] == "(":
+                result.append(parse_list())
+            else:
+                result.append(tokens[position])
+                position += 1
+        if position >= len(tokens):
+            raise GateError(f"{context} has unbalanced parentheses")
+        position += 1
+        return result
+
+    tree = parse_list()
+    if position != len(tokens):
+        raise GateError(f"{context} contains multiple top-level S-expressions")
+    return tree
+
+
 def _check_sexp_artifact(path: Path, context: str, root: bytes, suffix: str) -> bytes:
     contents = _read_artifact(path, context, suffix=suffix)
     if not contents.lstrip().startswith(b"(" + root):
         raise GateError(f"{context} does not have a parseable {root.decode()} root")
-    depth = 0
-    for byte in contents:
-        if byte == ord("("):
-            depth += 1
-        elif byte == ord(")"):
-            depth -= 1
-            if depth < 0:
-                raise GateError(f"{context} has unbalanced parentheses")
-    if depth != 0:
-        raise GateError(f"{context} has unbalanced parentheses")
+    tree = _parse_sexp(contents, context)
+    if not tree or tree[0] != root.decode("ascii"):
+        raise GateError(f"{context} does not have a parseable {root.decode()} root")
+    children = [item for item in tree[1:] if isinstance(item, list) and item]
+    heads = {item[0] for item in children if isinstance(item[0], str)}
+    if root == b"kicad_pcb":
+        required = {"version", "generator", "general", "layers", "setup"}
+        if not required.issubset(heads):
+            raise GateError(
+                f"{context} is missing meaningful KiCad board structure: "
+                f"{sorted(required - heads)}"
+            )
+        version = next(item for item in children if item[0] == "version")
+        if len(version) != 2 or not re.fullmatch(r"\d+", str(version[1])):
+            raise GateError(f"{context} must contain a numeric KiCad version")
+    elif root == b"export":
+        required = {"version", "components", "nets"}
+        if not required.issubset(heads):
+            raise GateError(
+                f"{context} is missing meaningful netlist structure: "
+                f"{sorted(required - heads)}"
+            )
+        components = next(item for item in children if item[0] == "components")
+        nets = next(item for item in children if item[0] == "nets")
+        comp_items = [item for item in components[1:] if isinstance(item, list) and item]
+        net_items = [item for item in nets[1:] if isinstance(item, list) and item]
+        if not comp_items or not net_items:
+            raise GateError(f"{context} must contain components and nets")
+        if any(
+            item[0] != "comp"
+            or not any(child[0] == "ref" for child in item[1:] if isinstance(child, list) and child)
+            for item in comp_items
+        ):
+            raise GateError(f"{context} contains a component without a ref")
+        if any(
+            item[0] != "net"
+            or not any(child[0] == "name" for child in item[1:] if isinstance(child, list) and child)
+            or not any(child[0] == "node" for child in item[1:] if isinstance(child, list) and child)
+            for item in net_items
+        ):
+            raise GateError(f"{context} contains a net without a name/node")
     return contents
 
 
@@ -522,6 +693,7 @@ def _check_drc_report(
     provenance_path: Path,
     provenance: dict[str, Any],
     manifest_path: Path,
+    ceiling_limits: dict[str, Any],
 ) -> dict[str, Any]:
     report = _load_json(path, f"{board_id} DRC report")
     if report.get("schema_version") != 1:
@@ -577,11 +749,17 @@ def _check_drc_report(
     acceptance = report.get("acceptance")
     if not isinstance(acceptance, dict) or acceptance.get("source") != "project-drc-ceiling":
         raise GateError(f"{board_id} DRC report must name project-drc-ceiling acceptance")
-    ceilings = acceptance.get("ceilings")
-    if not isinstance(ceilings, dict):
-        raise GateError(f"{board_id} DRC report acceptance must contain ceilings")
+    if "ceilings" in acceptance:
+        raise GateError(
+            f"{board_id} DRC report must not carry self-declared ceilings; "
+            "use the tracked ceiling source"
+        )
+    if acceptance.get("ceiling_source") != ceiling_limits["source_ref"]:
+        raise GateError(f"{board_id} DRC report ceiling_source does not match the manifest")
+    if acceptance.get("ceiling_board_id") != ceiling_limits["board_id"]:
+        raise GateError(f"{board_id} DRC report ceiling_board_id does not match the manifest")
     for field in ("violations_by_type", "warnings_by_type"):
-        limits = ceilings.get(field)
+        limits = ceiling_limits[field]
         if not isinstance(limits, dict) or any(
             not isinstance(name, str) or not isinstance(value, int)
             or isinstance(value, bool) or value < 0 for name, value in limits.items()
@@ -594,7 +772,7 @@ def _check_drc_report(
                     f"project ceiling {limits.get(rule, 0)}"
                 )
     for field, count_field in (("error_ceiling", "violations_by_type"), ("warning_ceiling", "warnings_by_type")):
-        limit = acceptance.get(field)
+        limit = ceiling_limits[field]
         if not isinstance(limit, int) or isinstance(limit, bool) or limit < 0:
             raise GateError(f"{board_id} DRC acceptance must contain non-negative {field}")
         if sum(report[count_field].values()) > limit:
@@ -602,6 +780,50 @@ def _check_drc_report(
     _require_tracked(path, manifest_path, f"{board_id} DRC report")
     _require_tracked(provenance_path, manifest_path, f"{board_id} provenance record")
     return report
+
+
+def _load_ceiling_source(
+    path: Path,
+    board_id: str,
+    expected_sha256: str | None,
+    manifest_path: Path,
+) -> dict[str, Any]:
+    """Load limits from a tracked, content-addressed project ceiling file."""
+    _require_tracked(path, manifest_path, f"{board_id} DRC ceiling source")
+    try:
+        actual_sha256 = sha256_file(path)
+    except OSError as exc:
+        raise GateError(f"{board_id} DRC ceiling source cannot be hashed: {exc}") from exc
+    if not expected_sha256:
+        raise GateError(f"{board_id} DRC ceiling source must declare its expected sha256")
+    if actual_sha256 != expected_sha256:
+        raise GateError(f"{board_id} DRC ceiling source sha256 does not match the manifest")
+    source = _load_json(path, f"{board_id} DRC ceiling source")
+    boards = source.get("boards")
+    if isinstance(boards, list):
+        selected = next(
+            (entry for entry in boards if isinstance(entry, dict) and entry.get("board_id") == board_id),
+            None,
+        )
+        if selected is None:
+            # The project ceiling is commonly keyed by its legacy board name;
+            # the manifest's explicit board_id is the authoritative selector.
+            selected = next(
+                (entry for entry in boards if isinstance(entry, dict) and entry.get("board_id") == "temper"),
+                None,
+            )
+        if selected is None:
+            raise GateError(f"{board_id} DRC ceiling source has no selected board")
+    else:
+        selected = source
+    limits: dict[str, Any] = {"source_ref": None, "board_id": board_id}
+    for field in ("violations_by_type", "warnings_by_type", "error_ceiling", "warning_ceiling"):
+        if field not in selected:
+            raise GateError(f"{board_id} DRC ceiling source is missing {field}")
+        limits[field] = selected[field]
+    limits["source_ref"] = str(path.relative_to(_contract_repo_root(manifest_path)))
+    limits["board_id"] = selected.get("board_id", board_id)
+    return limits
 
 
 def _check_provenance(
@@ -784,7 +1006,9 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
             ):
                 source_path = _resolve(source_entrypoint, path)
                 netlist_path = _resolve(netlist_value, path)
-                _read_artifact(source_path, f"{board_role} board source entrypoint", suffix=".ato")
+                _check_atopile_entrypoint(
+                    source_path, f"{board_role} board source entrypoint", board_role
+                )
                 _check_sexp_artifact(pcb_path, f"{board_role} board PCB artifact", b"kicad_pcb", ".kicad_pcb")
                 _check_sexp_artifact(netlist_path, f"{board_role} board netlist artifact", b"export", ".net")
                 for artifact_path, context in (
@@ -801,6 +1025,23 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
                 board_hashes[board_role] = {
                     key: sha256_file(value) for key, value in board_paths[board_role].items()
                 }
+            ceiling_spec = board["checks"]["drc"]["ceiling_source"]
+            ceiling_path_value = ceiling_spec.get("path")
+            ceiling_limits: dict[str, Any] | None = None
+            if not ceiling_path_value:
+                errors.append(f"{board_role} board DRC ceiling source is not declared")
+            else:
+                ceiling_path = _resolve(ceiling_path_value, path)
+                if not ceiling_path.is_file():
+                    raise GateError(
+                        f"{board_id} DRC ceiling source not found: {ceiling_path_value}"
+                    )
+                ceiling_limits = _load_ceiling_source(
+                    ceiling_path,
+                    ceiling_spec.get("board_id"),
+                    ceiling_spec.get("sha256"),
+                    path,
+                )
             drc_report = board["checks"]["drc"]["report"]
             if not drc_report:
                 errors.append(f"{board_role} board DRC report is not declared")
@@ -810,11 +1051,22 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
                     raise GateError(f"{board_id} DRC report not found: {drc_report}")
                 provenance_value = board["checks"]["provenance"]["record"]
                 provenance_path = _resolve(provenance_value, path) if provenance_value else None
-                if provenance_path is not None and provenance_path.is_file() and pcb_path.is_file():
+                if (
+                    provenance_path is not None
+                    and provenance_path.is_file()
+                    and pcb_path.is_file()
+                    and ceiling_limits is not None
+                ):
                     provenance = _check_provenance(provenance_path, pcb_path, board_id, path)
                     board_provenance[board_role] = provenance
                     _check_drc_report(
-                        drc_path, board_id, pcb_path, provenance_path, provenance, path
+                        drc_path,
+                        board_id,
+                        pcb_path,
+                        provenance_path,
+                        provenance,
+                        path,
+                        ceiling_limits,
                     )
                     evidence_paths[board_role] = {
                         "drc": drc_path,

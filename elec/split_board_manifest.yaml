@@ -31,6 +31,10 @@ boards:
       drc:
         required: true
         report: null
+        ceiling_source:
+          path: ../power_pcb_dataset/drc_ceiling.json
+          board_id: temper
+          sha256: c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2
       provenance:
         required: true
         record: null
@@ -47,6 +51,10 @@ boards:
       drc:
         required: true
         report: null
+        ceiling_source:
+          path: ../power_pcb_dataset/drc_ceiling.json
+          board_id: temper
+          sha256: c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2
       provenance:
         required: true
         record: null

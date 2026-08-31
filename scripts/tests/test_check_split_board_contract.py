@@ -20,10 +20,13 @@ from check_split_board_contract import (  # noqa: E402
     EXIT_OK,
     EXIT_VIOLATION,
     GateError,
+    _check_atopile_entrypoint,
     _check_distinct_board_artifacts,
     _check_drc_report,
+    _check_manifest_location,
     _check_provenance,
     _evidence_digest,
+    _load_json,
     _read_artifact,
     assert_generation_ready,
     generate_with_contract,
@@ -49,7 +52,13 @@ boards:
     artifacts: {pcb: null, netlist: null}
     source: {entrypoint: null}
     checks:
-      drc: {required: true, report: null}
+      drc:
+        required: true
+        report: null
+        ceiling_source:
+          path: ceiling.json
+          board_id: split-fixture
+          sha256: null
       provenance: {required: true, record: null}
   control:
     id: CONTROL_BOARD
@@ -58,7 +67,13 @@ boards:
     artifacts: {pcb: null, netlist: null}
     source: {entrypoint: null}
     checks:
-      drc: {required: true, report: null}
+      drc:
+        required: true
+        report: null
+        ceiling_source:
+          path: ceiling.json
+          board_id: split-fixture
+          sha256: null
       provenance: {required: true, record: null}
 interface:
   name: POWER_CONTROL_SELV_INTERFACE
@@ -126,6 +141,29 @@ def test_missing_contract_fails_closed(tmp_path):
     assert run(path) == EXIT_GATE_ERROR
     with pytest.raises(GateError, match="not found"):
         load_contract(path)
+
+
+def test_fixture_context_is_rejected_for_tracked_production_manifest():
+    production = Path(__file__).resolve().parents[2] / "elec" / "split_board_manifest.yaml"
+
+    with pytest.raises(GateError, match="only for manifests outside"):
+        _check_manifest_location(production, "unit-test")
+
+
+def test_nonfinite_json_values_fail_closed(tmp_path):
+    path = tmp_path / "nonfinite.json"
+    path.write_text('{"minimum_creepage_mm": NaN}\n', encoding="utf-8")
+
+    with pytest.raises(GateError, match="non-finite"):
+        _load_json(path, "fixture")
+
+
+def test_atopile_entrypoint_requires_board_module_shape(tmp_path):
+    path = tmp_path / "power.ato"
+    path.write_text("# comments are not an entrypoint\n", encoding="utf-8")
+
+    with pytest.raises(GateError, match="no Atopile module"):
+        _check_atopile_entrypoint(path, "power source", "power")
 
 
 @pytest.mark.parametrize(
@@ -198,8 +236,14 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
     ).replace(
         "status: incomplete", "status: complete"
     )
-    (tmp_path / "power_board.ato").write_text("# synthetic power source\n", encoding="utf-8")
-    (tmp_path / "control_board.ato").write_text("# synthetic control source\n", encoding="utf-8")
+    (tmp_path / "power_board.ato").write_text(
+        "module PowerBoardBoundary:\n    source = new PowerSource\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "control_board.ato").write_text(
+        "module ControlBoardBoundary:\n    source = new ControlSource\n",
+        encoding="utf-8",
+    )
     evidence = tmp_path / "evidence.json"
     evidence_record = {
         "schema_version": 1,
@@ -220,11 +264,15 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         board = tmp_path / f"{role}.kicad_pcb"
         netlist = tmp_path / f"{role}.net"
         board.write_text(
-            f"(kicad_pcb (version 20240108) (generator pcbnew) (comment {role}))\n",
+            "(kicad_pcb (version 20240108) (generator pcbnew) "
+            f"(comment {role}) "
+            "(general (thickness 1.6)) "
+            "(layers (0 \"F.Cu\" signal) (31 \"B.Cu\" signal)) "
+            "(setup (pad_to_mask_clearance 0)))\n",
             encoding="utf-8",
         )
         netlist.write_text(
-            f"(export (components (comp (ref {role[0].upper()}1))) "
+            f"(export (version \"D\") (components (comp (ref {role[0].upper()}1))) "
             "(nets (net (code 1) (name \"gnd\") "
             f"(node (ref {role[0].upper()}1) (pin \"1\")))))\n",
             encoding="utf-8",
@@ -246,6 +294,20 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         provenance.write_text(json.dumps(provenance_record), encoding="utf-8")
         board_hashes[role] = digest
         provenance_hashes[role] = provenance_record["content_sha256"]
+    ceiling_record = {
+        "schema_version": 1,
+        "source_identity": "split-fixture-ceiling",
+        "boards": [{
+            "board_id": "split-fixture",
+            "error_ceiling": 2,
+            "warning_ceiling": 0,
+            "violations_by_type": {"clearance": 2},
+            "warnings_by_type": {},
+        }],
+    }
+    ceiling = tmp_path / "ceiling.json"
+    ceiling.write_text(json.dumps(ceiling_record), encoding="utf-8")
+    ceiling_sha256 = hashlib.sha256(ceiling.read_bytes()).hexdigest()
     for role in ("power", "control"):
         report_record = {
             "schema_version": 1,
@@ -262,9 +324,8 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
             "provenance_sha256": provenance_hashes[role],
             "acceptance": {
                 "source": "project-drc-ceiling",
-                "ceilings": {"violations_by_type": {"clearance": 2}, "warnings_by_type": {}},
-                "error_ceiling": 2,
-                "warning_ceiling": 0,
+                "ceiling_source": "ceiling.json",
+                "ceiling_board_id": "split-fixture",
             },
         }
         report_record["content_sha256"] = hashlib.sha256(
@@ -312,29 +373,25 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         "source: {entrypoint: control_board.ato}",
         1,
     ).replace(
-        "drc: {required: true, report: null}",
-        "drc: {required: true, report: power-drc.json}",
+        "        report: null", "        report: power-drc.json", 1
+    ).replace(
+        "        report: null", "        report: control-drc.json", 1
+    ).replace(
+        "      provenance: {required: true, record: null}",
+        "      provenance: {required: true, record: power-provenance.json}",
         1,
     ).replace(
-        "drc: {required: true, report: null}",
-        "drc: {required: true, report: control-drc.json}",
-        1,
-    ).replace(
-        "provenance: {required: true, record: null}",
-        "provenance: {required: true, record: power-provenance.json}",
-        1,
-    ).replace(
-        "provenance: {required: true, record: null}",
-        "provenance: {required: true, record: control-provenance.json}",
+        "      provenance: {required: true, record: null}",
+        "      provenance: {required: true, record: control-provenance.json}",
         1,
     ).replace(
         "evidence: null", "evidence: evidence.json"
     ).replace(
-        "  report: null", "  report: cross.json"
-    ).replace(
         "method: ../scripts/measure_cross_domain_creepage.py",
         "method: measure_cross_domain_creepage.py",
     )
+    text = text.rsplit("  report: null", 1)[0] + "  report: cross.json\n"
+    text = text.replace("sha256: null", f"sha256: {ceiling_sha256}")
     complete_path = write_contract(tmp_path, text)
     source_path = tmp_path / "domain_manifest.yaml"
     source_data = yaml.safe_load(source_path.read_text(encoding="utf-8"))
@@ -514,9 +571,8 @@ def test_nonzero_drc_is_allowed_only_within_project_ceiling(tmp_path):
         "provenance_sha256": provenance_record["content_sha256"],
         "acceptance": {
             "source": "project-drc-ceiling",
-            "ceilings": {"violations_by_type": {"clearance": 1}, "warnings_by_type": {}},
-            "error_ceiling": 1,
-            "warning_ceiling": 0,
+            "ceiling_source": "drc-ceiling.json",
+            "ceiling_board_id": "POWER_BOARD",
         },
     }
     report_record["content_sha256"] = _evidence_digest(report_record)
@@ -524,9 +580,31 @@ def test_nonzero_drc_is_allowed_only_within_project_ceiling(tmp_path):
     report.write_text(json.dumps(report_record), encoding="utf-8")
     manifest = tmp_path / "split_board_manifest.yaml"
     manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
-    _check_drc_report(report, "POWER_BOARD", board, provenance, provenance_record, manifest)
-    report_record["acceptance"]["ceilings"]["violations_by_type"]["clearance"] = 0
+    limits = {
+        "source_ref": "drc-ceiling.json",
+        "board_id": "POWER_BOARD",
+        "violations_by_type": {"clearance": 1},
+        "warnings_by_type": {},
+        "error_ceiling": 1,
+        "warning_ceiling": 0,
+    }
+    _check_drc_report(
+        report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
+    )
+    limits["violations_by_type"]["clearance"] = 0
     report_record["content_sha256"] = _evidence_digest(report_record)
     report.write_text(json.dumps(report_record), encoding="utf-8")
     with pytest.raises(GateError, match="exceeds project ceiling"):
-        _check_drc_report(report, "POWER_BOARD", board, provenance, provenance_record, manifest)
+        _check_drc_report(
+            report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
+        )
+    report_record["acceptance"]["ceilings"] = {
+        "violations_by_type": {"clearance": 99},
+        "warnings_by_type": {},
+    }
+    report_record["content_sha256"] = _evidence_digest(report_record)
+    report.write_text(json.dumps(report_record), encoding="utf-8")
+    with pytest.raises(GateError, match="self-declared ceilings"):
+        _check_drc_report(
+            report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
+        )
