@@ -312,6 +312,28 @@ class ProtectiveImpedanceChain:
 
 
 @dataclass(frozen=True)
+class BoardInterfaceSignal:
+    """One declared conductor in the future board-to-board interface.
+
+    The manifest is deliberately more specific than a list of net names:
+    ``nets`` protects the compiled-net boundary, while these records preserve
+    the electrical contract that a board generator must consume.  ``None`` is
+    permitted only for fields whose record is explicitly marked unresolved;
+    silently defaulting an owner, direction, or fault action would turn an
+    incomplete split into a plausible-looking board.
+    """
+
+    net: str
+    role: str
+    owner: str | None
+    direction: str | None
+    domain: str
+    return_net: str | None
+    fault_behavior: str | None
+    status: str
+
+
+@dataclass(frozen=True)
 class BoardInterface:
     """The contract for the future power/control board connector.
 
@@ -327,6 +349,13 @@ class BoardInterface:
     connector: str
     nets: tuple[str, ...]
     allowed_domains: tuple[str, ...]
+    signals: tuple[BoardInterfaceSignal, ...] = ()
+    safety_target: dict[str, Any] = field(default_factory=dict)
+    connector_spec: dict[str, Any] = field(default_factory=dict)
+    mechanical_spec: dict[str, Any] = field(default_factory=dict)
+    generation_spec: dict[str, Any] = field(default_factory=dict)
+    fault_aggregation: dict[str, Any] = field(default_factory=dict)
+    deferred_signals: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass
@@ -570,6 +599,246 @@ def load_manifest(path: Path) -> Manifest:
                 f"{sorted(unknown_domains)}"
             )
 
+        # A plain list of names is insufficient for a board split: it cannot
+        # answer which side owns a conductor, what its return reference is, or
+        # what a fault/open harness must do.  Keep the old ``nets`` projection
+        # for the compiled-net check, but require the typed signal records for
+        # the production contract.  Values may be unresolved only when the
+        # record says so; this is how an incomplete design stays visible and
+        # fail-closed instead of acquiring an invented default.
+        signals_raw = board_interface_raw.get("signals")
+        if not isinstance(signals_raw, list) or not signals_raw:
+            raise GateError(
+                "board_interface.signals must be a non-empty list of typed "
+                "signal records"
+            )
+        allowed_roles = {"return", "supply", "control", "telemetry", "fault"}
+        allowed_owners = {
+            "POWER_BOARD",
+            "CONTROL_BOARD",
+            "SHARED_REFERENCE",
+            "UNRESOLVED",
+        }
+        allowed_directions = {
+            "POWER_BOARD_TO_CONTROL_BOARD",
+            "CONTROL_BOARD_TO_POWER_BOARD",
+            "BIDIRECTIONAL",
+            "RETURN",
+            "UNRESOLVED",
+        }
+        allowed_statuses = {"resolved", "unresolved", "deferred"}
+        signals: list[BoardInterfaceSignal] = []
+        signal_names: list[str] = []
+        required_signal_keys = {
+            "net",
+            "role",
+            "owner",
+            "direction",
+            "domain",
+            "return_net",
+            "fault_behavior",
+            "status",
+        }
+        for raw_signal in signals_raw:
+            if not isinstance(raw_signal, dict):
+                raise GateError(
+                    "board_interface.signals entries must be mappings"
+                )
+            unknown_keys = set(raw_signal) - required_signal_keys
+            missing_keys = required_signal_keys - set(raw_signal)
+            if unknown_keys or missing_keys:
+                detail = []
+                if unknown_keys:
+                    detail.append(f"unknown keys {sorted(unknown_keys)}")
+                if missing_keys:
+                    detail.append(f"missing keys {sorted(missing_keys)}")
+                raise GateError(
+                    "board_interface.signals entry has invalid schema: "
+                    + "; ".join(detail)
+                )
+
+            net = raw_signal["net"]
+            role = raw_signal["role"]
+            owner = raw_signal["owner"]
+            direction = raw_signal["direction"]
+            domain = raw_signal["domain"]
+            return_net = raw_signal["return_net"]
+            fault_behavior = raw_signal["fault_behavior"]
+            status = raw_signal["status"]
+            if not isinstance(net, str) or not net.strip():
+                raise GateError("board_interface.signals.net must be non-empty text")
+            net = net.strip()
+            if net in signal_names:
+                raise GateError(
+                    f"board_interface.signals repeats net {net!r}"
+                )
+            if not isinstance(role, str) or role not in allowed_roles:
+                raise GateError(
+                    f"board_interface signal {net!r} has invalid role {role!r}"
+                )
+            if owner is not None and (
+                not isinstance(owner, str) or owner not in allowed_owners
+            ):
+                raise GateError(
+                    f"board_interface signal {net!r} has invalid owner {owner!r}"
+                )
+            if direction is not None and (
+                not isinstance(direction, str) or direction not in allowed_directions
+            ):
+                raise GateError(
+                    f"board_interface signal {net!r} has invalid direction "
+                    f"{direction!r}"
+                )
+            if not isinstance(domain, str) or not domain.strip():
+                raise GateError(
+                    f"board_interface signal {net!r} must declare a domain"
+                )
+            domain = domain.strip()
+            if domain not in domains:
+                raise GateError(
+                    f"board_interface signal {net!r} names undeclared domain "
+                    f"{domain!r}"
+                )
+            if return_net is not None and (
+                not isinstance(return_net, str) or not return_net.strip()
+            ):
+                raise GateError(
+                    f"board_interface signal {net!r} has invalid return_net"
+                )
+            if fault_behavior is not None and (
+                not isinstance(fault_behavior, str) or not fault_behavior.strip()
+            ):
+                raise GateError(
+                    f"board_interface signal {net!r} has invalid fault_behavior"
+                )
+            if not isinstance(status, str) or status not in allowed_statuses:
+                raise GateError(
+                    f"board_interface signal {net!r} has invalid status {status!r}"
+                )
+            if status == "resolved" and any(
+                value is None or (isinstance(value, str) and not value.strip())
+                for value in (owner, direction, return_net, fault_behavior)
+            ):
+                raise GateError(
+                    f"board_interface signal {net!r} is resolved but has "
+                    "an incomplete owner/direction/return/fault contract"
+                )
+            if status != "resolved" and owner is None and direction is None:
+                # Explicitly unresolved is valid; the readiness check below
+                # will keep generation blocked until the missing decision is
+                # filled in.
+                pass
+            signal_names.append(net)
+            signals.append(
+                BoardInterfaceSignal(
+                    net=net,
+                    role=role,
+                    owner=owner,
+                    direction=direction,
+                    domain=domain,
+                    return_net=return_net,
+                    fault_behavior=fault_behavior,
+                    status=status,
+                )
+            )
+        if tuple(signal_names) != nets:
+            raise GateError(
+                "board_interface.signals nets must exactly match board_interface.nets "
+                "in the same order"
+            )
+
+        def _mapping(key: str) -> dict[str, Any]:
+            value = board_interface_raw.get(key)
+            if not isinstance(value, dict):
+                raise GateError(f"board_interface.{key} must be a mapping")
+            return dict(value)
+
+        safety_target = _mapping("safety_target")
+        if safety_target.get("pollution_degree") != 3:
+            raise GateError(
+                "board_interface.safety_target.pollution_degree must be 3 "
+                "for the approved split-board contract"
+            )
+        if safety_target.get("reinforced_creepage_mm") != 12.6:
+            raise GateError(
+                "board_interface.safety_target.reinforced_creepage_mm must be "
+                "12.6 for the approved split-board contract"
+            )
+        if not isinstance(safety_target.get("standard"), str) or not safety_target[
+            "standard"
+        ].strip():
+            raise GateError("board_interface.safety_target.standard must be non-empty text")
+
+        connector_spec = _mapping("connector_spec")
+        mechanical_spec = _mapping("mechanical_spec")
+        generation_spec = _mapping("generation")
+        fault_aggregation = _mapping("fault_aggregation")
+        if fault_aggregation.get("output_net") not in nets:
+            raise GateError(
+                "board_interface.fault_aggregation.output_net must name one "
+                "of board_interface.nets"
+            )
+        if fault_aggregation.get("active_level") not in {"high", "low"}:
+            raise GateError(
+                "board_interface.fault_aggregation.active_level must be 'high' or 'low'"
+            )
+        if not isinstance(fault_aggregation.get("latched"), bool):
+            raise GateError(
+                "board_interface.fault_aggregation.latched must be boolean"
+            )
+        sources = fault_aggregation.get("sources")
+        if not isinstance(sources, list) or not sources or any(
+            not isinstance(source, str) or not source.strip() for source in sources
+        ):
+            raise GateError(
+                "board_interface.fault_aggregation.sources must be a non-empty "
+                "list of names"
+            )
+        if fault_aggregation.get("status") not in {"resolved", "unresolved"}:
+            raise GateError(
+                "board_interface.fault_aggregation.status must be resolved or unresolved"
+            )
+        if generation_spec.get("status") not in {"blocked", "ready"}:
+            raise GateError(
+                "board_interface.generation.status must be 'blocked' or 'ready'"
+            )
+        required_fields = generation_spec.get("required_fields")
+        if not isinstance(required_fields, list) or not required_fields or any(
+            not isinstance(path, str) or not path.strip() for path in required_fields
+        ):
+            raise GateError(
+                "board_interface.generation.required_fields must be a non-empty "
+                "list of field paths"
+            )
+        if len(set(required_fields)) != len(required_fields):
+            raise GateError(
+                "board_interface.generation.required_fields must not contain duplicates"
+            )
+
+        deferred_raw = board_interface_raw.get("deferred_signals", [])
+        if not isinstance(deferred_raw, list):
+            raise GateError("board_interface.deferred_signals must be a list")
+        deferred_signals: list[dict[str, Any]] = []
+        deferred_names: set[str] = set()
+        for entry in deferred_raw:
+            if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
+                raise GateError(
+                    "board_interface.deferred_signals entries must map a name"
+                )
+            name_value = entry["name"].strip()
+            if not name_value or name_value in deferred_names or name_value in signal_names:
+                raise GateError(
+                    f"board_interface.deferred_signals repeats or conflicts with "
+                    f"an interface name: {name_value!r}"
+                )
+            if entry.get("status") not in {"deferred", "not_present", "unresolved"}:
+                raise GateError(
+                    f"board_interface.deferred_signals entry {name_value!r} "
+                    "must be explicitly deferred, not_present, or unresolved"
+                )
+            deferred_names.add(name_value)
+            deferred_signals.append(dict(entry))
+
         board_interface = BoardInterface(
             name=name,
             power_board=power_board,
@@ -577,6 +846,13 @@ def load_manifest(path: Path) -> Manifest:
             connector=connector,
             nets=nets,
             allowed_domains=allowed_domains,
+            signals=tuple(signals),
+            safety_target=safety_target,
+            connector_spec=connector_spec,
+            mechanical_spec=mechanical_spec,
+            generation_spec=generation_spec,
+            fault_aggregation=fault_aggregation,
+            deferred_signals=tuple(deferred_signals),
         )
 
     return Manifest(
@@ -628,6 +904,63 @@ def check_board_interface_contract(
                 f"outside allowed domains {list(interface.allowed_domains)!r}"
             )
     return violations
+
+
+def check_board_interface_generation_ready(manifest: Manifest) -> None:
+    """Fail closed until the approved split can be rendered into boards.
+
+    The interface contract is useful before a connector or floorplan exists,
+    so the ordinary domain gate intentionally checks only its electrical
+    boundary.  A split-board generator must call this stricter readiness
+    check.  It rejects unresolved signal semantics and every missing
+    connector/mechanical field named by ``generation.required_fields``;
+    ``None`` is an honest design blocker, never a default part or geometry.
+    """
+    interface = manifest.board_interface
+    if interface is None:
+        raise GateError(
+            "board-interface generation is blocked: manifest has no board_interface"
+        )
+
+    blockers: list[str] = []
+    unresolved = [signal.net for signal in interface.signals if signal.status != "resolved"]
+    if unresolved:
+        blockers.append(
+            "unresolved signal semantics: " + ", ".join(sorted(unresolved))
+        )
+    if interface.fault_aggregation.get("status") != "resolved":
+        blockers.append("fault aggregation semantics are unresolved")
+
+    roots: dict[str, Any] = {
+        "safety_target": interface.safety_target,
+        "connector_spec": interface.connector_spec,
+        "mechanical_spec": interface.mechanical_spec,
+        "generation": interface.generation_spec,
+    }
+
+    def _lookup(path: str) -> Any:
+        value: Any = roots
+        for component in path.split("."):
+            if not isinstance(value, dict) or component not in value:
+                return None
+            value = value[component]
+        return value
+
+    for path in interface.generation_spec.get("required_fields", []):
+        value = _lookup(path)
+        if value is None or value == "" or value == [] or value == {}:
+            blockers.append(f"missing required field: {path}")
+
+    if interface.generation_spec.get("status") != "ready":
+        blockers.append(
+            "generation.status is not 'ready' (connector, pinout, and mechanical "
+            "partition remain unresolved)"
+        )
+    if blockers:
+        raise GateError(
+            "board-interface generation blocked until the approved contract is "
+            "complete: " + "; ".join(blockers)
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1351,12 +1684,20 @@ def check_chain_integrity(
 # ---------------------------------------------------------------------------
 
 
-def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: bool = False) -> int:
+def run(
+    netlist_path: Path,
+    manifest_path: Path,
+    src_dir: Path,
+    skip_freshness: bool = False,
+    require_generation_ready: bool = False,
+) -> int:
     try:
         if not skip_freshness:
             check_netlist_freshness(netlist_path, src_dir)
         netlist = parse_netlist(netlist_path)
         manifest = load_manifest(manifest_path)
+        if require_generation_ready:
+            check_board_interface_generation_ready(manifest)
         ref_isolator = resolve_isolator_refs(netlist, manifest.isolators)
         name_to_code = build_name_to_code(netlist)
         chain_refs = resolve_chain_refs(netlist, manifest.chains)
@@ -1553,8 +1894,24 @@ def main() -> None:
         action="store_true",
         help="Skip the netlist-vs-source mtime staleness check (test fixtures only).",
     )
+    parser.add_argument(
+        "--require-generation-ready",
+        action="store_true",
+        help=(
+            "Fail closed unless connector, pinout, mechanical partition, "
+            "and all typed signal semantics are resolved. Use before split-board generation."
+        ),
+    )
     args = parser.parse_args()
-    sys.exit(run(args.netlist, args.manifest, args.src_dir, args.skip_freshness_check))
+    sys.exit(
+        run(
+            args.netlist,
+            args.manifest,
+            args.src_dir,
+            args.skip_freshness_check,
+            args.require_generation_ready,
+        )
+    )
 
 
 if __name__ == "__main__":

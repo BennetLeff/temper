@@ -59,6 +59,14 @@ schema_version: 1
 # reinforced isolators.  AC, the DC bus, switch node, floating gate-drive
 # outputs, and every other HV-domain net are excluded by construction and are
 # not permitted to be added here without changing the architecture decision.
+#
+# The original specification said "ten" nets while the live list had nine
+# after ZCD_ISO was deliberately removed (300c4a709).  I_SENSE is the tenth:
+# it is the CT secondary's SELV analog telemetry and is the only evidence-backed
+# current-sense conductor that belongs at this boundary.  FAN_PWM/FAN_TACH are
+# not silently added: the active ThermalSystem uses a verified two-wire,
+# non-PWM Sunon fan (docs/hardware/BOM.md), so those are recorded as deferred
+# below instead.
 board_interface:
   name: POWER_CONTROL_SELV_INTERFACE
   power_board: POWER_BOARD
@@ -75,6 +83,144 @@ board_interface:
     - RELAY_CTRL
     - DISCHARGE_CTRL
     - V_BUS_SENSE
+    - I_SENSE
+  safety_target:
+    standard: "IEC 60335-1 Table 17 / IEC 60664-1"
+    pollution_degree: 3
+    reinforced_creepage_mm: 12.6
+  # These are semantic declarations, not a connector pinout.  A signal may
+  # remain unresolved where the existing single-board source does not prove
+  # which split-board side will own the circuit; unresolved records block
+  # generation through --require-generation-ready.
+  signals:
+    - net: gnd
+      role: return
+      owner: SHARED_REFERENCE
+      direction: RETURN
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "mandatory SELV return; absent return inhibits operation"
+      status: resolved
+    - net: "+15V"
+      role: supply
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of supply prevents control-board power-up"
+      status: resolved
+    - net: "+3V3"
+      role: supply
+      owner: UNRESOLVED
+      direction: UNRESOLVED
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of logic rail prevents control-board power-up"
+      status: unresolved
+    - net: PWM_HS
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "absent command must leave the power stage disabled"
+      status: resolved
+    - net: PWM_LS
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "absent command must leave the power stage disabled"
+      status: resolved
+    - net: SHUTDOWN
+      role: fault
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "active-high latched fault disables gate drive; open-wire default is unresolved"
+      status: unresolved
+    - net: RELAY_CTRL
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of command must not defeat the power-board relay safe state"
+      status: resolved
+    - net: DISCHARGE_CTRL
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of command leaves the normally-closed discharge path safe"
+      status: resolved
+    - net: V_BUS_SENSE
+      role: telemetry
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "invalid or absent bus telemetry must inhibit power enable"
+      status: resolved
+    - net: I_SENSE
+      role: telemetry
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "invalid or absent current telemetry must inhibit power enable"
+      status: resolved
+  # The hardware fault sources currently aggregate in SafetyInterlock and
+  # publish the active-high SHUTDOWN line (main.ato; modules.ato). OCP-02 is
+  # explicitly DNF and therefore is not promoted to a required interface
+  # conductor. The future split must re-prove the local source placement and
+  # open-wire behavior before generation is unblocked.
+  fault_aggregation:
+    output_net: SHUTDOWN
+    active_level: high
+    latched: true
+    sources:
+      - OCP_01
+      - OVP_01
+      - THM_01
+      - THM_02
+      - WDT
+      - RTD_HW_FAULT
+      - RUNAWAY_CUT
+    status: unresolved
+  connector_spec:
+    part_number: null
+    pinout: null
+    retention: null
+    single_fault_review: null
+  mechanical_spec:
+    enclosure_compartment: null
+    board_partition: null
+    cable_routing: null
+    mounting: null
+  generation:
+    status: blocked
+    required_fields:
+      - connector_spec.part_number
+      - connector_spec.pinout
+      - connector_spec.retention
+      - connector_spec.single_fault_review
+      - mechanical_spec.enclosure_compartment
+      - mechanical_spec.board_partition
+      - mechanical_spec.cable_routing
+      - mechanical_spec.mounting
+  deferred_signals:
+    - name: FAN_PWM
+      status: not_present
+      reason: "ThermalSystem uses a verified two-wire, non-PWM Sunon fan"
+      evidence: docs/hardware/BOM.md
+    - name: FAN_TACH
+      status: not_present
+      reason: "ThermalSystem has no tach conductor or tach receiver"
+      evidence: elec/src/modules.ato
 
 domains:
   # Mains / high-voltage power domain: AC line/neutral, the rectified DC

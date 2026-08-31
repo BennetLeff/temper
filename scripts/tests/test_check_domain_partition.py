@@ -28,6 +28,7 @@ from check_domain_partition import (  # noqa: E402
     GateError,
     build_graph,
     check_board_interface_contract,
+    check_board_interface_generation_ready,
     check_domain_disjointness,
     check_isolator_integrity,
     check_netlist_freshness,
@@ -119,6 +120,54 @@ board_interface:
   connector: J_POWER_CONTROL
   allowed_domains: [SELV]
   nets: [v15, pwm, shutdown]
+  safety_target:
+    standard: IEC 60335-1
+    pollution_degree: 3
+    reinforced_creepage_mm: 12.6
+  signals:
+    - net: v15
+      role: supply
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss blocks power-up"
+      status: resolved
+    - net: pwm
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss disables power stage"
+      status: resolved
+    - net: shutdown
+      role: fault
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "active fault disables power stage"
+      status: resolved
+  fault_aggregation:
+    output_net: shutdown
+    active_level: high
+    latched: true
+    sources: [OCP_01]
+    status: resolved
+  connector_spec:
+    part_number: null
+    pinout: null
+    retention: null
+    single_fault_review: null
+  mechanical_spec:
+    enclosure_compartment: null
+    board_partition: null
+    cable_routing: null
+    mounting: null
+  generation:
+    status: blocked
+    required_fields: [connector_spec.part_number]
 domains:
   HV:
     nets: [ac_l, hv_return]
@@ -140,6 +189,56 @@ def _isolated_topology_nets():
 
 
 class TestBoardInterfaceContract:
+    def test_real_contract_has_ten_nets_and_resolves_current_sense(self):
+        manifest = load_manifest(Path(__file__).resolve().parents[2] / "elec" / "domain_manifest.yaml")
+
+        assert manifest.board_interface is not None
+        interface = manifest.board_interface
+        assert len(interface.nets) == 10
+        assert interface.nets[-1] == "I_SENSE"
+        current = interface.signals[-1]
+        assert current.net == "I_SENSE"
+        assert current.owner == "POWER_BOARD"
+        assert current.direction == "POWER_BOARD_TO_CONTROL_BOARD"
+        assert current.domain == "SELV"
+        assert current.return_net == "gnd"
+        assert current.status == "resolved"
+        assert {entry["name"] for entry in interface.deferred_signals} == {
+            "FAN_PWM",
+            "FAN_TACH",
+        }
+
+    def test_generation_readiness_fails_closed_on_unresolved_fields(self, tmp_path):
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_INTERFACE_MANIFEST)
+        )
+
+        with pytest.raises(GateError, match="generation blocked"):
+            check_board_interface_generation_ready(manifest)
+
+    def test_generation_readiness_fails_closed_on_unresolved_fault_aggregation(
+        self, tmp_path
+    ):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "    status: resolved\n  connector_spec:",
+            "    status: unresolved\n  connector_spec:",
+            1,
+        )
+        manifest = load_manifest(write_manifest(tmp_path, manifest_text))
+
+        with pytest.raises(GateError, match="fault aggregation semantics"):
+            check_board_interface_generation_ready(manifest)
+
+    def test_signal_schema_requires_all_semantic_fields(self, tmp_path):
+        malformed = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "      status: resolved\n", "      status: resolved\n", 1
+        ).replace(
+            "      fault_behavior: \"loss blocks power-up\"\n", "", 1
+        )
+
+        with pytest.raises(GateError, match="missing keys"):
+            load_manifest(write_manifest(tmp_path, malformed))
+
     def test_split_board_interface_accepts_only_declared_selv_nets(self, tmp_path):
         netlist = parse_netlist(
             write_netlist(
@@ -161,8 +260,17 @@ class TestBoardInterfaceContract:
 
     def test_split_board_interface_rejects_hv_net(self, tmp_path):
         manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
-            "nets: [v15, pwm, shutdown]\ndomains:",
-            "nets: [v15, hv_return, shutdown]\ndomains:",
+            "nets: [v15, pwm, shutdown]",
+            "nets: [v15, hv_return, shutdown]",
+            1,
+        )
+        manifest_text = manifest_text.replace(
+            "    - net: pwm\n", "    - net: hv_return\n", 1
+        ).replace(
+            "      domain: SELV\n      return_net: selv_gnd\n"
+            "      fault_behavior: \"loss disables power stage\"\n",
+            "      domain: HV\n      return_net: selv_gnd\n"
+            "      fault_behavior: \"loss disables power stage\"\n",
             1,
         )
         netlist = parse_netlist(
