@@ -243,6 +243,63 @@ board_partition:
         - hb
         - tank
         - discharge
+      components:
+        - discharge.c_snub1
+        - discharge.c_snub2
+        - discharge.d_fly1
+        - discharge.d_fly2
+        - discharge.q_dis_drv
+        - discharge.r_coil1
+        - discharge.r_coil2
+        - discharge.r_dis1a
+        - discharge.r_dis1b
+        - discharge.r_dis2a
+        - discharge.r_dis2b
+        - discharge.r_gate
+        - discharge.r_gate_pd
+        - discharge.r_snub1
+        - discharge.r_snub2
+        - hb.c_dc_hf
+        - hb.c_vcci1
+        - hb.c_vcci2
+        - hb.c_vdda
+        - hb.c_vddb
+        - hb.dt_res
+        - hb.gate_hs.boot_cap
+        - hb.gate_hs.boot_diode
+        - hb.gate_hs.c_filt_a
+        - hb.gate_hs.c_filt_b
+        - hb.gate_hs.neg_bias_zener
+        - hb.gate_hs.r_filt_a
+        - hb.gate_hs.r_filt_b
+        - hb.gate_hs.rg_on
+        - hb.gate_hs.rgs
+        - hb.gate_ls.rg_on
+        - hb.gate_ls.rgs
+        - hb.power_loop.q_high
+        - hb.power_loop.q_low
+        - power_in.c_bus1
+        - power_in.c_bus1b
+        - power_in.c_bus2
+        - power_in.c_bus2b
+        - power_in.c_x2
+        - power_in.cmc
+        - power_in.d1
+        - power_in.d2
+        - power_in.d_flyback
+        - power_in.fuse
+        - power_in.mov
+        - power_in.ntc
+        - power_in.q_relay_drv
+        - power_in.r_bleed1
+        - power_in.r_bleed2
+        - power_in.r_gate
+        - power_in.r_gate_pd
+        - power_in.r_relay_drop
+        - tank.c_tank1
+        - tank.c_tank2
+        - tank.c_tank3
+        - tank.inductor_conn
     CONTROL_BOARD:
       domain: SELV
       # MCU, UI-facing signals, RTD sensing, safety logic, and low-voltage
@@ -253,6 +310,156 @@ board_partition:
         - safety
         - mcu
         - thermal
+      components:
+        - mcu.btn_boot
+        - mcu.btn_reset
+        - mcu.c_en
+        - mcu.c_vcc1
+        - mcu.c_vcc2
+        - mcu.mcu
+        - mcu.r_boot
+        - mcu.r_en
+        - mcu.r_scl_pullup
+        - mcu.r_sda_pullup
+        - power_mgmt.buck_3v3.buck
+        - power_mgmt.buck_3v3.c_boot
+        - power_mgmt.buck_3v3.c_in
+        - power_mgmt.buck_3v3.c_out1
+        - power_mgmt.buck_3v3.c_out2
+        - power_mgmt.buck_3v3.c_out_hf
+        - power_mgmt.buck_3v3.l_out
+        - power_mgmt.buck_3v3.r_fb_bot
+        - power_mgmt.buck_3v3.r_fb_top
+        - rtd_pan.adc
+        - rtd_pan.c_fault_nand
+        - rtd_pan.c_high_window
+        - rtd_pan.c_low_window
+        - rtd_pan.c_rail_monitor
+        - rtd_pan.c_reference
+        - rtd_pan.c_vdd
+        - rtd_pan.c_window_and
+        - rtd_pan.fault_nand
+        - rtd_pan.fb_power
+        - rtd_pan.high_window
+        - rtd_pan.j_rtd1
+        - rtd_pan.low_window
+        - rtd_pan.r_avdd_bottom
+        - rtd_pan.r_avdd_top
+        - rtd_pan.r_cs
+        - rtd_pan.r_fault_pullup
+        - rtd_pan.r_high_bottom
+        - rtd_pan.r_high_top
+        - rtd_pan.r_low_bottom
+        - rtd_pan.r_low_top
+        - rtd_pan.r_miso
+        - rtd_pan.r_mosi
+        - rtd_pan.r_rail_ok_pullup
+        - rtd_pan.r_ref
+        - rtd_pan.r_sclk
+        - rtd_pan.r_window_ok_pulldown
+        - rtd_pan.rail_monitor
+        - rtd_pan.reference
+        - rtd_pan.window_and
+        - safety.coil_thermal.comp
+        - safety.coil_thermal.ntc
+        - safety.coil_thermal.r_hyst
+        - safety.coil_thermal.r_ntc_fixed
+        - safety.coil_thermal.r_ref_bot
+        - safety.coil_thermal.r_ref_top
+        - safety.fault_any_or
+        - safety.fault_or
+        - safety.fault_or3
+        - safety.latch
+        - safety.ocp.comp
+        - safety.ocp.r_ref_bot
+        - safety.ocp.r_ref_top
+        - safety.ocp2.c_filter
+        - safety.ocp2.comp
+        - safety.ocp2.r_burden
+        - safety.ovp.c_adc_filter
+        - safety.ovp.comp
+        - safety.ovp.r_adc_bot
+        - safety.ovp.r_adc_top1
+        - safety.ovp.r_adc_top2
+        - safety.ovp.r_adc_top3
+        - safety.ovp.r_div_bot
+        - safety.ovp.r_div_top1
+        - safety.ovp.r_div_top2
+        - safety.ovp.r_div_top3
+        - safety.ovp.r_hyst
+        - safety.thermal.comp
+        - safety.thermal.ntc
+        - safety.thermal.r_hyst
+        - safety.thermal.r_ntc_fixed
+        - safety.thermal.r_ref_bot
+        - safety.thermal.r_ref_top
+        - safety.tp_fault
+        - safety.tp_ocp2_fault
+        - safety.tp_shutdown
+        - safety.tp_uvlo2_fault
+        - safety.uvlo_logic.inv
+        - safety.uvlo_logic.mon
+        - safety.uvlo_logic.r_div_bot
+        - safety.uvlo_logic.r_div_top
+        - safety.uvlo_logic.r_fault_pullup
+        - safety.uvlo_logic.r_hyst
+        - safety.uvlo_logic.r_outa_pullup
+        - safety.wdt.c_bypass
+        - safety.wdt.wdt
+        - thermal.j_fan
+        - thermal.r_fan_drop
+  # These are deliberately exact leaf instance paths.  They are decomposed
+  # by board-side pin group below; no cross-domain component is assigned
+  # wholesale to either PCB.
+  cross_domain_modules:
+    - aux_supply
+    - ct_sense
+  cross_domain_components:
+    - instance_path: aux_supply.c_in_bulk
+      module: aux_supply
+      sides: {POWER_BOARD: [all]}
+    - instance_path: aux_supply.c_out
+      module: aux_supply
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: aux_supply.c_out_hf
+      module: aux_supply
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: aux_supply.psu
+      module: aux_supply
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
+    - instance_path: ct_sense.c_filter
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: ct_sense.ct
+      module: ct_sense
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
+    - instance_path: ct_sense.r_bias_bot
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: ct_sense.r_bias_top
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: ct_sense.r_burden
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: discharge.k_dis1
+      module: discharge
+      sides: {POWER_BOARD: [contacts], CONTROL_BOARD: [coil]}
+    - instance_path: discharge.k_dis2
+      module: discharge
+      sides: {POWER_BOARD: [contacts], CONTROL_BOARD: [coil]}
+    - instance_path: hb.gate_hs.driver
+      module: hb
+      sides: {POWER_BOARD: [secondary], CONTROL_BOARD: [primary]}
+    - instance_path: power_in.bypass_relay
+      module: power_in
+      sides: {POWER_BOARD: [contacts], CONTROL_BOARD: [coil]}
+    - instance_path: power_in.y_cap_pe
+      module: power_in
+      sides: {POWER_BOARD: [hv_side], CONTROL_BOARD: [selv_side]}
+    - instance_path: safety.ocp2.ct
+      module: safety
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
   # Every declared galvanic isolator must identify which pin group belongs
   # to the power-side domain and which belongs to the control-side domain.
   # Group names are resolved against the isolators: entries below, so this
@@ -653,6 +860,12 @@ domains:
       - RTD_CS_N
       - RTD_DRDY
       - RTD_HW_FAULT
+      # UCC21550 primary-side control pins and the unconnected DT/NC nets
+      # remain on the SELV logic side of the driver barrier.
+      - ina
+      - inb
+      - nc_7
+      - hb.gate_hs.driver-p1
       - rtd_force_p
       - rtd_force_n
       - rtd_sense_p
