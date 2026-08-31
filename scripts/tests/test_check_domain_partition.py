@@ -300,6 +300,27 @@ class TestBoardInterfaceContract:
         with pytest.raises(GateError, match="generation blocked"):
             check_board_interface_generation_ready(manifest)
 
+    def test_generation_readiness_rejects_signal_outside_allowed_domain(self, tmp_path):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "    - net: pwm\n      role: control\n      owner: CONTROL_BOARD\n      direction: CONTROL_BOARD_TO_POWER_BOARD\n      domain: SELV\n",
+            "    - net: pwm\n      role: control\n      owner: CONTROL_BOARD\n      direction: CONTROL_BOARD_TO_POWER_BOARD\n      domain: HV\n",
+            1,
+        )
+        manifest = load_manifest(write_manifest(tmp_path, manifest_text))
+
+        with pytest.raises(GateError, match="outside allowed domains"):
+            check_board_interface_generation_ready(manifest)
+
+    def test_resolved_signal_rejects_unresolved_sentinel(self, tmp_path):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "      owner: POWER_BOARD\n      direction: POWER_BOARD_TO_CONTROL_BOARD\n",
+            "      owner: UNRESOLVED\n      direction: POWER_BOARD_TO_CONTROL_BOARD\n",
+            1,
+        )
+
+        with pytest.raises(GateError, match="UNRESOLVED sentinel"):
+            load_manifest(write_manifest(tmp_path, manifest_text))
+
     def test_generation_readiness_fails_closed_on_unresolved_fault_aggregation(
         self, tmp_path
     ):
@@ -431,6 +452,15 @@ class TestBoardPartitionContract:
         with pytest.raises(GateError, match="isolator_sides must be a non-empty list"):
             load_manifest(write_manifest(tmp_path, text))
 
+    def test_partition_requires_exact_group_coverage(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "      primary: [1]\n      secondary: [2]\n",
+            "      primary: [1]\n      secondary: [2]\n      shield: [3]\n",
+        )
+
+        with pytest.raises(GateError, match="map every group exactly once"):
+            load_manifest(write_manifest(tmp_path, text))
+
     def test_partition_reports_interface_domain_leak(self, tmp_path):
         manifest = load_manifest(
             write_manifest(tmp_path, SPLIT_BOARD_PARTITION_MANIFEST)
@@ -464,6 +494,7 @@ def test_split_board_atopile_boundary_has_no_connector_or_physical_board_claim()
         "relay_ctrl",
         "discharge_ctrl",
         "v_bus_sense",
+        "i_sense",
     ):
         assert f"signal {signal}" in source
     assert "module PowerBoardBoundary" in source

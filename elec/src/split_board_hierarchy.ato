@@ -23,6 +23,7 @@ interface PowerControlSELV:
     signal relay_ctrl
     signal discharge_ctrl
     signal v_bus_sense
+    signal i_sense
 
 
 # Boundary-only modules are intentionally component-free.  They give the

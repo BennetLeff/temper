@@ -113,6 +113,50 @@ def test_missing_contract_fails_closed(tmp_path):
         load_contract(path)
 
 
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("name", "OTHER_INTERFACE"),
+        ("power_board", "OTHER_POWER_BOARD"),
+        ("control_board", "OTHER_CONTROL_BOARD"),
+        ("connector", "OTHER_CONNECTOR"),
+        ("nets", ["gnd"]),
+        ("allowed_domains", ["HV"]),
+    ],
+)
+def test_interface_fields_must_match_domain_manifest(tmp_path, field, replacement):
+    path = write_contract(tmp_path)
+    source_path = tmp_path / "domain_manifest.yaml"
+    source_data = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+    source_data["board_interface"][field] = replacement
+    if field == "nets":
+        source_data["board_interface"]["signals"] = [
+            source_data["board_interface"]["signals"][0]
+        ]
+    source_path.write_text(yaml.safe_dump(source_data, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(GateError):
+        validate_contract(path)
+
+
+def test_atopile_interface_signals_must_match_domain_manifest(tmp_path):
+    path = write_contract(tmp_path)
+    hierarchy_dir = tmp_path / "elec" / "src"
+    hierarchy_dir.mkdir(parents=True)
+    hierarchy = (
+        Path(__file__).resolve().parents[2]
+        / "elec"
+        / "src"
+        / "split_board_hierarchy.ato"
+    ).read_text(encoding="utf-8")
+    (hierarchy_dir / "split_board_hierarchy.ato").write_text(
+        hierarchy.replace("signal i_sense", "signal stale_sense"), encoding="utf-8"
+    )
+
+    with pytest.raises(GateError, match="signals do not match"):
+        validate_contract(path)
+
+
 def test_ready_contract_requires_real_artifacts_and_evidence(tmp_path):
     text = VALID_INCOMPLETE.replace(
         "status: contract-incomplete", "status: ready"
@@ -287,6 +331,36 @@ def test_invalid_target_cannot_be_rounded_down_to_pd2(tmp_path):
     path = write_contract(tmp_path, VALID_INCOMPLETE.replace("12.6", "8.0"))
 
     with pytest.raises(GateError, match="12.6 mm"):
+        validate_contract(path)
+
+
+def test_contract_paths_must_not_escape_repo(tmp_path):
+    path = write_contract(
+        tmp_path,
+        VALID_INCOMPLETE.replace(
+            "method: measure_cross_domain_creepage.py",
+            "method: ../outside/measure_cross_domain_creepage.py",
+        ),
+    )
+
+    with pytest.raises(GateError, match="escapes its repository"):
+        validate_contract(path)
+
+
+def test_contract_paths_reject_symlink_escape(tmp_path):
+    outside = tmp_path.parent / "split-board-contract-outside.py"
+    outside.write_text("# outside\n", encoding="utf-8")
+    link = tmp_path / "method-link.py"
+    link.symlink_to(outside)
+    path = write_contract(
+        tmp_path,
+        VALID_INCOMPLETE.replace(
+            "method: measure_cross_domain_creepage.py",
+            "method: method-link.py",
+        ),
+    )
+
+    with pytest.raises(GateError, match="escapes its repository"):
         validate_contract(path)
 
 

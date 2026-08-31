@@ -23,16 +23,17 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
-import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import yaml
+from _lib.measurement_provenance import sha256_file
+from _lib.repo import find_repo_root
+from check_evidence_provenance import verify_commits_exist
 
 try:
     from check_domain_partition import (  # type: ignore[import-not-found]
@@ -63,6 +64,18 @@ REQUIRED_BLOCKERS = ("connector", "enclosure")
 REQUIRED_INTERFACE_DOMAIN = "SELV"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+ATOPILE_INTERFACE_SIGNAL = {
+    "gnd": "gnd",
+    "+15V": "vcc_15v",
+    "+3V3": "vcc_3v3",
+    "PWM_HS": "pwm_hs",
+    "PWM_LS": "pwm_ls",
+    "SHUTDOWN": "shutdown",
+    "RELAY_CTRL": "relay_ctrl",
+    "DISCHARGE_CTRL": "discharge_ctrl",
+    "V_BUS_SENSE": "v_bus_sense",
+    "I_SENSE": "i_sense",
+}
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MANIFEST = REPO_ROOT / "elec" / "split_board_manifest.yaml"
@@ -209,25 +222,55 @@ def load_contract(path: Path) -> dict[str, Any]:
     return data
 
 
-def _resolve(path: str, manifest_path: Path) -> Path:
-    candidate = Path(path)
-    if not candidate.is_absolute():
-        candidate = manifest_path.parent / candidate
-    return candidate.resolve()
+def _contract_repo_root(manifest_path: Path) -> Path:
+    """Find the repository that owns a contract, with a fixture fallback.
 
-
-def _commit_exists(commit: str, manifest_path: Path) -> bool:
-    """Use git's object database, not SHA shape, for provenance identity."""
+    Production manifests live in a git worktree, so provenance lookups must
+    use that worktree rather than the checkout containing this validator. A
+    temporary directory used by unit tests is not a repository; its manifest
+    directory is the containment root for those synthetic fixtures.
+    """
     try:
-        result = subprocess.run(
-            ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
-            cwd=str(REPO_ROOT),
-            capture_output=True,
-            timeout=10,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        return False
-    return result.returncode == 0
+        return find_repo_root(manifest_path.parent)
+    except FileNotFoundError:
+        return manifest_path.parent.resolve()
+
+
+def _contract_git_root(manifest_path: Path) -> Path:
+    """Find the git repository used for provenance verification.
+
+    Synthetic contract fixtures have no git object database, so they use the
+    validator checkout for their deliberately real commit fixture. Production
+    contracts always resolve relative to their own worktree.
+    """
+    try:
+        return find_repo_root(manifest_path.parent)
+    except FileNotFoundError:
+        return REPO_ROOT
+
+
+def _resolve(path: str, manifest_path: Path) -> Path:
+    """Resolve a contract path while keeping it inside its owning repo.
+
+    Contract paths are intentionally relative to the manifest, but may use
+    ``..`` to reach another repo-relative directory (the production method is
+    ``../scripts/...``). ``Path.resolve`` makes the containment check include
+    symlink targets, closing both lexical and symlink-based escapes.
+    """
+    if not isinstance(path, str) or not path.strip():
+        raise GateError("contract paths must be non-empty strings")
+    candidate = Path(path)
+    if candidate.is_absolute():
+        raise GateError(f"contract path must be repo-relative, got absolute path: {path}")
+    resolved = (manifest_path.parent / candidate).resolve()
+    repo_root = _contract_repo_root(manifest_path).resolve()
+    try:
+        resolved.relative_to(repo_root)
+    except ValueError as exc:
+        raise GateError(
+            f"contract path escapes its repository: {path!r} -> {resolved}"
+        ) from exc
+    return resolved
 
 
 def _load_json(path: Path, context: str) -> dict[str, Any]:
@@ -264,12 +307,19 @@ def _require_versioned_evidence(path: Path, context: str) -> dict[str, Any]:
         raise GateError(f"{context} must record a full content_sha256")
     unsigned = dict(record)
     unsigned.pop("content_sha256", None)
-    actual = hashlib.sha256(
-        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
+    actual = sha256_file_from_json(unsigned)
     if digest != actual:
         raise GateError(f"{context} content_sha256 does not match the evidence record")
     return record
+
+
+def sha256_file_from_json(value: dict[str, Any]) -> str:
+    """Hash the canonical JSON representation used by evidence records."""
+    import hashlib
+
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: list[str]) -> None:
@@ -308,6 +358,33 @@ def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: l
                 f"interface {field} does not match elec/domain_manifest.yaml: "
                 f"expected {wanted!r}, got {actual[field]!r}"
             )
+    hierarchy_path = _contract_repo_root(manifest_path) / "elec" / "src" / "split_board_hierarchy.ato"
+    if hierarchy_path.is_file():
+        hierarchy = hierarchy_path.read_text(encoding="utf-8")
+        match = re.search(
+            r"(?ms)^interface\s+PowerControlSELV:\s*\n(?P<body>.*?)(?=^\S|\Z)",
+            hierarchy,
+        )
+        if match is None:
+            raise GateError(
+                "split_board_hierarchy.ato has no PowerControlSELV interface"
+            )
+        actual_signals = tuple(
+            re.findall(r"^\s+signal\s+([A-Za-z_]\w*)\s*$", match.group("body"), re.MULTILINE)
+        )
+        try:
+            expected_signals = tuple(ATOPILE_INTERFACE_SIGNAL[net] for net in declared.nets)
+        except KeyError as exc:
+            raise GateError(
+                "domain_manifest.yaml board_interface.nets contains an "
+                f"unsupported net for the Atopile boundary: {exc.args[0]!r}"
+            ) from exc
+        if actual_signals != expected_signals:
+            raise GateError(
+                "split_board_hierarchy.ato PowerControlSELV signals do not "
+                "match domain_manifest.yaml board_interface.nets: "
+                f"expected {expected_signals!r}, got {actual_signals!r}"
+            )
     # U3 consumes the typed readiness verdict from U1.  An unresolved
     # interface is a valid, machine-readable blocker, not malformed input.
     try:
@@ -338,7 +415,7 @@ def _check_review_evidence(
             errors.append(f"{review_name} contract must keep evidence null while incomplete")
 
 
-def _check_drc_report(path: Path, board_id: str, errors: list[str]) -> None:
+def _check_drc_report(path: Path, board_id: str) -> None:
     report = _load_json(path, f"{board_id} DRC report")
     if report.get("schema_version") != 1:
         raise GateError(f"{board_id} DRC report schema_version must be 1")
@@ -375,7 +452,6 @@ def _check_provenance(
     board_path: Path,
     board_id: str,
     manifest_path: Path,
-    errors: list[str],
 ) -> None:
     record = _load_json(path, f"{board_id} provenance record")
     if record.get("source") != "measured-live":
@@ -385,7 +461,12 @@ def _check_provenance(
     measured_at_commit = record.get("measured_at_commit")
     if not isinstance(measured_at_commit, str) or not COMMIT_RE.fullmatch(measured_at_commit):
         raise GateError(f"{board_id} provenance must record a full measured_at_commit SHA")
-    if not _commit_exists(measured_at_commit, manifest_path):
+    repo_root = _contract_git_root(manifest_path)
+    try:
+        resolved_commits = verify_commits_exist({measured_at_commit}, repo_root)
+    except RuntimeError as exc:
+        raise GateError(f"{board_id} provenance commit verification failed: {exc}") from exc
+    if not resolved_commits.get(measured_at_commit, False):
         raise GateError(f"{board_id} provenance measured_at_commit does not resolve")
     tool_versions = record.get("tool_versions")
     if not isinstance(tool_versions, dict) or not isinstance(tool_versions.get("kicad-cli"), str) or not tool_versions["kicad-cli"].strip():
@@ -394,13 +475,16 @@ def _check_provenance(
     if not isinstance(inputs, list) or not inputs:
         raise GateError(f"{board_id} provenance must contain an inputs list")
     matching = False
-    actual_hash = hashlib.sha256(board_path.read_bytes()).hexdigest() if board_path.is_file() else None
+    try:
+        actual_hash = sha256_file(board_path) if board_path.is_file() else None
+    except OSError as exc:
+        raise GateError(f"{board_id} provenance PCB cannot be hashed: {exc}") from exc
     for item in inputs:
         if not isinstance(item, dict):
             continue
         item_path = item.get("path")
         item_hash = item.get("sha256")
-        if isinstance(item_path, str) and _resolve(item_path, manifest_path).resolve() == board_path.resolve():
+        if isinstance(item_path, str) and _resolve(item_path, manifest_path) == board_path.resolve():
             matching = True
             if not isinstance(item_hash, str) or not SHA256_RE.fullmatch(item_hash):
                 raise GateError(f"{board_id} provenance board input must contain a full sha256")
@@ -410,27 +494,8 @@ def _check_provenance(
         raise GateError(f"{board_id} provenance inputs must identify its PCB artifact")
 
 
-def _check_cross_domain_report(path: Path, data: dict[str, Any], errors: list[str]) -> None:
-    report = _load_json(path, "cross-domain report")
-    if report.get("schema_version") != 1:
-        raise GateError("cross-domain report schema_version must be 1")
-    if report.get("approved") is not True:
-        raise GateError("cross-domain report must have approved=true")
-    if not isinstance(report.get("source_identity"), str) or not report["source_identity"].strip():
-        raise GateError("cross-domain report must record source_identity")
-    values = report.get("engineering_values")
-    if not isinstance(values, dict) or not values:
-        raise GateError("cross-domain report must record engineering_values")
-    digest = report.get("content_sha256")
-    if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
-        raise GateError("cross-domain report must record a full content_sha256")
-    unsigned = dict(report)
-    unsigned.pop("content_sha256", None)
-    expected_digest = hashlib.sha256(
-        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
-    if digest != expected_digest:
-        raise GateError("cross-domain report content_sha256 does not match the report")
+def _check_cross_domain_report(path: Path) -> None:
+    report = _require_versioned_evidence(path, "cross-domain report")
     if report.get("pollution_degree") != POLLUTION_DEGREE:
         raise GateError("cross-domain report must use pollution degree 3")
     if report.get("required_creepage_mm") != REQUIRED_CREEPAGE_MM:
@@ -498,20 +563,20 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
             if not drc_report:
                 errors.append(f"{board_role} board DRC report is not declared")
             else:
-                _check_drc_report(_resolve(drc_report, path), board_id, errors)
+                _check_drc_report(_resolve(drc_report, path), board_id)
             provenance = board["checks"]["provenance"]["record"]
             if not provenance:
                 errors.append(f"{board_role} board provenance record is not declared")
             elif pcb_path.is_file():
                 _check_provenance(
-                    _resolve(provenance, path), pcb_path, board_id, path, errors
+                    _resolve(provenance, path), pcb_path, board_id, path
                 )
 
         report = data["cross_domain"]["report"]
         if not report:
             errors.append("cross-domain report is not declared")
         else:
-            _check_cross_domain_report(_resolve(report, path), data, errors)
+            _check_cross_domain_report(_resolve(report, path))
     else:
         for board_role in REQUIRED_BOARDS:
             artifacts = data["boards"][board_role]["artifacts"]

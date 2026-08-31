@@ -757,6 +757,14 @@ def load_manifest(path: Path) -> Manifest:
                     f"board_interface signal {net!r} is resolved but has "
                     "an incomplete owner/direction/return/fault contract"
                 )
+            if status == "resolved" and any(
+                isinstance(value, str) and value == "UNRESOLVED"
+                for value in (owner, direction, return_net, fault_behavior)
+            ):
+                raise GateError(
+                    f"board_interface signal {net!r} is resolved but uses the "
+                    "UNRESOLVED sentinel"
+                )
             if status != "resolved" and owner is None and direction is None:
                 # Explicitly unresolved is valid; the readiness check below
                 # will keep generation blocked until the missing decision is
@@ -995,6 +1003,12 @@ def load_manifest(path: Path) -> Manifest:
                     f"board_partition isolator {path!r} maps both boards to "
                     f"the same group {power_group!r}"
                 )
+            if {power_group, control_group} != set(iso.groups):
+                raise GateError(
+                    f"board_partition isolator {path!r} must map every group "
+                    f"exactly once; declared groups are {sorted(iso.groups)!r}, "
+                    f"mapped groups are {sorted((power_group, control_group))!r}"
+                )
             isolator_sides.append(
                 IsolatorBoardSides(
                     instance_path=path,
@@ -1091,6 +1105,16 @@ def check_board_interface_generation_ready(manifest: Manifest) -> None:
     if unresolved:
         blockers.append(
             "unresolved signal semantics: " + ", ".join(sorted(unresolved))
+        )
+    outside_domains = [
+        signal.net
+        for signal in interface.signals
+        if signal.domain not in interface.allowed_domains
+    ]
+    if outside_domains:
+        blockers.append(
+            "interface signals outside allowed domains "
+            f"{list(interface.allowed_domains)!r}: {', '.join(sorted(outside_domains))}"
         )
     if interface.fault_aggregation.get("status") != "resolved":
         blockers.append("fault aggregation semantics are unresolved")
