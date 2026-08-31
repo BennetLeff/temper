@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re as _re
 import sys
 from collections import deque
 from dataclasses import dataclass, field
@@ -65,8 +66,8 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _lib.github_summary import get_github_summary_path
 from _lib.freshness import check_freshness
+from _lib.github_summary import get_github_summary_path
 from _lib.repo import find_repo_root
 
 REPO_ROOT = find_repo_root()
@@ -87,8 +88,6 @@ class GateError(Exception):
 # S-expression parser for the KiCad-format netlist (self-contained; mirrors
 # the parser in scripts/gen_schematics.py, which reads the same file format).
 # ---------------------------------------------------------------------------
-
-import re as _re
 
 _TOKEN = _re.compile(r'\s*(?:(\()|(\))|("(?:\\.|[^"\\])*")|([^\s()]+))', _re.S)
 
@@ -1178,7 +1177,7 @@ class Graph:
     def ensure_node(self, n: str) -> None:
         self.adjacency.setdefault(n, [])
 
-    def without_labels(self, labels: set[str]) -> "Graph":
+    def without_labels(self, labels: set[str]) -> Graph:
         """Return a copy of this graph with every edge carrying one of
         `labels` removed. Used to find multiple INDEPENDENT bridging paths
         between two domains rather than only the single shortest one --
@@ -1501,7 +1500,7 @@ def multi_source_shortest_path(
         n = min(common)
         return [(n, "")]
 
-    dist: dict[str, int] = {s: 0 for s in sorted(sources)}
+    dist: dict[str, int] = dict.fromkeys(sorted(sources), 0)
     parent: dict[str, tuple[str, str]] = {}
     finalized: set[str] = set()
     dq: deque[str] = deque(sorted(sources))
