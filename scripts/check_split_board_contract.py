@@ -3,8 +3,9 @@
 
 This gate is intentionally separate from the legacy one-board gates.  It
 validates the *inputs required before* a split-board generator may create
-artifacts; it does not invent PCB files or treat the existing legacy board as
-either new board.
+artifacts, and validates the complete generated bundle before publication; it
+does not invent PCB files or treat the existing legacy board as either new
+board.
 
 The initial committed contract is ``contract-incomplete`` and therefore
 returns ``EXIT_VIOLATION``.  That is deliberate: a future split-board
@@ -586,14 +587,42 @@ def _atopile_declarations(text: str) -> list[str]:
 
 
 def _check_atopile_entrypoint(path: Path, context: str, board_role: str) -> bytes:
-    """Require an Atopile source to contain a real module/interface shape."""
+    """Require an Atopile source to contain a meaningful board module.
+
+    A declaration-only module is not a source build. Require an indented body
+    and an interface instantiation/declaration so a generated bundle is tied
+    to an actual electrical boundary rather than a named placeholder.
+    """
     contents = _read_artifact(path, context, suffix=".ato")
     text = contents.decode("utf-8")
     declarations = _atopile_declarations(text)
     if not declarations:
         raise GateError(f"{context} has no Atopile module, interface, or component declaration")
-    if not re.search(r"(?m)^\s*module\s+[A-Za-z_]\w*\s*:", text):
+    module_match = re.search(
+        r"(?m)^(?P<indent>\s*)module\s+(?P<name>[A-Za-z_]\w*)\s*:\s*(?:#.*)?$",
+        text,
+    )
+    if module_match is None:
         raise GateError(f"{context} must declare an Atopile module entrypoint")
+    body_lines = text[module_match.end():].splitlines()
+    body = []
+    module_indent = len(module_match.group("indent").expandtabs(4))
+    for line in body_lines:
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip(" \t"))
+        if indent <= module_indent:
+            break
+        if not line.lstrip().startswith("#"):
+            body.append(line.strip())
+    if not body:
+        raise GateError(f"{context} module has no meaningful body")
+    declared_interfaces = re.findall(
+        r"(?:=\s*new\s+|\binterface\s+[A-Za-z_]\w*\s*:\s*)([A-Za-z_]\w*)",
+        "\n".join(body),
+    )
+    if not declared_interfaces:
+        raise GateError(f"{context} module must declare or instantiate an interface")
     # A board entrypoint must have a board-shaped declaration, not merely an
     # imported library interface.  Accept the boundary names used by the
     # foundation and conventional generated PowerBoard/ControlBoard names.
@@ -772,6 +801,7 @@ def _artifact_inventory(contents: bytes, root: str, context: str) -> tuple[set[s
 def _check_board_identity(
     board: dict[str, Any],
     board_role: str,
+    source_entrypoint: str,
     source_path: Path,
     netlist_path: Path,
     pcb_path: Path,
@@ -801,12 +831,48 @@ def _check_board_identity(
             raise GateError(f"{context}.{field} must be a non-empty string list")
         if len(set(value)) != len(value):
             raise GateError(f"{context}.{field} must not contain duplicates")
+    source_build = identity.get("source_build")
+    if not isinstance(source_build, dict):
+        raise GateError(f"{context}.source_build must be declared")
+    for field in ("entrypoint", "module", "interface"):
+        if not isinstance(source_build.get(field), str) or not source_build[field].strip():
+            raise GateError(f"{context}.source_build.{field} must be a non-empty string")
+    if source_build["entrypoint"] != source_entrypoint:
+        raise GateError(f"{context}.source_build.entrypoint does not match the manifest")
+    source_build_sha = source_build.get("build_sha256")
+    if not isinstance(source_build_sha, str) or not SHA256_RE.fullmatch(source_build_sha):
+        raise GateError(f"{context}.source_build.build_sha256 must be a full SHA-256")
+    if source_build.get("source_sha256") != identity["source_sha256"]:
+        raise GateError(f"{context}.source_build.source_sha256 must match source_sha256")
+    if source_build.get("component_refs") != refs or source_build.get("net_names") != names:
+        raise GateError(
+            f"{context}.source_build inventory must match component_refs and net_names"
+        )
+    build_unsigned = dict(source_build)
+    build_unsigned.pop("build_sha256", None)
+    if source_build_sha != sha256_file_from_json(build_unsigned):
+        raise GateError(f"{context}.source_build.build_sha256 does not match the build identity")
     source_inventory = set(_atopile_declarations(source_bytes.decode("utf-8")))
     netlist_inventory = _artifact_inventory(netlist_bytes, "export", f"{board_role} board netlist")
     pcb_inventory = _artifact_inventory(pcb_bytes, "kicad_pcb", f"{board_role} board PCB")
     expected_modules, expected_refs, expected_names = set(modules), set(refs), set(names)
     if source_inventory != expected_modules:
         raise GateError(f"{context}.source_modules does not match source declarations")
+    source_text = source_bytes.decode("utf-8")
+    if not re.search(
+        rf"(?m)^\s*module\s+{re.escape(source_build['module'])}\s*:", source_text
+    ):
+        raise GateError(f"{context}.source_build.module is not declared by the source")
+    if not re.search(
+        rf"(?:=\s*new\s+|\binterface\s+[A-Za-z_]\w*\s*:\s*)"
+        rf"{re.escape(source_build['interface'])}\b",
+        source_text,
+    ):
+        raise GateError(f"{context}.source_build.interface is not declared by the source")
+    if netlist_inventory[0] != pcb_inventory[0]:
+        raise GateError(f"{context}.component_refs do not match between netlist and PCB")
+    if netlist_inventory[1] != pcb_inventory[1]:
+        raise GateError(f"{context}.net_names do not match between netlist and PCB")
     if netlist_inventory[0] != expected_refs or pcb_inventory[0] != expected_refs:
         raise GateError(f"{context}.component_refs do not match netlist and PCB inventories")
     if netlist_inventory[1] != expected_names or pcb_inventory[1] != expected_names:
@@ -970,7 +1036,12 @@ def _load_ceiling_source(
     limits["board_id"] = selected.get("board_id", board_id)
     if selected.get("category_source") != "kicad-cli":
         raise GateError(f"{board_id} DRC ceiling source category_source must be 'kicad-cli'")
-    nondeterministic = selected.get("nondeterministic_error_types", {})
+    if "nondeterministic_error_types" not in selected:
+        raise GateError(
+            f"{board_id} DRC ceiling source must explicitly declare "
+            "nondeterministic_error_types"
+        )
+    nondeterministic = selected["nondeterministic_error_types"]
     if not isinstance(nondeterministic, dict):
         raise GateError(f"{board_id} DRC ceiling source nondeterministic_error_types must be a mapping")
     if any(not isinstance(name, str) or not name.strip() for name in nondeterministic):
@@ -1094,10 +1165,9 @@ def _check_distinct_board_artifacts(
                 raise GateError(f"board {artifact_name} evidence must not be reused byte-for-byte")
 
 
-def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
-    """Return substantive contract errors; raise for untrustworthy input."""
+def _generation_prerequisite_errors(data: dict[str, Any], path: Path) -> list[str]:
+    """Return blockers that can be checked before generated outputs exist."""
 
-    data = load_contract(path)
     errors: list[str] = []
     generation = data["generation"]
     status = data["status"]
@@ -1110,9 +1180,27 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
         raise GateError(f"cross-domain method not found: {data['cross_domain']['method']}")
     _require_tracked(method_path, path, "cross-domain measurement method")
 
-    if any(status == "incomplete" for status in review_statuses.values()):
+    for board_role in REQUIRED_BOARDS:
+        source_entrypoint = data["boards"][board_role]["source"]["entrypoint"]
+        if not source_entrypoint:
+            errors.append(f"{board_role} board source entrypoint is not declared")
+            continue
+        source_path = _resolve(source_entrypoint, path)
+        if not source_path.is_file():
+            errors.append(
+                f"{board_role} board source entrypoint not found: {source_entrypoint}"
+            )
+            continue
+        _check_atopile_entrypoint(
+            source_path, f"{board_role} board source entrypoint", board_role
+        )
+        _require_tracked(source_path, path, f"{board_role} board source entrypoint")
+
+    if any(value != "complete" for value in review_statuses.values()):
         errors.extend(
-            f"{name} contract is not complete" for name, value in review_statuses.items() if value != "complete"
+            f"{name} contract is not complete"
+            for name, value in review_statuses.items()
+            if value != "complete"
         )
     if not generation["enabled"]:
         errors.append("generation is disabled until connector and enclosure reviews are complete")
@@ -1120,6 +1208,22 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
         errors.append("status ready requires generation.enabled=true")
     if status == "contract-incomplete" and generation["enabled"]:
         errors.append("status contract-incomplete cannot enable generation")
+    return errors
+
+
+def validate_generation_prerequisites(path: Path = DEFAULT_MANIFEST) -> list[str]:
+    """Return only blockers that must pass before invoking a generator."""
+
+    return _generation_prerequisite_errors(load_contract(path), path)
+
+
+def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
+    """Return substantive contract errors; raise for untrustworthy input."""
+
+    data = load_contract(path)
+    errors = _generation_prerequisite_errors(data, path)
+    generation = data["generation"]
+    method_path = _resolve(data["cross_domain"]["method"], path)
 
     if generation["enabled"]:
         board_paths: dict[str, dict[str, Path]] = {}
@@ -1171,6 +1275,7 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
                 _check_board_identity(
                     board,
                     board_role,
+                    source_entrypoint,
                     source_path,
                     netlist_path,
                     pcb_path,
@@ -1302,6 +1407,14 @@ def assert_generation_ready(path: Path = DEFAULT_MANIFEST) -> None:
         raise GateError("split-board generation is not ready:\n- " + "\n- ".join(errors))
 
 
+def assert_generation_prerequisites(path: Path = DEFAULT_MANIFEST) -> None:
+    """Raise unless non-output prerequisites authorize a generation run."""
+
+    errors = validate_generation_prerequisites(path)
+    if errors:
+        raise GateError("split-board generation prerequisites are not ready:\n- " + "\n- ".join(errors))
+
+
 def generate_with_contract(
     path: Path,
     writer: Callable[[Path], dict[Path, bytes]],
@@ -1318,7 +1431,11 @@ def generate_with_contract(
     generation where the target does not yet exist) fails closed.  Validation
     runs over all staged bytes before any ``os.replace`` occurs.
     """
-    assert_generation_ready(path)
+    # Full readiness cannot be checked yet: this is the first-generation
+    # seam, so the output artifacts intentionally do not exist.  Validate all
+    # physical/interface inputs first, then validate the complete staged
+    # bundle through the caller-supplied post-generation validator.
+    assert_generation_prerequisites(path)
     if not outputs:
         raise GateError("generation outputs must be a non-empty tuple")
     resolved_outputs = tuple(output.resolve() for output in outputs)

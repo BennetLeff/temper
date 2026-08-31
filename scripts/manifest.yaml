@@ -382,12 +382,12 @@ scripts:
   - sys
   - typing
 - path: check_split_board_contract.py
-  purpose: 'Fail-closed gate for the approved split power/control-board architecture: require connector
-    and enclosure contract evidence before generation, consume the typed domain-interface readiness verdict,
-    and require per-board artifacts, DRC reports, repository provenance, and a PD3/12.6mm cross-domain
-    report before generation is enabled; exit 2 is a valid blocked contract and exit 1 is malformed input'
+  purpose: 'Fail-closed gate for the approved split power/control-board architecture: validate physical and
+    interface prerequisites before generation, validate a complete staged bundle before atomic publication,
+    and require per-board source-build identity, netlist/PCB inventories, DRC reports, repository provenance,
+    and a PD3/12.6mm cross-domain report; exit 2 is blocked and exit 1 is malformed input'
   owner: pipeline
-  last_run: '2026-08-30'
+  last_run: '2026-08-31'
   category: keep
   disposition: ci-gate
   imports:

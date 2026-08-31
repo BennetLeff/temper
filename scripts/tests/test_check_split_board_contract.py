@@ -26,6 +26,7 @@ from check_split_board_contract import (  # noqa: E402
     _check_manifest_location,
     _check_provenance,
     _evidence_digest,
+    _load_ceiling_source,
     _load_json,
     _read_artifact,
     assert_generation_ready,
@@ -33,6 +34,7 @@ from check_split_board_contract import (  # noqa: E402
     load_contract,
     run,
     validate_contract,
+    validate_generation_prerequisites,
 )
 
 VALID_INCOMPLETE = """
@@ -114,6 +116,75 @@ def write_contract(tmp_path: Path, text: str = VALID_INCOMPLETE) -> Path:
     return path
 
 
+def write_generation_prerequisite_contract(tmp_path: Path) -> Path:
+    """Create a physically ready contract whose generated outputs are absent."""
+    text = VALID_INCOMPLETE.replace(
+        "status: contract-incomplete", "status: ready"
+    ).replace(
+        "enabled: false", "enabled: true"
+    ).replace(
+        "status: incomplete", "status: complete"
+    ).replace(
+        "evidence: null", "evidence: evidence.json"
+    ).replace(
+        "source: {entrypoint: null}",
+        "source: {entrypoint: power_board.ato}",
+        1,
+    ).replace(
+        "source: {entrypoint: null}",
+        "source: {entrypoint: control_board.ato}",
+        1,
+    )
+    path = write_contract(tmp_path, text)
+    (tmp_path / "power_board.ato").write_text(
+        "module PowerBoardBoundary:\n    control = new PowerControlSELV\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "control_board.ato").write_text(
+        "module ControlBoardBoundary:\n    control = new PowerControlSELV\n",
+        encoding="utf-8",
+    )
+    evidence = {
+        "schema_version": 1,
+        "approved": True,
+        "source_identity": "review-2026-08-31",
+        "engineering_values": {"decision": "approved"},
+    }
+    evidence["content_sha256"] = hashlib.sha256(
+        json.dumps(evidence, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    (tmp_path / "evidence.json").write_text(json.dumps(evidence), encoding="utf-8")
+
+    source_path = tmp_path / "domain_manifest.yaml"
+    source_data = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+    source_interface = source_data["board_interface"]
+    for signal in source_interface["signals"]:
+        if signal["status"] == "unresolved":
+            signal["status"] = "resolved"
+            if signal["net"] == "+3V3":
+                signal["owner"] = "POWER_BOARD"
+                signal["direction"] = "POWER_BOARD_TO_CONTROL_BOARD"
+            else:
+                signal["owner"] = "CONTROL_BOARD"
+                signal["direction"] = "CONTROL_BOARD_TO_POWER_BOARD"
+    source_interface["fault_aggregation"]["status"] = "resolved"
+    source_interface["connector_spec"] = {
+        "part_number": "J-APPROVED",
+        "pinout": "reviewed-10-net",
+        "retention": "locking",
+        "single_fault_review": "review-1",
+    }
+    source_interface["mechanical_spec"] = {
+        "enclosure_compartment": "compartment-a",
+        "board_partition": "review-2",
+        "cable_routing": "review-3",
+        "mounting": "review-4",
+    }
+    source_interface["generation"]["status"] = "ready"
+    source_path.write_text(yaml.safe_dump(source_data, sort_keys=False), encoding="utf-8")
+    return path
+
+
 def test_real_contract_is_explicitly_blocked_until_reviews_complete():
     path = Path(__file__).resolve().parents[2] / "elec" / "split_board_manifest.yaml"
 
@@ -163,6 +234,14 @@ def test_atopile_entrypoint_requires_board_module_shape(tmp_path):
     path.write_text("# comments are not an entrypoint\n", encoding="utf-8")
 
     with pytest.raises(GateError, match="no Atopile module"):
+        _check_atopile_entrypoint(path, "power source", "power")
+
+
+def test_atopile_entrypoint_rejects_empty_board_module(tmp_path):
+    path = tmp_path / "power.ato"
+    path.write_text("module PowerBoardBoundary:\n", encoding="utf-8")
+
+    with pytest.raises(GateError, match="no meaningful body"):
         _check_atopile_entrypoint(path, "power source", "power")
 
 
@@ -237,11 +316,15 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         "status: incomplete", "status: complete"
     )
     (tmp_path / "power_board.ato").write_text(
-        "module PowerBoardBoundary:\n    source = new PowerSource\n",
+        "module PowerBoardBoundary:\n"
+        "    control = new PowerControlSELV\n"
+        "    component P1 = new PowerSource\n",
         encoding="utf-8",
     )
     (tmp_path / "control_board.ato").write_text(
-        "module ControlBoardBoundary:\n    source = new ControlSource\n",
+        "module ControlBoardBoundary:\n"
+        "    control = new PowerControlSELV\n"
+        "    component C1 = new ControlSource\n",
         encoding="utf-8",
     )
     evidence = tmp_path / "evidence.json"
@@ -444,11 +527,29 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
             "component_refs": [f"{role[0].upper()}1"],
             "net_names": ["gnd"],
         }
+        source_build = {
+            "entrypoint": f"{role}_board.ato",
+            "module": "PowerBoardBoundary" if role == "power" else "ControlBoardBoundary",
+            "interface": "PowerControlSELV",
+            "source_sha256": contract_data["boards"][role]["identity"]["source_sha256"],
+            "component_refs": [f"{role[0].upper()}1"],
+            "net_names": ["gnd"],
+        }
+        source_build["build_sha256"] = hashlib.sha256(
+            json.dumps(source_build, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        contract_data["boards"][role]["identity"]["source_build"] = source_build
     complete_path.write_text(yaml.safe_dump(contract_data, sort_keys=False), encoding="utf-8")
 
     assert validate_contract(complete_path) == []
     assert run(complete_path) == EXIT_OK
     assert_generation_ready(complete_path)
+
+    missing_build_identity = yaml.safe_load(complete_path.read_text(encoding="utf-8"))
+    del missing_build_identity["boards"]["power"]["identity"]["source_build"]
+    complete_path.write_text(yaml.safe_dump(missing_build_identity, sort_keys=False), encoding="utf-8")
+    with pytest.raises(GateError, match="source_build must be declared"):
+        validate_contract(complete_path)
 
     # A syntactically shaped but dangling commit is not a valid blocked
     # prerequisite; it is malformed provenance and therefore exit 1.
@@ -514,7 +615,7 @@ def test_blocked_generation_guard_writes_nothing(tmp_path):
 def test_generation_rejects_callback_overwrite_of_existing_output(tmp_path, monkeypatch):
     import check_split_board_contract as gate
 
-    monkeypatch.setattr(gate, "assert_generation_ready", lambda path: None)
+    monkeypatch.setattr(gate, "assert_generation_prerequisites", lambda path: None)
     manifest = tmp_path / "manifest.yaml"
     manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
     target = tmp_path / "board.kicad_pcb"
@@ -534,30 +635,47 @@ def test_generation_rejects_callback_overwrite_of_existing_output(tmp_path, monk
     assert target.read_bytes() == b"old-board"
 
 
-def test_generation_first_publish_is_atomic_and_validated(tmp_path, monkeypatch):
-    import check_split_board_contract as gate
-
-    monkeypatch.setattr(gate, "assert_generation_ready", lambda path: None)
-    manifest = tmp_path / "manifest.yaml"
-    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+def test_generation_first_publish_is_atomic_and_validated(tmp_path):
+    manifest = write_generation_prerequisite_contract(tmp_path)
+    assert validate_generation_prerequisites(manifest) == []
     target = tmp_path / "board.kicad_pcb"
-    seen: list[bytes] = []
+    seen: list[tuple[bool, bytes]] = []
 
     def writer(stage):
+        assert stage.is_dir()
         return {target: b"generated-board"}
 
     def validate(generated):
-        seen.append(generated[target])
+        # Validation observes the complete staged bundle before first
+        # publication; the final path is still absent at this point.
+        seen.append((target.exists(), generated[target]))
 
-    result = gate.generate_with_contract(
+    result = generate_with_contract(
         manifest,
         writer,
         outputs=(target,),
         validate=validate,
     )
     assert result[target] == b"generated-board"
-    assert seen == [b"generated-board"]
+    assert seen == [(False, b"generated-board")]
     assert target.read_bytes() == b"generated-board"
+
+
+def test_generation_validation_failure_does_not_publish_first_artifact(tmp_path):
+    manifest = write_generation_prerequisite_contract(tmp_path)
+    target = tmp_path / "board.kicad_pcb"
+
+    with pytest.raises(GateError, match="staged bundle rejected"):
+        generate_with_contract(
+            manifest,
+            lambda stage: {target: b"generated-board"},
+            outputs=(target,),
+            validate=lambda generated: (_ for _ in ()).throw(
+                GateError("staged bundle rejected")
+            ),
+        )
+
+    assert not target.exists()
 
 
 def test_blocked_cli_emits_machine_readable_missing_prerequisites(tmp_path, capsys):
@@ -749,4 +867,31 @@ def test_drc_sampling_comes_from_tracked_policy_and_method_is_canonical(tmp_path
     with pytest.raises(GateError, match="must not self-declare"):
         _check_drc_report(
             report, "POWER_BOARD", board, provenance, provenance_record, manifest, limits
+        )
+
+
+def test_selected_ceiling_requires_explicit_nondeterministic_categories(tmp_path):
+    manifest = tmp_path / "split_board_manifest.yaml"
+    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+    ceiling = tmp_path / "ceiling.json"
+    ceiling_record = {
+        "schema_version": 1,
+        "category_source": "kicad-cli",
+        "boards": [{
+            "board_id": "POWER_BOARD",
+            "category_source": "kicad-cli",
+            "error_ceiling": 0,
+            "warning_ceiling": 0,
+            "violations_by_type": {},
+            "warnings_by_type": {},
+        }],
+    }
+    ceiling.write_text(json.dumps(ceiling_record), encoding="utf-8")
+
+    with pytest.raises(GateError, match="explicitly declare nondeterministic_error_types"):
+        _load_ceiling_source(
+            ceiling,
+            "POWER_BOARD",
+            hashlib.sha256(ceiling.read_bytes()).hexdigest(),
+            manifest,
         )
