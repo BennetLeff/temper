@@ -9,6 +9,7 @@
 schema_version: 1
 architecture: split_power_control
 status: contract-incomplete
+hierarchy: src/split_board_hierarchy.ato
 
 generation:
   enabled: false

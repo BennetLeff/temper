@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -34,19 +35,6 @@ import yaml
 from _lib.measurement_provenance import sha256_file
 from _lib.repo import find_repo_root
 from check_evidence_provenance import verify_commits_exist
-
-try:
-    from check_domain_partition import (  # type: ignore[import-not-found]
-        GateError as DomainGateError,
-    )
-    from check_domain_partition import (
-        check_board_interface_generation_ready,
-        load_manifest,
-    )
-except ImportError:  # pragma: no cover - only needed when imported externally
-    DomainGateError = Exception
-    check_board_interface_generation_ready = None
-    load_manifest = None
 
 EXIT_OK = 0
 EXIT_BLOCKED = 2
@@ -64,6 +52,7 @@ REQUIRED_BLOCKERS = ("connector", "enclosure")
 REQUIRED_INTERFACE_DOMAIN = "SELV"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+FIXTURE_CONTEXT = "unit-test"
 ATOPILE_INTERFACE_SIGNAL = {
     "gnd": "gnd",
     "+15V": "vcc_15v",
@@ -134,6 +123,12 @@ def load_contract(path: Path) -> dict[str, Any]:
     status = _text(data.get("status"), "status")
     if status not in {"contract-incomplete", "ready"}:
         raise GateError("status must be 'contract-incomplete' or 'ready'")
+    hierarchy = _text(data.get("hierarchy"), "hierarchy")
+    if not hierarchy:
+        raise GateError("hierarchy must identify the split-board Atopile hierarchy")
+    fixture_context = data.get("fixture_context")
+    if fixture_context is not None and fixture_context != FIXTURE_CONTEXT:
+        raise GateError(f"fixture_context must be {FIXTURE_CONTEXT!r} when present")
 
     generation = _mapping(data.get("generation"), "generation")
     if not isinstance(generation.get("enabled"), bool):
@@ -233,7 +228,16 @@ def _contract_repo_root(manifest_path: Path) -> Path:
     try:
         return find_repo_root(manifest_path.parent)
     except FileNotFoundError:
-        return manifest_path.parent.resolve()
+        try:
+            raw = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError) as exc:
+            raise GateError(f"cannot establish contract repository: {exc}") from exc
+        if isinstance(raw, dict) and raw.get("fixture_context") == FIXTURE_CONTEXT:
+            return manifest_path.parent.resolve()
+        raise GateError(
+            "split-board manifest must live in a Git worktree; non-repository "
+            "fixtures must declare fixture_context: unit-test"
+        ) from None
 
 
 def _contract_git_root(manifest_path: Path) -> Path:
@@ -246,7 +250,44 @@ def _contract_git_root(manifest_path: Path) -> Path:
     try:
         return find_repo_root(manifest_path.parent)
     except FileNotFoundError:
-        return REPO_ROOT
+        try:
+            raw = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError) as exc:
+            raise GateError(f"cannot establish contract repository: {exc}") from exc
+        if isinstance(raw, dict) and raw.get("fixture_context") == FIXTURE_CONTEXT:
+            return REPO_ROOT
+        raise GateError(
+            "cannot verify provenance outside a Git worktree without explicit "
+            "fixture_context: unit-test"
+        ) from None
+
+
+def _is_fixture(manifest_path: Path) -> bool:
+    try:
+        raw = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return False
+    return isinstance(raw, dict) and raw.get("fixture_context") == FIXTURE_CONTEXT
+
+
+def _require_tracked(path: Path, manifest_path: Path, context: str) -> None:
+    """Require production evidence to be committed in the owning worktree."""
+    if _is_fixture(manifest_path):
+        return
+    repo_root = _contract_repo_root(manifest_path)
+    try:
+        relative = path.resolve().relative_to(repo_root.resolve())
+    except ValueError as exc:
+        raise GateError(f"{context} is outside the owning worktree: {path}") from exc
+    result = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", "--", str(relative)],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise GateError(f"{context} must be a tracked production file: {path}")
 
 
 def _resolve(path: str, manifest_path: Path) -> Path:
@@ -322,20 +363,33 @@ def sha256_file_from_json(value: dict[str, Any]) -> str:
     ).hexdigest()
 
 
+def _evidence_digest(value: dict[str, Any]) -> str:
+    """Return the digest of a JSON evidence record excluding its own digest."""
+    unsigned = dict(value)
+    unsigned.pop("content_sha256", None)
+    return sha256_file_from_json(unsigned)
+
+
 def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: list[str]) -> None:
     interface = data["interface"]
     source_path = _resolve(interface["domain_manifest"], manifest_path)
     if not source_path.is_file():
         raise GateError(f"interface domain manifest not found: {source_path}")
-    if load_manifest is None or check_board_interface_generation_ready is None:
-        raise GateError("cannot import the domain-interface validator")
+    _require_tracked(source_path, manifest_path, "interface domain manifest")
     try:
-        source_manifest = load_manifest(source_path)
-    except Exception as exc:
+        source_data = yaml.safe_load(source_path.read_text(encoding="utf-8"))
+        source_interface = _mapping(source_data.get("board_interface"), "board_interface")
+        source_signals = source_interface.get("signals")
+        if not isinstance(source_signals, list):
+            raise GateError("board_interface.signals must be a list")
+        declared_nets = tuple(source_interface.get("nets", ()))
+        if not declared_nets or any(not isinstance(net, str) for net in declared_nets):
+            raise GateError("board_interface.nets must be a non-empty string list")
+        signal_nets = tuple(signal.get("net") for signal in source_signals if isinstance(signal, dict))
+        if signal_nets != declared_nets:
+            raise GateError("board_interface.signals must match board_interface.nets")
+    except (OSError, yaml.YAMLError, AttributeError, TypeError) as exc:
         raise GateError(f"interface domain manifest is malformed: {exc}") from exc
-    declared = source_manifest.board_interface
-    if declared is None:
-        raise GateError("interface domain manifest has no board_interface mapping")
     expected = {
         "name": interface["name"],
         "power_board": "POWER_BOARD",
@@ -345,12 +399,12 @@ def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: l
         "allowed_domains": tuple(interface["allowed_domains"]),
     }
     actual = {
-        "name": declared.name,
-        "power_board": declared.power_board,
-        "control_board": declared.control_board,
-        "connector": declared.connector,
-        "nets": declared.nets,
-        "allowed_domains": declared.allowed_domains,
+        "name": source_interface.get("name"),
+        "power_board": source_interface.get("power_board"),
+        "control_board": source_interface.get("control_board"),
+        "connector": source_interface.get("connector"),
+        "nets": tuple(source_interface.get("nets", ())),
+        "allowed_domains": tuple(source_interface.get("allowed_domains", ())),
     }
     for field, wanted in expected.items():
         if actual[field] != wanted:
@@ -358,39 +412,52 @@ def _check_source_interface(data: dict[str, Any], manifest_path: Path, errors: l
                 f"interface {field} does not match elec/domain_manifest.yaml: "
                 f"expected {wanted!r}, got {actual[field]!r}"
             )
-    hierarchy_path = _contract_repo_root(manifest_path) / "elec" / "src" / "split_board_hierarchy.ato"
-    if hierarchy_path.is_file():
-        hierarchy = hierarchy_path.read_text(encoding="utf-8")
-        match = re.search(
-            r"(?ms)^interface\s+PowerControlSELV:\s*\n(?P<body>.*?)(?=^\S|\Z)",
-            hierarchy,
+    hierarchy_path = _resolve(data["hierarchy"], manifest_path)
+    if not hierarchy_path.is_file():
+        raise GateError(f"split-board hierarchy not found: {data['hierarchy']}")
+    _require_tracked(hierarchy_path, manifest_path, "split-board hierarchy")
+    hierarchy = hierarchy_path.read_text(encoding="utf-8")
+    match = re.search(
+        r"(?ms)^interface\s+PowerControlSELV:\s*\n(?P<body>.*?)(?=^\S|\Z)",
+        hierarchy,
+    )
+    if match is None:
+        raise GateError(
+            "split-board hierarchy has no PowerControlSELV interface"
         )
-        if match is None:
-            raise GateError(
-                "split_board_hierarchy.ato has no PowerControlSELV interface"
-            )
-        actual_signals = tuple(
-            re.findall(r"^\s+signal\s+([A-Za-z_]\w*)\s*$", match.group("body"), re.MULTILINE)
+    actual_signals = tuple(
+        re.findall(r"^\s+signal\s+([A-Za-z_]\w*)\s*$", match.group("body"), re.MULTILINE)
+    )
+    try:
+        expected_signals = tuple(ATOPILE_INTERFACE_SIGNAL[net] for net in source_interface["nets"])
+    except KeyError as exc:
+        raise GateError(
+            "domain_manifest.yaml board_interface.nets contains an "
+            f"unsupported net for the Atopile boundary: {exc.args[0]!r}"
+        ) from exc
+    if actual_signals != expected_signals:
+        raise GateError(
+            "split-board hierarchy PowerControlSELV signals do not "
+            "match domain_manifest.yaml board_interface.nets: "
+            f"expected {expected_signals!r}, got {actual_signals!r}"
         )
-        try:
-            expected_signals = tuple(ATOPILE_INTERFACE_SIGNAL[net] for net in declared.nets)
-        except KeyError as exc:
-            raise GateError(
-                "domain_manifest.yaml board_interface.nets contains an "
-                f"unsupported net for the Atopile boundary: {exc.args[0]!r}"
-            ) from exc
-        if actual_signals != expected_signals:
-            raise GateError(
-                "split_board_hierarchy.ato PowerControlSELV signals do not "
-                "match domain_manifest.yaml board_interface.nets: "
-                f"expected {expected_signals!r}, got {actual_signals!r}"
-            )
     # U3 consumes the typed readiness verdict from U1.  An unresolved
     # interface is a valid, machine-readable blocker, not malformed input.
-    try:
-        check_board_interface_generation_ready(source_manifest)
-    except DomainGateError as exc:
-        errors.append(f"domain interface readiness blocked: {exc}")
+    unresolved = [
+        signal.get("net") for signal in source_signals
+        if signal.get("status") != "resolved"
+    ]
+    if unresolved:
+        errors.append(
+            "domain interface readiness blocked: unresolved signal semantics: "
+            + ", ".join(sorted(str(net) for net in unresolved))
+        )
+    fault = source_interface.get("fault_aggregation")
+    if not isinstance(fault, dict) or fault.get("status") != "resolved":
+        errors.append("domain interface readiness blocked: fault aggregation semantics are unresolved")
+    generation_spec = source_interface.get("generation")
+    if not isinstance(generation_spec, dict) or generation_spec.get("status") != "ready":
+        errors.append("domain interface readiness blocked: generation.status is not 'ready'")
 
 
 def _check_review_evidence(
@@ -409,13 +476,53 @@ def _check_review_evidence(
                     _require_versioned_evidence(
                         evidence_path, f"{review_name} contract evidence"
                     )
+                    _require_tracked(evidence_path, manifest_path, f"{review_name} contract evidence")
                 except GateError as exc:
                     raise GateError(str(exc)) from exc
         elif review.get("evidence") is not None:
             errors.append(f"{review_name} contract must keep evidence null while incomplete")
 
 
-def _check_drc_report(path: Path, board_id: str) -> None:
+def _read_artifact(path: Path, context: str, *, suffix: str | None = None) -> bytes:
+    if not path.is_file():
+        raise GateError(f"{context} not found: {path}")
+    if suffix is not None and path.suffix != suffix:
+        raise GateError(f"{context} must use {suffix} format: {path}")
+    try:
+        contents = path.read_bytes()
+        contents.decode("utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise GateError(f"{context} is not readable UTF-8: {path}: {exc}") from exc
+    if not contents.strip() or b"\x00" in contents:
+        raise GateError(f"{context} is empty or contains NUL bytes: {path}")
+    return contents
+
+
+def _check_sexp_artifact(path: Path, context: str, root: bytes, suffix: str) -> bytes:
+    contents = _read_artifact(path, context, suffix=suffix)
+    if not contents.lstrip().startswith(b"(" + root):
+        raise GateError(f"{context} does not have a parseable {root.decode()} root")
+    depth = 0
+    for byte in contents:
+        if byte == ord("("):
+            depth += 1
+        elif byte == ord(")"):
+            depth -= 1
+            if depth < 0:
+                raise GateError(f"{context} has unbalanced parentheses")
+    if depth != 0:
+        raise GateError(f"{context} has unbalanced parentheses")
+    return contents
+
+
+def _check_drc_report(
+    path: Path,
+    board_id: str,
+    board_path: Path,
+    provenance_path: Path,
+    provenance: dict[str, Any],
+    manifest_path: Path,
+) -> dict[str, Any]:
     report = _load_json(path, f"{board_id} DRC report")
     if report.get("schema_version") != 1:
         raise GateError(f"{board_id} DRC report schema_version must be 1")
@@ -443,8 +550,58 @@ def _check_drc_report(path: Path, board_id: str) -> None:
             "nondeterministic error types are declared"
         )
     for field in ("violations_by_type", "warnings_by_type"):
-        if not isinstance(report.get(field), dict):
-            raise GateError(f"{board_id} DRC report must contain {field}")
+        counts = report.get(field)
+        if not isinstance(counts, dict) or any(
+            not isinstance(name, str) or not name.strip()
+            or not isinstance(count, int) or isinstance(count, bool) or count < 0
+            for name, count in counts.items()
+        ):
+            raise GateError(f"{board_id} DRC report must contain non-negative integer {field}")
+    pcb_hash = sha256_file(board_path)
+    provenance_hash = _evidence_digest(provenance)
+    if report.get("pcb_sha256") != pcb_hash:
+        raise GateError(f"{board_id} DRC report pcb_sha256 does not match its PCB")
+    if report.get("provenance_sha256") != provenance_hash:
+        raise GateError(f"{board_id} DRC report provenance_sha256 does not match its provenance")
+    if not isinstance(report.get("method_config"), dict) or not report["method_config"]:
+        raise GateError(f"{board_id} DRC report must record non-empty method_config")
+    # The report itself is content-addressed, so a copied/stale report cannot
+    # be made to agree with a new PCB merely by changing its binding fields.
+    digest = report.get("content_sha256")
+    if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+        raise GateError(f"{board_id} DRC report must record a full content_sha256")
+    unsigned = dict(report)
+    unsigned.pop("content_sha256", None)
+    if digest != sha256_file_from_json(unsigned):
+        raise GateError(f"{board_id} DRC report content_sha256 does not match the report")
+    acceptance = report.get("acceptance")
+    if not isinstance(acceptance, dict) or acceptance.get("source") != "project-drc-ceiling":
+        raise GateError(f"{board_id} DRC report must name project-drc-ceiling acceptance")
+    ceilings = acceptance.get("ceilings")
+    if not isinstance(ceilings, dict):
+        raise GateError(f"{board_id} DRC report acceptance must contain ceilings")
+    for field in ("violations_by_type", "warnings_by_type"):
+        limits = ceilings.get(field)
+        if not isinstance(limits, dict) or any(
+            not isinstance(name, str) or not isinstance(value, int)
+            or isinstance(value, bool) or value < 0 for name, value in limits.items()
+        ):
+            raise GateError(f"{board_id} DRC acceptance must contain non-negative {field} ceilings")
+        for rule, count in report[field].items():
+            if count > limits.get(rule, 0):
+                raise GateError(
+                    f"{board_id} DRC {field}[{rule!r}]={count} exceeds "
+                    f"project ceiling {limits.get(rule, 0)}"
+                )
+    for field, count_field in (("error_ceiling", "violations_by_type"), ("warning_ceiling", "warnings_by_type")):
+        limit = acceptance.get(field)
+        if not isinstance(limit, int) or isinstance(limit, bool) or limit < 0:
+            raise GateError(f"{board_id} DRC acceptance must contain non-negative {field}")
+        if sum(report[count_field].values()) > limit:
+            raise GateError(f"{board_id} DRC {count_field} exceeds project {field}")
+    _require_tracked(path, manifest_path, f"{board_id} DRC report")
+    _require_tracked(provenance_path, manifest_path, f"{board_id} provenance record")
+    return report
 
 
 def _check_provenance(
@@ -452,7 +609,7 @@ def _check_provenance(
     board_path: Path,
     board_id: str,
     manifest_path: Path,
-) -> None:
+) -> dict[str, Any]:
     record = _load_json(path, f"{board_id} provenance record")
     if record.get("source") != "measured-live":
         raise GateError(f"{board_id} provenance source must be 'measured-live'")
@@ -474,6 +631,11 @@ def _check_provenance(
     inputs = record.get("inputs")
     if not isinstance(inputs, list) or not inputs:
         raise GateError(f"{board_id} provenance must contain an inputs list")
+    digest = record.get("content_sha256")
+    if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+        raise GateError(f"{board_id} provenance must record a full content_sha256")
+    if digest != _evidence_digest(record):
+        raise GateError(f"{board_id} provenance content_sha256 does not match the record")
     matching = False
     try:
         actual_hash = sha256_file(board_path) if board_path.is_file() else None
@@ -492,9 +654,15 @@ def _check_provenance(
                 raise GateError(f"{board_id} provenance board input sha256 does not match the PCB")
     if not matching:
         raise GateError(f"{board_id} provenance inputs must identify its PCB artifact")
+    return record
 
 
-def _check_cross_domain_report(path: Path) -> None:
+def _check_cross_domain_report(
+    path: Path,
+    manifest_path: Path,
+    method_path: Path,
+    board_bindings: dict[str, dict[str, str]],
+) -> None:
     report = _require_versioned_evidence(path, "cross-domain report")
     if report.get("pollution_degree") != POLLUTION_DEGREE:
         raise GateError("cross-domain report must use pollution degree 3")
@@ -507,6 +675,48 @@ def _check_cross_domain_report(path: Path) -> None:
         raise GateError("cross-domain report must cover POWER_BOARD and CONTROL_BOARD")
     if report.get("violations") != []:
         raise GateError("cross-domain report must contain an empty violations list")
+    if report.get("method") != str(method_path.relative_to(_contract_repo_root(manifest_path))):
+        raise GateError("cross-domain report method does not match the manifest method")
+    if report.get("method_sha256") != sha256_file(method_path):
+        raise GateError("cross-domain report method_sha256 does not match the method")
+    config = report.get("configuration")
+    if not isinstance(config, dict) or config.get("pollution_degree") != POLLUTION_DEGREE or config.get("reinforced_creepage_mm") != REQUIRED_CREEPAGE_MM:
+        raise GateError("cross-domain report configuration must record PD3 and 12.6 mm")
+    if report.get("board_inputs") != board_bindings:
+        raise GateError("cross-domain report board_inputs do not match both board PCB/provenance records")
+    _require_tracked(path, manifest_path, "cross-domain report")
+    _require_tracked(method_path, manifest_path, "cross-domain measurement method")
+
+
+def _check_distinct_board_artifacts(
+    board_paths: dict[str, dict[str, Path]],
+    board_hashes: dict[str, dict[str, str]],
+    evidence_paths: dict[str, dict[str, Path]] | None = None,
+    evidence_hashes: dict[str, dict[str, str]] | None = None,
+) -> None:
+    """Reject reused paths or byte-identical artifacts across board roles."""
+    if len(board_paths) != len(REQUIRED_BOARDS):
+        return
+    for artifact_name in ("source", "pcb", "netlist"):
+        paths = [board_paths[role][artifact_name].resolve() for role in REQUIRED_BOARDS]
+        if len(set(paths)) != len(paths):
+            raise GateError(f"board {artifact_name} artifacts must be distinct per board")
+        hashes = [board_hashes[role][artifact_name] for role in REQUIRED_BOARDS]
+        if len(set(hashes)) != len(hashes):
+            raise GateError(f"board {artifact_name} artifacts must not be reused byte-for-byte")
+    if (
+        evidence_paths is not None
+        and evidence_hashes is not None
+        and len(evidence_paths) == len(REQUIRED_BOARDS)
+        and len(evidence_hashes) == len(REQUIRED_BOARDS)
+    ):
+        for artifact_name in ("drc", "provenance"):
+            paths = [evidence_paths[role][artifact_name].resolve() for role in REQUIRED_BOARDS]
+            if len(set(paths)) != len(paths):
+                raise GateError(f"board {artifact_name} evidence must be distinct per board")
+            hashes = [evidence_hashes[role][artifact_name] for role in REQUIRED_BOARDS]
+            if len(set(hashes)) != len(hashes):
+                raise GateError(f"board {artifact_name} evidence must not be reused byte-for-byte")
 
 
 def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
@@ -523,6 +733,7 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
     method_path = _resolve(data["cross_domain"]["method"], path)
     if not method_path.is_file():
         raise GateError(f"cross-domain method not found: {data['cross_domain']['method']}")
+    _require_tracked(method_path, path, "cross-domain measurement method")
 
     if any(status == "incomplete" for status in review_statuses.values()):
         errors.extend(
@@ -536,6 +747,11 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
         errors.append("status contract-incomplete cannot enable generation")
 
     if generation["enabled"]:
+        board_paths: dict[str, dict[str, Path]] = {}
+        board_hashes: dict[str, dict[str, str]] = {}
+        board_provenance: dict[str, dict[str, Any]] = {}
+        evidence_paths: dict[str, dict[str, Path]] = {}
+        evidence_hashes: dict[str, dict[str, str]] = {}
         for board_role in REQUIRED_BOARDS:
             board = data["boards"][board_role]
             board_id = board["id"]
@@ -559,24 +775,94 @@ def validate_contract(path: Path = DEFAULT_MANIFEST) -> list[str]:
                 errors.append(
                     f"{board_role} board source entrypoint not found: {source_entrypoint}"
                 )
+            if (
+                pcb_path.is_file()
+                and netlist_value
+                and _resolve(netlist_value, path).is_file()
+                and source_entrypoint
+                and _resolve(source_entrypoint, path).is_file()
+            ):
+                source_path = _resolve(source_entrypoint, path)
+                netlist_path = _resolve(netlist_value, path)
+                _read_artifact(source_path, f"{board_role} board source entrypoint", suffix=".ato")
+                _check_sexp_artifact(pcb_path, f"{board_role} board PCB artifact", b"kicad_pcb", ".kicad_pcb")
+                _check_sexp_artifact(netlist_path, f"{board_role} board netlist artifact", b"export", ".net")
+                for artifact_path, context in (
+                    (source_path, f"{board_role} board source entrypoint"),
+                    (pcb_path, f"{board_role} board PCB artifact"),
+                    (netlist_path, f"{board_role} board netlist artifact"),
+                ):
+                    _require_tracked(artifact_path, path, context)
+                board_paths[board_role] = {
+                    "source": source_path,
+                    "pcb": pcb_path,
+                    "netlist": netlist_path,
+                }
+                board_hashes[board_role] = {
+                    key: sha256_file(value) for key, value in board_paths[board_role].items()
+                }
             drc_report = board["checks"]["drc"]["report"]
             if not drc_report:
                 errors.append(f"{board_role} board DRC report is not declared")
             else:
-                _check_drc_report(_resolve(drc_report, path), board_id)
+                drc_path = _resolve(drc_report, path)
+                if not drc_path.is_file():
+                    raise GateError(f"{board_id} DRC report not found: {drc_report}")
+                provenance_value = board["checks"]["provenance"]["record"]
+                provenance_path = _resolve(provenance_value, path) if provenance_value else None
+                if provenance_path is not None and provenance_path.is_file() and pcb_path.is_file():
+                    provenance = _check_provenance(provenance_path, pcb_path, board_id, path)
+                    board_provenance[board_role] = provenance
+                    _check_drc_report(
+                        drc_path, board_id, pcb_path, provenance_path, provenance, path
+                    )
+                    evidence_paths[board_role] = {
+                        "drc": drc_path,
+                        "provenance": provenance_path,
+                    }
+                    evidence_hashes[board_role] = {
+                        "drc": sha256_file(drc_path),
+                        "provenance": _evidence_digest(provenance),
+                    }
             provenance = board["checks"]["provenance"]["record"]
             if not provenance:
                 errors.append(f"{board_role} board provenance record is not declared")
             elif pcb_path.is_file():
-                _check_provenance(
-                    _resolve(provenance, path), pcb_path, board_id, path
-                )
+                provenance_path = _resolve(provenance, path)
+                if not provenance_path.is_file():
+                    raise GateError(f"{board_id} provenance record not found: {provenance}")
+                if board_role not in board_provenance:
+                    board_provenance[board_role] = _check_provenance(
+                        provenance_path, pcb_path, board_id, path
+                    )
+
+        # A split contract must not silently point both sides at one artifact
+        # (or at byte-identical copies).  This catches stale/reused evidence
+        # before any generator trusts the readiness verdict.
+        _check_distinct_board_artifacts(
+            board_paths, board_hashes, evidence_paths, evidence_hashes
+        )
+        if len(board_provenance) == len(REQUIRED_BOARDS):
+            provenance_hashes = [_evidence_digest(board_provenance[role]) for role in REQUIRED_BOARDS]
+            if len(set(provenance_hashes)) != len(provenance_hashes):
+                raise GateError("board provenance records must be distinct")
+            bindings = {
+                ("POWER_BOARD" if role == "power" else "CONTROL_BOARD"): {
+                    "pcb_sha256": board_hashes[role]["pcb"],
+                    "provenance_sha256": provenance_hashes[REQUIRED_BOARDS.index(role)],
+                }
+                for role in REQUIRED_BOARDS
+                if role in board_hashes
+            }
 
         report = data["cross_domain"]["report"]
         if not report:
             errors.append("cross-domain report is not declared")
         else:
-            _check_cross_domain_report(_resolve(report, path))
+            if len(board_provenance) == len(REQUIRED_BOARDS) and len(board_hashes) == len(REQUIRED_BOARDS):
+                _check_cross_domain_report(
+                    _resolve(report, path), path, method_path, bindings
+                )
     else:
         for board_role in REQUIRED_BOARDS:
             artifacts = data["boards"][board_role]["artifacts"]

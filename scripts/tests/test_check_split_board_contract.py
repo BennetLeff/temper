@@ -20,6 +20,11 @@ from check_split_board_contract import (  # noqa: E402
     EXIT_OK,
     EXIT_VIOLATION,
     GateError,
+    _check_distinct_board_artifacts,
+    _check_drc_report,
+    _check_provenance,
+    _evidence_digest,
+    _read_artifact,
     assert_generation_ready,
     generate_with_contract,
     load_contract,
@@ -31,6 +36,8 @@ VALID_INCOMPLETE = """
 schema_version: 1
 architecture: split_power_control
 status: contract-incomplete
+fixture_context: unit-test
+hierarchy: elec/src/split_board_hierarchy.ato
 generation:
   enabled: false
   blocking_requirements: [connector, enclosure]
@@ -78,6 +85,14 @@ def write_contract(tmp_path: Path, text: str = VALID_INCOMPLETE) -> Path:
     )
     (tmp_path / "measure_cross_domain_creepage.py").write_text(
         "# synthetic test method\n", encoding="utf-8"
+    )
+    hierarchy_dir = tmp_path / "elec" / "src"
+    hierarchy_dir.mkdir(parents=True, exist_ok=True)
+    (hierarchy_dir / "split_board_hierarchy.ato").write_text(
+        (repo_root / "elec" / "src" / "split_board_hierarchy.ato").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
     )
     path = tmp_path / "split_board_manifest.yaml"
     path.write_text(text, encoding="utf-8")
@@ -142,7 +157,7 @@ def test_interface_fields_must_match_domain_manifest(tmp_path, field, replacemen
 def test_atopile_interface_signals_must_match_domain_manifest(tmp_path):
     path = write_contract(tmp_path)
     hierarchy_dir = tmp_path / "elec" / "src"
-    hierarchy_dir.mkdir(parents=True)
+    hierarchy_dir.mkdir(parents=True, exist_ok=True)
     hierarchy = (
         Path(__file__).resolve().parents[2]
         / "elec"
@@ -183,8 +198,8 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
     ).replace(
         "status: incomplete", "status: complete"
     )
-    (tmp_path / "power_board.ato").write_text("# synthetic source\n", encoding="utf-8")
-    (tmp_path / "control_board.ato").write_text("# synthetic source\n", encoding="utf-8")
+    (tmp_path / "power_board.ato").write_text("# synthetic power source\n", encoding="utf-8")
+    (tmp_path / "control_board.ato").write_text("# synthetic control source\n", encoding="utf-8")
     evidence = tmp_path / "evidence.json"
     evidence_record = {
         "schema_version": 1,
@@ -196,24 +211,66 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         json.dumps(evidence_record, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     evidence.write_text(json.dumps(evidence_record), encoding="utf-8")
-    report = tmp_path / "drc.json"
-    report.write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "approved": True,
-                "source_identity": "kicad-cli-10.0.5",
-                "pollution_degree": 3,
-                "required_creepage_mm": 12.6,
-                "engineering_values": {"all_track_errors": True},
-                "sample_count": 120,
-                "violations_by_type": {},
-                "warnings_by_type": {},
-            }
-        ),
-        encoding="utf-8",
+    board_hashes: dict[str, str] = {}
+    provenance_hashes: dict[str, str] = {}
+    (tmp_path / "measure_cross_domain_creepage.py").write_text(
+        "# synthetic test method\n", encoding="utf-8"
     )
-    cross_report = tmp_path / "cross.json"
+    for role in ("power", "control"):
+        board = tmp_path / f"{role}.kicad_pcb"
+        netlist = tmp_path / f"{role}.net"
+        board.write_text(
+            f"(kicad_pcb (version 20240108) (generator pcbnew) (comment {role}))\n",
+            encoding="utf-8",
+        )
+        netlist.write_text(
+            f"(export (components (comp (ref {role[0].upper()}1))) "
+            "(nets (net (code 1) (name \"gnd\") "
+            f"(node (ref {role[0].upper()}1) (pin \"1\")))))\n",
+            encoding="utf-8",
+        )
+        digest = hashlib.sha256(board.read_bytes()).hexdigest()
+        provenance = tmp_path / f"{role}-provenance.json"
+        provenance_record = {
+            "source": "measured-live",
+            "dirty": False,
+            "measured_at_commit": subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], text=True
+            ).strip(),
+            "tool_versions": {"kicad-cli": "10.0.5"},
+            "inputs": [{"path": board.name, "sha256": digest}],
+        }
+        provenance_record["content_sha256"] = hashlib.sha256(
+            json.dumps(provenance_record, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        provenance.write_text(json.dumps(provenance_record), encoding="utf-8")
+        board_hashes[role] = digest
+        provenance_hashes[role] = provenance_record["content_sha256"]
+    for role in ("power", "control"):
+        report_record = {
+            "schema_version": 1,
+            "approved": True,
+            "source_identity": "kicad-cli-10.0.5",
+            "pollution_degree": 3,
+            "required_creepage_mm": 12.6,
+            "engineering_values": {"all_track_errors": True},
+            "method_config": {"backend": "kicad-cli", "all_track_errors": True},
+            "sample_count": 120,
+            "violations_by_type": {"clearance": 1},
+            "warnings_by_type": {},
+            "pcb_sha256": board_hashes[role],
+            "provenance_sha256": provenance_hashes[role],
+            "acceptance": {
+                "source": "project-drc-ceiling",
+                "ceilings": {"violations_by_type": {"clearance": 2}, "warnings_by_type": {}},
+                "error_ceiling": 2,
+                "warning_ceiling": 0,
+            },
+        }
+        report_record["content_sha256"] = hashlib.sha256(
+            json.dumps(report_record, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        (tmp_path / f"{role}-drc.json").write_text(json.dumps(report_record), encoding="utf-8")
     cross_record = {
         "schema_version": 1,
         "approved": True,
@@ -224,36 +281,20 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         "minimum_creepage_mm": 12.6,
         "boards": ["POWER_BOARD", "CONTROL_BOARD"],
         "violations": [],
+        "method": "measure_cross_domain_creepage.py",
+        "method_sha256": hashlib.sha256(
+            (tmp_path / "measure_cross_domain_creepage.py").read_bytes()
+        ).hexdigest(),
+        "configuration": {"pollution_degree": 3, "reinforced_creepage_mm": 12.6},
+        "board_inputs": {
+            "POWER_BOARD": {"pcb_sha256": board_hashes["power"], "provenance_sha256": provenance_hashes["power"]},
+            "CONTROL_BOARD": {"pcb_sha256": board_hashes["control"], "provenance_sha256": provenance_hashes["control"]},
+        },
     }
     cross_record["content_sha256"] = hashlib.sha256(
-        json.dumps(
-            {k: v for k, v in cross_record.items() if k != "content_sha256"},
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode()
+        json.dumps(cross_record, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
-    cross_report.write_text(json.dumps(cross_record), encoding="utf-8")
-    for role in ("power", "control"):
-        board = tmp_path / f"{role}.kicad_pcb"
-        netlist = tmp_path / f"{role}.net"
-        board.write_text(f"{role} board", encoding="utf-8")
-        netlist.write_text(f"{role} netlist", encoding="utf-8")
-        digest = hashlib.sha256(board.read_bytes()).hexdigest()
-        provenance = tmp_path / f"{role}-provenance.json"
-        provenance.write_text(
-            json.dumps(
-                {
-                    "source": "measured-live",
-                    "dirty": False,
-                    "measured_at_commit": subprocess.check_output(
-                        ["git", "rev-parse", "HEAD"], text=True
-                    ).strip(),
-                    "tool_versions": {"kicad-cli": "10.0.5"},
-                    "inputs": [{"path": board.name, "sha256": digest}],
-                }
-            ),
-            encoding="utf-8",
-        )
+    (tmp_path / "cross.json").write_text(json.dumps(cross_record), encoding="utf-8")
     text = text.replace(
         "artifacts: {pcb: null, netlist: null}",
         "artifacts: {pcb: power.kicad_pcb, netlist: power.net}",
@@ -272,7 +313,12 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
         1,
     ).replace(
         "drc: {required: true, report: null}",
-        "drc: {required: true, report: drc.json}",
+        "drc: {required: true, report: power-drc.json}",
+        1,
+    ).replace(
+        "drc: {required: true, report: null}",
+        "drc: {required: true, report: control-drc.json}",
+        1,
     ).replace(
         "provenance: {required: true, record: null}",
         "provenance: {required: true, record: power-provenance.json}",
@@ -296,8 +342,12 @@ def test_complete_contract_passes_only_with_matching_evidence(tmp_path):
     for signal in source_interface["signals"]:
         if signal["status"] == "unresolved":
             signal["status"] = "resolved"
-            signal["owner"] = "CONTROL_BOARD"
-            signal["direction"] = "CONTROL_BOARD_TO_POWER_BOARD"
+            if signal["net"] == "+3V3":
+                signal["owner"] = "POWER_BOARD"
+                signal["direction"] = "POWER_BOARD_TO_CONTROL_BOARD"
+            else:
+                signal["owner"] = "CONTROL_BOARD"
+                signal["direction"] = "CONTROL_BOARD_TO_POWER_BOARD"
     source_interface["fault_aggregation"]["status"] = "resolved"
     source_interface["connector_spec"] = {
         "part_number": "J-APPROVED",
@@ -385,3 +435,98 @@ def test_blocked_cli_emits_machine_readable_missing_prerequisites(tmp_path, caps
     payload = json.loads(payload_line.split("=", 1)[1])
     assert payload["status"] == "blocked"
     assert payload["missing_prerequisites"]
+
+
+def test_empty_or_malformed_board_artifact_fails_closed(tmp_path):
+    empty = tmp_path / "empty.ato"
+    empty.write_text("  \n", encoding="utf-8")
+    with pytest.raises(GateError, match="empty"):
+        _read_artifact(empty, "board source", suffix=".ato")
+
+    malformed = tmp_path / "bad.kicad_pcb"
+    malformed.write_text("(kicad_pcb (version 20240108)", encoding="utf-8")
+    from check_split_board_contract import _check_sexp_artifact
+
+    with pytest.raises(GateError, match="unbalanced"):
+        _check_sexp_artifact(malformed, "board PCB", b"kicad_pcb", ".kicad_pcb")
+
+
+def test_reused_board_artifact_identity_fails_closed(tmp_path):
+    artifact = tmp_path / "same.ato"
+    artifact.write_text("same", encoding="utf-8")
+    paths = {
+        "power": {"source": artifact},
+        "control": {"source": artifact},
+    }
+    hashes = {"power": {"source": "a"}, "control": {"source": "a"}}
+    with pytest.raises(GateError, match="distinct"):
+        _check_distinct_board_artifacts(paths, hashes)
+
+
+def test_stale_provenance_is_rejected(tmp_path):
+    board = tmp_path / "power.kicad_pcb"
+    board.write_text("(kicad_pcb (version 20240108))", encoding="utf-8")
+    provenance = {
+        "source": "measured-live",
+        "dirty": False,
+        "measured_at_commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip(),
+        "tool_versions": {"kicad-cli": "10.0.5"},
+        "inputs": [{"path": board.name, "sha256": "0" * 64}],
+    }
+    provenance["content_sha256"] = _evidence_digest(provenance)
+    record = tmp_path / "provenance.json"
+    record.write_text(json.dumps(provenance), encoding="utf-8")
+    manifest = tmp_path / "split_board_manifest.yaml"
+    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+    with pytest.raises(GateError, match="does not match the PCB"):
+        _check_provenance(record, board, "POWER_BOARD", manifest)
+
+
+def test_nonzero_drc_is_allowed_only_within_project_ceiling(tmp_path):
+    board = tmp_path / "power.kicad_pcb"
+    board.write_text("(kicad_pcb (version 20240108))", encoding="utf-8")
+    provenance_record = {
+        "source": "measured-live",
+        "dirty": False,
+        "measured_at_commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip(),
+        "tool_versions": {"kicad-cli": "10.0.5"},
+        "inputs": [{"path": board.name, "sha256": hashlib.sha256(board.read_bytes()).hexdigest()}],
+    }
+    provenance_record["content_sha256"] = _evidence_digest(provenance_record)
+    provenance = tmp_path / "provenance.json"
+    provenance.write_text(json.dumps(provenance_record), encoding="utf-8")
+    report_record = {
+        "schema_version": 1,
+        "approved": True,
+        "source_identity": "kicad-cli-10.0.5",
+        "pollution_degree": 3,
+        "required_creepage_mm": 12.6,
+        "engineering_values": {"all_track_errors": True},
+        "method_config": {"backend": "kicad-cli"},
+        "sample_count": 1,
+        "violations_by_type": {"clearance": 1},
+        "warnings_by_type": {},
+        "pcb_sha256": hashlib.sha256(board.read_bytes()).hexdigest(),
+        "provenance_sha256": provenance_record["content_sha256"],
+        "acceptance": {
+            "source": "project-drc-ceiling",
+            "ceilings": {"violations_by_type": {"clearance": 1}, "warnings_by_type": {}},
+            "error_ceiling": 1,
+            "warning_ceiling": 0,
+        },
+    }
+    report_record["content_sha256"] = _evidence_digest(report_record)
+    report = tmp_path / "drc.json"
+    report.write_text(json.dumps(report_record), encoding="utf-8")
+    manifest = tmp_path / "split_board_manifest.yaml"
+    manifest.write_text("fixture_context: unit-test\n", encoding="utf-8")
+    _check_drc_report(report, "POWER_BOARD", board, provenance, provenance_record, manifest)
+    report_record["acceptance"]["ceilings"]["violations_by_type"]["clearance"] = 0
+    report_record["content_sha256"] = _evidence_digest(report_record)
+    report.write_text(json.dumps(report_record), encoding="utf-8")
+    with pytest.raises(GateError, match="exceeds project ceiling"):
+        _check_drc_report(report, "POWER_BOARD", board, provenance, provenance_record, manifest)
