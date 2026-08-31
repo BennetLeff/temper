@@ -36,6 +36,9 @@ import hashlib
 from pathlib import Path
 
 import temper_orchestration as _to
+import tests.deterministic._config_attach_py_oracle as _orc_config_attach
+import tests.deterministic._net_ordering_py_oracle as _orc_net_ordering
+import tests.deterministic._setup_py_oracle as _orc_setup
 
 from temper_placer._constraint_types.clearance import (
     DifferentialPairRule,
@@ -45,15 +48,18 @@ from temper_placer._constraint_types.config import PlacementConstraints
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import create_temper_design_rules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.deterministic.stages import (
+    ConfigAttachStage as _shim_config_attach,
+)
+from temper_placer.deterministic.stages import (
+    DRCOracleSetupStage as _shim_drc_oracle_setup,
+)
+from temper_placer.deterministic.stages import (
+    NetClassSetupStage as _shim_net_class_setup,
+)
+from temper_placer.deterministic.stages import NetOrderingStage as _shim_net_ordering
 from temper_placer.deterministic.state import BoardState
-from temper_placer.deterministic.stages import config_attach as _shim_config_attach
-from temper_placer.deterministic.stages import net_ordering as _shim_net_ordering
-from temper_placer.deterministic.stages import setup as _shim_setup
 from temper_placer.io._kicad_types import PadData
-
-import tests.deterministic._config_attach_py_oracle as _orc_config_attach
-import tests.deterministic._net_ordering_py_oracle as _orc_net_ordering
-import tests.deterministic._setup_py_oracle as _orc_setup
 
 # ---------------------------------------------------------------------------
 # Oracle body pinning (G1)
@@ -80,17 +86,26 @@ def test_oracle_bodies_match_pinned_digests() -> None:
 
 
 def test_oracle_and_port_are_different_implementations() -> None:
-    """Anti-vacuity: the shims must delegate to the Rust pyfunctions."""
-    assert _shim_setup.DRCOracleSetupStage is not _orc_setup.DRCOracleSetupStage
-    assert _shim_setup.NetClassSetupStage is not _orc_setup.NetClassSetupStage
-    assert _shim_net_ordering.NetOrderingStage is not _orc_net_ordering.NetOrderingStage
-    assert _shim_config_attach.ConfigAttachStage is not _orc_config_attach.ConfigAttachStage
-    # The shims' run() bodies call the temper_orchestration pyfunctions --
-    # the Rust port -- by bytecode name.
-    assert "run_drc_oracle_setup" in _shim_setup.DRCOracleSetupStage.run.__code__.co_names
-    assert "run_net_class_setup" in _shim_setup.NetClassSetupStage.run.__code__.co_names
-    assert "run_net_ordering" in _shim_net_ordering.NetOrderingStage.run.__code__.co_names
-    assert "run_config_attach" in _shim_config_attach.ConfigAttachStage.run.__code__.co_names
+    """Anti-vacuity: the shims must resolve to the Rust pyfunctions.
+
+    Shim-debt cleanup (2026-08-20): the D1 stage modules were collapsed
+    onto the generic ``RustFunctionStage`` adapter -- ``run`` is one shared
+    implementation, so the old bytecode-name probe
+    (``run.__code__.co_names``) can no longer distinguish per-stage Rust
+    calls. Each adapter binds its ``temper-orchestration`` pyfunction as
+    ``_fn`` on the instance; identity against the pyfunction is the new
+    (stronger) probe.
+    """
+    assert _shim_drc_oracle_setup is not _orc_setup.DRCOracleSetupStage
+    assert _shim_net_class_setup is not _orc_setup.NetClassSetupStage
+    assert _shim_net_ordering is not _orc_net_ordering.NetOrderingStage
+    assert _shim_config_attach is not _orc_config_attach.ConfigAttachStage
+    # The adapters' instances bind the temper_orchestration pyfunctions --
+    # the Rust port -- by identity.
+    assert _shim_drc_oracle_setup()._fn is _to.run_drc_oracle_setup
+    assert _shim_net_class_setup()._fn is _to.run_net_class_setup
+    assert _shim_net_ordering()._fn is _to.run_net_ordering
+    assert _shim_config_attach({})._fn is _to.run_config_attach
 
 
 # ---------------------------------------------------------------------------
@@ -219,7 +234,7 @@ def test_config_attach_attaches_when_absent() -> None:
     for config in ({"zones": ["x"]}, None, {"a": 1}):
         state = BoardState()
         oracle_out = _orc_config_attach.ConfigAttachStage(config).run(state)
-        shim_out = _shim_config_attach.ConfigAttachStage(config).run(state)
+        shim_out = _shim_config_attach(config).run(state)
         assert shim_out.config == oracle_out.config
         if config is None:
             assert shim_out.config is None
@@ -229,7 +244,7 @@ def test_config_attach_preserves_existing_config() -> None:
     config = {"zones": ["x"]}
     state = BoardState(config={"existing": True})
     oracle_out = _orc_config_attach.ConfigAttachStage(config).run(state)
-    shim_out = _shim_config_attach.ConfigAttachStage(config).run(state)
+    shim_out = _shim_config_attach(config).run(state)
     assert shim_out.config == oracle_out.config == {"existing": True}
 
 
@@ -240,7 +255,7 @@ def test_config_attach_preserves_existing_config() -> None:
 def test_net_ordering_with_netlist_and_loops() -> None:
     state = BoardState(netlist=_netlist_with_nets())
     oracle_out = _orc_net_ordering.NetOrderingStage().run(state)
-    shim_out = _shim_net_ordering.NetOrderingStage().run(state)
+    shim_out = _shim_net_ordering().run(state)
     assert shim_out.net_order == oracle_out.net_order
     assert oracle_out.net_order  # non-empty: the ordering did something
 
@@ -248,7 +263,7 @@ def test_net_ordering_with_netlist_and_loops() -> None:
 def test_net_ordering_without_netlist_unchanged() -> None:
     state = BoardState()
     oracle_out = _orc_net_ordering.NetOrderingStage().run(state)
-    shim_out = _shim_net_ordering.NetOrderingStage().run(state)
+    shim_out = _shim_net_ordering().run(state)
     assert shim_out.net_order == oracle_out.net_order == ()
 
 
@@ -256,7 +271,7 @@ def test_net_ordering_with_priorities() -> None:
     state = BoardState(netlist=_netlist_with_nets())
     priority = {"NET_B": 1}
     oracle_out = _orc_net_ordering.NetOrderingStage(net_priority=priority).run(state)
-    shim_out = _shim_net_ordering.NetOrderingStage(net_priority=priority).run(state)
+    shim_out = _shim_net_ordering(net_priority=priority).run(state)
     assert shim_out.net_order == oracle_out.net_order
 
 
@@ -267,7 +282,7 @@ def test_net_ordering_with_priorities() -> None:
 def test_drc_oracle_setup_default_matrix() -> None:
     state = BoardState()
     oracle_out = _orc_setup.DRCOracleSetupStage().run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage().run(state)
+    shim_out = _shim_drc_oracle_setup().run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
 
 
@@ -275,7 +290,7 @@ def test_drc_oracle_setup_board_parse() -> None:
     board = Board(width=100, height=100)
     state = BoardState(board=board)
     oracle_out = _orc_setup.DRCOracleSetupStage().run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage().run(state)
+    shim_out = _shim_drc_oracle_setup().run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
 
 
@@ -283,7 +298,7 @@ def test_drc_oracle_setup_netlist_fallback() -> None:
     board = Board(width=100, height=100)
     state = BoardState(board=board, netlist=_netlist(initial_rotation_quadrant=1))
     oracle_out = _orc_setup.DRCOracleSetupStage().run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage().run(state)
+    shim_out = _shim_drc_oracle_setup().run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
     assert len(shim_out.drc_oracle.geometry.pads) == 1
     pad = shim_out.drc_oracle.geometry.pads[0]
@@ -299,7 +314,7 @@ def test_drc_oracle_setup_netlist_fallback_with_placements() -> None:
         placements=frozenset({("U1", (10.0, 10.0))}),
     )
     oracle_out = _orc_setup.DRCOracleSetupStage().run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage().run(state)
+    shim_out = _shim_drc_oracle_setup().run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
     assert len(shim_out.drc_oracle.geometry.pads) == 1
 
@@ -308,7 +323,7 @@ def test_drc_oracle_setup_skips_unplaced_components() -> None:
     board = Board(width=100, height=100)
     state = BoardState(board=board, netlist=_netlist(initial_position=None))
     oracle_out = _orc_setup.DRCOracleSetupStage().run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage().run(state)
+    shim_out = _shim_drc_oracle_setup().run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
     assert len(shim_out.drc_oracle.geometry.pads) == 0
 
@@ -317,7 +332,7 @@ def test_drc_oracle_setup_config_duck_typed() -> None:
     config = _net_class_config()
     state = BoardState()
     oracle_out = _orc_setup.DRCOracleSetupStage(design_rules=config).run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage(design_rules=config).run(state)
+    shim_out = _shim_drc_oracle_setup(design_rules=config).run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
 
 
@@ -325,7 +340,7 @@ def test_drc_oracle_setup_design_rules_object() -> None:
     dr = create_temper_design_rules()
     state = BoardState()
     oracle_out = _orc_setup.DRCOracleSetupStage(design_rules=dr).run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage(design_rules=dr).run(state)
+    shim_out = _shim_drc_oracle_setup(design_rules=dr).run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
     # The count is the live net-class-set cardinality (grew 11 -> 12 when
     # #1084 added HighVoltageTank) -- pin against the oracle, not a literal.
@@ -354,7 +369,7 @@ def test_drc_oracle_setup_differential_pairs() -> None:
     )
     state = BoardState()
     oracle_out = _orc_setup.DRCOracleSetupStage(design_rules=config).run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage(design_rules=config).run(state)
+    shim_out = _shim_drc_oracle_setup(design_rules=config).run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
     assert len(shim_out.drc_oracle.rules._differential_pairs) == 1
 
@@ -363,7 +378,7 @@ def test_drc_oracle_setup_parsed_pads() -> None:
     pads = _parsed_pads()
     state = BoardState()
     oracle_out = _orc_setup.DRCOracleSetupStage(parsed_pads=pads).run(state)
-    shim_out = _shim_setup.DRCOracleSetupStage(parsed_pads=pads).run(state)
+    shim_out = _shim_drc_oracle_setup(parsed_pads=pads).run(state)
     assert _drc_oracle_canon(shim_out) == _drc_oracle_canon(oracle_out)
     assert len(shim_out.drc_oracle.geometry.pads) == 3
     # PTH + layer-mapping semantics pinned: B.Cu -> layer 3, drill>0 -> PTH.
@@ -383,7 +398,7 @@ def test_net_class_setup_applies_mapping() -> None:
     state = BoardState(netlist=_netlist_with_nets())
     mapping = {"NET_A": "Power"}
     oracle_out = _orc_setup.NetClassSetupStage(net_classes=mapping).run(state)
-    shim_out = _shim_setup.NetClassSetupStage(net_classes=mapping).run(state)
+    shim_out = _shim_net_class_setup(net_classes=mapping).run(state)
     oracle_nc = {n.name: n.net_class for n in oracle_out.netlist.nets}
     shim_nc = {n.name: n.net_class for n in shim_out.netlist.nets}
     assert shim_nc == oracle_nc
@@ -394,7 +409,7 @@ def test_net_class_setup_applies_mapping() -> None:
 def test_net_class_setup_noop_without_mapping() -> None:
     state = BoardState(netlist=_netlist_with_nets())
     oracle_out = _orc_setup.NetClassSetupStage(net_classes=None).run(state)
-    shim_out = _shim_setup.NetClassSetupStage(net_classes=None).run(state)
+    shim_out = _shim_net_class_setup(net_classes=None).run(state)
     assert oracle_out is state
     assert shim_out is state  # identity preserved on the no-op path
 
@@ -402,7 +417,7 @@ def test_net_class_setup_noop_without_mapping() -> None:
 def test_net_class_setup_noop_without_netlist() -> None:
     state = BoardState()
     oracle_out = _orc_setup.NetClassSetupStage(net_classes={"NET_A": "Power"}).run(state)
-    shim_out = _shim_setup.NetClassSetupStage(net_classes={"NET_A": "Power"}).run(state)
+    shim_out = _shim_net_class_setup(net_classes={"NET_A": "Power"}).run(state)
     assert oracle_out is state
     assert shim_out is state
 
@@ -410,6 +425,6 @@ def test_net_class_setup_noop_without_netlist() -> None:
 def test_net_class_setup_empty_mapping_noop() -> None:
     state = BoardState(netlist=_netlist_with_nets())
     oracle_out = _orc_setup.NetClassSetupStage(net_classes={}).run(state)
-    shim_out = _shim_setup.NetClassSetupStage(net_classes={}).run(state)
+    shim_out = _shim_net_class_setup(net_classes={}).run(state)
     assert oracle_out is state
     assert shim_out is state

@@ -99,9 +99,8 @@ impl Stage<BoardState> for ZoneGeometryStage {
                 let mut new_state = state;
                 // U6 (O-C3) group-2: the oracle's `frozenset(zones)` is kept
                 // verbatim, then marshalled INTO the owned `ZoneSet` field.
-                new_state.zones = Some(
-                    crate::marshal::to_owned::<ZoneSet>(zones_fs.bind(py)).map_err(to_stage)?,
-                );
+                new_state.zones =
+                    Some(crate::marshal::to_owned::<ZoneSet>(zones_fs.bind(py)).map_err(to_stage)?);
                 Ok(new_state)
             })
         })
@@ -117,9 +116,8 @@ pub fn run_zone_geometry(
     state: Py<PyAny>,
     zone_config: Option<Py<PyAny>>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("zone_geometry: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("zone_geometry: {e}")))?;
     let stage = ZoneGeometryStage { zone_config };
     let out = stage.run(rust_state).map_err(|e| to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["zones"])
@@ -181,8 +179,14 @@ fn define_zones_from_config<'py>(
             // 4-tuple `(x_min, y_min, x_max, y_max)` shape is present.
             let b = z.getattr("bounds")?;
             let bounds: Bound<'py, PyAny> = if b.len()? == 4 {
-                nested_bounds(py, b.get_item(0)?, b.get_item(1)?, b.get_item(2)?, b.get_item(3)?)?
-                    .into_any()
+                nested_bounds(
+                    py,
+                    b.get_item(0)?,
+                    b.get_item(1)?,
+                    b.get_item(2)?,
+                    b.get_item(3)?,
+                )?
+                .into_any()
             } else {
                 b
             };
@@ -234,10 +238,7 @@ fn nested_bounds<'py>(
 
 #[cfg(feature = "python")]
 /// `frozenset(list)` — the oracle's wrap.
-fn frozenset_of<'py>(
-    py: Python<'py>,
-    list: &Bound<'py, PyList>,
-) -> PyResult<Py<PyAny>> {
+fn frozenset_of<'py>(py: Python<'py>, list: &Bound<'py, PyList>) -> PyResult<Py<PyAny>> {
     let builtins = py.import("builtins")?;
     Ok(builtins
         .getattr("frozenset")?

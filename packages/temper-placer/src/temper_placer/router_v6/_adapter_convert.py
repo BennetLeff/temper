@@ -752,7 +752,7 @@ def _write_routes_to_content(
         # exactly why +3V3 measured 1/50 pads connected on the definitive
         # route: A* does not route it either (it is in the unrouted set).
         # The Rust zone generator's measured carve
-        # (docs/evidence/2026-08-16-p3v3-in2cu-pour-feasibility.py)
+        # (docs/evidence/scripts/2026-08-16-p3v3-in2cu-pour-feasibility.py)
         # covers 34/50 +3V3 pads on In2.Cu at PD3 creepage -- the
         # sanctioned _ground_plane.py precedent for an inner-layer pour
         # that never goes through _zone_layers_for_net, per

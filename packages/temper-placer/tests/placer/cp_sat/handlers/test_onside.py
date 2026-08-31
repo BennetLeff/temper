@@ -41,6 +41,6 @@ class TestOnSideHandlerStructural:
 
     def test_handler_is_registered(self) -> None:
         from temper_placer.pcl.constraints import ConstraintType
-        from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY
+        from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
 
-        assert ConstraintType.ON_SIDE in HANDLER_REGISTRY
+        assert ConstraintType.ON_SIDE in CP_SAT_HANDLER_CATALOG

@@ -93,6 +93,8 @@ approximation is pre-existing production precedent, not introduced here).
 
 from __future__ import annotations
 
+import re
+
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
@@ -104,6 +106,35 @@ _SWITCH_FOOTPRINT_MARKERS: tuple[str, ...] = ("TO-247", "TO-220", "TO-263")
 _RETURN_NAME_MARKERS: tuple[str, ...] = ("gnd", "rtn", "ground", "return")
 _FORWARD_PASSIVE_REF_PREFIXES: tuple[str, ...] = ("R", "L")
 
+
+def _looks_like_return_net(name: str) -> bool:
+    r"""True if `name` reads as a return/ground conductor, by WORD BOUNDARY.
+
+    Replaces a plain `marker in name.lower()` substring test, the defect class
+    `scripts/check_net_classification.py` exists to catch and that PR #1174 /
+    commit 1a7d1dde0 already fixed twice elsewhere.
+
+    HYPHEN IS A SEPARATOR HERE, deliberately differing from
+    `router_clearance`'s ported regex `(?:^|_)KW(?:$|[\d_])`, whose comment
+    records "Hyphen is not a token separator; embedded keyword must not
+    match." That convention is right for the clearance classifier and WRONG
+    for this function: measured against the board's 162 real net names, it
+    would drop exactly one -- `hb-gnd`, the half-bridge ground, which is
+    genuinely a return conductor. Excluding it would silently change which
+    net this picks as the gate-drive return, and with it the loop area and
+    inductance that depend on the choice.
+
+    Measured on those 162 names, this matcher is IDENTICAL to the substring
+    test it replaces -- {DC_BUS_RTN, PWR_RTN, gnd, gnd_ref, hb-gnd} both ways
+    -- so nothing about today's board changes. What changes is what a FUTURE
+    name can do: `GROUNDING`, `BACKGND`, `GNDX`, `RETURNED` and `AGND_2` all
+    matched under the substring test and none matches now.
+    """
+    upper = name.upper()
+    return any(
+        re.search(rf"(?:^|[_-]){re.escape(marker.upper())}(?:$|[\d_-])", upper)
+        for marker in _RETURN_NAME_MARKERS
+    )
 
 class _TraceLike(Protocol):
     """Minimal trace interface accepted by the area/spacing helpers."""
@@ -229,7 +260,10 @@ def _walk_forward(
                 continue
             overlap = pin_nets & current_nets
             if len(overlap) == 1:
-                new_net = next(iter(pin_nets - current_nets))
+                # pin_nets has exactly 2 nets and exactly one overlaps
+                # current_nets, so the difference has exactly one element;
+                # sort it to avoid PYTHONHASHSEED-dependent set iteration.
+                new_net = sorted(pin_nets - current_nets)[0]
                 new_nets.add(new_net)
                 newly_visited.add(component.ref)
 
@@ -268,13 +302,15 @@ def _pick_return_net(switch: Component, forward_nets: set[str]) -> str | None:
     if not other_nets:
         return None
 
-    named = [n for n in other_nets if any(m in n.lower() for m in _RETURN_NAME_MARKERS)]
+    # Iterate in sorted order: `other_nets` is a set whose iteration order is
+    # PYTHONHASHSEED-dependent, and `named`/`non_supply` feed index-based picks.
+    named = [n for n in sorted(other_nets) if _looks_like_return_net(n)]
     if len(named) == 1:
         return named[0]
     if len(named) > 1:
         return None
 
-    non_supply = [n for n in other_nets if not n.startswith("+")]
+    non_supply = [n for n in sorted(other_nets) if not n.startswith("+")]
     if len(non_supply) == 1:
         return non_supply[0]
     return None

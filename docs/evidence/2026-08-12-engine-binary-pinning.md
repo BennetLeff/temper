@@ -1,4 +1,4 @@
-<!-- provenance: commit=362577372, dirty=false, branch=fix/pin-pumpkin-engine-build,
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
 worktree=/home/bennet/Desktop/temper-worktrees/pin-pumpkin-engine, base=66a277d94
 (origin/main tip at task start). Measured 2026-08-12. rustc 1.97.1 (8bab26f4f
 2026-07-14), cargo 1.97.1 (c980f4866 2026-06-30). kicad-cli 10.0.5 at

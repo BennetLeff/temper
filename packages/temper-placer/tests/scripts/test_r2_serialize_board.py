@@ -26,8 +26,7 @@ re-derived from pad positions and the harness's net-class SSOT
 
 Module import follows the ``importlib.util.spec_from_file_location``
 pattern used elsewhere for testing standalone scripts outside the package
-tree (see ``tests/geometry/test_drc_inflate_rust_differential.py``'s oracle
-loader) -- ``tools/wasm`` is not on ``pythonpath`` and is not a package.
+tree -- ``tools/wasm`` is not on ``pythonpath`` and is not a package.
 """
 
 from __future__ import annotations

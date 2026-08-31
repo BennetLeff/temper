@@ -5,8 +5,8 @@
 Reproducible analysis of whether a straight `MAINS_SELV_ISOLATION_BARRIER` keepout
 (≥8 mm, 4 copper layers, full-height bisection) can be placed on the current board,
 and what the floorplan re-solve must achieve. Script:
-`docs/evidence/2026-08-01-isolation-barrier-feasibility.py` (run with
-`uv run --no-sync python docs/evidence/2026-08-01-isolation-barrier-feasibility.py`).
+`docs/evidence/scripts/2026-08-01-isolation-barrier-feasibility.py` (run with
+`uv run --no-sync python docs/evidence/scripts/2026-08-01-isolation-barrier-feasibility.py`).
 
 ## Board inventory
 - Board outline: **152 × 234 mm** (x ∈ [20, 172], y ∈ [20, 254]).

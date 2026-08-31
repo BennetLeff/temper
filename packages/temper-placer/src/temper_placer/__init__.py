@@ -1,17 +1,12 @@
-"""
-temper-placer: JAX-based PCB placement optimizer.
+"""Temper PCB placement and validation toolkit.
 
-A standalone, modular tool for optimizing PCB component placement using
-gradient-based optimization in JAX. Encodes expert PCB layout knowledge
-into differentiable loss functions for the Temper induction cooker board.
+A modular tool for generating and validating PCB component placements using
+engineering heuristics, CP-SAT, and Rust-backed geometry kernels.
 
 Key features:
-- Gumbel-Softmax for differentiable discrete rotation (0°/90°/180°/270°)
-- Multi-objective loss function (wirelength, overlap, thermal, EMI, congestion)
-- Curriculum learning with progressive constraint introduction
-- Live browser-based visualization during optimization
-- KiCad integration via kiutils for native file format support
-- Validation-in-the-loop with KiCad DRC and ngspice
+- deterministic topological and structural placement heuristics
+- CP-SAT placement with Rust-backed geometry and DRC kernels
+- KiCad integration and validation-in-the-loop with KiCad DRC and ngspice
 
 Usage:
     temper-placer optimize input.kicad_pcb -c constraints.yaml -o output.kicad_pcb

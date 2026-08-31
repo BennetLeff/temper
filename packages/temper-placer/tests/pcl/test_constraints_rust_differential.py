@@ -4,7 +4,7 @@ Wave 4, Phase 2/6 -- the ``temper_placer/pcl/constraints.py`` pure-data
 contracts migrate to pyo3 pyclasses in ``temper-constraint-compiler``
 (``src/pcl_contracts.rs``): the eight constraint classes' data surface, plus
 ``CompilationContext``. The pre-migration implementation is pinned verbatim in
-the ORACLE block below (the six value enums, ``CompilationTarget``,
+the ORACLE block below (the historical value enums, ``CompilationTarget``,
 ``SemanticTag``, ``ConstraintType``, ``CompilationContext``,
 ``BaseConstraint``, and the eight constraint classes).
 
@@ -22,14 +22,14 @@ as-is.
 
 Enum identity is asserted against the LIVE ``temper_placer.pcl.constraints``
 enums: the migrated classes must hand back the very same singletons the rest
-of the tree binds against (``unsat_compiler`` compares ``c.tier ==
-ConstraintTier.HARD``; ``sat_bridge`` keys on ``constraint.constraint_type``).
+of the tree binds against (the router compiler keys on
+``constraint.constraint_type``).
 
-The encoder registry (``BaseConstraint.backends``) and ``BaseConstraint``
-itself stay Python (the tagged-constraint subclasses and the
-sat bridge registration are the Phase-1 ortools-encoder KEEP slice);
-the differential pins that the registry survives and that the migrated
-classes are still ``isinstance``-compatible with ``BaseConstraint``.
+``BaseConstraint`` itself stays Python (the tagged-constraint subclasses are
+the Phase-1 ortools-encoder KEEP slice). Backend dispatch is explicit in the
+router compiler; there is no mutable registry to preserve. The differential
+still pins that the migrated classes are ``isinstance``-compatible with
+``BaseConstraint``.
 
 Comparison is by type-carrying signature (``_pclsig``); exceptions compare by
 qualname + exact message.
@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import copy
 import pickle
+import re
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -49,12 +50,6 @@ import pytest
 from tests.pcl._pclsig import assert_same, call_signature
 
 from temper_placer.pcl import constraints as live
-
-# The SAT bridge registers into BaseConstraint.backends at import time;
-# pull it in so the registry is populated exactly as in production.
-from temper_placer.pcl import (
-    sat_bridge,  # noqa: F401
-)
 
 # ============================================================================
 # ORACLE -- pre-migration temper_placer/pcl/constraints.py pinned verbatim.
@@ -865,8 +860,6 @@ SIMPLE_ENUMS = [
     (live.Axis, Axis),
     (live.BoardSide, BoardSide),
     (live.EdgeType, EdgeType),
-    (live.CompilationTarget, CompilationTarget),
-    (live.SemanticTag, SemanticTag),
 ]
 
 
@@ -875,6 +868,11 @@ def test_enum_member_names_and_values_unchanged(pair):
     live_enum, oracle_enum = pair
     assert [m.name for m in live_enum] == [m.name for m in oracle_enum]
     assert [m.value for m in live_enum] == [m.value for m in oracle_enum]
+
+
+def test_compilation_target_metadata_is_intentionally_removed():
+    """Explicit compiler catalogs replaced the historical target registry."""
+    assert not hasattr(live, "CompilationTarget")
 
 
 # ConstraintTier is a Rust pyclass — class-level iteration is not supported
@@ -898,11 +896,9 @@ def test_constraint_type_members_are_unchanged():
     assert [m.label for m in live.ConstraintType] == [m.label for m in ConstraintType]
     assert [m.value for m in live.ConstraintType] == [m.value for m in ConstraintType]
     for name in [m.name for m in live.ConstraintType]:
-        lv, ov = getattr(live.ConstraintType, name), getattr(ConstraintType, name)
-        assert {t.name for t in lv.capabilities} == {t.name for t in ov.capabilities}
-        assert {t.name for t in lv.supported_targets} == {
-            t.name for t in ov.supported_targets
-        }
+        lv = getattr(live.ConstraintType, name)
+        assert not hasattr(lv, "supported_targets")
+        assert not hasattr(lv, "capabilities")
     assert live.ConstraintType.ADJACENT.value == "adjacent"
 
 
@@ -1006,6 +1002,23 @@ _CONSTRUCTOR_CASES = [
 _CONSTRUCTOR_IDS = [f"{c[0]}#{i}" for i, c in enumerate(_CONSTRUCTOR_CASES)]
 
 
+def _without_retired_constraint_metadata(value: str) -> str:
+    """Normalize reprs for intentionally removed historical metadata.
+
+    The pinned oracle still models the old ``SemanticTag`` capability field
+    and the retired JAX/DRC targets.  The live contract deliberately omits
+    both, so remove those fields from the historical enum repr before the
+    structural repr comparison.  This keeps the oracle pinned while making
+    the contract delta explicit in this differential.
+    """
+    value = re.sub(
+        r"<ConstraintType\.([A-Z_]+): \('([^']+)', frozenset\(.*?\), frozenset\(.*?\)\)>",
+        r"<ConstraintType.\1: '\2'>",
+        value,
+    )
+    return value.replace(", targets=['sat']", "")
+
+
 @pytest.mark.parametrize("cls_name,kwargs", _CONSTRUCTOR_CASES, ids=_CONSTRUCTOR_IDS)
 def test_constructor_and_id_generation_match(cls_name, kwargs):
     lv, ov = _build_pair(cls_name, kwargs)
@@ -1013,10 +1026,12 @@ def test_constructor_and_id_generation_match(cls_name, kwargs):
 
 
 @pytest.mark.parametrize("cls_name,kwargs", _CONSTRUCTOR_CASES, ids=_CONSTRUCTOR_IDS)
-def test_repr_is_byte_identical_to_the_dataclass_repr(cls_name, kwargs):
+def test_repr_matches_historical_dataclass_except_retired_targets(cls_name, kwargs):
     lv, ov = _build_pair(cls_name, kwargs)
     got, want = repr(lv), repr(ov)
-    assert got == want, f"{cls_name}\n  rust  = {got}\n  oracle= {want}"
+    assert got == _without_retired_constraint_metadata(want), (
+        f"{cls_name}\n  rust  = {got}\n  oracle= {want}"
+    )
 
 
 @pytest.mark.parametrize("cls_name,kwargs", _CONSTRUCTOR_CASES, ids=_CONSTRUCTOR_IDS)
@@ -1134,7 +1149,8 @@ def test_default_field_values_match():
     assert adj.metric is live.DistanceMetric.EDGE_TO_EDGE
     assert adj.metric.value == oracle_adj.metric.value
     assert adj.pin_a is None and adj.pin_b is None
-    assert adj.targets == ["sat"] and oracle_adj.targets == ["sat"]
+    assert not hasattr(adj, "targets")
+    assert oracle_adj.targets == ["sat"]  # historical oracle remains pinned
     assert adj.constraint_type is live.ConstraintType.ADJACENT
 
 
@@ -1156,7 +1172,9 @@ def test_default_field_values_match():
 def test_constructor_float_defaults_match_the_dataclass(cls_name, kwargs):
     """margin_mm=0.0 / tolerance_mm=0.5 / max_distance_mm=5.0 defaults."""
     lv, ov = _build_pair(cls_name, kwargs)
-    assert repr(lv) == repr(ov), f"{cls_name} defaults diverged"
+    assert repr(lv) == _without_retired_constraint_metadata(repr(ov)), (
+        f"{cls_name} defaults diverged"
+    )
 
 
 def test_type_module_is_temper_placer_pcl_constraints():
@@ -1170,18 +1188,12 @@ def test_type_module_is_temper_placer_pcl_constraints():
     assert type(c).__qualname__ == "SeparatedConstraint"
 
 
-def test_targets_default_is_a_fresh_list_per_instance():
+def test_targets_field_is_removed_from_live_instances():
     a = live.AdjacentConstraint(
         a="Q1", b="Q2", max_distance_mm=1.0, tier=live.ConstraintTier.HARD,
         because="Targets freshness test",
     )
-    b = live.AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=1.0, tier=live.ConstraintTier.HARD,
-        because="Targets freshness test",
-    )
-    assert a.targets is not b.targets
-    a.targets.append("drc")
-    assert b.targets == ["sat"]
+    assert not hasattr(a, "targets")
 
 
 def test_custom_id_is_respected_not_overwritten():
@@ -1232,36 +1244,22 @@ def test_because_exactly_ten_chars_is_accepted():
     assert lv.because == "1234567890"
 
 
-def test_invalid_targets_raise_the_same_valueerror():
-    """``targets`` is part of the BaseConstraint data surface (the dataclass
-    field); the migrated classes accept it at construction and validate it
-    exactly like the pre-migration ``__post_init__`` loop.
-
-    The oracle dataclass keeps the pre-migration concrete ``__init__``, which
-    never accepted a ``targets`` kwarg, so there is no oracle path to exercise
-    the validation — this pins the exact message literal instead (the
-    ``sorted(valid_targets)`` is a constant string sort). See VERIFICATION.md
-    for the widening record."""
+def test_removed_targets_keyword_is_rejected():
     got = call_signature(
         live.AdjacentConstraint,
         a="Q1", b="Q2", max_distance_mm=10.0, tier=live.ConstraintTier.HARD,
         because="Invalid target test", targets=["gpu"],
     )
-    assert got == (
-        "raise",
-        "builtins",
-        "ValueError",
-        "Invalid compilation target 'gpu'. Must be one of ['cp_sat', 'drc', 'jax', 'sat']",
-    )
+    assert got[0] == "raise"
+    assert got[2] == "TypeError"
 
 
-def test_all_valid_targets_are_accepted():
-    for targets in (["jax"], ["drc"], ["sat", "drc"], ["cp_sat"]):
-        c = live.AdjacentConstraint(
-            a="Q1", b="Q2", max_distance_mm=1.0, tier=live.ConstraintTier.HARD,
-            because="Valid targets test", targets=targets,
-        )
-        assert c.targets == targets
+def test_real_drc_engine_remains_independent_of_removed_metadata():
+    """DRC validation is a separate engine, not a PCL compiler target."""
+
+    import temper_drc_rs
+
+    assert callable(temper_drc_rs.run_drc)
 
 
 def test_aligned_constraint_requires_two_components():
@@ -1337,7 +1335,7 @@ def test_escalate_hard_stays_hard():
 
 
 def test_min_distance_mm_is_mutable_like_the_plain_class():
-    """unsat_compiler._deduplicate_constraints mutates min_distance_mm."""
+    """The migrated contract retains the plain class's mutable distance field."""
     c = live.SeparatedConstraint(
         a="A", b="B", min_distance_mm=1.0, tier=live.ConstraintTier.HARD,
         because="Mutation parity test",
@@ -1414,17 +1412,13 @@ def test_migrated_constraints_are_still_baseconstraint_instances(cls_name, kwarg
     assert isinstance(lv, live.BaseConstraint)
 
 
-def test_base_constraint_backends_registry_is_untouched():
-    assert isinstance(live.BaseConstraint.backends, dict)
-    assert "sat" in live.BaseConstraint.backends
-    # The DRC bridge was retired (2026-08-09); only sat remains.
-    assert "drc" not in live.BaseConstraint.backends
+def test_base_constraint_has_no_legacy_backend_registry():
+    assert not hasattr(live.BaseConstraint, "backends")
 
 
-def test_targets_membership_used_by_parser_compile():
+def test_constraint_instances_have_no_dispatch_metadata():
     c = live.LoopAreaConstraint(
         loop_name="commutation", max_area_mm2=500.0, tier=live.ConstraintTier.STRONG,
         because="Minimize commutation loop to reduce voltage overshoot",
     )
-    assert "sat" in c.targets
-    assert "jax" not in c.targets
+    assert not hasattr(c, "targets")

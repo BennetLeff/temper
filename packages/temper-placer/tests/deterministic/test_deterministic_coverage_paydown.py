@@ -145,48 +145,6 @@ def test_is_feedback_enabled_default():
 
 
 # ============================================================================
-# bottleneck_map tests
-# ============================================================================
-
-
-def test_bottleneck_map_construction():
-    """BottleneckMap can be constructed with required args."""
-    from temper_placer.deterministic.bottleneck_map import BottleneckMap
-    bm = BottleneckMap(
-        cell_size_mm=1.0, width=100, height=100,
-        origin_xy=(0.0, 0.0), scores=[],
-    )
-    assert bm.cell_size_mm == 1.0
-    assert bm.width == 100
-
-
-# ============================================================================
-# instrumentation tests
-# ============================================================================
-
-
-def test_instrument_pipeline_returns_pipeline():
-    """instrument_pipeline wraps a DeterministicPipeline with instrumentation."""
-    from temper_placer.deterministic.instrumentation import instrument_pipeline
-    from temper_placer.deterministic import DeterministicPipeline
-    pipeline = DeterministicPipeline(stages=[])
-    wrapped = instrument_pipeline(pipeline)
-    # instrument_pipeline returns a DeterministicPipeline
-    assert isinstance(wrapped, DeterministicPipeline)
-
-
-def test_run_with_trace_log_returns_result():
-    """run_with_trace_log executes pipeline and returns result."""
-    from temper_placer.deterministic.instrumentation import run_with_trace_log
-    from temper_placer.deterministic import DeterministicPipeline
-    pipeline = DeterministicPipeline(stages=[])
-    board = Board(width=100.0, height=100.0)
-    netlist = Netlist(components=[], nets=[])
-    result = run_with_trace_log(pipeline, board, netlist)
-    assert result is not None
-
-
-# ============================================================================
 # __init__ tests
 # ============================================================================
 

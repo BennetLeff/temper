@@ -69,12 +69,29 @@ from temper_placer.core.board import Board, Trace
 TRACE_LENGTH = _tdrc.trace_length
 MIN_HV_LV_CLEARANCE = _tdrc.min_hv_lv_trace_clearance
 
-from temper_placer.validation.trace_analyzer import (  # noqa: E402
-    calculate_actual_trace_length as shim_trace_length,
-)
-from temper_placer.validation.trace_analyzer import (  # noqa: E402
-    calculate_min_hv_lv_clearance as shim_min_clearance,
-)
+
+def shim_trace_length(board: Board, net_name: str) -> float:
+    """Call the Rust trace-length API with the board boundary marshalled here.
+
+    The former Python module only performed this conversion before delegating
+    to ``temper_drc_rs``. Keeping the conversion in this evidence test makes
+    the differential independent of that retired wrapper while retaining the
+    exact production input shape.
+    """
+    traces = [
+        (t.net, t.start[0], t.start[1], t.end[0], t.end[1])
+        for t in board.traces  # type: ignore[attr-defined]
+    ]
+    return float(TRACE_LENGTH(traces, net_name))
+
+
+def shim_min_clearance(board: Board, net_classes: dict[str, str]) -> float:
+    """Call the Rust HV/LV clearance API after reproducing its old split."""
+    hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]  # type: ignore[attr-defined]
+    lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]  # type: ignore[attr-defined]
+    hv = [(t.start[0], t.start[1], t.end[0], t.end[1]) for t in hv_traces]
+    lv = [(t.start[0], t.start[1], t.end[0], t.end[1]) for t in lv_traces]
+    return float(MIN_HV_LV_CLEARANCE(hv, lv))
 
 # ---------------------------------------------------------------------------
 # The pinned 2-vector norm association (see the module docstring)

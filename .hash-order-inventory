@@ -14,15 +14,10 @@
 packages/temper-placer/src/temper_placer/cli/__init__.py::optimize::set-materialised 1
 packages/temper-placer/src/temper_placer/constraints/compiler.py::ConstraintCompiler._find_similar::set-materialised 1
 packages/temper-placer/src/temper_placer/constraints/compiler.py::ConstraintCompiler.validate::set-materialised 2
-packages/temper-placer/src/temper_placer/core/graph.py::netlist_to_graph::set-materialised 1
 packages/temper-placer/src/temper_placer/core/loop_extractor.py::get_common_net::set-materialised 1
 packages/temper-placer/src/temper_placer/deterministic/channels.py::ChannelMap._from_payload::set-materialised 1
-packages/temper-placer/src/temper_placer/deterministic/instrumentation.py::run_with_trace_log::set-loop-records-order 1
-packages/temper-placer/src/temper_placer/extraction/hypergraph_factory.py::HypergraphFactory.build::set-loop-records-order 1
-packages/temper-placer/src/temper_placer/io/zone_manager.py::get_board_outline::set-materialised 1
 packages/temper-placer/src/temper_placer/metrics/quality.py::thermal_score::set-loop-records-order 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/_quality_erc_gates.py::QualityGate.check::set-materialised 1
-packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py::FeedbackClassifier._handle_congestion::hash-builtin 2
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py::IECCreepageGate.check::set-materialised 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py::_refine_mus::set-materialised 1
 packages/temper-placer/src/temper_placer/regression/drc_ratchet.py::DrcRatchet._run_rust_drc::set-materialised 1

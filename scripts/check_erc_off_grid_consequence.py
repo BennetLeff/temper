@@ -237,6 +237,44 @@ def classify_domain(net_name: str | None, hv: set[str], selv: set[str]) -> str:
     return 'other/undeclared in manifest'
 
 
+def load_backlogged_nets(path: Path) -> dict[str, dict]:
+    """``{net: entry}`` for every ``backlog: true`` entry in the
+    netlist-stage gate's allowlist.
+
+    Read from THAT gate's file rather than duplicated here, deliberately.
+    ``ac_l`` is the worked example: this gate reports it as a mismatch
+    (atopile net has 1 member, the schematic has 0) and
+    ``check_netlist_stage_checks.py`` reports it as a single-pin net. Same
+    fact -- no AC inlet connector exists anywhere in ``elec/src``, so mains
+    entry is unwired at the schematic level. That gate tolerates it as a
+    dated backlog item; this one failed closed on it, and the disagreement
+    was the anomaly rather than the tolerance.
+
+    Copying the entry across would have re-introduced that divergence the
+    next time either side moved.
+    """
+    if not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text()) or {}
+    return {
+        str(e["net"]): e
+        for e in (data.get("allowlist") or [])
+        if isinstance(e, dict) and e.get("backlog") and e.get("net")
+    }
+
+
+def is_backlogged(detail: str, ato_name: str, backlog: dict[str, dict]) -> bool:
+    """Is this the already-documented "absent from the schematic" shape?
+
+    Deliberately NOT a per-net exemption. It suppresses only the divergence
+    the backlog entry actually describes -- members missing from the
+    schematic and nothing unexpected present. A backlogged net that grows an
+    ``extra_in_schematic`` member is a different defect (something is wired
+    that should not be) and still fails this gate.
+    """
+    return ato_name in backlog and "extra_in_schematic=[]" in detail
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--erc-json', action='append', required=True,
@@ -247,6 +285,10 @@ def main() -> int:
                      help='atopile-compiled netlist (default: elec/build/default.net)')
     ap.add_argument('--domain-manifest', default='elec/domain_manifest.yaml',
                      help='canonical HV/SELV declaration (default: elec/domain_manifest.yaml)')
+    ap.add_argument('--netlist-stage-allowlist', default='netlist-stage-checks-allowlist.yaml',
+                     help='netlist-stage gate allowlist; its `backlog: true` nets are '
+                          'reported here but do not block '
+                          '(default: netlist-stage-checks-allowlist.yaml)')
     args = ap.parse_args()
 
     if yaml is None:
@@ -320,7 +362,7 @@ def main() -> int:
                           f"schematic net of that name has {len(s_members)} members; "
                           f"missing_in_schematic={sorted(a_members - s_members)} "
                           f"extra_in_schematic={sorted(s_members - a_members)}")
-                mismatches.append((key, domain, detail))
+                mismatches.append((key, domain, detail, ato_name))
         rows.append((e['ref'], e['pin'], ato_name, domain, status))
 
     rows.sort(key=lambda r: (r[4] == 'OK', r[3], r[0]))
@@ -333,9 +375,28 @@ def main() -> int:
     for k, v in domain_counts.most_common():
         print(f"  {v:4}  {k}")
 
+    backlog = load_backlogged_nets(Path(args.netlist_stage_allowlist))
+    backlogged = [m for m in mismatches if is_backlogged(m[2], m[3], backlog)]
+    mismatches = [m for m in mismatches if not is_backlogged(m[2], m[3], backlog)]
+
+    # Printed on EVERY run, pass or fail. The sibling gate's contract:
+    # "Backlog entries still suppress the exit code ... but are never
+    # invisible". A gate that quietly drops a finding is one edit away from
+    # being trusted about something it stopped looking at.
+    if backlogged:
+        print(f"\nBacklog: {len(backlogged)} documented open question(s), reported and "
+              f"NOT blocking (source: {args.netlist_stage_allowlist}):")
+        for key, domain, detail, ato_name in backlogged:
+            entry = backlog[ato_name]
+            print(f"  {key} [{domain}] net {ato_name!r} -- seeded {entry.get('seeded', '?')}")
+            print(f"      {detail}")
+            reason = " ".join(str(entry.get("reason", "")).split())
+            if reason:
+                print(f"      reason: {reason}")
+
     if mismatches:
         print(f"\n{len(mismatches)} MISMATCH(ES) -- schematic net diverges from design intent:")
-        for key, domain, detail in mismatches:
+        for key, domain, detail, _ato in mismatches:
             print(f"  {key} [{domain}]: {detail}")
 
     if unverifiable:
@@ -346,9 +407,10 @@ def main() -> int:
             print(f"  {key} [{domain}]: {detail}")
 
     if mismatches or unverifiable:
-        print(f"\nFAILED: {len(mismatches)} mismatch(es), {len(unverifiable)} "
-              f"unverifiable (no atopile net) endpoint_off_grid pin(s). A pin "
-              f"this gate cannot verify is not evidence it is safe -- see "
+        print(f"\nFAILED: {len(mismatches)} non-backlogged mismatch(es), "
+              f"{len(unverifiable)} unverifiable (no atopile net) "
+              f"endpoint_off_grid pin(s). A pin this gate cannot verify is not "
+              f"evidence it is safe -- see "
               f"docs/evidence/2026-08-11-gate-vacuity-audit.md finding 1.")
         return 1
 

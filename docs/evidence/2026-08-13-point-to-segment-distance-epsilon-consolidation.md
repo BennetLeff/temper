@@ -1,6 +1,6 @@
 # `point_to_segment_distance`: epsilon table, the merits-based decision, and what was (and wasn't) consolidated — 2026-08-13
 
-<!-- provenance: worktree fix/geometry-kernel-consolidation, based on origin/fix/board-schematic-resync -->
+<!-- provenance: commit=96db2ccde669efa82d85fb494d5d152d8af8848f dirty=UNKNOWN -->
 
 ## Summary
 

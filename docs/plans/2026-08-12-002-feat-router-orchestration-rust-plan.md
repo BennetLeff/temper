@@ -115,9 +115,9 @@ none of those three, and it is the reason the mechanism was misdiagnosed:
 objects held inside a Rust struct.**
 
 Reproduce with
-[`../evidence/2026-08-12-router-model-memory-probe.py`](../evidence/2026-08-12-router-model-memory-probe.py)
+[`../evidence/scripts/2026-08-12-router-model-memory-probe.py`](../evidence/scripts/2026-08-12-router-model-memory-probe.py)
 (Python, current post-E1 types) and
-[`../evidence/2026-08-12-router-model-memory-counterfactual.rs`](../evidence/2026-08-12-router-model-memory-counterfactual.rs)
+[`../evidence/scripts/2026-08-12-router-model-memory-counterfactual.rs`](../evidence/scripts/2026-08-12-router-model-memory-counterfactual.rs)
 (Rust, zero dependencies). Both measure real `VmRSS`, not `sys.getsizeof`.
 
 | representation | bytes/var | full 22,493,900-var model | MEASURED/DERIVED |
@@ -594,8 +594,8 @@ Python shims.
 ## Sources / Research
 
 - MEASURED this task:
-  [`../evidence/2026-08-12-router-model-memory-probe.py`](../evidence/2026-08-12-router-model-memory-probe.py) ·
-  [`../evidence/2026-08-12-router-model-memory-counterfactual.rs`](../evidence/2026-08-12-router-model-memory-counterfactual.rs)
+  [`../evidence/scripts/2026-08-12-router-model-memory-probe.py`](../evidence/scripts/2026-08-12-router-model-memory-probe.py) ·
+  [`../evidence/scripts/2026-08-12-router-model-memory-counterfactual.rs`](../evidence/scripts/2026-08-12-router-model-memory-counterfactual.rs)
 - `docs/evidence/2026-08-12-board-recipe-reproducibility.md` @ `0659ef39b` (unlanded) — the baseline and the determinism proof
 - [`../evidence/2026-08-07-sat-model-reduction-options.md`](../evidence/2026-08-07-sat-model-reduction-options.md) — 5.43GB / 22,493,900 vars / 204,490 edges; the "22.5M objects ≈ 5.43GB" line at §7
 - [`../evidence/2026-08-07-router-oom-diagnosis.md`](../evidence/2026-08-07-router-oom-diagnosis.md) — 42,145,777 vars / 78,107,180 clauses; the Sinz attribution

@@ -259,10 +259,81 @@ def test_full_registry_validates_clean(registry):
 
 
 def _invoked_ci_gate_scripts() -> set[str]:
-    """Re-derive the survey from python-tests.yml (U4 completeness oracle)."""
+    r"""Re-derive the survey from python-tests.yml (U4 completeness oracle).
+
+    Only paths that resolve to the REPO-ROOT ``scripts/`` directory count.
+    The previous ``scripts/([A-Za-z0-9_]+\.py)`` was unanchored, so it also
+    matched the tail of any longer path carrying a ``scripts/`` segment, and
+    this workflow runs pytest against two of them:
+
+        packages/temper-placer/tests/scripts/test_rust_coverage_illusion_gate.py
+        packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py
+
+    Both were reported as unregistered *gate scripts*. Registering them would
+    have papered over the false positive and left the same shape available
+    for a genuinely unregistered script to hide behind later.
+
+    Anchoring is done by resolving the match rather than by a cleverer
+    regex, because the boundary cases point in opposite directions and a
+    lookbehind cannot tell them apart: two real repo-root gates are invoked
+    from a subdirectory as ``../../scripts/check_coverage_gate.py`` and
+    ``../../scripts/check_dead_parameter_inputs.py`` -- a "not preceded by
+    ``/``" rule drops both -- while ``packages/temper-placer/scripts/
+    gen_config_reference.py`` is a package-local script that this repo-root
+    survey does not cover. Stripping leading ``./``/``../`` segments and
+    requiring the remainder to be exactly ``scripts/<name>.py`` gets all
+    four right.
+    """
     workflow = _repo_root() / ".github" / "workflows" / "python-tests.yml"
-    text = workflow.read_text()
-    return set(re.findall(r"scripts/([A-Za-z0-9_]+\.py)", text))
+    found: set[str] = set()
+    for raw in workflow.read_text().splitlines():
+        line = raw.strip()
+        # A `#` comment cannot invoke anything. Scanning the whole file text
+        # counted prose mentions as invocations: #1376 discusses
+        # `scripts/measure_cross_domain_creepage.py` in a comment explaining
+        # the R(+theta) convention and never runs it, and this survey reported
+        # it as an unregistered gate. Registering it would paper over the false
+        # positive exactly as this function's docstring warns about the
+        # subdirectory-`scripts/` case.
+        if line.startswith("#"):
+            continue
+        # A `paths:` trigger entry cannot invoke anything either -- it declares
+        # which file changes START the workflow. The entries are quoted list
+        # items (`- 'scripts/x.py'`), a shape no `run:` command can take, so
+        # this cannot drop a real invocation. #1376's
+        # `scripts/kicad_pad_rotation_oracle.py` is only ever a paths entry:
+        # it is a pcbnew-backed oracle helper IMPORTED by
+        # test_rotation_convention_oracle.py, not a gate CI executes.
+        #
+        # AUDIT of what this tightening stops detecting, re-measured 2026-08-25
+        # on the MERGED result of #1376 + #1380 (the figure is branch-dependent
+        # -- each PR adds its own oracle scripts -- so it is recorded here for
+        # the state that actually lands): 94 -> 83 names. All eleven are
+        # reference-only in
+        # python-tests.yml (comment prose or a paths entry) and none appears on
+        # a `run:` line here -- several are invoked by OTHER workflows
+        # (ci_check_drc.py by regression.yml, check_required_checks.py by
+        # required-checks.yml), are pcbnew-backed oracle HELPERS imported by
+        # differential tests rather than run by CI (kicad_pad_rotation_oracle.py,
+        # kicad_pad_polygon_oracle.py, measure_cross_domain_creepage.py -- the
+        # last named only in comment prose), or are developer tooling
+        # (regen_derived.py,
+        # update_oracle_hashes.py, update_production_routing_baseline.py,
+        # install_cargo_target_dir_guard.py, gate_mutate.py,
+        # check_firmware_board_contract.py). Their existing _CI_SCRIPT_SURVEY
+        # entries are harmless and are left in place: this module asserts only
+        # `invoked - registered`, never the reverse, so a surplus entry fails
+        # nothing. If any of them later gains a real invocation here it lands
+        # on a `run:` line and is detected again.
+        if re.fullmatch(r"-\s*'[^']*'", line) or re.fullmatch(r'-\s*"[^"]*"', line):
+            continue
+        for candidate in re.findall(r"[\w./-]*scripts/[A-Za-z0-9_]+\.py", line):
+            parts = candidate.split("/")
+            while parts and parts[0] in (".", ".."):
+                parts.pop(0)
+            if len(parts) == 2 and parts[0] == "scripts":
+                found.add(parts[1])
+    return found
 
 
 # The standing check itself is referenced by the workflow once wired in; it

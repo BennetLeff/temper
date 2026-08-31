@@ -31,11 +31,6 @@ from temper_placer.router_v6.astar_core_rust import (
 from temper_placer.router_v6.grid_types import (
     GridCell,
 )
-from temper_placer.router_v6.path_simplify import (
-    estimate_segment_count,
-    is_collinear,
-    simplify_path,
-)
 
 
 # ── astar_core module-level helpers ────────────────────────────────
@@ -195,103 +190,6 @@ def test_reset_route_profile_stats_zeros():
 
 
 # ── grid_converter ─────────────────────────────────────────────────
-
-
-def test_grid_to_world_origin_zero():
-    x, y = _tg.grid_to_world_py(10, 20, 0.0, 0.0, 0.5)
-    assert x == pytest.approx(10 * 0.5 + 0.25)
-    assert y == pytest.approx(20 * 0.5 + 0.25)
-
-
-def test_grid_to_world_with_offset():
-    x, y = _tg.grid_to_world_py(0, 0, 10.0, 20.0, 1.0)
-    assert x == pytest.approx(10.5)
-    assert y == pytest.approx(20.5)
-
-
-def test_extract_vias_no_layers():
-    cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-    assert list(_tg.extract_vias_py([c.layer for c in cells])) == []
-
-
-def test_extract_vias_with_transition():
-    cells = [
-        GridCell(0, 0, 0),
-        GridCell(1, 0, 0),
-        GridCell(1, 0, 1),
-        GridCell(2, 0, 1),
-    ]
-    assert list(_tg.extract_vias_py([c.layer for c in cells])) == [2]
-
-
-def test_extract_vias_multiple():
-    cells = [
-        GridCell(0, 0, 0),
-        GridCell(1, 0, 1),
-        GridCell(2, 0, 1),
-        GridCell(3, 0, 0),
-    ]
-    assert list(_tg.extract_vias_py([c.layer for c in cells])) == [1, 3]
-
-
-def test_compute_path_length_single():
-    cells = [GridCell(0, 0, 0)]
-    assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 1.0) == 0.0
-
-
-def test_compute_path_length_horizontal():
-    cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-    assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 0.5) == pytest.approx(1.0)
-
-
-def test_compute_path_length_diagonal():
-    cells = [GridCell(0, 0, 0), GridCell(2, 3, 0)]
-    assert _tg.compute_path_length_py([c.x for c in cells], [c.y for c in cells], 1.0) == pytest.approx(5.0)
-
-
-def test_count_vias_in_path_none():
-    cells = [GridCell(0, 0, 0), GridCell(5, 0, 0)]
-    assert _tg.count_vias_in_path_py([c.layer for c in cells]) == 0
-
-
-def test_count_vias_in_path_two():
-    cells = [
-        GridCell(0, 0, 0),
-        GridCell(1, 0, 1),
-        GridCell(2, 0, 1),
-        GridCell(3, 0, 0),
-    ]
-    assert _tg.count_vias_in_path_py([c.layer for c in cells]) == 2
-
-
-# ── path_simplify ──────────────────────────────────────────────────
-
-
-def test_is_collinear_horizontal():
-    p1 = GridCell(0, 0, 0)
-    p2 = GridCell(1, 0, 0)
-    p3 = GridCell(2, 0, 0)
-    assert is_collinear(p1, p2, p3) is True
-
-
-def test_is_collinear_L_shape():
-    p1 = GridCell(0, 0, 0)
-    p2 = GridCell(1, 0, 0)
-    p3 = GridCell(1, 1, 0)
-    assert is_collinear(p1, p2, p3) is False
-
-
-def test_estimate_segment_count():
-    cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-    assert estimate_segment_count(cells) > 0
-
-
-def test_simplify_path_straight():
-    cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
-    result = simplify_path(cells)
-    assert len(result) <= len(cells)
-    assert result[0].x == 0
-    assert result[-1].x == 2
 
 
 # ── constraints_geometry ───────────────────────────────────────────

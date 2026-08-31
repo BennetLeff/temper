@@ -101,10 +101,6 @@
 
 use crate::hostmath;
 
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use temper_py_bridge;
 
 /// numpy's `PW_BLOCKSIZE` — the largest block summed without recursion,
 /// identical across dtypes (numpy's `loops.c.src` is a single template
@@ -271,52 +267,6 @@ pub fn measure_thermal_edges(
     };
 
     (max_tj, max_ts, edge_avg)
-}
-
-/// pyo3 bridge for [`measure_thermal_edges`]. Returns
-/// `(max_junction_temp_c, max_heatsink_temp_c, edge_distance_avg_mm)`.
-#[cfg(feature = "python")]
-#[allow(clippy::too_many_arguments)]
-#[pyfunction]
-#[pyo3(signature = (
-    positions_x,
-    positions_y,
-    powers,
-    rjc,
-    rch,
-    rha,
-    board_origin,
-    board_width,
-    board_height,
-    ambient_c,
-))]
-pub fn measure_thermal_edges_py(
-    positions_x: Vec<f32>,
-    positions_y: Vec<f32>,
-    powers: Vec<f64>,
-    rjc: Vec<f64>,
-    rch: Vec<f64>,
-    rha: Vec<f64>,
-    board_origin: (f64, f64),
-    board_width: f64,
-    board_height: f64,
-    ambient_c: f64,
-) -> PyResult<(f64, f64, f64)> {
-    temper_py_bridge::catch_unwind(|| {
-        measure_thermal_edges(
-            &positions_x,
-            &positions_y,
-            &powers,
-            &rjc,
-            &rch,
-            &rha,
-            board_origin,
-            board_width,
-            board_height,
-            ambient_c,
-        )
-    })
-    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[cfg(any(test, feature = "wasm-registry"))]

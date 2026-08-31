@@ -532,7 +532,7 @@ constraint). Stated explicitly per the gate.
   equal-implies-equal-hash invariant needs.
 - **The value enums stay Python `enum.Enum`** (`ConstraintTier`,
   `ConstraintType`, `DistanceMetric`, `Axis`, `BoardSide`, `EdgeType`,
-  `CompilationTarget`, `SemanticTag`): production does `for t in
+  `CompilationTarget`): production does `for t in
   ConstraintType` and `ConstraintType(value)`, which a `#[pyclass]` enum
   cannot provide (the tag_dispatch precedent). Rust holds the members the
   objects were constructed with and hands back the same singletons.

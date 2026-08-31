@@ -22,6 +22,7 @@ from tests.deterministic.deterministic_property_strategies import (
 
 from temper_placer.deterministic.stages import (
     ApplyPlacementsStage,
+    ConfigAttachStage,
     LayerAssignmentStage,
     NetClassSetupStage,
     NetOrderingStage,
@@ -29,7 +30,6 @@ from temper_placer.deterministic.stages import (
     ZoneAssignmentStage,
     ZoneGeometryStage,
 )
-from temper_placer.deterministic.stages.config_attach import ConfigAttachStage
 from temper_placer.deterministic.state import BoardState
 
 # ---------------------------------------------------------------------------

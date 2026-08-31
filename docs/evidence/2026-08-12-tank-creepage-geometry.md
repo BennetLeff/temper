@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 /tmp/claude-1000/-home-bennet-Desktop-temper/c0bf43ed-bc14-4a43-9c79-57bf591cf8ab/scratchpad/wt-creepage,
 branch fix/tank-creepage-geometry, base origin/main @ 900c79dd9, HEAD 1daba90e4 (clean:
 `git status --porcelain` empty before every commit; `git grep -l '^<<<<<<< '` over
@@ -463,7 +463,7 @@ OOMs at 58.9 GB).
 
 # 2. composed solve: barrier (no isolator relaxed) + tank creepage @10.0mm + heatsink rot 1
 PYTHONPATH=packages/temper-placer/src .venv/bin/python \
-  docs/evidence/2026-08-12-tank-creepage-geometry-run.py \
+  docs/evidence/scripts/2026-08-12-tank-creepage-geometry-run.py \
   --board <widened>.kicad_pcb --rot 1 --relax '' --margin-mm 10.0 \
   --timeout-ms 120000 --out solved.json
 
@@ -490,7 +490,7 @@ PYTHONPATH=<private orchestration build>:packages/temper-placer/src .venv/bin/py
 
 * Footprint fix: `pcb/libs/lib.pretty/LitzPad_15A.kicad_mod`
 * Production wiring: `packages/temper-placer/src/temper_placer/cli/__init__.py`
-* Composition harness: `docs/evidence/2026-08-12-tank-creepage-geometry-run.py`
+* Composition harness: `docs/evidence/scripts/2026-08-12-tank-creepage-geometry-run.py`
 * This document: `docs/evidence/2026-08-12-tank-creepage-geometry.md`
 * Carried forward, not re-derived: `docs/evidence/2026-08-12-hv-hv-creepage-determination.md`
   (Table 18), `…-hv-hv-creepage-enforcement.md` (the 2.2656/5.0000 measurements and the DRU

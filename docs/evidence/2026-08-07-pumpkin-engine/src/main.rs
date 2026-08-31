@@ -1,7 +1,7 @@
 //! Pumpkin-solver `Engine` backend for the BLOCKER-ORTOOLS equivalence harness.
 //!
 //! See `docs/evidence/2026-08-07-cpsat-equivalence-harness.md` Sec 5 for the
-//! design this fulfils, and `docs/evidence/2026-08-07-pumpkin-equivalence-run.py`
+//! design this fulfils, and `docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py`
 //! for the Python-side `Engine` implementation that shells out to this binary.
 //!
 //! Protocol: reads one JSON `ModelSpec` object on stdin, writes one JSON
@@ -82,7 +82,7 @@ const SCALE: f64 = 100.0;
 /// relation to any PCL constraint. Caught empirically: the `full-board`
 /// corpus reported `infeasible` in ~30ms even with EVERY PCL constraint
 /// stripped (board bounds only) until parity-forcing landed -- see
-/// docs/evidence/2026-08-07-pumpkin-equivalence-run.py's git history /
+/// docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py's git history /
 /// commit message for the bisection that found it. Ceiling to the next
 /// even integer preserves this exactly as well as flooring did (both
 /// produce an even result); only the direction of the +/-1-unit

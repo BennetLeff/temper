@@ -134,6 +134,29 @@ class TestDoesNotFlagCorrectUsage:
 
 
 class TestRealRepoIsClean:
+    def test_agent_worktree_paths_are_not_repo_inputs(self, tmp_path, monkeypatch):
+        """The default repository census excludes nested agent checkouts.
+
+        ``.claude/worktrees`` contains separate copies of this repository;
+        their source is not an input to the checkout being gated.  Put a
+        known violation there and prove the real iterator excludes it, so
+        the skip cannot silently hide a violation in an ordinary source
+        directory.
+        """
+        good = tmp_path / "src" / "good.py"
+        bad = tmp_path / ".claude" / "worktrees" / "agent" / "bad.py"
+        good.parent.mkdir(parents=True)
+        bad.parent.mkdir(parents=True)
+        good.write_text("rotation = c.initial_rotation_quadrant * 90\n")
+        bad.write_text("rotation = c.initial_rotation_quadrant / 90\n")
+
+        monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+        files = gate._iter_source_files()
+
+        assert good in files
+        assert bad not in files
+        assert gate.scan() == []
+
     def test_the_current_tree_has_zero_violations(self):
         """Anti-vacuity: proves the gate actually runs against the real
         tree and finds nothing, rather than passing only because a fixture

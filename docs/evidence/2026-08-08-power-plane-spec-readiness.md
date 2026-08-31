@@ -1,3 +1,4 @@
+<!-- provenance: commit=2f6c02cc2c99de171cd5ca40bf6bdda678ffe839 dirty=UNKNOWN -->
 # REQ-ELEC-05 (Power Plane Design) — Readiness to Generate Real Copper
 
 **Date:** 2026-08-08

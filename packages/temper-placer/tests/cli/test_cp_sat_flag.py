@@ -50,11 +50,12 @@ class TestCpSatFlag:
             "unconditional placer; if the option was restored on purpose, "
             "replace this test with a positive existence check."
         )
-        # Scoped to placer *choices*, not any mention of JAX: `--profile-dir`
-        # is still advertised as "Save JAX profiler trace to this directory"
-        # and is accepted-but-never-read in the command body (a dead flag
-        # tracked separately).  Asserting on the whole help text would make
-        # this test fail for that unrelated reason.
+        assert "--profile-dir" not in result.output, (
+            "--profile-dir is retired with the JAX optimizer and must not "
+            "reappear as an inert optimize option."
+        )
+        # Scope this check to placer choices rather than unrelated historical
+        # prose elsewhere in the CLI.
         for choice in ("jax-deprecated", "--placer jax", "[jax|"):
             assert choice not in result.output, (
                 f"A JAX placer choice ({choice!r}) reappeared in "

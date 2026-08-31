@@ -1,4 +1,4 @@
-<!-- provenance: worktree /tmp/.../scratchpad/creepage-domain-audit, branch
+<!-- provenance: commit=c19afdd760159f33eca01671a94059a3fe105c17 dirty=UNKNOWN -->
 analysis/creepage-domain-classification, branched from
 audit/drc-project-context-2026-08-08 @ 907a2002 (docs(evidence): DRC
 project-context audit -- invocation table, baseline validity, corrected

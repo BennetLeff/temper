@@ -244,6 +244,28 @@ def _shim_build_items(pr, nl, free, kwargs):
 
 
 def _hx(v):
+    """Encode a numeric field exactly, so comparison is bit-exact.
+
+    INTs are widened to float before encoding. Without that, a value the
+    oracle carried as ``1`` and the port carries as ``1.0`` canonicalises to
+    ``1`` vs ``("float", "0x1.0000000000000p+0")`` and compares UNEQUAL at an
+    identical numeric value -- which is what
+    ``test_real_board_items_and_pads_bit_identical`` was failing on: 304 of
+    2659 items differed, every one of them ``width`` (180 segments) or
+    ``diameter`` (124 vias), every one an int-vs-float encoding difference
+    with a measured numeric delta of exactly 0.0. The pinned pre-migration
+    oracle preserved the source int; the Rust-driven port normalises to f64.
+
+    This does NOT weaken the differential. ``float.hex()`` is exact, so any
+    real difference in value still compares unequal -- only the int/float
+    *encoding* of one and the same number is collapsed. ``bool`` is excluded
+    because it subclasses ``int`` and is a genuine type distinction here,
+    not a numeric one.
+    """
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, int):
+        v = float(v)
     if isinstance(v, float):
         if math.isnan(v):
             return ("nan", math.copysign(1.0, v))

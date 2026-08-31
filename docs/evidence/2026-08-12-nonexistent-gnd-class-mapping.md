@@ -1,4 +1,4 @@
-<!-- provenance: written on branch fix/nonexistent-gnd-class-mapping, rebased onto origin/main at c43c50927 (after #1083/#1084 merged). pcb/temper.kicad_pcb is NOT modified at any point in this session. All measurements below are fresh, taken in this session, against the real repo files; none is copied from a prior document. -->
+<!-- provenance: commit=322cbf5b0e81f0be9e928d018fd155dee5360964 dirty=UNKNOWN -->
 
 # `design_rules.py`'s `"gnd"`/`"PWR_RTN"` → `"GND"` mapping named a class `pcb/temper.kicad_pro` never declared. `"GND"` was real Python-side data, not an invented name — which is exactly why the defect was invisible from inside the placer.
 

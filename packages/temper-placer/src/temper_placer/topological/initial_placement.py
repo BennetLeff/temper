@@ -187,7 +187,6 @@ def generate_initial_placement(
     component_sizes: dict[str, tuple[float, float]],
     board_bounds: tuple[float, float, float, float] | None = None,
     force_iterations: int = 100,
-    backend: str = "numpy",
 ) -> InitialPlacement:
     """Generate initial placement from topological analysis.
 
@@ -202,7 +201,6 @@ def generate_initial_placement(
         component_sizes: Map of component ref to (width, height)
         board_bounds: Optional fallback bounds if no zones
         force_iterations: Number of force refinement iterations
-        backend: Computation backend ("numpy" or "jax")
 
     Returns:
         InitialPlacement with positions, clusters, etc.
@@ -283,7 +281,6 @@ def generate_initial_placement(
             zone_assignments=dict(zone_assignment.assignments),
             iterations=force_iterations,
             learning_rate=0.1,
-            backend=backend,
         )
 
     return InitialPlacement(

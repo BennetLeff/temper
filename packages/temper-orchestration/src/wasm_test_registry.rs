@@ -59,19 +59,20 @@
 /// runner catches the trap rather than a `Result`.
 pub type WasmTest = (&'static str, fn());
 
-/// All 1032 eligible tests, in a stable order.  Each entry is
+/// All 921 eligible tests, in a stable order.  Each entry is
 /// gated on the per-family `wasm-registry-<family>` feature; enable
 /// all families (`wasm-test-registry`) or individual ones.
 pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-orchestration")] crate::channel_mapping::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::clearance::tests::WASM_TESTS,
-    #[cfg(feature = "wasm-registry-orchestration")] crate::copper_length::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-orchestration")] crate::creepage_lower_bounds::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::explainability::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::feasibility::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::grid_stage::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::host_math::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::netclass::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-orchestration")] crate::partition_planner::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::phased_assignment_stage::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::phased_component_assignment_validator_stage::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::pipeline::tests::WASM_TESTS,
@@ -79,6 +80,7 @@ pub const ALL: &[&[WasmTest]] = &[
     #[cfg(feature = "wasm-registry-orchestration")] crate::pipeline_state::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::router_pipeline::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::stage::tests::WASM_TESTS,
+    #[cfg(feature = "wasm-registry-orchestration")] crate::state_ser::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::timing::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::wasm_campaign_prng::tests::WASM_TESTS,
     #[cfg(feature = "wasm-registry-orchestration")] crate::zone_aware_slot_generation_stage::tests::WASM_TESTS,

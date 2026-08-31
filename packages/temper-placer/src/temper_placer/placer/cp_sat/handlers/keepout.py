@@ -2,21 +2,16 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import ConstraintType, KeepoutConstraint
+from temper_placer.pcl.constraints import KeepoutConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
     from temper_placer.placer.cp_sat.model import ComponentVars, CpSatModel
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.KEEPOUT)
 def encode_keepout(
     constraint: KeepoutConstraint,
     components: dict[str, ComponentVars],  # noqa: ARG001
@@ -31,8 +26,10 @@ def encode_keepout(
     labels: list[AssumptionLiteral] = []
     zone = ctx.zones.get(constraint.zone_name)
     if zone is None:
-        logger.warning("KEEPOUT %s: zone '%s' not found", constraint.id, constraint.zone_name)
-        return labels
+        raise UnresolvedConstraintRefsError(
+            f"Keepout constraint {constraint.id!r} references missing zone "
+            f"{constraint.zone_name!r}"
+        )
 
     zx_min, zy_min, zx_max, zy_max = zone
     # Margin-expanded keepout rect in model units, computed in the
