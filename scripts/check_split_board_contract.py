@@ -15,6 +15,8 @@ reports, provenance records, and the PD3/12.6 mm cross-domain report are all
 required before generation can be enabled.  There is intentionally no trusted
 split-board generator registered yet, so production generation remains blocked.
 
+DRIFT_SCOPE: split-board-target-state
+
 Exit codes:
 
 * 0 -- a complete contract and all referenced evidence passed;

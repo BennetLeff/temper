@@ -478,6 +478,9 @@ class TestBoardPartitionContract:
         partition = manifest.board_partition
         assert partition.board_domains[partition.power_board] == "HV"
         assert partition.board_domains[partition.control_board] == "SELV"
+        assert partition.target_state_domains == {
+            "SELV": ("ina", "inb", "nc_7", "hb.gate_hs.driver-p1")
+        }
         assert "hb" in partition.modules[partition.power_board]
         assert "mcu" in partition.modules[partition.control_board]
         assert "rtd_pan" in partition.modules[partition.control_board]

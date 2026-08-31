@@ -319,6 +319,20 @@ TIER_ORDER = ("reinforced", "basic", "working", "functional")  # most-specific f
 
 _NAME_TOKEN_RE = re.compile(r"(?:^|_)(creepage|clearance)(?:_mm)?(?:_|$)", re.IGNORECASE)
 _MM_SUFFIX_RE = re.compile(r"(?:^|_)mm$", re.IGNORECASE)
+_TARGET_STATE_ONLY_MARKER = "target_state_only"
+
+
+def _is_target_state_module(tree: ast.Module) -> bool:
+    """Return whether a Python module contains only future-board declarations.
+
+    Split-board contracts are deliberately scanned by their own gate. Their
+    safety target must not become a second current-board declaration merely
+    because it happens to use a ``*_MM`` constant. The marker lives in the
+    module docstring, so this remains declaration discovery rather than a
+    path-based exclusion list; the file is still parsed for syntax errors.
+    """
+    docstring = ast.get_docstring(tree, clean=False) or ""
+    return "DRIFT_SCOPE: split-board-target-state" in docstring
 
 # Known, human-reviewed tier misclassifications -- see the module docstring
 # "Known blind spots" section for the full investigation. This is
@@ -817,6 +831,8 @@ class _PyDeclCollector(ast.NodeVisitor):
         context_override: str | None = None,
         name_is_qualname: bool = False,
     ) -> None:
+        if _TARGET_STATE_ONLY_MARKER in self.lines[lineno - 1].lower():
+            return
         value = self._literal_value(value_node)
         alias_of: str | None = None
         if value is None and isinstance(value_node, ast.Name):
@@ -988,6 +1004,8 @@ def discover_python(repo_root: Path) -> tuple[list[Declaration], list[tuple[str,
                 errors.append((rel, f"could not parse: {exc}"))
                 continue
             lines = text.splitlines()
+            if _is_target_state_module(tree):
+                continue
             collector = _PyDeclCollector(rel, lines)
             collector.visit(tree)
             # Build a name->literal-value map for alias resolution, using
@@ -1147,6 +1165,8 @@ def discover_yaml(repo_root: Path) -> tuple[list[Declaration], list[tuple[str, s
                     except ValueError:
                         continue
                     comment = m.group("comment") or ""
+                    if _TARGET_STATE_ONLY_MARKER in comment.lower():
+                        continue
                     label = _yaml_label(lines, i, key)
 
                     direct_m = _NAME_TOKEN_RE.search(key)

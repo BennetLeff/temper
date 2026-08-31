@@ -87,7 +87,7 @@ board_interface:
   safety_target:
     standard: "IEC 60335-1 Table 17 / IEC 60664-1"
     pollution_degree: 3
-    reinforced_creepage_mm: 12.6
+    reinforced_creepage_mm: 12.6  # TARGET_STATE_ONLY: split-board contract
   # These are semantic declarations, not a connector pinout.  A signal may
   # remain unresolved where the existing single-board source does not prove
   # which split-board side will own the circuit; unresolved records block
@@ -232,6 +232,15 @@ board_interface:
 # below, never a net-name prefix or a component-value heuristic.
 board_partition:
   status: planned
+  # These source-backed nets are needed to validate the planned isolator-side
+  # ownership, but are intentionally not promoted into the legacy current-board
+  # domain lists above.  The current PCB has no kicad_pro assignments for them.
+  target_state_domains:
+    SELV:
+      - ina
+      - inb
+      - nc_7
+      - hb.gate_hs.driver-p1
   boards:
     POWER_BOARD:
       domain: HV
@@ -860,12 +869,6 @@ domains:
       - RTD_CS_N
       - RTD_DRDY
       - RTD_HW_FAULT
-      # UCC21550 primary-side control pins and the unconnected DT/NC nets
-      # remain on the SELV logic side of the driver barrier.
-      - ina
-      - inb
-      - nc_7
-      - hb.gate_hs.driver-p1
       - rtd_force_p
       - rtd_force_n
       - rtd_sense_p

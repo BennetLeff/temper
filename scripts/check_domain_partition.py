@@ -392,6 +392,7 @@ class BoardPartition:
     cross_domain_components: tuple[dict[str, Any], ...]
     isolator_sides: tuple[IsolatorBoardSides, ...]
     cross_domain_modules: tuple[str, ...]
+    target_state_domains: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
 
 @dataclass
@@ -1121,6 +1122,37 @@ def load_manifest(path: Path) -> Manifest:
             seen_components.update(component_paths)
             components[board_name] = component_paths
 
+        target_state_raw = board_partition_raw.get("target_state_domains", {})
+        if not isinstance(target_state_raw, dict):
+            raise GateError("board_partition.target_state_domains must be a mapping")
+        target_state_domains: dict[str, tuple[str, ...]] = {}
+        current_domain_nets = {net for nets in domains.values() for net in nets}
+        for domain_name, nets_raw in target_state_raw.items():
+            if domain_name not in domains:
+                raise GateError(
+                    "board_partition.target_state_domains names unknown domain "
+                    f"{domain_name!r}"
+                )
+            if not isinstance(nets_raw, list) or not nets_raw or any(
+                not isinstance(net, str) or not net.strip() for net in nets_raw
+            ):
+                raise GateError(
+                    "board_partition.target_state_domains entries must contain "
+                    "non-empty net-name lists"
+                )
+            nets = tuple(str(net).strip() for net in nets_raw)
+            if len(set(nets)) != len(nets):
+                raise GateError(
+                    "board_partition.target_state_domains net lists must be unique"
+                )
+            overlap = sorted(set(nets) & current_domain_nets)
+            if overlap:
+                raise GateError(
+                    "board_partition.target_state_domains must not reclassify "
+                    f"current-board domain net(s): {overlap}"
+                )
+            target_state_domains[str(domain_name)] = nets
+
         power_board = board_interface.power_board
         control_board = board_interface.control_board
         if set(board_domains) != {power_board, control_board}:
@@ -1319,6 +1351,7 @@ def load_manifest(path: Path) -> Manifest:
             cross_domain_components=tuple(cross_components),
             isolator_sides=tuple(isolator_sides),
             cross_domain_modules=cross_modules,
+            target_state_domains=target_state_domains,
         )
 
     return Manifest(
@@ -1519,6 +1552,9 @@ def check_board_partition_contract(
         for domain, nets in manifest.domains.items()
         for net in nets
     }
+    for domain, nets in partition.target_state_domains.items():
+        for net in nets:
+            owners[net] = domain
     violations: list[str] = []
     for net in interface.nets:
         if owners.get(net) != control_domain:
@@ -1589,6 +1625,9 @@ def check_board_partition_contract(
             for domain, nets in manifest.domains.items()
             for net in nets
         }
+        for domain, nets in partition.target_state_domains.items():
+            for net in nets:
+                owners[net] = domain
         path_to_refs: dict[str, list[str]] = {}
         for ref, component in netlist.components.items():
             path_to_refs.setdefault(component.instance_path, []).append(ref)
