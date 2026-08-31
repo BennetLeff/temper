@@ -381,6 +381,34 @@ scripts:
   - re
   - sys
   - typing
+- path: check_split_board_contract.py
+  purpose: 'Fail-closed gate for the approved split power/control-board architecture: validate physical and
+    interface prerequisites before generation, validate a complete staged bundle before atomic publication,
+    require a repository-owned trusted-generator integration before production generation, and require
+    per-board netlist/PCB identities, DRC reports, repository provenance, and a PD3/12.6mm cross-domain
+    report; the staged writer is fixture-only; exit 2 is blocked and exit 1 is malformed input'
+  owner: pipeline
+  last_run: '2026-08-31'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.measurement_provenance
+  - _lib.repo
+  - argparse
+  - check_evidence_provenance
+  - collections.abc
+  - hashlib
+  - json
+  - math
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - tempfile
+  - typing
+  - yaml
 - path: check_drc_ceiling_approval.py
   purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
     error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge

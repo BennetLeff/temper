@@ -1,0 +1,97 @@
+# Contract for the approved power/control-board split.
+#
+# This is deliberately a contract, not a generated-board inventory. The
+# current design still has one legacy PCB, so generation is explicitly
+# disabled until the connector and enclosure decisions have reviewable,
+# committed evidence. A split-board generator must call
+# scripts/check_split_board_contract.py before writing either PCB artifact.
+
+schema_version: 1
+architecture: split_power_control
+status: contract-incomplete
+hierarchy: src/split_board_hierarchy.ato
+
+generation:
+  enabled: false
+  blocking_requirements:
+    - connector
+    - enclosure
+  # No split-board compiler is trusted yet.  This identity is mandatory so
+  # enabling generation cannot be authorized by self-authored source hashes.
+  trusted_generator:
+    id: null
+    implementation: null
+    implementation_sha256: null
+
+boards:
+  power:
+    id: POWER_BOARD
+    owner: power
+    required_domains: [HV, SELV]
+    artifacts:
+      pcb: null
+      netlist: null
+    source:
+      entrypoint: null
+    checks:
+      drc:
+        required: true
+        report: null
+        ceiling_source:
+          path: ../power_pcb_dataset/drc_ceiling.json
+          board_id: temper
+          sha256: c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2
+      provenance:
+        required: true
+        record: null
+  control:
+    id: CONTROL_BOARD
+    owner: control
+    required_domains: [SELV]
+    artifacts:
+      pcb: null
+      netlist: null
+    source:
+      entrypoint: null
+    checks:
+      drc:
+        required: true
+        report: null
+        ceiling_source:
+          path: ../power_pcb_dataset/drc_ceiling.json
+          board_id: temper
+          sha256: c6b2198e62ca5b15878884b1e2822a8b3bbd7372ace8f6198aeccffe83189fb2
+      provenance:
+        required: true
+        record: null
+
+interface:
+  name: POWER_CONTROL_SELV_INTERFACE
+  domain_manifest: domain_manifest.yaml
+  connector_ref: J_POWER_CONTROL
+  allowed_domains: [SELV]
+  nets:
+    - gnd
+    - "+15V"
+    - "+3V3"
+    - PWM_HS
+    - PWM_LS
+    - SHUTDOWN
+    - RELAY_CTRL
+    - DISCHARGE_CTRL
+    - V_BUS_SENSE
+    - I_SENSE
+
+contract:
+  connector:
+    status: incomplete
+    evidence: null
+  enclosure:
+    status: incomplete
+    evidence: null
+
+cross_domain:
+  pollution_degree: 3
+  reinforced_creepage_mm: 12.6  # TARGET_STATE_ONLY: split-board contract
+  method: ../scripts/measure_cross_domain_creepage.py
+  report: null

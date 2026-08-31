@@ -286,6 +286,9 @@
   "check_sil_coverage.py": [
     ".github/workflows/firmware-tests.yml"
   ],
+  "check_split_board_contract.py": [
+    "Makefile"
+  ],
   "check_stackup_copper_weight_gate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/board_layer_roles.py",

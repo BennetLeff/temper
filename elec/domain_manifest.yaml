@@ -59,6 +59,14 @@ schema_version: 1
 # reinforced isolators.  AC, the DC bus, switch node, floating gate-drive
 # outputs, and every other HV-domain net are excluded by construction and are
 # not permitted to be added here without changing the architecture decision.
+#
+# The original specification said "ten" nets while the live list had nine
+# after ZCD_ISO was deliberately removed (300c4a709).  I_SENSE is the tenth:
+# it is the CT secondary's SELV analog telemetry and is the only evidence-backed
+# current-sense conductor that belongs at this boundary.  FAN_PWM/FAN_TACH are
+# not silently added: the active ThermalSystem uses a verified two-wire,
+# non-PWM Sunon fan (docs/hardware/BOM.md), so those are recorded as deferred
+# below instead.
 board_interface:
   name: POWER_CONTROL_SELV_INTERFACE
   power_board: POWER_BOARD
@@ -75,6 +83,421 @@ board_interface:
     - RELAY_CTRL
     - DISCHARGE_CTRL
     - V_BUS_SENSE
+    - I_SENSE
+  safety_target:
+    standard: "IEC 60335-1 Table 17 / IEC 60664-1"
+    pollution_degree: 3
+    reinforced_creepage_mm: 12.6  # TARGET_STATE_ONLY: split-board contract
+  # These are semantic declarations, not a connector pinout.  A signal may
+  # remain unresolved where the existing single-board source does not prove
+  # which split-board side will own the circuit; unresolved records block
+  # generation through --require-generation-ready.
+  signals:
+    - net: gnd
+      role: return
+      owner: SHARED_REFERENCE
+      direction: RETURN
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "mandatory SELV return; absent return inhibits operation"
+      status: resolved
+    - net: "+15V"
+      role: supply
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of supply prevents control-board power-up"
+      status: resolved
+    - net: "+3V3"
+      role: supply
+      owner: UNRESOLVED
+      direction: UNRESOLVED
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of logic rail prevents control-board power-up"
+      status: unresolved
+    - net: PWM_HS
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "absent command must leave the power stage disabled"
+      status: resolved
+    - net: PWM_LS
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "absent command must leave the power stage disabled"
+      status: resolved
+    - net: SHUTDOWN
+      role: fault
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "active-high latched fault disables gate drive; open-wire default is unresolved"
+      status: unresolved
+    - net: RELAY_CTRL
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of command must not defeat the power-board relay safe state"
+      status: resolved
+    - net: DISCHARGE_CTRL
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "loss of command leaves the normally-closed discharge path safe"
+      status: resolved
+    - net: V_BUS_SENSE
+      role: telemetry
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "invalid or absent bus telemetry must inhibit power enable"
+      status: resolved
+    - net: I_SENSE
+      role: telemetry
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: gnd
+      fault_behavior: "invalid or absent current telemetry must inhibit power enable"
+      status: resolved
+  # The hardware fault sources currently aggregate in SafetyInterlock and
+  # publish the active-high SHUTDOWN line (main.ato; modules.ato). OCP-02 is
+  # explicitly DNF and therefore is not promoted to a required interface
+  # conductor. The future split must re-prove the local source placement and
+  # open-wire behavior before generation is unblocked.
+  fault_aggregation:
+    output_net: SHUTDOWN
+    active_level: high
+    latched: true
+    sources:
+      - OCP_01
+      - OVP_01
+      - THM_01
+      - THM_02
+      - WDT
+      - RTD_HW_FAULT
+      - RUNAWAY_CUT
+    status: unresolved
+  connector_spec:
+    part_number: null
+    pinout: null
+    retention: null
+    single_fault_review: null
+  mechanical_spec:
+    enclosure_compartment: null
+    board_partition: null
+    cable_routing: null
+    mounting: null
+  generation:
+    status: blocked
+    required_fields:
+      - connector_spec.part_number
+      - connector_spec.pinout
+      - connector_spec.retention
+      - connector_spec.single_fault_review
+      - mechanical_spec.enclosure_compartment
+      - mechanical_spec.board_partition
+      - mechanical_spec.cable_routing
+      - mechanical_spec.mounting
+  deferred_signals:
+    - name: FAN_PWM
+      status: not_present
+      reason: "ThermalSystem uses a verified two-wire, non-PWM Sunon fan"
+      evidence: docs/hardware/BOM.md
+    - name: FAN_TACH
+      status: not_present
+      reason: "ThermalSystem has no tach conductor or tach receiver"
+      evidence: elec/src/modules.ato
+
+# Approved split-board ownership contract (source foundation only).
+#
+# `status: planned` is deliberate: the current Atopile entry point and
+# `pcb/temper.kicad_pcb` remain the legacy one-board artifact.  This section
+# records the reviewed ownership boundary that a future two-board migration
+# must implement; it does not claim that either physical PCB has already
+# been generated.  Board ownership follows the exact domain declarations
+# below, never a net-name prefix or a component-value heuristic.
+board_partition:
+  status: planned
+  # These source-backed nets are needed to validate the planned isolator-side
+  # ownership, but are intentionally not promoted into the legacy current-board
+  # domain lists above.  The current PCB has no kicad_pro assignments for them.
+  target_state_domains:
+    SELV:
+      - ina
+      - inb
+      - nc_7
+      - hb.gate_hs.driver-p1
+  boards:
+    POWER_BOARD:
+      domain: HV
+      # Top-level Atopile modules whose primary ownership is the mains/HV
+      # power stage.  Cross-domain components are listed under
+      # isolator_sides instead of being silently assigned wholesale.
+      modules:
+        - power_in
+        - hb
+        - tank
+        - discharge
+      components:
+        - discharge.c_snub1
+        - discharge.c_snub2
+        - discharge.d_fly1
+        - discharge.d_fly2
+        - discharge.q_dis_drv
+        - discharge.r_coil1
+        - discharge.r_coil2
+        - discharge.r_dis1a
+        - discharge.r_dis1b
+        - discharge.r_dis2a
+        - discharge.r_dis2b
+        - discharge.r_gate
+        - discharge.r_gate_pd
+        - discharge.r_snub1
+        - discharge.r_snub2
+        - hb.c_dc_hf
+        - hb.c_vcci1
+        - hb.c_vcci2
+        - hb.c_vdda
+        - hb.c_vddb
+        - hb.dt_res
+        - hb.gate_hs.boot_cap
+        - hb.gate_hs.boot_diode
+        - hb.gate_hs.c_filt_a
+        - hb.gate_hs.c_filt_b
+        - hb.gate_hs.neg_bias_zener
+        - hb.gate_hs.r_filt_a
+        - hb.gate_hs.r_filt_b
+        - hb.gate_hs.rg_on
+        - hb.gate_hs.rgs
+        - hb.gate_ls.rg_on
+        - hb.gate_ls.rgs
+        - hb.power_loop.q_high
+        - hb.power_loop.q_low
+        - power_in.c_bus1
+        - power_in.c_bus1b
+        - power_in.c_bus2
+        - power_in.c_bus2b
+        - power_in.c_x2
+        - power_in.cmc
+        - power_in.d1
+        - power_in.d2
+        - power_in.d_flyback
+        - power_in.fuse
+        - power_in.mov
+        - power_in.ntc
+        - power_in.q_relay_drv
+        - power_in.r_bleed1
+        - power_in.r_bleed2
+        - power_in.r_gate
+        - power_in.r_gate_pd
+        - power_in.r_relay_drop
+        - tank.c_tank1
+        - tank.c_tank2
+        - tank.c_tank3
+        - tank.inductor_conn
+    CONTROL_BOARD:
+      domain: SELV
+      # MCU, UI-facing signals, RTD sensing, safety logic, and low-voltage
+      # regulation remain on the SELV control side.
+      modules:
+        - power_mgmt
+        - rtd_pan
+        - safety
+        - mcu
+        - thermal
+      components:
+        - mcu.btn_boot
+        - mcu.btn_reset
+        - mcu.c_en
+        - mcu.c_vcc1
+        - mcu.c_vcc2
+        - mcu.mcu
+        - mcu.r_boot
+        - mcu.r_en
+        - mcu.r_scl_pullup
+        - mcu.r_sda_pullup
+        - power_mgmt.buck_3v3.buck
+        - power_mgmt.buck_3v3.c_boot
+        - power_mgmt.buck_3v3.c_in
+        - power_mgmt.buck_3v3.c_out1
+        - power_mgmt.buck_3v3.c_out2
+        - power_mgmt.buck_3v3.c_out_hf
+        - power_mgmt.buck_3v3.l_out
+        - power_mgmt.buck_3v3.r_fb_bot
+        - power_mgmt.buck_3v3.r_fb_top
+        - rtd_pan.adc
+        - rtd_pan.c_fault_nand
+        - rtd_pan.c_high_window
+        - rtd_pan.c_low_window
+        - rtd_pan.c_rail_monitor
+        - rtd_pan.c_reference
+        - rtd_pan.c_vdd
+        - rtd_pan.c_window_and
+        - rtd_pan.fault_nand
+        - rtd_pan.fb_power
+        - rtd_pan.high_window
+        - rtd_pan.j_rtd1
+        - rtd_pan.low_window
+        - rtd_pan.r_avdd_bottom
+        - rtd_pan.r_avdd_top
+        - rtd_pan.r_cs
+        - rtd_pan.r_fault_pullup
+        - rtd_pan.r_high_bottom
+        - rtd_pan.r_high_top
+        - rtd_pan.r_low_bottom
+        - rtd_pan.r_low_top
+        - rtd_pan.r_miso
+        - rtd_pan.r_mosi
+        - rtd_pan.r_rail_ok_pullup
+        - rtd_pan.r_ref
+        - rtd_pan.r_sclk
+        - rtd_pan.r_window_ok_pulldown
+        - rtd_pan.rail_monitor
+        - rtd_pan.reference
+        - rtd_pan.window_and
+        - safety.coil_thermal.comp
+        - safety.coil_thermal.ntc
+        - safety.coil_thermal.r_hyst
+        - safety.coil_thermal.r_ntc_fixed
+        - safety.coil_thermal.r_ref_bot
+        - safety.coil_thermal.r_ref_top
+        - safety.fault_any_or
+        - safety.fault_or
+        - safety.fault_or3
+        - safety.latch
+        - safety.ocp.comp
+        - safety.ocp.r_ref_bot
+        - safety.ocp.r_ref_top
+        - safety.ocp2.c_filter
+        - safety.ocp2.comp
+        - safety.ocp2.r_burden
+        - safety.ovp.c_adc_filter
+        - safety.ovp.comp
+        - safety.ovp.r_adc_bot
+        - safety.ovp.r_adc_top1
+        - safety.ovp.r_adc_top2
+        - safety.ovp.r_adc_top3
+        - safety.ovp.r_div_bot
+        - safety.ovp.r_div_top1
+        - safety.ovp.r_div_top2
+        - safety.ovp.r_div_top3
+        - safety.ovp.r_hyst
+        - safety.thermal.comp
+        - safety.thermal.ntc
+        - safety.thermal.r_hyst
+        - safety.thermal.r_ntc_fixed
+        - safety.thermal.r_ref_bot
+        - safety.thermal.r_ref_top
+        - safety.tp_fault
+        - safety.tp_ocp2_fault
+        - safety.tp_shutdown
+        - safety.tp_uvlo2_fault
+        - safety.uvlo_logic.inv
+        - safety.uvlo_logic.mon
+        - safety.uvlo_logic.r_div_bot
+        - safety.uvlo_logic.r_div_top
+        - safety.uvlo_logic.r_fault_pullup
+        - safety.uvlo_logic.r_hyst
+        - safety.uvlo_logic.r_outa_pullup
+        - safety.wdt.c_bypass
+        - safety.wdt.wdt
+        - thermal.j_fan
+        - thermal.r_fan_drop
+  # These are deliberately exact leaf instance paths.  They are decomposed
+  # by board-side pin group below; no cross-domain component is assigned
+  # wholesale to either PCB.
+  cross_domain_modules:
+    - aux_supply
+    - ct_sense
+  cross_domain_components:
+    - instance_path: aux_supply.c_in_bulk
+      module: aux_supply
+      sides: {POWER_BOARD: [all]}
+    - instance_path: aux_supply.c_out
+      module: aux_supply
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: aux_supply.c_out_hf
+      module: aux_supply
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: aux_supply.psu
+      module: aux_supply
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
+    - instance_path: ct_sense.c_filter
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: ct_sense.ct
+      module: ct_sense
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
+    - instance_path: ct_sense.r_bias_bot
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: ct_sense.r_bias_top
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: ct_sense.r_burden
+      module: ct_sense
+      sides: {CONTROL_BOARD: [all]}
+    - instance_path: discharge.k_dis1
+      module: discharge
+      sides: {POWER_BOARD: [contacts], CONTROL_BOARD: [coil]}
+    - instance_path: discharge.k_dis2
+      module: discharge
+      sides: {POWER_BOARD: [contacts], CONTROL_BOARD: [coil]}
+    - instance_path: hb.gate_hs.driver
+      module: hb
+      sides: {POWER_BOARD: [secondary], CONTROL_BOARD: [primary]}
+    - instance_path: power_in.bypass_relay
+      module: power_in
+      sides: {POWER_BOARD: [contacts], CONTROL_BOARD: [coil]}
+    - instance_path: power_in.y_cap_pe
+      module: power_in
+      sides: {POWER_BOARD: [hv_side], CONTROL_BOARD: [selv_side]}
+    - instance_path: safety.ocp2.ct
+      module: safety
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
+  # Every declared galvanic isolator must identify which pin group belongs
+  # to the power-side domain and which belongs to the control-side domain.
+  # Group names are resolved against the isolators: entries below, so this
+  # mapping remains stable across refdes changes.
+  isolator_sides:
+    - instance_path: aux_supply.psu
+      power_board_group: primary
+      control_board_group: secondary
+    - instance_path: hb.gate_hs.driver
+      power_board_group: secondary
+      control_board_group: primary
+    - instance_path: ct_sense.ct
+      power_board_group: primary
+      control_board_group: secondary
+    - instance_path: safety.ocp2.ct
+      power_board_group: primary
+      control_board_group: secondary
+    - instance_path: power_in.bypass_relay
+      power_board_group: contacts
+      control_board_group: coil
+    - instance_path: discharge.k_dis1
+      power_board_group: contacts
+      control_board_group: coil
+    - instance_path: discharge.k_dis2
+      power_board_group: contacts
+      control_board_group: coil
+    - instance_path: power_in.y_cap_pe
+      power_board_group: hv_side
+      control_board_group: selv_side
 
 domains:
   # Mains / high-voltage power domain: AC line/neutral, the rectified DC

@@ -1,0 +1,37 @@
+# Approved split-board boundary contract.
+#
+# This file intentionally defines only electrical ownership boundaries.  It
+# is not imported by src/main.ato yet, so the legacy one-board Atopile entry
+# point and pcb/temper.kicad_pcb remain unchanged until the physical split is
+# implemented and separately verified.
+
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+
+import HighVoltageBus from "interfaces.ato"
+
+# SELV-only signals permitted to cross the future power/control boundary.
+# The connector, pinout, harness, and enclosure remain deliberately
+# unspecified; those are later design decisions, not part of this contract.
+interface PowerControlSELV:
+    signal gnd
+    signal vcc_15v
+    signal vcc_3v3
+    signal pwm_hs
+    signal pwm_ls
+    signal shutdown
+    signal relay_ctrl
+    signal discharge_ctrl
+    signal v_bus_sense
+    signal i_sense
+
+
+# Boundary-only modules are intentionally component-free.  They give the
+# future two-board hierarchy a typed home without duplicating the existing
+# Top design or generating a second PCB artifact prematurely.
+module PowerBoardBoundary:
+    hv = new HighVoltageBus
+    control = new PowerControlSELV
+
+module ControlBoardBoundary:
+    control = new PowerControlSELV

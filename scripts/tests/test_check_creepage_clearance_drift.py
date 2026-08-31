@@ -147,6 +147,18 @@ class TestAtoDiscovery:
 
 
 class TestPythonDiscovery:
+    def test_split_board_target_state_module_is_not_current_board_declaration(self, tmp_path: Path) -> None:
+        _mk(
+            tmp_path,
+            "scripts/split_contract.py",
+            '"""Split-board contract.\n\nDRIFT_SCOPE: split-board-target-state\n"""\n'
+            "REQUIRED_CREEPAGE_MM = 12.6  # split-board target\n",
+        )
+        _mk(tmp_path, "scripts/current_board.py", "MIN_CREEPAGE_MM = 8.0\n")
+        decls, errors = discover_python(tmp_path)
+        assert not errors
+        assert [d.name for d in decls] == ["MIN_CREEPAGE_MM"]
+
     def test_direct_name_match(self, tmp_path: Path) -> None:
         _mk(tmp_path, "scripts/foo.py", "HV_CREEPAGE_PD2_MM = 8.0\n")
         decls, errors = discover_python(tmp_path)
@@ -274,6 +286,17 @@ class TestPythonDiscovery:
 
 
 class TestYamlDiscovery:
+    def test_target_state_only_declaration_is_not_current_board_declaration(self, tmp_path: Path) -> None:
+        _mk(
+            tmp_path,
+            "elec/split_board_manifest.yaml",
+            "cross_domain:\n"
+            "  reinforced_creepage_mm: 12.6  # TARGET_STATE_ONLY: split-board contract\n",
+        )
+        decls, errors = discover_yaml(tmp_path)
+        assert not errors
+        assert decls == []
+
     def test_direct_key_match(self, tmp_path: Path) -> None:
         _mk(
             tmp_path,

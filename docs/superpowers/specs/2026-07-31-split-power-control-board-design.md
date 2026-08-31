@@ -5,8 +5,8 @@
 **Date:** 2026-07-31
 
 **Scope:** replace the current interleaved single-board mains/SELV floorplan
-with a power board plus SELV control board, while retaining PD2 as the
-conditional production target.
+with a power board plus SELV control board, using PD3 and 12.6 mm reinforced
+creepage as the approved production target.
 
 ## Decision
 
@@ -27,18 +27,20 @@ with an arbitrary keepout.
 
 ## Safety and domain contract
 
-The selected production target remains PD2 with an 8.0 mm reinforced
-creepage requirement, conditional on the covered, gasketed PCB compartment
-specified in the environmental and assembly documents. If that compartment is
-not implemented and verified, the design falls back to PD3 and 12.6 mm.
+The approved production target is PD3 with a 12.6 mm reinforced creepage
+requirement. A future covered or gasketed compartment may be evaluated as a
+separate design change, but no unverified PD2 assumption is part of this
+contract.
 
-The domain manifest remains the source of intended topology, but it will be
-extended to identify board ownership for every declared net and component:
+The domain manifest remains the source of intended topology and identifies
+board ownership for every declared interface net:
 
 The first implementation increment is now machine-checked in
 `elec/domain_manifest.yaml` as `POWER_CONTROL_SELV_INTERFACE`. It enumerates
-the ten permitted interface nets and permits only the `SELV` domain. The
-netlist domain gate rejects a missing compiled net as a stale contract and
+the ten permitted interface nets and permits only the `SELV` domain. The ten
+include `I_SENSE`, the CT-secondary current telemetry signal; retired
+`ZCD_ISO` is not an interface net. The netlist domain gate rejects a missing
+compiled net as a stale contract and
 rejects any interface net classified as HV or left unclassified. This is an
 interface guard while the two PCB artifacts are being built; it does not
 pretend that the legacy one-board PCB has already been physically split.
@@ -87,8 +89,9 @@ not a reason to weaken the domain boundary.
 ## Mechanical architecture
 
 The power and control boards will occupy separate retained regions of the
-appliance. The control-board region will be the gasketed PCB compartment that
-earns PD2. It must be outside the coil/heatsink forced-air path and must block
+appliance. The control-board region must meet the approved PD3 / 12.6 mm
+target. Any future compartment treatment must be separately specified and
+verified; it must be outside the coil/heatsink forced-air path and must block
 grease, steam, and cooking aerosols through covers, seams, service openings,
 and cable penetrations.
 
@@ -136,8 +139,8 @@ The implementation is complete only when all of the following pass:
 - evidence provenance points to reachable measurement commits;
 - every board-changing PR remeasures `drc_ceiling.json` with the required
   sample count and records attributed deltas; and
-- the PD2 compartment is verified mechanically before the 8.0 mm target is
-  cited as the production figure.
+- the split-board construction is verified mechanically before the PD3 /
+  12.6 mm target is cited as the production figure.
 
 The existing 123 REQ-SAFE-01 findings are not accepted as a baseline. They
 must either disappear through the new topology and placement or be individually
@@ -163,7 +166,7 @@ open physical-boundary gate.
 
 ## Non-goals
 
-- Lowering the selected PD2 requirement to fit the current board.
+- Lowering the approved PD3 / 12.6 mm requirement to fit the current board.
 - Exempting the current interleaved placement from the isolation gate.
 - Treating a connector, gasket, or software interlock as a substitute for
   reinforced isolation.

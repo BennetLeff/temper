@@ -25,9 +25,12 @@ from check_domain_partition import (  # noqa: E402
     EXIT_GATE_ERROR,
     EXIT_OK,
     EXIT_VIOLATION,
+    MANDATORY_GENERATION_REQUIRED_FIELDS,
     GateError,
     build_graph,
     check_board_interface_contract,
+    check_board_interface_generation_ready,
+    check_board_partition_contract,
     check_domain_disjointness,
     check_isolator_integrity,
     check_netlist_freshness,
@@ -36,8 +39,8 @@ from check_domain_partition import (  # noqa: E402
     parse_netlist,
     resolve_isolator_refs,
     run,
+    validate_split_domain_contract,
 )
-
 
 # ---------------------------------------------------------------------------
 # Netlist / manifest builders
@@ -119,12 +122,167 @@ board_interface:
   connector: J_POWER_CONTROL
   allowed_domains: [SELV]
   nets: [v15, pwm, shutdown]
+  safety_target:
+    standard: IEC 60335-1
+    pollution_degree: 3
+    reinforced_creepage_mm: 12.6
+  signals:
+    - net: v15
+      role: supply
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss blocks power-up"
+      status: resolved
+    - net: pwm
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss disables power stage"
+      status: resolved
+    - net: shutdown
+      role: fault
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "active fault disables power stage"
+      status: resolved
+  fault_aggregation:
+    output_net: shutdown
+    active_level: high
+    latched: true
+    sources: [OCP_01]
+    status: resolved
+  connector_spec:
+    part_number: null
+    pinout: null
+    retention: null
+    single_fault_review: null
+  mechanical_spec:
+    enclosure_compartment: null
+    board_partition: null
+    cable_routing: null
+    mounting: null
+  generation:
+    status: blocked
+    required_fields:
+      - connector_spec.part_number
+      - connector_spec.pinout
+      - connector_spec.retention
+      - connector_spec.single_fault_review
+      - mechanical_spec.enclosure_compartment
+      - mechanical_spec.board_partition
+      - mechanical_spec.cable_routing
+      - mechanical_spec.mounting
 domains:
   HV:
     nets: [ac_l, hv_return]
   SELV:
-    nets: [v15, pwm, shutdown]
+    nets: [v15, pwm, shutdown, selv_gnd]
 isolators: []
+"""
+
+
+SPLIT_BOARD_PARTITION_MANIFEST = """
+schema_version: 1
+board_interface:
+  name: POWER_CONTROL_SELV_INTERFACE
+  power_board: POWER_BOARD
+  control_board: CONTROL_BOARD
+  connector: J_POWER_CONTROL
+  allowed_domains: [SELV]
+  nets: [v15, pwm, shutdown]
+  safety_target:
+    standard: IEC 60335-1
+    pollution_degree: 3
+    reinforced_creepage_mm: 12.6
+  signals:
+    - net: v15
+      role: supply
+      owner: POWER_BOARD
+      direction: POWER_BOARD_TO_CONTROL_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss blocks power-up"
+      status: resolved
+    - net: pwm
+      role: control
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "loss disables power stage"
+      status: resolved
+    - net: shutdown
+      role: fault
+      owner: CONTROL_BOARD
+      direction: CONTROL_BOARD_TO_POWER_BOARD
+      domain: SELV
+      return_net: selv_gnd
+      fault_behavior: "active fault disables power stage"
+      status: resolved
+  fault_aggregation:
+    output_net: shutdown
+    active_level: high
+    latched: true
+    sources: [OCP_01]
+    status: resolved
+  connector_spec:
+    part_number: null
+    pinout: null
+    retention: null
+    single_fault_review: null
+  mechanical_spec:
+    enclosure_compartment: null
+    board_partition: null
+    cable_routing: null
+    mounting: null
+  generation:
+    status: blocked
+    required_fields:
+      - connector_spec.part_number
+      - connector_spec.pinout
+      - connector_spec.retention
+      - connector_spec.single_fault_review
+      - mechanical_spec.enclosure_compartment
+      - mechanical_spec.board_partition
+      - mechanical_spec.cable_routing
+      - mechanical_spec.mounting
+board_partition:
+  status: planned
+  boards:
+    POWER_BOARD:
+      domain: HV
+      modules: [power_in, hb]
+      components: [power_in.r1]
+    CONTROL_BOARD:
+      domain: SELV
+      modules: [mcu, rtd_pan]
+      components: [mcu.u1]
+  cross_domain_modules: [aux]
+  cross_domain_components:
+    - instance_path: aux.psu
+      module: aux
+      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}
+  isolator_sides:
+    - instance_path: aux.psu
+      power_board_group: primary
+      control_board_group: secondary
+domains:
+  HV:
+    nets: [ac_l, hv_return]
+  SELV:
+    nets: [v15, pwm, shutdown, selv_gnd]
+isolators:
+  - instance_path: aux.psu
+    component: Test isolator
+    groups:
+      primary: [1]
+      secondary: [2]
 """
 
 
@@ -140,6 +298,123 @@ def _isolated_topology_nets():
 
 
 class TestBoardInterfaceContract:
+    def test_real_contract_has_ten_nets_and_resolves_current_sense(self):
+        manifest = load_manifest(Path(__file__).resolve().parents[2] / "elec" / "domain_manifest.yaml")
+
+        assert manifest.board_interface is not None
+        interface = manifest.board_interface
+        assert len(interface.nets) == 10
+        assert interface.nets[-1] == "I_SENSE"
+        current = interface.signals[-1]
+        assert current.net == "I_SENSE"
+        assert current.owner == "POWER_BOARD"
+        assert current.direction == "POWER_BOARD_TO_CONTROL_BOARD"
+        assert current.domain == "SELV"
+        assert current.return_net == "gnd"
+        assert current.status == "resolved"
+        assert {entry["name"] for entry in interface.deferred_signals} == {
+            "FAN_PWM",
+            "FAN_TACH",
+        }
+
+    def test_real_contract_has_exact_readiness_set_and_typed_ten_net_records(self):
+        manifest = load_manifest(
+            Path(__file__).resolve().parents[2] / "elec" / "domain_manifest.yaml"
+        )
+        interface = manifest.board_interface
+        assert interface is not None
+        assert {
+            "connector_spec.part_number",
+            "connector_spec.pinout",
+            "connector_spec.retention",
+            "connector_spec.single_fault_review",
+            "mechanical_spec.enclosure_compartment",
+            "mechanical_spec.board_partition",
+            "mechanical_spec.cable_routing",
+            "mechanical_spec.mounting",
+        } == MANDATORY_GENERATION_REQUIRED_FIELDS
+        assert len(interface.signals) == 10
+        assert {signal.net for signal in interface.signals} == set(interface.nets)
+        assert all(signal.domain == "SELV" for signal in interface.signals)
+        assert all(signal.return_net == "gnd" for signal in interface.signals)
+
+    def test_signal_return_net_must_be_declared_and_allowed(self, tmp_path):
+        text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "return_net: selv_gnd", "return_net: hv_return", 1
+        ).replace(
+            "  HV:\n    nets: [ac_l, hv_return]",
+            "  HV:\n    nets: [ac_l, hv_return]",
+        )
+        with pytest.raises(GateError, match="outside allowed domains"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_signal_role_requires_coherent_owner_and_direction(self, tmp_path):
+        text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "      owner: POWER_BOARD\n      direction: POWER_BOARD_TO_CONTROL_BOARD\n",
+            "      owner: CONTROL_BOARD\n      direction: CONTROL_BOARD_TO_POWER_BOARD\n",
+            1,
+        )
+        with pytest.raises(GateError, match="incoherent role/owner/direction"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_required_fields_are_authoritative_exact_set(self, tmp_path):
+        text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "      - mechanical_spec.mounting\n",
+            "      - mechanical_spec.mounting\n      - generation.extra\n",
+        )
+        with pytest.raises(GateError, match="must be exactly the mandatory readiness set"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_generation_readiness_fails_closed_on_unresolved_fields(self, tmp_path):
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_INTERFACE_MANIFEST)
+        )
+
+        with pytest.raises(GateError, match="generation blocked"):
+            check_board_interface_generation_ready(manifest)
+
+    def test_generation_readiness_rejects_signal_outside_allowed_domain(self, tmp_path):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "    - net: pwm\n      role: control\n      owner: CONTROL_BOARD\n      direction: CONTROL_BOARD_TO_POWER_BOARD\n      domain: SELV\n",
+            "    - net: pwm\n      role: control\n      owner: CONTROL_BOARD\n      direction: CONTROL_BOARD_TO_POWER_BOARD\n      domain: HV\n",
+            1,
+        )
+        with pytest.raises(GateError, match="declares domain"):
+            load_manifest(write_manifest(tmp_path, manifest_text))
+
+    def test_resolved_signal_rejects_unresolved_sentinel(self, tmp_path):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "      owner: POWER_BOARD\n      direction: POWER_BOARD_TO_CONTROL_BOARD\n",
+            "      owner: UNRESOLVED\n      direction: POWER_BOARD_TO_CONTROL_BOARD\n",
+            1,
+        )
+
+        with pytest.raises(GateError, match="UNRESOLVED sentinel"):
+            load_manifest(write_manifest(tmp_path, manifest_text))
+
+    def test_generation_readiness_fails_closed_on_unresolved_fault_aggregation(
+        self, tmp_path
+    ):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "    status: resolved\n  connector_spec:",
+            "    status: unresolved\n  connector_spec:",
+            1,
+        )
+        manifest = load_manifest(write_manifest(tmp_path, manifest_text))
+
+        with pytest.raises(GateError, match="fault aggregation semantics"):
+            check_board_interface_generation_ready(manifest)
+
+    def test_signal_schema_requires_all_semantic_fields(self, tmp_path):
+        malformed = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "      status: resolved\n", "      status: resolved\n", 1
+        ).replace(
+            "      fault_behavior: \"loss blocks power-up\"\n", "", 1
+        )
+
+        with pytest.raises(GateError, match="missing keys"):
+            load_manifest(write_manifest(tmp_path, malformed))
+
     def test_split_board_interface_accepts_only_declared_selv_nets(self, tmp_path):
         netlist = parse_netlist(
             write_netlist(
@@ -161,8 +436,17 @@ class TestBoardInterfaceContract:
 
     def test_split_board_interface_rejects_hv_net(self, tmp_path):
         manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
-            "nets: [v15, pwm, shutdown]\ndomains:",
-            "nets: [v15, hv_return, shutdown]\ndomains:",
+            "nets: [v15, pwm, shutdown]",
+            "nets: [v15, hv_return, shutdown]",
+            1,
+        )
+        manifest_text = manifest_text.replace(
+            "    - net: pwm\n", "    - net: hv_return\n", 1
+        ).replace(
+            "      domain: SELV\n      return_net: selv_gnd\n"
+            "      fault_behavior: \"loss disables power stage\"\n",
+            "      domain: HV\n      return_net: selv_gnd\n"
+            "      fault_behavior: \"loss disables power stage\"\n",
             1,
         )
         netlist = parse_netlist(
@@ -183,6 +467,214 @@ class TestBoardInterfaceContract:
         assert len(violations) == 1
         assert "hv_return" in violations[0]
         assert "HV" in violations[0]
+
+
+class TestBoardPartitionContract:
+    def test_real_manifest_assigns_hv_power_and_mcu_rtd_control(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        manifest = load_manifest(repo_root / "elec" / "domain_manifest.yaml")
+
+        assert manifest.board_partition is not None
+        partition = manifest.board_partition
+        assert partition.board_domains[partition.power_board] == "HV"
+        assert partition.board_domains[partition.control_board] == "SELV"
+        assert partition.target_state_domains == {
+            "SELV": ("ina", "inb", "nc_7", "hb.gate_hs.driver-p1")
+        }
+        assert "hb" in partition.modules[partition.power_board]
+        assert "mcu" in partition.modules[partition.control_board]
+        assert "rtd_pan" in partition.modules[partition.control_board]
+        assert "thermal" in partition.modules[partition.control_board]
+        assert check_board_partition_contract(manifest) == []
+
+    def test_real_partition_accounts_for_every_component_and_all_isolator_sides(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        manifest = load_manifest(repo_root / "elec" / "domain_manifest.yaml")
+        partition = manifest.board_partition
+        assert partition is not None
+        assert set(partition.cross_domain_modules) == {"aux_supply", "ct_sense"}
+        assert len(partition.cross_domain_components) == 15
+        assert {
+            entry["instance_path"] for entry in partition.cross_domain_components
+        } == {
+            "aux_supply.c_in_bulk", "aux_supply.c_out", "aux_supply.c_out_hf",
+            "aux_supply.psu", "ct_sense.c_filter", "ct_sense.ct",
+            "ct_sense.r_bias_bot", "ct_sense.r_bias_top", "ct_sense.r_burden",
+            "discharge.k_dis1", "discharge.k_dis2", "hb.gate_hs.driver",
+            "power_in.bypass_relay", "power_in.y_cap_pe", "safety.ocp2.ct",
+        }
+        assert {
+            side.instance_path for side in partition.isolator_sides
+        } == {
+            "aux_supply.psu", "hb.gate_hs.driver", "ct_sense.ct",
+            "safety.ocp2.ct", "power_in.bypass_relay", "discharge.k_dis1",
+            "discharge.k_dis2", "power_in.y_cap_pe",
+        }
+        assert check_board_partition_contract(
+            manifest,
+            netlist=parse_netlist(repo_root / "elec" / "build" / "default.net"),
+            src_dir=repo_root / "elec" / "src",
+        ) == []
+
+    def test_split_board_partition_keeps_domains_and_isolator_sides_explicit(self, tmp_path):
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_PARTITION_MANIFEST)
+        )
+
+        assert manifest.board_partition is not None
+        assert manifest.board_partition.board_domains == {
+            "POWER_BOARD": "HV",
+            "CONTROL_BOARD": "SELV",
+        }
+        assert manifest.board_partition.modules["CONTROL_BOARD"] == (
+            "mcu",
+            "rtd_pan",
+        )
+        side = manifest.board_partition.isolator_sides[0]
+        assert (side.power_board_group, side.control_board_group) == (
+            "primary",
+            "secondary",
+        )
+        assert check_board_partition_contract(manifest) == []
+
+    def test_partition_rejects_hv_control_board(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "CONTROL_BOARD:\n      domain: SELV",
+            "CONTROL_BOARD:\n      domain: HV",
+        )
+
+        with pytest.raises(GateError, match="different domains"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_partition_requires_every_declared_isolator_side_mapping(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "isolator_sides:\n    - instance_path: aux.psu\n      power_board_group: primary\n      control_board_group: secondary\n",
+            "isolator_sides: []\n",
+        )
+
+        with pytest.raises(GateError, match="isolator_sides must be a non-empty list"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_partition_requires_exact_group_coverage(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "      primary: [1]\n      secondary: [2]\n",
+            "      primary: [1]\n      secondary: [2]\n      shield: [3]\n",
+        )
+
+        with pytest.raises(GateError, match="map every group exactly once"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_partition_reports_interface_domain_leak(self, tmp_path):
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_PARTITION_MANIFEST)
+        )
+        # Exercise the semantic check independently of YAML parsing: a
+        # future caller cannot move an interface net to HV and still receive
+        # a clean partition verdict.
+        manifest.domains["HV"].append("shutdown")
+        manifest.domains["SELV"].remove("shutdown")
+
+        violations = check_board_partition_contract(manifest)
+
+        assert violations == [
+            "split-board interface net 'shutdown' is not owned by the "
+            "control-board domain 'SELV'"
+        ]
+
+    def test_non_isolator_cross_component_must_use_cross_domain_module(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "  cross_domain_components:\n"
+            "    - instance_path: aux.psu\n"
+            "      module: aux\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n",
+            "  cross_domain_components:\n"
+            "    - instance_path: aux.psu\n"
+            "      module: aux\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n"
+            "    - instance_path: power_in.cap\n"
+            "      module: power_in\n"
+            "      sides: {POWER_BOARD: [all]}\n",
+        )
+
+        with pytest.raises(GateError, match="non-isolator.*cross_domain_modules"):
+            load_manifest(write_manifest(tmp_path, text))
+
+    def test_isolator_may_live_under_an_ordinary_board_module(self, tmp_path):
+        text = SPLIT_BOARD_PARTITION_MANIFEST.replace(
+            "      module: aux\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n",
+            "      module: mcu\n"
+            "      sides: {POWER_BOARD: [primary], CONTROL_BOARD: [secondary]}\n",
+            1,
+        )
+
+        manifest = load_manifest(write_manifest(tmp_path, text))
+        assert manifest.board_partition is not None
+        assert manifest.board_partition.cross_domain_components[0]["module"] == "mcu"
+
+
+class TestSplitDomainContractAuthority:
+    def test_public_validator_checks_real_typed_contract_and_inventory(self):
+        repo_root = Path(__file__).resolve().parents[2]
+
+        manifest = validate_split_domain_contract(
+            repo_root / "elec" / "domain_manifest.yaml",
+            src_dir=repo_root / "elec" / "src",
+        )
+
+        assert manifest.board_interface is not None
+        assert len(manifest.board_interface.signals) == 10
+        assert manifest.board_partition is not None
+
+    def test_public_validator_rejects_typed_signal_mutation(self, tmp_path):
+        repo_root = Path(__file__).resolve().parents[2]
+        text = (repo_root / "elec" / "domain_manifest.yaml").read_text()
+        mutated = text.replace(
+            "    - net: I_SENSE\n      role: telemetry\n      owner: POWER_BOARD\n",
+            "    - net: I_SENSE\n      role: telemetry\n      owner: CONTROL_BOARD\n",
+            1,
+        )
+        path = write_manifest(tmp_path, mutated)
+
+        with pytest.raises(GateError, match="role/owner/direction"):
+            validate_split_domain_contract(path, src_dir=repo_root / "elec" / "src")
+
+    def test_public_validator_rejects_partition_inventory_mutation(self, tmp_path):
+        repo_root = Path(__file__).resolve().parents[2]
+        text = (repo_root / "elec" / "domain_manifest.yaml").read_text()
+        mutated = text.replace(
+            "        - thermal.j_fan\n",
+            "",
+            1,
+        )
+        path = write_manifest(tmp_path, mutated)
+
+        with pytest.raises(GateError, match="component inventory"):
+            validate_split_domain_contract(path, src_dir=repo_root / "elec" / "src")
+
+
+def test_split_board_atopile_boundary_has_no_connector_or_physical_board_claim():
+    repo_root = Path(__file__).resolve().parents[2]
+    source = (repo_root / "elec" / "src" / "split_board_hierarchy.ato").read_text()
+
+    assert "interface PowerControlSELV" in source
+    for signal in (
+        "gnd",
+        "vcc_15v",
+        "vcc_3v3",
+        "pwm_hs",
+        "pwm_ls",
+        "shutdown",
+        "relay_ctrl",
+        "discharge_ctrl",
+        "v_bus_sense",
+        "i_sense",
+    ):
+        assert f"signal {signal}" in source
+    assert "module PowerBoardBoundary" in source
+    assert "module ControlBoardBoundary" in source
+    assert "connector =" not in source.lower()
+    assert "pcb/temper.kicad_pcb" in source
 
 
 def _shorted_topology_nets():
