@@ -3,24 +3,20 @@ Coverage paydown tests for PCL module — fills gaps in existing test coverage.
 
 Tests added for constraint properties, BaseConstraint.escalate,
 KeepoutConstraint, LintResult, lint_constraints, ConstraintCollection methods,
-SAT bridge, tag dispatch, tagged constraints, and unsat compiler edge cases.
+SAT bridge, tag dispatch, and tagged constraints.
 """
 
 import pytest
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
-    AnchoredConstraint,
-    BaseConstraint,
     CompilationContext,
     ConstraintTier,
     ConstraintType,
-    EnclosingConstraint,
     KeepoutConstraint,
-    LoopAreaConstraint,
-    OnSideConstraint,
-    SemanticTag,
     SeparatedConstraint,
 )
 from temper_placer.pcl.linter import LintResult, lint_constraints
@@ -30,27 +26,11 @@ from temper_placer.pcl.parser import (
     parse_constraint_dict,
     parse_pcl_file,
 )
-from temper_placer.pcl.sat_bridge import ConstraintOrigin
-from temper_placer.pcl.unsat_compiler import (
-    InfeasibleConstraintSet,
-    compile_unsat_to_pcl,
-    reset_escalation_counts,
-)
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
+from temper_placer.pcl.router_compiler import ConstraintOrigin
 
 # ============================================================================
 # ConstraintType properties
 # ============================================================================
-
-
-def test_constraint_type_capabilities():
-    """ConstraintType.capabilities returns frozenset of SemanticTag."""
-    assert ConstraintType.ADJACENT.capabilities == frozenset({SemanticTag.PROXIMITY})
-    assert ConstraintType.SEPARATED.capabilities == frozenset({SemanticTag.SEPARATION, SemanticTag.ORDERING})
-    assert ConstraintType.ENCLOSING.capabilities == frozenset({SemanticTag.ZONING})
-    assert ConstraintType.ON_SIDE.capabilities == frozenset({SemanticTag.ZONING})
 
 
 def test_constraint_type_label():
@@ -60,12 +40,10 @@ def test_constraint_type_label():
     assert ConstraintType.LOOP_AREA.label == "loop_area"
 
 
-def test_constraint_type_supported_targets():
-    """ConstraintType.supported_targets returns frozenset of CompilationTarget."""
-    from temper_placer.pcl.constraints import CompilationTarget
-    targets = ConstraintType.ADJACENT.supported_targets
-    assert CompilationTarget.JAX in targets
-    assert CompilationTarget.SAT in targets
+def test_constraint_type_has_no_backend_metadata():
+    """Compiler catalogs, not constraint enums, own backend support."""
+    assert not hasattr(ConstraintType.ADJACENT, "supported_targets")
+    assert not hasattr(ConstraintType.ADJACENT, "capabilities")
 
 
 def test_constraint_type_value():
@@ -187,7 +165,13 @@ def test_lint_result_passed_with_errors():
 def test_lint_constraints_empty():
     """lint_constraints on empty list passes."""
     board = Board(width=100.0, height=100.0)
-    netlist = Netlist(components=[], nets=[])
+    netlist = Netlist(
+        components=[
+            Component(ref="Q1", footprint="SOIC8", bounds=(5, 5), pins=[]),
+            Component(ref="Q2", footprint="SOIC8", bounds=(5, 5), pins=[]),
+        ],
+        nets=[],
+    )
     result = lint_constraints([], netlist, board)
     assert result.passed
 
@@ -326,21 +310,6 @@ def test_constraint_collection_validate_component_refs():
     assert "MISSING" in errors[0]
 
 
-def test_constraint_collection_compile_no_backend():
-    """ConstraintCollection.compile raises when no backend registered."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.HARD, because="Test compile",
-    )
-    coll = ConstraintCollection(constraints=[c])
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    from temper_placer.pcl.constraints import CompilationTarget
-    # No backends registered for "cp_sat" — uses BaseConstraint.backends directly,
-    # which at import time only has "drc" registered. Use a key unlikely to exist.
-    with pytest.raises(ValueError, match="No backend registered"):
-        coll.compile(CompilationTarget.CP_SAT, ctx)
-
-
 def test_constraint_collection_lint_calls_linter():
     """ConstraintCollection.lint delegates to lint_constraints."""
     board = Board(width=100.0, height=100.0)
@@ -356,16 +325,6 @@ def test_constraint_collection_lint_calls_linter():
     assert isinstance(result, LintResult)
     # U1 adjacent to itself is suspicious but should only be a warning
     assert result.passed
-
-
-def test_constraint_collection_auto_enrich_empty():
-    """ConstraintCollection.auto_enrich with empty netlist — raises NotImplementedError."""
-    board = Board(width=100.0, height=100.0)
-    netlist = Netlist(components=[], nets=[])
-    coll = ConstraintCollection(constraints=[])
-    # auto_enrich calls auto_detect_decoupling which raises NotImplementedError
-    with pytest.raises(NotImplementedError, match="auto_detect_decoupling removed"):
-        coll.auto_enrich(netlist, board)
 
 
 # ============================================================================
@@ -468,7 +427,7 @@ def test_validate_pcl_dict_valid():
 
 def test_validate_pcl_dict_missing_constraints():
     """validate_pcl_dict rejects dict without 'constraints' key."""
-    from temper_placer.pcl._schema import validate_pcl_dict, PCLValidationError
+    from temper_placer.pcl._schema import PCLValidationError, validate_pcl_dict
     with pytest.raises(PCLValidationError):
         validate_pcl_dict({"version": "1.0"})
 
@@ -488,50 +447,50 @@ def test_constraint_origin_record_and_lookup():
     assert origin.lookup_pcl_id("nonexistent") is None
 
 
-def test_constraint_origin_get_sat_names():
-    """ConstraintOrigin.get_sat_names returns all SAT names for a PCL id."""
+def test_constraint_origin_get_router_names():
+    """ConstraintOrigin.get_router_names returns all router names for a PCL id."""
     origin = ConstraintOrigin()
     origin.record("pcl_1", "sat_A")
     origin.record("pcl_1", "sat_B")
-    assert sorted(origin.get_sat_names("pcl_1")) == ["sat_A", "sat_B"]
-    assert origin.get_sat_names("nonexistent") == []
+    assert sorted(origin.get_router_names("pcl_1")) == ["sat_A", "sat_B"]
+    assert origin.get_router_names("nonexistent") == []
 
 
-def test_constraint_origin_get_sat_names_empty():
-    """ConstraintOrigin.get_sat_names returns empty for unknown id."""
+def test_constraint_origin_get_router_names_empty():
+    """ConstraintOrigin.get_router_names returns empty for unknown id."""
     origin = ConstraintOrigin()
-    assert origin.get_sat_names("unknown") == []
+    assert origin.get_router_names("unknown") == []
 
 
 # ============================================================================
-# SAT bridge: SATBridgeContext
+# Router compiler context
 # ============================================================================
 
 
-def test_sat_bridge_context_net_index():
-    """SATBridgeContext.net_index resolves component refs."""
-    from temper_placer.pcl.sat_bridge import SATBridgeContext
+def test_router_compilation_context_net_index():
+    """RouterCompilationContext.net_index resolves component refs."""
+    from temper_placer.pcl.router_compiler import RouterCompilationContext
     comps = [
         Component(ref="U1", footprint="SOIC8", bounds=(5, 5), pins=[]),
         Component(ref="R1", footprint="0603", bounds=(1.6, 0.8), pins=[]),
     ]
     netlist = Netlist(components=comps, nets=[])
-    ctx = SATBridgeContext(
+    ctx = RouterCompilationContext(
         netlist=netlist, board=None, skeletons={}, channel_widths={},
     )
     assert ctx.net_index("U1") == 0
     assert ctx.net_index("R1") == 1
 
 
-def test_sat_bridge_context_component_indices():
-    """SATBridgeContext.component_indices resolves component ref to indices."""
-    from temper_placer.pcl.sat_bridge import SATBridgeContext
+def test_router_compilation_context_component_indices():
+    """RouterCompilationContext.component_indices resolves component refs."""
+    from temper_placer.pcl.router_compiler import RouterCompilationContext
     comps = [
         Component(ref="U1", footprint="SOIC8", bounds=(5, 5), pins=[]),
         Component(ref="R1", footprint="0603", bounds=(1.6, 0.8), pins=[]),
     ]
     netlist = Netlist(components=comps, nets=[])
-    ctx = SATBridgeContext(
+    ctx = RouterCompilationContext(
         netlist=netlist, board=None, skeletons={}, channel_widths={},
     )
     indices = ctx.component_indices("U1")
@@ -539,61 +498,67 @@ def test_sat_bridge_context_component_indices():
     assert len(indices) >= 0
 
 
-def test_sat_bridge_context_channels_empty():
-    """SATBridgeContext.channels returns empty when no skeletons."""
-    from temper_placer.pcl.sat_bridge import SATBridgeContext
+def test_router_compilation_context_channels_empty():
+    """RouterCompilationContext.channels is empty without skeletons."""
+    from temper_placer.pcl.router_compiler import RouterCompilationContext
     netlist = Netlist(components=[], nets=[])
-    ctx = SATBridgeContext(
+    ctx = RouterCompilationContext(
         netlist=netlist, board=None, skeletons={}, channel_widths={},
     )
     assert ctx.channels == []
 
 
 # ============================================================================
-# SAT bridge: constraint_to_clauses, register_handler
+# Explicit router constraint compiler
 # ============================================================================
 
 
-def test_constraint_to_clauses_adjacent_no_skeletons():
-    """constraint_to_clauses handles AdjacentConstraint without skeletons."""
-    from temper_placer.pcl.sat_bridge import constraint_to_clauses, SATBridgeContext
+def test_constraint_to_router_constraints_adjacent_no_skeletons():
+    """Router compilation handles AdjacentConstraint without skeletons."""
+    from temper_placer.pcl.router_compiler import (
+        RouterCompilationContext,
+        constraint_to_router_constraints,
+    )
     c = AdjacentConstraint(
         a="Q1", b="Q2", max_distance_mm=10.0,
         tier=ConstraintTier.HARD, because="Test SAT bridge usage",
     )
-    # Build a minimal SATBridgeContext
+    # Build a minimal router compilation context.
     comps = [
         Component(ref="Q1", footprint="SOIC8", bounds=(5, 5), pins=[]),
         Component(ref="Q2", footprint="SOIC8", bounds=(5, 5), pins=[]),
     ]
     netlist = Netlist(components=comps, nets=[])
-    ctx = SATBridgeContext(
+    ctx = RouterCompilationContext(
         netlist=netlist, board=None, skeletons={}, channel_widths={},
     )
     # Returns (clauses_list, ConstraintOrigin) tuple
-    result = constraint_to_clauses(c, ctx)
+    result = constraint_to_router_constraints(c, ctx)
     assert isinstance(result, tuple)
     assert len(result) == 2
 
 
-def test_register_handler_and_dispatch():
-    """register_handler with constraint_to_clauses dispatches correctly."""
-    from temper_placer.pcl.sat_bridge import register_handler, constraint_to_clauses
-    from temper_placer.pcl.constraints import CompilationTarget
+def test_explicit_compiler_and_dispatch():
+    """The collection compiler dispatches without global registration."""
+    from temper_placer.pcl.router_compiler import compile_pcl_for_router
 
-    # Backend already registered at module import. Test that constraint_to_clauses
-    # is callable with a proper context.
     c = AdjacentConstraint(
         a="Q1", b="Q2", max_distance_mm=10.0,
         tier=ConstraintTier.HARD, because="Test register handler proc",
     )
-    # Verify the backend is registered
-    from temper_placer.pcl.constraints import BaseConstraint as BC
-    assert "sat" in BC.backends  # type: ignore[attr-defined]
+    netlist = Netlist(
+        components=[
+            Component(ref="Q1", footprint="SOIC8", bounds=(5, 5), pins=[]),
+            Component(ref="Q2", footprint="SOIC8", bounds=(5, 5), pins=[]),
+        ],
+        nets=[],
+    )
+    context = CompilationContext(netlist=netlist)
+    from temper_placer.pcl.parser import ConstraintCollection
 
-    # register_handler() is called at module load time in sat_bridge.py.
-    # Just verify it doesn't error on call.
-    register_handler(ConstraintType.ADJACENT, constraint_to_clauses)
+    result = compile_pcl_for_router(ConstraintCollection([c]), context)
+    assert len(result.receipts) == 1
+    result.require_complete(expected_count=1)
 
 
 # ============================================================================
@@ -603,7 +568,8 @@ def test_register_handler_and_dispatch():
 
 def test_tag_components_empty_netlist():
     """tag_dispatch.components returns list with empty netlist."""
-    from temper_placer.pcl.tag_dispatch import TagRef, components as tag_components, ComponentTag
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
+    from temper_placer.pcl.tag_dispatch import components as tag_components
     netlist = Netlist(components=[], nets=[])
     refs = tag_components(TagRef(ComponentTag.POWER), netlist)
     assert isinstance(refs, list)
@@ -612,7 +578,8 @@ def test_tag_components_empty_netlist():
 
 def test_tag_resolve_on_component():
     """tag_dispatch.resolve returns False for untagged component."""
-    from temper_placer.pcl.tag_dispatch import TagRef, resolve as tag_resolve, ComponentTag
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
+    from temper_placer.pcl.tag_dispatch import resolve as tag_resolve
     comp = Component(
         ref="U1", footprint="SOIC8", bounds=(5, 5),
         pins=[], tags=frozenset(),
@@ -625,7 +592,7 @@ def test_tag_resolve_on_component():
 
 def test_pre_expansion_validate_on_tagged_constraint():
     """pre_expansion_validate validates a tagged constraint."""
-    from temper_placer.pcl.tag_dispatch import pre_expansion_validate, TagRef, ComponentTag
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef, pre_expansion_validate
     from temper_placer.pcl.tagged_constraints import TaggedAdjacentConstraint
     tc = TaggedAdjacentConstraint(
         tag_expr_a=TagRef(ComponentTag.POWER),
@@ -640,7 +607,7 @@ def test_pre_expansion_validate_on_tagged_constraint():
 
 def test_tag_dispatch_E_used_in_signatures():
     """tag_dispatch.E is the TagExpr union type (used in type annotations)."""
-    from temper_placer.pcl.tag_dispatch import E, TagRef
+    from temper_placer.pcl.tag_dispatch import TagRef
     # E is a typing.Union in TYPE_CHECKING; at runtime tags/constraints use TagRef.
     # Test that TagRef can be used where E is expected.
     expr = TagRef("test")
@@ -654,8 +621,8 @@ def test_tag_dispatch_E_used_in_signatures():
 
 def test_tagged_adjacent_constraint():
     """TaggedAdjacentConstraint can be created and serialized."""
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
     from temper_placer.pcl.tagged_constraints import TaggedAdjacentConstraint
-    from temper_placer.pcl.tag_dispatch import TagRef, ComponentTag
     tc = TaggedAdjacentConstraint(
         tag_expr_a=TagRef(ComponentTag.POWER),
         tag_expr_b=TagRef(ComponentTag.DECOUPLING),
@@ -673,8 +640,8 @@ def test_tagged_adjacent_constraint():
 
 def test_tagged_separated_constraint():
     """TaggedSeparatedConstraint can be created and serialized."""
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
     from temper_placer.pcl.tagged_constraints import TaggedSeparatedConstraint
-    from temper_placer.pcl.tag_dispatch import TagRef, ComponentTag
     tc = TaggedSeparatedConstraint(
         tag_expr_a=TagRef(ComponentTag.HV),
         tag_expr_b=TagRef(ComponentTag.LV),
@@ -691,9 +658,9 @@ def test_tagged_separated_constraint():
 
 def test_tagged_aligned_constraint():
     """TaggedAlignedConstraint can be created and serialized."""
-    from temper_placer.pcl.tagged_constraints import TaggedAlignedConstraint
-    from temper_placer.pcl.tag_dispatch import TagRef, ComponentTag
     from temper_placer.pcl.constraints import Axis
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
+    from temper_placer.pcl.tagged_constraints import TaggedAlignedConstraint
     tc = TaggedAlignedConstraint(
         tag_expr=TagRef(ComponentTag.DECOUPLING),
         axis=Axis.X,
@@ -709,8 +676,8 @@ def test_tagged_aligned_constraint():
 
 def test_tagged_anchored_constraint():
     """TaggedAnchoredConstraint can be created and serialized."""
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
     from temper_placer.pcl.tagged_constraints import TaggedAnchoredConstraint
-    from temper_placer.pcl.tag_dispatch import TagRef, ComponentTag
     tc = TaggedAnchoredConstraint(
         tag_expr=TagRef(ComponentTag.CONNECTOR),
         region=(0, 0, 10, 10),
@@ -726,8 +693,8 @@ def test_tagged_anchored_constraint():
 
 def test_tagged_enclosing_constraint():
     """TaggedEnclosingConstraint can be created and serialized."""
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
     from temper_placer.pcl.tagged_constraints import TaggedEnclosingConstraint
-    from temper_placer.pcl.tag_dispatch import TagRef, ComponentTag
     tc = TaggedEnclosingConstraint(
         outer="HV_ZONE",
         tag_expr_inner=TagRef(ComponentTag.HV),
@@ -743,9 +710,9 @@ def test_tagged_enclosing_constraint():
 
 def test_tagged_onside_constraint():
     """TaggedOnSideConstraint can be created and serialized."""
-    from temper_placer.pcl.tagged_constraints import TaggedOnSideConstraint
-    from temper_placer.pcl.tag_dispatch import TagRef, ComponentTag
     from temper_placer.pcl.constraints import BoardSide, EdgeType
+    from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
+    from temper_placer.pcl.tagged_constraints import TaggedOnSideConstraint
     tc = TaggedOnSideConstraint(
         tag_expr=TagRef(ComponentTag.CONNECTOR),
         side=BoardSide.LEFT,
@@ -758,44 +725,3 @@ def test_tagged_onside_constraint():
     assert d["type"] == "on_side"
     exprs = tc.collect_tag_exprs()
     assert len(exprs) == 1
-
-
-# ============================================================================
-# UNSAT compiler
-# ============================================================================
-
-
-def test_reset_escalation_counts():
-    """reset_escalation_counts clears the counter."""
-    from temper_placer.pcl.unsat_compiler import _escalation_counts
-    _escalation_counts["test"] = 5
-    reset_escalation_counts()
-    assert len(_escalation_counts) == 0
-
-
-def test_compile_unsat_to_pcl_empty_core():
-    """compile_unsat_to_pcl raises on empty UNSAT core."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.HARD, because="UNSAT test",
-    )
-    coll = ConstraintCollection(constraints=[c])
-    origin = ConstraintOrigin()
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    with pytest.raises(InfeasibleConstraintSet, match="Empty UNSAT core"):
-        compile_unsat_to_pcl([], coll, origin, ctx)
-
-
-def test_compile_unsat_to_pcl_with_core():
-    """compile_unsat_to_pcl returns new collection with adjustments."""
-    c = AdjacentConstraint(
-        a="Q1", b="Q2", max_distance_mm=10.0,
-        tier=ConstraintTier.SOFT, because="UNSAT compilation test",
-    )
-    coll = ConstraintCollection(constraints=[c])
-    origin = ConstraintOrigin()
-    origin.record(c.id, "sat_proximity_Q1_Q2")
-    ctx = CompilationContext(netlist=None)  # type: ignore[arg-type]
-    result = compile_unsat_to_pcl(["sat_proximity_Q1_Q2"], coll, origin, ctx)
-    assert isinstance(result, ConstraintCollection)
-    assert len(result) >= 1

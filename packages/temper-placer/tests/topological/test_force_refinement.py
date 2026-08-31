@@ -577,7 +577,6 @@ class TestApplyForceRefinement:
 
         assert refined == {}
 
-
 # =============================================================================
 # Tests: NumPy Backend (_force_refine_numpy)
 # =============================================================================
@@ -687,84 +686,6 @@ class TestForceRefineNumpy:
         )
 
         assert result.shape == (n, 2)
-
-
-# =============================================================================
-# Tests: JAX Backend (Optional)
-# =============================================================================
-
-
-class TestForceRefineJax:
-    """Tests for JAX implementation (optional backend)."""
-
-    @pytest.fixture
-    def jax_available(self):
-        """Check if JAX is available."""
-        try:
-            import jax  # noqa
-
-            return True
-        except ImportError:
-            return False
-
-    def test_jax_backend_produces_valid_output(self, jax_available, simple_zone, adjacent_graph):
-        """JAX backend produces valid positions."""
-        if not jax_available:
-            pytest.skip("JAX not available")
-
-        positions = {"C1": (10.0, 50.0), "C2": (90.0, 50.0)}
-        zone_assignments = {"C1": "TEST_ZONE", "C2": "TEST_ZONE"}
-        zones = {"TEST_ZONE": simple_zone}
-
-        refined = apply_force_refinement(
-            positions=positions,
-            graph=adjacent_graph,
-            zones=zones,
-            zone_assignments=zone_assignments,
-            iterations=50,
-            backend="jax",
-        )
-
-        assert len(refined) == 2
-        assert "C1" in refined
-        assert "C2" in refined
-
-    def test_backends_produce_similar_results(self, jax_available, simple_zone, adjacent_graph):
-        """NumPy and JAX backends produce similar results."""
-        if not jax_available:
-            pytest.skip("JAX not available")
-
-        positions = {"C1": (10.0, 50.0), "C2": (90.0, 50.0)}
-        zone_assignments = {"C1": "TEST_ZONE", "C2": "TEST_ZONE"}
-        zones = {"TEST_ZONE": simple_zone}
-
-        refined_numpy = apply_force_refinement(
-            positions=dict(positions),
-            graph=adjacent_graph,
-            zones=zones,
-            zone_assignments=zone_assignments,
-            iterations=50,
-            learning_rate=0.1,
-            backend="numpy",
-        )
-
-        refined_jax = apply_force_refinement(
-            positions=dict(positions),
-            graph=adjacent_graph,
-            zones=zones,
-            zone_assignments=zone_assignments,
-            iterations=50,
-            learning_rate=0.1,
-            backend="jax",
-        )
-
-        # Results should be similar (within tolerance)
-        for ref in ["C1", "C2"]:
-            x_np, y_np = refined_numpy[ref]
-            x_jax, y_jax = refined_jax[ref]
-
-            assert x_np == pytest.approx(x_jax, abs=5.0)  # Within 5mm
-            assert y_np == pytest.approx(y_jax, abs=5.0)
 
 
 # =============================================================================

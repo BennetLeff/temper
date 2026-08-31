@@ -59,6 +59,10 @@ gpu = []
 [project.scripts]
 temper-placer = "temper_placer.cli:main"
 temper = "temper_placer.cli:main"
+# The closure promotion gate invokes this process boundary directly. Keep
+# the runner discoverable as a package entry point as well as supporting
+# ``python -m``/file-path invocation used by older CI harnesses.
+temper-closure-measure = "temper_placer.regression.measure_closure:main"
 
 [project.urls]
 Homepage = "https://github.com/temper-project/temper-placer"
@@ -187,5 +191,4 @@ dev = [
     "pytest-bdd>=8.1.0",
     "pytest-timeout>=2.3.1",
     "python-sat>=1.8.dev14",
-    "sympy>=1.12",
 ]

@@ -19,9 +19,16 @@ class ViaVar:
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class OrderVar:
+    name: str
+    var_type: str
+    net1_idx: int
+    net2_idx: int
+    channel_id: str
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class Constraint:
+    name: str
+    description: str
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class CapacityConstraint:
@@ -31,9 +38,20 @@ class DiffPairConstraint:
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class LayerConstraint:
+    name: str
+    description: str
+    net_idx: int
+    channel_id: str
+    allowed: bool
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class ChannelSeparationConstraint:
+    name: str
+    description: str
+    group_a_indices: list[int]
+    group_b_indices: list[int]
+    min_slots: int
+    channel_id: str
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class ConstraintModel:

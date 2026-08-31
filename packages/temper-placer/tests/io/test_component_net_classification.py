@@ -32,7 +32,8 @@ component's own pins' resolved net classes; ties and "just some HV/AC pin"
 both collapse to the literal ``"HighVoltage"`` label, matching this
 codebase's own pre-existing binary HV/LV idiom already used verbatim by
 ``metrics/physics.py``, ``validation/metrics.py``,
-``deterministic/stages/_phase_rotation.py``, and
+``deterministic/stages/_phase_core.py`` (``_PhaseHVMixin``; the
+``_phase_rotation.py`` module was collapsed into it 2026-08-20), and
 ``router_v6/constraints_design_rules.py`` -- ``comp.net_class ==
 "HighVoltage"``). No table is transcribed into Rust or duplicated anywhere:
 the same ``TEMPER_NET_CLASSES``/``TEMPER_NET_ASSIGNMENTS`` SSOT that already

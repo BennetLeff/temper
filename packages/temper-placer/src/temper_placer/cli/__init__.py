@@ -129,11 +129,6 @@ main.add_command(repair_unplaced)
     help="Use graph centrality to prioritize hub components (default: disabled).",
 )
 @click.option(
-    "--profile-dir",
-    type=click.Path(path_type=Path),
-    help="Save JAX profiler trace to this directory.",
-)
-@click.option(
     "--grad-norm/--no-grad-norm",
     default=False,
     help="Use GradNorm adaptive loss weighting (default: disabled).",
@@ -264,7 +259,6 @@ def optimize(
     heuristics: bool,
     auto_group: bool,
     centrality: bool,
-    profile_dir: Path | None,
     grad_norm: bool,
     grad_norm_alpha: float,
     grad_norm_lr: float,
@@ -295,7 +289,6 @@ def optimize(
     Examples:
         temper-placer optimize temper.kicad_pcb -c constraints.yaml -o optimized.kicad_pcb
     """
-    # Handle deprecated --placer jax-deprecated flag (removed — CP-SAT is the only engine)
     console.print(
         Panel.fit(
             f"[bold blue]temper-placer[/] v{__version__}\nCP-SAT PCB placement optimizer",
@@ -315,7 +308,6 @@ def optimize(
     # CP-SAT placer (sole engine)
     console.print()
     console.print("[bold green]CP-SAT placer selected (default).[/]")
-    console.print("[dim]The JAX gradient-descent pipeline has been removed.[/]")
 
     # Place→Route feedback loop (U4)
     if loop:

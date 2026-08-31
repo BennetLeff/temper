@@ -9,22 +9,8 @@
 //! `temper_ipc`.
 
 use pyo3::prelude::*;
-use std::collections::HashMap;
 
 use crate::ipc;
-
-#[pyfunction]
-#[pyo3(signature = (width_mm, thickness_oz=1.0, temp_rise_c=10.0, internal_layer=false))]
-fn estimate_trace_current(
-    width_mm: f64,
-    thickness_oz: f64,
-    temp_rise_c: f64,
-    internal_layer: bool,
-) -> PyResult<f64> {
-    Ok(ipc::estimate_trace_current(
-        width_mm, thickness_oz, temp_rise_c, internal_layer,
-    ))
-}
 
 #[pyfunction]
 #[pyo3(signature = (trace_width_mm, thickness_oz=1.0, temp_rise_c=10.0))]
@@ -69,18 +55,11 @@ fn get_net_current(net_name: &str) -> PyResult<f64> {
     Ok(ipc::get_net_current(net_name))
 }
 
-#[pyfunction]
-fn net_currents() -> PyResult<HashMap<String, f64>> {
-    Ok(ipc::net_currents().clone())
-}
-
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(estimate_trace_current, m)?)?;
     m.add_function(wrap_pyfunction!(estimate_current_from_net_class, m)?)?;
     m.add_function(wrap_pyfunction!(ipc2152_min_width_mm, m)?)?;
     m.add_function(wrap_pyfunction!(ipc2152_current_capacity, m)?)?;
     m.add_function(wrap_pyfunction!(get_net_current, m)?)?;
-    m.add_function(wrap_pyfunction!(net_currents, m)?)?;
     m.add("NET_CURRENTS", ipc::net_currents().clone())?;
     m.add("DEFAULT_SIGNAL_CURRENT", ipc::DEFAULT_SIGNAL_CURRENT)?;
     // Single-sourced ΔT convention (docs/hardware/TRACE_WIDTH_CALCULATIONS.md

@@ -28,7 +28,7 @@ use crate::derivation_stage::stage_guard;
 #[cfg(feature = "python")]
 use crate::stage::{Stage, StageError};
 #[cfg(feature = "python")]
-use temper_data_model::{LayerAssignmentSet};
+use temper_data_model::LayerAssignmentSet;
 
 const STAGE_NAME: &str = "layer_assignment";
 
@@ -69,7 +69,9 @@ impl LayerAssignmentStage {
 
         // `assign_layers(state.netlist.nets, self.manual_assignments,
         // self.net_classes)` -- the design-bundle kernel.
-        let leaves = py.import("temper_design_bundle_python")?.getattr("deterministic_leaves")?;
+        let leaves = py
+            .import("temper_design_bundle_python")?
+            .getattr("deterministic_leaves")?;
         let assignments = leaves.call_method1(
             "assign_layers",
             (netlist.getattr("nets")?, &manual, &net_classes),
@@ -93,9 +95,8 @@ pub fn run_layer_assignment(
     state: Py<PyAny>,
     stage: Py<PyAny>,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{STAGE_NAME}: {e}")))?;
     let rust_stage = LayerAssignmentStage { stage };
     let out = rust_stage
         .run(rust_state)

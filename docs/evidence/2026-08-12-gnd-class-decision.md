@@ -1,4 +1,4 @@
-<!-- provenance: branch fix/gnd-class-declaration, worktree /home/bennet/Desktop/temper-gnd-class, base commit dc415d21b (origin/main). This task's own diff is pcb/temper.kicad_pro (declares "GND" + maps gnd -> GND) and this document. pcb/temper.kicad_pcb is UNCHANGED by this task -- verified `git status --short pcb/temper.kicad_pcb` empty throughout; every DRC/routing measurement below runs against scratch copies in .scratch/gnd_class_decision/ (gitignored, not part of this branch's diff). -->
+<!-- provenance: commit=81ac8432e7966e340ba671bfac98a4efd94cf851 dirty=UNKNOWN -->
 
 # `gnd` should carry a declared `GND` class, not `Power` -- Option B wins, modestly, on measurement
 

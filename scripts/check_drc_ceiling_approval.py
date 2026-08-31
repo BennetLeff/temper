@@ -49,6 +49,10 @@ measurement-evidence logic lives in, and stays owned by,
 ``detect_ceiling_raise``) -- this script only supplies the two JSON
 snapshots and the commit-message text those methods have always accepted
 as arguments, from real git history instead of from a unit test fixture.
+The snapshots are read through the shared ``scripts/_lib/drc_ceiling``
+loader (``load_ceiling`` for the HEAD file, ``parse_ceiling_text`` for the
+``git show`` merge-base content) -- same parsed structure as this script's
+historic ``json.loads`` calls, so no comparison logic changed.
 
 The R27 monotone contract (docs/plans/2026-08-02-023) has two independent
 requirements, both machine-checked here:
@@ -125,12 +129,18 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _lib.drc_ceiling import (  # noqa: E402
+    CEILING_RELPATH as CEILING_RELPATH_DEFAULT,
+)
+from _lib.drc_ceiling import (
+    load_ceiling,
+    parse_ceiling_text,
+)
 from _lib.repo import find_repo_root  # noqa: E402
 from rich.console import Console  # noqa: E402
 
 console = Console()
 
-CEILING_RELPATH_DEFAULT = "power_pcb_dataset/drc_ceiling.json"
 DEFAULT_BASE_REF = "origin/main"
 
 EXIT_OK = 0
@@ -208,7 +218,7 @@ def run_gate(
         )
 
     try:
-        new_ceiling = json.loads(ceiling_path.read_text())
+        new_ceiling = load_ceiling(ceiling_path)
     except json.JSONDecodeError as e:
         return (
             EXIT_TOOL_ERROR,
@@ -245,7 +255,7 @@ def run_gate(
         )
 
     try:
-        old_ceiling = json.loads(old_content)
+        old_ceiling = parse_ceiling_text(old_content)
     except json.JSONDecodeError as e:
         return (
             EXIT_TOOL_ERROR,

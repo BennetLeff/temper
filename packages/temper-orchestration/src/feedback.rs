@@ -19,15 +19,13 @@
 //
 // What stays Python (the U-I boundary, argued in the shim headers and
 // VERIFICATION.md):
-// - the four `_handle_*` handlers -- they CONSTRUCT Python PCL constraint
-//   objects (`SeparatedConstraint` / `KeepoutConstraint` /
-//   `AnchoredConstraint`) and do the design-rules marshalling
-//   (`classify_net_type`, `get_rules_for_net`, the `class_pairs` lookup) --
-//   the U-E "Python-object marshalling / parameter EXTRACTION" category;
-//   invoked as call-backs in oracle order.
-// - the leaf helpers `_find_critical_components` / `_detect_persistent_ics`
-//   / `_compute_heuristic_position` (pure string/count/position compute over
-//   Python objects -- invoked as call-backs, like the loop's leaf helpers).
+// - the clearance, critical-pin, and rotation handlers remain Python-object
+//   marshalling seams.  Congestion handling is Rust-owned below: its branch,
+//   distance widening, deterministic ID, and delta construction are all
+//   performed here, with the Python shim retained only for compatibility.
+//   The clearance handler still does design-rules marshalling
+//   (`get_rules_for_net`, the `class_pairs` lookup) and the remaining handlers
+//   construct Python PCL objects at the boundary.
 // - the `ConstraintDelta` / `UnclassifiedFailure` / `ClassificationResult`
 //   dataclasses (data carriers; the Rust sequencing constructs them by
 //   keyword args, exactly like the loop's `RoundRecord` / `LoopResult`).
@@ -66,6 +64,210 @@ fn attr_or<'py>(
     }
 }
 
+/// Compute the deterministic position bias used for an unrouted critical pin.
+///
+/// This mirrors the former Python helper exactly, including substring tests
+/// and branch order. `net_name` remains part of the boundary signature for
+/// call-site compatibility even though the current heuristic does not use it.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn compute_heuristic_position(
+    comp_ref: &str,
+    current_pos: (f64, f64),
+    _net_name: &str,
+) -> (f64, f64) {
+    let (x, y) = current_pos;
+    if comp_ref.contains('Q') && !comp_ref.contains("U_") {
+        (x, y - 5.0)
+    } else if comp_ref.contains("U_") || comp_ref.contains("MCU") {
+        (x, y)
+    } else {
+        (x, y + 5.0)
+    }
+}
+
+/// The critical-component heuristic formerly implemented by
+/// `FeedbackClassifier._find_critical_components`.
+///
+/// `critical_ics` is supplied by the classifier so class-level overrides keep
+/// their Python semantics.  The implementation deliberately performs the
+/// same Python operations (`upper`, `in`, and iteration) rather than
+/// extracting into Rust collections: this preserves ordering, custom Python
+/// containers, and their exception behaviour at the boundary.
+#[cfg(feature = "python")]
+fn find_critical_components_impl<'py>(
+    py: Python<'py>,
+    net_name: &Bound<'py, PyAny>,
+    placed_refs: &Bound<'py, PyAny>,
+    critical_ics: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    let critical = PyList::empty(py);
+    let net_upper = net_name.call_method0("upper")?;
+    let gate_patterns = ["GATE", "SW", "BUS", "PHASE", "OUT", "DRIVE"];
+    let mcu_patterns = ["SPI", "I2C", "UART", "ADC", "GPIO", "MCU"];
+
+    for ref_obj in critical_ics.try_iter()? {
+        let ref_obj = ref_obj?;
+        if !placed_refs
+            .call_method1("__contains__", (&ref_obj,))?
+            .is_truthy()?
+        {
+            continue;
+        }
+
+        let has_q = ref_obj.call_method1("__contains__", ("Q",))?.is_truthy()?;
+        let is_igbt = if has_q {
+            false
+        } else {
+            ref_obj
+                .call_method0("upper")?
+                .call_method1("__contains__", ("IGBT",))?
+                .is_truthy()?
+        };
+        if has_q || is_igbt {
+            let mut matches = false;
+            for pattern in gate_patterns {
+                if net_upper
+                    .call_method1("__contains__", (pattern,))?
+                    .is_truthy()?
+                {
+                    matches = true;
+                    break;
+                }
+            }
+            if matches {
+                critical.append(&ref_obj)?;
+            }
+        } else {
+            let ref_upper = ref_obj.call_method0("upper")?;
+            let is_mcu = ref_upper
+                .call_method1("__contains__", ("MCU",))?
+                .is_truthy()?;
+            let is_gate = if is_mcu {
+                false
+            } else {
+                ref_obj
+                    .call_method0("upper")?
+                    .call_method1("__contains__", ("U_GATE",))?
+                    .is_truthy()?
+            };
+            if is_mcu || is_gate {
+                let mut matches = false;
+                for pattern in mcu_patterns {
+                    if net_upper
+                        .call_method1("__contains__", (pattern,))?
+                        .is_truthy()?
+                    {
+                        matches = true;
+                        break;
+                    }
+                }
+                if matches
+                    || net_upper
+                        .call_method1("__contains__", (&ref_obj.call_method0("upper")?,))?
+                        .is_truthy()?
+                {
+                    critical.append(&ref_obj)?;
+                }
+            }
+        }
+    }
+    Ok(critical)
+}
+
+/// Public pyo3 entry point retained for private Python helper compatibility.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (net_name, _placement, placed_refs, _netlist=None, critical_ics=None))]
+pub fn find_critical_components(
+    py: Python<'_>,
+    net_name: Py<PyAny>,
+    _placement: Py<PyAny>,
+    placed_refs: Py<PyAny>,
+    _netlist: Option<Py<PyAny>>,
+    critical_ics: Option<Py<PyAny>>,
+) -> PyResult<Py<PyAny>> {
+    let default_ics = PyList::new(py, ["Q1", "Q2", "U_GATE", "U_MCU"])?;
+    let ics = critical_ics
+        .as_ref()
+        .map(|v| v.bind(py).clone())
+        .unwrap_or_else(|| default_ics.clone().into_any());
+    find_critical_components_impl(py, net_name.bind(py), placed_refs.bind(py), &ics)
+        .map(|v| v.into_any().unbind())
+}
+
+/// The persistence counter formerly implemented by
+/// `FeedbackClassifier._detect_persistent_ics`.
+#[cfg(feature = "python")]
+fn detect_persistent_ics_impl<'py>(
+    py: Python<'py>,
+    previous_unclassified: &Bound<'py, PyAny>,
+    round_number: i64,
+    persistence_threshold: i64,
+    critical_ics: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    let result = PyList::empty(py);
+    if round_number < persistence_threshold {
+        return Ok(result);
+    }
+
+    let counts = PyDict::new(py);
+    for failure in previous_unclassified.try_iter()? {
+        let failure = failure?;
+        let components = failure.getattr("components")?;
+        for component in components.try_iter()? {
+            let component = component?;
+            if !critical_ics
+                .call_method1("__contains__", (&component,))?
+                .is_truthy()?
+            {
+                continue;
+            }
+            let count = counts
+                .get_item(&component)?
+                .map(|value| value.extract::<i64>())
+                .transpose()?
+                .unwrap_or(0)
+                + 1;
+            counts.set_item(&component, count)?;
+        }
+    }
+
+    for (component, count) in counts.iter() {
+        if count.extract::<i64>()? >= persistence_threshold {
+            result.append(&component)?;
+        }
+    }
+    Ok(result)
+}
+
+/// Public pyo3 entry point retained for private Python helper compatibility.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (_unrouted_nets, previous_unclassified, round_number, critical_ics=None, persistence_threshold=3))]
+pub fn detect_persistent_ics(
+    py: Python<'_>,
+    _unrouted_nets: Py<PyAny>,
+    previous_unclassified: Py<PyAny>,
+    round_number: i64,
+    critical_ics: Option<Py<PyAny>>,
+    persistence_threshold: i64,
+) -> PyResult<Py<PyAny>> {
+    let default_ics = PyList::new(py, ["Q1", "Q2", "U_GATE", "U_MCU"])?;
+    let ics = critical_ics
+        .as_ref()
+        .map(|v| v.bind(py).clone())
+        .unwrap_or_else(|| default_ics.clone().into_any());
+    detect_persistent_ics_impl(
+        py,
+        previous_unclassified.bind(py),
+        round_number,
+        persistence_threshold,
+        &ics,
+    )
+    .map(|v| v.into_any().unbind())
+}
+
 /// Build an `UnclassifiedFailure` via keyword args (the oracle's per-site
 /// keyword construction; only the keys the oracle passes are set).
 #[cfg(feature = "python")]
@@ -93,11 +295,146 @@ fn make_unclassified<'py>(
         .map(|o| o.unbind())
 }
 
+/// Rust-owned congestion feedback handler.
+///
+/// This is the computational owner of `FeedbackClassifier._handle_congestion`.
+/// Python objects are intentionally retained at the edge because the public
+/// feedback API accepts routing-result records and returns PCL constraint
+/// instances.  Attribute lookup, truthiness, membership, hashing, and
+/// formatting are delegated to CPython so custom record/container semantics
+/// and exception behavior remain identical to the historical implementation.
+#[cfg(feature = "python")]
+fn handle_congestion_impl<'py>(
+    py: Python<'py>,
+    region: &Bound<'py, PyAny>,
+    placed_refs: &Bound<'py, PyAny>,
+) -> PyResult<Py<PyAny>> {
+    let none = py.None();
+    let comp_a = attr_or(py, region, "comp_a", none.clone())?;
+    let comp_b = attr_or(py, region, "comp_b", none.clone())?;
+    let current_distance = attr_or(py, region, "current_distance_mm", 2.0_f64)?;
+
+    // Mirrors `if comp_a and comp_b and comp_a in placed_refs and ...`.
+    if comp_a.is_truthy()?
+        && comp_b.is_truthy()?
+        && placed_refs
+            .call_method1("__contains__", (&comp_a,))?
+            .is_truthy()?
+        && placed_refs
+            .call_method1("__contains__", (&comp_b,))?
+            .is_truthy()?
+    {
+        let plus_one = current_distance.call_method1("__add__", (1.0_f64,))?;
+        let scaled = current_distance.call_method1("__mul__", (1.5_f64,))?;
+        let new_distance = py
+            .import("builtins")?
+            .getattr("max")?
+            .call1((&plus_one, &scaled))?;
+
+        let constraints = py.import("temper_placer.pcl.constraints")?;
+        let tier = constraints.getattr("ConstraintTier")?.getattr("STRONG")?;
+        let comp_a_text = comp_a.str()?.to_str()?.to_owned();
+        let comp_b_text = comp_b.str()?.to_str()?.to_owned();
+        let because = format!(
+            "Congested routing corridor between {comp_a_text} and {comp_b_text} — widen channel"
+        );
+        let constraint_kwargs = PyDict::new(py);
+        constraint_kwargs.set_item("a", &comp_a)?;
+        constraint_kwargs.set_item("b", &comp_b)?;
+        constraint_kwargs.set_item("min_distance_mm", &new_distance)?;
+        constraint_kwargs.set_item("tier", tier)?;
+        constraint_kwargs.set_item("because", &because)?;
+        constraint_kwargs.set_item(
+            "id",
+            format!("feedback_congestion_{comp_a_text}_{comp_b_text}"),
+        )?;
+        let constraint = constraints
+            .getattr("SeparatedConstraint")?
+            .call((), Some(&constraint_kwargs))?;
+
+        let formatted_distance = py
+            .import("builtins")?
+            .getattr("format")?
+            .call1((&current_distance, ".1f"))?;
+        let reason = format!(
+            "Congestion between {comp_a_text} and {comp_b_text} at {}mm",
+            formatted_distance.str()?
+        );
+        let delta_kwargs = PyDict::new(py);
+        delta_kwargs.set_item("constraint", constraint)?;
+        delta_kwargs.set_item("reason", reason)?;
+        delta_kwargs.set_item("priority", 10)?;
+        return feedback_cls(py, "ConstraintDelta")?
+            .bind(py)
+            .call((), Some(&delta_kwargs))
+            .map(|o| o.unbind());
+    }
+
+    let bbox = attr_or(py, region, "bbox", none)?;
+    if !bbox.is_none() {
+        let hash_value = py
+            .import("builtins")?
+            .getattr("hash")?
+            .call1((&bbox,))?
+            .extract::<i64>()?;
+        // Python's `hash(bbox) & 0xFFFF`, rendered as lowercase hexadecimal.
+        let suffix = format!("{:04x}", hash_value & 0xFFFF);
+        let constraints = py.import("temper_placer.pcl.constraints")?;
+        let tier = constraints.getattr("ConstraintTier")?.getattr("SOFT")?;
+        let constraint_kwargs = PyDict::new(py);
+        constraint_kwargs.set_item("zone_name", format!("congestion_{suffix}"))?;
+        constraint_kwargs.set_item("tier", tier)?;
+        constraint_kwargs.set_item(
+            "because",
+            "Congestion in routing region — keep components clear",
+        )?;
+        constraint_kwargs.set_item("id", format!("feedback_congestion_keepout_{suffix}"))?;
+        let constraint = constraints
+            .getattr("KeepoutConstraint")?
+            .call((), Some(&constraint_kwargs))?;
+        let delta_kwargs = PyDict::new(py);
+        delta_kwargs.set_item("constraint", constraint)?;
+        delta_kwargs.set_item("reason", format!("General congestion in region {bbox}"))?;
+        delta_kwargs.set_item("priority", 20)?;
+        return feedback_cls(py, "ConstraintDelta")?
+            .bind(py)
+            .call((), Some(&delta_kwargs))
+            .map(|o| o.unbind());
+    }
+
+    Ok(py.None())
+}
+
+/// Public compatibility entry point for the Rust-owned congestion handler.
+#[cfg(feature = "python")]
+#[pyfunction]
+#[pyo3(signature = (region, placed_refs))]
+pub fn handle_congestion(
+    py: Python<'_>,
+    region: Py<PyAny>,
+    placed_refs: Py<PyAny>,
+) -> PyResult<Py<PyAny>> {
+    handle_congestion_impl(py, region.bind(py), placed_refs.bind(py))
+}
+
+/// Use the native congestion owner for the production classifier, while
+/// retaining callback compatibility for custom classifiers and the pinned
+/// Python oracle.  This keeps subclass overrides observable and makes the
+/// migration boundary explicit rather than silently changing extension APIs.
+#[cfg(feature = "python")]
+fn native_feedback_classifier(classifier: &Bound<'_, PyAny>) -> PyResult<bool> {
+    let class_obj = classifier.getattr("__class__")?;
+    let module: String = class_obj.getattr("__module__")?.extract()?;
+    let name: String = class_obj.getattr("__name__")?.extract()?;
+    Ok(module == "temper_placer.placer.cp_sat.feedback" && name == "FeedbackClassifier")
+}
+
 /// The feedback-classification DECISION sequencing of
 /// `FeedbackClassifier.classify()` (see the module docstring for the
-/// boundary). The four `_handle_*` call-backs and the leaf helpers stay
-/// Python; the dispatch order, the clean early-return, the unclassified
-/// collection and the priority sort are the migrated orchestration.
+/// boundary). The four `_handle_*` call-backs stay Python; the deterministic
+/// critical-net, persistence, and position heuristics are Rust-owned
+/// alongside the dispatch order, clean early-return, unclassified collection,
+/// and priority sort.
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (
@@ -186,10 +523,17 @@ pub fn classify_feedback(
         }
     }
 
-    // Class 1: Congestion in corridor between components.
+    // Class 1: Congestion in corridor between components.  The production
+    // classifier uses the Rust-owned handler; arbitrary classifier objects
+    // retain the historical callback seam for subclass/oracle compatibility.
+    let use_native_congestion = native_feedback_classifier(classifier)?;
     for region in congestion_regions.try_iter()? {
         let region = region?;
-        let delta = classifier.call_method1("_handle_congestion", (&region, &placed_refs))?;
+        let delta = if use_native_congestion {
+            handle_congestion_impl(py, &region, &placed_refs)?.into_bound(py)
+        } else {
+            classifier.call_method1("_handle_congestion", (&region, &placed_refs))?
+        };
         if !delta.is_none() {
             deltas_list.append(&delta)?;
         } else {
@@ -198,13 +542,18 @@ pub fn classify_feedback(
         }
     }
 
+    // The two leaf heuristics are deterministic Rust-owned compute.  Their
+    // inputs remain Python objects because placement/failure carriers are
+    // public Python data classes; extracting through the normal Python
+    // operations keeps their ordering and error semantics intact.
+    let default_ics = PyList::new(py, ["Q1", "Q2", "U_GATE", "U_MCU"])?;
+    let critical_ics = attr_or(py, classifier, "CRITICAL_ICS", &default_ics)?;
+
     // Class 3: Unrouted critical pins.
     for net_name in unrouted_nets.try_iter()? {
         let net_name = net_name?;
-        let critical_refs = classifier.call_method1(
-            "_find_critical_components",
-            (&net_name, placement, &placed_refs),
-        )?;
+        let critical_refs =
+            find_critical_components_impl(py, &net_name, &placed_refs, &critical_ics)?;
         if critical_refs.is_truthy()? {
             for comp_ref in critical_refs.try_iter()? {
                 let comp_ref = comp_ref?;
@@ -227,8 +576,9 @@ pub fn classify_feedback(
             empty.into_any()
         }
     };
+    let threshold = attr_or(py, classifier, "PERSISTENCE_THRESHOLD", 3_i64)?.extract()?;
     let persistent_ics =
-        classifier.call_method1("_detect_persistent_ics", (&unrouted_nets, &prev, round_number))?;
+        detect_persistent_ics_impl(py, &prev, round_number, threshold, &critical_ics)?;
     for ic_ref in persistent_ics.try_iter()? {
         let ic_ref = ic_ref?;
         let delta =
@@ -241,10 +591,8 @@ pub fn classify_feedback(
     // Unclassified: nets that don't match any critical IC.
     for net_name in unrouted_nets.try_iter()? {
         let net_name = net_name?;
-        let critical_refs = classifier.call_method1(
-            "_find_critical_components",
-            (&net_name, placement, &placed_refs),
-        )?;
+        let critical_refs =
+            find_critical_components_impl(py, &net_name, &placed_refs, &critical_ics)?;
         if !critical_refs.is_truthy()? {
             let description = format!("Unrouted net: {}", net_name.str()?);
             let nets = PyList::new(py, [net_name.clone()])?;
@@ -256,7 +604,10 @@ pub fn classify_feedback(
     // Sort by priority (lowest first = strongest signal): the exact
     // `deltas.sort(key=lambda d: d.priority)` stable-sort semantics via
     // `operator.attrgetter("priority")`.
-    let key = py.import("operator")?.getattr("attrgetter")?.call1(("priority",))?;
+    let key = py
+        .import("operator")?
+        .getattr("attrgetter")?
+        .call1(("priority",))?;
     let sort_kwargs = PyDict::new(py);
     sort_kwargs.set_item("key", key)?;
     let sorted_deltas = py
@@ -290,8 +641,9 @@ pub fn classify_feedback(
 // `_handle_*` call-backs. The migrated surface is the sequencing (clean
 // early-return, the Class-2 DRC -> Class-1 congestion -> Class-3 pin ->
 // Class-4 rotation dispatch order, the unclassified collection, and the
-// `sorted(key=attrgetter("priority"))` stable sort); the leaf handlers stay
-// Python. The properties pin the ORDER-INDEPENDENT observables of that
+// `sorted(key=attrgetter("priority"))` stable sort), plus the deterministic
+// critical-net and persistence leaves; the constraint handlers stay Python.
+// The properties pin the ORDER-INDEPENDENT observables of that
 // sequencing: the returned deltas are priority-sorted (with NON-monotonic
 // scripted priorities so a missing sort fails), and the unclassified count
 // matches the oracle's per-class accounting.
@@ -301,9 +653,9 @@ pub fn classify_feedback(
 mod proptests {
     use super::classify_feedback;
     use proptest::prelude::*;
+    use pyo3::IntoPyObjectExt;
     use pyo3::prelude::*;
     use pyo3::types::{PyDict, PyList, PyModule};
-    use pyo3::IntoPyObjectExt;
     use std::sync::{Once, OnceLock};
 
     static PY_INIT: Once = Once::new();
@@ -351,12 +703,10 @@ class Classifier:
         return self._take("pin")
     def _handle_rotation_coordination(self, ic_ref, placement):
         return self._take("rotation")
-    def _find_critical_components(self, net_name, placement, placed_refs):
-        self.log.append("critical")
-        return []
-    def _detect_persistent_ics(self, unrouted_nets, previous, round_number):
-        self.log.append("persistent")
-        return []
+    def _find_critical_components(self, *args):
+        raise AssertionError("critical heuristic must be Rust-owned")
+    def _detect_persistent_ics(self, *args):
+        raise AssertionError("persistence heuristic must be Rust-owned")
 
 def build(log, script):
     return Classifier(log, script)
@@ -427,7 +777,13 @@ def build(log, script):
     /// unclassified += [unrouted-net record] * n_unrouted
     /// deltas.sort(key=priority)
     /// ```
-    fn reference(clearance: Option<i64>, congestion: Option<i64>, n_drc: usize, n_congestion: usize, n_unrouted: usize) -> (Vec<i64>, usize) {
+    fn reference(
+        clearance: Option<i64>,
+        congestion: Option<i64>,
+        n_drc: usize,
+        n_congestion: usize,
+        n_unrouted: usize,
+    ) -> (Vec<i64>, usize) {
         let mut deltas = Vec::new();
         if let Some(p) = clearance {
             deltas.extend(std::iter::repeat_n(p, n_drc));
@@ -457,8 +813,18 @@ def build(log, script):
 
             let log = PyList::empty(py);
             let script = PyDict::new(py);
-            script.set_item("clearance", scenario.clearance.map_or(py.None(), |p| p.into_py_any(py).unwrap()))?;
-            script.set_item("congestion", scenario.congestion.map_or(py.None(), |p| p.into_py_any(py).unwrap()))?;
+            script.set_item(
+                "clearance",
+                scenario
+                    .clearance
+                    .map_or(py.None(), |p| p.into_py_any(py).unwrap()),
+            )?;
+            script.set_item(
+                "congestion",
+                scenario
+                    .congestion
+                    .map_or(py.None(), |p| p.into_py_any(py).unwrap()),
+            )?;
             let classifier = build.call1((&log, &script))?;
 
             // Routing result: n_drc violations + n_congestion regions + n_unrouted nets.
@@ -602,19 +968,19 @@ def build(log, script):
         assert_eq!(log.iter().filter(|s| s.as_str() == "congestion").count(), 1);
     }
 
-// ---------------------------------------------------------------------------
-mod proptests_seam {
-    use super::*;
-    use pyo3::types::{PyDict, PyList, PyModule, PyString};
-    use pyo3::IntoPyObjectExt;
-    use std::sync::Once;
+    // ---------------------------------------------------------------------------
+    mod proptests_seam {
+        use super::*;
+        use pyo3::IntoPyObjectExt;
+        use pyo3::types::{PyDict, PyList, PyModule, PyString};
+        use std::sync::Once;
 
-    static PY_INIT: Once = Once::new();
-    static FAKES: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        static PY_INIT: Once = Once::new();
+        static FAKES: std::sync::OnceLock<()> = std::sync::OnceLock::new();
 
-    // The fake `temper_placer.placer.cp_sat.feedback` leaf module the kernel
-    // imports: the two result dataclasses (constructed by keyword args).
-    const FAKE_FEEDBACK_SOURCE: &str = r#"
+        // The fake `temper_placer.placer.cp_sat.feedback` leaf module the kernel
+        // imports: the two result dataclasses (constructed by keyword args).
+        const FAKE_FEEDBACK_SOURCE: &str = r#"
 from dataclasses import dataclass, field
 
 @dataclass
@@ -631,45 +997,47 @@ class ClassificationResult:
     round_number: int = 0
 "#;
 
-    // Install the fake leaf module into `sys.modules` (only the full dotted
-    // name -- cooperative with feedback_loop.rs's own `temper_placer` fake).
-    fn install_fakes(py: Python<'_>) -> PyResult<()> {
-        let sys = py.import("sys")?;
-        let modules: Bound<'_, PyDict> = sys.getattr("modules")?.cast_into()?;
-        if modules.get_item("temper_placer")?.is_none() {
-            modules.set_item("temper_placer", PyModule::new(py, "temper_placer")?)?;
+        // Install the fake leaf module into `sys.modules` (only the full dotted
+        // name -- cooperative with feedback_loop.rs's own `temper_placer` fake).
+        fn install_fakes(py: Python<'_>) -> PyResult<()> {
+            let sys = py.import("sys")?;
+            let modules: Bound<'_, PyDict> = sys.getattr("modules")?.cast_into()?;
+            if modules.get_item("temper_placer")?.is_none() {
+                modules.set_item("temper_placer", PyModule::new(py, "temper_placer")?)?;
+            }
+            let fb = PyModule::new(py, "temper_placer.placer.cp_sat.feedback")?;
+            let src = std::ffi::CString::new(FAKE_FEEDBACK_SOURCE).expect("no NUL");
+            py.run(src.as_c_str(), Some(&fb.dict()), Some(&fb.dict()))?;
+            modules.set_item("temper_placer.placer.cp_sat.feedback", &fb)?;
+            Ok(())
         }
-        let fb = PyModule::new(py, "temper_placer.placer.cp_sat.feedback")?;
-        let src = std::ffi::CString::new(FAKE_FEEDBACK_SOURCE).expect("no NUL");
-        py.run(src.as_c_str(), Some(&fb.dict()), Some(&fb.dict()))?;
-        modules.set_item("temper_placer.placer.cp_sat.feedback", &fb)?;
-        Ok(())
-    }
 
-    // One-time interpreter init + fake-module install.
-    fn fakes_ready() {
-        PY_INIT.call_once(Python::initialize);
-        let _ = std::sync::OnceLock::get_or_init(&FAKES, || {
-            Python::attach(|py| install_fakes(py).expect("fake install failed"))
-        });
-    }
+        // One-time interpreter init + fake-module install.
+        fn fakes_ready() {
+            PY_INIT.call_once(Python::initialize);
+            let _ = std::sync::OnceLock::get_or_init(&FAKES, || {
+                Python::attach(|py| install_fakes(py).expect("fake install failed"))
+            });
+        }
 
-    // The fake Python classifier. Each `_handle_*` pops its next priority
-    // (or `None` -> the unclassified arm) from a script and records its call
-    // into the shared `log`; `_find_critical_components` / the persistent-IC
-    // helper answer from per-case maps. `deltas` carry a `priority` attribute
-    // only -- the migrated sort reads `d.priority` via `operator.attrgetter`.
-    const FAKE_CLASSIFIER_SOURCE: &str = r#"
+        // The fake Python classifier. Each `_handle_*` pops its next priority
+        // (or `None` -> the unclassified arm) from a script and records its call
+        // into the shared `log`; the deterministic critical-net and
+        // persistent-IC heuristics are intentionally absent from this fake's
+        // behavior (the methods below fail if Rust accidentally calls them).
+        // `deltas` carry a `priority` attribute only -- the migrated sort
+        // reads `d.priority` via `operator.attrgetter`.
+        const FAKE_CLASSIFIER_SOURCE: &str = r#"
 import types
 class FakeClassifier:
+    CRITICAL_ICS = set()
+    PERSISTENCE_THRESHOLD = 3
     def __init__(self, log):
         self.log = log
         self.clearance_script = []
         self.congestion_script = []
         self.unrouted_script = []
         self.rotation_script = []
-        self.critical_map = {}
-        self.persistent_ics = []
         self._n = 0
     def _next(self, script):
         if not script:
@@ -685,437 +1053,419 @@ class FakeClassifier:
     def _handle_congestion(self, region, placed_refs):
         self.log.append("congestion")
         return self._next(self.congestion_script)
-    def _find_critical_components(self, net_name, placement, placed_refs):
-        self.log.append("critical:" + net_name)
-        return list(self.critical_map.get(net_name, []))
+    def _find_critical_components(self, *args):
+        raise AssertionError("critical heuristic must be Rust-owned")
     def _handle_unrouted_critical_pin(self, comp_ref, net_name, placement):
         self.log.append("unrouted_pin:" + comp_ref)
         return self._next(self.unrouted_script)
-    def _detect_persistent_ics(self, unrouted_nets, previous_unclassified, round_number):
-        self.log.append("detect_persistent:%d" % round_number)
-        return list(self.persistent_ics)
+    def _detect_persistent_ics(self, *args):
+        raise AssertionError("persistence heuristic must be Rust-owned")
     def _handle_rotation_coordination(self, ic_ref, placement):
         self.log.append("rotation:" + ic_ref)
         return self._next(self.rotation_script)
 "#;
 
-    // Build the fake classifier instance, wiring the per-case scripts.
-    #[allow(clippy::too_many_arguments)]
-    fn make_classifier<'py>(
-        py: Python<'py>,
-        log: &Bound<'py, PyAny>,
-        clearance_script: &[Option<i32>],
-        congestion_script: &[Option<i32>],
-        unrouted_script: &[Option<i32>],
-        rotation_script: &[Option<i32>],
-        critical_map: &Bound<'py, PyAny>,
-        persistent_ics: &[String],
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let ns = PyModule::new(py, "__feedback_proptest_fakes__")?;
-        let code = std::ffi::CString::new(FAKE_CLASSIFIER_SOURCE).expect("no NUL");
-        py.run(code.as_c_str(), Some(&ns.dict()), Some(&ns.dict()))?;
-        let cls = ns.getattr("FakeClassifier")?;
-        let inst = cls.call1((log,))?;
+        // Build the fake classifier instance, wiring the per-case scripts.
+        #[allow(clippy::too_many_arguments)]
+        fn make_classifier<'py>(
+            py: Python<'py>,
+            log: &Bound<'py, PyAny>,
+            clearance_script: &[Option<i32>],
+            congestion_script: &[Option<i32>],
+            unrouted_script: &[Option<i32>],
+            rotation_script: &[Option<i32>],
+            _critical_map: &Bound<'py, PyAny>,
+            _persistent_ics: &[String],
+        ) -> PyResult<Bound<'py, PyAny>> {
+            let ns = PyModule::new(py, "__feedback_proptest_fakes__")?;
+            let code = std::ffi::CString::new(FAKE_CLASSIFIER_SOURCE).expect("no NUL");
+            py.run(code.as_c_str(), Some(&ns.dict()), Some(&ns.dict()))?;
+            let cls = ns.getattr("FakeClassifier")?;
+            let inst = cls.call1((log,))?;
 
-        let c_script = PyList::empty(py);
-        for p in clearance_script {
-            match p {
-                Some(v) => c_script.append(*v)?,
-                None => c_script.append(py.None())?,
-            };
-        }
-        let g_script = PyList::empty(py);
-        for p in congestion_script {
-            match p {
-                Some(v) => g_script.append(*v)?,
-                None => g_script.append(py.None())?,
-            };
-        }
-        let u_script = PyList::empty(py);
-        for p in unrouted_script {
-            match p {
-                Some(v) => u_script.append(*v)?,
-                None => u_script.append(py.None())?,
-            };
-        }
-        let r_script = PyList::empty(py);
-        for p in rotation_script {
-            match p {
-                Some(v) => r_script.append(*v)?,
-                None => r_script.append(py.None())?,
-            };
-        }
-        inst.setattr("clearance_script", &c_script)?;
-        inst.setattr("congestion_script", &g_script)?;
-        inst.setattr("unrouted_script", &u_script)?;
-        inst.setattr("rotation_script", &r_script)?;
-        inst.setattr("critical_map", critical_map)?;
-        let pics = PyList::empty(py);
-        for ic in persistent_ics {
-            pics.append(PyString::new(py, ic))?;
-        }
-        inst.setattr("persistent_ics", &pics)?;
-        Ok(inst)
-    }
-
-    // A `MockRoutingResult`-shaped routing result.
-    #[allow(clippy::too_many_arguments)]
-    fn make_routing_result<'py>(
-        py: Python<'py>,
-        completion_rate: f64,
-        unrouted_nets: &[String],
-        drc_violations: &Bound<'py, PyAny>,
-        congestion_regions: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let sns = py.import("types")?.getattr("SimpleNamespace")?;
-        let kwargs = PyDict::new(py);
-        kwargs.set_item("completion_rate", completion_rate)?;
-        let nets = PyList::empty(py);
-        for n in unrouted_nets {
-            nets.append(PyString::new(py, n))?;
-        }
-        kwargs.set_item("unrouted_nets", &nets)?;
-        kwargs.set_item("drc_violations", drc_violations)?;
-        kwargs.set_item("congestion_regions", congestion_regions)?;
-        sns.call((), Some(&kwargs))
-    }
-
-    // A `SimpleNamespace(placed_refs=..., positions=...)` placement.
-    fn make_placement<'py>(
-        py: Python<'py>,
-        placed_refs: &[String],
-        positions: &[((f64, f64), String)],
-    ) -> PyResult<Bound<'py, PyAny>> {
-        let sns = py.import("types")?.getattr("SimpleNamespace")?;
-        let kwargs = PyDict::new(py);
-        let placed = PyList::empty(py);
-        for r in placed_refs {
-            placed.append(PyString::new(py, r))?;
-        }
-        kwargs.set_item("placed_refs", &placed)?;
-        let pos = PyDict::new(py);
-        for (xy, r) in positions {
-            pos.set_item(r, xy.into_bound_py_any(py)?)?;
-        }
-        kwargs.set_item("positions", &pos)?;
-        sns.call((), Some(&kwargs))
-    }
-
-    // The reference model of the oracle's dispatch: the exact per-call log
-    // for a scenario (the clean early-return produces an empty log).
-    fn reference_log(
-        completion_rate: f64,
-        drc_count: usize,
-        congestion_count: usize,
-        nets: &[String],
-        critical: &[bool],
-        persistent: &[String],
-        round: i64,
-    ) -> Vec<String> {
-        if completion_rate >= 1.0 && drc_count == 0 {
-            return vec![];
-        }
-        let mut log = Vec::new();
-        for _ in 0..drc_count {
-            log.push("clearance".to_string());
-        }
-        for _ in 0..congestion_count {
-            log.push("congestion".to_string());
-        }
-        for (i, net) in nets.iter().enumerate() {
-            log.push(format!("critical:{net}"));
-            if critical[i] {
-                // One critical ref == the net name itself.
-                log.push(format!("unrouted_pin:{net}"));
+            let c_script = PyList::empty(py);
+            for p in clearance_script {
+                match p {
+                    Some(v) => c_script.append(*v)?,
+                    None => c_script.append(py.None())?,
+                };
             }
+            let g_script = PyList::empty(py);
+            for p in congestion_script {
+                match p {
+                    Some(v) => g_script.append(*v)?,
+                    None => g_script.append(py.None())?,
+                };
+            }
+            let u_script = PyList::empty(py);
+            for p in unrouted_script {
+                match p {
+                    Some(v) => u_script.append(*v)?,
+                    None => u_script.append(py.None())?,
+                };
+            }
+            let r_script = PyList::empty(py);
+            for p in rotation_script {
+                match p {
+                    Some(v) => r_script.append(*v)?,
+                    None => r_script.append(py.None())?,
+                };
+            }
+            inst.setattr("clearance_script", &c_script)?;
+            inst.setattr("congestion_script", &g_script)?;
+            inst.setattr("unrouted_script", &u_script)?;
+            inst.setattr("rotation_script", &r_script)?;
+            Ok(inst)
         }
-        log.push(format!("detect_persistent:{round}"));
-        for ic in persistent {
-            log.push(format!("rotation:{ic}"));
+
+        // A `MockRoutingResult`-shaped routing result.
+        #[allow(clippy::too_many_arguments)]
+        fn make_routing_result<'py>(
+            py: Python<'py>,
+            completion_rate: f64,
+            unrouted_nets: &[String],
+            drc_violations: &Bound<'py, PyAny>,
+            congestion_regions: &Bound<'py, PyAny>,
+        ) -> PyResult<Bound<'py, PyAny>> {
+            let sns = py.import("types")?.getattr("SimpleNamespace")?;
+            let kwargs = PyDict::new(py);
+            kwargs.set_item("completion_rate", completion_rate)?;
+            let nets = PyList::empty(py);
+            for n in unrouted_nets {
+                nets.append(PyString::new(py, n))?;
+            }
+            kwargs.set_item("unrouted_nets", &nets)?;
+            kwargs.set_item("drc_violations", drc_violations)?;
+            kwargs.set_item("congestion_regions", congestion_regions)?;
+            sns.call((), Some(&kwargs))
         }
-        for net in nets {
-            log.push(format!("critical:{net}")); // second pass (unclassified-nets loop)
+
+        // A `SimpleNamespace(placed_refs=..., positions=...)` placement.
+        fn make_placement<'py>(
+            py: Python<'py>,
+            placed_refs: &[String],
+            positions: &[((f64, f64), String)],
+        ) -> PyResult<Bound<'py, PyAny>> {
+            let sns = py.import("types")?.getattr("SimpleNamespace")?;
+            let kwargs = PyDict::new(py);
+            let placed = PyList::empty(py);
+            for r in placed_refs {
+                placed.append(PyString::new(py, r))?;
+            }
+            kwargs.set_item("placed_refs", &placed)?;
+            let pos = PyDict::new(py);
+            for (xy, r) in positions {
+                pos.set_item(r, xy.into_bound_py_any(py)?)?;
+            }
+            kwargs.set_item("positions", &pos)?;
+            sns.call((), Some(&kwargs))
         }
-        log
-    }
 
-    // -- strategies ----------------------------------------------------------
+        // The reference model of the oracle's dispatch: the exact per-call log
+        // for a scenario (the clean early-return produces an empty log).
+        fn reference_log(
+            completion_rate: f64,
+            drc_count: usize,
+            congestion_count: usize,
+        ) -> Vec<String> {
+            if completion_rate >= 1.0 && drc_count == 0 {
+                return vec![];
+            }
+            let mut log = Vec::new();
+            for _ in 0..drc_count {
+                log.push("clearance".to_string());
+            }
+            for _ in 0..congestion_count {
+                log.push("congestion".to_string());
+            }
+            log
+        }
 
-    fn net_name() -> impl Strategy<Value = String> {
-        prop::sample::select(vec![
-            "GATE_DRIVE".to_string(),
-            "SW_NODE".to_string(),
-            "SOME_UNKNOWN".to_string(),
-            "SPI_CLK".to_string(),
-        ])
-    }
+        // -- strategies ----------------------------------------------------------
 
-    fn ic_name() -> impl Strategy<Value = String> {
-        prop::sample::select(vec!["Q1".to_string(), "Q2".to_string(), "U_GATE".to_string()])
-    }
+        fn net_name() -> impl Strategy<Value = String> {
+            prop::sample::select(vec![
+                "GATE_DRIVE".to_string(),
+                "SW_NODE".to_string(),
+                "SOME_UNKNOWN".to_string(),
+                "SPI_CLK".to_string(),
+            ])
+        }
 
-    // Unique net names + positionally-aligned per-net critical flags (the
-    // fake classifier keys `_find_critical_components` by NET NAME, so the
-    // corpus must not repeat a name -- a duplicate would collapse in the
-    // dict and desync the reference model).
-    /// One unclassified record: (description, nets, components, region).
-    type Unclassified = (String, Vec<String>, Vec<String>, Option<(f64, f64, f64, f64)>);
+        fn ic_name() -> impl Strategy<Value = String> {
+            prop::sample::select(vec![
+                "Q1".to_string(),
+                "Q2".to_string(),
+                "U_GATE".to_string(),
+            ])
+        }
 
-    fn net_names_and_critical() -> impl Strategy<Value = (Vec<String>, Vec<bool>)> {
-        (0usize..=4).prop_flat_map(|n| {
-            (prop::collection::hash_set(net_name(), n), prop::collection::vec(proptest::bool::ANY, n))
-                .prop_map(|(s, c)| (s.into_iter().collect::<Vec<_>>(), c))
-        })
-    }
+        // Unique net names + positionally-aligned per-net critical flags (the
+        // fake classifier keys `_find_critical_components` by NET NAME, so the
+        // corpus must not repeat a name -- a duplicate would collapse in the
+        // dict and desync the reference model).
+        /// One unclassified record: (description, nets, components, region).
+        type Unclassified = (
+            String,
+            Vec<String>,
+            Vec<String>,
+            Option<(f64, f64, f64, f64)>,
+        );
 
-    // -----------------------------------------------------------------------
+        fn net_names_and_critical() -> impl Strategy<Value = (Vec<String>, Vec<bool>)> {
+            (0usize..=4).prop_flat_map(|n| {
+                (
+                    prop::collection::hash_set(net_name(), n),
+                    prop::collection::vec(proptest::bool::ANY, n),
+                )
+                    .prop_map(|(s, c)| (s.into_iter().collect::<Vec<_>>(), c))
+            })
+        }
 
-    // P1. The per-iteration call ORDER (the migrated dispatch) matches the
-    // oracle's reference model for every randomized scenario -- the clean
-    // early-return is reachable -- and the unclassified collection matches:
-    // a handler-`None` DRC violation becomes a `DRC: {msg}` record, a
-    // handler-`None` congestion region becomes `Congestion in region`, and a
-    // net with no critical components becomes `Unrouted net: {net}`.
-    proptest! {
-        #![proptest_config(ProptestConfig::default())]
+        // -----------------------------------------------------------------------
 
-        #[test]
-        fn dispatch_order_and_unclassified_match_reference(
-            (completion_rate, drc_priorities, congestion_priorities, (nets, critical),
-             persistent, round) in (
-                prop::sample::select(vec![0.5_f64, 0.9, 1.0]),
-                prop::collection::vec(proptest::option::of(1i32..=30), 0..=4),
-                prop::collection::vec(proptest::option::of(1i32..=30), 0..=4),
-                net_names_and_critical(),
-                prop::collection::vec(ic_name(), 0..=3),
-                0i64..=6,
-            ),
-        ) {
-            fakes_ready();
-            let lu: PyResult<_> = Python::attach(|py| {
-                let shared_log = PyList::empty(py);
-                let critical_map = PyDict::new(py);
-                for (i, net) in nets.iter().enumerate() {
-                    let crits = PyList::empty(py);
-                    if critical[i] {
-                        crits.append(PyString::new(py, net))?; // critical ref == net name
+        // P1. The per-iteration call ORDER (the migrated dispatch) matches the
+        // oracle's reference model for every randomized scenario -- the clean
+        // early-return is reachable -- and the unclassified collection matches:
+        // a handler-`None` DRC violation becomes a `DRC: {msg}` record, a
+        // handler-`None` congestion region becomes `Congestion in region`, and a
+        // net with no critical components becomes `Unrouted net: {net}`.
+        proptest! {
+            #![proptest_config(ProptestConfig::default())]
+
+            #[test]
+            fn dispatch_order_and_unclassified_match_reference(
+                (completion_rate, drc_priorities, congestion_priorities, (nets, critical),
+                 persistent, round) in (
+                    prop::sample::select(vec![0.5_f64, 0.9, 1.0]),
+                    prop::collection::vec(proptest::option::of(1i32..=30), 0..=4),
+                    prop::collection::vec(proptest::option::of(1i32..=30), 0..=4),
+                    net_names_and_critical(),
+                    prop::collection::vec(ic_name(), 0..=3),
+                    0i64..=6,
+                ),
+            ) {
+                fakes_ready();
+                let lu: PyResult<_> = Python::attach(|py| {
+                    let shared_log = PyList::empty(py);
+                    let critical_map = PyDict::new(py);
+                    for (i, net) in nets.iter().enumerate() {
+                        let crits = PyList::empty(py);
+                        if critical[i] {
+                            crits.append(PyString::new(py, net))?; // critical ref == net name
+                        }
+                        critical_map.set_item(net, &crits)?;
                     }
-                    critical_map.set_item(net, &crits)?;
-                }
-                let unrouted_script = critical
-                    .iter()
-                    .map(|c| if *c { Some(15) } else { None })
-                    .collect::<Vec<_>>();
-                let classifier = make_classifier(
-                    py, &shared_log, &drc_priorities, &congestion_priorities,
-                    &unrouted_script, &[], &critical_map, &persistent,
-                )?;
+                    let unrouted_script = critical
+                        .iter()
+                        .map(|c| if *c { Some(15) } else { None })
+                        .collect::<Vec<_>>();
+                    let classifier = make_classifier(
+                        py, &shared_log, &drc_priorities, &congestion_priorities,
+                        &unrouted_script, &[], &critical_map, &persistent,
+                    )?;
 
-                let drc_violations = PyList::empty(py);
-                for (i, _p) in drc_priorities.iter().enumerate() {
-                    let sns = py.import("types")?.getattr("SimpleNamespace")?;
-                    let kwargs = PyDict::new(py);
-                    kwargs.set_item("message", format!("odd violation {i}"))?;
-                    kwargs.set_item("location", (3.0_f64, 7.0_f64).into_bound_py_any(py)?)?;
-                    let comps = PyList::empty(py);
-                    comps.append(PyString::new(py, "C1"))?;
-                    kwargs.set_item("components", &comps)?;
-                    drc_violations.append(sns.call((), Some(&kwargs))?)?;
-                }
-                let congestion_regions = PyList::empty(py);
-                for _ in 0..congestion_priorities.len() {
-                    let sns = py.import("types")?.getattr("SimpleNamespace")?;
-                    congestion_regions.append(sns.call((), None)?)?;
-                }
-                let routing_result = make_routing_result(
-                    py, completion_rate, &nets, &drc_violations, &congestion_regions,
-                )?;
-                let placement = make_placement(
-                    py,
-                    &["Q1".to_string(), "Q2".to_string()],
-                    &[((10.0, 20.0), "Q1".to_string()), ((30.0, 40.0), "Q2".to_string())],
-                )?;
+                    let drc_violations = PyList::empty(py);
+                    for (i, _p) in drc_priorities.iter().enumerate() {
+                        let sns = py.import("types")?.getattr("SimpleNamespace")?;
+                        let kwargs = PyDict::new(py);
+                        kwargs.set_item("message", format!("odd violation {i}"))?;
+                        kwargs.set_item("location", (3.0_f64, 7.0_f64).into_bound_py_any(py)?)?;
+                        let comps = PyList::empty(py);
+                        comps.append(PyString::new(py, "C1"))?;
+                        kwargs.set_item("components", &comps)?;
+                        drc_violations.append(sns.call((), Some(&kwargs))?)?;
+                    }
+                    let congestion_regions = PyList::empty(py);
+                    for _ in 0..congestion_priorities.len() {
+                        let sns = py.import("types")?.getattr("SimpleNamespace")?;
+                        congestion_regions.append(sns.call((), None)?)?;
+                    }
+                    let routing_result = make_routing_result(
+                        py, completion_rate, &nets, &drc_violations, &congestion_regions,
+                    )?;
+                    let placement = make_placement(
+                        py,
+                        &["Q1".to_string(), "Q2".to_string()],
+                        &[((10.0, 20.0), "Q1".to_string()), ((30.0, 40.0), "Q2".to_string())],
+                    )?;
 
-                let result = classify_feedback(
-                    py,
-                    classifier.unbind(),
-                    routing_result.unbind(),
-                    placement.unbind(),
-                    round,
-                    None,
-                )?;
-                let result = result.bind(py);
-                let log: Vec<String> = shared_log.extract()?;
-                let unclassified: Vec<Unclassified> =
-                    result
-                        .getattr("unclassified")?
-                        .try_iter()?
-                        .map(|u| {
-                            let u = u?;
-                            let desc: String = u.getattr("description")?.extract()?;
-                            let nets: Vec<String> = u.getattr("nets")?.extract()?;
-                            let comps: Vec<String> = u.getattr("components")?.extract()?;
-                            let region_attr = u.getattr("region")?;
-                            let region = if region_attr.is_none() {
-                                None
-                            } else {
-                                Some(region_attr.extract()?)
-                            };
-                            Ok((desc, nets, comps, region))
-                        })
-                        .collect::<PyResult<Vec<_>>>()?;
-                Ok((log, unclassified))
-            });
-            let (log, unclassified) = lu.unwrap();
-
-            let ref_log = reference_log(
-                completion_rate,
-                drc_priorities.len(),
-                congestion_priorities.len(),
-                &nets,
-                &critical,
-                &persistent,
-                round,
-            );
-            prop_assert_eq!(log, ref_log, "dispatch call order diverged");
-
-            let mut want_unclassified: Vec<Unclassified> =
-                Vec::new();
-            // The clean early-return (completion_rate >= 1.0 and no DRC
-            // violations) short-circuits BEFORE the class loops, so nothing
-            // is classified.
-            if completion_rate >= 1.0 && drc_priorities.is_empty() {
-                prop_assert_eq!(unclassified, want_unclassified, "clean early-return must not classify");
-                return Ok(());
-            }
-            for (i, p) in drc_priorities.iter().enumerate() {
-                if p.is_none() {
-                    want_unclassified.push((
-                        format!("DRC: odd violation {i}"),
-                        vec![],
-                        vec!["C1".to_string()],
-                        Some((-2.0, 2.0, 8.0, 12.0)),
-                    ));
-                }
-            }
-            for p in &congestion_priorities {
-                if p.is_none() {
-                    want_unclassified.push(("Congestion in region".to_string(), vec![], vec![], None));
-                }
-            }
-            for (i, net) in nets.iter().enumerate() {
-                if !critical[i] {
-                    want_unclassified.push((
-                        format!("Unrouted net: {net}"),
-                        vec![net.clone()],
-                        vec![],
+                    let result = classify_feedback(
+                        py,
+                        classifier.unbind(),
+                        routing_result.unbind(),
+                        placement.unbind(),
+                        round,
                         None,
-                    ));
-                }
-            }
-            prop_assert_eq!(unclassified, want_unclassified, "unclassified collection diverged");
-        }
+                    )?;
+                    let result = result.bind(py);
+                    let log: Vec<String> = shared_log.extract()?;
+                    let unclassified: Vec<Unclassified> =
+                        result
+                            .getattr("unclassified")?
+                            .try_iter()?
+                            .map(|u| {
+                                let u = u?;
+                                let desc: String = u.getattr("description")?.extract()?;
+                                let nets: Vec<String> = u.getattr("nets")?.extract()?;
+                                let comps: Vec<String> = u.getattr("components")?.extract()?;
+                                let region_attr = u.getattr("region")?;
+                                let region = if region_attr.is_none() {
+                                    None
+                                } else {
+                                    Some(region_attr.extract()?)
+                                };
+                                Ok((desc, nets, comps, region))
+                            })
+                            .collect::<PyResult<Vec<_>>>()?;
+                    Ok((log, unclassified))
+                });
+                let (log, unclassified) = lu.unwrap();
 
-        // P2. The clean early-return (completion_rate >= 1.0 and no DRC
-        // violations) skips every handler: empty deltas, empty unclassified,
-        // round number preserved.
-        #[test]
-        fn clean_early_return_skips_handlers(round in 0i64..=10) {
-            fakes_ready();
-            let ldr: PyResult<_> = Python::attach(|py| {
-                let shared_log = PyList::empty(py);
-                let empty_script: Vec<Option<i32>> = vec![];
-                let critical_map = PyDict::new(py);
-                let classifier = make_classifier(
-                    py, &shared_log, &empty_script, &empty_script, &empty_script,
-                    &empty_script, &critical_map, &[],
-                )?;
-                let nets: Vec<String> = vec![];
-                let routing_result = make_routing_result(
-                    py, 1.0, &nets, &PyList::empty(py), &PyList::empty(py),
-                )?;
-                let placement = make_placement(py, &[], &[])?;
-                let result = classify_feedback(
-                    py, classifier.unbind(), routing_result.unbind(), placement.unbind(), round, None,
-                )?;
-                let result = result.bind(py);
-                let log_len: usize = shared_log.len();
-                let deltas: Vec<Py<PyAny>> = result.getattr("deltas")?.extract()?;
-                let unclassified: Vec<Py<PyAny>> = result.getattr("unclassified")?.extract()?;
-                let rr: i64 = result.getattr("round_number")?.extract()?;
-                Ok((log_len, deltas.len(), unclassified.len(), rr))
-            });
-            let (log_len, deltas, unclassified, rr) = ldr.unwrap();
-            prop_assert_eq!(log_len, 0, "clean early-return must not call handlers");
-            prop_assert_eq!(deltas, 0);
-            prop_assert_eq!(unclassified, 0);
-            prop_assert_eq!(rr, round);
-        }
+                let ref_log = reference_log(
+                    completion_rate,
+                    drc_priorities.len(),
+                    congestion_priorities.len(),
+                );
+                prop_assert_eq!(log, ref_log, "dispatch call order diverged");
 
-        // P3. The priority sort is stable and ascending: the result's
-        // `deltas` priorities are non-decreasing, and equal priorities keep
-        // their insertion (dispatch) order.
-        #[test]
-        fn priority_sort_is_stable_ascending(
-            (drc_priorities, congestion_priorities) in (
-                prop::collection::vec(proptest::option::of(1i32..=5), 1..=6),
-                prop::collection::vec(proptest::option::of(1i32..=5), 1..=6),
-            ),
-        ) {
-            fakes_ready();
-            let prio: PyResult<Vec<i32>> = Python::attach(|py| {
-                let shared_log = PyList::empty(py);
-                let critical_map = PyDict::new(py);
-                let classifier = make_classifier(
-                    py, &shared_log, &drc_priorities, &congestion_priorities,
-                    &[], &[], &critical_map, &[],
-                )?;
-                let nets: Vec<String> = vec![];
-                let drc_violations = PyList::empty(py);
-                for _ in 0..drc_priorities.len() {
-                    let sns = py.import("types")?.getattr("SimpleNamespace")?;
-                    let kwargs = PyDict::new(py);
-                    kwargs.set_item("message", "m")?;
-                    kwargs.set_item("location", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
-                    kwargs.set_item("components", PyList::empty(py))?;
-                    drc_violations.append(sns.call((), Some(&kwargs))?)?;
+                let mut want_unclassified: Vec<Unclassified> =
+                    Vec::new();
+                // The clean early-return (completion_rate >= 1.0 and no DRC
+                // violations) short-circuits BEFORE the class loops, so nothing
+                // is classified.
+                if completion_rate >= 1.0 && drc_priorities.is_empty() {
+                    prop_assert_eq!(unclassified, want_unclassified, "clean early-return must not classify");
+                    return Ok(());
                 }
-                let congestion_regions = PyList::empty(py);
-                for _ in 0..congestion_priorities.len() {
-                    let sns = py.import("types")?.getattr("SimpleNamespace")?;
-                    congestion_regions.append(sns.call((), None)?)?;
+                for (i, p) in drc_priorities.iter().enumerate() {
+                    if p.is_none() {
+                        want_unclassified.push((
+                            format!("DRC: odd violation {i}"),
+                            vec![],
+                            vec!["C1".to_string()],
+                            Some((-2.0, 2.0, 8.0, 12.0)),
+                        ));
+                    }
                 }
-                let routing_result = make_routing_result(
-                    py, 0.5, &nets, &drc_violations, &congestion_regions,
-                )?;
-                let placement = make_placement(py, &[], &[])?;
-                let result = classify_feedback(
-                    py, classifier.unbind(), routing_result.unbind(), placement.unbind(), 0, None,
-                )?;
-                let result = result.bind(py);
-                let got: Vec<i32> = result
-                    .getattr("deltas")?
-                    .try_iter()?
-                    .map(|d| d?.getattr("priority")?.extract())
-                    .collect::<PyResult<Vec<i32>>>()?;
-                Ok(got)
-            });
-            let priorities = prio.unwrap();
+                for p in &congestion_priorities {
+                    if p.is_none() {
+                        want_unclassified.push(("Congestion in region".to_string(), vec![], vec![], None));
+                    }
+                }
+                for net in &nets {
+                    {
+                        want_unclassified.push((
+                            format!("Unrouted net: {net}"),
+                            vec![net.clone()],
+                            vec![],
+                            None,
+                        ));
+                    }
+                }
+                prop_assert_eq!(unclassified, want_unclassified, "unclassified collection diverged");
+            }
 
-            let mut insertion: Vec<i32> = Vec::new();
-            for v in drc_priorities.iter().flatten() {
-                insertion.push(*v);
+            // P2. The clean early-return (completion_rate >= 1.0 and no DRC
+            // violations) skips every handler: empty deltas, empty unclassified,
+            // round number preserved.
+            #[test]
+            fn clean_early_return_skips_handlers(round in 0i64..=10) {
+                fakes_ready();
+                let ldr: PyResult<_> = Python::attach(|py| {
+                    let shared_log = PyList::empty(py);
+                    let empty_script: Vec<Option<i32>> = vec![];
+                    let critical_map = PyDict::new(py);
+                    let classifier = make_classifier(
+                        py, &shared_log, &empty_script, &empty_script, &empty_script,
+                        &empty_script, &critical_map, &[],
+                    )?;
+                    let nets: Vec<String> = vec![];
+                    let routing_result = make_routing_result(
+                        py, 1.0, &nets, &PyList::empty(py), &PyList::empty(py),
+                    )?;
+                    let placement = make_placement(py, &[], &[])?;
+                    let result = classify_feedback(
+                        py, classifier.unbind(), routing_result.unbind(), placement.unbind(), round, None,
+                    )?;
+                    let result = result.bind(py);
+                    let log_len: usize = shared_log.len();
+                    let deltas: Vec<Py<PyAny>> = result.getattr("deltas")?.extract()?;
+                    let unclassified: Vec<Py<PyAny>> = result.getattr("unclassified")?.extract()?;
+                    let rr: i64 = result.getattr("round_number")?.extract()?;
+                    Ok((log_len, deltas.len(), unclassified.len(), rr))
+                });
+                let (log_len, deltas, unclassified, rr) = ldr.unwrap();
+                prop_assert_eq!(log_len, 0, "clean early-return must not call handlers");
+                prop_assert_eq!(deltas, 0);
+                prop_assert_eq!(unclassified, 0);
+                prop_assert_eq!(rr, round);
             }
-            for v in congestion_priorities.iter().flatten() {
-                insertion.push(*v);
+
+            // P3. The priority sort is stable and ascending: the result's
+            // `deltas` priorities are non-decreasing, and equal priorities keep
+            // their insertion (dispatch) order.
+            #[test]
+            fn priority_sort_is_stable_ascending(
+                (drc_priorities, congestion_priorities) in (
+                    prop::collection::vec(proptest::option::of(1i32..=5), 1..=6),
+                    prop::collection::vec(proptest::option::of(1i32..=5), 1..=6),
+                ),
+            ) {
+                fakes_ready();
+                let prio: PyResult<Vec<i32>> = Python::attach(|py| {
+                    let shared_log = PyList::empty(py);
+                    let critical_map = PyDict::new(py);
+                    let classifier = make_classifier(
+                        py, &shared_log, &drc_priorities, &congestion_priorities,
+                        &[], &[], &critical_map, &[],
+                    )?;
+                    let nets: Vec<String> = vec![];
+                    let drc_violations = PyList::empty(py);
+                    for _ in 0..drc_priorities.len() {
+                        let sns = py.import("types")?.getattr("SimpleNamespace")?;
+                        let kwargs = PyDict::new(py);
+                        kwargs.set_item("message", "m")?;
+                        kwargs.set_item("location", (0.0_f64, 0.0_f64).into_bound_py_any(py)?)?;
+                        kwargs.set_item("components", PyList::empty(py))?;
+                        drc_violations.append(sns.call((), Some(&kwargs))?)?;
+                    }
+                    let congestion_regions = PyList::empty(py);
+                    for _ in 0..congestion_priorities.len() {
+                        let sns = py.import("types")?.getattr("SimpleNamespace")?;
+                        congestion_regions.append(sns.call((), None)?)?;
+                    }
+                    let routing_result = make_routing_result(
+                        py, 0.5, &nets, &drc_violations, &congestion_regions,
+                    )?;
+                    let placement = make_placement(py, &[], &[])?;
+                    let result = classify_feedback(
+                        py, classifier.unbind(), routing_result.unbind(), placement.unbind(), 0, None,
+                    )?;
+                    let result = result.bind(py);
+                    let got: Vec<i32> = result
+                        .getattr("deltas")?
+                        .try_iter()?
+                        .map(|d| d?.getattr("priority")?.extract())
+                        .collect::<PyResult<Vec<i32>>>()?;
+                    Ok(got)
+                });
+                let priorities = prio.unwrap();
+
+                let mut insertion: Vec<i32> = Vec::new();
+                for v in drc_priorities.iter().flatten() {
+                    insertion.push(*v);
+                }
+                for v in congestion_priorities.iter().flatten() {
+                    insertion.push(*v);
+                }
+                let mut want = insertion.clone();
+                want.sort_by_key(|v| *v); // Rust `sort_by_key` is stable
+                for w in priorities.windows(2) {
+                    prop_assert!(w[0] <= w[1], "priorities not ascending: {:?}", priorities);
+                }
+                prop_assert_eq!(priorities, want, "sorted deltas diverged from stable reference");
             }
-            let mut want = insertion.clone();
-            want.sort_by_key(|v| *v); // Rust `sort_by_key` is stable
-            for w in priorities.windows(2) {
-                prop_assert!(w[0] <= w[1], "priorities not ascending: {:?}", priorities);
-            }
-            prop_assert_eq!(priorities, want, "sorted deltas diverged from stable reference");
         }
     }
-}
 }

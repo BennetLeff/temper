@@ -1,4 +1,4 @@
-<!-- provenance: commit=450a8ed561ef6bad57e35a1e26ef2107bb95dd4a dirty=true -->
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 
 # Pumpkin run through the BLOCKER-ORTOOLS equivalence harness (2026-08-07)
 
@@ -8,7 +8,7 @@ the one remaining gap. No code in
 `packages/temper-placer/src/temper_placer/placer/cp_sat/` changed, no call
 site migrated. Companion code: `docs/evidence/2026-08-07-pumpkin-engine/`
 (standalone Rust binary linking `pumpkin-solver`) and
-`docs/evidence/2026-08-07-pumpkin-equivalence-run.py` (the harness's
+`docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py` (the harness's
 `Engine` protocol implementation + a 2-engine differential runner that
 imports the harness `.py` unchanged and adds nothing else). Raw data:
 `docs/evidence/2026-08-07-pumpkin-equivalence-summary.json` (108 runs: 3
@@ -208,7 +208,7 @@ does not make.
 ```
 cd docs/evidence/2026-08-07-pumpkin-engine && cargo build --release
 cd ../../../packages/temper-placer
-uv run --no-sync python ../../docs/evidence/2026-08-07-pumpkin-equivalence-run.py
+uv run --no-sync python ../../docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py
 ```
 
 Needs the built Rust pyo3 extensions (`make extensions` from repo root)

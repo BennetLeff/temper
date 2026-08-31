@@ -18,15 +18,6 @@ module                       stmts    top-level definitions copied here
                                       ``identify_congested_regions``,
                                       ``_classify_congestion``
 ``routing_demand.py``           73    ``RoutingDemand``, ``estimate_routing_demand``
-``placement_suggestions.py``    58    ``PlacementSuggestion``, ``PlacementSuggestions``,
-                                      ``generate_placement_suggestions``,
-                                      ``_find_affected_components``,
-                                      ``_calculate_suggested_position``
-``congestion_heatmap.py``       51    ``CongestionHeatmap``
-``apply_suggestions.py``        48    ``AppliedAdjustment``, ``AdjustmentResult``,
-                                      ``apply_suggestions_with_damping``,
-                                      ``_calculate_damped_position``,
-                                      ``update_component_positions``
 ===========================  =======  ================================================
 
 Nothing here has been cleaned up, refactored, reformatted, or fixed.  A fix
@@ -51,11 +42,9 @@ registry at import time, so importing the oracle would double-register a
 validator for the shipped module.  The exclusion is behavioural, not
 cosmetic, and is asserted by ``test_oracle_excludes_the_stage_wrapper``.
 
-Everything else that differs from the six source files is import plumbing:
-the six import blocks are merged into the single block below, the
-cross-module imports (``placement_suggestions`` -> ``congestion_analysis``,
-``apply_suggestions`` -> ``placement_suggestions``) resolve locally instead,
-and ``from __future__ import annotations`` is present (5 of the 6 sources
+Everything else that differs from the source files is import plumbing:
+the import blocks are merged into the single block below, and
+``from __future__ import annotations`` is present (5 of the 6 sources
 have it; ``congestion.py`` does not, and every annotation in it is either
 quoted or deferred-safe, so the merge is semantics-preserving).
 
@@ -71,9 +60,6 @@ this cluster uses two of the three, sometimes in the same expression.
   Measured: a NaN anywhere in ``supply`` yields NaN, where ``f64::max``
   would keep ``1e-6`` and CPython ``max`` would depend on argument order.
 * ``CongestionGrid.get_overflow``: ``np.maximum(self.demand - self.supply, 0.0)``.
-* ``CongestionHeatmap.from_router``: ``np.max(congestion_3d, axis=2)`` and
-  ``np.max(history_3d, axis=2)`` -- the *reduction*, whose NaN semantics are
-  again propagate-not-discard.
 
 **CPython builtins -- the FIRST argument survives a NaN (B5).  Use ``py_max``/``py_min``.**
 
@@ -87,47 +73,23 @@ this cluster uses two of the three, sometimes in the same expression.
   -- NaN is the *second* argument here, so a NaN congestion score returns
   ``1.0``, the opposite of ``overflow_ratio`` above.  Same builtin, opposite
   outcome, five files apart: this is exactly the asymmetry B5 records.
-* ``placement_suggestions.generate_placement_suggestions``:
-  ``min(1.0, region.bottleneck_score * 1.2)``.
-* ``congestion_heatmap.get_congestion_at``: ``max(0, min(gx, self.grid.shape[0] - 1))``
-  -- **min-then-max nesting, on ints.**  The order is load-bearing per B5's
-  grid-raster note and must not be rewritten as ``max``-then-``min``.
 
 **libm ``pow``, not multiplication or ``sqrt`` (B7).**
 
-* ``placement_suggestions._find_affected_components`` and
-  ``._calculate_suggested_position``: ``(dx**2 + dy**2) ** 0.5``.
-* ``apply_suggestions.AdjustmentResult.total_movement``: same expression.
+* ``estimate_net_demand``'s ``math.hypot``-adjacent distance forms and the
+  (formerly pinned) placement-suggestion distances used ``(dx**2 + dy**2) ** 0.5``.
   Measured on 20 000 random pairs: this form disagrees with
   ``math.hypot`` on **16.88%** of them and with ``sqrt(dx*dx + dy*dy)`` on
   **0.28%**.  Three spellings, three different answers -- copy the ``pow``
   form.
 
-**numpy reduction order, not a left fold (B7).**
-
-* ``CongestionHeatmap.get_total_congestion``: ``np.sum(self.grid)`` uses
-  numpy's *pairwise* summation.  Measured on an 8x8 float32 grid it differs
-  from a naive left-to-right accumulation in the last bits
-  (``36.58964920043945`` vs ``36.5896481545642``).  A Rust ``iter().sum()``
-  is the wrong answer.
-
 **Python round-half-EVEN in string formatting (B3 family).**
 
-* ``placement_suggestions.generate_placement_suggestions`` builds
-  ``f"... (score: {region.bottleneck_score:.2f})"``, and that string is a
-  dataclass field compared by the differential.  ``format(0.125, '.2f')`` is
-  ``'0.12'``, not ``'0.13'``: CPython rounds the *exact binary value*
-  half-to-even.  Any Rust mirror built out of ``(x * 100.0).round() / 100.0``
-  gets ``0.13`` -- ``f64::round`` is half-away-from-zero.
-
-**dtype leaks that a value-only comparison would miss.**
-
-* ``CongestionHeatmap.from_router`` returns ``normalized.astype(np.float32)``
-  -- an f32 grid, and the f32 rounding of ``combined / max_val`` is part of
-  the contract.
-* ``CongestionHeatmap.get_hotspots`` returns tuples whose third element is a
-  ``numpy.float32`` while the first two are Python ``float``.  Measured.
-  ``tests/router_v6/_signature.py`` separates those; ``==`` does not.
+* ``format(0.125, '.2f')`` is ``'0.12'``, not ``'0.13'``: CPython rounds the
+  *exact binary value* half-to-even.  Any Rust mirror built out of
+  ``(x * 100.0).round() / 100.0`` gets ``0.13`` -- ``f64::round`` is
+  half-away-from-zero.  (Formerly pinned via the deleted
+  ``placement_suggestions.generate_placement_suggestions`` reason string.)
 
 Defects found while pinning -- ALL THREE REPAIRED, ORACLE RE-PINNED
 -------------------------------------------------------------------
@@ -236,25 +198,17 @@ else:
     Any = object
 
 __all__ = [
-    "AdjustmentResult",
-    "AppliedAdjustment",
     "Bottleneck",
     "CongestedRegion",
     "CongestionGrid",
-    "CongestionHeatmap",
     "CongestionMap",
     "CongestionResult",
     "CongestionSeverity",
-    "PlacementSuggestion",
-    "PlacementSuggestions",
     "RoutingDemand",
     "analyze_congestion",
-    "apply_suggestions_with_damping",
     "estimate_net_demand",
     "estimate_routing_demand",
-    "generate_placement_suggestions",
     "identify_congested_regions",
-    "update_component_positions",
 ]
 
 
@@ -980,428 +934,3 @@ def estimate_routing_demand(
         avg_pins_per_net=avg_pins_per_net,
         max_pins_per_net=max_pins_per_net,
     )
-
-
-# --- placement_suggestions.py ------------------------------------------
-
-
-@dataclass
-class PlacementSuggestion:
-    """A suggested placement adjustment."""
-
-    component_id: str
-    current_position: tuple[float, float]
-    suggested_position: tuple[float, float]
-    reason: str  # Why this move is suggested
-    priority: float  # 0.0-1.0, higher = more important
-
-
-@dataclass
-class PlacementSuggestions:
-    """Collection of placement suggestions."""
-
-    suggestions: list[PlacementSuggestion]
-
-    @property
-    def suggestion_count(self) -> int:
-        """Number of suggestions."""
-        return len(self.suggestions)
-
-    def get_high_priority_suggestions(self, threshold: float = 0.7) -> list[PlacementSuggestion]:
-        """Get suggestions above priority threshold."""
-        return [s for s in self.suggestions if s.priority >= threshold]
-
-
-def generate_placement_suggestions(
-    congestion_map: CongestionMap,
-    component_positions: dict[str, tuple[float, float]] | None = None,
-) -> PlacementSuggestions:
-    """
-    Generate placement suggestions based on congestion analysis.
-
-    Proposes component movements to reduce congestion in critical regions.
-
-    Args:
-        congestion_map: Congestion analysis from F.2
-        component_positions: Optional dict of component_id -> (x, y)
-
-    Returns:
-        PlacementSuggestions with proposed adjustments
-
-    Example:
-        >>> from temper_placer.router_v6.congestion_analysis import CongestionMap
-        >>> congestion = CongestionMap(regions=[])
-        >>> suggestions = generate_placement_suggestions(congestion)
-        >>> suggestions.suggestion_count >= 0
-        True
-    """
-    if component_positions is None:
-        component_positions = {}
-
-    suggestions = []
-
-    # Analyze each congested region
-    for region in congestion_map.regions:
-        # Only generate suggestions for significant congestion
-        if region.bottleneck_score < 0.5:
-            continue
-
-        # Find components in or near this region
-        affected_components = _find_affected_components(
-            region,
-            component_positions,
-        )
-
-        # Generate movement suggestions for these components
-        for comp_id, comp_pos in affected_components:
-            # Suggest moving away from congested region
-            suggested_pos = _calculate_suggested_position(
-                comp_pos,
-                region.center,
-                region.severity.value,
-            )
-
-            # Calculate priority based on congestion severity
-            priority = min(1.0, region.bottleneck_score * 1.2)
-
-            suggestions.append(
-                PlacementSuggestion(
-                    component_id=comp_id,
-                    current_position=comp_pos,
-                    suggested_position=suggested_pos,
-                    reason=f"Reduce {region.severity.value} congestion (score: {region.bottleneck_score:.2f})",
-                    priority=priority,
-                )
-            )
-
-    return PlacementSuggestions(suggestions=suggestions)
-
-
-def _find_affected_components(
-    region,
-    component_positions: dict[str, tuple[float, float]],
-) -> list[tuple[str, tuple[float, float]]]:
-    """
-    Find components affected by congested region.
-
-    Args:
-        region: Congested region
-        component_positions: Component positions
-
-    Returns:
-        List of (component_id, position) tuples
-    """
-    affected = []
-
-    for comp_id, comp_pos in component_positions.items():
-        # Check if component is in or near the congested region
-        dx = comp_pos[0] - region.center[0]
-        dy = comp_pos[1] - region.center[1]
-        distance = (dx**2 + dy**2) ** 0.5
-
-        # Include components within 2x region radius
-        if distance < region.radius * 2:
-            affected.append((comp_id, comp_pos))
-
-    return affected
-
-
-def _calculate_suggested_position(
-    current_pos: tuple[float, float],
-    congestion_center: tuple[float, float],
-    severity: str,
-) -> tuple[float, float]:
-    """
-    Calculate suggested new position.
-
-    Args:
-        current_pos: Current component position
-        congestion_center: Center of congested region
-        severity: Congestion severity
-
-    Returns:
-        Suggested new position
-    """
-    # Move away from congestion center
-    dx = current_pos[0] - congestion_center[0]
-    dy = current_pos[1] - congestion_center[1]
-    distance = (dx**2 + dy**2) ** 0.5
-
-    if distance < 0.1:
-        # Already at center, move arbitrarily
-        dx, dy = 5.0, 0.0
-        distance = 5.0
-
-    # Normalize direction
-    dx_norm = dx / distance
-    dy_norm = dy / distance
-
-    # Move distance based on severity
-    move_distance = {
-        "critical": 10.0,
-        "high": 7.0,
-        "medium": 5.0,
-        "low": 3.0,
-    }.get(severity, 3.0)
-
-    # Calculate new position
-    new_x = current_pos[0] + dx_norm * move_distance
-    new_y = current_pos[1] + dy_norm * move_distance
-
-    return (new_x, new_y)
-
-
-# --- congestion_heatmap.py ---------------------------------------------
-
-
-@dataclass
-class CongestionHeatmap:
-    """2D congestion map from routing analysis.
-
-    Provides query interface for placement optimization:
-    - High congestion areas should repel components
-    - Enables RoutingCongestionLoss to steer placement
-    """
-
-    grid: np.ndarray  # 2D float array, values 0-1 (normalized congestion)
-    cell_size: float  # mm per grid cell
-    origin: tuple[float, float]  # world coordinates of grid origin
-
-    @classmethod
-    def from_router(cls, router: Any) -> CongestionHeatmap:
-        """Build heatmap from router's congestion data.
-
-        Combines:
-        - present_congestion: current net overlap counts
-        - history_cost: accumulated routing difficulty
-        - conflict_locations: explicit conflict points
-
-        Args:
-            router: MazeRouter with routing results
-
-        Returns:
-            Normalized congestion heatmap
-        """
-        # Aggregate congestion across layers (max per cell)
-        congestion_3d = router.present_congestion
-        congestion_2d = np.max(congestion_3d, axis=2)
-
-        # Add contribution from history costs (routing difficulty)
-        history_3d = router.history_cost
-        history_2d = np.max(history_3d, axis=2) - 1.0  # Base cost is 1.0
-
-        # Combine (weighted sum)
-        combined = congestion_2d + 0.5 * history_2d
-
-        # Boost explicit conflict locations
-        conflict_locs = router.get_conflict_locations()
-        for loc in conflict_locs:
-            gx = int((loc["world_x"] - router.origin[0]) / router.cell_size)
-            gy = int((loc["world_y"] - router.origin[1]) / router.cell_size)
-            if 0 <= gx < combined.shape[0] and 0 <= gy < combined.shape[1]:
-                combined[gx, gy] += len(loc["nets"])  # More nets = worse
-
-        # Normalize to 0-1
-        max_val = np.max(combined)
-        normalized = combined / max_val if max_val > 0 else combined
-
-        return cls(
-            grid=normalized.astype(np.float32),
-            cell_size=router.cell_size,
-            origin=router.origin,
-        )
-
-    def get_congestion_at(self, x: float, y: float) -> float:
-        """Query congestion at world coordinate.
-
-        Args:
-            x, y: World coordinates in mm
-
-        Returns:
-            Congestion score 0-1 (0 = free, 1 = highly congested)
-        """
-        gx = int((x - self.origin[0]) / self.cell_size)
-        gy = int((y - self.origin[1]) / self.cell_size)
-
-        # Clamp to grid bounds
-        gx = max(0, min(gx, self.grid.shape[0] - 1))
-        gy = max(0, min(gy, self.grid.shape[1] - 1))
-
-        return float(self.grid[gx, gy])
-
-    def get_total_congestion(self) -> float:
-        """Sum of all congestion values."""
-        return float(np.sum(self.grid))
-
-    def get_hotspots(
-        self, threshold: float = 0.5, max_count: int = 10
-    ) -> list[tuple[float, float, float]]:
-        """Find high-congestion locations.
-
-        Args:
-            threshold: Minimum congestion to consider a hotspot
-            max_count: Maximum hotspots to return
-
-        Returns:
-            List of (x, y, congestion) tuples in world coordinates
-        """
-        hotspots = []
-
-        # Find cells above threshold
-        for gx in range(self.grid.shape[0]):
-            for gy in range(self.grid.shape[1]):
-                val = self.grid[gx, gy]
-                if val >= threshold:
-                    world_x = gx * self.cell_size + self.origin[0]
-                    world_y = gy * self.cell_size + self.origin[1]
-                    hotspots.append((world_x, world_y, val))
-
-        # Sort by congestion descending
-        hotspots.sort(key=lambda h: h[2], reverse=True)
-
-        return hotspots[:max_count]
-
-
-# --- apply_suggestions.py ----------------------------------------------
-
-
-@dataclass
-class AppliedAdjustment:
-    """A placement adjustment that was applied."""
-
-    component_id: str
-    original_position: tuple[float, float]
-    suggested_position: tuple[float, float]
-    applied_position: tuple[float, float]
-    damping_factor: float  # How much suggestion was dampened (0.0-1.0)
-
-
-@dataclass
-class AdjustmentResult:
-    """Result of applying placement adjustments."""
-
-    adjustments: list[AppliedAdjustment]
-
-    @property
-    def adjustment_count(self) -> int:
-        """Number of adjustments applied."""
-        return len(self.adjustments)
-
-    @property
-    def total_movement(self) -> float:
-        """Total movement distance across all adjustments (mm)."""
-        total = 0.0
-        for adj in self.adjustments:
-            dx = adj.applied_position[0] - adj.original_position[0]
-            dy = adj.applied_position[1] - adj.original_position[1]
-            total += (dx**2 + dy**2) ** 0.5
-        return total
-
-
-def apply_suggestions_with_damping(
-    suggestions: PlacementSuggestions,
-    current_positions: dict[str, tuple[float, float]],
-    damping_factor: float = 0.5,  # Conservative default
-    min_priority_threshold: float = 0.5,
-) -> AdjustmentResult:
-    """
-    Apply placement suggestions with damping to prevent oscillation.
-
-    Damping reduces the magnitude of adjustments to ensure gradual
-    convergence and avoid oscillation between states.
-
-    Args:
-        suggestions: Placement suggestions from F.3
-        current_positions: Current component positions
-        damping_factor: How much to dampen movements (0.0-1.0)
-        min_priority_threshold: Minimum priority to apply
-
-    Returns:
-        AdjustmentResult with applied adjustments
-
-    Example:
-        >>> from temper_placer.router_v6.placement_suggestions import PlacementSuggestions
-        >>> suggestions = PlacementSuggestions(suggestions=[])
-        >>> positions = {}
-        >>> result = apply_suggestions_with_damping(suggestions, positions)
-        >>> result.adjustment_count >= 0
-        True
-    """
-    adjustments = []
-
-    # Filter for high-priority suggestions
-    filtered_suggestions = [
-        s for s in suggestions.suggestions if s.priority >= min_priority_threshold
-    ]
-
-    for suggestion in filtered_suggestions:
-        comp_id = suggestion.component_id
-
-        # Get current position
-        current_pos = current_positions.get(comp_id)
-        if current_pos is None:
-            continue
-
-        # Calculate damped position
-        applied_pos = _calculate_damped_position(
-            current_pos,
-            suggestion.suggested_position,
-            damping_factor,
-        )
-
-        adjustments.append(
-            AppliedAdjustment(
-                component_id=comp_id,
-                original_position=current_pos,
-                suggested_position=suggestion.suggested_position,
-                applied_position=applied_pos,
-                damping_factor=damping_factor,
-            )
-        )
-
-    return AdjustmentResult(adjustments=adjustments)
-
-
-def _calculate_damped_position(
-    current: tuple[float, float],
-    suggested: tuple[float, float],
-    damping: float,
-) -> tuple[float, float]:
-    """
-    Calculate damped position between current and suggested.
-
-    Args:
-        current: Current position
-        suggested: Suggested position
-        damping: Damping factor (0.0 = no movement, 1.0 = full movement)
-
-    Returns:
-        Damped position
-    """
-    # Linear interpolation with damping
-    new_x = current[0] + (suggested[0] - current[0]) * damping
-    new_y = current[1] + (suggested[1] - current[1]) * damping
-
-    return (new_x, new_y)
-
-
-def update_component_positions(
-    current_positions: dict[str, tuple[float, float]],
-    adjustment_result: AdjustmentResult,
-) -> dict[str, tuple[float, float]]:
-    """
-    Update component positions based on applied adjustments.
-
-    Args:
-        current_positions: Current positions
-        adjustment_result: Applied adjustments
-
-    Returns:
-        Updated positions dictionary
-    """
-    updated = current_positions.copy()
-
-    for adjustment in adjustment_result.adjustments:
-        updated[adjustment.component_id] = adjustment.applied_position
-
-    return updated

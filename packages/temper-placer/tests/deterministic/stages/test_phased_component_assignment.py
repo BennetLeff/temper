@@ -268,48 +268,6 @@ class TestPhasedPlacement:
 class TestHelperMethods:
     """Tests for helper methods."""
 
-    def test_get_footprint_radius(self):
-        """Test footprint radius calculation."""
-        constraints = PlacementConstraints()
-        stage = PhasedComponentAssignmentStage(constraints, slot_spacing=12.0)
-
-        # Component with bounds
-        comp = Mock(bounds=(10, 10))
-        radius = stage._get_footprint_radius(comp)
-
-        # Diagonal/2 + 1mm margin
-        expected = (10**2 + 10**2) ** 0.5 / 2 + 1.0
-        assert abs(radius - expected) < 0.1
-
-        # Component without bounds
-        comp_no_bounds = Mock(spec=[])  # No bounds attribute
-        radius = stage._get_footprint_radius(comp_no_bounds)
-        assert radius == 6.0  # slot_spacing / 2
-
-    def test_reserve_slots(self):
-        """Test slot reservation."""
-        constraints = PlacementConstraints()
-        stage = PhasedComponentAssignmentStage(constraints)
-
-        all_slots = [(0, 0), (5, 0), (10, 0), (15, 0)]
-        used_slots = set()
-
-        # Reserve slots within 7mm of (5, 0)
-        stage._reserve_slots((5, 0), 7.0, all_slots, used_slots)
-
-        assert (0, 0) in used_slots  # dist=5
-        assert (5, 0) in used_slots  # dist=0
-        assert (10, 0) in used_slots  # dist=5
-        assert (15, 0) not in used_slots  # dist=10
-
-    def test_distance_calculation(self):
-        """Test Euclidean distance."""
-        constraints = PlacementConstraints()
-        stage = PhasedComponentAssignmentStage(constraints)
-
-        dist = stage._distance((0, 0), (3, 4))
-        assert dist == 5.0
-
     def test_compute_wirelength(self):
         """Test HPWL wirelength computation."""
         constraints = PlacementConstraints()

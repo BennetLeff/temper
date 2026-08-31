@@ -204,22 +204,6 @@ mod py_sum_tests {
 // pyo3 surface
 // ---------------------------------------------------------------------------
 
-/// CPython 3.12 `sum()` semantics over a float list (the oracle's
-/// `sum(c._polygon.area for ...)` kernel).  Empty input returns `int 0`
-/// (matching `sum([])`), non-empty returns the compensated float.
-///
-/// Panic policy per R1g: pyo3's default `#[pyfunction]` wrapper catches
-/// panics at the boundary and surfaces them as
-/// `pyo3_runtime.PanicException` (the validation.rs precedent — no
-/// explicit `catch_unwind` is needed on a `PyResult` boundary).
-#[pyfunction]
-fn py_sum(py: Python<'_>, items: Vec<f64>) -> PyResult<Py<PyAny>> {
-    if items.is_empty() {
-        return Ok(0i64.into_pyobject(py)?.unbind().into_any());
-    }
-    Ok(py_sum_neumaier(&items).into_pyobject(py)?.unbind().into_any())
-}
-
 /// Compute the area-sufficiency aggregate for a board whose dimensions and
 /// per-courtyard areas have already been extracted Python-side.
 ///
@@ -298,7 +282,6 @@ fn top_courtyards(pairs: Vec<(String, f64)>, n: i64) -> Vec<(String, f64)> {
 
 #[cfg(feature = "python")]
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(py_sum, m)?)?;
     m.add_function(wrap_pyfunction!(area_sufficiency_compute, m)?)?;
     m.add_function(wrap_pyfunction!(top_courtyards, m)?)?;
     Ok(())

@@ -19,14 +19,13 @@ from __future__ import annotations
 
 import copy
 import logging
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import yaml  # type: ignore[import-untyped]
 
-from temper_placer.pcl._constraint_parser import _is_resolved, parse_constraint_dict
+from temper_placer.pcl._constraint_parser import parse_constraint_dict
 from temper_placer.pcl._parse_utils import PCLParseError
 from temper_placer.pcl._schema import PCLValidationError, validate_pcl_dict
 from temper_placer.pcl._tag_expanders import _TAGGED_EXPANDERS
@@ -35,8 +34,6 @@ from temper_placer.pcl.constraints import (
     AlignedConstraint,
     AnchoredConstraint,
     BaseConstraint,
-    CompilationContext,
-    CompilationTarget,
     ConstraintTier,
     ConstraintType,
     EnclosingConstraint,
@@ -80,45 +77,6 @@ class ConstraintCollection:
 
     def add(self, constraint: BaseConstraint) -> None:
         self.constraints.append(constraint)
-
-    def compile(self, target: CompilationTarget, context: CompilationContext) -> list:
-        """Dispatch all constraints to the target backend.
-
-        Args:
-            target: Compilation target (JAX, SAT, or DRC).
-            context: CompilationContext with netlist, board, etc.
-
-        Returns:
-            List of backend-specific outputs.
-
-        Raises:
-            ValueError: If no backend is registered for the target.
-        """
-        backend_fn = BaseConstraint.backends.get(target.value)  # type: ignore[attr-defined]
-        if backend_fn is None:
-            raise ValueError(
-                f"No backend registered for target '{target.value}'. "
-                f"Available: {sorted(BaseConstraint.backends.keys())}"  # type: ignore[attr-defined]
-            )
-        results = []
-        for constraint in self.constraints:
-            if target.value not in constraint.targets:
-                continue
-            if not _is_resolved(constraint, context):
-                warnings.warn(
-                    f"Constraint '{constraint.id}' references unresolved components, skipping",
-                    stacklevel=2,
-                )
-                continue
-            try:
-                results.append(backend_fn(constraint, context))
-            except Exception as e:
-                warnings.warn(
-                    f"Constraint '{constraint.id}' failed to compile to "
-                    f"'{target.value}': {e}, skipping",
-                    stacklevel=2,
-                )
-        return results
 
     def by_type(self, constraint_type: ConstraintType) -> list[BaseConstraint]:
         return [c for c in self.constraints if c.constraint_type == constraint_type]
@@ -172,10 +130,14 @@ class ConstraintCollection:
     def auto_enrich(self, netlist: Netlist, board: Board | None = None) -> None:
         """Auto-generate constraints from design data.
 
-        Three automatic enrichments:
-        1. Decoupling detection: scan netlist for capacitor-IC pairs
-        2. Keepout emission: emit KeepoutConstraint for zones with type='keepout'
-        3. Tag expansion: expand tagged constraints into concrete constraints
+        Two automatic enrichments:
+        1. Keepout emission: emit KeepoutConstraint for zones with type='keepout'
+        2. Tag expansion: expand tagged constraints into concrete constraints
+
+        Decoupling auto-detection belonged to the retired JAX placement path
+        and is intentionally no longer part of PCL parsing.  Decoupling
+        relationships must be expressed explicitly in PCL or through the
+        active compiler's own input preparation.
 
         Args:
             netlist: The netlist to analyze
@@ -183,39 +145,7 @@ class ConstraintCollection:
         """
         logger = logging.getLogger(__name__)
 
-        # 1. Decoupling detection
-        def auto_detect_decoupling(*a, **kw):
-            raise NotImplementedError("auto_detect_decoupling removed (JAX retirement)")
-
-        rules = auto_detect_decoupling(netlist)
-        if rules:
-            count = len(rules)
-            for rule in rules:
-                classification = getattr(rule, "_classification", None)
-                if classification is not None:
-                    tier = (
-                        ConstraintTier.HARD
-                        if getattr(classification, "name", "") == "BYPASS"
-                        else ConstraintTier.STRONG
-                    )
-                else:
-                    tier = ConstraintTier.STRONG
-                self.constraints.append(
-                    AdjacentConstraint(
-                        a=rule.cap_ref,
-                        b=rule.ic_ref,
-                        max_distance_mm=rule.max_distance_mm,
-                        tier=tier,
-                        because=(
-                            f"Decoupling capacitor {rule.cap_ref} for {rule.ic_ref}"
-                            f"{' on net ' + rule.power_pin if rule.power_pin else ''}"
-                        ),
-                        pin_b=rule.power_pin if rule.power_pin else None,
-                    )
-                )
-            logger.info("Auto-detected %d decoupling constraints", count)
-
-        # 2. Keepout emission from board zones
+        # Keepout emission from board zones
         if board is not None:
             keepout_count = 0
             for zone in board.zones:
@@ -233,7 +163,7 @@ class ConstraintCollection:
             if keepout_count > 0:
                 logger.info("Emitted %d keepout constraint(s) from board zones", keepout_count)
 
-        # 3. Tag expansion
+        # Tag expansion
         expanded_count = 0
         new_constraints: list[BaseConstraint] = []
 
