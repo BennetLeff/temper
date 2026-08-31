@@ -1412,8 +1412,8 @@ size parameter:
   `calculate_min_trace_width` are closed-form evaluations of the IPC-2221 /
   IPC-2152 power law (`I = k·ΔT^0.44·A^0.725`) on a fixed number of scalar
   inputs.
-- `get_net_current` / `net_currents` perform a bounded substring lookup over
-  the fixed 9-entry W2 current table; the lookup result is order-dependent
+- `get_net_current` performs a bounded substring lookup over the fixed 9-entry
+  W2 current table; the lookup result is order-dependent
   only when a net name matches more than one key (a documented, pinned
   divergence — see the differential test), never size-dependent.
 
@@ -1440,7 +1440,7 @@ functions with the same argument order, defaults, and `PyResult` plumbing.
    (external 0.5 A → 0.1160 mm, internal 0.5 A → 0.3019 mm, external 2 A →
    0.784 mm).
 3. **Net-current resolution.** `get_net_current` uppercases the input and
-   scans `net_currents()` for the first containing key, falling back to
+   scans the pure-Rust `net_currents()` table for the first containing key, falling back to
    `DEFAULT_SIGNAL_CURRENT` (0.1 A). The W2 table's 9 keys and the 0.1 A
    default are unchanged from the source crate.
 4. **Module constants.** `NET_CURRENTS` and `DEFAULT_SIGNAL_CURRENT` are

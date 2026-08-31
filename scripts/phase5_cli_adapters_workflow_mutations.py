@@ -25,7 +25,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]  # scripts/ -> repo root
 CARGO = ROOT / "packages/temper-orchestration/Cargo.toml"
 PLACER = ROOT / "packages/temper-placer"
-WORKFLOW = ROOT / "packages/temper-workflow"
 SUITES = [
     "tests/cli/test_timing_rust_differential.py",
     "tests/cli/test_trace_commands_rust_differential.py",
@@ -55,16 +54,7 @@ def run_suites():
         + ["-p", "no:cacheprovider", "-q", "--tb=line", "--maxfail=5"],
         cwd=PLACER,
     )
-    # The workflow differential is a separate package; run it separately and
-    # combine exit codes (the campaign expects the WHOLE surface to catch).
-    code2, out2 = run(
-        ["uv", "run", "--no-sync", "python", "-m", "pytest",
-         "tests/test_route_and_measure_rust_differential.py",
-         "tests/test_route_and_measure_pbt.py",
-         "-p", "no:cacheprovider", "-q", "--tb=line", "--maxfail=5"],
-        cwd=WORKFLOW,
-    )
-    return (code if code != 0 else code2), out + out2
+    return code, out
 
 
 MUTATIONS = [
@@ -148,21 +138,6 @@ MUTATIONS = [
             continue;
         }""",
         "",
-    ),
-    (
-        "M10 copper: dx*dx instead of libm pow(dx, 2.0)",
-        "packages/temper-orchestration/src/copper_length.rs",
-        "let length = (host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0)).sqrt();",
-        "let length = (dx * dx + dy * dy).sqrt();",
-    ),
-    (
-        "M11 copper: falsy-net skip only for None (empty string passes through)",
-        "packages/temper-orchestration/src/copper_length.rs",
-        """        let Some(net) = net else { continue };
-        if net.is_empty() {
-            continue;
-        }""",
-        """        let Some(net) = net else { continue };""",
     ),
 ]
 

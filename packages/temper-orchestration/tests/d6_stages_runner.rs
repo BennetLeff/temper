@@ -221,9 +221,21 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let board = PyModule::new(py, "board")?;
     board.add("Trace", ns.getattr("FakeTrace")?)?;
     board.add("Via", ns.getattr("FakeVia")?)?;
-    board.add("LAYER_NAME_TO_IDX", ns.getattr("FakeBoardModule")?.getattr("LAYER_NAME_TO_IDX")?)?;
-    board.add("STANDARD_LAYER_ORDER", ns.getattr("FakeBoardModule")?.getattr("STANDARD_LAYER_ORDER")?)?;
-    board.add("PLANE_LAYER_INDICES", ns.getattr("FakeBoardModule")?.getattr("PLANE_LAYER_INDICES")?)?;
+    board.add(
+        "LAYER_NAME_TO_IDX",
+        ns.getattr("FakeBoardModule")?
+            .getattr("LAYER_NAME_TO_IDX")?,
+    )?;
+    board.add(
+        "STANDARD_LAYER_ORDER",
+        ns.getattr("FakeBoardModule")?
+            .getattr("STANDARD_LAYER_ORDER")?,
+    )?;
+    board.add(
+        "PLANE_LAYER_INDICES",
+        ns.getattr("FakeBoardModule")?
+            .getattr("PLANE_LAYER_INDICES")?,
+    )?;
     core.add("board", &board)?;
     pkg.add("core", &core)?;
     modules.set_item("temper_placer", &pkg)?;
@@ -252,7 +264,10 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     // temper_placer.core.pin_geometry
     let pg = PyModule::new(py, "pin_geometry")?;
     pg.add("pin_world_position", ns.getattr("pin_world_position")?)?;
-    pg.add("pin_world_position_at", ns.getattr("pin_world_position_at")?)?;
+    pg.add(
+        "pin_world_position_at",
+        ns.getattr("pin_world_position_at")?,
+    )?;
     core.add("pin_geometry", &pg)?;
     modules.set_item("temper_placer.core.pin_geometry", &pg)?;
 
@@ -261,13 +276,19 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     let det = PyModule::new(py, "deterministic")?;
     let stages = PyModule::new(py, "stages")?;
     let cv_mod = PyModule::new(py, "connectivity_validation")?;
-    cv_mod.add("ConnectivityViolation", ns.getattr("FakeConnectivityViolation")?)?;
+    cv_mod.add(
+        "ConnectivityViolation",
+        ns.getattr("FakeConnectivityViolation")?,
+    )?;
     stages.add("connectivity_validation", &cv_mod)?;
     det.add("stages", &stages)?;
     pkg.add("deterministic", &det)?;
     modules.set_item("temper_placer.deterministic", &det)?;
     modules.set_item("temper_placer.deterministic.stages", &stages)?;
-    modules.set_item("temper_placer.deterministic.stages.connectivity_validation", &cv_mod)?;
+    modules.set_item(
+        "temper_placer.deterministic.stages.connectivity_validation",
+        &cv_mod,
+    )?;
 
     // temper_placer.router_v6.constraints_geometry (Point)
     let router = PyModule::new(py, "router_v6")?;
@@ -310,9 +331,13 @@ fn drc_sweep_removes_bad_geometry_and_writes_back() {
         // identity-preserved reference instead of forcing `Route::from_python`
         // on it, so the pass-through coverage is back. The BAD-net removal +
         // BADVIA removal still run.
-        let via_in_routes = ns
-            .getattr("FakeVia")?
-            .call1(((2.0, 2.0), 0.3, 0.6, ("F.Cu", "B.Cu"), "VIAINROUTES"))?;
+        let via_in_routes = ns.getattr("FakeVia")?.call1((
+            (2.0, 2.0),
+            0.3,
+            0.6,
+            ("F.Cu", "B.Cu"),
+            "VIAINROUTES",
+        ))?;
         let routes = std::collections::HashSet::from([
             RouteEntry::Trace(Route {
                 start: (0.0, 0.0),
@@ -371,7 +396,10 @@ fn drc_sweep_removes_bad_geometry_and_writes_back() {
             }
         }
         assert_eq!(good_nets, vec!["GOOD".to_string()]);
-        assert_eq!(non_trace_count, 1, "the non-Trace via_in_routes entry survives");
+        assert_eq!(
+            non_trace_count, 1,
+            "the non-Trace via_in_routes entry survives"
+        );
         let out_vias = out.vias.as_ref().expect("vias attached");
         assert_eq!(out_vias.len(), 0, "BADVIA removed");
         Ok::<(), PyErr>(())
@@ -415,7 +443,9 @@ fn drc_validation_writes_violations() {
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d6_fakes")?;
-        let v1 = ns.getattr("FakeDrvViolation")?.call1(("track_clearance",))?;
+        let v1 = ns
+            .getattr("FakeDrvViolation")?
+            .call1(("track_clearance",))?;
         let v2 = ns.getattr("FakeDrvViolation")?.call1(("via_dangling",))?;
         let violist = PyList::empty(py);
         violist.append(v1.clone())?;
@@ -432,7 +462,10 @@ fn drc_validation_writes_violations() {
         }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        let violations = out.drc_violations.as_ref().expect("drc_violations attached");
+        let violations = out
+            .drc_violations
+            .as_ref()
+            .expect("drc_violations attached");
         assert_eq!(violations.len(), 2, "both violations stored");
         Ok::<(), PyErr>(())
     })
@@ -446,7 +479,9 @@ fn courtyard_check_nudges_and_writes_placements() {
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d6_fakes")?;
-        let stage_obj = ns.getattr("FakeCourtyardStage")?.call1((PyList::empty(py), 5))?;
+        let stage_obj = ns
+            .getattr("FakeCourtyardStage")?
+            .call1((PyList::empty(py), 5))?;
 
         let mut state = BoardState::new();
         // U6 (O-C3) group-2: the owned `PlacementSet` shape of the Python
@@ -463,7 +498,9 @@ fn courtyard_check_nudges_and_writes_placements() {
         ])));
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
-        r.add_stage(Box::new(CourtyardCheckStage { stage: stage_obj.unbind() }));
+        r.add_stage(Box::new(CourtyardCheckStage {
+            stage: stage_obj.unbind(),
+        }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let placements = out.placements.as_ref().expect("placements attached");
@@ -487,7 +524,10 @@ fn connectivity_validation_guard_and_run() {
             fail_on_violations: false,
         }));
         let (out, _) = r.run(BoardState::new());
-        assert!(out.connectivity_violations.is_none(), "guard leaves field untouched");
+        assert!(
+            out.connectivity_violations.is_none(),
+            "guard leaves field untouched"
+        );
 
         // With an empty-geometry oracle: no violations, field written.
         let oracle = ns.getattr("FakeConnOracle")?.call0()?;
@@ -510,7 +550,10 @@ fn connectivity_validation_guard_and_run() {
         }));
         let (out2, report) = r2.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        let cv = out2.connectivity_violations.as_ref().expect("connectivity_violations attached");
+        let cv = out2
+            .connectivity_violations
+            .as_ref()
+            .expect("connectivity_violations attached");
         assert_eq!(cv.len(), 0, "clean geometry yields no violations");
         Ok::<(), PyErr>(())
     })

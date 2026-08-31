@@ -100,6 +100,23 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "B81123C1562M000"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "B81123C1562M000" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "B81123C1562M000_0_1"
+        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "B81123C1562M000_1_1"
+        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
     (symbol "B82726S2163N030"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
@@ -170,25 +187,6 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "G4A-1A-E_DC12"
-      (pin_names (offset 1.016))
-      (exclude_from_sim no)
-      (in_bom yes)
-      (on_board yes)
-      (property "Reference" "U" (at 0 22.86 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "G4A-1A-E DC12" (at 0 -22.86 0) (effects (font (size 1.27 1.27))))
-      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "src/components.ato:Relay_SPST" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "G4A-1A-E_DC12_0_1"
-        (rectangle (start -12.70 -20.32) (end 12.70 20.32) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "G4A-1A-E_DC12_1_1"
-        (pin bidirectional line (at -15.24 -2.54 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at -15.24 2.54 0) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 -2.54 180) (length 2.54) (name "3" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
-      )
-    )
     (symbol "MUR1560G"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
@@ -223,19 +221,19 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "RSF100JB-73-39R"
+    (symbol "RSF100JB-73-91R"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "RSF100JB-73-39R" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "RSF100JB-73-91R" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Description" "src/components.ato:Resistor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "RSF100JB-73-39R_0_1"
+      (symbol "RSF100JB-73-91R_0_1"
         (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "RSF100JB-73-39R_1_1"
+      (symbol "RSF100JB-73-91R_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -256,6 +254,25 @@
         (pin bidirectional line (at -15.24 -5.08 0) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "5" (effects (font (size 1.27 1.27)))) (number "5" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at -15.24 5.08 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 -2.54 180) (length 2.54) (name "3" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
+      )
+    )
+    (symbol "RT33K012"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U" (at 0 22.86 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "RT33K012" (at 0 -22.86 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "src/components.ato:Relay_SPST" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "RT33K012_0_1"
+        (rectangle (start -12.70 -20.32) (end 12.70 20.32) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "RT33K012_1_1"
+        (pin bidirectional line (at -15.24 -2.54 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at -15.24 2.54 0) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 -2.54 180) (length 2.54) (name "3" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
       )
@@ -307,23 +324,6 @@
       (symbol "V150LA10AP_0_1"
         (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
       (symbol "V150LA10AP_1_1"
-        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "VY1222M47Y5UQ6TV0"
-      (pin_names (offset 1.016))
-      (exclude_from_sim no)
-      (in_bom yes)
-      (on_board yes)
-      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "VY1222M47Y5UQ6TV0" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "VY1222M47Y5UQ6TV0_0_1"
-        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "VY1222M47Y5UQ6TV0_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -469,7 +469,7 @@
   )
 
   (symbol
-    (lib_id "VY1222M47Y5UQ6TV0")
+    (lib_id "B81123C1562M000")
     (at 50.80 80.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -478,8 +478,8 @@
     (dnp no)
     (uuid "b998cae6-6158-7f59-a4d3-96c0daefaabf")
     (property "Reference" "C6" (at 50.80 78.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "VY1222M47Y5UQ6TV0" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D12.5mm_W5.0mm_P10.00mm" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "B81123C1562M000" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "52f10881-bbbb-f01d-e8d6-9714f045de42"))
     (pin "2" (uuid "727cd593-0fab-f2c2-4403-fc237f7ffe96"))
   )
@@ -654,7 +654,7 @@
   )
 
   (symbol
-    (lib_id "G4A-1A-E_DC12")
+    (lib_id "RT33K012")
     (at 130.80 110.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -663,8 +663,8 @@
     (dnp no)
     (uuid "176796b4-414b-f131-e7b9-23c831501ec1")
     (property "Reference" "K1" (at 130.80 108.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "G4A-1A-E DC12" (at 130.80 113.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "temper:Relay_SPST_Omron-G4A-E" (at 130.80 110.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "RT33K012" (at 130.80 113.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "temper:Relay_SPST_Schrack-RT33K012" (at 130.80 110.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "5cb433bd-c3ed-7ba7-b501-f4617b1be116"))
     (pin "2" (uuid "14c9bdf6-cbba-ba35-2caa-5d97b117b91d"))
     (pin "3" (uuid "f0eb1a98-3d26-da7c-d773-51dfcb34fe13"))
@@ -885,7 +885,7 @@
   )
 
   (symbol
-    (lib_id "RSF100JB-73-39R")
+    (lib_id "RSF100JB-73-91R")
     (at 170.80 140.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -894,7 +894,7 @@
     (dnp no)
     (uuid "71b14a8e-243f-48a5-89a6-fafcaea1131b")
     (property "Reference" "R1" (at 170.80 138.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "RSF100JB-73-39R" (at 170.80 143.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "RSF100JB-73-91R" (at 170.80 143.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (at 170.80 140.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "88282f14-b1b6-976c-f11d-83ec0b5b786c"))
     (pin "2" (uuid "75ddf444-3a11-e440-6756-874b780f93d2"))

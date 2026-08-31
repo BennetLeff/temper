@@ -1,3 +1,4 @@
+<!-- provenance: commit=dabbeaf73c678be2aa969d30f547eeda41d18c07 dirty=UNKNOWN -->
 # Router pad-avoidance fix — rotation omission in the write-path pad-position collector
 
 **Date**: 2026-08-15

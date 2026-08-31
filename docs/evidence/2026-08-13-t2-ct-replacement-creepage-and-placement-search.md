@@ -1,4 +1,4 @@
-<!-- provenance: commit=a3fbaff37afd739b72f2b109847813b30ceb8e88 (origin/fix/board-schematic-resync,
+<!-- provenance: commit=e3d28671a82d6cef29ecdb72a34e4871f6481ace dirty=UNKNOWN -->
      the same baseline PR #1146/#1151 used), dirty=false except this file. Own git worktree
      (.claude/worktrees/agent-a374c69e35366ad12, branch docs/t2-aperture-ct-replacement-determination),
      never the main checkout. No pcb/temper.kicad_pcb or elec/src/** file touched -- `git status

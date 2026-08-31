@@ -73,7 +73,7 @@
 
 ## 2. Reproduction — falsification on the current board
 
-`uv run --no-sync python docs/evidence/2026-08-03_mains_selv_barrier_falsification.py`
+`uv run --no-sync python docs/evidence/scripts/2026-08-03_mains_selv_barrier_falsification.py`
 (unchanged since #654; the board is byte-identical so every number matches):
 
 | criterion | measured (current board) |
@@ -90,7 +90,7 @@
 
 ## 3. NEW — the copper-exclusion obstruction is placement-independent
 
-`docs/evidence/2026-08-04_zone_corridor_analysis.py` — the decisive new
+`docs/evidence/scripts/2026-08-04_zone_corridor_analysis.py` — the decisive new
 measurement. Zones (pours) do not move under a placement re-solve, so the
 *zone-only* free space is the upper bound on any barrier corridor:
 
@@ -120,7 +120,7 @@ change.**
 
 ### 4a. Recipe (run 1 — the ring-freed candidate)
 
-`docs/evidence/2026-08-04_domain_first_resolve_solve.py` — the PRODUCTION
+`docs/evidence/scripts/2026-08-04_domain_first_resolve_solve.py` — the PRODUCTION
 recipe through the validator-gated caller:
 
 - `run_clearance_repair_solve(pcb_path, full, full_vd, timeout_ms=180000,
@@ -172,7 +172,7 @@ is the strongest form of the "the machinery cannot cluster domains" finding.
 filename in /tmp so kicad-cli resolves the project rules — the ceiling
 protocol's invocation)
 
-`docs/evidence/2026-08-04_domain_first_resolve_drc.py`:
+`docs/evidence/scripts/2026-08-04_domain_first_resolve_drc.py`:
 
 | rule | baseline (committed board) | run 1 (ring-freed) | run 2 (expanded) | ceiling |
 |---|---:|---:|---:|---:|
@@ -197,7 +197,7 @@ are independent axes.
 
 ## 5. Post-solve obstruction table (pre/post)
 
-Re-verified with `docs/evidence/2026-08-04_domain_first_resolve_verify.py`
+Re-verified with `docs/evidence/scripts/2026-08-04_domain_first_resolve_verify.py`
 (pads re-projected by the per-ref solved delta; rotations pinned so pad
 geometry does not rotate):
 
@@ -311,25 +311,25 @@ AGENTS.md.
 
 ```bash
 # 1. falsification (current board, hash 51e39844)
-uv run --no-sync python docs/evidence/2026-08-03_mains_selv_barrier_falsification.py
+uv run --no-sync python docs/evidence/scripts/2026-08-03_mains_selv_barrier_falsification.py
 # 2. zone-only corridor analysis (NEW: placement-independent obstruction)
-uv run --no-sync python docs/evidence/2026-08-04_zone_corridor_analysis.py
+uv run --no-sync python docs/evidence/scripts/2026-08-04_zone_corridor_analysis.py
 # 3. domain-first re-solve (production caller, fixed_copper free_refs=RING)
-uv run --no-sync python docs/evidence/2026-08-04_domain_first_resolve_solve.py
+uv run --no-sync python docs/evidence/scripts/2026-08-04_domain_first_resolve_solve.py
 # 4. post-solve verification (ring / hull / corridor at the solved placement)
-uv run --no-sync python docs/evidence/2026-08-04_domain_first_resolve_verify.py
+uv run --no-sync python docs/evidence/scripts/2026-08-04_domain_first_resolve_verify.py
 # 5. DRC class (baseline + candidate on /tmp copies; regenerated DRU)
 export PYTHONPATH="$(pwd)/packages/temper-placer/src:$(pwd)/scripts"
-.venv/bin/python docs/evidence/2026-08-04_domain_first_resolve_drc.py
+.venv/bin/python docs/evidence/scripts/2026-08-04_domain_first_resolve_drc.py
 # expected: status=clean; hard=0 intra=0 gaps=0; ring 12->4; 45 cycles on 78
 # refs; corridor: 0 opposite-edge components; run1 DRC 1311-1312, run2 1019-1020
 ```
 
 ## 11. Files
 
-- `docs/evidence/2026-08-04_zone_corridor_analysis.py` — zone-only corridor analysis.
-- `docs/evidence/2026-08-04_domain_first_resolve_solve.py` +
+- `docs/evidence/scripts/2026-08-04_zone_corridor_analysis.py` — zone-only corridor analysis.
+- `docs/evidence/scripts/2026-08-04_domain_first_resolve_solve.py` +
   `2026-08-04_domain_first_resolve_solve_summary.json` — run 1 (ring-freed).
 - `docs/evidence/2026-08-04_domain_first_resolve_solve_summary_run2_expanded.json` — run 2 (expanded free set).
-- `docs/evidence/2026-08-04_domain_first_resolve_verify.py` — post-solve obstruction re-check.
-- `docs/evidence/2026-08-04_domain_first_resolve_drc.py` — DRC class (baseline + candidates).
+- `docs/evidence/scripts/2026-08-04_domain_first_resolve_verify.py` — post-solve obstruction re-check.
+- `docs/evidence/scripts/2026-08-04_domain_first_resolve_drc.py` — DRC class (baseline + candidates).

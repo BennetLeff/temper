@@ -214,7 +214,10 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     board.add("Via", ns.getattr("FakeVia")?)?;
     core.add("board", &board)?;
     let pg = PyModule::new(py, "pin_geometry")?;
-    pg.add("pin_world_position_at", ns.getattr("pin_world_position_at")?)?;
+    pg.add(
+        "pin_world_position_at",
+        ns.getattr("pin_world_position_at")?,
+    )?;
     core.add("pin_geometry", &pg)?;
     pkg.add("core", &core)?;
     modules.set_item("temper_placer", &pkg)?;
@@ -242,9 +245,15 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     pkg.add("deterministic", &det)?;
     modules.set_item("temper_placer.deterministic", &det)?;
     modules.set_item("temper_placer.deterministic.stages", &stages)?;
-    modules.set_item("temper_placer.deterministic.stages.hv_lv_partition", &hlp_mod)?;
+    modules.set_item(
+        "temper_placer.deterministic.stages.hv_lv_partition",
+        &hlp_mod,
+    )?;
     modules.set_item("temper_placer.deterministic.geometry", &geometry)?;
-    modules.set_item("temper_placer.deterministic.geometry.guard_strip", &guard_strip)?;
+    modules.set_item(
+        "temper_placer.deterministic.geometry.guard_strip",
+        &guard_strip,
+    )?;
 
     // temper_design_bundle_python.{deterministic_leaves,hv_lv_partition}
     let tdb = PyModule::new(py, "temper_design_bundle_python")?;
@@ -270,8 +279,16 @@ fn install_fakes<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
     Ok(ns.into_any())
 }
 
-fn pin<'py>(py: Python<'py>, ns: &Bound<'py, PyAny>, name: &str, x: f64, y: f64, net: &str) -> PyResult<Bound<'py, PyAny>> {
-    ns.getattr("FakePin")?.call1((name, (x, y).into_pyobject(py)?, net))
+fn pin<'py>(
+    py: Python<'py>,
+    ns: &Bound<'py, PyAny>,
+    name: &str,
+    x: f64,
+    y: f64,
+    net: &str,
+) -> PyResult<Bound<'py, PyAny>> {
+    ns.getattr("FakePin")?
+        .call1((name, (x, y).into_pyobject(py)?, net))
 }
 
 fn comp<'py>(
@@ -282,7 +299,8 @@ fn comp<'py>(
     ip: (f64, f64),
 ) -> PyResult<Bound<'py, PyAny>> {
     let pin_list = PyTuple::new(py, pins)?;
-    ns.getattr("FakeComponent")?.call1((ref_, pin_list, ip.into_pyobject(py)?))
+    ns.getattr("FakeComponent")?
+        .call1((ref_, pin_list, ip.into_pyobject(py)?))
 }
 
 fn netlist<'py>(
@@ -301,10 +319,7 @@ fn netlist<'py>(
     ns.getattr("FakeNetlist")?.call1((comps, net_objs))
 }
 
-fn py_dict<'py>(
-    py: Python<'py>,
-    items: Vec<(&str, Py<PyAny>)>,
-) -> PyResult<Bound<'py, PyAny>> {
+fn py_dict<'py>(py: Python<'py>, items: Vec<(&str, Py<PyAny>)>) -> PyResult<Bound<'py, PyAny>> {
     let d = PyDict::new(py);
     for (k, v) in items {
         d.set_item(k, v)?;
@@ -322,7 +337,10 @@ fn fine_pitch_escape_appends_escape_vias() {
             py,
             &ns,
             "U1",
-            vec![pin(py, &ns, "1", 0.0, 0.0, "GATE_H")?, pin(py, &ns, "2", 0.0, 0.5, "GATE_H")?],
+            vec![
+                pin(py, &ns, "1", 0.0, 0.0, "GATE_H")?,
+                pin(py, &ns, "2", 0.0, 0.5, "GATE_H")?,
+            ],
             (10.0, 10.0),
         )?;
         let nl = netlist(py, &ns, vec![u1], vec![("GATE_H", Some("Signal"))])?;
@@ -337,7 +355,9 @@ fn fine_pitch_escape_appends_escape_vias() {
         }])));
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
-        r.add_stage(Box::new(FinePitchEscapeStage { stage: stage_obj.unbind() }));
+        r.add_stage(Box::new(FinePitchEscapeStage {
+            stage: stage_obj.unbind(),
+        }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         let vias = out.vias.as_ref().expect("vias attached");
@@ -353,8 +373,20 @@ fn hv_lv_partition_writes_domains_and_guards() {
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d7_fakes")?;
-        let q1 = comp(py, &ns, "Q1", vec![pin(py, &ns, "1", 0.0, 0.0, "DC_BUS+")?], (0.0, 0.0))?;
-        let r1 = comp(py, &ns, "R1", vec![pin(py, &ns, "1", 0.0, 0.0, "+3V3")?], (0.0, 0.0))?;
+        let q1 = comp(
+            py,
+            &ns,
+            "Q1",
+            vec![pin(py, &ns, "1", 0.0, 0.0, "DC_BUS+")?],
+            (0.0, 0.0),
+        )?;
+        let r1 = comp(
+            py,
+            &ns,
+            "R1",
+            vec![pin(py, &ns, "1", 0.0, 0.0, "+3V3")?],
+            (0.0, 0.0),
+        )?;
         let nl = netlist(
             py,
             &ns,
@@ -364,12 +396,19 @@ fn hv_lv_partition_writes_domains_and_guards() {
 
         // Guard: enabled=False -> state untouched (identity).
         let mut state = BoardState::new();
-        state.config = Some(ns.call_method0("disabled_guard_config")?.into_any().unbind());
+        state.config = Some(
+            ns.call_method0("disabled_guard_config")?
+                .into_any()
+                .unbind(),
+        );
         let mut r = PipelineRunner::new(PipelineConfig::default());
         r.add_stage(Box::new(HvLvPartitionStage));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        assert!(out.component_domain_map.is_none(), "guard leaves the domain untouched");
+        assert!(
+            out.component_domain_map.is_none(),
+            "guard leaves the domain untouched"
+        );
 
         // Ok path: domain map + corridors + regions written. The fake
         // guard_strip returns polygons, so the write-back fires.
@@ -395,8 +434,19 @@ fn power_plane_marks_plane_nets() {
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d7_fakes")?;
-        let q1 = comp(py, &ns, "Q1", vec![pin(py, &ns, "1", 0.0, 0.0, "DC_BUS+")?], (0.0, 0.0))?;
-        let nl = netlist(py, &ns, vec![q1], vec![("DC_BUS+", Some("HV")), ("GND", Some("Ground"))])?;
+        let q1 = comp(
+            py,
+            &ns,
+            "Q1",
+            vec![pin(py, &ns, "1", 0.0, 0.0, "DC_BUS+")?],
+            (0.0, 0.0),
+        )?;
+        let nl = netlist(
+            py,
+            &ns,
+            vec![q1],
+            vec![("DC_BUS+", Some("HV")), ("GND", Some("Ground"))],
+        )?;
 
         let mut state = BoardState::new();
         state.netlist = Some(nl.into_any().unbind());
@@ -406,10 +456,15 @@ fn power_plane_marks_plane_nets() {
         let stage_obj = ns.getattr("FakePowerPlaneStage")?.call0()?;
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
-        r.add_stage(Box::new(PowerPlaneStage { stage: stage_obj.unbind() }));
+        r.add_stage(Box::new(PowerPlaneStage {
+            stage: stage_obj.unbind(),
+        }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        let las = out.layer_assignments.as_ref().expect("layer_assignments attached");
+        let las = out
+            .layer_assignments
+            .as_ref()
+            .expect("layer_assignments attached");
         assert_eq!(las.len(), 2, "one assignment per netlist net");
         Ok::<(), PyErr>(())
     })
@@ -422,7 +477,13 @@ fn layer_assignment_writes_assignments() {
     Python::attach(|py| {
         install_fakes(py).unwrap();
         let ns = py.import("d7_fakes")?;
-        let r1 = comp(py, &ns, "R1", vec![pin(py, &ns, "1", 0.0, 0.0, "SIG")?], (0.0, 0.0))?;
+        let r1 = comp(
+            py,
+            &ns,
+            "R1",
+            vec![pin(py, &ns, "1", 0.0, 0.0, "SIG")?],
+            (0.0, 0.0),
+        )?;
         let nl = netlist(py, &ns, vec![r1], vec![("SIG", Some("Signal"))])?;
 
         let mut state = BoardState::new();
@@ -430,10 +491,15 @@ fn layer_assignment_writes_assignments() {
         let stage_obj = ns.getattr("FakeLayerAssignmentStage")?.call0()?;
 
         let mut r = PipelineRunner::new(PipelineConfig::default());
-        r.add_stage(Box::new(LayerAssignmentStage { stage: stage_obj.unbind() }));
+        r.add_stage(Box::new(LayerAssignmentStage {
+            stage: stage_obj.unbind(),
+        }));
         let (out, report) = r.run(state);
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
-        let las = out.layer_assignments.as_ref().expect("layer_assignments attached");
+        let las = out
+            .layer_assignments
+            .as_ref()
+            .expect("layer_assignments attached");
         assert_eq!(las.len(), 1, "one assignment per net");
         Ok::<(), PyErr>(())
     })
@@ -457,7 +523,13 @@ fn apply_placements_syncs_initial_positions_and_guards() {
         assert!(out.netlist.is_some(), "guard keeps the existing netlist");
 
         // Ok path: placed ref's initial_position synced.
-        let r1 = comp(py, &ns, "R1", vec![pin(py, &ns, "1", 0.0, 0.0, "A")?], (1.0, 1.0))?;
+        let r1 = comp(
+            py,
+            &ns,
+            "R1",
+            vec![pin(py, &ns, "1", 0.0, 0.0, "A")?],
+            (1.0, 1.0),
+        )?;
         let nl = netlist(py, &ns, vec![r1], vec![("A", Some("Signal"))])?;
         let mut state2 = BoardState::new();
         state2.netlist = Some(nl.into_any().unbind());

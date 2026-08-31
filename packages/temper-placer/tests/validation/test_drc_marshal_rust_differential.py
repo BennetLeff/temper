@@ -445,12 +445,10 @@ def test_constraint_value_from_python_matches_oracle():
 # ---------------------------------------------------------------------------
 # Differential — placer path: from_netlist / from_parsed_pcb / from_context
 #
-# The placer-path marshalers were already migrated to the Rust K1-dict
-# kernels build_board_dict_py / build_board_dict_from_parsed_pcb_py /
-# build_constraints_dict_py (validated against the pinned DRCOracle oracle
-# by test_drc_oracle_marshal_rust_differential.py). These tests chain the
-# new typed constructors against those validated kernels, so the oracle
-# chain is: pinned Python oracle -> validated dict kernel -> typed snapshot.
+# The typed constructors are validated against the pinned DRCOracle oracle.
+# The former dict-taking bridge was binding-only and its differential tests
+# were retired; these tests exercise the typed snapshot/constraint surfaces
+# and the canonical run_drc wire-format equivalence.
 # ---------------------------------------------------------------------------
 
 from types import SimpleNamespace  # noqa: E402, I001  (mid-file import block)
@@ -485,53 +483,6 @@ class _FakeNet:
     name: str
     net_class: str
     pins: list  # list of (ref, pin_number)
-
-
-def _placer_context(clearance_rules=None, constraints_config=None, width=152.0, height=234.0):
-    return SimpleNamespace(
-        clearance_rules=clearance_rules or [],
-        board=SimpleNamespace(width=width, height=height),
-        board_margin=3.0,
-        constraints_config=constraints_config,
-    )
-
-
-def test_board_snapshot_from_netlist_matches_validated_kernel():
-    """DrcBoardSnapshot.from_netlist(...).to_dict() must reproduce the
-    validated build_board_dict_py K1 dict bit-exactly."""
-    rng = np.random.default_rng(7)
-    positions = rng.uniform(0.0, 100.0, (3, 2))
-    comps = [
-        _FakeComp("C1", "R_0603", 1.0, 0.5, "Signal", initial_rotation_quadrant=2),
-        _FakeComp("C2", "TO-247", 5.0, 4.0, "HV", initial_side=1),
-        _FakeComp("MH1", "MountingHole", 3.0, 3.0, "GND"),
-    ]
-    nets = [
-        _FakeNet("N1", "Signal", [("C1", 1), ("C2", 1)]),
-        _FakeNet("N2", "HV", [("C2", 2), ("C1", 2)]),
-    ]
-    netlist = SimpleNamespace(components=comps, nets=nets)
-    rules = [_FakeClearanceRule("HV", "Signal", 8.0, "safety")]
-    kwargs = {
-        "positions": positions,
-        "netlist": netlist,
-        "board_width": 152.0,
-        "board_height": 234.0,
-        "board_margin": 3.0,
-        "clearance_rules": rules,
-    }
-    dict_result = _tdrc.build_board_dict_py(**kwargs)
-    snapshot = DRC_BOARD_SNAPSHOT.from_netlist(**kwargs)
-    assert _canon_board_dict(snapshot.to_dict()) == _canon_board_dict(dict_result)
-    sides = {c["ref"]: c["side"] for c in snapshot.to_dict()["components"]}
-    assert sides["C2"] == "bottom"
-    assert sides["C1"] == "top"
-    pkg = {c["ref"]: c["package_type"] for c in snapshot.to_dict()["components"]}
-    assert pkg["C2"] == "to247"
-    assert pkg["C1"] == "smd"
-    mech = {c["ref"]: c["is_mechanical"] for c in snapshot.to_dict()["components"]}
-    assert mech["MH1"] is True
-    assert mech["C1"] is False
 
 
 def test_board_snapshot_from_netlist_uses_real_per_class_trace_width():
@@ -573,12 +524,8 @@ def test_board_snapshot_from_netlist_uses_real_per_class_trace_width():
 
 
 def test_board_snapshot_from_netlist_omitting_net_class_defs_keeps_legacy_default():
-    """Without `net_class_defs` (legacy callers -- e.g. this file's own
-    `test_board_snapshot_from_netlist_matches_validated_kernel` above,
-    which pins bit-exactness against `build_board_dict_py`, a frozen
-    migration artifact that never learned about real per-class widths),
-    the historical flat-0.2mm fallback is preserved exactly. This is what
-    keeps that differential test passing unmodified."""
+    """Without `net_class_defs`, the historical flat-0.2mm fallback is
+    preserved exactly for legacy callers."""
     positions = np.zeros((1, 2), dtype=np.float64)
     comps = [_FakeComp("C1", "R_0603", 1.0, 0.5, "GND")]
     nets = [_FakeNet("gnd", "GND", [("C1", 1)])]
@@ -639,6 +586,40 @@ def test_board_snapshot_from_netlist_populates_real_safety_fields():
     assert hv_rule["routing_strategy"] == "plane_required"
 
 
+# ---------------------------------------------------------------------------
+# Kernel-path equivalence — typed structs vs the dict wire format (G2)
+# ---------------------------------------------------------------------------
+
+
+def test_run_drc_typed_matches_dict_path():
+    """The typed path remains equivalent to the canonical dict wire path."""
+    placement = _oracle_placement()
+    constraints = _oracle_constraints()
+    snapshot = DRC_BOARD_SNAPSHOT.from_state(placement)
+    cset = TYPED_CONSTRAINT_SET.from_state(constraints)
+    typed_violations = _tdrc.run_drc(snapshot, cset)
+    dict_violations = _tdrc.run_drc(
+        _oracle_placement_to_board_dict(placement),
+        _oracle_constraints_to_dict(constraints),
+    )
+    assert _canon_violations(typed_violations) == _canon_violations(dict_violations)
+
+
+def test_run_drc_typed_categories_filter_matches_dict_path():
+    """Category filtering remains equivalent on the typed path."""
+    placement = _oracle_placement()
+    constraints = _oracle_constraints()
+    snapshot = DRC_BOARD_SNAPSHOT.from_state(placement)
+    cset = TYPED_CONSTRAINT_SET.from_state(constraints)
+    typed = _tdrc.run_drc(snapshot, cset, categories=["drc"])
+    dicted = _tdrc.run_drc(
+        _oracle_placement_to_board_dict(placement),
+        _oracle_constraints_to_dict(constraints),
+        categories=["drc"],
+    )
+    assert _canon_violations(typed) == _canon_violations(dicted)
+
+
 def test_board_snapshot_from_netlist_omitting_net_class_defs_keeps_safety_fields_none():
     """Without `net_class_defs` (legacy callers), the six safety fields
     stay `None` exactly as before -- this fix must not change behavior for
@@ -687,34 +668,6 @@ class _FakeParsedNet:
 
 
 @dataclass
-class _FakeRules:
-    trace_width_mm: float
-    clearance_mm: float
-
-
-def test_board_snapshot_from_parsed_pcb_matches_validated_kernel():
-    """DrcBoardSnapshot.from_parsed_pcb(...).to_dict() must reproduce the
-    validated build_board_dict_from_parsed_pcb_py K1 dict bit-exactly."""
-    parsed = SimpleNamespace(
-        components=[
-            _FakeParsedComponent("Q1", "TO-220", 4.0, 3.0, "HV", initial_rotation_quadrant=1),
-            _FakeParsedComponent("R1", "R_0603", 1.0, 0.5, "Signal", initial_position=None),
-        ],
-        nets=[
-            _FakeParsedNet("N1", "HV", [("Q1", 1), ("R1", 1)]),
-        ],
-        design_rules=SimpleNamespace(
-            net_classes={"HV": _FakeRules(1.2, 6.0), "Signal": _FakeRules(0.2, 0.2)}
-        ),
-        board=SimpleNamespace(width=100.0, height=80.0),
-    )
-    dict_result = _tdrc.build_board_dict_from_parsed_pcb_py(parsed)
-    snapshot = DRC_BOARD_SNAPSHOT.from_parsed_pcb(parsed)
-    assert _canon_board_dict(snapshot.to_dict()) == _canon_board_dict(dict_result)
-    assert snapshot.to_dict()["board"]["margin_mm"] == 3.0
-
-
-@dataclass
 class _FakeRulesWithSafety:
     trace_width_mm: float
     clearance_mm: float
@@ -760,76 +713,6 @@ def test_board_snapshot_from_parsed_pcb_populates_real_safety_fields():
     assert hv_rule["voltage_v"] == 400.0
     assert hv_rule["required_layer"] == "B.Cu"
     assert hv_rule["routing_strategy"] == "plane_required"
-
-
-def test_typed_constraints_from_context_matches_validated_kernel():
-    """TypedConstraintSet.from_context(...).to_dict() must reproduce the
-    validated build_constraints_dict_py dict bit-exactly (config values
-    converted through the model_dump(mode='json') plain path)."""
-    from temper_placer._constraint_types import IsolationBarrier
-
-    rules = [_FakeClearanceRule("HV", "LV", 8.0, "safety")]
-    barrier = IsolationBarrier(
-        name="IB1", x_mm=50.0, y_span=(0.0, 100.0),
-        points=[[50.0, 0.0], [50.0, 100.0]], layers="all", clearance_mm=8.0,
-    )
-    config = SimpleNamespace(
-        isolation_barriers=[barrier],
-        zones=None, critical_loops=None, noise_domains=None,
-        thermal_properties=None, matched_length_groups=None,
-        snubber_requirements=None, bleed_resistor=None,
-        skin_effect_derating=None,
-    )
-    kwargs = {
-        "clearance_rules": rules,
-        "constraints_config": config,
-        "board_width": 152.0,
-        "board_height": 234.0,
-    }
-    dict_result = _tdrc.build_constraints_dict_py(**kwargs)
-    cset = TYPED_CONSTRAINT_SET.from_context(**kwargs)
-    # The typed union dict carries `thermal_constraints` (the engine's
-    # documented default for the field) which build_constraints_dict_py
-    # never emitted; drop it for the bit-exact comparison.
-    typed_dict = {k: v for k, v in cset.to_dict().items() if k != "thermal_constraints"}
-    assert _float_hex_recursive(typed_dict) == _float_hex_recursive(dict_result)
-    assert cset.to_dict()["isolation_barriers"][0]["name"] == "IB1"
-
-
-# ---------------------------------------------------------------------------
-# Kernel-path equivalence — typed structs vs the dict wire format (G2)
-# ---------------------------------------------------------------------------
-
-
-def test_run_drc_typed_matches_dict_path():
-    """The typed path (DrcBoardSnapshot + TypedConstraintSet straight into
-    run_drc) must produce byte-identical violation dicts to the dict wire
-    format the same data round-trips through today."""
-    placement = _oracle_placement()
-    constraints = _oracle_constraints()
-    snapshot = DRC_BOARD_SNAPSHOT.from_state(placement)
-    cset = TYPED_CONSTRAINT_SET.from_state(constraints)
-    typed_violations = _tdrc.run_drc(snapshot, cset)
-    dict_violations = _tdrc.run_drc(
-        _oracle_placement_to_board_dict(placement),
-        _oracle_constraints_to_dict(constraints),
-    )
-    assert _canon_violations(typed_violations) == _canon_violations(dict_violations)
-
-
-def test_run_drc_typed_categories_filter_matches_dict_path():
-    """Category filtering behaves identically on the typed path."""
-    placement = _oracle_placement()
-    constraints = _oracle_constraints()
-    snapshot = DRC_BOARD_SNAPSHOT.from_state(placement)
-    cset = TYPED_CONSTRAINT_SET.from_state(constraints)
-    typed = _tdrc.run_drc(snapshot, cset, categories=["drc"])
-    dicted = _tdrc.run_drc(
-        _oracle_placement_to_board_dict(placement),
-        _oracle_constraints_to_dict(constraints),
-        categories=["drc"],
-    )
-    assert _canon_violations(typed) == _canon_violations(dicted)
 
 
 if __name__ == "__main__":

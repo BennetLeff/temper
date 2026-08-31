@@ -111,3 +111,15 @@ DesignRules.get_rules_for_net::packages/temper-placer/src/temper_placer/core/des
 # bare "+"/"-" appearing as an isolated polarity symbol is the intended
 # match, not an accidental word-fragment collision.
 check_polarity_markings::packages/temper-placer/tests/requirements/validators/markings.py  # matches silkscreen label text content for a polarity symbol, not a net name
+
+# ADDED 2026-08-21. Both are EXACT DICT-KEY LOOKUPS, not substring tests.
+# `net_name_to_number` is declared `dict[str, int]` at _adapter_convert.py:622
+# and populated by exact net name at :624, so `"gnd" in net_name_to_number`
+# asks "is there a net named exactly gnd", which is precisely the exact-set
+# classification this gate recommends -- not the substring test it forbids.
+# The gate matches `Compare(op=In)` against a keyword literal without
+# resolving the container's type, so a dict membership test reads to it as a
+# string containment test. Recorded here rather than rewritten, because the
+# code is already doing the right thing and changing it to satisfy an AST
+# heuristic would make it worse.
+_write_routes_to_content::packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py  # dict-key lookup on net_name_to_number (dict[str, int], :622), not a substring test

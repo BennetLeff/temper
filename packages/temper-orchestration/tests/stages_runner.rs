@@ -86,13 +86,29 @@ fn make<'py>(
 
 fn standard_netlist(py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<Py<PyAny>> {
     // R1 20x10 in zone z1, U1 30x20, Q1 5x5 on the HV net class.
-    let c1 = make(py, module, "FakeComp", &[s(py, "R1"), f(py, 20.0), f(py, 10.0), s(py, "z1")])?;
-    let c2 = make(py, module, "FakeComp", &[s(py, "U1"), f(py, 30.0), f(py, 20.0)])?;
+    let c1 = make(
+        py,
+        module,
+        "FakeComp",
+        &[s(py, "R1"), f(py, 20.0), f(py, 10.0), s(py, "z1")],
+    )?;
+    let c2 = make(
+        py,
+        module,
+        "FakeComp",
+        &[s(py, "U1"), f(py, 30.0), f(py, 20.0)],
+    )?;
     let c3 = make(
         py,
         module,
         "FakeComp",
-        &[s(py, "Q1"), f(py, 5.0), f(py, 5.0), s(py, ""), s(py, "HighVoltage")],
+        &[
+            s(py, "Q1"),
+            f(py, 5.0),
+            f(py, 5.0),
+            s(py, ""),
+            s(py, "HighVoltage"),
+        ],
     )?;
     let comps = PyList::new(py, [c1, c2, c3])?;
     make(py, module, "FakeNetlist", &[comps.into_any().unbind()])
@@ -137,7 +153,12 @@ fn derive_stage_computes_constraints() {
         let module = fakes(py).unwrap();
 
         let emi = make(py, &module, "FakeEmi", &[py_dict(&[("L1", 100.0_f64)], py)])?;
-        let thermal = make(py, &module, "FakeThermal", &[py_dict(&[("U1", 2.0_f64)], py)])?;
+        let thermal = make(
+            py,
+            &module,
+            "FakeThermal",
+            &[py_dict(&[("U1", 2.0_f64)], py)],
+        )?;
         let si = make(py, &module, "FakeSI", &[py_dict(&[("N1", 30.0_f64)], py)])?;
         let spec = make(py, &module, "FakeSpec", &[emi, thermal, si])?;
 
@@ -151,7 +172,10 @@ fn derive_stage_computes_constraints() {
         assert!(!report.halted_early, "halted: {:?}", report.stage_reports);
         assert_eq!(report.stage_reports.len(), 1);
         assert_eq!(report.stage_reports[0].name, "derive_constraints");
-        assert!(matches!(report.stage_reports[0].outcome, StageOutcome::Completed));
+        assert!(matches!(
+            report.stage_reports[0].outcome,
+            StageOutcome::Completed
+        ));
 
         let derived = out.config.as_ref().unwrap().bind(py);
         assert_eq!(dict_value_f64(derived, "L1_max_dist"), 8.0); // sqrt(100)*0.8
@@ -171,30 +195,59 @@ fn preflight_stage_reports_kernel_results() {
         let module = fakes(py).unwrap();
 
         // Board 100x50 with one 10x10 zone (z1).
-        let zone = make(py, &module, "FakeZone", &[s(py, "z1"), f(py, 10.0), f(py, 10.0)])?;
+        let zone = make(
+            py,
+            &module,
+            "FakeZone",
+            &[s(py, "z1"), f(py, 10.0), f(py, 10.0)],
+        )?;
         let board = make(
             py,
             &module,
             "FakeBoard",
-            &[f(py, 100.0), f(py, 50.0), empty_list(py), PyList::new(py, [zone])?.into_any().unbind()],
+            &[
+                f(py, 100.0),
+                f(py, 50.0),
+                empty_list(py),
+                PyList::new(py, [zone])?.into_any().unbind(),
+            ],
         )?;
         let netlist = standard_netlist(py, &module)?;
 
         // A proximity rule that is physically impossible (min spacing 15mm
         // > max 5mm) and a critical loop whose area cannot fit.
-        let rule = make(py, &module, "FakeRule", &[s(py, "R1"), s(py, "U1"), f(py, 5.0)])?;
-        let group = make(py, &module, "FakeGroup", &[PyList::new(py, [rule])?.into_any().unbind()])?;
+        let rule = make(
+            py,
+            &module,
+            "FakeRule",
+            &[s(py, "R1"), s(py, "U1"), f(py, 5.0)],
+        )?;
+        let group = make(
+            py,
+            &module,
+            "FakeGroup",
+            &[PyList::new(py, [rule])?.into_any().unbind()],
+        )?;
         let loop_ = make(
             py,
             &module,
             "FakeLoop",
-            &[s(py, "L1"), f(py, 50.0), PyList::new(py, [PyList::new(py, [s(py, "R1"), s(py, "N1")])?])?.into_any().unbind()],
+            &[
+                s(py, "L1"),
+                f(py, 50.0),
+                PyList::new(py, [PyList::new(py, [s(py, "R1"), s(py, "N1")])?])?
+                    .into_any()
+                    .unbind(),
+            ],
         )?;
         let constraints = make(
             py,
             &module,
             "FakeConstraints",
-            &[PyList::new(py, [group])?.into_any().unbind(), PyList::new(py, [loop_])?.into_any().unbind()],
+            &[
+                PyList::new(py, [group])?.into_any().unbind(),
+                PyList::new(py, [loop_])?.into_any().unbind(),
+            ],
         )?;
 
         let mut state = BoardState::new();
@@ -209,7 +262,10 @@ fn preflight_stage_reports_kernel_results() {
         assert!(!report.halted_early);
         assert_eq!(report.stage_reports.len(), 1);
         assert_eq!(report.stage_reports[0].name, "preflight");
-        assert!(matches!(report.stage_reports[0].outcome, StageOutcome::Completed));
+        assert!(matches!(
+            report.stage_reports[0].outcome,
+            StageOutcome::Completed
+        ));
 
         let report = out.violations.as_ref().unwrap().bind(py);
         let overall: String = report.get_item("overall").unwrap().extract().unwrap();
@@ -235,17 +291,32 @@ fn sequenced_pipeline_runs_both_stages() {
     Python::attach(|py| {
         let module = fakes(py).unwrap();
 
-        let zone = make(py, &module, "FakeZone", &[s(py, "z1"), f(py, 10.0), f(py, 10.0)])?;
+        let zone = make(
+            py,
+            &module,
+            "FakeZone",
+            &[s(py, "z1"), f(py, 10.0), f(py, 10.0)],
+        )?;
         let board = make(
             py,
             &module,
             "FakeBoard",
-            &[f(py, 100.0), f(py, 50.0), empty_list(py), PyList::new(py, [zone])?.into_any().unbind()],
+            &[
+                f(py, 100.0),
+                f(py, 50.0),
+                empty_list(py),
+                PyList::new(py, [zone])?.into_any().unbind(),
+            ],
         )?;
         let netlist = standard_netlist(py, &module)?;
 
         let emi = make(py, &module, "FakeEmi", &[py_dict(&[("L1", 100.0_f64)], py)])?;
-        let thermal = make(py, &module, "FakeThermal", &[py_dict(&[("U1", 2.0_f64)], py)])?;
+        let thermal = make(
+            py,
+            &module,
+            "FakeThermal",
+            &[py_dict(&[("U1", 2.0_f64)], py)],
+        )?;
         let si = make(py, &module, "FakeSI", &[py_dict(&[("N1", 30.0_f64)], py)])?;
         let spec = make(py, &module, "FakeSpec", &[emi, thermal, si])?;
 

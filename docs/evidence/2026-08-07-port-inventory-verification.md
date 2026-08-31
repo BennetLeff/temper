@@ -1,3 +1,4 @@
+<!-- provenance: commit=dc9c5a86c1ffde1e200a0b9be4a2ca28a8e30ea8 dirty=UNKNOWN -->
 # PORT inventory verification (removal_surfaces axis)
 
 **Date:** 2026-08-07

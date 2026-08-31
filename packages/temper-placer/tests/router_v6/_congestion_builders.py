@@ -22,13 +22,11 @@ from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6.stage0_data import ParsedPCB, StackupInfo
 
 __all__ = [
-    "RouterStub",
     "RouteStub",
     "build_board",
     "build_grid",
     "build_netlist",
     "build_parsed_pcb",
-    "build_router_stub",
     "build_routing_results",
 ]
 
@@ -154,29 +152,3 @@ def build_routing_results(
         compiled_routes={name: RouteStub(coords, use_segments) for name, coords in routes.items()},  # type: ignore[arg-type]
         failed_nets=list(failed_nets),
     )
-
-
-class RouterStub:
-    """The duck type ``CongestionHeatmap.from_router`` consumes.
-
-    ``present_congestion`` / ``history_cost`` are ``(rows, cols, layers)``
-    arrays (the module reduces over ``axis=2``), plus
-    ``get_conflict_locations()``, ``origin`` and ``cell_size``.
-    """
-
-    __slots__ = ("_conflicts", "cell_size", "history_cost", "origin", "present_congestion")
-
-    def __init__(self, present, history, conflicts, cell_size, origin):
-        self.present_congestion = np.array(present, dtype=np.float64)
-        self.history_cost = np.array(history, dtype=np.float64)
-        self._conflicts = list(conflicts)
-        self.cell_size = cell_size
-        self.origin = origin
-
-    def get_conflict_locations(self):
-        return self._conflicts
-
-
-def build_router_stub(case: tuple) -> RouterStub:
-    _label, present, history, conflicts, cell_size, origin = case
-    return RouterStub(present, history, conflicts, cell_size, origin)

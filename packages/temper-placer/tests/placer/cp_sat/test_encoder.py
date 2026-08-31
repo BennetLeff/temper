@@ -11,7 +11,6 @@ from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
     AnchoredConstraint,
-    CompilationTarget,
     ConstraintTier,
     ConstraintType,
     EnclosingConstraint,
@@ -29,7 +28,7 @@ from temper_placer.placer.cp_sat.encoder import (
     solve_placement,
     validate_constraint_refs,
 )
-from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
+from temper_placer.placer.cp_sat.handlers import CP_SAT_HANDLER_CATALOG
 from temper_placer.placer.cp_sat.model import CpSatModel
 
 
@@ -230,15 +229,150 @@ class TestReferenceReconciliation:
                 reference_aliases={"U_GATE": "U7", "C_BOOT": "U999"},  # bad target
             )
 
+    def test_hard_displacement_mapping_restricts_without_objective(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            max_displacement_mm=0.0,
+        )
+        assert result.status in ("optimal", "feasible"), result.status
+        assert result.positions["U1"] == (10.0, 12.0)
+        assert result.objective_value == 0.0
+
+    def test_hard_displacement_mapping_requires_a_radius(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        with pytest.raises(ValueError, match="requires max_displacement_mm"):
+            solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=[],
+                timeout_ms=200,
+                hard_displacement_to={"U1": (10.0, 12.0)},
+            )
+
+    def test_hard_displacement_mapping_reports_stable_component_label(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            max_displacement_mm=0.0,
+            fixed_positions={"U1": (20.0, 22.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        assert any(item["name"] == "displacement_bound_U1" for item in result.unsat_core)
+
+    def test_hard_displacement_mapping_accepts_explicit_stable_label(self) -> None:
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            hard_displacement_assumption_labels={"U1": "safe_topology_U1"},
+            max_displacement_mm=0.0,
+            fixed_positions={"U1": (20.0, 22.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        assert any(item["name"] == "safe_topology_U1" for item in result.unsat_core)
+
+    def test_hard_displacement_mapping_can_be_unconditional(self) -> None:
+        """Deletion-test bounds retain hard semantics without labels/objective."""
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0)},
+            hard_displacement_radii_mm={"U1": 0.0},
+            hard_displacement_assumptions=False,
+            fixed_positions={"U1": (11.0, 12.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        assert result.unsat_core == []
+        assert result.objective_value == 0.0
+
+    def test_hard_displacement_unconditional_matches_labelled_feasible_result(self) -> None:
+        """Disabling diagnostics must not change the hard-bound feasible set."""
+        netlist = Netlist(components=[self._component("U1")], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        common = {
+            "netlist": netlist,
+            "board": board,
+            "extra_constraints": [],
+            "timeout_ms": 1_000,
+            "hard_displacement_to": {"U1": (10.0, 12.0)},
+            "hard_displacement_radii_mm": {"U1": 0.0},
+            "fixed_positions": {"U1": (10.0, 12.0, 0)},
+        }
+
+        labelled = solve_placement(**common)
+        unconditional = solve_placement(
+            **common, hard_displacement_assumptions=False
+        )
+
+        assert labelled.status == unconditional.status == "optimal"
+        assert labelled.positions == unconditional.positions
+        assert labelled.objective_value == unconditional.objective_value == 0.0
+        assert [item["name"] for item in labelled.unsat_core] == []
+        assert unconditional.unsat_core == []
+
+    def test_hard_displacement_mapping_reuses_group_label(self) -> None:
+        """Multiple component bounds share one UNSAT-core group literal."""
+        netlist = Netlist(
+            components=[self._component(ref) for ref in ("U1", "U2")], nets=[]
+        )
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=[],
+            timeout_ms=1_000,
+            hard_displacement_to={"U1": (10.0, 12.0), "U2": (20.0, 22.0)},
+            hard_displacement_assumption_labels={
+                "U1": "safe_topology_group_0",
+                "U2": "safe_topology_group_0",
+            },
+            max_displacement_mm=0.0,
+            fixed_positions={"U1": (11.0, 12.0, 0), "U2": (21.0, 22.0, 0)},
+        )
+
+        assert result.status == "infeasible"
+        group_labels = [
+            item["name"]
+            for item in result.unsat_core
+            if item["name"] == "safe_topology_group_0"
+        ]
+        assert group_labels == ["safe_topology_group_0"]
+
 
 class TestHandlerCoverage:
     """All 8 ConstraintType values must have a handler."""
 
     def test_all_constraint_types_covered(self) -> None:
         for ct in ConstraintType:
-            if CompilationTarget.CP_SAT in ct.supported_targets:
-                assert ct in HANDLER_REGISTRY, f"No handler for {ct}"
-        assert len(HANDLER_REGISTRY) == 8
+            assert ct in CP_SAT_HANDLER_CATALOG, f"No handler for {ct}"
+        assert len(CP_SAT_HANDLER_CATALOG) == 8
 
 
 class TestSeparated:

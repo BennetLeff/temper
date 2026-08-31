@@ -1,6 +1,6 @@
 # Gate-drive ampacity key rename fix — 2026-08-17
 
-provenance: commit=8157b4344 (main HEAD at task start) dirty=false
+provenance: commit=8157b4344881ccd607ebaad5ba73c80ea85e97a8 (main HEAD at task start) dirty=false
 
 Board sha256 throughout this task (verified before and after every step,
 `pcb/temper.kicad_pcb` never modified): `6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1`.

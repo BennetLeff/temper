@@ -12,7 +12,8 @@ Boundary (what is NOT compared -- the Python call-backs both sides share by
 construction): the four ``_handle_*`` constraint-building handlers (they
 construct the real PCL ``SeparatedConstraint`` / ``KeepoutConstraint`` /
 ``AnchoredConstraint`` objects identically -- the handlers are unchanged in
-the shim) and the leaf helpers.
+the shim). The critical-net and persistence leaves are Rust-owned and are
+therefore exercised by these same end-to-end oracle scenarios.
 """
 
 from __future__ import annotations
@@ -124,6 +125,17 @@ _SCENARIOS = [
         MockRoutingResult(
             completion_rate=0.8,
             congestion_regions=[MockCongestionRegion(comp_a="Q1", comp_b="Q2")],
+        ),
+        None,
+        0,
+    ),
+    (
+        "congestion_pair_scaled_distance",
+        MockRoutingResult(
+            completion_rate=0.8,
+            congestion_regions=[
+                MockCongestionRegion(comp_a="Q1", comp_b="Q2", current_distance_mm=3.0)
+            ],
         ),
         None,
         0,

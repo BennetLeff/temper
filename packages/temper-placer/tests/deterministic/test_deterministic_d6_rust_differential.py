@@ -50,31 +50,45 @@ from __future__ import annotations
 import hashlib
 import inspect
 import random as _random
-from dataclasses import replace
 from pathlib import Path
 
 import pytest
 import temper_orchestration as _to
-
-import tests.deterministic._placement_validation_run_py_oracle as _orc_pv
-import tests.deterministic._via_validation_run_py_oracle as _orc_vv
-import tests.deterministic._drc_sweep_run_py_oracle as _orc_ds
-import tests.deterministic._drc_validation_run_py_oracle as _orc_drv
 import tests.deterministic._connectivity_validation_run_py_oracle as _orc_cv
 import tests.deterministic._courtyard_check_run_py_oracle as _orc_cc
+import tests.deterministic._drc_sweep_run_py_oracle as _orc_ds
+import tests.deterministic._drc_validation_run_py_oracle as _orc_drv
+import tests.deterministic._placement_validation_run_py_oracle as _orc_pv
+import tests.deterministic._via_validation_run_py_oracle as _orc_vv
 
 from temper_placer.core.board import Trace, Via
 from temper_placer.core.courtyard import Courtyard
 from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.deterministic.stages import (
     ConnectivityValidationStage as _shim_cv,
+)
+from temper_placer.deterministic.stages import (
     CourtyardCheckStage as _shim_cc,
+)
+from temper_placer.deterministic.stages import (
     DRCSweepStage as _shim_ds,
+)
+from temper_placer.deterministic.stages import (
     DRCValidationStage as _shim_drv,
+)
+from temper_placer.deterministic.stages import (
     PlacementValidationStage as _shim_pv,
+)
+from temper_placer.deterministic.stages import (
     ShortCircuitDetectionStage as _shim_sc,
+)
+from temper_placer.deterministic.stages import (
     TrackDeduplicationStage as _shim_td,
+)
+from temper_placer.deterministic.stages import (
     ViaDeduplicationStage as _shim_vd,
+)
+from temper_placer.deterministic.stages import (
     ViaValidationStage as _shim_vv,
 )
 from temper_placer.deterministic.state import BoardState
@@ -142,18 +156,33 @@ def test_oracle_bodies_match_pinned_digests() -> None:
 
 def test_oracle_and_port_are_different_implementations() -> None:
     """The shims must resolve to the Rust pyfunctions, not the oracle."""
-    expected = {
+    # Shim-debt cleanup (2026-08-20): the ``drc_sweep.py`` and
+    # ``via_validation.py`` modules were collapsed onto the generic
+    # ``RustFunctionStage`` adapter -- ``run`` is one shared implementation,
+    # so the source-text probe cannot distinguish per-stage Rust calls; the
+    # adapter binds its ``temper-orchestration`` pyfunction as ``_fn`` on
+    # the instance, and identity is the (stronger) probe.
+    adapter_stages = {
+        _shim_vv: "run_via_validation",
+        _shim_vd: "run_via_deduplication",
+        _shim_ds: "run_drc_sweep",
+        _shim_td: "run_track_deduplication",
+        _shim_sc: "run_short_circuit_detection",
+    }
+    for cls, symbol in adapter_stages.items():
+        stage = cls()
+        assert stage._fn is getattr(_to, symbol), (
+            f"{cls.__name__} does not bind the {symbol} pyfunction"
+        )
+    # The four validation stages not yet collapsed keep their own ``run``
+    # body; the source-text probe still applies to them.
+    shim_runs = {
         _shim_pv.run: "run_placement_validation",
-        _shim_vv.run: "run_via_validation",
-        _shim_vd.run: "run_via_deduplication",
-        _shim_ds.run: "run_drc_sweep",
-        _shim_td.run: "run_track_deduplication",
-        _shim_sc.run: "run_short_circuit_detection",
         _shim_drv.run: "run_drc_validation",
         _shim_cv.run: "run_connectivity_validation",
         _shim_cc.run: "run_courtyard_check",
     }
-    for fn, symbol in expected.items():
+    for fn, symbol in shim_runs.items():
         src = inspect.getsource(fn)
         assert symbol in src, f"{fn.__qualname__} does not delegate to {symbol}"
     for symbol in [
@@ -651,6 +680,24 @@ def test_pv_parsed_pads_offset() -> None:
     assert _placement_violations_canon(orc2.placement_violations) == _placement_violations_canon(
         port2.placement_violations
     )
+
+
+def test_pv_pin_resolution_does_not_call_python_stage_callback() -> None:
+    """Pin lookup is owned by the Rust DRC leaf, not a stage callback."""
+    state = _pv_state()
+    stage = _shim_pv(
+        **_pv_kwargs(
+            constraints={"placement_proximity": [_prox_violated()]},
+            fail_on_hard_violations=False,
+        )
+    )
+
+    def unexpected_callback(*_args, **_kwargs):
+        raise AssertionError("Rust placement validation called _get_pin_position")
+
+    stage._get_pin_position = unexpected_callback
+    out = stage.run(state)
+    assert out.placement_violations
 
 
 def test_pv_combined_and_multiple() -> None:

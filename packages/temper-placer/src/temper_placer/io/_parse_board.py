@@ -29,8 +29,6 @@ from temper_placer.core.board import STANDARD_LAYER_ORDER
 _rs = _tdb.parse_engine
 
 if TYPE_CHECKING:
-    from kiutils.board import Board as KiBoard
-
     from temper_placer.router_v6.stage0_data import StackupInfo
 
 
@@ -97,7 +95,7 @@ def _is_plane_required_net(net_name: str) -> bool:
 
 
 def _extract_stackup(
-    _ki_board: KiBoard,
+    _ki_board: object | None,
     warnings: list[str],
     *,
     use_declared_layer_roles: bool = False,

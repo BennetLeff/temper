@@ -1,5 +1,16 @@
 # CongestionTensor — Verification by Mathematical Induction
 
+## Layer identity Python boundary (2026-08-27)
+
+The strict Rust `Stackup::parse`, `Stackup::from_path`, and the named
+`Stackup::test_only` fixture constructor remain available to Rust tests and
+callers. Their former PyO3 exports and anonymous `Stackup` wrapper were
+removed after a production-caller audit. Python architecture consumers use
+the tuple-valued `parse_declared_layer_roles` export, which intentionally
+reads only the board's `(layers ...)` declaration and does not require
+fabrication thickness data. The retained `board_layer_roles.py` tests cover
+that production path; pinned historical evidence remains unchanged.
+
 Updated 2026-07-31: Rust implementation extended for the wire-up —
 `increment_cells` (batch increments over pre-mapped (row, col) pairs),
 `to_flat_bytes` (raw float32 storage for the Python wrapper's numpy

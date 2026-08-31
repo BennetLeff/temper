@@ -227,6 +227,7 @@ class DrcCeilingEntry:
     tool_versions: dict[str, str] = field(default_factory=dict)
     category_source: str | None = None
     nondeterministic_error_types: dict[str, dict[str, Any]] = field(default_factory=dict)
+    uncapped_totals: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 @dataclass
@@ -439,6 +440,21 @@ class DrcRatchet:
         with open(self.ceiling_path) as f:
             data = json.load(f)
 
+        self.load_data(data)
+
+    def load_data(self, data: dict) -> None:
+        """Populate ``self.entries`` from an already-parsed ceiling dict.
+
+        *data* is the raw ``drc_ceiling.json`` JSON structure (a ``dict``
+        with a ``"boards"`` list) -- the same structure ``load()`` produces
+        from the file, and the same structure
+        ``scripts/_lib/drc_ceiling.load_ceiling`` returns for the scripts
+        that read the file through the shared loader (e.g.
+        ``scripts/ci_check_drc.py``). Exists so a caller that already holds
+        the parsed dict does not read the file twice; ``load()`` is a thin
+        read+parse wrapper that delegates here, and the entry construction
+        is byte-identical either way.
+        """
         for entry in data.get("boards", []):
             board_id = entry["board_id"]
             provenance = entry.get("provenance") or {}
@@ -452,6 +468,7 @@ class DrcRatchet:
                 tool_versions=provenance.get("tool_versions") or {},
                 category_source=entry.get("category_source"),
                 nondeterministic_error_types=entry.get("nondeterministic_error_types") or {},
+                uncapped_totals=entry.get("uncapped_totals") or {},
             )
 
     def check(self, repo_root: Path) -> list[DrcRatchetResult]:
@@ -677,6 +694,12 @@ class DrcRatchet:
                     rule: info.display
                     for rule, info in classify_counts(current_by_type).items()
                     if info.is_capped
+                    # #1442: a category with a committed uncapped total is
+                    # resolved -- the kernel compares true-count vs ceiling
+                    # for it -- so it is no longer an inconclusive floor.
+                    # Only categories WITHOUT a committed total remain
+                    # inconclusive (and keep failing the ci_check_drc guard).
+                    if rule not in entry.uncapped_totals
                 }
                 capped_warning_categories = {}
                 if current_warnings_by_type is not None:
@@ -684,6 +707,7 @@ class DrcRatchet:
                         rule: info.display
                         for rule, info in classify_counts(current_warnings_by_type).items()
                         if info.is_capped
+                        if rule not in entry.uncapped_totals
                     }
             else:
                 return DrcRatchetResult(
@@ -774,6 +798,23 @@ class DrcRatchet:
                     else None
                 ),
                 allowed_warnings_by_type=list(entry.warnings_by_type.items()),
+                # Cap-saturation resolution (#1442): the committed
+                # `uncapped_totals` block carries true counts for categories
+                # whose raw kicad-cli read sits at its reporting cap, so the
+                # Rust kernel can compare true-count vs ceiling instead of
+                # treating the capped read as inconclusive. Split by kind
+                # using membership in the per-type records so an error-kind
+                # entry can never leak into the warning comparison.
+                uncapped_errors_by_type=[
+                    (rule, int(info["count"]))
+                    for rule, info in sorted(entry.uncapped_totals.items())
+                    if rule in entry.violations_by_type
+                ],
+                uncapped_warnings_by_type=[
+                    (rule, int(info["count"]))
+                    for rule, info in sorted(entry.uncapped_totals.items())
+                    if rule in entry.warnings_by_type
+                ],
                 backend=self.backend,
                 version_mismatch=version_mismatch,
                 running_version=running_kicad_cli_version,

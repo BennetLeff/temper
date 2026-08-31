@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import ConstraintType, LoopAreaConstraint
+from temper_placer.pcl.constraints import LoopAreaConstraint
+from temper_placer.placer.cp_sat.errors import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.handlers._protocol import AssumptionLiteral
-from temper_placer.placer.cp_sat.handlers._registry import register_handler
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
@@ -16,10 +15,6 @@ if TYPE_CHECKING:
         ModelProtocol,
     )
 
-logger = logging.getLogger(__name__)
-
-
-@register_handler(ConstraintType.LOOP_AREA)
 def encode_loop_area(
     constraint: LoopAreaConstraint,
     components: dict[str, ComponentVarsProtocol],
@@ -70,15 +65,23 @@ def encode_loop_area(
     labels: list[AssumptionLiteral] = []
     loop_comps = ctx.loop_components.get(constraint.loop_name, [])
     if not loop_comps:
-        logger.warning(
-            "LoopArea %s: no components in loop '%s'", constraint.id, constraint.loop_name
+        if ctx.unresolved_ref_policy == "warn":
+            return labels
+        raise UnresolvedConstraintRefsError(
+            f"LoopArea constraint {constraint.id!r} references missing or empty loop "
+            f"{constraint.loop_name!r}"
         )
-        return labels
 
-    comp_vars = [components[r] for r in loop_comps if r in components]
-    if not comp_vars:
-        logger.warning("LoopArea %s: no resolved components", constraint.id)
-        return labels
+    missing = [ref for ref in loop_comps if ref not in components]
+    if missing:
+        if ctx.unresolved_ref_policy == "warn":
+            return labels
+        raise UnresolvedConstraintRefsError(
+            f"LoopArea constraint {constraint.id!r} references missing component(s): "
+            + ", ".join(repr(ref) for ref in missing)
+        )
+
+    comp_vars = [components[r] for r in loop_comps]
 
     label = f"loop_area_{constraint.id}"
     assumption = model.new_assumption(label)

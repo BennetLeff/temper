@@ -1,23 +1,21 @@
 """Property-based tests for the Rust loop-extractor classify kernel.
 
 Verification unit (wave-4 discipline contract G4 note): the classify kernel
-cluster -- ``classify_component_py`` + ``parse_capacitance_py`` in
-``temper-rust-router-core/src/loop_extractor/classify_py.rs``, exercised
-through the ``temper_rust_router.classify_component_rs`` /
-``parse_capacitance_rs`` pyfunctions. The two functions are one cluster:
-the differential suite pins them under one oracle and one corpus
+(``classify_component_py`` in
+``temper-rust-router-core/src/loop_extractor/classify_py.rs``), exercised
+through the ``temper_rust_router.classify_component_rs`` pyfunction. The
+differential suite pins it under one oracle and one corpus
 (``test_loop_extractor_rust_differential.py``), and the module-to-property
 map is:
 
 - P1, P2, P3, P4, P5  -> ``classify_component_rs`` (category/confidence
   coherence, determinism, capacitor threshold, gate-marker resistors)
-- P6                  -> ``parse_capacitance_rs`` (unit scaling)
 
 Reachability is by construction: every generated example is fed DIRECTLY to
 the kernel under test (the property call IS the kernel call), so no
 property can be satisfied by a kernel the generated inputs never reach.
 
-Six non-vacuous properties, each with a vacuity guard at the bottom
+Five non-vacuous properties, each with a vacuity guard at the bottom
 proving a degenerate kernel violates it via ``hypothesis.inner_test``.
 
 Metamorphic relations (G5), exact -- string classification has no
@@ -43,7 +41,6 @@ from hypothesis import strategies as st
 
 # Kernel indirection -- vacuity mutants swap these.
 RS_CLASSIFY = temper_rust_router.classify_component_rs
-RS_PARSE = temper_rust_router.parse_capacitance_rs
 
 _EXACT_CONFIDENCES = (0.0, 0.7, 0.8, 0.9)
 
@@ -168,30 +165,6 @@ def test_p5_gate_marker_resistor(prefix, suffix, footprint, value, mpn):
 
 
 # ---------------------------------------------------------------------------
-# P6 — parse_capacitance applies the unit scale exactly
-# ---------------------------------------------------------------------------
-
-
-@given(st.sampled_from(["", "uF", "nF", "pF", "F", "UF", "NF", "PF"]))
-@settings(max_examples=100, deadline=60000)
-def test_p6_parse_unit_scaling(unit):
-    out = json.loads(RS_PARSE("1" + unit))
-    expected = {
-        "": 1e6,  # no unit -> "F" (the oracle's default)
-        "uF": 1.0,
-        "UF": 1.0,
-        "nF": 1e-3,
-        "NF": 1e-3,
-        "pF": 1e-6,
-        "PF": 1e-6,
-        "F": 1e6,
-    }[unit]
-    got = out["uf"]
-    assert got is not None
-    assert float(got).hex() == expected.hex(), f"unit {unit!r}: {got!r} vs {expected!r}"
-
-
-# ---------------------------------------------------------------------------
 # Metamorphic relations (G5) -- exact
 # ---------------------------------------------------------------------------
 
@@ -246,20 +219,15 @@ def test_m3_unrelated_attribute_non_interference():
 
 @pytest.fixture
 def _restore_kernels():
-    global RS_CLASSIFY, RS_PARSE
-    orig_classify, orig_parse = RS_CLASSIFY, RS_PARSE
+    global RS_CLASSIFY
+    orig_classify = RS_CLASSIFY
     yield
-    RS_CLASSIFY, RS_PARSE = orig_classify, orig_parse
+    RS_CLASSIFY = orig_classify
 
 
 def _mutate_classify(kernel):
     global RS_CLASSIFY
     RS_CLASSIFY = kernel
-
-
-def _mutate_parse(kernel):
-    global RS_PARSE
-    RS_PARSE = kernel
 
 
 def _j(ref, footprint, value, mpn):
@@ -300,12 +268,6 @@ def test_p5_fails_for_constant_other_kernel(_restore_kernels):
     _mutate_classify(lambda _s: json.dumps({"ref": "R_GATE1", "category": "other", "subcategory": None, "confidence": 0.0}))
     with pytest.raises(AssertionError):
         test_p5_gate_marker_resistor.hypothesis.inner_test("R_GATE", "1", "R_0805", "", "")
-
-
-def test_p6_fails_for_constant_parse_kernel(_restore_kernels):
-    _mutate_parse(lambda _s: json.dumps({"uf": 1.0}))
-    with pytest.raises(AssertionError):
-        test_p6_parse_unit_scaling.hypothesis.inner_test("nF")
 
 
 # sanity: the strategy corpus genuinely discriminates (P4's bus-cap input

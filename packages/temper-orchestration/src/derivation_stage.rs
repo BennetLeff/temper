@@ -129,9 +129,7 @@ fn derive_from_spec(
     }
 
     // 3. Signal Integrity -> Max Length (max_len / 1.5 kernel).
-    let max_lengths = spec
-        .getattr("signal_integrity")?
-        .getattr("max_length_mm")?;
+    let max_lengths = spec.getattr("signal_integrity")?.getattr("max_length_mm")?;
     for (net_name, max_len) in dict_items(&max_lengths)? {
         let max_len_f: f64 = max_len.bind(py).extract()?;
         let max_dist = feasibility::derive_si_max_placement_dist(max_len_f);
@@ -158,10 +156,7 @@ fn derive_from_spec(
 #[cfg(feature = "python")]
 /// The `_VOLTAGE_CLASS_BY_CODE` mapping (derivation.py's code -> pyclass
 /// member table) resolved through the `VoltageClass` pyclass.
-fn voltage_class_member<'py>(
-    py: Python<'py>,
-    code: i64,
-) -> PyResult<Bound<'py, PyAny>> {
+fn voltage_class_member<'py>(py: Python<'py>, code: i64) -> PyResult<Bound<'py, PyAny>> {
     let net_types = py.import("temper_placer.core.net_types")?;
     let voltage_class = net_types.getattr("VoltageClass")?;
     let name = match code {
@@ -176,9 +171,7 @@ fn voltage_class_member<'py>(
 #[cfg(feature = "python")]
 /// Iterate a Python dict's items in insertion order (order is load-bearing
 /// for the derived dict's key order).
-fn dict_items<'py>(
-    dict: &Bound<'py, PyAny>,
-) -> PyResult<Vec<(String, Py<PyAny>)>> {
+fn dict_items<'py>(dict: &Bound<'py, PyAny>) -> PyResult<Vec<(String, Py<PyAny>)>> {
     let mut out = Vec::new();
     let items = dict.call_method0("items")?;
     for item in items.try_iter()? {

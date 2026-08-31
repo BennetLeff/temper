@@ -24,6 +24,10 @@ on:
     paths:
       - '.github/docker/**'
       - '.github/workflows/docker-build.yml'
+      - 'requirements-ci.txt'
+      - 'uv.lock'
+      - 'packages/*/Cargo.lock'
+      - 'packages/temper-placer/temper-constraints/Cargo.lock'
   workflow_dispatch:
 
 env:

@@ -1,83 +1,50 @@
-"""Tests for ConstraintHandler Protocol, registry, and shared utilities."""
+"""Tests for the handler protocol and explicit dispatch table."""
 
 from __future__ import annotations
 
-import pytest
-
 from temper_placer.pcl.constraints import ConstraintType
-from temper_placer.placer.cp_sat.handlers._registry import (
-    HANDLER_REGISTRY,
-    register_handler,
+from temper_placer.placer.cp_sat.handlers import (
+    CP_SAT_HANDLER_CATALOG,
+    EXPLICITLY_UNSUPPORTED_TYPES,
+    _build_handler_catalog,
 )
 
 
-@pytest.fixture(autouse=True)
-def _restore_handler_registry():
-    """Snapshot ``HANDLER_REGISTRY`` and restore it after every test here.
-
-    These tests deliberately register test doubles over *real* handlers, and
-    ``HANDLER_REGISTRY`` is module-level shared state that lives for the whole
-    pytest session. Hand-rolled cleanup got this wrong: two tests below deleted
-    the entry they had overwritten without putting the original back, which
-    permanently removed the real ``ALIGNED`` and ``ON_SIDE`` handlers for every
-    later test in the run.
-
-    The symptom was order-dependent and therefore invisible in isolation --
-    ``test_encoder.py::TestHandlerCoverage::test_all_constraint_types_covered``
-    passed when run alone and failed in CI with ``No handler for
-    ConstraintType.ON_SIDE`` only once this module ran first. Restoring here
-    makes that correct by construction rather than by each test remembering.
-    """
-    snapshot = dict(HANDLER_REGISTRY)
-    try:
-        yield
-    finally:
-        HANDLER_REGISTRY.clear()
-        HANDLER_REGISTRY.update(snapshot)
-
-
 class TestRegistry:
-    def test_handlers_registry_initially_empty_after_first_import(self) -> None:
-        from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY as hr
+    def test_explicit_table_covers_every_supported_constraint(self) -> None:
+        assert frozenset(CP_SAT_HANDLER_CATALOG) == (
+            frozenset(ConstraintType) - EXPLICITLY_UNSUPPORTED_TYPES
+        )
 
-        assert hr == HANDLER_REGISTRY
-
-    def test_register_handler_decorator_stores_entry(self) -> None:
-        ct = ConstraintType.ADJACENT
-        # Use a key not already taken by a real handler module import.
-        if ct in HANDLER_REGISTRY:
-            original = HANDLER_REGISTRY.get(ct)
-            del HANDLER_REGISTRY[ct]
-        else:
-            original = None
+    def test_duplicate_entries_fail(self) -> None:
+        handler = next(iter(CP_SAT_HANDLER_CATALOG.values()))
+        ct = next(iter(CP_SAT_HANDLER_CATALOG))
         try:
+            _build_handler_catalog(((ct, handler), (ct, handler)))
+        except RuntimeError as exc:
+            assert "duplicate" in str(exc)
+        else:
+            raise AssertionError("duplicate handler entries must fail")
 
-            @register_handler(ct)
-            def _test_adj_handler(constraint, components, model, ctx):
-                return []
+    def test_missing_entries_fail(self) -> None:
+        entries = tuple(CP_SAT_HANDLER_CATALOG.items())
+        missing_type = entries[0][0]
+        try:
+            _build_handler_catalog(entries[1:])
+        except RuntimeError as exc:
+            assert missing_type.name in str(exc)
+        else:
+            raise AssertionError("missing handler entries must fail")
 
-            assert ct in HANDLER_REGISTRY
-            assert HANDLER_REGISTRY[ct] is _test_adj_handler
-        finally:
-            del HANDLER_REGISTRY[ct]
-            if original is not None:
-                HANDLER_REGISTRY[ct] = original
-
-    def test_register_handler_returns_fn_unchanged(self) -> None:
-        # Overwrites the real ALIGNED handler; _restore_handler_registry puts it back.
-        @register_handler(ConstraintType.ALIGNED)
-        def _my_aligned(constraint, components, model, ctx):
-            return [42]
-
-        assert _my_aligned(None, {}, None, None) == [42]
-
-    def test_register_handler_sets_constraint_type_attr(self) -> None:
-        # Overwrites the real ON_SIDE handler; _restore_handler_registry puts it back.
-        @register_handler(ConstraintType.ON_SIDE)
-        def _my_onside(constraint, components, model, ctx):
-            return []
-
-        assert getattr(_my_onside, "constraint_type", None) is ConstraintType.ON_SIDE
+    def test_catalog_is_immutable(self) -> None:
+        try:
+            CP_SAT_HANDLER_CATALOG[ConstraintType.ADJACENT] = next(
+                iter(CP_SAT_HANDLER_CATALOG.values())
+            )  # type: ignore[index]
+        except TypeError:
+            pass
+        else:
+            raise AssertionError("CP-SAT handler catalog must be immutable")
 
 
 class TestProtocolStructuralSubtyping:

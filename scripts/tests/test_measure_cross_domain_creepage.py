@@ -63,6 +63,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import check_isolation_keepout  # noqa: E402
+import measure_cross_domain_creepage as mccd  # noqa: E402
 from kiutils.board import Board, LayerToken  # noqa: E402
 from kiutils.footprint import Footprint, Pad  # noqa: E402
 from kiutils.items.common import Net, Position  # noqa: E402
@@ -432,19 +433,58 @@ class TestDifferential:
 
 
 class TestRotationSensitivityPlumbing:
+    """``distance_mm_alt`` was renamed to ``distance_mm_legacy`` on
+    2026-08-18 when the convention bug was fixed. The rename is not
+    cosmetic: pre-fix, ``distance_mm`` held the WRONG-convention R(+theta)
+    distance and ``_alt`` held the right one, so the two fields have
+    swapped meaning. ``distance_mm`` is now KiCad's real R(-theta) and
+    ``distance_mm_legacy`` is the known-wrong convention kept only to
+    quantify the historical error."""
+
     def test_disabled_leaves_fields_none(self, tmp_path: Path) -> None:
         board_path, manifest_path = _fixture(tmp_path)
         report, _all, _bodies = measure(board_path, manifest_path, 20.0, check_rotation_sensitivity=False)
         assert report.violations  # non-empty, or this test proves nothing
         assert all(f.convention_sensitive is None for f in report.violations)
-        assert all(f.distance_mm_alt is None for f in report.violations)
+        assert all(f.distance_mm_legacy is None for f in report.violations)
+        assert report.legacy_only_violations is None  # never conflated with 0
 
     def test_enabled_populates_a_boolean(self, tmp_path: Path) -> None:
         board_path, manifest_path = _fixture(tmp_path)
         report, _all, _bodies = measure(board_path, manifest_path, 20.0, check_rotation_sensitivity=True)
         assert report.violations
         assert all(isinstance(f.convention_sensitive, bool) for f in report.violations)
-        assert all(isinstance(f.distance_mm_alt, float) for f in report.violations)
+        assert all(isinstance(f.distance_mm_legacy, float) for f in report.violations)
+        assert isinstance(report.legacy_only_violations, int)
+
+    def test_primary_column_is_the_kicad_convention_not_the_legacy_one(self, tmp_path: Path) -> None:
+        """The actual bug. Pre-fix, the PRIMARY distance was R(+theta) and
+        the violation list was filtered by it. Pin the primary column to
+        the sanctioned helper so a re-swap of the two fields fails here."""
+        from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg
+
+        # (15, 0) at 90 deg -> (0, -15) under KiCad's real convention;
+        # R(+theta) would say (0, +15). Verified against pcbnew -- see
+        # scripts/pad_rotation_oracle_corpus.json.
+        x, y = mccd._rotate(15.0, 0.0, 90.0)
+        assert (round(x, 9), round(y, 9)) == (0.0, -15.0)
+        assert (x, y) == rotate_local_to_world_deg(15.0, 0.0, 90.0)
+
+        lx, ly = mccd._rotate_legacy_ccw(15.0, 0.0, 90.0)
+        assert round(ly, 9) == 15.0, "the legacy column must still be the R(+theta) it documents"
+
+    def test_legacy_cross_check_is_measured_over_the_full_denominator(self, tmp_path: Path) -> None:
+        """The filtering half of the bug: pre-fix, the legacy distance was
+        computed only for pairs the WRONG convention had already flagged,
+        so a pair violating under the real convention but not under
+        R(+theta) was never examined. Every finding must now carry both."""
+        board_path, manifest_path = _fixture(tmp_path)
+        _report, all_findings, _bodies = measure(board_path, manifest_path, 20.0)
+        assert all_findings
+        assert all(f.distance_mm_legacy is not None for f in all_findings), (
+            "the legacy column must be measured over every pair, not only the "
+            "pre-filtered violation subset"
+        )
 
 
 # ---------------------------------------------------------------------------

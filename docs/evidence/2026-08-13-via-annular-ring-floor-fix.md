@@ -1,4 +1,4 @@
-<!-- provenance: this document (branch fix/via-annular-ring-floor, worktree
+<!-- provenance: commit=96db2ccde669efa82d85fb494d5d152d8af8848f dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-via-annular-fix, based on origin/fix/board-schematic-resync
 a3fbaff37, PR #1134). Stacks on top of PR #1142's docs/evidence/2026-08-13-jlcpcb-fab-capability-envelope.md
 and docs/hardware/FAB_CAPABILITY.md (cherry-picked commit ccc795ccc from

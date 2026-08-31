@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "source": "measured-live",
+  "evidence_source": "github-actions-artifact",
+  "baseline_path": "main-perf-baseline.jsonl",
+  "candidate_baseline_path": "power_pcb_dataset/metrics/perf_ab_baseline.jsonl",
+  "benchmark_owned_prefixes": [
+    "benchmarks/",
+    "packages/",
+    "pyproject.toml",
+    "uv.lock",
+    "Cargo.toml",
+    "Cargo.lock",
+    ".python-version",
+    "Makefile"
+  ],
+  "primary_capture": {
+    "capture_sha": "1dc40c3afb0882445bbf92a1d8c38902328137ee",
+    "captures": [
+      {
+        "workflow_run_id": "33296081089",
+        "artifact_id": "9727511295",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296081089.ndjson",
+        "artifact_sha256": "a6d60daa6545b3137f7472ee4fdcbdd7d9bde26386de6a21cebacc1a6b2719ed"
+      },
+      {
+        "workflow_run_id": "33296081874",
+        "artifact_id": "9727510198",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296081874.ndjson",
+        "artifact_sha256": "999955ade1f42013c6109966c2e45ec055f6bc938ab11d486e551fa29089244b"
+      },
+      {
+        "workflow_run_id": "33296082812",
+        "artifact_id": "9727509358",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296082812.ndjson",
+        "artifact_sha256": "681529803c8c6dfa085687b19ba23deadeb6e6d47fcfc220f226ff2024ef2310"
+      },
+      {
+        "workflow_run_id": "33296083689",
+        "artifact_id": "9727510889",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296083689.ndjson",
+        "artifact_sha256": "dd56fceabd70a52ddc79c1672052ffa49fd4bd4baf7114c7b7c2b09e3bd85564"
+      },
+      {
+        "workflow_run_id": "33296084670",
+        "artifact_id": "9727511365",
+        "artifact": "power_pcb_dataset/metrics/perf_ab_baseline_refresh/capture-33296084670.ndjson",
+        "artifact_sha256": "8354a97d64eb24b9269cb68e59d6e28f1d4191f4e5ef33ce576d685196db64e4"
+      }
+    ]
+  },
+  "candidate_append_sha256": "f962b10a4a635237032290a7d61bbe0e27d6b9cbe611986f736ebaeece9510e1"
+}

@@ -29,17 +29,23 @@ What counts as provenance
 --------------------------
 Every file directly under docs/evidence/ (dotfiles excluded) must declare:
 
-  commit: a 40-char lowercase hex git SHA, or the literal string "UNKNOWN"
+  commit: a 40-char lowercase hex git SHA, "DERIVED", or "UNKNOWN"
   dirty:  true / false, or the literal string "UNKNOWN"
+
+``DERIVED`` is an explicit request for the gate to compute the commit that
+introduced the file.  It exists because that commit does not exist yet when
+the author writes the file.  It does *not* make the whole provenance stamp
+optional: ``dirty`` describes measurement-time state that git cannot recover,
+so a file with no stamp still fails.
 
 For ``.json`` evidence, this is a top-level object:
 
-    "provenance": {"commit": "<sha-or-UNKNOWN>", "dirty": true|false|"UNKNOWN"}
+    "provenance": {"commit": "<sha-or-DERIVED-or-UNKNOWN>", "dirty": true|false|"UNKNOWN"}
 
 For every other file type (.md, .log, .py, ...), this is a single line
 matching (case-insensitive, anywhere in the file):
 
-    provenance: commit=<sha-or-UNKNOWN> dirty=<true|false|UNKNOWN>
+    provenance: commit=<sha-or-DERIVED-or-UNKNOWN> dirty=<true|false|UNKNOWN>
 
 A well-formed SHA is not enough: the commit must actually resolve
 ------------------------------------------------------------------
@@ -146,9 +152,15 @@ import subprocess
 
 from _lib.gate_allowlist import (
     TICKET_PATTERN,
-    load_allowlist as _load_allowlist,
-    git_show_main_allowlist as _git_show_main_allowlist,
+)
+from _lib.gate_allowlist import (
     check_shrink_mode as _check_shrink_mode,
+)
+from _lib.gate_allowlist import (
+    git_show_main_allowlist as _git_show_main_allowlist,
+)
+from _lib.gate_allowlist import (
+    load_allowlist as _load_allowlist,
 )
 from _lib.github_summary import get_github_summary_path
 from _lib.repo import find_repo_root
@@ -161,15 +173,20 @@ EVIDENCE_DIR_DEFAULT = REPO_ROOT / "docs" / "evidence"
 ALLOWLIST_DEFAULT = REPO_ROOT / ".evidence-provenance-allowlist"
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-UNKNOWN = "UNKNOWN"
 
-# Matches: provenance: commit=<sha|UNKNOWN> dirty=<true|false|UNKNOWN>
+# Set True by --no-derive. Module-level so check_file() keeps its signature;
+# tests flip it directly rather than shelling out.
+_DERIVE_DISABLED = False
+UNKNOWN = "UNKNOWN"
+DERIVED = "DERIVED"
+
+# Matches: provenance: commit=<sha|DERIVED|UNKNOWN> dirty=<true|false|UNKNOWN>
 # Deliberately permissive on surrounding syntax (backticks, comment markers,
 # HTML-comment wrappers) so the same line works inside Markdown prose, an
 # HTML comment, or a Python/shell "#" comment -- one canonical field format,
 # many legal hosts for it.
 PROVENANCE_LINE_RE = re.compile(
-    r"provenance:\s*commit=`?([0-9a-fA-F]{40}|UNKNOWN)`?\s+dirty=`?(true|false|UNKNOWN)`?",
+    r"provenance:\s*commit=`?([0-9a-fA-F]{40}|DERIVED|UNKNOWN)`?\s+dirty=`?(true|false|UNKNOWN)`?",
     re.IGNORECASE,
 )
 
@@ -183,7 +200,7 @@ PROVENANCE_LINE_RE = re.compile(
 # whole file would happily pair a commit from one stamp with a dirty from
 # another.
 PROVENANCE_BLOCK_RE = re.compile(r"provenance:(.{0,400}?)(?:-->|\n\s*\n|\Z)", re.S | re.I)
-_COMMIT_FIELD_RE = re.compile(r"commit=`?([0-9a-fA-F]{40}|UNKNOWN)`?", re.I)
+_COMMIT_FIELD_RE = re.compile(r"commit=`?([0-9a-fA-F]{40}|DERIVED|UNKNOWN)`?", re.I)
 _DIRTY_FIELD_RE = re.compile(r"dirty=`?(true|false|UNKNOWN)`?", re.I)
 
 # Diagnostic-only, deliberately permissive: matches whatever a `commit=` field
@@ -197,10 +214,22 @@ _DIRTY_FIELD_LOOSE_RE = re.compile(r"dirty=`?([^\s`>]+)", re.I)
 
 
 class FileCheckResult:
-    def __init__(self, ok: bool, commit: str | None = None, reason: str = ""):
+    def __init__(
+        self,
+        ok: bool,
+        commit: str | None = None,
+        reason: str = "",
+        derived: bool = False,
+    ):
         self.ok = ok
         self.commit = commit
         self.reason = reason
+        # True when `commit` was COMPUTED from git history (the commit that
+        # introduced the file) rather than asserted by the author. Kept
+        # distinct on purpose: "where it landed" and "where it was measured"
+        # are different claims, and collapsing them is what this gate exists
+        # to prevent. See derive_introducing_commit().
+        self.derived = derived
 
 
 def _normalize_commit(tok: str) -> str | None:
@@ -231,16 +260,21 @@ def check_json_file(path: Path) -> FileCheckResult:
     dirty = prov.get("dirty")
     if not isinstance(commit, str):
         return FileCheckResult(False, reason='provenance.commit missing or not a string')
-    norm_commit = _normalize_commit(commit)
-    if norm_commit is None:
-        return FileCheckResult(
-            False,
-            reason=f'provenance.commit={commit!r} is neither a 40-char lowercase hex SHA nor "UNKNOWN"',
-        )
     if dirty not in (True, False, UNKNOWN):
         return FileCheckResult(
             False,
             reason=f'provenance.dirty={dirty!r} must be true, false, or "UNKNOWN"',
+        )
+    if commit.upper() == DERIVED:
+        return _derive_explicit_commit(path)
+    norm_commit = _normalize_commit(commit)
+    if norm_commit is None:
+        return FileCheckResult(
+            False,
+            reason=(
+                f'provenance.commit={commit!r} is neither a 40-char lowercase '
+                'hex SHA, "DERIVED", nor "UNKNOWN"'
+            ),
         )
     return FileCheckResult(True, commit=norm_commit)
 
@@ -300,10 +334,13 @@ def check_text_file(path: Path) -> FileCheckResult:
             return FileCheckResult(
                 False,
                 reason=(
-                    "no 'provenance: commit=<sha-or-UNKNOWN> dirty=<true|false|UNKNOWN>' "
+                    "no 'provenance: commit=<sha-or-DERIVED-or-UNKNOWN> "
+                    "dirty=<true|false|UNKNOWN>' "
                     "line found"
                 ),
             )
+    if commit_tok.upper() == DERIVED:
+        return _derive_explicit_commit(path)
     norm_commit = _normalize_commit(commit_tok if commit_tok == UNKNOWN else commit_tok.lower())
     if norm_commit is None:
         return FileCheckResult(
@@ -311,6 +348,59 @@ def check_text_file(path: Path) -> FileCheckResult:
             reason=f"provenance commit token {commit_tok!r} is not a valid 40-char hex SHA or UNKNOWN",
         )
     return FileCheckResult(True, commit=norm_commit)
+
+
+def _derive_explicit_commit(path: Path) -> FileCheckResult:
+    """Resolve an explicit ``commit=DERIVED`` request, failing closed."""
+    if _DERIVE_DISABLED:
+        return FileCheckResult(
+            False,
+            reason="provenance commit=DERIVED is disabled by --no-derive",
+        )
+    derived = derive_introducing_commit(path)
+    if derived is None:
+        return FileCheckResult(
+            False,
+            reason=(
+                "provenance commit=DERIVED was requested, but git could not "
+                "determine the commit that introduced this file"
+            ),
+        )
+    return FileCheckResult(True, commit=derived, derived=True)
+
+
+def derive_introducing_commit(path: Path) -> str | None:
+    """The commit that added *path*, or None if it cannot be determined.
+
+    Why this exists (docs/evidence/2026-08-25-provenance-stamp-contract-decision.md):
+    measured over 21 days, 45% of files under docs/evidence/ landed with no
+    conforming stamp, and of the repaired stamps 68% were transcriptions of
+    this exact value while a further 23% pointed at the bulk-repair commit
+    that stamped them -- provenance reading "measured at the commit where
+    someone noticed it had no provenance", which RESOLVES and therefore
+    passes while conveying nothing. The contract asked every author for a
+    value that does not exist when they write the file, so computing the
+    default removes 91% of the failure and improves the 23% outright.
+
+    Returns None rather than guessing when git cannot answer -- an untracked
+    file, a shallow clone with the adding commit truncated away, or no git at
+    all. Callers treat None as "no stamp", i.e. the pre-existing failure, so
+    a derivation that cannot be made never silently passes.
+    """
+    try:
+        r = subprocess.run(
+            ["git", "log", "--diff-filter=A", "--format=%H", "-1", "--", str(path)],
+            cwd=path.parent,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if r.returncode != 0:
+        return None
+    tok = r.stdout.strip()
+    return tok if SHA_RE.match(tok) else None
 
 
 def check_file(path: Path) -> FileCheckResult:
@@ -491,11 +581,23 @@ def main() -> None:
         help="Populate the allowlist with every currently-UNKNOWN-or-invalid evidence file",
     )
     parser.add_argument(
+        "--no-derive",
+        action="store_true",
+        help=(
+            "Reject commit=DERIVED instead of computing the introducing "
+            "commit. Every mode still requires an explicit provenance "
+            "construct and author-supplied dirty state."
+        ),
+    )
+    parser.add_argument(
         "--check-shrink",
         action="store_true",
         help="Enforce monotonic-shrink of the allowlist against origin/main",
     )
     args = parser.parse_args()
+
+    global _DERIVE_DISABLED
+    _DERIVE_DISABLED = args.no_derive
 
     evidence_dir: Path = args.evidence_dir
     allowlist_path: Path = args.allowlist
@@ -625,6 +727,11 @@ def main() -> None:
                     f"commit=UNKNOWN with a ticketed {allowlist_path.name} entry",
                 )
             )
+        elif result.derived:
+            # Counted separately below: a computed landing commit is real and
+            # resolvable, but it is not an author assertion about the tree on
+            # which the measurement was taken.
+            pass
         else:
             real_commit_count += 1
 
@@ -635,12 +742,27 @@ def main() -> None:
         if not TICKET_PATTERN.search(comment):
             violations.append((key, f"allowlist entry missing ticket reference (got: {comment!r})"))
 
+    derived_count = sum(1 for _f, r in file_checks if r.ok and r.derived)
     console.print(
         f"Scanned {len(files)} file(s) under {evidence_dir}: "
         f"{real_commit_count} with real commit provenance, "
+        f"{derived_count} derived from git history, "
         f"{unknown_count} allowlisted UNKNOWN, "
         f"{len(violations)} violation(s)."
     )
+    if derived_count:
+        # Kept visible on every run, passing or not, for the same reason the
+        # allowlisted-UNKNOWN backlog is: a derived stamp says WHERE THE FILE
+        # LANDED, which is not the same claim as where its measurements were
+        # taken. If a document was measured against a different tree, that is
+        # the author's to state and this number is the population where nobody
+        # has.
+        console.print(
+            f"  ({derived_count} file(s) use commit=DERIVED; provenance was "
+            "COMPUTED as the commit that introduced them. That is where the file "
+            "landed, not necessarily the tree it was measured on -- write an "
+            "explicit SHA when those differ.)"
+        )
 
     # Surface the legacy (allowlisted commit=UNKNOWN) backlog count in the
     # GitHub Actions job summary unconditionally -- not only when the gate
@@ -657,6 +779,7 @@ def main() -> None:
             f.write(
                 f"- Files scanned: {len(files)}\n"
                 f"- Real commit provenance: {real_commit_count}\n"
+                f"- Derived landing commits: {derived_count}\n"
                 f"- **Legacy backlog (allowlisted commit=UNKNOWN): {unknown_count}**\n"
                 f"- Violations: {len(violations)}\n"
             )

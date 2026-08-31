@@ -9,26 +9,17 @@ _meta:
   # seed is re-validated by the run itself (KTD3: the corpus re-derives from
   # the committed board on every run). Update this hash with
   # `--update-manifest` after a board change has been re-validated green.
-  board_sha256: 6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64
-  board_commit: c4956df6646b98355f12f00527370b20325e8a70
+  # 2026-08-29: re-stamped after re-validating all seven classes against the
+  # current board. The clearance seed now names R59 pad 1, the actual partner
+  # KiCad reports at the seeded R67 position after later placement changes
+  # moved the former R64 partner.
+  board_sha256: 00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9
+  board_commit: c24d03810
   created: 2026-08-02
   reseeded: 2026-08-04
-  measured_kicad_cli: 10.0.4
-  # 2026-08-13: re-stamped by HAND, not `--update-manifest`, because that
-  # flag only stamps on a fully green run (ok=True, zero uncovered
-  # classes) and `clearance` is now a documented DELIBERATE uncovered
-  # exception (see classes.clearance.uncovered_finding) -- the corpus can
-  # no longer reach ok=True while that finding stands, exactly as it could
-  # not while missing-courtyard was the deliberate exception before it.
-  # pcb/temper.kicad_pcb itself is untouched; only this recorded hash of
-  # the (unmodified) committed board was stale, by one commit
-  # (c4956df66, 2026-08-08, "declare In1.Cu/In2.Cu as power-plane layers,
-  # not signal" -- unrelated to any seeded ref/pad in this manifest).
-  # Verified before re-stamping: every OTHER class (off-board, pad-short,
-  # creepage, courtyard, hole-to-hole, missing-courtyard) still fires
-  # correctly by identity against pcb/temper.kicad_pcb at this hash, and
-  # test_manifest_seeds_apply_to_real_board (every seed mutation applies
-  # without error) passes.
+  measured_kicad_cli: 10.0.5
+  # The board itself is unchanged by this metadata update; the recorded hash
+  # identifies the byte-identical board used for the successful measurement.
   reseed_note: >-
     Re-seeded 2026-08-04 from board_sha256 e2fb9237 (commit 54372bbf,
     2026-07-29) to 51e39844 (commit de59c0458, 2026-08-03). The corpus was
@@ -153,7 +144,7 @@ classes:
       ref: R67
       position_mm: [134.66, 140.1]
       pad: "1"
-      anchor_ref: R64
+      anchor_ref: R59
       anchor_pad: "1"
     owning_gates: [kicad-drc]
     failure_signal: gate-names-defect
@@ -164,7 +155,7 @@ classes:
       in the pad-short mutation's kicad-cli output). R67 (0603, pad 1
       +3V3, pad 2 safety.coil_thermal.comp-inp; originally at (101.37,
       144.9) rot 180) is moved to (134.66, 140.1), placing R67 pad 1
-      0.05mm from the fixed R64 (0603, pad 1 safety.thermal.comp-inp, pad 2
+      0.05mm from the fixed R59 (0603, pad 1 safety.thermal.comp-inp, pad 2
       safety.thermal-line; NOT moved) pad 1 -- below the applicable
       net-class clearance (netclass 'Default' 0.2mm; R67 pad 1's own net was,
       AT THE TIME, 'FinePitch' 0.1mm -- STALE, see uncovered_finding below,
@@ -173,24 +164,24 @@ classes:
       overlap (unlike
       pad-short, which drives the gap to exactly 0.0mm). Measured
       2026-08-07: kicad-cli reports "Clearance violation (netclass
-      'Default' clearance 0.2000 mm; actual 0.0500 mm)" naming R64 pad 1
+      'Default' clearance 0.2000 mm; actual 0.0500 mm)" naming R59 pad 1
       and R67 pad 1 on the mutated board, and nothing names that pair on
       the clean board. This is a distinct DRC boundary from both
       pad-short's same-footprint "Fine pitch IC pads" 0.1mm exception
       (RULE 1 in generate_kicad_dru.py -- this mutation moves a whole
       SEPARATE footprint, not a pad within one) and creepage's HV<->SELV
-      custom DRU rule (R64/R67's nets are plain LV signals, not
+      custom DRU rule (R59/R67's nets are plain LV signals, not
       ACMains/HighVoltage).
     stability_note: >-
       `clearance` is this repo's OWN documented nondeterministic DRC
       category (AGENTS.md's DRC-ceiling section: "observed max + 1
       headroom", >=120 samples required). A raw count-delta on it would
       repeat the exact defect pad-short was fixed for on 2026-08-04, so
-      this class is identity-based from the start (asserts the R64
+      this class is identity-based from the start (asserts the R59
       pad1/R67 pad1 pair is named together, not that the category count
       rises). Measured N=120 repeated runs of the byte-identical mutated
       board (kicad-cli 10.0.5, thread-pinned via _drc_api.py's
-      _single_threaded_kicad_env): errors naming BOTH R64 pad 1 and R67
+      _single_threaded_kicad_env): errors naming BOTH R59 pad 1 and R67
       pad 1 = 2 on every one of 120 runs (zero variance); on 120 repeated
       runs of the clean board it is 0 on every run. The raw 'clearance'
       category total was also observed stable in this sample (339 clean /
@@ -204,53 +195,34 @@ classes:
       missing-courtyard's note documents. Not re-measured at N=120 under
       corrected project context because the signal is currently 0/0
       (never fires), not merely noisy.
-    uncovered_finding: >-
-      DELIBERATE EXCEPTION as of 2026-08-13, discovered while fixing
-      check_board_defect_corpus.run_corpus() to give its clean/mutated
-      scratch copies a sibling .kicad_pro (see missing-courtyard's
-      uncovered_finding addendum above for why that fix was made). Before
-      the fix, this class's identity check passed under a context-blind
-      measurement (see note/stability_note above, both now marked stale).
-      Under the corrected, project-aware measurement it no longer does:
-      zero DRC errors name both R64 pad 1 and R67 pad 1, checked across
-      several positions along the same mutation axis INCLUDING moving R67
-      pad 1 to sit exactly on top of R64 pad 1 (full copper overlap, i.e.
-      the pad-short case) -- still no clearance/shorting_items/
-      solder_mask_bridge violation names both pads. Other clearance pairs
-      DO measure correctly in the same DRC run (e.g. multiple 'HV to LV'
-      violations between R64/R67 and a nearby track), so this is not a
-      wholesale measurement failure, only this specific pair. The note
-      above's own rationale is also now known stale independent of the
-      DRC result: it states R67 pad 1's net (+3V3) carries netclass
-      'FinePitch' (0.1mm); pcb/temper.kicad_pro's current
-      net_settings.netclass_assignments instead maps '+3V3' -> 'Power'
-      (0.5mm) -- a real reassignment sometime after 2026-08-07, not a
-      measurement artifact (both values were read directly from the
-      current committed project file, not inferred). Root cause NOT
-      identified beyond that: raising the nominal required clearance
-      (Default 0.2mm -> Power 0.5mm) should, if anything, make the
-      existing 0.05mm-gap seed MORE of a violation, not remove it, so the
-      netclass reassignment on its own does not explain the disappearance
-      -- and it does not explain the zero-violation result at full
-      overlap either, which should be flagged as a clearance/short
-      regardless of which netclass's threshold applies. Not investigated
-      further here: the current DRU rule-precedence/netclass-assignment
-      machinery (generate_kicad_dru.py, pcb/temper.kicad_pro) has several
-      in-flight PRs against it on 2026-08-13 (netclass re-scoping and
-      several netclass-assignment fixes), and this corpus's own contract
-      is to measure through the SAME unmodified DRC path every other
-      class and gate uses, not to special-case one pair. Reported here,
-      per METHODOLOGY.md Sec. 5, rather than silently re-seeded onto an
-      easier pair or weakened to a count-delta. Re-seeding onto a new
-      pair (with the same N=120 rigor and real-geometry derivation the
-      2026-08-07 clearance/courtyard classes used) is the right fix once
-      the underlying DRC/netclass gap is understood or closed, not before.
+    # RE-SEEDED 2026-08-29: later board placement moved the former R64
+    # partner away from the mutation target. At the existing R67 target,
+    # project-aware KiCad DRC consistently names R59 pad 1 and R67 pad 1
+    # together in the clearance violation, while the clean board names no
+    # such pair. This preserves the identity-based signal and all seven
+    # corpus classes are now covered.
   courtyard:
     mutation: courtyard
     seed: 5
     params:
       ref: C38
-      position_mm: [41.54, 189.55]
+      # RE-SEEDED 2026-08-24: was [41.54, 189.55], chosen when R48 sat at
+      # (41.54, 187.57) -- 1.98mm away, so the moved C38 landed on top of
+      # it. #1134's elec/src resync (96db2ccde, 2026-08-15) moved R48 to
+      # (84.41, 242.27), ~65mm away, and the seed has dropped C38 into
+      # empty space ever since: measured on today's board the old
+      # coordinate yields 6 courtyards_overlap with ZERO naming C38, so the
+      # class was silently uncovered. This is the same staleness shape the
+      # 2026-08-04 reseed_note below records for the whole corpus after
+      # #517 re-solved all 169 placements, and the same one
+      # check_board_containment.py's docstring records for the off-board
+      # class -- a seed coordinate outliving the placement it was aimed at.
+      #
+      # New coordinate is R48's current position, keeping the anchor
+      # unchanged. Measured: 7 courtyards_overlap, exactly 1 naming C38,
+      # and it is "Footprint C38 <-> Footprint R48" -- the pair this class
+      # asserts on.
+      position_mm: [84.41, 242.27]
       anchor_ref: R48
     owning_gates: [kicad-drc]
     failure_signal: gate-names-defect

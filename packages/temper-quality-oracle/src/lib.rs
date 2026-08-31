@@ -28,6 +28,7 @@ pub mod aesthetic;
 pub mod quality_score;
 pub mod routing_quality;
 pub mod validation_metrics;
+pub mod regional_feasibility;
 
 // NOT gated on `python`. The wasm32 tier builds with --no-default-features,
 // so an added `python` gate here would silently exclude the registry and the
@@ -463,27 +464,6 @@ fn classifications_from_py_dict(prepared: &Bound<'_, PyDict>) -> PyResult<Vec<Ne
     Ok(classifications)
 }
 
-#[cfg(feature = "python")]
-#[pyfunction]
-fn evaluate_quality_py(
-    py: Python<'_>,
-    netlist: &Bound<'_, PyDict>,
-    placement: &Bound<'_, PyDict>,
-    spec: &Bound<'_, PyDict>,
-    metrics: &Bound<'_, PyDict>,
-) -> PyResult<Py<PyDict>> {
-    temper_py_bridge::catch_panic(|| {
-        let rust_netlist = extract_netlist(py, netlist)?;
-        let rust_spec = extract_spec(spec)?;
-        let rust_placement = extract_placement(py, placement)?;
-        let precomputed = extract_metrics(metrics);
-
-        let prepared = oracle::prepare_quality(&rust_spec, &rust_netlist);
-        let verdict = oracle::evaluate_prepared(&prepared, &rust_placement, &precomputed);
-        verdict_to_py_dict(py, &verdict)
-    })
-}
-
 /// Two-step setup: prepare the placement-independent pipeline state once.
 ///
 /// Returns a plain dict (config fields, net classifications, and the input
@@ -521,7 +501,7 @@ fn prepare_quality_py(
 ///
 /// Accepts the dict returned by [`prepare_quality_py`] plus a placement
 /// state and precomputed metrics, and returns the same verdict-dict shape
-/// as [`evaluate_quality_py`].
+/// as the quality-oracle verdict dictionary.
 #[cfg(feature = "python")]
 #[pyfunction]
 fn evaluate_prepared_py(
@@ -551,26 +531,6 @@ fn evaluate_prepared_py(
         let verdict = oracle::evaluate_prepared(&rust_prepared, &rust_placement, &precomputed);
         verdict_to_py_dict(py, &verdict)
     })
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<PyDict>> {
-    temper_py_bridge::catch_panic(|| {
-        let rust_netlist = extract_netlist(py, netlist)?;
-        let classifications = classification::classify_nets(&rust_netlist);
-        let result = PyDict::new(py);
-        for c in &classifications {
-            result.set_item(&c.net_name, c.class.as_str())?;
-        }
-        Ok(result.into())
-    })
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-fn required_clearance_py(_py: Python<'_>, voltage: f64) -> f64 {
-    ipc2221::required_clearance(voltage)
 }
 
 #[cfg(feature = "python")]
@@ -669,16 +629,6 @@ fn to_boxes(v: Vec<(f64, f64, f64, f64)>) -> Vec<placement_metrics::ClearanceBox
             half_h,
         })
         .collect()
-}
-
-/// `numpy.sum` over a float64 sequence, replicated bit-for-bit.
-///
-/// Exported so the differential suite can pin catalog class B11 directly
-/// against `np.sum` rather than only through `loop_area_score`.
-#[cfg(feature = "python")]
-#[pyfunction]
-fn numpy_pairwise_sum_py(values: Vec<f64>) -> PyResult<f64> {
-    temper_py_bridge::catch_panic(|| Ok(placement_metrics::numpy_pairwise_sum(&values)))
 }
 
 #[cfg(feature = "python")]
@@ -899,30 +849,67 @@ fn distribution_metrics_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-fn is_available_py() -> bool {
-    true
-}
+#[allow(clippy::too_many_arguments)]
+fn evaluate_regional_candidate_py(
+    py: Python<'_>,
+    baseline_pairs: Vec<String>,
+    candidate_pairs: Vec<String>,
+    baseline_drc: HashMap<String, usize>,
+    candidate_drc: HashMap<String, usize>,
+    baseline_body_overlaps: HashMap<String, f64>,
+    candidate_body_overlaps: HashMap<String, f64>,
+    baseline_pads: Vec<(String, f64, f64)>,
+    baseline_endpoints: Vec<(f64, f64)>,
+    candidate_pads: Vec<(String, f64, f64)>,
+    candidate_endpoints: Vec<(f64, f64)>,
+    endpoint_tolerance_mm: f64,
+    instrument_errors: Vec<String>,
+) -> PyResult<Py<PyDict>> {
+    use regional_feasibility::{RegionalSnapshot, evaluate_regional_candidate, routed_pad_endpoint_drift};
+    use std::collections::{BTreeMap, BTreeSet};
 
-#[cfg(feature = "python")]
-#[pyfunction]
-fn version_py() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
+    temper_py_bridge::catch_panic(|| {
+        let baseline = RegionalSnapshot {
+            cross_domain_pairs: baseline_pairs.into_iter().collect::<BTreeSet<_>>(),
+            drc_errors_by_rule: baseline_drc.into_iter().collect::<BTreeMap<_, _>>(),
+            body_overlap_by_pair: baseline_body_overlaps.into_iter().collect::<BTreeMap<_, _>>(),
+        };
+        let candidate = RegionalSnapshot {
+            cross_domain_pairs: candidate_pairs.into_iter().collect::<BTreeSet<_>>(),
+            drc_errors_by_rule: candidate_drc.into_iter().collect::<BTreeMap<_, _>>(),
+            body_overlap_by_pair: candidate_body_overlaps.into_iter().collect::<BTreeMap<_, _>>(),
+        };
+        let endpoint_drift = routed_pad_endpoint_drift(
+            &baseline_pads,
+            &baseline_endpoints,
+            &candidate_pads,
+            &candidate_endpoints,
+            endpoint_tolerance_mm,
+        );
+        let verdict = evaluate_regional_candidate(&baseline, &candidate, endpoint_drift, instrument_errors);
+        let out = PyDict::new(py);
+        out.set_item("accepted", verdict.accepted)?;
+        out.set_item("improved", verdict.improved)?;
+        out.set_item("reasons", verdict.reasons)?;
+        out.set_item("new_cross_domain_pairs", verdict.new_cross_domain_pairs)?;
+        out.set_item("removed_cross_domain_pairs", verdict.removed_cross_domain_pairs)?;
+        out.set_item("drc_rule_deltas", verdict.drc_rule_deltas)?;
+        out.set_item("new_or_worsened_body_pairs", verdict.new_or_worsened_body_pairs)?;
+        out.set_item("routed_pad_endpoint_drift", verdict.routed_pad_endpoint_drift)?;
+        Ok(out.into())
+    })
 }
 
 #[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(evaluate_quality_py, m)?)?;
     m.add_function(wrap_pyfunction!(prepare_quality_py, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_prepared_py, m)?)?;
-    m.add_function(wrap_pyfunction!(classify_nets_py, m)?)?;
-    m.add_function(wrap_pyfunction!(required_clearance_py, m)?)?;
     m.add_function(wrap_pyfunction!(routing_quality_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(placement_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(drc_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(overall_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(interpret_score_py, m)?)?;
-    m.add_function(wrap_pyfunction!(numpy_pairwise_sum_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(zone_compliance_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(hv_lv_clearance_score_py, m)?)?;
@@ -935,8 +922,8 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(clearance_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(wirelength_metrics_py, m)?)?;
     m.add_function(wrap_pyfunction!(distribution_metrics_py, m)?)?;
-    m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
-    m.add_function(wrap_pyfunction!(version_py, m)?)?;
+    m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
+
     cluster_f::bindings::register(m)?;
     Ok(())
 }

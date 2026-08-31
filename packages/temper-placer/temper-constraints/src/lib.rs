@@ -408,12 +408,7 @@ mod py {
         Ok(list.into_any())
     }
 
-    // Version / health check
-    #[pyfunction]
-    fn is_available_py() -> bool {
-        true
-    }
-
+    // Version check
     #[pyfunction]
     fn version_py() -> String {
         env!("CARGO_PKG_VERSION").to_string()
@@ -432,7 +427,6 @@ mod py {
         m.add_function(wrap_pyfunction!(compute_loop_area_loss_py, m)?)?;
         m.add_function(wrap_pyfunction!(compute_constraint_loss_py, m)?)?;
         m.add_function(wrap_pyfunction!(supported_constraint_types_py, m)?)?;
-        m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
         m.add_function(wrap_pyfunction!(version_py, m)?)?;
         m.add_function(wrap_pyfunction!(crate::ipc::ipc2152_forward_py, m)?)?;
         m.add_function(wrap_pyfunction!(crate::ipc::min_width_ipc2152_py, m)?)?;
