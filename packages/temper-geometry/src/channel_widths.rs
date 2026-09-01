@@ -29,19 +29,48 @@ pub fn edt_width_lookup_batch(
     bounds: (f64, f64, f64, f64),
     cell_size: f64,
 ) -> Vec<f64> {
+    edt_width_lookup_batch_kernel(
+        &xs,
+        &ys,
+        &edt_bytes,
+        &mask_bytes,
+        height_cells,
+        width_cells,
+        bounds,
+        cell_size,
+    )
+}
+
+/// Pure-Rust owner for the batched EDT lookup.  The pyo3 function above is
+/// only an ABI adapter; orchestration crates call this kernel directly so a
+/// Rust-owned numerical path does not cross Python merely to reach Rust.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "The public kernel mirrors the stable Python-facing argument contract"
+)]
+pub fn edt_width_lookup_batch_kernel(
+    xs: &[f64],
+    ys: &[f64],
+    edt_bytes: &[u8],
+    mask_bytes: &[u8],
+    height_cells: usize,
+    width_cells: usize,
+    bounds: (f64, f64, f64, f64),
+    cell_size: f64,
+) -> Vec<f64> {
     let (min_x, min_y, _, _) = bounds;
     // Infallible by design: the Python wrapper validates grid lengths and
     // raises ValueError there. (No pyo3 exceptions in this crate — the
     // error machinery breaks `cargo test` linking for extension-module
     // crates without libpython.)
-    let edt = parse_f64_bytes(&edt_bytes);
+    let edt = parse_f64_bytes(edt_bytes);
     debug_assert_eq!(edt.len(), height_cells * width_cells);
     debug_assert_eq!(mask_bytes.len(), height_cells * width_cells);
     edt_width_lookup_batch_inner(
-        &xs,
-        &ys,
+        xs,
+        ys,
         &edt,
-        &mask_bytes,
+        mask_bytes,
         height_cells,
         width_cells,
         min_x,

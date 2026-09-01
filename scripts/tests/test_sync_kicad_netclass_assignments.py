@@ -180,7 +180,17 @@ class TestCLI:
             "Default", "Power", "HighVoltage", "GateDriveHV", "GateDriveSELV",
             "HighVoltageIsolated", "ACMains", "FinePitch", "Differential",
         ]
-        pro_path = self._write_pro(tmp_path, declared, {"AC_L": "ACMains"})
+        # PWR_RTN is pre-seeded at its already-landed value. "HighVoltage"
+        # is among the declared classes above, and PWR_RTN names real copper
+        # on pcb/temper.kicad_pcb, so WITHOUT this seed the fixture would
+        # construct the genuine reserved-decision case and (correctly) trip
+        # the PROTECTED_NETS tripwire at exit 5 instead of exercising the
+        # ordinary drift path this test is about. See
+        # TestProtectedNetTripwire below, which covers all three branches
+        # of that tripwire explicitly.
+        pro_path = self._write_pro(
+            tmp_path, declared, {"AC_L": "ACMains", "PWR_RTN": "HighVoltage"}
+        )
 
         check1 = self._run(["--check", "--kicad-pro", str(pro_path)])
         assert check1.returncode == 1
@@ -192,11 +202,13 @@ class TestCLI:
         check2 = self._run(["--check", "--kicad-pro", str(pro_path)])
         assert check2.returncode == 0, check2.stdout
 
-        # Written file must still be valid JSON and PWR_RTN/CGND must not
-        # appear (GND is not among the declared classes above).
+        # Written file must still be valid JSON. CGND must not appear (GND is
+        # not among the declared classes above); PWR_RTN must still hold
+        # exactly the seeded value, i.e. the script neither added nor altered
+        # it.
         data = json.loads(pro_path.read_text())
         na = data["net_settings"]["netclass_assignments"]
-        assert "PWR_RTN" not in na
+        assert na["PWR_RTN"] == "HighVoltage"
         assert "CGND" not in na
         # A real, known entry landed correctly.
         assert na.get("SW_NODE") == "HighVoltage"
@@ -212,15 +224,67 @@ class TestCLI:
         assert r2.returncode == 0
         assert pro_path.read_text() == after_first
 
-    def test_protected_net_refused_even_if_gnd_class_declared(self, tmp_path):
-        # If kicad_pro ever declares a "Ground"-equivalent class matching
-        # TEMPER_NET_ASSIGNMENTS's "GND" class name exactly, the script
-        # must still refuse rather than silently pick up PWR_RTN/CGND.
-        declared = ["Default", "GND"]
+    def test_protected_net_refused_when_a_real_reclassification_is_pending(
+        self, tmp_path
+    ):
+        # THE reserved case, and the one the PROTECTED_NETS tripwire exists
+        # for: a protected net that (a) resolves to a class kicad_pro
+        # declares, (b) names real copper on pcb/temper.kicad_pcb, and (c)
+        # does NOT already carry that value in kicad_pro -- i.e. adopting it
+        # would be a genuine, physically-consequential reclassification. The
+        # script must refuse outright (exit 5), never silently pick it up.
+        #
+        # PWR_RTN -> "HighVoltage" (declared below), 17 pins of real copper,
+        # and deliberately absent from this fixture's assignments.
+        assert sync.TEMPER_NET_ASSIGNMENTS["PWR_RTN"] == "HighVoltage"
+        declared = ["Default", "HighVoltage"]
         pro_path = self._write_pro(tmp_path, declared, {})
         result = self._run(["--check", "--kicad-pro", str(pro_path)])
         assert result.returncode == 5
-        assert "PWR_RTN" in result.stderr or "protected" in result.stderr.lower()
+        assert "PWR_RTN" in result.stderr
+        assert "protected" in result.stderr.lower()
+
+    def test_protected_net_already_agreeing_does_not_block_the_gate(self, tmp_path):
+        # Regression test for the defect this narrowing fixes: between
+        # 2026-08-12 and 2026-08-19 the tripwire fired on a protected net
+        # whose kicad_pro value ALREADY equalled its TEMPER_NET_ASSIGNMENTS
+        # class -- a no-op with nothing to adjudicate -- and exit 5'd before
+        # computing any diff, disabling the gate entirely for every other
+        # net. Agreement must let the run proceed, and must still never
+        # produce a write for the protected net.
+        declared = ["Default", "HighVoltage"]
+        pro_path = self._write_pro(tmp_path, declared, {"PWR_RTN": "HighVoltage"})
+        result = self._run(["--check", "--kicad-pro", str(pro_path)])
+        assert result.returncode in (0, 1), result.stderr
+        assert result.returncode != 5
+        assert "NOTE" in result.stdout and "PWR_RTN" in result.stdout
+        targets = sync.compute_target_assignments(set(declared))
+        assert "PWR_RTN" not in targets
+
+    def test_protected_net_with_no_board_copper_does_not_block_the_gate(
+        self, tmp_path
+    ):
+        # CGND resolves to "GND" (a declared kicad_pro class since
+        # 2026-08-12) but names NO net on pcb/temper.kicad_pcb, so no
+        # assignment for it can reach any conductor and there is no blast
+        # radius to reserve. The run proceeds; the net is still never
+        # written, which is the protection that actually matters.
+        assert sync.TEMPER_NET_ASSIGNMENTS["CGND"] == "GND"
+        board_nets = sync.load_board_net_names(sync.KICAD_PCB_PATH)
+        assert board_nets is not None and "CGND" not in board_nets
+        declared = ["Default", "GND"]
+        pro_path = self._write_pro(tmp_path, declared, {})
+        result = self._run(["--check", "--kicad-pro", str(pro_path)])
+        assert result.returncode != 5, result.stderr
+        assert "NOTE" in result.stdout and "CGND" in result.stdout
+        targets = sync.compute_target_assignments(set(declared))
+        assert "CGND" not in targets
+
+    def test_unreadable_board_makes_the_tripwire_fail_closed(self, monkeypatch):
+        # load_board_net_names returning None (board unreadable) must be
+        # treated as "every protected net names real copper", so the
+        # no-board-copper escape can never be reached by deleting a file.
+        assert sync.load_board_net_names(Path("/nonexistent/temper.kicad_pcb")) is None
 
     def test_missing_kicad_pro_file_fails_closed(self, tmp_path):
         result = self._run(["--check", "--kicad-pro", str(tmp_path / "nonexistent.kicad_pro")])
@@ -276,7 +340,16 @@ class TestRealRepoInvariant:
         targets = sync.compute_target_assignments(declared)
         assert "PWR_RTN" not in targets
         assert "CGND" not in targets
-        assert sync.TEMPER_NET_ASSIGNMENTS.get("PWR_RTN") == "GND"
+        # CORRECTED 2026-08-19: this asserted PWR_RTN == "GND", which has been
+        # factually false since 2026-08-12 (commit 322cbf5b0 / #1092 moved it
+        # to "HighVoltage", strictly stricter -- HighVoltage's clearance and
+        # creepage bars both exceed GND's), so the assertion has been red on
+        # origin/main ever since. Corrected to the landed value; the two
+        # `not in targets` assertions above -- the actual protection this test
+        # exists to guard -- are unchanged and still enforced for BOTH nets
+        # even though their classes are now declared, resolvable kicad_pro
+        # classes.
+        assert sync.TEMPER_NET_ASSIGNMENTS.get("PWR_RTN") == "HighVoltage"
         assert sync.TEMPER_NET_ASSIGNMENTS.get("CGND") == "GND"
 
 

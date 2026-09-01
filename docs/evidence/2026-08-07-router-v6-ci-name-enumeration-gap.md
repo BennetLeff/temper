@@ -1,6 +1,6 @@
 # `tests/router_v6/` name-enumeration gap: ground truth, triage, and the drift test
 
-<!-- provenance: worktree branched from main 7e1194b7 (2026-08-07); adds one
+<!-- provenance: commit=6665aa3cdd4bc36494bf272e8e2c7f73849cf118 dirty=UNKNOWN -->
      new test file (packages/temper-placer/tests/validation/test_ci_test_file_registration.py)
      and this document. No workflow file, production source, pcb/temper.kicad_pcb,
      or power_pcb_dataset/drc_ceiling.json was touched. -->

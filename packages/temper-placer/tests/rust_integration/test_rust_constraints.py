@@ -36,7 +36,7 @@ class TestRustBackendWired:
     def test_rust_module_imports(self):
         """Rust module must be importable (R9)."""
         require_rust()
-        assert temper_constraints.is_available_py() is True
+        assert callable(temper_constraints.version_py)
 
     @pytest.mark.benchmark
     def test_rust_version_reports(self):

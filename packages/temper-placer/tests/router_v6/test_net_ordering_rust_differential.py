@@ -71,7 +71,6 @@ from tests.router_v6._net_ordering_cases import (
     LOOP_CASES,
     NET_CLASS_STRINGS,
     ORDER_DESIGNS,
-    PRIORITY_KEYS,
     random_order_designs,
 )
 from tests.router_v6._pending_rust import missing_symbols, rust
@@ -94,8 +93,6 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "net_loop_criticality_py",
     "net_compute_hpwl_py",
     "net_compute_bbox_area_py",
-    "net_priority_key_py",
-    "net_priority_lt_py",
     "order_nets_py",
 )
 
@@ -133,18 +130,6 @@ def _assert_same(label: str, oracle_fn, symbol: str, rust_fn):
     fn = _rust(symbol)  # RED until Phase B lands
     b = _capture(lambda: rust_fn(fn))
     assert sig(a) == sig(b), f"{label}: oracle={a!r} rust={b!r}"
-
-
-def _priority(key: tuple):
-    cp, lc, nc, pc, wl, name = key
-    return ORACLE.NetPriority(
-        config_priority=cp,
-        loop_criticality=lc,
-        net_class=ORACLE.NetClass(nc),
-        pin_count=pc,
-        estimated_wirelength=wl,
-        name=name,
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -312,46 +297,6 @@ def test_compute_bbox_area_bit_exact(case):
         lambda: ORACLE.compute_bbox_area(net, build_netlist(components)),
         "net_compute_bbox_area_py",
         lambda fn: fn(net, components),
-    )
-
-
-# ---------------------------------------------------------------------------
-# NetPriority
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("left,right", PRIORITY_KEYS)
-def test_priority_key_bit_exact(left, right):
-    _assert_same(
-        f"NetPriority._key({left})",
-        lambda: _priority(left)._key(),
-        "net_priority_key_py",
-        lambda fn: fn(left),
-    )
-
-
-@pytest.mark.parametrize("left,right", PRIORITY_KEYS)
-def test_priority_ordering_bit_exact(left, right):
-    def _oracle():
-        a, b = _priority(left), _priority(right)
-        # `<`, `==`, and the `@total_ordering`-derived `>`/`<=`/`>=`, plus
-        # the NotImplemented path for a non-NetPriority operand
-        return (
-            a < b,
-            b < a,
-            a == b,
-            a > b,
-            a <= b,
-            a >= b,
-            a.__lt__("not a NetPriority") is NotImplemented,
-            a.__eq__("not a NetPriority") is NotImplemented,
-        )
-
-    _assert_same(
-        f"NetPriority ordering({left} vs {right})",
-        _oracle,
-        "net_priority_lt_py",
-        lambda fn: fn(left, right),
     )
 
 

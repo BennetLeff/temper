@@ -1,6 +1,6 @@
 # SPIKE: mirroring the Python metamorphic test relations onto the wasm tier
 
-<!-- provenance: commit=HEAD-at-write dirty=false -->
+<!-- provenance: commit=d997007052c0d05dcfadb211a6eff25c551a7a6c dirty=UNKNOWN -->
 
 **Date:** 2026-08-12
 **Branch:** `spike/metamorphic-wasm-mirror`

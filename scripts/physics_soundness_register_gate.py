@@ -28,7 +28,7 @@ What counts as a physics-gated surface (KTD4):
 What the scan covers (the placer constraint surfaces and router-V6
 constraint classes):
   - ``placer/cp_sat/handlers/*.py`` -- functions decorated with
-    ``@register_handler`` (the CP-SAT constraint encoders).
+    explicit CP-SAT ``encode_*`` handler functions.
   - ``placer/cp_sat/domain_clearance.py`` -- the constraint generator
     ``generate_domain_clearance_constraints``.
   - ``router_v6/constraint_model.py`` -- classes subclassing ``Constraint``.
@@ -83,13 +83,13 @@ DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 # The scan set: which modules hold constraint surfaces, and how to find the
 # surfaces inside each.  ``selector`` is one of:
-#   "register_handler"       -- functions decorated with @register_handler(...)
+#   "handler_functions"      -- public encode_* functions in handler modules
 #   "symbols"                -- the exact named functions
 #   "constraint_subclasses"  -- classes subclassing Constraint
 SCAN_SPECS: tuple[dict[str, Any], ...] = (
     {
         "glob": "temper_placer/placer/cp_sat/handlers/*.py",
-        "selector": "register_handler",
+        "selector": "handler_functions",
     },
     {
         "path": "temper_placer/placer/cp_sat/domain_clearance.py",
@@ -366,17 +366,9 @@ def _surface_defs(tree: ast.AST, spec: dict[str, Any]) -> list[ast.AST]:
     selector = spec["selector"]
     selected: list[ast.AST] = []
     for node in tree.body:
-        if selector == "register_handler":
-            if not isinstance(node, ast.FunctionDef):
-                continue
-            for dec in node.decorator_list:
-                if (
-                    isinstance(dec, ast.Call)
-                    and isinstance(dec.func, ast.Name)
-                    and dec.func.id == "register_handler"
-                ):
-                    selected.append(node)
-                    break
+        if selector == "handler_functions":
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("encode_"):
+                selected.append(node)
         elif selector == "symbols":
             if isinstance(node, ast.FunctionDef) and node.name in spec["symbols"]:
                 selected.append(node)
@@ -433,7 +425,7 @@ def discover_surfaces(src_root: Path, scan_specs: Iterable[dict[str, Any]] = SCA
                         rel_path=rel_path,
                         symbol=node.name,
                         kind={
-                            "register_handler": "handler-encoder",
+                            "handler_functions": "handler-encoder",
                             "symbols": "constraint-generator",
                             "constraint_subclasses": "constraint-class",
                         }[spec["selector"]],

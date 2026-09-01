@@ -1,4 +1,4 @@
-<!-- provenance: this document (docs/jlcpcb-fab-capability-envelope branch, worktree
+<!-- provenance: commit=09e637c64fcff474fa27771002f4bda15bd343fa dirty=UNKNOWN -->
 /home/bennet/Desktop/temper-fab-envelope, based on origin/main 849c0ce63). Board measured:
 origin/fix/board-schematic-resync (PR #1134) at commit a3fbaff37, checked out read-only in
 /home/bennet/Desktop/temper-board-schematic-resync (a pre-existing, up-to-date worktree; verified

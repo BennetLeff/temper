@@ -1,4 +1,4 @@
-<!-- provenance: commit=caec25d61 (main, HEAD at task start), worktree agent-a600345cbb99b2f86.
+<!-- provenance: commit=fbc5ce517fec9bbefcbaf632efa6b0ee4062d047 dirty=UNKNOWN -->
 pcb/temper.kicad_pcb sha256 6ac8b1ca8a6400b7bd775f335c59fd0873b89b0ae4ce095be11a91f6395916e1
 verified unchanged at task start and at every commit below (read-only investigation,
 no board writes attempted). No pyo3 rebuild performed; no `.venv` touched. -->

@@ -1,7 +1,7 @@
 """Differential tests: ``router_v6.net_classification``'s Rust-delegating
 predicates (``temper_io_types``'s ``is_ground_net``/``is_power_net_v6``/
-``is_hv_net``/``is_signal_net_v6``/``classify_net_type_v6`` and the four
-``is_*_pin`` bindings) vs the pre-migration Python implementation, the
+``is_hv_net`` and the four ``is_*_pin`` bindings) vs the pre-migration Python
+implementation, the
 R19 pinned oracle (see ``docs/plans/2026-08-04-002-docs-temper-goal-set-plan.md``
 and ``docs/wave4-verdicts.yaml``'s removal_surfaces entry for this file).
 

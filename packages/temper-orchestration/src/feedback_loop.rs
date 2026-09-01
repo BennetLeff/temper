@@ -187,9 +187,10 @@ impl FeedbackIterationStage {
         let ctx = &self.ctx;
         let max = ctx.max_iterations;
 
-        ctx.logger
-            .bind(py)
-            .call_method1("info", (format!("--- Feedback Iteration {}/{} ---", i + 1, max),))?;
+        ctx.logger.bind(py).call_method1(
+            "info",
+            (format!("--- Feedback Iteration {}/{} ---", i + 1, max),),
+        )?;
 
         // 1. `state = self.pipeline.run(state)` -- the Python pipeline (its
         // run() is the U-E loop; the per-stage compute is untouched).
@@ -203,7 +204,9 @@ impl FeedbackIterationStage {
         // 2. `report_path = self.drc_runner()`; `raw_violations =
         //    parse_kicad_drc(report_path)` (the subprocess + JSON file read
         //    stay Python; the traversal compute is the landed kernel).
-        ctx.logger.bind(py).call_method1("info", ("Running DRC...",))?;
+        ctx.logger
+            .bind(py)
+            .call_method1("info", ("Running DRC...",))?;
         let report_path = ctx.drc_runner.bind(py).call0()?;
         let raw_violations = ctx.parse_kicad_drc.bind(py).call1((report_path,))?;
 
@@ -285,7 +288,9 @@ impl FeedbackIterationStage {
             let board = new_state.getattr("board")?;
             let netlist = new_state.getattr("netlist")?;
             let config = new_state.getattr("config")?;
-            let cls = py.import("temper_placer.deterministic.state")?.getattr("BoardState")?;
+            let cls = py
+                .import("temper_placer.deterministic.state")?
+                .getattr("BoardState")?;
             let kwargs = PyDict::new(py);
             kwargs.set_item("board", board)?;
             kwargs.set_item("netlist", netlist)?;
@@ -307,7 +312,8 @@ impl FeedbackIterationStage {
             .ctx
             .current_py_state
             .lock()
-            .map_err(|_| PyRuntimeError::new_err("feedback run context poisoned"))? = state.unbind();
+            .map_err(|_| PyRuntimeError::new_err("feedback run context poisoned"))? =
+            state.unbind();
         Ok(())
     }
 
@@ -514,8 +520,8 @@ pub fn run_automated_zero_drc(
 mod proptests {
     use super::*;
     use proptest::prelude::*;
-    use pyo3::types::{PyList, PyModule};
     use pyo3::IntoPyObjectExt;
+    use pyo3::types::{PyList, PyModule};
     use std::sync::{Once, OnceLock};
 
     /// Interpreter + fake-module install, done once per process (the crate's
@@ -684,8 +690,10 @@ def build_fakes(violations, adjustments, log):
         modules.set_item("temper_placer.deterministic.state", &state)?;
 
         let logging = py.import("logging")?;
-        let logger = logging
-            .call_method1("getLogger", ("temper_placer.deterministic.feedback.orchestrator",))?;
+        let logger = logging.call_method1(
+            "getLogger",
+            ("temper_placer.deterministic.feedback.orchestrator",),
+        )?;
         logger.call_method1("setLevel", (logging.getattr("CRITICAL")?,))?;
 
         Ok(ns.unbind())
@@ -711,7 +719,11 @@ def build_fakes(violations, adjustments, log):
     /// The reference model: the oracle's per-iteration call sequence for a
     /// scenario, exactly the `_reference_log` transcription of the pinned
     /// Python loop. Termination is observed through the log's tail (no marker).
-    fn reference_log(max_iterations: usize, violations: &[usize], adjustments: &[bool]) -> Vec<&'static str> {
+    fn reference_log(
+        max_iterations: usize,
+        violations: &[usize],
+        adjustments: &[bool],
+    ) -> Vec<&'static str> {
         let mut log = Vec::new();
         for i in 0..max_iterations {
             log.push("pipeline.run");
@@ -758,9 +770,11 @@ def build_fakes(violations, adjustments, log):
             for b in adjustments {
                 alist.push(b.into_py_any(py)?);
             }
-            let fakes = ns
-                .getattr("build_fakes")?
-                .call1((PyList::new(py, vlist)?, PyList::new(py, alist)?, &log))?;
+            let fakes = ns.getattr("build_fakes")?.call1((
+                PyList::new(py, vlist)?,
+                PyList::new(py, alist)?,
+                &log,
+            ))?;
 
             let final_state = run_automated_zero_drc(
                 py,
@@ -897,20 +911,36 @@ def build_fakes(violations, adjustments, log):
     #[test]
     fn golden_scenario_reaches_every_call_back() {
         let ns = fakes_module();
-        let observed = Python::attach(|py| {
-            drive_loop(ns.bind(py), 3, &[2, 1, 0], &[true, true, true])
-        });
+        let observed =
+            Python::attach(|py| drive_loop(ns.bind(py), 3, &[2, 1, 0], &[true, true, true]));
         let expected: Vec<&str> = vec![
-            "pipeline.run", "drc_runner", "parse",
-            "get_zone_config", "map_violation", "map_violation",
-            "get_zone_config", "compute_adjustments", "update_config",
-            "pipeline.run", "drc_runner", "parse",
-            "get_zone_config", "map_violation",
-            "get_zone_config", "compute_adjustments", "update_config",
-            "pipeline.run", "drc_runner", "parse",
+            "pipeline.run",
+            "drc_runner",
+            "parse",
+            "get_zone_config",
+            "map_violation",
+            "map_violation",
+            "get_zone_config",
+            "compute_adjustments",
+            "update_config",
+            "pipeline.run",
+            "drc_runner",
+            "parse",
+            "get_zone_config",
+            "map_violation",
+            "get_zone_config",
+            "compute_adjustments",
+            "update_config",
+            "pipeline.run",
+            "drc_runner",
+            "parse",
         ];
         assert_eq!(
-            observed.recorded.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
+            observed
+                .recorded
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>(),
             expected,
         );
         // Clean break on the third run: the final state is the pipeline's

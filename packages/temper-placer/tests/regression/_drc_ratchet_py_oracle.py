@@ -40,6 +40,7 @@ class DrcCeilingEntry:
     warnings_by_type: dict[str, int] = field(default_factory=dict)
     tool_versions: dict[str, str] = field(default_factory=dict)
     category_source: str | None = None
+    uncapped_totals: dict[str, dict[str, int]] = field(default_factory=dict)
 
 
 @dataclass
@@ -144,6 +145,7 @@ class DrcRatchet:
                 warnings_by_type=entry.get("warnings_by_type", {}),
                 tool_versions=provenance.get("tool_versions") or {},
                 category_source=entry.get("category_source"),
+                uncapped_totals=entry.get("uncapped_totals") or {},
             )
 
     def check(self, repo_root: Path) -> list[DrcRatchetResult]:
@@ -292,6 +294,21 @@ class DrcRatchet:
         current_by_type: dict[str, int] | None = None
         current_warnings_by_type: dict[str, int] | None = None
 
+        def _resolve_capped(rule: str, count: int) -> int:
+            """#1442 cap-saturation resolution: a count at its kicad-cli
+            reporting cap is a floor (true count >= N). If the committed
+            ``uncapped_totals`` record carries the category's true count,
+            compare THAT against the ceiling -- the comparison then means
+            something. No committed total -> raw count falls through (the
+            backend's capped_*_categories surface the inconclusive read)."""
+            from temper_placer.validation._drc_api import drc_cap_for
+
+            if drc_cap_for(rule) == count:
+                uncapped = entry.uncapped_totals.get(rule)
+                if uncapped is not None:
+                    return int(uncapped["count"])
+            return count
+
         try:
             if self.backend == "rust":
                 current_errors, current_warnings = self._run_rust_drc(pcb_path)
@@ -390,6 +407,7 @@ class DrcRatchet:
         category_failures: list[DrcCategoryFailure] = []
         if entry.violations_by_type and current_by_type is not None:
             for rule, count in sorted(current_by_type.items()):
+                count = _resolve_capped(rule, count)
                 allowed = entry.violations_by_type.get(rule, 0)
                 if count > allowed:
                     category_failures.append(
@@ -411,6 +429,7 @@ class DrcRatchet:
         # as "0 categories, therefore all clear".
         if entry.warnings_by_type and current_warnings_by_type is not None:
             for rule, count in sorted(current_warnings_by_type.items()):
+                count = _resolve_capped(rule, count)
                 allowed = entry.warnings_by_type.get(rule, 0)
                 if count > allowed:
                     category_failures.append(

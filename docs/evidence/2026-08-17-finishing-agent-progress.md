@@ -1,3 +1,4 @@
+<!-- provenance: commit=775a7a40e72048846474d74d22461df8bbc42765 dirty=UNKNOWN -->
 # Finishing agent — progress log (2026-08-17)
 
 Starting point: main `aec4bf1f8`, board sha256

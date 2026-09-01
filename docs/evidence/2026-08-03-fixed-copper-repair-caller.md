@@ -58,7 +58,7 @@ rounds appended, the ref named, and the violation count carried.
 
 ## 3. Reproduction — the run-B recipe through the hoisted caller
 
-`docs/evidence/k3_fixed_copper_repair_solve.py` runs the production repair
+`docs/evidence/scripts/k3_fixed_copper_repair_solve.py` runs the production repair
 recipe through `run_clearance_repair_solve` **with** the fixed-copper dict
 (the run-B values): full-classification placement + full voltage-domain map,
 nothing hard-pinned, min-displacement toward current positions,
@@ -91,7 +91,7 @@ check:** a second run with `seed=1` produced byte-identical positions
 
 ## 4. DRC proxy — Run A regression is FIXED
 
-`docs/evidence/k3_fixed_copper_repair_drc.py` writes the solved placement to
+`docs/evidence/scripts/k3_fixed_copper_repair_drc.py` writes the solved placement to
 a **/tmp copy** of the board under the canonical stem `temper.kicad_pcb` with
 the regenerated `temper.kicad_dru` and a copy of `temper.kicad_pro` beside
 it (the wave-2 Sec 4 convention: a candidate named otherwise silently drops
@@ -199,9 +199,9 @@ pre-existing-failure candidates on main pass with the netlist generated):
 ## 8. Reproduction
 
 ```bash
-uv run --no-sync python docs/evidence/k3_fixed_copper_repair_solve.py   # hoisted run (180s)
+uv run --no-sync python docs/evidence/scripts/k3_fixed_copper_repair_solve.py   # hoisted run (180s)
 export PYTHONPATH="$(pwd)/packages/temper-placer/src:$(pwd)/scripts"
-python3 docs/evidence/k3_fixed_copper_repair_drc.py                     # baseline + candidate DRC
+python3 docs/evidence/scripts/k3_fixed_copper_repair_drc.py                     # baseline + candidate DRC
 # expected: status=clean; K3 (43.12, 17.92) unmoved; C27 (39.21, 220.92)
 # on-board; hard=0 intra=0 gaps=0; total_errors 1281-1282 vs baseline
 # 1261-1263 (and Run A's 1428-1437 -- the regression the hoist fixes).

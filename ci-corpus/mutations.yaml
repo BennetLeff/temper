@@ -197,8 +197,8 @@ mutations:
     axis: condition-invert
     function: run
     match: if-invert
-    index: 3
-    line_hint: "if report.unclassified_hv_nets or report.classes_with_no_rules:"
+    index: 4
+    line_hint: "if ("
     description: >-
       Invert the final violation guard in run() so a clean run is reported
       as a violation and a real violation is reported clean -- the
@@ -451,8 +451,8 @@ mutations:
     axis: condition-invert
     function: run
     match: if-invert
-    index: 1
-    line_hint: "if report.mismatches:"
+    index: 2
+    line_hint: "if report.mismatches or report.unresolved_references:"
     description: >-
       Invert the final violation guard in run() so a real field mismatch
       is reported clean and an agreeing class is reported a violation --
@@ -488,3 +488,113 @@ mutations:
       seed: seed_mismatch
       expected_pristine: clean
       expected_seed: "violation:['clearance']"
+
+  # ---------------------------------------------------------------------
+  # scripts/check_ato_assertion_vacuity.py
+  #
+  # A vacuity detector that cannot detect vacuity is the joke writing
+  # itself. These five triples weaken, in turn, each of the gate's load-
+  # bearing parts: both anti-vacuity floors, the two detectors that catch
+  # the 2026-08-17 ground-truth defects, and the fail-closed leaf
+  # classification. The pristine fixture in every case is a genuinely
+  # sound, circuit-coupled assertion, so a mutation that makes the gate
+  # fire on correct input is caught as surely as one that makes it silent.
+  # ---------------------------------------------------------------------
+  - gate: scripts/check_ato_assertion_vacuity.py
+    mutation_id: ato-vacuity-guard-strip-file-floor
+    axis: guard-strip
+    function: find_violations
+    match: raise
+    index: 0
+    line_hint: "raise GateError("
+    description: >-
+      Strip the raise that fires when the .ato glob matches fewer files than
+      expected. A gate whose scope evaporated reports zero findings, which
+      reads identically to a clean design -- the exact illusion this gate
+      exists to break.
+    canary:
+      module: ci-corpus/canaries/check_ato_assertion_vacuity.py
+      pristine: pristine_circuit_coupled
+      seed: seed_scope_evaporated
+      expected_pristine: clean
+      expected_seed: error
+
+  - gate: scripts/check_ato_assertion_vacuity.py
+    mutation_id: ato-vacuity-guard-strip-assertion-floor
+    axis: guard-strip
+    function: find_violations
+    match: raise
+    index: 1
+    line_hint: "raise GateError("
+    description: >-
+      Strip the raise that fires when the sources parse but yield almost no
+      assertions. Models the reader silently losing its grammar as the .ato
+      files evolve: 86 assertions become 0, and the gate congratulates the
+      design on having nothing wrong with it.
+    canary:
+      module: ci-corpus/canaries/check_ato_assertion_vacuity.py
+      pristine: pristine_circuit_coupled
+      seed: seed_no_assertions
+      expected_pristine: clean
+      expected_seed: error
+
+  - gate: scripts/check_ato_assertion_vacuity.py
+    mutation_id: ato-vacuity-discard-no-circuit-coupling
+    axis: violation-discard
+    function: find_violations
+    match: append-drop
+    index: 4
+    line_hint: "# NO_CIRCUIT_COUPLING"
+    description: >-
+      Drop the NO_CIRCUIT_COUPLING finding. This is ground truth #1: without
+      it, PowerInput's `fuse.current_rating >= constraints.i_max` and
+      `cmc.current_rating >= constraints.i_max` -- a datasheet rating checked
+      against the DECLARED 15A rather than the ~27A the doubler draws -- go
+      unreported.
+    canary:
+      module: ci-corpus/canaries/check_ato_assertion_vacuity.py
+      pristine: pristine_circuit_coupled
+      seed: seed_rating_vs_declared
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_ato_assertion_vacuity.py
+    mutation_id: ato-vacuity-discard-tie-margin
+    axis: violation-discard
+    function: find_violations
+    match: append-drop
+    index: 0
+    line_hint: 'Finding("TIE_MARGIN", assertion, tie)'
+    description: >-
+      Drop the TIE_MARGIN finding. This is ground truth #2: without it,
+      `p_output_max = 1800W` asserted `within 1500W to 1800W` -- a value
+      pinned to the unreachable end of its own band -- passes unremarked.
+      The seed is deliberately circuit-coupled so only TIE_MARGIN fires and
+      the flip cannot be masked by a second finding on the same assertion.
+    canary:
+      module: ci-corpus/canaries/check_ato_assertion_vacuity.py
+      pristine: pristine_circuit_coupled
+      seed: seed_tie_margin_only
+      expected_pristine: clean
+      expected_seed: violation
+
+  - gate: scripts/check_ato_assertion_vacuity.py
+    mutation_id: ato-vacuity-scope-remove-circuit-value
+    axis: scope-remove
+    function: null
+    match: container-remove
+    name: CIRCUIT_ATTRS
+    remove_value: "value"
+    line_hint: "CIRCUIT_ATTRS = frozenset("
+    description: >-
+      Remove `value` from the set of attributes that count as
+      circuit-determining. `.value` is the ONLY circuit-coupled attribute in
+      the whole design today, so this is the single edit that would silently
+      reclassify all 12 sound assertions as vacuous. The gate must not absorb
+      it: an unclassified component attribute is a hard error.
+    canary:
+      module: ci-corpus/canaries/check_ato_assertion_vacuity.py
+      pristine: pristine_circuit_coupled
+      seed: seed_circuit_value_classification
+      expected_pristine: clean
+      expected_seed: clean

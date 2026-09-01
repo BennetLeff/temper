@@ -20,6 +20,8 @@ pub mod terminal_planning;
 #[cfg(feature = "python")]
 pub mod astar_nlayer;
 #[cfg(feature = "python")]
+pub mod astar_search2d;
+#[cfg(feature = "python")]
 pub mod loop_extractor;
 #[cfg(feature = "python")]
 pub mod net_batching;
@@ -133,7 +135,7 @@ mod py {
     use temper_rust_router_core::astar::AstarInput;
     use temper_rust_router_core::loop_extractor::classify::CompInfo;
     use temper_rust_router_core::loop_extractor::classify_py::{
-        classify_component_py, parse_capacitance_py, MalformedNumber,
+        classify_component_py, MalformedNumber,
     };
     use temper_rust_router_core::types as core_types;
     use temper_rust_router_core::types::{InternalConstraintModel, SolverStatus, TopologyResult};
@@ -541,7 +543,6 @@ mod py {
         m.add_function(wrap_pyfunction!(audit_result, m)?)?;
         m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
         m.add_function(wrap_pyfunction!(classify_component_rs, m)?)?;
-        m.add_function(wrap_pyfunction!(parse_capacitance_rs, m)?)?;
         m.add_function(wrap_pyfunction!(astar_kernel_3d_py, m)?)?;
         m.add_function(wrap_pyfunction!(line_of_sight_py, m)?)?;
 
@@ -557,6 +558,10 @@ mod py {
         crate::theta_star::register(m)?;
         // Tier-3 N-layer via-aware A* (_astar_search_3d / _route_segment_3d).
         crate::astar_nlayer::register(m)?;
+        // Faithful f64 port of astar_core._astar_search (the corridor-backbone
+        // search).  A SEPARATE kernel from astar_kernel_3d_py above, which is
+        // f32, closed-set, and has no DIAGONAL_COST_FACTOR.
+        crate::astar_search2d::register(m)?;
 
         // Phase E E5 (Rust Orchestration Engine plan 2026-08-09-001): the
         // net-batching batch-loop orchestration primitives.
@@ -701,23 +706,6 @@ mod py {
     // differential suite (tests/core/test_loop_extractor_rust_differential.py).
     // -----------------------------------------------------------------------
 
-    /// A finite-or-saturating f64 for JSON: finite values serialize as JSON
-    /// numbers; `inf`/`-inf` serialize as the strings `"inf"`/`"-inf"` (JSON
-    /// has no infinity literal; CPython `float()` saturation is preserved).
-    struct F64Json(f64);
-
-    impl serde::Serialize for F64Json {
-        fn serialize<S: serde::Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
-            if self.0.is_finite() {
-                ser.serialize_f64(self.0)
-            } else if self.0 > 0.0 {
-                ser.serialize_str("inf")
-            } else {
-                ser.serialize_str("-inf")
-            }
-        }
-    }
-
     /// Python-callable: classify a component using the bit-identical port of
     /// `loop_extractor.classify_component`. Input: JSON dict
     /// `{"ref", "footprint", "value", "mpn"}`. Output: JSON dict
@@ -779,30 +767,4 @@ mod py {
         }
     }
 
-    /// Python-callable: parse a capacitance value (bit-identical port of
-    /// `loop_extractor._parse_capacitance`). Output: JSON dict `{"uf": <f64>}`
-    /// or `{"uf": null}`. Raises `ValueError` where CPython `float()` raises.
-    #[pyfunction]
-    fn parse_capacitance_rs(value: &str) -> PyResult<String> {
-        #[derive(serde::Serialize)]
-        struct ParseOut {
-            uf: Option<F64Json>,
-        }
-
-        match parse_capacitance_py(value) {
-            Ok(parsed) => {
-                let out = ParseOut {
-                    uf: parsed.map(F64Json),
-                };
-                Ok(serde_json::to_string(&out).map_err(|e| {
-                    PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
-                        "serialize output: {e}"
-                    ))
-                })?)
-            }
-            Err(MalformedNumber) => Err(pyo3::exceptions::PyValueError::new_err(
-                "could not convert string to float (malformed capacitance value)",
-            )),
-        }
-    }
 }

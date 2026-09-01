@@ -1,0 +1,725 @@
+{
+  "schema": "temper.displacement-deletion-frontier",
+  "version": 1,
+  "records": [
+    {
+      "key": {
+        "released_refs": [
+          "C1",
+          "C10",
+          "C11",
+          "C12",
+          "C13",
+          "C14",
+          "C15",
+          "C16",
+          "C17",
+          "C18",
+          "C19",
+          "C2",
+          "C20",
+          "C21",
+          "C22",
+          "C23",
+          "C24",
+          "C25",
+          "C26",
+          "C27",
+          "C28",
+          "C29",
+          "C3",
+          "C30",
+          "C31",
+          "C32",
+          "C33",
+          "C34",
+          "C35",
+          "C36",
+          "C37",
+          "C38",
+          "C39",
+          "C4",
+          "C40",
+          "C41",
+          "C5",
+          "C6",
+          "C7",
+          "C8",
+          "C9",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "F1",
+          "J1",
+          "J2",
+          "K1",
+          "K2",
+          "K3",
+          "L1",
+          "L2",
+          "PS1",
+          "Q1",
+          "Q2",
+          "R1",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14",
+          "R15",
+          "R16",
+          "R17",
+          "R18",
+          "R19",
+          "R2",
+          "R20",
+          "R21",
+          "R22",
+          "R23",
+          "R24",
+          "R25",
+          "R26",
+          "R27",
+          "R28",
+          "R29",
+          "R3",
+          "R30",
+          "R31",
+          "R32",
+          "R33",
+          "R34",
+          "R35",
+          "R36",
+          "R37",
+          "R38",
+          "R39",
+          "R4",
+          "R40",
+          "R41",
+          "R42",
+          "R43",
+          "R44",
+          "R45",
+          "R46",
+          "R47",
+          "R48",
+          "R49",
+          "R5",
+          "R50",
+          "R51",
+          "R52",
+          "R53",
+          "R54",
+          "R55",
+          "R56",
+          "R57",
+          "R58",
+          "R59",
+          "R6",
+          "R60",
+          "R61",
+          "R62",
+          "R63",
+          "R64",
+          "R65",
+          "R66",
+          "R67",
+          "R68",
+          "R69",
+          "R7",
+          "R70",
+          "R71",
+          "R72",
+          "R73",
+          "R74",
+          "R75",
+          "R8",
+          "R9",
+          "RT1",
+          "RV1",
+          "SW1",
+          "SW2",
+          "T1",
+          "T2",
+          "TP1",
+          "TP2",
+          "TP3",
+          "TP4",
+          "U1",
+          "U10",
+          "U11",
+          "U12",
+          "U13",
+          "U14",
+          "U15",
+          "U16",
+          "U17",
+          "U18",
+          "U19",
+          "U2",
+          "U20",
+          "U21",
+          "U22",
+          "U23",
+          "U24",
+          "U25",
+          "U26",
+          "U27",
+          "U3",
+          "U4",
+          "U5",
+          "U6",
+          "U7",
+          "U8",
+          "U9"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "timeout",
+      "elapsed_s": 120.081,
+      "solver_status": null,
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "all 168 components released to 40mm exceeded external 120s limit"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C1",
+          "C10",
+          "C14",
+          "C17",
+          "C2",
+          "C22",
+          "C23",
+          "C24",
+          "C25",
+          "C26",
+          "C27",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8",
+          "D4",
+          "F1",
+          "J1",
+          "K1",
+          "K2",
+          "K3",
+          "L1",
+          "PS1",
+          "R12",
+          "R14",
+          "R15",
+          "R18",
+          "R19",
+          "R2",
+          "R20",
+          "R21",
+          "R22",
+          "R23",
+          "R28",
+          "R29",
+          "R30",
+          "R31",
+          "R32",
+          "R33",
+          "R35",
+          "R37",
+          "R4",
+          "R46",
+          "R47",
+          "R48",
+          "R5",
+          "R50",
+          "R51",
+          "R52",
+          "R59",
+          "R6",
+          "R64",
+          "R68",
+          "R7",
+          "R8",
+          "R9",
+          "RT1",
+          "RV1",
+          "T1",
+          "T2",
+          "TP1",
+          "TP2",
+          "TP3",
+          "TP4",
+          "U1",
+          "U2",
+          "U4",
+          "U5",
+          "U6",
+          "U7"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "unknown",
+      "elapsed_s": 120.077,
+      "solver_status": "unknown",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "member-balanced 72-component complement of twin_02 unresolved at 120s"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C1",
+          "F1",
+          "L1",
+          "RV1"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 7.056,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_00 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C10",
+          "J1",
+          "R12",
+          "R2",
+          "R47",
+          "R48",
+          "R50",
+          "R52",
+          "R59",
+          "R64",
+          "R68",
+          "TP1",
+          "TP2",
+          "TP4"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 18.795,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_01 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C11",
+          "C12",
+          "C13",
+          "C15",
+          "C16",
+          "C18",
+          "C19",
+          "C20",
+          "C21",
+          "C28",
+          "C29",
+          "C30",
+          "C31",
+          "C32",
+          "C33",
+          "C34",
+          "C35",
+          "C36",
+          "C37",
+          "C38",
+          "C39",
+          "C40",
+          "C41",
+          "C9",
+          "D1",
+          "D2",
+          "D3",
+          "J2",
+          "L2",
+          "Q1",
+          "Q2",
+          "R1",
+          "R10",
+          "R11",
+          "R13",
+          "R16",
+          "R17",
+          "R24",
+          "R25",
+          "R26",
+          "R27",
+          "R3",
+          "R34",
+          "R36",
+          "R38",
+          "R39",
+          "R40",
+          "R41",
+          "R42",
+          "R43",
+          "R44",
+          "R45",
+          "R49",
+          "R53",
+          "R54",
+          "R55",
+          "R56",
+          "R57",
+          "R58",
+          "R60",
+          "R61",
+          "R62",
+          "R63",
+          "R65",
+          "R66",
+          "R67",
+          "R69",
+          "R70",
+          "R71",
+          "R72",
+          "R73",
+          "R74",
+          "R75",
+          "SW1",
+          "SW2",
+          "U10",
+          "U11",
+          "U12",
+          "U13",
+          "U14",
+          "U15",
+          "U16",
+          "U17",
+          "U18",
+          "U19",
+          "U20",
+          "U21",
+          "U22",
+          "U23",
+          "U24",
+          "U25",
+          "U26",
+          "U27",
+          "U3",
+          "U8",
+          "U9"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 11.092,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_02 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C14",
+          "C2",
+          "C24",
+          "C3",
+          "C4",
+          "C5",
+          "R23",
+          "R4",
+          "R5",
+          "R6",
+          "R8",
+          "RT1",
+          "U1",
+          "U2",
+          "U5"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 8.471,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_03 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C17",
+          "C22"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 5.739,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_04 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C23",
+          "C7",
+          "C8",
+          "R14",
+          "R15",
+          "R18",
+          "R19",
+          "R22",
+          "R7",
+          "R9",
+          "U4"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 6.602,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_05 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C25",
+          "C26",
+          "C27",
+          "R30"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 22.679,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_06 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "C6",
+          "K1",
+          "K2",
+          "K3",
+          "PS1",
+          "R46",
+          "R51",
+          "T1",
+          "T2",
+          "U6"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 7.174,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_07 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "D4",
+          "U7"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 21.741,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_08 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "R20",
+          "R21"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 5.956,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_09 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [
+          "R28",
+          "R29",
+          "R31",
+          "R32",
+          "R33",
+          "R35",
+          "R37",
+          "TP3"
+        ],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 21.031,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "twin_10 singleton release proven insufficient"
+      ]
+    },
+    {
+      "key": {
+        "released_refs": [],
+        "base_radius_mm": 2,
+        "release_radius_mm": 40,
+        "production_options": {
+          "experimental_omit_generated_creepage": true
+        },
+        "board_hash": "a65bb65c5247493637f9acb510769e604d0e407b256e87e1845160609052b13f"
+      },
+      "status": "infeasible",
+      "elapsed_s": 6.254,
+      "solver_status": "infeasible",
+      "positions": {},
+      "rotations": {},
+      "verification_passed": null,
+      "violation_count": null,
+      "diagnostics": [
+        "fresh unconditional all-2mm baseline"
+      ]
+    }
+  ],
+  "provenance": {
+    "commit": "57ecf7140666b05e625c466c29ead5a8e3da553c",
+    "dirty": false
+  }
+}

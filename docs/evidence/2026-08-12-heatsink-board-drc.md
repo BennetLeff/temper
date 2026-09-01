@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, worktree .claude/worktrees/kicad-durable, branch
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 chore/kicad-cli-durable-install, HEAD 2d3bb669a (base 1a7365587 = origin/main tip at task
 start). Board regenerated from origin/feat/igbt-heatsink-colocation (PR #1082) HEAD
 30ccf6ae5, checked out in a separate detached worktree .claude/worktrees/hs-repro.
@@ -89,7 +89,7 @@ uv run --no-sync python scripts/verify_pumpkin_engine.py --require
 
 # 1. placement solve, common rotation 1  (in the hs-repro worktree, branch code)
 PYTHONPATH=packages/temper-placer/src:scripts <main>/.venv/bin/python \
-  docs/evidence/2026-08-12-heatsink-colocation-pumpkin-run.py \
+  docs/evidence/scripts/2026-08-12-heatsink-colocation-pumpkin-run.py \
   --rot 1 --relax '' --timeout-ms 60000 --out $SP/heatsink_rot1.json
 
 # 2. write-back WITH board_origin=board.origin  (scratchpad/writeback.py)

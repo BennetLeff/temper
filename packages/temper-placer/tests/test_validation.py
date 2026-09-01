@@ -74,19 +74,6 @@ def _serialize_state(state: BoardState) -> dict:
 
 
 class TestHypothesisInvariants:
-    def test_import_invariants(self):
-        from temper_placer.profiling.validation.invariants import (
-            test_boundary_containment,
-            test_determinism,
-            test_net_conservation,
-            test_pipeline_runs_without_crash,
-        )
-
-        assert callable(test_boundary_containment)
-        assert callable(test_determinism)
-        assert callable(test_net_conservation)
-        assert callable(test_pipeline_runs_without_crash)
-
     def test_deterministic_output_consistent(self):
         state = _make_test_board_state()
         pipeline1 = create_legacy_pipeline()

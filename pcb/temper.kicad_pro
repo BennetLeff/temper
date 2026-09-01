@@ -272,7 +272,7 @@
         "pcb_color": "rgba(200, 100, 0, 1.000)",
         "schematic_color": "rgba(200, 100, 0, 1.000)",
         "track_width": 0.5,
-        "via_diameter": 0.8,
+        "via_diameter": 1.0,
         "via_drill": 0.4,
         "wire_width": 6
       },
@@ -486,7 +486,7 @@
       "PWM_LS": "GateDriveSELV",
       "vcc": "Power",
       "V_BUS_SENSE": "Power",
-      "gnd": "GND",
+      "gnd": "Power",
       "usb_dn": "Differential",
       "usb_dp": "Differential",
       "i2c_scl_ui": "Default",
@@ -506,7 +506,16 @@
       "power_in.bypass_relay-coil2": "Power",
       "safety.ovp.comp-inp": "Default",
       "safety.uvlo_logic-line": "Default",
-      "hb-gnd": "HighVoltage"
+      "hb-gnd": "HighVoltage",
+      "input": "HighVoltageSignal",
+      "discharge.k_dis1-no": "HighVoltageSignal",
+      "discharge.k_dis2-no": "HighVoltageSignal",
+      "discharge.r_dis1a-p2": "HighVoltageSignal",
+      "discharge.r_dis2a-p2": "HighVoltageSignal",
+      "discharge.r_snub1-p2": "HighVoltageSignal",
+      "discharge.r_snub2-p2": "HighVoltageSignal",
+      "s1": "FinePitch",
+      "safety.ocp2-line": "FinePitch"
     },
     "netclass_patterns": [
       {

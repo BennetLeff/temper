@@ -65,6 +65,10 @@ import random
 import numpy as np
 import pytest
 import temper_quality_oracle as _qo
+from tests._legacy_oracle_modules import install as _install_legacy_oracle_modules
+
+_install_legacy_oracle_modules()
+
 from tests.validation._validation_metrics_py_oracle import (
     PlacementMetrics as _OraclePlacementMetrics,
 )

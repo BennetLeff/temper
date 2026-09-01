@@ -1,4 +1,4 @@
-<!-- provenance: commit=a3fbaff37afd739b72f2b109847813b30ceb8e88 (origin/fix/board-schematic-resync) dirty=false. Worktree: own git worktree (`investigate/cst3015-reinforced-isolation`), never the main checkout. Extensions rebuilt in an isolated `.venv` this session (`make venv-isolate` then `make extensions`), `scripts/check_stale_extensions.py` reports 10/10 fresh, AND every extension used below was confirmed to actually import from that fresh build before any measurement was taken (freshness alone is not sufficient -- see AGENTS.md). No `pcb/temper.kicad_pcb`, footprint, DRU threshold, or clearance/creepage value was edited. `pcb/temper.kicad_dru` was regenerated from the unmodified `scripts/generate_kicad_dru.py` purely to run a read-only `kicad-cli` DRC cross-check; that file is `.gitignore`d and was never committed. -->
+<!-- provenance: commit=fc8f94c2948f6070677e54dfd32bb152b6cf1a2f dirty=UNKNOWN -->
 
 # CST3015 cannot meet this board's own 12.6mm PD3 reinforced-creepage requirement, in this footprint or (per this repo's own prior part search) in any drop-in replacement at the same ratio/current class — a part-selection defect affecting both T1 and T2
 

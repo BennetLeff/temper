@@ -38,7 +38,11 @@ pub fn run_hv_pad_set(
     hv_exclusion_zones: Py<PyAny>,
     component_positions: Py<PyAny>,
 ) -> PyResult<Py<PyAny>> {
-    let hv_refs = resolve_hv_refs(py, hv_exclusion_zones.bind(py), component_positions.bind(py))?;
+    let hv_refs = resolve_hv_refs(
+        py,
+        hv_exclusion_zones.bind(py),
+        component_positions.bind(py),
+    )?;
     let result = py.import("builtins")?.getattr("set")?.call0()?;
     for pad in pads.bind(py).try_iter()? {
         let pad = pad?;
@@ -119,8 +123,9 @@ fn resolve_hv_refs<'py>(
             )?;
             entries.append(tuple)?;
         }
-        let closest: Option<String> =
-            closest_kernel.call1((entries, zx, zy, half_w, half_h))?.extract()?;
+        let closest: Option<String> = closest_kernel
+            .call1((entries, zx, zy, half_w, half_h))?
+            .extract()?;
         match closest {
             Some(r) => {
                 hv_refs.insert(r);
@@ -147,12 +152,11 @@ fn resolve_hv_refs<'py>(
 
 #[cfg(feature = "python")]
 /// Build the Python `ConfigError` exception and return it as a `PyErr`.
-fn config_error(
-    py: Python<'_>,
-    cls: &Bound<'_, PyAny>,
-    message: &str,
-) -> PyErr {
-    PyErr::from_value(cls.call1((message,)).unwrap_or_else(|e| e.value(py).clone().into_any()))
+fn config_error(py: Python<'_>, cls: &Bound<'_, PyAny>, message: &str) -> PyErr {
+    PyErr::from_value(
+        cls.call1((message,))
+            .unwrap_or_else(|e| e.value(py).clone().into_any()),
+    )
 }
 
 #[cfg(feature = "python")]
@@ -205,15 +209,14 @@ pub(crate) fn py_float(py: Python<'_>, f: f64) -> Py<PyAny> {
 #[cfg(feature = "python")]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use pyo3::types::{PyDict, PyString};
     use super::*;
+    use pyo3::types::{PyDict, PyString};
 
     /// Helper: create a plain Python object with attributes set.
     fn make_obj(py: Python<'_>, attrs: &[(&str, i64)]) -> PyResult<Py<PyAny>> {
         // Use a simple Python class defined inline.
-        let code = std::ffi::CString::new(
-            "class _TestObj:\n    pass\n_test_obj = _TestObj()\n"
-        ).unwrap();
+        let code =
+            std::ffi::CString::new("class _TestObj:\n    pass\n_test_obj = _TestObj()\n").unwrap();
         let ns = PyDict::new(py);
         py.run(code.as_c_str(), Some(&ns), Some(&ns))?;
         let obj: Py<PyAny> = ns.get_item("_test_obj")?.unwrap().unbind();

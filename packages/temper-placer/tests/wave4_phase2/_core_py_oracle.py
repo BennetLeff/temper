@@ -12,9 +12,12 @@ Copied from, in order:
 * ``temper_placer/core/units.py``            -- the eight conversions
 * ``temper_placer/core/net_classification.py`` -- patterns + ten predicates
 * ``temper_placer/core/manufacturing.py``    -- ``FabPreset`` + two functions
-* ``temper_placer/core/placement_drc.py``    -- ``PinInfo``,
-  ``PlacementViolation``, ``validate_placement_drc``
 * ``temper_placer/core/netlist.py``          -- ``build_adjacency_matrix``
+
+(The ``placement_drc`` section -- ``PinInfo``, ``PlacementViolation``,
+``validate_placement_drc`` -- was removed 2026-08-20 with the orphaned
+placement-DRC kernel cluster; the Rust pyclass/pyfunction and their
+differentials were deleted together.)
 
 Only pure compute is copied.  Nothing here imports the production
 modules, so the oracle keeps working after they start delegating.
@@ -279,85 +282,6 @@ def inflated_clearance(nominal: float, tolerance: float = 0.1) -> float:
 
 def inflated_width(nominal: float, tolerance: float = 0.1) -> float:
     return nominal + tolerance
-
-
-# ---------------------------------------------------------------------------
-# placement_drc
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class PinInfo:
-    x: float
-    y: float
-    net_name: str
-    component_name: str
-    pin_name: str
-    diameter_mm: float = 1.0
-
-    @property
-    def radius(self) -> float:
-        return self.diameter_mm / 2.0
-
-
-@dataclass
-class PlacementViolation:
-    item_a: PinInfo
-    item_b: PinInfo
-    distance: float
-    required: float
-    violation_type: str
-    message: str
-
-
-def validate_placement_drc(
-    pins: list[PinInfo], min_clearance_mm: float, _trace_width_mm: float = 0.25
-) -> list[PlacementViolation]:
-    violations = []
-
-    n = len(pins)
-    for i in range(n):
-        for j in range(i + 1, n):
-            pin_a = pins[i]
-            pin_b = pins[j]
-
-            if pin_a.net_name == pin_b.net_name:
-                continue
-
-            dx = pin_a.x - pin_b.x
-            dy = pin_a.y - pin_b.y
-            dist = math.sqrt(dx * dx + dy * dy)
-
-            pad_r_sum = pin_a.radius + pin_b.radius
-
-            if dist < pad_r_sum:
-                violations.append(
-                    PlacementViolation(
-                        item_a=pin_a,
-                        item_b=pin_b,
-                        distance=dist,
-                        required=pad_r_sum,
-                        violation_type="SHORT",
-                        message=f"Pads overlapping! {pin_a.net_name} vs {pin_b.net_name}",
-                    )
-                )
-                continue
-
-            required_clearance = pad_r_sum + min_clearance_mm
-            if dist < required_clearance:
-                violations.append(
-                    PlacementViolation(
-                        item_a=pin_a,
-                        item_b=pin_b,
-                        distance=dist,
-                        required=required_clearance,
-                        violation_type="CLEARANCE",
-                        message=f"Clearance violation! Dist {dist:.3f}mm < {required_clearance:.3f}mm",
-                    )
-                )
-                continue
-
-    return violations
 
 
 # ---------------------------------------------------------------------------

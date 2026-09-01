@@ -19,12 +19,17 @@ from __future__ import annotations
 
 import time
 
-import tests.graph_fixtures as nx
+import numpy as np
 import pytest
 from shapely.geometry import LineString, MultiPolygon, box
 from shapely.ops import unary_union
 
-from temper_placer.router_v6.channel_skeleton import _ensure_skeleton_connectivity
+import tests.graph_fixtures as nx
+from temper_placer.router_v6.channel_skeleton import (
+    _BRIDGE_VALIDITY_CHUNK_SIZE,
+    _bridge_validity_mask,
+    _ensure_skeleton_connectivity,
+)
 
 
 def _add_island(G: nx.Graph, nodes: list[tuple[float, float]]) -> None:
@@ -45,6 +50,21 @@ def _make_chain_islands(n_islands: int, gap: float = 1.0) -> nx.Graph:
 
 
 class TestCorrectness:
+    def test_bridge_validity_is_chunked_without_changing_predicate(self):
+        """Large candidate arrays must not be materialized as one GEOS array."""
+        n = _BRIDGE_VALIDITY_CHUNK_SIZE + 1
+        coords_a = np.zeros((n, 2))
+        coords_b = np.tile([1.0, 0.0], (n, 1))
+        # Keep one candidate beyond the chunk boundary outside the area.
+        coords_a[-1] = (0.0, 2.0)
+        coords_b[-1] = (1.0, 2.0)
+
+        valid = _bridge_validity_mask(box(0.0, -1.0, 2.0, 1.0), coords_a, coords_b)
+
+        assert valid.shape == (n,)
+        assert valid[:-1].all()
+        assert not valid[-1]
+
     def test_no_op_when_already_connected(self):
         G = nx.Graph()
         _add_island(G, [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0)])

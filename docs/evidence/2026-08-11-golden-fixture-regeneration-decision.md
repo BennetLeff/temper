@@ -48,7 +48,7 @@ builds on, had to.
 | `packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py::test_golden_board_drc_regression` | **Solves** CP-SAT placement, 30s timeout, then writes+DRCs | HIGH — measured infeasible at real scale (§2) | B |
 | `...::test_golden_board_routing_drc_regression` | **Solves** CP-SAT + routes | HIGH (same solve) — currently `pytest.skip`'d for an unrelated KNOWN GAP regardless | B |
 | `...::test_golden_board_rotation_drop_mutant_fails_oracle` | Parses only (uses first 5 zero-angle components) | none | B-compatible, no change needed |
-| `docs/evidence/2026-08-07-cpsat-equivalence-harness.py::build_full_board_corpus()` | **Solves** CP-SAT with the real PCL config, 30s timeout | HIGH (same solve) — research/evidence harness, not CI-gating | B, was mislabeled "the real golden-board corpus" — fixed this PR |
+| `docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py::build_full_board_corpus()` | **Solves** CP-SAT with the real PCL config, 30s timeout | HIGH (same solve) — research/evidence harness, not CI-gating | B, was mislabeled "the real golden-board corpus" — fixed this PR |
 | `packages/temper-placer/tests/test_metamorphic_oracles.py` (T1-T4) | Parses only — idempotency, bounds, non-overlap, ref uniqueness | none — invariants are size-agnostic | B-compatible, no change needed |
 | `packages/temper-placer/tests/test_round_trip_integrity.py` | Parses, writes, re-parses — netlist preservation | none — generic across the 4-board parametrization | B-compatible, no change needed |
 | `packages/temper-placer/tests/router_v6/_quality_metrics_cases.py` (`CORPUS_BOARDS["temper"]`) → `test_quality_metrics_oracle_pin.py` | Parses only, compares against **exact pinned metrics** (`n_components=33, n_vias=0, n_traces=0, lint_total=0, ...`) | none (no solve) but **regeneration would move every pinned number** | B — these are exact-value pins tuned to this fixture's specific unrouted geometry; regenerating invalidates all of them |
@@ -130,14 +130,14 @@ unaffected by this PR:
 
 **What DID change** (naming/documentation/tooling only, per task items 4-5):
 
-- `docs/evidence/2026-08-07-cpsat-equivalence-harness.py`:
+- `docs/evidence/scripts/2026-08-07-cpsat-equivalence-harness.py`:
   `build_full_board_corpus()`'s docstring no longer calls the fixture "the
   real golden-board corpus"; the returned model's `name` field changed
   from `"full-board"` to `"corpus-fixture-33c"` so the label itself
   carries the component count; every result line already printed
   `len(model.verification_model.sizes_mm)` (unchanged) and now the model
   name reinforces rather than contradicts it.
-- `docs/evidence/2026-08-07-pumpkin-equivalence-run.py`: the dependent
+- `docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py`: the dependent
   `model.name == "full-board"` timeout-selection check updated to match,
   so a future re-run of this companion script does not silently regress
   to the wrong timeout.

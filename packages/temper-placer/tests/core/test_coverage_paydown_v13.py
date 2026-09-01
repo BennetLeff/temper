@@ -1,5 +1,5 @@
 """Coverage paydown v13: regression reporter, corpus_runner, metrics_recorder,
-manifest, version_gate, quality_score, constraint reporter, and loop_utils
+manifest, quality_score, constraint reporter, and loop_utils
 pure-function tests.
 
 Targets allowlist entries across:
@@ -12,7 +12,6 @@ Targets allowlist entries across:
 - regression/metrics_recorder.py (2): PipelineMetricsRecord.to_dict, to_jsonl
 - regression/manifest.py (4): GoldenBoard.resolve_path, baseline_yaml_path,
   baseline_pcb_path, GoldenManifest.get_board
-- testing/version_gate.py (1): check_format_version
 - metrics/quality_score.py (2): QualityScore.to_dict, interpret_score
 - constraints/reporter.py (2): ConstraintReport.to_json, to_text
 - placer/cp_sat/_loop_utils.py (2): positions_equal, deduplicate_deltas
@@ -319,7 +318,9 @@ class TestPipelineMetricsRecord:
         assert d["module"] == "pipeline"
         assert d["git_commit"] == "abc123"
         assert d["metrics"] == {"completion_pct": 95.0}
-        assert d["schema_version"] == 2
+        # v3: ``completion_pct`` became a percent (was a fraction in v1/v2);
+        # see CURRENT_SCHEMA_VERSION in metrics_recorder.py.
+        assert d["schema_version"] == 3
         assert d["stage_name"] == "closure"
 
     def test_to_dict_with_drc_delta(self):
@@ -412,29 +413,6 @@ class TestGoldenManifest:
         )
         m = GoldenManifest(version=1, boards=[board])
         assert m.get_board("missing") is None
-
-
-# ===========================================================================
-# testing/version_gate.py
-# ===========================================================================
-
-
-class TestCheckFormatVersion:
-    """Covers check_format_version."""
-
-    def test_match(self):
-        from temper_placer.testing.version_gate import check_format_version
-
-        assert check_format_version(3, 3) is None
-
-    def test_mismatch(self):
-        from temper_placer.testing.version_gate import check_format_version
-
-        err = check_format_version(1, 2)
-        assert err is not None
-        assert "MISMATCH" in err
-        assert "1" in err
-        assert "2" in err
 
 
 # ===========================================================================

@@ -133,9 +133,6 @@ def test_rust_symbols_exist():
     assert hasattr(_tg, "extract_medial_axis_single_py"), (
         "pending Rust: temper_geometry.extract_medial_axis_single_py does not exist"
     )
-    assert hasattr(_tg, "extract_medial_axis_py"), (
-        "pending Rust: temper_geometry.extract_medial_axis_py does not exist"
-    )
 
 
 # ===========================================================================

@@ -5,19 +5,16 @@
 #[cfg(any(test, feature = "wasm-registry"))]
 #[allow(dead_code, unused_imports, clippy::unwrap_used, clippy::expect_used)]
 pub(crate) mod tests {
-    use crate::types::{InternalConstraint, InternalConstraintModel};
-    use crate::encoding::encode_to_cnf;
     use crate::combinator::rewrite::rewrite;
+    use crate::encoding::encode_to_cnf;
+    use crate::types::{InternalConstraint, InternalConstraintModel};
 
     fn make_model_with_capacity(
         channel_id: &str,
         capacity: f64,
         var_names: &[&str],
     ) -> InternalConstraintModel {
-        let terms: Vec<(String, f64)> = var_names
-            .iter()
-            .map(|n| (n.to_string(), 1.0))
-            .collect();
+        let terms: Vec<(String, f64)> = var_names.iter().map(|n| (n.to_string(), 1.0)).collect();
         InternalConstraintModel {
             variables: var_names
                 .iter()
@@ -107,7 +104,10 @@ pub(crate) mod tests {
             .iter()
             .filter(|c| matches!(c, InternalConstraint::DiffPair { .. }))
             .count();
-        assert_eq!(dp_count, 1, "expected 1 DiffPair after dedup, got {dp_count}");
+        assert_eq!(
+            dp_count, 1,
+            "expected 1 DiffPair after dedup, got {dp_count}"
+        );
     }
 
     /// Audit compatibility: the rewrite engine does not change which
@@ -131,9 +131,7 @@ pub(crate) mod tests {
         assert_eq!(rewritten.constraints.len(), 1);
         match &rewritten.constraints[0] {
             InternalConstraint::Capacity {
-                capacity,
-                terms,
-                ..
+                capacity, terms, ..
             } => {
                 assert_eq!(terms.len(), 4);
                 assert!((*capacity - 2.0).abs() < 0.001);

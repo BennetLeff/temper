@@ -1,4 +1,4 @@
-<!-- provenance: branch feat/corridor-aware-plane-backbones, worktree /home/bennet/Desktop/temper/.claude/worktrees/agent-a1a703686ace03dc9, base commit bef70cbe5 (main). pcb/temper.kicad_pcb NEVER modified by this task -- every measurement below runs the generator against a copy in this worktree's own scratch space, confirmed via `git status --short pcb/temper.kicad_pcb` empty throughout. -->
+<!-- provenance: commit=d8e6efd482cc0fe578b53fcf2e7e372e44e8eb7e dirty=UNKNOWN -->
 
 # Corridor-aware A* wired into both plane backbones: mechanism proven correct, connectivity preserved, aggregate DRC delta not materially reduced
 

@@ -144,7 +144,9 @@ def test_astar_uses_tensor_when_passed():
     Smoke test: build a small grid, build the tensor, run A* with
     the tensor and without, confirm the path is the same.
     """
-    from temper_placer.router_v6.astar_core import _astar_search
+    from temper_placer.router_v6.astar_search2d_rust import (
+        _astar_search_2d_rust as _astar_search,
+    )
 
     arr = _make_grid(10, 10, blocked={(5, 5), (5, 6), (6, 5)})
     grid = _GridAdapter(arr)

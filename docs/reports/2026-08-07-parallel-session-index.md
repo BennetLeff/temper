@@ -199,7 +199,7 @@ In `git reflog show main` merge order (most recent first): `aec27330dae453cf8`, 
 - `docs/evidence/2026-08-07-pruned-encoding-measurement.md` — `a09b73d5`/`a14cebd6` (dup tips)
 - `docs/evidence/2026-08-07-router-v6-ci-name-enumeration-gap.md` — `a681a84f`/`a83609cb`/`a988999c`
 - `docs/evidence/2026-08-07-cpsat-equivalence-harness.md` (+ `.py`/`.json` companions) — `a0a80b656`/`a47ca6b98`
-- `docs/evidence/2026-08-07-pumpkin-engine-differential.md` (+ `docs/evidence/2026-08-07-pumpkin-engine/` Rust crate, `docs/evidence/2026-08-07-pumpkin-equivalence-run.py`, `-summary.json`) — `a0a80b656`
+- `docs/evidence/2026-08-07-pumpkin-engine-differential.md` (+ `docs/evidence/2026-08-07-pumpkin-engine/` Rust crate, `docs/evidence/scripts/2026-08-07-pumpkin-equivalence-run.py`, `-summary.json`) — `a0a80b656`
 - `docs/evidence/2026-08-07-rust-connected-components-spike.md` — `a7dd06bfdbfd7bd77`
 - `docs/evidence/2026-08-07-reference-oracle-throughput-baseline.md` — `a155a161`/`a4af2771`
 

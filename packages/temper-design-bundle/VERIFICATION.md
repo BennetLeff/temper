@@ -81,7 +81,6 @@ pinned suites never pass one.
 
 | Struct | Field | Change | Evidence |
 |---|---|---|---|
-| `HypergraphFactory` (hypergraph_factory.rs) | `netlist` | `Py<PyAny>` → `Py<Netlist>` | `extraction/hypergraph_factory.py:67` passes the typed `Netlist` (shim re-export of this crate's pyclass); the PBT + differential suites construct `Netlist(...)` pyclasses. Existing pin: `test_factory_attributes_parity` (`f.netlist is mixed_netlist`). |
 | `MonteCarloSimulator` (manufacturing_monte_carlo.rs) | `variables` | `Py<PyAny>` → `Py<ManufacturingVariables>` | The `manufacturing/monte_carlo.py` shim and the differential/PBT suites pass the `ManufacturingVariables` pyclass. Added pin: `test_monte_carlo_simulator_variables_config_typed_identity`. |
 | `MonteCarloSimulator` (manufacturing_monte_carlo.rs) | `config` | `Py<PyAny>` → `Py<MonteCarloConfig>` | The shim and suites pass the `MonteCarloConfig` pyclass; the omitted-config default is freshly built as the same pyclass. Same added pin. |
 | `ToleranceAnalyzer` (manufacturing_tolerances.rs) | `table` | `Py<PyAny>` → `Py<ToleranceTable>` | The default constructor builds a `ToleranceTable` pyclass (doc: the table is never mutated); the shim and suites pass the pyclass. Existing pin: `test_analyzer_table_identity_semantics` (`analyzer.table is table`). |
@@ -96,9 +95,9 @@ bookkeeping**: the stored fields are real `Py<PyAny>` handles whose wrapped
 value is always the pyclass on every exercised path (the differential is the
 only exercised surface), and the typed `Py<...>` handle is strictly
 stronger. They were tightened AND recorded here. If the shims are later
-retired, these pyclasses (and `HypergraphBuildResult`'s unwired ledger entry)
-become candidates for the #826 unwired-ledger conversation — that is a
-separate decision from this tightening and is not taken here.
+retired, the remaining manufacturing pyclasses are candidates for the #826
+unwired-ledger conversation — that is a separate decision from this
+tightening and is not taken here.
 
 ## Kept (re-verified, recorded reason)
 
@@ -2165,19 +2164,15 @@ contracts. Full rationale: `docs/evidence/2026-08-04-wave4-phase5-deterministic-
 | Python module | Kernel(s) in `deterministic_hubs` | Kept Python |
 |---|---|---|
 | `deterministic/channels.py` | `build_channel_index`, `ChannelIndex.penalty` | `Bottleneck`/`ChannelMap` dataclasses, schema validation, loader orchestration |
-| `deterministic/bottleneck_map.py` | `bottleneck_score_at`, `bottleneck_coerce_score` | `BottleneckMap` dataclass, `_from_sidecar_payload` coercion loop, `load_bottleneck_map` |
-| `deterministic/seed_filter.py` | `filter_seed_kernel` | `filter_seed` signature + map-field marshalling |
 | `deterministic/feedback/violation_mapper.py` | `map_violation_kernel` | `ViolationComponentMapper` (netlist→ref-set capture, zone_config handoff), `DRCViolation`/`MappedViolation` |
 | `deterministic/feedback/zone_adjuster.py` | `zone_adjustments_kernel` | `ZoneAdjuster` config handoff, `ZoneAdjustment`/`AdjustmentResult` |
 | `deterministic/feedback/drc_parser.py` | `process_drc_violation` | `json.load` (library semantics), `parse_kicad_drc` traversal |
 
-Data containers stay Python dataclasses — deliberately, not by omission:
-`dataclasses.replace(state/m/…)` is load-bearing across ~20 stage modules
-(including the leaves' files and router_v6), and Python 3.12's
-`dataclasses.replace` does not dispatch to a pyclass `__replace__`;
-`test_bottleneck_map.py` pins `dataclasses.FrozenInstanceError`; and the
-containers hold Python-side objects. The compute — not the containers — is
-what this slice migrates, and the differential pins the compute bit-exactly.
+The remaining data containers stay Python dataclasses — deliberately, not by
+omission: `dataclasses.replace(state/m/…)` is load-bearing across ~20 stage
+modules (including the leaves' files and router_v6), and the containers hold
+Python-side objects. The compute — not the containers — is what this slice
+migrates.
 
 The orchestration surfaces (`state.py`, `stages/base.py`, `stages/setup.py`,
 `feedback/orchestrator.py`, `feedback/drc_runner.py`, `instrumentation.py`,
@@ -2195,28 +2190,18 @@ no unbounded iteration, and no solver. The R1e obligation is therefore
 discharged with a **structural proof of observational equivalence to the
 pinned Python reference**, established compositionally:
 
-1. **Leaf operations.** Each Python operation maps to a Rust operation proven
-   bit-identical on this platform: `math.floor((x*1000.0)/cell)` → naive
-   `f64::floor` of the same expression; `int(a // b)` → `py_floor_div`, a
-   transcription of CPython 3.12's `floatobject.c` `_float_div_mod` (fmod
-   remainder, sign-mismatch quotient correction, `> 0.5` snap-to-integer, and
-   `-0.0` copysign for the exact-zero case) — NOT `(a/b).floor()`, which the
-   differential's snap probes discriminate (`8.2 // 0.1 == 81.0` via a div of
-   `80.99999999999999`); `min`/`max` → `py_min`/`py_max` (Python's
+1. **Leaf operations.** Each remaining Python operation maps to a Rust
+   operation proven bit-identical on this platform: `math.floor((x*1000.0)/cell)`
+   → naive `f64::floor` of the same expression; `min`/`max` → `py_min`/`py_max` (Python's
    first-argument-on-ties, NaN-propagating `b if b < a else a`, never
    `f64::min`/`f64::max`); `float(group)`/`float(value)`/`int(x)` → a call to
    `builtins.float`/`builtins.int`, so coercion semantics AND exact error
    messages are identical by construction; `re.search(IGNORECASE)` →
    `regex`-crate `(?i)` (ASCII `[A-Za-z0-9_]` patterns, identical capture
    behaviour); `str.lower().find("via")` → `to_lowercase().contains("via")`.
-2. **Control flow.** Every branch predicate is transcribed verbatim,
-   including the floor-division non-finite guard: `int(nan // cell)` raises
-   `ValueError: cannot convert float NaN to integer` in CPython (the floordiv
-   of a non-finite operand is NaN), while a quotient that overflows to ±inf
-   raises `OverflowError: cannot convert float infinity to integer` — both
-   replicated with the exact message, pinned by the non-finite differential
-   cases. `math.floor(nan)`/`math.floor(±inf)` in `penalty` replicate the
-   same split.
+2. **Control flow.** Every remaining branch predicate is transcribed verbatim.
+   `math.floor(nan)`/`math.floor(±inf)` in `penalty` replicate the exact
+   ValueError/OverflowError split.
 3. **Composition.** Each kernel's leaves are bit-identical and each branch
    selects the same arm on the same inputs, so the kernels are bit-identical
    by structural induction over their finite, acyclic call structure. The
@@ -2224,7 +2209,7 @@ pinned Python reference**, established compositionally:
    mis-transcribed.
 
 **Iteration order.** The kernels iterate Python dicts/sets where the oracle
-does: the seed (`PyDict`, insertion order), `zone_config` (insertion order,
+does: `zone_config` (insertion order,
 first-containing-zone wins), the component-ref set (membership only), and
 the violation list (order preserved). **No sort is introduced to stabilise
 anything** — the one sort in the surface (`sorted(components)` in the
@@ -2232,9 +2217,8 @@ oracle) is reproduced by a `BTreeSet`; the differential's
 shuffled-permutation pins prove the kept outcomes are order-invariant in
 effect (worst-severity/max-score selection is a total order).
 
-**Empty-input semantics.** Empty seed accepts (`all()` over nothing is
-True); empty violations list yields no adjustments; empty/`None` maps return
-`0.0` penalties; missing keys take the oracle's defaults (`"unknown"`,
+**Empty-input semantics.** Empty violations list yields no adjustments;
+empty/`None` maps return `0.0` penalties; missing keys take the oracle's defaults (`"unknown"`,
 `"error"`, `""`) — each asserted explicitly in the differentials.
 
 ## Documented deviations (per R1, recorded here)
@@ -2308,8 +2292,8 @@ True); empty violations list yields no adjustments; empty/`None` maps return
 ## Evidence
 
 - **Differential (R1a / R1f, TDD red → green):**
-  `packages/temper-placer/tests/deterministic/test_{channels,bottleneck_map,
-  seed_filter,violation_mapper,zone_adjuster,drc_parser}_rust_differential.py`
+  `packages/temper-placer/tests/deterministic/test_{channels,violation_mapper,
+  zone_adjuster,drc_parser}_rust_differential.py`
   — 100+ tests against the verbatim oracles `_*_py_oracle.py` (dispatch base
   `15110fecc`; oracle-vs-module diff is the mandated header only). Every
   float compares as `float.hex()`; every leaf carries its concrete type via
@@ -2329,12 +2313,8 @@ True); empty violations list yields no adjustments; empty/`None` maps return
 
   | Mutant | Change | Caught by |
   |--------|--------|-----------|
-  | M1 | `py_floor_div` drops the fmod subtraction (`div = a / b`) | `test_score_at_floor_div_snap_cases` — `8.2 // 0.1` computes a div of `80.99999999999999` that only the subtracted-fmod form produces |
-  | M2 | `py_floor_div` drops the `> 0.5` snap-to-integer | same test — div `80.99999999999999` floors to 80 without the snap; distinct per-column scores make col 80 vs 81 observable |
   | M3 | channels `LOW` weight 0.05 → 0.1 | `test_penalty_severity_weight_pins` (added for exactly this; random fixtures could flakily miss LOW) |
   | M4 | `penalty` off-by-one: `> width` instead of `>= width` | `test_penalty_parity_*` — the `_slots` probes hit `gx == width` exactly, which panics the in-bounds grid index |
-  | M5 | `bottleneck_score_at` drops the non-finite guard (saturating cast) | `test_score_at_nonfinite_error_parity` (added) — NaN lands in cell (0,0) instead of ValueError |
-  | M6 | `seed_filter` `score >= limit` → `score > limit` | `test_filter_seed_boundary_and_empty` — score == threshold must reject |
   | M7 | `zone_adjuster` `excess = count - threshold` (off-by-one) | `test_expands_when_exceeding_threshold` — 10 violations, threshold 5: 6 vs 5 expansion steps |
   | M8 | `map_violation_kernel` components sorted descending | `test_solder_mask_bridge_pad_dash_and_dot_formats` — `[Q2, U_GATE]` must stay ascending (the test compares the kernel's raw order; it previously normalised it away — fixed 2026-08-05) |
   | M9 | `drc_parser` tries the TDD pattern before the KiCad pattern | `test_clearance_both_patterns_present_but_different_values` (added) — a description carrying both patterns with conflicting values pins the order |
@@ -2343,9 +2323,7 @@ True); empty violations list yields no adjustments; empty/`None` maps return
 
 - **PBT (R1c):** `test_*_pbt.py` — 5 hypothesis properties per module
   (channels: range / occupancy-monotone / severity-monotone / OOB-zero /
-  same-cell determinism; bottleneck_map: member-or-zero / row-major /
-  strictly-inside-cell / OOB clamp / coerce clamp; seed_filter: totality /
-  empty-accepts / zero-map / equality-rejects / HV-stricter; violation_mapper:
+  same-cell determinism; violation_mapper:
   totality / known-refs / no-unknown-refs / via-pth flags / zone containment;
   zone_adjuster: shape / threshold gate / max-size bound / direction gating /
   monotonicity; drc_parser: totality / defaults / first-pos / items / clearance).
@@ -3027,6 +3005,11 @@ commit `58b302ce8`).
 ---
 
 # Hypergraph factory — Verification
+
+> Historical record: the differential-only `HypergraphFactory` and
+> `HypergraphBuildResult` PyO3 family was retired after the production caller
+> audit found no callers. The pinned Python oracle remains for historical
+> reference; the implementation and binding-only differential were deleted.
 
 The hypergraph factory (`src/hypergraph_factory.rs`) is the Wave 4 Phase 4
 leftovers slice's fourth migration: the `HypergraphFactory` pyclass (the
@@ -4133,8 +4116,7 @@ These kernels land in `temper-design-bundle` for the same reason the earlier
 deterministic slices did (#762): they are the deterministic placer's stage
 kernels, bind onto this crate's contract pyclasses (the phase mixins live on
 `phased_component_assignment.py`, whose validator slot-grid kernels are already
-here), and the bottleneck-grid compute they read is already in this crate's
-`deterministic_hubs` (`bottleneck_score_at`). The DRC-check *stage* kernels
+here). The DRC-check *stage* kernels
 (`via_validation`) land in `temper-drc-rs` (see that crate's VERIFICATION.md).
 `_point_in_polygon` is the GEOS precedent's mirror image: the ray-cast is a
 plain loop over `list[tuple[float, float]]`, not a shapely surface, so it is
@@ -4282,10 +4264,11 @@ not move (`deterministic/stages/_phase_core.py` →
 `_get_footprint_radius` / `_reserve_slots` / `_distance`) land in
 `deterministic_phase.rs`, registered as `footprint_radius_py` /
 `reserve_slots_py` / `distance_py` under the existing
-`temper_design_bundle_python.deterministic_phase` submodule. The Python
-methods become delegation shims; the `hasattr(component, "bounds") and
-component.bounds` guard and the `used_slots` set mutation stay Python and are
-not part of the oracle. The pre-migration bodies are pinned VERBATIM in
+`temper_design_bundle_python.deterministic_phase` submodule. The Rust
+orchestration stage now calls these kernels directly; its `hasattr(component,
+"bounds") and component.bounds` marshalling guard and the `used_slots` set
+mutation remain at that Rust/Python boundary. The pre-migration bodies are
+pinned VERBATIM in
 `tests/deterministic/stages/_phase_core_py_oracle.py`.
 
 ## Structural proof (bit-identical parity)
@@ -4333,7 +4316,7 @@ not part of the oracle. The pre-migration bodies are pinned VERBATIM in
   outside tests; clippy-clean.
 - The D5 stage differential (`test_deterministic_d5_rust_differential.py`)
   re-verifies `footprint_radius` through the full orchestration chain (the
-  `auto`/`template`/`proximity` phases call `_get_footprint_radius` on every
+  `auto`/`template`/`proximity` phases call the Rust kernel on every
   reservation), so the kernel is bit-exact against the D5 oracle end-to-end.
 
 

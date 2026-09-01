@@ -1,3 +1,4 @@
+<!-- provenance: commit=de06e7ab102a99b7aaf3ad13dec7cd09959cb39f dirty=UNKNOWN -->
 ---
 module: repo-wide
 tags: [safety, constants, census, clearance, creepage, ampacity, thermal, ocp, pd, material-group, voltage-class]

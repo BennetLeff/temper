@@ -149,7 +149,10 @@ fn build_toy_model_b() -> InternalConstraintModel {
 /// constraint. This simulates the effect of geographic pruning without
 /// needing actual board geometry.
 #[allow(dead_code)] // test-support harness; exercised only by `mod tests`
-fn prune_model(model: &InternalConstraintModel, remove_vars: &HashSet<String>) -> InternalConstraintModel {
+fn prune_model(
+    model: &InternalConstraintModel,
+    remove_vars: &HashSet<String>,
+) -> InternalConstraintModel {
     let variables: Vec<InternalVariable> = model
         .variables
         .iter()
@@ -218,9 +221,7 @@ fn model_constraints_are_subset(
     for c in &pruned.constraints {
         match c {
             InternalConstraint::Capacity {
-                channel_id,
-                terms,
-                ..
+                channel_id, terms, ..
             } => {
                 if !full_capacity_chans.contains(channel_id.as_str()) {
                     return false;
@@ -286,7 +287,7 @@ fn model_constraints_are_subset(
 mod tests {
     use super::*;
     use crate::encoding::encode_to_cnf;
-    use crate::solver::{solve_with_cadical, SolveLimits};
+    use crate::solver::{SolveLimits, solve_with_cadical};
     use crate::types::{SolverStatus, TopologyResult};
     use std::collections::HashMap;
 
@@ -728,12 +729,10 @@ mod tests {
                 net_idx: 0,
                 channel_id: "chA".to_string(),
             }],
-            constraints: vec![
-                InternalConstraint::LayerRestriction {
-                    var_name: "uses_N0_chA".to_string(),
-                    allowed: true, // MUST use chA
-                },
-            ],
+            constraints: vec![InternalConstraint::LayerRestriction {
+                var_name: "uses_N0_chA".to_string(),
+                allowed: true, // MUST use chA
+            }],
         };
 
         let full_result = solve_model(&model);

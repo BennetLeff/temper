@@ -52,12 +52,19 @@ Test groups (mapping to the task's R24 suite):
    ``validator_audit`` None with unchanged behaviour; a missing
    ``placement``/``voltage_domains`` key raises ``ValueError``; a non-optimal
    solve with ``validator_input`` logs a WARNING, never silent.
-8. ``TestProductionBoardSolve`` -- the real board, FREE={K3} (pure-geometry
-   recipe verified optimal in ``docs/evidence/2026-08-01-edge-hanging-refs-fix.md``):
-   solve optimal, ``hard_failures`` empty, and the known K3-intra straddler
-   (G5LE-1, 3.559mm vs 4.0/6.0/8.0 bars -- 3 violations / 1 pair) lands in
-   ``intra_footprint`` with the exact committed-board measured distance
-   (position-frame proof: fixed refs' copper geometry is unchanged).
+8. ``TestProductionBoardSolve`` -- the real board. RE-SCOPED 2026-08-25
+   (#1495): this used to run a FREE={K3,C27} solve and assert it came back
+   optimal with an empty intra bucket. The board has since drifted outside
+   the placer's feasible set (60mm displacement -> infeasible, 120mm ->
+   unknown, only 200mm -> feasible in 241s), which also destroyed the old
+   test's position-frame proof -- it compared distances "for refs the solve
+   did not move", and at a 200mm budget nothing stays put. What it pins now
+   is the placement-INDEPENDENT set: the committed board's 3 intra-footprint
+   creepage straddlers are exactly U6 (8.100mm), T1 and T2 (9.100mm) against
+   the 12.6mm PD3 reinforced bar -- the open Question A already sent to a
+   certification lab (``docs/evidence/2026-08-14-certification-lab-package-
+   pd3-and-60664-4.md``). Seconds instead of five minutes, and it fails on a
+   fourth straddler or a drifted figure.
 9. Adversarial-review fixes: (i) the rotation overlay is authoritative for
    any ref the solve touched (solved position AND solved rotation index) --
    the CLI writes ``idx*90`` unconditionally, so the audit measures the
@@ -72,7 +79,6 @@ Test groups (mapping to the task's R24 suite):
 from __future__ import annotations
 
 import logging
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -173,7 +179,9 @@ def _placement(components: list[dict], nets: dict | None = None) -> dict:
     }
 
 
-def _domain_constraint(a: str, b: str, margin: float = 8.0, cid: str | None = None) -> SeparatedConstraint:
+def _domain_constraint(
+    a: str, b: str, margin: float = 8.0, cid: str | None = None
+) -> SeparatedConstraint:
     return SeparatedConstraint(
         a=a,
         b=b,
@@ -207,12 +215,22 @@ class TestAuditFalsifier:
     def _falsifier_inputs(self) -> tuple[dict, dict, list, dict, dict]:
         placement = _placement(
             [
-                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (3.0, 0.0))]},
+                {
+                    "ref": "A",
+                    "position": (0.0, 0.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (3.0, 0.0))],
+                },
                 # B's center is 8.1mm from A's -- >= the 8.0mm bar, so the
                 # center-distance audit passes.
-                {"ref": "B", "position": (8.1, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (-3.0, 0.0))]},
+                {
+                    "ref": "B",
+                    "position": (8.1, 0.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (-3.0, 0.0))],
+                },
             ]
         )
         # A's copper spans x in [2.0, 4.0]; B's spans x in [4.1, 6.1]: the
@@ -239,8 +257,12 @@ class TestAuditFalsifier:
         assert all(v.ref_a == "A" and v.ref_b == "B" for v in audit.hard_failures)
         # Every MAINS<->LV_CONTROL matrix row must be a hard violation.
         bars = {(v.metric, v.required_mm) for v in audit.hard_failures}
-        assert bars == {("clearance", 3.0), ("creepage", 6.3),
-                        ("clearance", 6.0), ("creepage", 12.6)}, bars
+        assert bars == {
+            ("clearance", 3.0),
+            ("creepage", 6.3),
+            ("clearance", 6.0),
+            ("creepage", 12.6),
+        }, bars
         assert audit.clean is False
         assert audit.intra_footprint == [] and audit.coverage_gaps == []
 
@@ -257,10 +279,18 @@ class TestAuditFalsifier:
         # solver's box model -- the exact failure mode the audit exists to
         # catch): exact copper gap 0.1mm << 4.0mm.
         comps = [
-            MockComp(ref="A", bounds=(1.0, 1.0), initial_position=(5.0, 5.0),
-                     pins=[MockPin(number="1", net="ac_l", position=(3.0, 0.0))]),
-            MockComp(ref="B", bounds=(1.0, 1.0), initial_position=(13.1, 5.0),
-                     pins=[MockPin(number="1", net="gnd", position=(-3.0, 0.0))]),
+            MockComp(
+                ref="A",
+                bounds=(1.0, 1.0),
+                initial_position=(5.0, 5.0),
+                pins=[MockPin(number="1", net="ac_l", position=(3.0, 0.0))],
+            ),
+            MockComp(
+                ref="B",
+                bounds=(1.0, 1.0),
+                initial_position=(13.1, 5.0),
+                pins=[MockPin(number="1", net="gnd", position=(-3.0, 0.0))],
+            ),
         ]
         netlist = MockNetlist(components=comps, nets=[MockNet("ac_l"), MockNet("gnd")])
         board = MockBoard()
@@ -284,10 +314,18 @@ class TestAuditFalsifier:
         single A/B pair, all 4 matrix rows: 1 distinct pair, 4 records."""
         placement, vd, _c, _p, _r = self._falsifier_inputs()
         comps = [
-            MockComp(ref="A", bounds=(1.0, 1.0), initial_position=(5.0, 5.0),
-                     pins=[MockPin(number="1", net="ac_l", position=(3.0, 0.0))]),
-            MockComp(ref="B", bounds=(1.0, 1.0), initial_position=(13.1, 5.0),
-                     pins=[MockPin(number="1", net="gnd", position=(-3.0, 0.0))]),
+            MockComp(
+                ref="A",
+                bounds=(1.0, 1.0),
+                initial_position=(5.0, 5.0),
+                pins=[MockPin(number="1", net="ac_l", position=(3.0, 0.0))],
+            ),
+            MockComp(
+                ref="B",
+                bounds=(1.0, 1.0),
+                initial_position=(13.1, 5.0),
+                pins=[MockPin(number="1", net="gnd", position=(-3.0, 0.0))],
+            ),
         ]
         netlist = MockNetlist(components=comps, nets=[MockNet("ac_l"), MockNet("gnd")])
         board = MockBoard()
@@ -317,10 +355,20 @@ class TestAuditFalsifier:
         # (B, A): B is the MAINS-side component (domain_a), A the LV-side.
         placement = _placement(
             [
-                {"ref": "B", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (3.0, 0.0))]},
-                {"ref": "A", "position": (8.1, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (-3.0, 0.0))]},
+                {
+                    "ref": "B",
+                    "position": (0.0, 0.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (3.0, 0.0))],
+                },
+                {
+                    "ref": "A",
+                    "position": (8.1, 0.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (-3.0, 0.0))],
+                },
             ]
         )
         positions = {"B": (0.0, 0.0), "A": (8.1, 0.0)}
@@ -328,9 +376,7 @@ class TestAuditFalsifier:
         # Constraint ordered (a="A", b="B") -- the reverse of the validator's
         # emission order for this placement.
         constraints = [_domain_constraint("A", "B")]
-        audit = audit_domain_clearance_validator(
-            constraints, positions, rotations, placement, _VD
-        )
+        audit = audit_domain_clearance_validator(constraints, positions, rotations, placement, _VD)
         assert audit.hard_failures, (
             "reversed-pair ordering must absorb into the constraint-covered "
             "pair set (frozenset membership), not fall through to a coverage gap"
@@ -349,10 +395,20 @@ class TestCleanPlacement:
     def test_clean_placement_passes_both_audits(self) -> None:
         placement = _placement(
             [
-                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
-                {"ref": "B", "position": (20.0, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "A",
+                    "position": (0.0, 0.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)],
+                },
+                {
+                    "ref": "B",
+                    "position": (20.0, 0.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
         positions = {"A": (0.0, 0.0), "B": (20.0, 0.0)}
@@ -369,17 +425,35 @@ class TestCleanPlacement:
     def test_clean_solve_populates_audit_and_clean_is_true(self) -> None:
         placement = _placement(
             [
-                {"ref": "A", "position": (10.0, 10.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
-                {"ref": "B", "position": (30.0, 10.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "A",
+                    "position": (10.0, 10.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)],
+                },
+                {
+                    "ref": "B",
+                    "position": (30.0, 10.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
         comps = [
-            MockComp(ref="A", bounds=(4.0, 4.0), initial_position=(10.0, 10.0),
-                     pins=[MockPin(number="1", net="ac_l", position=(0.0, 0.0))]),
-            MockComp(ref="B", bounds=(4.0, 4.0), initial_position=(30.0, 10.0),
-                     pins=[MockPin(number="1", net="gnd", position=(0.0, 0.0))]),
+            MockComp(
+                ref="A",
+                bounds=(4.0, 4.0),
+                initial_position=(10.0, 10.0),
+                pins=[MockPin(number="1", net="ac_l", position=(0.0, 0.0))],
+            ),
+            MockComp(
+                ref="B",
+                bounds=(4.0, 4.0),
+                initial_position=(30.0, 10.0),
+                pins=[MockPin(number="1", net="gnd", position=(0.0, 0.0))],
+            ),
         ]
         netlist = MockNetlist(components=comps, nets=[MockNet("ac_l"), MockNet("gnd")])
         board = MockBoard()
@@ -483,10 +557,20 @@ class TestCoverageGap:
         in ``coverage_gaps`` -- reported, never raised."""
         placement = _placement(
             [
-                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (3.0, 0.0))]},
-                {"ref": "B", "position": (8.1, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (-3.0, 0.0))]},
+                {
+                    "ref": "A",
+                    "position": (0.0, 0.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (3.0, 0.0))],
+                },
+                {
+                    "ref": "B",
+                    "position": (8.1, 0.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (-3.0, 0.0))],
+                },
             ]
         )
         positions = {"A": (0.0, 0.0), "B": (8.1, 0.0)}
@@ -518,10 +602,20 @@ class TestGeometryTrustAndRefSetValidation:
     def _trusted_placement(self) -> dict:
         return _placement(
             [
-                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
-                {"ref": "B", "position": (20.0, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "A",
+                    "position": (0.0, 0.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)],
+                },
+                {
+                    "ref": "B",
+                    "position": (20.0, 0.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
 
@@ -538,24 +632,25 @@ class TestGeometryTrustAndRefSetValidation:
         assert audit.stats["components_without_pads"] == []
         assert audit.stats["components"] == 2
 
-    def test_padless_component_marks_geometry_untrusted_and_logs_error(
-        self, caplog
-    ) -> None:
+    def test_padless_component_marks_geometry_untrusted_and_logs_error(self, caplog) -> None:
         """(a) A placement with a pad-less component: the validator models it
         as a zero-extent point, so the audit must surface that (geometry_
         trusted False + logger.error) instead of letting a clean result look
         like a proof of copper."""
         placement = _placement(
             [
-                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "A",
+                    "position": (0.0, 0.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)],
+                },
                 # No "pads" key: B is measured origin-to-origin (optimistic).
                 {"ref": "B", "position": (4.0, 0.0), "nets": ["gnd"], "rotation_deg": 0.0},
             ]
         )
-        with caplog.at_level(
-            logging.ERROR, logger="temper_placer.placer.cp_sat.validator_audit"
-        ):
+        with caplog.at_level(logging.ERROR, logger="temper_placer.placer.cp_sat.validator_audit"):
             audit = audit_domain_clearance_validator(
                 [_domain_constraint("A", "B")],
                 {"A": (0.0, 0.0), "B": (4.0, 0.0)},
@@ -569,8 +664,7 @@ class TestGeometryTrustAndRefSetValidation:
         # so the pair is actually measured and flagged as origin-modelled.
         assert sum(r["pairs_origin_modelled"] for r in audit.stats["rows"]) > 0
         assert any(
-            "DEGRADED geometry" in r.message and r.levelno == logging.ERROR
-            for r in caplog.records
+            "DEGRADED geometry" in r.message and r.levelno == logging.ERROR for r in caplog.records
         ), [r.message for r in caplog.records]
 
     def test_empty_placement_raises_value_error(self) -> None:
@@ -598,14 +692,25 @@ class TestGeometryTrustAndRefSetValidation:
 # Group 6: build_validator_placement -- the position-frame contract
 # ---------------------------------------------------------------------------
 
+
 class TestBuildValidatorPlacement:
     def _two_comp_placement(self) -> dict:
         return _placement(
             [
-                {"ref": "A", "position": (1.0, 2.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
-                {"ref": "B", "position": (30.0, 40.0), "nets": ["gnd"], "rotation_deg": 180.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "A",
+                    "position": (1.0, 2.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)],
+                },
+                {
+                    "ref": "B",
+                    "position": (30.0, 40.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 180.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
 
@@ -634,8 +739,13 @@ class TestBuildValidatorPlacement:
         solver's index is authoritative (adversarial-review finding 3)."""
         placement = _placement(
             [
-                {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 45.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "C",
+                    "position": (10.0, 10.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 45.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
         out = build_validator_placement(
@@ -653,8 +763,13 @@ class TestBuildValidatorPlacement:
         0-3 index could not represent anyway."""
         placement = _placement(
             [
-                {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 45.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "C",
+                    "position": (10.0, 10.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 45.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
         out = build_validator_placement(
@@ -670,8 +785,13 @@ class TestBuildValidatorPlacement:
         exact base rotation are kept."""
         placement = _placement(
             [
-                {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 45.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "C",
+                    "position": (10.0, 10.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 45.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
         out = build_validator_placement(placement, {}, {})
@@ -713,17 +833,35 @@ class TestSolvePlacementIntegration:
     def _clean_solve_inputs(self) -> tuple[MockNetlist, MockBoard, dict]:
         placement = _placement(
             [
-                {"ref": "A", "position": (10.0, 10.0), "nets": ["ac_l"], "rotation_deg": 0.0,
-                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
-                {"ref": "B", "position": (30.0, 10.0), "nets": ["gnd"], "rotation_deg": 0.0,
-                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+                {
+                    "ref": "A",
+                    "position": (10.0, 10.0),
+                    "nets": ["ac_l"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)],
+                },
+                {
+                    "ref": "B",
+                    "position": (30.0, 10.0),
+                    "nets": ["gnd"],
+                    "rotation_deg": 0.0,
+                    "pads": [_pad("gnd", (0.0, 0.0), width=1.0)],
+                },
             ]
         )
         comps = [
-            MockComp(ref="A", bounds=(4.0, 4.0), initial_position=(10.0, 10.0),
-                     pins=[MockPin(number="1", net="ac_l", position=(0.0, 0.0))]),
-            MockComp(ref="B", bounds=(4.0, 4.0), initial_position=(30.0, 10.0),
-                     pins=[MockPin(number="1", net="gnd", position=(0.0, 0.0))]),
+            MockComp(
+                ref="A",
+                bounds=(4.0, 4.0),
+                initial_position=(10.0, 10.0),
+                pins=[MockPin(number="1", net="ac_l", position=(0.0, 0.0))],
+            ),
+            MockComp(
+                ref="B",
+                bounds=(4.0, 4.0),
+                initial_position=(30.0, 10.0),
+                pins=[MockPin(number="1", net="gnd", position=(0.0, 0.0))],
+            ),
         ]
         netlist = MockNetlist(components=comps, nets=[MockNet("ac_l"), MockNet("gnd")])
         board = MockBoard()
@@ -732,7 +870,10 @@ class TestSolvePlacementIntegration:
     def test_feasible_solve_populates_validator_audit(self) -> None:
         netlist, board, placement = self._clean_solve_inputs()
         result = solve_placement(
-            netlist=netlist, board=board, timeout_ms=20_000, seed=0,
+            netlist=netlist,
+            board=board,
+            timeout_ms=20_000,
+            seed=0,
             fixed_positions={"A": (10.0, 10.0, 0), "B": (30.0, 10.0, 0)},
             validator_input={"placement": placement, "voltage_domains": _VD},
         )
@@ -743,7 +884,10 @@ class TestSolvePlacementIntegration:
     def test_validator_input_absent_leaves_audit_none(self) -> None:
         netlist, board, _placement = self._clean_solve_inputs()
         result = solve_placement(
-            netlist=netlist, board=board, timeout_ms=20_000, seed=0,
+            netlist=netlist,
+            board=board,
+            timeout_ms=20_000,
+            seed=0,
             fixed_positions={"A": (10.0, 10.0, 0), "B": (30.0, 10.0, 0)},
         )
         assert result.status in ("optimal", "feasible"), result.status
@@ -753,7 +897,10 @@ class TestSolvePlacementIntegration:
         netlist, board, _placement = self._clean_solve_inputs()
         with pytest.raises(ValueError, match="validator_input must carry both"):
             solve_placement(
-                netlist=netlist, board=board, timeout_ms=20_000, seed=0,
+                netlist=netlist,
+                board=board,
+                timeout_ms=20_000,
+                seed=0,
                 fixed_positions={"A": (10.0, 10.0, 0), "B": (30.0, 10.0, 0)},
                 validator_input={"voltage_domains": _VD},
             )
@@ -762,7 +909,10 @@ class TestSolvePlacementIntegration:
         netlist, board, placement = self._clean_solve_inputs()
         with pytest.raises(ValueError, match="validator_input must carry both"):
             solve_placement(
-                netlist=netlist, board=board, timeout_ms=20_000, seed=0,
+                netlist=netlist,
+                board=board,
+                timeout_ms=20_000,
+                seed=0,
                 fixed_positions={"A": (10.0, 10.0, 0), "B": (30.0, 10.0, 0)},
                 validator_input={"placement": placement},
             )
@@ -773,11 +923,12 @@ class TestSolvePlacementIntegration:
         WARNING-logged, never silent -- a silent skip would look identical
         to a fully-audited solve in the logs (adversarial-review finding 4)."""
         netlist, board, placement = self._clean_solve_inputs()
-        with caplog.at_level(
-            logging.WARNING, logger="temper_placer.placer.cp_sat._encoder_solve"
-        ):
+        with caplog.at_level(logging.WARNING, logger="temper_placer.placer.cp_sat._encoder_solve"):
             result = solve_placement(
-                netlist=netlist, board=board, timeout_ms=5_000, seed=0,
+                netlist=netlist,
+                board=board,
+                timeout_ms=5_000,
+                seed=0,
                 # Pin both refs off-board: the edge-margin / NoOverlap set is
                 # infeasible -- the same recipe test_fixed_positions uses.
                 fixed_positions={"A": (999.0, 999.0, 0), "B": (999.0, 999.0, 0)},
@@ -786,8 +937,7 @@ class TestSolvePlacementIntegration:
         assert result.status == "infeasible", result.status
         assert result.validator_audit is None
         assert any(
-            "validator post-solve audit did NOT run" in r.message
-            and r.levelno == logging.WARNING
+            "validator post-solve audit did NOT run" in r.message and r.levelno == logging.WARNING
             for r in caplog.records
         ), [r.message for r in caplog.records]
 
@@ -853,122 +1003,91 @@ class TestProductionBoardSolve:
         except RealBoardUnavailable as exc:
             pytest.skip(f"{exc} (run `make netlist` first)")
 
-    def test_free_k3_solve_is_inter_clean_and_k3_intra_surfaces(self) -> None:
+    def test_committed_board_intra_footprint_set_is_the_open_lab_questions(self) -> None:
+        """The committed board's placement-independent creepage straddlers are
+        EXACTLY the three package-intrinsic pairs already before the
+        certification lab -- no fourth, and none of the three drifted.
+
+        RE-SCOPED 2026-08-25 (#1495). This class previously ran a scoped solve
+        with FREE={K3,C27} and asserted it came back optimal with an empty
+        intra bucket. Both halves of that premise are dead:
+
+        1. The board is OUTSIDE the placer's feasible set. A 60mm-displacement
+           solve returns ``infeasible``; 70mm and 120mm return ``unknown``;
+           only a 200mm budget reaches ``feasible``, in 241s. 200mm is not a
+           meaningful bound on a 164x234mm board -- it is "anywhere", so no
+           displacement figure in between is assertable as a repair budget.
+        2. The old test's position-frame proof compared validator distances on
+           the committed board against the solved placement "for refs the solve
+           did not move". At a 200mm budget essentially nothing stays put, so
+           there is no unmoved set left to compare -- base carried 69
+           violations against the solved placement's 3.
+
+        What IS stable, true, and cheap is the intra-footprint set itself.
+        These pairs are placement-independent by construction (the footprint
+        translates and rotates its own pads together), so no solve, budget, or
+        board revision moves them -- only a footprint or part change does.
+        Measured on the committed board: 69 REQ-SAFE-01 violations total, of
+        which exactly 3 are intra-footprint:
+
+            U6  8.100mm / 12.6mm   TI UCC21550BDWKR isolated gate driver
+                                   (DWK package: pins 12/13 omitted BY TI to
+                                   buy creepage), SELV control <-> secondary
+                                   floating on SW_NODE
+            T1  9.100mm / 12.6mm   CST3015 current transformer, primary <->
+            T2  9.100mm / 12.6mm   secondary
+
+        All three are the open Question A of
+        ``docs/evidence/2026-08-14-certification-lab-package-pd3-and-60664-4.md``
+        (U6 -4.500mm, T1/T2 -3.500mm against the 12.6mm PD3 reinforced bar),
+        and T2's 9.100mm is the exact figure the OCP-02 descope decision cites
+        (``docs/evidence/2026-08-16-ocp02-descope-decision.md``). They are
+        parts certified reinforced under a component standard whose external
+        creepage falls short of the IEC 60335-1 PD3 table figure -- a question
+        this project has explicitly sent OUT to a lab rather than answered
+        in-repo. This test does not re-litigate that; it pins the set so the
+        lab's answer arrives against an unchanged question.
+
+        Guards, concretely: a FOURTH package-intrinsic straddler appearing
+        (a footprint swap, a new part, a domain reclassification reaching
+        inside a package) fails here rather than landing silently inside the
+        69-violation inter-component debt; and any of the three drifting off
+        its measured figure fails the per-ref check.
+        """
         placement, voltage_domains, _stats = self._skip_if_unavailable()
 
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.placer.cp_sat.domain_clearance import (
-            generate_domain_clearance_constraints,
-            generate_unclassified_hv_keepaway_constraints,
-        )
+        result = verify_iec60335_compliance(placement, voltage_domains)
+        intra = [v for v in result.violations if v.ref_a == v.ref_b]
 
-        pr = parse_kicad_pcb(str(_PCB_PATH))
-        netlist = pr.netlist
-        # C27 is now ON-BOARD (written at (28.62, 222.0) by the wave-2
-        # write) -- it is part of the model, not excluded as it was when
-        # staged off-board.
-
-        current: dict[str, tuple[float, float, int]] = {}
-        for c in netlist.components:
-            current[c.ref] = (c.initial_position[0], c.initial_position[1], c.initial_rotation_quadrant)
-
-        # The Run B production recipe the written board came from: fixed
-        # copper WITHOUT zone items, free_refs={K3,C27}, margin 0.05;
-        # nothing pinned; min-displacement; full domain-clearance +
-        # keepaway; no chain exemption; seed 0.
-        all_refs = {c.ref for c in netlist.components}
-        dc = generate_domain_clearance_constraints(
-            placement, voltage_domains, component_refs=all_refs
-        )
-        kw = generate_unclassified_hv_keepaway_constraints(
-            placement, voltage_domains, component_refs=all_refs
-        )
-        from types import SimpleNamespace
-
-        fc_nozones = {
-            "parse_result": SimpleNamespace(
-                traces=pr.traces,
-                vias=pr.vias,
-                board=SimpleNamespace(
-                    zones=[],
-                    width=pr.board.width,
-                    height=pr.board.height,
-                    origin=getattr(pr.board, "origin", (0.0, 0.0)),
-                ),
-            ),
-            "free_refs": {"K3", "C27"},
-            "margin_mm": 0.05,
-        }
-
-        result = solve_placement(
-            netlist=netlist,
-            board=pr.board,
-            extra_constraints=[*dc, *kw],
-            timeout_ms=180_000,
-            seed=0,
-            hint_positions=dict(current),
-            minimize_displacement_to={ref: (v[0], v[1]) for ref, v in current.items()},
-            max_displacement_mm=60.0,
-            fixed_rotations={ref: v[2] for ref, v in current.items()},
-            fixed_copper=fc_nozones,
-            validator_input={"placement": placement, "voltage_domains": voltage_domains},
-        )
-        assert result.status in ("optimal", "feasible"), result.status
-        assert result.validator_audit is not None
-        audit = result.validator_audit
-        assert audit.hard_failures == [], (
-            "a validator HARD failure on the written-board placement means "
-            "the domain-clearance encoding is unsound for a solve that kept "
-            "every inter pair where the board already has them -- see "
-            f"{audit.report()}"
-        )
-        assert audit.coverage_gaps == [], (
-            f"unexpected coverage gaps on the written board: {audit.report()}"
-        )
-        # The wave-2 written board has NO intra-footprint straddler: K3 now
-        # carries the RT314012 (12.76mm internal gap), so the intra bucket is
-        # empty -- the G5LE-1-era 3-record / 1-pair finding is gone
-        # (docs/evidence/2026-08-02-k3-swap-and-board-write.md).
-        assert len(audit.intra_footprint) == 0, audit.report()
-        # Position-frame proof: the validator's per-pair distances on the
-        # solved placement equal the committed board's exactly (both empty:
-        # 0 violations).
-        base = verify_iec60335_compliance(placement, voltage_domains)
-        base_metrics = sorted(
-            (v.ref_a, v.ref_b, v.metric, round(v.measured_mm, 3)) for v in base.violations
-        )
-        solved_metrics = sorted(
-            (v.ref_a, v.ref_b, v.metric, round(v.measured_mm, 3))
-            for v in (*audit.intra_footprint, *audit.hard_failures, *audit.coverage_gaps)
-        )
-        assert solved_metrics == base_metrics, (
-            f"validator distances changed between the committed board and the "
-            f"solved placement for refs the solve did not move:\n"
-            f"base={base_metrics}\nsolved={solved_metrics}"
-        )
-        # And K3/C27 (the free refs) are overlaid with their solved positions.
-        from temper_placer.placer.cp_sat.validator_audit import build_validator_placement
-
-        vp = build_validator_placement(placement, result.positions, result.rotations, netlist)
-        by_ref = {c["ref"]: c for c in vp["components"]}
-        base_pos_by_ref = {c["ref"]: c["position"] for c in placement["components"]}
-        assert by_ref["K3"]["position"] == result.positions["K3"]
-        assert by_ref["C27"]["position"] == result.positions["C27"], (
-            "C27 is a free ref in the Run B recipe (fixed_copper "
-            "free_refs={K3,C27}): its validator position must be the solved "
-            "one, overlaid by the solve"
-        )
-        # Run B recipe: nothing is pinned (all refs are decision variables,
-        # min-displacement objective, fixed_copper treats every non-free ref's
-        # copper as a fixed obstacle that K3/C27's pads must clear). The
-        # recipe's displacement contract is the <=60mm cap, so every solved
-        # position must lie within that envelope of its base board position.
-        for ref, pos in base_pos_by_ref.items():
-            if ref not in result.positions:
-                continue  # not in the model: keeps base
-            solved = result.positions[ref]
-            disp = math.hypot(solved[0] - pos[0], solved[1] - pos[1])
-            assert disp <= 60.0 + 1e-6, (
-                f"ref {ref} solved beyond the recipe's 60mm displacement cap: "
-                f"{solved} vs board {pos} ({disp:.3f}mm)"
+        assert {v.ref_a for v in intra} == {"U6", "T1", "T2"}, (
+            "the board's placement-independent creepage straddlers changed; a new "
+            "one is a part/footprint decision, not a layout one:\n"
+            + "\n".join(
+                f"  {v.ref_a} {v.metric} {v.measured_mm:.3f} / {v.required_mm}mm"
+                for v in sorted(intra, key=lambda v: (v.ref_a, v.metric))
             )
+        )
+
+        # Per-ref figures, so a footprint swap that keeps the ref but changes
+        # the intrinsic gap cannot pass the set check above unnoticed.
+        by_ref = {v.ref_a: v for v in intra}
+        for ref, expected_mm in (("U6", 8.100), ("T1", 9.100), ("T2", 9.100)):
+            v = by_ref[ref]
+            assert v.metric == "creepage", f"{ref} straddles on {v.metric}, not creepage"
+            assert v.measured_mm == pytest.approx(expected_mm, abs=0.001), (
+                f"{ref} intrinsic creepage moved: {v.measured_mm:.3f}mm vs the "
+                f"{expected_mm}mm figure sent to the certification lab"
+            )
+            assert v.required_mm == pytest.approx(12.6, abs=0.001), (
+                f"{ref} is no longer measured against the 12.6mm PD3 reinforced "
+                f"bar (now {v.required_mm}mm) -- the lab question's premise moved"
+            )
+
+        # Anti-vacuity: the validator is genuinely measuring this board, not
+        # returning an empty/UNMEASURED result that would make the set check
+        # above pass by accident.
+        assert len(result.violations) > len(intra), (
+            "expected the committed board's known inter-component creepage debt "
+            "alongside the 3 intra pairs; got only the intra ones, which suggests "
+            "the validator did not measure the full board"
+        )

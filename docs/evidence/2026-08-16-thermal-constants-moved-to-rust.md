@@ -1,3 +1,4 @@
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 # Thermal constants moved to Rust — 2026-08-16
 
 ## Summary
@@ -86,7 +87,7 @@ per-device resistances — and the differential suite re-verified it.
   files), `test_thermal.py`, `test_thermal_potential.py`.
 - **PBT**: `test_thermal_rust_pbt.py`, `test_thermal_potential_rust_pbt.py`,
   `test_thermal_potential_rust_differential.py` — **159 passed**.
-- **Thermal analysis identical**: `docs/evidence/2026-08-15-thermal-analysis-run.py`
+- **Thermal analysis identical**: `docs/evidence/scripts/2026-08-15-thermal-analysis-run.py`
   (the real-board sensor-chain analysis) produces byte-identical output —
   same ambient 60 °C, same limits 80/125/175 °C, same per-device
   Rjc/Rch/Rha (U4/U5 0.31/0.20/0.45, U1/U2 0.60/0.20/0.45), same Ts/Tc/Tj

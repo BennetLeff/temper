@@ -41,7 +41,20 @@ def test_derived_gap_is_face_length_less_two_packages():
 
 
 def test_rejects_the_committed_board_placement():
-    """The whole point: U5 at 270deg and U6 at 180deg is unbuildable."""
+    """The whole point: U5 and U6 on one heatsink at UNEQUAL rotations is
+    unbuildable.
+
+    RE-DERIVED 2026-08-24. This said "U5 at 270deg and U6 at 180deg" and
+    pinned quadrants {U5: 3, U6: 2}. #1134's elec/src resync (96db2ccde,
+    2026-08-15) rotated both -- U5 270deg -> 180deg, U6 180deg -> 90deg --
+    so the pin has been stale since. Traced across that commit: 270/180 at
+    c43c50927 and d8d772961, 180/90 from 96db2ccde onward.
+
+    The guard below did exactly what its comment promised: it failed loudly
+    rather than let a stale premise keep asserting. But the premise is NOT
+    fixed -- 180deg and 90deg are still unequal, so the rotation violation
+    this test exists to catch is still there, one quadrant lower. Only the
+    coordinates moved."""
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     assert REAL_BOARD.exists(), f"board not found: {REAL_BOARD}"
@@ -56,7 +69,7 @@ def test_rejects_the_committed_board_placement():
 
     # Guard the premise: if the board is ever fixed, this test must fail
     # loudly rather than keep asserting a stale violation.
-    assert rotations == {"U5": 3, "U6": 2}, (
+    assert rotations == {"U5": 2, "U6": 1}, (
         f"committed rotations changed: {rotations} -- re-derive this test "
         f"against the new board before editing the expectation"
     )
@@ -68,10 +81,22 @@ def test_rejects_the_committed_board_placement():
     assert "alignment" in kinds, f"expected an alignment violation, got {violations}"
 
     rot_v = next(v for v in violations if v.kind == "rotation")
-    assert "270deg" in rot_v.detail and "180deg" in rot_v.detail, rot_v.detail
+    # Re-derived with the quadrants above: the detail names both tab-plane
+    # angles, which #1134 moved 270/180 -> 180/90.
+    assert "180deg" in rot_v.detail and "90deg" in rot_v.detail, rot_v.detail
 
     align_v = next(v for v in violations if v.kind == "alignment")
-    assert align_v.measured > 70.0, align_v
+    # Re-derived 2026-08-24: was `> 70.0`. #1134's resync also brought the
+    # two centres much closer -- the perpendicular offset is 16.9mm now, not
+    # the >70mm the original pin asserted. A genuine improvement, and still
+    # 16.9x the 1.0mm tolerance, so the alignment violation stands.
+    #
+    # Pinned as a value rather than re-floored at `> 10.0`: the point of
+    # this assertion is that the offset is GROSS, and a bare inequality
+    # would keep passing all the way down to 1.1mm without anyone noticing
+    # the board had nearly been fixed.
+    assert align_v.measured == pytest.approx(16.9, abs=0.05), align_v
+    assert align_v.measured > ALIGNMENT_TOLERANCE_MM
     assert align_v.limit == ALIGNMENT_TOLERANCE_MM
 
 

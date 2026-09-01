@@ -293,6 +293,53 @@ class TestValidateRaiseEvidence:
         problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
         assert any("no attributed cause" in p for p in problems)
 
+    def test_structured_march_entry_with_non_empty_cause_passes(self, tmp_path):
+        """The standardized _march format (2026-08-19: {"date": ...,
+        "cause": ..., "per_type_delta": {...}}) is an attributed cause when
+        its cause field is non-empty -- same contract as the legacy prose
+        string, new shape."""
+        old = _base_ceiling()
+        new, _board = _compliant_new_ceiling(
+            tmp_path,
+            march_value={
+                "date": "2026-08-02",
+                "cause": "attributed cause: U3 footprint corrected (commit abc123)",
+                "per_type_delta": {},
+            },
+        )
+        old["_march"] = {"2026-07-30": "prior entry (base state)"}
+        problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
+        assert problems == []
+
+    def test_structured_march_entry_with_blank_cause_fails(self, tmp_path):
+        """A structured entry whose cause field is blank is NOT a cause --
+        the format extension must not let a shape without a named cause
+        through (same semantic as a blank prose string)."""
+        old = _base_ceiling()
+        new, _board = _compliant_new_ceiling(
+            tmp_path,
+            march_value={
+                "date": "2026-08-02",
+                "cause": "   \n  ",
+                "per_type_delta": {},
+            },
+        )
+        old["_march"] = {"2026-07-30": "prior entry (base state)"}
+        problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
+        assert any("no attributed cause" in p for p in problems)
+
+    def test_structured_march_entry_without_cause_field_fails(self, tmp_path):
+        """A structured entry with no cause key at all (e.g. only
+        per_type_delta) is not an attributed cause."""
+        old = _base_ceiling()
+        new, _board = _compliant_new_ceiling(
+            tmp_path,
+            march_value={"date": "2026-08-02", "per_type_delta": {}},
+        )
+        old["_march"] = {"2026-07-30": "prior entry (base state)"}
+        problems = DrcRatchet(Path("dummy.json")).validate_raise_evidence(old, new, tmp_path)
+        assert any("no attributed cause" in p for p in problems)
+
     def test_legacy_bare_trailer_without_cause_fails(self, tmp_path):
         """U1 scenario 2: the bare legacy string with valid provenance but
         no attributed cause still fails -- the _march entry is the cause
