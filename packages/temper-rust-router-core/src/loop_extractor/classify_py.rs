@@ -92,7 +92,9 @@ pub fn parse_capacitance_py(value: &str) -> Result<Option<f64>, MalformedNumber>
         let c = chars[idx];
         if c == 'F' {
             unit.push('F');
-        } else if matches!(c, 'U' | 'P' | 'N' | 'Μ') && idx + 1 < chars.len() && chars[idx + 1] == 'F'
+        } else if matches!(c, 'U' | 'P' | 'N' | 'Μ')
+            && idx + 1 < chars.len()
+            && chars[idx + 1] == 'F'
         {
             unit.push(c);
             unit.push('F');
@@ -310,7 +312,11 @@ mod tests {
             ("\t10uF", None),
         ];
         for (input, expected) in cases {
-            assert_eq!(&parse_capacitance_py(input).ok().flatten(), expected, "{input:?}");
+            assert_eq!(
+                &parse_capacitance_py(input).ok().flatten(),
+                expected,
+                "{input:?}"
+            );
         }
     }
 
@@ -331,21 +337,93 @@ mod tests {
     fn classify_corpus_matches_cpython() {
         let cases: &[(&str, &str, &str, &str, &str, Option<&str>, f64)] = &[
             ("Q1", "TO-247", "", "", "power_switch", Some("unknown"), 0.7),
-            ("Q1", "TO-247", "", "IRG4PC50U", "power_switch", Some("igbt"), 0.9),
-            ("Q2", "TO-220", "", "IRF540", "power_switch", Some("mosfet"), 0.9),
-            ("Q3", "TO-263-3", "", "", "power_switch", Some("unknown"), 0.7),
+            (
+                "Q1",
+                "TO-247",
+                "",
+                "IRG4PC50U",
+                "power_switch",
+                Some("igbt"),
+                0.9,
+            ),
+            (
+                "Q2",
+                "TO-220",
+                "",
+                "IRF540",
+                "power_switch",
+                Some("mosfet"),
+                0.9,
+            ),
+            (
+                "Q3",
+                "TO-263-3",
+                "",
+                "",
+                "power_switch",
+                Some("unknown"),
+                0.7,
+            ),
             ("Q4", "R_0805", "", "", "other", None, 0.0),
-            ("Q5", "TO-247", "", "FGA25N120", "power_switch", Some("igbt"), 0.9),
+            (
+                "Q5",
+                "TO-247",
+                "",
+                "FGA25N120",
+                "power_switch",
+                Some("igbt"),
+                0.9,
+            ),
             ("U1", "SOIC-8", "", "UCC27714", "gate_driver", None, 0.9),
             ("U2", "SOIC-8", "", "random", "other", None, 0.0),
-            ("C1", "CP_Radial", "1000uF", "", "capacitor", Some("bus"), 0.8),
-            ("C2", "C_0603", "10nF", "", "capacitor", Some("decoupling"), 0.7),
+            (
+                "C1",
+                "CP_Radial",
+                "1000uF",
+                "",
+                "capacitor",
+                Some("bus"),
+                0.8,
+            ),
+            (
+                "C2",
+                "C_0603",
+                "10nF",
+                "",
+                "capacitor",
+                Some("decoupling"),
+                0.7,
+            ),
             ("C3", "C_0603", "", "", "capacitor", Some("decoupling"), 0.7),
-            ("C_BOOT1", "C_0603", "10nF", "", "capacitor", Some("bootstrap"), 0.9),
-            ("C4", "C_0603", "0uF", "", "capacitor", Some("decoupling"), 0.7),
+            (
+                "C_BOOT1",
+                "C_0603",
+                "10nF",
+                "",
+                "capacitor",
+                Some("bootstrap"),
+                0.9,
+            ),
+            (
+                "C4",
+                "C_0603",
+                "0uF",
+                "",
+                "capacitor",
+                Some("decoupling"),
+                0.7,
+            ),
             ("D1", "D_SOD", "", "", "diode", None, 0.7),
             ("D_BOOT1", "D_SOD", "", "", "diode", Some("bootstrap"), 0.8),
-            ("D2", "D_SOD", "", "SS52 Schottky", "diode", Some("bootstrap"), 0.8),
+            (
+                "D2",
+                "D_SOD",
+                "",
+                "SS52 Schottky",
+                "diode",
+                Some("bootstrap"),
+                0.8,
+            ),
             ("R_GATE1", "R_0805", "", "", "resistor", Some("gate"), 0.8),
             ("RG1", "R_0805", "", "", "other", None, 0.0),
             ("R1", "R_0805", "", "", "other", None, 0.0),

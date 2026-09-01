@@ -1,4 +1,4 @@
-<!-- provenance: commit=f28db82b438eef04f180e7c7a353eadaa020f7cd (worktree analysis/ocp02-unplaced-subsystem-eval,
+<!-- provenance: commit=ea96b8b38aacfc4b732f5ade98b2756bbf38be0f dirty=UNKNOWN -->
      fast-forward of origin/fix/board-schematic-resync a3fbaff37 + origin/fix/t2-repair-entrypoint's
      one commit, PR #1144), dirty=false except this file. Own git worktree
      (.claude/worktrees/ocp02-subsystem-eval), never the main checkout. `make venv-isolate` run this

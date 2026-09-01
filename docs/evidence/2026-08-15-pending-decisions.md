@@ -1,4 +1,4 @@
-<!-- provenance: commit=fbab8022e, dirty=false (branch investigate/drift-gate-1198-ipc2221-decisions, based on origin/main @ 7f6a6bd5c). pcb/temper.kicad_pcb was NOT touched by any of this work (verified: no pcb/ path in the changeset). -->
+<!-- provenance: commit=fbab8022e9c9e686a49561ad779ad5ccdf60cf22, dirty=false (branch investigate/drift-gate-1198-ipc2221-decisions, based on origin/main @ 7f6a6bd5c). pcb/temper.kicad_pcb was NOT touched by any of this work (verified: no pcb/ path in the changeset). -->
 
 # Pending-owner decisions, 2026-08-15 — A: drift-gate enablement, B: PR #1198 disposition, C: IPC-2221 bracket table
 

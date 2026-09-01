@@ -1,6 +1,6 @@
 """
 Coverage paydown v3 — regression modules (metrics_recorder, fingerprint,
-closure_test, reporter, manifest, corpus_runner, cp_sat_comparison).
+closure_test, reporter, manifest, and corpus_runner).
 
 Tests functions still on the coverage allowlist that existing suites
 (differential, PBT, oracle) don't exercise directly.
@@ -670,7 +670,6 @@ class TestGoldenManifest:
         manifest = GoldenManifest.load(manifest_yaml)
         assert manifest.get_board("b1") is not None
         assert manifest.get_board("nonexistent") is None
-
     def test_validate_missing_pcb(self, tmp_path: Path):
         import yaml
 
@@ -950,48 +949,3 @@ class TestCorpusManifest:
         manifest = CorpusManifest.load(manifest_yaml)
         assert manifest.get_board("cb1") is not None
         assert manifest.get_board("nonexistent") is None
-
-
-# ============================================================================
-# cp_sat_comparison — compare_metric_dicts
-# ============================================================================
-
-
-class TestCompareMetricDicts:
-    def test_compare_identical_dicts(self):
-        from temper_placer.regression.cp_sat_comparison import (
-            compare_metric_dicts,
-        )
-
-        scores = {"clearance_3mm": 5.0, "thermal_score": 0.8}
-        result = compare_metric_dicts(scores, scores)
-        assert hasattr(result, "passed")
-        assert hasattr(result, "comparisons")
-        assert hasattr(result, "summary")
-        assert isinstance(result.summary, str)
-
-    def test_compare_with_wirelength(self):
-        from temper_placer.regression.cp_sat_comparison import (
-            compare_metric_dicts,
-        )
-
-        candidate = {
-            "total_manhattan_wirelength": 950.0,
-            "clearance_3mm": 5.0,
-        }
-        baseline = {
-            "total_manhattan_wirelength": 1000.0,
-            "clearance_3mm": 4.0,
-        }
-        result = compare_metric_dicts(candidate, baseline)
-        assert hasattr(result, "passed")
-        assert len(result.comparisons) >= 1
-
-    def test_compare_empty_dicts(self):
-        from temper_placer.regression.cp_sat_comparison import (
-            compare_metric_dicts,
-        )
-
-        result = compare_metric_dicts({}, {})
-        assert hasattr(result, "passed")
-        assert isinstance(result.summary, str)

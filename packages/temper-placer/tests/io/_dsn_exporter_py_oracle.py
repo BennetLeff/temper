@@ -7,18 +7,16 @@ whole value is that it is frozen. The differential in
 ``test_dsn_rust_differential.py`` asserts the migrated Rust implementation
 reproduces this file's output bit-for-bit.
 
-Deviations from the pinned source: exactly two import redirections, so that the
-oracle exercises the *pinned* pure-Python DSN primitives rather than the
-migrated ones (otherwise the oracle would silently delegate to the very Rust
-code under test, and the differential would be vacuous):
-
-  - ``from temper_placer.io.dsn import dsn_list``
-      -> ``from tests.io._dsn_py_oracle import dsn_list``
-  - the ``TYPE_CHECKING`` import of ``DSNExpression``, same redirect.
-
-The redirect re-sorts the module-level import block (the new module path sorts
-before ``temper_placer``); that reordering is the only other textual change and
-is semantically inert.
+Deviations from the pinned source: exactly two import redirections. The
+original imports from ``temper_placer.io.dsn`` were redirected to the pinned
+``tests.io._dsn_py_oracle`` to exercise the *pinned* pure-Python DSN
+primitives rather than the migrated ones. That oracle was retired by FREEZE
+on 2026-08-21 (batch 3): its golden vectors are baked into
+``dsn_types.rs``'s ``frozen_dsn_tests`` module, proving the Rust
+``dsn_expression_to_string`` matches the pinned Python byte-for-byte. The
+imports are now redirected back to ``temper_placer.io.dsn`` (the Rust-backed
+delegation shim), which is valid because the frozen corpus proves
+equivalence.
 
 The ``compute_dsn_schema_hash`` import is deliberately NOT redirected: it was
 already a Rust-backed delegation shim before this migration, so it is part of
@@ -35,13 +33,13 @@ import numpy as np
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.pin_geometry import pin_world_position
-from tests.io._dsn_py_oracle import dsn_list
+from temper_placer.io.dsn import dsn_list
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.kicad_parser import TraceData
-    from tests.io._dsn_py_oracle import DSNExpression
+    from temper_placer.io.dsn import DSNExpression
 
 
 def _natural_sort_key(s: str) -> list:

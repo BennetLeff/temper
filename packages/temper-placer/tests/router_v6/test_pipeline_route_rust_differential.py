@@ -196,7 +196,7 @@ def _constraint(name, **attrs):
 # --- routing-result fakes for the write-routes core ---
 
 
-def _via(x, y, diameter=0.6, drill=0.3, from_layer="F.Cu", to_layer="B.Cu"):
+def _via(x, y, diameter=0.9, drill=0.3, from_layer="F.Cu", to_layer="B.Cu"):
     return SimpleNamespace(
         position=(x, y),
         diameter=diameter,

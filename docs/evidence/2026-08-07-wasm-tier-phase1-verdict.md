@@ -1,5 +1,5 @@
 <!-- provenance: commit=f7a1fbf8fd155a0c303462717d531f8ae7606b7f dirty=false -->
-<!-- correction: commit=63ec4e75 dirty=false, 2026-08-07 later the same day —
+<!-- correction: commit=63ec4e756a879f28642641d7aa67d2e304904408 dirty=false, 2026-08-07 later the same day —
      Track D (U7/U8) un-deferred; see "Addendum" at the end of this document.
      Original content below is left unedited; only the U7/U8 row and the
      verdict sentence carry inline pointers to the addendum. -->

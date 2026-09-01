@@ -188,7 +188,11 @@ def _build_constraints(netlist, refs_sizes: dict[str, tuple[float, float]], rule
     )
 
     netclass_auto = generate_netclass_separated_constraints(
-        netlist, netlist.components, rules.design_rules, existing_constraints=[]
+        netlist,
+        netlist.components,
+        rules.design_rules,
+        existing_constraints=[],
+        enforce_creepage=True,
     )
 
     existing_pairs: dict[tuple[str, str], float] = {}

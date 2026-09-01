@@ -2,14 +2,18 @@
 Core data structures for temper-placer.
 
 This module contains the fundamental data structures that all other modules depend on:
-- PlacementState: JAX-compatible state holding positions and rotation logits
+- PlacementState: NumPy state holding positions and rotation preference scores
 - Component, Pin: Individual component and pin representations
 - Net, Netlist: Connectivity information
 - Board, Zone: Board geometry and placement zones
 - Loop, LoopEvent, LoopCollection: Loop-centric modeling for power electronics
 
-All position arrays use jax.Array for differentiability.
+Position arrays use NumPy arrays; Rust kernels own performance-sensitive
+geometry and placement calculations.
 """
+
+# IPC-2221 PCB design standards
+from temper_drc_rs import estimate_current_from_net_class
 
 from temper_placer.core.board import (
     CANONICAL_4LAYER_LAYER_NAMES,
@@ -35,9 +39,6 @@ from temper_placer.core.differential_pair import DifferentialPairConstraint
 
 # Hypergraph utilities
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
-
-# IPC-2221 PCB design standards
-from temper_drc_rs import estimate_current_from_net_class
 from temper_placer.core.loop import (
     Loop,
     LoopCollection,

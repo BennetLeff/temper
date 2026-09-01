@@ -55,7 +55,7 @@ impl Stage<BoardState> for SlotGenerationStage {
         stage_guard("slot_generation", || {
             Python::attach(|py| {
                 let to_stage = |e: pyo3::PyErr| pyerr_stage("slot_generation", e);
-                                // U6 (O-C3) group-2: the zones guard (`if not state.zones`)
+                // U6 (O-C3) group-2: the zones guard (`if not state.zones`)
                 // maps to `!set.is_empty()`; the owned `ZoneSet` is rebuilt
                 // into the Python frozenset the iteration expects.
                 let zones = match &state.zones {
@@ -122,7 +122,10 @@ fn generate_all_zone_slots<'py>(
         let y_min: f64 = lo.get_item(1)?.extract()?;
         let x_max: f64 = hi.get_item(0)?.extract()?;
         let y_max: f64 = hi.get_item(1)?.extract()?;
-        let slots = tdb.call_method1("generate_slots_for_zone", (x_min, y_min, x_max, y_max, spacing))?;
+        let slots = tdb.call_method1(
+            "generate_slots_for_zone",
+            (x_min, y_min, x_max, y_max, spacing),
+        )?;
         // `tuple(slots)` -- builtin tuple over the kernel's list of
         // (x, y) tuples.
         let slot_tuple = builtins.getattr("tuple")?.call1((slots,))?;
@@ -144,9 +147,8 @@ pub fn run_slot_generation(
     state: Py<PyAny>,
     slot_spacing_mm: f64,
 ) -> PyResult<Py<PyAny>> {
-    let rust_state = crate::d1_bridge::from_python(py, state.bind(py)).map_err(|e| {
-        pyo3::exceptions::PyRuntimeError::new_err(format!("slot_generation: {e}"))
-    })?;
+    let rust_state = crate::d1_bridge::from_python(py, state.bind(py))
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("slot_generation: {e}")))?;
     let stage = SlotGenerationStage { slot_spacing_mm };
     let out = stage.run(rust_state).map_err(|e| to_pyerr(&e))?;
     crate::d1_bridge::to_python(py, state.bind(py), &out, &["zone_slots"])

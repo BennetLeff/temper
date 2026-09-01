@@ -1,8 +1,7 @@
 """R1a differential: the Wave-4 heuristics/ slice vs its pinned oracles.
 
-Scope: the five remaining placement-heuristic modules --
-``conflict.py``, ``topological_init.py``, ``spectral.py``,
-``power_stage.py``, ``mcu_subsystem.py``. Verdict per module:
+Scope: the three remaining placement-heuristic modules --
+``conflict.py``, ``topological_init.py`` and ``spectral.py``. Verdict per module:
 
 * ``conflict.py``       -- MIGRATE: the per-pair overlap scan
   (``check_conflict``) and the nudge-candidate selection
@@ -11,15 +10,6 @@ Scope: the five remaining placement-heuristic modules --
 * ``topological_init.py`` -- MIGRATE: ``_check_feasibility``'s arithmetic
   (per-component fit decision, the two compensated ``sum()`` area totals)
   moved to ``temper_geometry.feasibility_check``.
-* ``power_stage.py``    -- MIGRATE: both heuristics' boundary clamp moved to
-  ``temper_geometry.clamp_position`` (numpy ``np.clip``
-  semantics, B12).
-* ``mcu_subsystem.py``  -- NO COMPUTE TO MIGRATE: its ``apply`` is a
-  one-call delegation to ``place_power_stage_template``, which Phase 4
-  already routed through ``temper_io_types.placer_place_power_stage_template``
-  (``placer/deterministic.py``). This suite proves it structurally: the
-  oracle is byte-identical to the pinned pre-migration file (nothing to
-  shim) and the shipped ``apply`` provably reaches the Rust kernel.
 * ``spectral.py``       -- JUSTIFIED-KEEP (networkx boundary): its compute
   is ``nx.spectral_layout(subgraph, weight="weight", dim=2)`` -- the
   eigenvector decomposition of the graph Laplacian via ``np.linalg.eigh``
@@ -61,8 +51,6 @@ from pathlib import Path
 import pytest
 
 import tests.heuristics._conflict_py_oracle as CONFLICT_ORACLE
-import tests.heuristics._mcu_subsystem_py_oracle as MCU_ORACLE
-import tests.heuristics._power_stage_py_oracle as POWER_ORACLE
 import tests.heuristics._topological_init_py_oracle as TOPO_ORACLE
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Netlist
@@ -77,20 +65,15 @@ REQUIRED_RUST_SYMBOLS: tuple[str, ...] = (
     "overlap_check",
     "nudge_candidates",
     "feasibility_check",
-    "clamp_position",
 )
 
 _ORACLE_PINS: dict[str, str] = {
     "conflict": "cf2aad24b9030cdc8e026db3fb2e0938bad30a84",
     "topological_init": "b9c766059c34649c2947f04f89a578fdb48a2756",
-    "power_stage": "5a17025b15d01bf88116b569493d8ed483e1856f",
-    "mcu_subsystem": "5a17025b15d01bf88116b569493d8ed483e1856f",
 }
 _ORACLE_MODULES: dict[str, object] = {
     "conflict": CONFLICT_ORACLE,
     "topological_init": TOPO_ORACLE,
-    "power_stage": POWER_ORACLE,
-    "mcu_subsystem": MCU_ORACLE,
 }
 
 
@@ -205,23 +188,6 @@ def _feasibility_context(margin=2.0):
         ),
         _feasibility_netlist(),
         margin=margin,
-    )
-
-
-def _power_stage_netlist():
-    return Netlist(
-        components=[
-            Component(ref="Q1", footprint="TO-247", bounds=(10.0, 8.0)),
-            Component(ref="Q2", footprint="TO-247", bounds=(10.0, 8.0)),
-            Component(ref="C_BUS1", footprint="CAP", bounds=(6.0, 4.0)),
-            Component(ref="C_BUS2", footprint="CAP", bounds=(6.0, 4.0)),
-            Component(ref="U_GATE1", footprint="SOIC-8", bounds=(5.0, 4.0)),
-            Component(ref="C_BOOT1", footprint="0805", bounds=(2.0, 1.25)),
-            Component(ref="C_VCC1", footprint="0805", bounds=(2.0, 1.25)),
-            Component(ref="R_GATE_H1", footprint="0805", bounds=(2.0, 1.25)),
-            Component(ref="R_GATE_L1", footprint="0805", bounds=(2.0, 1.25)),
-        ],
-        nets=[],
     )
 
 
@@ -453,157 +419,6 @@ def test_feasibility_identical_margin_erosion():
 
 
 # ---------------------------------------------------------------------------
-# Site 3: power_stage.py -- template + proximity placement
-# ---------------------------------------------------------------------------
-
-
-def _power_stage_template_comparison(context):
-    oracle_h = POWER_ORACLE.PowerStageTemplateHeuristic()
-    shipped_h = __import__(
-        "temper_placer.heuristics.power_stage", fromlist=["PowerStageTemplateHeuristic"]
-    ).PowerStageTemplateHeuristic()
-    return oracle_h.apply(context), shipped_h.apply(context)
-
-
-def _power_stage_driver_comparison(context):
-    oracle_h = POWER_ORACLE.DriverProximityHeuristic()
-    shipped_h = __import__(
-        "temper_placer.heuristics.power_stage", fromlist=["DriverProximityHeuristic"]
-    ).DriverProximityHeuristic()
-    return oracle_h.apply(context), shipped_h.apply(context)
-
-
-def test_power_stage_template_identical():
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        _power_stage_netlist(),
-        margin=5.0,
-        placement_priority={"power": {"anchor": (75.0, 70.0)}},
-    )
-    oracle_result, shipped_result = _power_stage_template_comparison(ctx)
-    assert set(oracle_result.placements) == {"Q1", "Q2", "C_BUS1", "C_BUS2"}
-    assert sig(oracle_result) == sig(shipped_result)
-
-
-def test_power_stage_template_default_anchor_identical():
-    """No anchor in config -> board 0.75/0.75 default, in both arms."""
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        _power_stage_netlist(),
-        margin=5.0,
-        placement_priority={"power": {}},
-    )
-    oracle_result, shipped_result = _power_stage_template_comparison(ctx)
-    assert sig(oracle_result) == sig(shipped_result)
-
-
-def test_power_stage_template_initial_position_identical():
-    """The comp.initial_position branch bypasses the anchor+offset path."""
-    netlist = Netlist(
-        components=[
-            Component(
-                ref="Q1", footprint="TO-247", bounds=(10.0, 8.0), initial_position=(20.0, 30.0)
-            ),
-            Component(ref="Q2", footprint="TO-247", bounds=(10.0, 8.0)),
-        ]
-    )
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        netlist,
-        margin=5.0,
-        placement_priority={"power": {"anchor": (75.0, 70.0)}},
-    )
-    oracle_result, shipped_result = _power_stage_template_comparison(ctx)
-    assert sig(oracle_result) == sig(shipped_result)
-
-
-def test_power_stage_driver_proximity_identical():
-    """Driver components placed relative to a placed reference (Q1)."""
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        _power_stage_netlist(),
-        margin=5.0,
-        placement_priority={"driver": {"reference": "Q1", "max_distance_mm": 20.0}},
-        current_placements={"Q1": ComponentPlacement(ref="Q1", position=(75.0, 70.0))},
-    )
-    oracle_result, shipped_result = _power_stage_driver_comparison(ctx)
-    assert sig(oracle_result) == sig(shipped_result)
-
-
-def test_power_stage_driver_proximity_board_center_fallback_identical():
-    """Reference not placed and no initial_position -> board center."""
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        _power_stage_netlist(),
-        margin=5.0,
-        placement_priority={"driver": {"reference": "Q1", "max_distance_mm": 20.0}},
-    )
-    oracle_result, shipped_result = _power_stage_driver_comparison(ctx)
-    assert sig(oracle_result) == sig(shipped_result)
-
-
-def test_power_stage_missing_components_skipped_identical():
-    """Template refs absent from the netlist are skipped identically."""
-    netlist = Netlist(components=[Component(ref="Q1", footprint="TO-247", bounds=(10.0, 8.0))])
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        netlist,
-        margin=5.0,
-        placement_priority={"power": {"anchor": (75.0, 70.0)}},
-    )
-    oracle_result, shipped_result = _power_stage_template_comparison(ctx)
-    assert set(oracle_result.placements) == {"Q1"}
-    assert sig(oracle_result) == sig(shipped_result)
-
-
-# ---------------------------------------------------------------------------
-# Site 4: mcu_subsystem.py -- pure delegation, structural proof
-# ---------------------------------------------------------------------------
-
-
-def test_mcu_subsystem_apply_delegates_to_rust():
-    """``MCUSubsystemHeuristic.apply`` reaches
-    ``temper_io_types.placer_place_power_stage_template`` -- the Phase-4 Rust
-    kernel. If the production path drifts to a non-Rust implementation, the
-    sentinel stops being raised."""
-    import temper_io_types as _io
-
-    from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
-
-    board = _board(zones=[Zone(name="MCU", bounds=(0.0, 0.0, 100.0, 100.0))])
-    netlist = Netlist(
-        components=[
-            Component(ref="U_MCU", footprint="QFN", bounds=(7.0, 7.0)),
-            Component(ref="Y1", footprint="XTAL", bounds=(2.0, 1.2)),
-        ]
-    )
-    template_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / "src"
-        / "temper_placer"
-        / "templates"
-        / "mcu_subsystem.yaml"
-    )
-
-    sentinel = RuntimeError("REACHED_RUST_MCU_TEMPLATE")
-
-    def boom(*_a, **_k):
-        raise sentinel
-
-    original = _io.placer_place_power_stage_template
-    _io.placer_place_power_stage_template = boom
-    try:
-        with pytest.raises(RuntimeError, match="REACHED_RUST_MCU_TEMPLATE"):
-            MCUSubsystemHeuristic(template_path=template_path).apply(netlist, board, "MCU")
-    finally:
-        _io.placer_place_power_stage_template = original
-
-    # the fixture is meaningful: with the real kernel the same call succeeds
-    result = MCUSubsystemHeuristic(template_path=template_path).apply(netlist, board, "MCU")
-    assert set(result.placed_refs) >= {"U_MCU", "Y1"}
-
-
-# ---------------------------------------------------------------------------
 # Shipped-module delegation proof -- the monkeypatched-kernel gate.
 #
 # The numeric differentials above would pass whether or not the shipped
@@ -614,7 +429,6 @@ def test_mcu_subsystem_apply_delegates_to_rust():
 import temper_geometry as _RUST  # noqa: E402
 
 import temper_placer.heuristics.conflict as shipped_conflict  # noqa: E402
-import temper_placer.heuristics.power_stage as shipped_power_stage  # noqa: E402
 import temper_placer.heuristics.topological_init as shipped_topo  # noqa: E402
 
 
@@ -652,14 +466,3 @@ def test_feasibility_delegates_to_rust():
     ctx = _feasibility_context(margin=2.0)
     shipped_h = shipped_topo.TopologicalInitializationHeuristic()
     _patch_and_run("feasibility_check", shipped_h._check_feasibility, ctx, ["Q1", "Q2", "C1", "U1"])
-
-
-def test_power_stage_clamp_delegates_to_rust():
-    ctx = _context(
-        _board(width=120.0, height=90.0),
-        _power_stage_netlist(),
-        margin=5.0,
-        placement_priority={"power": {"anchor": (75.0, 70.0)}},
-    )
-    shipped_h = shipped_power_stage.PowerStageTemplateHeuristic()
-    _patch_and_run("clamp_position", shipped_h.apply, ctx)

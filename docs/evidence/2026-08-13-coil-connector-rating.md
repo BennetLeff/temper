@@ -1,4 +1,4 @@
-<!-- provenance: commit=5511e581f50be9f7ef649840b1acb82aa3633f17 (branch
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 fix/coil-connector-rating, base origin/main @ a3e117347, worktree
 /home/bennet/Desktop/temper/.claude/worktrees/fix-coil-connector-rating).
 pcb/temper.kicad_pcb sha256=6928b7c8950a732f1991578f5ff7c080104c0847bf438ccd8bf2c75150544b64

@@ -280,6 +280,141 @@ class TestDisplacementObjective:
         with pytest.raises(ValueError):
             model.add_displacement_objective("Q1", 500, 500, max_units=-1)
 
+    def test_hard_displacement_bound_does_not_add_objective(self) -> None:
+        # The hard-only API restricts the feasible set, but must not turn the
+        # solve into a minimum-displacement optimization.
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        model.add_hard_displacement_bound("Q1", 500, 500, max_units=200)
+        sol = model.solve(time_limit_s=2.0)
+        assert sol.feasible
+        x, y = sol.positions["Q1"]
+        assert abs(x - 500) + abs(y - 500) <= 200, (x, y)
+        assert sol.objective_value == 0.0
+
+    def test_hard_only_displacement_bound_can_make_model_infeasible(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_hard_displacement_bound("Q1", 500, 500, max_units=100)
+        sol = model.solve(time_limit_s=2.0)
+        assert not sol.feasible
+
+    def test_hard_displacement_bound_can_be_unconditional(self) -> None:
+        """Deletion-test bounds do not create an assumption literal."""
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        assumptions_before = len(model._assumptions)
+        model.add_hard_displacement_bound(
+            "Q1", 500, 500, max_units=100, use_assumption=False
+        )
+
+        assert len(model._assumptions) == assumptions_before
+        assert model._displacement_assumptions == {}
+        sol = model.solve(time_limit_s=2.0)
+        assert not sol.feasible
+        assert sol.unsat_assumptions == []
+
+    def test_hard_displacement_bound_rejects_non_boolean_assumption_mode(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(TypeError, match="use_assumption must be a bool"):
+            model.add_hard_displacement_bound(
+                "Q1", 500, 500, max_units=100, use_assumption=1  # type: ignore[arg-type]
+            )
+
+    def test_hard_displacement_bound_has_stable_unsat_label(self) -> None:
+        """A bound identifies its component when it causes infeasibility."""
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_hard_displacement_bound("Q1", 500, 500, max_units=100)
+
+        sol = model.solve(time_limit_s=2.0)
+
+        assert not sol.feasible
+        assert "displacement_bound_Q1" in sol.unsat_assumptions
+
+    def test_hard_displacement_bound_accepts_custom_unsat_label(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_hard_displacement_bound(
+            "Q1", 500, 500, max_units=100, assumption_label="safe_topology_Q1"
+        )
+
+        sol = model.solve(time_limit_s=2.0)
+
+        assert not sol.feasible
+        assert "safe_topology_Q1" in sol.unsat_assumptions
+
+    def test_hard_displacement_bounds_share_group_assumption(self) -> None:
+        """A shared label gates every member envelope with one literal."""
+        model = CpSatModel()
+        for ref in ("Q1", "Q2"):
+            model.add_component(ref, x_start_val=0, y_start_val=0, width=100, height=100)
+        model.add_hard_displacement_bound(
+            "Q1", 500, 500, max_units=100, assumption_label="safe_topology_group_0"
+        )
+        model.add_hard_displacement_bound(
+            "Q2", 500, 500, max_units=200, assumption_label="safe_topology_group_0"
+        )
+
+        assert len(model._assumptions) == 1
+        assert len(model._displacement_assumptions) == 1
+        group = model._displacement_assumptions["safe_topology_group_0"]
+        assert model._assumption_labels[group.Index()] == "safe_topology_group_0"
+
+    def test_hard_displacement_group_core_reports_shared_label(self) -> None:
+        """An infeasible member bound reports its group, not a component alias."""
+        model = CpSatModel()
+        for ref in ("Q1", "Q2"):
+            model.add_component(ref, x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1", "Q2"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        for ref in ("Q1", "Q2"):
+            model.add_hard_displacement_bound(
+                ref, 500, 500, max_units=100, assumption_label="safe_topology_group_0"
+            )
+
+        sol = model.solve(time_limit_s=2.0)
+
+        assert not sol.feasible
+        assert "safe_topology_group_0" in sol.unsat_assumptions
+        assert len([label for label in sol.unsat_assumptions if label == "safe_topology_group_0"]) == 1
+
+    def test_hard_displacement_default_labels_remain_individual(self) -> None:
+        """Omitting labels retains the historical per-component labels."""
+        model = CpSatModel()
+        for ref in ("Q1", "Q2"):
+            model.add_component(ref, x_start_val=0, y_start_val=0, width=100, height=100)
+            model.add_hard_displacement_bound(ref, 500, 500, max_units=100)
+
+        assert len(model._assumptions) == 2
+        assert set(model._assumption_labels.values()) == {
+            "displacement_bound_Q1",
+            "displacement_bound_Q2",
+        }
+
+    def test_hard_displacement_bound_validates_ref_and_radius(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(KeyError):
+            model.add_hard_displacement_bound("NOPE", 500, 500, max_units=100)
+        with pytest.raises(ValueError):
+            model.add_hard_displacement_bound("Q1", 500, 500, max_units=-1)
+
 
 class TestFixedRotation:
     """Hard-pinning a component's 0-3 rotation index.

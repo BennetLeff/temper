@@ -53,7 +53,7 @@ NETLIST_FILE = $(ELEC_DIR)/build/default.net
 netlist:
 	@echo "Building Atopile project..."
 	@if [ -f $(BOM_FILE) ]; then cp $(BOM_FILE) $(BOM_PREV); fi
-	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY) \
+	cd $(ELEC_DIR) && uv tool run --from 'atopile==0.2.69' ato --non-interactive build $(ATO_ENTRY) \
 	  && cd .. && uv run --no-sync python scripts/write_build_stamp.py \
 	       --artifact $(NETLIST_FILE) --source-root $(ELEC_DIR)/src --glob '*.ato'
 
@@ -76,7 +76,7 @@ diff:
 	fi
 
 visualize:
-	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile==0.2.69' ato --non-interactive view $(ATO_ENTRY)
 
 # Re-pointed 2026-08-04 at the production board, which now exists -- this is the
 # "re-point PCB_FILE at the production board once it exists" the previous comment
@@ -193,27 +193,17 @@ test-fast:
 # a merge touches Rust source, the installed extension still imports but is
 # silently frozen at its last successful build).
 #
-# The crate list is NOT hardcoded: `scripts/check_stale_extensions.py
-# --list-crates` is the same discover_crates() source of truth the freshness
-# gate checks against, so this can never drift from "how many pyo3 crates the
-# repo actually has". `uv run --no-sync` (never bare `uv run`) on every step,
-# so a re-sync cannot evict the very .so just built; temper-constraints
-# additionally needs PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 (see
-# .github/workflows/python-tests.yml). Why all of this matters -- the four
-# silent-staleness modes, and why a poisoned cargo cache defeats a rebuild:
-# AGENTS.md "Rebuilding pyo3/maturin Rust Extensions" and
-# docs/evidence/2026-08-11-worktree-poisons-shared-venv.md.
+# `scripts/build_extensions.py` reuses `discover_crates()`, the freshness
+# gate's own source of truth. It builds dependents first and local
+# dependencies last, explicitly enables each crate's `python` feature, clears
+# only that package's shared-target outputs, then verifies every artifact is
+# fresh and importable. This closes the poisoned-cdylib incident where a
+# dependent build overwrote an earlier extension with a no-PyInit artifact.
+# `uv run --no-sync` (never bare `uv run`) prevents a resync from evicting the
+# artifacts just installed; temper-constraints gets its ABI3 compatibility
+# setting in the driver (see .github/workflows/python-tests.yml).
 extensions:
-	@echo "Rebuilding pyo3/maturin extension crates (crate list from 'scripts/check_stale_extensions.py --list-crates')..."
-	@uv run --no-sync python3 scripts/check_stale_extensions.py --list-crates | while read -r crate_name manifest_path; do \
-		echo "--- $$crate_name ($$manifest_path) ---"; \
-		if [ "$$crate_name" = "temper-constraints" ]; then \
-			PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
-		else \
-			uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
-		fi; \
-	done
-	@echo "Done. Run 'make extensions-check' to verify every crate is now fresh."
+	uv run --no-sync python3 scripts/build_extensions.py --repo-root "$(CURDIR)"
 
 # Report-only: same gate CI runs, without rebuilding anything. Pair with
 # `make extensions` as "check, then fix".

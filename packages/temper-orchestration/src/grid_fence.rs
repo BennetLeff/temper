@@ -81,7 +81,15 @@ pub fn run_grid_fence_check(
         let w: f64 = pad_size.get_item(0)?.extract()?;
         let h: f64 = pad_size.get_item(1)?.extract()?;
         let raw = fence_samples.call1((
-            code, px, pyy, pad_radius, w, h, eff_creep, inset, sample_count_circle,
+            code,
+            px,
+            pyy,
+            pad_radius,
+            w,
+            h,
+            eff_creep,
+            inset,
+            sample_count_circle,
         ))?;
 
         // samples = [(raw[i], raw[i+1]) for i in range(0, len(raw), 2)]
@@ -161,11 +169,7 @@ pub fn run_grid_perf_budget(
 }
 
 #[cfg(feature = "python")]
-fn fence_tuple(
-    py: Python<'_>,
-    over_budget: bool,
-    message: Option<String>,
-) -> PyResult<Py<PyAny>> {
+fn fence_tuple(py: Python<'_>, over_budget: bool, message: Option<String>) -> PyResult<Py<PyAny>> {
     let builtins = py.import("builtins")?;
     let over: Py<PyAny> = builtins
         .getattr(if over_budget { "True" } else { "False" })?

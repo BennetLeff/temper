@@ -998,8 +998,11 @@ dependencies = [
 name = "temper-orchestration"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
  "temper-data-model",
  "temper-geometry",
+ "temper-io-types",
 ]
 
 [[package]]

@@ -57,6 +57,7 @@ from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages import component_assignment as _shim_component_assignment
 from temper_placer.deterministic.stages import (
+    phased_component_assignment as _shim_phased_component_assignment,
     phased_component_assignment_validator as _shim_validator,
 )
 from temper_placer.deterministic.state import BoardState
@@ -516,7 +517,17 @@ def _validator_state(
 
 def _run_both_validator(state):
     """Run both validator arms and return the (oracle, port) failure lists."""
-    orc = _orc_validator.validate_phased_component_assignment_hv(state)
+    # The pinned validator oracle predates the direct Rust orchestration call
+    # and resolves its footprint helper through the live stage class. Keep
+    # that oracle runnable without restoring a production callback: install
+    # the verbatim oracle helper only for this test invocation, then remove it.
+    stage_cls = _shim_phased_component_assignment.PhasedComponentAssignmentStage
+    legacy_radius = _orc_component_assignment.ComponentAssignmentStage._get_footprint_radius
+    setattr(stage_cls, "_get_footprint_radius", legacy_radius)
+    try:
+        orc = _orc_validator.validate_phased_component_assignment_hv(state)
+    finally:
+        delattr(stage_cls, "_get_footprint_radius")
     port = _shim_validator.validate_phased_component_assignment_hv(state)
     return orc, port
 

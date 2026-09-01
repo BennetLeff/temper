@@ -99,6 +99,22 @@ class Gate:
         return DeltaMapper.map(violation)
 
 
+def create_mfem_corroboration_gate(**kwargs: Any) -> Gate:
+    """Build the optional external-MFEM corroboration gate.
+
+    MFEM is an optional external instrument, so importing its gate eagerly
+    into the core gate module would make every placement process depend on
+    the optional thermal stack.  This public factory keeps the dependency at
+    the explicit-gate boundary while giving production callers a stable
+    owner (`gates.py`) instead of importing the ledgered implementation by
+    test-only path.  The returned gate remains fail-closed ``UNMEASURED`` when
+    the configured MFEM binary is unavailable.
+    """
+    from temper_placer.validation.mfem_gate import MFEMCorroborationGate
+
+    return MFEMCorroborationGate(**kwargs)
+
+
 # ---------------------------------------------------------------------------
 # Portable KiCad footprint-library directory resolution (plan 2026-07-23-001 U1)
 # ---------------------------------------------------------------------------
@@ -122,10 +138,10 @@ def _resolve_kicad_footprint_dir() -> Path | None:
 
     # 2. Common paths — search in order; first existing directory wins.
     candidates = [
-        "/usr/share/kicad/footprints",           # Debian/Ubuntu (kicad)
-        "/usr/share/kicad/6.0/footprints",        # version-specific
-        "/usr/share/kicad/7.0/footprints",        # version-specific
-        "/usr/local/share/kicad/footprints",      # manual / non-packaged
+        "/usr/share/kicad/footprints",  # Debian/Ubuntu (kicad)
+        "/usr/share/kicad/6.0/footprints",  # version-specific
+        "/usr/share/kicad/7.0/footprints",  # version-specific
+        "/usr/local/share/kicad/footprints",  # manual / non-packaged
         "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",  # macOS
     ]
     for candidate in candidates:
@@ -495,7 +511,9 @@ class StackupGate(Gate):
     # Current density (R3)
     # ------------------------------------------------------------------
 
-    def _check_current_density(self, net_name: str, route: Any, state: BoardState) -> Violation | None:
+    def _check_current_density(
+        self, net_name: str, route: Any, state: BoardState
+    ) -> Violation | None:
         """Check trace width meets IPC-2221B minimum for the net's current."""
         current_a = self._resolve_net_current(net_name)
 
@@ -757,27 +775,85 @@ _HV_NET_PATTERNS: frozenset[str] = frozenset(
 
 
 def _is_hv_net(name: str) -> bool:
-    """Check whether *name* is a known HV net in the half-bridge design.
+    """Check whether *name* is an HV-domain net.
 
-    KNOWN GAP, flagged not fixed (2026-08-17, same evidence doc as
-    ``HV_LV_CREEPAGE_MM`` above): this is a local, hardcoded 7-name
-    frozenset -- a fourth, independently-maintained "is this net HV"
-    classifier alongside ``core/net_classification.classify_net_type``
-    (fixed in ``netclass_constraints.py``, same evidence doc),
-    ``core/design_rules.py``'s ``TEMPER_NET_ASSIGNMENTS``/pattern cascade,
-    and ``elec/domain_manifest.yaml``. It does not include K1's HV
-    relay-contact nets (``power_in.ntc-no``, ``w1_1``, ``w1_2``) -- the
-    same net set whose misclassification in ``netclass_constraints.py``
-    produced the J1/K1 unroutable placement this task investigates. A DRC
-    clearance violation naming one of those three nets would silently NOT
-    be recognized as an HV↔LV crossing by this gate. Left as-is: reconciling
-    this gate's net classification with the authoritative
-    ``DesignRules.get_rules_for_net()`` source is a materially larger change
-    (this function has no ``DesignRules`` instance available today) than
-    this task's assigned scope (the threshold value + the gate's
-    liveness/DeltaMapper leak) and was not attempted here.
+    FIXED 2026-08-19 (docs/evidence/2026-08-19-is-hv-net-blast-radius.md).
+    This used to be ``name in _HV_NET_PATTERNS`` and nothing else -- a
+    local, hardcoded 7-name frozenset, a fourth independently-maintained
+    "is this net HV" classifier alongside
+    ``core/net_classification.classify_net_type``,
+    ``core/design_rules.py``'s ``TEMPER_NET_ASSIGNMENTS`` cascade, and
+    ``elec/domain_manifest.yaml``. The 2026-08-17 evidence doc
+    (``2026-08-17-netclass-classifier-manifest-and-ieccreepagegate-
+    liveness.md`` SS2) flagged it and left it unfixed on the stated ground
+    that reconciling it "requires threading a ``DesignRules`` instance
+    into a function that currently has none available". That premise was
+    wrong: ``router_v6.clearance_check`` already answers exactly this
+    question from a bare string, with no ``DesignRules`` instance, via
+    ``elec/domain_manifest.yaml`` -- and that is the mechanism reused here
+    rather than a fifth hand-maintained list.
+
+    MEASURED, on the committed board ``pcb/temper.kicad_pcb`` (sha256
+    26981fea...c110b), with ``kicad-cli`` 10.0.5:
+
+    * 6 of the 7 hardcoded names (``DC_BUS+``, ``DC_BUS-``,
+      ``SW_NODE_DC+``, ``SW_NODE_DC-``, ``AC_L``, ``AC_N``) **do not
+      exist as net names on this board at all**. Only ``SW_NODE`` does.
+      The mains conductors are spelled ``ac_l``/``ac_n`` (lowercase);
+      the DC bus is ``+170V_BUS``/``DC_BUS_RTN``.
+    * So this predicate recognised **1 of the 27 nets that
+      ``elec/domain_manifest.yaml`` declares under its ``HV`` domain**,
+      all 27 of which are present on the board.
+    * Consequence on the real board: of the ``clearance``-category DRC
+      violations, the old predicate flagged exactly ONE as an HV<->LV
+      crossing -- ``SW_NODE`` vs ``hb.power_loop.q_high-g`` -- and that
+      one is a FALSE POSITIVE (both nets are declared HV-domain, i.e. a
+      same-domain pair). With this fix it flags 2, both ``+170V_BUS``
+      against the OVP-01 divider's deliberately-unclassified mid-chain
+      nodes (``safety.ovp.r_div_top1-p2`` / ``safety.ovp.r_adc_top1-p2``),
+      which the manifest's own single-fault analysis records as reaching
+      the FULL +170V bus potential under the IEC 60335-1 cl. 8.1.4 fault.
+
+    STILL BROKEN, NOT FIXED HERE -- a SEPARATE defect in the same gate,
+    deliberately not folded into this classification fix so that it is not
+    mistaken for closed: ``IECCreepageGate.check()`` filters
+    ``if err.rule != "clearance": continue`` and therefore never inspects
+    KiCad's own ``creepage``-category violations at all, despite
+    ``HV_LV_CREEPAGE_MM`` being a creepage figure. Measured on the same
+    board: 35 violations in the ``creepage`` category pair a
+    manifest-declared HV net directly against a manifest-declared SELV net
+    (including ``ac_l``<->``gnd`` and ``ac_n``<->``gnd``), and this gate
+    reports none of them, before or after this fix. Those 35 ARE caught by
+    the fab-authoritative ``scripts/generate_kicad_dru.py`` ->
+    ``kicad-cli`` path, so they are visible in the board's DRC totals;
+    what is broken is this gate's redundant, in-placer check of them.
+    Widening the rule filter changes what the gate measures rather than
+    how it classifies, and is scoped as follow-up work.
+
+    The 7-name frozenset is kept and checked FIRST rather than deleted:
+    ``DC_BUS+``/``DC_BUS-``/``SW_NODE_DC+``/``SW_NODE_DC-`` are not on
+    this board and not in the manifest, so dropping them would NARROW
+    recognition for any caller (and for the existing unit tests) that uses
+    those spellings. This change only ever widens.
     """
-    return name in _HV_NET_PATTERNS
+    if name in _HV_NET_PATTERNS:
+        return True
+    # Same string-only, manifest-backed classifier
+    # `router_v6.clearance_check._get_required_clearance` already uses to
+    # answer this exact question -- `elec/domain_manifest.yaml` is this
+    # project's canonical, human-reviewed HV/SELV declaration, and
+    # `_is_hv_keyword_match` is its audited word-boundary keyword fallback
+    # (with the `_SELV_LINE_NET_OVERRIDES` guard against the "LINE"
+    # over-match). Reusing them takes this repo from four independently
+    # maintained HV classifiers to three; it introduces no new net list and
+    # no new safety figure. Imported lazily: this module is imported during
+    # placer start-up and `clearance_check` pulls in the router_v6 stack.
+    from temper_placer.router_v6.clearance_check import (
+        _is_hv_keyword_match,
+        _load_manifest_hv_net_names,
+    )
+
+    return name in _load_manifest_hv_net_names() or _is_hv_keyword_match(name.upper())
 
 
 class IECCreepageGate(Gate):

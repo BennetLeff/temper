@@ -132,7 +132,6 @@ CONSOLIDATED_FAMILIES: tuple[ConsolidatedFamily, ...] = (
             "packages/temper-placer/src/temper_placer/router_v6/_pipeline_grid.py",
             "packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py",
             "packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py",
-            "packages/temper-placer/src/temper_placer/router_v6/capacity_check.py",
         ),
         evidence="docs/evidence/2026-08-13-defect-multiplier-duplication-audit.md",
         consolidated_on="2026-08-13",
@@ -246,7 +245,7 @@ OPEN_FINDINGS: tuple[OpenFinding, ...] = (
             "ACCIDENTAL, undiverged-vs-undocumented (the concern, ranked #1):",
             "packages/temper-geometry/src/creepage_check.rs:61 (canonical kernel per issue #987's own execution doc; point_to_segment_distance_py binding)",
             "packages/temper-geometry/src/drc_constraints_geometry.rs:107 (own kernel, seg_len_sq < 1e-10, no documented rationale for differing; drc_point_to_segment_distance_py binding, called by router_v6/constraints_geometry.py -- DRC-adjacent)",
-            "packages/temper-geometry/src/geometry_kernels.rs:105 (own kernel, len2 < 1e-12, no documented rationale for differing; geom_point_to_segment_distance_py binding, called by requirements/validators/_geometry.py -- the REQ-SAFE package)",
+            "packages/temper-geometry/src/geometry_kernels.rs:100 (own native kernel, len2 < 1e-12, no documented rationale for differing; Python binding retired with the orphaned requirements/validators/_geometry.py shim)",
             "packages/temper-constraint-compiler/src/constraints/mod.rs:324 (own kernel, exact ab_len_sq == 0.0, no documented rationale for differing; constraint_point_to_segment_distance binding, called by constraints/compiler.py)",
             "packages/temper-rust-router-core/src/pruning.rs:74 (own kernel, not py-bound, not compared)",
             "6+ pinned Python oracles (DELIBERATE, not a concern -- e.g. "

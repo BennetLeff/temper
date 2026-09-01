@@ -107,6 +107,39 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "packages/temper-placer/src"))
 
+#: OCP-02's three parts are deliberately parked BELOW the outline, and that
+#: is a formal, dated decision rather than a placement oversight:
+#: docs/evidence/2026-08-16-ocp02-descope-decision.md --
+#:
+#:     DECIDED -- OCP-02 (secondary over-current protection,
+#:     SecondaryOCPComparator) is de-scoped / do-not-fit (DNF).
+#:     T2/C37/R65 stay in off-board staging.
+#:
+#: DNF, not delete-from-schematic: the circuit stays instantiated in
+#: elec/src/modules.ato so the interface survives for the reinstatement
+#: paths, and the parts stay staged so the netlist still reconciles. The
+#: cause is the CT package, not its position -- the CST3015's intrinsic
+#: primary<->secondary creepage is 9.100mm against the governing 12.6mm PD3
+#: bar, and the decision record closes every alternative part with
+#: datasheet figures. No placement anywhere on this board fixes it.
+#:
+#: Keyed by POSITION, not just by ref, on purpose. Exempting the refs
+#: outright would mean a staged part that later drifts somewhere else off
+#: the board goes unreported -- which is the exact defect class this gate
+#: was written to catch (see the R38 corpus note above). A part is exempt
+#: only while it sits at the coordinate the decision record names; move it
+#: a millimetre and it is a violation again.
+DNF_STAGED_MM: dict[str, tuple[float, float]] = {
+    "T2": (100.0, 300.0),
+    "C37": (20.0, 272.12),
+    "R65": (44.0, 272.12),
+}
+
+#: Tolerance for the staging-position match, in mm. Tight: this is an
+#: identity check against a recorded coordinate, not a proximity test.
+_STAGED_TOL_MM = 0.001
+
+
 EXIT_OK = 0
 EXIT_VIOLATION = 1
 EXIT_GATE_ERROR = 2
@@ -154,6 +187,11 @@ class ContainmentReport:
     pads_checked: int
     outline_bounds_mm: tuple[float, float, float, float]
     violations: list[Violation] = field(default_factory=list)
+    #: Copper outside the outline that belongs to a DNF-staged part sitting
+    #: at its recorded staging coordinate (see DNF_STAGED_MM). Reported, and
+    #: deliberately NOT counted as a violation -- but kept as its own field
+    #: rather than dropped, so `ok` never means "nothing is out there".
+    staged: list[Violation] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -161,8 +199,17 @@ class ContainmentReport:
 
     def refs_outside(self) -> set[str]:
         """Reference designators with at least one violation -- the corpus's
-        per-class assertion keys on this."""
+        per-class assertion keys on this.
+
+        Excludes DNF-staged parts, which is what keeps the corpus's
+        localisation property (`refs_outside() == {seeded_ref}`) meaningful:
+        three permanently-staged refs would otherwise swamp every seeded
+        defect the R38 corpus checks.
+        """
         return {v.ref for v in self.violations}
+
+    def refs_staged(self) -> set[str]:
+        return {v.ref for v in self.staged}
 
 
 def _require_shapely():
@@ -378,10 +425,12 @@ def analyze_board(board_path: Path) -> ContainmentReport:
             f"containment pass over an empty inventory"
         )
 
+    origins: dict[str, tuple[float, float]] = {}
     for footprint in board.footprints:
         props = footprint.properties or {}
         ref = props.get("Reference") or "<no Reference>"
         sheetpath = props.get("Sheetpath")
+        origins[ref] = (footprint.position.X, footprint.position.Y)
 
         pad_polys = list(_pad_polygons(footprint, box, rotate, translate, place, shapely_angle))
         if not pad_polys:
@@ -418,12 +467,28 @@ def analyze_board(board_path: Path) -> ContainmentReport:
                 )
             )
 
+    def _is_staged(v: Violation) -> bool:
+        want = DNF_STAGED_MM.get(v.ref)
+        if want is None:
+            return False
+        got = origins.get(v.ref)
+        if got is None:
+            return False
+        return (
+            abs(got[0] - want[0]) <= _STAGED_TOL_MM
+            and abs(got[1] - want[1]) <= _STAGED_TOL_MM
+        )
+
+    staged = [v for v in violations if _is_staged(v)]
+    real = [v for v in violations if not _is_staged(v)]
+
     return ContainmentReport(
         board=str(board_path),
         footprints_checked=len(board.footprints),
         pads_checked=pads_checked,
         outline_bounds_mm=tuple(outline.bounds),
-        violations=violations,
+        violations=real,
+        staged=staged,
     )
 
 
@@ -432,6 +497,20 @@ def _print_report(report: ContainmentReport) -> None:
     print(f"board: {report.board}")
     print(f"outline (Edge.Cuts) bounds: ({x0:.2f}, {y0:.2f}) - ({x1:.2f}, {y1:.2f}) mm")
     print(f"checked: {report.footprints_checked} footprints, {report.pads_checked} pads")
+
+    if report.staged:
+        # Always printed, pass or fail. A gate that silently swallows copper
+        # outside the outline -- even copper it has been told to expect --
+        # is one board edit away from being trusted about something it never
+        # looked at.
+        print(
+            f"\nDNF-staged (expected, not a violation): {len(report.staged)} "
+            f"piece(s) of copper outside the outline, refs "
+            f"{sorted(report.refs_staged())} -- "
+            "docs/evidence/2026-08-16-ocp02-descope-decision.md"
+        )
+        for violation in sorted(report.staged, key=lambda v: (v.ref, v.pad or "")):
+            print(f"  [dnf-staged] {violation.detail}")
 
     if report.ok:
         print("\nBoard containment: PASS -- all copper inside the board outline")

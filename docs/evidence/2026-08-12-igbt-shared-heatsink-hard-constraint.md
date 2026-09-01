@@ -1,4 +1,4 @@
-<!-- provenance: branch=feat/igbt-heatsink-colocation, worktree=/home/bennet/Desktop/temper-igbt-heatsink, base=origin/main 756968706. pcb/temper.kicad_pcb NOT modified (git status clean against it throughout). -->
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 
 # Making the shared-heatsink requirement a hard placement constraint
 

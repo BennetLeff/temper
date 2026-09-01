@@ -64,8 +64,6 @@ use crate::types::{Point, Rect};
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
-#[cfg(feature = "python")]
-use temper_py_bridge;
 
 // ---------------------------------------------------------------------------
 // point / rect

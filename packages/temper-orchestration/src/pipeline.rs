@@ -70,7 +70,12 @@ impl ClockPoint {
 /// and `pipeline.visualization.ProgressCallback`.
 pub trait PipelineObserver<S> {
     fn on_stage_start(&mut self, stage_name: &str, state: &S);
-    fn on_stage_complete(&mut self, stage_name: &str, result: &Result<S, StageError>, elapsed_ms: f64);
+    fn on_stage_complete(
+        &mut self,
+        stage_name: &str,
+        result: &Result<S, StageError>,
+        elapsed_ms: f64,
+    );
 }
 
 /// Result of a full pipeline run.
@@ -105,7 +110,9 @@ pub struct PipelineConfig {
 
 impl Default for PipelineConfig {
     fn default() -> Self {
-        Self { halt_on_error: true }
+        Self {
+            halt_on_error: true,
+        }
     }
 }
 
@@ -179,10 +186,8 @@ impl<S: Clone> PipelineRunner<S> {
                     state = new_state;
                 }
                 Err(e) => {
-                    let is_fatal = matches!(
-                        e.kind,
-                        StageErrorKind::Fatal | StageErrorKind::Infeasible
-                    );
+                    let is_fatal =
+                        matches!(e.kind, StageErrorKind::Fatal | StageErrorKind::Infeasible);
                     reports.push(StageReport {
                         name,
                         elapsed_ms: elapsed,
@@ -384,10 +389,7 @@ pub(crate) mod tests {
         };
         let mut runner = PipelineRunner::new(config);
         runner.add_stage(Box::new(AddStage::new("a", 1)));
-        runner.add_stage(Box::new(AddStage::failing(
-            "fatal",
-            StageErrorKind::Fatal,
-        )));
+        runner.add_stage(Box::new(AddStage::failing("fatal", StageErrorKind::Fatal)));
         runner.add_stage(Box::new(AddStage::new("b", 10)));
         let (state, report) = runner.run(0);
         assert_eq!(state, 11);
@@ -476,12 +478,8 @@ pub(crate) mod tests {
             }
         }
         let mut runner = PipelineRunner::new(PipelineConfig::default());
-        runner.add_stage(Box::new(LenStage {
-            push: "x".into(),
-        }));
-        runner.add_stage(Box::new(LenStage {
-            push: "y".into(),
-        }));
+        runner.add_stage(Box::new(LenStage { push: "x".into() }));
+        runner.add_stage(Box::new(LenStage { push: "y".into() }));
         let (state, report) = runner.run(vec!["seed".into()]);
         assert_eq!(state, vec!["seed", "x", "y"]);
         assert_eq!(report.stage_reports.len(), 2);
@@ -546,13 +544,31 @@ mod proptests {
 
     impl LogStage {
         fn ok(name: &str, delta: u32, log: Arc<Mutex<Vec<String>>>) -> Self {
-            Self { name: name.to_string(), delta, active: true, fatal: false, log }
+            Self {
+                name: name.to_string(),
+                delta,
+                active: true,
+                fatal: false,
+                log,
+            }
         }
         fn fatal(name: &str, log: Arc<Mutex<Vec<String>>>) -> Self {
-            Self { name: name.to_string(), delta: 0, active: true, fatal: true, log }
+            Self {
+                name: name.to_string(),
+                delta: 0,
+                active: true,
+                fatal: true,
+                log,
+            }
         }
         fn inactive(name: &str, delta: u32, log: Arc<Mutex<Vec<String>>>) -> Self {
-            Self { name: name.to_string(), delta, active: false, fatal: false, log }
+            Self {
+                name: name.to_string(),
+                delta,
+                active: false,
+                fatal: false,
+                log,
+            }
         }
     }
 

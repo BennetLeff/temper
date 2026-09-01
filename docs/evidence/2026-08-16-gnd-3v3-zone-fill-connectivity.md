@@ -1,3 +1,4 @@
+<!-- provenance: commit=e542aea35f749abb51c1ce72101000d26fb629c7 dirty=UNKNOWN -->
 ---
 module: router_v6
 tags: [routing, zones, pour, gnd, 3v3, connectivity, rust-migration, creepage]

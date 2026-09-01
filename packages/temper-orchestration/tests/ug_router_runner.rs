@@ -281,7 +281,14 @@ fn canonical_stage_order_through_pyclass() {
         let inst = cls.call0()?;
         let result = inst.call_method1(
             "run",
-            (pipeline, "/fake/pcb.kicad_pcb", py.None(), py.None(), py.None(), py.None()),
+            (
+                pipeline,
+                "/fake/pcb.kicad_pcb",
+                py.None(),
+                py.None(),
+                py.None(),
+                py.None(),
+            ),
         )?;
 
         let log = read_log(&ns)?;
@@ -312,7 +319,10 @@ fn canonical_stage_order_through_pyclass() {
         assert_eq!(result.getattr("stage4")?.get_type().name()?, "FakeStage4");
         assert_eq!(result.getattr("escape_vias")?.len()?, 1);
         let batch = result.getattr("batch_results")?;
-        assert_eq!(batch.get_item(0)?.get_item("net")?.extract::<String>()?, "N1");
+        assert_eq!(
+            batch.get_item(0)?.get_item("net")?.extract::<String>()?,
+            "N1"
+        );
         assert!(result.getattr("runtime_seconds")?.extract::<f64>()? >= 0.0);
         assert!(result.getattr("manufacturing_report")?.is_none());
         // the parse carried the plane-condemnation flag
@@ -331,13 +341,22 @@ fn skip_stage3_bypasses_sat_through_pyclass() {
         clear_log(&ns)?;
 
         // The shim-resolved R7 empty Stage3Output (topology_graph=None).
-        let empty = ns.getattr("Stage3Output")?.call1((py.None(), py.None(), py.None()))?;
+        let empty = ns
+            .getattr("Stage3Output")?
+            .call1((py.None(), py.None(), py.None()))?;
         let pipeline = ns.getattr("FakePipeline")?.call1((true, false))?;
         let cls = py.get_type::<RouterPipeline>();
         let inst = cls.call0()?;
         let result = inst.call_method1(
             "run",
-            (pipeline, "/fake/pcb.kicad_pcb", py.None(), py.None(), py.None(), &empty),
+            (
+                pipeline,
+                "/fake/pcb.kicad_pcb",
+                py.None(),
+                py.None(),
+                py.None(),
+                &empty,
+            ),
         )?;
 
         let log = read_log(&ns)?;
@@ -350,7 +369,12 @@ fn skip_stage3_bypasses_sat_through_pyclass() {
             result.getattr("stage3")?.is(&empty),
             "the stage3_override object must be the result's stage3"
         );
-        assert!(result.getattr("stage3")?.getattr("topology_graph")?.is_none());
+        assert!(
+            result
+                .getattr("stage3")?
+                .getattr("topology_graph")?
+                .is_none()
+        );
         // stage4 still ran on the empty topology
         assert!(log.iter().any(|e| e == "stage4"));
         Ok::<(), PyErr>(())
@@ -365,14 +389,24 @@ fn stage_exception_propagation_through_pyclass() {
         let ns = install_fakes(py)?;
         clear_log(&ns)?;
 
-        let pipeline = ns.getattr("FakePipeline")?.call1((false, true, false, "critical", "stage3"))?;
+        let pipeline = ns
+            .getattr("FakePipeline")?
+            .call1((false, true, false, "critical", "stage3"))?;
         let cls = py.get_type::<RouterPipeline>();
         let inst = cls.call0()?;
-        let err = inst.call_method1(
-            "run",
-            (pipeline, "/fake/pcb.kicad_pcb", py.None(), py.None(), py.None(), py.None()),
-        )
-        .expect_err("the stage3 raise must propagate out of the pyclass");
+        let err = inst
+            .call_method1(
+                "run",
+                (
+                    pipeline,
+                    "/fake/pcb.kicad_pcb",
+                    py.None(),
+                    py.None(),
+                    py.None(),
+                    py.None(),
+                ),
+            )
+            .expect_err("the stage3 raise must propagate out of the pyclass");
         let value = err.value(py);
         assert_eq!(value.get_type().name()?, "RuntimeError");
         assert!(value.str()?.to_string().contains("boom-stage3"));
@@ -381,7 +415,10 @@ fn stage_exception_propagation_through_pyclass() {
         let log = read_log(&ns)?;
         assert!(log.iter().any(|e| e == "stage2"));
         assert!(!log.iter().any(|e| e == "stage4"));
-        assert!(!log.iter().any(|e| e == "('ledger.checkout', 'routing_complete')"));
+        assert!(
+            !log.iter()
+                .any(|e| e == "('ledger.checkout', 'routing_complete')")
+        );
         Ok::<(), PyErr>(())
     })
     .unwrap();
@@ -402,7 +439,14 @@ fn result_assembly_fields_through_pyclass() {
         let inst = cls.call0()?;
         let result = inst.call_method1(
             "run",
-            (pipeline, "/fake/pcb.kicad_pcb", py.None(), py.None(), py.None(), py.None()),
+            (
+                pipeline,
+                "/fake/pcb.kicad_pcb",
+                py.None(),
+                py.None(),
+                py.None(),
+                py.None(),
+            ),
         )?;
 
         let log = read_log(&ns)?;

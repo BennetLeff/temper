@@ -1,3 +1,4 @@
+<!-- provenance: commit=41b1d2aae78a2ad01457c704ded5c897fa124016 dirty=UNKNOWN -->
 ---
 title: Python deprecation inventory — how much can we delete today?
 date: 2026-08-11

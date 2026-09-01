@@ -1,4 +1,4 @@
-<!-- provenance: commit=2b18ade3e branch=fix/thermal-corrections-v2 dirty=false (the code-fix commit the analysis was run against; the analysis-run script and this doc were committed on top) -->
+<!-- provenance: commit=2b18ade3e9244d804a8cb2b0cb731745984b13a5 branch=fix/thermal-corrections-v2 dirty=false (the code-fix commit the analysis was run against; the analysis-run script and this doc were committed on top) -->
 
 # Thermal analysis corrections implemented — ambient 60 °C, margin vs 80 °C firmware trip, per-component Rjc/Rch/Rha (2026-08-15)
 

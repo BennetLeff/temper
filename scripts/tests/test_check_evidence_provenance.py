@@ -23,6 +23,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import check_evidence_provenance as gate  # noqa: E402
 from check_evidence_provenance import (  # noqa: E402
     REPO_ROOT,
     _is_shallow_repo,
@@ -409,3 +410,141 @@ class TestFailBeforePassAfter:
         result = _run_gate(evidence_dir, tmp_path / ".allowlist")
         assert result.returncode == 0, result.stdout + result.stderr
         assert "PASSED" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Derived-default contract (2026-08-25)
+#
+# docs/evidence/2026-08-25-provenance-stamp-contract-decision.md: an explicit
+# commit=DERIVED is COMPUTED as the commit that introduced the file, because the
+# contract previously asked authors for a value that does not exist when they
+# write the file (45% land-failure; 68% of repairs transcribed this exact
+# value and a further 23% pointed at the bulk-repair commit that stamped
+# them). The author must still supply dirty state. These tests exist so the
+# change cannot quietly become "the gate always passes": each one fails if its
+# specific guard is removed.
+# ---------------------------------------------------------------------------
+
+
+def _git(tmp, *args):
+    subprocess.run(["git", *args], cwd=tmp, check=True,
+                   capture_output=True, text=True)
+
+
+def _repo_with(tmp_path, name, body):
+    _git(tmp_path, "init", "-q")
+    _git(tmp_path, "config", "user.email", "t@t")
+    _git(tmp_path, "config", "user.name", "t")
+    d = tmp_path / "docs" / "evidence"
+    d.mkdir(parents=True)
+    (d / name).write_text(body)
+    _git(tmp_path, "add", "-A")
+    _git(tmp_path, "commit", "-qm", "add")
+    return d / name
+
+
+def test_explicit_derived_stamp_is_resolved_and_marked(tmp_path):
+    """DERIVED plus author-supplied dirty state resolves and stays distinct."""
+    f = _repo_with(
+        tmp_path,
+        "a.md",
+        "<!-- provenance: commit=DERIVED dirty=false -->\n# x\n",
+    )
+    r = gate.check_file(f)
+    assert r.ok, r.reason
+    assert r.derived is True
+    assert gate.SHA_RE.match(r.commit or ""), r.commit
+
+
+def test_missing_stamp_still_fails_even_when_derivation_is_enabled(tmp_path):
+    """Git cannot recover dirty state, so a completely absent stamp is red."""
+    f = _repo_with(tmp_path, "missing.md", "# no stamp here\n")
+    r = gate.check_file(f)
+    assert not r.ok
+    assert r.derived is False
+    assert "no 'provenance:" in r.reason
+
+
+def test_derived_without_dirty_still_fails(tmp_path):
+    """DERIVED only replaces commit; it never manufactures dirty state."""
+    f = _repo_with(
+        tmp_path,
+        "missing-dirty.md",
+        "<!-- provenance: commit=DERIVED -->\n# x\n",
+    )
+    r = gate.check_file(f)
+    assert not r.ok
+    assert "dirty=<absent>" in r.reason
+
+
+def test_json_explicit_derived_has_parity_with_text(tmp_path):
+    f = _repo_with(
+        tmp_path,
+        "derived.json",
+        json.dumps({"provenance": {"commit": "DERIVED", "dirty": False}}),
+    )
+    r = gate.check_file(f)
+    assert r.ok, r.reason
+    assert r.derived is True
+    assert gate.SHA_RE.match(r.commit or ""), r.commit
+
+
+def test_json_missing_provenance_still_fails(tmp_path):
+    f = _repo_with(tmp_path, "missing.json", json.dumps({"measurement": 1}))
+    r = gate.check_file(f)
+    assert not r.ok
+    assert r.derived is False
+
+
+def test_author_stamp_is_not_marked_derived(tmp_path):
+    """An explicit stamp round-trips unchanged and is NOT marked derived --
+    the 9% of files whose measurement tree differs from where they landed
+    must stay distinguishable."""
+    sha = "b" * 40
+    f = _repo_with(tmp_path, "b.md",
+                   f"<!-- provenance: commit={sha} dirty=false -->\n# x\n")
+    r = gate.check_file(f)
+    assert r.ok, r.reason
+    assert r.derived is False
+    assert r.commit == sha
+
+
+def test_unparseable_stamp_still_fails_and_is_never_derived(tmp_path):
+    """A malformed stamp is a DIFFERENT failure from a missing one and must
+    not be rescued by derivation -- otherwise an abbreviated or fabricated
+    SHA becomes green."""
+    f = _repo_with(tmp_path, "c.md",
+                   "<!-- provenance: commit=abc123 dirty=false -->\n# x\n")
+    r = gate.check_file(f)
+    assert not r.ok
+    assert r.derived is False
+
+
+def test_no_derive_restores_the_stricter_contract(tmp_path):
+    """--no-derive rejects an explicit request to compute the commit."""
+    f = _repo_with(
+        tmp_path,
+        "d.md",
+        "<!-- provenance: commit=DERIVED dirty=false -->\n# x\n",
+    )
+    gate._DERIVE_DISABLED = True
+    try:
+        r = gate.check_file(f)
+    finally:
+        gate._DERIVE_DISABLED = False
+    assert not r.ok
+    assert "disabled by --no-derive" in r.reason
+
+
+def test_underivable_file_fails_rather_than_passing(tmp_path):
+    """If git cannot name an introducing commit -- untracked file, shallow
+    clone -- the gate FAILS. A derivation that cannot be made must never
+    silently pass; that is the vacuous shape this repo has shipped before."""
+    _git(tmp_path, "init", "-q")
+    d = tmp_path / "docs" / "evidence"
+    d.mkdir(parents=True)
+    f = d / "e.md"
+    f.write_text("<!-- provenance: commit=DERIVED dirty=false -->\n")
+    assert gate.derive_introducing_commit(f) is None
+    r = gate.check_file(f)
+    assert not r.ok

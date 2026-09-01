@@ -596,16 +596,44 @@ class TestRealBoardIsolatorFigures:
     sealed-compartment prerequisite recorded there and in
     HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1; PD3/12.6mm remains the
     documented fallback if that prerequisite is not met. Against the
-    currently-enforced 8.0mm figure, K1's exact 8.000mm gap is now a MATCH,
-    not a shortfall -- see
-    ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``
-    below, which re-measures this directly rather than assuming it.
+    currently-enforced 8.0mm figure, K1's intra-footprint gap is no longer a
+    shortfall at all -- and since the 2026-08-24 re-part from the Omron
+    G4A-E to a Schrack RT33K012 it is **17.800mm**, not the 8.000mm this
+    docstring and the parametrization above both used to carry. See
+    ``test_k1_intra_footprint_isolation_clears_after_the_relay_repart``
+    below, which measures it directly, and
+    ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``,
+    which now covers only the INTER-component (placement) half. The two were
+    one assertion until 2026-08-24; folded together, the failing placement
+    half hid the passing part half. Full triage:
+    docs/evidence/2026-08-24-k1-isolation-barrier-triage.md.
     """
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
         "ref,pad_a,pad_b,expected_mm",
-        [("T1", "1", "4", 9.100), ("K1", "13", "A1", 8.000)],
+        # K1 was re-parted from an Omron G4A-E (pads A1/A2/13/14) to a Schrack
+        # RT33K012 (pads 1/2/3/4), so the old ("K1", "13", "A1", 8.000) case
+        # named pads that no longer exist and raised `KeyError: '13'` -- an
+        # assertion that CRASHES instead of measuring, which is why the
+        # re-part's improvement went unreported. See
+        # docs/evidence/2026-08-24-k1-isolation-barrier-triage.md.
+        #
+        # The barrier inside K1 is coil (pads 1/2, SELV) against contacts
+        # (pads 3/4, mains); 1<->4 is the MINIMUM of the four coil/contact
+        # combinations and therefore the figure that governs. Measured
+        # through this test's own code path: 1<->2 5.500, 3<->4 3.040 (both
+        # same-domain, not barrier crossings), 1<->4 17.800, 2<->4 19.001,
+        # 1<->3 22.840, 2<->3 23.807.
+        #
+        # NOTE: K1 carries DUPLICATE pad numbers (two pads "3", two pads "4" --
+        # the relay's contact pairs). `pads` below is a dict keyed by number,
+        # so each duplicate collapses to whichever `_component_pads` yields
+        # LAST. For 1<->4 that is deterministic and gives the minimum anyway,
+        # but a future footprint whose duplicate order flips would silently
+        # measure a different pad. Asserted explicitly in
+        # test_k1_intra_footprint_isolation_clears_after_the_relay_repart.
+        [("T1", "1", "4", 9.100), ("K1", "1", "4", 17.800)],
     )
     def test_isolator_pad_gap(self, ref, pad_a, pad_b, expected_mm):
         from temper_placer.core.pad_geometry import pad_pair_distance
@@ -671,10 +699,109 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         k1 = [v for v in result.violations if v.ref_a == "K1" or v.ref_b == "K1"]
-        assert k1 == [], (
-            "expected K1 to clear at the currently-enforced 8.0mm PD2 "
-            f"target (exact 8.000mm intra-footprint gap; see "
-            f"test_isolator_pad_gap); still violating: {k1}"
+        inter = [v for v in k1 if v.pair_kind == "inter"]
+        assert inter == [], (
+            "K1 still has INTER-COMPONENT creepage violations at the "
+            "currently-enforced 12.6mm PD3 reinforced target. (This message "
+            "said '8.0mm PD2' when written on 2026-08-24 -- wrong, and wrong "
+            "in the lenient direction. PD2/8.0mm was superseded for "
+            "enforcement by docs/evidence/2026-08-15-pd2-pd3-data-driven-"
+            "decision.md: PD3 governs the as-built, forced-air-vented, "
+            "compartment-less board, and the sealed compartment PD2 needs is "
+            "unbuilt. generate_kicad_dru.py sets HV_CREEPAGE_ENFORCED_MM = "
+            "HV_CREEPAGE_PD3_MM accordingly.) This is a PLACEMENT "
+            "shortfall, not a part-selection one: K1's own intra-footprint "
+            "barrier clears with margin since the Schrack re-part (17.800mm, "
+            "asserted in "
+            "test_k1_intra_footprint_isolation_clears_after_the_relay_repart). "
+            "Measured 2026-08-24: K1(DC_BUS, power_in.ntc-no) <-> R56(LV_CONTROL, "
+            "safety-line) at 5.036mm, and RT1(DC_BUS) <-> K1(LV_CONTROL, coil) at "
+            "7.000mm -- both under the enforced 12.6mm, and both under even the "
+            "superseded 8.0mm. K1 appears on "
+            "both sides because K1 IS the barrier (contacts mains, coil SELV). "
+            "Fixing this means moving R56 or K1, which is a board change with "
+            "its own same-PR DRC-ceiling discipline (AGENTS.md) -- do NOT "
+            "re-baseline this assertion to make it green. Full triage: "
+            "docs/evidence/2026-08-24-k1-isolation-barrier-triage.md. "
+            f"Still violating: {inter}"
+        )
+
+    @pytest.mark.slow
+    def test_k1_intra_footprint_isolation_clears_after_the_relay_repart(self):
+        """K1's own coil<->contact barrier, which the Schrack re-part fixed.
+
+        Split out of
+        ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``
+        on 2026-08-24 because that test's single ``k1 == []`` assertion
+        conflated two separable questions and answered neither:
+
+          * **Is the PART adequate?**  Yes, and by a wide margin since K1 went
+            from an Omron G4A-E (8.000mm coil<->contact) to a Schrack RT33K012
+            (**17.800mm**). That is more than double, and it is the creepage
+            work landing.
+          * **Is the PLACEMENT adequate?**  No -- see the sibling test above.
+
+        With both folded into one assertion the failing half hid the passing
+        half, and the sibling that measured the intra-footprint figure
+        (``test_isolator_pad_gap``) was itself raising ``KeyError: '13'`` on
+        the retired Omron pad names. So a real safety improvement was
+        invisible in CI. See
+        docs/evidence/2026-08-24-k1-isolation-barrier-triage.md.
+
+        Asserted here directly rather than by re-reading the parametrized
+        figure: zero intra-footprint violations, and the governing
+        coil<->contact gap at or above the enforced 8.0mm target.
+        """
+        from temper_placer.core.pad_geometry import pad_pair_distance
+        from temper_placer.requirements.validators.clearance import _component_pads
+
+        from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
+
+        try:
+            placement, domains, _stats = load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+        result = verify_iec60335_compliance(placement, domains)
+        intra = [
+            v
+            for v in result.violations
+            if (v.ref_a == "K1" or v.ref_b == "K1") and v.pair_kind == "intra"
+        ]
+        assert intra == [], (
+            "K1's intra-footprint barrier regressed -- the Schrack RT33K012 "
+            f"re-part cleared it on 2026-08-24. Violations: {intra}"
+        )
+
+        by_ref = {c["ref"]: c for c in placement["components"]}
+        pads_all = _component_pads(by_ref["K1"])
+        coil = {"1", "2"}
+        contact = {"3", "4"}
+        assert {p.number for p in pads_all} == coil | contact, (
+            "K1's pad numbering changed again; re-derive this test and "
+            "test_isolator_pad_gap's parametrization together."
+        )
+
+        def spec(p):
+            return (p.width, p.height, p.shape, p.cx, p.cy, p.rotation_rad, p.roundrect_ratio)
+
+        # Every coil pad against every contact pad, duplicates included -- this
+        # does NOT collapse duplicate pad numbers into a dict, so it is immune
+        # to the ordering hazard noted on test_isolator_pad_gap.
+        gap = min(
+            pad_pair_distance(spec(a), spec(b))
+            for a in pads_all
+            if a.number in coil
+            for b in pads_all
+            if b.number in contact
+        )
+        assert gap == pytest.approx(17.800, abs=1e-6), (
+            f"K1 coil<->contact minimum gap moved: {gap:.6f}mm (was 17.800mm "
+            "on the Schrack RT33K012). Re-derive against the new footprint."
+        )
+        assert gap >= 8.0, (
+            f"K1's intra-footprint barrier ({gap:.3f}mm) is under the enforced "
+            "8.0mm PD2 reinforced target"
         )
 
     @pytest.mark.slow
@@ -749,13 +876,57 @@ class TestRealBoardIsolatorFigures:
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
 
-        # Wave-2 written board: 0 intra-footprint blockers -- K3's RT314012
-        # swap (12.76mm internal gap) cleared the last one (measured REQ-
-        # SAFE-01 = 0/0 on the written board; see
-        # docs/evidence/2026-08-02-k3-swap-and-board-write.md).
-        assert intra == set(), (
-            f"expected zero intra-footprint blockers on the wave-2 written "
-            f"board (K3 cleared by the RT314012 swap), got intra={intra}"
+        # RE-BASELINED 2026-08-25: intra is {T1, T2, U6}, not empty.
+        #
+        # The `intra == set()` baseline above was measured under the PD2
+        # 8.0mm reinforced target adopted on 2026-07-30. PD3/12.6mm is what
+        # is enforced today (#1229), and this docstring's own PD2 update
+        # predicted exactly this: "If the sealed-compartment prerequisite is
+        # not met and the PD3 fallback governs instead, all seven refs above
+        # return to this test's original set." The fallback governs. Some
+        # returned; several did not, and each has a distinct, measured
+        # reason rather than a single story:
+        #
+        #   T1  9.100mm  RETURNED as predicted. CST3015 primary<->secondary.
+        #   T2  9.100mm  T1's CST3015 pair partner, same figure.
+        #   U6  8.100mm  This is the ref the docstring above calls U7 -- the
+        #                TI UCC21550BDWKR isolated gate driver was renumbered
+        #                U7 -> U6, and 8.100mm matches its old figure exactly.
+        #                (Both U6 and U7 exist on the board today; today's U7
+        #                is a different part and is intra-clear.)
+        #
+        # Did NOT return, each verified rather than assumed:
+        #
+        #   K2, K3  by DESIGN -- the RT314012's 12.76mm internal gap still
+        #           beats the 12.6mm PD3 bar, so the relay swaps hold under
+        #           the stricter figure. This is the swap working, not drift.
+        #   K1      footprint swapped to temper:Relay_SPST_Schrack-RT33K012;
+        #           the 8.000mm figure above belonged to the older part.
+        #   C6      now Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4 --
+        #           22.5mm pad pitch, clears on geometry.
+        #   U3      no longer straddles a DECLARED barrier at all: it is a
+        #           SOT-23-6 whose non-LV pads (boot, fb, sw) are UNDECLARED,
+        #           so there is no HV<->LV pair for the validator to measure.
+        #           Cleared by classification, not by distance.
+        #
+        # All three survivors are placement-INDEPENDENT (pad-to-pad within
+        # one footprint) and are the open Question A of docs/evidence/
+        # 2026-08-14-certification-lab-package-pd3-and-60664-4.md -- U6 at
+        # -4.500mm, T1/T2 at -3.500mm against the 12.6mm bar. They are parts
+        # certified reinforced under a component standard whose external
+        # creepage falls short of the IEC 60335-1 PD3 table figure, a
+        # question this project sent OUT to a lab rather than answered here.
+        # T2's 9.100mm is the exact figure the OCP-02 descope decision cites
+        # (docs/evidence/2026-08-16-ocp02-descope-decision.md).
+        #
+        # Pinned as a SET so a FOURTH package-intrinsic straddler cannot
+        # appear unnoticed, and so the lab's answer arrives against an
+        # unchanged question. Same treatment #1501 applied to
+        # test_validator_audit.py's TestProductionBoardSolve.
+        assert intra == {"T1", "T2", "U6"}, (
+            f"the board's placement-independent creepage straddlers changed; "
+            f"a new one is a part/footprint decision, not a layout one. "
+            f"Expected the three certification-lab refs, got intra={intra}"
         )
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
@@ -781,12 +952,40 @@ class TestRealBoardIsolatorFigures:
             f"got it back in the blocker set: intra={intra}"
         )
 
-        # C6, K1, T1, U3, U7: cleared by the PD2 8.0mm target (were
-        # violations only at PD3's stricter 12.6mm). Asserted absent, not
-        # merely unmentioned, so a regression that silently re-adds any of
-        # them to `intra` is caught here.
-        assert "C6" not in intra, "C6 should clear at the 8.0mm PD2 target (8.000mm measured)"
-        assert "K1" not in intra, "K1 should clear at the 8.0mm PD2 target (8.000mm measured)"
-        assert "T1" not in intra, "T1 should clear at the 8.0mm PD2 target (9.100mm measured)"
-        assert "U3" not in intra, "U3 should clear at the 8.0mm PD2 target (8.560mm measured)"
-        assert "U7" not in intra, "U7 should clear at the 8.0mm PD2 target (8.100mm measured)"
+        # C6, K1, U3, U7: still absent, but NOT for the reason this block
+        # used to give. Every message here cited "the 8.0mm PD2 target" and
+        # a figure measured against it -- 8.000, 8.000, 8.560, 8.100 -- and
+        # every one of those figures FAILS the 12.6mm PD3 bar that is
+        # actually enforced today (#1229). The assertions kept passing, so
+        # the staleness was invisible: each was right by accident, and right
+        # in the lenient direction. Same defect class as #1496.
+        #
+        # Re-derived against what is enforced now. Each is absent for a
+        # structural reason, not a threshold one, so each still catches a
+        # real regression:
+        assert "C6" not in intra, (
+            "C6 carries Capacitor_THT:C_Rect_L26.5mm_W7.0mm_P22.50mm_MKS4 -- "
+            "22.5mm pad pitch, clear at the 12.6mm PD3 bar on geometry. Back "
+            f"in the blocker set means a footprint change: intra={intra}"
+        )
+        assert "K1" not in intra, (
+            "K1 carries temper:Relay_SPST_Schrack-RT33K012 and measures clear "
+            "at the 12.6mm PD3 bar; the 8.000mm figure this assertion used to "
+            f"cite belonged to its previous footprint. Got intra={intra}"
+        )
+        assert "U3" not in intra, (
+            "U3 is a SOT-23-6 whose non-LV pads (boot, fb, sw) are UNDECLARED, "
+            "so it straddles no DECLARED barrier for the validator to measure "
+            "-- it is clear by classification, not by distance. Back in the "
+            f"blocker set means those nets acquired a domain: intra={intra}"
+        )
+        assert "U7" not in intra, (
+            "today's U7 is clear. NOTE: the 8.100mm figure this assertion used "
+            "to cite belongs to the TI UCC21550BDWKR, which is U6 on this "
+            "board -- the part was renumbered U7 -> U6, and it IS in the "
+            f"pinned set above at 8.100mm. Got intra={intra}"
+        )
+        # T1 is deliberately NOT asserted absent any more: at 9.100mm it does
+        # not clear 12.6mm, and it is pinned in the set assertion above. Its
+        # old "should clear at the 8.0mm PD2 target" line was the one stale
+        # assertion here that actually failed rather than passing by accident.

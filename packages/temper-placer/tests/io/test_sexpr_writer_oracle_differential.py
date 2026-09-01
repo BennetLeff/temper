@@ -1,4 +1,4 @@
-"""Differential test: Rust S-expression writer vs the pinned kiutils oracle.
+"""Pinned-oracle checks for the retired S-expression writer migration.
 
 Wave 4, Phase 3 (formats/IO). The oracle
 (``tests/io/_sexpr_writer_py_oracle.py``) pins the pre-migration writer --
@@ -6,22 +6,9 @@ kiutils' ``Board.to_sexpr()`` -- verbatim, plus a captured output constant
 for the minimal corpus board (see the oracle's header for the measured
 lossiness of kiutils' object-model projection).
 
-What "comparing the Rust writer against the oracle" means here is
-deliberate and honest: kiutils' to_sexpr re-emits from a lossy object
-model (on the temper board it drops 1388 leaves -- 99 fp_text
-(at/effects/font/layer/size/thickness) groups -- and adds 67, including 33
-phantom (tedit ...) tokens; it only reproduces the input token tree on the
-rp2040 board). The Rust writer is therefore never reconciled *to* the
-oracle's bytes: the D7 acceptance criterion is the Rust writer's re-parse
-parity with the INPUT text. The assertions below pin both facts:
-
-- Where kiutils is faithful (rp2040), the two writers agree on the
-  re-parsed tree -- a genuine input-by-input differential.
-- Where kiutils is lossy (temper, minimal, bitaxe, piantor, pcb), the Rust
-  writer still reproduces the input tree exactly, and the oracle is pinned
-  to the specific lossy output so that reference cannot silently drift.
-- The oracle function must keep reproducing its pinned capture (drift
-  detection on the oracle arm itself).
+The Rust export was differential-only and is retired. The pinned oracle is
+kept and checked independently so its captured kiutils output cannot drift;
+the Rust writer's pure kernels remain covered by their Rust unit tests.
 """
 
 from __future__ import annotations
@@ -29,16 +16,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import temper_design_bundle_python as _tdb
-
 from tests.io._sexpr_writer_py_oracle import (
     KIUTILS_MINIMAL_BOARD_SEXPR,
 )
 from tests.io._sexpr_writer_py_oracle import (
     board_to_sexpr as _oracle_board_to_sexpr,
 )
-
-_PARSE_ENGINE = _tdb.parse_engine
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 CORPUS = [
@@ -58,12 +41,6 @@ CORPUS = [
     ),
     ("pcb", REPO_ROOT / "pcb" / "temper.kicad_pcb"),
 ]
-
-# Boards on which kiutils' own to_sexpr round trip reproduces the input
-# token tree (measured 2026-08-20: only rp2040). On these the differential
-# can assert Rust tree == oracle tree directly.
-KIUTILS_FAITHFUL = {"rp2040"}
-
 
 @pytest.mark.parametrize("name,path", CORPUS, ids=[c[0] for c in CORPUS])
 def test_oracle_board_to_sexpr_runs(name: str, path):
@@ -94,34 +71,70 @@ def test_oracle_function_reproduces_pinned_capture():
     )
 
 
-def test_rust_and_oracle_agree_where_kiutils_is_faithful():
-    """The shared-ground differential: on rp2040 -- the one corpus board
-    whose token tree kiutils' round trip reproduces -- the Rust writer and
-    the oracle must produce trees that both equal the input tree (and
-    therefore each other)."""
-    text = (REPO_ROOT / "power_pcb_dataset" / "corpus" / "rp2040_designguide" / "RP2040-Guide.kicad_pcb").read_text()
-    original_tree = _PARSE_ENGINE.tokenize(text)
-    rust_tree = _PARSE_ENGINE.tokenize(_PARSE_ENGINE.write_board_sexpr_py(text))
-    oracle_tree = _PARSE_ENGINE.tokenize(_oracle_board_to_sexpr(text))
-    assert rust_tree == original_tree, "Rust writer must reproduce the input tree (D7)"
-    assert oracle_tree == original_tree, "oracle premise: kiutils is faithful on rp2040"
-    assert rust_tree == oracle_tree
+def test_declared_route_move_rejects_empty_chain_declaration():
+    import temper_design_bundle_python as tdb
+
+    board = '''(kicad_pcb
+      (net 41 "discharge.r_snub1-p2")
+      (footprint "R" (layer "F.Cu") (at 118.64 249.56 270)
+        (property "Reference" "R14"))
+      (segment (start 112 218) (end 118.64 252.5225) (width 5) (layer "In3.Cu") (net 41) (tstamp 11111111-1111-1111-1111-111111111111))
+      (via (at 118.64 252.5225) (size 2) (drill 1) (layers "In3.Cu" "F.Cu") (net 41) (tstamp 33333333-3333-3333-3333-333333333333)))'''
+    with pytest.raises(ValueError, match="non-empty"):
+        tdb.parse_engine.replace_declared_route_and_move_footprint_py(
+            board,
+            "R14",
+            41,
+            "In3.Cu",
+            5.0,
+            (112.0, 218.0),
+            "33333333-3333-3333-3333-333333333333",
+            "2",
+            2.0,
+            1.0,
+            [],
+            4.0,
+        )
 
 
-@pytest.mark.parametrize("name,path", CORPUS, ids=[c[0] for c in CORPUS])
-def test_rust_writer_is_strictly_more_faithful_than_kiutils(name: str, path):
-    """Everywhere kiutils is lossy, the Rust writer still reproduces the
-    input tree exactly (D7), and the oracle's divergence is pinned by the
-    captured-output constant rather than silently re-measured each run."""
-    text = path.read_text()
-    original_tree = _PARSE_ENGINE.tokenize(text)
-    rust_tree = _PARSE_ENGINE.tokenize(_PARSE_ENGINE.write_board_sexpr_py(text))
-    assert rust_tree == original_tree, (
-        f"Rust writer must reproduce the {name} input tree exactly (D7)"
+def test_rust_j1_block_replacement_matches_retired_python_oracle(tmp_path):
+    """The predecessor mutator remains an oracle, never the active builder."""
+    import temper_design_bundle_python as tdb
+
+    predecessor = REPO_ROOT / "docs/evidence/k1-j1-domain-refloorplan-20260831"
+    source = REPO_ROOT / "pcb/temper.kicad_pcb"
+    expected_path = tmp_path / "python-oracle.kicad_pcb"
+    namespace = {"__name__": "retired_j1_builder_oracle"}
+    exec((predecessor / "build_authority.py").read_text(), namespace)
+    namespace["build"](source, expected_path, 237.0, True)
+
+    replacement = (predecessor / "approved-j1-board-footprint.kicad_sexpr").read_text().rstrip("\n").lstrip(" ")
+    actual = tdb.parse_engine.replace_footprint_block_by_reference_py(
+        source.read_text(), "J1", replacement
     )
-    if name not in KIUTILS_FAITHFUL:
-        oracle_tree = _PARSE_ENGINE.tokenize(_oracle_board_to_sexpr(text))
-        assert oracle_tree != original_tree, (
-            f"premise changed: kiutils now reproduces the {name} tree; "
-            "move it to KIUTILS_FAITHFUL and assert Rust == oracle there"
+    assert actual == expected_path.read_text()
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        (("(at 118.64 249.56 270)", "(at 119.64 249.56 270)"), "not co-located"),
+        (("(layers \"In3.Cu\" \"F.Cu\")", "(layers \"In3.Cu\" \"In4.Cu\")"), "does not reach"),
+    ],
+)
+def test_declared_route_move_rejects_disconnected_pad_or_layer_span(mutation, message):
+    import temper_design_bundle_python as tdb
+
+    board = '''(kicad_pcb
+      (net 41 "discharge.r_snub1-p2")
+      (footprint "R" (layer "F.Cu") (at 118.64 249.56 270)
+        (property "Reference" "R14")
+        (pad "2" smd circle (at 2.9625 0) (size 2 2) (layers "F.Cu" "F.Mask") (net 41 "discharge.r_snub1-p2")))
+      (segment (start 112 218) (end 118.64 252.5225) (width 5) (layer "In3.Cu") (net 41) (tstamp 11111111-1111-1111-1111-111111111111))
+      (via (at 118.64 252.5225) (size 2) (drill 1) (layers "In3.Cu" "F.Cu") (net 41) (tstamp 33333333-3333-3333-3333-333333333333)))'''
+    with pytest.raises(ValueError, match=message):
+        tdb.parse_engine.replace_declared_route_and_move_footprint_py(
+            board.replace(*mutation), "R14", 41, "In3.Cu", 5.0,
+            (112.0, 218.0), "33333333-3333-3333-3333-333333333333",
+            "2", 2.0, 1.0, ["11111111-1111-1111-1111-111111111111"], 4.0,
         )

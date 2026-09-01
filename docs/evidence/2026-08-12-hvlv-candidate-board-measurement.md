@@ -1,4 +1,4 @@
-<!-- provenance: measured 2026-08-12, on origin/main @ b94f8cc9d (includes #1051
+<!-- provenance: commit=a434a9aa9f52b1b1407f4b934153ca1d740c7050 dirty=UNKNOWN -->
 net-classification fix and #1050 board-origin/isolation-barrier primitives).
 Rust safety kernel measured via the exact temper_drc_rs.run_drc(board_dict,
 constraints_dict, categories=["safety"]) construction
