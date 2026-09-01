@@ -54,14 +54,11 @@ caller-supplied directory outside the repo.
 
 from __future__ import annotations
 
-import contextlib
 import fnmatch
 import json
 import os
 import re
 import shutil
-import subprocess
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -70,10 +67,6 @@ REPO_ROOT = Path(
 )
 PCB_DIR = REPO_ROOT / "pcb"
 
-# Cap constants, from pcbnew/drc/drc_engine.cpp (10.0 branch) -- see
-# docs/evidence/2026-08-12-dru-rule-precedence.md sec 4.
-ERROR_LIMIT = 199
-EXTENDED_ERROR_LIMIT = 499
 # --all-track-errors is documented (and observed here) to overshoot its
 # nominal limit by a variable amount (0 up to ~14 measured in this session,
 # 0-6 in the precedence doc) because the limit is checked between whole
@@ -82,18 +75,14 @@ EXTENDED_ERROR_LIMIT = 499
 SAFE_MARGIN = 20  # cap-detection threshold. Determinism (see
 # `_verified_count`) is the primary signal; this margin is just a first filter.
 
-# kicad-cli's DRC JSON caps `clearance` and `unconnected_items` at
-# EXTENDED_ERROR_LIMIT; every other category (including track_width,
-# shorting_items, silk_overlap, creepage) at ERROR_LIMIT. Getting this
-# wrong per-category silently under-splits: an isolated band sitting
-# exactly at 199 (track_width's real cap) would sail past a 479 threshold
-# unflagged. See drc_engine.cpp's DRC_ENGINE::RunTests loop quoted in
-# docs/evidence/2026-08-12-dru-rule-precedence.md sec 4.
-_EXTENDED_CATEGORIES = {"clearance", "unconnected_items"}
-
-
 def cap_for(ctype: str) -> int:
-    return EXTENDED_ERROR_LIMIT if ctype in _EXTENDED_CATEGORIES else ERROR_LIMIT
+    """Delegate reporting-cap authority to ``temper-drc-rs``."""
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    cap = temper_drc_rs.drc_cap_for(ctype)
+    if cap is None:
+        raise ValueError(f"{ctype!r} is not a capped KiCad category")
+    return int(cap)
 
 
 def default_safe_ceiling(ctype: str) -> int:
@@ -116,6 +105,7 @@ def make_scratch_board(dst: Path, pcb_text: str | None = None) -> Path:
     else:
         (dst / "temper.kicad_pcb").write_text(pcb_text)
     shutil.copy(PCB_DIR / "temper.kicad_pro", dst / "temper.kicad_pro")
+    shutil.copy(PCB_DIR / "temper.kicad_dru", dst / "temper.kicad_dru")
     shutil.copy(PCB_DIR / "fp-lib-table", dst / "fp-lib-table")
     libs_dst = dst / "libs"
     if not libs_dst.exists():
@@ -123,52 +113,14 @@ def make_scratch_board(dst: Path, pcb_text: str | None = None) -> Path:
     return dst
 
 
-def _single_thread_env() -> dict:
-    env = os.environ.copy()
-    env["KICAD_CONFIG_HOME"] = str(Path(tempfile.gettempdir()) / "uncapped_drc_kcfg")
-    Path(env["KICAD_CONFIG_HOME"]).mkdir(parents=True, exist_ok=True)
-    return env
-
-
 def run_kicad_drc(board_dir: Path, dru_text: str | None) -> dict:
-    """Write `dru_text` (or delete any existing .kicad_dru if None) into
-    board_dir, run kicad-cli exactly as
-    temper_placer.validation._drc_api.run_drc does, return the parsed JSON
-    dict (raw, with a 'violations' list)."""
+    """Run the canonical strict raw-report seam in a staged scratch project."""
     dru_path = board_dir / "temper.kicad_dru"
-    if dru_text is None:
-        dru_path.unlink(missing_ok=True)
-    else:
+    if dru_text is not None:
         dru_path.write_text(dru_text)
-    out_path = board_dir / "_drc_out.json"
-    env = _single_thread_env()
-    result = subprocess.run(
-        [
-            "kicad-cli",
-            "pcb",
-            "drc",
-            "--all-track-errors",
-            "--format",
-            "json",
-            "--output",
-            str(out_path),
-            str(board_dir / "temper.kicad_pcb"),
-        ],
-        capture_output=True,
-        text=True,
-        timeout=120,
-        env=env,
-    )
-    if result.returncode != 0 or not out_path.exists():
-        raise RuntimeError(
-            f"kicad-cli DRC failed (exit {result.returncode}) in {board_dir}\n"
-            f"stdout: {result.stdout}\nstderr: {result.stderr}"
-        )
-    with open(out_path) as f:
-        data = json.load(f)
-    with contextlib.suppress(OSError):
-        out_path.unlink()
-    return data
+    from temper_placer.validation._drc_api import run_drc_measurement
+
+    return run_drc_measurement(board_dir / "temper.kicad_pcb", strict=True).raw_report
 
 
 # Every violation-shaped top-level array kicad-cli emits, in the repo's
@@ -736,7 +688,16 @@ def _silk_item_spans_in(pcb_text: str, fp_start: int, fp_end: int) -> list[tuple
     the partition only needs to be exhaustive+disjoint over the FULL item
     list, not silk-only, for the sum to be correct."""
     spans = []
-    for kind in ("fp_line", "fp_circle", "fp_arc", "fp_poly"):
+    for kind in (
+        "property",
+        "fp_text",
+        "fp_text_box",
+        "fp_line",
+        "fp_rect",
+        "fp_circle",
+        "fp_arc",
+        "fp_poly",
+    ):
         for m in re.finditer(rf"(?m)^    \({kind} ", pcb_text[fp_start:fp_end]):
             s = fp_start + m.start() + 4
             e = _find_balanced(pcb_text, s)
@@ -916,6 +877,159 @@ def measure_saturating_footprint_pair(
         "total": root.count,
         "tree": pair_cell_to_dict(root),
     }
+
+
+# ---------------------------------------------------------------------------
+# Net-41 admission instrument: exact mutation-cone silk evidence.
+# ---------------------------------------------------------------------------
+
+
+def _rust_silk_scope_receipt(payload: dict) -> dict:
+    """Thin transport shim to the Rust-owned mutation census and pair ledger."""
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    return json.loads(
+        temper_drc_rs.drc_silk_scope_receipt_json(
+            json.dumps(payload, separators=(",", ":"))
+        )
+    )
+
+
+def _rust_silk_finding_pair(finding: dict) -> tuple[str, str]:
+    """Return the Rust-parsed footprint pair for one raw silk finding."""
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    pair = json.loads(
+        temper_drc_rs.drc_silk_finding_pair_json(
+            json.dumps(finding, separators=(",", ":"))
+        )
+    )
+    return pair[0], pair[1]
+
+
+def _stage_strict_project(source_board: Path, destination: Path, pcb_text: str) -> Path:
+    """Stage one complete project around a byte-filtered scratch subject."""
+    destination.mkdir(parents=True, exist_ok=True)
+    board = destination / source_board.name
+    board.write_text(pcb_text, encoding="utf-8")
+    for suffix in (".kicad_pro", ".kicad_dru"):
+        shutil.copy(source_board.with_suffix(suffix), board.with_suffix(suffix))
+    shutil.copy(source_board.parent / "fp-lib-table", destination / "fp-lib-table")
+    shutil.copytree(source_board.parent / "libs", destination / "libs", dirs_exist_ok=True)
+    return board
+
+
+def _silk_findings(raw_report: dict) -> list[dict]:
+    return [finding for finding in _all_violations(raw_report) if finding.get("type") == "silk_overlap"]
+
+
+def _assigned_pairs(anchor: str, peers: list[str]) -> list[list[str]]:
+    return [sorted((anchor, peer)) for peer in peers]
+
+
+def measure_silk_mutation_cone(
+    *,
+    source_board: Path,
+    subject_board: Path,
+    declared_refs: list[str],
+    scratch_dir: Path,
+    use_declared_scope: bool = False,
+    measurement_fn=None,
+) -> dict:
+    """Measure every candidate-changeable ``silk_overlap`` pair exactly once.
+
+    Each root cell keeps one affected footprint plus a deterministic peer
+    bucket. A saturated or disagreeing cell bisects only its peer axis, so
+    its assigned unordered pairs remain exhaustive and disjoint. The raw
+    cell count — including irrelevant peer-to-peer findings — decides whether
+    the report is safely below KiCad's cap; only findings whose Rust-parsed
+    pair belongs to the cell are retained as candidate evidence.
+    """
+    from temper_placer.validation._drc_api import run_drc_measurement
+
+    source_board = Path(source_board)
+    subject_board = Path(subject_board)
+    source_text = source_board.read_text(encoding="utf-8")
+    subject_text = subject_board.read_text(encoding="utf-8")
+    bootstrap_payload = {
+        "source_board": source_text,
+        "subject_board": subject_text,
+        "declared_refs": list(declared_refs),
+        "use_declared_scope": use_declared_scope,
+        "raw_global_capped": True,
+        "leaves": [],
+    }
+    bootstrap = _rust_silk_scope_receipt(bootstrap_payload)
+    scope = list(bootstrap["measurement_scope_refs"])
+    all_refs = all_footprint_refs(subject_text)
+    static_refs = sorted(set(all_refs) - set(scope))
+    safe_ceiling = int(bootstrap["safe_ceiling"])
+    measure = measurement_fn or (
+        lambda board: run_drc_measurement(board, strict=True).raw_report
+    )
+    leaves: list[dict] = []
+    findings_by_pair: dict[str, list[dict]] = {}
+    cell_counter = 0
+
+    def run_cell(anchor: str, peers: list[str]) -> None:
+        nonlocal cell_counter
+        pairs = _assigned_pairs(anchor, peers)
+        cell_counter += 1
+        cell_dir = scratch_dir / f"cell-{cell_counter:05d}"
+        filtered = board_text_filtered_by_refs(subject_text, {anchor, *peers})
+        staged_board = _stage_strict_project(subject_board, cell_dir, filtered)
+        reports = [measure(staged_board) for _ in range(3)]
+        samples = [_silk_findings(report) for report in reports]
+        counts = [len(sample) for sample in samples]
+        resolved = len(set(counts)) == 1 and all(count < safe_ceiling for count in counts)
+        if not resolved and len(peers) > 1:
+            midpoint = len(peers) // 2
+            run_cell(anchor, peers[:midpoint])
+            run_cell(anchor, peers[midpoint:])
+            return
+
+        assigned = {tuple(pair) for pair in pairs}
+        selected: dict[str, list[dict]] = {}
+        if resolved:
+            for finding in samples[0]:
+                pair = _rust_silk_finding_pair(finding)
+                if pair in assigned:
+                    selected.setdefault("|".join(pair), []).append(finding)
+            for pair_key, findings in selected.items():
+                findings_by_pair.setdefault(pair_key, []).extend(findings)
+        leaves.append(
+            {
+                "pairs": pairs,
+                "sample_counts": counts,
+                "resolved": resolved,
+                "scratch_subject_sha256": sha256_text(filtered),
+                "selected_finding_count": sum(len(value) for value in selected.values()),
+            }
+        )
+
+    for anchor in sorted(scope):
+        if static_refs:
+            run_cell(anchor, static_refs)
+    for index, anchor in enumerate(sorted(scope)):
+        for peer in sorted(scope)[index + 1 :]:
+            run_cell(anchor, [peer])
+
+    final_payload = dict(bootstrap_payload)
+    final_payload["leaves"] = [
+        {"pairs": leaf["pairs"], "sample_counts": leaf["sample_counts"]}
+        for leaf in leaves
+    ]
+    receipt = _rust_silk_scope_receipt(final_payload)
+    receipt["leaves"] = leaves
+    receipt["findings_by_pair"] = findings_by_pair
+    receipt["kicad_invocation_count"] = cell_counter * 3
+    return receipt
+
+
+def sha256_text(text: str) -> str:
+    import hashlib
+
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def bucket(items: list, k: int) -> list[list]:

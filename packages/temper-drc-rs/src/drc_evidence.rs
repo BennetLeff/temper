@@ -143,6 +143,60 @@ pub enum EvidenceError {
     },
     #[error("DRC_EVIDENCE_SERIALIZATION: {0}")]
     Serialization(serde_json::Error),
+    #[error("DRC_SILK_SCOPE_BOARD: {0}")]
+    MalformedBoard(String),
+    #[error(
+        "DRC_SILK_SCOPE_DECLARED_REF: declared footprint {reference} is absent from the subject census"
+    )]
+    MissingDeclaredReference { reference: String },
+    #[error("DRC_SILK_SCOPE_CENSUS_DRIFT: source and subject footprint censuses differ")]
+    FootprintCensusDrift,
+    #[error("DRC_SILK_SCOPE_UNDECLARED_MUTATION: {references:?}")]
+    UndeclaredMutation { references: Vec<String> },
+    #[error(
+        "DRC_SILK_SCOPE_AMBIGUOUS_PAIR: expected two footprint references, found {references:?}"
+    )]
+    AmbiguousSilkPair { references: Vec<String> },
+}
+
+const SILK_SAFE_MARGIN: u32 = 20;
+
+#[derive(Debug, Deserialize)]
+struct SilkScopeRequest {
+    source_board: String,
+    subject_board: String,
+    declared_refs: Vec<String>,
+    #[serde(default)]
+    use_declared_scope: bool,
+    raw_global_capped: bool,
+    #[serde(default)]
+    leaves: Vec<SilkLeaf>,
+}
+
+#[derive(Debug, Deserialize)]
+struct SilkLeaf {
+    pairs: Vec<[String; 2]>,
+    sample_counts: Vec<u32>,
+}
+
+#[derive(Debug, Serialize)]
+struct SilkScopeReceipt {
+    schema: &'static str,
+    source_sha256: String,
+    subject_sha256: String,
+    silk_projection_sha256: String,
+    safe_ceiling: u32,
+    declared_refs: Vec<String>,
+    actual_mutated_refs: Vec<String>,
+    measurement_scope_refs: Vec<String>,
+    expected_pair_count: usize,
+    covered_pair_count: usize,
+    missing_pairs: Vec<[String; 2]>,
+    duplicate_pairs: Vec<[String; 2]>,
+    foreign_pairs: Vec<[String; 2]>,
+    unresolved_leaf_count: usize,
+    complete: bool,
+    category_state: &'static str,
 }
 
 fn net_re() -> &'static Regex {
@@ -408,6 +462,256 @@ pub fn evidence_envelope_json(samples_json: &str) -> Result<String, EvidenceErro
     serde_json::to_string(&envelope).map_err(EvidenceError::Serialization)
 }
 
+fn sha256_hex(bytes: &[u8]) -> String {
+    Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
+
+fn footprint_start_re() -> &'static Regex {
+    static VALUE: OnceLock<Regex> = OnceLock::new();
+    VALUE.get_or_init(|| {
+        #[expect(clippy::unwrap_used, reason = "constant regex covered by unit tests")]
+        Regex::new(r"(?m)^  \(footprint\s").unwrap()
+    })
+}
+
+fn reference_property_re() -> &'static Regex {
+    static VALUE: OnceLock<Regex> = OnceLock::new();
+    VALUE.get_or_init(|| {
+        #[expect(clippy::unwrap_used, reason = "constant regex covered by unit tests")]
+        Regex::new(r#"\(property\s+"Reference"\s+"([^"\\]*(?:\\.[^"\\]*)*)""#).unwrap()
+    })
+}
+
+fn balanced_end(text: &str, start: usize) -> Result<usize, EvidenceError> {
+    let bytes = text.as_bytes();
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut escaped = false;
+    for (offset, byte) in bytes[start..].iter().copied().enumerate() {
+        if in_string {
+            if escaped {
+                escaped = false;
+            } else if byte == b'\\' {
+                escaped = true;
+            } else if byte == b'"' {
+                in_string = false;
+            }
+            continue;
+        }
+        match byte {
+            b'"' => in_string = true,
+            b'(' => depth += 1,
+            b')' => {
+                if depth == 0 {
+                    return Err(EvidenceError::MalformedBoard(
+                        "encountered unmatched closing parenthesis".to_string(),
+                    ));
+                }
+                depth -= 1;
+                if depth == 0 {
+                    return Ok(start + offset + 1);
+                }
+            }
+            _ => {}
+        }
+    }
+    Err(EvidenceError::MalformedBoard(
+        "unterminated footprint s-expression".to_string(),
+    ))
+}
+
+fn footprint_blocks(text: &str) -> Result<BTreeMap<String, String>, EvidenceError> {
+    let mut blocks = BTreeMap::new();
+    for start in footprint_start_re()
+        .find_iter(text)
+        .map(|matched| matched.start() + 2)
+    {
+        let end = balanced_end(text, start)?;
+        let block = &text[start..end];
+        let reference = reference_property_re()
+            .captures(block)
+            .and_then(|capture| capture.get(1))
+            .ok_or_else(|| {
+                EvidenceError::MalformedBoard(
+                    "footprint is missing a Reference property".to_string(),
+                )
+            })?
+            .as_str()
+            .to_string();
+        if blocks
+            .insert(reference.clone(), block.to_string())
+            .is_some()
+        {
+            return Err(EvidenceError::MalformedBoard(format!(
+                "duplicate footprint reference {reference}"
+            )));
+        }
+    }
+    if blocks.is_empty() {
+        return Err(EvidenceError::MalformedBoard(
+            "board contains no direct footprint blocks".to_string(),
+        ));
+    }
+    Ok(blocks)
+}
+
+fn normalized_pair(first: &str, second: &str) -> [String; 2] {
+    if first <= second {
+        [first.to_string(), second.to_string()]
+    } else {
+        [second.to_string(), first.to_string()]
+    }
+}
+
+fn expected_pairs(all_refs: &BTreeSet<String>, scope: &BTreeSet<String>) -> BTreeSet<[String; 2]> {
+    let mut pairs = BTreeSet::new();
+    for affected in scope {
+        for other in all_refs {
+            if affected != other {
+                pairs.insert(normalized_pair(affected, other));
+            }
+        }
+    }
+    pairs
+}
+
+fn silk_projection_digest(blocks: &BTreeMap<String, String>) -> String {
+    let mut bytes = Vec::new();
+    for (reference, block) in blocks {
+        bytes.extend_from_slice(reference.as_bytes());
+        bytes.push(0);
+        bytes.extend_from_slice(block.as_bytes());
+        bytes.push(0xff);
+    }
+    sha256_hex(&bytes)
+}
+
+/// Validate a complete mutation-cone silk receipt. Board text is parsed only
+/// to census exact footprint blocks; Python remains responsible for staging
+/// KiCad projects and transporting raw leaf results.
+pub fn silk_scope_receipt_json(request_json: &str) -> Result<String, EvidenceError> {
+    let request: SilkScopeRequest = serde_json::from_str(request_json)?;
+    let source = footprint_blocks(&request.source_board)?;
+    let subject = footprint_blocks(&request.subject_board)?;
+    let source_refs: BTreeSet<String> = source.keys().cloned().collect();
+    let subject_refs: BTreeSet<String> = subject.keys().cloned().collect();
+    if source_refs != subject_refs {
+        return Err(EvidenceError::FootprintCensusDrift);
+    }
+
+    let declared: BTreeSet<String> = request.declared_refs.into_iter().collect();
+    for reference in &declared {
+        if !subject.contains_key(reference) {
+            return Err(EvidenceError::MissingDeclaredReference {
+                reference: reference.clone(),
+            });
+        }
+    }
+    let actual: BTreeSet<String> = source
+        .iter()
+        .filter_map(|(reference, source_block)| {
+            (subject.get(reference) != Some(source_block)).then_some(reference.clone())
+        })
+        .collect();
+    let undeclared: Vec<String> = actual.difference(&declared).cloned().collect();
+    if !undeclared.is_empty() {
+        return Err(EvidenceError::UndeclaredMutation {
+            references: undeclared,
+        });
+    }
+    let scope = if request.use_declared_scope {
+        declared.clone()
+    } else {
+        actual.clone()
+    };
+    let expected = expected_pairs(&subject_refs, &scope);
+    let safe_ceiling = crate::drc_count::cap_for("silk_overlap")
+        .unwrap_or(crate::drc_count::KICAD_ERROR_LIMIT)
+        .saturating_sub(SILK_SAFE_MARGIN);
+
+    let mut coverage: BTreeMap<[String; 2], usize> = BTreeMap::new();
+    let mut unresolved_leaf_count = 0usize;
+    for leaf in &request.leaves {
+        let samples_agree = leaf.sample_counts.len() == 3
+            && leaf
+                .sample_counts
+                .first()
+                .is_some_and(|first| leaf.sample_counts.iter().all(|count| count == first));
+        let safely_below_cap = leaf.sample_counts.iter().all(|count| *count < safe_ceiling);
+        if !samples_agree || !safely_below_cap {
+            unresolved_leaf_count += 1;
+        }
+        for pair in &leaf.pairs {
+            *coverage
+                .entry(normalized_pair(&pair[0], &pair[1]))
+                .or_insert(0) += 1;
+        }
+    }
+    let covered: BTreeSet<[String; 2]> = coverage.keys().cloned().collect();
+    let missing_pairs: Vec<[String; 2]> = expected.difference(&covered).cloned().collect();
+    let duplicate_pairs: Vec<[String; 2]> = coverage
+        .iter()
+        .filter_map(|(pair, count)| (*count > 1).then_some(pair.clone()))
+        .collect();
+    let foreign_pairs: Vec<[String; 2]> = covered.difference(&expected).cloned().collect();
+    let scoped_complete = missing_pairs.is_empty()
+        && duplicate_pairs.is_empty()
+        && foreign_pairs.is_empty()
+        && unresolved_leaf_count == 0;
+    let complete = !request.raw_global_capped || scoped_complete;
+    let category_state = if !request.raw_global_capped {
+        "uncapped-exact"
+    } else if scoped_complete {
+        "raw-saturated-scoped-complete"
+    } else {
+        "raw-saturated-unresolved"
+    };
+    let receipt = SilkScopeReceipt {
+        schema: "temper.silk-mutation-scope/v1",
+        source_sha256: sha256_hex(request.source_board.as_bytes()),
+        subject_sha256: sha256_hex(request.subject_board.as_bytes()),
+        silk_projection_sha256: silk_projection_digest(&subject),
+        safe_ceiling,
+        declared_refs: declared.into_iter().collect(),
+        actual_mutated_refs: actual.into_iter().collect(),
+        measurement_scope_refs: scope.into_iter().collect(),
+        expected_pair_count: expected.len(),
+        covered_pair_count: expected.intersection(&covered).count(),
+        missing_pairs,
+        duplicate_pairs,
+        foreign_pairs,
+        unresolved_leaf_count,
+        complete,
+        category_state,
+    };
+    serde_json::to_string(&receipt).map_err(EvidenceError::Serialization)
+}
+
+/// Extract the canonical footprint pair from one raw `silk_overlap` record.
+/// The raw item descriptions remain KiCad's oracle; Rust owns the parsing and
+/// rejects ambiguous records rather than letting Python invent a pair.
+pub fn silk_finding_pair_json(finding_json: &str) -> Result<String, EvidenceError> {
+    let finding: RawFinding = serde_json::from_str(finding_json)?;
+    let mut references = BTreeSet::new();
+    for item in &finding.items {
+        if let Some(reference) = component_re()
+            .captures(&item.description)
+            .and_then(|capture| capture.get(1))
+        {
+            references.insert(reference.as_str().to_string());
+        }
+    }
+    let references: Vec<String> = references.into_iter().collect();
+    if references.len() != 2 {
+        return Err(EvidenceError::AmbiguousSilkPair { references });
+    }
+    serde_json::to_string(&normalized_pair(&references[0], &references[1]))
+        .map_err(EvidenceError::Serialization)
+}
+
 #[cfg(feature = "python")]
 #[pyo3::pyfunction(name = "drc_evidence_envelope_json")]
 fn evidence_envelope_json_py(samples_json: &str) -> pyo3::PyResult<String> {
@@ -416,9 +720,25 @@ fn evidence_envelope_json_py(samples_json: &str) -> pyo3::PyResult<String> {
 }
 
 #[cfg(feature = "python")]
+#[pyo3::pyfunction(name = "drc_silk_scope_receipt_json")]
+fn silk_scope_receipt_json_py(request_json: &str) -> pyo3::PyResult<String> {
+    silk_scope_receipt_json(request_json)
+        .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
+#[pyo3::pyfunction(name = "drc_silk_finding_pair_json")]
+fn silk_finding_pair_json_py(finding_json: &str) -> pyo3::PyResult<String> {
+    silk_finding_pair_json(finding_json)
+        .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
+}
+
+#[cfg(feature = "python")]
 pub fn register(module: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
     use pyo3::prelude::PyModuleMethods;
     module.add_function(pyo3::wrap_pyfunction!(evidence_envelope_json_py, module)?)?;
+    module.add_function(pyo3::wrap_pyfunction!(silk_scope_receipt_json_py, module)?)?;
+    module.add_function(pyo3::wrap_pyfunction!(silk_finding_pair_json_py, module)?)?;
     Ok(())
 }
 
@@ -558,5 +878,97 @@ mod tests {
         )
         .expect_err("malformed distance must fail closed");
         assert!(matches!(err, EvidenceError::MalformedDistance { .. }));
+    }
+
+    fn board(r2_at: &str) -> String {
+        format!(
+            "(kicad_pcb\n  (footprint \"Test:R\" (property \"Reference\" \"R1\") (at 0 0))\n  (footprint \"Test:R\" (property \"Reference\" \"R2\") (at {r2_at}))\n  (footprint \"Test:R\" (property \"Reference\" \"R3\") (at 20 0))\n)\n"
+        )
+    }
+
+    #[test]
+    fn silk_scope_receipt_binds_actual_mutation_and_exact_pair_coverage() {
+        let request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("11 0"),
+            "declared_refs": ["R2"],
+            "use_declared_scope": false,
+            "raw_global_capped": true,
+            "leaves": [
+                {"pairs": [["R1", "R2"]], "sample_counts": [3, 3, 3]},
+                {"pairs": [["R2", "R3"]], "sample_counts": [0, 0, 0]}
+            ]
+        });
+        let receipt: serde_json::Value = serde_json::from_str(
+            &silk_scope_receipt_json(&request.to_string()).expect("complete scope"),
+        )
+        .expect("valid receipt JSON");
+        assert_eq!(receipt["actual_mutated_refs"], serde_json::json!(["R2"]));
+        assert_eq!(receipt["expected_pair_count"], 2);
+        assert_eq!(receipt["covered_pair_count"], 2);
+        assert_eq!(receipt["complete"], true);
+        assert_eq!(receipt["category_state"], "raw-saturated-scoped-complete");
+    }
+
+    #[test]
+    fn silk_scope_rejects_undeclared_mutation() {
+        let request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("10 0").replace("(at 20 0)", "(at 21 0)"),
+            "declared_refs": ["R2"],
+            "use_declared_scope": false,
+            "raw_global_capped": true,
+            "leaves": []
+        });
+        let error = silk_scope_receipt_json(&request.to_string())
+            .expect_err("undeclared mutation must fail closed");
+        assert!(matches!(error, EvidenceError::UndeclaredMutation { .. }));
+    }
+
+    #[test]
+    fn silk_scope_marks_duplicate_missing_disagreeing_and_near_cap_unresolved() {
+        let request = serde_json::json!({
+            "source_board": board("10 0"),
+            "subject_board": board("10 0"),
+            "declared_refs": ["R2"],
+            "use_declared_scope": true,
+            "raw_global_capped": true,
+            "leaves": [
+                {"pairs": [["R1", "R2"], ["R1", "R2"]], "sample_counts": [179, 179, 179]},
+                {"pairs": [["R2", "R3"]], "sample_counts": [1, 2, 1]}
+            ]
+        });
+        let receipt: serde_json::Value = serde_json::from_str(
+            &silk_scope_receipt_json(&request.to_string()).expect("typed unresolved receipt"),
+        )
+        .expect("valid receipt JSON");
+        assert_eq!(receipt["complete"], false);
+        assert_eq!(receipt["category_state"], "raw-saturated-unresolved");
+        assert_eq!(
+            receipt["duplicate_pairs"],
+            serde_json::json!([["R1", "R2"]])
+        );
+        assert_eq!(receipt["unresolved_leaf_count"], 2);
+    }
+
+    #[test]
+    fn silk_finding_pair_is_rust_owned_and_ambiguous_records_fail() {
+        let finding = serde_json::json!({
+            "type": "silk_overlap",
+            "description": "Silkscreen overlap",
+            "items": [
+                {"description": "Text REF of R2 on F.Silkscreen", "pos": {"x": 0, "y": 0}},
+                {"description": "Arc of C3 on F.Silkscreen", "pos": {"x": 1, "y": 1}}
+            ]
+        });
+        assert_eq!(
+            silk_finding_pair_json(&finding.to_string()).expect("two-ref pair"),
+            r#"["C3","R2"]"#
+        );
+        let ambiguous = finding.to_string().replace(" of C3 on", " of R2 on");
+        assert!(matches!(
+            silk_finding_pair_json(&ambiguous).expect_err("same-ref record is ambiguous"),
+            EvidenceError::AmbiguousSilkPair { .. }
+        ));
     }
 }
