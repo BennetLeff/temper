@@ -10,6 +10,10 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 temper-py-bridge = { path = "../temper-py-bridge", optional = true }
+# BundleAnalyzer uses the canonical router-v6 net classification kernel.
+# Keep this dependency pure-Rust so the deterministic core remains available
+# to the wasm/unit-test tiers.
+temper-io-types = { path = "../temper-io-types", default-features = false }
 rand = "0.8"
 # `extension-module` is deliberately NOT a Cargo feature here -- it is
 # supplied by the maturin build alone (`[tool.maturin] features = ["python",

@@ -437,6 +437,48 @@ def test_empty_nets():
     assert manifest.unbundled_net_indices == []
 
 
+def test_analyze_delegates_manifest_decisions_to_rust(monkeypatch):
+    """The production path delegates grouping and records to Rust."""
+    nets = [MockNet("SIG_A"), MockNet("SIG_B")]
+    analyzer = BundleAnalyzer(nets, {})
+    calls = []
+
+    def fake_rust_manifest(*args):
+        calls.append(args)
+        return ([(0, [0, 1], None, "signal", False, False, [])], [(0, 0), (1, 0)], [])
+
+    monkeypatch.setattr(
+        "temper_placer.router_v6.bundle_analyzer._tg.analyze_bundle_manifest_py",
+        fake_rust_manifest,
+    )
+    manifest = analyzer.analyze()
+
+    assert len(calls) == 1
+    assert calls[0][0] == ["SIG_A", "SIG_B"]
+    assert manifest.bundle_id_for_net == {0: 0, 1: 0}
+    assert manifest.bundles[0].net_indices == [0, 1]
+
+
+def test_single_layer_mode_is_forwarded_to_rust_and_restored():
+    """Rust classification retains router_v6's process-local mode contract."""
+    from temper_placer.router_v6.net_classification import (
+        get_single_layer_mode,
+        set_single_layer_mode,
+    )
+
+    previous = get_single_layer_mode()
+    try:
+        set_single_layer_mode(True)
+        analyzer = BundleAnalyzer([MockNet("AC_L"), MockNet("SIG_A")], {})
+        assert analyzer._compute_type_signature(analyzer.nets[0]).net_class == "signal"
+        manifest = analyzer.analyze()
+    finally:
+        set_single_layer_mode(previous)
+
+    assert manifest.bundles[0].net_indices == [0, 1]
+    assert manifest.bundles[0].type_signature.net_class == "signal"
+
+
 # ---------------------------------------------------------------------------
 # T-U1-8: Jaccard boundary
 # ---------------------------------------------------------------------------

@@ -337,208 +337,117 @@ class BundleAnalyzer:
         return intersection / union
 
     def _compute_type_signature(self, net) -> TypeSignature:
-        """Compute the constraint-type signature for a net.
-
-        See ``TypeSignature``'s own docstring (2026-08-07) for why this
-        keys on ``safety_category`` (design-rule-authoritative AC/HV/LV
-        isolation tier) + ``net_class`` (coarse name-pattern bucket) +
-        diff-pair status, rather than exact trace_width/clearance/
-        pin_layer_set as before.
-        """
-        from temper_placer.router_v6.net_classification import classify_net_type
-
-        net_class = classify_net_type(net.name)
-        has_diff_pair = net.name in self._diff_pair_net_names
+        """Compatibility adapter for direct callers; Rust owns classification."""
+        from temper_placer.router_v6.net_classification import get_single_layer_mode
 
         safety_category: str | None = None
         if self.design_rules:
             rule = self.design_rules.get_rules_for_net(net.name)  # type: ignore[attr-defined]
             safety_category = getattr(rule, "safety_category", None)
-
+        safety, net_class, has_diff_pair = _tg.bundle_type_signature_py(
+            net.name,
+            safety_category,
+            net.name in self._diff_pair_net_names,
+            get_single_layer_mode(),
+        )
         return TypeSignature(
-            safety_category=safety_category,
+            safety_category=safety,
             net_class=net_class,
             has_diff_pair=has_diff_pair,
         )
 
     def analyze(self) -> BundleManifest:
-        """Run the full bundle analysis and return a BundleManifest."""
+        """Run the full bundle analysis and return a BundleManifest.
+
+        Pad resolution and shapely footprint construction remain the narrow
+        Python compatibility seam.  Rust owns every deterministic analysis
+        decision: v6 type signatures, edge-cover collection, Jaccard graph,
+        diff-pair handling, connected components, IDs/order, and manifest
+        records.  The dataclass construction below is deliberately only an
+        adapter for the established Python-facing API.
+        """
         n = len(self.nets)
         if n == 0:
             return BundleManifest()
 
-        # Compute per-net type signatures and edge covers
-        net_signatures: list[TypeSignature] = []
-        net_edge_covers: list[frozenset[str]] = []
+        # Python resolves mutable PCB objects and retains the legacy shapely
+        # footprint field.  Rust receives only immutable primitive records.
         net_footprints: list[Polygon] = []
-
         for net in self.nets:
-            sig = self._compute_type_signature(net)
-            net_signatures.append(sig)
             footprint = self._compute_geometric_footprint(net)
             net_footprints.append(footprint)
-            net_edge_covers.append(self._compute_covered_edges(footprint))
+        rings = [
+            [] if footprint.is_empty else list(footprint.exterior.coords)
+            for footprint in net_footprints
+        ]
+        safety_categories: list[str | None] = []
+        for net in self.nets:
+            safety_category = None
+            if self.design_rules:
+                rule = self.design_rules.get_rules_for_net(net.name)  # type: ignore[attr-defined]
+                safety_category = getattr(rule, "safety_category", None)
+            safety_categories.append(safety_category)
+        diff_pairs = [
+            (dp.p_net, dp.n_net, dp.base_name)
+            for dp in self.diff_pairs
+        ]
+        from temper_placer.router_v6.net_classification import get_single_layer_mode
 
-        # Group by type signature
-        sig_groups: dict[TypeSignature, list[int]] = {}
-        for i, sig in enumerate(net_signatures):
-            sig_groups.setdefault(sig, []).append(i)
+        self._build_edge_index()
+        assert self._edge_ids is not None
+        mids_x, mids_y = self._mids_x, self._mids_y
+        # The pinned differential oracle overrides the edge-index builder
+        # with its verbatim STRtree implementation.  Recover its immutable
+        # point coordinates only for that test-only shape; production always
+        # uses the midpoint arrays built above.
+        if len(mids_x) != len(self._edge_ids) and hasattr(self, "_edge_points"):
+            points = self._edge_points  # type: ignore[attr-defined]
+            mids_x = [point.x for point in points]
+            mids_y = [point.y for point in points]
+        records, id_pairs, unbundled = _tg.analyze_bundle_manifest_py(
+            [net.name for net in self.nets],
+            safety_categories,
+            diff_pairs,
+            rings,
+            self._edge_ids.tolist(),
+            mids_x,
+            mids_y,
+            self.jaccard_threshold,
+            get_single_layer_mode(),
+        )
 
-        # Within each type-signature group, partition by geometric overlap
-        bundles = {}
-        bundle_id_for_net: dict[int, int] = {}
-        unbundled: list[int] = []
-        next_bundle_id = 0
-
-        for sig, net_indices in sig_groups.items():
-            if len(net_indices) == 1:
-                # Singleton: cannot bundle
-                ni = net_indices[0]
-                unbundled.append(ni)
-                continue
-
-            # Detect diff-pair nets in this group
-            diff_pair_nets_in_group: set[int] = set()
-            for ni in net_indices:
-                net_name = self.nets[ni].name
-                if net_name in self._diff_pair_net_names:
-                    diff_pair_nets_in_group.add(ni)
-
-            # KD6: Diff-pair nets form their own 2-net bundles
-            # Group diff-pair nets and non-diff-pair nets separately
-            paired_diff_nets: list[tuple[int, int]] = []
-            remaining_diff_nets: set[int] = set()
-            remaining_non_diff_nets: list[int] = []
-
-            for ni in net_indices:
-                if ni in diff_pair_nets_in_group:
-                    remaining_diff_nets.add(ni)
-                else:
-                    remaining_non_diff_nets.append(ni)
-
-            # Match diff pairs
-            diff_pair_by_name: dict[str, tuple[str, str]] = {}
-            for dp in self.diff_pairs:
-                diff_pair_by_name[dp.base_name] = (dp.p_net, dp.n_net)
-
-            matched_pairs: set[str] = set()
-            for dp in self.diff_pairs:
-                base = dp.base_name
-                if base in matched_pairs:
-                    continue
-                p_idx = self._net_to_idx.get(dp.p_net)
-                n_idx = self._net_to_idx.get(dp.n_net)
-                if (
-                    p_idx is not None
-                    and n_idx is not None
-                    and p_idx in remaining_diff_nets
-                    and n_idx in remaining_diff_nets
-                ):
-                    paired_diff_nets.append((p_idx, n_idx))
-                    remaining_diff_nets.discard(p_idx)
-                    remaining_diff_nets.discard(n_idx)
-                    matched_pairs.add(base)
-
-            # Create bundles for diff pairs (each pair = one bundle)
-            for p_idx, n_idx in paired_diff_nets:
-                sorted_nets = sorted([p_idx, n_idx])
-                # Use combined footprint.  KEPT LINE: the combined footprint
-                # only populates `geometric_footprint`, a field with zero
-                # production consumers (the pipeline serializes only
-                # bundle_id/net_indices/constraint_types/is_diff_pair), so
-                # the union stays in shapely -- see the module docstring.
-                combined = net_footprints[p_idx]
+        bundles: dict[int, BundleClass] = {}
+        for (
+            bundle_id,
+            indices,
+            safety_category,
+            net_class,
+            signature_has_diff_pair,
+            is_diff_pair,
+            constraint_types,
+        ) in records:
+            combined = net_footprints[indices[0]]
+            for idx in indices[1:]:
                 with contextlib.suppress(Exception):
-                    combined = combined.union(net_footprints[n_idx])
-                if isinstance(combined, MultiPoint):
-                    combined = combined.convex_hull
-
-                bundles[next_bundle_id] = BundleClass(
-                    bundle_id=next_bundle_id,
-                    net_indices=sorted_nets,
-                    type_signature=sig,
-                    geometric_footprint=combined
-                    if isinstance(combined, Polygon)
-                    else net_footprints[p_idx],
-                    constraint_types=frozenset({"safety", "performance"}),
-                    is_diff_pair=True,
-                )
-                for ni in sorted_nets:
-                    bundle_id_for_net[ni] = next_bundle_id
-                next_bundle_id += 1
-
-            # Unmatched diff-pair nets go into non-diff-pair pool
-            remaining_non_diff_nets.extend(remaining_diff_nets)
-            remaining_non_diff_nets.sort()
-
-            # Cluster remaining non-diff-pair nets by geometric overlap (Jaccard)
-            if not remaining_non_diff_nets:
-                continue
-
-            # Greedy clustering: build connected components via Jaccard > threshold
-            # Each component becomes a bundle
-            adjacency: dict[int, set[int]] = {ni: set() for ni in remaining_non_diff_nets}
-            for i in range(len(remaining_non_diff_nets)):
-                for j in range(i + 1, len(remaining_non_diff_nets)):
-                    ni = remaining_non_diff_nets[i]
-                    nj = remaining_non_diff_nets[j]
-                    jac = self._jaccard(net_edge_covers[ni], net_edge_covers[nj])
-                    if jac > self.jaccard_threshold:
-                        adjacency[ni].add(nj)
-                        adjacency[nj].add(ni)
-
-            visited: set[int] = set()
-            for ni in remaining_non_diff_nets:
-                if ni in visited:
-                    continue
-                # BFS to find connected component
-                component: list[int] = []
-                stack = [ni]
-                while stack:
-                    node = stack.pop()
-                    if node in visited:
-                        continue
-                    visited.add(node)
-                    component.append(node)
-                    for neighbor in adjacency.get(node, set()):
-                        if neighbor not in visited:
-                            stack.append(neighbor)
-
-                component.sort()
-                if len(component) == 1:
-                    unbundled.append(component[0])
-                else:
-                    # Compute combined footprint.  KEPT LINE: the union
-                    # output only populates the dead `geometric_footprint`
-                    # field (see the diff-pair kept line above).
-                    combined_fp = None
-                    for idx in component:
-                        fp = net_footprints[idx]
-                        if combined_fp is None:
-                            combined_fp = fp
-                        else:
-                            with contextlib.suppress(Exception):
-                                combined_fp = combined_fp.union(fp)
-                    if combined_fp is None or not isinstance(combined_fp, Polygon):
-                        combined_fp = Polygon()
-
-                    bundles[next_bundle_id] = BundleClass(
-                        bundle_id=next_bundle_id,
-                        net_indices=component,
-                        type_signature=sig,
-                        geometric_footprint=combined_fp,
-                        constraint_types=frozenset(),
-                        is_diff_pair=False,
-                    )
-                    for ni in component:
-                        bundle_id_for_net[ni] = next_bundle_id
-                    next_bundle_id += 1
-
-        # Sort bundles by bundle_id (which is already in order of first net)
-        unbundled.sort()
-
+                    combined = combined.union(net_footprints[idx])
+            if isinstance(combined, MultiPoint):
+                combined = combined.convex_hull
+            if not isinstance(combined, Polygon):
+                combined = Polygon()
+            bundles[bundle_id] = BundleClass(
+                bundle_id=bundle_id,
+                net_indices=list(indices),
+                type_signature=TypeSignature(
+                    safety_category=safety_category,
+                    net_class=net_class,
+                    has_diff_pair=signature_has_diff_pair,
+                ),
+                geometric_footprint=combined,
+                constraint_types=frozenset(constraint_types),
+                is_diff_pair=is_diff_pair,
+            )
         return BundleManifest(
-            bundles={bid: bundles[bid] for bid in sorted(bundles)},
-            bundle_id_for_net=dict(sorted(bundle_id_for_net.items())),
-            unbundled_net_indices=unbundled,
+            bundles=bundles,
+            bundle_id_for_net=dict(id_pairs),
+            unbundled_net_indices=list(unbundled),
         )
