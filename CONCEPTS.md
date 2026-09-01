@@ -48,6 +48,11 @@ for candidates that survive earlier vetoes, evaluated against the applicable
 independent safety, connectivity, mechanical, and DRC gates before any
 production-board change is allowed.
 
+A candidate inherits only the authority of the stage it passed. In particular,
+a clearance/creepage prefilter result is neither route-ready nor a complete
+hard-veto survivor; those labels require the later materialized connectivity,
+mechanical, containment, safety-signature, and DRC verdicts.
+
 Its reported denominator includes only candidates produced by a validated
 family and authoritative measurement instruments; a calibration run that uses
 the wrong coordinate convention or offers no physically admissible option is

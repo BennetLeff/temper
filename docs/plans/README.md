@@ -19,7 +19,7 @@ uncovered while re-checking a plan that reads as finished but is half-landed.
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*202 plan documents. Generated from frontmatter.*
+*203 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|
@@ -27,7 +27,7 @@ uncovered while re-checking a plan that reads as finished but is half-landed.
 | `completed` | 132 | Deliverables landed. |
 | `superseded` | 9 | Replaced by a later plan or by STRATEGY.md. |
 | `draft` | 12 | -- |
-| *(no frontmatter)* | 13 | Legacy documents predating the plan format. |
+| *(no frontmatter)* | 14 | Legacy documents predating the plan format. |
 
 **Active plans (36):**
 

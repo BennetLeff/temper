@@ -95,7 +95,7 @@ fn board_topology_snapshot(
     let mut adjacency: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
     let mut selv_tracks = BTreeSet::new();
     let mut selv_vias = BTreeSet::new();
-    for trace in &board.trace_items {
+    for (trace_ordinal, trace) in board.trace_items.iter().enumerate() {
         match trace {
             RawTraceItem::Segment {
                 start,
@@ -125,7 +125,7 @@ fn board_topology_snapshot(
                     .is_some_and(|name| selv_nets.contains(name))
                 {
                     selv_tracks.insert(format!(
-                        "segment:{net_number}:{layer}:{:.6}:{:.6}:{:.6}:{:.6}:{:.6}",
+                        "segment:{trace_ordinal}:{net_number}:{layer}:{:.6}:{:.6}:{:.6}:{:.6}:{:.6}",
                         start_point[0],
                         start_point[1],
                         end_point[0],
@@ -158,7 +158,7 @@ fn board_topology_snapshot(
                     .is_some_and(|name| selv_nets.contains(name))
                 {
                     selv_vias.insert(format!(
-                        "via:{net_number}:{}:{:.6}:{:.6}:{:.6}:{:.6}",
+                        "via:{trace_ordinal}:{net_number}:{}:{:.6}:{:.6}:{:.6}:{:.6}",
                         layers.join("/"),
                         point[0],
                         point[1],
@@ -186,6 +186,7 @@ fn board_topology_snapshot(
     let mut net41_pad_ids = BTreeSet::new();
     let mut net41_pad_positions = BTreeMap::new();
     let mut selv_pads = BTreeSet::new();
+    let mut pad_occurrences = BTreeMap::new();
     for footprint in &board.footprints {
         let reference = footprint_reference(footprint).unwrap_or("");
         for pad in &footprint.pads {
@@ -195,13 +196,21 @@ fn board_topology_snapshot(
             let point = pad_world_position(footprint, pad);
             let pad_id = format!("{reference}.{}", pad.number);
             if net_number.as_f64() as i64 == 41 {
-                net41_pad_ids.insert(pad_id.clone());
+                if !net41_pad_ids.insert(pad_id.clone()) {
+                    return Err(format!(
+                        "production net 41 duplicated pad identity {pad_id}"
+                    ));
+                }
                 net41_pad_positions.insert(pad_id.clone(), point);
                 adjacency.entry(point_key(point)).or_default();
             }
             if selv_nets.contains(net_name.as_str()) {
+                let occurrence = pad_occurrences
+                    .entry((reference.to_string(), pad.number.clone()))
+                    .and_modify(|value| *value += 1)
+                    .or_insert(1usize);
                 selv_pads.insert(format!(
-                    "pad:{pad_id}:{net_name}:{:.6}:{:.6}:{}",
+                    "pad:{pad_id}#{occurrence}:{net_name}:{:.6}:{:.6}:{}",
                     point[0],
                     point[1],
                     pad.layers.join("/")
@@ -211,7 +220,7 @@ fn board_topology_snapshot(
     }
     let mut selv_zones = BTreeSet::new();
     let mut net41_zone_count = 0;
-    for zone in &board.zones {
+    for (zone_ordinal, zone) in board.zones.iter().enumerate() {
         if zone.net_name.as_deref() == net_names.get(&41).copied() {
             net41_zone_count += 1;
         }
@@ -227,7 +236,7 @@ fn board_topology_snapshot(
                 .map(|point| [point.x.as_f64(), point.y.as_f64()])
                 .collect();
             selv_zones.insert(format!(
-                "zone:{}:{}:{}",
+                "zone:{zone_ordinal}:{}:{}:{}",
                 zone.net_name.as_deref().unwrap_or(""),
                 zone.layers.join("/"),
                 candidate_digest(&polygon)?
@@ -322,6 +331,30 @@ fn exact_unique_strings(value: &Value, pointer: &str, expected: &[&str]) -> Resu
     Ok(())
 }
 
+fn exact_strings(value: &Value, pointer: &str, expected: &[&str]) -> Result<(), String> {
+    let rows = array(value, pointer)?;
+    if rows.len() != expected.len()
+        || rows
+            .iter()
+            .zip(expected)
+            .any(|(actual, expected)| actual.as_str() != Some(*expected))
+    {
+        return Err(format!("{pointer} changed or is out of order"));
+    }
+    Ok(())
+}
+
+fn f64_array(value: &Value, pointer: &str) -> Result<Vec<f64>, String> {
+    array(value, pointer)?
+        .iter()
+        .map(|item| {
+            item.as_f64()
+                .filter(|number| number.is_finite())
+                .ok_or_else(|| format!("{pointer} must contain finite numbers"))
+        })
+        .collect()
+}
+
 fn validate_basis_authorization(basis: &Value) -> Result<(), String> {
     if string(basis, "/authorization/scope")? != "bounded-scratch-screening-and-routing-only"
         || basis
@@ -342,6 +375,77 @@ fn validate_basis_authorization(basis: &Value) -> Result<(), String> {
     Ok(())
 }
 
+fn validate_design_basis_contract(
+    basis: &Value,
+    manifest_sha256: &str,
+    receipt_sha256: &str,
+) -> Result<(), String> {
+    if string(basis, "/predecessor/manifest_sha256")? != manifest_sha256
+        || string(basis, "/predecessor/receipt_sha256")? != receipt_sha256
+        || string(basis, "/predecessor/status")? != "stopped-indeterminate"
+        || string(basis, "/predecessor/placement_selector")?
+            != "one row per predecessor_placement_id at east_shift_mm == 4.0"
+        || usize_at(basis, "/predecessor/placement_count")? != 60
+        || usize_at(basis, "/predecessor/revalidated_count")? != 60
+    {
+        return Err("design basis has stale or incomplete predecessor authority".into());
+    }
+    exact_strings(
+        basis,
+        "/fixed_copper_categories",
+        &[
+            "all non-net-41 pads",
+            "all non-net-41 tracks",
+            "all non-net-41 vias",
+            "all zones",
+        ],
+    )?;
+    exact_strings(
+        basis,
+        "/authority_roles",
+        &[
+            "clearance.hv_lv.project.target",
+            "creepage.hv_lv.pd3.production",
+        ],
+    )?;
+    if basis.pointer("/current_capacity/width_mm") != Some(&json!(0.5))
+        || string(basis, "/current_capacity/copper_layer")? != "In3.Cu"
+        || basis.pointer("/current_capacity/via_diameter_mm") != Some(&json!(0.9))
+        || basis.pointer("/current_capacity/via_drill_mm") != Some(&json!(0.3))
+        || usize_at(basis, "/necessary_bound/placement_template_pairs")? != 720
+        || usize_at(basis, "/necessary_bound/selv_pads_per_placement")? != 19
+        || string(basis, "/necessary_bound/method")?
+            != "Rust pad-to-capsule distance over every LV_CONTROL pad intersecting In3.Cu/all-copper for all 60 predecessor placements and all 12 corridor/portal templates at the admitted 122.64 mm endpoint column"
+        || basis.pointer("/necessary_bound/minimum_straight_line_selv_gap_mm") != Some(&json!(12.9))
+        || basis.pointer("/necessary_bound/maximum_straight_line_selv_gap_mm") != Some(&json!(15.4))
+        || basis.pointer("/necessary_bound/required_clearance_mm") != Some(&json!(6.0))
+        || basis.pointer("/necessary_bound/required_creepage_mm") != Some(&json!(12.6))
+        || usize_at(basis, "/necessary_bound/potentially_feasible_pairs")? != 720
+        || basis.pointer("/necessary_bound/admitted_endpoint_x_mm") != Some(&json!([122.64]))
+        || usize_at(
+            basis,
+            "/necessary_bound/unbounded_candidates_requiring_full_screening",
+        )? != 2160
+        || string(basis, "/necessary_bound/closest_relationship")?
+            != "J1.1 to the vertical corridor segment"
+        || string(basis, "/necessary_bound/interpretation")?
+            != "A surface path cannot be shorter than its straight-line endpoint separation, so this necessary bound proves one complete 720-candidate endpoint column remains eligible and satisfies the plan's at-least-one-template admission rule. It does not claim the other 2,160 candidates pass this bound; every candidate requires the full scratch screen, and this is not a routed-board safety verdict."
+    {
+        return Err("design basis weakened its capacity or necessary-bound contract".into());
+    }
+    exact_strings(
+        basis,
+        "/limitations",
+        &[
+            "Current-edition IEC 60335-1 and IEC 60335-2-6 review remains required.",
+            "The bound is an admission test; every materialized survivor still requires complete SELV, mechanics, connectivity, containment, and KiCad DRC vetoes.",
+            "No enclosure, connector access, new via span, layer change, or manufacturing-slot authority is granted.",
+            "The production predecessor is disconnected at C7.1; this campaign replaces the full route from C7.1 and must prove connectivity before any promotion.",
+        ],
+    )?;
+    Ok(())
+}
+
 pub fn authority_digest_without_receipts(declaration: &Value) -> Result<String, String> {
     let mut core = declaration.clone();
     let object = core
@@ -352,48 +456,56 @@ pub fn authority_digest_without_receipts(declaration: &Value) -> Result<String, 
     candidate_digest(&core)
 }
 
-pub fn validate_declaration(
-    declaration_json: &str,
-    basis_json: &str,
-    board_text: &str,
-    predecessor_receipt_json: &str,
-    predecessor_manifest_json: &str,
-    domain_manifest_text: &str,
-    netlist_text: &str,
-    kicad_dru_text: &str,
-    candidate_set_json: &str,
-) -> Result<Value, String> {
-    let declaration: Value = serde_json::from_str(declaration_json)
+pub struct DeclarationInputs<'a> {
+    pub declaration_json: &'a str,
+    pub basis_json: &'a str,
+    pub board_text: &'a str,
+    pub predecessor_receipt_json: &'a str,
+    pub predecessor_manifest_json: &'a str,
+    pub domain_manifest_text: &'a str,
+    pub netlist_text: &'a str,
+    pub kicad_dru_text: &'a str,
+    pub candidate_set_json: &'a str,
+}
+
+pub fn validate_declaration(inputs: &DeclarationInputs<'_>) -> Result<Value, String> {
+    let declaration: Value = serde_json::from_str(inputs.declaration_json)
         .map_err(|error| format!("invalid declaration JSON: {error}"))?;
-    let basis: Value = serde_json::from_str(basis_json)
+    let basis: Value = serde_json::from_str(inputs.basis_json)
         .map_err(|error| format!("invalid design-basis JSON: {error}"))?;
-    let predecessor_receipt: Value = serde_json::from_str(predecessor_receipt_json)
+    let predecessor_receipt: Value = serde_json::from_str(inputs.predecessor_receipt_json)
         .map_err(|error| format!("invalid predecessor receipt JSON: {error}"))?;
-    let predecessor_manifest: Value = serde_json::from_str(predecessor_manifest_json)
+    let predecessor_manifest: Value = serde_json::from_str(inputs.predecessor_manifest_json)
         .map_err(|error| format!("invalid predecessor manifest JSON: {error}"))?;
-    let candidate_set: Value = serde_json::from_str(candidate_set_json)
+    let candidate_set: Value = serde_json::from_str(inputs.candidate_set_json)
         .map_err(|error| format!("invalid candidate-set JSON: {error}"))?;
 
     if string(&declaration, "/schema_version")? != DECLARATION_SCHEMA
         || string(&declaration, "/status")? != "declared"
         || string(&basis, "/schema_version")? != BASIS_SCHEMA
+        || string(&basis, "/status")? != "authorized"
+        || string(&basis, "/author_role")? != "pcb-designer"
     {
         return Err("unsupported declaration, lifecycle status, or design-basis schema".into());
     }
     if string(&predecessor_receipt, "/status")? != "stopped-indeterminate"
         || string(&declaration, "/predecessor/relation")? != "new-design-hypothesis"
         || string(&declaration, "/predecessor/accepted_status")? != "stopped-indeterminate"
+        || declaration
+            .pointer("/predecessor/exhaustion_claimed")
+            .and_then(Value::as_bool)
+            != Some(false)
     {
         return Err("predecessor does not authorize this non-exhaustive successor family".into());
     }
 
-    let board_sha256 = crate::sha256(board_text.as_bytes());
-    let basis_sha256 = crate::sha256(basis_json.as_bytes());
-    let receipt_sha256 = crate::sha256(predecessor_receipt_json.as_bytes());
-    let manifest_sha256 = crate::sha256(predecessor_manifest_json.as_bytes());
-    let domain_sha256 = crate::sha256(domain_manifest_text.as_bytes());
-    let netlist_sha256 = crate::sha256(netlist_text.as_bytes());
-    let kicad_dru_sha256 = crate::sha256(kicad_dru_text.as_bytes());
+    let board_sha256 = crate::sha256(inputs.board_text.as_bytes());
+    let basis_sha256 = crate::sha256(inputs.basis_json.as_bytes());
+    let receipt_sha256 = crate::sha256(inputs.predecessor_receipt_json.as_bytes());
+    let manifest_sha256 = crate::sha256(inputs.predecessor_manifest_json.as_bytes());
+    let domain_sha256 = crate::sha256(inputs.domain_manifest_text.as_bytes());
+    let netlist_sha256 = crate::sha256(inputs.netlist_text.as_bytes());
+    let kicad_dru_sha256 = crate::sha256(inputs.kicad_dru_text.as_bytes());
     for (pointer, actual) in [
         ("/production_board_sha256", board_sha256.as_str()),
         ("/design_basis_sha256", basis_sha256.as_str()),
@@ -424,7 +536,8 @@ pub fn validate_declaration(
         return Err("design basis is stale or overclaims its authorization".into());
     }
     validate_basis_authorization(&basis)?;
-    let live_authority = crate::isolation_authority::authority_contract()?;
+    validate_design_basis_contract(&basis, &manifest_sha256, &receipt_sha256)?;
+    let live_authority = crate::safety_value_authority::authority_contract()?;
     if string(&declaration, "/topology_authority_digest")?
         != live_authority.topology_authority_digest
     {
@@ -449,7 +562,7 @@ pub fn validate_declaration(
             ));
         }
     }
-    let topology = board_topology_snapshot(board_text, domain_manifest_text)?;
+    let topology = board_topology_snapshot(inputs.board_text, inputs.domain_manifest_text)?;
     if topology.net41_segment_count != 15
         || topology.net41_via_count != 1
         || topology.net41_zone_count != 0
@@ -495,6 +608,77 @@ pub fn validate_declaration(
         "/selv_denominator/object_categories",
         &["pads", "tracks", "vias", "zones"],
     )?;
+    exact_strings(
+        &declaration,
+        "/family/ordering",
+        &[
+            "predecessor_placement_id",
+            "endpoint_x_mm",
+            "corridor_x_mm",
+            "entry_y_mm",
+        ],
+    )?;
+    if string(&declaration, "/family/placement_selector")?
+        != "one row per predecessor_placement_id at east_shift_mm == 4.0"
+    {
+        return Err("corridor family changed its predecessor selector".into());
+    }
+    exact_strings(
+        &declaration,
+        "/screening/hard_vetoes",
+        &[
+            "clearance",
+            "creepage",
+            "complete_selv_denominator",
+            "new_safety_signature",
+            "worsened_safety_signature",
+            "connectivity",
+            "containment",
+            "body_overlap",
+            "courtyard_overlap",
+            "drc_cap",
+            "drc_hard_rule",
+        ],
+    )?;
+    exact_strings(
+        &declaration,
+        "/screening/ranking",
+        &[
+            "descending minimum(clearance_margin, creepage_margin)",
+            "descending clearance",
+            "descending creepage",
+            "ascending route_length",
+            "ascending canonical_candidate_id",
+        ],
+    )?;
+    if usize_at(&declaration, "/screening/route_first_survivors")? != 12
+        || usize_at(&declaration, "/screening/promotion_budget")? != 1
+        || declaration
+            .pointer("/screening/retain_raw_measurements")
+            .and_then(Value::as_bool)
+            != Some(true)
+        || declaration
+            .pointer("/screening/require_role_value_source_attribution")
+            .and_then(Value::as_bool)
+            != Some(true)
+        || declaration
+            .pointer("/selv_denominator/empty_is_error")
+            .and_then(Value::as_bool)
+            != Some(true)
+    {
+        return Err("corridor screening policy is incomplete or weakened".into());
+    }
+    if usize_at(&declaration, "/route/net_index")? != 41
+        || string(&declaration, "/route/net_name")? != "discharge.r_snub1-p2"
+        || declaration.pointer("/route/existing_endpoints") != Some(&json!(["C7.1", "R14.2"]))
+        || string(&declaration, "/route/existing_via/type")? != "blind"
+        || declaration.pointer("/route/existing_via/diameter_mm") != Some(&json!(0.9))
+        || declaration.pointer("/route/existing_via/drill_mm") != Some(&json!(0.3))
+        || declaration.pointer("/route/existing_via/span") != Some(&json!(["In3.Cu", "F.Cu"]))
+        || usize_at(&declaration, "/route/existing_zone_count")? != 0
+    {
+        return Err("net-41 route identity or current-capacity policy changed".into());
+    }
     exact_unique_strings(
         &declaration,
         "/allowed_mutations",
@@ -540,7 +724,7 @@ pub fn validate_declaration(
     let mut object_lines = BTreeMap::new();
     let mut segment_count = 0;
     let mut zone_count = 0;
-    for line in board_text.lines() {
+    for line in inputs.board_text.lines() {
         if line.contains("(segment") && line.contains("(net 41)") {
             segment_count += 1;
         }
@@ -590,17 +774,25 @@ pub fn validate_declaration(
         return Err("net-41 unexpectedly gained a zone".into());
     }
 
-    let placements: BTreeSet<_> = predecessor_manifest
+    let selected_rows = predecessor_manifest
         .pointer("/results")
         .and_then(Value::as_array)
-        .ok_or_else(|| "predecessor manifest has no results".to_string())?
+        .ok_or_else(|| "predecessor manifest has no results".to_string())?;
+    let mut placements = BTreeMap::new();
+    for row in selected_rows
         .iter()
         .filter(|row| row.pointer("/east_shift_mm").and_then(Value::as_f64) == Some(4.0))
-        .filter_map(|row| {
-            row.pointer("/predecessor_placement_id")
-                .and_then(Value::as_str)
-        })
-        .collect();
+    {
+        let placement_id = string(row, "/predecessor_placement_id")?;
+        let j1 = f64_array(row, "/placements/J1")?;
+        if j1.len() < 2
+            || placements
+                .insert(placement_id.to_string(), [j1[0], j1[1]])
+                .is_some()
+        {
+            return Err("predecessor placement identities or J1 geometry are duplicated".into());
+        }
+    }
     if placements.len() != 60
         || usize_at(&declaration, "/family/predecessor_placement_count")? != 60
     {
@@ -646,7 +838,111 @@ pub fn validate_declaration(
     if generated_hashes.len() != 3 || generated_hashes != expected_generated_hashes {
         return Err("candidate set has stale or duplicated generated-input identities".into());
     }
-    let candidate_set_digest = candidate_digest(array(&candidate_set, "/candidates")?)?;
+    let generated_hashes: Vec<_> = expected_generated_hashes.into_iter().collect();
+    let generated_hash_values: Vec<_> = generated_hashes
+        .iter()
+        .map(|digest| json!(digest))
+        .collect();
+    if array(&candidate_set, "/generated_input_hashes")? != &generated_hash_values {
+        return Err("candidate set generated-input identities are out of order".into());
+    }
+    let mut endpoint_x_mm = f64_array(&declaration, "/family/endpoint_x_mm")?;
+    let mut corridor_x_mm = f64_array(&declaration, "/family/corridor_x_mm")?;
+    let mut entry_y_mm = f64_array(&declaration, "/family/entry_y_mm")?;
+    endpoint_x_mm.sort_by(f64::total_cmp);
+    corridor_x_mm.sort_by(f64::total_cmp);
+    entry_y_mm.sort_by(f64::total_cmp);
+    let fixed_start: [f64; 2] = serde_json::from_value(
+        declaration
+            .pointer("/family/fixed_start")
+            .cloned()
+            .ok_or_else(|| "candidate family omitted fixed_start".to_string())?,
+    )
+    .map_err(|error| format!("invalid fixed_start: {error}"))?;
+    let endpoint_y_mm = declaration
+        .pointer("/family/endpoint_y_mm")
+        .and_then(Value::as_f64)
+        .ok_or_else(|| "candidate family omitted endpoint_y_mm".to_string())?;
+    let knee_y_mm = declaration
+        .pointer("/family/knee_y_mm")
+        .and_then(Value::as_f64)
+        .ok_or_else(|| "candidate family omitted knee_y_mm".to_string())?;
+    let layer = string(&declaration, "/family/layer")?;
+    let route_width_mm = declaration
+        .pointer("/family/route_width_mm")
+        .and_then(Value::as_f64)
+        .ok_or_else(|| "candidate family omitted route_width_mm".to_string())?;
+    let via_diameter_mm = declaration
+        .pointer("/family/via_diameter_mm")
+        .and_then(Value::as_f64)
+        .ok_or_else(|| "candidate family omitted via_diameter_mm".to_string())?;
+    let via_drill_mm = declaration
+        .pointer("/family/via_drill_mm")
+        .and_then(Value::as_f64)
+        .ok_or_else(|| "candidate family omitted via_drill_mm".to_string())?;
+    let via_span: [String; 2] = serde_json::from_value(
+        declaration
+            .pointer("/family/via_span")
+            .cloned()
+            .ok_or_else(|| "candidate family omitted via_span".to_string())?,
+    )
+    .map_err(|error| format!("invalid via_span: {error}"))?;
+    let declaration_hash = string(&declaration, "/declaration_authority_digest")?;
+    let board_hash = string(&declaration, "/production_board_sha256")?;
+    let authority_hash = string(&declaration, "/topology_authority_digest")?;
+    let mut expected_candidates = Vec::with_capacity(cardinality);
+    for (placement_id, j1_position) in &placements {
+        for endpoint_x in &endpoint_x_mm {
+            for corridor_x in &corridor_x_mm {
+                for entry_y in &entry_y_mm {
+                    let route_points = vec![
+                        fixed_start,
+                        [*corridor_x, *entry_y],
+                        [*corridor_x, knee_y_mm],
+                        [*endpoint_x, endpoint_y_mm],
+                    ];
+                    let identity = (
+                        declaration_hash,
+                        board_hash,
+                        &generated_hashes,
+                        authority_hash,
+                        placement_id,
+                        j1_position,
+                        endpoint_x,
+                        corridor_x,
+                        entry_y,
+                        &route_points,
+                        layer,
+                        route_width_mm,
+                        via_diameter_mm,
+                        via_drill_mm,
+                        &via_span,
+                    );
+                    let digest = candidate_digest(&identity)?;
+                    expected_candidates.push(json!({
+                        "ordinal": expected_candidates.len() + 1,
+                        "candidate_id": format!("NET41-CORRIDOR-{digest}"),
+                        "placement_id": placement_id,
+                        "j1_position": j1_position,
+                        "endpoint_x_mm": endpoint_x,
+                        "corridor_x_mm": corridor_x,
+                        "entry_y_mm": entry_y,
+                        "route_points": route_points,
+                    }));
+                }
+            }
+        }
+    }
+    let candidate_rows = array(&candidate_set, "/candidates")?;
+    if candidate_rows != &expected_candidates {
+        return Err("candidate set does not exactly reconstruct from bound Rust authority".into());
+    }
+    let mut candidate_envelope = candidate_set.clone();
+    candidate_envelope
+        .as_object_mut()
+        .ok_or_else(|| "candidate set must be an object".to_string())?
+        .remove("candidate_set_digest");
+    let candidate_set_digest = candidate_digest(&candidate_envelope)?;
     if string(&candidate_set, "/candidate_set_digest")? != candidate_set_digest
         || string(&declaration, "/candidate_set_digest")? != candidate_set_digest
     {
@@ -690,6 +986,8 @@ fn regional_topology_snapshot_json_py(
 
 #[cfg(feature = "python")]
 #[pyo3::pyfunction]
+#[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, candidate_set_bytes))]
+#[allow(clippy::too_many_arguments)] // stable Python seam mirrors the nine bound evidence inputs
 fn validate_regional_topology_declaration_json_py(
     declaration_bytes: &[u8],
     basis_bytes: &[u8],
@@ -705,19 +1003,20 @@ fn validate_regional_topology_declaration_json_py(
         std::str::from_utf8(bytes)
             .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))
     }
-    validate_declaration(
-        decode(declaration_bytes)?,
-        decode(basis_bytes)?,
-        decode(board_bytes)?,
-        decode(predecessor_receipt_bytes)?,
-        decode(predecessor_manifest_bytes)?,
-        decode(domain_manifest_bytes)?,
-        decode(netlist_bytes)?,
-        decode(kicad_dru_bytes)?,
-        decode(candidate_set_bytes)?,
-    )
-    .and_then(|value| serde_json::to_string(&value).map_err(|error| error.to_string()))
-    .map_err(pyo3::exceptions::PyValueError::new_err)
+    let inputs = DeclarationInputs {
+        declaration_json: decode(declaration_bytes)?,
+        basis_json: decode(basis_bytes)?,
+        board_text: decode(board_bytes)?,
+        predecessor_receipt_json: decode(predecessor_receipt_bytes)?,
+        predecessor_manifest_json: decode(predecessor_manifest_bytes)?,
+        domain_manifest_text: decode(domain_manifest_bytes)?,
+        netlist_text: decode(netlist_bytes)?,
+        kicad_dru_text: decode(kicad_dru_bytes)?,
+        candidate_set_json: decode(candidate_set_bytes)?,
+    };
+    validate_declaration(&inputs)
+        .and_then(|value| serde_json::to_string(&value).map_err(|error| error.to_string()))
+        .map_err(pyo3::exceptions::PyValueError::new_err)
 }
 
 #[cfg(feature = "python")]
@@ -743,6 +1042,23 @@ pub(crate) mod tests {
             candidate_digest(&("a", 1)).unwrap(),
             candidate_digest(&("a", 2)).unwrap()
         );
+    }
+
+    #[cfg_attr(test, test)]
+    fn necessary_bound_cannot_be_inflated_after_repinning() {
+        let mut basis: Value = serde_json::from_str(include_str!(
+            "../../../docs/evidence/net41-route-layer-corridor-20260831/design-basis.json"
+        ))
+        .expect("committed design basis is valid JSON");
+        let manifest_sha256 = string(&basis, "/predecessor/manifest_sha256")
+            .expect("basis binds predecessor manifest")
+            .to_string();
+        let receipt_sha256 = string(&basis, "/predecessor/receipt_sha256")
+            .expect("basis binds predecessor receipt")
+            .to_string();
+        assert!(validate_design_basis_contract(&basis, &manifest_sha256, &receipt_sha256).is_ok());
+        basis["necessary_bound"]["minimum_straight_line_selv_gap_mm"] = json!(99.0);
+        assert!(validate_design_basis_contract(&basis, &manifest_sha256, &receipt_sha256).is_err());
     }
 
     #[cfg_attr(test, test)]
@@ -774,6 +1090,7 @@ pub(crate) mod tests {
     /// anywhere a registry could otherwise live.
     pub const WASM_TESTS: &[(&str, fn())] = &[
         ("regional_topology::tests::candidate_digest_is_content_sensitive", candidate_digest_is_content_sensitive),
+        ("regional_topology::tests::necessary_bound_cannot_be_inflated_after_repinning", necessary_bound_cannot_be_inflated_after_repinning),
         ("regional_topology::tests::production_authorization_is_always_denied", production_authorization_is_always_denied),
     ];
     // --- END generated by scripts/gen_wasm_test_registry.py: tests ---

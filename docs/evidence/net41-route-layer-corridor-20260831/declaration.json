@@ -5,8 +5,8 @@
   "production_board_sha256": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
   "design_basis_sha256": "a731959bebf8d41b3f8dcb56e2bfd45a0013ee66fd56ef36659da01e959054f0",
   "topology_authority_digest": "98a1bce1bb615213c6de07df066fb50bc6f06b65bee68f1690c44fabdeb13c43",
-  "declaration_authority_digest": "b132a864f427e8ca20fd79f991ae2951231167ed282c187100e9e0bd0ca8b16b",
-  "candidate_set_digest": "1223e924c160c76883d0baa7575339c722564217d2e8a724d2853e637c8377cf",
+  "declaration_authority_digest": "325b9e6869217acfa775619625e88776ef97c5a92c85aba068eb07a953c1f025",
+  "candidate_set_digest": "214d4cb08bfdfd35df0da941fdd2cd06f1824c44dabd7cd949617f9b33a67c3b",
   "predecessor": {
     "relation": "new-design-hypothesis",
     "accepted_status": "stopped-indeterminate",
@@ -82,7 +82,7 @@
     "object_categories": ["pads", "tracks", "vias", "zones"],
     "scope": "every board copper object on every exact SELV net in the bound domain manifest",
     "object_counts": {"pads": 240, "tracks": 1798, "vias": 124, "zones": 13},
-    "identity_digest": "08ac978c520af6bf3c3e65ebc598eb9b2e8964d06ee99135aa15fe2067e56626",
+    "identity_digest": "e2ee980ff59b0b23ef5a090768614e41df9bb507c2e060a2268e879b38e80922",
     "empty_is_error": true
   },
   "allowed_mutations": ["J1", "R45", "R58", "R66", "SW1", "U22", "R14", "net41_declared_route"],

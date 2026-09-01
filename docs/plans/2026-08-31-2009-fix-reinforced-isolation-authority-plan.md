@@ -252,7 +252,7 @@ The first successor family is a same-layer In3.Cu dogleg-corridor redesign. It c
 - Cartesian ordering: predecessor placement ID, R14 endpoint x, corridor x, then entry y, all ascending. Cardinality is `60 x 4 x 4 x 3 = 2,880` candidates.
 - Necessary-bound admission: before declaration, replay all 60 predecessor placements against the current production-board hash and compute a conservative best-case envelope for each corridor/portal template against fixed copper, mechanics, current capacity, the 6.0 mm clearance role, and the 12.6 mm creepage role. At least one template envelope must remain potentially feasible; otherwise the family is rejected before identities and declaration authority are frozen.
 - Screening score: only hard-veto survivors rank. Sort by descending worst safety margin `min(clearance_mm - 6.0, creepage_mm - 12.6)`, then descending clearance margin, descending creepage margin, ascending route length, and ascending canonical candidate ID. All inputs use finite millimetres and are retained in the manifest.
-- Screening completeness: the bound v3 screen request carries the full Rust-generated candidate set and must supply one unique measurement row for every declared candidate ID. Missing, extra, substituted, or duplicated rows fail before ranking.
+- Screening completeness: the validated v4 seam accepts raw bound evidence plus one unique measurement row for every internally derived candidate ID. Rust derives and validates the full candidate set in the same transaction before ranking; candidate declarations and validation receipts never cross the caller boundary. Missing, extra, substituted, or duplicated rows fail before ranking.
 - Screening stages: the Rust role-aware scorer emits only a `clearance_creepage_prefilter_subset`. The execution driver must apply the remaining declared connectivity, denominator, containment, overlap, safety-signature, and uncapped-DRC vetoes before naming any route-first survivors.
 - Budgets: screen all 2,880 declared candidates, route the first 12 survivors under the bound screening score (or all survivors when fewer than 12), and promote at most one only in later execution work.
 - Movable authority: J1, R14, R45, R58, R66, SW1, U22, the complete net-41 graph, and affected reconnect copper already owned by the predecessor neighborhood. Fixed authority: K1, U8, board outline, mounting features, unrelated footprints, unrelated copper, and connector access direction.
@@ -297,11 +297,11 @@ The first successor family is a same-layer In3.Cu dogleg-corridor redesign. It c
 
 **Files:**
 
-- Create `packages/temper-design-bundle/src/isolation_authority.rs`
+- Create `packages/temper-design-bundle/src/safety_value_authority.rs`
 - Modify `packages/temper-design-bundle/src/lib.rs`
 - Modify `packages/temper-placer/stubs/temper_design_bundle_python/__init__.pyi`
 - Regenerate `packages/temper-design-bundle/src/wasm_test_registry.rs`
-- Test in `packages/temper-design-bundle/src/isolation_authority.rs`
+- Test in `packages/temper-design-bundle/src/safety_value_authority.rs`
 - Test in `packages/temper-placer/tests/test_isolation_authority_pyo3.py`
 
 **Approach:**

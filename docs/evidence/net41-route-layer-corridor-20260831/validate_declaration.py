@@ -11,7 +11,8 @@ ROOT = Path(__file__).resolve().parents[3]
 EVIDENCE = Path(__file__).resolve().parent
 PREDECESSOR = ROOT / "docs/evidence/r14-hv-domain-refloorplan-20260831"
 
-from temper_placer.validation import regional_topology  # noqa: E402
+import temper_design_bundle_python as design_bundle  # noqa: E402
+import temper_quality_oracle as quality_oracle  # noqa: E402
 
 
 def validate() -> dict[str, object]:
@@ -35,49 +36,23 @@ def validate() -> dict[str, object]:
 
     declaration_bytes = declaration_path.read_bytes()
     declaration = json.loads(declaration_bytes)
-    predecessor = json.loads(manifest_path.read_bytes())
-    placements = {}
-    for row in predecessor["results"]:
-        if row["east_shift_mm"] == 4.0:
-            placement_id = row["predecessor_placement_id"]
-            placements[placement_id] = {
-                "placement_id": placement_id,
-                "j1_position": row["placements"]["J1"][:2],
-            }
-    family = declaration["family"]
-    request = {
-        "schema_version": family["schema_version"],
-        "declaration_hash": declaration["declaration_authority_digest"],
-        "board_hash": declaration["production_board_sha256"],
-        "generated_input_hashes": sorted(declaration["generated_inputs"].values()),
-        "placements": list(placements.values()),
-        "endpoint_x_mm": family["endpoint_x_mm"],
-        "corridor_x_mm": family["corridor_x_mm"],
-        "entry_y_mm": family["entry_y_mm"],
-        "endpoint_y_mm": family["endpoint_y_mm"],
-        "fixed_start": family["fixed_start"],
-        "knee_y_mm": family["knee_y_mm"],
-        "layer": family["layer"],
-        "route_width_mm": family["route_width_mm"],
-        "via_diameter_mm": family["via_diameter_mm"],
-        "via_drill_mm": family["via_drill_mm"],
-        "via_span": family["via_span"],
-        "candidate_budget": family["candidate_budget"],
-    }
+    manifest_bytes = manifest_path.read_bytes()
     candidate_set = json.loads(
-        regional_topology.declare_corridor_candidates_json_py(json.dumps(request))
+        quality_oracle.declare_corridor_candidates_from_evidence_json_py(
+            declaration_bytes, manifest_bytes
+        )
     )
     rust_receipt = json.loads(
-        regional_topology.validate_regional_topology_declaration_json_py(
-            declaration_bytes,
-            basis_path.read_bytes(),
-            board_path.read_bytes(),
-            receipt_path.read_bytes(),
-            manifest_path.read_bytes(),
-            domain_path.read_bytes(),
-            generated_paths["netlist_sha256"].read_bytes(),
-            generated_paths["kicad_dru_sha256"].read_bytes(),
-            json.dumps(candidate_set).encode(),
+        design_bundle.validate_regional_topology_declaration_json_py(
+            declaration_bytes=declaration_bytes,
+            basis_bytes=basis_path.read_bytes(),
+            board_bytes=board_path.read_bytes(),
+            predecessor_receipt_bytes=receipt_path.read_bytes(),
+            predecessor_manifest_bytes=manifest_bytes,
+            domain_manifest_bytes=domain_path.read_bytes(),
+            netlist_bytes=generated_paths["netlist_sha256"].read_bytes(),
+            kicad_dru_bytes=generated_paths["kicad_dru_sha256"].read_bytes(),
+            candidate_set_bytes=json.dumps(candidate_set).encode(),
         )
     )
 

@@ -280,10 +280,10 @@ import ast
 import json
 import re
 import sys
-from hashlib import sha256
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from hashlib import sha256
 from pathlib import Path
-from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -1380,7 +1380,12 @@ def _resolve_reinforced_clearance_authority(
     """
 
     try:
-        if contract_json is None or evaluator is None:
+        if (contract_json is None) != (evaluator is None):
+            raise GateError(
+                "Rust isolation authority transport must provide both contract_json "
+                "and evaluator, or neither"
+            )
+        if contract_json is None:
             import temper_design_bundle_python as rust_authority
 
             contract_json = rust_authority.isolation_authority_contract_json_py()

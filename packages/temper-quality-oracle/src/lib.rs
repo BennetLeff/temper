@@ -996,30 +996,52 @@ fn evaluate_pre_route_candidate_py(
 
 #[cfg(feature = "python")]
 #[pyfunction]
-fn declare_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
-    let request = serde_json::from_str(request_json)
-        .map_err(|error| PyValueError::new_err(error.to_string()))?;
-    let declaration = regional_feasibility::declare_corridor_candidates(request)
-        .map_err(PyValueError::new_err)?;
+fn declare_corridor_candidates_from_evidence_json_py(
+    declaration_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let declaration = regional_feasibility::declare_corridor_candidates_from_evidence(
+        decode(declaration_bytes)?,
+        decode(predecessor_manifest_bytes)?,
+    )
+    .map_err(PyValueError::new_err)?;
     serde_json::to_string(&declaration).map_err(|error| PyValueError::new_err(error.to_string()))
 }
 
 #[cfg(feature = "python")]
 #[pyfunction]
-fn screen_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
-    let request = serde_json::from_str(request_json)
+#[pyo3(signature = (*, declaration_bytes, basis_bytes, board_bytes, predecessor_receipt_bytes, predecessor_manifest_bytes, domain_manifest_bytes, netlist_bytes, kicad_dru_bytes, screening_request_json))]
+#[allow(clippy::too_many_arguments)] // one atomic seam intentionally owns all bound evidence
+fn validate_and_screen_corridor_evidence_json_py(
+    declaration_bytes: &[u8],
+    basis_bytes: &[u8],
+    board_bytes: &[u8],
+    predecessor_receipt_bytes: &[u8],
+    predecessor_manifest_bytes: &[u8],
+    domain_manifest_bytes: &[u8],
+    netlist_bytes: &[u8],
+    kicad_dru_bytes: &[u8],
+    screening_request_json: &str,
+) -> PyResult<String> {
+    fn decode(bytes: &[u8]) -> PyResult<&str> {
+        std::str::from_utf8(bytes).map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+    let request = serde_json::from_str(screening_request_json)
         .map_err(|error| PyValueError::new_err(error.to_string()))?;
-    let verdict =
-        regional_feasibility::screen_corridor_candidates(request).map_err(PyValueError::new_err)?;
-    serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
-}
-
-#[cfg(feature = "python")]
-#[pyfunction]
-fn screen_declared_corridor_candidates_json_py(request_json: &str) -> PyResult<String> {
-    let request = serde_json::from_str(request_json)
-        .map_err(|error| PyValueError::new_err(error.to_string()))?;
-    let verdict = regional_feasibility::screen_declared_corridor_candidates(request)
+    let evidence = regional_feasibility::CorridorEvidenceInputs {
+        declaration_json: decode(declaration_bytes)?,
+        basis_json: decode(basis_bytes)?,
+        board_text: decode(board_bytes)?,
+        predecessor_receipt_json: decode(predecessor_receipt_bytes)?,
+        predecessor_manifest_json: decode(predecessor_manifest_bytes)?,
+        domain_manifest_text: decode(domain_manifest_bytes)?,
+        netlist_text: decode(netlist_bytes)?,
+        kicad_dru_text: decode(kicad_dru_bytes)?,
+    };
+    let verdict = regional_feasibility::validate_and_screen_corridor_evidence(&evidence, request)
         .map_err(PyValueError::new_err)?;
     serde_json::to_string(&verdict).map_err(|error| PyValueError::new_err(error.to_string()))
 }
@@ -1049,9 +1071,14 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_regional_candidate_py, m)?)?;
     m.add_function(wrap_pyfunction!(declare_regional_candidates_py, m)?)?;
     m.add_function(wrap_pyfunction!(evaluate_pre_route_candidate_py, m)?)?;
-    m.add_function(wrap_pyfunction!(declare_corridor_candidates_json_py, m)?)?;
-    m.add_function(wrap_pyfunction!(screen_corridor_candidates_json_py, m)?)?;
-    m.add_function(wrap_pyfunction!(screen_declared_corridor_candidates_json_py, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        declare_corridor_candidates_from_evidence_json_py,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        validate_and_screen_corridor_evidence_json_py,
+        m
+    )?)?;
 
     cluster_f::bindings::register(m)?;
     Ok(())
